@@ -34,6 +34,8 @@ ServerChan、微信、Telegram消息通知服务。 以上功能运行状态可�
 ### 8、WEB UI管理界面
 3000端口访问WEB UI界面
 
+![UI界面](https://github.com/jxxghp/nastool/blob/master/nastool.png)
+
 ## 配置说明：
 Docker镜像：jxxghp/nas-tools:latest
 
