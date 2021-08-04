@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Nas-Tools</title>
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+    <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet">
+	<script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/ace.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/util.js') }}"></script>
+	<style type="text/css" media="screen">
+		#editor {
+			width:100%;
+			height:500px;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="row">
+			<div class="span4">
+				<div class="tabbable">
+					<ul class="nav nav-tabs">
+						<li {% if page=="rmt" %} class="active" {% endif %}><a href="#rmt" data-toggle="tab">qBittorrent转移</a></li>
+						<li {% if page=="msg" %} class="active" {% endif %}><a href="#msg" data-toggle="tab">发送消息</a></li>
+						<li {% if page=="sch" %} class="active" {% endif %}><a href="#sch" data-toggle="tab">定时任务</a></li>
+						<li {% if page=="set" %} class="active" {% endif %}><a href="#set" data-toggle="tab">设置</a></li>
+					</ul>
+					<div class="tab-content">
+						<div class="tab-pane {% if page=='rmt' %} active {% endif %}" id="rmt">
+							<form role="form" action="/do" method="post" id="rmt_form" class="well">
+							  <h4>qBittorrent转移</h4>
+							  <div class="form-group">
+								<label for="rmt_name">名称</label>
+								<input type="text" class="form-control" id="rmt_name" name="rmt_name" placeholder="" value="">
+							  </div>
+							  <div class="form-group">
+								<label for="rmt_path">路径</label>
+								  <select class="form-control" id="rmt_path" name="rmt_path">
+									  <option value ="">全部</option>
+									  {% for path in rmt_paths %}
+										<option value ="{{ path }}">{{ path }}</option>
+									  {% endfor %}
+								  </select>
+							  </div>
+							  <div class="form-group">
+								<label for="rmt_hash">Hash</label>
+								  <select class="form-control" id="rmt_hash" name="rmt_hash">
+									  <option value ="">全部</option>
+									  {% for hash in rmt_hashs %}
+										<option value ="{{ hash.split('|')[1] }}">{{ hash }}</option>
+									  {% endfor %}
+								  </select>
+							  </div>
+							  <div class="form_notice" id="form_send_form_notice"></div>
+								<button id="rmt_btn" type="button" class="btn btn-primary">转移</button>
+							</form>
+							<pre id="rmt_ret" style="display:none"></pre>
+						</div>
+						<div class="tab-pane {% if page=='msg' %} active {% endif %}" id="msg">
+							<form role="form" action="/do" method="post" id="msg_form" class="well">
+							  <h4>消息发送工具</h4>
+							  <div class="form-group">
+								<label for="msg_title">消息标题</label>
+								<input type="text" class="form-control" id="msg_title" name="msg_title" placeholder="必填，最长100字节" value="">
+							  </div>
+							  <div class="form-group">
+								<label for="msg_text">消息内容</label>
+								<div><textarea id="msg_text" name="msg_text" class="form-control" rows="3" placeholder="消息内容，最长1000字节"></textarea></div>
+							  </div>
+							  <div class="form_notice"></div>
+								<button id="msg_btn" type="button" class="btn btn-primary">发送</button>
+							</form>
+							<pre id="msg_ret" style="display:none"></pre>
+						</div>
+						<div class="tab-pane {% if page=='set' %} active {% endif %}" id="set">
+							<form role="form" action="/do" method="post" id="set_form" class="well">
+								<h4>配置文件</h4>
+								<div class="form-group">
+									<div id="editor">{{ config_str }}</div>
+								</div>
+								<button id="set_btn" type="button" class="btn btn-primary">保存</button>
+							</form>
+						</div>
+						<div class="tab-pane {% if page=='sch' %} active {% endif %}" id="sch">
+							<table class="table table-striped">
+							  <caption>定时任务</caption>
+							  <thead>
+								<tr>
+								  <th>名称</th>
+								  <th>周期</th>
+								  <th>操作</th>
+								</tr>
+							  </thead>
+							  <tbody>
+								<tr>
+								  <td>qBittorrent删种</td>
+								  <td>{{ tim_autoremovetorrents }}</td>
+								  <td><button id="sch_btn_autoremovetorrents" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
+								</tr>
+								<tr>
+								  <td>qBittorrent转移</td>
+								  <td>{{ tim_qbtransfer }}</td>
+								  <td><button id="sch_btn_qbtransfer" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
+								</tr>
+								<tr>
+								  <td>iCloud同步</td>
+								  <td>{{ tim_icloudpd }}</td>
+								  <td><button id="sch_btn_icloudpd" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
+								</tr>
+							  	<tr>
+								  <td>热门预告</td>
+								  <td>{{ tim_hottrailers }}</td>
+								  <td><button id="sch_btn_hottrailers" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
+								</tr>
+							  	<tr>
+								  <td>PT签到</td>
+								  <td>{{ tim_ptsignin }}</td>
+								  <td><button id="sch_btn_ptsignin" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
+								</tr>
+							  	<tr>
+								  <td>什么值得买签到</td>
+								  <td>{{ tim_smzdmsignin }}</td>
+								  <td><button id="sch_btn_smzdmsignin" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
+								</tr>
+							  	<tr>
+								  <td>联通营业厅签到</td>
+								  <td>{{ tim_unicomsignin }}</td>
+								  <td><button id="sch_btn_unicomsignin" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
+								</tr>
+							  </tbody>
+							</table>
+							<pre id="sch_ret" style="display:none"></pre>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

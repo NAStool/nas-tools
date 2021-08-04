@@ -1,0 +1,153 @@
+import os
+import sys
+import subprocess
+import time
+
+import pymysql
+import requests
+import bisect
+import settings
+
+
+# 根据IP地址获取位置
+def get_location(ip):
+    url = 'https://sp0.baidu.com/8aQDcjqpAAV3otqbppnN2DJv/api.php?co=&resource_id=6006&t=1529895387942&ie=utf8' \
+          '&oe=gbk&cb=op_aladdin_callback&format=json&tn=baidu&' \
+          'cb=jQuery110203920624944751099_1529894588086&_=1529894588088&query=%s' % ip
+    try:
+        r = requests.get(url)
+        r.encoding = 'gbk'
+        html = r.text
+        c1 = html.split('location":"')[1]
+        c2 = c1.split('","')[0]
+        return c2
+    except requests.exceptions:
+        return ''
+
+
+# 计算文件大小
+def str_filesize(size):
+    d = [(1024 - 1, 'K'), (1024 ** 2 - 1, 'M'), (1024 ** 3 - 1, 'G'), (1024 ** 4 - 1, 'T')]
+    s = [x[0] for x in d]
+    index = bisect.bisect_left(s, size) - 1
+    if index == -1:
+        return str(size)
+    else:
+        b, u = d[index]
+    return str(round(size / (b + 1), 2)) + u
+
+
+# 判断是否为中文
+def is_chinese(word):
+    for ch in word:
+        if '\u4e00' <= ch <= '\u9fff':
+            return True
+    return False
+
+
+# 执地本地命令，返回信息
+def system_exec_command(cmd, timeout=60):
+    try:
+        p = subprocess.Popen(cmd, stderr=subprocess.STDOUT, stdout=subprocess.PIPE, shell=True)
+        t_beginning = time.time()
+        while True:
+            if p.poll() is not None:
+                break
+            seconds_passed = time.time() - t_beginning
+            if timeout and seconds_passed > timeout:
+                p.terminate()
+                raise TimeoutError(cmd, timeout)
+            time.sleep(0.1)
+        result_out = p.stdout.read().decode(encoding='utf8')
+        return '', str(result_out)
+    except Exception as err:
+        return str(err), ''
+
+
+# 连接mysql并执行语句
+def mysql_exec_sql(sql):
+    mysql_flag = settings.get("mysql.mysql_flag").upper()
+    if mysql_flag != "ON":
+        return
+    try:
+        db = pymysql.connect(host=settings.get('mysql.mysql_host'),
+                             port=int(settings.get('mysql.mysql_port')),
+                             db=settings.get('mysql.mysql_db'),
+                             user=settings.get('mysql.mysql_user'),
+                             password=settings.get('mysql.mysql_pw'))
+        # 使用cursor()方法获取操作游标
+        cursor = db.cursor()
+        # 执行sql语句
+        cursor.execute(sql)
+        # 提交到数据库执行
+        db.commit()
+        # 关闭数据库连接
+        cursor.close()
+        db.close()
+        return True
+    except Exception:
+        return False
+
+
+# 获得目录下的媒体文件列表List，按后缀过滤
+def get_dir_files_by_ext(in_path, exts=""):
+    ret_list = []
+    if not os.path.exists(in_path):
+        return []
+    if os.path.isdir(in_path):
+        for root, dirs, files in os.walk(in_path):
+            for file in files:
+                ext = os.path.splitext(file)[-1]
+                if ext in exts:
+                    cur_path = os.path.join(root, file)
+                    if cur_path not in ret_list:
+                        ret_list.append(cur_path)
+    else:
+        ext = os.path.splitext(in_path)[-1]
+        if ext in exts:
+            if in_path not in ret_list:
+                ret_list.append(in_path)
+    return ret_list
+
+
+# 获得目录下的媒体文件列表List，按文件名过滤
+def get_dir_files_by_name(in_path, namestr=""):
+    ret_list = []
+    if not os.path.exists(in_path):
+        return []
+    if os.path.isdir(in_path):
+        for root, dirs, files in os.walk(in_path):
+            for file in files:
+                file_name = os.path.basename(file)
+                if namestr in file_name:
+                    cur_path = os.path.join(root, file)
+                    if cur_path not in ret_list:
+                        ret_list.append(cur_path)
+    else:
+        file_name = os.path.basename(in_path)
+        if namestr in file_name:
+            if in_path not in ret_list:
+                ret_list.append(in_path)
+    return ret_list
+
+
+# cookie字符串解析成字典
+def cookieParse(cookies_str):
+    cookie_dict = {}
+    cookies = cookies_str.split(';')
+
+    for cookie in cookies:
+        cstr = cookie.split('=')
+        cookie_dict[cstr[0]] = cstr[1]
+
+    return cookie_dict
+
+
+# 生成HTTP请求头
+def generateHeader(url):
+    header = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:61.0) Gecko/20100101 Firefox/61.0',
+        'Accept-Language': 'zh-CN',
+        'Referer': url
+    }
+    return header

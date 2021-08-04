@@ -1,0 +1,13 @@
+flask==1.1.4
+requests>=2.21.0
+urllib3>=1.24.2
+paramiko>=2.7.2
+APScheduler>=3.7.0
+tmdbv3api>=1.7.5
+qbittorrent-api>=2021.5.21
+watchdog>=2.1.2
+configparser>=3.5.0
+pymysql>=1.0.2
+autoremove-torrents>=1.5.3
+youtube-dl>=2021.6.6
+icloudpd>=1.7.2

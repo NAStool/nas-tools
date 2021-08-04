@@ -1,0 +1,13 @@
+PT:
+  client: qbittorrent
+  host: http://10.10.10.250:8080
+  username: admin
+  password: password
+  strategies:
+    dsm:
+      seeding_time: 86400
+      excluded_status: Downloading
+      seed_size:
+        limit: 500
+        action: remove-old-seeds
+  delete_data: true
