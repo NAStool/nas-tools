@@ -4,6 +4,8 @@ from flask import Flask, request, json, render_template
 
 import settings
 from functions import system_exec_command
+from monitor.movie_trailer import movie_trailer_all
+from monitor.resiliosync import resiliosync_all
 from rmt.qbittorrent import login_qbittorrent
 from scheduler.autoremove_torrents import run_autoremovetorrents
 from scheduler.hot_trailer import run_hottrailers
@@ -155,6 +157,10 @@ def create_app():
                     run_smzdmsignin()
                 if sch_item == "sch_btn_unicomsignin":
                     run_unicomsignin()
+                if sch_item == "sch_btn_movietrailer":
+                    movie_trailer_all()
+                if sch_item == "sch_btn_resiliosync":
+                    resiliosync_all()
                 return {"retmsg": "执行完成！", "item": sch_item}
 
     return app

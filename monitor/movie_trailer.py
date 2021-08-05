@@ -145,8 +145,8 @@ def run_movie_trailer():
         logger.error(monpath + "目录不存在！")
 
 
-if __name__ == "__main__":
-    # 下载电影预告片
+# 下载电影预告片
+def movie_trailer_all():
     logger.info("开始检索和下载电影预告片！")
     movie_dir_list = os.listdir(monpath)
     for movie_dir in movie_dir_list:
@@ -154,3 +154,7 @@ if __name__ == "__main__":
         if os.path.isdir(movie_dir):
             download_movie_trailer(movie_dir)
     logger.info("电影预告片下载任务完成！")
+
+
+if __name__ == "__main__":
+    movie_trailer_all()

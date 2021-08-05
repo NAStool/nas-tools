@@ -74,8 +74,8 @@ def run_resilosync():
         logger.error(monpath + "目录不存在！")
 
 
-if __name__ == "__main__":
-    # 全量转移
+# 全量转移
+def resiliosync_all():
     logger.info("开始全量转移...")
     for dir in os.listdir(monpath):
         file_path = os.path.join(monpath, dir)
@@ -88,3 +88,7 @@ if __name__ == "__main__":
                     transfer_directory(file_name, file_path, "", "", False, "ResilioSync", False)
             except Exception as err:
                 logger.error("发生错误：" + str(err))
+
+
+if __name__ == "__main__":
+    resiliosync_all()
