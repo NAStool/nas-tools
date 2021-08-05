@@ -39,11 +39,11 @@ ServerChan、微信、Telegram消息通知服务。 以上功能运行状态可�
 ## 配置说明：
 Docker镜像：jxxghp/nas-tools:latest
 
-Docker配置挂载目录：/config
+Docker配置挂载目录：/config，配置文件名：config.ini
 
 监听端口：3000
 
-配置文件示例如下，目录可以映射到容器中也可以使用automount配置网络直接挂载到容器中：
+配置示例如下，目录可以映射到容器中也可以使用automount配置直接网络挂载到容器中：
 ```
 [root]
 # 日志文件路径，建议放config目录下以便在宿主机查看
