@@ -463,6 +463,8 @@ def transfer_directory(in_name, in_path, in_hash, in_type, mv_flag=False, in_fro
                     Exist_FileNum = Exist_FileNum + 1
                     logger.error("文件 " + new_file + "已存在！")
             logger.info(in_name + " 转移完成！")
+            season_ary.sort()
+            episode_ary.sort(key=int)
             msg_str = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) \
                       + "\n\n来源：" + in_from \
                       + "\n\n名称：" + in_name \
