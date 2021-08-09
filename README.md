@@ -29,7 +29,9 @@ Docker配置挂载目录：/config，配置文件名：config.ini，根据配置
 
 ### 2、本地运行
 python 3版本
+
 pip install -r requirements.txt 安装依赖
+
 nohub python3 run.py & 运行
 
 ## 配置
