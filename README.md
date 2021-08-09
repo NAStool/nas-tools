@@ -25,7 +25,7 @@ PT站、什么值得买、联动营业厅每日签到，qBittorrent做种清理�
 ### 1、Docker镜像
 [jxxghp/nas-tools:latest](https://hub.docker.com/repository/docker/jxxghp/nas-tools)
 
-Docker配置挂载目录：/config，配置文件名：config.ini，根据配置情况把相关目录挂载到容器中
+Docker配置挂载目录：/config，配置文件名：config.ini，根据配置情况把相关目录挂载到容器中或通过[automount]区配置将网络路径直接挂载到容器中
 
 ### 2、本地运行
 python 3版本
@@ -33,4 +33,4 @@ pip install -r requirements.txt 安装依赖
 nohub python3 run.py & 运行
 
 ## 配置
-参考config/config.ini配置文件示例，使用容器时，可通过automount配置将网络路径直接挂载到容器
+参考config/config.ini配置文件示例
