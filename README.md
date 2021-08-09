@@ -32,7 +32,7 @@ python 3版本
 
 pip install -r requirements.txt 安装依赖
 
-nohub python3 run.py & 运行
+nohup python3 run.py & 运行
 
 ## 配置
 参考config/config.ini配置文件示例
