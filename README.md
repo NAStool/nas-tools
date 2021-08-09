@@ -36,3 +36,6 @@ nohup python3 run.py & 运行
 
 ## 配置
 参考config/config.ini配置文件示例
+
+按需导入nastool.sql到MySql数据库
+
