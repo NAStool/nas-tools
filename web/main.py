@@ -70,12 +70,21 @@ def create_app():
         cfg.close()
         # 读取定时服务配置
         tim_autoremovetorrents = settings.get("scheduler.autoremovetorrents_interval")
+        sta_autoremovetorrents = settings.get("scheduler.autoremovetorrents_flag")
         tim_qbtransfer = settings.get("scheduler.qbtransfer_interval")
+        sta_qbtransfer = settings.get("scheduler.qbtransfer_flag")
         tim_icloudpd = settings.get("scheduler.icloudpd_interval")
+        sta_icloudpd = settings.get("scheduler.icloudpd_flag")
         tim_hottrailers = settings.get("scheduler.hottrailer_cron")
+        sta_hottrailers = settings.get("scheduler.hottrailer_flag")
         tim_ptsignin = settings.get("scheduler.ptsignin_cron")
+        sta_ptsignin = settings.get("scheduler.ptsignin_flag")
         tim_smzdmsignin = settings.get("scheduler.smzdmsignin_cron")
+        sta_smzdmsignin = settings.get("scheduler.smzdmsignin_flag")
         tim_unicomsignin = settings.get("scheduler.unicomsignin_cron")
+        sta_unicomsignin = settings.get("scheduler.unicomsignin_flag")
+        sta_movietrailer = settings.get("monitor.movie_flag")
+        sta_resiliosync = settings.get("monitor.resiliosync_flag")
 
         return render_template("main.html",
                                page="rmt",
@@ -83,12 +92,21 @@ def create_app():
                                rmt_hashs=hash_list,
                                config_str=config_str,
                                tim_autoremovetorrents=tim_autoremovetorrents,
+                               sta_autoremovetorrents=sta_autoremovetorrents,
                                tim_qbtransfer=tim_qbtransfer,
+                               sta_qbtransfer=sta_qbtransfer,
                                tim_icloudpd=tim_icloudpd,
+                               sta_icloudpd=sta_icloudpd,
                                tim_hottrailers=tim_hottrailers,
+                               sta_hottrailers=sta_hottrailers,
                                tim_ptsignin=tim_ptsignin,
+                               sta_ptsignin=sta_ptsignin,
                                tim_smzdmsignin=tim_smzdmsignin,
-                               tim_unicomsignin=tim_unicomsignin
+                               sta_smzdmsignin=sta_smzdmsignin,
+                               tim_unicomsignin=tim_unicomsignin,
+                               sta_unicomsignin=sta_unicomsignin,
+                               sta_movietrailer=sta_movietrailer,
+                               sta_resiliosync=sta_resiliosync
                                )
 
     # 事件响应
