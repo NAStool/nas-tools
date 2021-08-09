@@ -1,4 +1,4 @@
-# nas-tools NAS工具集
+# nas-tools NAS媒体库整理工具集
 ## 功能：
 ### 1、qBittorrent下载电影剧集识别转移和重命名
 定时检测qbittorrent，下载完成后识别电影剧集名称并从TheMovieDb搜刮媒体信息，复制到Emby/Plex媒体库目录并重命名，命名格式："名称 (年份)/名称 (年份) - 分辨率.后缀"
