@@ -12,6 +12,7 @@ logger = log.Logger("scheduler").logger
 
 if __name__ == "__main__":
     # 环境准备
+    envloop = 0
     automount_flag = settings.get("automount.automount_flag") == "ON" or False
     if automount_flag:
         env_media, env_photo, env_pt, env_resiliosync = False, False, False, False
@@ -90,12 +91,16 @@ if __name__ == "__main__":
                     logger.info("执行结果：" + result_out)
                 if not result_err and not result_out:
                     env_resiliosync = True
-            logger.info("目录装载完成！")
             # 启动进程
             if env_media and env_photo and env_pt and env_resiliosync:
+                logger.info("目录装载完成！")
+                break
+            elif envloop > 10:
+                logger.info("已达最大重试次数，跳过...")
                 break
             else:
                 logger.error("环境未就绪，等待1分钟后重试...")
+                envloop = envloop + 1
                 sleep(60)
     # 启动进程
     logger.info("开始启动进程...")
