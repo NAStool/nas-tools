@@ -116,7 +116,7 @@ def create_app():
                 p_name = data["name"]
                 p_year = data["year"]
                 p_path = data["path"]
-                p_hash = data["hash"]
+                p_hash = p_path.split("|")[1]
                 cmdstr = "bash /nas-tools/bin/rmt.sh" + " \"" + p_name + "\" \"" + p_path + "\" \"" + p_hash + "\"" + "\" \"" + p_year + "\""
                 logger.info("执行命令：" + cmdstr)
                 std_err, std_out = system_exec_command(cmdstr, 1800)
