@@ -43,7 +43,6 @@ $(document).ready(function(){
 	        rmt_stderr = ret.rmt_stderr;
 	        rmt_stdout = ret.rmt_stdout;
 	        rmt_paths = ret.rmt_paths;
-	        rmt_hashs = ret.rmt_hashs;
 	        $("#rmt_ret").show();
             if (rmt_stderr != ""){
                 $("#rmt_ret").text(rmt_stderr)
@@ -54,14 +53,8 @@ $(document).ready(function(){
             $("#rmt_path").empty();
             $("#rmt_path").append("<option value =\"\">全部</option>");
             for(var i=0; i<rmt_paths.length; i++){
-                $("#rmt_path").append("<option value=\"" + rmt_paths[i] + "\">" + rmt_paths[i] + "</option>");
-            }
-
-            $("#rmt_hash").empty();
-            $("#rmt_hash").append("<option value =\"\">全部</option>");
-            for(var i=0; i<rmt_hashs.length; i++){
-                value = rmt_hashs[i].split("|")[1];
-                $("#rmt_hash").append("<option value=\"" + value + "\">" + rmt_hashs[i] + "</option>");
+                path = rmt_paths[i].split("|")[0];
+                $("#rmt_path").append("<option value=\"" + rmt_paths[i] + "\">" + path + "</option>");
             }
 
             $("#rmt_btn").removeAttr("disabled");
