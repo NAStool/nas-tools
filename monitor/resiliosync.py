@@ -33,7 +33,7 @@ def dir_change_handler(event, text):
                 # 等待10秒，让文件移完
                 sleep(10)
                 logger.info("开始处理：" + event_path)
-                if not transfer_directory(name, event_path, "", "", False, "ResilioSync", False):
+                if not transfer_directory("ResilioSync", name, event_path):
                     handler_files.remove(event_path)
                     logger.error(event_path + "处理失败！")
                 else:
@@ -85,7 +85,7 @@ def resiliosync_all():
             try:
                 if file_name not in handler_files:
                     handler_files.append(file_name)
-                    transfer_directory(file_name, file_path, "", "", False, "ResilioSync", False)
+                    transfer_directory("ResilioSync", file_name, file_path)
             except Exception as err:
                 logger.error("发生错误：" + str(err))
 

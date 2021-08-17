@@ -56,13 +56,11 @@ def create_app():
         trans_qbpath = settings.get("rmt.rmt_qbpath")
         trans_containerpath = settings.get("rmt.rmt_containerpath")
         path_list = []
-        hash_list = []
         for torrent in torrents:
             logger.info(torrent.name + "：" + torrent.state)
             if torrent.state == "uploading" or torrent.state == "stalledUP":
                 true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
-                path_list.append(true_path)
-                hash_list.append(torrent.name + "|" + torrent.hash)
+                path_list.append(true_path + "|" + torrent.hash)
         qbt.auth_log_out()
         # 读取配置文件
         cfg = open(settings.get_config_path(), mode="r", encoding="utf8")
@@ -89,7 +87,6 @@ def create_app():
         return render_template("main.html",
                                page="rmt",
                                rmt_paths=path_list,
-                               rmt_hashs=hash_list,
                                config_str=config_str,
                                tim_autoremovetorrents=tim_autoremovetorrents,
                                sta_autoremovetorrents=sta_autoremovetorrents,
@@ -117,9 +114,10 @@ def create_app():
         if cmd:
             if cmd == "rmt":
                 p_name = data["name"]
+                p_year = data["year"]
                 p_path = data["path"]
                 p_hash = data["hash"]
-                cmdstr = "bash /nas-tools/bin/rmt.sh" + " \"" + p_name + "\" \"" + p_path + "\" \"" + p_hash + "\""
+                cmdstr = "bash /nas-tools/bin/rmt.sh" + " \"" + p_name + "\" \"" + p_path + "\" \"" + p_hash + "\"" + "\" \"" + p_year + "\""
                 logger.info("执行命令：" + cmdstr)
                 std_err, std_out = system_exec_command(cmdstr, 1800)
                 # 读取qBittorrent列表
@@ -128,15 +126,13 @@ def create_app():
                 trans_qbpath = settings.get("rmt.rmt_qbpath")
                 trans_containerpath = settings.get("rmt.rmt_containerpath")
                 path_list = []
-                hash_list = []
                 for torrent in torrents:
                     logger.info(torrent.name + "：" + torrent.state)
                     if torrent.state == "uploading" or torrent.state == "stalledUP":
                         true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
-                        path_list.append(true_path)
-                        hash_list.append(torrent.name + "|" + torrent.hash)
+                        path_list.append(true_path + "|" + torrent.hash)
                 qbt.auth_log_out()
-                return {"rmt_stderr": std_err, "rmt_stdout": std_out, "rmt_paths": path_list, "rmt_hashs": hash_list}
+                return {"rmt_stderr": std_err, "rmt_stdout": std_out, "rmt_paths": path_list}
 
             if cmd == "msg":
                 title = data["title"]

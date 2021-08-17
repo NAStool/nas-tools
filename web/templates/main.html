@@ -36,25 +36,20 @@
 								<input type="text" class="form-control" id="rmt_name" name="rmt_name" placeholder="" value="">
 							  </div>
 							  <div class="form-group">
-								<label for="rmt_path">路径</label>
+								<label for="rmt_year">年份</label>
+								<input type="text" class="form-control" id="rmt_year" name="rmt_year" placeholder="" value="">
+							  </div>
+							  <div class="form-group">
+								<label for="rmt_path">文件</label>
 								  <select class="form-control" id="rmt_path" name="rmt_path">
 									  <option value ="">全部</option>
 									  {% for path in rmt_paths %}
-										<option value ="{{ path }}">{{ path }}</option>
-									  {% endfor %}
-								  </select>
-							  </div>
-							  <div class="form-group">
-								<label for="rmt_hash">Hash</label>
-								  <select class="form-control" id="rmt_hash" name="rmt_hash">
-									  <option value ="">全部</option>
-									  {% for hash in rmt_hashs %}
-										<option value ="{{ hash.split('|')[1] }}">{{ hash }}</option>
+										<option value ="{{ path }}">{{ path.split('|')[0] }}</option>
 									  {% endfor %}
 								  </select>
 							  </div>
 							  <div class="form_notice" id="form_send_form_notice"></div>
-								<button id="rmt_btn" type="button" class="btn btn-primary">转移</button>
+							  <button id="rmt_btn" type="button" class="btn btn-primary">转移</button>
 							</form>
 							<pre id="rmt_ret" style="display:none"></pre>
 						</div>

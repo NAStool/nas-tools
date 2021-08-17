@@ -171,7 +171,7 @@ def get_media_file_year(in_name):
 
 
 # 搜刮媒体信息和类型
-def get_media_info(in_path, in_name, in_type):
+def get_media_info(in_path, in_name, in_type, in_year):
     # TheMovieDB
     tmdb = TMDb()
     tmdb.api_key = settings.get('rmt.rmt_tmdbkey')
@@ -189,11 +189,11 @@ def get_media_info(in_path, in_name, in_type):
     media_title = media_name
 
     # 解析媒体类型
-    if in_type != "":
+    if in_type:
         media_type = in_type
-        if in_type == "电影":
+        if media_type == "电影":
             search_type = "电影"
-        elif in_type in settings.get('rmt.rmt_tvtype'):
+        elif media_type in settings.get('rmt.rmt_tvtype'):
             search_type = "电视剧"
     else:
         # 文件列表中有Sxx或者Exx的就是剧集，否则就是电影
@@ -203,7 +203,10 @@ def get_media_info(in_path, in_name, in_type):
             search_type = "电影"
 
     logger.info("检索类型为：" + search_type)
-    media_year = get_media_file_year(in_path)
+    if not in_year:
+        media_year = get_media_file_year(in_path)
+    else:
+        media_year = in_year
     logger.info("识别年份为：" + str(media_year))
 
     if search_type == "电影":
@@ -316,7 +319,7 @@ def transfer_subtitles(in_path, org_name, new_name, mv_flag=False):
 
 
 # 转移一个目录下的所有文件
-def transfer_directory(in_name, in_path, in_hash, in_type, mv_flag=False, in_from="qBittorrent", noti_flag=True):
+def transfer_directory(in_from, in_name, in_path, in_hash=None, in_year=None, in_type=None, mv_flag=False, noti_flag=True):
     if in_name == "" or in_path == "":
         logger.error("输入参数错误!")
         return False
@@ -335,7 +338,7 @@ def transfer_directory(in_name, in_path, in_hash, in_type, mv_flag=False, in_fro
         return False
 
     # API检索出媒体信息
-    media = get_media_info(in_path, in_name, in_type)
+    media = get_media_info(in_path, in_name, in_type, in_year)
     Search_Type = media['search']
     Media_Type = media["type"]
     Media_Id = media["id"]
@@ -404,7 +407,7 @@ def transfer_directory(in_name, in_path, in_hash, in_type, mv_flag=False, in_fro
                 save_note = str(Exist_FileNum) + " 个文件已存在！"
                 msg_str = msg_str + "\n\n备注：" + save_note
             send_wechat_msg("【RMT】" + Media_Title + " 转移完成！", msg_str)
-            if in_hash != "":
+            if in_hash:
                 qbt_client = login_qbittorrent()
                 set_torrent_status(qbt_client, in_hash)
                 qbt_client.auth_log_out()
@@ -485,7 +488,7 @@ def transfer_directory(in_name, in_path, in_hash, in_type, mv_flag=False, in_fro
                 save_note = str(Exist_FileNum) + " 个文件已存在！"
                 msg_str = msg_str + "\n\n备注：" + save_note
             send_wechat_msg("【RMT】" + Media_Title + " 转移完成！", msg_str)
-            if in_hash != "":
+            if in_hash:
                 qbt_client = login_qbittorrent()
                 set_torrent_status(qbt_client, in_hash)
                 qbt_client.auth_log_out()
@@ -520,7 +523,7 @@ def transfer_qbittorrent_task():
         logger.info(torrent.name + "：" + torrent.state)
         if torrent.state == "uploading" or torrent.state == "stalledUP":
             true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
-            transfer_directory(torrent.name, true_path, torrent.hash, "")
+            transfer_directory("qBittorrent", torrent.name, true_path, torrent.hash)
     qbt.auth_log_out()
 
 # ----------------------------函数 END-----------------------------------------
@@ -534,20 +537,26 @@ if __name__ == "__main__":
         QB_Path = sys.argv[2]
         QB_Hash = sys.argv[3]
     else:
-        QB_Name = ""
-        QB_Path = ""
-        QB_Hash = ""
+        QB_Name = None
+        QB_Path = None
+        QB_Hash = None
 
-    if QB_Name != "" and QB_Path != "":
-        # 输入参数：类型
+    if QB_Name and QB_Path:
+        # 输入参数：年份
         if len(sys.argv) > 4:
-            QB_Type = sys.argv[4]
+            QB_Year = sys.argv[4]
         else:
-            QB_Type = ""
+            QB_Year = None
 
         # 输入参数：类型
         if len(sys.argv) > 5:
-            MV_Flag = sys.argv[5] == "T" or False
+            QB_Type = sys.argv[5]
+        else:
+            QB_Type = None
+
+        # 输入参数：复制或移动
+        if len(sys.argv) > 6:
+            MV_Flag = sys.argv[6] == "T" or False
         else:
             MV_Flag = False
 
@@ -559,7 +568,7 @@ if __name__ == "__main__":
             logger.error("找不到文件：" + QB_Path)
             quit()
         logger.info("开始处理：" + QB_Name)
-        ret = transfer_directory(QB_Name, QB_Path, QB_Hash, QB_Type, MV_Flag, "qBittorrent", True)
+        ret = transfer_directory("qBittorrent", QB_Name, QB_Path, QB_Hash, QB_Year, QB_Type, MV_Flag)
         if ret:
             logger.info(QB_Name + "处理成功！")
         else:

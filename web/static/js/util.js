@@ -35,7 +35,7 @@ $(document).ready(function(){
 	    var data = {
 	            "name": $("#rmt_name").val(),
 	            "path": $("#rmt_path").val(),
-	            "hash": $("#rmt_hash").val()
+	            "year": $("#rmt_year").val()
 	        };
 	   	$("#rmt_btn").text("正在处理...");
 	    $("#rmt_btn").attr("disabled", "true");
