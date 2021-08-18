@@ -4,6 +4,7 @@ import shutil
 from tmdbv3api import TMDb, Movie
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
+from watchdog.observers.polling import PollingObserver
 from xml.dom.minidom import parse
 
 from functions import get_dir_files_by_name, system_exec_command
@@ -16,6 +17,7 @@ import settings
 logger = log.Logger("monitor").logger
 
 movie_flag = settings.get("monitor.movie_flag") == "ON" or False
+movie_sys = settings.get("monitor.movie_sys") == "Linux" or False
 monpath = settings.get("monitor.movie_monpath")
 youtube_dl_cmd = settings.get("youtobe.youtube_dl_cmd")
 hottrailer_path = settings.get("youtobe.hottrailer_path")
@@ -136,7 +138,10 @@ class FileMonitorHandler(FileSystemEventHandler):
 def run_movie_trailer():
     if os.path.exists(monpath) and movie_flag:
         event_handler = FileMonitorHandler()
-        observer = Observer()
+        if movie_sys:
+            observer = Observer()
+        else:
+            observer = PollingObserver()
         observer.schedule(event_handler, path=monpath, recursive=True)  # recursive递归的
         observer.setDaemon(False)
         observer.start()

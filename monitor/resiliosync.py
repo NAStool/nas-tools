@@ -3,6 +3,7 @@ from time import sleep
 
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
+from watchdog.observers.polling import PollingObserver
 from rmt.qbittorrent import transfer_directory
 
 import log
@@ -10,6 +11,7 @@ import settings
 
 # 全局设置
 resiliosync_flag = settings.get("monitor.resiliosync_flag") == "ON" or False
+resiliosync_sys = settings.get("monitor.resiliosync_sys") == "Linux" or False
 monpath = settings.get("monitor.resiliosync_monpath")
 
 logger = log.Logger("monitor").logger
@@ -65,7 +67,12 @@ class FileMonitorHandler(FileSystemEventHandler):
 def run_resilosync():
     if os.path.exists(monpath) and resiliosync_flag:
         event_handler = FileMonitorHandler()
-        observer = Observer()
+        if resiliosync_sys:
+            # linux
+            observer = Observer()
+        else:
+            # 其他
+            observer = PollingObserver()
         observer.schedule(event_handler, path=monpath, recursive=True)  # recursive递归的
         observer.setDaemon(False)
         observer.start()
