@@ -24,10 +24,12 @@ def run_icloudpd():
     if result_err != "":
         sendmsg("【iCloudPd】命令执行失败！", "错误信息：" + result_err)
     elif result_out.find("All photos have been downloaded!") == -1:
-        sendmsg("【iCloudPd】处理失败！", "可能需要输入授权码")
+        sendmsg("【iCloudPd】处理失败！", "请输入两步认证授权码")
     else:
         sendmsg("【iCloudPd】照片同步完成",
-                "耗时：" + str((end_time - start_time).seconds) + " 秒")
+                "耗时：" + str((end_time - start_time).seconds) + " 秒" +
+                "\n\n成功：" + str(result_out.count("Downloading /")) +
+                "\n\n已存在：" + str(result_out.count("already exists")))
 
 
 if __name__ == "__main__":
