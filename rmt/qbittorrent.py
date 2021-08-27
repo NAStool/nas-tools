@@ -135,16 +135,21 @@ def get_media_file_seq(in_name):
     if re_res:
         ret_str = re_res.group(1).upper()
     else:
-        # 找不到Exx，要不数字就是全名，要不数字加中文是全名
+        # 可能数字就是全名，或者是第xx集
+        ret_str = ""
         num_pos = in_name.find(".")
         if num_pos != -1:
-            in_name = in_name[0:num_pos]
-        if in_name.isdigit():
-            ret_str = "E" + in_name
+            split_char = "."
         else:
-            ret_str = "E" + re.sub(r'[\u4e00-\u9fff]+', '', in_name, re.IGNORECASE).strip()
+            split_char = " "
+        split_ary = in_name.split(split_char)
+        for split_str in split_ary:
+            split_str = split_str.replace("第", "").replace("集", "").strip()
+            if split_str.isdigit() and (0 < int(split_str) < 1000):
+                ret_str = "E" + split_str
+                break
     if not ret_str:
-        ret_str = ''
+        ret_str = ""
     return ret_str
 
 
