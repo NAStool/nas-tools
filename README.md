@@ -7,7 +7,7 @@
 监控Resilio Sync同步目录，识别电影剧集名称并从TheMovieDb搜刮媒体信息，复制到Emby/Plex媒体库目录并重命名，命名格式："名称 (年份)/名称 (年份) - 分辨率.后缀"
 
 ### 3、定时任务
-PT站、什么值得买、联动营业厅每日签到，qBittorrent做种清理、电影预告片搜刮和下载，具体看图：
+RSS订阅自动下载，每日签到（PT站、什么值得买、联动营业厅），qBittorrent做种清理、电影预告片搜刮和下载，具体看图：
 ![定时任务](https://github.com/jxxghp/nastool/blob/master/nastool.png)
 
 ### 4、消息

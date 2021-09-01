@@ -12,6 +12,7 @@ from scheduler.hot_trailer import run_hottrailers
 from scheduler.icloudpd import run_icloudpd
 from scheduler.pt_signin import run_ptsignin
 from scheduler.qb_transfer import run_qbtransfer
+from scheduler.rss_download import run_rssdownload
 from scheduler.smzdm_signin import run_smzdmsignin
 from scheduler.unicom_signin import run_unicomsignin
 from web.emby.discord import report_to_discord
@@ -83,6 +84,8 @@ def create_app():
         sta_unicomsignin = settings.get("scheduler.unicomsignin_flag")
         sta_movietrailer = settings.get("monitor.movie_flag")
         sta_resiliosync = settings.get("monitor.resiliosync_flag")
+        tim_rssdownload = settings.get("scheduler.rssdownload_interval")
+        sta_rssdownload = settings.get("scheduler.rssdownload_flag")
 
         return render_template("main.html",
                                page="rmt",
@@ -103,7 +106,9 @@ def create_app():
                                tim_unicomsignin=tim_unicomsignin,
                                sta_unicomsignin=sta_unicomsignin,
                                sta_movietrailer=sta_movietrailer,
-                               sta_resiliosync=sta_resiliosync
+                               sta_resiliosync=sta_resiliosync,
+                               tim_rssdownload=tim_rssdownload,
+                               sta_rssdownload=sta_rssdownload
                                )
 
     # 事件响应
@@ -180,6 +185,8 @@ def create_app():
                     movie_trailer_all()
                 if sch_item == "sch_btn_resiliosync":
                     resiliosync_all()
+                if sch_item == "sch_btn_rssdownload":
+                    run_rssdownload()
                 return {"retmsg": "执行完成！", "item": sch_item}
 
     return app
