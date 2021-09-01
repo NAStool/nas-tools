@@ -74,74 +74,78 @@ def run_rssdownload():
         if len(rss_result) == 0:
             return
         for res in rss_result:
-            title = res['title']
-            category = res['category']
-            enclosure = res['enclosure']
-            if title not in rss_cache_list:
-                rss_cache_list.append(title)
-            else:
-                logger.info(title + "已处理过，跳过...")
-                continue
-            match_flag = False
-            if movie_type and (category in movie_type):
-                search_type = "电影"
-                # 过滤
-                for movie_re in movie_res:
-                    if re.search(movie_re, title):
-                        match_flag = True
-                        break
-            else:
-                search_type = "电视剧"
-                # 过滤
-                for tv_re in tv_res:
-                    if re.search(tv_re, title):
-                        match_flag = True
-                        break
-            if match_flag:
-                logger.info(title + "匹配成功!")
-            else:
-                logger.info(title + "不匹配规则，跳过...")
-                continue
-            logger.info("开始检索媒体信息:" + title)
-            media_info = get_media_info(title, title, search_type)
-            search_type = media_info['search']
-            media_type = media_info["type"]
-            media_title = media_info["name"]
-            media_year = media_info["year"]
-            # 判断是否已存在
-            if search_type == "电影":
-                # 电影目录
-                media_path = os.path.join(movie_path, media_type,
-                                          media_title + " (" + media_year + ")")
-                # 目录是否存在
-                if os.path.exists(media_path):
-                    logger.error("电影已存在，跳过：" + media_path)
+            try:
+                title = res['title']
+                category = res['category']
+                enclosure = res['enclosure']
+                if title not in rss_cache_list:
+                    rss_cache_list.append(title)
+                else:
+                    logger.info(title + "已处理过，跳过...")
                     continue
-            else:
-                # 剧集目录
-                media_path = os.path.join(settings.get('rmt.rmt_tvpath'), media_type,
-                                          media_title + " (" + media_year + ")")
-                # 剧集是否存在
-                # Sxx
-                file_season = get_media_file_season(title)
-                # Exx
-                file_seq = get_media_file_seq(title)
-                # 季 Season xx
-                season_str = "Season " + str(int(file_season.replace("S", "")))
-                season_dir = os.path.join(media_path, season_str)
-                # 集 xx
-                file_seq_num = str(int(file_seq.replace("E", "").replace("P", "")))
-                # 文件路径
-                file_path = os.path.join(season_dir,
-                                         media_title + " - " + file_season + file_seq + " - " + "第 " + file_seq_num + " 集")
-                exist_flag = False
-                for ext in settings.get("rmt.rmt_mediaext"):
-                    if os.path.exists(file_path + ext):
-                        exist_flag = True
-                        logger.error("剧集文件已存在，跳过：" + file_path + ext)
-                        break
-                if exist_flag:
+                match_flag = False
+                if movie_type and (category in movie_type):
+                    search_type = "电影"
+                    # 过滤
+                    for movie_re in movie_res:
+                        if re.search(movie_re, title):
+                            match_flag = True
+                            break
+                else:
+                    search_type = "电视剧"
+                    # 过滤
+                    for tv_re in tv_res:
+                        if re.search(tv_re, title):
+                            match_flag = True
+                            break
+                if match_flag:
+                    logger.info(title + "匹配成功!")
+                else:
+                    logger.info(title + "不匹配规则，跳过...")
                     continue
+                logger.info("开始检索媒体信息:" + title)
+                media_info = get_media_info(title, title, search_type)
+                search_type = media_info['search']
+                media_type = media_info["type"]
+                media_title = media_info["name"]
+                media_year = media_info["year"]
+                # 判断是否已存在
+                if search_type == "电影":
+                    # 电影目录
+                    media_path = os.path.join(movie_path, media_type,
+                                              media_title + " (" + media_year + ")")
+                    # 目录是否存在
+                    if os.path.exists(media_path):
+                        logger.error("电影已存在，跳过：" + media_path)
+                        continue
+                else:
+                    # 剧集目录
+                    media_path = os.path.join(settings.get('rmt.rmt_tvpath'), media_type,
+                                              media_title + " (" + media_year + ")")
+                    # 剧集是否存在
+                    # Sxx
+                    file_season = get_media_file_season(title)
+                    # Exx
+                    file_seq = get_media_file_seq(title)
+                    # 季 Season xx
+                    season_str = "Season " + str(int(file_season.replace("S", "")))
+                    season_dir = os.path.join(media_path, season_str)
+                    # 集 xx
+                    file_seq_num = str(int(file_seq.replace("E", "").replace("P", "")))
+                    # 文件路径
+                    file_path = os.path.join(season_dir,
+                                             media_title + " - " + file_season + file_seq + " - " + "第 " + file_seq_num + " 集")
+                    exist_flag = False
+                    for ext in settings.get("rmt.rmt_mediaext"):
+                        if os.path.exists(file_path + ext):
+                            exist_flag = True
+                            logger.error("剧集文件已存在，跳过：" + file_path + ext)
+                            break
+                    if exist_flag:
+                        continue
+            except Exception as e:
+                logger.error("错误：" + str(e))
+                continue
             # 添加qbittorrent任务
             logger.info("添加qBittorrent任务：" + title)
             try:
