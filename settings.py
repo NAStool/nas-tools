@@ -1,15 +1,7 @@
-import os
 import threading
 from configparser import NoOptionError, RawConfigParser
-from watchdog.events import FileSystemEventHandler
-from watchdog.observers import Observer
 
 lock = threading.Lock()
-
-
-class ConfigFileModifyHandler(FileSystemEventHandler):
-    def on_modified(self, event):
-        Config.get_instance().load_config()
 
 
 class Config(object):
@@ -19,14 +11,6 @@ class Config(object):
         self.config = RawConfigParser()
         self.config_file_path = config_file_path or '/config/config.ini'
         self.load_config()
-        self._init_config_file_observer()
-
-    def _init_config_file_observer(self):
-        event_handler = ConfigFileModifyHandler()
-        observer = Observer()
-        observer.schedule(event_handler, path=self.config_file_path, recursive=False)
-        observer.setDaemon(True)
-        observer.start()
 
     def get_config_path(self):
         return self.config_file_path
@@ -78,3 +62,7 @@ def get(key, default=None):
 
 def get_config_path():
     return Config.get_instance().get_config_path()
+
+
+def reload_config():
+    return Config.get_instance().load_config()

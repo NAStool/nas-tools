@@ -159,6 +159,8 @@ def create_app():
                     cfg.write(editer_str)
                     cfg.flush()
                     cfg.close()
+                    # 配置文件立即生效
+                    settings.reload_config()
                 # 重新读取配置文件
                 cfg = open(settings.get_config_path(), mode="r", encoding="utf8")
                 config_str = cfg.read()
