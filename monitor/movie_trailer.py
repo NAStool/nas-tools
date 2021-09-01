@@ -49,14 +49,14 @@ def download_movie_trailer(in_path):
     exists_trailers = get_dir_files_by_name(in_path, "-trailer.")
     if len(exists_trailers) > 0:
         logger.error("电影目录已存在预告片，跳过...")
-        return
+        return True
     nfo_files = get_dir_files_by_name(in_path, ".nfo")
     if len(nfo_files) == 0:
-        logger.error("nfo文件不存在，跳过...")
-        return
+        logger.error("nfo文件不存在，等待下次处理...")
+        return False
     movie_id, movie_title, movie_year = get_movie_info_from_nfo(nfo_files[0])
     if not movie_id or not movie_title or not movie_year:
-        return
+        return False
 
     trailer_dir = hottrailer_path + "/" + movie_title + " (" + movie_year + ")"
     file_path = trailer_dir + "/" + movie_title + " (" + movie_year + ").%(ext)s"
@@ -65,7 +65,7 @@ def download_movie_trailer(in_path):
         movie_videos = movie.videos(movie_id)
     except Exception as err:
         logger.error("错误：" + str(err))
-        return
+        return False
     logger.info("预告片总数：" + str(len(movie_videos)))
     if len(movie_videos) > 0:
         logger.info("电影：" + str(movie_id) + " - " + movie_title)
@@ -93,6 +93,8 @@ def download_movie_trailer(in_path):
         transfer_trailers(trailer_dir)
     else:
         logger.info(movie_title + " 未检索到预告片")
+        return False
+    return True
 
 
 # 处理文件夹
@@ -109,7 +111,9 @@ def dir_change_handler(event, text):
                 handler_files.append(event_path)
                 logger.info("开始处理：" + event_path)
                 # 下载预告片
-                download_movie_trailer(event_path)
+                if not download_movie_trailer(event_path):
+                    handler_files.remove(event_path)
+                    logger.info(event_path + "处理失败，等待下次处理...")
                 logger.info(event_path + "处理成功！")
             else:
                 logger.error("已处理过：" + name)
