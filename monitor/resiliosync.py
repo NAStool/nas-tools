@@ -4,7 +4,7 @@ from time import sleep
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
-from rmt.qbittorrent import transfer_directory
+from rmt.media import transfer_directory
 
 import log
 import settings

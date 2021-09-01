@@ -7,6 +7,7 @@ from scheduler.icloudpd import run_icloudpd
 from scheduler.pt_signin import run_ptsignin
 import settings
 from scheduler.qb_transfer import run_qbtransfer
+from scheduler.rss_download import run_rssdownload
 from scheduler.smzdm_signin import run_smzdmsignin
 from scheduler.unicom_signin import run_unicomsignin
 
@@ -68,6 +69,13 @@ def run_scheduler():
         scheduler.add_job(run_qbtransfer, 'interval',
                           seconds=int(settings.get("scheduler.qbtransfer_interval")))
         logger.info("scheduler.qbtransfer启动...")
+
+    # RSS下载器
+    rssdownload_flag = settings.get("scheduler.rssdownload_flag") == "ON" or False
+    if rssdownload_flag:
+        scheduler.add_job(run_rssdownload, 'interval',
+                          seconds=int(settings.get("scheduler.rssdownload_interval")))
+        logger.info("scheduler.rssdownload启动...")
 
     scheduler.start()
     logger.info("scheduler启动完成!")
