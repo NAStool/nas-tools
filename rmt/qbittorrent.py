@@ -1,12 +1,12 @@
 # qBittorrent媒体文件转移
 import os
 import sys
-import qbittorrentapi
 import urllib3
 import log
 import settings
 
 # 全局设置
+from functions import login_qbittorrent
 from rmt.media import transfer_directory
 
 urllib3.disable_warnings()
@@ -14,36 +14,23 @@ logger = log.Logger("rmt").logger
 
 
 # ----------------------------函数 BEGIN-----------------------------------------
-def login_qbittorrent():
-    try:
-        logger.info("连接qBittorrent...")
-        # 登录
-        qbt_client = qbittorrentapi.Client(host=settings.get('qbittorrent.qbhost'),
-                                           port=settings.get('qbittorrent.qbport'),
-                                           username=settings.get('qbittorrent.qbusername'),
-                                           password=settings.get('qbittorrent.qbpassword'))
-        qbt_client.auth_log_in()
-        logger.info("连接qBittorrent成功！")
-        return qbt_client
-    except Exception as qbt_e:
-        logger.error("连接qBittorrent失败：" + str(qbt_e))
-        return None
-
-
 # 迁移完成后设置种子状态
-def set_torrent_status(qbt_client, hash_str):
-    if qbt_client:
+def set_torrent_status(qbc, hash_str):
+    if qbc:
         # 打标签
-        qbt_client.torrents_add_tags("已整理", hash_str)
+        qbc.torrents_add_tags("已整理", hash_str)
         # 超级做种
-        qbt_client.torrents_set_force_start(True, hash_str)
+        qbc.torrents_set_force_start(True, hash_str)
         logger.info("设置qBittorrent种类状态成功！")
 
 
 # 处理所有qbittorrent中的种子
 def transfer_qbittorrent_task():
-    qbt = login_qbittorrent()
-    torrents = qbt.torrents_info()
+    qbc = login_qbittorrent()
+    if not qbc:
+        logger.error("连接qbittorrent失败！")
+        return
+    torrents = qbc.torrents_info()
     trans_qbpath = settings.get("rmt.rmt_qbpath")
     trans_containerpath = settings.get("rmt.rmt_containerpath")
     for torrent in torrents:
@@ -51,8 +38,8 @@ def transfer_qbittorrent_task():
         if torrent.state == "uploading" or torrent.state == "stalledUP":
             true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
             transfer_directory("qBittorrent", torrent.name, true_path)
-            set_torrent_status(qbt, torrent.hash)
-    qbt.auth_log_out()
+            set_torrent_status(qbc, torrent.hash)
+    qbc.auth_log_out()
 # ----------------------------函数 END-----------------------------------------
 
 
@@ -97,9 +84,9 @@ if __name__ == "__main__":
         logger.info("开始处理：" + QB_Name)
         ret = transfer_directory("qBittorrent", QB_Name, QB_Path, QB_Year, QB_Type, MV_Flag)
         if QB_Hash:
-            qbt = login_qbittorrent()
-            set_torrent_status(qbt, QB_Hash)
-            qbt.auth_log_out()
+            qbt_client = login_qbittorrent()
+            set_torrent_status(qbt_client, QB_Hash)
+            qbt_client.auth_log_out()
         if ret:
             logger.info(QB_Name + "处理成功！")
         else:

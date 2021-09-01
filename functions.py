@@ -1,9 +1,9 @@
 import os
-import sys
 import subprocess
 import time
 
 import pymysql
+import qbittorrentapi
 import requests
 import bisect
 import settings
@@ -151,3 +151,17 @@ def generateHeader(url):
         'Referer': url
     }
     return header
+
+
+# 连接qbittorrent
+def login_qbittorrent():
+    try:
+        # 登录
+        qbt_client = qbittorrentapi.Client(host=settings.get('qbittorrent.qbhost'),
+                                           port=settings.get('qbittorrent.qbport'),
+                                           username=settings.get('qbittorrent.qbusername'),
+                                           password=settings.get('qbittorrent.qbpassword'))
+        qbt_client.auth_log_in()
+        return qbt_client
+    except Exception:
+        return None
