@@ -112,9 +112,9 @@ def run_rssdownload():
                 # 判断是否已存在
                 if search_type == "电影":
                     # 电影目录
-                    media_path = os.path.join(movie_path, media_type,
-                                              media_title + " (" + media_year + ")")
+                    media_path = os.path.join(movie_path, media_title + " (" + media_year + ")")
                     # 目录是否存在
+                    logger.info("路径：" + media_path)
                     if os.path.exists(media_path):
                         logger.error("电影已存在，跳过：" + media_path)
                         continue
@@ -136,7 +136,8 @@ def run_rssdownload():
                     file_path = os.path.join(season_dir,
                                              media_title + " - " + file_season + file_seq + " - " + "第 " + file_seq_num + " 集")
                     exist_flag = False
-                    for ext in settings.get("rmt.rmt_mediaext"):
+                    for ext in settings.get("rmt.rmt_mediaext").split(","):
+                        logger.info("路径：" + file_path + ext)
                         if os.path.exists(file_path + ext):
                             exist_flag = True
                             logger.error("剧集文件已存在，跳过：" + file_path + ext)

@@ -335,8 +335,7 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
 
     # 解析媒体类型
     if in_type:
-        media_type = in_type
-        if media_type == "电影":
+        if in_type == "电影":
             search_type = "电影"
         else:
             search_type = "电视剧"
