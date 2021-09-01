@@ -317,7 +317,7 @@ def get_media_file_year(in_name):
 
 
 # 搜刮媒体信息和类型
-def get_media_info(in_path, in_name, in_type, in_year):
+def get_media_info(in_path, in_name, in_type=None, in_year=None):
     # TheMovieDB
     tmdb = TMDb()
     tmdb.api_key = settings.get('rmt.rmt_tmdbkey')
@@ -328,7 +328,6 @@ def get_media_info(in_path, in_name, in_type, in_year):
     media_id = "0"
     media_type = ""
     media_pix = ""
-    search_type = ""
 
     # 解析媒体名称
     media_name = get_qb_media_name(in_name)
@@ -339,7 +338,7 @@ def get_media_info(in_path, in_name, in_type, in_year):
         media_type = in_type
         if media_type == "电影":
             search_type = "电影"
-        elif media_type in settings.get('rmt.rmt_tvtype'):
+        else:
             search_type = "电视剧"
     else:
         # 文件列表中有Sxx或者Exx的就是剧集，否则就是电影
