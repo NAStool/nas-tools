@@ -116,7 +116,7 @@ def run_rssdownload():
                     # 目录是否存在
                     logger.info("路径：" + media_path)
                     if os.path.exists(media_path):
-                        logger.error("电影已存在，跳过：" + media_path)
+                        logger.error("电影目录已存在，跳过：" + media_path)
                         continue
                 else:
                     # 剧集目录
@@ -125,25 +125,30 @@ def run_rssdownload():
                     # 剧集是否存在
                     # Sxx
                     file_season = get_media_file_season(title)
-                    # Exx
-                    file_seq = get_media_file_seq(title)
                     # 季 Season xx
                     season_str = "Season " + str(int(file_season.replace("S", "")))
                     season_dir = os.path.join(media_path, season_str)
-                    # 集 xx
-                    file_seq_num = str(int(file_seq.replace("E", "").replace("P", "")))
-                    # 文件路径
-                    file_path = os.path.join(season_dir,
-                                             media_title + " - " + file_season + file_seq + " - " + "第 " + file_seq_num + " 集")
-                    exist_flag = False
-                    for ext in settings.get("rmt.rmt_mediaext").split(","):
-                        logger.info("路径：" + file_path + ext)
-                        if os.path.exists(file_path + ext):
-                            exist_flag = True
-                            logger.error("剧集文件已存在，跳过：" + file_path + ext)
-                            break
-                    if exist_flag:
-                        continue
+                    # Exx
+                    file_seq = get_media_file_seq(title)
+                    if file_seq != "":
+                        # 集 xx
+                        file_seq_num = str(int(file_seq.replace("E", "").replace("P", "")))
+                        # 文件路径
+                        file_path = os.path.join(season_dir,
+                                                 media_title + " - " + file_season + file_seq + " - " + "第 " + file_seq_num + " 集")
+                        exist_flag = False
+                        for ext in settings.get("rmt.rmt_mediaext").split(","):
+                            logger.info("路径：" + file_path + ext)
+                            if os.path.exists(file_path + ext):
+                                exist_flag = True
+                                logger.error("剧集文件已存在，跳过：" + file_path + ext)
+                                break
+                        if exist_flag:
+                            continue
+                    else:
+                        if os.path.exists(season_dir):
+                            logger.error("剧集目录已存在，跳过：" + season_dir)
+                            continue
             except Exception as e:
                 logger.error("错误：" + str(e))
                 continue
