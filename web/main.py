@@ -1,6 +1,5 @@
-import os
-
-from flask import Flask, request, json, render_template
+from flask import Flask, request, json, render_template, make_response, jsonify
+from flask_httpauth import HTTPBasicAuth
 
 import settings
 from functions import system_exec_command
@@ -20,6 +19,22 @@ from web.emby.emby_event import EmbyEvent
 
 import log
 from message.send import sendmsg
+
+auth = HTTPBasicAuth()
+login_user = settings.get("root.login_user")
+login_password = settings.get("root.login_password")
+
+
+@auth.get_password
+def get_password(username):
+    if username == login_user:
+        return login_password
+    return None
+
+
+@auth.error_handler
+def unauthorized():
+    return make_response(jsonify({'error': 'Unauthorized access'}), 403)
 
 
 def create_app():
@@ -50,6 +65,7 @@ def create_app():
 
     # 主页面
     @app.route('/', methods=['POST', 'GET'])
+    @auth.login_required
     def main():
         # 读取qBittorrent列表
         qbt = login_qbittorrent()
