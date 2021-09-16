@@ -37,7 +37,7 @@ def transfer_qbittorrent_task():
         logger.info(torrent.name + "：" + torrent.state)
         if torrent.state == "uploading" or torrent.state == "stalledUP":
             true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
-            transfer_directory("qBittorrent", torrent.name, true_path)
+            transfer_directory(in_from="qBittorrent", in_name=torrent.name, in_path=true_path)
             set_torrent_status(qbc, torrent.hash)
     qbc.auth_log_out()
 # ----------------------------函数 END-----------------------------------------
@@ -82,7 +82,7 @@ if __name__ == "__main__":
             logger.error("找不到文件：" + QB_Path)
             quit()
         logger.info("开始处理：" + QB_Name)
-        ret = transfer_directory("qBittorrent", QB_Name, QB_Path, QB_Year, QB_Type, MV_Flag)
+        ret = transfer_directory(in_from="qBittorrent", in_name=QB_Name, in_path=QB_Path, in_year=QB_Year, in_type=QB_Type, mv_flag=MV_Flag)
         if QB_Hash:
             qbt_client = login_qbittorrent()
             set_torrent_status(qbt_client, QB_Hash)
