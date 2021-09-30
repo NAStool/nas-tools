@@ -1,5 +1,7 @@
 import logging
 import os
+from logging.handlers import TimedRotatingFileHandler
+
 import settings
 
 
@@ -10,11 +12,11 @@ class Logger:
         logpath = settings.get("root.logpath")
         if not os.path.exists(logpath):
             os.makedirs(logpath)
-        handler = logging.FileHandler(logpath + "/" + logname + ".txt")
-        handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        handler.setFormatter(formatter)
-        console = logging.StreamHandler()
-        console.setLevel(logging.DEBUG)
-        self.logger.addHandler(handler)
-        self.logger.addHandler(console)
+        log_fmt = '%(asctime)s\tFile \"%(filename)s\",line %(lineno)s\t%(levelname)s: %(message)s'
+        formatter = logging.Formatter(log_fmt)
+        log_file_handler = TimedRotatingFileHandler(filename=logpath + "/" + logname + ".txt", when="D", interval=1, backupCount=2)
+        logging.basicConfig(level=logging.INFO)
+        log_file_handler.setFormatter(formatter)
+        log_console_handler = logging.StreamHandler()
+        self.logger.addHandler(log_file_handler)
+        self.logger.addHandler(log_console_handler)

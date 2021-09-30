@@ -21,10 +21,12 @@ def run_icloudpd():
         logger.info("执行结果：" + result_out)
 
     end_time = datetime.now()
-    if result_err != "":
+    if result_err == "timeout":
+        sendmsg("【iCloudPd】命令执行超时，可能需要输入授权码！", "耗时：" + str((end_time - start_time).seconds) + " 秒")
+    elif result_err != "":
         sendmsg("【iCloudPd】命令执行失败！", "错误信息：" + result_err)
     elif result_out.find("All photos have been downloaded!") == -1:
-        sendmsg("【iCloudPd】处理失败！", "请输入两步认证授权码")
+        sendmsg("【iCloudPd】处理失败！", result_out)
     else:
         sendmsg("【iCloudPd】照片同步完成",
                 "耗时：" + str((end_time - start_time).seconds) + " 秒" +

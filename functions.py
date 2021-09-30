@@ -60,8 +60,10 @@ def system_exec_command(cmd, timeout=60):
             time.sleep(0.1)
         result_out = p.stdout.read().decode(encoding='utf8')
         return '', str(result_out)
-    except Exception as err:
-        return str(err), ''
+    except TimeoutError as err1:
+        return "timeout", ''
+    except Exception as err2:
+        return str(err2), ''
 
 
 # 连接mysql并执行语句
