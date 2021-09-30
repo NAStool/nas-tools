@@ -19,7 +19,7 @@ def run_autoremovetorrents():
         logger.info(torrent.name + "：" + torrent.state)
         # 只有标记为强制上传的才会清理（经过RMT处理的都是强制上传状态）
         if torrent.state == "forcedUP":
-            if torrent.seeding_time > seeding_time:
+            if int(torrent.seeding_time) > int(seeding_time):
                 logger.info(torrent.name + "做种时间：" + torrent.seeding_time + "（秒），已达清理条件，进行清理...")
                 # 同步删除文件
                 qbc.torrents_delete(delete_files=True, torrent_hashs=torrent.hash)
