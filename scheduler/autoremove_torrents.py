@@ -1,25 +1,29 @@
 # 定时在DSM中执行命令清理qbittorrent的种子
 import log
 import settings
-from functions import system_exec_command
+from functions import system_exec_command, login_qbittorrent
 from message.send import sendmsg
 
 logger = log.Logger("scheduler").logger
 
 
 def run_autoremovetorrents():
-    cmd = settings.get("scheduler.autoremovetorrents_cmd")
-    logger.info("开始执行命令：" + cmd)
-    # 获取命令结果
-    result_err, result_out = system_exec_command(cmd, 60)
-    if result_err:
-        logger.error("错误信息：" + result_err)
-    if result_out:
-        logger.info("执行结果：" + result_out)
-
-    if result_err != "":
-        if result_err.find(" Login successfully") == -1:
-            sendmsg("【AutoRemoveTorrents】命令执行失败！", "错误信息：" + result_err)
+    seeding_time = settings.get("scheduler.autoremovetorrents_seeding_time")
+    logger.info("开始执行qBittorrent做种清理...")
+    qbc = login_qbittorrent()
+    if not qbc:
+        logger.error("连接qbittorrent失败！")
+        return
+    torrents = qbc.torrents_info()
+    for torrent in torrents:
+        logger.info(torrent.name + "：" + torrent.state)
+        # 只有标记为强制上传的才会清理（经过RMT处理的都是强制上传状态）
+        if torrent.state == "forcedUP":
+            if torrent.seeding_time > seeding_time:
+                logger.info(torrent.name + "做种时间：" + torrent.seeding_time + "（秒），已达清理条件，进行清理...")
+                # 同步删除文件
+                qbc.torrents_delete(delete_files=True, torrent_hashs=torrent.hash)
+    qbc.auth_log_out()
 
 
 if __name__ == "__main__":
