@@ -16,7 +16,7 @@ def run_autoremovetorrents():
         return
     torrents = qbc.torrents_info()
     for torrent in torrents:
-        logger.info(torrent.name + "：" + torrent.state)
+        logger.info(torrent.name + " ：" + torrent.state + " : " + torrent.seeding_time)
         # 只有标记为强制上传的才会清理（经过RMT处理的都是强制上传状态）
         if torrent.state == "forcedUP":
             if int(torrent.seeding_time) > int(seeding_time):
