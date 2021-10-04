@@ -57,7 +57,6 @@ def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=Fals
     logger.info("文件复制完成：" + new_file)
     logger.info("正在复制字幕...")
     transfer_subtitles(file_path, file_item, new_file, False)
-    shutil.rmtree(file_path)
 
     if mv_flag:
         if file_path != settings.get('rmt.rmt_moviepath') and file_path != settings.get('rmt.rmt_tvpath'):
