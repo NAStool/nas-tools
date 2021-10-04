@@ -8,7 +8,7 @@ import settings
 from xml.dom.minidom import parse
 import xml.dom.minidom
 
-from functions import login_qbittorrent
+from functions import login_qbittorrent, is_chinese
 from message.send import sendmsg
 from rmt.media import get_media_info, get_media_file_season, get_media_file_seq
 
@@ -118,6 +118,10 @@ def run_rssdownload():
                     if os.path.exists(media_path):
                         logger.error("电影目录已存在，跳过：" + media_path)
                         continue
+                    if not is_chinese(media_title):
+                        logger.error("没有中文看不懂，跳过：" + media_path)
+                        continue
+
                 else:
                     # 剧集目录
                     media_path = os.path.join(settings.get('rmt.rmt_tvpath'), media_type,
