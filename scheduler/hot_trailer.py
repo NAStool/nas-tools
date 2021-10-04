@@ -8,7 +8,7 @@ from tmdbv3api import TMDb, Movie
 
 import log
 import settings
-from functions import get_dir_files_by_ext, get_dir_files_by_name, system_exec_command
+from functions import get_dir_files_by_ext, get_dir_files_by_name, system_exec_command, is_chinese
 from message.send import sendmsg
 
 logger = log.Logger("scheduler").logger
@@ -100,6 +100,9 @@ def run_hottrailers(refresh_flag=True):
             try:
                 movie_id = item.id
                 movie_title = item.title
+                if not is_chinese(movie_title):
+                    logger.info("没有中文看不懂，跳过...")
+                    continue
                 movie_year = item.release_date[0:4]
                 logger.info(str(total_count) + "、电影：" + str(movie_id) + " - " + movie_title)
                 trailer_dir = hottrailer_path + "/" + movie_title + " (" + movie_year + ")"

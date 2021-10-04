@@ -9,8 +9,60 @@ import settings
 from functions import get_dir_files_by_ext, is_chinese, mysql_exec_sql, str_filesize
 from message.send import sendmsg
 
-
 logger = log.Logger("rmt").logger
+
+
+# 根据文件名转移对应字幕文件
+def transfer_subtitles(in_path, org_name, new_name, mv_flag=False):
+    file_list = get_dir_files_by_ext(in_path, settings.get('rmt.rmt_subext'))
+    logger.debug("字幕文件清单：" + str(file_list))
+    Media_FileNum = len(file_list)
+    if Media_FileNum == 0:
+        logger.error("没有支持的字幕文件，不处理！")
+    else:
+        find_flag = False
+        for file_item in file_list:
+            org_subname = os.path.splitext(org_name)[0]
+            if org_subname in file_item:
+                find_flag = True
+                file_ext = os.path.splitext(file_item)[-1]
+                if file_item.find(".zh-cn" + file_ext) != -1:
+                    new_file = os.path.splitext(new_name)[0] + ".zh-cn" + file_ext
+                else:
+                    new_file = os.path.splitext(new_name)[0] + file_ext
+                if not os.path.exists(new_file):
+                    if mv_flag:
+                        logger.info("正在移动字幕：" + file_item + " 到 " + new_file)
+                        shutil.move(file_item, new_file)
+                        logger.info("字幕移动完成：" + new_file)
+                    else:
+                        logger.info("正在复制字幕：" + file_item + " 到 " + new_file)
+                        shutil.copy(file_item, new_file)
+                        logger.info("字幕复制完成：" + new_file)
+                else:
+                    logger.error("字幕 " + new_file + "已存在！")
+        if not find_flag:
+            logger.error("没有相同文件名的字幕文件，不处理！")
+
+
+def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=False):
+    if over_flag:
+        logger.info("正在删除已存在的文件：" + new_file)
+        os.remove(new_file)
+        logger.info(new_file + " 已删除！")
+
+    # 复制文件
+    logger.info("正在复制文件：" + file_item + " 到 " + new_file)
+    shutil.copy(file_item, new_file)
+    logger.info("文件复制完成：" + new_file)
+    logger.info("正在复制字幕...")
+    transfer_subtitles(file_path, file_item, new_file, False)
+    shutil.rmtree(file_path)
+
+    if mv_flag:
+        if file_path != settings.get('rmt.rmt_moviepath') and file_path != settings.get('rmt.rmt_tvpath'):
+            shutil.rmtree(file_path)
+        logger.info(file_path + " 已删除！")
 
 
 # 转移一个目录下的所有文件
@@ -28,7 +80,7 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
         logger.error("没有支持的文件格式，不处理！")
         if noti_flag:
             sendmsg("【RMT】没有支持的文件格式！", "来源：" + in_from
-                            + "\n\n名称：" + in_name)
+                    + "\n\n名称：" + in_name)
         return False
 
     # API检索出媒体信息
@@ -65,23 +117,15 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
                     new_file = os.path.join(media_path, Media_Title + " (" + Media_Year + ")" + file_ext)
                 Media_File = new_file
                 if not os.path.exists(new_file):
-                    if mv_flag:
-                        logger.info("正在移动文件：" + file_item + " 到 " + new_file)
-                        shutil.move(file_item, new_file)
-                        logger.info("文件移动完成：" + new_file)
-                        logger.info("正在移动字幕...")
-                        transfer_subtitles(in_path, file_item, new_file, True)
-                        shutil.rmtree(in_path)
-                        logger.info(in_path + " 已删除！")
-                    else:
-                        logger.info("正在复制文件：" + file_item + " 到 " + new_file)
-                        shutil.copy(file_item, new_file)
-                        logger.info("文件复制完成：" + new_file)
-                        logger.info("正在复制字幕...")
-                        transfer_subtitles(in_path, file_item, new_file, False)
+                    transfer_files(in_path, file_item, new_file, mv_flag)
                 else:
-                    Exist_FileNum = Exist_FileNum + 1
-                    logger.error("文件 " + new_file + "已存在！")
+                    ExistFile_Size = os.path.getsize(new_file)
+                    if Media_FileSize > ExistFile_Size:
+                        logger.error("文件" + new_file + "已存在，但新文件质量更好，覆盖...")
+                        transfer_files(in_path, file_item, new_file, mv_flag, True)
+                    else:
+                        Exist_FileNum = Exist_FileNum + 1
+                        logger.error("文件 " + new_file + "已存在，且质量更好！")
             logger.info(in_name + " 转移完成！")
             msg_str = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) \
                       + "\n\n来源：" + in_from \
@@ -135,26 +179,19 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
                     os.makedirs(season_dir)
                 # 处理文件
                 new_file = os.path.join(season_dir,
-                                        Media_Title + " - " + file_season + file_seq + " - " + "第 " + file_seq_num + " 集" + file_ext)
+                                        Media_Title + " - " + file_season + file_seq + " - " + "第 "
+                                        + file_seq_num + " 集" + file_ext)
                 Media_File = new_file
                 if not os.path.exists(new_file):
-                    if mv_flag:
-                        logger.info("正在移动文件：" + file_item + " 到 " + new_file)
-                        shutil.move(file_item, new_file)
-                        logger.info("文件移动完成：" + new_file)
-                        logger.info("正在移动字幕...")
-                        transfer_subtitles(in_path, file_item, new_file, True)
-                        shutil.rmtree(in_path)
-                        logger.info(in_path + " 已删除！")
-                    else:
-                        logger.info("正在复制文件：" + file_item + " 到 " + new_file)
-                        shutil.copy(file_item, new_file)
-                        logger.info("文件复制完成：" + new_file)
-                        logger.info("正在转移字幕...")
-                        transfer_subtitles(in_path, file_item, new_file, False)
+                    transfer_files(in_path, file_item, new_file, mv_flag)
                 else:
-                    Exist_FileNum = Exist_FileNum + 1
-                    logger.error("文件 " + new_file + "已存在！")
+                    ExistFile_Size = os.path.getsize(new_file)
+                    if Media_FileSize > ExistFile_Size:
+                        logger.error("文件" + new_file + "已存在，但新文件质量更好，覆盖...")
+                        transfer_files(in_path, file_item, new_file, mv_flag, True)
+                    else:
+                        Exist_FileNum = Exist_FileNum + 1
+                        logger.error("文件 " + new_file + "已存在，且质量更好！")
             logger.info(in_name + " 转移完成！")
             season_ary.sort()
             episode_ary.sort(key=int)
@@ -184,17 +221,17 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
         else:
             logger.error(in_name + " 无法识别是什么类型的媒体文件！")
             sendmsg("【RMT】无法识别媒体类型！",
-                            '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                            + "\n\n来源：" + in_from
-                            + "\n\n名称：" + in_name)
+                    '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+                    + "\n\n来源：" + in_from
+                    + "\n\n名称：" + in_name)
             return False
     else:
         logger.error(in_name + " 搜刮失败！识别标题：" + Media_Title)
         sendmsg("【RMT】媒体搜刮失败！", '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                        + "\n\n来源：" + in_from
-                        + "\n\n名称：" + in_name
-                        + "\n\n识别标题：" + Media_Title
-                        + "\n\n识别类型：" + Search_Type)
+                + "\n\n来源：" + in_from
+                + "\n\n名称：" + in_name
+                + "\n\n识别标题：" + Media_Title
+                + "\n\n识别类型：" + Search_Type)
         return False
     return True
 
@@ -203,7 +240,8 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
 def insert_media_log(source, org_name, tmdbid, title, type, year, season, episode, filenum, filesize, path, note):
     # SQL 插入语句
     sql = "INSERT INTO emby_media_log " \
-          "(`source`, `org_name`, `tmdbid`, `title`, `type`, `year`, `season`, `episode`, `filenum`, `filesize`, `path`, `note`, `time`) " \
+          "(`source`, `org_name`, `tmdbid`, `title`, `type`, `year`, `season`, `episode`, `filenum`, `filesize`, " \
+          "`path`, `note`, `time`) " \
           "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, '%s', '%s', '%s', now())" % \
           (source, org_name, tmdbid, title, type, year, season, episode, filenum, filesize, path, note)
     if mysql_exec_sql(sql):
@@ -424,36 +462,3 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
     logger.info("剧集类型：" + media_type)
     return {"search": search_type, "type": media_type, "id": media_id, "name": media_title, "year": media_year,
             "info": info, "pix": media_pix}
-
-
-# 根据文件名转移对应字幕文件
-def transfer_subtitles(in_path, org_name, new_name, mv_flag=False):
-    file_list = get_dir_files_by_ext(in_path, settings.get('rmt.rmt_subext'))
-    logger.debug("字幕文件清单：" + str(file_list))
-    Media_FileNum = len(file_list)
-    if Media_FileNum == 0:
-        logger.error("没有支持的字幕文件，不处理！")
-    else:
-        find_flag = False
-        for file_item in file_list:
-            org_subname = os.path.splitext(org_name)[0]
-            if org_subname in file_item:
-                find_flag = True
-                file_ext = os.path.splitext(file_item)[-1]
-                if file_item.find(".zh-cn" + file_ext) != -1:
-                    new_file = os.path.splitext(new_name)[0] + ".zh-cn" + file_ext
-                else:
-                    new_file = os.path.splitext(new_name)[0] + file_ext
-                if not os.path.exists(new_file):
-                    if mv_flag:
-                        logger.info("正在移动字幕：" + file_item + " 到 " + new_file)
-                        shutil.move(file_item, new_file)
-                        logger.info("字幕移动完成：" + new_file)
-                    else:
-                        logger.info("正在复制字幕：" + file_item + " 到 " + new_file)
-                        shutil.copy(file_item, new_file)
-                        logger.info("字幕复制完成：" + new_file)
-                else:
-                    logger.error("字幕 " + new_file + "已存在！")
-        if not find_flag:
-            logger.error("没有相同文件名的字幕文件，不处理！")
