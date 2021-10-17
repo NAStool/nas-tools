@@ -166,12 +166,14 @@ def run_rssdownload():
             try:
                 ret = add_qbittorrent_torrent(enclosure)
                 if ret and ret.find("Ok") != -1:
-                    succ_list.append("> " + media_name + "：" + title)
+                    msg_item = "> " + media_name + "：" + title
+                    if msg_item not in succ_list:
+                        succ_list.append(msg_item)
             except Exception as e:
                 logger.error("添加qBittorrent任务出错：" + str(e))
         logger.info(rss_job + "处理结束！")
-        if len(succ_list) > 0:
-            sendmsg("【RMT】qBittorrent新增下载", "\n\n".join(succ_list))
+    if len(succ_list) > 0:
+        sendmsg("【RMT】qBittorrent新增下载", "\n\n".join(succ_list))
 
 
 if __name__ == "__main__":
