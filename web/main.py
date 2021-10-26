@@ -13,7 +13,7 @@ from scheduler.qb_transfer import run_qbtransfer
 from scheduler.rss_download import run_rssdownload
 from scheduler.smzdm_signin import run_smzdmsignin
 from scheduler.unicom_signin import run_unicomsignin
-from web.emby.discord import report_to_discord, ddns_to_message
+from web.emby.discord import report_to_discord
 from web.emby.emby_event import EmbyEvent
 
 import log
