@@ -7,7 +7,8 @@ WORKDIR /nas-tools
 RUN echo "/nas-tools/" > /usr/local/lib/python3.9/site-packages/nas-tools.pth
 RUN python3 -m pip install -r /nas-tools/requirements.txt
 RUN apt-get update
-RUN apt-get install -y --no-install-recommends apt-utils curl xxd procps nfs-common cifs-utils
+RUN apt-get install -y --no-install-recommends apt-utils curl xxd procps nfs-common cifs-utils vim
+RUN echo fs.inotify.max_user_watches=524288 | tee -a /etc/sysctl.conf && sysctl -p
 RUN ln -s /nas-tools/bin/rmt.sh /usr/bin/rmtqb
 RUN ln -s /nas-tools/bin/run.sh /usr/bin/nastool
 RUN chmod +x /nas-tools/bin/*.sh
