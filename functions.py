@@ -70,7 +70,7 @@ def system_exec_command(cmd, timeout=60):
 def mysql_exec_sql(sql):
     mysql_flag = settings.get("mysql.mysql_flag").upper()
     if mysql_flag != "ON":
-        return
+        return True
     try:
         db = pymysql.connect(host=settings.get('mysql.mysql_host'),
                              port=int(settings.get('mysql.mysql_port')),
