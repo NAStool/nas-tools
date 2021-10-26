@@ -13,7 +13,7 @@ from scheduler.qb_transfer import run_qbtransfer
 from scheduler.rss_download import run_rssdownload
 from scheduler.smzdm_signin import run_smzdmsignin
 from scheduler.unicom_signin import run_unicomsignin
-from web.emby.discord import report_to_discord
+from web.emby.discord import report_to_discord, ddns_to_message
 from web.emby.emby_event import EmbyEvent
 
 import log
@@ -45,6 +45,15 @@ def create_app():
         event = EmbyEvent(request_json)
         report_to_discord(event)
         return 'Success'
+
+    # DDNS消息通知
+    @app.route('/ddns', methods=['POST'])
+    def ddns():
+        request_json = json.loads(request.form.get('data', {}))
+        logger.debug("输入报文：" + str(request_json))
+        text = request_json['text']
+        sendmsg("【DDNS】IP地址变化", text)
+        return '0'
 
     # 主页面
     @app.route('/', methods=['POST', 'GET'])
