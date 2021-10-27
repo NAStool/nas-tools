@@ -73,7 +73,7 @@ def run_rssdownload():
         logger.info("正在处理：" + rss_job)
         rss_result = parse_rssxml(rssurl)
         if len(rss_result) == 0:
-            return
+            continue
         for res in rss_result:
             try:
                 title = res['title']
