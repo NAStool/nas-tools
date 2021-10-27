@@ -52,7 +52,8 @@ def create_app():
         request_json = json.loads(request.form.get('data', {}))
         logger.debug("输入报文：" + str(request_json))
         text = request_json['text']
-        sendmsg("【DDNS】IP地址变化", text)
+        content = text['content']
+        sendmsg("【DDNS】IP地址变化", content)
         return '0'
 
     # 主页面

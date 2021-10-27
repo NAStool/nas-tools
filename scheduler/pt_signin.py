@@ -11,22 +11,25 @@ logger = log.Logger("scheduler").logger
 
 
 def pt_signin(name, url, cookie):
-    cookie_obj = cookieParse(cookie)
-    header = generateHeader(url)
-    # 设置请求头 、 cookie
-    session = requests.session()
-    session.headers.update(header)
-    session.cookies.update(cookie_obj)
+    try:
+        cookie_obj = cookieParse(cookie)
+        header = generateHeader(url)
+        # 设置请求头 、 cookie
+        session = requests.session()
+        session.headers.update(header)
+        session.cookies.update(cookie_obj)
 
-    with session.get(url) as res:
-        if name == "mteam":
-            r = re.search(r"魔力值（當前([\d,\.]+)）", res.text, re.IGNORECASE)
-        elif name == "pthome":
-            r = re.search(r": ([\d,\.]+)&nbsp;\(签到已得[\d]+\)", res.text, re.IGNORECASE)
-        else:
-            r = re.search(r"魔力值（当前([\d,\.]+)）", res.text, re.IGNORECASE)
+        with session.get(url) as res:
+            if name == "mteam":
+                r = re.search(r"魔力值（當前([\d,\.]+)）", res.text, re.IGNORECASE)
+            elif name == "pthome":
+                r = re.search(r": ([\d,\.]+)&nbsp;\(签到已得[\d]+\)", res.text, re.IGNORECASE)
+            else:
+                r = re.search(r"魔力值（当前([\d,\.]+)）", res.text, re.IGNORECASE)
 
-    tip = r.group(1)
+        tip = r.group(1)
+    except Exception as err:
+        return name + "签到出错：" + str(err)
 
     return name + " 当前魔力值：" + tip
 
