@@ -1,6 +1,7 @@
 from flask import Flask, request, json, render_template, make_response, jsonify
 
 import settings
+import log
 from functions import system_exec_command
 from monitor.movie_trailer import movie_trailer_all
 from monitor.resiliosync import resiliosync_all
@@ -15,8 +16,6 @@ from scheduler.smzdm_signin import run_smzdmsignin
 from scheduler.unicom_signin import run_unicomsignin
 from web.emby.discord import report_to_discord
 from web.emby.emby_event import EmbyEvent
-
-import log
 from message.send import sendmsg
 
 

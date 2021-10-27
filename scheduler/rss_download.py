@@ -110,17 +110,17 @@ def run_rssdownload():
                 media_type = media_info["type"]
                 media_title = media_info["name"]
                 media_year = media_info["year"]
-                media_name = media_title + " (" + media_year + ")"
-                if media_name not in rss_cache_name:
-                    rss_cache_name.append(media_name)
-                else:
-                    logger.info(media_name + "已处理过，跳过...")
-                    continue
                 if not is_chinese(media_title):
                     logger.error("没有中文看不懂，跳过：" + media_title)
                     continue
                 # 判断是否已存在
+                media_name = media_title + " (" + media_year + ")"
                 if search_type == "电影":
+                    if media_name not in rss_cache_name:
+                        rss_cache_name.append(media_name)
+                    else:
+                        logger.info(media_name + "已处理过，跳过...")
+                        continue
                     # 电影目录
                     media_path = os.path.join(movie_path, media_name)
                     # 目录是否存在
