@@ -146,7 +146,7 @@ def run_movie_trailer():
             observer = Observer()
         else:
             observer = PollingObserver()
-        observer.schedule(event_handler, path=monpath, recursive=True)  # recursive递归的
+        observer.schedule(event_handler, path=monpath, recursive=False)  # recursive递归的
         observer.setDaemon(False)
         observer.start()
         logger.info("monitor.movie_trailer启动...")
