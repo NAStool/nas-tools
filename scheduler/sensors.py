@@ -29,7 +29,10 @@ def run_sensors():
     elif result_err != "":
         sendmsg("【sensors】命令执行失败！", "错误信息：" + result_err)
     else:
-        temp = re.search(r"\+\d{1,3}\.\d+\s+C", result_out, re.IGNORECASE).group(0).replace("+", "").replace("C", "").strip()
+        try:
+            temp = re.search(r"\+\d{1,3}\.\d+°C", result_out, re.IGNORECASE).group(0).replace("+", "").replace("°C", "").strip()
+        except AttributeError:
+            temp = None
         if not temp:
             logger.error("【sensors】命令执行失败,未获取到温度数值：\n" + result_out)
             return
