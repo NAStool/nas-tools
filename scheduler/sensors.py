@@ -49,6 +49,7 @@ def run_sensors():
             if pretemp >= sensors_alert_times:
                 sendmsg("【sensors】CPU温度高报警", hostname + " CPU当前温度 " + str(temp) + " ℃, 已连续 " +
                         str(sensors_alert_times) + " 个周期超过 " + str(sensors_temperature_alert) + " ℃")
+                gl.set_value("SENSORS_TEMPERATURE_COUNT", 0)
 
 
 if __name__ == "__main__":
