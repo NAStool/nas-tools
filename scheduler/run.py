@@ -8,6 +8,7 @@ from scheduler.pt_signin import run_ptsignin
 import settings
 from scheduler.qb_transfer import run_qbtransfer
 from scheduler.rss_download import run_rssdownload
+from scheduler.sensors import run_sensors
 from scheduler.smzdm_signin import run_smzdmsignin
 from scheduler.unicom_signin import run_unicomsignin
 
@@ -76,6 +77,13 @@ def run_scheduler():
         scheduler.add_job(run_rssdownload, 'interval',
                           seconds=int(settings.get("scheduler.rssdownload_interval")))
         logger.info("scheduler.rssdownload启动...")
+
+    # RSS下载器
+    sensors_flag = settings.get("scheduler.sensors_flag") == "ON" or False
+    if sensors_flag:
+        scheduler.add_job(run_sensors, 'interval',
+                          seconds=int(settings.get("scheduler.sensors_check_interval")))
+        logger.info("scheduler.sensors启动...")
 
     scheduler.start()
     logger.info("scheduler启动完成!")
