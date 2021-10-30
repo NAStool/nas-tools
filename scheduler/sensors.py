@@ -37,7 +37,7 @@ def run_sensors():
             logger.error("【sensors】命令执行失败,未获取到温度数值：\n" + result_out)
             return
         else:
-            logger.info("CPU当前温度为：" + str(temp))
+            logger.debug("CPU当前温度为：" + str(temp))
         if float(temp) > sensors_temperature_alert:
             pretemp = gl.get_value("SENSORS_TEMPERATURE_COUNT")
             if pretemp:

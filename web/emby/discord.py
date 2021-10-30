@@ -86,4 +86,4 @@ def report_to_discord(event):
             if mysql_exec_sql(sql):
                 logger.info("数据库登记成功！")
             else:
-                logger.info("数据库登记失败：" + sql)
+                logger.error("数据库登记失败：" + sql)

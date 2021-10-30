@@ -40,7 +40,7 @@ def create_app():
                             "Server": {"server_name": server_name},
                             "Status": flag
                             }
-        logger.debug("输入报文：" + str(request_json))
+        # logger.debug("输入报文：" + str(request_json))
         event = EmbyEvent(request_json)
         report_to_discord(event)
         return 'Success'
@@ -49,9 +49,10 @@ def create_app():
     @app.route('/ddns', methods=['POST'])
     def ddns():
         request_json = json.loads(request.form.get('data', {}))
-        logger.debug("输入报文：" + str(request_json))
+        logger.info("输入报文：" + str(request_json))
         text = request_json['text']
         content = text['content']
+        logger.info("发送消息：" + "【DDNS】IP地址变化 " + content)
         sendmsg("【DDNS】IP地址变化", content)
         return '0'
 
