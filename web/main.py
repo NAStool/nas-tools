@@ -134,7 +134,8 @@ def create_app():
                 else:
                     v_path = ""
                     v_hash = ""
-                cmdstr = "bash /nas-tools/bin/rmt.sh" + " \"" + p_name + "\" \"" + v_path + "\" \"" + v_hash + "\" \"" + p_year + "\""
+                rootpath = settings.get("root.rootpath")
+                cmdstr = "bash " + rootpath + "/bin/rmt.sh" + " \"" + p_name + "\" \"" + v_path + "\" \"" + v_hash + "\" \"" + p_year + "\""
                 logger.info("执行命令：" + cmdstr)
                 std_err, std_out = system_exec_command(cmdstr, 1800)
                 # 读取qBittorrent列表
