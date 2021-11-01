@@ -75,7 +75,7 @@ def run_resilosync():
         observer.schedule(event_handler, path=monpath, recursive=True)  # recursive递归的
         observer.setDaemon(False)
         observer.start()
-        logger.info("monitor.resilosync启动...")
+        logger.info("【RUN】monitor.resilosync启动...")
     else:
         logger.error("【ResilioSync】" + monpath + "目录不存在！")
 

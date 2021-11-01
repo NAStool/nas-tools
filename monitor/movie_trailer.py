@@ -148,7 +148,7 @@ def run_movie_trailer():
         observer.schedule(event_handler, path=monpath, recursive=True)  # recursive递归的
         observer.setDaemon(False)
         observer.start()
-        logger.info("monitor.movie_trailer启动...")
+        logger.info("【RUN】monitor.movie_trailer启动...")
     else:
         logger.error("【TRAILER-DL】" + monpath + "目录不存在！")
 
