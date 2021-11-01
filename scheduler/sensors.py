@@ -19,7 +19,7 @@ def run_sensors():
     sensors_temperature_alert = float(settings.get("scheduler.sensors_temperature_alert"))
     sensors_alert_times = int(settings.get("scheduler.sensors_alert_times"))
 
-    logger.info("开始执行命令：" + cmd)
+    logger.debug("开始执行命令：" + cmd)
     # 获取命令结果
     result_err, result_out = system_exec_command(cmd, 5)
 
