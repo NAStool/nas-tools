@@ -23,7 +23,7 @@ media_ext = settings.get("rmt.rmt_mediaext")
 def transfer_trailers(in_path):
     trailer_file_list = get_dir_files_by_ext(in_path, media_ext)
     if len(trailer_file_list) == 0:
-        logger.info(in_path + " 不存在预告片，删除目录...")
+        logger.info("【HOT-TRAILER】" + in_path + " 不存在预告片，删除目录...")
         shutil.rmtree(in_path, ignore_errors=True)
         return
     for trailer_file in trailer_file_list:
@@ -32,26 +32,26 @@ def transfer_trailers(in_path):
         dest_path = os.path.join(movie_path, trailer_file_name)
         trailer_file_ext = os.path.splitext(trailer_file)[1]
         if os.path.exists(dest_path):
-            logger.info(trailer_file_name + " 进行转移...")
+            logger.info("【HOT-TRAILER】" + trailer_file_name + " 进行转移...")
             dest_file_list = get_dir_files_by_ext(dest_path, media_ext)
             for dest_movie_file in dest_file_list:
                 if dest_movie_file.find("-trailer.") != -1:
-                    logger.error("预告片，跳过...")
+                    logger.error("【HOT-TRAILER】预告片，跳过...")
                     continue
                 trailer_dest_file = os.path.splitext(dest_movie_file)[0] + "-trailer" + trailer_file_ext
                 if os.path.exists(trailer_dest_file):
-                    logger.error(trailer_dest_file + " 文件已存在，跳过...")
+                    logger.error("【HOT-TRAILER】" + trailer_dest_file + " 文件已存在，跳过...")
                     break
                 if os.path.exists(trailer_file):
-                    logger.info("正在复制：" + trailer_file + " 到 " + trailer_dest_file)
+                    logger.debug("【HOT-TRAILER】正在复制：" + trailer_file + " 到 " + trailer_dest_file)
                     shutil.copy(trailer_file, trailer_dest_file)
-                    logger.info("转移完成：" + trailer_dest_file)
+                    logger.info("【HOT-TRAILER】转移完成：" + trailer_dest_file)
                 else:
-                    logger.error(trailer_file + " 原文件不存在，跳过...")
+                    logger.error("【HOT-TRAILER】" + trailer_file + " 原文件不存在，跳过...")
             shutil.rmtree(trailer_file_dir, ignore_errors=True)
-            logger.info(trailer_file_dir + "已删除！")
+            logger.info("【HOT-TRAILER】" + trailer_file_dir + "已删除！")
         else:
-            logger.info(trailer_file_name + " 不存在对应电影，跳过...")
+            logger.info("【HOT-TRAILER】" + trailer_file_name + " 不存在对应电影，跳过...")
 
 
 def run_hottrailers(refresh_flag=True):
@@ -66,7 +66,7 @@ def run_hottrailers(refresh_flag=True):
 
         # 正在上映与即将上映
         playing_list = []
-        logger.info("检索正在上映电影...")
+        logger.info("【HOT-TRAILER】检索正在上映电影...")
         page = 1
         now_playing = movie.now_playing(page)
         now_playing_total = 0
@@ -76,8 +76,8 @@ def run_hottrailers(refresh_flag=True):
             playing_list = playing_list + now_playing
             page = page + 1
             now_playing = movie.now_playing(page)
-        logger.info("正在上映：" + str(now_playing_total))
-        logger.info("检索即将上映电影...")
+        logger.info("【HOT-TRAILER】正在上映：" + str(now_playing_total))
+        logger.info("【HOT-TRAILER】检索即将上映电影...")
         page = 1
         upcoming = movie.upcoming(page)
         upcoming_total = 0
@@ -87,7 +87,7 @@ def run_hottrailers(refresh_flag=True):
             playing_list = playing_list + upcoming
             page = page + 1
             upcoming = movie.upcoming(page)
-        logger.info("即将上映：" + str(upcoming_total))
+        logger.info("【HOT-TRAILER】即将上映：" + str(upcoming_total))
 
         # 检索和下载预告片
         tmdb.language = 'en-US'
@@ -101,7 +101,7 @@ def run_hottrailers(refresh_flag=True):
                 movie_id = item.id
                 movie_title = item.title
                 if not is_chinese(movie_title):
-                    logger.info("没有中文看不懂，跳过...")
+                    logger.info("【HOT-TRAILER】" + movie_title + "没有中文看不懂，跳过...")
                     continue
                 movie_year = item.release_date[0:4]
                 logger.info(str(total_count) + "、电影：" + str(movie_id) + " - " + movie_title)
@@ -109,26 +109,26 @@ def run_hottrailers(refresh_flag=True):
                 file_path = trailer_dir + "/" + movie_title + " (" + movie_year + ").%(ext)s"
                 movie_dir = movie_path + "/" + movie_title + " (" + movie_year + ")"
                 if os.path.exists(trailer_dir):
-                    logger.info("预告目录已存在，跳过...")
+                    logger.info("【HOT-TRAILER】" + movie_title + "预告目录已存在，跳过...")
                     continue
                 exists_trailers = get_dir_files_by_name(movie_dir, "-trailer.")
                 if len(exists_trailers) > 0:
-                    logger.error("电影目录已存在预告片，跳过...")
+                    logger.error("【HOT-TRAILER】" + movie_title + "电影目录已存在预告片，跳过...")
                     continue
                 # 开始下载
                 try:
                     movie_videos = movie.videos(movie_id)
                 except Exception as err:
-                    logger.error("错误：" + str(err))
+                    logger.error("【HOT-TRAILER】错误：" + str(err))
                     continue
-                logger.info("预告片总数：" + str(len(movie_videos)))
+                logger.info("【HOT-TRAILER】预告片总数：" + str(len(movie_videos)))
                 if len(movie_videos) > 0:
                     succ_flag = False
                     for video in movie_videos:
                         trailer_key = video.key
-                        logger.info(">下载：" + trailer_key)
+                        logger.debug(">下载：" + trailer_key)
                         exec_cmd = youtube_dl_cmd.replace("$PATH", file_path).replace("$KEY", trailer_key)
-                        logger.info(">开始执行命令：" + exec_cmd)
+                        logger.debug(">开始执行命令：" + exec_cmd)
                         # 获取命令结果
                         result_err, result_out = system_exec_command(exec_cmd, 180)
                         if result_err:
@@ -147,9 +147,9 @@ def run_hottrailers(refresh_flag=True):
                         shutil.rmtree(trailer_dir, ignore_errors=True)
                 else:
                     notfound_count = notfound_count + 1
-                    logger.info(movie_title + " 未检索到预告片")
+                    logger.info("【HOT-TRAILER】" + movie_title + " 未检索到预告片")
             except Exception as err:
-                logger.error("！！！错误：" + str(err))
+                logger.error("【HOT-TRAILER】错误：" + str(err))
         # 发送消息
         end_time = datetime.now()
         sendmsg("【HotTrialer】电影预告更新完成", "耗时：" + str((end_time - start_time).seconds) + " 秒" +
@@ -157,15 +157,14 @@ def run_hottrailers(refresh_flag=True):
                 "\n\n完成：" + str(succ_count) +
                 "\n\n未找到：" + str(notfound_count) +
                 "\n\n出错：" + str(fail_count))
-        logger.info("消息发送完成！")
 
-    logger.info("开始转移存量预告片...")
+    logger.info("【HOT-TRAILER】开始转移存量预告片...")
     trailer_dir_list = os.listdir(hottrailer_path)
     for trailer_dir in trailer_dir_list:
         trailer_dir = os.path.join(hottrailer_path, trailer_dir)
         if os.path.isdir(trailer_dir):
             transfer_trailers(trailer_dir)
-    logger.info("存量预告片转移完成！")
+    logger.info("【HOT-TRAILER】存量预告片转移完成！")
 
 
 if __name__ == "__main__":

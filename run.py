@@ -17,7 +17,7 @@ if __name__ == "__main__":
     if automount_flag:
         env_media, env_photo, env_pt, env_resiliosync = False, False, False, False
         while True:
-            logger.info("开始装载目录...")
+            logger.info("【RUN】开始装载目录...")
             # media
             media_config = settings.get("automount.media")
             if not media_config:
@@ -28,12 +28,12 @@ if __name__ == "__main__":
                     os.makedirs(media_config[1])
                 media_cmd = "mount.cifs -o username=" + media_config[2] + ",password=\"" + media_config[3] + \
                             "\",uid=0,gid=0,iocharset=utf8 " + media_config[0] + " " + media_config[1]
-                logger.info("开始执行命令：" + media_cmd)
+                logger.info("【RUN】开始执行命令：" + media_cmd)
                 result_err, result_out = system_exec_command(media_cmd, 10)
                 if result_err:
-                    logger.error("错误信息：" + result_err)
+                    logger.error("【RUN】错误信息：" + result_err)
                 if result_out:
-                    logger.info("执行结果：" + result_out)
+                    logger.info("【RUN】执行结果：" + result_out)
                 if not result_err and not result_out:
                     env_media = True
             # photo
@@ -46,12 +46,12 @@ if __name__ == "__main__":
                     os.makedirs(photo_config[1])
                 photo_cmd = "mount.cifs -o username=" + photo_config[2] + ",password=\"" + photo_config[3] + \
                             "\",uid=0,gid=0,iocharset=utf8 " + photo_config[0] + " " + photo_config[1]
-                logger.info("开始执行命令：" + photo_cmd)
+                logger.info("【RUN】开始执行命令：" + photo_cmd)
                 result_err, result_out = system_exec_command(photo_cmd, 10)
                 if result_err:
-                    logger.error("错误信息：" + result_err)
+                    logger.error("【RUN】错误信息：" + result_err)
                 if result_out:
-                    logger.info("执行结果：" + result_out)
+                    logger.info("【RUN】执行结果：" + result_out)
                 if not result_err and not result_out:
                     env_photo = True
             # pt
@@ -64,12 +64,12 @@ if __name__ == "__main__":
                     os.makedirs(pt_config[1])
                 pt_cmd = "mount.cifs -o username=" + pt_config[2] + ",password=\"" + pt_config[3] + \
                          "\",uid=0,gid=0,iocharset=utf8 " + pt_config[0] + " " + pt_config[1]
-                logger.info("开始执行命令：" + pt_cmd)
+                logger.info("【RUN】开始执行命令：" + pt_cmd)
                 result_err, result_out = system_exec_command(pt_cmd, 10)
                 if result_err:
-                    logger.error("错误信息：" + result_err)
+                    logger.error("【RUN】错误信息：" + result_err)
                 if result_out:
-                    logger.info("执行结果：" + result_out)
+                    logger.info("【RUN】执行结果：" + result_out)
                 if not result_err and not result_out:
                     env_pt = True
             # relisiosync
@@ -83,27 +83,27 @@ if __name__ == "__main__":
                 relisiosync_cmd = "mount.cifs -o username=" + relisiosync_config[2] + ",password=\"" + \
                                   relisiosync_config[3] + "\",uid=0,gid=0,iocharset=utf8 " + \
                                   relisiosync_config[0] + " " + relisiosync_config[1]
-                logger.info("开始执行命令：" + relisiosync_cmd)
+                logger.info("【RUN】开始执行命令：" + relisiosync_cmd)
                 result_err, result_out = system_exec_command(relisiosync_cmd, 10)
                 if result_err:
-                    logger.error("错误信息：" + result_err)
+                    logger.error("【RUN】错误信息：" + result_err)
                 if result_out:
-                    logger.info("执行结果：" + result_out)
+                    logger.info("【RUN】执行结果：" + result_out)
                 if not result_err and not result_out:
                     env_resiliosync = True
             # 启动进程
             if env_media and env_photo and env_pt and env_resiliosync:
-                logger.info("目录装载完成！")
+                logger.info("【RUN】目录装载完成！")
                 break
             elif envloop > 10:
-                logger.info("已达最大重试次数，跳过...")
+                logger.info("【RUN】已达最大重试次数，跳过...")
                 break
             else:
-                logger.error("环境未就绪，等待1分钟后重试...")
+                logger.error("【RUN】环境未就绪，等待1分钟后重试...")
                 envloop = envloop + 1
                 sleep(60)
     # 启动进程
-    logger.info("开始启动进程...")
+    logger.info("【RUN】开始启动进程...")
     Process(target=monitor.run_monitor, args=()).start()
     Process(target=scheduler.run_scheduler, args=()).start()
     Process(target=webhook.run_webhook, args=()).start()

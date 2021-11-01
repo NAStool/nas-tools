@@ -82,7 +82,7 @@ def run_rssdownload():
                 if title not in rss_cache_list:
                     rss_cache_list.append(title)
                 else:
-                    logger.info(title + "已处理过，跳过...")
+                    logger.debug(title + "已处理过，跳过...")
                     continue
                 match_flag = False
                 if movie_type and (category in movie_type):
@@ -111,7 +111,7 @@ def run_rssdownload():
                 media_title = media_info["name"]
                 media_year = media_info["year"]
                 if not is_chinese(media_title):
-                    logger.error("没有中文看不懂，跳过：" + media_title)
+                    logger.info("没有中文看不懂，跳过：" + media_title)
                     continue
                 # 判断是否已存在
                 media_name = media_title + " (" + media_year + ")"
@@ -119,14 +119,14 @@ def run_rssdownload():
                     if media_name not in rss_cache_name:
                         rss_cache_name.append(media_name)
                     else:
-                        logger.info(media_name + "已处理过，跳过...")
+                        logger.debug("电影已处理过，跳过：" + media_name)
                         continue
                     # 电影目录
                     media_path = os.path.join(movie_path, media_name)
                     # 目录是否存在
-                    logger.info("路径：" + media_path)
+                    logger.debug("路径：" + media_path)
                     if os.path.exists(media_path):
-                        logger.error("电影目录已存在，跳过：" + media_path)
+                        logger.info("电影目录已存在，跳过：" + media_path)
                         continue
                 else:
                     # 剧集目录
@@ -147,7 +147,7 @@ def run_rssdownload():
                                                  media_title + " - " + file_season + file_seq + " - " + "第 " + file_seq_num + " 集")
                         exist_flag = False
                         for ext in settings.get("rmt.rmt_mediaext").split(","):
-                            logger.info("路径：" + file_path + ext)
+                            logger.debug("路径：" + file_path + ext)
                             if os.path.exists(file_path + ext):
                                 exist_flag = True
                                 logger.error("剧集文件已存在，跳过：" + file_path + ext)

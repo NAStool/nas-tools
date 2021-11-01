@@ -6,9 +6,9 @@ logger = log.Logger("scheduler").logger
 
 
 def run_qbtransfer():
-    logger.info("qb_transfer开始...")
+    logger.info("【QB-TRANSFER】qb_transfer开始...")
     transfer_qbittorrent_task()
-    logger.info("qb_transfer结束...")
+    logger.info("【QB-TRANSFER】qb_transfer结束...")
 
 
 if __name__ == "__main__":

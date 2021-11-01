@@ -51,7 +51,7 @@ def run_smzdmsignin():
     try:
         sb.load_cookie_str(cookies)
         res = sb.checkin()
-        logger.info("登录返回结果：" + str(res))
+        logger.info("【SMZDM-SIGN】登录返回结果：" + str(res))
         if res:
             data = res['data']
             err_code = res['error_code']
@@ -69,7 +69,7 @@ def run_smzdmsignin():
             send_msg = "解析数据错误！"
         sendmsg(title='【SMZDM】每日签到', text=send_msg)
     except Exception as err:
-        logger.err("登录失败：" + str(err))
+        logger.err("【SMZDM-SIGN】登录失败：" + str(err))
         sendmsg(title='【SMZDM】每日签到', text="登录失败：" + str(err))
 
 

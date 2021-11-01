@@ -12,13 +12,13 @@ def run_icloudpd():
     start_time = datetime.now()
     cmd = settings.get("scheduler.icloudpd_cmd")
 
-    logger.info("开始执行命令：" + cmd)
+    logger.info("【ICLOUDPD】开始执行命令：" + cmd)
     # 获取命令结果
     result_err, result_out = system_exec_command(cmd, 600)
     if result_err:
-        logger.error("错误信息：" + result_err)
+        logger.error("【ICLOUDPD】错误信息：" + result_err)
     if result_out:
-        logger.info("执行结果：" + result_out)
+        logger.info("【ICLOUDPD】执行结果：" + result_out)
 
     end_time = datetime.now()
     if result_err == "timeout":

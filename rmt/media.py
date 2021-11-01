@@ -15,10 +15,10 @@ logger = log.Logger("rmt").logger
 # 根据文件名转移对应字幕文件
 def transfer_subtitles(in_path, org_name, new_name, mv_flag=False):
     file_list = get_dir_files_by_ext(in_path, settings.get('rmt.rmt_subext'))
-    logger.debug("字幕文件清单：" + str(file_list))
+    logger.debug("【RMT】字幕文件清单：" + str(file_list))
     Media_FileNum = len(file_list)
     if Media_FileNum == 0:
-        logger.error("没有支持的字幕文件，不处理！")
+        logger.info("【RMT】没有支持的字幕文件，不处理！")
     else:
         find_flag = False
         for file_item in file_list:
@@ -32,51 +32,50 @@ def transfer_subtitles(in_path, org_name, new_name, mv_flag=False):
                     new_file = os.path.splitext(new_name)[0] + file_ext
                 if not os.path.exists(new_file):
                     if mv_flag:
-                        logger.info("正在移动字幕：" + file_item + " 到 " + new_file)
+                        logger.debug("【RMT】正在移动字幕：" + file_item + " 到 " + new_file)
                         shutil.move(file_item, new_file)
-                        logger.info("字幕移动完成：" + new_file)
+                        logger.info("【RMT】字幕移动完成：" + new_file)
                     else:
-                        logger.info("正在复制字幕：" + file_item + " 到 " + new_file)
+                        logger.debug("【RMT】正在复制字幕：" + file_item + " 到 " + new_file)
                         shutil.copy(file_item, new_file)
-                        logger.info("字幕复制完成：" + new_file)
+                        logger.info("【RMT】字幕复制完成：" + new_file)
                 else:
-                    logger.error("字幕 " + new_file + "已存在！")
+                    logger.info("【RMT】字幕 " + new_file + "已存在！")
         if not find_flag:
-            logger.error("没有相同文件名的字幕文件，不处理！")
+            logger.info("【RMT】没有相同文件名的字幕文件，不处理！")
 
 
 def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=False):
     if over_flag:
-        logger.info("正在删除已存在的文件：" + new_file)
+        logger.debug("【RMT】正在删除已存在的文件：" + new_file)
         os.remove(new_file)
-        logger.info(new_file + " 已删除！")
+        logger.info("【RMT】" + new_file + " 已删除！")
 
     # 复制文件
-    logger.info("正在复制文件：" + file_item + " 到 " + new_file)
+    logger.info("【RMT】正在复制文件：" + file_item + " 到 " + new_file)
     shutil.copy(file_item, new_file)
-    logger.info("文件复制完成：" + new_file)
-    logger.info("正在复制字幕...")
+    logger.info("【RMT】文件复制完成：" + new_file)
     transfer_subtitles(file_path, file_item, new_file, False)
 
     if mv_flag:
         if file_path != settings.get('rmt.rmt_moviepath') and file_path != settings.get('rmt.rmt_tvpath'):
             shutil.rmtree(file_path)
-        logger.info(file_path + " 已删除！")
+        logger.info("【RMT】" + file_path + " 已删除！")
 
 
 # 转移一个目录下的所有文件
 def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv_flag=False, noti_flag=True):
     if in_name == "" or in_path == "":
-        logger.error("输入参数错误!")
+        logger.error("【RMT】输入参数错误!")
         return False
     # 遍历文件
     in_path = in_path.replace('\\\\', '/').replace('\\', '/')
-    logger.info("开始处理：" + in_path)
+    logger.info("【RMT】开始处理：" + in_path)
     file_list = get_dir_files_by_ext(in_path, settings.get('rmt.rmt_mediaext'))
-    logger.debug("电影文件清单：" + str(file_list))
+    logger.debug("【RMT】电影文件清单：" + str(file_list))
     Media_FileNum = len(file_list)
     if Media_FileNum == 0:
-        logger.error("没有支持的文件格式，不处理！")
+        logger.error("【RMT】没有支持的文件格式，不处理！")
         if noti_flag:
             sendmsg("【RMT】没有支持的文件格式！", "来源：" + in_from
                     + "\n\n名称：" + in_name)
@@ -102,7 +101,7 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
                                       Media_Title + " (" + Media_Year + ")")
             # 创建目录
             if not os.path.exists(media_path):
-                logger.info("正在创建目录：" + media_path)
+                logger.debug("【RMT】正在创建目录：" + media_path)
                 os.makedirs(media_path)
             for file_item in file_list:
                 Media_FileSize = Media_FileSize + os.path.getsize(file_item)
@@ -120,12 +119,12 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
                 else:
                     ExistFile_Size = os.path.getsize(new_file)
                     if Media_FileSize > ExistFile_Size:
-                        logger.error("文件" + new_file + "已存在，但新文件质量更好，覆盖...")
+                        logger.error("【RMT】文件" + new_file + "已存在，但新文件质量更好，覆盖...")
                         transfer_files(in_path, file_item, new_file, mv_flag, True)
                     else:
                         Exist_FileNum = Exist_FileNum + 1
-                        logger.error("文件 " + new_file + "已存在，且质量更好！")
-            logger.info(in_name + " 转移完成！")
+                        logger.error("【RMT】文件 " + new_file + "已存在，且质量更好！")
+            logger.info("【RMT】" + in_name + " 转移完成！")
             msg_str = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) \
                       + "\n\n来源：" + in_from \
                       + "\n\n名称：" + in_name \
@@ -153,7 +152,7 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
             media_path = os.path.join(settings.get('rmt.rmt_tvpath'), Media_Type, Media_Title + " (" + Media_Year + ")")
             # 创建目录
             if not os.path.exists(media_path):
-                logger.info("正在创建目录：" + media_path)
+                logger.debug("【RMT】正在创建目录：" + media_path)
                 os.makedirs(media_path)
             for file_item in file_list:
                 Media_FileSize = Media_FileSize + os.path.getsize(file_item)
@@ -174,7 +173,7 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
                     episode_ary.append(file_seq_num)
                 # 创建目录
                 if not os.path.exists(season_dir):
-                    logger.info("正在创建剧集目录：" + season_dir)
+                    logger.debug("【RMT】正在创建剧集目录：" + season_dir)
                     os.makedirs(season_dir)
                 # 处理文件
                 new_file = os.path.join(season_dir,
@@ -186,12 +185,12 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
                 else:
                     ExistFile_Size = os.path.getsize(new_file)
                     if Media_FileSize > ExistFile_Size:
-                        logger.error("文件" + new_file + "已存在，但新文件质量更好，覆盖...")
+                        logger.error("【RMT】文件" + new_file + "已存在，但新文件质量更好，覆盖...")
                         transfer_files(in_path, file_item, new_file, mv_flag, True)
                     else:
                         Exist_FileNum = Exist_FileNum + 1
-                        logger.error("文件 " + new_file + "已存在，且质量更好！")
-            logger.info(in_name + " 转移完成！")
+                        logger.error("【RMT】文件 " + new_file + "已存在，且质量更好！")
+            logger.info("【RMT】" + in_name + " 转移完成！")
             season_ary.sort()
             episode_ary.sort(key=int)
             msg_str = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) \
@@ -218,14 +217,13 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
                              ', '.join(season_ary), ', '.join(episode_ary),
                              Media_FileNum, str_filesize(Media_FileSize), save_path, save_note)
         else:
-            logger.error(in_name + " 无法识别是什么类型的媒体文件！")
+            logger.error("【RMT】" + in_name + " 无法识别是什么类型的媒体文件！")
             sendmsg("【RMT】无法识别媒体类型！",
                     '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
                     + "\n\n来源：" + in_from
                     + "\n\n名称：" + in_name)
             return False
     else:
-        logger.error(in_name + " 搜刮失败！识别标题：" + Media_Title)
         sendmsg("【RMT】媒体搜刮失败！", '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
                 + "\n\n来源：" + in_from
                 + "\n\n名称：" + in_name
@@ -244,9 +242,9 @@ def insert_media_log(source, org_name, tmdbid, title, type, year, season, episod
           "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, '%s', '%s', '%s', now())" % \
           (source, org_name, tmdbid, title, type, year, season, episode, filenum, filesize, path, note)
     if mysql_exec_sql(sql):
-        logger.info("数据库登记成功！")
+        logger.debug("数据库登记成功！")
     else:
-        logger.info("数据库登记失败：" + sql)
+        logger.error("数据库登记失败：" + sql)
 
 
 def is_media_files_tv(in_path):
@@ -383,30 +381,28 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
         else:
             search_type = "电影"
 
-    logger.info("检索类型为：" + search_type)
+    logger.info("【RMT】检索类型为：" + search_type)
     if not in_year:
         media_year = get_media_file_year(in_path)
     else:
         media_year = in_year
-    logger.info("识别年份为：" + str(media_year))
+    logger.info("【RMT】识别年份为：" + str(media_year))
 
     if search_type == "电影":
         search = Search()
-        logger.info("正在检索电影：" + media_name + '...')
+        logger.info("【RMT】正在检索电影：" + media_name + '...')
         if media_year != "":
             movie = search.movies({"query": media_name, "year": media_year})
         else:
             movie = search.movies({"query": media_name})
-        logger.debug("API返回：" + str(search.total_results))
+        logger.debug("【RMT】API返回：" + str(search.total_results))
         if len(movie) == 0:
-            logger.error("未找到媒体信息!")
+            logger.error("【RMT】未找到媒体信息!")
         else:
             info = movie[0]
-            logger.info(">电影ID：" + str(info.id))
             media_id = info.id
-            logger.info(">电影名称：" + info.title)
             media_title = info.title
-            logger.info(">上映日期：" + info.release_date)
+            logger.info(">电影ID：" + str(info.id) + "，上映日期：" + info.release_date + "，电影名称：" + info.title)
             media_year = info.release_date[0:4]
             if media_type == "":
                 media_type = "电影"
@@ -415,22 +411,20 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
 
     else:
         search = Search()
-        logger.info("正在检索剧集：" + media_name + '...')
+        logger.info("【RMT】正在检索剧集：" + media_name + '...')
         if media_year != "":
             tv = search.tv_shows({"query": media_name, "year": media_year})
         else:
             tv = search.tv_shows({"query": media_name})
-        logger.debug("API返回：" + str(search.total_results))
+        logger.debug("【RMT】API返回：" + str(search.total_results))
         if len(tv) == 0:
-            logger.error("未找到媒体信息!")
+            logger.error("【RMT】未找到媒体信息!")
             info = {}
         else:
             info = tv[0]
-            logger.info(">剧集ID：" + str(info.id))
             media_id = info.id
-            logger.info(">剧集名称：" + info.name)
             media_title = info.name
-            logger.info(">上映日期：" + info.first_air_date)
+            logger.info(">剧集ID：" + str(info.id) + "，剧集名称：" + info.name + "，上映日期：" + info.first_air_date)
             media_year = info.first_air_date[0:4]
             if media_type == "":
                 # 类型 动漫、纪录片、儿童、综艺
@@ -458,6 +452,6 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
                         media_type = "日韩剧"
                     else:
                         media_type = "国产剧"
-    logger.info("剧集类型：" + media_type)
+    logger.info("【RMT】剧集类型：" + media_type)
     return {"search": search_type, "type": media_type, "id": media_id, "name": media_title, "year": media_year,
             "info": info, "pix": media_pix}

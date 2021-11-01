@@ -11,7 +11,7 @@ logger = log.Logger("scheduler").logger
 
 def run_unicomsignin():
     start_time = datetime.now()
-    logger.info("连接成功！")
+    logger.info("【UNICOM-SIGN】连接成功！")
     tasks = eval(settings.get("unicom.unicom_tasks"))
     appid = settings.get("unicom.unicom_appid")
     succ_text = ""
@@ -22,13 +22,13 @@ def run_unicomsignin():
         user = task.split(":")[0]
         password = task.split(":")[1]
         cmd = cmd.replace("$USER", user).replace("$PASSWORD", password).replace("$APPID", appid)
-        logger.info("开始执行命令：" + cmd)
+        logger.info("【UNICOM-SIGN】开始执行命令：" + cmd)
         # 获取命令结果
         result_err, result_out = system_exec_command(cmd, 600)
         if result_err:
-            logger.error("错误信息：" + result_err)
+            logger.error("【UNICOM-SIGN】错误信息：" + result_err)
         if result_out:
-            logger.info("执行结果：" + result_out)
+            logger.info("【UNICOM-SIGN】执行结果：" + result_out)
         if result_err != "":
             succ_flag = False
             if fail_text == "":

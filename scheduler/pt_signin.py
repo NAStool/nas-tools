@@ -38,17 +38,17 @@ def run_ptsignin():
     pt_tasks = eval(settings.get("pt.pt_tasks"))
     msg_str = ""
     for pt_task in pt_tasks:
-        logger.info("开始PT签到：" + pt_task)
+        logger.info("【PT-SIGN】开始PT签到：" + pt_task)
         pt_url = settings.get("pt." + pt_task + "_url")
         pt_cooke = settings.get("pt." + pt_task + "_cookie")
-        logger.info("cookie: " + pt_cooke)
-        logger.info("url: " + pt_url)
+        logger.debug("cookie: " + pt_cooke)
+        logger.debug("url: " + pt_url)
         res = pt_signin(pt_task, pt_url, pt_cooke)
         if msg_str == "":
             msg_str = res
         else:
             msg_str = res + "\n" + msg_str
-        logger.info(res)
+        logger.debug(res)
     sendmsg("【PT-SIGN】每日签到", msg_str)
 
 

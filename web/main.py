@@ -49,10 +49,9 @@ def create_app():
     @app.route('/ddns', methods=['POST'])
     def ddns():
         request_json = json.loads(request.form.get('data', {}))
-        logger.info("输入报文：" + str(request_json))
+        logger.info("【DDNS】输入报文：" + str(request_json))
         text = request_json['text']
         content = text['content']
-        logger.info("发送消息：" + "【DDNS】IP地址变化 " + content)
         sendmsg("【DDNS】IP地址变化", content)
         return '0'
 
@@ -137,7 +136,7 @@ def create_app():
                     v_hash = ""
                 rootpath = settings.get("root.rootpath")
                 cmdstr = "bash " + rootpath + "/bin/rmt.sh" + " \"" + p_name + "\" \"" + v_path + "\" \"" + v_hash + "\" \"" + p_year + "\""
-                logger.info("执行命令：" + cmdstr)
+                logger.info("【WEB】执行命令：" + cmdstr)
                 std_err, std_out = system_exec_command(cmdstr, 1800)
                 # 读取qBittorrent列表
                 qbt = login_qbittorrent()
