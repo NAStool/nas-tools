@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.1
+-- version 4.9.7
 -- https://www.phpmyadmin.net/
 --
 -- 主机： localhost
--- 生成日期： 2021-06-16 11:51:03
--- 服务器版本： 5.5.57-MariaDB
--- PHP 版本： 7.3.7
+-- 生成日期： 2021-11-01 13:42:16
+-- 服务器版本： 10.3.29-MariaDB
+-- PHP 版本： 7.3.24
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -28,7 +28,6 @@ SET time_zone = "+00:00";
 -- 表的结构 `emby_media_log`
 --
 
-DROP TABLE IF EXISTS `emby_media_log`;
 CREATE TABLE `emby_media_log` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `source` varchar(50) COLLATE utf8mb4_bin NOT NULL,
@@ -52,7 +51,6 @@ CREATE TABLE `emby_media_log` (
 -- 表的结构 `emby_playback_log`
 --
 
-DROP TABLE IF EXISTS `emby_playback_log`;
 CREATE TABLE `emby_playback_log` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `user` varchar(10) COLLATE utf8mb4_bin NOT NULL,
@@ -71,7 +69,6 @@ CREATE TABLE `emby_playback_log` (
 -- 表的结构 `message_log`
 --
 
-DROP TABLE IF EXISTS `message_log`;
 CREATE TABLE `message_log` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `type` varchar(20) COLLATE utf8mb4_bin NOT NULL,
@@ -81,6 +78,20 @@ CREATE TABLE `message_log` (
   `errcode` varchar(50) COLLATE utf8mb4_bin NOT NULL,
   `errmsg` varchar(1000) COLLATE utf8mb4_bin NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
+
+-- --------------------------------------------------------
+
+--
+-- 表的结构 `system_log`
+--
+
+CREATE TABLE `system_log` (
+  `id` int(10) NOT NULL,
+  `type` varchar(20) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `text` longtext NOT NULL,
+  `time` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
 -- 转储表的索引
@@ -108,6 +119,13 @@ ALTER TABLE `message_log`
   ADD UNIQUE KEY `id` (`id`);
 
 --
+-- 表的索引 `system_log`
+--
+ALTER TABLE `system_log`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `name` (`name`);
+
+--
 -- 在导出的表使用AUTO_INCREMENT
 --
 
@@ -128,6 +146,12 @@ ALTER TABLE `emby_playback_log`
 --
 ALTER TABLE `message_log`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- 使用表AUTO_INCREMENT `system_log`
+--
+ALTER TABLE `system_log`
+  MODIFY `id` int(10) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
