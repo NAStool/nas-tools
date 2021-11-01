@@ -2,7 +2,7 @@ from flask import Flask, request, json, render_template, make_response, jsonify
 
 import settings
 import log
-from functions import system_exec_command
+from functions import system_exec_command, mysql_query
 from monitor.movie_trailer import movie_trailer_all
 from monitor.resiliosync import resiliosync_all
 from rmt.qbittorrent import login_qbittorrent
@@ -94,6 +94,9 @@ def create_app():
         tim_rssdownload = settings.get("scheduler.rssdownload_interval")
         sta_rssdownload = settings.get("scheduler.rssdownload_flag")
 
+        # 读取 最新的100条日志
+        log_list = mysql_query("SELECT id,type,name,text,time FROM system_log ORDER BY time DESC LIMIT 100")
+
         return render_template("main.html",
                                page="rmt",
                                rmt_paths=path_list,
@@ -115,7 +118,8 @@ def create_app():
                                sta_movietrailer=sta_movietrailer,
                                sta_resiliosync=sta_resiliosync,
                                tim_rssdownload=tim_rssdownload,
-                               sta_rssdownload=sta_rssdownload
+                               sta_rssdownload=sta_rssdownload,
+                               log_list=log_list
                                )
 
     # 事件响应

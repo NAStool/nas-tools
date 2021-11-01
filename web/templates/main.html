@@ -26,6 +26,7 @@
 						<li {% if page=="rmt" %} class="active" {% endif %}><a href="#rmt" data-toggle="tab">qBittorrent转移</a></li>
 						<li {% if page=="msg" %} class="active" {% endif %}><a href="#msg" data-toggle="tab">发送消息</a></li>
 						<li {% if page=="sch" %} class="active" {% endif %}><a href="#sch" data-toggle="tab">定时任务</a></li>
+						<li {% if page=="log" %} class="active" {% endif %}><a href="#log" data-toggle="tab">日志</a></li>
 						<li {% if page=="set" %} class="active" {% endif %}><a href="#set" data-toggle="tab">设置</a></li>
 					</ul>
 					<div class="tab-content">
@@ -154,6 +155,31 @@
 							  </tbody>
 							</table>
 							<pre id="sch_ret" style="display:none"></pre>
+						</div>
+						<div class="tab-pane {% if page=='log' %} active {% endif %}" id="log">
+							<table class="table table-striped">
+							  <caption>日志</caption>
+							  <thead>
+								<tr>
+								  	<th>序号</th>
+								  	<th>级别</th>
+									<th>名称</th>
+								  	<th>内容</th>
+									<th>时间</th>
+								</tr>
+							  </thead>
+							  <tbody>
+							  	{% for log_info in log_list %}
+								<tr>
+								  	<td>{{ log_info[0] }}</td>
+								  	<td>{{ log_info[1] }}</td>
+									<td>{{ log_info[2] }}</td>
+								  	<td>{{ log_info[3] }}</td>
+									<td>{{ log_info[4] }}</td>
+								</tr>
+							   	{% endfor %}
+							  </tbody>
+							</table>
 						</div>
 					</div>
 				</div>

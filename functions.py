@@ -91,6 +91,30 @@ def mysql_exec_sql(sql):
         return False
 
 
+# 查询Mysql数据
+def mysql_query(sql):
+    mysql_flag = settings.get("mysql.mysql_flag").upper()
+    if mysql_flag != "ON":
+        return None
+    try:
+        db = pymysql.connect(host=settings.get('mysql.mysql_host'),
+                             port=int(settings.get('mysql.mysql_port')),
+                             db=settings.get('mysql.mysql_db'),
+                             user=settings.get('mysql.mysql_user'),
+                             password=settings.get('mysql.mysql_pw'))
+        # 使用cursor()方法获取操作游标
+        cursor = db.cursor()
+        # 执行sql语句
+        cursor.execute(sql)
+        results = cursor.fetchall()
+        # 关闭数据库连接
+        cursor.close()
+        db.close()
+        return results
+    except Exception:
+        return None
+
+
 # 获得目录下的媒体文件列表List，按后缀过滤
 def get_dir_files_by_ext(in_path, exts=""):
     ret_list = []
