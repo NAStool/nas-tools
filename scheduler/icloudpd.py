@@ -18,7 +18,7 @@ def run_icloudpd():
     if result_err:
         logger.error("【ICLOUDPD】错误信息：" + result_err)
     if result_out:
-        logger.info("【ICLOUDPD】执行结果：" + result_out)
+        logger.debug("【ICLOUDPD】执行结果：" + result_out)
 
     end_time = datetime.now()
     if result_err == "timeout":

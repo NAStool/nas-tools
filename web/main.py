@@ -65,7 +65,7 @@ def create_app():
         trans_containerpath = settings.get("rmt.rmt_containerpath")
         path_list = []
         for torrent in torrents:
-            logger.info(torrent.name + "：" + torrent.state)
+            logger.debug(torrent.name + "：" + torrent.state)
             if torrent.state == "uploading" or torrent.state == "stalledUP":
                 true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
                 path_list.append(true_path + "|" + torrent.hash)
