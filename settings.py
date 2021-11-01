@@ -1,3 +1,4 @@
+import os
 import threading
 from configparser import NoOptionError, RawConfigParser
 
@@ -9,7 +10,7 @@ class Config(object):
 
     def __init__(self, config_file_path=None):
         self.config = RawConfigParser()
-        self.config_file_path = config_file_path or '/config/config.ini'
+        self.config_file_path = config_file_path or '/var/packages/nastool/target/config/config.ini'
         self.load_config()
 
     def get_config_path(self):
@@ -31,12 +32,6 @@ class Config(object):
         self.config.read(self.config_file_path, 'utf-8')
 
     def get(self, key, default=None):
-        """
-        获取配置
-        :param str key: 格式 [section].[key] 如：app.name
-        :param Any default: 默认值
-        :return:
-        """
         map_key = key.split('.')
         if len(map_key) < 2:
             return default
@@ -51,12 +46,6 @@ class Config(object):
 
 
 def get(key, default=None):
-    """
-    获取配置
-    :param str key: 格式 [section].[key] 如：app.name
-    :param Any default: 默认值
-    :return:
-    """
     return Config.get_instance().get(key, default)
 
 
