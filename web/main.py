@@ -94,8 +94,13 @@ def create_app():
         tim_rssdownload = settings.get("scheduler.rssdownload_interval")
         sta_rssdownload = settings.get("scheduler.rssdownload_flag")
 
-        # 读取 最新的100条日志
-        log_list = mysql_query("SELECT id,type,name,text,time FROM system_log ORDER BY time DESC LIMIT 100")
+        # 读取日志配置
+        logtype = settings.get("root.logtype")
+        if logtype == "MYSQL":
+            # 读取 最新的100条日志
+            log_list = mysql_query("SELECT id,type,name,text,time FROM system_log ORDER BY time DESC LIMIT 100")
+        else:
+            log_list = ""
 
         return render_template("main.html",
                                page="rmt",
@@ -119,7 +124,8 @@ def create_app():
                                sta_resiliosync=sta_resiliosync,
                                tim_rssdownload=tim_rssdownload,
                                sta_rssdownload=sta_rssdownload,
-                               log_list=log_list
+                               log_list=log_list,
+                               log_type=logtype
                                )
 
     # 事件响应
