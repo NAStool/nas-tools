@@ -15,17 +15,17 @@ def report_to_discord(event):
     message_flag = True
 
     # System
-    logger.info('事件类型：' + event.category)
+    logger.debug('【EMBY】事件类型：' + event.category)
     if event.category == 'system':
         if event.action == 'webhooktest':
-            message = '【Emby】Test'
+            message = '【EMBY】Test'
     # Playback
     elif event.category == 'playback':
         ignore_list = eval(settings.get("webhook.webhook_ignore"))
         if event.user_name in ignore_list or \
                 event.device_name in ignore_list or \
                 (event.user_name + ':' + event.device_name) in ignore_list:
-            logger.info('忽略的用户或设备，不通知：' + event.user_name + ':' + event.device_name)
+            logger.info('【EMBY】忽略的用户或设备，不通知：' + event.user_name + ':' + event.device_name)
             message_flag = False
         list_id = event.user_name + event.item_name + event.ip + event.device_name + event.client
         if event.action == 'start':
@@ -38,7 +38,7 @@ def report_to_discord(event):
                 PLAY_LIST.remove(list_id)
             else:
                 message_flag = False
-                logger.info('重复Stop通知，丢弃：' + list_id)
+                logger.debug('【EMBY】重复Stop通知，丢弃：' + list_id)
     elif event.category == 'user':
         if event.action == 'login':
             if event.status.upper() == 'F':
@@ -84,6 +84,6 @@ def report_to_discord(event):
                       (event.user_name, event.device_name, event.ip, address, event.action)
         if sql:
             if mysql_exec_sql(sql):
-                logger.info("数据库登记成功！")
+                logger.info("【EMBY】数据库登记成功！")
             else:
-                logger.error("数据库登记失败：" + sql)
+                logger.error("【EMBY】数据库登记失败：" + sql)
