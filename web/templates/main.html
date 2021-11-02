@@ -26,7 +26,7 @@
 						<li {% if page=="rmt" %} class="active" {% endif %}><a href="#rmt" data-toggle="tab">qBittorrent转移</a></li>
 						<li {% if page=="msg" %} class="active" {% endif %}><a href="#msg" data-toggle="tab">发送消息</a></li>
 						<li {% if page=="sch" %} class="active" {% endif %}><a href="#sch" data-toggle="tab">定时任务</a></li>
-						{% if log_type=="FILE" %}
+						{% if log_type=="MYSQL" %}
 						<li {% if page=="log" %} class="active" {% endif %}><a href="#log" data-toggle="tab">日志</a></li>
 						{% endif %}
 						<li {% if page=="set" %} class="active" {% endif %}><a href="#set" data-toggle="tab">设置</a></li>
@@ -158,7 +158,7 @@
 							</table>
 							<pre id="sch_ret" style="display:none"></pre>
 						</div>
-						{% if log_type=="FILE" %}
+						{% if log_type=="MYSQL" %}
 						<div class="tab-pane {% if page=='log' %} active {% endif %}" id="log">
 							<table class="table table-striped">
 							  <caption>日志</caption>
