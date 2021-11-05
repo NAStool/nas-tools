@@ -30,7 +30,7 @@ def run_sensors():
         sendmsg("【sensors】命令执行失败！", "错误信息：" + result_err)
     else:
         try:
-            temp = re.search(r"\+\d{1,3}\.\d+\s+C", result_out, re.IGNORECASE).group(0).replace("+", "").replace("C", "").strip()
+            temp = re.search(r"\+\d{1,3}\.\d+\s?[C℃]", result_out, re.IGNORECASE).group(0).replace("+", "").replace("C", "").replace("℃", "").strip()
         except AttributeError:
             temp = None
         if not temp:
