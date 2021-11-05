@@ -58,22 +58,6 @@ def create_app():
     # 主页面
     @app.route('/', methods=['POST', 'GET'])
     def main():
-        # 读取qBittorrent列表
-        qbt = login_qbittorrent()
-        torrents = qbt.torrents_info()
-        trans_qbpath = settings.get("rmt.rmt_qbpath")
-        trans_containerpath = settings.get("rmt.rmt_containerpath")
-        path_list = []
-        for torrent in torrents:
-            logger.debug(torrent.name + "：" + torrent.state)
-            if torrent.state == "uploading" or torrent.state == "stalledUP":
-                true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
-                path_list.append(true_path + "|" + torrent.hash)
-        qbt.auth_log_out()
-        # 读取配置文件
-        cfg = open(settings.get_config_path(), mode="r", encoding="utf8")
-        config_str = cfg.read()
-        cfg.close()
         # 读取定时服务配置
         tim_autoremovetorrents = settings.get("scheduler.autoremovetorrents_interval")
         sta_autoremovetorrents = settings.get("scheduler.autoremovetorrents_flag")
@@ -96,16 +80,9 @@ def create_app():
 
         # 读取日志配置
         logtype = settings.get("root.logtype")
-        if logtype == "MYSQL":
-            # 读取 最新的100条日志
-            log_list = mysql_query("SELECT id,type,name,text,time FROM system_log ORDER BY time DESC LIMIT 100")
-        else:
-            log_list = ""
 
         return render_template("main.html",
                                page="rmt",
-                               rmt_paths=path_list,
-                               config_str=config_str,
                                tim_autoremovetorrents=tim_autoremovetorrents,
                                sta_autoremovetorrents=sta_autoremovetorrents,
                                tim_qbtransfer=tim_qbtransfer,
@@ -124,7 +101,6 @@ def create_app():
                                sta_resiliosync=sta_resiliosync,
                                tim_rssdownload=tim_rssdownload,
                                sta_rssdownload=sta_rssdownload,
-                               log_list=log_list,
                                log_type=logtype
                                )
 
@@ -162,6 +138,21 @@ def create_app():
                 qbt.auth_log_out()
                 return {"rmt_stderr": std_err, "rmt_stdout": std_out, "rmt_paths": path_list}
 
+            if cmd == "rmt_qry":
+                # 读取qBittorrent列表
+                qbt = login_qbittorrent()
+                torrents = qbt.torrents_info()
+                trans_qbpath = settings.get("rmt.rmt_qbpath")
+                trans_containerpath = settings.get("rmt.rmt_containerpath")
+                path_list = []
+                for torrent in torrents:
+                    logger.info(torrent.name + "：" + torrent.state)
+                    if torrent.state == "uploading" or torrent.state == "stalledUP":
+                        true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
+                        path_list.append(true_path + "|" + torrent.hash)
+                qbt.auth_log_out()
+                return {"rmt_paths": path_list}
+
             if cmd == "msg":
                 title = data["title"]
                 text = data["text"]
@@ -169,6 +160,13 @@ def create_app():
                 if title or text:
                     retcode, retmsg = sendmsg(title, text)
                 return {"msg_code": retcode, "msg_msg": retmsg}
+
+            if cmd == "set_qry":
+                # 读取配置文件
+                cfg = open(settings.get_config_path(), mode="r", encoding="utf8")
+                config_str = cfg.read()
+                cfg.close()
+                return {"config_str": config_str}
 
             if cmd == "set":
                 editer_str = data["editer_str"]
@@ -179,11 +177,11 @@ def create_app():
                     cfg.close()
                     # 配置文件立即生效
                     settings.reload_config()
-                # 重新读取配置文件
-                cfg = open(settings.get_config_path(), mode="r", encoding="utf8")
-                config_str = cfg.read()
-                cfg.close()
-                return {"config_str": config_str}
+                return {"retcode": 0}
+
+            if cmd == "log_qry":
+                log_list = mysql_query("SELECT id,type,name,text,time FROM system_log ORDER BY time DESC LIMIT 100")
+                return {"log_list": log_list}
 
             if cmd == "sch":
                 sch_item = data["item"]
