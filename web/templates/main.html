@@ -23,13 +23,13 @@
 			<div class="span4">
 				<div class="tabbable">
 					<ul class="nav nav-tabs">
-						<li {% if page=="rmt" %} class="active" {% endif %}><a href="#rmt" data-toggle="tab">qBittorrent转移</a></li>
-						<li {% if page=="msg" %} class="active" {% endif %}><a href="#msg" data-toggle="tab">发送消息</a></li>
-						<li {% if page=="sch" %} class="active" {% endif %}><a href="#sch" data-toggle="tab">定时任务</a></li>
+						<li {% if page=="rmt" %} class="active" {% endif %}><a id="rmt_tab" href="#rmt" data-toggle="tab">qBittorrent转移</a></li>
+						<li {% if page=="msg" %} class="active" {% endif %}><a id="msg_tab" href="#msg" data-toggle="tab">发送消息</a></li>
+						<li {% if page=="sch" %} class="active" {% endif %}><a id="sch_tab" href="#sch" data-toggle="tab">定时任务</a></li>
 						{% if log_type=="MYSQL" %}
-						<li {% if page=="log" %} class="active" {% endif %}><a href="#log" data-toggle="tab">日志</a></li>
+						<li {% if page=="log" %} class="active" {% endif %}><a id="log_tab" href="#log" data-toggle="tab">日志</a></li>
 						{% endif %}
-						<li {% if page=="set" %} class="active" {% endif %}><a href="#set" data-toggle="tab">设置</a></li>
+						<li {% if page=="set" %} class="active" {% endif %}><a id="set_tab" href="#set" data-toggle="tab">设置</a></li>
 					</ul>
 					<div class="tab-content">
 						<div class="tab-pane {% if page=='rmt' %} active {% endif %}" id="rmt">
@@ -47,9 +47,6 @@
 								<label for="rmt_path">文件</label>
 								  <select class="form-control" id="rmt_path" name="rmt_path">
 									  <option value ="">全部</option>
-									  {% for path in rmt_paths %}
-										<option value ="{{ path }}">{{ path.split('|')[0] }}</option>
-									  {% endfor %}
 								  </select>
 							  </div>
 							  <div class="form_notice" id="form_send_form_notice"></div>
@@ -77,7 +74,7 @@
 							<form role="form" action="/do" method="post" id="set_form" class="well">
 								<h4>配置文件</h4>
 								<div class="form-group">
-									<div id="editor">{{ config_str }}</div>
+									<div id="editor"></div>
 								</div>
 								<button id="set_btn" type="button" class="btn btn-primary">保存</button>
 							</form>
@@ -158,33 +155,10 @@
 							</table>
 							<pre id="sch_ret" style="display:none"></pre>
 						</div>
-						{% if log_type=="MYSQL" %}
 						<div class="tab-pane {% if page=='log' %} active {% endif %}" id="log">
-							<table class="table table-striped">
-							  <caption>日志</caption>
-							  <thead>
-								<tr>
-								  	<th>序号</th>
-								  	<th>级别</th>
-									<th>名称</th>
-								  	<th>内容</th>
-									<th>时间</th>
-								</tr>
-							  </thead>
-							  <tbody>
-							  	{% for log_info in log_list %}
-								<tr>
-								  	<td>{{ log_info[0] }}</td>
-								  	<td>{{ log_info[1] }}</td>
-									<td>{{ log_info[2] }}</td>
-								  	<td>{{ log_info[3] }}</td>
-									<td>{{ log_info[4] }}</td>
-								</tr>
-							   	{% endfor %}
-							  </tbody>
+							<table id="log_table" class="table table-striped">
 							</table>
 						</div>
-						{% endif %}
 					</div>
 				</div>
 			</div>
