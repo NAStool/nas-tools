@@ -110,6 +110,8 @@ def dir_change_handler(event, text):
                 if event_path == os.path.join(monpath, movie_type):
                     return
             name = os.path.basename(event_path)
+            if name.startswith(".") or name.startswith("@"):
+                return
             if event_path not in handler_files:
                 handler_files.append(event_path)
                 logger.info("【TRAILER-DL】开始处理：" + event_path + "，名称：" + name)

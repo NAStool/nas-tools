@@ -11,12 +11,19 @@ movie_types = settings.get("rmt.rmt_movietype").split(",")
 def dispatch_directory(in_name):
     # 遍历文件
     print("【RMT】开始处理：", in_name)
-    movie_name = in_name.split("(")[0].strip()
-    movie_year = in_name.split("(")[1].replace("）", "").strip()
-    # API检索出媒体信息
     org_path = os.path.join(movie_path, in_name)
-    media = get_media_info(movie_name, movie_name, "电影", movie_year)
-    Media_Type = media["type"]
+    try:
+        movie_name = in_name.split("(")[0].strip()
+        movie_year = in_name.split("(")[1].replace("）", "").strip()
+        # API检索出媒体信息
+        media = get_media_info(movie_name, movie_name, "电影", movie_year)
+        Media_Type = media["type"]
+    except Exception as err:
+        print("出错：" + str(err))
+        Media_Type = "外语电影"
+
+    if Media_Type == "":
+        Media_Type = "外语电影"
 
     # 新路径
     media_path = os.path.join(movie_path, Media_Type, in_name)
@@ -29,6 +36,8 @@ def dispatch_directory(in_name):
 print("开始处理：" + movie_path)
 for movie_dir in os.listdir(movie_path):
     print("> " + movie_dir)
-    if movie_dir not in movie_types and movie_dir != ".DS_Store":
+    if movie_dir.startswith(".") or movie_dir.startswith("@"):
+        continue
+    if movie_dir not in movie_types:
         dispatch_directory(movie_dir)
 
