@@ -122,7 +122,7 @@ def run_rssdownload():
                         logger.debug("【RSS】电影已处理过，跳过：" + media_name)
                         continue
                     # 电影目录
-                    media_path = os.path.join(movie_path, media_name)
+                    media_path = os.path.join(movie_path, media_type, media_name)
                     # 目录是否存在
                     logger.debug("【RSS】路径：" + media_path)
                     if os.path.exists(media_path):
