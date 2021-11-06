@@ -406,9 +406,8 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
             media_year = info.release_date[0:4]
             if media_type == "":
                 # 国家
-                media_country = info.origin_country
                 media_language = info.original_language
-                if 'CN' in media_country or 'zh' in media_language:
+                if 'zh' in media_language:
                     media_type = "华语电影"
                 else:
                     media_type = "外语电影"
