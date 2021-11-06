@@ -405,7 +405,13 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
             logger.info(">电影ID：" + str(info.id) + "，上映日期：" + info.release_date + "，电影名称：" + info.title)
             media_year = info.release_date[0:4]
             if media_type == "":
-                media_type = "电影"
+                # 国家
+                media_country = info.origin_country
+                media_language = info.original_language
+                if 'CN' in media_country or 'zh' in media_language:
+                    media_type = "华语电影"
+                else:
+                    media_type = "外语电影"
         # 解析分辨率
         media_pix = get_media_file_pix(in_path)
 

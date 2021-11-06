@@ -18,6 +18,7 @@ logger = log.Logger("monitor").logger
 
 movie_flag = settings.get("monitor.movie_flag") == "ON" or False
 movie_sys = settings.get("monitor.movie_sys") == "Linux" or False
+movie_types = settings.get("rmt.rmt_movietype").split(",")
 monpath = settings.get("monitor.movie_monpath")
 youtube_dl_cmd = settings.get("youtobe.youtube_dl_cmd")
 hottrailer_path = settings.get("youtobe.hottrailer_path")
@@ -105,6 +106,9 @@ def dir_change_handler(event, text):
             logger.debug("【TRAILER-DL】" + text + "了文件夹: %s " % event_path)
             if event_path == monpath:
                 return
+            for movie_type in movie_types:
+                if event_path == os.path.join(monpath, movie_type):
+                    return
             name = os.path.basename(event_path)
             if event_path not in handler_files:
                 handler_files.append(event_path)
