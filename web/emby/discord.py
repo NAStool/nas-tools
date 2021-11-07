@@ -58,10 +58,12 @@ def report_to_discord(event):
             org_type = movie_dir.split('/')[-2]
             if org_type not in MOVIE_TYPES:
                 return
+            if org_type == MOVIE_FAV_TYPE:
+                return
             new_path = os.path.join(MOVIE_PATH, MOVIE_FAV_TYPE, name)
-            logger.info("【Emby】开始转移文件 {} 到 {} ...").format(movie_dir, new_path)
+            logger.info("【Emby】开始转移文件 {} 到 {} ...".format(movie_dir, new_path))
             if os.path.exists(new_path):
-                logger.info("【Emby】目录 {} 已存在！").format(new_path)
+                logger.info("【Emby】目录 {} 已存在！".format(new_path))
                 return
             shutil.move(movie_dir, new_path)
             message = '【Emby】电影 {} 已从 {} 转移到 {}'.format(event.movie_name, org_type, MOVIE_FAV_TYPE)
