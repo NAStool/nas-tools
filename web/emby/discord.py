@@ -1,3 +1,5 @@
+import os
+import shutil
 import time
 
 import settings
@@ -7,6 +9,9 @@ from message.send import sendmsg
 
 logger = log.Logger("webhook").logger
 PLAY_LIST = []
+MOVIE_PATH = settings.get("rmt.rmt_moviepath")
+MOVIE_TYPES = settings.get("rmt.rmt_movietype").split(',')
+MOVIE_FAV_TYPE = settings.get("rmt.rmt_favtype")
 
 
 def report_to_discord(event):
@@ -18,7 +23,8 @@ def report_to_discord(event):
     logger.debug('【EMBY】事件类型：' + event.category)
     if event.category == 'system':
         if event.action == 'webhooktest':
-            message = '【EMBY】Test'
+            logger.info("【EMBY】system.webhooktest")
+            message_flag = False
     # Playback
     elif event.category == 'playback':
         ignore_list = eval(settings.get("webhook.webhook_ignore"))
@@ -45,6 +51,20 @@ def report_to_discord(event):
                 message = '【Emby】用户 {} 登录 {} 失败！'.format(event.user_name, event.server_name)
             else:
                 message = '【Emby】用户 {} 登录了 {}'.format(event.user_name, event.server_name)
+    elif event.category == 'item':
+        if event.action == 'rate':
+            movie_dir = os.path.dirname(event.movie_path)
+            name = movie_dir.split('/')[-1]
+            org_type = movie_dir.split('/')[-2]
+            if org_type not in MOVIE_TYPES:
+                return
+            new_path = os.path.join(MOVIE_PATH, MOVIE_FAV_TYPE, name)
+            logger.info("【Emby】开始转移文件 {} 到 {} ...").format(movie_dir, new_path)
+            if os.path.exists(new_path):
+                logger.info("【Emby】目录 {} 已存在！").format(new_path)
+                return
+            shutil.move(movie_dir, new_path)
+            message = '【Emby】电影 {} 已从 {} 转移到 {}'.format(event.movie_name, org_type, MOVIE_FAV_TYPE)
     else:
         message_flag = False
 
@@ -63,9 +83,12 @@ def report_to_discord(event):
         elif event.category == 'user':
             if event.action == 'login':
                 desp = '设备：' + event.device_name \
-                   + '\n\nIP地址：' + event.ip \
-                   + '\n\n位置：' + address \
-                   + '\n\n时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+                       + '\n\nIP地址：' + event.ip \
+                       + '\n\n位置：' + address \
+                       + '\n\n时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        elif event.category == 'item':
+            if event.action == 'rate':
+                desp = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         # Report Message
         sendmsg(message, desp)
 

@@ -381,12 +381,12 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
         else:
             search_type = "电影"
 
-    logger.info("【RMT】检索类型为：" + search_type)
+    logger.debug("【RMT】检索类型为：" + search_type)
     if not in_year:
         media_year = get_media_file_year(in_path)
     else:
         media_year = in_year
-    logger.info("【RMT】识别年份为：" + str(media_year))
+    logger.debug("【RMT】识别年份为：" + str(media_year))
 
     if search_type == "电影":
         search = Search()
@@ -457,6 +457,6 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
                         media_type = "日韩剧"
                     else:
                         media_type = "国产剧"
-    logger.info("【RMT】剧集类型：" + media_type)
+    logger.debug("【RMT】剧集类型：" + media_type)
     return {"search": search_type, "type": media_type, "id": media_id, "name": media_title, "year": media_year,
             "info": info, "pix": media_pix}
