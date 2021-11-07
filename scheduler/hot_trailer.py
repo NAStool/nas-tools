@@ -28,38 +28,40 @@ def transfer_trailers(in_path):
         shutil.rmtree(in_path, ignore_errors=True)
         return
     for trailer_file in trailer_file_list:
+        if not os.path.exists(trailer_file):
+            logger.error("【HOT-TRAILER】" + trailer_file + " 原文件不存在，跳过...")
+            continue
         trailer_file_dir = os.path.dirname(trailer_file)
         trailer_file_name = os.path.basename(trailer_file_dir)
         trailer_file_ext = os.path.splitext(trailer_file)[1]
 
+        trailer_done = False
         for movie_type in movie_types:
             dest_path = os.path.join(movie_path, movie_type, trailer_file_name)
             if os.path.exists(dest_path):
                 logger.info("【HOT-TRAILER】" + trailer_file_name + " 进行转移...")
                 dest_file_list = get_dir_files_by_ext(dest_path, media_ext)
-                exist_flag = False
+                continue_flag = False
                 for dest_movie_file in dest_file_list:
                     if dest_movie_file.find("-trailer.") != -1:
                         logger.error("【HOT-TRAILER】预告片，跳过...")
-                        exist_flag = True
+                        continue_flag = True
                         break
                     trailer_dest_file = os.path.splitext(dest_movie_file)[0] + "-trailer" + trailer_file_ext
                     if os.path.exists(trailer_dest_file):
                         logger.error("【HOT-TRAILER】" + trailer_dest_file + " 文件已存在，跳过...")
-                        exist_flag = True
+                        continue_flag = True
                         break
-                    if os.path.exists(trailer_file):
-                        logger.debug("【HOT-TRAILER】正在复制：" + trailer_file + " 到 " + trailer_dest_file)
-                        shutil.copy(trailer_file, trailer_dest_file)
-                        logger.info("【HOT-TRAILER】转移完成：" + trailer_dest_file)
-                    else:
-                        logger.error("【HOT-TRAILER】" + trailer_file + " 原文件不存在，跳过...")
-                if exist_flag:
+                    logger.debug("【HOT-TRAILER】正在复制：" + trailer_file + " 到 " + trailer_dest_file)
+                    shutil.copy(trailer_file, trailer_dest_file)
+                    logger.info("【HOT-TRAILER】转移完成：" + trailer_dest_file)
+                if continue_flag:
                     continue
                 shutil.rmtree(trailer_file_dir, ignore_errors=True)
                 logger.info("【HOT-TRAILER】" + trailer_file_dir + "已删除！")
-            else:
-                logger.info("【HOT-TRAILER】" + trailer_file_name + " 不存在对应电影，跳过...")
+                trailer_done = True
+        if not trailer_done:
+            logger.info("【HOT-TRAILER】" + trailer_file_name + " 不存在对应电影，跳过...")
 
 
 def run_hottrailers(refresh_flag=True):
