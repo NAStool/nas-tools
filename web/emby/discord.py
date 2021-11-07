@@ -53,8 +53,11 @@ def report_to_discord(event):
                 message = '【Emby】用户 {} 登录了 {}'.format(event.user_name, event.server_name)
     elif event.category == 'item':
         if event.action == 'rate':
-            movie_dir = os.path.dirname(event.movie_path)
-            if MOVIE_PATH not in movie_dir:
+            if os.path.isdir(event.movie_path):
+                movie_dir = event.movie_path
+            else:
+                movie_dir = os.path.dirname(event.movie_path)
+            if movie_dir.count(MOVIE_PATH) == 0:
                 return
             name = movie_dir.split('/')[-1]
             org_type = movie_dir.split('/')[-2]
