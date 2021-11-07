@@ -18,7 +18,9 @@ rss_jobs = eval(settings.get("rss.rss_job"))
 save_path = settings.get("rss.save_path")
 movie_path = settings.get("rss.movie_path")
 tv_path = settings.get("rss.tv_path")
+fav_type = settings.get("rmt.rmt_favtype")
 media_exts = settings.get("rmt.rmt_mediaext").split(",")
+movie_types = settings.get("rmt.rmt_movietype").split(",")
 rss_cache_list = []
 rss_cache_name = []
 
@@ -122,12 +124,17 @@ def run_rssdownload():
                     else:
                         logger.debug("【RSS】电影已处理过，跳过：" + media_name)
                         continue
-                    # 电影目录
-                    media_path = os.path.join(movie_path, media_type, media_name)
-                    # 目录是否存在
-                    logger.debug("【RSS】路径：" + media_path)
-                    if os.path.exists(media_path):
-                        logger.info("【RSS】电影目录已存在，跳过：" + media_path)
+                    # 确认是否已存在
+                    exist_flag = False
+                    for m_type in movie_types:
+                        media_path = os.path.join(movie_path, m_type, media_name)
+                        # 目录是否存在
+                        logger.debug("【RSS】路径：" + media_path)
+                        if os.path.exists(media_path):
+                            logger.info("【RSS】电影目录已存在，跳过：" + media_path)
+                            exist_flag = True
+                            break
+                    if exist_flag:
                         continue
                 else:
                     # 剧集目录

@@ -79,9 +79,9 @@ def report_to_discord(event):
         message_flag = False
 
     if message_flag:
-        address = get_location(event.ip)
         desp = ""
         if event.category == 'playback':
+            address = get_location(event.ip)
             desp = '设备：' + event.device_name \
                    + '\n\n客户端：' + event.client \
                    + '\n\nIP地址：' + event.ip \
@@ -89,6 +89,7 @@ def report_to_discord(event):
                    + '\n\n时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         elif event.category == 'user':
             if event.action == 'login':
+                address = get_location(event.ip)
                 desp = '设备：' + event.device_name \
                        + '\n\nIP地址：' + event.ip \
                        + '\n\n位置：' + address \

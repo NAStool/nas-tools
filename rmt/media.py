@@ -96,13 +96,17 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
     if (settings.get('rmt.rmt_forcetrans').upper() == "TRUE" and Media_Type != "") or (
             Media_Id != "0" and Media_Type != ""):
         if Search_Type == "电影":
-            # 新路径
-            media_path = os.path.join(settings.get('rmt.rmt_moviepath'), Media_Type,
+            # 检查精选中是否已存在
+            media_path = os.path.join(settings.get('rmt.rmt_moviepath'), settings.get('rmt.rmt_favtype'),
                                       Media_Title + " (" + Media_Year + ")")
-            # 创建目录
             if not os.path.exists(media_path):
-                logger.debug("【RMT】正在创建目录：" + media_path)
-                os.makedirs(media_path)
+                # 新路径
+                media_path = os.path.join(settings.get('rmt.rmt_moviepath'), Media_Type,
+                                          Media_Title + " (" + Media_Year + ")")
+                # 创建目录
+                if not os.path.exists(media_path):
+                    logger.debug("【RMT】正在创建目录：" + media_path)
+                    os.makedirs(media_path)
             for file_item in file_list:
                 Media_FileSize = Media_FileSize + os.path.getsize(file_item)
                 file_ext = os.path.splitext(file_item)[-1]

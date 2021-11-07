@@ -125,7 +125,7 @@ def run_hottrailers(refresh_flag=True):
                     if len(exists_trailers) > 0:
                         logger.error("【HOT-TRAILER】" + movie_title + "电影目录已存在预告片，跳过...")
                         exists_flag = True
-                        break;
+                        break
                 if exists_flag:
                     continue
                 # 开始下载
