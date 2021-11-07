@@ -54,6 +54,8 @@ def report_to_discord(event):
     elif event.category == 'item':
         if event.action == 'rate':
             movie_dir = os.path.dirname(event.movie_path)
+            if MOVIE_PATH not in movie_dir:
+                return
             name = movie_dir.split('/')[-1]
             org_type = movie_dir.split('/')[-2]
             if org_type not in MOVIE_TYPES:
