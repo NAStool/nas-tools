@@ -48,8 +48,8 @@ def create_app():
     # DDNS消息通知
     @app.route('/ddns', methods=['POST'])
     def ddns():
-        request_json = json.loads(request.form.get('data', {}))
-        logger.info("【DDNS】输入报文：" + str(request_json))
+        request_json = json.loads(request.data, {})
+        logger.debug("【DDNS】输入报文：" + str(request_json))
         text = request_json['text']
         content = text['content']
         sendmsg("【DDNS】IP地址变化", content)
