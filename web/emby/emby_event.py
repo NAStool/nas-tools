@@ -29,3 +29,8 @@ class EmbyEvent:
                 self.ip = input_json.get('User', {}).get('device_ip')
                 self.server_name = input_json.get('Server', {}).get('server_name')
                 self.status = input_json['Status']
+
+        if self.category == 'item':
+            if self.action == 'rate':
+                self.movie_name = input_json.get('Item', {}).get('Name')
+                self.movie_path = input_json.get('Item', {}).get('Path')

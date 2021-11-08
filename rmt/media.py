@@ -96,13 +96,17 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
     if (settings.get('rmt.rmt_forcetrans').upper() == "TRUE" and Media_Type != "") or (
             Media_Id != "0" and Media_Type != ""):
         if Search_Type == "电影":
-            # 新路径
-            media_path = os.path.join(settings.get('rmt.rmt_moviepath'), Media_Type,
+            # 检查精选中是否已存在
+            media_path = os.path.join(settings.get('rmt.rmt_moviepath'), settings.get('rmt.rmt_favtype'),
                                       Media_Title + " (" + Media_Year + ")")
-            # 创建目录
             if not os.path.exists(media_path):
-                logger.debug("【RMT】正在创建目录：" + media_path)
-                os.makedirs(media_path)
+                # 新路径
+                media_path = os.path.join(settings.get('rmt.rmt_moviepath'), Media_Type,
+                                          Media_Title + " (" + Media_Year + ")")
+                # 创建目录
+                if not os.path.exists(media_path):
+                    logger.debug("【RMT】正在创建目录：" + media_path)
+                    os.makedirs(media_path)
             for file_item in file_list:
                 Media_FileSize = Media_FileSize + os.path.getsize(file_item)
                 file_ext = os.path.splitext(file_item)[-1]
@@ -381,12 +385,12 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
         else:
             search_type = "电影"
 
-    logger.info("【RMT】检索类型为：" + search_type)
+    logger.debug("【RMT】检索类型为：" + search_type)
     if not in_year:
         media_year = get_media_file_year(in_path)
     else:
         media_year = in_year
-    logger.info("【RMT】识别年份为：" + str(media_year))
+    logger.debug("【RMT】识别年份为：" + str(media_year))
 
     if search_type == "电影":
         search = Search()
@@ -405,7 +409,12 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
             logger.info(">电影ID：" + str(info.id) + "，上映日期：" + info.release_date + "，电影名称：" + info.title)
             media_year = info.release_date[0:4]
             if media_type == "":
-                media_type = "电影"
+                # 国家
+                media_language = info.original_language
+                if 'zh' in media_language:
+                    media_type = "华语电影"
+                else:
+                    media_type = "外语电影"
         # 解析分辨率
         media_pix = get_media_file_pix(in_path)
 
@@ -452,6 +461,6 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
                         media_type = "日韩剧"
                     else:
                         media_type = "国产剧"
-    logger.info("【RMT】剧集类型：" + media_type)
+    logger.debug("【RMT】剧集类型：" + media_type)
     return {"search": search_type, "type": media_type, "id": media_id, "name": media_title, "year": media_year,
             "info": info, "pix": media_pix}

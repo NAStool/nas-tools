@@ -18,6 +18,7 @@ logger = log.Logger("monitor").logger
 
 movie_flag = settings.get("monitor.movie_flag") == "ON" or False
 movie_sys = settings.get("monitor.movie_sys") == "Linux" or False
+movie_types = settings.get("rmt.rmt_movietype").split(",")
 monpath = settings.get("monitor.movie_monpath")
 youtube_dl_cmd = settings.get("youtobe.youtube_dl_cmd")
 hottrailer_path = settings.get("youtobe.hottrailer_path")
@@ -48,11 +49,11 @@ def get_movie_info_from_nfo(in_path):
 def download_movie_trailer(in_path):
     exists_trailers = get_dir_files_by_name(in_path, "-trailer.")
     if len(exists_trailers) > 0:
-        logger.error("【TRAILER-DL】" + in_path + "电影目录已存在预告片，跳过...")
+        logger.info("【TRAILER-DL】" + in_path + "电影目录已存在预告片，跳过...")
         return True
     nfo_files = get_dir_files_by_name(in_path, ".nfo")
     if len(nfo_files) == 0:
-        logger.error("【TRAILER-DL】" + in_path + "nfo文件不存在，等待下次处理...")
+        logger.info("【TRAILER-DL】" + in_path + "nfo文件不存在，等待下次处理...")
         return False
     movie_id, movie_title, movie_year = get_movie_info_from_nfo(nfo_files[0])
     if not movie_id or not movie_title or not movie_year:
@@ -102,8 +103,15 @@ def dir_change_handler(event, text):
     event_path = event.src_path
     if event.is_directory:  # 文件改变都会触发文件夹变化
         try:
-            logger.debug("【TRAILER-DL】" + text + "了文件夹: %s " % event_path)
+            logger.info("【TRAILER-DL】" + text + "了文件夹: %s " % event_path)
+            if not os.path.exists(event_path):
+                return
             if event_path == monpath:
+                return
+            for movie_type in movie_types:
+                if event_path == os.path.join(monpath, movie_type):
+                    return
+            if event_path.count("@eaDir") > 0:
                 return
             name = os.path.basename(event_path)
             if event_path not in handler_files:
@@ -112,7 +120,7 @@ def dir_change_handler(event, text):
                 # 下载预告片
                 if not download_movie_trailer(event_path):
                     handler_files.remove(event_path)
-                    logger.error("【TRAILER-DL】" + event_path + "处理失败，等待下次处理...")
+                    logger.info("【TRAILER-DL】" + event_path + "处理失败，等待下次处理...")
                 logger.info("【TRAILER-DL】" + event_path + "处理成功！")
             else:
                 logger.debug("【TRAILER-DL】已处理过：" + name)
