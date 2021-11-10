@@ -1,7 +1,7 @@
 import os
 import shutil
 import settings
-from pymkv import MKVFile, MKVTrack
+from pymkv import MKVFile, MKVTrack, MKVAttachment
 
 from functions import get_dir_files_by_ext
 
@@ -18,24 +18,50 @@ def dispatch_directory(in_path, in_name):
     stream_path = os.path.join(in_path, "BDMV", "STREAM")
     m2ts_list = get_dir_files_by_ext(stream_path, ".m2ts")
 
+    mkv_handler = MKVFile()
     max_file_size = 0
     max_m2ts_file = ""
+    track_list = []
     for tmp_file in m2ts_list:
+        if tmp_file.count("@eaDir"):
+            continue
         m2ts_file = os.path.join(stream_path, tmp_file)
+        track_list.append(m2ts_file)
         m2ts_file_size = os.path.getsize(m2ts_file)
         if m2ts_file_size > max_file_size:
             max_file_size = m2ts_file_size
             max_m2ts_file = m2ts_file
-
-    print("已找到最大的m2ts文件：" + max_m2ts_file + "，大小：" + str(max_file_size))
-
     if not max_m2ts_file:
         return
+    else:
+        print("已找到最大的m2ts文件：" + max_m2ts_file + "，大小：" + str(max_file_size))
 
-    mkv_handler = MKVFile()
     in_track = MKVTrack(max_m2ts_file)
+    print("添加主视频：" + max_m2ts_file)
     mkv_handler.add_track(in_track)
+    for track_file in track_list:
+        print("Track：" + track_file)
+        try:
+            track = MKVTrack(track_file)
+            if track.track_type:
+                print("track.track_type=" + track.track_type)
+            else:
+                continue
+            if track.track_name:
+                print("track.track_name=" + track.track_name)
+            if track.language:
+                print("track.language=" + track.language)
+            if track.track_type == "audio":
+                print("添加音频：" + track_file)
+                mkv_handler.add_track(track)
+            elif track.track_type == "subtitles":
+                print("添加字幕：" + track_file)
+                mkv_handler.add_track(track)
+        except Exception as err:
+            print("出错：" + str(err))
+    # 输出
     out_file = os.path.join(in_path, in_name + ".mkv")
+    print("输出：" + out_file)
     mkv_handler.mux(out_file)
     # 删除旧文件
     cerfificate = os.path.join(in_path, "CERTIFICATE")
