@@ -9,12 +9,14 @@ from message.send import sendmsg
 
 logger = log.Logger("webhook").logger
 PLAY_LIST = []
-MOVIE_PATH = settings.get("rmt.rmt_moviepath")
-MOVIE_TYPES = settings.get("rmt.rmt_movietype").split(',')
-MOVIE_FAV_TYPE = settings.get("rmt.rmt_favtype")
 
 
 def report_to_discord(event):
+    # 读取配置
+    movie_path = settings.get("rmt.rmt_moviepath")
+    movie_types = settings.get("rmt.rmt_movietype").split(',')
+    movie_fav_type = settings.get("rmt.rmt_favtype")
+
     # Create message
     message = None
     message_flag = True
@@ -57,21 +59,21 @@ def report_to_discord(event):
                 movie_dir = event.movie_path
             else:
                 movie_dir = os.path.dirname(event.movie_path)
-            if movie_dir.count(MOVIE_PATH) == 0:
+            if movie_dir.count(movie_path) == 0:
                 return
             name = movie_dir.split('/')[-1]
             org_type = movie_dir.split('/')[-2]
-            if org_type not in MOVIE_TYPES:
+            if org_type not in movie_types:
                 return
-            if org_type == MOVIE_FAV_TYPE:
+            if org_type == movie_fav_type:
                 return
-            new_path = os.path.join(MOVIE_PATH, MOVIE_FAV_TYPE, name)
+            new_path = os.path.join(movie_path, movie_fav_type, name)
             logger.info("【Emby】开始转移文件 {} 到 {} ...".format(movie_dir, new_path))
             if os.path.exists(new_path):
                 logger.info("【Emby】目录 {} 已存在！".format(new_path))
                 return
             shutil.move(movie_dir, new_path)
-            message = '【Emby】电影 {} 已从 {} 转移到 {}'.format(event.movie_name, org_type, MOVIE_FAV_TYPE)
+            message = '【Emby】电影 {} 已从 {} 转移到 {}'.format(event.movie_name, org_type, movie_fav_type)
     else:
         message_flag = False
 
