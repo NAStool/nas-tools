@@ -13,22 +13,14 @@ from message.send import sendmsg
 from rmt.media import get_media_info, get_media_file_season, get_media_file_seq
 
 logger = log.Logger("scheduler").logger
-# 读取配置
-rss_jobs = eval(settings.get("rss.rss_job"))
-save_path = settings.get("rss.save_path")
-movie_path = settings.get("rss.movie_path")
-tv_path = settings.get("rss.tv_path")
-fav_type = settings.get("rmt.rmt_favtype")
-media_exts = settings.get("rmt.rmt_mediaext").split(",")
-movie_types = settings.get("rmt.rmt_movietype").split(",")
 rss_cache_list = []
 rss_cache_name = []
 
 
 # 添加qbittorrent任务
-def add_qbittorrent_torrent(turl):
+def add_qbittorrent_torrent(turl, tpath):
     qbc = login_qbittorrent()
-    qbc_ret = qbc.torrents_add(turl, None, save_path)
+    qbc_ret = qbc.torrents_add(turl, None, tpath)
     qbc.auth_log_out()
     return qbc_ret
 
@@ -65,6 +57,13 @@ def parse_rssxml(url):
 
 
 def run_rssdownload():
+    # 读取配置
+    rss_jobs = eval(settings.get("rss.rss_job"))
+    save_path = settings.get("rss.save_path")
+    movie_path = settings.get("rss.movie_path")
+    tv_path = settings.get("rss.tv_path")
+    media_exts = settings.get("rmt.rmt_mediaext").split(",")
+    movie_types = settings.get("rmt.rmt_movietype").split(",")
     succ_list = []
     for rss_job in rss_jobs:
         # 读取子配置
@@ -171,7 +170,7 @@ def run_rssdownload():
             # 添加qbittorrent任务
             logger.info("【RSS】添加qBittorrent任务：" + title)
             try:
-                ret = add_qbittorrent_torrent(enclosure)
+                ret = add_qbittorrent_torrent(enclosure, save_path)
                 if ret and ret.find("Ok") != -1:
                     msg_item = "> " + media_name + "：" + title
                     if msg_item not in succ_list:

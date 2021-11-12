@@ -12,16 +12,14 @@ from functions import get_dir_files_by_ext, get_dir_files_by_name, system_exec_c
 from message.send import sendmsg
 
 logger = log.Logger("scheduler").logger
-youtube_dl_cmd = settings.get("youtobe.youtube_dl_cmd")
-hottrailer_total = int(settings.get("scheduler.hottrailer_total"))
-hottrailer_path = settings.get("youtobe.hottrailer_path")
-movie_path = settings.get("youtobe.movie_path")
-media_ext = settings.get("rmt.rmt_mediaext")
-movie_types = settings.get("rmt.rmt_movietype").split(",")
 
 
 # 将预告目录中的预告片转移到电影目录，如果存在对应的电影了的话
 def transfer_trailers(in_path):
+    # 读取配置
+    movie_path = settings.get("youtobe.movie_path")
+    media_ext = settings.get("rmt.rmt_mediaext")
+    movie_types = settings.get("rmt.rmt_movietype").split(",")
     trailer_file_list = get_dir_files_by_ext(in_path, media_ext)
     if len(trailer_file_list) == 0:
         logger.info("【HOT-TRAILER】" + in_path + " 不存在预告片，删除目录...")
@@ -65,6 +63,12 @@ def transfer_trailers(in_path):
 
 
 def run_hottrailers(refresh_flag=True):
+    # 读取配置
+    youtube_dl_cmd = settings.get("youtobe.youtube_dl_cmd")
+    hottrailer_total = int(settings.get("scheduler.hottrailer_total"))
+    hottrailer_path = settings.get("youtobe.hottrailer_path")
+    movie_path = settings.get("youtobe.movie_path")
+    movie_types = settings.get("rmt.rmt_movietype").split(",")
     start_time = datetime.now()
     if refresh_flag:
         # 检索正在上映的电影
