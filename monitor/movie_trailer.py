@@ -22,13 +22,7 @@ movie_types = settings.get("rmt.rmt_movietype").split(",")
 monpath = settings.get("monitor.movie_monpath")
 youtube_dl_cmd = settings.get("youtobe.youtube_dl_cmd")
 hottrailer_path = settings.get("youtobe.hottrailer_path")
-
 handler_files = []
-tmdb = TMDb()
-tmdb.api_key = settings.get('rmt.rmt_tmdbkey')
-tmdb.language = 'en-US'
-tmdb.debug = True
-movie = Movie()
 
 
 # 解析nfoXML文件，午到tmdbid
@@ -62,6 +56,11 @@ def download_movie_trailer(in_path):
     trailer_dir = hottrailer_path + "/" + movie_title + " (" + movie_year + ")"
     file_path = trailer_dir + "/" + movie_title + " (" + movie_year + ").%(ext)s"
     # 开始下载
+    tmdb = TMDb()
+    tmdb.api_key = settings.get('rmt.rmt_tmdbkey')
+    tmdb.language = 'en-US'
+    tmdb.debug = True
+    movie = Movie()
     try:
         movie_videos = movie.videos(movie_id)
     except Exception as err:
@@ -77,7 +76,7 @@ def download_movie_trailer(in_path):
             exec_cmd = youtube_dl_cmd.replace("$PATH", file_path).replace("$KEY", trailer_key)
             logger.debug(">开始执行命令：" + exec_cmd)
             # 获取命令结果
-            result_err, result_out = system_exec_command(exec_cmd, 180)
+            result_err, result_out = system_exec_command(exec_cmd, 600)
             if result_err:
                 logger.error(">错误信息：" + result_err)
             if result_out:

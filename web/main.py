@@ -18,11 +18,12 @@ from web.emby.discord import report_to_discord
 from web.emby.emby_event import EmbyEvent
 from message.send import sendmsg
 
+logger = log.Logger("webhook").logger
+
 
 def create_app():
     app = Flask(__name__)
     app.config['JSON_AS_ASCII'] = False
-    logger = log.Logger("webhook").logger
 
     # Emby消息通知
     @app.route('/emby', methods=['POST', 'GET'])
