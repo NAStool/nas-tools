@@ -17,6 +17,9 @@ from scheduler.unicom_signin import run_unicomsignin
 from web.emby.discord import report_to_discord
 from web.emby.emby_event import EmbyEvent
 from message.send import sendmsg
+from flask_httpauth import HTTPBasicAuth
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 logger = log.Logger("webhook").logger
 
@@ -24,6 +27,16 @@ logger = log.Logger("webhook").logger
 def create_app():
     app = Flask(__name__)
     app.config['JSON_AS_ASCII'] = False
+    auth = HTTPBasicAuth()
+    users = {
+        "admin": generate_password_hash(settings.get("root.login_password"))
+    }
+
+    @auth.verify_password
+    def verify_password(username, password):
+        if username in users and \
+                check_password_hash(users.get(username), password):
+            return username
 
     # Emby消息通知
     @app.route('/emby', methods=['POST', 'GET'])
@@ -58,6 +71,7 @@ def create_app():
 
     # 主页面
     @app.route('/', methods=['POST', 'GET'])
+    @auth.login_required
     def main():
         # 读取定时服务配置
         tim_autoremovetorrents = settings.get("scheduler.autoremovetorrents_interval")
