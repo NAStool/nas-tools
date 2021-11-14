@@ -81,15 +81,15 @@ def run_rssdownload():
                 title = res['title']
                 category = res['category']
                 enclosure = res['enclosure']
+                # 判断是否处理过
+                if enclosure not in rss_cache_list:
+                    rss_cache_list.append(enclosure)
+                else:
+                    logger.debug("【RSS】" + title + "已处理过，跳过...")
+                    continue
                 match_flag = False
                 if movie_type and (category in movie_type):
                     search_type = "电影"
-                    # 判断是否处理过
-                    if title not in rss_cache_list:
-                        rss_cache_list.append(title)
-                    else:
-                        logger.debug("【RSS】" + title + "已处理过，跳过...")
-                        continue
                     # 过滤
                     for movie_re in movie_res:
                         if re.search(movie_re, title):
