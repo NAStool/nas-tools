@@ -4,6 +4,7 @@ import shutil
 import time
 import log
 from tmdbv3api import TMDb, Search
+from subprocess import call
 
 import settings
 from functions import get_dir_files_by_ext, is_chinese, mysql_exec_sql, str_filesize
@@ -53,7 +54,8 @@ def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=Fals
 
     # 复制文件
     logger.info("【RMT】正在复制文件：" + file_item + " 到 " + new_file)
-    shutil.copy(file_item, new_file)
+    # shutil.copy(file_item, new_file)
+    call(['cp', file_item, new_file])
     logger.info("【RMT】文件复制完成：" + new_file)
     transfer_subtitles(file_path, file_item, new_file, False)
 
