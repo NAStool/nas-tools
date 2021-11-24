@@ -15,7 +15,7 @@ from message.send import sendmsg
 logger = log.Logger("scheduler").logger
 
 
-def run_hottrailers(refresh_flag):
+def run_hottrailers(refresh_flag=False):
     try:
         hottrailers(refresh_flag)
     except Exception as err:
