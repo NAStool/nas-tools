@@ -10,7 +10,7 @@ logger = log.Logger("scheduler").logger
 
 def run_icloudpd():
     try:
-        run_icloudpd()
+        icloudpd()
     except Exception as err:
         logger.error("【RUN】执行定时任务icloudpd出错：" + str(err))
         sendmsg("【NASTOOL】执行定时任务icloudpd出错！", str(err))
