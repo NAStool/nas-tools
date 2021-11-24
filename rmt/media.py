@@ -34,11 +34,13 @@ def transfer_subtitles(in_path, org_name, new_name, mv_flag=False):
                 if not os.path.exists(new_file):
                     if mv_flag:
                         logger.debug("【RMT】正在移动字幕：" + file_item + " 到 " + new_file)
-                        shutil.move(file_item, new_file)
+                        # shutil.move(file_item, new_file)
+                        call(["mv", file_item, new_file])
                         logger.info("【RMT】字幕移动完成：" + new_file)
                     else:
                         logger.debug("【RMT】正在复制字幕：" + file_item + " 到 " + new_file)
-                        shutil.copy(file_item, new_file)
+                        # shutil.copy(file_item, new_file)
+                        call(["cp", file_item, new_file])
                         logger.info("【RMT】字幕复制完成：" + new_file)
                 else:
                     logger.info("【RMT】字幕 " + new_file + "已存在！")

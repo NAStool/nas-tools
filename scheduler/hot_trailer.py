@@ -3,6 +3,7 @@ import shutil
 import sys
 from datetime import datetime
 import os
+from subprocess import call
 
 from tmdbv3api import TMDb, Movie
 
@@ -51,7 +52,8 @@ def transfer_trailers(in_path):
                         continue_flag = True
                         break
                     logger.debug("【HOT-TRAILER】正在复制：" + trailer_file + " 到 " + trailer_dest_file)
-                    shutil.copy(trailer_file, trailer_dest_file)
+                    # shutil.copy(trailer_file, trailer_dest_file)
+                    call(["cp", trailer_file, trailer_dest_file])
                     logger.info("【HOT-TRAILER】转移完成：" + trailer_dest_file)
                 if continue_flag:
                     continue

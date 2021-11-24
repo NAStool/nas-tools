@@ -13,6 +13,14 @@ logger = log.Logger("scheduler").logger
 
 
 def run_sensors():
+    try:
+        sensors()
+    except Exception as err:
+        logger.error("【RUN】执行定时任务sensors出错：" + str(err))
+        sendmsg("【NASTOOL】执行定时任务sensors出错！", str(err))
+
+
+def sensors():
     start_time = datetime.now()
     cmd = settings.get("scheduler.sensors_cmd")
     hostname = socket.gethostname()

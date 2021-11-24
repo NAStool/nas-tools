@@ -10,7 +10,15 @@ from message.send import sendmsg
 logger = log.Logger("scheduler").logger
 
 
-def pt_signin(name, url, cookie):
+def run_ptsignin():
+    try:
+        ptsignin()
+    except Exception as err:
+        logger.error("【RUN】执行定时任务ptsignin出错：" + str(err))
+        sendmsg("【NASTOOL】执行定时任务ptsignin出错！", str(err))
+
+
+def signin(name, url, cookie):
     try:
         cookie_obj = cookieParse(cookie)
         header = generateHeader(url)
@@ -34,7 +42,7 @@ def pt_signin(name, url, cookie):
     return name + " 当前魔力值：" + tip
 
 
-def run_ptsignin():
+def ptsignin():
     pt_tasks = eval(settings.get("pt.pt_tasks"))
     msg_str = ""
     for pt_task in pt_tasks:
@@ -43,7 +51,7 @@ def run_ptsignin():
         pt_cooke = settings.get("pt." + pt_task + "_cookie")
         logger.debug("cookie: " + pt_cooke)
         logger.debug("url: " + pt_url)
-        res = pt_signin(pt_task, pt_url, pt_cooke)
+        res = signin(pt_task, pt_url, pt_cooke)
         if msg_str == "":
             msg_str = res
         else:

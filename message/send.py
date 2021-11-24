@@ -8,7 +8,7 @@ import settings
 logger = log.Logger("message").logger
 
 
-def sendmsg(title, text):
+def sendmsg(title, text=""):
     msg_channel = settings.get("webhook.msg_channel")
     logger.info("【MSG】发送" + msg_channel + "消息：title=" + title + "，text=" + text)
     if msg_channel == "wechat":
