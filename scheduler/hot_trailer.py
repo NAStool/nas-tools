@@ -15,6 +15,14 @@ from message.send import sendmsg
 logger = log.Logger("scheduler").logger
 
 
+def run_hottrailers(refresh_flag):
+    try:
+        hottrailers(refresh_flag)
+    except Exception as err:
+        logger.error("【RUN】执行定时任务hottrailers出错：" + str(err))
+        sendmsg("【NASTOOL】执行定时任务hottrailers出错！", str(err))
+
+
 # 将预告目录中的预告片转移到电影目录，如果存在对应的电影了的话
 def transfer_trailers(in_path):
     # 读取配置
@@ -64,7 +72,7 @@ def transfer_trailers(in_path):
             logger.info("【HOT-TRAILER】" + trailer_file_name + " 不存在对应电影，跳过...")
 
 
-def run_hottrailers(refresh_flag=True):
+def hottrailers(refresh_flag=True):
     # 读取配置
     youtube_dl_cmd = settings.get("youtobe.youtube_dl_cmd")
     hottrailer_total = int(settings.get("scheduler.hottrailer_total"))
