@@ -22,8 +22,10 @@ def run_scheduler():
     # Icloud照片同步
     icloudpd_flag = settings.get("scheduler.icloudpd_flag") == "ON" or False
     if icloudpd_flag:
-        scheduler.add_job(run_icloudpd, 'interval',
-                          seconds=int(settings.get("scheduler.icloudpd_interval")))
+        icloudpd_cron = settings.get("scheduler.icloudpd_cron")
+        scheduler.add_job(run_icloudpd, 'cron',
+                          hour=int(icloudpd_cron.split(":")[0]),
+                          minute=int(icloudpd_cron.split(":")[1]))
         logger.info("【RUN】scheduler.icloudpd启动...")
     # PT种子清理
     autoremovetorrents_flag = settings.get("scheduler.autoremovetorrents_flag") == "ON" or False
