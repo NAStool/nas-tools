@@ -3,12 +3,13 @@ from time import sleep
 import log
 import settings
 from functions import system_exec_command
+from message.send import sendmsg
 from web import run as webhook
 from monitor import run as monitor
 from scheduler import run as scheduler
 from multiprocessing import Process
 
-logger = log.Logger("scheduler").logger
+logger = log.Logger("run").logger
 
 if __name__ == "__main__":
     # 环境准备
@@ -97,6 +98,7 @@ if __name__ == "__main__":
                 break
             elif envloop > 10:
                 logger.info("【RUN】已达最大重试次数，跳过...")
+                sendmsg("【NASTOOL】NASTOOL启动失败，环境未就绪！")
                 break
             else:
                 logger.error("【RUN】环境未就绪，等待1分钟后重试...")
