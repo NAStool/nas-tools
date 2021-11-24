@@ -17,6 +17,14 @@ rss_cache_list = []
 rss_cache_name = []
 
 
+def run_rssdownload():
+    try:
+        rssdownload()
+    except Exception as err:
+        logger.error("【RUN】执行定时任务rssdownload出错：" + str(err))
+        sendmsg("【NASTOOL】执行定时任务rssdownload出错！", str(err))
+
+
 # 添加qbittorrent任务
 def add_qbittorrent_torrent(turl, tpath):
     qbc = login_qbittorrent()
@@ -56,7 +64,7 @@ def parse_rssxml(url):
     return ret_array
 
 
-def run_rssdownload():
+def rssdownload():
     # 读取配置
     rss_jobs = eval(settings.get("rss.rss_job"))
     save_path = settings.get("rss.save_path")

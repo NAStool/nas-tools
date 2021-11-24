@@ -10,6 +10,14 @@ from message.send import sendmsg
 logger = log.Logger("scheduler").logger
 
 
+def run_smzdmsignin():
+    try:
+        smzdmsignin()
+    except Exception as err:
+        logger.error("【RUN】执行定时任务smzdmsignin出错：" + str(err))
+        sendmsg("【NASTOOL】执行定时任务smzdmsignin出错！", str(err))
+
+
 class SmzdmBot(object):
     def __init__(self):
         self.session = requests.Session()
@@ -44,7 +52,7 @@ class SmzdmBot(object):
         return msg.json()
 
 
-def run_smzdmsignin():
+def smzdmsignin():
     sb = SmzdmBot()
     # sb.load_cookie_str(config.TEST_COOKIE)
     cookies = settings.get("smzdm.smzdm_cookie")

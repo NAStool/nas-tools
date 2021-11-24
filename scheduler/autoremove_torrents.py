@@ -8,6 +8,14 @@ logger = log.Logger("scheduler").logger
 
 
 def run_autoremovetorrents():
+    try:
+        autoremovetorrents()
+    except Exception as err:
+        logger.error("【RUN】执行定时任务autoremovetorrents出错：" + str(err))
+        sendmsg("【NASTOOL】执行定时任务autoremovetorrents出错！", str(err))
+
+
+def autoremovetorrents():
     seeding_time = settings.get("scheduler.autoremovetorrents_seeding_time")
     logger.info("【REMOVETORRENTS】开始执行qBittorrent做种清理...")
     qbc = login_qbittorrent()

@@ -10,6 +10,14 @@ logger = log.Logger("scheduler").logger
 
 
 def run_unicomsignin():
+    try:
+        unicomsignin()
+    except Exception as err:
+        logger.error("【RUN】执行定时任务unicomsignin出错：" + str(err))
+        sendmsg("【NASTOOL】执行定时任务unicomsignin出错！", str(err))
+
+
+def unicomsignin():
     start_time = datetime.now()
     logger.info("【UNICOM-SIGN】连接成功！")
     tasks = eval(settings.get("unicom.unicom_tasks"))
