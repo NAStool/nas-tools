@@ -18,11 +18,9 @@ if __name__ == "__main__":
                         help='Config File Path (default: config/config.ini)')
 
     args = parser.parse_args()
-    config_file = args.config_file
-    settings.config_file_path = config_file
-    settings.reload_config()
-    log.info("【RUN】配置文件地址：" + config_file)
-    if not os.path.exists(config_file):
+    os.environ['NASTOOL_CONFIG'] = args.config_file
+    log.info("【RUN】配置文件地址：" + os.environ['NASTOOL_CONFIG'])
+    if not os.path.exists(os.environ['NASTOOL_CONFIG']):
         log.error("【RUN】配置文件不存在！")
         quit()
     # 环境准备
@@ -119,6 +117,6 @@ if __name__ == "__main__":
                 sleep(60)
     # 启动进程
     log.info("【RUN】开始启动进程...")
-    Process(target=monitor.run_monitor, args=(config_file,)).start()
-    Process(target=scheduler.run_scheduler, args=(config_file,)).start()
-    Process(target=webhook.run_webhook, args=(config_file,)).start()
+    Process(target=monitor.run_monitor, args=()).start()
+    Process(target=scheduler.run_scheduler, args=()).start()
+    Process(target=webhook.run_webhook, args=()).start()
