@@ -1,3 +1,5 @@
+import sys
+
 from apscheduler.schedulers.blocking import BlockingScheduler
 import os
 import log
@@ -12,11 +14,12 @@ from scheduler.sensors import run_sensors
 from scheduler.smzdm_signin import run_smzdmsignin
 from scheduler.unicom_signin import run_unicomsignin
 
-logger = log.Logger("scheduler").logger
 os.environ['TZ'] = 'Asia/Shanghai'
 
 
-def run_scheduler():
+def run_scheduler(config_file):
+    settings.config_file_path = config_file
+    settings.reload_config()
     scheduler = BlockingScheduler(timezone="Asia/Shanghai")
     scheduler.remove_all_jobs()
     # Icloud照片同步
@@ -26,13 +29,13 @@ def run_scheduler():
         scheduler.add_job(run_icloudpd, 'cron',
                           hour=int(icloudpd_cron.split(":")[0]),
                           minute=int(icloudpd_cron.split(":")[1]))
-        logger.info("【RUN】scheduler.icloudpd启动...")
+        log.info("【RUN】scheduler.icloudpd启动...")
     # PT种子清理
     autoremovetorrents_flag = settings.get("scheduler.autoremovetorrents_flag") == "ON" or False
     if autoremovetorrents_flag:
         scheduler.add_job(run_autoremovetorrents, 'interval',
                           seconds=int(settings.get("scheduler.autoremovetorrents_interval")))
-        logger.info("【RUN】scheduler.autoremovetorrents启动...")
+        log.info("【RUN】scheduler.autoremovetorrents启动...")
     # 列新电影预告
     hottrailer_flag = settings.get("scheduler.hottrailer_flag") == "ON" or False
     if hottrailer_flag:
@@ -40,7 +43,7 @@ def run_scheduler():
         scheduler.add_job(run_hottrailers, 'cron',
                           hour=int(hottrailer_cron.split(":")[0]),
                           minute=int(hottrailer_cron.split(":")[1]))
-        logger.info("【RUN】scheduler.hottrailers启动...")
+        log.info("【RUN】scheduler.hottrailers启动...")
     # PT站签到
     ptsignin_flag = settings.get("scheduler.ptsignin_flag") == "ON" or False
     if ptsignin_flag:
@@ -48,7 +51,7 @@ def run_scheduler():
         scheduler.add_job(run_ptsignin, "cron",
                           hour=int(ptsignin_cron.split(":")[0]),
                           minute=int(ptsignin_cron.split(":")[1]))
-        logger.info("【RUN】scheduler.ptsignin启动．．．")
+        log.info("【RUN】scheduler.ptsignin启动．．．")
     # 什么值得买签到
     smzdmsignin_flag = settings.get("scheduler.smzdmsignin_flag") == "ON" or False
     if smzdmsignin_flag:
@@ -56,7 +59,7 @@ def run_scheduler():
         scheduler.add_job(run_smzdmsignin, "cron",
                           hour=int(smzdmsignin_cron.split(":")[0]),
                           minute=int(smzdmsignin_cron.split(":")[1]))
-        logger.info("【RUN】scheduler.smzdmsignin启动．．．")
+        log.info("【RUN】scheduler.smzdmsignin启动．．．")
     # 联通营业厅签到
     unicomsignin_flag = settings.get("scheduler.unicomsignin_flag") == "ON" or False
     if unicomsignin_flag:
@@ -64,32 +67,28 @@ def run_scheduler():
         scheduler.add_job(run_unicomsignin, "cron",
                           hour=int(unicomsignin_cron.split(":")[0]),
                           minute=int(unicomsignin_cron.split(":")[1]))
-        logger.info("【RUN】scheduler.unicomsignin启动．．．")
+        log.info("【RUN】scheduler.unicomsignin启动．．．")
 
     # qbittorrent文件转移
     qbtransfer_flag = settings.get("scheduler.qbtransfer_flag") == "ON" or False
     if qbtransfer_flag:
         scheduler.add_job(run_qbtransfer, 'interval',
                           seconds=int(settings.get("scheduler.qbtransfer_interval")))
-        logger.info("【RUN】scheduler.qbtransfer启动...")
+        log.info("【RUN】scheduler.qbtransfer启动...")
 
     # RSS下载器
     rssdownload_flag = settings.get("scheduler.rssdownload_flag") == "ON" or False
     if rssdownload_flag:
         scheduler.add_job(run_rssdownload, 'interval',
                           seconds=int(settings.get("scheduler.rssdownload_interval")))
-        logger.info("【RUN】scheduler.rssdownload启动...")
+        log.info("【RUN】scheduler.rssdownload启动...")
 
     # RSS下载器
     sensors_flag = settings.get("scheduler.sensors_flag") == "ON" or False
     if sensors_flag:
         scheduler.add_job(run_sensors, 'interval',
                           seconds=int(settings.get("scheduler.sensors_check_interval")))
-        logger.info("【RUN】scheduler.sensors启动...")
+        log.info("【RUN】scheduler.sensors启动...")
 
     scheduler.start()
-    logger.info("【RUN】scheduler启动完成!")
-
-
-if __name__ == "__main__":
-    run_scheduler()
+    log.info("【RUN】scheduler启动完成!")

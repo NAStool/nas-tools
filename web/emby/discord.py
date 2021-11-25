@@ -7,7 +7,6 @@ import log
 from functions import get_location, mysql_exec_sql
 from message.send import sendmsg
 
-logger = log.Logger("webhook").logger
 PLAY_LIST = []
 
 
@@ -22,10 +21,10 @@ def report_to_discord(event):
     message_flag = True
 
     # System
-    logger.debug('【EMBY】事件类型：' + event.category)
+    log.debug('【EMBY】事件类型：' + event.category)
     if event.category == 'system':
         if event.action == 'webhooktest':
-            logger.info("【EMBY】system.webhooktest")
+            log.info("【EMBY】system.webhooktest")
             message_flag = False
     # Playback
     elif event.category == 'playback':
@@ -33,7 +32,7 @@ def report_to_discord(event):
         if event.user_name in ignore_list or \
                 event.device_name in ignore_list or \
                 (event.user_name + ':' + event.device_name) in ignore_list:
-            logger.info('【EMBY】忽略的用户或设备，不通知：' + event.user_name + ':' + event.device_name)
+            log.info('【EMBY】忽略的用户或设备，不通知：' + event.user_name + ':' + event.device_name)
             message_flag = False
         list_id = event.user_name + event.item_name + event.ip + event.device_name + event.client
         if event.action == 'start':
@@ -46,7 +45,7 @@ def report_to_discord(event):
                 PLAY_LIST.remove(list_id)
             else:
                 message_flag = False
-                logger.debug('【EMBY】重复Stop通知，丢弃：' + list_id)
+                log.debug('【EMBY】重复Stop通知，丢弃：' + list_id)
     elif event.category == 'user':
         if event.action == 'login':
             if event.status.upper() == 'F':
@@ -68,9 +67,9 @@ def report_to_discord(event):
             if org_type == movie_fav_type:
                 return
             new_path = os.path.join(movie_path, movie_fav_type, name)
-            logger.info("【Emby】开始转移文件 {} 到 {} ...".format(movie_dir, new_path))
+            log.info("【Emby】开始转移文件 {} 到 {} ...".format(movie_dir, new_path))
             if os.path.exists(new_path):
-                logger.info("【Emby】目录 {} 已存在！".format(new_path))
+                log.info("【Emby】目录 {} 已存在！".format(new_path))
                 return
             shutil.move(movie_dir, new_path)
             message = '【Emby】电影 {} 已从 {} 转移到 {}'.format(event.movie_name, org_type, movie_fav_type)
@@ -117,6 +116,6 @@ def report_to_discord(event):
                       (event.user_name, event.device_name, event.ip, address, event.action)
         if sql:
             if mysql_exec_sql(sql):
-                logger.info("【EMBY】数据库登记成功！")
+                log.info("【EMBY】数据库登记成功！")
             else:
-                logger.error("【EMBY】数据库登记失败：" + sql)
+                log.error("【EMBY】数据库登记失败：" + sql)

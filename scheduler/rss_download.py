@@ -12,7 +12,6 @@ from functions import login_qbittorrent, is_chinese
 from message.send import sendmsg
 from rmt.media import get_media_info, get_media_file_season, get_media_file_seq
 
-logger = log.Logger("scheduler").logger
 rss_cache_list = []
 rss_cache_name = []
 
@@ -21,7 +20,7 @@ def run_rssdownload():
     try:
         rssdownload()
     except Exception as err:
-        logger.error("【RUN】执行定时任务rssdownload出错：" + str(err))
+        log.error("【RUN】执行定时任务rssdownload出错：" + str(err))
         sendmsg("【NASTOOL】执行定时任务rssdownload出错！", str(err))
 
 
@@ -38,10 +37,10 @@ def parse_rssxml(url):
     if not url:
         return ret_array
     try:
-        logger.info("【RSS】开始下载：" + url)
+        log.info("【RSS】开始下载：" + url)
         ret = requests.get(url)
     except Exception as e:
-        logger.error("【RSS】下载失败：" + str(e))
+        log.error("【RSS】下载失败：" + str(e))
         return ret_array
     if ret:
         ret_xml = ret.text
@@ -57,9 +56,9 @@ def parse_rssxml(url):
                 enclosure = item.getElementsByTagName("enclosure")[0].getAttribute("url")
                 tmp_dict = {'title': title, 'category': category, 'enclosure': enclosure}
                 ret_array.append(tmp_dict)
-            logger.info("【RSS】下载成功，发现更新：" + str(len(items)))
+            log.info("【RSS】下载成功，发现更新：" + str(len(items)))
         except Exception as e2:
-            logger.error("【RSS】解析失败：" + str(e2))
+            log.error("【RSS】解析失败：" + str(e2))
             return ret_array
     return ret_array
 
@@ -80,7 +79,7 @@ def rssdownload():
         movie_res = eval(settings.get("rss." + rss_job + "_movie_re"))
         tv_res = eval(settings.get("rss." + rss_job + "_tv_re"))
         # 下载RSS
-        logger.info("【RSS】正在处理：" + rss_job)
+        log.info("【RSS】正在处理：" + rss_job)
         rss_result = parse_rssxml(rssurl)
         if len(rss_result) == 0:
             continue
@@ -93,7 +92,7 @@ def rssdownload():
                 if enclosure not in rss_cache_list:
                     rss_cache_list.append(enclosure)
                 else:
-                    logger.debug("【RSS】" + title + "已处理过，跳过...")
+                    log.debug("【RSS】" + title + "已处理过，跳过...")
                     continue
                 match_flag = False
                 if movie_type and (category in movie_type):
@@ -111,18 +110,18 @@ def rssdownload():
                             match_flag = True
                             break
                 if match_flag:
-                    logger.info("【RSS】" + title + "匹配成功!")
+                    log.info("【RSS】" + title + "匹配成功!")
                 else:
-                    logger.info("【RSS】" + title + "不匹配规则，跳过...")
+                    log.info("【RSS】" + title + "不匹配规则，跳过...")
                     continue
-                logger.info("【RSS】开始检索媒体信息:" + title)
+                log.info("【RSS】开始检索媒体信息:" + title)
                 media_info = get_media_info(title, title, search_type)
                 search_type = media_info['search']
                 media_type = media_info["type"]
                 media_title = media_info["name"]
                 media_year = media_info["year"]
                 if not is_chinese(media_title):
-                    logger.info("【RSS】没有中文看不懂，跳过：" + media_title)
+                    log.info("【RSS】没有中文看不懂，跳过：" + media_title)
                     continue
                 # 判断是否已存在
                 media_name = media_title + " (" + media_year + ")"
@@ -130,16 +129,16 @@ def rssdownload():
                     if media_name not in rss_cache_name:
                         rss_cache_name.append(media_name)
                     else:
-                        logger.debug("【RSS】电影已处理过，跳过：" + media_name)
+                        log.debug("【RSS】电影已处理过，跳过：" + media_name)
                         continue
                     # 确认是否已存在
                     exist_flag = False
                     for m_type in movie_types:
                         media_path = os.path.join(movie_path, m_type, media_name)
                         # 目录是否存在
-                        logger.debug("【RSS】路径：" + media_path)
+                        log.debug("【RSS】路径：" + media_path)
                         if os.path.exists(media_path):
-                            logger.info("【RSS】电影目录已存在，跳过：" + media_path)
+                            log.info("【RSS】电影目录已存在，跳过：" + media_path)
                             exist_flag = True
                             break
                     if exist_flag:
@@ -162,22 +161,22 @@ def rssdownload():
                         file_path = os.path.join(season_dir, media_title + " - " + file_season + file_seq + " - " + "第 " + file_seq_num + " 集")
                         exist_flag = False
                         for ext in media_exts:
-                            logger.debug("【RSS】路径：" + file_path + ext)
+                            log.debug("【RSS】路径：" + file_path + ext)
                             if os.path.exists(file_path + ext):
                                 exist_flag = True
-                                logger.error("【RSS】剧集文件已存在，跳过：" + file_path + ext)
+                                log.error("【RSS】剧集文件已存在，跳过：" + file_path + ext)
                                 break
                         if exist_flag:
                             continue
                     else:
                         if os.path.exists(season_dir):
-                            logger.error("【RSS】剧集目录已存在，跳过：" + season_dir)
+                            log.error("【RSS】剧集目录已存在，跳过：" + season_dir)
                             continue
             except Exception as e:
-                logger.error("【RSS】错误：" + str(e))
+                log.error("【RSS】错误：" + str(e))
                 continue
             # 添加qbittorrent任务
-            logger.info("【RSS】添加qBittorrent任务：" + title)
+            log.info("【RSS】添加qBittorrent任务：" + title)
             try:
                 ret = add_qbittorrent_torrent(enclosure, save_path)
                 if ret and ret.find("Ok") != -1:
@@ -185,8 +184,8 @@ def rssdownload():
                     if msg_item not in succ_list:
                         succ_list.append(msg_item)
             except Exception as e:
-                logger.error("【RSS】添加qBittorrent任务出错：" + str(e))
-        logger.info("【RSS】" + rss_job + "处理结束！")
+                log.error("【RSS】添加qBittorrent任务出错：" + str(e))
+        log.info("【RSS】" + rss_job + "处理结束！")
     if len(succ_list) > 0:
         sendmsg("【RSS】qBittorrent新增下载", "\n\n".join(succ_list))
 

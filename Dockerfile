@@ -13,4 +13,4 @@ RUN ln -s /nas-tools/bin/rmt.sh /usr/bin/rmtqb
 RUN ln -s /nas-tools/bin/run.sh /usr/bin/nastool
 RUN chmod +x /nas-tools/bin/*.sh
 EXPOSE 3000
-CMD ["python3", "/nas-tools/run.py"]
+CMD ["python3", "/nas-tools/run.py", "-c", "/config/config.ini"]

@@ -9,14 +9,11 @@ from message.send import sendmsg
 import globalvar as gl
 
 
-logger = log.Logger("scheduler").logger
-
-
 def run_sensors():
     try:
         sensors()
     except Exception as err:
-        logger.error("【RUN】执行定时任务sensors出错：" + str(err))
+        log.error("【RUN】执行定时任务sensors出错：" + str(err))
         sendmsg("【NASTOOL】执行定时任务sensors出错！", str(err))
 
 
@@ -27,7 +24,7 @@ def sensors():
     sensors_temperature_alert = float(settings.get("scheduler.sensors_temperature_alert"))
     sensors_alert_times = int(settings.get("scheduler.sensors_alert_times"))
 
-    logger.debug("【SENSORS】开始执行命令：" + cmd)
+    log.debug("【SENSORS】开始执行命令：" + cmd)
     # 获取命令结果
     result_err, result_out = system_exec_command(cmd, 5)
 
@@ -42,10 +39,10 @@ def sensors():
         except AttributeError:
             temp = None
         if not temp:
-            logger.error("【SENSORS】命令执行失败,未获取到温度数值：\n" + result_out)
+            log.error("【SENSORS】命令执行失败,未获取到温度数值：\n" + result_out)
             return
         else:
-            logger.info("【SENSORS】CPU当前温度为：" + str(temp))
+            log.info("【SENSORS】CPU当前温度为：" + str(temp))
         if float(temp) > sensors_temperature_alert:
             pretemp = gl.get_value("SENSORS_TEMPERATURE_COUNT")
             if pretemp:

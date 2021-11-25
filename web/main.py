@@ -21,9 +21,6 @@ from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-logger = log.Logger("webhook").logger
-
-
 def create_app():
     app = Flask(__name__)
     app.config['JSON_AS_ASCII'] = False
@@ -54,7 +51,7 @@ def create_app():
                             "Server": {"server_name": server_name},
                             "Status": flag
                             }
-        # logger.debug("输入报文：" + str(request_json))
+        # log.debug("输入报文：" + str(request_json))
         event = EmbyEvent(request_json)
         report_to_discord(event)
         return 'Success'
@@ -63,7 +60,7 @@ def create_app():
     @app.route('/ddns', methods=['POST'])
     def ddns():
         request_json = json.loads(request.data, {})
-        logger.debug("【DDNS】输入报文：" + str(request_json))
+        log.debug("【DDNS】输入报文：" + str(request_json))
         text = request_json['text']
         content = text['content']
         sendmsg("【DDNS】IP地址变化", content)
@@ -137,7 +134,7 @@ def create_app():
                     v_hash = ""
                 rootpath = settings.get("root.rootpath")
                 cmdstr = "bash " + rootpath + "/bin/rmt.sh" + " \"" + p_name + "\" \"" + v_path + "\" \"" + v_hash + "\" \"" + p_year + "\""
-                logger.info("【WEB】执行命令：" + cmdstr)
+                log.info("【WEB】执行命令：" + cmdstr)
                 std_err, std_out = system_exec_command(cmdstr, 1800)
                 # 读取qBittorrent列表
                 qbt = login_qbittorrent()
@@ -146,7 +143,7 @@ def create_app():
                 trans_containerpath = settings.get("rmt.rmt_containerpath")
                 path_list = []
                 for torrent in torrents:
-                    logger.info(torrent.name + "：" + torrent.state)
+                    log.info(torrent.name + "：" + torrent.state)
                     if torrent.state == "uploading" or torrent.state == "stalledUP":
                         true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
                         path_list.append(true_path + "|" + torrent.hash)
@@ -161,7 +158,7 @@ def create_app():
                 trans_containerpath = settings.get("rmt.rmt_containerpath")
                 path_list = []
                 for torrent in torrents:
-                    logger.info(torrent.name + "：" + torrent.state)
+                    log.info(torrent.name + "：" + torrent.state)
                     if torrent.state == "uploading" or torrent.state == "stalledUP":
                         true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
                         path_list.append(true_path + "|" + torrent.hash)
@@ -190,8 +187,6 @@ def create_app():
                     cfg.write(editer_str)
                     cfg.flush()
                     cfg.close()
-                    # 配置文件立即生效
-                    settings.reload_config()
                 return {"retcode": 0}
 
             if cmd == "log_qry":

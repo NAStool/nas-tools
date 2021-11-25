@@ -1,11 +1,12 @@
 import log
+import settings
 from message.send import sendmsg
 from web.main import create_app
 
-logger = log.Logger("run").logger
 
-
-def run_webhook():
+def run_webhook(config_file):
+    settings.config_file_path = config_file
+    settings.reload_config()
     try:
         app = create_app()
         app.run(
@@ -15,9 +16,5 @@ def run_webhook():
             use_reloader=False
         )
     except Exception as err:
-        logger.error("【RUN】启动web服务失败：" + str(err))
+        log.error("【RUN】启动web服务失败：" + str(err))
         sendmsg("【NASTOOL】启动web服务失败！", str(err))
-
-
-if __name__ == "__main__":
-    run_webhook()

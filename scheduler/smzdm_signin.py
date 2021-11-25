@@ -7,14 +7,12 @@ import log
 import settings
 from message.send import sendmsg
 
-logger = log.Logger("scheduler").logger
-
 
 def run_smzdmsignin():
     try:
         smzdmsignin()
     except Exception as err:
-        logger.error("【RUN】执行定时任务smzdmsignin出错：" + str(err))
+        log.error("【RUN】执行定时任务smzdmsignin出错：" + str(err))
         sendmsg("【NASTOOL】执行定时任务smzdmsignin出错！", str(err))
 
 
@@ -59,7 +57,7 @@ def smzdmsignin():
     try:
         sb.load_cookie_str(cookies)
         res = sb.checkin()
-        logger.info("【SMZDM-SIGN】登录返回结果：" + str(res))
+        log.info("【SMZDM-SIGN】登录返回结果：" + str(res))
         if res:
             data = res['data']
             err_code = res['error_code']
@@ -77,7 +75,7 @@ def smzdmsignin():
             send_msg = "解析数据错误！"
         sendmsg(title='【SMZDM】每日签到', text=send_msg)
     except Exception as err:
-        logger.err("【SMZDM-SIGN】登录失败：" + str(err))
+        log.err("【SMZDM-SIGN】登录失败：" + str(err))
         sendmsg(title='【SMZDM】每日签到', text="登录失败：" + str(err))
 
 
