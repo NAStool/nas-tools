@@ -6,20 +6,18 @@ import settings
 from functions import system_exec_command
 from message.send import sendmsg
 
-logger = log.Logger("scheduler").logger
-
 
 def run_unicomsignin():
     try:
         unicomsignin()
     except Exception as err:
-        logger.error("【RUN】执行定时任务unicomsignin出错：" + str(err))
+        log.error("【RUN】执行定时任务unicomsignin出错：" + str(err))
         sendmsg("【NASTOOL】执行定时任务unicomsignin出错！", str(err))
 
 
 def unicomsignin():
     start_time = datetime.now()
-    logger.info("【UNICOM-SIGN】连接成功！")
+    log.info("【UNICOM-SIGN】连接成功！")
     tasks = eval(settings.get("unicom.unicom_tasks"))
     appid = settings.get("unicom.unicom_appid")
     succ_text = ""
@@ -30,13 +28,13 @@ def unicomsignin():
         user = task.split(":")[0]
         password = task.split(":")[1]
         cmd = cmd.replace("$USER", user).replace("$PASSWORD", password).replace("$APPID", appid)
-        logger.info("【UNICOM-SIGN】开始执行命令：" + cmd)
+        log.info("【UNICOM-SIGN】开始执行命令：" + cmd)
         # 获取命令结果
         result_err, result_out = system_exec_command(cmd, 600)
         if result_err:
-            logger.error("【UNICOM-SIGN】错误信息：" + result_err)
+            log.error("【UNICOM-SIGN】错误信息：" + result_err)
         if result_out:
-            logger.info("【UNICOM-SIGN】执行结果：" + result_out)
+            log.info("【UNICOM-SIGN】执行结果：" + result_out)
         if result_err != "":
             succ_flag = False
             if fail_text == "":

@@ -3,21 +3,19 @@ import log
 from message.send import sendmsg
 from rmt.qbittorrent import transfer_qbittorrent_task
 
-logger = log.Logger("scheduler").logger
-
 
 def run_qbtransfer():
     try:
         qbtransfer()
     except Exception as err:
-        logger.error("【RUN】执行定时任务qbtransfer出错：" + str(err))
+        log.error("【RUN】执行定时任务qbtransfer出错：" + str(err))
         sendmsg("【NASTOOL】执行定时任务qbtransfer出错！", str(err))
 
 
 def qbtransfer():
-    logger.info("【QB-TRANSFER】qb_transfer开始...")
+    log.info("【QB-TRANSFER】qb_transfer开始...")
     transfer_qbittorrent_task()
-    logger.info("【QB-TRANSFER】qb_transfer结束...")
+    log.info("【QB-TRANSFER】qb_transfer结束...")
 
 
 if __name__ == "__main__":

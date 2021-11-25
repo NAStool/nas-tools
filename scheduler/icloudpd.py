@@ -5,14 +5,12 @@ import settings
 from functions import system_exec_command
 from message.send import sendmsg
 
-logger = log.Logger("scheduler").logger
-
 
 def run_icloudpd():
     try:
         icloudpd()
     except Exception as err:
-        logger.error("【RUN】执行定时任务icloudpd出错：" + str(err))
+        log.error("【RUN】执行定时任务icloudpd出错：" + str(err))
         sendmsg("【NASTOOL】执行定时任务icloudpd出错！", str(err))
 
 
@@ -20,13 +18,13 @@ def icloudpd():
     start_time = datetime.now()
     cmd = settings.get("scheduler.icloudpd_cmd")
 
-    logger.info("【ICLOUDPD】开始执行命令：" + cmd)
+    log.info("【ICLOUDPD】开始执行命令：" + cmd)
     # 获取命令结果
     result_err, result_out = system_exec_command(cmd, 600)
     if result_err:
-        logger.error("【ICLOUDPD】错误信息：" + result_err)
+        log.error("【ICLOUDPD】错误信息：" + result_err)
     if result_out:
-        logger.debug("【ICLOUDPD】执行结果：" + result_out)
+        log.debug("【ICLOUDPD】执行结果：" + result_out)
 
     end_time = datetime.now()
     if result_err == "timeout":

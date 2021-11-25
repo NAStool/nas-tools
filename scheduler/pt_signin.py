@@ -7,14 +7,12 @@ import settings
 from functions import cookieParse, generateHeader
 from message.send import sendmsg
 
-logger = log.Logger("scheduler").logger
-
 
 def run_ptsignin():
     try:
         ptsignin()
     except Exception as err:
-        logger.error("【RUN】执行定时任务ptsignin出错：" + str(err))
+        log.error("【RUN】执行定时任务ptsignin出错：" + str(err))
         sendmsg("【NASTOOL】执行定时任务ptsignin出错！", str(err))
 
 
@@ -46,17 +44,17 @@ def ptsignin():
     pt_tasks = eval(settings.get("pt.pt_tasks"))
     msg_str = ""
     for pt_task in pt_tasks:
-        logger.info("【PT-SIGN】开始PT签到：" + pt_task)
+        log.info("【PT-SIGN】开始PT签到：" + pt_task)
         pt_url = settings.get("pt." + pt_task + "_url")
         pt_cooke = settings.get("pt." + pt_task + "_cookie")
-        logger.debug("cookie: " + pt_cooke)
-        logger.debug("url: " + pt_url)
+        log.debug("cookie: " + pt_cooke)
+        log.debug("url: " + pt_url)
         res = signin(pt_task, pt_url, pt_cooke)
         if msg_str == "":
             msg_str = res
         else:
             msg_str = res + "\n" + msg_str
-        logger.debug(res)
+        log.debug(res)
     sendmsg("【PT-SIGN】每日签到", msg_str)
 
 
