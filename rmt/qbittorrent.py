@@ -10,7 +10,6 @@ from functions import login_qbittorrent
 from rmt.media import transfer_directory
 
 urllib3.disable_warnings()
-logger = log.Logger("rmt").logger
 
 
 # ----------------------------函数 BEGIN-----------------------------------------
@@ -21,20 +20,20 @@ def set_torrent_status(qbc, hash_str):
         qbc.torrents_add_tags("已整理", hash_str)
         # 超级做种
         qbc.torrents_set_force_start(True, hash_str)
-        logger.info("【RMT】设置qBittorrent种类状态成功！")
+        log.info("【RMT】设置qBittorrent种类状态成功！")
 
 
 # 处理所有qbittorrent中的种子
 def transfer_qbittorrent_task():
     qbc = login_qbittorrent()
     if not qbc:
-        logger.error("【RMT】连接qbittorrent失败！")
+        log.error("【RMT】连接qbittorrent失败！")
         return
     torrents = qbc.torrents_info()
     trans_qbpath = settings.get("rmt.rmt_qbpath")
     trans_containerpath = settings.get("rmt.rmt_containerpath")
     for torrent in torrents:
-        logger.debug("【RMT】" + torrent.name + "：" + torrent.state)
+        log.debug("【RMT】" + torrent.name + "：" + torrent.state)
         if torrent.state == "uploading" or torrent.state == "stalledUP":
             true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
             transfer_directory(in_from="qBittorrent", in_name=torrent.name, in_path=true_path)
@@ -74,23 +73,23 @@ if __name__ == "__main__":
         else:
             MV_Flag = False
 
-        logger.debug("【RMT】输入参数：" + str(sys.argv))
+        log.debug("【RMT】输入参数：" + str(sys.argv))
         rmt_qbpath = settings.get("rmt.rmt_qbpath")
         rmt_containerpath = settings.get("rmt.rmt_containerpath")
         QB_Path = QB_Path.replace(str(rmt_qbpath), str(rmt_containerpath))
         if not os.path.exists(QB_Path):
-            logger.error("【RMT】找不到文件：" + QB_Path)
+            log.error("【RMT】找不到文件：" + QB_Path)
             quit()
-        logger.info("【RMT】开始处理：" + QB_Name)
+        log.info("【RMT】开始处理：" + QB_Name)
         ret = transfer_directory(in_from="qBittorrent", in_name=QB_Name, in_path=QB_Path, in_year=QB_Year, in_type=QB_Type, mv_flag=MV_Flag)
         if QB_Hash:
             qbt_client = login_qbittorrent()
             set_torrent_status(qbt_client, QB_Hash)
             qbt_client.auth_log_out()
         if ret:
-            logger.info("【RMT】" + QB_Name + "处理成功！")
+            log.info("【RMT】" + QB_Name + "处理成功！")
         else:
-            logger.error("【RMT】" + QB_Name + "处理失败！")
+            log.error("【RMT】" + QB_Name + "处理失败！")
     else:
         # 处理所有qbittorrent中的种子
         transfer_qbittorrent_task()
