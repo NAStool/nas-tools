@@ -1,20 +1,16 @@
-import os
 import threading
 from configparser import NoOptionError, RawConfigParser
 
 lock = threading.Lock()
+config_file_path = ""
 
 
 class Config(object):
     __instance = None
 
-    def __init__(self, config_file_path=None):
+    def __init__(self):
         self.config = RawConfigParser()
-        self.config_file_path = config_file_path or '/var/packages/nastool/target/config/config.ini'
         self.load_config()
-
-    def get_config_path(self):
-        return self.config_file_path
 
     @staticmethod
     def get_instance():
@@ -29,7 +25,7 @@ class Config(object):
         return Config.__instance
 
     def load_config(self):
-        self.config.read(self.config_file_path, 'utf-8')
+        self.config.read(config_file_path, 'utf-8')
 
     def get(self, key, default=None):
         map_key = key.split('.')

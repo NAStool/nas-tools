@@ -1,3 +1,4 @@
+import argparse
 import os
 from time import sleep
 import log
@@ -9,16 +10,28 @@ from monitor import run as monitor
 from scheduler import run as scheduler
 from multiprocessing import Process
 
-logger = log.Logger("run").logger
 
 if __name__ == "__main__":
+    # 参数
+    parser = argparse.ArgumentParser(description='Nas Media Library Management Tool')
+    parser.add_argument('-c', '--config', dest='config_file', default='config/config.ini',
+                        help='Config File Path (default: config/config.ini)')
+
+    args = parser.parse_args()
+    config_file = args.config_file
+    settings.config_file_path = config_file
+    settings.reload_config()
+    log.info("【RUN】配置文件地址：" + config_file)
+    if not os.path.exists(config_file):
+        log.error("【RUN】配置文件不存在！")
+        quit()
     # 环境准备
     envloop = 0
     automount_flag = settings.get("automount.automount_flag") == "ON" or False
     if automount_flag:
         env_media, env_photo, env_pt, env_resiliosync = False, False, False, False
         while True:
-            logger.info("【RUN】开始装载目录...")
+            log.info("【RUN】开始装载目录...")
             # media
             media_config = settings.get("automount.media")
             if not media_config:
@@ -29,12 +42,12 @@ if __name__ == "__main__":
                     os.makedirs(media_config[1])
                 media_cmd = "mount.cifs -o username=" + media_config[2] + ",password=\"" + media_config[3] + \
                             "\",uid=0,gid=0,iocharset=utf8 " + media_config[0] + " " + media_config[1]
-                logger.info("【RUN】开始执行命令：" + media_cmd)
+                log.info("【RUN】开始执行命令：" + media_cmd)
                 result_err, result_out = system_exec_command(media_cmd, 10)
                 if result_err:
-                    logger.error("【RUN】错误信息：" + result_err)
+                    log.error("【RUN】错误信息：" + result_err)
                 if result_out:
-                    logger.info("【RUN】执行结果：" + result_out)
+                    log.info("【RUN】执行结果：" + result_out)
                 if not result_err and not result_out:
                     env_media = True
             # photo
@@ -47,12 +60,12 @@ if __name__ == "__main__":
                     os.makedirs(photo_config[1])
                 photo_cmd = "mount.cifs -o username=" + photo_config[2] + ",password=\"" + photo_config[3] + \
                             "\",uid=0,gid=0,iocharset=utf8 " + photo_config[0] + " " + photo_config[1]
-                logger.info("【RUN】开始执行命令：" + photo_cmd)
+                log.info("【RUN】开始执行命令：" + photo_cmd)
                 result_err, result_out = system_exec_command(photo_cmd, 10)
                 if result_err:
-                    logger.error("【RUN】错误信息：" + result_err)
+                    log.error("【RUN】错误信息：" + result_err)
                 if result_out:
-                    logger.info("【RUN】执行结果：" + result_out)
+                    log.info("【RUN】执行结果：" + result_out)
                 if not result_err and not result_out:
                     env_photo = True
             # pt
@@ -65,12 +78,12 @@ if __name__ == "__main__":
                     os.makedirs(pt_config[1])
                 pt_cmd = "mount.cifs -o username=" + pt_config[2] + ",password=\"" + pt_config[3] + \
                          "\",uid=0,gid=0,iocharset=utf8 " + pt_config[0] + " " + pt_config[1]
-                logger.info("【RUN】开始执行命令：" + pt_cmd)
+                log.info("【RUN】开始执行命令：" + pt_cmd)
                 result_err, result_out = system_exec_command(pt_cmd, 10)
                 if result_err:
-                    logger.error("【RUN】错误信息：" + result_err)
+                    log.error("【RUN】错误信息：" + result_err)
                 if result_out:
-                    logger.info("【RUN】执行结果：" + result_out)
+                    log.info("【RUN】执行结果：" + result_out)
                 if not result_err and not result_out:
                     env_pt = True
             # relisiosync
@@ -84,28 +97,28 @@ if __name__ == "__main__":
                 relisiosync_cmd = "mount.cifs -o username=" + relisiosync_config[2] + ",password=\"" + \
                                   relisiosync_config[3] + "\",uid=0,gid=0,iocharset=utf8 " + \
                                   relisiosync_config[0] + " " + relisiosync_config[1]
-                logger.info("【RUN】开始执行命令：" + relisiosync_cmd)
+                log.info("【RUN】开始执行命令：" + relisiosync_cmd)
                 result_err, result_out = system_exec_command(relisiosync_cmd, 10)
                 if result_err:
-                    logger.error("【RUN】错误信息：" + result_err)
+                    log.error("【RUN】错误信息：" + result_err)
                 if result_out:
-                    logger.info("【RUN】执行结果：" + result_out)
+                    log.info("【RUN】执行结果：" + result_out)
                 if not result_err and not result_out:
                     env_resiliosync = True
             # 启动进程
             if env_media and env_photo and env_pt and env_resiliosync:
-                logger.info("【RUN】目录装载完成！")
+                log.info("【RUN】目录装载完成！")
                 break
             elif envloop > 10:
-                logger.info("【RUN】已达最大重试次数，跳过...")
+                log.info("【RUN】已达最大重试次数，跳过...")
                 sendmsg("【NASTOOL】NASTOOL启动失败，环境未就绪！")
                 break
             else:
-                logger.error("【RUN】环境未就绪，等待1分钟后重试...")
+                log.error("【RUN】环境未就绪，等待1分钟后重试...")
                 envloop = envloop + 1
                 sleep(60)
     # 启动进程
-    logger.info("【RUN】开始启动进程...")
-    Process(target=monitor.run_monitor, args=()).start()
-    Process(target=scheduler.run_scheduler, args=()).start()
-    Process(target=webhook.run_webhook, args=()).start()
+    log.info("【RUN】开始启动进程...")
+    Process(target=monitor.run_monitor, args=(config_file,)).start()
+    Process(target=scheduler.run_scheduler, args=(config_file,)).start()
+    Process(target=webhook.run_webhook, args=(config_file,)).start()
