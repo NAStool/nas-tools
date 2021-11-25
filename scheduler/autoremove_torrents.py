@@ -1,8 +1,8 @@
 # 定时在DSM中执行命令清理qbittorrent的种子
 import log
 import settings
-from functions import system_exec_command, login_qbittorrent
 from message.send import sendmsg
+from rmt.qbittorrent import login_qbittorrent
 
 
 def run_autoremovetorrents():

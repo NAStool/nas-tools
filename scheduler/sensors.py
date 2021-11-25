@@ -6,7 +6,7 @@ import log
 import settings
 from functions import system_exec_command
 from message.send import sendmsg
-import globalvar as gl
+import globalvar as gv
 
 
 def run_sensors():
@@ -44,19 +44,19 @@ def sensors():
         else:
             log.info("【SENSORS】CPU当前温度为：" + str(temp))
         if float(temp) > sensors_temperature_alert:
-            pretemp = gl.get_value("SENSORS_TEMPERATURE_COUNT")
+            pretemp = gv.get_value("SENSORS_TEMPERATURE_COUNT")
             if pretemp:
                 pretemp = pretemp + 1
-                gl.set_value("SENSORS_TEMPERATURE_COUNT", pretemp)
+                gv.set_value("SENSORS_TEMPERATURE_COUNT", pretemp)
             else:
                 pretemp = 1
-                gl.set_value("SENSORS_TEMPERATURE_COUNT", pretemp)
+                gv.set_value("SENSORS_TEMPERATURE_COUNT", pretemp)
             if pretemp >= sensors_alert_times:
                 sendmsg("【SENSORS】CPU温度高报警", hostname + " CPU当前温度 " + str(temp) + " ℃, 已连续 " +
                         str(sensors_alert_times) + " 个周期超过 " + str(sensors_temperature_alert) + " ℃")
-                gl.set_value("SENSORS_TEMPERATURE_COUNT", 0)
+                gv.set_value("SENSORS_TEMPERATURE_COUNT", 0)
         else:
-            gl.set_value("SENSORS_TEMPERATURE_COUNT", 0)
+            gv.set_value("SENSORS_TEMPERATURE_COUNT", 0)
 
 
 if __name__ == "__main__":

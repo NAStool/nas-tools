@@ -8,9 +8,10 @@ import settings
 from xml.dom.minidom import parse
 import xml.dom.minidom
 
-from functions import login_qbittorrent, is_chinese
+from functions import is_chinese
 from message.send import sendmsg
 from rmt.media import get_media_info, get_media_file_season, get_media_file_seq
+from rmt.qbittorrent import login_qbittorrent
 
 rss_cache_list = []
 rss_cache_name = []
