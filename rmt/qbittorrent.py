@@ -1,18 +1,33 @@
 # qBittorrent媒体文件转移
 import os
 import sys
+
+import qbittorrentapi
 import urllib3
 import log
 import settings
 
 # 全局设置
-from functions import login_qbittorrent
 from rmt.media import transfer_directory
 
 urllib3.disable_warnings()
 
 
 # ----------------------------函数 BEGIN-----------------------------------------
+# 连接qbittorrent
+def login_qbittorrent():
+    try:
+        # 登录
+        qbt = qbittorrentapi.Client(host=settings.get('qbittorrent.qbhost'),
+                                    port=settings.get('qbittorrent.qbport'),
+                                    username=settings.get('qbittorrent.qbusername'),
+                                    password=settings.get('qbittorrent.qbpassword'))
+        qbt.auth_log_in()
+        return qbt
+    except Exception:
+        return None
+
+
 # 迁移完成后设置种子状态
 def set_torrent_status(qbc, hash_str):
     if qbc:
@@ -39,6 +54,8 @@ def transfer_qbittorrent_task():
             transfer_directory(in_from="qBittorrent", in_name=torrent.name, in_path=true_path)
             set_torrent_status(qbc, torrent.hash)
     qbc.auth_log_out()
+
+
 # ----------------------------函数 END-----------------------------------------
 
 
@@ -81,7 +98,8 @@ if __name__ == "__main__":
             log.error("【RMT】找不到文件：" + QB_Path)
             quit()
         log.info("【RMT】开始处理：" + QB_Name)
-        ret = transfer_directory(in_from="qBittorrent", in_name=QB_Name, in_path=QB_Path, in_year=QB_Year, in_type=QB_Type, mv_flag=MV_Flag)
+        ret = transfer_directory(in_from="qBittorrent", in_name=QB_Name, in_path=QB_Path, in_year=QB_Year,
+                                 in_type=QB_Type, mv_flag=MV_Flag)
         if QB_Hash:
             qbt_client = login_qbittorrent()
             set_torrent_status(qbt_client, QB_Hash)
