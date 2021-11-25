@@ -1,13 +1,10 @@
 import log
-import settings
 from message.send import sendmsg
 from monitor.movie_trailer import run_movie_trailer
 from monitor.resiliosync import run_resilosync
 
 
-def run_monitor(config_file):
-    settings.config_file_path = config_file
-    settings.reload_config()
+def run_monitor():
     try:
         run_movie_trailer()
     except Exception as err:

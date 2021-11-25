@@ -17,9 +17,7 @@ from scheduler.unicom_signin import run_unicomsignin
 os.environ['TZ'] = 'Asia/Shanghai'
 
 
-def run_scheduler(config_file):
-    settings.config_file_path = config_file
-    settings.reload_config()
+def run_scheduler():
     scheduler = BlockingScheduler(timezone="Asia/Shanghai")
     scheduler.remove_all_jobs()
     # Icloud照片同步

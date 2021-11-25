@@ -4,9 +4,7 @@ from message.send import sendmsg
 from web.main import create_app
 
 
-def run_webhook(config_file):
-    settings.config_file_path = config_file
-    settings.reload_config()
+def run_webhook():
     try:
         app = create_app()
         app.run(

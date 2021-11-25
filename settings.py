@@ -1,8 +1,8 @@
+import os
 import threading
 from configparser import NoOptionError, RawConfigParser
 
 lock = threading.Lock()
-config_file_path = ""
 
 
 class Config(object):
@@ -25,7 +25,7 @@ class Config(object):
         return Config.__instance
 
     def load_config(self):
-        self.config.read(config_file_path, 'utf-8')
+        self.config.read(os.environ['NASTOOL_CONFIG'], 'utf-8')
 
     def get(self, key, default=None):
         map_key = key.split('.')
@@ -46,7 +46,7 @@ def get(key, default=None):
 
 
 def get_config_path():
-    return Config.get_instance().get_config_path()
+    return os.environ['NASTOOL_CONFIG']
 
 
 def reload_config():
