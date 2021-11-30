@@ -14,7 +14,7 @@ RSS订阅自动下载，每日签到（PT站、什么值得买、联动营业厅
 支持ServerChan、微信、Telegram消息通知服务， 以上功能运行状态可通过消息服务推送消息到手机上，比如新增加了电影、签到完成等
 
 ### 5、Emby WebHook
-在Emby WebHooks中设置为 http://IP:3000/emby ，则Emby相关播放状态将通过消息服务发送消息到手机
+在Emby WebHooks中设置为 http://IP:3000/emby ，Emby消息通知
 
 ### 6、WEB UI管理界面
 3000端口访问WEB UI界面
