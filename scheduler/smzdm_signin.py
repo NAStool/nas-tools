@@ -75,7 +75,7 @@ def smzdmsignin():
             send_msg = "解析数据错误！"
         sendmsg(title='【SMZDM】每日签到', text=send_msg)
     except Exception as err:
-        log.err("【SMZDM-SIGN】登录失败：" + str(err))
+        log.error("【SMZDM-SIGN】登录失败：" + str(err))
         sendmsg(title='【SMZDM】每日签到', text="登录失败：" + str(err))
 
 
