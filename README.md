@@ -1,4 +1,4 @@
-# nas-tools NAS媒体库整理工具集
+# nas-tools NAS媒体库整理工具
 ## 功能：
 ### 1、qBittorrent下载电影剧集识别转移和重命名
 定时检测qbittorrent，下载完成后识别电影剧集名称并从TheMovieDb搜刮媒体信息，复制到Emby/Plex媒体库目录并重命名，命名格式："名称 (年份)/名称 (年份) - 分辨率.后缀"
@@ -14,7 +14,7 @@ RSS订阅自动下载，每日签到（PT站、什么值得买、联动营业厅
 支持ServerChan、微信、Telegram消息通知服务， 以上功能运行状态可通过消息服务推送消息到手机上，比如新增加了电影、签到完成等
 
 ### 5、Emby WebHook
-在Emby WebHooks中设置为 http://IP:3000/emby ，则Emby相关播放状态将通过消息服务发送消息到手机
+在Emby WebHooks中设置为 http://IP:3000/emby ，Emby消息通知
 
 ### 6、WEB UI管理界面
 3000端口访问WEB UI界面
