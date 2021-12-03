@@ -1,6 +1,7 @@
 import os
 import threading
 from configparser import NoOptionError, RawConfigParser
+from apscheduler.schedulers.background import BackgroundScheduler
 
 lock = threading.Lock()
 
@@ -11,6 +12,9 @@ class Config(object):
     def __init__(self):
         self.config = RawConfigParser()
         self.load_config()
+        self.scheduler = BackgroundScheduler()
+        self.scheduler.add_job(self.load_config, 'interval', seconds=600)
+        self.scheduler.start()
 
     @staticmethod
     def get_instance():
