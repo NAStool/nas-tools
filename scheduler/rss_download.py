@@ -169,10 +169,10 @@ def rssdownload():
                                 break
                         if exist_flag:
                             continue
-                    else:
-                        if os.path.exists(season_dir):
-                            log.error("【RSS】剧集目录已存在，跳过：" + season_dir)
-                            continue
+                    # else:
+                        # if os.path.exists(season_dir):
+                            # log.error("【RSS】剧集目录已存在，跳过：" + season_dir)
+                            # continue
             except Exception as e:
                 log.error("【RSS】错误：" + str(e))
                 continue
