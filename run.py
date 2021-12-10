@@ -18,6 +18,7 @@ if __name__ == "__main__":
                         help='Config File Path (default: config/config.ini)')
 
     args = parser.parse_args()
+    os.environ['TZ'] = 'Asia/Shanghai'
     os.environ['NASTOOL_CONFIG'] = args.config_file
     log.info("【RUN】配置文件地址：" + os.environ['NASTOOL_CONFIG'])
     if not os.path.exists(os.environ['NASTOOL_CONFIG']):
