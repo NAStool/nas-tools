@@ -43,7 +43,24 @@ def transfer_subtitles(in_path, org_name, new_name, mv_flag=False):
                 else:
                     log.info("【RMT】字幕 " + new_file + "已存在！")
         if not find_flag:
-            log.info("【RMT】没有相同文件名的字幕文件，不处理！")
+            log.debug("【RMT】没有相同文件名的字幕文件，不处理！")
+
+
+def transfer_bluray_dir(file_path, new_path, mv_flag=False, over_flag=False):
+    if over_flag:
+        log.debug("【RMT】正在删除已存在的目录：" + new_path)
+        shutil.rmtree(new_path)
+        log.info("【RMT】" + new_path + " 已删除！")
+
+    # 复制文件
+    log.info("【RMT】正在复制目录：" + file_path + " 到 " + new_path)
+    call(['cp -r', file_path, new_path])
+    log.info("【RMT】文件复制完成：" + new_path)
+
+    if mv_flag:
+        if file_path != settings.get('rmt.rmt_moviepath') and file_path != settings.get('rmt.rmt_tvpath'):
+            shutil.rmtree(file_path)
+        log.info("【RMT】" + file_path + " 已删除！")
 
 
 def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=False):
@@ -73,15 +90,21 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
     # 遍历文件
     in_path = in_path.replace('\\\\', '/').replace('\\', '/')
     log.info("【RMT】开始处理：" + in_path)
+    # 判断是不是原盘文件夹
+    bluray_disk_flag = True if os.path.exists(os.path.join(in_path, "BDMV/index.bdmv")) else False
     file_list = get_dir_files_by_ext(in_path, settings.get('rmt.rmt_mediaext'))
-    log.debug("【RMT】电影文件清单：" + str(file_list))
     Media_FileNum = len(file_list)
-    if Media_FileNum == 0:
-        log.error("【RMT】没有支持的文件格式，不处理！")
-        if noti_flag:
-            sendmsg("【RMT】没有支持的文件格式！", "来源：" + in_from
-                    + "\n\n名称：" + in_name)
-        return False
+    if bluray_disk_flag:
+        in_type = "电影"
+        log.info("【RMT】检测到蓝光原盘文件夹")
+    else:
+        log.debug("【RMT】文件清单：" + str(file_list))
+        if Media_FileNum == 0:
+            log.error("【RMT】没有支持的文件格式，不处理！")
+            if noti_flag:
+                sendmsg("【RMT】没有支持的文件格式！", "来源：" + in_from
+                        + "\n\n名称：" + in_name)
+            return False
 
     # API检索出媒体信息
     media = get_media_info(in_path, in_name, in_type, in_year)
@@ -109,27 +132,38 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
                 if not os.path.exists(media_path):
                     log.debug("【RMT】正在创建目录：" + media_path)
                     os.makedirs(media_path)
-            for file_item in file_list:
-                Media_FileSize = Media_FileSize + os.path.getsize(file_item)
-                file_ext = os.path.splitext(file_item)[-1]
-                if Media_Pix != "":
-                    if Media_Pix.upper() == "4K":
-                        Media_Pix = "2160p"
-                    new_file = os.path.join(media_path,
-                                            Media_Title + " (" + Media_Year + ") - " + Media_Pix.lower() + file_ext)
                 else:
-                    new_file = os.path.join(media_path, Media_Title + " (" + Media_Year + ")" + file_ext)
-                Media_File = new_file
-                if not os.path.exists(new_file):
-                    transfer_files(in_path, file_item, new_file, mv_flag)
-                else:
-                    ExistFile_Size = os.path.getsize(new_file)
-                    if Media_FileSize > ExistFile_Size:
-                        log.error("【RMT】文件" + new_file + "已存在，但新文件质量更好，覆盖...")
-                        transfer_files(in_path, file_item, new_file, mv_flag, True)
+                    if bluray_disk_flag:
+                        log.error("【RMT】蓝光原盘目录已存在：" + media_path)
+                        return
+            else:
+                if bluray_disk_flag:
+                    log.error("【RMT】蓝光原盘目录已存在：" + media_path)
+                    return
+            if bluray_disk_flag:
+                transfer_bluray_dir(in_path, media_path)
+            else:
+                for file_item in file_list:
+                    Media_FileSize = Media_FileSize + os.path.getsize(file_item)
+                    file_ext = os.path.splitext(file_item)[-1]
+                    if Media_Pix != "":
+                        if Media_Pix.upper() == "4K":
+                            Media_Pix = "2160p"
+                        new_file = os.path.join(media_path,
+                                                Media_Title + " (" + Media_Year + ") - " + Media_Pix.lower() + file_ext)
                     else:
-                        Exist_FileNum = Exist_FileNum + 1
-                        log.error("【RMT】文件 " + new_file + "已存在，且质量更好！")
+                        new_file = os.path.join(media_path, Media_Title + " (" + Media_Year + ")" + file_ext)
+                    Media_File = new_file
+                    if not os.path.exists(new_file):
+                        transfer_files(in_path, file_item, new_file, mv_flag)
+                    else:
+                        ExistFile_Size = os.path.getsize(new_file)
+                        if Media_FileSize > ExistFile_Size:
+                            log.error("【RMT】文件" + new_file + "已存在，但新文件质量更好，覆盖...")
+                            transfer_files(in_path, file_item, new_file, mv_flag, True)
+                        else:
+                            Exist_FileNum = Exist_FileNum + 1
+                            log.error("【RMT】文件 " + new_file + "已存在，且质量更好！")
             log.info("【RMT】" + in_name + " 转移完成！")
             msg_str = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) \
                       + "\n\n来源：" + in_from \
@@ -152,6 +186,9 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
             insert_media_log(in_from, in_name, str(Media_Id), Media_Title, Media_Type, Media_Year, '', '',
                              Media_FileNum, str_filesize(Media_FileSize), save_path, save_note)
         elif Search_Type == "电视剧":
+            if bluray_disk_flag:
+                log.error("【RMT】识别有误：蓝光原盘目录被识别为电视剧")
+                return
             season_ary = []
             episode_ary = []
             # 新路径
