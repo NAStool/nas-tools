@@ -1,7 +1,5 @@
-import sys
-
+import pytz
 from apscheduler.schedulers.blocking import BlockingScheduler
-import os
 import log
 from scheduler.autoremove_torrents import run_autoremovetorrents
 from scheduler.hot_trailer import run_hottrailers
@@ -14,11 +12,9 @@ from scheduler.sensors import run_sensors
 from scheduler.smzdm_signin import run_smzdmsignin
 from scheduler.unicom_signin import run_unicomsignin
 
-os.environ['TZ'] = 'Asia/Shanghai'
-
 
 def run_scheduler():
-    scheduler = BlockingScheduler(timezone="Asia/Shanghai")
+    scheduler = BlockingScheduler(timezone=pytz.utc)
     scheduler.remove_all_jobs()
     # Icloud照片同步
     icloudpd_flag = settings.get("scheduler.icloudpd_flag") == "ON" or False
