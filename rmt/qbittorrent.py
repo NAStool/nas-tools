@@ -51,8 +51,9 @@ def transfer_qbittorrent_task():
         log.debug("【RMT】" + torrent.name + "：" + torrent.state)
         if torrent.state == "uploading" or torrent.state == "stalledUP":
             true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
-            transfer_directory(in_from="qBittorrent", in_name=torrent.name, in_path=true_path)
-            set_torrent_status(qbc, torrent.hash)
+            done_flag = transfer_directory(in_from="qBittorrent", in_name=torrent.name, in_path=true_path)
+            if done_flag:
+                set_torrent_status(qbc, torrent.hash)
     qbc.auth_log_out()
 
 
