@@ -7,7 +7,7 @@ from tmdbv3api import TMDb, Search
 from subprocess import call
 
 import settings
-from functions import get_dir_files_by_ext, is_chinese, mysql_exec_sql, str_filesize
+from functions import get_dir_files_by_ext, is_chinese, mysql_exec_sql, str_filesize, get_free_space_gb
 from message.send import sendmsg
 
 
@@ -121,12 +121,20 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
     if (settings.get('rmt.rmt_forcetrans').upper() == "TRUE" and Media_Type != "") or (
             Media_Id != "0" and Media_Type != ""):
         if Search_Type == "电影":
+            # 检查剩余空间
+            movie_dist = settings.get('rmt.rmt_moviepath')
+            rmt_diskfreesize = settings.get('rmt.rmt_diskfreesize')
+            disk_free_size = get_free_space_gb(movie_dist)
+            if float(disk_free_size) < float(rmt_diskfreesize):
+                log.error("【RMT】目录" + movie_dist + "剩余磁盘空间不足" + rmt_diskfreesize + "GB，不处理！")
+                sendmsg("【RMT】磁盘空间不足", "目录" + movie_dist + "剩余磁盘空间不足" + rmt_diskfreesize + "GB！")
+                return False
             # 检查精选中是否已存在
-            media_path = os.path.join(settings.get('rmt.rmt_moviepath'), settings.get('rmt.rmt_favtype'),
+            media_path = os.path.join(movie_dist, settings.get('rmt.rmt_favtype'),
                                       Media_Title + " (" + Media_Year + ")")
             if not os.path.exists(media_path):
                 # 新路径
-                media_path = os.path.join(settings.get('rmt.rmt_moviepath'), Media_Type,
+                media_path = os.path.join(movie_dist, Media_Type,
                                           Media_Title + " (" + Media_Year + ")")
                 # 创建目录
                 if not os.path.exists(media_path):
@@ -135,11 +143,11 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
                 else:
                     if bluray_disk_flag:
                         log.error("【RMT】蓝光原盘目录已存在：" + media_path)
-                        return
+                        return True
             else:
                 if bluray_disk_flag:
                     log.error("【RMT】蓝光原盘目录已存在：" + media_path)
-                    return
+                    return True
             if bluray_disk_flag:
                 transfer_bluray_dir(in_path, media_path)
             else:
@@ -188,11 +196,19 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
         elif Search_Type == "电视剧":
             if bluray_disk_flag:
                 log.error("【RMT】识别有误：蓝光原盘目录被识别为电视剧")
-                return
+                return False
             season_ary = []
             episode_ary = []
+            # 检查剩余空间
+            tv_dist = settings.get('rmt.rmt_tvpath')
+            rmt_diskfreesize = settings.get('rmt.rmt_diskfreesize')
+            disk_free_size = get_free_space_gb(tv_dist)
+            if float(disk_free_size) < float(rmt_diskfreesize):
+                log.error("【RMT】目录" + tv_dist + "剩余磁盘空间不足" + rmt_diskfreesize + "GB，不处理！")
+                sendmsg("【RMT】磁盘空间不足", "目录" + tv_dist + "剩余磁盘空间不足" + rmt_diskfreesize + "GB，不处理！")
+                return False
             # 新路径
-            media_path = os.path.join(settings.get('rmt.rmt_tvpath'), Media_Type, Media_Title + " (" + Media_Year + ")")
+            media_path = os.path.join(tv_dist, Media_Type, Media_Title + " (" + Media_Year + ")")
             # 创建目录
             if not os.path.exists(media_path):
                 log.debug("【RMT】正在创建目录：" + media_path)
