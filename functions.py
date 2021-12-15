@@ -1,7 +1,8 @@
+import ctypes
 import os
 import subprocess
 import time
-
+import platform
 import pymysql
 import requests
 import bisect
@@ -177,3 +178,13 @@ def generateHeader(url):
     }
     return header
 
+
+# 计算目录剩余空间大小
+def get_free_space_gb(folder):
+    if platform.system() == 'Windows':
+        free_bytes = ctypes.c_ulonglong(0)
+        ctypes.windll.kernel32.GetDiskFreeSpaceExW(ctypes.c_wchar_p(folder), None, None, ctypes.pointer(free_bytes))
+        return free_bytes.value / 1024 / 1024 / 1024
+    else:
+        st = os.statvfs(folder)
+        return st.f_bavail * st.f_frsize / 1024 / 1024 / 1024.
