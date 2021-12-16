@@ -17,32 +17,37 @@ def run_sensors():
         sendmsg("【NASTOOL】执行定时任务sensors出错！", str(err))
 
 
-def sensors():
-    start_time = datetime.now()
+def get_temperature():
+    temp = 0
     cmd = settings.get("scheduler.sensors_cmd")
-    hostname = socket.gethostname()
-    sensors_temperature_alert = float(settings.get("scheduler.sensors_temperature_alert"))
-    sensors_alert_times = int(settings.get("scheduler.sensors_alert_times"))
-
     log.debug("【SENSORS】开始执行命令：" + cmd)
     # 获取命令结果
+    start_time = datetime.now()
     result_err, result_out = system_exec_command(cmd, 5)
-
     end_time = datetime.now()
     if result_err == "timeout":
-        sendmsg("【sensors】命令执行超时！", "耗时：" + str((end_time - start_time).seconds) + " 秒")
+        log.error("【sensors】命令执行超时！耗时：" + str((end_time - start_time).seconds) + " 秒")
     elif result_err != "":
-        sendmsg("【sensors】命令执行失败！", "错误信息：" + result_err)
+        log.error("【sensors】命令执行失败！错误信息：" + result_err)
     else:
         try:
             temp = re.search(r"\+\d{1,3}\.\d+\s?[C℃]", result_out, re.IGNORECASE).group(0).replace("+", "").replace("C", "").replace("℃", "").strip()
         except AttributeError:
-            temp = None
-        if not temp:
+            temp = 0
+        if temp == 0:
             log.error("【SENSORS】命令执行失败,未获取到温度数值：\n" + result_out)
-            return
         else:
             log.info("【SENSORS】CPU当前温度为：" + str(temp))
+            return temp
+    return temp
+
+
+def sensors():
+    hostname = socket.gethostname()
+    sensors_temperature_alert = float(settings.get("scheduler.sensors_temperature_alert"))
+    sensors_alert_times = int(settings.get("scheduler.sensors_alert_times"))
+    temp = get_temperature()
+    if temp != 0:
         if float(temp) > sensors_temperature_alert:
             pretemp = gv.get_value("SENSORS_TEMPERATURE_COUNT")
             if pretemp:

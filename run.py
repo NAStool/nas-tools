@@ -3,7 +3,7 @@ import os
 from time import sleep
 import log
 import settings
-from functions import system_exec_command
+from functions import system_exec_command, get_host_name, get_host_ip
 from message.send import sendmsg
 from web import run as webhook
 from monitor import run as monitor
@@ -121,3 +121,4 @@ if __name__ == "__main__":
     Process(target=monitor.run_monitor, args=()).start()
     Process(target=scheduler.run_scheduler, args=()).start()
     Process(target=webhook.run_webhook, args=()).start()
+    sendmsg("【NASTOOL】" + get_host_name() + "已启动", "IP地址：" + get_host_ip())

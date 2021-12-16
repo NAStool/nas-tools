@@ -1,4 +1,7 @@
+import atexit
 import os
+import signal
+import sys
 from time import sleep
 
 from watchdog.events import FileSystemEventHandler
@@ -72,6 +75,18 @@ def run_resilosync():
         else:
             # 其他
             observer = PollingObserver()
+
+        @atexit.register
+        def atexit_fun():
+            observer.stop()
+
+        def signal_fun(signum, frame):
+            log.info("【RUN】resilosync捕捉到信号：" + str(signum) + '-' + str(frame) + "，开始退出...")
+            sys.exit()
+
+        signal.signal(signal.SIGTERM, signal_fun)
+        signal.signal(signal.SIGINT, signal_fun)
+
         observer.schedule(event_handler, path=monpath, recursive=True)  # recursive递归的
         observer.setDaemon(False)
         observer.start()

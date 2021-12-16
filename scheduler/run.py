@@ -1,5 +1,11 @@
+import atexit
+import signal
+import sys
+
 from apscheduler.schedulers.blocking import BlockingScheduler
 import log
+from functions import get_host_name
+from message.send import sendmsg
 from scheduler.autoremove_torrents import run_autoremovetorrents
 from scheduler.hot_trailer import run_hottrailers
 from scheduler.icloudpd import run_icloudpd
@@ -7,13 +13,25 @@ from scheduler.pt_signin import run_ptsignin
 import settings
 from scheduler.qb_transfer import run_qbtransfer
 from scheduler.rss_download import run_rssdownload
-from scheduler.sensors import run_sensors
+from scheduler.sensors import run_sensors, get_temperature
 from scheduler.smzdm_signin import run_smzdmsignin
 from scheduler.unicom_signin import run_unicomsignin
 
 
 def run_scheduler():
     scheduler = BlockingScheduler(timezone='Asia/Shanghai')
+
+    @atexit.register
+    def atexit_fun():
+        scheduler.shutdown()
+
+    def signal_fun(signum, frame):
+        log.info("【RUN】scheduler捕捉到信号：" + str(signum) + '-' + str(frame) + "，开始退出...")
+        sys.exit()
+
+    signal.signal(signal.SIGTERM, signal_fun)
+    signal.signal(signal.SIGINT, signal_fun)
+
     scheduler.remove_all_jobs()
     # Icloud照片同步
     icloudpd_flag = settings.get("scheduler.icloudpd_flag") == "ON" or False

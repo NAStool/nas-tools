@@ -1,5 +1,6 @@
 import ctypes
 import os
+import socket
 import subprocess
 import time
 import platform
@@ -187,4 +188,25 @@ def get_free_space_gb(folder):
         return free_bytes.value / 1024 / 1024 / 1024
     else:
         st = os.statvfs(folder)
-        return st.f_bavail * st.f_frsize / 1024 / 1024 / 1024.
+        return st.f_bavail * st.f_frsize / 1024 / 1024 / 1024
+
+
+# 获取主机名
+def get_host_name():
+    return socket.gethostname()
+
+
+# 获取当前IP地址
+def get_host_ip():
+    s = None
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('223.5.5.5', 80))
+        ip = s.getsockname()[0]
+    finally:
+        if s:
+            s.close()
+    if ip:
+        return ip
+    else:
+        return ''
