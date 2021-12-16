@@ -1,9 +1,5 @@
-import atexit
 import os
 import shutil
-import signal
-import sys
-
 from tmdbv3api import TMDb, Movie
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
@@ -144,34 +140,13 @@ class FileMonitorHandler(FileSystemEventHandler):
         dir_change_handler(event, "修改")
 
 
-def run_movie_trailer():
-    movie_flag = settings.get("monitor.movie_flag") == "ON" or False
+def create_movie_trailer():
     movie_sys = settings.get("monitor.movie_sys") == "Linux" or False
-    monpath = settings.get("monitor.movie_monpath")
-    if os.path.exists(monpath) and movie_flag:
-        event_handler = FileMonitorHandler()
-        if movie_sys:
-            observer = Observer()
-        else:
-            observer = PollingObserver()
-
-        @atexit.register
-        def atexit_fun():
-            observer.stop()
-
-        def signal_fun(signum, frame):
-            log.info("【RUN】movie_trailer捕捉到信号：" + str(signum) + '-' + str(frame) + "，开始退出...")
-            sys.exit()
-
-        signal.signal(signal.SIGTERM, signal_fun)
-        signal.signal(signal.SIGINT, signal_fun)
-
-        observer.schedule(event_handler, path=monpath, recursive=True)  # recursive递归的
-        observer.setDaemon(False)
-        observer.start()
-        log.info("【RUN】monitor.movie_trailer启动...")
+    if movie_sys:
+        observer = Observer()
     else:
-        log.error("【TRAILER-DL】" + monpath + "目录不存在！")
+        observer = PollingObserver()
+    return observer
 
 
 # 下载电影预告片
