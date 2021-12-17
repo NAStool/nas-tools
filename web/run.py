@@ -15,11 +15,11 @@ def run_webhook():
 
         @atexit.register
         def atexit_fun():
-            sendmsg("【NASTOOL】" + get_host_name() + "正在关闭！", "当前温度：" + str(get_temperature()))
             app.stop()
 
         def signal_fun(signum, frame):
-            log.info("【RUN】webhook捕捉到信号：" + str(signum) + '-' + str(frame) + "，开始退出...")
+            log.info("【RUN】webhook捕捉到信号：" + str(signum) + "，开始退出...")
+            sendmsg("【NASTOOL】" + get_host_name() + "正在关闭！", "当前温度：" + str(get_temperature()))
             sys.exit()
 
         signal.signal(signal.SIGTERM, signal_fun)

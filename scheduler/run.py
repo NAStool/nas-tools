@@ -25,7 +25,7 @@ def run_scheduler():
             scheduler.shutdown()
 
     def signal_fun(signum, frame):
-        log.info("【RUN】scheduler捕捉到信号：" + str(signum) + '-' + str(frame) + "，开始退出...")
+        log.info("【RUN】scheduler捕捉到信号：" + str(signum) + "，开始退出...")
         sys.exit()
 
     signal.signal(signal.SIGTERM, signal_fun)

@@ -75,7 +75,7 @@ def create_app():
         sta_autoremovetorrents = settings.get("scheduler.autoremovetorrents_flag")
         tim_qbtransfer = settings.get("scheduler.qbtransfer_interval")
         sta_qbtransfer = settings.get("scheduler.qbtransfer_flag")
-        tim_icloudpd = settings.get("scheduler.icloudpd_interval")
+        tim_icloudpd = settings.get("scheduler.icloudpd_cron")
         sta_icloudpd = settings.get("scheduler.icloudpd_flag")
         tim_hottrailers = settings.get("scheduler.hottrailer_cron")
         sta_hottrailers = settings.get("scheduler.hottrailer_flag")
