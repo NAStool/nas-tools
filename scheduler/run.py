@@ -46,7 +46,7 @@ def run_scheduler():
         scheduler.add_job(run_autoremovetorrents, 'interval',
                           seconds=int(settings.get("scheduler.autoremovetorrents_interval")))
         log.info("【RUN】scheduler.autoremovetorrents启动...")
-    # 列新电影预告
+    # 更新电影预告
     hottrailer_flag = settings.get("scheduler.hottrailer_flag") == "ON" or False
     if hottrailer_flag:
         hottrailer_cron = settings.get("scheduler.hottrailer_cron")
@@ -93,7 +93,7 @@ def run_scheduler():
                           seconds=int(settings.get("scheduler.rssdownload_interval")))
         log.info("【RUN】scheduler.rssdownload启动...")
 
-    # RSS下载器
+    # 温度监控
     sensors_flag = settings.get("scheduler.sensors_flag") == "ON" or False
     if sensors_flag:
         scheduler.add_job(run_sensors, 'interval',

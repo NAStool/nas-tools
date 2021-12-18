@@ -13,7 +13,7 @@ from functions import get_dir_files_by_ext, get_dir_files_by_name, system_exec_c
 from message.send import sendmsg
 
 
-def run_hottrailers(refresh_flag=False):
+def run_hottrailers(refresh_flag=True):
     try:
         hottrailers(refresh_flag)
     except Exception as err:

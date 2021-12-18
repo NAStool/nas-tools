@@ -152,10 +152,12 @@ def create_movie_trailer():
 # 下载电影预告片
 def movie_trailer_all():
     monpath = settings.get("monitor.movie_monpath")
+    movie_types = settings.get("rmt.rmt_movietype").split(",")
     log.info("【TRAILER-DL】开始检索和下载电影预告片！")
-    movie_dir_list = os.listdir(monpath)
-    for movie_dir in movie_dir_list:
-        movie_dir = os.path.join(monpath, movie_dir)
-        if os.path.isdir(movie_dir):
-            download_movie_trailer(movie_dir)
+    for movie_type in movie_types:
+        movie_dir_list = os.listdir(os.path.join(monpath, movie_type))
+        for movie_dir in movie_dir_list:
+            movie_dir = os.path.join(monpath, movie_type, movie_dir)
+            if os.path.isdir(movie_dir):
+                download_movie_trailer(movie_dir)
     log.info("【TRAILER-DL】电影预告片下载任务完成！")
