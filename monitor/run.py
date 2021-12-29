@@ -21,7 +21,7 @@ def run_monitor():
         if movie_flag:
             if os.path.exists(movie_monpath):
                 movie_trailer = create_movie_trailer()
-                movie_trailer.schedule(MovieTrailerHandler, path=movie_monpath, recursive=True)  # recursive递归的
+                movie_trailer.schedule(MovieTrailerHandler(), path=movie_monpath, recursive=True)  # recursive递归的
                 movie_trailer.setDaemon(False)
                 movie_trailer.start()
                 movie_run = True
@@ -37,7 +37,7 @@ def run_monitor():
         resiliosync_monpath = settings.get("monitor.resiliosync_monpath")
         if os.path.exists(resiliosync_monpath) and resiliosync_flag:
             resiliosync = create_resilosync()
-            resiliosync.schedule(ResilioSyncHandler, path=resiliosync_monpath, recursive=True)  # recursive递归的
+            resiliosync.schedule(ResilioSyncHandler(), path=resiliosync_monpath, recursive=True)  # recursive递归的
             resiliosync.setDaemon(False)
             resiliosync.start()
             resiliosync_run = True
