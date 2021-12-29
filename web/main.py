@@ -20,6 +20,9 @@ from message.send import sendmsg
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
+from web.wechat.WXBizMsgCrypt3 import WXBizMsgCrypt
+import xml.etree.cElementTree as ET
+
 
 def create_app():
     app = Flask(__name__)
@@ -216,5 +219,56 @@ def create_app():
                 if sch_item == "sch_btn_rssdownload":
                     run_rssdownload()
                 return {"retmsg": "执行完成！", "item": sch_item}
+
+    # 响应企业微信消息
+    @app.route('/wechat', methods=['GET', 'POST'])
+    def wechat():
+        sToken = settings.get("wechat.Token")
+        sEncodingAESKey = settings.get("wechat.EncodingAESKey")
+        sCorpID = settings.get("wechat.corpid")
+        wxcpt = WXBizMsgCrypt(sToken, sEncodingAESKey, sCorpID)
+        sVerifyMsgSig = request.args.get("msg_signature")
+        sVerifyTimeStamp = request.args.get("timestamp")
+        sVerifyNonce = request.args.get("nonce")
+
+        if request.method == 'GET':
+            sVerifyEchoStr = request.args.get("echostr")
+            log.info("收到微信验证请求: echostr=" + sVerifyEchoStr)
+            ret, sEchoStr = wxcpt.VerifyURL(sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce, sVerifyEchoStr)
+            if ret != 0:
+                log.error("微信请求验证失败 VerifyURL ret: " + str(ret))
+            # 验证URL成功，将sEchoStr返回给企业号
+            return sEchoStr
+        else:
+            sReqData = request.data
+            log.info("收到微信消息：" + sReqData)
+            ret, sMsg = wxcpt.DecryptMsg(sReqData, sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce)
+            if ret != 0:
+                log.error("解密微信消息失败 DecryptMsg ret：" + str(ret))
+            xml_tree = ET.fromstring(sMsg)
+            content = xml_tree.find("Content").text
+            log.info("消息内容：" + content)
+            # 处理消息内容
+            if content == "/qbr":
+                run_autoremovetorrents()
+            if content == "/qbt":
+                run_qbtransfer()
+            if content == "/ipd":
+                run_icloudpd()
+            if content == "/hotm":
+                run_hottrailers()
+            if content == "/pts":
+                run_ptsignin()
+            if content == "/smzdms":
+                run_smzdmsignin()
+            if content == "/unicoms":
+                run_unicomsignin()
+            if content == "/mrt":
+                movie_trailer_all()
+            if content == "/rst":
+                resiliosync_all()
+            if content == "/rss":
+                run_rssdownload()
+            return content
 
     return app

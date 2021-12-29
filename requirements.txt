@@ -10,3 +10,4 @@ pymysql>=1.0.2
 youtube-dl>=2021.6.6
 icloudpd>=1.7.2
 flask-httpauth==4.5.0
+pycryptodome==3.12.0
