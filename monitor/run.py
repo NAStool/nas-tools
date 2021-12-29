@@ -54,7 +54,6 @@ def run_monitor():
                 resiliosync.stop()
 
         def signal_fun(signum, frame):
-            log.info("【RUN】monitor捕捉到信号：" + str(signum) + '-' + str(frame) + "，开始退出...")
             sys.exit()
 
         signal.signal(signal.SIGTERM, signal_fun)

@@ -13,7 +13,7 @@ class Config(object):
         self.config = RawConfigParser()
         self.load_config()
         self.scheduler = BackgroundScheduler(timezone="Asia/Shanghai")
-        self.scheduler.add_job(self.load_config, 'interval', seconds=600)
+        self.scheduler.add_job(reload_config, 'interval', seconds=600)
         self.scheduler.start()
 
     @staticmethod

@@ -11,7 +11,7 @@ from scheduler.hot_trailer import run_hottrailers
 from scheduler.icloudpd import run_icloudpd
 from scheduler.pt_signin import run_ptsignin
 from scheduler.qb_transfer import run_qbtransfer
-from scheduler.rss_download import run_rssdownload
+from scheduler.rss_download import run_rssdownload, add_qbittorrent_torrent
 from scheduler.smzdm_signin import run_smzdmsignin
 from scheduler.unicom_signin import run_unicomsignin
 from web.emby.discord import report_to_discord
@@ -22,6 +22,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 from web.wechat.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ET
+
+# 菜单对应关系
+WECHAT_MENU = {"_0_0": "/qbt", "_0_1": "/qbr", "_0_2": "/rss", "_0_3": "/hotm", "_0_4": "/mrt",
+               "_1_0": "/ipd", "_1_1": "/rst",
+               "_2_0": "/pts", "_2_1": "/smzdms", "_2_2": "/unicoms"}
 
 
 def create_app():
@@ -241,13 +246,23 @@ def create_app():
             return sEchoStr
         else:
             sReqData = request.data
-            log.info("收到微信消息：" + sReqData)
+            log.info("收到微信消息：" + str(sReqData))
             ret, sMsg = wxcpt.DecryptMsg(sReqData, sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce)
             if ret != 0:
                 log.error("解密微信消息失败 DecryptMsg ret：" + str(ret))
             xml_tree = ET.fromstring(sMsg)
-            content = xml_tree.find("Content").text
-            log.info("消息内容：" + content)
+            try:
+                msg_type = xml_tree.find("MsgType").text
+                if msg_type == "event":
+                    event_key = xml_tree.find("EventKey").text
+                    log.info("点击菜单：" + event_key)
+                    content = WECHAT_MENU[event_key.split('#')[2]]
+                else:
+                    content = xml_tree.find("Content").text
+                    log.info("消息内容：" + content)
+            except Exception as err:
+                log.error("发生错误：" + str(err))
+                return 0
             # 处理消息内容
             if content == "/qbr":
                 run_autoremovetorrents()
@@ -269,6 +284,17 @@ def create_app():
                 resiliosync_all()
             if content == "/rss":
                 run_rssdownload()
+            else:
+                if content.startswith("http://") or content.startswith("https://"):
+                    # 添加种子任务
+                    save_path = settings.get("rss.save_path")
+                    try:
+                        ret = add_qbittorrent_torrent(content, save_path)
+                        if ret and ret.find("Ok") != -1:
+                            log.info("【WEB】添加qBittorrent任务：" + content)
+                            sendmsg("添加qBittorrent下载任务成功！")
+                    except Exception as e:
+                        log.error("【WEB】添加qBittorrent任务出错：" + str(e))
             return content
 
     return app
