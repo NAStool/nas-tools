@@ -81,8 +81,8 @@ $(document).ready(function(){
 	        $("#rmt_ret").show();
             $("#rmt_ret").text(rmt_stdout)
 
-            $("#rmt_name").empty();
-            $("#rmt_year").empty();
+            $("#rmt_name").val("");
+            $("#rmt_year").val("");
             $("#rmt_path").empty();
             $("#rmt_path").append("<option value =\"\">全部</option>");
             for(var i=0; i<rmt_paths.length; i++){
