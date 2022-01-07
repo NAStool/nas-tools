@@ -79,12 +79,10 @@ $(document).ready(function(){
 	        rmt_stdout = ret.rmt_stdout;
 	        rmt_paths = ret.rmt_paths;
 	        $("#rmt_ret").show();
-            if (rmt_stderr != ""){
-                $("#rmt_ret").text(rmt_stderr)
-            }else{
-                $("#rmt_ret").text(rmt_stdout)
-            }
+            $("#rmt_ret").text(rmt_stdout)
 
+            $("#rmt_name").empty();
+            $("#rmt_year").empty();
             $("#rmt_path").empty();
             $("#rmt_path").append("<option value =\"\">全部</option>");
             for(var i=0; i<rmt_paths.length; i++){
