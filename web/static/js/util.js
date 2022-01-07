@@ -25,7 +25,7 @@ $(document).ready(function(){
 
     // qBittorrent下拉选择变化
 	$("#rmt_path").change(function(){
-	    path = $("#rmt_path").val();
+	    path = $("#rmt_path").val().split('|')[0];
 	    pos = path.lastIndexOf("/")
 	    name = path.substring(pos + 1);
 	    $("#rmt_name").val(name);
@@ -160,4 +160,5 @@ $(document).ready(function(){
 	    });
 	});
 
+    $("#rmt_tab").click();
 });

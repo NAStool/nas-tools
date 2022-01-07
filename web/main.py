@@ -5,7 +5,8 @@ import log
 from functions import system_exec_command, mysql_query
 from monitor.movie_trailer import movie_trailer_all
 from monitor.resiliosync import resiliosync_all
-from rmt.qbittorrent import login_qbittorrent
+from rmt.media import transfer_directory
+from rmt.qbittorrent import login_qbittorrent, get_qbittorrent_tasks, set_torrent_status, transfer_qbittorrent_task
 from scheduler.autoremove_torrents import run_autoremovetorrents
 from scheduler.hot_trailer import run_hottrailers
 from scheduler.icloudpd import run_icloudpd
@@ -134,44 +135,19 @@ def create_app():
                 p_name = data["name"]
                 p_year = data["year"]
                 p_path = data["path"]
-                if p_path:
+                if p_path and p_name:
                     v_path = p_path.split("|")[0]
                     v_hash = p_path.split("|")[1]
+                    done_flag = transfer_directory(in_from="qBittorrent", in_name=p_name, in_path=v_path, in_year=p_year)
+                    if v_hash and done_flag:
+                        set_torrent_status(v_hash)
                 else:
-                    v_path = ""
-                    v_hash = ""
-                rootpath = settings.get("root.rootpath")
-                cmdstr = "bash " + rootpath + "/bin/rmt.sh" + " \"" + p_name + "\" \"" + v_path + "\" \"" + v_hash + "\" \"" + p_year + "\""
-                log.info("【WEB】执行命令：" + cmdstr)
-                std_err, std_out = system_exec_command(cmdstr, 1800)
-                # 读取qBittorrent列表
-                qbt = login_qbittorrent()
-                torrents = qbt.torrents_info()
-                trans_qbpath = settings.get("rmt.rmt_qbpath")
-                trans_containerpath = settings.get("rmt.rmt_containerpath")
-                path_list = []
-                for torrent in torrents:
-                    log.info(torrent.name + "：" + torrent.state)
-                    if torrent.state == "uploading" or torrent.state == "stalledUP":
-                        true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
-                        path_list.append(true_path + "|" + torrent.hash)
-                qbt.auth_log_out()
-                return {"rmt_stderr": std_err, "rmt_stdout": std_out, "rmt_paths": path_list}
+                    transfer_qbittorrent_task()
+                return {"rmt_stderr": "0", "rmt_stdout": "处理成功！", "rmt_paths": get_qbittorrent_tasks()}
 
             if cmd == "rmt_qry":
                 # 读取qBittorrent列表
-                qbt = login_qbittorrent()
-                torrents = qbt.torrents_info()
-                trans_qbpath = settings.get("rmt.rmt_qbpath")
-                trans_containerpath = settings.get("rmt.rmt_containerpath")
-                path_list = []
-                for torrent in torrents:
-                    log.info(torrent.name + "：" + torrent.state)
-                    if torrent.state == "uploading" or torrent.state == "stalledUP":
-                        true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
-                        path_list.append(true_path + "|" + torrent.hash)
-                qbt.auth_log_out()
-                return {"rmt_paths": path_list}
+                return {"rmt_paths": get_qbittorrent_tasks()}
 
             if cmd == "msg":
                 title = data["title"]

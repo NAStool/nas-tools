@@ -90,6 +90,9 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
     # 遍历文件
     in_path = in_path.replace('\\\\', '/').replace('\\', '/')
     log.info("【RMT】开始处理：" + in_path)
+    if not os.path.exists(in_path):
+        log.error("【RMT】目录不存在！")
+        return False
     # 判断是不是原盘文件夹
     bluray_disk_flag = True if os.path.exists(os.path.join(in_path, "BDMV/index.bdmv")) else False
     file_list = get_dir_files_by_ext(in_path, settings.get('rmt.rmt_mediaext'))
