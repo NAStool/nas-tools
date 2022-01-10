@@ -1,6 +1,6 @@
 # nas-tools NAS媒体库整理工具
 ## 功能：
-### 1、自动PT下载、作种、重命名和转移
+### 1、自动PT下载、做种、转移和重命名
 根据配置的关键字，从PT站定时搜刮种子，自动添加qBittorrent任务下载，下载完成后自动识别电影剧集名称并重命名和复制到Emby/Plex媒体库目录下以供识别。
 比如电影可配置2022关键字，把2022年新出的资源都自动下载。
 
@@ -8,7 +8,7 @@
 监控Resilio Sync同步目录，识别电影剧集名称，复制并命命名到Emby/Plex媒体库目录以供识别。
 这个神Key你值得拥有，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6
 
-### 3、其他的一些集成的功能
+### 3、其他的一些功能
 每日签到（PT站、什么值得买、联动营业厅），qBittorrent做种清理、电影预告片搜刮和下载等等，具体看图：
 ![定时任务](https://github.com/jxxghp/nastool/blob/master/nastool.png)
 
