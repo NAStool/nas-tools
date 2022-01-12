@@ -73,25 +73,18 @@ def set_torrent_status(hash_str):
 
 
 # 处理qbittorrent中的种子
-def transfer_qbittorrent_task(in_hash=None, in_path=None, in_name=None, in_year=None, in_type=None, in_mv_flag=None):
+def transfer_qbittorrent_task():
     trans_qbpath = settings.get("rmt.rmt_qbpath")
     trans_containerpath = settings.get("rmt.rmt_containerpath")
-    if in_hash and in_path:
-        # 处理单个任务
-        done_flag = transfer_directory(in_from="qBittorrent", in_path=in_path, in_name=in_name, in_year=in_year,
-                                       in_type=in_type, mv_flag=in_mv_flag)
-        if done_flag:
-            set_torrent_status(in_hash)
-    else:
-        # 处理所有任务
-        torrents = get_qbittorrent_torrents()
-        for torrent in torrents:
-            log.debug("【RMT】" + torrent.name + "：" + torrent.state)
-            if torrent.state == "uploading" or torrent.state == "stalledUP":
-                true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
-                done_flag = transfer_directory(in_from="qBittorrent", in_name=torrent.name, in_path=true_path)
-                if done_flag:
-                    set_torrent_status(torrent.hash)
+    # 处理所有任务
+    torrents = get_qbittorrent_torrents()
+    for torrent in torrents:
+        log.debug("【RMT】" + torrent.name + "：" + torrent.state)
+        if torrent.state == "uploading" or torrent.state == "stalledUP":
+            true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
+            done_flag = transfer_directory(in_from="qBittorrent", in_name=torrent.name, in_path=true_path)
+            if done_flag:
+                set_torrent_status(torrent.hash)
 
 # ----------------------------函数 END-----------------------------------------
 

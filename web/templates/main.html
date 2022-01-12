@@ -36,12 +36,24 @@
 							<form role="form" action="/do" method="post" id="rmt_form" class="well">
 							  <h4>qBittorrent转移</h4>
 							  <div class="form-group">
-								<label for="rmt_name">名称</label>
+								<label for="rmt_name">标题</label>
 								<input type="text" class="form-control" id="rmt_name" name="rmt_name" placeholder="" value="">
+							  </div>
+							  <div class="form-group">
+								<label for="rmt_type">类型</label>
+								  <select class="form-control" id="rmt_type" name="rmt_type">
+									  <option value ="">全部</option>
+									  <option value ="电影">电影</option>
+									  <option value ="电视剧">电视剧</option>
+								  </select>
 							  </div>
 							  <div class="form-group">
 								<label for="rmt_year">年份</label>
 								<input type="text" class="form-control" id="rmt_year" name="rmt_year" placeholder="" value="">
+							  </div>
+							  <div class="form-group">
+								<label for="rmt_season">季</label>
+								<input type="text" class="form-control" id="rmt_season" name="rmt_season" placeholder="" value="">
 							  </div>
 							  <div class="form-group">
 								<label for="rmt_path">文件</label>

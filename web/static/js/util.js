@@ -70,7 +70,9 @@ $(document).ready(function(){
 	    var data = {
 	            "name": $("#rmt_name").val(),
 	            "path": $("#rmt_path").val(),
-	            "year": $("#rmt_year").val()
+	            "year": $("#rmt_year").val(),
+	            "type": $("#rmt_type").val(),
+	            "season": $("#rmt_season").val()
 	        };
 	   	$("#rmt_btn").text("正在处理...");
 	    $("#rmt_btn").attr("disabled", "true");
@@ -83,6 +85,8 @@ $(document).ready(function(){
 
             $("#rmt_name").val("");
             $("#rmt_year").val("");
+            $("#rmt_type").val("");
+            $("#rmt_season").val("");
             $("#rmt_path").empty();
             $("#rmt_path").append("<option value =\"\">全部</option>");
             for(var i=0; i<rmt_paths.length; i++){

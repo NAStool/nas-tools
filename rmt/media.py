@@ -83,8 +83,8 @@ def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=Fals
 
 
 # 转移一个目录下的所有文件
-def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv_flag=False, noti_flag=True):
-    if in_name == "" or in_path == "":
+def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, in_season=None, in_type=None, mv_flag=False, noti_flag=True):
+    if not in_name or not in_path:
         log.error("【RMT】输入参数错误!")
         return False
     # 遍历文件
@@ -111,11 +111,20 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
 
     # API检索出媒体信息
     media = get_media_info(in_path, in_name, in_type, in_year)
-    Search_Type = media['search']
+    if in_type:
+        Search_Type = in_type
+    else:
+        Search_Type = media['search']
     Media_Type = media["type"]
     Media_Id = media["id"]
-    Media_Title = media["name"]
-    Media_Year = media["year"]
+    if in_title:
+        Media_Title = in_title
+    else:
+        Media_Title = media["name"]
+    if in_year:
+        Media_Year = in_year
+    else:
+        Media_Year = media["year"]
     Media_Pix = media['pix']
     Exist_FileNum = 0
     Media_File = ""
@@ -221,7 +230,10 @@ def transfer_directory(in_from, in_name, in_path, in_year=None, in_type=None, mv
                 file_ext = os.path.splitext(file_item)[-1]
                 file_name = os.path.basename(file_item)
                 # Sxx
-                file_season = get_media_file_season(file_name)
+                if in_season:
+                    file_season = in_season
+                else:
+                    file_season = get_media_file_season(file_name)
                 # Exx
                 file_seq = get_media_file_seq(file_name)
                 # 季 Season xx

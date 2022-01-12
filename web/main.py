@@ -135,10 +135,13 @@ def create_app():
                 p_name = data["name"]
                 p_year = data["year"]
                 p_path = data["path"]
+                p_type = data["type"]
+                p_season = data["season"]
                 if p_path and p_name:
                     v_path = p_path.split("|")[0]
                     v_hash = p_path.split("|")[1]
-                    done_flag = transfer_directory(in_from="qBittorrent", in_name=p_name, in_path=v_path, in_year=p_year)
+                    done_flag = transfer_directory(in_from="qBittorrent", in_name=p_name, in_title=p_name, in_path=v_path,
+                                                   in_year=p_year, in_type=p_type, in_season=p_season)
                     if v_hash and done_flag:
                         set_torrent_status(v_hash)
                 else:
