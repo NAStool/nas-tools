@@ -466,14 +466,19 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
         search = Search()
         log.info("【RMT】正在检索电影：" + media_name + '...')
         if media_year != "":
-            movie = search.movies({"query": media_name, "year": media_year})
+            movies = search.movies({"query": media_name, "year": media_year})
         else:
-            movie = search.movies({"query": media_name})
+            movies = search.movies({"query": media_name})
         log.debug("【RMT】API返回：" + str(search.total_results))
-        if len(movie) == 0:
+        if len(movies) == 0:
             log.error("【RMT】未找到媒体信息!")
         else:
-            info = movie[0]
+            info = movies[0]
+            for movie in movies:
+                if movie.title == media_name or movie.release_date[0:4] == media_year:
+                    # 优先使用名称或者年份完全匹配的，匹配不到则取第一个
+                    info = movie
+                    break
             media_id = info.id
             media_title = info.title
             log.info(">电影ID：" + str(info.id) + "，上映日期：" + info.release_date + "，电影名称：" + info.title)
@@ -492,15 +497,20 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
         search = Search()
         log.info("【RMT】正在检索剧集：" + media_name + '...')
         if media_year != "":
-            tv = search.tv_shows({"query": media_name, "year": media_year})
+            tvs = search.tv_shows({"query": media_name, "year": media_year})
         else:
-            tv = search.tv_shows({"query": media_name})
+            tvs = search.tv_shows({"query": media_name})
         log.debug("【RMT】API返回：" + str(search.total_results))
-        if len(tv) == 0:
+        if len(tvs) == 0:
             log.error("【RMT】未找到媒体信息!")
             info = {}
         else:
-            info = tv[0]
+            info = tvs[0]
+            for tv in tvs:
+                if tv.name == media_name or tv.first_air_date[0:4] == media_year:
+                    # 优先使用名称或者年份完全匹配的，匹配不到则取第一个
+                    info = tv
+                    break
             media_id = info.id
             media_title = info.name
             log.info(">剧集ID：" + str(info.id) + "，剧集名称：" + info.name + "，上映日期：" + info.first_air_date)
