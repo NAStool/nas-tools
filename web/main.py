@@ -1,5 +1,6 @@
-from flask import Flask, request, json, render_template
+import _thread
 
+from flask import Flask, request, json, render_template, make_response
 import settings
 import log
 from functions import system_exec_command, mysql_query
@@ -230,6 +231,7 @@ def create_app():
             if ret != 0:
                 log.error("解密微信消息失败 DecryptMsg ret：" + str(ret))
             xml_tree = ET.fromstring(sMsg)
+            reponse_text = ""
             try:
                 msg_type = xml_tree.find("MsgType").text
                 if msg_type == "event":
@@ -239,30 +241,31 @@ def create_app():
                 else:
                     content = xml_tree.find("Content").text
                     log.info("消息内容：" + content)
+                    reponse_text = content
             except Exception as err:
                 log.error("发生错误：" + str(err))
-                return 0
+                return make_response("", 200)
             # 处理消息内容
             if content == "/qbr":
-                run_autoremovetorrents()
+                _thread.start_new_thread(run_autoremovetorrents, ())
             if content == "/qbt":
-                run_qbtransfer()
+                _thread.start_new_thread(run_qbtransfer, ())
             if content == "/ipd":
-                run_icloudpd()
+                _thread.start_new_thread(run_icloudpd, ())
             if content == "/hotm":
-                run_hottrailers()
+                _thread.start_new_thread(run_hottrailers, ())
             if content == "/pts":
-                run_ptsignin()
+                _thread.start_new_thread(run_ptsignin, ())
             if content == "/smzdms":
-                run_smzdmsignin()
+                _thread.start_new_thread(run_smzdmsignin, ())
             if content == "/unicoms":
-                run_unicomsignin()
+                _thread.start_new_thread(run_unicomsignin, ())
             if content == "/mrt":
-                movie_trailer_all()
+                _thread.start_new_thread(movie_trailer_all, ())
             if content == "/rst":
-                resiliosync_all()
+                _thread.start_new_thread(resiliosync_all, ())
             if content == "/rss":
-                run_rssdownload()
+                _thread.start_new_thread(run_rssdownload, ())
             else:
                 if content.startswith("http://") or content.startswith("https://"):
                     # 添加种子任务
@@ -274,6 +277,6 @@ def create_app():
                             sendmsg("添加qBittorrent下载任务成功！")
                     except Exception as e:
                         log.error("【WEB】添加qBittorrent任务出错：" + str(e))
-            return content
+            return make_response(reponse_text, 200)
 
     return app
