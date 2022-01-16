@@ -3,13 +3,22 @@ import log
 from message.send import sendmsg
 from rmt.qbittorrent import transfer_qbittorrent_task
 
+RUNING_FLAG = False
+
 
 def run_qbtransfer():
     try:
-        qbtransfer()
+        global RUNING_FLAG
+        if RUNING_FLAG:
+            log.error("【RUN】qbtransfer任务正在执行中...")
+        else:
+            RUNING_FLAG = True
+            qbtransfer()
+            RUNING_FLAG = False
     except Exception as err:
-        log.error("【RUN】执行定时任务qbtransfer出错：" + str(err))
-        sendmsg("【NASTOOL】执行定时任务qbtransfer出错！", str(err))
+        RUNING_FLAG = False
+        log.error("【RUN】执行任务qbtransfer出错：" + str(err))
+        sendmsg("【NASTOOL】执行任务qbtransfer出错！", str(err))
 
 
 def qbtransfer():

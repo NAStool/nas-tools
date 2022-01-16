@@ -13,8 +13,8 @@ def run_sensors():
     try:
         sensors()
     except Exception as err:
-        log.error("【RUN】执行定时任务sensors出错：" + str(err))
-        sendmsg("【NASTOOL】执行定时任务sensors出错！", str(err))
+        log.error("【RUN】执行任务sensors出错：" + str(err))
+        sendmsg("【NASTOOL】执行任务sensors出错！", str(err))
 
 
 def get_temperature():

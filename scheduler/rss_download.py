@@ -15,14 +15,22 @@ from rmt.qbittorrent import login_qbittorrent
 
 rss_cache_list = []
 rss_cache_name = []
+RUNING_FLAG = False
 
 
 def run_rssdownload():
     try:
-        rssdownload()
+        global RUNING_FLAG
+        if RUNING_FLAG:
+            log.error("【RUN】hottrailers任务正在执行中...")
+        else:
+            RUNING_FLAG = True
+            rssdownload()
+            RUNING_FLAG = False
     except Exception as err:
-        log.error("【RUN】执行定时任务rssdownload出错：" + str(err))
-        sendmsg("【NASTOOL】执行定时任务rssdownload出错！", str(err))
+        RUNING_FLAG = False
+        log.error("【RUN】执行任务rssdownload出错：" + str(err))
+        sendmsg("【NASTOOL】执行任务rssdownload出错！", str(err))
 
 
 # 添加qbittorrent任务

@@ -12,13 +12,22 @@ import settings
 from functions import get_dir_files_by_ext, get_dir_files_by_name, system_exec_command, is_chinese
 from message.send import sendmsg
 
+RUNING_FLAG = False
+
 
 def run_hottrailers(refresh_flag=True):
     try:
-        hottrailers(refresh_flag)
+        global RUNING_FLAG
+        if RUNING_FLAG:
+            log.error("【RUN】hottrailers任务正在执行中...")
+        else:
+            RUNING_FLAG = True
+            hottrailers(refresh_flag)
+            RUNING_FLAG = False
     except Exception as err:
-        log.error("【RUN】执行定时任务hottrailers出错：" + str(err))
-        sendmsg("【NASTOOL】执行定时任务hottrailers出错！", str(err))
+        RUNING_FLAG = False
+        log.error("【RUN】执行任务hottrailers出错：" + str(err))
+        sendmsg("【NASTOOL】执行任务hottrailers出错！", str(err))
 
 
 # 将预告目录中的预告片转移到电影目录，如果存在对应的电影了的话

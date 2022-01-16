@@ -12,8 +12,8 @@ def run_smzdmsignin():
     try:
         smzdmsignin()
     except Exception as err:
-        log.error("【RUN】执行定时任务smzdmsignin出错：" + str(err))
-        sendmsg("【NASTOOL】执行定时任务smzdmsignin出错！", str(err))
+        log.error("【RUN】执行任务smzdmsignin出错：" + str(err))
+        sendmsg("【NASTOOL】执行任务smzdmsignin出错！", str(err))
 
 
 class SmzdmBot(object):

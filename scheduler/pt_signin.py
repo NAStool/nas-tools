@@ -12,8 +12,8 @@ def run_ptsignin():
     try:
         ptsignin()
     except Exception as err:
-        log.error("【RUN】执行定时任务ptsignin出错：" + str(err))
-        sendmsg("【NASTOOL】执行定时任务ptsignin出错！", str(err))
+        log.error("【RUN】执行任务ptsignin出错：" + str(err))
+        sendmsg("【NASTOOL】执行任务ptsignin出错！", str(err))
 
 
 def signin(name, url, cookie):

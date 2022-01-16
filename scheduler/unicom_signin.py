@@ -11,8 +11,8 @@ def run_unicomsignin():
     try:
         unicomsignin()
     except Exception as err:
-        log.error("【RUN】执行定时任务unicomsignin出错：" + str(err))
-        sendmsg("【NASTOOL】执行定时任务unicomsignin出错！", str(err))
+        log.error("【RUN】执行任务unicomsignin出错：" + str(err))
+        sendmsg("【NASTOOL】执行任务unicomsignin出错！", str(err))
 
 
 def unicomsignin():

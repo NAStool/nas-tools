@@ -9,8 +9,8 @@ def run_autoremovetorrents():
     try:
         autoremovetorrents()
     except Exception as err:
-        log.error("【RUN】执行定时任务autoremovetorrents出错：" + str(err))
-        sendmsg("【NASTOOL】执行定时任务autoremovetorrents出错！", str(err))
+        log.error("【RUN】执行任务autoremovetorrents出错：" + str(err))
+        sendmsg("【NASTOOL】执行任务autoremovetorrents出错！", str(err))
 
 
 def autoremovetorrents():

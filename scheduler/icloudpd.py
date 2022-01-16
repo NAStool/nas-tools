@@ -5,13 +5,22 @@ import settings
 from functions import system_exec_command
 from message.send import sendmsg
 
+RUNING_FLAG = False
+
 
 def run_icloudpd():
     try:
-        icloudpd()
+        global RUNING_FLAG
+        if RUNING_FLAG:
+            log.error("【RUN】hottrailers任务正在执行中...")
+        else:
+            RUNING_FLAG = True
+            icloudpd()
+            RUNING_FLAG = False
     except Exception as err:
-        log.error("【RUN】执行定时任务icloudpd出错：" + str(err))
-        sendmsg("【NASTOOL】执行定时任务icloudpd出错！", str(err))
+        RUNING_FLAG = False
+        log.error("【RUN】执行任务icloudpd出错：" + str(err))
+        sendmsg("【NASTOOL】执行任务icloudpd出错！", str(err))
 
 
 def icloudpd():

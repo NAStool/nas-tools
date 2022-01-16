@@ -145,7 +145,7 @@ def create_app():
                     if v_hash and done_flag:
                         set_torrent_status(v_hash)
                 else:
-                    transfer_qbittorrent_task()
+                    run_qbtransfer()
                 return {"rmt_stderr": "0", "rmt_stdout": "处理成功！", "rmt_paths": get_qbittorrent_tasks()}
 
             if cmd == "rmt_qry":
