@@ -99,5 +99,8 @@ def run_scheduler():
                           seconds=int(settings.get("scheduler.sensors_check_interval")))
         log.info("【RUN】scheduler.sensors启动...")
 
+    # 配置定时生效
+    scheduler.add_job(settings.reload_config, 'interval', seconds=600)
+
     scheduler.start()
     log.info("【RUN】scheduler启动完成!")
