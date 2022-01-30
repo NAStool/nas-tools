@@ -42,8 +42,9 @@ nohup python3 run.py -c /config/config.ini & 运行
 1、WEB UI界面（3000端口）
 ![schduler](https://user-images.githubusercontent.com/51039935/151722416-c586c6b7-fa26-465e-86d3-4fa42294864e.png)
 
-
 2、效果
 ![image](https://user-images.githubusercontent.com/51039935/151722306-e46483ab-3f38-4273-8358-a889b8598ef2.png)
+
+3、推荐使用1T以上的SSD做为PT下载盘和Resilio Sync的同步盘，大容量硬盘则为存储盘，结合这套程序使用，实现作种和媒体存放分离，同时避免PT损伤存储硬盘。
 
 
