@@ -38,8 +38,10 @@ nohup python3 run.py -c /config/config.ini & 运行
 
 按需导入nastool.sql到MySql数据库
 
-##使用
+## 使用
 1、3000端口访问WEB UI界面
+![schduler](https://user-images.githubusercontent.com/51039935/151722416-c586c6b7-fa26-465e-86d3-4fa42294864e.png)
+
 
 2、效果
 分类是程序自动维护的
