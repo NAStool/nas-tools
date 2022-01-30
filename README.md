@@ -38,7 +38,7 @@ nohup python3 run.py -c ./config/config.ini & 运行
 
 ## 使用
 1、WEB UI界面（3000端口）
-![schduler](https://user-images.githubusercontent.com/51039935/151722416-c586c6b7-fa26-465e-86d3-4fa42294864e.png)
+![schduler](https://github.com/jxxghp/nas-tools/raw/master/schduler.png)
 
 2、效果（这些分类都是程序自动维护的）
 ![image](https://user-images.githubusercontent.com/51039935/151722306-e46483ab-3f38-4273-8358-a889b8598ef2.png)
