@@ -9,14 +9,12 @@
 这个神Key你值得拥有，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6
 
 ### 3、其他的一些功能
-每日签到（PT站、什么值得买、联动营业厅），qBittorrent定期删种、电影预告片搜刮和下载等等
+每日签到（PT站、什么值得买、联动营业厅），qBittorrent定期删种、电影预告片搜刮和下载、定期同步iCloud中的照片到NAS等等
 
 
 ### 4、消息
-支持ServerChan、微信、Telegram消息通知服务， 以上功能运行状态可通过消息服务推送消息到手机上，比如新增加了电影、签到完成等
+支持ServerChan、微信、Telegram消息通知服务， 以上功能运行状态可通过消息服务推送消息到手机上，比如新增加了电影、签到完成、Emby播放状态（需要在Emby中配置webhook插件）等
 
-### 5、Emby WebHook
-在Emby WebHooks中设置为 http://IP:3000/emby ，接受Emby消息通知。
 
 
 
@@ -34,17 +32,18 @@ pip install -r requirements.txt 安装依赖
 nohup python3 run.py -c /config/config.ini & 运行
 
 ## 配置
-参考config/config.ini配置文件示例
+1、参考源码中config/config.ini配置文件示例进行配置，每一个配置项有注释说明
 
-按需导入nastool.sql到MySql数据库
+2、导入nastool.sql到MySql数据库（不是必须）
+
+3、在Emby WebHooks中设置为 http://IP:3000/emby ，接受Emby消息通知。
 
 ## 使用
-1、3000端口访问WEB UI界面
+1、WEB UI界面（3000端口）
 ![schduler](https://user-images.githubusercontent.com/51039935/151722416-c586c6b7-fa26-465e-86d3-4fa42294864e.png)
 
 
 2、效果
-分类是程序自动维护的
 ![image](https://user-images.githubusercontent.com/51039935/151722306-e46483ab-3f38-4273-8358-a889b8598ef2.png)
 
 
