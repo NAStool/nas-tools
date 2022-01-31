@@ -33,8 +33,9 @@ pip install -r requirements.txt 安装依赖
 nohup python3 run.py -c ./config/config.ini & 运行
 
 ### 3、群晖套件
-也制作了套件可以直接在群晖中安装使用（只适用于dsm6），配置文件路径目前是写死的：/homes/admin/.config/nastool/config.ini，有能力的自己改一下启停脚本。
+也制作了群晖套件可以直接在群晖中安装使用（只适用于dsm6），配置文件路径目前是写死的：/homes/admin/.config/nastool/config.ini，有能力的自己改一下启停脚本/var/packages/nastool/scripts/start-stop-status。
 
+https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 
 
 ## 配置
