@@ -1,21 +1,22 @@
 # nas-tools NAS媒体库整理工具
 ## 功能：
-### 1、PT搜刮下载
+### 一、PT搜刮下载
 1) 根据配置的关键字，从PT站定时搜刮种子，自动添加qBittorrent任务下载。比如电影可配置2022关键字，把2022年新出的资源都自动下载
 
 2) qBittorrent下载完成后自动识别电影剧集名称并重命名为Emby/Plex格式，自动复制到Emby/Plex媒体库目录下并自动分好类，重命名后可实现100%完美识别
 
 3) qBittorrent定期删种，避免下载盘被挤爆
 
-### 2、Resilio Sync电影同步
+### 二、Resilio Sync电影同步
 监控Resilio Sync同步目录，识别电影剧集名称，自动复制并重命名到Emby/Plex媒体库目录实现100%完美识别
 这个神Key你值得拥有，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6
 
-### 3、其他的一些功能
+### 三、其他的一些功能
 每日签到（PT站、什么值得买、联动营业厅），qBittorrent定期删种、电影预告片搜刮和下载、定期同步iCloud中的照片到NAS等等
 
-### 4、消息
-支持ServerChan、微信、Telegram消息通知服务， 以上功能运行状态可通过消息服务推送消息到手机上，比如新增加了电影、签到完成、Emby播放状态（需要在Emby中配置webhook插件）等
+### 四、消息服务
+支持ServerChan、微信、Telegram消息通知服务， 以上功能运行状态可通过消息服务推送消息到手机上，比如新增加了电影、签到完成、Emby播放状态（需要在Emby中配置webhook插件）等。
+如果是使用微信渠道，还能实现在微信中直接控制（需要在企业微信中设置菜单，还要改一些代码）
 
 
 ## 安装
@@ -32,17 +33,21 @@ pip install -r requirements.txt 安装依赖
 nohup python3 run.py -c ./config/config.ini & 运行
 
 ## 配置
-1、参考源码中config/config.ini配置文件示例进行配置，每一个配置项有注释说明
+1) 参考源码中config/config.ini配置文件示例进行配置，每一个配置项有注释说明
 
-2、导入nastool.sql到MySql数据库（不是必须）
+2) 导入nastool.sql到MySql数据库（不是必须）
 
-3、在Emby WebHooks中设置为 http://IP:3000/emby ，接受Emby消息通知。
+3) 在Emby WebHooks中设置为 http://IP:3000/emby ，接受Emby消息通知。
 
 ## 使用
-1、WEB UI界面（3000端口）
+1) WEB UI界面（3000端口）
 ![schduler](https://github.com/jxxghp/nas-tools/raw/master/scheduler.png)
 
-2、效果（这些分类都是程序自动维护的）
+2) 手机端通知界面
+![微信图片_20220131080933](https://user-images.githubusercontent.com/51039935/151723722-755b83af-4c66-4ad6-8fdf-6ca44ca38bb8.jpg)
+
+
+2) Emby和重命名效果（这些分类都是程序自动维护的）
 ![image](https://github.com/jxxghp/nas-tools/raw/master/emby.png)
 ![image](https://user-images.githubusercontent.com/51039935/151723464-e7744a24-49db-4e25-b583-279984d4cb9c.png)
 ![image](https://user-images.githubusercontent.com/51039935/151723482-954a6f4e-36e9-4c09-b0dd-1a7a443318b0.png)
