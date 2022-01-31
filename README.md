@@ -48,11 +48,11 @@ nohup python3 run.py -c ./config/config.ini & 运行
 
 ![image](https://user-images.githubusercontent.com/51039935/151723777-14eb0252-4838-4bdb-9089-75393e6af277.png)
 
-2) Emby和重命名效果（这些分类都是程序自动维护的）
+3) 效果（这些分类都是程序自动维护的）
 
 ![image](https://github.com/jxxghp/nas-tools/raw/master/emby.png)
 ![image](https://user-images.githubusercontent.com/51039935/151723518-5ee68798-bd24-459a-b99f-43ebe27857e7.png)
 
-3、推荐使用1T以上的SSD做为PT下载盘和Resilio Sync的同步盘，大容量硬盘则为存储盘，结合这套程序的PT自动下载转移和定期删种，实现作种和媒体存放分离，Emby/Plex完美搜刮，同时避免PT损伤存储硬盘。
+4) 推荐使用1T以上的SSD做为PT下载盘和Resilio Sync的同步盘，大容量硬盘则为存储盘，结合这套程序的PT自动下载转移和定期删种，实现作种和媒体存放分离，Emby/Plex完美搜刮，同时避免PT损伤存储硬盘。
 
 
