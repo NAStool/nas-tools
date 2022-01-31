@@ -23,7 +23,11 @@
 ### 1、Docker镜像
 [jxxghp/nas-tools:latest](https://hub.docker.com/repository/docker/jxxghp/nas-tools)
 
-Docker配置挂载目录：/config，配置文件名：config.ini，根据配置情况把相关目录挂载到容器中或通过[automount]区配置将网络路径直接挂载到容器中
+Docker配置目录挂载：/config
+
+配置文件名：config.ini，把源代码中config目录下的config.ini复制到配置目录并修改好即可。
+
+端口映射：3000
 
 ### 2、本地运行
 python 3版本
@@ -32,8 +36,10 @@ pip install -r requirements.txt 安装依赖
 
 nohup python3 run.py -c ./config/config.ini & 运行
 
+config.ini文件根据源代码目录下的config.ini中的注释修改。
+
 ### 3、群晖套件
-也制作了群晖套件可以直接在群晖中安装使用（只适用于dsm6），配置文件路径目前是写死的：/homes/admin/.config/nastool/config.ini，有能力的自己改一下启停脚本/var/packages/nastool/scripts/start-stop-status。
+也制作了群晖套件可以直接在群晖中安装使用（只适用于dsm6），配置文件路径目前是写死的：/homes/admin/.config/nastool/config.ini，有能力的自己改一下启停脚本/var/packages/nastool/scripts/start-stop-status，config.ini文件根据源代码目录下的config.ini中的注释修改。
 
 https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 
@@ -42,11 +48,12 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 
 
 ## 配置
-1) 参考源码中config/config.ini配置文件示例进行配置，每一个配置项有注释说明
+1) 参考源码中config/config.ini配置文件示例进行配置，每一个配置项有注释说明。有的配置项需要在相关网站注册信息。
 
 2) 导入nastool.sql到MySql数据库（不是必须）
 
 3) 在Emby WebHooks中设置为 http://IP:3000/emby ，接受Emby消息通知。
+
 
 ## 使用
 1) WEB UI界面（3000端口）
