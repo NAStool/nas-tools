@@ -37,6 +37,9 @@ nohup python3 run.py -c ./config/config.ini & 运行
 
 https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 
+![image](https://user-images.githubusercontent.com/51039935/151724159-ab65105b-52cd-4495-97db-101a2536ffc5.png)
+
+
 
 ## 配置
 1) 参考源码中config/config.ini配置文件示例进行配置，每一个配置项有注释说明
