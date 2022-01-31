@@ -46,7 +46,7 @@ nohup python3 run.py -c ./config/config.ini & 运行
 ![image](https://github.com/jxxghp/nas-tools/raw/master/emby.png)
 ![image](https://user-images.githubusercontent.com/51039935/151723464-e7744a24-49db-4e25-b583-279984d4cb9c.png)
 ![image](https://user-images.githubusercontent.com/51039935/151723482-954a6f4e-36e9-4c09-b0dd-1a7a443318b0.png)
-![image](https://user-images.githubusercontent.com/51039935/151723494-ed9d5930-ea94-47f4-8c0d-3212f93bc946.png)
+![image](https://user-images.githubusercontent.com/51039935/151723518-5ee68798-bd24-459a-b99f-43ebe27857e7.png)
 
 
 
