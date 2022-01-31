@@ -44,7 +44,10 @@ nohup python3 run.py -c ./config/config.ini & 运行
 
 2、效果（这些分类都是程序自动维护的）
 ![image](https://github.com/jxxghp/nas-tools/raw/master/emby.png)
-![image](https://user-images.githubusercontent.com/51039935/151723175-d691d446-0b3c-444d-89d9-eb8320edea0e.png)
+![image](https://user-images.githubusercontent.com/51039935/151723464-e7744a24-49db-4e25-b583-279984d4cb9c.png)
+![image](https://user-images.githubusercontent.com/51039935/151723482-954a6f4e-36e9-4c09-b0dd-1a7a443318b0.png)
+![image](https://user-images.githubusercontent.com/51039935/151723494-ed9d5930-ea94-47f4-8c0d-3212f93bc946.png)
+
 
 
 3、推荐使用1T以上的SSD做为PT下载盘和Resilio Sync的同步盘，大容量硬盘则为存储盘，结合这套程序的PT自动下载转移和定期删种，实现作种和媒体存放分离，同时避免PT损伤存储硬盘。
