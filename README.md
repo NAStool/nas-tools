@@ -50,6 +50,6 @@ nohup python3 run.py -c ./config/config.ini & 运行
 
 
 
-3、推荐使用1T以上的SSD做为PT下载盘和Resilio Sync的同步盘，大容量硬盘则为存储盘，结合这套程序的PT自动下载转移和定期删种，实现作种和媒体存放分离，同时避免PT损伤存储硬盘。
+3、推荐使用1T以上的SSD做为PT下载盘和Resilio Sync的同步盘，大容量硬盘则为存储盘，结合这套程序的PT自动下载转移和定期删种，实现作种和媒体存放分离，Emby/Plex完美搜刮，同时避免PT损伤存储硬盘。
 
 
