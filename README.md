@@ -44,8 +44,7 @@ nohup python3 run.py -c ./config/config.ini & 运行
 ![schduler](https://github.com/jxxghp/nas-tools/raw/master/scheduler.png)
 
 2) 手机端通知界面
-![微信图片_20220131080933](https://user-images.githubusercontent.com/51039935/151723722-755b83af-4c66-4ad6-8fdf-6ca44ca38bb8.jpg)
-
+![image](https://user-images.githubusercontent.com/51039935/151723777-14eb0252-4838-4bdb-9089-75393e6af277.png)
 
 2) Emby和重命名效果（这些分类都是程序自动维护的）
 ![image](https://github.com/jxxghp/nas-tools/raw/master/emby.png)
