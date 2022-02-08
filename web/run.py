@@ -27,8 +27,8 @@ def run_webhook():
         signal.signal(signal.SIGINT, signal_fun)
 
         web_port = settings.get("root.web_port")
-        ssl_cert = settings.get("root.web_port")
-        ssl_key = settings.get("root.web_port")
+        ssl_cert = settings.get("root.ssl_cert")
+        ssl_key = settings.get("root.ssl_key")
 
         if ssl_cert:
             app.run(
