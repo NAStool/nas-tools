@@ -3,6 +3,7 @@ import signal
 import sys
 
 import log
+import settings
 from functions import get_host_name
 from message.send import sendmsg
 from scheduler.sensors import get_temperature
@@ -25,12 +26,25 @@ def run_webhook():
         signal.signal(signal.SIGTERM, signal_fun)
         signal.signal(signal.SIGINT, signal_fun)
 
-        app.run(
-            host='0.0.0.0',
-            port=3000,
-            debug=False,
-            use_reloader=False
-        )
+        web_port = settings.get("root.web_port")
+        ssl_cert = settings.get("root.web_port")
+        ssl_key = settings.get("root.web_port")
+
+        if ssl_cert:
+            app.run(
+                host='0.0.0.0',
+                port=web_port,
+                debug=False,
+                use_reloader=False,
+                ssl_context=(ssl_cert, ssl_key)
+            )
+        else:
+            app.run(
+                host='0.0.0.0',
+                port=web_port,
+                debug=False,
+                use_reloader=False
+            )
     except Exception as err:
         log.error("【RUN】启动web服务失败：" + str(err))
         sendmsg("【NASTOOL】启动web服务失败！", str(err))
