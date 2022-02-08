@@ -21,7 +21,8 @@ def login_qbittorrent():
         qbt = qbittorrentapi.Client(host=settings.get('qbittorrent.qbhost'),
                                     port=settings.get('qbittorrent.qbport'),
                                     username=settings.get('qbittorrent.qbusername'),
-                                    password=settings.get('qbittorrent.qbpassword'))
+                                    password=settings.get('qbittorrent.qbpassword'),
+                                    VERIFY_WEBUI_CERTIFICATE=False)
         qbt.auth_log_in()
         return qbt
     except Exception as err:
