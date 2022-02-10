@@ -23,9 +23,9 @@
 			<div class="span4">
 				<div class="tabbable">
 					<ul class="nav nav-tabs">
-						<li {% if page=="rmt" %} class="active" {% endif %}><a id="rmt_tab" href="#rmt" data-toggle="tab">qBittorrent转移</a></li>
-						<li {% if page=="msg" %} class="active" {% endif %}><a id="msg_tab" href="#msg" data-toggle="tab">发送消息</a></li>
-						<li {% if page=="sch" %} class="active" {% endif %}><a id="sch_tab" href="#sch" data-toggle="tab">定时任务</a></li>
+						<li {% if page=="rmt" %} class="active" {% endif %}><a id="rmt_tab" href="#rmt" data-toggle="tab">转移</a></li>
+						<li {% if page=="msg" %} class="active" {% endif %}><a id="msg_tab" href="#msg" data-toggle="tab">消息</a></li>
+						<li {% if page=="sch" %} class="active" {% endif %}><a id="sch_tab" href="#sch" data-toggle="tab">服务</a></li>
 						{% if log_type=="MYSQL" %}
 						<li {% if page=="log" %} class="active" {% endif %}><a id="log_tab" href="#log" data-toggle="tab">日志</a></li>
 						{% endif %}
@@ -34,7 +34,7 @@
 					<div class="tab-content">
 						<div class="tab-pane {% if page=='rmt' %} active {% endif %}" id="rmt">
 							<form role="form" action="/do" method="post" id="rmt_form" class="well">
-							  <h4>qBittorrent转移</h4>
+							  <h4>转移qBittorrent下载完成的文件到媒体库</h4>
 							  <div class="form-group">
 								<label for="rmt_name">标题</label>
 								<input type="text" class="form-control" id="rmt_name" name="rmt_name" placeholder="" value="">
@@ -93,7 +93,7 @@
 						</div>
 						<div class="tab-pane {% if page=='sch' %} active {% endif %}" id="sch">
 							<table class="table table-striped">
-							  <caption>定时任务</caption>
+							  <caption>所有的后台定时及实时监测服务</caption>
 							  <thead>
 								<tr>
 								  	<th>名称</th>
@@ -110,13 +110,13 @@
 								  	<td><button id="sch_btn_autoremovetorrents" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
 								</tr>
 								<tr>
-								  	<td>qBittorrent转移</td>
+								  	<td>qBittorrent媒体转移</td>
 								  	<td>{{ tim_qbtransfer }}</td>
 									<td>{{ sta_qbtransfer }}</td>
 								  	<td><button id="sch_btn_qbtransfer" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
 								</tr>
 							  	<tr>
-								  	<td>ResilioSync转移</td>
+								  	<td>ResilioSync媒体转移</td>
 								  	<td>实时监控</td>
 									<td>{{ sta_resiliosync }}</td>
 								  	<td><button id="sch_btn_resiliosync" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
@@ -140,13 +140,13 @@
 								  	<td><button id="sch_btn_hottrailers" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
 								</tr>
 								<tr>
-								  	<td>电影预告下载</td>
+								  	<td>实时电影预告下载</td>
 								  	<td>实时监控</td>
 									<td>{{ sta_movietrailer }}</td>
 								  	<td><button id="sch_btn_movietrailer" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
 								</tr>
 							  	<tr>
-								  	<td>PT签到</td>
+								  	<td>PT网站签到</td>
 								  	<td>{{ tim_ptsignin }}</td>
 									<td>{{ sta_ptsignin }}</td>
 								  	<td><button id="sch_btn_ptsignin" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
