@@ -81,49 +81,62 @@ def create_app():
     @auth.login_required
     def main():
         # 读取定时服务配置
-        tim_autoremovetorrents = settings.get("scheduler.autoremovetorrents_interval")
-        sta_autoremovetorrents = settings.get("scheduler.autoremovetorrents_flag")
-        tim_qbtransfer = settings.get("scheduler.qbtransfer_interval")
-        sta_qbtransfer = settings.get("scheduler.qbtransfer_flag")
-        tim_icloudpd = settings.get("scheduler.icloudpd_cron")
-        sta_icloudpd = settings.get("scheduler.icloudpd_flag")
-        tim_hottrailers = settings.get("scheduler.hottrailer_cron")
-        sta_hottrailers = settings.get("scheduler.hottrailer_flag")
-        tim_ptsignin = settings.get("scheduler.ptsignin_cron")
-        sta_ptsignin = settings.get("scheduler.ptsignin_flag")
-        tim_smzdmsignin = settings.get("scheduler.smzdmsignin_cron")
-        sta_smzdmsignin = settings.get("scheduler.smzdmsignin_flag")
-        tim_unicomsignin = settings.get("scheduler.unicomsignin_cron")
-        sta_unicomsignin = settings.get("scheduler.unicomsignin_flag")
-        sta_movietrailer = settings.get("monitor.movie_flag")
-        sta_resiliosync = settings.get("monitor.resiliosync_flag")
+        scheduler_cfg_list = []
         tim_rssdownload = settings.get("scheduler.rssdownload_interval")
         sta_rssdownload = settings.get("scheduler.rssdownload_flag")
+        scheduler_cfg_list.append({'name': 'RSS订阅下载器', 'time': tim_rssdownload, 'state': sta_rssdownload})
+        tim_autoremovetorrents = settings.get("scheduler.autoremovetorrents_interval")
+        sta_autoremovetorrents = settings.get("scheduler.autoremovetorrents_flag")
+        scheduler_cfg_list.append({'name': 'qBittorrent删种', 'time': tim_autoremovetorrents, 'state': sta_autoremovetorrents})
+        tim_qbtransfer = settings.get("scheduler.qbtransfer_interval")
+        sta_qbtransfer = settings.get("scheduler.qbtransfer_flag")
+        scheduler_cfg_list.append({'name': 'qBittorrent文件转移	', 'time': tim_qbtransfer, 'state': sta_qbtransfer})
+        sta_resiliosync = settings.get("monitor.resiliosync_flag")
+        scheduler_cfg_list.append({'name': 'ResilioSync文件转移', 'time': '实时监控', 'state': sta_resiliosync})
+        tim_icloudpd = settings.get("scheduler.icloudpd_cron")
+        sta_icloudpd = settings.get("scheduler.icloudpd_flag")
+        scheduler_cfg_list.append({'name': 'iCloud照片同步', 'time': tim_icloudpd, 'state': sta_icloudpd})
+        tim_hottrailers = settings.get("scheduler.hottrailer_cron")
+        sta_hottrailers = settings.get("scheduler.hottrailer_flag")
+        scheduler_cfg_list.append({'name': '热门电影预告更新', 'time': tim_hottrailers, 'state': sta_hottrailers})
+        tim_ptsignin = settings.get("scheduler.ptsignin_cron")
+        sta_ptsignin = settings.get("scheduler.ptsignin_flag")
+        scheduler_cfg_list.append({'name': 'PT网站签到', 'time': tim_ptsignin, 'state': sta_ptsignin})
+        tim_smzdmsignin = settings.get("scheduler.smzdmsignin_cron")
+        sta_smzdmsignin = settings.get("scheduler.smzdmsignin_flag")
+        scheduler_cfg_list.append({'name': 'PT网站签到', 'time': tim_smzdmsignin, 'state': sta_smzdmsignin})
+        tim_unicomsignin = settings.get("scheduler.unicomsignin_cron")
+        sta_unicomsignin = settings.get("scheduler.unicomsignin_flag")
+        scheduler_cfg_list.append({'name': '联通营业厅签到', 'time': tim_unicomsignin, 'state': sta_unicomsignin})
+        sta_movietrailer = settings.get("monitor.movie_flag")
+        scheduler_cfg_list.append({'name': '新增电影预告下载', 'time': '实时监控', 'state': sta_movietrailer})
 
         # 读取日志配置
         logtype = settings.get("root.logtype")
 
+        # 读取RSS配置
+        # 读取配置
+        rss_cfg_list = []
+        rss_jobs = eval(settings.get("rss.rss_job"))
+        for rss_job in rss_jobs:
+            # 读取子配置
+            job_cfg = {'job': rss_job}
+            rssurl = settings.get("rss." + rss_job + "_rssurl")
+            job_cfg['url'] = rssurl
+            movie_type = eval(settings.get("rss." + rss_job + "_movie_type"))
+            job_cfg['movie_type'] = movie_type
+            movie_res = eval(settings.get("rss." + rss_job + "_movie_re"))
+            job_cfg['movie_re'] = movie_res
+            tv_res = eval(settings.get("rss." + rss_job + "_tv_re"))
+            job_cfg['tv_re'] = tv_res
+            # 存入配置列表
+            rss_cfg_list.append(job_cfg)
+
         return render_template("main.html",
-                               page="rmt",
-                               tim_autoremovetorrents=tim_autoremovetorrents,
-                               sta_autoremovetorrents=sta_autoremovetorrents,
-                               tim_qbtransfer=tim_qbtransfer,
-                               sta_qbtransfer=sta_qbtransfer,
-                               tim_icloudpd=tim_icloudpd,
-                               sta_icloudpd=sta_icloudpd,
-                               tim_hottrailers=tim_hottrailers,
-                               sta_hottrailers=sta_hottrailers,
-                               tim_ptsignin=tim_ptsignin,
-                               sta_ptsignin=sta_ptsignin,
-                               tim_smzdmsignin=tim_smzdmsignin,
-                               sta_smzdmsignin=sta_smzdmsignin,
-                               tim_unicomsignin=tim_unicomsignin,
-                               sta_unicomsignin=sta_unicomsignin,
-                               sta_movietrailer=sta_movietrailer,
-                               sta_resiliosync=sta_resiliosync,
-                               tim_rssdownload=tim_rssdownload,
-                               sta_rssdownload=sta_rssdownload,
-                               log_type=logtype
+                               page="rss",
+                               log_type=logtype,
+                               scheduler_cfg_list=scheduler_cfg_list,
+                               rss_cfg_list=rss_cfg_list
                                )
 
     # 事件响应

@@ -109,12 +109,29 @@ $(document).ready(function(){
 	    $("#msg_btn").text("正在处理...");
 	    $("#msg_btn").attr("disabled", "true");
 	    ajax_post(cmd, data, function(ret){
-	        msg_code = ret.msg_code;
 	        msg_msg = ret.msg_msg;
 	        $("#msg_ret").show();
-	        $("#msg_ret").text("{\"msg_code\": " + msg_code + ", \"msg_msg\": " + msg_msg + "}");
+	        $("#msg_ret").text(msg_msg);
 	        $("#msg_btn").removeAttr("disabled");
 	        $("#msg_btn").text("发送");
+	    });
+	});
+
+	// 保存RSS按钮
+	$("#rss_btn").click(function(){
+	    var cmd = "rss";
+	    var job_str = ""
+	    var data = {
+                "job": job_str,
+                ""
+	        };
+	    $("#rss_btn").text("正在处理...");
+	    $("#rss_btn").attr("disabled", "true");
+	    ajax_post(cmd, data, function(ret){
+	        $("#form_rss_form_notice").show();
+	        $("#form_rss_form_notice").text(ret.msg_msg);
+	        $("#rss_btn").removeAttr("disabled");
+	        $("#rss_btn").text("保存");
 	    });
 	});
 

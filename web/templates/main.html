@@ -23,6 +23,7 @@
 			<div class="span4">
 				<div class="tabbable">
 					<ul class="nav nav-tabs">
+						<li {% if page=="rss" %} class="active" {% endif %}><a id="rss_tab" href="#rss" data-toggle="tab">订阅</a></li>
 						<li {% if page=="rmt" %} class="active" {% endif %}><a id="rmt_tab" href="#rmt" data-toggle="tab">转移</a></li>
 						<li {% if page=="msg" %} class="active" {% endif %}><a id="msg_tab" href="#msg" data-toggle="tab">消息</a></li>
 						<li {% if page=="sch" %} class="active" {% endif %}><a id="sch_tab" href="#sch" data-toggle="tab">服务</a></li>
@@ -34,7 +35,7 @@
 					<div class="tab-content">
 						<div class="tab-pane {% if page=='rmt' %} active {% endif %}" id="rmt">
 							<form role="form" action="/do" method="post" id="rmt_form" class="well">
-							  <h4>转移qBittorrent下载完成的文件到媒体库</h4>
+							  <h5>自动转移识别失败时，指定媒体信息，手动转移qBittorrent下载完成的文件到媒体库</h5>
 							  <div class="form-group">
 								<label for="rmt_name">标题</label>
 								<input type="text" class="form-control" id="rmt_name" name="rmt_name" placeholder="" value="">
@@ -66,9 +67,42 @@
 							</form>
 							<pre id="rmt_ret" style="display:none"></pre>
 						</div>
+						<div class="tab-pane {% if page=='rss' %} active {% endif %}" id="rss">
+							<form role="form" action="/do" method="post" id="rss_form" class="form-horizontal">
+							  <h5>配置PT站RSS订阅源过滤关键字，自动下载命中关键字的资源，注意要符合数组格式</h5>
+								{% for rss_cfg in rss_cfg_list %}
+								<fieldset>
+									<legend>{{ rss_cfg.job }}</legend>
+								   <div class="form-group">
+									  <label class="col-sm-2 control-label" for="rss_url@{{ rss_cfg.job }}">RSS URL</label>
+									  <div class="col-sm-4">
+										 <input class="form-control" id="rss_url@{{ rss_cfg.job }}" name="rss_url" type="text" placeholder="" value="{{ rss_cfg.url }}"/>
+									  </div>
+									  <label class="col-sm-2 control-label" for="rss_movie_type@{{ rss_cfg.job }}">电影分类名</label>
+									  <div class="col-sm-4">
+										 <input class="form-control" id="rss_movie_type@{{ rss_cfg.job }}" name="movie_type" type="text" placeholder="" value="{{ rss_cfg.movie_type }}"/>
+									  </div>
+								   </div>
+								   <div class="form-group">
+									  <label class="col-sm-2 control-label" for="rss_movie_re@{{ rss_cfg.job }}">电影关键字</label>
+									  <div class="col-sm-4">
+										 <input class="form-control" id="rss_movie_re@{{ rss_cfg.job }}" name="movie_re" type="text" placeholder="" value="{{ rss_cfg.movie_re }}"/>
+									  </div>
+									  <label class="col-sm-2 control-label" for="rss_tv_re@{{ rss_cfg.job }}">电视剧关键字</label>
+									  <div class="col-sm-4">
+										 <input class="form-control" id="rss_tv_re@{{ rss_cfg.job }}" name="tv_re" type="text" placeholder="" value="{{ rss_cfg.tv_re }}"/>
+									  </div>
+								   </div>
+								</fieldset>
+  								{% endfor %}
+							  <div style="text-align:center"><button id="rss_btn" type="button" class="btn btn-primary">保存</button></div>
+							</form>
+							<br/>
+							<br/>
+						</div>
 						<div class="tab-pane {% if page=='msg' %} active {% endif %}" id="msg">
 							<form role="form" action="/do" method="post" id="msg_form" class="well">
-							  <h4>消息发送工具</h4>
+							  <h5>消息发送工具</h5>
 							  <div class="form-group">
 								<label for="msg_title">消息标题</label>
 								<input type="text" class="form-control" id="msg_title" name="msg_title" placeholder="必填，最长100字节" value="">
@@ -84,7 +118,7 @@
 						</div>
 						<div class="tab-pane {% if page=='set' %} active {% endif %}" id="set">
 							<form role="form" action="/do" method="post" id="set_form" class="well">
-								<h4>配置文件</h4>
+								<h5>配置文件，可直接修改保存</h5>
 								<div class="form-group">
 									<div id="editor"></div>
 								</div>
@@ -92,8 +126,9 @@
 							</form>
 						</div>
 						<div class="tab-pane {% if page=='sch' %} active {% endif %}" id="sch">
+							<form role="form" action="" method="post" id="svr_form" class="well">
+							<h5>所有的后台定时及实时监测服务</h5>
 							<table class="table table-striped">
-							  <caption>所有的后台定时及实时监测服务</caption>
 							  <thead>
 								<tr>
 								  	<th>名称</th>
@@ -103,69 +138,18 @@
 								</tr>
 							  </thead>
 							  <tbody>
+							  {% for scheduler_cfg in scheduler_cfg_list %}
 								<tr>
-								  	<td>qBittorrent删种</td>
-								  	<td>{{ tim_autoremovetorrents }}</td>
-									<td>{{ sta_autoremovetorrents }}</td>
+								  	<td>{{ scheduler_cfg.name }}</td>
+								  	<td>{{ scheduler_cfg.time }}</td>
+									<td>{{ scheduler_cfg.state }}</td>
 								  	<td><button id="sch_btn_autoremovetorrents" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
 								</tr>
-								<tr>
-								  	<td>qBittorrent媒体转移</td>
-								  	<td>{{ tim_qbtransfer }}</td>
-									<td>{{ sta_qbtransfer }}</td>
-								  	<td><button id="sch_btn_qbtransfer" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
-								</tr>
-							  	<tr>
-								  	<td>ResilioSync媒体转移</td>
-								  	<td>实时监控</td>
-									<td>{{ sta_resiliosync }}</td>
-								  	<td><button id="sch_btn_resiliosync" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
-								</tr>
-								<tr>
-								  	<td>iCloud同步</td>
-								  	<td>{{ tim_icloudpd }}</td>
-									<td>{{ sta_icloudpd }}</td>
-								  	<td><button id="sch_btn_icloudpd" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
-								</tr>
-								<tr>
-								  	<td>RSS下载器</td>
-								  	<td>{{ tim_rssdownload }}</td>
-									<td>{{ sta_rssdownload }}</td>
-								  	<td><button id="sch_btn_rssdownload" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
-								</tr>
-							  	<tr>
-								  	<td>热门电影预告更新</td>
-								  	<td>{{ tim_hottrailers }}</td>
-									<td>{{ sta_hottrailers }}</td>
-								  	<td><button id="sch_btn_hottrailers" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
-								</tr>
-								<tr>
-								  	<td>实时电影预告下载</td>
-								  	<td>实时监控</td>
-									<td>{{ sta_movietrailer }}</td>
-								  	<td><button id="sch_btn_movietrailer" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
-								</tr>
-							  	<tr>
-								  	<td>PT网站签到</td>
-								  	<td>{{ tim_ptsignin }}</td>
-									<td>{{ sta_ptsignin }}</td>
-								  	<td><button id="sch_btn_ptsignin" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
-								</tr>
-							  	<tr>
-								 	<td>什么值得买签到</td>
-								 	<td>{{ tim_smzdmsignin }}</td>
-									<td>{{ sta_smzdmsignin }}</td>
-								 	<td><button id="sch_btn_smzdmsignin" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
-								</tr>
-							  	<tr>
-								  	<td>联通营业厅签到</td>
-								  	<td>{{ tim_unicomsignin }}</td>
-									<td>{{ sta_unicomsignin }}</td>
-								  	<td><button id="sch_btn_unicomsignin" type="button" class="sch_action_btn btn btn-primary">启动</button></td>
-								</tr>
+							  {% endfor %}
 							  </tbody>
 							</table>
 							<pre id="sch_ret" style="display:none"></pre>
+							</form>
 						</div>
 						<div class="tab-pane {% if page=='log' %} active {% endif %}" id="log">
 							<table id="log_table" class="table table-striped">
