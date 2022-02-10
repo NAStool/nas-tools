@@ -1,5 +1,4 @@
 # qBittorrent媒体文件转移
-import os
 import sys
 
 import qbittorrentapi

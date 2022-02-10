@@ -15,12 +15,12 @@ handler_files = []
 
 # 处理文件夹
 def dir_change_handler(event, text):
-    monpath = settings.get("monitor.resiliosync_monpath")
+    monpaths = eval(settings.get("monitor.resiliosync_monpath"))
     event_path = event.src_path
     if event.is_directory:  # 文件改变都会触发文件夹变化
         try:
             log.debug("【ResilioSync】" + text + "了文件夹: %s " % event_path)
-            if event_path == monpath:
+            if event_path in monpaths:
                 return
             if event_path.find(".sync") != -1:
                 return
@@ -43,8 +43,7 @@ def dir_change_handler(event, text):
 
 # 监听文件夹
 class FileMonitorHandler(FileSystemEventHandler):
-    def __init__(self, **kwargs):
-        monpath = settings.get("monitor.resiliosync_monpath")
+    def __init__(self, monpath, **kwargs):
         super(FileMonitorHandler, self).__init__(**kwargs)
         # 监控目录 目录下面以device_id为目录存放各自的图片
         self._watch_path = monpath
@@ -61,7 +60,7 @@ class FileMonitorHandler(FileSystemEventHandler):
 
 
 def create_resilosync():
-    resiliosync_sys = settings.get("monitor.resiliosync_sys") == "Linux" or False
+    resiliosync_sys = settings.get("root.nas_sys") == "Linux" or False
     if resiliosync_sys:
         # linux
         observer = Observer()
@@ -73,19 +72,20 @@ def create_resilosync():
 
 # 全量转移
 def resiliosync_all():
-    monpath = settings.get("monitor.resiliosync_monpath")
+    monpaths = eval(settings.get("monitor.resiliosync_monpath"))
     log.info("【ResilioSync】开始全量转移...")
-    for dir in os.listdir(monpath):
-        file_path = os.path.join(monpath, dir)
-        if dir.find(".sync") == -1:
-            file_name = os.path.basename(file_path)
-            log.info("【ResilioSync】开始处理：" + file_path)
-            try:
-                if file_name not in handler_files:
-                    handler_files.append(file_name)
-                    transfer_directory(in_from="ResilioSync", in_name=file_name, in_path=file_path, noti_flag=False)
-            except Exception as err:
-                log.error("【ResilioSync】发生错误：" + str(err))
+    for monpath in monpaths:
+        for dir in os.listdir(monpath):
+            file_path = os.path.join(monpath, dir)
+            if dir.find(".sync") == -1:
+                file_name = os.path.basename(file_path)
+                log.info("【ResilioSync】开始处理：" + file_path)
+                try:
+                    if file_name not in handler_files:
+                        handler_files.append(file_name)
+                        transfer_directory(in_from="ResilioSync", in_name=file_name, in_path=file_path, noti_flag=False)
+                except Exception as err:
+                    log.error("【ResilioSync】发生错误：" + str(err))
 
 
 if __name__ == "__main__":

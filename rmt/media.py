@@ -58,7 +58,7 @@ def transfer_bluray_dir(file_path, new_path, mv_flag=False, over_flag=False):
     log.info("【RMT】文件复制完成：" + new_path)
 
     if mv_flag:
-        if file_path != settings.get('rmt.rmt_moviepath') and file_path != settings.get('rmt.rmt_tvpath'):
+        if file_path != settings.get('movie.movie_path') and file_path != settings.get('tv.tv_path'):
             shutil.rmtree(file_path)
         log.info("【RMT】" + file_path + " 已删除！")
 
@@ -77,7 +77,7 @@ def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=Fals
     transfer_subtitles(file_path, file_item, new_file, False)
 
     if mv_flag:
-        if file_path != settings.get('rmt.rmt_moviepath') and file_path != settings.get('rmt.rmt_tvpath'):
+        if file_path != settings.get('movie.movie_path') and file_path != settings.get('tv.tv_path'):
             shutil.rmtree(file_path)
         log.info("【RMT】" + file_path + " 已删除！")
 
@@ -130,11 +130,10 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
     Media_File = ""
     Media_FileSize = 0
 
-    if (settings.get('rmt.rmt_forcetrans').upper() == "TRUE" and Media_Type != "") or (
-            Media_Id != "0" and Media_Type != ""):
+    if Media_Id != "0" and Media_Type != "":
         if Search_Type == "电影":
             # 检查剩余空间
-            movie_dist = settings.get('rmt.rmt_moviepath')
+            movie_dist = settings.get('movie.movie_path')
             rmt_diskfreesize = settings.get('rmt.rmt_diskfreesize')
             disk_free_size = get_free_space_gb(movie_dist)
             if float(disk_free_size) < float(rmt_diskfreesize):
@@ -212,7 +211,7 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
             season_ary = []
             episode_ary = []
             # 检查剩余空间
-            tv_dist = settings.get('rmt.rmt_tvpath')
+            tv_dist = settings.get('tv.tv_path')
             rmt_diskfreesize = settings.get('rmt.rmt_diskfreesize')
             disk_free_size = get_free_space_gb(tv_dist)
             if float(disk_free_size) < float(rmt_diskfreesize):

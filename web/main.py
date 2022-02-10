@@ -269,7 +269,7 @@ def create_app():
             else:
                 if content.startswith("http://") or content.startswith("https://"):
                     # 添加种子任务
-                    save_path = settings.get("rss.save_path")
+                    save_path = settings.get("qbittorrent.save_path")
                     try:
                         ret = add_qbittorrent_torrent(content, save_path)
                         if ret and ret.find("Ok") != -1:

@@ -32,7 +32,7 @@ def get_movie_info_from_nfo(in_path):
 # 下载预告片
 def download_movie_trailer(in_path):
     youtube_dl_cmd = settings.get("youtobe.youtube_dl_cmd")
-    hottrailer_path = settings.get("youtobe.hottrailer_path")
+    hottrailer_path = settings.get("movie.hottrailer_path")
     exists_trailers = get_dir_files_by_name(in_path, "-trailer.")
     if len(exists_trailers) > 0:
         log.info("【TRAILER-DL】" + in_path + "电影目录已存在预告片，跳过...")
@@ -92,7 +92,7 @@ def download_movie_trailer(in_path):
 # 处理文件夹
 def dir_change_handler(event, text):
     movie_types = settings.get("rmt.rmt_movietype").split(",")
-    monpath = settings.get("monitor.movie_monpath")
+    monpath = settings.get("movie.movie_path")
     event_path = event.src_path
     if event.is_directory:  # 文件改变都会触发文件夹变化
         try:
@@ -123,8 +123,7 @@ def dir_change_handler(event, text):
 
 # 监听文件夹
 class FileMonitorHandler(FileSystemEventHandler):
-    def __init__(self, **kwargs):
-        monpath = settings.get("monitor.movie_monpath")
+    def __init__(self, monpath, **kwargs):
         super(FileMonitorHandler, self).__init__(**kwargs)
         # 监控目录 目录下面以device_id为目录存放各自的图片
         self._watch_path = monpath
@@ -141,7 +140,7 @@ class FileMonitorHandler(FileSystemEventHandler):
 
 
 def create_movie_trailer():
-    movie_sys = settings.get("monitor.movie_sys") == "Linux" or False
+    movie_sys = settings.get("root.nas_sys") == "Linux" or False
     if movie_sys:
         observer = Observer()
     else:
@@ -151,7 +150,7 @@ def create_movie_trailer():
 
 # 下载电影预告片
 def movie_trailer_all():
-    monpath = settings.get("monitor.movie_monpath")
+    monpath = settings.get("movie.movie_path")
     movie_types = settings.get("rmt.rmt_movietype").split(",")
     log.info("【TRAILER-DL】开始检索和下载电影预告片！")
     for movie_type in movie_types:

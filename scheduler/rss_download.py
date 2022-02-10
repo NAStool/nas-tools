@@ -75,9 +75,9 @@ def parse_rssxml(url):
 def rssdownload():
     # 读取配置
     rss_jobs = eval(settings.get("rss.rss_job"))
-    save_path = settings.get("rss.save_path")
-    movie_path = settings.get("rss.movie_path")
-    tv_path = settings.get("rss.tv_path")
+    save_path = settings.get("qbittorrent.save_path")
+    movie_path = settings.get("movie.movie_path")
+    tv_path = settings.get("tv.tv_path")
     media_exts = settings.get("rmt.rmt_mediaext").split(",")
     movie_types = settings.get("rmt.rmt_movietype").split(",")
     succ_list = []

@@ -12,7 +12,7 @@ PLAY_LIST = []
 
 def report_to_discord(event):
     # 读取配置
-    movie_path = settings.get("rmt.rmt_moviepath")
+    movie_path = settings.get("movie.movie_path")
     movie_types = settings.get("rmt.rmt_movietype").split(',')
     movie_fav_type = settings.get("rmt.rmt_favtype")
 
