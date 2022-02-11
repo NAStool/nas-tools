@@ -104,7 +104,7 @@ def create_app():
         scheduler_cfg_list.append({'name': 'PT网站签到', 'time': tim_ptsignin, 'state': sta_ptsignin})
         tim_smzdmsignin = settings.get("scheduler.smzdmsignin_cron")
         sta_smzdmsignin = settings.get("scheduler.smzdmsignin_flag")
-        scheduler_cfg_list.append({'name': 'PT网站签到', 'time': tim_smzdmsignin, 'state': sta_smzdmsignin})
+        scheduler_cfg_list.append({'name': '什么值得买签到', 'time': tim_smzdmsignin, 'state': sta_smzdmsignin})
         tim_unicomsignin = settings.get("scheduler.unicomsignin_cron")
         sta_unicomsignin = settings.get("scheduler.unicomsignin_flag")
         scheduler_cfg_list.append({'name': '联通营业厅签到', 'time': tim_unicomsignin, 'state': sta_unicomsignin})
