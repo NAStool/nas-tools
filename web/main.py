@@ -218,6 +218,12 @@ def create_app():
                     run_rssdownload()
                 return {"retmsg": "执行完成！", "item": sch_item}
 
+            if cmd == "rss":
+                for key, value in data.items():
+                    print(key, value)
+                    settings.set_value('rss', key, value)
+                return {"retcode": 0}
+
     # 响应企业微信消息
     @app.route('/wechat', methods=['GET', 'POST'])
     def wechat():

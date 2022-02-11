@@ -40,9 +40,17 @@ class Config(object):
         except NoOptionError:
             return default
 
+    def set(self, section, option, value):
+        self.config.set(section, option, value)
+        self.config.write(open(os.environ['NASTOOL_CONFIG'], 'w+', encoding='utf-8'))
+
 
 def get(key, default=None):
     return Config.get_instance().get(key, default)
+
+
+def set_value(section, option, value):
+    Config.get_instance().set(section, option, value)
 
 
 def get_config_path():

@@ -120,16 +120,13 @@ $(document).ready(function(){
 	// 保存RSS按钮
 	$("#rss_btn").click(function(){
 	    var cmd = "rss";
-	    var job_str = ""
-	    var data = {
-                "job": job_str,
-                ""
-	        };
+	    var param = {};
+	    $("#rss_form").find('input,textarea').each(function(){
+            param[$(this).attr('name')] = $(this).val();
+        });
 	    $("#rss_btn").text("正在处理...");
 	    $("#rss_btn").attr("disabled", "true");
-	    ajax_post(cmd, data, function(ret){
-	        $("#form_rss_form_notice").show();
-	        $("#form_rss_form_notice").text(ret.msg_msg);
+	    ajax_post(cmd, param, function(ret){
 	        $("#rss_btn").removeAttr("disabled");
 	        $("#rss_btn").text("保存");
 	    });
