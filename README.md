@@ -17,14 +17,15 @@ Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
 这两个神Key你值得拥有：主KEY：BCWHZRSLANR64CGPTXRE54ENNSIUE5SMO，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6
 
-### 3、其他的一些功能
-自动签到（PT站、什么值得买、联动营业厅），qBittorrent定期删种、电影预告片搜刮和下载（已有电影的预告片、热门预告片）、定期同步iCloud中的照片到NAS等等
-
-### 4、消息服务
+### 3、消息服务
 支持ServerChan、微信、Telegram消息通知服务， 以上功能运行状态可通过消息服务推送消息到手机上，比如新增加了电影、签到完成、Emby播放状态（需要在Emby中配置webhook插件）等。
 如果是使用微信渠道，还能实现在微信中直接控制（需要在企业微信中设置菜单，还要改一些代码）
 
-代码写的比较烂，初学仅限于能实现功能，轻喷。。。
+### 4、其他的一些功能
+自动签到（PT站、什么值得买、联动营业厅），qBittorrent定期删种、电影预告片搜刮和下载（已有电影的预告片、热门预告片）、定期同步iCloud中的照片到NAS等等
+
+
+【代码写的比较烂，初学仅限于能实现功能，轻喷。。。】
 
 
 ## 安装
@@ -38,7 +39,7 @@ Docker配置目录挂载：/config
 端口映射：3000
 
 ### 2、本地运行
-python 3版本
+python3版本
 
 pip install -r requirements.txt 安装依赖
 
@@ -47,7 +48,8 @@ nohup python3 run.py -c ./config/config.ini & 运行
 config.ini文件根据源代码目录下的config.ini中的注释修改。
 
 ### 3、群晖套件
-也制作了群晖套件可以直接在群晖中安装使用（只适用于dsm6），配置文件路径目前是写死的：/homes/admin/.config/nastool/config.ini，有能力的自己改一下启停脚本/var/packages/nastool/scripts/start-stop-status，config.ini文件根据源代码目录下的config.ini中的注释修改。
+也制作了群晖套件可以直接在群晖中安装使用（只适用于dsm6），需要先安装python3套件，同时有些功能需要结合entware安装一些包（比如lm-sensors）。
+配置文件路径目前是写死的：/homes/admin/.config/nastool/config.ini，有能力的自己改一下启停脚本/var/packages/nastool/scripts/start-stop-status，config.ini文件根据源代码目录下的config.ini中的注释修改。
 
 https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 
@@ -60,7 +62,7 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 
 2) 导入nastool.sql到MySql数据库（不是必须）
 
-3) 在Emby WebHooks中设置为 http://IP:3000/emby ，接受Emby消息通知。
+3) 在Emby WebHooks中设置为 http(s)://IP:3000/emby ，接受Emby消息通知。
 
 
 ## 使用
