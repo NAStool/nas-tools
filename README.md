@@ -65,6 +65,9 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 
 ![schduler](https://github.com/jxxghp/nas-tools/raw/master/scheduler.png)
 
+![image](https://github.com/jxxghp/nas-tools/raw/master/rss.png)
+
+
 2) 手机端通知界面
 
 ![image](https://user-images.githubusercontent.com/51039935/151723777-14eb0252-4838-4bdb-9089-75393e6af277.png)
