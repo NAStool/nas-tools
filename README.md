@@ -5,23 +5,26 @@
 Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
 ## 功能：
-### 1、PT搜刮下载
+### 1、PT自动搜刮下载
 1) 根据配置的关键字，从PT站定时搜刮种子，自动添加qBittorrent任务下载。比如电影可配置2022关键字，把2022年新出的资源都自动下载
 
 2) 下载完成后自动识别电影剧集名称并重命名为Emby/Plex文件名格式，自动复制到Emby/Plex媒体库目录下并自动分好类，实现Emby/Plex 100%完美识别
 
 3) qBittorrent定期删种，避免下载盘被挤爆
 
-### 2、Resilio Sync电影同步
+### 2、ResilioSync资源同步
 监控Resilio Sync同步目录，识别电影剧集名称，自动复制并重命名到Emby/Plex媒体库目录实现100%完美识别
-这个神Key你值得拥有，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6
+
+这两个神Key你值得拥有：主KEY：BCWHZRSLANR64CGPTXRE54ENNSIUE5SMO，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6
 
 ### 3、其他的一些功能
-每日签到（PT站、什么值得买、联动营业厅），qBittorrent定期删种、电影预告片搜刮和下载、定期同步iCloud中的照片到NAS等等
+自动签到（PT站、什么值得买、联动营业厅），qBittorrent定期删种、电影预告片搜刮和下载（已有电影的预告片、热门预告片）、定期同步iCloud中的照片到NAS等等
 
 ### 4、消息服务
 支持ServerChan、微信、Telegram消息通知服务， 以上功能运行状态可通过消息服务推送消息到手机上，比如新增加了电影、签到完成、Emby播放状态（需要在Emby中配置webhook插件）等。
 如果是使用微信渠道，还能实现在微信中直接控制（需要在企业微信中设置菜单，还要改一些代码）
+
+代码写的比较烂，初学仅限于能实现功能，轻喷。。。
 
 
 ## 安装
