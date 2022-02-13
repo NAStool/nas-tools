@@ -30,6 +30,8 @@ Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
 ## 安装
 ### 1、Docker镜像
+docker push jxxghp/nas-tools:latest
+
 [jxxghp/nas-tools:latest](https://hub.docker.com/repository/docker/jxxghp/nas-tools)
 
 Docker配置目录挂载：/config
