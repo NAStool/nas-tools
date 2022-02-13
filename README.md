@@ -55,8 +55,7 @@ config.ini文件根据源代码目录下的config.ini中的注释修改。
 
 https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 
-![image](https://user-images.githubusercontent.com/51039935/151724159-ab65105b-52cd-4495-97db-101a2536ffc5.png)
-
+![image](https://user-images.githubusercontent.com/51039935/153745028-3a9b7e9a-0404-45c0-9674-1763e272c005.png)
 
 
 ## 配置
