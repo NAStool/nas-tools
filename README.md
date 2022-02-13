@@ -83,12 +83,12 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 
 
 ## 使用
-1) WEB UI界面（3000端口）
+1) WEB UI界面（3000端口），可以修改配置、手工启动服务、修改资源订阅关键字等
 ![scheduler](https://user-images.githubusercontent.com/51039935/153733274-059c8f60-b907-4f4d-b4cd-765ea490bc31.png)
 ![rss](https://user-images.githubusercontent.com/51039935/153733281-844232b8-6b93-46a0-b553-cbddce5590fd.png)
 
 
-2) 手机端通知界面
+2) 手机端通知和控制界面，实时接收程序运行状态，控制服务运行
 
 ![image](https://user-images.githubusercontent.com/51039935/151723777-14eb0252-4838-4bdb-9089-75393e6af277.png)
 
