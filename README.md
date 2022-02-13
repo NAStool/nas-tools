@@ -48,8 +48,8 @@ nohup python3 run.py -c ./config/config.ini & 运行
 config.ini文件根据源代码目录下的config.ini中的注释修改。
 
 ### 3、群晖套件
-也制作了群晖套件可以直接在群晖中安装使用（只适用于dsm6），需要先安装python3套件，同时有些功能需要结合entware安装一些包（比如lm-sensors）。
-配置文件路径目前是写死的：/homes/admin/.config/nastool/config.ini，有能力的自己改一下启停脚本/var/packages/nastool/scripts/start-stop-status，config.ini文件根据源代码目录下的config.ini中的注释修改。
+也制作了群晖套件可以直接在群晖中安装使用（只适用于dsm6.2.3），需要先安装python3.8套件，同时有些功能需要结合entware安装一些包（比如lm-sensors，也可以关掉）。
+配置文件路径目前是写死的：/homes/admin/.config/nastool/config.ini，即只能是admin用户，且会找当前用户home目录下nastool/config.ini文件，需要DSM开启home目录且把nastool目录和配置文件建好。类似到qibittorrent的安装包，目前暂不知道怎么自动识别用户目录的问题。
 
 https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 
