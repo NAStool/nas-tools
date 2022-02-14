@@ -51,12 +51,12 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 ### 1、申请相关API KEY
 1) 在 https://www.themoviedb.org/ 申请用户，得到API KEY：rmt_tmdbkey。
 
-2) 在 https://work.weixin.qq.com/ 申请企业微信自建应用，获得corpid、corpsecret、agentid（推荐），或者在 https://sct.ftqq.com/ 申请 Server酱SendKey：sckey，或者在Telegram中申请自建机器人，获得：telegram_token、telegram_bot_id。
+2) 在 https://work.weixin.qq.com/ 申请企业微信自建应用（推荐），获得corpid、corpsecret、agentid，或者在 https://sct.ftqq.com/ 申请 Server酱SendKey：sckey，或者在Telegram中申请自建机器人，获得：telegram_token、telegram_bot_id（具体方法百度）。
 
 3) 申请PT站用户，至少要有1个不然没法玩。
 
 ### 2、配置文件
-1) 参考 config/config.ini的配置示例进行配置，填入申请好的相关API KEY，以及媒体库电影、电视剧存储路径、PT站RSS信息、qBittorrent信息等。
+1) 参考 config/config.ini的配置示例进行配置，填入申请好的相关API KEY，以及媒体库电影、电视剧存储路径、PT站RSS信息、qBittorrent信息等等，示例文件中有详细的说明。
 
 2) docker：需要映射/config目录，并将修改好后的config.ini放到配置映射目录下；需要映射WEB访问端口（默认3000）；需要映射媒体库目录及PT下载目录、ResilioSync目录到容器上并与配置文件保持一致。
    
