@@ -92,17 +92,17 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 * 配置微信菜单控制：有两种方式，一是直接在聊天窗口中输入命令或者PT下载的链接；二是在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单页面按如下图所示维护好菜单（条目顺序需要一模一样，如果不一样需要修改web/menu.py中定义的菜单序号），菜单内容为发送消息，消息内容为命令。
 命令与功能的对应关系： 
    
-|  命令   | 功能  |
-|  ----  | ----  |
-| /qbt  | qBittorrent转移 |
-| /qbr  | qBittorrent删种 |
-| /hotm  | 热门预告 |
-| /pts | PT签到 |
-| /mrt  | 预告片下载 |
-| /rst  | ResilioSync同步 |
-| /rss  | RSS下载 |
+   |  命令   | 功能  |
+   |  ----  | ----  |
+   | /qbt  | qBittorrent转移 |
+   | /qbr  | qBittorrent删种 |
+   | /hotm  | 热门预告 |
+   | /pts | PT签到 |
+   | /mrt  | 预告片下载 |
+   | /rst  | ResilioSync同步 |
+   | /rss  | RSS下载 |
 
-![image](https://user-images.githubusercontent.com/51039935/153850570-b97a2bbc-0961-44d8-85e6-bd5f6215e4a4.png)
+   ![image](https://user-images.githubusercontent.com/51039935/153850570-b97a2bbc-0961-44d8-85e6-bd5f6215e4a4.png)
 
 
 ## 使用
