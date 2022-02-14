@@ -1,6 +1,7 @@
 import _thread
 
-from flask import Flask, request, json, render_template, make_response
+from flask import Flask, request, json, render_template, make_response, redirect
+
 import settings
 import log
 from monitor.movie_trailer import movie_trailer_all
@@ -72,6 +73,14 @@ def create_app():
         return '0'
 
     # 主页面
+    @app.before_request
+    def before_request():
+        if request.url.startswith('http://'):
+            ssl_cert = settings.get("root.ssl_cert")
+            if ssl_cert:
+                url = request.url.replace('http://', 'https://', 1)
+                return redirect(url, code=301)
+
     @app.route('/', methods=['POST', 'GET'])
     @auth.login_required
     def main():
