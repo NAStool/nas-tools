@@ -2,7 +2,7 @@ FROM python:3.8-slim-buster
 ENV LANG C.UTF-8
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-ADD nas-tools.tar .
+ADD . /nas-tools
 WORKDIR /nas-tools
 RUN echo "/nas-tools/" > /usr/local/lib/python3.8/site-packages/nas-tools.pth
 RUN python3 -m pip install -r /nas-tools/requirements.txt
