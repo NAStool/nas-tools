@@ -27,10 +27,10 @@ Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
 ## 安装
 ### 1、Docker
+[jxxghp/nas-tools:latest](https://hub.docker.com/repository/docker/jxxghp/nas-tools)
 ```
 docker push jxxghp/nas-tools:latest
 ```
-[jxxghp/nas-tools:latest](https://hub.docker.com/repository/docker/jxxghp/nas-tools)
 
 ### 2、本地运行
 python3.8版本
