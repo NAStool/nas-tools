@@ -21,6 +21,8 @@ Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 支持ServerChan、微信、Telegram消息通知服务， 以上功能运行状态可通过消息服务推送消息到手机上，比如新增加了电影、签到完成、Emby播放状态（需要在Emby中配置webhook插件）等。
 
 如果是使用微信渠道，还能实现在微信中直接控制，有两种方式：一是直接在聊天窗口中输入命令或者PT下载的链接；二是点击菜单，菜单需要在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护并修改web/menu.py中定义的菜单序号与命令的对应关系。
+![image](https://user-images.githubusercontent.com/51039935/153850570-b97a2bbc-0961-44d8-85e6-bd5f6215e4a4.png)
+
 
 
 ### 4、其他的一些功能
