@@ -5,7 +5,7 @@
 Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
 ## 功能：
-### 1、PT自动搜刮下载
+### 1、PT自动搜刮下载、保种
 1) 根据配置的关键字，从PT站定时搜刮种子，自动添加qBittorrent任务下载。比如电影可配置2022关键字，把2022年新出的资源都自动下载。【重点: 识别率很高，具支持国产剧集命名的识别哦，这点很多国外软件都是不支持的。】
 
 2) 下载完成后自动识别电影剧集名称并重命名为Emby/Plex文件名格式，自动复制到Emby/Plex媒体库目录下并自动分好类，实现Emby/Plex 100%完美识别
@@ -83,8 +83,9 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 
 ## 使用
 1) WEB UI界面（3000端口），可以修改配置、手工启动服务、修改资源订阅关键字等
-![image](https://user-images.githubusercontent.com/51039935/153745209-b86b593e-9234-4b59-82e4-2f0481838bd7.png)
-![image](https://user-images.githubusercontent.com/51039935/153745181-6ca745da-c3f9-4f8b-9282-7bc5e79a6cd3.png)
+![image](https://user-images.githubusercontent.com/51039935/153804911-0f470480-e250-42e9-a06f-2c2a7e0de627.png)
+![image](https://user-images.githubusercontent.com/51039935/153804992-9d7c6dc3-8f6f-47f3-8f46-14ccd33d9542.png)
+
 
 2) 手机端通知和控制界面，实时接收程序运行状态，控制服务运行
 
