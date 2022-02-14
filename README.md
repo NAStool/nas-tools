@@ -51,7 +51,7 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 ### 一、申请相关API KEY
 1) 在 https://www.themoviedb.org/ 申请用户，得到API KEY：rmt_tmdbkey。
 
-2) 在 https://work.weixin.qq.com/ 申请企业微信自建应用（推荐），获得corpid、corpsecret、agentid，或者在 https://sct.ftqq.com/ 申请 Server酱SendKey：sckey，或者在Telegram中申请自建机器人，获得：telegram_token、telegram_bot_id（具体方法百度）。
+2) 在 https://work.weixin.qq.com/ 申请企业微信自建应用（推荐），获得corpid、corpsecret、agentid，扫描二维码在微信中关注企业自建应用；或者在 https://sct.ftqq.com/ 申请 Server酱SendKey：sckey；或者在Telegram中申请自建机器人，获得：telegram_token、telegram_bot_id（具体方法百度）。
 
 3) 申请PT站用户，至少要有1个不然没法玩。
 
