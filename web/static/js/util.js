@@ -36,8 +36,8 @@ $(document).ready(function(){
 	        retmsg = ret.retmsg;
 	        $("#sch_ret").show();
 	        $("#sch_ret").text(retmsg);
-	        $("#" + item).removeAttr("disabled");
-	        $("#" + item).text("启动");
+	        $("#"+item).removeAttr("disabled");
+	        $("#"+item).text("启动");
 	    })
 	});
 

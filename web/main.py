@@ -22,7 +22,8 @@ from web.wechat.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ET
 
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
-WECHAT_MENU = {"_0_0": "/qbt", "_0_1": "/qbr", "_0_2": "/rss", "_0_3": "/hotm", "_0_4": "/mrt", "_1_1": "/rst", "_2_0": "/pts"}
+WECHAT_MENU = {"_0_0": "/qbt", "_0_1": "/qbr", "_0_2": "/rss", "_0_3": "/hotm", "_0_4": "/mrt", "_1_1": "/rst",
+               "_2_0": "/pts"}
 
 
 def create_app():
@@ -78,23 +79,29 @@ def create_app():
         scheduler_cfg_list = []
         tim_rssdownload = settings.get("scheduler.rssdownload_interval")
         sta_rssdownload = settings.get("scheduler.rssdownload_flag")
-        scheduler_cfg_list.append({'name': 'RSS订阅下载器', 'time': tim_rssdownload, 'state': sta_rssdownload})
+        scheduler_cfg_list.append(
+            {'name': 'RSS订阅下载器', 'time': tim_rssdownload, 'state': sta_rssdownload, 'id': 'rssdownload'})
         tim_autoremovetorrents = settings.get("scheduler.autoremovetorrents_interval")
         sta_autoremovetorrents = settings.get("scheduler.autoremovetorrents_flag")
-        scheduler_cfg_list.append({'name': 'qBittorrent删种', 'time': tim_autoremovetorrents, 'state': sta_autoremovetorrents})
+        scheduler_cfg_list.append(
+            {'name': 'qBittorrent删种', 'time': tim_autoremovetorrents, 'state': sta_autoremovetorrents,
+             'id': 'autoremovetorrents'})
         tim_qbtransfer = settings.get("scheduler.qbtransfer_interval")
         sta_qbtransfer = settings.get("scheduler.qbtransfer_flag")
-        scheduler_cfg_list.append({'name': 'qBittorrent文件转移	', 'time': tim_qbtransfer, 'state': sta_qbtransfer})
+        scheduler_cfg_list.append(
+            {'name': 'qBittorrent文件转移	', 'time': tim_qbtransfer, 'state': sta_qbtransfer, 'id': 'qbtransfer'})
         sta_resiliosync = settings.get("monitor.resiliosync_flag")
-        scheduler_cfg_list.append({'name': 'ResilioSync文件转移', 'time': '实时监控', 'state': sta_resiliosync})
+        scheduler_cfg_list.append(
+            {'name': 'ResilioSync文件转移', 'time': '实时监控', 'state': sta_resiliosync, 'id': 'resiliosync'})
         tim_hottrailers = settings.get("scheduler.hottrailer_cron")
         sta_hottrailers = settings.get("scheduler.hottrailer_flag")
-        scheduler_cfg_list.append({'name': '热门电影预告更新', 'time': tim_hottrailers, 'state': sta_hottrailers})
+        scheduler_cfg_list.append(
+            {'name': '热门电影预告更新', 'time': tim_hottrailers, 'state': sta_hottrailers, 'id': 'hottrailers'})
         sta_movietrailer = settings.get("monitor.movie_flag")
-        scheduler_cfg_list.append({'name': '新增电影预告下载', 'time': '实时监控', 'state': sta_movietrailer})
+        scheduler_cfg_list.append({'name': '新增电影预告下载', 'time': '实时监控', 'state': sta_movietrailer, 'id': 'movietrailer'})
         tim_ptsignin = settings.get("scheduler.ptsignin_cron")
         sta_ptsignin = settings.get("scheduler.ptsignin_flag")
-        scheduler_cfg_list.append({'name': 'PT网站签到', 'time': tim_ptsignin, 'state': sta_ptsignin})
+        scheduler_cfg_list.append({'name': 'PT网站签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin'})
 
         # 读取RSS配置
         # 读取配置
@@ -139,7 +146,8 @@ def create_app():
                 if p_path and p_name:
                     v_path = p_path.split("|")[0]
                     v_hash = p_path.split("|")[1]
-                    done_flag = transfer_directory(in_from="qBittorrent", in_name=p_name, in_title=p_name, in_path=v_path,
+                    done_flag = transfer_directory(in_from="qBittorrent", in_name=p_name, in_title=p_name,
+                                                   in_path=v_path,
                                                    in_year=p_year, in_type=p_type, in_season=p_season)
                     if v_hash and done_flag:
                         set_torrent_status(v_hash)
@@ -165,19 +173,19 @@ def create_app():
 
             if cmd == "sch":
                 sch_item = data["item"]
-                if sch_item == "sch_btn_autoremovetorrents":
+                if sch_item == "btn_autoremovetorrents":
                     run_autoremovetorrents()
-                if sch_item == "sch_btn_qbtransfer":
+                if sch_item == "btn_qbtransfer":
                     run_qbtransfer()
-                if sch_item == "sch_btn_hottrailers":
+                if sch_item == "btn_hottrailers":
                     run_hottrailers()
-                if sch_item == "sch_btn_ptsignin":
+                if sch_item == "btn_ptsignin":
                     run_ptsignin()
-                if sch_item == "sch_btn_movietrailer":
+                if sch_item == "btn_movietrailer":
                     movie_trailer_all()
-                if sch_item == "sch_btn_resiliosync":
+                if sch_item == "btn_resiliosync":
                     resiliosync_all()
-                if sch_item == "sch_btn_rssdownload":
+                if sch_item == "btn_rssdownload":
                     run_rssdownload()
                 return {"retmsg": "执行完成！", "item": sch_item}
 
