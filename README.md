@@ -15,15 +15,8 @@ Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 ### 2、ResilioSync资源同步
 监控Resilio Sync同步目录，识别电影剧集名称，自动复制并重命名到Emby/Plex媒体库目录实现100%完美识别
 
-这两个神Key你值得拥有：主KEY：BCWHZRSLANR64CGPTXRE54ENNSIUE5SMO，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6
-
 ### 3、消息服务
 支持ServerChan、微信、Telegram消息通知服务， 以上功能运行状态可通过消息服务推送消息到手机上，比如新增加了电影、签到完成、Emby播放状态（需要在Emby中配置webhook插件）等。
-
-如果是使用微信渠道，还能实现在微信中直接控制，有两种方式：一是直接在聊天窗口中输入命令或者PT下载的链接；二是点击菜单，菜单需要在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护并修改web/menu.py中定义的菜单序号与命令的对应关系。
-![image](https://user-images.githubusercontent.com/51039935/153850570-b97a2bbc-0961-44d8-85e6-bd5f6215e4a4.png)
-
-
 
 ### 4、其他的一些功能
 PT站自动签到，qBittorrent删种、电影预告片搜刮和下载（已有电影的预告片、热门预告片）等等。不需要的可以在配置中关掉。
@@ -33,30 +26,21 @@ PT站自动签到，qBittorrent删种、电影预告片搜刮和下载（已有�
 
 
 ## 安装
-### 1、Docker镜像
+### 1、Docker
 ```
 docker push jxxghp/nas-tools:latest
 ```
 [jxxghp/nas-tools:latest](https://hub.docker.com/repository/docker/jxxghp/nas-tools)
 
-Docker配置目录挂载：/config
-
-配置文件名：config.ini，把源代码中config目录下的config.ini复制到配置目录并修改好即可。
-
-端口映射：3000
-
 ### 2、本地运行
-python3版本
-
-pip install -r requirements.txt 安装依赖
-
-nohup python3 run.py -c ./config/config.ini & 运行
-
-config.ini文件根据源代码目录下的config.ini中的注释修改。
+python3.8版本
+```
+python3 -m pip install -r requirements.txt
+nohup python3 run.py -c ./config/config.ini & 
+```
 
 ### 3、群晖套件
-也制作了群晖套件可以直接在群晖中安装使用（只适用于dsm6.2.3），需要先安装python3.8套件。
-配置文件路径目前是写死的：/homes/admin/.config/nastool/config.ini，即只能是admin用户，且会找当前用户home目录下nastool/config.ini文件，需要DSM开启home目录且把nastool目录和配置文件建好。类似qBittorrent的安装包，目前暂不知道怎么自动识别用户目录。
+仅适用于dsm6.2.3，且只能是admin用户使用。
 
 https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 
@@ -64,12 +48,23 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 
 
 ## 配置
-1) 参考源码中config/config.ini配置文件示例进行配置，每一个配置项有注释说明。有的配置项需要在相关网站注册信息。
+### 1、申请相关API KEY
+1) 在 https://www.themoviedb.org/ 申请用户，得到API KEY：rmt_tmdbkey。
 
-2) 在Emby WebHooks中设置为 http(s)://IP:3000/emby ，接受Emby消息通知。
+2) 在 https://work.weixin.qq.com/ 申请企业微信自建应用，获得corpid、corpsecret、agentid（推荐），或者在 https://sct.ftqq.com/ 申请 Server酱SendKey：sckey，或者在Telegram中申请自建机器人，获得：telegram_token、telegram_bot_id。
 
-3) 根据以下目录结构建好目录，在Emby中对应每个目录建好媒体库，路径与程序中配置的一致。有使用ResilioSync的话，在同步目录也与本程序中的配置对应。
+3) 申请PT站用户，至少要有1个不然没法玩。
 
+### 2、配置文件
+1) 参考 config/config.ini的配置示例进行配置，填入申请好的相关API KEY，以及媒体库电影、电视剧存储路径、PT站RSS信息、qBittorrent信息等。
+
+2) docker：需要映射/config目录，并将修改好后的config.ini放到配置映射目录下；需要映射WEB访问端口（默认3000）；需要映射媒体库目录及PT下载目录、ResilioSync目录到容器上并与配置文件保持一致。
+   
+3) 群晖套件：配置文件地址必须为：/homes/admin/.config/nastool/config.ini，即必须是admin用户运行且按路径放置配置文件。
+
+### 3、设置Emby
+1) 在Emby的Webhooks插件中，设置地址为：http(s)://IP:3000/emby，勾选“播放事件”和“用户事件（建议只对管理用户勾选）“
+2) 按以下目录结构建立文件夹，并分别设置好媒体库（第二级程序会自动建）。
 > 电影
 >> 华语电影
 >> 外语电影
@@ -85,23 +80,43 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 > 
 > 预告
 
+### 4、配置ResilioSync
+1) 安装resiliosync软件，配置好神KEY（主KEY：BCWHZRSLANR64CGPTXRE54ENNSIUE5SMO，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6，根据主Key的网页也可以使用其他的Key）
+   
+2) 如果是docker则将ResilioSync资源目录同步映射到docker容器中；如果是群晖套件则需要检查访问权限。均需与配置文件保持一致。
+
+### 5、配置微信应用消息及菜单
+如果只是使用消息接受服务，则配置好配置文件中的[wechat]前三个参数就可以了，如果需要通过微信进行控制，则需要按如下方式配置：
+1) 配置微信消息服务：在企业微信自建应用管理页面-》API接收消息 开启消息接收服务，URL填写：http(s)://IP:3000/wechat，Token和EncodingAESKey填入配置文件[wechat]区。
+   
+2) 配置微信菜单控制：有两种方式，一是直接在聊天窗口中输入命令或者PT下载的链接；二是在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单页面按如下图所示维护好菜单（条目顺序需要一模一样，如果不一样需要修改web/menu.py中定义的菜单序号），菜单内容为发送消息，消息内容为命令。
+命令与功能的对应关系： 
+   
+|  命令   | 功能  |
+|  ----  | ----  |
+| /qbt  | qBittorrent转移 |
+| /qbr  | qBittorrent删种 |
+| /hotm  | 热门预告 |
+| /pts | PT签到 |
+| /mrt  | 预告片下载 |
+| /rst  | ResilioSync同步 |
+| /rss  | RSS下载 |
+![image](https://user-images.githubusercontent.com/51039935/153850570-b97a2bbc-0961-44d8-85e6-bd5f6215e4a4.png)
+
 
 ## 使用
-1) WEB UI界面（3000端口），可以修改配置、手工启动服务、修改资源订阅关键字等
+1) WEB UI界面，可以修改配置、手工启动服务、修改资源订阅关键字等
 ![image](https://user-images.githubusercontent.com/51039935/153804911-0f470480-e250-42e9-a06f-2c2a7e0de627.png)
 ![image](https://user-images.githubusercontent.com/51039935/153804992-9d7c6dc3-8f6f-47f3-8f46-14ccd33d9542.png)
 
 
-2) 手机端通知和控制界面，实时接收程序运行状态，控制服务运行
-
+2) 手机端通知和控制界面，实时接收程序运行状态，控制服务运行（输入命令或者点击菜单）
 ![image](https://user-images.githubusercontent.com/51039935/151723777-14eb0252-4838-4bdb-9089-75393e6af277.png)
 
 3) 效果（这些分类都是程序自动维护的）
-
 ![image](https://user-images.githubusercontent.com/51039935/153733308-498fd68c-4a24-4238-820d-10a1cd1025d1.png)
 ![image](https://user-images.githubusercontent.com/51039935/151723518-5ee68798-bd24-459a-b99f-43ebe27857e7.png)
 ![image](https://user-images.githubusercontent.com/51039935/153847136-fee22815-4f89-443a-bac1-617d903cde68.png)
-
 
 4) 推荐使用1T以上的SSD做为PT下载盘和Resilio Sync的同步盘，大容量硬盘则为存储盘（当前没有也行，分开目录即可）。结合这套程序的PT自动下载转移和定期删种，实现作种和媒体存放分离，Emby/Plex完美搜刮，同时避免PT损伤存储硬盘。可以做到无人值守自动媒体库维护，且资源变化情况均有通知一目了然。
 
