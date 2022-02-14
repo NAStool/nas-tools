@@ -5,12 +5,12 @@
 Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
 ## 功能：
-### 1、PT自动搜刮下载
+### 1、PT自动搜刮下载、保种
 1) 根据配置的关键字，从PT站定时搜刮种子，自动添加qBittorrent任务下载。比如电影可配置2022关键字，把2022年新出的资源都自动下载。【重点: 识别率很高，具支持国产剧集命名的识别哦，这点很多国外软件都是不支持的。】
 
 2) 下载完成后自动识别电影剧集名称并重命名为Emby/Plex文件名格式，自动复制到Emby/Plex媒体库目录下并自动分好类，实现Emby/Plex 100%完美识别
 
-3) qBittorrent定期删种，避免下载盘被挤爆
+3) qBittorrent保种，可配置保种时间，避免下载盘被挤爆
 
 ### 2、ResilioSync资源同步
 监控Resilio Sync同步目录，识别电影剧集名称，自动复制并重命名到Emby/Plex媒体库目录实现100%完美识别
@@ -22,7 +22,7 @@ Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 如果是使用微信渠道，还能实现在微信中直接控制（需要在企业微信中设置菜单，还要改一些代码）
 
 ### 4、其他的一些功能
-PT站自动签到，qBittorrent定期删种、电影预告片搜刮和下载（已有电影的预告片、热门预告片）等等。不需要的可以在配置中关掉。
+PT站自动签到，qBittorrent删种、电影预告片搜刮和下载（已有电影的预告片、热门预告片）等等。不需要的可以在配置中关掉。
 
 
 【代码写的比较烂，初学仅限于能实现功能，轻喷。。。】
@@ -50,7 +50,7 @@ nohup python3 run.py -c ./config/config.ini & 运行
 config.ini文件根据源代码目录下的config.ini中的注释修改。
 
 ### 3、群晖套件
-也制作了群晖套件可以直接在群晖中安装使用（只适用于dsm6.2.3），需要先安装python3.8套件，同时有些功能需要结合entware安装一些包（比如lm-sensors，也可以关掉）。
+也制作了群晖套件可以直接在群晖中安装使用（只适用于dsm6.2.3），需要先安装python3.8套件。
 配置文件路径目前是写死的：/homes/admin/.config/nastool/config.ini，即只能是admin用户，且会找当前用户home目录下nastool/config.ini文件，需要DSM开启home目录且把nastool目录和配置文件建好。类似到qibittorrent的安装包，目前暂不知道怎么自动识别用户目录的问题。
 
 https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
@@ -83,8 +83,9 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 
 ## 使用
 1) WEB UI界面（3000端口），可以修改配置、手工启动服务、修改资源订阅关键字等
-![image](https://user-images.githubusercontent.com/51039935/153745209-b86b593e-9234-4b59-82e4-2f0481838bd7.png)
-![image](https://user-images.githubusercontent.com/51039935/153745181-6ca745da-c3f9-4f8b-9282-7bc5e79a6cd3.png)
+![image](https://user-images.githubusercontent.com/51039935/153804911-0f470480-e250-42e9-a06f-2c2a7e0de627.png)
+![image](https://user-images.githubusercontent.com/51039935/153804992-9d7c6dc3-8f6f-47f3-8f46-14ccd33d9542.png)
+
 
 2) 手机端通知和控制界面，实时接收程序运行状态，控制服务运行
 
