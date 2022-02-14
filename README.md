@@ -116,8 +116,8 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 
 
 3) 效果（这些分类都是程序自动维护的）
-![image](https://user-images.githubusercontent.com/51039935/153733308-498fd68c-4a24-4238-820d-10a1cd1025d1.png)
-![image](https://user-images.githubusercontent.com/51039935/151723518-5ee68798-bd24-459a-b99f-43ebe27857e7.png)
+![image](https://user-images.githubusercontent.com/51039935/153886867-50a3debd-e982-4723-974b-04ba16f732b1.png)
+![image](https://user-images.githubusercontent.com/51039935/153887369-478433bb-59e1-4520-a16a-6400b817c8b9.png)
 ![image](https://user-images.githubusercontent.com/51039935/153847136-fee22815-4f89-443a-bac1-617d903cde68.png)
 
 4) 说一下几点使用心得：
