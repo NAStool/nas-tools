@@ -3,7 +3,6 @@ from datetime import datetime
 import threading
 import requests
 import settings
-from functions import mysql_exec_sql
 
 lock = threading.Lock()
 
@@ -86,12 +85,6 @@ def send_wechat_msg(title, text):
     if not title and not text:
         return -1, "标题和内容不能同时为空！"
     ret_code, ret_msg = WeChat.get_instance().send_message(title, text)
-    # 登记数据库
-    sql = "INSERT INTO message_log \
-            (TYPE, TITLE, TEXT, TIME, ERRCODE, ERRMSG) \
-            VALUES ('%s', '%s', '%s', now(), '%s', '%s')" % \
-          ("WetChat", title, text, ret_code, ret_msg)
-    mysql_exec_sql(sql)
     return ret_code, ret_msg
 
 

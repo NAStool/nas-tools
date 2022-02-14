@@ -3,19 +3,15 @@ import _thread
 from flask import Flask, request, json, render_template, make_response
 import settings
 import log
-from functions import system_exec_command, mysql_query
 from monitor.movie_trailer import movie_trailer_all
 from monitor.resiliosync import resiliosync_all
 from rmt.media import transfer_directory
 from rmt.qbittorrent import login_qbittorrent, get_qbittorrent_tasks, set_torrent_status, transfer_qbittorrent_task
 from scheduler.autoremove_torrents import run_autoremovetorrents
 from scheduler.hot_trailer import run_hottrailers
-from scheduler.icloudpd import run_icloudpd
 from scheduler.pt_signin import run_ptsignin
 from scheduler.qb_transfer import run_qbtransfer
 from scheduler.rss_download import run_rssdownload, add_qbittorrent_torrent
-from scheduler.smzdm_signin import run_smzdmsignin
-from scheduler.unicom_signin import run_unicomsignin
 from web.emby.discord import report_to_discord
 from web.emby.emby_event import EmbyEvent
 from message.send import sendmsg
@@ -25,10 +21,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from web.wechat.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ET
 
-# 菜单对应关系
-WECHAT_MENU = {"_0_0": "/qbt", "_0_1": "/qbr", "_0_2": "/rss", "_0_3": "/hotm", "_0_4": "/mrt",
-               "_1_0": "/ipd", "_1_1": "/rst",
-               "_2_0": "/pts", "_2_1": "/smzdms", "_2_2": "/unicoms"}
+# 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
+WECHAT_MENU = {"_0_0": "/qbt", "_0_1": "/qbr", "_0_2": "/rss", "_0_3": "/hotm", "_0_4": "/mrt", "_1_1": "/rst", "_2_0": "/pts"}
 
 
 def create_app():
@@ -93,26 +87,14 @@ def create_app():
         scheduler_cfg_list.append({'name': 'qBittorrent文件转移	', 'time': tim_qbtransfer, 'state': sta_qbtransfer})
         sta_resiliosync = settings.get("monitor.resiliosync_flag")
         scheduler_cfg_list.append({'name': 'ResilioSync文件转移', 'time': '实时监控', 'state': sta_resiliosync})
-        tim_icloudpd = settings.get("scheduler.icloudpd_cron")
-        sta_icloudpd = settings.get("scheduler.icloudpd_flag")
-        scheduler_cfg_list.append({'name': 'iCloud照片同步', 'time': tim_icloudpd, 'state': sta_icloudpd})
         tim_hottrailers = settings.get("scheduler.hottrailer_cron")
         sta_hottrailers = settings.get("scheduler.hottrailer_flag")
         scheduler_cfg_list.append({'name': '热门电影预告更新', 'time': tim_hottrailers, 'state': sta_hottrailers})
+        sta_movietrailer = settings.get("monitor.movie_flag")
+        scheduler_cfg_list.append({'name': '新增电影预告下载', 'time': '实时监控', 'state': sta_movietrailer})
         tim_ptsignin = settings.get("scheduler.ptsignin_cron")
         sta_ptsignin = settings.get("scheduler.ptsignin_flag")
         scheduler_cfg_list.append({'name': 'PT网站签到', 'time': tim_ptsignin, 'state': sta_ptsignin})
-        tim_smzdmsignin = settings.get("scheduler.smzdmsignin_cron")
-        sta_smzdmsignin = settings.get("scheduler.smzdmsignin_flag")
-        scheduler_cfg_list.append({'name': '什么值得买签到', 'time': tim_smzdmsignin, 'state': sta_smzdmsignin})
-        tim_unicomsignin = settings.get("scheduler.unicomsignin_cron")
-        sta_unicomsignin = settings.get("scheduler.unicomsignin_flag")
-        scheduler_cfg_list.append({'name': '联通营业厅签到', 'time': tim_unicomsignin, 'state': sta_unicomsignin})
-        sta_movietrailer = settings.get("monitor.movie_flag")
-        scheduler_cfg_list.append({'name': '新增电影预告下载', 'time': '实时监控', 'state': sta_movietrailer})
-
-        # 读取日志配置
-        logtype = settings.get("root.logtype")
 
         # 读取RSS配置
         # 读取配置
@@ -134,7 +116,6 @@ def create_app():
 
         return render_template("main.html",
                                page="rss",
-                               log_type=logtype,
                                scheduler_cfg_list=scheduler_cfg_list,
                                rss_cfg_list=rss_cfg_list
                                )
@@ -145,6 +126,10 @@ def create_app():
         cmd = request.form.get("cmd")
         data = json.loads(request.form.get("data"))
         if cmd:
+            if cmd == "rmt_qry":
+                # 读取qBittorrent列表
+                return {"rmt_paths": get_qbittorrent_tasks()}
+
             if cmd == "rmt":
                 p_name = data["name"]
                 p_year = data["year"]
@@ -162,18 +147,6 @@ def create_app():
                     run_qbtransfer()
                 return {"rmt_stderr": "0", "rmt_stdout": "处理成功！", "rmt_paths": get_qbittorrent_tasks()}
 
-            if cmd == "rmt_qry":
-                # 读取qBittorrent列表
-                return {"rmt_paths": get_qbittorrent_tasks()}
-
-            if cmd == "msg":
-                title = data["title"]
-                text = data["text"]
-                retcode, retmsg = "", ""
-                if title or text:
-                    retcode, retmsg = sendmsg(title, text)
-                return {"msg_code": retcode, "msg_msg": retmsg}
-
             if cmd == "set_qry":
                 # 读取配置文件
                 cfg = open(settings.get_config_path(), mode="r", encoding="utf8")
@@ -190,26 +163,16 @@ def create_app():
                     cfg.close()
                 return {"retcode": 0}
 
-            if cmd == "log_qry":
-                log_list = mysql_query("SELECT id,type,name,text,time FROM system_log ORDER BY time DESC LIMIT 100")
-                return {"log_list": log_list}
-
             if cmd == "sch":
                 sch_item = data["item"]
                 if sch_item == "sch_btn_autoremovetorrents":
                     run_autoremovetorrents()
                 if sch_item == "sch_btn_qbtransfer":
                     run_qbtransfer()
-                if sch_item == "sch_btn_icloudpd":
-                    run_icloudpd()
                 if sch_item == "sch_btn_hottrailers":
                     run_hottrailers()
                 if sch_item == "sch_btn_ptsignin":
                     run_ptsignin()
-                if sch_item == "sch_btn_smzdmsignin":
-                    run_smzdmsignin()
-                if sch_item == "sch_btn_unicomsignin":
-                    run_unicomsignin()
                 if sch_item == "sch_btn_movietrailer":
                     movie_trailer_all()
                 if sch_item == "sch_btn_resiliosync":
@@ -269,16 +232,10 @@ def create_app():
                 _thread.start_new_thread(run_autoremovetorrents, ())
             if content == "/qbt":
                 _thread.start_new_thread(run_qbtransfer, ())
-            if content == "/ipd":
-                _thread.start_new_thread(run_icloudpd, ())
             if content == "/hotm":
                 _thread.start_new_thread(run_hottrailers, ())
             if content == "/pts":
                 _thread.start_new_thread(run_ptsignin, ())
-            if content == "/smzdms":
-                _thread.start_new_thread(run_smzdmsignin, ())
-            if content == "/unicoms":
-                _thread.start_new_thread(run_unicomsignin, ())
             if content == "/mrt":
                 _thread.start_new_thread(movie_trailer_all, ())
             if content == "/rst":

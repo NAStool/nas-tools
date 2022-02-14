@@ -2,8 +2,6 @@ import sys
 from urllib.parse import urlencode
 import requests
 import settings
-from functions import mysql_exec_sql
-
 
 # 发送ServerChan消息
 def send_serverchan_msg(text, desp=""):
@@ -17,12 +15,6 @@ def send_serverchan_msg(text, desp=""):
             ret_json = res.json()
             errno = ret_json['code']
             error = ret_json['message']
-            sql = "INSERT INTO message_log \
-                        (TYPE, TITLE, TEXT, TIME, ERRCODE, ERRMSG) \
-                        VALUES ('%s', '%s', '%s', now(), '%s', '%s')" % \
-                  ("ServerChan", text, desp, errno, error)
-            # 登记数据库
-            mysql_exec_sql(sql)
             if errno == 0:
                 return True, error
             else:

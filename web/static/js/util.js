@@ -23,14 +23,6 @@ $(document).ready(function(){
         });
     }
 
-    // qBittorrent下拉选择变化
-	$("#rmt_path").change(function(){
-	    path = $("#rmt_path").val().split('|')[0];
-	    pos = path.lastIndexOf("/")
-	    name = path.substring(pos + 1);
-	    $("#rmt_name").val(name);
-	});
-
     // 触发定时服务按钮
 	$(".sch_action_btn").click(function(){
 	    var cmd = "sch";
@@ -99,22 +91,12 @@ $(document).ready(function(){
 	    });
 	});
 
-    // 发送消息按钮
-	$("#msg_btn").click(function(){
-	    var cmd = "msg";
-	    var data = {
-	            "title": $("#msg_title").val(),
-	            "text": $("#msg_text").val()
-	        };
-	    $("#msg_btn").text("正在处理...");
-	    $("#msg_btn").attr("disabled", "true");
-	    ajax_post(cmd, data, function(ret){
-	        msg_msg = ret.msg_msg;
-	        $("#msg_ret").show();
-	        $("#msg_ret").text(msg_msg);
-	        $("#msg_btn").removeAttr("disabled");
-	        $("#msg_btn").text("发送");
-	    });
+	// qBittorrent下拉选择变化
+	$("#rmt_path").change(function(){
+	    path = $("#rmt_path").val().split('|')[0];
+	    pos = path.lastIndexOf("/")
+	    name = path.substring(pos + 1);
+	    $("#rmt_name").val(name);
 	});
 
 	// 保存RSS按钮
@@ -155,26 +137,4 @@ $(document).ready(function(){
 	        $("#set_btn").text("保存");
 	    });
 	});
-
-	// 显示日志
-    $("#log_tab").click(function(){
-	    var cmd = "log_qry";
-	    var data = {};
-	    ajax_post(cmd, data, function(ret){
-	        log_list = ret.log_list;
-	        $("#log_table").empty();
-	        $("#log_table").append("<caption>日志</caption><thead><tr><th>序号</th><th>级别</th><th>名称</th><th>内容</th><th>时间</th></tr></thead>");
-            for(log_item in log_list){
-                $("#log_table").append("<tbody><tr>");
-                $("#log_table").append("<td>" + log_item[0] + "</td>");
-                $("#log_table").append("<td>" + log_item[1] + "</td>");
-                $("#log_table").append("<td>" + log_item[2] + "</td>");
-                $("#log_table").append("<td>" + log_item[3] + "</td>");
-                $("#log_table").append("<td>" + log_item[4] + "</td>");
-                $("#log_table").append("</tr><tbody>");
-            }
-	    });
-	});
-
-    $("#rmt_tab").click();
 });

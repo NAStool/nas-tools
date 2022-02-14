@@ -6,14 +6,10 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 import log
 from scheduler.autoremove_torrents import run_autoremovetorrents
 from scheduler.hot_trailer import run_hottrailers
-from scheduler.icloudpd import run_icloudpd
 from scheduler.pt_signin import run_ptsignin
 import settings
 from scheduler.qb_transfer import run_qbtransfer
 from scheduler.rss_download import run_rssdownload
-from scheduler.sensors import run_sensors
-from scheduler.smzdm_signin import run_smzdmsignin
-from scheduler.unicom_signin import run_unicomsignin
 
 
 def run_scheduler():
@@ -31,14 +27,6 @@ def run_scheduler():
     signal.signal(signal.SIGINT, signal_fun)
 
     scheduler.remove_all_jobs()
-    # Icloud照片同步
-    icloudpd_flag = settings.get("scheduler.icloudpd_flag") == "ON" or False
-    if icloudpd_flag:
-        icloudpd_cron = settings.get("scheduler.icloudpd_cron")
-        scheduler.add_job(run_icloudpd, 'cron',
-                          hour=int(icloudpd_cron.split(":")[0]),
-                          minute=int(icloudpd_cron.split(":")[1]))
-        log.info("【RUN】scheduler.icloudpd启动...")
     # PT种子清理
     autoremovetorrents_flag = settings.get("scheduler.autoremovetorrents_flag") == "ON" or False
     if autoremovetorrents_flag:
@@ -61,22 +49,6 @@ def run_scheduler():
                           hour=int(ptsignin_cron.split(":")[0]),
                           minute=int(ptsignin_cron.split(":")[1]))
         log.info("【RUN】scheduler.ptsignin启动．．．")
-    # 什么值得买签到
-    smzdmsignin_flag = settings.get("scheduler.smzdmsignin_flag") == "ON" or False
-    if smzdmsignin_flag:
-        smzdmsignin_cron = settings.get("scheduler.smzdmsignin_cron")
-        scheduler.add_job(run_smzdmsignin, "cron",
-                          hour=int(smzdmsignin_cron.split(":")[0]),
-                          minute=int(smzdmsignin_cron.split(":")[1]))
-        log.info("【RUN】scheduler.smzdmsignin启动．．．")
-    # 联通营业厅签到
-    unicomsignin_flag = settings.get("scheduler.unicomsignin_flag") == "ON" or False
-    if unicomsignin_flag:
-        unicomsignin_cron = settings.get("scheduler.unicomsignin_cron")
-        scheduler.add_job(run_unicomsignin, "cron",
-                          hour=int(unicomsignin_cron.split(":")[0]),
-                          minute=int(unicomsignin_cron.split(":")[1]))
-        log.info("【RUN】scheduler.unicomsignin启动．．．")
 
     # qbittorrent文件转移
     qbtransfer_flag = settings.get("scheduler.qbtransfer_flag") == "ON" or False
@@ -91,13 +63,6 @@ def run_scheduler():
         scheduler.add_job(run_rssdownload, 'interval',
                           seconds=int(settings.get("scheduler.rssdownload_interval")))
         log.info("【RUN】scheduler.rssdownload启动...")
-
-    # 温度监控
-    sensors_flag = settings.get("scheduler.sensors_flag") == "ON" or False
-    if sensors_flag:
-        scheduler.add_job(run_sensors, 'interval',
-                          seconds=int(settings.get("scheduler.sensors_check_interval")))
-        log.info("【RUN】scheduler.sensors启动...")
 
     # 配置定时生效
     scheduler.add_job(settings.reload_config, 'interval', seconds=600)

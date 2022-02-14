@@ -4,7 +4,7 @@ import time
 
 import settings
 import log
-from functions import get_location, mysql_exec_sql
+from functions import get_location
 from message.send import sendmsg
 
 PLAY_LIST = []
@@ -100,22 +100,3 @@ def report_to_discord(event):
                 desp = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         # Report Message
         sendmsg(message, desp)
-
-        # 登记数据库
-        sql = ""
-        if event.category == 'playback':
-            sql = "INSERT INTO emby_playback_log \
-                   (USER, DEVICE, CLIENT, IP, ADDRESS, TIME, MEDIA, OP) \
-                   VALUES ('%s', '%s', '%s', '%s', '%s',now(), '%s', '%s')" % \
-                  (event.user_name, event.device_name, event.client, event.ip, address, event.item_name, event.action)
-        elif event.category == 'user':
-            if event.action == 'login':
-                sql = "INSERT INTO emby_playback_log \
-                                   (USER, DEVICE, CLIENT, IP, ADDRESS, TIME, MEDIA, OP) \
-                                   VALUES ('%s', '%s', '', '%s', '%s',now(), '', '%s')" % \
-                      (event.user_name, event.device_name, event.ip, address, event.action)
-        if sql:
-            if mysql_exec_sql(sql):
-                log.info("【EMBY】数据库登记成功！")
-            else:
-                log.error("【EMBY】数据库登记失败：" + sql)

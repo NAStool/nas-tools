@@ -4,10 +4,8 @@ import socket
 import subprocess
 import time
 import platform
-import pymysql
 import requests
 import bisect
-import settings
 
 
 # 根据IP地址获取位置
@@ -65,55 +63,6 @@ def system_exec_command(cmd, timeout=60):
         return "timeout", ''
     except Exception as err2:
         return str(err2), ''
-
-
-# 连接mysql并执行语句
-def mysql_exec_sql(sql):
-    mysql_flag = settings.get("mysql.mysql_flag").upper()
-    if mysql_flag != "ON":
-        return True
-    try:
-        db = pymysql.connect(host=settings.get('mysql.mysql_host'),
-                             port=int(settings.get('mysql.mysql_port')),
-                             db=settings.get('mysql.mysql_db'),
-                             user=settings.get('mysql.mysql_user'),
-                             password=settings.get('mysql.mysql_pw'))
-        # 使用cursor()方法获取操作游标
-        cursor = db.cursor()
-        # 执行sql语句
-        cursor.execute(sql)
-        # 提交到数据库执行
-        db.commit()
-        # 关闭数据库连接
-        cursor.close()
-        db.close()
-        return True
-    except Exception:
-        return False
-
-
-# 查询Mysql数据
-def mysql_query(sql):
-    mysql_flag = settings.get("mysql.mysql_flag").upper()
-    if mysql_flag != "ON":
-        return None
-    try:
-        db = pymysql.connect(host=settings.get('mysql.mysql_host'),
-                             port=int(settings.get('mysql.mysql_port')),
-                             db=settings.get('mysql.mysql_db'),
-                             user=settings.get('mysql.mysql_user'),
-                             password=settings.get('mysql.mysql_pw'))
-        # 使用cursor()方法获取操作游标
-        cursor = db.cursor()
-        # 执行sql语句
-        cursor.execute(sql)
-        results = cursor.fetchall()
-        # 关闭数据库连接
-        cursor.close()
-        db.close()
-        return results
-    except Exception:
-        return None
 
 
 # 获得目录下的媒体文件列表List，按后缀过滤

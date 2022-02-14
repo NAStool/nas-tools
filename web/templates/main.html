@@ -25,11 +25,7 @@
 					<ul class="nav nav-tabs">
 						<li {% if page=="rss" %} class="active" {% endif %}><a id="rss_tab" href="#rss" data-toggle="tab">订阅</a></li>
 						<li {% if page=="rmt" %} class="active" {% endif %}><a id="rmt_tab" href="#rmt" data-toggle="tab">转移</a></li>
-						<li {% if page=="msg" %} class="active" {% endif %}><a id="msg_tab" href="#msg" data-toggle="tab">消息</a></li>
 						<li {% if page=="sch" %} class="active" {% endif %}><a id="sch_tab" href="#sch" data-toggle="tab">服务</a></li>
-						{% if log_type=="MYSQL" %}
-						<li {% if page=="log" %} class="active" {% endif %}><a id="log_tab" href="#log" data-toggle="tab">日志</a></li>
-						{% endif %}
 						<li {% if page=="set" %} class="active" {% endif %}><a id="set_tab" href="#set" data-toggle="tab">设置</a></li>
 					</ul>
 					<div class="tab-content">
@@ -100,22 +96,6 @@
 							<br/>
 							<br/>
 						</div>
-						<div class="tab-pane {% if page=='msg' %} active {% endif %}" id="msg">
-							<form role="form" action="/do" method="post" id="msg_form" class="well">
-							  <h5>消息发送工具</h5>
-							  <div class="form-group">
-								<label for="msg_title">消息标题</label>
-								<input type="text" class="form-control" id="msg_title" name="msg_title" placeholder="必填，最长100字节" value="">
-							  </div>
-							  <div class="form-group">
-								<label for="msg_text">消息内容</label>
-								<div><textarea id="msg_text" name="msg_text" class="form-control" rows="3" placeholder="消息内容，最长1000字节"></textarea></div>
-							  </div>
-							  <div class="form_notice"></div>
-								<button id="msg_btn" type="button" class="btn btn-primary">发送</button>
-							</form>
-							<pre id="msg_ret" style="display:none"></pre>
-						</div>
 						<div class="tab-pane {% if page=='set' %} active {% endif %}" id="set">
 							<form role="form" action="/do" method="post" id="set_form" class="well">
 								<h5>配置文件，可直接修改保存</h5>
@@ -150,10 +130,6 @@
 							</table>
 							<pre id="sch_ret" style="display:none"></pre>
 							</form>
-						</div>
-						<div class="tab-pane {% if page=='log' %} active {% endif %}" id="log">
-							<table id="log_table" class="table table-striped">
-							</table>
 						</div>
 					</div>
 				</div>

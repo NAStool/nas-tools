@@ -4,8 +4,6 @@ from urllib.parse import urlencode
 
 import requests
 import settings
-from functions import mysql_exec_sql
-
 
 def send_telegram_msg(title, text=""):
     if not title and not text:
@@ -17,12 +15,6 @@ def send_telegram_msg(title, text=""):
         if res:
             ret_json = res.json()
             errno = ret_json['ok']
-            sql = "INSERT INTO message_log \
-                        (TYPE, TITLE, TEXT, TIME, ERRCODE, ERRMSG) \
-                        VALUES ('%s', '%s', '%s', now(), '%s', '%s')" % \
-                  ("telegram", title, text, errno, '')
-            # 登记数据库
-            mysql_exec_sql(sql)
             if errno == 0:
                 return True, errno
             else:

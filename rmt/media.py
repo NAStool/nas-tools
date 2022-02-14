@@ -7,7 +7,7 @@ from tmdbv3api import TMDb, Search
 from subprocess import call
 
 import settings
-from functions import get_dir_files_by_ext, is_chinese, mysql_exec_sql, str_filesize, get_free_space_gb
+from functions import get_dir_files_by_ext, is_chinese, str_filesize, get_free_space_gb
 from message.send import sendmsg
 
 
@@ -202,8 +202,6 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
                 save_note = str(Exist_FileNum) + " 个文件已存在！"
                 msg_str = msg_str + "\n\n备注：" + save_note
             sendmsg("【RMT】" + Media_Title + " 转移完成！", msg_str)
-            insert_media_log(in_from, in_name, str(Media_Id), Media_Title, Media_Type, Media_Year, '', '',
-                             Media_FileNum, str_filesize(Media_FileSize), save_path, save_note)
         elif Search_Type == "电视剧":
             if bluray_disk_flag:
                 log.error("【RMT】识别有误：蓝光原盘目录被识别为电视剧")
@@ -286,9 +284,6 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
                 save_note = str(Exist_FileNum) + " 个文件已存在！"
                 msg_str = msg_str + "\n\n备注：" + save_note
             sendmsg("【RMT】" + Media_Title + " 转移完成！", msg_str)
-            insert_media_log(in_from, in_name, str(Media_Id), Media_Title, Media_Type, Media_Year,
-                             ', '.join(season_ary), ', '.join(episode_ary),
-                             Media_FileNum, str_filesize(Media_FileSize), save_path, save_note)
         else:
             log.error("【RMT】" + in_name + " 无法识别是什么类型的媒体文件！")
             sendmsg("【RMT】无法识别媒体类型！",
@@ -304,20 +299,6 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
                 + "\n\n识别类型：" + Search_Type)
         return False
     return True
-
-
-# 登记数据库
-def insert_media_log(source, org_name, tmdbid, title, type, year, season, episode, filenum, filesize, path, note):
-    # SQL 插入语句
-    sql = "INSERT INTO emby_media_log " \
-          "(`source`, `org_name`, `tmdbid`, `title`, `type`, `year`, `season`, `episode`, `filenum`, `filesize`, " \
-          "`path`, `note`, `time`) " \
-          "VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %s, '%s', '%s', '%s', now())" % \
-          (source, org_name, tmdbid, title, type, year, season, episode, filenum, filesize, path, note)
-    if mysql_exec_sql(sql):
-        log.debug("数据库登记成功！")
-    else:
-        log.error("数据库登记失败：" + sql)
 
 
 def is_media_files_tv(in_path):

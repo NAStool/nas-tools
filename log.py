@@ -3,27 +3,12 @@ import os
 import threading
 from logging.handlers import TimedRotatingFileHandler
 import settings
-from functions import mysql_exec_sql
 
 lock = threading.Lock()
 
 
 class Logger:
     __instance = None
-
-    class LoggerToMysqlFilter(logging.Filter):
-        def filter(self, record):
-            rtext = record.msg
-            rname = record.name
-            rtype = record.levelname
-            if rtype == "INFO" or rtype == "ERROR":
-                sql = "INSERT INTO system_log \
-                                        (TYPE, NAME, TEXT, TIME) \
-                                        VALUES ('%s', '%s', '%s', now())" % \
-                      (rtype, rname, rtext)
-                # 登记数据库
-                mysql_exec_sql(sql)
-            return True
 
     def __init__(self):
         self.logger = logging.Logger(__name__)
@@ -40,10 +25,6 @@ class Logger:
                 '%(asctime)s\tFile \"%(filename)s\",line %(lineno)s\t%(levelname)s: %(message)s')
             log_file_handler.setFormatter(formatter)
             self.logger.addHandler(log_file_handler)
-        elif logtype == "MYSQL":
-            # 记录日志到MYSQL
-            mysql_filter = self.LoggerToMysqlFilter()
-            self.logger.addFilter(mysql_filter)
         elif logtype == "SERVER":
             logserver = settings.get("root.logserver")
             logip = logserver.split(':')[0]
