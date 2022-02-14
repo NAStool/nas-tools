@@ -30,8 +30,9 @@ PT站自动签到，qBittorrent删种、电影预告片搜刮和下载（已有�
 
 ## 安装
 ### 1、Docker镜像
+```
 docker push jxxghp/nas-tools:latest
-
+```
 [jxxghp/nas-tools:latest](https://hub.docker.com/repository/docker/jxxghp/nas-tools)
 
 Docker配置目录挂载：/config
