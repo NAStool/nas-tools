@@ -100,3 +100,6 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 4) 推荐使用1T以上的SSD做为PT下载盘和Resilio Sync的同步盘，大容量硬盘则为存储盘（当前没有也行，分开目录即可）。结合这套程序的PT自动下载转移和定期删种，实现作种和媒体存放分离，Emby/Plex完美搜刮，同时避免PT损伤存储硬盘。可以做到无人值守自动媒体库维护，且资源变化情况均有通知一目了然。
 
 
+## TODO
+1) 支持Link方式保种（目前只支持复制转移方式）
+
