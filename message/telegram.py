@@ -5,6 +5,7 @@ from urllib.parse import urlencode
 import requests
 import settings
 
+
 def send_telegram_msg(title, text=""):
     if not title and not text:
         return -1, "标题和内容不能同时为空！"

@@ -25,7 +25,7 @@ def get_movie_info_from_nfo(in_path):
         year = rootNode.getElementsByTagName("releasedate")[0].firstChild.data[0:4]
         return tmdbid, title, year
     except Exception as err:
-        log.error("【TRAILER-DL】解析nfo文件出错：" + str(err))
+        log.error("【TRAILER】解析nfo文件出错：" + str(err))
         return None, None, None
 
 
@@ -35,11 +35,11 @@ def download_movie_trailer(in_path):
     hottrailer_path = settings.get("movie.hottrailer_path")
     exists_trailers = get_dir_files_by_name(in_path, "-trailer.")
     if len(exists_trailers) > 0:
-        log.info("【TRAILER-DL】" + in_path + "电影目录已存在预告片，跳过...")
+        log.info("【TRAILER】" + in_path + "电影目录已存在预告片，跳过...")
         return True
     nfo_files = get_dir_files_by_name(in_path, ".nfo")
     if len(nfo_files) == 0:
-        log.info("【TRAILER-DL】" + in_path + "nfo文件不存在，等待下次处理...")
+        log.info("【TRAILER】" + in_path + "nfo文件不存在，等待下次处理...")
         return False
     movie_id, movie_title, movie_year = get_movie_info_from_nfo(nfo_files[0])
     if not movie_id or not movie_title or not movie_year:
@@ -56,11 +56,11 @@ def download_movie_trailer(in_path):
     try:
         movie_videos = movie.videos(movie_id)
     except Exception as err:
-        log.error("【TRAILER-DL】错误：" + str(err))
+        log.error("【TRAILER】错误：" + str(err))
         return False
-    log.info("【TRAILER-DL】预告片总数：" + str(len(movie_videos)))
+    log.info("【TRAILER】预告片总数：" + str(len(movie_videos)))
     if len(movie_videos) > 0:
-        log.info("【TRAILER-DL】下载预告片：" + str(movie_id) + " - " + movie_title)
+        log.info("【TRAILER】下载预告片：" + str(movie_id) + " - " + movie_title)
         succ_flag = False
         for video in movie_videos:
             trailer_key = video.key
@@ -84,7 +84,7 @@ def download_movie_trailer(in_path):
         # 转移
         transfer_trailers(trailer_dir)
     else:
-        log.info("【TRAILER-DL】" + movie_title + " 未检索到预告片")
+        log.info("【TRAILER】" + movie_title + " 未检索到预告片")
         return False
     return True
 
@@ -96,7 +96,7 @@ def dir_change_handler(event, text):
     event_path = event.src_path
     if event.is_directory:  # 文件改变都会触发文件夹变化
         try:
-            log.info("【TRAILER-DL】" + text + "了文件夹: %s " % event_path)
+            log.info("【TRAILER】" + text + "了文件夹: %s " % event_path)
             if not os.path.exists(event_path):
                 return
             if event_path == monpath:
@@ -109,16 +109,16 @@ def dir_change_handler(event, text):
             name = os.path.basename(event_path)
             if event_path not in handler_files:
                 handler_files.append(event_path)
-                log.info("【TRAILER-DL】开始处理：" + event_path + "，名称：" + name)
+                log.info("【TRAILER】开始处理：" + event_path + "，名称：" + name)
                 # 下载预告片
                 if not download_movie_trailer(event_path):
                     handler_files.remove(event_path)
-                    log.info("【TRAILER-DL】" + event_path + "处理失败，等待下次处理...")
-                log.info("【TRAILER-DL】" + event_path + "处理成功！")
+                    log.info("【TRAILER】" + event_path + "处理失败，等待下次处理...")
+                log.info("【TRAILER】" + event_path + "处理成功！")
             else:
-                log.debug("【TRAILER-DL】已处理过：" + name)
+                log.debug("【TRAILER】已处理过：" + name)
         except Exception as e:
-            log.error("【TRAILER-DL】发生错误：" + str(e))
+            log.error("【TRAILER】发生错误：" + str(e))
 
 
 # 监听文件夹
@@ -152,11 +152,11 @@ def create_movie_trailer():
 def movie_trailer_all():
     monpath = settings.get("movie.movie_path")
     movie_types = settings.get("rmt.rmt_movietype").split(",")
-    log.info("【TRAILER-DL】开始检索和下载电影预告片！")
+    log.info("【TRAILER】开始检索和下载电影预告片！")
     for movie_type in movie_types:
         movie_dir_list = os.listdir(os.path.join(monpath, movie_type))
         for movie_dir in movie_dir_list:
             movie_dir = os.path.join(monpath, movie_type, movie_dir)
             if os.path.isdir(movie_dir):
                 download_movie_trailer(movie_dir)
-    log.info("【TRAILER-DL】电影预告片下载任务完成！")
+    log.info("【TRAILER】电影预告片下载任务完成！")

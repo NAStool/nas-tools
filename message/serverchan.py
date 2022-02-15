@@ -3,6 +3,7 @@ from urllib.parse import urlencode
 import requests
 import settings
 
+
 # 发送ServerChan消息
 def send_serverchan_msg(text, desp=""):
     if not text and not desp:

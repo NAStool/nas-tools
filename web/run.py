@@ -15,7 +15,7 @@ def run_webhook():
 
         @atexit.register
         def atexit_fun():
-            pass
+            raise RuntimeError('Flask Server Shutdown...')
 
         def signal_fun(signum, frame):
             log.info("【RUN】webhook捕捉到信号：" + str(signum) + "，开始退出...")
