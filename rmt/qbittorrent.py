@@ -34,14 +34,15 @@ def get_qbittorrent_tasks():
     # 读取qBittorrent列表
     qbt = login_qbittorrent()
     torrents = qbt.torrents_info()
-    trans_qbpath = settings.get("rmt.rmt_qbpath")
-    trans_containerpath = settings.get("rmt.rmt_containerpath")
+    trans_qbpath = settings.get("qbittorrent.save_path")
+    trans_containerpath = settings.get("qbittorrent.save_containerpath")
     path_list = []
     for torrent in torrents:
         log.debug(torrent.name + "：" + torrent.state)
         if torrent.state == "uploading" or torrent.state == "stalledUP":
-            true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
-            path_list.append(true_path + "|" + torrent.hash)
+            if trans_containerpath:
+                trans_qbpath = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
+            path_list.append(trans_qbpath + "|" + torrent.hash)
     qbt.auth_log_out()
     return path_list
 
@@ -74,15 +75,16 @@ def set_torrent_status(hash_str):
 
 # 处理qbittorrent中的种子
 def transfer_qbittorrent_task():
-    trans_qbpath = settings.get("rmt.rmt_qbpath")
-    trans_containerpath = settings.get("rmt.rmt_containerpath")
+    trans_qbpath = settings.get("qbittorrent.save_path")
+    trans_containerpath = settings.get("qbittorrent.save_containerpath")
     # 处理所有任务
     torrents = get_qbittorrent_torrents()
     for torrent in torrents:
         log.debug("【RMT】" + torrent.name + "：" + torrent.state)
         if torrent.state == "uploading" or torrent.state == "stalledUP":
-            true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
-            done_flag = transfer_directory(in_from="qBittorrent", in_name=torrent.name, in_path=true_path)
+            if trans_containerpath:
+                trans_qbpath = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
+            done_flag = transfer_directory(in_from="qBittorrent", in_name=torrent.name, in_path=trans_qbpath)
             if done_flag:
                 set_torrent_status(torrent.hash)
 

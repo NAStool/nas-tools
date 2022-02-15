@@ -14,6 +14,7 @@ from message.send import sendmsg
 # 根据文件名转移对应字幕文件
 def transfer_subtitles(in_path, org_name, new_name, mv_flag=False):
     file_list = get_dir_files_by_ext(in_path, settings.get('rmt.rmt_subext'))
+    rmt_mode = settings.get("rmt.rmt_mode")
     log.debug("【RMT】字幕文件清单：" + str(file_list))
     Media_FileNum = len(file_list)
     if Media_FileNum == 0:
@@ -32,14 +33,16 @@ def transfer_subtitles(in_path, org_name, new_name, mv_flag=False):
                 if not os.path.exists(new_file):
                     if mv_flag:
                         log.debug("【RMT】正在移动字幕：" + file_item + " 到 " + new_file)
-                        # shutil.move(file_item, new_file)
                         call(["mv", file_item, new_file])
                         log.info("【RMT】字幕移动完成：" + new_file)
                     else:
-                        log.debug("【RMT】正在复制字幕：" + file_item + " 到 " + new_file)
-                        # shutil.copy(file_item, new_file)
-                        call(["cp", file_item, new_file])
-                        log.info("【RMT】字幕复制完成：" + new_file)
+                        log.debug("【RMT】正在转移字幕：" + file_item + " 到 " + new_file)
+                        if rmt_mode.upper() == "LINK":
+                            call(["ln", file_item, new_file])
+                            log.info("【RMT】字幕硬链接完成：" + new_file)
+                        else:
+                            call(["cp", file_item, new_file])
+                            log.info("【RMT】字幕复制完成：" + new_file)
                 else:
                     log.info("【RMT】字幕 " + new_file + "已存在！")
         if not find_flag:
@@ -64,16 +67,20 @@ def transfer_bluray_dir(file_path, new_path, mv_flag=False, over_flag=False):
 
 
 def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=False):
+    rmt_mode = settings.get("rmt.rmt_mode")
     if over_flag:
         log.debug("【RMT】正在删除已存在的文件：" + new_file)
         os.remove(new_file)
         log.info("【RMT】" + new_file + " 已删除！")
 
     # 复制文件
-    log.info("【RMT】正在复制文件：" + file_item + " 到 " + new_file)
-    # shutil.copy(file_item, new_file)
-    call(['cp', file_item, new_file])
-    log.info("【RMT】文件复制完成：" + new_file)
+    log.info("【RMT】正在转移文件：" + file_item + " 到 " + new_file)
+    if rmt_mode.upper() == "LINK":
+        call(['ln', file_item, new_file])
+        log.info("【RMT】文件硬链接完成：" + new_file)
+    else:
+        call(['cp', file_item, new_file])
+        log.info("【RMT】文件复制完成：" + new_file)
     transfer_subtitles(file_path, file_item, new_file, False)
 
     if mv_flag:
@@ -84,6 +91,7 @@ def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=Fals
 
 # 转移一个目录下的所有文件
 def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, in_season=None, in_type=None, mv_flag=False, noti_flag=True):
+    rmt_mode = settings.get("rmt.rmt_mode")
     if not in_name or not in_path:
         log.error("【RMT】输入参数错误!")
         return False
@@ -160,7 +168,10 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
                     log.error("【RMT】蓝光原盘目录已存在：" + media_path)
                     return True
             if bluray_disk_flag:
-                transfer_bluray_dir(in_path, media_path)
+                if rmt_mode == "LINK":
+                    log.error("【RMT】硬链接下不支持蓝光原盘目录，不处理...")
+                else:
+                    transfer_bluray_dir(in_path, media_path)
             else:
                 for file_item in file_list:
                     Media_FileSize = Media_FileSize + os.path.getsize(file_item)
