@@ -112,7 +112,7 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
 
 
 2) 手机端通知和控制界面，实时接收程序运行状态，控制服务运行（输入命令或者点击菜单）
-![image](https://user-images.githubusercontent.com/51039935/153885845-c0786148-2cf3-4196-bc60-53e404006e69.png)
+![image](https://user-images.githubusercontent.com/51039935/153968714-47835fa0-1a35-4d77-bfcf-8f24b99396c9.png)
 
 
 3) 效果（这些分类都是程序自动维护的）
