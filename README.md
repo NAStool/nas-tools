@@ -1,7 +1,5 @@
 # NAS媒体自动搜刮和整理工具
 
-国内源：https://gitee.com/jxxghp/nas-tools
-
 Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
 ## 功能：
