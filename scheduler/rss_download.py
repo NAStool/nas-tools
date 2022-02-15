@@ -86,7 +86,9 @@ def rssdownload():
         rssurl = settings.get("rss." + rss_job + "_rssurl")
         movie_type = eval(settings.get("rss." + rss_job + "_movie_type"))
         movie_res = eval(settings.get("rss." + rss_job + "_movie_re"))
+        log.info("【RSS】电影规则清单：" + ' '.join(movie_res))
         tv_res = eval(settings.get("rss." + rss_job + "_tv_re"))
+        log.info("【RSS】电视剧规则清单：" + ' '.join(tv_res))
         # 下载RSS
         log.info("【RSS】正在处理：" + rss_job)
         rss_result = parse_rssxml(rssurl)
