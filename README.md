@@ -82,12 +82,12 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_dsm_6.x.spk
 > 
 > 预告
 
-### 4、配置ResilioSync
+### 4、配置ResilioSync（可选）
 * 安装resiliosync软件，配置好神KEY（主KEY：BCWHZRSLANR64CGPTXRE54ENNSIUE5SMO，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6，根据主Key的网页也可以使用其他的Key）
    
 * 如果是docker则将ResilioSync资源目录同步映射到docker容器中；如果是群晖套件则需要检查访问权限。均需与配置文件保持一致。
 
-### 5、配置微信应用消息及菜单
+### 5、配置微信应用消息及菜单（可选）
 如果只是使用消息接受服务，则配置好配置文件中的[wechat]前三个参数就可以了，如果需要通过微信进行控制，则需要按如下方式配置：
 * 配置微信消息服务：在企业微信自建应用管理页面-》API接收消息 开启消息接收服务，URL填写：http(s)://IP:3000/wechat，Token和EncodingAESKey填入配置文件[wechat]区。
    
@@ -123,7 +123,7 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_dsm_6.x.spk
 ![image](https://user-images.githubusercontent.com/51039935/153985095-7dfd7cd8-172b-4f3e-9583-fa25e69d8838.png)
 
 4) 说一下几点使用心得：
-* PT下载与媒体库分离：复制模式下能避免PT频繁写盘损伤大容量存储盘，同时媒体库盘不观看时还可以休眠，节能减噪，PT推荐使用1TB以上的SSD（当然普通硬盘也行）。硬链接模式我没有用，有需求的可以体验下。
+* PT下载与媒体库分离模式：复制模式下能避免PT频繁写盘损伤大容量存储盘，同时媒体库盘不观看时还可以休眠，节能减噪，PT推荐使用1TB以上的SSD（当然普通硬盘也行）。硬链接模式我没有用，有需求的可以体验下。
 * 自动保种：PT下载完成后是以复制或硬链接并重命名的方式转移到媒体库的，原下载文件还有可以继续保种，复制模式下还可以设置保种时间自动清理。
 * 高搜刮识别率：支持国内PT站资源命名识别，同时因为进行了文件夹和文件的重命名，Emby/Plex的识别率几乎是100%。国内连续剧也能轻松识别。
 * 全自动：RSS扫描时间可以定的很短比如10分钟，一但PT站有新资源上线可以第一时间抢下（很多站新资源开始一段时间是FREE的），累积上传量。一般电影可以设置关键字为 * 或者当前的年份，有新资源无脑下。电视剧则想追哪部再设置哪个的关键字就行。
