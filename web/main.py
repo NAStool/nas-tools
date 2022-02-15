@@ -86,7 +86,7 @@ def create_app():
         tim_rssdownload = settings.get("scheduler.rssdownload_interval")
         sta_rssdownload = settings.get("scheduler.rssdownload_flag")
         scheduler_cfg_list.append(
-            {'name': 'RSS订阅下载器', 'time': tim_rssdownload, 'state': sta_rssdownload, 'id': 'rssdownload'})
+            {'name': 'RSS下载', 'time': tim_rssdownload, 'state': sta_rssdownload, 'id': 'rssdownload'})
         tim_autoremovetorrents = settings.get("scheduler.autoremovetorrents_interval")
         sta_autoremovetorrents = settings.get("scheduler.autoremovetorrents_flag")
         scheduler_cfg_list.append(
@@ -95,19 +95,19 @@ def create_app():
         tim_qbtransfer = settings.get("scheduler.qbtransfer_interval")
         sta_qbtransfer = settings.get("scheduler.qbtransfer_flag")
         scheduler_cfg_list.append(
-            {'name': 'qBittorrent文件转移	', 'time': tim_qbtransfer, 'state': sta_qbtransfer, 'id': 'qbtransfer'})
+            {'name': 'qBittorrent转移	', 'time': tim_qbtransfer, 'state': sta_qbtransfer, 'id': 'qbtransfer'})
         sta_resiliosync = settings.get("monitor.resiliosync_flag")
         scheduler_cfg_list.append(
-            {'name': 'ResilioSync文件转移', 'time': '实时监控', 'state': sta_resiliosync, 'id': 'resiliosync'})
+            {'name': 'ResilioSync同步', 'time': '实时监控', 'state': sta_resiliosync, 'id': 'resiliosync'})
         tim_hottrailers = settings.get("scheduler.hottrailer_cron")
         sta_hottrailers = settings.get("scheduler.hottrailer_flag")
         scheduler_cfg_list.append(
-            {'name': '热门电影预告更新', 'time': tim_hottrailers, 'state': sta_hottrailers, 'id': 'hottrailers'})
+            {'name': '热门预告', 'time': tim_hottrailers, 'state': sta_hottrailers, 'id': 'hottrailers'})
         sta_movietrailer = settings.get("monitor.movie_flag")
-        scheduler_cfg_list.append({'name': '新增电影预告下载', 'time': '实时监控', 'state': sta_movietrailer, 'id': 'movietrailer'})
+        scheduler_cfg_list.append({'name': '预告片下载', 'time': '实时监控', 'state': sta_movietrailer, 'id': 'movietrailer'})
         tim_ptsignin = settings.get("scheduler.ptsignin_cron")
         sta_ptsignin = settings.get("scheduler.ptsignin_flag")
-        scheduler_cfg_list.append({'name': 'PT网站签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin'})
+        scheduler_cfg_list.append({'name': 'PT签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin'})
 
         # 读取RSS配置
         # 读取配置
@@ -257,7 +257,7 @@ def create_app():
             if content == "/rss":
                 _thread.start_new_thread(run_rssdownload, ())
             else:
-                if content.startswith("http://") or content.startswith("https://"):
+                if content.startswith("http://") or content.startswith("https://") or content.startswith("magnet:"):
                     # 添加种子任务
                     save_path = settings.get("qbittorrent.save_path")
                     try:

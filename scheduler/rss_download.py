@@ -101,99 +101,117 @@ def rssdownload():
                 if enclosure not in rss_cache_list:
                     rss_cache_list.append(enclosure)
                 else:
-                    log.debug("【RSS】" + title + "已处理过，跳过...")
+                    log.debug("【RSS】" + title + " 已处理过，跳过...")
                     continue
                 match_flag = False
                 if movie_type and (category in movie_type):
                     search_type = "电影"
-                    # 过滤
+                    # 匹配种子标题是否匹配关键字
                     for movie_re in movie_res:
                         if re.search(movie_re, title):
                             match_flag = True
                             break
                 else:
                     search_type = "电视剧"
-                    # 过滤
+                    # 匹配种子标题是否匹配关键字
                     for tv_re in tv_res:
                         if re.search(tv_re, title):
                             match_flag = True
                             break
                 if match_flag:
-                    log.info("【RSS】" + title + "匹配成功!")
+                    log.info("【RSS】" + title + " 种子标题匹配成功!")
                 else:
-                    log.info("【RSS】" + title + "不匹配规则，跳过...")
-                    continue
+                    log.info("【RSS】" + title + " 种子标题不匹配，继接拉取媒体描述信息进行匹配...")
+
                 log.info("【RSS】开始检索媒体信息:" + title)
                 media_info = get_media_info(title, title, search_type)
-                search_type = media_info['search']
                 media_type = media_info["type"]
                 media_title = media_info["name"]
                 media_year = media_info["year"]
-                if not is_chinese(media_title):
-                    log.info("【RSS】没有中文看不懂，跳过：" + media_title)
+
+                rss_chinese = settings.get("rss.rss_chinese")
+                if rss_chinese.upper() == "TRUE" and not is_chinese(media_title):
+                    log.info("【RSS】该媒体在TMDB中没有中文描述，跳过：" + media_title)
                     continue
-                # 判断是否已存在
-                media_name = media_title + " (" + media_year + ")"
+
+                # 匹配媒体信息标题是否匹配关键字
                 if search_type == "电影":
-                    if media_name not in rss_cache_name:
-                        rss_cache_name.append(media_name)
-                    else:
-                        log.debug("【RSS】电影已处理过，跳过：" + media_name)
-                        continue
-                    # 确认是否已存在
-                    exist_flag = False
-                    for m_type in movie_types:
-                        media_path = os.path.join(movie_path, m_type, media_name)
-                        # 目录是否存在
-                        log.debug("【RSS】路径：" + media_path)
-                        if os.path.exists(media_path):
-                            log.info("【RSS】电影目录已存在，跳过：" + media_path)
-                            exist_flag = True
+                    # 匹配种子标题是否匹配关键字，需要完全匹配
+                    for movie_re in movie_res:
+                        if movie_re == media_title:
+                            match_flag = True
+                            log.info("【RSS】" + title + " 电影名称匹配成功!")
                             break
-                    if exist_flag:
-                        continue
                 else:
-                    # 剧集目录
-                    media_path = os.path.join(tv_path, media_type, media_name)
-                    # 剧集是否存在
-                    # Sxx
-                    file_season = get_media_file_season(title)
-                    # 季 Season xx
-                    season_str = "Season " + str(int(file_season.replace("S", "")))
-                    season_dir = os.path.join(media_path, season_str)
-                    # Exx
-                    file_seq = get_media_file_seq(title)
-                    if file_seq != "":
-                        # 集 xx
-                        file_seq_num = str(int(file_seq.replace("E", "").replace("P", "")))
-                        # 文件路径
-                        file_path = os.path.join(season_dir, media_title + " - " + file_season + file_seq + " - " + "第 " + file_seq_num + " 集")
+                    # 匹配种子标题是否匹配关键字，需要完全匹配
+                    for tv_re in tv_res:
+                        if tv_re == media_title:
+                            log.info("【RSS】" + title + " 电影名称匹配成功!")
+                            match_flag = True
+                            break
+
+                # 匹配后处理...
+                if match_flag:
+                    # 判断是否已存在
+                    media_name = media_title + " (" + media_year + ")"
+                    if search_type == "电影":
+                        if media_name not in rss_cache_name:
+                            rss_cache_name.append(media_name)
+                        else:
+                            log.debug("【RSS】电影标题已处理过，跳过：" + media_name)
+                            continue
+                        # 确认是否已存在
                         exist_flag = False
-                        for ext in media_exts:
-                            log.debug("【RSS】路径：" + file_path + ext)
-                            if os.path.exists(file_path + ext):
+                        for m_type in movie_types:
+                            media_path = os.path.join(movie_path, m_type, media_name)
+                            # 目录是否存在
+                            log.debug("【RSS】路径：" + media_path)
+                            if os.path.exists(media_path):
+                                log.info("【RSS】电影目录已存在该电影，跳过：" + media_path)
                                 exist_flag = True
-                                log.error("【RSS】剧集文件已存在，跳过：" + file_path + ext)
                                 break
                         if exist_flag:
                             continue
-                    # else:
-                        # if os.path.exists(season_dir):
-                            # log.error("【RSS】剧集目录已存在，跳过：" + season_dir)
-                            # continue
+                    else:
+                        # 剧集目录
+                        media_path = os.path.join(tv_path, media_type, media_name)
+                        # 剧集是否存在
+                        # Sxx
+                        file_season = get_media_file_season(title)
+                        # 季 Season xx
+                        season_str = "Season " + str(int(file_season.replace("S", "")))
+                        season_dir = os.path.join(media_path, season_str)
+                        # Exx
+                        file_seq = get_media_file_seq(title)
+                        if file_seq != "":
+                            # 集 xx
+                            file_seq_num = str(int(file_seq.replace("E", "").replace("P", "")))
+                            # 文件路径
+                            file_path = os.path.join(season_dir, media_title + " - " + file_season + file_seq + " - " + "第 " + file_seq_num + " 集")
+                            exist_flag = False
+                            for ext in media_exts:
+                                log.debug("【RSS】路径：" + file_path + ext)
+                                if os.path.exists(file_path + ext):
+                                    exist_flag = True
+                                    log.error("【RSS】该剧集文件已存在，跳过：" + file_path + ext)
+                                    break
+                            if exist_flag:
+                                continue
+                    # 添加qbittorrent任务
+                    log.info("【RSS】添加qBittorrent任务：" + title)
+                    try:
+                        ret = add_qbittorrent_torrent(enclosure, save_path)
+                        if ret and ret.find("Ok") != -1:
+                            msg_item = "> " + media_name + "：" + title
+                            if msg_item not in succ_list:
+                                succ_list.append(msg_item)
+                    except Exception as e:
+                        log.error("【RSS】添加qBittorrent任务出错：" + str(e))
+                else:
+                    log.info("【RSS】规则匹配不成功：" + media_title)
             except Exception as e:
                 log.error("【RSS】错误：" + str(e))
                 continue
-            # 添加qbittorrent任务
-            log.info("【RSS】添加qBittorrent任务：" + title)
-            try:
-                ret = add_qbittorrent_torrent(enclosure, save_path)
-                if ret and ret.find("Ok") != -1:
-                    msg_item = "> " + media_name + "：" + title
-                    if msg_item not in succ_list:
-                        succ_list.append(msg_item)
-            except Exception as e:
-                log.error("【RSS】添加qBittorrent任务出错：" + str(e))
         log.info("【RSS】" + rss_job + "处理结束！")
     if len(succ_list) > 0:
         sendmsg("【RSS】qBittorrent新增下载", "\n\n".join(succ_list))

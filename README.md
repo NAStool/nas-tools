@@ -4,7 +4,7 @@ Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
 ## 功能：
 ### 1、PT自动搜刮下载、保种
-* 根据配置的关键字，从PT站定时搜刮种子，自动添加qBittorrent任务下载，已经有的不会重复下载。比如电影可配置2022关键字，把2022年新出的资源都自动下载。【重点: 识别率很高，具支持国产剧集命名的识别哦，这点很多国外软件都是不支持的。】
+* 根据配置的关键字（PT站种子名称关键字或者电影电视剧的真实名称都可以，前者可正则匹配后者则需完全匹配），从PT站定时搜刮种子，自动添加qBittorrent任务下载（已经有的不会重复下载）。 比如电影可配置为“[\s\.]+2021|2022[\s\.]+”正则式，把2021、2022年新出的资源都自动下载；或者配置为“永恒族”，出现该电影资源时第一时间下载。【重点: 识别率很高，具支持国产剧集命名的识别哦，这点很多国外软件都是不支持的。】
 
 * 下载完成后自动识别电影剧集名称并重命名为Emby/Plex文件名格式，自动复制到Emby/Plex媒体库目录下并自动分好类，实现Emby/Plex 100%完美识别
 
@@ -40,7 +40,7 @@ nohup python3 run.py -c ./config/config.ini &
 ### 3、群晖套件
 仅适用于dsm6，且只能是admin用户使用。
 
-https://github.com/jxxghp/nas-tools/raw/master/nastool_6.2.3.spk
+https://github.com/jxxghp/nas-tools/raw/master/nastool_dsm_6.x.spk
 
 ![image](https://user-images.githubusercontent.com/51039935/153745028-3a9b7e9a-0404-45c0-9674-1763e272c005.png)
 
