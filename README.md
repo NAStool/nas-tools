@@ -11,7 +11,7 @@ Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 * PT保种，复制模式或硬链接模式自由选择。复制模式可配置保种时间，避免下载盘被挤爆；硬链接模式则适合长期大量保种。
 
 ### 2、ResilioSync资源同步
-* 监控Resilio Sync同步目录，识别电影剧集名称，自动复制并重命名到Emby/Plex媒体库目录实现100%完美识别
+* 监控Resilio Sync同步目录，识别电影剧集名称，自动复制并重命名到Emby/Plex媒体库目录实现100%完美识别。这个同步源可能会删内容，所以只支持复制模式。
 
 ### 3、消息服务
 * 支持ServerChan、微信、Telegram消息通知服务， 以上功能运行状态可通过消息服务推送消息到手机上，比如新增加了电影、签到完成、Emby播放状态（需要在Emby中配置webhook插件）等。甚至还能在手机上控制服务运行。
