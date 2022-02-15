@@ -116,7 +116,7 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_dsm_6.x.spk
 3) 效果（这些分类都是程序自动维护的）
 ![image](https://user-images.githubusercontent.com/51039935/153886867-50a3debd-e982-4723-974b-04ba16f732b1.png)
 ![image](https://user-images.githubusercontent.com/51039935/153887369-478433bb-59e1-4520-a16a-6400b817c8b9.png)
-![image](https://user-images.githubusercontent.com/51039935/153847136-fee22815-4f89-443a-bac1-617d903cde68.png)
+![image](https://user-images.githubusercontent.com/51039935/153985095-7dfd7cd8-172b-4f3e-9583-fa25e69d8838.png)
 
 4) 说一下几点使用心得：
 * PT下载与媒体库分离：避免PT频繁写盘损伤大容量存储盘，同时媒体库盘不观看时还可以休眠，节能减噪，PT推荐使用1TB以上的SSD（当然普通硬盘也行）。
@@ -126,7 +126,7 @@ https://github.com/jxxghp/nas-tools/raw/master/nastool_dsm_6.x.spk
 
 
 ## TODO
-1) 订阅关键字支持实际名称（目前只支持PT站发布的种子名称）
+~~1) 订阅关键字支持实际名称（目前只支持PT站发布的种子名称）——DONE
 2) 支持link方式保种（目前只支持复制转移方式，需要下载和存储分离）
 3) 接入豆瓣自动拉取关注电影、电视剧，自动维护订阅关键字
 4) PT站资源全局检索（目前依赖RSS订阅，仅支持增量发布内容）
