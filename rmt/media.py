@@ -33,16 +33,25 @@ def transfer_subtitles(in_path, org_name, new_name, mv_flag=False):
                 if not os.path.exists(new_file):
                     if mv_flag:
                         log.debug("【RMT】正在移动字幕：" + file_item + " 到 " + new_file)
-                        call(["mv", file_item, new_file])
-                        log.info("【RMT】字幕移动完成：" + new_file)
+                        retcode = call(["mv", file_item, new_file])
+                        if retcode == 0:
+                            log.info("【RMT】字幕移动完成：" + new_file)
+                        else:
+                            log.error("【RMT】字幕移动失败，错误码：" + str(retcode))
                     else:
                         log.debug("【RMT】正在转移字幕：" + file_item + " 到 " + new_file)
                         if rmt_mode.upper() == "LINK":
-                            call(["ln", file_item, new_file])
-                            log.info("【RMT】字幕硬链接完成：" + new_file)
+                            retcode = call(["ln", file_item, new_file])
+                            if retcode == 0:
+                                log.info("【RMT】字幕硬链接完成：" + new_file)
+                            else:
+                                log.error("【RMT】字幕硬链接失败，错误码：" + str(retcode))
                         else:
-                            call(["cp", file_item, new_file])
-                            log.info("【RMT】字幕复制完成：" + new_file)
+                            retcode = call(["cp", file_item, new_file])
+                            if retcode == 0:
+                                log.info("【RMT】字幕复制完成：" + new_file)
+                            else:
+                                log.error("【RMT】字幕复制失败，错误码：" + str(retcode))
                 else:
                     log.info("【RMT】字幕 " + new_file + "已存在！")
         if not find_flag:
@@ -57,8 +66,11 @@ def transfer_bluray_dir(file_path, new_path, mv_flag=False, over_flag=False):
 
     # 复制文件
     log.info("【RMT】正在复制目录：" + file_path + " 到 " + new_path)
-    call(['cp -r', file_path, new_path])
-    log.info("【RMT】文件复制完成：" + new_path)
+    retcode = call(['cp -r', file_path, new_path])
+    if retcode == 0:
+        log.info("【RMT】文件复制完成：" + new_path)
+    else:
+        log.error("【RMT】文件复制失败，错误码：" + str(retcode))
 
     if mv_flag:
         if file_path != settings.get('movie.movie_path') and file_path != settings.get('tv.tv_path'):
@@ -76,11 +88,19 @@ def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=Fals
     # 复制文件
     log.info("【RMT】正在转移文件：" + file_item + " 到 " + new_file)
     if rmt_mode.upper() == "LINK":
-        call(['ln', file_item, new_file])
-        log.info("【RMT】文件硬链接完成：" + new_file)
+        retcode = call(['ln', file_item, new_file])
+        if retcode == 0:
+            log.info("【RMT】文件硬链接完成：" + new_file)
+        else:
+            log.error("【RMT】文件硬链接失败，错误码：" + str(retcode))
     else:
-        call(['cp', file_item, new_file])
-        log.info("【RMT】文件复制完成：" + new_file)
+        retcode = call(['cp', file_item, new_file])
+        if retcode == 0:
+            log.info("【RMT】文件复制完成：" + new_file)
+        else:
+            log.error("【RMT】文件复制失败，错误码：" + str(retcode))
+
+    # 处理字幕
     transfer_subtitles(file_path, file_item, new_file, False)
 
     if mv_flag:
