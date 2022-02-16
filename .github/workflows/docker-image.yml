@@ -16,9 +16,25 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag jxxghp/nas-tools:latest
+    - name: Build the docker image
+      run: |
+        docker build . --file Dockerfile --tag jxxghp/nas-tools:latest
+        mv synology/ui ./
+        tar -zcvf package.tgz *.py *.txt monitor/ rmt/ scheduler/ message/ web/ ui/
+        mkdir spk
+        mv package.tgz synology/conf synology/scripts/ synology/CHANGELOG synology/INFO synology/*.PNG synology/*.asc spk/
+        cd spk/
+        tar -cvf nastool_dsm_6.x.spk *
+
     - name: Login to registry
       run: docker login --username=${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }}
-    - name: Push Image
+
+    - name: Push image
       run: docker push jxxghp/nas-tools:latest
+
+    - name: Upload to release
+      uses: JasonEtco/upload-to-release@master
+      with:
+        args: nastool_dsm_6.x.spk application/octet-stream
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
