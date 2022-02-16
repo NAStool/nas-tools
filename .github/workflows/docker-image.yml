@@ -35,6 +35,6 @@ jobs:
     - name: Upload to release
       uses: JasonEtco/upload-to-release@master
       with:
-        args: nastool_dsm_6.x.spk application/octet-stream
+        args: spk/nastool_dsm_6.x.spk application/octet-stream
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
