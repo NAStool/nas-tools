@@ -32,6 +32,13 @@ jobs:
     - name: Push image
       run: docker push jxxghp/nas-tools:latest
 
+    - uses: dev-drprasad/delete-tag-and-release@v0.2.0
+      with:
+        delete_release: true
+        tag_name: Synology
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
