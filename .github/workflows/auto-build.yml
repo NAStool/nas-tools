@@ -1,4 +1,4 @@
-name: NASTool Docker
+name: Nas-tools Auto Build
 
 on:
   push:
