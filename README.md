@@ -40,7 +40,7 @@ nohup python3 run.py -c ./config/config.ini &
 ### 3、群晖套件
 仅适用于dsm6，且只能是admin用户使用。
 
-https://github.com/jxxghp/nas-tools/raw/master/nastool_dsm_6.x.spk
+https://github.com/jxxghp/nas-tools/releases
 
 ![image](https://user-images.githubusercontent.com/51039935/153745028-3a9b7e9a-0404-45c0-9674-1763e272c005.png)
 
