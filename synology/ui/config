@@ -1,0 +1,13 @@
+{
+    ".url": {
+        "nastool": {
+            "title": "NAS媒体工具",
+            "desc": "NASTool Web UI",
+            "icon": "images/nastool.png",
+            "type": "url",
+            "protocol": "http",
+            "port": "3000",
+            "allUsers": false
+        }
+    }
+}

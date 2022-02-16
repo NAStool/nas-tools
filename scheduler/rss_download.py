@@ -22,7 +22,7 @@ def run_rssdownload():
     try:
         global RUNING_FLAG
         if RUNING_FLAG:
-            log.error("【RUN】hottrailers任务正在执行中...")
+            log.error("【RUN】rssdownload任务正在执行中...")
         else:
             RUNING_FLAG = True
             rssdownload()

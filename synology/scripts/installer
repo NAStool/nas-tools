@@ -1,0 +1,45 @@
+#!/bin/sh
+
+DSM_VERSION=${SYNOPKG_DSM_VERSION_MAJOR}"."${SYNOPKG_DSM_VERSION_MINOR}
+DSM_PACKAGE=${SYNOPKG_DSM_ARCH}
+PYTHON_BIN="/var/packages/py3k/target/usr/local/bin/python3"
+PACKAGE_BASE="/var/packages/nastool/target"
+
+if [ $DSM_PACKAGE = "bromolow" ] || [ $DSM_PACKAGE = "broadwell" ]; then
+		DSM_PACKAGE="bromolow"
+fi
+
+preinst ()
+{
+    exit 0
+}
+
+postinst ()
+{
+    chown -R root:root ${SYNOPKG_PKGDEST}
+	$PYTHON_BIN $PACKAGE_BASE/get-pip.py
+	$PYTHON_BIN -m pip install -r $PACKAGE_BASE/requirements.txt
+	echo "$PACKAGE_BASE/" > /var/packages/py3k/target/usr/local/lib/python3.8/site-packages/nas-tools.pth
+    
+	exit 0
+}
+
+preuninst ()
+{
+    exit 0
+}
+
+postuninst ()
+{
+    exit 0
+}
+
+preupgrade ()
+{
+    exit 0
+}
+
+postupgrade ()
+{
+    exit 0
+}
