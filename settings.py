@@ -36,7 +36,7 @@ class Config(object):
             return default
         option = '.'.join(map_key[1:])
         try:
-            return self.config.get(section, option)
+            return self.config.get(section, option).strip()
         except NoOptionError:
             return default
 
