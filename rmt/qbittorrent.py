@@ -40,9 +40,10 @@ def get_qbittorrent_tasks():
     for torrent in torrents:
         log.debug(torrent.name + "：" + torrent.state)
         if torrent.state == "uploading" or torrent.state == "stalledUP":
+            true_path = torrent.content_path
             if trans_containerpath:
-                trans_qbpath = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
-            path_list.append(trans_qbpath + "|" + torrent.hash)
+                true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
+            path_list.append(true_path + "|" + torrent.hash)
     qbt.auth_log_out()
     return path_list
 
@@ -82,9 +83,10 @@ def transfer_qbittorrent_task():
     for torrent in torrents:
         log.debug("【RMT】" + torrent.name + "：" + torrent.state)
         if torrent.state == "uploading" or torrent.state == "stalledUP":
+            true_path = torrent.content_path
             if trans_containerpath:
-                trans_qbpath = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
-            done_flag = transfer_directory(in_from="qBittorrent", in_name=torrent.name, in_path=trans_qbpath)
+                true_path = torrent.content_path.replace(str(trans_qbpath), str(trans_containerpath))
+            done_flag = transfer_directory(in_from="qBittorrent", in_name=torrent.name, in_path=true_path)
             if done_flag:
                 set_torrent_status(torrent.hash)
 
