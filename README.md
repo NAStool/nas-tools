@@ -1,4 +1,4 @@
-# NAS媒体库资源自动搜刮整理工具
+# NAS媒体库资源自动搜刮整理
 
 Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
