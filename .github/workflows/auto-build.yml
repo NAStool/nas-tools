@@ -33,7 +33,7 @@ jobs:
       run: docker push jxxghp/nas-tools:latest
 
     - name: Delete tag and release
-    - uses: dev-drprasad/delete-tag-and-release@v0.2.0
+      uses: dev-drprasad/delete-tag-and-release@v0.2.0
       with:
         delete_release: true
         tag_name: Synology
