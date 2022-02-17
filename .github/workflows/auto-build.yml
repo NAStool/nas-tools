@@ -33,7 +33,7 @@ jobs:
       run: docker push jxxghp/nas-tools:latest
 
     - name: Login to ghcr.io
-      run: docker login ghcr.io --username=${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }}
+      run: echo ${{ secrets.GITHUB_PACKAGE }} | docker login ghcr.io --username=${{ secrets.DOCKER_USERNAME }} --password-stdin
 
     - name: Push image to ghcr.io
       run: docker push ghcr.io/jxxghp/nas-tools:latest
