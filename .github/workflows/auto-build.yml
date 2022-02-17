@@ -32,7 +32,7 @@ jobs:
     - name: Push image
       run: docker push jxxghp/nas-tools:latest
 
-    - uses: dev-drprasad/delete-tag-and-release@v0.2.0
+    - uses: dev-drprasad/delete-tag-and-release@latest
       with:
         delete_release: true
         tag_name: Synology
@@ -41,18 +41,19 @@ jobs:
 
     - name: Create Release
       id: create_release
-      uses: actions/create-release@v1
+      uses: actions/create-release@latest
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: Synology
         release_name: Synology
+        body: Package file for synology diskstation 6.x
         draft: false
         prerelease: false
 
     - name: Upload Release Asset
       id: upload-release-asset
-      uses: actions/upload-release-asset@v1
+      uses: actions/upload-release-asset@latest
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
