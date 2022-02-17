@@ -40,7 +40,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Push image to ghcr.io
-      run: docker push ghcr.io/jxxghp/nas-tools:latest
+      run: docker push ghcr.io jxxghp/nas-tools:latest
 
     - uses: dev-drprasad/delete-tag-and-release@v0.2.0
       with:
