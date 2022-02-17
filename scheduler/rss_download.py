@@ -84,6 +84,9 @@ def rssdownload():
     for rss_job in rss_jobs:
         # 读取子配置
         rssurl = settings.get("rss." + rss_job + "_rssurl")
+        if not rssurl:
+            log.error("【RSS】" + str(rss_job) + "未配置rssurl，无法下载订阅！")
+            continue
         movie_type = eval(settings.get("rss." + rss_job + "_movie_type"))
         movie_res = eval(settings.get("rss." + rss_job + "_movie_re"))
         log.info("【RSS】电影规则清单：" + ' '.join(movie_res))

@@ -8,7 +8,7 @@ import settings
 
 
 def sendmsg(title, text=""):
-    msg_channel = settings.get("webhook.msg_channel")
+    msg_channel = settings.get("root.msg_channel")
     log.info("【MSG】发送" + msg_channel + "消息：title=" + title + "，text=" + text)
     if msg_channel == "wechat":
         return send_wechat_msg(title, text)

@@ -1,6 +1,8 @@
 import sys
 from urllib.parse import urlencode
 import requests
+
+import log
 import settings
 
 
@@ -10,7 +12,11 @@ def send_serverchan_msg(text, desp=""):
         return -1, "标题和内容不能同时为空！"
     values = {"title": text, "desp": desp}
     try:
-        sc_url = "https://sctapi.ftqq.com/" + settings.get('serverchan.sckey') + ".send?" + urlencode(values)
+        sckey = settings.get('serverchan.sckey')
+        if not sckey:
+            log.error("【MSG】未配置sckey，无法发送ServerChan消息!")
+            return False, None
+        sc_url = "https://sctapi.ftqq.com/" + sckey + ".send?" + urlencode(values)
         res = requests.get(sc_url)
         if res:
             ret_json = res.json()

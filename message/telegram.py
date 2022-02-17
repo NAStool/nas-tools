@@ -3,6 +3,8 @@ import sys
 from urllib.parse import urlencode
 
 import requests
+
+import log
 import settings
 
 
@@ -10,8 +12,13 @@ def send_telegram_msg(title, text=""):
     if not title and not text:
         return -1, "标题和内容不能同时为空！"
     try:
-        values = {"chat_id": settings.get("telegram.telegram_bot_id"), "text": title + "\n\n" + text}
-        sc_url = "https://api.telegram.org/bot%s/sendMessage?" % settings.get("telegram.telegram_token")
+        telegram_token = settings.get("telegram.telegram_token")
+        telegram_chat_id = settings.get("telegram.telegram_chat_id")
+        if not telegram_token or not telegram_chat_id:
+            log.error("【MSG】未配置telegram参数，无法发送telegram消息！")
+            return False, None
+        values = {"chat_id": telegram_chat_id, "text": title + "\n\n" + text}
+        sc_url = "https://api.telegram.org/bot%s/sendMessage?" % telegram_token
         res = requests.get(sc_url + urlencode(values))
         if res:
             ret_json = res.json()

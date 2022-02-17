@@ -53,6 +53,8 @@ class WeChat(object):
     def send_message(self, title, text):
         message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.get_access_token()
         agent_id = settings.get("wechat.agentid")
+        if not agent_id:
+            return False, "未配置wechat.agentid"
         if text:
             text = text.replace("\n\n", "\n")
         req_json = {

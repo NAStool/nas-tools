@@ -50,6 +50,9 @@ def download_movie_trailer(in_path):
     # 开始下载
     tmdb = TMDb()
     tmdb.api_key = settings.get('rmt.rmt_tmdbkey')
+    if not tmdb.api_key:
+        log.error("【TRAILER】未配置rmt_tmdbkey，无法下载电影预告！")
+        return False
     tmdb.language = 'en-US'
     tmdb.debug = True
     movie = Movie()

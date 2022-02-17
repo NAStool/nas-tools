@@ -42,11 +42,14 @@ def signin(name, url, cookie):
 
 def ptsignin():
     pt_tasks = eval(settings.get("pt-signin.pt_tasks"))
-    msg_str = ""
+    msg_str = "未配置任何PT站信息！"
     for pt_task in pt_tasks:
         log.info("【PT-SIGN】开始PT签到：" + pt_task)
         pt_url = settings.get("pt-signin." + pt_task + "_url")
         pt_cooke = settings.get("pt-signin." + pt_task + "_cookie")
+        if not pt_url or not pt_cooke:
+            log.error("【PT-SIGN】未配置" + str(pt_task) + "Url或Cookie，无法签到！")
+            return
         log.debug("cookie: " + pt_cooke)
         log.debug("url: " + pt_url)
         res = signin(pt_task, pt_url, pt_cooke)

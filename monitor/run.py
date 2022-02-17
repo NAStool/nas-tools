@@ -29,22 +29,25 @@ def run_monitor():
             else:
                 log.error("【RUN】" + movie_monpath + "目录不存在！")
         else:
-            log.info("【RUN】" + movie_flag + "开关未打开！")
+            log.info("【RUN】monitor.movie_flag开关未打开！")
 
         # ResilioSync监控转移
         resiliosync_run = False
         resiliosync_flag = settings.get("monitor.resiliosync_flag") == "ON" or False
         resiliosync_monpaths = eval(settings.get("monitor.resiliosync_monpath"))
-        for resiliosync_monpath in resiliosync_monpaths:
-            if os.path.exists(resiliosync_monpath) and resiliosync_flag:
-                resiliosync = create_resilosync()
-                resiliosync.schedule(ResilioSyncHandler(resiliosync_monpath), path=resiliosync_monpath, recursive=True)  # recursive递归的
-                resiliosync.setDaemon(False)
-                resiliosync.start()
-                resiliosync_run = True
-                log.info("【RUN】monitor.resilosync启动...")
-            else:
-                log.error("【ResilioSync】" + resiliosync_monpath + "目录不存在！")
+        if resiliosync_flag:
+            for resiliosync_monpath in resiliosync_monpaths:
+                if os.path.exists(resiliosync_monpath) and resiliosync_flag:
+                    resiliosync = create_resilosync()
+                    resiliosync.schedule(ResilioSyncHandler(resiliosync_monpath), path=resiliosync_monpath, recursive=True)  # recursive递归的
+                    resiliosync.setDaemon(False)
+                    resiliosync.start()
+                    resiliosync_run = True
+                    log.info("【RUN】monitor.resilosync启动...")
+                else:
+                    log.error("【ResilioSync】" + resiliosync_monpath + "目录不存在！")
+        else:
+            log.info("【RUN】monitor.resiliosync_flag开关未打开！")
 
         # 退出事件监听
         @atexit.register
