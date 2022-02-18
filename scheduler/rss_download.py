@@ -1,13 +1,11 @@
-# RSS下载器
 import os
 import re
-
 import requests
 import log
-import settings
 from xml.dom.minidom import parse
 import xml.dom.minidom
 
+from config import get_config, RMT_MOVIETYPE, RMT_MEDIAEXT
 from functions import is_chinese
 from message.send import sendmsg
 from rmt.media import get_media_info, get_media_file_season, get_media_file_seq
@@ -74,24 +72,23 @@ def parse_rssxml(url):
 
 def rssdownload():
     # 读取配置
-    rss_jobs = eval(settings.get("rss.rss_job"))
-    save_path = settings.get("qbittorrent.save_path")
-    movie_path = settings.get("movie.movie_path")
-    tv_path = settings.get("tv.tv_path")
-    media_exts = settings.get("rmt.rmt_mediaext").split(",")
-    movie_types = settings.get("rmt.rmt_movietype").split(",")
+    config = get_config()
+    rss_jobs = config['pt']['sites']
+    save_path = config['qbittorrent']['save_path']
+    movie_path = config['media']['movie_path']
+    tv_path = config['media']['tv_path']
     succ_list = []
-    for rss_job in rss_jobs:
+    for rss_job, job_info in rss_jobs.items():
         # 读取子配置
-        rssurl = settings.get("rss." + rss_job + "_rssurl")
+        rssurl = job_info['rssurl']
         if not rssurl:
             log.error("【RSS】" + str(rss_job) + "未配置rssurl，无法下载订阅！")
             continue
-        movie_type = eval(settings.get("rss." + rss_job + "_movie_type"))
-        movie_res = eval(settings.get("rss." + rss_job + "_movie_re"))
-        log.info("【RSS】电影规则清单：" + ' '.join(movie_res))
-        tv_res = eval(settings.get("rss." + rss_job + "_tv_re"))
-        log.info("【RSS】电视剧规则清单：" + ' '.join(tv_res))
+        movie_type = job_info['movie_type']
+        movie_res = job_info['movie_re']
+        log.info("【RSS】" + rss_job + "电影规则清单：" + ' '.join(movie_res))
+        tv_res = job_info['tv_re']
+        log.info("【RSS】" + rss_job + "电视剧规则清单：" + ' '.join(tv_res))
         # 下载RSS
         log.info("【RSS】正在处理：" + rss_job)
         rss_result = parse_rssxml(rssurl)
@@ -134,8 +131,8 @@ def rssdownload():
                 media_title = media_info["name"]
                 media_year = media_info["year"]
 
-                rss_chinese = settings.get("rss.rss_chinese")
-                if rss_chinese.upper() == "TRUE" and not is_chinese(media_title):
+                rss_chinese = config['pt']['rss_chinese']
+                if rss_chinese and not is_chinese(media_title):
                     log.info("【RSS】该媒体在TMDB中没有中文描述，跳过：" + media_title)
                     continue
 
@@ -167,7 +164,7 @@ def rssdownload():
                             continue
                         # 确认是否已存在
                         exist_flag = False
-                        for m_type in movie_types:
+                        for m_type in RMT_MOVIETYPE:
                             media_path = os.path.join(movie_path, m_type, media_name)
                             # 目录是否存在
                             log.debug("【RSS】路径：" + media_path)
@@ -194,7 +191,7 @@ def rssdownload():
                             # 文件路径
                             file_path = os.path.join(season_dir, media_title + " - " + file_season + file_seq + " - " + "第 " + file_seq_num + " 集")
                             exist_flag = False
-                            for ext in media_exts:
+                            for ext in RMT_MEDIAEXT:
                                 log.debug("【RSS】路径：" + file_path + ext)
                                 if os.path.exists(file_path + ext):
                                     exist_flag = True

@@ -3,7 +3,7 @@
 RUNAS="root"
 PYTHON_BIN="/var/packages/py3k/target/usr/local/bin/python3"
 PACKAGE_BASE="/var/packages/nastool/target"
-CONFIG_FILE="/volume1/homes/admin/.config/nastool/config.ini"
+CONFIG_FILE="/volume1/homes/admin/.config/nastool/config.yaml"
 TIMEOUT=30
 
 running_nastool() {

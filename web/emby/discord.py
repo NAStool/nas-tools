@@ -1,9 +1,8 @@
 import os
 import shutil
 import time
-
-import settings
 import log
+from config import get_config, RMT_MOVIETYPE, RMT_FAVTYPE
 from functions import get_location
 from message.send import sendmsg
 
@@ -12,9 +11,8 @@ PLAY_LIST = []
 
 def report_to_discord(event):
     # 读取配置
-    movie_path = settings.get("movie.movie_path")
-    movie_types = settings.get("rmt.rmt_movietype").split(',')
-    movie_fav_type = settings.get("rmt.rmt_favtype")
+    config = get_config()
+    movie_path = config['media']['movie_path']
 
     # Create message
     message = None
@@ -28,7 +26,7 @@ def report_to_discord(event):
             message_flag = False
     # Playback
     elif event.category == 'playback':
-        ignore_list = eval(settings.get("webhook.webhook_ignore"))
+        ignore_list = config['message']['webhook_ignore']
         if event.user_name in ignore_list or \
                 event.device_name in ignore_list or \
                 (event.user_name + ':' + event.device_name) in ignore_list:
@@ -62,17 +60,17 @@ def report_to_discord(event):
                 return
             name = movie_dir.split('/')[-1]
             org_type = movie_dir.split('/')[-2]
-            if org_type not in movie_types:
+            if org_type not in RMT_MOVIETYPE:
                 return
-            if org_type == movie_fav_type:
+            if org_type == RMT_FAVTYPE:
                 return
-            new_path = os.path.join(movie_path, movie_fav_type, name)
+            new_path = os.path.join(movie_path, RMT_FAVTYPE, name)
             log.info("【Emby】开始转移文件 {} 到 {} ...".format(movie_dir, new_path))
             if os.path.exists(new_path):
                 log.info("【Emby】目录 {} 已存在！".format(new_path))
                 return
             shutil.move(movie_dir, new_path)
-            message = '【Emby】电影 {} 已从 {} 转移到 {}'.format(event.movie_name, org_type, movie_fav_type)
+            message = '【Emby】电影 {} 已从 {} 转移到 {}'.format(event.movie_name, org_type, RMT_FAVTYPE)
     else:
         message_flag = False
 

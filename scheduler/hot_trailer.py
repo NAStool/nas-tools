@@ -4,11 +4,9 @@ import sys
 from datetime import datetime
 import os
 from subprocess import call
-
 from tmdbv3api import TMDb, Movie
-
 import log
-import settings
+from config import get_config, RMT_MEDIAEXT, RMT_MOVIETYPE, YOUTUBE_DL_CMD, HOT_TRAILER_INTERVAL_TOTAL
 from functions import get_dir_files_by_ext, get_dir_files_by_name, system_exec_command, is_chinese
 from message.send import sendmsg
 
@@ -33,10 +31,9 @@ def run_hottrailers(refresh_flag=True):
 # 将预告目录中的预告片转移到电影目录，如果存在对应的电影了的话
 def transfer_trailers(in_path):
     # 读取配置
-    movie_path = settings.get("movie.movie_path")
-    media_ext = settings.get("rmt.rmt_mediaext")
-    movie_types = settings.get("rmt.rmt_movietype").split(",")
-    trailer_file_list = get_dir_files_by_ext(in_path, media_ext)
+    config = get_config()
+    movie_path = config['media']['movie_path']
+    trailer_file_list = get_dir_files_by_ext(in_path, RMT_MEDIAEXT)
     if len(trailer_file_list) == 0:
         log.info("【HOT-TRAILER】" + in_path + " 不存在预告片，删除目录...")
         shutil.rmtree(in_path, ignore_errors=True)
@@ -50,11 +47,11 @@ def transfer_trailers(in_path):
         trailer_file_ext = os.path.splitext(trailer_file)[1]
 
         trailer_done = False
-        for movie_type in movie_types:
+        for movie_type in RMT_MOVIETYPE:
             dest_path = os.path.join(movie_path, movie_type, trailer_file_name)
             if os.path.exists(dest_path):
                 log.info("【HOT-TRAILER】" + trailer_file_name + " 进行转移...")
-                dest_file_list = get_dir_files_by_ext(dest_path, media_ext)
+                dest_file_list = get_dir_files_by_ext(dest_path, RMT_MEDIAEXT)
                 continue_flag = False
                 for dest_movie_file in dest_file_list:
                     if dest_movie_file.find("-trailer.") != -1:
@@ -81,16 +78,14 @@ def transfer_trailers(in_path):
 
 def hottrailers(refresh_flag=True):
     # 读取配置
-    youtube_dl_cmd = settings.get("youtobe.youtube_dl_cmd")
-    hottrailer_total = int(settings.get("scheduler.hottrailer_total"))
-    hottrailer_path = settings.get("movie.hottrailer_path")
-    movie_path = settings.get("movie.movie_path")
-    movie_types = settings.get("rmt.rmt_movietype").split(",")
+    config = get_config()
+    hottrailer_path = config['media']['hottrailer_path']
+    movie_path = config['media']['movie_path']
     start_time = datetime.now()
-    if refresh_flag:
+    if refresh_flag and hottrailer_path:
         # 检索正在上映的电影
         tmdb = TMDb()
-        tmdb.api_key = settings.get('rmt.rmt_tmdbkey')
+        tmdb.api_key = config['pt']['rmt_tmdbkey']
         if not tmdb.api_key:
             log.error("【HOT-TRAILER】未配置rmt_tmdbkey，无法下载热门预告片！")
             return
@@ -104,7 +99,7 @@ def hottrailers(refresh_flag=True):
         page = 1
         now_playing = movie.now_playing(page)
         now_playing_total = 0
-        while len(now_playing) > 0 and now_playing_total < hottrailer_total:
+        while len(now_playing) > 0 and now_playing_total < HOT_TRAILER_INTERVAL_TOTAL:
             now_playing_total = now_playing_total + len(now_playing)
             log.debug(">第 " + str(page) + " 页：" + str(now_playing_total))
             playing_list = playing_list + now_playing
@@ -115,7 +110,7 @@ def hottrailers(refresh_flag=True):
         page = 1
         upcoming = movie.upcoming(page)
         upcoming_total = 0
-        while len(upcoming) > 0 and upcoming_total < hottrailer_total:
+        while len(upcoming) > 0 and upcoming_total < HOT_TRAILER_INTERVAL_TOTAL:
             upcoming_total = upcoming_total + len(upcoming)
             log.debug(">第 " + str(page) + " 页：" + str(upcoming_total))
             playing_list = playing_list + upcoming
@@ -146,7 +141,7 @@ def hottrailers(refresh_flag=True):
                     log.info("【HOT-TRAILER】" + movie_title + " 预告目录已存在，跳过...")
                     continue
                 exists_flag = False
-                for movie_type in movie_types:
+                for movie_type in RMT_MOVIETYPE:
                     movie_dir = os.path.join(movie_path, movie_type,  movie_title + " (" + movie_year + ")")
                     exists_trailers = get_dir_files_by_name(movie_dir, "-trailer.")
                     if len(exists_trailers) > 0:
@@ -167,7 +162,7 @@ def hottrailers(refresh_flag=True):
                     for video in movie_videos:
                         trailer_key = video.key
                         log.debug(">下载：" + trailer_key)
-                        exec_cmd = youtube_dl_cmd.replace("$PATH", file_path).replace("$KEY", trailer_key)
+                        exec_cmd = YOUTUBE_DL_CMD.replace("$PATH", file_path).replace("$KEY", trailer_key)
                         log.debug(">开始执行命令：" + exec_cmd)
                         # 获取命令结果
                         result_err, result_out = system_exec_command(exec_cmd, 600)

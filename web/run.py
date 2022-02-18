@@ -1,9 +1,8 @@
 import atexit
 import signal
 import sys
-
 import log
-import settings
+from config import get_config
 from functions import get_host_name
 from message.send import sendmsg
 from web.main import create_app
@@ -24,10 +23,10 @@ def run_webhook():
 
         signal.signal(signal.SIGTERM, signal_fun)
         signal.signal(signal.SIGINT, signal_fun)
-
-        web_port = settings.get("root.web_port")
-        ssl_cert = settings.get("root.ssl_cert")
-        ssl_key = settings.get("root.ssl_key")
+        config = get_config()
+        web_port = config['app']['web_port']
+        ssl_cert = config['app']['ssl_cert']
+        ssl_key = config['app']['ssl_key']
 
         if ssl_cert:
             app.run(

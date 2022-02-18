@@ -1,21 +1,26 @@
 import sys
 
 import log
+from config import get_config
 from message.serverchan import send_serverchan_msg
 from message.telegram import send_telegram_msg
 from message.wechat import send_wechat_msg
-import settings
 
 
 def sendmsg(title, text=""):
-    msg_channel = settings.get("root.msg_channel")
+    config = get_config()
+    msg_channel = config['message']['msg_channel']
+    if not msg_channel:
+        return None
     log.info("【MSG】发送" + msg_channel + "消息：title=" + title + "，text=" + text)
     if msg_channel == "wechat":
         return send_wechat_msg(title, text)
     elif msg_channel == "serverchan":
         return send_serverchan_msg(title, text)
-    else:
+    elif msg_channel == "telegram":
         return send_telegram_msg(title, text)
+    else:
+        return None
 
 
 if __name__ == "__main__":

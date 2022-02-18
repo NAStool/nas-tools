@@ -6,15 +6,16 @@ import log
 from tmdbv3api import TMDb, Search
 from subprocess import call
 
-import settings
+from config import RMT_SUBEXT, get_config, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, RMT_COUNTRY_EA, RMT_COUNTRY_AS
 from functions import get_dir_files_by_ext, is_chinese, str_filesize, get_free_space_gb
 from message.send import sendmsg
 
 
 # 根据文件名转移对应字幕文件
 def transfer_subtitles(in_path, org_name, new_name, mv_flag=False):
-    file_list = get_dir_files_by_ext(in_path, settings.get('rmt.rmt_subext'))
-    rmt_mode = settings.get("rmt.rmt_mode")
+    file_list = get_dir_files_by_ext(in_path, RMT_SUBEXT)
+    config = get_config()
+    rmt_mode = config['pt']['rmt_mode']
     log.debug("【RMT】字幕文件清单：" + str(file_list))
     Media_FileNum = len(file_list)
     if Media_FileNum == 0:
@@ -59,6 +60,7 @@ def transfer_subtitles(in_path, org_name, new_name, mv_flag=False):
 
 
 def transfer_bluray_dir(file_path, new_path, mv_flag=False, over_flag=False):
+    config = get_config()
     if over_flag:
         log.debug("【RMT】正在删除已存在的目录：" + new_path)
         shutil.rmtree(new_path)
@@ -73,13 +75,14 @@ def transfer_bluray_dir(file_path, new_path, mv_flag=False, over_flag=False):
         log.error("【RMT】文件复制失败，错误码：" + str(retcode))
 
     if mv_flag:
-        if file_path != settings.get('movie.movie_path') and file_path != settings.get('tv.tv_path'):
+        if file_path != config['media']['movie_path'] and file_path != config['media']['tv_path']:
             shutil.rmtree(file_path)
         log.info("【RMT】" + file_path + " 已删除！")
 
 
 def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=False):
-    rmt_mode = settings.get("rmt.rmt_mode")
+    config = get_config()
+    rmt_mode = config['pt']['rmt_mode']
     if over_flag:
         log.debug("【RMT】正在删除已存在的文件：" + new_file)
         os.remove(new_file)
@@ -104,14 +107,15 @@ def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=Fals
     transfer_subtitles(file_path, file_item, new_file, False)
 
     if mv_flag:
-        if file_path != settings.get('movie.movie_path') and file_path != settings.get('tv.tv_path'):
+        if file_path != config['media']['movie_path'] and file_path != config['media']['tv_path']:
             shutil.rmtree(file_path)
         log.info("【RMT】" + file_path + " 已删除！")
 
 
 # 转移一个目录下的所有文件
 def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, in_season=None, in_type=None, mv_flag=False, noti_flag=True):
-    rmt_mode = settings.get("rmt.rmt_mode")
+    config = get_config()
+    rmt_mode = config['pt']['rmt_mode']
     if not in_name or not in_path:
         log.error("【RMT】输入参数错误!")
         return False
@@ -123,7 +127,7 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
         return False
     # 判断是不是原盘文件夹
     bluray_disk_flag = True if os.path.exists(os.path.join(in_path, "BDMV/index.bdmv")) else False
-    file_list = get_dir_files_by_ext(in_path, settings.get('rmt.rmt_mediaext'))
+    file_list = get_dir_files_by_ext(in_path, RMT_MEDIAEXT)
     Media_FileNum = len(file_list)
     if bluray_disk_flag:
         in_type = "电影"
@@ -161,20 +165,17 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
     if Media_Id != "0" and Media_Type != "":
         if Search_Type == "电影":
             # 检查剩余空间
-            movie_dist = settings.get('movie.movie_path')
-            rmt_diskfreesize = settings.get('rmt.rmt_diskfreesize')
+            movie_dist = config['media']['movie_path']
             disk_free_size = get_free_space_gb(movie_dist)
-            if float(disk_free_size) < float(rmt_diskfreesize):
-                log.error("【RMT】目录" + movie_dist + "剩余磁盘空间不足" + rmt_diskfreesize + "GB，不处理！")
-                sendmsg("【RMT】磁盘空间不足", "目录" + movie_dist + "剩余磁盘空间不足" + rmt_diskfreesize + "GB！")
+            if float(disk_free_size) < RMT_DISKFREESIZE:
+                log.error("【RMT】目录" + movie_dist + "剩余磁盘空间不足" + RMT_DISKFREESIZE + "GB，不处理！")
+                sendmsg("【RMT】磁盘空间不足", "目录" + movie_dist + "剩余磁盘空间不足" + RMT_DISKFREESIZE + "GB！")
                 return False
             # 检查精选中是否已存在
-            media_path = os.path.join(movie_dist, settings.get('rmt.rmt_favtype'),
-                                      Media_Title + " (" + Media_Year + ")")
+            media_path = os.path.join(movie_dist, RMT_FAVTYPE, Media_Title + " (" + Media_Year + ")")
             if not os.path.exists(media_path):
                 # 新路径
-                media_path = os.path.join(movie_dist, Media_Type,
-                                          Media_Title + " (" + Media_Year + ")")
+                media_path = os.path.join(movie_dist, Media_Type, Media_Title + " (" + Media_Year + ")")
                 # 创建目录
                 if not os.path.exists(media_path):
                     log.debug("【RMT】正在创建目录：" + media_path)
@@ -240,12 +241,11 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
             season_ary = []
             episode_ary = []
             # 检查剩余空间
-            tv_dist = settings.get('tv.tv_path')
-            rmt_diskfreesize = settings.get('rmt.rmt_diskfreesize')
+            tv_dist = config['media']['tv_path']
             disk_free_size = get_free_space_gb(tv_dist)
-            if float(disk_free_size) < float(rmt_diskfreesize):
-                log.error("【RMT】目录" + tv_dist + "剩余磁盘空间不足" + rmt_diskfreesize + "GB，不处理！")
-                sendmsg("【RMT】磁盘空间不足", "目录" + tv_dist + "剩余磁盘空间不足" + rmt_diskfreesize + "GB，不处理！")
+            if float(disk_free_size) < RMT_DISKFREESIZE:
+                log.error("【RMT】目录" + tv_dist + "剩余磁盘空间不足" + RMT_DISKFREESIZE + "GB，不处理！")
+                sendmsg("【RMT】磁盘空间不足", "目录" + tv_dist + "剩余磁盘空间不足" + RMT_DISKFREESIZE + "GB，不处理！")
                 return False
             # 新路径
             media_path = os.path.join(tv_dist, Media_Type, Media_Title + " (" + Media_Year + ")")
@@ -334,7 +334,7 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
 
 def is_media_files_tv(in_path):
     flag = False
-    tmp_list = get_dir_files_by_ext(in_path, settings.get('rmt.rmt_mediaext'))
+    tmp_list = get_dir_files_by_ext(in_path, RMT_MEDIAEXT)
     for tmp_file in tmp_list:
         tmp_name = os.path.basename(tmp_file)
         re_res = re.search(r"[\s\.]+[SE]P?\d{1,4}", tmp_name, re.IGNORECASE)
@@ -440,7 +440,8 @@ def get_media_file_year(in_name):
 def get_media_info(in_path, in_name, in_type=None, in_year=None):
     # TheMovieDB
     tmdb = TMDb()
-    tmdb.api_key = settings.get('rmt.rmt_tmdbkey')
+    config = get_config()
+    tmdb.api_key = config['pt']['rmt_tmdbkey']
     if not tmdb.api_key:
         log.error("【RMT】rmt_tmdbkey未配置，无法搜刮媒体信息！")
     tmdb.language = 'zh'
@@ -548,9 +549,9 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
                     media_country = info.origin_country
                     if 'CN' in media_country:
                         media_type = "国产剧"
-                    elif set(eval(settings.get('rmt.rmt_country_ea'))).intersection(set(media_country)):
+                    elif set(RMT_COUNTRY_EA).intersection(set(media_country)):
                         media_type = "欧美剧"
-                    elif set(eval(settings.get('rmt.rmt_country_as'))).intersection(set(media_country)):
+                    elif set(RMT_COUNTRY_AS).intersection(set(media_country)):
                         media_type = "日韩剧"
                     else:
                         media_type = "国产剧"

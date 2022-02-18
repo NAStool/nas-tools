@@ -2,7 +2,7 @@ $(document).ready(function(){
     // 初始化编辑器
     var editor = ace.edit("editor");
 	editor.setTheme("ace/theme/github");
-	editor.session.setMode("ace/mode/ini");
+	editor.session.setMode("ace/mode/yaml");
 	editor.setFontSize(14);
 
     // Ajax主方法

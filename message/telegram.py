@@ -1,19 +1,18 @@
 # 发送telegram消息
 import sys
 from urllib.parse import urlencode
-
 import requests
-
 import log
-import settings
+from config import get_config
 
 
 def send_telegram_msg(title, text=""):
     if not title and not text:
         return -1, "标题和内容不能同时为空！"
     try:
-        telegram_token = settings.get("telegram.telegram_token")
-        telegram_chat_id = settings.get("telegram.telegram_chat_id")
+        config = get_config()
+        telegram_token = config['message']['telegram']['telegram_token']
+        telegram_chat_id = config['message']['telegram']['telegram_chat_id']
         if not telegram_token or not telegram_chat_id:
             log.error("【MSG】未配置telegram参数，无法发送telegram消息！")
             return False, None

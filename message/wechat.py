@@ -2,7 +2,8 @@ import sys
 from datetime import datetime
 import threading
 import requests
-import settings
+
+from config import get_config
 
 lock = threading.Lock()
 
@@ -38,8 +39,11 @@ class WeChat(object):
                 token_flag = False
 
         if not token_flag:
-            corpid = settings.get("wechat.corpid")
-            corpsecret = settings.get("wechat.corpsecret")
+            config = get_config()
+            corpid = config['message']['wechat']['corpid']
+            corpsecret = config['message']['wechat']['corpsecret']
+            if not corpid or not corpsecret:
+                return None
             token_url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s" % (corpid, corpsecret)
             res = requests.get(token_url)
             if res:
@@ -52,9 +56,10 @@ class WeChat(object):
 
     def send_message(self, title, text):
         message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.get_access_token()
-        agent_id = settings.get("wechat.agentid")
+        config = get_config()
+        agent_id = config['message']['wechat']['agentid']
         if not agent_id:
-            return False, "未配置wechat.agentid"
+            return False, "未配置wechat.agentid，无法发送消息！"
         if text:
             text = text.replace("\n\n", "\n")
         req_json = {

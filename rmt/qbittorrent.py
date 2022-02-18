@@ -1,14 +1,12 @@
-# qBittorrent媒体文件转移
 import sys
-
 import qbittorrentapi
 import urllib3
 import log
-import settings
-
-# 全局设置
+from config import get_config
 from rmt.media import transfer_directory
 
+
+# 全局设置
 urllib3.disable_warnings()
 
 
@@ -17,25 +15,31 @@ urllib3.disable_warnings()
 def login_qbittorrent():
     try:
         # 登录
-        qbt = qbittorrentapi.Client(host=settings.get('qbittorrent.qbhost'),
-                                    port=settings.get('qbittorrent.qbport'),
-                                    username=settings.get('qbittorrent.qbusername'),
-                                    password=settings.get('qbittorrent.qbpassword'),
+        config = get_config()
+        qbhost = config['qbittorrent']['qbhost']
+        qbport = config['qbittorrent']['qbport']
+        qbusername = config['qbittorrent']['qbusername']
+        qbpassword = config['qbittorrent']['qbpassword']
+        qbt = qbittorrentapi.Client(host=qbhost,
+                                    port=qbport,
+                                    username=qbusername,
+                                    password=qbpassword,
                                     VERIFY_WEBUI_CERTIFICATE=False)
         qbt.auth_log_in()
         return qbt
     except Exception as err:
-        log.error("【RMT】出错：" + str(err))
+        log.error("【RUN】出错：" + str(err))
         return None
 
 
 # 读取当前任务列表
 def get_qbittorrent_tasks():
     # 读取qBittorrent列表
+    config = get_config()
     qbt = login_qbittorrent()
     torrents = qbt.torrents_info()
-    trans_qbpath = settings.get("qbittorrent.save_path")
-    trans_containerpath = settings.get("qbittorrent.save_containerpath")
+    trans_qbpath = config['qbittorrent']['save_path']
+    trans_containerpath = config['qbittorrent']['save_containerpath']
     path_list = []
     for torrent in torrents:
         log.debug(torrent.name + "：" + torrent.state)
@@ -76,8 +80,9 @@ def set_torrent_status(hash_str):
 
 # 处理qbittorrent中的种子
 def transfer_qbittorrent_task():
-    trans_qbpath = settings.get("qbittorrent.save_path")
-    trans_containerpath = settings.get("qbittorrent.save_containerpath")
+    config = get_config()
+    trans_qbpath = config['qbittorrent']['save_path']
+    trans_containerpath = config['qbittorrent']['save_containerpath']
     # 处理所有任务
     torrents = get_qbittorrent_torrents()
     for torrent in torrents:

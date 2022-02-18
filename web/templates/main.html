@@ -70,23 +70,33 @@
 								<fieldset>
 									<legend>{{ rss_cfg.job }}</legend>
 								   <div class="form-group">
-									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}_rssurl">RSS URL</label>
+									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}@rssurl">RSS URL</label>
 									  <div class="col-sm-4">
-										 <input class="form-control" id="{{ rss_cfg.job }}_rssurl" name="{{ rss_cfg.job }}_rssurl" type="text" placeholder="" value="{{ rss_cfg.url }}"/>
+										 <input class="form-control" id="{{ rss_cfg.job }}@rssurl" name="{{ rss_cfg.job }}@rssurl" type="text" placeholder="" value="{{ rss_cfg.url }}"/>
 									  </div>
-									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}_movie_type">电影分类名</label>
+									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}@movie_type">电影分类名</label>
 									  <div class="col-sm-4">
-										 <input class="form-control" id="{{ rss_cfg.job }}_movie_type" name="{{ rss_cfg.job }}_movie_type" type="text" placeholder="" value="{{ rss_cfg.movie_type }}"/>
+										 <input class="form-control" id="{{ rss_cfg.job }}@movie_type" name="{{ rss_cfg.job }}@movie_type" type="text" placeholder="" value="{{ rss_cfg.movie_type }}"/>
 									  </div>
 								   </div>
 								   <div class="form-group">
-									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}_movie_re">电影关键字</label>
+									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}@movie_re">电影关键字</label>
 									  <div class="col-sm-4">
-										 <input class="form-control" id="{{ rss_cfg.job }}_movie_re" name="{{ rss_cfg.job }}_movie_re" type="text" placeholder="" value="{{ rss_cfg.movie_re }}"/>
+										 <input class="form-control" id="{{ rss_cfg.job }}@movie_re" name="{{ rss_cfg.job }}@movie_re" type="text" placeholder="" value="{{ rss_cfg.movie_re }}"/>
 									  </div>
-									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}_tv_re">电视剧关键字</label>
+									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}@tv_re">电视剧关键字</label>
 									  <div class="col-sm-4">
-										 <input class="form-control" id="{{ rss_cfg.job }}_tv_re" name="{{ rss_cfg.job }}_tv_re" type="text" placeholder="" value="{{ rss_cfg.tv_re }}"/>
+										 <input class="form-control" id="{{ rss_cfg.job }}@tv_re" name="{{ rss_cfg.job }}@tv_re" type="text" placeholder="" value="{{ rss_cfg.tv_re }}"/>
+									  </div>
+								   </div>
+									<div class="form-group">
+									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}@signin_url">签到URL</label>
+									  <div class="col-sm-4">
+										 <input class="form-control" id="{{ rss_cfg.job }}@signin_url" name="{{ rss_cfg.job }}@movie_re" type="text" placeholder="" value="{{ rss_cfg.signin_url }}"/>
+									  </div>
+									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}@cookie">Cookie</label>
+									  <div class="col-sm-4">
+										 <input class="form-control" id="{{ rss_cfg.job }}@cookie" name="{{ rss_cfg.job }}@tv_re" type="text" placeholder="" value="{{ rss_cfg.cookie }}"/>
 									  </div>
 								   </div>
 								</fieldset>

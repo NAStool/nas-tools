@@ -22,6 +22,10 @@ Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
 【代码写的比较烂，初学仅限于能实现功能，轻喷。。。有玩明白的帮我写个教程，让更多的人受益，不甚感谢！】
 
+## 更新日志
+2022.2.18
+* 配置文件由ini调整为yaml，配置方式更简洁，使用最新版本需要转换一下配置文件
+* 增加配置文件检查与日志输出
 
 ## 安装
 ### 1、Docker
@@ -34,7 +38,7 @@ docker push jxxghp/nas-tools:latest
 python3.8版本
 ```
 python3 -m pip install -r requirements.txt
-nohup python3 run.py -c ./config/config.ini & 
+nohup python3 run.py -c ./config/config.yaml & 
 ```
 
 ### 3、群晖套件
@@ -58,11 +62,11 @@ https://github.com/jxxghp/nas-tools/releases
 ### 2、配置文件
 * 确定是用【复制】模式还是【硬链接】模式：复制模式下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠；硬链接模式不用额外增加存储空间，一份文件两份目录，但需要下载目录和媒体库目录在一个磁盘分区或者存储空间。两者在媒体库使用上是一致的，按自己需要在[rmt]rmt_mode按说明配置。
 
-* 参考 config/config.ini的配置示例进行配置，填入申请好的相关API KEY，以及媒体库电影、电视剧存储路径、PT站RSS信息、qBittorrent信息等等，示例文件中有详细的说明。
+* 参考 config/config.yaml的配置示例进行配置，填入申请好的相关API KEY，以及媒体库电影、电视剧存储路径、PT站RSS信息、qBittorrent信息等等，示例文件中有详细的说明。
 
-* docker：需要映射/config目录，并将修改好后的config.ini放到配置映射目录下；需要映射WEB访问端口（默认3000）；需要映射媒体库目录及PT下载目录、ResilioSync目录到容器上并与配置文件保持一致。
+* docker：需要映射/config目录，并将修改好后的config.yaml放到配置映射目录下；需要映射WEB访问端口（默认3000）；需要映射媒体库目录及PT下载目录、ResilioSync目录到容器上并与配置文件保持一致。
    
-* 群晖套件：配置文件地址必须为：/homes/admin/.config/nastool/config.ini，即必须是admin用户运行且按路径放置配置文件。
+* 群晖套件：配置文件地址必须为：/homes/admin/.config/nastool/config.yaml，即必须是admin用户运行且按路径放置配置文件。
 
 ### 3、设置Emby
 * 在Emby的Webhooks插件中，设置地址为：http(s)://IP:3000/emby，勾选“播放事件”和“用户事件（建议只对管理用户勾选）“
@@ -91,7 +95,7 @@ https://github.com/jxxghp/nas-tools/releases
 如果只是使用消息接受服务，则配置好配置文件中的[wechat]前三个参数就可以了，如果需要通过微信进行控制，则需要按如下方式配置：
 * 配置微信消息服务：在企业微信自建应用管理页面-》API接收消息 开启消息接收服务，URL填写：http(s)://IP:3000/wechat，Token和EncodingAESKey填入配置文件[wechat]区。
    
-* 配置微信菜单控制：有两种方式，一是直接在聊天窗口中输入命令或者PT下载的链接；二是在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单页面按如下图所示维护好菜单（条目顺序需要一模一样，如果不一样需要修改web/menu.py中定义的菜单序号），菜单内容为发送消息，消息内容为命令。
+* 配置微信菜单控制：有两种方式，一是直接在聊天窗口中输入命令或者PT下载的链接；二是在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单页面按如下图所示维护好菜单（条目顺序需要一模一样，如果不一样需要修改globalvar.py中定义的WECHAT_MENU菜单序号定义），菜单内容为发送消息，消息内容为命令。
 命令与功能的对应关系： 
    
    |  命令   | 功能  |

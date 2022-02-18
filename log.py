@@ -2,7 +2,7 @@ import logging
 import os
 import threading
 from logging.handlers import TimedRotatingFileHandler
-import settings
+from config import LOG_LEVEL, get_config
 
 lock = threading.Lock()
 
@@ -11,22 +11,24 @@ class Logger:
     __instance = None
 
     def __init__(self):
+        config = get_config()
         self.logger = logging.Logger(__name__)
-        self.logger.setLevel(level=logging.INFO)
-        logtype = settings.get("root.logtype")
+        self.logger.setLevel(level=LOG_LEVEL)
+        logtype = config['app']['logtype']
         if logtype == "FILE":
             # 记录日志到文件
-            logpath = settings.get("root.logpath")
+            logpath = config['app']['logpath']
             if not os.path.exists(logpath):
                 os.makedirs(logpath)
-            log_file_handler = TimedRotatingFileHandler(filename=logpath + "/" + __name__ + ".txt", when="D", interval=1,
+            log_file_handler = TimedRotatingFileHandler(filename=logpath + "/" + __name__ + ".txt", when="D",
+                                                        interval=1,
                                                         backupCount=2)
             formatter = logging.Formatter(
                 '%(asctime)s\tFile \"%(filename)s\",line %(lineno)s\t%(levelname)s: %(message)s')
             log_file_handler.setFormatter(formatter)
             self.logger.addHandler(log_file_handler)
         elif logtype == "SERVER":
-            logserver = settings.get("root.logserver")
+            logserver = config['app']['logserver']
             logip = logserver.split(':')[0]
             logport = int(logserver.split(':')[1])
             log_server_handler = logging.handlers.SysLogHandler((logip, logport),
@@ -62,3 +64,7 @@ def info(text):
 
 def error(text):
     return Logger.get_instance().logger.error(text)
+
+
+def warn(text):
+    return Logger.get_instance().logger.warning(text)

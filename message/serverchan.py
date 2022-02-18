@@ -1,9 +1,8 @@
 import sys
 from urllib.parse import urlencode
 import requests
-
+from config import get_config
 import log
-import settings
 
 
 # 发送ServerChan消息
@@ -12,7 +11,8 @@ def send_serverchan_msg(text, desp=""):
         return -1, "标题和内容不能同时为空！"
     values = {"title": text, "desp": desp}
     try:
-        sckey = settings.get('serverchan.sckey')
+        config = get_config()
+        sckey = config['message']['serverchan']['sckey']
         if not sckey:
             log.error("【MSG】未配置sckey，无法发送ServerChan消息!")
             return False, None

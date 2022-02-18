@@ -1,6 +1,6 @@
 # 定时在DSM中执行命令清理qbittorrent的种子
 import log
-import settings
+from config import get_config
 from message.send import sendmsg
 from rmt.qbittorrent import login_qbittorrent
 
@@ -14,7 +14,8 @@ def run_autoremovetorrents():
 
 
 def autoremovetorrents():
-    seeding_time = settings.get("scheduler.autoremovetorrents_seeding_time")
+    config = get_config()
+    seeding_time = config['pt']['pt_seeding_time']
     log.info("【REMOVETORRENTS】开始执行qBittorrent做种清理...")
     qbc = login_qbittorrent()
     if not qbc:

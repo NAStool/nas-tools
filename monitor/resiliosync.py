@@ -4,10 +4,11 @@ from time import sleep
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
+
+from config import get_config
 from rmt.media import transfer_directory
 
 import log
-import settings
 
 # 全局设置
 handler_files = []
@@ -15,7 +16,8 @@ handler_files = []
 
 # 处理文件夹
 def dir_change_handler(event, text):
-    monpaths = eval(settings.get("monitor.resiliosync_monpath"))
+    config = get_config()
+    monpaths = config['media']['resiliosync_path']
     event_path = event.src_path
     if event.is_directory:  # 文件改变都会触发文件夹变化
         try:
@@ -60,7 +62,8 @@ class FileMonitorHandler(FileSystemEventHandler):
 
 
 def create_resilosync():
-    resiliosync_sys = settings.get("root.nas_sys") == "Linux" or False
+    config = get_config()
+    resiliosync_sys = config['app']['nas_sys'] == "Linux" or False
     if resiliosync_sys:
         # linux
         observer = Observer()
@@ -72,7 +75,8 @@ def create_resilosync():
 
 # 全量转移
 def resiliosync_all():
-    monpaths = eval(settings.get("monitor.resiliosync_monpath"))
+    config = get_config()
+    monpaths = config['media']['resiliosync_path']
     log.info("【ResilioSync】开始全量转移...")
     for monpath in monpaths:
         for dir in os.listdir(monpath):

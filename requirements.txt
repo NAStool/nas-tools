@@ -9,3 +9,4 @@ configparser>=3.5.0
 youtube-dl>=2021.6.6
 flask-httpauth==4.5.0
 pycryptodome==3.12.0
+pyyaml>=6.0
