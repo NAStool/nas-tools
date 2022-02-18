@@ -8,4 +8,4 @@ RUN echo "/nas-tools/" > /usr/local/lib/python3.8/site-packages/nas-tools.pth
 RUN python3 -m pip install -r /nas-tools/requirements.txt
 RUN echo fs.inotify.max_user_watches=65535 | tee -a /etc/sysctl.conf
 EXPOSE 3000
-CMD ["python3", "/nas-tools/run.py", "-c", "/config/config.ini"]
+CMD ["python3", "/nas-tools/run.py", "-c", "/config/config.yaml"]
