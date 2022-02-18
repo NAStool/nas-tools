@@ -37,7 +37,7 @@ qbittorrent:
   qbpassword: password
   # qBittorrent下载保存目录，如果是Docker版本的qBittorrent这个是容器内的路径。
   save_path: '/volume2/PT/'
-  # 如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径，否则留空即可。
+  # 1、如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径；如果本程序不是Docker运行但qBittorrent是Docker运行，则设置为PT下载目录在宿主机上的真实路径。不是以上两种情况留空即可。
   save_containerpath:
 
 message:
