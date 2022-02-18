@@ -114,7 +114,7 @@ https://github.com/jxxghp/nas-tools/releases
 ## 使用
 1) WEB UI界面，可以修改配置、手工启动服务、修改资源订阅关键字等，用户: admin，密码在配置文件中。
 ![image](https://user-images.githubusercontent.com/51039935/154681434-5e541cb2-999b-4fde-aac2-62b79e707f6e.png)
-![image](https://user-images.githubusercontent.com/51039935/153804992-9d7c6dc3-8f6f-47f3-8f46-14ccd33d9542.png)
+![image](https://user-images.githubusercontent.com/51039935/154681596-757aef7f-31d4-4d02-9309-55173c26c3b4.png)
 
 
 2) 手机端通知和控制界面，实时接收程序运行状态，控制服务运行（输入命令或者点击菜单）
