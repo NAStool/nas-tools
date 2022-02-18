@@ -113,7 +113,8 @@ def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=Fals
 
 
 # 转移一个目录下的所有文件
-def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, in_season=None, in_type=None, mv_flag=False, noti_flag=True):
+def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, in_season=None, in_type=None,
+                       mv_flag=False, noti_flag=True):
     config = get_config()
     rmt_mode = config['pt']['rmt_mode']
     if not in_name or not in_path:
@@ -216,13 +217,10 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
                             Exist_FileNum = Exist_FileNum + 1
                             log.error("【RMT】文件 " + new_file + "已存在，且质量更好！")
             log.info("【RMT】" + in_name + " 转移完成！")
-            msg_str = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) \
-                      + "\n\n来源：" + in_from \
-                      + "\n\n名称：" + in_name \
-                      + "\n\nTMDB：" + str(Media_Id) \
-                      + "\n\n标题：" + Media_Title \
+            msg_str = "来源：" + in_from \
+                      + "\n\n种子名称：" + in_name \
+                      + "\n\n标题：" + Media_Title + "（" + str(Media_Year) + "）" \
                       + "\n\n类型：" + Media_Type \
-                      + "\n\n年份：" + str(Media_Year) \
                       + "\n\n文件数：" + str(Media_FileNum) \
                       + "\n\n文件大小：" + str_filesize(Media_FileSize)
             save_path = media_path
@@ -295,13 +293,10 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
             log.info("【RMT】" + in_name + " 转移完成！")
             season_ary.sort()
             episode_ary.sort(key=int)
-            msg_str = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())) \
-                      + "\n\n来源：" + in_from \
-                      + "\n\n名称：" + in_name \
-                      + "\n\nTMDB：" + str(Media_Id) \
-                      + "\n\n标题：" + Media_Title \
+            msg_str = "来源：" + in_from \
+                      + "\n\n种子名称：" + in_name \
+                      + "\n\n标题：" + Media_Title + "（" + str(Media_Year) + "）" \
                       + "\n\n类型：" + Media_Type \
-                      + "\n\n年份：" + str(Media_Year) \
                       + "\n\n季：" + ', '.join(season_ary) \
                       + "\n\n集：" + ', '.join(episode_ary) \
                       + "\n\n文件数：" + str(Media_FileNum) \
@@ -317,14 +312,11 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
             sendmsg("【RMT】" + Media_Title + " 转移完成！", msg_str)
         else:
             log.error("【RMT】" + in_name + " 无法识别是什么类型的媒体文件！")
-            sendmsg("【RMT】无法识别媒体类型！",
-                    '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                    + "\n\n来源：" + in_from
+            sendmsg("【RMT】无法识别媒体类型！", "来源：" + in_from
                     + "\n\n名称：" + in_name)
             return False
     else:
-        sendmsg("【RMT】媒体搜刮失败！", '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-                + "\n\n来源：" + in_from
+        sendmsg("【RMT】媒体搜刮失败！", "来源：" + in_from
                 + "\n\n名称：" + in_name
                 + "\n\n识别标题：" + Media_Title
                 + "\n\n识别类型：" + Search_Type)
