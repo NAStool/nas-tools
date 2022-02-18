@@ -132,7 +132,7 @@ def check_config(config):
         log.error("【RUN】login_user或login_password未设置，程序无法启动！")
         return False
     else:
-        log.info("【RUN】WEB管瑞页面用户：" + str(web_port))
+        log.info("【RUN】WEB管瑞页面用户：" + str(login_user))
     # 检查HTTPS
     ssl_cert = config['app']['ssl_cert']
     ssl_key = config['app']['ssl_key']
