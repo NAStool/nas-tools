@@ -24,7 +24,7 @@ media:
   tv_path: '/mnt/media/电视剧'
   # 媒体库预告片存放目录，会去themoviedb搜刮新出的电影预告并下载，有对应电影存在时会优先转移到电影目录。不配置则不启用热门预告片下载功能。
   hottrailer_path: '/mnt/media/预告'
-  # # ResilioSync同步文件夹监控目录，可以监控多个目录，以数组形式配置，可以用 - 自己添加多个条目，需要与resiliosync同步目录一致。不配置则不启用热门预告片下载功能。
+  # ResilioSync同步文件夹监控目录，可以监控多个目录，以数组形式配置，可以用 - 自己添加多个条目，需要与resiliosync同步目录一致。不配置则不启用热门预告片下载功能。
   resiliosync_path:
     - '/mnt/resiliosync/大片抢先看'
 
@@ -35,9 +35,9 @@ qbittorrent:
   # qBittorrent 登录用户名和密码
   qbusername: admin
   qbpassword: password
-  # qBittorrent下载保存目录，这个是对应qBittorrent下载软件的下载目录，通过程序在新增任务时传给qBittorrent，如果是Docker版本的qb，这个是容器内的路径。
+  # qBittorrent下载保存目录，如果是Docker版本的qBittorrent这个是容器内的路径。
   save_path: '/volume2/PT/'
-  # 这项配置逻辑有点难理解：1、如果本程序是用Docker运行，则这个是PT下载目录对应映射到Docker容器内的路径；2、如果本程不是使用Docker运行但qBittorrent是Docker版本的，则配置为qBittorrent下载路径在宿主机上的真实路径；3、以上两种情况外这个留空即可。
+  # 如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径，否则留空即可。
   save_containerpath:
 
 message:
