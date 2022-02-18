@@ -42,7 +42,7 @@ nohup python3 run.py -c ./config/config.yaml &
 ```
 
 ### 3、群晖套件
-仅适用于dsm6，且只能是admin用户使用。
+仅适用于dsm6，且只能是admin用户使用，【要先安装python 3套件，且必须是3.8版本】。
 
 https://github.com/jxxghp/nas-tools/releases
 
