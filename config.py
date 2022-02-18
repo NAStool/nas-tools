@@ -187,9 +187,6 @@ def check_config(config):
     if not save_path:
         log.error("【RUN】qbittorrent save_path未设置，程序无法启动：" + save_path)
         return False
-    elif not os.path.exists(save_path):
-        log.error("【RUN】qbittorrent save_path目录不存在，程序无法启动：" + save_path)
-        return False
     save_containerpath = config['qbittorrent']['save_containerpath']
     if not save_containerpath:
         log.warn("【RUN】qbittorrent save_containerpath未设置，如果是Docker容器使用则必须配置该项，否则无法正常转移文件！")
