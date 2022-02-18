@@ -209,7 +209,7 @@ def create_app():
                 for key, value in data.items():
                     pt_site = key.split('@')[0]
                     pt_site_item = key.split('@')[1]
-                    if value.startswith("["):
+                    if value.startswith("[") and value.endswith("]"):
                         value = eval(value)
                     config['pt']['sites'][pt_site][pt_site_item] = value
                 save_config(config)
