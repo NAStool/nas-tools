@@ -5,7 +5,8 @@ import sys
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 import log
-from config import get_config, AUTO_REMOVE_TORRENTS_INTERVAL, HOT_TRAILER_INTERVAL, QBITTORRENT_TRANSFER_INTERVAL
+from config import get_config, AUTO_REMOVE_TORRENTS_INTERVAL, HOT_TRAILER_INTERVAL, QBITTORRENT_TRANSFER_INTERVAL, \
+    load_config
 from scheduler.autoremove_torrents import run_autoremovetorrents
 from scheduler.hot_trailer import run_hottrailers
 from scheduler.pt_signin import run_ptsignin
@@ -58,7 +59,7 @@ def run_scheduler():
         log.info("【RUN】scheduler.rss_download启动...")
 
     # 配置定时生效
-    scheduler.add_job(config.reload_config, 'interval', seconds=600)
+    scheduler.add_job(load_config, 'interval', seconds=600)
 
     scheduler.start()
     log.info("【RUN】scheduler启动完成!")
