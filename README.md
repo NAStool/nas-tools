@@ -23,6 +23,9 @@ Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 【代码写的比较烂，初学仅限于能实现功能，轻喷。。。有玩明白的帮我写个教程，让更多的人受益，不甚感谢！】
 
 ## 更新日志
+2022.2.19
+* 增加存量资源整理工具及说明，支持复制或者硬链接方式将已有的存量资源批量整理成媒体库
+
 2022.2.18
 * 配置文件由ini调整为yaml，配置方式更简洁，使用最新版本需要转换一下配置文件
 * 增加配置文件检查与日志输出
@@ -71,21 +74,21 @@ https://github.com/jxxghp/nas-tools/releases
 ### 3、设置Emby
 * 在Emby的Webhooks插件中，设置地址为：http(s)://IP:3000/emby，勾选“播放事件”和“用户事件（建议只对管理用户勾选）“
 * 按以下目录结构建立文件夹，并分别设置好媒体库（第二级目录程序会自动建）。
-> 电影
->> 精选
->> 华语电影
->> 外语电影
-> 
-> 电视剧
->> 国产剧
->> 欧美剧
->> 日韩剧
->> 动漫
->> 纪录片
->> 综艺
->> 儿童
-> 
-> 预告
+   > 电影
+   >> 精选
+   >> 华语电影
+   >> 外语电影
+   > 
+   > 电视剧
+   >> 国产剧
+   >> 欧美剧
+   >> 日韩剧
+   >> 动漫
+   >> 纪录片
+   >> 综艺
+   >> 儿童
+   > 
+   > 预告
 
 ### 4、配置ResilioSync（可选）
 * 安装resiliosync软件，配置好神KEY（主KEY：BCWHZRSLANR64CGPTXRE54ENNSIUE5SMO，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6，根据主Key的网页也可以使用其他的Key）
@@ -111,6 +114,21 @@ https://github.com/jxxghp/nas-tools/releases
 
    ![image](https://user-images.githubusercontent.com/51039935/153850570-b97a2bbc-0961-44d8-85e6-bd5f6215e4a4.png)
 
+### 6、整理存量媒体资源（可选）
+经过以上步骤整套程序就已经搭完了，不出意外所有新下载的资源都能自动整理成完美的媒体库了。但是之前已经下载好的资源怎么办？按下面操作，把存量的媒体资源也整理到媒体库里来。
+* Docker版本，在宿主机上运行以下命令，nas-tools修改为你的docker名称，/xxx/xxx修改为需要转移的媒体文件目录。
+   ```
+   docker exec -it nas-tools /bin/bash
+   python3 /nas-tools/rmt/media.py -c /config/config.yaml -d /xxx/xxx
+   ```
+* 群晖套件版本，的在宿主机上运行以下命令，/xxx/xxx修改为需要转移的媒体文件目录，其他不用改。
+   ```
+   /var/packages/py3k/target/usr/local/bin/python3  -c /volume1/homes/admin/.config/nastool/config.yaml -d /xxx/xxx
+   ```
+* 本地直接运行的，cd 到程序根目录，执行以下命令，/xxx/xxx修改为需要转移的媒体文件目录。
+   ```
+   python3 rmt/media.py -c config/config.yaml -d /xxx/xxx
+   ```
 
 ## 使用
 1) WEB UI界面，可以修改配置、手工启动服务、修改资源订阅关键字等，用户: admin，密码在配置文件中。
