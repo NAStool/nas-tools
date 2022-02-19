@@ -72,6 +72,7 @@ https://github.com/jxxghp/nas-tools/releases
 * 在Emby的Webhooks插件中，设置地址为：http(s)://IP:3000/emby，勾选“播放事件”和“用户事件（建议只对管理用户勾选）“
 * 按以下目录结构建立文件夹，并分别设置好媒体库（第二级目录程序会自动建）。
 > 电影
+>> 精选
 >> 华语电影
 >> 外语电影
 > 
