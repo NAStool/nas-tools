@@ -123,7 +123,7 @@ https://github.com/jxxghp/nas-tools/releases
    ```
 * 群晖套件版本，的在宿主机上运行以下命令，/xxx/xxx修改为需要转移的媒体文件目录，其他不用改。
    ```
-   /var/packages/py3k/target/usr/local/bin/python3  -c /volume1/homes/admin/.config/nastool/config.yaml -d /xxx/xxx
+   /var/packages/py3k/target/usr/local/bin/python3 /var/packages/nastool/target/rmt/media.py  -c /volume1/homes/admin/.config/nastool/config.yaml -d /xxx/xxx
    ```
 * 本地直接运行的，cd 到程序根目录，执行以下命令，/xxx/xxx修改为需要转移的媒体文件目录。
    ```
