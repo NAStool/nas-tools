@@ -1,6 +1,6 @@
 #!/bin/sh
 
-PACKAGE_NAME="$SYNOPKG_PKGNAME"
+PACKAGE_NAME="nastool"
 PACKAGE_BASE="/var/packages/${PACKAGE_NAME}/target"
 PACKAGE_SSS="/var/packages/${PACKAGE_NAME}/scripts/start-stop-status"
 PYTHON_BIN="/var/packages/py3k/target/usr/local/bin/python3"
@@ -12,10 +12,9 @@ preinst ()
 }
 
 install_service(){
-  chown -R root:root "${SYNOPKG_PKGDEST}"
-  $PYTHON_BIN "${PACKAGE_BASE}"/get-pip.py
-	$PYTHON_BIN -m pip install -r "${PACKAGE_BASE}"/requirements.txt
-	echo "${PACKAGE_BASE}/" > "${PYTHON_PACKAGE}/nas-tools.pth"
+  "${PYTHON_BIN}" "${PACKAGE_BASE}"/get-pip.py
+  "${PYTHON_BIN}" -m pip install -r "${PACKAGE_BASE}"/requirements.txt
+  echo "${PACKAGE_BASE}/" > "${PYTHON_PACKAGE}/nas-tools.pth"
 }
 
 postinst ()
