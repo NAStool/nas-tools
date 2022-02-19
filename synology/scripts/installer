@@ -3,19 +3,24 @@
 PACKAGE_NAME="$SYNOPKG_PKGNAME"
 PACKAGE_BASE="/var/packages/${PACKAGE_NAME}/target"
 PACKAGE_SSS="/var/packages/${PACKAGE_NAME}/scripts/start-stop-status"
+PYTHON_BIN="/var/packages/py3k/target/usr/local/bin/python3"
+PYTHON_PACKAGE="/var/packages/py3k/target/usr/local/lib/python3.8/site-packages"
 
 preinst ()
 {
     exit 0
 }
 
-postinst ()
-{
+install_service(){
   chown -R root:root "${SYNOPKG_PKGDEST}"
   $PYTHON_BIN "${PACKAGE_BASE}"/get-pip.py
 	$PYTHON_BIN -m pip install -r "${PACKAGE_BASE}"/requirements.txt
-	echo "${PACKAGE_BASE}/" > /var/packages/py3k/target/usr/local/lib/python3.8/site-packages/nas-tools.pth
-    
+	echo "${PACKAGE_BASE}/" > "${PYTHON_PACKAGE}/nas-tools.pth"
+}
+
+postinst ()
+{
+  install_service
 	exit 0
 }
 
@@ -41,9 +46,6 @@ preupgrade ()
 
 postupgrade ()
 {
-    chown -R root:root "${SYNOPKG_PKGDEST}"
-    $PYTHON_BIN "${PACKAGE_BASE}"/get-pip.py
-    $PYTHON_BIN -m pip install -r "${PACKAGE_BASE}"/requirements.txt
-    echo "${PACKAGE_BASE}/" > /var/packages/py3k/target/usr/local/lib/python3.8/site-packages/nas-tools.pth
+    install_service
     exit 0
 }

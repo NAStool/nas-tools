@@ -7,7 +7,7 @@ TIMEOUT=30
 
 running_nastool() {
     PIDS=$(/bin/ps -ef | sed -e 's/^[ \t]*//' | grep -v grep | grep run.py | awk '{print $2}')
-    for PID in $PIDS
+    for PID in ${PIDS}
 	do
 	  return 0
 	done
@@ -16,7 +16,7 @@ running_nastool() {
 
 start() {  
 	if ! running_nastool ; then
-		 $PYTHON_BIN "${PACKAGE_BASE}"/run.py -c $CONFIG_FILE &
+		 $PYTHON_BIN "${PACKAGE_BASE}"/run.py -c "${CONFIG_FILE}" &
 	fi
 
     i=0
@@ -28,7 +28,7 @@ start() {
         else
             break
         fi
-        [ $i -ge $TIMEOUT ] && break
+        [ $i -ge ${TIMEOUT} ] && break
     done
 
     # 检查进程状态
@@ -46,19 +46,19 @@ stop() {
     # 检查进程状态
     if running_nastool ; then
       PIDS=$(/bin/ps -ef | sed -e 's/^[ \t]*//' | grep -v grep | grep run.py | awk '{print $2}' | cut -f1 -d' ')
-      [ -z "$PIDS" ] && return 0
-      for PID in $PIDS
+      [ -z "${PIDS}" ] && return 0
+      for PID in ${PIDS}
       do
-        echo "Try to Kill the $1 process [ $PID ]"
-        kill -15 "$PID"
+        echo "Try to Kill the $1 process [ ${PID} ]"
+        kill -15 "${PID}"
       done
       echo "Wait 5s..."
       sleep 5s
       if running_nastool ; then
-        for PID in $PIDS
+        for PID in ${PIDS}
         do
-          echo "Kill the $1 process [ $PID ]"
-          kill -9 "$PID"
+          echo "Kill the $1 process [ ${PID} ]"
+          kill -9 "${PID}"
         done
         sleep 2s
       fi
