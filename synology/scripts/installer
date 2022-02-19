@@ -12,6 +12,7 @@ preinst ()
 }
 
 install_service(){
+  chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
   "${PYTHON_BIN}" "${PACKAGE_BASE}"/get-pip.py
   "${PYTHON_BIN}" -m pip install -r "${PACKAGE_BASE}"/requirements.txt
   echo "${PACKAGE_BASE}/" > "${PYTHON_PACKAGE}/nas-tools.pth"

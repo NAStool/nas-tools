@@ -24,6 +24,7 @@ jobs:
         mkdir spk
         mv package.tgz synology/conf synology/scripts/ synology/CHANGELOG synology/INFO synology/*.PNG synology/*.asc spk/
         cd spk/
+        chmod 777 scripts/*
         tar -cvf nastool_dsm_6.x.spk *
 
     - name: Login to dockerhub
