@@ -16,7 +16,7 @@ running_nastool() {
 
 start() {  
 	if ! running_nastool ; then
-		 $PYTHON_BIN $PACKAGE_BASE/run.py -c $CONFIG_FILE &
+		 $PYTHON_BIN "${PACKAGE_BASE}"/run.py -c $CONFIG_FILE &
 	fi
 
     i=0
