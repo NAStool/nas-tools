@@ -17,6 +17,7 @@ preinst ()
 postinst ()
 {
   chown -R root:root ${SYNOPKG_PKGDEST}
+  $PYTHON_BIN $PACKAGE_BASE/get-pip.py
 	$PYTHON_BIN -m pip install -r $PACKAGE_BASE/requirements.txt
 	echo "$PACKAGE_BASE/" > /var/packages/py3k/target/usr/local/lib/python3.8/site-packages/nas-tools.pth
     
@@ -35,13 +36,14 @@ postuninst ()
 
 preupgrade ()
 {
-    chown -R root:root ${SYNOPKG_PKGDEST}
-    $PYTHON_BIN -m pip install -r $PACKAGE_BASE/requirements.txt
-    echo "$PACKAGE_BASE/" > /var/packages/py3k/target/usr/local/lib/python3.8/site-packages/nas-tools.pth
     exit 0
 }
 
 postupgrade ()
 {
+    chown -R root:root ${SYNOPKG_PKGDEST}
+    $PYTHON_BIN $PACKAGE_BASE/get-pip.py
+    $PYTHON_BIN -m pip install -r $PACKAGE_BASE/requirements.txt
+    echo "$PACKAGE_BASE/" > /var/packages/py3k/target/usr/local/lib/python3.8/site-packages/nas-tools.pth
     exit 0
 }
