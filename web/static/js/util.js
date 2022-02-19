@@ -1,9 +1,19 @@
 $(document).ready(function(){
     // 初始化编辑器
+    ace.require("ace/ext/language_tools");
+    ace.require("ace/ext/static_highlight");
+    ace.require("ace/ext/beautify");
     var editor = ace.edit("editor");
-	editor.setTheme("ace/theme/github");
-	editor.session.setMode("ace/mode/yaml");
+	editor.setTheme("ace/theme/xcode");
 	editor.setFontSize(14);
+	editor.session.setMode("ace/mode/yaml");
+    editor.session.setUseWrapMode(true);
+    editor.setHighlightActiveLine(true);
+    editor.setOptions({
+            enableBasicAutocompletion: true,
+            enableSnippets: true,
+            enableLiveAutocompletion: true
+        });
 
     // Ajax主方法
     function ajax_post(cmd, data, handler){
