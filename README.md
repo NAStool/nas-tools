@@ -116,12 +116,12 @@ https://github.com/jxxghp/nas-tools/releases
 
 ### 6、整理存量媒体资源（可选）
 经过以上步骤整套程序就已经搭完了，不出意外所有新下载的资源都能自动整理成完美的媒体库了。但是之前已经下载好的资源怎么办？按下面操作，把存量的媒体资源也整理到媒体库里来。注意：处理过程中会通过程序中配置的日志或消息渠道通知，终端不会有过程日志输出。
-* Docker版本，在宿主机上运行以下命令，nas-tools修改为你的docker名称，/xxx/xxx修改为需要转移的媒体文件目录。
+* Docker版本，宿主机上运行以下命令，nas-tools修改为你的docker名称，/xxx/xxx修改为需要转移的媒体文件目录。
    ```
    docker exec -it nas-tools /bin/bash
    python3 /nas-tools/rmt/media.py -c /config/config.yaml -d /xxx/xxx
    ```
-* 群晖套件版本，的在宿主机上运行以下命令，/xxx/xxx修改为需要转移的媒体文件目录，其他不用改。
+* 群晖套件版本，ssh到后台运行以下命令，/xxx/xxx修改为需要转移的媒体文件目录，其他不用改。
    ```
    /var/packages/py3k/target/usr/local/bin/python3 /var/packages/nastool/target/rmt/media.py  -c /volume1/homes/admin/.config/nastool/config.yaml -d /xxx/xxx
    ```
