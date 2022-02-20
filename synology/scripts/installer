@@ -1,6 +1,6 @@
 #!/bin/sh
-PACKAGE_BASE="${SYNOPKG_PKGDEST}/target"
-PACKAGE_SSS="${SYNOPKG_PKGDEST}/scripts/start-stop-status"
+PACKAGE_BASE="/var/packages/nastool/target"
+PACKAGE_SSS="/var/packages/nastool/scripts/start-stop-status"
 PYTHON_BIN="/var/packages/py3k/target/usr/local/bin/python3"
 
 preinst ()
@@ -9,7 +9,7 @@ preinst ()
 }
 
 install_service(){
-  chmod +x "${SYNOPKG_PKGDEST}"/"${ENGINE_SCRIPT}"
+  chmod +x "/var/packages/nastool/scripts/"
   # 安装pip
   "${PYTHON_BIN}" "${PACKAGE_BASE}"/get-pip.py
   # pip安装依赖包
