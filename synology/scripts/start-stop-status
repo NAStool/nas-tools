@@ -1,6 +1,6 @@
 #!/bin/sh
 PYTHON_BIN="/var/packages/py3k/target/usr/local/bin/python3"
-PACKAGE_BASE="${SYNOPKG_PKGDEST}/target"
+PACKAGE_BASE="/var/packages/nastool/target"
 CONFIG_FILE=$(cat "${PACKAGE_BASE}/.path")
 TIMEOUT=30
 
@@ -15,7 +15,7 @@ running_nastool() {
 
 start() {  
 	if ! running_nastool ; then
-		 "${PYTHON_BIN}" "${PACKAGE_BASE}"/run.py -c "${CONFIG_FILE}" &
+		 "${PYTHON_BIN}" "${PACKAGE_BASE}/run.py" -c "${CONFIG_FILE}" &
 	fi
 
     i=0
