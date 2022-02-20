@@ -45,7 +45,7 @@ nohup python3 run.py -c ./config/config.yaml &
 ```
 
 ### 3、群晖套件
-仅适用于dsm6，且只能是admin用户使用，【要先安装python 3套件，且必须是3.8版本】。
+仅适用于dsm6，要先安装python3套件。
 
 https://github.com/jxxghp/nas-tools/releases
 
@@ -69,7 +69,7 @@ https://github.com/jxxghp/nas-tools/releases
 
 * docker：需要映射/config目录，并将修改好后的config.yaml放到配置映射目录下；需要映射WEB访问端口（默认3000）；需要映射媒体库目录及PT下载目录、ResilioSync目录到容器上并与配置文件保持一致。
    
-* 群晖套件：配置文件地址必须为：/homes/admin/.config/nastool/config.yaml，即必须是admin用户运行且按路径放置配置文件。
+* 群晖套件：在套件安装界面中设置配置文件路径，比如：/homes/admin/.config/nastool/config.yaml，并将修改好的配置文件放置在对应路径下。
 
 ### 3、设置Emby
 * 在Emby的Webhooks插件中，设置地址为：http(s)://IP:3000/emby，勾选“播放事件”和“用户事件（建议只对管理用户勾选）“
@@ -121,7 +121,7 @@ https://github.com/jxxghp/nas-tools/releases
    docker exec -it nas-tools /bin/bash
    python3 /nas-tools/rmt/media.py -c /config/config.yaml -d /xxx/xxx
    ```
-* 群晖套件版本，ssh到后台运行以下命令，/xxx/xxx修改为需要转移的媒体文件目录，其他不用改。
+* 群晖套件版本，ssh到后台运行以下命令，同样修改配置文件路径以及/xxx/xxx修改为需要转移的媒体文件目录。
    ```
    /var/packages/py3k/target/usr/local/bin/python3 /var/packages/nastool/target/rmt/media.py  -c /volume1/homes/admin/.config/nastool/config.yaml -d /xxx/xxx
    ```

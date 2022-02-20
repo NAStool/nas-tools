@@ -1,8 +1,7 @@
 #!/bin/sh
-PACKAGE_NAME="nastool"
 PYTHON_BIN="/var/packages/py3k/target/usr/local/bin/python3"
-PACKAGE_BASE="/var/packages/${PACKAGE_NAME}/target"
-CONFIG_FILE="/volume1/homes/admin/.config/${PACKAGE_NAME}/config.yaml"
+PACKAGE_BASE="${SYNOPKG_PKGDEST}/target"
+CONFIG_FILE=$(cat "${PACKAGE_BASE}/.path")
 TIMEOUT=30
 
 running_nastool() {
