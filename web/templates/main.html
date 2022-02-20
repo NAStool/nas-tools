@@ -31,7 +31,7 @@
 					<div class="tab-content">
 						<div class="tab-pane {% if page=='rmt' %} active {% endif %}" id="rmt">
 							<form role="form" action="/do" method="post" id="rmt_form" class="well">
-							  <h5>自动转移识别失败时，指定媒体信息，手动转移qBittorrent下载完成的文件到媒体库</h5>
+							  <h5>1、自动转移识别失败时，可指定媒体信息手动转移qBittorrent下载完成的文件到媒体库（剧集的集序号需从媒体文件名中获取）。不输入任何信息时批量转移PT下载目录下的所有存量文件到媒体库。</h5>
 							  <div class="form-group">
 								<label for="rmt_name">标题</label>
 								<input type="text" class="form-control" id="rmt_name" name="rmt_name" placeholder="" value="">
@@ -49,7 +49,7 @@
 								<input type="text" class="form-control" id="rmt_year" name="rmt_year" placeholder="" value="">
 							  </div>
 							  <div class="form-group">
-								<label for="rmt_season">季</label>
+								<label for="rmt_season">季（Sxx）</label>
 								<input type="text" class="form-control" id="rmt_season" name="rmt_season" placeholder="" value="">
 							  </div>
 							  <div class="form-group">
@@ -65,12 +65,12 @@
 						</div>
 						<div class="tab-pane {% if page=='rss' %} active {% endif %}" id="rss">
 							<form role="form" action="/do" method="post" id="rss_form" class="form-horizontal">
-							  <h5>配置PT站RSS订阅源过滤关键字，自动下载命中关键字的资源，注意要符合数组格式</h5>
+							  <h5>配置PT RSS订阅信息及Cookie，自动下载命中关键字的资源，自动签到。注意部分配置要符合数组格式['xx','xx']。</h5>
 								{% for rss_cfg in rss_cfg_list %}
 								<fieldset>
 									<legend>{{ rss_cfg.job }}</legend>
 								   <div class="form-group">
-									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}@rssurl">RSS URL</label>
+									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}@rssurl">RSS Url</label>
 									  <div class="col-sm-4">
 										 <input class="form-control" id="{{ rss_cfg.job }}@rssurl" name="{{ rss_cfg.job }}@rssurl" type="text" placeholder="" value="{{ rss_cfg.url }}"/>
 									  </div>
@@ -90,7 +90,7 @@
 									  </div>
 								   </div>
 									<div class="form-group">
-									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}@signin_url">签到URL</label>
+									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}@signin_url">签到Url</label>
 									  <div class="col-sm-4">
 										 <input class="form-control" id="{{ rss_cfg.job }}@signin_url" name="{{ rss_cfg.job }}@signin_url" type="text" placeholder="" value="{{ rss_cfg.signin_url }}"/>
 									  </div>
@@ -108,7 +108,7 @@
 						</div>
 						<div class="tab-pane {% if page=='set' %} active {% endif %}" id="set">
 							<form role="form" action="/do" method="post" id="set_form" class="well">
-								<h5>配置文件，可直接修改保存</h5>
+								<h5>配置文件，可直接修改保存，注意符合yaml语法格式。</h5>
 								<div class="form-group">
 									<div id="editor"></div>
 								</div>
@@ -117,7 +117,7 @@
 						</div>
 						<div class="tab-pane {% if page=='sch' %} active {% endif %}" id="sch">
 							<form role="form" action="" method="post" id="svr_form" class="well">
-							<h5>所有的后台定时及实时监测服务</h5>
+							<h5>所有的后台定时及实时监测服务，可手工触发运行。</h5>
 							<table class="table table-striped">
 							  <thead>
 								<tr>

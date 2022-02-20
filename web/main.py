@@ -3,7 +3,7 @@ from flask import Flask, request, json, render_template, make_response, redirect
 import log
 from monitor.movie_trailer import movie_trailer_all
 from monitor.resiliosync import resiliosync_all
-from rmt.media import transfer_directory
+from rmt.media import transfer_directory, transfer_all
 from rmt.qbittorrent import login_qbittorrent, get_qbittorrent_tasks, set_torrent_status, transfer_qbittorrent_task
 from scheduler.autoremove_torrents import run_autoremovetorrents
 from scheduler.hot_trailer import run_hottrailers
@@ -168,7 +168,8 @@ def create_app():
                     if v_hash and done_flag:
                         set_torrent_status(v_hash)
                 else:
-                    run_qbtransfer()
+                    # 转移PT保存目录下的所有文件
+                    transfer_all()
                 return {"rmt_stderr": "0", "rmt_stdout": "处理成功！", "rmt_paths": get_qbittorrent_tasks()}
 
             if cmd == "set_qry":

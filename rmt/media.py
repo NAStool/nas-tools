@@ -564,26 +564,27 @@ def transfer_all(pt_path=None):
         from_path = save_path
         if save_containerpath:
             from_path = save_containerpath
-    log.info("【RMT】正在转移以下目录中的全量文件：" + from_path)
-    log.info("【RMT】转移模式为：" + config['pt']['rmt_mode'])
+    print("【RMT】正在转移以下目录中的全量文件：" + from_path)
+    print("【RMT】转移模式为：" + config['pt']['rmt_mode'])
     for dir in os.listdir(from_path):
         file_path = os.path.join(from_path, dir)
         file_name = os.path.basename(file_path)
-        log.info("【RMT】开始处理：" + file_path)
+        print("【RMT】开始处理：" + file_path)
         try:
             transfer_directory(in_from="PT", in_name=file_name, in_path=file_path)
+            print("【RMT】处理完成：" + file_path)
         except Exception as err:
-            log.error("【RMT】发生错误：" + str(err))
-    log.info("【RMT】" + from_path + " 处理完成！")
+            print("【RMT】发生错误：" + str(err))
+    print("【RMT】" + from_path + " 处理完成！")
 
 
 if __name__ == "__main__":
     # 参数
     parser = argparse.ArgumentParser(description='Rename Media Tool')
     parser.add_argument('-c', '--config', dest='config_file', required=True, help='Config File Path')
-    parser.add_argument('-d', '--dir', dest='pt_path', required=True, help='Pt Save Path')
+    parser.add_argument('-d', '--dir', dest='pt_path', required=True, help='Pt Download Files Saved Path')
     args = parser.parse_args()
-    os.environ['NASTOOL_CONFIG'] = args.config_file
-    print("【RMT】配置文件地址：" + os.environ['NASTOOL_CONFIG'])
+    print("【RMT】配置文件地址：" + args.config_file)
     print("【RMT】处理路径：" + args.pt_path)
+    os.environ['NASTOOL_CONFIG'] = args.config_file
     transfer_all(args.pt_path)
