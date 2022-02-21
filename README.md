@@ -26,7 +26,7 @@ Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
 ## 更新日志
 2022.2.21
-* 支持qbittorrent、transmission两种PT客户端
+* 支持qbittorrent、transmission两种PT客户端（强烈推荐使用qb）
 
 2022.2.19
 * 增加存量资源整理工具及说明，支持复制或者硬链接方式将已有的存量资源批量整理成媒体库
