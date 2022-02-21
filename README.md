@@ -140,7 +140,7 @@ https://github.com/jxxghp/nas-tools/releases
 
 
 2) 手机端通知和控制界面，实时接收程序运行状态，控制服务运行（输入命令或者点击菜单）
-![image](https://user-images.githubusercontent.com/51039935/153968714-47835fa0-1a35-4d77-bfcf-8f24b99396c9.png)
+![image](https://user-images.githubusercontent.com/51039935/154942780-ff92abee-744b-4ffd-840c-0bace822d0bc.jpg)
 
 
 3) 效果（这些分类都是程序自动维护的）
