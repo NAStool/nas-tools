@@ -47,7 +47,7 @@ nohup python3 run.py -c ./config/config.yaml &
 ```
 
 ### 3、群晖套件
-仅适用于dsm6，要先安装python3套件。
+仅适用于dsm6，要先安装python3套件（版本大于3.7）。
 
 https://github.com/jxxghp/nas-tools/releases
 
