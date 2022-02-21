@@ -5,12 +5,11 @@ import sys
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 import log
-from config import get_config, AUTO_REMOVE_TORRENTS_INTERVAL, HOT_TRAILER_INTERVAL, QBITTORRENT_TRANSFER_INTERVAL, \
-    load_config
+from config import get_config, AUTO_REMOVE_TORRENTS_INTERVAL, HOT_TRAILER_INTERVAL, load_config, PT_TRANSFER_INTERVAL
 from scheduler.autoremove_torrents import run_autoremovetorrents
 from scheduler.hot_trailer import run_hottrailers
 from scheduler.pt_signin import run_ptsignin
-from scheduler.qb_transfer import run_qbtransfer
+from scheduler.pt_transfer import run_pttransfer
 from scheduler.rss_download import run_rssdownload
 
 
@@ -49,8 +48,8 @@ def run_scheduler():
         log.info("【RUN】scheduler.pt_signin启动．．．")
 
     # qbittorrent文件转移
-    scheduler.add_job(run_qbtransfer, 'interval', seconds=QBITTORRENT_TRANSFER_INTERVAL)
-    log.info("【RUN】scheduler.qb_transfer启动...")
+    scheduler.add_job(run_pttransfer, 'interval', seconds=PT_TRANSFER_INTERVAL)
+    log.info("【RUN】scheduler.tr_transfer启动...")
 
     # RSS下载器
     pt_check_interval = config['pt']['pt_check_interval']

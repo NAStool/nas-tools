@@ -6,7 +6,7 @@ Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
 ## 功能：
 ### 1、PT自动搜刮下载、整理、保种
-* 根据配置的关键字（PT站种子名称关键字或者电影电视剧的真实名称都可以，前者可正则匹配后者则需完全匹配），从PT站定时搜刮种子，自动添加qBittorrent任务下载（已经有的不会重复下载）。 比如电影可配置为“[\s\.]+2021|2022[\s\.]+”正则式，把2021、2022年新出的资源都自动下载；或者配置为“永恒族”，出现该电影资源时第一时间下载。
+* 根据配置的关键字（PT站种子名称关键字或者电影电视剧的真实名称都可以，前者可正则匹配后者则需完全匹配），从PT站定时搜刮种子，自动添加qBittorrent/transmission任务下载（已经有的不会重复下载）。 比如电影可配置为“[\s\.]+2021|2022[\s\.]+”正则式，把2021、2022年新出的资源都自动下载；或者配置为“永恒族”，出现该电影资源时第一时间下载。
 
 * 下载完成后自动识别电影剧集名称并重命名为Emby/Plex文件名格式，自动复制或者硬链接到Emby/Plex媒体库目录下并自动分好类，实现Emby/Plex 100%完美识别【重点: 识别率成功率很高，且支持国产剧集命名的识别，这点很多国外软件都是不支持的】。
 
@@ -19,7 +19,7 @@ Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 * 支持ServerChan、微信、Telegram消息通知服务三选一， 以上功能运行状态可通过消息服务推送消息到手机上，比如新增加了电影、签到完成、Emby播放状态（需要在Emby中配置webhook插件）等。甚至还能在手机上控制服务运行。
 
 ### 4、其它
-* PT站自动签到，qBittorrent定时删种、电影预告片搜刮和下载（已有电影的预告片、热门预告片）等等，不需要的可以在配置中关掉。
+* PT站自动签到，qBittorrent/transmission定时删种、电影预告片搜刮和下载（已有电影的预告片、热门预告片）等等，不需要的可以在配置中关掉。
 
 
 【代码写的比较烂，初学仅限于能实现功能，轻喷。。。有玩明白的帮我写个教程，让更多的人受益，不甚感谢！】
@@ -67,7 +67,7 @@ https://github.com/jxxghp/nas-tools/releases
 ### 2、配置文件
 * 确定是用【复制】模式还是【硬链接】模式：复制模式下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠；硬链接模式不用额外增加存储空间，一份文件两份目录，但需要下载目录和媒体库目录在一个磁盘分区或者存储空间。两者在媒体库使用上是一致的，按自己需要在[pt]rmt_mode按说明配置。
 
-* 参考 config/config.yaml的配置示例进行配置，填入申请好的相关API KEY，以及媒体库电影、电视剧存储路径、PT站RSS信息、qBittorrent信息等等，示例文件中有详细的说明。
+* 参考 config/config.yaml的配置示例进行配置，填入申请好的相关API KEY，以及媒体库电影、电视剧存储路径、PT站RSS信息、qBittorrent/transmission信息等等，示例文件中有详细的说明。
 
 * docker：需要映射/config目录，并将修改好后的config.yaml放到配置映射目录下；需要映射WEB访问端口（默认3000）；需要映射媒体库目录及PT下载目录、ResilioSync目录到容器上并与配置文件保持一致。
    
@@ -106,13 +106,13 @@ https://github.com/jxxghp/nas-tools/releases
    
    |  命令   | 功能  |
    |  ----  | ----  |
-   | /qbt  | qBittorrent转移 |
-   | /qbr  | qBittorrent删种 |
-   | /hotm  | 热门预告 |
+   | /rss  | RSS下载 |
+   | /ptt  | PT文件转移 |
+   | /ptr  | PT删种 |
    | /pts | PT签到 |
+   | /hotm  | 热门预告 |
    | /mrt  | 预告片下载 |
    | /rst  | ResilioSync同步 |
-   | /rss  | RSS下载 |
 
    ![image](https://user-images.githubusercontent.com/51039935/153850570-b97a2bbc-0961-44d8-85e6-bd5f6215e4a4.png)
 

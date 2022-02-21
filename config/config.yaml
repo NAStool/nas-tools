@@ -28,18 +28,6 @@ media:
   resiliosync_path:
     - '/mnt/resiliosync/大片抢先看'
 
-qbittorrent:
-  # qBittorrent IP地址和端口，注意如果qb启动了HTTPS证书，则需要配置为https://IP
-  qbhost: 10.10.10.250
-  qbport: 8080
-  # qBittorrent 登录用户名和密码
-  qbusername: admin
-  qbpassword: password
-  # qBittorrent下载保存目录，如果是Docker版本的qBittorrent这个是容器内的路径。
-  save_path: '/volume2/PT/'
-  # 1、如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径；如果本程序不是Docker运行但qBittorrent是Docker运行，则设置为PT下载目录在宿主机上的真实路径。不是以上两种情况留空即可。
-  save_containerpath:
-
 message:
   # 发送消息使用的渠道：wechat、serverchan、telegram，需在对应的配置区域配置。不使用的渠道配置可以留空或者删除。推荐使用wechat微信渠道。不设置则不启用消息服务。
   msg_channel: wechat
@@ -73,6 +61,8 @@ pt:
   rmt_mode: COPY
   # TMDB API KEY，需要在https://www.themoviedb.org/申请，必须配置这个，否则无法识别媒体资源和重命名
   rmt_tmdbkey:
+  # PT下载使用的客户端软件，qbittorrent、transmission，需要配置qbittorrent或transmission对应的配置区域
+  pt_client: qbittorrent
   # 配置PT站点的信息，RSS用于订阅自动下载，COOKIE用于签到
   # 是否只下载有中文媒体信息的种子（开了只会下themoviedb有中文描述的影视资源）
   rss_chinese: False
@@ -119,3 +109,27 @@ pt:
       tv_re:
       signin_url: 'https://ptsbao.club/mybonus.php'
       cookie:
+
+qbittorrent:
+  # qBittorrent IP地址和端口，注意如果qb启动了HTTPS证书，则需要配置为https://IP
+  qbhost: 10.10.10.250
+  qbport: 8080
+  # qBittorrent 登录用户名和密码
+  qbusername: admin
+  qbpassword: password
+  # qBittorrent下载保存目录，如果是Docker版本的qb这个是容器内的路径。
+  save_path: '/volume2/PT/'
+  # 1、如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径；如果本程序不是Docker运行但qb是Docker运行，则设置为PT下载目录在宿主机上的真实路径。不是以上两种情况留空即可。
+  save_containerpath:
+
+transmission:
+  # transmission IP地址和端口，注意如果tr启用了HTTPS证书，则需要配置为https://IP
+  trhost: 10.10.10.250
+  trport: 9091
+  # transmission 登录用户名和密码
+  trusername: admin
+  trpassword: password
+  # transmission下载保存目录，如果是Docker版本的tr这个是容器内的路径。
+  save_path: '/volume2/PT/'
+  # 1、如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径；如果本程序不是Docker运行但tr是Docker运行，则设置为PT下载目录在宿主机上的真实路径。不是以上两种情况留空即可。
+  save_containerpath:

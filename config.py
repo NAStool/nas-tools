@@ -1,8 +1,10 @@
 import logging
 import os
 import threading
+import typing_extensions
 
 import qbittorrentapi
+import transmission_rpc
 import yaml
 import log
 
@@ -37,8 +39,8 @@ AUTO_REMOVE_TORRENTS_INTERVAL = 600
 HOT_TRAILER_INTERVAL = 86400
 # 单次检查多少个预告片数据
 HOT_TRAILER_INTERVAL_TOTAL = 100
-# qBittorrent转移文件检查时间间隔，默认5分钟
-QBITTORRENT_TRANSFER_INTERVAL = 300
+# PT转移文件检查时间间隔，默认5分钟
+PT_TRANSFER_INTERVAL = 300
 
 # 日志级别
 LOG_LEVEL = logging.INFO
@@ -168,29 +170,6 @@ def check_config(config):
         elif not os.path.exists(resiliosync_path):
             log.warn("【RUN】resiliosync_path目录不存，ResilioSync资源同步功能将禁用：" + resiliosync_path)
 
-    # 检查qbittorrent配置并测试连通性
-    qbhost = config['qbittorrent']['qbhost']
-    qbport = config['qbittorrent']['qbport']
-    qbusername = config['qbittorrent']['qbusername']
-    qbpassword = config['qbittorrent']['qbpassword']
-    try:
-        qbt = qbittorrentapi.Client(host=qbhost,
-                                    port=qbport,
-                                    username=qbusername,
-                                    password=qbpassword,
-                                    VERIFY_WEBUI_CERTIFICATE=False)
-        qbt.auth_log_in()
-    except Exception as err:
-        log.error("【RUN】qBittorrent无法连接，请检查配置：" + str(err))
-        return False
-    save_path = config['qbittorrent']['save_path']
-    if not save_path:
-        log.error("【RUN】qbittorrent save_path未设置，程序无法启动：" + save_path)
-        return False
-    save_containerpath = config['qbittorrent']['save_containerpath']
-    if not save_containerpath:
-        log.warn("【RUN】qbittorrent save_containerpath未设置，如果是Docker容器使用则必须配置该项，否则无法正常转移文件！")
-
     # 检查消息配置
     msg_channel = config['message']['msg_channel']
     if not msg_channel:
@@ -240,6 +219,57 @@ def check_config(config):
     pt_check_interval = config['pt']['pt_check_interval']
     if not pt_check_interval:
         log.warn("【RUN】pt_check_interval未配置，将不会自动检查和下载PT影视资源！")
+
+    pt_client = config['pt']['pt_client']
+    log.info("【RUN】PT下载软件设置为：" + pt_client)
+    if pt_client == "qbittorrent":
+        # 检查qbittorrent配置并测试连通性
+        qbhost = config['qbittorrent']['qbhost']
+        qbport = config['qbittorrent']['qbport']
+        qbusername = config['qbittorrent']['qbusername']
+        qbpassword = config['qbittorrent']['qbpassword']
+        try:
+            qbt = qbittorrentapi.Client(host=qbhost,
+                                        port=qbport,
+                                        username=qbusername,
+                                        password=qbpassword,
+                                        VERIFY_WEBUI_CERTIFICATE=False)
+            qbt.auth_log_in()
+        except Exception as err:
+            log.warn("【RUN】qBittorrent无法连接，请检查配置：" + str(err))
+        save_path = config['qbittorrent']['save_path']
+        if not save_path:
+            log.warn("【RUN】qbittorrent save_path未设置，请检查配置：" + save_path)
+        save_containerpath = config['qbittorrent']['save_containerpath']
+        if not save_containerpath:
+            log.warn("【RUN】qbittorrent save_containerpath未设置，如果是Docker容器使用则必须配置该项，否则无法正常转移文件！")
+    elif pt_client == "transmission":
+        # 检查qbittorrent配置并测试连通性
+        trhost = config['transmission']['trhost']
+        trport = config['transmission']['trport']
+        trusername = config['transmission']['trusername']
+        trpassword = config['transmission']['trpassword']
+        if trhost.startswith("https:"):
+            protocol = "https"
+        else:
+            protocol = "http"
+        try:
+            trt = transmission_rpc.Client(protocol=protocol, username=trusername, password=trpassword, host=trhost,
+                                          port=trport)
+            rpc_version = trt.rpc_version
+            if not rpc_version:
+                log.warn("【RUN】transmission无法连接，请检查配置！")
+        except Exception as err:
+            log.warn("【RUN】transmission无法连接，请检查配置：" + str(err))
+        save_path = config['transmission']['save_path']
+        if not save_path:
+            log.warn("【RUN】transmission save_path未设置，请检查配置：" + save_path)
+        save_containerpath = config['transmission']['save_containerpath']
+        if not save_containerpath:
+            log.warn("【RUN】transmission save_containerpath未设置，如果是Docker容器使用则必须配置该项，否则无法正常转移文件！")
+    else:
+        log.error("【RUN】未设置pt_client，程序无法启动！")
+        return False
     sites = config['pt']['sites']
     for key, value in sites.items():
         rssurl = sites[key]['rssurl']

@@ -4,11 +4,12 @@ import log
 from monitor.movie_trailer import movie_trailer_all
 from monitor.resiliosync import resiliosync_all
 from rmt.media import transfer_directory, transfer_all
-from rmt.qbittorrent import login_qbittorrent, get_qbittorrent_tasks, set_torrent_status, transfer_qbittorrent_task
+from rmt.qbittorrent import get_qbittorrent_tasks, set_qb_torrent_status
+from rmt.transmission import add_transmission_torrent, set_tr_torrent_status, get_transmission_tasks
 from scheduler.autoremove_torrents import run_autoremovetorrents
 from scheduler.hot_trailer import run_hottrailers
 from scheduler.pt_signin import run_ptsignin
-from scheduler.qb_transfer import run_qbtransfer
+from scheduler.pt_transfer import run_pttransfer
 from scheduler.rss_download import run_rssdownload, add_qbittorrent_torrent
 from web.emby.discord import report_to_discord
 from web.emby.emby_event import EmbyEvent
@@ -16,7 +17,7 @@ from message.send import sendmsg
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from config import WECHAT_MENU, get_config, AUTO_REMOVE_TORRENTS_INTERVAL, QBITTORRENT_TRANSFER_INTERVAL, \
+from config import WECHAT_MENU, get_config, PT_TRANSFER_INTERVAL, \
     HOT_TRAILER_INTERVAL, save_config, get_config_path
 from web.wechat.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ET
@@ -89,17 +90,17 @@ def create_app():
         scheduler_cfg_list.append(
             {'name': 'RSS下载', 'time': tim_rssdownload, 'state': rss_state, 'id': 'rssdownload'})
 
+        tim_pttransfer = str(round(PT_TRANSFER_INTERVAL/60)) + "分"
+        scheduler_cfg_list.append(
+            {'name': 'PT文件转移', 'time': tim_pttransfer, 'state': 'ON', 'id': 'pttransfer'})
+
         pt_seeding_time = str(round(config['pt']['pt_seeding_time']/3600)) + "小时"
         sta_autoremovetorrents = 'OFF'
         if pt_seeding_time:
             sta_autoremovetorrents = 'ON'
         scheduler_cfg_list.append(
-            {'name': 'qBittorrent删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents,
+            {'name': 'PT删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents,
              'id': 'autoremovetorrents'})
-
-        tim_qbtransfer = str(round(QBITTORRENT_TRANSFER_INTERVAL/60)) + "分"
-        scheduler_cfg_list.append(
-            {'name': 'qBittorrent转移', 'time': tim_qbtransfer, 'state': 'ON', 'id': 'qbtransfer'})
 
         resiliosync_path = config['media']['resiliosync_path']
         sta_resiliosync = 'OFF'
@@ -150,8 +151,12 @@ def create_app():
         data = json.loads(request.form.get("data"))
         if cmd:
             if cmd == "rmt_qry":
-                # 读取qBittorrent列表
-                return {"rmt_paths": get_qbittorrent_tasks()}
+                # 读取PT列表
+                pt_client = config['pt']['pt_client']
+                if pt_client == "qbittorrent":
+                    return {"rmt_paths": get_qbittorrent_tasks()}
+                if pt_client == "transmission":
+                    return {"rmt_paths": get_transmission_tasks()}
 
             if cmd == "rmt":
                 p_name = data["name"]
@@ -166,7 +171,11 @@ def create_app():
                                                    in_path=v_path,
                                                    in_year=p_year, in_type=p_type, in_season=p_season)
                     if v_hash and done_flag:
-                        set_torrent_status(v_hash)
+                        pt_client = config['pt']['pt_client']
+                        if pt_client == "qbittorrent":
+                            set_qb_torrent_status(v_hash)
+                        if pt_client == "transmission":
+                            set_tr_torrent_status(v_hash)
                 else:
                     # 转移PT保存目录下的所有文件
                     transfer_all()
@@ -192,8 +201,8 @@ def create_app():
                 sch_item = data["item"]
                 if sch_item == "btn_autoremovetorrents":
                     run_autoremovetorrents()
-                if sch_item == "btn_qbtransfer":
-                    run_qbtransfer()
+                if sch_item == "btn_pttransfer":
+                    run_pttransfer()
                 if sch_item == "btn_hottrailers":
                     run_hottrailers()
                 if sch_item == "btn_ptsignin":
@@ -257,10 +266,10 @@ def create_app():
                 log.error("发生错误：" + str(err))
                 return make_response("", 200)
             # 处理消息内容
-            if content == "/qbr":
+            if content == "/ptr":
                 _thread.start_new_thread(run_autoremovetorrents, ())
-            if content == "/qbt":
-                _thread.start_new_thread(run_qbtransfer, ())
+            if content == "/ptt":
+                _thread.start_new_thread(run_pttransfer, ())
             if content == "/hotm":
                 _thread.start_new_thread(run_hottrailers, ())
             if content == "/pts":
@@ -274,15 +283,29 @@ def create_app():
             else:
                 if content.startswith("http://") or content.startswith("https://") or content.startswith("magnet:"):
                     # 添加种子任务
-                    save_path = config['qbittorrent']['save_path']
-                    if save_path:
-                        try:
-                            ret = add_qbittorrent_torrent(content, save_path)
-                            if ret and ret.find("Ok") != -1:
-                                log.info("【WEB】添加qBittorrent任务：" + content)
-                                sendmsg("添加qBittorrent下载任务成功！")
-                        except Exception as e:
-                            log.error("【WEB】添加qBittorrent任务出错：" + str(e))
+                    pt_client = config['pt']['pt_client']
+                    if pt_client == "qbittorrent":
+                        save_path = config['qbittorrent']['save_path']
+                        if save_path:
+                            try:
+                                ret = add_qbittorrent_torrent(content, save_path)
+                                if ret and ret.find("Ok") != -1:
+                                    log.info("【WEB】添加qBittorrent任务：" + content)
+                                    sendmsg("添加qBittorrent下载任务成功！")
+                            except Exception as e:
+                                log.error("【WEB】添加qBittorrent任务出错：" + str(e))
+                    elif pt_client == "transmission":
+                        save_path = config['transmission']['save_path']
+                        if save_path:
+                            try:
+                                ret = add_transmission_torrent(content, save_path)
+                                if ret:
+                                    log.info("【WEB】添加transmission任务：" + content)
+                                    sendmsg("添加transmission下载任务成功！")
+                            except Exception as e:
+                                log.error("【WEB】添加transmission任务出错：" + str(e))
+                    else:
+                        log.error("【WEB】PT下载软件设置有误！")
             return make_response(reponse_text, 200)
 
     return app

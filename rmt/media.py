@@ -341,7 +341,7 @@ def is_media_files_tv(in_path):
 
 
 # 获得媒体名称，用于API检索
-def get_qb_media_name(in_name):
+def get_pt_media_name(in_name):
     out_name = in_name
     num_pos1 = num_pos2 = len(out_name)
     # 查找4位数字年份/分辨率的位置
@@ -446,7 +446,7 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
     media_pix = ""
 
     # 解析媒体名称
-    media_name = get_qb_media_name(in_name)
+    media_name = get_pt_media_name(in_name)
     media_title = media_name
 
     # 解析媒体类型
@@ -559,11 +559,22 @@ def transfer_all(pt_path=None):
     if pt_path:
         from_path = pt_path
     else:
-        save_path = config['qbittorrent']['save_path']
-        save_containerpath = config['qbittorrent']['save_containerpath']
-        from_path = save_path
-        if save_containerpath:
-            from_path = save_containerpath
+        pt_client = config['pt']['pt_client']
+        if pt_client == "qbittorrent":
+            save_path = config['qbittorrent']['save_path']
+            save_containerpath = config['qbittorrent']['save_containerpath']
+            from_path = save_path
+            if save_containerpath:
+                from_path = save_containerpath
+        elif pt_client == "transmission":
+            save_path = config['transmission']['save_path']
+            save_containerpath = config['transmission']['save_containerpath']
+            from_path = save_path
+            if save_containerpath:
+                from_path = save_containerpath
+        else:
+            print("【RMT】PT下载软件设置不正确！")
+            return
     print("【RMT】正在转移以下目录中的全量文件：" + from_path)
     print("【RMT】转移模式为：" + config['pt']['rmt_mode'])
     for dir in os.listdir(from_path):

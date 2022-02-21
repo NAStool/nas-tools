@@ -9,7 +9,8 @@ from config import get_config, RMT_MOVIETYPE, RMT_MEDIAEXT
 from functions import is_chinese
 from message.send import sendmsg
 from rmt.media import get_media_info, get_media_file_season, get_media_file_seq
-from rmt.qbittorrent import login_qbittorrent
+from rmt.qbittorrent import add_qbittorrent_torrent
+from rmt.transmission import add_transmission_torrent
 
 rss_cache_list = []
 rss_cache_name = []
@@ -29,14 +30,6 @@ def run_rssdownload():
         RUNING_FLAG = False
         log.error("【RUN】执行任务rssdownload出错：" + str(err))
         sendmsg("【NASTOOL】执行任务rssdownload出错！", str(err))
-
-
-# 添加qbittorrent任务
-def add_qbittorrent_torrent(turl, tpath):
-    qbc = login_qbittorrent()
-    qbc_ret = qbc.torrents_add(turl, None, tpath)
-    qbc.auth_log_out()
-    return qbc_ret
 
 
 def parse_rssxml(url):
@@ -74,7 +67,6 @@ def rssdownload():
     # 读取配置
     config = get_config()
     rss_jobs = config['pt']['sites']
-    save_path = config['qbittorrent']['save_path']
     movie_path = config['media']['movie_path']
     tv_path = config['media']['tv_path']
     succ_list = []
@@ -199,16 +191,24 @@ def rssdownload():
                                     break
                             if exist_flag:
                                 continue
-                    # 添加qbittorrent任务
-                    log.info("【RSS】添加qBittorrent任务：" + title)
+                    # 添加PT任务
+                    log.info("【RSS】添加PT任务：" + title)
                     try:
-                        ret = add_qbittorrent_torrent(enclosure, save_path)
-                        if ret and ret.find("Ok") != -1:
+                        pt_client = config['pt']['pt_client']
+                        if pt_client == "qbittorrent":
+                            save_path = config['qbittorrent']['save_path']
+                            ret = add_qbittorrent_torrent(enclosure, save_path)
+                        elif pt_client == "transmission":
+                            save_path = config['transmission']['save_path']
+                            ret = add_transmission_torrent(enclosure, save_path)
+                        else:
+                            return
+                        if ret:
                             msg_item = "> " + media_name + "：" + title
                             if msg_item not in succ_list:
                                 succ_list.append(msg_item)
                     except Exception as e:
-                        log.error("【RSS】添加qBittorrent任务出错：" + str(e))
+                        log.error("【RSS】添加PT任务出错：" + str(e))
                 else:
                     log.info("【RSS】规则匹配不成功：" + media_title)
             except Exception as e:
@@ -216,7 +216,7 @@ def rssdownload():
                 continue
         log.info("【RSS】" + rss_job + "处理结束！")
     if len(succ_list) > 0:
-        sendmsg("【RSS】qBittorrent新增下载", "\n\n".join(succ_list))
+        sendmsg("【RSS】PT新增下载", "\n\n".join(succ_list))
 
 
 if __name__ == "__main__":

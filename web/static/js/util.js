@@ -51,7 +51,7 @@ $(document).ready(function(){
 	    })
 	});
 
-    // 获取qBittorrent下拉框内容
+    // 获取PT下拉框内容
     $("#rmt_tab").click(function(){
 	    var cmd = "rmt_qry";
 	    var data = {};
@@ -66,7 +66,7 @@ $(document).ready(function(){
 	    });
 	});
 
-    // qBittorrent转移按钮
+    // PT转移按钮
 	$("#rmt_btn").click(function(){
 	    var cmd = "rmt";
 	    var data = {
@@ -101,7 +101,7 @@ $(document).ready(function(){
 	    });
 	});
 
-	// qBittorrent下拉选择变化
+	// PT下拉选择变化
 	$("#rmt_path").change(function(){
 	    path = $("#rmt_path").val().split('|')[0];
 	    pos = path.lastIndexOf("/")

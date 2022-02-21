@@ -1,6 +1,5 @@
 #!/bin/sh
 PACKAGE_BASE="/var/packages/nastool/target"
-PACKAGE_SSS="/var/packages/nastool/scripts/start-stop-status"
 PYTHON_BIN="/var/packages/py3k/target/usr/local/bin/python3"
 
 preinst ()
@@ -11,9 +10,9 @@ preinst ()
 install_service(){
   chmod +x "/var/packages/nastool/scripts/"
   # 安装pip
-  "${PYTHON_BIN}" "${PACKAGE_BASE}"/get-pip.py
+  "${PYTHON_BIN}" "${PACKAGE_BASE}/get-pip.py"
   # pip安装依赖包
-  "${PYTHON_BIN}" -m pip install -r "${PACKAGE_BASE}"/requirements.txt
+  "${PYTHON_BIN}" -m pip install -r "${PACKAGE_BASE}/requirements.txt"
   # 检测Pthon版本
   PYV=$(${PYTHON_BIN} -V 2>&1 | sed 's/.* \([0-9]\).\([0-9]\).*/\1.\2/')
   PYTHON_PACKAGE="/var/packages/py3k/target/usr/local/lib/python${PYV}/site-packages"
@@ -30,26 +29,25 @@ postinst ()
 
 preuninst ()
 {
-    # 停用套件
-    "${PACKAGE_SSS}" stop
     exit 0
 }
 
 postuninst ()
 {
-
     exit 0
 }
 
 preupgrade ()
 {
-     # 停用套件
-    "${PACKAGE_SSS}" stop
+    # 保存路径文件
+    cp "${PACKAGE_BASE}/.path" "/tmp/.path"
     exit 0
 }
 
 postupgrade ()
 {
-    install_service
+    if [ -f "/tmp/.path" ]; then
+      cp -f "/tmp/.path" "${PACKAGE_BASE}/.path"
+    fi
     exit 0
 }
