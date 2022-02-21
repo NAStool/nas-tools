@@ -52,7 +52,7 @@ def tr_removetorrents(seeding_time):
         date_done = torrent.date_done
         date_now = datetime.now().astimezone()
         # 只有标记为强制上传的才会清理（经过RMT处理的都是强制上传状态）
-        if torrent.status == "seeding" or torrent.status == "seed_pending":
+        if date_done and (torrent.status == "seeding" or torrent.status == "seed_pending"):
             if (date_now - date_done).seconds > int(seeding_time):
                 log.info("【REMOVETORRENTS】" + torrent.name + "做种时间：" + str(torrent.seeding_time) + "（秒），已达清理条件，进行清理...")
                 # 同步删除文件
