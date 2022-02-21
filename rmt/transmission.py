@@ -33,18 +33,9 @@ def login_transmission():
 def get_tr_download_path(save_path, tr_files):
     path_list = []
     for tr_file in tr_files:
-        if os.path.splitext(tr_file.name) in RMT_MEDIAEXT:
-            # 找到所有媒体文件，取得目录路径
-            dir_name = os.path.dirname(tr_file.name)
-            if not dir_name:
-                # 文件
-                ret_path = os.path.join(save_path, tr_file.name)
-            else:
-                # 子目录下的文件
-                ret_path = os.path.join(save_path, dir_name)
-            # 记录到List
-            if ret_path not in path_list:
-                path_list.append(ret_path)
+        if os.path.splitext(tr_file.name)[-1] in RMT_MEDIAEXT:
+            if tr_file.name not in path_list:
+                path_list.append(tr_file.name)
     # 返回list(多个路径)中，所有path共有的最长的路径
     return os.path.commonprefix(path_list)
 
