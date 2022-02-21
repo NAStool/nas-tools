@@ -114,7 +114,8 @@ https://github.com/jxxghp/nas-tools/releases
    | /mrt  | 预告片下载 |
    | /rst  | ResilioSync同步 |
 
-   ![image](https://user-images.githubusercontent.com/51039935/153850570-b97a2bbc-0961-44d8-85e6-bd5f6215e4a4.png)
+   ![image](https://user-images.githubusercontent.com/51039935/154941072-817cf11b-6f5d-4726-9c39-31490bb9ee3b.png)
+
 
 ### 6、整理存量媒体资源（可选）
 经过以上步骤整套程序就已经搭完了，不出意外所有新下载的资源都能自动整理成完美的媒体库了。但是之前已经下载好的资源怎么办？按下面操作，把存量的媒体资源也整理到媒体库里来。
@@ -134,7 +135,7 @@ https://github.com/jxxghp/nas-tools/releases
 
 ## 使用
 1) WEB UI界面，可以修改配置、手工启动服务、修改资源订阅关键字等，用户: admin，密码在配置文件中。
-![image](https://user-images.githubusercontent.com/51039935/154681434-5e541cb2-999b-4fde-aac2-62b79e707f6e.png)
+![image](https://user-images.githubusercontent.com/51039935/154941132-4dfd8466-9b6c-4b0e-b03f-b0ac13450663.png)
 ![image](https://user-images.githubusercontent.com/51039935/154773429-64dc17ce-5184-4e27-aac5-3fb9b7b342b5.png)
 
 
