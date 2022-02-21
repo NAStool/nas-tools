@@ -37,7 +37,7 @@ def get_tr_download_path(save_path, tr_files):
             if tr_file.name not in path_list:
                 path_list.append(tr_file.name)
     # 返回list(多个路径)中，所有path共有的最长的路径
-    return os.path.commonprefix(path_list)
+    return os.path.join(save_path, os.path.commonprefix(path_list))
 
 
 # 读取当前任务列表
