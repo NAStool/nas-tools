@@ -50,7 +50,7 @@ def tr_removetorrents(seeding_time):
     for torrent in torrents:
         log.debug("【REMOVETORRENTS】" + torrent.name + " ：" + torrent.status + " : " + str(torrent.date_done))
         date_done = torrent.date_done
-        date_now = datetime.now()
+        date_now = datetime.now().astimezone()
         # 只有标记为强制上传的才会清理（经过RMT处理的都是强制上传状态）
         if torrent.status == "seeding" or torrent.status == "seed_pending":
             if (date_now - date_done).seconds > int(seeding_time):
