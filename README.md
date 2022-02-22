@@ -135,7 +135,7 @@ https://github.com/jxxghp/nas-tools/releases
    ```
 
 ## 使用
-1) WEB UI界面，可以修改配置、手工启动服务、修改资源订阅关键字等，用户: admin，密码在配置文件中。
+1) WEB UI界面，可以修改配置、手工启动服务
 ![image](https://user-images.githubusercontent.com/51039935/154941132-4dfd8466-9b6c-4b0e-b03f-b0ac13450663.png)
 ![image](https://user-images.githubusercontent.com/51039935/154773429-64dc17ce-5184-4e27-aac5-3fb9b7b342b5.png)
 
