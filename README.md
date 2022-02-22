@@ -15,7 +15,7 @@ TG交流：https://t.me/nastool_chat
 
 * PT下载目录保持不动可继续保种，也可设置保种时间定时自动删种（仅建议复制模式下使用）。
 
-* 支持ResilioSync同步的资源整合，有新资源时自动识别复制到媒体库并重命名。
+* 支持对目录进行监控，目录下新增了文件时，自动识别并【复制】或【硬链接】到媒体库并重命名。
 
 ### 3、消息服务
 * 支持ServerChan、微信、Telegram等消息通知服务， 运行状态推送消息到手机上，比如新增加了PT下载、硬链接完成等。甚至还能在手机上控制服务运行。
@@ -96,7 +96,7 @@ https://github.com/jxxghp/nas-tools/releases
    > 预告
 
 ### 4、配置ResilioSync（可选）
-* 安装resiliosync软件，配置好神KEY（主KEY：BCWHZRSLANR64CGPTXRE54ENNSIUE5SMO，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6，根据主Key的网页也可以使用其他的Key），同步目录注意与本程序配置文件一致。
+* 安装resiliosync软件，配置好神KEY（主KEY：BCWHZRSLANR64CGPTXRE54ENNSIUE5SMO，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6，也可以使用其他的Key），同步目录注意要配置到本程序的监控目录中。
 
 ### 5、配置微信应用消息及菜单（可选）
 如果只是使用消息接受服务，则配置好配置文件中的[wechat]前三个参数就可以了，如果需要通过微信进行控制，则需要按如下方式配置：
