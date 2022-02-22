@@ -94,10 +94,13 @@ def create_app():
         scheduler_cfg_list.append(
             {'name': 'PT文件转移', 'time': tim_pttransfer, 'state': 'ON', 'id': 'pttransfer'})
 
-        pt_seeding_time = str(round(config['pt']['pt_seeding_time']/3600)) + "小时"
-        sta_autoremovetorrents = 'OFF'
-        if pt_seeding_time:
+        pt_seeding_config_time = config['pt']['pt_seeding_time']
+        if pt_seeding_config_time:
+            pt_seeding_time = str(round(pt_seeding_config_time/3600)) + "小时"
             sta_autoremovetorrents = 'ON'
+        else:
+            pt_seeding_time = ""
+            sta_autoremovetorrents = 'OFF'
         scheduler_cfg_list.append(
             {'name': 'PT删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents,
              'id': 'autoremovetorrents'})
