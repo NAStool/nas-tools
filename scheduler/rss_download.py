@@ -34,7 +34,7 @@ def run_rssdownload():
 
 def parse_rssxml(url):
     ret_array = []
-    if not url:
+    if not url or url == 'None':
         return ret_array
     try:
         log.info("【RSS】开始下载：" + url)
@@ -73,8 +73,8 @@ def rssdownload():
     for rss_job, job_info in rss_jobs.items():
         # 读取子配置
         rssurl = job_info['rssurl']
-        if not rssurl:
-            log.error("【RSS】" + str(rss_job) + "未配置rssurl，无法下载订阅！")
+        if not rssurl or rssurl == 'None':
+            log.error("【RSS】" + str(rss_job) + "未配置rssurl，跳过...")
             continue
         movie_type = job_info['movie_type']
         movie_res = job_info['movie_re']
