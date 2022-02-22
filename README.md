@@ -2,7 +2,7 @@
 
 Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
-交流频道：https://t.me/nastool
+TG交流：https://t.me/nastool_chat
 
 ## 功能：
 ### 1、PT自动搜刮下载、整理、保种
