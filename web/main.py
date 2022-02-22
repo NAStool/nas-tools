@@ -29,13 +29,13 @@ def create_app():
     auth = HTTPBasicAuth()
     config = get_config()
     users = {
-        config['app']['login_user']: generate_password_hash(config['app']['login_password'])
+        str(config['app']['login_user']): generate_password_hash(str(config['app']['login_password']))
     }
 
     @auth.verify_password
     def verify_password(username, password):
         if username in users and \
-                check_password_hash(users.get(username), password):
+                check_password_hash(users.get(username), str(password)):
             return username
 
     # Emby消息通知

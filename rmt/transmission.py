@@ -22,7 +22,8 @@ def login_transmission():
         trt = transmission_rpc.Client(host=trhost,
                                       port=trport,
                                       username=trusername,
-                                      password=trpassword)
+                                      password=trpassword,
+                                      timeout=10)
         return trt
     except Exception as err:
         log.error("【RUN】出错：" + str(err))
