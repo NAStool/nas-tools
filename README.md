@@ -6,7 +6,7 @@ TG交流：https://t.me/nastool_chat
 
 ## 功能：
 ### 1、PT自动下载
-* 通过订阅PT站RSS以及配置过滤关键字，实现PT资源自动检索追新，可用于快速累积媒体库资源、追剧、追未出的电影资源等，支持qBittorrent或transmission客户端。
+* 通过订阅PT站RSS以及配置过滤关键字，实现PT资源自动检索追新，可用于快速累积媒体库资源、追剧、追未出资源的电影等，支持qBittorrent或transmission客户端。
 
 * 在豆瓣发现想看的电影进行标记，系统自动在各PT站检索资源并添加下载【开发中】。
 
