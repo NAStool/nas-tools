@@ -41,7 +41,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Create Release
+    - name: Create release
       id: create_release
       uses: actions/create-release@latest
       env:
@@ -53,7 +53,7 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Upload Release Asset
+    - name: Upload release asset
       id: upload-release-asset
       uses: actions/upload-release-asset@latest
       env:
@@ -63,3 +63,14 @@ jobs:
         asset_path: spk/nastool_dsm_6.x.spk
         asset_name: nastool_dsm_6.x.spk
         asset_content_type: application/gzip
+
+    - name: Send telegram message
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: |
+          ${{ github.actor }} created commit:
+          Commit message: ${{ github.event.commits[0].message }}
+          Repository: ${{ github.repository }}
+          See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}

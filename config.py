@@ -204,7 +204,7 @@ def check_config(config):
     if not rmt_tmdbkey:
         log.error("【RUN】rmt_tmdbkey未配置，程序无法启动！")
         return False
-    rss_chinese = config['pt']['rmt_tmdbkey']
+    rss_chinese = config['pt']['rss_chinese']
     if rss_chinese:
         log.info("【RUN】将只会下载含中文标题的影视资源！")
     ptsignin_cron = config['pt']['ptsignin_cron']
@@ -249,12 +249,8 @@ def check_config(config):
         trport = config['transmission']['trport']
         trusername = config['transmission']['trusername']
         trpassword = config['transmission']['trpassword']
-        if trhost.startswith("https:"):
-            protocol = "https"
-        else:
-            protocol = "http"
         try:
-            trt = transmission_rpc.Client(protocol=protocol, username=trusername, password=trpassword, host=trhost,
+            trt = transmission_rpc.Client(username=trusername, password=trpassword, host=trhost,
                                           port=trport)
             rpc_version = trt.rpc_version
             if not rpc_version:
