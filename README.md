@@ -116,8 +116,7 @@ https://github.com/jxxghp/nas-tools/releases
    | /hotm  | 热门预告片 |
    | /mrt  | 本地电影预告 |
    | /rst  | 资源同步 |
-
-   ![image](https://user-images.githubusercontent.com/51039935/154941072-817cf11b-6f5d-4726-9c39-31490bb9ee3b.png)
+![image](https://user-images.githubusercontent.com/51039935/155314403-f5e9836b-abea-47f7-af0c-6f74edb16d3b.png)
 
 
 ### 6、整理存量媒体资源（可选）
