@@ -34,7 +34,7 @@ def run_rssdownload():
 
 def parse_rssxml(url):
     ret_array = []
-    if not url or url == 'None':
+    if not url:
         return ret_array
     try:
         log.info("【RSS】开始下载：" + url)
@@ -66,14 +66,16 @@ def parse_rssxml(url):
 def rssdownload():
     # 读取配置
     config = get_config()
-    rss_jobs = config['pt']['sites']
-    movie_path = config['media']['movie_path']
-    tv_path = config['media']['tv_path']
+    rss_jobs = config['pt'].get('sites')
+    movie_path = config['media'].get('movie_path')
+    tv_path = config['media'].get('tv_path')
     succ_list = []
+    if not rss_jobs:
+        return
     for rss_job, job_info in rss_jobs.items():
         # 读取子配置
         rssurl = job_info['rssurl']
-        if not rssurl or rssurl == 'None':
+        if not rssurl:
             log.error("【RSS】" + str(rss_job) + "未配置rssurl，跳过...")
             continue
         movie_type = job_info['movie_type']
@@ -114,8 +116,6 @@ def rssdownload():
                             break
                 if match_flag:
                     log.info("【RSS】" + title + " 种子标题匹配成功!")
-                else:
-                    log.info("【RSS】" + title + " 种子标题不匹配，继接拉取媒体描述信息进行匹配...")
 
                 log.info("【RSS】开始检索媒体信息:" + title)
                 media_info = get_media_info(title, title, search_type)
@@ -123,7 +123,7 @@ def rssdownload():
                 media_title = media_info["name"]
                 media_year = media_info["year"]
 
-                rss_chinese = config['pt']['rss_chinese']
+                rss_chinese = config['pt'].get('rss_chinese')
                 if rss_chinese and not is_chinese(media_title):
                     log.info("【RSS】该媒体在TMDB中没有中文描述，跳过：" + media_title)
                     continue
@@ -140,7 +140,7 @@ def rssdownload():
                     # 匹配种子标题是否匹配关键字，需要完全匹配
                     for tv_re in tv_res:
                         if tv_re == media_title:
-                            log.info("【RSS】" + title + " 电影名称匹配成功!")
+                            log.info("【RSS】" + title + " 电视剧名称匹配成功!")
                             match_flag = True
                             break
 
@@ -156,19 +156,28 @@ def rssdownload():
                             continue
                         # 确认是否已存在
                         exist_flag = False
-                        for m_type in RMT_MOVIETYPE:
-                            media_path = os.path.join(movie_path, m_type, media_name)
-                            # 目录是否存在
-                            log.debug("【RSS】路径：" + media_path)
-                            if os.path.exists(media_path):
-                                log.info("【RSS】电影目录已存在该电影，跳过：" + media_path)
-                                exist_flag = True
-                                break
+                        media_path = os.path.join(movie_path, media_name)
+                        movie_subtypedir = config['media'].get('movie_subtypedir', True)
+                        if movie_subtypedir:
+                            for m_type in RMT_MOVIETYPE:
+                                media_path = os.path.join(movie_path, m_type, media_name)
+                                # 目录是否存在
+                                if os.path.exists(media_path):
+                                    exist_flag = True
+                                    break
+                        else:
+                            exist_flag = os.path.exists(media_path)
+
                         if exist_flag:
+                            log.info("【RSS】电影目录已存在该电影，跳过：" + media_path)
                             continue
                     else:
                         # 剧集目录
-                        media_path = os.path.join(tv_path, media_type, media_name)
+                        tv_subtypedir = config['media'].get('tv_subtypedir', True)
+                        if tv_subtypedir:
+                            media_path = os.path.join(tv_path, media_type, media_name)
+                        else:
+                            media_path = os.path.join(tv_path, media_name)
                         # 剧集是否存在
                         # Sxx
                         file_season = get_media_file_season(title)
@@ -192,14 +201,14 @@ def rssdownload():
                             if exist_flag:
                                 continue
                     # 添加PT任务
-                    log.info("【RSS】添加PT任务：" + title)
+                    log.info("【RSS】添加PT任务：" + title + "，url=" + enclosure)
                     try:
-                        pt_client = config['pt']['pt_client']
+                        pt_client = config['pt'].get('pt_client')
                         if pt_client == "qbittorrent":
-                            save_path = config['qbittorrent']['save_path']
+                            save_path = config['qbittorrent'].get('save_path')
                             ret = add_qbittorrent_torrent(enclosure, save_path)
                         elif pt_client == "transmission":
-                            save_path = config['transmission']['save_path']
+                            save_path = config['transmission'].get('save_path')
                             ret = add_transmission_torrent(enclosure, save_path)
                         else:
                             return
@@ -210,13 +219,13 @@ def rssdownload():
                     except Exception as e:
                         log.error("【RSS】添加PT任务出错：" + str(e))
                 else:
-                    log.info("【RSS】规则匹配不成功：" + media_title)
+                    log.info("【RSS】当前资源与规则不匹配，跳过...")
             except Exception as e:
                 log.error("【RSS】错误：" + str(e))
                 continue
         log.info("【RSS】" + rss_job + "处理结束！")
     if len(succ_list) > 0:
-        sendmsg("【RSS】PT新增下载", "\n\n".join(succ_list))
+        sendmsg("【RSS】新增PT下载", "\n\n".join(succ_list))
 
 
 if __name__ == "__main__":

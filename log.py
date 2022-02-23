@@ -14,10 +14,10 @@ class Logger:
         config = get_config()
         self.logger = logging.Logger(__name__)
         self.logger.setLevel(level=LOG_LEVEL)
-        logtype = config['app']['logtype']
+        logtype = config['app'].get('logtype')
         if logtype == "FILE":
             # 记录日志到文件
-            logpath = config['app']['logpath']
+            logpath = config['app'].get('logpath')
             if not os.path.exists(logpath):
                 os.makedirs(logpath)
             log_file_handler = TimedRotatingFileHandler(filename=logpath + "/" + __name__ + ".txt", when="D",
@@ -28,7 +28,7 @@ class Logger:
             log_file_handler.setFormatter(formatter)
             self.logger.addHandler(log_file_handler)
         elif logtype == "SERVER":
-            logserver = config['app']['logserver']
+            logserver = config['app'].get('logserver')
             logip = logserver.split(':')[0]
             logport = int(logserver.split(':')[1])
             log_server_handler = logging.handlers.SysLogHandler((logip, logport),

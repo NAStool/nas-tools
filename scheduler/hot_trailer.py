@@ -32,7 +32,7 @@ def run_hottrailers(refresh_flag=True):
 def transfer_trailers(in_path):
     # 读取配置
     config = get_config()
-    movie_path = config['media']['movie_path']
+    movie_path = config['media'].get('movie_path')
     trailer_file_list = get_dir_files_by_ext(in_path, RMT_MEDIAEXT)
     if len(trailer_file_list) == 0:
         log.info("【HOT-TRAILER】" + in_path + " 不存在预告片，删除目录...")
@@ -40,52 +40,58 @@ def transfer_trailers(in_path):
         return
     for trailer_file in trailer_file_list:
         if not os.path.exists(trailer_file):
-            log.error("【HOT-TRAILER】" + trailer_file + " 原文件不存在，跳过...")
+            log.warn("【HOT-TRAILER】" + trailer_file + " 原文件不存在，跳过...")
             continue
         trailer_file_dir = os.path.dirname(trailer_file)
         trailer_file_name = os.path.basename(trailer_file_dir)
         trailer_file_ext = os.path.splitext(trailer_file)[1]
 
-        trailer_done = False
-        for movie_type in RMT_MOVIETYPE:
-            dest_path = os.path.join(movie_path, movie_type, trailer_file_name)
+        # 对应的电影名称
+        dest_path = os.path.join(movie_path, trailer_file_name)
+        movie_subtypedir = config['media'].get('movie_subtypedir', True)
+        trans_files_flag = False
+        if movie_subtypedir:
+            # 启用了分类
+            for movie_type in RMT_MOVIETYPE:
+                dest_path = os.path.join(movie_path, movie_type, trailer_file_name)
+                if os.path.exists(dest_path):
+                    trans_files_flag = True
+                    break
+        else:
             if os.path.exists(dest_path):
-                log.info("【HOT-TRAILER】" + trailer_file_name + " 进行转移...")
-                dest_file_list = get_dir_files_by_ext(dest_path, RMT_MEDIAEXT)
-                continue_flag = False
-                for dest_movie_file in dest_file_list:
-                    if dest_movie_file.find("-trailer.") != -1:
-                        log.info("【HOT-TRAILER】预告片，跳过...")
-                        continue_flag = True
-                        break
-                    trailer_dest_file = os.path.splitext(dest_movie_file)[0] + "-trailer" + trailer_file_ext
-                    if os.path.exists(trailer_dest_file):
-                        log.info("【HOT-TRAILER】" + trailer_dest_file + " 文件已存在，跳过...")
-                        continue_flag = True
-                        break
-                    log.debug("【HOT-TRAILER】正在复制：" + trailer_file + " 到 " + trailer_dest_file)
-                    # shutil.copy(trailer_file, trailer_dest_file)
-                    call(["cp", trailer_file, trailer_dest_file])
-                    log.info("【HOT-TRAILER】转移完成：" + trailer_dest_file)
-                if continue_flag:
+                trans_files_flag = True
+
+        if trans_files_flag:
+            log.info("【HOT-TRAILER】" + trailer_file_name + " 进行转移...")
+            dest_file_list = get_dir_files_by_ext(dest_path, RMT_MEDIAEXT)
+            for dest_movie_file in dest_file_list:
+                if dest_movie_file.find("-trailer.") != -1:
+                    log.debug("【HOT-TRAILER】已找到预告片，跳过...")
                     continue
-                shutil.rmtree(trailer_file_dir, ignore_errors=True)
-                log.info("【HOT-TRAILER】" + trailer_file_dir + "已删除！")
-                trailer_done = True
-        if not trailer_done:
-            log.info("【HOT-TRAILER】" + trailer_file_name + " 不存在对应电影，跳过...")
+                trailer_dest_file = os.path.splitext(dest_movie_file)[0] + "-trailer" + trailer_file_ext
+                if os.path.exists(trailer_dest_file):
+                    log.info("【HOT-TRAILER】" + trailer_dest_file + " 文件已存在，跳过...")
+                    continue
+                log.debug("【HOT-TRAILER】正在复制：" + trailer_file + " 到 " + trailer_dest_file)
+                call(["cp", trailer_file, trailer_dest_file])
+                log.info("【HOT-TRAILER】转移完成：" + trailer_dest_file)
+            # 删除预告
+            shutil.rmtree(trailer_file_dir, ignore_errors=True)
+            log.warn("【HOT-TRAILER】" + trailer_file_dir + "已删除！")
+        else:
+            log.info("【HOT-TRAILER】" + trailer_file_name + " 不存在对应电影，保留在预告目录...")
 
 
 def hottrailers(refresh_flag=True):
     # 读取配置
     config = get_config()
-    hottrailer_path = config['media']['hottrailer_path']
-    movie_path = config['media']['movie_path']
+    hottrailer_path = config['media'].get('hottrailer_path')
+    movie_path = config['media'].get('movie_path')
     start_time = datetime.now()
     if refresh_flag and hottrailer_path:
         # 检索正在上映的电影
         tmdb = TMDb()
-        tmdb.api_key = config['pt']['rmt_tmdbkey']
+        tmdb.api_key = config['pt'].get('rmt_tmdbkey')
         if not tmdb.api_key:
             log.error("【HOT-TRAILER】未配置rmt_tmdbkey，无法下载热门预告片！")
             return
@@ -141,14 +147,22 @@ def hottrailers(refresh_flag=True):
                     log.info("【HOT-TRAILER】" + movie_title + " 预告目录已存在，跳过...")
                     continue
                 exists_flag = False
-                for movie_type in RMT_MOVIETYPE:
-                    movie_dir = os.path.join(movie_path, movie_type,  movie_title + " (" + movie_year + ")")
+                movie_subtypedir = config['media'].get('movie_subtypedir', True)
+                if movie_subtypedir:
+                    for movie_type in RMT_MOVIETYPE:
+                        movie_dir = os.path.join(movie_path, movie_type,  movie_title + " (" + movie_year + ")")
+                        exists_trailers = get_dir_files_by_name(movie_dir, "-trailer.")
+                        if len(exists_trailers) > 0:
+                            exists_flag = True
+                            break
+                else:
+                    movie_dir = os.path.join(movie_path, movie_title + " (" + movie_year + ")")
                     exists_trailers = get_dir_files_by_name(movie_dir, "-trailer.")
                     if len(exists_trailers) > 0:
-                        log.info("【HOT-TRAILER】" + movie_title + " 电影目录已存在预告片，跳过...")
                         exists_flag = True
-                        break
+
                 if exists_flag:
+                    log.info("【HOT-TRAILER】" + movie_title + " 电影目录已存在预告片，跳过...")
                     continue
                 # 开始下载
                 try:

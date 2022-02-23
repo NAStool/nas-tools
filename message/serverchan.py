@@ -12,7 +12,7 @@ def send_serverchan_msg(text, desp=""):
     values = {"title": text, "desp": desp}
     try:
         config = get_config()
-        sckey = config['message']['serverchan']['sckey']
+        sckey = config['message'].get('serverchan', {}).get('sckey')
         if not sckey:
             log.error("【MSG】未配置sckey，无法发送ServerChan消息!")
             return False, None

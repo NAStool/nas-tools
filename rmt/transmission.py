@@ -15,10 +15,10 @@ def login_transmission():
     try:
         # 登录
         config = get_config()
-        trhost = config['transmission']['trhost']
-        trport = config['transmission']['trport']
-        trusername = config['transmission']['trusername']
-        trpassword = config['transmission']['trpassword']
+        trhost = config['transmission'].get('trhost')
+        trport = config['transmission'].get('trport')
+        trusername = config['transmission'].get('trusername')
+        trpassword = config['transmission'].get('trpassword')
         trt = transmission_rpc.Client(host=trhost,
                                       port=trport,
                                       username=trusername,
@@ -47,8 +47,8 @@ def get_transmission_tasks():
     config = get_config()
     trt = login_transmission()
     torrents = trt.get_torrents()
-    trans_trpath = config['transmission']['save_path']
-    trans_containerpath = config['transmission']['save_containerpath']
+    trans_trpath = config['transmission'].get('save_path')
+    trans_containerpath = config['transmission'].get('save_containerpath')
     path_list = []
     for torrent in torrents:
         log.debug(torrent.name + "：" + torrent.status)
@@ -85,8 +85,8 @@ def set_tr_torrent_status(id_str):
 # 处理transmission中的种子
 def transfer_transmission_task():
     config = get_config()
-    trans_trpath = config['transmission']['save_path']
-    trans_containerpath = config['transmission']['save_containerpath']
+    trans_trpath = config['transmission'].get('save_path')
+    trans_containerpath = config['transmission'].get('save_containerpath')
     # 处理所有任务
     torrents = get_transmission_torrents()
     for torrent in torrents:

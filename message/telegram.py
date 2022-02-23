@@ -11,8 +11,8 @@ def send_telegram_msg(title, text=""):
         return -1, "标题和内容不能同时为空！"
     try:
         config = get_config()
-        telegram_token = config['message']['telegram']['telegram_token']
-        telegram_chat_id = config['message']['telegram']['telegram_chat_id']
+        telegram_token = config['message'].get('telegram', {}).get('telegram_token')
+        telegram_chat_id = config['message'].get('telegram', {}).get('telegram_chat_id')
         if not telegram_token or not telegram_chat_id:
             log.error("【MSG】未配置telegram参数，无法发送telegram消息！")
             return False, None

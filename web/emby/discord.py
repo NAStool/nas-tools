@@ -12,7 +12,7 @@ PLAY_LIST = []
 def report_to_discord(event):
     # 读取配置
     config = get_config()
-    movie_path = config['media']['movie_path']
+    movie_path = config['media'].get('movie_path')
 
     # Create message
     message = None
@@ -26,12 +26,13 @@ def report_to_discord(event):
             message_flag = False
     # Playback
     elif event.category == 'playback':
-        ignore_list = config['message']['webhook_ignore']
-        if event.user_name in ignore_list or \
-                event.device_name in ignore_list or \
-                (event.user_name + ':' + event.device_name) in ignore_list:
-            log.info('【EMBY】忽略的用户或设备，不通知：' + event.user_name + ':' + event.device_name)
-            message_flag = False
+        ignore_list = config['message'].get('webhook_ignore')
+        if ignore_list:
+            if event.user_name in ignore_list or \
+                    event.device_name in ignore_list or \
+                    (event.user_name + ':' + event.device_name) in ignore_list:
+                log.info('【EMBY】忽略的用户或设备，不通知：' + event.user_name + ':' + event.device_name)
+                message_flag = False
         list_id = event.user_name + event.item_name + event.ip + event.device_name + event.client
         if event.action == 'start':
             message = '【Emby】用户 {} 开始播放 {}'.format(event.user_name, event.item_name)
@@ -52,6 +53,10 @@ def report_to_discord(event):
                 message = '【Emby】用户 {} 登录了 {}'.format(event.user_name, event.server_name)
     elif event.category == 'item':
         if event.action == 'rate':
+            movie_subtypedir = config['media'].get('movie_subtypedir', True)
+            if not movie_subtypedir:
+                # 启用了分类该功能才可用
+                return
             if os.path.isdir(event.movie_path):
                 movie_dir = event.movie_path
             else:

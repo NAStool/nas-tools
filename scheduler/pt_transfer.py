@@ -16,7 +16,7 @@ def run_pttransfer():
         else:
             RUNING_FLAG = True
             config = get_config()
-            pt_client = config['pt']['pt_client']
+            pt_client = config['pt'].get('pt_client')
             if pt_client == "qbittorrent":
                 qb_transfer()
             elif pt_client == "transmission":

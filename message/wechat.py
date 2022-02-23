@@ -40,8 +40,8 @@ class WeChat(object):
 
         if not token_flag:
             config = get_config()
-            corpid = config['message']['wechat']['corpid']
-            corpsecret = config['message']['wechat']['corpsecret']
+            corpid = config['message'].get('wechat', {}).get('corpid')
+            corpsecret = config['message'].get('wechat', {}).get('corpsecret')
             if not corpid or not corpsecret:
                 return None
             token_url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s" % (corpid, corpsecret)
@@ -57,7 +57,7 @@ class WeChat(object):
     def send_message(self, title, text):
         message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.get_access_token()
         config = get_config()
-        agent_id = config['message']['wechat']['agentid']
+        agent_id = config['message'].get('wechat', {}).get('agentid')
         if not agent_id:
             return False, "未配置wechat.agentid，无法发送消息！"
         if text:

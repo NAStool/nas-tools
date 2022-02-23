@@ -32,7 +32,7 @@ def get_movie_info_from_nfo(in_path):
 # 下载预告片
 def download_movie_trailer(in_path):
     config = get_config()
-    hottrailer_path = config['media']['hottrailer_path']
+    hottrailer_path = config['media'].get('hottrailer_path')
     exists_trailers = get_dir_files_by_name(in_path, "-trailer.")
     if len(exists_trailers) > 0:
         log.info("【TRAILER】" + in_path + "电影目录已存在预告片，跳过...")
@@ -49,7 +49,7 @@ def download_movie_trailer(in_path):
     file_path = trailer_dir + "/" + movie_title + " (" + movie_year + ").%(ext)s"
     # 开始下载
     tmdb = TMDb()
-    tmdb.api_key = config['pt']['rmt_tmdbkey']
+    tmdb.api_key = config['pt'].get('rmt_tmdbkey')
     if not tmdb.api_key:
         log.error("【TRAILER】未配置rmt_tmdbkey，无法下载电影预告！")
         return False
@@ -117,7 +117,8 @@ def dir_change_handler(event, text):
                 if not download_movie_trailer(event_path):
                     handler_files.remove(event_path)
                     log.info("【TRAILER】" + event_path + "处理失败，等待下次处理...")
-                log.info("【TRAILER】" + event_path + "处理成功！")
+                else:
+                    log.info("【TRAILER】" + event_path + "处理成功！")
             else:
                 log.debug("【TRAILER】已处理过：" + name)
         except Exception as e:
@@ -157,10 +158,17 @@ def movie_trailer_all():
     config = get_config()
     monpath = config['media']['movie_path']
     log.info("【TRAILER】开始检索和下载电影预告片！")
-    for movie_type in RMT_MOVIETYPE:
-        movie_dir_list = os.listdir(os.path.join(monpath, movie_type))
-        for movie_dir in movie_dir_list:
-            movie_dir = os.path.join(monpath, movie_type, movie_dir)
+    movie_subtypedir = config['media'].get('movie_subtypedir', True)
+    if movie_subtypedir:
+        for movie_type in RMT_MOVIETYPE:
+            movie_dir_list = os.listdir(os.path.join(monpath, movie_type))
+            for movie_dir in movie_dir_list:
+                movie_dir = os.path.join(monpath, movie_type, movie_dir)
+                if os.path.isdir(movie_dir):
+                    download_movie_trailer(movie_dir)
+    else:
+        for movie_dir in monpath:
+            movie_dir = os.path.join(monpath, movie_dir)
             if os.path.isdir(movie_dir):
                 download_movie_trailer(movie_dir)
     log.info("【TRAILER】电影预告片下载任务完成！")

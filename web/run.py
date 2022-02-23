@@ -24,9 +24,9 @@ def run_webhook():
         signal.signal(signal.SIGTERM, signal_fun)
         signal.signal(signal.SIGINT, signal_fun)
         config = get_config()
-        web_port = config['app']['web_port']
-        ssl_cert = config['app']['ssl_cert']
-        ssl_key = config['app']['ssl_key']
+        web_port = config['app'].get('web_port')
+        ssl_cert = config['app'].get('ssl_cert')
+        ssl_key = config['app'].get('ssl_key')
 
         if ssl_cert:
             app.run(

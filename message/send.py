@@ -9,7 +9,7 @@ from message.wechat import send_wechat_msg
 
 def sendmsg(title, text=""):
     config = get_config()
-    msg_channel = config['message']['msg_channel']
+    msg_channel = config['message'].get('msg_channel')
     if not msg_channel:
         return None
     log.info("【MSG】发送" + msg_channel + "消息：title=" + title + "，text=" + text)

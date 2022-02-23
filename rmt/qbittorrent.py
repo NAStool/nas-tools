@@ -13,10 +13,10 @@ def login_qbittorrent():
     try:
         # 登录
         config = get_config()
-        qbhost = config['qbittorrent']['qbhost']
-        qbport = config['qbittorrent']['qbport']
-        qbusername = config['qbittorrent']['qbusername']
-        qbpassword = config['qbittorrent']['qbpassword']
+        qbhost = config['qbittorrent'].get('qbhost')
+        qbport = config['qbittorrent'].get('qbport')
+        qbusername = config['qbittorrent'].get('qbusername')
+        qbpassword = config['qbittorrent'].get('qbpassword')
         qbt = qbittorrentapi.Client(host=qbhost,
                                     port=qbport,
                                     username=qbusername,
@@ -35,8 +35,8 @@ def get_qbittorrent_tasks():
     config = get_config()
     qbt = login_qbittorrent()
     torrents = qbt.torrents_info()
-    trans_qbpath = config['qbittorrent']['save_path']
-    trans_containerpath = config['qbittorrent']['save_containerpath']
+    trans_qbpath = config['qbittorrent'].get('save_path')
+    trans_containerpath = config['qbittorrent'].get('save_containerpath')
     path_list = []
     for torrent in torrents:
         log.debug(torrent.name + "：" + torrent.state)
@@ -78,8 +78,8 @@ def set_qb_torrent_status(hash_str):
 # 处理qbittorrent中的种子
 def transfer_qbittorrent_task():
     config = get_config()
-    trans_qbpath = config['qbittorrent']['save_path']
-    trans_containerpath = config['qbittorrent']['save_containerpath']
+    trans_qbpath = config['qbittorrent'].get('save_path')
+    trans_containerpath = config['qbittorrent'].get('save_containerpath')
     # 处理所有任务
     torrents = get_qbittorrent_torrents()
     for torrent in torrents:

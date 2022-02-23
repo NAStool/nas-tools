@@ -1,8 +1,8 @@
 import _thread
 from flask import Flask, request, json, render_template, make_response, redirect
 import log
+from monitor.media_sync import sync_all
 from monitor.movie_trailer import movie_trailer_all
-from monitor.resiliosync import resiliosync_all
 from rmt.media import transfer_directory, transfer_all
 from rmt.qbittorrent import get_qbittorrent_tasks, set_qb_torrent_status
 from rmt.transmission import add_transmission_torrent, set_tr_torrent_status, get_transmission_tasks
@@ -20,7 +20,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from config import WECHAT_MENU, get_config, PT_TRANSFER_INTERVAL, \
     HOT_TRAILER_INTERVAL, save_config, get_config_path
 from web.wechat.WXBizMsgCrypt3 import WXBizMsgCrypt
-import xml.etree.cElementTree as ET
+import xml.etree.cElementTree as ETree
 
 
 def create_app():
@@ -29,7 +29,7 @@ def create_app():
     auth = HTTPBasicAuth()
     config = get_config()
     users = {
-        str(config['app']['login_user']): generate_password_hash(str(config['app']['login_password']))
+        str(config['app'].get('login_user')): generate_password_hash(str(config['app'].get('login_password')))
     }
 
     @auth.verify_password
@@ -73,7 +73,7 @@ def create_app():
     @app.before_request
     def before_request():
         if request.url.startswith('http://'):
-            ssl_cert = config['app']['ssl_cert']
+            ssl_cert = config['app'].get('ssl_cert')
             if ssl_cert:
                 url = request.url.replace('http://', 'https://', 1)
                 return redirect(url, code=301)
@@ -83,10 +83,13 @@ def create_app():
     def main():
         # 读取定时服务配置
         scheduler_cfg_list = []
-        tim_rssdownload = str(round(config['pt']['pt_check_interval']/60)) + "分"
-        rss_state = 'OFF'
-        if tim_rssdownload:
+        pt_check_interval = config['pt'].get('pt_check_interval')
+        if pt_check_interval:
+            tim_rssdownload = str(round(pt_check_interval/60)) + "分"
             rss_state = 'ON'
+        else:
+            tim_rssdownload = ""
+            rss_state = 'OFF'
         scheduler_cfg_list.append(
             {'name': 'RSS下载', 'time': tim_rssdownload, 'state': rss_state, 'id': 'rssdownload'})
 
@@ -94,45 +97,39 @@ def create_app():
         scheduler_cfg_list.append(
             {'name': 'PT文件转移', 'time': tim_pttransfer, 'state': 'ON', 'id': 'pttransfer'})
 
-        pt_seeding_config_time = config['pt']['pt_seeding_time']
+        pt_seeding_config_time = config['pt'].get('pt_seeding_time')
         if pt_seeding_config_time:
             pt_seeding_time = str(round(pt_seeding_config_time/3600)) + "小时"
             sta_autoremovetorrents = 'ON'
-        else:
-            pt_seeding_time = ""
-            sta_autoremovetorrents = 'OFF'
-        scheduler_cfg_list.append(
-            {'name': 'PT删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents,
-             'id': 'autoremovetorrents'})
+            scheduler_cfg_list.append(
+                {'name': 'PT删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents,
+                 'id': 'autoremovetorrents'})
 
-        resiliosync_path = config['media']['resiliosync_path']
-        sta_resiliosync = 'OFF'
-        if resiliosync_path:
-            sta_resiliosync = 'ON'
-        scheduler_cfg_list.append(
-            {'name': 'ResilioSync同步', 'time': '实时监控', 'state': sta_resiliosync, 'id': 'resiliosync'})
+        sync_path = config['media'].get('sync_path')
+        if sync_path:
+            sta_sync = 'ON'
+            scheduler_cfg_list.append({'name': '资源同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync'})
 
         tim_hottrailers = str(round(HOT_TRAILER_INTERVAL/3600)) + "小时"
-        hottrailer_path = config['media']['hottrailer_path']
-        sta_hottrailers = 'OFF'
+        hottrailer_path = config['media'].get('hottrailer_path')
         if hottrailer_path:
             sta_hottrailers = 'ON'
-        scheduler_cfg_list.append(
-            {'name': '热门预告', 'time': tim_hottrailers, 'state': sta_hottrailers, 'id': 'hottrailers'})
+            scheduler_cfg_list.append({'name': '热门预告片', 'time': tim_hottrailers, 'state': sta_hottrailers, 'id': 'hottrailers'})
 
-        sta_movietrailer = 'ON'
-        scheduler_cfg_list.append({'name': '预告片下载', 'time': '实时监控', 'state': sta_movietrailer, 'id': 'movietrailer'})
+        movie_trailer = config['media'].get('movie_trailer')
+        if movie_trailer:
+            sta_movietrailer = 'ON'
+            scheduler_cfg_list.append({'name': '本地电影预告', 'time': '实时监控', 'state': sta_movietrailer, 'id': 'movietrailer'})
 
-        tim_ptsignin = config['pt']['ptsignin_cron']
-        sta_ptsignin = 'OFF'
+        tim_ptsignin = config['pt'].get('ptsignin_cron')
         if tim_ptsignin:
             sta_ptsignin = 'ON'
-        scheduler_cfg_list.append({'name': 'PT签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin'})
+            scheduler_cfg_list.append({'name': 'PT自动签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin'})
 
         # 读取RSS配置
         # 读取配置
         rss_cfg_list = []
-        rss_jobs = config['pt']['sites']
+        rss_jobs = config['pt'].get('sites')
         for rss_job, job_info in rss_jobs.items():
             # 读取子配置
             job_cfg = {'job': rss_job, 'url': job_info['rssurl'], 'movie_type': job_info['movie_type'],
@@ -155,7 +152,7 @@ def create_app():
         if cmd:
             if cmd == "rmt_qry":
                 # 读取PT列表
-                pt_client = config['pt']['pt_client']
+                pt_client = config['pt'].get('pt_client')
                 if pt_client == "qbittorrent":
                     return {"rmt_paths": get_qbittorrent_tasks()}
                 if pt_client == "transmission":
@@ -174,7 +171,7 @@ def create_app():
                                                    in_path=v_path,
                                                    in_year=p_year, in_type=p_type, in_season=p_season)
                     if v_hash and done_flag:
-                        pt_client = config['pt']['pt_client']
+                        pt_client = config['pt'].get('pt_client')
                         if pt_client == "qbittorrent":
                             set_qb_torrent_status(v_hash)
                         if pt_client == "transmission":
@@ -212,8 +209,8 @@ def create_app():
                     run_ptsignin()
                 if sch_item == "btn_movietrailer":
                     movie_trailer_all()
-                if sch_item == "btn_resiliosync":
-                    resiliosync_all()
+                if sch_item == "btn_sync":
+                    sync_all()
                 if sch_item == "btn_rssdownload":
                     run_rssdownload()
                 return {"retmsg": "执行完成！", "item": sch_item}
@@ -224,6 +221,8 @@ def create_app():
                     pt_site_item = key.split('@')[1]
                     if value.startswith("[") and value.endswith("]"):
                         value = eval(value)
+                    if not value:
+                        value = ""
                     config['pt']['sites'][pt_site][pt_site_item] = value
                 save_config(config)
                 return {"retcode": 0}
@@ -231,9 +230,9 @@ def create_app():
     # 响应企业微信消息
     @app.route('/wechat', methods=['GET', 'POST'])
     def wechat():
-        sToken = config['message']['wechat']['Token']
-        sEncodingAESKey = config['message']['wechat']['EncodingAESKey']
-        sCorpID = config['message']['wechat']['corpid']
+        sToken = config['message'].get('wechat', {}).get('Token')
+        sEncodingAESKey = config['message'].get('wechat', {}).get('EncodingAESKey')
+        sCorpID = config['message'].get('wechat', {}).get('corpid')
         wxcpt = WXBizMsgCrypt(sToken, sEncodingAESKey, sCorpID)
         sVerifyMsgSig = request.args.get("msg_signature")
         sVerifyTimeStamp = request.args.get("timestamp")
@@ -253,7 +252,7 @@ def create_app():
             ret, sMsg = wxcpt.DecryptMsg(sReqData, sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce)
             if ret != 0:
                 log.error("解密微信消息失败 DecryptMsg ret：" + str(ret))
-            xml_tree = ET.fromstring(sMsg)
+            xml_tree = ETree.fromstring(sMsg)
             reponse_text = ""
             try:
                 msg_type = xml_tree.find("MsgType").text
@@ -280,15 +279,15 @@ def create_app():
             if content == "/mrt":
                 _thread.start_new_thread(movie_trailer_all, ())
             if content == "/rst":
-                _thread.start_new_thread(resiliosync_all, ())
+                _thread.start_new_thread(sync_all, ())
             if content == "/rss":
                 _thread.start_new_thread(run_rssdownload, ())
             else:
                 if content.startswith("http://") or content.startswith("https://") or content.startswith("magnet:"):
                     # 添加种子任务
-                    pt_client = config['pt']['pt_client']
+                    pt_client = config['pt'].get('pt_client')
                     if pt_client == "qbittorrent":
-                        save_path = config['qbittorrent']['save_path']
+                        save_path = config['qbittorrent'].get('save_path')
                         if save_path:
                             try:
                                 ret = add_qbittorrent_torrent(content, save_path)
@@ -298,7 +297,7 @@ def create_app():
                             except Exception as e:
                                 log.error("【WEB】添加qBittorrent任务出错：" + str(e))
                     elif pt_client == "transmission":
-                        save_path = config['transmission']['save_path']
+                        save_path = config['transmission'].get('save_path')
                         if save_path:
                             try:
                                 ret = add_transmission_torrent(content, save_path)

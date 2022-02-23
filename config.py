@@ -1,8 +1,6 @@
 import logging
 import os
 import threading
-import typing_extensions
-
 import qbittorrentapi
 import transmission_rpc
 import yaml
@@ -103,131 +101,156 @@ def save_config(new_cfg):
 # 检查配置信息
 def check_config(config):
     # 剑查日志输出
-    logtype = config['app']['logtype']
-    log.info("【RUN】日志输出类型为：" + logtype)
+    logtype = config['app'].get('logtype', 'CONSOLE')
+    print("【RUN】日志输出类型为：" + logtype)
     if logtype == "SERVER":
-        logserver = config['app']['logserver']
+        logserver = config['app'].get('logserver')
         if not logserver:
-            log.error("【RUN】logserver未配置，无法正常输出日志！")
+            print("【RUN】logserver未配置，无法正常输出日志！")
         else:
-            log.info("【RUN】日志将上送到服务器：" + logserver)
+            print("【RUN】日志将上送到服务器：" + logserver)
     elif logtype == "FILE":
-        logpath = config['app']['logpath']
+        logpath = config['app'].get('logpath')
         if not logpath:
-            log.error("【RUN】logpath未配置，无法正常输出日志！")
+            print("【RUN】logpath未配置，无法正常输出日志！")
         else:
-            log.info("【RUN】日志将写入文件：" + logpath)
-    else:
-        log.info("【RUN】日志将在终端输出")
+            print("【RUN】日志将写入文件：" + logpath)
 
     # 检查WEB端口
-    web_port = config['app']['web_port']
+    web_port = config['app'].get('web_port')
     if not web_port:
         log.error("【RUN】web_port未设置，程序无法启动！")
         return False
     else:
         log.info("【RUN】WEB管瑞页面监听端口：" + str(web_port))
+
     # 检查登录用户和密码
-    login_user = config['app']['login_user']
-    login_password = config['app']['login_password']
+    login_user = config['app'].get('login_user')
+    login_password = config['app'].get('login_password')
     if not login_user or not login_password:
         log.error("【RUN】login_user或login_password未设置，程序无法启动！")
         return False
     else:
         log.info("【RUN】WEB管瑞页面用户：" + str(login_user))
+
     # 检查HTTPS
-    ssl_cert = config['app']['ssl_cert']
-    ssl_key = config['app']['ssl_key']
+    ssl_cert = config['app'].get('ssl_cert')
+    ssl_key = config['app'].get('ssl_key')
     if not ssl_cert or not ssl_key:
         log.info("【RUN】未启用https，请使用 http://IP:" + str(web_port) + " 访问管理页面")
     else:
         log.info("【RUN】已启用https，请使用 https://IP:" + str(web_port) + " 访问管理页面")
 
     # 检查媒体库目录路径
-    movie_path = config['media']['movie_path']
+    movie_path = config['media'].get('movie_path')
     if not movie_path:
         log.error("【RUN】未配置movie_path，程序无法启动！")
         return False
     elif not os.path.exists(movie_path):
         log.error("【RUN】movie_path目录不存在，程序无法启动：" + movie_path)
         return False
-    tv_path = config['media']['tv_path']
+
+    tv_path = config['media'].get('tv_path')
     if not tv_path:
         log.error("【RUN】未配置tv_path，程序无法启动！")
         return False
     elif not os.path.exists(tv_path):
         log.error("【RUN】tv_path目录不存在，程序无法启动：" + tv_path)
         return False
-    hottrailer_path = config['media']['hottrailer_path']
+
+    hottrailer_path = config['media'].get('hottrailer_path')
     if not hottrailer_path:
         log.warn("【RUN】未配置hottrailer_path，最新预告下载功能将禁用！")
     elif not os.path.exists(hottrailer_path):
         log.warn("【RUN】hottrailer_path目录不存，最新预告下载功能将禁用：" + hottrailer_path)
-    resiliosync_paths = config['media']['resiliosync_path']
-    for resiliosync_path in resiliosync_paths:
-        if not resiliosync_path:
-            log.warn("【RUN】未配置resiliosync_path，ResilioSync资源同步功能将禁用！")
-        elif not os.path.exists(resiliosync_path):
-            log.warn("【RUN】resiliosync_path目录不存，ResilioSync资源同步功能将禁用：" + resiliosync_path)
+
+    movie_trailer = config['media'].get('movie_trailer')
+    if not movie_trailer:
+        log.warn("【RUN】本地电影预告功能已关闭！")
+
+    sync_paths = config['media'].get('sync_path')
+    if sync_paths:
+        for sync_path in sync_paths:
+            if not os.path.exists(sync_path):
+                log.warn("【RUN】sync_path目录不存在，该目录监控资源同步功能将禁用：" + sync_path)
+    else:
+        log.warn("【RUN】未配置sync_path，目录监控资源同步功能将禁用！")
+    movie_subtypedir = config['media'].get('movie_subtypedir', True)
+    if not movie_subtypedir:
+        log.warn("【RUN】电影自动分类功能已关闭！")
+    else:
+        log.info("【RUN】电影自动分类功能已开启！")
+    tv_subtypedir = config['media'].get('tv_subtypedir', True)
+    if not tv_subtypedir:
+        log.warn("【RUN】电视剧自动分类功能已关闭！")
+    else:
+        log.info("【RUN】电视剧自动分类功能已开启！")
 
     # 检查消息配置
-    msg_channel = config['message']['msg_channel']
+    msg_channel = config['message'].get('msg_channel')
     if not msg_channel:
         log.warn("【RUN】msg_channel未配置，将无法接收到通知消息！")
     elif msg_channel == "wechat":
-        corpid = config['message']['wechat']['corpid']
-        corpsecret = config['message']['wechat']['corpsecret']
-        agentid = config['message']['wechat']['agentid']
+        corpid = config['message'].get('wechat', {}).get('corpid')
+        corpsecret = config['message'].get('wechat', {}).get('corpsecret')
+        agentid = config['message'].get('wechat', {}).get('agentid')
         if not corpid or not corpsecret or not agentid:
-            log.warn("【RUN】wechat配置不完整，将无法接收到通知消息！")
-        Token = config['message']['wechat']['Token']
-        EncodingAESKey = config['message']['wechat']['EncodingAESKey']
+            log.warn("【RUN】wechat配置不完整，将无法接收到微信通知消息！")
+        Token = config['message'].get('wechat', {}).get('Token')
+        EncodingAESKey = config['message'].get('wechat', {}).get('EncodingAESKey')
         if not Token or not EncodingAESKey:
-            log.warn("【RUN】wechat配置不完整，微信控制功能将无法使用！")
+            log.warn("【RUN】Token、EncodingAESKey未配置，微信控制功能将无法使用！")
     elif msg_channel == "serverchan":
-        sckey = config['message']['serverchan']['sckey']
+        sckey = config['message'].get('serverchan', {}).get('sckey')
         if not sckey:
-            log.warn("【RUN】serverchan配置不完整，将无法接收到通知消息！")
+            log.warn("【RUN】sckey未配置，将无法接收到Server酱通知消息！")
     elif msg_channel == "telegram":
-        telegram_token = config['message']['telegram']['telegram_token']
-        telegram_chat_id = config['message']['telegram']['telegram_chat_id']
+        telegram_token = config['message'].get('telegram', {}).get('telegram_token')
+        telegram_chat_id = config['message'].get('telegram', {}).get('telegram_chat_id')
         if not telegram_token or not telegram_chat_id:
             log.warn("【RUN】telegram配置不完整，将无法接收到通知消息！")
+
     # 检查PT配置
-    rmt_mode = config['pt']['rmt_mode']
+    rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
     if rmt_mode == "LINK":
         log.info("【RUN】文件转移模式为：硬链接")
     else:
         log.info("【RUN】文件转移模式为：复制")
 
-    rmt_tmdbkey = config['pt']['rmt_tmdbkey']
+    rmt_tmdbkey = config['pt'].get('rmt_tmdbkey')
     if not rmt_tmdbkey:
         log.error("【RUN】rmt_tmdbkey未配置，程序无法启动！")
         return False
-    rss_chinese = config['pt']['rss_chinese']
+
+    rss_chinese = config['pt'].get('rss_chinese')
     if rss_chinese:
-        log.info("【RUN】将只会下载含中文标题的影视资源！")
-    ptsignin_cron = config['pt']['ptsignin_cron']
+        log.info("【RUN】rss_chinese配置为true，将只会下载含中文标题的影视资源！")
+
+    ptsignin_cron = config['pt'].get('ptsignin_cron')
     if not ptsignin_cron:
         log.warn("【RUN】ptsignin_cron未配置，将无法使用PT站签到功能！")
-    pt_seeding_time = config['pt']['pt_seeding_time']
+
+    pt_seeding_time = config['pt'].get('pt_seeding_time')
     if not pt_seeding_time:
         log.warn("【RUN】pt_seeding_time未配置，自动删种功能要禁用！")
     else:
         log.info("【RUN】PT保种时间设置为：" + str(round(pt_seeding_time / 3600)) + " 小时")
 
-    pt_check_interval = config['pt']['pt_check_interval']
+    pt_check_interval = config['pt'].get('pt_check_interval')
     if not pt_check_interval:
-        log.warn("【RUN】pt_check_interval未配置，将不会自动检查和下载PT影视资源！")
+        log.warn("【RUN】pt_check_interval未配置，RSS订阅自动更新功能将禁用！")
 
-    pt_client = config['pt']['pt_client']
+    pt_client = config['pt'].get('pt_client')
     log.info("【RUN】PT下载软件设置为：" + pt_client)
     if pt_client == "qbittorrent":
         # 检查qbittorrent配置并测试连通性
-        qbhost = config['qbittorrent']['qbhost']
-        qbport = config['qbittorrent']['qbport']
-        qbusername = config['qbittorrent']['qbusername']
-        qbpassword = config['qbittorrent']['qbpassword']
+        if not config.get('qbittorrent'):
+            log.error("qbittorrent未配置，程序无法启动！")
+            return False
+        qbhost = config['qbittorrent'].get('qbhost')
+        qbport = config['qbittorrent'].get('qbport')
+        qbusername = config['qbittorrent'].get('qbusername')
+        qbpassword = config['qbittorrent'].get('qbpassword')
         try:
             qbt = qbittorrentapi.Client(host=qbhost,
                                         port=qbport,
@@ -237,18 +260,21 @@ def check_config(config):
             qbt.auth_log_in()
         except Exception as err:
             log.warn("【RUN】qBittorrent无法连接，请检查配置：" + str(err))
-        save_path = config['qbittorrent']['save_path']
+        save_path = config['qbittorrent'].get('save_path')
         if not save_path:
             log.warn("【RUN】qbittorrent save_path未设置，请检查配置：" + save_path)
-        save_containerpath = config['qbittorrent']['save_containerpath']
+        save_containerpath = config['qbittorrent'].get('save_containerpath')
         if not save_containerpath:
-            log.warn("【RUN】qbittorrent save_containerpath未设置，如果是Docker容器使用则必须配置该项，否则无法正常转移文件！")
+            log.warn("【RUN】qbittorrent save_containerpath未设置，如果是Docker容器运行本程序则必须配置该项，否则无法正常转移文件！")
     elif pt_client == "transmission":
         # 检查qbittorrent配置并测试连通性
-        trhost = config['transmission']['trhost']
-        trport = config['transmission']['trport']
-        trusername = config['transmission']['trusername']
-        trpassword = config['transmission']['trpassword']
+        if not config.get('transmission'):
+            log.error("transmission未配置，程序无法启动！")
+            return False
+        trhost = config['transmission'].get('trhost')
+        trport = config['transmission'].get('trport')
+        trusername = config['transmission'].get('trusername')
+        trpassword = config['transmission'].get('trpassword')
         try:
             trt = transmission_rpc.Client(username=trusername, password=trpassword, host=trhost,
                                           port=trport)
@@ -257,26 +283,30 @@ def check_config(config):
                 log.warn("【RUN】transmission无法连接，请检查配置！")
         except Exception as err:
             log.warn("【RUN】transmission无法连接，请检查配置：" + str(err))
-        save_path = config['transmission']['save_path']
+        save_path = config['transmission'].get('save_path')
         if not save_path:
             log.warn("【RUN】transmission save_path未设置，请检查配置：" + save_path)
-        save_containerpath = config['transmission']['save_containerpath']
+        save_containerpath = config['transmission'].get('save_containerpath')
         if not save_containerpath:
             log.warn("【RUN】transmission save_containerpath未设置，如果是Docker容器使用则必须配置该项，否则无法正常转移文件！")
     else:
         log.error("【RUN】未设置pt_client，程序无法启动！")
         return False
-    sites = config['pt']['sites']
-    for key, value in sites.items():
-        rssurl = sites[key]['rssurl']
-        if not rssurl:
-            log.warn("【RUN】" + key + "的 rssurl 未配置，该PT站的RSS订阅下载功能将禁用！")
-        signin_url = sites[key]['signin_url']
-        if not signin_url:
-            log.warn("【RUN】" + key + "的 signin_url 未配置，该PT站的自动签到功能将禁用！")
-        cookie = sites[key]['cookie']
-        if not cookie:
-            log.warn("【RUN】" + key + "的 cookie 未配置，该PT站的自动签到功能将禁用！")
+
+    sites = config['pt'].get('sites')
+    if sites:
+        for key, value in sites.items():
+            rssurl = sites[key]['rssurl']
+            if not rssurl:
+                log.warn("【RUN】" + key + "的 rssurl 未配置，该PT站的RSS订阅下载功能将禁用！")
+            signin_url = sites[key]['signin_url']
+            if not signin_url:
+                log.warn("【RUN】" + key + "的 signin_url 未配置，该PT站的自动签到功能将禁用！")
+            cookie = sites[key]['cookie']
+            if not cookie:
+                log.warn("【RUN】" + key + "的 cookie 未配置，该PT站的自动签到功能将禁用！")
+    else:
+        log.warn("【RUN】sites未配置，RSS订阅下载功能将禁用！")
 
     return True
 

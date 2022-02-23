@@ -23,6 +23,11 @@ TG交流：https://t.me/nastool_chat
 
 
 ## 更新日志
+2022.2.23
+* 支持关闭电影、电视剧的自动分类功能，新增配置项：media.movie_subtypedir、media.tv_subtypedir，未配置默认开
+* 支持对目录进行监控，发现文件变化时自动复制或硬链接并重命名，修改配置项：media.resiliosync_path -> media.sync_path
+* 部分没什么用的功能支持关闭（配置项配空），同时管理页面不显示，新增配置：media.movie_trailer
+
 2022.2.21
 * 支持qbittorrent、transmission两种PT客户端（强烈推荐使用qb），注意新加了配置项：pt->pt_client
 
@@ -108,10 +113,10 @@ https://github.com/jxxghp/nas-tools/releases
    | /rss  | RSS下载 |
    | /ptt  | PT文件转移 |
    | /ptr  | PT删种 |
-   | /pts | PT签到 |
-   | /hotm  | 热门预告 |
-   | /mrt  | 预告片下载 |
-   | /rst  | ResilioSync同步 |
+   | /pts | PT自动签到 |
+   | /hotm  | 热门预告片 |
+   | /mrt  | 本地电影预告 |
+   | /rst  | 资源同步 |
 
    ![image](https://user-images.githubusercontent.com/51039935/154941072-817cf11b-6f5d-4726-9c39-31490bb9ee3b.png)
 

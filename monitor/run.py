@@ -7,50 +7,51 @@ from config import get_config
 from message.send import sendmsg
 from monitor.movie_trailer import create_movie_trailer
 from monitor.movie_trailer import FileMonitorHandler as MovieTrailerHandler
-from monitor.resiliosync import create_resilosync
-from monitor.resiliosync import FileMonitorHandler as ResilioSyncHandler
+from monitor.media_sync import create_sync
+from monitor.media_sync import FileMonitorHandler as SyncHandler
+
+trailer = None
+sync = None
 
 
 def run_monitor():
     try:
         # 电影监控下载预告片
         config = get_config()
-        movie_run = False
         movie_monpath = config['media']['movie_path']
-        if movie_monpath:
+        movie_trailer = config['media'].get('movie_trailer')
+        if movie_monpath and movie_trailer:
             if os.path.exists(movie_monpath):
-                movie_trailer = create_movie_trailer()
-                movie_trailer.schedule(MovieTrailerHandler(movie_monpath), path=movie_monpath, recursive=True)  # recursive递归的
-                movie_trailer.setDaemon(False)
-                movie_trailer.start()
-                movie_run = True
+                global trailer
+                trailer = create_movie_trailer()
+                trailer.schedule(MovieTrailerHandler(movie_monpath), path=movie_monpath, recursive=True)  # recursive递归的
+                trailer.setDaemon(False)
+                trailer.start()
                 log.info("【RUN】monitor.movie_trailer启动...")
             else:
                 log.error("【RUN】" + movie_monpath + "目录不存在！")
-        else:
-            log.info("【RUN】monitor.movie_flag开关未打开！")
 
-        # ResilioSync监控转移
-        resiliosync_run = False
-        resiliosync_monpaths = config['media']['resiliosync_path']
-        for resiliosync_monpath in resiliosync_monpaths:
-            if os.path.exists(resiliosync_monpath):
-                resiliosync = create_resilosync()
-                resiliosync.schedule(ResilioSyncHandler(resiliosync_monpath), path=resiliosync_monpath, recursive=True)  # recursive递归的
-                resiliosync.setDaemon(False)
-                resiliosync.start()
-                resiliosync_run = True
-                log.info("【RUN】monitor.resilosync启动...")
-            else:
-                log.error("【ResilioSync】" + resiliosync_monpath + "目录不存在！")
+        # Sync监控转移
+        sync_monpaths = config['media'].get('sync_path')
+        if sync_monpaths:
+            for sync_monpath in sync_monpaths:
+                if os.path.exists(sync_monpath):
+                    global sync
+                    sync = create_sync()
+                    sync.schedule(SyncHandler(sync_monpath), path=sync_monpath, recursive=True)  # recursive递归的
+                    sync.setDaemon(False)
+                    sync.start()
+                    log.info("【RUN】monitor.media_sync启动...")
+                else:
+                    log.error("【SYNC】" + sync_monpath + "目录不存在！")
 
         # 退出事件监听
         @atexit.register
         def atexit_fun():
-            if movie_run:
+            if movie_trailer:
                 movie_trailer.stop()
-            if resiliosync_run:
-                resiliosync.stop()
+            if sync:
+                sync.stop()
 
         def signal_fun(signum, frame):
             sys.exit()

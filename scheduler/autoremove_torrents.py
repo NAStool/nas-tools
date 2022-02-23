@@ -11,8 +11,8 @@ from rmt.transmission import login_transmission
 def run_autoremovetorrents():
     try:
         config = get_config()
-        pt_client = config['pt']['pt_client']
-        seeding_time = config['pt']['pt_seeding_time']
+        pt_client = config['pt'].get('pt_client')
+        seeding_time = config['pt'].get('pt_seeding_time')
         if pt_client == "qbittorrent":
             qb_removetorrents(seeding_time)
         elif pt_client == "transmission":

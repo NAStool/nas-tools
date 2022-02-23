@@ -20,13 +20,21 @@ app:
 media:
   # 媒体库电影文件存放目录，docker使用需要将NAS储存目录映射到以下路径
   movie_path: '/mnt/media/电影'
+  # 电影是否支持二级分类：true、false，如为false则不分类，所有电影放movie_path下；如为true则按类型分别建二级目录存放，具体分类参考README.MD说明
+  movie_subtypedir: true
   # 媒体库电视剧文件存放目录，docker使用需要将NAS储存目录映射到以下路径
   tv_path: '/mnt/media/电视剧'
-  # 媒体库预告片存放目录，会去themoviedb搜刮新出的电影预告并下载，有对应电影存在时会优先转移到电影目录。不配置则不启用热门预告片下载功能。
+  # 电视剧是否支持二级分类：true、false，如为false则不分类，所有电影剧放tv_path下；如为true则按类型分别建二级目录存放，具体分类参考README.MD说明
+  tv_subtypedir: true
+  # 媒体库热门预告片存放目录，会去themoviedb搜刮新出的电影预告并通过youtube下载，有对应电影存在时会优先转移到电影目录。不配置则不启用热门预告片下载功能。
   hottrailer_path: '/mnt/media/预告'
-  # ResilioSync同步文件夹监控目录，可以监控多个目录，以数组形式配置，可以用 - 自己添加多个条目，需要与resiliosync同步目录一致。不配置则不启用热门预告片下载功能。
-  resiliosync_path:
+  # 有新电影时是否自动下载电影预告片到本地：true、false，Emby的预告片按钮会播放本地文件而不是打开youtube链接，从youtube下载需要科学上网
+  movie_trailer: false
+  # 监控目录，可以监控多个。监控目录有文件变化时会自动进行媒体识别、转移并命名到电影、电视剧的媒体库目录
+  sync_path:
     - '/mnt/resiliosync/大片抢先看'
+  # 监控目录文件的转移方式：LINK、COPY，LINK即硬链接并重命令，COPY是复制一份并命令名。LINK下载目录和媒体库目录在一个磁盘分区或者存储空间。
+  sync_mod: LINK
 
 message:
   # 发送消息使用的渠道：wechat、serverchan、telegram，需在对应的配置区域配置。不使用的渠道配置可以留空或者删除。推荐使用wechat微信渠道。不设置则不启用消息服务。
@@ -66,7 +74,7 @@ pt:
   # 配置PT站点的信息，RSS用于订阅自动下载，COOKIE用于签到
   # 是否只下载有中文媒体信息的种子（开了只会下themoviedb有中文描述的影视资源）
   rss_chinese: False
-  # PT站每日签到的时间
+  # PT站每日签到的时间，注意一定要加引号
   ptsignin_cron: '8:00'
   # PT做种时间，做种超过该时间则会自动删种（包括已下载的文件），单位是秒。如果是使用COPY模式，这个根据PT下载盘的大小配置，如果是使用LINK模式，这个可以不配，不配置或者配置为0则不启用删种功能。
   pt_seeding_time: 86400
@@ -112,24 +120,24 @@ pt:
 
 qbittorrent:
   # qBittorrent IP地址和端口，注意如果qb启动了HTTPS证书，则需要配置为https://IP
-  qbhost: 10.10.10.250
+  qbhost: 127.0.0.1
   qbport: 8080
   # qBittorrent 登录用户名和密码
   qbusername: admin
-  qbpassword: password
+  qbpassword: adminadmin
   # qBittorrent下载保存目录，如果是Docker版本的qb这个是容器内的路径。
-  save_path: '/volume2/PT/'
+  save_path:
   # 1、如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径；如果本程序不是Docker运行但qb是Docker运行，则设置为PT下载目录在宿主机上的真实路径。不是以上两种情况留空即可。
   save_containerpath:
 
 transmission:
   # transmission IP地址和端口，注意如果tr启用了HTTPS证书，则需要配置为https://IP
-  trhost: 10.10.10.250
+  trhost: 127.0.0.1
   trport: 9091
   # transmission 登录用户名和密码
   trusername: admin
   trpassword: password
   # transmission下载保存目录，如果是Docker版本的tr这个是容器内的路径。
-  save_path: '/volume2/PT/'
+  save_path:
   # 1、如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径；如果本程序不是Docker运行但tr是Docker运行，则设置为PT下载目录在宿主机上的真实路径。不是以上两种情况留空即可。
   save_containerpath:
