@@ -5,7 +5,7 @@ app:
   # TMDB API KEY，需要在https://www.themoviedb.org/申请，必须配置这个，否则无法识别媒体资源和重命名
   rmt_tmdbkey:
 
-# 配置媒体库目录等信息
+# 配置媒体库目录等信息，不能删除
 media:
   # 媒体库电影文件存放目录，docker使用需要将NAS储存目录映射到以下路径
   movie_path: '/mnt/media/电影'
@@ -21,13 +21,14 @@ media:
   # 监控目录文件的转移方式：LINK、COPY，LINK即硬链接并重命令，COPY是复制一份并重命名。LINK下载目录和媒体库目录在一个磁盘分区或者存储空间。
   sync_mod: LINK
 
-# 配置媒体库目录等信息
+# 配置PT下载信息，不用可删掉
 pt:
   # PT下载完成后转移到媒体库的转移模式：COPY复制模式、LINK硬链接模式。复制模式下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠；硬链接模式不用额外增加存储空间，一份文件两份目录，但需要下载目录和媒体库目录在一个磁盘分区或者存储空间。两者在媒体库使用上是一致的。
   rmt_mode: LINK
   # PT下载使用的客户端软件，qbittorrent、transmission，需要配置qbittorrent或transmission对应的配置区域，使用一个后另一个配置可以删掉
   pt_client: qbittorrent
 
+# 配置qBittorrent下载软件，不用可删掉
 qbittorrent:
   # qBittorrent IP地址和端口，注意如果qb启动了HTTPS证书，则需要配置为https://IP
   qbhost: 127.0.0.1
@@ -40,6 +41,7 @@ qbittorrent:
   # 1、如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径；如果本程序不是Docker运行但qb是Docker运行，则设置为PT下载目录在宿主机上的真实路径。不是以上两种情况留空即可。
   save_containerpath:
 
+# 配置transmission下载软件，不用可删掉
 transmission:
   # transmission IP地址和端口，注意如果tr启用了HTTPS证书，则需要配置为https://IP
   trhost: 127.0.0.1

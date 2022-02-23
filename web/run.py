@@ -10,6 +10,11 @@ from web.main import create_app
 
 def run_webhook():
     try:
+        config = get_config()
+        web_port = config['app'].get('web_port')
+        if not web_port:
+            return
+
         app = create_app()
 
         @atexit.register
@@ -23,8 +28,7 @@ def run_webhook():
 
         signal.signal(signal.SIGTERM, signal_fun)
         signal.signal(signal.SIGINT, signal_fun)
-        config = get_config()
-        web_port = config['app'].get('web_port')
+
         ssl_cert = config['app'].get('ssl_cert')
         ssl_key = config['app'].get('ssl_key')
 

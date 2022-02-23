@@ -88,7 +88,7 @@ def sync_all():
                     try:
                         if file_name not in handler_files:
                             handler_files.append(file_name)
-                            transfer_directory(in_from="SYNC", in_name=file_name, in_path=file_path, noti_flag=False)
+                            transfer_directory(in_from="Sync", in_name=file_name, in_path=file_path, noti_flag=False)
                     except Exception as err:
                         log.error("【SYNC】发生错误：" + str(err))
 

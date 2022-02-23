@@ -44,6 +44,5 @@ if __name__ == "__main__":
     log.info("【RUN】开始启动进程...")
     Process(target=monitor.run_monitor, args=()).start()
     Process(target=scheduler.run_scheduler, args=()).start()
-    if not hlink:
-        Process(target=webhook.run_webhook, args=()).start()
+    Process(target=webhook.run_webhook, args=()).start()
     sendmsg("【NASTOOL】" + get_host_name() + "已启动", "IP地址：" + get_host_ip())

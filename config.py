@@ -370,58 +370,55 @@ def check_hlink_config(config):
     else:
         log.info("【RUN】目录监控转移模式为：复制")
 
-    pt_client = config['pt'].get('pt_client')
-    log.info("【RUN】PT下载软件设置为：" + pt_client)
-    if pt_client == "qbittorrent":
-        # 检查qbittorrent配置并测试连通性
-        if not config.get('qbittorrent'):
-            log.error("qbittorrent未配置，程序无法启动！")
-            return False
-        qbhost = config['qbittorrent'].get('qbhost')
-        qbport = config['qbittorrent'].get('qbport')
-        qbusername = config['qbittorrent'].get('qbusername')
-        qbpassword = config['qbittorrent'].get('qbpassword')
-        try:
-            qbt = qbittorrentapi.Client(host=qbhost,
-                                        port=qbport,
-                                        username=qbusername,
-                                        password=qbpassword,
-                                        VERIFY_WEBUI_CERTIFICATE=False)
-            qbt.auth_log_in()
-        except Exception as err:
-            log.warn("【RUN】qBittorrent无法连接，请检查配置：" + str(err))
-        save_path = config['qbittorrent'].get('save_path')
-        if not save_path:
-            log.warn("【RUN】qbittorrent save_path未设置，请检查配置：" + save_path)
-        save_containerpath = config['qbittorrent'].get('save_containerpath')
-        if not save_containerpath:
-            log.warn("【RUN】qbittorrent save_containerpath未设置，如果是Docker容器运行本程序则必须配置该项，否则无法正常转移文件！")
-    elif pt_client == "transmission":
-        # 检查qbittorrent配置并测试连通性
-        if not config.get('transmission'):
-            log.error("transmission未配置，程序无法启动！")
-            return False
-        trhost = config['transmission'].get('trhost')
-        trport = config['transmission'].get('trport')
-        trusername = config['transmission'].get('trusername')
-        trpassword = config['transmission'].get('trpassword')
-        try:
-            trt = transmission_rpc.Client(username=trusername, password=trpassword, host=trhost,
-                                          port=trport)
-            rpc_version = trt.rpc_version
-            if not rpc_version:
-                log.warn("【RUN】transmission无法连接，请检查配置！")
-        except Exception as err:
-            log.warn("【RUN】transmission无法连接，请检查配置：" + str(err))
-        save_path = config['transmission'].get('save_path')
-        if not save_path:
-            log.warn("【RUN】transmission save_path未设置，请检查配置：" + save_path)
-        save_containerpath = config['transmission'].get('save_containerpath')
-        if not save_containerpath:
-            log.warn("【RUN】transmission save_containerpath未设置，如果是Docker容器使用则必须配置该项，否则无法正常转移文件！")
-    else:
-        log.error("【RUN】未设置pt_client，程序无法启动！")
-        return False
+    if config.get('pt'):
+        pt_client = config['pt'].get('pt_client')
+        if pt_client == "qbittorrent":
+            # 检查qbittorrent配置并测试连通性
+            if not config.get('qbittorrent'):
+                log.error("qbittorrent未配置，程序无法启动！")
+                return False
+            qbhost = config['qbittorrent'].get('qbhost')
+            qbport = config['qbittorrent'].get('qbport')
+            qbusername = config['qbittorrent'].get('qbusername')
+            qbpassword = config['qbittorrent'].get('qbpassword')
+            try:
+                qbt = qbittorrentapi.Client(host=qbhost,
+                                            port=qbport,
+                                            username=qbusername,
+                                            password=qbpassword,
+                                            VERIFY_WEBUI_CERTIFICATE=False)
+                qbt.auth_log_in()
+            except Exception as err:
+                log.warn("【RUN】qBittorrent无法连接，请检查配置：" + str(err))
+            save_path = config['qbittorrent'].get('save_path')
+            if not save_path:
+                log.warn("【RUN】qbittorrent save_path未设置，请检查配置：" + save_path)
+            save_containerpath = config['qbittorrent'].get('save_containerpath')
+            if not save_containerpath:
+                log.warn("【RUN】qbittorrent save_containerpath未设置，如果是Docker容器运行本程序则必须配置该项，否则无法正常转移文件！")
+        elif pt_client == "transmission":
+            # 检查qbittorrent配置并测试连通性
+            if not config.get('transmission'):
+                log.error("transmission未配置，程序无法启动！")
+                return False
+            trhost = config['transmission'].get('trhost')
+            trport = config['transmission'].get('trport')
+            trusername = config['transmission'].get('trusername')
+            trpassword = config['transmission'].get('trpassword')
+            try:
+                trt = transmission_rpc.Client(username=trusername, password=trpassword, host=trhost,
+                                              port=trport)
+                rpc_version = trt.rpc_version
+                if not rpc_version:
+                    log.warn("【RUN】transmission无法连接，请检查配置！")
+            except Exception as err:
+                log.warn("【RUN】transmission无法连接，请检查配置：" + str(err))
+            save_path = config['transmission'].get('save_path')
+            if not save_path:
+                log.warn("【RUN】transmission save_path未设置，请检查配置：" + save_path)
+            save_containerpath = config['transmission'].get('save_containerpath')
+            if not save_containerpath:
+                log.warn("【RUN】transmission save_containerpath未设置，如果是Docker容器使用则必须配置该项，否则无法正常转移文件！")
 
     return True
 

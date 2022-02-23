@@ -13,10 +13,8 @@ from message.send import sendmsg
 
 
 # 根据文件名转移对应字幕文件
-def transfer_subtitles(in_path, org_name, new_name, mv_flag=False):
+def transfer_subtitles(in_path, org_name, new_name, mv_flag=False, rmt_mode="COPY"):
     file_list = get_dir_files_by_ext(in_path, RMT_SUBEXT)
-    config = get_config()
-    rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
     log.debug("【RMT】字幕文件清单：" + str(file_list))
     Media_FileNum = len(file_list)
     if Media_FileNum == 0:
@@ -79,9 +77,8 @@ def transfer_bluray_dir(file_path, new_path, mv_flag=False, over_flag=False):
         log.info("【RMT】" + file_path + " 已删除！")
 
 
-def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=False):
+def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=False, rmt_mode="COPY"):
     config = get_config()
-    rmt_mode = config['pt'].get('rmt_mode').upper()
     if over_flag:
         log.warn("【RMT】正在删除已存在的文件：" + new_file)
         os.remove(new_file)
@@ -101,7 +98,7 @@ def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=Fals
         log.error("【RMT】文件" + rmt_mod_str + "失败，错误码：" + str(retcode))
 
     # 处理字幕
-    transfer_subtitles(file_path, file_item, new_file, False)
+    transfer_subtitles(file_path, file_item, new_file, False, rmt_mode)
 
     if mv_flag:
         if file_path != config['media'].get('movie_path') and file_path != config['media'].get('tv_path'):
@@ -113,7 +110,7 @@ def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=Fals
 def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, in_season=None, in_type=None,
                        mv_flag=False, noti_flag=True):
     config = get_config()
-    if in_from == "in_from":
+    if in_from == "Sync":
         rmt_mode = config['media'].get('sync_mod', 'COPY').upper()
     else:
         rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
@@ -228,12 +225,12 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
                         new_file = os.path.join(media_path, Media_Title + " (" + Media_Year + ")" + file_ext)
                     Media_File = new_file
                     if not os.path.exists(new_file):
-                        transfer_files(in_path, file_item, new_file, mv_flag)
+                        transfer_files(in_path, file_item, new_file, mv_flag, False, rmt_mode=rmt_mode)
                     else:
                         ExistFile_Size = os.path.getsize(new_file)
                         if Media_FileSize > ExistFile_Size:
                             log.info("【RMT】文件" + new_file + "已存在，但新文件质量更好，覆盖...")
-                            transfer_files(in_path, file_item, new_file, mv_flag, True)
+                            transfer_files(in_path, file_item, new_file, mv_flag, True, rmt_mode=rmt_mode)
                         else:
                             Exist_FileNum = Exist_FileNum + 1
                             log.warn("【RMT】文件 " + new_file + "已存在，且质量更好！")
@@ -307,12 +304,12 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
                                         + file_seq_num + " 集" + file_ext)
                 Media_File = new_file
                 if not os.path.exists(new_file):
-                    transfer_files(in_path, file_item, new_file, mv_flag)
+                    transfer_files(in_path, file_item, new_file, mv_flag, False, rmt_mode=rmt_mode)
                 else:
                     ExistFile_Size = os.path.getsize(new_file)
                     if Media_FileSize > ExistFile_Size:
                         log.info("【RMT】文件" + new_file + "已存在，但新文件质量更好，覆盖...")
-                        transfer_files(in_path, file_item, new_file, mv_flag, True)
+                        transfer_files(in_path, file_item, new_file, mv_flag, True, rmt_mode=rmt_mode)
                     else:
                         Exist_FileNum = Exist_FileNum + 1
                         log.warn("【RMT】文件 " + new_file + "已存在，且质量更好！")
