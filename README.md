@@ -25,7 +25,7 @@ TG交流：https://t.me/nastool_chat
 ## 更新日志
 2022.2.23
 * 支持关闭电影、电视剧的自动分类功能，新增配置项：media.movie_subtypedir、media.tv_subtypedir，未配置默认开
-* 支持对目录进行监控，发现文件变化时自动复制或硬链接并重命名，修改配置项：media.resiliosync_path -> media.sync_path
+* 支持对目录进行监控，发现文件变化时自动复制或硬链接并重命名，修改配置项：media.resiliosync_path -> media.sync_path，新增配置项：media.sync_mod
 * 部分没什么用的功能支持关闭（配置项配空），同时管理页面不显示，新增配置：media.movie_trailer
 
 2022.2.21
