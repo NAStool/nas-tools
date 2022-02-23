@@ -27,7 +27,7 @@ TG交流：https://t.me/nastool_chat
 * 支持关闭电影、电视剧的自动分类功能，新增配置项：media.movie_subtypedir、media.tv_subtypedir，未配置默认开
 * 支持对目录进行监控，发现文件变化时自动复制或硬链接并重命名，修改配置项：media.resiliosync_path -> media.sync_path，新增配置项：media.sync_mod
 * 部分没什么用的功能支持关闭（配置项配空），同时管理页面不显示，新增配置：media.movie_trailer
-* 支持精简模式，只有两个功能：1、监控下载软件，下载完成后自动做硬链接/复制；2、监控目录，目录有变化时自动硬链接/复制。没有UI界面及消息服务，使用config_hlink.yaml配置文件模板。
+* 支持精简模式，只有两个功能：1、监控下载软件，下载完成后自动做硬链接/复制；2、监控目录，目录有变化时自动硬链接/复制。没有UI界面及消息服务，使用config_hlink.yaml模板配置。
 
 2022.2.21
 * 支持qbittorrent、transmission两种PT客户端（强烈推荐使用qb），注意新加了配置项：pt->pt_client
