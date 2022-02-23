@@ -57,8 +57,7 @@ nohup python3 run.py -c ./config/config.yaml &
 
 https://github.com/jxxghp/nas-tools/releases
 
-![image](https://user-images.githubusercontent.com/51039935/153745028-3a9b7e9a-0404-45c0-9674-1763e272c005.png)
-
+![image](https://user-images.githubusercontent.com/51039935/155314082-47d5c637-6659-4c32-a12a-d2678cff93fe.png)
 
 ## 配置
 ### 1、申请相关API KEY
