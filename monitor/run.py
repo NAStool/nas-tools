@@ -18,7 +18,7 @@ def run_monitor():
     try:
         # 电影监控下载预告片
         config = get_config()
-        movie_monpath = config['media']['movie_path']
+        movie_monpath = config['media'].get('movie_path')
         movie_trailer = config['media'].get('movie_trailer')
         if movie_monpath and movie_trailer:
             if os.path.exists(movie_monpath):

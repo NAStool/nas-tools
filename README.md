@@ -27,6 +27,7 @@ TG交流：https://t.me/nastool_chat
 * 支持关闭电影、电视剧的自动分类功能，新增配置项：media.movie_subtypedir、media.tv_subtypedir，未配置默认开
 * 支持对目录进行监控，发现文件变化时自动复制或硬链接并重命名，修改配置项：media.resiliosync_path -> media.sync_path，新增配置项：media.sync_mod
 * 部分没什么用的功能支持关闭（配置项配空），同时管理页面不显示，新增配置：media.movie_trailer
+* 支持精简模式，只有两个功能：1、监控下载软件，下载完成后自动做硬链接/复制；2、监控目录，目录有变化时自动硬链接/复制。没有UI界面及消息服务，使用config_hlink.yaml配置文件模板。
 
 2022.2.21
 * 支持qbittorrent、transmission两种PT客户端（强烈推荐使用qb），注意新加了配置项：pt->pt_client
@@ -72,7 +73,7 @@ https://github.com/jxxghp/nas-tools/releases
 ### 2、配置文件
 * 确定是用【复制】模式还是【硬链接】模式：复制模式下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠；硬链接模式不用额外增加存储空间，一份文件两份目录，但需要下载目录和媒体库目录在一个磁盘分区或者存储空间。两者在媒体库使用上是一致的，按自己需要在[pt]rmt_mode按说明配置。
 
-* 参考 config/config.yaml的配置示例进行配置，填入申请好的相关API KEY，以及媒体库电影、电视剧存储路径、PT站RSS信息、qBittorrent/transmission信息等等，示例文件中有详细的说明。
+* 如果需要【全部功能】，参考 config/config.yaml的配置示例进行配置，填入申请好的相关API KEY，以及媒体库电影、电视剧存储路径、PT站RSS信息、qBittorrent/transmission信息等等，示例文件中有详细的说明；如果【只需要硬链接】的功能，参考config/config_hlink.yaml的配置示例进行配置（没有RSS、WEBUI、消息服务等），配置好后重命名为config.yaml放配置目录下。
 
 * docker：需要映射/config目录，并将修改好后的config.yaml放到配置映射目录下；需要映射WEB访问端口（默认3000）；需要映射媒体库目录及PT下载目录、ResilioSync目录到容器上并与配置文件保持一致。
    

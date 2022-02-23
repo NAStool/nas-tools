@@ -458,7 +458,11 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
     # TheMovieDB
     tmdb = TMDb()
     config = get_config()
-    tmdb.api_key = config['pt'].get('rmt_tmdbkey')
+    rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
+    if not rmt_tmdbkey:
+        # 兼容旧配置
+        rmt_tmdbkey = config['pt'].get('rmt_tmdbkey')
+    tmdb.api_key = rmt_tmdbkey
     if not tmdb.api_key:
         log.error("【RMT】rmt_tmdbkey未配置，无法搜刮媒体信息！")
     tmdb.language = 'zh'

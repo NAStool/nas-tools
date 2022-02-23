@@ -217,7 +217,10 @@ def check_config(config):
     else:
         log.info("【RUN】文件转移模式为：复制")
 
-    rmt_tmdbkey = config['pt'].get('rmt_tmdbkey')
+    rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
+    if not rmt_tmdbkey:
+        # 兼容旧配置
+        rmt_tmdbkey = config['pt'].get('rmt_tmdbkey')
     if not rmt_tmdbkey:
         log.error("【RUN】rmt_tmdbkey未配置，程序无法启动！")
         return False
@@ -307,6 +310,118 @@ def check_config(config):
                 log.warn("【RUN】" + key + "的 cookie 未配置，该PT站的自动签到功能将禁用！")
     else:
         log.warn("【RUN】sites未配置，RSS订阅下载功能将禁用！")
+
+    return True
+
+
+# 检查硬链接模式的配置信息
+def check_hlink_config(config):
+    rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
+    if not rmt_tmdbkey:
+        log.error("【RUN】rmt_tmdbkey未配置，程序无法启动！")
+        return False
+
+    # 检查媒体库目录路径
+    movie_path = config['media'].get('movie_path')
+    if not movie_path:
+        log.error("【RUN】未配置movie_path，程序无法启动！")
+        return False
+    elif not os.path.exists(movie_path):
+        log.error("【RUN】movie_path目录不存在，程序无法启动：" + movie_path)
+        return False
+
+    tv_path = config['media'].get('tv_path')
+    if not tv_path:
+        log.error("【RUN】未配置tv_path，程序无法启动！")
+        return False
+    elif not os.path.exists(tv_path):
+        log.error("【RUN】tv_path目录不存在，程序无法启动：" + tv_path)
+        return False
+
+    sync_paths = config['media'].get('sync_path')
+    if sync_paths:
+        for sync_path in sync_paths:
+            if not os.path.exists(sync_path):
+                log.warn("【RUN】sync_path目录不存在，该目录监控资源同步功能将禁用：" + sync_path)
+    else:
+        log.warn("【RUN】未配置sync_path，目录监控资源同步功能将禁用！")
+    movie_subtypedir = config['media'].get('movie_subtypedir', True)
+    if not movie_subtypedir:
+        log.warn("【RUN】电影自动分类功能已关闭！")
+    else:
+        log.info("【RUN】电影自动分类功能已开启！")
+    tv_subtypedir = config['media'].get('tv_subtypedir', True)
+    if not tv_subtypedir:
+        log.warn("【RUN】电视剧自动分类功能已关闭！")
+    else:
+        log.info("【RUN】电视剧自动分类功能已开启！")
+
+    # 检查PT配置
+    rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
+    if rmt_mode == "LINK":
+        log.info("【RUN】PT下载文件转移模式为：硬链接")
+    else:
+        log.info("【RUN】PT下载文件转移模式为：复制")
+
+    # 检查PT配置
+    sync_mod = config['media'].get('sync_mod', 'COPY').upper()
+    if sync_mod == "LINK":
+        log.info("【RUN】目录监控转移模式为：硬链接")
+    else:
+        log.info("【RUN】目录监控转移模式为：复制")
+
+    pt_client = config['pt'].get('pt_client')
+    log.info("【RUN】PT下载软件设置为：" + pt_client)
+    if pt_client == "qbittorrent":
+        # 检查qbittorrent配置并测试连通性
+        if not config.get('qbittorrent'):
+            log.error("qbittorrent未配置，程序无法启动！")
+            return False
+        qbhost = config['qbittorrent'].get('qbhost')
+        qbport = config['qbittorrent'].get('qbport')
+        qbusername = config['qbittorrent'].get('qbusername')
+        qbpassword = config['qbittorrent'].get('qbpassword')
+        try:
+            qbt = qbittorrentapi.Client(host=qbhost,
+                                        port=qbport,
+                                        username=qbusername,
+                                        password=qbpassword,
+                                        VERIFY_WEBUI_CERTIFICATE=False)
+            qbt.auth_log_in()
+        except Exception as err:
+            log.warn("【RUN】qBittorrent无法连接，请检查配置：" + str(err))
+        save_path = config['qbittorrent'].get('save_path')
+        if not save_path:
+            log.warn("【RUN】qbittorrent save_path未设置，请检查配置：" + save_path)
+        save_containerpath = config['qbittorrent'].get('save_containerpath')
+        if not save_containerpath:
+            log.warn("【RUN】qbittorrent save_containerpath未设置，如果是Docker容器运行本程序则必须配置该项，否则无法正常转移文件！")
+    elif pt_client == "transmission":
+        # 检查qbittorrent配置并测试连通性
+        if not config.get('transmission'):
+            log.error("transmission未配置，程序无法启动！")
+            return False
+        trhost = config['transmission'].get('trhost')
+        trport = config['transmission'].get('trport')
+        trusername = config['transmission'].get('trusername')
+        trpassword = config['transmission'].get('trpassword')
+        try:
+            trt = transmission_rpc.Client(username=trusername, password=trpassword, host=trhost,
+                                          port=trport)
+            rpc_version = trt.rpc_version
+            if not rpc_version:
+                log.warn("【RUN】transmission无法连接，请检查配置！")
+        except Exception as err:
+            log.warn("【RUN】transmission无法连接，请检查配置：" + str(err))
+        save_path = config['transmission'].get('save_path')
+        if not save_path:
+            log.warn("【RUN】transmission save_path未设置，请检查配置：" + save_path)
+        save_containerpath = config['transmission'].get('save_containerpath')
+        if not save_containerpath:
+            log.warn("【RUN】transmission save_containerpath未设置，如果是Docker容器使用则必须配置该项，否则无法正常转移文件！")
+    else:
+        log.error("【RUN】未设置pt_client，程序无法启动！")
+        return False
 
     return True
 

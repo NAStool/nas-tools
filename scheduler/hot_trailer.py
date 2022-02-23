@@ -91,7 +91,11 @@ def hottrailers(refresh_flag=True):
     if refresh_flag and hottrailer_path:
         # 检索正在上映的电影
         tmdb = TMDb()
-        tmdb.api_key = config['pt'].get('rmt_tmdbkey')
+        rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
+        if not rmt_tmdbkey:
+            # 兼容旧配置
+            rmt_tmdbkey = config['pt'].get('rmt_tmdbkey')
+        tmdb.api_key = rmt_tmdbkey
         if not tmdb.api_key:
             log.error("【HOT-TRAILER】未配置rmt_tmdbkey，无法下载热门预告片！")
             return

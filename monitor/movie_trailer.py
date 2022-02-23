@@ -49,7 +49,11 @@ def download_movie_trailer(in_path):
     file_path = trailer_dir + "/" + movie_title + " (" + movie_year + ").%(ext)s"
     # 开始下载
     tmdb = TMDb()
-    tmdb.api_key = config['pt'].get('rmt_tmdbkey')
+    rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
+    if not rmt_tmdbkey:
+        # 兼容旧配置
+        rmt_tmdbkey = config['pt'].get('rmt_tmdbkey')
+    tmdb.api_key = rmt_tmdbkey
     if not tmdb.api_key:
         log.error("【TRAILER】未配置rmt_tmdbkey，无法下载电影预告！")
         return False

@@ -14,7 +14,7 @@ class Logger:
         config = get_config()
         self.logger = logging.Logger(__name__)
         self.logger.setLevel(level=LOG_LEVEL)
-        logtype = config['app'].get('logtype')
+        logtype = config['app'].get('logtype', 'CONSOLE')
         if logtype == "FILE":
             # 记录日志到文件
             logpath = config['app'].get('logpath')

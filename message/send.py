@@ -9,6 +9,8 @@ from message.wechat import send_wechat_msg
 
 def sendmsg(title, text=""):
     config = get_config()
+    if not config.get('message'):
+        return None
     msg_channel = config['message'].get('msg_channel')
     if not msg_channel:
         return None
