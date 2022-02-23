@@ -147,5 +147,5 @@ https://github.com/jxxghp/nas-tools/releases
 ![image](https://user-images.githubusercontent.com/51039935/153985095-7dfd7cd8-172b-4f3e-9583-fa25e69d8838.png)
 
 ## TODO
-1) 接入豆瓣自动拉取关注电影、电视剧
-2) PT站资源全局检索（目前依赖RSS订阅，仅支持增量发布内容）
+1) 同一资源有多个版本时支持策略选种。
+2) 接入豆瓣自动拉取关注电影电视剧，后端自动检索下载。
