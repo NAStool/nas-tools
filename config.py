@@ -103,6 +103,10 @@ def save_config(new_cfg):
 # 检查配置信息
 def check_config(config):
     # 剑查日志输出
+    app = config.get('app')
+    if not app:
+        log.error("app配置不存在，程序无法启动")
+        return False
     logtype = config['app'].get('logtype', 'CONSOLE')
     print("【RUN】日志输出类型为：" + logtype)
     if logtype == "SERVER":
@@ -145,13 +149,15 @@ def check_config(config):
 
     rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
     if not rmt_tmdbkey:
-        # 兼容旧配置
-        rmt_tmdbkey = config['pt'].get('rmt_tmdbkey')
-    if not rmt_tmdbkey:
         log.error("【RUN】rmt_tmdbkey未配置，程序无法启动！")
         return False
 
     # 检查媒体库目录路径
+    media = config.get('media')
+    if not media:
+        log.error("media配置不存在，程序无法启动")
+        return False
+
     movie_path = config['media'].get('movie_path')
     if not movie_path:
         log.error("【RUN】未配置movie_path，程序无法启动！")
@@ -231,6 +237,11 @@ def check_config(config):
                 log.warn("【RUN】telegram配置不完整，将无法接收到通知消息！")
 
     # 检查PT配置
+    pt = config.get('pt')
+    if not pt:
+        log.error("pt配置不存在，程序无法启动")
+        return False
+
     rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
     if rmt_mode == "LINK":
         log.info("【RUN】PT下载文件转移模式为：硬链接")
@@ -328,12 +339,23 @@ def check_config(config):
 
 # 检查硬链接模式的配置信息
 def check_simple_config(config):
+
+    app = config.get('app')
+    if not app:
+        log.error("app配置不存在，程序无法启动")
+        return False
+
     rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
     if not rmt_tmdbkey:
         log.error("【RUN】rmt_tmdbkey未配置，程序无法启动！")
         return False
 
     # 检查媒体库目录路径
+    media = config.get('media')
+    if not media:
+        log.error("media配置不存在，程序无法启动")
+        return False
+
     movie_path = config['media'].get('movie_path')
     if not movie_path:
         log.error("【RUN】未配置movie_path，程序无法启动！")

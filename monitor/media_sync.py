@@ -57,8 +57,8 @@ def dir_change_handler(event, text):
                 need_handler_flag = True
                 FINISHED_JOBS[job_key] = files_num
             else:
-                # 判断文件数，看是不是有变化，有变化就要重新处理
-                if FINISHED_JOBS.get(job_key) != files_num:
+                # 判断文件数，看是不是有变化，有文件增加就要重新处理
+                if FINISHED_JOBS.get(job_key) < files_num:
                     # 文件数有变化，但只处理增量的，重复的文件不通知
                     FINISHED_JOBS[job_key] = files_num
                     need_handler_flag = True

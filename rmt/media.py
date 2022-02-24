@@ -240,22 +240,22 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
                         else:
                             log.debug("【RMT】文件 " + new_file + "已存在！")
             log.info("【RMT】" + in_name + " 转移完成！")
-            msg_str = ""
+            msg_str = []
             if Media_Pix:
-                msg_str = msg_str + "\n质量：" + str(Media_Pix)
+                msg_str.append("质量：" + str(Media_Pix).lower())
             if Media_FileSize:
-                msg_str = msg_str + "\n大小：" + str_filesize(Media_FileSize)
-            msg_str = msg_str + "\n来自：" + in_from
+                msg_str.append("大小：" + str_filesize(Media_FileSize))
+            msg_str.append("来自：" + in_from)
 
             # 开始发送消息
             sendmsg_flag = True
             if Exist_FileNum != 0:
                 save_note = str(Exist_FileNum) + " 个文件已存在！"
-                msg_str = msg_str + "\n备注：" + save_note
+                msg_str.append("备注：" + save_note)
                 # 有重复文件时，根据noti_flag来决定要不要发通知，避免信息干扰
                 sendmsg_flag = noti_flag
             if sendmsg_flag:
-                sendmsg("电影 " + Media_Title + " 转移完成", msg_str, Backdrop_Path)
+                sendmsg("电影 " + Media_Title + " 转移完成", "\n".join(msg_str), Backdrop_Path)
 
         elif Search_Type == "电视剧":
             if bluray_disk_flag:
@@ -334,24 +334,24 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
             episode_ary.sort(key=int)
 
             # 开始发送消息
-            msg_str = ""
+            msg_str = []
             if season_ary:
-                msg_str = msg_str + "\n季：" + ', '.join(season_ary)
+                msg_str.append("季：" + ', '.join(season_ary))
             if episode_ary:
-                msg_str = msg_str + "\n集：" + ', '.join(episode_ary)
+                msg_str.append("集：" + ', '.join(episode_ary))
             if Media_FileNum:
-                msg_str = msg_str + "\n文件数：" + str(Media_FileNum)
+                msg_str.append("文件数：" + str(Media_FileNum))
             if Media_FileSize:
-                msg_str = msg_str + "\n总大小：" + str_filesize(Media_FileSize)
-            msg_str = msg_str + "\n来自：" + in_from
+                msg_str.append("总大小：" + str_filesize(Media_FileSize))
+            msg_str.append("来自：" + in_from)
             sendmsg_flag = True
             if Exist_FileNum != 0:
                 save_note = str(Exist_FileNum) + " 个文件已存在！"
-                msg_str = msg_str + "\n备注：" + save_note
+                msg_str.append("备注：" + save_note)
                 # 有重复文件时，根据noti_flag来决定要不要发通知，避免信息干扰
                 sendmsg_flag = noti_flag
             if sendmsg_flag:
-                sendmsg("电视剧 " + Media_Title + " 转移完成", msg_str, Backdrop_Path)
+                sendmsg("电视剧 " + Media_Title + " 转移完成", "\n".join(msg_str), Backdrop_Path)
         else:
             log.error("【RMT】" + in_name + " 无法识别是什么类型的媒体文件！")
             sendmsg("【RMT】无法识别媒体类型！", "来源：" + in_from

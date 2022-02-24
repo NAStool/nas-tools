@@ -35,14 +35,15 @@ media:
   # 有新电影时是否自动下载电影预告片到本地：true、false，Emby的预告片按钮会播放本地文件而不是打开youtube链接，从youtube下载需要科学上网
   movie_trailer: false
   # 监控目录，可以监控多个。监控目录有文件变化时会自动进行媒体识别、转移并命名
-  # 配置格式1：'源目录|目的目录'，比如：'/mnt/movie1|mymovie'，配了目的目录时，会转移到跟源目录下的“mymovie”目的目录中，不自动区分电影或电视剧。
+  # 配置格式1：'源目录|目的目录'，比如：'/mnt/movie1|/mnt/mymovie'，配了目的目录时，会转移到/mnt/mymovie目的目录中，不自动区分电影或电视剧。
   # 配置格式2：'源目录'，比如：'/mnt/movie1'，目的目录不配时会自动识别是电影还是电视剧并转移到movie_path、tv_path目录（开了自动分类的话仍会进行自动分类）
   # 监控功能如果遇到启动报错：inotify instance limit reached，需在宿主机上命令行执行以下命令：
   # echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
+  # echo fs.inotify.max_user_instances=524288 | sudo tee -a /etc/sysctl.conf
   # sudo sysctl -p
   sync_path:
-    - '/mnt/movie1|mymovie'
-    - '/mnt/movie2|mymovie'
+    - '/mnt/movie1|/mnt/mymovie'
+    - '/mnt/movie2|/mnt/mymovie'
     - '/mnt/resiliosync/大片抢先看'
   # 监控目录文件的转移方式：LINK、COPY，LINK即硬链接并重命名，COPY是复制一份并重命名。LINK下载目录和媒体库目录在一个磁盘分区或者存储空间。
   sync_mod: LINK

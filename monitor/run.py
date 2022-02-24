@@ -43,7 +43,6 @@ def run_monitor():
                         monpath = sync_monpath.split("|")[0]
                         target_path = sync_monpath.split("|")[1]
                         if target_path:
-                            target_path = os.path.join(monpath, os.path.basename(target_path))
                             log.info("【SYNC】读取到监控目录：" + monpath + "，目的目录：" + target_path)
                             if not os.path.exists(target_path):
                                 log.info("【SYNC】目的目录不存在，正在创建：" + target_path)
