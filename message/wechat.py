@@ -54,6 +54,7 @@ class WeChat(object):
                     self.__access_token_time = datetime.now()
         return self.__access_token
 
+    # 发送文本消息
     def send_message(self, title, text):
         message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.get_access_token()
         config = get_config()
@@ -63,16 +64,55 @@ class WeChat(object):
         if text:
             text = text.replace("\n\n", "\n")
         req_json = {
-                       "touser": "@all",
-                       "msgtype": "text",
-                       "agentid": agent_id,
-                       "text": {
-                           "content": title + "\n\n" + text
-                       },
-                       "safe": 0,
-                       "enable_id_trans": 0,
-                       "enable_duplicate_check": 0
+            "touser": "@all",
+            "msgtype": "text",
+            "agentid": agent_id,
+            "text": {
+                "content": title + "\n\n" + text
+            },
+            "safe": 0,
+            "enable_id_trans": 0,
+            "enable_duplicate_check": 0
+        }
+        headers = {'content-type': 'charset=utf8'}
+        try:
+            res = requests.post(message_url, json=req_json, headers=headers)
+            if res:
+                ret_json = res.json()
+                if ret_json['errcode'] == 0:
+                    return True, ret_json['errmsg']
+                else:
+                    return False, ret_json['errmsg']
+            else:
+                return False, None
+        except Exception as err:
+            return False, str(err)
+
+    # 发送图文消息
+    def send_image_message(self, title, text, image_url):
+        message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.get_access_token()
+        config = get_config()
+        agent_id = config['message'].get('wechat', {}).get('agentid')
+        if not agent_id:
+            return False, "未配置wechat.agentid，无法发送消息！"
+        if text:
+            text = text.replace("\n\n", "\n")
+
+        req_json = {
+            "touser": "@all",
+            "msgtype": "news",
+            "agentid": agent_id,
+            "news": {
+                "articles": [
+                    {
+                        "title": title,
+                        "description": text,
+                        "url": "URL",
+                        "picurl": image_url
                     }
+                ]
+            }
+        }
         headers = {'content-type': 'charset=utf8'}
         try:
             res = requests.post(message_url, json=req_json, headers=headers)
@@ -88,10 +128,13 @@ class WeChat(object):
             return False, str(err)
 
 
-def send_wechat_msg(title, text):
+def send_wechat_msg(title, text, image):
     if not title and not text:
         return -1, "标题和内容不能同时为空！"
-    ret_code, ret_msg = WeChat.get_instance().send_message(title, text)
+    if image:
+        ret_code, ret_msg = WeChat.get_instance().send_image_message(title, text, image)
+    else:
+        ret_code, ret_msg = WeChat.get_instance().send_message(title, text)
     return ret_code, ret_msg
 
 

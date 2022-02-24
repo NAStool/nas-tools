@@ -1,4 +1,4 @@
-# 不需要的功能对应的配置项可以配空或者直接删掉
+# 全功能模式配置文件，适用于想做寿PT下载、识别转移、保种、Emby媒体库全自动解决方案的用户，有很多附属的功能，有WEBUI控制界面
 app:
   # 日志记录类型：SERVER、FILE、CONSOLE，如果是使用Docker安装建议留空或者设置为CONSOLE；如果是使用群晖套件建议配置为 SERVER，可将日志输出到群晖的日志中心便于查看；如果是python本地运行建议设置为FILE，保存日志到文件。
   logtype: CONSOLE
@@ -24,18 +24,25 @@ app:
 media:
   # 媒体库电影文件存放目录，docker使用需要将NAS储存目录映射到以下路径
   movie_path: '/mnt/media/电影'
-  # 电影是否支持二级分类：true、false，如为false则不分类，所有电影放movie_path下；如为true则按类型分别建二级目录存放，具体分类参考README.MD说明
+  # 电影是否支持自动二级分类：true、false，如为false则不分类，所有电影放movie_path下；如为true则按类型分别建二级目录存放，具体分类参考README.MD说明
   movie_subtypedir: true
   # 媒体库电视剧文件存放目录，docker使用需要将NAS储存目录映射到以下路径
   tv_path: '/mnt/media/电视剧'
-  # 电视剧是否支持二级分类：true、false，如为false则不分类，所有电影剧放tv_path下；如为true则按类型分别建二级目录存放，具体分类参考README.MD说明
+  # 电视剧是否支持自动二级分类：true、false，如为false则不分类，所有电影剧放tv_path下；如为true则按类型分别建二级目录存放，具体分类参考README.MD说明
   tv_subtypedir: true
   # 媒体库热门预告片存放目录，会去themoviedb搜刮新出的电影预告并通过youtube下载，有对应电影存在时会优先转移到电影目录。不配置则不启用热门预告片下载功能。
   hottrailer_path: '/mnt/media/预告'
   # 有新电影时是否自动下载电影预告片到本地：true、false，Emby的预告片按钮会播放本地文件而不是打开youtube链接，从youtube下载需要科学上网
   movie_trailer: false
-  # 监控目录，可以监控多个。监控目录有文件变化时会自动进行媒体识别、转移并命名到电影、电视剧的媒体库目录
+  # 监控目录，可以监控多个。监控目录有文件变化时会自动进行媒体识别、转移并命名
+  # 配置格式1：'源目录|目的目录'，比如：'/mnt/movie1|mymovie'，配了目的目录时，会转移到跟源目录下的“mymovie”目的目录中，不自动区分电影或电视剧。
+  # 配置格式2：'源目录'，比如：'/mnt/movie1'，目的目录不配时会自动识别是电影还是电视剧并转移到movie_path、tv_path目录（开了自动分类的话仍会进行自动分类）
+  # 监控功能如果遇到启动报错：inotify instance limit reached，需在宿主机上命令行执行以下命令：
+  # echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
+  # sudo sysctl -p
   sync_path:
+    - '/mnt/movie1|mymovie'
+    - '/mnt/movie2|mymovie'
     - '/mnt/resiliosync/大片抢先看'
   # 监控目录文件的转移方式：LINK、COPY，LINK即硬链接并重命名，COPY是复制一份并重命名。LINK下载目录和媒体库目录在一个磁盘分区或者存储空间。
   sync_mod: LINK
@@ -48,7 +55,7 @@ message:
   webhook_ignore:
     - 'admin:xx的iPhone 12'
   wechat:
-    # 企业微信消息应用，在企业微信https://work.weixin.qq.com/中申请和新增一个自建应用。配合微信的企业微信插件，可以直接在微信中查看本程序的消息以及控制程序运行，非常好用，推荐使用该渠道。
+    # 【推荐】企业微信消息应用，在企业微信https://work.weixin.qq.com/中申请和新增一个自建应用。配合微信的企业微信插件，可以直接在微信中查看本程序的消息以及控制程序运行，非常好用，推荐使用该渠道。
     # corpid:每个企业都拥有唯一的corpid，获取此信息可在管理后台“我的企业”－“企业信息”下查看“企业ID”（需要有管理员权限）
     # corpsecret:自建应用secret。在管理后台->“应用与小程序”->“应用”->“自建”，点进某个应用，即可看到。
     # agentid:每个应用都有唯一的agentid。在管理后台->“应用与小程序”->“应用”，点进某个应用，即可看到agentid。
@@ -72,16 +79,15 @@ message:
 # 配置PT下载
 pt:
   # PT下载完成后转移到媒体库的转移模式：COPY复制模式、LINK硬链接模式。复制模式下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠；硬链接模式不用额外增加存储空间，一份文件两份目录，但需要下载目录和媒体库目录在一个磁盘分区或者存储空间。两者在媒体库使用上是一致的。
-  rmt_mode: COPY
+  rmt_mode: LINK
   # PT下载使用的客户端软件，qbittorrent、transmission，需要配置qbittorrent或transmission对应的配置区域
   pt_client: qbittorrent
-  # 配置PT站点的信息，RSS用于订阅自动下载，COOKIE用于签到
   # 是否只下载有中文媒体信息的种子（开了只会下themoviedb有中文描述的影视资源）
   rss_chinese: False
   # PT站每日签到的时间，注意一定要加引号
   ptsignin_cron: '8:00'
   # PT做种时间，做种超过该时间则会自动删种（包括已下载的文件），单位是秒。如果是使用COPY模式，这个根据PT下载盘的大小配置，如果是使用LINK模式，这个可以不配，不配置或者配置为0则不启用删种功能。
-  pt_seeding_time: 86400
+  pt_seeding_time:
   # RSS检查时间间隔，即每隔多长时间检查一下各PT站是否有资源更新，建议不要少于10分钟，单位时间为秒。
   pt_check_interval: 1800
   # PT站的信息，理论上支持所有PT站点，可按示例格式增加其他站点的配置，URL、正则式、Cookie等注意加引号，不然容易造成格式错误。

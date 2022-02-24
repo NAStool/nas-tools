@@ -108,9 +108,9 @@ def transfer_files(file_path, file_item, new_file, mv_flag=False, over_flag=Fals
 
 # 转移一个目录下的所有文件
 def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, in_season=None, in_type=None,
-                       mv_flag=False, noti_flag=True):
+                       mv_flag=False, noti_flag=True, target_dir=None):
     config = get_config()
-    if in_from == "Sync":
+    if in_from == "目录监控":
         rmt_mode = config['media'].get('sync_mod', 'COPY').upper()
     else:
         rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
@@ -154,13 +154,19 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
         Media_Year = media["year"]
     Media_Pix = media['pix']
     Exist_FileNum = 0
-    Media_File = ""
     Media_FileSize = 0
+    Backdrop_Path = ""
+    if media["backdrop_path"]:
+        Backdrop_Path = "https://image.tmdb.org/t/p/w500" + media["backdrop_path"]
 
     if Media_Id != "0":
         if Search_Type == "电影":
             # 检查剩余空间
-            movie_dist = config['media'].get('movie_path')
+            if target_dir:
+                # 有输入target_dir时，往这个目录放
+                movie_dist = target_dir
+            else:
+                movie_dist = config['media'].get('movie_path')
             disk_free_size = get_free_space_gb(movie_dist)
             if float(disk_free_size) < RMT_DISKFREESIZE:
                 log.error("【RMT】目录" + movie_dist + "剩余磁盘空间不足" + RMT_DISKFREESIZE + "GB，不处理！")
@@ -220,42 +226,51 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
                         new_file = os.path.join(media_path, Media_Title + " (" + Media_Year + ") - " + Media_Pix.lower() + file_ext)
                     else:
                         new_file = os.path.join(media_path, Media_Title + " (" + Media_Year + ")" + file_ext)
-                    Media_File = new_file
                     if not os.path.exists(new_file):
-                        transfer_files(in_path, file_item, new_file, mv_flag, False, rmt_mode=rmt_mode)
+                        transfer_files(in_path, file_item, new_file, mv_flag, False, rmt_mode)
                     else:
-                        ExistFile_Size = os.path.getsize(new_file)
-                        if Media_FileSize > ExistFile_Size:
-                            log.info("【RMT】文件" + new_file + "已存在，但新文件质量更好，覆盖...")
-                            transfer_files(in_path, file_item, new_file, mv_flag, True, rmt_mode=rmt_mode)
+                        if rmt_mode != "LINK":
+                            ExistFile_Size = os.path.getsize(new_file)
+                            if Media_FileSize > ExistFile_Size:
+                                log.info("【RMT】文件" + new_file + "已存在，但新文件质量更好，覆盖...")
+                                transfer_files(in_path, file_item, new_file, mv_flag, True, rmt_mode)
+                            else:
+                                Exist_FileNum = Exist_FileNum + 1
+                                log.warn("【RMT】文件 " + new_file + "已存在，且质量更好！")
                         else:
-                            Exist_FileNum = Exist_FileNum + 1
-                            log.warn("【RMT】文件 " + new_file + "已存在，且质量更好！")
+                            log.debug("【RMT】文件 " + new_file + "已存在！")
             log.info("【RMT】" + in_name + " 转移完成！")
-            msg_str = "来源：" + in_from \
-                      + "\n\n种子名称：" + in_name \
-                      + "\n\n文件数：" + str(Media_FileNum) \
-                      + "\n\n文件大小：" + str_filesize(Media_FileSize)
-            save_path = media_path
-            if Media_FileNum == 1:
-                save_path = Media_File
-            msg_str = msg_str + "\n\n路径：" + save_path
+            msg_str = ""
+            if Media_Pix:
+                msg_str = msg_str + "\n质量：" + str(Media_Pix)
+            if Media_FileSize:
+                msg_str = msg_str + "\n大小：" + str_filesize(Media_FileSize)
+            msg_str = msg_str + "\n来自：" + in_from
+
+            # 开始发送消息
             sendmsg_flag = True
             if Exist_FileNum != 0:
                 save_note = str(Exist_FileNum) + " 个文件已存在！"
-                msg_str = msg_str + "\n\n备注：" + save_note
+                msg_str = msg_str + "\n备注：" + save_note
                 # 有重复文件时，根据noti_flag来决定要不要发通知，避免信息干扰
                 sendmsg_flag = noti_flag
             if sendmsg_flag:
-                sendmsg("【RMT】" + Media_Title + "（" + str(Media_Year) + "）" + "转移完成！", msg_str)
+                sendmsg("电影 " + Media_Title + " 转移完成", msg_str, Backdrop_Path)
+
         elif Search_Type == "电视剧":
             if bluray_disk_flag:
                 log.error("【RMT】识别有误：蓝光原盘目录被识别为电视剧！")
                 return False
             season_ary = []
             episode_ary = []
+
             # 检查剩余空间
-            tv_dist = config['media'].get('tv_path')
+            if target_dir:
+                # 有输入target_dir时，往这个目录放
+                tv_dist = target_dir
+            else:
+                tv_dist = config['media'].get('tv_path')
+
             disk_free_size = get_free_space_gb(tv_dist)
             if float(disk_free_size) < RMT_DISKFREESIZE:
                 log.error("【RMT】目录" + tv_dist + "剩余磁盘空间不足" + RMT_DISKFREESIZE + "GB，不处理！")
@@ -301,44 +316,52 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
                 new_file = os.path.join(season_dir,
                                         Media_Title + " - " + file_season + file_seq + " - " + "第 "
                                         + file_seq_num + " 集" + file_ext)
-                Media_File = new_file
                 if not os.path.exists(new_file):
-                    transfer_files(in_path, file_item, new_file, mv_flag, False, rmt_mode=rmt_mode)
+                    transfer_files(in_path, file_item, new_file, mv_flag, False, rmt_mode)
                 else:
                     ExistFile_Size = os.path.getsize(new_file)
-                    if Media_FileSize > ExistFile_Size:
-                        log.info("【RMT】文件" + new_file + "已存在，但新文件质量更好，覆盖...")
-                        transfer_files(in_path, file_item, new_file, mv_flag, True, rmt_mode=rmt_mode)
+                    if rmt_mode != "LINK":
+                        if Media_FileSize > ExistFile_Size:
+                            log.info("【RMT】文件" + new_file + "已存在，但新文件质量更好，覆盖...")
+                            transfer_files(in_path, file_item, new_file, mv_flag, True, rmt_mode)
+                        else:
+                            Exist_FileNum = Exist_FileNum + 1
+                            log.warn("【RMT】文件 " + new_file + "已存在，且质量更好！")
                     else:
-                        Exist_FileNum = Exist_FileNum + 1
-                        log.warn("【RMT】文件 " + new_file + "已存在，且质量更好！")
+                        log.debug("【RMT】文件 " + new_file + "已存在！")
             log.info("【RMT】" + in_name + " 转移完成！")
             season_ary.sort()
             episode_ary.sort(key=int)
-            msg_str = "来源：" + in_from \
-                      + "\n\n种子名称：" + in_name \
-                      + "\n\n季：" + ', '.join(season_ary) \
-                      + "\n\n集：" + ', '.join(episode_ary) \
-                      + "\n\n文件数：" + str(Media_FileNum) \
-                      + "\n\n总大小：" + str_filesize(Media_FileSize)
+
+            # 开始发送消息
+            msg_str = ""
+            if season_ary:
+                msg_str = msg_str + "\n季：" + ', '.join(season_ary)
+            if episode_ary:
+                msg_str = msg_str + "\n集：" + ', '.join(episode_ary)
+            if Media_FileNum:
+                msg_str = msg_str + "\n文件数：" + str(Media_FileNum)
+            if Media_FileSize:
+                msg_str = msg_str + "\n总大小：" + str_filesize(Media_FileSize)
+            msg_str = msg_str + "\n来自：" + in_from
             sendmsg_flag = True
             if Exist_FileNum != 0:
                 save_note = str(Exist_FileNum) + " 个文件已存在！"
-                msg_str = msg_str + "\n\n备注：" + save_note
+                msg_str = msg_str + "\n备注：" + save_note
                 # 有重复文件时，根据noti_flag来决定要不要发通知，避免信息干扰
                 sendmsg_flag = noti_flag
             if sendmsg_flag:
-                sendmsg("【RMT】" + Media_Title + "（" + str(Media_Year) + "）" + " 转移完成！", msg_str)
+                sendmsg("电视剧 " + Media_Title + " 转移完成", msg_str, Backdrop_Path)
         else:
             log.error("【RMT】" + in_name + " 无法识别是什么类型的媒体文件！")
             sendmsg("【RMT】无法识别媒体类型！", "来源：" + in_from
-                    + "\n\n种子名称：" + in_name)
+                    + "\n种子名称：" + in_name)
             return False
     else:
         sendmsg("【RMT】媒体搜刮失败！", "来源：" + in_from
-                + "\n\n种子名称：" + in_name
-                + "\n\n识别标题：" + Media_Title
-                + "\n\n识别类型：" + Search_Type)
+                + "\n种子名称：" + in_name
+                + "\n识别标题：" + Media_Title
+                + "\n识别类型：" + Search_Type)
         return False
     return True
 
@@ -466,6 +489,7 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
     media_id = "0"
     media_type = ""
     media_pix = ""
+    backdrop_path = ""
 
     # 解析媒体名称
     media_name = get_pt_media_name(in_name)
@@ -512,6 +536,7 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
             media_title = info.title
             log.info(">电影ID：" + str(info.id) + "，上映日期：" + info.release_date + "，电影名称：" + info.title)
             media_year = info.release_date[0:4]
+            backdrop_path = info.backdrop_path
             if media_type == "":
                 # 国家
                 media_language = info.original_language
@@ -544,6 +569,7 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
             media_title = info.name
             log.info(">剧集ID：" + str(info.id) + "，剧集名称：" + info.name + "，上映日期：" + info.first_air_date)
             media_year = info.first_air_date[0:4]
+            backdrop_path = info.backdrop_path
             if media_type == "":
                 # 类型 动漫、纪录片、儿童、综艺
                 media_genre_ids = info.genre_ids
@@ -572,7 +598,7 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
                         media_type = "国产剧"
     log.debug("【RMT】剧集类型：" + media_type)
     return {"search": search_type, "type": media_type, "id": media_id, "name": media_title, "year": media_year,
-            "info": info, "pix": media_pix}
+            "info": info, "pix": media_pix, "backdrop_path": backdrop_path}
 
 
 # 全量转移

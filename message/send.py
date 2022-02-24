@@ -7,7 +7,7 @@ from message.telegram import send_telegram_msg
 from message.wechat import send_wechat_msg
 
 
-def sendmsg(title, text=""):
+def sendmsg(title, text="", image=""):
     config = get_config()
     if not config.get('message'):
         return None
@@ -16,11 +16,11 @@ def sendmsg(title, text=""):
         return None
     log.info("【MSG】发送" + msg_channel + "消息：title=" + title + "，text=" + text)
     if msg_channel == "wechat":
-        return send_wechat_msg(title, text)
+        return send_wechat_msg(title, text, image)
     elif msg_channel == "serverchan":
         return send_serverchan_msg(title, text)
     elif msg_channel == "telegram":
-        return send_telegram_msg(title, text)
+        return send_telegram_msg(title, text, image)
     else:
         return None
 

@@ -64,6 +64,8 @@ def parse_rssxml(url):
 
 
 def rssdownload():
+    global rss_cache_list
+    global rss_cache_name
     # 读取配置
     config = get_config()
     rss_jobs = config['pt'].get('sites')
@@ -122,6 +124,7 @@ def rssdownload():
                 media_type = media_info["type"]
                 media_title = media_info["name"]
                 media_year = media_info["year"]
+                backdrop_path = media_info['backdrop_path']
 
                 rss_chinese = config['pt'].get('rss_chinese')
                 if rss_chinese and not is_chinese(media_title):
@@ -216,6 +219,7 @@ def rssdownload():
                             msg_item = "> " + media_name + "：" + title
                             if msg_item not in succ_list:
                                 succ_list.append(msg_item)
+                                sendmsg("电影 " + media_title + " 已开始下载", "种子：" + title, backdrop_path)
                     except Exception as e:
                         log.error("【RSS】添加PT任务出错：" + str(e))
                 else:
@@ -224,8 +228,6 @@ def rssdownload():
                 log.error("【RSS】错误：" + str(e))
                 continue
         log.info("【RSS】" + rss_job + "处理结束！")
-    if len(succ_list) > 0:
-        sendmsg("【RSS】新增PT下载", "\n\n".join(succ_list))
 
 
 if __name__ == "__main__":

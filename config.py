@@ -39,6 +39,8 @@ HOT_TRAILER_INTERVAL = 86400
 HOT_TRAILER_INTERVAL_TOTAL = 100
 # PT转移文件检查时间间隔，默认5分钟
 PT_TRANSFER_INTERVAL = 300
+# SYNC源目录与目的目录的配套关系
+SYNC_DIR_CONFIG = {}
 
 # 日志级别
 LOG_LEVEL = logging.INFO
@@ -141,6 +143,14 @@ def check_config(config):
     else:
         log.info("【RUN】已启用https，请使用 https://IP:" + str(web_port) + " 访问管理页面")
 
+    rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
+    if not rmt_tmdbkey:
+        # 兼容旧配置
+        rmt_tmdbkey = config['pt'].get('rmt_tmdbkey')
+    if not rmt_tmdbkey:
+        log.error("【RUN】rmt_tmdbkey未配置，程序无法启动！")
+        return False
+
     # 检查媒体库目录路径
     movie_path = config['media'].get('movie_path')
     if not movie_path:
@@ -168,9 +178,17 @@ def check_config(config):
     if not movie_trailer:
         log.warn("【RUN】本地电影预告功能已关闭！")
 
+    sync_mod = config['media'].get('sync_mod', 'COPY').upper()
+    if sync_mod == "LINK":
+        log.info("【RUN】目录监控转移模式为：硬链接")
+    else:
+        log.info("【RUN】目录监控转移模式为：复制")
+
     sync_paths = config['media'].get('sync_path')
     if sync_paths:
         for sync_path in sync_paths:
+            if sync_path.find('|') != -1:
+                sync_path = sync_path.split("|")[0]
             if not os.path.exists(sync_path):
                 log.warn("【RUN】sync_path目录不存在，该目录监控资源同步功能将禁用：" + sync_path)
     else:
@@ -188,43 +206,36 @@ def check_config(config):
         log.info("【RUN】电视剧自动分类功能已开启！")
 
     # 检查消息配置
-    msg_channel = config['message'].get('msg_channel')
-    if not msg_channel:
-        log.warn("【RUN】msg_channel未配置，将无法接收到通知消息！")
-    elif msg_channel == "wechat":
-        corpid = config['message'].get('wechat', {}).get('corpid')
-        corpsecret = config['message'].get('wechat', {}).get('corpsecret')
-        agentid = config['message'].get('wechat', {}).get('agentid')
-        if not corpid or not corpsecret or not agentid:
-            log.warn("【RUN】wechat配置不完整，将无法接收到微信通知消息！")
-        Token = config['message'].get('wechat', {}).get('Token')
-        EncodingAESKey = config['message'].get('wechat', {}).get('EncodingAESKey')
-        if not Token or not EncodingAESKey:
-            log.warn("【RUN】Token、EncodingAESKey未配置，微信控制功能将无法使用！")
-    elif msg_channel == "serverchan":
-        sckey = config['message'].get('serverchan', {}).get('sckey')
-        if not sckey:
-            log.warn("【RUN】sckey未配置，将无法接收到Server酱通知消息！")
-    elif msg_channel == "telegram":
-        telegram_token = config['message'].get('telegram', {}).get('telegram_token')
-        telegram_chat_id = config['message'].get('telegram', {}).get('telegram_chat_id')
-        if not telegram_token or not telegram_chat_id:
-            log.warn("【RUN】telegram配置不完整，将无法接收到通知消息！")
-
-    rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
-    if not rmt_tmdbkey:
-        # 兼容旧配置
-        rmt_tmdbkey = config['pt'].get('rmt_tmdbkey')
-    if not rmt_tmdbkey:
-        log.error("【RUN】rmt_tmdbkey未配置，程序无法启动！")
-        return False
+    if config.get('message'):
+        msg_channel = config['message'].get('msg_channel')
+        if not msg_channel:
+            log.warn("【RUN】msg_channel未配置，将无法接收到通知消息！")
+        elif msg_channel == "wechat":
+            corpid = config['message'].get('wechat', {}).get('corpid')
+            corpsecret = config['message'].get('wechat', {}).get('corpsecret')
+            agentid = config['message'].get('wechat', {}).get('agentid')
+            if not corpid or not corpsecret or not agentid:
+                log.warn("【RUN】wechat配置不完整，将无法接收到微信通知消息！")
+            Token = config['message'].get('wechat', {}).get('Token')
+            EncodingAESKey = config['message'].get('wechat', {}).get('EncodingAESKey')
+            if not Token or not EncodingAESKey:
+                log.warn("【RUN】Token、EncodingAESKey未配置，微信控制功能将无法使用！")
+        elif msg_channel == "serverchan":
+            sckey = config['message'].get('serverchan', {}).get('sckey')
+            if not sckey:
+                log.warn("【RUN】sckey未配置，将无法接收到Server酱通知消息！")
+        elif msg_channel == "telegram":
+            telegram_token = config['message'].get('telegram', {}).get('telegram_token')
+            telegram_chat_id = config['message'].get('telegram', {}).get('telegram_chat_id')
+            if not telegram_token or not telegram_chat_id:
+                log.warn("【RUN】telegram配置不完整，将无法接收到通知消息！")
 
     # 检查PT配置
     rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
     if rmt_mode == "LINK":
-        log.info("【RUN】文件转移模式为：硬链接")
+        log.info("【RUN】PT下载文件转移模式为：硬链接")
     else:
-        log.info("【RUN】文件转移模式为：复制")
+        log.info("【RUN】PT下载文件转移模式为：复制")
 
     rss_chinese = config['pt'].get('rss_chinese')
     if rss_chinese:
@@ -316,7 +327,7 @@ def check_config(config):
 
 
 # 检查硬链接模式的配置信息
-def check_hlink_config(config):
+def check_simple_config(config):
     rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
     if not rmt_tmdbkey:
         log.error("【RUN】rmt_tmdbkey未配置，程序无法启动！")
@@ -342,6 +353,8 @@ def check_hlink_config(config):
     sync_paths = config['media'].get('sync_path')
     if sync_paths:
         for sync_path in sync_paths:
+            if sync_path.find('|') != -1:
+                sync_path = sync_path.split("|")[0]
             if not os.path.exists(sync_path):
                 log.warn("【RUN】sync_path目录不存在，该目录监控资源同步功能将禁用：" + sync_path)
     else:
@@ -359,7 +372,7 @@ def check_hlink_config(config):
     else:
         log.info("【RUN】电视剧自动分类功能已开启！")
 
-    # 检查PT配置
+    # 检查Sync配置
     sync_mod = config['media'].get('sync_mod', 'COPY').upper()
     if sync_mod == "LINK":
         log.info("【RUN】目录监控转移模式为：硬链接")

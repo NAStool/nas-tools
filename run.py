@@ -3,9 +3,7 @@ import os
 from subprocess import call
 
 import log
-from config import get_config, check_config, check_hlink_config
-from functions import get_host_name, get_host_ip
-from message.send import sendmsg
+from config import get_config, check_config, check_simple_config
 from web import run as webhook
 from monitor import run as monitor
 from scheduler import run as scheduler
@@ -28,12 +26,12 @@ if __name__ == "__main__":
         quit()
     # 检查配置文件
     cfg = get_config()
-    hlink = cfg['app'].get('hlink')
-    if hlink:
+    simple_mode = cfg['app'].get('simple_mode')
+    if simple_mode:
         # 纯硬链接模式
-        print("【RUN】当前运行模式：精简模式，无RSS、WEBUI及消息服务功能")
+        print("【RUN】当前运行模式：精简模式，无RSS、WEBUI等功能")
         # 检查硬链接配置
-        if not check_hlink_config(cfg):
+        if not check_simple_config(cfg):
             quit()
     else:
         print("【RUN】当前运行模式：全功能模式")
@@ -45,4 +43,3 @@ if __name__ == "__main__":
     Process(target=monitor.run_monitor, args=()).start()
     Process(target=scheduler.run_scheduler, args=()).start()
     Process(target=webhook.run_webhook, args=()).start()
-    sendmsg("【NASTOOL】" + get_host_name() + "已启动", "IP地址：" + get_host_ip())
