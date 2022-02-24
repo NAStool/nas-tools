@@ -49,6 +49,8 @@ def dir_change_handler(event, text):
                 return
 
             files_num = len(get_dir_files_by_ext(event_path, RMT_MEDIAEXT))
+            if files_num == 0:
+                return
             job_key = md5(event_path.encode("utf-8")).hexdigest()
             need_handler_flag = False
             noti_flag = True
@@ -141,19 +143,26 @@ def create_sync():
 def sync_all():
     handler_files = []
     config = get_config()
-    monpaths = config['media'].get('sync_path')
-    if monpaths:
-        log.info("【SYNC】开始全量转移...")
-        for monpath in monpaths:
-            for dir in os.listdir(monpath):
-                file_path = os.path.join(monpath, dir)
-                if dir.find(".sync") == -1:
+    sync_crg = config.get('sync')
+    if sync_crg:
+        monpaths = config['sync'].get('sync_path')
+        if monpaths:
+            log.info("【SYNC】开始全量转移...")
+            for monpath in monpaths:
+                # 目录是两段式，需要把配对关系存起来
+                if monpath.find('|') != -1:
+                    # 源目录|目的目录，这个格式的目的目录在源目录同级建立
+                    monpath = monpath.split("|")[0]
+                for cdir in os.listdir(monpath):
+                    if cdir.startswith(".") or cdir.startswith("#") or cdir.startswith("@"):
+                        continue
+                    file_path = os.path.join(monpath, cdir)
                     file_name = os.path.basename(file_path)
                     log.info("【SYNC】开始处理：" + file_path)
                     try:
                         if file_name not in handler_files:
                             handler_files.append(file_name)
-                            transfer_directory(in_from="目录监控", in_name=file_name, in_path=file_path, noti_flag=False)
+                            transfer_directory(in_from="目录监控", in_name=file_name, in_path=file_path, noti_flag=True)
                     except Exception as err:
                         log.error("【SYNC】发生错误：" + str(err))
 

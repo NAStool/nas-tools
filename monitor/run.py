@@ -34,37 +34,39 @@ def run_monitor():
                     log.error("【RUN】" + movie_monpath + "目录不存在！")
 
             # Sync监控转移
-            sync_monpaths = config['media'].get('sync_path')
-            if sync_monpaths:
-                for sync_monpath in sync_monpaths:
-                    # 目录是两段式，需要把配对关系存起来
-                    if sync_monpath.find('|') != -1:
-                        # 源目录|目的目录，这个格式的目的目录在源目录同级建立
-                        monpath = sync_monpath.split("|")[0]
-                        target_path = sync_monpath.split("|")[1]
-                        if target_path:
-                            log.info("【SYNC】读取到监控目录：" + monpath + "，目的目录：" + target_path)
-                            if not os.path.exists(target_path):
-                                log.info("【SYNC】目的目录不存在，正在创建：" + target_path)
-                                os.makedirs(target_path)
-                            # 去掉末尾的/
-                            if monpath.endswith('/'):
-                                monpath = monpath[0:-1]
-                            SYNC_DIR_CONFIG[monpath] = target_path
-                    else:
-                        monpath = sync_monpath
-                        SYNC_DIR_CONFIG[monpath] = None
-                        log.info("【SYNC】读取监控目录：" + monpath)
+            sync_crg = config.get('sync')
+            if sync_crg:
+                sync_monpaths = config['sync'].get('sync_path')
+                if sync_monpaths:
+                    for sync_monpath in sync_monpaths:
+                        # 目录是两段式，需要把配对关系存起来
+                        if sync_monpath.find('|') != -1:
+                            # 源目录|目的目录，这个格式的目的目录在源目录同级建立
+                            monpath = sync_monpath.split("|")[0]
+                            target_path = sync_monpath.split("|")[1]
+                            if target_path:
+                                log.info("【SYNC】读取到监控目录：" + monpath + "，目的目录：" + target_path)
+                                if not os.path.exists(target_path):
+                                    log.info("【SYNC】目的目录不存在，正在创建：" + target_path)
+                                    os.makedirs(target_path)
+                                # 去掉末尾的/
+                                if monpath.endswith('/'):
+                                    monpath = monpath[0:-1]
+                                SYNC_DIR_CONFIG[monpath] = target_path
+                        else:
+                            monpath = sync_monpath
+                            SYNC_DIR_CONFIG[monpath] = None
+                            log.info("【SYNC】读取监控目录：" + monpath)
 
-                    if os.path.exists(monpath):
-                        global sync
-                        sync = create_sync()
-                        sync.schedule(SyncHandler(monpath), path=monpath, recursive=True)  # recursive递归的
-                        sync.setDaemon(False)
-                        sync.start()
-                        log.info("【RUN】monitor.media_sync启动...")
-                    else:
-                        log.error("【SYNC】" + sync_monpath + "目录不存在！")
+                        if os.path.exists(monpath):
+                            global sync
+                            sync = create_sync()
+                            sync.schedule(SyncHandler(monpath), path=monpath, recursive=True)  # recursive递归的
+                            sync.setDaemon(False)
+                            sync.start()
+                            log.info("【RUN】monitor.media_sync启动...")
+                        else:
+                            log.error("【SYNC】" + sync_monpath + "目录不存在！")
 
         # 退出事件监听
         @atexit.register

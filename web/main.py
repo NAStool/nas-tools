@@ -105,10 +105,12 @@ def create_app():
                 {'name': 'PT删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents,
                  'id': 'autoremovetorrents'})
 
-        sync_path = config['media'].get('sync_path')
-        if sync_path:
-            sta_sync = 'ON'
-            scheduler_cfg_list.append({'name': '资源同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync'})
+        sync = config.get('sync')
+        if sync:
+            sync_path = config['sync'].get('sync_path')
+            if sync_path:
+                sta_sync = 'ON'
+                scheduler_cfg_list.append({'name': '资源同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync'})
 
         tim_hottrailers = str(round(HOT_TRAILER_INTERVAL/3600)) + "小时"
         hottrailer_path = config['media'].get('hottrailer_path')

@@ -14,9 +14,12 @@ def run_pttransfer():
         if RUNING_FLAG:
             log.error("【RUN】pt_transfer任务正在执行中...")
         else:
-            RUNING_FLAG = True
             config = get_config()
+            pt = config.get('pt')
+            if not pt:
+                return
             pt_client = config['pt'].get('pt_client')
+            RUNING_FLAG = True
             if pt_client == "qbittorrent":
                 qb_transfer()
             elif pt_client == "transmission":

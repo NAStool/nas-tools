@@ -34,6 +34,9 @@ media:
   hottrailer_path: '/mnt/media/预告'
   # 有新电影时是否自动下载电影预告片到本地：true、false，Emby的预告片按钮会播放本地文件而不是打开youtube链接，从youtube下载需要科学上网
   movie_trailer: false
+
+# 配置文件夹监控
+sync:
   # 监控目录，可以监控多个。监控目录有文件变化时会自动进行媒体识别、转移并命名
   # 配置格式1：'源目录|目的目录'，比如：'/mnt/movie1|/mnt/mymovie'，配了目的目录时，会转移到/mnt/mymovie目的目录中，不自动区分电影或电视剧。
   # 配置格式2：'源目录'，比如：'/mnt/movie1'，目的目录不配时会自动识别是电影还是电视剧并转移到movie_path、tv_path目录（开了自动分类的话仍会进行自动分类）

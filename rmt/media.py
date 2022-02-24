@@ -111,7 +111,7 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
                        mv_flag=False, noti_flag=True, target_dir=None):
     config = get_config()
     if in_from == "目录监控":
-        rmt_mode = config['media'].get('sync_mod', 'COPY').upper()
+        rmt_mode = config['sync'].get('sync_mod', 'COPY').upper()
     else:
         rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
     if not in_name or not in_path:
@@ -540,7 +540,7 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
             if media_type == "":
                 # 国家
                 media_language = info.original_language
-                if 'zh' in media_language:
+                if 'zh' in media_language or 'bo' in media_language or 'za' in media_language:
                     media_type = "华语电影"
                 else:
                     media_type = "外语电影"

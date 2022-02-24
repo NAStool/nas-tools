@@ -32,6 +32,9 @@ def signin(name, url, cookie):
 
 def ptsignin():
     config = get_config()
+    pt = config.get('pt')
+    if not pt:
+        return
     sites = config['pt'].get('sites')
     msg_str = ""
     if sites:

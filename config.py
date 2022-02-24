@@ -184,22 +184,6 @@ def check_config(config):
     if not movie_trailer:
         log.warn("【RUN】本地电影预告功能已关闭！")
 
-    sync_mod = config['media'].get('sync_mod', 'COPY').upper()
-    if sync_mod == "LINK":
-        log.info("【RUN】目录监控转移模式为：硬链接")
-    else:
-        log.info("【RUN】目录监控转移模式为：复制")
-
-    sync_paths = config['media'].get('sync_path')
-    if sync_paths:
-        for sync_path in sync_paths:
-            if sync_path.find('|') != -1:
-                sync_path = sync_path.split("|")[0]
-            if not os.path.exists(sync_path):
-                log.warn("【RUN】sync_path目录不存在，该目录监控资源同步功能将禁用：" + sync_path)
-    else:
-        log.warn("【RUN】未配置sync_path，目录监控资源同步功能将禁用！")
-
     movie_subtypedir = config['media'].get('movie_subtypedir', True)
     if not movie_subtypedir:
         log.warn("【RUN】电影自动分类功能已关闭！")
@@ -211,7 +195,24 @@ def check_config(config):
     else:
         log.info("【RUN】电视剧自动分类功能已开启！")
 
-    # 检查消息配置
+    if config.get('sync'):
+        sync_paths = config['sync'].get('sync_path')
+        if sync_paths:
+            for sync_path in sync_paths:
+                if sync_path.find('|') != -1:
+                    sync_path = sync_path.split("|")[0]
+                if not os.path.exists(sync_path):
+                    log.warn("【RUN】sync_path目录不存在，该目录监控资源同步功能将禁用：" + sync_path)
+        else:
+            log.warn("【RUN】未配置sync_path，目录监控资源同步功能将禁用！")
+
+        sync_mod = config['sync'].get('sync_mod', 'COPY').upper()
+        if sync_mod == "LINK":
+            log.info("【RUN】目录监控转移模式为：硬链接")
+        else:
+            log.info("【RUN】目录监控转移模式为：复制")
+
+            # 检查消息配置
     if config.get('message'):
         msg_channel = config['message'].get('msg_channel')
         if not msg_channel:
@@ -372,16 +373,6 @@ def check_simple_config(config):
         log.error("【RUN】tv_path目录不存在，程序无法启动：" + tv_path)
         return False
 
-    sync_paths = config['media'].get('sync_path')
-    if sync_paths:
-        for sync_path in sync_paths:
-            if sync_path.find('|') != -1:
-                sync_path = sync_path.split("|")[0]
-            if not os.path.exists(sync_path):
-                log.warn("【RUN】sync_path目录不存在，该目录监控资源同步功能将禁用：" + sync_path)
-    else:
-        log.warn("【RUN】未配置sync_path，目录监控资源同步功能将禁用！")
-
     movie_subtypedir = config['media'].get('movie_subtypedir', True)
     if not movie_subtypedir:
         log.warn("【RUN】电影自动分类功能已关闭！")
@@ -394,12 +385,23 @@ def check_simple_config(config):
     else:
         log.info("【RUN】电视剧自动分类功能已开启！")
 
-    # 检查Sync配置
-    sync_mod = config['media'].get('sync_mod', 'COPY').upper()
-    if sync_mod == "LINK":
-        log.info("【RUN】目录监控转移模式为：硬链接")
-    else:
-        log.info("【RUN】目录监控转移模式为：复制")
+    sync = config.get('sync')
+    if sync:
+        sync_paths = config['sync'].get('sync_path')
+        if sync_paths:
+            for sync_path in sync_paths:
+                if sync_path.find('|') != -1:
+                    sync_path = sync_path.split("|")[0]
+                if not os.path.exists(sync_path):
+                    log.warn("【RUN】sync_path目录不存在，该目录监控资源同步功能将禁用：" + sync_path)
+        else:
+            log.warn("【RUN】未配置sync_path，目录监控资源同步功能将禁用！")
+        # 检查Sync配置
+        sync_mod = config['sync'].get('sync_mod', 'COPY').upper()
+        if sync_mod == "LINK":
+            log.info("【RUN】目录监控转移模式为：硬链接")
+        else:
+            log.info("【RUN】目录监控转移模式为：复制")
 
     if config.get('pt'):
         # 检查PT配置

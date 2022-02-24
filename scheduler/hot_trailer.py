@@ -85,6 +85,9 @@ def transfer_trailers(in_path):
 def hottrailers(refresh_flag=True):
     # 读取配置
     config = get_config()
+    media = config.get('media')
+    if not media:
+        return
     hottrailer_path = config['media'].get('hottrailer_path')
     movie_path = config['media'].get('movie_path')
     start_time = datetime.now()

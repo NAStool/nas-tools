@@ -68,6 +68,9 @@ def rssdownload():
     global rss_cache_name
     # 读取配置
     config = get_config()
+    pt = config.get('pt')
+    if not pt:
+        return
     rss_jobs = config['pt'].get('sites')
     movie_path = config['media'].get('movie_path')
     tv_path = config['media'].get('tv_path')
