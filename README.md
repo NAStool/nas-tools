@@ -150,7 +150,7 @@ https://github.com/jxxghp/nas-tools/releases
 ![image](https://user-images.githubusercontent.com/51039935/155313852-792ba34a-7e17-479e-9f56-233576600492.png)
 
 2) 手机端图文通知和控制界面，控制服务运行（输入命令或者点击菜单）
-![image](https://user-images.githubusercontent.com/51039935/154942955-77b9c06a-e969-4c18-ac58-5a498f5f4467.png)
+![IMG_2768](https://user-images.githubusercontent.com/51039935/155554473-a505dc3d-f5e4-46c5-8b3c-59aa8edda2a2.jpeg)
 
 3) 效果
 ![image](https://user-images.githubusercontent.com/51039935/153886867-50a3debd-e982-4723-974b-04ba16f732b1.png)
