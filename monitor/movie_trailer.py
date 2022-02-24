@@ -106,12 +106,16 @@ def dir_change_handler(event, text):
             log.info("【TRAILER】" + text + "了文件夹: %s " % event_path)
             if not os.path.exists(event_path):
                 return
-            if event_path == monpath:
+            if os.path.samefile(monpath, event_path):
+                # 根目录变化不处理
                 return
             for movie_type in RMT_MOVIETYPE:
-                if event_path == os.path.join(monpath, movie_type):
+                if os.path.samefile(event_path, os.path.join(monpath, movie_type)):
+                    # 分类目录变化不处理
                     return
-            if event_path.count("@eaDir") > 0:
+            if os.path.isdir(event_path) and \
+                    (event_path.startswith(".") != -1 or event_path.startswith("#") != -1 or event_path.startswith("@") != -1):
+                # 带点或＃或＠开头的隐藏目录不处理
                 return
             name = os.path.basename(event_path)
             if event_path not in handler_files:

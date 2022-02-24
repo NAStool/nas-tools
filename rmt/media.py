@@ -18,7 +18,7 @@ def transfer_subtitles(in_path, org_name, new_name, mv_flag=False, rmt_mode="COP
     log.debug("【RMT】字幕文件清单：" + str(file_list))
     Media_FileNum = len(file_list)
     if Media_FileNum == 0:
-        log.info("【RMT】没有支持的字幕文件，不处理！")
+        log.debug("【RMT】没有找到字幕文件")
     else:
         find_flag = False
         for file_item in file_list:
@@ -121,7 +121,7 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
     in_path = in_path.replace('\\\\', '/').replace('\\', '/')
     log.info("【RMT】开始处理：" + in_path)
     if not os.path.exists(in_path):
-        log.error("【RMT】目录不存在！")
+        log.error("【RMT】目录不存在：" + in_path)
         return False
     # 判断是不是原盘文件夹
     bluray_disk_flag = True if os.path.exists(os.path.join(in_path, "BDMV/index.bdmv")) else False
@@ -129,14 +129,11 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
     Media_FileNum = len(file_list)
     if bluray_disk_flag:
         in_type = "电影"
-        log.info("【RMT】检测到蓝光原盘文件夹")
+        log.info("【RMT】检测到蓝光原盘文件夹：" + in_path)
     else:
         log.debug("【RMT】文件清单：" + str(file_list))
         if Media_FileNum == 0:
-            log.error("【RMT】没有支持的文件格式，不处理！")
-            if noti_flag:
-                sendmsg("【RMT】没有支持的文件格式！", "来源：" + in_from
-                        + "\n\n名称：" + in_name)
+            log.warn("【RMT】未找到支持的文件格式，下一次变化再处理...")
             return False
 
     # API检索出媒体信息
@@ -160,7 +157,7 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
     Media_File = ""
     Media_FileSize = 0
 
-    if Media_Id != "0" and Media_Type != "":
+    if Media_Id != "0":
         if Search_Type == "电影":
             # 检查剩余空间
             movie_dist = config['media'].get('movie_path')
@@ -207,7 +204,7 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
             else:
                 # 新路径存在
                 if bluray_disk_flag:
-                    log.error("【RMT】蓝光原盘目录已存在：" + media_path)
+                    log.warn("【RMT】蓝光原盘目录已存在：" + media_path)
                     return True
                 else:
                     trans_files_flag = True
@@ -237,21 +234,23 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
             log.info("【RMT】" + in_name + " 转移完成！")
             msg_str = "来源：" + in_from \
                       + "\n\n种子名称：" + in_name \
-                      + "\n\n标题：" + Media_Title + "（" + str(Media_Year) + "）" \
-                      + "\n\n类型：" + Media_Type \
                       + "\n\n文件数：" + str(Media_FileNum) \
                       + "\n\n文件大小：" + str_filesize(Media_FileSize)
             save_path = media_path
             if Media_FileNum == 1:
                 save_path = Media_File
             msg_str = msg_str + "\n\n路径：" + save_path
+            sendmsg_flag = True
             if Exist_FileNum != 0:
                 save_note = str(Exist_FileNum) + " 个文件已存在！"
                 msg_str = msg_str + "\n\n备注：" + save_note
-            sendmsg("【RMT】" + Media_Title + " 转移完成！", msg_str)
+                # 有重复文件时，根据noti_flag来决定要不要发通知，避免信息干扰
+                sendmsg_flag = noti_flag
+            if sendmsg_flag:
+                sendmsg("【RMT】" + Media_Title + "（" + str(Media_Year) + "）" + "转移完成！", msg_str)
         elif Search_Type == "电视剧":
             if bluray_disk_flag:
-                log.error("【RMT】识别有误：蓝光原盘目录被识别为电视剧")
+                log.error("【RMT】识别有误：蓝光原盘目录被识别为电视剧！")
                 return False
             season_ary = []
             episode_ary = []
@@ -318,20 +317,18 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
             episode_ary.sort(key=int)
             msg_str = "来源：" + in_from \
                       + "\n\n种子名称：" + in_name \
-                      + "\n\n标题：" + Media_Title + "（" + str(Media_Year) + "）" \
-                      + "\n\n类型：" + Media_Type \
                       + "\n\n季：" + ', '.join(season_ary) \
                       + "\n\n集：" + ', '.join(episode_ary) \
                       + "\n\n文件数：" + str(Media_FileNum) \
                       + "\n\n总大小：" + str_filesize(Media_FileSize)
-            save_path = media_path
-            if Media_FileNum == 1:
-                save_path = Media_File
-            msg_str = msg_str + "\n\n路径：" + save_path
+            sendmsg_flag = True
             if Exist_FileNum != 0:
                 save_note = str(Exist_FileNum) + " 个文件已存在！"
                 msg_str = msg_str + "\n\n备注：" + save_note
-            sendmsg("【RMT】" + Media_Title + " 转移完成！", msg_str)
+                # 有重复文件时，根据noti_flag来决定要不要发通知，避免信息干扰
+                sendmsg_flag = noti_flag
+            if sendmsg_flag:
+                sendmsg("【RMT】" + Media_Title + "（" + str(Media_Year) + "）" + " 转移完成！", msg_str)
         else:
             log.error("【RMT】" + in_name + " 无法识别是什么类型的媒体文件！")
             sendmsg("【RMT】无法识别媒体类型！", "来源：" + in_from
@@ -580,30 +577,16 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
 
 # 全量转移
 def transfer_all(pt_path=None):
+    if not pt_path:
+        return
+    if not os.path.exists(pt_path):
+        print("【RMT】目录不存在：" + pt_path)
+        return
     config = get_config()
-    if pt_path:
-        from_path = pt_path
-    else:
-        pt_client = config['pt'].get('pt_client')
-        if pt_client == "qbittorrent":
-            save_path = config['qbittorrent'].get('save_path')
-            save_containerpath = config['qbittorrent'].get('save_containerpath')
-            from_path = save_path
-            if save_containerpath:
-                from_path = save_containerpath
-        elif pt_client == "transmission":
-            save_path = config['transmission'].get('save_path')
-            save_containerpath = config['transmission'].get('save_containerpath')
-            from_path = save_path
-            if save_containerpath:
-                from_path = save_containerpath
-        else:
-            print("【RMT】PT下载软件设置不正确！")
-            return
-    print("【RMT】正在转移以下目录中的全量文件：" + from_path)
+    print("【RMT】正在转移以下目录中的全量文件：" + pt_path)
     print("【RMT】转移模式为：" + config['pt'].get('rmt_mode'))
-    for f_dir in os.listdir(from_path):
-        file_path = os.path.join(from_path, f_dir)
+    for f_dir in os.listdir(pt_path):
+        file_path = os.path.join(pt_path, f_dir)
         file_name = os.path.basename(file_path)
         print("【RMT】开始处理：" + file_path)
         try:
@@ -611,14 +594,14 @@ def transfer_all(pt_path=None):
             print("【RMT】处理完成：" + file_path)
         except Exception as err:
             print("【RMT】发生错误：" + str(err))
-    print("【RMT】" + from_path + " 处理完成！")
+    print("【RMT】" + pt_path + " 处理完成！")
 
 
 if __name__ == "__main__":
     # 参数
     parser = argparse.ArgumentParser(description='Rename Media Tool')
     parser.add_argument('-c', '--config', dest='config_file', required=True, help='Config File Path')
-    parser.add_argument('-d', '--dir', dest='pt_path', required=True, help='Pt Download Files Saved Path')
+    parser.add_argument('-d', '--dir', dest='pt_path', required=True, help='Media Files Saved Path')
     args = parser.parse_args()
     print("【RMT】配置文件地址：" + args.config_file)
     print("【RMT】处理路径：" + args.pt_path)

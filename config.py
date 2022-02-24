@@ -175,6 +175,7 @@ def check_config(config):
                 log.warn("【RUN】sync_path目录不存在，该目录监控资源同步功能将禁用：" + sync_path)
     else:
         log.warn("【RUN】未配置sync_path，目录监控资源同步功能将禁用！")
+
     movie_subtypedir = config['media'].get('movie_subtypedir', True)
     if not movie_subtypedir:
         log.warn("【RUN】电影自动分类功能已关闭！")
@@ -210,13 +211,6 @@ def check_config(config):
         if not telegram_token or not telegram_chat_id:
             log.warn("【RUN】telegram配置不完整，将无法接收到通知消息！")
 
-    # 检查PT配置
-    rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
-    if rmt_mode == "LINK":
-        log.info("【RUN】文件转移模式为：硬链接")
-    else:
-        log.info("【RUN】文件转移模式为：复制")
-
     rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
     if not rmt_tmdbkey:
         # 兼容旧配置
@@ -224,6 +218,13 @@ def check_config(config):
     if not rmt_tmdbkey:
         log.error("【RUN】rmt_tmdbkey未配置，程序无法启动！")
         return False
+
+    # 检查PT配置
+    rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
+    if rmt_mode == "LINK":
+        log.info("【RUN】文件转移模式为：硬链接")
+    else:
+        log.info("【RUN】文件转移模式为：复制")
 
     rss_chinese = config['pt'].get('rss_chinese')
     if rss_chinese:
@@ -345,23 +346,18 @@ def check_hlink_config(config):
                 log.warn("【RUN】sync_path目录不存在，该目录监控资源同步功能将禁用：" + sync_path)
     else:
         log.warn("【RUN】未配置sync_path，目录监控资源同步功能将禁用！")
+
     movie_subtypedir = config['media'].get('movie_subtypedir', True)
     if not movie_subtypedir:
         log.warn("【RUN】电影自动分类功能已关闭！")
     else:
         log.info("【RUN】电影自动分类功能已开启！")
+
     tv_subtypedir = config['media'].get('tv_subtypedir', True)
     if not tv_subtypedir:
         log.warn("【RUN】电视剧自动分类功能已关闭！")
     else:
         log.info("【RUN】电视剧自动分类功能已开启！")
-
-    # 检查PT配置
-    rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
-    if rmt_mode == "LINK":
-        log.info("【RUN】PT下载文件转移模式为：硬链接")
-    else:
-        log.info("【RUN】PT下载文件转移模式为：复制")
 
     # 检查PT配置
     sync_mod = config['media'].get('sync_mod', 'COPY').upper()
@@ -371,6 +367,13 @@ def check_hlink_config(config):
         log.info("【RUN】目录监控转移模式为：复制")
 
     if config.get('pt'):
+        # 检查PT配置
+        rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
+        if rmt_mode == "LINK":
+            log.info("【RUN】PT下载文件转移模式为：硬链接")
+        else:
+            log.info("【RUN】PT下载文件转移模式为：复制")
+
         pt_client = config['pt'].get('pt_client')
         if pt_client == "qbittorrent":
             # 检查qbittorrent配置并测试连通性

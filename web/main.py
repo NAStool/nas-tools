@@ -178,7 +178,22 @@ def create_app():
                             set_tr_torrent_status(v_hash)
                 else:
                     # 转移PT保存目录下的所有文件
-                    transfer_all()
+                    pt_client = config['pt'].get('pt_client')
+                    if pt_client == "qbittorrent":
+                        save_path = config['qbittorrent'].get('save_path')
+                        save_containerpath = config['qbittorrent'].get('save_containerpath')
+                        from_path = save_path
+                        if save_containerpath:
+                            from_path = save_containerpath
+                        transfer_all(from_path)
+                    elif pt_client == "transmission":
+                        save_path = config['transmission'].get('save_path')
+                        save_containerpath = config['transmission'].get('save_containerpath')
+                        from_path = save_path
+                        if save_containerpath:
+                            from_path = save_containerpath
+                        transfer_all(from_path)
+
                 return {"rmt_stderr": "0", "rmt_stdout": "处理成功！", "rmt_paths": get_qbittorrent_tasks()}
 
             if cmd == "set_qry":
