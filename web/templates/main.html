@@ -3,13 +3,17 @@
 <head>
     <meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NASTool v0.0.3</title>
+    <title>NASTool {{ app_version }}</title>
 	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" />
-    <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet">
-	<script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/bootstrap.js') }}"></script>
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+	<link href="{{ url_for('static', filename='css/jquery-tagsinput.min.css') }}" rel="stylesheet">
+	<script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/jquery.color.plus-names-2.1.2.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/jquery-tagsinput.min.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/ace.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/util.js') }}"></script>
+
 	<style type="text/css" media="screen">
 		#editor {
 			width:100%;
@@ -18,133 +22,121 @@
 	</style>
 </head>
 <body>
-	<div class="container">
-		<div class="row">
-			<div class="span4">
-				<div class="tabbable">
-					<ul class="nav nav-tabs">
-						<li {% if page=="rss" %} class="active" {% endif %}><a id="rss_tab" href="#rss" data-toggle="tab">订阅</a></li>
-						<li {% if page=="rmt" %} class="active" {% endif %}><a id="rmt_tab" href="#rmt" data-toggle="tab">转移</a></li>
-						<li {% if page=="sch" %} class="active" {% endif %}><a id="sch_tab" href="#sch" data-toggle="tab">服务</a></li>
-						<li {% if page=="set" %} class="active" {% endif %}><a id="set_tab" href="#set" data-toggle="tab">设置</a></li>
-					</ul>
-					<div class="tab-content">
-						<div class="tab-pane {% if page=='rmt' %} active {% endif %}" id="rmt">
-							<form role="form" action="/do" method="post" id="rmt_form" class="well">
-							  <h5>1、自动转移识别失败时，可指定媒体信息手动转移PT下载完成的文件到媒体库（剧集的集序号需从媒体文件名中获取）。<br/>2、不输入任何信息时批量转移PT下载目录下的所有存量文件到媒体库。</h5>
-							  <div class="form-group">
-								<label for="rmt_name">标题</label>
-								<input type="text" class="form-control" id="rmt_name" name="rmt_name" placeholder="" value="">
-							  </div>
-							  <div class="form-group">
-								<label for="rmt_type">类型</label>
-								  <select class="form-control" id="rmt_type" name="rmt_type">
-									  <option value ="">全部</option>
-									  <option value ="电影">电影</option>
-									  <option value ="电视剧">电视剧</option>
-								  </select>
-							  </div>
-							  <div class="form-group">
-								<label for="rmt_year">年份</label>
-								<input type="text" class="form-control" id="rmt_year" name="rmt_year" placeholder="" value="">
-							  </div>
-							  <div class="form-group">
-								<label for="rmt_season">季（Sxx）</label>
-								<input type="text" class="form-control" id="rmt_season" name="rmt_season" placeholder="" value="">
-							  </div>
-							  <div class="form-group">
-								<label for="rmt_path">文件</label>
-								  <select class="form-control" id="rmt_path" name="rmt_path">
-									  <option value ="">全部</option>
-								  </select>
-							  </div>
-							  <div class="form_notice" id="form_send_form_notice"></div>
-							  <button id="rmt_btn" type="button" class="btn btn-primary">转移</button>
-							</form>
-							<pre id="rmt_ret" style="display:none"></pre>
+<div class="container"><div class="tabbable">
+	<ul class="nav nav-tabs border" role="tablist" id="myTab">
+		<li class="nav-item"><a id="rss_tab" class="nav-link {% if page=='rss' %} active {% endif %}" href="#rss" data-toggle="tab" role="tab" aria-controls="rss" aria-selected="{% if page=='rss' %} true {% endif %}"><h6>订阅</h6></a></li>
+		<li class="nav-item"><a id="rmt_tab" class="nav-link {% if page=='rmt' %} active {% endif %}" href="#rmt" data-toggle="tab" role="tab" aria-controls="rmt" aria-selected="{% if page=='rmt' %} true {% endif %}"><h6>转移</h6></a></li>
+		<li class="nav-item"><a id="sch_tab" class="nav-link {% if page=='sch' %} active {% endif %}" href="#sch" data-toggle="tab" role="tab" aria-controls="sch" aria-selected="{% if page=='sch' %} true {% endif %}"><h6>服务</h6></a></li>
+		<li class="nav-item"><a id="set_tab" class="nav-link {% if page=='set' %} active {% endif %}" href="#set" data-toggle="tab" role="tab" aria-controls="set" aria-selected="{% if page=='set' %} true {% endif %}"><h6>设置</h6></a></li>
+	</ul>
+	<div class="tab-content" id="myTabContent">
+		<div class="tab-pane show {% if page=='rmt' %} active {% endif %}" id="rmt" role="tabpanel" aria-labelledby="rmt-tab">
+			<form role="form" action="/do" method="post" id="rmt_form">
+			  <div class="form-group">
+				<label for="rmt_name">标题</label>
+				<input type="text" class="form-control" id="rmt_name" name="rmt_name" placeholder="" value="">
+			  </div>
+			  <div class="form-group">
+				<label for="rmt_type">类型</label>
+				  <select class="form-control" id="rmt_type" name="rmt_type">
+					  <option value ="">全部</option>
+					  <option value ="电影">电影</option>
+					  <option value ="电视剧">电视剧</option>
+				  </select>
+			  </div>
+			  <div class="form-group">
+				<label for="rmt_year">年份</label>
+				<input type="text" class="form-control" id="rmt_year" name="rmt_year" placeholder="" value="">
+			  </div>
+			  <div class="form-group">
+				<label for="rmt_season">季（Sxx）</label>
+				<input type="text" class="form-control" id="rmt_season" name="rmt_season" placeholder="" value="">
+			  </div>
+			  <div class="form-group">
+				<label for="rmt_path">文件</label>
+				  <select class="form-control" id="rmt_path" name="rmt_path">
+					  <option value ="">全部</option>
+				  </select>
+			  </div>
+			  <div class="form_notice" id="form_send_form_notice"></div>
+			  <button id="rmt_btn" type="button" class="btn btn-primary">转移</button>
+			</form>
+			<div id="rmt_ret" class="alert alert-success alert-dismissible" style="display:none">></div>
+		</div>
+		<div class="tab-pane show {% if page=='rss' %} active {% endif %}" id="rss" role="tabpanel" aria-labelledby="rss-tab">
+			<form role="form" action="/do" method="post" id="rss_form">
+				{% for rss_cfg in rss_cfg_list %}
+				<fieldset>
+					<legend>{{ rss_cfg.job }}</legend>
+				   <div class="row">
+					   <div class="form-group col-md-6">
+						  <label for="{{ rss_cfg.job }}@rssurl">RSS Url</label>
+						   <input class="form-control" id="{{ rss_cfg.job }}@rssurl" name="{{ rss_cfg.job }}@rssurl" type="text" placeholder="" value="{{ rss_cfg.url }}"/>
+					   </div>
+					   <div class="form-group col-md-6">
+						  <label for="{{ rss_cfg.job }}@movie_type">电影分类名</label>
+						   <input class="form-control" data-role="tags-input" id="{{ rss_cfg.job }}@movie_type" name="{{ rss_cfg.job }}@movie_type" type="text" placeholder="输入后按回车" value="{{ rss_cfg.movie_type }}"/>
+					   </div>
+				   </div>
+				   <div class="row">
+					   <div class="form-group col-md-6">
+						  <label for="{{ rss_cfg.job }}@movie_re">电影关键字</label>
+						   <input class="form-control" data-role="tags-input" id="{{ rss_cfg.job }}@movie_re" name="{{ rss_cfg.job }}@movie_re" type="text" placeholder="输入后按回车" value="{{ rss_cfg.movie_re }}"/>
+					   </div>
+					   <div class="form-group col-md-6">
+						  <label for="{{ rss_cfg.job }}@tv_re">电视剧关键字</label>
+						   <input class="form-control" data-role="tags-input" id="{{ rss_cfg.job }}@tv_re" name="{{ rss_cfg.job }}@tv_re" type="text" placeholder="输入后按回车" value="{{ rss_cfg.tv_re }}"/>
+					   </div>
+				   </div>
+					<div class="row">
+						<div class="form-group col-md-6">
+						  <label for="{{ rss_cfg.job }}@signin_url">签到Url</label>
+							<input class="form-control" id="{{ rss_cfg.job }}@signin_url" name="{{ rss_cfg.job }}@signin_url" type="text" placeholder="" value="{{ rss_cfg.signin_url }}"/>
 						</div>
-						<div class="tab-pane {% if page=='rss' %} active {% endif %}" id="rss">
-							<form role="form" action="/do" method="post" id="rss_form" class="form-horizontal">
-							  <h5>配置PT RSS订阅信息及Cookie，自动下载命中关键字的资源，自动签到。注意部分配置要符合数组格式['xx','xx']。</h5>
-								{% for rss_cfg in rss_cfg_list %}
-								<fieldset>
-									<legend>{{ rss_cfg.job }}</legend>
-								   <div class="form-group">
-									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}@rssurl">RSS Url</label>
-									  <div class="col-sm-4">
-										 <input class="form-control" id="{{ rss_cfg.job }}@rssurl" name="{{ rss_cfg.job }}@rssurl" type="text" placeholder="" value="{{ rss_cfg.url }}"/>
-									  </div>
-									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}@movie_type">电影分类名</label>
-									  <div class="col-sm-4">
-										 <input class="form-control" id="{{ rss_cfg.job }}@movie_type" name="{{ rss_cfg.job }}@movie_type" type="text" placeholder="" value="{{ rss_cfg.movie_type }}"/>
-									  </div>
-								   </div>
-								   <div class="form-group">
-									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}@movie_re">电影关键字</label>
-									  <div class="col-sm-4">
-										 <input class="form-control" id="{{ rss_cfg.job }}@movie_re" name="{{ rss_cfg.job }}@movie_re" type="text" placeholder="" value="{{ rss_cfg.movie_re }}"/>
-									  </div>
-									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}@tv_re">电视剧关键字</label>
-									  <div class="col-sm-4">
-										 <input class="form-control" id="{{ rss_cfg.job }}@tv_re" name="{{ rss_cfg.job }}@tv_re" type="text" placeholder="" value="{{ rss_cfg.tv_re }}"/>
-									  </div>
-								   </div>
-									<div class="form-group">
-									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}@signin_url">签到Url</label>
-									  <div class="col-sm-4">
-										 <input class="form-control" id="{{ rss_cfg.job }}@signin_url" name="{{ rss_cfg.job }}@signin_url" type="text" placeholder="" value="{{ rss_cfg.signin_url }}"/>
-									  </div>
-									  <label class="col-sm-2 control-label" for="{{ rss_cfg.job }}@cookie">Cookie</label>
-									  <div class="col-sm-4">
-										 <input class="form-control" id="{{ rss_cfg.job }}@cookie" name="{{ rss_cfg.job }}@cookie" type="text" placeholder="" value="{{ rss_cfg.cookie }}"/>
-									  </div>
-								   </div>
-								</fieldset>
-  								{% endfor %}
-							  <div style="text-align:center"><button id="rss_btn" type="button" class="btn btn-primary">保存</button></div>
-							</form>
-							<br/>
-							<br/>
+						<div class="form-group col-md-6">
+						  <label for="{{ rss_cfg.job }}@cookie">Cookie</label>
+							<input class="form-control" id="{{ rss_cfg.job }}@cookie" name="{{ rss_cfg.job }}@cookie" type="text" placeholder="" value="{{ rss_cfg.cookie }}"/>
 						</div>
-						<div class="tab-pane {% if page=='set' %} active {% endif %}" id="set">
-							<form role="form" action="/do" method="post" id="set_form" class="well">
-								<h5>配置文件，可直接修改保存，注意符合yaml语法格式。</h5>
-								<div class="form-group">
-									<div id="editor"></div>
-								</div>
-								<button id="set_btn" type="button" class="btn btn-primary">保存</button>
-							</form>
-						</div>
-						<div class="tab-pane {% if page=='sch' %} active {% endif %}" id="sch">
-							<form role="form" action="" method="post" id="svr_form" class="well">
-							<h5>所有的后台定时及实时监测服务，可手工触发运行。</h5>
-							<table class="table table-striped">
-							  <thead>
-								<tr>
-								  	<th>名称</th>
-								  	<th>周期</th>
-									<th>状态</th>
-								  	<th>操作</th>
-								</tr>
-							  </thead>
-							  <tbody>
-							  {% for scheduler_cfg in scheduler_cfg_list %}
-								<tr>
-								  	<td>{{ scheduler_cfg.name }}</td>
-								  	<td>{{ scheduler_cfg.time }}</td>
-									<td>{{ scheduler_cfg.state }}</td>
-								  	<td><button type="button" id="btn_{{ scheduler_cfg.id }}" class="sch_action_btn btn btn-primary">启动</button></td>
-								</tr>
-							  {% endfor %}
-							  </tbody>
-							</table>
-							</form>
-							<pre id="sch_ret" style="display:none"></pre>
-						</div>
-					</div>
+				   </div>
+				</fieldset>
+				{% endfor %}
+			  <div style="text-align:center"><button id="rss_btn" type="button" class="btn btn-primary">保存</button></div>
+			</form>
+		</div>
+		<div class="tab-pane show {% if page=='set' %} active {% endif %}" id="set" role="tabpanel" aria-labelledby="set-tab">
+			<form role="form" action="/do" method="post" id="set_form" class="well">
+				<div class="form-group">
+					<div id="editor"></div>
 				</div>
-			</div>
+				<button id="set_btn" type="button" class="btn btn-primary">保存</button>
+			</form>
+		</div>
+		<div class="tab-pane show {% if page=='sch' %} active {% endif %}" id="sch" role="tabpanel" aria-labelledby="sch-tab">
+			<form role="form" action="" method="post" id="svr_form" class="well">
+			<table class="table table-striped">
+			  <thead>
+				<tr>
+					<th>名称</th>
+					<th>周期</th>
+					<th>状态</th>
+					<th>操作</th>
+				</tr>
+			  </thead>
+			  <tbody>
+			  {% for scheduler_cfg in scheduler_cfg_list %}
+				<tr>
+					<td>{{ scheduler_cfg.name }}</td>
+					<td>{{ scheduler_cfg.time }}</td>
+					<td>{{ scheduler_cfg.state }}</td>
+					<td><button type="button" id="btn_{{ scheduler_cfg.id }}" class="sch_action_btn btn btn-primary">启动</button></td>
+				</tr>
+			  {% endfor %}
+			  </tbody>
+			</table>
+			</form>
+			<div id="sch_ret" class="alert alert-success alert-dismissible" style="display:none"></div>
 		</div>
 	</div>
+</div></div>
 </body>
 </html>

@@ -301,13 +301,9 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
                 file_seq = get_media_file_seq(file_name)
                 # 季 Season xx
                 season_str = "Season " + str(int(file_season.replace("S", "")))
-                if season_str not in season_ary:
-                    season_ary.append(season_str)
                 season_dir = os.path.join(media_path, season_str)
                 # 集 xx
                 file_seq_num = str(int(file_seq.replace("E", "").replace("P", "")))
-                if file_seq_num not in episode_ary:
-                    episode_ary.append(file_seq_num)
                 # 创建目录
                 if not os.path.exists(season_dir):
                     log.debug("【RMT】正在创建剧集目录：" + season_dir)
@@ -317,16 +313,24 @@ def transfer_directory(in_from, in_name, in_path, in_title=None, in_year=None, i
                                         Media_Title + " - " + file_season + file_seq + " - " + "第 "
                                         + file_seq_num + " 集" + file_ext)
                 if not os.path.exists(new_file):
+                    if season_str not in season_ary:
+                        season_ary.append(season_str)
+                    if file_seq_num not in episode_ary:
+                        episode_ary.append(file_seq_num)
                     transfer_files(in_path, file_item, new_file, mv_flag, False, rmt_mode)
                 else:
                     ExistFile_Size = os.path.getsize(new_file)
                     if rmt_mode != "LINK":
                         if Media_FileSize > ExistFile_Size:
                             log.info("【RMT】文件" + new_file + "已存在，但新文件质量更好，覆盖...")
+                            if season_str not in season_ary:
+                                season_ary.append(season_str)
+                            if file_seq_num not in episode_ary:
+                                episode_ary.append(file_seq_num)
                             transfer_files(in_path, file_item, new_file, mv_flag, True, rmt_mode)
                         else:
                             Exist_FileNum = Exist_FileNum + 1
-                            log.warn("【RMT】文件 " + new_file + "已存在，且质量更好！")
+                            log.warn("【RMT】文件 " + new_file + "已存在且质量更好，不处理！")
                     else:
                         log.debug("【RMT】文件 " + new_file + "已存在！")
             log.info("【RMT】" + in_name + " 转移完成！")
@@ -371,7 +375,7 @@ def is_media_files_tv(in_path):
     tmp_list = get_dir_files_by_ext(in_path, RMT_MEDIAEXT)
     for tmp_file in tmp_list:
         tmp_name = os.path.basename(tmp_file)
-        re_res = re.search(r"[\s\.]+[SE]P?\d{1,4}", tmp_name, re.IGNORECASE)
+        re_res = re.search(r"[\s.]+[SE]P?\d{1,4}", tmp_name, re.IGNORECASE)
         if re_res:
             flag = True
             break
@@ -386,9 +390,9 @@ def get_pt_media_name(in_name):
     out_name = in_name
     num_pos1 = num_pos2 = len(out_name)
     # 查找4位数字年份/分辨率的位置
-    re_res1 = re.search(r"[\s\.]+\d{4}[\s\.]+", out_name)
+    re_res1 = re.search(r"[\s.]+\d{4}[\s.]+", out_name)
     # 查找Sxx或Exx的位置
-    re_res2 = re.search(r"[\s\.]+[SE]P?\d{1,4}", out_name, re.IGNORECASE)
+    re_res2 = re.search(r"[\s.]+[SE]P?\d{1,4}", out_name, re.IGNORECASE)
     if re_res1:
         num_pos1 = re_res1.span()[0]
     if re_res2:
@@ -406,9 +410,13 @@ def get_pt_media_name(in_name):
         num_pos = out_name.find('.')
         if num_pos != -1:
             out_name = out_name[0:num_pos]
+        # 如果带有Sxx-Sxx、Exx-Exx这类的要处理掉
+        out_name = re.sub(r'[SsEePp]+\d{1,2}-?[SsEePp]*\d{0,2}', '', out_name, re.IGNORECASE).strip()
         # 把中文中的英文、字符等全部去掉，数字要留下
-        out_name = re.sub(r'[a-zA-Z【】\-\.\[\]\(\)\s]+', '', out_name, re.IGNORECASE).strip()
+        out_name = re.sub(r'[a-zA-Z【】\-.\[\]()\s]+', '', out_name, re.IGNORECASE).strip()
     else:
+        # 如果带有Sxx-Sxx、Exx-Exx这类的要处理掉
+        out_name = re.sub(r'[SsEePp]+\d{1,2}-?[SsEePp]*\d{0,2}', '', out_name, re.IGNORECASE).strip()
         # 不包括中文，则是英文名称
         out_name = out_name.replace(".", " ")
     return out_name
@@ -417,7 +425,7 @@ def get_pt_media_name(in_name):
 # 获得媒体文件的集数S00
 def get_media_file_season(in_name):
     # 查找Sxx
-    re_res = re.search(r"[\s\.]+(S\d{1,2})", in_name, re.IGNORECASE)
+    re_res = re.search(r"[\s.]+(S\d{1,2})", in_name, re.IGNORECASE)
     if re_res:
         return re_res.group(1).upper()
     return "S01"
@@ -426,7 +434,7 @@ def get_media_file_season(in_name):
 # 获得媒体文件的集数E00
 def get_media_file_seq(in_name):
     # 查找Sxx
-    re_res = re.search(r"[\s\.]+S?\d*(EP?\d{1,4})[\s\.]+", in_name, re.IGNORECASE)
+    re_res = re.search(r"[\s.]+S?\d*(EP?\d{1,4})[\s.]+", in_name, re.IGNORECASE)
     if re_res:
         ret_str = re_res.group(1).upper()
     else:
@@ -451,11 +459,11 @@ def get_media_file_seq(in_name):
 # 获得媒体文件的分辨率
 def get_media_file_pix(in_name):
     # 查找Sxx
-    re_res = re.search(r"[\s\.]+[SUHD]*(\d{4}p)[\s\.]+", in_name, re.IGNORECASE)
+    re_res = re.search(r"[\s.]+[SUHD]*(\d{4}p)[\s.]+", in_name, re.IGNORECASE)
     if re_res:
         return re_res.group(1).upper()
     else:
-        re_res = re.search(r"[\s\.]+(\d+K)[\s\.]+", in_name, re.IGNORECASE)
+        re_res = re.search(r"[\s.]+(\d+K)[\s.]+", in_name, re.IGNORECASE)
         if re_res:
             return re_res.group(1).upper()
     return ""
@@ -464,7 +472,7 @@ def get_media_file_pix(in_name):
 # 获得媒体文件的Year
 def get_media_file_year(in_name):
     # 查找Sxx
-    re_res = re.search(r"[\s\.]+(\d{4})[\s\.]+", in_name, re.IGNORECASE)
+    re_res = re.search(r"[\s.]+(\d{4})[\s.]+", in_name, re.IGNORECASE)
     if re_res:
         return re_res.group(1).upper()
     return ""
@@ -540,7 +548,7 @@ def get_media_info(in_path, in_name, in_type=None, in_year=None):
             if media_type == "":
                 # 国家
                 media_language = info.original_language
-                if 'zh' in media_language or 'bo' in media_language or 'za' in media_language:
+                if 'zh' in media_language or 'bo' in media_language or 'za' in media_language or 'cn' in media_language:
                     media_type = "华语电影"
                 else:
                     media_type = "外语电影"

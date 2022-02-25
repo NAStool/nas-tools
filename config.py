@@ -6,6 +6,8 @@ import transmission_rpc
 import yaml
 import log
 
+# 程序版本号：
+APP_VERSION = 'v0.0.4'
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
 # 菜单序号在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护，然后看日志输出的菜单序号是啥（按顺利能猜到的）....
 # 命令对应关系：/qbt qBittorrent转移；/qbr qBittorrent删种；/hotm 热门预告；/pts PT签到；/mrt 预告片下载；/rst ResilioSync同步；/rss RSS下载
@@ -267,6 +269,10 @@ def check_config(config):
     if not pt_check_interval:
         log.warn("【RUN】pt_check_interval未配置，RSS订阅自动更新功能将禁用！")
 
+    pt_monitor = config['pt'].get('pt_monitor')
+    if not pt_monitor:
+        log.info("【RUN】pt_monitor未配置，PT下载监控已关闭！")
+
     pt_client = config['pt'].get('pt_client')
     log.info("【RUN】PT下载软件设置为：" + pt_client)
     if pt_client == "qbittorrent":
@@ -316,20 +322,17 @@ def check_config(config):
         save_containerpath = config['transmission'].get('save_containerpath')
         if not save_containerpath:
             log.warn("【RUN】transmission save_containerpath未设置，如果是Docker容器使用则必须配置该项，否则无法正常转移文件！")
-    else:
-        log.error("【RUN】未设置pt_client，程序无法启动！")
-        return False
 
     sites = config['pt'].get('sites')
     if sites:
         for key, value in sites.items():
-            rssurl = sites[key]['rssurl']
+            rssurl = sites.get(key, {}).get('rssurl')
             if not rssurl:
                 log.warn("【RUN】" + key + "的 rssurl 未配置，该PT站的RSS订阅下载功能将禁用！")
-            signin_url = sites[key]['signin_url']
+            signin_url = sites.get(key, {}).get('signin_url')
             if not signin_url:
                 log.warn("【RUN】" + key + "的 signin_url 未配置，该PT站的自动签到功能将禁用！")
-            cookie = sites[key]['cookie']
+            cookie = sites.get(key, {}).get('cookie')
             if not cookie:
                 log.warn("【RUN】" + key + "的 cookie 未配置，该PT站的自动签到功能将禁用！")
     else:
@@ -410,6 +413,10 @@ def check_simple_config(config):
             log.info("【RUN】PT下载文件转移模式为：硬链接")
         else:
             log.info("【RUN】PT下载文件转移模式为：复制")
+
+        pt_monitor = config['pt'].get('pt_monitor')
+        if not pt_monitor:
+            log.info("【RUN】pt_monitor未配置，PT下载监控已关闭！")
 
         pt_client = config['pt'].get('pt_client')
         if pt_client == "qbittorrent":

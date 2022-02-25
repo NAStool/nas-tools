@@ -3,7 +3,7 @@ import os
 from subprocess import call
 
 import log
-from config import get_config, check_config, check_simple_config
+from config import get_config, check_config, check_simple_config, APP_VERSION
 from web import run as webhook
 from monitor import run as monitor
 from scheduler import run as scheduler
@@ -24,6 +24,7 @@ if __name__ == "__main__":
         call(["cp", os.path.join(os.path.dirname(os.path.realpath(__file__)), "config/config.yaml"), os.environ['NASTOOL_CONFIG']])
         print("【RUN】配置文件不存在，已将配置文件模板复制到配置目录，请修改后重新启动！")
         quit()
+    print('【RUN】NASTool当前版本号：' + APP_VERSION)
     # 检查配置文件
     cfg = get_config()
     simple_mode = cfg['app'].get('simple_mode')

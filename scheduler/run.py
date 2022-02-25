@@ -55,8 +55,10 @@ def run_scheduler():
             log.info("【RUN】scheduler.pt_signin启动．．．")
 
         # PT文件转移
-        scheduler.add_job(run_pttransfer, 'interval', seconds=PT_TRANSFER_INTERVAL)
-        log.info("【RUN】scheduler.pt_transfer启动...")
+        pt_monitor = config['pt'].get('pt_monitor')
+        if pt_monitor:
+            scheduler.add_job(run_pttransfer, 'interval', seconds=PT_TRANSFER_INTERVAL)
+            log.info("【RUN】scheduler.pt_transfer启动...")
 
         # RSS下载器
         pt_check_interval = config['pt'].get('pt_check_interval')

@@ -128,6 +128,8 @@ def rssdownload():
                 media_title = media_info["name"]
                 media_year = media_info["year"]
                 backdrop_path = media_info['backdrop_path']
+                if backdrop_path:
+                    backdrop_path = "https://image.tmdb.org/t/p/w500" + backdrop_path
 
                 rss_chinese = config['pt'].get('rss_chinese')
                 if rss_chinese and not is_chinese(media_title):

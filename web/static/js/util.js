@@ -1,4 +1,6 @@
 $(document).ready(function(){
+    //TAG输入框
+    $('[data-role="tags-input"]').tagsInput();
     // 初始化编辑器
     ace.require("ace/ext/language_tools");
     ace.require("ace/ext/static_highlight");
@@ -114,7 +116,9 @@ $(document).ready(function(){
 	    var cmd = "rss";
 	    var param = {};
 	    $("#rss_form").find('input,textarea').each(function(){
-            param[$(this).attr('name')] = $(this).val();
+	        if($(this).attr('name')){
+	            param[$(this).attr('name')] = $(this).val();
+	        }
         });
 	    $("#rss_btn").text("正在处理...");
 	    $("#rss_btn").attr("disabled", "true");

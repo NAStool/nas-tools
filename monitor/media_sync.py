@@ -1,4 +1,5 @@
 import os
+import threading
 from hashlib import md5
 
 from watchdog.events import FileSystemEventHandler
@@ -13,6 +14,8 @@ import log
 
 # 全局设置
 FINISHED_JOBS = {}
+# 加锁
+lock = threading.Lock()
 
 
 # 处理文件夹
@@ -54,19 +57,25 @@ def dir_change_handler(event, text):
             job_key = md5(event_path.encode("utf-8")).hexdigest()
             need_handler_flag = False
             noti_flag = True
-            if not FINISHED_JOBS.get(job_key):
-                # 等待10秒，让文件移完
-                need_handler_flag = True
-                FINISHED_JOBS[job_key] = files_num
-            else:
-                # 判断文件数，看是不是有变化，有文件增加就要重新处理
-                if FINISHED_JOBS.get(job_key) < files_num:
-                    # 文件数有变化，但只处理增量的，重复的文件不通知
-                    FINISHED_JOBS[job_key] = files_num
+
+            # 加锁
+            try:
+                lock.acquire()
+                if not FINISHED_JOBS.get(job_key):
+                    # 等待10秒，让文件移完
                     need_handler_flag = True
-                    noti_flag = False
+                    FINISHED_JOBS[job_key] = files_num
                 else:
-                    log.debug("【SYNC】已处理过：" + event_path)
+                    # 判断文件数，看是不是有变化，有文件增加就要重新处理
+                    if FINISHED_JOBS.get(job_key) < files_num:
+                        # 文件数有变化，但只处理增量的，重复的文件不通知
+                        FINISHED_JOBS[job_key] = files_num
+                        need_handler_flag = True
+                        noti_flag = False
+                    else:
+                        log.debug("【SYNC】已处理过：" + event_path)
+            finally:
+                lock.release()
 
             if need_handler_flag:
                 # 找到是哪个监控目录下的
@@ -87,21 +96,28 @@ def dir_change_handler(event, text):
     else:
         # 只有根目录下的文件才处理
         dirpath = os.path.dirname(event_path)
+        name = os.path.basename(event_path)
+
         need_handler_flag = False
+        # 是根目录之一才继续处理
         for monpath in monpaths:
-            # 是根目录之一才继续处理
             if os.path.samefile(monpath, dirpath):
                 need_handler_flag = True
 
+        # 不是媒体文件不处理
+        ext = os.path.splitext(name)[-1]
+        if ext in RMT_MEDIAEXT:
+            need_handler_flag = True
+
         if not need_handler_flag:
             return
-        name = os.path.basename(event_path)
-        job_key = md5(event_path.encode("utf-8")).hexdigest()
+
         # 开始处理
+        job_key = md5(event_path.encode("utf-8")).hexdigest()
         log.info("【SYNC】开始处理：" + event_path)
         if not FINISHED_JOBS.get(job_key):
+            FINISHED_JOBS[job_key] = 1
             if not transfer_directory(in_from="目录监控", in_name=name, in_path=event_path, noti_flag=True):
-                FINISHED_JOBS[job_key] = 1
                 log.error("【SYNC】" + event_path + "处理失败！")
             else:
                 log.info("【SYNC】" + event_path + "处理成功！")

@@ -1,0 +1,3 @@
+.tags-container{padding-left:0;height:unset;padding-top:0.25em;padding-bottom:0.25em;line-height:1.75}.tags-container input{background-color:transparent;border:none;-webkit-box-shadow:none;box-shadow:none;margin:0;max-width:inherit;outline:none;padding:0 6px;width:auto}.tags-container .tag{position:relative;padding-right:24px;padding-top:0.4em;padding-bottom:0.4em;padding-left:0.4em;font-size:85%;margin-left:.25rem}.tags-container .tag-remove{position:absolute;top:5px;cursor:pointer;padding-left:6px;font-style:normal;font-family:Dejavu Sans}.tags-container.disabled{background-color:#e9ecef;opacity:1}.tags-container.disabled .tag{padding-right:0.4em}
+
+/*# sourceMappingURL=maps/jquery-tagsinput.min.css.map */

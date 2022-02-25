@@ -18,7 +18,7 @@ from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from config import WECHAT_MENU, get_config, PT_TRANSFER_INTERVAL, \
-    HOT_TRAILER_INTERVAL, save_config, get_config_path
+    HOT_TRAILER_INTERVAL, save_config, get_config_path, APP_VERSION
 from web.wechat.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
 
@@ -134,13 +134,35 @@ def create_app():
         rss_jobs = config['pt'].get('sites')
         for rss_job, job_info in rss_jobs.items():
             # 读取子配置
-            job_cfg = {'job': rss_job, 'url': job_info['rssurl'], 'movie_type': job_info['movie_type'],
-                       'movie_re': job_info['movie_re'], 'tv_re': job_info['tv_re'],
-                       'signin_url': job_info['signin_url'], 'cookie': job_info['cookie']}
+            movie_type = job_info.get('movie_type')
+            if movie_type:
+                if not isinstance(movie_type, list):
+                    movie_type = [movie_type]
+            else:
+                movie_type = []
+
+            movie_re = job_info.get('movie_re')
+            if movie_re:
+                if not isinstance(movie_re, list):
+                    movie_re = [movie_re]
+            else:
+                movie_re = []
+
+            tv_re = job_info.get('tv_re')
+            if tv_re:
+                if not isinstance(tv_re, list):
+                    tv_re = [tv_re]
+            else:
+                tv_re = []
+
+            job_cfg = {'job': rss_job, 'url': job_info.get('rssurl'), 'movie_type': ';'.join(movie_type),
+                       'movie_re': ';'.join(movie_re), 'tv_re': ';'.join(tv_re),
+                       'signin_url': job_info.get('signin_url'), 'cookie': job_info.get('cookie')}
             # 存入配置列表
             rss_cfg_list.append(job_cfg)
 
         return render_template("main.html",
+                               app_version=APP_VERSION,
                                page="rss",
                                scheduler_cfg_list=scheduler_cfg_list,
                                rss_cfg_list=rss_cfg_list
@@ -233,15 +255,30 @@ def create_app():
                 return {"retmsg": "执行完成！", "item": sch_item}
 
             if cmd == "rss":
+                new_sites = {}
                 for key, value in data.items():
-                    pt_site = key.split('@')[0]
-                    pt_site_item = key.split('@')[1]
-                    if value.startswith("[") and value.endswith("]"):
-                        value = eval(value)
-                    if not value:
-                        value = ""
-                    config['pt']['sites'][pt_site][pt_site_item] = value
-                save_config(config)
+                    if key.find('@') != -1:
+                        pt_site = key.split('@')[0]
+                        pt_site_item = key.split('@')[1]
+                    else:
+                        continue
+                    if value.find(';') != -1:
+                        value = value.split(';')
+                        if not value[-1]:
+                            value.pop()
+                    # 查看对应的site是否存在值
+                    have_site = new_sites.get(pt_site)
+                    if have_site:
+                        # site存在，则加值
+                        have_site[pt_site_item] = value
+                    else:
+                        # site不存在，则建site
+                        new_sites[pt_site] = {pt_site_item: value}
+                # 賛换掉
+                cfg = get_config()
+                cfg['pt']['sites'] = new_sites
+                # 保存
+                save_config(cfg)
                 return {"retcode": 0}
 
     # 响应企业微信消息

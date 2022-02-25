@@ -107,7 +107,6 @@ class WeChat(object):
                     {
                         "title": title,
                         "description": text,
-                        "url": "URL",
                         "picurl": image_url
                     }
                 ]
@@ -147,4 +146,5 @@ if __name__ == "__main__":
         in_text = sys.argv[2]
     else:
         in_text = "WeChat内容"
-    send_wechat_msg(in_title, in_text)
+    send_wechat_msg(in_title, in_text, None)
+

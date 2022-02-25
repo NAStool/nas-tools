@@ -86,6 +86,8 @@ pt:
   rmt_mode: LINK
   # PT下载使用的客户端软件，qbittorrent、transmission，需要配置qbittorrent或transmission对应的配置区域
   pt_client: qbittorrent
+  # 是否监控PT下载：true、false，如为true则PT下载完成会自动转移和重命名，如为false则不会处理
+  pt_monitor: true
   # 是否只下载有中文媒体信息的种子（开了只会下themoviedb有中文描述的影视资源）
   rss_chinese: False
   # PT站每日签到的时间，注意一定要加引号
