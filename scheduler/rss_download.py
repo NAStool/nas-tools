@@ -158,7 +158,10 @@ def rssdownload():
                 # 匹配后处理...
                 if match_flag:
                     # 判断是否已存在
-                    media_name = media_title + " (" + media_year + ")"
+                    if media_year:
+                        media_name = media_title + " (" + media_year + ")"
+                    else:
+                        media_name = media_title
                     if search_type == "电影":
                         if media_name not in rss_cache_name:
                             rss_cache_name.append(media_name)

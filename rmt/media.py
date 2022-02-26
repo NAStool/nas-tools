@@ -367,7 +367,8 @@ def transfer_media(in_from, in_name, in_path,
 
                 if len(episode_ary) == 1:
                     # 只变更了一集
-                    msg_title = msg_title + " 第" + season_ary[0] + "季第" + episode_ary[0] + "集 转移完成"
+                    msg_title = msg_title + " 第" + season_ary[0].replace("Season ", "") + \
+                                "季第" + episode_ary[0] + "集 转移完成"
                     if Media_FileSize:
                         msg_str.append("大小：" + str_filesize(Media_FileSize))
                 else:
@@ -392,7 +393,6 @@ def transfer_media(in_from, in_name, in_path,
         else:
             sendmsg("【RMT】媒体搜刮失败！", "来源：" + in_from
                     + "\n种子名称：" + in_name
-                    + "\n识别标题：" + Media_Title
                     + "\n识别类型：" + Search_Type)
             return False
     return True
@@ -402,7 +402,7 @@ def is_media_files_tv(file_list):
     flag = False
     for tmp_file in file_list:
         tmp_name = os.path.basename(tmp_file)
-        re_res = re.search(r"[\s.]+[SE]P?\d{1,3}", tmp_name, re.IGNORECASE)
+        re_res = re.search(r"[\s.]*[SE]P?\d{1,3}", tmp_name, re.IGNORECASE)
         if re_res:
             flag = True
             break
@@ -457,7 +457,7 @@ def get_pt_media_name(in_name):
 def get_media_file_season(in_name):
     if in_name:
         # 查找Sxx
-        re_res = re.search(r"[\s.]+(S\d{1,2})", in_name, re.IGNORECASE)
+        re_res = re.search(r"[\s.]*(S\d{1,2})", in_name, re.IGNORECASE)
         if re_res:
             return re_res.group(1).upper()
     return "S01"
@@ -465,9 +465,10 @@ def get_media_file_season(in_name):
 
 # 获得媒体文件的集数E00
 def get_media_file_seq(in_name):
+    ret_str = ""
     if in_name:
         # 查找Sxx
-        re_res = re.search(r"[\s.]+S?\d*(EP?\d{1,4})[\s.]+", in_name, re.IGNORECASE)
+        re_res = re.search(r"[\s.]*S?\d*(EP?\d{1,4})[\s.]*", in_name, re.IGNORECASE)
         if re_res:
             ret_str = re_res.group(1).upper()
         else:
