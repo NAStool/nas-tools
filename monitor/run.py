@@ -22,13 +22,14 @@ def run_monitor():
         if media:
             movie_monpath = config['media'].get('movie_path')
             movie_trailer = config['media'].get('movie_trailer')
-            if os.path.exists(movie_monpath) and os.path.exists(movie_trailer):
-                global trailer
-                trailer = create_movie_trailer()
-                trailer.schedule(MovieTrailerHandler(movie_monpath), path=movie_monpath, recursive=True)
-                trailer.setDaemon(False)
-                trailer.start()
-                log.info("【RUN】monitor.movie_trailer启动...")
+            if movie_monpath and movie_trailer:
+                if os.path.exists(movie_monpath) and os.path.exists(movie_trailer):
+                    global trailer
+                    trailer = create_movie_trailer()
+                    trailer.schedule(MovieTrailerHandler(movie_monpath), path=movie_monpath, recursive=True)
+                    trailer.setDaemon(False)
+                    trailer.start()
+                    log.info("【RUN】monitor.movie_trailer启动...")
 
             # Sync监控转移
             sync_crg = config.get('sync')
