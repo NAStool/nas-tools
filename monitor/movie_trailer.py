@@ -35,7 +35,7 @@ def download_movie_trailer(in_path):
     dir_name = os.path.dirname(in_path)
     nfo_files = get_dir_files_by_name(dir_name, ".nfo")
     if len(nfo_files) == 0:
-        log.info("【TRAILER】" + in_path + "nfo文件不存在，等待下次处理...")
+        log.info("【TRAILER】" + dir_name + " nfo文件不存在，等待下次处理...")
         return False
 
     movie_id, movie_title, movie_year = get_movie_info_from_nfo(nfo_files[0])

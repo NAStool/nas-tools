@@ -8,7 +8,7 @@ import xml.dom.minidom
 from config import get_config, RMT_MOVIETYPE, RMT_MEDIAEXT
 from functions import is_chinese
 from message.send import sendmsg
-from rmt.media import get_media_info, get_media_file_season, get_media_file_seq
+from rmt.media import get_media_file_season, get_media_file_seq, get_media_info_on_name
 from rmt.qbittorrent import add_qbittorrent_torrent
 from rmt.transmission import add_transmission_torrent
 
@@ -123,12 +123,12 @@ def rssdownload():
                     log.info("【RSS】" + title + " 种子标题匹配成功!")
 
                 log.info("【RSS】开始检索媒体信息:" + title)
-                media_info = get_media_info(title, title, search_type)
+                media_info = get_media_info_on_name(title, search_type)
                 if not media_info:
                     log.error("【RSS】检索媒体信息出错！")
                     continue
                 media_type = media_info["type"]
-                media_title = media_info["name"]
+                media_title = media_info["title"]
                 media_year = media_info["year"]
                 backdrop_path = media_info['backdrop_path']
                 if backdrop_path:
@@ -158,7 +158,10 @@ def rssdownload():
                 # 匹配后处理...
                 if match_flag:
                     # 判断是否已存在
-                    media_name = media_title + " (" + media_year + ")"
+                    if media_year:
+                        media_name = media_title + " (" + media_year + ")"
+                    else:
+                        media_name = media_title
                     if search_type == "电影":
                         if media_name not in rss_cache_name:
                             rss_cache_name.append(media_name)
