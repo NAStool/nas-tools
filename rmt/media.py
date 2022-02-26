@@ -71,7 +71,6 @@ def transfer_bluray_dir(file_path, new_path, mv_flag=False, over_flag=False):
 
 
 def transfer_file(file_item, new_file, over_flag=False, rmt_mode="COPY"):
-
     if over_flag and os.path.exists(new_file):
         if os.path.isfile(new_file):
             log.info("【RMT】正在删除已存在的文件：" + new_file)
@@ -170,12 +169,19 @@ def transfer_media(in_from, in_name, in_path,
         # file_item 可能是目录也可能是文件
         Media_Type = media["type"]
         Media_Id = media["id"]
+
         if in_title:
             Media_Title = in_title
         else:
             Media_Title = media["title"]
+
         Media_Year = media["year"]
-        Media_Pix = media['pix']
+        if Media_Year:
+            Year_Str = " (" + Media_Year + ")"
+        else:
+            Year_Str = ""
+
+        Media_Pix = media['media_pix']
         Exist_FileNum = 0
         Media_FileSize = 0
         Backdrop_Path = ""
@@ -192,13 +198,13 @@ def transfer_media(in_from, in_name, in_path,
                     log.error("【RMT】目录" + movie_dist + "剩余磁盘空间不足" + RMT_DISKFREESIZE + "GB，不处理！")
                     sendmsg("【RMT】磁盘空间不足", "目录" + movie_dist + "剩余磁盘空间不足" + RMT_DISKFREESIZE + "GB！")
                     return False
-                media_path = os.path.join(movie_dist, Media_Title + " (" + Media_Year + ")")
+                media_path = os.path.join(movie_dist, Media_Title + Year_Str)
                 if movie_subtypedir:
                     # 启用了电影分类
                     exist_dir_flag = False
                     # 在所有分类下查找是否有当前目录了
                     for mtype in RMT_MOVIETYPE:
-                        media_path = os.path.join(movie_dist, mtype, Media_Title + " (" + Media_Year + ")")
+                        media_path = os.path.join(movie_dist, mtype, Media_Title + Year_Str)
                         if os.path.exists(media_path):
                             if bluray_disk_flag:
                                 log.warn("【RMT】蓝光原盘目录已存在：" + media_path)
@@ -209,7 +215,7 @@ def transfer_media(in_from, in_name, in_path,
                                 break
                     if not exist_dir_flag:
                         # 分类目录中未找到，则按媒体类型拼装新路径
-                        media_path = os.path.join(movie_dist, Media_Type, Media_Title + " (" + Media_Year + ")")
+                        media_path = os.path.join(movie_dist, Media_Type, Media_Title + Year_Str)
 
                 # 新路径是否存在
                 if not os.path.exists(media_path):
@@ -234,9 +240,9 @@ def transfer_media(in_from, in_name, in_path,
                     if Media_Pix.upper() == "4K":
                         Media_Pix = "2160p"
                     new_file = os.path.join(media_path,
-                                            Media_Title + " (" + Media_Year + ") - " + Media_Pix.lower() + file_ext)
+                                            Media_Title + Year_Str + " - " + Media_Pix.lower() + file_ext)
                 else:
-                    new_file = os.path.join(media_path, Media_Title + " (" + Media_Year + ")" + file_ext)
+                    new_file = os.path.join(media_path, Media_Title + Year_Str + file_ext)
                 if not os.path.exists(new_file):
                     new_movie_flag = True
                     transfer_file(file_item, new_file, False, rmt_mode)
@@ -292,11 +298,11 @@ def transfer_media(in_from, in_name, in_path,
                     return False
 
                 # 新路径
-                media_path = os.path.join(tv_dist, Media_Title + " (" + Media_Year + ")")
+                media_path = os.path.join(tv_dist, Media_Title + Year_Str)
                 # 未配置时默认进行分类
                 tv_subtypedir = config['media'].get('tv_subtypedir', True)
                 if tv_subtypedir:
-                    media_path = os.path.join(tv_dist, Media_Type, Media_Title + " (" + Media_Year + ")")
+                    media_path = os.path.join(tv_dist, Media_Type, Media_Title + Year_Str)
 
                 # 创建目录
                 if not os.path.exists(media_path):
@@ -405,7 +411,14 @@ def is_media_files_tv(file_list):
 
 # 获得媒体名称，用于API检索
 def get_pt_media_name(in_name):
-    out_name = in_name
+    if not in_name:
+        return ""
+    # 如果有后缀则去掉，避免干扰
+    tmp_ext = os.path.splitext(in_name)[-1]
+    if tmp_ext in RMT_MEDIAEXT:
+        out_name = os.path.splitext(in_name)[0]
+    else:
+        out_name = in_name
     num_pos1 = num_pos2 = len(out_name)
     # 查找4位数字年份/分辨率的位置
     re_res1 = re.search(r"[\s.]+\d{4}[\s.]+", out_name)
@@ -442,64 +455,70 @@ def get_pt_media_name(in_name):
 
 # 获得媒体文件的集数S00
 def get_media_file_season(in_name):
-    # 查找Sxx
-    re_res = re.search(r"[\s.]+(S\d{1,2})", in_name, re.IGNORECASE)
-    if re_res:
-        return re_res.group(1).upper()
+    if in_name:
+        # 查找Sxx
+        re_res = re.search(r"[\s.]+(S\d{1,2})", in_name, re.IGNORECASE)
+        if re_res:
+            return re_res.group(1).upper()
     return "S01"
 
 
 # 获得媒体文件的集数E00
 def get_media_file_seq(in_name):
-    # 查找Sxx
-    re_res = re.search(r"[\s.]+S?\d*(EP?\d{1,4})[\s.]+", in_name, re.IGNORECASE)
-    if re_res:
-        ret_str = re_res.group(1).upper()
-    else:
-        # 可能数字就是全名，或者是第xx集
-        ret_str = ""
-        num_pos = in_name.find(".")
-        if num_pos != -1:
-            split_char = "."
+    if in_name:
+        # 查找Sxx
+        re_res = re.search(r"[\s.]+S?\d*(EP?\d{1,4})[\s.]+", in_name, re.IGNORECASE)
+        if re_res:
+            ret_str = re_res.group(1).upper()
         else:
-            split_char = " "
-        split_ary = in_name.split(split_char)
-        for split_str in split_ary:
-            split_str = split_str.replace("第", "").replace("集", "").strip()
-            if split_str.isdigit() and (0 < int(split_str) < 1000):
-                ret_str = "E" + split_str
-                break
-    if not ret_str:
-        ret_str = ""
+            # 可能数字就是全名，或者是第xx集
+            ret_str = ""
+            num_pos = in_name.find(".")
+            if num_pos != -1:
+                split_char = "."
+            else:
+                split_char = " "
+            split_ary = in_name.split(split_char)
+            for split_str in split_ary:
+                split_str = split_str.replace("第", "").replace("集", "").strip()
+                if split_str.isdigit() and (0 < int(split_str) < 1000):
+                    ret_str = "E" + split_str
+                    break
+        if not ret_str:
+            ret_str = ""
     return ret_str
 
 
 # 获得媒体文件的分辨率
 def get_media_file_pix(in_name):
-    # 查找Sxx
-    re_res = re.search(r"[\s.]+[SUHD]*(\d{4}p)[\s.]+", in_name, re.IGNORECASE)
-    if re_res:
-        return re_res.group(1).upper()
-    else:
-        re_res = re.search(r"[\s.]+(\d+K)[\s.]+", in_name, re.IGNORECASE)
+    if in_name:
+        # 查找Sxx
+        re_res = re.search(r"[\s.]+[SUHD]*(\d{4}p)[\s.]+", in_name, re.IGNORECASE)
         if re_res:
             return re_res.group(1).upper()
+        else:
+            re_res = re.search(r"[\s.]+(\d+K)[\s.]+", in_name, re.IGNORECASE)
+            if re_res:
+                return re_res.group(1).upper()
     return ""
 
 
 # 获得媒体文件的Year
 def get_media_file_year(in_name):
-    # 查找Sxx
-    re_res = re.search(r"[\s.]+(\d{4})[\s.]+", in_name, re.IGNORECASE)
-    if re_res:
-        return re_res.group(1).upper()
+    if in_name:
+        # 查找Sxx
+        re_res = re.search(r"[\s.(]+(\d{4})[\s.)]+", in_name, re.IGNORECASE)
+        if re_res:
+            return re_res.group(1).upper()
     return ""
 
 
-# 搜刮媒体信息和类型，返回每个文件对应的媒体信息
-# 输入：file_list：文件路径清单, in_name 文件目录的名称, in_type 指定搜索类型，in_year 指定搜索年份
-# 输出：类型，文件路径：媒体信息的List
-def get_media_info(file_list, in_name, in_type=None, in_year=None):
+# 检索tmdb中的媒体信息，传入名字、年份、类型
+# 返回媒体信息对象
+def search_tmdb(file_media_name, media_year, search_type):
+    if not file_media_name:
+        log.error("【RMT】检索关键字有误！")
+        return None
     # TheMovieDB
     tmdb = TMDb()
     config = get_config()
@@ -508,6 +527,125 @@ def get_media_info(file_list, in_name, in_type=None, in_year=None):
     tmdb.language = 'zh'
     tmdb.debug = True
 
+    info = {}
+    media_id = "0"
+    media_type = ""
+    media_title = ""
+    backdrop_path = ""
+
+    if search_type == "电影":
+        search = Search()
+        log.info("【RMT】正在检索电影：" + file_media_name + '...')
+        if media_year:
+            movies = search.movies({"query": file_media_name, "year": media_year})
+        else:
+            movies = search.movies({"query": file_media_name})
+        log.debug("【RMT】API返回：" + str(search.total_results))
+        if len(movies) == 0:
+            log.warn("【RMT】" + file_media_name + " 未找到媒体信息!")
+        else:
+            info = movies[0]
+            for movie in movies:
+                if movie.title == file_media_name or movie.release_date[0:4] == media_year:
+                    # 优先使用名称或者年份完全匹配的，匹配不到则取第一个
+                    info = movie
+                    break
+            media_id = info.id
+            media_title = info.title
+            log.info(">电影ID：" + str(info.id) + "，上映日期：" + info.release_date + "，电影名称：" + info.title)
+            media_year = info.release_date[0:4]
+            backdrop_path = info.backdrop_path
+            # 国家
+            media_language = info.original_language
+            if 'zh' in media_language or \
+                    'bo' in media_language or \
+                    'za' in media_language or \
+                    'cn' in media_language:
+                media_type = "华语电影"
+            else:
+                media_type = "外语电影"
+    else:
+        search = Search()
+        log.info("【RMT】正在检索剧集：" + file_media_name + '...')
+        if media_year:
+            tvs = search.tv_shows({"query": file_media_name, "year": media_year})
+        else:
+            tvs = search.tv_shows({"query": file_media_name})
+        log.debug("【RMT】API返回：" + str(search.total_results))
+        if len(tvs) == 0:
+            log.error("【RMT】" + file_media_name + "未找到媒体信息!")
+            info = {}
+        else:
+            info = tvs[0]
+            for tv in tvs:
+                if tv.first_air_date:
+                    if tv.name == file_media_name and tv.first_air_date[0:4] == media_year:
+                        # 优先使用名称或者年份完全匹配的，匹配不到则取第一个
+                        info = tv
+                        break
+                elif tv.name == file_media_name:
+                    info = tv
+                    break
+
+            media_id = info.id
+            media_title = info.name
+            log.info(">剧集ID：" + str(info.id) + "，剧集名称：" + info.name + "，上映日期：" + info.first_air_date)
+            if info.first_air_date:
+                media_year = info.first_air_date[0:4]
+            backdrop_path = info.backdrop_path
+            # 类型 动漫、纪录片、儿童、综艺
+            media_genre_ids = info.genre_ids
+            if 16 in media_genre_ids:
+                # 动漫
+                media_type = "动漫"
+            elif 99 in media_genre_ids:
+                # 纪录片
+                media_type = "纪录片"
+            elif 10762 in media_genre_ids:
+                # 儿童
+                media_type = "儿童"
+            elif 10764 in media_genre_ids or 10767 in media_genre_ids:
+                # 综艺
+                media_type = "综艺"
+            else:
+                # 国家
+                media_country = info.origin_country
+                if 'CN' in media_country:
+                    media_type = "国产剧"
+                elif set(RMT_COUNTRY_EA).intersection(set(media_country)):
+                    media_type = "欧美剧"
+                elif set(RMT_COUNTRY_AS).intersection(set(media_country)):
+                    media_type = "日韩剧"
+                else:
+                    media_type = "其它剧"
+    return {"name": file_media_name,
+            "type": media_type,
+            "id": media_id,
+            "title": media_title,
+            "year": media_year,
+            "info": info,
+            "backdrop_path": backdrop_path}
+
+
+# 只有个名称和类型，用于RSS类的搜刮毁体信息
+def get_media_info_on_name(in_name, in_type):
+    search_type = in_type
+    media_name = get_pt_media_name(in_name)
+    media_year = get_media_file_year(in_name)
+    # 调用TMDB API
+    file_media_info = search_tmdb(media_name, media_year, in_type)
+    if file_media_info:
+        # 分辨率
+        media_pix = get_media_file_pix(in_name)
+        file_media_info['media_pix'] = media_pix
+
+    return file_media_info
+
+
+# 搜刮媒体信息和类型，返回每个文件对应的媒体信息
+# 输入：file_list：文件路径清单, in_name 文件目录的名称, in_type 指定搜索类型，in_year 指定搜索年份, in_name有输入则优先使用
+# 输出：类型，文件路径：媒体信息的List
+def get_media_info(file_list, in_name, in_type=None, in_year=None):
     # 存储文件路径与媒体的对应关系
     return_media_infos = {}
 
@@ -532,10 +670,12 @@ def get_media_info(file_list, in_name, in_type=None, in_year=None):
 
     # 传入的目名称来识别的媒体名称
     media_name = get_pt_media_name(in_name)
+
     if not in_year:
         media_year = get_media_file_year(in_name)
     else:
         media_year = in_year
+
     media_pix = get_media_file_pix(in_name)
 
     # 存储所有识别的名称与媒体信息的对应关系
@@ -545,131 +685,58 @@ def get_media_info(file_list, in_name, in_type=None, in_year=None):
     for file_path in file_list:
         # 解析媒体名称
         file_name = os.path.basename(file_path)
-        file_media_name = get_pt_media_name(file_name)
-        if file_media_name == file_name:
-            # 【此处可能要调整】识别出来的标题与文件名相等，则认为一定是不可用的，直接用父目录的名称
-            # 找父目录为准的后果是下面的其他媒体文件会被转移
-            # 跳过的后果是这个文件就不处理了，但有可能这个是需要处理的，只是命名不规范
+        if media_name:
+            # 优先以传入的为准 PT等
             file_media_name = media_name
+        else:
+            # 传入不准时优先拿文件名的
+            file_media_name = get_pt_media_name(file_name)
+
+        if not file_media_name:
+            # 还是没有，只能从上级路径中拿了
+            tmp_path = os.path.basename(os.path.dirname(file_path))
+            file_media_name = get_pt_media_name(tmp_path)
+            if not file_media_name:
+                # 最多找两级
+                tmp_path = os.path.basename(os.path.dirname(file_path))
+                file_media_name = get_pt_media_name(tmp_path)
 
         if not media_names.get(file_media_name):
-            # 没有检索过，则开始检索这个标题
-            info = {}
-            media_id = "0"
-            media_type = ""
-            media_title = ""
-            backdrop_path = ""
+            if not media_year:
+                # 传入的名称没有，则取文件里的
+                file_year = get_media_file_year(file_name)
+                if not file_year:
+                    # 还没有，取路径里的
+                    media_year = get_media_file_year(file_path)
+                else:
+                    media_year = file_year
 
-            file_year = get_media_file_year(file_name)
-            if file_year:
-                log.debug("【RMT】" + file_name + "识别年份为：" + str(file_year))
-                # 以父目录识别的为准
-                media_year = file_year
+            if media_year:
+                log.debug("【RMT】识别年份为：" + str(media_year))
             else:
-                log.debug("【RMT】" + file_name + "未识别出年份！")
+                log.debug("【RMT】未识别出年份！")
 
-            if search_type == "电影":
-                search = Search()
-                log.info("【RMT】正在检索电影：" + file_media_name + '...')
-                if media_year != "":
-                    movies = search.movies({"query": file_media_name, "year": media_year})
-                else:
-                    movies = search.movies({"query": file_media_name})
-                log.debug("【RMT】API返回：" + str(search.total_results))
-                if len(movies) == 0:
-                    log.error("【RMT】" + file_media_name + " 未找到媒体信息!")
-                else:
-                    info = movies[0]
-                    for movie in movies:
-                        if movie.title == file_name or movie.release_date[0:4] == media_year:
-                            # 优先使用名称或者年份完全匹配的，匹配不到则取第一个
-                            info = movie
-                            break
-                    media_id = info.id
-                    media_title = info.title
-                    log.info(">电影ID：" + str(info.id) + "，上映日期：" + info.release_date + "，电影名称：" + info.title)
-                    media_year = info.release_date[0:4]
-                    backdrop_path = info.backdrop_path
-                    if media_type == "":
-                        # 国家
-                        media_language = info.original_language
-                        if 'zh' in media_language or \
-                                'bo' in media_language or \
-                                'za' in media_language or \
-                                'cn' in media_language:
-                            media_type = "华语电影"
-                        else:
-                            media_type = "外语电影"
-                # 解析分辨率
+            # 解析分辨率
+            if not media_pix:
                 file_pix = get_media_file_pix(file_name)
-                if file_pix:
-                    log.debug("【RMT】" + file_name + "识别分辨率为：" + str(file_pix))
-                    # 以父目录识别的为准
+                if not file_pix:
+                    media_pix = get_media_file_pix(file_path)
+                else:
                     media_pix = file_pix
-                else:
-                    log.debug("【RMT】" + file_name + "未识别分辨率！")
 
+            if media_pix:
+                log.debug("【RMT】识别分辨率为：" + str(media_pix))
             else:
-                search = Search()
-                log.info("【RMT】正在检索剧集：" + file_media_name + '...')
-                if media_year != "":
-                    tvs = search.tv_shows({"query": file_media_name, "year": media_year})
-                else:
-                    tvs = search.tv_shows({"query": file_media_name})
-                log.debug("【RMT】API返回：" + str(search.total_results))
-                if len(tvs) == 0:
-                    log.error("【RMT】" + file_media_name + "未找到媒体信息!")
-                    info = {}
-                else:
-                    info = tvs[0]
-                    for tv in tvs:
-                        if tv.name == file_name or tv.first_air_date[0:4] == media_year:
-                            # 优先使用名称或者年份完全匹配的，匹配不到则取第一个
-                            info = tv
-                            break
-                    media_id = info.id
-                    media_title = info.name
-                    log.info(">剧集ID：" + str(info.id) + "，剧集名称：" + info.name + "，上映日期：" + info.first_air_date)
-                    media_year = info.first_air_date[0:4]
-                    backdrop_path = info.backdrop_path
-                    if media_type == "":
-                        # 类型 动漫、纪录片、儿童、综艺
-                        media_genre_ids = info.genre_ids
-                        if 16 in media_genre_ids:
-                            # 动漫
-                            media_type = "动漫"
-                        elif 99 in media_genre_ids:
-                            # 纪录片
-                            media_type = "纪录片"
-                        elif 10762 in media_genre_ids:
-                            # 儿童
-                            media_type = "儿童"
-                        elif 10764 in media_genre_ids or 10767 in media_genre_ids:
-                            # 综艺
-                            media_type = "综艺"
-                        else:
-                            # 国家
-                            media_country = info.origin_country
-                            if 'CN' in media_country:
-                                media_type = "国产剧"
-                            elif set(RMT_COUNTRY_EA).intersection(set(media_country)):
-                                media_type = "欧美剧"
-                            elif set(RMT_COUNTRY_AS).intersection(set(media_country)):
-                                media_type = "日韩剧"
-                            else:
-                                media_type = "国产剧"
-            file_media_info = {"name": file_media_name,
-                               "type": media_type,
-                               "id": media_id,
-                               "title": media_title,
-                               "year": media_year,
-                               "info": info,
-                               "pix": media_pix,
-                               "backdrop_path": backdrop_path}
-            # 记录为已检索
-            media_names[file_media_name] = file_media_info
+                log.debug("【RMT】未识别分辨率！")
 
-        # 存入结果清单
+            # 调用TMDB API
+            file_media_info = search_tmdb(file_media_name, media_year, search_type)
+            if file_media_info:
+                file_media_info['media_pix'] = media_pix
+                # 记录为已检索
+                media_names[file_media_name] = file_media_info
+
+        # 存入结果清单返回
         return_media_infos[file_path] = media_names[file_media_name]
 
     return search_type, return_media_infos
