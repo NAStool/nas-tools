@@ -147,4 +147,3 @@ if __name__ == "__main__":
     else:
         in_text = "WeChat内容"
     send_wechat_msg(in_title, in_text, None)
-

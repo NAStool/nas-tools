@@ -1,21 +1,4 @@
 $(document).ready(function(){
-    //TAG输入框
-    $('[data-role="tags-input"]').tagsInput();
-    // 初始化编辑器
-    ace.require("ace/ext/language_tools");
-    ace.require("ace/ext/static_highlight");
-    ace.require("ace/ext/beautify");
-    var editor = ace.edit("editor");
-	editor.setTheme("ace/theme/xcode");
-	editor.setFontSize(14);
-	editor.session.setMode("ace/mode/yaml");
-    editor.session.setUseWrapMode(true);
-    editor.setHighlightActiveLine(true);
-    editor.setOptions({
-            enableBasicAutocompletion: true,
-            enableSnippets: true,
-            enableLiveAutocompletion: true
-        });
 
     // Ajax主方法
     function ajax_post(cmd, data, handler){
@@ -53,64 +36,6 @@ $(document).ready(function(){
 	    })
 	});
 
-    // 获取PT下拉框内容
-    $("#rmt_tab").click(function(){
-	    var cmd = "rmt_qry";
-	    var data = {};
-	    ajax_post(cmd, data, function(ret){
-	        rmt_paths = ret.rmt_paths;
-            $("#rmt_path").empty();
-            $("#rmt_path").append("<option value =\"\">全部</option>");
-            for(var i=0; i<rmt_paths.length; i++){
-                path = rmt_paths[i].split("|")[0];
-                $("#rmt_path").append("<option value=\"" + rmt_paths[i] + "\">" + path + "</option>");
-            }
-	    });
-	});
-
-    // PT转移按钮
-	$("#rmt_btn").click(function(){
-	    var cmd = "rmt";
-	    var data = {
-	            "name": $("#rmt_name").val(),
-	            "path": $("#rmt_path").val(),
-	            "year": $("#rmt_year").val(),
-	            "type": $("#rmt_type").val(),
-	            "season": $("#rmt_season").val()
-	        };
-	   	$("#rmt_btn").text("正在处理...");
-	    $("#rmt_btn").attr("disabled", "true");
-	    ajax_post(cmd, data, function(ret){
-	        rmt_stderr = ret.rmt_stderr;
-	        rmt_stdout = ret.rmt_stdout;
-	        rmt_paths = ret.rmt_paths;
-	        $("#rmt_ret").show();
-            $("#rmt_ret").text(rmt_stdout)
-
-            $("#rmt_name").val("");
-            $("#rmt_year").val("");
-            $("#rmt_type").val("");
-            $("#rmt_season").val("");
-            $("#rmt_path").empty();
-            $("#rmt_path").append("<option value =\"\">全部</option>");
-            for(var i=0; i<rmt_paths.length; i++){
-                path = rmt_paths[i].split("|")[0];
-                $("#rmt_path").append("<option value=\"" + rmt_paths[i] + "\">" + path + "</option>");
-            }
-
-            $("#rmt_btn").removeAttr("disabled");
-	        $("#rmt_btn").text("转移");
-	    });
-	});
-
-	// PT下拉选择变化
-	$("#rmt_path").change(function(){
-	    path = $("#rmt_path").val().split('|')[0];
-	    pos = path.lastIndexOf("/")
-	    name = path.substring(pos + 1);
-	    $("#rmt_name").val(name);
-	});
-
 	// 保存RSS按钮
 	$("#rss_btn").click(function(){
 	    var cmd = "rss";
@@ -128,27 +53,4 @@ $(document).ready(function(){
 	    });
 	});
 
-	// 获取配置文件
-    $("#set_tab").click(function(){
-        var cmd = "set_qry";
-        var data = {}
-        ajax_post(cmd, data, function(ret){
-	        config_str = ret.config_str;
-	        editor.getSession().setValue(config_str)
-	    });
-    });
-
-    // 配置文件保存按钮
-	$("#set_btn").click(function(){
-	    var cmd = "set";
-	    var data = {
-	            "editer_str": editor.getSession().getValue()
-	        };
-	    $("#set_btn").text("正在处理...");
-	    $("#set_btn").attr("disabled", "true");
-	    ajax_post(cmd, data, function(ret){
-	        $("#set_btn").removeAttr("disabled");
-	        $("#set_btn").text("保存");
-	    });
-	});
 });

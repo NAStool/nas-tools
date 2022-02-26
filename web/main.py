@@ -3,9 +3,7 @@ from flask import Flask, request, json, render_template, make_response, redirect
 import log
 from monitor.media_sync import sync_all
 from monitor.movie_trailer import movie_trailer_all
-from rmt.media import transfer_directory, transfer_all
-from rmt.qbittorrent import get_qbittorrent_tasks, set_qb_torrent_status
-from rmt.transmission import add_transmission_torrent, set_tr_torrent_status, get_transmission_tasks
+from rmt.transmission import add_transmission_torrent
 from scheduler.autoremove_torrents import run_autoremovetorrents
 from scheduler.hot_trailer import run_hottrailers
 from scheduler.pt_signin import run_ptsignin
@@ -18,7 +16,7 @@ from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from config import WECHAT_MENU, get_config, PT_TRANSFER_INTERVAL, \
-    HOT_TRAILER_INTERVAL, save_config, get_config_path, APP_VERSION
+    HOT_TRAILER_INTERVAL, save_config, APP_VERSION
 from web.wechat.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
 
@@ -110,18 +108,27 @@ def create_app():
             sync_path = config['sync'].get('sync_path')
             if sync_path:
                 sta_sync = 'ON'
-                scheduler_cfg_list.append({'name': '资源同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync'})
+                scheduler_cfg_list.append({'name': '资源同步',
+                                           'time': '实时监控',
+                                           'state': sta_sync,
+                                           'id': 'sync'})
 
         tim_hottrailers = str(round(HOT_TRAILER_INTERVAL/3600)) + "小时"
         hottrailer_path = config['media'].get('hottrailer_path')
         if hottrailer_path:
             sta_hottrailers = 'ON'
-            scheduler_cfg_list.append({'name': '热门预告片', 'time': tim_hottrailers, 'state': sta_hottrailers, 'id': 'hottrailers'})
+            scheduler_cfg_list.append({'name': '热门预告片',
+                                       'time': tim_hottrailers,
+                                       'state': sta_hottrailers,
+                                       'id': 'hottrailers'})
 
         movie_trailer = config['media'].get('movie_trailer')
         if movie_trailer:
             sta_movietrailer = 'ON'
-            scheduler_cfg_list.append({'name': '本地电影预告', 'time': '实时监控', 'state': sta_movietrailer, 'id': 'movietrailer'})
+            scheduler_cfg_list.append({'name': '本地电影预告',
+                                       'time': '实时监控',
+                                       'state': sta_movietrailer,
+                                       'id': 'movietrailer'})
 
         tim_ptsignin = config['pt'].get('ptsignin_cron')
         if tim_ptsignin:
@@ -155,8 +162,8 @@ def create_app():
             else:
                 tv_re = []
 
-            job_cfg = {'job': rss_job, 'url': job_info.get('rssurl'), 'movie_type': ';'.join(movie_type),
-                       'movie_re': ';'.join(movie_re), 'tv_re': ';'.join(tv_re),
+            job_cfg = {'job': rss_job, 'url': job_info.get('rssurl'), 'movie_type': ','.join(movie_type),
+                       'movie_re': ','.join(movie_re), 'tv_re': ','.join(tv_re),
                        'signin_url': job_info.get('signin_url'), 'cookie': job_info.get('cookie')}
             # 存入配置列表
             rss_cfg_list.append(job_cfg)
@@ -174,68 +181,6 @@ def create_app():
         cmd = request.form.get("cmd")
         data = json.loads(request.form.get("data"))
         if cmd:
-            if cmd == "rmt_qry":
-                # 读取PT列表
-                pt_client = config['pt'].get('pt_client')
-                if pt_client == "qbittorrent":
-                    return {"rmt_paths": get_qbittorrent_tasks()}
-                if pt_client == "transmission":
-                    return {"rmt_paths": get_transmission_tasks()}
-
-            if cmd == "rmt":
-                p_name = data["name"]
-                p_year = data["year"]
-                p_path = data["path"]
-                p_type = data["type"]
-                p_season = data["season"]
-                if p_path and p_name:
-                    v_path = p_path.split("|")[0]
-                    v_hash = p_path.split("|")[1]
-                    done_flag = transfer_directory(in_from="qBittorrent", in_name=p_name, in_title=p_name,
-                                                   in_path=v_path,
-                                                   in_year=p_year, in_type=p_type, in_season=p_season)
-                    if v_hash and done_flag:
-                        pt_client = config['pt'].get('pt_client')
-                        if pt_client == "qbittorrent":
-                            set_qb_torrent_status(v_hash)
-                        if pt_client == "transmission":
-                            set_tr_torrent_status(v_hash)
-                else:
-                    # 转移PT保存目录下的所有文件
-                    pt_client = config['pt'].get('pt_client')
-                    if pt_client == "qbittorrent":
-                        save_path = config['qbittorrent'].get('save_path')
-                        save_containerpath = config['qbittorrent'].get('save_containerpath')
-                        from_path = save_path
-                        if save_containerpath:
-                            from_path = save_containerpath
-                        transfer_all(from_path)
-                    elif pt_client == "transmission":
-                        save_path = config['transmission'].get('save_path')
-                        save_containerpath = config['transmission'].get('save_containerpath')
-                        from_path = save_path
-                        if save_containerpath:
-                            from_path = save_containerpath
-                        transfer_all(from_path)
-
-                return {"rmt_stderr": "0", "rmt_stdout": "处理成功！", "rmt_paths": get_qbittorrent_tasks()}
-
-            if cmd == "set_qry":
-                # 读取配置文件
-                cfg = open(get_config_path(), mode="r", encoding="utf8")
-                config_str = cfg.read()
-                cfg.close()
-                return {"config_str": config_str}
-
-            if cmd == "set":
-                editer_str = data["editer_str"]
-                if editer_str:
-                    cfg = open(get_config_path(), mode="w", encoding="utf8")
-                    cfg.write(editer_str)
-                    cfg.flush()
-                    cfg.close()
-                return {"retcode": 0}
-
             if cmd == "sch":
                 sch_item = data["item"]
                 if sch_item == "btn_autoremovetorrents":
@@ -262,23 +207,25 @@ def create_app():
                         pt_site_item = key.split('@')[1]
                     else:
                         continue
-                    if value.find(';') != -1:
-                        value = value.split(';')
-                        if not value[-1]:
-                            value.pop()
+                    if value.find(',') != -1:
+                        if value.endswith(','):
+                            value = value[0, -1]
+                        value = value.split(',')
                     # 查看对应的site是否存在值
                     have_site = new_sites.get(pt_site)
                     if have_site:
                         # site存在，则加值
-                        have_site[pt_site_item] = value
+                        new_sites[pt_site][pt_site_item] = value
                     else:
                         # site不存在，则建site
                         new_sites[pt_site] = {pt_site_item: value}
                 # 賛换掉
-                cfg = get_config()
-                cfg['pt']['sites'] = new_sites
+                if config['pt'].get('sites'):
+                    config['pt']['sites'].update(new_sites)
+                else:
+                    config['pt']['sites'] = new_sites
                 # 保存
-                save_config(cfg)
+                save_config(config)
                 return {"retcode": 0}
 
     # 响应企业微信消息
@@ -360,8 +307,6 @@ def create_app():
                                     sendmsg("添加transmission下载任务成功！")
                             except Exception as e:
                                 log.error("【WEB】添加transmission任务出错：" + str(e))
-                    else:
-                        log.error("【WEB】PT下载软件设置有误！")
             return make_response(reponse_text, 200)
 
     return app

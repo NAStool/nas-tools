@@ -21,7 +21,9 @@ if __name__ == "__main__":
     os.environ['NASTOOL_CONFIG'] = args.config_file
     print("【RUN】配置文件地址：" + os.environ['NASTOOL_CONFIG'])
     if not os.path.exists(os.environ['NASTOOL_CONFIG']):
-        call(["cp", os.path.join(os.path.dirname(os.path.realpath(__file__)), "config/config.yaml"), os.environ['NASTOOL_CONFIG']])
+        call(["cp", os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                 "config/config.yaml"),
+              os.environ['NASTOOL_CONFIG']])
         print("【RUN】配置文件不存在，已将配置文件模板复制到配置目录，请修改后重新启动！")
         quit()
     print('【RUN】NASTool当前版本号：' + APP_VERSION)

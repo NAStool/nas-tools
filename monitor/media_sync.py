@@ -1,128 +1,72 @@
 import os
 import threading
-from hashlib import md5
 
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
-
 from config import get_config, RMT_MEDIAEXT, SYNC_DIR_CONFIG
-from functions import get_dir_files_by_ext
-from rmt.media import transfer_directory
+from rmt.media import transfer_media
 
 import log
 
 # 全局设置
-FINISHED_JOBS = {}
-# 加锁
+FINISHED_JOBS = []
+
 lock = threading.Lock()
 
 
-# 处理文件夹
-def dir_change_handler(event, text):
+# 处理文件变化
+def file_change_handler(event, text, event_path):
     global FINISHED_JOBS
-    config = get_config()
-    event_path = event.src_path
-    monpaths = SYNC_DIR_CONFIG.keys()
-    if event.is_directory:  # 文件改变都会触发文件夹变化
+    if not event.is_directory:  # 文件发生变化
         try:
-            log.debug("【SYNC】" + text + "了文件夹: %s " % event_path)
+            log.debug("【SYNC】" + text + "了文件: %s " % event_path)
+            # 文件名
             name = os.path.basename(event_path)
-            for monpath in monpaths:
-                if os.path.samefile(monpath, event_path):
-                    # 源目录的根目录变化不处理
-                    return
-            # 目的目录的子目录不处理
+            # 目的目录的子文件不处理
             for tpath in SYNC_DIR_CONFIG.values():
                 if tpath:
                     if tpath in event_path:
                         return
             if not name:
                 return
-            if name.startswith(".") or name.startswith("#") or name.startswith("@"):
-                # 带点或＃或＠开头的隐藏目录不处理
+            # 以.开头的隐藏文件不处理
+            if name.startswith("."):
                 return
-            movie_path = config['media'].get('movie_path')
-            if os.path.samefile(movie_path, event_path):
-                # 电影目的目录的变化不处理
+            # 判断是不是媒体文件
+            ext = os.path.splitext(name)[-1]
+            if ext not in RMT_MEDIAEXT:
                 return
-            tv_path = config['media'].get('tv_path')
-            if os.path.samefile(tv_path, event_path):
-                # 电视剧目的目录的变化不处理
-                return
-
-            files_num = len(get_dir_files_by_ext(event_path, RMT_MEDIAEXT))
-            if files_num == 0:
-                return
-            job_key = md5(event_path.encode("utf-8")).hexdigest()
+            # 判断是否处理过了
             need_handler_flag = False
-            noti_flag = True
-
-            # 加锁
             try:
                 lock.acquire()
-                if not FINISHED_JOBS.get(job_key):
-                    # 等待10秒，让文件移完
+                if event_path not in FINISHED_JOBS:
+                    FINISHED_JOBS.append(event_path)
                     need_handler_flag = True
-                    FINISHED_JOBS[job_key] = files_num
-                else:
-                    # 判断文件数，看是不是有变化，有文件增加就要重新处理
-                    if FINISHED_JOBS.get(job_key) < files_num:
-                        # 文件数有变化，但只处理增量的，重复的文件不通知
-                        FINISHED_JOBS[job_key] = files_num
-                        need_handler_flag = True
-                        noti_flag = False
-                    else:
-                        log.debug("【SYNC】已处理过：" + event_path)
             finally:
                 lock.release()
 
-            if need_handler_flag:
-                # 找到是哪个监控目录下的
-                parent_dir = event_path
-                for m_path in SYNC_DIR_CONFIG.keys():
-                    if m_path in event_path:
-                        parent_dir = m_path
-                # 查找目的目录
-                target_dir = SYNC_DIR_CONFIG.get(parent_dir)
-                log.info("【SYNC】开始处理：" + event_path)
-                if not transfer_directory(in_from="目录监控", in_name=name, in_path=event_path, noti_flag=noti_flag, target_dir=target_dir):
-                    log.error("【SYNC】" + event_path + "处理失败！")
-                else:
-                    log.info("【SYNC】" + event_path + "处理成功！")
+            if not need_handler_flag:
+                log.debug("【SYNC】文件已处理过：" + event_path)
+                return
 
-        except Exception as e:
-            log.error("【SYNC】发生错误：" + str(e))
-    else:
-        # 只有根目录下的文件才处理
-        dirpath = os.path.dirname(event_path)
-        name = os.path.basename(event_path)
+            log.info("【SYNC】开始处理：" + event_path)
+            # 找到是哪个监控目录下的
+            parent_dir = event_path
+            for m_path in SYNC_DIR_CONFIG.keys():
+                if m_path in event_path:
+                    parent_dir = m_path
 
-        need_handler_flag = False
-        # 是根目录之一才继续处理
-        for monpath in monpaths:
-            if os.path.samefile(monpath, dirpath):
-                need_handler_flag = True
-
-        # 不是媒体文件不处理
-        ext = os.path.splitext(name)[-1]
-        if ext in RMT_MEDIAEXT:
-            need_handler_flag = True
-
-        if not need_handler_flag:
-            return
-
-        # 开始处理
-        job_key = md5(event_path.encode("utf-8")).hexdigest()
-        log.info("【SYNC】开始处理：" + event_path)
-        if not FINISHED_JOBS.get(job_key):
-            FINISHED_JOBS[job_key] = 1
-            if not transfer_directory(in_from="目录监控", in_name=name, in_path=event_path, noti_flag=True):
+            # 查找目的目录
+            target_dir = SYNC_DIR_CONFIG.get(parent_dir)
+            if not transfer_media(in_from="目录监控", in_name=name, in_path=event_path, target_dir=target_dir):
                 log.error("【SYNC】" + event_path + "处理失败！")
             else:
                 log.info("【SYNC】" + event_path + "处理成功！")
-        else:
-            log.debug("【SYNC】已处理过：" + event_path)
+
+        except Exception as e:
+            log.error("【SYNC】发生错误：" + str(e))
 
 
 # 监听文件夹
@@ -134,13 +78,13 @@ class FileMonitorHandler(FileSystemEventHandler):
 
     # 重写文件创建函数，文件创建都会触发文件夹变化
     def on_created(self, event):
-        dir_change_handler(event, "创建")
+        file_change_handler(event, "创建", event.src_path)
 
     def on_moved(self, event):
-        dir_change_handler(event, "移动")
+        file_change_handler(event, "移动", event.dest_path)
 
     def on_modified(self, event):
-        dir_change_handler(event, "修改")
+        file_change_handler(event, "修改", event.src_path)
 
 
 def create_sync():
@@ -178,7 +122,7 @@ def sync_all():
                     try:
                         if file_name not in handler_files:
                             handler_files.append(file_name)
-                            transfer_directory(in_from="目录监控", in_name=file_name, in_path=file_path, noti_flag=True)
+                            transfer_media(in_from="目录监控", in_name=file_name, in_path=file_path)
                     except Exception as err:
                         log.error("【SYNC】发生错误：" + str(err))
 

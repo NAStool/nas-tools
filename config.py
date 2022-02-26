@@ -7,7 +7,7 @@ import yaml
 import log
 
 # 程序版本号：
-APP_VERSION = 'v0.0.4'
+APP_VERSION = 'v0.0.5'
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
 # 菜单序号在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护，然后看日志输出的菜单序号是啥（按顺利能猜到的）....
 # 命令对应关系：/qbt qBittorrent转移；/qbr qBittorrent删种；/hotm 热门预告；/pts PT签到；/mrt 预告片下载；/rst ResilioSync同步；/rss RSS下载
@@ -40,7 +40,7 @@ HOT_TRAILER_INTERVAL = 86400
 # 单次检查多少个预告片数据
 HOT_TRAILER_INTERVAL_TOTAL = 100
 # PT转移文件检查时间间隔，默认5分钟
-PT_TRANSFER_INTERVAL = 300
+PT_TRANSFER_INTERVAL = 60
 # SYNC源目录与目的目录的配套关系
 SYNC_DIR_CONFIG = {}
 

@@ -1,5 +1,6 @@
 import os
-import shutil
+import threading
+
 from tmdbv3api import TMDb, Movie
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
@@ -8,11 +9,11 @@ from xml.dom.minidom import parse
 
 from config import YOUTUBE_DL_CMD, get_config, RMT_MOVIETYPE
 from functions import get_dir_files_by_name, system_exec_command
-from scheduler.hot_trailer import transfer_trailers
 
 import log
 
 handler_files = []
+lock = threading.Lock()
 
 
 # 解析nfoXML文件，午到tmdbid
@@ -31,32 +32,22 @@ def get_movie_info_from_nfo(in_path):
 
 # 下载预告片
 def download_movie_trailer(in_path):
-    config = get_config()
-    hottrailer_path = config['media'].get('hottrailer_path')
-    exists_trailers = get_dir_files_by_name(in_path, "-trailer.")
-    if len(exists_trailers) > 0:
-        log.info("【TRAILER】" + in_path + "电影目录已存在预告片，跳过...")
-        return True
-    nfo_files = get_dir_files_by_name(in_path, ".nfo")
+    dir_name = os.path.dirname(in_path)
+    nfo_files = get_dir_files_by_name(dir_name, ".nfo")
     if len(nfo_files) == 0:
         log.info("【TRAILER】" + in_path + "nfo文件不存在，等待下次处理...")
         return False
+
     movie_id, movie_title, movie_year = get_movie_info_from_nfo(nfo_files[0])
     if not movie_id or not movie_title or not movie_year:
         return False
 
-    trailer_dir = hottrailer_path + "/" + movie_title + " (" + movie_year + ")"
-    file_path = trailer_dir + "/" + movie_title + " (" + movie_year + ").%(ext)s"
+    file_path = os.path.join(dir_name, "/" + movie_title + " (" + movie_year + ")-trailer.%(ext)s")
     # 开始下载
     tmdb = TMDb()
+    config = get_config()
     rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
-    if not rmt_tmdbkey:
-        # 兼容旧配置
-        rmt_tmdbkey = config['pt'].get('rmt_tmdbkey')
     tmdb.api_key = rmt_tmdbkey
-    if not tmdb.api_key:
-        log.error("【TRAILER】未配置rmt_tmdbkey，无法下载电影预告！")
-        return False
     tmdb.language = 'en-US'
     tmdb.debug = True
     movie = Movie()
@@ -65,10 +56,9 @@ def download_movie_trailer(in_path):
     except Exception as err:
         log.error("【TRAILER】错误：" + str(err))
         return False
-    log.info("【TRAILER】预告片总数：" + str(len(movie_videos)))
+    log.debug("【TRAILER】预告片总数：" + str(len(movie_videos)))
     if len(movie_videos) > 0:
         log.info("【TRAILER】下载预告片：" + str(movie_id) + " - " + movie_title)
-        succ_flag = False
         for video in movie_videos:
             trailer_key = video.key
             log.debug(">下载：" + trailer_key)
@@ -81,15 +71,9 @@ def download_movie_trailer(in_path):
             if result_out:
                 log.info(">执行结果：" + result_out)
             if result_err != "":
-                succ_flag = False
                 continue
             else:
-                succ_flag = True
                 break
-        if not succ_flag:
-            shutil.rmtree(trailer_dir, ignore_errors=True)
-        # 转移
-        transfer_trailers(trailer_dir)
     else:
         log.info("【TRAILER】" + movie_title + " 未检索到预告片")
         return False
@@ -97,38 +81,38 @@ def download_movie_trailer(in_path):
 
 
 # 处理文件夹
-def dir_change_handler(event, text):
-    config = get_config()
-    monpath = config['media']['movie_path']
-    event_path = event.src_path
-    if event.is_directory:  # 文件改变都会触发文件夹变化
+def dir_change_handler(event, text, event_path):
+    global handler_files
+    if not event.is_directory:  # 监控文件变化
         try:
-            log.info("【TRAILER】" + text + "了文件夹: %s " % event_path)
+            log.debug("【TRAILER】" + text + "了文件: %s " % event_path)
             if not os.path.exists(event_path):
                 return
-            if os.path.samefile(monpath, event_path):
-                # 根目录变化不处理
-                return
-            for movie_type in RMT_MOVIETYPE:
-                if os.path.samefile(event_path, os.path.join(monpath, movie_type)):
-                    # 分类目录变化不处理
-                    return
-            if os.path.isdir(event_path) and \
-                    (event_path.startswith(".") != -1 or event_path.startswith("#") != -1 or event_path.startswith("@") != -1):
+            name = os.path.basename(event_path)
+            if name.startswith(".") or name.startswith("#") or name.startswith("@"):
                 # 带点或＃或＠开头的隐藏目录不处理
                 return
-            name = os.path.basename(event_path)
-            if event_path not in handler_files:
-                handler_files.append(event_path)
-                log.info("【TRAILER】开始处理：" + event_path + "，名称：" + name)
+
+            # 判断是否处理过了
+            need_handler_flag = False
+            try:
+                lock.acquire()
+                if event_path not in handler_files:
+                    handler_files.append(event_path)
+                    need_handler_flag = True
+            finally:
+                lock.release()
+
+            if need_handler_flag:
+                log.info("【TRAILER】开始处理：" + event_path)
                 # 下载预告片
                 if not download_movie_trailer(event_path):
                     handler_files.remove(event_path)
-                    log.info("【TRAILER】" + event_path + "处理失败，等待下次处理...")
+                    log.info("【TRAILER】" + event_path + "预告片下载失败！")
                 else:
-                    log.info("【TRAILER】" + event_path + "处理成功！")
+                    log.info("【TRAILER】" + event_path + "预告片下载成功！")
             else:
-                log.debug("【TRAILER】已处理过：" + name)
+                log.debug("【TRAILER】预告片下载已处理过：" + name)
         except Exception as e:
             log.error("【TRAILER】发生错误：" + str(e))
 
@@ -142,18 +126,15 @@ class FileMonitorHandler(FileSystemEventHandler):
 
     # 重写文件创建函数，文件创建都会触发文件夹变化
     def on_created(self, event):
-        dir_change_handler(event, "创建")
+        dir_change_handler(event, "创建", event.src_path)
 
-    def on_moved(self, event):
-        dir_change_handler(event, "移动")
-
-    def on_modified(self, event):
-        dir_change_handler(event, "修改")
+    def on_moved(self, event, ):
+        dir_change_handler(event, "移动", event.dest_path)
 
 
 def create_movie_trailer():
     config = get_config()
-    movie_sys = config['app']['nas_sys']
+    movie_sys = config['app'].get('nas_sys')
     if movie_sys:
         observer = Observer()
     else:
@@ -164,7 +145,7 @@ def create_movie_trailer():
 # 下载电影预告片
 def movie_trailer_all():
     config = get_config()
-    monpath = config['media']['movie_path']
+    monpath = config['media'].get('movie_path')
     log.info("【TRAILER】开始检索和下载电影预告片！")
     movie_subtypedir = config['media'].get('movie_subtypedir', True)
     if movie_subtypedir:

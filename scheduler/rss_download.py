@@ -124,6 +124,9 @@ def rssdownload():
 
                 log.info("【RSS】开始检索媒体信息:" + title)
                 media_info = get_media_info(title, title, search_type)
+                if not media_info:
+                    log.error("【RSS】检索媒体信息出错！")
+                    continue
                 media_type = media_info["type"]
                 media_title = media_info["name"]
                 media_year = media_info["year"]
@@ -198,7 +201,10 @@ def rssdownload():
                             # 集 xx
                             file_seq_num = str(int(file_seq.replace("E", "").replace("P", "")))
                             # 文件路径
-                            file_path = os.path.join(season_dir, media_title + " - " + file_season + file_seq + " - " + "第 " + file_seq_num + " 集")
+                            file_path = os.path.join(season_dir,
+                                                     media_title + " - " +
+                                                     file_season + file_seq + " - " +
+                                                     "第 " + file_seq_num + " 集")
                             exist_flag = False
                             for ext in RMT_MEDIAEXT:
                                 log.debug("【RSS】路径：" + file_path + ext)

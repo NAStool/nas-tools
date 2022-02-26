@@ -129,18 +129,18 @@ https://github.com/jxxghp/nas-tools/releases
 
 ### 6、整理存量媒体资源（可选）
 经过以上步骤整套程序就已经搭完了，不出意外所有新下载的资源都能自动整理成完美的媒体库了。但是之前已经下载好的资源怎么办？按下面操作，把存量的媒体资源也整理到媒体库里来。
-* Docker版本，宿主机上运行以下命令，nas-tools修改为你的docker名称，/xxx/xxx修改为需要转移的媒体文件目录。
+* Docker版本，宿主机上运行以下命令，nas-tools修改为你的docker名称，修改源目录和目的目录参数。
    ```
    docker exec -it nas-tools /bin/bash
-   python3 /nas-tools/rmt/media.py -c /config/config.yaml -d /xxx/xxx
+   python3 /nas-tools/rmt/media.py -c /config/config.yaml -s /from/path -d /to/path
    ```
-* 群晖套件版本，ssh到后台运行以下命令，同样修改配置文件路径以及/xxx/xxx修改为需要转移的媒体文件目录。
+* 群晖套件版本，ssh到后台运行以下命令，同样修改配置文件路径以及源目录、目的目录参数。
    ```
-   /var/packages/py3k/target/usr/local/bin/python3 /var/packages/nastool/target/rmt/media.py  -c /volume1/homes/admin/.config/nastool/config.yaml -d /xxx/xxx
+   /var/packages/py3k/target/usr/local/bin/python3 /var/packages/nastool/target/rmt/media.py  -c /volume1/homes/admin/.config/nastool/config.yaml -s /from/path -d /to/path
    ```
-* 本地直接运行的，cd 到程序根目录，执行以下命令，/xxx/xxx修改为需要转移的媒体文件目录。
+* 本地直接运行的，cd 到程序根目录，执行以下命令，修改源目录和目的目录参数。
    ```
-   python3 rmt/media.py -c config/config.yaml -d /xxx/xxx
+   python3 rmt/media.py -c config/config.yaml -s /from/path -d /to/path
    ```
 
 ## 使用

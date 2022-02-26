@@ -99,9 +99,6 @@ def hottrailers(refresh_flag=True):
             # 兼容旧配置
             rmt_tmdbkey = config['pt'].get('rmt_tmdbkey')
         tmdb.api_key = rmt_tmdbkey
-        if not tmdb.api_key:
-            log.error("【HOT-TRAILER】未配置rmt_tmdbkey，无法下载热门预告片！")
-            return
         tmdb.language = 'zh-CN'
         tmdb.debug = True
         movie = Movie()

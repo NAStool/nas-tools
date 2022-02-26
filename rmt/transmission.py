@@ -4,7 +4,7 @@ import transmission_rpc
 import urllib3
 import log
 from config import get_config, RMT_MEDIAEXT
-from rmt.media import transfer_directory
+from rmt.media import transfer_media
 
 # 全局设置
 urllib3.disable_warnings()
@@ -95,7 +95,7 @@ def transfer_transmission_task():
             true_path = get_tr_download_path(torrent.download_dir, torrent.files())
             if trans_containerpath:
                 true_path = true_path.replace(str(trans_trpath), str(trans_containerpath))
-            done_flag = transfer_directory(in_from="transmission", in_name=torrent.name, in_path=true_path)
+            done_flag = transfer_media(in_from="transmission", in_name=torrent.name, in_path=true_path)
             if done_flag:
                 set_tr_torrent_status(torrent.id)
 
