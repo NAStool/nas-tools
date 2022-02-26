@@ -152,7 +152,7 @@ https://github.com/jxxghp/nas-tools/releases
 1) WEB UI界面，可以修改配置、手工启动服务（仅全功能模式支持）
 
 ![image](https://user-images.githubusercontent.com/51039935/155313733-959f043e-107e-4f2d-9beb-b56efc673177.png)
-![image](https://user-images.githubusercontent.com/51039935/155313852-792ba34a-7e17-479e-9f56-233576600492.png)
+![image](https://user-images.githubusercontent.com/51039935/155827403-537d8b29-94df-40fe-8f11-0c3c626646c0.png)
 
 2) 手机端图文通知和控制界面，控制服务运行（输入命令或者点击菜单）
 ![IMG_2768](https://user-images.githubusercontent.com/51039935/155554473-a505dc3d-f5e4-46c5-8b3c-59aa8edda2a2.jpeg)
