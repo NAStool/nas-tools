@@ -368,7 +368,7 @@ def transfer_media(in_from, in_name, in_path,
                 if len(episode_ary) == 1:
                     # 只变更了一集
                     msg_title = msg_title + " 第" + season_ary[0].replace("Season ", "") + \
-                                "季第" + episode_ary[0] + "集 转移完成"
+                                "季第" + episode_ary[0] + "集"
                     if Media_FileSize:
                         msg_str.append("大小：" + str_filesize(Media_FileSize))
                 else:
