@@ -819,12 +819,13 @@ def transfer_all(s_path, t_path):
     if not os.path.exists(s_path):
         print("【RMT】源目录不存在：%s" % s_path)
         return
-    if not os.path.exists(t_path):
-        print("【RMT】目的目录不存在：%s" % t_path)
-        return
+    if t_path:
+        if not os.path.exists(t_path):
+            print("【RMT】目的目录不存在：%s" % t_path)
+            return
     config = get_config()
     print("【RMT】正在转移以下目录中的全量文件：%s" % s_path)
-    print("【RMT】转移模式为：%s" % config['pt'].get('rmt_mode'))
+    print("【RMT】转移模式为：%s" % config['sync'].get('sync_mod'))
     for f_dir in os.listdir(s_path):
         file_path = os.path.join(s_path, f_dir)
         file_name = os.path.basename(file_path)
@@ -846,7 +847,7 @@ if __name__ == "__main__":
     if os.environ.get('NASTOOL_CONFIG'):
         print("【RMT】配置文件地址：%s" % os.environ['NASTOOL_CONFIG'])
         print("【RMT】源目录路径：%s" % args.s_path)
-        if args.get('t_path'):
+        if args.t_path:
             print("【RMT】目的目录路径：%s" % args.t_path)
         else:
             print("【RMT】目的目录为配置文件中的电影、电视剧媒体库目录")
