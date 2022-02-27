@@ -13,22 +13,17 @@ lock = threading.Lock()
 
 class Sync:
     media = None
-    __observer = None
+    __observer = []
     __sync_path = None
+    __sync_sys = "Linux"
 
     def __init__(self):
         self.media = Media()
         config = get_config()
         if config.get('app'):
-            sync_sys = config['app'].get('nas_sys', "Linux") == "Linux" or False
-            if sync_sys:
-                # linux
-                self.__observer = Observer()
-            else:
-                # 其他
-                self.__observer = PollingObserver()
-            if config.get('sync'):
-                self.__sync_path = config['sync'].get('sync_path')
+            self.__sync_sys = config['app'].get('nas_sys', "Linux")
+        if config.get('sync'):
+            self.__sync_path = config['sync'].get('sync_path')
 
     # 处理文件变化
     def file_change_handler(self, event, text, event_path):
@@ -109,18 +104,26 @@ class Sync:
                     log.info("【SYNC】读取监控目录：%s" % monpath)
 
                 if os.path.exists(monpath):
-                    if self.__observer:
-                        self.__observer.schedule(FileMonitorHandler(monpath), path=monpath, recursive=True)
-                        self.__observer.setDaemon(False)
-                        self.__observer.start()
-                        log.info("【RUN】%s 的monitor.media_sync启动..." % monpath)
+                    if self.__sync_sys == "Linux":
+                        # linux
+                        observer = Observer()
+                    else:
+                        # 其他
+                        observer = PollingObserver()
+                    self.__observer.append(observer)
+
+                    observer.schedule(FileMonitorHandler(monpath), path=monpath, recursive=True)
+                    observer.setDaemon(False)
+                    observer.start()
+                    log.info("【RUN】%s 的monitor.media_sync启动..." % monpath)
                 else:
                     log.error("【SYNC】" + sync_monpath + " 目录不存在！")
 
     # 关闭服务
     def stop_service(self):
         if self.__observer:
-            self.__observer.stop()
+            for observer in self.__observer:
+                observer.stop()
 
 
 # 监听文件夹
