@@ -54,7 +54,7 @@ TG交流：https://t.me/nastool_chat
 ### 1、Docker
 [jxxghp/nas-tools:latest](https://hub.docker.com/repository/docker/jxxghp/nas-tools)
 ```
-docker push jxxghp/nas-tools:latest
+docker pull jxxghp/nas-tools:latest
 ```
 
 ### 2、本地运行
