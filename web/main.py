@@ -39,14 +39,8 @@ class FlaskApp:
             self.__ssl_cert = config['app'].get('ssl_cert')
             self.__ssl_key = config['app'].get('ssl_key')
 
-    def stop_service(self):
-        raise RuntimeError('Flask Server Shutdown...')
-
     def run_service(self):
         try:
-            if not self.__web_port:
-                return
-
             if not self.__app:
                 return
 
@@ -72,8 +66,19 @@ class FlaskApp:
 
 def create_flask_app():
     config = get_config()
-    if not config.get('app'):
+    app_cfg = config.get('app')
+    if not app_cfg:
         return None
+    else:
+        if app_cfg.get('simple_mode'):
+            # 精简模式不启用WEBUI
+            return None
+        elif not app_cfg.get('web_port'):
+            return None
+        elif not app_cfg.get('login_user'):
+            return None
+        elif not app_cfg.get('login_password'):
+            return None
 
     app = Flask(__name__)
     app.config['JSON_AS_ASCII'] = False
@@ -133,7 +138,7 @@ def create_flask_app():
         scheduler_cfg_list = []
         pt_check_interval = config['pt'].get('pt_check_interval')
         if pt_check_interval:
-            tim_rssdownload = str(round(pt_check_interval/60)) + "分"
+            tim_rssdownload = str(round(pt_check_interval / 60)) + "分"
             rss_state = 'ON'
         else:
             tim_rssdownload = ""
@@ -141,13 +146,13 @@ def create_flask_app():
         scheduler_cfg_list.append(
             {'name': 'RSS下载', 'time': tim_rssdownload, 'state': rss_state, 'id': 'rssdownload'})
 
-        tim_pttransfer = str(round(PT_TRANSFER_INTERVAL/60)) + "分"
+        tim_pttransfer = str(round(PT_TRANSFER_INTERVAL / 60)) + "分"
         scheduler_cfg_list.append(
             {'name': 'PT文件转移', 'time': tim_pttransfer, 'state': 'ON', 'id': 'pttransfer'})
 
         pt_seeding_config_time = config['pt'].get('pt_seeding_time')
         if pt_seeding_config_time:
-            pt_seeding_time = str(round(pt_seeding_config_time/3600)) + "小时"
+            pt_seeding_time = str(round(pt_seeding_config_time / 3600)) + "小时"
             sta_autoremovetorrents = 'ON'
             scheduler_cfg_list.append(
                 {'name': 'PT删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents,
@@ -163,7 +168,7 @@ def create_flask_app():
                                            'state': sta_sync,
                                            'id': 'sync'})
 
-        tim_hottrailers = str(round(HOT_TRAILER_INTERVAL/3600)) + "小时"
+        tim_hottrailers = str(round(HOT_TRAILER_INTERVAL / 3600)) + "小时"
         hottrailer_path = config['media'].get('hottrailer_path')
         if hottrailer_path:
             sta_hottrailers = 'ON'

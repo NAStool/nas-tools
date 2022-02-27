@@ -156,6 +156,12 @@ def check_config(config):
     if not ssl_cert or not ssl_key:
         log.info("【RUN】未启用https，请使用 http://IP:" + str(web_port) + " 访问管理页面")
     else:
+        if not os.path.exists(ssl_cert):
+            log.error("【RUN】ssl_cert文件不存在：" + ssl_cert)
+            return False
+        if not os.path.exists(ssl_key):
+            log.error("【RUN】ssl_key文件不存在：" + ssl_key)
+            return False
         log.info("【RUN】已启用https，请使用 https://IP:" + str(web_port) + " 访问管理页面")
 
     rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
