@@ -6,11 +6,11 @@ import sys
 from apscheduler.schedulers.blocking import BlockingScheduler
 import log
 from config import get_config, AUTO_REMOVE_TORRENTS_INTERVAL, HOT_TRAILER_INTERVAL, load_config, PT_TRANSFER_INTERVAL
-from scheduler.autoremove_torrents import run_autoremovetorrents
-from scheduler.hot_trailer import run_hottrailers
-from scheduler.pt_signin import run_ptsignin
-from scheduler.pt_transfer import run_pttransfer
-from scheduler.rss_download import run_rssdownload
+from scheduler.autoremove_torrents import AutoRemoveTorrents
+from scheduler.hot_trailer import HotTrailer
+from scheduler.pt_signin import PTSignin
+from scheduler.pt_transfer import PTTransfer
+from scheduler.rss_download import RSSDownloader
 
 
 def run_scheduler():
@@ -35,7 +35,7 @@ def run_scheduler():
         # 更新电影预告
         hottrailer_path = config['media'].get('hottrailer_path')
         if hottrailer_path and os.path.exists(hottrailer_path):
-            scheduler.add_job(run_hottrailers, 'interval', seconds=HOT_TRAILER_INTERVAL)
+            scheduler.add_job(HotTrailer().run_schedule, 'interval', seconds=HOT_TRAILER_INTERVAL)
             log.info("【RUN】scheduler.hot_trailer启动...")
 
     pt = config.get('pt')
@@ -43,13 +43,15 @@ def run_scheduler():
         # PT种子清理
         pt_seeding_time = config['pt'].get('pt_seeding_time')
         if pt_seeding_time:
-            scheduler.add_job(run_autoremovetorrents, 'interval', seconds=AUTO_REMOVE_TORRENTS_INTERVAL)
+            scheduler.add_job(AutoRemoveTorrents().run_schedule,
+                              'interval',
+                              seconds=AUTO_REMOVE_TORRENTS_INTERVAL)
             log.info("【RUN】scheduler.autoremove_torrents启动...")
 
         # PT站签到
         ptsignin_cron = str(config['pt'].get('ptsignin_cron'))
         if ptsignin_cron and ptsignin_cron.find(':') != -1:
-            scheduler.add_job(run_ptsignin, "cron",
+            scheduler.add_job(PTSignin().run_schedule, "cron",
                               hour=int(ptsignin_cron.split(":")[0]),
                               minute=int(ptsignin_cron.split(":")[1]))
             log.info("【RUN】scheduler.pt_signin启动．．．")
@@ -57,13 +59,13 @@ def run_scheduler():
         # PT文件转移
         pt_monitor = config['pt'].get('pt_monitor')
         if pt_monitor:
-            scheduler.add_job(run_pttransfer, 'interval', seconds=PT_TRANSFER_INTERVAL)
+            scheduler.add_job(PTTransfer().run_schedule, 'interval', seconds=PT_TRANSFER_INTERVAL)
             log.info("【RUN】scheduler.pt_transfer启动...")
 
         # RSS下载器
         pt_check_interval = config['pt'].get('pt_check_interval')
         if pt_check_interval:
-            scheduler.add_job(run_rssdownload, 'interval', seconds=int(pt_check_interval))
+            scheduler.add_job(RSSDownloader().run_schedule, 'interval', seconds=int(pt_check_interval))
             log.info("【RUN】scheduler.rss_download启动...")
 
     # 配置定时生效

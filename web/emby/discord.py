@@ -4,7 +4,7 @@ import time
 import log
 from config import get_config, RMT_MOVIETYPE, RMT_FAVTYPE
 from functions import get_location
-from message.send import sendmsg
+from message.send import Message
 
 PLAY_LIST = []
 
@@ -102,4 +102,4 @@ def report_to_discord(event):
             if event.action == 'rate':
                 desp = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         # Report Message
-        sendmsg(message, desp)
+        Message().sendmsg(message, desp)

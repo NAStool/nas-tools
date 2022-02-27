@@ -14,8 +14,18 @@ class WeChat(object):
     __expires_in = None
     __access_token_time = None
 
+    __corpid = None
+    __corpsecret = None
+    __agentid = None
+
     def __init__(self):
-        self.get_access_token()
+        config = get_config()
+        if config.get('message'):
+            self.__corpid = config['message'].get('wechat', {}).get('corpid')
+            self.__corpsecret = config['message'].get('wechat', {}).get('corpsecret')
+            self.__agent_id = config['message'].get('wechat', {}).get('agentid')
+        if self.__corpid and self.__corpsecret and self.__agent_id:
+            self.get_access_token()
 
     @staticmethod
     def get_instance():
@@ -39,12 +49,10 @@ class WeChat(object):
                 token_flag = False
 
         if not token_flag:
-            config = get_config()
-            corpid = config['message'].get('wechat', {}).get('corpid')
-            corpsecret = config['message'].get('wechat', {}).get('corpsecret')
-            if not corpid or not corpsecret:
+            if not self.__corpid or not self.__corpsecret:
                 return None
-            token_url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s" % (corpid, corpsecret)
+            token_url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s" \
+                        % (self.__corpid, self.__corpsecret)
             res = requests.get(token_url)
             if res:
                 ret_json = res.json()
@@ -57,16 +65,14 @@ class WeChat(object):
     # 发送文本消息
     def send_message(self, title, text):
         message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.get_access_token()
-        config = get_config()
-        agent_id = config['message'].get('wechat', {}).get('agentid')
-        if not agent_id:
-            return False, "未配置wechat.agentid，无法发送消息！"
+        if not self.__agent_id:
+            return False, "参数未配置"
         if text:
             text = text.replace("\n\n", "\n")
         req_json = {
             "touser": "@all",
             "msgtype": "text",
-            "agentid": agent_id,
+            "agentid": self.__agent_id,
             "text": {
                 "content": title + "\n\n" + text
             },
@@ -91,17 +97,15 @@ class WeChat(object):
     # 发送图文消息
     def send_image_message(self, title, text, image_url):
         message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.get_access_token()
-        config = get_config()
-        agent_id = config['message'].get('wechat', {}).get('agentid')
-        if not agent_id:
-            return False, "未配置wechat.agentid，无法发送消息！"
+        if not self.__agent_id:
+            return False, "参数未配置"
         if text:
             text = text.replace("\n\n", "\n")
 
         req_json = {
             "touser": "@all",
             "msgtype": "news",
-            "agentid": agent_id,
+            "agentid": self.__agent_id,
             "news": {
                 "articles": [
                     {
@@ -126,15 +130,14 @@ class WeChat(object):
         except Exception as err:
             return False, str(err)
 
-
-def send_wechat_msg(title, text, image):
-    if not title and not text:
-        return -1, "标题和内容不能同时为空！"
-    if image:
-        ret_code, ret_msg = WeChat.get_instance().send_image_message(title, text, image)
-    else:
-        ret_code, ret_msg = WeChat.get_instance().send_message(title, text)
-    return ret_code, ret_msg
+    def send_wechat_msg(self, title, text, image):
+        if not title and not text:
+            return -1, "标题和内容不能同时为空"
+        if image:
+            ret_code, ret_msg = self.send_image_message(title, text, image)
+        else:
+            ret_code, ret_msg = self.send_message(title, text)
+        return ret_code, ret_msg
 
 
 if __name__ == "__main__":
@@ -146,4 +149,4 @@ if __name__ == "__main__":
         in_text = sys.argv[2]
     else:
         in_text = "WeChat内容"
-    send_wechat_msg(in_title, in_text, None)
+    WeChat.get_instance().send_wechat_msg(in_title, in_text, None)

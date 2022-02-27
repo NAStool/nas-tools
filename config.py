@@ -7,7 +7,7 @@ import yaml
 import log
 
 # 程序版本号：
-APP_VERSION = 'v0.0.6'
+APP_VERSION = 'v0.0.7'
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
 # 菜单序号在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护，然后看日志输出的菜单序号是啥（按顺利能猜到的）....
 # 命令对应关系：/qbt qBittorrent转移；/qbr qBittorrent删种；/hotm 热门预告；/pts PT签到；/mrt 预告片下载；/rst ResilioSync同步；/rss RSS下载
@@ -53,8 +53,10 @@ lock = threading.Lock()
 class Config(object):
     __config = {}
     __instance = None
+    __config_path = None
 
     def __init__(self):
+        self.__config_path = os.environ['NASTOOL_CONFIG']
         self.load_config()
 
     @staticmethod
@@ -71,14 +73,22 @@ class Config(object):
 
     def load_config(self):
         try:
-            with open(os.environ['NASTOOL_CONFIG'], mode='r', encoding='utf-8') as f:
-                self.__config = yaml.load(f, yaml.Loader)
+            with open(self.__config_path, mode='r', encoding='utf-8') as f:
+                self.__config = yaml.safe_load(f)
         except yaml.YAMLError as err:
             print("读取配置文件错误：" + str(err))
             return False
 
     def get_config(self):
         return self.__config
+
+    def save_cnfig(self, new_cfg):
+        self.__config = new_cfg
+        with open(self.__config_path, mode='w', encoding='utf-8') as f:
+            return yaml.dump(new_cfg, f, allow_unicode=True)
+
+    def get_config_path(self):
+        return self.__config_path
 
 
 # 得到配置信息
@@ -88,7 +98,7 @@ def get_config():
 
 # 得到配置路径
 def get_config_path():
-    return os.environ['NASTOOL_CONFIG']
+    return Config.get_instance().get_config_path()
 
 
 # 装载配置
@@ -98,8 +108,7 @@ def load_config():
 
 # 保存配置
 def save_config(new_cfg):
-    with open(os.environ['NASTOOL_CONFIG'], mode='w', encoding='utf-8') as f:
-        return yaml.dump(new_cfg, f, allow_unicode=True)
+    return Config.get_instance().save_cnfig(new_cfg)
 
 
 # 检查配置信息

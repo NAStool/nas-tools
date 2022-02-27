@@ -61,7 +61,8 @@ docker push jxxghp/nas-tools:latest
 python3.8版本
 ```
 python3 -m pip install -r requirements.txt
-nohup python3 run.py -c ./config/config.yaml & 
+export NASTOOL_CONFIG="/xxx/config/config.yaml"
+nohup python3 run.py & 
 ```
 
 ### 3、群晖套件
@@ -138,18 +139,23 @@ RSS链接不要用错了，是下载客户端使用的那个。
 
 ### 6、整理存量媒体资源（可选）
 经过以上步骤整套程序就已经搭完了，不出意外所有新下载的资源都能自动整理成完美的媒体库了。但是之前已经下载好的资源怎么办？按下面操作，把存量的媒体资源也整理到媒体库里来。
+
+重要说明：-d 参数为可选，如不输入则会自动区分电影还是电视剧分别存储到配置文件对应的电影电视剧媒体库目录中；-d 参数有输入时则不管是电影还是电视剧，都往-d目录中转移。
+
 * Docker版本，宿主机上运行以下命令，nas-tools修改为你的docker名称，修改源目录和目的目录参数。
    ```
    docker exec -it nas-tools /bin/bash
-   python3 /nas-tools/rmt/media.py -c /config/config.yaml -s /from/path -d /to/path
+   python3 /nas-tools/rmt/media.py -s /from/path -d /to/path
    ```
 * 群晖套件版本，ssh到后台运行以下命令，同样修改配置文件路径以及源目录、目的目录参数。
    ```
-   /var/packages/py3k/target/usr/local/bin/python3 /var/packages/nastool/target/rmt/media.py  -c /volume1/homes/admin/.config/nastool/config.yaml -s /from/path -d /to/path
+   export NASTOOL_CONFIG=/volume1/homes/admin/.config/nastool/config.yaml
+   /var/packages/py3k/target/usr/local/bin/python3 /var/packages/nastool/target/rmt/media.py -s /from/path -d /to/path
    ```
-* 本地直接运行的，cd 到程序根目录，执行以下命令，修改源目录和目的目录参数。
+* 本地直接运行的，cd 到程序根目录，执行以下命令，修改配置文件、源目录和目的目录参数。
    ```
-   python3 rmt/media.py -c config/config.yaml -s /from/path -d /to/path
+   export NASTOOL_CONFIG=/xxx/config/config.yaml
+   python3 rmt/media.py -s /from/path -d /to/path
    ```
 
 ## 使用

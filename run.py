@@ -4,7 +4,7 @@ from subprocess import call
 
 import log
 from config import get_config, check_config, check_simple_config, APP_VERSION
-from web import run as webhook
+from web import run as web
 from monitor import run as monitor
 from scheduler import run as scheduler
 from multiprocessing import Process
@@ -12,13 +12,7 @@ from multiprocessing import Process
 
 if __name__ == "__main__":
     # 参数
-    parser = argparse.ArgumentParser(description='Nas Media Library Management Tool')
-    parser.add_argument('-c', '--config', dest='config_file', default='config/config.yaml',
-                        help='Config File Path (default: config/config.yaml)')
-
-    args = parser.parse_args()
     os.environ['TZ'] = 'Asia/Shanghai'
-    os.environ['NASTOOL_CONFIG'] = args.config_file
     print("【RUN】配置文件地址：" + os.environ['NASTOOL_CONFIG'])
     if not os.path.exists(os.environ['NASTOOL_CONFIG']):
         call(["cp", os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -45,4 +39,4 @@ if __name__ == "__main__":
     log.info("【RUN】开始启动进程...")
     Process(target=monitor.run_monitor, args=()).start()
     Process(target=scheduler.run_scheduler, args=()).start()
-    Process(target=webhook.run_webhook, args=()).start()
+    Process(target=web.run_web(), args=()).start()

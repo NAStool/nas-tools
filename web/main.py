@@ -3,15 +3,16 @@ from flask import Flask, request, json, render_template, make_response, redirect
 import log
 from monitor.media_sync import sync_all
 from monitor.movie_trailer import movie_trailer_all
-from rmt.transmission import add_transmission_torrent
-from scheduler.autoremove_torrents import run_autoremovetorrents
-from scheduler.hot_trailer import run_hottrailers
-from scheduler.pt_signin import run_ptsignin
-from scheduler.pt_transfer import run_pttransfer
-from scheduler.rss_download import run_rssdownload, add_qbittorrent_torrent
+from rmt.qbittorrent import Qbittorrent
+from rmt.transmission import Transmission
+from scheduler.autoremove_torrents import AutoRemoveTorrents
+from scheduler.hot_trailer import HotTrailer
+from scheduler.pt_signin import PTSignin
+from scheduler.pt_transfer import PTTransfer
+from scheduler.rss_download import RSSDownloader
 from web.emby.discord import report_to_discord
 from web.emby.emby_event import EmbyEvent
-from message.send import sendmsg
+from message.send import Message
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -21,14 +22,63 @@ from web.wechat.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
 
 
-def create_app():
+class FlaskApp:
+    __app = None
+    __web_port = None
+    __ssl_cert = None
+    __ssl_key = None
+
+    message = None
+
+    def __init__(self):
+        self.message = Message()
+        self.__app = create_flask_app()
+        config = get_config()
+        if config.get('app'):
+            self.__web_port = config['app'].get('web_port')
+            self.__ssl_cert = config['app'].get('ssl_cert')
+            self.__ssl_key = config['app'].get('ssl_key')
+
+    def stop_service(self):
+        raise RuntimeError('Flask Server Shutdown...')
+
+    def run_service(self):
+        try:
+            if not self.__web_port:
+                return
+
+            if not self.__app:
+                return
+
+            if self.__ssl_cert:
+                self.__app.run(
+                    host='0.0.0.0',
+                    port=self.__web_port,
+                    debug=False,
+                    use_reloader=False,
+                    ssl_context=(self.__ssl_cert, self.__ssl_key)
+                )
+            else:
+                self.__app.run(
+                    host='0.0.0.0',
+                    port=self.__web_port,
+                    debug=False,
+                    use_reloader=False
+                )
+        except Exception as err:
+            log.error("【RUN】启动web服务失败：%s" % str(err))
+            self.message.sendmsg("【NASTOOL】启动web服务失败！", str(err))
+
+
+def create_flask_app():
+    config = get_config()
+    if not config.get('app'):
+        return None
+
     app = Flask(__name__)
     app.config['JSON_AS_ASCII'] = False
     auth = HTTPBasicAuth()
-    config = get_config()
-    users = {
-        str(config['app'].get('login_user')): generate_password_hash(str(config['app'].get('login_password')))
-    }
+    users = {str(config['app'].get('login_user')): generate_password_hash(config['app'].get('login_password'))}
 
     @auth.verify_password
     def verify_password(username, password):
@@ -64,7 +114,7 @@ def create_app():
         log.debug("【DDNS】输入报文：" + str(request_json))
         text = request_json['text']
         content = text['content']
-        sendmsg("【DDNS】IP地址变化", content)
+        Message().sendmsg("【DDNS】IP地址变化", content)
         return '0'
 
     # 主页面
@@ -184,19 +234,19 @@ def create_app():
             if cmd == "sch":
                 sch_item = data["item"]
                 if sch_item == "btn_autoremovetorrents":
-                    run_autoremovetorrents()
+                    AutoRemoveTorrents().run_schedule()
                 if sch_item == "btn_pttransfer":
-                    run_pttransfer()
+                    PTTransfer().run_schedule()
                 if sch_item == "btn_hottrailers":
-                    run_hottrailers()
+                    HotTrailer().run_schedule()
                 if sch_item == "btn_ptsignin":
-                    run_ptsignin()
+                    PTSignin().run_schedule()
                 if sch_item == "btn_movietrailer":
                     movie_trailer_all()
                 if sch_item == "btn_sync":
                     sync_all()
                 if sch_item == "btn_rssdownload":
-                    run_rssdownload()
+                    RSSDownloader().run_schedule()
                 return {"retmsg": "执行完成！", "item": sch_item}
 
             if cmd == "rss":
@@ -228,85 +278,85 @@ def create_app():
                 save_config(config)
                 return {"retcode": 0}
 
-    # 响应企业微信消息
-    @app.route('/wechat', methods=['GET', 'POST'])
-    def wechat():
-        sToken = config['message'].get('wechat', {}).get('Token')
-        sEncodingAESKey = config['message'].get('wechat', {}).get('EncodingAESKey')
-        sCorpID = config['message'].get('wechat', {}).get('corpid')
-        wxcpt = WXBizMsgCrypt(sToken, sEncodingAESKey, sCorpID)
-        sVerifyMsgSig = request.args.get("msg_signature")
-        sVerifyTimeStamp = request.args.get("timestamp")
-        sVerifyNonce = request.args.get("nonce")
+        # 响应企业微信消息
+        @app.route('/wechat', methods=['GET', 'POST'])
+        def wechat():
+            sToken = config['message'].get('wechat', {}).get('Token')
+            sEncodingAESKey = config['message'].get('wechat', {}).get('EncodingAESKey')
+            sCorpID = config['message'].get('wechat', {}).get('corpid')
+            wxcpt = WXBizMsgCrypt(sToken, sEncodingAESKey, sCorpID)
+            sVerifyMsgSig = request.args.get("msg_signature")
+            sVerifyTimeStamp = request.args.get("timestamp")
+            sVerifyNonce = request.args.get("nonce")
 
-        if request.method == 'GET':
-            sVerifyEchoStr = request.args.get("echostr")
-            log.info("收到微信验证请求: echostr=" + sVerifyEchoStr)
-            ret, sEchoStr = wxcpt.VerifyURL(sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce, sVerifyEchoStr)
-            if ret != 0:
-                log.error("微信请求验证失败 VerifyURL ret: " + str(ret))
-            # 验证URL成功，将sEchoStr返回给企业号
-            return sEchoStr
-        else:
-            sReqData = request.data
-            log.info("收到微信消息：" + str(sReqData))
-            ret, sMsg = wxcpt.DecryptMsg(sReqData, sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce)
-            if ret != 0:
-                log.error("解密微信消息失败 DecryptMsg ret：" + str(ret))
-            xml_tree = ETree.fromstring(sMsg)
-            reponse_text = ""
-            try:
-                msg_type = xml_tree.find("MsgType").text
-                if msg_type == "event":
-                    event_key = xml_tree.find("EventKey").text
-                    log.info("点击菜单：" + event_key)
-                    content = WECHAT_MENU[event_key.split('#')[2]]
-                else:
-                    content = xml_tree.find("Content").text
-                    log.info("消息内容：" + content)
-                    reponse_text = content
-            except Exception as err:
-                log.error("发生错误：" + str(err))
-                return make_response("", 200)
-            # 处理消息内容
-            if content == "/ptr":
-                _thread.start_new_thread(run_autoremovetorrents, ())
-            if content == "/ptt":
-                _thread.start_new_thread(run_pttransfer, ())
-            if content == "/hotm":
-                _thread.start_new_thread(run_hottrailers, ())
-            if content == "/pts":
-                _thread.start_new_thread(run_ptsignin, ())
-            if content == "/mrt":
-                _thread.start_new_thread(movie_trailer_all, ())
-            if content == "/rst":
-                _thread.start_new_thread(sync_all, ())
-            if content == "/rss":
-                _thread.start_new_thread(run_rssdownload, ())
+            if request.method == 'GET':
+                sVerifyEchoStr = request.args.get("echostr")
+                log.info("收到微信验证请求: echostr= %s" % sVerifyEchoStr)
+                ret, sEchoStr = wxcpt.VerifyURL(sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce, sVerifyEchoStr)
+                if ret != 0:
+                    log.error("微信请求验证失败 VerifyURL ret: %s" % str(ret))
+                # 验证URL成功，将sEchoStr返回给企业号
+                return sEchoStr
             else:
-                if content.startswith("http://") or content.startswith("https://") or content.startswith("magnet:"):
-                    # 添加种子任务
-                    pt_client = config['pt'].get('pt_client')
-                    if pt_client == "qbittorrent":
-                        save_path = config['qbittorrent'].get('save_path')
-                        if save_path:
-                            try:
-                                ret = add_qbittorrent_torrent(content, save_path)
-                                if ret and ret.find("Ok") != -1:
-                                    log.info("【WEB】添加qBittorrent任务：" + content)
-                                    sendmsg("添加qBittorrent下载任务成功！")
-                            except Exception as e:
-                                log.error("【WEB】添加qBittorrent任务出错：" + str(e))
-                    elif pt_client == "transmission":
-                        save_path = config['transmission'].get('save_path')
-                        if save_path:
-                            try:
-                                ret = add_transmission_torrent(content, save_path)
-                                if ret:
-                                    log.info("【WEB】添加transmission任务：" + content)
-                                    sendmsg("添加transmission下载任务成功！")
-                            except Exception as e:
-                                log.error("【WEB】添加transmission任务出错：" + str(e))
-            return make_response(reponse_text, 200)
+                sReqData = request.data
+                log.info("收到微信消息：" + str(sReqData))
+                ret, sMsg = wxcpt.DecryptMsg(sReqData, sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce)
+                if ret != 0:
+                    log.error("解密微信消息失败 DecryptMsg ret：%s" % str(ret))
+                xml_tree = ETree.fromstring(sMsg)
+                reponse_text = ""
+                try:
+                    msg_type = xml_tree.find("MsgType").text
+                    if msg_type == "event":
+                        event_key = xml_tree.find("EventKey").text
+                        log.info("点击菜单：" + event_key)
+                        content = WECHAT_MENU[event_key.split('#')[2]]
+                    else:
+                        content = xml_tree.find("Content").text
+                        log.info("消息内容：" + content)
+                        reponse_text = content
+                except Exception as err:
+                    log.error("发生错误：%s" % str(err))
+                    return make_response("", 200)
+                # 处理消息内容
+                if content == "/ptr":
+                    _thread.start_new_thread(AutoRemoveTorrents().run_schedule(), ())
+                if content == "/ptt":
+                    _thread.start_new_thread(PTTransfer().run_schedule(), ())
+                if content == "/hotm":
+                    _thread.start_new_thread(HotTrailer().run_schedule(), ())
+                if content == "/pts":
+                    _thread.start_new_thread(PTSignin().run_schedule(), ())
+                if content == "/mrt":
+                    _thread.start_new_thread(movie_trailer_all, ())
+                if content == "/rst":
+                    _thread.start_new_thread(sync_all, ())
+                if content == "/rss":
+                    _thread.start_new_thread(RSSDownloader().run_schedule(), ())
+                else:
+                    if content.startswith("http://") or content.startswith("https://") or content.startswith("magnet:"):
+                        # 添加种子任务
+                        pt_client = config['pt'].get('pt_client')
+                        if pt_client == "qbittorrent":
+                            save_path = config['qbittorrent'].get('save_path')
+                            if save_path:
+                                try:
+                                    ret = Qbittorrent().add_qbittorrent_torrent(content, save_path)
+                                    if ret and ret.find("Ok") != -1:
+                                        log.info("【WEB】添加qBittorrent任务：%s" % content)
+                                        Message().sendmsg("添加qBittorrent下载任务成功！")
+                                except Exception as e:
+                                    log.error("【WEB】添加qBittorrent任务出错：" + str(e))
+                        elif pt_client == "transmission":
+                            save_path = config['transmission'].get('save_path')
+                            if save_path:
+                                try:
+                                    ret = Transmission().add_transmission_torrent(content, save_path)
+                                    if ret:
+                                        log.info("【WEB】添加transmission任务：%s" % content)
+                                        Message().sendmsg("添加transmission下载任务成功！")
+                                except Exception as e:
+                                    log.error("【WEB】添加transmission任务出错：" + str(e))
+                return make_response(reponse_text, 200)
 
     return app
