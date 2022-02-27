@@ -194,34 +194,35 @@ def create_flask_app():
         # 读取配置
         rss_cfg_list = []
         rss_jobs = config['pt'].get('sites')
-        for rss_job, job_info in rss_jobs.items():
-            # 读取子配置
-            movie_type = job_info.get('movie_type')
-            if movie_type:
-                if not isinstance(movie_type, list):
-                    movie_type = [movie_type]
-            else:
-                movie_type = []
+        if rss_jobs:
+            for rss_job, job_info in rss_jobs.items():
+                # 读取子配置
+                movie_type = job_info.get('movie_type')
+                if movie_type:
+                    if not isinstance(movie_type, list):
+                        movie_type = [movie_type]
+                else:
+                    movie_type = []
 
-            movie_re = job_info.get('movie_re')
-            if movie_re:
-                if not isinstance(movie_re, list):
-                    movie_re = [movie_re]
-            else:
-                movie_re = []
+                movie_re = job_info.get('movie_re')
+                if movie_re:
+                    if not isinstance(movie_re, list):
+                        movie_re = [movie_re]
+                else:
+                    movie_re = []
 
-            tv_re = job_info.get('tv_re')
-            if tv_re:
-                if not isinstance(tv_re, list):
-                    tv_re = [tv_re]
-            else:
-                tv_re = []
+                tv_re = job_info.get('tv_re')
+                if tv_re:
+                    if not isinstance(tv_re, list):
+                        tv_re = [tv_re]
+                else:
+                    tv_re = []
 
-            job_cfg = {'job': rss_job, 'url': job_info.get('rssurl'), 'movie_type': ','.join(movie_type),
-                       'movie_re': ','.join(movie_re), 'tv_re': ','.join(tv_re),
-                       'signin_url': job_info.get('signin_url'), 'cookie': job_info.get('cookie')}
-            # 存入配置列表
-            rss_cfg_list.append(job_cfg)
+                job_cfg = {'job': rss_job, 'url': job_info.get('rssurl'), 'movie_type': ','.join(movie_type),
+                           'movie_re': ','.join(movie_re), 'tv_re': ','.join(tv_re),
+                           'signin_url': job_info.get('signin_url'), 'cookie': job_info.get('cookie')}
+                # 存入配置列表
+                rss_cfg_list.append(job_cfg)
 
         return render_template("main.html",
                                app_version=APP_VERSION,

@@ -619,7 +619,7 @@ class Media:
             else:
                 info = tvs[0]
                 for tv in tvs:
-                    if tv.first_air_date:
+                    if tv.get('first_air_date'):
                         if tv.name == file_media_name and tv.first_air_date[0:4] == media_year:
                             # 优先使用名称或者年份完全匹配的，匹配不到则取第一个
                             info = tv
@@ -630,8 +630,8 @@ class Media:
 
                 media_id = info.id
                 media_title = info.name
-                log.info(">剧集ID： %s ，剧集名称： %s ，上映日期：%s" % (str(info.id), info.name, info.first_air_date))
-                if info.first_air_date:
+                log.info(">剧集ID： %s ，剧集名称： %s ，上映日期：%s" % (str(info.id), info.name, info.get('first_air_date')))
+                if info.get('first_air_date'):
                     media_year = info.first_air_date[0:4]
                 backdrop_path = info.backdrop_path
                 vote_average = str(info.vote_average)

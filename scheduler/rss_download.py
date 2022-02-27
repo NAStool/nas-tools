@@ -113,9 +113,15 @@ class RSSDownloader:
                 log.error("【RSS】%s 未配置rssurl，跳过..." % str(rss_job))
                 continue
             movie_type = job_info['movie_type']
+            if not isinstance(movie_type, list):
+                movie_type = [movie_type]
             movie_res = job_info['movie_re']
+            if not isinstance(movie_res, list):
+                movie_res = [movie_res]
             log.info("【RSS】%s 电影规则清单：%s" % (rss_job, str(movie_res)))
             tv_res = job_info['tv_re']
+            if not isinstance(tv_res, list):
+                tv_res = [tv_res]
             log.info("【RSS】%s 电视剧规则清单：%s" % (rss_job, str(tv_res)))
             # 下载RSS
             log.info("【RSS】正在处理：%s" % rss_job)
