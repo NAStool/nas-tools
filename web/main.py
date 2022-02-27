@@ -290,6 +290,8 @@ def create_flask_app():
             sToken = config['message'].get('wechat', {}).get('Token')
             sEncodingAESKey = config['message'].get('wechat', {}).get('EncodingAESKey')
             sCorpID = config['message'].get('wechat', {}).get('corpid')
+            if not sToken or not sEncodingAESKey or not sCorpID:
+                return
             wxcpt = WXBizMsgCrypt(sToken, sEncodingAESKey, sCorpID)
             sVerifyMsgSig = request.args.get("msg_signature")
             sVerifyTimeStamp = request.args.get("timestamp")

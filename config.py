@@ -276,7 +276,7 @@ def check_config(config):
 
     pt_seeding_time = config['pt'].get('pt_seeding_time')
     if not pt_seeding_time:
-        log.warn("【RUN】pt_seeding_time未配置，自动删种功能要禁用！")
+        log.warn("【RUN】pt_seeding_time未配置，自动删种功能将禁用！")
     else:
         log.info("【RUN】PT保种时间设置为：" + str(round(pt_seeding_time / 3600)) + " 小时")
 

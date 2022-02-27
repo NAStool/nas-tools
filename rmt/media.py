@@ -411,7 +411,6 @@ class Media:
                     if Vote_Average and Vote_Average != '0':
                         msg_title = msg_title + " 评分：" + str(Vote_Average)
 
-                    msg_str = ""
                     if len(episode_ary) == 1:
                         # 只变更了一集
                         msg_str = "电视剧 %s 第%s季第%s集 转移完成，大小：%s，来自：%s" \
@@ -430,7 +429,7 @@ class Media:
                     if Exist_FileNum != 0:
                         msg_str = msg_str + "，覆盖了 %s 个文件" % str(Exist_FileNum)
                     # TODO
-                    self.message.sendmsg(msg_title, "\n".join(msg_str), Backdrop_Path)
+                    self.message.sendmsg(msg_title, msg_str, Backdrop_Path)
                 else:
                     log.error("【RMT】 %s  无法识别是什么类型的媒体文件！" % in_name)
                     self.message.sendmsg("【RMT】无法识别媒体类型！", "来源：%s \n种子名称：%s" % (in_from, in_name))

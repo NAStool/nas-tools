@@ -1,4 +1,4 @@
-# 全功能模式配置文件，适用于想做寿PT下载、识别转移、保种、Emby媒体库全自动解决方案的用户，有很多附属的功能，有WEBUI控制界面
+# 全功能模式配置文件，适用于想做做PT下载、识别转移、保种、搭建媒体库全自动解决方案的用户，有很多附属的功能，有WEBUI控制界面
 app:
   # 日志记录类型：SERVER、FILE、CONSOLE，如果是使用Docker安装建议留空或者设置为CONSOLE；如果是使用群晖套件建议配置为 SERVER，可将日志输出到群晖的日志中心便于查看；如果是python本地运行建议设置为FILE，保存日志到文件。
   logtype: CONSOLE
@@ -39,7 +39,7 @@ media:
 sync:
   # 监控目录，可以监控多个。监控目录有文件变化时会自动进行媒体识别、转移并命名
   # 配置格式1：'源目录|目的目录'，比如：'/mnt/movie1|/mnt/mymovie'，配了目的目录时，会转移到/mnt/mymovie目的目录中，不自动区分电影或电视剧。
-  # 配置格式2：'源目录'，比如：'/mnt/movie1'，目的目录不配时会自动识别是电影还是电视剧并转移到movie_path、tv_path目录（开了自动分类的话仍会进行自动分类）
+  # 配置格式2：'源目录'，比如：'/mnt/movie1'，目的目录不配时会自动识别是电影还是电视剧并转移到media中配置的movie_path、tv_path配置的目录中（开了自动分类的话会在该目录下进行二级目录分类）
   # 监控功能如果遇到启动报错：inotify instance limit reached，需在宿主机上命令行执行以下命令：
   # echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
   # echo fs.inotify.max_user_instances=524288 | sudo tee -a /etc/sysctl.conf
@@ -68,6 +68,7 @@ message:
     corpsecret:
     agentid:
     # 微信回调，用于在微信中控制本程序，需要在企业微信https://work.weixin.qq.com/中设置自建应用的菜单等。
+    # 步聚：1、在微信企业应用接收消息设置页面生成Token和EncodingAESKey并填入下面区域。2、重启本程序。3、在微信企业应用接收消息设置页面输入此地址：http(s)://ip:3000/wechat。需要有公网IP并做好端口转发，最好要有域名。
     Token:
     EncodingAESKey:
 
@@ -142,6 +143,7 @@ qbittorrent:
   # qBittorrent 登录用户名和密码
   qbusername: admin
   qbpassword: adminadmin
+  # 下面这两个配置问的人特别多，解释一下：save_path是nastool检索到需要新增下载时告诉qb下到哪个目录去，是传给qb的。save_containerpath是告诉nastool qb的下载路径对应在nastool里又是映射为什么路径，这样nastool才能通过这个路径访问到qb下载好的文件。
   # qBittorrent下载保存目录，如果是Docker版本的qb这个是容器内的路径。
   save_path:
   # 1、如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径；如果本程序不是Docker运行但qb是Docker运行，则设置为PT下载目录在宿主机上的真实路径。不是以上两种情况留空即可。
