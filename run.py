@@ -21,7 +21,7 @@ if __name__ == "__main__":
     print('【RUN】NASTool 当前版本号：%s' % APP_VERSION)
     # 尝试检查最新版本号
     try:
-        rets = requests.get(url='https://github.com/jxxghp/nas-tools/raw/master/version.py', timeout=10).text
+        rets = requests.get(url='https://github.com/jxxghp/nas-tools/raw/master/version.py', timeout=3).text
         if rets:
             latest_ver = re.search(r"=\s*'([v0-9.]+)'", rets, re.IGNORECASE)
             if latest_ver:
