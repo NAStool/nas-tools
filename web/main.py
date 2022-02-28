@@ -329,19 +329,19 @@ def create_flask_app():
                 return make_response("", 200)
             # 处理消息内容
             if content == "/ptr":
-                _thread.start_new_thread(AutoRemoveTorrents().run_schedule(), ())
+                _thread.start_new_thread(AutoRemoveTorrents().run_schedule, ())
             if content == "/ptt":
-                _thread.start_new_thread(PTTransfer().run_schedule(), ())
+                _thread.start_new_thread(PTTransfer().run_schedule, ())
             if content == "/hotm":
-                _thread.start_new_thread(HotTrailer().run_schedule(), ())
+                _thread.start_new_thread(HotTrailer().run_schedule, ())
             if content == "/pts":
-                _thread.start_new_thread(PTSignin().run_schedule(), ())
+                _thread.start_new_thread(PTSignin().run_schedule, ())
             if content == "/mrt":
                 _thread.start_new_thread(movie_trailer_all, ())
             if content == "/rst":
                 _thread.start_new_thread(sync_all, ())
             if content == "/rss":
-                _thread.start_new_thread(RSSDownloader().run_schedule(), ())
+                _thread.start_new_thread(RSSDownloader().run_schedule, ())
             else:
                 if content.startswith("http://") or content.startswith("https://") or content.startswith("magnet:"):
                     # 添加种子任务

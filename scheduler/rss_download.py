@@ -15,7 +15,6 @@ from pt.transmission import Transmission
 
 class RSSDownloader:
     __rss_cache_list = []
-    __rss_cache_name = []
     __running_flag = False
 
     __movie_subtypedir = True
@@ -65,10 +64,6 @@ class RSSDownloader:
             self.__running_flag = False
             log.error("【RUN】执行任务rssdownload出错：" + str(err))
             self.message.sendmsg("【NASTOOL】执行任务rssdownload出错！", str(err))
-
-    def reset_cache_list(self):
-        self.__rss_cache_list = []
-        self.__rss_cache_name = []
 
     @staticmethod
     def __parse_rssxml(url):
@@ -226,11 +221,6 @@ class RSSDownloader:
                         else:
                             media_name = media_title
                         if search_type == "电影":
-                            if media_name not in self.__rss_cache_name:
-                                self.__rss_cache_name.append(media_name)
-                            else:
-                                log.debug("【RSS】电影标题已处理过，跳过：%s" % media_name)
-                                continue
                             # 确认是否已存在
                             exist_flag = False
                             media_path = os.path.join(self.__movie_path, media_name)
