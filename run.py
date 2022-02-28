@@ -1,8 +1,13 @@
 import os
+import re
 from subprocess import call
 
+import requests
+from requests import RequestException
+
 import log
-from config import get_config, check_config, check_simple_config, APP_VERSION
+from config import get_config, check_config, check_simple_config
+from version import APP_VERSION
 from web import run as web
 from monitor import run as monitor
 from scheduler import run as scheduler
@@ -12,14 +17,22 @@ from multiprocessing import Process
 if __name__ == "__main__":
     # 参数
     os.environ['TZ'] = 'Asia/Shanghai'
-    print("【RUN】配置文件地址：" + os.environ['NASTOOL_CONFIG'])
-    if not os.path.exists(os.environ['NASTOOL_CONFIG']):
-        call(["cp", os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                 "config/config.yaml"),
-              os.environ['NASTOOL_CONFIG']])
-        print("【RUN】配置文件不存在，已将配置文件模板复制到配置目录，请修改后重新启动！")
-        quit()
-    print('【RUN】NASTool当前版本号：' + APP_VERSION)
+    print("【RUN】配置文件地址：%s" % os.environ['NASTOOL_CONFIG'])
+    print('【RUN】NASTool 当前版本号：%s' % APP_VERSION)
+    # 尝试检查最新版本号
+    try:
+        rets = requests.get(url='https://github.com/jxxghp/nas-tools/raw/master/version.py', timeout=10).text
+        if rets:
+            latest_ver = re.search(r"=\s*'([v0-9.]+)'", rets, re.IGNORECASE)
+            if latest_ver:
+                latest_ver = latest_ver.group(1)
+                if latest_ver:
+                    old_vernum = int(APP_VERSION.replace("v", "").replace(".", ""))
+                    new_vernum = int(latest_ver.replace("v", "").replace(".", ""))
+                    if new_vernum > old_vernum:
+                        print('【RUN】NASTool 有新的版本 %s，请进行升级！项目地址：https://github.com/jxxghp/nas-tools' % str(latest_ver))
+    except RequestException as err:
+        print('【RUN】无法访问在线地址获取最新版本号信息')
     # 检查配置文件
     cfg = get_config()
     simple_mode = cfg['app'].get('simple_mode')

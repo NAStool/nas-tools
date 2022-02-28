@@ -117,7 +117,7 @@ class Sync:
                     observer.start()
                     log.info("【RUN】%s 的monitor.media_sync启动..." % monpath)
                 else:
-                    log.error("【SYNC】" + sync_monpath + " 目录不存在！")
+                    log.error("【SYNC】%s 目录不存在！" % sync_monpath)
 
     # 关闭服务
     def stop_service(self):

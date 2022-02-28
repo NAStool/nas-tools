@@ -20,7 +20,7 @@ class ServerChan:
         try:
             if not self.__sckey:
                 return False, "参数未配置"
-            sc_url = "https://sctapi.ftqq.com/" + self.__sckey + ".send?" + urlencode(values)
+            sc_url = "https://sctapi.ftqq.com/%s.send?%s" % (self.__sckey, urlencode(values))
             res = requests.get(sc_url)
             if res:
                 ret_json = res.json()

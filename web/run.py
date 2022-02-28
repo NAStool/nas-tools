@@ -11,7 +11,7 @@ def run_web():
         app = FlaskApp()
 
         def signal_fun(signum, frame):
-            log.info("【RUN】webhook捕捉到信号：" + str(signum) + "，开始退出...")
+            log.info("【RUN】web捕捉到信号：" + str(signum) + "，开始退出...")
             sys.exit()
 
         signal.signal(signal.SIGTERM, signal_fun)

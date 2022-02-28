@@ -11,10 +11,13 @@ class Logger:
     __instance = None
 
     def __init__(self):
-        config = get_config()
         self.logger = logging.Logger(__name__)
         self.logger.setLevel(level=LOG_LEVEL)
-        logtype = config['app'].get('logtype', 'CONSOLE')
+        config = get_config()
+        if config.get('app'):
+            logtype = config['app'].get('logtype', 'CONSOLE')
+        else:
+            logtype = 'CONSOLE'
         if logtype == "FILE":
             # 记录日志到文件
             logpath = config['app'].get('logpath')

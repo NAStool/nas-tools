@@ -77,6 +77,7 @@ class Media:
                         log.info("【RMT】字幕 %s 已存在！" % new_file)
             if not find_flag:
                 log.debug("【RMT】没有相同文件名的字幕文件，不处理！")
+        return True
 
     # 转移蓝光文件夹
     '''
@@ -110,7 +111,6 @@ class Media:
                 log.info("【RMT】正在删除已存在的文件：%s" % new_file)
                 os.remove(new_file)
                 log.warn("【RMT】%s 已删除！" % new_file)
-
         # 复制文件
         log.info("【RMT】正在转移文件：%s 到 %s" % (file_item, new_file))
         if rmt_mode == "LINK":
@@ -123,9 +123,10 @@ class Media:
             log.info("【RMT】文件%s完成：%s" % (rmt_mod_str, new_file))
         else:
             log.error("【RMT】文件%s失败，错误码：%s" % (rmt_mod_str, str(retcode)))
+            return False
 
         # 处理字幕
-        self.__transfer_subtitles(file_item, new_file, rmt_mode)
+        return self.__transfer_subtitles(file_item, new_file, rmt_mode)
 
     # 转移识别媒体文件
     '''
@@ -229,10 +230,9 @@ class Media:
             Media_Pix = media['media_pix']
             Exist_FileNum = 0
             Media_FileSize = 0
-            Backdrop_Path = ""
             Vote_Average = ""
-            if media.get("backdrop_path"):
-                Backdrop_Path = "https://image.tmdb.org/t/p/w500" + media["backdrop_path"]
+            Backdrop_Path = self.get_backdrop_image(media["backdrop_path"])
+
             if media.get("vote_average"):
                 Vote_Average = media['vote_average']
 
@@ -292,16 +292,22 @@ class Media:
                     else:
                         new_file = os.path.join(media_path, Media_Title + Year_Str + file_ext)
                     if not os.path.exists(new_file):
+                        ret = self.__transfer_file(file_item, new_file, False, rmt_mode)
+                        if ret != 0:
+                            log.error("【RMT】文件操作失败，系统返回错误码：%s" % ret)
+                            return False
                         new_movie_flag = True
-                        self.__transfer_file(file_item, new_file, False, rmt_mode)
                     else:
                         Exist_FileNum = Exist_FileNum + 1
                         if rmt_mode != "LINK":
                             ExistFile_Size = os.path.getsize(new_file)
                             if Media_FileSize > ExistFile_Size:
                                 log.info("【RMT】文件 %s 已存在，但新文件质量更好，覆盖..." % new_file)
+                                ret = self.__transfer_file(file_item, new_file, True, rmt_mode)
+                                if ret != 0:
+                                    log.error("【RMT】文件操作失败，系统返回错误码：%s" % ret)
+                                    return False
                                 new_movie_flag = True
-                                self.__transfer_file(file_item, new_file, True, rmt_mode)
                             else:
                                 log.warn("【RMT】文件 %s 已存在，且质量更好！" % new_file)
                         else:
@@ -313,7 +319,7 @@ class Media:
                         return True
                     msg_title = Media_Title + Year_Str
                     if Vote_Average and Vote_Average != '0':
-                        msg_title = Media_Title + Year_Str + " 评分：" + str(Vote_Average)
+                        msg_title = Media_Title + Year_Str + " 评分：%s" % str(Vote_Average)
                     msg_str = "电影 %s 转移完成，大小：%s，来自：%s" \
                               % ((Media_Title + Year_Str), str_filesize(Media_FileSize), in_from)
                     if Exist_FileNum != 0:
@@ -365,7 +371,7 @@ class Media:
                     # Exx
                     file_seq = self.get_media_file_seq(file_name)
                     # 季 Season xx
-                    season_str = "Season " + str(int(file_season.replace("S", "")))
+                    season_str = "Season %s" % str(int(file_season.replace("S", "")))
                     season_dir = os.path.join(media_path, season_str)
                     # 集 xx
                     file_seq_num = str(int(file_seq.replace("E", "").replace("P", "")))
@@ -378,21 +384,27 @@ class Media:
                                             Media_Title + " - " + file_season + file_seq + " - " + "第 "
                                             + file_seq_num + " 集" + file_ext)
                     if not os.path.exists(new_file):
+                        ret = self.__transfer_file(file_item, new_file, False, rmt_mode)
+                        if ret != 0:
+                            log.error("【RMT】文件操作失败，系统返回错误码：%s" % ret)
+                            return False
                         if season_str not in season_ary:
                             season_ary.append(season_str)
                         if file_seq_num not in episode_ary:
                             episode_ary.append(file_seq_num)
-                        self.__transfer_file(file_item, new_file, False, rmt_mode)
                     else:
                         ExistFile_Size = os.path.getsize(new_file)
                         if rmt_mode != "LINK":
                             if Media_FileSize > ExistFile_Size:
                                 log.info("【RMT】文件 %s 已存在，但新文件质量更好，覆盖..." % new_file)
+                                ret = self.__transfer_file(file_item, new_file, True, rmt_mode)
+                                if ret != 0:
+                                    log.error("【RMT】文件操作失败，系统返回错误码：%s" % ret)
+                                    return False
                                 if season_str not in season_ary:
                                     season_ary.append(season_str)
                                 if file_seq_num not in episode_ary:
                                     episode_ary.append(file_seq_num)
-                                self.__transfer_file(file_item, new_file, True, rmt_mode)
                             else:
                                 Exist_FileNum = Exist_FileNum + 1
                                 log.warn("【RMT】文件  %s 已存在且质量更好，不处理！" % new_file)
@@ -409,7 +421,7 @@ class Media:
                     # 开始发送消息
                     msg_title = Media_Title + Year_Str
                     if Vote_Average and Vote_Average != '0':
-                        msg_title = msg_title + " 评分：" + str(Vote_Average)
+                        msg_title = msg_title + " 评分：%s" % str(Vote_Average)
 
                     if len(episode_ary) == 1:
                         # 只变更了一集
@@ -464,6 +476,9 @@ class Media:
         num_pos1 = num_pos2 = len(out_name)
         # 查找4位数字年份/分辨率的位置
         re_res1 = re.search(r"[\s.]+\d{4}[\s.-]+", out_name)
+        if not re_res1:
+            # 查找4K的位置
+            re_res1 = re.search(r"[\s.]+4K[\s.-]+", out_name)
         # 查找Sxx或Exx的位置
         re_res2 = re.search(r"[\s.]+[SE]P?\d{1,4}", out_name, re.IGNORECASE)
         if re_res1:
@@ -579,7 +594,7 @@ class Media:
                 movies = search.movies({"query": file_media_name, "year": media_year})
             else:
                 movies = search.movies({"query": file_media_name})
-            log.debug("【RMT】API返回：" + str(search.total_results))
+            log.debug("【RMT】API返回：%s" % str(search.total_results))
             if len(movies) == 0:
                 log.warn("【RMT】 %s  未找到媒体信息!" % file_media_name)
             else:
@@ -611,7 +626,7 @@ class Media:
                 tvs = search.tv_shows({"query": file_media_name, "year": media_year})
             else:
                 tvs = search.tv_shows({"query": file_media_name})
-            log.debug("【RMT】API返回：" + str(search.total_results))
+            log.debug("【RMT】API返回：%s" % str(search.total_results))
             if len(tvs) == 0:
                 log.error("【RMT】 %s 未找到媒体信息!" % file_media_name)
                 info = {}
@@ -652,7 +667,7 @@ class Media:
                 else:
                     # 国家
                     media_country = info.origin_country
-                    if 'CN' in media_country:
+                    if 'CN' in media_country or 'TW' in media_country:
                         media_type = "国产剧"
                     elif set(RMT_COUNTRY_EA).intersection(set(media_country)):
                         media_type = "欧美剧"
@@ -708,7 +723,7 @@ class Media:
             else:
                 search_type = "电影"
 
-        log.debug("【RMT】检索类型为：" + search_type)
+        log.debug("【RMT】检索类型为：%s" % search_type)
 
         # 传入的目名称来识别的媒体名称
         media_name = self.__get_pt_media_name(in_name)
@@ -810,8 +825,48 @@ class Media:
         movie = Movie()
         return movie.upcoming(page)
 
+    # 检查标题中是否匹配资源类型
+    # 返回：是否匹配，匹配的序号，匹配的值
+    @staticmethod
+    def check_resouce_types(t_title, t_types):
+        if t_types is None:
+            return False, 99, ""
+        c_seq = 0
+        for t_type in t_types:
+            c_seq = c_seq + 1
+            t_type = str(t_type)
+            if t_type.upper() == "BLURAY":
+                match_str = r'blu-?ray'
+            elif t_type.upper == "4K":
+                match_str = r'4k|2160p'
+            else:
+                match_str = t_type
+            re_res = re.search(match_str, t_title, re.IGNORECASE)
+            if re_res:
+                # 命中
+                return True, c_seq, t_type
 
-# 全量转移
+        return False, 99, ""
+
+    # 获取消息媒体图片
+    @staticmethod
+    def get_backdrop_image(backdrop_path):
+        # TODO 优先查找FANART的图片，没有再用TMDB的
+        if not backdrop_path:
+            return ""
+        return "https://image.tmdb.org/t/p/w500%s" % backdrop_path
+
+    # 从种子名称中获取季和集的数字
+    @staticmethod
+    def get_sestring_from_name(name):
+        re_res = re.search(r'([SEP]+\d{1,2}-?[SEP]*\d{0,2})', name, re.IGNORECASE)
+        if re_res:
+            return re_res.group(1).upper()
+        else:
+            return None
+
+
+# 全量转移，用于使用命令调用
 def transfer_all(s_path, t_path):
     if not s_path:
         return

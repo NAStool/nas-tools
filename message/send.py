@@ -19,7 +19,7 @@ class Message:
             self.serverchan = ServerChan()
 
     def sendmsg(self, title, text="", image=""):
-        log.info("【MSG】发送" + self.__msg_channel + "消息：title=" + title + "，text=" + text)
+        log.info("【MSG】发送%s消息：title=%s, text=%s" % (self.__msg_channel, title, text))
         if self.__msg_channel == "wechat":
             return self.wechat.send_wechat_msg(title, text, image)
         elif self.__msg_channel == "serverchan":

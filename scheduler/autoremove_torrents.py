@@ -4,8 +4,8 @@ from datetime import datetime
 import log
 from config import get_config
 from message.send import Message
-from rmt.qbittorrent import Qbittorrent
-from rmt.transmission import Transmission
+from pt.qbittorrent import Qbittorrent
+from pt.transmission import Transmission
 
 
 class AutoRemoveTorrents:

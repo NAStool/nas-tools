@@ -44,8 +44,8 @@ class PTSignin:
         if self.__pt_sites:
             for pt_task, task_info in self.__pt_sites.items():
                 log.info("【PT-SIGN】开始PT签到：" + pt_task)
-                pt_url = task_info['signin_url']
-                pt_cooke = task_info['cookie']
+                pt_url = task_info.get('signin_url')
+                pt_cooke = task_info.get('cookie')
                 if not pt_url or not pt_cooke:
                     log.error("【PT-SIGN】未配置 %s 的Url或Cookie，无法签到！" % str(pt_task))
                     continue

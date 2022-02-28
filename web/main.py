@@ -3,13 +3,14 @@ from flask import Flask, request, json, render_template, make_response, redirect
 import log
 from monitor.media_sync import sync_all
 from monitor.movie_trailer import movie_trailer_all
-from rmt.qbittorrent import Qbittorrent
-from rmt.transmission import Transmission
+from pt.qbittorrent import Qbittorrent
+from pt.transmission import Transmission
 from scheduler.autoremove_torrents import AutoRemoveTorrents
 from scheduler.hot_trailer import HotTrailer
 from scheduler.pt_signin import PTSignin
 from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
+from version import APP_VERSION
 from web.emby.discord import report_to_discord
 from web.emby.emby_event import EmbyEvent
 from message.send import Message
@@ -17,7 +18,7 @@ from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from config import WECHAT_MENU, get_config, PT_TRANSFER_INTERVAL, \
-    HOT_TRAILER_INTERVAL, save_config, APP_VERSION
+    HOT_TRAILER_INTERVAL, save_config
 from web.wechat.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
 

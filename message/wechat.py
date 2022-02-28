@@ -74,7 +74,7 @@ class WeChat(object):
             "msgtype": "text",
             "agentid": self.__agent_id,
             "text": {
-                "content": title + "\n\n" + text
+                "content": "%s\n\n%s" % (title, text)
             },
             "safe": 0,
             "enable_id_trans": 0,

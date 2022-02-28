@@ -42,7 +42,7 @@ class Trailer:
             year = rootNode.getElementsByTagName("releasedate")[0].firstChild.data[0:4]
             return tmdbid, title, year
         except Exception as err:
-            log.error("【TRAILER】解析nfo文件出错：" + str(err))
+            log.error("【TRAILER】解析nfo文件出错：%s" % str(err))
             return None, None, None
 
     # 下载预告片
@@ -69,7 +69,7 @@ class Trailer:
             log.info("【TRAILER】下载预告片：%s - %s" % (str(movie_id), movie_title))
             for video in movie_videos:
                 trailer_key = video.key
-                log.debug(">下载：" + trailer_key)
+                log.debug(">下载：%s" % trailer_key)
                 exec_cmd = YOUTUBE_DL_CMD.replace("$PATH", file_path).replace("$KEY", trailer_key)
                 log.debug(">开始执行命令：%s" % exec_cmd)
                 # 获取命令结果
@@ -83,7 +83,7 @@ class Trailer:
                 else:
                     break
         else:
-            log.info("【TRAILER】" + movie_title + " 未检索到预告片")
+            log.info("【TRAILER】%s 未检索到预告片" % movie_title)
             return False
         return True
 
@@ -92,7 +92,7 @@ class Trailer:
         global handler_files
         if not event.is_directory:  # 监控文件变化
             try:
-                log.debug("【TRAILER】" + text + "了文件: %s " % event_path)
+                log.debug("【TRAILER】%s了文件: %s " % (text, event_path))
                 if not os.path.exists(event_path):
                     return
                 name = os.path.basename(event_path)
