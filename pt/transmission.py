@@ -45,7 +45,7 @@ class Transmission:
                                           timeout=10)
             return trt
         except Exception as err:
-            log.error("transmission连接出错：%s" % str(err))
+            log.error("【TR】transmission连接出错：%s" % str(err))
             return None
 
     # 根据transmission的文件清单，获取种子的下载路径
@@ -87,14 +87,14 @@ class Transmission:
             return
         # 打标签
         self.trc.change_torrent(labels=["已整理"], ids=id_str)
-        log.info("【RMT】设置transmission种类状态成功！")
+        log.info("【TR】设置transmission种子标签成功！")
 
     # 处理transmission中的种子
     def transfer_transmission_task(self):
         # 处理所有任务
         torrents = self.get_transmission_torrents()
         for torrent in torrents:
-            log.debug("【RMT】" + torrent.name + "：" + torrent.status)
+            log.debug("【TR】" + torrent.name + "：" + torrent.status)
             if (torrent.status == "seeding" or torrent.status == "seed_pending") and "已整理" not in torrent.labels:
                 true_path = self.__get_tr_download_path(torrent.download_dir, torrent.files())
                 if self.__save_containerpath:
@@ -102,6 +102,8 @@ class Transmission:
                 done_flag = self.media.transfer_media(in_from="transmission", in_name=torrent.name, in_path=true_path)
                 if done_flag:
                     self.set_tr_torrent_status(torrent.id)
+                else:
+                    log.error("【TR】%s 转移失败：" % torrent.name)
 
     # 添加transmission任务
     def add_transmission_torrent(self, turl, tpath):

@@ -173,10 +173,11 @@ class RSSDownloader:
                     if not media_info:
                         log.error("【RSS】检索媒体信息出错！")
                         continue
+                    media_id = media_info["id"]
                     media_type = media_info["type"]
                     media_title = media_info["title"]
                     media_year = media_info["year"]
-                    backdrop_path = self.media.get_backdrop_image(media_info.get('backdrop_path'))
+                    backdrop_path = self.media.get_backdrop_image(media_info.get('backdrop_path'), media_id)
 
                     if media_info.get('vote_average'):
                         vote_average = media_info['vote_average']

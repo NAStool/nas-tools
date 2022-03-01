@@ -169,7 +169,12 @@ def sync_all():
                     try:
                         if file_name not in handler_files:
                             handler_files.append(file_name)
-                            Media().transfer_media(in_from="目录监控", in_name=file_name, in_path=file_path)
+                            ret = Media().transfer_media(in_from="目录监控", in_name=file_name, in_path=file_path)
+                            if not ret:
+                                log.error("【SYNC】%s 处理失败！" % file_path)
+                            else:
+                                log.info("【SYNC】%s 处理成功！" % file_path)
+
                     except Exception as err:
                         log.error("【SYNC】发生错误：%s" % str(err))
 

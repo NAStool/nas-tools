@@ -33,6 +33,8 @@ if __name__ == "__main__":
                         print('【RUN】NASTool 有新的版本 %s，请进行升级！项目地址：https://github.com/jxxghp/nas-tools' % str(latest_ver))
     except RequestException as err:
         print('【RUN】无法访问在线地址获取最新版本号信息')
+    except Exception as e:
+        log.debug("【RMT】无法访问在线地址获取最新版本号信息 %s" % str(e))
     # 检查配置文件
     cfg = get_config()
     simple_mode = cfg['app'].get('simple_mode')

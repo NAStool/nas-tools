@@ -2,12 +2,16 @@ import argparse
 import os
 import re
 import shutil
+
+import requests
+from requests import RequestException
+
 import log
 from tmdbv3api import TMDb, Search, Movie
 from subprocess import call
 
 from config import RMT_SUBEXT, get_config, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_COUNTRY_EA, RMT_COUNTRY_AS, \
-    RMT_MOVIETYPE
+    RMT_MOVIETYPE, FANART_API_URL
 from functions import get_dir_files_by_ext, is_chinese, str_filesize, get_free_space_gb
 from message.send import Message
 
@@ -86,31 +90,68 @@ class Media:
     '''
 
     def __transfer_bluray_dir(self, file_path, new_path, mv_flag=False, over_flag=False):
+        # 检查是不是正在处理目标文件
+        curr_transfile = os.environ.get('NASTOOL_CURR_TRANS_FILE')
+        if curr_transfile:
+            if curr_transfile.find(new_path) > 0:
+                log.error("【RMT】另一个进程正在处理此目录，本次操作取消：%s" % new_path)
+                return False
+            else:
+                os.environ['NASTOOL_CURR_TRANS_FILE'] = os.environ['NASTOOL_CURR_TRANS_FILE'] + new_path
+        else:
+            os.environ['NASTOOL_CURR_TRANS_FILE'] = new_path
+
         if over_flag:
             log.warn("【RMT】正在删除已存在的目录：%s" % new_path)
             shutil.rmtree(new_path)
             log.warn("【RMT】%s 已删除！" % new_path)
+        else:
+            if os.path.exists(new_path):
+                log.error("【RMT】目录已存在：%s" % new_path)
+                return False
 
         # 复制文件
         log.info("【RMT】正在复制目录：%s 到 %s" % (file_path, new_path))
         retcode = call(['cp -r', file_path, new_path])
+
+        # 清空记录
+        os.environ['NASTOOL_CURR_TRANS_FILE'] = os.environ['NASTOOL_CURR_TRANS_FILE'].replace(new_path, "")
+
         if retcode == 0:
             log.info("【RMT】文件复制完成：%s" % new_path)
         else:
             log.error("【RMT】文件复制失败，错误码：%s" % str(retcode))
+            return False
 
         if mv_flag:
             if file_path != self.__media_config.get('movie_path') and file_path != self.__media_config.get('tv_path'):
                 shutil.rmtree(file_path)
             log.info("【RMT】%s 已删除！" % file_path)
+        return True
 
     # 复制或者硬链接一个文件
     def __transfer_file(self, file_item, new_file, over_flag=False, rmt_mode="COPY"):
+        # 检查是不是正在处理目标文件
+        curr_transfile = os.environ.get('NASTOOL_CURR_TRANS_FILE')
+        if curr_transfile:
+            if curr_transfile.find(new_file) > 0:
+                log.error("【RMT】另一个进程正在处理此文件，本次操作取消：%s" % new_file)
+                return False
+            else:
+                os.environ['NASTOOL_CURR_TRANS_FILE'] = os.environ['NASTOOL_CURR_TRANS_FILE'] + new_file
+        else:
+            os.environ['NASTOOL_CURR_TRANS_FILE'] = new_file
+
         if over_flag and os.path.exists(new_file):
             if os.path.isfile(new_file):
                 log.info("【RMT】正在删除已存在的文件：%s" % new_file)
                 os.remove(new_file)
                 log.warn("【RMT】%s 已删除！" % new_file)
+        else:
+            if os.path.exists(new_file):
+                log.error("【RMT】文件已存在：%s" % new_file)
+                return False
+
         # 复制文件
         log.info("【RMT】正在转移文件：%s 到 %s" % (file_item, new_file))
         if rmt_mode == "LINK":
@@ -119,6 +160,9 @@ class Media:
         else:
             rmt_mod_str = "复制"
             retcode = call(['cp', file_item, new_file])
+        # 清除当前文件记录
+        os.environ['NASTOOL_CURR_TRANS_FILE'] = os.environ['NASTOOL_CURR_TRANS_FILE'].replace(new_file, "")
+
         if retcode == 0:
             log.info("【RMT】文件%s完成：%s" % (rmt_mod_str, new_file))
         else:
@@ -231,7 +275,7 @@ class Media:
             Exist_FileNum = 0
             Media_FileSize = 0
             Vote_Average = ""
-            Backdrop_Path = self.get_backdrop_image(media["backdrop_path"])
+            Backdrop_Path = self.get_backdrop_image(media["backdrop_path"], Media_Id)
 
             if media.get("vote_average"):
                 Vote_Average = media['vote_average']
@@ -269,8 +313,7 @@ class Media:
                     if not os.path.exists(media_path):
                         if bluray_disk_flag:
                             # 转移蓝光原盘
-                            self.__transfer_bluray_dir(file_item, media_path)
-                            return True
+                            return self.__transfer_bluray_dir(file_item, media_path)
                         else:
                             # 创建电影目录
                             log.debug("【RMT】正在创建目录：%s" % media_path)
@@ -293,9 +336,8 @@ class Media:
                         new_file = os.path.join(media_path, Media_Title + Year_Str + file_ext)
                     if not os.path.exists(new_file):
                         ret = self.__transfer_file(file_item, new_file, False, rmt_mode)
-                        if ret != 0:
-                            log.error("【RMT】文件操作失败，系统返回错误码：%s" % ret)
-                            return False
+                        if not ret:
+                            continue
                         new_movie_flag = True
                     else:
                         Exist_FileNum = Exist_FileNum + 1
@@ -304,9 +346,8 @@ class Media:
                             if Media_FileSize > ExistFile_Size:
                                 log.info("【RMT】文件 %s 已存在，但新文件质量更好，覆盖..." % new_file)
                                 ret = self.__transfer_file(file_item, new_file, True, rmt_mode)
-                                if ret != 0:
-                                    log.error("【RMT】文件操作失败，系统返回错误码：%s" % ret)
-                                    return False
+                                if not ret:
+                                    continue
                                 new_movie_flag = True
                             else:
                                 log.warn("【RMT】文件 %s 已存在，且质量更好！" % new_file)
@@ -385,9 +426,8 @@ class Media:
                                             + file_seq_num + " 集" + file_ext)
                     if not os.path.exists(new_file):
                         ret = self.__transfer_file(file_item, new_file, False, rmt_mode)
-                        if ret != 0:
-                            log.error("【RMT】文件操作失败，系统返回错误码：%s" % ret)
-                            return False
+                        if not ret:
+                            continue
                         if season_str not in season_ary:
                             season_ary.append(season_str)
                         if file_seq_num not in episode_ary:
@@ -398,9 +438,8 @@ class Media:
                             if Media_FileSize > ExistFile_Size:
                                 log.info("【RMT】文件 %s 已存在，但新文件质量更好，覆盖..." % new_file)
                                 ret = self.__transfer_file(file_item, new_file, True, rmt_mode)
-                                if ret != 0:
-                                    log.error("【RMT】文件操作失败，系统返回错误码：%s" % ret)
-                                    return False
+                                if not ret:
+                                    continue
                                 if season_str not in season_ary:
                                     season_ary.append(season_str)
                                 if file_seq_num not in episode_ary:
@@ -850,8 +889,21 @@ class Media:
 
     # 获取消息媒体图片
     @staticmethod
-    def get_backdrop_image(backdrop_path):
-        # TODO 优先查找FANART的图片，没有再用TMDB的
+    def get_backdrop_image(backdrop_path, tmdbid):
+        if tmdbid:
+            try:
+                ret = requests.get(FANART_API_URL % tmdbid)
+                if ret:
+                    moviethumbs = ret.json().get('moviethumb')
+                    if moviethumbs:
+                        moviethumb = moviethumbs[0].get('url')
+                        if moviethumb:
+                            # 有则返回FanArt的图片
+                            return moviethumb
+            except RequestException as e:
+                log.debug("【RMT】拉取FanArt图片出错：%s" % str(e))
+            except Exception as e:
+                log.debug("【RMT】拉取FanArt图片出错：%s" % str(e))
         if not backdrop_path:
             return ""
         return "https://image.tmdb.org/t/p/w500%s" % backdrop_path
@@ -885,11 +937,12 @@ def transfer_all(s_path, t_path):
         file_name = os.path.basename(file_path)
         print("【RMT】开始处理：%s" % file_path)
         try:
-            Media().transfer_media(in_from="PT", in_name=file_name, in_path=file_path, target_dir=t_path)
-            print("【RMT】处理完成：%s" % file_path)
+            ret = Media().transfer_media(in_from="PT", in_name=file_name, in_path=file_path, target_dir=t_path)
+            if not ret:
+                print("【RMT】%s 处理失败！" % file_path)
         except Exception as err:
             print("【RMT】发生错误：%s" % str(err))
-    print("【RMT】 %s  处理完成！" % s_path)
+    print("【RMT】%s 处理完成！" % s_path)
 
 
 if __name__ == "__main__":

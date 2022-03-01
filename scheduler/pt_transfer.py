@@ -27,7 +27,7 @@ class PTTransfer:
     def run_schedule(self):
         try:
             if self.__running_flag:
-                log.error("【RUN】pt_transfer任务正在执行中...")
+                log.warn("【RUN】pt_transfer任务正在执行中...")
             else:
                 if not self.__pt_client:
                     return

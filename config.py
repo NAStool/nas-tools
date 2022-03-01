@@ -40,9 +40,11 @@ HOT_TRAILER_INTERVAL = 86400
 # 单次检查多少个预告片数据
 HOT_TRAILER_INTERVAL_TOTAL = 100
 # PT转移文件检查时间间隔，默认5分钟
-PT_TRANSFER_INTERVAL = 60
+PT_TRANSFER_INTERVAL = 300
 # SYNC源目录与目的目录的配套关系
 SYNC_DIR_CONFIG = {}
+# fanart的api，用于拉取封面图片
+FANART_API_URL = 'http://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
 
 # 日志级别
 LOG_LEVEL = logging.INFO

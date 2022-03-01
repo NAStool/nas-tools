@@ -43,7 +43,7 @@ class Qbittorrent:
                                         VERIFY_WEBUI_CERTIFICATE=False)
             return qbt
         except Exception as err:
-            log.error("qBittorrent连接出错：%s" % str(err))
+            log.error("【QB】qBittorrent连接出错：%s" % str(err))
             return None
 
     # 读取所有种子信息
@@ -74,7 +74,7 @@ class Qbittorrent:
         self.qbc.torrents_add_tags("已整理", hash_str)
         # 超级做种
         self.qbc.torrents_set_force_start(True, hash_str)
-        log.info("【RMT】设置qBittorrent种类状态成功！")
+        log.info("【QB】设置qBittorrent种类状态成功！")
         self.qbc.auth_log_out()
 
     # 处理qbittorrent中的种子
@@ -82,7 +82,7 @@ class Qbittorrent:
         # 处理所有任务
         torrents = self.get_qbittorrent_torrents()
         for torrent in torrents:
-            log.debug("【RMT】" + torrent.name + "：" + torrent.state)
+            log.debug("【QB】" + torrent.name + "：" + torrent.state)
             if torrent.state == "uploading" or torrent.state == "stalledUP":
                 true_path = torrent.content_path
                 if self.__save_containerpath:
@@ -90,6 +90,8 @@ class Qbittorrent:
                 done_flag = self.media.transfer_media(in_from="qBittorrent", in_name=torrent.name, in_path=true_path)
                 if done_flag:
                     self.set_qb_torrent_status(torrent.hash)
+                else:
+                    log.error("【QB】%s 转移失败！" % torrent.name)
 
     # 添加qbittorrent任务
     def add_qbittorrent_torrent(self, turl, tpath):
