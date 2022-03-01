@@ -137,30 +137,42 @@ def create_flask_app():
     def main():
         # 读取定时服务配置
         scheduler_cfg_list = []
-        pt_check_interval = config['pt'].get('pt_check_interval')
-        if pt_check_interval:
-            tim_rssdownload = str(round(pt_check_interval / 60)) + "分"
-            rss_state = 'ON'
-        else:
-            tim_rssdownload = ""
-            rss_state = 'OFF'
-        scheduler_cfg_list.append(
-            {'name': 'RSS下载', 'time': tim_rssdownload, 'state': rss_state, 'id': 'rssdownload'})
-
-        tim_pttransfer = str(round(PT_TRANSFER_INTERVAL / 60)) + "分"
-        scheduler_cfg_list.append(
-            {'name': 'PT文件转移', 'time': tim_pttransfer, 'state': 'ON', 'id': 'pttransfer'})
-
-        pt_seeding_config_time = config['pt'].get('pt_seeding_time')
-        if pt_seeding_config_time:
-            pt_seeding_time = str(round(pt_seeding_config_time / 3600)) + "小时"
-            sta_autoremovetorrents = 'ON'
+        if config.get('pt'):
+            pt_check_interval = config['pt'].get('pt_check_interval')
+            if pt_check_interval:
+                tim_rssdownload = str(round(pt_check_interval / 60)) + "分"
+                rss_state = 'ON'
+            else:
+                tim_rssdownload = ""
+                rss_state = 'OFF'
             scheduler_cfg_list.append(
-                {'name': 'PT删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents,
-                 'id': 'autoremovetorrents'})
+                {'name': 'RSS下载', 'time': tim_rssdownload, 'state': rss_state, 'id': 'rssdownload'})
 
-        sync = config.get('sync')
-        if sync:
+            pt_monitor = config['pt'].get('pt_monitor')
+            if pt_monitor:
+                tim_pttransfer = str(round(PT_TRANSFER_INTERVAL / 60)) + "分"
+                sta_pttransfer = 'ON'
+            else:
+                tim_pttransfer = ""
+                sta_pttransfer = 'OFF'
+            scheduler_cfg_list.append(
+                {'name': 'PT文件转移', 'time': tim_pttransfer, 'state': sta_pttransfer, 'id': 'pttransfer'})
+
+            pt_seeding_config_time = config['pt'].get('pt_seeding_time')
+            if pt_seeding_config_time:
+                pt_seeding_time = str(round(pt_seeding_config_time / 3600)) + "小时"
+                sta_autoremovetorrents = 'ON'
+                scheduler_cfg_list.append(
+                    {'name': 'PT删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents,
+                     'id': 'autoremovetorrents'})
+
+            tim_ptsignin = config['pt'].get('ptsignin_cron')
+            if tim_ptsignin:
+                sta_ptsignin = 'ON'
+                scheduler_cfg_list.append(
+                    {'name': 'PT自动签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin'})
+
+        if config.get('sync'):
             sync_path = config['sync'].get('sync_path')
             if sync_path:
                 sta_sync = 'ON'
@@ -169,67 +181,61 @@ def create_flask_app():
                                            'state': sta_sync,
                                            'id': 'sync'})
 
-        tim_hottrailers = str(round(HOT_TRAILER_INTERVAL / 3600)) + "小时"
-        hottrailer_path = config['media'].get('hottrailer_path')
-        if hottrailer_path:
-            sta_hottrailers = 'ON'
-            scheduler_cfg_list.append({'name': '热门预告片',
-                                       'time': tim_hottrailers,
-                                       'state': sta_hottrailers,
-                                       'id': 'hottrailers'})
+        if config.get('media'):
+            tim_hottrailers = str(round(HOT_TRAILER_INTERVAL / 3600)) + "小时"
+            hottrailer_path = config['media'].get('hottrailer_path')
+            if hottrailer_path:
+                sta_hottrailers = 'ON'
+                scheduler_cfg_list.append({'name': '热门预告片',
+                                           'time': tim_hottrailers,
+                                           'state': sta_hottrailers,
+                                           'id': 'hottrailers'})
 
-        movie_trailer = config['media'].get('movie_trailer')
-        if movie_trailer:
-            sta_movietrailer = 'ON'
-            scheduler_cfg_list.append({'name': '本地电影预告',
-                                       'time': '实时监控',
-                                       'state': sta_movietrailer,
-                                       'id': 'movietrailer'})
-
-        tim_ptsignin = config['pt'].get('ptsignin_cron')
-        if tim_ptsignin:
-            sta_ptsignin = 'ON'
-            scheduler_cfg_list.append({'name': 'PT自动签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin'})
+            movie_trailer = config['media'].get('movie_trailer')
+            if movie_trailer:
+                sta_movietrailer = 'ON'
+                scheduler_cfg_list.append({'name': '本地电影预告',
+                                           'time': '实时监控',
+                                           'state': sta_movietrailer,
+                                           'id': 'movietrailer'})
 
         # 读取RSS配置
-        # 读取配置
         rss_cfg_list = []
-        rss_jobs = config['pt'].get('sites')
-        if rss_jobs:
-            for rss_job, job_info in rss_jobs.items():
-                # 读取子配置
-                movie_type = job_info.get('movie_type')
-                if movie_type:
-                    if not isinstance(movie_type, list):
-                        movie_type = [movie_type]
-                else:
-                    movie_type = []
+        if config.get('pt'):
+            rss_jobs = config['pt'].get('sites')
+            if rss_jobs:
+                for rss_job, job_info in rss_jobs.items():
+                    res_type = job_info.get('res_type')
+                    if res_type:
+                        if not isinstance(res_type, list):
+                            res_type = [res_type]
+                    else:
+                        res_type = []
 
-                movie_re = job_info.get('movie_re')
-                if movie_re:
-                    if not isinstance(movie_re, list):
-                        movie_re = [movie_re]
-                else:
-                    movie_re = []
+                    job_cfg = {'job': rss_job,
+                               'url': job_info.get('rssurl'),
+                               'signin_url': job_info.get('signin_url'),
+                               'cookie': job_info.get('cookie'),
+                               'res_type': ','.join(res_type)}
+                    # 存入配置列表
+                    rss_cfg_list.append(job_cfg)
 
-                tv_re = job_info.get('tv_re')
-                if tv_re:
-                    if not isinstance(tv_re, list):
-                        tv_re = [tv_re]
+        # 读取RSS关键字
+        keys_cfg_list = []
+        if config.get('pt'):
+            keys = config['pt'].get('keys')
+            if keys:
+                if not isinstance(keys, list):
+                    keys_cfg_list = [keys]
                 else:
-                    tv_re = []
-
-                job_cfg = {'job': rss_job, 'url': job_info.get('rssurl'), 'movie_type': ','.join(movie_type),
-                           'movie_re': ','.join(movie_re), 'tv_re': ','.join(tv_re),
-                           'signin_url': job_info.get('signin_url'), 'cookie': job_info.get('cookie')}
-                # 存入配置列表
-                rss_cfg_list.append(job_cfg)
+                    keys_cfg_list = keys
 
         return render_template("main.html",
                                app_version=APP_VERSION,
-                               page="rss",
+                               page="key",
                                scheduler_cfg_list=scheduler_cfg_list,
-                               rss_cfg_list=rss_cfg_list
+                               rss_cfg_list=rss_cfg_list,
+                               keys_cfg_list=','.join(keys_cfg_list)
                                )
 
     # 事件响应
@@ -281,6 +287,17 @@ def create_flask_app():
                     config['pt']['sites'].update(new_sites)
                 else:
                     config['pt']['sites'] = new_sites
+                # 保存
+                save_config(config)
+                return {"retcode": 0}
+
+            if cmd == "key":
+                pt_keys = data["pt_keys"]
+                if pt_keys.find(',') != -1:
+                    if pt_keys.endswith(','):
+                        pt_keys = pt_keys[0, -1]
+                    pt_keys = pt_keys.split(',')
+                config['pt']['keys'] = pt_keys
                 # 保存
                 save_config(config)
                 return {"retcode": 0}

@@ -17,10 +17,23 @@
 <body>
 <div class="container"><div class="tabbable">
 	<ul class="nav nav-tabs border" role="tablist" id="myTab">
-		<li class="nav-item"><a id="rss_tab" class="nav-link {% if page=='rss' %} active {% endif %}" href="#rss" data-toggle="tab" role="tab" aria-controls="rss" aria-selected="{% if page=='rss' %} true {% endif %}"><h6>订阅</h6></a></li>
+		<li class="nav-item"><a id="key_tab" class="nav-link {% if page=='key' %} active {% endif %}" href="#key" data-toggle="tab" role="tab" aria-controls="key" aria-selected="{% if page=='key' %} true {% endif %}"><h6>订阅</h6></a></li>
+		<li class="nav-item"><a id="rss_tab" class="nav-link {% if page=='rss' %} active {% endif %}" href="#rss" data-toggle="tab" role="tab" aria-controls="rss" aria-selected="{% if page=='rss' %} true {% endif %}"><h6>站点</h6></a></li>
 		<li class="nav-item"><a id="sch_tab" class="nav-link {% if page=='sch' %} active {% endif %}" href="#sch" data-toggle="tab" role="tab" aria-controls="sch" aria-selected="{% if page=='sch' %} true {% endif %}"><h6>服务</h6></a></li>
 	</ul>
 	<div class="tab-content" id="myTabContent">
+		<div class="tab-pane show {% if page=='key' %} active {% endif %}" id="key" role="tabpanel" aria-labelledby="key-tab">
+			<form role="form" action="/do" method="post" id="key_form" class="form-horizontal">
+				<fieldset>
+					<legend>订阅关键字</legend>
+				   <div class="row col-md-12">
+					   <input class="form-control input-large" data-role="tagsinput" id="pt_keys" name="pt_keys" type="text" placeholder="" value="{{ keys_cfg_list }}"/>
+				   </div>
+				</fieldset>
+				<br/>
+				<div style="text-align:center"><button id="key_btn" type="button" class="btn btn-primary">保存</button></div>
+			</form>
+		</div>
 		<div class="tab-pane show {% if page=='rss' %} active {% endif %}" id="rss" role="tabpanel" aria-labelledby="rss-tab">
 			<form role="form" action="/do" method="post" id="rss_form" class="form-horizontal">
 				{% for rss_cfg in rss_cfg_list %}
@@ -32,18 +45,8 @@
 						   <input class="form-control" id="{{ rss_cfg.job }}@rssurl" name="{{ rss_cfg.job }}@rssurl" type="text" placeholder="" value="{{ rss_cfg.url }}"/>
 					   </div>
 					   <div class="form-group col-md-6">
-						  <label class="control-label" for="{{ rss_cfg.job }}@movie_type">电影分类名</label>
-						   <input class="form-control" data-role="tagsinput" id="{{ rss_cfg.job }}@movie_type" name="{{ rss_cfg.job }}@movie_type" type="text" placeholder="" value="{{ rss_cfg.movie_type }}"/>
-					   </div>
-				   </div>
-				   <div class="row">
-					   <div class="form-group col-md-6">
-						  <label class="control-label" for="{{ rss_cfg.job }}@movie_re">电影关键字</label>
-						   <input class="form-control" data-role="tagsinput" id="{{ rss_cfg.job }}@movie_re" name="{{ rss_cfg.job }}@movie_re" type="text" placeholder="" value="{{ rss_cfg.movie_re }}"/>
-					   </div>
-					   <div class="form-group col-md-6">
-						  <label class="control-label" for="{{ rss_cfg.job }}@tv_re">电视剧关键字</label>
-						   <input class="form-control" data-role="tagsinput" id="{{ rss_cfg.job }}@tv_re" name="{{ rss_cfg.job }}@tv_re" type="text" placeholder="" value="{{ rss_cfg.tv_re }}"/>
+						  <label class="control-label" for="{{ rss_cfg.job }}@res_type">资源类型(BluRay 4k 1080p 720p)</label>
+						   <input class="form-control" data-role="tagsinput" id="{{ rss_cfg.job }}@res_type" name="{{ rss_cfg.job }}@res_type" type="text" placeholder="" value="{{ rss_cfg.res_type }}"/>
 					   </div>
 				   </div>
 					<div class="row">
@@ -58,7 +61,8 @@
 				   </div>
 				</fieldset>
 				{% endfor %}
-			  <div style="text-align:center"><button id="rss_btn" type="button" class="btn btn-primary">保存</button></div>
+				<br/>
+			  	<div style="text-align:center"><button id="rss_btn" type="button" class="btn btn-primary">保存</button></div>
 			</form>
 		</div>
 		<div class="tab-pane show {% if page=='sch' %} active {% endif %}" id="sch" role="tabpanel" aria-labelledby="sch-tab">

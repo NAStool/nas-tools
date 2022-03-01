@@ -70,8 +70,7 @@ class Sync:
 
                 # 查找目的目录
                 target_dir = SYNC_DIR_CONFIG.get(parent_dir)
-                if not self.media.transfer_media(in_from="目录监控", in_name=name,
-                                                 in_path=event_path, target_dir=target_dir):
+                if not self.media.transfer_media(in_from="目录监控", in_path=event_path, target_dir=target_dir):
                     log.error("【SYNC】%s 处理失败！" % event_path)
                 else:
                     log.info("【SYNC】%s 处理成功！" % event_path)
@@ -169,7 +168,7 @@ def sync_all():
                     try:
                         if file_name not in handler_files:
                             handler_files.append(file_name)
-                            ret = Media().transfer_media(in_from="目录监控", in_name=file_name, in_path=file_path)
+                            ret = Media().transfer_media(in_from="目录监控", in_path=file_path)
                             if not ret:
                                 log.error("【SYNC】%s 处理失败！" % file_path)
                             else:

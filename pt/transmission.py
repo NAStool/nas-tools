@@ -99,7 +99,7 @@ class Transmission:
                 true_path = self.__get_tr_download_path(torrent.download_dir, torrent.files())
                 if self.__save_containerpath:
                     true_path = true_path.replace(str(self.__save_path), str(self.__save_containerpath))
-                done_flag = self.media.transfer_media(in_from="transmission", in_name=torrent.name, in_path=true_path)
+                done_flag = self.media.transfer_media(in_from="transmission", in_path=true_path)
                 if done_flag:
                     self.set_tr_torrent_status(torrent.id)
                 else:
