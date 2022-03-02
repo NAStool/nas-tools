@@ -406,7 +406,6 @@ class Media:
                     log.info("【RMT】%s 转移完成！" % Media_Title)
 
                 elif Search_Type == "电视剧":
-
                     # 记录下来
                     if not finished_tv_medias.get(Title_Str):
                         finished_tv_medias[Title_Str] = {"Vote_Average": 0,
@@ -415,6 +414,10 @@ class Media:
                                                          "Episode_Ary": [],
                                                          "Total_Size": 0,
                                                          "Exist_Files": 0}
+                    # 评分
+                    finished_tv_medias[Title_Str]['Vote_Average'] = Vote_Average
+                    # 背景图
+                    finished_tv_medias[Title_Str]['Backdrop_Path'] = Backdrop_Path
 
                     if bluray_disk_flag:
                         log.error("【RMT】识别有误：蓝光原盘目录被识别为电视剧！")
@@ -459,6 +462,13 @@ class Media:
                     season_dir = os.path.join(media_path, season_str)
                     # 集 xx
                     file_seq_num = str(int(file_seq.replace("E", "").replace("P", ""))).strip()
+                    # 记录转移季数跟集数情况
+                    season_seq_str = season_str.replace("Season", "").strip()
+                    if season_seq_str not in finished_tv_medias[Title_Str].get('Season_Ary'):
+                        finished_tv_medias[Title_Str]['Season_Ary'].append(season_seq_str)
+                    file_seq_num_str = '%s-%s' % (season_seq_str, file_seq_num)
+                    if file_seq_num_str not in finished_tv_medias[Title_Str].get('Episode_Ary'):
+                        finished_tv_medias[Title_Str]['Episode_Ary'].append(file_seq_num_str)
                     # 创建目录
                     if not os.path.exists(season_dir):
                         log.debug("【RMT】正在创建剧集目录：%s" % season_dir)
@@ -480,19 +490,13 @@ class Media:
                                 if not ret:
                                     continue
                             else:
-                                finished_tv_medias[Title_Str]['Exist_Files'] = finished_tv_medias[Title_Str]['Exist_Files'] + 1
+                                finished_tv_medias[Title_Str]['Exist_Files'] = finished_tv_medias[Title_Str][
+                                                                                   'Exist_Files'] + 1
                                 log.warn("【RMT】文件 %s 已存在！" % new_file)
                                 continue
                         else:
                             log.warn("【RMT】文件 %s 已存在！" % new_file)
                             continue
-                    # 记录转移季数跟集数情况
-                    season_seq_str = season_str.replace("Season", "").strip()
-                    if season_seq_str not in finished_tv_medias[Title_Str].get('Season_Ary'):
-                        finished_tv_medias[Title_Str]['Season_Ary'].append(season_seq_str)
-                    file_seq_num_str = '%s-%s' % (season_seq_str, file_seq_num)
-                    if file_seq_num_str not in finished_tv_medias[Title_Str].get('Episode_Ary'):
-                        finished_tv_medias[Title_Str]['Episode_Ary'].append(file_seq_num_str)
                 else:
                     log.error("【RMT】%s 无法识别是什么类型的媒体文件！" % file_item)
                     failed_count = failed_count + 1
