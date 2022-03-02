@@ -167,11 +167,13 @@ RSS链接不要用错了，是下载客户端使用的那个。
 
 ## 使用
 1) WEB UI界面，可以修改配置、手工启动服务（仅全功能模式支持）
-![image](https://user-images.githubusercontent.com/51039935/155827426-e013dfe5-87dd-4cee-a0e4-56a1966a8fbd.png)
-![image](https://user-images.githubusercontent.com/51039935/155827403-537d8b29-94df-40fe-8f11-0c3c626646c0.png)
+![IMG_2792](https://user-images.githubusercontent.com/51039935/156369777-b01d8344-9e09-4c34-be62-d8e817274323.jpg)
+![IMG_2793](https://user-images.githubusercontent.com/51039935/156369818-3958f833-bc7f-4380-9fec-59556c8a9dc7.jpg)
+
 
 2) 手机端图文通知和控制界面，控制服务运行（输入命令或者点击菜单）
-![IMG_2768](https://user-images.githubusercontent.com/51039935/155554473-a505dc3d-f5e4-46c5-8b3c-59aa8edda2a2.jpeg)
+![IMG_2791](https://user-images.githubusercontent.com/51039935/156369908-36c6ca9d-fa7f-4d27-9551-ed490ef18eda.jpg)
+
 
 3) 效果
 ![image](https://user-images.githubusercontent.com/51039935/153886867-50a3debd-e982-4723-974b-04ba16f732b1.png)
