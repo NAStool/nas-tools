@@ -521,8 +521,6 @@ class Media:
                              str_filesize(item_info.get('Total_Size')),
                              in_from)
             else:
-                item_info.get('Season_Ary').sort()
-                item_info.get('Episode_Ary').sort(key=int)
                 msg_str = "电视剧 %s 转移完成，共 %s 季 %s 集，总大小：%s，来自：%s" % \
                           (title_str,
                            len(item_info.get('Season_Ary')),
