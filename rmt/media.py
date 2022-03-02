@@ -107,7 +107,7 @@ class Media:
             log.warn("【RMT】%s 已删除！" % new_path)
         else:
             if os.path.exists(new_path):
-                log.error("【RMT】目录已存在：%s" % new_path)
+                log.warn("【RMT】目录已存在：%s" % new_path)
                 return False
 
         # 复制文件
@@ -182,7 +182,7 @@ class Media:
                 log.warn("【RMT】%s 已删除！" % new_file)
         else:
             if os.path.exists(new_file):
-                log.error("【RMT】文件已存在：%s" % new_file)
+                log.warn("【RMT】文件已存在：%s" % new_file)
                 return False
 
         # 复制文件
@@ -714,7 +714,7 @@ class Media:
                 tvs = search.tv_shows({"query": file_media_name})
             log.debug("【RMT】API返回：%s" % str(search.total_results))
             if len(tvs) == 0:
-                log.error("【RMT】%s 未找到媒体信息!" % file_media_name)
+                log.warn("【RMT】%s 未找到媒体信息!" % file_media_name)
                 info = {}
             else:
                 info = tvs[0]
@@ -818,7 +818,7 @@ class Media:
                     tmp_path = os.path.basename(os.path.dirname(file_path))
                     file_media_name = self.__get_pt_media_name(tmp_path)
             if not file_media_name:
-                log.error("【RMT】文件 %s 无法识别到标题！" % file_path)
+                log.warn("【RMT】文件 %s 无法识别到标题！" % file_path)
                 continue
 
             # 确定是电影还是电视剧

@@ -291,7 +291,7 @@ class RSSDownloader:
                                     log.debug("【RSS】路径：" + file_path + ext)
                                     if os.path.exists(file_path + ext):
                                         exist_flag = True
-                                        log.error("【RSS】该剧集文件已存在，跳过：%s" % (file_path + ext))
+                                        log.warn("【RSS】该剧集文件已存在，跳过：%s" % (file_path + ext))
                                         break
                                 if exist_flag:
                                     continue
