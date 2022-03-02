@@ -66,7 +66,16 @@ class Transmission:
         path_list = []
         for torrent in torrents:
             log.debug(torrent.name + "：" + torrent.status)
-            if (torrent.status == "seeding" or torrent.status == "seed_pending") and "已整理" not in torrent.labels:
+            # 3.0版本以下的Transmission没有labels
+            label = ""
+            handlered_flag = False
+            try:
+                label = torrent.labels
+            except Exception as e:
+                log.warn("【TR】当前transmission版本可能过低，请安装3.0以上版本！")
+            if label and "已整理" in label:
+                handlered_flag = True
+            if (torrent.status == "seeding" or torrent.status == "seed_pending") and not handlered_flag:
                 true_path = self.__get_tr_download_path(torrent.download_dir, torrent.files())
                 if self.__save_containerpath:
                     true_path = true_path.replace(str(self.__save_path), str(self.__save_containerpath))

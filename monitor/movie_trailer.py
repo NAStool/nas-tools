@@ -115,9 +115,9 @@ class Trailer:
                     # 下载预告片
                     if not self.download_movie_trailer(event_path):
                         handler_files.remove(event_path)
-                        log.info("【TRAILER】 %s 预告片下载失败！" % event_path)
+                        log.info("【TRAILER】%s 预告片下载失败！" % event_path)
                     else:
-                        log.info("【TRAILER】 %s 预告片下载成功！" % event_path)
+                        log.info("【TRAILER】%s 预告片下载成功！" % event_path)
                 else:
                     log.debug("【TRAILER】预告片下载已处理过：%s" % name)
             except Exception as e:

@@ -62,7 +62,6 @@ class RSSDownloader:
         except Exception as err:
             self.__running_flag = False
             log.error("【RUN】执行任务rssdownload出错：" + str(err))
-            self.message.sendmsg("【NASTOOL】执行任务rssdownload出错！", str(err))
 
     @staticmethod
     def __parse_rssxml(url):
@@ -104,13 +103,26 @@ class RSSDownloader:
         if not sites:
             return
         log.info("【RSS】开始RSS订阅...")
-        keys = pt.get('keys')
-        if not keys:
-            log.warn("【RSS】未配置订阅关键字，不处理！")
+
+        # 读取关键字配置
+        movie_keys = pt.get('movie_keys')
+        if not movie_keys:
+            log.warn("【RSS】未配置电影订阅关键字！")
+        else:
+            if not isinstance(movie_keys, list):
+                movie_keys = [movie_keys]
+            log.info("【RSS】电影订阅规则清单：%s" % " ".join('%s' % key for key in movie_keys))
+
+        tv_keys = pt.get('tv_keys')
+        if not tv_keys:
+            log.warn("【RSS】未配置电视剧订阅关键字！")
+        else:
+            if not isinstance(tv_keys, list):
+                tv_keys = [tv_keys]
+            log.info("【RSS】电视剧订阅规则清单：%s" % " ".join('%s' % key for key in tv_keys))
+
+        if not movie_keys and not tv_keys:
             return
-        if not isinstance(keys, list):
-            keys = [keys]
-        log.info("【RSS】订阅规则清单：%s" % " ".join(keys))
 
         self.__running_flag = True
         # 保存命中的资源信息
@@ -136,7 +148,6 @@ class RSSDownloader:
             for res in rss_result:
                 try:
                     title = res['title']
-                    category = res['category']
                     enclosure = res['enclosure']
                     # 判断是否处理过
                     if enclosure not in self.__rss_cache_list:
@@ -144,15 +155,6 @@ class RSSDownloader:
                     else:
                         log.debug("【RSS】%s 已处理过，跳过..." % title)
                         continue
-
-                    # 按种子标题匹配
-                    match_flag = False
-                    for key in keys:
-                        if re.search(key, title):
-                            match_flag = True
-                            break
-                    if match_flag:
-                        log.info("【RSS】%s 种子标题匹配成功!" % title)
 
                     log.info("【RSS】开始检索媒体信息:" + title)
 
@@ -176,7 +178,6 @@ class RSSDownloader:
 
                     media_id = media_info["id"]
                     if media_id == "0":
-                        log.error("【RSS】%s 未检索到媒体信息！" % title)
                         continue
 
                     media_type = media_info["type"]
@@ -192,13 +193,43 @@ class RSSDownloader:
                         log.info("【RSS】该媒体在TMDB中没有中文描述，跳过：%s" % media_title)
                         continue
 
-                    # 种子标题没匹配成功，匹配媒体信息标题是否匹配关键字
-                    if not match_flag:
-                        for key in keys:
-                            if key == media_title:
-                                log.info("【RSS】%s 媒体名称匹配成功!" % title)
+                    match_flag = False
+                    # 按种子标题匹配
+                    if search_type == "电影":
+                        # 按电影匹配
+                        for key in movie_keys:
+                            if re.search(str(key), title):
                                 match_flag = True
                                 break
+                        if match_flag:
+                            log.info("【RSS】电影 %s 种子标题匹配成功!" % title)
+                    else:
+                        # 按电视剧匹配
+                        for key in tv_keys:
+                            if re.search(str(key), title):
+                                match_flag = True
+                                break
+                        if match_flag:
+                            log.info("【RSS】电视剧 %s 种子标题匹配成功!" % title)
+
+                    # 按媒体信息匹配
+                    if not match_flag:
+                        if search_type == "电影":
+                            # 按电影匹配
+                            for key in movie_keys:
+                                if str(key) == media_title:
+                                    match_flag = True
+                                    break
+                            if match_flag:
+                                log.info("【RSS】电影 %s 媒体名称匹配成功!" % media_title)
+                        else:
+                            # 按电视剧匹配
+                            for key in tv_keys:
+                                if str(key) == media_title:
+                                    match_flag = True
+                                    break
+                            if match_flag:
+                                log.info("【RSS】电视剧 %s 媒体名称匹配成功!" % media_title)
 
                     # 匹配后，看资源类型是否满足
                     # 代表资源类型在配置中的优先级顺序
@@ -207,6 +238,8 @@ class RSSDownloader:
                     if match_flag and res_type:
                         # 确定标题中是否有资源类型关键字，并返回关键字的顺序号
                         match_flag, res_order, res_typestr = self.media.check_resouce_types(title, res_type)
+                        if not match_flag:
+                            log.info("【RSS】%s 资源类型不匹配！" % title)
 
                     # 判断在媒体库中是否已存在...
                     if match_flag:

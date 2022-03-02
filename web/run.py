@@ -21,4 +21,3 @@ def run_web():
 
     except Exception as err:
         log.error("【RUN】启动web服务失败：" + str(err))
-        Message().sendmsg("【NASTOOL】启动web服务失败！", str(err))

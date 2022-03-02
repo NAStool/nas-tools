@@ -25,9 +25,16 @@
 		<div class="tab-pane show {% if page=='key' %} active {% endif %}" id="key" role="tabpanel" aria-labelledby="key-tab">
 			<form role="form" action="/do" method="post" id="key_form" class="form-horizontal">
 				<fieldset>
-					<legend>订阅关键字</legend>
-				   <div class="row col-md-12">
-					   <input class="form-control input-large" data-role="tagsinput" id="pt_keys" name="pt_keys" type="text" placeholder="" value="{{ keys_cfg_list }}"/>
+					<legend>关键字</legend>
+					<div class="row">
+					   <div class="form-group col-md-6">
+						  <label class="control-label" for="movie_keys">电影</label>
+						   <input class="form-control" data-role="tagsinput" id="movie_keys" name="movie_keys" type="text" placeholder="" value="{{ movie_key_list }}"/>
+					   </div>
+					   <div class="form-group col-md-6">
+						  <label class="control-label" for="tv_keys">电视剧</label>
+						   <input class="form-control" data-role="tagsinput" id="tv_keys" name="tv_keys" type="text" placeholder="" value="{{ tv_key_list }}"/>
+					   </div>
 				   </div>
 				</fieldset>
 				<br/>

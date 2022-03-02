@@ -62,7 +62,6 @@ class FlaskApp:
                 )
         except Exception as err:
             log.error("【RUN】启动web服务失败：%s" % str(err))
-            self.message.sendmsg("【NASTOOL】启动web服务失败！", str(err))
 
 
 def create_flask_app():
@@ -216,26 +215,36 @@ def create_flask_app():
                                'url': job_info.get('rssurl'),
                                'signin_url': job_info.get('signin_url'),
                                'cookie': job_info.get('cookie'),
-                               'res_type': ','.join(res_type)}
+                               'res_type': ','.join('%s' % key for key in res_type)}
                     # 存入配置列表
                     rss_cfg_list.append(job_cfg)
 
         # 读取RSS关键字
-        keys_cfg_list = []
+        movie_key_list = []
         if config.get('pt'):
-            keys = config['pt'].get('keys')
-            if keys:
-                if not isinstance(keys, list):
-                    keys_cfg_list = [keys]
+            movie_keys = config['pt'].get('movie_keys')
+            if movie_keys:
+                if not isinstance(movie_keys, list):
+                    movie_key_list = [movie_keys]
                 else:
-                    keys_cfg_list = keys
+                    movie_key_list = movie_keys
+
+        tv_key_list = []
+        if config.get('pt'):
+            tv_keys = config['pt'].get('tv_keys')
+            if tv_keys:
+                if not isinstance(tv_keys, list):
+                    tv_key_list = [tv_keys]
+                else:
+                    tv_key_list = tv_keys
 
         return render_template("main.html",
                                app_version=APP_VERSION,
                                page="key",
                                scheduler_cfg_list=scheduler_cfg_list,
                                rss_cfg_list=rss_cfg_list,
-                               keys_cfg_list=','.join(keys_cfg_list)
+                               movie_key_list=','.join('%s' % key for key in movie_key_list),
+                               tv_key_list=','.join('%s' % key for key in tv_key_list)
                                )
 
     # 事件响应
@@ -292,12 +301,20 @@ def create_flask_app():
                 return {"retcode": 0}
 
             if cmd == "key":
-                pt_keys = data["pt_keys"]
-                if pt_keys.find(',') != -1:
-                    if pt_keys.endswith(','):
-                        pt_keys = pt_keys[0, -1]
-                    pt_keys = pt_keys.split(',')
-                config['pt']['keys'] = pt_keys
+                movie_keys = data["movie_keys"]
+                # 电影关键字
+                if movie_keys.find(',') != -1:
+                    if movie_keys.endswith(','):
+                        movie_keys = movie_keys[0, -1]
+                    movie_keys = movie_keys.split(',')
+                config['pt']['movie_keys'] = movie_keys
+                # 电视剧关键字
+                tv_keys = data["tv_keys"]
+                if tv_keys.find(',') != -1:
+                    if tv_keys.endswith(','):
+                        tv_keys = tv_keys[0, -1]
+                    tv_keys = tv_keys.split(',')
+                config['pt']['tv_keys'] = tv_keys
                 # 保存
                 save_config(config)
                 return {"retcode": 0}

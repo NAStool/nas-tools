@@ -38,7 +38,6 @@ class PTTransfer:
         except Exception as err:
             self.__running_flag = False
             log.error("【RUN】执行任务pt_transfer出错：%s" % str(err))
-            self.message.sendmsg("【NASTOOL】执行任务pt_transfer出错！", str(err))
 
     def __qb_transfer(self):
         log.info("【QB-TRANSFER】qb_transfer开始...")

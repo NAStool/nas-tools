@@ -21,7 +21,6 @@ class PTSignin:
             self.__ptsignin()
         except Exception as err:
             log.error("【RUN】执行任务ptsignin出错：%s" % str(err))
-            self.message.sendmsg("【NASTOOL】执行任务ptsignin出错！", str(err))
 
     @staticmethod
     def __signin(name, url, cookie):

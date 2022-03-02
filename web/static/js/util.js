@@ -56,7 +56,7 @@ $(document).ready(function(){
 	// 保存KEY按钮
 	$("#key_btn").click(function(){
 	    var cmd = "key";
-	    var param = {"pt_keys": $("#pt_keys").val()};
+	    var param = {"movie_keys": $("#movie_keys").val(), "tv_keys": $("#tv_keys").val()};
 	    $("#key_btn").text("正在处理...");
 	    $("#key_btn").attr("disabled", "true");
 	    ajax_post(cmd, param, function(ret){

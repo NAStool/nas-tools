@@ -34,7 +34,6 @@ class AutoRemoveTorrents:
                 self.tr_removetorrents(self.__seeding_time)
         except Exception as err:
             log.error("【RUN】执行任务autoremovetorrents出错：%s" % str(err))
-            self.message.sendmsg("【NASTOOL】执行任务autoremovetorrents出错！", str(err))
 
     def qb_removetorrents(self, seeding_time):
         if not self.qbittorrent:

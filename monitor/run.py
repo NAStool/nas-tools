@@ -31,4 +31,3 @@ def run_monitor():
 
     except Exception as err:
         log.error("【RUN】启动monitor失败：" + str(err))
-        Message().sendmsg("【NASTOOL】启动monitor失败！", str(err))

@@ -33,7 +33,6 @@ class HotTrailer:
         except Exception as err:
             self.__runing_flag = False
             log.error("【RUN】执行任务hottrailers出错：%s" % str(err))
-            self.message.sendmsg("【NASTOOL】执行任务hottrailers出错！%s" % str(err))
 
     # 将预告目录中的预告片转移到电影目录，如果存在对应的电影了的话
     def transfer_trailers(self, in_path):
