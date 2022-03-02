@@ -1,8 +1,6 @@
-import atexit
 import signal
 import sys
 import log
-from message.send import Message
 from web.main import FlaskApp
 
 

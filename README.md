@@ -21,7 +21,7 @@ TG交流：https://t.me/nastool_chat
 * 支持ServerChan、微信、Telegram等图文消息通知， 新增下载转移状态推送消息到手机上，还能在手机上控制服务运行。
 
 ### 4、其它
-* PT站自动签到，电影预告片搜刮和下载，Emby播放状态通知等等。
+* PT站自动签到、Emby播放状态通知等等。
 
 
 ## 更新日志
@@ -139,8 +139,6 @@ RSS链接不要用错了，是下载客户端使用的那个。
    | /ptt  | PT文件转移 |
    | /ptr  | PT删种 |
    | /pts | PT自动签到 |
-   | /hotm  | 热门预告片 |
-   | /mrt  | 本地电影预告 |
    | /rst  | 资源同步 |
    
    ![image](https://user-images.githubusercontent.com/51039935/155314403-f5e9836b-abea-47f7-af0c-6f74edb16d3b.png)

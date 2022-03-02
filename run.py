@@ -1,10 +1,7 @@
 import os
 import re
-from subprocess import call
-
 import requests
 from requests import RequestException
-
 import log
 from config import get_config, check_config, check_simple_config
 from version import APP_VERSION

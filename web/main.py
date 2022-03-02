@@ -2,11 +2,9 @@ import _thread
 from flask import Flask, request, json, render_template, make_response, redirect
 import log
 from monitor.media_sync import sync_all
-from monitor.movie_trailer import movie_trailer_all
 from pt.qbittorrent import Qbittorrent
 from pt.transmission import Transmission
 from scheduler.autoremove_torrents import AutoRemoveTorrents
-from scheduler.hot_trailer import HotTrailer
 from scheduler.pt_signin import PTSignin
 from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
@@ -17,8 +15,7 @@ from message.send import Message
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from config import WECHAT_MENU, get_config, PT_TRANSFER_INTERVAL, \
-    HOT_TRAILER_INTERVAL, save_config
+from config import WECHAT_MENU, get_config, PT_TRANSFER_INTERVAL, save_config
 from web.wechat.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
 
@@ -180,24 +177,6 @@ def create_flask_app():
                                            'state': sta_sync,
                                            'id': 'sync'})
 
-        if config.get('media'):
-            tim_hottrailers = str(round(HOT_TRAILER_INTERVAL / 3600)) + "小时"
-            hottrailer_path = config['media'].get('hottrailer_path')
-            if hottrailer_path:
-                sta_hottrailers = 'ON'
-                scheduler_cfg_list.append({'name': '热门预告片',
-                                           'time': tim_hottrailers,
-                                           'state': sta_hottrailers,
-                                           'id': 'hottrailers'})
-
-            movie_trailer = config['media'].get('movie_trailer')
-            if movie_trailer:
-                sta_movietrailer = 'ON'
-                scheduler_cfg_list.append({'name': '本地电影预告',
-                                           'time': '实时监控',
-                                           'state': sta_movietrailer,
-                                           'id': 'movietrailer'})
-
         # 读取RSS配置
         rss_cfg_list = []
         if config.get('pt'):
@@ -259,12 +238,8 @@ def create_flask_app():
                     AutoRemoveTorrents().run_schedule()
                 if sch_item == "btn_pttransfer":
                     PTTransfer().run_schedule()
-                if sch_item == "btn_hottrailers":
-                    HotTrailer().run_schedule()
                 if sch_item == "btn_ptsignin":
                     PTSignin().run_schedule()
-                if sch_item == "btn_movietrailer":
-                    movie_trailer_all()
                 if sch_item == "btn_sync":
                     sync_all()
                 if sch_item == "btn_rssdownload":
@@ -366,12 +341,8 @@ def create_flask_app():
                 _thread.start_new_thread(AutoRemoveTorrents().run_schedule, ())
             if content == "/ptt":
                 _thread.start_new_thread(PTTransfer().run_schedule, ())
-            if content == "/hotm":
-                _thread.start_new_thread(HotTrailer().run_schedule, ())
             if content == "/pts":
                 _thread.start_new_thread(PTSignin().run_schedule, ())
-            if content == "/mrt":
-                _thread.start_new_thread(movie_trailer_all, ())
             if content == "/rst":
                 _thread.start_new_thread(sync_all, ())
             if content == "/rss":

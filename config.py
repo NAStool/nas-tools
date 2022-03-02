@@ -10,9 +10,8 @@ import log
 
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
 # 菜单序号在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护，然后看日志输出的菜单序号是啥（按顺利能猜到的）....
-# 命令对应关系：/qbt qBittorrent转移；/qbr qBittorrent删种；/hotm 热门预告；/pts PT签到；/mrt 预告片下载；/rst ResilioSync同步；/rss RSS下载
-WECHAT_MENU = {'_0_0': '/ptt', '_0_1': '/ptr', '_0_2': '/rss', '_0_3': '/hotm', '_0_4': '/mrt', '_1_0': '/rst',
-               '_2_0': '/pts'}
+# 命令对应关系：/ptt qBittorrent转移；/ptr qBittorrent删种；/pts PT签到；/rst ResilioSync同步；/rss RSS下载
+WECHAT_MENU = {'_0_0': '/ptt', '_0_1': '/ptr', '_0_2': '/rss', '_1_0': '/rst', '_2_0': '/pts'}
 # 电影类型，目前不能修改
 RMT_MOVIETYPE = ['华语电影', '外语电影', '精选']
 # 收藏了的媒体的目录名，名字可以改，在Emby中点击红星则会自动将电影转移到此分类下，需要在Emby Webhook中配置用户行为通知
@@ -35,10 +34,6 @@ YOUTUBE_DL_CMD = 'youtube-dl -o "$PATH" "https://www.youtube.com/watch?v=$KEY"'
 
 # PT删除检查时间间隔，默认10分钟
 AUTO_REMOVE_TORRENTS_INTERVAL = 600
-# 最橷预告片更新检查时间间隔，默认24小时
-HOT_TRAILER_INTERVAL = 86400
-# 单次检查多少个预告片数据
-HOT_TRAILER_INTERVAL_TOTAL = 100
 # PT转移文件检查时间间隔，默认5分钟
 PT_TRANSFER_INTERVAL = 300
 # SYNC源目录与目的目录的配套关系
@@ -200,16 +195,6 @@ def check_config(config):
     elif not os.path.exists(tv_path):
         log.error("【RUN】tv_path目录不存在，程序无法启动：%s" % tv_path)
         return False
-
-    hottrailer_path = config['media'].get('hottrailer_path')
-    if not hottrailer_path:
-        log.warn("【RUN】未配置hottrailer_path，最新预告下载功能将禁用")
-    elif not os.path.exists(hottrailer_path):
-        log.warn("【RUN】hottrailer_path目录不存，最新预告下载功能将禁用：%s" % hottrailer_path)
-
-    movie_trailer = config['media'].get('movie_trailer')
-    if not movie_trailer:
-        log.warn("【RUN】本地电影预告功能已关闭")
 
     movie_subtypedir = config['media'].get('movie_subtypedir', True)
     if not movie_subtypedir:

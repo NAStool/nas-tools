@@ -1,13 +1,11 @@
 import atexit
-import os.path
 import signal
 import sys
 
 from apscheduler.schedulers.blocking import BlockingScheduler
 import log
-from config import get_config, AUTO_REMOVE_TORRENTS_INTERVAL, HOT_TRAILER_INTERVAL, load_config, PT_TRANSFER_INTERVAL
+from config import get_config, AUTO_REMOVE_TORRENTS_INTERVAL, load_config, PT_TRANSFER_INTERVAL
 from scheduler.autoremove_torrents import AutoRemoveTorrents
-from scheduler.hot_trailer import HotTrailer
 from scheduler.pt_signin import PTSignin
 from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
@@ -30,14 +28,6 @@ def run_scheduler():
     scheduler.remove_all_jobs()
 
     config = get_config()
-    media = config.get('media')
-    if media:
-        # 更新电影预告
-        hottrailer_path = config['media'].get('hottrailer_path')
-        if hottrailer_path and os.path.exists(hottrailer_path):
-            scheduler.add_job(HotTrailer().run_schedule, 'interval', seconds=HOT_TRAILER_INTERVAL)
-            log.info("【RUN】scheduler.hot_trailer启动...")
-
     pt = config.get('pt')
     if pt:
         # PT种子清理

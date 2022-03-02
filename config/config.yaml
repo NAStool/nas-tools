@@ -31,10 +31,6 @@ media:
   tv_path: '/mnt/media/电视剧'
   # 电视剧是否支持自动二级分类：true、false，如为false则不分类，所有电影剧放tv_path下；如为true则按类型分别建二级目录存放，具体分类参考README.MD说明
   tv_subtypedir: true
-  # 媒体库热门预告片存放目录，会去themoviedb搜刮新出的电影预告并通过youtube下载，有对应电影存在时会优先转移到电影目录。不配置则不启用热门预告片下载功能。
-  hottrailer_path: '/mnt/media/预告'
-  # 有新电影时是否自动下载电影预告片到本地：true、false，Emby的预告片按钮会播放本地文件而不是打开youtube链接，从youtube下载需要科学上网
-  movie_trailer: false
 
 # 配置文件夹监控
 sync:
