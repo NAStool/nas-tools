@@ -490,12 +490,12 @@ class Media:
                                 if not ret:
                                     continue
                             else:
-                                finished_tv_medias[Title_Str]['Exist_Files'] = finished_tv_medias[Title_Str][
-                                                                                   'Exist_Files'] + 1
                                 log.warn("【RMT】文件 %s 已存在！" % new_file)
+                                finished_tv_medias[Title_Str]['Exist_Files'] = finished_tv_medias[Title_Str]['Exist_Files'] + 1
                                 continue
                         else:
                             log.warn("【RMT】文件 %s 已存在！" % new_file)
+                            finished_tv_medias[Title_Str]['Exist_Files'] = finished_tv_medias[Title_Str]['Exist_Files'] + 1
                             continue
                 else:
                     log.error("【RMT】%s 无法识别是什么类型的媒体文件！" % file_item)
@@ -528,7 +528,7 @@ class Media:
                            str_filesize(item_info.get('Total_Size')),
                            in_from)
             if item_info.get('Exist_Files') != 0:
-                msg_str = msg_str + "，覆盖了 %s 个文件" % str(item_info.get('Exist_Files'))
+                msg_str = msg_str + "，%s 个文件已存在" % str(item_info.get('Exist_Files'))
 
             msg_title = title_str
             if item_info.get('Vote_Average'):
