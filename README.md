@@ -141,7 +141,7 @@ RSS链接不要用错了，是下载客户端使用的那个。
    | /pts | PT自动签到 |
    | /rst  | 资源同步 |
    
-   ![image](https://user-images.githubusercontent.com/51039935/155314403-f5e9836b-abea-47f7-af0c-6f74edb16d3b.png)
+   ![image](https://user-images.githubusercontent.com/51039935/156371501-cd35b802-3e12-47a5-893f-69806d611163.png)
 
 
 ### 6、整理存量媒体资源（可选）
