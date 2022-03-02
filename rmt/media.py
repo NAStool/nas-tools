@@ -711,7 +711,7 @@ class Media:
             search = Search()
             log.info("【RMT】正在检索剧集：%s, 年份=%s ..." % (file_media_name, media_year))
             if media_year:
-                tvs = search.tv_shows({"query": file_media_name, "year": media_year})
+                tvs = search.tv_shows({"query": file_media_name, "first_air_date_year": media_year})
             else:
                 tvs = search.tv_shows({"query": file_media_name})
             log.debug("【RMT】API返回：%s" % str(search.total_results))
