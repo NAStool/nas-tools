@@ -244,7 +244,7 @@ class RSSDownloader:
                     # 判断在媒体库中是否已存在...
                     if match_flag:
                         if media_year:
-                            media_name = media_title + " (" + media_year + ")"
+                            media_name = "%s (%s)" % (media_title, media_year)
                         else:
                             media_name = media_title
                         if search_type == "电影":
@@ -314,60 +314,61 @@ class RSSDownloader:
                 except Exception as e:
                     log.error("【RSS】错误：%s" % str(e))
                     continue
-
-            # 所有site都检索完成，开始选种下载
-            can_download_list = []
-            can_down_list_item = []
-            if __rss_download_torrents:
-                # 按真实名称、站点序号、资源序号进行排序
-                __rss_download_torrents = sorted(__rss_download_torrents,
-                                                 key=lambda x: x['title'] + str(x['site_order']) + str(x['res_order']))
-                # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
-                for t_item in __rss_download_torrents:
-                    media_name = t_item.get('title') + " (" + t_item.get('year') + ")"
-                    if media_name not in can_download_list:
-                        can_download_list.append(media_name)
-                        can_down_list_item.append(t_item)
-
-            # 开始添加下载
-            for can_item in can_down_list_item:
-                try:
-                    # 添加PT任务
-                    log.info("【RSS】添加PT任务：%s，url= %s" % (can_item.get('title'), can_item.get('enclosure')))
-                    ret = None
-                    if self.__pt_client == "qbittorrent":
-                        if self.qbittorrent:
-                            ret = self.qbittorrent.add_qbittorrent_torrent(can_item.get('enclosure'), self.__save_path)
-                    elif self.__pt_client == "transmission":
-                        if self.transmission:
-                            ret = self.transmission.add_transmission_torrent(can_item.get('enclosure'),
-                                                                             self.__save_path)
-                    else:
-                        log.error("【RSS】PT下载软件配置有误！")
-                        return
-                    if ret:
-                        tt = can_item.get('title')
-                        va = can_item.get('vote_average')
-                        yr = can_item.get('year')
-                        bp = can_item.get('backdrop_path')
-                        tp = can_item.get('type')
-                        se = self.media.get_sestring_from_name(can_item.get('torrent_name'))
-                        msg_title = tt
-                        if yr:
-                            msg_title = msg_title + " (%s)" % str(yr)
-                        if se:
-                            msg_text = "来自RSS的%s %s %s 已开始下载" % (tp, msg_title, se)
-                        else:
-                            msg_text = "来自RSS的%s %s 已开始下载" % (tp, msg_title)
-                        if va and va != '0':
-                            msg_title = msg_title + " 评分：%s" % str(va)
-
-                        self.message.sendmsg(msg_title, msg_text, bp)
-
-                except Exception as e:
-                    log.error("【RSS】添加PT任务出错：%s" % str(e))
-            self.__running_flag = False
             log.info("【RSS】%s 处理结束！" % rss_job)
+
+        # 所有site都检索完成，开始选种下载
+        can_download_list = []
+        can_download_list_item = []
+        if __rss_download_torrents:
+            # 按真实名称、站点序号、资源序号进行排序
+            __rss_download_torrents = sorted(__rss_download_torrents,
+                                             key=lambda x: x['title'] + str(x['site_order']) + str(x['res_order']))
+            # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
+            for t_item in __rss_download_torrents:
+                media_name = "%s (%s)" % (t_item.get('title'), t_item.get('year'))
+                if media_name not in can_download_list:
+                    can_download_list.append(media_name)
+                    can_download_list_item.append(t_item)
+
+        # 开始添加下载
+        for can_item in can_download_list_item:
+            try:
+                # 添加PT任务
+                log.info("【RSS】添加PT任务：%s，url= %s" % (can_item.get('title'), can_item.get('enclosure')))
+                ret = None
+                if self.__pt_client == "qbittorrent":
+                    if self.qbittorrent:
+                        ret = self.qbittorrent.add_qbittorrent_torrent(can_item.get('enclosure'), self.__save_path)
+                elif self.__pt_client == "transmission":
+                    if self.transmission:
+                        ret = self.transmission.add_transmission_torrent(can_item.get('enclosure'),
+                                                                         self.__save_path)
+                else:
+                    log.error("【RSS】PT下载软件配置有误！")
+                    return
+                if ret:
+                    tt = can_item.get('title')
+                    va = can_item.get('vote_average')
+                    yr = can_item.get('year')
+                    bp = can_item.get('backdrop_path')
+                    tp = can_item.get('type')
+                    se = self.media.get_sestring_from_name(can_item.get('torrent_name'))
+                    msg_title = tt
+                    if yr:
+                        msg_title = msg_title + " (%s)" % str(yr)
+                    if se:
+                        msg_text = "来自RSS的%s %s %s 已开始下载" % (tp, msg_title, se)
+                    else:
+                        msg_text = "来自RSS的%s %s 已开始下载" % (tp, msg_title)
+                    if va and va != '0':
+                        msg_title = msg_title + " 评分：%s" % str(va)
+
+                    self.message.sendmsg(msg_title, msg_text, bp)
+
+            except Exception as e:
+                log.error("【RSS】添加PT任务出错：%s" % str(e))
+        self.__running_flag = False
+        log.info("【RSS】RSS订阅处理完成！")
 
 
 if __name__ == "__main__":

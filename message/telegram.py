@@ -26,7 +26,7 @@ class Telegram:
             if image:
                 # 发送图文消息
                 text = text.replace("\n\n", "\n")
-                values = {"chat_id": self.__telegram_chat_id, "photo": image, "caption": "【%s】\n%s" % (title, text)}
+                values = {"chat_id": self.__telegram_chat_id, "photo": image, "caption": "%s\n%s" % (title, text)}
                 sc_url = "https://api.telegram.org/bot%s/sendPhoto?" % self.__telegram_token
             else:
                 # 发送文本

@@ -224,7 +224,7 @@ class Media:
 
         # 进到这里来的，可能是一个大目录，目录中有电影也有电视剧；也有可能是一个电视剧目录或者一个电影目录；也有可能是一个文件
 
-        if in_from in ['qBittorrent', 'transmission']:
+        if in_from in ['Qbittorrent', 'Transmission']:
             rmt_mode = self.__pt_rmt_mode
         else:
             rmt_mode = self.__sync_rmt_mode
@@ -378,7 +378,6 @@ class Media:
                             continue
                         new_movie_flag = True
                     else:
-                        exist_filenum = 1
                         if rmt_mode != "LINK":
                             existfile_size = os.path.getsize(new_file)
                             if media_filesize > existfile_size:
@@ -388,20 +387,29 @@ class Media:
                                     continue
                                 new_movie_flag = True
                             else:
-                                log.warn("【RMT】文件 %s 已存在，且质量更好！" % new_file)
+                                log.warn("【RMT】文件 %s 已存在！" % new_file)
+                                exist_filenum = exist_filenum + 1
                         else:
                             log.warn("【RMT】文件 %s 已存在！" % new_file)
+                            exist_filenum = exist_filenum + 1
 
                     # 电影的话，处理一部马上开始发送消息
-                    if not new_movie_flag:
-                        continue
+                    if in_from not in ['Qbittorrent', 'Transmission']:
+                        #  不是PT转移的，只有有变化才通知
+                        if not new_movie_flag:
+                            continue
+
                     msg_title = Title_Str
                     if Vote_Average and Vote_Average != '0':
                         msg_title = Title_Str + " 评分：%s" % str(Vote_Average)
-                    msg_str = "电影 %s 转移完成，大小：%s，来自：%s" \
-                              % (Title_Str, str_filesize(media_filesize), in_from)
+                    if Media_Pix:
+                        msg_str = "电影 %s 转移完成，质量：%s，大小：%s，来自：%s" \
+                                  % (Title_Str, Media_Pix, str_filesize(media_filesize), in_from)
+                    else:
+                        msg_str = "电影 %s 转移完成, 大小：%s, 来自：%s" \
+                                  % (Title_Str, str_filesize(media_filesize), in_from)
                     if exist_filenum != 0:
-                        msg_str = msg_str + "，覆盖了 %s 个文件" % str(exist_filenum)
+                        msg_str = msg_str + "，%s 个文件已存在" % str(exist_filenum)
                     self.message.sendmsg(msg_title, msg_str, Backdrop_Path)
                     log.info("【RMT】%s 转移完成！" % Media_Title)
 
@@ -448,8 +456,7 @@ class Media:
                         os.makedirs(media_path)
 
                     media_filesize = os.path.getsize(file_item)
-                    finished_tv_medias[Title_Str]['Total_Size'] = finished_tv_medias[Title_Str][
-                                                                      'Total_Size'] + media_filesize
+                    finished_tv_medias[Title_Str]['Total_Size'] = finished_tv_medias[Title_Str]['Total_Size'] + media_filesize
 
                     file_ext = os.path.splitext(file_item)[-1]
                     file_name = os.path.basename(file_item)
@@ -510,30 +517,39 @@ class Media:
                     self.__link_origin_file(file_item, target_dir, Search_Type)
                 continue
 
-        # 统计完成情况
+        # 统计完成情况，发送通知
         for title_str, item_info in finished_tv_medias.items():
-            if len(item_info['Episode_Ary']) == 1:
-                # 只有一集
-                msg_str = "电视剧 %s 第%s季第%s集 转移完成，大小：%s，来自：%s" \
-                          % (title_str,
-                             item_info.get('Season_Ary')[0],
-                             item_info.get('Episode_Ary')[0].split('-')[-1],
-                             str_filesize(item_info.get('Total_Size')),
-                             in_from)
+            # PT的不管是否有修改文件均发通知，其他渠道没变化不发通知
+            send_message_flag = False
+            if in_from in ['Qbittorrent', 'Transmission']:
+                send_message_flag = True
             else:
-                msg_str = "电视剧 %s 转移完成，共 %s 季 %s 集，总大小：%s，来自：%s" % \
-                          (title_str,
-                           len(item_info.get('Season_Ary')),
-                           len(item_info.get('Episode_Ary')),
-                           str_filesize(item_info.get('Total_Size')),
-                           in_from)
-            if item_info.get('Exist_Files') != 0:
-                msg_str = msg_str + "，%s 个文件已存在" % str(item_info.get('Exist_Files'))
+                if item_info.get('Exist_Files') < len(item_info.get('Episode_Ary')):
+                    send_message_flag = True
 
-            msg_title = title_str
-            if item_info.get('Vote_Average'):
-                msg_title = title_str + " 评分：%s" % str(item_info.get('Vote_Average'))
-            self.message.sendmsg(msg_title, msg_str, item_info.get('Backdrop_Path'))
+            if send_message_flag:
+                if len(item_info['Episode_Ary']) == 1:
+                    # 只有一集
+                    msg_str = "电视剧 %s 第 %s 季第 %s 集 转移完成，大小：%s，来自：%s" \
+                              % (title_str,
+                                 item_info.get('Season_Ary')[0],
+                                 item_info.get('Episode_Ary')[0].split('-')[-1],
+                                 str_filesize(item_info.get('Total_Size')),
+                                 in_from)
+                else:
+                    msg_str = "电视剧 %s 转移完成，共 %s 季 %s 集，总大小：%s，来自：%s" % \
+                              (title_str,
+                               len(item_info.get('Season_Ary')),
+                               len(item_info.get('Episode_Ary')),
+                               str_filesize(item_info.get('Total_Size')),
+                               in_from)
+                if item_info.get('Exist_Files') != 0:
+                    msg_str = msg_str + "，%s 个文件已存在" % str(item_info.get('Exist_Files'))
+
+                msg_title = title_str
+                if item_info.get('Vote_Average'):
+                    msg_title = title_str + " 评分：%s" % str(item_info.get('Vote_Average'))
+                self.message.sendmsg(msg_title, msg_str, item_info.get('Backdrop_Path'))
 
         # 总结
         log.info("【RMT】%s 处理完成，总数：%s，失败：%s！" % (in_path, total_count, failed_count))
@@ -674,14 +690,18 @@ class Media:
         media_title = ""
         backdrop_path = ""
         vote_average = ""
-
+        # TMDB检索
+        search = Search()
         if search_type == "电影":
-            search = Search()
+            # 先按年份查，不行再不用年份查
             log.info("【RMT】正在检索电影：%s, 年份=%s ..." % (file_media_name, media_year))
             if media_year:
                 movies = search.movies({"query": file_media_name, "year": media_year})
+                if len(movies) == 0:
+                    movies = search.movies({"query": file_media_name})
             else:
                 movies = search.movies({"query": file_media_name})
+
             log.debug("【RMT】API返回：%s" % str(search.total_results))
             if len(movies) == 0:
                 log.warn("【RMT】%s 未找到媒体信息!" % file_media_name)
@@ -708,12 +728,15 @@ class Media:
                 else:
                     media_type = "外语电影"
         else:
-            search = Search()
+            # 先按年份查，不行再不用年份查
             log.info("【RMT】正在检索剧集：%s, 年份=%s ..." % (file_media_name, media_year))
             if media_year:
                 tvs = search.tv_shows({"query": file_media_name, "first_air_date_year": media_year})
+                if len(tvs) == 0:
+                    tvs = search.tv_shows({"query": file_media_name})
             else:
                 tvs = search.tv_shows({"query": file_media_name})
+
             log.debug("【RMT】API返回：%s" % str(search.total_results))
             if len(tvs) == 0:
                 log.warn("【RMT】%s 未找到媒体信息!" % file_media_name)
@@ -936,7 +959,7 @@ class Media:
     # 从种子名称中获取季和集的数字
     @staticmethod
     def get_sestring_from_name(name):
-        re_res = re.search(r'([SEP]+\d{1,2}-?[SEP]*\d{0,2})', name, re.IGNORECASE)
+        re_res = re.search(r'(S?\d{0,2}E?P?\d{1,2}-?S?\d{0,2}E?P?\d{0,2})', name, re.IGNORECASE)
         if re_res:
             return re_res.group(1).upper()
         else:
