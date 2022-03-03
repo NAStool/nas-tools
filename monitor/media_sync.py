@@ -147,35 +147,28 @@ class FileMonitorHandler(FileSystemEventHandler):
 
 # 全量转移
 def sync_all():
-    handler_files = []
     config = get_config()
     sync_crg = config.get('sync')
     if sync_crg:
         monpaths = config['sync'].get('sync_path')
         if monpaths:
             log.info("【SYNC】开始全量转移...")
+            if not isinstance(monpaths, list):
+                monpaths = [monpaths]
             for monpath in monpaths:
                 # 目录是两段式，需要把配对关系存起来
                 if monpath.find('|') != -1:
                     # 源目录|目的目录，这个格式的目的目录在源目录同级建立
-                    monpath = monpath.split("|")[0]
-                for cdir in os.listdir(monpath):
-                    if cdir.startswith(".") or cdir.startswith("#") or cdir.startswith("@"):
-                        continue
-                    file_path = os.path.join(monpath, cdir)
-                    file_name = os.path.basename(file_path)
-                    log.info("【SYNC】开始处理：%s" % file_path)
-                    try:
-                        if file_name not in handler_files:
-                            handler_files.append(file_name)
-                            ret = Media().transfer_media(in_from="目录监控", in_path=file_path)
-                            if not ret:
-                                log.error("【SYNC】%s 处理失败！" % file_path)
-                            else:
-                                log.info("【SYNC】%s 处理成功！" % file_path)
-
-                    except Exception as err:
-                        log.error("【SYNC】发生错误：%s" % str(err))
+                    s_path = monpath.split("|")[0]
+                    t_path = monpath.split("|")[1]
+                else:
+                    s_path = monpath
+                    t_path = None
+                ret = Media().transfer_media(in_from="目录监控", in_path=s_path, target_dir=t_path)
+                if not ret:
+                    log.error("【SYNC】%s 处理失败！" % s_path)
+                else:
+                    log.info("【SYNC】%s 处理成功！" % s_path)
 
 
 if __name__ == "__main__":

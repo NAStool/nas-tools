@@ -977,18 +977,14 @@ def transfer_all(s_path, t_path):
         if not os.path.exists(t_path):
             print("【RMT】目的目录不存在：%s" % t_path)
             return
-    config = get_config()
     print("【RMT】正在转移以下目录中的全量文件：%s" % s_path)
+    config = get_config()
     print("【RMT】转移模式为：%s" % config['sync'].get('sync_mod'))
-    for f_dir in os.listdir(s_path):
-        file_path = os.path.join(s_path, f_dir)
-        try:
-            ret = Media().transfer_media(in_from="手动整理", in_path=file_path, target_dir=t_path)
-            if not ret:
-                print("【RMT】%s 处理失败！" % file_path)
-        except Exception as err:
-            print("【RMT】发生错误：%s" % str(err))
-    print("【RMT】%s 处理完成！" % s_path)
+    ret = Media().transfer_media(in_from="手动整理", in_path=s_path, target_dir=t_path)
+    if not ret:
+        print("【RMT】%s 处理失败！" % s_path)
+    else:
+        print("【RMT】%s 处理完成！" % s_path)
 
 
 if __name__ == "__main__":

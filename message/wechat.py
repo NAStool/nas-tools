@@ -138,15 +138,3 @@ class WeChat(object):
         else:
             ret_code, ret_msg = self.send_message(title, text)
         return ret_code, ret_msg
-
-
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        in_title = sys.argv[1]
-    else:
-        in_title = "WeChat标题"
-    if len(sys.argv) > 2:
-        in_text = sys.argv[2]
-    else:
-        in_text = "WeChat内容"
-    WeChat.get_instance().send_wechat_msg(in_title, in_text, None)

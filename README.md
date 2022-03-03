@@ -29,6 +29,7 @@ TG交流：https://t.me/nastool_chat
 * 优化文件名识别策略
 * RSS订阅机制优化
 * Docker启动时自动检查升级
+* 通知推送支持Bark
 
 2022.2.28
 * 支持RSS简单策略选种，新增pt.sites.res_type配置项
@@ -84,14 +85,18 @@ https://github.com/jxxghp/nas-tools/releases
 
 ## 配置
 ### 1、申请相关API KEY
-* 在 https://www.themoviedb.org/ 申请用户，得到API KEY：rmt_tmdbkey。
+* 申请TMDB用户，在 https://www.themoviedb.org/ 申请用户，得到API KEY，填入rmt_tmdbkey。
 
-* 在 https://work.weixin.qq.com/ 申请企业微信自建应用（推荐），获得corpid、corpsecret、agentid，扫描二维码在微信中关注企业自建应用；或者在 https://sct.ftqq.com/ 申请 Server酱SendKey：sckey；或者在Telegram中申请自建机器人，获得：telegram_token（关注BotFather生成机器人）、telegram_chat_id（关注getuserID拿到ID）。
+* 申请消息通知服务
+  1) 微信（推荐）：在 https://work.weixin.qq.com/ 申请企业微信自建应用，获得corpid、corpsecret、agentid，扫描二维码在微信中关注企业自建应用。
+  2) Server酱：或者在 https://sct.ftqq.com/ 申请SendKey，填入sckey。
+  3) Telegram：关注BotFather申请机器人，关注getuserID拿到chat_id，填入telegram_token、telegram_chat_id。
+  4) Bark：安装Bark客户端获得KEY，可以自建Bark服务器或者使用默认的服务器。
 
 * 申请PT站用户，至少要有1个不然没法玩。点PT的RSS图标获取RSS链接，注意项目标题格式只选中标题，不要勾选其它的，以免误导识别。
 ![image](https://user-images.githubusercontent.com/51039935/154024206-f2522f1b-7407-46bf-81b4-b147ea304b33.png)
 
-RSS链接不要用错了，是下载客户端使用的那个。
+（RSS链接不要用错了，是PT客户端使用的那个）
 
 
 ### 2、配置文件
@@ -121,8 +126,6 @@ RSS链接不要用错了，是下载客户端使用的那个。
    >> 纪录片
    >> 综艺
    >> 儿童
-   > 
-   > 预告
 
 ### 4、配置ResilioSync（可选）
 * 安装resiliosync软件，配置好神KEY（主KEY：BCWHZRSLANR64CGPTXRE54ENNSIUE5SMO，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6，也可以使用其他的Key），同步目录注意要配置到本程序的监控目录中。
@@ -146,7 +149,7 @@ RSS链接不要用错了，是下载客户端使用的那个。
 
 
 ### 6、整理存量媒体资源（可选）
-经过以上步骤整套程序就已经搭完了，不出意外所有新下载的资源都能自动整理成完美的媒体库了。但是之前已经下载好的资源怎么办？按下面操作，把存量的媒体资源也整理到媒体库里来。
+如果你的存量资源所在的目录与你在配置文件Sync中配置的源路径目的路径相同，则可以通过WEBUI或微信的“资源同步”按钮触发全量同步。 如果不相同则可以按以下说明操作，手工输入命令整理特定目录下的媒体资源。
 
 重要说明：-d 参数为可选，如不输入则会自动区分电影还是电视剧分别存储到配置文件对应的电影电视剧媒体库目录中；-d 参数有输入时则不管是电影还是电视剧，都往-d目录中转移。
 
@@ -168,15 +171,16 @@ RSS链接不要用错了，是下载客户端使用的那个。
 
 ## 使用
 1) WEB UI界面，可以修改配置、手工启动服务（仅全功能模式支持）
+
 ![IMG_2792](https://user-images.githubusercontent.com/51039935/156369777-b01d8344-9e09-4c34-be62-d8e817274323.jpg)
 ![IMG_2793](https://user-images.githubusercontent.com/51039935/156369818-3958f833-bc7f-4380-9fec-59556c8a9dc7.jpg)
 
-
 2) 手机端图文通知和控制界面，控制服务运行（输入命令或者点击菜单）
+
 ![IMG_2791](https://user-images.githubusercontent.com/51039935/156369908-36c6ca9d-fa7f-4d27-9551-ed490ef18eda.jpg)
 
-
 3) 效果
+
 ![image](https://user-images.githubusercontent.com/51039935/153886867-50a3debd-e982-4723-974b-04ba16f732b1.png)
 ![image](https://user-images.githubusercontent.com/51039935/153887369-478433bb-59e1-4520-a16a-6400b817c8b9.png)
 ![image](https://user-images.githubusercontent.com/51039935/153985095-7dfd7cd8-172b-4f3e-9583-fa25e69d8838.png)
@@ -184,4 +188,4 @@ RSS链接不要用错了，是下载客户端使用的那个。
 ## TODO
 1) 自定义分类
 2) PT全局资源检索
-3) 通过微信消息自动检索下载
+3) 通过微信消息和豆瓣自动检索下载

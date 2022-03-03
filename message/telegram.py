@@ -45,15 +45,3 @@ class Telegram:
                 return False, "未获取到返回信息"
         except Exception as msg_e:
             return False, str(msg_e)
-
-
-if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        in_title = sys.argv[1]
-    else:
-        in_title = "telegram标题"
-    if len(sys.argv) > 2:
-        in_text = sys.argv[2]
-    else:
-        in_text = "telegram内容"
-    Telegram().send_telegram_msg(in_title, in_text)

@@ -52,13 +52,13 @@ sync:
 
 # 配置消息通知服务
 message:
-  # 发送消息使用的渠道：wechat、serverchan、telegram，需在对应的配置区域配置。不使用的渠道配置可以留空或者删除。推荐使用wechat微信渠道。不设置则不启用消息服务。
+  # 发送消息使用的渠道：wechat、serverchan、telegram、bark，需在对应的配置区域配置。不使用的渠道配置可以留空或者删除。推荐使用wechat微信渠道。不设置则不启用消息服务。
   msg_channel: wechat
   # 配置了Emby webhooks插件回调时，用户播放媒体库中的媒体时会发送消息通知，本处配置哪些用户的设备不通知，避免打扰，配置格式：用户:设备名称，可用 - 增加多项
   webhook_ignore:
     - 'admin:xx的iPhone 12'
+  # 【推荐】企业微信消息应用，在企业微信https://work.weixin.qq.com/中申请和新增一个自建应用。配合微信的企业微信插件，可以直接在微信中查看本程序的消息以及控制程序运行，非常好用，推荐使用该渠道。
   wechat:
-    # 【推荐】企业微信消息应用，在企业微信https://work.weixin.qq.com/中申请和新增一个自建应用。配合微信的企业微信插件，可以直接在微信中查看本程序的消息以及控制程序运行，非常好用，推荐使用该渠道。
     # corpid:每个企业都拥有唯一的corpid，获取此信息可在管理后台“我的企业”－“企业信息”下查看“企业ID”（需要有管理员权限）
     # corpsecret:自建应用secret。在管理后台->“应用与小程序”->“应用”->“自建”，点进某个应用，即可看到。
     # agentid:每个应用都有唯一的agentid。在管理后台->“应用与小程序”->“应用”，点进某个应用，即可看到agentid。
@@ -70,15 +70,21 @@ message:
     # 步聚：1、在微信企业应用接收消息设置页面生成Token和EncodingAESKey并填入下面区域。2、重启本程序。3、在微信企业应用接收消息设置页面输入此地址：http(s)://ip:3000/wechat。需要有公网IP并做好端口转发，最好要有域名。
     Token:
     EncodingAESKey:
-
+  # ServerChan API KEY，SCT类型，在https://sct.ftqq.com/中申请（非VIP貌似每日限制只能收到5条消息）
   serverchan:
-    # ServerChan API KEY，SCT类型，在https://sct.ftqq.com/中申请（非VIP貌似每日限制只能收到5条消息）
     sckey:
-
+  # Telegram机器人，需要在Telegram中创建机器人以及获取chat_id
   telegram:
-    # Telegram机器人，需要在Telegram中创建机器人以及获取chat_id
+    # 机器人的Token，关注BotFather创建机器人
     telegram_token:
+    # 关注getuserID获取
     telegram_chat_id:
+  # Bark通知，手机上安装Bark客户端，Server可以使用默认的也可以自己搭建，自己搭建的更换为服务器地址和端口，格式：http(s)://IP:PORT。
+  bark:
+    # 自己搭建请更换，否则保持默认
+    server: https://api.day.app
+    # Bark客户端生成的KEY，可以维护多个
+    apikey:
 
 # 配置PT RSS下载的信息
 pt:
