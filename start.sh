@@ -28,4 +28,4 @@ fi
 
 # 运行程序
 echo "正在启动程序..."
-python3 /nas-tools/run.py &
+python3 /nas-tools/run.py
