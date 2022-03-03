@@ -48,40 +48,6 @@ class Transmission:
             log.error("【TR】transmission连接出错：%s" % str(err))
             return None
 
-    # 根据transmission的文件清单，获取种子的下载路径
-    @staticmethod
-    def __get_tr_download_path(save_path, tr_files):
-        path_list = []
-        for tr_file in tr_files:
-            if os.path.splitext(tr_file.name)[-1] in RMT_MEDIAEXT:
-                if tr_file.name not in path_list:
-                    path_list.append(tr_file.name)
-        # 返回list(多个路径)中，所有path共有的最长的路径
-        return os.path.join(save_path, os.path.commonprefix(path_list))
-
-    # 读取当前任务列表
-    def get_transmission_tasks(self):
-        # 读取transmission列表
-        torrents = self.trc.get_torrents()
-        path_list = []
-        for torrent in torrents:
-            log.debug(torrent.name + "：" + torrent.status)
-            # 3.0版本以下的Transmission没有labels
-            label = ""
-            handlered_flag = False
-            try:
-                label = torrent.labels
-            except Exception as e:
-                log.warn("【TR】当前transmission版本可能过低，请安装3.0以上版本！")
-            if label and "已整理" in label:
-                handlered_flag = True
-            if (torrent.status == "seeding" or torrent.status == "seed_pending") and not handlered_flag:
-                true_path = self.__get_tr_download_path(torrent.download_dir, torrent.files())
-                if self.__save_containerpath:
-                    true_path = true_path.replace(str(self.__save_path), str(self.__save_containerpath))
-                path_list.append(true_path + "|" + str(torrent.id))
-        return path_list
-
     # 读取所有种子信息
     def get_transmission_torrents(self):
         # 读取transmission列表
@@ -104,15 +70,25 @@ class Transmission:
         torrents = self.get_transmission_torrents()
         for torrent in torrents:
             log.debug("【TR】" + torrent.name + "：" + torrent.status)
-            if (torrent.status == "seeding" or torrent.status == "seed_pending") and "已整理" not in torrent.labels:
-                true_path = self.__get_tr_download_path(torrent.download_dir, torrent.files())
-                if self.__save_containerpath:
-                    true_path = true_path.replace(str(self.__save_path), str(self.__save_containerpath))
-                done_flag = self.media.transfer_media(in_from="Transmission", in_path=true_path)
-                if done_flag:
-                    self.set_tr_torrent_status(torrent.id)
-                else:
-                    log.error("【TR】%s 转移失败：" % torrent.name)
+            # 3.0版本以下的Transmission没有labels
+            label = ""
+            handlered_flag = False
+            try:
+                label = torrent.labels
+            except Exception as e:
+                log.warn("【TR】当前transmission版本可能过低，请安装3.0以上版本！ errmsg=" % str(e))
+            if label and "已整理" in label:
+                handlered_flag = True
+            if (torrent.status == "seeding" or torrent.status == "seed_pending") and not handlered_flag:
+                for t_file in torrent.files():
+                    true_path = os.path.join(torrent.download_dir, t_file.name)
+                    if self.__save_containerpath:
+                        true_path = true_path.replace(str(self.__save_path), str(self.__save_containerpath))
+                        ret = self.media.transfer_media(in_from="Transmission", in_path=true_path)
+                        if ret:
+                            self.set_tr_torrent_status(torrent.id)
+                        else:
+                            log.error("【TR】%s 转移失败：" % torrent.name)
 
     # 添加transmission任务
     def add_transmission_torrent(self, turl, tpath):
