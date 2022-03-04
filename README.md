@@ -181,18 +181,19 @@ Jackett的相关配置参考网上的各类教程。
 ## 使用
 1) WEB UI界面，可以修改配置、手工启动服务（仅全功能模式支持）
 
-![IMG_2792](https://user-images.githubusercontent.com/51039935/156369777-b01d8344-9e09-4c34-be62-d8e817274323.jpg)
-![IMG_2793](https://user-images.githubusercontent.com/51039935/156369818-3958f833-bc7f-4380-9fec-59556c8a9dc7.jpg)
+![schedule](https://user-images.githubusercontent.com/51039935/156727997-521688cf-2f8a-4c99-97bb-5d3a0be571d9.jpg)
+![site](https://user-images.githubusercontent.com/51039935/156728009-589b2de8-0dc0-4fd5-99cc-c181413d4ff0.jpg)
+
 
 2) 手机端图文通知和控制界面，控制服务运行（输入命令或者点击菜单）
 
-![IMG_2791](https://user-images.githubusercontent.com/51039935/156369908-36c6ca9d-fa7f-4d27-9551-ed490ef18eda.jpg)
+![msg](https://user-images.githubusercontent.com/51039935/156728609-bc301974-663b-48f7-b0c0-c42f4ec6aabc.jpg)
+![photo_2022-03-04_16-27-51](https://user-images.githubusercontent.com/51039935/156728213-08acf146-e661-4851-9491-3d32520d85e0.jpg)
+
 
 3) 效果
 
 ![image](https://user-images.githubusercontent.com/51039935/153886867-50a3debd-e982-4723-974b-04ba16f732b1.png)
-![image](https://user-images.githubusercontent.com/51039935/153887369-478433bb-59e1-4520-a16a-6400b817c8b9.png)
-![image](https://user-images.githubusercontent.com/51039935/153985095-7dfd7cd8-172b-4f3e-9583-fa25e69d8838.png)
 
 ## TODO
 1) 自定义分类
