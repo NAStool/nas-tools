@@ -18,10 +18,9 @@ class FileTransfer:
     __pt_rmt_mode = None
     __sync_rmt_mode = None
     media = None
+    message = None
 
     def __init__(self):
-        self.media = Media()
-        self.message = Message()
         config = get_config()
         self.__media_config = config.get('media', {})
         self.__app_config = config.get('app', {})
@@ -30,6 +29,8 @@ class FileTransfer:
         self.__sync_config = config.get('sync', {})
         self.__pt_rmt_mode = self.__pt_config.get('rmt_mode', 'COPY').upper()
         self.__sync_rmt_mode = self.__sync_config.get('sync_mod', 'COPY').upper()
+        self.media = Media()
+        self.message = Message()
 
     # 根据文件名转移对应字幕文件
     @staticmethod

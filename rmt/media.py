@@ -12,17 +12,17 @@ from message.send import Message
 class Media:
     # TheMovieDB
     tmdb = None
-    __rmt_tmdbkey = None
+    search = None
 
     def __init__(self):
-        self.message = Message()
-        self.tmdb = TMDb()
         config = get_config()
         if config.get('app'):
-            self.__rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
-        self.tmdb.api_key = self.__rmt_tmdbkey
-        self.tmdb.language = 'zh'
-        self.tmdb.debug = True
+            self.tmdb = TMDb()
+            self.tmdb.api_key = config['app'].get('rmt_tmdbkey')
+            self.tmdb.language = 'zh'
+            self.tmdb.debug = True
+        self.message = Message()
+        self.search = Search()
 
     @staticmethod
     def is_media_files_tv(file_list):
@@ -160,18 +160,17 @@ class Media:
         backdrop_path = ""
         vote_average = ""
         # TMDB检索
-        search = Search()
         if search_type == "电影":
             # 先按年份查，不行再不用年份查
             log.info("【RMT】正在检索电影：%s, 年份=%s ..." % (file_media_name, media_year))
             if media_year:
-                movies = search.movies({"query": file_media_name, "year": media_year})
+                movies = self.search.movies({"query": file_media_name, "year": media_year})
                 if len(movies) == 0:
-                    movies = search.movies({"query": file_media_name})
+                    movies = self.search.movies({"query": file_media_name})
             else:
-                movies = search.movies({"query": file_media_name})
+                movies = self.search.movies({"query": file_media_name})
 
-            log.debug("【RMT】API返回：%s" % str(search.total_results))
+            log.debug("【RMT】API返回：%s" % str(self.search.total_results))
             if len(movies) == 0:
                 log.warn("【RMT】%s 未找到媒体信息!" % file_media_name)
             else:
@@ -200,13 +199,13 @@ class Media:
             # 先按年份查，不行再不用年份查
             log.info("【RMT】正在检索剧集：%s, 年份=%s ..." % (file_media_name, media_year))
             if media_year:
-                tvs = search.tv_shows({"query": file_media_name, "first_air_date_year": media_year})
+                tvs = self.search.tv_shows({"query": file_media_name, "first_air_date_year": media_year})
                 if len(tvs) == 0:
-                    tvs = search.tv_shows({"query": file_media_name})
+                    tvs = self.search.tv_shows({"query": file_media_name})
             else:
-                tvs = search.tv_shows({"query": file_media_name})
+                tvs = self.search.tv_shows({"query": file_media_name})
 
-            log.debug("【RMT】API返回：%s" % str(search.total_results))
+            log.debug("【RMT】API返回：%s" % str(self.search.total_results))
             if len(tvs) == 0:
                 log.warn("【RMT】%s 未找到媒体信息!" % file_media_name)
                 info = {}
