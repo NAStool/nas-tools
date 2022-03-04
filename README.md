@@ -185,8 +185,6 @@ https://github.com/jxxghp/nas-tools/releases
 3) 效果
 
 ![image](https://user-images.githubusercontent.com/51039935/153886867-50a3debd-e982-4723-974b-04ba16f732b1.png)
-![image](https://user-images.githubusercontent.com/51039935/153887369-478433bb-59e1-4520-a16a-6400b817c8b9.png)
-![image](https://user-images.githubusercontent.com/51039935/153985095-7dfd7cd8-172b-4f3e-9583-fa25e69d8838.png)
 
 ## TODO
 1) 自定义分类
