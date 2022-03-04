@@ -340,13 +340,13 @@ def create_flask_app():
             content = content.strip()
             if content == "/ptr":
                 _thread.start_new_thread(AutoRemoveTorrents().run_schedule, ())
-            if content == "/ptt":
+            elif content == "/ptt":
                 _thread.start_new_thread(PTTransfer().run_schedule, ())
-            if content == "/pts":
+            elif content == "/pts":
                 _thread.start_new_thread(PTSignin().run_schedule, ())
-            if content == "/rst":
+            elif content == "/rst":
                 _thread.start_new_thread(FileTransfer().transfer_all_sync, ())
-            if content == "/rss":
+            elif content == "/rss":
                 _thread.start_new_thread(RSSDownloader().run_schedule, ())
             elif content.startswith("http://") or content.startswith("https://") or content.startswith("magnet:"):
                 _thread.start_new_thread(Downloader().add_pt_torrent, (content,))
