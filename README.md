@@ -6,9 +6,11 @@ TG交流：https://t.me/nastool_chat
 
 ## 功能：
 ### 1、PT自动检索下载
-* 通过订阅PT站RSS以及配置过滤关键字，实现PT资源自动检索追新，可用于快速累积媒体库资源、追剧、追未出资源的电影等，支持qBittorrent或transmission客户端。
+* 通过订阅PT站RSS以及配置过滤关键字，实现PT资源自动检索追新，可用于快速累积媒体库资源、追剧、追未出资源的电影等。
 
-* 在豆瓣发现想看的电影进行标记，或者微信直接发送电影电视剧名称，系统自动通过Jackett在各PT站检索资源并添加下载【开发完善中】。
+* 想下载的电影电视剧，微信直接发送名称，系统自动通过Jackett在各PT站检索资源并添加下载。
+
+* 支持qBittorrent或transmission客户端。
 
 ### 2、媒体识别和重命名
 * 监控下载软件，下载完成后自动识别真实名称，硬链接到媒体库并重命名。
@@ -163,17 +165,17 @@ Jackett的相关配置参考网上的各类教程。
 * Docker版本，宿主机上运行以下命令，nas-tools修改为你的docker名称，修改源目录和目的目录参数。
    ```
    docker exec -it nas-tools /bin/bash
-   python3 /nas-tools/rmt/media.py -s /from/path -d /to/path
+   python3 /nas-tools/rmt/filetransfer.py -s /from/path -d /to/path
    ```
 * 群晖套件版本，ssh到后台运行以下命令，同样修改配置文件路径以及源目录、目的目录参数。
    ```
    export NASTOOL_CONFIG=/volume1/homes/admin/.config/nastool/config.yaml
-   /var/packages/py3k/target/usr/local/bin/python3 /var/packages/nastool/target/rmt/media.py -s /from/path -d /to/path
+   /var/packages/py3k/target/usr/local/bin/python3 /var/packages/nastool/target/rmt/filetransfer.py -s /from/path -d /to/path
    ```
 * 本地直接运行的，cd 到程序根目录，执行以下命令，修改配置文件、源目录和目的目录参数。
    ```
    export NASTOOL_CONFIG=/xxx/config/config.yaml
-   python3 rmt/media.py -s /from/path -d /to/path
+   python3 rmt/filetransfer.py -s /from/path -d /to/path
    ```
 
 ## 使用

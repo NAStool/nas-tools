@@ -50,7 +50,7 @@ class Jackett:
             api_url = "%sapi?apikey=%s&t=search&q=%s" % (index, self.__api_key, key_word)
             media_array = parse_rssxml(api_url)
             if len(media_array) == 0:
-                log.warn("【JACKETT】未检索到资源！")
+                log.warn("【JACKETT】%s 未检索到资源！" % index)
                 continue
             # 从检索结果中匹配符合资源条件的记录
             index_num = 0

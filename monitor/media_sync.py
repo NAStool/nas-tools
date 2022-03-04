@@ -5,20 +5,20 @@ from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
 from config import get_config, RMT_MEDIAEXT, SYNC_DIR_CONFIG
 import log
-from rmt.media import Media
+from rmt.filetransfer import FileTransfer
 
 FINISHED_JOBS = []
 lock = threading.Lock()
 
 
 class Sync:
-    media = None
+    filetransfer = None
     __observer = []
     __sync_path = None
     __sync_sys = "Linux"
 
     def __init__(self):
-        self.media = Media()
+        self.filetransfer = FileTransfer()
         config = get_config()
         if config.get('app'):
             self.__sync_sys = config['app'].get('nas_sys', "Linux")
@@ -70,7 +70,7 @@ class Sync:
 
                 # 查找目的目录
                 target_dir = SYNC_DIR_CONFIG.get(parent_dir)
-                if not self.media.transfer_media(in_from="目录监控", in_path=event_path, target_dir=target_dir):
+                if not self.filetransfer.transfer_media(in_from="目录监控", in_path=event_path, target_dir=target_dir):
                     log.error("【SYNC】%s 处理失败！" % event_path)
                 else:
                     log.info("【SYNC】%s 处理成功！" % event_path)
@@ -145,31 +145,5 @@ class FileMonitorHandler(FileSystemEventHandler):
         self.sync.file_change_handler(event, "修改", event.src_path)
 
 
-# 全量转移
-def sync_all():
-    config = get_config()
-    sync_crg = config.get('sync')
-    if sync_crg:
-        monpaths = config['sync'].get('sync_path')
-        if monpaths:
-            log.info("【SYNC】开始全量转移...")
-            if not isinstance(monpaths, list):
-                monpaths = [monpaths]
-            for monpath in monpaths:
-                # 目录是两段式，需要把配对关系存起来
-                if monpath.find('|') != -1:
-                    # 源目录|目的目录，这个格式的目的目录在源目录同级建立
-                    s_path = monpath.split("|")[0]
-                    t_path = monpath.split("|")[1]
-                else:
-                    s_path = monpath
-                    t_path = None
-                ret = Media().transfer_media(in_from="目录监控", in_path=s_path, target_dir=t_path)
-                if not ret:
-                    log.error("【SYNC】%s 处理失败！" % s_path)
-                else:
-                    log.info("【SYNC】%s 处理成功！" % s_path)
-
-
 if __name__ == "__main__":
-    sync_all()
+    FileTransfer().transfer_all_sync()

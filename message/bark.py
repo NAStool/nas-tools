@@ -1,4 +1,3 @@
-import sys
 import requests
 from config import get_config
 

@@ -1,12 +1,9 @@
 import _thread
 from flask import Flask, request, json, render_template, make_response, redirect
 import log
-from monitor.media_sync import sync_all
 from pt.downloader import Downloader
 from pt.jackett import Jackett
-from pt.qbittorrent import Qbittorrent
-from pt.transmission import Transmission
-from rmt.media import Media
+from rmt.filetransfer import FileTransfer
 from scheduler.autoremove_torrents import AutoRemoveTorrents
 from scheduler.pt_signin import PTSignin
 from scheduler.pt_transfer import PTTransfer
@@ -244,7 +241,7 @@ def create_flask_app():
                 if sch_item == "btn_ptsignin":
                     PTSignin().run_schedule()
                 if sch_item == "btn_sync":
-                    sync_all()
+                    FileTransfer().transfer_all_sync()
                 if sch_item == "btn_rssdownload":
                     RSSDownloader().run_schedule()
                 return {"retmsg": "执行完成！", "item": sch_item}
@@ -340,6 +337,7 @@ def create_flask_app():
                 log.error("发生错误：%s" % str(err))
                 return make_response("", 200)
             # 处理消息内容
+            content = content.strip()
             if content == "/ptr":
                 _thread.start_new_thread(AutoRemoveTorrents().run_schedule, ())
             if content == "/ptt":
@@ -347,7 +345,7 @@ def create_flask_app():
             if content == "/pts":
                 _thread.start_new_thread(PTSignin().run_schedule, ())
             if content == "/rst":
-                _thread.start_new_thread(sync_all, ())
+                _thread.start_new_thread(FileTransfer().transfer_all_sync, ())
             if content == "/rss":
                 _thread.start_new_thread(RSSDownloader().run_schedule, ())
             elif content.startswith("http://") or content.startswith("https://") or content.startswith("magnet:"):

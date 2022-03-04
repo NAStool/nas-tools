@@ -1,4 +1,3 @@
-# 定时进行PT签到
 import requests
 import log
 from config import get_config

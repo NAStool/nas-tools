@@ -1,5 +1,3 @@
-# 发送telegram消息
-import sys
 from urllib.parse import urlencode
 import requests
 from config import get_config

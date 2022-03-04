@@ -1,7 +1,4 @@
 import os
-import re
-import requests
-from requests import RequestException
 import log
 from config import get_config, check_config, check_simple_config
 from version import APP_VERSION

@@ -4,7 +4,7 @@ import log
 from config import get_config
 
 # 全局设置
-from rmt.media import Media
+from rmt.filetransfer import FileTransfer
 
 urllib3.disable_warnings()
 
@@ -17,10 +17,10 @@ class Qbittorrent:
     __save_path = None
     __save_containerpath = None
     qbc = None
-    media = None
+    filetransfer = None
 
     def __init__(self):
-        self.media = Media()
+        self.filetransfer = FileTransfer()
         config = get_config()
         if config.get('qbittorrent'):
             self.__qbhost = config['qbittorrent'].get('qbhost')
@@ -87,7 +87,7 @@ class Qbittorrent:
                 true_path = torrent.content_path
                 if self.__save_containerpath:
                     true_path = true_path.replace(str(self.__save_path), str(self.__save_containerpath))
-                done_flag = self.media.transfer_media(in_from="Qbittorrent", in_path=true_path)
+                done_flag = self.filetransfer.transfer_media(in_from="Qbittorrent", in_path=true_path)
                 if done_flag:
                     self.set_qb_torrent_status(torrent.hash)
                 else:

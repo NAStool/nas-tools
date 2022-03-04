@@ -1,4 +1,3 @@
-import sys
 from datetime import datetime
 import threading
 import requests

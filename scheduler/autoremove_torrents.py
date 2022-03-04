@@ -1,8 +1,4 @@
-# 定时在DSM中执行命令清理qbittorrent的种子
-from datetime import datetime
-
 import log
-from message.send import Message
 from pt.downloader import Downloader
 
 

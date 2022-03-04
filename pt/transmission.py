@@ -1,12 +1,9 @@
 import os.path
-
 import transmission_rpc
 import urllib3
 import log
-from config import get_config, RMT_MEDIAEXT
-
-# 全局设置
-from rmt.media import Media
+from config import get_config
+from rmt.filetransfer import FileTransfer
 
 urllib3.disable_warnings()
 
@@ -19,7 +16,7 @@ class Transmission:
     __save_path = None
     __save_containerpath = None
     trc = None
-    media = None
+    filetransfer = None
 
     def __init__(self):
         config = get_config()
@@ -30,7 +27,7 @@ class Transmission:
             self.__trpassword = config['transmission'].get('trpassword')
             self.__save_path = config['transmission'].get('save_path')
             self.__save_containerpath = config['transmission'].get('save_containerpath')
-            self.media = Media()
+            self.filetransfer = FileTransfer()
             if self.__trhost and self.__trport:
                 self.trc = self.__login_transmission()
 
@@ -84,7 +81,7 @@ class Transmission:
                     true_path = os.path.join(torrent.download_dir, t_file.name)
                     if self.__save_containerpath:
                         true_path = true_path.replace(str(self.__save_path), str(self.__save_containerpath))
-                        ret = self.media.transfer_media(in_from="Transmission", in_path=true_path)
+                        ret = self.filetransfer.transfer_media(in_from="Transmission", in_path=true_path)
                         if ret:
                             self.set_tr_torrent_status(torrent.id)
                         else:

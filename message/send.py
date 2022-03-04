@@ -1,5 +1,3 @@
-import sys
-
 import log
 from config import get_config
 from message.bark import Bark
