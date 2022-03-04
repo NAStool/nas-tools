@@ -42,11 +42,11 @@ class PTSignin:
         msg_str = ""
         if self.__pt_sites:
             for pt_task, task_info in self.__pt_sites.items():
-                log.info("【PT-SIGN】开始PT签到：" + pt_task)
+                log.info("【PT】开始PT签到：" + pt_task)
                 pt_url = task_info.get('signin_url')
                 pt_cooke = task_info.get('cookie')
                 if not pt_url or not pt_cooke:
-                    log.error("【PT-SIGN】未配置 %s 的Url或Cookie，无法签到！" % str(pt_task))
+                    log.error("【PT】未配置 %s 的Url或Cookie，无法签到！" % str(pt_task))
                     continue
                 log.debug("cookie: %s" % pt_cooke)
                 log.debug("url: %s" % pt_url)
@@ -58,7 +58,7 @@ class PTSignin:
                 log.debug(res)
         if msg_str == "":
             msg_str = "未配置任何有效PT签到信息！"
-        self.message.sendmsg("【PT-SIGN】每日签到", msg_str)
+        self.message.sendmsg("【PT】每日签到", msg_str)
 
 
 if __name__ == "__main__":

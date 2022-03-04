@@ -5,10 +5,10 @@ Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 TG交流：https://t.me/nastool_chat
 
 ## 功能：
-### 1、PT自动下载
+### 1、PT自动检索下载
 * 通过订阅PT站RSS以及配置过滤关键字，实现PT资源自动检索追新，可用于快速累积媒体库资源、追剧、追未出资源的电影等，支持qBittorrent或transmission客户端。
 
-* 在豆瓣发现想看的电影进行标记，或者微信直接发送电影电视剧名称，系统自动在各PT站检索资源并添加下载【开发中】。
+* 在豆瓣发现想看的电影进行标记，或者微信直接发送电影电视剧名称，系统自动通过Jackett在各PT站检索资源并添加下载【开发完善中】。
 
 ### 2、媒体识别和重命名
 * 监控下载软件，下载完成后自动识别真实名称，硬链接到媒体库并重命名。
@@ -25,6 +25,9 @@ TG交流：https://t.me/nastool_chat
 
 
 ## 更新日志
+2022.3.4
+* 支持Jackett聚合检索，微信发送关键字直接检索下载
+
 2022.3.3
 * 优化文件名识别策略
 * RSS订阅机制优化
@@ -131,7 +134,7 @@ https://github.com/jxxghp/nas-tools/releases
 * 安装resiliosync软件，配置好神KEY（主KEY：BCWHZRSLANR64CGPTXRE54ENNSIUE5SMO，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6，也可以使用其他的Key），同步目录注意要配置到本程序的监控目录中。
 
 ### 5、配置微信应用消息及菜单（可选）
-如果只是使用消息接受服务，则配置好配置文件中的[wechat]前三个参数就可以了，如果需要通过微信进行控制，则需要按如下方式配置：
+如果只是使用消息接受服务，则配置好配置文件中的[wechat]前三个参数就可以了，如果需要通过微信进行控制，则需要按如下方式配置（需要有公网IP或域名）：
 * 配置微信消息服务：在企业微信自建应用管理页面-》API接收消息 开启消息接收服务，URL填写：http(s)://IP:3000/wechat，Token和EncodingAESKey填入配置文件[wechat]区。
    
 * 配置微信菜单控制：有两种方式，一是直接在聊天窗口中输入命令或者PT下载的链接；二是在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单页面按如下图所示维护好菜单（条目顺序需要一模一样，如果不一样需要修改config.py中定义的WECHAT_MENU菜单序号定义），菜单内容为发送消息，消息内容为命令。
@@ -147,8 +150,12 @@ https://github.com/jxxghp/nas-tools/releases
    
    ![image](https://user-images.githubusercontent.com/51039935/156371501-cd35b802-3e12-47a5-893f-69806d611163.png)
 
+### 6、配置Jackett（可选）
+如果你想通过微信发送电影电视剧的名称，后台就自动检索各PT站并自动下载，则需要配置Jackett，获取API Key以及Torznab Feed，相关参数填入配置文件。
 
-### 6、整理存量媒体资源（可选）
+Jackett的相关配置参考网上的各类教程。
+
+### 7、整理存量媒体资源（可选）
 如果你的存量资源所在的目录与你在配置文件Sync中配置的源路径目的路径相同，则可以通过WEBUI或微信的“资源同步”按钮触发全量同步。 如果不相同则可以按以下说明操作，手工输入命令整理特定目录下的媒体资源。
 
 重要说明：-d 参数为可选，如不输入则会自动区分电影还是电视剧分别存储到配置文件对应的电影电视剧媒体库目录中；-d 参数有输入时则不管是电影还是电视剧，都往-d目录中转移。
@@ -187,5 +194,4 @@ https://github.com/jxxghp/nas-tools/releases
 
 ## TODO
 1) 自定义分类
-2) PT全局资源检索
-3) 通过微信消息和豆瓣自动检索下载
+3) 从豆瓣接取关注电影自动下载

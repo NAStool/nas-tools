@@ -64,7 +64,7 @@ message:
   bark:
     # 自己搭建请更换，否则保持默认
     server: https://api.day.app
-    # Bark客户端生成的KEY，可以维护多个
+    # Bark客户端生成的KEY
     apikey:
 
 # 配置PT下载信息，用于监控下载软件，完成后自动转移和改名，不用可删掉

@@ -2,8 +2,11 @@ import _thread
 from flask import Flask, request, json, render_template, make_response, redirect
 import log
 from monitor.media_sync import sync_all
+from pt.downloader import Downloader
+from pt.jackett import Jackett
 from pt.qbittorrent import Qbittorrent
 from pt.transmission import Transmission
+from rmt.media import Media
 from scheduler.autoremove_torrents import AutoRemoveTorrents
 from scheduler.pt_signin import PTSignin
 from scheduler.pt_transfer import PTTransfer
@@ -347,30 +350,11 @@ def create_flask_app():
                 _thread.start_new_thread(sync_all, ())
             if content == "/rss":
                 _thread.start_new_thread(RSSDownloader().run_schedule, ())
+            elif content.startswith("http://") or content.startswith("https://") or content.startswith("magnet:"):
+                _thread.start_new_thread(Downloader().add_pt_torrent, (content,))
             else:
-                if content.startswith("http://") or content.startswith("https://") or content.startswith("magnet:"):
-                    # 添加种子任务
-                    pt_client = config['pt'].get('pt_client')
-                    if pt_client == "qbittorrent":
-                        save_path = config['qbittorrent'].get('save_path')
-                        if save_path:
-                            try:
-                                ret = Qbittorrent().add_qbittorrent_torrent(content, save_path)
-                                if ret and ret.find("Ok") != -1:
-                                    log.info("【WEB】添加qBittorrent任务：%s" % content)
-                                    Message().sendmsg("添加qBittorrent下载任务成功！")
-                            except Exception as e:
-                                log.error("【WEB】添加qBittorrent任务出错：" + str(e))
-                    elif pt_client == "transmission":
-                        save_path = config['transmission'].get('save_path')
-                        if save_path:
-                            try:
-                                ret = Transmission().add_transmission_torrent(content, save_path)
-                                if ret:
-                                    log.info("【WEB】添加transmission任务：%s" % content)
-                                    Message().sendmsg("添加transmission下载任务成功！")
-                            except Exception as e:
-                                log.error("【WEB】添加transmission任务出错：" + str(e))
+                _thread.start_new_thread(Jackett().search_one_media, (content,))
+
             return make_response(reponse_text, 200)
 
     return app

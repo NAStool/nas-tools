@@ -40,6 +40,8 @@ PT_TRANSFER_INTERVAL = 300
 SYNC_DIR_CONFIG = {}
 # fanart的api，用于拉取封面图片
 FANART_API_URL = 'http://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
+# Jackett检索时，每个站最多检索多少条记录
+JACKETT_MAX_INDEX_NUM = 10
 
 # 日志级别
 LOG_LEVEL = logging.INFO

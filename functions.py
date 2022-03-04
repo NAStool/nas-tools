@@ -6,6 +6,8 @@ import time
 import platform
 import requests
 import bisect
+from xml.dom.minidom import parse
+import xml.dom.minidom
 
 
 # 根据IP地址获取位置
@@ -161,14 +163,28 @@ def get_host_ip():
         return ''
 
 
-def crate_number_list(start, end):
-    if start is None:
-        start = 1
-    if end is None:
-        return [start]
-    arr = []
-    i = start
-    while i <= end:
-        arr.append(i)
-        i = i + 1
-    return arr
+# 解析RSS的XML，返回标题及URL
+def parse_rssxml(url):
+    ret_array = []
+    if not url:
+        return ret_array
+    try:
+        ret = requests.get(url)
+    except Exception as e:
+        return ret_array
+    if ret:
+        ret_xml = ret.text
+        try:
+            # 解析XML
+            dom_tree = xml.dom.minidom.parseString(ret_xml)
+            rootNode = dom_tree.documentElement
+            items = rootNode.getElementsByTagName("item")
+            for item in items:
+                # 获取XML值
+                title = item.getElementsByTagName("title")[0].firstChild.data
+                enclosure = item.getElementsByTagName("enclosure")[0].getAttribute("url")
+                tmp_dict = {'title': title, 'enclosure': enclosure}
+                ret_array.append(tmp_dict)
+        except Exception as e2:
+            return ret_array
+    return ret_array

@@ -94,10 +94,10 @@ class Qbittorrent:
                     log.error("【QB】%s 转移失败！" % torrent.name)
 
     # 添加qbittorrent任务
-    def add_qbittorrent_torrent(self, turl, tpath):
+    def add_qbittorrent_torrent(self, turl):
         if not self.qbc:
             return False
         self.qbc.auth_log_in()
-        qbc_ret = self.qbc.torrents_add(turl, None, tpath)
+        qbc_ret = self.qbc.torrents_add(turl, None, self.__save_path)
         self.qbc.auth_log_out()
         return qbc_ret

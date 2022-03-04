@@ -91,8 +91,8 @@ class Transmission:
                             log.error("【TR】%s 转移失败：" % torrent.name)
 
     # 添加transmission任务
-    def add_transmission_torrent(self, turl, tpath):
-        return self.trc.add_torrent(torrent=turl, download_dir=tpath)
+    def add_transmission_torrent(self, turl):
+        return self.trc.add_torrent(torrent=turl, download_dir=self.__save_path)
 
         # 删除种子
 

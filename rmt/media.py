@@ -834,14 +834,15 @@ class Media:
             # 解析媒体名称
             file_name = os.path.basename(file_path)
             file_media_name = self.__get_pt_media_name(file_name)
-            # 优先使用文件的名称，没有就拿上级的
-            if not file_media_name:
-                tmp_path = os.path.basename(os.path.dirname(file_path))
-                file_media_name = self.__get_pt_media_name(tmp_path)
-                if not file_media_name:
+            # 优先使用文件的名称，没有就拿上级的，输入输出竟然相等，肯定没拿到信息
+            if not file_media_name or file_media_name == file_name:
+                parent_dir = os.path.dirname(file_path)
+                parent_dir_name = os.path.basename(parent_dir)
+                file_media_name = self.__get_pt_media_name(parent_dir_name)
+                if not file_media_name or file_media_name == parent_dir_name:
                     # 最多找两级
-                    tmp_path = os.path.basename(os.path.dirname(file_path))
-                    file_media_name = self.__get_pt_media_name(tmp_path)
+                    parent_parent_dir_name = os.path.basename(os.path.dirname(parent_dir))
+                    file_media_name = self.__get_pt_media_name(parent_parent_dir_name)
             if not file_media_name:
                 log.warn("【RMT】文件 %s 无法识别到标题！" % file_path)
                 continue
