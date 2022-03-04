@@ -131,13 +131,13 @@ class Jackett:
         # 稍微切一下剧集吧
         season_str = ""
         episode_str = ""
-        season_re = re.search(r"第(\d+)季", content, re.IGNORECASE)
-        episode_re = re.search(r"第(\d+)集", content, re.IGNORECASE)
+        season_re = re.search(r"第[\s.]*(\d+)[\s.]*季", content, re.IGNORECASE)
+        episode_re = re.search(r"第[\s.]*(\d+)[\s.]*集", content, re.IGNORECASE)
         if season_re:
             season_str = 'S' + season_re.group(1).upper().rjust(2, '0')
         if episode_re:
             episode_str = 'E' + episode_re.group(1).upper().rjust(2, '0')
-        key_word = re.sub(r'第\d+季|第\d+集', '', content, re.IGNORECASE)
+        key_word = re.sub(r'第[\s.]*\d+[\s.]*季|第[\s.]*\d+[\s.]*集', '', content, re.IGNORECASE).strip()
         self.message.sendmsg("【JACKETT】开始检索 %s ..." % content)
         media_list = self.search_medias_from_word(key_word, season_str, episode_str)
         if len(media_list) == 0:
