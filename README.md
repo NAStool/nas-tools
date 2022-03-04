@@ -178,7 +178,7 @@ https://github.com/jxxghp/nas-tools/releases
 
 2) 手机端图文通知和控制界面，控制服务运行（输入命令或者点击菜单）
 
-![msg](https://user-images.githubusercontent.com/51039935/156728397-58524dcb-ddd8-4b26-903d-a11b2a8f231b.jpg)
+![msg](https://user-images.githubusercontent.com/51039935/156728609-bc301974-663b-48f7-b0c0-c42f4ec6aabc.jpg)
 ![photo_2022-03-04_16-27-51](https://user-images.githubusercontent.com/51039935/156728213-08acf146-e661-4851-9491-3d32520d85e0.jpg)
 
 
