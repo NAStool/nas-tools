@@ -66,7 +66,7 @@ class Media:
         if re_res1:
             num_pos1 = re_res1.span()[0]
         # 查找Sxx或Exx的位置
-        re_res2 = re.search(r"[\s.]+[SE]P?\d{1,4}", out_name, re.IGNORECASE)
+        re_res2 = re.search(r"[\s.]+[SE]P?\d{1,3}", out_name, re.IGNORECASE)
         if re_res2:
             num_pos2 = re_res2.span()[0]
         # 取三者最小
@@ -74,7 +74,7 @@ class Media:
         # 截取Year或Sxx或Exx前面的字符
         out_name = out_name[0:num_pos]
         # 如果带有Sxx-Sxx、Exx-Exx这类的要处理掉
-        out_name = re.sub(r'[SsEePp]+\d{1,2}-?[SsEePp]*\d{0,2}', '', out_name).strip()
+        out_name = re.sub(r'[SsEePp]+\d{1,3}-?[SsEePp]*\d{0,3}', '', out_name).strip()
         if is_chinese(out_name):
             # 有中文的，把中文外的英文、字符、数字等全部去掉
             out_name = re.sub(r'[0-9a-zA-Z【】\-_.\[\]()\s]+', '', out_name).strip()
@@ -99,7 +99,7 @@ class Media:
         ret_str = ""
         if in_name:
             # 查找Sxx
-            re_res = re.search(r"[\s.]*S?\d*(EP?\d{1,4})[\s.]*", in_name, re.IGNORECASE)
+            re_res = re.search(r"[\s.]*S?\d{0,2}(EP?\d{1,3})[\s.]*", in_name, re.IGNORECASE)
             if re_res:
                 ret_str = re_res.group(1).upper()
             else:
@@ -179,7 +179,8 @@ class Media:
                 media_id = info.id
                 media_title = info.title
                 log.info(">电影ID：%s, 上映日期：%s, 电影名称：%s" % (str(info.id), info.release_date, info.title))
-                media_year = info.release_date[0:4]
+                if info.get('release_date'):
+                    media_year = info.release_date[0:4]
                 backdrop_path = info.backdrop_path
                 vote_average = str(info.vote_average)
                 # 国家
@@ -420,7 +421,8 @@ class Media:
     # 从种子名称中获取季和集的数字
     @staticmethod
     def get_sestring_from_name(name):
-        re_res = re.search(r'(S?\d{0,2}E?P?\d{1,2}-?S?\d{0,2}E?P?\d{0,2})', name, re.IGNORECASE)
+        # 不知道怎么写，最傻的办法，穷举！
+        re_res = re.search(r'([SsEePp]+\d{1,3}-?[SsEePp]*\d{0,3})', name, re.IGNORECASE)
         if re_res:
             return re_res.group(1).upper()
         else:

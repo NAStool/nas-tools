@@ -233,7 +233,7 @@ class Jackett:
         se = self.media.get_sestring_from_name(can_item.get('torrent_name'))
         msg_title = tt
         if yr:
-            msg_title = "%s (%s)" % (msg_title, str(yr))
+            msg_title = "%s (%s)" % (tt, str(yr))
         if se:
             msg_text = "来自Jackett的%s %s %s 已开始下载" % (tp, msg_title, se)
         else:
