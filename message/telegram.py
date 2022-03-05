@@ -21,14 +21,17 @@ class Telegram:
             if not self.__telegram_token or not self.__telegram_chat_id:
                 return False, "参数未配置"
 
+            if text:
+                caption = "%s\n%s" % (title, text.replace("\n\n", "\n"))
+            else:
+                caption = title
             if image:
                 # 发送图文消息
-                text = text.replace("\n\n", "\n")
-                values = {"chat_id": self.__telegram_chat_id, "photo": image, "caption": "%s\n%s" % (title, text)}
+                values = {"chat_id": self.__telegram_chat_id, "photo": image, "caption": caption}
                 sc_url = "https://api.telegram.org/bot%s/sendPhoto?" % self.__telegram_token
             else:
                 # 发送文本
-                values = {"chat_id": self.__telegram_chat_id, "text": "%s\n\n%s" % (title, text)}
+                values = {"chat_id": self.__telegram_chat_id, "text": caption}
                 sc_url = "https://api.telegram.org/bot%s/sendMessage?" % self.__telegram_token
 
             res = requests.get(sc_url + urlencode(values))

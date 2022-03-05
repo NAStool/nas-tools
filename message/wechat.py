@@ -67,13 +67,15 @@ class WeChat(object):
         if not self.__agent_id:
             return False, "参数未配置"
         if text:
-            text = text.replace("\n\n", "\n")
+            conent = "%s\n%s" % (title, text.replace("\n\n", "\n"))
+        else:
+            conent = title
         req_json = {
             "touser": "@all",
             "msgtype": "text",
             "agentid": self.__agent_id,
             "text": {
-                "content": "%s\n\n%s" % (title, text)
+                "content": conent
             },
             "safe": 0,
             "enable_id_trans": 0,

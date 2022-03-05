@@ -3,7 +3,7 @@ import shutil
 import time
 import log
 from config import get_config, RMT_MOVIETYPE, RMT_FAVTYPE
-from functions import get_location
+from utils.functions import get_location
 from message.send import Message
 
 PLAY_LIST = []

@@ -1,11 +1,12 @@
-import os
 import re
 import log
-from config import get_config, RMT_MOVIETYPE, RMT_MEDIAEXT
-from functions import is_chinese, parse_rssxml
+from config import get_config
+from rmt.filetransfer import FileTransfer
+from utils.functions import parse_rssxml, is_chinese
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
+from utils.types import MediaType
 
 
 class RSSDownloader:
@@ -21,15 +22,16 @@ class RSSDownloader:
     message = None
     media = None
     downloader = None
+    filetransfer = None
 
     def __init__(self):
         self.message = Message()
         self.media = Media()
         self.downloader = Downloader()
+        self.filetransfer = FileTransfer()
 
         config = get_config()
         if config.get('pt'):
-            self.__rss_jobs = config['pt'].get('sites')
             self.__rss_chinese = config['pt'].get('rss_chinese')
         if config.get('media'):
             self.__movie_path = config['media'].get('movie_path')
@@ -79,7 +81,7 @@ class RSSDownloader:
 
         self.__running_flag = True
         # 保存命中的资源信息
-        __rss_download_torrents = []
+        rss_download_torrents = []
         # 代码站点配置优先级的序号
         order_seq = 0
         for rss_job, job_info in sites.items():
@@ -115,79 +117,19 @@ class RSSDownloader:
 
                     log.info("【RSS】开始检索媒体信息:" + title)
 
-                    # 假定是电影
-                    search_type = "电影"
-                    # 判定是不是电视剧，如果是的话就是电视剧，否则就先按电影检索，电影检索不到时再按电视剧检索
-                    if self.media.is_media_files_tv(title):
-                        search_type = "电视剧"
-                        media_info = self.media.get_media_info_on_name(title, search_type)
-                    else:
-                        # 按电影检索
-                        media_info = self.media.get_media_info_on_name(title, search_type)
-                        if not media_info or media_info['id'] == "0":
-                            # 电影没有再按电视剧检索
-                            search_type = "电视剧"
-                            media_info = self.media.get_media_info_on_name(title, search_type)
-
+                    media_info = self.media.get_media_info_on_name(title)
                     if not media_info:
-                        log.error("【RSS】%s 检索媒体信息出错！" % title)
                         continue
-
-                    media_id = media_info["id"]
-                    if media_id == "0":
+                    if self.__rss_chinese and not is_chinese(media_info["title"]):
+                        log.info("【RSS】该媒体在TMDB中没有中文描述，跳过：%s" % media_info["title"])
                         continue
-
-                    media_type = media_info["type"]
-                    media_title = media_info["title"]
-                    media_year = media_info["year"]
-                    if media_info.get('vote_average'):
-                        vote_average = media_info['vote_average']
+                    # 检查种子名称或者标题是否匹配
+                    match_flag = self.__is_torrent_match(title, media_info["title"], media_info["search_type"], movie_keys, tv_keys)
+                    if match_flag:
+                        log.info("【RSS】%s 匹配成功！" % title)
                     else:
-                        vote_average = ""
-                    backdrop_path = self.media.get_backdrop_image(media_info.get('backdrop_path'), media_id)
-
-                    if self.__rss_chinese and not is_chinese(media_title):
-                        log.info("【RSS】该媒体在TMDB中没有中文描述，跳过：%s" % media_title)
+                        log.info("【RSS】%s 与规则不匹配！" % title)
                         continue
-
-                    match_flag = False
-                    # 按种子标题匹配
-                    if search_type == "电影":
-                        # 按电影匹配
-                        for key in movie_keys:
-                            if re.search(str(key), title):
-                                match_flag = True
-                                break
-                        if match_flag:
-                            log.info("【RSS】电影 %s 种子标题匹配成功!" % title)
-                    else:
-                        # 按电视剧匹配
-                        for key in tv_keys:
-                            if re.search(str(key), title):
-                                match_flag = True
-                                break
-                        if match_flag:
-                            log.info("【RSS】电视剧 %s 种子标题匹配成功!" % title)
-
-                    # 按媒体信息匹配
-                    if not match_flag:
-                        if search_type == "电影":
-                            # 按电影匹配
-                            for key in movie_keys:
-                                if str(key) == media_title:
-                                    match_flag = True
-                                    break
-                            if match_flag:
-                                log.info("【RSS】电影 %s 媒体名称匹配成功!" % media_title)
-                        else:
-                            # 按电视剧匹配
-                            for key in tv_keys:
-                                if str(key) == media_title:
-                                    match_flag = True
-                                    break
-                            if match_flag:
-                                log.info("【RSS】电视剧 %s 媒体名称匹配成功!" % media_title)
-
                     # 匹配后，看资源类型是否满足
                     # 代表资源类型在配置中的优先级顺序
                     res_order = 99
@@ -197,95 +139,48 @@ class RSSDownloader:
                         match_flag, res_order, res_typestr = self.media.check_resouce_types(title, res_type)
                         if not match_flag:
                             log.info("【RSS】%s 资源类型不匹配！" % title)
+                            continue
+                    dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.filetransfer.is_media_exists(media_info['search_type'], media_info['type'], media_info['title'], media_info['year'])
+                    if dir_exist_flag:
+                        log.info("【RSS】电影目录已存在该电影：%s" % title)
+                        continue
 
-                    # 判断在媒体库中是否已存在...
-                    if match_flag:
-                        if media_year:
-                            media_name = "%s (%s)" % (media_title, media_year)
-                        else:
-                            media_name = media_title
-                        if search_type == "电影":
-                            # 确认是否已存在
-                            exist_flag = False
-                            media_path = os.path.join(self.__movie_path, media_name)
-                            if self.__movie_subtypedir:
-                                for m_type in RMT_MOVIETYPE:
-                                    media_path = os.path.join(self.__movie_path, m_type, media_name)
-                                    # 目录是否存在
-                                    if os.path.exists(media_path):
-                                        exist_flag = True
-                                        break
-                            else:
-                                exist_flag = os.path.exists(media_path)
-
-                            if exist_flag:
-                                log.info("【RSS】电影目录已存在该电影，跳过：%s" % media_path)
-                                continue
-                        else:
-                            # 剧集目录
-                            if self.__tv_subtypedir:
-                                media_path = os.path.join(self.__tv_path, media_type, media_name)
-                            else:
-                                media_path = os.path.join(self.__tv_path, media_name)
-                            # 剧集是否存在
-                            # Sxx
-                            file_season = self.media.get_media_file_season(title)
-                            # 季 Season xx
-                            season_str = "Season " + str(int(file_season.replace("S", "")))
-                            season_dir = os.path.join(media_path, season_str)
-                            # Exx
-                            file_seq = self.media.get_media_file_seq(title)
-                            if file_seq != "":
-                                # 集 xx
-                                file_seq_num = str(int(file_seq.replace("E", "").replace("P", "")))
-                                # 文件路径
-                                file_path = os.path.join(season_dir,
-                                                         media_title + " - " +
-                                                         file_season + file_seq + " - " +
-                                                         "第 " + file_seq_num + " 集")
-                                exist_flag = False
-                                for ext in RMT_MEDIAEXT:
-                                    log.debug("【RSS】路径：" + file_path + ext)
-                                    if os.path.exists(file_path + ext):
-                                        exist_flag = True
-                                        log.warn("【RSS】该剧集文件已存在，跳过：%s" % (file_path + ext))
-                                        break
-                                if exist_flag:
-                                    continue
-                        # site_order res_order 从小到大排序
-                        res_info = {"site_order": order_seq,
-                                    "site": rss_job,
-                                    "type": search_type,
-                                    "title": media_title,
-                                    "year": media_year,
-                                    "enclosure": enclosure,
-                                    "torrent_name": title,
-                                    "vote_average": vote_average,
-                                    "res_order": res_order,
-                                    "res_type": res_typestr,
-                                    "backdrop_path": backdrop_path}
-                        if res_info not in __rss_download_torrents:
-                            __rss_download_torrents.append(res_info)
-                    else:
-                        log.info("【RSS】当前资源与规则不匹配，跳过...")
+                    # site_order res_order 从小到大排序
+                    res_info = {"site_order": order_seq,
+                                "site": rss_job,
+                                "type": media_info['search_type'],
+                                "title": media_info['title'],
+                                "year": media_info['year'],
+                                "enclosure": enclosure,
+                                "torrent_name": title,
+                                "vote_average": media_info['vote_average'],
+                                "res_order": res_order,
+                                "res_type": res_typestr,
+                                "backdrop_path": media_info['backdrop_path']}
+                    if res_info not in rss_download_torrents:
+                        rss_download_torrents.append(res_info)
                 except Exception as e:
                     log.error("【RSS】错误：%s" % str(e))
                     continue
-            log.info("【RSS】%s 处理结束！" % rss_job)
+            log.info("【RSS】%s 处理结束，共匹配到 %s 个资源！" % (rss_job, len(rss_download_torrents)))
 
         # 所有site都检索完成，开始选种下载
+        # 用来控重
         can_download_list = []
+        # 用来存储信息
         can_download_list_item = []
-        if __rss_download_torrents:
+        if rss_download_torrents:
             # 按真实名称、站点序号、资源序号进行排序
-            __rss_download_torrents = sorted(__rss_download_torrents,
-                                             key=lambda x: x['title'] + str(x['site_order']) + str(x['res_order']))
+            rss_download_torrents = sorted(rss_download_torrents,
+                                           key=lambda x: x['title'] + str(x['site_order']) + str(x['res_order']))
             # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
-            for t_item in __rss_download_torrents:
+            for t_item in rss_download_torrents:
                 media_name = "%s (%s)" % (t_item.get('title'), t_item.get('year'))
                 if media_name not in can_download_list:
                     can_download_list.append(media_name)
                     can_download_list_item.append(t_item)
+
+        log.info("【RSS】RSS订阅处理完成，共有 %s 个需要添加下载！" % len(can_download_list))
 
         # 开始添加下载
         for can_item in can_download_list_item:
@@ -293,28 +188,55 @@ class RSSDownloader:
             log.info("【RSS】添加PT任务：%s，url= %s" % (can_item.get('title'), can_item.get('enclosure')))
             ret = self.downloader.add_pt_torrent(can_item.get('enclosure'))
             if ret:
-                tt = can_item.get('title')
-                va = can_item.get('vote_average')
-                yr = can_item.get('year')
-                bp = can_item.get('backdrop_path')
-                tp = can_item.get('type')
-                se = self.media.get_sestring_from_name(can_item.get('torrent_name'))
-                msg_title = tt
-                if yr:
-                    msg_title = msg_title + " (%s)" % str(yr)
-                if se:
-                    msg_text = "来自RSS的%s %s %s 已开始下载" % (tp, msg_title, se)
-                else:
-                    msg_text = "来自RSS的%s %s 已开始下载" % (tp, msg_title)
-                if va and va != '0':
-                    msg_title = msg_title + " 评分：%s" % str(va)
-
-                self.message.sendmsg(msg_title, msg_text, bp)
+                self.__send_rss_message(can_item)
             else:
                 log.error("【RSS】添加PT任务出错：%s" % can_item.get('title'))
 
         self.__running_flag = False
-        log.info("【RSS】RSS订阅处理完成！")
+
+    @staticmethod
+    def __is_torrent_match(title, media_title, search_type, movie_keys, tv_keys):
+        # 按种子标题匹配
+        if search_type == MediaType.MOVIE:
+            # 按电影匹配
+            for key in movie_keys:
+                if re.search(str(key), title):
+                    return True
+        else:
+            # 按电视剧匹配
+            for key in tv_keys:
+                if re.search(str(key), title):
+                    return True
+        # 按媒体信息匹配
+        if search_type == MediaType.MOVIE:
+            # 按电影匹配
+            for key in movie_keys:
+                if str(key) == media_title:
+                    return True
+        else:
+            # 按电视剧匹配
+            for key in tv_keys:
+                if str(key) == media_title:
+                    return True
+        return False
+
+    def __send_rss_message(self, can_item):
+        tt = can_item.get('title')
+        va = can_item.get('vote_average')
+        yr = can_item.get('year')
+        bp = can_item.get('backdrop_path')
+        tp = can_item.get('type')
+        se = self.media.get_sestring_from_name(can_item.get('torrent_name'))
+        msg_title = tt
+        if yr:
+            msg_title = "%s (%s)" % (tt, str(yr))
+        if se:
+            msg_text = "来自RSS的%s %s %s 已开始下载" % (tp, msg_title, se)
+        else:
+            msg_text = "来自RSS的%s %s 已开始下载" % (tp, msg_title)
+        if va and va != '0':
+            msg_title = "%s 评分：%s" % (msg_title, str(va))
+        self.message.sendmsg(msg_title, msg_text, bp)
 
 
 if __name__ == "__main__":

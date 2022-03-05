@@ -1,6 +1,7 @@
 import os
 import log
-from config import get_config, check_config, check_simple_config
+from config import get_config
+from utils.check import check_simple_config, check_config
 from version import APP_VERSION
 from web import run as web
 from monitor import run as monitor

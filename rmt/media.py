@@ -3,10 +3,11 @@ import re
 import requests
 from requests import RequestException
 import log
-from tmdbv3api import TMDb, Search, Movie
+from tmdbv3api import TMDb, Search
 from config import get_config, RMT_MEDIAEXT, RMT_COUNTRY_EA, RMT_COUNTRY_AS, FANART_API_URL
-from functions import is_chinese
+from utils.functions import is_chinese
 from message.send import Message
+from utils.types import MediaType
 
 
 class Media:
@@ -153,14 +154,8 @@ class Media:
             self.tmdb.language = language
         else:
             self.tmdb.language = 'zh'
-        info = {}
-        media_id = "0"
-        media_type = ""
-        media_title = ""
-        backdrop_path = ""
-        vote_average = ""
         # TMDB检索
-        if search_type == "电影":
+        if search_type == MediaType.MOVIE:
             # 先按年份查，不行再不用年份查
             log.info("【RMT】正在检索电影：%s, 年份=%s ..." % (file_media_name, media_year))
             if media_year:
@@ -173,6 +168,7 @@ class Media:
             log.debug("【RMT】API返回：%s" % str(self.search.total_results))
             if len(movies) == 0:
                 log.warn("【RMT】%s 未找到媒体信息!" % file_media_name)
+                return None
             else:
                 info = movies[0]
                 for movie in movies:
@@ -208,7 +204,7 @@ class Media:
             log.debug("【RMT】API返回：%s" % str(self.search.total_results))
             if len(tvs) == 0:
                 log.warn("【RMT】%s 未找到媒体信息!" % file_media_name)
-                info = {}
+                return None
             else:
                 info = tvs[0]
                 for tv in tvs:
@@ -264,16 +260,25 @@ class Media:
                 "backdrop_path": backdrop_path,
                 "vote_average": vote_average}
 
-    # 只有个名称和类型，用于RSS类的搜刮毁体信息
-    def get_media_info_on_name(self, in_name, in_type):
+    # 只有名称信息，判别是电影还是电视剧并返回TMDB信息
+    def get_media_info_on_name(self, in_name, in_type=None):
         media_name = self.__get_pt_media_name(in_name)
         media_year = self.__get_media_file_year(in_name)
-        # 调用TMDB API
-        file_media_info = self.__search_tmdb(media_name, media_year, in_type)
+        if not in_type:
+            if self.is_media_files_tv(in_type):
+                # 肯定是电视剧
+                file_media_info = self.__search_tmdb(media_name, media_year, MediaType.TV)
+            else:
+                # 不能确定是电视剧，先按电影查
+                file_media_info = self.__search_tmdb(media_name, media_year, MediaType.MOVIE)
+                if not file_media_info:
+                    # 查不到再按电视剧查
+                    file_media_info = self.__search_tmdb(media_name, media_year, MediaType.TV)
+        else:
+            file_media_info = self.__search_tmdb(media_name, media_year, in_type)
+
         if file_media_info:
-            # 分辨率
-            media_pix = self.__get_media_file_pix(in_name)
-            file_media_info['media_pix'] = media_pix
+            file_media_info['media_pix'] = self.__get_media_file_pix(in_name)
 
         return file_media_info
 
@@ -283,7 +288,7 @@ class Media:
     输出：类型，文件路径：媒体信息的List
     '''
 
-    def get_media_info(self, file_list):
+    def get_media_info_on_files(self, file_list):
         # 存储文件路径与媒体的对应关系
         return_media_infos = {}
 
@@ -312,13 +317,12 @@ class Media:
                     parent_parent_dir_name = os.path.basename(os.path.dirname(parent_dir))
                     file_media_name = self.__get_pt_media_name(parent_parent_dir_name)
             if not file_media_name:
-                log.warn("【RMT】文件 %s 无法识别到标题！" % file_path)
                 continue
 
             # 确定是电影还是电视剧
-            search_type = "电影"
+            search_type = MediaType.MOVIE
             if self.is_media_files_tv(file_path):
-                search_type = "电视剧"
+                search_type = MediaType.TV
 
             # 是否处理过
             if not media_names.get(file_media_name):
@@ -327,19 +331,11 @@ class Media:
                 if not media_year:
                     # 没有文件的则使用目录里的
                     media_year = self.__get_media_file_year(file_path)
-                if media_year:
-                    log.debug("【RMT】识别年份为：%s" % str(media_year))
-                else:
-                    log.debug("【RMT】未识别出年份！")
 
                 # 解析分辨率
                 media_pix = self.__get_media_file_pix(file_name)
                 if not media_pix:
                     media_pix = self.__get_media_file_year(file_path)
-                if media_pix:
-                    log.debug("【RMT】识别分辨率为：%s" % str(media_pix))
-                else:
-                    log.debug("【RMT】未识别分辨率！")
 
                 # 调用TMDB API
                 file_media_info = self.__search_tmdb(file_media_name, media_year, search_type)
@@ -348,38 +344,11 @@ class Media:
                     # 记录为已检索
                     media_names[file_media_name] = file_media_info
             if not media_names.get(file_media_name):
-                media_names[file_media_name] = {'id': '0', 'search_type': search_type}
+                media_names[file_media_name] = {'search_type': search_type}
             # 存入结果清单返回
             return_media_infos[file_path] = media_names.get(file_media_name)
 
         return return_media_infos
-
-    # 查询电影TMDB详细信息
-    def get_moive_metainfo(self, movie_id, language=None):
-        if language:
-            self.tmdb.language = language
-        else:
-            self.tmdb.language = 'zh'
-        movie = Movie()
-        return movie.videos(movie_id)
-
-    # 查询电影TMDB详细信息
-    def get_moive_now_playing(self, page, language=None):
-        if language:
-            self.tmdb.language = language
-        else:
-            self.tmdb.language = 'zh'
-        movie = Movie()
-        return movie.now_playing(page)
-
-    # 查询电影TMDB详细信息
-    def get_moive_upcoming(self, page, language=None):
-        if language:
-            self.tmdb.language = language
-        else:
-            self.tmdb.language = 'zh'
-        movie = Movie()
-        return movie.upcoming(page)
 
     # 检查标题中是否匹配资源类型
     # 返回：是否匹配，匹配的序号，匹配的值
@@ -393,13 +362,21 @@ class Media:
             t_type = str(t_type)
             if t_type.upper() == "BLURAY":
                 match_str = r'blu-?ray'
+                no_match_str = None
             elif t_type.upper() == "4K":
                 match_str = r'4k|2160p'
+                no_match_str = r'blu-?ray'
             else:
                 match_str = t_type
+                no_match_str = None
             re_res = re.search(match_str, t_title, re.IGNORECASE)
             if re_res:
                 # 命中
+                if no_match_str:
+                    re_res = re.search(no_match_str, t_title, re.IGNORECASE)
+                    if re_res:
+                        # 不该命中的命中
+                        return False, 99, ""
                 return True, c_seq, t_type
 
         return False, 99, ""

@@ -121,7 +121,7 @@ pt:
       signin_url: 'https://pthome.net/attendance.php'
       # PT站的Cookie，需要在浏览器中F12->网络 页抓取，具体操作可百度，未配置则无法进行PT签到
       cookie:
-      # 下载哪些类型的资源，只支持这些字典：BluRay、4k（包括了2160p）、1080p、720p，按先后顺序配置，配在前面的优先级高。留空则不过滤
+      # 下载哪些类型的资源：BluRay、4k（包括了2160p）、1080p、720p、WEB-DL等等，按先后顺序配置，配在前面的优先级高。留空则不过滤
       res_type:
         - 4k
         - 1080p

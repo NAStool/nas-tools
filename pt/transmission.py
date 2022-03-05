@@ -4,6 +4,7 @@ import urllib3
 import log
 from config import get_config
 from rmt.filetransfer import FileTransfer
+from utils.types import DownloaderType
 
 urllib3.disable_warnings()
 
@@ -81,7 +82,7 @@ class Transmission:
                     true_path = os.path.join(torrent.download_dir, t_file.name)
                     if self.__save_containerpath:
                         true_path = true_path.replace(str(self.__save_path), str(self.__save_containerpath))
-                        ret = self.filetransfer.transfer_media(in_from="Transmission", in_path=true_path)
+                        ret = self.filetransfer.transfer_media(in_from=DownloaderType.TR, in_path=true_path)
                         if ret:
                             self.set_tr_torrent_status(torrent.id)
                         else:

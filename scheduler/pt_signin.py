@@ -1,7 +1,7 @@
 import requests
 import log
 from config import get_config
-from functions import cookieParse, generateHeader
+from utils.functions import cookieParse, generateHeader
 from message.send import Message
 
 
