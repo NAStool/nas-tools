@@ -6,6 +6,7 @@ from utils.functions import parse_jackettxml
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
+from utils.types import MediaType
 
 
 class Jackett:
@@ -40,16 +41,20 @@ class Jackett:
         if not self.__api_key or not self.__indexers:
             log.error("【JACKETT】Jackett配置信息有误！")
             return []
+        if year_str:
+            search_word = "%s %s" % (key_word, year_str)
+        else:
+            search_word = key_word
         # 开始逐个检索将组合返回
-        order_seq = 0
+        order_seq = 100
+        # 已检索的信息不重复检索
+        media_names = {}
         for index in self.__indexers:
             if not index:
                 continue
             log.info("【JACKETT】开始检索Indexer：%s ..." % index)
-            order_seq = order_seq + 1
-            if year_str:
-                key_word = "%s %s" % (key_word, year_str)
-            api_url = "%sapi?apikey=%s&t=search&q=%s" % (index, self.__api_key, key_word)
+            order_seq = order_seq - 1
+            api_url = "%sapi?apikey=%s&t=search&q=%s" % (index, self.__api_key, search_word)
             media_array = parse_jackettxml(api_url)
             if len(media_array) == 0:
                 log.warn("【JACKETT】%s 未检索到资源！" % index)
@@ -74,7 +79,15 @@ class Jackett:
                     continue
 
                 # 检索媒体信息
-                media_info = self.media.get_media_info_on_name(title)
+                media_name = self.media.get_pt_media_name(title)
+                media_year = self.media.get_media_file_year(title)
+                media_key = "%s%s" % (media_name, media_year)
+                if not media_names.get(media_key):
+                    media_info = self.media.get_media_info_on_name(title, media_name, media_year)
+                    media_names[media_key] = media_info
+                else:
+                    media_info = media_names.get(media_key)
+
                 if not media_info:
                     log.debug("【JACKETT】%s 未检索媒体信息！" % title)
                     continue
@@ -146,13 +159,12 @@ class Jackett:
             self.message.sendmsg(title="【JACKETT】%s 共检索到 %s 个资源，即将择优下载！" % (content, len(media_list)), text="")
             # 匹配的资源中排序选最好的一个下载
             # 所有site都检索完成，开始选种下载
-            # 按站点顺序、资源匹配顺序、做种人数排序
-            media_list = sorted(media_list, key=lambda x: x['title'] + str(x['site_order']).rjust(2, '0') + str(
-                x['res_order']).rjust(2, '0') + str(x['seeders']).rjust(10, '0') + str(x['peers']).rjust(10, '0'))
+            # 按站点顺序、资源匹配顺序、做种人数排序，逆序
+            media_list = sorted(media_list, key=lambda x: x['title'] + str(x['site_order']).rjust(3, '0') + str(x['res_order']).rjust(3, '0') + str(x['seeders']).rjust(10, '0') + str(x['peers']).rjust(10, '0'), reverse=True)
             log.info("【JACKETT】检索到的种子信息排序后如下：")
             for media_item in media_list:
                 log.info(">标题：%s，序号：%s，资源类型：%s，大小：%s，做种：%s，下载：%s，季：%s，集：%s，种子：%s" % (media_item['title'],
-                                                                                     media_item['order_seq'],
+                                                                                     media_item['site_order'],
                                                                                      media_item['res_type'],
                                                                                      media_item['size'],
                                                                                      media_item['seeders'],
@@ -170,8 +182,10 @@ class Jackett:
                 # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
                 for t_item in media_list:
                     # 控重的主链是名称、季、集
-                    media_name = "%s%s%s%s" % (
-                    t_item.get('title'), t_item.get('year'), t_item.get('season'), t_item.get('episode'))
+                    if t_item['type'] == MediaType.TV:
+                        media_name = "%s%s%s%s" % (t_item.get('title'), t_item.get('year'), t_item.get('season'), t_item.get('episode'))
+                    else:
+                        media_name = "%s%s" % (t_item.get('title'), t_item.get('year'))
                     if media_name not in can_download_list:
                         can_download_list.append(media_name)
                         can_download_list_item.append(t_item)
@@ -203,7 +217,7 @@ class Jackett:
                 return False
         if year_str:
             if title.find(year_str) == -1:
-                log.info("【JACKETT】%s 未匹配年分：%s" % (title, year_str))
+                log.info("【JACKETT】%s 未匹配年份：%s" % (title, year_str))
                 return False
         return True
 
@@ -216,7 +230,7 @@ class Jackett:
         se = self.media.get_sestring_from_name(can_item.get('torrent_name'))
         msg_title = tt
         if yr:
-            msg_title = msg_title + " (%s)" % str(yr)
+            msg_title = "%s (%s)" % (msg_title, str(yr))
         if se:
             msg_text = "来自Jackett的%s %s %s 已开始下载" % (tp, msg_title, se)
         else:

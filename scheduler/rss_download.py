@@ -84,6 +84,8 @@ class RSSDownloader:
         rss_download_torrents = []
         # 代码站点配置优先级的序号
         order_seq = 0
+        # 已经检索过的信息不要重复查
+        media_names = {}
         for rss_job, job_info in sites.items():
             order_seq = order_seq + 1
             # 读取子配置
@@ -117,7 +119,15 @@ class RSSDownloader:
 
                     log.info("【RSS】开始检索媒体信息:" + title)
 
-                    media_info = self.media.get_media_info_on_name(title)
+                    media_name = self.media.get_pt_media_name(title)
+                    media_year = self.media.get_media_file_year(title)
+                    media_key = "%s%s" % (media_name, media_year)
+                    if not media_names.get(media_key):
+                        media_info = self.media.get_media_info_on_name(title, media_name, media_year)
+                        media_names[media_key] = media_info
+                    else:
+                        media_info = media_names.get(media_key)
+
                     if not media_info:
                         continue
                     if self.__rss_chinese and not is_chinese(media_info["title"]):
@@ -171,8 +181,7 @@ class RSSDownloader:
         can_download_list_item = []
         if rss_download_torrents:
             # 按真实名称、站点序号、资源序号进行排序
-            rss_download_torrents = sorted(rss_download_torrents,
-                                           key=lambda x: x['title'] + str(x['site_order']) + str(x['res_order']))
+            rss_download_torrents = sorted(rss_download_torrents, key=lambda x: x['title'] + str(x['site_order']).rjust(3, '0') + str(x['res_order']).rjust(3, '0'), reverse=True)
             # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
             for t_item in rss_download_torrents:
                 media_name = "%s (%s)" % (t_item.get('title'), t_item.get('year'))

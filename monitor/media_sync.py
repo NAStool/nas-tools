@@ -6,6 +6,7 @@ from watchdog.observers.polling import PollingObserver
 from config import get_config, RMT_MEDIAEXT, SYNC_DIR_CONFIG
 import log
 from rmt.filetransfer import FileTransfer
+from utils.types import SyncType
 
 FINISHED_JOBS = []
 lock = threading.Lock()
@@ -70,7 +71,7 @@ class Sync:
 
                 # 查找目的目录
                 target_dir = SYNC_DIR_CONFIG.get(parent_dir)
-                if not self.filetransfer.transfer_media(in_from="目录监控", in_path=event_path, target_dir=target_dir):
+                if not self.filetransfer.transfer_media(in_from=SyncType.MON, in_path=event_path, target_dir=target_dir):
                     log.error("【SYNC】%s 处理失败！" % event_path)
                 else:
                     log.info("【SYNC】%s 处理成功！" % event_path)

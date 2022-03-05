@@ -41,7 +41,7 @@ class Media:
 
     # 获得媒体名称，用于API检索
     @staticmethod
-    def __get_pt_media_name(in_name):
+    def get_pt_media_name(in_name):
         if not in_name:
             return ""
         # 如果有后缀则去掉，避免干扰
@@ -136,7 +136,7 @@ class Media:
 
     # 获得媒体文件的Year
     @staticmethod
-    def __get_media_file_year(in_name):
+    def get_media_file_year(in_name):
         if in_name:
             # 查找Sxx
             re_res = re.search(r"[\s.(]+(\d{4})[\s.)]+", in_name, re.IGNORECASE)
@@ -260,10 +260,12 @@ class Media:
                 "backdrop_path": backdrop_path,
                 "vote_average": vote_average}
 
-    # 只有名称信息，判别是电影还是电视剧并返回TMDB信息
-    def get_media_info_on_name(self, in_name, in_type=None):
-        media_name = self.__get_pt_media_name(in_name)
-        media_year = self.__get_media_file_year(in_name)
+    # 只有名称信息，判别是电影还是电视剧并TMDB信息
+    def get_media_info_on_name(self, in_name, media_name=None, media_year=None, in_type=None):
+        if not media_name:
+            media_name = self.get_pt_media_name(in_name)
+        if not media_year:
+            media_year = self.get_media_file_year(in_name)
         if not in_type:
             if self.is_media_files_tv(in_name):
                 # 肯定是电视剧
@@ -309,25 +311,25 @@ class Media:
                 # 如要是文件，则先用上级文件夹的名称
                 parent_dir = os.path.dirname(file_path)
                 file_name = os.path.basename(parent_dir)
-                file_media_name = self.__get_pt_media_name(file_name)
+                file_media_name = self.get_pt_media_name(file_name)
                 # 如果上一级文件夹不对，则拿文件名称
                 if not file_media_name or file_media_name == file_name:
                     file_name = os.path.basename(file_path)
-                    file_media_name = self.__get_pt_media_name(file_name)
+                    file_media_name = self.get_pt_media_name(file_name)
                     # 如果文件名不行，则拿上上级文件夹的名称
                     if not file_media_name or file_media_name == file_name:
                         p2_dir_name = os.path.dirname(parent_dir)
                         file_name = os.path.basename(p2_dir_name)
-                        file_media_name = self.__get_pt_media_name(file_name)
+                        file_media_name = self.get_pt_media_name(file_name)
 
             else:
                 # 如果是文件夹，先用自己的名称，不行再用上级的
                 file_name = os.path.basename(file_path)
-                file_media_name = self.__get_pt_media_name(file_name)
+                file_media_name = self.get_pt_media_name(file_name)
                 if not file_media_name or file_media_name == file_name:
                     parent_dir = os.path.dirname(file_path)
                     file_name = os.path.basename(parent_dir)
-                    file_media_name = self.__get_pt_media_name(file_name)
+                    file_media_name = self.get_pt_media_name(file_name)
 
             if not file_media_name:
                 continue
@@ -340,15 +342,15 @@ class Media:
             # 是否处理过
             if not media_names.get(file_media_name):
 
-                media_year = self.__get_media_file_year(file_name)
+                media_year = self.get_media_file_year(file_name)
                 if not media_year:
                     # 没有文件的则使用目录里的
-                    media_year = self.__get_media_file_year(file_path)
+                    media_year = self.get_media_file_year(file_path)
 
                 # 解析分辨率
                 media_pix = self.__get_media_file_pix(file_name)
                 if not media_pix:
-                    media_pix = self.__get_media_file_year(file_path)
+                    media_pix = self.get_media_file_year(file_path)
 
                 # 调用TMDB API
                 file_media_info = self.__search_tmdb(file_media_name, media_year, search_type)
@@ -368,10 +370,10 @@ class Media:
     @staticmethod
     def check_resouce_types(t_title, t_types):
         if t_types is None:
-            return False, 99, ""
-        c_seq = 0
+            return False, 0, ""
+        c_seq = 100
         for t_type in t_types:
-            c_seq = c_seq + 1
+            c_seq = c_seq - 1
             t_type = str(t_type)
             if t_type.upper() == "BLURAY":
                 match_str = r'blu-?ray'
@@ -389,10 +391,10 @@ class Media:
                     re_res = re.search(no_match_str, t_title, re.IGNORECASE)
                     if re_res:
                         # 不该命中的命中
-                        return False, 99, ""
+                        return False, 0, ""
                 return True, c_seq, t_type
 
-        return False, 99, ""
+        return False, 0, ""
 
     # 获取消息媒体图片
     @staticmethod

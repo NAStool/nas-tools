@@ -9,3 +9,8 @@ class MediaType(Enum):
 class DownloaderType(Enum):
     QB = 'Qbittorrent'
     TR = 'Transmission'
+
+
+class SyncType(Enum):
+    MAN = "手动整理"
+    MON = "目录监控"

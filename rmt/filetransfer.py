@@ -8,7 +8,7 @@ from config import RMT_SUBEXT, get_config, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_M
 from utils.functions import get_dir_files_by_ext, get_free_space_gb, str_filesize
 from message.send import Message
 from rmt.media import Media
-from utils.types import MediaType, DownloaderType
+from utils.types import MediaType, DownloaderType, SyncType
 
 
 class FileTransfer:
@@ -209,7 +209,7 @@ class FileTransfer:
 
         # 进到这里来的，可能是一个大目录，目录中有电影也有电视剧；也有可能是一个电视剧目录或者一个电影目录；也有可能是一个文件
 
-        if in_from == DownloaderType.QB or in_from == DownloaderType.TR:
+        if in_from in DownloaderType:
             rmt_mode = self.__pt_rmt_mode
         else:
             rmt_mode = self.__sync_rmt_mode
@@ -362,11 +362,11 @@ class FileTransfer:
                     new_movie_flag = True
 
                 # 电影的话，处理一部马上开始发送消息
-                if in_from != DownloaderType.QB and in_from != DownloaderType.TR:
+                if in_from not in DownloaderType:
                     #  不是PT转移的，只有有变化才通知
                     if not new_movie_flag:
                         continue
-                self.__send_transfer_movie_message(in_from, Title_Str, Media_Pix, Vote_Average, Backdrop_Path, media_filesize, exist_filenum)
+                self.__send_transfer_movie_message(in_from.value, Title_Str, Media_Pix, Vote_Average, Backdrop_Path, media_filesize, exist_filenum)
 
             # 电视剧
             elif Search_Type == MediaType.TV:
@@ -463,14 +463,14 @@ class FileTransfer:
         for title_str, item_info in finished_tv_medias.items():
             # PT的不管是否有修改文件均发通知，其他渠道没变化不发通知
             send_message_flag = False
-            if in_from == DownloaderType.QB or in_from == DownloaderType.TR:
+            if in_from in DownloaderType:
                 send_message_flag = True
             else:
                 if item_info.get('Exist_Files') < len(item_info.get('Episode_Ary')):
                     send_message_flag = True
 
             if send_message_flag:
-                self.__send_transfer_tv_message(title_str, item_info, in_from)
+                self.__send_transfer_tv_message(title_str, item_info, in_from.value)
 
         # 总结
         log.info("【RMT】%s 处理完成，总数：%s，失败：%s！" % (in_path, total_count, failed_count))
@@ -489,7 +489,7 @@ class FileTransfer:
                 return
         print("【RMT】正在转移以下目录中的全量文件：%s" % s_path)
         print("【RMT】转移模式为：%s" % self.__sync_rmt_mode)
-        ret = self.transfer_media(in_from="手动整理", in_path=s_path, target_dir=t_path)
+        ret = self.transfer_media(in_from=SyncType.MAN, in_path=s_path, target_dir=t_path)
         if not ret:
             print("【RMT】%s 处理失败！" % s_path)
         else:
@@ -511,7 +511,7 @@ class FileTransfer:
                 else:
                     s_path = monpath
                     t_path = None
-                ret = self.transfer_media(in_from="目录监控", in_path=s_path, target_dir=t_path)
+                ret = self.transfer_media(in_from=SyncType.MON, in_path=s_path, target_dir=t_path)
                 if not ret:
                     log.error("【SYNC】%s 处理失败！" % s_path)
                 else:
