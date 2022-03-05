@@ -235,6 +235,8 @@ class RSSDownloader:
         yr = can_item.get('year')
         bp = can_item.get('backdrop_path')
         tp = can_item.get('type')
+        if tp in MediaType:
+            tp = tp.value
         se = self.media.get_sestring_from_name(can_item.get('torrent_name'))
         msg_title = tt
         if yr:

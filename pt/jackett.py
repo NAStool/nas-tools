@@ -2,7 +2,7 @@ import re
 
 import log
 from config import get_config, JACKETT_MAX_INDEX_NUM
-from utils.functions import parse_jackettxml
+from utils.functions import parse_jackettxml, str_filesize
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
@@ -62,9 +62,6 @@ class Jackett:
             # 从检索结果中匹配符合资源条件的记录
             index_num = 0
             for media_item in media_array:
-                index_num = index_num + 1
-                if index_num >= JACKETT_MAX_INDEX_NUM:
-                    break
                 title = media_item.get('title')
                 enclosure = media_item.get('enclosure')
                 size = media_item.get('size')
@@ -83,6 +80,10 @@ class Jackett:
                 media_year = self.media.get_media_file_year(title)
                 media_key = "%s%s" % (media_name, media_year)
                 if not media_names.get(media_key):
+                    index_num = index_num + 1
+                    # 每个源最多查10个，避免查TMDB时间太长，已经查过的不计数
+                    if index_num >= JACKETT_MAX_INDEX_NUM:
+                        break
                     media_info = self.media.get_media_info_on_name(title, media_name, media_year)
                     media_names[media_key] = media_info
                 else:
@@ -227,6 +228,8 @@ class Jackett:
         yr = can_item.get('year')
         bp = can_item.get('backdrop_path')
         tp = can_item.get('type')
+        if tp in MediaType:
+            tp = tp.value
         se = self.media.get_sestring_from_name(can_item.get('torrent_name'))
         msg_title = tt
         if yr:
