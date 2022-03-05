@@ -79,7 +79,7 @@ class Transmission:
                 handlered_flag = True
             if (torrent.status == "seeding" or torrent.status == "seed_pending") and not handlered_flag:
                 # 查找根目录
-                true_path = self.__get_comman_dir(torrent.download_dir, torrent.files())
+                true_path = os.path.join(torrent.download_dir, torrent.name)
                 if not true_path:
                     continue
                 if self.__save_containerpath:
@@ -97,20 +97,3 @@ class Transmission:
         if not self.trc:
             return False
         return self.trc.remove_torrent(delete_data=delete_file, ids=ids)
-
-    @staticmethod
-    def __get_comman_dir(save_dir, files):
-        comm_dr = ""
-        for file in files:
-            file_path = file.name
-            file_ext = os.path.splitext(file_path)[-1]
-            if file_ext in RMT_MEDIAEXT:
-                # 找到媒体文件，找上级目录
-                p_path = os.path.dirname(file_path)
-                while p_path:
-                    p_path = os.path.dirname(p_path)
-                    if p_path:
-                        comm_dr = p_path
-                if comm_dr:
-                    break
-        return os.path.join(save_dir, comm_dr)
