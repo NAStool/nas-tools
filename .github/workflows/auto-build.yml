@@ -20,7 +20,7 @@ jobs:
       run: |
         docker build . --file Dockerfile --tag jxxghp/nas-tools:latest
         mv synology/ui ./
-        tar -zcvf package.tgz *.py *.txt monitor/ rmt/ scheduler/ message/ web/ ui/ config/ pt/
+        tar -zcvf package.tgz *.py *.txt monitor/ rmt/ scheduler/ message/ web/ ui/ config/ pt/ utils/
         mkdir spk
         mv package.tgz synology/WIZARD_UIFILES synology/conf synology/scripts/ synology/CHANGELOG synology/INFO synology/*.PNG synology/*.asc spk/
         cd spk/

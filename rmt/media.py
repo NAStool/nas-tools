@@ -125,7 +125,7 @@ class Media:
     def __get_media_file_pix(in_name):
         if in_name:
             # 查找Sxx
-            re_res = re.search(r"[\s.]+[SUHD]*(\d{3,4}[PI]+)[\s.]+", in_name, re.IGNORECASE)
+            re_res = re.search(r"[\s.]+[SBUHD]*(\d{3,4}[PI]+)[\s.]+", in_name, re.IGNORECASE)
             if re_res:
                 return re_res.group(1).upper()
             else:
@@ -265,7 +265,7 @@ class Media:
         media_name = self.__get_pt_media_name(in_name)
         media_year = self.__get_media_file_year(in_name)
         if not in_type:
-            if self.is_media_files_tv(in_type):
+            if self.is_media_files_tv(in_name):
                 # 肯定是电视剧
                 file_media_info = self.__search_tmdb(media_name, media_year, MediaType.TV)
             else:
@@ -305,17 +305,30 @@ class Media:
                 log.error("【RMT】%s 不存在！" % file_path)
                 continue
             # 解析媒体名称
-            file_name = os.path.basename(file_path)
-            file_media_name = self.__get_pt_media_name(file_name)
-            # 优先使用文件的名称，没有就拿上级的，输入输出竟然相等，肯定没拿到信息
-            if not file_media_name or file_media_name == file_name:
+            if os.path.isfile(file_path):
+                # 如要是文件，则先用上级文件夹的名称
                 parent_dir = os.path.dirname(file_path)
-                parent_dir_name = os.path.basename(parent_dir)
-                file_media_name = self.__get_pt_media_name(parent_dir_name)
-                if not file_media_name or file_media_name == parent_dir_name:
-                    # 最多找两级
-                    parent_parent_dir_name = os.path.basename(os.path.dirname(parent_dir))
-                    file_media_name = self.__get_pt_media_name(parent_parent_dir_name)
+                file_name = os.path.basename(parent_dir)
+                file_media_name = self.__get_pt_media_name(file_name)
+                # 如果上一级文件夹不对，则拿文件名称
+                if not file_media_name or file_media_name == file_name:
+                    file_name = os.path.basename(file_path)
+                    file_media_name = self.__get_pt_media_name(file_name)
+                    # 如果文件名不行，则拿上上级文件夹的名称
+                    if not file_media_name or file_media_name == file_name:
+                        p2_dir_name = os.path.dirname(parent_dir)
+                        file_name = os.path.basename(p2_dir_name)
+                        file_media_name = self.__get_pt_media_name(file_name)
+
+            else:
+                # 如果是文件夹，先用自己的名称，不行再用上级的
+                file_name = os.path.basename(file_path)
+                file_media_name = self.__get_pt_media_name(file_name)
+                if not file_media_name or file_media_name == file_name:
+                    parent_dir = os.path.dirname(file_path)
+                    file_name = os.path.basename(parent_dir)
+                    file_media_name = self.__get_pt_media_name(file_name)
+
             if not file_media_name:
                 continue
 

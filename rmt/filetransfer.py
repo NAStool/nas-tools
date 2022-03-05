@@ -30,10 +30,10 @@ class FileTransfer:
             self.__movie_subtypedir = config['media'].get('movie_subtypedir', True)
             self.__tv_subtypedir = config['media'].get('tv_subtypedir', True)
         if config.get('sync'):
-            self.__pt_rmt_mode = config.get['sync'].get('rmt_mode', 'COPY').upper()
-            self.sync_path = config.get['sync'].get('sync_path')
+            self.__sync_rmt_mode = config['sync'].get('sync_mod', 'COPY').upper()
+            self.__sync_path = config['sync'].get('sync_path')
         if config.get('pt'):
-            self.__pt_rmt_mode = config.get['pt'].get('rmt_mode', 'COPY').upper()
+            self.__pt_rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
         self.media = Media()
         self.message = Message()
 
@@ -209,7 +209,7 @@ class FileTransfer:
 
         # 进到这里来的，可能是一个大目录，目录中有电影也有电视剧；也有可能是一个电视剧目录或者一个电影目录；也有可能是一个文件
 
-        if in_from in DownloaderType.TYPES:
+        if in_from == DownloaderType.QB or in_from == DownloaderType.TR:
             rmt_mode = self.__pt_rmt_mode
         else:
             rmt_mode = self.__sync_rmt_mode
@@ -352,6 +352,9 @@ class FileTransfer:
                         log.debug("【RMT】正在创建目录：%s" % ret_dir_path)
                         os.makedirs(ret_dir_path)
                     file_ext = os.path.splitext(file_item)[-1]
+                    if not ret_file_path:
+                        log.error("【RMT】拼装路径错误！")
+                        continue
                     new_file = "%s%s" % (ret_file_path, file_ext)
                     ret = self.transfer_file(file_item, new_file, False, rmt_mode)
                     if not ret:
@@ -359,7 +362,7 @@ class FileTransfer:
                     new_movie_flag = True
 
                 # 电影的话，处理一部马上开始发送消息
-                if in_from not in DownloaderType.TYPES:
+                if in_from != DownloaderType.QB and in_from != DownloaderType.TR:
                     #  不是PT转移的，只有有变化才通知
                     if not new_movie_flag:
                         continue
@@ -443,6 +446,9 @@ class FileTransfer:
                         log.debug("【RMT】正在创建目录：%s" % ret_dir_path)
                         os.makedirs(ret_dir_path)
                     file_ext = os.path.splitext(file_item)[-1]
+                    if not ret_file_path:
+                        log.error("【RMT】拼装路径错误！")
+                        continue
                     new_file = "%s%s" % (ret_file_path, file_ext)
                     ret = self.transfer_file(file_item, new_file, False, rmt_mode)
                     if not ret:
@@ -457,7 +463,7 @@ class FileTransfer:
         for title_str, item_info in finished_tv_medias.items():
             # PT的不管是否有修改文件均发通知，其他渠道没变化不发通知
             send_message_flag = False
-            if in_from in DownloaderType.TYPES:
+            if in_from == DownloaderType.QB or in_from == DownloaderType.TR:
                 send_message_flag = True
             else:
                 if item_info.get('Exist_Files') < len(item_info.get('Episode_Ary')):
@@ -534,17 +540,17 @@ class FileTransfer:
             ret_dir_path = file_path
             if os.path.exists(file_path):
                 dir_exist_flag = True
-                if media_pix:
-                    file_dest = os.path.join(file_path, "%s - %s" % (dir_name, media_pix.lower()))
-                else:
-                    file_dest = os.path.join(file_path, dir_name)
-                ret_file_path = file_dest
-                for ext in RMT_MEDIAEXT:
-                    ext_dest = "%s%s" % (file_dest, ext)
-                    if os.path.exists(ext_dest):
-                        file_exist_flag = True
-                        ret_file_path = ext_dest
-                        break
+            if media_pix:
+                file_dest = os.path.join(file_path, "%s - %s" % (dir_name, media_pix.lower()))
+            else:
+                file_dest = os.path.join(file_path, dir_name)
+            ret_file_path = file_dest
+            for ext in RMT_MEDIAEXT:
+                ext_dest = "%s%s" % (file_dest, ext)
+                if os.path.exists(ext_dest):
+                    file_exist_flag = True
+                    ret_file_path = ext_dest
+                    break
         else:
             # 剧集目录
             if self.__tv_subtypedir:

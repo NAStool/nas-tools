@@ -9,4 +9,3 @@ class MediaType(Enum):
 class DownloaderType(Enum):
     QB = 'Qbittorrent'
     TR = 'Transmission'
-    TYPES = [QB, TR]
