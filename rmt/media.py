@@ -126,29 +126,20 @@ class Media:
                 log.error("【META】%s 不存在！" % file_path)
                 continue
             # 解析媒体名称
-            if os.path.isfile(file_path):
-                # 如要是文件，则先用上级文件夹的名称
+            # 先用自己的名称
+            file_name = os.path.basename(file_path)
+            meta_info = MetaInfo(file_name)
+            if not meta_info.get_name() or meta_info.get_name() == file_name:
+                # 拿上级的
                 parent_dir = os.path.dirname(file_path)
                 file_name = os.path.basename(parent_dir)
                 meta_info = MetaInfo(file_name)
-                # 如果上一级文件夹不对，则拿文件名称
                 if not meta_info.get_name() or meta_info.get_name() == file_name:
-                    file_name = os.path.basename(file_path)
+                    # 拿上级的
+                    p2_dir_name = os.path.dirname(parent_dir)
+                    file_name = os.path.basename(p2_dir_name)
                     meta_info = MetaInfo(file_name)
-                    # 如果文件名不行，则拿上上级文件夹的名称
-                    if not meta_info.get_name() or meta_info.get_name() == file_name:
-                        p2_dir_name = os.path.dirname(parent_dir)
-                        file_name = os.path.basename(p2_dir_name)
-                        meta_info = MetaInfo(file_name)
 
-            else:
-                # 如果是文件夹，先用自己的名称，不行再用上级的
-                file_name = os.path.basename(file_path)
-                meta_info = MetaInfo(file_name)
-                if not meta_info.get_name() or meta_info.get_name() == file_name:
-                    parent_dir = os.path.dirname(file_path)
-                    file_name = os.path.basename(parent_dir)
-                    meta_info = MetaInfo(file_name)
             # 检索不到信息的跳过
             if not meta_info.get_name():
                 continue
