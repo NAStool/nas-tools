@@ -2,7 +2,7 @@ import os.path
 import transmission_rpc
 import urllib3
 import log
-from config import get_config, RMT_MEDIAEXT
+from config import get_config
 from rmt.filetransfer import FileTransfer
 from utils.types import DownloaderType
 

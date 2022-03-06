@@ -21,6 +21,7 @@
 <div class="container"><div class="tabbable">
 	<ul class="nav nav-tabs border" role="tablist" id="myTab">
 		<li class="nav-item"><a id="key_tab" class="nav-link {% if page=='key' %} active {% endif %}" href="#key" data-toggle="tab" role="tab" aria-controls="key" aria-selected="{% if page=='key' %} true {% endif %}"><h6>订阅</h6></a></li>
+		<li class="nav-item"><a id="search_tab" class="nav-link {% if page=='search' %} active {% endif %}" href="#search" data-toggle="tab" role="tab" aria-controls="search" aria-selected="{% if page=='search' %} true {% endif %}"><h6>搜索</h6></a></li>
 		<li class="nav-item"><a id="rss_tab" class="nav-link {% if page=='rss' %} active {% endif %}" href="#rss" data-toggle="tab" role="tab" aria-controls="rss" aria-selected="{% if page=='rss' %} true {% endif %}"><h6>站点</h6></a></li>
 		<li class="nav-item"><a id="sch_tab" class="nav-link {% if page=='sch' %} active {% endif %}" href="#sch" data-toggle="tab" role="tab" aria-controls="sch" aria-selected="{% if page=='sch' %} true {% endif %}"><h6>服务</h6></a></li>
 	</ul>
@@ -44,6 +45,35 @@
 				<div style="text-align:center"><button id="key_btn" type="button" class="btn btn-primary">保存</button></div>
 			</form>
 		</div>
+		<div class="tab-pane show {% if page=='search' %} active {% endif %}" id="search" role="tabpanel" aria-labelledby="search-tab">
+			<form role="form" action="/do" method="post" id="search_form" class="form-inline">
+				<fieldset>
+					<legend></legend>
+					<div class="form-group mb-2">
+					   <input class="form-control mr-sm-2" id="search_word" name="search_word" type="text" placeholder="" value=""/>
+					   <button id="search_btn" type="button" class="btn btn-primary">搜索</button>
+				   </div>
+				</fieldset>
+				<table class="table table-striped">
+				  <thead>
+					<tr>
+						<th>名称</th>
+						<th>大小</th>
+						<th>做种</th>
+						<th>下载</th>
+					</tr>
+				  </thead>
+				  <tbody>
+					<tr>
+						<td>点击搜索...</td>
+						<td></td>
+						<td></td>
+						<td></td>
+					</tr>
+				  </tbody>
+				</table>
+			</form>
+		</div>
 		<div class="tab-pane show {% if page=='rss' %} active {% endif %}" id="rss" role="tabpanel" aria-labelledby="rss-tab">
 			<form role="form" action="/do" method="post" id="rss_form" class="form-horizontal">
 				{% for rss_cfg in rss_cfg_list %}
@@ -55,7 +85,7 @@
 						   <input class="form-control" id="{{ rss_cfg.job }}@rssurl" name="{{ rss_cfg.job }}@rssurl" type="text" placeholder="" value="{{ rss_cfg.url }}"/>
 					   </div>
 					   <div class="form-group col-md-6">
-						  <label class="control-label" for="{{ rss_cfg.job }}@res_type">资源类型(BluRay 4k 1080p 720p)</label>
+						  <label class="control-label" for="{{ rss_cfg.job }}@res_type">资源类型</label>
 						   <input class="form-control" data-role="tagsinput" id="{{ rss_cfg.job }}@res_type" name="{{ rss_cfg.job }}@res_type" type="text" placeholder="" value="{{ rss_cfg.res_type }}"/>
 					   </div>
 				   </div>

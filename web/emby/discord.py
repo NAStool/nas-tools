@@ -2,9 +2,10 @@ import os
 import shutil
 import time
 import log
-from config import get_config, RMT_MOVIETYPE, RMT_FAVTYPE
+from config import get_config, RMT_FAVTYPE
 from utils.functions import get_location
 from message.send import Message
+from utils.types import MediaCatagory
 
 PLAY_LIST = []
 
@@ -65,11 +66,11 @@ def report_to_discord(event):
                 return
             name = movie_dir.split('/')[-1]
             org_type = movie_dir.split('/')[-2]
-            if org_type not in RMT_MOVIETYPE:
+            if org_type not in [MediaCatagory.HYDY.value, MediaCatagory.WYDY.value]:
                 return
-            if org_type == RMT_FAVTYPE:
+            if org_type == MediaCatagory.JXDY.value:
                 return
-            new_path = os.path.join(movie_path, RMT_FAVTYPE, name)
+            new_path = os.path.join(movie_path, MediaCatagory.JXDY.value, name)
             log.info("【Emby】开始转移文件 {} 到 {} ...".format(movie_dir, new_path))
             if os.path.exists(new_path):
                 log.info("【Emby】目录 {} 已存在！".format(new_path))

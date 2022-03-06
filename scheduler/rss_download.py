@@ -6,6 +6,7 @@ from utils.functions import parse_rssxml, is_chinese
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
+from rmt.metainfo import MetaInfo
 from utils.types import MediaType
 
 
@@ -106,6 +107,7 @@ class RSSDownloader:
             else:
                 log.warn("【RSS】%s 发现更新：%s" % (rss_job, len(rss_result)))
 
+            res_num = 0
             for res in rss_result:
                 try:
                     title = res['title']
@@ -119,22 +121,32 @@ class RSSDownloader:
 
                     log.info("【RSS】开始检索媒体信息:" + title)
 
-                    media_name = self.media.get_pt_media_name(title)
-                    media_year = self.media.get_media_file_year(title)
+                    # 识别种子名称
+                    media_info = MetaInfo(title)
+                    media_name = media_info.get_name()
+                    media_year = media_info.year
                     media_key = "%s%s" % (media_name, media_year)
                     if not media_names.get(media_key):
-                        media_info = self.media.get_media_info_on_name(title, media_name, media_year)
+                        # 开始检索TMDB
+                        tmdb_type, tmdb_info = self.media.get_media_info(media_info)
+                        # 整合结果
+                        media_info.set_tmdb_info(tmdb_info, tmdb_type)
                         media_names[media_key] = media_info
                     else:
                         media_info = media_names.get(media_key)
 
-                    if not media_info:
+                    if not media_info.tmdb_info:
                         continue
-                    if self.__rss_chinese and not is_chinese(media_info["title"]):
-                        log.info("【RSS】该媒体在TMDB中没有中文描述，跳过：%s" % media_info["title"])
+                    search_type = media_info.type
+                    media_title = media_info.title
+                    media_catagory = media_info.category
+                    vote_average = media_info.vote_average
+                    backdrop_path = media_info.backdrop_path
+                    if self.__rss_chinese and not is_chinese(media_title):
+                        log.info("【RSS】该媒体在TMDB中没有中文描述，跳过：%s" % media_title)
                         continue
                     # 检查种子名称或者标题是否匹配
-                    match_flag = self.__is_torrent_match(title, media_info["title"], media_info["search_type"], movie_keys, tv_keys)
+                    match_flag = self.__is_torrent_match(title, media_title, search_type, movie_keys, tv_keys)
                     if match_flag:
                         log.info("【RSS】%s 匹配成功！" % title)
                     else:
@@ -150,54 +162,41 @@ class RSSDownloader:
                         if not match_flag:
                             log.info("【RSS】%s 资源类型不匹配！" % title)
                             continue
-                    dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.filetransfer.is_media_exists(media_info['search_type'], media_info['type'], media_info['title'], media_info['year'])
+                    # 是否在媒体库中存在
+                    dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.filetransfer.is_media_exists(search_type, media_catagory, media_title, media_year)
                     if dir_exist_flag:
                         log.info("【RSS】电影目录已存在该电影：%s" % title)
                         continue
-
-                    # site_order res_order 从小到大排序
+                    # 返回对象
                     res_info = {"site_order": order_seq,
                                 "site": rss_job,
-                                "type": media_info['search_type'],
-                                "title": media_info['title'],
-                                "year": media_info['year'],
+                                "type": search_type,
+                                "title": media_title,
+                                "year": media_year,
                                 "enclosure": enclosure,
                                 "torrent_name": title,
-                                "vote_average": media_info['vote_average'],
+                                "vote_average": vote_average,
                                 "res_order": res_order,
                                 "res_type": res_typestr,
-                                "backdrop_path": media_info['backdrop_path']}
+                                "backdrop_path": backdrop_path,
+                                "es_string": media_info.get_season_episode_string()}
                     if res_info not in rss_download_torrents:
+                        res_num = res_num + 1
                         rss_download_torrents.append(res_info)
                 except Exception as e:
                     log.error("【RSS】错误：%s" % str(e))
                     continue
-            log.info("【RSS】%s 处理结束，共匹配到 %s 个资源！" % (rss_job, len(rss_download_torrents)))
-
-        # 所有site都检索完成，开始选种下载
-        # 用来控重
-        can_download_list = []
-        # 用来存储信息
-        can_download_list_item = []
-        if rss_download_torrents:
-            # 按真实名称、站点序号、资源序号进行排序
-            rss_download_torrents = sorted(rss_download_torrents, key=lambda x: x['title'] + str(x['site_order']).rjust(3, '0') + str(x['res_order']).rjust(3, '0'), reverse=True)
-            # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
-            for t_item in rss_download_torrents:
-                media_name = "%s (%s)" % (t_item.get('title'), t_item.get('year'))
-                if media_name not in can_download_list:
-                    can_download_list.append(media_name)
-                    can_download_list_item.append(t_item)
-
-        log.info("【RSS】RSS订阅处理完成，共有 %s 个需要添加下载！" % len(can_download_list))
-
+            log.info("【RSS】%s 处理结束，匹配到 %s 个有效资源！" % (rss_job, res_num))
+        log.info("【RSS】所有RSS处理结束，共 %s 个有效资源！" % len(rss_download_torrents))
         # 开始添加下载
-        for can_item in can_download_list_item:
+        can_download_list = self.__get_download_list(rss_download_torrents)
+        log.info("【RSS】共有 %s 个需要添加下载！" % len(can_download_list))
+        for can_item in can_download_list:
             # 添加PT任务
             log.info("【RSS】添加PT任务：%s，url= %s" % (can_item.get('title'), can_item.get('enclosure')))
             ret = self.downloader.add_pt_torrent(can_item.get('enclosure'))
             if ret:
-                self.__send_rss_message(can_item)
+                self.message.send_download_message("RSS", can_item, can_item.get('es_string'))
             else:
                 log.error("【RSS】添加PT任务出错：%s" % can_item.get('title'))
 
@@ -229,25 +228,30 @@ class RSSDownloader:
                     return True
         return False
 
-    def __send_rss_message(self, can_item):
-        tt = can_item.get('title')
-        va = can_item.get('vote_average')
-        yr = can_item.get('year')
-        bp = can_item.get('backdrop_path')
-        tp = can_item.get('type')
-        if tp in MediaType:
-            tp = tp.value
-        se = self.media.get_sestring_from_name(can_item.get('torrent_name'))
-        msg_title = tt
-        if yr:
-            msg_title = "%s (%s)" % (tt, str(yr))
-        if se:
-            msg_text = "来自RSS的%s %s %s 已开始下载" % (tp, msg_title, se)
-        else:
-            msg_text = "来自RSS的%s %s 已开始下载" % (tp, msg_title)
-        if va and va != '0':
-            msg_title = "%s 评分：%s" % (msg_title, str(va))
-        self.message.sendmsg(msg_title, msg_text, bp)
+    # 排序、去重、选种
+    @staticmethod
+    def __get_download_list(media_list):
+        if not media_list:
+            return []
+
+        # 排序函数
+        def get_sort_str(x):
+            return "%s%s%s" % (str(x['title']).ljust(100, ' '), str(x['site_order']).rjust(3, '0'), str(x['res_order']).rjust(3, '0'))
+        # 所有site都检索完成，开始选种下载
+        # 用来控重
+        can_download_list = []
+        # 用来存储信息
+        can_download_list_item = []
+        # 按真实名称、站点序号、资源序号进行排序
+        media_list = sorted(media_list, key=lambda x: get_sort_str(x), reverse=True)
+        # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
+        for t_item in media_list:
+            media_name = "%s (%s)" % (t_item.get('title'), t_item.get('year'))
+            if media_name not in can_download_list:
+                can_download_list.append(media_name)
+                can_download_list_item.append(t_item)
+
+        return can_download_list_item
 
 
 if __name__ == "__main__":

@@ -7,27 +7,21 @@ import yaml
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
 # 菜单序号在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护，然后看日志输出的菜单序号是啥（按顺利能猜到的）....
 # 命令对应关系：/ptt qBittorrent转移；/ptr qBittorrent删种；/pts PT签到；/rst ResilioSync同步；/rss RSS下载
+from utils.types import MediaCatagory
+
 WECHAT_MENU = {'_0_0': '/ptt', '_0_1': '/ptr', '_0_2': '/rss', '_1_0': '/rst', '_2_0': '/pts'}
-# 电影类型，目前不能修改
-RMT_MOVIETYPE = ['华语电影', '外语电影', '精选']
 # 收藏了的媒体的目录名，名字可以改，在Emby中点击红星则会自动将电影转移到此分类下，需要在Emby Webhook中配置用户行为通知
-RMT_FAVTYPE = '精选'
-# 剧集类型，目前不能修改，会自动在连续剧下按以下分类目录存放媒体，可以分开建立Emby媒体库
-RMT_TVTYPE = ['国产剧', '欧美剧', '日韩剧', '动漫', '纪录片', '综艺', '儿童']
+RMT_FAVTYPE = MediaCatagory.JXDY
 # 支持的媒体文件后缀格式
 RMT_MEDIAEXT = ['.mp4', '.mkv', '.ts', '.iso', '.rmvb', '.avi']
 # 支持的字幕文件后缀格式
-RMT_SUBEXT = ['.srt', '.ass']
+RMT_SUBEXT = ['.srt', '.ass', '.ssa']
 # 欧美国家的简称列表，会将这类剧集移到欧美剧目录
 RMT_COUNTRY_EA = ['US', 'FR', 'GB', 'DE', 'ES', 'IT', 'NL', 'PT', 'RU', 'UK']
 # 亚洲国家的简称列表，会将这类剧集移到日韩剧目录
 RMT_COUNTRY_AS = ['JP', 'KP', 'KR', 'TH', 'IN', 'SG']
 # 剩余多少磁盘空间时不再转移，单位GB
 RMT_DISKFREESIZE = 10
-
-# 从Youtube下载预告片的命令配置，不用改它
-YOUTUBE_DL_CMD = 'youtube-dl -o "$PATH" "https://www.youtube.com/watch?v=$KEY"'
-
 # PT删除检查时间间隔，默认10分钟
 AUTO_REMOVE_TORRENTS_INTERVAL = 600
 # PT转移文件检查时间间隔，默认5分钟
@@ -85,7 +79,7 @@ class Config(object):
     def get_config(self):
         return self.__config
 
-    def save_cnfig(self, new_cfg):
+    def save_config(self, new_cfg):
         self.__config = new_cfg
         with open(self.__config_path, mode='w', encoding='utf-8') as f:
             return yaml.dump(new_cfg, f, allow_unicode=True)
@@ -111,10 +105,4 @@ def load_config():
 
 # 保存配置
 def save_config(new_cfg):
-    return Config.get_instance().save_cnfig(new_cfg)
-
-
-if __name__ == "__main__":
-    os.environ['NASTOOL_CONFIG'] = '/volume1/homes/admin/.config/nastool/config.yaml'
-    cfg = get_config()
-    print(cfg)
+    return Config.get_instance().save_config(new_cfg)
