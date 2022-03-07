@@ -274,7 +274,7 @@ class FileTransfer:
 
         for file_item, media in Medias.items():
             total_count = total_count + 1
-            if not media:
+            if not media or not media.tmdb_info:
                 log.error("【RMT】%s 媒体信息识别失败！" % file_item)
                 failed_count = failed_count + 1
                 # 如果是LINK模式，则原样链接过去 这里可能日目录也可能是文件
