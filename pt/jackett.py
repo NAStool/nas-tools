@@ -35,15 +35,15 @@ class Jackett:
             self.media = Media()
 
     # 根据关键字调用 Jackett API 检索
-    def search_medias_from_word(self, key_word, s_str, e_str, year_str):
+    def search_medias_from_word(self, key_word, s_num, e_num, year):
         ret_array = []
         if not key_word:
             return []
         if not self.__api_key or not self.__indexers:
             log.error("【JACKETT】Jackett配置信息有误！")
             return []
-        if year_str:
-            search_word = "%s %s" % (key_word, year_str)
+        if year:
+            search_word = "%s %s" % (key_word, year)
         else:
             search_word = key_word
         # 开始逐个检索将组合返回
@@ -106,7 +106,7 @@ class Jackett:
                     match_flag = True
                 else:
                     # 检查标题是否匹配剧集
-                    match_flag = self.__is_jackett_match_title(title, key_word, s_str, e_str, year_str)
+                    match_flag = self.__is_jackett_match_title(media_info, key_word, s_num, e_num, year)
 
                 # 匹配到了
                 if match_flag:
@@ -143,21 +143,21 @@ class Jackett:
     # 按关键字，检索排序去重后择优下载
     def search_one_media(self, content):
         # 稍微切一下剧集吧
-        season_str = ""
-        episode_str = ""
-        year_str = ""
-        season_re = re.search(r"第[\s]*([\d一二三四五六七八九十]+)[\s]*季", content, re.IGNORECASE)
-        episode_re = re.search(r"第[\s]*([\d一二三四五六七八九十]+)[\s]*集", content, re.IGNORECASE)
+        season_num = None
+        episode_num = None
+        year = None
+        season_re = re.search(r"第\s*(\d+)\s*季", content, re.IGNORECASE)
+        episode_re = re.search(r"第\s*(\d+)\s*集", content, re.IGNORECASE)
         year_re = re.search(r"[\s(]+(\d{4})[\s)]*", content)
         if season_re:
-            season_str = 'S' + season_re.group(1).upper().rjust(2, '0')
+            season_num = int(season_re.group(1))
         if episode_re:
-            episode_str = 'E' + episode_re.group(1).upper().rjust(2, '0')
+            episode_num = int(episode_re.group(1))
         if year_re:
-            year_str = year_re.group(1)
-        key_word = re.sub(r'第[\s.]*\d+[\s.]*季|第[\s.]*\d+[\s.]*集|[\s.(]+(\d{4})[\s.)]*', '', content, re.IGNORECASE).strip()
+            year = year_re.group(1)
+        key_word = re.sub(r'第\s*\d+\s*季|第\s*\d+\s*集|[\s(]+(\d{4})[\s)]*', '', content, re.IGNORECASE).strip()
         self.message.sendmsg("【JACKETT】开始检索 %s ..." % content)
-        media_list = self.search_medias_from_word(key_word, season_str, episode_str, year_str)
+        media_list = self.search_medias_from_word(key_word, season_num, episode_num, year)
         if len(media_list) == 0:
             self.message.sendmsg("【JACKETT】%s 未检索到任何媒体资源！" % content, "")
         else:
@@ -175,22 +175,22 @@ class Jackett:
 
     # 种子名称关键字匹配
     @staticmethod
-    def __is_jackett_match_title(title, word, s_str, e_str, year_str):
+    def __is_jackett_match_title(media_info, word, s_num, e_num, year_str):
         if word:
-            if title.find(word) == -1:
-                log.info("【JACKETT】%s 未匹配关键字：%s" % (title, word))
+            if word not in media_info.get_name():
+                log.info("【JACKETT】%s 未匹配关键字：%s" % (media_info.org_string, word))
                 return False
-        if s_str:
-            if title.find(s_str) == -1:
-                log.info("【JACKETT】%s 未匹配剧：%s" % (title, s_str))
+        if s_num:
+            if media_info.is_in_seasion(s_num):
+                log.info("【JACKETT】%s 未匹配剧：%s" % (media_info.org_string, s_num))
                 return False
-        if e_str:
-            if title.find(e_str) == -1:
-                log.info("【JACKETT】%s 未匹配集：%s" % (title, e_str))
+        if e_num:
+            if media_info.is_in_episode(e_num):
+                log.info("【JACKETT】%s 未匹配集：%s" % (media_info.org_string, e_num))
                 return False
         if year_str:
-            if title.find(year_str) == -1:
-                log.info("【JACKETT】%s 未匹配年份：%s" % (title, year_str))
+            if str(media_info.year) == year_str:
+                log.info("【JACKETT】%s 未匹配年份：%s" % (media_info.org_string, year_str))
                 return False
         return True
 
