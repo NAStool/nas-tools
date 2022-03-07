@@ -49,10 +49,11 @@ class Media:
             else:
                 info = movies[0]
                 for movie in movies:
-                    if movie.get('title') == file_media_name or movie.get('release_date')[0:4] == media_year:
-                        # 优先使用名称或者年份完全匹配的，匹配不到则取第一个
-                        info = movie
-                        break
+                    if movie.get('release_date'):
+                        if movie.get('title') == file_media_name or movie.get('release_date')[0:4] == media_year:
+                            # 优先使用名称或者年份完全匹配的，匹配不到则取第一个
+                            info = movie
+                            break
                 log.info(">电影ID：%s, 上映日期：%s, 电影名称：%s" % (info.get('id'), info.get('release_date'), info.get('title')))
         else:
             # 先按年份查，不行再不用年份查
