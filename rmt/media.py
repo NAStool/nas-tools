@@ -139,6 +139,9 @@ class Media:
                     p2_dir_name = os.path.dirname(parent_dir)
                     file_name = os.path.basename(p2_dir_name)
                     meta_info = MetaInfo(file_name)
+                    if not meta_info.get_name() or meta_info.get_name() == file_name:
+                        # 仍然查不到则返回
+                        continue
 
             # 检索不到信息的跳过
             if not meta_info.get_name():
@@ -149,10 +152,10 @@ class Media:
                 # 调用TMDB API
                 file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, meta_info.type)
                 if file_media_info:
-                    meta_info.set_tmdb_info(file_media_info)
-                    media_names[file_media_name] = meta_info
+                    media_names[file_media_name] = file_media_info
             # 存入结果清单返回
-            return_media_infos[file_path] = media_names.get(file_media_name)
+            meta_info.set_tmdb_info(media_names.get(file_media_name))
+            return_media_infos[file_path] = meta_info
 
         return return_media_infos
 

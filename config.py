@@ -29,9 +29,12 @@ PT_TRANSFER_INTERVAL = 300
 # SYNC源目录与目的目录的配套关系
 SYNC_DIR_CONFIG = {}
 # fanart的api，用于拉取封面图片
-FANART_API_URL = 'http://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
+FANART_MOVIE_API_URL = 'http://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
+FANART_TV_API_URL = 'http://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
 # Jackett检索时，每个站最多检索多少条记录
 JACKETT_MAX_INDEX_NUM = 10
+# 默认的封面图片地址
+BACKDROP_DEFAULT_IMAGE = "http://imgs.logonews.cn/uploads/2020/04/2020040815294640.png_logonews"
 
 # 日志级别
 LOG_LEVEL = logging.INFO

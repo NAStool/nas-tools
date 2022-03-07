@@ -2,7 +2,7 @@ import re
 
 import requests
 from requests import RequestException
-from config import FANART_API_URL, RMT_COUNTRY_EA, RMT_COUNTRY_AS
+from config import RMT_COUNTRY_EA, RMT_COUNTRY_AS, FANART_TV_API_URL, FANART_MOVIE_API_URL, BACKDROP_DEFAULT_IMAGE
 from utils.functions import is_chinese
 from utils.tokens import Tokens
 from utils.types import MediaType, MediaCatagory
@@ -50,6 +50,7 @@ class MetaInfo(object):
     def __init__(self, in_str):
         if not in_str:
             return
+        self.__clear()
         self.org_string = in_str
         self.type = MediaType.MOVIE
         tokens = Tokens(in_str)
@@ -71,6 +72,26 @@ class MetaInfo(object):
             # 取下一个，直到没有为卡
             token = tokens.get_next()
 
+    def __clear(self):
+        self.org_string = None
+        self.type = None
+        self.cn_name = None
+        self.en_name = None
+        self.begin_season = 0
+        self.end_season = 0
+        self.begin_episode = None
+        self.end_episode = None
+        self.resource_type = None
+        self.resource_pix = None
+        self.category = None
+        self.tmdb_id = 0
+        self.title = None
+        self.year = None
+        self.backdrop_path = None
+        self.vote_average = 0
+        self.tmdb_info = {}
+        self._stop_name_flag = False
+
     def __init_name(self, token):
         # 中文或者英文单词都记为名称
         # 干掉一些固定的前缀 JADE AOD XXTV-X
@@ -84,14 +105,13 @@ class MetaInfo(object):
         if is_chinese(token):
             if self.cn_name:
                 return
-            # 有中文的，把中文外的英文、字符、等全部去掉
+            # 有中文的，把中文外的英文、字符、等全部去掉，连在一起的数字会保留
             token = re.sub(r'[a-zA-Z【】\-_.\[\]()\s]+', '', token).strip()
-            if token.isdigit() and len(token) > 2:
-                return
-            self.cn_name = token
         else:
+            # 2位以上的数字不要
             if token.isdigit() and len(token) > 2:
                 return
+            # 不是一英文的不要
             if not token.isalpha():
                 return
             if self.en_name:
@@ -123,22 +143,24 @@ class MetaInfo(object):
     def __init_seasion(self, token):
         re_res = re.search(r"S(\d{1,2})", token, re.IGNORECASE)
         if re_res:
-            se = re_res.group(1).upper()
+            se = int(re_res.group(1).upper())
             if not self.begin_season:
                 self.begin_season = se
             else:
-                self.end_season = se
+                if self.begin_season != se:
+                    self.end_season = se
             self.type = MediaType.TV
             self._stop_name_flag = True
 
     def __init_episode(self, token):
         re_res = re.search(r"EP?(\d{1,3})", token, re.IGNORECASE)
         if re_res:
-            se = re_res.group(1).upper()
+            se = int(re_res.group(1).upper())
             if not self.begin_episode:
                 self.begin_episode = se
             else:
-                self.end_episode = se
+                if self.begin_episode != se:
+                    self.end_episode = se
             self.type = MediaType.TV
             self._stop_name_flag = True
 
@@ -157,9 +179,9 @@ class MetaInfo(object):
     # 返回季字符串
     def get_season_string(self):
         if self.begin_season:
-            return "S%s" % str(self.begin_season).ljust(2, "0") \
+            return "S%s" % str(self.begin_season).rjust(2, "0") \
                 if not self.end_season else "S%s-S%s" %\
-                                            (str(self.begin_season).ljust(2, "0"), str(self.end_season).ljust(2, "0"))
+                                            (str(self.begin_season).rjust(2, "0"), str(self.end_season).rjust(2, "0"))
         else:
             if self.type == MediaType.TV:
                 return "S01"
@@ -169,9 +191,9 @@ class MetaInfo(object):
     # 返回集字符串
     def get_episode_string(self):
         if self.begin_episode:
-            return "E%s" % str(self.begin_episode).ljust(2, "0") \
+            return "E%s" % str(self.begin_episode).rjust(2, "0") \
                 if not self.end_episode else "E%s-E%s" % \
-                                             (str(self.begin_episode).ljust(2, "0"), str(self.end_episode).ljust(2, "0"))
+                                             (str(self.begin_episode).rjust(2, "0"), str(self.end_episode).rjust(2, "0"))
         else:
             return None
 
@@ -225,15 +247,21 @@ class MetaInfo(object):
             first_air_date = info.get('first_air_date')
             if first_air_date:
                 self.year = info.first_air_date[0:4]
-        self.backdrop_path = self.__get_backdrop_image(info.get('backdrop_path'), info.get('id'))
+        self.backdrop_path = self.get_backdrop_image(self.type, info.get('backdrop_path'), info.get('id'), BACKDROP_DEFAULT_IMAGE)
         self.category = self.__set_category(info)
 
     # 获取消息媒体图片
     @staticmethod
-    def __get_backdrop_image(backdrop_path, tmdbid):
+    def get_backdrop_image(search_type, backdrop_path, tmdbid, default=None):
+        if not search_type:
+            return ""
         if tmdbid:
+            if search_type == MediaType.TV:
+                image_url = FANART_TV_API_URL % tmdbid
+            else:
+                image_url = FANART_MOVIE_API_URL % tmdbid
             try:
-                ret = requests.get(FANART_API_URL % tmdbid)
+                ret = requests.get(image_url)
                 if ret:
                     moviethumbs = ret.json().get('moviethumb')
                     if moviethumbs:
@@ -245,9 +273,12 @@ class MetaInfo(object):
                 print(str(e1))
             except Exception as e2:
                 print(str(e2))
-        if not backdrop_path:
-            return ""
-        return "https://image.tmdb.org/t/p/w500%s" % backdrop_path
+        if backdrop_path:
+            return "https://image.tmdb.org/t/p/w500%s" % backdrop_path
+        if default:
+            # 返回一个默认图片
+            return default
+        return ""
 
     # 分类
     def __set_category(self, info):
@@ -293,6 +324,6 @@ class MetaInfo(object):
 
 
 if __name__ == "__main__":
-    text = "唤爱.The.Call.of.Love.2017.2160p.WEB-DL.H265.DD2.0-MKVChin-a.mp4"
+    text = "绿色星球.The.Green.Planet.S01.2022.2160p.WEB-DL.DDP5.1.Atmos.AAC2.0.2AudioH264-HDSWEB"
     meta_info = MetaInfo(text)
     print(meta_info.__dict__)
