@@ -4,8 +4,8 @@ import requests
 from requests import RequestException
 from config import RMT_COUNTRY_EA, RMT_COUNTRY_AS, FANART_TV_API_URL, FANART_MOVIE_API_URL, BACKDROP_DEFAULT_IMAGE
 from utils.functions import is_chinese
-from utils.tokens import Tokens
-from utils.types import MediaType, MediaCatagory
+from utils.meta.tokens import Tokens
+from utils.meta.types import MediaType, MediaCatagory
 
 
 class MetaInfo(object):
@@ -107,6 +107,7 @@ class MetaInfo(object):
                 return
             # 有中文的，把中文外的英文、字符、等全部去掉，连在一起的数字会保留
             token = re.sub(r'[a-zA-Z【】\-_.\[\]()\s]+', '', token).strip()
+            self.cn_name = token
         else:
             # 2位以上的数字不要
             if token.isdigit() and len(token) > 2:
@@ -324,6 +325,6 @@ class MetaInfo(object):
 
 
 if __name__ == "__main__":
-    text = "绿色星球.The.Green.Planet.S01.2022.2160p.WEB-DL.DDP5.1.Atmos.AAC2.0.2AudioH264-HDSWEB"
+    text = "我和我的祖国 (2021)"
     meta_info = MetaInfo(text)
     print(meta_info.__dict__)

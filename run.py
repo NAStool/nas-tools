@@ -1,7 +1,7 @@
 import os
 import log
 from config import get_config
-from utils.check import check_simple_config, check_config
+from utils.config.check import check_simple_config, check_config
 from version import APP_VERSION
 from web import run as web
 from monitor import run as monitor
@@ -12,7 +12,7 @@ from multiprocessing import Process
 if __name__ == "__main__":
     # 参数
     os.environ['TZ'] = 'Asia/Shanghai'
-    print("【RUN】配置文件地址：%s" % os.environ['NASTOOL_CONFIG'])
+    print("【RUN】配置文件地址：%s" % os.environ.get('NASTOOL_CONFIG'))
     print('【RUN】NASTool 当前版本号：%s' % APP_VERSION)
     # 检查配置文件
     cfg = get_config()

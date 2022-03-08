@@ -4,7 +4,7 @@ import urllib3
 import log
 from config import get_config
 from rmt.filetransfer import FileTransfer
-from utils.types import DownloaderType
+from utils.meta.types import DownloaderType
 
 urllib3.disable_warnings()
 

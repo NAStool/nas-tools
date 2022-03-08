@@ -7,7 +7,7 @@ from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
-from utils.types import MediaType
+from utils.meta.types import MediaType
 
 
 class Jackett:

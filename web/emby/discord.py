@@ -7,7 +7,7 @@ from config import get_config, RMT_FAVTYPE
 from rmt.metainfo import MetaInfo
 from utils.functions import get_location
 from message.send import Message
-from utils.types import MediaCatagory, MediaType
+from utils.meta.types import MediaCatagory
 
 PLAY_LIST = []
 

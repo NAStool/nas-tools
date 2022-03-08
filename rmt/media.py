@@ -4,7 +4,7 @@ import log
 from tmdbv3api import TMDb, Search
 from config import get_config
 from rmt.metainfo import MetaInfo
-from utils.types import MediaType
+from utils.meta.types import MediaType
 
 
 class Media:

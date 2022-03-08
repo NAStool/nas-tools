@@ -8,7 +8,7 @@ from config import RMT_SUBEXT, get_config, RMT_MEDIAEXT, RMT_DISKFREESIZE
 from utils.functions import get_dir_files_by_ext, get_free_space_gb
 from message.send import Message
 from rmt.media import Media
-from utils.types import MediaType, DownloaderType, SyncType, MediaCatagory
+from utils.meta.types import MediaType, DownloaderType, SyncType, MediaCatagory
 
 
 class FileTransfer:
@@ -200,7 +200,7 @@ class FileTransfer:
                        in_path,
                        target_dir=None):
         if not in_path:
-            log.error("【RMT】输入参数错误!")
+            log.error("【RMT】输入路径错误!")
             return False
 
         # 进到这里来的，可能是一个大目录，目录中有电影也有电视剧；也有可能是一个电视剧目录或者一个电影目录；也有可能是一个文件
@@ -210,13 +210,15 @@ class FileTransfer:
         else:
             rmt_mode = self.__sync_rmt_mode
 
-        # 遍历文件
         in_path = in_path.replace('\\\\', '/').replace('\\', '/')
+        # 回收站的文件不处理
+        if in_path.find('/@Recycle/') != -1 or in_path.find('/#recycle/') != -1:
+            return False
         # 不是媒体后缀的文件不处理
         if os.path.isfile(in_path):
             in_ext = os.path.splitext(in_path)[-1]
             if in_ext not in RMT_MEDIAEXT:
-                return
+                return False
         log.info("【RMT】开始处理：%s" % in_path)
 
         bluray_disk_flag = False
@@ -597,7 +599,7 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--target', dest='t_path', required=False, help='硬链接目的目录路径')
     args = parser.parse_args()
     if os.environ.get('NASTOOL_CONFIG'):
-        print("【RMT】配置文件地址：%s" % os.environ['NASTOOL_CONFIG'])
+        print("【RMT】配置文件地址：%s" % os.environ.get('NASTOOL_CONFIG'))
         print("【RMT】源目录路径：%s" % args.s_path)
         if args.t_path:
             print("【RMT】目的目录路径：%s" % args.t_path)

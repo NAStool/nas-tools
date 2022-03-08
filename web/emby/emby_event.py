@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from utils.types import MediaType
+from utils.meta.types import MediaType
 
 
 class EmbyEvent:

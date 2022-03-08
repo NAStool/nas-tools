@@ -2,6 +2,7 @@ FROM python:3.8-slim-buster
 ENV LANG C.UTF-8
 ENV TZ=Asia/Shanghai
 ENV NASTOOL_CONFIG=/config/config.yaml
+ENV NASTOOL_AUTO_UPDATE=1
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 ADD . /nas-tools
 WORKDIR /
