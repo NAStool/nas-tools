@@ -58,12 +58,12 @@
 				  <thead>
 					<tr>
 						<th>名称</th>
+						<th>类型</th>
 						<th>大小</th>
 						<th>做种</th>
-						<th>下载</th>
 					</tr>
 				  </thead>
-				  <tbody>
+				  <tbody id="search_results">
 					<tr>
 						<td>点击搜索...</td>
 						<td></td>
@@ -73,6 +73,7 @@
 				  </tbody>
 				</table>
 			</form>
+			<div id="search_ret" class="alert alert-success alert-dismissible" style="display:none"></div>
 		</div>
 		<div class="tab-pane show {% if page=='rss' %} active {% endif %}" id="rss" role="tabpanel" aria-labelledby="rss-tab">
 			<form role="form" action="/do" method="post" id="rss_form" class="form-horizontal">

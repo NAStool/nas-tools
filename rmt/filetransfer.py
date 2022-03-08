@@ -397,7 +397,7 @@ class FileTransfer:
 
                 # 文件大小
                 media_filesize = os.path.getsize(file_item)
-                message_medias[Title_Str]['Total_Size'] = message_medias[Title_Str]['Exist_Files'] + media_filesize
+                message_medias[Title_Str]['Total_Size'] = message_medias[Title_Str]['Total_Size'] + media_filesize
 
                 # 检查磁盘空间
                 disk_free_size = get_free_space_gb(tv_dist)

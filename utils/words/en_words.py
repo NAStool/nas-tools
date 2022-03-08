@@ -1,4 +1,7 @@
 import os
+import threading
+
+lock = threading.Lock()
 
 
 class EnWords:
@@ -13,7 +16,11 @@ class EnWords:
     @classmethod
     def instance(cls):
         if not cls.INSTANCE:
-            cls.INSTANCE = EnWords()
+            try:
+                lock.acquire()
+                cls.INSTANCE = EnWords()
+            finally:
+                lock.release()
         return cls.INSTANCE
 
     @classmethod

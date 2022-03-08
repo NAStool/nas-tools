@@ -212,15 +212,18 @@ class RSSDownloader:
     @staticmethod
     def __is_torrent_match(media_info, search_type, movie_keys, tv_keys):
         # 按种子标题匹配
+        check_title = "%s %s %s" % (media_info.cn_name, media_info.en_name, media_info.year)
         if search_type == MediaType.MOVIE:
             # 按电影匹配
             for key in movie_keys:
-                if re.search(str(key), media_info.get_all_name()):
+                # 中英文名跟年份都纳入匹配
+                if re.search(str(key), check_title, re.IGNORECASE):
                     return True
         else:
             # 按电视剧匹配
             for key in tv_keys:
-                if re.search(str(key), media_info.get_all_name()):
+                # 中英文名跟年份都纳入匹配
+                if re.search(str(key), check_title, re.IGNORECASE):
                     return True
         # 按媒体信息匹配
         if search_type == MediaType.MOVIE:

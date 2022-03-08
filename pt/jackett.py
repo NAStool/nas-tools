@@ -2,7 +2,7 @@ import re
 
 import log
 from config import get_config, JACKETT_MAX_INDEX_NUM
-from utils.functions import parse_jackettxml
+from utils.functions import parse_jackettxml, get_keyword_from_string
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
@@ -132,7 +132,8 @@ class Jackett:
                                 "peers": peers,
                                 "season": season,
                                 "episode": episode,
-                                "es_string": es_string}
+                                "es_string": es_string,
+                                "index": index}
                     if res_info not in ret_array:
                         index_sucess = index_sucess + 1
                         ret_array.append(res_info)
@@ -145,20 +146,7 @@ class Jackett:
 
     # 按关键字，检索排序去重后择优下载
     def search_one_media(self, content):
-        # 稍微切一下剧集吧
-        season_num = None
-        episode_num = None
-        year = None
-        season_re = re.search(r"第\s*(\d+)\s*季", content, re.IGNORECASE)
-        episode_re = re.search(r"第\s*(\d+)\s*集", content, re.IGNORECASE)
-        year_re = re.search(r"[\s(]+(\d{4})[\s)]*", content)
-        if season_re:
-            season_num = int(season_re.group(1))
-        if episode_re:
-            episode_num = int(episode_re.group(1))
-        if year_re:
-            year = year_re.group(1)
-        key_word = re.sub(r'第\s*\d+\s*季|第\s*\d+\s*集|[\s(]+(\d{4})[\s)]*', '', content, re.IGNORECASE).strip()
+        key_word, season_num, episode_num, year = get_keyword_from_string(content)
         self.message.sendmsg("【JACKETT】开始检索 %s ..." % content)
         media_list = self.search_medias_from_word(key_word, season_num, episode_num, year)
         if len(media_list) == 0:
@@ -206,10 +194,10 @@ class Jackett:
         # 排序函数
         def get_sort_str(x):
             return "%s%s%s%s%s" % (str(x['title']).ljust(100, ' '),
-                                   str(x['site_order']).rjust(3, '0'),
                                    str(x['res_order']).rjust(3, '0'),
                                    str(x['seeders']).rjust(10, '0'),
-                                   str(x['peers']).rjust(10, '0'))
+                                   str(x['peers']).rjust(10, '0'),
+                                   str(x['site_order']).rjust(3, '0'))
 
         # 匹配的资源中排序分组选最好的一个下载
         # 按站点顺序、资源匹配顺序、做种人数下载数逆序排序

@@ -8,6 +8,7 @@ from scheduler.autoremove_torrents import AutoRemoveTorrents
 from scheduler.pt_signin import PTSignin
 from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
+from utils.db.db_helper import select_by_sql
 from version import APP_VERSION
 from web.emby.discord import report_to_discord
 from web.emby.emby_event import EmbyEvent
@@ -16,49 +17,9 @@ from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from config import WECHAT_MENU, get_config, PT_TRANSFER_INTERVAL, save_config
+from web.torrents.search import search_medias_for_web
 from web.wechat.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
-
-
-class FlaskApp:
-    __app = None
-    __web_port = None
-    __ssl_cert = None
-    __ssl_key = None
-
-    message = None
-
-    def __init__(self):
-        self.message = Message()
-        self.__app = create_flask_app()
-        config = get_config()
-        if config.get('app'):
-            self.__web_port = config['app'].get('web_port')
-            self.__ssl_cert = config['app'].get('ssl_cert')
-            self.__ssl_key = config['app'].get('ssl_key')
-
-    def run_service(self):
-        try:
-            if not self.__app:
-                return
-
-            if self.__ssl_cert:
-                self.__app.run(
-                    host='0.0.0.0',
-                    port=self.__web_port,
-                    debug=False,
-                    use_reloader=False,
-                    ssl_context=(self.__ssl_cert, self.__ssl_key)
-                )
-            else:
-                self.__app.run(
-                    host='0.0.0.0',
-                    port=self.__web_port,
-                    debug=False,
-                    use_reloader=False
-                )
-        except Exception as err:
-            log.error("【RUN】启动web服务失败：%s" % str(err))
 
 
 def create_flask_app():
@@ -233,7 +194,7 @@ def create_flask_app():
         data = json.loads(request.form.get("data"))
         if cmd:
             if cmd == "sch":
-                sch_item = data["item"]
+                sch_item = data.get("item")
                 if sch_item == "btn_autoremovetorrents":
                     AutoRemoveTorrents().run_schedule()
                 if sch_item == "btn_pttransfer":
@@ -276,7 +237,7 @@ def create_flask_app():
                 return {"retcode": 0}
 
             if cmd == "key":
-                movie_keys = data["movie_keys"]
+                movie_keys = data.get("movie_keys")
                 # 电影关键字
                 if movie_keys.find(',') != -1:
                     if movie_keys.endswith(','):
@@ -292,6 +253,29 @@ def create_flask_app():
                 config['pt']['tv_keys'] = tv_keys
                 # 保存
                 save_config(config)
+                return {"retcode": 0}
+
+            # 检索资源
+            if cmd == "search":
+                # 开始检索
+                search_word = data.get("search_word")
+                if search_word:
+                    search_medias_for_web(search_word)
+                # 查询结果
+                sql = "SELECT ID,TITLE,RES_TYPE,SIZE,SEEDERS,ENCLOSURE FROM JACKETT_TORRENTS ORDER BY TITLE, SEEDERS DESC"
+                res = select_by_sql(sql)
+                return {"code": len(res), "data": res}
+
+            # 添加下载
+            if cmd == "download":
+                dl_id = data.get("id")
+                sql = "SELECT ENCLOSURE,TITLE,YEAR,SEASON,EPISODE,VOTE,IMAGE,TYPE FROM JACKETT_TORRENTS WHERE ID=%s" % dl_id
+                results = select_by_sql(sql)
+                for res in results:
+                    Downloader().add_pt_torrent(res[0])
+                    msg_item = {"title": res[1], "vote_average": res[5], "year": res[2], "backdrop_path": res[6],
+                                "type": res[7]}
+                    Message().send_download_message("WEB搜索", msg_item, "%s%s" % (res[3], res[4]))
                 return {"retcode": 0}
 
     # 响应企业微信消息

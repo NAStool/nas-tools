@@ -12,11 +12,6 @@ class Logger:
     __instance = None
 
     def __init__(self):
-
-        def convert_time():
-            bj_time = datetime.datetime.now() + datetime.timedelta(hours=8)
-            return bj_time.timetuple()
-
         self.logger = logging.Logger(__name__)
         self.logger.setLevel(level=LOG_LEVEL)
         config = get_config()
@@ -34,7 +29,6 @@ class Logger:
                                                         backupCount=2)
             formatter = logging.Formatter(
                 '%(asctime)s\tFile \"%(filename)s\",line %(lineno)s\t%(levelname)s: %(message)s')
-            formatter.converter = convert_time
             log_file_handler.setFormatter(formatter)
             self.logger.addHandler(log_file_handler)
         elif logtype == "SERVER":
@@ -48,7 +42,6 @@ class Logger:
             self.logger.addHandler(log_server_handler)
         else:
             # 记录日志到终端
-            logging.Formatter.converter = convert_time
             log_console_handler = logging.StreamHandler()
             self.logger.addHandler(log_console_handler)
 

@@ -174,9 +174,6 @@ class MetaInfo(object):
     def get_name(self):
         return self.cn_name if self.cn_name else self.en_name
 
-    def get_all_name(self):
-        return "%s%s" % (self.en_name, self.cn_name)
-
     def get_title_string(self):
         return "%s (%s)" % (self.title, self.year) if self.year else self.title
 

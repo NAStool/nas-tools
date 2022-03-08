@@ -1,7 +1,7 @@
 import signal
 import sys
 import log
-from web.main import FlaskApp
+from web.app import FlaskApp
 
 
 def run_web():

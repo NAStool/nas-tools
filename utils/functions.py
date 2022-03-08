@@ -188,8 +188,16 @@ def parse_rssxml(url):
             for item in items:
                 try:
                     # 获取XML值
-                    title = item.getElementsByTagName("title")[0].firstChild.data
-                    enclosure = item.getElementsByTagName("enclosure")[0].getAttribute("url")
+                    title_e = item.getElementsByTagName("title")[0]
+                    if not title_e:
+                        continue
+                    else:
+                        title = title_e.firstChild.data
+                    enclosure_e = item.getElementsByTagName("enclosure")[0]
+                    if not enclosure_e:
+                        continue
+                    else:
+                        enclosure = enclosure_e.getAttribute("url")
                     tmp_dict = {'title': title, 'enclosure': enclosure}
                     ret_array.append(tmp_dict)
                 except Exception as e1:
@@ -221,10 +229,27 @@ def parse_jackettxml(url):
             for item in items:
                 try:
                     # 获取XML值
-                    title = item.getElementsByTagName("title")[0].firstChild.data
-                    description = item.getElementsByTagName("description")[0].firstChild.data
-                    size = item.getElementsByTagName("size")[0].firstChild.data
-                    enclosure = item.getElementsByTagName("enclosure")[0].getAttribute("url")
+                    title_e = item.getElementsByTagName("title")[0]
+                    if title_e:
+                        title = title_e.firstChild.data
+                    else:
+                        continue
+                    description_e = item.getElementsByTagName("description")[0]
+                    if description_e:
+                        description = description_e.firstChild.data
+                    else:
+                        description = ""
+                    size_e = item.getElementsByTagName("size")[0]
+                    if size_e:
+                        size = size_e.firstChild.data
+                    else:
+                        size = 0
+                    enclosure_e = item.getElementsByTagName("enclosure")[0]
+                    if enclosure_e:
+                        enclosure = enclosure_e.getAttribute("url")
+                    else:
+                        continue
+
                     seeders = 0
                     peers = 0
                     torznab_attrs = item.getElementsByTagName("torznab:attr")
@@ -260,3 +285,21 @@ def is_media_files_tv(file_list):
             flag = True
             break
     return flag
+
+
+def get_keyword_from_string(content):
+    # 稍微切一下剧集吧
+    season_num = None
+    episode_num = None
+    year = None
+    season_re = re.search(r"第\s*(\d+)\s*季", content, re.IGNORECASE)
+    episode_re = re.search(r"第\s*(\d+)\s*集", content, re.IGNORECASE)
+    year_re = re.search(r"[\s(]+(\d{4})[\s)]*", content)
+    if season_re:
+        season_num = int(season_re.group(1))
+    if episode_re:
+        episode_num = int(episode_re.group(1))
+    if year_re:
+        year = year_re.group(1)
+    key_word = re.sub(r'第\s*\d+\s*季|第\s*\d+\s*集|[\s(]+(\d{4})[\s)]*', '', content, re.IGNORECASE).strip()
+    return key_word, season_num, episode_num, year
