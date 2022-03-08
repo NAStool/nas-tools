@@ -65,6 +65,9 @@ class Jackett:
             index_sucess = 0
             for media_item in media_array:
                 title = media_item.get('title')
+                # 去掉第1个以[]开关的种子名称，有些站会把类型加到种子名称上，会误导识别
+                # 非贪婪只匹配一个
+                title = re.sub(r'^\[.+?]', "", title, count=1)
                 enclosure = media_item.get('enclosure')
                 size = media_item.get('size')
                 description = media_item.get('description')
