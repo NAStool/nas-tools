@@ -6,11 +6,11 @@ TG交流：https://t.me/nastool_chat
 
 ## 功能：
 ### 1、PT自动检索下载
-* 通过订阅PT站RSS以及配置过滤关键字，实现PT资源自动检索追新，可用于快速累积媒体库资源、追剧、追未出资源的电影等。
+* PT站RSS订阅，配置想追的电影电视剧名称实现PT资源自动检索追新。
 
-* 想下载的电影电视剧，微信直接发送名称，系统自动通过Jackett在各PT站检索资源并添加下载。
+* 微信发送电影电视剧名称，自动在各PT站检索资源并择优下载。
 
-* 支持qBittorrent或transmission客户端。
+* PT资源聚合搜索，精准识别真实名称，去除干扰避免误下。
 
 ### 2、媒体识别和重命名
 * 监控下载软件，下载完成后自动识别真实名称，硬链接到媒体库并重命名。
@@ -20,7 +20,7 @@ TG交流：https://t.me/nastool_chat
 * 支持国产剧集，针对PT站种子名称优化，重命名成功率高，Emby/Plex 100%搜刮。
 
 ### 3、消息服务
-* 支持ServerChan、微信、Telegram等图文消息通知， 新增下载转移状态推送消息到手机上，还能在手机上控制服务运行。
+* 支持ServerChan、微信、Telegram、Bark等图文消息通知， 下载状态等推送消息到手机上，还能在手机上控制服务运行。
 
 ### 4、其它
 * PT站自动签到、Emby播放状态通知等等。
@@ -156,7 +156,7 @@ https://github.com/jxxghp/nas-tools/releases
    ![image](https://user-images.githubusercontent.com/51039935/156371501-cd35b802-3e12-47a5-893f-69806d611163.png)
 
 ### 6、配置Jackett（可选）
-如果你想通过微信发送电影电视剧的名称，后台就自动检索各PT站并自动下载，则需要配置Jackett，获取API Key以及Torznab Feed，相关参数填入配置文件。
+如果你想通过微信发送电影电视剧的名称，后台就自动检索各PT站并自动下载，或者使用WEB聚合资源搜索功能，则需要配置Jackett，获取API Key以及Torznab Feed，相关参数填入配置文件。
 
 Jackett的相关配置参考网上的各类教程。
 
