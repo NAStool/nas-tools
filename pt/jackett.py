@@ -83,6 +83,7 @@ class Jackett:
             if key_word in media_title or key_word in "%s %s" % (media_info.en_name, media_info.cn_name):
                 match_flag = True
             else:
+                match_flag = False
                 log.info("【JACKETT】%s 未匹配名称：%s" % (title, key_word))
 
             # 检查标题是否匹配剧集
