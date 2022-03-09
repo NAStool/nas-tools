@@ -3,9 +3,10 @@ import log
 from message.send import Message
 from pt.downloader import Downloader
 
+PT_TRANS_RUNNING_FLAG = False
+
 
 class PTTransfer:
-    __running_flag = False
     __pt_client = None
     message = None
     downloader = None
@@ -15,16 +16,17 @@ class PTTransfer:
         self.downloader = Downloader()
 
     def run_schedule(self):
+        global PT_TRANS_RUNNING_FLAG
         try:
-            if self.__running_flag:
+            if PT_TRANS_RUNNING_FLAG:
                 log.warn("【RUN】pt_transfer任务正在执行中...")
             else:
                 if self.downloader:
-                    self.__running_flag = True
+                    PT_TRANS_RUNNING_FLAG = True
                     self.downloader.pt_transfer()
-                    self.__running_flag = False
+                    PT_TRANS_RUNNING_FLAG = False
         except Exception as err:
-            self.__running_flag = False
+            PT_TRANS_RUNNING_FLAG = False
             log.error("【RUN】执行任务pt_transfer出错：%s" % str(err))
 
 

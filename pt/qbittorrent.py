@@ -5,7 +5,7 @@ from config import get_config
 
 # 全局设置
 from rmt.filetransfer import FileTransfer
-from utils.meta.types import DownloaderType
+from utils.types import DownloaderType
 
 urllib3.disable_warnings()
 

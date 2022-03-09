@@ -15,7 +15,11 @@
 	<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/tagsinput.js') }}"></script>
 	<script src="{{ url_for('static', filename='js/util.js') }}"></script>
-
+	<style>
+		link-disabled {
+			color: grey;
+		}
+	</style>
 </head>
 <body>
 <div class="container"><div class="tabbable">
@@ -46,7 +50,7 @@
 			</form>
 		</div>
 		<div class="tab-pane show {% if page=='search' %} active {% endif %}" id="search" role="tabpanel" aria-labelledby="search-tab">
-			<form role="form" action="/do" method="post" id="search_form" class="form-inline">
+			<div id="search_form" class="form-inline">
 				<fieldset>
 					<legend></legend>
 					<div class="form-group mb-2">
@@ -61,18 +65,16 @@
 						<th>类型</th>
 						<th>大小</th>
 						<th>做种</th>
+						<th>站点</th>
 					</tr>
 				  </thead>
 				  <tbody id="search_results">
 					<tr>
-						<td>点击搜索...</td>
-						<td></td>
-						<td></td>
-						<td></td>
+						<td colspan="5">输入关键字，点击搜索...</td>
 					</tr>
 				  </tbody>
 				</table>
-			</form>
+			</div>
 			<div id="search_ret" class="alert alert-success alert-dismissible" style="display:none"></div>
 		</div>
 		<div class="tab-pane show {% if page=='rss' %} active {% endif %}" id="rss" role="tabpanel" aria-labelledby="rss-tab">

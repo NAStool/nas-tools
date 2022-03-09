@@ -1,13 +1,13 @@
 import re
-
+from concurrent.futures.thread import ThreadPoolExecutor
+from concurrent.futures._base import as_completed
 import log
 from config import get_config, JACKETT_MAX_INDEX_NUM
 from utils.functions import parse_jackettxml, get_keyword_from_string
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
-from rmt.metainfo import MetaInfo
-from utils.meta.types import MediaType
+from utils.types import MediaType
 
 
 class Jackett:
@@ -34,9 +34,100 @@ class Jackett:
                 self.__indexers = [self.__indexers]
             self.media = Media()
 
+    # 检索一个Indexer
+    def seach_indexer(self, order_seq, index, search_word, key_word, s_num, e_num, year):
+        if not index:
+            return None
+        ret_array = []
+        indexer_name = re.search(r'/indexers/([a-zA-Z0-9]+)/results/', index)
+        if indexer_name:
+            indexer_name = indexer_name.group(1)
+        log.info("【JACKETT】开始检索Indexer：%s ..." % index)
+        api_url = "%sapi?apikey=%s&t=search&q=%s" % (index, self.__api_key, search_word)
+        media_array = parse_jackettxml(api_url)
+        if len(media_array) == 0:
+            log.warn("【JACKETT】%s 未检索到资源！" % index)
+            return None
+        # 从检索结果中匹配符合资源条件的记录
+        index_num = 0
+        index_sucess = 0
+        for media_item in media_array:
+            title = media_item.get('title')
+            # 去掉第1个以[]开关的种子名称，有些站会把类型加到种子名称上，会误导识别
+            # 非贪婪只匹配一个
+            title = re.sub(r'^\[.+?]', "", title, count=1)
+            enclosure = media_item.get('enclosure')
+            size = media_item.get('size')
+            description = media_item.get('description')
+            seeders = media_item.get('seeders')
+            peers = media_item.get('peers')
+
+            # 检查资源类型
+            match_flag, res_order, res_typestr = self.media.check_resouce_types(title, self.__res_type)
+            if not match_flag:
+                log.debug("【JACKETT】%s 资源类型不匹配！" % title)
+                continue
+
+            # 识别种子名称
+            media_info = self.media.get_media_info(title)
+            if not media_info or not media_info.tmdb_info:
+                log.debug("【JACKETT】%s 未检索媒体信息！" % title)
+                continue
+
+            search_type = media_info.type
+            media_title = media_info.title
+            media_year = media_info.year
+            vote_average = media_info.vote_average
+            backdrop_path = media_info.backdrop_path
+            # 名称是否匹配
+            if key_word in media_title or key_word in "%s %s" % (media_info.en_name, media_info.cn_name):
+                match_flag = True
+            else:
+                log.info("【JACKETT】%s 未匹配名称：%s" % (title, key_word))
+
+            # 检查标题是否匹配剧集
+            if match_flag:
+                match_flag = self.__is_jackett_match_sey(media_info, s_num, e_num, year)
+
+            # 匹配到了
+            if match_flag:
+                season = media_info.get_season_string()
+                episode = media_info.get_episode_string()
+                es_string = media_info.get_season_episode_string()
+                res_info = {"site_order": order_seq,
+                            "site_name": indexer_name,
+                            "type": search_type,
+                            "title": media_title,
+                            "year": media_year,
+                            "enclosure": enclosure,
+                            "torrent_name": title,
+                            "vote_average": vote_average,
+                            "res_order": res_order,
+                            "res_type": res_typestr,
+                            "backdrop_path": backdrop_path,
+                            "size": size,
+                            "description": description,
+                            "seeders": seeders,
+                            "peers": peers,
+                            "season": season,
+                            "episode": episode,
+                            "es_string": es_string,
+                            "index": index}
+                if res_info not in ret_array:
+                    index_sucess = index_sucess + 1
+                    ret_array.append(res_info)
+                # 控制匹配数量，避免查TMDB时间太长
+                index_num = index_num + 1
+                if index_num >= JACKETT_MAX_INDEX_NUM:
+                    break
+            else:
+                log.info("【JACKETT】%s 不匹配，跳过..." % title)
+                continue
+        log.info("【JACKETT】%s 共检索到 %s 条有效资源" % (index, index_sucess))
+        return ret_array
+
     # 根据关键字调用 Jackett API 检索
     def search_medias_from_word(self, key_word, s_num, e_num, year):
-        ret_array = []
         if not key_word:
             return []
         if not self.__api_key or not self.__indexers:
@@ -46,101 +137,20 @@ class Jackett:
             search_word = "%s %s" % (key_word, year)
         else:
             search_word = key_word
-        # 开始逐个检索将组合返回
+        # 多线程检索
+        log.info("【JACKETT】开始并行检索，线程数：%s" % len(self.__indexers))
+        executor = ThreadPoolExecutor(max_workers=len(self.__indexers))
+        all_task = []
         order_seq = 100
-        # 已检索的信息不重复检索
-        media_names = {}
         for index in self.__indexers:
-            if not index:
-                continue
-            log.info("【JACKETT】开始检索Indexer：%s ..." % index)
             order_seq = order_seq - 1
-            api_url = "%sapi?apikey=%s&t=search&q=%s" % (index, self.__api_key, search_word)
-            media_array = parse_jackettxml(api_url)
-            if len(media_array) == 0:
-                log.warn("【JACKETT】%s 未检索到资源！" % index)
-                continue
-            # 从检索结果中匹配符合资源条件的记录
-            index_num = 0
-            index_sucess = 0
-            for media_item in media_array:
-                title = media_item.get('title')
-                # 去掉第1个以[]开关的种子名称，有些站会把类型加到种子名称上，会误导识别
-                # 非贪婪只匹配一个
-                title = re.sub(r'^\[.+?]', "", title, count=1)
-                enclosure = media_item.get('enclosure')
-                size = media_item.get('size')
-                description = media_item.get('description')
-                seeders = media_item.get('seeders')
-                peers = media_item.get('peers')
-
-                # 检查资源类型
-                match_flag, res_order, res_typestr = self.media.check_resouce_types(title, self.__res_type)
-                if not match_flag:
-                    log.debug("【JACKETT】%s 资源类型不匹配！" % title)
-                    continue
-
-                # 识别种子名称
-                media_info = MetaInfo(title)
-                media_name = media_info.get_name()
-                media_year = media_info.year
-                media_key = "%s%s" % (media_name, media_year)
-                if not media_names.get(media_key):
-                    # 每个源最多查10个，避免查TMDB时间太长，已经查过的不计数
-                    if index_num >= JACKETT_MAX_INDEX_NUM:
-                        break
-                    index_num = index_num + 1
-                    tmdb_type, tmdb_info = self.media.get_media_info(media_info)
-                    # 整合
-                    media_info.set_tmdb_info(tmdb_info, tmdb_type)
-                    media_names[media_key] = media_info
-                else:
-                    media_info = media_names.get(media_key)
-
-                if not media_info.tmdb_info:
-                    log.debug("【JACKETT】%s 未检索媒体信息！" % title)
-                    continue
-                search_type = media_info.type
-                media_title = media_info.title
-                vote_average = media_info.vote_average
-                backdrop_path = media_info.backdrop_path
-                # 是否匹配
-                if key_word in media_title:
-                    match_flag = True
-                else:
-                    # 检查标题是否匹配剧集
-                    match_flag = self.__is_jackett_match_title(media_info, key_word, s_num, e_num, year)
-
-                # 匹配到了
-                if match_flag:
-                    season = media_info.get_season_string()
-                    episode = media_info.get_episode_string()
-                    es_string = media_info.get_season_episode_string()
-                    res_info = {"site_order": order_seq,
-                                "type": search_type,
-                                "title": media_title,
-                                "year": media_year,
-                                "enclosure": enclosure,
-                                "torrent_name": title,
-                                "vote_average": vote_average,
-                                "res_order": res_order,
-                                "res_type": res_typestr,
-                                "backdrop_path": backdrop_path,
-                                "size": size,
-                                "description": description,
-                                "seeders": seeders,
-                                "peers": peers,
-                                "season": season,
-                                "episode": episode,
-                                "es_string": es_string,
-                                "index": index}
-                    if res_info not in ret_array:
-                        index_sucess = index_sucess + 1
-                        ret_array.append(res_info)
-                else:
-                    log.info("【JACKETT】%s 不匹配关键字，跳过..." % title)
-                    continue
-            log.info("【JACKETT】%s 共检索到 %s 条有效资源" % (index, index_sucess))
+            task = executor.submit(self.seach_indexer, order_seq, index, search_word, key_word, s_num, e_num, year)
+            all_task.append(task)
+        ret_array = []
+        for future in as_completed(all_task):
+            result = future.result()
+            if result:
+                ret_array = ret_array + result
         log.info("【JACKETT】所有API检索完成，有效资源数：%s" % len(ret_array))
         return ret_array
 
@@ -166,21 +176,17 @@ class Jackett:
 
     # 种子名称关键字匹配
     @staticmethod
-    def __is_jackett_match_title(media_info, word, s_num, e_num, year_str):
-        if word:
-            if word not in media_info.get_name():
-                log.info("【JACKETT】%s 未匹配关键字：%s" % (media_info.org_string, word))
-                return False
+    def __is_jackett_match_sey(media_info, s_num, e_num, year_str):
         if s_num:
-            if media_info.is_in_seasion(s_num):
-                log.info("【JACKETT】%s 未匹配剧：%s" % (media_info.org_string, s_num))
+            if not media_info.is_in_seasion(s_num):
+                log.info("【JACKETT】%s 未匹配季：%s" % (media_info.org_string, s_num))
                 return False
         if e_num:
-            if media_info.is_in_episode(e_num):
+            if not media_info.is_in_episode(e_num):
                 log.info("【JACKETT】%s 未匹配集：%s" % (media_info.org_string, e_num))
                 return False
         if year_str:
-            if str(media_info.year) == year_str:
+            if str(media_info.year) != year_str:
                 log.info("【JACKETT】%s 未匹配年份：%s" % (media_info.org_string, year_str))
                 return False
         return True
@@ -193,11 +199,10 @@ class Jackett:
 
         # 排序函数
         def get_sort_str(x):
-            return "%s%s%s%s%s" % (str(x['title']).ljust(100, ' '),
-                                   str(x['res_order']).rjust(3, '0'),
-                                   str(x['seeders']).rjust(10, '0'),
-                                   str(x['peers']).rjust(10, '0'),
-                                   str(x['site_order']).rjust(3, '0'))
+            return "%s%s%s%s" % (str(x['title']).ljust(100, ' '),
+                                 str(x['res_order']).rjust(3, '0'),
+                                 str(x['seeders']).rjust(10, '0'),
+                                 str(x['site_order']).rjust(3, '0'))
 
         # 匹配的资源中排序分组选最好的一个下载
         # 按站点顺序、资源匹配顺序、做种人数下载数逆序排序

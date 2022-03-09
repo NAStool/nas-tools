@@ -188,16 +188,16 @@ def parse_rssxml(url):
             for item in items:
                 try:
                     # 获取XML值
-                    title_e = item.getElementsByTagName("title")[0]
-                    if not title_e:
+                    firstChild = item.getElementsByTagName("title")[0].firstChild
+                    if not firstChild:
                         continue
                     else:
-                        title = title_e.firstChild.data
-                    enclosure_e = item.getElementsByTagName("enclosure")[0]
-                    if not enclosure_e:
+                        title = firstChild.data
+                    tagName = item.getElementsByTagName("enclosure")[0]
+                    if not tagName:
                         continue
                     else:
-                        enclosure = enclosure_e.getAttribute("url")
+                        enclosure = tagName.getAttribute("url")
                     tmp_dict = {'title': title, 'enclosure': enclosure}
                     ret_array.append(tmp_dict)
                 except Exception as e1:
@@ -229,24 +229,24 @@ def parse_jackettxml(url):
             for item in items:
                 try:
                     # 获取XML值
-                    title_e = item.getElementsByTagName("title")[0]
-                    if title_e:
-                        title = title_e.firstChild.data
+                    firstChild = item.getElementsByTagName("title")[0].firstChild
+                    if firstChild:
+                        title = firstChild.data
                     else:
                         continue
-                    description_e = item.getElementsByTagName("description")[0]
-                    if description_e:
-                        description = description_e.firstChild.data
+                    firstChild = item.getElementsByTagName("description")[0].firstChild
+                    if firstChild:
+                        description = firstChild.data
                     else:
                         description = ""
-                    size_e = item.getElementsByTagName("size")[0]
-                    if size_e:
-                        size = size_e.firstChild.data
+                    firstChild = item.getElementsByTagName("size")[0].firstChild
+                    if firstChild:
+                        size = firstChild.data
                     else:
                         size = 0
-                    enclosure_e = item.getElementsByTagName("enclosure")[0]
-                    if enclosure_e:
-                        enclosure = enclosure_e.getAttribute("url")
+                    tagName = item.getElementsByTagName("enclosure")[0]
+                    if tagName:
+                        enclosure = tagName.getAttribute("url")
                     else:
                         continue
 

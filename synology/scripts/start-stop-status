@@ -52,8 +52,8 @@ stop() {
         echo "Try to Kill the $1 process [ ${PID} ]"
         kill -15 "${PID}"
       done
-      echo "Wait 5s..."
-      sleep 5s
+      echo "Wait 3s..."
+      sleep 3s
       if running_nastool ; then
         for PID in ${PIDS}
         do

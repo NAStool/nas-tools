@@ -149,7 +149,7 @@ qbittorrent:
   qbusername: admin
   qbpassword: adminadmin
   # 下面这两个配置问的人特别多，解释一下：save_path是nastool检索到需要新增下载时告诉qb下到哪个目录去，是传给qb的。save_containerpath是告诉nastool qb的下载路径对应在nastool里又是映射为什么路径，这样nastool才能通过这个路径访问到qb下载好的文件。
-  # qBittorrent下载保存目录，如果是Docker版本的qb这个是容器内的路径。
+  # qBittorrent下载保存目录，如果是Docker版本的qb这个是容器内的路径。如果需要该配置生效，QB的下载管理模式需要为自动。
   save_path:
   # 1、如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径；如果本程序不是Docker运行但qb是Docker运行，则设置为PT下载目录在宿主机上的真实路径。不是以上两种情况留空即可。
   save_containerpath:

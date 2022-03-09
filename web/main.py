@@ -8,17 +8,17 @@ from scheduler.autoremove_torrents import AutoRemoveTorrents
 from scheduler.pt_signin import PTSignin
 from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
-from utils.db.db_helper import select_by_sql
+from utils.db_helper import select_by_sql
 from version import APP_VERSION
-from web.emby.discord import report_to_discord
-from web.emby.emby_event import EmbyEvent
+from web.backend.emby_discord import report_to_discord
+from web.backend.emby_event import EmbyEvent
 from message.send import Message
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from config import WECHAT_MENU, get_config, PT_TRANSFER_INTERVAL, save_config
-from web.torrents.search import search_medias_for_web
-from web.wechat.WXBizMsgCrypt3 import WXBizMsgCrypt
+from web.backend.search_torrents import search_medias_for_web
+from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
 
 
@@ -262,7 +262,7 @@ def create_flask_app():
                 if search_word:
                     search_medias_for_web(search_word)
                 # 查询结果
-                sql = "SELECT ID,TITLE,RES_TYPE,SIZE,SEEDERS,ENCLOSURE FROM JACKETT_TORRENTS ORDER BY TITLE, SEEDERS DESC"
+                sql = "SELECT ID,TITLE,RES_TYPE,SIZE,SEEDERS,ENCLOSURE,SITE,YEAR,ES_STRING FROM JACKETT_TORRENTS ORDER BY TITLE, SEEDERS DESC"
                 res = select_by_sql(sql)
                 return {"code": len(res), "data": res}
 

@@ -6,8 +6,7 @@ from utils.functions import parse_rssxml, is_chinese
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
-from rmt.metainfo import MetaInfo
-from utils.meta.types import MediaType
+from utils.types import MediaType
 
 
 class RSSDownloader:
@@ -85,8 +84,6 @@ class RSSDownloader:
         rss_download_torrents = []
         # 代码站点配置优先级的序号
         order_seq = 0
-        # 已经检索过的信息不要重复查
-        media_names = {}
         for rss_job, job_info in sites.items():
             order_seq = order_seq + 1
             # 读取子配置
@@ -124,23 +121,12 @@ class RSSDownloader:
 
                     log.info("【RSS】开始检索媒体信息:" + title)
 
-                    # 识别种子名称
-                    media_info = MetaInfo(title)
-                    media_name = media_info.get_name()
-                    media_year = media_info.year
-                    media_key = "%s%s" % (media_name, media_year)
-                    if not media_names.get(media_key):
-                        # 开始检索TMDB
-                        tmdb_type, tmdb_info = self.media.get_media_info(media_info)
-                        # 整合结果
-                        media_info.set_tmdb_info(tmdb_info, tmdb_type)
-                        media_names[media_key] = media_info
-                    else:
-                        media_info = media_names.get(media_key)
-
+                    # 识别种子名称，开始检索TMDB
+                    media_info = self.media.get_media_info(title)
                     if not media_info.tmdb_info:
                         continue
                     search_type = media_info.type
+                    media_year = media_info.year
                     media_title = media_info.title
                     media_catagory = media_info.category
                     vote_average = media_info.vote_average

@@ -4,8 +4,8 @@ import requests
 from requests import RequestException
 from config import RMT_COUNTRY_EA, RMT_COUNTRY_AS, FANART_TV_API_URL, FANART_MOVIE_API_URL, BACKDROP_DEFAULT_IMAGE
 from utils.functions import is_chinese
-from utils.meta.tokens import Tokens
-from utils.meta.types import MediaType, MediaCatagory
+from utils.tokens import Tokens
+from utils.types import MediaType, MediaCatagory
 
 
 class MetaInfo(object):
@@ -218,7 +218,10 @@ class MetaInfo(object):
         if self.end_season:
             return self.begin_season <= season <= self.end_season
         else:
-            return season == self.begin_season
+            if self.begin_season:
+                return season == self.begin_season
+            else:
+                return season == 1
 
     # 是否包含集
     def is_in_episode(self, episode):
@@ -228,12 +231,12 @@ class MetaInfo(object):
             return episode == self.begin_episode
 
     # 整合TMDB识别的信息
-    def set_tmdb_info(self, info, mtype=None):
-        if mtype:
-            self.type = mtype
-        if not self.type:
-            return
+    def set_tmdb_info(self, info):
         if not info:
+            return
+        if info.get('media_type'):
+            self.type = info.get('media_type')
+        if not self.type:
             return
         self.tmdb_info = info
         self.tmdb_id = info.get('id')
@@ -325,6 +328,7 @@ class MetaInfo(object):
 
 
 if __name__ == "__main__":
-    text = "我和我的祖国 (2021)"
+    text = "Homeland S07 NF WEB-DL 1080p x264 DDP5.1-PTHweb"
     meta_info = MetaInfo(text)
     print(meta_info.__dict__)
+    print(meta_info.is_in_seasion(7))

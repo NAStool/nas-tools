@@ -8,7 +8,7 @@ from config import RMT_SUBEXT, get_config, RMT_MEDIAEXT, RMT_DISKFREESIZE
 from utils.functions import get_dir_files_by_ext, get_free_space_gb
 from message.send import Message
 from rmt.media import Media
-from utils.meta.types import MediaType, DownloaderType, SyncType, MediaCatagory
+from utils.types import MediaType, DownloaderType, SyncType, MediaCatagory
 
 
 class FileTransfer:

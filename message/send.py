@@ -84,8 +84,13 @@ class Message:
                          str_filesize(item_info.get('Total_Size')),
                          in_from)
         else:
-            msg_str = "电视剧 %s 转移完成，共 %s 季 %s 集，总大小：%s，来自：%s" % \
+            if item_info.get('Season_Ary'):
+                se_string = " S".join("%s".rjust(2, '0') % season for season in item_info.get('Season_Ary'))
+            else:
+                se_string = ""
+            msg_str = "电视剧 %s%s 转移完成，共 %s 季 %s 集，总大小：%s，来自：%s" % \
                       (title_str,
+                       se_string,
                        len(item_info.get('Season_Ary')),
                        len(item_info.get('Episode_Ary')),
                        str_filesize(item_info.get('Total_Size')),

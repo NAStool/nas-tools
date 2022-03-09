@@ -6,7 +6,7 @@ from watchdog.observers.polling import PollingObserver
 from config import get_config, RMT_MEDIAEXT, SYNC_DIR_CONFIG
 import log
 from rmt.filetransfer import FileTransfer
-from utils.meta.types import SyncType
+from utils.types import SyncType
 
 FINISHED_JOBS = []
 lock = threading.Lock()

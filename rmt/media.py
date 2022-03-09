@@ -4,7 +4,10 @@ import log
 from tmdbv3api import TMDb, Search
 from config import get_config
 from rmt.metainfo import MetaInfo
-from utils.meta.types import MediaType
+from utils.types import MediaType
+
+# 全局METAINFO缓存
+METAINFO_NAMES = {}
 
 
 class Media:
@@ -35,13 +38,16 @@ class Media:
         if search_type == MediaType.MOVIE:
             # 先按年份查，不行再不用年份查
             log.info("【META】正在检索电影：%s, 年份=%s ..." % (file_media_name, media_year))
-            if media_year:
-                movies = self.search.movies({"query": file_media_name, "year": media_year})
-                if len(movies) == 0:
+            try:
+                if media_year:
+                    movies = self.search.movies({"query": file_media_name, "year": media_year})
+                    if len(movies) == 0:
+                        movies = self.search.movies({"query": file_media_name})
+                else:
                     movies = self.search.movies({"query": file_media_name})
-            else:
-                movies = self.search.movies({"query": file_media_name})
-
+            except Exception as e:
+                log.error("【META】连接TMDB出错：%s" % str(e))
+                return None
             log.debug("【META】API返回：%s" % str(self.search.total_results))
             if len(movies) == 0:
                 log.warn("【META】%s 未找到媒体信息!" % file_media_name)
@@ -58,13 +64,16 @@ class Media:
         else:
             # 先按年份查，不行再不用年份查
             log.info("【META】正在检索剧集：%s, 年份=%s ..." % (file_media_name, media_year))
-            if media_year:
-                tvs = self.search.tv_shows({"query": file_media_name, "first_air_date_year": media_year})
-                if len(tvs) == 0:
+            try:
+                if media_year:
+                    tvs = self.search.tv_shows({"query": file_media_name, "first_air_date_year": media_year})
+                    if len(tvs) == 0:
+                        tvs = self.search.tv_shows({"query": file_media_name})
+                else:
                     tvs = self.search.tv_shows({"query": file_media_name})
-            else:
-                tvs = self.search.tv_shows({"query": file_media_name})
-
+            except Exception as e:
+                log.error("【META】连接TMDB出错：%s" % str(e))
+                return None
             log.debug("【META】API返回：%s" % str(self.search.total_results))
             if len(tvs) == 0:
                 log.warn("【META】%s 未找到媒体信息!" % file_media_name)
@@ -81,31 +90,39 @@ class Media:
                         info = tv
                         break
                 log.info(">剧集ID：%s, 剧集名称：%s, 上映日期：%s" % (info.get('id'), info.get('name'), info.get('first_air_date')))
+        # 补充类别信息
+        if info:
+            info['media_type'] = search_type
 
         return info
 
     # 只有名称信息，判别是电影还是电视剧并TMDB信息
-    def get_media_info(self, meta_info):
-        if not meta_info:
-            return None, None
-        media_year = meta_info.year
+    def get_media_info(self, title):
+        global METAINFO_NAMES
+        if not title:
+            return None
+        meta_info = MetaInfo(title)
         media_name = meta_info.get_name()
-        if not media_name:
-            return None, None
-        if meta_info.type == MediaType.TV:
-            # 确定是电视剧
-            search_type = MediaType.TV
-            file_media_info = self.__search_tmdb(media_name, media_year, search_type)
-        else:
-            # 不能确定是电视剧，先按电影查
-            search_type = MediaType.MOVIE
-            file_media_info = self.__search_tmdb(media_name, media_year, search_type)
-            if not file_media_info:
-                # 查不到再按电视剧查
+        media_year = meta_info.year
+        media_key = "%s%s" % (media_name, media_year)
+        if not METAINFO_NAMES.get(media_key):
+            if meta_info.type == MediaType.TV:
+                # 确定是电视剧
                 search_type = MediaType.TV
                 file_media_info = self.__search_tmdb(media_name, media_year, search_type)
+            else:
+                # 不能确定是电视剧，先按电影查
+                search_type = MediaType.MOVIE
+                file_media_info = self.__search_tmdb(media_name, media_year, search_type)
+                if not file_media_info:
+                    # 查不到再按电视剧查
+                    search_type = MediaType.TV
+                    file_media_info = self.__search_tmdb(media_name, media_year, search_type)
+            # 加入缓存
+            METAINFO_NAMES[media_key] = file_media_info
 
-        return search_type, file_media_info
+        meta_info.set_tmdb_info(METAINFO_NAMES.get(media_key))
+        return meta_info
 
     # 搜刮媒体信息和类型，返回每个文件对应的媒体信息
     '''
@@ -114,13 +131,12 @@ class Media:
     '''
 
     def get_media_info_on_files(self, file_list):
+        global METAINFO_NAMES
         # 存储文件路径与媒体的对应关系
         return_media_infos = {}
         # 不是list的转为list
         if not isinstance(file_list, list):
             file_list = [file_list]
-        # 存储所有识别的名称与媒体信息的对应关系
-        media_names = {}
         # 遍历每个文件，看得出来的名称是不是不一样，不一样的先搜索媒体信息
         for file_path in file_list:
             if not os.path.exists(file_path):
@@ -148,14 +164,14 @@ class Media:
             if not meta_info.get_name():
                 continue
             # 是否处理过
-            file_media_name = "%s%s" % (meta_info.get_name(), meta_info.year)
-            if not media_names.get(file_media_name):
+            media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
+            if not METAINFO_NAMES.get(media_key):
                 # 调用TMDB API
                 file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, meta_info.type)
                 if file_media_info:
-                    media_names[file_media_name] = file_media_info
+                    METAINFO_NAMES[media_key] = file_media_info
             # 存入结果清单返回
-            meta_info.set_tmdb_info(media_names.get(file_media_name))
+            meta_info.set_tmdb_info(METAINFO_NAMES.get(media_key))
             return_media_infos[file_path] = meta_info
 
         return return_media_infos
