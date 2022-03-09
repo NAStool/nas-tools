@@ -10,7 +10,7 @@ class DBHelper:
     __instance = None
 
     def __init__(self):
-        self.__connection = sqlite3.connect(":memory:")
+        self.__connection = sqlite3.connect(":memory:", check_same_thread=False)
         self.__init_tables()
 
     @staticmethod
@@ -38,6 +38,7 @@ class DBHelper:
                    YEAR    TEXT,
                    SEASON    TEXT,
                    EPISODE    TEXT,
+                   ES_STRING    TEXT,
                    VOTE    TEXT,
                    IMAGE    TEXT,
                    RES_TYPE    TEXT,
