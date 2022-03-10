@@ -81,7 +81,7 @@ def report_to_discord(event):
                 return
             ret = call(['mv', movie_dir, new_path])
             if ret == 0:
-                message_title = '【EMBY】电影 %s 已从 %s 转移到 %s' % (event.movie_name, org_type, RMT_FAVTYPE)
+                message_title = '【EMBY】电影 %s 已从 %s 转移到 %s' % (event.movie_name, org_type, RMT_FAVTYPE.value)
             else:
                 message_title = '【EMBY】电影 %s 转移失败！' % event.movie_name
 

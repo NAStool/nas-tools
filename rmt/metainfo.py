@@ -241,13 +241,13 @@ class MetaInfo(object):
         self.tmdb_info = info
         self.tmdb_id = info.get('id')
         self.vote_average = info.get('vote_average')
-        if self.type == MediaType.TV:
-            self.title = info.get('name')
+        if self.type == MediaType.MOVIE:
+            self.title = info.get('title')
             release_date = info.get('release_date')
             if release_date:
                 self.year = info.release_date[0:4]
         else:
-            self.title = info.get('title')
+            self.title = info.get('name')
             first_air_date = info.get('first_air_date')
             if first_air_date:
                 self.year = info.first_air_date[0:4]
