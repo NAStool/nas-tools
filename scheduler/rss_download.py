@@ -139,7 +139,7 @@ class RSSDownloader:
                     if match_flag:
                         log.info("【RSS】%s 匹配成功！" % title)
                     else:
-                        log.info("【RSS】%s 与规则不匹配！" % title)
+                        log.info("【RSS】%s 不匹配关键字！" % title)
                         continue
                     # 匹配后，看资源类型是否满足
                     # 代表资源类型在配置中的优先级顺序

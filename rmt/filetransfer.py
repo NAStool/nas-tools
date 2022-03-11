@@ -129,7 +129,7 @@ class FileTransfer:
             return False
 
         if not target_dir:
-            log.error("【RMT】目的目录不存在！")
+            log.error("【RMT】目前只有目录监控模式下，且指定了目的目录时，才会硬链接到unknown目录！")
             return False
         # 文件名
         file_name = os.path.basename(file_item)
@@ -324,6 +324,7 @@ class FileTransfer:
                         log.warn("【RMT】蓝光原盘目录已存在：%s" % Title_Str)
                         continue
                     if file_exist_flag:
+                        exist_filenum = exist_filenum + 1
                         if rmt_mode != "LINK":
                             existfile_size = os.path.getsize(ret_file_path)
                             if media_filesize > existfile_size:
@@ -334,10 +335,8 @@ class FileTransfer:
                                 new_movie_flag = True
                             else:
                                 log.warn("【RMT】文件 %s 已存在！" % ret_file_path)
-                                exist_filenum = exist_filenum + 1
                         else:
                             log.warn("【RMT】文件 %s 已存在！" % ret_file_path)
-                            exist_filenum = exist_filenum + 1
                 else:
                     if bluray_disk_flag:
                         # 转移蓝光原盘
@@ -427,6 +426,7 @@ class FileTransfer:
                 if file_exist_flag:
                     # 文件已存在
                     existfile_size = os.path.getsize(ret_file_path)
+                    message_medias[Title_Str]['Exist_Files'] = message_medias[Title_Str]['Exist_Files'] + 1
                     if rmt_mode != "LINK":
                         if media_filesize > existfile_size:
                             log.info("【RMT】文件 %s 已存在，但新文件质量更好，覆盖..." % ret_file_path)
@@ -435,11 +435,9 @@ class FileTransfer:
                                 continue
                         else:
                             log.warn("【RMT】文件 %s 已存在！" % ret_file_path)
-                            message_medias[Title_Str]['Exist_Files'] = message_medias[Title_Str]['Exist_Files'] + 1
                             continue
                     else:
                         log.warn("【RMT】文件 %s 已存在！" % ret_file_path)
-                        message_medias[Title_Str]['Exist_Files'] = message_medias[Title_Str]['Exist_Files'] + 1
                         continue
                 else:
                     # 文件不存在

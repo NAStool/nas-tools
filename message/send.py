@@ -80,7 +80,7 @@ class Message:
             msg_str = "电视剧 %s 第 %s 季第 %s 集 转移完成，大小：%s，来自：%s" \
                       % (title_str,
                          item_info.get('Season_Ary')[0],
-                         item_info.get('Episode_Ary')[0].split('-')[-1],
+                         item_info.get('Episode_Ary')[0],
                          str_filesize(item_info.get('Total_Size')),
                          in_from)
         else:

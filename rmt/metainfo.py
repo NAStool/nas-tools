@@ -196,7 +196,10 @@ class MetaInfo(object):
                 if not self.end_episode else "E%s-E%s" % \
                                              (str(self.begin_episode).rjust(2, "0"), str(self.end_episode).rjust(2, "0"))
         else:
-            return None
+            if self.type == MediaType.TV:
+                return "E01"
+            else:
+                return None
 
     # 返回季集字符串
     def get_season_episode_string(self):
