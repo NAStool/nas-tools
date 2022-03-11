@@ -53,6 +53,7 @@ class RSSDownloader:
             log.error("【RUN】执行任务rssdownload出错：" + str(err))
 
     def __rssdownload(self):
+        global RSS_CACHED_LIST
         config = get_config()
         pt = config.get('pt')
         if not pt:
