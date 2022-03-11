@@ -8,11 +8,11 @@ from pt.downloader import Downloader
 from rmt.media import Media
 from utils.types import MediaType
 
+RSS_CACHED_LIST = []
+RSS_RUNNING_FLAG = False
+
 
 class RSSDownloader:
-    __rss_cache_list = []
-    __running_flag = False
-
     __movie_subtypedir = True
     __tv_subtypedir = True
     __movie_path = None
@@ -40,13 +40,16 @@ class RSSDownloader:
             self.__tv_subtypedir = config['media'].get('tv_subtypedir', True)
 
     def run_schedule(self):
+        global RSS_RUNNING_FLAG
         try:
-            if self.__running_flag:
+            if RSS_RUNNING_FLAG:
                 log.error("【RUN】rssdownload任务正在执行中...")
             else:
+                RSS_RUNNING_FLAG = True
                 self.__rssdownload()
+                RSS_RUNNING_FLAG = False
         except Exception as err:
-            self.__running_flag = False
+            RSS_RUNNING_FLAG = False
             log.error("【RUN】执行任务rssdownload出错：" + str(err))
 
     def __rssdownload(self):
@@ -79,7 +82,6 @@ class RSSDownloader:
         if not movie_keys and not tv_keys:
             return
 
-        self.__running_flag = True
         # 保存命中的资源信息
         rss_download_torrents = []
         # 代码站点配置优先级的序号
@@ -113,8 +115,8 @@ class RSSDownloader:
                     title = re.sub(r'^\[.+?]', "", title, count=1)
                     enclosure = res['enclosure']
                     # 判断是否处理过
-                    if enclosure not in self.__rss_cache_list:
-                        self.__rss_cache_list.append(enclosure)
+                    if enclosure not in RSS_CACHED_LIST:
+                        RSS_CACHED_LIST.append(enclosure)
                     else:
                         log.debug("【RSS】%s 已处理过，跳过..." % title)
                         continue
