@@ -7,7 +7,7 @@ local_version=$(cat $local_file)
 if test 0"${NASTOOL_AUTO_UPDATE}" != 0
   then
   echo "开始检查版本更新..."
-  online_version=$(wget $online_file -q -O -)
+  online_version=$(wget --read-timeout=15 $online_file -q -O -)
   # 是否获取到最新版本
   if test "${online_version}"
   then

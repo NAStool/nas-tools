@@ -50,15 +50,19 @@ class WeChat(object):
         if not token_flag:
             if not self.__corpid or not self.__corpsecret:
                 return None
-            token_url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s" \
-                        % (self.__corpid, self.__corpsecret)
-            res = requests.get(token_url)
-            if res:
-                ret_json = res.json()
-                if ret_json['errcode'] == 0:
-                    self.__access_token = ret_json['access_token']
-                    self.__expires_in = ret_json['expires_in']
-                    self.__access_token_time = datetime.now()
+            try:
+                token_url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s" \
+                            % (self.__corpid, self.__corpsecret)
+                res = requests.get(token_url)
+                if res:
+                    ret_json = res.json()
+                    if ret_json['errcode'] == 0:
+                        self.__access_token = ret_json['access_token']
+                        self.__expires_in = ret_json['expires_in']
+                        self.__access_token_time = datetime.now()
+            except Exception as e:
+                print(str(e))
+                return None
         return self.__access_token
 
     # 发送文本消息

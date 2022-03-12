@@ -182,10 +182,7 @@ Jackett的相关配置参考网上的各类教程。
    ```
 
 ## 使用
-1) WEB UI界面，可以修改配置、手工启动服务（仅全功能模式支持）
-
-![schedule](https://user-images.githubusercontent.com/51039935/156727997-521688cf-2f8a-4c99-97bb-5d3a0be571d9.jpg)
-![site](https://user-images.githubusercontent.com/51039935/156728009-589b2de8-0dc0-4fd5-99cc-c181413d4ff0.jpg)
+1) 3000 端口访问 WEB UI界面，可以修改订阅、搜索资源以及启动服务
 
 
 2) 手机端图文通知和控制界面，控制服务运行（输入命令或者点击菜单）

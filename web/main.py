@@ -9,14 +9,14 @@ from scheduler.pt_signin import PTSignin
 from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
 from utils.db_helper import select_by_sql
-from version import APP_VERSION
-from web.backend.emby_discord import report_to_discord
-from web.backend.emby_event import EmbyEvent
 from message.send import Message
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from config import WECHAT_MENU, get_config, PT_TRANSFER_INTERVAL, save_config
+from config import WECHAT_MENU, get_config, save_config, PT_TRANSFER_INTERVAL
+from utils.types import MediaType
+from version import APP_VERSION
+from web.backend.emby import EmbyEvent, Emby
 from web.backend.search_torrents import search_medias_for_web
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
@@ -43,6 +43,8 @@ def create_flask_app():
     auth = HTTPBasicAuth()
     users = {str(config['app'].get('login_user')): generate_password_hash(config['app'].get('login_password'))}
 
+    EmbyClient = Emby()
+
     @auth.verify_password
     def verify_password(username, password):
         if username in users and \
@@ -67,7 +69,7 @@ def create_flask_app():
                             }
         # log.debug("输入报文：" + str(request_json))
         event = EmbyEvent(request_json)
-        report_to_discord(event)
+        Emby().report_to_discord(event)
         return 'Success'
 
     # DDNS消息通知
@@ -89,76 +91,57 @@ def create_flask_app():
                 url = request.url.replace('http://', 'https://', 1)
                 return redirect(url, code=301)
 
+    # 开始页面
     @app.route('/', methods=['POST', 'GET'])
     @auth.login_required
-    def main():
-        # 读取定时服务配置
-        scheduler_cfg_list = []
-        if config.get('pt'):
-            pt_check_interval = config['pt'].get('pt_check_interval')
-            if pt_check_interval:
-                tim_rssdownload = str(round(pt_check_interval / 60)) + "分"
-                rss_state = 'ON'
-            else:
-                tim_rssdownload = ""
-                rss_state = 'OFF'
-            scheduler_cfg_list.append(
-                {'name': 'RSS下载', 'time': tim_rssdownload, 'state': rss_state, 'id': 'rssdownload'})
+    def index():
+        # 获取媒体数量
+        EmbySucess = 1
+        MovieCount = 0
+        SeriesCount = 0
+        SongCount = 0
+        media_count = EmbyClient.get_emby_medias_count()
+        if media_count:
+            MovieCount = "{:,}".format(media_count.get('MovieCount'))
+            SeriesCount = "{:,}".format(media_count.get('SeriesCount'))
+            SongCount = "{:,}".format(media_count.get('SongCount'))
+        else:
+            EmbySucess = 0
 
-            pt_monitor = config['pt'].get('pt_monitor')
-            if pt_monitor:
-                tim_pttransfer = str(round(PT_TRANSFER_INTERVAL / 60)) + "分"
-                sta_pttransfer = 'ON'
-            else:
-                tim_pttransfer = ""
-                sta_pttransfer = 'OFF'
-            scheduler_cfg_list.append(
-                {'name': 'PT文件转移', 'time': tim_pttransfer, 'state': sta_pttransfer, 'id': 'pttransfer'})
+        # 获得活动日志
+        Activity = EmbyClient.get_emby_activity_log(30)
 
-            pt_seeding_config_time = config['pt'].get('pt_seeding_time')
-            if pt_seeding_config_time:
-                pt_seeding_time = str(round(pt_seeding_config_time / 3600)) + "小时"
-                sta_autoremovetorrents = 'ON'
-                scheduler_cfg_list.append(
-                    {'name': 'PT删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents,
-                     'id': 'autoremovetorrents'})
+        # 用户数量
+        UserCount = EmbyClient.get_emby_user_count()
 
-            tim_ptsignin = config['pt'].get('ptsignin_cron')
-            if tim_ptsignin:
-                sta_ptsignin = 'ON'
-                scheduler_cfg_list.append(
-                    {'name': 'PT自动签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin'})
+        # 磁盘空间
 
-        if config.get('sync'):
-            sync_path = config['sync'].get('sync_path')
-            if sync_path:
-                sta_sync = 'ON'
-                scheduler_cfg_list.append({'name': '资源同步',
-                                           'time': '实时监控',
-                                           'state': sta_sync,
-                                           'id': 'sync'})
+        return render_template("index.html",
+                               EmbySucess=EmbySucess,
+                               MediaCount={'MovieCount': MovieCount, 'SeriesCount': SeriesCount,
+                                           'SongCount': SongCount},
+                               Activitys=Activity,
+                               UserCount=UserCount,
+                               AppVersion=APP_VERSION
+                               )
 
-        # 读取RSS配置
-        rss_cfg_list = []
-        if config.get('pt'):
-            rss_jobs = config['pt'].get('sites')
-            if rss_jobs:
-                for rss_job, job_info in rss_jobs.items():
-                    res_type = job_info.get('res_type')
-                    if res_type:
-                        if not isinstance(res_type, list):
-                            res_type = [res_type]
-                    else:
-                        res_type = []
+    # 影音搜索页面
+    @app.route('/search', methods=['POST', 'GET'])
+    @auth.login_required
+    def search():
+        # 查询结果
+        sql = "SELECT ID,TITLE||' ('||YEAR||') '||ES_STRING,RES_TYPE,SIZE,SEEDERS,ENCLOSURE,SITE,YEAR,ES_STRING,IMAGE,TYPE FROM JACKETT_TORRENTS ORDER BY TITLE, SEEDERS DESC"
+        res = select_by_sql(sql)
+        return render_template("search.html",
+                               Count=len(res),
+                               Items=res,
+                               AppVersion=APP_VERSION)
 
-                    job_cfg = {'job': rss_job,
-                               'url': job_info.get('rssurl'),
-                               'signin_url': job_info.get('signin_url'),
-                               'cookie': job_info.get('cookie'),
-                               'res_type': ','.join('%s' % key for key in res_type)}
-                    # 存入配置列表
-                    rss_cfg_list.append(job_cfg)
-
+    # 站点订阅页面
+    @app.route('/sites', methods=['POST', 'GET'])
+    @auth.login_required
+    def sites():
+        # 获取订阅关键字
         # 读取RSS关键字
         movie_key_list = []
         if config.get('pt'):
@@ -178,14 +161,118 @@ def create_flask_app():
                 else:
                     tv_key_list = tv_keys
 
-        return render_template("main.html",
-                               app_version=APP_VERSION,
-                               page="key",
-                               scheduler_cfg_list=scheduler_cfg_list,
-                               rss_cfg_list=rss_cfg_list,
-                               movie_key_list=','.join('%s' % key for key in movie_key_list),
-                               tv_key_list=','.join('%s' % key for key in tv_key_list)
-                               )
+        return render_template("sites.html",
+                               MovieKeys=','.join('%s' % key for key in movie_key_list),
+                               TvKeys=','.join('%s' % key for key in tv_key_list),
+                               AppVersion=APP_VERSION)
+
+    # 推荐页面
+    @app.route('/recommend', methods=['POST', 'GET'])
+    @auth.login_required
+    def recommend():
+        return render_template("recommend.html",
+                               AppVersion=APP_VERSION)
+
+    # 服务页面
+    @app.route('/service', methods=['POST', 'GET'])
+    @auth.login_required
+    def service():
+        scheduler_cfg_list = []
+        if config.get('pt'):
+            # RSS下载
+            pt_check_interval = config['pt'].get('pt_check_interval')
+            if pt_check_interval:
+                tim_rssdownload = str(round(pt_check_interval / 60)) + " 分"
+                rss_state = 'ON'
+            else:
+                tim_rssdownload = ""
+                rss_state = 'OFF'
+            svg = '''
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-cloud-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                     <path d="M19 18a3.5 3.5 0 0 0 0 -7h-1a5 4.5 0 0 0 -11 -2a4.6 4.4 0 0 0 -2.1 8.4"></path>
+                     <line x1="12" y1="13" x2="12" y2="22"></line>
+                     <polyline points="9 19 12 22 15 19"></polyline>
+                </svg>
+            '''
+            color = "blue"
+            scheduler_cfg_list.append(
+                {'name': 'RSS下载', 'time': tim_rssdownload, 'state': rss_state, 'id': 'rssdownload', 'svg': svg, 'color': color})
+
+            # PT文件转移
+            pt_monitor = config['pt'].get('pt_monitor')
+            if pt_monitor:
+                tim_pttransfer = str(round(PT_TRANSFER_INTERVAL / 60)) + " 分"
+                sta_pttransfer = 'ON'
+            else:
+                tim_pttransfer = ""
+                sta_pttransfer = 'OFF'
+            svg = '''
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-replace" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                 <rect x="3" y="3" width="6" height="6" rx="1"></rect>
+                 <rect x="15" y="15" width="6" height="6" rx="1"></rect>
+                 <path d="M21 11v-3a2 2 0 0 0 -2 -2h-6l3 3m0 -6l-3 3"></path>
+                 <path d="M3 13v3a2 2 0 0 0 2 2h6l-3 -3m0 6l3 -3"></path>
+            </svg>
+            '''
+            color = "green"
+            scheduler_cfg_list.append(
+                {'name': 'PT文件转移', 'time': tim_pttransfer, 'state': sta_pttransfer, 'id': 'pttransfer', 'svg': svg, 'color': color})
+
+            # PT删种
+            pt_seeding_config_time = config['pt'].get('pt_seeding_time')
+            if pt_seeding_config_time:
+                pt_seeding_time = str(round(pt_seeding_config_time / 3600)) + " 小时"
+                sta_autoremovetorrents = 'ON'
+                svg = '''
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                     <line x1="4" y1="7" x2="20" y2="7"></line>
+                     <line x1="10" y1="11" x2="10" y2="17"></line>
+                     <line x1="14" y1="11" x2="14" y2="17"></line>
+                     <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                     <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                </svg>
+                '''
+                color = "twitter"
+                scheduler_cfg_list.append(
+                    {'name': 'PT删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents, 'id': 'autoremovetorrents', 'svg': svg, 'color': color})
+
+            # PT自动签到
+            tim_ptsignin = config['pt'].get('ptsignin_cron')
+            if tim_ptsignin:
+                sta_ptsignin = 'ON'
+                svg = '''
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                     <circle cx="9" cy="7" r="4"></circle>
+                     <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
+                     <path d="M16 11l2 2l4 -4"></path>
+                </svg>
+                '''
+                color = "facebook"
+                scheduler_cfg_list.append(
+                    {'name': 'PT自动签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin', 'svg': svg, 'color': color})
+
+        # 资源同步
+        if config.get('sync'):
+            sync_path = config['sync'].get('sync_path')
+            if sync_path:
+                sta_sync = 'ON'
+                svg = '''
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                     <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+                     <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+                </svg>
+                '''
+                color = "orange"
+                scheduler_cfg_list.append({'name': '资源同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg, 'color': color})
+        return render_template("service.html",
+                               Count=len(scheduler_cfg_list),
+                               SchedulerTasks=scheduler_cfg_list,
+                               AppVersion=APP_VERSION)
 
     # 事件响应
     @app.route('/do', methods=['POST'])
@@ -195,62 +282,35 @@ def create_flask_app():
         if cmd:
             if cmd == "sch":
                 sch_item = data.get("item")
-                if sch_item == "btn_autoremovetorrents":
+                if sch_item == "autoremovetorrents":
                     AutoRemoveTorrents().run_schedule()
-                if sch_item == "btn_pttransfer":
+                if sch_item == "pttransfer":
                     PTTransfer().run_schedule()
-                if sch_item == "btn_ptsignin":
+                if sch_item == "ptsignin":
                     PTSignin().run_schedule()
-                if sch_item == "btn_sync":
+                if sch_item == "sync":
                     FileTransfer().transfer_all_sync()
-                if sch_item == "btn_rssdownload":
+                if sch_item == "rssdownload":
                     RSSDownloader().run_schedule()
                 return {"retmsg": "执行完成！", "item": sch_item}
-
-            if cmd == "rss":
-                new_sites = {}
-                for key, value in data.items():
-                    if key.find('@') != -1:
-                        pt_site = key.split('@')[0]
-                        pt_site_item = key.split('@')[1]
-                    else:
-                        continue
-                    if value.find(',') != -1:
-                        if value.endswith(','):
-                            value = value[0, -1]
-                        value = value.split(',')
-                    # 查看对应的site是否存在值
-                    have_site = new_sites.get(pt_site)
-                    if have_site:
-                        # site存在，则加值
-                        new_sites[pt_site][pt_site_item] = value
-                    else:
-                        # site不存在，则建site
-                        new_sites[pt_site] = {pt_site_item: value}
-                # 賛换掉
-                if config['pt'].get('sites'):
-                    config['pt']['sites'].update(new_sites)
-                else:
-                    config['pt']['sites'] = new_sites
-                # 保存
-                save_config(config)
-                return {"retcode": 0}
 
             if cmd == "key":
                 movie_keys = data.get("movie_keys")
                 # 电影关键字
-                if movie_keys.find(',') != -1:
-                    if movie_keys.endswith(','):
-                        movie_keys = movie_keys[0, -1]
-                    movie_keys = movie_keys.split(',')
-                config['pt']['movie_keys'] = movie_keys
+                if movie_keys:
+                    if movie_keys.find(',') != -1:
+                        if movie_keys.endswith(','):
+                            movie_keys = movie_keys[0, -1]
+                        movie_keys = movie_keys.split(',')
+                    config['pt']['movie_keys'] = movie_keys
                 # 电视剧关键字
-                tv_keys = data["tv_keys"]
-                if tv_keys.find(',') != -1:
-                    if tv_keys.endswith(','):
-                        tv_keys = tv_keys[0, -1]
-                    tv_keys = tv_keys.split(',')
-                config['pt']['tv_keys'] = tv_keys
+                tv_keys = data.get("tv_keys")
+                if tv_keys:
+                    if tv_keys.find(',') != -1:
+                        if tv_keys.endswith(','):
+                            tv_keys = tv_keys[0, -1]
+                        tv_keys = tv_keys.split(',')
+                    config['pt']['tv_keys'] = tv_keys
                 # 保存
                 save_config(config)
                 return {"retcode": 0}
@@ -261,10 +321,7 @@ def create_flask_app():
                 search_word = data.get("search_word")
                 if search_word:
                     search_medias_for_web(search_word)
-                # 查询结果
-                sql = "SELECT ID,TITLE,RES_TYPE,SIZE,SEEDERS,ENCLOSURE,SITE,YEAR,ES_STRING FROM JACKETT_TORRENTS ORDER BY TITLE, SEEDERS DESC"
-                res = select_by_sql(sql)
-                return {"code": len(res), "data": res}
+                return {"retcode": 0}
 
             # 添加下载
             if cmd == "download":
@@ -273,8 +330,12 @@ def create_flask_app():
                 results = select_by_sql(sql)
                 for res in results:
                     Downloader().add_pt_torrent(res[0])
+                    if res[7] == "TV":
+                        mtype = MediaType.TV
+                    else:
+                        mtype = MediaType.MOVIE
                     msg_item = {"title": res[1], "vote_average": res[5], "year": res[2], "backdrop_path": res[6],
-                                "type": res[7]}
+                                "type": mtype}
                     Message().send_download_message("WEB搜索", msg_item, "%s%s" % (res[3], res[4]))
                 return {"retcode": 0}
 

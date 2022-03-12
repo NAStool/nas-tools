@@ -35,7 +35,7 @@ class Jackett:
             self.media = Media()
 
     # 检索一个Indexer
-    def seach_indexer(self, order_seq, index, search_word, key_word, s_num, e_num, year):
+    def seach_indexer(self, order_seq, index, search_word, key_word, s_num, e_num, year, whole_word=False):
         if not index:
             return None
         ret_array = []
@@ -80,11 +80,20 @@ class Jackett:
             vote_average = media_info.vote_average
             backdrop_path = media_info.backdrop_path
             # 名称是否匹配
-            if key_word in media_title or key_word in "%s %s" % (media_info.en_name, media_info.cn_name):
-                match_flag = True
+            if whole_word:
+                # 全匹配模式，名字需要完全一样才下载
+                if key_word == media_title:
+                    match_flag = True
+                else:
+                    match_flag = False
+                    log.info("【JACKETT】%s 未匹配名称：%s" % (title, key_word))
             else:
-                match_flag = False
-                log.info("【JACKETT】%s 未匹配名称：%s" % (title, key_word))
+                # 非全匹配模式，种子中或者名字中有关键字就行
+                if key_word in media_title or key_word in "%s %s" % (media_info.en_name, media_info.cn_name):
+                    match_flag = True
+                else:
+                    match_flag = False
+                    log.info("【JACKETT】%s 未匹配名称：%s" % (title, key_word))
 
             # 检查标题是否匹配剧集
             if match_flag:
@@ -128,7 +137,7 @@ class Jackett:
         return ret_array
 
     # 根据关键字调用 Jackett API 检索
-    def search_medias_from_word(self, key_word, s_num, e_num, year):
+    def search_medias_from_word(self, key_word, s_num, e_num, year, whole_word):
         if not key_word:
             return []
         if not self.__api_key or not self.__indexers:
@@ -145,7 +154,7 @@ class Jackett:
         order_seq = 100
         for index in self.__indexers:
             order_seq = order_seq - 1
-            task = executor.submit(self.seach_indexer, order_seq, index, search_word, key_word, s_num, e_num, year)
+            task = executor.submit(self.seach_indexer, order_seq, index, search_word, key_word, s_num, e_num, year, whole_word)
             all_task.append(task)
         ret_array = []
         for future in as_completed(all_task):
@@ -158,8 +167,11 @@ class Jackett:
     # 按关键字，检索排序去重后择优下载
     def search_one_media(self, content):
         key_word, season_num, episode_num, year = get_keyword_from_string(content)
+        if not key_word:
+            log.info("【WEB】检索关键字有误！" % content)
+            return
         self.message.sendmsg("【JACKETT】开始检索 %s ..." % content)
-        media_list = self.search_medias_from_word(key_word, season_num, episode_num, year)
+        media_list = self.search_medias_from_word(key_word, season_num, episode_num, year, True)
         if len(media_list) == 0:
             self.message.sendmsg("【JACKETT】%s 未检索到任何媒体资源！" % content, "")
         else:
