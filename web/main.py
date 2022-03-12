@@ -460,6 +460,8 @@ def create_flask_app():
                     if mtype in ['nm', 'hm']:
                         movie_keys = config['pt'].get('movie_keys')
                         if movie_keys:
+                            if not isinstance(movie_keys, list):
+                                movie_keys = [movie_keys]
                             if name not in movie_keys:
                                 movie_keys.append(name)
                         else:
@@ -469,6 +471,8 @@ def create_flask_app():
                     else:
                         tv_keys = config['pt'].get('tv_keys')
                         if tv_keys:
+                            if not isinstance(tv_keys, list):
+                                tv_keys = [tv_keys]
                             if name not in tv_keys:
                                 tv_keys.append(name)
                         else:
@@ -485,6 +489,8 @@ def create_flask_app():
                     if mtype in ['nm', 'hm']:
                         movie_keys = config['pt'].get('movie_keys')
                         if movie_keys:
+                            if not isinstance(movie_keys, list):
+                                movie_keys = [movie_keys]
                             if name in movie_keys:
                                 movie_keys.remove(name)
                                 config['pt']['movie_keys'] = movie_keys
@@ -492,6 +498,8 @@ def create_flask_app():
                     else:
                         tv_keys = config['pt'].get('tv_keys')
                         if tv_keys:
+                            if not isinstance(tv_keys, list):
+                                tv_keys = [tv_keys]
                             if name in tv_keys:
                                 tv_keys.remove(name)
                                 config['pt']['tv_keys'] = tv_keys
