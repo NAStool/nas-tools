@@ -151,7 +151,7 @@ def create_flask_app():
             # 总剩余空间 格式化
             FreeSpace = "{:,} TB".format(round((TotalSpace - UsedSapce) / 1024 / 1024 / 1024 / 1024), 2)
             # 总使用空间 格式化
-            TotalUsedSapce = "{:,} TB".format(round(UsedSapce / 1024 / 1024 / 1024 / 1024), 2)
+            UsedSapce = "{:,} TB".format(round(UsedSapce / 1024 / 1024 / 1024 / 1024), 2)
             # 总空间 格式化
             TotalSpace = "{:,} TB".format(round(TotalSpace / 1024 / 1024 / 1024 / 1024, 2))
 
