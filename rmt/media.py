@@ -1,7 +1,7 @@
 import os
 import re
 import log
-from tmdbv3api import TMDb, Search
+from tmdbv3api import TMDb, Search, Movie, TV
 from config import get_config
 from rmt.metainfo import MetaInfo
 from utils.types import MediaType
@@ -14,6 +14,8 @@ class Media:
     # TheMovieDB
     tmdb = None
     search = None
+    movie = None
+    tv = None
 
     def __init__(self):
         config = get_config()
@@ -23,6 +25,8 @@ class Media:
             self.tmdb.language = 'zh'
             self.tmdb.debug = True
         self.search = Search()
+        self.movie = Movie()
+        self.tv = TV()
 
     # 检索tmdb中的媒体信息，传入名字、年份、类型
     # 返回媒体信息对象
@@ -206,3 +210,19 @@ class Media:
                 return True, c_seq, t_type
 
         return False, 0, ""
+
+    # 获取热门电影
+    def get_tmdb_hot_movies(self, page):
+        return self.movie.popular(page)
+
+    # 获取热门电视剧
+    def get_tmdb_hot_tvs(self, page):
+        return self.tv.popular(page)
+
+    # 获取最新电影
+    def get_tmdb_new_movies(self, page):
+        return self.movie.now_playing(page)
+
+    # 获取最新电视剧
+    def get_tmdb_new_tvs(self, page):
+        return self.tv.on_the_air(page)

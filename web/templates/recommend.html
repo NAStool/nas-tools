@@ -13,7 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon" />
-    <link rel="apple-touch-icon-precomposed" href="../static/img/logo-small.svg">
+    <link rel="apple-touch-icon-precomposed" href="../static/img/logo.png">
     <title>nas-tools</title>
     <!-- CSS files -->
     <link href="../static/css/tabler.min.css" rel="stylesheet"/>
@@ -133,9 +133,7 @@
           <div class="page-header d-print-none">
             <div class="row align-items-center">
               <div class="col">
-                <h2 class="page-title">
-                  热门
-                </h2>
+                <h2 class="page-title" id="recommend_title"></h2>
               </div>
             </div>
           </div>
@@ -144,49 +142,50 @@
         <div class="page-body">
           <div class="container-xl">
             <div class="row row-cards">
-              <div class="col-sm-6 col-lg-3">
+              {% for item in Items %}
+              <div class="col-sm-3 col-lg-2">
                 <div class="card card-sm">
-                  <a href="#" class="d-block"><img src="../static/img/tmdb.png" class="card-img-top"></a>
+                  <a href="#" class="d-block"><img src="{{ item.image }}" class="card-img-top"></a>
                   <div class="card-body">
                     <div class="d-flex align-items-center">
                       <div>
-                        <div><strong>标题</strong></div>
-                        <div class="text-muted">2021-05-19</div>
+                        <div><strong>{{ item.title }}</strong></div>
+                        <div class="text-muted">{{ item.date }}</div>
                       </div>
                       <div class="ms-auto">
-                        <a href="#" class="text-muted">
+                        <a href="/search?s={{ item.title }}" class="text-muted">
                           <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                              <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
                              <path d="M12 21h-5a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v4.5"></path>
                              <circle cx="16.5" cy="17.5" r="2.5"></circle>
                              <line x1="18.5" y1="19.5" x2="21" y2="22"></line>
+                          </svg></a>
+                        <a id="recommend_link_{{ item.id }}" {% if item.fav == 0 %} href="javascript:show_recommend_add_modal('{{ item.id }}','{{ RecommendType }}','{{ item.title }}')" {% else %} href="javascript:show_recommend_del_modal('{{ item.id }}','{{ RecommendType }}','{{ item.title }}')" {% endif %} class="text-muted">
+                          <svg id="recommend_svg_{{ item.id }}" xmlns="http://www.w3.org/2000/svg" class="icon {% if item.fav == 0 %} icon-tabler icon-tabler-heart {% else %} icon-filled text-red {% endif %}" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                             <path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
                           </svg>
-                        </a>
-                        <a href="#" class="ms-3 text-muted">
-                          <!-- Download SVG icon from http://tabler-icons.io/i/heart -->
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-filled text-red" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /></svg>
                         </a>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
+              {% endfor %}
             </div>
             <div class="d-flex">
               <ul class="pagination ms-auto">
-                <li class="page-item disabled">
-                  <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                <li class="page-item {% if CurrentPage==1 %} disabled {% endif %}">
+                  <a class="page-link" href="javascript:go_pre_page('{{ RecommendType }}', {{ CurrentPage }})" tabindex="-1" aria-disabled="true">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="15 6 9 12 15 18" /></svg>
                   </a>
                 </li>
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item active"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">4</a></li>
-                <li class="page-item"><a class="page-link" href="#">5</a></li>
+                {% for page in PageRange %}
+                <li class="page-item {% if page==CurrentPage %} active {% endif %}"><a class="page-link" href="/recommend?t={{ RecommendType }}&page={{ page }}">{{ page }}</a></li>
+                {% endfor %}
                 <li class="page-item">
-                  <a class="page-link" href="#">
+                  <a class="page-link" href="javascript:go_next_page('{{ RecommendType }}', {{ CurrentPage }})">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 6 15 12 9 18" /></svg>
                   </a>
                 </li>
@@ -213,6 +212,47 @@
           </div>
         </footer>
       </div>
+      <div class="modal modal-blur fade" id="recommend-modal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-body">
+            <div class="modal-title">确认提示</div>
+            <div id="recommend_start_message">是否确定将 ${MEDIA_NAME}  加入RSS订阅？</div>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" id="recommend_start_id" />
+            <input type="hidden" id="recommend_start_type" />
+            <input type="hidden" id="recommend_start_name" />
+            <input type="hidden" id="recommend_do_type" />
+            <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-danger" id="recommend_start_btn">确定</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal modal-blur fade" id="recommend-modal-success" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="modal-status bg-success"></div>
+          <div class="modal-body text-center py-4">
+            <!-- Download SVG icon from http://tabler-icons.io/i/circle-check -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M9 12l2 2l4 -4" /></svg>
+            <h3>成功</h3>
+            <div class="text-muted" id="recommend_finished_str">添加RSS订阅成功！</div>
+          </div>
+          <div class="modal-footer">
+            <div class="w-100">
+              <div class="row">
+                <div class="col"><a href="#" class="btn btn-success w-100" data-bs-dismiss="modal">
+                    确定
+                  </a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     </div>
     <!-- Libs JS -->
     <!-- Tabler Core -->
@@ -220,5 +260,32 @@
     <script src="../static/js/jquery-3.3.1.min.js"></script>
     <script src="../static/js/util.js"></script>
     <script src="../static/js/demo.min.js"></script>
+    <script type="text/javascript">
+      // 标题
+      title_type = getQueryVariable('t');
+      if(title_type == "hm"){
+        $("#recommend_title").text("热门电影")
+      }
+      if(title_type == "ht"){
+        $("#recommend_title").text("热门电视剧")
+      }
+      if(title_type == "nm"){
+        $("#recommend_title").text("最新电影")
+      }
+      if(title_type == "nt"){
+        $("#recommend_title").text("最新电视剧")
+      }
+
+      // 上一页
+      function go_pre_page(type, page){
+        window.location.href = window.location.href.split("?")[0] + "?t=" + type + "&page=" + (page - 1)
+      }
+
+      // 下一页
+      function go_next_page(type, page){
+        window.location.href = window.location.href.split("?")[0] + "?t=" + type + "&page=" + (page + 1)
+      }
+
+    </script>
   </body>
 </html>

@@ -4,6 +4,7 @@ import log
 from pt.downloader import Downloader
 from pt.jackett import Jackett
 from rmt.filetransfer import FileTransfer
+from rmt.media import Media
 from scheduler.autoremove_torrents import AutoRemoveTorrents
 from scheduler.pt_signin import PTSignin
 from scheduler.pt_transfer import PTTransfer
@@ -14,6 +15,7 @@ from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from config import WECHAT_MENU, get_config, save_config, PT_TRANSFER_INTERVAL
+from utils.functions import get_used_of_partition
 from utils.types import MediaType
 from version import APP_VERSION
 from web.backend.emby import EmbyEvent, Emby
@@ -115,6 +117,43 @@ def create_flask_app():
         UserCount = EmbyClient.get_emby_user_count()
 
         # 磁盘空间
+        UsedSapce = 0
+        TotalSpace = 0
+        FreeSpace = 0
+        UsedPercent = 0
+        if config.get('media'):
+            # 电影目录
+            movie_path = config['media'].get('movie_path')
+            if movie_path:
+                movie_used, movie_total = get_used_of_partition(movie_path)
+            else:
+                movie_used, movie_total = 0, 0
+            # 电视目录
+            tv_path = config['media'].get('tv_path')
+            if tv_path:
+                tv_used, tv_total = get_used_of_partition(movie_path)
+            else:
+                tv_used, tv_total = 0, 0
+            # 总空间
+            if movie_total == tv_total:
+                TotalSpace = movie_total
+            else:
+                TotalSpace = movie_total + tv_total
+            # 已使用空间
+            if movie_used == tv_used:
+                UsedSapce = movie_used
+            else:
+                UsedSapce = movie_used + tv_used
+
+            # 电影电视使用百分比格式化
+            if TotalSpace:
+                UsedPercent = "%0.1f" % ((UsedSapce / TotalSpace) * 100)
+            # 总剩余空间 格式化
+            FreeSpace = "{:,} TB".format(round((TotalSpace - UsedSapce) / 1024 / 1024 / 1024 / 1024), 2)
+            # 总使用空间 格式化
+            TotalUsedSapce = "{:,} TB".format(round(UsedSapce / 1024 / 1024 / 1024 / 1024), 2)
+            # 总空间 格式化
+            TotalSpace = "{:,} TB".format(round(TotalSpace / 1024 / 1024 / 1024 / 1024, 2))
 
         return render_template("index.html",
                                EmbySucess=EmbySucess,
@@ -122,6 +161,10 @@ def create_flask_app():
                                            'SongCount': SongCount},
                                Activitys=Activity,
                                UserCount=UserCount,
+                               FreeSpace=FreeSpace,
+                               TotalSpace=TotalSpace,
+                               UsedSapce=UsedSapce,
+                               UsedPercent=UsedPercent,
                                AppVersion=APP_VERSION
                                )
 
@@ -170,7 +213,70 @@ def create_flask_app():
     @app.route('/recommend', methods=['POST', 'GET'])
     @auth.login_required
     def recommend():
+        RecommendType = request.args.get("t")
+        CurrentPage = request.args.get("page")
+        if not CurrentPage:
+            CurrentPage = 1
+        else:
+            CurrentPage = int(CurrentPage)
+
+        if CurrentPage < 5:
+            StartPage = 1
+            EndPage = 6
+        else:
+            StartPage = CurrentPage - 2
+            EndPage = CurrentPage + 3
+        PageRange = range(StartPage, EndPage)
+        if RecommendType == "hm":
+            # 热门电影
+            res_list = Media().get_tmdb_hot_movies(CurrentPage)
+        elif RecommendType == "ht":
+            # 热门电影
+            res_list = Media().get_tmdb_hot_tvs(CurrentPage)
+        elif RecommendType == "nm":
+            # 热门电影
+            res_list = Media().get_tmdb_new_movies(CurrentPage)
+        elif RecommendType == "nt":
+            # 热门电影
+            res_list = Media().get_tmdb_new_tvs(CurrentPage)
+        else:
+            res_list = []
+
+        Items = []
+        TvKeys = []
+        MovieKeys = []
+        if config.get('pt'):
+            if config['pt'].get('movie_keys'):
+                MovieKeys = config['pt'].get('movie_keys')
+            if config['pt'].get('tv_keys'):
+                TvKeys = config['pt'].get('tv_keys')
+
+        for res in res_list:
+            rid = res.get('id')
+            if RecommendType in ['hm', 'nm']:
+                title = res.get('title')
+                if title in MovieKeys:
+                    fav = 1
+                else:
+                    fav = 0
+                date = res.get('release_date')
+                image = res.get('poster_path')
+            else:
+                title = res.get('name')
+                if title in TvKeys:
+                    fav = 1
+                else:
+                    fav = 0
+                date = res.get('first_air_date')
+                image = res.get('poster_path')
+            item = {'id': rid, 'title': title, 'fav': fav, 'date': date, 'image': "https://image.tmdb.org/t/p/original/%s" % image}
+            Items.append(item)
+
         return render_template("recommend.html",
+                               Items=Items,
+                               RecommendType=RecommendType,
+                               CurrentPage=CurrentPage,
+                               PageRange=PageRange,
                                AppVersion=APP_VERSION)
 
     # 服务页面
@@ -197,7 +303,8 @@ def create_flask_app():
             '''
             color = "blue"
             scheduler_cfg_list.append(
-                {'name': 'RSS下载', 'time': tim_rssdownload, 'state': rss_state, 'id': 'rssdownload', 'svg': svg, 'color': color})
+                {'name': 'RSS下载', 'time': tim_rssdownload, 'state': rss_state, 'id': 'rssdownload', 'svg': svg,
+                 'color': color})
 
             # PT文件转移
             pt_monitor = config['pt'].get('pt_monitor')
@@ -218,7 +325,8 @@ def create_flask_app():
             '''
             color = "green"
             scheduler_cfg_list.append(
-                {'name': 'PT文件转移', 'time': tim_pttransfer, 'state': sta_pttransfer, 'id': 'pttransfer', 'svg': svg, 'color': color})
+                {'name': 'PT文件转移', 'time': tim_pttransfer, 'state': sta_pttransfer, 'id': 'pttransfer', 'svg': svg,
+                 'color': color})
 
             # PT删种
             pt_seeding_config_time = config['pt'].get('pt_seeding_time')
@@ -237,7 +345,8 @@ def create_flask_app():
                 '''
                 color = "twitter"
                 scheduler_cfg_list.append(
-                    {'name': 'PT删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents, 'id': 'autoremovetorrents', 'svg': svg, 'color': color})
+                    {'name': 'PT删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents,
+                     'id': 'autoremovetorrents', 'svg': svg, 'color': color})
 
             # PT自动签到
             tim_ptsignin = config['pt'].get('ptsignin_cron')
@@ -253,7 +362,8 @@ def create_flask_app():
                 '''
                 color = "facebook"
                 scheduler_cfg_list.append(
-                    {'name': 'PT自动签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin', 'svg': svg, 'color': color})
+                    {'name': 'PT自动签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin', 'svg': svg,
+                     'color': color})
 
         # 资源同步
         if config.get('sync'):
@@ -268,7 +378,8 @@ def create_flask_app():
                 </svg>
                 '''
                 color = "orange"
-                scheduler_cfg_list.append({'name': '资源同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg, 'color': color})
+                scheduler_cfg_list.append(
+                    {'name': '资源同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg, 'color': color})
         return render_template("service.html",
                                Count=len(scheduler_cfg_list),
                                SchedulerTasks=scheduler_cfg_list,
@@ -280,6 +391,7 @@ def create_flask_app():
         cmd = request.form.get("cmd")
         data = json.loads(request.form.get("data"))
         if cmd:
+            # 启动定时服务
             if cmd == "sch":
                 sch_item = data.get("item")
                 if sch_item == "autoremovetorrents":
@@ -294,6 +406,7 @@ def create_flask_app():
                     RSSDownloader().run_schedule()
                 return {"retmsg": "执行完成！", "item": sch_item}
 
+            # 设置订阅关键字
             if cmd == "key":
                 movie_keys = data.get("movie_keys")
                 # 电影关键字
@@ -337,6 +450,52 @@ def create_flask_app():
                     msg_item = {"title": res[1], "vote_average": res[5], "year": res[2], "backdrop_path": res[6],
                                 "type": mtype}
                     Message().send_download_message("WEB搜索", msg_item, "%s%s" % (res[3], res[4]))
+                return {"retcode": 0}
+
+            # 添加RSS关键字
+            if cmd == "addrss":
+                name = data.get("name")
+                mtype = data.get("type")
+                if name and mtype:
+                    if mtype in ['nm', 'hm']:
+                        movie_keys = config['pt'].get('movie_keys')
+                        if movie_keys:
+                            if name not in movie_keys:
+                                movie_keys.append(name)
+                        else:
+                            movie_keys = name
+                        config['pt']['movie_keys'] = movie_keys
+                        save_config(config)
+                    else:
+                        tv_keys = config['pt'].get('tv_keys')
+                        if tv_keys:
+                            if name not in tv_keys:
+                                tv_keys.append(name)
+                        else:
+                            tv_keys = name
+                        config['pt']['tv_keys'] = tv_keys
+                        save_config(config)
+                return {"retcode": 0}
+
+            # 删除RSS关键字
+            if cmd == "delrss":
+                name = data.get("name")
+                mtype = data.get("type")
+                if name and mtype:
+                    if mtype in ['nm', 'hm']:
+                        movie_keys = config['pt'].get('movie_keys')
+                        if movie_keys:
+                            if name in movie_keys:
+                                movie_keys.remove(name)
+                                config['pt']['movie_keys'] = movie_keys
+                                save_config(config)
+                    else:
+                        tv_keys = config['pt'].get('tv_keys')
+                        if tv_keys:
+                            if name in tv_keys:
+                                tv_keys.remove(name)
+                                config['pt']['tv_keys'] = tv_keys
+                                save_config(config)
                 return {"retcode": 0}
 
     # 响应企业微信消息

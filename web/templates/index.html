@@ -14,7 +14,8 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <title>nas-tools</title>
     <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon" />
-    <link rel="apple-touch-icon-precomposed" href="../static/img/logo-small.svg">
+    <link rel="apple-touch-icon-precomposed" href="../static/img/logo.png">
+    <link rel="icon" href="apple-touch-icon.png">
     <!-- CSS files -->
     <link href="../static/css/tabler.min.css" rel="stylesheet"/>
   </head>
@@ -197,26 +198,20 @@
                   <div class="col-12">
                     <div class="card">
                       <div class="card-body">
-                        <p class="mb-3">已使用 <strong>6854.45 GB </strong>of 40 TB</p>
+                        <p class="mb-3">存储空间共 <strong>{{ TotalSpace }}</strong></p>
                         <div class="progress progress-separated mb-3">
-                          <div class="progress-bar bg-primary" role="progressbar" style="width: 44%"></div>
-                          <div class="progress-bar bg-info" role="progressbar" style="width: 19%"></div>
+                          <div class="progress-bar bg-primary" role="progressbar" style="width: {{ UsedPercent }}%"></div>
                         </div>
                         <div class="row">
                           <div class="col-auto d-flex align-items-center pe-2">
                             <span class="legend me-2 bg-primary"></span>
-                            <span>电影</span>
-                            <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">915GB</span>
-                          </div>
-                          <div class="col-auto d-flex align-items-center px-2">
-                            <span class="legend me-2 bg-info"></span>
-                            <span>电视剧</span>
-                            <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">415GB</span>
+                            <span>已使用</span>
+                            <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">{{ UsedSapce }}</span>
                           </div>
                           <div class="col-auto d-flex align-items-center ps-2">
                             <span class="legend me-2"></span>
                             <span>空闲</span>
-                            <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">612GB</span>
+                            <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-muted">{{ FreeSpace }}</span>
                           </div>
                         </div>
                       </div>
@@ -290,9 +285,11 @@
         </footer>
       </div>
     </div>
+    </div>
     <!-- Libs JS -->
     <!-- Tabler Core -->
     <script src="../static/js/tabler.min.js"></script>
     <script src="../static/js/demo.min.js"></script>
+
   </body>
 </html>

@@ -9,6 +9,7 @@ from rmt.media import Media
 from utils.types import MediaType
 
 RSS_CACHED_LIST = []
+RSS_CACHED_NAME_LIST = []
 RSS_RUNNING_FLAG = False
 
 
@@ -54,6 +55,7 @@ class RSSDownloader:
 
     def __rssdownload(self):
         global RSS_CACHED_LIST
+        global RSS_CACHED_NAME_LIST
         config = get_config()
         pt = config.get('pt')
         if not pt:
@@ -136,6 +138,13 @@ class RSSDownloader:
                     backdrop_path = media_info.backdrop_path
                     if self.__rss_chinese and not is_chinese(media_title):
                         log.info("【RSS】该媒体在TMDB中没有中文描述，跳过：%s" % media_title)
+                        continue
+                    # 检进这个名字是不是下过了
+                    media_key = "%s %s" % (media_title, media_year)
+                    if media_key not in RSS_CACHED_NAME_LIST:
+                        RSS_CACHED_NAME_LIST.append(media_key)
+                    else:
+                        log.debug("【RSS】%s 已处理过，跳过..." % media_key)
                         continue
                     # 检查种子名称或者标题是否匹配
                     match_flag = self.__is_torrent_match(media_info, search_type, movie_keys, tv_keys)

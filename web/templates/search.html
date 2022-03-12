@@ -14,7 +14,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <title>nas-tools</title>
     <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon" />
-    <link rel="apple-touch-icon-precomposed" href="../static/img/logo-small.svg">
+    <link rel="apple-touch-icon-precomposed" href="../static/img/logo.png">
     <!-- CSS files -->
     <link href="../static/css/tabler.min.css" rel="stylesheet"/>
   </head>
@@ -150,7 +150,7 @@
                       </span>
                     </div>
                   </div>
-                  <input type="button" id="search_btn" value="搜索" class="btn btn-primary"/>
+                  <input type="button" id="search_btn" value="搜索" class="btn btn-primary" onclick="javascript:search_media()"/>
                 </div>
               </div>
           </div>
@@ -202,8 +202,8 @@
             <div class="empty">
               <div class="empty-img"><img src="./static/img/nodata.svg" height="128"  alt="">
               </div>
-              <p class="empty-title">没有记录</p>
-              <p class="empty-subtitle text-muted">
+              <p class="empty-title" id="search_tip_title">没有记录</p>
+              <p class="empty-subtitle text-muted" id="search_tip_text">
                 输入想看的电影、电视剧名称，点击搜索试试看吧。
               </p>
             </div>
@@ -269,11 +269,20 @@
         </div>
       </div>
     </div>
+    </div>
     <!-- Libs JS -->
     <!-- Tabler Core -->
     <script src="../static/js/tabler.min.js"></script>
     <script src="../static/js/jquery-3.3.1.min.js"></script>
     <script src="../static/js/util.js"></script>
     <script src="../static/js/demo.min.js"></script>
+    <script type="text/javascript">
+      // 关键字
+      search_word = getQueryVariable('s');
+      if(search_word != ""){
+        $("#search_word").val(decodeURI(search_word))
+        search_media()
+      }
+    </script>
   </body>
 </html>

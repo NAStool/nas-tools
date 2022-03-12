@@ -287,6 +287,7 @@ def is_media_files_tv(file_list):
     return flag
 
 
+# 从检索关键字中拆分中年份、季、集
 def get_keyword_from_string(content):
     # 稍微切一下剧集吧
     season_num = None
@@ -305,3 +306,15 @@ def get_keyword_from_string(content):
     if not key_word:
         key_word = year
     return key_word, season_num, episode_num, year
+
+
+# 获取系统存储空间占用信息
+def get_used_of_partition(path):
+    try:
+        sv = os.statvfs(path)
+        total = (sv.f_blocks * sv.f_frsize)
+        used = (sv.f_blocks - sv.f_bfree) * sv.f_frsize
+        return used, total
+    except Exception as e:
+        print(str(e))
+        return 0, 0
