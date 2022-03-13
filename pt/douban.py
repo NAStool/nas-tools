@@ -12,9 +12,9 @@ from utils.types import MediaType
 
 
 class DouBan:
+    req = None
     __default_headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"}
-    __req = None
     __users = []
     __cookie = None
     __days = 0
@@ -42,15 +42,18 @@ class DouBan:
                 self.__headers = self.__default_headers
             else:
                 self.__headers = {"User-Agent": f"{user_agent}"}
+
+            self.req = RequestUtils(request_interval_mode=True)
             # Cookie
             cookie = config['douban'].get('cookie')
             if not cookie:
                 try:
-                    self.req = RequestUtils(request_interval_mode=True)
-                    res = self.req.get_res("https://www.douban.com/", headers=self.__headers)
-                    cookies = res.cookies
-                    cookie = requests.utils.dict_from_cookiejar(cookies)
-                    self.__cookie = cookie
+                    if self.req:
+                        res = self.req.get_res("https://www.douban.com/", headers=self.__headers)
+                        if res:
+                            cookies = res.cookies
+                            cookie = requests.utils.dict_from_cookiejar(cookies)
+                            self.__cookie = cookie
                 except Exception as err:
                     log.warn(f"【DOUBAN】获取cookie失败:{format(err)}")
 
@@ -59,9 +62,13 @@ class DouBan:
         start_number = 0
         # 每一个用户
         for user in self.__users:
+            if not user:
+                continue
             # 每一个类型
             user_succnum = 0
             for mtype in self.__types:
+                if not mtype:
+                    continue
                 log.info(f"【DOUBAN】开始获取 {user} 的 {mtype} 数据...")
                 err_url = []
                 user_type_succnum = 0
@@ -80,7 +87,7 @@ class DouBan:
                     for url in url_list:
                         url_count += 1
                         # 随机休眠
-                        time_number = random.uniform(0.1, 1)
+                        time_number = random.uniform(1, 10)
                         log.info(f"【DOUBAN】解析媒体 {url_count} 随机休眠：{time_number}s")
                         sleep(time_number)
                         # 每一个条目的内容
