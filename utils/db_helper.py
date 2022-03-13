@@ -130,4 +130,4 @@ def update_by_sql(sql):
 
 
 if __name__ == "__main__":
-    print(select_by_sql("SELECT * FROM DOUBAN_MEDIAS"))
+    print(update_by_sql("DELETE FROM RSS_TORRENTS"))

@@ -1,6 +1,7 @@
 import argparse
 import os
 import shutil
+from enum import Enum
 from subprocess import call
 
 import log
@@ -575,7 +576,7 @@ class FileTransfer:
                     dir_exist_flag = True
                 if file_seq:
                     # 集 xx
-                    file_seq_num = file_seq.replace("E", "").replace("P", "")
+                    file_seq_num = int(file_seq.replace("E", "").replace("P", ""))
                     # 文件路径
                     file_path = os.path.join(season_dir,
                                              "%s - %s%s - 第 %s 集" % (media_title, file_season, file_seq, file_seq_num))
@@ -588,6 +589,88 @@ class FileTransfer:
                             ret_file_path = ext_dest
                             break
         return dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path
+
+    # 检查媒体库是否存在，返回TRUE或FLASE
+    def is_media_file_exists(self, item):
+        mtype = item.get('type')
+        title = item.get('title')
+        year = item.get('year')
+        season = item.get('season')
+        episode = item.get('episode')
+        category = item.get('category')
+
+        if isinstance(category, Enum):
+            category = category.value
+
+        if season:
+            if season.find('-') != -1:
+                # 如果带-，则要拆分为一个集合
+                s_strs = season.split('-')
+                s_str1 = int(s_strs[0].replace("S", ""))
+                s_str2 = int(s_strs[1].replace("S", ""))
+                season = ["Season " + "%s" % s_str for s_str in range(s_str1, s_str2 + 1)]
+            else:
+                season = ["Season %s" % int(season.replace("S", ""))]
+
+        if episode:
+            if episode.find('-') != -1:
+                # 如果带-，则要拆分为一个集合
+                e_strs = episode.split('-')
+                e_str1 = int(e_strs[0].replace("E", "").replace("P", ""))
+                e_str2 = int(e_strs[1].replace("E", "").replace("P", ""))
+                episode = ["E" + ("%s" % e_str).rjust(2, "0") for e_str in range(e_str1, e_str2 + 1)]
+            else:
+                episode = [episode]
+
+        # 如果是电影
+        if mtype == MediaType.MOVIE:
+            if self.__movie_subtypedir:
+                dest_path = os.path.join(self.__movie_path, category, "%s (%s)" % (title, year))
+            else:
+                dest_path = os.path.join(self.__movie_path, "%s (%s)" % (title, year))
+            return os.path.exists(dest_path)
+        else:
+            if not season:
+                # 没有季信息的情况下，只判断目录
+                if self.__tv_subtypedir:
+                    dest_path = os.path.join(self.__tv_path, category, "%s (%s)" % (title, year))
+                else:
+                    dest_path = os.path.join(self.__tv_path, "%s (%s)" % (title, year))
+                return os.path.exists(dest_path)
+            else:
+                if not episode:
+                    # 有季没有集的情况下，只要有一季缺失就下
+                    for sea in season:
+                        if not sea:
+                            continue
+                        if self.__tv_subtypedir:
+                            dest_path = os.path.join(self.__tv_path, category, "%s (%s)" % (title, year), sea)
+                        else:
+                            dest_path = os.path.join(self.__tv_path, "%s (%s)" % (title, year), sea)
+                        if not os.path.exists(dest_path):
+                            return False
+                    return True
+                else:
+                    # 有季又有集的情况下，检查对应的文件有没有，只要有一集缺失就下
+                    for sea in season:
+                        if not sea:
+                            continue
+                        sea_num = "S" + sea.replace("Season", "").strip().rjust(2, "0")
+                        for epi in episode:
+                            if not epi:
+                                continue
+                            ext_exist = False
+                            for ext in RMT_MEDIAEXT:
+                                seq_num = int(epi.replace("E", "").replace("P", ""))
+                                if self.__tv_subtypedir:
+                                    dest_path = os.path.join(self.__tv_path, category, "%s (%s)" % (title, year), sea, "%s - %s%s - 第 %s 集%s" % (title, sea_num, epi, seq_num, ext))
+                                else:
+                                    dest_path = os.path.join(self.__tv_path, "%s (%s)" % (title, year), sea)
+                                if os.path.exists(dest_path):
+                                    ext_exist = True
+                            if not ext_exist:
+                                return False
+                    return True
 
 
 if __name__ == "__main__":

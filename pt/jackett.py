@@ -3,11 +3,13 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from concurrent.futures._base import as_completed
 import log
 from config import get_config, JACKETT_MAX_INDEX_NUM
+from rmt.filetransfer import FileTransfer
 from utils.functions import parse_jackettxml, get_keyword_from_string
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
-from utils.types import MediaType
+from utils.types import MediaType, SearchType
+from web.backend.emby import Emby
 
 
 class Jackett:
@@ -17,11 +19,15 @@ class Jackett:
     media = None
     message = None
     downloader = None
+    emby = None
+    filetransfer = None
 
     def __init__(self):
         self.media = Media()
         self.downloader = Downloader()
         self.message = Message()
+        self.emby = Emby()
+        self.filetransfer = FileTransfer()
 
         config = get_config()
         if config.get('jackett'):
@@ -79,6 +85,10 @@ class Jackett:
             media_year = media_info.year
             vote_average = media_info.vote_average
             backdrop_path = media_info.backdrop_path
+            media_catagory = media_info.category
+            season = media_info.get_season_string()
+            episode = media_info.get_episode_string()
+            es_string = media_info.get_season_episode_string()
             # 名称是否匹配
             if whole_word:
                 # 全匹配模式，名字需要完全一样才下载
@@ -101,9 +111,6 @@ class Jackett:
 
             # 匹配到了
             if match_flag:
-                season = media_info.get_season_string()
-                episode = media_info.get_episode_string()
-                es_string = media_info.get_season_episode_string()
                 res_info = {"site_order": order_seq,
                             "site_name": indexer_name,
                             "type": search_type,
@@ -121,6 +128,7 @@ class Jackett:
                             "peers": peers,
                             "season": season,
                             "episode": episode,
+                            "category": media_catagory,
                             "es_string": es_string,
                             "index": index}
                 if res_info not in ret_array:
@@ -165,24 +173,33 @@ class Jackett:
         return ret_array
 
     # 按关键字，检索排序去重后择优下载
-    def search_one_media(self, content, in_from="Jackett"):
+    def search_one_media(self, content, in_from=SearchType.OT):
         key_word, season_num, episode_num, year = get_keyword_from_string(content)
         if not key_word:
             log.info("【WEB】检索关键字有误！" % content)
             return False
-        if in_from == "微信":
+        if in_from == SearchType.WX:
             self.message.sendmsg("开始检索 %s ..." % content)
         media_list = self.search_medias_from_word(key_word, season_num, episode_num, year, True)
         if len(media_list) == 0:
-            if in_from == "微信":
+            if in_from == SearchType.WX:
                 self.message.sendmsg("%s 未检索到任何媒体资源！" % content, "")
             return False
         else:
-            if in_from == "微信":
+            if in_from == SearchType.WX:
                 self.message.sendmsg(title="%s 共检索到 %s 个有效资源，即将择优下载！" % (content, len(media_list)), text="")
             # 去重择优后开始添加下载
+            download_count = 0
             for can_item in self.__get_download_list(media_list):
+                # 是否在Emby媒体库中存在
+                if self.emby.check_emby_exists(can_item):
+                    log.info("【JACKETT】%s %s %s %s 在Emby媒体库中已存在，本次下载取消！" % (can_item.get('title'), can_item.get('year'), can_item.get('season'), can_item.get('episode')))
+                    continue
+                elif self.filetransfer.is_media_file_exists(can_item):
+                    log.info("【JACKETT】%s %s %s %s 在媒体库目录中已存在，本次下载取消！" % (can_item.get('title'), can_item.get('year'), can_item.get('season'), can_item.get('episode')))
+                    continue
                 # 添加PT任务
+                download_count += 1
                 log.info("【JACKETT】添加PT任务：%s，url= %s" % (can_item.get('title'), can_item.get('enclosure')))
                 ret = self.downloader.add_pt_torrent(can_item.get('enclosure'))
                 if ret:
@@ -190,6 +207,12 @@ class Jackett:
                 else:
                     log.error("【JACKETT】添加下载任务失败：%s" % can_item.get('title'))
                     self.message.sendmsg("【JACKETT】添加PT任务失败：%s" % can_item.get('title'))
+            # 统计下载情况
+            if download_count == 0 and in_from == SearchType.WX:
+                self.message.sendmsg("%s 在媒体库中已存在，本次下载取消！" % content, "")
+            else:
+                log.info("%s 在媒体库中已存在，本次下载取消！" % content)
+
             return True
 
     # 种子名称关键字匹配
@@ -262,3 +285,7 @@ class Jackett:
                 can_download_list_item.append(t_item)
 
         return can_download_list_item
+
+
+if __name__ == "__main__":
+    Jackett().search_one_media("西部世界第2季")

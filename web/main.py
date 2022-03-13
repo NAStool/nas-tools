@@ -18,7 +18,7 @@ from config import WECHAT_MENU, get_config, save_config, PT_TRANSFER_INTERVAL
 from utils.functions import get_used_of_partition
 from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys
-from utils.types import MediaType
+from utils.types import MediaType, SearchType
 from version import APP_VERSION
 from web.backend.emby import EmbyEvent, Emby
 from web.backend.search_torrents import search_medias_for_web
@@ -457,7 +457,7 @@ def create_flask_app():
                         mtype = MediaType.MOVIE
                     msg_item = {"title": res[1], "vote_average": res[5], "year": res[2], "backdrop_path": res[6],
                                 "type": mtype}
-                    Message().send_download_message("WEB搜索", msg_item, "%s%s" % (res[3], res[4]))
+                    Message().send_download_message(SearchType.WEB, msg_item, "%s%s" % (res[3], res[4]))
                 return {"retcode": 0}
 
             # 添加RSS关键字
@@ -555,7 +555,7 @@ def create_flask_app():
             elif content.startswith("http://") or content.startswith("https://") or content.startswith("magnet:"):
                 _thread.start_new_thread(Downloader().add_pt_torrent, (content,))
             else:
-                _thread.start_new_thread(Jackett().search_one_media, (content, "微信搜索",))
+                _thread.start_new_thread(Jackett().search_one_media, (content, SearchType.WX,))
 
             return make_response(reponse_text, 200)
 

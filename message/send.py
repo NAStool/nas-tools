@@ -41,6 +41,8 @@ class Message:
         yr = can_item.get('year')
         bp = can_item.get('backdrop_path')
         tp = can_item.get('type')
+        if isinstance(in_from, Enum):
+            in_from = in_from.value
         if isinstance(tp, Enum):
             tp = tp.value
         msg_title = tt

@@ -108,10 +108,13 @@ class Emby:
             log.error("【EMBY】连接Emby出错：" + str(e))
             return {}
 
-    # 查询媒体库目录存储空间
-    def get_emby_media_space(self):
-        if not self.__movie_path or not self.__tv_path:
-            return 0
+    # 判断Emby是否已存在
+    def check_emby_exists(self, item):
+        if not self.__host or not self.__apikey:
+            return False
+        # TODO 调用EMBY API 检查是否已存在
+
+        return False
 
     # 处理Emby播放消息
     def report_to_discord(self, event):

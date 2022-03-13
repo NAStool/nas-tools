@@ -30,4 +30,12 @@ class MediaCatagory(Enum):
     JXDY = "精选"
 
 
+class SearchType(Enum):
+    WX = "微信搜索"
+    WEB = "WEB搜索"
+    DB = "豆瓣收藏"
+    RSS = "RSS订阅"
+    OT = "其它"
+
+
 

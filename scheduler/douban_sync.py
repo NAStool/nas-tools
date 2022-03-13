@@ -5,7 +5,7 @@ from pt.douban import DouBan
 from pt.jackett import Jackett
 from utils.sqls import insert_douban_medias, get_douban_search_medias, insert_tv_key, insert_movie_key, \
     update_douban_media_state
-from utils.types import MediaType
+from utils.types import MediaType, SearchType
 
 DOUBANSYNC_RUNNING = False
 
@@ -62,7 +62,7 @@ class DoubanSync:
     def __search_douban_media(self):
         search_list = get_douban_search_medias()
         for item in search_list:
-            if not self.jackett.search_one_media("%s %s" % (item[0], item[1]), "豆瓣关注"):
+            if not self.jackett.search_one_media("%s %s" % (item[0], item[1]), SearchType.DB):
                 if self.__auto_rss:
                     log.info("【PT】 %s %s 没有找到下载资源，更新到RSS订阅中..." % (item[0], item[1]))
                     if item[2] == MediaType.TV.value:
