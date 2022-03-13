@@ -103,13 +103,22 @@ function remove_rss_key(type, name){
 }
 
 // 保存关键字设置
-function save_rss_keys(id){
-    var cmd = "key";
-    if(id == "movie_keys"){
-        var param = {"movie_keys": $("#movie_keys").val()};
-    }else{
-        var param = {"tv_keys": $("#tv_keys").val()};
-    }
+function save_movie_rss_keys(id){
+    var cmd = "moviekey";
+    var param = {"movie_keys": $("#movie_keys").val()};
+    $("#"+id+"_btn").text("正在保存...");
+    $("#"+id+"_btn").attr("disabled", "true");
+    ajax_post(cmd, param, function(ret){
+        $("#"+id+"_btn").removeAttr("disabled");
+        $("#"+id+"_btn").text("保存");
+    });
+
+}
+
+// 保存关键字设置
+function save_tv_rss_keys(id){
+    var cmd = "tvkey";
+    var param = {"tv_keys": $("#tv_keys").val()};
     $("#"+id+"_btn").text("正在保存...");
     $("#"+id+"_btn").attr("disabled", "true");
     ajax_post(cmd, param, function(ret){

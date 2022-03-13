@@ -6,11 +6,11 @@ from utils.functions import parse_rssxml, is_chinese
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
+from utils.sqls import get_movie_keys, get_tv_keys, is_torrent_rssd_by_name, insert_rss_torrents
 from utils.types import MediaType
 
-RSS_CACHED_LIST = []
-RSS_CACHED_NAME_LIST = []
 RSS_RUNNING_FLAG = False
+RSS_CACHED_TORRENTS = []
 
 
 class RSSDownloader:
@@ -54,8 +54,7 @@ class RSSDownloader:
             log.error("【RUN】执行任务rssdownload出错：" + str(err))
 
     def __rssdownload(self):
-        global RSS_CACHED_LIST
-        global RSS_CACHED_NAME_LIST
+        global RSS_CACHED_TORRENTS
         config = get_config()
         pt = config.get('pt')
         if not pt:
@@ -66,29 +65,24 @@ class RSSDownloader:
         log.info("【RSS】开始RSS订阅...")
 
         # 读取关键字配置
-        movie_keys = pt.get('movie_keys')
+        movie_keys = get_movie_keys()
         if not movie_keys:
             log.warn("【RSS】未配置电影订阅关键字！")
         else:
-            if not isinstance(movie_keys, list):
-                movie_keys = [movie_keys]
             log.info("【RSS】电影订阅规则清单：%s" % " ".join('%s' % key for key in movie_keys))
 
-        tv_keys = pt.get('tv_keys')
+        tv_keys = get_tv_keys()
         if not tv_keys:
             log.warn("【RSS】未配置电视剧订阅关键字！")
         else:
-            if not isinstance(tv_keys, list):
-                tv_keys = [tv_keys]
             log.info("【RSS】电视剧订阅规则清单：%s" % " ".join('%s' % key for key in tv_keys))
 
         if not movie_keys and not tv_keys:
             return
 
-        # 保存命中的资源信息
-        rss_download_torrents = []
         # 代码站点配置优先级的序号
         order_seq = 0
+        rss_download_torrents = []
         for rss_job, job_info in sites.items():
             order_seq = order_seq + 1
             # 读取子配置
@@ -118,11 +112,11 @@ class RSSDownloader:
                     title = re.sub(r'^\[.+?]', "", title, count=1)
                     enclosure = res['enclosure']
                     # 判断是否处理过
-                    if enclosure not in RSS_CACHED_LIST:
-                        RSS_CACHED_LIST.append(enclosure)
-                    else:
-                        log.debug("【RSS】%s 已处理过，跳过..." % title)
+                    if enclosure in RSS_CACHED_TORRENTS:
+                        log.info("【RSS】%s 已处理过，跳过..." % title)
                         continue
+                    else:
+                        RSS_CACHED_TORRENTS.append(enclosure)
 
                     log.info("【RSS】开始检索媒体信息:" + title)
 
@@ -136,15 +130,14 @@ class RSSDownloader:
                     media_catagory = media_info.category
                     vote_average = media_info.vote_average
                     backdrop_path = media_info.backdrop_path
+                    media_seaion = media_info.get_season_string()
+                    media_episode = media_info.get_episode_string()
                     if self.__rss_chinese and not is_chinese(media_title):
                         log.info("【RSS】该媒体在TMDB中没有中文描述，跳过：%s" % media_title)
                         continue
-                    # 检进这个名字是不是下过了
-                    media_key = "%s %s" % (media_title, media_year)
-                    if media_key not in RSS_CACHED_NAME_LIST:
-                        RSS_CACHED_NAME_LIST.append(media_key)
-                    else:
-                        log.debug("【RSS】%s 已处理过，跳过..." % media_key)
+                    # 检查这个名字是不是下过了
+                    if is_torrent_rssd_by_name(media_title, media_year, media_seaion, media_episode):
+                        log.info("【RSS】%s %s 已处理过，跳过..." % (media_title, media_year))
                         continue
                     # 检查种子名称或者标题是否匹配
                     match_flag = self.__is_torrent_match(media_info, search_type, movie_keys, tv_keys)
@@ -172,6 +165,8 @@ class RSSDownloader:
                     if dir_exist_flag:
                         log.info("【RSS】电影目录已存在该电影：%s" % title)
                         continue
+                    # 插入数据库
+                    insert_rss_torrents(title, enclosure, search_type.value, media_title, media_year, media_seaion, media_episode)
                     # 返回对象
                     res_info = {"site_order": order_seq,
                                 "site": rss_job,
@@ -187,7 +182,6 @@ class RSSDownloader:
                                 "es_string": media_info.get_season_episode_string()}
                     if res_info not in rss_download_torrents:
                         res_num = res_num + 1
-                        rss_download_torrents.append(res_info)
                 except Exception as e:
                     log.error("【RSS】错误：%s" % str(e))
                     continue

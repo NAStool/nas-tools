@@ -47,9 +47,9 @@ class Message:
         if yr:
             msg_title = "%s (%s)" % (tt, str(yr))
         if se_str:
-            msg_text = "来自%s的%s %s %s 已开始下载" % (in_from, tp, msg_title, se_str)
+            msg_text = "来自 %s 的%s %s %s 已开始下载" % (in_from, tp, msg_title, se_str)
         else:
-            msg_text = "来自%s的%s %s 已开始下载" % (in_from, tp, msg_title)
+            msg_text = "来自 %s 的%s %s 已开始下载" % (in_from, tp, msg_title)
         if va and va != '0':
             msg_title = msg_title + " 评分：%s" % str(va)
         self.sendmsg(msg_title, msg_text, bp)

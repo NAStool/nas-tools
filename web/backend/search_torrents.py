@@ -2,6 +2,7 @@ import log
 from pt.jackett import Jackett
 from utils.db_helper import update_by_sql
 from utils.functions import get_keyword_from_string
+from utils.sqls import insert_jackett_results
 from utils.types import MediaType
 
 
@@ -16,6 +17,7 @@ def search_medias_for_web(content):
     update_by_sql("DELETE FROM JACKETT_TORRENTS")
     if len(media_list) == 0:
         log.info("【WEB】%s 未检索到任何媒体资源！" % content)
+        return
     else:
         log.info("【WEB】共检索到 %s 个有效资源" % len(media_list))
         # 分组择优
@@ -23,46 +25,7 @@ def search_medias_for_web(content):
         log.info("【WEB】分组择优后剩余 %s 个有效资源" % len(media_list))
         # 插入数据库
         for media_item in media_list:
-            sql = "INSERT INTO JACKETT_TORRENTS(" \
-                  "TORRENT_NAME," \
-                  "ENCLOSURE," \
-                  "DESCRIPTION," \
-                  "TYPE," \
-                  "TITLE," \
-                  "YEAR," \
-                  "SEASON," \
-                  "EPISODE," \
-                  "ES_STRING," \
-                  "VOTE," \
-                  "IMAGE," \
-                  "RES_TYPE," \
-                  "RES_ORDER," \
-                  "SIZE," \
-                  "SEEDERS," \
-                  "PEERS," \
-                  "SITE," \
-                  "SITE_ORDER) VALUES (" \
-                  "'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')" % (
-                      media_item.get('torrent_name'),
-                      media_item.get('enclosure'),
-                      media_item.get('description'),
-                      "TV" if media_item.get('type') == MediaType.TV else "MOV",
-                      media_item.get('title'),
-                      media_item.get('year') if media_item.get('year') else "",
-                      media_item.get('season') if media_item.get('season') else "",
-                      media_item.get('episode') if media_item.get('episode') else "",
-                      media_item.get('es_string') if media_item.get('es_string') else "",
-                      media_item.get('vote_average') if media_item.get('vote_average') else "",
-                      media_item.get('backdrop_path') if media_item.get('backdrop_path') else "",
-                      media_item.get('res_type'),
-                      media_item.get('res_order'),
-                      "%.2fGB" % (int(media_item.get('size'))/1024/1024/1024),
-                      media_item.get('seeders'),
-                      media_item.get('peers'),
-                      media_item.get('site_name'),
-                      media_item.get('site_order')
-                  )
-            update_by_sql(sql)
+            insert_jackett_results(media_item)
 
 
 # 种子去重，每一个名称、站点、资源类型 选一个做种人最多的显示

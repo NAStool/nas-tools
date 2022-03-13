@@ -6,6 +6,7 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 import log
 from config import get_config, AUTO_REMOVE_TORRENTS_INTERVAL, load_config, PT_TRANSFER_INTERVAL
 from scheduler.autoremove_torrents import AutoRemoveTorrents
+from scheduler.douban_sync import DoubanSync
 from scheduler.pt_signin import PTSignin
 from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
@@ -28,8 +29,7 @@ def run_scheduler():
     scheduler.remove_all_jobs()
 
     config = get_config()
-    pt = config.get('pt')
-    if pt:
+    if config.get('pt'):
         # PT种子清理
         pt_seeding_time = config['pt'].get('pt_seeding_time')
         if pt_seeding_time:
@@ -57,6 +57,13 @@ def run_scheduler():
         if pt_check_interval:
             scheduler.add_job(RSSDownloader().run_schedule, 'interval', seconds=int(pt_check_interval))
             log.info("【RUN】scheduler.rss_download启动...")
+
+    # 豆瓣电影同步
+    if config.get('douban'):
+        douban_interval = config['douban'].get('interval')
+        if douban_interval:
+            scheduler.add_job(DoubanSync().run_schedule, 'interval', seconds=int(douban_interval)*3600)
+            log.info("【RUN】scheduler.douban_sync启动...")
 
     # 配置定时生效
     scheduler.add_job(load_config, 'interval', seconds=600)

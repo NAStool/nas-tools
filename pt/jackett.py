@@ -165,27 +165,32 @@ class Jackett:
         return ret_array
 
     # 按关键字，检索排序去重后择优下载
-    def search_one_media(self, content):
+    def search_one_media(self, content, in_from="Jackett"):
         key_word, season_num, episode_num, year = get_keyword_from_string(content)
         if not key_word:
             log.info("【WEB】检索关键字有误！" % content)
-            return
-        self.message.sendmsg("【JACKETT】开始检索 %s ..." % content)
+            return False
+        if in_from == "微信":
+            self.message.sendmsg("开始检索 %s ..." % content)
         media_list = self.search_medias_from_word(key_word, season_num, episode_num, year, True)
         if len(media_list) == 0:
-            self.message.sendmsg("【JACKETT】%s 未检索到任何媒体资源！" % content, "")
+            if in_from == "微信":
+                self.message.sendmsg("%s 未检索到任何媒体资源！" % content, "")
+            return False
         else:
-            self.message.sendmsg(title="【JACKETT】%s 共检索到 %s 个有效资源，即将择优下载！" % (content, len(media_list)), text="")
+            if in_from == "微信":
+                self.message.sendmsg(title="%s 共检索到 %s 个有效资源，即将择优下载！" % (content, len(media_list)), text="")
             # 去重择优后开始添加下载
             for can_item in self.__get_download_list(media_list):
                 # 添加PT任务
                 log.info("【JACKETT】添加PT任务：%s，url= %s" % (can_item.get('title'), can_item.get('enclosure')))
                 ret = self.downloader.add_pt_torrent(can_item.get('enclosure'))
                 if ret:
-                    self.message.send_download_message("Jackett", can_item, can_item.get('es_string'))
+                    self.message.send_download_message(in_from, can_item, can_item.get('es_string'))
                 else:
                     log.error("【JACKETT】添加下载任务失败：%s" % can_item.get('title'))
                     self.message.sendmsg("【JACKETT】添加PT任务失败：%s" % can_item.get('title'))
+            return True
 
     # 种子名称关键字匹配
     @staticmethod

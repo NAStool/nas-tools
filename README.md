@@ -8,9 +8,9 @@ TG交流：https://t.me/nastool_chat
 ### 1、PT自动检索下载
 * PT站RSS订阅，配置想追的电影电视剧名称实现PT资源自动检索追新。
 
-* 通过微信或者WEB界面聚合检索各PT站检索资源并择优下载。
+* 通过微信或者WEB界面聚合检索各PT站检索资源并择优下载，热门或最新电影电视剧一键搜索或者订阅。
 
-* 热门或最新电影电视剧一键搜索或者订阅。
+* 加入豆瓣收藏的电影电视剧，后台自动检索下载。
 
 ### 2、媒体识别和重命名
 * 监控下载软件，下载完成后自动识别真实名称，硬链接到媒体库并重命名。
@@ -27,6 +27,9 @@ TG交流：https://t.me/nastool_chat
 
 
 ## 更新日志
+2022.3.13
+* 整合 <a href="https://github.com/Qliangw/notion_sync_data" target="_blank">Qliangw</a> 提供的豆瓣同步部分代码，支持同步豆瓣收藏记录，后台自动下载。
+
 2022.3.9
 * 支持WEB资源检索，手动选种下载
 
@@ -195,6 +198,5 @@ Jackett的相关配置参考网上的各类教程。
 
 ![image](https://user-images.githubusercontent.com/51039935/153886867-50a3debd-e982-4723-974b-04ba16f732b1.png)
 
-## TODO
-1) 自定义分类
-3) 从豆瓣接取关注电影自动下载
+## 鸣谢
+* 感谢 <a href="https://github.com/Qliangw/notion_sync_data" target="_blank">Qliangw</a> 贡献豆瓣部分的代码

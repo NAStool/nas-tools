@@ -6,16 +6,18 @@ from pt.jackett import Jackett
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
 from scheduler.autoremove_torrents import AutoRemoveTorrents
+from scheduler.douban_sync import DoubanSync
 from scheduler.pt_signin import PTSignin
 from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
-from utils.db_helper import select_by_sql
 from message.send import Message
 from flask_httpauth import HTTPBasicAuth
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from config import WECHAT_MENU, get_config, save_config, PT_TRANSFER_INTERVAL
 from utils.functions import get_used_of_partition
+from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
+    insert_tv_key, delete_all_tv_keys, delete_all_movie_keys
 from utils.types import MediaType
 from version import APP_VERSION
 from web.backend.emby import EmbyEvent, Emby
@@ -173,8 +175,7 @@ def create_flask_app():
     @auth.login_required
     def search():
         # 查询结果
-        sql = "SELECT ID,TITLE||' ('||YEAR||') '||ES_STRING,RES_TYPE,SIZE,SEEDERS,ENCLOSURE,SITE,YEAR,ES_STRING,IMAGE,TYPE FROM JACKETT_TORRENTS ORDER BY TITLE, SEEDERS DESC"
-        res = select_by_sql(sql)
+        res = get_jackett_results()
         return render_template("search.html",
                                Count=len(res),
                                Items=res,
@@ -185,25 +186,8 @@ def create_flask_app():
     @auth.login_required
     def sites():
         # 获取订阅关键字
-        # 读取RSS关键字
-        movie_key_list = []
-        if config.get('pt'):
-            movie_keys = config['pt'].get('movie_keys')
-            if movie_keys:
-                if not isinstance(movie_keys, list):
-                    movie_key_list = [movie_keys]
-                else:
-                    movie_key_list = movie_keys
-
-        tv_key_list = []
-        if config.get('pt'):
-            tv_keys = config['pt'].get('tv_keys')
-            if tv_keys:
-                if not isinstance(tv_keys, list):
-                    tv_key_list = [tv_keys]
-                else:
-                    tv_key_list = tv_keys
-
+        movie_key_list = get_movie_keys()
+        tv_key_list = get_tv_keys()
         return render_template("sites.html",
                                MovieKeys=','.join('%s' % key for key in movie_key_list),
                                TvKeys=','.join('%s' % key for key in tv_key_list),
@@ -243,14 +227,8 @@ def create_flask_app():
             res_list = []
 
         Items = []
-        TvKeys = []
-        MovieKeys = []
-        if config.get('pt'):
-            if config['pt'].get('movie_keys'):
-                MovieKeys = config['pt'].get('movie_keys')
-            if config['pt'].get('tv_keys'):
-                TvKeys = config['pt'].get('tv_keys')
-
+        TvKeys = get_tv_keys()
+        MovieKeys = get_movie_keys()
         for res in res_list:
             rid = res.get('id')
             if RecommendType in ['hm', 'nm']:
@@ -380,6 +358,23 @@ def create_flask_app():
                 color = "orange"
                 scheduler_cfg_list.append(
                     {'name': '资源同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg, 'color': color})
+        # 豆瓣同步
+        if config.get('douban'):
+            interval = config['douban'].get('interval')
+            if interval:
+                interval = "%s 小时" % interval
+                sta_douban = "ON"
+                svg = '''
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-bookmarks" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                   <path d="M13 7a2 2 0 0 1 2 2v12l-5 -3l-5 3v-12a2 2 0 0 1 2 -2h6z"></path>
+                   <path d="M9.265 4a2 2 0 0 1 1.735 -1h6a2 2 0 0 1 2 2v12l-1 -.6"></path>
+                </svg>
+                '''
+                color = "pink"
+                scheduler_cfg_list.append(
+                    {'name': '豆瓣收藏', 'time': interval, 'state': sta_douban, 'id': 'douban', 'svg': svg, 'color': color})
+
         return render_template("service.html",
                                Count=len(scheduler_cfg_list),
                                SchedulerTasks=scheduler_cfg_list,
@@ -404,28 +399,42 @@ def create_flask_app():
                     FileTransfer().transfer_all_sync()
                 if sch_item == "rssdownload":
                     RSSDownloader().run_schedule()
+                if sch_item == "douban":
+                    DoubanSync().run_schedule()
                 return {"retmsg": "执行完成！", "item": sch_item}
 
-            # 设置订阅关键字
-            if cmd == "key":
+            # 电影关键字
+            if cmd == "moviekey":
                 movie_keys = data.get("movie_keys")
-                # 电影关键字
                 if movie_keys:
                     if movie_keys.find(',') != -1:
                         if movie_keys.endswith(','):
                             movie_keys = movie_keys[0, -1]
                         movie_keys = movie_keys.split(',')
-                    config['pt']['movie_keys'] = movie_keys
-                # 电视剧关键字
+                    else:
+                        movie_keys = [movie_keys]
+                    delete_all_movie_keys()
+                    for movie_key in movie_keys:
+                        insert_movie_key(movie_key)
+                else:
+                    delete_all_movie_keys()
+                return {"retcode": 0}
+
+            # 电视剧关键字
+            if cmd == "tvkey":
                 tv_keys = data.get("tv_keys")
                 if tv_keys:
                     if tv_keys.find(',') != -1:
                         if tv_keys.endswith(','):
                             tv_keys = tv_keys[0, -1]
                         tv_keys = tv_keys.split(',')
-                    config['pt']['tv_keys'] = tv_keys
-                # 保存
-                save_config(config)
+                    else:
+                        tv_keys = [tv_keys]
+                    delete_all_tv_keys()
+                    for tv_key in tv_keys:
+                        insert_tv_key(tv_key)
+                else:
+                    delete_all_tv_keys()
                 return {"retcode": 0}
 
             # 检索资源
@@ -439,8 +448,7 @@ def create_flask_app():
             # 添加下载
             if cmd == "download":
                 dl_id = data.get("id")
-                sql = "SELECT ENCLOSURE,TITLE,YEAR,SEASON,EPISODE,VOTE,IMAGE,TYPE FROM JACKETT_TORRENTS WHERE ID=%s" % dl_id
-                results = select_by_sql(sql)
+                results = get_jackett_result_by_id(dl_id)
                 for res in results:
                     Downloader().add_pt_torrent(res[0])
                     if res[7] == "TV":
@@ -458,27 +466,9 @@ def create_flask_app():
                 mtype = data.get("type")
                 if name and mtype:
                     if mtype in ['nm', 'hm']:
-                        movie_keys = config['pt'].get('movie_keys')
-                        if movie_keys:
-                            if not isinstance(movie_keys, list):
-                                movie_keys = [movie_keys]
-                            if name not in movie_keys:
-                                movie_keys.append(name)
-                        else:
-                            movie_keys = name
-                        config['pt']['movie_keys'] = movie_keys
-                        save_config(config)
+                        insert_movie_key(name)
                     else:
-                        tv_keys = config['pt'].get('tv_keys')
-                        if tv_keys:
-                            if not isinstance(tv_keys, list):
-                                tv_keys = [tv_keys]
-                            if name not in tv_keys:
-                                tv_keys.append(name)
-                        else:
-                            tv_keys = name
-                        config['pt']['tv_keys'] = tv_keys
-                        save_config(config)
+                        insert_tv_key(name)
                 return {"retcode": 0}
 
             # 删除RSS关键字
@@ -563,7 +553,7 @@ def create_flask_app():
             elif content.startswith("http://") or content.startswith("https://") or content.startswith("magnet:"):
                 _thread.start_new_thread(Downloader().add_pt_torrent, (content,))
             else:
-                _thread.start_new_thread(Jackett().search_one_media, (content,))
+                _thread.start_new_thread(Jackett().search_one_media, (content, "微信搜索",))
 
             return make_response(reponse_text, 200)
 
