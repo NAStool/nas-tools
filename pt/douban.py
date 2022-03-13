@@ -77,7 +77,7 @@ class DouBan:
                     page_number = int(start_number / 15 + 1)
                     # 每一页的文本
                     log.info(f"【DOUBAN】开始解析第 {page_number} 页数据...")
-                    soup = self.__get_html_soup(user_id=user, start_number=start_number)
+                    soup = self.__get_html_soup(user_id=user, media_status=mtype, start_number=start_number)
                     # 获取全部url
                     url_list = self.__get_url_list(soup)
                     url_num = len(url_list)
@@ -91,7 +91,7 @@ class DouBan:
                         log.info(f"【DOUBAN】解析媒体 {url_count} 随机休眠：{time_number}s")
                         sleep(time_number)
                         # 每一个条目的内容
-                        media_soup = self.__get_html_soup(user, url, mtype)
+                        media_soup = self.__get_html_soup(user_id=user, url=url, media_status=mtype)
                         if not media_soup:
                             log.warn(f"【DOUBAN】访问该页面出现问题，媒体链接：{url}")
                             err_url.append(url)
