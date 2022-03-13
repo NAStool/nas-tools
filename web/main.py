@@ -550,6 +550,8 @@ def create_flask_app():
                 _thread.start_new_thread(FileTransfer().transfer_all_sync, ())
             elif content == "/rss":
                 _thread.start_new_thread(RSSDownloader().run_schedule, ())
+            elif content == "/db":
+                _thread.start_new_thread(DoubanSync().run_schedule, ())
             elif content.startswith("http://") or content.startswith("https://") or content.startswith("magnet:"):
                 _thread.start_new_thread(Downloader().add_pt_torrent, (content,))
             else:

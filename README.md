@@ -155,6 +155,7 @@ https://github.com/jxxghp/nas-tools/releases
    | /ptr  | PT删种 |
    | /pts | PT自动签到 |
    | /rst  | 资源同步 |
+   | /db   | 豆瓣收藏 |
    
    ![image](https://user-images.githubusercontent.com/51039935/156371501-cd35b802-3e12-47a5-893f-69806d611163.png)
 
