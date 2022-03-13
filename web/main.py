@@ -266,7 +266,7 @@ def create_flask_app():
             # RSS下载
             pt_check_interval = config['pt'].get('pt_check_interval')
             if pt_check_interval:
-                tim_rssdownload = str(round(pt_check_interval / 60)) + " 分"
+                tim_rssdownload = str(round(pt_check_interval / 60)) + " 分钟"
                 rss_state = 'ON'
             else:
                 tim_rssdownload = ""
@@ -287,7 +287,7 @@ def create_flask_app():
             # PT文件转移
             pt_monitor = config['pt'].get('pt_monitor')
             if pt_monitor:
-                tim_pttransfer = str(round(PT_TRANSFER_INTERVAL / 60)) + " 分"
+                tim_pttransfer = str(round(PT_TRANSFER_INTERVAL / 60)) + " 分钟"
                 sta_pttransfer = 'ON'
             else:
                 tim_pttransfer = ""

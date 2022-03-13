@@ -158,7 +158,7 @@ $(document).ready(function(){
 function show_service_modal(id, name) {
      $("#service_start_id").val(id);
      $("#service_start_name").val(name);
-     $("#service_start_message").text($("#service_start_message").text().replace("${SERVICE_NAME}", name));
+     $("#service_start_message").text("是否立即运行服务：" + name + "？");
      $('#service-modal').modal('show');
 }
 
@@ -166,7 +166,7 @@ function show_service_modal(id, name) {
 function show_download_modal(id, name){
     $("#download_start_id").val(id);
     $("#download_start_name").val(name);
-    $("#download_start_message").text($("#download_start_message").text().replace("${MEDIA_NAME}", name));
+    $("#download_start_message").text("是否立即下载该资源：？" + name + "？");
     $('#download-modal').modal('show');
 }
 
