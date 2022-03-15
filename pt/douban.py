@@ -1,3 +1,4 @@
+import datetime
 import random
 from time import sleep
 
@@ -79,13 +80,21 @@ class DouBan:
                     log.info(f"【DOUBAN】开始解析第 {page_number} 页数据...")
                     soup = self.__get_html_soup(user_id=user, media_status=mtype, start_number=start_number)
                     # 获取全部url
-                    url_list = self.__get_url_list(soup)
+                    url_dict = self.__get_url_list(soup, self.__days)
+                    url_list = url_dict["url_list"]
+                    monitoring_info = url_dict["monitoring_info"]
+                    log.info(f"【DOUBAN】本页监控日期内的数据为：{monitoring_info[0]}")
+                    log.info(f"【DOUBAN】是否继续访问下一页：{monitoring_info[1]}")
                     url_num = len(url_list)
                     log.info(f"【DOUBAN】第 {page_number} 页有 {url_num} 个媒体")
                     sucess_urlnum = 0
                     url_count = 0
                     for url in url_list:
-                        url_count += 1
+                        if url_count == monitoring_info[0] and not monitoring_info[1]:
+                            log.info("【DOUBAN】其他媒体不在监控时间内，结束导入")
+                            break
+                        else:
+                            url_count += 1
                         # 随机休眠
                         time_number = random.uniform(1, 10)
                         log.info(f"【DOUBAN】解析媒体 {url_count} 随机休眠：{time_number}s")
@@ -105,6 +114,8 @@ class DouBan:
                                     sucess_urlnum += 1
                                     user_type_succnum += 1
                                     user_succnum += 1
+                    if monitoring_info[1] is False:
+                        break
                     if url_num > 14:
                         start_number += 15
                     else:
@@ -117,20 +128,64 @@ class DouBan:
         return movie_list
 
     @staticmethod
-    def __get_url_list(soup):
+    def __get_url_list(soup, monitoring_day=0):
         """
         解析个人wish/do/collect内容的每个url
-        :return: url数组
+        :return: { url_list: [url数组], monitoring_info: [符合日期的个数,是否继续]}
         """
+        record_key = 0
         url_list = []
+        continue_request = True
+        monitoring_info = [0, continue_request]
+        url_dict = {}
         try:
             info = soup.select('.nbg')
             for url in info:
                 url_list.append(url.get('href'))
-            return url_list
+            if monitoring_day != 0:
+                mark_date = soup.select('span.date')
+                # 处理所有标记时间
+                num = 0
+                mark_date_dict = {}
+                while num < len(mark_date):
+                    mark_date_dict[num] = list(mark_date[num].strings)
+                    mark_date_dict[num] = ''.join([i.split("\n", 1)[0] for i in mark_date_dict[num] if i.strip() != ''])
+                    num += 1
+
+                # 获取当天时间
+                today = datetime.datetime.now()
+                today = datetime.datetime.now()
+
+                # 判断 标记时间
+                # 符合监控日期内媒体个数计数
+                count_num = 0
+                for key in mark_date_dict:
+                    mark_date_i = datetime.datetime.strptime(mark_date_dict.get(key), '%Y-%m-%d')
+                    interval = today - mark_date_i
+                    if interval.days < monitoring_day:
+                        count_num += 1
+                    else:
+                        record_key = int(key)
+                        break
+            else:
+                # 如果没有监控日期，与媒体个数相同即可
+                record_key = len(url_list)
+                count_num = len(url_list)
+
+                # 如果该页媒体为15，且监控没有限制或者都在监控日期内，则继续获取下一页内容
+            if len(url_list) == 15 and count_num == len(url_list):
+                continue_request = True
+            else:
+                continue_request = False
+
+            monitoring_info[0] = record_key
+            monitoring_info[1] = continue_request
+            url_dict["url_list"] = url_list
+            url_dict["monitoring_info"] = monitoring_info
+            return url_dict
         except Exception as err:
-            log.warn(f"【RUN】解析失败：{err}")
-            return []
+            log.warn(f"【DOUBAN】解析失败：{err}")
+            return url_dict
 
     def __get_html_soup(self, user_id, url=None, media_status="wish", start_number=0):
         """

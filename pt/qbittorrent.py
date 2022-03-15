@@ -5,7 +5,7 @@ from config import get_config
 
 # 全局设置
 from rmt.filetransfer import FileTransfer
-from utils.types import DownloaderType
+from utils.types import DownloaderType, MediaType
 
 urllib3.disable_warnings()
 
@@ -15,8 +15,10 @@ class Qbittorrent:
     __qbport = None
     __qbusername = None
     __qbpassword = None
-    __save_path = None
-    __save_containerpath = None
+    __tv_save_path = None
+    __tv_save_containerpath = None
+    __movie_save_path = None
+    __movie_save_containerpath = None
     qbc = None
     filetransfer = None
 
@@ -28,8 +30,23 @@ class Qbittorrent:
             self.__qbport = config['qbittorrent'].get('qbport')
             self.__qbusername = config['qbittorrent'].get('qbusername')
             self.__qbpassword = config['qbittorrent'].get('qbpassword')
-            self.__save_path = config['qbittorrent'].get('save_path')
-            self.__save_containerpath = config['qbittorrent'].get('save_containerpath')
+            # 解释下载目录
+            save_path = config['qbittorrent'].get('save_path')
+            if save_path:
+                if isinstance(save_path, str):
+                    self.__tv_save_path = save_path
+                    self.__movie_save_path = save_path
+                else:
+                    self.__tv_save_path = save_path.get('tv')
+                    self.__movie_save_path = save_path.get('movie')
+            save_containerpath = config['qbittorrent'].get('save_containerpath')
+            if save_containerpath:
+                if isinstance(save_containerpath, str):
+                    self.__tv_save_containerpath = save_containerpath
+                    self.__movie_save_containerpath = save_containerpath
+                else:
+                    self.__tv_save_containerpath = save_containerpath.get('tv')
+                    self.__movie_save_containerpath = save_containerpath.get('movie')
             if self.__qbhost and self.__qbport:
                 self.qbc = self.__login_qbittorrent()
 
@@ -86,8 +103,10 @@ class Qbittorrent:
             log.debug("【QB】" + torrent.name + "：" + torrent.state)
             if torrent.state == "uploading" or torrent.state == "stalledUP":
                 true_path = torrent.content_path
-                if self.__save_containerpath:
-                    true_path = true_path.replace(str(self.__save_path), str(self.__save_containerpath))
+                if self.__tv_save_containerpath:
+                    true_path = true_path.replace(str(self.__tv_save_path), str(self.__tv_save_containerpath))
+                if self.__movie_save_containerpath:
+                    true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
                 done_flag = self.filetransfer.transfer_media(in_from=DownloaderType.QB, in_path=true_path)
                 if done_flag:
                     self.set_qb_torrent_status(torrent.hash)
@@ -95,10 +114,13 @@ class Qbittorrent:
                     log.error("【QB】%s 转移失败！" % torrent.name)
 
     # 添加qbittorrent任务
-    def add_qbittorrent_torrent(self, turl):
+    def add_qbittorrent_torrent(self, turl, mtype):
         if not self.qbc:
             return False
         self.qbc.auth_log_in()
-        qbc_ret = self.qbc.torrents_add(turl, None, self.__save_path)
+        if mtype == MediaType.TV:
+            qbc_ret = self.qbc.torrents_add(turl, None, self.__tv_save_path)
+        else:
+            qbc_ret = self.qbc.torrents_add(turl, None, self.__movie_save_path)
         self.qbc.auth_log_out()
         return qbc_ret

@@ -4,7 +4,7 @@ import urllib3
 import log
 from config import get_config
 from rmt.filetransfer import FileTransfer
-from utils.types import DownloaderType
+from utils.types import DownloaderType, MediaType
 
 urllib3.disable_warnings()
 
@@ -14,21 +14,38 @@ class Transmission:
     __trport = None
     __trusername = None
     __trpassword = None
-    __save_path = None
-    __save_containerpath = None
+    __tv_save_path = None
+    __tv_save_containerpath = None
+    __movie_save_path = None
+    __movie_save_containerpath = None
     trc = None
     filetransfer = None
 
     def __init__(self):
         config = get_config()
         if config.get('transmission'):
+            self.filetransfer = FileTransfer()
             self.__trhost = config['transmission'].get('trhost')
             self.__trport = config['transmission'].get('trport')
             self.__trusername = config['transmission'].get('trusername')
             self.__trpassword = config['transmission'].get('trpassword')
-            self.__save_path = config['transmission'].get('save_path')
-            self.__save_containerpath = config['transmission'].get('save_containerpath')
-            self.filetransfer = FileTransfer()
+            # 解释下载目录
+            save_path = config['transmission'].get('save_path')
+            if save_path:
+                if isinstance(save_path, str):
+                    self.__tv_save_path = save_path
+                    self.__movie_save_path = save_path
+                else:
+                    self.__tv_save_path = save_path.get('tv')
+                    self.__movie_save_path = save_path.get('movie')
+            save_containerpath = config['transmission'].get('save_containerpath')
+            if save_containerpath:
+                if isinstance(save_containerpath, str):
+                    self.__tv_save_containerpath = save_containerpath
+                    self.__movie_save_containerpath = save_containerpath
+                else:
+                    self.__tv_save_containerpath = save_containerpath.get('tv')
+                    self.__movie_save_containerpath = save_containerpath.get('movie')
             if self.__trhost and self.__trport:
                 self.trc = self.__login_transmission()
 
@@ -82,16 +99,21 @@ class Transmission:
                 true_path = os.path.join(torrent.download_dir, torrent.name)
                 if not true_path:
                     continue
-                if self.__save_containerpath:
-                    true_path = true_path.replace(str(self.__save_path), str(self.__save_containerpath))
-                    ret = self.filetransfer.transfer_media(in_from=DownloaderType.TR, in_path=true_path)
-                    if ret:
-                        self.set_tr_torrent_status(torrent.id)
-                    else:
-                        log.error("【TR】%s 转移失败：" % torrent.name)
+                if self.__tv_save_containerpath:
+                    true_path = true_path.replace(str(self.__tv_save_path), str(self.__tv_save_containerpath))
+                if self.__movie_save_containerpath:
+                    true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
+                ret = self.filetransfer.transfer_media(in_from=DownloaderType.TR, in_path=true_path)
+                if ret:
+                    self.set_tr_torrent_status(torrent.id)
+                else:
+                    log.error("【TR】%s 转移失败：" % torrent.name)
 
-    def add_transmission_torrent(self, turl):
-        return self.trc.add_torrent(torrent=turl, download_dir=self.__save_path)
+    def add_transmission_torrent(self, turl, mtype):
+        if mtype == MediaType.TV:
+            return self.trc.add_torrent(torrent=turl, download_dir=self.__tv_save_path)
+        else:
+            return self.trc.add_torrent(torrent=turl, download_dir=self.__movie_save_path)
 
     def delete_transmission_torrents(self, delete_file, ids):
         if not self.trc:

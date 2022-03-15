@@ -1,6 +1,11 @@
 # NAS媒体库资源自动搜刮整理工具
 
-Docker源：https://hub.docker.com/repository/docker/jxxghp/nas-tools
+[![GitHub stars](https://img.shields.io/github/stars/jxxghp/nas-tools?style=plastic)](https://github.com/jxxghp/nas-tools/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/jxxghp/nas-tools?style=plastic)](https://github.com/jxxghp/nas-tools/issues)
+
+Docker：https://hub.docker.com/repository/docker/jxxghp/nas-tools
+
+群晖套件：https://github.com/jxxghp/nas-tools/releases/tag/Synology
 
 TG交流：https://t.me/nastool_chat
 

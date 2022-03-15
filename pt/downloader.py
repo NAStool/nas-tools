@@ -5,6 +5,8 @@ from pt.qbittorrent import Qbittorrent
 from pt.transmission import Transmission
 from datetime import datetime
 
+from utils.types import MediaType
+
 
 class Downloader:
     qbittorrent = None
@@ -26,12 +28,12 @@ class Downloader:
             self.__seeding_time = config['pt'].get('pt_seeding_time')
 
     # 添加下载任务
-    def add_pt_torrent(self, url):
+    def add_pt_torrent(self, url, mtype=MediaType.MOVIE):
         ret = None
         if self.__pt_client == "qbittorrent":
             if self.qbittorrent:
                 try:
-                    ret = self.qbittorrent.add_qbittorrent_torrent(url)
+                    ret = self.qbittorrent.add_qbittorrent_torrent(url, mtype)
                     if ret and ret.find("Ok") != -1:
                         log.info("【PT】添加qBittorrent任务：%s" % url)
                 except Exception as e:
@@ -39,7 +41,7 @@ class Downloader:
         elif self.__pt_client == "transmission":
             if self.transmission:
                 try:
-                    ret = self.transmission.add_transmission_torrent(url)
+                    ret = self.transmission.add_transmission_torrent(url, mtype)
                     if ret:
                         log.info("【PT】添加transmission任务：%s" % url)
                 except Exception as e:

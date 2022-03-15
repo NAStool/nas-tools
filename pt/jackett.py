@@ -201,7 +201,7 @@ class Jackett:
                 # 添加PT任务
                 download_count += 1
                 log.info("【JACKETT】添加PT任务：%s，url= %s" % (can_item.get('title'), can_item.get('enclosure')))
-                ret = self.downloader.add_pt_torrent(can_item.get('enclosure'))
+                ret = self.downloader.add_pt_torrent(can_item.get('enclosure'), can_item.get('type'))
                 if ret:
                     self.message.send_download_message(in_from, can_item, can_item.get('es_string'))
                 else:

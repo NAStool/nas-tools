@@ -20,7 +20,7 @@ from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys
 from utils.types import MediaType, SearchType
 from version import APP_VERSION
-from web.backend.emby import EmbyEvent, Emby
+from web.backend.emby import Emby
 from web.backend.search_torrents import search_medias_for_web
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
@@ -72,7 +72,7 @@ def create_flask_app():
                             "Status": flag
                             }
         # log.debug("输入报文：" + str(request_json))
-        event = EmbyEvent(request_json)
+        event = Emby.EmbyEvent(request_json)
         Emby().report_to_discord(event)
         return 'Success'
 
@@ -450,11 +450,11 @@ def create_flask_app():
                 dl_id = data.get("id")
                 results = get_jackett_result_by_id(dl_id)
                 for res in results:
-                    Downloader().add_pt_torrent(res[0])
                     if res[7] == "TV":
                         mtype = MediaType.TV
                     else:
                         mtype = MediaType.MOVIE
+                    Downloader().add_pt_torrent(res[0], mtype)
                     msg_item = {"title": res[1], "vote_average": res[5], "year": res[2], "backdrop_path": res[6],
                                 "type": mtype}
                     Message().send_download_message(SearchType.WEB, msg_item, "%s%s" % (res[3], res[4]))

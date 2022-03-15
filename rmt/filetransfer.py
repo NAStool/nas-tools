@@ -5,7 +5,7 @@ from enum import Enum
 from subprocess import call
 
 import log
-from config import RMT_SUBEXT, get_config, RMT_MEDIAEXT, RMT_DISKFREESIZE
+from config import RMT_SUBEXT, get_config, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE
 from utils.functions import get_dir_files_by_ext, get_free_space_gb
 from message.send import Message
 from rmt.media import Media
@@ -625,6 +625,9 @@ class FileTransfer:
         # 如果是电影
         if mtype == MediaType.MOVIE:
             if self.__movie_subtypedir:
+                dest_path = os.path.join(self.__movie_path, RMT_FAVTYPE.value, "%s (%s)" % (title, year))
+                if os.path.exists(dest_path):
+                    return True
                 dest_path = os.path.join(self.__movie_path, category, "%s (%s)" % (title, year))
             else:
                 dest_path = os.path.join(self.__movie_path, "%s (%s)" % (title, year))

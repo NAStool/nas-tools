@@ -24,6 +24,56 @@ class Emby:
     __apikey = None
     __host = None
 
+    class EmbyEvent:
+        def __init__(self, input_json):
+            event = input_json['Event']
+            self.category = event.split('.')[0]
+            self.action = event.split('.')[1]
+            self.timestamp = datetime.now()
+            User = input_json.get('User', {})
+            Item = input_json.get('Item', {})
+            Session = input_json.get('Session', {})
+            Server = input_json.get('Server', {})
+            Status = input_json.get('Status', {})
+
+            if self.category == 'playback':
+                self.user_name = User.get('Name')
+                self.item_type = Item.get('Type')
+                self.provider_ids = Item.get('ProviderIds')
+                if self.item_type == 'Episode':
+                    self.media_type = MediaType.TV
+                    self.item_name = "%s %s" % (Item.get('SeriesName'), Item.get('Name'))
+                    self.tmdb_id = Item.get('SeriesId')
+                else:
+                    self.item_name = Item.get('Name')
+                    self.tmdb_id = self.provider_ids.get('Tmdb')
+                    self.media_type = MediaType.MOVIE
+                self.ip = Session.get('RemoteEndPoint')
+                self.device_name = Session.get('DeviceName')
+                self.client = Session.get('Client')
+
+            if self.category == 'user':
+                if self.action == 'login':
+                    self.user_name = User.get('user_name')
+                    self.user_name = User.get('user_name')
+                    self.device_name = User.get('device_name')
+                    self.ip = User.get('device_ip')
+                    self.server_name = Server.get('server_name')
+                    self.status = Status
+
+            if self.category == 'item':
+                if self.action == 'rate':
+                    self.movie_name = Item.get('Name')
+                    self.movie_path = Item.get('Path')
+                    self.item_type = Item.get('Type')
+                    self.provider_ids = Item.get('ProviderIds')
+                    if self.item_type == 'Episode':
+                        self.media_type = MediaType.TV
+                        self.tmdb_id = Item.get('SeriesId')
+                    else:
+                        self.tmdb_id = self.provider_ids.get('Tmdb')
+                        self.media_type = MediaType.MOVIE
+
     def __init__(self):
         self.message = Message()
         config = get_config()
@@ -155,6 +205,8 @@ class Emby:
                     message_title = '【EMBY】用户 %s 登录了 %s' % (event.user_name, event.server_name)
         elif event.category == 'item':
             if event.action == 'rate':
+                media_type = event.media_type
+                tmdb_id = event.tmdb_id
                 if not self.__movie_subtypedir or not self.__movie_path:
                     return
                 if os.path.isdir(event.movie_path):
@@ -206,49 +258,6 @@ class Emby:
             else:
                 image_url = ""
             self.message.sendmsg(message_title, desp, image_url)
-
-
-class EmbyEvent:
-    def __init__(self, input_json):
-        event = input_json['Event']
-        self.category = event.split('.')[0]
-        self.action = event.split('.')[1]
-        self.timestamp = datetime.now()
-        User = input_json.get('User', {})
-        Item = input_json.get('Item', {})
-        Session = input_json.get('Session', {})
-        Server = input_json.get('Server', {})
-        Status = input_json.get('Status', {})
-
-        if self.category == 'playback':
-            self.user_name = User.get('Name')
-            self.item_type = Item.get('Type')
-            self.provider_ids = Item.get('ProviderIds')
-            if self.item_type == 'Episode':
-                self.media_type = MediaType.TV
-                self.item_name = "%s %s" % (Item.get('SeriesName'), Item.get('Name'))
-                self.tmdb_id = Item.get('SeriesId')
-            else:
-                self.item_name = Item.get('Name')
-                self.tmdb_id = self.provider_ids.get('Tmdb')
-                self.media_type = MediaType.MOVIE
-            self.ip = Session.get('RemoteEndPoint')
-            self.device_name = Session.get('DeviceName')
-            self.client = Session.get('Client')
-
-        if self.category == 'user':
-            if self.action == 'login':
-                self.user_name = User.get('user_name')
-                self.user_name = User.get('user_name')
-                self.device_name = User.get('device_name')
-                self.ip = User.get('device_ip')
-                self.server_name = Server.get('server_name')
-                self.status = Status
-
-        if self.category == 'item':
-            if self.action == 'rate':
-                self.movie_name = Item.get('Name')
-                self.movie_path = Item.get('Path')
 
 
 if __name__ == "__main__":
