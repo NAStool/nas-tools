@@ -33,6 +33,7 @@ if test 0"${NASTOOL_AUTO_UPDATE}" != 0
       then
         rm -rf /nas-tools
         mv new_nas-tools nas-tools
+        python3 -m pip install -r /nas-tools/requirements.txt
         echo "恭喜，升级成功！"
       else
         echo "git clone出现错误，升级版本失败！"
