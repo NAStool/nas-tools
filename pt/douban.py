@@ -154,7 +154,6 @@ class DouBan:
 
                 # 获取当天时间
                 today = datetime.datetime.now()
-                today = datetime.datetime.now()
 
                 # 判断 标记时间
                 # 符合监控日期内媒体个数计数
