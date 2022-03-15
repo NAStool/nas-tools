@@ -668,7 +668,7 @@ class FileTransfer:
                                 if self.__tv_subtypedir:
                                     dest_path = os.path.join(self.__tv_path, category, "%s (%s)" % (title, year), sea, "%s - %s%s - 第 %s 集%s" % (title, sea_num, epi, seq_num, ext))
                                 else:
-                                    dest_path = os.path.join(self.__tv_path, "%s (%s)" % (title, year), sea)
+                                    dest_path = os.path.join(self.__tv_path, "%s (%s)" % (title, year), sea, "%s - %s%s - 第 %s 集%s" % (title, sea_num, epi, seq_num, ext))
                                 if os.path.exists(dest_path):
                                     ext_exist = True
                             if not ext_exist:
