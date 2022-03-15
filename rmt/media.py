@@ -1,5 +1,7 @@
 import os
 import re
+import threading
+
 import log
 from tmdbv3api import TMDb, Search, Movie, TV
 from config import get_config
@@ -7,6 +9,7 @@ from rmt.metainfo import MetaInfo
 from utils.types import MediaType
 
 # 全局METAINFO缓存
+lock = threading.Lock()
 METAINFO_NAMES = {}
 
 
@@ -109,21 +112,29 @@ class Media:
         media_name = meta_info.get_name()
         media_year = meta_info.year
         media_key = "%s%s" % (media_name, media_year)
-        if not METAINFO_NAMES.get(media_key):
-            if meta_info.type == MediaType.TV:
-                # 确定是电视剧
-                search_type = MediaType.TV
-                file_media_info = self.__search_tmdb(media_name, media_year, search_type)
-            else:
-                # 不能确定是电视剧，先按电影查
-                search_type = MediaType.MOVIE
-                file_media_info = self.__search_tmdb(media_name, media_year, search_type)
-                if not file_media_info:
-                    # 查不到再按电视剧查
+        try:
+            lock.acquire()
+            if not METAINFO_NAMES.get(media_key):
+                if meta_info.type == MediaType.TV:
+                    # 确定是电视剧
                     search_type = MediaType.TV
                     file_media_info = self.__search_tmdb(media_name, media_year, search_type)
-            # 加入缓存
-            METAINFO_NAMES[media_key] = file_media_info
+                else:
+                    # 不能确定是电视剧，先按电影查
+                    search_type = MediaType.MOVIE
+                    file_media_info = self.__search_tmdb(media_name, media_year, search_type)
+                    if not file_media_info:
+                        # 查不到再按电视剧查
+                        search_type = MediaType.TV
+                        file_media_info = self.__search_tmdb(media_name, media_year, search_type)
+                # 加入缓存
+                if file_media_info:
+                    METAINFO_NAMES[media_key] = file_media_info
+                else:
+                    # 标记为未找到，避免再次查询
+                    METAINFO_NAMES[media_key] = {'id': 0}
+        finally:
+            lock.release()
 
         meta_info.set_tmdb_info(METAINFO_NAMES.get(media_key))
         return meta_info
@@ -168,12 +179,19 @@ class Media:
             if not meta_info.get_name():
                 continue
             # 是否处理过
-            media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
-            if not METAINFO_NAMES.get(media_key):
-                # 调用TMDB API
-                file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, meta_info.type)
-                if file_media_info:
-                    METAINFO_NAMES[media_key] = file_media_info
+            try:
+                lock.acquire()
+                media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
+                if not METAINFO_NAMES.get(media_key):
+                    # 调用TMDB API
+                    file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, meta_info.type)
+                    if file_media_info:
+                        METAINFO_NAMES[media_key] = file_media_info
+                    else:
+                        # 标记为未找到避免再次查询
+                        METAINFO_NAMES[media_key] = {'id': 0}
+            finally:
+                lock.release()
             # 存入结果清单返回
             meta_info.set_tmdb_info(METAINFO_NAMES.get(media_key))
             return_media_infos[file_path] = meta_info

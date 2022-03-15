@@ -238,8 +238,10 @@ class MetaInfo(object):
             self.type = info.get('media_type')
         if not self.type:
             return
-        self.tmdb_info = info
         self.tmdb_id = info.get('id')
+        if not self.tmdb_id:
+            return
+        self.tmdb_info = info
         self.vote_average = info.get('vote_average')
         if self.type == MediaType.MOVIE:
             self.title = info.get('title')

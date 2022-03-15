@@ -166,7 +166,7 @@ function show_service_modal(id, name) {
 function show_download_modal(id, name){
     $("#download_start_id").val(id);
     $("#download_start_name").val(name);
-    $("#download_start_message").text("是否立即下载该资源：？" + name + "？");
+    $("#download_start_message").text("是否立即下载该资源：" + name + "？");
     $('#download-modal').modal('show');
 }
 

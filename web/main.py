@@ -55,6 +55,14 @@ def create_flask_app():
                 check_password_hash(users.get(username), str(password)):
             return username
 
+    @app.errorhandler(404)
+    def page_not_found(error):
+        return render_template("404.html"), 404
+
+    @app.errorhandler(500)
+    def page_server_error(error):
+        return render_template("500.html"), 500
+
     # Emby消息通知
     @app.route('/emby', methods=['POST', 'GET'])
     def emby():
@@ -151,9 +159,9 @@ def create_flask_app():
             if TotalSpace:
                 UsedPercent = "%0.1f" % ((UsedSapce / TotalSpace) * 100)
             # 总剩余空间 格式化
-            FreeSpace = "{:,} TB".format(round((TotalSpace - UsedSapce) / 1024 / 1024 / 1024 / 1024), 2)
+            FreeSpace = "{:,} TB".format(round((TotalSpace - UsedSapce) / 1024 / 1024 / 1024 / 1024, 2))
             # 总使用空间 格式化
-            UsedSapce = "{:,} TB".format(round(UsedSapce / 1024 / 1024 / 1024 / 1024), 2)
+            UsedSapce = "{:,} TB".format(round(UsedSapce / 1024 / 1024 / 1024 / 1024, 2))
             # 总空间 格式化
             TotalSpace = "{:,} TB".format(round(TotalSpace / 1024 / 1024 / 1024 / 1024, 2))
 
@@ -238,7 +246,6 @@ def create_flask_app():
                 else:
                     fav = 0
                 date = res.get('release_date')
-                image = res.get('poster_path')
             else:
                 title = res.get('name')
                 if title in TvKeys:
@@ -246,8 +253,9 @@ def create_flask_app():
                 else:
                     fav = 0
                 date = res.get('first_air_date')
-                image = res.get('poster_path')
-            item = {'id': rid, 'title': title, 'fav': fav, 'date': date, 'image': "https://image.tmdb.org/t/p/original/%s" % image}
+            image = res.get('poster_path')
+            vote = res.get('vote_average')
+            item = {'id': rid, 'title': title, 'fav': fav, 'date': date, 'vote': vote, 'image': "https://image.tmdb.org/t/p/original/%s" % image}
             Items.append(item)
 
         return render_template("recommend.html",

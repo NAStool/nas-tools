@@ -125,7 +125,7 @@ class RSSDownloader:
 
                     # 识别种子名称，开始检索TMDB
                     media_info = self.media.get_media_info(title)
-                    if not media_info.tmdb_info:
+                    if not media_info or not media_info.tmdb_info:
                         continue
                     search_type = media_info.type
                     media_year = media_info.year

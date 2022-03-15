@@ -16,7 +16,7 @@ if __name__ == "__main__":
     print('【RUN】NASTool 当前版本号：%s' % APP_VERSION)
     # 检查配置文件
     cfg = get_config()
-    simple_mode = cfg['app'].get('simple_mode')
+    simple_mode = cfg.get('app', {}).get('simple_mode')
     if simple_mode:
         # 纯硬链接模式
         print("【RUN】当前运行模式：精简模式，无RSS、WEBUI等功能")

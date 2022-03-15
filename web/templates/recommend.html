@@ -1,12 +1,4 @@
 <!doctype html>
-<!--
-* Tabler - Premium and Open Source dashboard template with responsive and high quality UI.
-* @version 1.0.0-beta9
-* @link https://tabler.io
-* Copyright 2018-2022 The Tabler Authors
-* Copyright 2018-2022 codecalm.net Paweł Kuna
-* Licensed under MIT (https://github.com/tabler/tabler/blob/master/LICENSE)
--->
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
@@ -41,11 +33,11 @@
               </div>
             </div>
             <div class="d-none d-md-flex">
-              <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="Enable dark mode" data-bs-toggle="tooltip" data-bs-placement="bottom">
+              <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="暗黑风格" data-bs-toggle="tooltip" data-bs-placement="bottom">
                 <!-- Download SVG icon from http://tabler-icons.io/i/moon -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
               </a>
-              <a href="?theme=light" class="nav-link px-0 hide-theme-light" title="Enable light mode" data-bs-toggle="tooltip" data-bs-placement="bottom">
+              <a href="?theme=light" class="nav-link px-0 hide-theme-light" title="明亮风格" data-bs-toggle="tooltip" data-bs-placement="bottom">
                 <!-- Download SVG icon from http://tabler-icons.io/i/sun -->
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4" /><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" /></svg>
               </a>
@@ -145,7 +137,8 @@
               {% for item in Items %}
               <div class="col-sm-3 col-lg-2">
                 <div class="card card-sm">
-                  <a href="#" class="d-block"><img src="{{ item.image }}" class="card-img-top"></a>
+                  <div class="ribbon ribbon-top ribbon-bookmark {% if item.vote > 8 %} bg-green {% elif item.vote <= 8 and item.vote > 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ item.vote }}</div>
+                  <a href="/search?s={{ item.title }}" title="立即搜索" class="d-block"><img src="{{ item.image }}" class="card-img-top"></a>
                   <div class="card-body">
                     <div class="d-flex align-items-center">
                       <div>
@@ -153,7 +146,7 @@
                         <div class="text-muted">{{ item.date }}</div>
                       </div>
                       <div class="ms-auto">
-                        <a href="/search?s={{ item.title }}" class="text-muted">
+                        <a href="/search?s={{ item.title }}" class="text-muted" title="立即搜索">
                           <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                              <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
@@ -161,7 +154,7 @@
                              <circle cx="16.5" cy="17.5" r="2.5"></circle>
                              <line x1="18.5" y1="19.5" x2="21" y2="22"></line>
                           </svg></a>
-                        <a id="recommend_link_{{ item.id }}" {% if item.fav == 0 %} href="javascript:show_recommend_add_modal('{{ item.id }}','{{ RecommendType }}','{{ item.title }}')" {% else %} href="javascript:show_recommend_del_modal('{{ item.id }}','{{ RecommendType }}','{{ item.title }}')" {% endif %} class="text-muted">
+                        <a id="recommend_link_{{ item.id }}" {% if item.fav == 0 %} href="javascript:show_recommend_add_modal('{{ item.id }}','{{ RecommendType }}','{{ item.title }}')" {% else %} href="javascript:show_recommend_del_modal('{{ item.id }}','{{ RecommendType }}','{{ item.title }}')" {% endif %} class="text-muted" title="加入/取消订阅">
                           <svg id="recommend_svg_{{ item.id }}" xmlns="http://www.w3.org/2000/svg" class="icon {% if item.fav == 0 %} icon-tabler icon-tabler-heart {% else %} icon-filled text-red {% endif %}" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                              <path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>

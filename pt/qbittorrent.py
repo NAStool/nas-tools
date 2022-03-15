@@ -100,18 +100,20 @@ class Qbittorrent:
         # 处理所有任务
         torrents = self.get_qbittorrent_torrents()
         for torrent in torrents:
-            log.debug("【QB】" + torrent.name + "：" + torrent.state)
-            if torrent.state == "uploading" or torrent.state == "stalledUP":
-                true_path = torrent.content_path
+            log.debug("【QB】" + torrent.get('name') + "：" + torrent.get('state'))
+            if torrent.get('state') == "uploading" or torrent.get('state') == "stalledUP":
+                true_path = torrent.get('content_path', torrent.get('save_path'))
+                if not true_path:
+                    continue
                 if self.__tv_save_containerpath:
                     true_path = true_path.replace(str(self.__tv_save_path), str(self.__tv_save_containerpath))
                 if self.__movie_save_containerpath:
                     true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
                 done_flag = self.filetransfer.transfer_media(in_from=DownloaderType.QB, in_path=true_path)
                 if done_flag:
-                    self.set_qb_torrent_status(torrent.hash)
+                    self.set_qb_torrent_status(torrent.get('hash'))
                 else:
-                    log.error("【QB】%s 转移失败！" % torrent.name)
+                    log.error("【QB】%s 转移失败！" % torrent.get('name'))
 
     # 添加qbittorrent任务
     def add_qbittorrent_torrent(self, turl, mtype):
