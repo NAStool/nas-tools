@@ -6,6 +6,7 @@ if [ -n $NASTOOL_AUTO_UPDATE ]; then
         sha256sum requirements.txt > /tmp/requirements.txt.sha256sum
     fi
     echo "更新程序..."
+    git remote set-url origin ${REPO_URL} &>/dev/null
     git pull
     if [ $? -eq 0 ]; then
         echo "更新成功..."

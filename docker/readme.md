@@ -37,6 +37,8 @@ docker run -d \
     jxxghp/nas-tools
 ```
 
+如果你访问github的网络不太好，可以考虑在创建容器时增加设置一个环境变量`-e REPO_URL="https://ghproxy.com/https://github.com/jxxghp/nas-tools.git" \`。
+
 **docker-compose**
 
 新建`docker-compose.yml`文件如下，并以命令`docker-compose up -d`启动。
@@ -55,6 +57,7 @@ services:
       - PUID=0    # 想切换为哪个用户来运行程序，该用户的uid，详见下方说明
       - PGID=0    # 想切换为哪个用户来运行程序，该用户的gid，详见下方说明
       - UMASK=000 # 掩码权限，默认000，可以考虑设置为022
+      #-REPO_URL="https://ghproxy.com/https://github.com/jxxghp/nas-tools.git"  # 当你访问github网络很差时，可以考虑解释本行注释
     restart: always
     network_mode: bridge
     hostname: nas-tools
