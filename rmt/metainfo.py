@@ -2,7 +2,7 @@ import re
 
 import requests
 from requests import RequestException
-from config import RMT_COUNTRY_EA, RMT_COUNTRY_AS, FANART_TV_API_URL, FANART_MOVIE_API_URL, BACKDROP_DEFAULT_IMAGE
+from config import RMT_COUNTRY_EA, RMT_COUNTRY_AS, FANART_TV_API_URL, FANART_MOVIE_API_URL
 from utils.functions import is_chinese
 from utils.tokens import Tokens
 from utils.types import MediaType, MediaCatagory
@@ -39,15 +39,30 @@ class MetaInfo(object):
     year = None
     # 封面图片
     backdrop_path = None
+    poster_path = None
     # 评分
     vote_average = 0
     # TMDB 的其它信息
     tmdb_info = {}
-
+    # 种子附加信息
+    site = None
+    site_order = 0
+    torrent_name = None
+    enclosure = None
+    res_order = 0
+    size = 0
+    seeders = 0
+    peers = 0
+    description = None
+    res_type = None
+    # 豆瓣附加信息
+    douban_rating = 0
+    douban_poster = None
+    douban_url = None
     # 控制标位区
     _stop_name_flag = False
 
-    def __init__(self, in_str):
+    def __init__(self, in_str=None):
         if not in_str:
             return
         self.__clear()
@@ -213,6 +228,17 @@ class MetaInfo(object):
                 return "%s" % episode
         return ""
 
+    # 返回资源类型字符串
+    def get_resource_type_string(self):
+        if self.resource_type and self.resource_pix:
+            return "%s %s" % (self.resource_type, self.resource_pix)
+        elif self.resource_type:
+            return self.resource_type
+        elif self.resource_pix:
+            return self.resource_pix
+        else:
+            return ""
+
     # 是否包含季
     def is_in_seasion(self, season):
         if self.end_season:
@@ -253,8 +279,21 @@ class MetaInfo(object):
             first_air_date = info.get('first_air_date')
             if first_air_date:
                 self.year = info.first_air_date[0:4]
-        self.backdrop_path = self.get_backdrop_image(self.type, info.get('backdrop_path'), info.get('id'), BACKDROP_DEFAULT_IMAGE)
+        self.poster_path = "https://image.tmdb.org/t/p/w500%s" % info.get('poster_path')
+        self.backdrop_path = self.get_backdrop_image(self.type, info.get('backdrop_path'), info.get('id'))
         self.category = self.__set_category(info)
+
+    # 整合种了信息
+    def set_torrent_info(self, site=None, site_order=0, enclosure=None, res_type=None, res_order=0, size=0, seeders=0, peers=0, description=None):
+        self.site = site
+        self.site_order = site_order
+        self.enclosure = enclosure
+        self.res_type = res_type
+        self.res_order = res_order
+        self.size = size
+        self.seeders = seeders
+        self.peers = peers
+        self.description = description
 
     # 获取消息媒体图片
     @staticmethod

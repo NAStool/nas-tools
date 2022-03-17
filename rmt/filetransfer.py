@@ -294,6 +294,7 @@ class FileTransfer:
             Media_Pix = media.resource_pix
             Vote_Average = media.vote_average
             Backdrop_Path = media.backdrop_path
+            Poster_Path = media.poster_path
 
             # 电影
             if Search_Type == MediaType.MOVIE:
@@ -375,6 +376,7 @@ class FileTransfer:
                 if not message_medias.get(Title_Str):
                     message_medias[Title_Str] = {"Vote_Average": 0,
                                                  "Backdrop_Path": "",
+                                                 "Poster_Path": "",
                                                  "Season_Ary": [],
                                                  "Episode_Ary": [],
                                                  "Total_Size": 0,
@@ -383,6 +385,7 @@ class FileTransfer:
                 message_medias[Title_Str]['Vote_Average'] = Vote_Average
                 # 背景图
                 message_medias[Title_Str]['Backdrop_Path'] = Backdrop_Path
+                message_medias[Title_Str]['Poster_Path'] = Poster_Path
 
                 if bluray_disk_flag:
                     log.error("【RMT】识别有误：蓝光原盘目录被识别为电视剧！")
@@ -592,12 +595,12 @@ class FileTransfer:
 
     # 检查媒体库是否存在，返回TRUE或FLASE
     def is_media_file_exists(self, item):
-        mtype = item.get('type')
-        title = item.get('title')
-        year = item.get('year')
-        season = item.get('season')
-        episode = item.get('episode')
-        category = item.get('category')
+        mtype = item.type
+        title = item.title
+        year = item.year
+        season = item.get_season_string()
+        episode = item.get_episode_string()
+        category = item.category
 
         if isinstance(category, Enum):
             category = category.value

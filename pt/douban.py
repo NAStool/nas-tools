@@ -107,7 +107,7 @@ class DouBan:
                         else:
                             movie_dict = self.__get_movie_dict(media_soup)
                             if movie_dict:
-                                movie_dict['url'] = url
+                                movie_dict.douban_url = url
                                 # 加入数组
                                 if movie_dict not in movie_list:
                                     movie_list.append(movie_dict)
@@ -218,78 +218,27 @@ class DouBan:
         info = soup.select('#info')
         infos = list(info[0].strings)
         infos = [i.strip() for i in infos if i.strip() != '']
-        movie_dict = {}
         # 影视名称
         title = soup.select('#wrapper > div > h1')
         titles = list(title[0].strings)
         titles = [i.strip() for i in titles if i.strip() != '']
-        movie_title = ''.join(titles)
+        douban_title = ''.join(titles)
         # 这里解析一下，拿到标题和年份
-        meta_title_info = MetaInfo(movie_title)
-        movie_title = meta_title_info.get_name()
-        movie_year = meta_title_info.year
-
-        # 导演
-        if '导演' in infos:
-            movie_director = self.__multiple_infos_parser(infos, '导演', 2)
-        else:
-            movie_director = ""
-
-        # 编剧 主演 类型
-        screenwriter = self.__multiple_infos_parser(infos, "编剧", 2)
-        starring = self.__multiple_infos_parser(infos, "主演", 2)
-        movie_type = self.__multiple_infos_parser(infos, "类型:", 1)
-
-        # 国家或地区
-        country_or_region = infos[infos.index("制片国家/地区:") + 1]
-        country_or_region_list = country_or_region.split('/')
-        c_or_r = []
-        for i in country_or_region_list:
-            c_or_r.append(i.strip(' '))
-
-        # 语言
-        language = infos[infos.index("语言:") + 1]
-        language_list_tmp = language.split('/')
-        language_list = []
-        for i in language_list_tmp:
-            language_list.append(i.strip(' '))
-
-        # 分类 电影和电视剧 以及 动画片（电影）和动漫（剧集）
+        meta_info = MetaInfo(douban_title)
+        # 分类 电影和电视剧
         if '上映时间:' in infos or '上映日期:' in infos:
-            movie_categories = MediaType.MOVIE.value
+            meta_info.type = MediaType.MOVIE
         elif "首播:" in infos or "首播时间:" in infos:
-            movie_categories = MediaType.TV.value
+            meta_info.type = MediaType.TV
         else:
-            movie_categories = "未知"
-
-        imdb = infos[infos.index('IMDb:') + 1] if 'IMDb' in infos else ""
-
+            meta_info.type = MediaType.MOVIE
         # 评分 评价数
-        rating_list = self.__get_media_rating_list(soup)
-
+        meta_info.douban_rating = float(self.__get_media_rating_list(soup)[0])
         # 图片网址
         movie_img = soup.select("#mainpic > a > img")[0].attrs['src']
+        meta_info.douban_poster = movie_img
 
-        # 简介
-        related_info = soup.select("#content > div > div.article > div > div.indent > span")
-        related_infos = self.__get_media_related_infos(related_info)
-
-        # print(rating_infos)
-        movie_dict['title'] = movie_title
-        movie_dict['year'] = movie_year
-        movie_dict['director'] = movie_director
-        movie_dict['screenwriter'] = screenwriter
-        movie_dict['starring'] = starring
-        movie_dict['type'] = movie_type
-        movie_dict['country_or_region'] = c_or_r
-        movie_dict['language'] = language_list
-        movie_dict['category'] = movie_categories
-        movie_dict['imdb'] = imdb
-        movie_dict['rating'] = float(rating_list[0])
-        movie_dict['assess'] = int(rating_list[1])
-        movie_dict['image'] = movie_img
-        movie_dict['related_infos'] = related_infos
-        return movie_dict
+        return meta_info
 
     @staticmethod
     def __multiple_infos_parser(str_dict, str_key, next_number):

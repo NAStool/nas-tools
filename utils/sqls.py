@@ -24,24 +24,24 @@ def insert_jackett_results(media_item):
           "SITE," \
           "SITE_ORDER) VALUES (" \
           "'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')" % (
-              media_item.get('torrent_name'),
-              media_item.get('enclosure'),
-              media_item.get('description'),
-              "TV" if media_item.get('type') == MediaType.TV else "MOV",
-              media_item.get('title'),
-              media_item.get('year') if media_item.get('year') else "",
-              media_item.get('season') if media_item.get('season') else "",
-              media_item.get('episode') if media_item.get('episode') else "",
-              media_item.get('es_string') if media_item.get('es_string') else "",
-              media_item.get('vote_average') if media_item.get('vote_average') else "",
-              media_item.get('backdrop_path') if media_item.get('backdrop_path') else "",
-              media_item.get('res_type'),
-              media_item.get('res_order'),
-              "%.2fGB" % (int(media_item.get('size')) / 1024 / 1024 / 1024),
-              media_item.get('seeders'),
-              media_item.get('peers'),
-              media_item.get('site_name'),
-              media_item.get('site_order')
+              media_item.org_string,
+              media_item.enclosure,
+              media_item.description,
+              "TV" if media_item.type == MediaType.TV else "MOV",
+              media_item.title,
+              media_item.year if media_item.year else "",
+              media_item.get_season_string(),
+              media_item.get_episode_string(),
+              media_item.get_season_episode_string(),
+              media_item.vote_average,
+              media_item.backdrop_path,
+              media_item.res_type,
+              media_item.res_order,
+              "%.2fGB" % (int(media_item.size) / 1024 / 1024 / 1024),
+              media_item.seeders,
+              media_item.peers,
+              media_item.site,
+              media_item.site_order
           )
     return update_by_sql(sql)
 
@@ -135,22 +135,22 @@ def is_torrent_rssd_by_name(media_title, media_year, media_seaion, media_episode
 
 
 # 将RSS的记录插入数据库
-def insert_rss_torrents(title, enclosure, search_type, media_title, media_year, media_seaion, media_episode):
+def insert_rss_torrents(media_info):
     sql = "INSERT INTO RSS_TORRENTS(TORRENT_NAME, ENCLOSURE, TYPE, TITLE, YEAR, SEASON, EPISODE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
-        title, enclosure, search_type, media_title, media_year, media_seaion, media_episode)
+        media_info.title, media_info.enclosure, media_info.type, media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string())
     return update_by_sql(sql)
 
 
 # 将豆瓣的数据插入数据库
 def insert_douban_medias(medias):
     for media in medias:
-        if not media.get('year'):
-            sql = "SELECT 1 FROM DOUBAN_MEDIAS WHERE NAME = '%s'" % media.get('title')
+        if not media.year:
+            sql = "SELECT 1 FROM DOUBAN_MEDIAS WHERE NAME = '%s'" % media.get_name()
         else:
-            sql = "SELECT 1 FROM DOUBAN_MEDIAS WHERE NAME = '%s' AND YEAR = '%s'" % (media.get('title'), media.get('year'))
+            sql = "SELECT 1 FROM DOUBAN_MEDIAS WHERE NAME = '%s' AND YEAR = '%s'" % (media.get_name(), media.year)
         ret = select_by_sql(sql)
         if not ret or len(ret) == 0:
-            sql = "INSERT INTO DOUBAN_MEDIAS(NAME, YEAR, TYPE, RATING, IMAGE, STATE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (media.get('title'), media.get('year'), media.get('category'), media.get('rating'), media.get('image'), 'NEW')
+            sql = "INSERT INTO DOUBAN_MEDIAS(NAME, YEAR, TYPE, RATING, IMAGE, STATE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (media.get_name(), media.year, media.type.value, media.douban_rating, media.douban_poster, 'NEW')
             if not update_by_sql(sql):
                 return False
     return True

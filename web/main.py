@@ -1,31 +1,37 @@
 import _thread
-from flask import Flask, request, json, render_template, make_response, redirect
+from flask import Flask, request, json, render_template, make_response, redirect, url_for
+from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+
 import log
 from pt.downloader import Downloader
 from pt.jackett import Jackett
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
+from rmt.metainfo import MetaInfo
 from scheduler.autoremove_torrents import AutoRemoveTorrents
 from scheduler.douban_sync import DoubanSync
 from scheduler.pt_signin import PTSignin
 from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
 from message.send import Message
-from flask_httpauth import HTTPBasicAuth
-from werkzeug.security import generate_password_hash, check_password_hash
 
-from config import WECHAT_MENU, get_config, save_config, PT_TRANSFER_INTERVAL
-from utils.functions import get_used_of_partition
+from config import WECHAT_MENU, get_config, save_config, PT_TRANSFER_INTERVAL, BACKDROP_DEFAULT_IMAGE
+from utils.functions import get_used_of_partition, str_filesize, str_timelong
 from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys
-from utils.types import MediaType, SearchType
+from utils.types import MediaType, SearchType, DownloaderType
 from version import APP_VERSION
 from web.backend.emby import Emby
 from web.backend.search_torrents import search_medias_for_web
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
 
+login_manager = LoginManager()
+login_manager.login_view = "login"
 
+
+# Flask实例
 def create_flask_app():
     config = get_config()
     app_cfg = config.get('app')
@@ -44,55 +50,62 @@ def create_flask_app():
 
     app = Flask(__name__)
     app.config['JSON_AS_ASCII'] = False
-    auth = HTTPBasicAuth()
-    users = {str(config['app'].get('login_user')): generate_password_hash(config['app'].get('login_password'))}
+    app.secret_key = 'jxxghp'
+    login_manager.init_app(app)
 
     EmbyClient = Emby()
+    USERS = [{
+        "id": 1,
+        "name": config.get('app', {}).get('login_user'),
+        "password": generate_password_hash(config.get('app', {}).get('login_password'))
+    }]
 
-    @auth.verify_password
-    def verify_password(username, password):
-        if username in users and \
-                check_password_hash(users.get(username), str(password)):
-            return username
+    # 根据用户名获得用户记录
+    def get_user(user_name):
+        for user in USERS:
+            if user.get("name") == user_name:
+                return user
+        return None
+
+    # 用户类
+    class User(UserMixin):
+        def __init__(self, user):
+            self.username = user.get('name')
+            self.password_hash = user.get('password')
+            self.id = 1
+
+        # 密码验证
+        def verify_password(self, password):
+            if self.password_hash is None:
+                return False
+            return check_password_hash(self.password_hash, password)
+
+        # 获取用户ID
+        def get_id(self):
+            return self.id
+
+        # 根据用户ID获取用户实体，为 login_user 方法提供支持
+        @staticmethod
+        def get(user_id):
+            if not user_id:
+                return None
+            for user in USERS:
+                if user.get('id') == user_id:
+                    return User(user)
+            return None
+
+    # 定义获取登录用户的方法
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.get(user_id)
 
     @app.errorhandler(404)
     def page_not_found(error):
-        return render_template("404.html"), 404
+        return render_template("404.html", error=error), 404
 
     @app.errorhandler(500)
     def page_server_error(error):
-        return render_template("500.html"), 500
-
-    # Emby消息通知
-    @app.route('/emby', methods=['POST', 'GET'])
-    def emby():
-        if request.method == 'POST':
-            request_json = json.loads(request.form.get('data', {}))
-        else:
-            server_name = request.args.get("server_name")
-            user_name = request.args.get("user_name")
-            device_name = request.args.get("device_name")
-            ip = request.args.get("ip")
-            flag = request.args.get("flag")
-            request_json = {"Event": "user.login",
-                            "User": {"user_name": user_name, "device_name": device_name, "device_ip": ip},
-                            "Server": {"server_name": server_name},
-                            "Status": flag
-                            }
-        # log.debug("输入报文：" + str(request_json))
-        event = Emby.EmbyEvent(request_json)
-        Emby().report_to_discord(event)
-        return 'Success'
-
-    # DDNS消息通知
-    @app.route('/ddns', methods=['POST'])
-    def ddns():
-        request_json = json.loads(request.data, {})
-        log.debug("【DDNS】输入报文：" + str(request_json))
-        text = request_json['text']
-        content = text['content']
-        Message().sendmsg("【DDNS】IP地址变化", content)
-        return '0'
+        return render_template("500.html", error=error), 500
 
     # 主页面
     @app.before_request
@@ -103,10 +116,34 @@ def create_flask_app():
                 url = request.url.replace('http://', 'https://', 1)
                 return redirect(url, code=301)
 
-    # 开始页面
+    # 登录页面
     @app.route('/', methods=['POST', 'GET'])
-    @auth.login_required
-    def index():
+    @app.route('/login', methods=['GET', 'POST'])
+    def login():
+        if request.method == 'GET':
+            return render_template('login.html')
+        else:
+            username = request.form.get('username')
+            if not username:
+                return render_template('login.html', err_msg="请输入用户名！")
+            password = request.form.get('password')
+            user_info = get_user(username)
+            if not user_info:
+                return render_template('login.html', err_msg="用户名或密码错误！")
+            # 创建用户实体
+            user = User(user_info)
+            # 校验密码
+            if user.verify_password(password):
+                # 创建用户 Session
+                login_user(user)
+                return redirect(request.args.get('next') or url_for('home'))
+            else:
+                return render_template('login.html', err_msg="用户名或密码错误！")
+
+    # 首页
+    @app.route('/home', methods=['POST', 'GET'])
+    @login_required
+    def home():
         # 获取媒体数量
         EmbySucess = 1
         MovieCount = 0
@@ -180,7 +217,7 @@ def create_flask_app():
 
     # 影音搜索页面
     @app.route('/search', methods=['POST', 'GET'])
-    @auth.login_required
+    @login_required
     def search():
         # 查询结果
         res = get_jackett_results()
@@ -191,7 +228,7 @@ def create_flask_app():
 
     # 站点订阅页面
     @app.route('/sites', methods=['POST', 'GET'])
-    @auth.login_required
+    @login_required
     def sites():
         # 获取订阅关键字
         movie_key_list = get_movie_keys()
@@ -203,7 +240,7 @@ def create_flask_app():
 
     # 推荐页面
     @app.route('/recommend', methods=['POST', 'GET'])
-    @auth.login_required
+    @login_required
     def recommend():
         RecommendType = request.args.get("t")
         CurrentPage = request.args.get("page")
@@ -255,7 +292,8 @@ def create_flask_app():
                 date = res.get('first_air_date')
             image = res.get('poster_path')
             vote = res.get('vote_average')
-            item = {'id': rid, 'title': title, 'fav': fav, 'date': date, 'vote': vote, 'image': "https://image.tmdb.org/t/p/original/%s" % image}
+            item = {'id': rid, 'title': title, 'fav': fav, 'date': date, 'vote': vote,
+                    'image': "https://image.tmdb.org/t/p/original/%s" % image}
             Items.append(item)
 
         return render_template("recommend.html",
@@ -265,9 +303,78 @@ def create_flask_app():
                                PageRange=PageRange,
                                AppVersion=APP_VERSION)
 
+    # 影音搜索页面
+    @app.route('/download', methods=['POST', 'GET'])
+    @login_required
+    def download():
+        DownloadCount = 0
+        Client, Torrents = Downloader().get_qbittorrent_torrents()
+        DispTorrents = []
+        for torrent in Torrents:
+            if Client == DownloaderType.QB:
+                if torrent.get('state') not in ['downloading', 'forcedDL', 'pausedDL', 'stalledDL']:
+                    continue
+                name = torrent.get('name')
+                if torrent.get('state') in ['pausedDL']:
+                    state = "Stoped"
+                    speed = "已暂停"
+                else:
+                    state = "Downloading"
+                    dlspeed = str_filesize(torrent.get('dlspeed'))
+                    eta = str_timelong(torrent.get('eta'))
+                    upspeed = str_filesize(torrent.get('upspeed'))
+                    speed = "%s%sB/s %s%sB/s %s" % (chr(8595), dlspeed, chr(8593), upspeed, eta)
+                # 进度
+                progress = round(torrent.get('progress') * 100, 1)
+                # 主键
+                key = torrent.get('hash')
+            else:
+                if torrent.status not in ['downloading', 'download_pending', 'stopped']:
+                    continue
+                name = torrent.name
+                if torrent.status in ['stopped']:
+                    state = "Stoped"
+                    speed = "已暂停"
+                else:
+                    state = "Downloading"
+                    dlspeed = str_filesize(torrent.rateDownload)
+                    upspeed = str_filesize(torrent.rateUpload)
+                    speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
+                # 进度
+                progress = round(torrent.progress, 1)
+                # 主键
+                key = torrent.id
+
+            if not name:
+                continue
+            # 识别
+            media_info = Media().get_media_info(name)
+            if not media_info:
+                continue
+            if not media_info.tmdb_info:
+                year = media_info.year
+                if year:
+                    title = "%s (%s)" % (media_info.get_name(), year)
+                else:
+                    title = media_info.get_name()
+                poster_path = BACKDROP_DEFAULT_IMAGE
+            else:
+                title = "%s (%s)" % (media_info.title, media_info.year)
+                poster_path = media_info.poster_path
+
+            torrent_info = {'id': key, 'title': title, 'speed': speed, 'image': poster_path, 'state': state, 'progress': progress}
+            if torrent_info not in DispTorrents:
+                DownloadCount += 1
+                DispTorrents.append(torrent_info)
+
+        return render_template("download.html",
+                               DownloadCount=DownloadCount,
+                               Torrents=DispTorrents,
+                               AppVersion=APP_VERSION)
+
     # 服务页面
     @app.route('/service', methods=['POST', 'GET'])
-    @auth.login_required
+    @login_required
     def service():
         scheduler_cfg_list = []
         if config.get('pt'):
@@ -463,9 +570,12 @@ def create_flask_app():
                     else:
                         mtype = MediaType.MOVIE
                     Downloader().add_pt_torrent(res[0], mtype)
-                    msg_item = {"title": res[1], "vote_average": res[5], "year": res[2], "backdrop_path": res[6],
-                                "type": mtype}
-                    Message().send_download_message(SearchType.WEB, msg_item, "%s%s" % (res[3], res[4]))
+                    msg_item = MetaInfo("%s %s" % (res[1], res[2]))
+                    msg_item.title = res[1]
+                    msg_item.vote_average = res[5]
+                    msg_item.backdrop_path = res[6]
+                    msg_item.type = mtype
+                    Message().send_download_message(SearchType.WEB, msg_item)
                 return {"retcode": 0}
 
             # 添加RSS关键字
@@ -502,6 +612,27 @@ def create_flask_app():
                                 tv_keys.remove(name)
                                 config['pt']['tv_keys'] = tv_keys
                                 save_config(config)
+                return {"retcode": 0}
+
+            # 开始下载
+            if cmd == "pt_start":
+                tid = data.get("id")
+                if id:
+                    Downloader().start_torrent(tid)
+                return {"retcode": 0}
+
+            # 停止下载
+            if cmd == "pt_stop":
+                tid = data.get("id")
+                if id:
+                    Downloader().stop_torrent(tid)
+                return {"retcode": 0}
+
+            # 删除下载
+            if cmd == "pt_remove":
+                tid = data.get("id")
+                if id:
+                    Downloader().remove_torrent(tid)
                 return {"retcode": 0}
 
     # 响应企业微信消息
@@ -566,5 +697,36 @@ def create_flask_app():
                 _thread.start_new_thread(Jackett().search_one_media, (content, SearchType.WX,))
 
             return make_response(reponse_text, 200)
+
+    # Emby消息通知
+    @app.route('/emby', methods=['POST', 'GET'])
+    def emby():
+        if request.method == 'POST':
+            request_json = json.loads(request.form.get('data', {}))
+        else:
+            server_name = request.args.get("server_name")
+            user_name = request.args.get("user_name")
+            device_name = request.args.get("device_name")
+            ip = request.args.get("ip")
+            flag = request.args.get("flag")
+            request_json = {"Event": "user.login",
+                            "User": {"user_name": user_name, "device_name": device_name, "device_ip": ip},
+                            "Server": {"server_name": server_name},
+                            "Status": flag
+                            }
+        # log.debug("输入报文：" + str(request_json))
+        event = Emby.EmbyEvent(request_json)
+        Emby().report_to_discord(event)
+        return 'Success'
+
+    # DDNS消息通知
+    @app.route('/ddns', methods=['POST'])
+    def ddns():
+        request_json = json.loads(request.data, {})
+        log.debug("【DDNS】输入报文：" + str(request_json))
+        text = request_json['text']
+        content = text['content']
+        Message().sendmsg("【DDNS】IP地址变化", content)
+        return '0'
 
     return app

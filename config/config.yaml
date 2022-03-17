@@ -64,7 +64,8 @@ sync:
   # 监控目录，可以监控多个。监控目录有文件变化时会自动进行媒体识别、转移并命名
   # 配置格式1：'源目录|目的目录'，比如：'/mnt/movie1|/mnt/mymovie'，配了目的目录时，会转移到/mnt/mymovie目的目录中，不自动区分电影或电视剧。
   # 配置格式2：'源目录'，比如：'/mnt/movie1'，目的目录不配时会自动识别是电影还是电视剧并转移到media中配置的movie_path、tv_path配置的目录中（开了自动分类的话会在该目录下进行二级目录分类）
-  # 如果无法识别文件媒体信息，则会LINK到目的目录的nastool_failed目录下（COPY模式则不处理）
+  # 如果无法识别文件媒体信息，配置了目的目录的情况下会LINK到目的目录的unknown录下（COPY模式则不处理）
+  # 建议映射上级目录，源目录和目的目录为子目录，如果分开映射则可能发生跨盘的问题
   # 监控功能如果遇到启动报错：inotify instance limit reached，需在宿主机上命令行执行以下命令：
   # echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
   # echo fs.inotify.max_user_instances=524288 | sudo tee -a /etc/sysctl.conf

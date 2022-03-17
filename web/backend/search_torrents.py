@@ -35,10 +35,10 @@ def __get_download_list(media_list):
 
     # 排序函数
     def get_sort_str(x):
-        return "%s%s%s%s" % (str(x['title']).ljust(100, ' '),
-                             str(x['site_name']).ljust(20, ' '),
-                             str(x['res_type']).ljust(20, ' '),
-                             str(x['seeders']).rjust(10, '0'))
+        return "%s%s%s%s" % (str(x.title).ljust(100, ' '),
+                             str(x.site).ljust(20, ' '),
+                             str(x.res_type).ljust(20, ' '),
+                             str(x.seeders).rjust(10, '0'))
 
     # 匹配的资源中排序分组
     media_list = sorted(media_list, key=lambda x: get_sort_str(x), reverse=True)
@@ -48,16 +48,16 @@ def __get_download_list(media_list):
     # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
     for t_item in media_list:
         # 控重的主链是名称、节份、季、集
-        if t_item['type'] == MediaType.TV:
-            media_name = "%s%s%s%s%s%s" % (t_item.get('title'),
-                                           t_item.get('year'),
-                                           t_item.get('site_name'),
-                                           t_item.get('res_type'),
-                                           t_item.get('season'),
-                                           t_item.get('episode'))
+        if t_item.type == MediaType.TV:
+            media_name = "%s%s%s%s%s%s" % (t_item.title,
+                                           t_item.year,
+                                           t_item.site,
+                                           t_item.res_type,
+                                           t_item.get_season_string(),
+                                           t_item.get_episode_string())
         else:
             media_name = "%s%s%s%s" % (
-                t_item.get('title'), t_item.get('year'), t_item.get('site_name'), t_item.get('res_type'))
+                t_item.title, t_item.year, t_item.site, t_item.res_type)
         if media_name not in can_download_list:
             can_download_list.append(media_name)
             can_download_list_item.append(t_item)

@@ -84,17 +84,19 @@ class Transmission:
         # 处理所有任务
         torrents = self.get_transmission_torrents()
         for torrent in torrents:
-            log.debug("【TR】" + torrent.get('name') + "：" + torrent.get('status'))
+            log.debug("【TR】" + torrent.name + "：" + torrent.status)
             # 3.0版本以下的Transmission没有labels
             handlered_flag = False
-            labels = torrent.get('labels')
-            if not isinstance(labels, list):
-                log.warn("【TR】当前transmission版本可能过低，请安装3.0以上版本！")
+            try:
+                labels = torrent.labels
+            except Exception as e:
+                log.warn("【TR】当前transmission版本可能过低，请安装3.0以上版本！错误：%s" % str(e))
+                labels = []
             if labels and "已整理" in labels:
                 handlered_flag = True
-            if (torrent.get('status') == "seeding" or torrent.get('status') == "seed_pending") and not handlered_flag:
+            if (torrent.status == "seeding" or torrent.status == "seed_pending") and not handlered_flag:
                 # 查找根目录
-                true_path = os.path.join(torrent.get('download_dir'), torrent.get('name'))
+                true_path = os.path.join(torrent.download_dir, torrent.name)
                 if not true_path:
                     continue
                 if self.__tv_save_containerpath:
@@ -103,9 +105,9 @@ class Transmission:
                     true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
                 ret = self.filetransfer.transfer_media(in_from=DownloaderType.TR, in_path=true_path)
                 if ret:
-                    self.set_tr_torrent_status(torrent.get('id'))
+                    self.set_tr_torrent_status(torrent.id)
                 else:
-                    log.error("【TR】%s 转移失败：" % torrent.get('name'))
+                    log.error("【TR】%s 转移失败：" % torrent.name)
 
     def add_transmission_torrent(self, turl, mtype):
         if mtype == MediaType.TV:
@@ -117,3 +119,19 @@ class Transmission:
         if not self.trc:
             return False
         return self.trc.remove_torrent(delete_data=delete_file, ids=ids)
+
+    # 下载控制：开始
+    def start_torrent(self, tid):
+        if not self.trc:
+            return False
+        return self.trc.start_torrent(ids=tid)
+
+    # 下载控制：停止
+    def stop_torrent(self, tid):
+        if not self.trc:
+            return False
+        return self.trc.stop_torrent(ids=tid)
+
+    # 下载控制：删除
+    def remove_torrent(self, tid):
+        return self.delete_transmission_torrents(True, tid)

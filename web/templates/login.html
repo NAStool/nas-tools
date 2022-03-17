@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta content="white" name="apple-mobile-web-app-status-bar-style" />
+    <title>登录 - NASTool</title>
+    <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="../static/img/logo.png">
+    <link rel="icon" href="apple-touch-icon.png">
+    <!-- CSS files -->
+    <link href="../static/css/tabler.min.css" rel="stylesheet"/>
+  </head>
+  <body  class=" border-top-wide border-primary d-flex flex-column">
+    <div class="page page-center">
+      <div class="container-tight py-4">
+        <div class="text-center mb-4">
+          <a href="/" class="navbar-brand navbar-brand-autodark"><img src="../static/img/logo.svg" height="36" alt=""></a>
+        </div>
+        <form class="card card-md" action="/" method="post" autocomplete="off">
+          <div class="card-body">
+            <h2 class="card-title text-center mb-4"><strong>登录</strong></h2>
+            <div class="mb-3">
+              <label class="form-label">用户名</label>
+              <input type="text" name="username" class="form-control {% if err_msg %}is-invalid{% endif %}" placeholder="admin" value="admin">
+            </div>
+            <div class="mb-2">
+              <label class="form-label">密码</label>
+              <input type="password" class="form-control {% if err_msg %}is-invalid{% endif %}" name="password" placeholder="password" autocomplete="off">
+            </div>
+            <div class="form-footer">
+              <button type="submit" class="btn btn-primary w-100">登录</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- Libs JS -->
+    <!-- Tabler Core -->
+    <script src="../static/js/tabler.min.js"></script>
+    <script src="../static/js/demo.min.js"></script>
+  </body>
+</html>

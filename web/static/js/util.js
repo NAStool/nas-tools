@@ -128,63 +128,25 @@ function save_tv_rss_keys(id){
 
 }
 
-//绑定事件
-$(document).ready(function(){
-	//服务模态框事件
-    $("#service_start_btn").click(function(){
-        $('#service-modal').modal('hide');
-        run_scheduler($("#service_start_id").val());
+// 下载控制
+function start_pt_download(id){
+    var cmd = "pt_start";
+    var param = {"id": id};
+    ajax_post(cmd, param, function(ret){
+      setTimeout(window.location.reload(), 2000)
     });
-
-    // 下载模态框事件
-    $("#download_start_btn").click(function(){
-        $('#download-modal').modal('hide');
-        download_link($("#download_start_id").val());
+}
+function stop_pt_download(id){
+    var cmd = "pt_stop";
+    var param = {"id": id};
+    ajax_post(cmd, param, function(ret){
+      setTimeout(window.location.reload(), 2000)
     });
-
-    // 加入RSS订阅模枋框事件
-    $("#recommend_start_btn").click(function(){
-        $('#recommend-modal').modal('hide');
-        dotype = $("#recommend_do_type").val()
-        if(dotype == "ADD"){
-            add_rss_key($("#recommend_start_type").val(), $("#recommend_start_name").val());
-        }else{
-            remove_rss_key($("#recommend_start_type").val(), $("#recommend_start_name").val());
-        }
+}
+function remove_pt_download(id){
+    var cmd = "pt_remove";
+    var param = {"id": id};
+    ajax_post(cmd, param, function(ret){
+      setTimeout(window.location.reload(), 2000)
     });
-});
-
-// 显示服务提示框
-function show_service_modal(id, name) {
-     $("#service_start_id").val(id);
-     $("#service_start_name").val(name);
-     $("#service_start_message").text("是否立即运行服务：" + name + "？");
-     $('#service-modal').modal('show');
-}
-
-// 显示下载提示框
-function show_download_modal(id, name){
-    $("#download_start_id").val(id);
-    $("#download_start_name").val(name);
-    $("#download_start_message").text("是否立即下载该资源：" + name + "？");
-    $('#download-modal').modal('show');
-}
-
-// 显示添加订阅
-function show_recommend_add_modal(id, type, name){
-    $("#recommend_start_id").val(id);
-    $("#recommend_start_type").val(type);
-    $("#recommend_start_name").val(name);
-    $("#recommend_do_type").val("ADD")
-    $("#recommend_start_message").text("是否确定将 " + name + " 加入RSS订阅？");
-    $('#recommend-modal').modal('show');
-}
-// 显示删除订阅
-function show_recommend_del_modal(id, type, name){
-    $("#recommend_start_id").val(id);
-    $("#recommend_start_type").val(type);
-    $("#recommend_start_name").val(name);
-    $("#recommend_do_type").val("DEL")
-    $("#recommend_start_message").text("是否确定将 " + name + " 从RSS订阅中移除？");
-    $('#recommend-modal').modal('show');
 }

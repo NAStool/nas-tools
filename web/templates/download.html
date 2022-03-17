@@ -1,12 +1,4 @@
 <!doctype html>
-<!--
-* Tabler - Premium and Open Source dashboard template with responsive and high quality UI.
-* @version 1.0.0-beta9
-* @link https://tabler.io
-* Copyright 2018-2022 The Tabler Authors
-* Copyright 2018-2022 codecalm.net Paweł Kuna
-* Licensed under MIT (https://github.com/tabler/tabler/blob/master/LICENSE)
--->
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
@@ -14,14 +6,14 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta content="white" name="apple-mobile-web-app-status-bar-style" />
-    <title>站点订阅 - NASTool</title>
+    <title>下载 - NASTool</title>
     <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon" />
     <link rel="apple-touch-icon" href="../static/img/logo.png">
+    <link rel="icon" href="apple-touch-icon.png">
     <!-- CSS files -->
     <link href="../static/css/tabler.min.css" rel="stylesheet"/>
-    <link href="../static/css/tagsinput.css" rel="stylesheet"/>
   </head>
-  <body  class=" layout-boxed">
+  <body  class="layout-boxed">
     <div class="page">
       <header class="navbar navbar-expand-md navbar-light d-print-none">
         <div class="container-xl">
@@ -81,7 +73,7 @@
                     </span>
                   </a>
                 </li>
-                <li class="nav-item active">
+                <li class="nav-item">
                   <a class="nav-link" href="/sites" >
                     <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/checkbox -->
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 11 12 14 20 6" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>
@@ -115,7 +107,7 @@
                     </a>
                   </div>
                 </li>
-                <li class="nav-item">
+                <li class="nav-item active">
                   <a class="nav-link" href="/download" >
                     <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/layout-2 -->
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -152,87 +144,87 @@
             <div class="row align-items-center">
               <div class="col">
                 <h2 class="page-title">
-                  站点订阅
+                  下载
                 </h2>
               </div>
             </div>
           </div>
-        </div>        
-		<!-- 业务页面代码 -->
-		<div class="page-body">
+        </div>
+        {% if DownloadCount > 0 %}
+        <div class="page-body">
           <div class="container-xl">
             <div class="row row-cards">
-				<div class="col-md-6">
-				  <div class="card">
-					<div class="card-body">
-					  <h3 class="card-title">电影</h3>
-					  <p class="card-subtitle">订阅关键字</p>
-					  <div class="input-icon">
-						<input id="movie_keys" type="text" data-role="tagsinput" value="{{ MovieKeys }}" class="form-control" placeholder="" style="display:none">
-						<span class="input-icon-addon">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-keyboard" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                               <rect x="2" y="6" width="20" height="12" rx="2"></rect>
-                               <line x1="6" y1="10" x2="6" y2="10"></line>
-                               <line x1="10" y1="10" x2="10" y2="10"></line>
-                               <line x1="14" y1="10" x2="14" y2="10"></line>
-                               <line x1="18" y1="10" x2="18" y2="10"></line>
-                               <line x1="6" y1="14" x2="6" y2="14.01"></line>
-                               <line x1="18" y1="14" x2="18" y2="14.01"></line>
-                               <line x1="10" y1="14" x2="14" y2="14"></line>
-                            </svg>
-                        </span>
-					  </div>
-					</div>
-					<div class="card-footer">
-					  <div class="row align-items-center">
-						<div class="col"></div>
-						<div class="col-auto">
-						  <a id="movie_keys_btn" href="javascript:save_movie_rss_keys('movie_keys')" class="btn btn-primary">
-							保存
-						  </a>
-						</div>
-					  </div>
-					</div>
-				  </div>
-				</div>
-				<div class="col-md-6">
-				  <div class="card">
-					<div class="card-body">
-					  <h3 class="card-title">电视剧</h3>
-					  <p class="card-subtitle">订阅关键字</p>
-					  <div class="input-icon">
-						<input id="tv_keys" type="text" data-role="tagsinput" value="{{ TvKeys }}" class="form-control" placeholder="" style="display:none">
-						<span class="input-icon-addon">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-keyboard" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                               <rect x="2" y="6" width="20" height="12" rx="2"></rect>
-                               <line x1="6" y1="10" x2="6" y2="10"></line>
-                               <line x1="10" y1="10" x2="10" y2="10"></line>
-                               <line x1="14" y1="10" x2="14" y2="10"></line>
-                               <line x1="18" y1="10" x2="18" y2="10"></line>
-                               <line x1="6" y1="14" x2="6" y2="14.01"></line>
-                               <line x1="18" y1="14" x2="18" y2="14.01"></line>
-                               <line x1="10" y1="14" x2="14" y2="14"></line>
-                            </svg>
-                        </span>
-					  </div>
-					</div>
-					<div class="card-footer">
-					  <div class="row align-items-center">
-						<div class="col"></div>
-						<div class="col-auto">
-						  <a id="tv_keys_btn" href="javascript:save_tv_rss_keys('tv_keys')" class="btn btn-primary">
-							保存
-						  </a>
-						</div>
-					  </div>
-					</div>
-				  </div>
-				</div>
-			</div>
-		  </div>
-		</div>
+              {% for Torrent in Torrents %}
+              <div class="col-lg-4">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row align-items-center">
+                      <div class="col-3">
+                        <img src="{{ Torrent.image }}" class="rounded">
+                      </div>
+                      <div class="col">
+                        <h3 class="card-title mb-1">
+                          <a class="text-reset">{{ Torrent.title }}</a>
+                        </h3>
+                        <div class="text-muted">
+                          {{ Torrent.speed }}
+                        </div>
+                        <div class="mt-3">
+                          <div class="row g-2 align-items-center">
+                            <div class="col-auto">
+                              {{ Torrent.progress }}%
+                            </div>
+                            <div class="col">
+                              <div class="progress progress-sm">
+                                <div class="progress-bar" style="width: {{ Torrent.progress }}%" role="progressbar" aria-valuenow="{{ Torrent.progress }}" aria-valuemin="0" aria-valuemax="100">
+                                  <span class="visually-hidden">{{ Torrent.progress }}% 已完成</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-auto">
+                        <div class="dropdown">
+                          <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                            <!-- Download SVG icon from http://tabler-icons.io/i/dots-vertical -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" /><circle cx="12" cy="5" r="1" /></svg>
+                          </a>
+                          <div class="dropdown-menu dropdown-menu-end">
+                            {% if Torrent.state == 'Stoped' %}
+                            <a href="javascript:start_pt_download('{{ Torrent.id }}')" class="dropdown-item">开始</a>
+                            {% else %}
+                            <a href="javascript:stop_pt_download('{{ Torrent.id }}')" class="dropdown-item">暂停</a>
+                            {% endif %}
+                            <a href="javascript:remove_pt_download('{{ Torrent.id }}')" class="dropdown-item text-danger">删除</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <div class="page-wrapper">
+        <div class="container-xl">
+        </div>
+        <div class="page-body">
+          <div class="container-xl d-flex flex-column justify-content-center">
+            <div class="empty">
+              <div class="empty-img"><img src="./static/img/quitting_time.svg" height="128"  alt="">
+              </div>
+              <p class="empty-title">没有记录</p>
+              <p class="empty-subtitle text-muted">
+                当前没有正在下载的项目...
+              </p>
+            </div>
+          </div>
+        </div>
+        {% endif %}
         <footer class="footer footer-transparent d-print-none">
           <div class="container-xl">
             <div class="row text-center align-items-center flex-row-reverse">
@@ -244,7 +236,7 @@
                     All rights reserved.
                   </li>
                   <li class="list-inline-item">
-                      {{ AppVersion }}
+                    {{ AppVersion }}
                   </li>
                 </ul>
               </div>
@@ -253,12 +245,12 @@
         </footer>
       </div>
     </div>
+    </div>
     <!-- Libs JS -->
     <!-- Tabler Core -->
     <script src="../static/js/tabler.min.js"></script>
     <script src="../static/js/jquery-3.3.1.min.js"></script>
-    <script src="../static/js/tagsinput.js"></script>
-    <script src="../static/js/util.js"></script>
     <script src="../static/js/demo.min.js"></script>
+    <script src="../static/js/util.js"></script>
   </body>
 </html>

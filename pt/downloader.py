@@ -1,11 +1,11 @@
 import log
 from config import get_config
 from message.send import Message
-from pt.qbittorrent import Qbittorrent
-from pt.transmission import Transmission
+from pt.client.qbittorrent import Qbittorrent
+from pt.client.transmission import Transmission
 from datetime import datetime
 
-from utils.types import MediaType
+from utils.types import MediaType, DownloaderType
 
 
 class Downloader:
@@ -97,3 +97,48 @@ class Downloader:
                         # 同步删除文件
                         self.transmission.delete_transmission_torrents(delete_file=True, ids=torrent.id)
             log.info("【PT】transmission做种清理完成！")
+
+    # 获取种子列表信息
+    def get_qbittorrent_torrents(self):
+        if not self.__pt_client:
+            return None, []
+        if self.__pt_client == "qbittorrent":
+            if self.qbittorrent:
+                return DownloaderType.QB, self.qbittorrent.get_qbittorrent_torrents()
+        elif self.__pt_client == "transmission":
+            if self.transmission:
+                return DownloaderType.TR, self.transmission.get_transmission_torrents()
+        return None, []
+
+    # 下载控制：开始
+    def start_torrent(self, tid):
+        if not self.__pt_client:
+            return
+        if self.__pt_client == "qbittorrent":
+            if self.qbittorrent:
+                return self.qbittorrent.start_torrent(tid)
+        elif self.__pt_client == "transmission":
+            if self.transmission:
+                return self.transmission.start_torrent(int(tid))
+
+    # 下载控制：停止
+    def stop_torrent(self, tid):
+        if not self.__pt_client:
+            return
+        if self.__pt_client == "qbittorrent":
+            if self.qbittorrent:
+                return self.qbittorrent.stop_torrent(tid)
+        elif self.__pt_client == "transmission":
+            if self.transmission:
+                return self.transmission.stop_torrent(int(tid))
+
+    # 下载控制：删除
+    def remove_torrent(self, tid):
+        if not self.__pt_client:
+            return
+        if self.__pt_client == "qbittorrent":
+            if self.qbittorrent:
+                return self.qbittorrent.remove_torrent(tid)
+        elif self.__pt_client == "transmission":
+            if self.transmission:
+                return self.transmission.remove_torrent(int(tid))

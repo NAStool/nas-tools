@@ -35,12 +35,13 @@ class Message:
             return None
 
     # 发送下载的消息
-    def send_download_message(self, in_from, can_item, se_str):
-        tt = can_item.get('title')
-        va = can_item.get('vote_average')
-        yr = can_item.get('year')
-        bp = can_item.get('backdrop_path')
-        tp = can_item.get('type')
+    def send_download_message(self, in_from, can_item):
+        tt = can_item.title
+        va = can_item.vote_average
+        yr = can_item.year
+        bp = can_item.backdrop_path if can_item.backdrop_path else can_item.poster_path
+        tp = can_item.type
+        se_str = can_item.get_season_episode_string()
         if isinstance(in_from, Enum):
             in_from = in_from.value
         if isinstance(tp, Enum):
@@ -61,7 +62,7 @@ class Message:
         title_str = media_info.get_title_string()
         vote_average = media_info.vote_average
         media_pix = media_info.resource_pix
-        backdrop_path = media_info.backdrop_path
+        backdrop_path = media_info.backdrop_path if media_info.backdrop_path else media_info.poster_path
         msg_title = title_str
         if vote_average:
             msg_title = title_str + " 评分：%s" % str(vote_average)
@@ -103,4 +104,5 @@ class Message:
         msg_title = title_str
         if item_info.get('Vote_Average'):
             msg_title = title_str + " 评分：%s" % str(item_info.get('Vote_Average'))
-        self.sendmsg(msg_title, msg_str, item_info.get('Backdrop_Path'))
+        msg_image = item_info.get('Backdrop_Path') if item_info.get('Backdrop_Path') else item_info.get('Poster_Path')
+        self.sendmsg(msg_title, msg_str, msg_image)

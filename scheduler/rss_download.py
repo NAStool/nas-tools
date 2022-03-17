@@ -109,46 +109,40 @@ class RSSDownloader:
             res_num = 0
             for res in rss_result:
                 try:
-                    title = res['title']
+                    torrent_name = res['title']
                     # 去掉第1个以[]开关的种子名称，有些站会把类型加到种子名称上，会误导识别
                     # 非贪婪只匹配一个
-                    title = re.sub(r'^\[.+?]', "", title, count=1)
+                    torrent_name = re.sub(r'^\[.+?]', "", torrent_name, count=1)
                     enclosure = res['enclosure']
                     # 判断是否处理过
                     if enclosure in RSS_CACHED_TORRENTS:
-                        log.info("【RSS】%s 已处理过，跳过..." % title)
+                        log.info("【RSS】%s 已处理过，跳过..." % torrent_name)
                         continue
                     else:
                         RSS_CACHED_TORRENTS.append(enclosure)
 
-                    log.info("【RSS】开始检索媒体信息:" + title)
+                    log.info("【RSS】开始检索媒体信息:" + torrent_name)
 
                     # 识别种子名称，开始检索TMDB
-                    media_info = self.media.get_media_info(title)
+                    media_info = self.media.get_media_info(torrent_name)
                     if not media_info or not media_info.tmdb_info:
                         continue
-                    search_type = media_info.type
-                    media_year = media_info.year
-                    media_title = media_info.title
-                    media_catagory = media_info.category
-                    vote_average = media_info.vote_average
-                    backdrop_path = media_info.backdrop_path
-                    media_seaion = media_info.get_season_string()
-                    media_episode = media_info.get_episode_string()
-                    es_string = media_info.get_season_episode_string()
-                    if self.__rss_chinese and not is_chinese(media_title):
-                        log.info("【RSS】该媒体在TMDB中没有中文描述，跳过：%s" % media_title)
+                    if self.__rss_chinese and not is_chinese(media_info.title):
+                        log.info("【RSS】该媒体在TMDB中没有中文描述，跳过：%s" % media_info.title)
                         continue
                     # 检查这个名字是不是下过了
-                    if is_torrent_rssd_by_name(media_title, media_year, media_seaion, media_episode):
-                        log.info("【RSS】%s %s 已处理过，跳过..." % (media_title, media_year))
+                    if is_torrent_rssd_by_name(media_info.title,
+                                               media_info.year,
+                                               media_info.get_season_string(),
+                                               media_info.get_season_episode_string()):
+                        log.info("【RSS】%s %s 已处理过，跳过..." % (media_info.title, media_info.year))
                         continue
                     # 检查种子名称或者标题是否匹配
-                    match_flag = self.__is_torrent_match(media_info, search_type, movie_keys, tv_keys)
+                    match_flag = self.__is_torrent_match(media_info, movie_keys, tv_keys)
                     if match_flag:
-                        log.info("【RSS】%s 匹配成功！" % title)
+                        log.info("【RSS】%s 匹配成功！" % torrent_name)
                     else:
-                        log.info("【RSS】%s 不匹配关键字！" % title)
+                        log.info("【RSS】%s 不匹配关键字！" % torrent_name)
                         continue
                     # 匹配后，看资源类型是否满足
                     # 代表资源类型在配置中的优先级顺序
@@ -156,31 +150,20 @@ class RSSDownloader:
                     res_typestr = ""
                     if match_flag and res_type:
                         # 确定标题中是否有资源类型关键字，并返回关键字的顺序号
-                        match_flag, res_order, res_typestr = self.media.check_resouce_types(title, res_type)
+                        match_flag, res_order, res_typestr = self.media.check_resouce_types(torrent_name, res_type)
                         if not match_flag:
-                            log.info("【RSS】%s 资源类型不匹配！" % title)
+                            log.info("【RSS】%s 资源类型不匹配！" % torrent_name)
                             continue
                     # 插入数据库
-                    insert_rss_torrents(title, enclosure, search_type.value, media_title, media_year, media_seaion,
-                                        media_episode)
+                    insert_rss_torrents(media_info)
                     # 返回对象
-                    res_info = {"site_order": order_seq,
-                                "site": rss_job,
-                                "type": search_type,
-                                "title": media_title,
-                                "year": media_year,
-                                "enclosure": enclosure,
-                                "torrent_name": title,
-                                "vote_average": vote_average,
-                                "res_order": res_order,
-                                "res_type": res_typestr,
-                                "category": media_catagory,
-                                "backdrop_path": backdrop_path,
-                                "season": media_seaion,
-                                "episode": media_episode,
-                                "es_string": es_string}
-                    if res_info not in rss_download_torrents:
-                        rss_download_torrents.append(res_info)
+                    media_info.set_torrent_info(site_order=order_seq,
+                                                site=rss_job,
+                                                enclosure=enclosure,
+                                                res_type=res_typestr,
+                                                res_order=res_order)
+                    if media_info not in rss_download_torrents:
+                        rss_download_torrents.append(media_info)
                         res_num = res_num + 1
                 except Exception as e:
                     log.error("【RSS】错误：%s" % str(e))
@@ -193,28 +176,28 @@ class RSSDownloader:
         for can_item in can_download_list:
             # 是否在Emby媒体库中存在
             if self.emby.check_emby_exists(can_item):
-                log.info("【JACKETT】%s %s %s %s 在Emby媒体库中已存在，本次下载取消！" % (
-                    can_item.get('title'), can_item.get('year'), can_item.get('season'), can_item.get('episode')))
+                log.info("【RSS】%s %s %s %s 在Emby媒体库中已存在，本次下载取消！" % (
+                    can_item.title, can_item.year, can_item.get_season_string(), can_item.get_episode_string()))
                 continue
             elif self.filetransfer.is_media_file_exists(can_item):
-                log.info("【JACKETT】%s %s %s %s 在媒体库目录中已存在，本次下载取消！" % (
-                    can_item.get('title'), can_item.get('year'), can_item.get('season'), can_item.get('episode')))
+                log.info("【RSS】%s %s %s %s 在媒体库目录中已存在，本次下载取消！" % (
+                    can_item.title, can_item.year, can_item.get_season_string(), can_item.get_episode_string()))
                 continue
             # 添加PT任务
-            log.info("【RSS】添加PT任务：%s，url= %s" % (can_item.get('title'), can_item.get('enclosure')))
-            ret = self.downloader.add_pt_torrent(can_item.get('enclosure'), can_item.get('type'))
+            log.info("【RSS】添加PT任务：%s，url= %s" % (can_item.title, can_item.enclosure))
+            ret = self.downloader.add_pt_torrent(can_item.enclosure, can_item.type)
             if ret:
-                self.message.send_download_message(SearchType.RSS, can_item, can_item.get('es_string'))
+                self.message.send_download_message(SearchType.RSS, can_item)
             else:
-                log.error("【RSS】添加PT任务出错：%s" % can_item.get('title'))
+                log.error("【RSS】添加PT任务出错：%s" % can_item.title)
 
         self.__running_flag = False
 
     @staticmethod
-    def __is_torrent_match(media_info, search_type, movie_keys, tv_keys):
+    def __is_torrent_match(media_info, movie_keys, tv_keys):
         # 按种子标题匹配
         check_title = "%s %s %s" % (media_info.cn_name, media_info.en_name, media_info.year)
-        if search_type == MediaType.MOVIE:
+        if media_info.type == MediaType.MOVIE:
             # 按电影匹配
             for key in movie_keys:
                 # 中英文名跟年份都纳入匹配
@@ -227,7 +210,7 @@ class RSSDownloader:
                 if re.search(r"%s" % key, check_title, re.IGNORECASE):
                     return True
         # 按媒体信息匹配
-        if search_type == MediaType.MOVIE:
+        if media_info.type == MediaType.MOVIE:
             # 按电影匹配
             for key in movie_keys:
                 if str(key) == media_info.title:
@@ -248,7 +231,7 @@ class RSSDownloader:
         # 排序函数
         def get_sort_str(x):
             return "%s%s%s" % (
-                str(x['title']).ljust(100, ' '), str(x['site_order']).rjust(3, '0'), str(x['res_order']).rjust(3, '0'))
+                str(x.title).ljust(100, ' '), str(x.site_order).rjust(3, '0'), str(x.res_order).rjust(3, '0'))
 
         # 所有site都检索完成，开始选种下载
         # 用来控重
@@ -259,7 +242,7 @@ class RSSDownloader:
         media_list = sorted(media_list, key=lambda x: get_sort_str(x), reverse=True)
         # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
         for t_item in media_list:
-            media_name = "%s (%s)" % (t_item.get('title'), t_item.get('year'))
+            media_name = "%s (%s)" % (t_item.title, t_item.year)
             if media_name not in can_download_list:
                 can_download_list.append(media_name)
                 can_download_list_item.append(t_item)

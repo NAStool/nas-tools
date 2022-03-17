@@ -61,6 +61,8 @@ class DoubanSync:
 
     def __search_douban_media(self):
         search_list = get_douban_search_medias()
+        if len(search_list) == 0:
+            log.info("【PT】没有新记录需要检索！")
         for item in search_list:
             if not self.jackett.search_one_media("%s %s" % (item[0], item[1]), SearchType.DB):
                 if self.__auto_rss:

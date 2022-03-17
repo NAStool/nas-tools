@@ -44,6 +44,18 @@ def str_filesize(size):
     return str(round(size / (b + 1), 2)) + u
 
 
+# 计算时间
+def str_timelong(time_sec):
+    d = [(0, '秒'), (60 - 1, '分'), (3600 - 1, '小时'), (86400 - 1, '天')]
+    s = [x[0] for x in d]
+    index = bisect.bisect_left(s, time_sec) - 1
+    if index == -1:
+        return str(time_sec)
+    else:
+        b, u = d[index]
+    return str(round(time_sec / (b + 1))) + u
+
+
 # 判断是否为中文
 def is_chinese(word):
     for ch in word:

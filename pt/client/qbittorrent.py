@@ -79,7 +79,7 @@ class Qbittorrent:
         if not self.qbc:
             return False
         self.qbc.auth_log_in()
-        ret = self.qbc.torrents_delete(delete_file=delete_file, torrent_hashes=thash)
+        ret = self.qbc.torrents_delete(delete_files=delete_file, torrent_hashes=thash)
         self.qbc.auth_log_out()
         return ret
 
@@ -126,3 +126,21 @@ class Qbittorrent:
             qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__movie_save_path)
         self.qbc.auth_log_out()
         return qbc_ret
+
+    # 下载控制：开始
+    def start_torrent(self, tid):
+        if not self.qbc:
+            return False
+        return self.qbc.torrents_resume(torrent_hashes=tid)
+
+    # 下载控制：停止
+    def stop_torrent(self, tid):
+        if not self.qbc:
+            return False
+        return self.qbc.torrents_pause(torrent_hashes=tid)
+
+    # 下载控制：删除
+    def remove_torrent(self, tid):
+        if not self.qbc:
+            return False
+        return self.qbc.torrents_delete(torrent_hashes=tid, delete_files=True)
