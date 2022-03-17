@@ -79,10 +79,8 @@ TG交流：https://t.me/nastool_chat
 
 ## 安装
 ### 1、Docker
-[jxxghp/nas-tools:latest](https://hub.docker.com/repository/docker/jxxghp/nas-tools)
-```
-docker pull jxxghp/nas-tools:latest
-```
+
+教程见 [这里](docker/readme.md) 。
 
 ### 2、本地运行
 python3.8版本
