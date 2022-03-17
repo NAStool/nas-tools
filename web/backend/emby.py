@@ -124,13 +124,13 @@ class Emby:
                 for item in items:
                     if item.get("Type") == "AuthenticationSucceeded":
                         event_type = "LG"
-                        event_date = get_local_time(item.get("Date").replace('0000', ''))
+                        event_date = get_local_time(item.get("Date"))
                         event_str = "%s, %s" % (item.get("Name"), item.get("ShortOverview"))
                         activity = {"type": event_type, "event": event_str, "date": event_date}
                         ret_array.append(activity)
                     if item.get("Type") == "VideoPlayback":
                         event_type = "PL"
-                        event_date = get_local_time(item.get("Date").replace('0000', ''))
+                        event_date = get_local_time(item.get("Date"))
                         event_str = item.get("Name")
                         activity = {"type": event_type, "event": event_str, "date": event_date}
                         ret_array.append(activity)
