@@ -121,8 +121,8 @@ class Qbittorrent:
             return False
         self.qbc.auth_log_in()
         if mtype == MediaType.TV:
-            qbc_ret = self.qbc.torrents_add(turl, None, self.__tv_save_path)
+            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__tv_save_path)
         else:
-            qbc_ret = self.qbc.torrents_add(turl, None, self.__movie_save_path)
+            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__movie_save_path)
         self.qbc.auth_log_out()
         return qbc_ret

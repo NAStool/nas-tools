@@ -9,7 +9,7 @@ import log
 from config import get_config, RMT_FAVTYPE
 from message.send import Message
 from rmt.metainfo import MetaInfo
-from utils.functions import get_location
+from utils.functions import get_location, get_local_time
 from utils.types import MediaCatagory, MediaType
 
 PLAY_LIST = []
@@ -124,13 +124,13 @@ class Emby:
                 for item in items:
                     if item.get("Type") == "AuthenticationSucceeded":
                         event_type = "LG"
-                        event_date = item.get("Date")[0:19].replace("T", " ")
+                        event_date = get_local_time(item.get("Date"))
                         event_str = "%s, %s" % (item.get("Name"), item.get("ShortOverview"))
                         activity = {"type": event_type, "event": event_str, "date": event_date}
                         ret_array.append(activity)
                     if item.get("Type") == "VideoPlayback":
                         event_type = "PL"
-                        event_date = item.get("Date")[0:19].replace("T", " ")
+                        event_date = get_local_time(item.get("Date"))
                         event_str = item.get("Name")
                         activity = {"type": event_type, "event": event_str, "date": event_date}
                         ret_array.append(activity)

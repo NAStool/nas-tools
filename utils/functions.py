@@ -7,6 +7,7 @@ import time
 import platform
 import requests
 import bisect
+import datetime
 from xml.dom.minidom import parse
 import xml.dom.minidom
 
@@ -318,3 +319,18 @@ def get_used_of_partition(path):
     except Exception as e:
         print(str(e))
         return 0, 0
+
+
+def get_local_time(utc_time_str):
+    """
+    通过UTC的时间字符串获取东八区的时间
+    """
+    try:
+        utc_date = datetime.datetime.strptime(utc_time_str.replace('0000', ''), '%Y-%m-%dT%H:%M:%S.%fZ')
+        local_date = utc_date + datetime.timedelta(hours=8)
+        local_date_str = datetime.datetime.strftime(local_date, '%Y-%m-%d %H:%M:%S')
+    except Exception as e:
+        print(f'Could not get local date:{e}')
+        return utc_time_str
+    return local_date_str
+
