@@ -4,6 +4,7 @@ ENV LANG="C.UTF-8" \
     NASTOOL_CONFIG="/config/config.yaml" \
     NASTOOL_AUTO_UPDATE=1 \
     PS1="\u@\h:\w \$ " \
+    REPO_URL="https://github.com/jxxghp/nas-tools.git" \
     PUID=0 \
     PGID=0 \
     UMASK=000
@@ -31,7 +32,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     && echo 'fs.inotify.max_user_watches=524288' >> /etc/sysctl.conf \
     && echo 'fs.inotify.max_user_instances=524288' >> /etc/sysctl.conf \
     && git config --global pull.ff only \
-    && git clone -b master https://github.com/jxxghp/nas-tools . \
+    && git clone -b master ${REPO_URL} . \
     && pip config set global.index-url https://mirrors.bfsu.edu.cn/pypi/web/simple \
     && pip install pip -U \
     && pip install -r requirements.txt \
