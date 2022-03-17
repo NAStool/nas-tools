@@ -77,3 +77,8 @@ services:
 
 - `PUID=0` `PGID=0`指root用户，它拥有最高权限，若你的媒体文件的所有者不是root，不建议设置为`PUID=0` `PGID=0`。
 
+## 如果要硬连接如何映射
+
+参考下图，由imogel@telegram制作。
+
+![如何映射](volume.png)
