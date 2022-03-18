@@ -1,6 +1,8 @@
 import _thread
+import logging
+
 from flask import Flask, request, json, render_template, make_response, redirect, url_for
-from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
+from flask_login import LoginManager, UserMixin, login_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import log
@@ -51,6 +53,10 @@ def create_flask_app():
     app = Flask(__name__)
     app.config['JSON_AS_ASCII'] = False
     app.secret_key = 'jxxghp'
+    applog = logging.getLogger('werkzeug')
+    applog.setLevel(logging.ERROR)
+    app.logger.disabled = True
+    applog.disabled = True
     login_manager.init_app(app)
 
     EmbyClient = Emby()
@@ -308,7 +314,7 @@ def create_flask_app():
     @login_required
     def download():
         DownloadCount = 0
-        Client, Torrents = Downloader().get_qbittorrent_torrents()
+        Client, Torrents = Downloader().get_pt_torrents()
         DispTorrents = []
         for torrent in Torrents:
             if Client == DownloaderType.QB:
@@ -618,22 +624,62 @@ def create_flask_app():
             if cmd == "pt_start":
                 tid = data.get("id")
                 if id:
-                    Downloader().start_torrent(tid)
-                return {"retcode": 0}
+                    Downloader().start_torrents(tid)
+                return {"retcode": 0, "id": tid}
 
             # 停止下载
             if cmd == "pt_stop":
                 tid = data.get("id")
                 if id:
-                    Downloader().stop_torrent(tid)
-                return {"retcode": 0}
+                    Downloader().stop_torrents(tid)
+                return {"retcode": 0, "id": tid}
 
             # 删除下载
             if cmd == "pt_remove":
                 tid = data.get("id")
                 if id:
-                    Downloader().remove_torrent(tid)
-                return {"retcode": 0}
+                    Downloader().delete_torrents(tid)
+                return {"retcode": 0, "id": tid}
+
+            # 查询具体种子的信息
+            if cmd == "pt_info":
+                ids = data.get("ids")
+                Client, Torrents = Downloader().get_pt_torrents(torrent_ids=ids)
+                DispTorrents = []
+                for torrent in Torrents:
+                    if Client == DownloaderType.QB:
+                        if torrent.get('state') in ['pausedDL']:
+                            state = "Stoped"
+                            speed = "已暂停"
+                        else:
+                            state = "Downloading"
+                            dlspeed = str_filesize(torrent.get('dlspeed'))
+                            eta = str_timelong(torrent.get('eta'))
+                            upspeed = str_filesize(torrent.get('upspeed'))
+                            speed = "%s%sB/s %s%sB/s %s" % (chr(8595), dlspeed, chr(8593), upspeed, eta)
+                        # 进度
+                        progress = round(torrent.get('progress') * 100, 1)
+                        # 主键
+                        key = torrent.get('hash')
+                    else:
+                        if torrent.status in ['stopped']:
+                            state = "Stoped"
+                            speed = "已暂停"
+                        else:
+                            state = "Downloading"
+                            dlspeed = str_filesize(torrent.rateDownload)
+                            upspeed = str_filesize(torrent.rateUpload)
+                            speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
+                        # 进度
+                        progress = round(torrent.progress, 1)
+                        # 主键
+                        key = torrent.id
+
+                    torrent_info = {'id': key, 'speed': speed, 'state': state, 'progress': progress}
+                    if torrent_info not in DispTorrents:
+                        DispTorrents.append(torrent_info)
+
+                return {"retcode": 0, "torrents": DispTorrents}
 
     # 响应企业微信消息
     @app.route('/wechat', methods=['GET', 'POST'])

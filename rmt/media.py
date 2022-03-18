@@ -202,31 +202,22 @@ class Media:
     # 返回：是否匹配，匹配的序号，匹配的值
     @staticmethod
     def check_resouce_types(t_title, t_types):
-        if t_types is None:
-            return False, 0, ""
+        if not t_types:
+            # 未配置默认不过滤
+            return True, 0, ""
         c_seq = 100
         for t_type in t_types:
             c_seq = c_seq - 1
             t_type = str(t_type)
             if t_type.upper() == "BLURAY":
                 match_str = r'blu-?ray'
-                no_match_str = None
             elif t_type.upper() == "4K":
                 match_str = r'4k|2160p'
-                no_match_str = r'blu-?ray'
             else:
-                match_str = t_type
-                no_match_str = r'blu-?ray'
+                match_str = r'%s' % t_type
             re_res = re.search(match_str, t_title, re.IGNORECASE)
             if re_res:
-                # 命中
-                if no_match_str:
-                    re_res = re.search(no_match_str, t_title, re.IGNORECASE)
-                    if re_res:
-                        # 不该命中的命中
-                        return False, 0, ""
                 return True, c_seq, t_type
-
         return False, 0, ""
 
     # 获取热门电影

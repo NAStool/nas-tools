@@ -296,6 +296,38 @@
         window.location.href = window.location.href.split("?")[0] + "?t=" + type + "&page=" + (page + 1)
       }
 
+      // 添加订阅关键字
+      function add_rss_key(type, name){
+          var cmd = "addrss";
+          var data = { "name": name, "type": type};
+          ajax_post(cmd, data, function(ret){
+              name = $("#recommend_start_name").val();
+              type =  $("#recommend_start_type").val();
+              id = $("#recommend_start_id").val();
+              $("#recommend_finished_str").text(name + " 添加RSS订阅成功！");
+              $("#recommend-modal-success").modal('show');
+              $("#recommend_svg_" + id).removeClass();
+              $("#recommend_svg_" + id).addClass("icon icon-filled text-red");
+              $("#recommend_link_" + id).attr("href", "javascript:remove_rss_key('" + type + "','" + name + "')")
+          });
+      }
+
+      // 删除订阅关键字
+      function remove_rss_key(type, name){
+          var cmd = "delrss";
+          var data = { "name": name, "type": type};
+          ajax_post(cmd, data, function(ret){
+              name = $("#recommend_start_name").val();
+              type =  $("#recommend_start_type").val();
+              id = $("#recommend_start_id").val();
+              $("#recommend_finished_str").text(name + " 已从RSS订阅中移除！");
+              $("#recommend-modal-success").modal('show');
+              $("#recommend_svg_" + id).removeClass();
+              $("#recommend_svg_" + id).addClass("icon icon-tabler icon-tabler-heart");
+              $("#recommend_link_" + id).attr("href", "javascript:add_rss_key('" + type + "','" + name + "')")
+          });
+      }
+
       // 显示添加订阅
       function show_recommend_add_modal(id, type, name){
           $("#recommend_start_id").val(id);

@@ -280,6 +280,16 @@
            $("#service_start_message").text("是否立即运行 " + name + "？");
            $('#service-modal').modal('show');
       }
+      // 运行服务
+      function run_scheduler(id){
+          var cmd = "sch";
+          var data = { "item": id };
+          ajax_post(cmd, data, function(ret){
+              item = $("#service_start_name").val();;
+              $("#service_finished_str").text(item + " 已执行完成！");
+              $("#service-modal-success").modal('show');
+          });
+      }
       //绑定事件
       $(document).ready(function(){
           //服务模态框事件

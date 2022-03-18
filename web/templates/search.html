@@ -290,8 +290,8 @@
       // 关键字
       search_word = getQueryVariable('s');
       if(search_word != ""){
-        $("#search_word").val(decodeURI(search_word))
-        search_media()
+          $("#search_word").val(decodeURI(search_word))
+          search_media()
       }
       // 显示下载提示框
       function show_download_modal(id, name){
@@ -299,6 +299,33 @@
           $("#download_start_name").val(name);
           $("#download_start_message").text("是否立即下载 " + name + "？");
           $('#download-modal').modal('show');
+      }
+      // 搜索按钮
+      function search_media(){
+          var cmd = "search";
+          var keyword = $("#search_word").val();
+          if(keyword == ""){
+              return;
+          }
+          $("#search_btn").val("搜索中...");
+          $("#search_btn").attr("disabled", "true");
+          $("#search_tip_title").text("正在搜索，请稍后...");
+          $("#search_tip_text").text("");
+          var param = {"search_word": keyword};
+          ajax_post(cmd, param, function(ret){
+              //刷新页面
+              window.location.href = window.location.href.split('?')[0];
+          });
+      }
+      //点击链接下载
+      function download_link(id){
+          var cmd = "download";
+          var data = {"id": id};
+          ajax_post(cmd, data, function(ret){
+             item = $("#download_start_name").val();
+              $("#download_finished_str").text(item + " 添加下载成功！");
+              $("#download-modal-success").modal('show');
+          });
       }
       //绑定事件
       $(document).ready(function(){

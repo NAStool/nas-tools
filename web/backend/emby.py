@@ -162,7 +162,9 @@ class Emby:
     def check_emby_exists(self, item):
         if not self.__host or not self.__apikey:
             return False
-        # TODO 调用EMBY API 检查是否已存在
+        if item.type == MediaType.MOVIE:
+            # TODO 电影检查Emby媒体库是否存在
+            pass
 
         return False
 

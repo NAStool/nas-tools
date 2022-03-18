@@ -148,7 +148,7 @@ class RSSDownloader:
                     # 代表资源类型在配置中的优先级顺序
                     res_order = 99
                     res_typestr = ""
-                    if match_flag and res_type:
+                    if match_flag:
                         # 确定标题中是否有资源类型关键字，并返回关键字的顺序号
                         match_flag, res_order, res_typestr = self.media.check_resouce_types(torrent_name, res_type)
                         if not match_flag:

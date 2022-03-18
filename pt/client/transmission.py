@@ -1,6 +1,7 @@
 import os.path
 import transmission_rpc
 import urllib3
+from datetime import datetime
 import log
 from config import get_config
 from rmt.filetransfer import FileTransfer
@@ -64,25 +65,38 @@ class Transmission:
             return None
 
     # 读取所有种子信息
-    def get_transmission_torrents(self):
+    def get_torrents(self, ids=None, status=None):
         # 读取transmission列表
         if not self.trc:
             return []
-        torrents = self.trc.get_torrents()
+        if status:
+            arguments = {'status': status}
+        else:
+            arguments = None
+        if isinstance(ids, list):
+            ids = [int(x) for x in ids]
+        elif ids:
+            ids = int(ids)
+        torrents = self.trc.get_torrents(ids=ids, arguments=arguments)
         return torrents
 
     # 迁移完成后设置种子状态
-    def set_tr_torrent_status(self, id_str):
+    def set_torrents_status(self, ids):
         if not self.trc:
             return
+        if isinstance(ids, list):
+            ids = [int(x) for x in ids]
+        elif ids:
+            ids = int(ids)
         # 打标签
-        self.trc.change_torrent(labels=["已整理"], ids=id_str)
+        self.trc.change_torrent(labels=["已整理"], ids=ids)
         log.info("【TR】设置transmission种子标签成功！")
 
     # 处理transmission中的种子
-    def transfer_transmission_task(self):
+    def transfer_task(self):
         # 处理所有任务
-        torrents = self.get_transmission_torrents()
+        log.info("【TR】开始转移下载文件...")
+        torrents = self.get_torrents()
         for torrent in torrents:
             log.debug("【TR】" + torrent.name + "：" + torrent.status)
             # 3.0版本以下的Transmission没有labels
@@ -105,33 +119,57 @@ class Transmission:
                     true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
                 ret = self.filetransfer.transfer_media(in_from=DownloaderType.TR, in_path=true_path)
                 if ret:
-                    self.set_tr_torrent_status(torrent.id)
+                    self.set_torrents_status(torrent.id)
                 else:
                     log.error("【TR】%s 转移失败：" % torrent.name)
+        log.info("【TR】下载文件转移结束！")
 
-    def add_transmission_torrent(self, turl, mtype):
+    # 做种清理
+    def remove_torrents(self, seeding_time):
+        log.info("【PT】开始执行transmission做种清理...")
+        torrents = self.get_torrents()
+        for torrent in torrents:
+            date_done = torrent.date_done
+            date_now = datetime.now().astimezone()
+            # 只有标记为强制上传的才会清理（经过RMT处理的都是强制上传状态）
+            if date_done and (torrent.status == "seeding" or torrent.status == "seed_pending"):
+                if (date_now - date_done).seconds > int(seeding_time):
+                    log.info("【PT】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (torrent.name, torrent.seeding_time))
+                    # 同步删除文件
+                    self.delete_torrents(delete_file=True, ids=torrent.id)
+        log.info("【PT】transmission做种清理完成！")
+
+    def add_torrent(self, turl, mtype):
         if mtype == MediaType.TV:
             return self.trc.add_torrent(torrent=turl, download_dir=self.__tv_save_path)
         else:
             return self.trc.add_torrent(torrent=turl, download_dir=self.__movie_save_path)
 
-    def delete_transmission_torrents(self, delete_file, ids):
-        if not self.trc:
-            return False
-        return self.trc.remove_torrent(delete_data=delete_file, ids=ids)
-
     # 下载控制：开始
-    def start_torrent(self, tid):
+    def start_torrents(self, ids):
         if not self.trc:
             return False
-        return self.trc.start_torrent(ids=tid)
+        if isinstance(ids, list):
+            ids = [int(x) for x in ids]
+        elif ids:
+            ids = int(ids)
+        return self.trc.start_torrent(ids=ids)
 
     # 下载控制：停止
-    def stop_torrent(self, tid):
+    def stop_torrents(self, ids):
         if not self.trc:
             return False
-        return self.trc.stop_torrent(ids=tid)
+        if isinstance(ids, list):
+            ids = [int(x) for x in ids]
+        elif ids:
+            ids = int(ids)
+        return self.trc.stop_torrent(ids=ids)
 
-    # 下载控制：删除
-    def remove_torrent(self, tid):
-        return self.delete_transmission_torrents(True, tid)
+    def delete_torrents(self, delete_file, ids):
+        if not self.trc:
+            return False
+        if isinstance(ids, list):
+            ids = [int(x) for x in ids]
+        elif ids:
+            ids = int(ids)
+        return self.trc.remove_torrent(delete_data=delete_file, ids=ids)

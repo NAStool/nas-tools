@@ -65,40 +65,32 @@ class Qbittorrent:
             return None
 
     # 读取所有种子信息
-    def get_qbittorrent_torrents(self):
+    def get_torrents(self, ids=None, status=None):
         # 读取qBittorrent列表
         if not self.qbc:
             return []
         self.qbc.auth_log_in()
-        torrents = self.qbc.torrents_info()
+        torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status)
         self.qbc.auth_log_out()
         return torrents
 
-    # 删除种子
-    def delete_qbittorrent_torrents(self, delete_file, thash):
-        if not self.qbc:
-            return False
-        self.qbc.auth_log_in()
-        ret = self.qbc.torrents_delete(delete_files=delete_file, torrent_hashes=thash)
-        self.qbc.auth_log_out()
-        return ret
-
     # 迁移完成后设置种子状态
-    def set_qb_torrent_status(self, hash_str):
+    def set_torrents_status(self, ids):
         if not self.qbc:
             return
         self.qbc.auth_log_in()
         # 打标签
-        self.qbc.torrents_add_tags("已整理", hash_str)
+        self.qbc.torrents_add_tags(tags="已整理", torrent_hashes=ids)
         # 超级做种
-        self.qbc.torrents_set_force_start(True, hash_str)
+        self.qbc.torrents_set_force_start(enable=True, torrent_hashes=ids)
         log.info("【QB】设置qBittorrent种类状态成功！")
         self.qbc.auth_log_out()
 
     # 处理qbittorrent中的种子
-    def transfer_qbittorrent_task(self):
+    def transfer_task(self):
         # 处理所有任务
-        torrents = self.get_qbittorrent_torrents()
+        log.info("【QB】开始转移下载文件...")
+        torrents = self.get_torrents()
         for torrent in torrents:
             log.debug("【QB】" + torrent.get('name') + "：" + torrent.get('state'))
             if torrent.get('state') == "uploading" or torrent.get('state') == "stalledUP":
@@ -111,12 +103,27 @@ class Qbittorrent:
                     true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
                 done_flag = self.filetransfer.transfer_media(in_from=DownloaderType.QB, in_path=true_path)
                 if done_flag:
-                    self.set_qb_torrent_status(torrent.get('hash'))
+                    self.set_torrents_status(torrent.get('hash'))
                 else:
                     log.error("【QB】%s 转移失败！" % torrent.get('name'))
+        log.info("【QB】下载文件转移结束！")
+
+    # 做种清理
+    def remove_torrents(self, seeding_time):
+        log.info("【PT】开始执行qBittorrent做种清理...")
+        torrents = self.get_torrents()
+        for torrent in torrents:
+            # 只有标记为强制上传的才会清理（经过RMT处理的都是强制上传状态）
+            if torrent.get('state') == "forcedUP":
+                if int(torrent.get('seeding_time')) > int(seeding_time):
+                    log.info("【PT】" + torrent.get('name') + "做种时间：" + str(torrent.get('seeding_time')) +
+                             "（秒），已达清理条件，进行清理...")
+                    # 同步删除文件
+                    self.delete_torrents(delete_file=True, ids=torrent.get('hash'))
+        log.info("【PT】qBittorrent做种清理完成！")
 
     # 添加qbittorrent任务
-    def add_qbittorrent_torrent(self, turl, mtype):
+    def add_torrent(self, turl, mtype):
         if not self.qbc:
             return False
         self.qbc.auth_log_in()
@@ -128,19 +135,22 @@ class Qbittorrent:
         return qbc_ret
 
     # 下载控制：开始
-    def start_torrent(self, tid):
+    def start_torrents(self, ids):
         if not self.qbc:
             return False
-        return self.qbc.torrents_resume(torrent_hashes=tid)
+        return self.qbc.torrents_resume(torrent_hashes=ids)
 
     # 下载控制：停止
-    def stop_torrent(self, tid):
+    def stop_torrents(self, ids):
         if not self.qbc:
             return False
-        return self.qbc.torrents_pause(torrent_hashes=tid)
+        return self.qbc.torrents_pause(torrent_hashes=ids)
 
-    # 下载控制：删除
-    def remove_torrent(self, tid):
+    # 删除种子
+    def delete_torrents(self, delete_file, ids):
         if not self.qbc:
             return False
-        return self.qbc.torrents_delete(torrent_hashes=tid, delete_files=True)
+        self.qbc.auth_log_in()
+        ret = self.qbc.torrents_delete(delete_files=delete_file, torrent_hashes=ids)
+        self.qbc.auth_log_out()
+        return ret

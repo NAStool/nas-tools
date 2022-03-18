@@ -55,7 +55,6 @@ class Jackett:
             log.warn("【JACKETT】%s 未检索到资源！" % indexer_name)
             return None
         # 从检索结果中匹配符合资源条件的记录
-        index_num = 0
         index_sucess = 0
         for media_item in media_array:
             torrent_name = media_item.get('title')
