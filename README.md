@@ -32,6 +32,9 @@ TG交流：https://t.me/nastool_chat
 
 
 ## 更新日志
+2022.3.18
+* 全新的WEB UI，媒体库、搜索、推荐、下载、服务等功能上线
+
 2022.3.13
 * 整合 <a href="https://github.com/Qliangw/notion_sync_data" target="_blank">Qliangw</a> 提供的豆瓣同步部分代码，支持同步豆瓣收藏记录，后台自动下载。
 
