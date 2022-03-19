@@ -47,7 +47,6 @@ class MetaInfo(object):
     # 种子附加信息
     site = None
     site_order = 0
-    torrent_name = None
     enclosure = None
     res_order = 0
     size = 0
@@ -202,7 +201,16 @@ class MetaInfo(object):
             if self.type == MediaType.TV:
                 return "S01"
             else:
-                return None
+                return ""
+
+    # 返回季的数组
+    def get_season_list(self):
+        if not self.begin_season:
+            return [1]
+        elif self.end_season:
+            return [season for season in range(self.begin_season, self.end_season + 1)]
+        else:
+            return [self.begin_season]
 
     # 返回集字符串
     def get_episode_string(self):
@@ -211,7 +219,16 @@ class MetaInfo(object):
                 if not self.end_episode else "E%s-E%s" % \
                                              (str(self.begin_episode).rjust(2, "0"), str(self.end_episode).rjust(2, "0"))
         else:
-            return None
+            return ""
+
+    # 返回集的数组
+    def get_episode_list(self):
+        if not self.begin_episode:
+            return [0]
+        elif self.end_episode:
+            return [episode for episode in range(self.begin_episode, self.end_episode + 1)]
+        else:
+            return [self.begin_episode]
 
     # 返回季集字符串
     def get_season_episode_string(self):

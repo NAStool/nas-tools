@@ -3,13 +3,11 @@ from concurrent.futures.thread import ThreadPoolExecutor
 from concurrent.futures._base import as_completed
 import log
 from config import get_config
-from rmt.filetransfer import FileTransfer
 from utils.functions import parse_jackettxml, get_keyword_from_string
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
-from utils.types import MediaType, SearchType
-from web.backend.emby import Emby
+from utils.types import SearchType
 
 
 class Jackett:
@@ -19,15 +17,11 @@ class Jackett:
     media = None
     message = None
     downloader = None
-    emby = None
-    filetransfer = None
 
     def __init__(self):
         self.media = Media()
         self.downloader = Downloader()
         self.message = Message()
-        self.emby = Emby()
-        self.filetransfer = FileTransfer()
 
         config = get_config()
         if config.get('jackett'):
@@ -137,7 +131,8 @@ class Jackett:
         order_seq = 100
         for index in self.__indexers:
             order_seq = order_seq - 1
-            task = executor.submit(self.seach_indexer, order_seq, index, search_word, key_word, s_num, e_num, year, whole_word)
+            task = executor.submit(self.seach_indexer, order_seq, index, search_word, key_word, s_num, e_num, year,
+                                   whole_word)
             all_task.append(task)
         ret_array = []
         for future in as_completed(all_task):
@@ -165,29 +160,14 @@ class Jackett:
             if in_from == SearchType.WX:
                 self.message.sendmsg(title="%s 共检索到 %s 个有效资源，即将择优下载！" % (content, len(media_list)), text="")
             # 去重择优后开始添加下载
-            download_count = 0
-            for can_item in self.__get_download_list(media_list):
-                # 是否在Emby媒体库中存在
-                if self.emby.check_emby_exists(can_item):
-                    log.info("【JACKETT】%s %s %s%s 在Emby媒体库中已存在，本次下载取消！" % (can_item.title, can_item.year, can_item.get_season_string(), can_item.get_episode_string()))
-                    continue
-                elif self.filetransfer.is_media_file_exists(can_item):
-                    log.info("【JACKETT】%s %s %s%s 在媒体库目录中已存在，本次下载取消！" % (can_item.title, can_item.year, can_item.get_season_string(), can_item.get_episode_string()))
-                    continue
-                # 添加PT任务
-                download_count += 1
-                log.info("【JACKETT】添加PT任务：%s ..." % can_item.title)
-                ret = self.downloader.add_pt_torrent(can_item.enclosure, can_item.type)
-                if ret:
-                    self.message.send_download_message(in_from, can_item)
-                else:
-                    log.error("【JACKETT】添加下载任务失败：%s" % can_item.title)
-                    self.message.sendmsg("【JACKETT】添加PT任务失败：%s" % can_item.title)
+            download_count = self.downloader.check_and_add_pt(in_from, media_list)
             # 统计下载情况
             if download_count == 0 and in_from == SearchType.WX:
                 self.message.sendmsg("%s 在媒体库中已存在，本次下载取消！" % content, "")
             elif download_count == 0:
                 log.info("【JACKETT】%s 在媒体库中已存在，本次下载取消！" % content)
+            else:
+                log.info("【JACKETT】实际下载了 %s 个资源！" % download_count)
 
             return True
 
@@ -195,7 +175,8 @@ class Jackett:
     @staticmethod
     def __is_jackett_match_sey(media_info, s_num, e_num, year_str):
         if s_num:
-            if not media_info.is_in_seasion(s_num):
+            # 只要单季不下集合，下集合会导致下很多
+            if not media_info.is_in_seasion(s_num) or len(media_info.get_season_list()) > 1:
                 log.info("【JACKETT】%s 未匹配季：%s" % (media_info.org_string, s_num))
                 return False
         if e_num:
@@ -208,60 +189,6 @@ class Jackett:
                 return False
         return True
 
-    # 排序、去重 选种
-    @staticmethod
-    def __get_download_list(media_list):
-        if not media_list:
-            return []
-
-        # 排序函数
-        def get_sort_str(x):
-            return "%s%s%s%s" % (str(x.title).ljust(100, ' '),
-                                 str(x.res_order).rjust(3, '0'),
-                                 str(x.seeders).rjust(10, '0'),
-                                 str(x.site_order).rjust(3, '0'))
-
-        # 匹配的资源中排序分组选最好的一个下载
-        # 按站点顺序、资源匹配顺序、做种人数下载数逆序排序
-        media_list = sorted(media_list, key=lambda x: get_sort_str(x), reverse=True)
-        log.info("【JACKETT】检索到的种子信息排序后如下：")
-        for media_item in media_list:
-            log.info(">标题：%s，"
-                     "序号：%s，"
-                     "资源类型：%s，"
-                     "大小：%s，"
-                     "做种：%s，"
-                     "下载：%s，"
-                     "季：%s，"
-                     "集：%s，"
-                     "种子：%s" % (media_item.title,
-                                media_item.site_order,
-                                media_item.res_type,
-                                media_item.size,
-                                media_item.seeders,
-                                media_item.peers,
-                                media_item.get_season_string(),
-                                media_item.get_episode_string(),
-                                media_item.org_string))
-        # 控重
-        can_download_list_item = []
-        can_download_list = []
-        # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
-        for t_item in media_list:
-            # 控重的主链是名称、节份、季、集
-            if t_item.type == MediaType.TV:
-                media_name = "%s%s%s%s" % (t_item.title,
-                                           t_item.year,
-                                           t_item.get_season_string(),
-                                           t_item.get_episode_string())
-            else:
-                media_name = "%s%s" % (t_item.title, t_item.year)
-            if media_name not in can_download_list:
-                can_download_list.append(media_name)
-                can_download_list_item.append(t_item)
-
-        return can_download_list_item
-
 
 if __name__ == "__main__":
-    Jackett().search_one_media("西部世界第2季")
+    Jackett().search_one_media("西部世界第1季")

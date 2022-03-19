@@ -1,4 +1,5 @@
 from utils.db_helper import update_by_sql, select_by_sql
+from utils.functions import str_filesize
 from utils.types import MediaType
 
 
@@ -35,9 +36,9 @@ def insert_jackett_results(media_item):
               media_item.get_season_episode_string(),
               media_item.vote_average,
               media_item.backdrop_path,
-              media_item.res_type,
+              media_item.res_type if media_item.res_type else media_item.resource_type,
               media_item.res_order,
-              "%.2fGB" % (int(media_item.size) / 1024 / 1024 / 1024),
+              str_filesize(int(media_item.size)),
               media_item.seeders,
               media_item.peers,
               media_item.site,

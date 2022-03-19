@@ -2,14 +2,12 @@ import os
 import time
 from datetime import datetime
 from subprocess import call
-
 import requests
-
 import log
 from config import get_config, RMT_FAVTYPE
 from message.send import Message
 from rmt.metainfo import MetaInfo
-from utils.functions import get_location, get_local_time
+from utils.functions import get_local_time, get_location
 from utils.types import MediaCatagory, MediaType
 
 PLAY_LIST = []
@@ -20,59 +18,8 @@ class Emby:
     __movie_path = None
     __tv_path = None
     __movie_subtypedir = True
-    __webhook_ignore = []
     __apikey = None
     __host = None
-
-    class EmbyEvent:
-        def __init__(self, input_json):
-            event = input_json['Event']
-            self.category = event.split('.')[0]
-            self.action = event.split('.')[1]
-            self.timestamp = datetime.now()
-            User = input_json.get('User', {})
-            Item = input_json.get('Item', {})
-            Session = input_json.get('Session', {})
-            Server = input_json.get('Server', {})
-            Status = input_json.get('Status', {})
-
-            if self.category == 'playback':
-                self.user_name = User.get('Name')
-                self.item_type = Item.get('Type')
-                self.provider_ids = Item.get('ProviderIds')
-                if self.item_type == 'Episode':
-                    self.media_type = MediaType.TV
-                    self.item_name = "%s %s" % (Item.get('SeriesName'), Item.get('Name'))
-                    self.tmdb_id = Item.get('SeriesId')
-                else:
-                    self.item_name = Item.get('Name')
-                    self.tmdb_id = self.provider_ids.get('Tmdb')
-                    self.media_type = MediaType.MOVIE
-                self.ip = Session.get('RemoteEndPoint')
-                self.device_name = Session.get('DeviceName')
-                self.client = Session.get('Client')
-
-            if self.category == 'user':
-                if self.action == 'login':
-                    self.user_name = User.get('user_name')
-                    self.user_name = User.get('user_name')
-                    self.device_name = User.get('device_name')
-                    self.ip = User.get('device_ip')
-                    self.server_name = Server.get('server_name')
-                    self.status = Status
-
-            if self.category == 'item':
-                if self.action == 'rate':
-                    self.movie_name = Item.get('Name')
-                    self.movie_path = Item.get('Path')
-                    self.item_type = Item.get('Type')
-                    self.provider_ids = Item.get('ProviderIds')
-                    if self.item_type == 'Episode':
-                        self.media_type = MediaType.TV
-                        self.tmdb_id = Item.get('SeriesId')
-                    else:
-                        self.tmdb_id = self.provider_ids.get('Tmdb')
-                        self.media_type = MediaType.MOVIE
 
     def __init__(self):
         self.message = Message()
@@ -84,8 +31,6 @@ class Emby:
         else:
             self.__movie_path = None
             self.__movie_subtypedir = True
-        if config.get('message'):
-            self.__webhook_ignore = config['message'].get('webhook_ignore')
         if config.get('emby'):
             self.__host = config['emby'].get('host')
             if not self.__host.startswith('http://') and not self.__host.startswith('https://'):
@@ -158,63 +103,195 @@ class Emby:
             log.error("【EMBY】连接Emby出错：" + str(e))
             return {}
 
+    # 根据名称查询Emby中剧集的SeriesId
+    def get_emby_series_id_by_name(self, name, year):
+        if not self.__host or not self.__apikey:
+            return None
+        req_url = "%semby/Items?IncludeItemTypes=Series&Fields=ProductionYear&StartIndex=0&Recursive=true&SearchTerm=%s&Limit=10&IncludeSearchTypes=false&api_key=%s" % (self.__host, name, self.__apikey)
+        try:
+            res = requests.get(req_url)
+            if res:
+                res_items = res.json().get("Items")
+                if res_items:
+                    for res_item in res_items:
+                        if res_item.get('Name') == name and str(res_item.get('ProductionYear')) == str(year):
+                            return res_item.get('Id')
+        except Exception as e:
+            log.error("【EMBY】连接Emby出错：" + str(e))
+            return None
+        return None
+
     # 判断Emby是否已存在
     def check_emby_exists(self, item):
         if not self.__host or not self.__apikey:
             return False
         if item.type == MediaType.MOVIE:
-            # TODO 电影检查Emby媒体库是否存在
-            pass
-
+            # 电影
+            req_url = "%semby/Items/RemoteSearch/Movie?api_key=%s" % (self.__host, self.__apikey)
+            param = {
+                "SearchInfo": {
+                    "Name": "%s" % item.title,
+                    "Year": item.year
+                }
+            }
+            try:
+                res = requests.post(url=req_url, json=param)
+                if res:
+                    res_list = res.json()
+                    for res_item in res_list:
+                        if res_item.get('Name') == item.title and str(res_item.get('ProductionYear')) == str(item.year):
+                            return True
+            except Exception as e:
+                log.error("【EMBY】连接Emby出错：" + str(e))
+                return False
+        else:
+            # 电视剧
+            item_id = self.get_emby_series_id_by_name(item.title, item.year)
+            if not item_id:
+                return False
+            # /Shows/{Id}/Episodes 查集的信息
+            for season in item.get_season_list():
+                req_url = "%semby/Shows/%s/Episodes?Season=%s&api_key=%s" % (self.__host, item_id, season, self.__apikey)
+                try:
+                    res_json = requests.get(req_url)
+                    if res_json:
+                        res_items = res_json.json().get("Items")
+                        exists_episodes = []
+                        for res_item in res_items:
+                            exists_episodes.append(int(res_item.get("IndexNumber")))
+                        return set(exists_episodes).issuperset(set(item.get_episode_list()))
+                except Exception as e:
+                    log.error("【EMBY】连接Emby出错：" + str(e))
+                    return False
         return False
 
+    # 根据ItemId从Emby查询图片地址
+    def get_emby_image_by_id(self, item_id, image_type):
+        if not self.__host or not self.__apikey:
+            return None
+        req_url = "%semby/Items/%s/RemoteImages?api_key=%s" % (self.__host, item_id, self.__apikey)
+        try:
+            res = requests.get(req_url)
+            if res:
+                images = res.json().get("Images")
+                for image in images:
+                    if image.get("ProviderName") == "TheMovieDb" and image.get("Type") == image_type:
+                        return image.get("Url")
+            else:
+                log.error("【EMBY】Items/RemoteImages 未获取到返回数据")
+                return None
+        except Exception as e:
+            log.error("【EMBY】连接Emby出错：" + str(e))
+            return None
+        return None
+
+
+class EmbyEvent:
+    __webhook_ignore = None
+    __movie_path = None
+    __movie_subtypedir = True
+    message = None
+    emby = None
+    category = None
+
+    def __init__(self, input_json):
+        if not input_json:
+            return
+        self.message = Message()
+        self.emby = Emby()
+        # 读取配置
+        config = get_config()
+        if config.get('media'):
+            self.__movie_path = config['media'].get('movie_path')
+            self.__movie_subtypedir = config['media'].get('movie_subtypedir', True)
+        if config.get('message'):
+            self.__webhook_ignore = config['message'].get('webhook_ignore')
+        # 解析事件报文
+        event = input_json.get('Event')
+        if not event:
+            return
+        # 类型
+        self.category = event.split('.')[0]
+        # 事件
+        self.action = event.split('.')[1]
+        # 时间
+        self.timestamp = datetime.now()
+        if self.category == "system":
+            return
+        # 事件信息
+        Item = input_json.get('Item', {})
+        self.provider_ids = Item.get('ProviderIds', {})
+        self.item_type = Item.get('Type')
+        if self.item_type == 'Episode':
+            self.media_type = MediaType.TV
+            self.item_name = "%s %s" % (Item.get('SeriesName'), Item.get('Name'))
+            self.item_id = Item.get('SeriesId')
+            self.tmdb_id = None
+        else:
+            self.media_type = MediaType.MOVIE
+            self.item_name = Item.get('Name')
+            self.item_path = Item.get('Path')
+            self.item_id = Item.get('Id')
+            self.tmdb_id = self.provider_ids.get('Tmdb')
+        Session = input_json.get('Session', {})
+        User = input_json.get('User', {})
+        if self.category == 'playback':
+            self.user_name = User.get('Name')
+            self.ip = Session.get('RemoteEndPoint')
+            self.device_name = Session.get('DeviceName')
+            self.client = Session.get('Client')
+
     # 处理Emby播放消息
-    def report_to_discord(self, event):
+    def report_to_discord(self):
         global PLAY_LIST
+        if not self.category:
+            return
+        # 消息标题
         message_title = None
-        tmdb_id = None
-        media_type = None
-        # System
-        if event.category == 'system':
-            if event.action == 'webhooktest':
+        message_text = None
+        # 系统事件
+        if self.category == 'system':
+            if self.action == 'webhooktest':
                 log.info("【EMBY】system.webhooktest")
-                return ""
-        if event.category == 'playback':
-            media_type = event.media_type
+            return
+        # 播放事件
+        if self.category == 'playback':
             if self.__webhook_ignore:
-                if event.user_name in self.__webhook_ignore or \
-                        event.device_name in self.__webhook_ignore or \
-                        (event.user_name + ':' + event.device_name) in self.__webhook_ignore:
-                    log.info('【EMBY】忽略的用户或设备，不通知：%s %s' % (event.user_name, event.device_name))
-            list_id = event.user_name + event.item_name + event.ip + event.device_name + event.client
-            if event.action == 'start':
-                message_title = '【EMBY】用户 %s 开始播放 %s' % (event.user_name, event.item_name)
-                tmdb_id = event.tmdb_id
+                if self.user_name in self.__webhook_ignore or \
+                        self.device_name in self.__webhook_ignore or \
+                        (self.user_name + ':' + self.device_name) in self.__webhook_ignore:
+                    log.info('【EMBY】忽略的用户或设备，不通知：%s %s' % (self.user_name, self.device_name))
+                    return
+            list_id = self.user_name + self.item_name + self.ip + self.device_name + self.client
+            if self.action == 'start':
+                message_title = '【EMBY】用户 %s 开始播放 %s' % (self.user_name, self.item_name)
+                log.info(message_title)
                 if list_id not in PLAY_LIST:
                     PLAY_LIST.append(list_id)
-            elif event.action == 'stop':
+            elif self.action == 'stop':
                 if list_id in PLAY_LIST:
-                    message_title = '【EMBY】用户 %s 停止播放 %s' % (event.user_name, event.item_name)
-                    tmdb_id = event.tmdb_id
+                    message_title = '【EMBY】用户 %s 停止播放 %s' % (self.user_name, self.item_name)
+                    log.info(message_title)
                     PLAY_LIST.remove(list_id)
                 else:
                     log.debug('【EMBY】重复Stop通知，丢弃：' + list_id)
-        elif event.category == 'user':
-            if event.action == 'login':
-                if event.status.upper() == 'F':
-                    message_title = '【EMBY】用户 %s 登录 %s 失败！' % (event.user_name, event.server_name)
-                else:
-                    message_title = '【EMBY】用户 %s 登录了 %s' % (event.user_name, event.server_name)
-        elif event.category == 'item':
-            if event.action == 'rate':
-                media_type = event.media_type
-                tmdb_id = event.tmdb_id
+                    return
+            else:
+                return
+            message_text = '设备：' + self.device_name \
+                           + '\n客户端：' + self.client \
+                           + '\nIP地址：' + self.ip \
+                           + '\n位置：' + get_location(self.ip) \
+                           + '\n时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        # 小红心事件
+        if self.category == 'item':
+            if self.action == 'rate':
                 if not self.__movie_subtypedir or not self.__movie_path:
                     return
-                if os.path.isdir(event.movie_path):
-                    movie_dir = event.movie_path
+                if os.path.isdir(self.item_path):
+                    movie_dir = self.item_path
                 else:
-                    movie_dir = os.path.dirname(event.movie_path)
+                    movie_dir = os.path.dirname(self.item_path)
                 if movie_dir.count(self.__movie_path) == 0:
                     return
                 name = movie_dir.split('/')[-1]
@@ -230,37 +307,24 @@ class Emby:
                     return
                 ret = call(['mv', movie_dir, new_path])
                 if ret == 0:
-                    message_title = '【EMBY】电影 %s 已从 %s 转移到 %s' % (event.movie_name, org_type, RMT_FAVTYPE.value)
+                    message_title = '【EMBY】电影 %s 已从 %s 转移到 %s' % (self.item_name, org_type, RMT_FAVTYPE.value)
                 else:
-                    message_title = '【EMBY】电影 %s 转移失败！' % event.movie_name
+                    message_title = '【EMBY】电影 %s 转移失败！' % self.item_name
+                message_text = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+            else:
+                return
 
         if message_title:
-            desp = ""
-            if event.category == 'playback':
-                address = get_location(event.ip)
-                desp = '设备：' + event.device_name \
-                       + '\n客户端：' + event.client \
-                       + '\nIP地址：' + event.ip \
-                       + '\n位置：' + address \
-                       + '\n时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-            elif event.category == 'user':
-                if event.action == 'login':
-                    address = get_location(event.ip)
-                    desp = '设备：' + event.device_name \
-                           + '\nIP地址：' + event.ip \
-                           + '\n位置：' + address \
-                           + '\n时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-            elif event.category == 'item':
-                if event.action == 'rate':
-                    desp = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-            # Report Message
-            if tmdb_id:
-                image_url = MetaInfo.get_backdrop_image(media_type, None, tmdb_id,
-                                                        "https://emby.media/notificationicon.png")
-            else:
-                image_url = ""
-            self.message.sendmsg(message_title, desp, image_url)
+            image_url = None
+            if self.item_id:
+                image_url = self.emby.get_emby_image_by_id(self.item_id, "Backdrop")
+            if not image_url:
+                image_url = MetaInfo.get_backdrop_image(search_type=self.media_type, backdrop_path=None, tmdbid=self.tmdb_id, default="https://emby.media/notificationicon.png")
+            self.message.sendmsg(message_title, message_text, image_url)
 
 
 if __name__ == "__main__":
-    print(Emby().get_emby_medias_count())
+    info = MetaInfo("国王排名 2021 S02 E06")
+    info.type = MediaType.TV
+    info.title = "国王排名"
+    print(Emby().check_emby_exists(info))

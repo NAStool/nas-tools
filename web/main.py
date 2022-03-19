@@ -24,7 +24,7 @@ from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys
 from utils.types import MediaType, SearchType, DownloaderType
 from version import APP_VERSION
-from web.backend.emby import Emby
+from web.backend.emby import Emby, EmbyEvent
 from web.backend.search_torrents import search_medias_for_web
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
@@ -321,17 +321,20 @@ def create_flask_app():
                 if torrent.get('state') not in ['downloading', 'forcedDL', 'pausedDL', 'stalledDL']:
                     continue
                 name = torrent.get('name')
+                # 进度
+                progress = round(torrent.get('progress') * 100, 1)
                 if torrent.get('state') in ['pausedDL']:
                     state = "Stoped"
                     speed = "已暂停"
                 else:
                     state = "Downloading"
                     dlspeed = str_filesize(torrent.get('dlspeed'))
-                    eta = str_timelong(torrent.get('eta'))
                     upspeed = str_filesize(torrent.get('upspeed'))
-                    speed = "%s%sB/s %s%sB/s %s" % (chr(8595), dlspeed, chr(8593), upspeed, eta)
-                # 进度
-                progress = round(torrent.get('progress') * 100, 1)
+                    if progress >= 100:
+                        speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
+                    else:
+                        eta = str_timelong(torrent.get('eta'))
+                        speed = "%s%sB/s %s%sB/s %s" % (chr(8595), dlspeed, chr(8593), upspeed, eta)
                 # 主键
                 key = torrent.get('hash')
             else:
@@ -347,7 +350,7 @@ def create_flask_app():
                     upspeed = str_filesize(torrent.rateUpload)
                     speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
                 # 进度
-                progress = round(torrent.progress, 1)
+                progress = round(torrent.progress)
                 # 主键
                 key = torrent.id
 
@@ -658,7 +661,7 @@ def create_flask_app():
                             upspeed = str_filesize(torrent.get('upspeed'))
                             speed = "%s%sB/s %s%sB/s %s" % (chr(8595), dlspeed, chr(8593), upspeed, eta)
                         # 进度
-                        progress = round(torrent.get('progress') * 100, 1)
+                        progress = round(torrent.get('progress') * 100)
                         # 主键
                         key = torrent.get('hash')
                     else:
@@ -745,34 +748,12 @@ def create_flask_app():
             return make_response(reponse_text, 200)
 
     # Emby消息通知
-    @app.route('/emby', methods=['POST', 'GET'])
+    @app.route('/emby', methods=['POST'])
     def emby():
-        if request.method == 'POST':
-            request_json = json.loads(request.form.get('data', {}))
-        else:
-            server_name = request.args.get("server_name")
-            user_name = request.args.get("user_name")
-            device_name = request.args.get("device_name")
-            ip = request.args.get("ip")
-            flag = request.args.get("flag")
-            request_json = {"Event": "user.login",
-                            "User": {"user_name": user_name, "device_name": device_name, "device_ip": ip},
-                            "Server": {"server_name": server_name},
-                            "Status": flag
-                            }
+        request_json = json.loads(request.form.get('data', {}))
         # log.debug("输入报文：" + str(request_json))
-        event = Emby.EmbyEvent(request_json)
-        Emby().report_to_discord(event)
+        event = EmbyEvent(request_json)
+        event.report_to_discord()
         return 'Success'
-
-    # DDNS消息通知
-    @app.route('/ddns', methods=['POST'])
-    def ddns():
-        request_json = json.loads(request.data, {})
-        log.debug("【DDNS】输入报文：" + str(request_json))
-        text = request_json['text']
-        content = text['content']
-        Message().sendmsg("【DDNS】IP地址变化", content)
-        return '0'
 
     return app

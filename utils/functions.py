@@ -11,11 +11,6 @@ import datetime
 from xml.dom.minidom import parse
 import xml.dom.minidom
 
-# 根据IP地址获取位置
-from requests import RequestException
-
-from config import RMT_MEDIAEXT
-
 
 def get_location(ip):
     url = 'https://sp0.baidu.com/8aQDcjqpAAV3otqbppnN2DJv/api.php?co=&resource_id=6006&t=1529895387942&ie=utf8' \
@@ -333,10 +328,8 @@ def get_used_of_partition(path):
         return 0, 0
 
 
+# 通过UTC的时间字符串获取时间
 def get_local_time(utc_time_str):
-    """
-    通过UTC的时间字符串获取东八区的时间
-    """
     try:
         utc_date = datetime.datetime.strptime(utc_time_str.replace('0000', ''), '%Y-%m-%dT%H:%M:%S.%fZ')
         local_date = utc_date + datetime.timedelta(hours=8)
@@ -345,4 +338,3 @@ def get_local_time(utc_time_str):
         print(f'Could not get local date:{e}')
         return utc_time_str
     return local_date_str
-
