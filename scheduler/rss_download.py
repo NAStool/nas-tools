@@ -1,4 +1,6 @@
 import re
+import threading
+
 import log
 from config import get_config
 from utils.functions import parse_rssxml, is_chinese
@@ -10,6 +12,7 @@ from utils.types import MediaType, SearchType
 
 RSS_RUNNING_FLAG = False
 RSS_CACHED_TORRENTS = []
+lock = threading.Lock()
 
 
 class RSSDownloader:
@@ -38,17 +41,13 @@ class RSSDownloader:
             self.__tv_subtypedir = config['media'].get('tv_subtypedir', True)
 
     def run_schedule(self):
-        global RSS_RUNNING_FLAG
         try:
-            if RSS_RUNNING_FLAG:
-                log.error("【RUN】rssdownload任务正在执行中...")
-            else:
-                RSS_RUNNING_FLAG = True
-                self.__rssdownload()
-                RSS_RUNNING_FLAG = False
+            lock.acquire()
+            self.__rssdownload()
         except Exception as err:
-            RSS_RUNNING_FLAG = False
             log.error("【RUN】执行任务rssdownload出错：" + str(err))
+        finally:
+            lock.release()
 
     def __rssdownload(self):
         global RSS_CACHED_TORRENTS

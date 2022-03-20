@@ -1,8 +1,12 @@
+import threading
+
 import requests
 import log
 from config import get_config
 from utils.functions import cookieParse, generateHeader
 from message.send import Message
+
+lock = threading.Lock()
 
 
 class PTSignin:
@@ -17,9 +21,12 @@ class PTSignin:
 
     def run_schedule(self):
         try:
+            lock.acquire()
             self.__ptsignin()
         except Exception as err:
             log.error("【RUN】执行任务ptsignin出错：%s" % str(err))
+        finally:
+            lock.release()
 
     @staticmethod
     def __signin(name, url, cookie):

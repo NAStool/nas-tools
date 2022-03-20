@@ -1,3 +1,5 @@
+import threading
+
 import log
 from config import get_config
 from message.send import Message
@@ -6,7 +8,7 @@ from pt.jackett import Jackett
 from utils.sqls import insert_tv_key, insert_movie_key, get_douban_search_state, insert_douban_media_state
 from utils.types import MediaType, SearchType
 
-DOUBANSYNC_RUNNING = False
+lock = threading.Lock()
 
 
 class DoubanSync:
@@ -28,17 +30,13 @@ class DoubanSync:
             self.__auto_rss = config['douban'].get('auto_rss')
 
     def run_schedule(self):
-        global DOUBANSYNC_RUNNING
         try:
-            if DOUBANSYNC_RUNNING:
-                log.warn("【RUN】douban_sync正在执行中...")
-                return
-            DOUBANSYNC_RUNNING = True
+            lock.acquire()
             self.__douban_sync()
-            DOUBANSYNC_RUNNING = False
         except Exception as err:
-            DOUBANSYNC_RUNNING = False
             log.error("【RUN】执行任务douban_sync出错：%s" % str(err))
+        finally:
+            lock.release()
 
     def __douban_sync(self):
         if not self.__interval:
