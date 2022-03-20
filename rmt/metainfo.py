@@ -18,10 +18,14 @@ class MetaInfo(object):
     cn_name = None
     # 识别的英文名
     en_name = None
+    # 总季数
+    total_seasons = 0
     # 识别的开始季 数字
     begin_season = 0
     # 识别的结束季 数字
     end_season = 0
+    # 总集数
+    total_episodes = 0
     # 识别的开始集
     begin_episode = None
     # 识别的结束季
@@ -55,12 +59,6 @@ class MetaInfo(object):
     peers = 0
     description = None
     res_type = None
-    # 豆瓣附加信息
-    douban_season = 0
-    douban_rating = 0
-    douban_poster = None
-    douban_url = None
-    douban_tv_episodes_num = 0
     # 控制标位区
     _stop_name_flag = False
 
@@ -127,15 +125,17 @@ class MetaInfo(object):
                 # 季
                 season_str = re.search(r'第\s*([0-9一二三四五六七八九十]+)\s*季', token, re.IGNORECASE)
                 if season_str:
-                    season = int(cn2an.cn2an(season_str.group(1)))
+                    season = int(cn2an.cn2an(season_str.group(1), mode='smart'))
                     if not self.begin_season and isinstance(season, int):
                         self.begin_season = season
+                        self.type = MediaType.TV
                 # 集
                 episode_str = re.search(r'第\s*([0-9一二三四五六七八九十]+)\s*集', token, re.IGNORECASE)
                 if episode_str:
-                    episode = int(cn2an.cn2an(episode_str.group(1)))
+                    episode = int(cn2an.cn2an(episode_str.group(1), mode='smart'))
                     if not self.begin_episode and isinstance(episode, int):
                         self.begin_episode = episode
+                        self.type = MediaType.TV
                 token = re.sub(r'第\s*[0-9一二三四五六七八九十]+\s*季|第\s*[0-9一二三四五六七八九十]+\s*集', '', token, flags=re.IGNORECASE).strip()
             # 标题
             if not self.cn_name:
@@ -188,7 +188,7 @@ class MetaInfo(object):
             if is_chinese(token):
                 season_str = re.search(r'第\s*([0-9一二三四五六七八九十]+)\s*季', token, re.IGNORECASE)
                 if season_str:
-                    season = int(cn2an.cn2an(season_str.group(1)))
+                    season = int(cn2an.cn2an(season_str.group(1), mode='smart'))
                     if not self.begin_season and isinstance(season, int):
                         self.begin_season = season
 
@@ -207,7 +207,7 @@ class MetaInfo(object):
             if is_chinese(token):
                 episode_str = re.search(r'第\s*([0-9一二三四五六七八九十]+)\s*集', token, re.IGNORECASE)
                 if episode_str:
-                    episode = int(cn2an.cn2an(episode_str.group(1)))
+                    episode = int(cn2an.cn2an(episode_str.group(1), mode='smart'))
                     if not self.begin_episode and isinstance(episode, int):
                         self.begin_episode = episode
 

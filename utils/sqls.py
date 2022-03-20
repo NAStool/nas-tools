@@ -152,7 +152,7 @@ def insert_douban_media_state(media, state):
     # 先删除
     update_by_sql(sql)
     sql = "INSERT INTO DOUBAN_MEDIAS(NAME, YEAR, TYPE, RATING, IMAGE, STATE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (
-        media.get_name(), media.year, media.type.value, media.douban_rating, media.douban_poster, state)
+        media.get_name(), media.year, media.type.value, media.vote_average, media.poster_path, state)
     # 再插入
     return update_by_sql(sql)
 

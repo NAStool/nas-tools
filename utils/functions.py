@@ -5,6 +5,8 @@ import socket
 import subprocess
 import time
 import platform
+
+import cn2an
 import requests
 import bisect
 import datetime
@@ -269,6 +271,10 @@ def parse_jackettxml(url):
                         if name == "peers":
                             peers = value
 
+                    # 做种为0的跳过
+                    if seeders == 0:
+                        continue
+
                     tmp_dict = {'title': title, 'enclosure': enclosure, 'description': description, 'size': size,
                                 'seeders': seeders, 'peers': peers}
                     ret_array.append(tmp_dict)
@@ -301,16 +307,16 @@ def get_keyword_from_string(content):
     season_num = None
     episode_num = None
     year = None
-    season_re = re.search(r"第\s*(\d+)\s*季", content, re.IGNORECASE)
-    episode_re = re.search(r"第\s*(\d+)\s*集", content, re.IGNORECASE)
+    season_re = re.search(r"第\s*([0-9一二三四五六七八九十]+)\s*季", content, re.IGNORECASE)
+    episode_re = re.search(r"第\s*([0-9一二三四五六七八九十]+)\s*集", content, re.IGNORECASE)
     year_re = re.search(r"[\s(]+(\d{4})[\s)]*", content)
     if season_re:
-        season_num = int(season_re.group(1))
+        season_num = int(cn2an.cn2an(season_re.group(1), mode='smart'))
     if episode_re:
-        episode_num = int(episode_re.group(1))
+        episode_num = int(cn2an.cn2an(episode_re.group(1), mode='smart'))
     if year_re:
         year = year_re.group(1)
-    key_word = re.sub(r'第\s*\d+\s*季|第\s*\d+\s*集|[\s(]+(\d{4})[\s)]*', '', content, flags=re.IGNORECASE).strip()
+    key_word = re.sub(r'第\s*[0-9一二三四五六七八九十]+\s*季|第\s*[0-9一二三四五六七八九十]+\s*集|[\s(]+(\d{4})[\s)]*', '', content, flags=re.IGNORECASE).strip()
     if not key_word:
         key_word = year
     return key_word, season_num, episode_num, year
@@ -338,3 +344,24 @@ def get_local_time(utc_time_str):
         print(f'Could not get local date:{e}')
         return utc_time_str
     return local_date_str
+
+
+# 从TMDB的季集信息中获得季的组
+def get_tmdb_seasons_info(seasons):
+    if not seasons:
+        return []
+    total_seasons = []
+    for season in seasons:
+        if season.get("season_number") != 0:
+            total_seasons.append({"season_number": season.get("season_number"), "episode_count": season.get("episode_count")})
+    return total_seasons
+
+
+# 从TMDB的季信息中获得具体季有多少集
+def get_tmdb_season_episodes_num(seasons, sea):
+    if not seasons:
+        return 0
+    for season in seasons:
+        if season.get("season_number") == sea:
+            return season.get("episode_count")
+    return 0

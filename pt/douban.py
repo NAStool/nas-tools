@@ -107,7 +107,6 @@ class DouBan:
                         else:
                             movie_dict = self.__get_movie_dict(media_soup)
                             if movie_dict:
-                                movie_dict.douban_url = url
                                 # 加入数组
                                 if movie_dict not in movie_list:
                                     log.info(f"【DOUBAN】解析到媒体：%s" % movie_dict.get_name())
@@ -227,15 +226,15 @@ class DouBan:
             meta_info.type = MediaType.TV
         else:
             meta_info.type = MediaType.MOVIE
-        # 总集数
+        # 总季数集数
         if meta_info.type == MediaType.TV:
-            meta_info.douban_tv_episodes_num = int(self.__get_single_info_list(infos, "集数:")[0])
+            meta_info.total_episodes = int(self.__get_single_info_list(infos, "集数:")[0])
 
         # 评分 评价数
-        meta_info.douban_rating = float(self.__get_media_rating_list(soup)[0])
+        meta_info.vote_average = float(self.__get_media_rating_list(soup)[0])
         # 图片网址
         movie_img = soup.select("#mainpic > a > img")[0].attrs['src']
-        meta_info.douban_poster = movie_img
+        meta_info.poster_path = movie_img
 
         return meta_info
 

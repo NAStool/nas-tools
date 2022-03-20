@@ -235,3 +235,11 @@ class Media:
     # 获取最新电视剧
     def get_tmdb_new_tvs(self, page):
         return self.tv.on_the_air(page)
+
+    # 获取电影的详情
+    def get_tmdb_movie_info(self, tmdbid):
+        return self.movie.details(tmdbid)
+
+    # 获取电视剧的详情
+    def get_tmdb_tv_info(self, tmdbid):
+        return self.tv.details(tmdbid)
