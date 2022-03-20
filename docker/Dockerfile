@@ -9,8 +9,7 @@ ENV LANG="C.UTF-8" \
     PGID=0 \
     UMASK=000
 WORKDIR /nas-tools
-RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
-    && apk add --no-cache \
+RUN apk add --no-cache \
        git \
        python3 \
        py3-pip \
@@ -33,7 +32,6 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
     && echo 'fs.inotify.max_user_instances=524288' >> /etc/sysctl.conf \
     && git config --global pull.ff only \
     && git clone -b master ${REPO_URL} . \
-    && pip config set global.index-url https://mirrors.bfsu.edu.cn/pypi/web/simple \
     && pip install pip -U \
     && pip install -r requirements.txt \
     && apk del --purge .build \

@@ -225,7 +225,7 @@ class FileTransfer:
 
         in_path = in_path.replace('\\\\', '/').replace('\\', '/')
         # 回收站的文件不处理
-        if in_path.find('/@Recycle/') != -1 or in_path.find('/#recycle/') != -1:
+        if in_path.find('/@Recycle/') != -1 or in_path.find('/#recycle/') != -1 or in_path.find('/.') != -1:
             return False
         # 不是媒体后缀的文件不处理
         if os.path.isfile(in_path):
