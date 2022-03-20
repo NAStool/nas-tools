@@ -1,3 +1,5 @@
+import os
+
 import qbittorrentapi
 import urllib3
 import log
@@ -94,7 +96,7 @@ class Qbittorrent:
         for torrent in torrents:
             log.debug("【QB】" + torrent.get('name') + "：" + torrent.get('state'))
             if torrent.get('state') == "uploading" or torrent.get('state') == "stalledUP":
-                true_path = torrent.get('content_path', torrent.get('save_path'))
+                true_path = torrent.get('content_path', os.path.join(torrent.get('save_path'), torrent.get('name')))
                 if not true_path:
                     continue
                 if self.__tv_save_containerpath:

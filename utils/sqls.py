@@ -138,32 +138,32 @@ def is_torrent_rssd_by_name(media_title, media_year, media_seaion, media_episode
 # 将RSS的记录插入数据库
 def insert_rss_torrents(media_info):
     sql = "INSERT INTO RSS_TORRENTS(TORRENT_NAME, ENCLOSURE, TYPE, TITLE, YEAR, SEASON, EPISODE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
-        media_info.title, media_info.enclosure, media_info.type, media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string())
+        media_info.title, media_info.enclosure, media_info.type, media_info.title, media_info.year,
+        media_info.get_season_string(), media_info.get_episode_string())
     return update_by_sql(sql)
 
 
 # 将豆瓣的数据插入数据库
-def insert_douban_medias(medias):
-    for media in medias:
-        if not media.year:
-            sql = "SELECT 1 FROM DOUBAN_MEDIAS WHERE NAME = '%s'" % media.get_name()
-        else:
-            sql = "SELECT 1 FROM DOUBAN_MEDIAS WHERE NAME = '%s' AND YEAR = '%s'" % (media.get_name(), media.year)
-        ret = select_by_sql(sql)
-        if not ret or len(ret) == 0:
-            sql = "INSERT INTO DOUBAN_MEDIAS(NAME, YEAR, TYPE, RATING, IMAGE, STATE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (media.get_name(), media.year, media.type.value, media.douban_rating, media.douban_poster, 'NEW')
-            if not update_by_sql(sql):
-                return False
-    return True
+def insert_douban_media_state(media, state):
+    if not media.year:
+        sql = "DELETE FROM DOUBAN_MEDIAS WHERE NAME = '%s'" % media.get_name()
+    else:
+        sql = "DELETE FROM DOUBAN_MEDIAS WHERE NAME = '%s' AND YEAR = '%s'" % (media.get_name(), media.year)
+    # 先删除
+    update_by_sql(sql)
+    sql = "INSERT INTO DOUBAN_MEDIAS(NAME, YEAR, TYPE, RATING, IMAGE, STATE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (
+        media.get_name(), media.year, media.type.value, media.douban_rating, media.douban_poster, state)
+    # 再插入
+    return update_by_sql(sql)
 
 
 # 标记豆瓣数据的状态
-def update_douban_media_state(title, year, state):
-    sql = "UPDATE DOUBAN_MEDIAS SET STATE = '%s' WHERE NAME = '%s' AND YEAR = '%s'" % (state, title, year)
+def update_douban_media_state(media, state):
+    sql = "UPDATE DOUBAN_MEDIAS SET STATE = '%s' WHERE NAME = '%s' AND YEAR = '%s'" % (state, media.title, media.year)
     return update_by_sql(sql)
 
 
 # 查询未检索的豆瓣数据
-def get_douban_search_medias():
-    sql = "SELECT NAME, YEAR, TYPE FROM DOUBAN_MEDIAS WHERE STATE = 'NEW'"
+def get_douban_search_state(title, year):
+    sql = "SELECT STATE FROM DOUBAN_MEDIAS WHERE NAME = '%s' AND YEAR = '%s'" % (title, year)
     return select_by_sql(sql)

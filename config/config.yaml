@@ -41,7 +41,7 @@ douban:
   # 【可选】 建议填写，以免触发触发豆瓣的反爬虫机制浏览器获取
   user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"
 
-# 配置Emby服务器信息，如不需要可删除
+# 配置Emby服务器信息，用于下载检查控重、媒体库展示等，建议配置
 emby:
   # Emby服务器IP地址和端口，注意区分http和https
   host: http://127.0.0.1:8096
@@ -74,8 +74,8 @@ sync:
     - '/mnt/movie1|/mnt/mymovie'
     - '/mnt/movie2|/mnt/mymovie'
     - '/mnt/resiliosync/大片抢先看'
-  # 监控目录文件的转移方式：LINK、COPY，LINK即硬链接并重命名，COPY是复制一份并重命名。LINK下载目录和媒体库目录在一个磁盘分区或者存储空间。
-  # LINK模式如果确认是同一个盘仍然报错跨盘问题，请尝试直接映射上级目录
+  # 监控目录文件的转移方式：LINK、COPY、SOFTLINK，LINK即硬链接并重命名、SOFTLINK为软链接并重命名，COPY是复制一份并重命名。LINK下载目录和媒体库目录在一个磁盘分区或者存储空间。
+  # Docker运行时LINK模式如果确认是同一个盘仍然报错跨盘问题，请尝试直接映射上级目录
   sync_mod: LINK
 
 # 配置消息通知服务
@@ -116,7 +116,8 @@ message:
 
 # 配置PT RSS下载的信息
 pt:
-  # PT下载完成后转移到媒体库的转移模式：COPY复制模式、LINK硬链接模式。复制模式下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠；硬链接模式不用额外增加存储空间，一份文件两份目录，但需要下载目录和媒体库目录在一个磁盘分区或者存储空间。两者在媒体库使用上是一致的。
+  # PT下载完成后转移到媒体库的转移模式：COPY复制模式、LINK硬链接模式、SOFTLINK软链接模式。复制模式下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠；硬链接模式不用额外增加存储空间，一份文件两份目录，但需要下载目录和媒体库目录在一个磁盘分区或者存储空间。两者在媒体库使用上是一致的。
+  # Docker运行时LINK模式如果确认是同一个盘仍然报错跨盘问题，请尝试直接映射上级目录
   rmt_mode: LINK
   # PT下载使用的客户端软件，qbittorrent、transmission，需要配置qbittorrent或transmission对应的配置区域
   pt_client: qbittorrent

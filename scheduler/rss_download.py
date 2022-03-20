@@ -166,8 +166,8 @@ class RSSDownloader:
         log.info("【RSS】所有RSS处理结束，共 %s 个有效资源！" % len(rss_download_torrents))
 
         # 去重择优后开始添加下载
-        download_count = self.downloader.check_and_add_pt(SearchType.RSS, rss_download_torrents)
-        log.info("【RSS】实际下载了 %s 个资源！" % download_count)
+        download_medias = self.downloader.check_and_add_pt(SearchType.RSS, rss_download_torrents)
+        log.info("【RSS】实际下载了 %s 个资源！" % len(download_medias))
 
         self.__running_flag = False
 

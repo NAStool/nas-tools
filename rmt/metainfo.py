@@ -1,5 +1,6 @@
 import re
 
+import cn2an
 import requests
 from requests import RequestException
 from config import RMT_COUNTRY_EA, RMT_COUNTRY_AS, FANART_TV_API_URL, FANART_MOVIE_API_URL
@@ -55,9 +56,11 @@ class MetaInfo(object):
     description = None
     res_type = None
     # 豆瓣附加信息
+    douban_season = 0
     douban_rating = 0
     douban_poster = None
     douban_url = None
+    douban_tv_episodes_num = 0
     # 控制标位区
     _stop_name_flag = False
 
@@ -117,11 +120,26 @@ class MetaInfo(object):
         if self._stop_name_flag:
             return
         if is_chinese(token):
-            if self.cn_name:
-                return
             # 有中文的，把中文外的英文、字符、等全部去掉，连在一起的数字会保留
             token = re.sub(r'[a-zA-Z【】\-_.\[\]()\s]+', '', token).strip()
-            self.cn_name = token
+            # 名㝋里如果有第X季，第X集的干掉
+            if re.search(r'[第季集]', token, re.IGNORECASE):
+                # 季
+                season_str = re.search(r'第\s*([0-9一二三四五六七八九十]+)\s*季', token, re.IGNORECASE)
+                if season_str:
+                    season = int(cn2an.cn2an(season_str.group(1)))
+                    if not self.begin_season and isinstance(season, int):
+                        self.begin_season = season
+                # 集
+                episode_str = re.search(r'第\s*([0-9一二三四五六七八九十]+)\s*集', token, re.IGNORECASE)
+                if episode_str:
+                    episode = int(cn2an.cn2an(episode_str.group(1)))
+                    if not self.begin_episode and isinstance(episode, int):
+                        self.begin_episode = episode
+                token = re.sub(r'第\s*[0-9一二三四五六七八九十]+\s*季|第\s*[0-9一二三四五六七八九十]+\s*集', '', token, flags=re.IGNORECASE).strip()
+            # 标题
+            if not self.cn_name:
+                self.cn_name = token
         else:
             # 2位以上的数字不要
             if token.isdigit() and len(token) > 2:
@@ -156,7 +174,7 @@ class MetaInfo(object):
                 self._stop_name_flag = True
 
     def __init_seasion(self, token):
-        re_res = re.search(r"S(\d{1,2})", token, re.IGNORECASE)
+        re_res = re.search(r"^S(\d{1,2})", token, re.IGNORECASE)
         if re_res:
             se = int(re_res.group(1).upper())
             if not self.begin_season:
@@ -166,9 +184,16 @@ class MetaInfo(object):
                     self.end_season = se
             self.type = MediaType.TV
             self._stop_name_flag = True
+        else:
+            if is_chinese(token):
+                season_str = re.search(r'第\s*([0-9一二三四五六七八九十]+)\s*季', token, re.IGNORECASE)
+                if season_str:
+                    season = int(cn2an.cn2an(season_str.group(1)))
+                    if not self.begin_season and isinstance(season, int):
+                        self.begin_season = season
 
     def __init_episode(self, token):
-        re_res = re.search(r"EP?(\d{1,3})", token, re.IGNORECASE)
+        re_res = re.search(r"[\s0-9.\[]+EP?(\d{1,3})", token, re.IGNORECASE)
         if re_res:
             se = int(re_res.group(1).upper())
             if not self.begin_episode:
@@ -178,6 +203,13 @@ class MetaInfo(object):
                     self.end_episode = se
             self.type = MediaType.TV
             self._stop_name_flag = True
+        else:
+            if is_chinese(token):
+                episode_str = re.search(r'第\s*([0-9一二三四五六七八九十]+)\s*集', token, re.IGNORECASE)
+                if episode_str:
+                    episode = int(cn2an.cn2an(episode_str.group(1)))
+                    if not self.begin_episode and isinstance(episode, int):
+                        self.begin_episode = episode
 
     def __init_resource_type(self, token):
         re_res = re.search(r"(BLU-?RAY|REMUX|HDTV|WEB|WEBRIP|DVDRIP|UHD)", token, re.IGNORECASE)
@@ -206,7 +238,10 @@ class MetaInfo(object):
     # 返回季的数组
     def get_season_list(self):
         if not self.begin_season:
-            return [1]
+            if self.type == MediaType.TV:
+                return [1]
+            else:
+                return []
         elif self.end_season:
             return [season for season in range(self.begin_season, self.end_season + 1)]
         else:
@@ -224,7 +259,10 @@ class MetaInfo(object):
     # 返回集的数组
     def get_episode_list(self):
         if not self.begin_episode:
-            return [0]
+            if self.type == MediaType.TV:
+                return [0]
+            else:
+                return []
         elif self.end_episode:
             return [episode for episode in range(self.begin_episode, self.end_episode + 1)]
         else:
@@ -386,7 +424,7 @@ class MetaInfo(object):
 
 
 if __name__ == "__main__":
-    text = "Homeland S07 NF WEB-DL 1080p x264 DDP5.1-PTHweb"
+    text = "Westworld.S01E01.1080p.BluRay.x265-10bit.DTS5.1-Chingyun"
     meta_info = MetaInfo(text)
     print(meta_info.__dict__)
     print(meta_info.is_in_seasion(7))

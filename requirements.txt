@@ -13,3 +13,4 @@ transmission-rpc>=3.3.0
 lxml>=4.8.0
 beautifulsoup4>=4.10.0
 flask-login>=0.5.0
+cn2an>=0.5.16

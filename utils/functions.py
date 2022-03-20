@@ -310,7 +310,7 @@ def get_keyword_from_string(content):
         episode_num = int(episode_re.group(1))
     if year_re:
         year = year_re.group(1)
-    key_word = re.sub(r'第\s*\d+\s*季|第\s*\d+\s*集|[\s(]+(\d{4})[\s)]*', '', content, re.IGNORECASE).strip()
+    key_word = re.sub(r'第\s*\d+\s*季|第\s*\d+\s*集|[\s(]+(\d{4})[\s)]*', '', content, flags=re.IGNORECASE).strip()
     if not key_word:
         key_word = year
     return key_word, season_num, episode_num, year

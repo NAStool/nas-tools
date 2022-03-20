@@ -52,7 +52,7 @@ class Emby:
                 log.error("【EMBY】Users/Query 未获取到返回数据")
                 return 0
         except Exception as e:
-            log.error("【EMBY】连接Emby出错：" + str(e))
+            log.error("【EMBY】连接Users/Query出错：" + str(e))
             return 0
 
     # 获取Emby活动记录
@@ -83,7 +83,7 @@ class Emby:
                 log.error("【EMBY】System/ActivityLog/Entries 未获取到返回数据")
                 return []
         except Exception as e:
-            log.error("【EMBY】连接Emby出错：" + str(e))
+            log.error("【EMBY】连接System/ActivityLog/Entries出错：" + str(e))
             return []
         return ret_array
 
@@ -100,70 +100,97 @@ class Emby:
                 log.error("【EMBY】Items/Counts 未获取到返回数据")
                 return {}
         except Exception as e:
-            log.error("【EMBY】连接Emby出错：" + str(e))
+            log.error("【EMBY】连接Items/Counts出错：" + str(e))
             return {}
 
     # 根据名称查询Emby中剧集的SeriesId
     def get_emby_series_id_by_name(self, name, year):
         if not self.__host or not self.__apikey:
             return None
-        req_url = "%semby/Items?IncludeItemTypes=Series&Fields=ProductionYear&StartIndex=0&Recursive=true&SearchTerm=%s&Limit=10&IncludeSearchTypes=false&api_key=%s" % (self.__host, name, self.__apikey)
+        req_url = "%semby/Items?IncludeItemTypes=Series&Fields=ProductionYear&StartIndex=0&Recursive=true&SearchTerm=%s&Limit=10&IncludeSearchTypes=false&api_key=%s" % (
+            self.__host, name, self.__apikey)
         try:
             res = requests.get(req_url)
             if res:
                 res_items = res.json().get("Items")
                 if res_items:
                     for res_item in res_items:
-                        if res_item.get('Name') == name and str(res_item.get('ProductionYear')) == str(year):
+                        if res_item.get('Name') == name and (not year or str(res_item.get('ProductionYear')) == str(year)):
                             return res_item.get('Id')
         except Exception as e:
-            log.error("【EMBY】连接Emby出错：" + str(e))
+            log.error("【EMBY】连接Items出错：" + str(e))
             return None
         return None
 
+    # 根据标题和年份，检查电影是否在Emby中存在，存在则返回列表
+    def get_emby_movies(self, title, year=None):
+        if not self.__host or not self.__apikey:
+            return []
+        req_url = "%semby/Items?IncludeItemTypes=Movie&Fields=ProductionYear&StartIndex=0&Recursive=true&SearchTerm=%s&Limit=10&IncludeSearchTypes=false&api_key=%s" % (
+            self.__host, title, self.__apikey)
+        try:
+            res = requests.get(req_url)
+            if res:
+                res_items = res.json().get("Items")
+                if res_items:
+                    ret_movies = []
+                    for res_item in res_items:
+                        if res_item.get('Name') == title and (
+                                not year or str(res_item.get('ProductionYear')) == str(year)):
+                            ret_movies.append(
+                                {'title': res_item.get('Name'), 'year': str(res_item.get('ProductionYear'))})
+                            return ret_movies
+        except Exception as e:
+            log.error("【EMBY】连接Items出错：" + str(e))
+            return []
+        return []
+
+    # 根据标题和年份和季，返回Emby中的剧集列表
+    def get_emby_tv_episodes(self, title, year=None, season=None):
+        if not self.__host or not self.__apikey:
+            return []
+        # 电视剧
+        item_id = self.get_emby_series_id_by_name(title, year)
+        if not item_id:
+            return []
+        # /Shows/{Id}/Episodes 查集的信息
+        if not season:
+            season = 1
+        req_url = "%semby/Shows/%s/Episodes?Season=%s&api_key=%s" % (
+            self.__host, item_id, season, self.__apikey)
+        try:
+            res_json = requests.get(req_url)
+            if res_json:
+                res_items = res_json.json().get("Items")
+                exists_episodes = []
+                for res_item in res_items:
+                    exists_episodes.append(int(res_item.get("IndexNumber")))
+                return exists_episodes
+        except Exception as e:
+            log.error("【EMBY】连接Shows/{Id}/Episodes出错：" + str(e))
+            return []
+
     # 判断Emby是否已存在
     def check_emby_exists(self, item):
-        if not self.__host or not self.__apikey:
-            return False
         if item.type == MediaType.MOVIE:
-            # 电影
-            req_url = "%semby/Items/RemoteSearch/Movie?api_key=%s" % (self.__host, self.__apikey)
-            param = {
-                "SearchInfo": {
-                    "Name": "%s" % item.title,
-                    "Year": item.year
-                }
-            }
-            try:
-                res = requests.post(url=req_url, json=param)
-                if res:
-                    res_list = res.json()
-                    for res_item in res_list:
-                        if res_item.get('Name') == item.title and str(res_item.get('ProductionYear')) == str(item.year):
-                            return True
-            except Exception as e:
-                log.error("【EMBY】连接Emby出错：" + str(e))
-                return False
+            exists_movies = self.get_emby_movies(item.title, item.year)
+            if exists_movies:
+                return True
         else:
-            # 电视剧
-            item_id = self.get_emby_series_id_by_name(item.title, item.year)
-            if not item_id:
-                return False
-            # /Shows/{Id}/Episodes 查集的信息
             for season in item.get_season_list():
-                req_url = "%semby/Shows/%s/Episodes?Season=%s&api_key=%s" % (self.__host, item_id, season, self.__apikey)
-                try:
-                    res_json = requests.get(req_url)
-                    if res_json:
-                        res_items = res_json.json().get("Items")
-                        exists_episodes = []
-                        for res_item in res_items:
-                            exists_episodes.append(int(res_item.get("IndexNumber")))
-                        return set(exists_episodes).issuperset(set(item.get_episode_list()))
-                except Exception as e:
-                    log.error("【EMBY】连接Emby出错：" + str(e))
+                exists_episodes = self.get_emby_tv_episodes(item.title, item.year, season)
+                if exists_episodes and not item.begin_episode:
+                    continue
+                if not set(exists_episodes).issuperset(set(item.get_episode_list())):
                     return False
+            return True
         return False
+
+    # 根据标题、年份、季、总集数，查询Emby中缺少哪几集
+    def get_emby_no_exists_episodes(self, title, year, season, total_num):
+        exists_episodes = self.get_emby_tv_episodes(title, year, season)
+        total_episodes = [episode for episode in range(1, total_num + 1)]
+        return set(total_episodes).difference(set(exists_episodes))
 
     # 根据ItemId从Emby查询图片地址
     def get_emby_image_by_id(self, item_id, image_type):
@@ -181,7 +208,7 @@ class Emby:
                 log.error("【EMBY】Items/RemoteImages 未获取到返回数据")
                 return None
         except Exception as e:
-            log.error("【EMBY】连接Emby出错：" + str(e))
+            log.error("【EMBY】连接Items/{Id}/RemoteImages出错：" + str(e))
             return None
         return None
 
@@ -319,7 +346,9 @@ class EmbyEvent:
             if self.item_id:
                 image_url = self.emby.get_emby_image_by_id(self.item_id, "Backdrop")
             if not image_url:
-                image_url = MetaInfo.get_backdrop_image(search_type=self.media_type, backdrop_path=None, tmdbid=self.tmdb_id, default="https://emby.media/notificationicon.png")
+                image_url = MetaInfo.get_backdrop_image(search_type=self.media_type, backdrop_path=None,
+                                                        tmdbid=self.tmdb_id,
+                                                        default="https://emby.media/notificationicon.png")
             self.message.sendmsg(message_title, message_text, image_url)
 
 

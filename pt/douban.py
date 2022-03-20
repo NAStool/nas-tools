@@ -82,11 +82,11 @@ class DouBan:
                     # 获取全部url
                     url_dict = self.__get_url_list(soup, self.__days)
                     url_list = url_dict["url_list"]
+                    url_num = len(url_list)
+                    log.info(f"【DOUBAN】第 {page_number} 页有 {url_num} 个媒体")
                     monitoring_info = url_dict["monitoring_info"]
                     log.info(f"【DOUBAN】本页监控日期内的数据为：{monitoring_info[0]}")
                     log.info(f"【DOUBAN】是否继续访问下一页：{monitoring_info[1]}")
-                    url_num = len(url_list)
-                    log.info(f"【DOUBAN】第 {page_number} 页有 {url_num} 个媒体")
                     sucess_urlnum = 0
                     url_count = 0
                     for url in url_list:
@@ -96,7 +96,7 @@ class DouBan:
                         else:
                             url_count += 1
                         # 随机休眠
-                        time_number = random.uniform(1, 10)
+                        time_number = round(random.uniform(1, 5), 1)
                         log.info(f"【DOUBAN】解析媒体 {url_count} 随机休眠：{time_number}s")
                         sleep(time_number)
                         # 每一个条目的内容
@@ -110,6 +110,7 @@ class DouBan:
                                 movie_dict.douban_url = url
                                 # 加入数组
                                 if movie_dict not in movie_list:
+                                    log.info(f"【DOUBAN】解析到媒体：%s" % movie_dict.get_name())
                                     movie_list.append(movie_dict)
                                     sucess_urlnum += 1
                                     user_type_succnum += 1
@@ -133,7 +134,6 @@ class DouBan:
         解析个人wish/do/collect内容的每个url
         :return: { url_list: [url数组], monitoring_info: [符合日期的个数,是否继续]}
         """
-        record_key = 0
         url_list = []
         continue_request = True
         monitoring_info = [0, continue_request]
@@ -151,10 +151,8 @@ class DouBan:
                     mark_date_dict[num] = list(mark_date[num].strings)
                     mark_date_dict[num] = ''.join([i.split("\n", 1)[0] for i in mark_date_dict[num] if i.strip() != ''])
                     num += 1
-
                 # 获取当天时间
                 today = datetime.datetime.now()
-
                 # 判断 标记时间
                 # 符合监控日期内媒体个数计数
                 count_num = 0
@@ -164,20 +162,17 @@ class DouBan:
                     if interval.days < monitoring_day:
                         count_num += 1
                     else:
-                        record_key = int(key)
                         break
             else:
                 # 如果没有监控日期，与媒体个数相同即可
-                record_key = len(url_list)
                 count_num = len(url_list)
-
-                # 如果该页媒体为15，且监控没有限制或者都在监控日期内，则继续获取下一页内容
+            # 如果该页媒体为15，且监控没有限制或者都在监控日期内，则继续获取下一页内容
             if len(url_list) == 15 and count_num == len(url_list):
                 continue_request = True
             else:
                 continue_request = False
 
-            monitoring_info[0] = record_key
+            monitoring_info[0] = count_num
             monitoring_info[1] = continue_request
             url_dict["url_list"] = url_list
             url_dict["monitoring_info"] = monitoring_info
@@ -223,7 +218,7 @@ class DouBan:
         titles = list(title[0].strings)
         titles = [i.strip() for i in titles if i.strip() != '']
         douban_title = ''.join(titles)
-        # 这里解析一下，拿到标题和年份
+        # 这里解析一下，拿到标题和年份、还有标题中的季
         meta_info = MetaInfo(douban_title)
         # 分类 电影和电视剧
         if '上映时间:' in infos or '上映日期:' in infos:
@@ -232,6 +227,10 @@ class DouBan:
             meta_info.type = MediaType.TV
         else:
             meta_info.type = MediaType.MOVIE
+        # 总集数
+        if meta_info.type == MediaType.TV:
+            meta_info.douban_tv_episodes_num = int(self.__get_single_info_list(infos, "集数:")[0])
+
         # 评分 评价数
         meta_info.douban_rating = float(self.__get_media_rating_list(soup)[0])
         # 图片网址
@@ -239,6 +238,28 @@ class DouBan:
         meta_info.douban_poster = movie_img
 
         return meta_info
+
+    @staticmethod
+    def __get_single_info_list(infos_list, str_key):
+        """
+        获取豆瓣信息， 针对豆瓣:和关键字在一起的
+        :param infos_list: 字符串列表
+        :param str_key: 字符串字典关键字
+        :return: 对应key值信息的列表
+        """
+        str_list = []
+        try:
+            if str_key in infos_list:
+                data_list_tmp = infos_list[infos_list.index(str_key) + 1]
+                data_list_tmp = data_list_tmp.split('/')
+                for i in data_list_tmp:
+                    str_list.append(i.strip(' '))
+            else:
+                log.warn(f"【DOUBAN】未解析到<{str_key}>信息")
+            return str_list
+        except Exception as err:
+            log.error(f"【DOUBAN】未解析到<{str_key}>信息:{err}")
+            return str_list
 
     @staticmethod
     def __multiple_infos_parser(str_dict, str_key, next_number):
@@ -267,7 +288,6 @@ class DouBan:
             rating_infos = [i.strip() for i in rating_infos if i.strip() != '']
             if len(rating_infos) > 2:
                 rating_list = rating_infos
-                # rating_list[1] = rating_infos[1]
             else:
                 rating_list[0] = 0.0
                 rating_list[1] = 0

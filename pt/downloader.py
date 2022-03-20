@@ -82,16 +82,16 @@ class Downloader:
 
     # 检查是否存在决定是否添加下载
     def check_and_add_pt(self, in_from, media_list):
-        download_count = 0
+        download_medias = []
         download_items = {}
         for can_item in self.__get_download_list(in_from, media_list):
             # 是否在Emby媒体库中存在
             if self.emby.check_emby_exists(can_item):
-                log.info("【PT】%s %s %s%s 在Emby媒体库中已存在，本次下载取消！" % (
+                log.info("【PT】%s(%s)%s%s 在Emby媒体库中已存在，跳过..." % (
                     can_item.title, can_item.year, can_item.get_season_string(), can_item.get_episode_string()))
                 continue
             elif self.filetransfer.is_media_file_exists(can_item):
-                log.info("【PT】%s %s %s%s 在媒体库目录中已存在，本次下载取消！" % (
+                log.info("【PT】%s(%s)%s%s 在媒体库目录中已存在，跳过..." % (
                     can_item.title, can_item.year, can_item.get_season_string(), can_item.get_episode_string()))
                 continue
             # 添加PT任务
@@ -141,7 +141,7 @@ class Downloader:
                         download_items[media_key] = {}
                         download_items[media_key][str(seasons[0])] = can_item.get_episode_list()
             # 开始添加下载
-            download_count += 1
+            download_medias.append(can_item)
             log.info("【PT】添加PT任务：%s ..." % can_item.org_string)
             ret = self.add_pt_torrent(can_item.enclosure, can_item.type)
             if ret:
@@ -149,7 +149,7 @@ class Downloader:
             else:
                 log.error("【PT】添加下载任务失败：%s" % can_item.title)
                 self.message.sendmsg("【PT】添加PT任务失败：%s" % can_item.title)
-        return download_count
+        return download_medias
 
     # 排序、去重 选种
     @staticmethod
@@ -162,36 +162,36 @@ class Downloader:
             if in_from == SearchType.RSS:
                 return "%s%s%s%s" % (
                     str(x.title).ljust(100, ' '), str(x.site_order).rjust(3, '0'), str(x.res_order).rjust(3, '0'),
-                    str(len(x.get_season_list()) + len(x.get_episode_list())).rjust(3, '0'))
+                    str(len(x.get_episode_list())).rjust(3, '0'))
             else:
                 return "%s%s%s%s%s" % (str(x.title).ljust(100, ' '),
                                        str(x.res_order).rjust(3, '0'),
                                        str(x.seeders).rjust(10, '0'),
                                        str(x.site_order).rjust(3, '0'),
-                                       str(len(x.get_season_list()) + len(x.get_episode_list())).rjust(3, '0'))
+                                       str(len(x.get_episode_list())).rjust(3, '0'))
 
         # 匹配的资源中排序分组选最好的一个下载
         # 按站点顺序、资源匹配顺序、做种人数下载数逆序排序
         media_list = sorted(media_list, key=lambda x: get_sort_str(x), reverse=True)
-        log.info("【PT】种子信息排序后如下：")
+        log.debug("【PT】种子信息排序后如下：")
         for media_item in media_list:
-            log.info(">标题：%s，"
-                     "序号：%s，"
-                     "资源类型：%s，"
-                     "大小：%s，"
-                     "做种：%s，"
-                     "下载：%s，"
-                     "季：%s，"
-                     "集：%s，"
-                     "种子：%s" % (media_item.title,
-                                media_item.site_order,
-                                media_item.res_type,
-                                media_item.size,
-                                media_item.seeders,
-                                media_item.peers,
-                                media_item.get_season_string(),
-                                media_item.get_episode_string(),
-                                media_item.org_string))
+            log.debug(">标题：%s，"
+                      "序号：%s，"
+                      "资源类型：%s，"
+                      "大小：%s，"
+                      "做种：%s，"
+                      "下载：%s，"
+                      "季：%s，"
+                      "集：%s，"
+                      "种子：%s" % (media_item.title,
+                                 media_item.site_order,
+                                 media_item.res_type,
+                                 media_item.size,
+                                 media_item.seeders,
+                                 media_item.peers,
+                                 media_item.get_season_string(),
+                                 media_item.get_episode_string(),
+                                 media_item.org_string))
         # 控重
         can_download_list_item = []
         can_download_list = []

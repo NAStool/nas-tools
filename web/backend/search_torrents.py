@@ -13,7 +13,7 @@ def search_medias_for_web(content):
         log.info("【WEB】检索关键字有误！" % content)
         return
     log.info("【WEB】开始检索 %s ..." % content)
-    media_list = Jackett().search_medias_from_word(key_word, season_num, episode_num, year, False)
+    media_list = Jackett().search_medias_from_word(key_word=key_word, s_num=season_num, e_num=episode_num, year=year, whole_word=False)
     update_by_sql("DELETE FROM JACKETT_TORRENTS")
     if len(media_list) == 0:
         log.info("【WEB】%s 未检索到任何媒体资源！" % content)

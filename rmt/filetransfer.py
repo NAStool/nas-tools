@@ -9,7 +9,7 @@ from config import RMT_SUBEXT, get_config, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_F
 from utils.functions import get_dir_files_by_ext, get_free_space_gb
 from message.send import Message
 from rmt.media import Media
-from utils.types import MediaType, DownloaderType, SyncType, MediaCatagory
+from utils.types import MediaType, DownloaderType, SyncType, MediaCatagory, RmtMode
 
 
 class FileTransfer:
@@ -31,16 +31,28 @@ class FileTransfer:
             self.__movie_subtypedir = config['media'].get('movie_subtypedir', True)
             self.__tv_subtypedir = config['media'].get('tv_subtypedir', True)
         if config.get('sync'):
-            self.__sync_rmt_mode = config['sync'].get('sync_mod', 'COPY').upper()
+            rmt_mode = config['sync'].get('sync_mod', 'COPY').upper()
+            if rmt_mode == "LINK":
+                self.__sync_rmt_mode = RmtMode.LINK
+            elif rmt_mode == "SOFTLINK":
+                self.__sync_rmt_mode = RmtMode.SOFTLINK
+            else:
+                self.__sync_rmt_mode = RmtMode.COPY
             self.__sync_path = config['sync'].get('sync_path')
         if config.get('pt'):
-            self.__pt_rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
+            rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
+            if rmt_mode == "LINK":
+                self.__pt_rmt_mode = RmtMode.LINK
+            elif rmt_mode == "SOFTLINK":
+                self.__pt_rmt_mode = RmtMode.SOFTLINK
+            else:
+                self.__pt_rmt_mode = RmtMode.COPY
         self.media = Media()
         self.message = Message()
 
     # 根据文件名转移对应字幕文件
     @staticmethod
-    def transfer_subtitles(org_name, new_name, rmt_mode="COPY"):
+    def transfer_subtitles(org_name, new_name, rmt_mode=RmtMode.COPY):
         dir_name = os.path.dirname(org_name)
         file_list = get_dir_files_by_ext(dir_name, RMT_SUBEXT)
         Media_FileNum = len(file_list)
@@ -60,16 +72,16 @@ class FileTransfer:
                         new_file = os.path.splitext(new_name)[0] + file_ext
                     if not os.path.exists(new_file):
                         log.debug("【RMT】正在处理字幕：%s" % file_item)
-                        if rmt_mode == "LINK":
-                            rmt_mod_str = "硬链接"
+                        if rmt_mode == RmtMode.LINK:
                             retcode = call(["ln", file_item, new_file])
+                        elif rmt_mode == RmtMode.SOFTLINK:
+                            retcode = call(["ln", "-s", file_item, new_file])
                         else:
-                            rmt_mod_str = "复制"
                             retcode = call(["cp", file_item, new_file])
                         if retcode == 0:
-                            log.info("【RMT】字幕%s完成：%s" % (rmt_mod_str, new_file))
+                            log.info("【RMT】字幕%s完成：%s" % (rmt_mode.value, new_file))
                         else:
-                            log.error("【RMT】字幕%s失败，错误码：%s" % (rmt_mod_str, str(retcode)))
+                            log.error("【RMT】字幕%s失败，错误码：%s" % (rmt_mode.value, str(retcode)))
                     else:
                         log.info("【RMT】字幕 %s 已存在！" % new_file)
             if not find_flag:
@@ -151,9 +163,9 @@ class FileTransfer:
         return True
 
     # 复制或者硬链接一个文件
-    def transfer_file(self, file_item, new_file, over_flag=False, rmt_mode="COPY"):
+    def transfer_file(self, file_item, new_file, over_flag=False, rmt_mode=RmtMode.COPY):
         # 检查是不是正在处理目标文件
-        if rmt_mode == "COPY":
+        if rmt_mode == RmtMode.COPY:
             curr_transfile = os.environ.get('NASTOOL_CURR_TRANS_FILE')
             if curr_transfile:
                 if curr_transfile.find(new_file) > 0:
@@ -176,21 +188,21 @@ class FileTransfer:
 
         # 复制文件
         log.info("【RMT】正在转移文件：%s 到 %s" % (file_item, new_file))
-        if rmt_mode == "LINK":
-            rmt_mod_str = "硬链接"
+        if rmt_mode == RmtMode.LINK:
             retcode = call(['ln', file_item, new_file])
+        elif rmt_mode == RmtMode.SOFTLINK:
+            retcode = call(['ln', '-s', file_item, new_file])
         else:
-            rmt_mod_str = "复制"
             retcode = call(['cp', file_item, new_file])
 
-        if rmt_mode == "COPY":
+        if rmt_mode == RmtMode.COPY:
             # 清除当前文件记录
             os.environ['NASTOOL_CURR_TRANS_FILE'] = os.environ['NASTOOL_CURR_TRANS_FILE'].replace(new_file, "")
 
         if retcode == 0:
-            log.info("【RMT】文件%s完成：%s" % (rmt_mod_str, new_file))
+            log.info("【RMT】文件%s完成：%s" % (rmt_mode.value, new_file))
         else:
-            log.error("【RMT】文件%s失败，错误码：%s" % (rmt_mod_str, str(retcode)))
+            log.error("【RMT】文件%s失败，错误码：%s" % (rmt_mode.value, str(retcode)))
             return False
         # 处理字幕
         return self.transfer_subtitles(file_item, new_file, rmt_mode)
@@ -235,7 +247,7 @@ class FileTransfer:
 
             # 处理蓝光原盘
             if bluray_disk_flag:
-                if rmt_mode == "LINK":
+                if rmt_mode == RmtMode.LINK:
                     log.warn("【RMT】硬链接下不支持蓝光原盘目录，不处理...")
                     return False
             # 开始处理里面的文件
@@ -281,7 +293,7 @@ class FileTransfer:
                 log.error("【RMT】%s 媒体信息识别失败！" % file_item)
                 failed_count = failed_count + 1
                 # 如果是LINK模式，则原样链接过去 这里可能日目录也可能是文件
-                if rmt_mode == "LINK":
+                if rmt_mode == RmtMode.LINK:
                     log.warn("【RMT】按原文件名硬链接到unknown目录...")
                     self.link_origin_file(file_item, target_dir)
                 continue
@@ -327,7 +339,7 @@ class FileTransfer:
                         continue
                     if file_exist_flag:
                         exist_filenum = exist_filenum + 1
-                        if rmt_mode != "LINK":
+                        if rmt_mode == RmtMode.COPY:
                             existfile_size = os.path.getsize(ret_file_path)
                             if media_filesize > existfile_size:
                                 log.info("【RMT】文件 %s 已存在，但新文件质量更好，覆盖..." % ret_file_path)
@@ -431,7 +443,7 @@ class FileTransfer:
                     # 文件已存在
                     existfile_size = os.path.getsize(ret_file_path)
                     message_medias[Title_Str]['Exist_Files'] = message_medias[Title_Str]['Exist_Files'] + 1
-                    if rmt_mode != "LINK":
+                    if rmt_mode == RmtMode.COPY:
                         if media_filesize > existfile_size:
                             log.info("【RMT】文件 %s 已存在，但新文件质量更好，覆盖..." % ret_file_path)
                             ret = self.transfer_file(file_item, ret_file_path, True, rmt_mode)
@@ -492,7 +504,7 @@ class FileTransfer:
                 print("【RMT】目的目录不存在：%s" % t_path)
                 return
         print("【RMT】正在转移以下目录中的全量文件：%s" % s_path)
-        print("【RMT】转移模式为：%s" % self.__sync_rmt_mode)
+        print("【RMT】转移模式为：%s" % self.__sync_rmt_mode.value)
         ret = self.transfer_media(in_from=SyncType.MAN, in_path=s_path, target_dir=t_path)
         if not ret:
             print("【RMT】%s 处理失败！" % s_path)
@@ -598,32 +610,12 @@ class FileTransfer:
         mtype = item.type
         title = item.title
         year = item.year
-        season = item.get_season_string()
-        episode = item.get_episode_string()
+        season = item.get_season_list()
+        episode = item.get_episode_list()
         category = item.category
 
         if isinstance(category, Enum):
             category = category.value
-
-        if season:
-            if season.find('-') != -1:
-                # 如果带-，则要拆分为一个集合
-                s_strs = season.split('-')
-                s_str1 = int(s_strs[0].replace("S", ""))
-                s_str2 = int(s_strs[1].replace("S", ""))
-                season = ["Season " + "%s" % s_str for s_str in range(s_str1, s_str2 + 1)]
-            else:
-                season = ["Season %s" % int(season.replace("S", ""))]
-
-        if episode:
-            if episode.find('-') != -1:
-                # 如果带-，则要拆分为一个集合
-                e_strs = episode.split('-')
-                e_str1 = int(e_strs[0].replace("E", "").replace("P", ""))
-                e_str2 = int(e_strs[1].replace("E", "").replace("P", ""))
-                episode = ["E" + ("%s" % e_str).rjust(2, "0") for e_str in range(e_str1, e_str2 + 1)]
-            else:
-                episode = [episode]
 
         # 如果是电影
         if mtype == MediaType.MOVIE:
@@ -650,9 +642,9 @@ class FileTransfer:
                         if not sea:
                             continue
                         if self.__tv_subtypedir:
-                            dest_path = os.path.join(self.__tv_path, category, "%s (%s)" % (title, year), sea)
+                            dest_path = os.path.join(self.__tv_path, category, "%s (%s)" % (title, year), "Season %s" % sea)
                         else:
-                            dest_path = os.path.join(self.__tv_path, "%s (%s)" % (title, year), sea)
+                            dest_path = os.path.join(self.__tv_path, "%s (%s)" % (title, year), "Season %s" % sea)
                         if not os.path.exists(dest_path):
                             return False
                     return True
@@ -661,17 +653,17 @@ class FileTransfer:
                     for sea in season:
                         if not sea:
                             continue
-                        sea_num = "S" + sea.replace("Season", "").strip().rjust(2, "0")
+                        sea_str = "S" + str(sea).rjust(2, "0")
                         for epi in episode:
                             if not epi:
                                 continue
+                            epi_str = "E%s" % str(epi).rjust(2, "0")
                             ext_exist = False
                             for ext in RMT_MEDIAEXT:
-                                seq_num = int(epi.replace("E", "").replace("P", ""))
                                 if self.__tv_subtypedir:
-                                    dest_path = os.path.join(self.__tv_path, category, "%s (%s)" % (title, year), sea, "%s - %s%s - 第 %s 集%s" % (title, sea_num, epi, seq_num, ext))
+                                    dest_path = os.path.join(self.__tv_path, category, "%s (%s)" % (title, year), "Season %s" % sea, "%s - %s%s - 第 %s 集%s" % (title, sea_str, epi_str, epi, ext))
                                 else:
-                                    dest_path = os.path.join(self.__tv_path, "%s (%s)" % (title, year), sea, "%s - %s%s - 第 %s 集%s" % (title, sea_num, epi, seq_num, ext))
+                                    dest_path = os.path.join(self.__tv_path, "%s (%s)" % (title, year), "Season %s" % sea, "%s - %s%s - 第 %s 集%s" % (title, sea_str, epi_str, epi, ext))
                                 if os.path.exists(dest_path):
                                     ext_exist = True
                             if not ext_exist:

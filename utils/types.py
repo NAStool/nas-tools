@@ -38,4 +38,7 @@ class SearchType(Enum):
     OT = "其它"
 
 
-
+class RmtMode(Enum):
+    LINK = "硬链接"
+    SOFTLINK = "软链接"
+    COPY = "复制"

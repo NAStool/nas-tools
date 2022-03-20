@@ -3,8 +3,7 @@ from config import get_config
 from message.send import Message
 from pt.douban import DouBan
 from pt.jackett import Jackett
-from utils.sqls import insert_douban_medias, get_douban_search_medias, insert_tv_key, insert_movie_key, \
-    update_douban_media_state
+from utils.sqls import insert_tv_key, insert_movie_key, get_douban_search_state, insert_douban_media_state
 from utils.types import MediaType, SearchType
 
 DOUBANSYNC_RUNNING = False
@@ -47,37 +46,53 @@ class DoubanSync:
         log.info("【PT】开始同步豆瓣数据...")
         # 拉取豆瓣数据
         medias = self.douban.get_all_douban_movies()
-        # 插入数据库
-        if not insert_douban_medias(medias):
-            log.error("【RUN】豆瓣数据插入数据库失败！")
-            return
-        else:
-            log.info("【PT】豆瓣数据同步完成！")
-        # 对于未处理的，开始检索和下载
+        # 开始检索
         if self.__auto_search:
-            log.info("【PT】开始检索豆瓣资源...")
-            self.__search_douban_media()
-            log.info("【PT】豆瓣资源检索完成！")
-
-    def __search_douban_media(self):
-        search_list = get_douban_search_medias()
-        if len(search_list) == 0:
-            log.info("【PT】没有新记录需要检索！")
-        for item in search_list:
-            if not self.jackett.search_one_media("%s %s" % (item[0], item[1]), SearchType.DB):
-                if self.__auto_rss:
-                    log.info("【PT】 %s %s 没有找到下载资源，更新到RSS订阅中..." % (item[0], item[1]))
-                    if item[2] == MediaType.TV.value:
-                        insert_tv_key(item[0])
+            # 需要检索
+            if len(medias) == 0:
+                return
+            log.info("【PT】开始检索豆瓣中的影视资源...")
+            for media in medias:
+                # 查询数据库状态，已经加入RSS的不处理
+                search_state = get_douban_search_state(media.get_name(), media.year)
+                if not search_state or search_state[0][0] == "NEW":
+                    seasons = media.get_season_list()
+                    if len(seasons) == 1:
+                        search_str = "%s第%s季 %s" % (media.get_name(), seasons[0], media.year)
                     else:
-                        insert_movie_key(item[0])
-                    # 更新状态为已订阅
-                    update_douban_media_state(item[0], item[1], 'RSS')
+                        search_str = "%s %s" % (media.get_name(), media.year)
+                    # 开始检索，传入总集数
+                    search_result = self.jackett.search_one_media(content=search_str,
+                                                                  in_from=SearchType.DB,
+                                                                  tv_total_episode_num=media.douban_tv_episodes_num)
+
+                    if not search_result:
+                        if self.__auto_rss:
+                            log.info("【PT】 %s %s 更新到RSS订阅中..." % (media.get_name(), media.year))
+                            if media.type == MediaType.TV:
+                                insert_tv_key(media.title)
+                            else:
+                                insert_movie_key(media.title)
+                            # 插入为已RSS状态
+                            insert_douban_media_state(media, "RSS")
+                        else:
+                            log.info("【PT】 %s %s 等待下一次处理..." % (media.get_name(), media.year))
+                    else:
+                        # 更新为已下载状态
+                        insert_douban_media_state(media, "DOWNLOADED")
                 else:
-                    log.info("【PT】 %s %s 未找到下载资源，等待下一次处理..." % (item[0], item[1]))
-            else:
-                # 更新为已下载
-                update_douban_media_state(item[0], item[1], 'DOWNLOADED')
+                    log.info("【PT】 %s %s 已处理过，跳过..." % (media.get_name(), media.year))
+        else:
+            # 不需要检索
+            if self.__auto_rss:
+                # 加入订阅
+                for media in medias:
+                    if media.type == MediaType.TV:
+                        insert_tv_key(media.title)
+                    else:
+                        insert_movie_key(media.title)
+                log.info("【PT】豆瓣数据加入订阅完成！")
+        log.info("【PT】豆瓣数据同步完成！")
 
 
 if __name__ == "__main__":

@@ -110,6 +110,8 @@ def check_config(config):
         sync_mod = config['sync'].get('sync_mod', 'COPY').upper()
         if sync_mod == "LINK":
             log.info("【RUN】目录监控转移模式为：硬链接")
+        elif sync_mod == "SOFTLINK":
+            log.info("【RUN】目录监控转移模式为：软链接")
         else:
             log.info("【RUN】目录监控转移模式为：复制")
 
@@ -159,6 +161,8 @@ def check_config(config):
         rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
         if rmt_mode == "LINK":
             log.info("【RUN】PT下载文件转移模式为：硬链接")
+        elif rmt_mode == "SOFTLINK":
+            log.info("【RUN】目录监控转移模式为：软链接")
         else:
             log.info("【RUN】PT下载文件转移模式为：复制")
 
@@ -331,6 +335,8 @@ def check_simple_config(config):
         sync_mod = config['sync'].get('sync_mod', 'COPY').upper()
         if sync_mod == "LINK":
             log.info("【RUN】目录监控转移模式为：硬链接")
+        elif sync_mod == "SOFTLINK":
+            log.info("【RUN】目录监控转移模式为：软链接")
         else:
             log.info("【RUN】目录监控转移模式为：复制")
 
@@ -339,6 +345,8 @@ def check_simple_config(config):
         rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
         if rmt_mode == "LINK":
             log.info("【RUN】PT下载文件转移模式为：硬链接")
+        elif rmt_mode == "SOFTLINK":
+            log.info("【RUN】目录监控转移模式为：软链接")
         else:
             log.info("【RUN】PT下载文件转移模式为：复制")
 

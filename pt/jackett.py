@@ -8,6 +8,7 @@ from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
 from utils.types import SearchType
+from web.backend.emby import Emby
 
 
 class Jackett:
@@ -17,11 +18,13 @@ class Jackett:
     media = None
     message = None
     downloader = None
+    emby = None
 
     def __init__(self):
         self.media = Media()
         self.downloader = Downloader()
         self.message = Message()
+        self.emby = Emby()
 
         config = get_config()
         if config.get('jackett'):
@@ -125,7 +128,7 @@ class Jackett:
         else:
             search_word = key_word
         # 多线程检索
-        log.info("【JACKETT】开始并行检索，线程数：%s" % len(self.__indexers))
+        log.info("【JACKETT】开始并行检索 %s，线程数：%s" % (key_word, len(self.__indexers)))
         executor = ThreadPoolExecutor(max_workers=len(self.__indexers))
         all_task = []
         order_seq = 100
@@ -142,8 +145,8 @@ class Jackett:
         log.info("【JACKETT】所有API检索完成，有效资源数：%s" % len(ret_array))
         return ret_array
 
-    # 按关键字，检索排序去重后择优下载
-    def search_one_media(self, content, in_from=SearchType.OT):
+    # 按关键字，检索排序去重后择优下载：content是搜索内容，total_num是电视剧的总集数
+    def search_one_media(self, content, in_from=SearchType.OT, tv_total_episode_num=None):
         key_word, season_num, episode_num, year = get_keyword_from_string(content)
         if not key_word:
             log.info("【JACKETT】检索关键字有误！" % content)
@@ -151,7 +154,63 @@ class Jackett:
         if in_from == SearchType.WX:
             self.message.sendmsg("开始检索 %s ..." % content)
         log.info("【JACKETT】开始检索 %s ..." % content)
-        media_list = self.search_medias_from_word(key_word, season_num, episode_num, year, True)
+
+        # 先检查一波Emby中是不是有了
+        no_exists_tv_episodes = []
+        # 检查电影
+        exists_movies = self.emby.get_emby_movies(key_word, year)
+        if exists_movies:
+            movies_str = "\n * ".join(["%s (%s)" % (m.get('title'), m.get('year')) for m in exists_movies])
+            if in_from == SearchType.WX:
+                # 微信已存在时不处理
+                self.message.sendmsg(title="%s 在Emby媒体库中已经存在以下电影：\n * %s\n本次下载取消，如没有您想要的请尝试输入不同年份检索" % (content, movies_str), text="")
+                return True
+            else:
+                log.info("【JACKETT】%s 在Emby媒体库中已经存在以下电影：\n * %s" % (content, movies_str))
+                if in_from == SearchType.DB:
+                    # 豆瓣已存在时不处理
+                    return True
+        # 检查电视剧
+        exists_tvs = self.emby.get_emby_tv_episodes(key_word, year, season_num)
+        if exists_tvs:
+            exists_tvs_str = ",".join(["%s" % tv for tv in exists_tvs])
+            if season_num:
+                key_str = "%s第%s季" % (key_word, season_num)
+            else:
+                # 已经存在的电视剧，没有输入第几季时，默认只处理第1季
+                season_num = 1
+                key_str = "%s第1季" % key_word
+            if in_from == SearchType.WX:
+                # 微信已存在
+                if episode_num:
+                    # 有集数
+                    if episode_num in exists_tvs:
+                        # 这一集存在
+                        self.message.sendmsg(title="%s 在Emby媒体库中已经存在，本次下载取消！" % content, text="")
+                        return True
+                else:
+                    self.message.sendmsg(title="%s 在Emby媒体库中已经存在，剧集：%s，将继续检索缺失剧集..." % (key_str, exists_tvs_str), text="")
+            else:
+                if in_from == SearchType.DB:
+                    # 豆瓣
+                    if tv_total_episode_num and len(exists_tvs) >= tv_total_episode_num:
+                        log.info("【JACKETT】%s 在Emby媒体库中已经存在，且剧季数完整，本次下载取消！" % key_str)
+                        return True
+                    # 查询缺失多少集
+                    if tv_total_episode_num:
+                        no_exists_tv_episodes = self.emby.get_emby_no_exists_episodes(key_word, year, season_num, tv_total_episode_num)
+                        no_exists_tv_episodes_str = ",".join(["%s" % tv for tv in no_exists_tv_episodes])
+                        if no_exists_tv_episodes:
+                            log.info("【JACKETT】%s 缺失以下剧集：%s" % (key_str, no_exists_tv_episodes_str))
+                        else:
+                            log.info("【JACKETT】%s 在Emby媒体库中没有查询到有剧集缺失，本次下载取消..." % key_str)
+                            return True
+                    else:
+                        log.info("【JACKETT】%s 在Emby媒体库中已经存在，剧集：%s，将继续检索缺失剧集..." % (key_str, exists_tvs_str))
+                else:
+                    log.info("【JACKETT】%s 在Emby媒体库中已存在，剧集：%s，将继续检索缺失剧集..." % (key_str, exists_tvs_str))
+        # 开始真正搜索资源
+        media_list = self.search_medias_from_word(key_word=key_word, s_num=season_num, e_num=episode_num, year=year, whole_word=True)
         if len(media_list) == 0:
             if in_from == SearchType.WX:
                 self.message.sendmsg("%s 未检索到任何媒体资源！" % content, "")
@@ -160,14 +219,32 @@ class Jackett:
             if in_from == SearchType.WX:
                 self.message.sendmsg(title="%s 共检索到 %s 个有效资源，即将择优下载！" % (content, len(media_list)), text="")
             # 去重择优后开始添加下载
-            download_count = self.downloader.check_and_add_pt(in_from, media_list)
-            # 统计下载情况
-            if download_count == 0 and in_from == SearchType.WX:
-                self.message.sendmsg("%s 在媒体库中已存在，本次下载取消！" % content, "")
-            elif download_count == 0:
-                log.info("【JACKETT】%s 在媒体库中已存在，本次下载取消！" % content)
+            download_medias = self.downloader.check_and_add_pt(in_from, media_list)
+            # 统计下载情况，下全了返回True，没下全返回False
+            if len(download_medias) == 0:
+                log.info("【JACKETT】%s 搜索结果在媒体库中均已存在，本次下载取消！" % content)
+                if in_from == SearchType.WX:
+                    self.message.sendmsg("%s 搜索结果在媒体库中均已存在，本次下载取消！" % content, "")
+                return False
             else:
-                log.info("【JACKETT】实际下载了 %s 个资源！" % download_count)
+                log.info("【JACKETT】实际下载了 %s 个资源！" % len(download_medias))
+                if no_exists_tv_episodes:
+                    # 下载已存在的电视剧，比较要下的都下完了没有，来决定返回什么状态
+                    for tv_episode in no_exists_tv_episodes:
+                        complete_flag = False
+                        for media in download_medias:
+                            # 如果下了一个多季集合，且包括了当前季，则认为下全了
+                            if len(media.get_season_list()) > 1 and media.is_in_seasion(season_num):
+                                complete_flag = True
+                                break
+                            # 如果下了一个单季，集为空或者包括了当前集则认为下到了
+                            if len(media.get_season_list()) == 1 and (media.is_in_episode(tv_episode) or not media.begin_episode):
+                                complete_flag = True
+                                break
+                        # 有一集没匹配就是没下全
+                        if not complete_flag:
+                            return False
+                    return True
 
             return True
 
@@ -184,11 +261,12 @@ class Jackett:
                 log.info("【JACKETT】%s 未匹配集：%s" % (media_info.org_string, e_num))
                 return False
         if year_str:
-            if str(media_info.year) != year_str:
+            # 有的电视剧年份会是最新的年份（比如豆瓣过来的），所以年份的问题也比对下标题
+            if str(media_info.year) != year_str and year_str not in media_info.org_string:
                 log.info("【JACKETT】%s 未匹配年份：%s" % (media_info.org_string, year_str))
                 return False
         return True
 
 
 if __name__ == "__main__":
-    Jackett().search_one_media("西部世界第1季")
+    Jackett().search_one_media("西部世界")
