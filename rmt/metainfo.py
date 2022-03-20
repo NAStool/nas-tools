@@ -259,10 +259,7 @@ class MetaInfo(object):
     # 返回集的数组
     def get_episode_list(self):
         if not self.begin_episode:
-            if self.type == MediaType.TV:
-                return [0]
-            else:
-                return []
+            return []
         elif self.end_episode:
             return [episode for episode in range(self.begin_episode, self.end_episode + 1)]
         else:

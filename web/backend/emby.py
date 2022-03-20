@@ -179,9 +179,11 @@ class Emby:
         else:
             for season in item.get_season_list():
                 exists_episodes = self.get_emby_tv_episodes(item.title, item.year, season)
-                if exists_episodes and not item.begin_episode:
+                if exists_episodes and not item.get_episode_list():
+                    # 种子标题中没有集的信息，且本地又存在的，按存在处理
                     continue
                 if not set(exists_episodes).issuperset(set(item.get_episode_list())):
+                    # 本地存在的没有比标题中的集更多，按不存在处理
                     return False
             return True
         return False

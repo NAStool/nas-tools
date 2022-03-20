@@ -81,9 +81,9 @@ class Downloader:
         return self.client.delete_torrents(delete_file=True, ids=ids)
 
     # 检查是否存在决定是否添加下载
-    def check_and_add_pt(self, in_from, media_list):
+    def check_and_add_pt(self, in_from, media_list, need_tv_episodes=None):
         download_medias = []
-        download_items = {}
+        downloaded_items = []
         for can_item in self.__get_download_list(in_from, media_list):
             # 是否在Emby媒体库中存在
             if self.emby.check_emby_exists(can_item):
@@ -98,49 +98,66 @@ class Downloader:
             if can_item.type == MediaType.TV:
                 # 标题中的季
                 seasons = can_item.get_season_list()
-                # 如果是电视剧，控制一下，不要下重了
-                media_key = "%s%s" % (can_item.title, can_item.year)
-                if download_items.get(media_key):
-                    # 下过了
-                    if len(seasons) > 1:
-                        # 有多季，看看剧是不是有重复
-                        for season in seasons:
-                            if download_items[media_key].get(str(season)):
-                                # 这个季下过了，不下了
-                                continue
-                            else:
-                                # 这个季都没下过，记下来
-                                download_items[media_key][str(season)] = [0]
+                episodes = can_item.get_episode_list()
+                # 根据缺失的集过滤
+                if need_tv_episodes:
+                    # 需要的季包含了标题中的季才下
+                    need_seasons = []
+                    for need_season in need_tv_episodes:
+                        need_seasons.append(need_season.get("season"))
+                    if need_seasons != seasons and set(need_seasons).issubset(set(seasons)):
+                        # 标题中的季比需要的季多
+                        log.info("【PT】%s(%s)%s%s 季过多，跳过..." % (
+                            can_item.title, can_item.year, can_item.get_season_string(), can_item.get_episode_string()))
+                        continue
                     else:
-                        # 只有1季，看集是不是有重复
-                        if download_items[media_key].get(str(seasons[0])):
-                            if download_items[media_key].get(str(seasons[0]))[0] == 0:
-                                # 下过整季了就不下集了
-                                continue
-                            elif set(download_items[media_key].get(str(seasons[0]))).issuperset(
-                                    can_item.get_episode_list()):
-                                # 下过的集大于等于当前的，当前不用下了
-                                continue
+                        # 季符合要求, 要么相等，要么是要的季的子集
+                        if len(seasons) == 1:
+                            # 只有一季，看集数是不是想到的
+                            need_episodes = []
+                            if episodes:
+                                for need_season in need_tv_episodes:
+                                    if need_season.get("season") == seasons[0]:
+                                        need_episodes = need_season.get("episodes")
+                                        break
+                                if need_episodes != episodes and not set(need_episodes).intersection(set(episodes)):
+                                    # 不相等而且没有交集，不要
+                                    continue
                             else:
-                                # 当前有之前不存在的，要下，且要合并一下
-                                download_items[media_key][str(seasons[0])] = list(
-                                    set(download_items[media_key].get(str(seasons[0]))).union(
-                                        set(can_item.get_episode_list())))
+                                # 标题中没有集，说明是一整季，下！
+                                pass
                         else:
-                            # 这个季都没下过，记下来
-                            download_items[media_key][str(seasons[0])] = can_item.get_episode_list()
-                else:
-                    # 没下过
-                    if len(seasons) > 1:
-                        # 有多季，把下过的季存起来
-                        download_items[media_key] = {}
-                        for season in can_item.get_season_list():
-                            download_items[media_key][str(season)] = [0]
+                            # 有多季，且都是想要的季，保留下载
+                            pass
+                # 记录下了的季和集，同一批不要重了：标题年份季集
+                need_download = False
+                for season in can_item.get_season_list():
+                    season_str = "%s%s%s" % (can_item.title, can_item.year, str(season).rjust(2, "0"))
+                    season_episodes = can_item.get_episode_list()
+                    if season_episodes:
+                        # 有集的，看整季或者集是不是有下过
+                        for episode in season_episodes:
+                            episode_str = str(episode).rjust(2, "0")
+                            season_episode_str = "%s%s" % (season_str, episode_str)
+                            if "%s00" % season_str in downloaded_items:
+                                # 下过整季了，有集的丢掉
+                                continue
+                            if season_episode_str not in downloaded_items:
+                                need_download = True
+                                downloaded_items.append(season_episode_str)
                     else:
-                        # 只有一季，把下过的集存起来
-                        download_items[media_key] = {}
-                        download_items[media_key][str(seasons[0])] = can_item.get_episode_list()
-            # 开始添加下载
+                        # 没集的，看整季是不是有下过
+                        season_episode_str = "%s00" % season_str
+                        if season_episode_str not in downloaded_items:
+                            need_download = True
+                            downloaded_items.append(season_episode_str)
+
+                if not need_download:
+                    log.info("【PT】%s(%s)%s%s 下载重复，跳过..." % (
+                        can_item.title, can_item.year, can_item.get_season_string(), can_item.get_episode_string()))
+                    continue
+
+            # 开始真正的下载
             download_medias.append(can_item)
             log.info("【PT】添加PT任务：%s ..." % can_item.org_string)
             ret = self.add_pt_torrent(can_item.enclosure, can_item.type)

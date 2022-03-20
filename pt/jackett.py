@@ -112,7 +112,6 @@ class Jackett:
                     index_sucess = index_sucess + 1
                     ret_array.append(media_info)
             else:
-                log.info("【JACKETT】%s 不匹配，跳过..." % torrent_name)
                 continue
         log.info("【JACKETT】%s 共检索到 %s 条有效资源" % (indexer_name, index_sucess))
         return ret_array
@@ -254,7 +253,7 @@ class Jackett:
             if in_from == SearchType.WX:
                 self.message.sendmsg(title="%s 共检索到 %s 个有效资源，即将择优下载！" % (content, len(media_list)), text="")
             # 去重择优后开始添加下载
-            download_medias = self.downloader.check_and_add_pt(in_from, media_list)
+            download_medias = self.downloader.check_and_add_pt(in_from, media_list, total_tv_no_exists)
             # 统计下载情况，下全了返回True，没下全返回False
             if len(download_medias) == 0:
                 log.info("【JACKETT】%s 搜索结果在媒体库中均已存在，本次下载取消！" % content)
@@ -273,7 +272,7 @@ class Jackett:
                                 complete_flag = True
                                 break
                             # 如果下了一个单季，没有集的信息，则认为所有的集都下全了
-                            if len(media.get_season_list()) == 1 and media.is_in_seasion(tv_item.get("season") and not media.begin_episode):
+                            if len(media.get_season_list()) == 1 and media.is_in_seasion(tv_item.get("season") and not media.get_episode_list()):
                                 complete_flag = True
                                 break
                             # 如果下了一个单季，有集的信息，且所含了所有缺失的集，则认为下全了
@@ -291,21 +290,20 @@ class Jackett:
     @staticmethod
     def __is_jackett_match_sey(media_info, s_num, e_num, year_str):
         if s_num:
-            # 只要单季不下集合，下集合会导致下很多
-            if not media_info.is_in_seasion(s_num) or len(media_info.get_season_list()) > 1:
-                log.info("【JACKETT】%s 未匹配季：%s" % (media_info.org_string, s_num))
+            if not media_info.is_in_seasion(s_num):
+                log.info("【JACKETT】%s(%s)%s%s 未匹配季：%s" % (media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string(), s_num))
                 return False
         if e_num:
             if not media_info.is_in_episode(e_num):
-                log.info("【JACKETT】%s 未匹配集：%s" % (media_info.org_string, e_num))
+                log.info("【JACKETT】%s(%s)%s%s 未匹配集：%s" % (media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string(), e_num))
                 return False
         if year_str:
             # 有的电视剧年份会是最新的年份（比如豆瓣过来的），所以年份的问题也比对下标题
             if str(media_info.year) != year_str and year_str not in media_info.org_string:
-                log.info("【JACKETT】%s 未匹配年份：%s" % (media_info.org_string, year_str))
+                log.info("【JACKETT】%s(%s)%s%s 未匹配年份：%s" % (media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string(), year_str))
                 return False
         return True
 
 
 if __name__ == "__main__":
-    Jackett().search_one_media("英雄")
+    Jackett().search_one_media("国王排名")
