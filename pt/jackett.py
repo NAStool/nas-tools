@@ -148,7 +148,7 @@ class Jackett:
 
     # 按关键字，检索排序去重后择优下载：content是搜索内容，total_num是电视剧的总集数
     def search_one_media(self, content, in_from=SearchType.OT):
-        key_word, season_num, episode_num, year = get_keyword_from_string(content)
+        key_word, search_season, search_episode, search_year = get_keyword_from_string(content)
         if not key_word:
             log.info("【JACKETT】检索关键字有误！" % content)
             return False
@@ -169,18 +169,18 @@ class Jackett:
                         self.message.sendmsg("%s 无法查询到媒体详细信息！" % meta_info.title)
                     log.info("【JACKETT】%s 无法查询到媒体详细信息！" % meta_info.title)
                     return False
-                if not season_num:
+                if not search_season:
                     # 没有输入季
                     if in_from == SearchType.WX:
                         self.message.sendmsg("电视剧 %s 共有 %s 季" % (meta_info.title, len(total_seasons)))
                     log.info("【JACKETT】电视剧 %s 共有 %s 季" % (meta_info.title, len(total_seasons)))
                 else:
                     # 有输入季
-                    episode_num = get_tmdb_season_episodes_num(tv_info.get("seasons"), season_num)
-                    total_seasons = [{"season_number": season_num, "episode_count": episode_num}]
+                    episode_num = get_tmdb_season_episodes_num(tv_info.get("seasons"), search_season)
+                    total_seasons = [{"season_number": search_season, "episode_count": episode_num}]
                     if in_from == SearchType.WX:
-                        self.message.sendmsg("电视剧 %s 第%s季 共有 %s 集" % (meta_info.title, season_num, episode_num))
-                    log.info("【JACKETT】电视剧 %s 第%s季 共有 %s 集" % (meta_info.title, season_num, episode_num))
+                        self.message.sendmsg("电视剧 %s 第%s季 共有 %s 集" % (meta_info.title, search_season, episode_num))
+                    log.info("【JACKETT】电视剧 %s 第%s季 共有 %s 集" % (meta_info.title, search_season, episode_num))
                 # 查询缺少多少集
                 need_search = False
                 for season in total_seasons:
@@ -193,16 +193,16 @@ class Jackett:
                         # 存在缺失
                         need_search = True
                         exists_tvs_str = "、".join(["%s" % tv for tv in no_exists_tv_episodes])
-                        if episode_num:
+                        if search_episode:
                             # 有集数
-                            if episode_num not in no_exists_tv_episodes:
+                            if search_episode not in no_exists_tv_episodes:
                                 # 这一集存在
                                 if in_from == SearchType.WX:
                                     self.message.sendmsg(title="%s 在Emby媒体库中已经存在，本次下载取消！" % content, text="")
                                 log.info("【JACKETT】%s 在Emby媒体库中已经存在，本次下载取消！" % content)
                                 return True
                             else:
-                                total_tv_no_exists = [{"season": season_number, "episodes": [episode_num]}]
+                                total_tv_no_exists = [{"season": season_number, "episodes": [search_episode]}]
                         else:
                             if len(no_exists_tv_episodes) == episode_count:
                                 if in_from == SearchType.WX:
@@ -245,7 +245,7 @@ class Jackett:
         if in_from == SearchType.WX:
             self.message.sendmsg("开始检索%s %s ..." % (meta_info.type.value, content))
         log.info("【JACKETT】开始检索%s %s ..." % (meta_info.type.value, content))
-        media_list = self.search_medias_from_word(key_word=key_word, s_num=season_num, e_num=episode_num, year=year, whole_word=True)
+        media_list = self.search_medias_from_word(key_word=key_word, s_num=search_season, e_num=search_episode, year=search_year, whole_word=True)
         if len(media_list) == 0:
             if in_from == SearchType.WX:
                 self.message.sendmsg("%s 未检索到任何媒体资源！" % content, "")
