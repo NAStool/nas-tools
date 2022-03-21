@@ -2,7 +2,6 @@ import threading
 
 import log
 from config import get_config
-from message.send import Message
 from pt.douban import DouBan
 from pt.jackett import Jackett
 from utils.sqls import insert_tv_key, insert_movie_key, get_douban_search_state, insert_douban_media_state
@@ -15,12 +14,10 @@ class DoubanSync:
     __interval = None
     __auto_search = True
     __auto_rss = True
-    message = None
     douban = None
     jackett = None
 
     def __init__(self):
-        self.message = Message()
         self.douban = DouBan()
         self.jackett = Jackett()
         config = get_config()

@@ -221,9 +221,7 @@ class DouBan:
             # 这里解析一下，拿到标题和年份、还有标题中的季
             meta_info = MetaInfo(douban_title)
             # 分类 电影和电视剧
-            if '上映时间:' in infos or '上映日期:' in infos:
-                meta_info.type = MediaType.MOVIE
-            elif "首播:" in infos or "首播时间:" in infos:
+            if '集数:' in infos or '单集片长:' in infos:
                 meta_info.type = MediaType.TV
             else:
                 meta_info.type = MediaType.MOVIE

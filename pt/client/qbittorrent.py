@@ -91,8 +91,9 @@ class Qbittorrent:
     # 处理qbittorrent中的种子
     def transfer_task(self):
         # 处理所有任务
-        log.info("【QB】开始转移下载文件...")
+        log.info("【QB】开始转移PT下载文件...")
         torrents = self.get_torrents()
+        trans_torrents = []
         for torrent in torrents:
             log.debug("【QB】" + torrent.get('name') + "：" + torrent.get('state'))
             if torrent.get('state') == "uploading" or torrent.get('state') == "stalledUP":
@@ -106,9 +107,11 @@ class Qbittorrent:
                 done_flag = self.filetransfer.transfer_media(in_from=DownloaderType.QB, in_path=true_path)
                 if done_flag:
                     self.set_torrents_status(torrent.get('hash'))
+                    trans_torrents.append(torrent.name)
                 else:
                     log.error("【QB】%s 转移失败！" % torrent.get('name'))
-        log.info("【QB】下载文件转移结束！")
+        log.info("【QB】PT下载文件转移结束！")
+        return trans_torrents
 
     # 做种清理
     def remove_torrents(self, seeding_time):

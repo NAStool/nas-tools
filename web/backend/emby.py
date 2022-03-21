@@ -6,6 +6,8 @@ import requests
 import log
 from config import get_config, RMT_FAVTYPE
 from message.send import Message
+from rmt.filetransfer import FileTransfer
+from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from utils.functions import get_local_time, get_location
 from utils.types import MediaCatagory, MediaType
@@ -15,14 +17,19 @@ PLAY_LIST = []
 
 class Emby:
     message = None
+    filetransfer = None
+    media = None
     __movie_path = None
     __tv_path = None
     __movie_subtypedir = True
     __apikey = None
     __host = None
+    __library_info = []
 
     def __init__(self):
         self.message = Message()
+        self.filetransfer = FileTransfer()
+        self.media = Media()
         config = get_config()
         if config.get('media'):
             self.__movie_path = config['media'].get('movie_path')
@@ -38,6 +45,23 @@ class Emby:
             if not self.__host.endswith('/'):
                 self.__host = self.__host + "/"
             self.__apikey = config['emby'].get('api_key')
+            self.__library_info = self.get_emby_librarys()
+
+    # 获取Emby媒体库的信息
+    def get_emby_librarys(self):
+        if not self.__host or not self.__apikey:
+            return []
+        req_url = "%semby/Library/SelectableMediaFolders?api_key=%s" % (self.__host, self.__apikey)
+        try:
+            res = requests.get(req_url)
+            if res:
+                return res.json()
+            else:
+                log.error("【EMBY】Library/SelectableMediaFolders 未获取到返回数据")
+                return []
+        except Exception as e:
+            log.error("【EMBY】连接Library/SelectableMediaFolders 出错：" + str(e))
+            return []
 
     # 获得用户数量
     def get_emby_user_count(self):
@@ -220,6 +244,55 @@ class Emby:
         except Exception as e:
             log.error("【EMBY】连接Items/{Id}/RemoteImages出错：" + str(e))
             return None
+        return None
+
+    # 通知Emby刷新一个项目的媒体库
+    def refresh_emby_library_by_id(self, item_id):
+        if not self.__host or not self.__apikey:
+            return False
+        req_url = "%semby/Items/%s/Refresh?Recursive=true&api_key=%s" % (self.__host, item_id, self.__apikey)
+        try:
+            res = requests.post(req_url)
+            if res:
+                return True
+        except Exception as e:
+            log.error("【EMBY】连接Items/{Id}/Refresh出错：" + str(e))
+            return False
+        return False
+
+    # 按名称来刷新媒体库
+    def refresh_emby_library_by_names(self, names):
+        # 收集要刷新的媒体库信息
+        library_ids = []
+        for torrent in names:
+            media_info = self.media.get_media_info(torrent)
+            if not media_info or not media_info.tmdb_info:
+                continue
+            library_id = self.get_emby_library_id_by_metainfo(media_info)
+            if library_id and library_id not in library_ids:
+                library_ids.append(library_id)
+        # 开始刷新媒体库
+        for library_id in library_ids:
+            self.refresh_emby_library_by_id(library_id)
+
+    # 根据媒体信息查询在哪个媒体库，返回要刷新的位置的ID
+    def get_emby_library_id_by_metainfo(self, media):
+        if media.type == MediaType.TV:
+            item_id = self.get_emby_series_id_by_name(media.title, media.year)
+            if item_id:
+                # 存在电视剧，则直接刷新这个电视剧就行
+                return item_id
+        else:
+            if self.get_emby_movies(media.title, media.year):
+                # 已存在，不用刷新
+                return None
+        # 查找需要刷新的媒体库ID
+        media_path = self.filetransfer.get_media_dest_path(media)
+        if media_path:
+            for library in self.__library_info:
+                for folder in library.get("SubFolders"):
+                    if os.path.samefile(folder.get("Path"), media_path):
+                        return library.get("Id")
         return None
 
 

@@ -135,7 +135,7 @@ pt:
   # 配置在前面的站点，在下载资源时会优先选择
   sites:
     pthome:
-      # RSS订阅源URL，可以是点击PT站点RSS图标获取，注意不要选中类型、小标题等内容，避免干扰识别，有新出资源时自动匹配下载；也可以是PT站的购物车/下载框的链接（部分站点才有）。
+      # RSS订阅源URL，可以是点击PT站点RSS图标获取，有新出资源时自动匹配下载；也可以是PT站的购物车/下载框的链接（部分站点才有）。
       rssurl:
       # PT站用户签到的Url，一般为mybonus.php或attendance.php，即PT站点签到按钮跳转的页面，不配置则不启用签到功能
       signin_url: 'https://pthome.net/attendance.php'

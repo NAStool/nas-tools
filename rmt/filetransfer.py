@@ -50,6 +50,21 @@ class FileTransfer:
         self.media = Media()
         self.message = Message()
 
+    # 拼装目的路径并返回
+    def get_media_dest_path(self, media_info):
+        if media_info.type == MediaType.MOVIE:
+            if self.__movie_subtypedir:
+                return os.path.join(self.__movie_path, media_info.category.value)
+            else:
+                return self.__movie_path
+        elif media_info.type == MediaType.TV:
+            if self.__tv_subtypedir:
+                return os.path.join(self.__tv_path, media_info.category.value)
+            else:
+                return self.__tv_path
+        else:
+            return None
+
     # 根据文件名转移对应字幕文件
     @staticmethod
     def transfer_subtitles(org_name, new_name, rmt_mode=RmtMode.COPY):

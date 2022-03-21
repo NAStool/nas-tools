@@ -1,8 +1,6 @@
 # 定时转移所有qbittorrent中下载完成的种子
 import threading
-
 import log
-from message.send import Message
 from pt.downloader import Downloader
 
 lock = threading.Lock()
@@ -10,11 +8,9 @@ lock = threading.Lock()
 
 class PTTransfer:
     __pt_client = None
-    message = None
     downloader = None
 
     def __init__(self):
-        self.message = Message()
         self.downloader = Downloader()
 
     def run_schedule(self):

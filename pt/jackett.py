@@ -152,7 +152,7 @@ class Jackett:
 
         # 先识别关键字是什么电视或者电视剧，如果是电视据看下有多少季，每季有多少集
         log.info("【JACKETT】正在识别 %s 的媒体信息..." % content)
-        meta_info = self.media.get_media_info(content, content)
+        meta_info = self.media.get_media_info(content)
         total_tv_no_exists = []
         if meta_info.tmdb_info:
             if meta_info.type == MediaType.TV:

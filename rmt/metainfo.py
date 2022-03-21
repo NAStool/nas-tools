@@ -89,6 +89,8 @@ class MetaInfo(object):
         # 解析副标题，只要季和集
         if subtitle:
             self.__init_subtitle(subtitle)
+        else:
+            self.__init_subtitle(title)
         if not self.type:
             self.type = MediaType.MOVIE
 
@@ -123,8 +125,6 @@ class MetaInfo(object):
         if self._stop_name_flag:
             return
         if is_chinese(token):
-            # 中文标题，处理下看是不是有季和集的信息
-            self.__init_subtitle(token)
             # 名㝋里如果有第X季，第X集的干掉
             token = re.sub(r'第\s*[0-9一二三四五六七八九十]+\s*季|第\s*[0-9一二三四五六七八九十]+\s*集', '', token, flags=re.IGNORECASE).strip()
             # 有中文的，把中文外的英文、字符、等全部去掉，连在一起的数字会保留

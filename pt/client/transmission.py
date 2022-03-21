@@ -95,8 +95,9 @@ class Transmission:
     # 处理transmission中的种子
     def transfer_task(self):
         # 处理所有任务
-        log.info("【TR】开始转移下载文件...")
+        log.info("【TR】开始转移PT下载文件...")
         torrents = self.get_torrents()
+        trans_torrents = []
         for torrent in torrents:
             log.debug("【TR】" + torrent.name + "：" + torrent.status)
             # 3.0版本以下的Transmission没有labels
@@ -120,9 +121,11 @@ class Transmission:
                 ret = self.filetransfer.transfer_media(in_from=DownloaderType.TR, in_path=true_path)
                 if ret:
                     self.set_torrents_status(torrent.id)
+                    trans_torrents.append(torrent.name)
                 else:
                     log.error("【TR】%s 转移失败：" % torrent.name)
-        log.info("【TR】下载文件转移结束！")
+        log.info("【TR】PT下载文件转移结束！")
+        return trans_torrents
 
     # 做种清理
     def remove_torrents(self, seeding_time):

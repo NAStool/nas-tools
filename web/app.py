@@ -1,6 +1,5 @@
 import log
 from config import get_config
-from message.send import Message
 from web.main import create_flask_app
 
 
@@ -9,10 +8,8 @@ class FlaskApp:
     __web_port = None
     __ssl_cert = None
     __ssl_key = None
-    message = None
 
     def __init__(self):
-        self.message = Message()
         self.__app = create_flask_app()
         config = get_config()
         if config.get('app'):

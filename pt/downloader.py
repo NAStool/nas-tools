@@ -6,6 +6,7 @@ from message.send import Message
 from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
 from rmt.filetransfer import FileTransfer
+from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from utils.functions import str_filesize
 
@@ -20,12 +21,13 @@ class Downloader:
     message = None
     emby = None
     filetransfer = None
+    media = None
 
     def __init__(self):
         self.message = Message()
         self.emby = Emby()
         self.filetransfer = FileTransfer()
-
+        self.media = Media()
         config = get_config()
         if config.get('pt'):
             pt_client = config['pt'].get('pt_client')
@@ -52,7 +54,8 @@ class Downloader:
     # 转移PT下载文人年
     def pt_transfer(self):
         if self.client:
-            return self.client.transfer_task()
+            trans_torrents = self.client.transfer_task()
+            self.emby.refresh_emby_library_by_names(trans_torrents)
 
     # 做种清理
     def pt_removetorrents(self):
