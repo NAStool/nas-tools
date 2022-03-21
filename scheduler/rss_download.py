@@ -103,9 +103,7 @@ class RSSDownloader:
             for res in rss_result:
                 try:
                     torrent_name = res['title']
-                    # 去掉第1个以[]开关的种子名称，有些站会把类型加到种子名称上，会误导识别
-                    # 非贪婪只匹配一个
-                    torrent_name = re.sub(r'^\[.+?]', "", torrent_name, count=1)
+                    torrent_name = self.downloader.prepare_torrent_name(torrent_name)
                     enclosure = res['enclosure']
                     description = res['description']
                     # 判断是否处理过

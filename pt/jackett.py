@@ -56,9 +56,7 @@ class Jackett:
         index_sucess = 0
         for media_item in media_array:
             torrent_name = media_item.get('title')
-            # 去掉第1个以[]开关的种子名称，有些站会把类型加到种子名称上，会误导识别
-            # 非贪婪只匹配一个
-            torrent_name = re.sub(r'^\[.+?]', "", torrent_name, count=1)
+            torrent_name = self.downloader.prepare_torrent_name(torrent_name)
             enclosure = media_item.get('enclosure')
             size = media_item.get('size')
             description = media_item.get('description')
@@ -154,7 +152,7 @@ class Jackett:
 
         # 先识别关键字是什么电视或者电视剧，如果是电视据看下有多少季，每季有多少集
         log.info("【JACKETT】正在识别 %s 的媒体信息..." % content)
-        meta_info = self.media.get_media_info(content)
+        meta_info = self.media.get_media_info(content, content)
         total_tv_no_exists = []
         if meta_info.tmdb_info:
             if meta_info.type == MediaType.TV:
