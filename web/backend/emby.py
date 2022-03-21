@@ -177,14 +177,22 @@ class Emby:
             if exists_movies:
                 return True
         else:
-            for season in item.get_season_list():
+            seasons = item.get_season_list()
+            for season in seasons:
                 exists_episodes = self.get_emby_tv_episodes(item.title, item.year, season)
-                if exists_episodes and not item.get_episode_list():
-                    # 种子标题中没有集的信息，且本地又存在的，按存在处理
-                    continue
-                if not set(exists_episodes).issuperset(set(item.get_episode_list())):
-                    # 本地存在的没有比标题中的集更多，按不存在处理
+                if exists_episodes:
+                    if not item.get_episode_list():
+                        # 这一季本地存在，继续检查下一季
+                        continue
+                    elif set(exists_episodes).issuperset(set(item.get_episode_list())):
+                        # 这一季种子中的所有集本地存在，继续检查下一季
+                        continue
+                    # 这一季不符合以上两个条件，以不存在返回
                     return False
+                else:
+                    # 这一季不存在
+                    return False
+            # 所有季检查完成，没有返回的，即都存在
             return True
         return False
 

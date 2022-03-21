@@ -209,33 +209,31 @@ class DouBan:
 
     def __get_movie_dict(self, soup):
         # 标签名不加任何修饰，类名前加点，id名前加#
-        info = soup.select('#info')
-        infos = list(info[0].strings)
-        infos = [i.strip() for i in infos if i.strip() != '']
-        # 影视名称
-        title = soup.select('#wrapper > div > h1')
-        titles = list(title[0].strings)
-        titles = [i.strip() for i in titles if i.strip() != '']
-        douban_title = ''.join(titles)
-        # 这里解析一下，拿到标题和年份、还有标题中的季
-        meta_info = MetaInfo(douban_title)
-        # 分类 电影和电视剧
-        if '上映时间:' in infos or '上映日期:' in infos:
-            meta_info.type = MediaType.MOVIE
-        elif "首播:" in infos or "首播时间:" in infos:
-            meta_info.type = MediaType.TV
-        else:
-            meta_info.type = MediaType.MOVIE
-        # 总季数集数
-        if meta_info.type == MediaType.TV:
-            meta_info.total_episodes = int(self.__get_single_info_list(infos, "集数:")[0])
-
-        # 评分 评价数
-        meta_info.vote_average = float(self.__get_media_rating_list(soup)[0])
-        # 图片网址
-        movie_img = soup.select("#mainpic > a > img")[0].attrs['src']
-        meta_info.poster_path = movie_img
-
+        try:
+            info = soup.select('#info')
+            infos = list(info[0].strings)
+            infos = [i.strip() for i in infos if i.strip() != '']
+            # 影视名称
+            title = soup.select('#wrapper > div > h1')
+            titles = list(title[0].strings)
+            titles = [i.strip() for i in titles if i.strip() != '']
+            douban_title = ''.join(titles)
+            # 这里解析一下，拿到标题和年份、还有标题中的季
+            meta_info = MetaInfo(douban_title)
+            # 分类 电影和电视剧
+            if '上映时间:' in infos or '上映日期:' in infos:
+                meta_info.type = MediaType.MOVIE
+            elif "首播:" in infos or "首播时间:" in infos:
+                meta_info.type = MediaType.TV
+            else:
+                meta_info.type = MediaType.MOVIE
+            # 评分 评价数
+            meta_info.vote_average = float(self.__get_media_rating_list(soup)[0])
+            # 图片网址
+            meta_info.poster_path = soup.select("#mainpic > a > img")[0].attrs['src']
+        except Exception as e:
+            log.error("【DOUBAN】解析出错：%s" % str(e))
+            return None
         return meta_info
 
     @staticmethod

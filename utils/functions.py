@@ -31,6 +31,12 @@ def get_location(ip):
 
 # 计算文件大小
 def str_filesize(size):
+    if not isinstance(size, int) or not isinstance(size, float):
+        try:
+            size = float(size)
+        except Exception as e:
+            print(str(e))
+            return ""
     d = [(1024 - 1, 'K'), (1024 ** 2 - 1, 'M'), (1024 ** 3 - 1, 'G'), (1024 ** 4 - 1, 'T')]
     s = [x[0] for x in d]
     index = bisect.bisect_left(s, size) - 1
@@ -208,7 +214,12 @@ def parse_rssxml(url):
                         continue
                     else:
                         enclosure = tagName.getAttribute("url")
-                    tmp_dict = {'title': title, 'enclosure': enclosure}
+                    firstChild = item.getElementsByTagName("description")[0].firstChild
+                    if not firstChild:
+                        description = None
+                    else:
+                        description = firstChild.data
+                    tmp_dict = {'title': title, 'enclosure': enclosure, 'description': description}
                     ret_array.append(tmp_dict)
                 except Exception as e1:
                     print(str(e1))
@@ -314,6 +325,8 @@ def get_keyword_from_string(content):
         season_num = int(cn2an.cn2an(season_re.group(1), mode='smart'))
     if episode_re:
         episode_num = int(cn2an.cn2an(episode_re.group(1), mode='smart'))
+        if episode_num and not season_num:
+            season_num = "1"
     if year_re:
         year = year_re.group(1)
     key_word = re.sub(r'第\s*[0-9一二三四五六七八九十]+\s*季|第\s*[0-9一二三四五六七八九十]+\s*集|[\s(]+(\d{4})[\s)]*', '', content, flags=re.IGNORECASE).strip()

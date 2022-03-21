@@ -104,11 +104,11 @@ class Media:
         return info
 
     # 只有名称信息，判别是电影还是电视剧并TMDB信息
-    def get_media_info(self, title):
+    def get_media_info(self, title, subtitle=None):
         global METAINFO_NAMES
         if not title:
             return None
-        meta_info = MetaInfo(title)
+        meta_info = MetaInfo(title, subtitle)
         media_name = meta_info.get_name()
         media_year = meta_info.year
         media_key = "%s%s" % (media_name, media_year)

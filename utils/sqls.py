@@ -135,6 +135,11 @@ def is_torrent_rssd_by_name(media_title, media_year, media_seaion, media_episode
     return False
 
 
+# 删除所有JACKETT的记录
+def delete_all_jackett_torrents():
+    return update_by_sql("DELETE FROM JACKETT_TORRENTS")
+
+
 # 将RSS的记录插入数据库
 def insert_rss_torrents(media_info):
     sql = "INSERT INTO RSS_TORRENTS(TORRENT_NAME, ENCLOSURE, TYPE, TITLE, YEAR, SEASON, EPISODE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (

@@ -107,6 +107,7 @@ class RSSDownloader:
                     # 非贪婪只匹配一个
                     torrent_name = re.sub(r'^\[.+?]', "", torrent_name, count=1)
                     enclosure = res['enclosure']
+                    description = res['description']
                     # 判断是否处理过
                     if enclosure in RSS_CACHED_TORRENTS:
                         log.info("【RSS】%s 已处理过，跳过..." % torrent_name)
@@ -117,7 +118,7 @@ class RSSDownloader:
                     log.info("【RSS】开始检索媒体信息:" + torrent_name)
 
                     # 识别种子名称，开始检索TMDB
-                    media_info = self.media.get_media_info(torrent_name)
+                    media_info = self.media.get_media_info(torrent_name, description)
                     if not media_info or not media_info.tmdb_info:
                         continue
                     if self.__rss_chinese and not is_chinese(media_info.title):
@@ -133,9 +134,9 @@ class RSSDownloader:
                     # 检查种子名称或者标题是否匹配
                     match_flag = self.__is_torrent_match(media_info, movie_keys, tv_keys)
                     if match_flag:
-                        log.info("【RSS】%s 匹配成功！" % torrent_name)
+                        log.info("【RSS】%s: %s(%s)%s%s 匹配成功！" % (media_info.type.value, media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string()))
                     else:
-                        log.info("【RSS】%s 不匹配关键字！" % torrent_name)
+                        log.info("【RSS】%s: %s(%s)%s%s 不匹配！" % (media_info.type.value, media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string()))
                         continue
                     # 匹配后，看资源类型是否满足
                     # 代表资源类型在配置中的优先级顺序
@@ -175,27 +176,20 @@ class RSSDownloader:
         # 按种子标题匹配
         check_title = "%s %s %s" % (media_info.cn_name, media_info.en_name, media_info.year)
         if media_info.type == MediaType.MOVIE:
-            # 按电影匹配
             for key in movie_keys:
-                # 中英文名跟年份都纳入匹配
+                # 匹配种子标题
                 if re.search(r"%s" % key, check_title, re.IGNORECASE):
                     return True
+                # 匹配媒体名称
+                if str(key).strip() == media_info.title:
+                    return True
         else:
-            # 按电视剧匹配
+            # 匹配种子标题
             for key in tv_keys:
                 # 中英文名跟年份都纳入匹配
                 if re.search(r"%s" % key, check_title, re.IGNORECASE):
                     return True
-        # 按媒体信息匹配
-        if media_info.type == MediaType.MOVIE:
-            # 按电影匹配
-            for key in movie_keys:
-                if str(key) == media_info.title:
-                    return True
-        else:
-            # 按电视剧匹配
-            for key in tv_keys:
-                if str(key) == media_info.title:
+                if str(key).strip() == media_info.title:
                     return True
         return False
 

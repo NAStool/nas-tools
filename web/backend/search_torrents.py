@@ -2,7 +2,7 @@ import log
 from pt.jackett import Jackett
 from utils.db_helper import update_by_sql
 from utils.functions import get_keyword_from_string
-from utils.sqls import insert_jackett_results
+from utils.sqls import insert_jackett_results, delete_all_jackett_torrents
 from utils.types import MediaType
 
 
@@ -14,7 +14,7 @@ def search_medias_for_web(content):
         return
     log.info("【WEB】开始检索 %s ..." % content)
     media_list = Jackett().search_medias_from_word(key_word=key_word, s_num=season_num, e_num=episode_num, year=year, whole_word=False)
-    update_by_sql("DELETE FROM JACKETT_TORRENTS")
+    delete_all_jackett_torrents()
     if len(media_list) == 0:
         log.info("【WEB】%s 未检索到任何媒体资源！" % content)
         return

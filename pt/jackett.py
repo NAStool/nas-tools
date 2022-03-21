@@ -68,11 +68,11 @@ class Jackett:
             # 检查资源类型
             match_flag, res_order, res_typestr = self.media.check_resouce_types(torrent_name, self.__res_type)
             if not match_flag:
-                log.debug("【JACKETT】%s 资源类型不匹配！" % torrent_name)
+                log.debug("【JACKETT】%s 资源类型不匹配" % torrent_name)
                 continue
 
             # 识别种子名称
-            media_info = self.media.get_media_info(torrent_name)
+            media_info = self.media.get_media_info(torrent_name, description)
             if not media_info or not media_info.tmdb_info:
                 log.debug("【JACKETT】%s 未检索媒体信息！" % torrent_name)
                 continue
@@ -84,14 +84,14 @@ class Jackett:
                     match_flag = True
                 else:
                     match_flag = False
-                    log.info("【JACKETT】%s 未匹配名称：%s" % (torrent_name, key_word))
+                    log.info("【JACKETT】%s：%s 不匹配名称：%s" % (media_info.type.value, media_info.title, key_word))
             else:
                 # 非全匹配模式，种子中或者名字中有关键字就行
                 if key_word in media_info.title or key_word in "%s %s" % (media_info.en_name, media_info.cn_name):
                     match_flag = True
                 else:
                     match_flag = False
-                    log.info("【JACKETT】%s 未匹配名称：%s" % (torrent_name, key_word))
+                    log.info("【JACKETT】%s：%s %s %s 不匹配名称：%s" % (media_info.type.value, media_info.en_name, media_info.cn_name, media_info.title, key_word))
 
             # 检查标题是否匹配剧集
             if match_flag:
@@ -165,8 +165,8 @@ class Jackett:
                     total_seasons = get_tmdb_seasons_info(tv_info.get("seasons"))
                 else:
                     if in_from == SearchType.WX:
-                        self.message.sendmsg("%s 无法查询到媒体详细信息！" % meta_info.title)
-                    log.info("【JACKETT】%s 无法查询到媒体详细信息！" % meta_info.title)
+                        self.message.sendmsg("%s 无法查询到媒体详细信息" % meta_info.title)
+                    log.info("【JACKETT】%s 无法查询到媒体详细信息" % meta_info.title)
                     return False
                 if not search_season:
                     # 没有输入季
@@ -236,8 +236,8 @@ class Jackett:
                             return True
         else:
             if in_from == SearchType.WX:
-                self.message.sendmsg("%s 无法查询到任何电影或者电视剧信息，请确认名称是否正确！" % content)
-            log.info("【JACKETT】%s 无法查询到任何电影或者电视剧信息，请确认名称是否正确！" % content)
+                self.message.sendmsg("%s 无法查询到任何电影或者电视剧信息，请确认名称是否正确" % content)
+            log.info("【JACKETT】%s 无法查询到任何电影或者电视剧信息，请确认名称是否正确" % content)
             return False
 
         # 开始真正搜索资源
@@ -251,17 +251,17 @@ class Jackett:
             return False
         else:
             if in_from == SearchType.WX:
-                self.message.sendmsg(title="%s 共检索到 %s 个有效资源，即将择优下载！" % (content, len(media_list)), text="")
+                self.message.sendmsg(title="%s 共检索到 %s 个有效资源，即将择优下载..." % (content, len(media_list)), text="")
             # 去重择优后开始添加下载
             download_medias = self.downloader.check_and_add_pt(in_from, media_list, total_tv_no_exists)
             # 统计下载情况，下全了返回True，没下全返回False
             if len(download_medias) == 0:
-                log.info("【JACKETT】%s 搜索结果在媒体库中均已存在，本次下载取消！" % content)
+                log.info("【JACKETT】%s 搜索结果在媒体库中均已存在，本次下载取消" % content)
                 if in_from == SearchType.WX:
-                    self.message.sendmsg("%s 搜索结果在媒体库中均已存在，本次下载取消！" % content, "")
+                    self.message.sendmsg("%s 搜索结果在媒体库中均已存在，本次下载取消" % content, "")
                 return False
             else:
-                log.info("【JACKETT】实际下载了 %s 个资源！" % len(download_medias))
+                log.info("【JACKETT】实际下载了 %s 个资源" % len(download_medias))
                 if total_tv_no_exists:
                     # 下载已存在的电视剧，比较要下的都下完了没有，来决定返回什么状态
                     for tv_item in total_tv_no_exists:
@@ -291,19 +291,19 @@ class Jackett:
     def __is_jackett_match_sey(media_info, s_num, e_num, year_str):
         if s_num:
             if not media_info.is_in_seasion(s_num):
-                log.info("【JACKETT】%s(%s)%s%s 未匹配季：%s" % (media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string(), s_num))
+                log.info("【JACKETT】%s(%s)%s%s 不匹配季：%s" % (media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string(), s_num))
                 return False
         if e_num:
             if not media_info.is_in_episode(e_num):
-                log.info("【JACKETT】%s(%s)%s%s 未匹配集：%s" % (media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string(), e_num))
+                log.info("【JACKETT】%s(%s)%s%s 不匹配集：%s" % (media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string(), e_num))
                 return False
         if year_str:
             # 有的电视剧年份会是最新的年份（比如豆瓣过来的），所以年份的问题也比对下标题
             if str(media_info.year) != year_str and year_str not in media_info.org_string:
-                log.info("【JACKETT】%s(%s)%s%s 未匹配年份：%s" % (media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string(), year_str))
+                log.info("【JACKETT】%s(%s)%s%s 不匹配年份：%s" % (media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string(), year_str))
                 return False
         return True
 
 
 if __name__ == "__main__":
-    Jackett().search_one_media("国王排名")
+    Jackett().search_one_media("国土安全第8季")

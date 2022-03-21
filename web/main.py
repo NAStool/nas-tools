@@ -363,12 +363,12 @@ def create_flask_app():
             if not media_info.tmdb_info:
                 year = media_info.year
                 if year:
-                    title = "%s (%s)" % (media_info.get_name(), year)
+                    title = "%s (%s) %s" % (media_info.get_name(), year, media_info.get_season_episode_string())
                 else:
-                    title = media_info.get_name()
+                    title = "%s %s" % (media_info.get_name(), media_info.get_season_episode_string())
                 poster_path = BACKDROP_DEFAULT_IMAGE
             else:
-                title = "%s (%s)" % (media_info.title, media_info.year)
+                title = "%s (%s) %s" % (media_info.title, media_info.year, media_info.get_season_episode_string())
                 poster_path = media_info.poster_path
 
             torrent_info = {'id': key, 'title': title, 'speed': speed, 'image': poster_path, 'state': state, 'progress': progress}

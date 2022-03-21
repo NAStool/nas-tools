@@ -4,6 +4,7 @@ from message.send import Message
 from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
 from rmt.filetransfer import FileTransfer
+from utils.functions import str_filesize
 
 from utils.types import MediaType, DownloaderType, SearchType
 from web.backend.emby import Emby
@@ -192,23 +193,20 @@ class Downloader:
         media_list = sorted(media_list, key=lambda x: get_sort_str(x), reverse=True)
         log.debug("【PT】种子信息排序后如下：")
         for media_item in media_list:
-            log.debug(">标题：%s，"
-                      "序号：%s，"
-                      "资源类型：%s，"
-                      "大小：%s，"
-                      "做种：%s，"
-                      "下载：%s，"
-                      "季：%s，"
-                      "集：%s，"
-                      "种子：%s" % (media_item.title,
-                                 media_item.site_order,
-                                 media_item.res_type,
-                                 media_item.size,
-                                 media_item.seeders,
-                                 media_item.peers,
-                                 media_item.get_season_string(),
-                                 media_item.get_episode_string(),
-                                 media_item.org_string))
+            log.info(">站点：%s，"
+                     "标题：%s (%s)，"
+                     "类型：%s，"
+                     "大小：%s，"
+                     "做种：%s，"
+                     "季集：%s，"
+                     "名称：%s" % (media_item.site,
+                                media_item.title,
+                                media_item.year,
+                                media_item.get_resource_type_string(),
+                                str_filesize(media_item.size),
+                                media_item.seeders,
+                                media_item.get_season_episode_string(),
+                                media_item.org_string))
         # 控重
         can_download_list_item = []
         can_download_list = []

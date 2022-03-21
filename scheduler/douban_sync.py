@@ -67,9 +67,9 @@ class DoubanSync:
                         if self.__auto_rss:
                             log.info("【PT】 %s %s 更新到RSS订阅中..." % (media.get_name(), media.year))
                             if media.type == MediaType.TV:
-                                insert_tv_key(media.title)
+                                insert_tv_key(media.get_name())
                             else:
-                                insert_movie_key(media.title)
+                                insert_movie_key(media.get_name())
                             # 插入为已RSS状态
                             insert_douban_media_state(media, "RSS")
                         else:
@@ -85,9 +85,9 @@ class DoubanSync:
                 # 加入订阅
                 for media in medias:
                     if media.type == MediaType.TV:
-                        insert_tv_key(media.title)
+                        insert_tv_key(media.get_name())
                     else:
-                        insert_movie_key(media.title)
+                        insert_movie_key(media.get_name())
                 log.info("【PT】豆瓣数据加入订阅完成！")
         log.info("【PT】豆瓣数据同步完成！")
 
