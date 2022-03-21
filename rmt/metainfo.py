@@ -198,15 +198,15 @@ class MetaInfo(object):
     def __init_subtitle(self, title_text):
         if re.search(r'[第季集]', title_text, re.IGNORECASE):
             # 季
-            season_str = re.search(r'第\s*([0-9一二三四五六七八九十\-]+)\s*季', title_text, re.IGNORECASE)
+            season_str = re.search(r'第?\s*([0-9一二三四五六七八九十\-]+)\s*季', title_text, re.IGNORECASE)
             if season_str:
                 seasons = season_str.group(1).strip()
                 end_season = None
                 if seasons.find('-') != -1:
                     seasons = seasons.split('-')
-                    begin_season = int(cn2an.cn2an(seasons[0], mode='smart'))
+                    begin_season = int(cn2an.cn2an(seasons[0].strip(), mode='smart'))
                     if len(seasons) > 1:
-                        end_season = int(cn2an.cn2an(seasons[1], mode='smart'))
+                        end_season = int(cn2an.cn2an(seasons[1].strip(), mode='smart'))
                 else:
                     begin_season = int(cn2an.cn2an(seasons, mode='smart'))
                 if not self.begin_season and isinstance(begin_season, int):
@@ -215,15 +215,15 @@ class MetaInfo(object):
                     self.end_season = end_season
                 self.type = MediaType.TV
             # 集
-            episode_str = re.search(r'第\s*([0-9一二三四五六七八九十\-]+)\s*集', title_text, re.IGNORECASE)
+            episode_str = re.search(r'第?\s*([0-9一二三四五六七八九十\-]+)\s*集', title_text, re.IGNORECASE)
             if episode_str:
                 episodes = episode_str.group(1).strip()
                 end_episode = None
                 if episodes.find('-') != -1:
                     episodes = episodes.split('-')
-                    begin_episode = int(cn2an.cn2an(episodes[0], mode='smart'))
+                    begin_episode = int(cn2an.cn2an(episodes[0].strip(), mode='smart'))
                     if len(episodes) > 1:
-                        end_episode = int(cn2an.cn2an(episodes[1], mode='smart'))
+                        end_episode = int(cn2an.cn2an(episodes[1].strip(), mode='smart'))
                 else:
                     begin_episode = int(cn2an.cn2an(episodes, mode='smart'))
                 if not self.begin_episode and isinstance(begin_episode, int):
