@@ -198,7 +198,7 @@ class MetaInfo(object):
     def __init_subtitle(self, title_text):
         if re.search(r'[第季集]', title_text, re.IGNORECASE):
             # 季
-            season_str = re.search(r'第?\s*([0-9一二三四五六七八九十\-]+)\s*季', title_text, re.IGNORECASE)
+            season_str = re.search(r'第\s*([0-9一二三四五六七八九十\-]+)\s*季', title_text, re.IGNORECASE)
             if season_str:
                 seasons = season_str.group(1).strip()
                 end_season = None
@@ -215,7 +215,7 @@ class MetaInfo(object):
                     self.end_season = end_season
                 self.type = MediaType.TV
             # 集
-            episode_str = re.search(r'第?\s*([0-9一二三四五六七八九十\-]+)\s*集', title_text, re.IGNORECASE)
+            episode_str = re.search(r'第\s*([0-9一二三四五六七八九十\-]+)\s*集', title_text, re.IGNORECASE)
             if episode_str:
                 episodes = episode_str.group(1).strip()
                 end_episode = None
@@ -436,7 +436,7 @@ class MetaInfo(object):
 
 
 if __name__ == "__main__":
-    text = "Westworld.S01E01.1080p.BluRay.x265-10bit.DTS5.1-Chingyun"
+    text = "The Demi Gods and Semi Devils 2013 WEB-DL 1080p H 265 AAC-HDCTV"
     meta_info = MetaInfo(text)
     print(meta_info.__dict__)
-    print(meta_info.is_in_seasion(7))
+    print(meta_info.get_season_list())

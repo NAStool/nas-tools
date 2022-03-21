@@ -240,8 +240,8 @@ class Jackett:
 
         # 开始真正搜索资源
         if in_from == SearchType.WX:
-            self.message.sendmsg("开始检索%s %s ..." % (meta_info.type.value, content))
-        log.info("【JACKETT】开始检索%s %s ..." % (meta_info.type.value, content))
+            self.message.sendmsg("开始检索 %s ..." % content)
+        log.info("【JACKETT】开始检索 %s ..." % content)
         media_list = self.search_medias_from_word(key_word=key_word, s_num=search_season, e_num=search_episode, year=search_year, whole_word=True)
         if len(media_list) == 0:
             if in_from == SearchType.WX:
@@ -296,12 +296,11 @@ class Jackett:
                 log.info("【JACKETT】%s(%s)%s%s 不匹配集：%s" % (media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string(), e_num))
                 return False
         if year_str:
-            # 有的电视剧年份会是最新的年份（比如豆瓣过来的），所以年份的问题也比对下标题
-            if str(media_info.year) != year_str and year_str not in media_info.org_string:
+            if str(media_info.year) != year_str:
                 log.info("【JACKETT】%s(%s)%s%s 不匹配年份：%s" % (media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string(), year_str))
                 return False
         return True
 
 
 if __name__ == "__main__":
-    Jackett().search_one_media("国土安全第8季")
+    Jackett().search_one_media("天龙八部第1季")
