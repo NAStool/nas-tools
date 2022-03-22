@@ -397,7 +397,7 @@ class FileTransfer:
                     #  不是PT转移的，只有有变化才通知
                     if not new_movie_flag:
                         continue
-                self.message.send_transfer_movie_message(in_from.value, media, media_filesize, exist_filenum)
+                self.message.send_transfer_movie_message(in_from, media, media_filesize, exist_filenum)
                 log.info("【RMT】%s 转移完成！" % Title_Str)
 
             # 电视剧
@@ -494,17 +494,7 @@ class FileTransfer:
                 continue
 
         # 统计完成情况，发送通知
-        for title_str, item_info in message_medias.items():
-            # PT的不管是否有修改文件均发通知，其他渠道没变化不发通知
-            send_message_flag = False
-            if in_from in DownloaderType:
-                send_message_flag = True
-            else:
-                if item_info.get('Exist_Files') < len(item_info.get('Episode_Ary')):
-                    send_message_flag = True
-
-            if send_message_flag:
-                self.message.send_transfer_tv_message(title_str, item_info, in_from.value)
+        self.message.send_transfer_tv_message(message_medias, in_from)
 
         # 总结
         log.info("【RMT】%s 处理完成，总数：%s，失败：%s！" % (in_path, total_count, failed_count))

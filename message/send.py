@@ -7,6 +7,7 @@ from message.serverchan import ServerChan
 from message.telegram import Telegram
 from message.wechat import WeChat
 from utils.functions import str_filesize
+from utils.types import DownloaderType
 
 
 class Message:
@@ -74,6 +75,8 @@ class Message:
         vote_average = media_info.vote_average
         media_pix = media_info.resource_pix
         backdrop_path = media_info.backdrop_path if media_info.backdrop_path else media_info.poster_path
+        if isinstance(in_from, Enum):
+            in_from = in_from.value
         if vote_average:
             msg_title = "%s 转移完成 评分：%s" % (title_str, str(vote_average))
         else:
@@ -89,32 +92,45 @@ class Message:
         self.sendmsg(msg_title, msg_str, backdrop_path)
 
     # 发送转移电视剧的消息
-    def send_transfer_tv_message(self, title_str, item_info, in_from):
-        if item_info.get('Vote_Average'):
-            msg_title = "%s 转移完成" % title_str
-        else:
-            msg_title = "%s 转移完成 评分：%s" % (title_str, item_info.get('Vote_Average'))
-        if len(item_info.get('Episode_Ary')) == 1:
-            # 只有一集
-            msg_str = "电视剧 %s 第 %s 季第 %s 集 转移完成，大小：%s，来自：%s" \
-                      % (msg_title,
-                         item_info.get('Season_Ary')[0],
-                         item_info.get('Episode_Ary')[0],
-                         str_filesize(item_info.get('Total_Size')),
-                         in_from)
-        else:
-            if item_info.get('Season_Ary'):
-                se_string = " S".join("%s".rjust(2, '0') % season for season in item_info.get('Season_Ary'))
+    def send_transfer_tv_message(self, message_medias, in_from):
+        # 统计完成情况，发送通知
+        for title_str, item_info in message_medias.items():
+            # PT的不管是否有修改文件均发通知，其他渠道没变化不发通知
+            send_message_flag = False
+            if in_from in DownloaderType:
+                send_message_flag = True
             else:
-                se_string = ""
-            msg_str = "电视剧 %s%s 转移完成，共 %s 季 %s 集，总大小：%s，来自：%s" % \
-                      (msg_title,
-                       se_string,
-                       len(item_info.get('Season_Ary')),
-                       len(item_info.get('Episode_Ary')),
-                       str_filesize(item_info.get('Total_Size')),
-                       in_from)
-        if item_info.get('Exist_Files') != 0:
-            msg_str = "%s，%s 个文件已存在" % (msg_str, str(item_info.get('Exist_Files')))
-        msg_image = item_info.get('Backdrop_Path') if item_info.get('Backdrop_Path') else item_info.get('Poster_Path')
-        self.sendmsg(msg_title, msg_str, msg_image)
+                if item_info.get('Exist_Files') < len(item_info.get('Episode_Ary')):
+                    send_message_flag = True
+
+            if send_message_flag:
+                if isinstance(in_from, Enum):
+                    in_from = in_from.value
+                if item_info.get('Vote_Average'):
+                    msg_title = "%s 转移完成" % title_str
+                else:
+                    msg_title = "%s 转移完成 评分：%s" % (title_str, item_info.get('Vote_Average'))
+                if len(item_info.get('Episode_Ary')) == 1:
+                    # 只有一集
+                    msg_str = "电视剧 %s 第 %s 季第 %s 集 转移完成，大小：%s，来自：%s" \
+                              % (msg_title,
+                                 item_info.get('Season_Ary')[0],
+                                 item_info.get('Episode_Ary')[0],
+                                 str_filesize(item_info.get('Total_Size')),
+                                 in_from)
+                else:
+                    if item_info.get('Season_Ary'):
+                        se_string = " S".join("%s".rjust(2, '0') % season for season in item_info.get('Season_Ary'))
+                    else:
+                        se_string = ""
+                    msg_str = "电视剧 %s%s 转移完成，共 %s 季 %s 集，总大小：%s，来自：%s" % \
+                              (msg_title,
+                               se_string,
+                               len(item_info.get('Season_Ary')),
+                               len(item_info.get('Episode_Ary')),
+                               str_filesize(item_info.get('Total_Size')),
+                               in_from)
+                if item_info.get('Exist_Files') != 0:
+                    msg_str = "%s，%s 个文件已存在" % (msg_str, str(item_info.get('Exist_Files')))
+                msg_image = item_info.get('Backdrop_Path') if item_info.get('Backdrop_Path') else item_info.get('Poster_Path')
+                self.sendmsg(msg_title, msg_str, msg_image)
