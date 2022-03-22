@@ -11,15 +11,24 @@ from utils.functions import str_filesize
 
 class Message:
     __msg_channel = None
+    __webhook_ignore = None
+    wechat = None
+    telegram = None
+    serverchan = None
+    bark = None
 
     def __init__(self):
         config = get_config()
         if config.get('message'):
             self.__msg_channel = config['message'].get('msg_channel')
+            self.__webhook_ignore = config['message'].get('webhook_ignore')
             self.wechat = WeChat.get_instance()
             self.telegram = Telegram()
             self.serverchan = ServerChan()
             self.bark = Bark()
+
+    def get_webhook_ignore(self):
+        return self.__webhook_ignore or []
 
     def sendmsg(self, title, text="", image=""):
         log.info("【MSG】发送%s消息：title=%s, text=%s" % (self.__msg_channel, title, text))
@@ -46,15 +55,17 @@ class Message:
             in_from = in_from.value
         if isinstance(tp, Enum):
             tp = tp.value
-        msg_title = tt
+
         if yr:
-            msg_title = "%s (%s)" % (tt, str(yr))
+            msg_title = "%s (%s) 开始下载" % (tt, str(yr))
+        else:
+            msg_title = "%s 开始下载" % tt
         if se_str:
             msg_text = "来自 %s 的%s %s %s 已开始下载" % (in_from, tp, msg_title, se_str)
         else:
             msg_text = "来自 %s 的%s %s 已开始下载" % (in_from, tp, msg_title)
         if va and va != '0':
-            msg_title = msg_title + " 评分：%s" % str(va)
+            msg_title = "%s，评分：%s" % (msg_title, str(va))
         self.sendmsg(msg_title, msg_text, bp)
 
     # 发送转移电影的消息
@@ -65,7 +76,7 @@ class Message:
         backdrop_path = media_info.backdrop_path if media_info.backdrop_path else media_info.poster_path
         msg_title = title_str
         if vote_average:
-            msg_title = title_str + " 评分：%s" % str(vote_average)
+            msg_title = "%s 转移完成，评分：%s" % (title_str, str(vote_average))
         if media_pix:
             msg_str = "电影 %s 转移完成，质量：%s，大小：%s，来自：%s" \
                       % (title_str, media_pix, str_filesize(media_filesize), in_from)
@@ -73,7 +84,7 @@ class Message:
             msg_str = "电影 %s 转移完成, 大小：%s, 来自：%s" \
                       % (title_str, str_filesize(media_filesize), in_from)
         if exist_filenum != 0:
-            msg_str = msg_str + "，%s 个文件已存在" % str(exist_filenum)
+            msg_str = "%s，%s 个文件已存在" % (msg_str, str(exist_filenum))
         self.sendmsg(msg_title, msg_str, backdrop_path)
 
     # 发送转移电视剧的消息
@@ -99,10 +110,10 @@ class Message:
                        str_filesize(item_info.get('Total_Size')),
                        in_from)
         if item_info.get('Exist_Files') != 0:
-            msg_str = msg_str + "，%s 个文件已存在" % str(item_info.get('Exist_Files'))
+            msg_str = "%s，%s 个文件已存在" % (msg_str, str(item_info.get('Exist_Files')))
 
         msg_title = title_str
         if item_info.get('Vote_Average'):
-            msg_title = title_str + " 评分：%s" % str(item_info.get('Vote_Average'))
+            msg_title = "%s 转移完成，评分：%s" % (title_str, str(item_info.get('Vote_Average')))
         msg_image = item_info.get('Backdrop_Path') if item_info.get('Backdrop_Path') else item_info.get('Poster_Path')
         self.sendmsg(msg_title, msg_str, msg_image)

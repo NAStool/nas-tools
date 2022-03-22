@@ -464,7 +464,7 @@ def create_flask_app():
                 '''
                 color = "facebook"
                 scheduler_cfg_list.append(
-                    {'name': 'PT自动签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin', 'svg': svg,
+                    {'name': 'PT站签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin', 'svg': svg,
                      'color': color})
 
         # 资源同步

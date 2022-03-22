@@ -24,4 +24,4 @@ def run_monitor():
         signal.signal(signal.SIGINT, signal_fun)
 
     except Exception as err:
-        log.error("【RUN】启动monitor失败：" + str(err))
+        log.error("【RUN】启动monitor失败：%s" % str(err))

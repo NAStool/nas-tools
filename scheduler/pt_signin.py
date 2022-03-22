@@ -37,33 +37,34 @@ class PTSignin:
             session = requests.session()
             session.headers.update(header)
             session.cookies.update(cookie_obj)
-
             res = session.get(url)
             if res:
-                return name + " 签到成功！"
+                return "%s 签到成功！" % name
         except Exception as err:
-            return name + " 签到出错：" + str(err)
+            return "%s 签到出错：%s" % (name, str(err))
 
     def __ptsignin(self):
         msg_str = ""
         if self.__pt_sites:
             for pt_task, task_info in self.__pt_sites.items():
-                log.info("【PT】开始PT签到：" + pt_task)
-                pt_url = task_info.get('signin_url')
-                pt_cooke = task_info.get('cookie')
-                if not pt_url or not pt_cooke:
-                    log.error("【PT】未配置 %s 的Url或Cookie，无法签到！" % str(pt_task))
-                    continue
-                log.debug("cookie: %s" % pt_cooke)
-                log.debug("url: %s" % pt_url)
-                res = self.__signin(pt_task, pt_url, pt_cooke)
-                if msg_str == "":
-                    msg_str = res
-                else:
-                    msg_str = res + "\n" + msg_str
-                log.debug(res)
+                try:
+                    log.info("【PT】开始PT签到：%s" % pt_task)
+                    pt_url = task_info.get('signin_url')
+                    pt_cooke = task_info.get('cookie')
+                    if not pt_url or not pt_cooke:
+                        log.error("【PT】未配置 %s 的Url或Cookie，无法签到！" % str(pt_task))
+                        continue
+                    log.debug("cookie: %s" % pt_cooke)
+                    log.debug("url: %s" % pt_url)
+                    res = self.__signin(pt_task, pt_url, pt_cooke)
+                    if not msg_str:
+                        msg_str = res
+                    else:
+                        msg_str = "%s\n%s" % (res, msg_str)
+                except Exception as e:
+                    log.error("【PT】%s 签到出错：%s" % (pt_task, str(e)))
         if msg_str == "":
-            msg_str = "未配置任何有效PT签到信息！"
+            msg_str = "未配置任何有效PT站签到信息！"
         self.message.sendmsg("【PT】每日签到", msg_str)
 
 

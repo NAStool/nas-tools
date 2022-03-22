@@ -147,7 +147,7 @@ class Jackett:
     def search_one_media(self, content, in_from=SearchType.OT):
         key_word, search_season, search_episode, search_year = get_keyword_from_string(content)
         if not key_word:
-            log.info("【JACKETT】检索关键字有误！" % content)
+            log.info("【JACKETT】检索关键字有误！")
             return False
 
         # 先识别关键字是什么电视或者电视剧，如果是电视据看下有多少季，每季有多少集

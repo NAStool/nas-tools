@@ -1,5 +1,5 @@
 from utils.db_helper import update_by_sql, select_by_sql
-from utils.functions import str_filesize
+from utils.functions import str_filesize, xstr
 from utils.types import MediaType
 
 
@@ -30,7 +30,7 @@ def insert_jackett_results(media_item):
               media_item.description,
               "TV" if media_item.type == MediaType.TV else "MOV",
               media_item.title,
-              media_item.year if media_item.year else "",
+              xstr(media_item.year),
               media_item.get_season_string(),
               media_item.get_episode_string(),
               media_item.get_season_episode_string(),

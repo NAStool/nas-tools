@@ -1,4 +1,3 @@
-# 定时转移所有qbittorrent中下载完成的种子
 import threading
 import log
 from pt.downloader import Downloader

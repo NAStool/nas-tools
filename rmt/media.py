@@ -6,6 +6,7 @@ import log
 from tmdbv3api import TMDb, Search, Movie, TV
 from config import get_config
 from rmt.metainfo import MetaInfo
+from utils.functions import xstr
 from utils.types import MediaType
 
 # 全局METAINFO缓存
@@ -44,7 +45,7 @@ class Media:
         # TMDB检索
         if search_type == MediaType.MOVIE:
             # 先按年份查，不行再不用年份查
-            log.info("【META】正在检索电影：%s, 年份=%s ..." % (file_media_name, media_year if media_year else ""))
+            log.info("【META】正在检索电影：%s, 年份=%s ..." % (file_media_name, xstr(media_year)))
             try:
                 if media_year:
                     movies = self.search.movies({"query": file_media_name, "year": media_year})
@@ -68,7 +69,7 @@ class Media:
                 log.info(">电影ID：%s, 上映日期：%s, 电影名称：%s" % (info.get('id'), info.get('release_date'), info.get('title')))
         else:
             # 先按年份查，不行再不用年份查
-            log.info("【META】正在检索剧集：%s, 年份=%s ..." % (file_media_name, media_year if media_year else ""))
+            log.info("【META】正在检索剧集：%s, 年份=%s ..." % (file_media_name, xstr(media_year)))
             try:
                 if media_year:
                     tvs = self.search.tv_shows({"query": file_media_name, "first_air_date_year": media_year})

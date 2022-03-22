@@ -50,7 +50,10 @@ class FileTransfer:
         self.media = Media()
         self.message = Message()
 
-    # 拼装目的路径并返回
+    def get_media_subtype_flag(self):
+        return self.__movie_subtypedir
+
+    # 返回一个子路径
     def get_media_dest_path(self, media_info):
         if media_info.type == MediaType.MOVIE:
             if self.__movie_subtypedir:
@@ -684,6 +687,33 @@ class FileTransfer:
                             if not ext_exist:
                                 return False
                     return True
+
+    # Emby点红星后转移文件
+    def transfer_embyfav(self, item_path):
+        if not self.__movie_subtypedir or not self.__movie_path:
+            return False, None
+        if os.path.isdir(item_path):
+            movie_dir = item_path
+        else:
+            movie_dir = os.path.dirname(item_path)
+        if movie_dir.count(self.__movie_path) == 0:
+            return False, None
+        name = movie_dir.split('/')[-1]
+        org_type = movie_dir.split('/')[-2]
+        if org_type not in [MediaCatagory.HYDY.value, MediaCatagory.WYDY.value]:
+            return False, None
+        if org_type == RMT_FAVTYPE.value:
+            return False, None
+        new_path = os.path.join(self.__movie_path, RMT_FAVTYPE.value, name)
+        log.info("【EMBY】开始转移文件 %s 到 %s ..." % (movie_dir, new_path))
+        if os.path.exists(new_path):
+            log.info("【EMBY】目录 %s 已存在！" % new_path)
+            return False, None
+        ret = call(['mv', movie_dir, new_path])
+        if ret == 0:
+            return True, org_type
+        else:
+            return False, None
 
 
 if __name__ == "__main__":

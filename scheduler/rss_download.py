@@ -16,12 +16,7 @@ lock = threading.Lock()
 
 
 class RSSDownloader:
-    __movie_subtypedir = True
-    __tv_subtypedir = True
-    __movie_path = None
-    __tv_path = None
     __rss_chinese = None
-
     message = None
     media = None
     downloader = None
@@ -34,18 +29,13 @@ class RSSDownloader:
         config = get_config()
         if config.get('pt'):
             self.__rss_chinese = config['pt'].get('rss_chinese')
-        if config.get('media'):
-            self.__movie_path = config['media'].get('movie_path')
-            self.__tv_path = config['media'].get('tv_path')
-            self.__movie_subtypedir = config['media'].get('movie_subtypedir', True)
-            self.__tv_subtypedir = config['media'].get('tv_subtypedir', True)
 
     def run_schedule(self):
         try:
             lock.acquire()
             self.__rssdownload()
         except Exception as err:
-            log.error("【RUN】执行任务rssdownload出错：" + str(err))
+            log.error("【RUN】执行任务rssdownload出错：%s" % str(err))
         finally:
             lock.release()
 
@@ -113,7 +103,7 @@ class RSSDownloader:
                     else:
                         RSS_CACHED_TORRENTS.append(enclosure)
 
-                    log.info("【RSS】开始检索媒体信息:" + torrent_name)
+                    log.info("【RSS】开始检索媒体信息：%s" % torrent_name)
 
                     # 识别种子名称，开始检索TMDB
                     media_info = self.media.get_media_info(torrent_name, description)

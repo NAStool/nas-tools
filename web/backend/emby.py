@@ -1,7 +1,6 @@
 import os
 import time
 from datetime import datetime
-from subprocess import call
 import requests
 import log
 from config import get_config, RMT_FAVTYPE
@@ -10,34 +9,22 @@ from rmt.filetransfer import FileTransfer
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from utils.functions import get_local_time, get_location
-from utils.types import MediaCatagory, MediaType
+from utils.types import MediaType
 
 PLAY_LIST = []
 
 
 class Emby:
     message = None
-    filetransfer = None
     media = None
-    __movie_path = None
-    __tv_path = None
-    __movie_subtypedir = True
     __apikey = None
     __host = None
     __library_info = []
 
     def __init__(self):
         self.message = Message()
-        self.filetransfer = FileTransfer()
         self.media = Media()
         config = get_config()
-        if config.get('media'):
-            self.__movie_path = config['media'].get('movie_path')
-            self.__movie_subtypedir = config['media'].get('movie_subtypedir', True)
-            self.__tv_path = config['media'].get('tv_path')
-        else:
-            self.__movie_path = None
-            self.__movie_subtypedir = True
         if config.get('emby'):
             self.__host = config['emby'].get('host')
             if not self.__host.startswith('http://') and not self.__host.startswith('https://'):
@@ -286,36 +273,26 @@ class Emby:
             if self.get_emby_movies(media.title, media.year):
                 # 已存在，不用刷新
                 return None
-        # 查找需要刷新的媒体库ID
-        media_path = self.filetransfer.get_media_dest_path(media)
-        if media_path:
-            for library in self.__library_info:
-                for folder in library.get("SubFolders"):
-                    if os.path.samefile(folder.get("Path"), media_path):
-                        return library.get("Id")
+        # TODO 查找需要刷新的媒体库ID，这里还需要优化
+        for library in self.__library_info:
+            for folder in library.get("SubFolders"):
+                if "/%s" % media.category in folder.get("Path"):
+                    return library.get("Id")
         return None
 
 
 class EmbyEvent:
-    __webhook_ignore = None
-    __movie_path = None
-    __movie_subtypedir = True
     message = None
     emby = None
     category = None
+    filetransfer = None
 
     def __init__(self, input_json):
         if not input_json:
             return
         self.message = Message()
         self.emby = Emby()
-        # 读取配置
-        config = get_config()
-        if config.get('media'):
-            self.__movie_path = config['media'].get('movie_path')
-            self.__movie_subtypedir = config['media'].get('movie_subtypedir', True)
-        if config.get('message'):
-            self.__webhook_ignore = config['message'].get('webhook_ignore')
+        self.filetransfer = FileTransfer()
         # 解析事件报文
         event = input_json.get('Event')
         if not event:
@@ -365,11 +342,12 @@ class EmbyEvent:
                 log.info("【EMBY】system.webhooktest")
             return
         # 播放事件
+        webhook_ignore = self.message.get_webhook_ignore()
         if self.category == 'playback':
-            if self.__webhook_ignore:
-                if self.user_name in self.__webhook_ignore or \
-                        self.device_name in self.__webhook_ignore or \
-                        (self.user_name + ':' + self.device_name) in self.__webhook_ignore:
+            if webhook_ignore:
+                if self.user_name in webhook_ignore or \
+                        self.device_name in webhook_ignore or \
+                        (self.user_name + ':' + self.device_name) in webhook_ignore:
                     log.info('【EMBY】忽略的用户或设备，不通知：%s %s' % (self.user_name, self.device_name))
                     return
             list_id = self.user_name + self.item_name + self.ip + self.device_name + self.client
@@ -396,27 +374,8 @@ class EmbyEvent:
         # 小红心事件
         if self.category == 'item':
             if self.action == 'rate':
-                if not self.__movie_subtypedir or not self.__movie_path:
-                    return
-                if os.path.isdir(self.item_path):
-                    movie_dir = self.item_path
-                else:
-                    movie_dir = os.path.dirname(self.item_path)
-                if movie_dir.count(self.__movie_path) == 0:
-                    return
-                name = movie_dir.split('/')[-1]
-                org_type = movie_dir.split('/')[-2]
-                if org_type not in [MediaCatagory.HYDY.value, MediaCatagory.WYDY.value]:
-                    return
-                if org_type == MediaCatagory.JXDY.value:
-                    return
-                new_path = os.path.join(self.__movie_path, MediaCatagory.JXDY.value, name)
-                log.info("【EMBY】开始转移文件 %s 到 %s ..." % (movie_dir, new_path))
-                if os.path.exists(new_path):
-                    log.info("【EMBY】目录 %s 已存在！" % new_path)
-                    return
-                ret = call(['mv', movie_dir, new_path])
-                if ret == 0:
+                ret, org_type = self.filetransfer.transfer_embyfav(self.item_path)
+                if ret:
                     message_title = '【EMBY】电影 %s 已从 %s 转移到 %s' % (self.item_name, org_type, RMT_FAVTYPE.value)
                 else:
                     message_title = '【EMBY】电影 %s 转移失败！' % self.item_name

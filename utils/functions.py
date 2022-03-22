@@ -378,3 +378,8 @@ def get_tmdb_season_episodes_num(seasons, sea):
         if season.get("season_number") == sea:
             return season.get("episode_count")
     return 0
+
+
+# 字符串None输出为空
+def xstr(s):
+    return s if s else ''
