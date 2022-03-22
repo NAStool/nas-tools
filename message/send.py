@@ -74,9 +74,10 @@ class Message:
         vote_average = media_info.vote_average
         media_pix = media_info.resource_pix
         backdrop_path = media_info.backdrop_path if media_info.backdrop_path else media_info.poster_path
-        msg_title = title_str
         if vote_average:
             msg_title = "%s 转移完成 评分：%s" % (title_str, str(vote_average))
+        else:
+            msg_title = "%s 转移完成" % title_str
         if media_pix:
             msg_str = "电影 %s 转移完成，质量：%s，大小：%s，来自：%s" \
                       % (title_str, media_pix, str_filesize(media_filesize), in_from)
@@ -89,10 +90,14 @@ class Message:
 
     # 发送转移电视剧的消息
     def send_transfer_tv_message(self, title_str, item_info, in_from):
-        if len(item_info['Episode_Ary']) == 1:
+        if item_info.get('Vote_Average'):
+            msg_title = "%s 转移完成" % title_str
+        else:
+            msg_title = "%s 转移完成 评分：%s" % (title_str, item_info.get('Vote_Average'))
+        if len(item_info.get('Episode_Ary')) == 1:
             # 只有一集
             msg_str = "电视剧 %s 第 %s 季第 %s 集 转移完成，大小：%s，来自：%s" \
-                      % (title_str,
+                      % (msg_title,
                          item_info.get('Season_Ary')[0],
                          item_info.get('Episode_Ary')[0],
                          str_filesize(item_info.get('Total_Size')),
@@ -103,7 +108,7 @@ class Message:
             else:
                 se_string = ""
             msg_str = "电视剧 %s%s 转移完成，共 %s 季 %s 集，总大小：%s，来自：%s" % \
-                      (title_str,
+                      (msg_title,
                        se_string,
                        len(item_info.get('Season_Ary')),
                        len(item_info.get('Episode_Ary')),
@@ -111,9 +116,5 @@ class Message:
                        in_from)
         if item_info.get('Exist_Files') != 0:
             msg_str = "%s，%s 个文件已存在" % (msg_str, str(item_info.get('Exist_Files')))
-
-        msg_title = title_str
-        if item_info.get('Vote_Average'):
-            msg_title = "%s 转移完成 评分：%s" % (title_str, str(item_info.get('Vote_Average')))
         msg_image = item_info.get('Backdrop_Path') if item_info.get('Backdrop_Path') else item_info.get('Poster_Path')
         self.sendmsg(msg_title, msg_str, msg_image)
