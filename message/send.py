@@ -65,7 +65,7 @@ class Message:
         else:
             msg_text = "来自 %s 的%s %s 已开始下载" % (in_from, tp, msg_title)
         if va and va != '0':
-            msg_title = "%s，评分：%s" % (msg_title, str(va))
+            msg_title = "%s\n评分：%s" % (msg_title, str(va))
         self.sendmsg(msg_title, msg_text, bp)
 
     # 发送转移电影的消息
@@ -76,7 +76,7 @@ class Message:
         backdrop_path = media_info.backdrop_path if media_info.backdrop_path else media_info.poster_path
         msg_title = title_str
         if vote_average:
-            msg_title = "%s 转移完成，评分：%s" % (title_str, str(vote_average))
+            msg_title = "%s 转移完成\n评分：%s" % (title_str, str(vote_average))
         if media_pix:
             msg_str = "电影 %s 转移完成，质量：%s，大小：%s，来自：%s" \
                       % (title_str, media_pix, str_filesize(media_filesize), in_from)
@@ -114,6 +114,6 @@ class Message:
 
         msg_title = title_str
         if item_info.get('Vote_Average'):
-            msg_title = "%s 转移完成，评分：%s" % (title_str, str(item_info.get('Vote_Average')))
+            msg_title = "%s 转移完成\n评分：%s" % (title_str, str(item_info.get('Vote_Average')))
         msg_image = item_info.get('Backdrop_Path') if item_info.get('Backdrop_Path') else item_info.get('Poster_Path')
         self.sendmsg(msg_title, msg_str, msg_image)
