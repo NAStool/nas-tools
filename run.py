@@ -32,4 +32,4 @@ if __name__ == "__main__":
     log.info("【RUN】开始启动进程...")
     Process(target=monitor.run_monitor, args=()).start()
     Process(target=scheduler.run_scheduler, args=()).start()
-    Process(target=web.run_web(), args=()).start()
+    Process(target=web.run_web, args=()).start()

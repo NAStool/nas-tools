@@ -1,9 +1,9 @@
-import threading
+from threading import Lock
 
 import log
 from pt.downloader import Downloader
 
-lock = threading.Lock()
+lock = Lock()
 
 
 class AutoRemoveTorrents:
@@ -21,7 +21,3 @@ class AutoRemoveTorrents:
             log.error("【RUN】执行任务autoremovetorrents出错：%s" % str(err))
         finally:
             lock.release()
-
-
-if __name__ == "__main__":
-    AutoRemoveTorrents().run_schedule()

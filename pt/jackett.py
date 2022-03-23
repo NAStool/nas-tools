@@ -300,7 +300,3 @@ class Jackett:
                 log.info("【JACKETT】%s(%s)%s%s 不匹配年份：%s" % (media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string(), year_str))
                 return False
         return True
-
-
-if __name__ == "__main__":
-    Jackett().search_one_media("天龙八部第1季")

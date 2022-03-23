@@ -1,6 +1,5 @@
 import log
 from pt.jackett import Jackett
-from utils.db_helper import update_by_sql
 from utils.functions import get_keyword_from_string
 from utils.sqls import insert_jackett_results, delete_all_jackett_torrents
 from utils.types import MediaType

@@ -1,5 +1,5 @@
 import re
-import threading
+from threading import Lock
 
 import log
 from config import get_config
@@ -10,9 +10,8 @@ from rmt.media import Media
 from utils.sqls import get_movie_keys, get_tv_keys, is_torrent_rssd_by_name, insert_rss_torrents
 from utils.types import MediaType, SearchType
 
-RSS_RUNNING_FLAG = False
 RSS_CACHED_TORRENTS = []
-lock = threading.Lock()
+lock = Lock()
 
 
 class RSSDownloader:
@@ -180,7 +179,3 @@ class RSSDownloader:
                 if str(key).strip() == media_info.title:
                     return True
         return False
-
-
-if __name__ == "__main__":
-    RSSDownloader().run_schedule()

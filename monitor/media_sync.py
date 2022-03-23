@@ -1,5 +1,7 @@
 import os
 import threading
+from datetime import datetime
+
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
@@ -8,8 +10,13 @@ import log
 from rmt.filetransfer import FileTransfer
 from utils.types import SyncType
 
-FINISHED_JOBS = []
 lock = threading.Lock()
+# 已经同步过的文件
+SYNCED_FILES = []
+# 需要同步的文件清单
+NEED_SYNC_PATHS = {}
+# 上一次同步的时间
+LAST_SYNC_TIME = datetime.now()
 
 
 class Sync:
@@ -28,21 +35,21 @@ class Sync:
 
     # 处理文件变化
     def file_change_handler(self, event, text, event_path):
-        global FINISHED_JOBS
+        global SYNCED_FILES
         if not event.is_directory:  # 文件发生变化
             try:
                 log.debug("【SYNC】%s了文件: %s " % (text, event_path))
-                # 文件名
-                name = os.path.basename(event_path)
                 # 目的目录的子文件不处理
                 for tpath in SYNC_DIR_CONFIG.values():
                     if tpath:
                         if tpath in event_path:
                             return
+                # 回收站及隐藏的文件不处理
+                if event_path.find('/@Recycle/') != -1 or event_path.find('/#recycle/') != -1 or event_path.find('/.') != -1:
+                    return False
+                # 文件名
+                name = os.path.basename(event_path)
                 if not name:
-                    return
-                # 以.开头的隐藏文件不处理
-                if name.startswith("."):
                     return
                 # 判断是不是媒体文件
                 ext = os.path.splitext(name)[-1]
@@ -52,8 +59,8 @@ class Sync:
                 need_handler_flag = False
                 try:
                     lock.acquire()
-                    if event_path not in FINISHED_JOBS:
-                        FINISHED_JOBS.append(event_path)
+                    if event_path not in SYNCED_FILES:
+                        SYNCED_FILES.append(event_path)
                         need_handler_flag = True
                 finally:
                     lock.release()
@@ -71,6 +78,7 @@ class Sync:
 
                 # 查找目的目录
                 target_dir = SYNC_DIR_CONFIG.get(parent_dir)
+                # TODO 文件变化一次转移一次并触发通知，导致PT下载剧集时，集中推送大量通知
                 if not self.filetransfer.transfer_media(in_from=SyncType.MON, in_path=event_path, target_dir=target_dir):
                     log.error("【SYNC】%s 处理失败！" % event_path)
                 else:
@@ -78,6 +86,14 @@ class Sync:
 
             except Exception as e:
                 log.error("【SYNC】发生错误：%s" % str(e))
+        else:
+            # TODO 考虑是否可以通过监控文件夹的变化统一处理文件变化，以达到同一个目录下的文件集中通知的目上的
+            # 文件变化时上级文件夹也会变化
+            # 当文件变化数等于目录下的总文件数时，批量转移一次
+            # 当目录变化改变时转移一次
+            # 其他情况，间隔超过5分钟没有变化，但仍有未转移的文件时，转移一次
+            # 好复杂，还没想好怎么做...
+            pass
 
     # 启动进程
     def run_service(self):
@@ -128,12 +144,13 @@ class Sync:
 
 # 监听文件夹
 class FileMonitorHandler(FileSystemEventHandler):
-    sync = Sync()
+    sync = None
 
     def __init__(self, monpath, **kwargs):
         super(FileMonitorHandler, self).__init__(**kwargs)
         # 监控目录 目录下面以device_id为目录存放各自的图片
         self._watch_path = monpath
+        self.sync = Sync()
 
     # 重写文件创建函数，文件创建都会触发文件夹变化
     def on_created(self, event):
@@ -144,7 +161,3 @@ class FileMonitorHandler(FileSystemEventHandler):
 
     def on_modified(self, event):
         self.sync.file_change_handler(event, "修改", event.src_path)
-
-
-if __name__ == "__main__":
-    FileTransfer().transfer_all_sync()

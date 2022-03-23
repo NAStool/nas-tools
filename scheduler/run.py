@@ -13,6 +13,7 @@ from scheduler.rss_download import RSSDownloader
 
 
 def run_scheduler():
+
     scheduler = BlockingScheduler(timezone="Asia/Shanghai")
 
     @atexit.register

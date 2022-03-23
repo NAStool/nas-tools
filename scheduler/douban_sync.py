@@ -1,4 +1,4 @@
-import threading
+from threading import Lock
 
 import log
 from config import get_config
@@ -7,7 +7,7 @@ from pt.jackett import Jackett
 from utils.sqls import insert_tv_key, insert_movie_key, get_douban_search_state, insert_douban_media_state
 from utils.types import MediaType, SearchType
 
-lock = threading.Lock()
+lock = Lock()
 
 
 class DoubanSync:
@@ -38,7 +38,7 @@ class DoubanSync:
     def __douban_sync(self):
         if not self.__interval:
             return
-        log.info("【PT】开始同步豆瓣数据...")
+        log.info("【DOUBAN】开始同步豆瓣数据...")
         # 拉取豆瓣数据
         medias = self.douban.get_all_douban_movies()
         # 开始检索
@@ -46,7 +46,7 @@ class DoubanSync:
             # 需要检索
             if len(medias) == 0:
                 return
-            log.info("【PT】开始检索豆瓣中的影视资源...")
+            log.info("【DOUBAN】开始检索豆瓣中的影视资源...")
             for media in medias:
                 # 查询数据库状态，已经加入RSS的不处理
                 search_state = get_douban_search_state(media.get_name(), media.year)
@@ -62,7 +62,7 @@ class DoubanSync:
 
                     if not search_result:
                         if self.__auto_rss:
-                            log.info("【PT】 %s %s 更新到RSS订阅中..." % (media.get_name(), media.year))
+                            log.info("【DOUBAN】 %s %s 更新到RSS订阅中..." % (media.get_name(), media.year))
                             if media.type == MediaType.TV:
                                 insert_tv_key(media.get_name())
                             else:
@@ -70,12 +70,12 @@ class DoubanSync:
                             # 插入为已RSS状态
                             insert_douban_media_state(media, "RSS")
                         else:
-                            log.info("【PT】 %s %s 等待下一次处理..." % (media.get_name(), media.year))
+                            log.info("【DOUBAN】 %s %s 等待下一次处理..." % (media.get_name(), media.year))
                     else:
                         # 更新为已下载状态
                         insert_douban_media_state(media, "DOWNLOADED")
                 else:
-                    log.info("【PT】 %s %s 已处理过，跳过..." % (media.get_name(), media.year))
+                    log.info("【DOUBAN】 %s %s 已处理过，跳过..." % (media.get_name(), media.year))
         else:
             # 不需要检索
             if self.__auto_rss:
@@ -85,9 +85,5 @@ class DoubanSync:
                         insert_tv_key(media.get_name())
                     else:
                         insert_movie_key(media.get_name())
-                log.info("【PT】豆瓣数据加入订阅完成！")
-        log.info("【PT】豆瓣数据同步完成！")
-
-
-if __name__ == "__main__":
-    DoubanSync().run_schedule()
+                log.info("【DOUBAN】豆瓣数据加入订阅完成！")
+        log.info("【DOUBAN】豆瓣数据同步完成！")

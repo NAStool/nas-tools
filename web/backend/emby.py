@@ -1,4 +1,3 @@
-import os
 import time
 from datetime import datetime
 import requests
@@ -6,7 +5,6 @@ import log
 from config import get_config, RMT_FAVTYPE
 from message.send import Message
 from rmt.filetransfer import FileTransfer
-from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from utils.functions import get_local_time, get_location
 from utils.types import MediaType
@@ -23,7 +21,6 @@ class Emby:
 
     def __init__(self):
         self.message = Message()
-        self.media = Media()
         config = get_config()
         if config.get('emby'):
             self.__host = config['emby'].get('host')
@@ -249,7 +246,10 @@ class Emby:
 
     # 按名称来刷新媒体库
     def refresh_emby_library_by_names(self, names):
+        if not names:
+            return
         # 收集要刷新的媒体库信息
+        log.info("【EMBY】开始刷新Emby媒体库...")
         library_ids = []
         for torrent in names:
             media_info = self.media.get_media_info(torrent)
@@ -261,6 +261,7 @@ class Emby:
         # 开始刷新媒体库
         for library_id in library_ids:
             self.refresh_emby_library_by_id(library_id)
+        log.info("【EMBY】Emby媒体库刷新完成！")
 
     # 根据媒体信息查询在哪个媒体库，返回要刷新的位置的ID
     def get_emby_library_id_by_metainfo(self, media):

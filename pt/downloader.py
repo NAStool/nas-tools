@@ -54,14 +54,25 @@ class Downloader:
     # 转移PT下载文人年
     def pt_transfer(self):
         if self.client:
-            trans_torrents = self.client.transfer_task()
+            log.info("【PT】开始转移PT下载文件...")
+            trans_torrents, trans_tasks = self.client.get_transfer_task()
+            for task_path in trans_tasks:
+                done_flag = self.filetransfer.transfer_media(in_from=self.__client_type, in_path=task_path)
+                if not done_flag:
+                    log.warn("【PT】%s 转移失败！" % task_path)
+            log.info("【PT】PT下载文件转移结束！")
             self.emby.refresh_emby_library_by_names(trans_torrents)
 
     # 做种清理
     def pt_removetorrents(self):
         if not self.client:
             return False
-        return self.client.remove_torrents(self.__seeding_time)
+        log.info("【PT】开始执行transmission做种清理...")
+        torrents = self.client.get_remove_torrents(self.__seeding_time)
+        for torrent in torrents:
+            log.info("【PT】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (torrent, self.__seeding_time))
+            self.delete_torrents(torrent)
+        log.info("【PT】transmission做种清理完成！")
 
     # 获取种子列表信息
     def get_pt_torrents(self, torrent_ids=None, status_filter=None):
@@ -203,16 +214,16 @@ class Downloader:
                      "标题：%s (%s)，"
                      "类型：%s，"
                      "大小：%s，"
-                     "做种：%s，"
+                     "做种数：%s，"
                      "季集：%s，"
-                     "名称：%s" % (media_item.site,
-                                media_item.title,
-                                media_item.year,
-                                media_item.get_resource_type_string(),
-                                str_filesize(media_item.size),
-                                media_item.seeders,
-                                media_item.get_season_episode_string(),
-                                media_item.org_string))
+                     "种子名称：%s" % (media_item.site,
+                                  media_item.title,
+                                  media_item.year,
+                                  media_item.get_resource_type_string(),
+                                  str_filesize(media_item.size),
+                                  media_item.seeders,
+                                  media_item.get_season_episode_string(),
+                                  media_item.org_string))
         # 控重
         can_download_list_item = []
         can_download_list = []

@@ -4,12 +4,12 @@ import sys
 import log
 from monitor.media_sync import Sync
 
-sync = Sync()
-
 
 def run_monitor():
     try:
+
         # 目录监控服务
+        sync = Sync()
         sync.run_service()
 
         # 退出事件监听

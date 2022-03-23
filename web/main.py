@@ -18,7 +18,7 @@ from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
 from message.send import Message
 
-from config import WECHAT_MENU, get_config, save_config, PT_TRANSFER_INTERVAL, BACKDROP_DEFAULT_IMAGE
+from config import WECHAT_MENU, get_config, save_config, PT_TRANSFER_INTERVAL
 from utils.functions import get_used_of_partition, str_filesize, str_timelong
 from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys
@@ -366,11 +366,9 @@ def create_flask_app():
                     title = "%s (%s) %s" % (media_info.get_name(), year, media_info.get_season_episode_string())
                 else:
                     title = "%s %s" % (media_info.get_name(), media_info.get_season_episode_string())
-                poster_path = BACKDROP_DEFAULT_IMAGE
             else:
                 title = "%s (%s) %s" % (media_info.title, media_info.year, media_info.get_season_episode_string())
-                poster_path = media_info.poster_path
-
+            poster_path = media_info.poster_path
             torrent_info = {'id': key, 'title': title, 'speed': speed, 'image': poster_path, 'state': state, 'progress': progress}
             if torrent_info not in DispTorrents:
                 DownloadCount += 1

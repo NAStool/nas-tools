@@ -6,6 +6,7 @@ from web.app import FlaskApp
 
 def run_web():
     try:
+
         app = FlaskApp()
 
         def signal_fun(signum, frame):

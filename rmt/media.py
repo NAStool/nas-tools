@@ -1,6 +1,6 @@
 import os
 import re
-import threading
+from multiprocessing import Lock
 
 import log
 from tmdbv3api import TMDb, Search, Movie, TV
@@ -10,8 +10,8 @@ from utils.functions import xstr
 from utils.types import MediaType
 
 # 全局METAINFO缓存
-lock = threading.Lock()
 METAINFO_NAMES = {}
+lock = Lock()
 
 
 class Media:

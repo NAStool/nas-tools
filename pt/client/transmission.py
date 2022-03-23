@@ -4,8 +4,7 @@ import urllib3
 from datetime import datetime
 import log
 from config import get_config
-from rmt.filetransfer import FileTransfer
-from utils.types import DownloaderType, MediaType
+from utils.types import MediaType
 
 urllib3.disable_warnings()
 
@@ -20,12 +19,10 @@ class Transmission:
     __movie_save_path = None
     __movie_save_containerpath = None
     trc = None
-    filetransfer = None
 
     def __init__(self):
         config = get_config()
         if config.get('transmission'):
-            self.filetransfer = FileTransfer()
             self.__trhost = config['transmission'].get('trhost')
             self.__trport = config['transmission'].get('trport')
             self.__trusername = config['transmission'].get('trusername')
@@ -93,13 +90,12 @@ class Transmission:
         log.info("【TR】设置transmission种子标签成功！")
 
     # 处理transmission中的种子
-    def transfer_task(self):
+    def get_transfer_task(self):
         # 处理所有任务
-        log.info("【TR】开始转移PT下载文件...")
         torrents = self.get_torrents()
         trans_torrents = []
+        trans_tasks = []
         for torrent in torrents:
-            log.debug("【TR】" + torrent.name + "：" + torrent.status)
             # 3.0版本以下的Transmission没有labels
             handlered_flag = False
             try:
@@ -118,29 +114,22 @@ class Transmission:
                     true_path = true_path.replace(str(self.__tv_save_path), str(self.__tv_save_containerpath))
                 if self.__movie_save_containerpath:
                     true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
-                ret = self.filetransfer.transfer_media(in_from=DownloaderType.TR, in_path=true_path)
-                if ret:
-                    self.set_torrents_status(torrent.id)
-                    trans_torrents.append(torrent.name)
-                else:
-                    log.error("【TR】%s 转移失败：" % torrent.name)
-        log.info("【TR】PT下载文件转移结束！")
-        return trans_torrents
+                trans_torrents.append(torrent.name)
+                trans_tasks.append(true_path)
+        return trans_torrents, trans_tasks
 
     # 做种清理
-    def remove_torrents(self, seeding_time):
-        log.info("【PT】开始执行transmission做种清理...")
+    def get_remove_torrents(self, seeding_time):
         torrents = self.get_torrents()
+        remove_torrents = []
         for torrent in torrents:
             date_done = torrent.date_done
             date_now = datetime.now().astimezone()
             # 只有标记为强制上传的才会清理（经过RMT处理的都是强制上传状态）
             if date_done and (torrent.status == "seeding" or torrent.status == "seed_pending"):
                 if (date_now - date_done).seconds > int(seeding_time):
-                    log.info("【PT】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (torrent.name, torrent.seeding_time))
-                    # 同步删除文件
-                    self.delete_torrents(delete_file=True, ids=torrent.id)
-        log.info("【PT】transmission做种清理完成！")
+                    remove_torrents.append(torrent.name)
+        return remove_torrents
 
     def add_torrent(self, turl, mtype):
         if mtype == MediaType.TV:

@@ -178,7 +178,7 @@ class MetaInfo(object):
             self._stop_name_flag = True
 
     def __init_episode(self, token):
-        re_res = re.search(r"[\s0-9.\[]+EP?(\d{1,3})", token, re.IGNORECASE)
+        re_res = re.search(r"\d*EP?(\d{1,3})", token, re.IGNORECASE)
         if re_res:
             se = int(re_res.group(1).upper())
             if not self.begin_episode:
@@ -436,7 +436,7 @@ class MetaInfo(object):
 
 
 if __name__ == "__main__":
-    text = "The Demi Gods and Semi Devils 2013 WEB-DL 1080p H 265 AAC-HDCTV"
+    text = "华灯初上第三季.2022.HD1080P.S02.EP01-EP05.E1"
     meta_info = MetaInfo(text)
     print(meta_info.__dict__)
     print(meta_info.get_season_list())

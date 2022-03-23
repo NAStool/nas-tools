@@ -1,4 +1,4 @@
-import threading
+from threading import Lock
 
 import requests
 import log
@@ -6,7 +6,7 @@ from config import get_config
 from utils.functions import cookieParse, generateHeader
 from message.send import Message
 
-lock = threading.Lock()
+lock = Lock()
 
 
 class PTSignin:
@@ -66,7 +66,3 @@ class PTSignin:
         if msg_str == "":
             msg_str = "未配置任何有效PT站签到信息！"
         self.message.sendmsg("【PT】每日签到", msg_str)
-
-
-if __name__ == "__main__":
-    PTSignin().run_schedule()

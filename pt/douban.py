@@ -1,7 +1,7 @@
 import datetime
 import random
 from time import sleep
-
+import re
 import requests
 from bs4 import BeautifulSoup
 
@@ -218,11 +218,15 @@ class DouBan:
             titles = list(title[0].strings)
             titles = [i.strip() for i in titles if i.strip() != '']
             douban_title = ''.join(titles)
-            # 这里解析一下，拿到标题和年份、还有标题中的季
+            # 这里解析一下，拿到标题和年份（剧集这个年份不太对，不是首播年份）、还有标题中的季
             meta_info = MetaInfo(douban_title)
             # 分类 电影和电视剧
             if '集数:' in infos or '单集片长:' in infos or '首播:' in infos:
                 meta_info.type = MediaType.TV
+                # 获取首播年份
+                firstair_year = self.__get_media_firstair_year(infos)
+                if firstair_year:
+                    meta_info.year = firstair_year
             else:
                 meta_info.type = MediaType.MOVIE
             # 评分 评价数
@@ -235,44 +239,17 @@ class DouBan:
         return meta_info
 
     @staticmethod
-    def __get_single_info_list(infos_list, str_key):
-        """
-        获取豆瓣信息， 针对豆瓣:和关键字在一起的
-        :param infos_list: 字符串列表
-        :param str_key: 字符串字典关键字
-        :return: 对应key值信息的列表
-        """
-        str_list = []
+    def __get_media_firstair_year(infos):
         try:
-            if str_key in infos_list:
-                data_list_tmp = infos_list[infos_list.index(str_key) + 1]
-                data_list_tmp = data_list_tmp.split('/')
-                for i in data_list_tmp:
-                    str_list.append(i.strip(' '))
-            else:
-                log.warn(f"【DOUBAN】未解析到<{str_key}>信息")
-            return str_list
-        except Exception as err:
-            log.error(f"【DOUBAN】未解析到<{str_key}>信息:{err}")
-            return str_list
-
-    @staticmethod
-    def __multiple_infos_parser(str_dict, str_key, next_number):
-        str_list = []
-        try:
-            first_index = str_dict.index(str_key) + next_number
-            str_list.append(str_dict[first_index])
-            next_index = first_index
-            while True:
-                if str_dict[next_index + 1] == '/':
-                    next_index += 2
-                    str_list.append(str_dict[next_index])
-                else:
-                    break
-            return str_list
-        except Exception as err:
-            log.warn(f"【DOUBAN】未解析到{str_key}数据：{err}")
-            return str_list
+            for info in infos:
+                if info == "首播:":
+                    year_str = infos[infos.index("首播:") + 1]
+                    res = re.search(r'(\d{4})-\d{2}-\d{2}', year_str)
+                    if res:
+                        return res.group(1).strip()
+        except Exception as e:
+            log.warn("【DOUBAN】未解析到首播年份：%s" % str(e))
+        return None
 
     @staticmethod
     def __get_media_rating_list(soup):
@@ -290,20 +267,6 @@ class DouBan:
         except Exception as err:
             log.warn(f"【DOUBAN】未解析到评价数据：{err}")
             return rating_list
-
-    @staticmethod
-    def __get_media_related_infos(info):
-        try:
-            if info:
-                related_infos = list(info[0].strings)
-                related_infos = [i.strip() for i in related_infos if i.strip() != '']
-                related_infos = "\n".join(related_infos)
-                return related_infos
-            else:
-                return "暂无。"
-        except Exception as err:
-            log.warn(f"【DOUBAN】未解析到简介：{err}")
-            return "暂无..."
 
 
 if __name__ == "__main__":

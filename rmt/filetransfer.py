@@ -3,6 +3,7 @@ import os
 import shutil
 from enum import Enum
 from subprocess import call
+from threading import Lock
 
 import log
 from config import RMT_SUBEXT, get_config, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE
@@ -10,6 +11,8 @@ from utils.functions import get_dir_files_by_ext, get_free_space_gb
 from message.send import Message
 from rmt.media import Media
 from utils.types import MediaType, DownloaderType, SyncType, MediaCatagory, RmtMode
+
+lock = Lock()
 
 
 class FileTransfer:
@@ -113,32 +116,19 @@ class FileTransfer:
     '''
 
     def transfer_bluray_dir(self, file_path, new_path, mv_flag=False, over_flag=False):
-        # 检查是不是正在处理目标文件
-        curr_transfile = os.environ.get('NASTOOL_CURR_TRANS_FILE')
-        if curr_transfile:
-            if curr_transfile.find(new_path) > 0:
-                log.error("【RMT】另一个进程正在处理此目录，本次操作取消：%s" % new_path)
-                return False
-            else:
-                os.environ['NASTOOL_CURR_TRANS_FILE'] = os.environ['NASTOOL_CURR_TRANS_FILE'] + new_path
-        else:
-            os.environ['NASTOOL_CURR_TRANS_FILE'] = new_path
+        if not over_flag and os.path.exists(new_path):
+            log.warn("【RMT】目录已存在：%s" % new_path)
+            return False
 
-        if over_flag:
-            log.warn("【RMT】正在删除已存在的目录：%s" % new_path)
-            shutil.rmtree(new_path)
-            log.warn("【RMT】%s 已删除！" % new_path)
-        else:
-            if os.path.exists(new_path):
-                log.warn("【RMT】目录已存在：%s" % new_path)
-                return False
-
-        # 复制文件
-        log.info("【RMT】正在复制目录：%s 到 %s" % (file_path, new_path))
-        retcode = call(['cp', '-r', file_path, new_path])
-
-        # 清空记录
-        os.environ['NASTOOL_CURR_TRANS_FILE'] = os.environ['NASTOOL_CURR_TRANS_FILE'].replace(new_path, "")
+        try:
+            lock.acquire()
+            if over_flag and os.path.exists(new_path):
+                log.warn("【RMT】正在删除已存在的目录：%s" % new_path)
+                shutil.rmtree(new_path)
+            log.info("【RMT】正在复制目录：%s 到 %s" % (file_path, new_path))
+            retcode = call(['cp', '-r', file_path, new_path])
+        finally:
+            lock.release()
 
         if retcode == 0:
             log.info("【RMT】文件复制完成：%s" % new_path)
@@ -182,40 +172,26 @@ class FileTransfer:
 
     # 复制或者硬链接一个文件
     def transfer_file(self, file_item, new_file, over_flag=False, rmt_mode=RmtMode.COPY):
-        # 检查是不是正在处理目标文件
-        if rmt_mode == RmtMode.COPY:
-            curr_transfile = os.environ.get('NASTOOL_CURR_TRANS_FILE')
-            if curr_transfile:
-                if curr_transfile.find(new_file) > 0:
-                    log.error("【RMT】另一个进程正在处理此文件，本次操作取消：%s" % new_file)
-                    return False
-                else:
-                    os.environ['NASTOOL_CURR_TRANS_FILE'] = os.environ['NASTOOL_CURR_TRANS_FILE'] + new_file
-            else:
-                os.environ['NASTOOL_CURR_TRANS_FILE'] = new_file
+        if not over_flag and os.path.exists(new_file):
+            log.warn("【RMT】文件已存在：%s" % new_file)
+            return False
 
-        if over_flag and os.path.exists(new_file):
-            if os.path.isfile(new_file):
+        try:
+            if rmt_mode == RmtMode.COPY:
+                lock.acquire()
+            if over_flag and os.path.isfile(new_file):
                 log.info("【RMT】正在删除已存在的文件：%s" % new_file)
                 os.remove(new_file)
-                log.warn("【RMT】%s 已删除！" % new_file)
-        else:
-            if os.path.exists(new_file):
-                log.warn("【RMT】文件已存在：%s" % new_file)
-                return False
-
-        # 复制文件
-        log.info("【RMT】正在转移文件：%s 到 %s" % (file_item, new_file))
-        if rmt_mode == RmtMode.LINK:
-            retcode = call(['ln', file_item, new_file])
-        elif rmt_mode == RmtMode.SOFTLINK:
-            retcode = call(['ln', '-s', file_item, new_file])
-        else:
-            retcode = call(['cp', file_item, new_file])
-
-        if rmt_mode == RmtMode.COPY:
-            # 清除当前文件记录
-            os.environ['NASTOOL_CURR_TRANS_FILE'] = os.environ['NASTOOL_CURR_TRANS_FILE'].replace(new_file, "")
+            log.info("【RMT】正在转移文件：%s 到 %s" % (file_item, new_file))
+            if rmt_mode == RmtMode.LINK:
+                retcode = call(['ln', file_item, new_file])
+            elif rmt_mode == RmtMode.SOFTLINK:
+                retcode = call(['ln', '-s', file_item, new_file])
+            else:
+                retcode = call(['cp', file_item, new_file])
+        finally:
+            if rmt_mode == RmtMode.COPY:
+                lock.release()
 
         if retcode == 0:
             log.info("【RMT】文件%s完成：%s" % (rmt_mode.value, new_file))
@@ -242,7 +218,7 @@ class FileTransfer:
             rmt_mode = self.__sync_rmt_mode
 
         in_path = in_path.replace('\\\\', '/').replace('\\', '/')
-        # 回收站的文件不处理
+        # 回收站及隐藏的文件不处理
         if in_path.find('/@Recycle/') != -1 or in_path.find('/#recycle/') != -1 or in_path.find('/.') != -1:
             return False
         # 不是媒体后缀的文件不处理

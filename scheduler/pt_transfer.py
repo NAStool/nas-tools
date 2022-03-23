@@ -1,8 +1,9 @@
-import threading
+from threading import Lock
+
 import log
 from pt.downloader import Downloader
 
-lock = threading.Lock()
+lock = Lock()
 
 
 class PTTransfer:
@@ -21,7 +22,3 @@ class PTTransfer:
             log.error("【RUN】执行任务pt_transfer出错：%s" % str(err))
         finally:
             lock.release()
-
-
-if __name__ == "__main__":
-    PTTransfer().run_schedule()

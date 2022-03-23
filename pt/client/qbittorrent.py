@@ -6,8 +6,7 @@ import log
 from config import get_config
 
 # 全局设置
-from rmt.filetransfer import FileTransfer
-from utils.types import DownloaderType, MediaType
+from utils.types import MediaType
 
 urllib3.disable_warnings()
 
@@ -22,10 +21,8 @@ class Qbittorrent:
     __movie_save_path = None
     __movie_save_containerpath = None
     qbc = None
-    filetransfer = None
 
     def __init__(self):
-        self.filetransfer = FileTransfer()
         config = get_config()
         if config.get('qbittorrent'):
             self.__qbhost = config['qbittorrent'].get('qbhost')
@@ -89,11 +86,11 @@ class Qbittorrent:
         self.qbc.auth_log_out()
 
     # 处理qbittorrent中的种子
-    def transfer_task(self):
+    def get_transfer_task(self):
         # 处理所有任务
-        log.info("【QB】开始转移PT下载文件...")
         torrents = self.get_torrents()
         trans_torrents = []
+        trans_tasks = []
         for torrent in torrents:
             log.debug("【QB】" + torrent.get('name') + "：" + torrent.get('state'))
             if torrent.get('state') == "uploading" or torrent.get('state') == "stalledUP":
@@ -104,28 +101,22 @@ class Qbittorrent:
                     true_path = true_path.replace(str(self.__tv_save_path), str(self.__tv_save_containerpath))
                 if self.__movie_save_containerpath:
                     true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
-                done_flag = self.filetransfer.transfer_media(in_from=DownloaderType.QB, in_path=true_path)
-                if done_flag:
-                    self.set_torrents_status(torrent.get('hash'))
-                    trans_torrents.append(torrent.name)
-                else:
-                    log.error("【QB】%s 转移失败！" % torrent.get('name'))
-        log.info("【QB】PT下载文件转移结束！")
-        return trans_torrents
+                trans_torrents.append(torrent.name)
+                trans_tasks.append(true_path)
+        return trans_torrents, trans_tasks
 
     # 做种清理
-    def remove_torrents(self, seeding_time):
-        log.info("【PT】开始执行qBittorrent做种清理...")
+    def get_remove_torrents(self, seeding_time):
         torrents = self.get_torrents()
+        remove_torrents = []
         for torrent in torrents:
             # 只有标记为强制上传的才会清理（经过RMT处理的都是强制上传状态）
             if torrent.get('state') == "forcedUP":
                 if int(torrent.get('seeding_time')) > int(seeding_time):
                     log.info("【PT】" + torrent.get('name') + "做种时间：" + str(torrent.get('seeding_time')) +
                              "（秒），已达清理条件，进行清理...")
-                    # 同步删除文件
-                    self.delete_torrents(delete_file=True, ids=torrent.get('hash'))
-        log.info("【PT】qBittorrent做种清理完成！")
+                    remove_torrents.append(torrent.get('hash'))
+        return remove_torrents
 
     # 添加qbittorrent任务
     def add_torrent(self, turl, mtype):
