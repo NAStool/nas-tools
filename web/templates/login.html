@@ -24,11 +24,13 @@
             <h2 class="card-title text-center mb-4"><strong>登录</strong></h2>
             <div class="mb-3">
               <label class="form-label">用户名</label>
-              <input type="text" name="username" class="form-control {% if err_msg %}is-invalid{% endif %}" placeholder="admin" value="admin">
+              <input type="text" name="username" class="form-control {% if err_msg %}is-invalid{% endif %}"
+                     placeholder="用户名" value="">
             </div>
             <div class="mb-2">
               <label class="form-label">密码</label>
-              <input type="password" class="form-control {% if err_msg %}is-invalid{% endif %}" name="password" placeholder="password" autocomplete="off">
+              <input type="password" class="form-control {% if err_msg %}is-invalid{% endif %}" name="password"
+                     placeholder="密码" autocomplete="off">
             </div>
             <div class="form-footer">
               <button type="submit" class="btn btn-primary w-100">登录</button>
