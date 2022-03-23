@@ -2,8 +2,8 @@ import argparse
 import os
 import shutil
 from enum import Enum
-from subprocess import call
 from threading import Lock
+from subprocess import call
 
 import log
 from config import RMT_SUBEXT, get_config, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE

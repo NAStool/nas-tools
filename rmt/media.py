@@ -1,16 +1,14 @@
 import os
 import re
-from multiprocessing import Lock
+from threading import Lock
 
 import log
 from tmdbv3api import TMDb, Search, Movie, TV
-from config import get_config
+from config import get_config, get_meta_data, update_meta_data
 from rmt.metainfo import MetaInfo
 from utils.functions import xstr
 from utils.types import MediaType
 
-# 全局METAINFO缓存
-METAINFO_NAMES = {}
 lock = Lock()
 
 
@@ -20,6 +18,7 @@ class Media:
     search = None
     movie = None
     tv = None
+    meta_data = None
 
     def __init__(self):
         config = get_config()
@@ -31,6 +30,7 @@ class Media:
         self.search = Search()
         self.movie = Movie()
         self.tv = TV()
+        self.meta_data = get_meta_data()
 
     # 检索tmdb中的媒体信息，传入名字、年份、类型
     # 返回媒体信息对象
@@ -102,7 +102,6 @@ class Media:
 
     # 只有名称信息，判别是电影还是电视剧并TMDB信息
     def get_media_info(self, title, subtitle=None):
-        global METAINFO_NAMES
         if not title:
             return None
         meta_info = MetaInfo(title, subtitle)
@@ -111,7 +110,7 @@ class Media:
         media_key = "%s%s" % (media_name, media_year)
         try:
             lock.acquire()
-            if not METAINFO_NAMES.get(media_key):
+            if not self.meta_data.get(media_key):
                 if meta_info.type == MediaType.TV:
                     # 确定是电视剧，直接按电视剧查
                     file_media_info = self.__search_tmdb(media_name, media_year, MediaType.TV)
@@ -129,14 +128,15 @@ class Media:
                                 file_media_info = self.__search_tmdb(media_name, None, MediaType.MOVIE)
                 # 加入缓存
                 if file_media_info:
-                    METAINFO_NAMES[media_key] = file_media_info
+                    self.meta_data[media_key] = file_media_info
+                    update_meta_data(self.meta_data)
                 else:
                     # 标记为未找到，避免再次查询
-                    METAINFO_NAMES[media_key] = {'id': 0}
+                    self.meta_data[media_key] = {'id': 0}
         finally:
             lock.release()
 
-        meta_info.set_tmdb_info(METAINFO_NAMES.get(media_key))
+        meta_info.set_tmdb_info(self.meta_data.get(media_key))
         return meta_info
 
     # 搜刮媒体信息和类型，返回每个文件对应的媒体信息
@@ -146,7 +146,6 @@ class Media:
     '''
 
     def get_media_info_on_files(self, file_list):
-        global METAINFO_NAMES
         # 存储文件路径与媒体的对应关系
         return_media_infos = {}
         # 不是list的转为list
@@ -179,21 +178,22 @@ class Media:
             try:
                 lock.acquire()
                 media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
-                if not METAINFO_NAMES.get(media_key):
+                if not self.meta_data.get(media_key):
                     # 调用TMDB API
                     file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, meta_info.type)
                     if not file_media_info:
                         # 去掉年份再查一次，有可能是年份错误
                         file_media_info = self.__search_tmdb(meta_info.get_name(), None, meta_info.type)
                     if file_media_info:
-                        METAINFO_NAMES[media_key] = file_media_info
+                        self.meta_data[media_key] = file_media_info
+                        update_meta_data(self.meta_data)
                     else:
                         # 标记为未找到避免再次查询
-                        METAINFO_NAMES[media_key] = {'id': 0}
+                        self.meta_data[media_key] = {'id': 0}
             finally:
                 lock.release()
             # 存入结果清单返回
-            meta_info.set_tmdb_info(METAINFO_NAMES.get(media_key))
+            meta_info.set_tmdb_info(self.meta_data.get(media_key))
             return_media_infos[file_path] = meta_info
 
         return return_media_infos

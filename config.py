@@ -1,6 +1,7 @@
 import logging
 import os
-import threading
+import pickle
+from threading import Lock
 from subprocess import call
 import yaml
 
@@ -34,17 +35,21 @@ FANART_TV_API_URL = 'http://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea0
 # 日志级别
 LOG_LEVEL = logging.INFO
 
-lock = threading.Lock()
+lock = Lock()
 
 
 class Config(object):
     __config = {}
     __instance = None
     __config_path = None
+    __meta_data = {}
+    __meta_path = None
 
     def __init__(self):
         self.__config_path = os.environ.get('NASTOOL_CONFIG')
         self.load_config()
+        self.__meta_path = os.path.join(os.path.dirname(self.__config_path), 'meta.dat')
+        self.__meta_data = self.load_meta_data(self.__meta_path)
 
     @staticmethod
     def get_instance():
@@ -85,6 +90,31 @@ class Config(object):
     def get_config_path(self):
         return self.__config_path
 
+    @staticmethod
+    def load_meta_data(path):
+        try:
+            with open(path, 'rb') as f:
+                data = pickle.load(f)
+            return data
+        except Exception as e:
+            return {}
+
+    def get_meta_data(self):
+        return self.__meta_data
+
+    def update_meta_data(self, meta_data):
+        for key, item in meta_data.items():
+            if not self.__meta_data.get(key) and item.get("id") != 0:
+                self.__meta_data[key] = item
+
+    def save_meta_data(self):
+        meta_data = self.load_meta_data(self)
+        for key, item in self.__meta_data:
+            if not meta_data.get(key) and item.get("id") != 0:
+                meta_data[key] = item
+        with open(self.__meta_path, 'wb') as f:
+            pickle.dump(meta_data, f, pickle.HIGHEST_PROTOCOL)
+
 
 # 得到配置信息
 def get_config():
@@ -104,3 +134,18 @@ def load_config():
 # 保存配置
 def save_config(new_cfg):
     return Config.get_instance().save_config(new_cfg)
+
+
+# 获取媒体信息
+def get_meta_data():
+    return Config.get_instance().get_meta_data()
+
+
+# 保存媒体信息
+def save_meta_data():
+    return Config.get_instance().save_meta_data()
+
+
+# 更新媒体信息
+def update_meta_data(meta_data):
+    return Config.get_instance().update_meta_data(meta_data)

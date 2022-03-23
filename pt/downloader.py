@@ -56,10 +56,12 @@ class Downloader:
         if self.client:
             log.info("【PT】开始转移PT下载文件...")
             trans_torrents, trans_tasks = self.client.get_transfer_task()
-            for task_path in trans_tasks:
-                done_flag = self.filetransfer.transfer_media(in_from=self.__client_type, in_path=task_path)
+            for task in trans_tasks:
+                done_flag = self.filetransfer.transfer_media(in_from=self.__client_type, in_path=task.get("path"))
                 if not done_flag:
-                    log.warn("【PT】%s 转移失败！" % task_path)
+                    log.warn("【PT】%s 转移失败！" % task.get("path"))
+                else:
+                    self.client.set_torrents_status(task.get("id"))
             log.info("【PT】PT下载文件转移结束！")
             self.emby.refresh_emby_library_by_names(trans_torrents)
 

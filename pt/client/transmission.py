@@ -115,7 +115,7 @@ class Transmission:
                 if self.__movie_save_containerpath:
                     true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
                 trans_torrents.append(torrent.name)
-                trans_tasks.append(true_path)
+                trans_tasks.append({'path': true_path, 'id': torrent.id})
         return trans_torrents, trans_tasks
 
     # 做种清理

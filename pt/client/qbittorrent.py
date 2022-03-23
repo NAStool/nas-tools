@@ -92,7 +92,6 @@ class Qbittorrent:
         trans_torrents = []
         trans_tasks = []
         for torrent in torrents:
-            log.debug("【QB】" + torrent.get('name') + "：" + torrent.get('state'))
             if torrent.get('state') == "uploading" or torrent.get('state') == "stalledUP":
                 true_path = torrent.get('content_path', os.path.join(torrent.get('save_path'), torrent.get('name')))
                 if not true_path:
@@ -102,7 +101,7 @@ class Qbittorrent:
                 if self.__movie_save_containerpath:
                     true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
                 trans_torrents.append(torrent.name)
-                trans_tasks.append(true_path)
+                trans_tasks.append({'path': true_path, 'id': torrent.get('hash')})
         return trans_torrents, trans_tasks
 
     # 做种清理
