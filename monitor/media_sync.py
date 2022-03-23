@@ -5,7 +5,7 @@ from datetime import datetime
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
-from config import get_config, RMT_MEDIAEXT, SYNC_DIR_CONFIG
+from config import RMT_MEDIAEXT, SYNC_DIR_CONFIG, Config
 import log
 from rmt.filetransfer import FileTransfer
 from utils.types import SyncType
@@ -24,14 +24,17 @@ class Sync:
     __observer = []
     __sync_path = None
     __sync_sys = "Linux"
+    __config = None
 
     def __init__(self):
         self.filetransfer = FileTransfer()
-        config = get_config()
-        if config.get('app'):
-            self.__sync_sys = config['app'].get('nas_sys', "Linux")
-        if config.get('sync'):
-            self.__sync_path = config['sync'].get('sync_path')
+        self.__config = Config()
+        app = self.__config.get_config('app')
+        if app:
+            self.__sync_sys = app.get('nas_sys', "Linux")
+        sync = self.__config.get_config('sync')
+        if sync:
+            self.__sync_path = sync.get('sync_path')
 
     # 处理文件变化
     def file_change_handler(self, event, text, event_path):

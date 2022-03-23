@@ -1,7 +1,7 @@
 import re
 
 import log
-from config import get_config
+from config import Config
 from message.send import Message
 from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
@@ -15,6 +15,7 @@ from web.backend.emby import Emby
 
 
 class Downloader:
+    __config = None
     client = None
     __client_type = None
     __seeding_time = None
@@ -28,16 +29,17 @@ class Downloader:
         self.emby = Emby()
         self.filetransfer = FileTransfer()
         self.media = Media()
-        config = get_config()
-        if config.get('pt'):
-            pt_client = config['pt'].get('pt_client')
+        self.__config = Config()
+        pt = self.__config.get_config('pt')
+        if pt:
+            pt_client = pt.get('pt_client')
             if pt_client == "qbittorrent":
                 self.client = Qbittorrent()
                 self.__client_type = DownloaderType.QB
             elif pt_client == "transmission":
                 self.client = Transmission()
                 self.__client_type = DownloaderType.TR
-            self.__seeding_time = config['pt'].get('pt_seeding_time')
+            self.__seeding_time = pt.get('pt_seeding_time')
 
     # 添加下载任务
     def add_pt_torrent(self, url, mtype=MediaType.MOVIE):

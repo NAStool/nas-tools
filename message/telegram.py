@@ -1,18 +1,20 @@
 from urllib.parse import urlencode
 import requests
-from config import get_config
+
+from config import Config
 
 
 class Telegram:
-
+    __config = None
     __telegram_token = None
     __telegram_chat_id = None
 
     def __init__(self):
-        config = get_config()
-        if config.get('message'):
-            self.__telegram_token = config['message'].get('telegram', {}).get('telegram_token')
-            self.__telegram_chat_id = config['message'].get('telegram', {}).get('telegram_chat_id')
+        self.__config = Config()
+        message = self.__config.get_config('message')
+        if message:
+            self.__telegram_token = message.get('telegram', {}).get('telegram_token')
+            self.__telegram_chat_id = message.get('telegram', {}).get('telegram_chat_id')
 
     def send_telegram_msg(self, title, text="", image=""):
         if not title and not text:

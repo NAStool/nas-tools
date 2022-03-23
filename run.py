@@ -1,6 +1,6 @@
 import os
 import log
-from config import get_config
+from config import Config
 from utils.check_config import check_simple_config, check_config
 from version import APP_VERSION
 from web import run as web
@@ -15,8 +15,8 @@ if __name__ == "__main__":
     print("【RUN】配置文件地址：%s" % os.environ.get('NASTOOL_CONFIG'))
     print('【RUN】NASTool 当前版本号：%s' % APP_VERSION)
     # 检查配置文件
-    cfg = get_config()
-    simple_mode = cfg.get('app', {}).get('simple_mode')
+    cfg = Config()
+    simple_mode = cfg.get_config('app').get('simple_mode')
     if simple_mode:
         # 纯硬链接模式
         print("【RUN】当前运行模式：精简模式，无RSS、WEBUI等功能")

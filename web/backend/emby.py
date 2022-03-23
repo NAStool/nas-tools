@@ -2,7 +2,7 @@ import time
 from datetime import datetime
 import requests
 import log
-from config import get_config, RMT_FAVTYPE
+from config import RMT_FAVTYPE, Config
 from message.send import Message
 from rmt.filetransfer import FileTransfer
 from rmt.metainfo import MetaInfo
@@ -13,6 +13,7 @@ PLAY_LIST = []
 
 
 class Emby:
+    __config = None
     message = None
     media = None
     __apikey = None
@@ -21,14 +22,15 @@ class Emby:
 
     def __init__(self):
         self.message = Message()
-        config = get_config()
-        if config.get('emby'):
-            self.__host = config['emby'].get('host')
+        self.__config = Config()
+        emby = self.__config.get_config('emby')
+        if emby:
+            self.__host = emby.get('host')
             if not self.__host.startswith('http://') and not self.__host.startswith('https://'):
                 self.__host = "http://" + self.__host
             if not self.__host.endswith('/'):
                 self.__host = self.__host + "/"
-            self.__apikey = config['emby'].get('api_key')
+            self.__apikey = emby.get('api_key')
             self.__library_info = self.get_emby_librarys()
 
     # 获取Emby媒体库的信息

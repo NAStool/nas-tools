@@ -1,16 +1,18 @@
 import requests
-from config import get_config
+from config import Config
 
 
 class Bark:
     __server = None
     __apikey = None
+    __config = None
 
     def __init__(self):
-        config = get_config()
-        if config.get('message'):
-            self.__server = config['message'].get('bark', {}).get('server')
-            self.__apikey = config['message'].get('bark', {}).get('apikey')
+        self.__config = Config()
+        message = self.__config.get_config('message')
+        if message:
+            self.__server = message.get('bark', {}).get('server')
+            self.__apikey = message.get('bark', {}).get('apikey')
 
     # 发送Bark消息
     def send_bark_msg(self, title, text=""):

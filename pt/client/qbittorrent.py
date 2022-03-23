@@ -3,15 +3,16 @@ import os
 import qbittorrentapi
 import urllib3
 import log
-from config import get_config
 
 # 全局设置
+from config import Config
 from utils.types import MediaType
 
 urllib3.disable_warnings()
 
 
 class Qbittorrent:
+    __config = None
     __qbhost = None
     __qbport = None
     __qbusername = None
@@ -23,14 +24,15 @@ class Qbittorrent:
     qbc = None
 
     def __init__(self):
-        config = get_config()
-        if config.get('qbittorrent'):
-            self.__qbhost = config['qbittorrent'].get('qbhost')
-            self.__qbport = config['qbittorrent'].get('qbport')
-            self.__qbusername = config['qbittorrent'].get('qbusername')
-            self.__qbpassword = config['qbittorrent'].get('qbpassword')
+        self.__config = Config()
+        qbittorrent = self.__config.get_config('qbittorrent')
+        if qbittorrent:
+            self.__qbhost = qbittorrent.get('qbhost')
+            self.__qbport = qbittorrent.get('qbport')
+            self.__qbusername = qbittorrent.get('qbusername')
+            self.__qbpassword = qbittorrent.get('qbpassword')
             # 解释下载目录
-            save_path = config['qbittorrent'].get('save_path')
+            save_path = qbittorrent.get('save_path')
             if save_path:
                 if isinstance(save_path, str):
                     self.__tv_save_path = save_path
@@ -38,7 +40,7 @@ class Qbittorrent:
                 else:
                     self.__tv_save_path = save_path.get('tv')
                     self.__movie_save_path = save_path.get('movie')
-            save_containerpath = config['qbittorrent'].get('save_containerpath')
+            save_containerpath = qbittorrent.get('save_containerpath')
             if save_containerpath:
                 if isinstance(save_containerpath, str):
                     self.__tv_save_containerpath = save_containerpath

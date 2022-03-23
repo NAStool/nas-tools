@@ -2,7 +2,7 @@ import re
 from concurrent.futures.thread import ThreadPoolExecutor
 from concurrent.futures._base import as_completed
 import log
-from config import get_config
+from config import Config
 from utils.functions import parse_jackettxml, get_keyword_from_string, get_tmdb_seasons_info, \
     get_tmdb_season_episodes_num
 from message.send import Message
@@ -13,6 +13,7 @@ from web.backend.emby import Emby
 
 
 class Jackett:
+    __config = None
     __api_key = None
     __indexers = []
     __res_type = []
@@ -27,13 +28,14 @@ class Jackett:
         self.message = Message()
         self.emby = Emby()
 
-        config = get_config()
-        if config.get('jackett'):
-            self.__api_key = config['jackett'].get('api_key')
-            self.__res_type = config['jackett'].get('res_type')
+        self.__config = Config()
+        jackett = self.__config.get_config('jackett')
+        if jackett:
+            self.__api_key = jackett.get('api_key')
+            self.__res_type = jackett.get('res_type')
             if not isinstance(self.__res_type, list):
                 self.__res_type = [self.__res_type]
-            self.__indexers = config['jackett'].get('indexers')
+            self.__indexers = jackett.get('indexers')
             if not isinstance(self.__indexers, list):
                 self.__indexers = [self.__indexers]
             self.media = Media()

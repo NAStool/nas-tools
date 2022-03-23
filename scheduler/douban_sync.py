@@ -1,7 +1,7 @@
 from threading import Lock
 
 import log
-from config import get_config
+from config import Config
 from pt.douban import DouBan
 from pt.jackett import Jackett
 from utils.sqls import insert_tv_key, insert_movie_key, get_douban_search_state, insert_douban_media_state
@@ -11,6 +11,7 @@ lock = Lock()
 
 
 class DoubanSync:
+    __config = None
     __interval = None
     __auto_search = True
     __auto_rss = True
@@ -20,11 +21,12 @@ class DoubanSync:
     def __init__(self):
         self.douban = DouBan()
         self.jackett = Jackett()
-        config = get_config()
-        if config.get('douban'):
-            self.__interval = config['douban'].get('interval')
-            self.__auto_search = config['douban'].get('auto_search')
-            self.__auto_rss = config['douban'].get('auto_rss')
+        self.__config = Config()
+        douban = self.__config.get_config('douban')
+        if douban:
+            self.__interval = douban.get('interval')
+            self.__auto_search = douban.get('auto_search')
+            self.__auto_rss = douban.get('auto_rss')
 
     def run_schedule(self):
         try:

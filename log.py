@@ -2,25 +2,27 @@ import logging
 import os
 import threading
 from logging.handlers import TimedRotatingFileHandler
-from config import LOG_LEVEL, get_config
+from config import LOG_LEVEL, Config
 
 lock = threading.Lock()
 
 
 class Logger:
     __instance = None
+    __config = None
 
     def __init__(self):
         self.logger = logging.Logger(__name__)
         self.logger.setLevel(level=LOG_LEVEL)
-        config = get_config()
-        if config.get('app'):
-            logtype = config['app'].get('logtype', 'CONSOLE')
+        self.__config = Config()
+        app = self.__config.get_config('app')
+        if app:
+            logtype = app.get('logtype', 'CONSOLE')
         else:
             logtype = 'CONSOLE'
         if logtype == "FILE":
             # 记录日志到文件
-            logpath = config['app'].get('logpath')
+            logpath = app.get('logpath')
             if not os.path.exists(logpath):
                 os.makedirs(logpath)
             log_file_handler = TimedRotatingFileHandler(filename=logpath + "/" + __name__ + ".txt", when="D",
@@ -31,7 +33,7 @@ class Logger:
             log_file_handler.setFormatter(formatter)
             self.logger.addHandler(log_file_handler)
         elif logtype == "SERVER":
-            logserver = config['app'].get('logserver')
+            logserver = app.get('logserver')
             logip = logserver.split(':')[0]
             logport = int(logserver.split(':')[1])
             log_server_handler = logging.handlers.SysLogHandler((logip, logport),

@@ -18,7 +18,7 @@ from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
 from message.send import Message
 
-from config import WECHAT_MENU, get_config, save_config, PT_TRANSFER_INTERVAL
+from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, Config
 from utils.functions import get_used_of_partition, str_filesize, str_timelong
 from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys
@@ -35,8 +35,8 @@ login_manager.login_view = "login"
 
 # Flask实例
 def create_flask_app():
-    config = get_config()
-    app_cfg = config.get('app')
+    config = Config()
+    app_cfg = config.get_config('app')
     if not app_cfg:
         return None
     else:
@@ -62,8 +62,8 @@ def create_flask_app():
     EmbyClient = Emby()
     USERS = [{
         "id": 1,
-        "name": config.get('app', {}).get('login_user'),
-        "password": generate_password_hash(config.get('app', {}).get('login_password'))
+        "name": config.get_config('app').get('login_user'),
+        "password": generate_password_hash(config.get_config('app').get('login_password'))
     }]
 
     # 根据用户名获得用户记录
@@ -117,7 +117,7 @@ def create_flask_app():
     @app.before_request
     def before_request():
         if request.url.startswith('http://'):
-            ssl_cert = config['app'].get('ssl_cert')
+            ssl_cert = config.get_config('app').get('ssl_cert')
             if ssl_cert:
                 url = request.url.replace('http://', 'https://', 1)
                 return redirect(url, code=301)
@@ -174,15 +174,16 @@ def create_flask_app():
         TotalSpace = 0
         FreeSpace = 0
         UsedPercent = 0
-        if config.get('media'):
+        media = config.get_config('media')
+        if media:
             # 电影目录
-            movie_path = config['media'].get('movie_path')
+            movie_path = media.get('movie_path')
             if movie_path:
                 movie_used, movie_total = get_used_of_partition(movie_path)
             else:
                 movie_used, movie_total = 0, 0
             # 电视目录
-            tv_path = config['media'].get('tv_path')
+            tv_path = media.get('tv_path')
             if tv_path:
                 tv_used, tv_total = get_used_of_partition(movie_path)
             else:
@@ -384,9 +385,10 @@ def create_flask_app():
     @login_required
     def service():
         scheduler_cfg_list = []
-        if config.get('pt'):
+        pt = config.get_config('pt')
+        if pt:
             # RSS下载
-            pt_check_interval = config['pt'].get('pt_check_interval')
+            pt_check_interval = pt.get('pt_check_interval')
             if pt_check_interval:
                 tim_rssdownload = str(round(pt_check_interval / 60)) + " 分钟"
                 rss_state = 'ON'
@@ -407,7 +409,7 @@ def create_flask_app():
                  'color': color})
 
             # PT文件转移
-            pt_monitor = config['pt'].get('pt_monitor')
+            pt_monitor = pt.get('pt_monitor')
             if pt_monitor:
                 tim_pttransfer = str(round(PT_TRANSFER_INTERVAL / 60)) + " 分钟"
                 sta_pttransfer = 'ON'
@@ -429,7 +431,7 @@ def create_flask_app():
                  'color': color})
 
             # PT删种
-            pt_seeding_config_time = config['pt'].get('pt_seeding_time')
+            pt_seeding_config_time = pt.get('pt_seeding_time')
             if pt_seeding_config_time:
                 pt_seeding_time = str(round(pt_seeding_config_time / 3600)) + " 小时"
                 sta_autoremovetorrents = 'ON'
@@ -449,7 +451,7 @@ def create_flask_app():
                      'id': 'autoremovetorrents', 'svg': svg, 'color': color})
 
             # PT自动签到
-            tim_ptsignin = config['pt'].get('ptsignin_cron')
+            tim_ptsignin = pt.get('ptsignin_cron')
             if tim_ptsignin:
                 sta_ptsignin = 'ON'
                 svg = '''
@@ -466,8 +468,9 @@ def create_flask_app():
                      'color': color})
 
         # 资源同步
-        if config.get('sync'):
-            sync_path = config['sync'].get('sync_path')
+        sync = config.get_config('sync')
+        if sync:
+            sync_path = sync.get('sync_path')
             if sync_path:
                 sta_sync = 'ON'
                 svg = '''
@@ -481,8 +484,9 @@ def create_flask_app():
                 scheduler_cfg_list.append(
                     {'name': '资源同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg, 'color': color})
         # 豆瓣同步
-        if config.get('douban'):
-            interval = config['douban'].get('interval')
+        douban = config.get_config('douban')
+        if douban:
+            interval = douban.get('interval')
             if interval:
                 interval = "%s 小时" % interval
                 sta_douban = "ON"
@@ -596,31 +600,6 @@ def create_flask_app():
                         insert_tv_key(name)
                 return {"retcode": 0}
 
-            # 删除RSS关键字
-            if cmd == "delrss":
-                name = data.get("name")
-                mtype = data.get("type")
-                if name and mtype:
-                    if mtype in ['nm', 'hm']:
-                        movie_keys = config['pt'].get('movie_keys')
-                        if movie_keys:
-                            if not isinstance(movie_keys, list):
-                                movie_keys = [movie_keys]
-                            if name in movie_keys:
-                                movie_keys.remove(name)
-                                config['pt']['movie_keys'] = movie_keys
-                                save_config(config)
-                    else:
-                        tv_keys = config['pt'].get('tv_keys')
-                        if tv_keys:
-                            if not isinstance(tv_keys, list):
-                                tv_keys = [tv_keys]
-                            if name in tv_keys:
-                                tv_keys.remove(name)
-                                config['pt']['tv_keys'] = tv_keys
-                                save_config(config)
-                return {"retcode": 0}
-
             # 开始下载
             if cmd == "pt_start":
                 tid = data.get("id")
@@ -685,9 +664,10 @@ def create_flask_app():
     # 响应企业微信消息
     @app.route('/wechat', methods=['GET', 'POST'])
     def wechat():
-        sToken = config['message'].get('wechat', {}).get('Token')
-        sEncodingAESKey = config['message'].get('wechat', {}).get('EncodingAESKey')
-        sCorpID = config['message'].get('wechat', {}).get('corpid')
+        message = config.get_config('message')
+        sToken = message.get('wechat', {}).get('Token')
+        sEncodingAESKey = message.get('wechat', {}).get('EncodingAESKey')
+        sCorpID = message.get('wechat', {}).get('corpid')
         if not sToken or not sEncodingAESKey or not sCorpID:
             return
         wxcpt = WXBizMsgCrypt(sToken, sEncodingAESKey, sCorpID)

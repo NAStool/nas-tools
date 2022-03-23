@@ -1,6 +1,5 @@
 import logging
 import os
-import pickle
 from threading import Lock
 from subprocess import call
 import yaml
@@ -42,14 +41,10 @@ class Config(object):
     __config = {}
     __instance = None
     __config_path = None
-    __meta_data = {}
-    __meta_path = None
 
     def __init__(self):
         self.__config_path = os.environ.get('NASTOOL_CONFIG')
-        self.load_config()
-        self.__meta_path = os.path.join(os.path.dirname(self.__config_path), 'meta.dat')
-        self.__meta_data = self.load_meta_data(self.__meta_path)
+        self.__load_config()
 
     @staticmethod
     def get_instance():
@@ -63,7 +58,7 @@ class Config(object):
             lock.release()
         return Config.__instance
 
-    def load_config(self):
+    def __load_config(self):
         try:
             if not self.__config_path:
                 print("【RUN】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
@@ -79,73 +74,18 @@ class Config(object):
             print("读取配置文件错误：%s" % str(err))
             return False
 
-    def get_config(self):
-        return self.__config
+    def __get_config(self, node):
+        if not node:
+            return self.__config
+        return self.__config.get(node)
 
-    def save_config(self, new_cfg):
+    def __save_config(self, new_cfg):
         self.__config = new_cfg
         with open(self.__config_path, mode='w', encoding='utf-8') as f:
             return yaml.dump(new_cfg, f, allow_unicode=True)
 
-    def get_config_path(self):
-        return self.__config_path
+    def get_config(self, node=None):
+        return self.get_instance().__get_config(node) or {}
 
-    @staticmethod
-    def load_meta_data(path):
-        try:
-            with open(path, 'rb') as f:
-                data = pickle.load(f)
-            return data
-        except Exception as e:
-            return {}
-
-    def get_meta_data(self):
-        return self.__meta_data
-
-    def update_meta_data(self, meta_data):
-        for key, item in meta_data.items():
-            if not self.__meta_data.get(key) and item.get("id") != 0:
-                self.__meta_data[key] = item
-
-    def save_meta_data(self):
-        meta_data = self.load_meta_data(self)
-        for key, item in self.__meta_data:
-            if not meta_data.get(key) and item.get("id") != 0:
-                meta_data[key] = item
-        with open(self.__meta_path, 'wb') as f:
-            pickle.dump(meta_data, f, pickle.HIGHEST_PROTOCOL)
-
-
-# 得到配置信息
-def get_config():
-    return Config.get_instance().get_config()
-
-
-# 得到配置路径
-def get_config_path():
-    return Config.get_instance().get_config_path()
-
-
-# 装载配置
-def load_config():
-    return Config.get_instance().load_config()
-
-
-# 保存配置
-def save_config(new_cfg):
-    return Config.get_instance().save_config(new_cfg)
-
-
-# 获取媒体信息
-def get_meta_data():
-    return Config.get_instance().get_meta_data()
-
-
-# 保存媒体信息
-def save_meta_data():
-    return Config.get_instance().save_meta_data()
-
-
-# 更新媒体信息
-def update_meta_data(meta_data):
-    return Config.get_instance().update_meta_data(meta_data)
+    def load_config(self):
+        return self.get_instance().__load_config()

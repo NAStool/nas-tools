@@ -2,12 +2,13 @@ from datetime import datetime
 import threading
 import requests
 
-from config import get_config
+from config import Config
 
 lock = threading.Lock()
 
 
 class WeChat(object):
+    __config = None
     __instance = None
     __access_token = None
     __expires_in = None
@@ -18,11 +19,12 @@ class WeChat(object):
     __agentid = None
 
     def __init__(self):
-        config = get_config()
-        if config.get('message'):
-            self.__corpid = config['message'].get('wechat', {}).get('corpid')
-            self.__corpsecret = config['message'].get('wechat', {}).get('corpsecret')
-            self.__agent_id = config['message'].get('wechat', {}).get('agentid')
+        self.__config = Config()
+        message = self.__config.get_config('message')
+        if message:
+            self.__corpid = message.get('wechat', {}).get('corpid')
+            self.__corpsecret = message.get('wechat', {}).get('corpsecret')
+            self.__agent_id = message.get('wechat', {}).get('agentid')
         if self.__corpid and self.__corpsecret and self.__agent_id:
             self.get_access_token()
 

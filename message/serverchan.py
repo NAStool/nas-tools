@@ -1,15 +1,18 @@
 from urllib.parse import urlencode
 import requests
-from config import get_config
+
+from config import Config
 
 
 class ServerChan:
     __sckey = None
+    __config = None
 
     def __init__(self):
-        config = get_config()
-        if config.get('message'):
-            self.__sckey = config['message'].get('serverchan', {}).get('sckey')
+        self.__config = Config()
+        message = self.__config.get_config('message')
+        if message:
+            self.__sckey = message.get('serverchan', {}).get('sckey')
 
     # 发送ServerChan消息
     def send_serverchan_msg(self, text, desp=""):

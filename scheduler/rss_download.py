@@ -2,7 +2,7 @@ import re
 from threading import Lock
 
 import log
-from config import get_config
+from config import Config
 from utils.functions import parse_rssxml, is_chinese
 from message.send import Message
 from pt.downloader import Downloader
@@ -15,7 +15,9 @@ lock = Lock()
 
 
 class RSSDownloader:
+    __config = None
     __rss_chinese = None
+    __sites = None
     message = None
     media = None
     downloader = None
@@ -25,9 +27,11 @@ class RSSDownloader:
         self.media = Media()
         self.downloader = Downloader()
 
-        config = get_config()
-        if config.get('pt'):
-            self.__rss_chinese = config['pt'].get('rss_chinese')
+        self.__config = Config()
+        pt = self.__config.get_config('pt')
+        if pt:
+            self.__rss_chinese = pt.get('rss_chinese')
+            self.__sites = pt.get('sites')
 
     def run_schedule(self):
         try:
@@ -40,12 +44,7 @@ class RSSDownloader:
 
     def __rssdownload(self):
         global RSS_CACHED_TORRENTS
-        config = get_config()
-        pt = config.get('pt')
-        if not pt:
-            return
-        sites = pt.get('sites')
-        if not sites:
+        if not self.__sites:
             return
         log.info("【RSS】开始RSS订阅...")
 
@@ -68,7 +67,7 @@ class RSSDownloader:
         # 代码站点配置优先级的序号
         order_seq = 0
         rss_download_torrents = []
-        for rss_job, job_info in sites.items():
+        for rss_job, job_info in self.__sites.items():
             order_seq = order_seq + 1
             # 读取子配置
             rssurl = job_info.get('rssurl')

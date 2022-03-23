@@ -7,8 +7,9 @@ import transmission_rpc
 import log
 
 
-def check_config(config):
+def check_config(cfg):
     # 剑查日志输出
+    config = cfg.get_config()
     if config.get('app'):
         logtype = config['app'].get('logtype', 'CONSOLE')
         print("【RUN】日志输出类型为：%s" % logtype)
@@ -276,8 +277,8 @@ def check_config(config):
 
 
 # 检查硬链接模式的配置信息
-def check_simple_config(config):
-
+def check_simple_config(cfg):
+    config = cfg.get_config()
     app = config.get('app')
     if not app:
         print("【RUN】app配置不存在，程序无法启动")

@@ -3,13 +3,14 @@ import transmission_rpc
 import urllib3
 from datetime import datetime
 import log
-from config import get_config
+from config import Config
 from utils.types import MediaType
 
 urllib3.disable_warnings()
 
 
 class Transmission:
+    __config = None
     __trhost = None
     __trport = None
     __trusername = None
@@ -21,14 +22,15 @@ class Transmission:
     trc = None
 
     def __init__(self):
-        config = get_config()
-        if config.get('transmission'):
-            self.__trhost = config['transmission'].get('trhost')
-            self.__trport = config['transmission'].get('trport')
-            self.__trusername = config['transmission'].get('trusername')
-            self.__trpassword = config['transmission'].get('trpassword')
+        self.__config = Config()
+        transmission = self.__config.get_config('transmission')
+        if transmission:
+            self.__trhost = transmission.get('trhost')
+            self.__trport = transmission.get('trport')
+            self.__trusername = transmission.get('trusername')
+            self.__trpassword = transmission.get('trpassword')
             # 解释下载目录
-            save_path = config['transmission'].get('save_path')
+            save_path = transmission.get('save_path')
             if save_path:
                 if isinstance(save_path, str):
                     self.__tv_save_path = save_path
@@ -36,7 +38,7 @@ class Transmission:
                 else:
                     self.__tv_save_path = save_path.get('tv')
                     self.__movie_save_path = save_path.get('movie')
-            save_containerpath = config['transmission'].get('save_containerpath')
+            save_containerpath = transmission.get('save_containerpath')
             if save_containerpath:
                 if isinstance(save_containerpath, str):
                     self.__tv_save_containerpath = save_containerpath

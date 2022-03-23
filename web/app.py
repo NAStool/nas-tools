@@ -1,5 +1,5 @@
 import log
-from config import get_config
+from config import Config
 from web.main import create_flask_app
 
 
@@ -8,14 +8,16 @@ class FlaskApp:
     __web_port = None
     __ssl_cert = None
     __ssl_key = None
+    __config = None
 
     def __init__(self):
         self.__app = create_flask_app()
-        config = get_config()
-        if config.get('app'):
-            self.__web_port = config['app'].get('web_port')
-            self.__ssl_cert = config['app'].get('ssl_cert')
-            self.__ssl_key = config['app'].get('ssl_key')
+        self.__config = Config()
+        app = self.__config.get_config('app')
+        if app:
+            self.__web_port = app.get('web_port')
+            self.__ssl_cert = app.get('ssl_cert')
+            self.__ssl_key = app.get('ssl_key')
 
     def run_service(self):
         try:

@@ -6,13 +6,14 @@ import requests
 from bs4 import BeautifulSoup
 
 import log
-from config import get_config
+from config import Config
 from rmt.metainfo import MetaInfo
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
 
 
 class DouBan:
+    __config = None
     req = None
     __default_headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"}
@@ -23,22 +24,23 @@ class DouBan:
     __headers = None
 
     def __init__(self):
-        config = get_config()
-        if config.get('douban'):
+        self.__config = Config()
+        douban = self.__config.get_config('douban')
+        if douban:
             # 用户列表
-            users = config['douban'].get('users')
+            users = douban.get('users')
             if users:
                 if not isinstance(users, list):
                     users = [users]
                 self.__users = users
             # 时间范围
-            self.__days = config['douban'].get('days')
+            self.__days = douban.get('days')
             # 类型
-            types = config['douban'].get('types')
+            types = douban.get('types')
             if types:
                 self.__types = types.split(',')
             # headers
-            user_agent = config['douban'].get('user_agent')
+            user_agent = douban.get('user_agent')
             if not user_agent:
                 self.__headers = self.__default_headers
             else:
@@ -46,7 +48,7 @@ class DouBan:
 
             self.req = RequestUtils(request_interval_mode=True)
             # Cookie
-            cookie = config['douban'].get('cookie')
+            cookie = douban.get('cookie')
             if not cookie:
                 try:
                     if self.req:

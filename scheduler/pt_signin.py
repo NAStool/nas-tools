@@ -2,7 +2,7 @@ from threading import Lock
 
 import requests
 import log
-from config import get_config
+from config import Config
 from utils.functions import cookieParse, generateHeader
 from message.send import Message
 
@@ -10,14 +10,16 @@ lock = Lock()
 
 
 class PTSignin:
+    __config = None
     __pt_sites = None
     message = None
 
     def __init__(self):
         self.message = Message()
-        config = get_config()
-        if config.get('pt'):
-            self.__pt_sites = config['pt'].get('sites')
+        self.__config = Config()
+        pt = self.__config.get_config('pt')
+        if pt:
+            self.__pt_sites = pt.get('sites')
 
     def run_schedule(self):
         try:

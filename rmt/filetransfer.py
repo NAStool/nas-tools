@@ -6,7 +6,7 @@ from threading import Lock
 from subprocess import call
 
 import log
-from config import RMT_SUBEXT, get_config, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE
+from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Config
 from utils.functions import get_dir_files_by_ext, get_free_space_gb
 from message.send import Message
 from rmt.media import Media
@@ -16,6 +16,7 @@ lock = Lock()
 
 
 class FileTransfer:
+    __config = None
     __pt_rmt_mode = None
     __sync_rmt_mode = None
     __movie_path = None
@@ -27,23 +28,26 @@ class FileTransfer:
     message = None
 
     def __init__(self):
-        config = get_config()
-        if config.get('media'):
-            self.__movie_path = config['media'].get('movie_path')
-            self.__tv_path = config['media'].get('tv_path')
-            self.__movie_subtypedir = config['media'].get('movie_subtypedir', True)
-            self.__tv_subtypedir = config['media'].get('tv_subtypedir', True)
-        if config.get('sync'):
-            rmt_mode = config['sync'].get('sync_mod', 'COPY').upper()
+        self.__config = Config()
+        media = self.__config.get_config('media')
+        if media:
+            self.__movie_path = media.get('movie_path')
+            self.__tv_path = media.get('tv_path')
+            self.__movie_subtypedir = media.get('movie_subtypedir', True)
+            self.__tv_subtypedir = media.get('tv_subtypedir', True)
+        sync = self.__config.get_config('sync')
+        if sync:
+            rmt_mode = sync.get('sync_mod', 'COPY').upper()
             if rmt_mode == "LINK":
                 self.__sync_rmt_mode = RmtMode.LINK
             elif rmt_mode == "SOFTLINK":
                 self.__sync_rmt_mode = RmtMode.SOFTLINK
             else:
                 self.__sync_rmt_mode = RmtMode.COPY
-            self.__sync_path = config['sync'].get('sync_path')
-        if config.get('pt'):
-            rmt_mode = config['pt'].get('rmt_mode', 'COPY').upper()
+            self.__sync_path = sync.get('sync_path')
+        pt = self.__config.get_config('pt')
+        if pt:
+            rmt_mode = pt.get('rmt_mode', 'COPY').upper()
             if rmt_mode == "LINK":
                 self.__pt_rmt_mode = RmtMode.LINK
             elif rmt_mode == "SOFTLINK":
