@@ -7,6 +7,7 @@ import yaml
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
 # 菜单序号在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护，然后看日志输出的菜单序号是啥（按顺利能猜到的）....
 # 命令对应关系：/ptt qBittorrent转移；/ptr qBittorrent删种；/pts PT签到；/rst ResilioSync同步；/rss RSS下载
+from utils.functions import singleton
 from utils.types import MediaCatagory
 
 WECHAT_MENU = {'_0_0': '/ptt', '_0_1': '/ptr', '_0_2': '/rss', '_1_0': '/rst', '_1_1': '/db', '_2_0': '/pts'}
@@ -37,28 +38,16 @@ LOG_LEVEL = logging.INFO
 lock = Lock()
 
 
+@singleton
 class Config(object):
     __config = {}
-    __instance = None
     __config_path = None
 
     def __init__(self):
         self.__config_path = os.environ.get('NASTOOL_CONFIG')
-        self.__load_config()
+        self.load_config()
 
-    @staticmethod
-    def get_instance():
-        if Config.__instance:
-            return Config.__instance
-        try:
-            lock.acquire()
-            if not Config.__instance:
-                Config.__instance = Config()
-        finally:
-            lock.release()
-        return Config.__instance
-
-    def __load_config(self):
+    def load_config(self):
         try:
             if not self.__config_path:
                 print("【RUN】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
@@ -71,21 +60,15 @@ class Config(object):
             with open(self.__config_path, mode='r', encoding='utf-8') as f:
                 self.__config = yaml.safe_load(f)
         except yaml.YAMLError as err:
-            print("读取配置文件错误：%s" % str(err))
+            print("【RUN】读取配置文件错误：%s" % str(err))
             return False
 
-    def __get_config(self, node):
+    def get_config(self, node=None):
         if not node:
             return self.__config
         return self.__config.get(node)
 
-    def __save_config(self, new_cfg):
+    def save_config(self, new_cfg):
         self.__config = new_cfg
         with open(self.__config_path, mode='w', encoding='utf-8') as f:
             return yaml.dump(new_cfg, f, allow_unicode=True)
-
-    def get_config(self, node=None):
-        return self.get_instance().__get_config(node) or {}
-
-    def load_config(self):
-        return self.get_instance().__load_config()

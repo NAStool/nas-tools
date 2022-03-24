@@ -4,6 +4,7 @@ import log
 from config import Config
 from pt.douban import DouBan
 from pt.jackett import Jackett
+from utils.meta_helper import MetaHelper
 from utils.sqls import insert_tv_key, insert_movie_key, get_douban_search_state, insert_douban_media_state
 from utils.types import MediaType, SearchType
 
@@ -32,6 +33,7 @@ class DoubanSync:
         try:
             lock.acquire()
             self.__douban_sync()
+            MetaHelper().save_meta_data()
         except Exception as err:
             log.error("【RUN】执行任务douban_sync出错：%s" % str(err))
         finally:

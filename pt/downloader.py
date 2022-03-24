@@ -9,7 +9,6 @@ from rmt.filetransfer import FileTransfer
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from utils.functions import str_filesize
-
 from utils.types import MediaType, DownloaderType, SearchType
 from web.backend.emby import Emby
 

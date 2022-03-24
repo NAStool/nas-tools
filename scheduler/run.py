@@ -10,6 +10,7 @@ from scheduler.douban_sync import DoubanSync
 from scheduler.pt_signin import PTSignin
 from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
+from utils.meta_helper import MetaHelper
 
 
 def run_scheduler():
@@ -70,6 +71,9 @@ def run_scheduler():
 
     # 配置定时生效
     scheduler.add_job(Config().load_config, 'interval', seconds=600)
+
+    # 元数据定时保存
+    scheduler.add_job(MetaHelper().save_meta_data, 'interval', seconds=600)
 
     scheduler.start()
     log.info("【RUN】scheduler启动完成!")

@@ -138,7 +138,6 @@ class Media:
                     self.meta.update_meta_data({media_key: {'id': 0}})
         finally:
             lock.release()
-
         meta_info.set_tmdb_info(self.meta.get_meta_data().get(media_key))
         return meta_info
 

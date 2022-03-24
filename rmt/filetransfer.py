@@ -10,6 +10,7 @@ from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Conf
 from utils.functions import get_dir_files_by_ext, get_free_space_gb
 from message.send import Message
 from rmt.media import Media
+from utils.meta_helper import MetaHelper
 from utils.types import MediaType, DownloaderType, SyncType, MediaCatagory, RmtMode
 
 lock = Lock()
@@ -498,6 +499,7 @@ class FileTransfer:
             print("【RMT】%s 处理失败！" % s_path)
         else:
             print("【RMT】%s 处理完成！" % s_path)
+        MetaHelper().save_meta_data()
 
     # 全量转移Sync目录下的文件
     def transfer_all_sync(self):
@@ -520,6 +522,7 @@ class FileTransfer:
                     log.error("【SYNC】%s 处理失败！" % s_path)
                 else:
                     log.info("【SYNC】%s 处理成功！" % s_path)
+            MetaHelper().save_meta_data()
 
     # 判断媒体文件是否忆存在，返回：目录存在标志、目录名、文件存在标志、文件名
     def is_media_exists(self,
@@ -630,7 +633,8 @@ class FileTransfer:
                         if not sea:
                             continue
                         if self.__tv_subtypedir:
-                            dest_path = os.path.join(self.__tv_path, category, "%s (%s)" % (title, year), "Season %s" % sea)
+                            dest_path = os.path.join(self.__tv_path, category, "%s (%s)" % (title, year),
+                                                     "Season %s" % sea)
                         else:
                             dest_path = os.path.join(self.__tv_path, "%s (%s)" % (title, year), "Season %s" % sea)
                         if not os.path.exists(dest_path):
@@ -649,9 +653,13 @@ class FileTransfer:
                             ext_exist = False
                             for ext in RMT_MEDIAEXT:
                                 if self.__tv_subtypedir:
-                                    dest_path = os.path.join(self.__tv_path, category, "%s (%s)" % (title, year), "Season %s" % sea, "%s - %s%s - 第 %s 集%s" % (title, sea_str, epi_str, epi, ext))
+                                    dest_path = os.path.join(self.__tv_path, category, "%s (%s)" % (title, year),
+                                                             "Season %s" % sea, "%s - %s%s - 第 %s 集%s" % (
+                                                             title, sea_str, epi_str, epi, ext))
                                 else:
-                                    dest_path = os.path.join(self.__tv_path, "%s (%s)" % (title, year), "Season %s" % sea, "%s - %s%s - 第 %s 集%s" % (title, sea_str, epi_str, epi, ext))
+                                    dest_path = os.path.join(self.__tv_path, "%s (%s)" % (title, year),
+                                                             "Season %s" % sea, "%s - %s%s - 第 %s 集%s" % (
+                                                             title, sea_str, epi_str, epi, ext))
                                 if os.path.exists(dest_path):
                                     ext_exist = True
                             if not ext_exist:

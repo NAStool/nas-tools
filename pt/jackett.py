@@ -8,6 +8,7 @@ from utils.functions import parse_jackettxml, get_keyword_from_string, get_tmdb_
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
+from utils.meta_helper import MetaHelper
 from utils.types import SearchType, MediaType
 from web.backend.emby import Emby
 
@@ -143,6 +144,7 @@ class Jackett:
             if result:
                 ret_array = ret_array + result
         log.info("【JACKETT】所有API检索完成，有效资源数：%s" % len(ret_array))
+        MetaHelper().save_meta_data()
         return ret_array
 
     # 按关键字，检索排序去重后择优下载：content是搜索内容，total_num是电视剧的总集数

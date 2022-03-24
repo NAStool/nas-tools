@@ -60,9 +60,9 @@ class Message:
             tp = tp.value
 
         if yr:
-            msg_title = "%s (%s) 开始下载" % (tt, str(yr))
+            msg_title = "%s (%s)" % (tt, str(yr))
         else:
-            msg_title = "%s 开始下载" % tt
+            msg_title = "%s" % tt
         if se_str:
             msg_text = "来自 %s 的%s %s %s 已开始下载" % (in_from, tp, msg_title, se_str)
         else:

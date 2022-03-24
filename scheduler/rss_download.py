@@ -7,6 +7,7 @@ from utils.functions import parse_rssxml, is_chinese
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
+from utils.meta_helper import MetaHelper
 from utils.sqls import get_movie_keys, get_tv_keys, is_torrent_rssd_by_name, insert_rss_torrents
 from utils.types import MediaType, SearchType
 
@@ -37,6 +38,7 @@ class RSSDownloader:
         try:
             lock.acquire()
             self.__rssdownload()
+            MetaHelper().save_meta_data()
         except Exception as err:
             log.error("【RUN】执行任务rssdownload出错：%s" % str(err))
         finally:
@@ -120,9 +122,17 @@ class RSSDownloader:
                     # 检查种子名称或者标题是否匹配
                     match_flag = self.__is_torrent_match(media_info, movie_keys, tv_keys)
                     if match_flag:
-                        log.info("【RSS】%s: %s(%s)%s%s 匹配成功！" % (media_info.type.value, media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string()))
+                        log.info("【RSS】%s: %s(%s)%s %s 匹配成功！" % (media_info.type.value,
+                                                                 media_info.title,
+                                                                 media_info.year,
+                                                                 media_info.get_season_episode_string(),
+                                                                 media_info.get_resource_type_string()))
                     else:
-                        log.info("【RSS】%s: %s(%s)%s%s 不匹配！" % (media_info.type.value, media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string()))
+                        log.info("【RSS】%s: %s(%s)%s %s 不匹配！" % (media_info.type.value,
+                                                                media_info.title,
+                                                                media_info.year,
+                                                                media_info.get_season_episode_string(),
+                                                                media_info.get_resource_type_string()))
                         continue
                     # 匹配后，看资源类型是否满足
                     # 代表资源类型在配置中的优先级顺序
@@ -150,7 +160,6 @@ class RSSDownloader:
                     continue
             log.info("【RSS】%s 处理结束，匹配到 %s 个有效资源！" % (rss_job, res_num))
         log.info("【RSS】所有RSS处理结束，共 %s 个有效资源！" % len(rss_download_torrents))
-
         # 去重择优后开始添加下载
         download_medias = self.downloader.check_and_add_pt(SearchType.RSS, rss_download_torrents)
         log.info("【RSS】实际下载了 %s 个资源！" % len(download_medias))
@@ -159,22 +168,27 @@ class RSSDownloader:
 
     @staticmethod
     def __is_torrent_match(media_info, movie_keys, tv_keys):
-        # 按种子标题匹配
-        check_title = "%s %s %s" % (media_info.cn_name, media_info.en_name, media_info.year)
         if media_info.type == MediaType.MOVIE:
             for key in movie_keys:
                 # 匹配种子标题
-                if re.search(r"%s" % key, check_title, re.IGNORECASE):
+                if re.search(r"%s" % key, media_info.org_string, re.IGNORECASE):
                     return True
                 # 匹配媒体名称
                 if str(key).strip() == media_info.title:
+                    return True
+                # 匹配年份
+                if str(key).strip() == str(media_info.year):
                     return True
         else:
             # 匹配种子标题
             for key in tv_keys:
                 # 中英文名跟年份都纳入匹配
-                if re.search(r"%s" % key, check_title, re.IGNORECASE):
+                if re.search(r"%s" % key, media_info.org_string, re.IGNORECASE):
                     return True
+                # 匹配媒体名称
                 if str(key).strip() == media_info.title:
+                    return True
+                # 匹配年份
+                if str(key).strip() == str(media_info.year):
                     return True
         return False

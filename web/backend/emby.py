@@ -355,13 +355,13 @@ class EmbyEvent:
                     return
             list_id = self.user_name + self.item_name + self.ip + self.device_name + self.client
             if self.action == 'start':
-                message_title = '【EMBY】用户 %s 开始播放 %s' % (self.user_name, self.item_name)
+                message_title = '用户 %s 开始播放 %s' % (self.user_name, self.item_name)
                 log.info(message_title)
                 if list_id not in PLAY_LIST:
                     PLAY_LIST.append(list_id)
             elif self.action == 'stop':
                 if list_id in PLAY_LIST:
-                    message_title = '【EMBY】用户 %s 停止播放 %s' % (self.user_name, self.item_name)
+                    message_title = '用户 %s 停止播放 %s' % (self.user_name, self.item_name)
                     log.info(message_title)
                     PLAY_LIST.remove(list_id)
                 else:
@@ -379,9 +379,9 @@ class EmbyEvent:
             if self.action == 'rate':
                 ret, org_type = self.filetransfer.transfer_embyfav(self.item_path)
                 if ret:
-                    message_title = '【EMBY】电影 %s 已从 %s 转移到 %s' % (self.item_name, org_type, RMT_FAVTYPE.value)
+                    message_title = '电影 %s 已从 %s 转移到 %s' % (self.item_name, org_type, RMT_FAVTYPE.value)
                 else:
-                    message_title = '【EMBY】电影 %s 转移失败！' % self.item_name
+                    message_title = '电影 %s 转移失败！' % self.item_name
                 message_text = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             else:
                 return
