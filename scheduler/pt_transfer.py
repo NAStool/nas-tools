@@ -19,7 +19,6 @@ class PTTransfer:
             lock.acquire()
             if self.downloader:
                 self.downloader.pt_transfer()
-                MetaHelper().save_meta_data()
         except Exception as err:
             log.error("【RUN】执行任务pt_transfer出错：%s" % str(err))
         finally:

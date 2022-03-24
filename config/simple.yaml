@@ -16,6 +16,8 @@ media:
   tv_path: '/mnt/media/电视剧'
   # 电视剧是否支持二级分类：true、false，如为false则不分类，所有电影剧放tv_path下；如为true则按类型分别建二级目录存放，具体分类参考README.MD说明
   tv_subtypedir: true
+  # 无法识别时转移存放的目录，适用于PT下载转移以及sync未指明目的目录时的情况
+  unknown_path: '/mnt/media/unknown'
 
 # 配置文件夹监控
 sync:

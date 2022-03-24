@@ -1,13 +1,14 @@
 import os
+import threading
+from time import sleep
+
 import log
 from config import Config
+from monitor.run import run_monitor
+from scheduler.run import run_scheduler
 from utils.check_config import check_simple_config, check_config
 from version import APP_VERSION
-from web import run as web
-from monitor import run as monitor
-from scheduler import run as scheduler
-from multiprocessing import Process
-
+from web.app import FlaskApp
 
 if __name__ == "__main__":
     # 参数
@@ -30,6 +31,16 @@ if __name__ == "__main__":
             quit()
     # 启动进程
     log.info("【RUN】开始启动进程...")
-    Process(target=monitor.run_monitor, args=()).start()
-    Process(target=scheduler.run_scheduler, args=()).start()
-    Process(target=web.run_web, args=()).start()
+
+    # 启动定时服务
+    scheduler = threading.Thread(target=run_scheduler)
+    scheduler.setDaemon(False)
+    scheduler.start()
+
+    # 启动监控服务
+    monitor = threading.Thread(target=run_monitor)
+    monitor.setDaemon(False)
+    monitor.start()
+
+    # 启动主WEB服务
+    FlaskApp().run_service()

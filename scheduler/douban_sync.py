@@ -33,7 +33,6 @@ class DoubanSync:
         try:
             lock.acquire()
             self.__douban_sync()
-            MetaHelper().save_meta_data()
         except Exception as err:
             log.error("【RUN】执行任务douban_sync出错：%s" % str(err))
         finally:

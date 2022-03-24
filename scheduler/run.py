@@ -1,10 +1,7 @@
-import atexit
-import signal
-import sys
-
 from apscheduler.schedulers.blocking import BlockingScheduler
 import log
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config
+from monitor.media_sync import Sync
 from scheduler.autoremove_torrents import AutoRemoveTorrents
 from scheduler.douban_sync import DoubanSync
 from scheduler.pt_signin import PTSignin
@@ -16,18 +13,6 @@ from utils.meta_helper import MetaHelper
 def run_scheduler():
 
     scheduler = BlockingScheduler(timezone="Asia/Shanghai")
-
-    @atexit.register
-    def atexit_fun():
-        if scheduler.running:
-            scheduler.shutdown()
-
-    def signal_fun(signum, frame):
-        sys.exit()
-
-    signal.signal(signal.SIGTERM, signal_fun)
-    signal.signal(signal.SIGINT, signal_fun)
-
     scheduler.remove_all_jobs()
 
     config = Config()
@@ -74,6 +59,9 @@ def run_scheduler():
 
     # 元数据定时保存
     scheduler.add_job(MetaHelper().save_meta_data, 'interval', seconds=600)
+
+    # 定时把队列中的监控文件转移走
+    scheduler.add_job(Sync().transfer_mon_files, 'interval', seconds=300)
 
     scheduler.start()
     log.info("【RUN】scheduler启动完成!")

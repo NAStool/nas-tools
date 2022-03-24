@@ -219,11 +219,11 @@ def check_config(cfg):
             save_containerpath = config['qbittorrent'].get('save_containerpath')
 
             if not save_containerpath:
-                log.warn("【RUN】qbittorrent save_path未设置，，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
+                log.warn("【RUN】qbittorrent save_path未设置，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
             else:
                 if isinstance(save_containerpath, dict):
                     if not save_containerpath.get('tv') or not save_containerpath.get('movie'):
-                        log.warn("【RUN】qbittorrent save_containerpath配置不完整，，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
+                        log.warn("【RUN】qbittorrent save_containerpath配置不完整，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
         elif pt_client == "transmission":
             # 检查qbittorrent配置并测试连通性
             if not config.get('transmission'):
@@ -250,11 +250,11 @@ def check_config(cfg):
                         log.warn("【RUN】transmission save_path配置不完整，请检查配置！")
             save_containerpath = config['transmission'].get('save_containerpath')
             if not save_containerpath:
-                log.warn("【RUN】transmission save_path未设置，，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
+                log.warn("【RUN】transmission save_path未设置，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
             else:
                 if isinstance(save_containerpath, dict):
                     if not save_containerpath.get('tv') or not save_containerpath.get('movie'):
-                        log.warn("【RUN】transmission save_containerpath配置不完整，，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
+                        log.warn("【RUN】transmission save_containerpath配置不完整，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
 
         sites = config['pt'].get('sites')
         if sites:
@@ -383,11 +383,11 @@ def check_simple_config(cfg):
                         log.warn("【RUN】qbittorrent save_path配置不完整，请检查配置！")
             save_containerpath = config['qbittorrent'].get('save_containerpath')
             if not save_containerpath:
-                log.warn("【RUN】qbittorrent save_path未设置，，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
+                log.warn("【RUN】qbittorrent save_path未设置，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
             else:
                 if isinstance(save_containerpath, dict):
                     if not save_containerpath.get('tv') or not save_containerpath.get('movie'):
-                        log.warn("【RUN】qbittorrent save_containerpath配置不完整，，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
+                        log.warn("【RUN】qbittorrent save_containerpath配置不完整，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
         elif pt_client == "transmission":
             # 检查qbittorrent配置并测试连通性
             if not config.get('transmission'):
@@ -414,9 +414,9 @@ def check_simple_config(cfg):
                         log.warn("【RUN】transmission save_path配置不完整，请检查配置！")
             save_containerpath = config['transmission'].get('save_containerpath')
             if not save_containerpath:
-                log.warn("【RUN】transmission save_path未设置，，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
+                log.warn("【RUN】transmission save_path未设置，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
             else:
                 if isinstance(save_containerpath, dict):
                     if not save_containerpath.get('tv') or not save_containerpath.get('movie'):
-                        log.warn("【RUN】transmission save_containerpath配置不完整，，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
+                        log.warn("【RUN】transmission save_containerpath配置不完整，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
     return True

@@ -48,7 +48,6 @@ class MetaHelper(object):
                     meta_data[key] = item
             if not save_flag:
                 return
-            self.__meta_data = meta_data
             with open(self.__meta_path, 'wb') as f:
                 pickle.dump(meta_data, f, pickle.HIGHEST_PROTOCOL)
         finally:

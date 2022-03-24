@@ -1,3 +1,6 @@
+import signal
+import sys
+
 import log
 from config import Config
 from web.main import create_flask_app
@@ -21,8 +24,16 @@ class FlaskApp:
 
     def run_service(self):
         try:
+
             if not self.__app:
                 return
+
+            def signal_fun(signum, frame):
+                log.info("【RUN】web捕捉到信号：" + str(signum) + "，开始退出...")
+                sys.exit()
+
+            signal.signal(signal.SIGTERM, signal_fun)
+            signal.signal(signal.SIGINT, signal_fun)
 
             if self.__ssl_cert:
                 self.__app.run(

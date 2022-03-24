@@ -10,7 +10,6 @@ from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Conf
 from utils.functions import get_dir_files_by_ext, get_free_space_gb
 from message.send import Message
 from rmt.media import Media
-from utils.meta_helper import MetaHelper
 from utils.types import MediaType, DownloaderType, SyncType, MediaCatagory, RmtMode
 
 lock = Lock()
@@ -25,6 +24,7 @@ class FileTransfer:
     __movie_subtypedir = None
     __tv_subtypedir = None
     __sync_path = None
+    __unknown_path = None
     media = None
     message = None
 
@@ -34,6 +34,7 @@ class FileTransfer:
         if media:
             self.__movie_path = media.get('movie_path')
             self.__tv_path = media.get('tv_path')
+            self.__unknown_path = media.get('unknown_path')
             self.__movie_subtypedir = media.get('movie_subtypedir', True)
             self.__tv_subtypedir = media.get('tv_subtypedir', True)
         sync = self.__config.get_config('sync')
@@ -149,25 +150,28 @@ class FileTransfer:
 
     # 按原文件名link文件到目的目录
     @staticmethod
-    def link_origin_file(file_item, target_dir):
+    def link_origin_file(file_item, target_dir, rmt_mode):
         if os.path.isdir(file_item):
             log.warn("【RMT】目录不支持硬链接处理！")
             return False
 
         if not target_dir:
-            log.error("【RMT】目前只有目录监控模式下，且指定了目的目录时，才会硬链接到unknown目录！")
             return False
         # 文件名
         file_name = os.path.basename(file_item)
-        # 取上一级目录
-        parent_dir = os.path.basename(os.path.dirname(file_item))
-        # 转移到nastool_failed目录
-        target_dir = os.path.join(target_dir, 'unknown', parent_dir)
+        parent_name = os.path.basename(os.path.dirname(file_item))
+        target_dir = os.path.join(target_dir, parent_name)
         if not os.path.exists(target_dir):
             log.debug("【RMT】正在创建目录：%s" % target_dir)
             os.makedirs(target_dir)
         target_file = os.path.join(target_dir, file_name)
-        retcode = call(['ln', file_item, target_file])
+        if rmt_mode == RmtMode.LINK:
+            retcode = call(['ln', file_item, target_file])
+        elif rmt_mode == RmtMode.SOFTLINK:
+            retcode = call(['ln', '-s', file_item, target_file])
+        else:
+            retcode = call(['cp', file_item, target_file])
+
         if retcode == 0:
             log.info("【RMT】文件硬链接完成：%s" % target_file)
         else:
@@ -291,10 +295,13 @@ class FileTransfer:
             if not media or not media.tmdb_info:
                 log.error("【RMT】%s 媒体信息识别失败！" % file_item)
                 failed_count = failed_count + 1
-                # 如果是LINK模式，则原样链接过去 这里可能日目录也可能是文件
-                if rmt_mode == RmtMode.LINK:
-                    log.warn("【RMT】按原文件名硬链接到unknown目录...")
-                    self.link_origin_file(file_item, target_dir)
+                # 原样转移过去
+                log.warn("【RMT】按原文件名硬链接到unknown目录...")
+                if target_dir:
+                    target_dir = os.path.join(target_dir, 'unknown')
+                    self.link_origin_file(file_item, target_dir, rmt_mode)
+                elif self.__unknown_path:
+                    self.link_origin_file(file_item, self.__unknown_path, rmt_mode)
                 continue
             # 记录目录下是不是有多种类型，来决定怎么发通知
             Search_Type = media.type
@@ -499,7 +506,6 @@ class FileTransfer:
             print("【RMT】%s 处理失败！" % s_path)
         else:
             print("【RMT】%s 处理完成！" % s_path)
-        MetaHelper().save_meta_data()
 
     # 全量转移Sync目录下的文件
     def transfer_all_sync(self):
@@ -522,7 +528,6 @@ class FileTransfer:
                     log.error("【SYNC】%s 处理失败！" % s_path)
                 else:
                     log.info("【SYNC】%s 处理成功！" % s_path)
-            MetaHelper().save_meta_data()
 
     # 判断媒体文件是否忆存在，返回：目录存在标志、目录名、文件存在标志、文件名
     def is_media_exists(self,

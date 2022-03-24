@@ -38,7 +38,6 @@ class RSSDownloader:
         try:
             lock.acquire()
             self.__rssdownload()
-            MetaHelper().save_meta_data()
         except Exception as err:
             log.error("【RUN】执行任务rssdownload出错：%s" % str(err))
         finally:
@@ -87,7 +86,7 @@ class RSSDownloader:
                 log.warn("【RSS】%s 未下载到数据！" % rss_job)
                 continue
             else:
-                log.warn("【RSS】%s 发现更新：%s" % (rss_job, len(rss_result)))
+                log.info("【RSS】%s 发现更新：%s" % (rss_job, len(rss_result)))
 
             res_num = 0
             for res in rss_result:

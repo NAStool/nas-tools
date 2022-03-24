@@ -144,7 +144,6 @@ class Jackett:
             if result:
                 ret_array = ret_array + result
         log.info("【JACKETT】所有API检索完成，有效资源数：%s" % len(ret_array))
-        MetaHelper().save_meta_data()
         return ret_array
 
     # 按关键字，检索排序去重后择优下载：content是搜索内容，total_num是电视剧的总集数
