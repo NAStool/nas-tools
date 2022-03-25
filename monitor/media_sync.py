@@ -44,6 +44,8 @@ class Sync(object):
                     if tpath:
                         if tpath in event_path:
                             return
+                        if os.path.samefile(event_path, tpath):
+                            return
                 # 回收站及隐藏的文件不处理
                 if event_path.find('/@Recycle/') != -1 or event_path.find('/#recycle/') != -1 or event_path.find(
                         '/.') != -1:
@@ -72,30 +74,39 @@ class Sync(object):
 
                 log.info("【SYNC】文件%s：%s" % (text, event_path))
                 # 找到是哪个监控目录下的
-                parent_dir = event_path
+                monitor_dir = event_path
+                from_dir = os.path.dirname(event_path)
+                is_root_path = False
                 for m_path in SYNC_DIR_CONFIG.keys():
                     if m_path in event_path:
-                        parent_dir = m_path
+                        monitor_dir = m_path
+                    if os.path.samefile(m_path, from_dir):
+                        is_root_path = True
 
                 # 查找目的目录
-                target_dir = SYNC_DIR_CONFIG.get(parent_dir)
-                from_dir = os.path.dirname(event_path)
-                try:
-                    lock.acquire()
-                    if self.__need_sync_paths.get(from_dir):
-                        files = self.__need_sync_paths.get('files')
-                        if not files:
-                            files = [event_path]
-                        else:
-                            if event_path not in files:
-                                files.append(event_path)
+                target_dir = SYNC_DIR_CONFIG.get(monitor_dir)
+                # 监控根目录下的文件发生变化时直接发走
+                if is_root_path:
+                    self.filetransfer.transfer_media(in_from=SyncType.MON,
+                                                     in_path=event_path,
+                                                     target_dir=target_dir)
+                else:
+                    try:
+                        lock.acquire()
+                        if self.__need_sync_paths.get(from_dir):
+                            files = self.__need_sync_paths.get('files')
+                            if not files:
+                                files = [event_path]
                             else:
-                                return
-                        self.__need_sync_paths[from_dir].update({'files': files})
-                    else:
-                        self.__need_sync_paths[from_dir] = {'target_dir': target_dir, 'files': [event_path]}
-                finally:
-                    lock.release()
+                                if event_path not in files:
+                                    files.append(event_path)
+                                else:
+                                    return
+                            self.__need_sync_paths[from_dir].update({'files': files})
+                        else:
+                            self.__need_sync_paths[from_dir] = {'target_dir': target_dir, 'files': [event_path]}
+                    finally:
+                        lock.release()
 
             except Exception as e:
                 log.error("【SYNC】发生错误：%s" % str(e))
@@ -106,9 +117,13 @@ class Sync(object):
                 if tpath:
                     if tpath in event_path:
                         return
+                    if os.path.samefile(event_path, tpath):
+                        return
             # 源目录本身或上级目录不处理
             for tpath in SYNC_DIR_CONFIG.keys():
                 if event_path in tpath:
+                    return
+                if os.path.samefile(event_path, tpath):
                     return
             # 回收站及隐藏的文件不处理
             if event_path.find('/@Recycle') != -1 or event_path.find('/#recycle') != -1 or event_path.find('/.') != -1:
