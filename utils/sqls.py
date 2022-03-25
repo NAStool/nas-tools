@@ -1,3 +1,6 @@
+import os.path
+import time
+
 from utils.db_helper import update_by_sql, select_by_sql
 from utils.functions import str_filesize, xstr
 from utils.types import MediaType
@@ -36,7 +39,7 @@ def insert_jackett_results(media_item):
               media_item.get_season_episode_string(),
               media_item.vote_average,
               media_item.backdrop_path,
-              media_item.res_type if media_item.res_type else media_item.resource_type,
+              media_item.get_resource_type_string(),
               media_item.res_order,
               str_filesize(int(media_item.size)),
               media_item.seeders,
@@ -172,3 +175,29 @@ def update_douban_media_state(media, state):
 def get_douban_search_state(title, year):
     sql = "SELECT STATE FROM DOUBAN_MEDIAS WHERE NAME = '%s' AND YEAR = '%s'" % (title, year)
     return select_by_sql(sql)
+
+
+# 插入识别转移记录
+def insert_transfer_history(in_from, rmt_mode, in_path, dest, media_info):
+    file_path = os.path.dirname(in_path)
+    file_name = os.path.basename(in_path)
+    timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+    sql = "INSERT INTO TRANSFER_HISTORY(SOURCE, MODE, TYPE, FILE_PATH, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
+        in_from.value, rmt_mode.value, media_info.type.value, file_path, file_name, media_info.title, media_info.category.value, media_info.year, media_info.get_season_episode_string(), dest, timestr)
+    return update_by_sql(sql)
+
+
+# 查询识别转移记录
+def get_transfer_history(search, page, rownum):
+    if page == 1:
+        begin_pos = 0
+    else:
+        begin_pos = (page-1) * rownum
+
+    if search:
+        count_sql = f"SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_NAME LIKE '%{search}%' OR TITLE LIKE '%{search}%'"
+        sql = f"SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE FROM TRANSFER_HISTORY WHERE FILE_NAME LIKE '%{search}%' OR TITLE LIKE '%{search}%' LIMIT {rownum} OFFSET {begin_pos}"
+    else:
+        count_sql = f"SELECT COUNT(1) FROM TRANSFER_HISTORY"
+        sql = f"SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE FROM TRANSFER_HISTORY LIMIT {rownum} OFFSET {begin_pos}"
+    return select_by_sql(count_sql), select_by_sql(sql)

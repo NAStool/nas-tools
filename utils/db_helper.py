@@ -86,6 +86,22 @@ class DBHelper:
                                    IMAGE    TEXT,
                                    STATE    TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_DOUBAN_MEDIAS_NAME ON DOUBAN_MEDIAS (NAME, YEAR);''')
+            # 识别转移历史记录表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS TRANSFER_HISTORY
+                                               (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                               SOURCE    TEXT,
+                                               MODE    TEXT,
+                                               TYPE    TEXT,
+                                               FILE_PATH    TEXT,
+                                               FILE_NAME    TEXT,
+                                               TITLE   TEXT,
+                                               CATEGORY   TEXT,
+                                               YEAR    TEXT,
+                                               SE    TEXT,
+                                               DEST    TEXT,
+                                               DATE    );''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_HISTORY_NAME ON TRANSFER_HISTORY (FILE_NAME);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_HISTORY_TITLE ON TRANSFER_HISTORY (TITLE);''')
             self.__connection.commit()
         except Exception as e:
             log.error("【DB】创建数据库错误：%s" % str(e))
@@ -130,4 +146,4 @@ def update_by_sql(sql):
 
 
 if __name__ == "__main__":
-    print(select_by_sql("SELECT * FROM DOUBAN_MEDIAS"))
+    print(select_by_sql("SELECT COUNT(1) FROM TRANSFER_HISTORY"))

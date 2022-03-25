@@ -1,5 +1,6 @@
 import _thread
 import logging
+from math import floor
 
 from flask import Flask, request, json, render_template, make_response, redirect, url_for
 from flask_login import LoginManager, UserMixin, login_user, login_required
@@ -21,7 +22,7 @@ from message.send import Message
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, Config
 from utils.functions import get_used_of_partition, str_filesize, str_timelong
 from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
-    insert_tv_key, delete_all_tv_keys, delete_all_movie_keys
+    insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history
 from utils.types import MediaType, SearchType, DownloaderType
 from version import APP_VERSION
 from web.backend.emby import Emby, EmbyEvent
@@ -55,8 +56,8 @@ def create_flask_app():
     app.secret_key = 'jxxghp'
     applog = logging.getLogger('werkzeug')
     applog.setLevel(logging.ERROR)
-    app.logger.disabled = True
-    applog.disabled = True
+    # app.logger.disabled = True
+    # applog.disabled = True
     login_manager.init_app(app)
 
     EmbyClient = Emby()
@@ -504,6 +505,53 @@ def create_flask_app():
         return render_template("service.html",
                                Count=len(scheduler_cfg_list),
                                SchedulerTasks=scheduler_cfg_list,
+                               AppVersion=APP_VERSION)
+
+    # 历史记录页面
+    @app.route('/history', methods=['POST', 'GET'])
+    @login_required
+    def history():
+        PageNum = 5
+        SearchStr = request.args.get("s")
+        if not SearchStr:
+            SearchStr = ""
+        CurrentPage = request.args.get("page")
+        if not CurrentPage:
+            CurrentPage = 1
+        else:
+            CurrentPage = int(CurrentPage)
+        totalCount, historys = get_transfer_history(SearchStr, CurrentPage, PageNum)
+        if totalCount:
+            totalCount = totalCount[0][0]
+        else:
+            totalCount = 0
+
+        TotalPage = floor(totalCount/PageNum) + 1
+
+        if TotalPage <= 5:
+            StartPage = 1
+            EndPage = TotalPage
+        else:
+            if CurrentPage <= 3:
+                StartPage = 1
+                EndPage = 5
+            else:
+                StartPage = CurrentPage - 3
+                if TotalPage > CurrentPage + 3:
+                    EndPage = CurrentPage + 3
+                else:
+                    EndPage = TotalPage
+
+        PageRange = range(StartPage, EndPage + 1)
+
+        return render_template("history.html",
+                               TotalCount=totalCount,
+                               Count=len(historys),
+                               Historys=historys,
+                               Search=SearchStr,
+                               CurrentPage=CurrentPage,
+                               TotalPage=TotalPage,
+                               PageRange=PageRange,
                                AppVersion=APP_VERSION)
 
     # 事件响应

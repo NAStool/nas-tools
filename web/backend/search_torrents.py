@@ -12,7 +12,8 @@ def search_medias_for_web(content):
         log.info("【WEB】检索关键字有误！" % content)
         return
     log.info("【WEB】开始检索 %s ..." % content)
-    media_list = Jackett().search_medias_from_word(key_word=key_word, s_num=season_num, e_num=episode_num, year=year, whole_word=False)
+    media_list = Jackett().search_medias_from_word(key_word=key_word, s_num=season_num, e_num=episode_num, year=year,
+                                                   whole_word=False)
     delete_all_jackett_torrents()
     if len(media_list) == 0:
         log.info("【WEB】%s 未检索到任何媒体资源！" % content)
@@ -48,15 +49,14 @@ def __get_download_list(media_list):
     for t_item in media_list:
         # 控重的主链是名称、节份、季、集
         if t_item.type == MediaType.TV:
-            media_name = "%s%s%s%s%s%s" % (t_item.title,
-                                           t_item.year,
-                                           t_item.site,
-                                           t_item.res_type,
-                                           t_item.get_season_string(),
-                                           t_item.get_episode_string())
+            media_name = "%s%s%s%s%s" % (t_item.title,
+                                         t_item.year,
+                                         t_item.site,
+                                         t_item.get_resource_type_string(),
+                                         t_item.get_season_episode_string())
         else:
             media_name = "%s%s%s%s" % (
-                t_item.title, t_item.year, t_item.site, t_item.res_type)
+                t_item.title, t_item.year, t_item.site, t_item.get_resource_type_string())
         if media_name not in can_download_list:
             can_download_list.append(media_name)
             can_download_list_item.append(t_item)

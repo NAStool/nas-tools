@@ -87,7 +87,6 @@ class MetaInfo(object):
             # 资源类型
             self.__init_resource_type(token)
             # 取下一个，直到没有为卡
-            self._last_token = token
             token = tokens.get_next()
         # 解析副标题，只要季和集
         if subtitle:
@@ -120,7 +119,7 @@ class MetaInfo(object):
     def __init_name(self, token):
         # 中文或者英文单词都记为名称
         # 干掉一些固定的前缀 JADE AOD XXTV-X
-        token = re.sub(r'^JADE[\s.]+|^AOD[\s.]+|^[A-Z]{2,4}TV[\-0-9UVHD]*[\s.]+', '', token,
+        token = re.sub(r'^JADE[\s.]+|^AOD[\s.]+|^[A-Z]{2,4}TV[\-0-9UVHD]*[\s.]+|^HBO[\s.]+', '', token,
                        flags=re.IGNORECASE).strip()
         # 如果带有Sxx-Sxx、Exx-Exx这类的要处理掉
         token = re.sub(r'[SsEePp]+\d{1,3}-?[SsEePp]*\d{0,3}', '', token).strip()
@@ -223,6 +222,7 @@ class MetaInfo(object):
         re_res = re.search(r"(BLU-?RAY|REMUX|HDTV|WEB|WEBRIP|DVDRIP|UHD)", token, re.IGNORECASE)
         if re_res:
             self.resource_type = re_res.group(1)
+            self._last_token = self.resource_type
             self._last_token_type = "restype"
             self._stop_name_flag = True
         else:
@@ -350,6 +350,10 @@ class MetaInfo(object):
             return self.resource_pix
         else:
             return ""
+
+    # 返回图片地址
+    def get_backdrop_path(self):
+        return self.backdrop_path if self.backdrop_path else self.poster_path
 
     # 是否包含季
     def is_in_seasion(self, season):

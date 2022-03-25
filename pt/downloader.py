@@ -108,12 +108,12 @@ class Downloader:
         for can_item in self.__get_download_list(in_from, media_list):
             # 是否在Emby媒体库中存在
             if self.emby.check_emby_exists(can_item):
-                log.info("【PT】%s(%s)%s%s 在Emby媒体库中已存在，跳过..." % (
-                    can_item.title, can_item.year, can_item.get_season_string(), can_item.get_episode_string()))
+                log.info("【PT】%s(%s)%s 在Emby媒体库中已存在，跳过..." % (
+                    can_item.title, can_item.year, can_item.get_season_episode_string()))
                 continue
             elif self.filetransfer.is_media_file_exists(can_item):
-                log.info("【PT】%s(%s)%s%s 在媒体库目录中已存在，跳过..." % (
-                    can_item.title, can_item.year, can_item.get_season_string(), can_item.get_episode_string()))
+                log.info("【PT】%s(%s)%s 在媒体库目录中已存在，跳过..." % (
+                    can_item.title, can_item.year, can_item.get_season_episode_string()))
                 continue
             # 添加PT任务
             if can_item.type == MediaType.TV:
@@ -128,8 +128,8 @@ class Downloader:
                         need_seasons.append(need_season.get("season"))
                     if need_seasons != seasons and set(need_seasons).issubset(set(seasons)):
                         # 标题中的季比需要的季多
-                        log.info("【PT】%s(%s)%s%s 季过多，跳过..." % (
-                            can_item.title, can_item.year, can_item.get_season_string(), can_item.get_episode_string()))
+                        log.info("【PT】%s(%s)%s 季过多，跳过..." % (
+                            can_item.title, can_item.year, can_item.get_season_episode_string()))
                         continue
                     else:
                         # 季符合要求, 要么相等，要么是要的季的子集
@@ -232,7 +232,7 @@ class Downloader:
         can_download_list = []
         # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
         for t_item in media_list:
-            # 控重的主链是名称、节份、季、集
+            # 控重的主链是名称、年份、季、集
             if t_item.type == MediaType.TV:
                 media_name = "%s%s%s%s" % (t_item.title,
                                            t_item.year,

@@ -5,6 +5,7 @@ import log
 from config import RMT_FAVTYPE, Config
 from message.send import Message
 from rmt.filetransfer import FileTransfer
+from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from utils.functions import get_local_time, get_location
 from utils.types import MediaType
@@ -23,6 +24,7 @@ class Emby:
     def __init__(self):
         self.message = Message()
         self.__config = Config()
+        self.media = Media()
         emby = self.__config.get_config('emby')
         if emby:
             self.__host = emby.get('host')

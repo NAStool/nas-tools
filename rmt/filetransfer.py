@@ -10,6 +10,7 @@ from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Conf
 from utils.functions import get_dir_files_by_ext, get_free_space_gb
 from message.send import Message
 from rmt.media import Media
+from utils.sqls import insert_transfer_history
 from utils.types import MediaType, DownloaderType, SyncType, MediaCatagory, RmtMode
 
 lock = Lock()
@@ -300,8 +301,10 @@ class FileTransfer:
                 if target_dir:
                     target_dir = os.path.join(target_dir, 'unknown')
                     self.link_origin_file(file_item, target_dir, rmt_mode)
+                    insert_transfer_history(in_from, rmt_mode, file_item, target_dir, media)
                 elif self.__unknown_path:
                     self.link_origin_file(file_item, self.__unknown_path, rmt_mode)
+                    insert_transfer_history(in_from, rmt_mode, file_item, self.__unknown_path, media)
                 continue
             # 记录目录下是不是有多种类型，来决定怎么发通知
             Search_Type = media.type
@@ -362,6 +365,7 @@ class FileTransfer:
                         # 转移蓝光原盘
                         ret = self.transfer_bluray_dir(file_item, ret_dir_path)
                         if ret:
+                            insert_transfer_history(in_from, rmt_mode, file_item, movie_dist, media)
                             log.info("【RMT】蓝光原盘 %s 转移成功！" % file_item)
                         else:
                             log.error("【RMT】蓝光原盘 %s 转移失败！" % file_item)
@@ -378,6 +382,8 @@ class FileTransfer:
                     ret = self.transfer_file(file_item, new_file, False, rmt_mode)
                     if not ret:
                         continue
+                    else:
+                        insert_transfer_history(in_from, rmt_mode, file_item, movie_dist, media)
                     new_movie_flag = True
 
                 # 电影的话，处理一部马上开始发送消息
@@ -475,7 +481,8 @@ class FileTransfer:
                     ret = self.transfer_file(file_item, new_file, False, rmt_mode)
                     if not ret:
                         continue
-
+                    else:
+                        insert_transfer_history(in_from, rmt_mode, file_item, tv_dist, media)
             else:
                 log.error("【RMT】%s 无法识别是什么类型的媒体文件！" % file_item)
                 failed_count = failed_count + 1
