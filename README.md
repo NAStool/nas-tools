@@ -7,6 +7,8 @@ Docker：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
 群晖套件：https://github.com/jxxghp/nas-tools/releases/tag/Synology
 
+群晖翻墙：https://github.com/bobo0810/Summary/blob/main/doc/trojan_go.md
+
 TG交流：https://t.me/nastool_chat
 
 ## 功能：
