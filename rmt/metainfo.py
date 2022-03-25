@@ -221,7 +221,7 @@ class MetaInfo(object):
     def __init_resource_type(self, token):
         re_res = re.search(r"(BLU-?RAY|REMUX|HDTV|WEB|WEBRIP|DVDRIP|UHD)", token, re.IGNORECASE)
         if re_res:
-            self.resource_type = re_res.group(1)
+            self.resource_type = re_res.group(1).upper()
             self._last_token = self.resource_type
             self._last_token_type = "restype"
             self._stop_name_flag = True
