@@ -70,7 +70,7 @@ class Sync(object):
                     log.debug("【SYNC】文件已处理过：%s" % event_path)
                     return
 
-                log.info("【SYNC】文件变化：%s" % event_path)
+                log.info("【SYNC】文件%s：%s" % (text, event_path))
                 # 找到是哪个监控目录下的
                 parent_dir = event_path
                 for m_path in SYNC_DIR_CONFIG.keys():
@@ -106,11 +106,10 @@ class Sync(object):
                 if tpath:
                     if tpath in event_path:
                         return
-            # 源目录本身不处理
+            # 源目录本身或上级目录不处理
             for tpath in SYNC_DIR_CONFIG.keys():
-                if tpath:
-                    if os.path.samefile(tpath, event_path):
-                        return
+                if event_path in tpath:
+                    return
             # 回收站及隐藏的文件不处理
             if event_path.find('/@Recycle') != -1 or event_path.find('/#recycle') != -1 or event_path.find('/.') != -1:
                 return False
