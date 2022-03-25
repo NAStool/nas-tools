@@ -179,6 +179,8 @@ def get_douban_search_state(title, year):
 
 # 插入识别转移记录
 def insert_transfer_history(in_from, rmt_mode, in_path, dest, media_info):
+    if not media_info or not media_info.tmdb_info:
+        return
     file_path = os.path.dirname(in_path)
     file_name = os.path.basename(in_path)
     timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))

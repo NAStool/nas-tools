@@ -467,7 +467,7 @@ class MetaInfo(object):
             else:
                 # 国家
                 media_country = info.get('origin_country')
-                if 'CN' in media_country or 'TW' in media_country:
+                if 'CN' in media_country or 'TW' in media_country or 'HK' in media_country:
                     catagory = MediaCatagory.GCJ
                 elif set(RMT_COUNTRY_EA).intersection(set(media_country)):
                     catagory = MediaCatagory.OMJ
