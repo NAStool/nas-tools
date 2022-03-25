@@ -163,15 +163,17 @@ class MetaInfo(object):
     def __init_resource_pix(self, token):
         re_res = re.search(r"[SBUHD]*(\d{3,4}[PI]+)", token, re.IGNORECASE)
         if re_res:
-            self.resource_pix = re_res.group(1).lower()
-            self._last_token_type = "pix"
-            self._stop_name_flag = True
-        else:
-            re_res = re.search(r"([248]+K)", token, re.IGNORECASE)
-            if re_res:
+            if not self.resource_pix:
                 self.resource_pix = re_res.group(1).lower()
                 self._last_token_type = "pix"
                 self._stop_name_flag = True
+        else:
+            re_res = re.search(r"([248]+K)", token, re.IGNORECASE)
+            if re_res:
+                if not self.resource_pix:
+                    self.resource_pix = re_res.group(1).lower()
+                    self._last_token_type = "pix"
+                    self._stop_name_flag = True
 
     def __init_seasion(self, token):
         re_res = re.search(r"^S(\d{1,2})", token, re.IGNORECASE)
@@ -221,10 +223,11 @@ class MetaInfo(object):
     def __init_resource_type(self, token):
         re_res = re.search(r"(BLU-?RAY|REMUX|HDTV|WEB|WEBRIP|DVDRIP|UHD)", token, re.IGNORECASE)
         if re_res:
-            self.resource_type = re_res.group(1).upper()
-            self._last_token = self.resource_type
-            self._last_token_type = "restype"
-            self._stop_name_flag = True
+            if not self.resource_type:
+                self.resource_type = re_res.group(1).upper()
+                self._last_token = self.resource_type
+                self._last_token_type = "restype"
+                self._stop_name_flag = True
         else:
             if token.upper() == "DL" and self._last_token_type == "restype" and self._last_token == "WEB":
                 self.resource_type = "WEB-DL"
@@ -486,7 +489,7 @@ class MetaInfo(object):
 
 
 if __name__ == "__main__":
-    text = "华灯初上第一季.2022.HD1080P.S01-S02.EP01-E05.WEB-DL"
+    text = "心居.Life.Is.a.Long.Quiet.River.2022.S01.1080p.WEB-DL.H265.AAC-LeagueWEB"
     meta_info = MetaInfo(text)
     print(meta_info.__dict__)
     print(meta_info.get_season_list())
