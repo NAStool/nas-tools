@@ -27,18 +27,21 @@ class Media:
         self.__config = Config()
         app = self.__config.get_config('app')
         if app:
-            self.tmdb = TMDb()
-            self.tmdb.api_key = app.get('rmt_tmdbkey')
-            self.tmdb.language = 'zh'
-            self.tmdb.debug = True
-        self.search = Search()
-        self.movie = Movie()
-        self.tv = TV()
-        self.meta = MetaHelper()
+            if app.get('rmt_tmdbkey'):
+                self.tmdb = TMDb()
+                self.tmdb.api_key = app.get('rmt_tmdbkey')
+                self.tmdb.language = 'zh'
+                self.tmdb.debug = True
+                self.search = Search()
+                self.movie = Movie()
+                self.tv = TV()
+                self.meta = MetaHelper()
 
     # 检索tmdb中的媒体信息，传入名字、年份、类型
     # 返回媒体信息对象
     def __search_tmdb(self, file_media_name, media_year, search_type, language=None):
+        if not self.search:
+            return None
         if not file_media_name:
             log.error("【META】检索关键字有误！")
             return None
@@ -223,24 +226,36 @@ class Media:
 
     # 获取热门电影
     def get_tmdb_hot_movies(self, page):
+        if not self.movie:
+            return []
         return self.movie.popular(page)
 
     # 获取热门电视剧
     def get_tmdb_hot_tvs(self, page):
+        if not self.tv:
+            return []
         return self.tv.popular(page)
 
     # 获取最新电影
     def get_tmdb_new_movies(self, page):
+        if not self.movie:
+            return []
         return self.movie.now_playing(page)
 
     # 获取最新电视剧
     def get_tmdb_new_tvs(self, page):
+        if not self.tv:
+            return []
         return self.tv.on_the_air(page)
 
     # 获取电影的详情
     def get_tmdb_movie_info(self, tmdbid):
+        if not self.movie:
+            return []
         return self.movie.details(tmdbid)
 
     # 获取电视剧的详情
     def get_tmdb_tv_info(self, tmdbid):
+        if not self.tv:
+            return []
         return self.tv.details(tmdbid)

@@ -35,36 +35,21 @@ login_manager.login_view = "login"
 
 
 # Flask实例
-def create_flask_app():
-    config = Config()
-    app_cfg = config.get_config('app')
-    if not app_cfg:
-        return None
-    else:
-        if app_cfg.get('simple_mode'):
-            # 精简模式不启用WEBUI
-            return None
-        elif not app_cfg.get('web_port'):
-            return None
-        elif not app_cfg.get('login_user'):
-            return None
-        elif not app_cfg.get('login_password'):
-            return None
+def create_flask_app(admin_user, admin_password, ssl_cert):
 
+    config = Config()
     app = Flask(__name__)
     app.config['JSON_AS_ASCII'] = False
     app.secret_key = 'jxxghp'
     applog = logging.getLogger('werkzeug')
     applog.setLevel(logging.ERROR)
-    # app.logger.disabled = True
-    # applog.disabled = True
     login_manager.init_app(app)
 
     EmbyClient = Emby()
     USERS = [{
         "id": 1,
-        "name": config.get_config('app').get('login_user'),
-        "password": generate_password_hash(config.get_config('app').get('login_password'))
+        "name": admin_user,
+        "password": generate_password_hash(admin_password)
     }]
 
     # 根据用户名获得用户记录
@@ -118,7 +103,6 @@ def create_flask_app():
     @app.before_request
     def before_request():
         if request.url.startswith('http://'):
-            ssl_cert = config.get_config('app').get('ssl_cert')
             if ssl_cert:
                 url = request.url.replace('http://', 'https://', 1)
                 return redirect(url, code=301)
