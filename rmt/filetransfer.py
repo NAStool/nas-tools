@@ -108,7 +108,7 @@ class FileTransfer:
                         else:
                             retcode = call(["cp", file_item, new_file])
                         if retcode == 0:
-                            log.info("【RMT】字幕 %s %s完成！" % (file_name, rmt_mode.value))
+                            log.info("【RMT】字幕 %s %s完成" % (file_name, rmt_mode.value))
                         else:
                             log.error("【RMT】字幕 %s %s失败，错误码：%s" % (file_name, rmt_mode.value, str(retcode)))
                     else:
@@ -139,7 +139,7 @@ class FileTransfer:
             lock.release()
 
         if retcode == 0:
-            log.info("【RMT】文件复制完成：%s" % new_path)
+            log.info("【RMT】文件 %s 复制完成" % new_path)
         else:
             log.error("【RMT】文件复制失败，错误码：%s" % str(retcode))
             return False
@@ -175,7 +175,7 @@ class FileTransfer:
             retcode = call(['cp', file_item, target_file])
 
         if retcode == 0:
-            log.info("【RMT】文件 %s 硬链接完成！" % file_name)
+            log.info("【RMT】文件 %s 硬链接完成" % file_name)
         else:
             log.error("【RMT】文件 %s 硬链接失败，错误码：%s" % (file_name, retcode))
             return False
@@ -207,7 +207,7 @@ class FileTransfer:
                 lock.release()
 
         if retcode == 0:
-            log.info("【RMT】文件 %s %s完成：%s" % (file_name, rmt_mode.value, file_name))
+            log.info("【RMT】文件 %s %s完成" % (file_name, rmt_mode.value))
         else:
             log.error("【RMT】文件 %s %s失败，错误码：%s" % (file_name, rmt_mode.value, str(retcode)))
             return False
@@ -315,14 +315,7 @@ class FileTransfer:
                 continue
             # 记录目录下是不是有多种类型，来决定怎么发通知
             Search_Type = media.type
-            Media_Title = media.title
-            Media_Category = media.category
-            Media_Year = media.year
             Title_Str = media.get_title_string()
-            Media_Pix = media.resource_pix
-            Vote_Average = media.vote_average
-            Backdrop_Path = media.backdrop_path
-            Poster_Path = media.poster_path
 
             # 电影
             if Search_Type == MediaType.MOVIE:
@@ -341,12 +334,7 @@ class FileTransfer:
                     self.message.sendmsg("【RMT】磁盘空间不足", "目录 %s 剩余磁盘空间不足 %s GB！" % (movie_dist, RMT_DISKFREESIZE))
                     return False
                 # 判断文件是否已存在，返回：目录存在标志、目录名、文件存在标志、文件名
-                dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.is_media_exists(movie_dist,
-                                                                                                    Search_Type,
-                                                                                                    Media_Category,
-                                                                                                    Media_Title,
-                                                                                                    Media_Year,
-                                                                                                    Media_Pix)
+                dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.is_media_exists(movie_dist, media)
                 media_filesize = os.path.getsize(file_item)
                 if dir_exist_flag:
                     # 新路径存在
@@ -399,24 +387,17 @@ class FileTransfer:
                     if not new_movie_flag:
                         continue
                 self.message.send_transfer_movie_message(in_from, media, media_filesize, exist_filenum)
-                log.info("【RMT】%s 转移完成！" % file_name)
+                log.info("【RMT】%s 转移完成" % file_name)
 
             # 电视剧
             elif Search_Type == MediaType.TV:
                 # 记录下来
                 if not message_medias.get(Title_Str):
-                    message_medias[Title_Str] = {"Vote_Average": 0,
-                                                 "Backdrop_Path": "",
-                                                 "Poster_Path": "",
-                                                 "Season_Ary": [],
-                                                 "Episode_Ary": [],
-                                                 "Total_Size": 0,
-                                                 "Exist_Files": 0}
-                # 评分
-                message_medias[Title_Str]['Vote_Average'] = Vote_Average
-                # 背景图
-                message_medias[Title_Str]['Backdrop_Path'] = Backdrop_Path
-                message_medias[Title_Str]['Poster_Path'] = Poster_Path
+                    message_medias[Title_Str] = {"media": media,
+                                                 "seasons": [],
+                                                 "episodes": [],
+                                                 "totalsize": 0,
+                                                 "existfiles": 0}
 
                 if bluray_disk_flag:
                     log.error("【RMT】识别有误：蓝光原盘目录被识别为电视剧！")
@@ -431,7 +412,7 @@ class FileTransfer:
 
                 # 文件大小
                 media_filesize = os.path.getsize(file_item)
-                message_medias[Title_Str]['Total_Size'] = message_medias[Title_Str]['Total_Size'] + media_filesize
+                message_medias[Title_Str]['totalsize'] = message_medias[Title_Str]['totalsize'] + media_filesize
 
                 # 检查磁盘空间
                 disk_free_size = get_free_space_gb(tv_dist)
@@ -440,28 +421,17 @@ class FileTransfer:
                     self.message.sendmsg("【RMT】磁盘空间不足", "目录 %s 剩余磁盘空间不足 %s GB，不处理！" % (tv_dist, RMT_DISKFREESIZE))
                     return False
 
-                # Sxx
-                Media_Season = media.get_season_string()
-                if Media_Season not in message_medias[Title_Str]['Season_Ary']:
-                    message_medias[Title_Str]['Season_Ary'].append(Media_Season)
-                # Exx
-                Media_Episode = media.get_episode_string()
-                # 记录信息
-                if Media_Episode not in message_medias[Title_Str]['Episode_Ary']:
-                    message_medias[Title_Str]['Episode_Ary'].append(Media_Episode)
+                # 季集合
+                message_medias[Title_Str]['seasons'] = list(set(message_medias[Title_Str].get('seasons')).union(set(media.get_season_list())))
+                # 集集合
+                message_medias[Title_Str]['episodes'] = list(set(message_medias[Title_Str].get('episodes')).union(set(media.get_episode_list())))
+
                 # 判断是否存在目录及文件，返因目录及文件路径
-                dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.is_media_exists(tv_dist,
-                                                                                                    Search_Type,
-                                                                                                    Media_Category,
-                                                                                                    Media_Title,
-                                                                                                    Media_Year,
-                                                                                                    Media_Pix,
-                                                                                                    Media_Season,
-                                                                                                    Media_Episode)
+                dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.is_media_exists(tv_dist, media)
                 if file_exist_flag:
                     # 文件已存在
                     existfile_size = os.path.getsize(ret_file_path)
-                    message_medias[Title_Str]['Exist_Files'] = message_medias[Title_Str]['Exist_Files'] + 1
+                    message_medias[Title_Str]['existfiles'] = message_medias[Title_Str]['existfiles'] + 1
                     if rmt_mode == RmtMode.COPY:
                         if media_filesize > existfile_size:
                             log.info("【RMT】文件 %s 已存在，但新文件质量更好，覆盖..." % ret_file_path)
@@ -519,7 +489,7 @@ class FileTransfer:
         if not ret:
             print("【RMT】%s 处理失败！" % s_path)
         else:
-            print("【RMT】%s 处理完成！" % s_path)
+            print("【RMT】%s 处理完成" % s_path)
 
     # 全量转移Sync目录下的文件
     def transfer_all_sync(self):
@@ -546,25 +516,19 @@ class FileTransfer:
     # 判断媒体文件是否忆存在，返回：目录存在标志、目录名、文件存在标志、文件名
     def is_media_exists(self,
                         media_dest,
-                        search_type,
-                        media_type,
-                        media_title,
-                        media_year,
-                        media_pix=None,
-                        file_season=None,
-                        file_seq=None):
+                        media):
         dir_exist_flag = False
         file_exist_flag = False
         ret_dir_path = None
         ret_file_path = None
-        if media_year:
-            dir_name = "%s (%s)" % (media_title, media_year)
+        if media.year:
+            dir_name = "%s (%s)" % (media.title, media.year)
         else:
-            dir_name = media_title
-        if search_type == MediaType.MOVIE:
+            dir_name = media.title
+        if media.type == MediaType.MOVIE:
             file_path = os.path.join(media_dest, dir_name)
             if self.__movie_subtypedir:
-                file_path = os.path.join(media_dest, media_type.value, dir_name)
+                file_path = os.path.join(media_dest, media.category.value, dir_name)
                 for m_type in MediaCatagory:
                     type_path = os.path.join(media_dest, m_type.value, dir_name)
                     # 目录是否存在
@@ -574,8 +538,8 @@ class FileTransfer:
             ret_dir_path = file_path
             if os.path.exists(file_path):
                 dir_exist_flag = True
-            if media_pix:
-                file_dest = os.path.join(file_path, "%s - %s" % (dir_name, media_pix.lower()))
+            if media.resource_pix:
+                file_dest = os.path.join(file_path, "%s - %s" % (dir_name, media.resource_pix))
             else:
                 file_dest = os.path.join(file_path, dir_name)
             ret_file_path = file_dest
@@ -588,23 +552,28 @@ class FileTransfer:
         else:
             # 剧集目录
             if self.__tv_subtypedir:
-                media_path = os.path.join(media_dest, media_type.value, dir_name)
+                media_path = os.path.join(media_dest, media.category.value, dir_name)
             else:
                 media_path = os.path.join(media_dest, dir_name)
-            # Sxx
-            if file_season:
-                # 季 Season xx
-                season_str = "Season " + str(int(file_season.replace("S", "")))
+            # 季
+            seasons = media.get_season_list()
+            if seasons:
+                # 季 Season
+                season_str = "Season %s" % seasons[0]
                 season_dir = os.path.join(media_path, season_str)
                 ret_dir_path = season_dir
                 if os.path.exists(season_dir):
                     dir_exist_flag = True
-                if file_seq:
+                episodes = media.get_episode_list()
+                if episodes:
                     # 集 xx
-                    file_seq_num = int(file_seq.replace("E", "").replace("P", ""))
+                    if len(episodes) == 1:
+                        file_seq_num = episodes[0]
+                    else:
+                        file_seq_num = "%s-%s" % (episodes[0], episodes[-1])
                     # 文件路径
                     file_path = os.path.join(season_dir,
-                                             "%s - %s%s - 第 %s 集" % (media_title, file_season, file_seq, file_seq_num))
+                                             "%s - %s%s - 第 %s 集" % (media.title, media.get_season_item(), media.get_episode_items(), file_seq_num))
                     ret_file_path = file_path
                     for ext in RMT_MEDIAEXT:
                         log.debug("【RSS】路径：%s%s" % (file_path, ext))

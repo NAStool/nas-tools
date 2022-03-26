@@ -4,11 +4,12 @@ from concurrent.futures._base import as_completed
 import log
 from config import Config
 from utils.functions import parse_jackettxml, get_keyword_from_string, get_tmdb_seasons_info, \
-    get_tmdb_season_episodes_num
+    get_tmdb_season_episodes_num, get_torrents_group_item
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
 from utils.meta_helper import MetaHelper
+from utils.sqls import delete_all_jackett_torrents, insert_jackett_results
 from utils.types import SearchType, MediaType
 from web.backend.emby import Emby
 
@@ -255,6 +256,12 @@ class Jackett:
             return False
         else:
             if in_from == SearchType.WX:
+                # 保存微信搜索记录
+                delete_all_jackett_torrents()
+                # 插入数据库
+                save_media_list = get_torrents_group_item(media_list)
+                for save_media_item in save_media_list:
+                    insert_jackett_results(save_media_item)
                 self.message.sendmsg(title="%s 共检索到 %s 个有效资源，即将择优下载..." % (content, len(media_list)), text="")
             # 去重择优后开始添加下载
             download_medias = self.downloader.check_and_add_pt(in_from, media_list, total_tv_no_exists)

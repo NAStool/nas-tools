@@ -92,35 +92,36 @@ class Message:
             if in_from in DownloaderType:
                 send_message_flag = True
             else:
-                if item_info.get('Exist_Files') < len(item_info.get('Episode_Ary')):
+                if item_info.get('existfiles') < len(item_info.get('episodes')):
                     send_message_flag = True
 
             if send_message_flag:
                 if isinstance(in_from, Enum):
                     in_from = in_from.value
-                if len(item_info.get('Episode_Ary')) == 1:
-                    season_num = int(item_info.get('Season_Ary')[0].replace('S', ''))
-                    episode_num = int(item_info.get('Episode_Ary')[0].replace('E', '').replace('P', ''))
-                    msg_title = f"{title_str} 第{season_num}季第{episode_num}集 转移完成"
+                if len(item_info.get('episodes')) == 1:
+                    msg_title = f"{title_str} 第{item_info.get('seasons')[0]}季第{item_info.get('episodes')[0]}集 转移完成"
                 else:
-                    if item_info.get('Season_Ary'):
-                        se_string = " ".join(item_info.get('Season_Ary'))
+                    if item_info.get('seasons'):
+                        se_string = " ".join("S%s" % str(season).rjust(2, '0') for season in item_info.get('seasons'))
                         msg_title = f"{title_str} {se_string} 转移完成"
                     else:
                         msg_title = f"{title_str} 转移完成"
 
                 msg_str = "类型：电视剧"
-                if item_info.get('Vote_Average'):
-                    msg_str = f"{msg_str}，评分：{item_info.get('Vote_Average')}"
+                vote_average = item_info.get('media').vote_average
+                if vote_average:
+                    msg_str = f"{msg_str}，评分：{vote_average}"
 
-                if len(item_info.get('Episode_Ary')) != 1:
-                    msg_str = f"{msg_str}，共{len(item_info.get('Season_Ary'))}季{len(item_info.get('Episode_Ary'))}集，总大小：{str_filesize(item_info.get('Total_Size'))}，来自：{in_from}"
+                if len(item_info.get('episodes')) != 1:
+                    msg_str = f"{msg_str}，共{len(item_info.get('seasons'))}季{len(item_info.get('episodes'))}集，总大小：{str_filesize(item_info.get('totalsize'))}，来自：{in_from}"
                 else:
-                    msg_str = f"{msg_str}，大小：{str_filesize(item_info.get('Total_Size'))}，来自：{in_from}"
+                    msg_str = f"{msg_str}，大小：{str_filesize(item_info.get('totalsize'))}，来自：{in_from}"
 
-                if item_info.get('Exist_Files') != 0:
-                    msg_str = f"{msg_str}，{item_info.get('Exist_Files')}个文件已存在"
+                if item_info.get('existfiles') != 0:
+                    msg_str = f"{msg_str}，{item_info.get('existfiles')}个文件已存在"
 
-                msg_image = item_info.get('Backdrop_Path') if item_info.get('Backdrop_Path') else item_info.get('Poster_Path')
+                backdrop_path = item_info.get('media').backdrop_path
+                poster_path = item_info.get('media').poster_path
+                msg_image = backdrop_path if backdrop_path else poster_path
 
                 self.sendmsg(msg_title, msg_str, msg_image)

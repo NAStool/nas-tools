@@ -63,11 +63,24 @@ class MetaInfo(object):
     _stop_name_flag = False
     _last_token = ""
     _last_token_type = ""
+    # 正则式区
+    _season_re = r"^S(\d{1,2})"
+    _episode_re = r"\d*EP?(\d{1,3})"
+    _resources_type_re = r"BLU-?RAY|REMUX|HDTV|WEBRIP|DVDRIP|UHD|WEB|SDR|HDR|DOLBY"
+    _name_nostring_re = r"^JADE[\s.]+|^AOD[\s.]+|^[A-Z]{2,4}TV[\-0-9UVHD]*[\s.]+" \
+                        r"|^HBO[\s.]+|[SsEePp]+\d{1,3}-?[SsEePp]*\d{0,3}" \
+                        r"|第\s*[0-9一二三四五六七八九十]+\s*季" \
+                        r"|第\s*[0-9一二三四五六七八九十]+\s*集" \
+                        r"|BLU-?RAY|REMUX|HDTV|WEBRIP|DVDRIP|UHD|WEB|SDR|HDR|DOLBY|TRUEHD|DTS-[ADEH]+" \
+                        r"|[HX]264|[HX]265|AVC|AAC|DTS\d.\d|HEVC"
+    _name_onlychinese_re = r"[a-zA-Z【】\-_.\[\]()\s]+"
+    _resources_pix_re = r"[SBUHD]*(\d{3,4}[PI]+)"
+    _subtitle_season_re = r"第\s*([0-9一二三四五六七八九十\-\s]+)\s*季"
+    _subtitle_episode_re = r"第\s*([0-9一二三四五六七八九十\-\s]+)\s*集"
 
     def __init__(self, title, subtitle=None):
         if not title:
             return
-        self.__clear()
         self.org_string = title
         # 拆分tokens
         tokens = Tokens(title)
@@ -96,42 +109,17 @@ class MetaInfo(object):
         if not self.type:
             self.type = MediaType.MOVIE
 
-    def __clear(self):
-        self.org_string = None
-        self.type = None
-        self.cn_name = None
-        self.en_name = None
-        self.begin_season = 0
-        self.end_season = 0
-        self.begin_episode = None
-        self.end_episode = None
-        self.resource_type = None
-        self.resource_pix = None
-        self.category = None
-        self.tmdb_id = 0
-        self.title = None
-        self.year = None
-        self.backdrop_path = None
-        self.vote_average = 0
-        self.tmdb_info = {}
-        self._stop_name_flag = False
-
     def __init_name(self, token):
-        # 中文或者英文单词都记为名称
-        # 干掉一些固定的前缀 JADE AOD XXTV-X
-        token = re.sub(r'^JADE[\s.]+|^AOD[\s.]+|^[A-Z]{2,4}TV[\-0-9UVHD]*[\s.]+|^HBO[\s.]+', '', token,
+        # 去不需要的干扰字符
+        token = re.sub(r'%s' % self._name_nostring_re, '', token,
                        flags=re.IGNORECASE).strip()
-        # 如果带有Sxx-Sxx、Exx-Exx这类的要处理掉
-        token = re.sub(r'[SsEePp]+\d{1,3}-?[SsEePp]*\d{0,3}', '', token).strip()
         if not token:
             return
         if self._stop_name_flag:
             return
         if is_chinese(token):
-            # 名㝋里如果有第X季，第X集的干掉
-            token = re.sub(r'第\s*[0-9一二三四五六七八九十]+\s*季|第\s*[0-9一二三四五六七八九十]+\s*集', '', token, flags=re.IGNORECASE).strip()
             # 有中文的，把中文外的英文、字符、等全部去掉，连在一起的数字会保留
-            token = re.sub(r'[a-zA-Z【】\-_.\[\]()\s]+', '', token).strip()
+            token = re.sub(r'%s' % self._name_onlychinese_re, '', token).strip()
             # 标题
             if not self.cn_name and token:
                 self.cn_name = token
@@ -158,36 +146,46 @@ class MetaInfo(object):
             return
         self.year = token
         self._last_token_type = "year"
-        self._stop_name_flag = True
+        if self.get_name():
+            self._stop_name_flag = True
 
     def __init_resource_pix(self, token):
-        re_res = re.search(r"[SBUHD]*(\d{3,4}[PI]+)", token, re.IGNORECASE)
+        re_res = re.search(r"%s" % self._resources_pix_re, token, re.IGNORECASE)
         if re_res:
             if not self.resource_pix:
                 self.resource_pix = re_res.group(1).lower()
                 self._last_token_type = "pix"
-                self._stop_name_flag = True
+                if self.get_name():
+                    self._stop_name_flag = True
         else:
             re_res = re.search(r"([248]+K)", token, re.IGNORECASE)
             if re_res:
                 if not self.resource_pix:
                     self.resource_pix = re_res.group(1).lower()
                     self._last_token_type = "pix"
-                    self._stop_name_flag = True
+                    if self.get_name():
+                        self._stop_name_flag = True
 
     def __init_seasion(self, token):
-        re_res = re.search(r"^S(\d{1,2})", token, re.IGNORECASE)
+        re_res = re.findall(r"%s" % self._season_re, token, re.IGNORECASE)
         if re_res:
-            se = int(re_res.group(1).upper())
-            if not self.begin_season:
-                self.begin_season = se
-                self._last_token_type = "season"
-            else:
-                if self.begin_season != se:
-                    self.end_season = se
+            for se in re_res:
+                if not se:
+                    continue
+                if not se.isdigit():
+                    continue
+                else:
+                    se = int(se)
+                if not self.begin_season:
+                    self.begin_season = se
                     self._last_token_type = "season"
+                else:
+                    if self.begin_season != se:
+                        self.end_season = se
+                        self._last_token_type = "season"
             self.type = MediaType.TV
-            self._stop_name_flag = True
+            if self.get_name():
+                self._stop_name_flag = True
         else:
             if token.isdigit():
                 if self.begin_season \
@@ -199,18 +197,25 @@ class MetaInfo(object):
                     self._last_token_type = "season"
 
     def __init_episode(self, token):
-        re_res = re.search(r"\d*EP?(\d{1,3})", token, re.IGNORECASE)
+        re_res = re.findall(r"%s" % self._episode_re, token, re.IGNORECASE)
         if re_res:
-            se = int(re_res.group(1).upper())
-            if not self.begin_episode:
-                self.begin_episode = se
-                self._last_token_type = "episode"
-            else:
-                if self.begin_episode != se:
-                    self.end_episode = se
+            for se in re_res:
+                if not se:
+                    continue
+                if not se.isdigit():
+                    continue
+                else:
+                    se = int(se)
+                if not self.begin_episode:
+                    self.begin_episode = se
                     self._last_token_type = "episode"
+                else:
+                    if self.begin_episode != se:
+                        self.end_episode = se
+                        self._last_token_type = "episode"
             self.type = MediaType.TV
-            self._stop_name_flag = True
+            if self.get_name():
+                self._stop_name_flag = True
         if token.isdigit():
             if self.begin_episode \
                     and not self.end_episode \
@@ -221,13 +226,14 @@ class MetaInfo(object):
                 self._last_token_type = "episode"
 
     def __init_resource_type(self, token):
-        re_res = re.search(r"(BLU-?RAY|REMUX|HDTV|WEB|WEBRIP|DVDRIP|UHD)", token, re.IGNORECASE)
+        re_res = re.search(r"(%s)" % self._resources_type_re, token, re.IGNORECASE)
         if re_res:
             if not self.resource_type:
                 self.resource_type = re_res.group(1).upper()
                 self._last_token = self.resource_type
                 self._last_token_type = "restype"
-                self._stop_name_flag = True
+                if self.get_name():
+                    self._stop_name_flag = True
         else:
             if token.upper() == "DL" and self._last_token_type == "restype" and self._last_token == "WEB":
                 self.resource_type = "WEB-DL"
@@ -236,7 +242,7 @@ class MetaInfo(object):
     def __init_subtitle(self, title_text):
         if re.search(r'[第季集]', title_text, re.IGNORECASE):
             # 季
-            season_str = re.search(r'第\s*([0-9一二三四五六七八九十\-\s]+)\s*季', title_text, re.IGNORECASE)
+            season_str = re.search(r'%s' % self._subtitle_season_re, title_text, re.IGNORECASE)
             if season_str:
                 seasons = season_str.group(1)
                 if seasons:
@@ -257,7 +263,7 @@ class MetaInfo(object):
                     self.end_season = end_season
                 self.type = MediaType.TV
             # 集
-            episode_str = re.search(r'第\s*([0-9一二三四五六七八九十\-\s]+)\s*集', title_text, re.IGNORECASE)
+            episode_str = re.search(r'%s' % self._subtitle_episode_re, title_text, re.IGNORECASE)
             if episode_str:
                 episodes = episode_str.group(1)
                 if episodes:
@@ -296,6 +302,16 @@ class MetaInfo(object):
             else:
                 return ""
 
+    # 返回begin_season 的Sxx
+    def get_season_item(self):
+        if self.begin_season:
+            return "S%s" % str(self.begin_season).rjust(2, "0")
+        else:
+            if self.type == MediaType.TV:
+                return "S01"
+            else:
+                return ""
+
     # 返回季的数组
     def get_season_list(self):
         if not self.begin_season:
@@ -327,6 +343,10 @@ class MetaInfo(object):
             return [episode for episode in range(self.begin_episode, self.end_episode + 1)]
         else:
             return [self.begin_episode]
+
+    # 返回集的并列表达方式，用于支持单文件多集
+    def get_episode_items(self):
+        return "E%s" % "E".join(str(episode).rjust(2, '0') for episode in self.get_episode_list())
 
     # 返回季集字符串
     def get_season_episode_string(self):
@@ -489,7 +509,7 @@ class MetaInfo(object):
 
 
 if __name__ == "__main__":
-    text = "心居.Life.Is.a.Long.Quiet.River.2022.S01.1080p.WEB-DL.H265.AAC-LeagueWEB"
+    text = "HDR.Life.Is.a.Long.Quiet.River.2022.S01-02.E01E03.1080p.WEBRIP.H265.AAC-LeagueWEB"
     meta_info = MetaInfo(text)
     print(meta_info.__dict__)
-    print(meta_info.get_season_list())
+    print(meta_info.get_episode_items())
