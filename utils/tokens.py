@@ -12,7 +12,7 @@ class Tokens:
         self.load_text(text)
 
     def load_text(self, text):
-        splited_text = re.split(r'\.|\s+|\(|\)|\[|]|-', text)
+        splited_text = re.split(r'\.|\s+|\(|\)|\[|]|-|\+|【|】', text)
         for sub_text in splited_text:
             if sub_text:
                 self.__tokens.append(sub_text)

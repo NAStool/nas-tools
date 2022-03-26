@@ -66,7 +66,7 @@ class MetaInfo(object):
     # 正则式区
     _season_re = r"^S(\d{1,2})"
     _episode_re = r"\d*EP?(\d{1,3})"
-    _resources_type_re = r"BLU-?RAY|REMUX|HDTV|WEBRIP|DVDRIP|UHD|WEB|SDR|HDR|DOLBY"
+    _resources_type_re = r"BLURAY|REMUX|HDTV|WEBRIP|DVDRIP|UHD|SDR|HDR|DOLBY|BLU|WEB"
     _name_nostring_re = r"^JADE[\s.]+|^AOD[\s.]+|^[A-Z]{2,4}TV[\-0-9UVHD]*[\s.]+" \
                         r"|^HBO[\s.]+|[SsEePp]+\d{1,3}-?[SsEePp]*\d{0,3}" \
                         r"|第\s*[0-9一二三四五六七八九十]+\s*季" \
@@ -237,6 +237,9 @@ class MetaInfo(object):
         else:
             if token.upper() == "DL" and self._last_token_type == "restype" and self._last_token == "WEB":
                 self.resource_type = "WEB-DL"
+                self._last_token_type = "restype"
+            if token.upper() == "RAY" and self._last_token_type == "restype" and self._last_token == "BLU":
+                self.resource_type = "BLURAY"
                 self._last_token_type = "restype"
 
     def __init_subtitle(self, title_text):
@@ -509,7 +512,7 @@ class MetaInfo(object):
 
 
 if __name__ == "__main__":
-    text = "HDR.Life.Is.a.Long.Quiet.River.2022.S01-02.E01E03.1080p.WEBRIP.H265.AAC-LeagueWEB"
+    text = "CCTV15 Life.Is.a.Long.Quiet.River.2022.S01-02.E01E03.1080p.Blu-Ray.H265.AAC-LeagueWEB"
     meta_info = MetaInfo(text)
     print(meta_info.__dict__)
     print(meta_info.get_episode_items())

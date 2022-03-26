@@ -495,7 +495,9 @@ def create_flask_app(admin_user, admin_password, ssl_cert):
     @app.route('/history', methods=['POST', 'GET'])
     @login_required
     def history():
-        PageNum = 5
+        PageNum = request.args.get("pagenum")
+        if not PageNum:
+            PageNum = 30
         SearchStr = request.args.get("s")
         if not SearchStr:
             SearchStr = ""
@@ -536,6 +538,7 @@ def create_flask_app(admin_user, admin_password, ssl_cert):
                                CurrentPage=CurrentPage,
                                TotalPage=TotalPage,
                                PageRange=PageRange,
+                               PageNum=PageNum,
                                AppVersion=APP_VERSION)
 
     # 事件响应

@@ -382,9 +382,7 @@ class EmbyEvent:
                 ret, org_type = self.filetransfer.transfer_embyfav(self.item_path)
                 if ret:
                     message_title = '电影 %s 已从 %s 转移到 %s' % (self.item_name, org_type, RMT_FAVTYPE.value)
-                else:
-                    message_title = '电影 %s 转移失败！' % self.item_name
-                message_text = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+                    message_text = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             else:
                 return
 

@@ -45,12 +45,8 @@
               </a>
             </div>
           </div>
-        </div>
-      </header>
-      <div class="navbar-expand-md">
-        <div class="collapse navbar-collapse" id="navbar-menu">
-          <div class="navbar navbar-light">
-            <div class="container-xl">
+          <div class="collapse navbar-collapse" id="navbar-menu">
+            <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
               <ul class="navbar-nav">
                 <li class="nav-item">
                   <a class="nav-link" href="/home" >
@@ -149,7 +145,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </header>
       <div class="page-wrapper">
         <div class="container-xl">
           <!-- Page title -->
@@ -157,66 +153,73 @@
             <div class="row align-items-center">
               <div class="col">
                 <h2 class="page-title">
-                  历史记录查询
+                  历史记录
                 </h2>
               </div>
 			  <!-- Page title actions -->
             </div>
-            <div class="col-auto ms-auto d-print-none">
-              <div class="d-flex">
-                <div class="me-3">
-                  <div class="input-icon">
-                    <input id="search_word" type="text" value="{{ Search }}" class="form-control" placeholder="Search…">
-                      <span class="input-icon-addon">
-                        <!-- Download SVG icon from http://tabler-icons.io/i/search -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
-                      </span>
-                    </div>
-                  </div>
-                  <input type="button" id="search_btn" value="搜索" class="btn btn-primary" onclick="javascript:search_history()"/>
-                </div>
-              </div>
           </div>
         </div>        
 		<!-- 业务页面代码 -->
-        {% if TotalCount > 0 %}
         <div class="page-body">
           <div class="container-xl">
             <div class="row row-cards">
               <div class="col-12">
                 <div class="card">
+                  <div class="card-body border-bottom py-3">
+                    <div class="d-flex">
+                      <div class="text-muted">
+                        共 {{ TotalCount }} 条记录
+                      </div>
+                      <div class="ms-auto text-muted">
+                        搜索:
+                        <div class="ms-2 d-inline-block">
+                          <input id="search_word" value="{{ Search }}" type="text" class="form-control form-control-sm" aria-label="搜索">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <div class="table-responsive">
-                    <table class="table card-table table-vcenter text-nowrap datatable">
+                    <table class="table table-vcenter card-table">
                       <thead>
                         <tr>
-                          <th>来源</th>
-                          <th>操作</th>
-                          <th>类型</th>
-                          <th>文件名</th>
-                          <th>标题</th>
-                          <th>类别</th>
-                          <th>季集</th>
+                          <th>媒体信息</th>
+                          <th>文件信息</th>
+                          <th>动作</th>
                           <th>时间</th>
                         </tr>
                       </thead>
                       <tbody>
+                      {% if TotalCount > 0 %}
                       {% for History in Historys %}
                       <tr>
-                        <td>{{ History[0] }}</td>
-                        <td>{{ History[1] }}</td>
-                        <td>{{ History[2] }}</td>
-                        <td>{{ History[3] }}</td>
-                        <td>{{ History[4] }} ({{ History[6] }})</td>
-                        <td>{{ History[5] }}</td>
-                        <td>{{ History[7] }}</td>
+                        <td>
+                          <div class="d-flex py-1 align-items-center">
+                            <span class="avatar me-2" style="">{{ History[2] }}</span>
+                            <div class="flex-fill">
+                              <div class="font-weight-medium"><a class="text-reset">{{ History[4] }} ({{ History[6] }}) {{ History[7] }}</a></div>
+                              <div class="text-muted">类别：{{ History[5] }}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div>{{ History[3] }}</div>
+                          <div class="text-muted">来自：{{ History[0] }}</div>
+                        </td>
+                        <td class="text-muted">{{ History[1] }}</td>
                         <td>{{ History[9] }}</td>
                       </tr>
                       {% endfor %}
+                      {% else %}
+                        <tr>
+                          <td colspan="4" align="center">没有数据</td>
+                        </tr>
+                      {% endif %}
                       </tbody>
                     </table>
                   </div>
                   <div class="card-footer d-flex align-items-center">
-                    <p class="m-0 text-muted">当前 {{ Count }} 条 共 <span>{{ TotalCount }}</span>条</p>
+                    <p class="m-0 text-muted">当前页 <span>{{ Count }}</span> 条</p>
                     <ul class="pagination m-0 ms-auto">
                       <li class="page-item {% if CurrentPage==1 %} disabled {% endif %}">
                         <a class="page-link" href="javascript:go_pre_page('{{ Search }}', {{ CurrentPage }})" tabindex="-1" aria-disabled="true">
@@ -239,23 +242,6 @@
             </div>
           </div>
         </div>
-        {% else %}
-        <div class="page-wrapper">
-        <div class="container-xl">
-        </div>
-        <div class="page-body">
-          <div class="container-xl d-flex flex-column justify-content-center">
-            <div class="empty">
-              <div class="empty-img"><img src="./static/img/work_together.svg" height="128"  alt="">
-              </div>
-              <p class="empty-title" id="search_tip_title">没有记录</p>
-              <p class="empty-subtitle text-muted" id="search_tip_text">
-                进行过识别转移的文件记录将会显示在这里。
-              </p>
-            </div>
-          </div>
-        </div>
-        {% endif %}
         <footer class="footer footer-transparent d-print-none">
           <div class="container-xl">
             <div class="row text-center align-items-center flex-row-reverse">
@@ -276,7 +262,6 @@
         </footer>
       </div>
     </div>
-    </div>
     <!-- Libs JS -->
     <!-- Tabler Core -->
     <script src="../static/js/tabler.min.js"></script>
@@ -295,10 +280,13 @@
       }
 
       // 搜索按钮
-      function search_history(){
-        var keyword = $("#search_word").val();
-        window.location.href = window.location.href.split("?")[0] + "?s=" + keyword
-      }
+      $('#search_word').bind('keypress',function(event){
+         if(event.keyCode == "13")
+         {
+            var keyword = $("#search_word").val();
+            window.location.href = window.location.href.split("?")[0] + "?s=" + keyword
+         }
+     });
     </script>
   </body>
 </html>
