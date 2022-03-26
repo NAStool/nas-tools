@@ -149,7 +149,8 @@ class Sync(object):
     def transfer_mon_files(self, no_path=None):
         try:
             lock.acquire()
-            for path, item in self.__need_sync_paths.items():
+            items = self.__need_sync_paths.items()
+            for path, item in items:
                 if path == no_path:
                     continue
                 log.info("【SYNC】开始转移监控目录文件...")
