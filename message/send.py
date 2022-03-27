@@ -66,26 +66,22 @@ class Message:
 
     # 发送转移电影的消息
     def send_transfer_movie_message(self, in_from, media_info, media_filesize, exist_filenum, category_flag):
-        title_str = media_info.get_title_string()
-        vote_average = media_info.vote_average
-        media_pix = media_info.get_resource_type_string()
-        backdrop_path = media_info.get_backdrop_path()
         if isinstance(in_from, Enum):
             in_from = in_from.value
-        msg_title = f"{title_str} 转移完成"
-        msg_str = "类型：电影"
-
+        msg_title = f"{media_info.get_title_string()} 转移完成"
+        if media_info.vote_average:
+            msg_str = f"评分：{media_info.vote_average}，类型：电影"
+        else:
+            msg_str = "类型：电影"
         if media_info.category:
             if category_flag:
                 msg_str = f"{msg_str}，类别：{media_info.category.value}"
-        if vote_average:
-            msg_str = f"{msg_str}，评分：{vote_average}"
-        if media_pix:
-            msg_str = f"{msg_str}，质量：{media_pix}"
+        if media_info.get_resource_type_string():
+            msg_str = f"{msg_str}，质量：{media_info.get_resource_type_string()}"
         msg_str = f"{msg_str}，大小：{str_filesize(media_filesize)}，来自：{in_from}"
         if exist_filenum != 0:
             msg_str = f"{msg_str}，{exist_filenum}个文件已存在"
-        self.sendmsg(msg_title, msg_str, backdrop_path)
+        self.sendmsg(msg_title, msg_str, media_info.get_backdrop_path())
 
     # 发送转移电视剧的消息
     def send_transfer_tv_message(self, message_medias, in_from, category_flag):
@@ -111,10 +107,10 @@ class Message:
                     else:
                         msg_title = f"{title_str} 转移完成"
 
-                msg_str = "类型：电视剧"
-                vote_average = item_info.get('media').vote_average
-                if vote_average:
-                    msg_str = f"{msg_str}，评分：{vote_average}"
+                if item_info.get('media').vote_average:
+                    msg_str = f"评分：{item_info.get('media').vote_average}，类型：电视剧"
+                else:
+                    msg_str = "类型：电视剧"
 
                 if item_info.get('media').category:
                     if category_flag:
@@ -128,8 +124,4 @@ class Message:
                 if item_info.get('existfiles') != 0:
                     msg_str = f"{msg_str}，{item_info.get('existfiles')}个文件已存在"
 
-                backdrop_path = item_info.get('media').backdrop_path
-                poster_path = item_info.get('media').poster_path
-                msg_image = backdrop_path if backdrop_path else poster_path
-
-                self.sendmsg(msg_title, msg_str, msg_image)
+                self.sendmsg(msg_title, msg_str, item_info.get('media').backdrop_path if item_info.get('media').backdrop_path else item_info.get('media').poster_path)
