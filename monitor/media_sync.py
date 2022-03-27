@@ -42,9 +42,7 @@ class Sync(object):
                 # 目的目录的子文件不处理
                 for tpath in SYNC_DIR_CONFIG.values():
                     if tpath:
-                        if tpath in event_path:
-                            return
-                        if os.path.samefile(event_path, tpath):
+                        if os.path.normcase(tpath) in os.path.normcase(event_path):
                             return
                 # 回收站及隐藏的文件不处理
                 if event_path.find('/@Recycle/') != -1 or event_path.find('/#recycle/') != -1 or event_path.find(
@@ -78,9 +76,9 @@ class Sync(object):
                 from_dir = os.path.dirname(event_path)
                 is_root_path = False
                 for m_path in SYNC_DIR_CONFIG.keys():
-                    if m_path in event_path:
+                    if os.path.normcase(m_path) in os.path.normcase(event_path):
                         monitor_dir = m_path
-                    if os.path.samefile(m_path, from_dir):
+                    if os.path.normcase(m_path) == os.path.normcase(from_dir):
                         is_root_path = True
 
                 # 查找目的目录
@@ -115,15 +113,11 @@ class Sync(object):
             # 目的目录的子文件不处理
             for tpath in SYNC_DIR_CONFIG.values():
                 if tpath:
-                    if tpath in event_path:
-                        return
-                    if os.path.samefile(event_path, tpath):
+                    if os.path.normcase(tpath) in os.path.normcase(event_path):
                         return
             # 源目录本身或上级目录不处理
             for tpath in SYNC_DIR_CONFIG.keys():
-                if event_path in tpath:
-                    return
-                if os.path.samefile(event_path, tpath):
+                if os.path.normcase(event_path) in os.path.normcase(tpath):
                     return
             # 回收站及隐藏的文件不处理
             if event_path.find('/@Recycle') != -1 or event_path.find('/#recycle') != -1 or event_path.find('/.') != -1:
@@ -149,15 +143,15 @@ class Sync(object):
     def transfer_mon_files(self, no_path=None):
         try:
             lock.acquire()
-            items = self.__need_sync_paths.items()
-            for path, item in items:
+            items = list(self.__need_sync_paths)
+            for path in items:
                 if path == no_path:
                     continue
                 log.info("【SYNC】开始转移监控目录文件...")
                 self.filetransfer.transfer_media(in_from=SyncType.MON,
                                                  in_path=path,
-                                                 target_dir=item.get('target_dir'))
-                del self.__need_sync_paths[path]
+                                                 target_dir=self.__need_sync_paths[path].get('target_dir'))
+                self.__need_sync_paths.pop(path)
         finally:
             lock.release()
 

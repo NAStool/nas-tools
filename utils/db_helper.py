@@ -14,7 +14,7 @@ class DBHelper:
     def __init__(self):
         config_path = os.environ.get('NASTOOL_CONFIG')
         if not config_path:
-            print("【RUN】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
+            print("【ERROR】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
             quit()
         self.__db_path = os.path.join(os.path.dirname(config_path), 'user.db')
         self.__connection = sqlite3.connect(self.__db_path, check_same_thread=False)

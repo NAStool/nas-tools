@@ -65,7 +65,7 @@ class Message:
         self.sendmsg(msg_title, msg_text, bp)
 
     # 发送转移电影的消息
-    def send_transfer_movie_message(self, in_from, media_info, media_filesize, exist_filenum):
+    def send_transfer_movie_message(self, in_from, media_info, media_filesize, exist_filenum, category_flag):
         title_str = media_info.get_title_string()
         vote_average = media_info.vote_average
         media_pix = media_info.get_resource_type_string()
@@ -74,6 +74,10 @@ class Message:
             in_from = in_from.value
         msg_title = f"{title_str} 转移完成"
         msg_str = "类型：电影"
+
+        if media_info.category:
+            if category_flag:
+                msg_str = f"{msg_str}，类别：{media_info.category.value}"
         if vote_average:
             msg_str = f"{msg_str}，评分：{vote_average}"
         if media_pix:
@@ -84,7 +88,7 @@ class Message:
         self.sendmsg(msg_title, msg_str, backdrop_path)
 
     # 发送转移电视剧的消息
-    def send_transfer_tv_message(self, message_medias, in_from):
+    def send_transfer_tv_message(self, message_medias, in_from, category_flag):
         # 统计完成情况，发送通知
         for title_str, item_info in message_medias.items():
             # PT的不管是否有修改文件均发通知，其他渠道没变化不发通知
@@ -111,6 +115,10 @@ class Message:
                 vote_average = item_info.get('media').vote_average
                 if vote_average:
                     msg_str = f"{msg_str}，评分：{vote_average}"
+
+                if item_info.get('media').category:
+                    if category_flag:
+                        msg_str = f"{msg_str}，类别：{item_info.get('media').category.value}"
 
                 if len(item_info.get('episodes')) != 1:
                     msg_str = f"{msg_str}，共{len(item_info.get('seasons'))}季{len(item_info.get('episodes'))}集，总大小：{str_filesize(item_info.get('totalsize'))}，来自：{in_from}"

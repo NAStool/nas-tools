@@ -11,14 +11,14 @@ from web.app import FlaskApp
 if __name__ == "__main__":
     # 参数
     os.environ['TZ'] = 'Asia/Shanghai'
-    print("【INFO】配置文件地址：%s" % os.environ.get('NASTOOL_CONFIG'))
-    print('【INFO】NASTool 当前版本号：%s' % APP_VERSION)
+    print("配置文件地址：%s" % os.environ.get('NASTOOL_CONFIG'))
+    print('NASTool 当前版本号：%s' % APP_VERSION)
     # 检查配置文件
     cfg = Config()
     if not check_config(cfg):
         quit()
     # 启动进程
-    log.info("【INFO】开始启动进程...")
+    log.info("开始启动进程...")
 
     # 启动定时服务
     scheduler = threading.Thread(target=run_scheduler)

@@ -1,5 +1,6 @@
 import argparse
 import os
+import re
 import shutil
 from enum import Enum
 from threading import Lock
@@ -295,6 +296,9 @@ class FileTransfer:
         message_medias = {}
 
         for file_item, media in Medias.items():
+            if re.search(r'[./\s\[]+Sample[/.\s\]]+', file_item, re.IGNORECASE):
+                log.warn("【RMT】%s 可能是预告片，跳过..." % file_item)
+                continue
             total_count = total_count + 1
             # 文件名
             file_name = os.path.basename(file_item)
@@ -386,7 +390,7 @@ class FileTransfer:
                     #  不是PT转移的，只有有变化才通知
                     if not new_movie_flag:
                         continue
-                self.message.send_transfer_movie_message(in_from, media, media_filesize, exist_filenum)
+                self.message.send_transfer_movie_message(in_from, media, media_filesize, exist_filenum, self.__movie_subtypedir)
                 log.info("【RMT】%s 转移完成" % file_name)
 
             # 电视剧
@@ -466,7 +470,7 @@ class FileTransfer:
                 continue
 
         # 统计完成情况，发送通知
-        self.message.send_transfer_tv_message(message_medias, in_from)
+        self.message.send_transfer_tv_message(message_medias, in_from, self.__tv_subtypedir)
 
         # 总结
         log.info("【RMT】%s 处理完成，总数：%s，失败：%s！" % (in_path, total_count, failed_count))
