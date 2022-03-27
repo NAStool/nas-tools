@@ -22,8 +22,9 @@ from message.send import Message
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, Config
 from utils.functions import get_used_of_partition, str_filesize, str_timelong
 from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
-    insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history
-from utils.types import MediaType, SearchType, DownloaderType
+    insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
+    update_transfer_unknown_state
+from utils.types import MediaType, SearchType, DownloaderType, SyncType
 from version import APP_VERSION
 from web.backend.emby import Emby, EmbyEvent
 from web.backend.search_torrents import search_medias_for_web
@@ -36,7 +37,6 @@ login_manager.login_view = "login"
 
 # Flask实例
 def create_flask_app(admin_user, admin_password, ssl_cert):
-
     config = Config()
     app = Flask(__name__)
     app.config['JSON_AS_ASCII'] = False
@@ -355,7 +355,8 @@ def create_flask_app(admin_user, admin_password, ssl_cert):
             else:
                 title = "%s (%s) %s" % (media_info.title, media_info.year, media_info.get_season_episode_string())
             poster_path = media_info.poster_path
-            torrent_info = {'id': key, 'title': title, 'speed': speed, 'image': poster_path, 'state': state, 'progress': progress}
+            torrent_info = {'id': key, 'title': title, 'speed': speed, 'image': poster_path, 'state': state,
+                            'progress': progress}
             if torrent_info not in DispTorrents:
                 DownloadCount += 1
                 DispTorrents.append(torrent_info)
@@ -486,6 +487,21 @@ def create_flask_app(admin_user, admin_password, ssl_cert):
                 scheduler_cfg_list.append(
                     {'name': '豆瓣收藏', 'time': interval, 'state': sta_douban, 'id': 'douban', 'svg': svg, 'color': color})
 
+        # 识别转移
+        svg = '''
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hand-move" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+           <path d="M8 13v-8.5a1.5 1.5 0 0 1 3 0v7.5"></path>
+           <path d="M11 11.5v-2a1.5 1.5 0 0 1 3 0v2.5"></path>
+           <path d="M14 10.5a1.5 1.5 0 0 1 3 0v1.5"></path>
+           <path d="M17 11.5a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1 -6 6h-2h.208a6 6 0 0 1 -5.012 -2.7l-.196 -.3c-.312 -.479 -1.407 -2.388 -3.286 -5.728a1.5 1.5 0 0 1 .536 -2.022a1.867 1.867 0 0 1 2.28 .28l1.47 1.47"></path>
+           <path d="M2.541 5.594a13.487 13.487 0 0 1 2.46 -1.427"></path>
+           <path d="M14 3.458c1.32 .354 2.558 .902 3.685 1.612"></path>
+        </svg>
+        '''
+        scheduler_cfg_list.append(
+            {'name': '识别转移', 'time': '手动', 'state': 'OFF', 'id': 'rename', 'svg': svg, 'color': 'yellow'})
+
         return render_template("service.html",
                                Count=len(scheduler_cfg_list),
                                SchedulerTasks=scheduler_cfg_list,
@@ -512,7 +528,7 @@ def create_flask_app(admin_user, admin_password, ssl_cert):
         else:
             totalCount = 0
 
-        TotalPage = floor(totalCount/PageNum) + 1
+        TotalPage = floor(totalCount / PageNum) + 1
 
         if TotalPage <= 5:
             StartPage = 1
@@ -695,6 +711,39 @@ def create_flask_app(admin_user, admin_password, ssl_cert):
                         DispTorrents.append(torrent_info)
 
                 return {"retcode": 0, "torrents": DispTorrents}
+
+            # 手工转移列表
+            if cmd == "rename_path":
+                paths = get_transfer_unknown_paths()
+                return {"paths": paths}
+
+            # 手工转移
+            if cmd == "rename":
+                paths = data.get("path")
+                path = paths.split("|")[0]
+                dest_dir = paths.split("|")[1]
+                if not dest_dir or dest_dir == "null":
+                    dest_dir = ""
+                tmdbid = data.get("tmdb")
+                title = data.get("title")
+                year = data.get("year")
+                mtype = data.get("type")
+                if mtype == "TV":
+                    media_info = Media().get_media_info_manual(MediaType.TV, title, year, tmdbid)
+                    if not dest_dir:
+                        dest_dir = config.get_config("media").get("tv_path")
+                else:
+                    media_info = Media().get_media_info_manual(MediaType.MOVIE, title, year, tmdbid)
+                    if not dest_dir:
+                        dest_dir = config.get_config("media").get("movie_path")
+                if not media_info or not media_info.tmdb_info:
+                    return {"retcode": 1, "retmsg": "转移失败，无法查询到TMDB信息"}
+                succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN, in_path=path, target_dir=dest_dir, media_info=media_info)
+                if succ_flag:
+                    update_transfer_unknown_state(path)
+                    return {"retcode": 0, "retmsg": "转移成功"}
+                else:
+                    return {"retcode": 2, "retmsg": ret_msg}
 
     # 响应企业微信消息
     @app.route('/wechat', methods=['GET', 'POST'])

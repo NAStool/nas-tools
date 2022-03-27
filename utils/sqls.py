@@ -203,3 +203,42 @@ def get_transfer_history(search, page, rownum):
         count_sql = f"SELECT COUNT(1) FROM TRANSFER_HISTORY"
         sql = f"SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE FROM TRANSFER_HISTORY LIMIT {rownum} OFFSET {begin_pos}"
     return select_by_sql(count_sql), select_by_sql(sql)
+
+
+# 查询未识别的记录列表
+def get_transfer_unknown_paths():
+    sql = f"SELECT PATH, DEST FROM TRANSFER_UNKNOWN WHERE STATE='N'"
+    return select_by_sql(sql)
+
+
+# 更新未识别记录为识别
+def update_transfer_unknown_state(path):
+    path = os.path.normpath(path)
+    sql = f"UPDATE TRANSFER_UNKNOWN SET STATE='Y' WHERE PATH='{path}'"
+    return update_by_sql(sql)
+
+
+# 查询未识别记录是否存在
+def is_transfer_unknown_exists(path):
+    path = os.path.normpath(path)
+    sql = f"SELECT COUNT(1) FROM TRANSFER_UNKNOWN WHERE PATH='{path}'"
+    ret = select_by_sql(sql)
+    if ret and ret[0][0] > 0:
+        return True
+    else:
+        return False
+
+
+# 插入未识别记录
+def insert_transfer_unknown(path, dest):
+    if not path:
+        return False
+    path = os.path.normpath(path)
+    dest = os.path.normpath(dest)
+    if is_transfer_unknown_exists(path):
+        return False
+    else:
+        if not dest:
+            dest = ""
+        sql = f"INSERT INTO TRANSFER_UNKNOWN(PATH, DEST, STATE)VALUES('{path}', '{dest}', 'N')"
+        return update_by_sql(sql)

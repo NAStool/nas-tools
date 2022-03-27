@@ -19,6 +19,7 @@ class Sync(object):
     filetransfer = None
     __observer = []
     __sync_path = None
+    __unknown_path = None
     __sync_sys = "Linux"
     __config = None
     __synced_files = []
@@ -33,6 +34,9 @@ class Sync(object):
         sync = self.__config.get_config('sync')
         if sync:
             self.__sync_path = sync.get('sync_path')
+        media = self.__config.get_config('media')
+        if media:
+            self.__unknown_path = media.get('unknown_path')
 
     # 处理文件变化
     def file_change_handler(self, event, text, event_path):
@@ -41,13 +45,15 @@ class Sync(object):
             try:
                 # 目的目录的子文件不处理
                 for tpath in SYNC_DIR_CONFIG.values():
-                    if tpath:
-                        if os.path.normcase(tpath) in os.path.normcase(event_path):
-                            return
+                    if tpath and os.path.normpath(tpath) in os.path.normpath(event_path):
+                        return
                 # 回收站及隐藏的文件不处理
                 if event_path.find('/@Recycle/') != -1 or event_path.find('/#recycle/') != -1 or event_path.find(
                         '/.') != -1:
-                    return False
+                    return
+                # unknown目录下的文件不处理
+                if self.__unknown_path and os.path.normpath(self.__unknown_path) in os.path.normpath(event_path):
+                    return
                 # 文件名
                 name = os.path.basename(event_path)
                 if not name:
@@ -76,9 +82,9 @@ class Sync(object):
                 from_dir = os.path.dirname(event_path)
                 is_root_path = False
                 for m_path in SYNC_DIR_CONFIG.keys():
-                    if os.path.normcase(m_path) in os.path.normcase(event_path):
+                    if os.path.normpath(m_path) in os.path.normpath(event_path):
                         monitor_dir = m_path
-                    if os.path.normcase(m_path) == os.path.normcase(from_dir):
+                    if os.path.normpath(m_path) == os.path.normpath(from_dir):
                         is_root_path = True
 
                 # 查找目的目录
@@ -112,13 +118,15 @@ class Sync(object):
             # 文件变化时上级文件夹也会变化
             # 目的目录的子文件不处理
             for tpath in SYNC_DIR_CONFIG.values():
-                if tpath:
-                    if os.path.normcase(tpath) in os.path.normcase(event_path):
-                        return
+                if tpath and os.path.normpath(tpath) in os.path.normpath(event_path):
+                    return
             # 源目录本身或上级目录不处理
             for tpath in SYNC_DIR_CONFIG.keys():
-                if os.path.normcase(event_path) in os.path.normcase(tpath):
+                if os.path.normpath(event_path) in os.path.normpath(tpath):
                     return
+            # unknown目录及子目录不处理
+            if self.__unknown_path and os.path.normpath(self.__unknown_path) in os.path.normpath(event_path):
+                return
             # 回收站及隐藏的文件不处理
             if event_path.find('/@Recycle') != -1 or event_path.find('/#recycle') != -1 or event_path.find('/.') != -1:
                 return False
@@ -171,9 +179,7 @@ class Sync(object):
                             log.info("【SYNC】目的目录不存在，正在创建：%s" % target_path)
                             os.makedirs(target_path)
                         # 去掉末尾的/
-                        if monpath.endswith('/'):
-                            monpath = monpath[0:-1]
-                        SYNC_DIR_CONFIG[monpath] = target_path
+                        SYNC_DIR_CONFIG[os.path.normpath(monpath)] = os.path.normpath(target_path)
                 else:
                     monpath = sync_monpath
                     SYNC_DIR_CONFIG[monpath] = None
@@ -204,8 +210,6 @@ class Sync(object):
 
 # 监听文件夹
 class FileMonitorHandler(FileSystemEventHandler):
-    sync = None
-
     def __init__(self, monpath, sync, **kwargs):
         super(FileMonitorHandler, self).__init__(**kwargs)
         # 监控目录 目录下面以device_id为目录存放各自的图片

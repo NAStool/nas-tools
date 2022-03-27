@@ -415,12 +415,12 @@ class MetaInfo(object):
             self.title = info.get('title')
             release_date = info.get('release_date')
             if release_date:
-                self.year = info.release_date[0:4]
+                self.year = release_date[0:4]
         else:
             self.title = info.get('name')
             first_air_date = info.get('first_air_date')
             if first_air_date:
-                self.year = info.first_air_date[0:4]
+                self.year = first_air_date[0:4]
         self.poster_path = "https://image.tmdb.org/t/p/w500%s" % info.get('poster_path')
         self.backdrop_path = self.get_backdrop_image(self.type, info.get('backdrop_path'), info.get('id'))
         self.category = self.__set_category(info)

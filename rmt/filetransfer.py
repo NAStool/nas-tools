@@ -7,11 +7,11 @@ from threading import Lock
 from subprocess import call
 
 import log
-from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Config
+from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Config, SYNC_DIR_CONFIG
 from utils.functions import get_dir_files_by_ext, get_free_space_gb
 from message.send import Message
 from rmt.media import Media
-from utils.sqls import insert_transfer_history
+from utils.sqls import insert_transfer_history, insert_transfer_unknown
 from utils.types import MediaType, DownloaderType, SyncType, MediaCatagory, RmtMode
 
 lock = Lock()
@@ -151,13 +151,25 @@ class FileTransfer:
             log.info("【RMT】%s 已删除！" % file_path)
         return True
 
+    # 判断一个路径是否根路径
+    def is_dir_root_path(self, path):
+        if os.path.normpath(path) == os.path.normpath(self.__tv_path):
+            return True
+        if os.path.normpath(path) == os.path.normpath(self.__movie_path):
+            return True
+        if os.path.normpath(path) == os.path.normpath(self.__unknown_path):
+            return True
+        for tpath in SYNC_DIR_CONFIG.keys():
+            if tpath and os.path.normpath(tpath) == os.path.normpath(path):
+                return True
+        return False
+
     # 按原文件名link文件到目的目录
     @staticmethod
-    def link_origin_file(file_item, target_dir, rmt_mode):
+    def transfer_origin_file(file_item, target_dir, rmt_mode):
         if os.path.isdir(file_item):
-            log.warn("【RMT】目录不支持硬链接处理！")
+            log.warn("【RMT】目录不支持原名转移处理！")
             return False
-
         if not target_dir:
             return False
         # 文件名
@@ -176,9 +188,9 @@ class FileTransfer:
             retcode = call(['cp', file_item, target_file])
 
         if retcode == 0:
-            log.info("【RMT】文件 %s 硬链接完成" % file_name)
+            log.info("【RMT】文件 %s %s到unknown完成" % (file_name, rmt_mode.value))
         else:
-            log.error("【RMT】文件 %s 硬链接失败，错误码：%s" % (file_name, retcode))
+            log.error("【RMT】文件 %s %s到unknown失败，错误码：%s" % (file_name, rmt_mode.value, retcode))
             return False
         return True
 
@@ -219,13 +231,13 @@ class FileTransfer:
     def transfer_media(self,
                        in_from,
                        in_path,
-                       target_dir=None):
+                       target_dir=None,
+                       media_info=None):
         if not in_path:
             log.error("【RMT】输入路径错误!")
-            return False
+            return False, "输入路径错误"
 
         # 进到这里来的，可能是一个大目录，目录中有电影也有电视剧；也有可能是一个电视剧目录或者一个电影目录；也有可能是一个文件
-
         if in_from in DownloaderType:
             rmt_mode = self.__pt_rmt_mode
         else:
@@ -234,12 +246,8 @@ class FileTransfer:
         in_path = in_path.replace('\\\\', '/').replace('\\', '/')
         # 回收站及隐藏的文件不处理
         if in_path.find('/@Recycle/') != -1 or in_path.find('/#recycle/') != -1 or in_path.find('/.') != -1:
-            return False
-        # 不是媒体后缀的文件不处理
-        if os.path.isfile(in_path):
-            in_ext = os.path.splitext(in_path)[-1]
-            if in_ext not in RMT_MEDIAEXT:
-                return False
+            return False, "回收站或者隐藏文件夹"
+
         log.info("【RMT】开始处理：%s" % in_path)
 
         bluray_disk_flag = False
@@ -247,7 +255,7 @@ class FileTransfer:
             # 如果传入的是个目录
             if not os.path.exists(in_path):
                 log.error("【RMT】目录不存在：%s" % in_path)
-                return False
+                return False, "目录不存在"
 
             # 判断是不是原盘文件夹
             if os.path.exists(os.path.join(in_path, "BDMV/index.bdmv")):
@@ -257,7 +265,7 @@ class FileTransfer:
             if bluray_disk_flag:
                 if rmt_mode == RmtMode.LINK:
                     log.warn("【RMT】硬链接下不支持蓝光原盘目录，不处理...")
-                    return False
+                    return False, "硬链接下不支持蓝光原盘目录"
             # 开始处理里面的文件
             if bluray_disk_flag:
                 file_list = [in_path]
@@ -268,23 +276,23 @@ class FileTransfer:
                 log.debug("【RMT】文件清单：" + str(file_list))
                 if Media_FileNum == 0:
                     log.warn("【RMT】目录下未找到媒体文件：%s" % in_path)
-                    return False
+                    return False, "目录下未找到媒体文件"
         else:
             # 如果传入的是个文件
             if not os.path.exists(in_path):
                 log.error("【RMT】文件不存在：%s" % in_path)
-                return False
+                return False, "文件不存在"
             ext = os.path.splitext(in_path)[-1]
             if ext not in RMT_MEDIAEXT:
                 log.warn("【RMT】不支持的媒体文件格式，不处理：%s" % in_path)
-                return False
+                return False, "不支持的媒体文件格式"
             file_list = [in_path]
 
         # API检索出媒体信息，传入一个文件列表，得出每一个文件的名称，这里是当前目录下所有的文件了
-        Medias = self.media.get_media_info_on_files(file_list)
+        Medias = self.media.get_media_info_on_files(file_list, media_info)
         if not Medias:
             log.error("【RMT】检索媒体信息出错！")
-            return False
+            return False, "检索媒体信息出错"
 
         # 统计总的文件数、失败文件数
         failed_count = 0
@@ -304,16 +312,21 @@ class FileTransfer:
             file_name = os.path.basename(file_item)
             if not media or not media.tmdb_info:
                 log.warn("【RMT】%s 无法识别媒体信息！" % file_name)
+                # 记录未识别
+                parent_dir = os.path.dirname(file_item)
+                if not self.is_dir_root_path(parent_dir):
+                    insert_transfer_unknown(parent_dir, target_dir)
+                else:
+                    insert_transfer_unknown(file_item, target_dir)
                 failed_count = failed_count + 1
                 # 原样转移过去
-                log.warn("【RMT】按原文件名硬链接到unknown目录...")
+                log.warn("【RMT】%s 按原文件名转移到unknown目录..." % file_name)
                 if target_dir:
-                    target_dir = os.path.join(target_dir, 'unknown')
-                    self.link_origin_file(file_item, target_dir, rmt_mode)
-                    insert_transfer_history(in_from, rmt_mode, file_item, target_dir, media)
+                    if target_dir.find("/.unknown") == -1:
+                        target_dir = os.path.join(target_dir, '.unknown')
+                    self.transfer_origin_file(file_item, target_dir, rmt_mode)
                 elif self.__unknown_path:
-                    self.link_origin_file(file_item, self.__unknown_path, rmt_mode)
-                    insert_transfer_history(in_from, rmt_mode, file_item, self.__unknown_path, media)
+                    self.transfer_origin_file(file_item, self.__unknown_path, rmt_mode)
                 else:
                     log.error("【RMT】%s 处理失败！" % file_name)
                 continue
@@ -332,11 +345,13 @@ class FileTransfer:
                 new_movie_flag = False
                 exist_filenum = 0
                 # 检查剩余空间
+                if not os.path.exists(movie_dist):
+                    return False, "电影目的目录不存在"
                 disk_free_size = get_free_space_gb(movie_dist)
                 if float(disk_free_size) < RMT_DISKFREESIZE:
                     log.error("【RMT】目录 %s 剩余磁盘空间不足 %s GB，不处理！" % (movie_dist, RMT_DISKFREESIZE))
                     self.message.sendmsg("【RMT】磁盘空间不足", "目录 %s 剩余磁盘空间不足 %s GB！" % (movie_dist, RMT_DISKFREESIZE))
-                    return False
+                    return False, "磁盘空间不足"
                 # 判断文件是否已存在，返回：目录存在标志、目录名、文件存在标志、文件名
                 dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.is_media_exists(movie_dist, media)
                 media_filesize = os.path.getsize(file_item)
@@ -419,11 +434,13 @@ class FileTransfer:
                 message_medias[Title_Str]['totalsize'] = message_medias[Title_Str]['totalsize'] + media_filesize
 
                 # 检查磁盘空间
+                if not os.path.exists(tv_dist):
+                    return False, "电视剧目的目录不存在"
                 disk_free_size = get_free_space_gb(tv_dist)
                 if float(disk_free_size) < RMT_DISKFREESIZE:
                     log.error("【RMT】目录 %s 剩余磁盘空间不足 %s GB，不处理！" % (tv_dist, RMT_DISKFREESIZE))
                     self.message.sendmsg("【RMT】磁盘空间不足", "目录 %s 剩余磁盘空间不足 %s GB，不处理！" % (tv_dist, RMT_DISKFREESIZE))
-                    return False
+                    return False, "磁盘空间不足"
 
                 # 季集合
                 message_medias[Title_Str]['seasons'] = list(set(message_medias[Title_Str].get('seasons')).union(set(media.get_season_list())))
@@ -474,7 +491,7 @@ class FileTransfer:
 
         # 总结
         log.info("【RMT】%s 处理完成，总数：%s，失败：%s！" % (in_path, total_count, failed_count))
-        return True
+        return True, ""
 
     # 全量转移，用于使用命令调用
     def transfer_manually(self, s_path, t_path):
