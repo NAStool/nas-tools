@@ -153,11 +153,11 @@ class FileTransfer:
 
     # 判断一个路径是否根路径
     def is_dir_root_path(self, path):
-        if os.path.normpath(path) == os.path.normpath(self.__tv_path):
+        if self.__tv_path and os.path.normpath(path) == os.path.normpath(self.__tv_path):
             return True
-        if os.path.normpath(path) == os.path.normpath(self.__movie_path):
+        if self.__movie_path and os.path.normpath(path) == os.path.normpath(self.__movie_path):
             return True
-        if os.path.normpath(path) == os.path.normpath(self.__unknown_path):
+        if self.__unknown_path and os.path.normpath(path) == os.path.normpath(self.__unknown_path):
             return True
         for tpath in SYNC_DIR_CONFIG.keys():
             if tpath and os.path.normpath(tpath) == os.path.normpath(path):
@@ -397,7 +397,11 @@ class FileTransfer:
                     if not ret:
                         continue
                     else:
-                        insert_transfer_history(in_from, rmt_mode, file_item, movie_dist, media)
+                        parent_dir = os.path.dirname(file_item)
+                        if not self.is_dir_root_path(parent_dir):
+                            insert_transfer_history(in_from, rmt_mode, parent_dir, movie_dist, media)
+                        else:
+                            insert_transfer_history(in_from, rmt_mode, file_item, movie_dist, media)
                     new_movie_flag = True
 
                 # 电影的话，处理一部马上开始发送消息
@@ -480,7 +484,11 @@ class FileTransfer:
                     if not ret:
                         continue
                     else:
-                        insert_transfer_history(in_from, rmt_mode, file_item, tv_dist, media)
+                        parent_dir = os.path.dirname(file_item)
+                        if not self.is_dir_root_path(parent_dir):
+                            insert_transfer_history(in_from, rmt_mode, parent_dir, tv_dist, media)
+                        else:
+                            insert_transfer_history(in_from, rmt_mode, file_item, tv_dist, media)
             else:
                 log.error("【RMT】%s 无法识别是什么类型的媒体文件！" % file_name)
                 failed_count = failed_count + 1

@@ -177,15 +177,28 @@ def get_douban_search_state(title, year):
     return select_by_sql(sql)
 
 
+# 查询识别转移记录
+def is_transfer_history_exists(file_path, file_name):
+    sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_PATH='%s' AND FILE_NAME='%s'" % (file_path, file_name)
+    ret = select_by_sql(sql)
+    if ret and ret[0][0] > 0:
+        return True
+    else:
+        return False
+
+
 # 插入识别转移记录
 def insert_transfer_history(in_from, rmt_mode, in_path, dest, media_info):
     if not media_info or not media_info.tmdb_info:
         return
+    in_path = os.path.normpath(in_path)
     file_path = os.path.dirname(in_path)
     file_name = os.path.basename(in_path)
+    if is_transfer_history_exists(file_path, file_name):
+        return
     timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     sql = "INSERT INTO TRANSFER_HISTORY(SOURCE, MODE, TYPE, FILE_PATH, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
-        in_from.value, rmt_mode.value, media_info.type.value, file_path, file_name, media_info.title, media_info.category.value, media_info.year, media_info.get_season_episode_string(), dest, timestr)
+        in_from.value, rmt_mode.value, media_info.type.value, file_path, file_name, media_info.title, media_info.category.value, media_info.year, media_info.get_season_string(), dest, timestr)
     return update_by_sql(sql)
 
 
@@ -198,10 +211,10 @@ def get_transfer_history(search, page, rownum):
 
     if search:
         count_sql = f"SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_NAME LIKE '%{search}%' OR TITLE LIKE '%{search}%'"
-        sql = f"SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE FROM TRANSFER_HISTORY WHERE FILE_NAME LIKE '%{search}%' OR TITLE LIKE '%{search}%' LIMIT {rownum} OFFSET {begin_pos}"
+        sql = f"SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE FROM TRANSFER_HISTORY WHERE FILE_NAME LIKE '%{search}%' OR TITLE LIKE '%{search}%' ORDER BY DATE DESC LIMIT {rownum} OFFSET {begin_pos}"
     else:
         count_sql = f"SELECT COUNT(1) FROM TRANSFER_HISTORY"
-        sql = f"SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE FROM TRANSFER_HISTORY LIMIT {rownum} OFFSET {begin_pos}"
+        sql = f"SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE FROM TRANSFER_HISTORY ORDER BY DATE DESC LIMIT {rownum} OFFSET {begin_pos}"
     return select_by_sql(count_sql), select_by_sql(sql)
 
 
