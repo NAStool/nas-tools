@@ -506,9 +506,9 @@ class FileTransfer:
                 return
         print("【RMT】正在转移以下目录中的全量文件：%s" % s_path)
         print("【RMT】转移模式为：%s" % self.__sync_rmt_mode.value)
-        ret = self.transfer_media(in_from=SyncType.MAN, in_path=s_path, target_dir=t_path)
+        ret, ret_msg = self.transfer_media(in_from=SyncType.MAN, in_path=s_path, target_dir=t_path)
         if not ret:
-            print("【RMT】%s 处理失败！" % s_path)
+            print("【RMT】%s 处理失败：%s" % (s_path, ret_msg))
         else:
             print("【RMT】%s 处理完成" % s_path)
 
@@ -528,9 +528,9 @@ class FileTransfer:
                 else:
                     s_path = monpath
                     t_path = None
-                ret = self.transfer_media(in_from=SyncType.MON, in_path=s_path, target_dir=t_path)
+                ret, ret_msg = self.transfer_media(in_from=SyncType.MON, in_path=s_path, target_dir=t_path)
                 if not ret:
-                    log.error("【SYNC】%s 处理失败！" % s_path)
+                    log.error("【SYNC】%s 处理失败：%s" % (s_path, ret_msg))
                 else:
                     log.info("【SYNC】%s 处理成功！" % s_path)
 

@@ -58,9 +58,9 @@ class Downloader:
             log.info("【PT】开始转移PT下载文件...")
             trans_torrents, trans_tasks = self.client.get_transfer_task()
             for task in trans_tasks:
-                done_flag = self.filetransfer.transfer_media(in_from=self.__client_type, in_path=task.get("path"))
+                done_flag, done_msg = self.filetransfer.transfer_media(in_from=self.__client_type, in_path=task.get("path"))
                 if not done_flag:
-                    log.warn("【PT】%s 转移失败！" % task.get("path"))
+                    log.warn("【PT】%s 转移失败：%s" % (task.get("path"), done_msg))
                 else:
                     self.client.set_torrents_status(task.get("id"))
             log.info("【PT】PT下载文件转移结束！")
