@@ -16,9 +16,6 @@ class MetaHelper(object):
         self.__meta_path = os.path.join(os.path.dirname(os.environ.get('NASTOOL_CONFIG')), 'meta.dat')
         self.__meta_data = self.__load_meta_data(self.__meta_path)
 
-    def __del__(self):
-        self.save_meta_data()
-
     def get_meta_data(self):
         return self.__meta_data
 

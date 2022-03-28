@@ -99,36 +99,33 @@ def get_dir_files_by_ext(in_path, exts=""):
         for root, dirs, files in os.walk(in_path):
             for file in files:
                 ext = os.path.splitext(file)[-1]
-                if ext in exts:
+                if ext.lower() in exts:
                     cur_path = os.path.join(root, file)
                     if cur_path not in ret_list:
                         ret_list.append(cur_path)
     else:
         ext = os.path.splitext(in_path)[-1]
-        if ext in exts:
+        if ext.lower() in exts:
             if in_path not in ret_list:
                 ret_list.append(in_path)
     return ret_list
 
 
-# 获得目录下的媒体文件列表List，按文件名过滤
-def get_dir_files_by_name(in_path, namestr=""):
+# 根据后缀，返回目录下所有的文件及文件夹列表（只查询一级）
+def get_dir_level1_medias(in_path, exts=""):
     ret_list = []
     if not os.path.exists(in_path):
         return []
     if os.path.isdir(in_path):
-        for root, dirs, files in os.walk(in_path):
-            for file in files:
-                file_name = os.path.basename(file)
-                if namestr in file_name:
-                    cur_path = os.path.join(root, file)
-                    if cur_path not in ret_list:
-                        ret_list.append(cur_path)
+        for file in os.listdir(in_path):
+            path = os.path.join(in_path, file)
+            if os.path.isfile(path):
+                if os.path.splitext(file)[-1].lower() in exts:
+                    ret_list.append(path)
+            else:
+                ret_list.append(path)
     else:
-        file_name = os.path.basename(in_path)
-        if namestr in file_name:
-            if in_path not in ret_list:
-                ret_list.append(in_path)
+        ret_list.append(in_path)
     return ret_list
 
 
@@ -435,3 +432,12 @@ def get_torrents_group_item(media_list):
             can_download_list.append(media_name)
             can_download_list_item.append(t_item)
     return can_download_list_item
+
+
+# 判断是否不能处理的路径
+def is_invalid_path(path):
+    if not path:
+        return True
+    if path.find('/@Recycle/') != -1 or path.find('/#recycle/') != -1 or path.find('/.') != -1 or path.find('/@eaDir') != -1:
+        return True
+    return False

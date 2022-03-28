@@ -8,7 +8,7 @@ from subprocess import call
 
 import log
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Config, SYNC_DIR_CONFIG
-from utils.functions import get_dir_files_by_ext, get_free_space_gb
+from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_level1_medias, is_invalid_path
 from message.send import Message
 from rmt.media import Media
 from utils.sqls import insert_transfer_history, insert_transfer_unknown
@@ -245,7 +245,7 @@ class FileTransfer:
 
         in_path = in_path.replace('\\\\', '/').replace('\\', '/')
         # 回收站及隐藏的文件不处理
-        if in_path.find('/@Recycle/') != -1 or in_path.find('/#recycle/') != -1 or in_path.find('/.') != -1:
+        if is_invalid_path(in_path):
             return False, "回收站或者隐藏文件夹"
 
         log.info("【RMT】开始处理：%s" % in_path)
@@ -283,7 +283,7 @@ class FileTransfer:
                 log.error("【RMT】文件不存在：%s" % in_path)
                 return False, "文件不存在"
             ext = os.path.splitext(in_path)[-1]
-            if ext not in RMT_MEDIAEXT:
+            if ext.lower() not in RMT_MEDIAEXT:
                 log.warn("【RMT】不支持的媒体文件格式，不处理：%s" % in_path)
                 return False, "不支持的媒体文件格式"
             file_list = [in_path]
@@ -379,7 +379,7 @@ class FileTransfer:
                         # 转移蓝光原盘
                         ret = self.transfer_bluray_dir(file_item, ret_dir_path)
                         if ret:
-                            insert_transfer_history(in_from, rmt_mode, file_item, movie_dist, media)
+                            insert_transfer_history(in_from, rmt_mode, in_path, movie_dist, media)
                             log.info("【RMT】蓝光原盘 %s 转移成功！" % file_name)
                         else:
                             log.error("【RMT】蓝光原盘 %s 转移失败！" % file_name)
@@ -394,14 +394,10 @@ class FileTransfer:
                         continue
                     new_file = "%s%s" % (ret_file_path, file_ext)
                     ret = self.transfer_file(file_item, new_file, False, rmt_mode)
-                    if not ret:
-                        continue
+                    if ret:
+                        insert_transfer_history(in_from, rmt_mode, in_path, movie_dist, media)
                     else:
-                        parent_dir = os.path.dirname(file_item)
-                        if not self.is_dir_root_path(parent_dir):
-                            insert_transfer_history(in_from, rmt_mode, parent_dir, movie_dist, media)
-                        else:
-                            insert_transfer_history(in_from, rmt_mode, file_item, movie_dist, media)
+                        continue
                     new_movie_flag = True
 
                 # 电影的话，处理一部马上开始发送消息
@@ -484,11 +480,7 @@ class FileTransfer:
                     if not ret:
                         continue
                     else:
-                        parent_dir = os.path.dirname(file_item)
-                        if not self.is_dir_root_path(parent_dir):
-                            insert_transfer_history(in_from, rmt_mode, parent_dir, tv_dist, media)
-                        else:
-                            insert_transfer_history(in_from, rmt_mode, file_item, tv_dist, media)
+                        insert_transfer_history(in_from, rmt_mode, in_path, tv_dist, media)
             else:
                 log.error("【RMT】%s 无法识别是什么类型的媒体文件！" % file_name)
                 failed_count = failed_count + 1
@@ -514,11 +506,12 @@ class FileTransfer:
                 return
         print("【RMT】正在转移以下目录中的全量文件：%s" % s_path)
         print("【RMT】转移模式为：%s" % self.__sync_rmt_mode.value)
-        ret, ret_msg = self.transfer_media(in_from=SyncType.MAN, in_path=s_path, target_dir=t_path)
-        if not ret:
-            print("【RMT】%s 处理失败：%s" % (s_path, ret_msg))
-        else:
-            print("【RMT】%s 处理完成" % s_path)
+        for path in get_dir_level1_medias(s_path, RMT_MEDIAEXT):
+            ret, ret_msg = self.transfer_media(in_from=SyncType.MAN, in_path=path, target_dir=t_path)
+            if not ret:
+                print("【RMT】%s 处理失败：%s" % (path, ret_msg))
+            else:
+                print("【RMT】%s 处理完成" % path)
 
     # 全量转移Sync目录下的文件
     def transfer_all_sync(self):
@@ -536,11 +529,12 @@ class FileTransfer:
                 else:
                     s_path = monpath
                     t_path = None
-                ret, ret_msg = self.transfer_media(in_from=SyncType.MON, in_path=s_path, target_dir=t_path)
-                if not ret:
-                    log.error("【SYNC】%s 处理失败：%s" % (s_path, ret_msg))
-                else:
-                    log.info("【SYNC】%s 处理成功！" % s_path)
+                for path in get_dir_level1_medias(s_path, RMT_MEDIAEXT):
+                    ret, ret_msg = self.transfer_media(in_from=SyncType.MON, in_path=path, target_dir=t_path)
+                    if not ret:
+                        log.error("【SYNC】%s 处理失败：%s" % (path, ret_msg))
+                    else:
+                        log.info("【SYNC】%s 处理成功！" % path)
 
     # 判断媒体文件是否忆存在，返回：目录存在标志、目录名、文件存在标志、文件名
     def is_media_exists(self,

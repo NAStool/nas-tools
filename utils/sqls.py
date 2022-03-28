@@ -178,8 +178,13 @@ def get_douban_search_state(title, year):
 
 
 # 查询识别转移记录
-def is_transfer_history_exists(file_path, file_name):
-    sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_PATH='%s' AND FILE_NAME='%s'" % (file_path, file_name)
+def is_transfer_history_exists(file_path, file_name, title, se):
+    if not file_path:
+        return False
+    file_name = file_name or ""
+    title = title or ""
+    se = se or ""
+    sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_PATH='%s' AND FILE_NAME='%s' AND TITLE='%s' AND SE='%s'" % (file_path, file_name, title, se)
     ret = select_by_sql(sql)
     if ret and ret[0][0] > 0:
         return True
@@ -199,7 +204,7 @@ def insert_transfer_history(in_from, rmt_mode, in_path, dest, media_info):
         dest = ""
     file_path = os.path.dirname(in_path)
     file_name = os.path.basename(in_path)
-    if is_transfer_history_exists(file_path, file_name):
+    if is_transfer_history_exists(file_path, file_name, media_info.title, media_info.get_season_string()):
         return True
     timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     sql = "INSERT INTO TRANSFER_HISTORY(SOURCE, MODE, TYPE, FILE_PATH, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (

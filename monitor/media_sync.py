@@ -8,7 +8,7 @@ from watchdog.observers.polling import PollingObserver
 from config import RMT_MEDIAEXT, SYNC_DIR_CONFIG, Config
 import log
 from rmt.filetransfer import FileTransfer
-from utils.functions import get_dir_files_by_ext, singleton
+from utils.functions import get_dir_files_by_ext, singleton, is_invalid_path
 from utils.types import SyncType
 
 lock = threading.Lock()
@@ -48,8 +48,7 @@ class Sync(object):
                     if tpath and os.path.normpath(tpath) in os.path.normpath(event_path):
                         return
                 # 回收站及隐藏的文件不处理
-                if event_path.find('/@Recycle/') != -1 or event_path.find('/#recycle/') != -1 or event_path.find(
-                        '/.') != -1:
+                if is_invalid_path(event_path):
                     return
                 # unknown目录下的文件不处理
                 if self.__unknown_path and os.path.normpath(self.__unknown_path) in os.path.normpath(event_path):
@@ -131,7 +130,7 @@ class Sync(object):
             if self.__unknown_path and os.path.normpath(self.__unknown_path) in os.path.normpath(event_path):
                 return
             # 回收站及隐藏的文件不处理
-            if event_path.find('/@Recycle') != -1 or event_path.find('/#recycle') != -1 or event_path.find('/.') != -1:
+            if is_invalid_path(event_path):
                 return False
             # 开始处理变化，等10秒钟，让文件充分变化
             sleep(10)
