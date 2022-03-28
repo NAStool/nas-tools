@@ -43,7 +43,9 @@ class Logger:
             self.logger.addHandler(log_server_handler)
         else:
             # 记录日志到终端
+            formatter = logging.Formatter('%(asctime)s\t%(levelname)s: %(message)s')
             log_console_handler = logging.StreamHandler()
+            log_console_handler.setFormatter(formatter)
             self.logger.addHandler(log_console_handler)
 
     @staticmethod

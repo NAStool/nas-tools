@@ -313,11 +313,7 @@ class FileTransfer:
             if not media or not media.tmdb_info:
                 log.warn("【RMT】%s 无法识别媒体信息！" % file_name)
                 # 记录未识别
-                parent_dir = os.path.dirname(file_item)
-                if not self.is_dir_root_path(parent_dir):
-                    insert_transfer_unknown(parent_dir, target_dir)
-                else:
-                    insert_transfer_unknown(file_item, target_dir)
+                insert_transfer_unknown(in_path, target_dir)
                 failed_count = failed_count + 1
                 # 原样转移过去
                 log.warn("【RMT】%s 按原文件名转移到unknown目录..." % file_name)
