@@ -191,11 +191,16 @@ def is_transfer_history_exists(file_path, file_name):
 def insert_transfer_history(in_from, rmt_mode, in_path, dest, media_info):
     if not media_info or not media_info.tmdb_info:
         return
-    in_path = os.path.normpath(in_path)
+    if in_path:
+        in_path = os.path.normpath(in_path)
+    else:
+        return False
+    if not dest:
+        dest = ""
     file_path = os.path.dirname(in_path)
     file_name = os.path.basename(in_path)
     if is_transfer_history_exists(file_path, file_name):
-        return
+        return True
     timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     sql = "INSERT INTO TRANSFER_HISTORY(SOURCE, MODE, TYPE, FILE_PATH, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
         in_from.value, rmt_mode.value, media_info.type.value, file_path, file_name, media_info.title, media_info.category.value, media_info.year, media_info.get_season_string(), dest, timestr)
@@ -226,6 +231,8 @@ def get_transfer_unknown_paths():
 
 # 更新未识别记录为识别
 def update_transfer_unknown_state(path):
+    if not path:
+        return False
     path = os.path.normpath(path)
     sql = f"UPDATE TRANSFER_UNKNOWN SET STATE='Y' WHERE PATH='{path}'"
     return update_by_sql(sql)
@@ -233,6 +240,8 @@ def update_transfer_unknown_state(path):
 
 # 查询未识别记录是否存在
 def is_transfer_unknown_exists(path):
+    if not path:
+        return False
     path = os.path.normpath(path)
     sql = f"SELECT COUNT(1) FROM TRANSFER_UNKNOWN WHERE PATH='{path}'"
     ret = select_by_sql(sql)
@@ -247,7 +256,10 @@ def insert_transfer_unknown(path, dest):
     if not path:
         return False
     path = os.path.normpath(path)
-    dest = os.path.normpath(dest)
+    if dest:
+        dest = os.path.normpath(dest)
+    else:
+        dest = ""
     if is_transfer_unknown_exists(path):
         return False
     else:

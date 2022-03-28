@@ -82,10 +82,11 @@ class Sync(object):
                 from_dir = os.path.dirname(event_path)
                 is_root_path = False
                 for m_path in SYNC_DIR_CONFIG.keys():
-                    if os.path.normpath(m_path) in os.path.normpath(event_path):
-                        monitor_dir = m_path
-                    if os.path.normpath(m_path) == os.path.normpath(from_dir):
-                        is_root_path = True
+                    if m_path:
+                        if os.path.normpath(m_path) in os.path.normpath(event_path):
+                            monitor_dir = m_path
+                        if os.path.normpath(m_path) == os.path.normpath(from_dir):
+                            is_root_path = True
 
                 # 查找目的目录
                 target_dir = SYNC_DIR_CONFIG.get(monitor_dir)
@@ -124,7 +125,7 @@ class Sync(object):
                     return
             # 源目录本身或上级目录不处理
             for tpath in SYNC_DIR_CONFIG.keys():
-                if os.path.normpath(event_path) in os.path.normpath(tpath):
+                if tpath and os.path.normpath(event_path) in os.path.normpath(tpath):
                     return
             # unknown目录及子目录不处理
             if self.__unknown_path and os.path.normpath(self.__unknown_path) in os.path.normpath(event_path):
@@ -179,6 +180,8 @@ class Sync(object):
                 if sync_monpath.find('|') != -1:
                     # 源目录|目的目录，这个格式的目的目录在源目录同级建立
                     monpath = sync_monpath.split("|")[0]
+                    if not monpath:
+                        continue
                     target_path = sync_monpath.split("|")[1]
                     if target_path:
                         log.info("【SYNC】读取到监控目录：%s，目的目录：%s" % (monpath, target_path))
