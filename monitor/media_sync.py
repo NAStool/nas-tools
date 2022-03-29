@@ -8,7 +8,7 @@ from watchdog.observers.polling import PollingObserver
 from config import RMT_MEDIAEXT, SYNC_DIR_CONFIG, Config
 import log
 from rmt.filetransfer import FileTransfer
-from utils.functions import get_dir_files_by_ext, singleton, is_invalid_path
+from utils.functions import get_dir_files_by_ext, singleton, is_invalid_path, is_path_in_path
 from utils.types import SyncType
 
 lock = threading.Lock()
@@ -48,14 +48,14 @@ class Sync(object):
                 # 不是监控目录下的文件不处理
                 is_monitor_file = False
                 for tpath in SYNC_DIR_CONFIG.keys():
-                    if tpath and os.path.normpath(tpath) in os.path.normpath(event_path):
+                    if is_path_in_path(tpath, event_path):
                         is_monitor_file = True
                         break
                 if not is_monitor_file:
                     return
                 # 目的目录的子文件不处理
                 for tpath in SYNC_DIR_CONFIG.values():
-                    if tpath and os.path.normpath(tpath) in os.path.normpath(event_path):
+                    if is_path_in_path(tpath, event_path):
                         return
                 # 媒体库目录及子目录不处理
                 if self.filetransfer.is_target_dir_path(event_path):
@@ -85,14 +85,14 @@ class Sync(object):
                     log.debug("【SYNC】文件已处理过：%s" % event_path)
                     return
 
-                log.info("【SYNC】文件%s：%s" % (text, event_path))
+                log.debug("【SYNC】文件%s：%s" % (text, event_path))
                 # 找到是哪个监控目录下的
                 monitor_dir = event_path
                 from_dir = os.path.dirname(event_path)
                 is_root_path = False
                 for m_path in SYNC_DIR_CONFIG.keys():
                     if m_path:
-                        if os.path.normpath(m_path) in os.path.normpath(event_path):
+                        if is_path_in_path(m_path, event_path):
                             monitor_dir = m_path
                         if os.path.normpath(m_path) == os.path.normpath(from_dir):
                             is_root_path = True
@@ -134,18 +134,18 @@ class Sync(object):
                 # 不是监控目录下的目录不处理
                 is_monitor_file = False
                 for tpath in SYNC_DIR_CONFIG.keys():
-                    if tpath and os.path.normpath(tpath) in os.path.normpath(event_path):
+                    if is_path_in_path(tpath, event_path):
                         is_monitor_file = True
                         break
                 if not is_monitor_file:
                     return
                 # 源目录本身或上级目录不处理
                 for tpath in SYNC_DIR_CONFIG.keys():
-                    if tpath and os.path.normpath(event_path) in os.path.normpath(tpath):
+                    if is_path_in_path(event_path, tpath):
                         return
                 # 目的目录的子文件不处理
                 for tpath in SYNC_DIR_CONFIG.values():
-                    if tpath and os.path.normpath(tpath) in os.path.normpath(event_path):
+                    if is_path_in_path(tpath, event_path):
                         return
                 # 媒体库目录及子目录不处理
                 if self.filetransfer.is_target_dir_path(event_path):
@@ -154,7 +154,7 @@ class Sync(object):
                 if is_invalid_path(event_path):
                     return False
                 # 开始处理变化，新目录等10秒钟，让文件充分变化
-                log.info("【SYNC】文件夹%s：%s" % (text, event_path))
+                log.debug("【SYNC】文件夹%s：%s" % (text, event_path))
                 if text == "创建":
                     sleep(10)
                 try:

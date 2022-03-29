@@ -441,3 +441,21 @@ def is_invalid_path(path):
     if path.find('/@Recycle/') != -1 or path.find('/#recycle/') != -1 or path.find('/.') != -1 or path.find('/@eaDir') != -1:
         return True
     return False
+
+
+# 判断两个路径是否包含关系 path1 in path2
+def is_path_in_path(path1, path2):
+    if not path1 or not path2:
+        return False
+    path1 = os.path.normpath(path1)
+    path2 = os.path.normpath(path2)
+    if path1 == path2:
+        return True
+    path = os.path.dirname(path2)
+    while True:
+        if path == path1:
+            return True
+        path = os.path.dirname(path)
+        if path == os.path.dirname(path):
+            break
+    return False

@@ -8,7 +8,8 @@ from subprocess import call
 
 import log
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Config
-from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_level1_medias, is_invalid_path
+from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_level1_medias, is_invalid_path, \
+    is_path_in_path
 from message.send import Message
 from rmt.media import Media
 from utils.sqls import insert_transfer_history, insert_transfer_unknown
@@ -155,11 +156,11 @@ class FileTransfer:
     def is_target_dir_path(self, path):
         if not path:
             return False
-        if self.__tv_path and os.path.normpath(self.__tv_path) in os.path.normpath(path):
+        if is_path_in_path(self.__tv_path, path):
             return True
-        if self.__movie_path and os.path.normpath(self.__movie_path) in os.path.normpath(path):
+        if is_path_in_path(self.__movie_path, path):
             return True
-        if self.__unknown_path and os.path.normpath(self.__unknown_path) in os.path.normpath(path):
+        if is_path_in_path(self.__unknown_path, path):
             return True
         return False
 
