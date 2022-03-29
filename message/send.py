@@ -52,13 +52,8 @@ class Message:
         bp = can_item.get_backdrop_path()
         tp = can_item.type
         se_str = can_item.get_season_episode_string()
-        if isinstance(in_from, Enum):
-            in_from = in_from.value
-        if isinstance(tp, Enum):
-            tp = tp.value
-
         msg_title = can_item.get_title_string()
-        msg_text = f"来自{in_from}的{tp} {msg_title}{se_str} 已开始下载"
+        msg_text = f"来自{in_from.value}的{tp.value} {msg_title}{se_str} 已开始下载"
         if va:
             msg_title = f"{msg_title} 评分：{va}"
 
@@ -66,8 +61,6 @@ class Message:
 
     # 发送转移电影的消息
     def send_transfer_movie_message(self, in_from, media_info, media_filesize, exist_filenum, category_flag):
-        if isinstance(in_from, Enum):
-            in_from = in_from.value
         msg_title = f"{media_info.get_title_string()} 转移完成"
         if media_info.vote_average:
             msg_str = f"评分：{media_info.vote_average}，类型：电影"
@@ -78,7 +71,7 @@ class Message:
                 msg_str = f"{msg_str}，类别：{media_info.category.value}"
         if media_info.get_resource_type_string():
             msg_str = f"{msg_str}，质量：{media_info.get_resource_type_string()}"
-        msg_str = f"{msg_str}，大小：{str_filesize(media_filesize)}，来自：{in_from}"
+        msg_str = f"{msg_str}，大小：{str_filesize(media_filesize)}，来自：{in_from.value}"
         if exist_filenum != 0:
             msg_str = f"{msg_str}，{exist_filenum}个文件已存在"
         self.sendmsg(msg_title, msg_str, media_info.get_backdrop_path())
@@ -96,8 +89,6 @@ class Message:
                     send_message_flag = True
 
             if send_message_flag:
-                if isinstance(in_from, Enum):
-                    in_from = in_from.value
                 if len(item_info.get('episodes')) == 1:
                     msg_title = f"{title_str} 第{item_info.get('seasons')[0]}季第{item_info.get('episodes')[0]}集 转移完成"
                 else:
@@ -117,9 +108,9 @@ class Message:
                         msg_str = f"{msg_str}，类别：{item_info.get('media').category.value}"
 
                 if len(item_info.get('episodes')) != 1:
-                    msg_str = f"{msg_str}，共{len(item_info.get('seasons'))}季{len(item_info.get('episodes'))}集，总大小：{str_filesize(item_info.get('totalsize'))}，来自：{in_from}"
+                    msg_str = f"{msg_str}，共{len(item_info.get('seasons'))}季{len(item_info.get('episodes'))}集，总大小：{str_filesize(item_info.get('totalsize'))}，来自：{in_from.value}"
                 else:
-                    msg_str = f"{msg_str}，大小：{str_filesize(item_info.get('totalsize'))}，来自：{in_from}"
+                    msg_str = f"{msg_str}，大小：{str_filesize(item_info.get('totalsize'))}，来自：{in_from.value}"
 
                 if item_info.get('existfiles') != 0:
                     msg_str = f"{msg_str}，{item_info.get('existfiles')}个文件已存在"

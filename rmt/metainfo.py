@@ -63,12 +63,13 @@ class MetaInfo(object):
     _stop_name_flag = False
     _last_token = ""
     _last_token_type = ""
+    _continue_flag = True
     # 正则式区
-    _season_re = r"^S(\d{1,2})"
-    _episode_re = r"\d*EP?(\d{1,3})"
+    _season_re = r"S(\d{2})"
+    _episode_re = r"\d*EP?(\d{2})"
     _resources_type_re = r"BLURAY|REMUX|HDTV|WEBRIP|DVDRIP|UHD|SDR|HDR|DOLBY|BLU|WEB"
-    _name_nostring_re = r"^JADE[\s.]+|^AOD[\s.]+|^[A-Z]{2,4}TV[\-0-9UVHD]*[\s.]+" \
-                        r"|^HBO[\s.]+|[SsEePp]+\d{1,3}-?[SsEePp]*\d{0,3}" \
+    _name_nostring_re = r"^JADE[\s.]+|^AOD[\s.]+|^[A-Z]{2,4}TV[\-0-9UVHD]*[\s.]+|^HBO[\s.]+" \
+                        r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|EP?\d{2}\s*-\s*EP?\d{2}|EP?\d{2}" \
                         r"|第\s*[0-9一二三四五六七八九十]+\s*季" \
                         r"|第\s*[0-9一二三四五六七八九十]+\s*集" \
                         r"|BLU-?RAY|REMUX|HDTV|WEBRIP|DVDRIP|UHD|WEB|SDR|HDR|DOLBY|TRUEHD|DTS-[ADEH]+" \
@@ -90,17 +91,23 @@ class MetaInfo(object):
             # 标题
             self.__init_name(token)
             # 年份
-            self.__init_year(token)
+            if self._continue_flag:
+                self.__init_year(token)
             # 分辨率
-            self.__init_resource_pix(token)
+            if self._continue_flag:
+                self.__init_resource_pix(token)
             # 季
-            self.__init_seasion(token)
+            if self._continue_flag:
+                self.__init_seasion(token)
             # 集
-            self.__init_episode(token)
+            if self._continue_flag:
+                self.__init_episode(token)
             # 资源类型
-            self.__init_resource_type(token)
+            if self._continue_flag:
+                self.__init_resource_type(token)
             # 取下一个，直到没有为卡
             token = tokens.get_next()
+            self._continue_flag = True
         # 解析副标题，只要季和集
         if subtitle:
             self.__init_subtitle(subtitle)
@@ -128,9 +135,6 @@ class MetaInfo(object):
             # 2位以上的数字不要
             if token.isdigit() and len(token) > 2:
                 return
-            # 不是全英文的不要
-            if not token.isalpha():
-                return
             if self.en_name:
                 self.en_name = "%s %s" % (self.en_name, token)
             else:
@@ -138,6 +142,8 @@ class MetaInfo(object):
             self._last_token_type = "name"
 
     def __init_year(self, token):
+        if not self.get_name():
+            return
         if not token.isdigit():
             return
         if len(token) != 4:
@@ -146,15 +152,19 @@ class MetaInfo(object):
             return
         self.year = token
         self._last_token_type = "year"
+        self._continue_flag = False
         if self.get_name():
             self._stop_name_flag = True
 
     def __init_resource_pix(self, token):
+        if not self.get_name():
+            return
         re_res = re.search(r"%s" % self._resources_pix_re, token, re.IGNORECASE)
         if re_res:
             if not self.resource_pix:
                 self.resource_pix = re_res.group(1).lower()
                 self._last_token_type = "pix"
+                self._continue_flag = False
                 if self.get_name():
                     self._stop_name_flag = True
         else:
@@ -163,10 +173,13 @@ class MetaInfo(object):
                 if not self.resource_pix:
                     self.resource_pix = re_res.group(1).lower()
                     self._last_token_type = "pix"
+                    self._continue_flag = False
                     if self.get_name():
                         self._stop_name_flag = True
 
     def __init_seasion(self, token):
+        if not self.get_name():
+            return
         re_res = re.findall(r"%s" % self._season_re, token, re.IGNORECASE)
         if re_res:
             for se in re_res:
@@ -197,6 +210,8 @@ class MetaInfo(object):
                     self._last_token_type = "season"
 
     def __init_episode(self, token):
+        if not self.get_name():
+            return
         re_res = re.findall(r"%s" % self._episode_re, token, re.IGNORECASE)
         if re_res:
             for se in re_res:
@@ -209,10 +224,12 @@ class MetaInfo(object):
                 if not self.begin_episode:
                     self.begin_episode = se
                     self._last_token_type = "episode"
+                    self._continue_flag = False
                 else:
                     if self.begin_episode != se:
                         self.end_episode = se
                         self._last_token_type = "episode"
+                        self._continue_flag = False
             self.type = MediaType.TV
             if self.get_name():
                 self._stop_name_flag = True
@@ -224,23 +241,29 @@ class MetaInfo(object):
                     and self._last_token_type == "episode":
                 self.end_episode = int(token)
                 self._last_token_type = "episode"
+                self._continue_flag = False
 
     def __init_resource_type(self, token):
+        if not self.get_name():
+            return
         re_res = re.search(r"(%s)" % self._resources_type_re, token, re.IGNORECASE)
         if re_res:
             if not self.resource_type:
                 self.resource_type = re_res.group(1).upper()
                 self._last_token = self.resource_type
                 self._last_token_type = "restype"
+                self._continue_flag = False
                 if self.get_name():
                     self._stop_name_flag = True
         else:
             if token.upper() == "DL" and self._last_token_type == "restype" and self._last_token == "WEB":
                 self.resource_type = "WEB-DL"
                 self._last_token_type = "restype"
+                self._continue_flag = False
             if token.upper() == "RAY" and self._last_token_type == "restype" and self._last_token == "BLU":
                 self.resource_type = "BLURAY"
                 self._last_token_type = "restype"
+                self._continue_flag = False
 
     def __init_subtitle(self, title_text):
         if re.search(r'[第季集]', title_text, re.IGNORECASE):
@@ -512,7 +535,12 @@ class MetaInfo(object):
 
 
 if __name__ == "__main__":
-    text = "CCTV15 Life.Is.a.Long.Quiet.River.2022.S01-02.E01E03.1080p.Blu-Ray.H265.AAC-LeagueWEB"
+    text = "老友记EP01.sense8.S01-S02.sense8.E10.2015"
     meta_info = MetaInfo(text)
     print(meta_info.__dict__)
-    print(meta_info.get_episode_items())
+    text = "sense8.S01E10.2015"
+    meta_info = MetaInfo(text)
+    print(meta_info.__dict__)
+    text = "老友记 S01 -S02.sense8.E10.2015"
+    meta_info = MetaInfo(text)
+    print(meta_info.__dict__)

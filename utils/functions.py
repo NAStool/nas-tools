@@ -304,7 +304,7 @@ def is_media_files_tv(file_list):
         file_list = [file_list]
     for tmp_file in file_list:
         tmp_name = os.path.basename(tmp_file)
-        re_res = re.search(r"[\s.]*[SE]P?\d{1,3}", tmp_name, re.IGNORECASE)
+        re_res = re.search(r"[\s.]*[SE]P?\d{2}", tmp_name, re.IGNORECASE)
         if re_res:
             flag = True
             break
