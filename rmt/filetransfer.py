@@ -7,7 +7,7 @@ from threading import Lock
 from subprocess import call
 
 import log
-from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Config, SYNC_DIR_CONFIG
+from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Config
 from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_level1_medias, is_invalid_path
 from message.send import Message
 from rmt.media import Media
@@ -151,17 +151,16 @@ class FileTransfer:
             log.info("【RMT】%s 已删除！" % file_path)
         return True
 
-    # 判断一个路径是否根路径
-    def is_dir_root_path(self, path):
-        if self.__tv_path and os.path.normpath(path) == os.path.normpath(self.__tv_path):
+    # 判断是否为目的路径下的路径
+    def is_target_dir_path(self, path):
+        if not path:
+            return False
+        if self.__tv_path and os.path.normpath(self.__tv_path) in os.path.normpath(path):
             return True
-        if self.__movie_path and os.path.normpath(path) == os.path.normpath(self.__movie_path):
+        if self.__movie_path and os.path.normpath(self.__movie_path) in os.path.normpath(path):
             return True
-        if self.__unknown_path and os.path.normpath(path) == os.path.normpath(self.__unknown_path):
+        if self.__unknown_path and os.path.normpath(self.__unknown_path) in os.path.normpath(path):
             return True
-        for tpath in SYNC_DIR_CONFIG.keys():
-            if tpath and os.path.normpath(tpath) == os.path.normpath(path):
-                return True
         return False
 
     # 按原文件名link文件到目的目录

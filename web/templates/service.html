@@ -343,8 +343,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-              取消
+            <a href="javascript:del_rename_path()" class="btn btn-link link-secondary">
+              删除
             </a>
             <input type="button" id="rename_btn" class="btn btn-primary" value="转移">
           </div>
@@ -448,6 +448,22 @@
             $("#rename_retmsg").show()
             $("#rename_retmsg").text(regmsg)
           }
+        });
+      }
+
+      //删除路径
+      function del_rename_path(){
+        path = $("#rename_path").val();
+        if(path == ""){
+          $("#rename_path").addClass("is-invalid");
+          return;
+        }else{
+          $("#rename_path").removeClass("is-invalid");
+        }
+        var cmd = "del_rename_path";
+        var data = { "path": path };
+        ajax_post(cmd, data, function(ret){
+            refresh_rename_paths();
         });
       }
 

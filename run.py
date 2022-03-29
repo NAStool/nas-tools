@@ -1,6 +1,5 @@
 import os
 import threading
-import log
 from config import Config
 from monitor.run import run_monitor
 from scheduler.run import run_scheduler
@@ -14,11 +13,10 @@ if __name__ == "__main__":
     print("配置文件地址：%s" % os.environ.get('NASTOOL_CONFIG'))
     print('NASTool 当前版本号：%s' % APP_VERSION)
     # 检查配置文件
-    cfg = Config()
-    if not check_config(cfg):
+    if not check_config(Config()):
         quit()
     # 启动进程
-    log.info("开始启动进程...")
+    print("开始启动进程...")
 
     # 启动定时服务
     scheduler = threading.Thread(target=run_scheduler)

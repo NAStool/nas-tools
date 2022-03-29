@@ -474,7 +474,7 @@ class MetaInfo(object):
             return None
         if self.type == MediaType.TV:
             # 类型 动漫、纪录片、儿童、综艺
-            media_genre_ids = info.get('genre_ids')
+            media_genre_ids = info.get('genre_ids', [])
             if 16 in media_genre_ids:
                 # 动漫
                 catagory = MediaCatagory.DM
@@ -489,7 +489,7 @@ class MetaInfo(object):
                 catagory = MediaCatagory.ZY
             else:
                 # 国家
-                media_country = info.get('origin_country')
+                media_country = info.get('origin_country', [])
                 if 'CN' in media_country or 'TW' in media_country or 'HK' in media_country:
                     catagory = MediaCatagory.GCJ
                 elif set(RMT_COUNTRY_EA).intersection(set(media_country)):
@@ -499,7 +499,7 @@ class MetaInfo(object):
                 else:
                     catagory = MediaCatagory.QTJ
         else:
-            media_language = info.original_language
+            media_language = info.get('original_language', [])
             if 'zh' in media_language or \
                     'bo' in media_language or \
                     'za' in media_language or \

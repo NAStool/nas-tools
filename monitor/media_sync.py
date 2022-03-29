@@ -43,15 +43,23 @@ class Sync(object):
         if not event.is_directory:
             # 文件发生变化
             try:
+                # 不是监控目录下的文件不处理
+                is_monitor_file = False
+                for tpath in SYNC_DIR_CONFIG.keys():
+                    if tpath and os.path.normpath(tpath) in os.path.normpath(event_path):
+                        is_monitor_file = True
+                        break
+                if not is_monitor_file:
+                    return
                 # 目的目录的子文件不处理
                 for tpath in SYNC_DIR_CONFIG.values():
                     if tpath and os.path.normpath(tpath) in os.path.normpath(event_path):
                         return
+                # 媒体库目录及子目录不处理
+                if self.filetransfer.is_target_dir_path(event_path):
+                    return
                 # 回收站及隐藏的文件不处理
                 if is_invalid_path(event_path):
-                    return
-                # unknown目录下的文件不处理
-                if self.__unknown_path and os.path.normpath(self.__unknown_path) in os.path.normpath(event_path):
                     return
                 # 文件名
                 name = os.path.basename(event_path)
@@ -118,16 +126,24 @@ class Sync(object):
                 log.error("【SYNC】发生错误：%s" % str(e))
         else:
             # 文件变化时上级文件夹也会变化
-            # 目的目录的子文件不处理
-            for tpath in SYNC_DIR_CONFIG.values():
+            # 不是监控目录下的目录不处理
+            is_monitor_file = False
+            for tpath in SYNC_DIR_CONFIG.keys():
                 if tpath and os.path.normpath(tpath) in os.path.normpath(event_path):
-                    return
+                    is_monitor_file = True
+                    break
+            if not is_monitor_file:
+                return
             # 源目录本身或上级目录不处理
             for tpath in SYNC_DIR_CONFIG.keys():
                 if tpath and os.path.normpath(event_path) in os.path.normpath(tpath):
                     return
-            # unknown目录及子目录不处理
-            if self.__unknown_path and os.path.normpath(self.__unknown_path) in os.path.normpath(event_path):
+            # 目的目录的子文件不处理
+            for tpath in SYNC_DIR_CONFIG.values():
+                if tpath and os.path.normpath(tpath) in os.path.normpath(event_path):
+                    return
+            # 媒体库目录及子目录不处理
+            if self.filetransfer.is_target_dir_path(event_path):
                 return
             # 回收站及隐藏的文件不处理
             if is_invalid_path(event_path):

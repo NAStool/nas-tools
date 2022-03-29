@@ -243,6 +243,15 @@ def update_transfer_unknown_state(path):
     return update_by_sql(sql)
 
 
+# 删除未识别记录
+def delete_transfer_unknown(path):
+    if not path:
+        return False
+    path = os.path.normpath(path)
+    sql = f"DELETE FROM TRANSFER_UNKNOWN WHERE PATH='{path}'"
+    return update_by_sql(sql)
+
+
 # 查询未识别记录是否存在
 def is_transfer_unknown_exists(path):
     if not path:

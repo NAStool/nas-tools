@@ -23,7 +23,7 @@ from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, Config
 from utils.functions import get_used_of_partition, str_filesize, str_timelong
 from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
-    update_transfer_unknown_state
+    update_transfer_unknown_state, delete_transfer_unknown
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
 from version import APP_VERSION
 from web.backend.emby import Emby, EmbyEvent
@@ -716,6 +716,13 @@ def create_flask_app(admin_user, admin_password, ssl_cert):
             if cmd == "rename_path":
                 paths = get_transfer_unknown_paths()
                 return {"paths": paths}
+
+            # 删除路径
+            if cmd == "del_rename_path":
+                paths = data.get("path")
+                path = paths.split("|")[0]
+                retcode = delete_transfer_unknown(path)
+                return {"retcode": retcode}
 
             # 手工转移
             if cmd == "rename":

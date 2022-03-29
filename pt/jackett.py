@@ -8,7 +8,6 @@ from utils.functions import parse_jackettxml, get_keyword_from_string, get_tmdb_
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
-from utils.meta_helper import MetaHelper
 from utils.sqls import delete_all_jackett_torrents, insert_jackett_results
 from utils.types import SearchType, MediaType
 from web.backend.emby import Emby
