@@ -20,7 +20,7 @@ class Sync(object):
     __observer = []
     __sync_path = None
     __unknown_path = None
-    __sync_sys = "Linux"
+    __sync_sys = "LINUX"
     __config = None
     __synced_files = []
     __need_sync_paths = {}
@@ -30,7 +30,7 @@ class Sync(object):
         self.__config = Config()
         app = self.__config.get_config('app')
         if app:
-            self.__sync_sys = app.get('nas_sys', "Linux")
+            self.__sync_sys = app.get('nas_sys', "linux").upper()
         sync = self.__config.get_config('sync')
         if sync:
             self.__sync_path = sync.get('sync_path')
@@ -221,7 +221,7 @@ class Sync(object):
                     log.info("【SYNC】读取监控目录：%s" % monpath)
 
                 if os.path.exists(monpath):
-                    if self.__sync_sys == "Linux":
+                    if self.__sync_sys == "LINUX":
                         # linux
                         observer = Observer()
                     else:

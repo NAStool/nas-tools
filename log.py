@@ -17,7 +17,7 @@ class Logger:
         self.__config = Config()
         app = self.__config.get_config('app')
         if app:
-            logtype = app.get('logtype', 'CONSOLE')
+            logtype = app.get('logtype', 'console').upper()
         else:
             logtype = 'CONSOLE'
         if logtype == "FILE":

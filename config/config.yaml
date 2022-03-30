@@ -1,8 +1,8 @@
 # 全功能模式配置文件，适用于想做做PT下载、识别转移、保种、搭建媒体库全自动解决方案的用户，有很多附属的功能，有WEBUI控制界面
 # 配置注意要符合yaml语法，:号后有1个空格，不能使用全角标点符号
 app:
-  # 日志记录类型：SERVER、FILE、CONSOLE，如果是使用Docker安装建议留空或者设置为CONSOLE；如果是使用群晖套件建议配置为 SERVER，可将日志输出到群晖的日志中心便于查看；如果是python本地运行建议设置为FILE，保存日志到文件。
-  logtype: CONSOLE
+  # 日志记录类型：server、file、console，如果是使用Docker安装建议留空或者设置为console；如果是使用群晖套件建议配置为 server，可将日志输出到群晖的日志中心便于查看；如果是python本地运行建议设置为file，保存日志到文件。
+  logtype: console
   # 日志文件的路径，logtype为FILE时生效
   logpath: '/config/logs'
   # 群晖日志中心IP和端口，logtype为SERVER时生效。端口一般是514，只需要改动IP为群晖的IP。
@@ -16,13 +16,13 @@ app:
   # WEB管理界面使用的HTTPS的证书和KEY的路径，留空则不启用HTTPS
   ssl_cert:
   ssl_key:
-  # 存储媒体库设备的操作系统类型：Windows、Linux，用于监控目录变化。Windows类型性能比较差，会导致NAS不能休眠，除非NAS是Windows的否则都建议配置为Linux
-  nas_sys: Linux
+  # 存储媒体库设备的操作系统类型：windows、linux，用于监控目录变化。windows类型性能比较差，会导致NAS不能休眠，除非NAS是windows的否则都建议配置为linux
+  nas_sys: linux
   # TMDB API KEY，需要在https://www.themoviedb.org/申请，必须配置这个，否则无法识别媒体资源和重命名
   rmt_tmdbkey:
-  # TMDB匹配模式：NORMAL、STRICT，NORMAL模式下如使用文件名/种子名中的年份无法匹配到媒体信息会，会去掉年份再匹配一次，STRICT模式则严格按文件中年份匹配
-  # NORMAL模式下会提升识别成功率，但也可能会导致误识别率增加；STRICT模式可以降低误识别率，但可能导致很多文件名/种子名中年份不正确的无法被识别（特别是剧集，需要是首播年份）
-  rmt_match_mode: NORMAL
+  # TMDB匹配模式：normal、strict，normal模式下如使用文件名/种子名中的年份无法匹配到媒体信息，会去掉年份再匹配一次；strict模式则严格按文件中年份匹配
+  # normal模式下会提升识别成功率，但也可能会导致误识别率增加；strict模式可以降低误识别率，但可能导致很多文件名/种子名中年份不正确的无法被识别（特别是剧集，需要是首播年份）
+  rmt_match_mode: normal
 
 # 配置豆瓣账号信息，自动同步豆瓣收藏，后台自动下载
 douban:
@@ -79,9 +79,9 @@ sync:
     - '/mnt/movie1|/mnt/mymovie'
     - '/mnt/movie2|/mnt/mymovie'
     - '/mnt/resiliosync/大片抢先看'
-  # 监控目录文件的转移方式：LINK、COPY、SOFTLINK，LINK即硬链接并重命名、SOFTLINK为软链接并重命名，COPY是复制一份并重命名。LINK下载目录和媒体库目录在一个磁盘分区或者存储空间。
-  # Docker运行时LINK模式如果确认是同一个盘仍然报错跨盘问题，请尝试直接映射上级目录
-  sync_mod: LINK
+  # 监控目录文件的转移方式：link、copy、softlink，link即硬链接、softlink为软链接，cop，均会重命名。link下载目录和媒体库目录在一个磁盘分区或者存储空间。
+  # Docker运行时link模式如果确认是同一个盘仍然报错跨盘问题，请尝试直接映射上级目录
+  sync_mod: link
 
 # 配置消息通知服务
 message:
@@ -121,9 +121,10 @@ message:
 
 # 配置PT RSS下载的信息
 pt:
-  # PT下载完成后转移到媒体库的转移模式：COPY复制模式、LINK硬链接模式、SOFTLINK软链接模式。复制模式下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠；硬链接模式不用额外增加存储空间，一份文件两份目录，但需要下载目录和媒体库目录在一个磁盘分区或者存储空间。两者在媒体库使用上是一致的。
-  # Docker运行时LINK模式如果确认是同一个盘仍然报错跨盘问题，请尝试直接映射上级目录
-  rmt_mode: LINK
+  # PT下载完成后转移到媒体库的转移模式：copy复制模式、link硬链接模式、softlink软链接模式。
+  # 复制模式下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠；硬链接模式不用额外增加存储空间，一份文件两份目录，但需要下载目录和媒体库目录在一个磁盘分区或者存储空间。两者在媒体库使用上是一致的。
+  # Docker运行时，link模式如果确认是同一个盘仍然报错跨盘问题，请尝试直接映射上级目录
+  rmt_mode: link
   # PT下载使用的客户端软件，qbittorrent、transmission，需要配置qbittorrent或transmission对应的配置区域
   pt_client: qbittorrent
   # 是否监控PT下载：true、false，如为true则PT下载完成会自动转移和重命名，如为false则不会处理

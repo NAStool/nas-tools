@@ -75,8 +75,8 @@ class MetaInfo(object):
                         r"|BLU-?RAY|REMUX|HDTV|WEBRIP|DVDRIP|UHD|WEB|SDR|HDR|DOLBY|TRUEHD|DTS-[ADEH]+" \
                         r"|[HX]264|[HX]265|AVC|AAC|DTS\d.\d|HEVC|\d{3,4}[PI]" \
                         r"|TV Series|Movie|Animations|XXX" \
-                        r"|大陆|连载|西德|日剧|美剧|电视剧|电影|动画片|动漫|法国|英国|美国|德国|印度|泰国|台湾|香港|中国|韩国|日本|欧美|日韩|超高清|高清|蓝光" \
-                        r"|最终季|合集|[英中文法语简繁体]+字幕"
+                        r"|大陆|连载|西德|日剧|美剧|电视剧|电影|动画片|动漫|法国|英国|美国|德国|印度|泰国|台湾|香港|中国|韩国|日本|欧美|日韩|超高清|高清|蓝光|翡翠台" \
+                        r"|最终季|合集|[中国英葡法俄日韩德意西印泰台港粤双文语简繁体特效内封官译外挂]+字幕"
     _name_onlychinese_re = r"[a-zA-Z【】\-_.\[\]()\s]+"
     _resources_pix_re = r"[SBUHD]*(\d{3,4}[PI]+)"
     _subtitle_season_re = r"第\s*([0-9一二三四五六七八九十\-\s]+)\s*季"

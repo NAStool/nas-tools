@@ -42,7 +42,7 @@ class FileTransfer:
             self.__tv_subtypedir = media.get('tv_subtypedir', True)
         sync = self.__config.get_config('sync')
         if sync:
-            rmt_mode = sync.get('sync_mod', 'COPY').upper()
+            rmt_mode = sync.get('sync_mod', 'copy').upper()
             if rmt_mode == "LINK":
                 self.__sync_rmt_mode = RmtMode.LINK
             elif rmt_mode == "SOFTLINK":
@@ -52,7 +52,7 @@ class FileTransfer:
             self.__sync_path = sync.get('sync_path')
         pt = self.__config.get_config('pt')
         if pt:
-            rmt_mode = pt.get('rmt_mode', 'COPY').upper()
+            rmt_mode = pt.get('rmt_mode', 'copy').upper()
             if rmt_mode == "LINK":
                 self.__pt_rmt_mode = RmtMode.LINK
             elif rmt_mode == "SOFTLINK":
@@ -318,9 +318,10 @@ class FileTransfer:
                 # 原样转移过去
                 log.warn("【RMT】%s 按原文件名转移到unknown目录..." % file_name)
                 if target_dir:
-                    if target_dir.find("/.unknown") == -1:
-                        target_dir = os.path.join(target_dir, '.unknown')
-                    self.transfer_origin_file(file_item, target_dir, rmt_mode)
+                    unknown_dir = target_dir
+                    if unknown_dir.find("/.unknown") == -1:
+                        unknown_dir = os.path.join(unknown_dir, '.unknown')
+                    self.transfer_origin_file(file_item, unknown_dir, rmt_mode)
                 elif self.__unknown_path:
                     self.transfer_origin_file(file_item, self.__unknown_path, rmt_mode)
                 else:
