@@ -9,7 +9,7 @@ from config import Config
 from rmt.metainfo import MetaInfo
 from utils.functions import xstr
 from utils.meta_helper import MetaHelper
-from utils.types import MediaType
+from utils.types import MediaType, MatchMode
 
 lock = Lock()
 
@@ -22,6 +22,7 @@ class Media:
     tv = None
     meta = None
     __config = None
+    __rmt_match_mode = None
 
     def __init__(self):
         self.__config = Config()
@@ -36,6 +37,11 @@ class Media:
                 self.movie = Movie()
                 self.tv = TV()
                 self.meta = MetaHelper()
+            rmt_match_mode = app.get('rmt_match_mode')
+            if rmt_match_mode and rmt_match_mode.upper() == "STRICT":
+                self.__rmt_match_mode = MatchMode.STRICT
+            else:
+                self.__rmt_match_mode = MatchMode.NORMAL
 
     # 检索tmdb中的媒体信息，传入名字、年份、类型
     # 返回媒体信息对象
@@ -153,12 +159,13 @@ class Media:
                     if not file_media_info:
                         # 电影查不到再按电视剧查
                         file_media_info = self.__search_tmdb(media_name, media_year, MediaType.TV)
-                        if media_year and not file_media_info:
-                            # 还查不到，有年份，去掉年份再查一遍， 先查电视剧（一般电视剧年份出错的概率高）
-                            file_media_info = self.__search_tmdb(media_name, None, MediaType.TV)
-                            if not file_media_info:
-                                # 不带年份查电影
-                                file_media_info = self.__search_tmdb(media_name, None, MediaType.MOVIE)
+                        if self.__rmt_match_mode == MatchMode.NORMAL:
+                            if media_year and not file_media_info:
+                                # 还查不到，有年份，去掉年份再查一遍， 先查电视剧（一般电视剧年份出错的概率高）
+                                file_media_info = self.__search_tmdb(media_name, None, MediaType.TV)
+                                if not file_media_info:
+                                    # 不带年份查电影
+                                    file_media_info = self.__search_tmdb(media_name, None, MediaType.MOVIE)
                 # 加入缓存
                 if file_media_info:
                     self.meta.update_meta_data({media_key: file_media_info})
@@ -213,8 +220,9 @@ class Media:
                         # 调用TMDB API
                         file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, meta_info.type)
                         if not file_media_info:
-                            # 去掉年份再查一次，有可能是年份错误
-                            file_media_info = self.__search_tmdb(meta_info.get_name(), None, meta_info.type)
+                            if self.__rmt_match_mode == MatchMode.NORMAL:
+                                # 去掉年份再查一次，有可能是年份错误
+                                file_media_info = self.__search_tmdb(meta_info.get_name(), None, meta_info.type)
                         if file_media_info:
                             self.meta.update_meta_data({media_key: file_media_info})
                         else:

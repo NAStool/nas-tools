@@ -1,5 +1,5 @@
 package="nastool"
-version="0.2.17"
+version="0.2.18"
 description="NAS媒体自动搜刮和整理工具：https://github.com/jxxghp/nas-tools"
 description_ger="NAS媒体自动搜刮和整理工具"
 arch="bromolow broadwell braswell apollolake"

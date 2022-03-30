@@ -68,12 +68,15 @@ class MetaInfo(object):
     _season_re = r"S(\d{2})"
     _episode_re = r"\d*EP?(\d{2})"
     _resources_type_re = r"BLURAY|REMUX|HDTV|WEBRIP|DVDRIP|UHD|SDR|HDR|DOLBY|BLU|WEB"
-    _name_nostring_re = r"^JADE[\s.]+|^AOD[\s.]+|^[A-Z]{2,4}TV[\-0-9UVHD]*[\s.]+|^HBO[\s.]+" \
+    _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|^HBO|\d{1,2}th" \
                         r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|EP?\d{2}\s*-\s*EP?\d{2}|EP?\d{2}" \
                         r"|第\s*[0-9一二三四五六七八九十]+\s*季" \
                         r"|第\s*[0-9一二三四五六七八九十]+\s*集" \
                         r"|BLU-?RAY|REMUX|HDTV|WEBRIP|DVDRIP|UHD|WEB|SDR|HDR|DOLBY|TRUEHD|DTS-[ADEH]+" \
-                        r"|[HX]264|[HX]265|AVC|AAC|DTS\d.\d|HEVC"
+                        r"|[HX]264|[HX]265|AVC|AAC|DTS\d.\d|HEVC|\d{3,4}[PI]" \
+                        r"|TV Series|Movie|Animations|XXX" \
+                        r"|大陆|连载|西德|日剧|美剧|电视剧|电影|动画片|动漫|法国|英国|美国|德国|印度|泰国|台湾|香港|中国|韩国|日本|欧美|日韩|超高清|高清|蓝光" \
+                        r"|最终季|合集|[英中文法语简繁体]+字幕"
     _name_onlychinese_re = r"[a-zA-Z【】\-_.\[\]()\s]+"
     _resources_pix_re = r"[SBUHD]*(\d{3,4}[PI]+)"
     _subtitle_season_re = r"第\s*([0-9一二三四五六七八九十\-\s]+)\s*季"
@@ -472,7 +475,7 @@ class MetaInfo(object):
             else:
                 image_url = FANART_MOVIE_API_URL % tmdbid
             try:
-                ret = requests.get(image_url)
+                ret = requests.get(image_url, timeout=10)
                 if ret:
                     moviethumbs = ret.json().get('moviethumb')
                     if moviethumbs:
@@ -532,15 +535,3 @@ class MetaInfo(object):
                 catagory = MediaCatagory.WYDY
 
         return catagory
-
-
-if __name__ == "__main__":
-    text = "老友记EP01.sense8.S01-S02.sense8.E10.2015"
-    meta_info = MetaInfo(text)
-    print(meta_info.__dict__)
-    text = "sense8.S01E10.2015"
-    meta_info = MetaInfo(text)
-    print(meta_info.__dict__)
-    text = "老友记 S01 -S02.sense8.E10.2015"
-    meta_info = MetaInfo(text)
-    print(meta_info.__dict__)

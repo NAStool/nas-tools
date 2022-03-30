@@ -42,3 +42,8 @@ class RmtMode(Enum):
     LINK = "硬链接"
     SOFTLINK = "软链接"
     COPY = "复制"
+
+
+class MatchMode(Enum):
+    NORMAL = "正常模式"
+    STRICT = "严格模式"

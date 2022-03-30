@@ -36,7 +36,7 @@ class Telegram:
                 values = {"chat_id": self.__telegram_chat_id, "text": caption}
                 sc_url = "https://api.telegram.org/bot%s/sendMessage?" % self.__telegram_token
 
-            res = requests.get(sc_url + urlencode(values))
+            res = requests.get(sc_url + urlencode(values), timeout=10)
             if res:
                 ret_json = res.json()
                 errno = ret_json['ok']

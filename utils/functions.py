@@ -21,7 +21,7 @@ def get_location(ip):
           '&oe=gbk&cb=op_aladdin_callback&format=json&tn=baidu&' \
           'cb=jQuery110203920624944751099_1529894588086&_=1529894588088&query=%s' % ip
     try:
-        r = requests.get(url)
+        r = requests.get(url, timeout=10)
         r.encoding = 'gbk'
         html = r.text
         c1 = html.split('location":"')[1]
@@ -189,7 +189,7 @@ def parse_rssxml(url):
     if not url:
         return []
     try:
-        ret = requests.get(url)
+        ret = requests.get(url, timeout=30)
     except Exception as e2:
         print(str(e2))
         return []
@@ -235,7 +235,7 @@ def parse_jackettxml(url):
     if not url:
         return ret_array
     try:
-        ret = requests.get(url)
+        ret = requests.get(url, timeout=30)
     except Exception as e2:
         print(str(e2))
         return []

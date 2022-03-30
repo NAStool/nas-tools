@@ -41,7 +41,7 @@ class Emby:
             return []
         req_url = "%semby/Library/SelectableMediaFolders?api_key=%s" % (self.__host, self.__apikey)
         try:
-            res = requests.get(req_url)
+            res = requests.get(req_url, timeout=10)
             if res:
                 return res.json()
             else:
@@ -57,7 +57,7 @@ class Emby:
             return 0
         req_url = "%semby/Users/Query?api_key=%s" % (self.__host, self.__apikey)
         try:
-            res = requests.get(req_url)
+            res = requests.get(req_url, timeout=10)
             if res:
                 return res.json().get("TotalRecordCount")
             else:
@@ -74,7 +74,7 @@ class Emby:
         req_url = "%semby/System/ActivityLog/Entries?api_key=%s&Limit=%s" % (self.__host, self.__apikey, num)
         ret_array = []
         try:
-            res = requests.get(req_url)
+            res = requests.get(req_url, timeout=10)
             if res:
                 ret_json = res.json()
                 items = ret_json.get('Items')
@@ -105,7 +105,7 @@ class Emby:
             return {}
         req_url = "%semby/Items/Counts?api_key=%s" % (self.__host, self.__apikey)
         try:
-            res = requests.get(req_url)
+            res = requests.get(req_url, timeout=10)
             if res:
                 return res.json()
             else:
@@ -122,7 +122,7 @@ class Emby:
         req_url = "%semby/Items?IncludeItemTypes=Series&Fields=ProductionYear&StartIndex=0&Recursive=true&SearchTerm=%s&Limit=10&IncludeSearchTypes=false&api_key=%s" % (
             self.__host, name, self.__apikey)
         try:
-            res = requests.get(req_url)
+            res = requests.get(req_url, timeout=10)
             if res:
                 res_items = res.json().get("Items")
                 if res_items:
@@ -141,7 +141,7 @@ class Emby:
         req_url = "%semby/Items?IncludeItemTypes=Movie&Fields=ProductionYear&StartIndex=0&Recursive=true&SearchTerm=%s&Limit=10&IncludeSearchTypes=false&api_key=%s" % (
             self.__host, title, self.__apikey)
         try:
-            res = requests.get(req_url)
+            res = requests.get(req_url, timeout=10)
             if res:
                 res_items = res.json().get("Items")
                 if res_items:
@@ -171,7 +171,7 @@ class Emby:
         req_url = "%semby/Shows/%s/Episodes?Season=%s&api_key=%s" % (
             self.__host, item_id, season, self.__apikey)
         try:
-            res_json = requests.get(req_url)
+            res_json = requests.get(req_url, timeout=10)
             if res_json:
                 res_items = res_json.json().get("Items")
                 exists_episodes = []
@@ -220,7 +220,7 @@ class Emby:
             return None
         req_url = "%semby/Items/%s/RemoteImages?api_key=%s" % (self.__host, item_id, self.__apikey)
         try:
-            res = requests.get(req_url)
+            res = requests.get(req_url, timeout=10)
             if res:
                 images = res.json().get("Images")
                 for image in images:

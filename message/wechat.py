@@ -55,7 +55,7 @@ class WeChat(object):
             try:
                 token_url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s" \
                             % (self.__corpid, self.__corpsecret)
-                res = requests.get(token_url)
+                res = requests.get(token_url, timeout=10)
                 if res:
                     ret_json = res.json()
                     if ret_json['errcode'] == 0:

@@ -52,6 +52,11 @@ def check_config(cfg):
         rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
         if not rmt_tmdbkey:
             log.error("rmt_tmdbkey未配置")
+        rmt_match_mode = config['app'].get('rmt_match_mode')
+        if rmt_match_mode == "STRICT":
+            log.info("TMDB匹配模式：严格模式")
+        else:
+            log.info("TMDB匹配模式：正常模式")
     else:
         print("app配置不存在")
 

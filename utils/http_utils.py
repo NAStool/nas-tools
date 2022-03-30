@@ -69,7 +69,7 @@ class RequestUtils:
         while i < 3:
             try:
                 self.check_request()
-                r = requests.get(url, verify=False, headers=headers, params=params)
+                r = requests.get(url, verify=False, headers=headers, params=params, timeout=10)
                 return str(r.content, 'UTF-8')
             except requests.exceptions.RequestException:
                 i += 1
@@ -79,7 +79,7 @@ class RequestUtils:
         while i < 3:
             try:
                 self.check_request()
-                return requests.get(url, params=params, verify=False, headers=headers, cookies=cookies)
+                return requests.get(url, params=params, verify=False, headers=headers, cookies=cookies, timeout=10)
             except requests.exceptions.RequestException as e:
                 print(e)
                 i += 1
