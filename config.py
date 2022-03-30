@@ -77,3 +77,6 @@ class Config(object):
         self.__config = new_cfg
         with open(self.__config_path, mode='w', encoding='utf-8') as f:
             return yaml.dump(new_cfg, f, allow_unicode=True)
+
+    def get_config_path(self):
+        return self.__config_path

@@ -502,6 +502,17 @@ def create_flask_app(admin_user, admin_password, ssl_cert):
         scheduler_cfg_list.append(
             {'name': '识别转移', 'time': '手动', 'state': 'OFF', 'id': 'rename', 'svg': svg, 'color': 'yellow'})
 
+        # 配置修改
+        svg = '''
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+           <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path>
+           <circle cx="12" cy="12" r="3"></circle>
+        </svg>
+        '''
+        scheduler_cfg_list.append(
+            {'name': '配置文件', 'time': '手动', 'state': 'OFF', 'id': 'config', 'svg': svg, 'color': 'purple'})
+
         return render_template("service.html",
                                Count=len(scheduler_cfg_list),
                                SchedulerTasks=scheduler_cfg_list,
@@ -751,6 +762,23 @@ def create_flask_app(admin_user, admin_password, ssl_cert):
                     return {"retcode": 0, "retmsg": "转移成功"}
                 else:
                     return {"retcode": 2, "retmsg": ret_msg}
+
+            # 读取配置文件
+            if cmd == "load_config":
+                cfg = open(Config().get_config_path(), mode="r", encoding="utf8")
+                config_str = cfg.read()
+                cfg.close()
+                return {"config_str": config_str}
+
+            # 保存配置文件
+            if cmd == "save_config":
+                editer_str = data["editer_str"]
+                if editer_str:
+                    cfg = open(Config().get_config_path(), mode="w", encoding="utf8")
+                    cfg.write(editer_str)
+                    cfg.flush()
+                    cfg.close()
+                return {"retcode": 0}
 
     # 响应企业微信消息
     @app.route('/wechat', methods=['GET', 'POST'])

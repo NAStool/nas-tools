@@ -11,6 +11,12 @@
     <link rel="apple-touch-icon" href="../static/img/logo.png">
     <!-- CSS files -->
     <link href="../static/css/tabler.min.css" rel="stylesheet"/>
+    <style type="text/css" media="screen">
+		#editor {
+			width:100%;
+			height:500px;
+		}
+	</style>
   </head>
   <body  class=" layout-boxed">
     <div class="page">
@@ -351,6 +357,22 @@
         </div>
       </div>
     </div>
+    <div class="modal modal-blur fade" id="modal-config" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">配置文件</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="editor">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn me-auto" data-bs-dismiss="modal">关闭</button>
+            <button type="button" id="save_config_btn" class="btn btn-primary">保存</button>
+          </div>
+        </div>
+      </div>
+    </div>
     </div>
     <!-- Libs JS -->
     <!-- Tabler Core -->
@@ -358,7 +380,24 @@
     <script src="../static/js/jquery-3.3.1.min.js"></script>
     <script src="../static/js/util.js"></script>
     <script src="../static/js/demo.min.js"></script>
+    <script src="../static/js/ace.js"></script>
     <script type="text/javascript">
+      // 初始化编辑器
+      ace.require("ace/ext/language_tools");
+      ace.require("ace/ext/static_highlight");
+      ace.require("ace/ext/beautify");
+      var editor = ace.edit("editor");
+      editor.setTheme("ace/theme/xcode");
+      editor.setFontSize(14);
+      editor.session.setMode("ace/mode/yaml");
+      editor.session.setUseWrapMode(true);
+      editor.setHighlightActiveLine(true);
+      editor.setOptions({
+              enableBasicAutocompletion: true,
+              enableSnippets: true,
+              enableLiveAutocompletion: true
+          });
+
       //拉取列表
       function refresh_rename_paths(){
         ajax_post("rename_path", {}, function(ret){
@@ -370,11 +409,33 @@
           }
         });
       }
+      //读取配置
+      function load_config(){
+        ajax_post("load_config", {}, function(ret){
+          config_str = ret.config_str;
+          editor.getSession().setValue(config_str)
+        });
+      }
+      //保存配置
+      function save_config(){
+        var data = {
+            "editer_str": editor.getSession().getValue()
+        };
+        $("#save_config_btn").text("保存中...");
+        $("#save_config_btn").attr("disabled", true);
+        ajax_post("save_config", data, function(ret){
+          $("#save_config_btn").attr("disabled", false);
+          $("#save_config_btn").text("保存");
+        });
+      }
       // 显示服务提示框
       function show_service_modal(id, name) {
         if(id == "rename"){
           refresh_rename_paths();
           $('#modal-rename').modal('show');
+        }else if(id == "config"){
+          load_config();
+          $('#modal-config').modal('show');
         }else{
           $("#service_start_id").val(id);
           $("#service_start_name").val(name);
@@ -469,15 +530,19 @@
 
       //绑定事件
       $(document).ready(function(){
-          //服务模态框事件
-          $("#service_start_btn").click(function(){
-              $('#service-modal').modal('hide');
-              run_scheduler($("#service_start_id").val());
-          });
-          //转移按钮
-          $("#rename_btn").click(function(){
-              manual_rename();
-          });
+        //服务模态框事件
+        $("#service_start_btn").click(function(){
+            $('#service-modal').modal('hide');
+            run_scheduler($("#service_start_id").val());
+        });
+        //转移按钮
+        $("#rename_btn").click(function(){
+            manual_rename();
+        });
+        //保存配置按钮
+        $("#save_config_btn").click(function(){
+            save_config();
+        });
       });
     </script>
   </body>
