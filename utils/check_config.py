@@ -7,7 +7,11 @@ def check_config(cfg):
     # 剑查日志输出
     config = cfg.get_config()
     if config.get('app'):
-        logtype = config['app'].get('logtype', 'console').upper()
+        logtype = config['app'].get('logtype', 'console')
+        if logtype:
+            logtype = logtype.upper()
+        else:
+            logtype = "CONSOLE"
         print("日志输出类型为：%s" % logtype)
         if logtype == "SERVER":
             logserver = config['app'].get('logserver')
@@ -98,7 +102,11 @@ def check_config(cfg):
         else:
             log.warn("未配置sync_path，目录监控资源同步功能将禁用")
 
-        sync_mod = config['sync'].get('sync_mod', 'COPY').upper()
+        sync_mod = config['sync'].get('sync_mod', 'COPY')
+        if sync_mod:
+            sync_mod = sync_mod.upper()
+        else:
+            sync_mod = "COPY"
         if sync_mod == "LINK":
             log.info("目录监控转移模式为：硬链接")
         elif sync_mod == "SOFTLINK":
@@ -149,7 +157,11 @@ def check_config(cfg):
 
     # 检查PT配置
     if config.get('pt'):
-        rmt_mode = config['pt'].get('rmt_mode', 'copy').upper()
+        rmt_mode = config['pt'].get('rmt_mode', 'copy')
+        if rmt_mode:
+            rmt_mode = rmt_mode.upper()
+        else:
+            rmt_mode = "COPY"
         if rmt_mode == "LINK":
             log.info("PT下载文件转移模式为：硬链接")
         elif rmt_mode == "SOFTLINK":

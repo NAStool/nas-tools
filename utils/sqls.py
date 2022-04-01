@@ -221,11 +221,17 @@ def get_transfer_history(search, page, rownum):
 
     if search:
         count_sql = f"SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_NAME LIKE '%{search}%' OR TITLE LIKE '%{search}%'"
-        sql = f"SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE FROM TRANSFER_HISTORY WHERE FILE_NAME LIKE '%{search}%' OR TITLE LIKE '%{search}%' ORDER BY DATE DESC LIMIT {rownum} OFFSET {begin_pos}"
+        sql = f"SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE, ID FROM TRANSFER_HISTORY WHERE FILE_NAME LIKE '%{search}%' OR TITLE LIKE '%{search}%' ORDER BY DATE DESC LIMIT {rownum} OFFSET {begin_pos}"
     else:
         count_sql = f"SELECT COUNT(1) FROM TRANSFER_HISTORY"
-        sql = f"SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE FROM TRANSFER_HISTORY ORDER BY DATE DESC LIMIT {rownum} OFFSET {begin_pos}"
+        sql = f"SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE, ID FROM TRANSFER_HISTORY ORDER BY DATE DESC LIMIT {rownum} OFFSET {begin_pos}"
     return select_by_sql(count_sql), select_by_sql(sql)
+
+
+# 根据logid查询PATH
+def get_transfer_path_by_id(logid):
+    sql = f"SELECT FILE_PATH, FILE_NAME, DEST FROM TRANSFER_HISTORY WHERE ID={logid}"
+    return select_by_sql(sql)
 
 
 # 查询未识别的记录列表
@@ -279,5 +285,30 @@ def insert_transfer_unknown(path, dest):
     else:
         if not dest:
             dest = ""
-        sql = f"INSERT INTO TRANSFER_UNKNOWN(PATH, DEST, STATE)VALUES('{path}', '{dest}', 'N')"
+        sql = f"INSERT INTO TRANSFER_UNKNOWN(PATH, DEST, STATE) VALUES('{path}', '{dest}', 'N')"
+        return update_by_sql(sql)
+
+
+# 查询是否为黑名单
+def is_transfer_in_blacklist(path):
+    if not path:
+        return False
+    path = os.path.normpath(path)
+    sql = f"SELECT COUNT(1) FROM TRANSFER_BLACKLIST WHERE PATH='{path}'"
+    ret = select_by_sql(sql)
+    if ret and ret[0][0] > 0:
+        return True
+    else:
+        return False
+
+
+# 插入黑名单记录
+def insert_transfer_blacklist(path):
+    if not path:
+        return False
+    path = os.path.normpath(path)
+    if is_transfer_in_blacklist(path):
+        return False
+    else:
+        sql = f"INSERT INTO TRANSFER_BLACKLIST(PATH) VALUES('{path}')"
         return update_by_sql(sql)

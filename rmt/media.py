@@ -38,7 +38,11 @@ class Media:
                 self.movie = Movie()
                 self.tv = TV()
                 self.meta = MetaHelper()
-            rmt_match_mode = app.get('rmt_match_mode', 'normal').upper()
+            rmt_match_mode = app.get('rmt_match_mode', 'normal')
+            if rmt_match_mode:
+                rmt_match_mode = rmt_match_mode.upper()
+            else:
+                rmt_match_mode = "NORMAL"
             if rmt_match_mode == "STRICT":
                 self.__rmt_match_mode = MatchMode.STRICT
             else:

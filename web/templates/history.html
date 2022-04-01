@@ -183,16 +183,17 @@
                     <table class="table table-vcenter card-table">
                       <thead>
                         <tr>
+                          <th>时间</th>
                           <th>媒体信息</th>
                           <th>文件信息</th>
-                          <th>动作</th>
-                          <th>时间</th>
+                          <th>操作</th>
                         </tr>
                       </thead>
                       <tbody>
                       {% if TotalCount > 0 %}
                       {% for History in Historys %}
                       <tr>
+                        <td>{{ History[9] }}</td>
                         <td>
                           <div class="d-flex py-1 align-items-center">
                             <span class="avatar me-2" style="">{{ History[2] }}</span>
@@ -206,8 +207,18 @@
                           <div>{{ History[3] }}</div>
                           <div class="text-muted">来自：{{ History[0] }}</div>
                         </td>
-                        <td class="text-muted">{{ History[1] }}</td>
-                        <td>{{ History[9] }}</td>
+                        <td>
+                          <div class="dropdown">
+                            <button class="btn dropdown-toggle align-text-top" data-bs-toggle="dropdown">
+                              操作
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                              <a class="dropdown-item" href="javascript:rename_history('{{ History[2] }}', '{{ History[3] }}', '{{ History[10] }}')">
+                                重新识别
+                              </a>
+                            </div>
+                          </div>
+                        </td>
                       </tr>
                       {% endfor %}
                       {% else %}
@@ -261,6 +272,81 @@
           </div>
         </footer>
       </div>
+      <div class="modal modal-blur fade" id="modal-rename" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">重新识别</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">路径</label>
+              <input type="text" id="rename_path" class="form-control" readonly>
+              <input type="hidden" id="rename_logid" class="form-control">
+              <div class="invalid-feedback" id="rename_retmsg"></div>
+            </div>
+            <label class="form-label">类型</label>
+            <div class="form-selectgroup-boxes row mb-3">
+              <div class="col-lg-6">
+                <label class="form-selectgroup-item">
+                  <input type="radio" name="rename_type" value="MOV" class="form-selectgroup-input" checked>
+                  <span class="form-selectgroup-label d-flex align-items-center p-3">
+                    <span class="me-3">
+                      <span class="form-selectgroup-check"></span>
+                    </span>
+                    <span class="form-selectgroup-label-content">
+                      <span class="form-selectgroup-title strong mb-1">电影</span>
+                    </span>
+                  </span>
+                </label>
+              </div>
+              <div class="col-lg-6">
+                <label class="form-selectgroup-item">
+                  <input type="radio" name="rename_type" value="TV" class="form-selectgroup-input">
+                  <span class="form-selectgroup-label d-flex align-items-center p-3">
+                    <span class="me-3">
+                      <span class="form-selectgroup-check"></span>
+                    </span>
+                    <span class="form-selectgroup-label-content">
+                      <span class="form-selectgroup-title strong mb-1">电视剧</span>
+                    </span>
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">标题</label>
+                  <input type="text" id="rename_title" class="form-control">
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">年份</label>
+                  <input type="text" id="rename_year" class="form-control">
+                </div>
+              </div>
+              <div class="col-lg-12">
+                <div>
+                  <label class="form-label">TMDB ID</label>
+                  <input type="text" id="rename_tmdb" class="form-control">
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+              取消
+            </a>
+            <input type="button" id="rename_btn" class="btn btn-primary" value="转移">
+          </div>
+        </div>
+      </div>
+      </div>
     </div>
     <!-- Libs JS -->
     <!-- Tabler Core -->
@@ -279,6 +365,68 @@
         window.location.href = window.location.href.split("?")[0] + "?s=" + search + "&page=" + (page + 1)
       }
 
+      //重新识别
+      function rename_history(type, path, id){
+        if(type == "电视剧"){
+          $("input[name='rename_type'][value='TV']").attr("checked",true);
+        }else{
+          $("input[name='rename_type'][value='MOV']").attr("checked",true);
+        }
+        $("#rename_path").val(path);
+        $("#rename_logid").val(id);
+        $('#modal-rename').modal('show');
+      }
+
+      //手动转移
+      function manual_rename(){
+        type = $('input:radio[name=rename_type]:checked').val();
+        logid = $("#rename_logid").val();
+        tmdb = $("#rename_tmdb").val();
+        title = $("#rename_title").val();
+        year = $("#rename_year").val();
+
+        if(tmdb == ""){
+          if(title == ""){
+            $("#rename_title").addClass("is-invalid");
+            return;
+          }else{
+            $("#rename_title").removeClass("is-invalid");
+          }
+
+          if(year == "" || isNaN(year)){
+            $("#rename_year").addClass("is-invalid");
+            return;
+          }else{
+            $("#rename_year").removeClass("is-invalid");
+          }
+        }else{
+          if(isNaN(tmdb)){
+            $("#rename_tmdb").addClass("is-invalid");
+            return;
+          }else{
+            $("#rename_tmdb").removeClass("is-invalid");
+          }
+        }
+        // 开始处理
+        var data = { "logid": logid, "type": type, "title": title, "year": year, "tmdb": tmdb};
+        $("#rename_btn").attr("disabled", true);
+        $("#rename_btn").val("处理中...");
+        $("#rename_retmsg").hide()
+        ajax_post("rename", data, function(ret){
+          $("#rename_btn").attr("disabled", false);
+          $("#rename_btn").val("转移");
+          if(ret.retcode == 0){
+            //处理成功
+            setTimeout("window.location.reload()", 1000)
+          }else{
+            //处理失败
+            regmsg = ret.retmsg;
+            $("#rename_retmsg").show()
+            $("#rename_retmsg").text(regmsg)
+          }
+        });
+      }
+
       // 搜索按钮
       $('#search_word').bind('keypress',function(event){
          if(event.keyCode == "13")
@@ -286,6 +434,11 @@
             var keyword = $("#search_word").val();
             window.location.href = window.location.href.split("?")[0] + "?s=" + keyword
          }
+     });
+
+     //转移按钮
+     $("#rename_btn").click(function(){
+        manual_rename();
      });
     </script>
   </body>

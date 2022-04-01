@@ -47,7 +47,11 @@ class FileTransfer:
             self.__tv_subtypedir = media.get('tv_subtypedir', True)
         sync = config.get_config('sync')
         if sync:
-            rmt_mode = sync.get('sync_mod', 'copy').upper()
+            rmt_mode = sync.get('sync_mod', 'copy')
+            if rmt_mode:
+                rmt_mode = rmt_mode.upper()
+            else:
+                rmt_mode = "COPY"
             if rmt_mode == "LINK":
                 self.__sync_rmt_mode = RmtMode.LINK
             elif rmt_mode == "SOFTLINK":
@@ -57,7 +61,11 @@ class FileTransfer:
             self.__sync_path = sync.get('sync_path')
         pt = config.get_config('pt')
         if pt:
-            rmt_mode = pt.get('rmt_mode', 'copy').upper()
+            rmt_mode = pt.get('rmt_mode', 'copy')
+            if rmt_mode:
+                rmt_mode = rmt_mode.upper()
+            else:
+                rmt_mode = "COPY"
             if rmt_mode == "LINK":
                 self.__pt_rmt_mode = RmtMode.LINK
             elif rmt_mode == "SOFTLINK":

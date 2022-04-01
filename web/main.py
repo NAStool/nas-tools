@@ -1,5 +1,6 @@
 import _thread
 import logging
+import os.path
 from math import floor
 
 from flask import Flask, request, json, render_template, make_response, redirect, url_for
@@ -23,7 +24,7 @@ from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, Config
 from utils.functions import get_used_of_partition, str_filesize, str_timelong, INSTANCES
 from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
-    update_transfer_unknown_state, delete_transfer_unknown
+    update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
 from version import APP_VERSION
 from web.backend.emby import Emby, EmbyEvent
@@ -482,7 +483,7 @@ def create_flask_app(config):
                 scheduler_cfg_list.append(
                     {'name': '豆瓣收藏', 'time': interval, 'state': sta_douban, 'id': 'douban', 'svg': svg, 'color': color})
 
-        # 识别转移
+        # 未识别转移
         svg = '''
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hand-move" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -495,7 +496,7 @@ def create_flask_app(config):
         </svg>
         '''
         scheduler_cfg_list.append(
-            {'name': '识别转移', 'time': '手动', 'state': 'OFF', 'id': 'rename', 'svg': svg, 'color': 'yellow'})
+            {'name': '未识别转移', 'time': '手动', 'state': 'OFF', 'id': 'rename', 'svg': svg, 'color': 'yellow'})
 
         # 配置修改
         svg = '''
@@ -732,9 +733,18 @@ def create_flask_app(config):
 
             # 手工转移
             if cmd == "rename":
-                paths = data.get("path")
-                path = paths.split("|")[0]
-                dest_dir = paths.split("|")[1]
+                logid = data.get("logid")
+                if logid:
+                    paths = get_transfer_path_by_id(logid)
+                    if paths:
+                        path = os.path.join(paths[0][0], paths[0][1])
+                        dest_dir = paths[0][2]
+                    else:
+                        return {"retcode": -1, "retmsg": "未查询到转移日志记录"}
+                else:
+                    paths = data.get("path")
+                    path = paths.split("|")[0]
+                    dest_dir = paths.split("|")[1]
                 if not dest_dir or dest_dir == "null":
                     dest_dir = ""
                 tmdbid = data.get("tmdb")
@@ -753,7 +763,10 @@ def create_flask_app(config):
                     return {"retcode": 1, "retmsg": "转移失败，无法查询到TMDB信息"}
                 succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN, in_path=path, target_dir=dest_dir, media_info=media_info)
                 if succ_flag:
-                    update_transfer_unknown_state(path)
+                    if logid:
+                        insert_transfer_blacklist(path)
+                    else:
+                        update_transfer_unknown_state(path)
                     return {"retcode": 0, "retmsg": "转移成功"}
                 else:
                     return {"retcode": 2, "retmsg": ret_msg}

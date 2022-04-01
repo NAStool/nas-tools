@@ -9,6 +9,7 @@ from config import RMT_MEDIAEXT, SYNC_DIR_CONFIG, Config
 import log
 from rmt.filetransfer import FileTransfer
 from utils.functions import get_dir_files_by_ext, singleton, is_invalid_path, is_path_in_path
+from utils.sqls import is_transfer_in_blacklist
 from utils.types import SyncType
 
 lock = threading.Lock()
@@ -32,7 +33,11 @@ class Sync(object):
         config = Config()
         app = config.get_config('app')
         if app:
-            self.__sync_sys = app.get('nas_sys', "linux").upper()
+            self.__sync_sys = app.get('nas_sys', "linux")
+            if self.__sync_sys:
+                self.__sync_sys = self.__sync_sys.upper()
+            else:
+                self.__sync_sys = "LINUX"
         sync = config.get_config('sync')
         if sync:
             self.__sync_path = sync.get('sync_path')
@@ -46,6 +51,19 @@ class Sync(object):
             # 文件发生变化
             try:
                 if not os.path.exists(event_path):
+                    return
+                # 判断是否处理过了
+                need_handler_flag = False
+                try:
+                    lock.acquire()
+                    if event_path not in self.__synced_files:
+                        self.__synced_files.append(event_path)
+                        need_handler_flag = True
+                finally:
+                    lock.release()
+
+                if not need_handler_flag:
+                    log.debug("【SYNC】文件已处理过：%s" % event_path)
                     return
                 # 不是监控目录下的文件不处理
                 is_monitor_file = False
@@ -65,26 +83,15 @@ class Sync(object):
                 # 回收站及隐藏的文件不处理
                 if is_invalid_path(event_path):
                     return
-                # 文件名
+                # 不是媒体文件不处理
                 name = os.path.basename(event_path)
                 if not name:
                     return
-                # 判断是不是媒体文件
                 ext = os.path.splitext(name)[-1]
                 if ext not in RMT_MEDIAEXT:
                     return
-                # 判断是否处理过了
-                need_handler_flag = False
-                try:
-                    lock.acquire()
-                    if event_path not in self.__synced_files:
-                        self.__synced_files.append(event_path)
-                        need_handler_flag = True
-                finally:
-                    lock.release()
-
-                if not need_handler_flag:
-                    log.debug("【SYNC】文件已处理过：%s" % event_path)
+                # 黑名单不处理
+                if is_transfer_in_blacklist(event_path):
                     return
 
                 log.debug("【SYNC】文件%s：%s" % (text, event_path))

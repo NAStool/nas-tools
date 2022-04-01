@@ -106,6 +106,11 @@ class DBHelper:
                                                STATE    TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_UNKNOWN ON TRANSFER_UNKNOWN (PATH);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_UNKNOWN_STATE ON TRANSFER_UNKNOWN (STATE);''')
+            # 识别黑名单
+            cursor.execute('''CREATE TABLE IF NOT EXISTS TRANSFER_BLACKLIST
+                                                           (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                                           PATH    TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_BLACKLIST ON TRANSFER_BLACKLIST (PATH);''')
             self.__connection.commit()
 
         except Exception as e:
