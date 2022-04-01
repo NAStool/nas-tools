@@ -3,21 +3,24 @@ from threading import Lock
 import requests
 import log
 from config import Config
-from utils.functions import cookieParse, generateHeader
+from utils.functions import cookieParse, generateHeader, singleton
 from message.send import Message
 
 lock = Lock()
 
 
+@singleton
 class PTSignin:
-    __config = None
     __pt_sites = None
     message = None
 
     def __init__(self):
         self.message = Message()
-        self.__config = Config()
-        pt = self.__config.get_config('pt')
+        self.init_config()
+
+    def init_config(self):
+        config = Config()
+        pt = config.get_config('pt')
         if pt:
             self.__pt_sites = pt.get('sites')
 

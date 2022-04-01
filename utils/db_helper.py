@@ -3,34 +3,29 @@ import sqlite3
 import threading
 
 import log
+from config import Config
+from utils.functions import singleton
+
 lock = threading.Lock()
 
 
+@singleton
 class DBHelper:
     __connection = None
-    __instance = None
     __db_path = None
 
     def __init__(self):
-        config_path = os.environ.get('NASTOOL_CONFIG')
+        self.init_config()
+
+    def init_config(self):
+        config = Config()
+        config_path = config.get_config_path()
         if not config_path:
             print("【ERROR】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
             quit()
         self.__db_path = os.path.join(os.path.dirname(config_path), 'user.db')
         self.__connection = sqlite3.connect(self.__db_path, check_same_thread=False)
         self.__init_tables()
-
-    @staticmethod
-    def get_instance():
-        if DBHelper.__instance:
-            return DBHelper.__instance
-        try:
-            lock.acquire()
-            if not DBHelper.__instance:
-                DBHelper.__instance = DBHelper()
-        finally:
-            lock.release()
-        return DBHelper.__instance
 
     def __init_tables(self):
         cursor = self.__connection.cursor()
@@ -148,8 +143,8 @@ class DBHelper:
 
 
 def select_by_sql(sql):
-    return DBHelper.get_instance().select(sql)
+    return DBHelper().select(sql)
 
 
 def update_by_sql(sql):
-    return DBHelper.get_instance().excute(sql)
+    return DBHelper().excute(sql)

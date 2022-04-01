@@ -20,7 +20,7 @@ from scheduler.rss_download import RSSDownloader
 from message.send import Message
 
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, Config
-from utils.functions import get_used_of_partition, str_filesize, str_timelong
+from utils.functions import get_used_of_partition, str_filesize, str_timelong, INSTANCES
 from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown
@@ -36,8 +36,11 @@ login_manager.login_view = "login"
 
 
 # Flask实例
-def create_flask_app(admin_user, admin_password, ssl_cert):
-    config = Config()
+def create_flask_app(config):
+    app = config.get_config('app') or {}
+    admin_user = app.get('login_user') or "admin"
+    admin_password = app.get('login_password') or "password"
+
     app = Flask(__name__)
     app.config['JSON_AS_ASCII'] = False
     app.secret_key = 'jxxghp'
@@ -98,14 +101,6 @@ def create_flask_app(admin_user, admin_password, ssl_cert):
     @app.errorhandler(500)
     def page_server_error(error):
         return render_template("500.html", error=error), 500
-
-    # 主页面
-    @app.before_request
-    def before_request():
-        if request.url.startswith('http://'):
-            if ssl_cert:
-                url = request.url.replace('http://', 'https://', 1)
-                return redirect(url, code=301)
 
     # 登录页面
     @app.route('/', methods=['POST', 'GET'])
@@ -765,7 +760,7 @@ def create_flask_app(admin_user, admin_password, ssl_cert):
 
             # 读取配置文件
             if cmd == "load_config":
-                cfg = open(Config().get_config_path(), mode="r", encoding="utf8")
+                cfg = open(config.get_config_path(), mode="r", encoding="utf8")
                 config_str = cfg.read()
                 cfg.close()
                 return {"config_str": config_str}
@@ -774,10 +769,12 @@ def create_flask_app(admin_user, admin_password, ssl_cert):
             if cmd == "save_config":
                 editer_str = data["editer_str"]
                 if editer_str:
-                    cfg = open(Config().get_config_path(), mode="w", encoding="utf8")
+                    cfg = open(config.get_config_path(), mode="w", encoding="utf8")
                     cfg.write(editer_str)
                     cfg.flush()
                     cfg.close()
+                    # 立即生效
+                    config.init_config()
                 return {"retcode": 0}
 
     # 响应企业微信消息

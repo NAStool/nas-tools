@@ -3,12 +3,13 @@ import threading
 import requests
 
 from config import Config
+from utils.functions import singleton
 
 lock = threading.Lock()
 
 
+@singleton
 class WeChat(object):
-    __config = None
     __instance = None
     __access_token = None
     __expires_in = None
@@ -16,29 +17,20 @@ class WeChat(object):
 
     __corpid = None
     __corpsecret = None
-    __agentid = None
+    __agent_id = None
 
     def __init__(self):
-        self.__config = Config()
-        message = self.__config.get_config('message')
+        self.init_config()
+
+    def init_config(self):
+        config = Config()
+        message = config.get_config('message')
         if message:
             self.__corpid = message.get('wechat', {}).get('corpid')
             self.__corpsecret = message.get('wechat', {}).get('corpsecret')
             self.__agent_id = message.get('wechat', {}).get('agentid')
         if self.__corpid and self.__corpsecret and self.__agent_id:
             self.get_access_token()
-
-    @staticmethod
-    def get_instance():
-        if WeChat.__instance:
-            return WeChat.__instance
-        try:
-            lock.acquire()
-            if not WeChat.__instance:
-                WeChat.__instance = WeChat()
-        finally:
-            lock.release()
-        return WeChat.__instance
 
     def get_access_token(self):
         token_flag = True

@@ -2,15 +2,19 @@ from urllib.parse import urlencode
 import requests
 
 from config import Config
+from utils.functions import singleton
 
 
+@singleton
 class ServerChan:
     __sckey = None
-    __config = None
 
     def __init__(self):
-        self.__config = Config()
-        message = self.__config.get_config('message')
+        self.init_config()
+
+    def init_config(self):
+        config = Config()
+        message = config.get_config('message')
         if message:
             self.__sckey = message.get('serverchan', {}).get('sckey')
 

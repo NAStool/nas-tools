@@ -9,7 +9,7 @@ from subprocess import call
 import log
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Config
 from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_level1_medias, is_invalid_path, \
-    is_path_in_path
+    is_path_in_path, singleton
 from message.send import Message
 from rmt.media import Media
 from utils.sqls import insert_transfer_history, insert_transfer_unknown
@@ -18,8 +18,8 @@ from utils.types import MediaType, DownloaderType, SyncType, MediaCatagory, RmtM
 lock = Lock()
 
 
+@singleton
 class FileTransfer:
-    __config = None
     __pt_rmt_mode = None
     __sync_rmt_mode = None
     __movie_path = None
@@ -32,15 +32,20 @@ class FileTransfer:
     message = None
 
     def __init__(self):
-        self.__config = Config()
-        media = self.__config.get_config('media')
+        self.media = Media()
+        self.message = Message()
+        self.init_config()
+
+    def init_config(self):
+        config = Config()
+        media = config.get_config('media')
         if media:
             self.__movie_path = media.get('movie_path')
             self.__tv_path = media.get('tv_path')
             self.__unknown_path = media.get('unknown_path')
             self.__movie_subtypedir = media.get('movie_subtypedir', True)
             self.__tv_subtypedir = media.get('tv_subtypedir', True)
-        sync = self.__config.get_config('sync')
+        sync = config.get_config('sync')
         if sync:
             rmt_mode = sync.get('sync_mod', 'copy').upper()
             if rmt_mode == "LINK":
@@ -50,7 +55,7 @@ class FileTransfer:
             else:
                 self.__sync_rmt_mode = RmtMode.COPY
             self.__sync_path = sync.get('sync_path')
-        pt = self.__config.get_config('pt')
+        pt = config.get_config('pt')
         if pt:
             rmt_mode = pt.get('rmt_mode', 'copy').upper()
             if rmt_mode == "LINK":
@@ -59,8 +64,6 @@ class FileTransfer:
                 self.__pt_rmt_mode = RmtMode.SOFTLINK
             else:
                 self.__pt_rmt_mode = RmtMode.COPY
-        self.media = Media()
-        self.message = Message()
 
     def get_media_subtype_flag(self):
         return self.__movie_subtypedir

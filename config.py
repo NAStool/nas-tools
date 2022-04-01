@@ -4,12 +4,12 @@ from threading import Lock
 from subprocess import call
 import yaml
 
-# 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
-# 菜单序号在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护，然后看日志输出的菜单序号是啥（按顺利能猜到的）....
-# 命令对应关系：/ptt qBittorrent转移；/ptr qBittorrent删种；/pts PT签到；/rst ResilioSync同步；/rss RSS下载
 from utils.functions import singleton
 from utils.types import MediaCatagory
 
+# 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
+# 菜单序号在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护，然后看日志输出的菜单序号是啥（按顺利能猜到的）....
+# 命令对应关系：/ptt qBittorrent转移；/ptr qBittorrent删种；/pts PT签到；/rst ResilioSync同步；/rss RSS下载
 WECHAT_MENU = {'_0_0': '/ptt', '_0_1': '/ptr', '_0_2': '/rss', '_1_0': '/rst', '_1_1': '/db', '_2_0': '/pts'}
 # 收藏了的媒体的目录名，名字可以改，在Emby中点击红星则会自动将电影转移到此分类下，需要在Emby Webhook中配置用户行为通知
 RMT_FAVTYPE = MediaCatagory.JXDY
@@ -45,10 +45,11 @@ class Config(object):
 
     def __init__(self):
         self.__config_path = os.environ.get('NASTOOL_CONFIG')
-        self.load_config()
+        self.init_config()
 
-    def load_config(self):
+    def init_config(self):
         try:
+            print("开始读取配置...")
             if not self.__config_path:
                 print("【ERROR】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
                 quit()

@@ -1,18 +1,13 @@
 import os
-
 import qbittorrentapi
-import urllib3
 import log
-
-# 全局设置
 from config import Config
+from utils.functions import singleton
 from utils.types import MediaType
 
-urllib3.disable_warnings()
 
-
+@singleton
 class Qbittorrent:
-    __config = None
     __qbhost = None
     __qbport = None
     __qbusername = None
@@ -24,8 +19,11 @@ class Qbittorrent:
     qbc = None
 
     def __init__(self):
-        self.__config = Config()
-        qbittorrent = self.__config.get_config('qbittorrent')
+        self.init_config()
+
+    def init_config(self):
+        config = Config()
+        qbittorrent = config.get_config('qbittorrent')
         if qbittorrent:
             self.__qbhost = qbittorrent.get('qbhost')
             self.__qbport = qbittorrent.get('qbport')

@@ -13,7 +13,8 @@ if __name__ == "__main__":
     print("配置文件地址：%s" % os.environ.get('NASTOOL_CONFIG'))
     print('NASTool 当前版本号：%s' % APP_VERSION)
     # 检查配置文件
-    if not check_config(Config()):
+    config = Config()
+    if not check_config(config):
         quit()
     # 启动进程
     print("开始启动进程...")

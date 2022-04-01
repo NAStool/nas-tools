@@ -1,16 +1,14 @@
 import os.path
 import transmission_rpc
-import urllib3
 from datetime import datetime
 import log
 from config import Config
+from utils.functions import singleton
 from utils.types import MediaType
 
-urllib3.disable_warnings()
 
-
+@singleton
 class Transmission:
-    __config = None
     __trhost = None
     __trport = None
     __trusername = None
@@ -22,8 +20,11 @@ class Transmission:
     trc = None
 
     def __init__(self):
-        self.__config = Config()
-        transmission = self.__config.get_config('transmission')
+        self.init_config()
+
+    def init_config(self):
+        config = Config()
+        transmission = config.get_config('transmission')
         if transmission:
             self.__trhost = transmission.get('trhost')
             self.__trport = transmission.get('trport')

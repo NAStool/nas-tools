@@ -4,15 +4,15 @@ import log
 from config import Config
 from pt.douban import DouBan
 from pt.jackett import Jackett
-from utils.meta_helper import MetaHelper
+from utils.functions import singleton
 from utils.sqls import insert_tv_key, insert_movie_key, get_douban_search_state, insert_douban_media_state
 from utils.types import MediaType, SearchType
 
 lock = Lock()
 
 
+@singleton
 class DoubanSync:
-    __config = None
     __interval = None
     __auto_search = True
     __auto_rss = True
@@ -22,8 +22,11 @@ class DoubanSync:
     def __init__(self):
         self.douban = DouBan()
         self.jackett = Jackett()
-        self.__config = Config()
-        douban = self.__config.get_config('douban')
+        self.init_config()
+
+    def init_config(self):
+        config = Config()
+        douban = config.get_config('douban')
         if douban:
             self.__interval = douban.get('interval')
             self.__auto_search = douban.get('auto_search')

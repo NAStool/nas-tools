@@ -1,19 +1,18 @@
 import os
 import re
 from threading import Lock
-
 import log
 from tmdbv3api import TMDb, Search, Movie, TV
-
 from config import Config
 from rmt.metainfo import MetaInfo
-from utils.functions import xstr
+from utils.functions import xstr, singleton
 from utils.meta_helper import MetaHelper
 from utils.types import MediaType, MatchMode
 
 lock = Lock()
 
 
+@singleton
 class Media:
     # TheMovieDB
     tmdb = None
@@ -21,12 +20,14 @@ class Media:
     movie = None
     tv = None
     meta = None
-    __config = None
     __rmt_match_mode = None
 
     def __init__(self):
-        self.__config = Config()
-        app = self.__config.get_config('app')
+        self.init_config()
+
+    def init_config(self):
+        config = Config()
+        app = config.get_config('app')
         if app:
             if app.get('rmt_tmdbkey'):
                 self.tmdb = TMDb()

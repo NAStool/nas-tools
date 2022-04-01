@@ -3,11 +3,10 @@ from threading import Lock
 
 import log
 from config import Config
-from utils.functions import parse_rssxml, is_chinese
+from utils.functions import parse_rssxml, is_chinese, singleton
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
-from utils.meta_helper import MetaHelper
 from utils.sqls import get_movie_keys, get_tv_keys, is_torrent_rssd_by_name, insert_rss_torrents
 from utils.types import MediaType, SearchType
 
@@ -15,8 +14,8 @@ RSS_CACHED_TORRENTS = []
 lock = Lock()
 
 
+@singleton
 class RSSDownloader:
-    __config = None
     __rss_chinese = None
     __sites = None
     message = None
@@ -27,9 +26,11 @@ class RSSDownloader:
         self.message = Message()
         self.media = Media()
         self.downloader = Downloader()
+        self.init_config()
 
-        self.__config = Config()
-        pt = self.__config.get_config('pt')
+    def init_config(self):
+        config = Config()
+        pt = config.get_config('pt')
         if pt:
             self.__rss_chinese = pt.get('rss_chinese')
             self.__sites = pt.get('sites')
@@ -115,7 +116,7 @@ class RSSDownloader:
                     if is_torrent_rssd_by_name(media_info.title,
                                                media_info.year,
                                                media_info.get_season_string(),
-                                               media_info.get_season_episode_string()):
+                                               media_info.get_episode_string()):
                         log.info("【RSS】%s %s 已处理过，跳过..." % (media_info.title, media_info.year))
                         continue
                     # 检查种子名称或者标题是否匹配

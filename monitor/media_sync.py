@@ -21,20 +21,22 @@ class Sync(object):
     __sync_path = None
     __unknown_path = None
     __sync_sys = "LINUX"
-    __config = None
     __synced_files = []
     __need_sync_paths = {}
 
     def __init__(self):
         self.filetransfer = FileTransfer()
-        self.__config = Config()
-        app = self.__config.get_config('app')
+        self.init_config()
+
+    def init_config(self):
+        config = Config()
+        app = config.get_config('app')
         if app:
             self.__sync_sys = app.get('nas_sys', "linux").upper()
-        sync = self.__config.get_config('sync')
+        sync = config.get_config('sync')
         if sync:
             self.__sync_path = sync.get('sync_path')
-        media = self.__config.get_config('media')
+        media = config.get_config('media')
         if media:
             self.__unknown_path = media.get('unknown_path')
 

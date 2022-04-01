@@ -15,6 +15,24 @@ import xml.dom.minidom
 
 from utils.types import MediaType
 
+# 全局对象
+INSTANCES = {}
+
+
+# 单例模式注解
+def singleton(cls):
+    # 单下划线的作用是这个变量只能在当前模块里访问,仅仅是一种提示作用
+    # 创建一个字典用来保存类的实例对象
+    global INSTANCES
+
+    def _singleton(*args, **kwargs):
+        # 先判断这个类有没有对象
+        if cls not in INSTANCES:
+            INSTANCES[cls] = cls(*args, **kwargs)  # 创建一个对象,并保存到字典当中
+        # 将实例对象返回
+        return INSTANCES[cls]
+    return _singleton
+
 
 def get_location(ip):
     url = 'https://sp0.baidu.com/8aQDcjqpAAV3otqbppnN2DJv/api.php?co=&resource_id=6006&t=1529895387942&ie=utf8' \
@@ -382,21 +400,6 @@ def get_tmdb_season_episodes_num(seasons, sea):
 # 字符串None输出为空
 def xstr(s):
     return s if s else ''
-
-
-# 单例模式注解
-def singleton(cls):
-    # 单下划线的作用是这个变量只能在当前模块里访问,仅仅是一种提示作用
-    # 创建一个字典用来保存类的实例对象
-    _instance = {}
-
-    def _singleton(*args, **kwargs):
-        # 先判断这个类有没有对象
-        if cls not in _instance:
-            _instance[cls] = cls(*args, **kwargs)  # 创建一个对象,并保存到字典当中
-        # 将实例对象返回
-        return _instance[cls]
-    return _singleton
 
 
 # 种子去重，每一个名称、站点、资源类型 选一个做种人最多的显示

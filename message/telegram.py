@@ -2,16 +2,20 @@ from urllib.parse import urlencode
 import requests
 
 from config import Config
+from utils.functions import singleton
 
 
+@singleton
 class Telegram:
-    __config = None
     __telegram_token = None
     __telegram_chat_id = None
 
     def __init__(self):
-        self.__config = Config()
-        message = self.__config.get_config('message')
+        self.init_config()
+
+    def init_config(self):
+        config = Config()
+        message = config.get_config('message')
         if message:
             self.__telegram_token = message.get('telegram', {}).get('telegram_token')
             self.__telegram_chat_id = message.get('telegram', {}).get('telegram_chat_id')

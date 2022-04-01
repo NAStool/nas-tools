@@ -1,17 +1,15 @@
-from enum import Enum
-
 import log
 from config import Config
 from message.bark import Bark
 from message.serverchan import ServerChan
 from message.telegram import Telegram
 from message.wechat import WeChat
-from utils.functions import str_filesize
+from utils.functions import str_filesize, singleton
 from utils.types import DownloaderType
 
 
+@singleton
 class Message:
-    __config = None
     __msg_channel = None
     __webhook_ignore = None
     wechat = None
@@ -20,15 +18,18 @@ class Message:
     bark = None
 
     def __init__(self):
-        self.__config = Config()
-        message = self.__config.get_config('message')
+        self.wechat = WeChat()
+        self.telegram = Telegram()
+        self.serverchan = ServerChan()
+        self.bark = Bark()
+        self.init_config()
+
+    def init_config(self):
+        config = Config()
+        message = config.get_config('message')
         if message:
             self.__msg_channel = message.get('msg_channel')
             self.__webhook_ignore = message.get('webhook_ignore')
-            self.wechat = WeChat.get_instance()
-            self.telegram = Telegram()
-            self.serverchan = ServerChan()
-            self.bark = Bark()
 
     def get_webhook_ignore(self):
         return self.__webhook_ignore or []

@@ -5,27 +5,28 @@ import log
 from config import RMT_FAVTYPE, Config
 from message.send import Message
 from rmt.filetransfer import FileTransfer
-from rmt.media import Media
 from rmt.metainfo import MetaInfo
-from utils.functions import get_local_time, get_location
+from utils.functions import get_local_time, get_location, singleton
 from utils.types import MediaType
 
 PLAY_LIST = []
 
 
+@singleton
 class Emby:
-    __config = None
     message = None
-    media = None
     __apikey = None
     __host = None
     __library_info = []
 
     def __init__(self):
         self.message = Message()
-        self.__config = Config()
-        self.media = Media()
-        emby = self.__config.get_config('emby')
+        self.init_config()
+
+    # 初始化配置
+    def init_config(self):
+        config = Config()
+        emby = config.get_config('emby')
         if emby:
             self.__host = emby.get('host')
             if not self.__host.startswith('http://') and not self.__host.startswith('https://'):
@@ -127,7 +128,8 @@ class Emby:
                 res_items = res.json().get("Items")
                 if res_items:
                     for res_item in res_items:
-                        if res_item.get('Name') == name and (not year or str(res_item.get('ProductionYear')) == str(year)):
+                        if res_item.get('Name') == name and (
+                                not year or str(res_item.get('ProductionYear')) == str(year)):
                             return res_item.get('Id')
         except Exception as e:
             log.error("【EMBY】连接Items出错：" + str(e))
@@ -248,27 +250,46 @@ class Emby:
             return False
         return False
 
-    # 按名称来刷新媒体库
-    def refresh_emby_library_by_names(self, names):
-        if not names:
+    # 通知Emby刷新整个媒体库
+    def refresh_emby_root_library(self):
+        if not self.__host or not self.__apikey:
+            return False
+        req_url = "%semby/Library/Refresh?api_key=%s" % (self.__host, self.__apikey)
+        try:
+            res = requests.post(req_url)
+            if res:
+                return True
+        except Exception as e:
+            log.error("【EMBY】连接Library/Refresh出错：" + str(e))
+            return False
+        return False
+
+    # 按类型、名称、年份来刷新媒体库
+    def refresh_emby_library_by_medias(self, medias):
+        if not medias:
             return
         # 收集要刷新的媒体库信息
         log.info("【EMBY】开始刷新Emby媒体库...")
         library_ids = []
-        for torrent in names:
-            media_info = self.media.get_media_info(torrent)
+        for media_info in medias:
             if not media_info or not media_info.tmdb_info:
                 continue
             library_id = self.get_emby_library_id_by_metainfo(media_info)
             if library_id and library_id not in library_ids:
                 library_ids.append(library_id)
         # 开始刷新媒体库
+        if "/" in library_ids:
+            self.refresh_emby_root_library()
+            return
         for library_id in library_ids:
-            self.refresh_emby_library_by_id(library_id)
+            if library_id != "/":
+                self.refresh_emby_library_by_id(library_id)
         log.info("【EMBY】Emby媒体库刷新完成！")
 
     # 根据媒体信息查询在哪个媒体库，返回要刷新的位置的ID
     def get_emby_library_id_by_metainfo(self, media):
+        if not media.title or not media.year or not media.type:
+            return None
         if media.type == MediaType.TV:
             item_id = self.get_emby_series_id_by_name(media.title, media.year)
             if item_id:
@@ -278,12 +299,13 @@ class Emby:
             if self.get_emby_movies(media.title, media.year):
                 # 已存在，不用刷新
                 return None
-        # TODO 查找需要刷新的媒体库ID，这里还需要优化
+        # 查找需要刷新的媒体库ID
         for library in self.__library_info:
             for folder in library.get("SubFolders"):
-                if "/%s" % media.category in folder.get("Path"):
+                if "/%s" % media.category.value in folder.get("Path"):
                     return library.get("Id")
-        return None
+        # 刷新根目录
+        return "/"
 
 
 class EmbyEvent:
@@ -381,6 +403,8 @@ class EmbyEvent:
             if self.action == 'rate':
                 ret, org_type = self.filetransfer.transfer_embyfav(self.item_path)
                 if ret:
+                    # 刷新媒体库
+                    self.emby.refresh_emby_root_library()
                     message_title = '电影 %s 已从 %s 转移到 %s' % (self.item_name, org_type, RMT_FAVTYPE.value)
                     message_text = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             else:
@@ -395,10 +419,3 @@ class EmbyEvent:
                                                         tmdbid=self.tmdb_id,
                                                         default="https://emby.media/notificationicon.png")
             self.message.sendmsg(message_title, message_text, image_url)
-
-
-if __name__ == "__main__":
-    info = MetaInfo("国王排名 2021 S02 E06")
-    info.type = MediaType.TV
-    info.title = "国王排名"
-    print(Emby().check_emby_exists(info))

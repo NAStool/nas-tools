@@ -4,7 +4,7 @@ from concurrent.futures._base import as_completed
 import log
 from config import Config
 from utils.functions import parse_jackettxml, get_keyword_from_string, get_tmdb_seasons_info, \
-    get_tmdb_season_episodes_num, get_torrents_group_item
+    get_tmdb_season_episodes_num, get_torrents_group_item, singleton
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
@@ -13,8 +13,8 @@ from utils.types import SearchType, MediaType
 from web.backend.emby import Emby
 
 
+@singleton
 class Jackett:
-    __config = None
     __api_key = None
     __indexers = []
     __res_type = []
@@ -28,9 +28,12 @@ class Jackett:
         self.downloader = Downloader()
         self.message = Message()
         self.emby = Emby()
+        self.media = Media()
+        self.init_config()
 
-        self.__config = Config()
-        jackett = self.__config.get_config('jackett')
+    def init_config(self):
+        config = Config()
+        jackett = config.get_config('jackett')
         if jackett:
             self.__api_key = jackett.get('api_key')
             self.__res_type = jackett.get('res_type')
@@ -39,7 +42,6 @@ class Jackett:
             self.__indexers = jackett.get('indexers')
             if not isinstance(self.__indexers, list):
                 self.__indexers = [self.__indexers]
-            self.media = Media()
 
     # 检索一个Indexer
     def seach_indexer(self, order_seq, index, search_word, key_word, s_num, e_num, year, whole_word=False):

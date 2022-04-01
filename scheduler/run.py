@@ -55,7 +55,7 @@ def run_scheduler():
             log.info("【RUN】scheduler.douban_sync启动...")
 
     # 配置定时生效
-    scheduler.add_job(Config().load_config, 'interval', seconds=600)
+    scheduler.add_job(Config().init_config, 'interval', seconds=600)
 
     # 元数据定时保存
     scheduler.add_job(MetaHelper().save_meta_data, 'interval', seconds=600)

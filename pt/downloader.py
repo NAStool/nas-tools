@@ -8,13 +8,13 @@ from pt.client.transmission import Transmission
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
-from utils.functions import str_filesize
+from utils.functions import str_filesize, singleton
 from utils.types import MediaType, DownloaderType, SearchType
 from web.backend.emby import Emby
 
 
+@singleton
 class Downloader:
-    __config = None
     client = None
     __client_type = None
     __seeding_time = None
@@ -28,8 +28,11 @@ class Downloader:
         self.emby = Emby()
         self.filetransfer = FileTransfer()
         self.media = Media()
-        self.__config = Config()
-        pt = self.__config.get_config('pt')
+        self.init_config()
+
+    def init_config(self):
+        config = Config()
+        pt = config.get_config('pt')
         if pt:
             pt_client = pt.get('pt_client')
             if pt_client == "qbittorrent":
@@ -64,7 +67,10 @@ class Downloader:
                 else:
                     self.client.set_torrents_status(task.get("id"))
             log.info("【PT】PT下载文件转移结束！")
-            self.emby.refresh_emby_library_by_names(trans_torrents)
+            medias = []
+            for torrent in trans_torrents:
+                medias.append(self.media.get_media_info(torrent))
+            self.emby.refresh_emby_library_by_medias(medias)
 
     # 做种清理
     def pt_removetorrents(self):

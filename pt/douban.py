@@ -8,12 +8,13 @@ from bs4 import BeautifulSoup
 import log
 from config import Config
 from rmt.metainfo import MetaInfo
+from utils.functions import singleton
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
 
 
+@singleton
 class DouBan:
-    __config = None
     req = None
     __default_headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"}
@@ -24,8 +25,11 @@ class DouBan:
     __headers = None
 
     def __init__(self):
-        self.__config = Config()
-        douban = self.__config.get_config('douban')
+        self.init_config()
+
+    def init_config(self):
+        config = Config()
+        douban = config.get_config('douban')
         if douban:
             # 用户列表
             users = douban.get('users')

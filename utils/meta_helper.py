@@ -2,6 +2,7 @@ import os
 import pickle
 from threading import Lock
 
+from config import Config
 from utils.functions import singleton
 
 lock = Lock()
@@ -13,7 +14,11 @@ class MetaHelper(object):
     __meta_path = None
 
     def __init__(self):
-        self.__meta_path = os.path.join(os.path.dirname(os.environ.get('NASTOOL_CONFIG')), 'meta.dat')
+        self.init_config()
+
+    def init_config(self):
+        config = Config()
+        self.__meta_path = os.path.join(os.path.dirname(config.get_config_path()), 'meta.dat')
         self.__meta_data = self.__load_meta_data(self.__meta_path)
 
     def get_meta_data(self):

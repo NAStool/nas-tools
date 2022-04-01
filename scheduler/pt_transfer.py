@@ -2,13 +2,13 @@ from threading import Lock
 
 import log
 from pt.downloader import Downloader
-from utils.meta_helper import MetaHelper
+from utils.functions import singleton
 
 lock = Lock()
 
 
+@singleton
 class PTTransfer:
-    __pt_client = None
     downloader = None
 
     def __init__(self):
