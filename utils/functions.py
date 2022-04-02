@@ -220,22 +220,29 @@ def parse_rssxml(url):
             items = rootNode.getElementsByTagName("item")
             for item in items:
                 try:
-                    # 获取XML值
-                    firstChild = item.getElementsByTagName("title")[0].firstChild
-                    if not firstChild:
+                    # 标题
+                    title = ""
+                    tagNames = item.getElementsByTagName("title")
+                    if tagNames:
+                        firstChild = tagNames[0].firstChild
+                        if firstChild:
+                            title = firstChild.data
+                    if not title:
                         continue
-                    else:
-                        title = firstChild.data
-                    tagName = item.getElementsByTagName("enclosure")[0]
-                    if not tagName:
+                    # 种子链接
+                    enclosure = ""
+                    tagNames = item.getElementsByTagName("enclosure")
+                    if tagNames:
+                        enclosure = tagNames[0].getAttribute("url")
+                    if not enclosure:
                         continue
-                    else:
-                        enclosure = tagName.getAttribute("url")
-                    firstChild = item.getElementsByTagName("description")[0].firstChild
-                    if not firstChild:
-                        description = None
-                    else:
-                        description = firstChild.data
+                    # 描述
+                    description = ""
+                    tagNames = item.getElementsByTagName("description")
+                    if tagNames:
+                        firstChild = tagNames[0].firstChild
+                        if firstChild:
+                            description = firstChild.data
                     tmp_dict = {'title': title, 'enclosure': enclosure, 'description': description}
                     ret_array.append(tmp_dict)
                 except Exception as e1:
@@ -266,29 +273,39 @@ def parse_jackettxml(url):
             items = rootNode.getElementsByTagName("item")
             for item in items:
                 try:
-                    # 获取XML值
-                    firstChild = item.getElementsByTagName("title")[0].firstChild
-                    if firstChild:
-                        title = firstChild.data
-                    else:
+                    # 标题
+                    title = ""
+                    tagNames = item.getElementsByTagName("title")
+                    if tagNames:
+                        firstChild = tagNames[0].firstChild
+                        if firstChild:
+                            title = firstChild.data
+                    if not title:
                         continue
-                    firstChild = item.getElementsByTagName("description")[0].firstChild
-                    if firstChild:
-                        description = firstChild.data
-                    else:
-                        description = ""
-                    firstChild = item.getElementsByTagName("size")[0].firstChild
-                    if firstChild:
-                        size = firstChild.data
-                    else:
-                        size = 0
-                    tagName = item.getElementsByTagName("enclosure")[0]
-                    if tagName:
-                        enclosure = tagName.getAttribute("url")
-                    else:
+                    # 种子链接
+                    enclosure = ""
+                    tagNames = item.getElementsByTagName("enclosure")
+                    if tagNames:
+                        enclosure = tagNames[0].getAttribute("url")
+                    if not enclosure:
                         continue
-
+                    # 描述
+                    description = ""
+                    tagNames = item.getElementsByTagName("description")
+                    if tagNames:
+                        firstChild = tagNames[0].firstChild
+                        if firstChild:
+                            description = firstChild.data
+                    # 种子大小
+                    size = 0
+                    tagNames = item.getElementsByTagName("size")
+                    if tagNames:
+                        firstChild = tagNames[0].firstChild
+                        if firstChild:
+                            size = firstChild.data
+                    # 做种数
                     seeders = 0
+                    # 下载数
                     peers = 0
                     torznab_attrs = item.getElementsByTagName("torznab:attr")
                     for torznab_attr in torznab_attrs:
