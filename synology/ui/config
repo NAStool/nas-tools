@@ -1,6 +1,6 @@
 {
     ".url": {
-        "nastool": {
+        "SYNO.SDS.NASTOOL.Application": {
             "title": "NAS媒体工具",
             "desc": "NASTool Web UI",
             "icon": "images/nastool.png",
