@@ -25,7 +25,7 @@
 				"desc":"配置文件路径",
 				"subitems":[
 					{
-						"defaultValue":"/volume1/homes/admin/.config/nastool/config.yaml",
+						"defaultValue":"/volume1/NASTOOL/config.yaml",
 						"desc":"路径：",
 						"key":"cfg_path",
 						"validator":{"allowBlank":false}
