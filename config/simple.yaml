@@ -30,9 +30,6 @@ sync:
   # 如果无法识别文件媒体信息，配置了目的目录的情况下会LINK到目的目录的unknown录下（COPY模式则不处理）
   # 建议映射上级目录，源目录和目的目录为子目录，如果分开映射则可能发生跨盘的问题
   # 监控功能如果遇到启动报错：inotify instance limit reached，需在宿主机上命令行执行以下命令：
-  # echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
-  # echo fs.inotify.max_user_instances=524288 | sudo tee -a /etc/sysctl.conf
-  # sudo sysctl -p
   sync_path:
     - '/mnt/movie1|/mnt/mymovie'
     - '/mnt/movie2|/mnt/mymovie'
