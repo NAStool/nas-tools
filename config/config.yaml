@@ -55,16 +55,16 @@ emby:
 media:
   # 媒体库电影文件存放目录，docker使用需要将NAS储存目录映射到以下路径
   movie_path: '/mnt/media/电影'
-  # 电影是否支持自动二级分类：true、false，如为false则不分类，所有电影放movie_path下；如为true则按类型分别建二级目录存放，具体分类参考README.MD说明
-  movie_subtypedir: true
   # 媒体库电视剧文件存放目录，docker使用需要将NAS储存目录映射到以下路径
   tv_path: '/mnt/media/电视剧'
-  # 电视剧是否支持自动二级分类：true、false，如为false则不分类，所有电影剧放tv_path下；如为true则按类型分别建二级目录存放，具体分类参考README.MD说明
-  tv_subtypedir: true
   # 无法识别时转移存放的目录，适用于PT下载转移以及sync未指明目的目录时的情况
   unknown_path: '/mnt/media/unknown'
+  # 电影电视剧是否需要二级分类，启用二级分类后会在电影电视剧目录下按二级分类名建立子目录
+  # 此处配置分类的策略名，配置文件目录中需要有与策略名同名的配置文件，配置模板可参考default-category.yaml
+  # 默认策略default-category分类设置可参考README.MD说明
+  category: 'default-category'
 
-# 配置文件夹监控
+# 配置文件夹监控，文件夹内容发生变化时自动识别转移
 sync:
   # 监控目录，可以监控多个。监控目录有文件变化时会自动进行媒体识别、转移并命名
   # 配置格式1：'源目录|目的目录'，比如：'/mnt/movie1|/mnt/mymovie'，配了目的目录时，会转移到/mnt/mymovie目的目录中，不自动区分电影或电视剧。

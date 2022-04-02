@@ -198,7 +198,9 @@
                             <span class="avatar me-2" style="">{{ History[2] }}</span>
                             <div class="flex-fill">
                               <div class="font-weight-medium"><a class="text-reset">{{ History[4] }} ({{ History[6] }}) {{ History[7] }}</a></div>
+                              {% if History[5] %}
                               <div class="text-muted">类别：{{ History[5] }}</div>
+                              {% endif %}
                             </div>
                           </div>
                         </td>

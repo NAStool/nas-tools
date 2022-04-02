@@ -69,7 +69,7 @@ class Message:
             msg_str = "类型：电影"
         if media_info.category:
             if category_flag:
-                msg_str = f"{msg_str}，类别：{media_info.category.value}"
+                msg_str = f"{msg_str}，类别：{media_info.category}"
         if media_info.get_resource_type_string():
             msg_str = f"{msg_str}，质量：{media_info.get_resource_type_string()}"
         msg_str = f"{msg_str}，大小：{str_filesize(media_filesize)}，来自：{in_from.value}"
@@ -106,7 +106,7 @@ class Message:
 
                 if item_info.get('media').category:
                     if category_flag:
-                        msg_str = f"{msg_str}，类别：{item_info.get('media').category.value}"
+                        msg_str = f"{msg_str}，类别：{item_info.get('media').category}"
 
                 if len(item_info.get('episodes')) != 1:
                     msg_str = f"{msg_str}，共{len(item_info.get('seasons'))}季{len(item_info.get('episodes'))}集，总大小：{str_filesize(item_info.get('totalsize'))}，来自：{in_from.value}"

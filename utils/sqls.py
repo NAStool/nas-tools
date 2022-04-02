@@ -208,7 +208,7 @@ def insert_transfer_history(in_from, rmt_mode, in_path, dest, media_info):
         return True
     timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     sql = "INSERT INTO TRANSFER_HISTORY(SOURCE, MODE, TYPE, FILE_PATH, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
-        in_from.value, rmt_mode.value, media_info.type.value, file_path, file_name, media_info.title, media_info.category.value, media_info.year, media_info.get_season_string(), dest, timestr)
+        in_from.value, rmt_mode.value, media_info.type.value, file_path, file_name, media_info.title, media_info.category, media_info.year, media_info.get_season_string(), dest, timestr)
     return update_by_sql(sql)
 
 

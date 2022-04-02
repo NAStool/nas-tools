@@ -3,13 +3,15 @@ import re
 import cn2an
 import requests
 from requests import RequestException
-from config import RMT_COUNTRY_EA, RMT_COUNTRY_AS, FANART_TV_API_URL, FANART_MOVIE_API_URL
+from config import FANART_TV_API_URL, FANART_MOVIE_API_URL
+from rmt.category import Category
 from utils.functions import is_chinese
 from utils.tokens import Tokens
-from utils.types import MediaType, MediaCatagory
+from utils.types import MediaType
 
 
 class MetaInfo(object):
+    category_handler = None
     # 原字符串
     org_string = None
     # 类型 电影、电视剧
@@ -85,6 +87,7 @@ class MetaInfo(object):
     def __init__(self, title, subtitle=None):
         if not title:
             return
+        self.category_handler = Category()
         self.org_string = title
         # 拆分tokens
         tokens = Tokens(title)
@@ -442,14 +445,15 @@ class MetaInfo(object):
             release_date = info.get('release_date')
             if release_date:
                 self.year = release_date[0:4]
+            self.category = self.category_handler.get_movie_category(info)
         else:
             self.title = info.get('name')
             first_air_date = info.get('first_air_date')
             if first_air_date:
                 self.year = first_air_date[0:4]
+            self.category = self.category_handler.get_tv_category(info)
         self.poster_path = "https://image.tmdb.org/t/p/w500%s" % info.get('poster_path')
         self.backdrop_path = self.get_backdrop_image(self.type, info.get('backdrop_path'), info.get('id'))
-        self.category = self.__set_category(info)
 
     # 整合种了信息
     def set_torrent_info(self, site=None, site_order=0, enclosure=None, res_type=None, res_order=0, size=0, seeders=0,
@@ -493,45 +497,3 @@ class MetaInfo(object):
             # 返回一个默认图片
             return default
         return ""
-
-    # 分类
-    def __set_category(self, info):
-        if not self.type:
-            return None
-        if self.type == MediaType.TV:
-            # 类型 动漫、纪录片、儿童、综艺
-            media_genre_ids = info.get('genre_ids', [])
-            if 16 in media_genre_ids:
-                # 动漫
-                catagory = MediaCatagory.DM
-            elif 99 in media_genre_ids:
-                # 纪录片
-                catagory = MediaCatagory.JLP
-            elif 10762 in media_genre_ids:
-                # 儿童
-                catagory = MediaCatagory.RT
-            elif 10764 in media_genre_ids or 10767 in media_genre_ids:
-                # 综艺
-                catagory = MediaCatagory.ZY
-            else:
-                # 国家
-                media_country = info.get('origin_country', [])
-                if 'CN' in media_country or 'TW' in media_country or 'HK' in media_country:
-                    catagory = MediaCatagory.GCJ
-                elif set(RMT_COUNTRY_EA).intersection(set(media_country)):
-                    catagory = MediaCatagory.OMJ
-                elif set(RMT_COUNTRY_AS).intersection(set(media_country)):
-                    catagory = MediaCatagory.RHJ
-                else:
-                    catagory = MediaCatagory.QTJ
-        else:
-            media_language = info.get('original_language', [])
-            if 'zh' in media_language or \
-                    'bo' in media_language or \
-                    'za' in media_language or \
-                    'cn' in media_language:
-                catagory = MediaCatagory.HYDY
-            else:
-                catagory = MediaCatagory.WYDY
-
-        return catagory

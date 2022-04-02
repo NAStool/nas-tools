@@ -1,5 +1,6 @@
 import os
 import log
+from rmt.category import Category
 
 
 # 检查配置信息
@@ -78,16 +79,13 @@ def check_config(cfg):
         elif not os.path.exists(tv_path):
             log.error("tv_path目录不存在：%s" % tv_path)
 
-        movie_subtypedir = config['media'].get('movie_subtypedir', True)
-        if not movie_subtypedir:
-            log.warn("电影自动分类功能已关闭")
+        category = config['media'].get('category')
+        if not category:
+            log.warn("未配置电影电视剧分类策略")
         else:
-            log.info("电影自动分类功能已开启")
-        tv_subtypedir = config['media'].get('tv_subtypedir', True)
-        if not tv_subtypedir:
-            log.warn("电视剧自动分类功能已关闭")
-        else:
-            log.info("电视剧自动分类功能已开启")
+            cates = Category()
+            log.info("电影分类：%s" % " ".join(cates.get_movie_categorys()))
+            log.info("电视剧分类：%s" % " ".join(cates.get_tv_categorys()))
     else:
         log.error("media配置不存在")
 

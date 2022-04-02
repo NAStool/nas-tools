@@ -302,7 +302,7 @@ class Emby:
         # 查找需要刷新的媒体库ID
         for library in self.__library_info:
             for folder in library.get("SubFolders"):
-                if "/%s" % media.category.value in folder.get("Path"):
+                if "/%s" % media.category in folder.get("Path"):
                     return library.get("Id")
         # 刷新根目录
         return "/"
@@ -405,7 +405,7 @@ class EmbyEvent:
                 if ret:
                     # 刷新媒体库
                     self.emby.refresh_emby_root_library()
-                    message_title = '电影 %s 已从 %s 转移到 %s' % (self.item_name, org_type, RMT_FAVTYPE.value)
+                    message_title = '电影 %s 已从 %s 转移到 %s' % (self.item_name, org_type, RMT_FAVTYPE)
                     message_text = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             else:
                 return

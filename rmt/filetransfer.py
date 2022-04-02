@@ -8,12 +8,13 @@ from subprocess import call
 
 import log
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Config
+from rmt.category import Category
 from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_level1_medias, is_invalid_path, \
     is_path_in_path, singleton
 from message.send import Message
 from rmt.media import Media
 from utils.sqls import insert_transfer_history, insert_transfer_unknown
-from utils.types import MediaType, DownloaderType, SyncType, MediaCatagory, RmtMode
+from utils.types import MediaType, DownloaderType, SyncType, RmtMode
 
 lock = Lock()
 
@@ -24,8 +25,8 @@ class FileTransfer:
     __sync_rmt_mode = None
     __movie_path = None
     __tv_path = None
-    __movie_subtypedir = None
-    __tv_subtypedir = None
+    __movie_category_flag = None
+    __tv_category_flag = None
     __sync_path = None
     __unknown_path = None
     media = None
@@ -34,6 +35,7 @@ class FileTransfer:
     def __init__(self):
         self.media = Media()
         self.message = Message()
+        self.category = Category()
         self.init_config()
 
     def init_config(self):
@@ -43,8 +45,8 @@ class FileTransfer:
             self.__movie_path = media.get('movie_path')
             self.__tv_path = media.get('tv_path')
             self.__unknown_path = media.get('unknown_path')
-            self.__movie_subtypedir = media.get('movie_subtypedir', True)
-            self.__tv_subtypedir = media.get('tv_subtypedir', True)
+        self.__movie_category_flag = self.category.get_movie_category_flag()
+        self.__tv_category_flag = self.category.get_tv_category_flag()
         sync = config.get_config('sync')
         if sync:
             rmt_mode = sync.get('sync_mod', 'copy')
@@ -73,19 +75,16 @@ class FileTransfer:
             else:
                 self.__pt_rmt_mode = RmtMode.COPY
 
-    def get_media_subtype_flag(self):
-        return self.__movie_subtypedir
-
     # 返回一个子路径
     def get_media_dest_path(self, media_info):
         if media_info.type == MediaType.MOVIE:
-            if self.__movie_subtypedir:
-                return os.path.join(self.__movie_path, media_info.category.value)
+            if self.__movie_category_flag:
+                return os.path.join(self.__movie_path, media_info.category)
             else:
                 return self.__movie_path
         elif media_info.type == MediaType.TV:
-            if self.__tv_subtypedir:
-                return os.path.join(self.__tv_path, media_info.category.value)
+            if self.__tv_category_flag:
+                return os.path.join(self.__tv_path, media_info.category)
             else:
                 return self.__tv_path
         else:
@@ -327,13 +326,14 @@ class FileTransfer:
                 insert_transfer_unknown(in_path, target_dir)
                 failed_count = failed_count + 1
                 # 原样转移过去
-                log.warn("【RMT】%s 按原文件名转移到unknown目录..." % file_name)
                 if target_dir:
                     unknown_dir = target_dir
                     if unknown_dir.find("/.unknown") == -1:
                         unknown_dir = os.path.join(unknown_dir, '.unknown')
+                    log.warn("【RMT】%s 按原文件名转移到unknown目录..." % file_name)
                     self.transfer_origin_file(file_item, unknown_dir, rmt_mode)
                 elif self.__unknown_path:
+                    log.warn("【RMT】%s 按原文件名转移到unknown目录..." % file_name)
                     self.transfer_origin_file(file_item, self.__unknown_path, rmt_mode)
                 else:
                     log.error("【RMT】%s 处理失败！" % file_name)
@@ -413,7 +413,7 @@ class FileTransfer:
                     #  不是PT转移的，只有有变化才通知
                     if not new_movie_flag:
                         continue
-                self.message.send_transfer_movie_message(in_from, media, media_filesize, exist_filenum, self.__movie_subtypedir)
+                self.message.send_transfer_movie_message(in_from, media, media_filesize, exist_filenum, self.__movie_category_flag)
                 log.info("【RMT】%s 转移完成" % file_name)
 
             # 电视剧
@@ -495,7 +495,7 @@ class FileTransfer:
                 continue
 
         # 统计完成情况，发送通知
-        self.message.send_transfer_tv_message(message_medias, in_from, self.__tv_subtypedir)
+        self.message.send_transfer_tv_message(message_medias, in_from, self.__tv_category_flag)
 
         # 总结
         log.info("【RMT】%s 处理完成，总数：%s，失败：%s！" % (in_path, total_count, failed_count))
@@ -558,10 +558,10 @@ class FileTransfer:
             dir_name = media.title
         if media.type == MediaType.MOVIE:
             file_path = os.path.join(media_dest, dir_name)
-            if self.__movie_subtypedir:
-                file_path = os.path.join(media_dest, media.category.value, dir_name)
-                for m_type in MediaCatagory:
-                    type_path = os.path.join(media_dest, m_type.value, dir_name)
+            if self.__movie_category_flag:
+                file_path = os.path.join(media_dest, media.category, dir_name)
+                for m_type in [RMT_FAVTYPE, media.category]:
+                    type_path = os.path.join(media_dest, m_type, dir_name)
                     # 目录是否存在
                     if os.path.exists(type_path):
                         file_path = type_path
@@ -582,8 +582,8 @@ class FileTransfer:
                     break
         else:
             # 剧集目录
-            if self.__tv_subtypedir:
-                media_path = os.path.join(media_dest, media.category.value, dir_name)
+            if self.__tv_category_flag:
+                media_path = os.path.join(media_dest, media.category, dir_name)
             else:
                 media_path = os.path.join(media_dest, dir_name)
             # 季
@@ -624,13 +624,10 @@ class FileTransfer:
         episode = item.get_episode_list()
         category = item.category
 
-        if isinstance(category, Enum):
-            category = category.value
-
         # 如果是电影
         if mtype == MediaType.MOVIE:
-            if self.__movie_subtypedir:
-                dest_path = os.path.join(self.__movie_path, RMT_FAVTYPE.value, "%s (%s)" % (title, year))
+            if self.__movie_category_flag:
+                dest_path = os.path.join(self.__movie_path, RMT_FAVTYPE, "%s (%s)" % (title, year))
                 if os.path.exists(dest_path):
                     return True
                 dest_path = os.path.join(self.__movie_path, category, "%s (%s)" % (title, year))
@@ -640,7 +637,7 @@ class FileTransfer:
         else:
             if not season:
                 # 没有季信息的情况下，只判断目录
-                if self.__tv_subtypedir:
+                if self.__tv_category_flag:
                     dest_path = os.path.join(self.__tv_path, category, "%s (%s)" % (title, year))
                 else:
                     dest_path = os.path.join(self.__tv_path, "%s (%s)" % (title, year))
@@ -651,7 +648,7 @@ class FileTransfer:
                     for sea in season:
                         if not sea:
                             continue
-                        if self.__tv_subtypedir:
+                        if self.__tv_category_flag:
                             dest_path = os.path.join(self.__tv_path, category, "%s (%s)" % (title, year),
                                                      "Season %s" % sea)
                         else:
@@ -671,7 +668,7 @@ class FileTransfer:
                             epi_str = "E%s" % str(epi).rjust(2, "0")
                             ext_exist = False
                             for ext in RMT_MEDIAEXT:
-                                if self.__tv_subtypedir:
+                                if self.__tv_category_flag:
                                     dest_path = os.path.join(self.__tv_path, category, "%s (%s)" % (title, year),
                                                              "Season %s" % sea, "%s - %s%s - 第 %s 集%s" % (
                                                              title, sea_str, epi_str, epi, ext))
@@ -687,7 +684,7 @@ class FileTransfer:
 
     # Emby点红星后转移文件
     def transfer_embyfav(self, item_path):
-        if not self.__movie_subtypedir or not self.__movie_path:
+        if not self.__movie_category_flag or not self.__movie_path:
             return False, None
         if os.path.isdir(item_path):
             movie_dir = item_path
@@ -697,11 +694,9 @@ class FileTransfer:
             return False, None
         name = movie_dir.split('/')[-1]
         org_type = movie_dir.split('/')[-2]
-        if org_type not in [MediaCatagory.HYDY.value, MediaCatagory.WYDY.value]:
+        if org_type == RMT_FAVTYPE:
             return False, None
-        if org_type == RMT_FAVTYPE.value:
-            return False, None
-        new_path = os.path.join(self.__movie_path, RMT_FAVTYPE.value, name)
+        new_path = os.path.join(self.__movie_path, RMT_FAVTYPE, name)
         log.info("【EMBY】开始转移文件 %s 到 %s ..." % (movie_dir, new_path))
         if os.path.exists(new_path):
             log.info("【EMBY】目录 %s 已存在！" % new_path)

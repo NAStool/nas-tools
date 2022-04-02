@@ -32,8 +32,9 @@ TG交流：https://t.me/nastool_chat
 
 
 ## 更新日志
-2022.4.1
+2022.4.2
 * 支持对识别错误的记录手工重新识别转移
+* 支持自定义分类
 
 2022.3.27
 * 支持查询识别转移历史记录
@@ -58,7 +59,7 @@ TG交流：https://t.me/nastool_chat
 * 通知推送支持Bark
 
 2022.2.28
-* 支持RSS简单策略选种，新增pt.sites.res_type配置项
+* 支持RSS简单策略选种
 * 优化图文消息推送及媒体识别
 * 删除了原来打算整合的原开源代码
 
@@ -124,7 +125,7 @@ https://github.com/jxxghp/nas-tools/releases
 
 ### 3、设置Emby（可选）
 * 在Emby的Webhooks插件中，设置地址为：http(s)://IP:3000/emby，勾选“播放事件”和“用户事件（建议只对管理用户勾选）“
-* 如果启用了自动分类功能，会是如下的目录结构，分别设置好媒体库（自动分类可选，不想分类的可关闭）。
+* 如果启用了默认分类，需按如下的目录结构分别设置好媒体库；如是自定义分类，请按自己的定义建立好媒体库目录，分类定义请参考配置文件模板。
    > 电影
    >> 精选
    >> 华语电影
@@ -203,3 +204,4 @@ Jackett的相关配置参考网上的各类教程。
 ## 鸣谢
 * 感谢 <a href="https://github.com/Qliangw/notion_sync_data" target="_blank">Qliangw</a> 贡献豆瓣部分的代码
 * 感谢 <a href="https://hub.docker.com/r/nevinee/nas-tools" target="_blank">nevinee</a> 完善docker构建
+* 感谢 PR 代码的所有大佬
