@@ -183,17 +183,16 @@
                     <table class="table table-vcenter card-table">
                       <thead>
                         <tr>
-                          <th>时间</th>
                           <th>媒体信息</th>
                           <th>文件信息</th>
-                          <th>操作</th>
+                          <th>时间</th>
+                          <th></th>
                         </tr>
                       </thead>
                       <tbody>
                       {% if TotalCount > 0 %}
                       {% for History in Historys %}
                       <tr>
-                        <td>{{ History[9] }}</td>
                         <td>
                           <div class="d-flex py-1 align-items-center">
                             <span class="avatar me-2" style="">{{ History[2] }}</span>
@@ -207,6 +206,7 @@
                           <div>{{ History[3] }}</div>
                           <div class="text-muted">来自：{{ History[0] }}</div>
                         </td>
+                        <td>{{ History[9] }}</td>
                         <td>
                           <div class="dropdown">
                             <button class="btn dropdown-toggle align-text-top" data-bs-toggle="dropdown">
@@ -229,6 +229,7 @@
                       </tbody>
                     </table>
                   </div>
+                  {% if TotalCount > 0 %}
                   <div class="card-footer d-flex align-items-center">
                     <p class="m-0 text-muted">当前页 <span>{{ Count }}</span> 条</p>
                     <ul class="pagination m-0 ms-auto">
@@ -248,6 +249,7 @@
                       </li>
                     </ul>
                   </div>
+                  {% endif %}
                 </div>
               </div>
             </div>
@@ -290,7 +292,7 @@
             <div class="form-selectgroup-boxes row mb-3">
               <div class="col-lg-6">
                 <label class="form-selectgroup-item">
-                  <input type="radio" name="rename_type" value="MOV" class="form-selectgroup-input" checked>
+                  <input type="radio" name="rename_type" id="rename_type_mov" value="MOV" class="form-selectgroup-input" checked>
                   <span class="form-selectgroup-label d-flex align-items-center p-3">
                     <span class="me-3">
                       <span class="form-selectgroup-check"></span>
@@ -303,7 +305,7 @@
               </div>
               <div class="col-lg-6">
                 <label class="form-selectgroup-item">
-                  <input type="radio" name="rename_type" value="TV" class="form-selectgroup-input">
+                  <input type="radio" name="rename_type" id="rename_type_tv" value="TV" class="form-selectgroup-input">
                   <span class="form-selectgroup-label d-flex align-items-center p-3">
                     <span class="me-3">
                       <span class="form-selectgroup-check"></span>
@@ -339,10 +341,8 @@
             </div>
           </div>
           <div class="modal-footer">
-            <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-              取消
-            </a>
-            <input type="button" id="rename_btn" class="btn btn-primary" value="转移">
+            <button type="button" class="btn me-auto" data-bs-dismiss="modal">关闭</button>
+            <button type="button" id="rename_btn" class="btn btn-primary">转移</button>
           </div>
         </div>
       </div>
@@ -368,9 +368,11 @@
       //重新识别
       function rename_history(type, path, id){
         if(type == "电视剧"){
-          $("input[name='rename_type'][value='TV']").attr("checked",true);
+          $("#rename_type_tv").attr("checked",true);
+          $("#rename_type_mov").attr("checked",false);
         }else{
-          $("input[name='rename_type'][value='MOV']").attr("checked",true);
+          $("#rename_type_tv").attr("checked",false);
+          $("#rename_type_mov").attr("checked",true);
         }
         $("#rename_path").val(path);
         $("#rename_logid").val(id);
@@ -410,11 +412,11 @@
         // 开始处理
         var data = { "logid": logid, "type": type, "title": title, "year": year, "tmdb": tmdb};
         $("#rename_btn").attr("disabled", true);
-        $("#rename_btn").val("处理中...");
+        $("#rename_btn").text("处理中...");
         $("#rename_retmsg").hide()
         ajax_post("rename", data, function(ret){
           $("#rename_btn").attr("disabled", false);
-          $("#rename_btn").val("转移");
+          $("#rename_btn").text("转移");
           if(ret.retcode == 0){
             //处理成功
             setTimeout("window.location.reload()", 1000)
