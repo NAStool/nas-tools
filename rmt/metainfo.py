@@ -1,5 +1,5 @@
 import re
-
+import anitopy
 import cn2an
 import requests
 from requests import RequestException
@@ -30,8 +30,10 @@ class MetaInfo(object):
     total_episodes = 0
     # 识别的开始集
     begin_episode = None
-    # 识别的结束季
+    # 识别的结束集
     end_episode = None
+    # Partx Cd Dvd Disk Disc
+    part = None
     # 识别的资源类型
     resource_type = None
     # 识别的分辨率
@@ -69,6 +71,7 @@ class MetaInfo(object):
     # 正则式区
     _season_re = r"S(\d{2})"
     _episode_re = r"\d*EP?(\d{2})"
+    _part_re = r"(^PART[1-9]|^CD[1-9]|^DVD[1-9]|^DISK[1-9]|^DISC[1-9])"
     _resources_type_re = r"BLURAY|REMUX|HDTV|WEBRIP|DVDRIP|UHD|SDR|HDR|DOLBY|BLU|WEB"
     _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|^HBO|\d{1,2}th" \
                         r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|EP?\d{2}\s*-\s*EP?\d{2}|EP?\d{2}" \
@@ -78,49 +81,78 @@ class MetaInfo(object):
                         r"|[HX]264|[HX]265|AVC|AAC|DTS\d.\d|HEVC|\d{3,4}[PI]" \
                         r"|TV Series|Movie|Animations|XXX" \
                         r"|大陆|连载|西德|日剧|美剧|电视剧|电影|动画片|动漫|法国|英国|美国|德国|印度|泰国|台湾|香港|中国|韩国|日本|欧美|日韩|超高清|高清|蓝光|翡翠台" \
-                        r"|最终季|合集|[中国英葡法俄日韩德意西印泰台港粤双文语简繁体特效内封官译外挂]+字幕"
+                        r"|最终季|合集|[中国英葡法俄日韩德意西印泰台港粤双文语简繁体特效内封官译外挂]+字幕" \
+                        r"|PART[1-9]|CD[1-9]|DVD[1-9]|DISK[1-9]|DISC[1-9]"
     _name_onlychinese_re = r"[a-zA-Z【】\-_.\[\]()\s]+"
     _resources_pix_re = r"[SBUHD]*(\d{3,4}[PI]+)"
     _subtitle_season_re = r"第\s*([0-9一二三四五六七八九十\-\s]+)\s*季"
     _subtitle_episode_re = r"第\s*([0-9一二三四五六七八九十\-\s]+)\s*集"
 
-    def __init__(self, title, subtitle=None):
+    def __init__(self, title, subtitle=None, anime=False):
         if not title:
             return
         self.category_handler = Category()
         self.org_string = title
-        # 拆分tokens
-        tokens = Tokens(title)
-        # 解析名称、年份、季、集、资源类型、分辨率等
-        token = tokens.get_next()
-        while token:
-            # 标题
-            self.__init_name(token)
-            # 年份
-            if self._continue_flag:
-                self.__init_year(token)
-            # 分辨率
-            if self._continue_flag:
-                self.__init_resource_pix(token)
-            # 季
-            if self._continue_flag:
-                self.__init_seasion(token)
-            # 集
-            if self._continue_flag:
-                self.__init_episode(token)
-            # 资源类型
-            if self._continue_flag:
-                self.__init_resource_type(token)
-            # 取下一个，直到没有为卡
+        if not anime:
+            # 拆分tokens
+            tokens = Tokens(title)
+            # 解析名称、年份、季、集、资源类型、分辨率等
             token = tokens.get_next()
-            self._continue_flag = True
-        # 解析副标题，只要季和集
-        if subtitle:
-            self.__init_subtitle(subtitle)
+            while token:
+                # 标题
+                self.__init_name(token)
+                # Part
+                if self._continue_flag:
+                    self.__init_part(token)
+                # 年份
+                if self._continue_flag:
+                    self.__init_year(token)
+                # 分辨率
+                if self._continue_flag:
+                    self.__init_resource_pix(token)
+                # 季
+                if self._continue_flag:
+                    self.__init_seasion(token)
+                # 集
+                if self._continue_flag:
+                    self.__init_episode(token)
+                # 资源类型
+                if self._continue_flag:
+                    self.__init_resource_type(token)
+                # 取下一个，直到没有为卡
+                token = tokens.get_next()
+                self._continue_flag = True
+            # 解析副标题，只要季和集
+            if subtitle:
+                self.__init_subtitle(subtitle)
+            else:
+                self.__init_subtitle(title)
+            if not self.type:
+                self.type = MediaType.MOVIE
         else:
-            self.__init_subtitle(title)
-        if not self.type:
-            self.type = MediaType.MOVIE
+            # 调用第三方模块识别动漫
+            anitopy_info = anitopy.parse(title)
+            if anitopy_info:
+                # 名称
+                name = anitopy_info.get("anime_title")
+                if is_chinese(name):
+                    self.cn_name = name
+                else:
+                    self.en_name = name
+                # 年份
+                year = anitopy_info.get("anime_year")
+                if year and year.isdigit():
+                    self.year = int(year)
+                # 集号
+                episode_number = anitopy_info.get("episode_number")
+                if episode_number and episode_number.isdigit():
+                    self.begin_episode = int(episode_number)
+                    self.type = MediaType.TV
+                # 类型
+                if not self.type:
+                    self.type = MediaType.MOVIE
+                # 分辨率
+                self.resource_pix = anitopy_info.get("video_resolution")
 
     def __init_name(self, token):
         # 去不需要的干扰字符
@@ -146,6 +178,18 @@ class MetaInfo(object):
             else:
                 self.en_name = token
             self._last_token_type = "name"
+
+    def __init_part(self, token):
+        if not self.get_name():
+            return
+        re_res = re.search(r"%s" % self._part_re, token, re.IGNORECASE)
+        if re_res:
+            if not self.part:
+                self.part = re_res.group(1)
+                self._last_token_type = "part"
+                self._continue_flag = False
+                if self.get_name():
+                    self._stop_name_flag = True
 
     def __init_year(self, token):
         if not self.get_name():

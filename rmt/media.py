@@ -171,6 +171,10 @@ class Media:
                                 if not file_media_info:
                                     # 不带年份查电影
                                     file_media_info = self.__search_tmdb(media_name, None, MediaType.MOVIE)
+                        if not file_media_info:
+                            # 按动漫再查一次
+                            meta_info = MetaInfo(title, None, True)
+                            file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, meta_info.type)
                 # 加入缓存
                 if file_media_info:
                     self.meta.update_meta_data({media_key: file_media_info})
@@ -228,6 +232,10 @@ class Media:
                             if self.__rmt_match_mode == MatchMode.NORMAL:
                                 # 去掉年份再查一次，有可能是年份错误
                                 file_media_info = self.__search_tmdb(meta_info.get_name(), None, meta_info.type)
+                            if not file_media_info:
+                                # 按动漫再识别一次
+                                meta_info = MetaInfo(file_name, None, True)
+                                file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, meta_info.type)
                         if file_media_info:
                             self.meta.update_meta_data({media_key: file_media_info})
                         else:

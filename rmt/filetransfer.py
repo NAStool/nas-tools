@@ -569,10 +569,11 @@ class FileTransfer:
             ret_dir_path = file_path
             if os.path.exists(file_path):
                 dir_exist_flag = True
+            file_dest = os.path.join(file_path, dir_name)
+            if media.part:
+                file_dest = "%s-%s" % (file_dest, media.part)
             if media.resource_pix:
-                file_dest = os.path.join(file_path, "%s - %s" % (dir_name, media.resource_pix))
-            else:
-                file_dest = os.path.join(file_path, dir_name)
+                file_dest = "%s - %s" % (file_dest, media.resource_pix)
             ret_file_path = file_dest
             for ext in RMT_MEDIAEXT:
                 ext_dest = "%s%s" % (file_dest, ext)
@@ -603,8 +604,10 @@ class FileTransfer:
                     else:
                         file_seq_num = "%s-%s" % (episodes[0], episodes[-1])
                     # 文件路径
-                    file_path = os.path.join(season_dir,
-                                             "%s - %s%s - 第 %s 集" % (media.title, media.get_season_item(), media.get_episode_items(), file_seq_num))
+                    file_path = os.path.join(season_dir, media.title)
+                    if media.part:
+                        file_path = "%s-%s" % (file_path, media.part)
+                    file_path = "%s - %s%s - 第 %s 集" % (file_path, media.get_season_item(), media.get_episode_items(), file_seq_num)
                     ret_file_path = file_path
                     for ext in RMT_MEDIAEXT:
                         log.debug("【RSS】路径：%s%s" % (file_path, ext))
@@ -623,6 +626,10 @@ class FileTransfer:
         season = item.get_season_list()
         episode = item.get_episode_list()
         category = item.category
+        if item.part:
+            part = "-%s" % item.part
+        else:
+            part = ""
 
         # 如果是电影
         if mtype == MediaType.MOVIE:
@@ -670,12 +677,12 @@ class FileTransfer:
                             for ext in RMT_MEDIAEXT:
                                 if self.__tv_category_flag:
                                     dest_path = os.path.join(self.__tv_path, category, "%s (%s)" % (title, year),
-                                                             "Season %s" % sea, "%s - %s%s - 第 %s 集%s" % (
-                                                             title, sea_str, epi_str, epi, ext))
+                                                             "Season %s" % sea, "%s%s - %s%s - 第 %s 集%s" % (
+                                                             title, part, sea_str, epi_str, epi, ext))
                                 else:
                                     dest_path = os.path.join(self.__tv_path, "%s (%s)" % (title, year),
-                                                             "Season %s" % sea, "%s - %s%s - 第 %s 集%s" % (
-                                                             title, sea_str, epi_str, epi, ext))
+                                                             "Season %s" % sea, "%s%s - %s%s - 第 %s 集%s" % (
+                                                             title, part, sea_str, epi_str, epi, ext))
                                 if os.path.exists(dest_path):
                                     ext_exist = True
                             if not ext_exist:
