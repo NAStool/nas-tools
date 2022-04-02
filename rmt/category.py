@@ -23,30 +23,28 @@ class Category:
         if media:
             category = media.get('category')
             if not category:
-                category = "default-category"
-            self.__category_path = os.path.join(os.path.dirname(config.get_config_path()), "%s.yaml" % category)
-        else:
-            self.__category_path = os.path.join(os.path.dirname(config.get_config_path()), 'default-category.yaml')
-        try:
-            if not os.path.exists(self.__category_path):
-                cfg_tp_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../config", "default-category.yaml")
-                call(["cp", cfg_tp_path, self.__category_path])
-                print("【ERROR】分类配置文件不存在，已将配置文件模板复制到配置目录，请修改后重新启动...")
-                self.__categorys = {}
                 return
-            with open(self.__category_path, mode='r', encoding='utf-8') as f:
-                try:
-                    self.__categorys = yaml.safe_load(f)
-                except yaml.YAMLError as e:
-                    print("【ERROR】配置文件格式出现严重错误！请检查：%s" % str(e))
+            self.__category_path = os.path.join(os.path.dirname(config.get_config_path()), "%s.yaml" % category)
+            try:
+                if not os.path.exists(self.__category_path):
+                    cfg_tp_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../config", "default-category.yaml")
+                    call(["cp", cfg_tp_path, self.__category_path])
+                    print("【ERROR】分类配置文件不存在，已将配置文件模板复制到配置目录，请修改后重新启动...")
                     self.__categorys = {}
-        except Exception as err:
-            print("【ERROR】加载分类配置出错：%s" % str(err))
-            return False
+                    return
+                with open(self.__category_path, mode='r', encoding='utf-8') as f:
+                    try:
+                        self.__categorys = yaml.safe_load(f)
+                    except yaml.YAMLError as e:
+                        print("【ERROR】配置文件格式出现严重错误！请检查：%s" % str(e))
+                        self.__categorys = {}
+            except Exception as err:
+                print("【ERROR】加载分类配置出错：%s" % str(err))
+                return False
 
-        if self.__categorys:
-            self.__movie_categorys = self.__categorys.get('movie')
-            self.__tv_categorys = self.__categorys.get('tv')
+            if self.__categorys:
+                self.__movie_categorys = self.__categorys.get('movie')
+                self.__tv_categorys = self.__categorys.get('tv')
 
     def get_movie_category_flag(self):
         if self.__movie_categorys:
