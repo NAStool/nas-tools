@@ -2,7 +2,7 @@
 	"defaults":{
 		"run-as": "package"
 	},
-	"username": "sc-open-vm-tools",
+	"username": "sc-nastool",
 	"ctrl-script": [{
 		"action": "preinst",
 		"run-as": "root"
