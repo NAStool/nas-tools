@@ -83,7 +83,7 @@ TG交流：https://t.me/nastool_chat
 教程见 [这里](docker/readme.md) 。
 
 ### 2、本地运行
-python3.8版本
+python3版本
 ```
 python3 -m pip install -r requirements.txt
 export NASTOOL_CONFIG="/xxx/config/config.yaml"
