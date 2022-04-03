@@ -93,7 +93,6 @@ class RSSDownloader:
             for res in rss_result:
                 try:
                     torrent_name = res['title']
-                    torrent_name = self.downloader.prepare_torrent_name(torrent_name)
                     enclosure = res['enclosure']
                     description = res['description']
                     # 判断是否处理过

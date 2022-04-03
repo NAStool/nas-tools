@@ -61,7 +61,6 @@ class Jackett:
         index_sucess = 0
         for media_item in media_array:
             torrent_name = media_item.get('title')
-            torrent_name = self.downloader.prepare_torrent_name(torrent_name)
             enclosure = media_item.get('enclosure')
             size = media_item.get('size')
             description = media_item.get('description')

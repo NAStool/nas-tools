@@ -73,6 +73,7 @@ class MetaInfo(object):
     _episode_re = r"\d*EP?(\d{2})"
     _part_re = r"(^PART[1-9]|^CD[1-9]|^DVD[1-9]|^DISK[1-9]|^DISC[1-9])"
     _resources_type_re = r"BLURAY|REMUX|HDTV|WEBRIP|DVDRIP|UHD|SDR|HDR|DOLBY|BLU|WEB"
+    _name_no_begin_re = r"^\[.+?]"
     _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|^HBO|\d{1,2}th" \
                         r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|EP?\d{2}\s*-\s*EP?\d{2}|EP?\d{2}" \
                         r"|第\s*[0-9一二三四五六七八九十]+\s*季" \
@@ -94,6 +95,9 @@ class MetaInfo(object):
         self.category_handler = Category()
         self.org_string = title
         if not anime:
+            # 去掉第1个以[]开关的种子名称，有些站会把类型加到种子名称上，会误导识别
+            # 非贪婪只匹配一个
+            title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
             # 拆分tokens
             tokens = Tokens(title)
             # 解析名称、年份、季、集、资源类型、分辨率等
@@ -135,6 +139,8 @@ class MetaInfo(object):
             if anitopy_info:
                 # 名称
                 name = anitopy_info.get("anime_title")
+                # 把名称中带有的年份去掉
+                name = re.sub(r'[\s.]+\d{4}', "", name)
                 if is_chinese(name):
                     self.cn_name = name
                 else:

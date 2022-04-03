@@ -1,4 +1,3 @@
-from rmt.media import Media
 from rmt.metainfo import MetaInfo
 
 if __name__ == "__main__":
@@ -14,5 +13,6 @@ if __name__ == "__main__":
             meta_info = MetaInfo(name)
             print(meta_info.get_name())
     '''
-    media = Media().get_media_info("枕刀歌 2021")
+    name = '[OurBits] [112189] Bu Liang Ren 2018 S03 Complete 1080p WEB-DL AAC H.264-OurTV'
+    media = MetaInfo(name, None, True)
     print(media.__dict__)

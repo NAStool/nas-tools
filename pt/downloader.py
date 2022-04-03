@@ -251,15 +251,3 @@ class Downloader:
                 can_download_list_item.append(t_item)
 
         return can_download_list_item
-
-    # 处理种子标题中的错误信息
-    @staticmethod
-    def prepare_torrent_name(torrent_name):
-        # 去掉第1个以[]开关的种子名称，有些站会把类型加到种子名称上，会误导识别
-        # 非贪婪只匹配一个
-        new_name = re.sub(r'^\[.+?]', "", torrent_name, count=1)
-        meta_info = MetaInfo(new_name)
-        if meta_info.get_name():
-            return new_name
-        else:
-            return torrent_name
