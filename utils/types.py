@@ -4,6 +4,7 @@ from enum import Enum
 class MediaType(Enum):
     TV = '电视剧'
     MOVIE = '电影'
+    ANIME = '动漫'
 
 
 class DownloaderType(Enum):

@@ -122,7 +122,7 @@ class Downloader:
                     can_item.title, can_item.year, can_item.get_season_episode_string()))
                 continue
             # 添加PT任务
-            if can_item.type == MediaType.TV:
+            if can_item.type != MediaType.MOVIE:
                 # 标题中的季
                 seasons = can_item.get_season_list()
                 episodes = can_item.get_episode_list()
@@ -239,7 +239,7 @@ class Downloader:
         # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
         for t_item in media_list:
             # 控重的主链是名称、年份、季、集
-            if t_item.type == MediaType.TV:
+            if t_item.type != MediaType.MOVIE:
                 media_name = "%s%s%s%s" % (t_item.title,
                                            t_item.year,
                                            t_item.get_season_string(),

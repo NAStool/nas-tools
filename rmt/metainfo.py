@@ -160,14 +160,26 @@ class MetaInfo(object):
                 year = anitopy_info.get("anime_year")
                 if year and year.isdigit():
                     self.year = int(year)
+                # 季号
+                anime_season = anitopy_info.get("anime_season")
+                if anime_season and anime_season.isdigit():
+                    self.begin_season = int(anime_season)
+                    self.type = MediaType.ANIME
                 # 集号
                 episode_number = anitopy_info.get("episode_number")
                 if episode_number and episode_number.isdigit():
                     self.begin_episode = int(episode_number)
-                    self.type = MediaType.TV
+                    self.type = MediaType.ANIME
                 # 类型
                 if not self.type:
-                    self.type = MediaType.MOVIE
+                    anime_type = anitopy_info.get('anime_type')
+                    if anime_type:
+                        if anime_type.upper() == "TV":
+                            self.type = MediaType.ANIME
+                        else:
+                            self.type = MediaType.MOVIE
+                    else:
+                        self.type = MediaType.MOVIE
                 # 分辨率
                 self.resource_pix = anitopy_info.get("video_resolution")
 
@@ -410,20 +422,20 @@ class MetaInfo(object):
                 if not self.end_season else "S%s-S%s" % \
                                             (str(self.begin_season).rjust(2, "0"), str(self.end_season).rjust(2, "0"))
         else:
-            if self.type == MediaType.TV:
-                return "S01"
-            else:
+            if self.type == MediaType.MOVIE:
                 return ""
+            else:
+                return "S01"
 
     # 返回begin_season 的Sxx
     def get_season_item(self):
         if self.begin_season:
             return "S%s" % str(self.begin_season).rjust(2, "0")
         else:
-            if self.type == MediaType.TV:
-                return "S01"
-            else:
+            if self.type == MediaType.MOVIE:
                 return ""
+            else:
+                return "S01"
 
     # 返回季的数组
     def get_season_list(self):
@@ -555,10 +567,10 @@ class MetaInfo(object):
         if not search_type:
             return ""
         if tmdbid:
-            if search_type == MediaType.TV:
-                image_url = FANART_TV_API_URL % tmdbid
-            else:
+            if search_type == MediaType.MOVIE:
                 image_url = FANART_MOVIE_API_URL % tmdbid
+            else:
+                image_url = FANART_TV_API_URL % tmdbid
             try:
                 ret = requests.get(image_url, timeout=10)
                 if ret:

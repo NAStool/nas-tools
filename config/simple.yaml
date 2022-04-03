@@ -11,10 +11,12 @@ app:
 
 # 配置媒体库目录等信息，不能删除
 media:
-  # 媒体库电影文件存放目录，docker使用需要将NAS储存目录映射到以下路径
+  # 媒体库电影文件存放目录
   movie_path: '/mnt/media/电影'
-  # 媒体库电视剧文件存放目录，docker使用需要将NAS储存目录映射到以下路径
+  # 媒体库电视剧文件存放目录
   tv_path: '/mnt/media/电视剧'
+  # 媒体库动漫文件存放目录，如果不想动漫单独分开，可以跟电视剧设置相同
+  anime_path: '/mnt/media/动漫'
   # 无法识别时转移存放的目录，适用于PT下载转移以及sync未指明目的目录时的情况
   unknown_path: '/mnt/media/unknown'
   # 电影电视剧是否需要二级分类，启用二级分类后会在电影电视剧目录下按二级分类名建立子目录
@@ -115,8 +117,10 @@ transmission:
   save_path:
     movie:
     tv:
+    anime:
   # 如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径；如果本程序不是Docker运行但tr是Docker运行，则设置为PT下载目录在宿主机上的真实路径。不是以上两种情况留空即可。
   # 配置项需要跟save_path一一对应
   save_containerpath:
     movie:
     tv:
+    anime:

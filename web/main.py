@@ -20,8 +20,8 @@ from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
 from message.send import Message
 
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, Config
-from utils.functions import get_used_of_partition, str_filesize, str_timelong, INSTANCES
+from config import WECHAT_MENU, PT_TRANSFER_INTERVAL
+from utils.functions import get_used_of_partition, str_filesize, str_timelong
 from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist
@@ -38,23 +38,34 @@ login_manager.login_view = "login"
 
 # Flask实例
 def create_flask_app(config):
-    app = config.get_config('app') or {}
-    admin_user = app.get('login_user') or "admin"
-    admin_password = app.get('login_password') or "password"
-
-    app = Flask(__name__)
-    app.config['JSON_AS_ASCII'] = False
-    app.secret_key = 'jxxghp'
-    applog = logging.getLogger('werkzeug')
-    applog.setLevel(logging.ERROR)
-    login_manager.init_app(app)
-
-    EmbyClient = Emby()
+    app_cfg = config.get_config('app') or {}
+    admin_user = app_cfg.get('login_user') or "admin"
+    admin_password = app_cfg.get('login_password') or "password"
     USERS = [{
         "id": 1,
         "name": admin_user,
         "password": generate_password_hash(admin_password)
     }]
+
+    App = Flask(__name__)
+    App.config['JSON_AS_ASCII'] = False
+    App.secret_key = 'jxxghp'
+    applog = logging.getLogger('werkzeug')
+    applog.setLevel(logging.ERROR)
+    login_manager.init_app(App)
+    # 全局对象
+    EmbyClient = Emby()
+    MediaClient = Media()
+    DownloaderClient = Downloader()
+    AutoRemoveTorrentsClient = AutoRemoveTorrents()
+    PTTransferClient = PTTransfer()
+    PTSigninClient = PTSignin()
+    RSSDownloaderClient = RSSDownloader()
+    DoubanSyncClient = DoubanSync()
+    MessageClient = Message()
+    DoubanSyncClient = DoubanSync()
+    JackettClient = Jackett()
+    FileTransferClient = FileTransfer()
 
     # 根据用户名获得用户记录
     def get_user(user_name):
@@ -95,17 +106,17 @@ def create_flask_app(config):
     def load_user(user_id):
         return User.get(user_id)
 
-    @app.errorhandler(404)
+    @App.errorhandler(404)
     def page_not_found(error):
         return render_template("404.html", error=error), 404
 
-    @app.errorhandler(500)
+    @App.errorhandler(500)
     def page_server_error(error):
         return render_template("500.html", error=error), 500
 
     # 登录页面
-    @app.route('/', methods=['POST', 'GET'])
-    @app.route('/login', methods=['GET', 'POST'])
+    @App.route('/', methods=['POST', 'GET'])
+    @App.route('/login', methods=['GET', 'POST'])
     def login():
         if request.method == 'GET':
             return render_template('login.html')
@@ -128,7 +139,7 @@ def create_flask_app(config):
                 return render_template('login.html', err_msg="用户名或密码错误！")
 
     # 首页
-    @app.route('/home', methods=['POST', 'GET'])
+    @App.route('/home', methods=['POST', 'GET'])
     @login_required
     def home():
         # 获取媒体数量
@@ -166,20 +177,33 @@ def create_flask_app(config):
             # 电视目录
             tv_path = media.get('tv_path')
             if tv_path:
-                tv_used, tv_total = get_used_of_partition(movie_path)
+                tv_used, tv_total = get_used_of_partition(tv_path)
             else:
                 tv_used, tv_total = 0, 0
+            # 动漫目录
+            anime_path = media.get('anime_path')
+            if anime_path:
+                anime_used, anime_total = get_used_of_partition(anime_path)
+            else:
+                anime_used, anime_total = 0, 0
             # 总空间
-            if movie_total == tv_total:
-                TotalSpace = movie_total
-            else:
-                TotalSpace = movie_total + tv_total
+            TotalSpaceAry = []
+            if movie_total not in TotalSpaceAry:
+                TotalSpaceAry.append(movie_total)
+            if tv_total not in TotalSpaceAry:
+                TotalSpaceAry.append(tv_total)
+            if anime_total not in TotalSpaceAry:
+                TotalSpaceAry.append(anime_total)
+            TotalSpace = sum(TotalSpaceAry)
             # 已使用空间
-            if movie_used == tv_used:
-                UsedSapce = movie_used
-            else:
-                UsedSapce = movie_used + tv_used
-
+            UsedSapceAry = []
+            if movie_used not in UsedSapceAry:
+                UsedSapceAry.append(movie_used)
+            if tv_used not in UsedSapceAry:
+                UsedSapceAry.append(tv_used)
+            if anime_used not in UsedSapceAry:
+                UsedSapceAry.append(anime_used)
+            UsedSapce = sum(UsedSapceAry)
             # 电影电视使用百分比格式化
             if TotalSpace:
                 UsedPercent = "%0.1f" % ((UsedSapce / TotalSpace) * 100)
@@ -204,7 +228,7 @@ def create_flask_app(config):
                                )
 
     # 影音搜索页面
-    @app.route('/search', methods=['POST', 'GET'])
+    @App.route('/search', methods=['POST', 'GET'])
     @login_required
     def search():
         # 查询结果
@@ -215,7 +239,7 @@ def create_flask_app(config):
                                AppVersion=APP_VERSION)
 
     # 站点订阅页面
-    @app.route('/sites', methods=['POST', 'GET'])
+    @App.route('/sites', methods=['POST', 'GET'])
     @login_required
     def sites():
         # 获取订阅关键字
@@ -227,7 +251,7 @@ def create_flask_app(config):
                                AppVersion=APP_VERSION)
 
     # 推荐页面
-    @app.route('/recommend', methods=['POST', 'GET'])
+    @App.route('/recommend', methods=['POST', 'GET'])
     @login_required
     def recommend():
         RecommendType = request.args.get("t")
@@ -246,16 +270,16 @@ def create_flask_app(config):
         PageRange = range(StartPage, EndPage)
         if RecommendType == "hm":
             # 热门电影
-            res_list = Media().get_tmdb_hot_movies(CurrentPage)
+            res_list = MediaClient.get_tmdb_hot_movies(CurrentPage)
         elif RecommendType == "ht":
             # 热门电影
-            res_list = Media().get_tmdb_hot_tvs(CurrentPage)
+            res_list = MediaClient.get_tmdb_hot_tvs(CurrentPage)
         elif RecommendType == "nm":
             # 热门电影
-            res_list = Media().get_tmdb_new_movies(CurrentPage)
+            res_list = MediaClient.get_tmdb_new_movies(CurrentPage)
         elif RecommendType == "nt":
             # 热门电影
-            res_list = Media().get_tmdb_new_tvs(CurrentPage)
+            res_list = MediaClient.get_tmdb_new_tvs(CurrentPage)
         else:
             res_list = []
 
@@ -292,11 +316,11 @@ def create_flask_app(config):
                                AppVersion=APP_VERSION)
 
     # 影音搜索页面
-    @app.route('/download', methods=['POST', 'GET'])
+    @App.route('/download', methods=['POST', 'GET'])
     @login_required
     def download():
         DownloadCount = 0
-        Client, Torrents = Downloader().get_pt_torrents()
+        Client, Torrents = DownloaderClient.get_pt_torrents()
         DispTorrents = []
         for torrent in Torrents:
             if Client == DownloaderType.QB:
@@ -339,7 +363,7 @@ def create_flask_app(config):
             if not name:
                 continue
             # 识别
-            media_info = Media().get_media_info(name)
+            media_info = MediaClient.get_media_info(name)
             if not media_info:
                 continue
             if not media_info.tmdb_info:
@@ -363,7 +387,7 @@ def create_flask_app(config):
                                AppVersion=APP_VERSION)
 
     # 服务页面
-    @app.route('/service', methods=['POST', 'GET'])
+    @App.route('/service', methods=['POST', 'GET'])
     @login_required
     def service():
         scheduler_cfg_list = []
@@ -515,7 +539,7 @@ def create_flask_app(config):
                                AppVersion=APP_VERSION)
 
     # 历史记录页面
-    @app.route('/history', methods=['POST', 'GET'])
+    @App.route('/history', methods=['POST', 'GET'])
     @login_required
     def history():
         PageNum = request.args.get("pagenum")
@@ -565,7 +589,7 @@ def create_flask_app(config):
                                AppVersion=APP_VERSION)
 
     # 事件响应
-    @app.route('/do', methods=['POST'])
+    @App.route('/do', methods=['POST'])
     def do():
         cmd = request.form.get("cmd")
         data = json.loads(request.form.get("data"))
@@ -574,17 +598,17 @@ def create_flask_app(config):
             if cmd == "sch":
                 sch_item = data.get("item")
                 if sch_item == "autoremovetorrents":
-                    AutoRemoveTorrents().run_schedule()
+                    AutoRemoveTorrentsClient.run_schedule()
                 if sch_item == "pttransfer":
-                    PTTransfer().run_schedule()
+                    PTTransferClient.run_schedule()
                 if sch_item == "ptsignin":
-                    PTSignin().run_schedule()
+                    PTSigninClient.run_schedule()
                 if sch_item == "sync":
-                    FileTransfer().transfer_all_sync()
+                    FileTransferClient.transfer_all_sync()
                 if sch_item == "rssdownload":
-                    RSSDownloader().run_schedule()
+                    RSSDownloaderClient.run_schedule()
                 if sch_item == "douban":
-                    DoubanSync().run_schedule()
+                    DoubanSyncClient.run_schedule()
                 return {"retmsg": "执行完成！", "item": sch_item}
 
             # 电影关键字
@@ -638,13 +662,13 @@ def create_flask_app(config):
                         mtype = MediaType.TV
                     else:
                         mtype = MediaType.MOVIE
-                    Downloader().add_pt_torrent(res[0], mtype)
+                    DownloaderClient.add_pt_torrent(res[0], mtype)
                     msg_item = MetaInfo("%s %s" % (res[1], res[2]))
                     msg_item.title = res[1]
                     msg_item.vote_average = res[5]
                     msg_item.backdrop_path = res[6]
                     msg_item.type = mtype
-                    Message().send_download_message(SearchType.WEB, msg_item)
+                    MessageClient.send_download_message(SearchType.WEB, msg_item)
                 return {"retcode": 0}
 
             # 添加RSS关键字
@@ -662,27 +686,27 @@ def create_flask_app(config):
             if cmd == "pt_start":
                 tid = data.get("id")
                 if id:
-                    Downloader().start_torrents(tid)
+                    DownloaderClient.start_torrents(tid)
                 return {"retcode": 0, "id": tid}
 
             # 停止下载
             if cmd == "pt_stop":
                 tid = data.get("id")
                 if id:
-                    Downloader().stop_torrents(tid)
+                    DownloaderClient.stop_torrents(tid)
                 return {"retcode": 0, "id": tid}
 
             # 删除下载
             if cmd == "pt_remove":
                 tid = data.get("id")
                 if id:
-                    Downloader().delete_torrents(tid)
+                    DownloaderClient.delete_torrents(tid)
                 return {"retcode": 0, "id": tid}
 
             # 查询具体种子的信息
             if cmd == "pt_info":
                 ids = data.get("ids")
-                Client, Torrents = Downloader().get_pt_torrents(torrent_ids=ids)
+                Client, Torrents = DownloaderClient.get_pt_torrents(torrent_ids=ids)
                 DispTorrents = []
                 for torrent in Torrents:
                     if Client == DownloaderType.QB:
@@ -752,16 +776,25 @@ def create_flask_app(config):
                 year = data.get("year")
                 mtype = data.get("type")
                 if mtype == "TV":
-                    media_info = Media().get_media_info_manual(MediaType.TV, title, year, tmdbid)
+                    media_type = MediaType.TV
                     if not dest_dir:
                         dest_dir = config.get_config("media").get("tv_path")
-                else:
-                    media_info = Media().get_media_info_manual(MediaType.MOVIE, title, year, tmdbid)
+                elif mtype == "MOV":
+                    media_type = MediaType.MOVIE
                     if not dest_dir:
                         dest_dir = config.get_config("media").get("movie_path")
-                if not media_info or not media_info.tmdb_info:
+                else:
+                    media_type = MediaType.ANIME
+                    if not dest_dir:
+                        dest_dir = config.get_config("media").get("anime_path")
+                tmdb_info = MediaClient.get_media_info_manual(media_type, title, year, tmdbid)
+                if not tmdb_info:
                     return {"retcode": 1, "retmsg": "转移失败，无法查询到TMDB信息"}
-                succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN, in_path=path, target_dir=dest_dir, media_info=media_info)
+                succ_flag, ret_msg = FileTransferClient.transfer_media(in_from=SyncType.MAN,
+                                                                       in_path=path,
+                                                                       target_dir=dest_dir,
+                                                                       tmdb_info=tmdb_info,
+                                                                       media_type=media_type)
                 if succ_flag:
                     if logid:
                         insert_transfer_blacklist(path)
@@ -791,7 +824,7 @@ def create_flask_app(config):
                 return {"retcode": 0}
 
     # 响应企业微信消息
-    @app.route('/wechat', methods=['GET', 'POST'])
+    @App.route('/wechat', methods=['GET', 'POST'])
     def wechat():
         message = config.get_config('message')
         sToken = message.get('wechat', {}).get('Token')
@@ -836,26 +869,26 @@ def create_flask_app(config):
             # 处理消息内容
             content = content.strip()
             if content == "/ptr":
-                _thread.start_new_thread(AutoRemoveTorrents().run_schedule, ())
+                _thread.start_new_thread(AutoRemoveTorrentsClient.run_schedule, ())
             elif content == "/ptt":
-                _thread.start_new_thread(PTTransfer().run_schedule, ())
+                _thread.start_new_thread(PTTransferClient.run_schedule, ())
             elif content == "/pts":
-                _thread.start_new_thread(PTSignin().run_schedule, ())
+                _thread.start_new_thread(PTSigninClient.run_schedule, ())
             elif content == "/rst":
-                _thread.start_new_thread(FileTransfer().transfer_all_sync, ())
+                _thread.start_new_thread(FileTransferClient.transfer_all_sync, ())
             elif content == "/rss":
-                _thread.start_new_thread(RSSDownloader().run_schedule, ())
+                _thread.start_new_thread(RSSDownloaderClient.run_schedule, ())
             elif content == "/db":
-                _thread.start_new_thread(DoubanSync().run_schedule, ())
+                _thread.start_new_thread(DoubanSyncClient.run_schedule, ())
             elif content.startswith("http://") or content.startswith("https://") or content.startswith("magnet:"):
-                _thread.start_new_thread(Downloader().add_pt_torrent, (content,))
+                _thread.start_new_thread(DownloaderClient.add_pt_torrent, (content,))
             else:
-                _thread.start_new_thread(Jackett().search_one_media, (content, SearchType.WX,))
+                _thread.start_new_thread(JackettClient.search_one_media, (content, SearchType.WX,))
 
             return make_response(reponse_text, 200)
 
     # Emby消息通知
-    @app.route('/emby', methods=['POST'])
+    @App.route('/emby', methods=['POST'])
     def emby():
         request_json = json.loads(request.form.get('data', {}))
         # log.debug("输入报文：" + str(request_json))
@@ -863,4 +896,4 @@ def create_flask_app(config):
         event.report_to_discord()
         return 'Success'
 
-    return app
+    return App

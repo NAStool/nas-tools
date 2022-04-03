@@ -16,6 +16,8 @@ class Qbittorrent:
     __tv_save_containerpath = None
     __movie_save_path = None
     __movie_save_containerpath = None
+    __anime_save_path = None
+    __anime_save_containerpath = None
     qbc = None
 
     def __init__(self):
@@ -35,17 +37,21 @@ class Qbittorrent:
                 if isinstance(save_path, str):
                     self.__tv_save_path = save_path
                     self.__movie_save_path = save_path
+                    self.__anime_save_path = save_path
                 else:
                     self.__tv_save_path = save_path.get('tv')
                     self.__movie_save_path = save_path.get('movie')
+                    self.__anime_save_path = save_path.get('anime')
             save_containerpath = qbittorrent.get('save_containerpath')
             if save_containerpath:
                 if isinstance(save_containerpath, str):
                     self.__tv_save_containerpath = save_containerpath
                     self.__movie_save_containerpath = save_containerpath
+                    self.__anime_save_containerpath = save_containerpath
                 else:
                     self.__tv_save_containerpath = save_containerpath.get('tv')
                     self.__movie_save_containerpath = save_containerpath.get('movie')
+                    self.__anime_save_containerpath = save_containerpath.get('anime')
             if self.__qbhost and self.__qbport:
                 self.qbc = self.__login_qbittorrent()
 
@@ -100,6 +106,8 @@ class Qbittorrent:
                     true_path = true_path.replace(str(self.__tv_save_path), str(self.__tv_save_containerpath))
                 if self.__movie_save_containerpath:
                     true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
+                if self.__anime_save_containerpath:
+                    true_path = true_path.replace(str(self.__anime_save_path), str(self.__anime_save_containerpath))
                 trans_torrents.append(torrent.name)
                 trans_tasks.append({'path': true_path, 'id': torrent.get('hash')})
         return trans_torrents, trans_tasks
@@ -124,8 +132,10 @@ class Qbittorrent:
         self.qbc.auth_log_in()
         if mtype == MediaType.TV:
             qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__tv_save_path)
-        else:
+        elif mtype == MediaType.MOVIE:
             qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__movie_save_path)
+        else:
+            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__anime_save_path)
         self.qbc.auth_log_out()
         return qbc_ret
 

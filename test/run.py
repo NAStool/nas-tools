@@ -1,3 +1,5 @@
+import anitopy
+
 from rmt.metainfo import MetaInfo
 
 if __name__ == "__main__":
@@ -13,5 +15,5 @@ if __name__ == "__main__":
             meta_info = MetaInfo(name)
             print(meta_info.get_name())
     '''
-    print(MetaInfo('The.303.2018.1080p.BluRay.x264 - UNVEiL[EtHD].mkv').__dict__)
-    print(MetaInfo('[1985].1985.2018.1080p.BluRay.x265.AC3-QaFoNE.mp4').__dict__)
+    print(anitopy.parse('[SweetSub&VCB-Studio] Chikyuugai Shounen Shoujo [Movie 02][Ma10p_1080p][x265_flac]'))
+    print(MetaInfo('[SweetSub&VCB-Studio] Chikyuugai Shounen Shoujo [Movie 02][Ma10p_1080p][x265_flac]', None, True).__dict__)

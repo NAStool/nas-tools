@@ -79,13 +79,20 @@ def check_config(cfg):
         elif not os.path.exists(tv_path):
             log.error("tv_path目录不存在：%s" % tv_path)
 
+        anime_path = config['media'].get('anime_path')
+        if not anime_path:
+            log.error("未配置anime_path")
+        elif not os.path.exists(anime_path):
+            log.error("anime_path目录不存在：%s" % anime_path)
+
         category = config['media'].get('category')
         if not category:
-            log.warn("未配置电影电视剧分类策略")
+            log.warn("未配置分类策略")
         else:
             cates = Category()
             log.info("电影分类：%s" % " ".join(cates.get_movie_categorys()))
             log.info("电视剧分类：%s" % " ".join(cates.get_tv_categorys()))
+            log.info("动漫分类：%s" % " ".join(cates.get_anime_categorys()))
     else:
         log.error("media配置不存在")
 

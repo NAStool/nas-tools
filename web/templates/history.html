@@ -292,7 +292,7 @@
             </div>
             <label class="form-label">类型</label>
             <div class="form-selectgroup-boxes row mb-3">
-              <div class="col-lg-6">
+              <div class="col-lg-4">
                 <label class="form-selectgroup-item">
                   <input type="radio" name="rename_type" id="rename_type_mov" value="MOV" class="form-selectgroup-input" checked>
                   <span class="form-selectgroup-label d-flex align-items-center p-3">
@@ -305,7 +305,7 @@
                   </span>
                 </label>
               </div>
-              <div class="col-lg-6">
+              <div class="col-lg-4">
                 <label class="form-selectgroup-item">
                   <input type="radio" name="rename_type" id="rename_type_tv" value="TV" class="form-selectgroup-input">
                   <span class="form-selectgroup-label d-flex align-items-center p-3">
@@ -314,6 +314,19 @@
                     </span>
                     <span class="form-selectgroup-label-content">
                       <span class="form-selectgroup-title strong mb-1">电视剧</span>
+                    </span>
+                  </span>
+                </label>
+              </div>
+              <div class="col-lg-4">
+                <label class="form-selectgroup-item">
+                  <input type="radio" name="rename_type" id="rename_type_anime" value="ANIME" class="form-selectgroup-input">
+                  <span class="form-selectgroup-label d-flex align-items-center p-3">
+                    <span class="me-3">
+                      <span class="form-selectgroup-check"></span>
+                    </span>
+                    <span class="form-selectgroup-label-content">
+                      <span class="form-selectgroup-title strong mb-1">动漫</span>
                     </span>
                   </span>
                 </label>
@@ -372,9 +385,15 @@
         if(type == "电视剧"){
           $("#rename_type_tv").attr("checked",true);
           $("#rename_type_mov").attr("checked",false);
-        }else{
+          $("#rename_type_anime").attr("checked",false);
+        }else if(type == "电影"){
           $("#rename_type_tv").attr("checked",false);
           $("#rename_type_mov").attr("checked",true);
+          $("#rename_type_anime").attr("checked",false);
+        }else{
+          $("#rename_type_tv").attr("checked",false);
+          $("#rename_type_mov").attr("checked",false);
+          $("#rename_type_anime").attr("checked",true);
         }
         $("#rename_path").val(path);
         $("#rename_logid").val(id);

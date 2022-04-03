@@ -17,6 +17,8 @@ class Transmission:
     __tv_save_containerpath = None
     __movie_save_path = None
     __movie_save_containerpath = None
+    __anime_save_path = None
+    __anime_save_containerpath = None
     trc = None
 
     def __init__(self):
@@ -36,17 +38,21 @@ class Transmission:
                 if isinstance(save_path, str):
                     self.__tv_save_path = save_path
                     self.__movie_save_path = save_path
+                    self.__anime_save_path = save_path
                 else:
                     self.__tv_save_path = save_path.get('tv')
                     self.__movie_save_path = save_path.get('movie')
+                    self.__anime_save_path = save_path.get('anime')
             save_containerpath = transmission.get('save_containerpath')
             if save_containerpath:
                 if isinstance(save_containerpath, str):
                     self.__tv_save_containerpath = save_containerpath
                     self.__movie_save_containerpath = save_containerpath
+                    self.__anime_save_containerpath = save_containerpath
                 else:
                     self.__tv_save_containerpath = save_containerpath.get('tv')
                     self.__movie_save_containerpath = save_containerpath.get('movie')
+                    self.__anime_save_containerpath = save_containerpath.get('anime')
             if self.__trhost and self.__trport:
                 self.trc = self.__login_transmission()
 
@@ -117,6 +123,8 @@ class Transmission:
                     true_path = true_path.replace(str(self.__tv_save_path), str(self.__tv_save_containerpath))
                 if self.__movie_save_containerpath:
                     true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
+                if self.__anime_save_containerpath:
+                    true_path = true_path.replace(str(self.__anime_save_path), str(self.__anime_save_containerpath))
                 trans_torrents.append(torrent.name)
                 trans_tasks.append({'path': true_path, 'id': torrent.id})
         return trans_torrents, trans_tasks
@@ -137,8 +145,10 @@ class Transmission:
     def add_torrent(self, turl, mtype):
         if mtype == MediaType.TV:
             return self.trc.add_torrent(torrent=turl, download_dir=self.__tv_save_path)
-        else:
+        elif mtype == MediaType.MOVIE:
             return self.trc.add_torrent(torrent=turl, download_dir=self.__movie_save_path)
+        else:
+            return self.trc.add_torrent(torrent=turl, download_dir=self.__anime_save_path)
 
     # 下载控制：开始
     def start_torrents(self, ids):

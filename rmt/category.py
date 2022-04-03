@@ -13,6 +13,7 @@ class Category:
     __categorys = None
     __tv_categorys = None
     __movie_categorys = None
+    __anime_categorys = None
 
     def __init__(self):
         self.init_config()
@@ -45,6 +46,7 @@ class Category:
             if self.__categorys:
                 self.__movie_categorys = self.__categorys.get('movie')
                 self.__tv_categorys = self.__categorys.get('tv')
+                self.__anime_categorys = self.__categorys.get('anime')
 
     def get_movie_category_flag(self):
         if self.__movie_categorys:
@@ -53,6 +55,11 @@ class Category:
 
     def get_tv_category_flag(self):
         if self.__tv_categorys:
+            return True
+        return False
+
+    def get_anime_category_flag(self):
+        if self.__anime_categorys:
             return True
         return False
 
@@ -66,11 +73,19 @@ class Category:
             return []
         return self.__tv_categorys.keys()
 
+    def get_anime_categorys(self):
+        if not self.__anime_categorys:
+            return []
+        return self.__anime_categorys.keys()
+
     def get_movie_category(self, tmdb_info):
         return self.get_category(self.__movie_categorys, tmdb_info)
 
     def get_tv_category(self, tmdb_info):
         return self.get_category(self.__tv_categorys, tmdb_info)
+
+    def get_anime_category(self, tmdb_info):
+        return self.get_category(self.__anime_categorys, tmdb_info)
 
     @staticmethod
     def get_category(categorys, tmdb_info):

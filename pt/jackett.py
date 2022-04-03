@@ -160,7 +160,7 @@ class Jackett:
         meta_info = self.media.get_media_info(content)
         total_tv_no_exists = []
         if meta_info.tmdb_info:
-            if meta_info.type == MediaType.TV:
+            if meta_info.type != MediaType.MOVIE:
                 # 检索电视剧的信息
                 tv_info = self.media.get_tmdb_tv_info(meta_info.tmdb_id)
                 if tv_info:
