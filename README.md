@@ -107,10 +107,7 @@ https://github.com/jxxghp/nas-tools/releases
   3) Telegram：关注BotFather申请机器人，关注getuserID拿到chat_id，填入telegram_token、telegram_chat_id。
   4) Bark：安装Bark客户端获得KEY，可以自建Bark服务器或者使用默认的服务器。
 
-* 申请PT站用户，至少要有1个不然没法玩。点PT的RSS图标获取RSS链接，注意项目标题格式只选中标题，不要勾选其它的，以免误导识别。
-![image](https://user-images.githubusercontent.com/51039935/154024206-f2522f1b-7407-46bf-81b4-b147ea304b33.png)
-
-（RSS链接不要用错了，是PT客户端使用的那个）
+* 申请PT站用户，至少要有1个不然没法玩，点PT的RSS图标获取RSS链接（RSS链接不要用错了，是PT客户端使用的那个）
 
 
 ### 2、配置文件
