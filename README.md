@@ -117,14 +117,14 @@ https://github.com/jxxghp/nas-tools/releases
 * 确定是用【复制】模式还是【硬链接】模式：复制模式下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠；硬链接模式不用额外增加存储空间，一份文件两份目录，但需要下载目录和媒体库目录在一个磁盘分区或者存储空间。两者在媒体库使用上是一致的，按自己需要按配置文件模板说明配置。
 
 * 有两种运行模式:【全功能模式】、【精简模式】。如果需要全部功能，参考 config/config.yaml的配置示例进行配置；如果只需要精简功能，参考config/simple.yaml的配置示例进行配置，配置好后重命名为config.yaml放配置目录下。
-  1) 全功能模式：适用于想搭建PT自动下载、保种、媒体识别改名、Emby播放、消息通知、预告等全自动化整理媒体库的用户，有WEBUI控制界面，WEB默认用户名密码：admin password，端口：3000。
+  1) 全功能模式：适用于想搭建PT自动下载、保种、媒体识别改名、PT资源搜索、Emby播放、消息通知等全自动化整理媒体库的用户，有WEBUI控制界面，WEB默认用户名密码：admin password，端口：3000。
   2) 精简模式：适用于手工进行PT下载，但是希望能自动进行硬链接和媒体识别改名，同时有消息通知的用户，支持监控下载软件进行硬链接改名以及监控下载目录进行硬链接改名两种方式。
 
 * docker：需要映射/config目录，并将修改好后的config.yaml放到配置映射目录下；全能模式需要映射WEB访问端口（默认3000，精简模式下不需要）；按需映射电影、电视剧及PT下载、资源监控等目录到容器上并与配置一致。
    
 * 群晖套件：在套件安装界面中设置配置文件路径，比如：/homes/admin/.config/nastool/config.yaml，并将修改好的配置文件【提前】放置在对应路径下。
 
-### 3、设置Emby（可选）
+### 3、设置Emby媒体库（可选）
 * 在Emby的Webhooks插件中，设置地址为：http(s)://IP:3000/emby，勾选“播放事件”和“用户事件（建议只对管理用户勾选）“
 * 如果启用了默认分类，需按如下的目录结构分别设置好媒体库；如是自定义分类，请按自己的定义建立好媒体库目录，分类定义请参考配置文件模板。
    > 电影
@@ -141,8 +141,9 @@ https://github.com/jxxghp/nas-tools/releases
    >> 综艺
    >> 儿童
 
-### 4、配置ResilioSync（可选）
-* 安装resiliosync软件，配置好神KEY（主KEY：BCWHZRSLANR64CGPTXRE54ENNSIUE5SMO，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6，也可以使用其他的Key），同步目录注意要配置到本程序的监控目录中。
+### 4、配置目录监控（可选）
+* 安装resiliosync软件，配置好神KEY（主KEY：BCWHZRSLANR64CGPTXRE54ENNSIUE5SMO，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6，也可以使用其他的Key），resiliosync同步目录配置到本程序的监控目录中，实现有资源更新自动整理。
+* 其它分散的媒体文件夹，可以过配置目录监控的方式实现文件变化时自动整理到媒体库。
 
 ### 5、配置微信应用消息及菜单（可选）
 如果只是使用消息接受服务，则配置好配置文件中的[wechat]前三个参数就可以了，如果需要通过微信进行控制，则需要按如下方式配置（需要有公网IP或域名）：
@@ -163,7 +164,7 @@ https://github.com/jxxghp/nas-tools/releases
    ![image](https://user-images.githubusercontent.com/51039935/158045006-e0e007e9-ed7d-4001-95ce-0ff796c05f70.png)
 
 ### 6、配置Jackett（可选）
-如果你想通过微信发送电影电视剧的名称，后台就自动检索各PT站并自动下载，或者使用WEB聚合资源搜索功能，则需要配置Jackett，获取API Key以及Torznab Feed，相关参数填入配置文件。
+如果你想通过微信发送电影电视剧的名称，后台就自动检索各PT站并自动下载，或者使用WEB页面的PT聚合资源搜索功能，则需要配置Jackett，获取API Key以及Torznab Feed，相关参数填入配置文件。
 
 Jackett的相关配置参考网上的各类教程。
 
