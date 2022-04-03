@@ -401,6 +401,8 @@ class EmbyEvent:
         # 小红心事件
         if self.category == 'item':
             if self.action == 'rate':
+                if self.media_type != MediaType.MOVIE:
+                    return
                 ret, org_type = self.filetransfer.transfer_embyfav(self.item_path)
                 if ret:
                     # 刷新媒体库

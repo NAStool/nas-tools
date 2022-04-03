@@ -29,17 +29,17 @@ class Category:
                 if not os.path.exists(self.__category_path):
                     cfg_tp_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../config", "default-category.yaml")
                     call(["cp", cfg_tp_path, self.__category_path])
-                    print("【ERROR】分类配置文件不存在，已将配置文件模板复制到配置目录，请修改后重新启动...")
+                    print("【ERROR】分类配置文件 %s.yaml 不存在，已将配置文件模板复制到配置目录，请修改后重新启动..." % category)
                     self.__categorys = {}
                     return
                 with open(self.__category_path, mode='r', encoding='utf-8') as f:
                     try:
                         self.__categorys = yaml.safe_load(f)
                     except yaml.YAMLError as e:
-                        print("【ERROR】配置文件格式出现严重错误！请检查：%s" % str(e))
+                        print("【ERROR】%s.yaml 分类配置文件格式出现严重错误！请检查：%s" % (category, str(e)))
                         self.__categorys = {}
             except Exception as err:
-                print("【ERROR】加载分类配置出错：%s" % str(err))
+                print("【ERROR】加载 %s.yaml 配置出错：%s" % (category, str(err)))
                 return False
 
             if self.__categorys:
@@ -81,10 +81,9 @@ class Category:
         for key, item in categorys.items():
             if not item:
                 return key
-            match_flag = False
+            match_flag = True
             for attr, value in item.items():
                 if not value:
-                    match_flag = True
                     continue
                 info_value = tmdb_info.get(attr)
                 if not info_value:
@@ -101,9 +100,7 @@ class Category:
                 else:
                     values = [str(value).upper()]
 
-                if set(values).intersection(set(info_values)):
-                    match_flag = True
-                else:
+                if not set(values).intersection(set(info_values)):
                     match_flag = False
             if match_flag:
                 return key

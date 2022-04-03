@@ -13,8 +13,6 @@ if __name__ == "__main__":
         for name in names:
             meta_info = MetaInfo(name)
             print(meta_info.get_name())
-    media = Media().get_media_info("鱿鱼游戏第1季 2021")
-    print(media.__dict__)
     '''
-    media = MetaInfo("鱿鱼游戏.cd1.2021")
+    media = Media().get_media_info("枕刀歌 2021")
     print(media.__dict__)

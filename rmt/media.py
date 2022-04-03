@@ -148,6 +148,8 @@ class Media:
     def get_media_info(self, title, subtitle=None):
         if not title:
             return None
+        if not self.meta:
+            return None
         meta_info = MetaInfo(title, subtitle)
         media_name = meta_info.get_name()
         media_year = meta_info.year
@@ -195,6 +197,8 @@ class Media:
     def get_media_info_on_files(self, file_list, media_info=None):
         # 存储文件路径与媒体的对应关系
         return_media_infos = {}
+        if not self.meta:
+            return return_media_infos
         # 不是list的转为list
         if not isinstance(file_list, list):
             file_list = [file_list]
