@@ -68,11 +68,12 @@ class MetaInfo(object):
     _last_token = ""
     _last_token_type = ""
     _continue_flag = True
+    _unknown_name_str = ""
     # 正则式区
     _season_re = r"S(\d{2})"
-    _episode_re = r"\d*EP?(\d{2})"
-    _part_re = r"(^PART[1-9]|^CD[1-9]|^DVD[1-9]|^DISK[1-9]|^DISC[1-9])"
-    _resources_type_re = r"BLURAY|REMUX|HDTV|WEBRIP|DVDRIP|UHD|SDR|HDR|DOLBY|BLU|WEB"
+    _episode_re = r"EP?(\d{2})"
+    _part_re = r"(^PART[\s.]*[1-9]?|^CD[\s.]*[1-9]?|^DVD[\s.]*[1-9]?|^DISK[\s.]*[1-9]?|^DISC[\s.]*[1-9]?)"
+    _resources_type_re = r"^BLURAY|^REMUX|^HDTV|^WEBRIP|^DVDRIP|^UHD|^SDR|^HDR|^DOLBY|^BLU|^WEB"
     _name_no_begin_re = r"^\[.+?]"
     _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|^HBO|\d{1,2}th" \
                         r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|EP?\d{2}\s*-\s*EP?\d{2}|EP?\d{2}" \
@@ -80,12 +81,12 @@ class MetaInfo(object):
                         r"|第\s*[0-9一二三四五六七八九十]+\s*集" \
                         r"|BLU-?RAY|REMUX|HDTV|WEBRIP|DVDRIP|UHD|WEB|SDR|HDR|DOLBY|TRUEHD|DTS-[ADEH]+" \
                         r"|[HX]264|[HX]265|AVC|AAC|DTS\d.\d|HEVC|\d{3,4}[PI]" \
-                        r"|TV Series|Movie|Animations|XXX" \
+                        r"|TV|Series|Movie|Animations|XXX" \
                         r"|大陆|连载|西德|日剧|美剧|电视剧|电影|动画片|动漫|法国|英国|美国|德国|印度|泰国|台湾|香港|中国|韩国|日本|欧美|日韩|超高清|高清|蓝光|翡翠台" \
                         r"|最终季|合集|[中国英葡法俄日韩德意西印泰台港粤双文语简繁体特效内封官译外挂]+字幕" \
-                        r"|PART[1-9]|CD[1-9]|DVD[1-9]|DISK[1-9]|DISC[1-9]"
-    _name_onlychinese_re = r"[a-zA-Z【】\-_.\[\]()\s]+"
-    _resources_pix_re = r"[SBUHD]*(\d{3,4}[PI]+)"
+                        r"|PART[\s.]*[1-9]|CD[\s.]*[1-9]|DVD[\s.]*[1-9]|DISK[\s.]*[1-9]|DISC[\s.]*[1-9]"
+    _resources_pix_re = r"^[SBUHD]*(\d{3,4}[PIX]+)"
+    _resources_pix_re2 = r"(^[248]+K)"
     _subtitle_season_re = r"第\s*([0-9一二三四五六七八九十\-\s]+)\s*季"
     _subtitle_episode_re = r"第\s*([0-9一二三四五六七八九十\-\s]+)\s*集"
 
@@ -131,8 +132,18 @@ class MetaInfo(object):
                 self.__init_subtitle(subtitle)
             else:
                 self.__init_subtitle(title)
+            # 没有识别出类型时默认为电影
             if not self.type:
                 self.type = MediaType.MOVIE
+            # 去掉名字中不需要的干扰字符
+            if self.cn_name:
+                self.cn_name = re.sub(r'%s' % self._name_nostring_re, '', self.cn_name,
+                                      flags=re.IGNORECASE).strip()
+                self.cn_name = re.sub(r'\s+', ' ', self.cn_name)
+            if self.en_name:
+                self.en_name = re.sub(r'%s' % self._name_nostring_re, '', self.en_name,
+                                      flags=re.IGNORECASE).strip()
+                self.en_name = re.sub(r'\s+', ' ', self.en_name)
         else:
             # 调用第三方模块识别动漫
             anitopy_info = anitopy.parse(title)
@@ -161,41 +172,62 @@ class MetaInfo(object):
                 self.resource_pix = anitopy_info.get("video_resolution")
 
     def __init_name(self, token):
-        # 去不需要的干扰字符
-        token = re.sub(r'%s' % self._name_nostring_re, '', token,
-                       flags=re.IGNORECASE).strip()
         if not token:
             return
         if self._stop_name_flag:
+            if not self.get_name():
+                # 回收标题
+                self.cn_name = self._unknown_name_str
             return
         if is_chinese(token):
-            # 有中文的，把中文外的英文、字符、等全部去掉，连在一起的数字会保留
-            token = re.sub(r'%s' % self._name_onlychinese_re, '', token).strip()
-            # 标题
+            # 含有中文，直接做为标题（连着的数字或者英文会保留），且不再取用后面出现的中文
             if not self.cn_name and token:
                 self.cn_name = token
-                self._last_token_type = "name"
+                self._last_token_type = "cnname"
         else:
-            # 2位以上的数字不要
-            if token.isdigit() and len(token) > 2:
-                return
-            if self.en_name:
-                self.en_name = "%s %s" % (self.en_name, token)
+            # 数字
+            if token.isdigit():
+                if self.get_name():
+                    # 名称后面跟着的数字，停止查找名称
+                    self._stop_name_flag = True
+                    if len(token) < 4:
+                        # 4位以下的数字，拼装到已有标题中
+                        if self._last_token_type == "cnname":
+                            self.cn_name = "%s %s" % (self.cn_name, token)
+                        elif self._last_token_type == "enname":
+                            self.en_name = "%s %s" % (self.en_name, token)
+                    elif len(token) == 4:
+                        # 4位数字，可能是年份，也可能真的是标题的一部分，记下来
+                        if not self._unknown_name_str:
+                            self._unknown_name_str = token
+                else:
+                    # 名字未出现前的第一个数字，记下来
+                    if not self._unknown_name_str:
+                        self._unknown_name_str = token
             else:
-                self.en_name = token
-            self._last_token_type = "name"
+                # 英文或者英文+数字，拼装起来
+                if self.en_name:
+                    self.en_name = "%s %s" % (self.en_name, token)
+                else:
+                    self.en_name = token
+                self._last_token_type = "enname"
 
     def __init_part(self, token):
         if not self.get_name():
             return
         re_res = re.search(r"%s" % self._part_re, token, re.IGNORECASE)
         if re_res:
+            # part或者part加数字
             if not self.part:
                 self.part = re_res.group(1)
                 self._last_token_type = "part"
                 self._continue_flag = False
-                if self.get_name():
-                    self._stop_name_flag = True
+                self._stop_name_flag = True
+        else:
+            # 单个数字加入part
+            if self._last_token_type == "part" and token.isdigit() and len(token) == 1:
+                self.part = "%s%s" % (self.part, token)
+                self._continue_flag = False
 
     def __init_year(self, token):
         if not self.get_name():
@@ -206,10 +238,10 @@ class MetaInfo(object):
             return
         if not 1900 < int(token) < 2100:
             return
-        self.year = token
-        self._last_token_type = "year"
-        self._continue_flag = False
-        if self.get_name():
+        if not self.year:
+            self.year = token
+            self._last_token_type = "year"
+            self._continue_flag = False
             self._stop_name_flag = True
 
     def __init_resource_pix(self, token):
@@ -221,17 +253,15 @@ class MetaInfo(object):
                 self.resource_pix = re_res.group(1).lower()
                 self._last_token_type = "pix"
                 self._continue_flag = False
-                if self.get_name():
-                    self._stop_name_flag = True
+                self._stop_name_flag = True
         else:
-            re_res = re.search(r"([248]+K)", token, re.IGNORECASE)
+            re_res = re.search(r"%s" % self._resources_pix_re2, token, re.IGNORECASE)
             if re_res:
                 if not self.resource_pix:
                     self.resource_pix = re_res.group(1).lower()
                     self._last_token_type = "pix"
                     self._continue_flag = False
-                    if self.get_name():
-                        self._stop_name_flag = True
+                    self._stop_name_flag = True
 
     def __init_seasion(self, token):
         if not self.get_name():
@@ -253,8 +283,7 @@ class MetaInfo(object):
                         self.end_season = se
                         self._last_token_type = "season"
             self.type = MediaType.TV
-            if self.get_name():
-                self._stop_name_flag = True
+            self._stop_name_flag = True
         else:
             if token.isdigit():
                 if self.begin_season \
@@ -287,8 +316,7 @@ class MetaInfo(object):
                         self._last_token_type = "episode"
                         self._continue_flag = False
             self.type = MediaType.TV
-            if self.get_name():
-                self._stop_name_flag = True
+            self._stop_name_flag = True
         if token.isdigit():
             if self.begin_episode \
                     and not self.end_episode \
@@ -309,8 +337,7 @@ class MetaInfo(object):
                 self._last_token = self.resource_type
                 self._last_token_type = "restype"
                 self._continue_flag = False
-                if self.get_name():
-                    self._stop_name_flag = True
+                self._stop_name_flag = True
         else:
             if token.upper() == "DL" and self._last_token_type == "restype" and self._last_token == "WEB":
                 self.resource_type = "WEB-DL"
@@ -367,7 +394,11 @@ class MetaInfo(object):
                 self.type = MediaType.TV
 
     def get_name(self):
-        return self.cn_name if self.cn_name else self.en_name
+        if self.cn_name:
+            return self.cn_name
+        if self.en_name:
+            return self.en_name
+        return ""
 
     def get_title_string(self):
         return "%s (%s)" % (self.title, self.year) if self.year else self.title

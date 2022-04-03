@@ -13,6 +13,5 @@ if __name__ == "__main__":
             meta_info = MetaInfo(name)
             print(meta_info.get_name())
     '''
-    name = '[OurBits] [112189] Bu Liang Ren 2018 S03 Complete 1080p WEB-DL AAC H.264-OurTV'
-    media = MetaInfo(name, None, True)
-    print(media.__dict__)
+    print(MetaInfo('The.303.2018.1080p.BluRay.x264 - UNVEiL[EtHD].mkv').__dict__)
+    print(MetaInfo('[1985].1985.2018.1080p.BluRay.x265.AC3-QaFoNE.mp4').__dict__)
