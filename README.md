@@ -35,7 +35,7 @@ TG交流：https://t.me/nastool_chat
 2022.4.2
 * 支持对识别错误的记录手工重新识别转移
 * 支持自定义分类
-* 支持动漫识别
+* 支持动漫识别（使用 <a href="https://github.com/igorcmoura/anitopy" target="_blank">anitopy</a>）
 
 2022.3.27
 * 支持查询识别转移历史记录
