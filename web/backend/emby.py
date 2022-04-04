@@ -284,7 +284,7 @@ class Emby:
         for library_id in library_ids:
             if library_id != "/":
                 self.refresh_emby_library_by_id(library_id)
-        log.info("【EMBY】Emby媒体库刷新完成！")
+        log.info("【EMBY】Emby媒体库刷新完成")
 
     # 根据媒体信息查询在哪个媒体库，返回要刷新的位置的ID
     def get_emby_library_id_by_metainfo(self, media):

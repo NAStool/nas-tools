@@ -18,7 +18,7 @@ def search_medias_for_web(content):
                                                    whole_word=False)
     delete_all_jackett_torrents()
     if len(media_list) == 0:
-        log.info("【WEB】%s 未检索到任何媒体资源！" % content)
+        log.info("【WEB】%s 未检索到任何媒体资源" % content)
         return
     else:
         log.info("【WEB】共检索到 %s 个有效资源" % len(media_list))

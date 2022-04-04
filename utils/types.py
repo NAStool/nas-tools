@@ -5,6 +5,7 @@ class MediaType(Enum):
     TV = '电视剧'
     MOVIE = '电影'
     ANIME = '动漫'
+    UNKNOWN = '未知'
 
 
 class DownloaderType(Enum):

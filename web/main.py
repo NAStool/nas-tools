@@ -123,11 +123,11 @@ def create_flask_app(config):
         else:
             username = request.form.get('username')
             if not username:
-                return render_template('login.html', err_msg="请输入用户名！")
+                return render_template('login.html', err_msg="请输入用户名")
             password = request.form.get('password')
             user_info = get_user(username)
             if not user_info:
-                return render_template('login.html', err_msg="用户名或密码错误！")
+                return render_template('login.html', err_msg="用户名或密码错误")
             # 创建用户实体
             user = User(user_info)
             # 校验密码
@@ -136,7 +136,7 @@ def create_flask_app(config):
                 login_user(user)
                 return redirect(request.args.get('next') or url_for('home'))
             else:
-                return render_template('login.html', err_msg="用户名或密码错误！")
+                return render_template('login.html', err_msg="用户名或密码错误")
 
     # 首页
     @App.route('/home', methods=['POST', 'GET'])
@@ -373,7 +373,7 @@ def create_flask_app(config):
                 else:
                     title = "%s %s" % (media_info.get_name(), media_info.get_season_episode_string())
             else:
-                title = "%s (%s) %s" % (media_info.title, media_info.year, media_info.get_season_episode_string())
+                title = "%s %s" % (media_info.get_title_string(), media_info.get_season_episode_string())
             poster_path = media_info.poster_path
             torrent_info = {'id': key, 'title': title, 'speed': speed, 'image': poster_path, 'state': state,
                             'progress': progress}
@@ -609,7 +609,7 @@ def create_flask_app(config):
                     RSSDownloaderClient.run_schedule()
                 if sch_item == "douban":
                     DoubanSyncClient.run_schedule()
-                return {"retmsg": "执行完成！", "item": sch_item}
+                return {"retmsg": "执行完成", "item": sch_item}
 
             # 电影关键字
             if cmd == "moviekey":

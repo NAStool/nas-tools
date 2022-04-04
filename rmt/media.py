@@ -32,7 +32,7 @@ class Media:
             if app.get('rmt_tmdbkey'):
                 self.tmdb = TMDb()
                 self.tmdb.api_key = app.get('rmt_tmdbkey')
-                self.tmdb.language = 'zh'
+                self.tmdb.language = 'zh-CN'
                 self.tmdb.debug = True
                 self.search = Search()
                 self.movie = Movie()
@@ -139,7 +139,7 @@ class Media:
             return None
         meta_info_flag = False
         # 常规识别
-        meta_info = MetaInfo(title, subtitle)
+        meta_info = MetaInfo(title, subtitle=subtitle)
         media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
         try:
             lock.acquire()
@@ -177,20 +177,22 @@ class Media:
 
         # 动漫识别
         if not meta_info_flag:
-            meta_info = MetaInfo(title, None, True)
-            media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
-            try:
-                lock.acquire()
-                if not self.meta.get_meta_data().get(media_key):
-                    file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, meta_info.type)
-                    # 加入缓存
-                    if file_media_info:
-                        self.meta.update_meta_data({media_key: file_media_info})
-                    else:
-                        # 标记为未找到，避免再次查询
-                        self.meta.update_meta_data({media_key: {'id': 0}})
-            finally:
-                lock.release()
+            anime_info = MetaInfo(title, anime=True)
+            if anime_info.type != MediaType.UNKNOWN:
+                meta_info = anime_info
+                media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
+                try:
+                    lock.acquire()
+                    if not self.meta.get_meta_data().get(media_key):
+                        file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, meta_info.type)
+                        # 加入缓存
+                        if file_media_info:
+                            self.meta.update_meta_data({media_key: file_media_info})
+                        else:
+                            # 标记为未找到，避免再次查询
+                            self.meta.update_meta_data({media_key: {'id': 0}})
+                finally:
+                    lock.release()
         # 赋值返回
         meta_info.set_tmdb_info(self.meta.get_meta_data().get(media_key))
         return meta_info
@@ -246,24 +248,26 @@ class Media:
                 # 动漫识别
                 if not meta_info_flag:
                     # 按动漫再识别一次
-                    meta_info = MetaInfo(file_name, None, True)
-                    media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
-                    try:
-                        lock.acquire()
-                        if not self.meta.get_meta_data().get(media_key):
-                            file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, meta_info.type)
-                            if file_media_info:
-                                self.meta.update_meta_data({media_key: file_media_info})
-                            else:
-                                self.meta.update_meta_data({media_key: {'id': 0}})
-                    finally:
-                        lock.release()
+                    anime_info = MetaInfo(file_name, anime=True)
+                    if anime_info.type != MediaType.UNKNOWN:
+                        meta_info = anime_info
+                        media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
+                        try:
+                            lock.acquire()
+                            if not self.meta.get_meta_data().get(media_key):
+                                file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, meta_info.type)
+                                if file_media_info:
+                                    self.meta.update_meta_data({media_key: file_media_info})
+                                else:
+                                    self.meta.update_meta_data({media_key: {'id': 0}})
+                        finally:
+                            lock.release()
                 # 存入结果清单返回
                 meta_info.set_tmdb_info(self.meta.get_meta_data().get(media_key))
             # 自带TMDB信息
             else:
                 if media_type == MediaType.ANIME:
-                    meta_info = MetaInfo(file_name, None, True)
+                    meta_info = MetaInfo(file_name, anime=True)
                 else:
                     meta_info = MetaInfo(file_name)
                 meta_info.set_tmdb_info(tmdb_info)

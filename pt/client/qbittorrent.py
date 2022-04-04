@@ -88,7 +88,7 @@ class Qbittorrent:
         self.qbc.torrents_add_tags(tags="已整理", torrent_hashes=ids)
         # 超级做种
         self.qbc.torrents_set_force_start(enable=True, torrent_hashes=ids)
-        log.info("【QB】设置qBittorrent种类状态成功！")
+        log.info("【QB】设置qBittorrent种类状态成功")
         self.qbc.auth_log_out()
 
     # 处理qbittorrent中的种子
@@ -120,8 +120,7 @@ class Qbittorrent:
             # 只有标记为强制上传的才会清理（经过RMT处理的都是强制上传状态）
             if torrent.get('state') == "forcedUP":
                 if int(torrent.get('seeding_time')) > int(seeding_time):
-                    log.info("【PT】" + torrent.get('name') + "做种时间：" + str(torrent.get('seeding_time')) +
-                             "（秒），已达清理条件，进行清理...")
+                    log.info("【PT】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (torrent.get('name'), torrent.get('seeding_time')))
                     remove_torrents.append(torrent.get('hash'))
         return remove_torrents
 

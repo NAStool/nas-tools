@@ -44,7 +44,7 @@ class PTSignin:
             session.cookies.update(cookie_obj)
             res = session.get(url)
             if res:
-                return "%s 签到成功！" % name
+                return "%s 签到成功" % name
         except Exception as err:
             return "%s 签到出错：%s" % (name, str(err))
 
@@ -69,5 +69,5 @@ class PTSignin:
                 except Exception as e:
                     log.error("【PT】%s 签到出错：%s" % (pt_task, str(e)))
         if msg_str == "":
-            msg_str = "未配置任何有效PT站签到信息！"
+            msg_str = "未配置任何有效PT站签到信息"
         self.message.sendmsg("【PT】每日签到", msg_str)

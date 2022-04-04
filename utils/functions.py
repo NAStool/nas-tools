@@ -31,6 +31,7 @@ def singleton(cls):
             INSTANCES[cls] = cls(*args, **kwargs)  # 创建一个对象,并保存到字典当中
         # 将实例对象返回
         return INSTANCES[cls]
+
     return _singleton
 
 
@@ -363,7 +364,8 @@ def get_keyword_from_string(content):
             season_num = "1"
     if year_re:
         year = year_re.group(1)
-    key_word = re.sub(r'第\s*[0-9一二三四五六七八九十]+\s*季|第\s*[0-9一二三四五六七八九十]+\s*集|[\s(]+(\d{4})[\s)]*', '', content, flags=re.IGNORECASE).strip()
+    key_word = re.sub(r'第\s*[0-9一二三四五六七八九十]+\s*季|第\s*[0-9一二三四五六七八九十]+\s*集|[\s(]+(\d{4})[\s)]*', '', content,
+                      flags=re.IGNORECASE).strip()
     if not key_word:
         key_word = year
     return key_word, season_num, episode_num, year
@@ -400,7 +402,8 @@ def get_tmdb_seasons_info(seasons):
     total_seasons = []
     for season in seasons:
         if season.get("season_number") != 0:
-            total_seasons.append({"season_number": season.get("season_number"), "episode_count": season.get("episode_count")})
+            total_seasons.append(
+                {"season_number": season.get("season_number"), "episode_count": season.get("episode_count")})
     return total_seasons
 
 
@@ -440,14 +443,12 @@ def get_torrents_group_item(media_list):
     for t_item in media_list:
         # 控重的主链是名称、节份、季、集
         if t_item.type == MediaType.TV:
-            media_name = "%s%s%s%s%s" % (t_item.title,
-                                         t_item.year,
-                                         t_item.site,
-                                         t_item.get_resource_type_string(),
-                                         t_item.get_season_episode_string())
+            media_name = "%s%s%s%s" % (t_item.get_title_string(),
+                                       t_item.site,
+                                       t_item.get_resource_type_string(),
+                                       t_item.get_season_episode_string())
         else:
-            media_name = "%s%s%s%s" % (
-                t_item.title, t_item.year, t_item.site, t_item.get_resource_type_string())
+            media_name = "%s%s%s" % (t_item.get_title_string(), t_item.site, t_item.get_resource_type_string())
         if media_name not in can_download_list:
             can_download_list.append(media_name)
             can_download_list_item.append(t_item)
@@ -458,7 +459,8 @@ def get_torrents_group_item(media_list):
 def is_invalid_path(path):
     if not path:
         return True
-    if path.find('/@Recycle/') != -1 or path.find('/#recycle/') != -1 or path.find('/.') != -1 or path.find('/@eaDir') != -1:
+    if path.find('/@Recycle/') != -1 or path.find('/#recycle/') != -1 or path.find('/.') != -1 or path.find(
+            '/@eaDir') != -1:
         return True
     return False
 

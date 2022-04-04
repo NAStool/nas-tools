@@ -91,5 +91,5 @@ class DoubanSync:
                         insert_tv_key(media.get_name())
                     else:
                         insert_movie_key(media.get_name())
-                log.info("【DOUBAN】豆瓣数据加入订阅完成！")
-        log.info("【DOUBAN】豆瓣数据同步完成！")
+                log.info("【DOUBAN】豆瓣数据加入订阅完成")
+        log.info("【DOUBAN】豆瓣数据同步完成")

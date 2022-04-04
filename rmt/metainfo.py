@@ -75,10 +75,10 @@ class MetaInfo(object):
     _part_re = r"(^PART[\s.]*[1-9]?|^CD[\s.]*[1-9]?|^DVD[\s.]*[1-9]?|^DISK[\s.]*[1-9]?|^DISC[\s.]*[1-9]?)"
     _resources_type_re = r"^BLURAY|^REMUX|^HDTV|^WEBRIP|^DVDRIP|^UHD|^SDR|^HDR|^DOLBY|^BLU|^WEB"
     _name_no_begin_re = r"^\[.+?]"
-    _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|^HBO|\d{1,2}th" \
+    _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|NETFLIX" \
+                        r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+季" \
+                        r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+集" \
                         r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|EP?\d{2}\s*-\s*EP?\d{2}|EP?\d{2}" \
-                        r"|第\s*[0-9一二三四五六七八九十]+\s*季" \
-                        r"|第\s*[0-9一二三四五六七八九十]+\s*集" \
                         r"|BLU-?RAY|REMUX|HDTV|WEBRIP|DVDRIP|UHD|WEB|SDR|HDR|DOLBY|TRUEHD|DTS-[ADEH]+" \
                         r"|[HX]264|[HX]265|AVC|AAC|DTS\d.\d|HEVC|\d{3,4}[PI]" \
                         r"|TV|Series|Movie|Animations|XXX" \
@@ -87,18 +87,17 @@ class MetaInfo(object):
                         r"|PART[\s.]*[1-9]|CD[\s.]*[1-9]|DVD[\s.]*[1-9]|DISK[\s.]*[1-9]|DISC[\s.]*[1-9]"
     _resources_pix_re = r"^[SBUHD]*(\d{3,4}[PIX]+)"
     _resources_pix_re2 = r"(^[248]+K)"
-    _subtitle_season_re = r"第\s*([0-9一二三四五六七八九十\-\s]+)\s*季"
-    _subtitle_episode_re = r"第\s*([0-9一二三四五六七八九十\-\s]+)\s*集"
+    _subtitle_season_re = r"[第\s]+([0-9一二三四五六七八九十\-]+)\s*季"
+    _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十\-]+)\s*集"
 
     def __init__(self, title, subtitle=None, anime=False):
         if not title:
             return
         self.category_handler = Category()
         self.org_string = title
+        # 去掉名称中第1个[]的内容
+        title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
         if not anime:
-            # 去掉第1个以[]开关的种子名称，有些站会把类型加到种子名称上，会误导识别
-            # 非贪婪只匹配一个
-            title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
             # 拆分tokens
             tokens = Tokens(title)
             # 解析名称、年份、季、集、资源类型、分辨率等
@@ -146,50 +145,94 @@ class MetaInfo(object):
                 self.en_name = re.sub(r'\s+', ' ', self.en_name)
         else:
             # 调用第三方模块识别动漫
-            anitopy_info = anitopy.parse(title)
-            if anitopy_info:
-                # 名称
-                name = anitopy_info.get("anime_title")
-                # 把名称中带有的年份去掉
-                name = re.sub(r'[\s.]+\d{4}', "", name)
-                if is_chinese(name):
-                    self.cn_name = name
-                else:
-                    self.en_name = name
-                # 年份
-                year = anitopy_info.get("anime_year")
-                if year and year.isdigit():
-                    self.year = int(year)
-                # 季号
-                anime_season = anitopy_info.get("anime_season")
-                if anime_season and anime_season.isdigit():
-                    self.begin_season = int(anime_season)
-                    self.type = MediaType.ANIME
-                # 集号
-                episode_number = anitopy_info.get("episode_number")
-                if episode_number and episode_number.isdigit():
-                    self.begin_episode = int(episode_number)
-                    self.type = MediaType.ANIME
-                # 类型
-                if not self.type:
-                    anime_type = anitopy_info.get('anime_type')
-                    if anime_type:
-                        if anime_type.upper() == "TV":
-                            self.type = MediaType.ANIME
-                        else:
-                            self.type = MediaType.MOVIE
+            try:
+                anitopy_info = anitopy.parse(title)
+                if anitopy_info:
+                    # 名称
+                    name = anitopy_info.get("anime_title")
+                    # 把名称中带有的年份去掉
+                    name = re.sub(r'[\s.]+\d{4}', "", name)
+                    if is_chinese(name):
+                        self.cn_name = name
                     else:
-                        self.type = MediaType.MOVIE
-                # 分辨率
-                self.resource_pix = anitopy_info.get("video_resolution")
+                        self.en_name = name
+                    # 年份
+                    year = anitopy_info.get("anime_year")
+                    if isinstance(year, str) and year.isdigit():
+                        self.year = int(year)
+                    # 季号
+                    anime_season = anitopy_info.get("anime_season")
+                    if isinstance(anime_season, list):
+                        if len(anime_season) == 1:
+                            begin_season = anime_season[0]
+                            end_season = 0
+                        else:
+                            begin_season = anime_season[0]
+                            end_season = anime_season[-1]
+                    else:
+                        begin_season = anime_season
+                        end_season = 0
+                    if isinstance(begin_season, str) and begin_season.isdigit():
+                        self.begin_season = int(begin_season)
+                        self.type = MediaType.ANIME
+                    if isinstance(end_season, str) and end_season.isdigit():
+                        if self.begin_season and end_season != self.begin_season:
+                            self.end_season = int(end_season)
+                            self.type = MediaType.ANIME
+                    # 集号
+                    episode_number = anitopy_info.get("episode_number")
+                    if isinstance(episode_number, list):
+                        if len(episode_number) == 1:
+                            begin_episode = episode_number[0]
+                            end_episode = 0
+                        else:
+                            begin_episode = episode_number[0]
+                            end_episode = episode_number[-1]
+                    else:
+                        begin_episode = episode_number
+                        end_episode = 0
+                    if isinstance(begin_episode, str) and begin_episode.isdigit():
+                        self.begin_episode = int(begin_episode)
+                        self.type = MediaType.ANIME
+                    if isinstance(end_episode, str) and end_episode.isdigit():
+                        if self.end_episode and end_episode != self.end_episode:
+                            self.end_season = int(end_episode)
+                            self.type = MediaType.ANIME
+                    # 类型
+                    if not self.type:
+                        anime_type = anitopy_info.get('anime_type')
+                        if isinstance(anime_type, list):
+                            anime_type = anime_type[0]
+                        if isinstance(anime_type, str):
+                            if anime_type.upper() == "TV":
+                                self.type = MediaType.ANIME
+                            else:
+                                self.type = MediaType.MOVIE
+                    # 分辨率
+                    self.resource_pix = anitopy_info.get("video_resolution")
+            except Exception as e:
+                print(str(e))
+            # 没有识别出类型时默认为未知
+            if not self.type:
+                self.type = MediaType.UNKNOWN
 
     def __init_name(self, token):
         if not token:
             return
+        # 回收标题
+        if self._unknown_name_str and not self.get_name():
+            self.cn_name = self._unknown_name_str
+            self._unknown_name_str = ""
         if self._stop_name_flag:
-            if not self.get_name():
-                # 回收标题
-                self.cn_name = self._unknown_name_str
+            if self._unknown_name_str and self._unknown_name_str != self.year:
+                if not self.get_name():
+                    self.cn_name = self._unknown_name_str
+                else:
+                    if self.cn_name:
+                        self.cn_name = "%s %s" % (self.cn_name, self._unknown_name_str)
+                    if self.en_name:
+                        self.en_name = "%s %s" % (self.en_name, self._unknown_name_str)
+                self._unknown_name_str = ""
             return
         if is_chinese(token):
             # 含有中文，直接做为标题（连着的数字或者英文会保留），且不再取用后面出现的中文
@@ -250,11 +293,10 @@ class MetaInfo(object):
             return
         if not 1900 < int(token) < 2100:
             return
-        if not self.year:
-            self.year = token
-            self._last_token_type = "year"
-            self._continue_flag = False
-            self._stop_name_flag = True
+        self.year = token
+        self._last_token_type = "year"
+        self._continue_flag = False
+        self._stop_name_flag = True
 
     def __init_resource_pix(self, token):
         if not self.get_name():

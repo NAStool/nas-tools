@@ -8,6 +8,8 @@ from utils.types import MediaType
 
 # 将Jackett返回信息插入数据库
 def insert_jackett_results(media_item):
+    org_string = media_item.org_string.replace("'", "''")
+    description = media_item.description.replace("'", "''")
     sql = "INSERT INTO JACKETT_TORRENTS(" \
           "TORRENT_NAME," \
           "ENCLOSURE," \
@@ -28,9 +30,9 @@ def insert_jackett_results(media_item):
           "SITE," \
           "SITE_ORDER) VALUES (" \
           "'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')" % (
-              media_item.org_string,
+              org_string,
               media_item.enclosure,
-              media_item.description,
+              description,
               "TV" if media_item.type == MediaType.TV else "MOV",
               media_item.title,
               xstr(media_item.year),
@@ -203,7 +205,9 @@ def insert_transfer_history(in_from, rmt_mode, in_path, dest, media_info):
     if not dest:
         dest = ""
     file_path = os.path.dirname(in_path)
+    file_path = file_path.replace("'", "''")
     file_name = os.path.basename(in_path)
+    file_name = file_name.replace("'", "''")
     if is_transfer_history_exists(file_path, file_name, media_info.title, media_info.get_season_string()):
         return True
     timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))

@@ -97,11 +97,13 @@ qbittorrent:
   save_path:
     movie:
     tv:
+    anime:
   # 如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径；如果本程序不是Docker运行但tr是Docker运行，则设置为PT下载目录在宿主机上的真实路径。不是以上两种情况留空即可。
   # 配置项需要跟save_path一一对应
   save_containerpath:
     movie:
     tv:
+    anime:
 
 # 配置transmission下载软件，不用可删掉
 transmission:

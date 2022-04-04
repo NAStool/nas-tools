@@ -55,7 +55,7 @@ class Jackett:
         api_url = "%sapi?apikey=%s&t=search&q=%s" % (index, self.__api_key, search_word)
         media_array = parse_jackettxml(api_url)
         if len(media_array) == 0:
-            log.warn("【JACKETT】%s 未检索到资源！" % indexer_name)
+            log.warn("【JACKETT】%s 未检索到资源" % indexer_name)
             return None
         # 从检索结果中匹配符合资源条件的记录
         index_sucess = 0
@@ -76,7 +76,7 @@ class Jackett:
             # 识别种子名称
             media_info = self.media.get_media_info(torrent_name, description)
             if not media_info or not media_info.tmdb_info:
-                log.debug("【JACKETT】%s 未检索媒体信息！" % torrent_name)
+                log.debug("【JACKETT】%s 未检索媒体信息" % torrent_name)
                 continue
 
             # 名称是否匹配
@@ -190,8 +190,10 @@ class Jackett:
                     episode_count = season.get("episode_count")
                     if not season_number or not episode_count:
                         continue
-                    no_exists_tv_episodes = self.emby.get_emby_no_exists_episodes(meta_info.title, meta_info.year,
-                                                                                  season_number, episode_count)
+                    no_exists_tv_episodes = self.emby.get_emby_no_exists_episodes(meta_info.title,
+                                                                                  meta_info.year,
+                                                                                  season_number,
+                                                                                  episode_count)
                     if no_exists_tv_episodes:
                         # 存在缺失
                         need_search = True
@@ -201,8 +203,8 @@ class Jackett:
                             if search_episode not in no_exists_tv_episodes:
                                 # 这一集存在
                                 if in_from == SearchType.WX:
-                                    self.message.sendmsg(title="%s 在Emby媒体库中已经存在，本次下载取消！" % content, text="")
-                                log.info("【JACKETT】%s 在Emby媒体库中已经存在，本次下载取消！" % content)
+                                    self.message.sendmsg(title="%s 在Emby媒体库中已经存在，本次下载取消" % content, text="")
+                                log.info("【JACKETT】%s 在Emby媒体库中已经存在，本次下载取消" % content)
                                 return True
                             else:
                                 total_tv_no_exists = [{"season": season_number, "episodes": [search_episode]}]
@@ -248,11 +250,14 @@ class Jackett:
         if in_from == SearchType.WX:
             self.message.sendmsg("开始检索 %s ..." % content)
         log.info("【JACKETT】开始检索 %s ..." % content)
-        media_list = self.search_medias_from_word(key_word=key_word, s_num=search_season, e_num=search_episode,
-                                                  year=search_year, whole_word=True)
+        media_list = self.search_medias_from_word(key_word=key_word,
+                                                  s_num=search_season,
+                                                  e_num=search_episode,
+                                                  year=search_year,
+                                                  whole_word=True)
         if len(media_list) == 0:
             if in_from == SearchType.WX:
-                self.message.sendmsg("%s 未检索到任何媒体资源！" % content, "")
+                self.message.sendmsg("%s 未检索到任何媒体资源" % content, "")
             return False
         else:
             if in_from == SearchType.WX:
@@ -304,23 +309,23 @@ class Jackett:
     def __is_jackett_match_sey(media_info, s_num, e_num, year_str):
         if s_num:
             if not media_info.is_in_seasion(s_num):
-                log.info("【JACKETT】%s：%s(%s)%s %s 不匹配季：%s" % (media_info.type.value,
-                                                              media_info.title, media_info.year,
-                                                              media_info.get_season_episode_string(),
-                                                              media_info.get_resource_type_string(), s_num))
+                log.info("【JACKETT】%s：%s %s %s 不匹配季：%s" % (media_info.type.value,
+                                                           media_info.get_title_string(),
+                                                           media_info.get_season_episode_string(),
+                                                           media_info.get_resource_type_string(), s_num))
                 return False
         if e_num:
             if not media_info.is_in_episode(e_num):
-                log.info("【JACKETT】%s：%s(%s)%s %s 不匹配集：%s" % (media_info.type.value,
-                                                              media_info.title, media_info.year,
-                                                              media_info.get_season_episode_string(),
-                                                              media_info.get_resource_type_string(), e_num))
+                log.info("【JACKETT】%s：%s %s %s 不匹配集：%s" % (media_info.type.value,
+                                                           media_info.get_title_string(),
+                                                           media_info.get_season_episode_string(),
+                                                           media_info.get_resource_type_string(), e_num))
                 return False
         if year_str:
             if str(media_info.year) != year_str:
-                log.info("【JACKETT】%s：%s(%s)%s %s 不匹配年份：%s" % (media_info.type.value,
-                                                               media_info.title, media_info.year,
-                                                               media_info.get_season_episode_string(),
-                                                               media_info.get_resource_type_string(), year_str))
+                log.info("【JACKETT】%s：%s %s %s 不匹配年份：%s" % (media_info.type.value,
+                                                            media_info.get_title_string(),
+                                                            media_info.get_season_episode_string(),
+                                                            media_info.get_resource_type_string(), year_str))
                 return False
         return True

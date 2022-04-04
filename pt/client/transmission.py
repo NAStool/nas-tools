@@ -96,7 +96,7 @@ class Transmission:
             ids = int(ids)
         # 打标签
         self.trc.change_torrent(labels=["已整理"], ids=ids)
-        log.info("【TR】设置transmission种子标签成功！")
+        log.info("【TR】设置transmission种子标签成功")
 
     # 处理transmission中的种子
     def get_transfer_task(self):
@@ -138,8 +138,10 @@ class Transmission:
             date_now = datetime.now().astimezone()
             # 只有标记为强制上传的才会清理（经过RMT处理的都是强制上传状态）
             if date_done and (torrent.status == "seeding" or torrent.status == "seed_pending"):
-                if (date_now - date_done).seconds > int(seeding_time):
-                    remove_torrents.append(torrent.name)
+                torrent_time = (date_now - date_done).seconds
+                if torrent_time > int(seeding_time):
+                    log.info("【PT】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (torrent.name, torrent_time))
+                    remove_torrents.append(torrent.id)
         return remove_torrents
 
     def add_torrent(self, turl, mtype):
