@@ -57,7 +57,7 @@ media:
   movie_path: '/mnt/media/电影'
   # 媒体库电视剧文件存放目录
   tv_path: '/mnt/media/电视剧'
-  # 媒体库动漫文件存放目录，如果不想动漫单独分开，可以跟电视剧设置相同
+  # 媒体库动漫文件存放目录，如果不想动漫单独分开，可以跟电视剧设置相同，或者删掉该配置
   anime_path: '/mnt/media/动漫'
   # 无法识别时转移存放的目录，适用于PT下载转移以及sync未指明目的目录时的情况
   unknown_path: '/mnt/media/unknown'

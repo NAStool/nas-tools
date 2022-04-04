@@ -3,7 +3,7 @@ import anitopy
 import cn2an
 import requests
 from requests import RequestException
-from config import FANART_TV_API_URL, FANART_MOVIE_API_URL
+from config import FANART_TV_API_URL, FANART_MOVIE_API_URL, RMT_MEDIAEXT
 from rmt.category import Category
 from utils.functions import is_chinese
 from utils.tokens import Tokens
@@ -75,7 +75,8 @@ class MetaInfo(object):
     _part_re = r"(^PART[\s.]*[1-9]?|^CD[\s.]*[1-9]?|^DVD[\s.]*[1-9]?|^DISK[\s.]*[1-9]?|^DISC[\s.]*[1-9]?)"
     _resources_type_re = r"^BLURAY|^REMUX|^HDTV|^WEBRIP|^DVDRIP|^UHD|^SDR|^HDR|^DOLBY|^BLU|^WEB"
     _name_no_begin_re = r"^\[.+?]"
-    _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|NETFLIX" \
+    _name_se_words = ['第', '集']
+    _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|NETFLIX|IMAX" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+季" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+集" \
                         r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|EP?\d{2}\s*-\s*EP?\d{2}|EP?\d{2}" \
@@ -84,7 +85,9 @@ class MetaInfo(object):
                         r"|TV|Series|Movie|Animations|XXX" \
                         r"|大陆|连载|西德|日剧|美剧|电视剧|电影|动画片|动漫|法国|英国|美国|德国|印度|泰国|台湾|香港|中国|韩国|日本|欧美|日韩|超高清|高清|蓝光|翡翠台" \
                         r"|最终季|合集|[中国英葡法俄日韩德意西印泰台港粤双文语简繁体特效内封官译外挂]+字幕" \
-                        r"|PART[\s.]*[1-9]|CD[\s.]*[1-9]|DVD[\s.]*[1-9]|DISK[\s.]*[1-9]|DISC[\s.]*[1-9]"
+                        r"|未删减版|UNCUT" \
+                        r"|PART[\s.]*[1-9]|CD[\s.]*[1-9]|DVD[\s.]*[1-9]|DISK[\s.]*[1-9]|DISC[\s.]*[1-9]" \
+                        r"|[248]K|\d{3,4}[PIX]+"
     _resources_pix_re = r"^[SBUHD]*(\d{3,4}[PIX]+)"
     _resources_pix_re2 = r"(^[248]+K)"
     _subtitle_season_re = r"[第\s]+([0-9一二三四五六七八九十\-]+)\s*季"
@@ -234,6 +237,9 @@ class MetaInfo(object):
                         self.en_name = "%s %s" % (self.en_name, self._unknown_name_str)
                 self._unknown_name_str = ""
             return
+        if token in self._name_se_words:
+            self._last_token_type = 'name_se_words'
+            return
         if is_chinese(token):
             # 含有中文，直接做为标题（连着的数字或者英文会保留），且不再取用后面出现的中文
             if not self.cn_name and token:
@@ -242,6 +248,9 @@ class MetaInfo(object):
         else:
             # 数字
             if token.isdigit():
+                # 第集后面的不要
+                if self._last_token_type == 'name_se_words':
+                    return
                 if self.get_name():
                     # 名称后面跟着的数字，停止查找名称
                     self._stop_name_flag = True
@@ -260,6 +269,9 @@ class MetaInfo(object):
                     if not self._unknown_name_str:
                         self._unknown_name_str = token
             else:
+                # 后缀名不要
+                if ".%s" % token in RMT_MEDIAEXT:
+                    return
                 # 英文或者英文+数字，拼装起来
                 if self.en_name:
                     self.en_name = "%s %s" % (self.en_name, token)
@@ -482,10 +494,10 @@ class MetaInfo(object):
     # 返回季的数组
     def get_season_list(self):
         if not self.begin_season:
-            if self.type == MediaType.TV:
-                return [1]
-            else:
+            if self.type == MediaType.MOVIE:
                 return []
+            else:
+                return [1]
         elif self.end_season:
             return [season for season in range(self.begin_season, self.end_season + 1)]
         else:

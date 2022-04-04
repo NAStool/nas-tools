@@ -20,4 +20,12 @@ if __name__ == "__main__":
     print(MetaInfo('The.355.2021.BluRay.1080p').__dict__)
     print(MetaInfo('[神奇女侠.1984].Wonder.Woman.1984.2020.3D.BluRay.1080p').__dict__)
     print(MetaInfo('亲爱的.2014.TW.1080p.国语.简繁中字').__dict__)
+    print(MetaInfo('医是医，二是二 - S01E02 - 第 10 集.mp4').__dict__)
+    print(MetaInfo('Interstellar.IMAX.1080p.HDR.10bit.BT2020.DTS.HD').__dict__)
+    print(MetaInfo('玻璃樽(未删减版).Gorgeous.UNCUT.1999.BluRay.1080p.x265.10bit').__dict__)
+    print(MetaInfo('Kingmaker.2022.KOREAN.1080p.WEBRip.AAC2.0.x264-Imagine').__dict__)
+    print(MetaInfo('[第 1 季 Ep6]Sweet Home - 第 6 集.mkv').__dict__)
+    print(MetaInfo('[LPSub]Paripi Koumei[01][HEVC AAC][1080p][CH].mkv').__dict__)
+    print(MetaInfo('[LPSub]Paripi Koumei[01][HEVC AAC][1080p][CH].mkv', anime=True).__dict__)
+    print(MetaInfo('S01E01.mkv').__dict__)
     '''

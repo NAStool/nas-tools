@@ -42,6 +42,8 @@ class Qbittorrent:
                     self.__tv_save_path = save_path.get('tv')
                     self.__movie_save_path = save_path.get('movie')
                     self.__anime_save_path = save_path.get('anime')
+                    if not self.__anime_save_path:
+                        self.__anime_save_path = self.__tv_save_path
             save_containerpath = qbittorrent.get('save_containerpath')
             if save_containerpath:
                 if isinstance(save_containerpath, str):
@@ -52,6 +54,9 @@ class Qbittorrent:
                     self.__tv_save_containerpath = save_containerpath.get('tv')
                     self.__movie_save_containerpath = save_containerpath.get('movie')
                     self.__anime_save_containerpath = save_containerpath.get('anime')
+                    # 没有配置anime目录则使用tv目录
+                    if not self.__anime_save_containerpath:
+                        self.__anime_save_containerpath = self.__tv_save_containerpath
             if self.__qbhost and self.__qbport:
                 self.qbc = self.__login_qbittorrent()
 

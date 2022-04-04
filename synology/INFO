@@ -1,5 +1,5 @@
 package="nastool"
-version="0.3.08"
+version="0.3.09"
 description="NAS媒体自动搜刮和整理工具：https://github.com/jxxghp/nas-tools"
 arch="noarch"
 distributor="jxxghp"

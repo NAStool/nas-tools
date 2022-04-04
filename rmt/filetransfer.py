@@ -337,7 +337,11 @@ class FileTransfer:
             elif media.type == MediaType.TV:
                 dist_path = self.__tv_path
             elif media.type == MediaType.ANIME:
-                dist_path = self.__anime_path
+                # 没有动漫目录则用TV目录
+                if self.__anime_path:
+                    dist_path = self.__anime_path
+                else:
+                    dist_path = self.__tv_path
             else:
                 log.error("【RMT】媒体类型错误！")
                 continue
