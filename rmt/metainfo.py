@@ -598,7 +598,10 @@ class MetaInfo(object):
             first_air_date = info.get('first_air_date')
             if first_air_date:
                 self.year = first_air_date[0:4]
-            self.category = self.category_handler.get_tv_category(info)
+            if self.type == MediaType.TV:
+                self.category = self.category_handler.get_tv_category(info)
+            else:
+                self.category = self.category_handler.get_anime_category(info)
         self.poster_path = "https://image.tmdb.org/t/p/w500%s" % info.get('poster_path')
         self.backdrop_path = self.get_backdrop_image(self.type, info.get('backdrop_path'), info.get('id'))
 
