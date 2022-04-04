@@ -104,7 +104,7 @@ class Rss:
                                                media_info.year,
                                                media_info.get_season_string(),
                                                media_info.get_episode_string()):
-                        log.info("【RSS】%s %s 已处理过，跳过..." % (media_info.get_title_string()))
+                        log.info("【RSS】%s 已处理过，跳过..." % (media_info.get_title_string()))
                         continue
                     # 检查种子名称或者标题是否匹配
                     match_flag = self.__is_torrent_match(media_info, movie_keys, tv_keys)
