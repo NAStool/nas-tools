@@ -1,5 +1,5 @@
-# 硬链接模式的配置文件，只有两个功能：1、监控下载软件，下载完成后自动识别重命名并做硬链接/复制。2、监控目录，目录有变化时自动识别重命名和做硬链接/复制。没有UI界面，但可以保留通知。
-# 配置注意要符合yaml语法，:号后有1个空格，不能使用全角标点符号
+# 硬链接模式的配置文件，只有两个功能：1、监控下载软件，下载完成后自动识别重命名并做硬链接/复制。2、监控目录，目录有变化时自动识别重命名和做硬链接/复制，没有UI界面，但可以保留通知。
+# 【配置注意要符合yaml语法，:号后有1个空格，不能使用全角标点符号】
 app:
   # 这个配置不要改
   simple_mode: true
@@ -27,16 +27,17 @@ media:
 # 配置文件夹监控，文件夹内容发生变化时自动识别转移
 sync:
   # 监控目录，可以监控多个。监控目录有文件变化时会自动进行媒体识别、转移并命名
-  # 配置格式1：'源目录|目的目录'，比如：'/mnt/movie1|/mnt/mymovie'，配了目的目录时，会转移到/mnt/mymovie目的目录中，不自动区分电影或电视剧。
-  # 配置格式2：'源目录'，比如：'/mnt/movie1'，目的目录不配时会自动识别是电影还是电视剧并转移到media中配置的movie_path、tv_path配置的目录中（开了自动分类的话会在该目录下进行二级目录分类）
-  # 如果无法识别文件媒体信息，配置了目的目录的情况下会LINK到目的目录的unknown录下（COPY模式则不处理）
+  # 配置格式1：'源目录|目的目录'，比如：'/mnt/movie1|/mnt/mymovie'，配了目的目录时，会转移到/mnt/mymovie目的目录中，不自动区分电影或电视剧
+  # 配置格式2：'源目录'，比如：'/mnt/movie1'，目的目录不配时会自动识别是电影还是电视剧并转移到media中配置的movie_path、tv_path、anime_path配置的目录中（开了自动分类的话会在该目录下进行二级目录分类）
+  # 如果无法识别文件媒体信息，配置了目的目录的情况下会LINK到目的目录的unknown录下
   # 建议映射上级目录，源目录和目的目录为子目录，如果分开映射则可能发生跨盘的问题
   sync_path:
     - '/mnt/movie1|/mnt/mymovie'
     - '/mnt/movie2|/mnt/mymovie'
     - '/mnt/resiliosync/大片抢先看'
-  # 监控目录文件的转移方式：link、copy、softlink，link即硬链接、softlink为软链接，cop，均会重命名。link下载目录和媒体库目录在一个磁盘分区或者存储空间。
-  # Docker运行时link模式如果确认是同一个盘仍然报错跨盘问题，请尝试直接映射上级目录
+  # 监控目录文件的转移方式：link、copy、softlink，link即硬链接、softlink为软链接，copy为复制，均会重命名
+  # link要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间，Docker运行时link模式需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker可能仍然会认为是跨盘
+  # softlink模式注意宿主机的源目录映射到docker容器中后要路径要一致，否则可能软链接成功但无法在宿主机使用
   sync_mod: link
 
 # 配置消息通知服务，不需要可以删除
@@ -61,9 +62,9 @@ message:
     sckey:
   # Telegram机器人，需要在Telegram中创建机器人以及获取chat_id
   telegram:
-    # 机器人的Token，关注BotFather创建机器人
+    # telegram机器人的Token，关注BotFather创建机器人
     telegram_token:
-    # 关注getuserID获取
+    # telegram关注getuserID获取
     telegram_chat_id:
   # Bark通知，手机上安装Bark客户端，Server可以使用默认的也可以自己搭建，自己搭建的更换为服务器地址和端口，格式：http(s)://IP:PORT。
   bark:
@@ -74,9 +75,10 @@ message:
 
 # 配置PT下载信息，用于监控下载软件，完成后自动转移和改名，不用可删掉
 pt:
-  # PT下载完成后转移到媒体库的转移模式：copy复制模式、link硬链接模式、softlink软链接模式。
-  # 复制模式下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠；硬链接模式不用额外增加存储空间，一份文件两份目录，但需要下载目录和媒体库目录在一个磁盘分区或者存储空间。两者在媒体库使用上是一致的。
-  # Docker运行时，link模式如果确认是同一个盘仍然报错跨盘问题，请尝试直接映射上级目录
+  # PT下载完成后转移到媒体库的转移模式：copy复制模式、link硬链接模式、softlink软链接模式，均会重命名
+  # copy下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠
+  # link模式不用额外增加存储空间，一份文件两份目录（显示的大小一样），但需要下载目录和媒体库目录在一个磁盘分区或者存储空间，Docker运行时link模式需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker可能仍然会认为是跨盘
+  # softlink模式注意宿主机的源目录映射到docker容器中后要路径要一致，否则可能软链接成功但无法在宿主机使用
   rmt_mode: link
   # PT下载使用的客户端软件，qbittorrent、transmission，需要配置qbittorrent或transmission对应的配置区域，使用一个后另一个配置可以删掉
   pt_client: qbittorrent
@@ -91,21 +93,28 @@ qbittorrent:
   # qBittorrent 登录用户名和密码
   qbusername: admin
   qbpassword: adminadmin
-  # 有两种配置方法：
+  ## 下面两项配置问的人比较多，解释一下：
+  # 1、save_path是nastool检索到需要新增下载时告诉qb下到哪个目录去，是传给qb的
+  # 2、save_containerpath是告诉nastool qb的下载路径对应在nastool里又是映射为什么路径，这样nastool才能通过这个路径访问到qb下载好的文件
+  # qBittorrent下载保存目录，如果是Docker版本的qb这个是容器内的路径
+  ## 有两种配置方法：
   # 1、直接在：号后面配置一个路径（删掉下面的movie、tv项），则所有电影电视剧均下载到这个目录中
   # 2、在save_path下面配置子栏目，可以按电影、电视剧分开目录存储，当然也可以配置成同一个目录
+  # 如果需要该配置生效，QB的下载管理模式需要为自动
   save_path:
     movie:
     tv:
     anime:
-  # 如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径；如果本程序不是Docker运行但tr是Docker运行，则设置为PT下载目录在宿主机上的真实路径。不是以上两种情况留空即可。
+  # 1、如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径
+  # 2、如果本程序不是Docker运行但qb是Docker运行，则设置为PT下载目录在宿主机上的真实路径
+  # 3、不是以上两种情况留空即可
   # 配置项需要跟save_path一一对应
   save_containerpath:
     movie:
     tv:
     anime:
 
-# 配置transmission下载软件，不用可删掉
+# 配置transmission下载软件 需要3.0以上版本，否则可能会报错
 transmission:
   # transmission IP地址和端口，注意如果tr启用了HTTPS证书，则需要配置为https://IP
   trhost: 127.0.0.1
@@ -113,14 +122,20 @@ transmission:
   # transmission 登录用户名和密码
   trusername: admin
   trpassword: password
-  # 有两种配置方法：
-  # 1、直接在：号后面配置一个路径，则所有电影电视剧均下载到这个目录中
+  ## 下面两项配置问的人比较多，解释一下：
+  # 1、save_path是nastool检索到需要新增下载时告诉tr下到哪个目录去，是传给tr的
+  # 2、save_containerpath是告诉nastool tr的下载路径对应在nastool里又是映射为什么路径，这样nastool才能通过这个路径访问到tr下载好的文件
+  # transmission下载保存目录，如果是Docker版本的tr这个是容器内的路径
+  ## 有两种配置方法：
+  # 1、直接在：号后面配置一个路径（删掉下面的movie、tv项），则所有电影电视剧均下载到这个目录中
   # 2、在save_path下面配置子栏目，可以按电影、电视剧分开目录存储，当然也可以配置成同一个目录
   save_path:
     movie:
     tv:
     anime:
-  # 如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径；如果本程序不是Docker运行但tr是Docker运行，则设置为PT下载目录在宿主机上的真实路径。不是以上两种情况留空即可。
+  # 1、如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径
+  # 2、如果本程序不是Docker运行但tr是Docker运行，则设置为PT下载目录在宿主机上的真实路径
+  # 3、不是以上两种情况留空即可
   # 配置项需要跟save_path一一对应
   save_containerpath:
     movie:

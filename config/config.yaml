@@ -1,11 +1,14 @@
-# 全功能模式配置文件，适用于想做做PT下载、识别转移、保种、搭建媒体库全自动解决方案的用户，有很多附属的功能，有WEBUI控制界面
-# 配置注意要符合yaml语法，:号后有1个空格，不能使用全角标点符号
+# 全功能模式配置文件，适用于想做自动PT下载、保种、聚合搜索、识别转移、媒体库管理等全自动解决方案的用户，有很多附属的功能，有WEBUI控制界面
+# 【配置注意要符合yaml语法，:号后有1个空格，不能使用全角标点符号】
 app:
-  # 日志记录类型：server、file、console，如果是使用Docker安装建议留空或者设置为console；如果是使用群晖套件建议配置为 server，可将日志输出到群晖的日志中心便于查看；如果是python本地运行建议设置为file，保存日志到文件。
+  # 日志记录类型：server、file、console
+  # 如果是使用Docker安装建议留空或者设置为console
+  # 如果是使用群晖套件建议配置为 server，可将日志输出到群晖的日志中心便于查看
+  # 如果是python本地运行建议设置为file，保存日志到文件
   logtype: console
   # 日志文件的路径，logtype为FILE时生效
   logpath: '/config/logs'
-  # 群晖日志中心IP和端口，logtype为SERVER时生效。端口一般是514，只需要改动IP为群晖的IP。
+  # 群晖日志中心IP和端口，logtype为SERVER时生效。端口一般是514，只需要改动IP为群晖的IP
   logserver: 127.0.0.1:514
   # WEB管理界面端口，默认3000
   web_port: 3000
@@ -17,8 +20,9 @@ app:
   ssl_cert:
   ssl_key:
   # 存储媒体库设备的操作系统类型：windows、linux，用于监控目录变化。windows类型性能比较差，会导致NAS不能休眠，除非NAS是windows的否则都建议配置为linux
+  # 注意本程序是不支持windows运行的，但可以通过远程挂载的方式挂载windows的共享目录做为媒体库，此时nas_sys设置为windows
   nas_sys: linux
-  # TMDB API KEY，需要在https://www.themoviedb.org/申请，必须配置这个，否则无法识别媒体资源和重命名
+  # TMDB API KEY，需要在https://www.themoviedb.org/申请，必须配置，否则无法识别媒体资源和重命名
   rmt_tmdbkey:
   # TMDB匹配模式：normal、strict，normal模式下如使用文件名/种子名中的年份无法匹配到媒体信息，会去掉年份再匹配一次；strict模式则严格按文件中年份匹配
   # normal模式下会提升识别成功率，但也可能会导致误识别率增加；strict模式可以降低误识别率，但可能导致很多文件名/种子名中年份不正确的无法被识别（特别是剧集，需要是首播年份）
@@ -26,7 +30,7 @@ app:
 
 # 配置豆瓣账号信息，自动同步豆瓣收藏，后台自动下载
 douban:
-  # 用户ID列表，豆瓣电影点个我主页people后面的那一串数字，可以配置多个，注意要加引号。
+  # 用户ID列表，豆瓣电影点个我主页people后面的那一串数字，可以配置多个，注意要加引号
   users:
     - ''
   # 豆瓣Cookie，嫌烦麻的可以不用配置，可能影响个别电影的同步
@@ -62,43 +66,47 @@ media:
   # 无法识别时转移存放的目录，适用于PT下载转移以及sync未指明目的目录时的情况
   unknown_path: '/mnt/media/unknown'
   # 电影电视剧是否需要二级分类，启用二级分类后会在电影电视剧目录下按二级分类名建立子目录
-  # 此处配置分类的策略名，配置文件目录中需要有与策略名同名的配置文件，配置模板可参考default-category.yaml
+  # 此处配置分类的策略名，配置文件目录中需要有与策略名同名的.yaml配置文件，配置模板可参考default-category.yaml
   # 默认策略default-category分类设置可参考README.MD说明
   category: 'default-category'
 
 # 配置文件夹监控，文件夹内容发生变化时自动识别转移
 sync:
   # 监控目录，可以监控多个。监控目录有文件变化时会自动进行媒体识别、转移并命名
-  # 配置格式1：'源目录|目的目录'，比如：'/mnt/movie1|/mnt/mymovie'，配了目的目录时，会转移到/mnt/mymovie目的目录中，不自动区分电影或电视剧。
-  # 配置格式2：'源目录'，比如：'/mnt/movie1'，目的目录不配时会自动识别是电影还是电视剧并转移到media中配置的movie_path、tv_path配置的目录中（开了自动分类的话会在该目录下进行二级目录分类）
-  # 如果无法识别文件媒体信息，配置了目的目录的情况下会LINK到目的目录的unknown录下（COPY模式则不处理）
+  # 配置格式1：'源目录|目的目录'，比如：'/mnt/movie1|/mnt/mymovie'，配了目的目录时，会转移到/mnt/mymovie目的目录中，不自动区分电影或电视剧
+  # 配置格式2：'源目录'，比如：'/mnt/movie1'，目的目录不配时会自动识别是电影还是电视剧并转移到media中配置的movie_path、tv_path、anime_path配置的目录中（开了自动分类的话会在该目录下进行二级目录分类）
+  # 如果无法识别文件媒体信息，配置了目的目录的情况下会LINK到目的目录的unknown录下
   # 建议映射上级目录，源目录和目的目录为子目录，如果分开映射则可能发生跨盘的问题
   sync_path:
     - '/mnt/movie1|/mnt/mymovie'
     - '/mnt/movie2|/mnt/mymovie'
     - '/mnt/resiliosync/大片抢先看'
-  # 监控目录文件的转移方式：link、copy、softlink，link即硬链接、softlink为软链接，cop，均会重命名。link下载目录和媒体库目录在一个磁盘分区或者存储空间。
-  # Docker运行时link模式如果确认是同一个盘仍然报错跨盘问题，请尝试直接映射上级目录
+  # 监控目录文件的转移方式：link、copy、softlink，link即硬链接、softlink为软链接，copy为复制，均会重命名
+  # link要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间，Docker运行时link模式需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker可能仍然会认为是跨盘
+  # softlink模式注意宿主机的源目录映射到docker容器中后要路径要一致，否则可能软链接成功但无法在宿主机使用
   sync_mod: link
 
 # 配置消息通知服务
 message:
-  # 发送消息使用的渠道：wechat、serverchan、telegram、bark，需在对应的配置区域配置。不使用的渠道配置可以留空或者删除。推荐使用wechat微信渠道。不设置则不启用消息服务。
+  # 发送消息使用的渠道：wechat、serverchan、telegram、bark，需在对应的配置区域配置。不使用的渠道配置可以留空或者删除。推荐使用wechat微信渠道。不设置则不启用消息服务
   msg_channel: wechat
   # 配置了Emby webhooks插件回调时，用户播放媒体库中的媒体时会发送消息通知，本处配置哪些用户的设备不通知，避免打扰，配置格式：用户:设备名称，可用 - 增加多项
   webhook_ignore:
     - 'admin:xx的iPhone 12'
-  # 【推荐】企业微信消息应用，在企业微信https://work.weixin.qq.com/中申请和新增一个自建应用。配合微信的企业微信插件，可以直接在微信中查看本程序的消息以及控制程序运行，非常好用，推荐使用该渠道。
+  # 【推荐】企业微信消息应用，在企业微信https://work.weixin.qq.com/中申请和新增一个自建应用。配合微信的企业微信插件，可以直接在微信中查看本程序的消息以及控制程序运行，非常好用，推荐使用该渠道
   wechat:
     # corpid:每个企业都拥有唯一的corpid，获取此信息可在管理后台“我的企业”－“企业信息”下查看“企业ID”（需要有管理员权限）
-    # corpsecret:自建应用secret。在管理后台->“应用与小程序”->“应用”->“自建”，点进某个应用，即可看到。
-    # agentid:每个应用都有唯一的agentid。在管理后台->“应用与小程序”->“应用”，点进某个应用，即可看到agentid。
-    # 具体不明白的参考企业微信的开发者中心，
+    # corpsecret:自建应用secret。在管理后台->“应用与小程序”->“应用”->“自建”，点进某个应用，即可看到
+    # agentid:每个应用都有唯一的agentid。在管理后台->“应用与小程序”->“应用”，点进某个应用，即可看到agentid
+    # 具体不明白的参考企业微信的开发者中心
     corpid:
     corpsecret:
     agentid:
-    # 微信回调，用于在微信中控制本程序，需要在企业微信https://work.weixin.qq.com/中设置自建应用的菜单等。
-    # 步聚：1、在微信企业应用接收消息设置页面生成Token和EncodingAESKey并填入下面区域。2、重启本程序。3、在微信企业应用接收消息设置页面输入此地址：http(s)://ip:3000/wechat。需要有公网IP并做好端口转发，最好要有域名。
+    # 微信回调，用于在微信中控制本程序，需要在企业微信https://work.weixin.qq.com/中设置自建应用的菜单等
+    ## 配置步聚：
+    # 1、在微信企业应用接收消息设置页面生成Token和EncodingAESKey并填入下面区域。
+    # 2、重启本程序。
+    # 3、在微信企业应用接收消息设置页面输入此地址：http(s)://ip:3000/wechat，需要有公网IP并做好端口转发，最好要有域名
     Token:
     EncodingAESKey:
   # ServerChan API KEY，SCT类型，在https://sct.ftqq.com/中申请（非VIP貌似每日限制只能收到5条消息）
@@ -106,11 +114,11 @@ message:
     sckey:
   # Telegram机器人，需要在Telegram中创建机器人以及获取chat_id
   telegram:
-    # 机器人的Token，关注BotFather创建机器人
+    # telegram机器人的Token，关注BotFather创建机器人
     telegram_token:
-    # 关注getuserID获取
+    # telegram中关注getuserID获取
     telegram_chat_id:
-  # Bark通知，手机上安装Bark客户端，Server可以使用默认的也可以自己搭建，自己搭建的更换为服务器地址和端口，格式：http(s)://IP:PORT。
+  # Bark通知，手机上安装Bark客户端，Server可以使用默认的也可以自己搭建，自己搭建的更换为服务器地址和端口，格式：http(s)://IP:PORT
   bark:
     # 自己搭建请更换，否则保持默认
     server: https://api.day.app
@@ -119,9 +127,10 @@ message:
 
 # 配置PT RSS下载的信息
 pt:
-  # PT下载完成后转移到媒体库的转移模式：copy复制模式、link硬链接模式、softlink软链接模式。
-  # 复制模式下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠；硬链接模式不用额外增加存储空间，一份文件两份目录，但需要下载目录和媒体库目录在一个磁盘分区或者存储空间。两者在媒体库使用上是一致的。
-  # Docker运行时，link模式如果确认是同一个盘仍然报错跨盘问题，请尝试直接映射上级目录
+  # PT下载完成后转移到媒体库的转移模式：copy复制模式、link硬链接模式、softlink软链接模式，均会重命名
+  # copy下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠
+  # link模式不用额外增加存储空间，一份文件两份目录（显示的大小一样），但需要下载目录和媒体库目录在一个磁盘分区或者存储空间，Docker运行时link模式需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker可能仍然会认为是跨盘
+  # softlink模式注意宿主机的源目录映射到docker容器中后要路径要一致，否则可能软链接成功但无法在宿主机使用
   rmt_mode: link
   # PT下载使用的客户端软件，qbittorrent、transmission，需要配置qbittorrent或transmission对应的配置区域
   pt_client: qbittorrent
@@ -131,27 +140,30 @@ pt:
   rss_chinese: false
   # PT站每日签到的时间，注意一定要加引号
   ptsignin_cron: '8:00'
-  # PT做种时间，做种超过该时间则会自动删种（包括已下载的文件），单位是秒。如果是使用COPY模式，这个根据PT下载盘的大小配置，如果是使用LINK模式，这个可以不配，不配置或者配置为0则不启用删种功能。
+  # PT做种时间，做种超过该时间则会自动删种（包括已下载的文件），单位是秒。如果是使用COPY模式，这个根据PT下载盘的大小配置，如果是使用LINK模式，这个可以不配，不配置或者配置为0则不启用删种功能
   pt_seeding_time:
-  # RSS检查时间间隔，即每隔多长时间检查一下各PT站是否有资源更新，建议不要少于10分钟，单位时间为秒。
+  # RSS检查时间间隔，即每隔多长时间检查一下各PT站是否有资源更新，建议不要少于10分钟，单位时间为秒
   pt_check_interval: 1800
-  # PT站的信息，理论上支持所有PT站点，可按pthome示例格式增加其他站点的配置，URL、Cookie等注意加引号，不然容易造成格式错误。
+  # PT站的信息，理论上支持所有PT站点，可按pthome示例格式增加其他站点的配置，URL、Cookie等注意加引号，不然容易造成格式错误
   # 配置在前面的站点，在下载资源时会优先选择
   sites:
     pthome:
-      # RSS订阅源URL，可以是点击PT站点RSS图标获取，有新出资源时自动匹配下载；也可以是PT站的购物车/下载框的链接（部分站点才有）。
+      # RSS订阅源URL，可以是点击PT站点RSS图标获取，有新出资源时自动匹配下载；也可以是PT站的购物车/下载框的链接（部分站点才有）
       rssurl:
       # PT站用户签到的Url，一般为mybonus.php或attendance.php，即PT站点签到按钮跳转的页面，不配置则不启用签到功能
       signin_url: 'https://pthome.net/attendance.php'
       # PT站的Cookie，需要在浏览器中F12->网络 页抓取，具体操作可百度，未配置则无法进行PT签到
       cookie:
-      # 下载哪些类型的资源：BluRay、4k（包括了2160p）、1080p、720p、WEB-DL等等，按先后顺序配置，配在前面的优先级高。留空则不过滤
+      # 下载哪些类型的资源：BluRay、4k（包括了2160p）、1080p、720p、WEB-DL等（种子名称里有的都可以配），按先后顺序配置，配在前面的优先级高。留空则不过滤
       res_type:
         - 4k
         - 1080p
+        - WEB-DL
         - BluRay
 
-# 配置Jackett检索器，通过微信发送关键字，实时检索下载，发送格式示例：西部世界、西部世界第1季、西部世界第1季第2集、西部世界 2022，会同时匹配种子名称跟真实名称。不需要可以删掉。
+## 配置Jackett检索器
+# 1、通过微信发送关键字，实时检索下载，发送格式示例：西部世界、西部世界第1季、西部世界第1季第2集、西部世界 2022，只会匹配真实名称，命中后会自动下载
+# 2、使用WEB UI中的搜索界面搜索PT资源，会识别显示真实名称，并显示媒体图片和评分等信息，会同时匹配种子名称跟真实名称
 jackett:
   # Jackett配置页面右上角复制API Key
   api_key:
@@ -163,6 +175,7 @@ jackett:
     - 4k
     - 1080p
     - BluRay
+    - WEB-DL
 
 # 配置qBittorrent下载软件
 qbittorrent:
@@ -172,13 +185,22 @@ qbittorrent:
   # qBittorrent 登录用户名和密码
   qbusername: admin
   qbpassword: adminadmin
-  # 下面这两个配置问的人特别多，解释一下：save_path是nastool检索到需要新增下载时告诉qb下到哪个目录去，是传给qb的。save_containerpath是告诉nastool qb的下载路径对应在nastool里又是映射为什么路径，这样nastool才能通过这个路径访问到qb下载好的文件。
-  # qBittorrent下载保存目录，如果是Docker版本的qb这个是容器内的路径。如果需要该配置生效，QB的下载管理模式需要为自动。
+  ## 下面两项配置问的人比较多，解释一下：
+  # 1、save_path是nastool检索到需要新增下载时告诉qb下到哪个目录去，是传给qb的
+  # 2、save_containerpath是告诉nastool qb的下载路径对应在nastool里又是映射为什么路径，这样nastool才能通过这个路径访问到qb下载好的文件
+  # qBittorrent下载保存目录，如果是Docker版本的qb这个是容器内的路径
+  ## 有两种配置方法：
+  # 1、直接在：号后面配置一个路径（删掉下面的movie、tv项），则所有电影电视剧均下载到这个目录中
+  # 2、在save_path下面配置子栏目，可以按电影、电视剧分开目录存储，当然也可以配置成同一个目录
+  # 如果需要该配置生效，QB的下载管理模式需要为自动
   save_path:
     movie:
     tv:
     anime:
-  # 1、如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径；如果本程序不是Docker运行但qb是Docker运行，则设置为PT下载目录在宿主机上的真实路径。不是以上两种情况留空即可。
+  # 1、如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径
+  # 2、如果本程序不是Docker运行但qb是Docker运行，则设置为PT下载目录在宿主机上的真实路径
+  # 3、不是以上两种情况留空即可
+  # 配置项需要跟save_path一一对应
   save_containerpath:
     movie:
     tv:
@@ -192,15 +214,20 @@ transmission:
   # transmission 登录用户名和密码
   trusername: admin
   trpassword: password
-  # transmission下载保存目录，如果是Docker版本的tr这个是容器内的路径。
-  # 有两种配置方法：
+  ## 下面两项配置问的人比较多，解释一下：
+  # 1、save_path是nastool检索到需要新增下载时告诉tr下到哪个目录去，是传给tr的
+  # 2、save_containerpath是告诉nastool tr的下载路径对应在nastool里又是映射为什么路径，这样nastool才能通过这个路径访问到tr下载好的文件
+  # transmission下载保存目录，如果是Docker版本的tr这个是容器内的路径
+  ## 有两种配置方法：
   # 1、直接在：号后面配置一个路径（删掉下面的movie、tv项），则所有电影电视剧均下载到这个目录中
   # 2、在save_path下面配置子栏目，可以按电影、电视剧分开目录存储，当然也可以配置成同一个目录
   save_path:
     movie:
     tv:
     anime:
-  # 如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径；如果本程序不是Docker运行但tr是Docker运行，则设置为PT下载目录在宿主机上的真实路径。不是以上两种情况留空即可。
+  # 1、如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径
+  # 2、如果本程序不是Docker运行但tr是Docker运行，则设置为PT下载目录在宿主机上的真实路径
+  # 3、不是以上两种情况留空即可
   # 配置项需要跟save_path一一对应
   save_containerpath:
     movie:

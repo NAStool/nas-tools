@@ -98,9 +98,9 @@ class MetaInfo(object):
             return
         self.category_handler = Category()
         self.org_string = title
-        # 去掉名称中第1个[]的内容
-        title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
         if not anime:
+            # 去掉名称中第1个[]的内容
+            title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
             # 拆分tokens
             tokens = Tokens(title)
             # 解析名称、年份、季、集、资源类型、分辨率等
@@ -153,8 +153,6 @@ class MetaInfo(object):
                 if anitopy_info:
                     # 名称
                     name = anitopy_info.get("anime_title")
-                    # 把名称中带有的年份去掉
-                    name = re.sub(r'[\s.]+\d{4}', "", name)
                     if is_chinese(name):
                         self.cn_name = name
                     else:
