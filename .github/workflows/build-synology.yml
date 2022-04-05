@@ -26,13 +26,9 @@ jobs:
         chmod 777 scripts/*
         tar -cvf nastool_dsm_6.x.spk *
 
-    - name: Delete tag and release
-      uses: dev-drprasad/delete-tag-and-release@v0.2.0
-      with:
-        delete_release: true
-        tag_name: Synology
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Get version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
 
     - name: Create release
       id: create_release
@@ -41,7 +37,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: Synology
-        release_name: Synology
+        release_name: ${{ steps.get_version.outputs.VERSION }}
         body: Package file for synology diskstation 6.x
         draft: false
         prerelease: false
@@ -54,7 +50,7 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
         asset_path: spk/nastool_dsm_6.x.spk
-        asset_name: nastool_dsm_6.x.spk
+        asset_name: nastool_dsm6_${{ steps.get_version.outputs.VERSION }}.spk
         asset_content_type: application/gzip
 
     - name: Send telegram message
