@@ -26,17 +26,14 @@ jobs:
         chmod 777 scripts/*
         tar -cvf nastool_dsm_6.x.spk *
 
-    - name: Get version
-      id: get_version
-      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-
-    - name: Delete tag and release
-      uses: dev-drprasad/delete-tag-and-release@v0.2.0
+    - name: Release version
+      id: release_version
+      uses: rymndhng/release-on-push-action@master
       with:
-        delete_release: true
-        tag_name: ${{ steps.get_version.outputs.VERSION }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        bump_version_scheme: minor
+        tag_prefix: v
+        use_github_release_notes: true
+        max_commits: 20
 
     - name: Create release
       id: create_release
@@ -44,8 +41,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ steps.get_version.outputs.VERSION }}
-        release_name: ${{ steps.get_version.outputs.VERSION }}
+        tag_name: ${{ steps.release_version.outputs.version }}
+        release_name: ${{ steps.release_version.outputs.version }}
         body: Package file for synology diskstation 6.x
         draft: false
         prerelease: false
