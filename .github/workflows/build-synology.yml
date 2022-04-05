@@ -40,7 +40,7 @@ jobs:
       with:
         tag_name: ${{ env.app_version }}
         release_name: ${{ env.app_version }}
-        body: Spk for synology diskstation 6.x
+        body: ${{ github.event.commits[0].message }}
         draft: false
         prerelease: false
 

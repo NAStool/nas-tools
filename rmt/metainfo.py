@@ -153,10 +153,10 @@ class MetaInfo(object):
                 # 在第1个]后面插入内容，规避命名不规范的问题
                 pos = title.find(']')
                 if pos != -1:
-                    anime_title = title[0:pos+1] + "[ANIME]" + title[pos+1:]
+                    anime_title = title[:pos+1] + "[ANIME]" + title[pos+1:]
                     anitopy_info = anitopy.parse(anime_title)
-                    if not anitopy_info or anitopy_info.get("anime_title") == "ANIME":
-                        anitopy_info = anitopy.parse(title)
+                    if not anitopy_info or not anitopy_info.get("anime_title") or anitopy_info.get("anime_title") == "ANIME":
+                        anitopy_info = anitopy.parse("[ANIME]" + title)
                 else:
                     anitopy_info = anitopy.parse(title)
                 if anitopy_info:

@@ -42,9 +42,9 @@ if __name__ == "__main__":
     print(is_anime('医是医，二是二 - S01E02 - 第 10 集.mp4'))
     print(is_anime('[LPSub]Paripi Koumei[HEVC AAC][2160x1080][CH].mkv'))
     print(is_anime('[Sono Bisque Doll wa Koi wo Suru][01-12][BIG5][1080P][MP4]'))
-    '''
+    print(MetaInfo('[Sono Bisque Doll wa Koi Wo Suru][06][BIG5][1080p].mp4', anime=True).__dict__)
     print(MetaInfo('Kenja no Deshi o Nanoru Kenja[12][1080p][CHS&CHT].mkv', anime=True).__dict__)
     print(MetaInfo('[Sono Bisque Doll wa Koi wo Suru][01-12][BIG5][1080P][MP4]', anime=True).__dict__)
     print(MetaInfo('[Nekomoe kissaten][Paripi Koumei][01][1080p][CHS].mp4', anime=True).__dict__)
     print(MetaInfo('[NC-Raws] 東方少年 - 06 (Baha 1920x1080 AVC AAC MP4).mp4', anime=True).__dict__)
-
+    '''
