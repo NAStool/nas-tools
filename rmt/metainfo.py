@@ -150,7 +150,15 @@ class MetaInfo(object):
         else:
             # 调用第三方模块识别动漫
             try:
-                anitopy_info = anitopy.parse(title)
+                # 在第1个]后面插入内容，规避命名不规范的问题
+                pos = title.find(']')
+                if pos != -1:
+                    anime_title = title[0:pos+1] + "[ANIME]" + title[pos+1:]
+                    anitopy_info = anitopy.parse(anime_title)
+                    if not anitopy_info or anitopy_info.get("anime_title") == "ANIME":
+                        anitopy_info = anitopy.parse(title)
+                else:
+                    anitopy_info = anitopy.parse(title)
                 if anitopy_info:
                     # 名称
                     name = anitopy_info.get("anime_title")
