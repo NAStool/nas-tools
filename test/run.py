@@ -1,5 +1,6 @@
 import anitopy
 
+from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from utils.functions import is_anime
 
@@ -48,4 +49,6 @@ if __name__ == "__main__":
     print(MetaInfo('[Nekomoe kissaten][Paripi Koumei][01][1080p][CHS].mp4', anime=True).__dict__)
     print(MetaInfo('[NC-Raws] 東方少年 - 06 (Baha 1920x1080 AVC AAC MP4).mp4', anime=True).__dict__)
     print(MetaInfo('[LPSub][Paripi Koumei][01][1080p][CHS].mp4', anime=True).__dict__)
+    print(MetaInfo('[三少爷的剑]CHC.Kingmaker.2022.KOREAN.1080p.WEBRip.AAC2.0.x264-Imagine').__dict__)
+    print(MetaInfo('[orion origin]Sono Bisque Doll wa Koi wo Suru [12] [END] [x265] [1440p] [DB].mkv', anime=True).__dict__)
     '''

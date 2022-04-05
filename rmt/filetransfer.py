@@ -421,12 +421,18 @@ class FileTransfer:
                                                          self.__movie_category_flag)
             # 否则汇总发消息
             else:
+                if media.type == MediaType.ANIME:
+                    category_flag = self.__anime_category_flag
+                else:
+                    category_flag = self.__tv_category_flag
                 if not message_medias.get(media.get_title_string()):
                     message_medias[media.get_title_string()] = {"media": media,
                                                                 "seasons": [],
                                                                 "episodes": [],
                                                                 "totalsize": 0,
-                                                                "existfiles": 0}
+                                                                "existfiles": 0,
+                                                                "categoryflag": category_flag,
+                                                                "type": media.type.value}
                 # 总文件大小
                 message_medias[media.get_title_string()]['totalsize'] = message_medias[media.get_title_string()][
                                                                             'totalsize'] + media_filesize
@@ -441,7 +447,7 @@ class FileTransfer:
         # 循环结束
         # 统计完成情况，发送通知
         if message_medias:
-            self.message.send_transfer_tv_message(message_medias, in_from, self.__tv_category_flag)
+            self.message.send_transfer_tv_message(message_medias, in_from)
         # 总结
         log.info("【RMT】%s 处理完成，总数：%s，失败：%s" % (in_path, total_count, failed_count))
         return True, ""

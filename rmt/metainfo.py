@@ -77,7 +77,7 @@ class MetaInfo(object):
     _resources_type_re = r"^BLURAY|^REMUX|^HDTV|^WEBRIP|^DVDRIP|^UHD|^SDR|^HDR|^DOLBY|^BLU|^WEB"
     _name_no_begin_re = r"^\[.+?]"
     _name_se_words = ['第', '集']
-    _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|NETFLIX|IMAX" \
+    _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|NETFLIX|IMAX|^CHC" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+季" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+集" \
                         r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|EP?\d{2}\s*-\s*EP?\d{2}|EP?\d{2}" \
@@ -93,7 +93,7 @@ class MetaInfo(object):
     _resources_pix_re2 = r"(^[248]+K)"
     _subtitle_season_re = r"[第\s]+([0-9一二三四五六七八九十\-]+)\s*季"
     _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十\-]+)\s*集"
-    _anime_no_words = ['MP4', 'MKV', 'CHS', 'CHT', 'CHS&CHT']
+    _anime_no_words = ['CHS&CHT']
 
     def __init__(self, title, subtitle=None, anime=False):
         if not title:
@@ -156,11 +156,11 @@ class MetaInfo(object):
                 if anitopy_info:
                     # 名称
                     name = anitopy_info.get("anime_title")
-                    if not name or name in self._anime_no_words:
+                    if not name or name in self._anime_no_words or (len(name) < 5 and not is_chinese(name)):
                         anitopy_info = anitopy.parse("[ANIME]" + title)
                         if anitopy_info:
                             name = anitopy_info.get("anime_title")
-                    if not name:
+                    if not name or name in self._anime_no_words or (len(name) < 5 and not is_chinese(name)):
                         return
                     # 名称
                     if is_chinese(name):

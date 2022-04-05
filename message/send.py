@@ -77,8 +77,8 @@ class Message:
             msg_str = f"{msg_str}，{exist_filenum}个文件已存在"
         self.sendmsg(msg_title, msg_str, media_info.get_backdrop_path())
 
-    # 发送转移电视剧的消息
-    def send_transfer_tv_message(self, message_medias, in_from, category_flag):
+    # 发送转移电视剧/动漫的消息
+    def send_transfer_tv_message(self, message_medias, in_from):
         # 统计完成情况，发送通知
         for title_str, item_info in message_medias.items():
             # PT的不管是否有修改文件均发通知，其他渠道没变化不发通知
@@ -100,13 +100,12 @@ class Message:
                         msg_title = f"{title_str} 转移完成"
 
                 if item_info.get('media').vote_average:
-                    msg_str = f"评分：{item_info.get('media').vote_average}，类型：电视剧"
+                    msg_str = f"评分：{item_info.get('media').vote_average}，类型：{item_info.get('type')}"
                 else:
-                    msg_str = "类型：电视剧"
+                    msg_str = f"类型：{item_info.get('type')}"
 
-                if item_info.get('media').category:
-                    if category_flag:
-                        msg_str = f"{msg_str}，类别：{item_info.get('media').category}"
+                if item_info.get('media').category and item_info.get('categoryflag'):
+                    msg_str = f"{msg_str}，类别：{item_info.get('media').category}"
 
                 if len(item_info.get('episodes')) != 1:
                     msg_str = f"{msg_str}，共{len(item_info.get('seasons'))}季{len(item_info.get('episodes'))}集，总大小：{str_filesize(item_info.get('totalsize'))}，来自：{in_from.value}"
