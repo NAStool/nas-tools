@@ -93,6 +93,7 @@ class MetaInfo(object):
     _resources_pix_re2 = r"(^[248]+K)"
     _subtitle_season_re = r"[第\s]+([0-9一二三四五六七八九十\-]+)\s*季"
     _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十\-]+)\s*集"
+    _anime_no_words = ['MP4', 'MKV', 'CHS', 'CHT', 'CHS&CHT']
 
     def __init__(self, title, subtitle=None, anime=False):
         if not title:
@@ -150,18 +151,18 @@ class MetaInfo(object):
         else:
             # 调用第三方模块识别动漫
             try:
-                # 在第1个]后面插入内容，规避命名不规范的问题
-                pos = title.find(']')
-                if pos != -1:
-                    anime_title = title[:pos+1] + "[ANIME]" + title[pos+1:]
-                    anitopy_info = anitopy.parse(anime_title)
-                    if not anitopy_info or not anitopy_info.get("anime_title") or anitopy_info.get("anime_title") == "ANIME":
-                        anitopy_info = anitopy.parse("[ANIME]" + title)
-                else:
-                    anitopy_info = anitopy.parse(title)
+                self.type = MediaType.UNKNOWN
+                anitopy_info = anitopy.parse(title)
                 if anitopy_info:
                     # 名称
                     name = anitopy_info.get("anime_title")
+                    if not name or name in self._anime_no_words:
+                        anitopy_info = anitopy.parse("[ANIME]" + title)
+                        if anitopy_info:
+                            name = anitopy_info.get("anime_title")
+                    if not name:
+                        return
+                    # 名称
                     if is_chinese(name):
                         self.cn_name = name
                     else:
@@ -222,9 +223,6 @@ class MetaInfo(object):
                     self.resource_pix = anitopy_info.get("video_resolution")
             except Exception as e:
                 print(str(e))
-            # 没有识别出类型时默认为未知
-            if not self.type:
-                self.type = MediaType.UNKNOWN
 
     def __init_name(self, token):
         if not token:
