@@ -1,3 +1,4 @@
+import os.path
 import re
 import anitopy
 import cn2an
@@ -222,17 +223,14 @@ class MetaInfo(object):
             return
         # 回收标题
         if self._unknown_name_str and not self.get_name():
-            self.cn_name = self._unknown_name_str
+            self.en_name = self._unknown_name_str
             self._unknown_name_str = ""
         if self._stop_name_flag:
             if self._unknown_name_str and self._unknown_name_str != self.year:
-                if not self.get_name():
-                    self.cn_name = self._unknown_name_str
-                else:
-                    if self.cn_name:
-                        self.cn_name = "%s %s" % (self.cn_name, self._unknown_name_str)
-                    if self.en_name:
-                        self.en_name = "%s %s" % (self.en_name, self._unknown_name_str)
+                if self.cn_name:
+                    self.cn_name = "%s %s" % (self.cn_name, self._unknown_name_str)
+                if self.en_name:
+                    self.en_name = "%s %s" % (self.en_name, self._unknown_name_str)
                 self._unknown_name_str = ""
             return
         if token in self._name_se_words:
@@ -456,6 +454,13 @@ class MetaInfo(object):
                 if self.begin_episode and not self.end_episode and isinstance(end_episode, int):
                     self.end_episode = end_episode
                 self.type = MediaType.TV
+        else:
+            # 文件名只有数字的，认为是集号
+            name = os.path.splitext(title_text)[0]
+            if name.isdigit() and len(name) < 3:
+                if not self.begin_episode:
+                    self.begin_episode = int(name)
+                    self.type = MediaType.TV
 
     def get_name(self):
         if self.cn_name:

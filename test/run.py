@@ -1,6 +1,7 @@
 import anitopy
 
 from rmt.metainfo import MetaInfo
+from utils.functions import is_anime
 
 if __name__ == "__main__":
     '''
@@ -14,7 +15,6 @@ if __name__ == "__main__":
         for name in names:
             meta_info = MetaInfo(name)
             print(meta_info.get_name())
-    '''
     print(MetaInfo('归来.4k修复版.2004.CC.1080p').__dict__)
     print(MetaInfo('2046.4k修复版.2004.CC.1080p').__dict__)
     print(MetaInfo('[秘密访客].Home.Sweet.Home.2021.BlueRay.1080p').__dict__)
@@ -33,3 +33,11 @@ if __name__ == "__main__":
     print(MetaInfo('[Sakurato] Kenja no Deshi o Nanoru Kenja [12][HEVC-10bit 1080p AAC][CHS&CHT].mkv', anime=True).__dict__)
     print(MetaInfo('[NC-Raws] 東方少年 - 06 (Baha 1920x1080 AVC AAC MP4).mp4', anime=True).__dict__)
     print(MetaInfo('[Nekomoe kissaten&LoliHouse] Paripi Koumei - 01 [WebRip 1080p HEVC-10bit AAC ASSx2].mkv', anime=True).__dict__)
+    print(is_anime('[Nekomoe kissaten&LoliHouse] Paripi Koumei - 01 [WebRip 1080p HEVC-10bit AAC ASSx2].mkv'))
+    print(is_anime('[NC-Raws] 東方少年 - 06 (Baha 1920x1080 AVC AAC MP4).mp4'))
+    print(is_anime('[Sakurato] Kenja no Deshi o Nanoru Kenja [12][HEVC-10bit 1080p AAC][CHS&CHT].mkv'))
+    print(is_anime('[LPSub]Paripi Koumei[01][HEVC AAC][1080p][CH].mkv'))
+    print(is_anime('医是医，二是二 - S01E02 - 第 10 集.mp4'))
+    print(is_anime('[LPSub]Paripi Koumei[HEVC AAC][2160x1080][CH].mkv'))
+    print(is_anime('[LPSub]Paripi Koumei[HEVC AAC][2160x1080][CH].mkv'))
+    '''

@@ -5,7 +5,7 @@ import log
 from tmdbv3api import TMDb, Search, Movie, TV
 from config import Config
 from rmt.metainfo import MetaInfo
-from utils.functions import xstr, singleton
+from utils.functions import xstr, singleton, is_anime
 from utils.meta_helper import MetaHelper
 from utils.types import MediaType, MatchMode
 
@@ -136,51 +136,45 @@ class Media:
             return None
         if not self.meta:
             return None
-        meta_info_flag = False
-        # 常规识别
-        meta_info = MetaInfo(title, subtitle=subtitle)
-        media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
-        try:
-            lock.acquire()
-            if not self.meta.get_meta_data().get(media_key):
-                # 缓存中没有开始查询
-                if meta_info.type == MediaType.TV:
-                    # 确定是电视剧，直接按电视剧查
-                    file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, MediaType.TV)
-                    if meta_info.year and not file_media_info and self.__rmt_match_mode == MatchMode.NORMAL:
-                        # 非严格模式去掉年份再查一遍
-                        file_media_info = self.__search_tmdb(meta_info.get_name(), None, MediaType.TV)
-                else:
-                    # 不能确定是电视剧，先按电影查
-                    file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, MediaType.MOVIE)
-                    if not file_media_info:
-                        # 电影查不到再按电视剧查
+        if not is_anime(title):
+            # 常规识别
+            meta_info = MetaInfo(title, subtitle=subtitle)
+            media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
+            try:
+                lock.acquire()
+                if not self.meta.get_meta_data().get(media_key):
+                    # 缓存中没有开始查询
+                    if meta_info.type == MediaType.TV:
+                        # 确定是电视剧，直接按电视剧查
                         file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, MediaType.TV)
-                    if meta_info.year and not file_media_info and self.__rmt_match_mode == MatchMode.NORMAL:
-                        # 非严格模式去掉年份再查一遍， 先查电视剧（一般电视剧年份出错的概率高）
-                        file_media_info = self.__search_tmdb(meta_info.get_name(), None, MediaType.TV)
+                        if meta_info.year and not file_media_info and self.__rmt_match_mode == MatchMode.NORMAL:
+                            # 非严格模式去掉年份再查一遍
+                            file_media_info = self.__search_tmdb(meta_info.get_name(), None, MediaType.TV)
+                    else:
+                        # 不能确定是电视剧，先按电影查
+                        file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, MediaType.MOVIE)
                         if not file_media_info:
-                            # 不带年份查电影
-                            file_media_info = self.__search_tmdb(meta_info.get_name(), None, MediaType.MOVIE)
-                # 加入缓存
-                if file_media_info:
-                    self.meta.update_meta_data({media_key: file_media_info})
-                    meta_info_flag = True
-                else:
-                    # 标记为未找到，避免再次查询
-                    self.meta.update_meta_data({media_key: {'id': 0}})
-            else:
-                if self.meta.get_meta_data().get(media_key).get('id'):
-                    meta_info_flag = True
-        finally:
-            lock.release()
-
-        # 动漫识别
-        if not meta_info_flag:
-            anime_info = MetaInfo(title, anime=True)
-            if anime_info.type != MediaType.UNKNOWN:
-                meta_info = anime_info
-                media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
+                            # 电影查不到再按电视剧查
+                            file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, MediaType.TV)
+                        if meta_info.year and not file_media_info and self.__rmt_match_mode == MatchMode.NORMAL:
+                            # 非严格模式去掉年份再查一遍， 先查电视剧（一般电视剧年份出错的概率高）
+                            file_media_info = self.__search_tmdb(meta_info.get_name(), None, MediaType.TV)
+                            if not file_media_info:
+                                # 不带年份查电影
+                                file_media_info = self.__search_tmdb(meta_info.get_name(), None, MediaType.MOVIE)
+                    # 加入缓存
+                    if file_media_info:
+                        self.meta.update_meta_data({media_key: file_media_info})
+                    else:
+                        # 标记为未找到，避免再次查询
+                        self.meta.update_meta_data({media_key: {'id': 0}})
+            finally:
+                lock.release()
+        else:
+            # 动漫识别
+            meta_info = MetaInfo(title, anime=True)
+            media_key = "[ANIME]%s%s" % (meta_info.get_name(), meta_info.year)
+            if meta_info.type != MediaType.UNKNOWN:
                 try:
                     lock.acquire()
                     if not self.meta.get_meta_data().get(media_key):
@@ -193,6 +187,8 @@ class Media:
                             self.meta.update_meta_data({media_key: {'id': 0}})
                 finally:
                     lock.release()
+            else:
+                self.meta.update_meta_data({media_key: {'id': 0}})
         # 赋值返回
         meta_info.set_tmdb_info(self.meta.get_meta_data().get(media_key))
         return meta_info
@@ -222,60 +218,55 @@ class Media:
             parent_name = os.path.basename(os.path.dirname(file_path))
             # 没有自带TMDB信息
             if not tmdb_info:
-                # 常规识别
-                meta_info = MetaInfo(file_name)
-                # 识别不到则使用上级的名称
-                if not meta_info.get_name() or meta_info.get_name() == file_name or not meta_info.year:
-                    parent_info = MetaInfo(parent_name)
-                    if not meta_info.cn_name:
-                        meta_info.cn_name = parent_info.cn_name
-                    if not meta_info.en_name:
-                        meta_info.en_name = parent_info.en_name
-                    if not meta_info.year:
-                        meta_info.year = parent_info.year
-                media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
-                meta_info_flag = False
-                try:
-                    lock.acquire()
-                    if not self.meta.get_meta_data().get(media_key):
-                        # 调用TMDB API
-                        file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, meta_info.type)
-                        if not file_media_info:
-                            if self.__rmt_match_mode == MatchMode.NORMAL:
-                                # 去掉年份再查一次，有可能是年份错误
-                                file_media_info = self.__search_tmdb(meta_info.get_name(), None, meta_info.type)
-                        if file_media_info:
-                            meta_info_flag = True
-                            self.meta.update_meta_data({media_key: file_media_info})
-                        else:
-                            # 标记为未找到避免再次查询
-                            self.meta.update_meta_data({media_key: {'id': 0}})
-                    else:
-                        if self.meta.get_meta_data().get(media_key).get('id'):
-                            meta_info_flag = True
-                finally:
-                    lock.release()
-
-                # 动漫识别
-                if not meta_info_flag:
-                    # 按动漫再识别一次
-                    anime_info = MetaInfo(file_name, anime=True)
+                if not is_anime(file_name):
+                    # 常规识别
+                    meta_info = MetaInfo(file_name)
                     # 识别不到则使用上级的名称
-                    if not anime_info.get_name() or not anime_info.year or anime_info.type == MediaType.UNKNOWN:
+                    if not meta_info.get_name() or meta_info.get_name() == file_name or not meta_info.year:
+                        parent_info = MetaInfo(parent_name)
+                        if not meta_info.cn_name:
+                            meta_info.cn_name = parent_info.cn_name
+                        if not meta_info.en_name:
+                            meta_info.en_name = parent_info.en_name
+                        if not meta_info.year:
+                            meta_info.year = parent_info.year
+                        if parent_info.type != MediaType.MOVIE:
+                            meta_info.type = parent_info.type
+                    media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
+                    try:
+                        lock.acquire()
+                        if not self.meta.get_meta_data().get(media_key):
+                            # 调用TMDB API
+                            file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, meta_info.type)
+                            if not file_media_info:
+                                if self.__rmt_match_mode == MatchMode.NORMAL:
+                                    # 去掉年份再查一次，有可能是年份错误
+                                    file_media_info = self.__search_tmdb(meta_info.get_name(), None, meta_info.type)
+                            if file_media_info:
+                                self.meta.update_meta_data({media_key: file_media_info})
+                            else:
+                                # 标记为未找到避免再次查询
+                                self.meta.update_meta_data({media_key: {'id': 0}})
+                    finally:
+                        lock.release()
+                else:
+                    # 动漫识别
+                    meta_info = MetaInfo(file_name, anime=True)
+                    # 识别不到则使用上级的名称
+                    if not meta_info.get_name() or not meta_info.year or meta_info.type == MediaType.UNKNOWN:
                         parent_info = MetaInfo(parent_name, anime=True)
                         if parent_info.type != MediaType.UNKNOWN:
-                            if anime_info.type == MediaType.UNKNOWN:
-                                anime_info.type = parent_info.type
-                            if not anime_info.cn_name:
-                                anime_info.cn_name = parent_info.cn_name
-                            if not anime_info.en_name:
-                                anime_info.en_name = parent_info.en_name
-                            if not anime_info.year:
-                                anime_info.year = parent_info.year
+                            if meta_info.type == MediaType.UNKNOWN:
+                                meta_info.type = parent_info.type
+                            if not meta_info.cn_name:
+                                meta_info.cn_name = parent_info.cn_name
+                            if not meta_info.en_name:
+                                meta_info.en_name = parent_info.en_name
+                            if not meta_info.year:
+                                meta_info.year = parent_info.year
+                    media_key = "[ANIME]%s%s" % (meta_info.get_name(), meta_info.year)
                     # 动漫识别到了
-                    if anime_info.type != MediaType.UNKNOWN:
-                        meta_info = anime_info
-                        media_key = "[ANIME]%s%s" % (meta_info.get_name(), meta_info.year)
+                    if meta_info.type != MediaType.UNKNOWN:
                         try:
                             lock.acquire()
                             if not self.meta.get_meta_data().get(media_key):
@@ -286,6 +277,8 @@ class Media:
                                     self.meta.update_meta_data({media_key: {'id': 0}})
                         finally:
                             lock.release()
+                    else:
+                        self.meta.update_meta_data({media_key: {'id': 0}})
                 # 存入结果清单返回
                 meta_info.set_tmdb_info(self.meta.get_meta_data().get(media_key))
             # 自带TMDB信息
