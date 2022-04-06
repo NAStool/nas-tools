@@ -1,6 +1,7 @@
 import _thread
 import logging
 import os.path
+import shutil
 from math import floor
 
 from flask import Flask, request, json, render_template, make_response, redirect, url_for
@@ -24,7 +25,8 @@ from config import WECHAT_MENU, PT_TRANSFER_INTERVAL
 from utils.functions import get_used_of_partition, str_filesize, str_timelong
 from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
-    update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist
+    update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
+    delete_transfer_log_by_id
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
 from version import APP_VERSION
 from web.backend.emby import Emby, EmbyEvent
@@ -813,13 +815,33 @@ def create_flask_app(config):
 
             # 保存配置文件
             if cmd == "save_config":
-                editer_str = data["editer_str"]
+                editer_str = data.get('editer_str')
                 if editer_str:
                     cfg = open(config.get_config_path(), mode="w", encoding="utf8")
                     cfg.write(editer_str)
                     cfg.flush()
                     cfg.close()
                     config.init_config()
+                return {"retcode": 0}
+
+            # 删除识别记录及文件
+            if cmd == "delete_history":
+                logid = data.get('logid')
+                paths = get_transfer_path_by_id(logid)
+                if paths:
+                    dest_dir = paths[0][2]
+                    title = paths[0][3]
+                    category = paths[0][4]
+                    year = paths[0][5]
+                    se = paths[0][6]
+                    mtype = paths[0][7]
+                    dest_path = FileTransferClient.get_dest_path_by_info(dest=dest_dir, mtype=mtype, title=title, category=category, year=year, season=se)
+                    if dest_path and dest_path.find(title) != -1:
+                        try:
+                            shutil.rmtree(dest_path)
+                            delete_transfer_log_by_id(logid)
+                        except Exception as e:
+                            print(str(e))
                 return {"retcode": 0}
 
     # 响应企业微信消息

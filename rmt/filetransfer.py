@@ -658,6 +658,37 @@ class FileTransfer:
         else:
             return False, None
 
+    # 根据信息返回地址
+    def get_dest_path_by_info(self, dest, mtype, title, year, category, season):
+        if not dest or not mtype or not title:
+            return None
+        if mtype == MediaType.MOVIE.value:
+            if self.__movie_category_flag:
+                if year:
+                    return os.path.join(dest, category, "%s (%s)" % (title, year))
+                else:
+                    return os.path.join(dest, category, "%s" % title)
+            else:
+                if year:
+                    return os.path.join(dest, "%s (%s)" % (title, year))
+                else:
+                    return os.path.join(dest, "%s" % title)
+        else:
+            if season:
+                season_str = "Season %s" % int(season.replace("S", ""))
+            else:
+                season_str = ""
+            if self.__tv_category_flag:
+                if year:
+                    return os.path.join(dest, category, "%s (%s)" % (title, year), season_str)
+                else:
+                    return os.path.join(dest, category, "%s" % title, season_str)
+            else:
+                if year:
+                    return os.path.join(dest, "%s (%s)" % (title, year), season_str)
+                else:
+                    return os.path.join(dest, "%s" % title, season_str)
+
 
 if __name__ == "__main__":
     # 参数

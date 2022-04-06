@@ -218,6 +218,9 @@
                               <a class="dropdown-item" href="javascript:rename_history('{{ History[2] }}', '{{ History[3] }}', '{{ History[10] }}')">
                                 重新识别
                               </a>
+                              <a class="dropdown-item text-danger" href="javascript:manual_delete('{{ History[10] }}', '{{ History[4] }} ({{ History[6] }}) {{ History[7] }}')">
+                                删除
+                              </a>
                             </div>
                           </div>
                         </td>
@@ -362,6 +365,33 @@
         </div>
       </div>
       </div>
+      <div class="modal modal-blur fade" id="modal-danger" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <input type="hidden" id="delete_history_id">
+            <div class="modal-status bg-danger"></div>
+            <div class="modal-body text-center py-4">
+              <!-- Download SVG icon from http://tabler-icons.io/i/alert-triangle -->
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
+              <h3>确定?</h3>
+              <div class="text-muted" id="delete_history_alert">记录对应已命名名的媒体文件将被删除</div>
+            </div>
+            <div class="modal-footer">
+              <div class="w-100">
+                <div class="row">
+                  <div class="col"><button class="btn w-100" data-bs-dismiss="modal">
+                      取消
+                    </button></div>
+                  <div class="col"><button class="btn btn-danger w-100" id="delete_btn">
+                      删除
+                  </button></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <!-- Libs JS -->
     <!-- Tabler Core -->
@@ -450,6 +480,26 @@
         });
       }
 
+      //删除提示
+      function manual_delete(id, name){
+        $("#delete_history_alert").text(name + " 对应已重命名的文件将被删除");
+        $('#delete_history_id').val(id);
+        $('#modal-danger').modal('show');
+      }
+
+      //删除记录
+      function delete_history(){
+        logid = $('#delete_history_id').val();
+        $("#delete_btn").attr("disabled", true);
+        $("#delete_btn").text("删除中...");
+        var data = { "logid": logid};
+        ajax_post("delete_history", data, function(ret){
+          $("#delete_btn").attr("disabled", false);
+          $("#delete_btn").text("删除");
+          setTimeout("window.location.reload()", 1000)
+        });
+      }
+
       // 搜索按钮
       $('#search_word').bind('keypress',function(event){
          if(event.keyCode == "13")
@@ -462,6 +512,11 @@
      //转移按钮
      $("#rename_btn").click(function(){
         manual_rename();
+     });
+
+     //删除按钮
+     $("#delete_btn").click(function(){
+        delete_history();
      });
     </script>
   </body>

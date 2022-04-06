@@ -234,8 +234,14 @@ def get_transfer_history(search, page, rownum):
 
 # 根据logid查询PATH
 def get_transfer_path_by_id(logid):
-    sql = f"SELECT FILE_PATH, FILE_NAME, DEST FROM TRANSFER_HISTORY WHERE ID={logid}"
+    sql = f"SELECT FILE_PATH, FILE_NAME, DEST, TITLE, CATEGORY, YEAR, SE, TYPE FROM TRANSFER_HISTORY WHERE ID={logid}"
     return select_by_sql(sql)
+
+
+# 根据logid删除记录
+def delete_transfer_log_by_id(logid):
+    sql = f"DELETE FROM TRANSFER_HISTORY WHERE ID={logid}"
+    return update_by_sql(sql)
 
 
 # 查询未识别的记录列表
