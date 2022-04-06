@@ -819,7 +819,6 @@ def create_flask_app(config):
                     cfg.write(editer_str)
                     cfg.flush()
                     cfg.close()
-                    # 立即生效
                     config.init_config()
                 return {"retcode": 0}
 

@@ -5,7 +5,6 @@ from message.serverchan import ServerChan
 from message.telegram import Telegram
 from message.wechat import WeChat
 from utils.functions import str_filesize, singleton
-from utils.types import DownloaderType
 
 
 @singleton
@@ -81,38 +80,26 @@ class Message:
     def send_transfer_tv_message(self, message_medias, in_from):
         # 统计完成情况，发送通知
         for title_str, item_info in message_medias.items():
-            # PT的不管是否有修改文件均发通知，其他渠道没变化不发通知
-            send_message_flag = False
-            if in_from in DownloaderType:
-                send_message_flag = True
+            if len(item_info.get('episodes')) == 1:
+                msg_title = f"{title_str} 第{item_info.get('seasons')[0]}季第{item_info.get('episodes')[0]}集 转移完成"
             else:
-                if item_info.get('existfiles') < len(item_info.get('episodes')):
-                    send_message_flag = True
-
-            if send_message_flag:
-                if len(item_info.get('episodes')) == 1:
-                    msg_title = f"{title_str} 第{item_info.get('seasons')[0]}季第{item_info.get('episodes')[0]}集 转移完成"
+                if item_info.get('seasons'):
+                    se_string = " ".join("S%s" % str(season).rjust(2, '0') for season in item_info.get('seasons'))
+                    msg_title = f"{title_str} {se_string} 转移完成"
                 else:
-                    if item_info.get('seasons'):
-                        se_string = " ".join("S%s" % str(season).rjust(2, '0') for season in item_info.get('seasons'))
-                        msg_title = f"{title_str} {se_string} 转移完成"
-                    else:
-                        msg_title = f"{title_str} 转移完成"
+                    msg_title = f"{title_str} 转移完成"
 
-                if item_info.get('media').vote_average:
-                    msg_str = f"评分：{item_info.get('media').vote_average}，类型：{item_info.get('type')}"
-                else:
-                    msg_str = f"类型：{item_info.get('type')}"
+            if item_info.get('media').vote_average:
+                msg_str = f"评分：{item_info.get('media').vote_average}，类型：{item_info.get('type')}"
+            else:
+                msg_str = f"类型：{item_info.get('type')}"
 
-                if item_info.get('media').category and item_info.get('categoryflag'):
-                    msg_str = f"{msg_str}，类别：{item_info.get('media').category}"
+            if item_info.get('media').category and item_info.get('categoryflag'):
+                msg_str = f"{msg_str}，类别：{item_info.get('media').category}"
 
-                if len(item_info.get('episodes')) != 1:
-                    msg_str = f"{msg_str}，共{len(item_info.get('seasons'))}季{len(item_info.get('episodes'))}集，总大小：{str_filesize(item_info.get('totalsize'))}，来自：{in_from.value}"
-                else:
-                    msg_str = f"{msg_str}，大小：{str_filesize(item_info.get('totalsize'))}，来自：{in_from.value}"
+            if len(item_info.get('episodes')) != 1:
+                msg_str = f"{msg_str}，共{len(item_info.get('seasons'))}季{len(item_info.get('episodes'))}集，总大小：{str_filesize(item_info.get('totalsize'))}，来自：{in_from.value}"
+            else:
+                msg_str = f"{msg_str}，大小：{str_filesize(item_info.get('totalsize'))}，来自：{in_from.value}"
 
-                if item_info.get('existfiles') != 0:
-                    msg_str = f"{msg_str}，{item_info.get('existfiles')}个文件已存在"
-
-                self.sendmsg(msg_title, msg_str, item_info.get('media').backdrop_path if item_info.get('media').backdrop_path else item_info.get('media').poster_path)
+            self.sendmsg(msg_title, msg_str, item_info.get('media').backdrop_path if item_info.get('media').backdrop_path else item_info.get('media').poster_path)

@@ -21,8 +21,12 @@ RMT_DISKFREESIZE = 10
 AUTO_REMOVE_TORRENTS_INTERVAL = 600
 # PT转移文件检查时间间隔，默认5分钟
 PT_TRANSFER_INTERVAL = 300
-# SYNC源目录与目的目录的配套关系
-SYNC_DIR_CONFIG = {}
+# TMDB信息缓存定时保存时间，默认10分钟
+METAINFO_SAVE_INTERVAL = 600
+# 配置文件定时生效时间，默认10分钟
+RELOAD_CONFIG_INTERVAL = 600
+# SYNC目录监控聚合转移时间，默认5分钟
+SYNC_TRANSFER_INTERVAL = 300
 # fanart的api，用于拉取封面图片
 FANART_MOVIE_API_URL = 'http://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
 FANART_TV_API_URL = 'http://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'

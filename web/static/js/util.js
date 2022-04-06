@@ -12,7 +12,7 @@ function ajax_post(cmd, data, handler){
         timeout: 180000,
         success: handler,
         error: function(xhr, textStatus, errorThrown){
-            alert("系统响应超时，请稍后重试！");
+            //alert("系统响应超时，请稍后重试！");
         }
     });
 }

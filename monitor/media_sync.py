@@ -5,7 +5,7 @@ from time import sleep
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
-from config import RMT_MEDIAEXT, SYNC_DIR_CONFIG, Config
+from config import RMT_MEDIAEXT, Config
 import log
 from rmt.filetransfer import FileTransfer
 from utils.functions import get_dir_files_by_ext, singleton, is_invalid_path, is_path_in_path
@@ -13,6 +13,7 @@ from utils.sqls import is_transfer_in_blacklist
 from utils.types import SyncType
 
 lock = threading.Lock()
+SYNC_DIR_CONFIG = {}
 
 
 @singleton
@@ -47,6 +48,7 @@ class Sync(object):
 
     # 处理文件变化
     def file_change_handler(self, event, text, event_path):
+        global SYNC_DIR_CONFIG
         if not event.is_directory:
             # 文件发生变化
             try:
@@ -107,7 +109,7 @@ class Sync(object):
                             is_root_path = True
 
                 # 查找目的目录
-                target_dir = SYNC_DIR_CONFIG.get(monitor_dir)
+                target_dir = SYNC_DIR_CONFIG.get(os.path.normpath(monitor_dir))
                 # 监控根目录下的文件发生变化时直接发走
                 if is_root_path:
                     ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
@@ -207,7 +209,9 @@ class Sync(object):
 
     # 启动进程
     def run_service(self):
+        global SYNC_DIR_CONFIG
         # Sync监控转移
+        SYNC_DIR_CONFIG = {}
         if self.__sync_path:
             for sync_monpath in self.__sync_path:
                 # 目录是两段式，需要把配对关系存起来
@@ -226,7 +230,7 @@ class Sync(object):
                         SYNC_DIR_CONFIG[os.path.normpath(monpath)] = os.path.normpath(target_path)
                 else:
                     monpath = sync_monpath
-                    SYNC_DIR_CONFIG[monpath] = None
+                    SYNC_DIR_CONFIG[os.path.normpath(monpath)] = None
                     log.info("【SYNC】读取监控目录：%s" % monpath)
 
                 if os.path.exists(monpath):

@@ -74,19 +74,19 @@ class MetaInfo(object):
     _season_re = r"S(\d{2})"
     _episode_re = r"EP?(\d{2})"
     _part_re = r"(^PART[\s.]*[1-9]?|^CD[\s.]*[1-9]?|^DVD[\s.]*[1-9]?|^DISK[\s.]*[1-9]?|^DISC[\s.]*[1-9]?)"
-    _resources_type_re = r"^BLURAY|^REMUX|^HDTV|^WEBRIP|^DVDRIP|^UHD|^SDR|^HDR|^DOLBY|^BLU|^WEB"
+    _resources_type_re = r"^BLURAY|^REMUX|^HDTV|^HDDVD|^WEBRIP|^DVDRIP|^BDRIP|^UHD|^SDR|^HDR|^DOLBY|^BLU|^WEB|^BD"
     _name_no_begin_re = r"^\[.+?]"
-    _name_se_words = ['第', '集']
+    _name_se_words = ['共', '第', '季', '集', '话', '話']
     _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|NETFLIX|IMAX|^CHC" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+季" \
-                        r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+集" \
+                        r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+[集话話]" \
                         r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|EP?\d{2}\s*-\s*EP?\d{2}|EP?\d{2}" \
-                        r"|BLU-?RAY|REMUX|HDTV|WEBRIP|DVDRIP|UHD|WEB|SDR|HDR|DOLBY|TRUEHD|DTS-[ADEH]+" \
+                        r"|BLU-?RAY|REMUX|HDTV|HDDVD|WEBRIP|DVDRIP|UHD|WEB|SDR|HDR|DOLBY|TRUEHD|BDRIP|BD" \
                         r"|[HX]264|[HX]265|AVC|AAC|DTS\d.\d|HEVC|\d{3,4}[PI]" \
                         r"|TV|Series|Movie|Animations|XXX" \
                         r"|大陆|连载|西德|日剧|美剧|电视剧|电影|动画片|动漫|法国|英国|美国|德国|印度|泰国|台湾|香港|中国|韩国|日本|欧美|日韩|超高清|高清|蓝光|翡翠台" \
                         r"|最终季|合集|[中国英葡法俄日韩德意西印泰台港粤双文语简繁体特效内封官译外挂]+字幕" \
-                        r"|未删减版|UNCUT" \
+                        r"|未删减版|UNCUT|UNRATE|WITH EXTRAS|RERIP|SUBBED|PROPER|REPACK" \
                         r"|PART[\s.]*[1-9]|CD[\s.]*[1-9]|DVD[\s.]*[1-9]|DISK[\s.]*[1-9]|DISC[\s.]*[1-9]" \
                         r"|[248]K|\d{3,4}[PIX]+"
     _resources_pix_re = r"^[SBUHD]*(\d{3,4}[PIX]+)"
@@ -250,7 +250,7 @@ class MetaInfo(object):
         else:
             # 数字
             if token.isdigit():
-                # 第集后面的不要
+                # 第季集后面的不要
                 if self._last_token_type == 'name_se_words':
                     return
                 if self.get_name():

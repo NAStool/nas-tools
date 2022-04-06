@@ -327,7 +327,9 @@ class FileTransfer:
                 else:
                     log.error("【RMT】%s 处理失败！" % file_name)
                 continue
-
+            # 对动漫类型进行处理，不配置动漫目录时按电视剧类型处理
+            if media.type == MediaType.ANIME and not self.__anime_path:
+                media.type = MediaType.TV
             # 目的目录
             if target_dir:
                 # 有输入target_dir时，往这个目录放
@@ -337,11 +339,7 @@ class FileTransfer:
             elif media.type == MediaType.TV:
                 dist_path = self.__tv_path
             elif media.type == MediaType.ANIME:
-                # 没有动漫目录则用TV目录
-                if self.__anime_path:
-                    dist_path = self.__anime_path
-                else:
-                    dist_path = self.__tv_path
+                dist_path = self.__anime_path
             else:
                 log.error("【RMT】媒体类型错误！")
                 continue
@@ -396,7 +394,7 @@ class FileTransfer:
                         log.info("【RMT】蓝光原盘 %s 转移成功" % file_name)
                     else:
                         log.error("【RMT】蓝光原盘 %s 转移失败！" % file_name)
-                    continue
+                        continue
                 else:
                     # 创建电录
                     log.debug("【RMT】正在创建目录：%s" % ret_dir_path)
@@ -430,7 +428,6 @@ class FileTransfer:
                                                                 "seasons": [],
                                                                 "episodes": [],
                                                                 "totalsize": 0,
-                                                                "existfiles": 0,
                                                                 "categoryflag": category_flag,
                                                                 "type": media.type.value}
                 # 总文件大小

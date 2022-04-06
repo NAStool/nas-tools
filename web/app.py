@@ -1,8 +1,10 @@
 import log
 from config import Config
+from utils.functions import singleton
 from web.main import create_flask_app
 
 
+@singleton
 class FlaskApp:
     __app = None
     __web_port = None

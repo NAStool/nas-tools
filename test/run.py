@@ -1,5 +1,4 @@
 import anitopy
-
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from utils.functions import is_anime
@@ -51,4 +50,6 @@ if __name__ == "__main__":
     print(MetaInfo('[LPSub][Paripi Koumei][01][1080p][CHS].mp4', anime=True).__dict__)
     print(MetaInfo('[三少爷的剑]CHC.Kingmaker.2022.KOREAN.1080p.WEBRip.AAC2.0.x264-Imagine').__dict__)
     print(MetaInfo('[orion origin]Sono Bisque Doll wa Koi wo Suru [12] [END] [x265] [1440p] [DB].mkv', anime=True).__dict__)
+    print(is_anime('[U2-Rip] SLAM DUNK 第005話「根性なしの午後」(BDrip 1440x1080 H264 FLAC).mkv'))
+    print(MetaInfo('[U2-Rip] SLAM DUNK 第005話「根性なしの午後」(BDrip 1440x1080 H264 FLAC).mkv').__dict__)
     '''
