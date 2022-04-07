@@ -52,4 +52,6 @@ if __name__ == "__main__":
     print(MetaInfo('[orion origin]Sono Bisque Doll wa Koi wo Suru [12] [END] [x265] [1440p] [DB].mkv', anime=True).__dict__)
     print(is_anime('[U2-Rip] SLAM DUNK 第005話「根性なしの午後」(BDrip 1440x1080 H264 FLAC).mkv'))
     print(MetaInfo('[U2-Rip] SLAM DUNK 第005話「根性なしの午後」(BDrip 1440x1080 H264 FLAC).mkv').__dict__)
+    print(MetaInfo('进击的巨人.第4季.Attack.on.Titan.S04E28.1080p.WEB-DL.H264.ACC-OurTV.mkv').__dict__)
     '''
+    print(MetaInfo('The.Sadness.Uncut.[4k.UHD].2022.1060p').__dict__)

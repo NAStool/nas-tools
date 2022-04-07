@@ -5,14 +5,13 @@ import log
 from tmdbv3api import TMDb, Search, Movie, TV
 from config import Config
 from rmt.metainfo import MetaInfo
-from utils.functions import xstr, singleton, is_anime
+from utils.functions import xstr, is_anime
 from utils.meta_helper import MetaHelper
 from utils.types import MediaType, MatchMode
 
 lock = Lock()
 
 
-@singleton
 class Media:
     # TheMovieDB
     tmdb = None

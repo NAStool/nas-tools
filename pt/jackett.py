@@ -4,7 +4,7 @@ from concurrent.futures._base import as_completed
 import log
 from config import Config
 from utils.functions import parse_jackettxml, get_keyword_from_string, get_tmdb_seasons_info, \
-    get_tmdb_season_episodes_num, get_torrents_group_item, singleton
+    get_tmdb_season_episodes_num, get_torrents_group_item
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
@@ -13,7 +13,6 @@ from utils.types import SearchType, MediaType
 from web.backend.emby import Emby
 
 
-@singleton
 class Jackett:
     __api_key = None
     __indexers = []
@@ -45,7 +44,7 @@ class Jackett:
 
     # 检索一个Indexer
     def seach_indexer(self, order_seq, index, search_word, key_word, s_num, e_num, year, whole_word=False):
-        if not index:
+        if not index or not search_word or not key_word:
             return None
         ret_array = []
         indexer_name = re.search(r'/indexers/([a-zA-Z0-9]+)/results/', index)

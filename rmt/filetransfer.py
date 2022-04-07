@@ -9,7 +9,7 @@ import log
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Config
 from rmt.category import Category
 from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_level1_medias, is_invalid_path, \
-    is_path_in_path, singleton
+    is_path_in_path
 from message.send import Message
 from rmt.media import Media
 from utils.sqls import insert_transfer_history, insert_transfer_unknown
@@ -18,7 +18,6 @@ from utils.types import MediaType, DownloaderType, SyncType, RmtMode
 lock = Lock()
 
 
-@singleton
 class FileTransfer:
     __pt_rmt_mode = None
     __sync_rmt_mode = None

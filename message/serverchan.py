@@ -2,10 +2,8 @@ from urllib.parse import urlencode
 import requests
 
 from config import Config
-from utils.functions import singleton
 
 
-@singleton
 class ServerChan:
     __sckey = None
 

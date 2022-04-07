@@ -1,10 +1,8 @@
 import requests
 
 from config import Config
-from utils.functions import singleton
 
 
-@singleton
 class Bark:
     __server = None
     __apikey = None

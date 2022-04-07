@@ -464,7 +464,7 @@
         var data = { "logid": logid, "type": type, "title": title, "year": year, "tmdb": tmdb};
         $("#rename_btn").attr("disabled", true);
         $("#rename_btn").text("处理中...");
-        $("#rename_retmsg").hide()
+        $("#rename_retmsg").hide();
         ajax_post("rename", data, function(ret){
           $("#rename_btn").attr("disabled", false);
           $("#rename_btn").text("转移");
@@ -474,8 +474,8 @@
           }else{
             //处理失败
             regmsg = ret.retmsg;
-            $("#rename_retmsg").show()
-            $("#rename_retmsg").text(regmsg)
+            $("#rename_retmsg").show();
+            $("#rename_retmsg").text(regmsg);
           }
         });
       }
@@ -494,9 +494,7 @@
         $("#delete_btn").text("删除中...");
         var data = { "logid": logid};
         ajax_post("delete_history", data, function(ret){
-          $("#delete_btn").attr("disabled", false);
-          $("#delete_btn").text("删除");
-          setTimeout("window.location.reload()", 1000)
+          window.location.reload();
         });
       }
 
@@ -505,7 +503,7 @@
          if(event.keyCode == "13")
          {
             var keyword = $("#search_word").val();
-            window.location.href = window.location.href.split("?")[0] + "?s=" + keyword
+            window.location.href = window.location.href.split("?")[0] + "?s=" + keyword;
          }
      });
 

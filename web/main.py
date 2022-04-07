@@ -22,7 +22,7 @@ from scheduler.rss_download import RSSDownloader
 from message.send import Message
 
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL
-from utils.functions import get_used_of_partition, str_filesize, str_timelong
+from utils.functions import get_used_of_partition, str_filesize, str_timelong, INSTANCES
 from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
@@ -55,19 +55,6 @@ def create_flask_app(config):
     applog = logging.getLogger('werkzeug')
     applog.setLevel(logging.ERROR)
     login_manager.init_app(App)
-    # 全局对象
-    EmbyClient = Emby()
-    MediaClient = Media()
-    DownloaderClient = Downloader()
-    AutoRemoveTorrentsClient = AutoRemoveTorrents()
-    PTTransferClient = PTTransfer()
-    PTSigninClient = PTSignin()
-    RSSDownloaderClient = RSSDownloader()
-    DoubanSyncClient = DoubanSync()
-    MessageClient = Message()
-    DoubanSyncClient = DoubanSync()
-    JackettClient = Jackett()
-    FileTransferClient = FileTransfer()
 
     # 根据用户名获得用户记录
     def get_user(user_name):
@@ -149,6 +136,7 @@ def create_flask_app(config):
         MovieCount = 0
         SeriesCount = 0
         SongCount = 0
+        EmbyClient = Emby()
         media_count = EmbyClient.get_emby_medias_count()
         if media_count:
             MovieCount = "{:,}".format(media_count.get('MovieCount'))
@@ -272,16 +260,16 @@ def create_flask_app(config):
         PageRange = range(StartPage, EndPage)
         if RecommendType == "hm":
             # 热门电影
-            res_list = MediaClient.get_tmdb_hot_movies(CurrentPage)
+            res_list = Media().get_tmdb_hot_movies(CurrentPage)
         elif RecommendType == "ht":
             # 热门电影
-            res_list = MediaClient.get_tmdb_hot_tvs(CurrentPage)
+            res_list = Media().get_tmdb_hot_tvs(CurrentPage)
         elif RecommendType == "nm":
             # 热门电影
-            res_list = MediaClient.get_tmdb_new_movies(CurrentPage)
+            res_list = Media().get_tmdb_new_movies(CurrentPage)
         elif RecommendType == "nt":
             # 热门电影
-            res_list = MediaClient.get_tmdb_new_tvs(CurrentPage)
+            res_list = Media().get_tmdb_new_tvs(CurrentPage)
         else:
             res_list = []
 
@@ -322,7 +310,7 @@ def create_flask_app(config):
     @login_required
     def download():
         DownloadCount = 0
-        Client, Torrents = DownloaderClient.get_pt_torrents()
+        Client, Torrents = Downloader().get_pt_torrents()
         DispTorrents = []
         for torrent in Torrents:
             if Client == DownloaderType.QB:
@@ -365,7 +353,7 @@ def create_flask_app(config):
             if not name:
                 continue
             # 识别
-            media_info = MediaClient.get_media_info(name)
+            media_info = Media().get_media_info(name)
             if not media_info:
                 continue
             if not media_info.tmdb_info:
@@ -600,17 +588,17 @@ def create_flask_app(config):
             if cmd == "sch":
                 sch_item = data.get("item")
                 if sch_item == "autoremovetorrents":
-                    AutoRemoveTorrentsClient.run_schedule()
+                    AutoRemoveTorrents().run_schedule()
                 if sch_item == "pttransfer":
-                    PTTransferClient.run_schedule()
+                    PTTransfer().run_schedule()
                 if sch_item == "ptsignin":
-                    PTSigninClient.run_schedule()
+                    PTSignin().run_schedule()
                 if sch_item == "sync":
-                    FileTransferClient.transfer_all_sync()
+                    FileTransfer().transfer_all_sync()
                 if sch_item == "rssdownload":
-                    RSSDownloaderClient.run_schedule()
+                    RSSDownloader().run_schedule()
                 if sch_item == "douban":
-                    DoubanSyncClient.run_schedule()
+                    DoubanSync().run_schedule()
                 return {"retmsg": "执行完成", "item": sch_item}
 
             # 电影关键字
@@ -664,13 +652,13 @@ def create_flask_app(config):
                         mtype = MediaType.TV
                     else:
                         mtype = MediaType.MOVIE
-                    DownloaderClient.add_pt_torrent(res[0], mtype)
+                    Downloader().add_pt_torrent(res[0], mtype)
                     msg_item = MetaInfo("%s %s" % (res[1], res[2]))
                     msg_item.title = res[1]
                     msg_item.vote_average = res[5]
                     msg_item.backdrop_path = res[6]
                     msg_item.type = mtype
-                    MessageClient.send_download_message(SearchType.WEB, msg_item)
+                    Message().send_download_message(SearchType.WEB, msg_item)
                 return {"retcode": 0}
 
             # 添加RSS关键字
@@ -688,27 +676,27 @@ def create_flask_app(config):
             if cmd == "pt_start":
                 tid = data.get("id")
                 if id:
-                    DownloaderClient.start_torrents(tid)
+                    Downloader().start_torrents(tid)
                 return {"retcode": 0, "id": tid}
 
             # 停止下载
             if cmd == "pt_stop":
                 tid = data.get("id")
                 if id:
-                    DownloaderClient.stop_torrents(tid)
+                    Downloader().stop_torrents(tid)
                 return {"retcode": 0, "id": tid}
 
             # 删除下载
             if cmd == "pt_remove":
                 tid = data.get("id")
                 if id:
-                    DownloaderClient.delete_torrents(tid)
+                    Downloader().delete_torrents(tid)
                 return {"retcode": 0, "id": tid}
 
             # 查询具体种子的信息
             if cmd == "pt_info":
                 ids = data.get("ids")
-                Client, Torrents = DownloaderClient.get_pt_torrents(torrent_ids=ids)
+                Client, Torrents = Downloader().get_pt_torrents(torrent_ids=ids)
                 DispTorrents = []
                 for torrent in Torrents:
                     if Client == DownloaderType.QB:
@@ -789,14 +777,14 @@ def create_flask_app(config):
                     media_type = MediaType.ANIME
                     if not dest_dir:
                         dest_dir = config.get_config("media").get("anime_path")
-                tmdb_info = MediaClient.get_media_info_manual(media_type, title, year, tmdbid)
+                tmdb_info = Media().get_media_info_manual(media_type, title, year, tmdbid)
                 if not tmdb_info:
                     return {"retcode": 1, "retmsg": "转移失败，无法查询到TMDB信息"}
-                succ_flag, ret_msg = FileTransferClient.transfer_media(in_from=SyncType.MAN,
-                                                                       in_path=path,
-                                                                       target_dir=dest_dir,
-                                                                       tmdb_info=tmdb_info,
-                                                                       media_type=media_type)
+                succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
+                                                                   in_path=path,
+                                                                   target_dir=dest_dir,
+                                                                   tmdb_info=tmdb_info,
+                                                                   media_type=media_type)
                 if succ_flag:
                     if logid:
                         insert_transfer_blacklist(path)
@@ -822,6 +810,8 @@ def create_flask_app(config):
                     cfg.flush()
                     cfg.close()
                     config.init_config()
+                    for instance in INSTANCES:
+                        instance().init_config()
                 return {"retcode": 0}
 
             # 删除识别记录及文件
@@ -835,7 +825,8 @@ def create_flask_app(config):
                     year = paths[0][5]
                     se = paths[0][6]
                     mtype = paths[0][7]
-                    dest_path = FileTransferClient.get_dest_path_by_info(dest=dest_dir, mtype=mtype, title=title, category=category, year=year, season=se)
+                    dest_path = FileTransfer().get_dest_path_by_info(dest=dest_dir, mtype=mtype, title=title,
+                                                                     category=category, year=year, season=se)
                     if dest_path and dest_path.find(title) != -1:
                         try:
                             shutil.rmtree(dest_path)
@@ -890,21 +881,21 @@ def create_flask_app(config):
             # 处理消息内容
             content = content.strip()
             if content == "/ptr":
-                _thread.start_new_thread(AutoRemoveTorrentsClient.run_schedule, ())
+                _thread.start_new_thread(AutoRemoveTorrents().run_schedule, ())
             elif content == "/ptt":
-                _thread.start_new_thread(PTTransferClient.run_schedule, ())
+                _thread.start_new_thread(PTTransfer().run_schedule, ())
             elif content == "/pts":
-                _thread.start_new_thread(PTSigninClient.run_schedule, ())
+                _thread.start_new_thread(PTSignin().run_schedule, ())
             elif content == "/rst":
-                _thread.start_new_thread(FileTransferClient.transfer_all_sync, ())
+                _thread.start_new_thread(FileTransfer().transfer_all_sync, ())
             elif content == "/rss":
-                _thread.start_new_thread(RSSDownloaderClient.run_schedule, ())
+                _thread.start_new_thread(RSSDownloader().run_schedule, ())
             elif content == "/db":
-                _thread.start_new_thread(DoubanSyncClient.run_schedule, ())
+                _thread.start_new_thread(DoubanSync().run_schedule, ())
             elif content.startswith("http://") or content.startswith("https://") or content.startswith("magnet:"):
-                _thread.start_new_thread(DownloaderClient.add_pt_torrent, (content,))
+                _thread.start_new_thread(Downloader().add_pt_torrent, (content,))
             else:
-                _thread.start_new_thread(JackettClient.search_one_media, (content, SearchType.WX,))
+                _thread.start_new_thread(Jackett().search_one_media, (content, SearchType.WX,))
 
             return make_response(reponse_text, 200)
 

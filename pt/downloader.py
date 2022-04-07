@@ -7,13 +7,11 @@ from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
-from rmt.metainfo import MetaInfo
-from utils.functions import str_filesize, singleton
+from utils.functions import str_filesize
 from utils.types import MediaType, DownloaderType, SearchType
 from web.backend.emby import Emby
 
 
-@singleton
 class Downloader:
     client = None
     __client_type = None

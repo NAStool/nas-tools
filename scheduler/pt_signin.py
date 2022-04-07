@@ -3,13 +3,12 @@ from threading import Lock
 import requests
 import log
 from config import Config
-from utils.functions import cookieParse, generateHeader, singleton
+from utils.functions import cookieParse, generateHeader
 from message.send import Message
 
 lock = Lock()
 
 
-@singleton
 class PTSignin:
     __pt_sites = None
     message = None

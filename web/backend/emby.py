@@ -6,18 +6,16 @@ from config import RMT_FAVTYPE, Config
 from message.send import Message
 from rmt.filetransfer import FileTransfer
 from rmt.metainfo import MetaInfo
-from utils.functions import get_local_time, get_location, singleton
+from utils.functions import get_local_time, get_location
 from utils.types import MediaType
 
 PLAY_LIST = []
 
 
-@singleton
 class Emby:
     message = None
     __apikey = None
     __host = None
-    __library_info = []
 
     def __init__(self):
         self.message = Message()
@@ -34,7 +32,6 @@ class Emby:
             if not self.__host.endswith('/'):
                 self.__host = self.__host + "/"
             self.__apikey = emby.get('api_key')
-            self.__library_info = self.get_emby_librarys()
 
     # 获取Emby媒体库的信息
     def get_emby_librarys(self):
@@ -300,7 +297,7 @@ class Emby:
                 # 已存在，不用刷新
                 return None
         # 查找需要刷新的媒体库ID
-        for library in self.__library_info:
+        for library in self.get_emby_librarys():
             for folder in library.get("SubFolders"):
                 if "/%s" % media.category in folder.get("Path"):
                     return library.get("Id")

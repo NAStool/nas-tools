@@ -2,10 +2,8 @@ from urllib.parse import urlencode
 import requests
 
 from config import Config
-from utils.functions import singleton
 
 
-@singleton
 class Telegram:
     __telegram_token = None
     __telegram_chat_id = None

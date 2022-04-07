@@ -4,14 +4,12 @@ import log
 from config import Config
 from pt.douban import DouBan
 from pt.jackett import Jackett
-from utils.functions import singleton
 from utils.sqls import insert_tv_key, insert_movie_key, get_douban_search_state, insert_douban_media_state
 from utils.types import MediaType, SearchType
 
 lock = Lock()
 
 
-@singleton
 class DoubanSync:
     __interval = None
     __auto_search = True

@@ -2,12 +2,10 @@ from threading import Lock
 
 import log
 from pt.downloader import Downloader
-from utils.functions import singleton
 
 lock = Lock()
 
 
-@singleton
 class AutoRemoveTorrents:
     downloader = None
 

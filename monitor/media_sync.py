@@ -29,6 +29,8 @@ class Sync(object):
     def __init__(self):
         self.filetransfer = FileTransfer()
         self.init_config()
+        self.stop_service()
+        self.run_service()
 
     def init_config(self):
         config = Config()

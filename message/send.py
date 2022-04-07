@@ -4,10 +4,9 @@ from message.bark import Bark
 from message.serverchan import ServerChan
 from message.telegram import Telegram
 from message.wechat import WeChat
-from utils.functions import str_filesize, singleton
+from utils.functions import str_filesize
 
 
-@singleton
 class Message:
     __msg_channel = None
     __webhook_ignore = None

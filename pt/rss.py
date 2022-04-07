@@ -1,7 +1,7 @@
 import re
 import log
 from config import Config
-from utils.functions import parse_rssxml, is_chinese, singleton
+from utils.functions import parse_rssxml, is_chinese
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
@@ -11,7 +11,6 @@ from utils.types import MediaType, SearchType
 RSS_CACHED_TORRENTS = []
 
 
-@singleton
 class Rss:
     __rss_chinese = None
     __sites = None

@@ -1,13 +1,11 @@
 from threading import Lock
 import log
 from pt.rss import Rss
-from utils.functions import singleton
 
 RSS_CACHED_TORRENTS = []
 lock = Lock()
 
 
-@singleton
 class RSSDownloader:
     rss = None
 

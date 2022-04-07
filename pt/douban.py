@@ -8,12 +8,10 @@ from bs4 import BeautifulSoup
 import log
 from config import Config
 from rmt.metainfo import MetaInfo
-from utils.functions import singleton
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
 
 
-@singleton
 class DouBan:
     req = None
     __default_headers = {
