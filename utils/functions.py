@@ -232,11 +232,18 @@ def parse_rssxml(url):
                         continue
                     # 种子链接
                     enclosure = ""
+                    # 大小
+                    size = 0
                     tagNames = item.getElementsByTagName("enclosure")
                     if tagNames:
                         enclosure = tagNames[0].getAttribute("url")
+                        size = tagNames[0].getAttribute("length")
                     if not enclosure:
                         continue
+                    if size and size.isdigit():
+                        size = int(size)
+                    else:
+                        size = 0
                     # 描述
                     description = ""
                     tagNames = item.getElementsByTagName("description")
@@ -244,7 +251,7 @@ def parse_rssxml(url):
                         firstChild = tagNames[0].firstChild
                         if firstChild:
                             description = firstChild.data
-                    tmp_dict = {'title': title, 'enclosure': enclosure, 'description': description}
+                    tmp_dict = {'title': title, 'enclosure': enclosure, 'size': size, 'description': description}
                     ret_array.append(tmp_dict)
                 except Exception as e1:
                     print(str(e1))

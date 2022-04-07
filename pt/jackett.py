@@ -70,7 +70,7 @@ class Jackett:
             peers = media_item.get('peers')
 
             # 检查资源类型
-            match_flag, res_order, res_typestr = self.media.check_resouce_types(torrent_name, self.__res_type)
+            match_flag, res_order, res_typestr = self.downloader.check_resouce_types(torrent_name, self.__res_type)
             if not match_flag:
                 log.debug("【JACKETT】%s 不符合过滤条件" % torrent_name)
                 continue
@@ -100,11 +100,11 @@ class Jackett:
 
             # 检查标题是否匹配剧集
             if match_flag:
-                match_flag = self.__is_jackett_match_sey(media_info, s_num, e_num, year)
+                match_flag = self.downloader.is_torrent_match_sey(media_info, s_num, e_num, year)
 
             # 判断文件大小是否匹配，只针对电影
             if match_flag:
-                match_flag = self.__is_jackett_match_size(media_info, self.__res_type, size)
+                match_flag = self.downloader.is_torrent_match_size(media_info, self.__res_type, size)
 
             # 匹配到了
             if match_flag:
@@ -309,58 +309,3 @@ class Jackett:
                     return True
 
             return True
-
-    # 种子名称关键字匹配
-    @staticmethod
-    def __is_jackett_match_sey(media_info, s_num, e_num, year_str):
-        if s_num:
-            if not media_info.is_in_seasion(s_num):
-                log.info("【JACKETT】%s：%s %s %s 不匹配季：%s" % (media_info.type.value,
-                                                           media_info.get_title_string(),
-                                                           media_info.get_season_episode_string(),
-                                                           media_info.get_resource_type_string(), s_num))
-                return False
-        if e_num:
-            if not media_info.is_in_episode(e_num):
-                log.info("【JACKETT】%s：%s %s %s 不匹配集：%s" % (media_info.type.value,
-                                                           media_info.get_title_string(),
-                                                           media_info.get_season_episode_string(),
-                                                           media_info.get_resource_type_string(), e_num))
-                return False
-        if year_str:
-            if str(media_info.year) != year_str:
-                log.info("【JACKETT】%s：%s %s %s 不匹配年份：%s" % (media_info.type.value,
-                                                            media_info.get_title_string(),
-                                                            media_info.get_season_episode_string(),
-                                                            media_info.get_resource_type_string(), year_str))
-                return False
-        return True
-
-    # 种子大小匹配
-    @staticmethod
-    def __is_jackett_match_size(media_info, t_types, t_size):
-        if media_info.type != MediaType.MOVIE:
-            return True
-        # 大小
-        if t_size:
-            sizes = t_types.get('size')
-            if sizes:
-                if sizes.find(',') != -1:
-                    if sizes[0].isdigit():
-                        begin_size = int(sizes[0].strip())
-                    else:
-                        begin_size = 0
-                    if sizes[1].isdigit():
-                        end_size = int(sizes[1].strip())
-                    else:
-                        end_size = 0
-                else:
-                    begin_size = 0
-                    if sizes.isdight():
-                        end_size = int(sizes.strip())
-                    else:
-                        end_size = 0
-                if not begin_size * 1024 * 1024 * 1024 <= int(t_size) << end_size * 1024 * 1024 * 1024:
-                    log.debug("【JACKETT】%s：%s 文件大小不符合要求" % (media_info.type.value, media_info.get_title_string()))
-                    return False
-        return True

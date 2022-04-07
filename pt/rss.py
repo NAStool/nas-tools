@@ -79,9 +79,10 @@ class Rss:
             res_num = 0
             for res in rss_result:
                 try:
-                    torrent_name = res['title']
-                    enclosure = res['enclosure']
-                    description = res['description']
+                    torrent_name = res.get('title')
+                    enclosure = res.get('enclosure')
+                    description = res.get('description')
+                    size = res.get('size')
                     # 判断是否处理过
                     if enclosure in RSS_CACHED_TORRENTS:
                         log.info("【RSS】%s 已处理过，跳过..." % torrent_name)
@@ -124,9 +125,14 @@ class Rss:
                     res_typestr = ""
                     if match_flag:
                         # 确定标题中是否有资源类型关键字，并返回关键字的顺序号
-                        match_flag, res_order, res_typestr = self.media.check_resouce_types(torrent_name, res_type)
+                        match_flag, res_order, res_typestr = self.downloader.check_resouce_types(torrent_name, res_type)
                         if not match_flag:
                             log.info("【RSS】%s 不符合过滤条件" % torrent_name)
+                            continue
+                    # 判断文件大小是否匹配，只针对电影
+                    if match_flag:
+                        match_flag = self.downloader.is_torrent_match_size(media_info, res_type, size)
+                        if not match_flag:
                             continue
                     # 插入数据库
                     insert_rss_torrents(media_info)
