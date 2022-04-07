@@ -35,9 +35,12 @@ class Jackett:
         jackett = config.get_config('jackett')
         if jackett:
             self.__api_key = jackett.get('api_key')
-            self.__res_type = jackett.get('res_type')
-            if not isinstance(self.__res_type, list):
-                self.__res_type = [self.__res_type]
+            res_type = jackett.get('res_type')
+            if isinstance(res_type, str):
+                # 配单个字符串
+                self.__res_type = [res_type]
+            else:
+                self.__res_type = res_type
             self.__indexers = jackett.get('indexers')
             if not isinstance(self.__indexers, list):
                 self.__indexers = [self.__indexers]
@@ -67,9 +70,9 @@ class Jackett:
             peers = media_item.get('peers')
 
             # 检查资源类型
-            match_flag, res_order, res_typestr = self.media.check_resouce_types(torrent_name, self.__res_type)
+            match_flag, res_order, res_typestr = self.media.check_resouce_types(torrent_name, self.__res_type, size)
             if not match_flag:
-                log.debug("【JACKETT】%s 资源类型不匹配" % torrent_name)
+                log.debug("【JACKETT】%s 不符合过滤条件" % torrent_name)
                 continue
 
             # 识别种子名称

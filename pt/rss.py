@@ -64,7 +64,7 @@ class Rss:
                 log.error("【RSS】%s 未配置rssurl，跳过..." % str(rss_job))
                 continue
             res_type = job_info.get('res_type')
-            if res_type and not isinstance(res_type, list):
+            if isinstance(res_type, str):
                 res_type = [res_type]
 
             # 开始下载RSS
@@ -113,10 +113,10 @@ class Rss:
                                                              media_info.get_season_episode_string(),
                                                              media_info.get_resource_type_string()))
                     else:
-                        log.info("【RSS】%s: %s %s %s 不匹配订阅规则" % (media_info.type.value,
-                                                                media_info.get_title_string(),
-                                                                media_info.get_season_episode_string(),
-                                                                media_info.get_resource_type_string()))
+                        log.info("【RSS】%s: %s %s %s 不匹配订阅关键字" % (media_info.type.value,
+                                                                 media_info.get_title_string(),
+                                                                 media_info.get_season_episode_string(),
+                                                                 media_info.get_resource_type_string()))
                         continue
                     # 匹配后，看资源类型是否满足
                     # 代表资源类型在配置中的优先级顺序
@@ -126,7 +126,7 @@ class Rss:
                         # 确定标题中是否有资源类型关键字，并返回关键字的顺序号
                         match_flag, res_order, res_typestr = self.media.check_resouce_types(torrent_name, res_type)
                         if not match_flag:
-                            log.info("【RSS】%s 资源类型不匹配" % torrent_name)
+                            log.info("【RSS】%s 不符合过滤条件" % torrent_name)
                             continue
                     # 插入数据库
                     insert_rss_torrents(media_info)

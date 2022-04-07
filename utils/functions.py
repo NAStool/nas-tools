@@ -317,10 +317,6 @@ def parse_jackettxml(url):
                         if name == "peers":
                             peers = value
 
-                    # 做种为0的跳过
-                    if seeders == 0:
-                        continue
-
                     tmp_dict = {'title': title, 'enclosure': enclosure, 'description': description, 'size': size,
                                 'seeders': seeders, 'peers': peers}
                     ret_array.append(tmp_dict)
