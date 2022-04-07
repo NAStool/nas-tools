@@ -297,7 +297,7 @@ class Media:
     # 检查标题中是否匹配资源类型
     # 返回：是否匹配，匹配的序号，匹配的值
     @staticmethod
-    def check_resouce_types(t_title, t_types, t_size=0):
+    def check_resouce_types(t_title, t_types):
         if not t_types:
             # 未配置默认不过滤
             return True, 0, ""
@@ -349,28 +349,6 @@ class Media:
                         exclude_flag = True
                 if exclude_count != 0 and not exclude_flag:
                     return False, 0, ""
-
-            # 大小
-            if t_size:
-                sizes = t_types.get('size')
-                if sizes:
-                    if sizes.find(',') != -1:
-                        if sizes[0].isdigit():
-                            begin_size = int(sizes[0].strip())
-                        else:
-                            begin_size = 0
-                        if sizes[1].isdigit():
-                            end_size = int(sizes[1].strip())
-                        else:
-                            end_size = 0
-                    else:
-                        begin_size = 0
-                        if sizes.isdight():
-                            end_size = int(sizes.strip())
-                        else:
-                            end_size = 0
-                    if not begin_size * 1024 * 1024 * 1024 <= int(t_size) << end_size * 1024 * 1024 * 1024:
-                        return False, 0, ""
             return True, 0, ""
 
     # 获取热门电影

@@ -70,7 +70,7 @@ class Jackett:
             peers = media_item.get('peers')
 
             # 检查资源类型
-            match_flag, res_order, res_typestr = self.media.check_resouce_types(torrent_name, self.__res_type, size)
+            match_flag, res_order, res_typestr = self.media.check_resouce_types(torrent_name, self.__res_type)
             if not match_flag:
                 log.debug("【JACKETT】%s 不符合过滤条件" % torrent_name)
                 continue
@@ -78,7 +78,7 @@ class Jackett:
             # 识别种子名称
             media_info = self.media.get_media_info(torrent_name, description)
             if not media_info or not media_info.tmdb_info:
-                log.debug("【JACKETT】%s 未检索媒体信息" % torrent_name)
+                log.debug("【JACKETT】%s 未检索到媒体信息" % torrent_name)
                 continue
 
             # 名称是否匹配
@@ -101,6 +101,10 @@ class Jackett:
             # 检查标题是否匹配剧集
             if match_flag:
                 match_flag = self.__is_jackett_match_sey(media_info, s_num, e_num, year)
+
+            # 判断文件大小是否匹配，只针对电影
+            if match_flag:
+                match_flag = self.__is_jackett_match_size(media_info, self.__res_type, size)
 
             # 匹配到了
             if match_flag:
@@ -330,4 +334,33 @@ class Jackett:
                                                             media_info.get_season_episode_string(),
                                                             media_info.get_resource_type_string(), year_str))
                 return False
+        return True
+
+    # 种子大小匹配
+    @staticmethod
+    def __is_jackett_match_size(media_info, t_types, t_size):
+        if media_info.type != MediaType.MOVIE:
+            return True
+        # 大小
+        if t_size:
+            sizes = t_types.get('size')
+            if sizes:
+                if sizes.find(',') != -1:
+                    if sizes[0].isdigit():
+                        begin_size = int(sizes[0].strip())
+                    else:
+                        begin_size = 0
+                    if sizes[1].isdigit():
+                        end_size = int(sizes[1].strip())
+                    else:
+                        end_size = 0
+                else:
+                    begin_size = 0
+                    if sizes.isdight():
+                        end_size = int(sizes.strip())
+                    else:
+                        end_size = 0
+                if not begin_size * 1024 * 1024 * 1024 <= int(t_size) << end_size * 1024 * 1024 * 1024:
+                    log.debug("【JACKETT】%s：%s 文件大小不符合要求" % (media_info.type.value, media_info.get_title_string()))
+                    return False
         return True
