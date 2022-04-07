@@ -6,10 +6,11 @@ function ajax_post(cmd, data, handler){
     };
     $.ajax({
         type: "POST",
-        url: "do",
+        url: "do?random=" + Math.random(),
         dataType: "json",
         data: data,
         timeout: 180000,
+        cache: false,
         success: handler,
         error: function(xhr, textStatus, errorThrown){
             //alert("系统响应超时，请稍后重试！");
