@@ -294,8 +294,9 @@ def create_flask_app(config):
                 date = res.get('first_air_date')
             image = res.get('poster_path')
             vote = res.get('vote_average')
+            overview = res.get('overview')
             item = {'id': rid, 'title': title, 'fav': fav, 'date': date, 'vote': vote,
-                    'image': "https://image.tmdb.org/t/p/original/%s" % image}
+                    'image': "https://image.tmdb.org/t/p/original/%s" % image, 'overview': overview}
             Items.append(item)
 
         return render_template("recommend.html",

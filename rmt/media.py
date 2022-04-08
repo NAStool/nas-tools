@@ -222,15 +222,14 @@ class Media:
                     # 常规识别
                     meta_info = MetaInfo(file_name)
                     # 识别不到则使用上级的名称
-                    if not meta_info.get_name() or meta_info.get_name() == file_name or not meta_info.year:
+                    if not meta_info.get_name() or not meta_info.year:
                         parent_info = MetaInfo(parent_name)
-                        if not meta_info.cn_name:
+                        if not meta_info.get_name():
                             meta_info.cn_name = parent_info.cn_name
-                        if not meta_info.en_name:
                             meta_info.en_name = parent_info.en_name
                         if not meta_info.year:
                             meta_info.year = parent_info.year
-                        if parent_info.type != MediaType.MOVIE:
+                        if parent_info.type != MediaType.MOVIE and meta_info.type == MediaType.MOVIE:
                             meta_info.type = parent_info.type
                     media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
                     try:
@@ -258,9 +257,8 @@ class Media:
                         if parent_info.type != MediaType.UNKNOWN:
                             if meta_info.type == MediaType.UNKNOWN:
                                 meta_info.type = parent_info.type
-                            if not meta_info.cn_name:
+                            if not meta_info.get_name():
                                 meta_info.cn_name = parent_info.cn_name
-                            if not meta_info.en_name:
                                 meta_info.en_name = parent_info.en_name
                             if not meta_info.year:
                                 meta_info.year = parent_info.year

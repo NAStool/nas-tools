@@ -10,12 +10,10 @@ from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
 from utils.meta_helper import MetaHelper
 
-SCHEDULER = BlockingScheduler(timezone="Asia/Shanghai")
-
 
 def run_scheduler():
-    global SCHEDULER
     try:
+        SCHEDULER = BlockingScheduler(timezone="Asia/Shanghai")
         SCHEDULER.remove_all_jobs()
         config = Config()
         pt = config.get_config('pt')

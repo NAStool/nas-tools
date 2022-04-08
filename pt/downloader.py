@@ -272,6 +272,8 @@ class Downloader:
                     return True, c_seq, t_type
             return False, 0, ""
         else:
+            if not isinstance(t_types, dict):
+                return True, 0, ""
             # 必须包括的项
             includes = t_types.get('include')
             if includes:
@@ -309,6 +311,8 @@ class Downloader:
     @staticmethod
     def is_torrent_match_size(media_info, t_types, t_size):
         if media_info.type != MediaType.MOVIE:
+            return True
+        if not isinstance(t_types, dict):
             return True
         # 大小
         if t_size:
