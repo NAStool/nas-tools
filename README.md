@@ -206,4 +206,4 @@ Jackett的相关配置参考网上的各类教程。
 ## 鸣谢
 * 感谢 <a href="https://github.com/Qliangw/notion_sync_data" target="_blank">Qliangw</a> 贡献豆瓣部分的代码
 * 感谢 <a href="https://hub.docker.com/r/nevinee/nas-tools" target="_blank">nevinee</a> 完善docker构建
-* 感谢 PR 代码的所有大佬
+* 感谢 PR 代码、完善WIKI、发布教程的所有大佬
