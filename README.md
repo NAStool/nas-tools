@@ -124,7 +124,7 @@ https://github.com/jxxghp/nas-tools/releases
    
 * 群晖套件：在套件安装界面中设置配置文件路径，比如：/homes/admin/.config/nastool/config.yaml，并将修改好的配置文件【提前】放置在对应路径下。
 
-### 3、设置Emby媒体库（可选）
+### 3、设置Emby媒体库（推荐）
 * 在Emby的Webhooks插件中，设置地址为：http(s)://IP:3000/emby，勾选“播放事件”和“用户事件（建议只对管理用户勾选）“
 * 如果启用了默认分类，需按如下的目录结构分别设置好媒体库；如是自定义分类，请按自己的定义建立好媒体库目录，分类定义请参考配置文件模板。
    > 电影
@@ -145,7 +145,7 @@ https://github.com/jxxghp/nas-tools/releases
 * 安装resiliosync软件，配置好神KEY（主KEY：BCWHZRSLANR64CGPTXRE54ENNSIUE5SMO，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6，也可以使用其他的Key），resiliosync同步目录配置到本程序的监控目录中，实现有资源更新自动整理。
 * 其它分散的媒体文件夹，可以过配置目录监控的方式实现文件变化时自动整理到媒体库。
 
-### 5、配置微信应用消息及菜单（可选）
+### 5、配置微信应用消息及菜单（推荐）
 如果只是使用消息接受服务，则配置好配置文件中的[wechat]前三个参数就可以了，如果需要通过微信进行控制，则需要按如下方式配置（需要有公网IP或域名）：
 * 配置微信消息服务：在企业微信自建应用管理页面-》API接收消息 开启消息接收服务，URL填写：http(s)://IP:3000/wechat，Token和EncodingAESKey填入配置文件[wechat]区（配置好后需要先重启服务，然后才在微信页面中点确定）。
    
@@ -163,7 +163,7 @@ https://github.com/jxxghp/nas-tools/releases
    
    ![image](https://user-images.githubusercontent.com/51039935/158045006-e0e007e9-ed7d-4001-95ce-0ff796c05f70.png)
 
-### 6、配置Jackett（可选）
+### 6、配置Jackett（推荐）
 如果你想通过微信发送电影电视剧的名称，后台就自动检索各PT站并自动下载，或者使用WEB页面的PT聚合资源搜索功能，则需要配置Jackett，获取API Key以及Torznab Feed，相关参数填入配置文件。
 
 Jackett的相关配置参考网上的各类教程。
