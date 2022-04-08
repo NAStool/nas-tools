@@ -1,7 +1,11 @@
 import anitopy
+from pt.downloader import Downloader
+from pt.rss import Rss
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
+from utils.db_helper import select_by_sql
 from utils.functions import is_anime
+from utils.sqls import get_tv_keys
 
 if __name__ == "__main__":
     '''
@@ -53,6 +57,8 @@ if __name__ == "__main__":
     print(is_anime('[U2-Rip] SLAM DUNK 第005話「根性なしの午後」(BDrip 1440x1080 H264 FLAC).mkv'))
     print(MetaInfo('[U2-Rip] SLAM DUNK 第005話「根性なしの午後」(BDrip 1440x1080 H264 FLAC).mkv').__dict__)
     print(MetaInfo('进击的巨人.第4季.Attack.on.Titan.S04E28.1080p.WEB-DL.H264.ACC-OurTV.mkv').__dict__)
-    '''
     print(MetaInfo('The Knick 2014-2015 Complete 1080p Blu-ray x265 AC3￡cXcY@FRDS').__dict__)
-
+    print(select_by_sql('SELECT * FROM RSS_TVKEYS'))
+    '''
+    media_info = Media().get_media_info('Paripi Koumei S01E01 1080p B-Global WEB-DL H264 AAC-CHDWEB')
+    print(Rss().is_torrent_match(media_info, [], get_tv_keys()))

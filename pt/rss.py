@@ -107,7 +107,7 @@ class Rss:
                         log.info("【RSS】%s 已处理过，跳过..." % (media_info.get_title_string()))
                         continue
                     # 检查种子名称或者标题是否匹配
-                    match_flag = self.__is_torrent_match(media_info, movie_keys, tv_keys)
+                    match_flag = self.is_torrent_match(media_info, movie_keys, tv_keys)
                     if match_flag:
                         log.info("【RSS】%s: %s %s %s 匹配成功" % (media_info.type.value,
                                                              media_info.get_title_string(),
@@ -155,9 +155,12 @@ class Rss:
         log.info("【RSS】实际下载了 %s 个资源" % len(download_medias))
 
     @staticmethod
-    def __is_torrent_match(media_info, movie_keys, tv_keys):
+    def is_torrent_match(media_info, movie_keys, tv_keys):
         if media_info.type == MediaType.MOVIE:
             for key in movie_keys:
+                if not key:
+                    continue
+                key = key[0]
                 # 匹配种子标题
                 if re.search(r"%s" % key, media_info.org_string, re.IGNORECASE):
                     return True
@@ -170,6 +173,9 @@ class Rss:
         else:
             # 匹配种子标题
             for key in tv_keys:
+                if not key:
+                    continue
+                key = key[0]
                 # 中英文名跟年份都纳入匹配
                 if re.search(r"%s" % key, media_info.org_string, re.IGNORECASE):
                     return True

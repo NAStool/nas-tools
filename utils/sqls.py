@@ -90,6 +90,9 @@ def delete_all_tv_keys():
 
 # 插入电影关键字
 def insert_movie_key(key):
+    if not key:
+        return False
+    key = str(key).replace("'", "''")
     sql = "SELECT 1 FROM RSS_MOVIEKEYS WHERE NAME = '%s'" % key
     ret = select_by_sql(sql)
     if not ret or len(ret) == 0:
@@ -101,6 +104,9 @@ def insert_movie_key(key):
 
 # 插入电视剧关键字
 def insert_tv_key(key):
+    if not key:
+        return False
+    key = str(key).replace("'", "''")
     sql = "SELECT 1 FROM RSS_TVKEYS WHERE NAME = '%s'" % key
     ret = select_by_sql(sql)
     if not ret or len(ret) == 0:

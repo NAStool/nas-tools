@@ -236,8 +236,8 @@ def create_flask_app(config):
         movie_key_list = get_movie_keys()
         tv_key_list = get_tv_keys()
         return render_template("sites.html",
-                               MovieKeys=','.join('%s' % key for key in movie_key_list),
-                               TvKeys=','.join('%s' % key for key in tv_key_list),
+                               MovieKeys=','.join('%s' % key[0] for key in movie_key_list),
+                               TvKeys=','.join('%s' % key[0] for key in tv_key_list),
                                AppVersion=APP_VERSION)
 
     # 推荐页面
