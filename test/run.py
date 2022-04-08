@@ -54,4 +54,5 @@ if __name__ == "__main__":
     print(MetaInfo('[U2-Rip] SLAM DUNK 第005話「根性なしの午後」(BDrip 1440x1080 H264 FLAC).mkv').__dict__)
     print(MetaInfo('进击的巨人.第4季.Attack.on.Titan.S04E28.1080p.WEB-DL.H264.ACC-OurTV.mkv').__dict__)
     '''
-    print(MetaInfo('The.Sadness.Uncut.[4k.UHD].2022.1060p').__dict__)
+    print(MetaInfo('The Knick 2014-2015 Complete 1080p Blu-ray x265 AC3￡cXcY@FRDS').__dict__)
+

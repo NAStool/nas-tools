@@ -54,10 +54,10 @@ class Rss:
             return
 
         # 代码站点配置优先级的序号
-        order_seq = 0
+        order_seq = 100
         rss_download_torrents = []
         for rss_job, job_info in self.__sites.items():
-            order_seq = order_seq + 1
+            order_seq -= 1
             # 读取子配置
             rssurl = job_info.get('rssurl')
             if not rssurl:

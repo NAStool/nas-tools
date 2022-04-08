@@ -2,7 +2,7 @@ import os.path
 import time
 
 from utils.db_helper import update_by_sql, select_by_sql
-from utils.functions import str_filesize, xstr
+from utils.functions import str_filesize, xstr, is_ses_in_ses
 from utils.types import MediaType
 
 
@@ -125,18 +125,21 @@ def is_torrent_rssd_by_url(url):
 def is_torrent_rssd_by_name(media_title, media_year, media_seaion, media_episode):
     if not media_title:
         return True
-    sql = "SELECT 1 FROM RSS_TORRENTS WHERE TITLE = '%s'" % media_title
+    sql = "SELECT SEASON,EPISODE FROM RSS_TORRENTS WHERE TITLE = '%s'" % media_title
     if media_year:
         sql = "%s AND YEAR='%s'" % (sql, media_year)
-    if media_seaion:
-        sql = "%s AND SEASON='%s'" % (sql, media_seaion)
-    if media_episode:
-        sql = "%s AND EPISODE='%s'" % (sql, media_episode)
-    ret = select_by_sql(sql)
-    if not ret:
+    rets = select_by_sql(sql)
+    if not rets:
         return False
-    if len(ret) > 0:
-        return True
+    for ret in rets:
+        season = ret[0]
+        episode = ret[1]
+        # 种子没有季和集，说明是电影，查到同名同年数据也没有季和集的则说明下过了
+        if not media_seaion and not media_episode and not season and not episode:
+            return True
+        # 比较电视剧
+        if is_ses_in_ses(media_seaion, media_episode, season, episode):
+            return True
     return False
 
 

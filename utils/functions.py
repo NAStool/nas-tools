@@ -495,3 +495,72 @@ def is_anime(name):
     if re.search(r'\s+-\s+\d{1,3}\s+', name, re.IGNORECASE):
         return True
     return False
+
+
+# 判断Sxx-Sxx Exx-Exx 是否包含关系
+def is_ses_in_ses(sea, epi, season, episode):
+    # 季是否匹配
+    season_match = False
+    # 都没有季，说明对上了
+    if not sea and not season:
+        season_match = True
+    # 一个有季一个没季对不上
+    elif sea and not season or not sea and season:
+        season_match = False
+    else:
+        # 输入季拆分为数组
+        if sea.find('-') != -1:
+            seas = sea.split('-')
+            sea_begin = int(seas[0].replace('S', ''))
+            sea_end = int(seas[1].replace('S', ''))
+        else:
+            sea_begin = sea_end = int(sea.replace('S', ''))
+        seas = list(range(sea_begin, sea_end + 1))
+        # 目的季拆分为数组
+        if season.find('-') != -1:
+            seasons = season.split('-')
+            season_begin = int(seasons[0].replace('S', ''))
+            season_end = int(seasons[1].replace('S', ''))
+        else:
+            season_begin = season_end = int(season.replace('S', ''))
+        seasons = list(range(season_begin, season_end + 1))
+        # 目标是否包含输入
+        if set(seasons).issuperset(set(seas)):
+            season_match = True
+
+    # 集是否匹配
+    episode_match = False
+    # 两个都没有集，则默认为对上
+    if not epi and not episode:
+        episode_match = True
+    # 输入没集，目标有集，说明输入是整季，对不上
+    elif not epi and episode:
+        episode_match = False
+    # 输入有集，目标没集，说明目标是整季，肯定包含
+    elif epi and not episode:
+        episode_match = True
+    else:
+        # 输入集拆分为数组
+        if epi.find('-') != -1:
+            epis = epi.split('-')
+            epi_begin = int(epis[0].replace('E', ''))
+            epi_end = int(epis[1].replace('E', ''))
+        else:
+            epi_begin = epi_end = int(epi.replace('E', ''))
+        epis = list(range(epi_begin, epi_end + 1))
+        # 目的集拆分为数组
+        if episode.find('-') != -1:
+            episodes = episode.split('-')
+            episode_begin = int(episodes[0].replace('E', ''))
+            episode_end = int(episodes[1].replace('E', ''))
+        else:
+            episode_begin = episode_end = int(episode.replace('E', ''))
+        episodes = list(range(episode_begin, episode_end + 1))
+        # 比较集
+        if set(episodes).issuperset(set(epis)):
+            episode_match = True
+    # 季和集都匹配才算匹配
+    if season_match and episode_match:
+        return True
+
+    return False

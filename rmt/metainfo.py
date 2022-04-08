@@ -103,6 +103,8 @@ class MetaInfo(object):
         if not anime:
             # 去掉名称中第1个[]的内容
             title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
+            # 把xxxx-xxxx年份换成前一个年份，常出现在季集上
+            title = re.sub(r'(\d{4})-(\d{4})', r'\1', title)
             # 拆分tokens
             tokens = Tokens(title)
             # 解析名称、年份、季、集、资源类型、分辨率等
