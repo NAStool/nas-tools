@@ -337,7 +337,7 @@ class Downloader:
                         end_size = 0
                 else:
                     begin_size = 0
-                    if sizes.isdight():
+                    if sizes.isdigit():
                         end_size = int(sizes.strip())
                     else:
                         end_size = 0
