@@ -199,16 +199,23 @@ class Downloader:
         if not media_list:
             return []
 
-        # 排序函数，标题、PT站、资源类型、做种数量，同时还要把有季和集且最长排前面
+        # 排序函数，标题、PT站、资源类型、做种数量
         def get_sort_str(x):
             if in_from == SearchType.RSS:
+                # RSS优先把带集的排前面
                 return "%s%s%s%s" % (str(x.title).ljust(100, ' '),
                                      str(x.site_order).rjust(3, '0'),
                                      str(x.res_order).rjust(3, '0'),
                                      str(len(x.get_episode_list())).rjust(3, '0'))
             else:
+                # 微信搜索，优先把整季的排前面
+                episode_len = len(x.get_episode_list())
+                if episode_len == 0:
+                    episode_len = '999'
+                else:
+                    episode_len = str(len(x.get_episode_list())).rjust(3, '0')
                 return "%s%s%s%s%s" % (str(x.title).ljust(100, ' '),
-                                       str(len(x.get_episode_list())).rjust(3, '0'),
+                                       episode_len,
                                        str(x.res_order).rjust(3, '0'),
                                        str(x.seeders).rjust(10, '0'),
                                        str(x.site_order).rjust(3, '0'))
@@ -319,6 +326,7 @@ class Downloader:
             sizes = t_types.get('size')
             if sizes:
                 if sizes.find(',') != -1:
+                    sizes = sizes.split(',')
                     if sizes[0].isdigit():
                         begin_size = int(sizes[0].strip())
                     else:
@@ -333,8 +341,8 @@ class Downloader:
                         end_size = int(sizes.strip())
                     else:
                         end_size = 0
-                if not begin_size * 1024 * 1024 * 1024 <= int(t_size) << end_size * 1024 * 1024 * 1024:
-                    log.debug("【JACKETT】%s：%s 文件大小不符合要求" % (media_info.type.value, media_info.get_title_string()))
+                if not begin_size * 1024 * 1024 * 1024 <= int(t_size) <= end_size * 1024 * 1024 * 1024:
+                    log.info("【JACKETT】%s：%s 文件大小不符合要求" % (media_info.type.value, media_info.get_title_string()))
                     return False
         return True
 
