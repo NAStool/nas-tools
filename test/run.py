@@ -62,5 +62,6 @@ if __name__ == "__main__":
         media_info = Media().get_media_info('Paripi Koumei S01E01 1080p B-Global WEB-DL H264 AAC-CHDWEB')
     print(Rss().is_torrent_match(media_info, [], get_tv_keys()))
     print(MetaInfo('西部世界 第2集.mkv').__dict__)
-    '''
     print(MetaInfo('1.mkv').__dict__)
+    '''
+    print(MetaInfo('未来中国.mkv').__dict__)

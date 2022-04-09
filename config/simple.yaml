@@ -33,6 +33,7 @@ sync:
   # 配置格式2：'源目录'，比如：'/mnt/movie1'，目的目录不配时会自动识别是电影还是电视剧并转移到media中配置的movie_path、tv_path、anime_path配置的目录中（开了自动分类的话会在该目录下进行二级目录分类）
   # 如果无法识别文件媒体信息，配置了目的目录的情况下会LINK到目的目录的unknown录下
   # 建议映射上级目录，源目录和目的目录为子目录，如果分开映射则可能发生跨盘的问题
+  # 启动监控报错的，参考WIKI中的常见问题
   sync_path:
     - '/mnt/movie1|/mnt/mymovie'
     - '/mnt/movie2|/mnt/mymovie'
@@ -84,7 +85,8 @@ pt:
   rmt_mode: link
   # PT下载使用的客户端软件，qbittorrent、transmission，需要配置qbittorrent或transmission对应的配置区域，使用一个后另一个配置可以删掉
   pt_client: qbittorrent
-  # 是否监控PT下载：true、false，如为true则PT下载完成会自动转移和重命名，如为false则不会处理
+  # 是否监控PT下载软件：true、false，如为true则PT下载完成会自动转移和重命名，如为false则不会处理
+  # PT下载软件监控与Sync下载目录监控不要同时开启，否则会处理两遍
   pt_monitor: true
 
 # 配置qBittorrent下载软件，不用可删掉
