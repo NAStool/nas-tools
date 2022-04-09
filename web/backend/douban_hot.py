@@ -14,45 +14,44 @@ class DoubanHot:
     __soup = None
     __movie_num = 50
     __tv_num = 50
-    __fresh_time = None
     __online_movies = []
     __hot_movies = []
     __hot_tvs = []
     __new_movies = []
     __new_tvs = []
+    __online_time = datetime.now()
+    __hot_movie_time = datetime.now()
+    __hot_tv_time = datetime.now()
+    __new_movie_time = datetime.now()
+    __new_tv_time = datetime.now()
 
     def __init__(self):
         self.douban = DouBan()
         self.__soup = self.douban.get_html_soup(url="https://movie.douban.com/")
-        self.__online_movies = self.refresh_online_movie()
-        self.__hot_movies = self.refresh_hot_movie()
-        self.__hot_tvs = self.refresh_hot_tv()
-        self.__new_movies = self.refresh_new_movie()
-        self.__new_tvs = self.refresh_new_tv()
-        self.__fresh_time = datetime.now()
+        self.__online_time = datetime.now()
 
     def get_douban_online_movie(self):
-        if (datetime.now() - self.__fresh_time).days >= 0.5:
+        if not self.__online_movies or (datetime.now() - self.__online_time).days >= 0.5:
             self.__online_movies = self.refresh_online_movie()
         return self.__online_movies
 
     def get_douban_hot_movie(self):
-        if (datetime.now() - self.__fresh_time).days >= 0.5:
+        if not self.__hot_movies or (datetime.now() - self.__hot_movie_time).days >= 0.5:
             self.__hot_movies = self.refresh_hot_movie()
         return self.__hot_movies
 
     def get_douban_hot_tv(self):
-        if (datetime.now() - self.__fresh_time).days >= 0.5:
+        if not self.__hot_tvs or (datetime.now() - self.__hot_tv_time).days >= 0.5:
             self.__hot_tvs = self.refresh_hot_tv()
         return self.__hot_tvs
 
     def get_douban_new_movie(self):
-        if (datetime.now() - self.__fresh_time).days >= 0.5:
+        if not self.__new_movies or (datetime.now() - self.__new_movie_time).days >= 0.5:
             self.__new_movies = self.refresh_new_movie()
         return self.__new_movies
 
     def get_douban_new_tv(self):
-        if (datetime.now() - self.__fresh_time).days >= 0.5:
+        if not self.__new_tvs or (datetime.now() - self.__new_tv_time).days >= 0.5:
             self.__new_tvs = self.refresh_new_tv()
         return self.__new_tvs
 
@@ -99,6 +98,7 @@ class DoubanHot:
                 ret_list.append({'id': rid, 'title': title, 'release_date': release_date, 'vote_average': vote_average, 'poster_path': poster_path, 'overview': overview})
             except Exception as e:
                 print(str(e))
+        self.__online_time = datetime.now()
         return ret_list
 
     @staticmethod
@@ -156,26 +156,26 @@ class DoubanHot:
         html = self.douban.get_douban_hot_json('movie', self.__movie_num)
         if not html:
             return []
+        self.__hot_movie_time = datetime.now()
         return self.__refresh_movie(html)
 
     def refresh_hot_tv(self):
         html = self.douban.get_douban_hot_json('tv', self.__tv_num)
         if not html:
             return []
+        self.__hot_tv_time = datetime.now()
         return self.__refresh_tv(html)
 
     def refresh_new_movie(self):
         html = self.douban.get_douban_new_json('movie', self.__movie_num)
         if not html:
             return []
+        self.__new_movie_time = datetime.now()
         return self.__refresh_movie(html)
 
     def refresh_new_tv(self):
         html = self.douban.get_douban_new_json('tv', self.__tv_num)
         if not html:
             return []
+        self.__new_tv_time = datetime.now()
         return self.__refresh_tv(html)
-
-
-if __name__ == "__main__":
-    print(DoubanHot().get_douban_online_movie())
