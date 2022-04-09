@@ -302,19 +302,31 @@
       // 标题
       title_type = getQueryVariable('t');
       if(title_type == "hm"){
-        $("#recommend_title").text("热门电影")
+        $("#recommend_title").text("TMDB热门电影")
       }
       if(title_type == "ht"){
-        $("#recommend_title").text("热门电视剧")
+        $("#recommend_title").text("TMDB热门电视剧")
       }
       if(title_type == "nm"){
-        $("#recommend_title").text("最新电影")
+        $("#recommend_title").text("TMDB最新电影")
       }
       if(title_type == "nt"){
-        $("#recommend_title").text("最新电视剧")
+        $("#recommend_title").text("TMDB最新电视剧")
       }
       if(title_type == "dbom"){
-        $("#recommend_title").text("豆瓣热映")
+        $("#recommend_title").text("正在热映")
+      }
+      if(title_type == "dbhm"){
+        $("#recommend_title").text("豆瓣热门电影")
+      }
+      if(title_type == "dbht"){
+        $("#recommend_title").text("豆瓣热门电视剧")
+      }
+      if(title_type == "dbnm"){
+        $("#recommend_title").text("豆瓣最新电影")
+      }
+      if(title_type == "dbnt"){
+        $("#recommend_title").text("豆瓣最新电视剧")
       }
 
       // 上一页
