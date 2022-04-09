@@ -2,6 +2,8 @@ import datetime
 import random
 from time import sleep
 import re
+from urllib.parse import urlencode
+
 import requests
 from bs4 import BeautifulSoup
 
@@ -48,7 +50,7 @@ class DouBan:
             else:
                 self.__headers = {"User-Agent": f"{user_agent}"}
 
-            self.req = RequestUtils(request_interval_mode=True)
+            self.req = RequestUtils(request_interval_mode=False)
             # Cookie
             cookie = douban.get('cookie')
             if not cookie:
@@ -82,7 +84,7 @@ class DouBan:
                     page_number = int(start_number / 15 + 1)
                     # 每一页的文本
                     log.info(f"【DOUBAN】开始解析第 {page_number} 页数据...")
-                    soup = self.__get_html_soup(user_id=user, media_status=mtype, start_number=start_number)
+                    soup = self.get_html_soup(user_id=user, media_status=mtype, start_number=start_number)
                     # 获取全部url
                     url_dict = self.__get_url_list(soup, self.__days)
                     url_list = url_dict["url_list"]
@@ -104,7 +106,7 @@ class DouBan:
                         log.info(f"【DOUBAN】解析媒体 {url_count} 随机休眠：{time_number}s")
                         sleep(time_number)
                         # 每一个条目的内容
-                        media_soup = self.__get_html_soup(user_id=user, url=url, media_status=mtype)
+                        media_soup = self.get_html_soup(user_id=user, url=url, media_status=mtype)
                         if not media_soup:
                             log.warn(f"【DOUBAN】访问该页面出现问题，媒体链接：{url}")
                             err_url.append(url)
@@ -184,17 +186,18 @@ class DouBan:
             log.warn(f"【DOUBAN】解析失败：{err}")
             return url_dict
 
-    def __get_html_soup(self, user_id, url=None, media_status="wish", start_number=0):
+    def get_html_soup(self, user_id=None, url=None, media_status="wish", start_number=0):
         """
         获取链接的html文档
         :param user_id: 用户id(如果url选择第二种则为空）
+        :param url: 链接地址
         :param media_status: 状态（wish/do/collect），同上
         :param start_number: url为空时，该参数必填
         :return: html的text格式
         """
-        if not user_id:
-            return None
         if not url:
+            if not user_id:
+                return None
             url = f"https://movie.douban.com/people/{user_id}/{media_status}?start={start_number}&sort=time&rating=all&filter=all&mode=grid"
         try:
             res = self.req.get_res(url=url, headers=self.__headers, cookies=self.__cookie)
@@ -210,6 +213,51 @@ class DouBan:
         except Exception as err:
             log.error(f"【RUN】获取{url}页面失败:{format(err)}")
             return None
+
+    def get_douban_hot_json(self, mtype='movie', nums=20):
+        data = {
+            'type': mtype,
+            'tag': '热门',
+            'sort': 'recommend',
+            'page_limit': nums,
+            'page_start': 0
+        }
+        url = 'https://movie.douban.com/j/search_subjects?' + urlencode(data)
+        try:
+            res = self.req.get_res(url=url, headers=self.__headers, cookies=self.__cookie)
+            if res.status_code == 200:
+                return res.text
+        except Exception as e:
+            print(str(e))
+            return None
+        return None
+
+    def get_douban_new_json(self, mtype='movie', nums=20):
+        if mtype == "movie":
+            data = {
+                'type': 'movie',
+                'tag': '最新',
+                'page_limit': nums,
+                'page_start': 0
+            }
+        else:
+            data = {
+                'type': 'tv',
+                'tag': '热门',
+                'sort': 'time',
+                'page_limit': nums,
+                'page_start': 0
+            }
+
+        url = 'https://movie.douban.com/j/search_subjects?' + urlencode(data)
+        try:
+            res = self.req.get_res(url=url, headers=self.__headers, cookies=self.__cookie)
+            if res.status_code == 200:
+                return res.text
+        except Exception as e:
+            print(str(e))
+            return None
+        return None
 
     def __get_movie_dict(self, soup):
         # 标签名不加任何修饰，类名前加点，id名前加#

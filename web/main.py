@@ -29,6 +29,7 @@ from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_
     delete_transfer_log_by_id
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
 from version import APP_VERSION
+from web.backend.douban_hot import DoubanHot
 from web.backend.emby import Emby, EmbyEvent
 from web.backend.search_torrents import search_medias_for_web
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
@@ -245,40 +246,59 @@ def create_flask_app(config):
     @login_required
     def recommend():
         RecommendType = request.args.get("t")
-        CurrentPage = request.args.get("page")
-        if not CurrentPage:
-            CurrentPage = 1
-        else:
-            CurrentPage = int(CurrentPage)
+        if RecommendType in ['hm', 'ht', 'nm', 'nt']:
+            CurrentPage = request.args.get("page")
+            if not CurrentPage:
+                CurrentPage = 1
+            else:
+                CurrentPage = int(CurrentPage)
 
-        if CurrentPage < 5:
-            StartPage = 1
-            EndPage = 6
+            if CurrentPage < 5:
+                StartPage = 1
+                EndPage = 6
+            else:
+                StartPage = CurrentPage - 2
+                EndPage = CurrentPage + 3
+            PageRange = range(StartPage, EndPage)
         else:
-            StartPage = CurrentPage - 2
-            EndPage = CurrentPage + 3
-        PageRange = range(StartPage, EndPage)
+            PageRange = None
+            CurrentPage = 0
         if RecommendType == "hm":
-            # 热门电影
+            # TMDB热门电影
             res_list = Media().get_tmdb_hot_movies(CurrentPage)
         elif RecommendType == "ht":
-            # 热门电影
+            # TMDB热门电视剧
             res_list = Media().get_tmdb_hot_tvs(CurrentPage)
         elif RecommendType == "nm":
-            # 热门电影
+            # TMDB最新电影
             res_list = Media().get_tmdb_new_movies(CurrentPage)
         elif RecommendType == "nt":
-            # 热门电影
+            # TMDB最新电视剧
             res_list = Media().get_tmdb_new_tvs(CurrentPage)
+        elif RecommendType == "dbom":
+            # 豆瓣正在上映
+            res_list = DoubanHot().get_douban_online_movie()
+        elif RecommendType == "dbhm":
+            # 豆瓣热门电影
+            res_list = DoubanHot().get_douban_hot_movie()
+        elif RecommendType == "dbht":
+            # 豆瓣热门电视剧
+            res_list = DoubanHot().get_douban_hot_tv()
+        elif RecommendType == "dbnm":
+            # 豆瓣最新电影
+            res_list = DoubanHot().get_douban_new_movie()
+        elif RecommendType == "dbnt":
+            # 豆瓣最新电视剧
+            res_list = DoubanHot().get_douban_new_tv()
         else:
             res_list = []
 
         Items = []
-        TvKeys = get_tv_keys()
-        MovieKeys = get_movie_keys()
+        TvKeys = ["%s" % key[0] for key in get_tv_keys()]
+        MovieKeys = ["%s" % key[0] for key in get_movie_keys()]
         for res in res_list:
             rid = res.get('id')
-            if RecommendType in ['hm', 'nm']:
+            if RecommendType in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm']:
                 title = res.get('title')
                 if title in MovieKeys:
                     fav = 1
@@ -293,10 +313,14 @@ def create_flask_app(config):
                     fav = 0
                 date = res.get('first_air_date')
             image = res.get('poster_path')
+            if RecommendType in ['hm', 'nm', 'ht', 'nt']:
+                image = "https://image.tmdb.org/t/p/original/%s" % image
+            else:
+                image = "https://images.weserv.nl/?url=%s" % image
             vote = res.get('vote_average')
             overview = res.get('overview')
             item = {'id': rid, 'title': title, 'fav': fav, 'date': date, 'vote': vote,
-                    'image': "https://image.tmdb.org/t/p/original/%s" % image, 'overview': overview}
+                    'image': image, 'overview': overview}
             Items.append(item)
 
         return render_template("recommend.html",
@@ -667,7 +691,7 @@ def create_flask_app(config):
                 name = data.get("name")
                 mtype = data.get("type")
                 if name and mtype:
-                    if mtype in ['nm', 'hm']:
+                    if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm']:
                         insert_movie_key(name)
                     else:
                         insert_tv_key(name)

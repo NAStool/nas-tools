@@ -17,15 +17,15 @@ RMT_MEDIAEXT = ['.mp4', '.mkv', '.ts', '.iso', '.rmvb', '.avi', '.mov', '.mpeg',
 RMT_SUBEXT = ['.srt', '.ass', '.ssa']
 # 剩余多少磁盘空间时不再转移，单位GB
 RMT_DISKFREESIZE = 10
-# PT删除检查时间间隔，默认10分钟
-AUTO_REMOVE_TORRENTS_INTERVAL = 600
-# PT转移文件检查时间间隔，默认5分钟
+# PT删种检查时间间隔
+AUTO_REMOVE_TORRENTS_INTERVAL = 1700
+# PT转移文件检查时间间隔，
 PT_TRANSFER_INTERVAL = 300
-# TMDB信息缓存定时保存时间，默认10分钟
+# TMDB信息缓存定时保存时间
 METAINFO_SAVE_INTERVAL = 600
-# 配置文件定时生效时间，默认10分钟
+# 配置文件定时生效时间
 RELOAD_CONFIG_INTERVAL = 600
-# SYNC目录监控聚合转移时间，默认5分钟
+# SYNC目录监控聚合转移时间
 SYNC_TRANSFER_INTERVAL = 300
 # fanart的api，用于拉取封面图片
 FANART_MOVIE_API_URL = 'http://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'

@@ -146,10 +146,14 @@ class MetaInfo(object):
                 self.cn_name = re.sub(r'%s' % self._name_nostring_re, '', self.cn_name,
                                       flags=re.IGNORECASE).strip()
                 self.cn_name = re.sub(r'\s+', ' ', self.cn_name)
+                if self.cn_name.isdigit() and self.cn_name == str(self.begin_episode):
+                    self.cn_name = None
             if self.en_name:
                 self.en_name = re.sub(r'%s' % self._name_nostring_re, '', self.en_name,
                                       flags=re.IGNORECASE).strip()
                 self.en_name = re.sub(r'\s+', ' ', self.en_name)
+                if self.en_name.isdigit() and self.en_name == str(self.begin_episode):
+                    self.en_name = None
         else:
             # 调用第三方模块识别动漫
             try:
