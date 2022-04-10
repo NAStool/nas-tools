@@ -28,10 +28,16 @@ def run_scheduler():
 
             # PT站签到
             ptsignin_cron = str(pt.get('ptsignin_cron'))
-            if ptsignin_cron and ptsignin_cron.find(':') != -1:
-                SCHEDULER.add_job(PTSignin().run_schedule, "cron",
-                                  hour=int(ptsignin_cron.split(":")[0]),
-                                  minute=int(ptsignin_cron.split(":")[1]))
+            if ptsignin_cron:
+                if ptsignin_cron.find(':') != -1:
+                    SCHEDULER.add_job(PTSignin().run_schedule,
+                                      "cron",
+                                      hour=int(ptsignin_cron.split(":")[0]),
+                                      minute=int(ptsignin_cron.split(":")[1]))
+                else:
+                    SCHEDULER.add_job(PTSignin().run_schedule,
+                                      "interval",
+                                      seconds=float(ptsignin_cron) * 3600)
                 log.info("【RUN】scheduler.pt_signin启动．．．")
 
             # PT文件转移
@@ -51,7 +57,7 @@ def run_scheduler():
         if douban:
             douban_interval = douban.get('interval')
             if douban_interval:
-                SCHEDULER.add_job(DoubanSync().run_schedule, 'interval', seconds=int(douban_interval)*3600)
+                SCHEDULER.add_job(DoubanSync().run_schedule, 'interval', seconds=float(douban_interval) * 3600)
                 log.info("【RUN】scheduler.douban_sync启动...")
 
         # 配置定时生效

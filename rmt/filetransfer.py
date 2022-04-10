@@ -438,8 +438,6 @@ class FileTransfer:
                 # 集集合
                 message_medias[media.get_title_string()]['episodes'] = list(
                     set(message_medias[media.get_title_string()].get('episodes')).union(set(media.get_episode_list())))
-            # 文件转移完成
-            log.info("【RMT】%s 转移完成" % file_name)
         # 循环结束
         # 统计完成情况，发送通知
         if message_medias:
@@ -687,6 +685,51 @@ class FileTransfer:
                     return os.path.join(dest, "%s (%s)" % (title, year), season_str)
                 else:
                     return os.path.join(dest, "%s" % title, season_str)
+
+    # 如果是电视剧：根据标题、年份、季、总集数，查询媒体库中缺少哪几集，返回集的数组
+    # 如果是电影，只判断媒体库目录是否存在
+    def get_no_exists_medias(self, meta_info, season=None, total_num=None):
+        # 电影
+        if meta_info.type == MediaType.MOVIE:
+            dest_path = self.__movie_path
+            if self.__movie_category_flag:
+                dest_path = os.path.join(dest_path, meta_info.category, meta_info.get_title_string())
+            else:
+                dest_path = os.path.join(dest_path, meta_info.get_title_string())
+            files = get_dir_files_by_ext(dest_path, RMT_MEDIAEXT)
+            # 判断精选
+            fav_path = os.path.join(self.__movie_path, RMT_FAVTYPE, meta_info.get_title_string())
+            fav_files = get_dir_files_by_ext(fav_path, RMT_MEDIAEXT)
+            if len(files) > 0 or len(fav_files) > 0:
+                return [{'title': meta_info.title, 'year': meta_info.year}]
+            else:
+                return []
+        # 电视剧
+        else:
+            if not season or not total_num:
+                return []
+            if meta_info.type == MediaType.ANIME:
+                dest_path = self.__anime_path
+                if self.__anime_category_flag:
+                    dest_path = os.path.join(dest_path, meta_info.category, meta_info.get_title_string(), "Season %s" % season)
+            else:
+                dest_path = self.__tv_path
+                if self.__tv_category_flag:
+                    dest_path = os.path.join(dest_path, meta_info.category, meta_info.get_title_string(), "Season %s" % season)
+            # 目录不存在
+            total_episodes = [episode for episode in range(1, total_num + 1)]
+            if not os.path.exists(dest_path):
+                return total_episodes
+            # 查询出所有文件，把集解析出来
+            exists_episodes = []
+            files = get_dir_files_by_ext(dest_path, RMT_MEDIAEXT)
+            for file in files:
+                episode_re = re.search(r'EP?(\d{2,3})', os.path.basename(file), re.IGNORECASE)
+                if episode_re:
+                    episode = int(episode_re.group(1))
+                    if episode not in exists_episodes:
+                        exists_episodes.append(episode)
+            return list(set(total_episodes).difference(set(exists_episodes)))
 
 
 if __name__ == "__main__":

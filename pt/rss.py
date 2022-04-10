@@ -1,7 +1,10 @@
 import re
+import requests
+from xml.dom.minidom import parse
+import xml.dom.minidom
 import log
 from config import Config
-from utils.functions import parse_rssxml, is_chinese
+from utils.functions import is_chinese
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
@@ -56,6 +59,7 @@ class Rss:
         # 代码站点配置优先级的序号
         order_seq = 100
         rss_download_torrents = []
+        no_exists = []
         for rss_job, job_info in self.__sites.items():
             order_seq -= 1
             # 读取子配置
@@ -69,7 +73,7 @@ class Rss:
 
             # 开始下载RSS
             log.info("【RSS】正在处理：%s" % rss_job)
-            rss_result = parse_rssxml(rssurl)
+            rss_result = self.parse_rssxml(rssurl)
             if len(rss_result) == 0:
                 log.warn("【RSS】%s 未下载到数据" % rss_job)
                 continue
@@ -136,6 +140,12 @@ class Rss:
                             continue
                     # 插入数据库
                     insert_rss_torrents(media_info)
+                    # 检查是否存在，电视剧返回不存在的集清单
+                    exist_flag, no_exists = self.downloader.check_exists_medias(in_from=SearchType.RSS,
+                                                                                content=media_info.title,
+                                                                                meta_info=media_info)
+                    if exist_flag:
+                        continue
                     # 返回对象
                     media_info.set_torrent_info(site_order=order_seq,
                                                 site=rss_job,
@@ -151,7 +161,7 @@ class Rss:
             log.info("【RSS】%s 处理结束，匹配到 %s 个有效资源" % (rss_job, res_num))
         log.info("【RSS】所有RSS处理结束，共 %s 个有效资源" % len(rss_download_torrents))
         # 去重择优后开始添加下载
-        download_medias = self.downloader.check_and_add_pt(SearchType.RSS, rss_download_torrents)
+        download_medias = self.downloader.check_and_add_pt(SearchType.RSS, rss_download_torrents, no_exists)
         log.info("【RSS】实际下载了 %s 个资源" % len(download_medias))
 
     @staticmethod
@@ -186,3 +196,63 @@ class Rss:
                 if str(key).strip() == str(media_info.year):
                     return True
         return False
+
+    # 解析RSS的XML，返回标题及URL
+    @staticmethod
+    def parse_rssxml(url):
+        ret_array = []
+        if not url:
+            return []
+        try:
+            ret = requests.get(url, timeout=30)
+        except Exception as e2:
+            print(str(e2))
+            return []
+        if ret:
+            ret_xml = ret.text
+            try:
+                # 解析XML
+                dom_tree = xml.dom.minidom.parseString(ret_xml)
+                rootNode = dom_tree.documentElement
+                items = rootNode.getElementsByTagName("item")
+                for item in items:
+                    try:
+                        # 标题
+                        title = ""
+                        tagNames = item.getElementsByTagName("title")
+                        if tagNames:
+                            firstChild = tagNames[0].firstChild
+                            if firstChild:
+                                title = firstChild.data
+                        if not title:
+                            continue
+                        # 种子链接
+                        enclosure = ""
+                        # 大小
+                        size = 0
+                        tagNames = item.getElementsByTagName("enclosure")
+                        if tagNames:
+                            enclosure = tagNames[0].getAttribute("url")
+                            size = tagNames[0].getAttribute("length")
+                        if not enclosure:
+                            continue
+                        if size and size.isdigit():
+                            size = int(size)
+                        else:
+                            size = 0
+                        # 描述
+                        description = ""
+                        tagNames = item.getElementsByTagName("description")
+                        if tagNames:
+                            firstChild = tagNames[0].firstChild
+                            if firstChild:
+                                description = firstChild.data
+                        tmp_dict = {'title': title, 'enclosure': enclosure, 'size': size, 'description': description}
+                        ret_array.append(tmp_dict)
+                    except Exception as e1:
+                        print(str(e1))
+                        continue
+            except Exception as e2:
+                print(str(e2))
+                return ret_array
+        return ret_array

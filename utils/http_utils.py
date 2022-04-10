@@ -1,96 +1,73 @@
-# -*- coding: utf-8 -*-
-# @Author  : Qliangw
-# @Time    : 2022/3/1 21:05
-# @Function: http请求工具
-
-import datetime
-import random
-import time
-
 import requests
 import urllib3
+
+from config import DEFAULT_HEADERS
 
 
 class RequestUtils:
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    __pre_request_time = None
+    __headers = None
+    __cookies = None
 
-    def __init__(self, request_interval_mode=False):
-        self.request_interval_mode = request_interval_mode
+    def __init__(self, headers, cookies):
+        if headers:
+            if isinstance(headers, str):
+                self.__headers = {"User-Agent": f"{headers}"}
+            else:
+                self.__headers = headers
+        else:
+            self.__headers = DEFAULT_HEADERS
 
-    def check_request(self):
-        if not self.request_interval_mode:
-            return
-        """
-        todo 对不同domain做不同配置
-        检测每次请求的间隔，如果频率太快则休息，休息时间尽量无规律
-        :return:
-        """
-        if self.__pre_request_time is None:
-            self.__pre_request_time = datetime.datetime.now()
-            return
-        during_time = datetime.datetime.now() - self.__pre_request_time
-        ms = during_time.microseconds / 1000
-        # 至少间隔1秒，随机是为了无规律
-        if ms < random.randint(1000, 5000):
-            min_sleep_secs = 1
-            # 随机休眠0.5-5秒，扣除间隔影响，避免休眠太久
-            max_sleep_secs = 10.0 - (ms / 1000)
-            # 避免间隔太久随机出错
-            if max_sleep_secs <= min_sleep_secs:
-                max_sleep_secs = min_sleep_secs * 2
-            sleep_secs = random.uniform(min_sleep_secs, max_sleep_secs)
-            time.sleep(sleep_secs)
-        self.__pre_request_time = datetime.datetime.now()
+        if cookies:
+            if isinstance(cookies, str):
+                self.__cookies = self.cookie_parse(cookies)
+            else:
+                self.__cookies = cookies
 
-    def post(self, url, params, headers={}, json={}):
-        """
-        post 请求
-
-        :param url:
-        :param params:
-        :param headers:
-        :param json:
-        :return:
-        """
+    def post(self, url, params, json=None):
+        if json is None:
+            json = {}
         i = 0
         while i < 3:
             try:
-                self.check_request()
-                r = requests.post(url, data=params,
-                                  verify=False, headers=headers, json=json)
-                # return str(r.content, 'UTF-8')
+                r = requests.post(url, data=params, verify=False, headers=self.__headers, json=json)
                 return r
             except requests.exceptions.RequestException:
                 i += 1
 
-    def get(self, url, params=None, headers=None):
+    def get(self, url, params=None):
         i = 0
         while i < 3:
             try:
-                self.check_request()
-                r = requests.get(url, verify=False, headers=headers, params=params, timeout=10)
+                r = requests.get(url, verify=False, headers=self.__headers, params=params, timeout=10)
                 return str(r.content, 'UTF-8')
             except requests.exceptions.RequestException:
                 i += 1
 
-    def get_res(self, url, params=None, headers={}, cookies=None):
+    def get_res(self, url, params=None):
         i = 0
         while i < 3:
             try:
-                self.check_request()
-                return requests.get(url, params=params, verify=False, headers=headers, cookies=cookies, timeout=10)
+                return requests.get(url, params=params, verify=False, headers=self.__headers, cookies=self.__cookies, timeout=10)
             except requests.exceptions.RequestException as e:
                 print(e)
                 i += 1
 
-    def post_res(self, url, params=None, headers={}, cookies=None, allow_redirects=True):
+    def post_res(self, url, params=None, allow_redirects=True):
         i = 0
         while i < 3:
             try:
-                self.check_request()
-                return requests.post(url, params=params, verify=False, headers=headers, cookies=cookies,
+                return requests.post(url, params=params, verify=False, headers=self.__headers, cookies=self.__cookies,
                                      allow_redirects=allow_redirects)
             except requests.exceptions.RequestException as e:
                 print(e)
                 i += 1
+
+    @staticmethod
+    def cookie_parse(cookies_str):
+        cookie_dict = {}
+        cookies = cookies_str.split(';')
+        for cookie in cookies:
+            cstr = cookie.split('=')
+            cookie_dict[cstr[0]] = cstr[1]
+        return cookie_dict

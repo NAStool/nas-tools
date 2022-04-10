@@ -71,16 +71,16 @@ class MetaInfo(object):
     _continue_flag = True
     _unknown_name_str = ""
     # 正则式区
-    _season_re = r"S(\d{2})"
-    _episode_re = r"EP?(\d{2})"
+    _season_re = r"S(\d{2})|^S(\d{1,2})"
+    _episode_re = r"EP?(\d{2,3})|^EP?(\d{1,3})"
     _part_re = r"(^PART[\s.]*[1-9]?|^CD[\s.]*[1-9]?|^DVD[\s.]*[1-9]?|^DISK[\s.]*[1-9]?|^DISC[\s.]*[1-9]?)"
     _resources_type_re = r"^BLURAY|^REMUX|^HDTV|^HDDVD|^WEBRIP|^DVDRIP|^BDRIP|^UHD|^SDR|^HDR|^DOLBY|^BLU|^WEB|^BD"
     _name_no_begin_re = r"^\[.+?]"
     _name_se_words = ['共', '第', '季', '集', '话', '話']
-    _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|NETFLIX|IMAX|^CHC" \
+    _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|NETFLIX|IMAX|^CHC|^3D|\s+3D|^BBC" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+季" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+[集话話]" \
-                        r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|EP?\d{2}\s*-\s*EP?\d{2}|EP?\d{2}" \
+                        r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|\s+S\d{1,2}|EP?\d{2}\s*-\s*EP?\d{2}|EP?\d{2,3}|\s+EP?\d{1,3}" \
                         r"|BLU-?RAY|REMUX|HDTV|HDDVD|WEBRIP|DVDRIP|UHD|WEB|SDR|HDR|DOLBY|TRUEHD|BDRIP|BD" \
                         r"|[HX]264|[HX]265|AVC|AAC|DTS\d.\d|HEVC|\d{3,4}[PI]" \
                         r"|TV|Series|Movie|Animations|XXX" \
@@ -142,17 +142,18 @@ class MetaInfo(object):
             if not self.type:
                 self.type = MediaType.MOVIE
             # 去掉名字中不需要的干扰字符
+            # 过短的纯数字不要
             if self.cn_name:
                 self.cn_name = re.sub(r'%s' % self._name_nostring_re, '', self.cn_name,
                                       flags=re.IGNORECASE).strip()
                 self.cn_name = re.sub(r'\s+', ' ', self.cn_name)
-                if self.cn_name.isdigit() and self.cn_name == str(self.begin_episode):
+                if self.cn_name.isdigit() and (self.cn_name == str(self.begin_episode) or len(self.cn_name) < 3):
                     self.cn_name = None
             if self.en_name:
                 self.en_name = re.sub(r'%s' % self._name_nostring_re, '', self.en_name,
                                       flags=re.IGNORECASE).strip()
                 self.en_name = re.sub(r'\s+', ' ', self.en_name)
-                if self.en_name.isdigit() and self.en_name == str(self.begin_episode):
+                if self.en_name.isdigit() and (self.en_name == str(self.begin_episode) or len(self.en_name) < 3):
                     self.en_name = None
         else:
             # 调用第三方模块识别动漫
@@ -343,6 +344,11 @@ class MetaInfo(object):
         re_res = re.findall(r"%s" % self._season_re, token, re.IGNORECASE)
         if re_res:
             for se in re_res:
+                if isinstance(se, tuple):
+                    if se[0]:
+                        se = se[0]
+                    else:
+                        se = se[1]
                 if not se:
                     continue
                 if not se.isdigit():
@@ -374,6 +380,11 @@ class MetaInfo(object):
         re_res = re.findall(r"%s" % self._episode_re, token, re.IGNORECASE)
         if re_res:
             for se in re_res:
+                if isinstance(se, tuple):
+                    if se[0]:
+                        se = se[0]
+                    else:
+                        se = se[1]
                 if not se:
                     continue
                 if not se.isdigit():

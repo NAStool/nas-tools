@@ -30,6 +30,9 @@ class DoubanHot:
         self.__soup = self.douban.get_html_soup(url="https://movie.douban.com/")
         self.__online_time = datetime.now()
 
+    def init_config(self):
+        pass
+
     def get_douban_online_movie(self):
         if not self.__online_movies or (datetime.now() - self.__online_time).days >= 0.5:
             self.__online_movies = self.refresh_online_movie()

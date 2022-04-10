@@ -136,7 +136,7 @@ class Emby:
     # 根据标题和年份，检查电影是否在Emby中存在，存在则返回列表
     def get_emby_movies(self, title, year=None):
         if not self.__host or not self.__apikey:
-            return []
+            return None
         req_url = "%semby/Items?IncludeItemTypes=Movie&Fields=ProductionYear&StartIndex=0&Recursive=true&SearchTerm=%s&Limit=10&IncludeSearchTypes=false&api_key=%s" % (
             self.__host, title, self.__apikey)
         try:
@@ -181,37 +181,13 @@ class Emby:
             log.error("【EMBY】连接Shows/{Id}/Episodes出错：" + str(e))
             return []
 
-    # 判断Emby是否已存在
-    def check_emby_exists(self, item):
-        if item.type == MediaType.MOVIE:
-            exists_movies = self.get_emby_movies(item.title, item.year)
-            if exists_movies:
-                return True
-        else:
-            seasons = item.get_season_list()
-            for season in seasons:
-                exists_episodes = self.get_emby_tv_episodes(item.title, item.year, season)
-                if exists_episodes:
-                    if not item.get_episode_list():
-                        # 这一季本地存在，继续检查下一季
-                        continue
-                    elif set(exists_episodes).issuperset(set(item.get_episode_list())):
-                        # 这一季种子中的所有集本地存在，继续检查下一季
-                        continue
-                    # 这一季不符合以上两个条件，以不存在返回
-                    return False
-                else:
-                    # 这一季不存在
-                    return False
-            # 所有季检查完成，没有返回的，即都存在
-            return True
-        return False
-
     # 根据标题、年份、季、总集数，查询Emby中缺少哪几集
-    def get_emby_no_exists_episodes(self, title, year, season, total_num):
-        exists_episodes = self.get_emby_tv_episodes(title, year, season)
+    def get_emby_no_exists_episodes(self, meta_info, season, total_num):
+        if not self.__host or not self.__apikey:
+            return None
+        exists_episodes = self.get_emby_tv_episodes(meta_info.title, meta_info.year, season)
         total_episodes = [episode for episode in range(1, total_num + 1)]
-        return set(total_episodes).difference(set(exists_episodes))
+        return list(set(total_episodes).difference(set(exists_episodes)))
 
     # 根据ItemId从Emby查询图片地址
     def get_emby_image_by_id(self, item_id, image_type):

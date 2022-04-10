@@ -23,6 +23,7 @@ app:
   # 注意本程序是不支持windows运行的，但可以通过远程挂载的方式挂载windows的共享目录做为媒体库，此时nas_sys设置为windows
   nas_sys: linux
   # TMDB API KEY，需要在https://www.themoviedb.org/申请，必须配置，否则无法识别媒体资源和重命名
+  # 以下地址需要网络能够正常访问：api.themoviedb.org、images.weserv.nl、webservice.fanart.tv
   rmt_tmdbkey:
   # TMDB匹配模式：normal、strict，normal模式下如使用文件名/种子名中的年份无法匹配到媒体信息，会去掉年份再匹配一次；strict模式则严格按文件中年份匹配
   # normal模式下会提升识别成功率，但也可能会导致误识别率增加；strict模式可以降低误识别率，但可能导致很多文件名/种子名中年份不正确的无法被识别（特别是剧集，需要是首播年份）
@@ -142,8 +143,10 @@ pt:
   pt_monitor: true
   # 是否只下载有中文媒体信息的种子（开了只会下themoviedb有中文描述的影视资源）
   rss_chinese: false
-  # PT站每日签到的时间，注意一定要加引号
-  ptsignin_cron: '8:00'
+  # PT站每日签到的间隔时间，单位小时，建议不要设置为24小时的整数倍，避免每天的签到时间一样
+  ptsignin_cron: 23.5
+  # PT站签到User Agent，可适当修改，以防止被识别为机器人签到
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"
   # PT做种时间，做种超过该时间则会自动删种（包括已下载的文件），单位是秒。如果是使用COPY模式，这个根据PT下载盘的大小配置，如果是使用LINK模式，这个可以不配，不配置或者配置为0则不启用删种功能
   pt_seeding_time:
   # RSS检查时间间隔，即每隔多长时间检查一下各PT站是否有资源更新，建议不要少于30分钟，单位时间为秒

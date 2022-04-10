@@ -16,13 +16,9 @@ from utils.types import MediaType
 
 class DouBan:
     req = None
-    __default_headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"}
     __users = []
-    __cookie = None
     __days = 0
     __types = []
-    __headers = None
 
     def __init__(self):
         self.init_config()
@@ -45,24 +41,18 @@ class DouBan:
                 self.__types = types.split(',')
             # headers
             user_agent = douban.get('user_agent')
-            if not user_agent:
-                self.__headers = self.__default_headers
-            else:
-                self.__headers = {"User-Agent": f"{user_agent}"}
-
-            self.req = RequestUtils(request_interval_mode=False)
             # Cookie
             cookie = douban.get('cookie')
             if not cookie:
                 try:
                     if self.req:
-                        res = self.req.get_res("https://www.douban.com/", headers=self.__headers)
+                        res = self.req.get_res("https://www.douban.com/")
                         if res:
                             cookies = res.cookies
                             cookie = requests.utils.dict_from_cookiejar(cookies)
-                            self.__cookie = cookie
                 except Exception as err:
                     log.warn(f"【DOUBAN】获取cookie失败:{format(err)}")
+            self.req = RequestUtils(headers=user_agent, cookies=cookie)
 
     def get_all_douban_movies(self):
         movie_list = []
@@ -200,7 +190,7 @@ class DouBan:
                 return None
             url = f"https://movie.douban.com/people/{user_id}/{media_status}?start={start_number}&sort=time&rating=all&filter=all&mode=grid"
         try:
-            res = self.req.get_res(url=url, headers=self.__headers, cookies=self.__cookie)
+            res = self.req.get_res(url=url)
             if res.status_code == 200:
                 res_text = res.text
                 if res_text.find('有异常请求从你的 IP 发出') != -1:
@@ -224,7 +214,7 @@ class DouBan:
         }
         url = 'https://movie.douban.com/j/search_subjects?' + urlencode(data)
         try:
-            res = self.req.get_res(url=url, headers=self.__headers, cookies=self.__cookie)
+            res = self.req.get_res(url=url)
             if res.status_code == 200:
                 return res.text
         except Exception as e:
@@ -251,7 +241,7 @@ class DouBan:
 
         url = 'https://movie.douban.com/j/search_subjects?' + urlencode(data)
         try:
-            res = self.req.get_res(url=url, headers=self.__headers, cookies=self.__cookie)
+            res = self.req.get_res(url=url)
             if res.status_code == 200:
                 return res.text
         except Exception as e:

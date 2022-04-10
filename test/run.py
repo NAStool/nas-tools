@@ -1,5 +1,6 @@
 import anitopy
 from pt.downloader import Downloader
+from pt.jackett import Jackett
 from pt.rss import Rss
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
@@ -63,5 +64,6 @@ if __name__ == "__main__":
     print(Rss().is_torrent_match(media_info, [], get_tv_keys()))
     print(MetaInfo('西部世界 第2集.mkv').__dict__)
     print(MetaInfo('1.mkv').__dict__)
+    print(MetaInfo('Percent.World.3D.2022.2160p.WEB-DL.H265.DDP5.1-LeagueWEB.mkv').__dict__)
     '''
-    print(MetaInfo('未来中国.mkv').__dict__)
+    Jackett().search_one_media("西部世界")

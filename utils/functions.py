@@ -10,10 +10,6 @@ import cn2an
 import requests
 import bisect
 import datetime
-from xml.dom.minidom import parse
-import xml.dom.minidom
-
-from utils.types import MediaType
 
 # 全局对象
 INSTANCES = {}
@@ -22,7 +18,7 @@ INSTANCES = {}
 # 单例模式注解
 def singleton(cls):
     # 单下划线的作用是这个变量只能在当前模块里访问,仅仅是一种提示作用
-    # 创建一个字典用来保存类的实例对象
+    # 创建字典用来保存类的实例对象
     global INSTANCES
 
     def _singleton(*args, **kwargs):
@@ -148,28 +144,6 @@ def get_dir_level1_medias(in_path, exts=""):
     return ret_list
 
 
-# cookie字符串解析成字典
-def cookieParse(cookies_str):
-    cookie_dict = {}
-    cookies = cookies_str.split(';')
-
-    for cookie in cookies:
-        cstr = cookie.split('=')
-        cookie_dict[cstr[0]] = cstr[1]
-
-    return cookie_dict
-
-
-# 生成HTTP请求头
-def generateHeader(url):
-    header = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:61.0) Gecko/20100101 Firefox/61.0',
-        'Accept-Language': 'zh-CN',
-        'Referer': url
-    }
-    return header
-
-
 # 计算目录剩余空间大小
 def get_free_space_gb(folder):
     if platform.system() == 'Windows':
@@ -200,140 +174,6 @@ def get_host_ip():
         return ip
     else:
         return ''
-
-
-# 解析RSS的XML，返回标题及URL
-def parse_rssxml(url):
-    ret_array = []
-    if not url:
-        return []
-    try:
-        ret = requests.get(url, timeout=30)
-    except Exception as e2:
-        print(str(e2))
-        return []
-    if ret:
-        ret_xml = ret.text
-        try:
-            # 解析XML
-            dom_tree = xml.dom.minidom.parseString(ret_xml)
-            rootNode = dom_tree.documentElement
-            items = rootNode.getElementsByTagName("item")
-            for item in items:
-                try:
-                    # 标题
-                    title = ""
-                    tagNames = item.getElementsByTagName("title")
-                    if tagNames:
-                        firstChild = tagNames[0].firstChild
-                        if firstChild:
-                            title = firstChild.data
-                    if not title:
-                        continue
-                    # 种子链接
-                    enclosure = ""
-                    # 大小
-                    size = 0
-                    tagNames = item.getElementsByTagName("enclosure")
-                    if tagNames:
-                        enclosure = tagNames[0].getAttribute("url")
-                        size = tagNames[0].getAttribute("length")
-                    if not enclosure:
-                        continue
-                    if size and size.isdigit():
-                        size = int(size)
-                    else:
-                        size = 0
-                    # 描述
-                    description = ""
-                    tagNames = item.getElementsByTagName("description")
-                    if tagNames:
-                        firstChild = tagNames[0].firstChild
-                        if firstChild:
-                            description = firstChild.data
-                    tmp_dict = {'title': title, 'enclosure': enclosure, 'size': size, 'description': description}
-                    ret_array.append(tmp_dict)
-                except Exception as e1:
-                    print(str(e1))
-                    continue
-        except Exception as e2:
-            print(str(e2))
-            return ret_array
-    return ret_array
-
-
-# 解析Jackett的XML，返回标题及URL等
-def parse_jackettxml(url):
-    ret_array = []
-    if not url:
-        return ret_array
-    try:
-        ret = requests.get(url, timeout=30)
-    except Exception as e2:
-        print(str(e2))
-        return []
-    if ret:
-        ret_xml = ret.text
-        try:
-            # 解析XML
-            dom_tree = xml.dom.minidom.parseString(ret_xml)
-            rootNode = dom_tree.documentElement
-            items = rootNode.getElementsByTagName("item")
-            for item in items:
-                try:
-                    # 标题
-                    title = ""
-                    tagNames = item.getElementsByTagName("title")
-                    if tagNames:
-                        firstChild = tagNames[0].firstChild
-                        if firstChild:
-                            title = firstChild.data
-                    if not title:
-                        continue
-                    # 种子链接
-                    enclosure = ""
-                    tagNames = item.getElementsByTagName("enclosure")
-                    if tagNames:
-                        enclosure = tagNames[0].getAttribute("url")
-                    if not enclosure:
-                        continue
-                    # 描述
-                    description = ""
-                    tagNames = item.getElementsByTagName("description")
-                    if tagNames:
-                        firstChild = tagNames[0].firstChild
-                        if firstChild:
-                            description = firstChild.data
-                    # 种子大小
-                    size = 0
-                    tagNames = item.getElementsByTagName("size")
-                    if tagNames:
-                        firstChild = tagNames[0].firstChild
-                        if firstChild:
-                            size = firstChild.data
-                    # 做种数
-                    seeders = 0
-                    # 下载数
-                    peers = 0
-                    torznab_attrs = item.getElementsByTagName("torznab:attr")
-                    for torznab_attr in torznab_attrs:
-                        name = torznab_attr.getAttribute('name')
-                        value = torznab_attr.getAttribute('value')
-                        if name == "seeders":
-                            seeders = value
-                        if name == "peers":
-                            peers = value
-
-                    tmp_dict = {'title': title, 'enclosure': enclosure, 'description': description, 'size': size,
-                                'seeders': seeders, 'peers': peers}
-                    ret_array.append(tmp_dict)
-                except Exception as e:
-                    print(str(e))
-                    continue
-        except Exception as e2:
-            print(str(e2))
-            return ret_array
-    return ret_array
 
 
 def is_media_files_tv(file_list):
@@ -398,64 +238,9 @@ def get_local_time(utc_time_str):
     return local_date_str
 
 
-# 从TMDB的季集信息中获得季的组
-def get_tmdb_seasons_info(seasons):
-    if not seasons:
-        return []
-    total_seasons = []
-    for season in seasons:
-        if season.get("season_number") != 0:
-            total_seasons.append(
-                {"season_number": season.get("season_number"), "episode_count": season.get("episode_count")})
-    return total_seasons
-
-
-# 从TMDB的季信息中获得具体季有多少集
-def get_tmdb_season_episodes_num(seasons, sea):
-    if not seasons:
-        return 0
-    for season in seasons:
-        if season.get("season_number") == sea:
-            return season.get("episode_count")
-    return 0
-
-
 # 字符串None输出为空
 def xstr(s):
     return s if s else ''
-
-
-# 种子去重，每一个名称、站点、资源类型 选一个做种人最多的显示
-def get_torrents_group_item(media_list):
-    if not media_list:
-        return []
-
-    # 排序函数
-    def get_sort_str(x):
-        return "%s%s%s%s" % (str(x.title).ljust(100, ' '),
-                             str(x.site).ljust(20, ' '),
-                             str(x.res_type).ljust(20, ' '),
-                             str(x.seeders).rjust(10, '0'))
-
-    # 匹配的资源中排序分组
-    media_list = sorted(media_list, key=lambda x: get_sort_str(x), reverse=True)
-    # 控重
-    can_download_list_item = []
-    can_download_list = []
-    # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
-    for t_item in media_list:
-        # 控重的主链是名称、节份、季、集
-        if t_item.type == MediaType.TV:
-            media_name = "%s%s%s%s" % (t_item.get_title_string(),
-                                       t_item.site,
-                                       t_item.get_resource_type_string(),
-                                       t_item.get_season_episode_string())
-        else:
-            media_name = "%s%s%s" % (t_item.get_title_string(), t_item.site, t_item.get_resource_type_string())
-        if media_name not in can_download_list:
-            can_download_list.append(media_name)
-            can_download_list_item.append(t_item)
-    return can_download_list_item
 
 
 # 判断是否不能处理的路径
