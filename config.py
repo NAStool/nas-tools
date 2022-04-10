@@ -20,6 +20,8 @@ DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"}
 # 剩余多少磁盘空间时不再转移，单位GB
 RMT_DISKFREESIZE = 10
+# 默认过滤的文件大小，200M
+RMT_MIN_FILESIZE = 200 * 1024 * 1024
 # PT删种检查时间间隔
 AUTO_REMOVE_TORRENTS_INTERVAL = 1700
 # PT转移文件检查时间间隔，

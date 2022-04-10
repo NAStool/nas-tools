@@ -72,6 +72,8 @@ media:
   # 此处配置分类的策略名，配置文件目录中需要有与策略名同名的.yaml配置文件，配置模板可参考default-category.yaml
   # 默认策略default-category分类设置可参考README.MD说明
   category: 'default-category'
+  # 转移到媒体库的最小文件大小，避免预告片/MV等影响识别，单位M
+  min_filesize: 200
 
 # 配置文件夹监控，文件夹内容发生变化时自动识别转移
 sync:

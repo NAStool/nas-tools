@@ -6,7 +6,7 @@ from threading import Lock
 from subprocess import call
 
 import log
-from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Config
+from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE
 from rmt.category import Category
 from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_level1_medias, is_invalid_path, \
     is_path_in_path
@@ -29,6 +29,7 @@ class FileTransfer:
     __anime_category_flag = None
     __sync_path = None
     __unknown_path = None
+    __min_filesize = RMT_MIN_FILESIZE
     media = None
     message = None
 
@@ -46,6 +47,9 @@ class FileTransfer:
             self.__tv_path = media.get('tv_path')
             self.__anime_path = media.get('anime_path')
             self.__unknown_path = media.get('unknown_path')
+            min_filesize = media.get('min_filesize')
+            if isinstance(min_filesize, int):
+                self.__min_filesize = min_filesize * 1024 * 1024
         self.__movie_category_flag = self.category.get_movie_category_flag()
         self.__tv_category_flag = self.category.get_tv_category_flag()
         self.__anime_category_flag = self.category.get_anime_category_flag()
@@ -269,7 +273,7 @@ class FileTransfer:
                 file_list = [in_path]
                 log.info("【RMT】当前为蓝光原盘文件夹：%s" % str(in_path))
             else:
-                file_list = get_dir_files_by_ext(in_path, RMT_MEDIAEXT)
+                file_list = get_dir_files_by_ext(in_path, RMT_MEDIAEXT, self.__min_filesize)
                 Media_FileNum = len(file_list)
                 log.debug("【RMT】文件清单：" + str(file_list))
                 if Media_FileNum == 0:

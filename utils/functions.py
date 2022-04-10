@@ -106,7 +106,7 @@ def system_exec_command(cmd, timeout=60):
 
 
 # 获得目录下的媒体文件列表List，按后缀过滤
-def get_dir_files_by_ext(in_path, exts=""):
+def get_dir_files_by_ext(in_path, exts="", filesize=0):
     ret_list = []
     if not os.path.exists(in_path):
         return []
@@ -116,11 +116,13 @@ def get_dir_files_by_ext(in_path, exts=""):
                 ext = os.path.splitext(file)[-1]
                 if ext.lower() in exts:
                     cur_path = os.path.join(root, file)
-                    if cur_path not in ret_list:
+                    file_size = os.path.getsize(cur_path)
+                    if cur_path not in ret_list and file_size > filesize:
                         ret_list.append(cur_path)
     else:
         ext = os.path.splitext(in_path)[-1]
-        if ext.lower() in exts:
+        file_size = os.path.getsize(in_path)
+        if ext.lower() in exts and file_size > filesize:
             if in_path not in ret_list:
                 ret_list.append(in_path)
     return ret_list

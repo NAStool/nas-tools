@@ -92,7 +92,7 @@ class MetaInfo(object):
     _resources_pix_re = r"^[SBUHD]*(\d{3,4}[PIX]+)"
     _resources_pix_re2 = r"(^[248]+K)"
     _subtitle_season_re = r"[第\s]+([0-9一二三四五六七八九十\-]+)\s*季"
-    _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十\-]+)\s*集"
+    _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十\-]+)\s*[集话話]"
     _anime_no_words = ['CHS&CHT']
 
     def __init__(self, title, subtitle=None, anime=False):
@@ -434,7 +434,7 @@ class MetaInfo(object):
                 self._continue_flag = False
 
     def __init_subtitle(self, title_text):
-        if re.search(r'[第季集]', title_text, re.IGNORECASE):
+        if re.search(r'[第季集话話]', title_text, re.IGNORECASE):
             # 季
             season_str = re.search(r'%s' % self._subtitle_season_re, title_text, re.IGNORECASE)
             if season_str:
