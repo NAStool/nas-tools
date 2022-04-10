@@ -144,6 +144,7 @@ class Downloader:
                 need_tv = need_tvs.get(need_title)
                 if not need_tv:
                     continue
+                index = 0
                 for tv in need_tv:
                     need_season = tv.get("season")
                     need_episodes = tv.get("episodes")
@@ -160,18 +161,14 @@ class Downloader:
                                 if set(item_episodes).issubset(set(need_episodes)):
                                     download_items.append(item)
                                     # 删除该季下已下载的集
-                                    index = 0
-                                    for need in need_tvs.get(need_title):
-                                        if need_season == need.get("season"):
-                                            need_episode = need.get("episodes")
-                                            left_episode = list(set(need_episode).difference(set(item_episodes)))
-                                            if left_episode:
-                                                need_tvs[need_title][index]["episodes"] = left_episode
-                                            else:
-                                                need_tvs[need_title].pop(index)
-                                        index += 1
+                                    left_episode = list(set(need_episodes).difference(set(item_episodes)))
+                                    if left_episode:
+                                        need_tvs[need_title][index]["episodes"] = left_episode
+                                    else:
+                                        need_tvs[need_title].pop(index)
                                     if not need_tvs.get(need_title):
                                         need_tvs.pop(need_title)
+                    index += 1
         else:
             # 电影
             for item in download_list:
