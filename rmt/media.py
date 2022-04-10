@@ -199,7 +199,7 @@ class Media:
     输出：类型，文件路径：媒体信息的List
     '''
 
-    def get_media_info_on_files(self, file_list, tmdb_info=None, media_type=None):
+    def get_media_info_on_files(self, file_list, tmdb_info=None, media_type=None, season=None):
         # 存储文件路径与媒体的对应关系
         return_media_infos = {}
         if not self.meta:
@@ -287,6 +287,8 @@ class Media:
                 else:
                     meta_info = MetaInfo(file_name)
                 meta_info.set_tmdb_info(tmdb_info)
+                if season and meta_info.type != MediaType.MOVIE:
+                    meta_info.begin_season = int(season)
             return_media_infos[file_path] = meta_info
 
         return return_media_infos

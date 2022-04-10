@@ -604,7 +604,7 @@ def create_flask_app(config):
                                AppVersion=APP_VERSION)
 
     # 事件响应
-    @App.route('/do', methods=['POST'])
+    @App.route('/do', methods=['POST', 'GET'])
     def do():
         cmd = request.form.get("cmd")
         data = json.loads(request.form.get("data"))
@@ -790,6 +790,7 @@ def create_flask_app(config):
                 title = data.get("title")
                 year = data.get("year")
                 mtype = data.get("type")
+                season = data.get("season")
                 if mtype == "TV":
                     media_type = MediaType.TV
                     if not dest_dir:
@@ -809,7 +810,8 @@ def create_flask_app(config):
                                                                    in_path=path,
                                                                    target_dir=dest_dir,
                                                                    tmdb_info=tmdb_info,
-                                                                   media_type=media_type)
+                                                                   media_type=media_type,
+                                                                   season=season)
                 if succ_flag:
                     if logid:
                         insert_transfer_blacklist(path)

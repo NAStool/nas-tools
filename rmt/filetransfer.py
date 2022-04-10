@@ -234,7 +234,8 @@ class FileTransfer:
                        in_path,
                        target_dir=None,
                        tmdb_info=None,
-                       media_type=None):
+                       media_type=None,
+                       season=None):
         if not in_path:
             log.error("【RMT】输入路径错误!")
             return False, "输入路径错误"
@@ -291,7 +292,7 @@ class FileTransfer:
             file_list = [in_path]
 
         # API检索出媒体信息，传入一个文件列表，得出每一个文件的名称，这里是当前目录下所有的文件了
-        Medias = self.media.get_media_info_on_files(file_list, tmdb_info, media_type)
+        Medias = self.media.get_media_info_on_files(file_list, tmdb_info, media_type, season)
         if not Medias:
             log.error("【RMT】检索媒体信息出错！")
             return False, "检索媒体信息出错"

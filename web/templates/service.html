@@ -369,10 +369,38 @@
                   <input type="text" id="rename_year" class="form-control">
                 </div>
               </div>
-              <div class="col-lg-12">
+              <div class="col-lg-6">
                 <div>
                   <label class="form-label">TMDB ID</label>
                   <input type="text" id="rename_tmdb" class="form-control">
+                </div>
+              </div>
+              <div class="col-lg-6" id="rename_season_div">
+                <div>
+                  <label class="form-label">季</label>
+                  <select class="form-select" id="rename_season">
+                    <option value="" selected>请选择</option>
+                    <option value="1">第1季</option>
+                    <option value="2">第2季</option>
+                    <option value="3">第3季</option>
+                    <option value="4">第4季</option>
+                    <option value="5">第5季</option>
+                    <option value="6">第6季</option>
+                    <option value="7">第7季</option>
+                    <option value="8">第8季</option>
+                    <option value="9">第9季</option>
+                    <option value="10">第10季</option>
+                    <option value="11">第11季</option>
+                    <option value="12">第12季</option>
+                    <option value="13">第13季</option>
+                    <option value="14">第14季</option>
+                    <option value="15">第15季</option>
+                    <option value="16">第16季</option>
+                    <option value="17">第17季</option>
+                    <option value="18">第18季</option>
+                    <option value="19">第19季</option>
+                    <option value="20">第20季</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -436,6 +464,13 @@
           for(var i=0; i<paths.length; i++){
             $("#rename_path").append("<option value='"+ paths[i][0] + "|" + paths[i][1] +"'>" + paths[i][0] + "</option>");
           }
+          type = $('input:radio[name=rename_type]:checked').val();
+          if(type == "MOV"){
+            $("#rename_season_div").hide();
+            $("#rename_season").val("");
+          }else{
+            $("#rename_season_div").show();
+          }
         });
       }
       //读取配置
@@ -491,6 +526,7 @@
         tmdb = $("#rename_tmdb").val();
         title = $("#rename_title").val();
         year = $("#rename_year").val();
+        season = $("#rename_season").val();
 
         if(path == ""){
           $("#rename_path").addClass("is-invalid");
@@ -522,7 +558,7 @@
           }
         }
         // 开始处理
-        var data = { "path": path, "type": type, "title": title, "year": year, "tmdb": tmdb};
+        var data = { "path": path, "type": type, "title": title, "year": year, "tmdb": tmdb, "season": season};
         $("#rename_btn").attr("disabled", true);
         $("#rename_btn").val("处理中...");
         $("#rename_retmsg").hide()
@@ -572,6 +608,16 @@
         $("#save_config_btn").click(function(){
             save_config();
         });
+        //单选框事件
+        $('input[type=radio][name=rename_type]').change(function() {
+          if (this.value == 'MOV') {
+              $("#rename_season_div").hide();
+              $("#rename_season").val("");
+          }
+          else {
+              $("#rename_season_div").show();
+          }
+       });
       });
     </script>
   </body>
