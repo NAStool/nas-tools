@@ -9,6 +9,10 @@ Docker：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
 TG交流：https://t.me/nastool_chat
 
+WIKI：https://github.com/jxxghp/nas-tools/wiki
+
+配置文件模板：https://github.com/jxxghp/nas-tools/blob/master/config/config.yaml
+
 ## 功能：
 ### 1、PT自动检索下载
 * PT站RSS订阅，配置想追的电影电视剧名称实现PT资源自动检索追新。
