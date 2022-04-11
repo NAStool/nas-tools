@@ -6,7 +6,6 @@ import xml.dom.minidom
 import requests
 import log
 from config import Config
-from utils.functions import get_keyword_from_string
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
@@ -48,15 +47,15 @@ class Jackett:
                 self.__indexers = [self.__indexers]
 
     # 检索一个Indexer
-    def seach_indexer(self, order_seq, index, search_word, key_word, s_num, e_num, year, whole_word=False):
-        if not index or not search_word or not key_word:
+    def seach_indexer(self, order_seq, index, key_word, s_num, e_num, year, whole_word=False):
+        if not index or not key_word:
             return None
         ret_array = []
         indexer_name = re.search(r'/indexers/([a-zA-Z0-9]+)/results/', index)
         if indexer_name:
             indexer_name = indexer_name.group(1)
         log.info("【JACKETT】开始检索Indexer：%s ..." % indexer_name)
-        api_url = "%sapi?apikey=%s&t=search&q=%s" % (index, self.__api_key, search_word)
+        api_url = "%sapi?apikey=%s&t=search&q=%s" % (index, self.__api_key, key_word)
         media_array = self.parse_jackettxml(api_url)
         if len(media_array) == 0:
             log.warn("【JACKETT】%s 未检索到资源" % indexer_name)
@@ -78,7 +77,7 @@ class Jackett:
                 continue
 
             # 识别种子名称
-            media_info = self.media.get_media_info(torrent_name, description)
+            media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
             if not media_info or not media_info.tmdb_info:
                 log.debug("【JACKETT】%s 未检索到媒体信息" % torrent_name)
                 continue
@@ -134,10 +133,6 @@ class Jackett:
         if not self.__api_key or not self.__indexers:
             log.error("【JACKETT】Jackett配置信息有误！")
             return []
-        if year:
-            search_word = "%s %s" % (key_word, year)
-        else:
-            search_word = key_word
         # 多线程检索
         log.info("【JACKETT】开始并行检索 %s，线程数：%s" % (key_word, len(self.__indexers)))
         executor = ThreadPoolExecutor(max_workers=len(self.__indexers))
@@ -145,8 +140,7 @@ class Jackett:
         order_seq = 100
         for index in self.__indexers:
             order_seq = order_seq - 1
-            task = executor.submit(self.seach_indexer, order_seq, index, search_word, key_word, s_num, e_num, year,
-                                   whole_word)
+            task = executor.submit(self.seach_indexer, order_seq, index, key_word, s_num, e_num, year, whole_word)
             all_task.append(task)
         ret_array = []
         for future in as_completed(all_task):
@@ -159,39 +153,40 @@ class Jackett:
     # 按关键字，检索排序去重后择优下载：content是搜索内容，total_num是电视剧的总集数
     # 名称完全匹配才会下载
     def search_one_media(self, content, in_from=SearchType.OT):
-        key_word, search_season, search_episode, search_year = get_keyword_from_string(content)
-        if not key_word:
+        if not content:
             log.info("【JACKETT】检索关键字有误！")
             return False
-
-        # 先识别关键字是什么电视或者电视剧，如果是电视据看下有多少季，每季有多少集
+        # 去掉查询中的电影或电视剧关键字
+        if re.search(r'^电视剧|\s+电视剧', content):
+            mtype = MediaType.TV
+        else:
+            mtype = None
+        content = re.sub(r'^电影|^电视剧|\s+电影|\s+电视剧', '', content)
+        # 识别媒体信息
         log.info("【JACKETT】正在识别 %s 的媒体信息..." % content)
-        meta_info = self.media.get_media_info(content)
-        if meta_info.tmdb_info:
+        media_info = self.media.get_media_info(title=content, mtype=mtype)
+        if media_info.tmdb_info:
             # 检查是否存在，电视剧返回不存在的集清单
             exist_flag, no_exists = self.downloader.check_exists_medias(in_from=in_from,
-                                                                        content=content,
-                                                                        meta_info=meta_info,
-                                                                        search_season=search_season,
-                                                                        search_episode=search_episode)
+                                                                        meta_info=media_info)
             if exist_flag is None:
                 return False
             elif exist_flag:
                 return True
         else:
             if in_from == SearchType.WX:
-                self.message.sendmsg("%s 无法查询到任何电影或者电视剧信息，请确认名称是否正确" % content)
-            log.info("【JACKETT】%s 无法查询到任何电影或者电视剧信息，请确认名称是否正确" % content)
+                self.message.sendmsg("%s 无法查询到任何电影或者电视剧信息，请确认名称是否正确" % media_info.get_title_string())
+            log.info("【JACKETT】%s 无法查询到任何电影或者电视剧信息，请确认名称是否正确" % media_info.get_title_string())
             return False
 
         # 开始真正搜索资源
         if in_from == SearchType.WX:
-            self.message.sendmsg("开始检索 %s ..." % content)
-        log.info("【JACKETT】开始检索 %s ..." % content)
-        media_list = self.search_medias_from_word(key_word=key_word,
-                                                  s_num=search_season,
-                                                  e_num=search_episode,
-                                                  year=search_year,
+            self.message.sendmsg("开始检索 %s%s ..." % (media_info.get_title_string(), media_info.get_season_episode_string()))
+        log.info("【JACKETT】开始检索 %s%s ..." % (media_info.get_title_string(), media_info.get_season_episode_string()))
+        media_list = self.search_medias_from_word(key_word=media_info.title,
+                                                  s_num=media_info.get_season_list(),
+                                                  e_num=media_info.get_episode_list(),
+                                                  year=media_info.year,
                                                   whole_word=True)
         if len(media_list) == 0:
             if in_from == SearchType.WX:

@@ -131,7 +131,7 @@ class Media:
         return tmdb_info
 
     # 只有名称信息，判别是电影还是电视剧并TMDB信息
-    def get_media_info(self, title, subtitle=None):
+    def get_media_info(self, title, subtitle=None, mtype=None):
         if not title:
             return None
         if not self.meta:
@@ -139,6 +139,8 @@ class Media:
         if not is_anime(title):
             # 常规识别
             meta_info = MetaInfo(title, subtitle=subtitle)
+            if mtype:
+                meta_info.type = mtype
             media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
             try:
                 lock.acquire()
@@ -151,16 +153,16 @@ class Media:
                             # 非严格模式去掉年份再查一遍
                             file_media_info = self.__search_tmdb(meta_info.get_name(), None, MediaType.TV)
                     else:
-                        # 不能确定是电视剧，先按电影查
+                        # 先按电影查
                         file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, MediaType.MOVIE)
-                        if not file_media_info:
-                            # 电影查不到再按电视剧查
+                        # 电影查不到，又没有指定类型时再按电视剧查
+                        if not file_media_info and not mtype:
                             file_media_info = self.__search_tmdb(meta_info.get_name(), meta_info.year, MediaType.TV)
+                        # 非严格模式去掉年份再查一遍， 先查电视剧（一般电视剧年份出错的概率高）
                         if meta_info.year and not file_media_info and self.__rmt_match_mode == MatchMode.NORMAL:
-                            # 非严格模式去掉年份再查一遍， 先查电视剧（一般电视剧年份出错的概率高）
                             file_media_info = self.__search_tmdb(meta_info.get_name(), None, MediaType.TV)
-                            if not file_media_info:
-                                # 不带年份查电影
+                            # 不带年份查电影
+                            if not file_media_info and not mtype:
                                 file_media_info = self.__search_tmdb(meta_info.get_name(), None, MediaType.MOVIE)
                     # 加入缓存
                     if file_media_info:
@@ -210,7 +212,7 @@ class Media:
         # 遍历每个文件，看得出来的名称是不是不一样，不一样的先搜索媒体信息
         for file_path in file_list:
             if not os.path.exists(file_path):
-                log.error("【META】%s 不存在！" % file_path)
+                log.warn("【META】%s 不存在" % file_path)
                 continue
             # 解析媒体名称
             # 先用自己的名称

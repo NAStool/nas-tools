@@ -57,9 +57,11 @@ class DoubanSync:
                 if not search_state or search_state[0][0] == "NEW":
                     seasons = media.get_season_list()
                     if len(seasons) == 1:
-                        search_str = "%s第%s季 %s" % (media.get_name(), seasons[0], media.year)
+                        search_str = "电视剧 %s 第%s季 %s" % (media.get_name(), seasons[0], media.year)
+                    elif media.type == MediaType.TV:
+                        search_str = "电视剧 %s %s" % (media.get_name(), media.year)
                     else:
-                        search_str = "%s %s" % (media.get_name(), media.year)
+                        search_str = "电影 %s %s" % (media.get_name(), media.year)
                     # 开始检索，传入总集数
                     search_result = self.jackett.search_one_media(content=search_str,
                                                                   in_from=SearchType.DB)

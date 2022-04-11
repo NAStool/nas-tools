@@ -29,16 +29,29 @@ def run_scheduler():
             # PT站签到
             ptsignin_cron = str(pt.get('ptsignin_cron'))
             if ptsignin_cron:
+                err_msg = None
                 if ptsignin_cron.find(':') != -1:
-                    SCHEDULER.add_job(PTSignin().run_schedule,
-                                      "cron",
-                                      hour=int(ptsignin_cron.split(":")[0]),
-                                      minute=int(ptsignin_cron.split(":")[1]))
+                    try:
+                        hour = int(ptsignin_cron.split(":")[0])
+                        minute = int(ptsignin_cron.split(":")[1])
+                        SCHEDULER.add_job(PTSignin().run_schedule,
+                                          "cron",
+                                          hour=hour,
+                                          minute=minute)
+                    except Exception as e:
+                        err_msg = str(e)
                 else:
-                    SCHEDULER.add_job(PTSignin().run_schedule,
-                                      "interval",
-                                      seconds=float(ptsignin_cron) * 3600)
-                log.info("【RUN】scheduler.pt_signin启动．．．")
+                    try:
+                        seconds = float(ptsignin_cron) * 3600
+                        SCHEDULER.add_job(PTSignin().run_schedule,
+                                          "interval",
+                                          seconds=seconds)
+                    except Exception as e:
+                        err_msg = str(e)
+                if err_msg:
+                    log.info("【RUN】scheduler.pt_signin启动失败：%s" % err_msg)
+                else:
+                    log.info("【RUN】scheduler.pt_signin启动...")
 
             # PT文件转移
             pt_monitor = pt.get('pt_monitor')

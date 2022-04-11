@@ -5,8 +5,6 @@ import socket
 import subprocess
 import time
 import platform
-
-import cn2an
 import requests
 import bisect
 import datetime
@@ -190,30 +188,6 @@ def is_media_files_tv(file_list):
             flag = True
             break
     return flag
-
-
-# 从检索关键字中拆分中年份、季、集
-def get_keyword_from_string(content):
-    # 稍微切一下剧集吧
-    season_num = None
-    episode_num = None
-    year = None
-    season_re = re.search(r"第\s*([0-9一二三四五六七八九十]+)\s*季", content, re.IGNORECASE)
-    episode_re = re.search(r"第\s*([0-9一二三四五六七八九十]+)\s*集", content, re.IGNORECASE)
-    year_re = re.search(r"[\s(]+(\d{4})[\s)]*", content)
-    if season_re:
-        season_num = int(cn2an.cn2an(season_re.group(1), mode='smart'))
-    if episode_re:
-        episode_num = int(cn2an.cn2an(episode_re.group(1), mode='smart'))
-        if episode_num and not season_num:
-            season_num = "1"
-    if year_re:
-        year = year_re.group(1)
-    key_word = re.sub(r'第\s*[0-9一二三四五六七八九十]+\s*季|第\s*[0-9一二三四五六七八九十]+\s*集|[\s(]+(\d{4})[\s)]*', '', content,
-                      flags=re.IGNORECASE).strip()
-    if not key_word:
-        key_word = year
-    return key_word, season_num, episode_num, year
 
 
 # 获取系统存储空间占用信息

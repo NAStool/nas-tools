@@ -97,7 +97,7 @@ class Rss:
                     log.info("【RSS】开始处理：%s" % torrent_name)
 
                     # 识别种子名称，开始检索TMDB
-                    media_info = self.media.get_media_info(torrent_name, description)
+                    media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
                     if not media_info or not media_info.tmdb_info:
                         continue
                     if self.__rss_chinese and not is_chinese(media_info.title):
@@ -142,7 +142,6 @@ class Rss:
                     insert_rss_torrents(media_info)
                     # 检查是否存在，电视剧返回不存在的集清单
                     exist_flag, no_exists = self.downloader.check_exists_medias(in_from=SearchType.RSS,
-                                                                                content=media_info.title,
                                                                                 meta_info=media_info)
                     if exist_flag:
                         continue

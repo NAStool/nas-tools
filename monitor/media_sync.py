@@ -139,55 +139,6 @@ class Sync(object):
 
             except Exception as e:
                 log.error("【SYNC】发生错误：%s" % str(e))
-        else:
-            try:
-                # 文件变化时上级文件夹也会变化
-                if not os.path.exists(event_path):
-                    return
-                # 不是监控目录下的目录不处理
-                is_monitor_file = False
-                for tpath in SYNC_DIR_CONFIG.keys():
-                    if is_path_in_path(tpath, event_path):
-                        is_monitor_file = True
-                        break
-                if not is_monitor_file:
-                    return
-                # 源目录本身或上级目录不处理
-                for tpath in SYNC_DIR_CONFIG.keys():
-                    if is_path_in_path(event_path, tpath):
-                        return
-                # 目的目录的子文件不处理
-                for tpath in SYNC_DIR_CONFIG.values():
-                    if is_path_in_path(tpath, event_path):
-                        return
-                # 媒体库目录及子目录不处理
-                if self.filetransfer.is_target_dir_path(event_path):
-                    return
-                # 回收站及隐藏的文件不处理
-                if is_invalid_path(event_path):
-                    return False
-                # 开始处理变化，新目录等10秒钟，让文件充分变化
-                log.debug("【SYNC】文件夹%s：%s" % (text, event_path))
-                if text == "创建":
-                    sleep(10)
-                try:
-                    lock.acquire()
-                    sync_item = self.__need_sync_paths.get(event_path)
-                    if sync_item:
-                        sync_len = len(sync_item.get('files'))
-                        file_len = len(get_dir_files_by_ext(event_path, RMT_MEDIAEXT))
-                        if sync_len >= file_len:
-                            # 该目录下所有的文件都发生了改变，发走
-                            ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
-                                                                            in_path=event_path,
-                                                                            target_dir=sync_item.get('target_dir'))
-                            if not ret:
-                                log.warn("【SYNC】%s转移失败：%s" % (event_path, ret_msg))
-                            self.__need_sync_paths.pop(event_path)
-                finally:
-                    lock.release()
-            except Exception as e:
-                log.error("【SYNC】发生错误：%s" % str(e))
 
     # 批量转移文件
     def transfer_mon_files(self, no_path=None):
@@ -201,8 +152,8 @@ class Sync(object):
                     log.info("【SYNC】开始转移监控目录文件...")
                     ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
                                                                     in_path=path,
-                                                                    target_dir=self.__need_sync_paths[path].get(
-                                                                        'target_dir'))
+                                                                    files=self.__need_sync_paths[path].get('files'),
+                                                                    target_dir=self.__need_sync_paths[path].get('target_dir'))
                     if not ret:
                         log.warn("【SYNC】%s转移失败：%s" % (path, ret_msg))
                 self.__need_sync_paths.pop(path)

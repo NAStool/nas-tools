@@ -232,13 +232,14 @@ class FileTransfer:
     def transfer_media(self,
                        in_from,
                        in_path,
+                       files=None,
                        target_dir=None,
                        tmdb_info=None,
                        media_type=None,
                        season=None):
         if not in_path:
-            log.error("【RMT】输入路径错误!")
-            return False, "输入路径错误"
+            log.error("【RMT】输入错误!")
+            return False, "输入错误"
 
         # 进到这里来的，可能是一个大目录，目录中有电影也有电视剧；也有可能是一个电视剧目录或者一个电影目录；也有可能是一个文件
         if in_from in DownloaderType:
@@ -246,50 +247,52 @@ class FileTransfer:
         else:
             rmt_mode = self.__sync_rmt_mode
 
-        in_path = in_path.replace('\\\\', '/').replace('\\', '/')
-        # 回收站及隐藏的文件不处理
-        if is_invalid_path(in_path):
-            return False, "回收站或者隐藏文件夹"
-
         log.info("【RMT】开始处理：%s" % in_path)
 
         bluray_disk_flag = False
-        if os.path.isdir(in_path):
+        if not files:
             # 如果传入的是个目录
-            if not os.path.exists(in_path):
-                log.error("【RMT】目录不存在：%s" % in_path)
-                return False, "目录不存在"
+            if os.path.isdir(in_path):
+                if not os.path.exists(in_path):
+                    log.error("【RMT】目录不存在：%s" % in_path)
+                    return False, "目录不存在"
+                # 回收站及隐藏的文件不处理
+                if is_invalid_path(in_path):
+                    return False, "回收站或者隐藏文件夹"
 
-            # 判断是不是原盘文件夹
-            if os.path.exists(os.path.join(in_path, "BDMV/index.bdmv")):
-                bluray_disk_flag = True
+                # 判断是不是原盘文件夹
+                if os.path.exists(os.path.join(in_path, "BDMV/index.bdmv")):
+                    bluray_disk_flag = True
 
-            # 处理蓝光原盘
-            if bluray_disk_flag:
-                if rmt_mode == RmtMode.LINK:
-                    log.warn("【RMT】硬链接下不支持蓝光原盘目录，不处理...")
-                    return False, "硬链接下不支持蓝光原盘目录"
-            # 开始处理里面的文件
-            if bluray_disk_flag:
-                file_list = [in_path]
-                log.info("【RMT】当前为蓝光原盘文件夹：%s" % str(in_path))
+                # 处理蓝光原盘
+                if bluray_disk_flag:
+                    if rmt_mode == RmtMode.LINK:
+                        log.warn("【RMT】硬链接下不支持蓝光原盘目录，不处理...")
+                        return False, "硬链接下不支持蓝光原盘目录"
+                # 开始处理里面的文件
+                if bluray_disk_flag:
+                    file_list = [in_path]
+                    log.info("【RMT】当前为蓝光原盘文件夹：%s" % str(in_path))
+                else:
+                    file_list = get_dir_files_by_ext(in_path, RMT_MEDIAEXT, self.__min_filesize)
+                    Media_FileNum = len(file_list)
+                    log.debug("【RMT】文件清单：" + str(file_list))
+                    if Media_FileNum == 0:
+                        log.warn("【RMT】目录下未找到媒体文件：%s" % in_path)
+                        return False, "目录下未找到媒体文件"
+            # 传入的是个文件
             else:
-                file_list = get_dir_files_by_ext(in_path, RMT_MEDIAEXT, self.__min_filesize)
-                Media_FileNum = len(file_list)
-                log.debug("【RMT】文件清单：" + str(file_list))
-                if Media_FileNum == 0:
-                    log.warn("【RMT】目录下未找到媒体文件：%s" % in_path)
-                    return False, "目录下未找到媒体文件"
+                if not os.path.exists(in_path):
+                    log.error("【RMT】文件不存在：%s" % in_path)
+                    return False, "文件不存在"
+                ext = os.path.splitext(in_path)[-1]
+                if ext.lower() not in RMT_MEDIAEXT:
+                    log.warn("【RMT】不支持的媒体文件格式，不处理：%s" % in_path)
+                    return False, "不支持的媒体文件格式"
+                file_list = [in_path]
         else:
-            # 如果传入的是个文件
-            if not os.path.exists(in_path):
-                log.error("【RMT】文件不存在：%s" % in_path)
-                return False, "文件不存在"
-            ext = os.path.splitext(in_path)[-1]
-            if ext.lower() not in RMT_MEDIAEXT:
-                log.warn("【RMT】不支持的媒体文件格式，不处理：%s" % in_path)
-                return False, "不支持的媒体文件格式"
-            file_list = [in_path]
+            # 传入的是个文件列表，这些文失件是in_path下面的文件
+            file_list = files
 
         # API检索出媒体信息，传入一个文件列表，得出每一个文件的名称，这里是当前目录下所有的文件了
         Medias = self.media.get_media_info_on_files(file_list, tmdb_info, media_type, season)

@@ -1,6 +1,7 @@
+import re
+import cn2an
 import log
 from pt.jackett import Jackett
-from utils.functions import get_keyword_from_string
 from utils.sqls import insert_jackett_results, delete_all_jackett_torrents
 
 
@@ -29,3 +30,34 @@ def search_medias_for_web(content):
         # 插入数据库
         for media_item in media_list:
             insert_jackett_results(media_item)
+
+
+# 从检索关键字中拆分中年份、季、集、类型
+# 名称 年份 第X季 第X集 电影/电视剧，用空格分隔
+def get_keyword_from_string(content):
+    if not content:
+        return {}
+    # 稍微切一下剧集吧
+    season_num = None
+    episode_num = None
+    year = None
+    season_re = re.search(r"第\s*([0-9一二三四五六七八九十]+)\s*季", content, re.IGNORECASE)
+    if season_re:
+        season_num = int(cn2an.cn2an(season_re.group(1), mode='smart'))
+    episode_re = re.search(r"第\s*([0-9一二三四五六七八九十]+)\s*集", content, re.IGNORECASE)
+    if episode_re:
+        episode_num = int(cn2an.cn2an(episode_re.group(1), mode='smart'))
+        if episode_num and not season_num:
+            season_num = "1"
+    year_re = re.search(r"[\s(]+(\d{4})[\s)]*", content)
+    if year_re:
+        year = year_re.group(1)
+    key_word = re.sub(r'第\s*[0-9一二三四五六七八九十]+\s*季|第\s*[0-9一二三四五六七八九十]+\s*集|[\s(]+(\d{4})[\s)]*', '',
+                      content,
+                      flags=re.IGNORECASE).strip()
+    if key_word:
+        key_word = re.sub(r'\s+', ' ', key_word)
+    if not key_word:
+        key_word = year
+
+    return key_word, season_num, episode_num, year

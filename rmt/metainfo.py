@@ -84,7 +84,7 @@ class MetaInfo(object):
                         r"|BLU-?RAY|REMUX|HDTV|HDDVD|WEBRIP|DVDRIP|UHD|WEB|SDR|HDR|DOLBY|TRUEHD|BDRIP|BD" \
                         r"|[HX]264|[HX]265|AVC|AAC|DTS\d.\d|HEVC|\d{3,4}[PI]" \
                         r"|TV|Series|Movie|Animations|XXX" \
-                        r"|大陆|连载|西德|日剧|美剧|电视剧|电影|动画片|动漫|欧美|日韩|超高清|高清|蓝光|翡翠台" \
+                        r"|连载|日剧|美剧|电视剧|电影|动画片|动漫|欧美|西德|日韩|超高清|高清|蓝光|翡翠台" \
                         r"|最终季|合集|[中国英葡法俄日韩德意西印泰台港粤双文语简繁体特效内封官译外挂]+字幕" \
                         r"|未删减版|UNCUT|UNRATE|WITH EXTRAS|RERIP|SUBBED|PROPER|REPACK" \
                         r"|PART[\s.]*[1-9]|CD[\s.]*[1-9]|DVD[\s.]*[1-9]|DISK[\s.]*[1-9]|DISC[\s.]*[1-9]" \
