@@ -152,20 +152,25 @@ class Jackett:
 
     # 按关键字，检索排序去重后择优下载：content是搜索内容，total_num是电视剧的总集数
     # 名称完全匹配才会下载
-    def search_one_media(self, content, in_from=SearchType.OT):
-        if not content:
+    def search_one_media(self, input_str, in_from=SearchType.OT):
+        if not input_str:
             log.info("【JACKETT】检索关键字有误！")
             return False
         # 去掉查询中的电影或电视剧关键字
-        if re.search(r'^电视剧|\s+电视剧', content):
+        if re.search(r'^电视剧|\s+电视剧', input_str):
             mtype = MediaType.TV
         else:
             mtype = None
-        content = re.sub(r'^电影|^电视剧|\s+电影|\s+电视剧', '', content)
+        content = re.sub(r'^电影|^电视剧|\s+电影|\s+电视剧', '', input_str).strip()
+        if not content:
+            return
         # 识别媒体信息
         log.info("【JACKETT】正在识别 %s 的媒体信息..." % content)
-        media_info = self.media.get_media_info(title=content, mtype=mtype)
-        if media_info.tmdb_info:
+        media_info = self.media.get_media_info(title=content, mtype=mtype, strict=True)
+        if media_info and media_info.tmdb_info:
+            log.info("类型：%s，标题：%s，年份：%s" % (media_info.type.value, media_info.title, media_info.year))
+            if in_from == SearchType.WX:
+                self.message.sendmsg("类型：%s，标题：%s，年份：%s" % (media_info.type.value, media_info.title, media_info.year))
             # 检查是否存在，电视剧返回不存在的集清单
             exist_flag, no_exists = self.downloader.check_exists_medias(in_from=in_from,
                                                                         meta_info=media_info)
@@ -175,17 +180,26 @@ class Jackett:
                 return True
         else:
             if in_from == SearchType.WX:
-                self.message.sendmsg("%s 无法查询到任何电影或者电视剧信息，请确认名称是否正确" % media_info.get_title_string())
-            log.info("【JACKETT】%s 无法查询到任何电影或者电视剧信息，请确认名称是否正确" % media_info.get_title_string())
+                self.message.sendmsg("%s 无法查询到任何电影或者电视剧信息，请确认名称是否正确" % content)
+            log.info("【JACKETT】%s 无法查询到任何电影或者电视剧信息，请确认名称是否正确" % content)
             return False
 
         # 开始真正搜索资源
         if in_from == SearchType.WX:
-            self.message.sendmsg("开始检索 %s%s ..." % (media_info.get_title_string(), media_info.get_season_episode_string()))
-        log.info("【JACKETT】开始检索 %s%s ..." % (media_info.get_title_string(), media_info.get_season_episode_string()))
+            self.message.sendmsg("开始检索 %s ..." % media_info.title)
+        log.info("【JACKETT】开始检索 %s ..." % media_info.title)
+        # 查找的季
+        if not media_info.begin_season:
+            search_season = None
+        else:
+            search_season = media_info.get_season_list()
+        # 查找的集
+        search_episode = media_info.get_episode_list()
+        if search_episode and not search_season:
+            search_season = [1]
         media_list = self.search_medias_from_word(key_word=media_info.title,
-                                                  s_num=media_info.get_season_list(),
-                                                  e_num=media_info.get_episode_list(),
+                                                  s_num=search_season,
+                                                  e_num=search_episode,
                                                   year=media_info.year,
                                                   whole_word=True)
         if len(media_list) == 0:

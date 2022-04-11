@@ -7,6 +7,7 @@ from rmt.metainfo import MetaInfo
 from utils.db_helper import select_by_sql
 from utils.functions import is_anime
 from utils.sqls import get_tv_keys
+from web.backend.search_torrents import search_medias_for_web
 
 if __name__ == "__main__":
     '''
@@ -67,4 +68,5 @@ if __name__ == "__main__":
     print(MetaInfo('Percent.World.3D.2022.2160p.WEB-DL.H265.DDP5.1-LeagueWEB.mkv').__dict__)
     print(MetaInfo('刺客伍六七.第03季.Scissor.Seven.Ⅲ.2021.第06话.WEB-DL.1080P.AVC.DD+2.0＆AAC.GB-XHGM.mkv').__dict__)
     '''
-    Jackett().search_one_media('电视剧 刺客伍六七 第1-3集 2018')
+    Jackett().search_one_media('斗罗大陆')
+    # search_medias_for_web('Walking Dead')

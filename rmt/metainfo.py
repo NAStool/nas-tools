@@ -585,20 +585,38 @@ class MetaInfo(object):
 
     # 是否包含季
     def is_in_seasion(self, season):
-        if self.end_season:
-            return self.begin_season <= int(season) <= self.end_season
-        else:
-            if self.begin_season:
-                return int(season) == self.begin_season
+        if isinstance(season, list):
+            if self.end_season:
+                meta_season = list(range(self.begin_season, self.end_season + 1))
             else:
-                return int(season) == 1
+                if self.begin_season:
+                    meta_season = [self.begin_season]
+                else:
+                    meta_season = [1]
+
+            return set(meta_season).issuperset(set(season))
+        else:
+            if self.end_season:
+                return self.begin_season <= int(season) <= self.end_season
+            else:
+                if self.begin_season:
+                    return int(season) == self.begin_season
+                else:
+                    return int(season) == 1
 
     # 是否包含集
     def is_in_episode(self, episode):
-        if self.end_episode:
-            return self.begin_episode <= int(episode) <= self.end_episode
+        if isinstance(episode, list):
+            if self.end_episode:
+                meta_episode = list(range(self.begin_episode, self.end_episode + 1))
+            else:
+                meta_episode = [self.begin_episode]
+            return set(meta_episode).issuperset(set(episode))
         else:
-            return int(episode) == self.begin_episode
+            if self.end_episode:
+                return self.begin_episode <= int(episode) <= self.end_episode
+            else:
+                return int(episode) == self.begin_episode
 
     # 整合TMDB识别的信息
     def set_tmdb_info(self, info):
