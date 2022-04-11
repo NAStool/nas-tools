@@ -63,7 +63,7 @@ class DoubanSync:
                     else:
                         search_str = "电影 %s %s" % (media.get_name(), media.year)
                     # 开始检索，传入总集数
-                    search_result = self.jackett.search_one_media(content=search_str,
+                    search_result = self.jackett.search_one_media(input_str=search_str,
                                                                   in_from=SearchType.DB)
 
                     if not search_result:

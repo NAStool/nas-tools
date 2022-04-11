@@ -17,6 +17,7 @@ def search_medias_for_web(content):
                                                  s_num=season_num,
                                                  e_num=episode_num,
                                                  year=year,
+                                                 mtype=None,
                                                  whole_word=False)
     delete_all_jackett_torrents()
     if len(media_list) == 0:

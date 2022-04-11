@@ -82,9 +82,12 @@ class Media:
                             if movie.get('title') == file_media_name and movie.get('release_date')[0:4] == media_year:
                                 info = movie
                                 break
+                            if movie.get('original_title') == file_media_name and movie.get('release_date')[0:4] == media_year:
+                                info = movie
+                                break
                     if not info:
                         for movie in movies:
-                            if movie.get('title') == file_media_name:
+                            if movie.get('title') == file_media_name or movie.get('original_title') == file_media_name:
                                 info = movie
                                 break
                     if not info:
@@ -95,7 +98,7 @@ class Media:
                                     break
                 else:
                     for movie in movies:
-                        if movie.get('title') == file_media_name:
+                        if movie.get('title') == file_media_name or movie.get('original_title') == file_media_name:
                             info = movie
                             break
                 if not info:
@@ -125,9 +128,12 @@ class Media:
                             if tv.get('name') == file_media_name and tv.get('first_air_date')[0:4] == media_year:
                                 info = tv
                                 break
+                            if tv.get('original_name') == file_media_name and tv.get('first_air_date')[0:4] == media_year:
+                                info = tv
+                                break
                     if not info:
                         for tv in tvs:
-                            if tv.get('name') == file_media_name:
+                            if tv.get('name') == file_media_name or tv.get('original_name') == file_media_name:
                                 info = tv
                                 break
                     if not info:
@@ -138,7 +144,7 @@ class Media:
                                     break
                 else:
                     for tv in tvs:
-                        if tv.get('name') == file_media_name:
+                        if tv.get('name') == file_media_name or tv.get('original_name') == file_media_name:
                             info = tv
                             break
                 if not info:
@@ -174,7 +180,7 @@ class Media:
             meta_info = MetaInfo(title, subtitle=subtitle)
             if mtype:
                 meta_info.type = mtype
-            media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
+            media_key = "[%s]%s-%s" % (meta_info.type.value, meta_info.get_name(), meta_info.year)
             try:
                 lock.acquire()
                 if not self.meta.get_meta_data().get(media_key):
@@ -208,7 +214,7 @@ class Media:
         else:
             # 动漫识别
             meta_info = MetaInfo(title, anime=True)
-            media_key = "[ANIME]%s%s" % (meta_info.get_name(), meta_info.year)
+            media_key = "[%s]%s-%s" % (meta_info.type.value, meta_info.get_name(), meta_info.year)
             if meta_info.type != MediaType.UNKNOWN:
                 try:
                     lock.acquire()
@@ -266,7 +272,7 @@ class Media:
                             meta_info.year = parent_info.year
                         if parent_info.type != MediaType.MOVIE and meta_info.type == MediaType.MOVIE:
                             meta_info.type = parent_info.type
-                    media_key = "%s%s" % (meta_info.get_name(), meta_info.year)
+                    media_key = "[%s]%s-%s" % (meta_info.type.value, meta_info.get_name(), meta_info.year)
                     try:
                         lock.acquire()
                         if not self.meta.get_meta_data().get(media_key):
@@ -297,7 +303,7 @@ class Media:
                                 meta_info.en_name = parent_info.en_name
                             if not meta_info.year:
                                 meta_info.year = parent_info.year
-                    media_key = "[ANIME]%s%s" % (meta_info.get_name(), meta_info.year)
+                    media_key = "[%s]%s-%s" % (meta_info.type.value, meta_info.get_name(), meta_info.year)
                     # 动漫识别到了
                     if meta_info.type != MediaType.UNKNOWN:
                         try:

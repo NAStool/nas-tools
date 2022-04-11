@@ -248,8 +248,8 @@ class Downloader:
                             # 有集数，肯定只有一季
                             if not set(search_episode).intersection(set(no_exists_tv_episodes)):
                                 # 搜索的跟不存在的没有交集，说明都存在了
-                                log.info("【PT】%s 在媒体库中已经存在，本次下载取消" % meta_info.org_string)
-                                message_list.append("%s 在媒体库中已经存在，本次下载取消" % meta_info.org_string)
+                                log.info("【PT】%s 在媒体库中已经存在" % meta_info.org_string)
+                                message_list.append("%s 在媒体库中已经存在" % meta_info.org_string)
                                 return_flag = True
                                 break
                             else:

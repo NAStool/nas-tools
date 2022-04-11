@@ -9,6 +9,7 @@ from config import Config
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
+from rmt.metainfo import MetaInfo
 from utils.sqls import delete_all_jackett_torrents, insert_jackett_results
 from utils.types import SearchType, MediaType
 from web.backend.emby import Emby
@@ -47,7 +48,7 @@ class Jackett:
                 self.__indexers = [self.__indexers]
 
     # 检索一个Indexer
-    def seach_indexer(self, order_seq, index, key_word, s_num, e_num, year, whole_word=False):
+    def seach_indexer(self, order_seq, index, key_word, s_num, e_num, year, mtype, whole_word=False):
         if not index or not key_word:
             return None
         ret_array = []
@@ -77,9 +78,18 @@ class Jackett:
                 continue
 
             # 识别种子名称
+            meta_info = MetaInfo(torrent_name)
+            if mtype and meta_info.type == MediaType.TV and mtype != MediaType.TV:
+                continue
+
+            # 识别媒体信息
             media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
             if not media_info or not media_info.tmdb_info:
                 log.debug("【JACKETT】%s 未检索到媒体信息" % torrent_name)
+                continue
+
+            # 类型
+            if mtype and media_info.type != mtype:
                 continue
 
             # 名称是否匹配
@@ -127,7 +137,7 @@ class Jackett:
         return ret_array
 
     # 根据关键字调用 Jackett API 检索
-    def search_medias_from_word(self, key_word, s_num, e_num, year, whole_word):
+    def search_medias_from_word(self, key_word, s_num, e_num, year, mtype, whole_word):
         if not key_word:
             return []
         if not self.__api_key or not self.__indexers:
@@ -140,7 +150,7 @@ class Jackett:
         order_seq = 100
         for index in self.__indexers:
             order_seq = order_seq - 1
-            task = executor.submit(self.seach_indexer, order_seq, index, key_word, s_num, e_num, year, whole_word)
+            task = executor.submit(self.seach_indexer, order_seq, index, key_word, s_num, e_num, year, mtype, whole_word)
             all_task.append(task)
         ret_array = []
         for future in as_completed(all_task):
@@ -201,10 +211,12 @@ class Jackett:
                                                   s_num=search_season,
                                                   e_num=search_episode,
                                                   year=media_info.year,
+                                                  mtype=media_info.type,
                                                   whole_word=True)
         if len(media_list) == 0:
+            log.info("%s 未检索到任何资源" % content)
             if in_from == SearchType.WX:
-                self.message.sendmsg("%s 未检索到任何媒体资源" % content, "")
+                self.message.sendmsg("%s 未检索到任何资源" % content, "")
             return False
         else:
             if in_from == SearchType.WX:
@@ -214,14 +226,14 @@ class Jackett:
                 save_media_list = self.get_torrents_group_item(media_list)
                 for save_media_item in save_media_list:
                     insert_jackett_results(save_media_item)
-                self.message.sendmsg(title="%s 共检索到 %s 个有效资源，即将择优下载..." % (content, len(media_list)), text="")
+                self.message.sendmsg(title="%s 共检索到 %s 个有效资源" % (content, len(media_list)), text="")
             # 去重择优后开始添加下载
             download_num, left_medias = self.downloader.check_and_add_pt(in_from, media_list, no_exists)
             # 统计下载情况，下全了返回True，没下全返回False
             if download_num == 0:
-                log.info("【JACKETT】%s 搜索结果在媒体库中均已存在，本次下载取消" % content)
+                log.info("【JACKETT】%s 搜索结果中没有符合条件的资源" % content)
                 if in_from == SearchType.WX:
-                    self.message.sendmsg("%s 搜索结果在媒体库中均已存在，本次下载取消" % content, "")
+                    self.message.sendmsg("%s 搜索结果中没有符合条件的资源" % content, "")
                 return False
             else:
                 # 比较要下的都下完了没有，来决定返回什么状态
