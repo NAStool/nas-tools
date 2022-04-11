@@ -197,28 +197,26 @@ class Downloader:
         if meta_info.type != MediaType.MOVIE:
             message_list = []
             total_tv_no_exists = {}
-            return_flag = None
+            return_flag = False
             # 检索电视剧的信息
             tv_info = self.media.get_tmdb_tv_info(meta_info.tmdb_id)
             if tv_info:
-                # 没有输入季
-                if not search_season:
-                    # 共有多少季，每季有多少季
-                    total_seasons = self.get_tmdb_seasons_info(tv_info.get("seasons"))
-                    log.info("【PT】电视剧 %s 共有 %s 季" % (meta_info.get_title_string(), len(total_seasons)))
-                    message_list.append("电视剧 %s 共有 %s 季" % (meta_info.get_title_string(), len(total_seasons)))
-                else:
+                # 共有多少季，每季有多少季
+                total_seasons = self.get_tmdb_seasons_info(tv_info.get("seasons"))
+                log.info("【PT】电视剧 %s 共有 %s 季" % (meta_info.get_title_string(), len(total_seasons)))
+                message_list.append("电视剧 %s 共有 %s 季" % (meta_info.get_title_string(), len(total_seasons)))
+                if search_season:
                     # 有输入季
                     total_seasons = []
                     for season in search_season:
                         episode_num = self.get_tmdb_season_episodes_num(tv_info.get("seasons"), season)
                         if not episode_num:
-                            log.info("【PT】电视剧 %s 第%s季 不存在" % (meta_info.get_title_string(), season))
-                            message_list.append("电视剧 %s 第%s季 不存在" % (meta_info.get_title_string(), season))
+                            log.info("【PT】%s 第%s季 不存在" % (meta_info.get_title_string(), season))
+                            message_list.append("%s 第%s季 不存在" % (meta_info.get_title_string(), season))
                             continue
                         total_seasons.append({"season_number": season, "episode_count": episode_num})
-                        log.info("【PT】电视剧 %s 第%s季 共有 %s 集" % (meta_info.get_title_string(), season, episode_num))
-                        message_list.append("电视剧 %s 第%s季 共有 %s 集" % (meta_info.get_title_string(), season, episode_num))
+                        log.info("【PT】第%s季 共有 %s 集" % (season, episode_num))
+                        message_list.append("第%s季 共有 %s 集" % (season, episode_num))
                 # 查询缺少多少集
                 for season in total_seasons:
                     season_number = season.get("season_number")
@@ -276,7 +274,7 @@ class Downloader:
             if message_list and in_from == SearchType.WX:
                 self.message.sendmsg(title="\n".join(message_list))
             # 全部存在
-            if not return_flag and not total_tv_no_exists:
+            if return_flag is False and not total_tv_no_exists:
                 return_flag = True
             # 返回
             return return_flag, total_tv_no_exists
@@ -432,7 +430,8 @@ class Downloader:
                     else:
                         end_size = 0
                 if not begin_size * 1024 * 1024 * 1024 <= int(t_size) <= end_size * 1024 * 1024 * 1024:
-                    log.info("【JACKETT】%s：%s 文件大小：%s 不符合要求" % (media_info.type.value, media_info.get_title_string(), str_filesize(int(t_size))))
+                    log.info("【JACKETT】%s：%s 文件大小：%s 不符合要求" % (
+                    media_info.type.value, media_info.get_title_string(), str_filesize(int(t_size))))
                     return False
         return True
 
