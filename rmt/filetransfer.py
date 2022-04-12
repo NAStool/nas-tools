@@ -1,12 +1,11 @@
 import argparse
 import os
 import re
-import shutil
 from threading import Lock
 from subprocess import call
 
 import log
-from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE
+from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE, ANIME_GENREIDS
 from rmt.category import Category
 from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_level1_medias, is_invalid_path, \
     is_path_in_path
@@ -14,6 +13,7 @@ from message.send import Message
 from rmt.media import Media
 from utils.sqls import insert_transfer_history, insert_transfer_unknown
 from utils.types import MediaType, DownloaderType, SyncType, RmtMode
+from web.backend.emby import Emby
 
 lock = Lock()
 
@@ -32,11 +32,14 @@ class FileTransfer:
     __min_filesize = RMT_MIN_FILESIZE
     media = None
     message = None
+    category = None
+    emby = None
 
     def __init__(self):
         self.media = Media()
         self.message = Message()
         self.category = Category()
+        self.emby = Emby()
         self.init_config()
 
     def init_config(self):
@@ -114,6 +117,7 @@ class FileTransfer:
                             log.info("【RMT】字幕 %s %s完成" % (file_name, rmt_mode.value))
                         else:
                             log.error("【RMT】字幕 %s %s失败，错误码：%s" % (file_name, rmt_mode.value, str(retcode)))
+                            return False
                     else:
                         log.info("【RMT】字幕 %s 已存在" % new_file)
             if not find_flag:
@@ -121,36 +125,45 @@ class FileTransfer:
         return True
 
     # 转移蓝光文件夹
-    '''
-    mv_flag：是否为移动，否则为复制
-    over_falg：是否覆盖
-    '''
-
-    def transfer_bluray_dir(self, file_path, new_path, mv_flag=False, over_flag=False):
-        if not over_flag and os.path.exists(new_path):
-            log.warn("【RMT】目录已存在：%s" % new_path)
+    @staticmethod
+    def transfer_bluray_dir(file_path, new_path, rmt_mode=RmtMode.COPY):
+        if os.path.exists(new_path):
+            log.warn("【RMT】%s 已存在" % new_path)
             return False
-
-        try:
-            lock.acquire()
-            if over_flag and os.path.exists(new_path):
-                log.warn("【RMT】正在删除已存在的目录：%s" % new_path)
-                shutil.rmtree(new_path)
-            log.info("【RMT】正在复制目录：%s 到 %s" % (file_path, new_path))
-            retcode = call(['cp', '-r', file_path, new_path])
-        finally:
-            lock.release()
-
-        if retcode == 0:
-            log.info("【RMT】文件 %s 复制完成" % new_path)
+        # 复制
+        if rmt_mode == RmtMode.COPY:
+            try:
+                lock.acquire()
+                log.info("【RMT】正在复制目录：%s 到 %s" % (file_path, new_path))
+                retcode = call(['cp', '-r', file_path, new_path])
+            finally:
+                lock.release()
+        # 软硬链接
         else:
-            log.error("【RMT】文件复制失败，错误码：%s" % str(retcode))
+            try:
+                lock.acquire()
+                # 检索所有文件
+                log.info("【RMT】正在%s目录：%s 到 %s" % (rmt_mode.value, file_path, new_path))
+                file_list = get_dir_files_by_ext(file_path)
+                retcode = 0
+                for file in file_list:
+                    new_file = file.replace(file_path, new_path)
+                    new_dir = os.path.dirname(new_file)
+                    if not os.path.exists(new_dir):
+                        os.makedirs(new_dir)
+                    if rmt_mode == RmtMode.LINK:
+                        retcode = call(["ln", file, new_file])
+                    elif rmt_mode == RmtMode.SOFTLINK:
+                        retcode = call(["ln", "-s", file, new_file])
+                    else:
+                        continue
+            finally:
+                lock.release()
+        if retcode == 0:
+            log.info("【RMT】文件 %s %s完成" % (file_path, rmt_mode.value))
+        else:
+            log.error("【RMT】文件%s %s失败，错误码：%s" % (file_path, rmt_mode.value, str(retcode)))
             return False
-
-        if mv_flag:
-            if file_path != self.__movie_path and file_path != self.__tv_path:
-                shutil.rmtree(file_path)
-            log.info("【RMT】%s 已删除" % file_path)
         return True
 
     # 判断是否为目的路径下的路径
@@ -168,30 +181,60 @@ class FileTransfer:
     # 按原文件名link文件到目的目录
     @staticmethod
     def transfer_origin_file(file_item, target_dir, rmt_mode):
-        if os.path.isdir(file_item):
-            log.warn("【RMT】目录不支持原名转移处理")
+        if not file_item or not target_dir:
             return False
-        if not target_dir:
+        if not os.path.exists(file_item):
+            log.warn("【RMT】%s 不存在" % file_item)
             return False
-        # 文件名
-        file_name = os.path.basename(file_item)
+        # 计算目录目录
         parent_name = os.path.basename(os.path.dirname(file_item))
         target_dir = os.path.join(target_dir, parent_name)
         if not os.path.exists(target_dir):
             log.debug("【RMT】正在创建目录：%s" % target_dir)
             os.makedirs(target_dir)
-        target_file = os.path.join(target_dir, file_name)
-        if rmt_mode == RmtMode.LINK:
-            retcode = call(['ln', file_item, target_file])
-        elif rmt_mode == RmtMode.SOFTLINK:
-            retcode = call(['ln', '-s', file_item, target_file])
+        # 目录
+        if os.path.isdir(file_item):
+            if rmt_mode == RmtMode.COPY:
+                try:
+                    lock.acquire()
+                    log.info("【RMT】正在复制目录：%s 到 %s" % (file_item, target_dir))
+                    retcode = call(['cp', '-r', file_item, target_dir])
+                finally:
+                    lock.release()
+            else:
+                try:
+                    lock.acquire()
+                    # 检索所有文件
+                    log.info("【RMT】正在%s目录：%s 到 %s" % (rmt_mode.value, file_item, target_dir))
+                    file_list = get_dir_files_by_ext(file_item)
+                    retcode = 0
+                    for file in file_list:
+                        new_file = file.replace(file_item, target_dir)
+                        new_dir = os.path.dirname(new_file)
+                        if not os.path.exists(new_dir):
+                            os.makedirs(new_dir)
+                        if rmt_mode == RmtMode.LINK:
+                            retcode = call(["ln", file, new_file])
+                        elif rmt_mode == RmtMode.SOFTLINK:
+                            retcode = call(["ln", "-s", file, new_file])
+                        else:
+                            continue
+                finally:
+                    lock.release()
+        # 文件
         else:
-            retcode = call(['cp', file_item, target_file])
+            target_file = os.path.join(target_dir, os.path.basename(file_item))
+            if rmt_mode == RmtMode.LINK:
+                retcode = call(['ln', file_item, target_file])
+            elif rmt_mode == RmtMode.SOFTLINK:
+                retcode = call(['ln', '-s', file_item, target_file])
+            else:
+                retcode = call(['cp', file_item, target_file])
 
         if retcode == 0:
-            log.info("【RMT】文件 %s %s到unknown完成" % (file_name, rmt_mode.value))
+            log.info("【RMT】%s %s到unknown完成" % (file_item, rmt_mode.value))
         else:
-            log.error("【RMT】文件 %s %s到unknown失败，错误码：%s" % (file_name, rmt_mode.value, retcode))
+            log.error("【RMT】%s %s到unknown失败，错误码：%s" % (file_item, rmt_mode.value, retcode))
             return False
         return True
 
@@ -238,8 +281,8 @@ class FileTransfer:
                        media_type=None,
                        season=None):
         if not in_path:
-            log.error("【RMT】输入错误!")
-            return False, "输入错误"
+            log.error("【RMT】输入路径错误!")
+            return False, "输入路径错误"
 
         # 进到这里来的，可能是一个大目录，目录中有电影也有电视剧；也有可能是一个电视剧目录或者一个电影目录；也有可能是一个文件
         if in_from in DownloaderType:
@@ -264,11 +307,6 @@ class FileTransfer:
                 if os.path.exists(os.path.join(in_path, "BDMV/index.bdmv")):
                     bluray_disk_flag = True
 
-                # 处理蓝光原盘
-                if bluray_disk_flag:
-                    if rmt_mode == RmtMode.LINK:
-                        log.warn("【RMT】硬链接下不支持蓝光原盘目录，不处理...")
-                        return False, "硬链接下不支持蓝光原盘目录"
                 # 开始处理里面的文件
                 if bluray_disk_flag:
                     file_list = [in_path]
@@ -303,16 +341,16 @@ class FileTransfer:
         # 统计总的文件数、失败文件数
         failed_count = 0
         total_count = 0
-        # 如果是电影，因为只会有一个文件，直接在循环里就发了消息
-        # 但是电视剧可能有多集，如果在循环里发消息就太多了，要在外面发消息
-        # 如果这个目录很复杂，有多集或者多部电影电视剧，则电视剧也要在外面统一发消息
-        # title: {year, media_filesize, season_ary[], episode_ary}
+        # 电视剧可能有多集，如果在循环里发消息就太多了，要在外面发消息
         message_medias = {}
+        # 需要刷新媒体库的清单
+        refresh_library_items = []
 
         for file_item, media in Medias.items():
             if re.search(r'[./\s\[]+Sample[/.\s\]]+', file_item, re.IGNORECASE):
                 log.warn("【RMT】%s 可能是预告片，跳过..." % file_item)
                 continue
+            # 总数量
             total_count = total_count + 1
             # 文件名
             file_name = os.path.basename(file_item)
@@ -324,7 +362,7 @@ class FileTransfer:
             if not media or not media.tmdb_info:
                 log.warn("【RMT】%s 无法识别媒体信息！" % file_name)
                 # 记录未识别
-                insert_transfer_unknown(file_path, target_dir)
+                insert_transfer_unknown(max(file_path, in_path), target_dir)
                 failed_count = failed_count + 1
                 # 原样转移过去
                 if target_dir:
@@ -339,12 +377,18 @@ class FileTransfer:
                 else:
                     log.error("【RMT】%s 处理失败！" % file_name)
                 continue
+            # 类型-类别-标题-年份
+            refresh_item = {"type": media.type, "category": media.category, "title": media.title, "year": media.year}
+            if refresh_item not in refresh_library_items:
+                refresh_library_items.append(refresh_item)
             # 对动漫类型进行处理，不配置动漫目录时按电视剧类型处理
             if media.type == MediaType.ANIME and not self.__anime_path:
                 media.type = MediaType.TV
-            # 目的目录
+            # 对电视剧中的动漫进行处理，如配置了动漫目录电视剧下的动漫也转为动漫分类
+            if media.type == MediaType.TV and self.__anime_path and self.is_tv_anime(media):
+                media.type = MediaType.ANIME
+            # 目的目录，有输入target_dir时，往这个目录放
             if target_dir:
-                # 有输入target_dir时，往这个目录放
                 dist_path = target_dir
             elif media.type == MediaType.MOVIE:
                 dist_path = self.__movie_path
@@ -430,7 +474,7 @@ class FileTransfer:
             if not ret:
                 continue
             # 转移历史记录
-            insert_transfer_history(in_from, rmt_mode, file_path, dist_path, media)
+            insert_transfer_history(in_from, rmt_mode, max(file_path, in_path), dist_path, media)
             # 电影立即发送消息
             if media.type == MediaType.MOVIE:
                 self.message.send_transfer_movie_message(in_from,
@@ -464,6 +508,9 @@ class FileTransfer:
         # 统计完成情况，发送通知
         if message_medias:
             self.message.send_transfer_tv_message(message_medias, in_from)
+        # 刷新媒体库
+        if refresh_library_items:
+            self.emby.refresh_emby_library_by_items(refresh_library_items)
         # 总结
         log.info("【RMT】%s 处理完成，总数：%s，失败：%s" % (in_path, total_count, failed_count))
         return True, ""
@@ -485,8 +532,6 @@ class FileTransfer:
             ret, ret_msg = self.transfer_media(in_from=SyncType.MAN, in_path=path, target_dir=t_path)
             if not ret:
                 print("【RMT】%s 处理失败：%s" % (path, ret_msg))
-            else:
-                print("【RMT】%s 处理完成" % path)
 
     # 全量转移Sync目录下的文件
     def transfer_all_sync(self):
@@ -508,8 +553,6 @@ class FileTransfer:
                     ret, ret_msg = self.transfer_media(in_from=SyncType.MON, in_path=path, target_dir=t_path)
                     if not ret:
                         log.error("【SYNC】%s 处理失败：%s" % (path, ret_msg))
-                    else:
-                        log.info("【SYNC】%s 处理成功" % path)
 
     # 判断媒体文件是否忆存在，返回：目录存在标志、目录名、文件存在标志、文件名
     def is_media_exists(self,
@@ -578,7 +621,6 @@ class FileTransfer:
                         file_path, media.get_season_item(), media.get_episode_items(), file_seq_num)
                     ret_file_path = file_path
                     for ext in RMT_MEDIAEXT:
-                        log.debug("【RSS】路径：%s%s" % (file_path, ext))
                         ext_dest = "%s%s" % (file_path, ext)
                         if os.path.exists(ext_dest):
                             file_exist_flag = True
@@ -752,6 +794,29 @@ class FileTransfer:
                     if episode not in exists_episodes:
                         exists_episodes.append(episode)
             return list(set(total_episodes).difference(set(exists_episodes)))
+
+    # 判断电视剧是否为动漫
+    @staticmethod
+    def is_tv_anime(media):
+        if not media:
+            return False
+        if not media.tmdb_info:
+            return False
+        if media.type == MediaType.MOVIE:
+            return False
+        if media.type == MediaType.ANIME:
+            return True
+        genre_ids = media.tmdb_info.get("genre_ids")
+        if not genre_ids:
+            return False
+        if isinstance(genre_ids, list):
+            genre_ids = [str(val).upper() for val in genre_ids]
+        else:
+            genre_ids = [str(genre_ids).upper()]
+        if set(genre_ids).intersection(set(ANIME_GENREIDS)):
+            return True
+        else:
+            return False
 
 
 if __name__ == "__main__":

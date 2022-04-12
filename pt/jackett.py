@@ -236,6 +236,7 @@ class Jackett:
                     self.message.sendmsg("%s 搜索结果中没有符合条件的资源" % content, "")
                 return False
             else:
+                log.info("【JACKETT】实际下载了 %s 个资源" % download_num)
                 # 比较要下的都下完了没有，来决定返回什么状态
                 if left_medias:
                     return False

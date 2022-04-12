@@ -24,6 +24,8 @@ NO_PROXIES = {
   "http": None,
   "https": None,
 }
+# 电视剧动漫的分类genre_ids
+ANIME_GENREIDS = ['16']
 # 剩余多少磁盘空间时不再转移，单位GB
 RMT_DISKFREESIZE = 10
 # 默认过滤的文件大小，200M
@@ -44,7 +46,7 @@ FANART_TV_API_URL = 'http://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea0
 # 日志级别
 LOG_LEVEL = logging.INFO
 # 定义一个列表用来保存最近的日志，以便查看
-LOG_QUEUE = deque(maxlen=1000)
+LOG_QUEUE = deque(maxlen=500)
 
 lock = Lock()
 

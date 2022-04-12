@@ -1,15 +1,9 @@
-import time
-from datetime import datetime
 import requests
 import log
-from config import RMT_FAVTYPE, Config, NO_PROXIES
+from config import Config, NO_PROXIES
 from message.send import Message
-from rmt.filetransfer import FileTransfer
-from rmt.metainfo import MetaInfo
 from utils.functions import get_local_time
 from utils.types import MediaType
-
-PLAY_LIST = []
 
 
 class Emby:
@@ -238,16 +232,16 @@ class Emby:
         return False
 
     # 按类型、名称、年份来刷新媒体库
-    def refresh_emby_library_by_medias(self, medias):
-        if not medias:
+    def refresh_emby_library_by_items(self, items):
+        if not items:
             return
         # 收集要刷新的媒体库信息
         log.info("【EMBY】开始刷新Emby媒体库...")
         library_ids = []
-        for media_info in medias:
-            if not media_info or not media_info.tmdb_info:
+        for item in items:
+            if not item:
                 continue
-            library_id = self.get_emby_library_id_by_metainfo(media_info)
+            library_id = self.get_emby_library_id_by_item(item)
             if library_id and library_id not in library_ids:
                 library_ids.append(library_id)
         # 开始刷新媒体库
@@ -260,152 +254,22 @@ class Emby:
         log.info("【EMBY】Emby媒体库刷新完成")
 
     # 根据媒体信息查询在哪个媒体库，返回要刷新的位置的ID
-    def get_emby_library_id_by_metainfo(self, media):
-        if not media.title or not media.year or not media.type:
+    def get_emby_library_id_by_item(self, item):
+        if not item.get("title") or not item.get("year") or not item.get("type"):
             return None
-        if media.type == MediaType.TV:
-            item_id = self.get_emby_series_id_by_name(media.title, media.year)
+        if item.get("type") == MediaType.TV:
+            item_id = self.get_emby_series_id_by_name(item.get("title"), item.get("year"))
             if item_id:
                 # 存在电视剧，则直接刷新这个电视剧就行
                 return item_id
         else:
-            if self.get_emby_movies(media.title, media.year):
+            if self.get_emby_movies(item.get("title"), item.get("year")):
                 # 已存在，不用刷新
                 return None
         # 查找需要刷新的媒体库ID
         for library in self.get_emby_librarys():
             for folder in library.get("SubFolders"):
-                if "/%s" % media.category in folder.get("Path"):
+                if "/%s" % item.get("category") in folder.get("Path"):
                     return library.get("Id")
         # 刷新根目录
         return "/"
-
-
-class EmbyEvent:
-    message = None
-    emby = None
-    category = None
-    filetransfer = None
-
-    def __init__(self, input_json):
-        if not input_json:
-            return
-        self.message = Message()
-        self.emby = Emby()
-        self.filetransfer = FileTransfer()
-        # 解析事件报文
-        event = input_json.get('Event')
-        if not event:
-            return
-        # 类型
-        self.category = event.split('.')[0]
-        # 事件
-        self.action = event.split('.')[1]
-        # 时间
-        self.timestamp = datetime.now()
-        if self.category == "system":
-            return
-        # 事件信息
-        Item = input_json.get('Item', {})
-        self.provider_ids = Item.get('ProviderIds', {})
-        self.item_type = Item.get('Type')
-        if self.item_type == 'Episode':
-            self.media_type = MediaType.TV
-            self.item_name = "%s %s" % (Item.get('SeriesName'), Item.get('Name'))
-            self.item_id = Item.get('SeriesId')
-            self.tmdb_id = None
-        else:
-            self.media_type = MediaType.MOVIE
-            self.item_name = Item.get('Name')
-            self.item_path = Item.get('Path')
-            self.item_id = Item.get('Id')
-            self.tmdb_id = self.provider_ids.get('Tmdb')
-        Session = input_json.get('Session', {})
-        User = input_json.get('User', {})
-        if self.category == 'playback':
-            self.user_name = User.get('Name')
-            self.ip = Session.get('RemoteEndPoint')
-            self.device_name = Session.get('DeviceName')
-            self.client = Session.get('Client')
-
-    @staticmethod
-    def get_location(ip):
-        url = 'https://sp0.baidu.com/8aQDcjqpAAV3otqbppnN2DJv/api.php?co=&resource_id=6006&t=1529895387942&ie=utf8' \
-              '&oe=gbk&cb=op_aladdin_callback&format=json&tn=baidu&' \
-              'cb=jQuery110203920624944751099_1529894588086&_=1529894588088&query=%s' % ip
-        try:
-            r = requests.get(url, timeout=10, proxies=NO_PROXIES)
-            r.encoding = 'gbk'
-            html = r.text
-            c1 = html.split('location":"')[1]
-            c2 = c1.split('","')[0]
-            return c2
-        except requests.exceptions:
-            return ''
-
-    # 处理Emby播放消息
-    def report_to_discord(self):
-        global PLAY_LIST
-        if not self.category:
-            return
-        # 消息标题
-        message_title = None
-        message_text = None
-        # 系统事件
-        if self.category == 'system':
-            if self.action == 'webhooktest':
-                log.info("【EMBY】system.webhooktest")
-            return
-        # 播放事件
-        webhook_ignore = self.message.get_webhook_ignore()
-        if self.category == 'playback':
-            if webhook_ignore:
-                if self.user_name in webhook_ignore or \
-                        self.device_name in webhook_ignore or \
-                        (self.user_name + ':' + self.device_name) in webhook_ignore:
-                    log.info('【EMBY】忽略的用户或设备，不通知：%s %s' % (self.user_name, self.device_name))
-                    return
-            list_id = self.user_name + self.item_name + self.ip + self.device_name + self.client
-            if self.action == 'start':
-                message_title = '用户 %s 开始播放 %s' % (self.user_name, self.item_name)
-                log.info(message_title)
-                if list_id not in PLAY_LIST:
-                    PLAY_LIST.append(list_id)
-            elif self.action == 'stop':
-                if list_id in PLAY_LIST:
-                    message_title = '用户 %s 停止播放 %s' % (self.user_name, self.item_name)
-                    log.info(message_title)
-                    PLAY_LIST.remove(list_id)
-                else:
-                    log.debug('【EMBY】重复Stop通知，丢弃：' + list_id)
-                    return
-            else:
-                return
-            message_text = '设备：' + self.device_name \
-                           + '\n客户端：' + self.client \
-                           + '\nIP地址：' + self.ip \
-                           + '\n位置：' + self.get_location(self.ip) \
-                           + '\n时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        # 小红心事件
-        if self.category == 'item':
-            if self.action == 'rate':
-                if self.media_type != MediaType.MOVIE:
-                    return
-                ret, org_type = self.filetransfer.transfer_embyfav(self.item_path)
-                if ret:
-                    # 刷新媒体库
-                    self.emby.refresh_emby_root_library()
-                    message_title = '电影 %s 已从 %s 转移到 %s' % (self.item_name, org_type, RMT_FAVTYPE)
-                    message_text = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-            else:
-                return
-
-        if message_title:
-            image_url = None
-            if self.item_id:
-                image_url = self.emby.get_emby_image_by_id(self.item_id, "Backdrop")
-            if not image_url:
-                image_url = MetaInfo.get_backdrop_image(search_type=self.media_type, backdrop_path=None,
-                                                        tmdbid=self.tmdb_id,
-                                                        default="https://emby.media/notificationicon.png")
-            self.message.sendmsg(message_title, message_text, image_url)

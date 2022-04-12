@@ -77,7 +77,7 @@ class MetaInfo(object):
     _resources_type_re = r"^BLURAY|^REMUX|^HDTV|^HDDVD|^WEBRIP|^DVDRIP|^BDRIP|^UHD|^SDR|^HDR|^DOLBY|^BLU|^WEB|^BD"
     _name_no_begin_re = r"^\[.+?]"
     _name_se_words = ['共', '第', '季', '集', '话', '話']
-    _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|NETFLIX|IMAX|^CHC|^3D|\s+3D|^BBC" \
+    _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|NETFLIX|IMAX|^CHC|^3D|\s+3D|^BBC|DISNEY\+" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+季" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+[集话話]" \
                         r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|\s+S\d{1,2}|EP?\d{2}\s*-\s*EP?\d{2}|EP?\d{2,3}|\s+EP?\d{1,3}" \
@@ -240,10 +240,10 @@ class MetaInfo(object):
             self._unknown_name_str = ""
         if self._stop_name_flag:
             if self._unknown_name_str and self._unknown_name_str != self.year:
-                if self.cn_name:
-                    self.cn_name = "%s %s" % (self.cn_name, self._unknown_name_str)
                 if self.en_name:
                     self.en_name = "%s %s" % (self.en_name, self._unknown_name_str)
+                else:
+                    self.cn_name = "%s %s" % (self.cn_name, self._unknown_name_str)
                 self._unknown_name_str = ""
             return
         if token in self._name_se_words:

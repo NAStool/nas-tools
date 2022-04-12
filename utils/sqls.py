@@ -195,6 +195,8 @@ def is_transfer_history_exists(file_path, file_name, title, se):
     file_name = file_name or ""
     title = title or ""
     se = se or ""
+    file_path = file_path.replace("'", "''")
+    file_name = file_name.replace("'", "''")
     sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_PATH='%s' AND FILE_NAME='%s' AND TITLE='%s' AND SE='%s'" % (file_path, file_name, title, se)
     ret = select_by_sql(sql)
     if ret and ret[0][0] > 0:
@@ -264,6 +266,7 @@ def update_transfer_unknown_state(path):
     if not path:
         return False
     path = os.path.normpath(path)
+    path = path.replace("'", "''")
     sql = f"UPDATE TRANSFER_UNKNOWN SET STATE='Y' WHERE PATH='{path}'"
     return update_by_sql(sql)
 
@@ -273,6 +276,7 @@ def delete_transfer_unknown(path):
     if not path:
         return False
     path = os.path.normpath(path)
+    path = path.replace("'", "''")
     sql = f"DELETE FROM TRANSFER_UNKNOWN WHERE PATH='{path}'"
     return update_by_sql(sql)
 
@@ -282,6 +286,7 @@ def is_transfer_unknown_exists(path):
     if not path:
         return False
     path = os.path.normpath(path)
+    path = path.replace("'", "''")
     sql = f"SELECT COUNT(1) FROM TRANSFER_UNKNOWN WHERE PATH='{path}'"
     ret = select_by_sql(sql)
     if ret and ret[0][0] > 0:
@@ -295,8 +300,10 @@ def insert_transfer_unknown(path, dest):
     if not path:
         return False
     path = os.path.normpath(path)
+    path = path.replace("'", "''")
     if dest:
         dest = os.path.normpath(dest)
+        dest = dest.replace("'", "''")
     else:
         dest = ""
     if is_transfer_unknown_exists(path):
@@ -313,6 +320,7 @@ def is_transfer_in_blacklist(path):
     if not path:
         return False
     path = os.path.normpath(path)
+    path = path.replace("'", "''")
     sql = f"SELECT COUNT(1) FROM TRANSFER_BLACKLIST WHERE PATH='{path}'"
     ret = select_by_sql(sql)
     if ret and ret[0][0] > 0:
@@ -326,6 +334,7 @@ def insert_transfer_blacklist(path):
     if not path:
         return False
     path = os.path.normpath(path)
+    path = path.replace("'", "''")
     if is_transfer_in_blacklist(path):
         return False
     else:

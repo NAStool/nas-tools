@@ -96,7 +96,7 @@ def get_dir_files_by_ext(in_path, exts="", filesize=0):
         for root, dirs, files in os.walk(in_path):
             for file in files:
                 ext = os.path.splitext(file)[-1]
-                if ext.lower() in exts:
+                if not exts or ext.lower() in exts:
                     cur_path = os.path.join(root, file)
                     file_size = os.path.getsize(cur_path)
                     if cur_path not in ret_list and file_size > filesize:

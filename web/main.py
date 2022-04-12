@@ -30,7 +30,8 @@ from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
-from web.backend.emby import Emby, EmbyEvent
+from web.backend.emby import Emby
+from web.backend.emby_event import EmbyEvent
 from web.backend.search_torrents import search_medias_for_web
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree

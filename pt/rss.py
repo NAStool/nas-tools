@@ -160,8 +160,8 @@ class Rss:
             log.info("【RSS】%s 处理结束，匹配到 %s 个有效资源" % (rss_job, res_num))
         log.info("【RSS】所有RSS处理结束，共 %s 个有效资源" % len(rss_download_torrents))
         # 去重择优后开始添加下载
-        download_medias = self.downloader.check_and_add_pt(SearchType.RSS, rss_download_torrents, no_exists)
-        log.info("【RSS】实际下载了 %s 个资源" % len(download_medias))
+        download_num, left_medias = self.downloader.check_and_add_pt(SearchType.RSS, rss_download_torrents, no_exists)
+        log.info("【RSS】实际下载了 %s 个资源" % download_num)
 
     @staticmethod
     def is_torrent_match(media_info, movie_keys, tv_keys):

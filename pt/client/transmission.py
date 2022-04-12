@@ -107,7 +107,6 @@ class Transmission:
     def get_transfer_task(self):
         # 处理所有任务
         torrents = self.get_torrents()
-        trans_torrents = []
         trans_tasks = []
         for torrent in torrents:
             # 3.0版本以下的Transmission没有labels
@@ -130,9 +129,8 @@ class Transmission:
                     true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
                 if self.__anime_save_containerpath:
                     true_path = true_path.replace(str(self.__anime_save_path), str(self.__anime_save_containerpath))
-                trans_torrents.append(torrent.name)
                 trans_tasks.append({'path': true_path, 'id': torrent.id})
-        return trans_torrents, trans_tasks
+        return trans_tasks
 
     # 做种清理
     def get_remove_torrents(self, seeding_time):

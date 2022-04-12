@@ -57,7 +57,7 @@ class Downloader:
     def pt_transfer(self):
         if self.client:
             log.info("【PT】开始转移文件...")
-            trans_torrents, trans_tasks = self.client.get_transfer_task()
+            trans_tasks = self.client.get_transfer_task()
             for task in trans_tasks:
                 done_flag, done_msg = self.filetransfer.transfer_media(in_from=self.__client_type,
                                                                        in_path=task.get("path"))
@@ -66,10 +66,6 @@ class Downloader:
                 else:
                     self.client.set_torrents_status(task.get("id"))
             log.info("【PT】文件转移结束")
-            medias = []
-            for torrent in trans_torrents:
-                medias.append(self.media.get_media_info(torrent))
-            self.emby.refresh_emby_library_by_medias(medias)
 
     # 做种清理
     def pt_removetorrents(self):
@@ -187,7 +183,6 @@ class Downloader:
             else:
                 log.error("【PT】添加下载任务失败：%s" % item.get_title_string())
                 self.message.sendmsg("【PT】添加PT任务失败：%s" % item.get_title_string())
-        log.info("【PT】实际下载了 %s 个资源" % len(download_items))
         # 返回下载数以及，剩下没下完的
         return len(download_items), need_tvs
 

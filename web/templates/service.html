@@ -435,7 +435,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">实时日志</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="logging_close_head"></button>
           </div>
           <div class="modal-body" id="logging_content" style="display:flex; flex-direction:column-reverse;font-size:12px;">
           </div>
@@ -488,6 +488,8 @@
         ajax_post("logging", {}, function(ret){
           if(ret.text)
           $("#logging_content").html(ret.text);
+          var height = $('#logging_content').prop("scrollHeight");
+          $('#logging_content').scrollTop(height);
           if(refresh_logging_flag == true){
             setTimeout("refresh_logging()", 2000);
           }
@@ -672,6 +674,9 @@
        });
        //实时日志关闭
        $("#logging_close_btn").click(function(){
+            stop_logging();
+        });
+       $("#logging_close_head").click(function(){
             stop_logging();
         });
       });

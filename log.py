@@ -66,7 +66,6 @@ class Logger:
 
 
 def debug(text):
-    LOG_QUEUE.append("DEBUG - %s" % text)
     return Logger.get_instance().logger.debug(text)
 
 

@@ -71,5 +71,10 @@ if __name__ == "__main__":
     print(MetaInfo('Percent.World.3D.2022.2160p.WEB-DL.H265.DDP5.1-LeagueWEB.mkv').__dict__)
     print(MetaInfo('刺客伍六七.第03季.Scissor.Seven.Ⅲ.2021.第06话.WEB-DL.1080P.AVC.DD+2.0＆AAC.GB-XHGM.mkv').__dict__)
     '''
-    Jackett().search_one_media('电视剧 行尸走肉')
+    # Jackett().search_one_media('电视剧 行尸走肉')
     # search_medias_for_web('Walking Dead')
+    print(MetaInfo('神奇女侠.1984.Wonder.Woman.1984.2020.3D.BluRay.1080p').__dict__)
+    print(MetaInfo('神奇女侠.Wonder.Woman.1984.2020.3D.BluRay.1080p').__dict__)
+    print(MetaInfo('Wonder.Woman.1984.2020.3D.BluRay.1080p').__dict__)
+    print(MetaInfo('神奇女侠.1984.2020.3D.BluRay.1080p').__dict__)
+    print(MetaInfo('1984.2020.3D.BluRay.1080p').__dict__)

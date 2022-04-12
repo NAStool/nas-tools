@@ -149,9 +149,13 @@ class Sync(object):
             for path in items:
                 if os.path.exists(path) and not is_transfer_in_blacklist(path):
                     log.info("【SYNC】开始转移监控目录文件...")
+                    if not os.path.exists(os.path.join(path, "BDMV", "index.bdmv")):
+                        files = self.__need_sync_paths[path].get('files')
+                    else:
+                        files = []
                     ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
                                                                     in_path=path,
-                                                                    files=self.__need_sync_paths[path].get('files'),
+                                                                    files=files,
                                                                     target_dir=self.__need_sync_paths[path].get('target_dir'))
                     if not ret:
                         log.warn("【SYNC】%s转移失败：%s" % (path, ret_msg))
