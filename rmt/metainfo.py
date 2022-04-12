@@ -261,6 +261,9 @@ class MetaInfo(object):
                 if self._last_token_type == 'name_se_words':
                     return
                 if self.get_name():
+                    # 名字后面以0开头的不要，极有可能是集
+                    if token.startswith('0'):
+                        return
                     # 名称后面跟着的数字，停止查找名称
                     self._stop_name_flag = True
                     if len(token) < 4:
@@ -405,12 +408,19 @@ class MetaInfo(object):
         if token.isdigit():
             if self.begin_episode \
                     and not self.end_episode \
-                    and (0 < int(token) < 100) \
+                    and (0 < len(token) < 4) \
                     and (int(token) > self.begin_episode) \
                     and self._last_token_type == "episode":
                 self.end_episode = int(token)
                 self._last_token_type = "episode"
                 self._continue_flag = False
+            else:
+                if 1 < len(token) < 4 and token.startswith('0'):
+                    self.begin_episode = int(token)
+                    self._last_token_type = "episode"
+                    self._continue_flag = False
+                    self.type = MediaType.TV
+                    self._stop_name_flag = True
 
     def __init_resource_type(self, token):
         if not self.get_name():

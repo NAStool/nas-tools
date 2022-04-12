@@ -131,12 +131,14 @@ class Downloader:
                         if set(item_season).issubset(set(need_season)):
                             download_items.append(item)
                             # 删除已下载的季
+                            need_season = list(set(need_season).difference(set(item_season)))
                             for sea in item_season:
                                 for tv in need_tvs.get(need_title):
                                     if sea == tv.get("season"):
                                         need_tvs[need_title].remove(tv)
                             if not need_tvs.get(need_title):
                                 need_tvs.pop(need_title)
+                                break
         # 电视剧季内的集匹配，也有可能没有找到整季
         if need_tvs:
             need_tv_list = list(need_tvs)
@@ -149,25 +151,26 @@ class Downloader:
                     need_season = tv.get("season")
                     need_episodes = tv.get("episodes")
                     total_episodes = tv.get("total_episodes")
+                    # 缺失整季的转化为缺失集进行比较
+                    if not need_episodes:
+                        need_episodes = list(range(1, total_episodes + 1))
                     for item in download_list:
                         if item.get_title_string() == need_title and item.type != MediaType.MOVIE:
                             item_season = item.get_season_list()
                             item_episodes = item.get_episode_list()
                             # 这里只处理单季含集的种子，从集最多的开始下
                             if len(item_season) == 1 and item_episodes and item_season[0] == need_season:
-                                # 缺失整季的转化为缺失集进行比较
-                                if not need_episodes:
-                                    need_episodes = list(range(1, total_episodes + 1))
                                 if set(item_episodes).issubset(set(need_episodes)):
                                     download_items.append(item)
                                     # 删除该季下已下载的集
-                                    left_episode = list(set(need_episodes).difference(set(item_episodes)))
-                                    if left_episode:
-                                        need_tvs[need_title][index]["episodes"] = left_episode
+                                    need_episodes = list(set(need_episodes).difference(set(item_episodes)))
+                                    if need_episodes:
+                                        need_tvs[need_title][index]["episodes"] = need_episodes
                                     else:
                                         need_tvs[need_title].pop(index)
-                                    if not need_tvs.get(need_title):
-                                        need_tvs.pop(need_title)
+                                        if not need_tvs.get(need_title):
+                                            need_tvs.pop(need_title)
+                                        break
                     index += 1
         else:
             # 电影

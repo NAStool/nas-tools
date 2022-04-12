@@ -2,11 +2,11 @@ import time
 from datetime import datetime
 import requests
 import log
-from config import RMT_FAVTYPE, Config
+from config import RMT_FAVTYPE, Config, NO_PROXIES
 from message.send import Message
 from rmt.filetransfer import FileTransfer
 from rmt.metainfo import MetaInfo
-from utils.functions import get_local_time, get_location
+from utils.functions import get_local_time
 from utils.types import MediaType
 
 PLAY_LIST = []
@@ -39,7 +39,7 @@ class Emby:
             return []
         req_url = "%semby/Library/SelectableMediaFolders?api_key=%s" % (self.__host, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = requests.get(req_url, timeout=10, proxies=NO_PROXIES)
             if res:
                 return res.json()
             else:
@@ -55,7 +55,7 @@ class Emby:
             return 0
         req_url = "%semby/Users/Query?api_key=%s" % (self.__host, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = requests.get(req_url, timeout=10, proxies=NO_PROXIES)
             if res:
                 return res.json().get("TotalRecordCount")
             else:
@@ -72,7 +72,7 @@ class Emby:
         req_url = "%semby/System/ActivityLog/Entries?api_key=%s&Limit=%s" % (self.__host, self.__apikey, num)
         ret_array = []
         try:
-            res = requests.get(req_url, timeout=10)
+            res = requests.get(req_url, timeout=10, proxies=NO_PROXIES)
             if res:
                 ret_json = res.json()
                 items = ret_json.get('Items')
@@ -103,7 +103,7 @@ class Emby:
             return {}
         req_url = "%semby/Items/Counts?api_key=%s" % (self.__host, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = requests.get(req_url, timeout=10, proxies=NO_PROXIES)
             if res:
                 return res.json()
             else:
@@ -120,7 +120,7 @@ class Emby:
         req_url = "%semby/Items?IncludeItemTypes=Series&Fields=ProductionYear&StartIndex=0&Recursive=true&SearchTerm=%s&Limit=10&IncludeSearchTypes=false&api_key=%s" % (
             self.__host, name, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = requests.get(req_url, timeout=10, proxies=NO_PROXIES)
             if res:
                 res_items = res.json().get("Items")
                 if res_items:
@@ -140,7 +140,7 @@ class Emby:
         req_url = "%semby/Items?IncludeItemTypes=Movie&Fields=ProductionYear&StartIndex=0&Recursive=true&SearchTerm=%s&Limit=10&IncludeSearchTypes=false&api_key=%s" % (
             self.__host, title, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = requests.get(req_url, timeout=10, proxies=NO_PROXIES)
             if res:
                 res_items = res.json().get("Items")
                 if res_items:
@@ -170,7 +170,7 @@ class Emby:
         req_url = "%semby/Shows/%s/Episodes?Season=%s&api_key=%s" % (
             self.__host, item_id, season, self.__apikey)
         try:
-            res_json = requests.get(req_url, timeout=10)
+            res_json = requests.get(req_url, timeout=10, proxies=NO_PROXIES)
             if res_json:
                 res_items = res_json.json().get("Items")
                 exists_episodes = []
@@ -195,7 +195,7 @@ class Emby:
             return None
         req_url = "%semby/Items/%s/RemoteImages?api_key=%s" % (self.__host, item_id, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = requests.get(req_url, timeout=10, proxies=NO_PROXIES)
             if res:
                 images = res.json().get("Images")
                 for image in images:
@@ -215,7 +215,7 @@ class Emby:
             return False
         req_url = "%semby/Items/%s/Refresh?Recursive=true&api_key=%s" % (self.__host, item_id, self.__apikey)
         try:
-            res = requests.post(req_url)
+            res = requests.post(req_url, timeout=10, proxies=NO_PROXIES)
             if res:
                 return True
         except Exception as e:
@@ -229,7 +229,7 @@ class Emby:
             return False
         req_url = "%semby/Library/Refresh?api_key=%s" % (self.__host, self.__apikey)
         try:
-            res = requests.post(req_url)
+            res = requests.post(req_url, timeout=10, proxies=NO_PROXIES)
             if res:
                 return True
         except Exception as e:
@@ -328,6 +328,21 @@ class EmbyEvent:
             self.device_name = Session.get('DeviceName')
             self.client = Session.get('Client')
 
+    @staticmethod
+    def get_location(ip):
+        url = 'https://sp0.baidu.com/8aQDcjqpAAV3otqbppnN2DJv/api.php?co=&resource_id=6006&t=1529895387942&ie=utf8' \
+              '&oe=gbk&cb=op_aladdin_callback&format=json&tn=baidu&' \
+              'cb=jQuery110203920624944751099_1529894588086&_=1529894588088&query=%s' % ip
+        try:
+            r = requests.get(url, timeout=10, proxies=NO_PROXIES)
+            r.encoding = 'gbk'
+            html = r.text
+            c1 = html.split('location":"')[1]
+            c2 = c1.split('","')[0]
+            return c2
+        except requests.exceptions:
+            return ''
+
     # 处理Emby播放消息
     def report_to_discord(self):
         global PLAY_LIST
@@ -369,7 +384,7 @@ class EmbyEvent:
             message_text = '设备：' + self.device_name \
                            + '\n客户端：' + self.client \
                            + '\nIP地址：' + self.ip \
-                           + '\n位置：' + get_location(self.ip) \
+                           + '\n位置：' + self.get_location(self.ip) \
                            + '\n时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         # 小红心事件
         if self.category == 'item':

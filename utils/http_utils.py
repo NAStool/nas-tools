@@ -1,15 +1,16 @@
 import requests
 import urllib3
 
-from config import DEFAULT_HEADERS
+from config import DEFAULT_HEADERS, NO_PROXIES
 
 
 class RequestUtils:
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     __headers = None
     __cookies = None
+    __proxies = None
 
-    def __init__(self, headers, cookies):
+    def __init__(self, headers, cookies, proxies=False):
         if headers:
             if isinstance(headers, str):
                 self.__headers = {"User-Agent": f"{headers}"}
@@ -23,6 +24,10 @@ class RequestUtils:
                 self.__cookies = self.cookie_parse(cookies)
             else:
                 self.__cookies = cookies
+        if proxies:
+            self.__proxies = proxies
+        else:
+            self.__proxies = NO_PROXIES
 
     def post(self, url, params, json=None):
         if json is None:
@@ -30,7 +35,7 @@ class RequestUtils:
         i = 0
         while i < 3:
             try:
-                r = requests.post(url, data=params, verify=False, headers=self.__headers, json=json)
+                r = requests.post(url, data=params, verify=False, headers=self.__headers, proxies=self.__proxies, json=json)
                 return r
             except requests.exceptions.RequestException:
                 i += 1
@@ -39,7 +44,7 @@ class RequestUtils:
         i = 0
         while i < 3:
             try:
-                r = requests.get(url, verify=False, headers=self.__headers, params=params, timeout=10)
+                r = requests.get(url, verify=False, headers=self.__headers, proxies=self.__proxies, params=params, timeout=10)
                 return str(r.content, 'UTF-8')
             except requests.exceptions.RequestException:
                 i += 1
@@ -48,7 +53,7 @@ class RequestUtils:
         i = 0
         while i < 3:
             try:
-                return requests.get(url, params=params, verify=False, headers=self.__headers, cookies=self.__cookies, timeout=10)
+                return requests.get(url, params=params, verify=False, headers=self.__headers, proxies=self.__proxies, cookies=self.__cookies, timeout=10)
             except requests.exceptions.RequestException as e:
                 print(e)
                 i += 1
@@ -57,7 +62,7 @@ class RequestUtils:
         i = 0
         while i < 3:
             try:
-                return requests.post(url, params=params, verify=False, headers=self.__headers, cookies=self.__cookies,
+                return requests.post(url, params=params, verify=False, headers=self.__headers, proxies=self.__proxies, cookies=self.__cookies,
                                      allow_redirects=allow_redirects)
             except requests.exceptions.RequestException as e:
                 print(e)

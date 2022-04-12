@@ -430,6 +430,24 @@
         </div>
       </div>
     </div>
+    <div class="modal modal-blur fade" id="modal-logging" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">实时日志</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="logging_content" style="display:flex; flex-direction:column-reverse;font-size:12px;">
+          </div>
+          <div class="modal-footer">
+            <a href="javascript:pause_logging()" class="btn btn-link link-secondary me-auto" id="logging_stop_btn">
+              暂停
+            </a>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="logging_close_btn">关闭</button>
+          </div>
+        </div>
+      </div>
+    </div>
     </div>
     <!-- Libs JS -->
     <!-- Tabler Core -->
@@ -454,7 +472,27 @@
               enableSnippets: true,
               enableLiveAutocompletion: true
           });
-
+      //刷新LOG标志
+      refresh_logging_flag = false
+      //开始刷新日志
+      function start_logging(){
+        refresh_logging_flag = true;
+        refresh_logging();
+      }
+      //停止刷新日志
+      function stop_logging(){
+        refresh_logging_flag = false;
+      }
+      //刷新日志
+      function refresh_logging(){
+        ajax_post("logging", {}, function(ret){
+          if(ret.text)
+          $("#logging_content").html(ret.text);
+          if(refresh_logging_flag == true){
+            setTimeout("refresh_logging()", 2000);
+          }
+        });
+      }
       //拉取列表
       function refresh_rename_paths(){
         ajax_post("rename_path", {}, function(ret){
@@ -500,6 +538,9 @@
         }else if(id == "config"){
           load_config();
           $('#modal-config').modal('show');
+        }else if(id == "logging"){
+          start_logging();
+          $('#modal-logging').modal('show');
         }else{
           $("#service_start_id").val(id);
           $("#service_start_name").val(name);
@@ -593,6 +634,17 @@
         });
       }
 
+      //暂停实时日志
+      function pause_logging(){
+        if(refresh_logging_flag == true){
+          stop_logging();
+          $("#logging_stop_btn").text("开始")
+        }else{
+          start_logging();
+          $("#logging_stop_btn").text("暂停")
+        }
+      }
+
       //绑定事件
       $(document).ready(function(){
         //服务模态框事件
@@ -618,6 +670,10 @@
               $("#rename_season_div").show();
           }
        });
+       //实时日志关闭
+       $("#logging_close_btn").click(function(){
+            stop_logging();
+        });
       });
     </script>
   </body>

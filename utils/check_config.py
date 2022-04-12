@@ -84,9 +84,7 @@ def check_config(cfg):
             log.error("tv_path目录不存在：%s" % tv_path)
 
         anime_path = config['media'].get('anime_path')
-        if not anime_path:
-            log.error("未配置anime_path")
-        elif not os.path.exists(anime_path):
+        if anime_path and not os.path.exists(anime_path):
             log.error("anime_path目录不存在：%s" % anime_path)
 
         category = config['media'].get('category')
@@ -94,9 +92,12 @@ def check_config(cfg):
             log.warn("未配置分类策略")
         else:
             cates = Category()
-            log.info("电影分类：%s" % " ".join(cates.get_movie_categorys()))
-            log.info("电视剧分类：%s" % " ".join(cates.get_tv_categorys()))
-            log.info("动漫分类：%s" % " ".join(cates.get_anime_categorys()))
+            if cates.get_movie_categorys():
+                log.info("电影分类：%s" % " ".join(cates.get_movie_categorys()))
+            if cates.get_tv_categorys():
+                log.info("电视剧分类：%s" % " ".join(cates.get_tv_categorys()))
+            if cates.get_anime_categorys():
+                log.info("动漫分类：%s" % " ".join(cates.get_anime_categorys()))
     else:
         log.error("media配置不存在")
 
@@ -107,9 +108,7 @@ def check_config(cfg):
                 if sync_path.find('|') != -1:
                     sync_path = sync_path.split("|")[0]
                 if not os.path.exists(sync_path):
-                    log.warn("sync_path目录不存在，该目录监控资源同步功能将禁用：%s" % sync_path)
-        else:
-            log.warn("未配置sync_path，目录监控资源同步功能将禁用")
+                    log.warn("sync_path目录不存在，该目录监控资源同步功能已关闭：%s" % sync_path)
 
         sync_mod = config['sync'].get('sync_mod', 'COPY')
         if sync_mod:
@@ -147,7 +146,7 @@ def check_config(cfg):
             corpsecret = config['message'].get('wechat', {}).get('corpsecret')
             agentid = config['message'].get('wechat', {}).get('agentid')
             if not corpid or not corpsecret or not agentid:
-                log.warn("wechat配置不完整，将无法接收到微信通知消息")
+                log.warn("wechat配置不完整，将无法接收到通知消息")
             Token = config['message'].get('wechat', {}).get('Token')
             EncodingAESKey = config['message'].get('wechat', {}).get('EncodingAESKey')
             if not Token or not EncodingAESKey:
@@ -155,7 +154,7 @@ def check_config(cfg):
         elif msg_channel == "serverchan":
             sckey = config['message'].get('serverchan', {}).get('sckey')
             if not sckey:
-                log.warn("sckey未配置，将无法接收到Server酱通知消息")
+                log.warn("sckey未配置，将无法接收到通知消息")
         elif msg_channel == "telegram":
             telegram_token = config['message'].get('telegram', {}).get('telegram_token')
             telegram_chat_id = config['message'].get('telegram', {}).get('telegram_chat_id')
@@ -184,21 +183,21 @@ def check_config(cfg):
 
         ptsignin_cron = config['pt'].get('ptsignin_cron')
         if not ptsignin_cron:
-            log.warn("ptsignin_cron未配置，将无法使用PT站签到功能")
+            log.info("ptsignin_cron未配置，PT站签到功能已关闭")
 
         pt_seeding_time = config['pt'].get('pt_seeding_time')
         if not pt_seeding_time:
-            log.warn("pt_seeding_time未配置，自动删种功能将禁用")
+            log.info("pt_seeding_time未配置，自动删种功能已关闭")
         else:
             log.info("PT保种时间设置为：%s 小时" % str(round(pt_seeding_time / 3600)))
 
         pt_check_interval = config['pt'].get('pt_check_interval')
         if not pt_check_interval:
-            log.warn("pt_check_interval未配置，RSS订阅自动更新功能将禁用")
+            log.info("pt_check_interval未配置，RSS订阅自动更新功能已关闭")
 
         pt_monitor = config['pt'].get('pt_monitor')
         if not pt_monitor:
-            log.info("pt_monitor未配置，PT下载监控已关闭")
+            log.info("pt_monitor未配置，PT下载监控功能已关闭")
 
         pt_client = config['pt'].get('pt_client')
         log.info("PT下载软件设置为：%s" % pt_client)
@@ -213,14 +212,7 @@ def check_config(cfg):
                 else:
                     if isinstance(save_path, dict):
                         if not save_path.get('tv') or not save_path.get('movie'):
-                            log.warn("qbittorrent save_path配置不完整，请检查配置！")
-                save_containerpath = config['qbittorrent'].get('save_containerpath')
-                if not save_containerpath:
-                    log.warn("qbittorrent save_path未设置，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
-                else:
-                    if isinstance(save_containerpath, dict):
-                        if not save_containerpath.get('tv') or not save_containerpath.get('movie'):
-                            log.warn("qbittorrent save_containerpath配置不完整，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
+                            log.warn("qbittorrent save_path配置不完整，请检查配置")
         elif pt_client == "transmission":
             # 检查qbittorrent配置并测试连通性
             if not config.get('transmission'):
@@ -233,28 +225,10 @@ def check_config(cfg):
                     if isinstance(save_path, dict):
                         if not save_path.get('tv') or not save_path.get('movie'):
                             log.warn("transmission save_path配置不完整，请检查配置！")
-                save_containerpath = config['transmission'].get('save_containerpath')
-                if not save_containerpath:
-                    log.warn("transmission save_path未设置，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
-                else:
-                    if isinstance(save_containerpath, dict):
-                        if not save_containerpath.get('tv') or not save_containerpath.get('movie'):
-                            log.warn("transmission save_containerpath配置不完整，如果是Docker容器使用则必须配置该项，否则无法正常转移文件")
 
         sites = config['pt'].get('sites')
-        if sites:
-            for key, value in sites.items():
-                rssurl = sites.get(key, {}).get('rssurl')
-                if not rssurl:
-                    log.warn("%s 的 rssurl 未配置，该PT站的RSS订阅下载功能将禁用" % key)
-                signin_url = sites.get(key, {}).get('signin_url')
-                if not signin_url:
-                    log.warn("%s 的 signin_url 未配置，该PT站的自动签到功能将禁用" % key)
-                cookie = sites.get(key, {}).get('cookie')
-                if not cookie:
-                    log.warn("%s 的 cookie 未配置，该PT站的自动签到功能将禁用" % key)
-        else:
-            log.warn("sites未配置，RSS订阅下载功能将禁用")
+        if not sites:
+            log.warn("sites未配置，RSS订阅下载功能已关闭")
     else:
         log.warn("pt未配置，部分功能将无法使用")
 

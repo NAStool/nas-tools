@@ -1,5 +1,6 @@
 import logging
 import os
+from collections import deque
 from threading import Lock
 from subprocess import call
 import yaml
@@ -18,6 +19,11 @@ RMT_SUBEXT = ['.srt', '.ass', '.ssa']
 # 默认Headers
 DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"}
+# 默认无代理
+NO_PROXIES = {
+  "http": None,
+  "https": None,
+}
 # 剩余多少磁盘空间时不再转移，单位GB
 RMT_DISKFREESIZE = 10
 # 默认过滤的文件大小，200M
@@ -37,6 +43,8 @@ FANART_MOVIE_API_URL = 'http://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9
 FANART_TV_API_URL = 'http://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
 # 日志级别
 LOG_LEVEL = logging.INFO
+# 定义一个列表用来保存最近的日志，以便查看
+LOG_QUEUE = deque(maxlen=1000)
 
 lock = Lock()
 

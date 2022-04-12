@@ -316,10 +316,15 @@ class FileTransfer:
             total_count = total_count + 1
             # 文件名
             file_name = os.path.basename(file_item)
+            # 无后缀文件名
+            file_base_name = os.path.splitext(file_name)[0]
+            # 上级目录
+            file_path = os.path.dirname(file_item)
+            # 未识别
             if not media or not media.tmdb_info:
                 log.warn("【RMT】%s 无法识别媒体信息！" % file_name)
                 # 记录未识别
-                insert_transfer_unknown(in_path, target_dir)
+                insert_transfer_unknown(file_path, target_dir)
                 failed_count = failed_count + 1
                 # 原样转移过去
                 if target_dir:
@@ -362,6 +367,15 @@ class FileTransfer:
                 log.error("【RMT】目录 %s 剩余磁盘空间不足 %s GB，不处理" % (dist_path, RMT_DISKFREESIZE))
                 self.message.sendmsg("【RMT】磁盘空间不足", "目录 %s 剩余磁盘空间不足 %s GB" % (dist_path, RMT_DISKFREESIZE))
                 return False, "磁盘空间不足"
+            # 检查是否有识别集
+            if media.type != MediaType.MOVIE and not media.get_episode_list():
+                episode_re = re.search(r'[.\s_]+(\d{1,3})[.\s_]+|(\d{1,3})$', file_base_name)
+                if episode_re:
+                    episode = episode_re.group(1)
+                    if not episode:
+                        episode = episode_re.group(2)
+                    if episode:
+                        media.begin_episode = int(episode)
             # 判断文件是否已存在，返回：目录存在标志、目录名、文件存在标志、文件名
             dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.is_media_exists(dist_path, media)
             # 已存在的文件数量
@@ -416,7 +430,7 @@ class FileTransfer:
             if not ret:
                 continue
             # 转移历史记录
-            insert_transfer_history(in_from, rmt_mode, in_path, dist_path, media)
+            insert_transfer_history(in_from, rmt_mode, file_path, dist_path, media)
             # 电影立即发送消息
             if media.type == MediaType.MOVIE:
                 self.message.send_transfer_movie_message(in_from,

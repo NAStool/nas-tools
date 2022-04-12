@@ -12,10 +12,24 @@ if __name__ == "__main__":
     os.environ['TZ'] = 'Asia/Shanghai'
     print("配置文件地址：%s" % os.environ.get('NASTOOL_CONFIG'))
     print('NASTool 当前版本号：%s' % APP_VERSION)
+
     # 检查配置文件
     config = Config()
     if not check_config(config):
         quit()
+
+    # 设置全局代理
+    app_cfg = config.get_config('app')
+    if app_cfg:
+        proxies = app_cfg.get('proxies')
+        if proxies:
+            http_proxy = proxies.get('http')
+            if http_proxy:
+                os.environ['HTTP_PROXY'] = http_proxy
+            https_proxy = proxies.get('https')
+            if http_proxy:
+                os.environ['HTTPS_PROXY'] = https_proxy
+
     # 启动进程
     print("开始启动进程...")
 

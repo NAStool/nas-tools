@@ -21,7 +21,7 @@ from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
 from message.send import Message
 
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL
+from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE
 from utils.functions import get_used_of_partition, str_filesize, str_timelong, INSTANCES
 from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
@@ -546,7 +546,18 @@ def create_flask_app(config):
         </svg>
         '''
         scheduler_cfg_list.append(
-            {'name': '配置文件', 'time': '手动', 'state': 'OFF', 'id': 'config', 'svg': svg, 'color': 'purple'})
+            {'name': '配置文件', 'time': '', 'state': 'OFF', 'id': 'config', 'svg': svg, 'color': 'purple'})
+
+        # 实时日志
+        svg = '''
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-terminal" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+           <path d="M5 7l5 5l-5 5"></path>
+           <line x1="12" y1="19" x2="19" y2="19"></line>
+        </svg>
+        '''
+        scheduler_cfg_list.append(
+            {'name': '实时日志', 'time': '', 'state': 'OFF', 'id': 'logging', 'svg': svg, 'color': 'indigo'})
 
         return render_template("service.html",
                                Count=len(scheduler_cfg_list),
@@ -606,8 +617,14 @@ def create_flask_app(config):
     # 事件响应
     @App.route('/do', methods=['POST', 'GET'])
     def do():
-        cmd = request.form.get("cmd")
-        data = json.loads(request.form.get("data"))
+        if request.method == "POST":
+            cmd = request.form.get("cmd")
+            data = request.form.get("data")
+        else:
+            cmd = request.args.get("cmd")
+            data = request.args.get("data")
+        if data:
+            data = json.loads(data)
         if cmd:
             # 启动定时服务
             if cmd == "sch":
@@ -861,6 +878,12 @@ def create_flask_app(config):
                         except Exception as e:
                             print(str(e))
                 return {"retcode": 0}
+
+            # 查询实时日志
+            if cmd == "logging":
+                if LOG_QUEUE:
+                    return {"text": "<br/>".join(list(LOG_QUEUE))}
+                return {"text": ""}
 
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])

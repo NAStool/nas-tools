@@ -1,6 +1,6 @@
 import requests
 
-from config import Config
+from config import Config, NO_PROXIES
 
 
 class Bark:
@@ -25,7 +25,7 @@ class Bark:
             if not self.__server or not self.__apikey:
                 return False, "参数未配置"
             sc_url = "%s/%s/%s/%s" % (self.__server, self.__apikey, title, text)
-            res = requests.get(sc_url, timeout=10)
+            res = requests.get(sc_url, timeout=10, proxies=NO_PROXIES)
             if res:
                 ret_json = res.json()
                 code = ret_json['code']

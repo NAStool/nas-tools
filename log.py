@@ -2,7 +2,7 @@ import logging
 import os
 import threading
 from logging.handlers import TimedRotatingFileHandler
-from config import LOG_LEVEL, Config
+from config import LOG_LEVEL, Config, LOG_QUEUE
 
 lock = threading.Lock()
 
@@ -17,7 +17,7 @@ class Logger:
         self.__config = Config()
         app = self.__config.get_config('app')
         if app:
-            logtype = app.get('logtype', 'console')
+            logtype = app.get('logtype')
             if logtype:
                 logtype = logtype.upper()
             else:
@@ -66,16 +66,20 @@ class Logger:
 
 
 def debug(text):
+    LOG_QUEUE.append("DEBUG - %s" % text)
     return Logger.get_instance().logger.debug(text)
 
 
 def info(text):
+    LOG_QUEUE.append("INFO - %s" % text)
     return Logger.get_instance().logger.info(text)
 
 
 def error(text):
+    LOG_QUEUE.append("ERROR - %s" % text)
     return Logger.get_instance().logger.error(text)
 
 
 def warn(text):
+    LOG_QUEUE.append("WARN - %s" % text)
     return Logger.get_instance().logger.warning(text)

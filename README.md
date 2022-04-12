@@ -36,6 +36,9 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 
 
 ## 更新日志
+2022.4.12
+* 支持配置代理
+
 2022.4.8
 * RSS订阅及PT资源检索支持按关键字和文件大小灵活过滤
 

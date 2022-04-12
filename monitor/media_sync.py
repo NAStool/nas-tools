@@ -94,14 +94,15 @@ class Sync(object):
                 ext = os.path.splitext(name)[-1]
                 if ext not in RMT_MEDIAEXT:
                     return
-                # 黑名单不处理
-                if is_transfer_in_blacklist(event_path):
-                    return
 
                 log.debug("【SYNC】文件%s：%s" % (text, event_path))
+                # 上级目录
+                from_dir = os.path.dirname(event_path)
+                # 黑名单不处理
+                if is_transfer_in_blacklist(from_dir):
+                    return
                 # 找到是哪个监控目录下的
                 monitor_dir = event_path
-                from_dir = os.path.dirname(event_path)
                 is_root_path = False
                 for m_path in SYNC_DIR_CONFIG.keys():
                     if m_path:
@@ -141,14 +142,12 @@ class Sync(object):
                 log.error("【SYNC】发生错误：%s" % str(e))
 
     # 批量转移文件
-    def transfer_mon_files(self, no_path=None):
+    def transfer_mon_files(self):
         try:
             lock.acquire()
             items = list(self.__need_sync_paths)
             for path in items:
-                if path == no_path:
-                    continue
-                if os.path.exists(path):
+                if os.path.exists(path) and not is_transfer_in_blacklist(path):
                     log.info("【SYNC】开始转移监控目录文件...")
                     ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
                                                                     in_path=path,

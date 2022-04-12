@@ -1,9 +1,5 @@
 import json
 from datetime import datetime
-from urllib.parse import urlencode
-
-import requests
-
 from pt.douban import DouBan
 from utils.functions import singleton
 

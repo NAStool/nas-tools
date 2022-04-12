@@ -2,7 +2,7 @@ from datetime import datetime
 import threading
 import requests
 
-from config import Config
+from config import Config, NO_PROXIES
 from utils.functions import singleton
 
 lock = threading.Lock()
@@ -81,7 +81,7 @@ class WeChat(object):
         }
         headers = {'content-type': 'charset=utf8'}
         try:
-            res = requests.post(message_url, json=req_json, headers=headers)
+            res = requests.post(message_url, json=req_json, headers=headers, proxies=NO_PROXIES)
             if res:
                 ret_json = res.json()
                 if ret_json['errcode'] == 0:
@@ -117,7 +117,7 @@ class WeChat(object):
         }
         headers = {'content-type': 'charset=utf8'}
         try:
-            res = requests.post(message_url, json=req_json, headers=headers)
+            res = requests.post(message_url, json=req_json, headers=headers, proxies=NO_PROXIES)
             if res:
                 ret_json = res.json()
                 if ret_json['errcode'] == 0:
