@@ -46,7 +46,7 @@ FANART_TV_API_URL = 'http://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea0
 # 日志级别
 LOG_LEVEL = logging.INFO
 # 定义一个列表用来保存最近的日志，以便查看
-LOG_QUEUE = deque(maxlen=500)
+LOG_QUEUE = deque(maxlen=200)
 
 lock = Lock()
 

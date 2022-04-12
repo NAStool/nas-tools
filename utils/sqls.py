@@ -82,9 +82,21 @@ def delete_all_movie_keys():
     return update_by_sql(sql)
 
 
+# 删除电影关键字
+def delete_movie_key(key):
+    sql = "DELETE FROM RSS_MOVIEKEYS WHERE NAME='%s'" % key
+    return update_by_sql(sql)
+
+
 # 删除全部电视剧关键字
 def delete_all_tv_keys():
     sql = "DELETE FROM RSS_TVKEYS"
+    return update_by_sql(sql)
+
+
+# 删除电视剧关键字
+def delete_tv_key(key):
+    sql = "DELETE FROM RSS_TVKEYS WHERE NAME='%s'" % key
     return update_by_sql(sql)
 
 

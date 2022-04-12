@@ -4,6 +4,7 @@ import os.path
 import shutil
 from math import floor
 
+import requests
 from flask import Flask, request, json, render_template, make_response, redirect, url_for
 from flask_login import LoginManager, UserMixin, login_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -885,6 +886,22 @@ def create_flask_app(config):
                 if LOG_QUEUE:
                     return {"text": "<br/>".join(list(LOG_QUEUE))}
                 return {"text": ""}
+
+            # 检查新版本
+            if cmd == "version":
+                version = ""
+                info = ""
+                code = 0
+                try:
+                    response = requests.get("https://api.github.com/repos/jxxghp/nas-tools/releases/latest")
+                    if response:
+                        ver_json = response.json()
+                        version = ver_json["tag_name"]
+                        info = f'<a href="{ver_json["html_url"]}" target="_blank">{version}</a>'
+                except Exception as e:
+                    print(str(e))
+                    code = -1
+                return {"code": code, "version": version, "info": info}
 
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])

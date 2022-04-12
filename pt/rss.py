@@ -8,7 +8,8 @@ from utils.functions import is_chinese
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
-from utils.sqls import get_movie_keys, get_tv_keys, is_torrent_rssd_by_name, insert_rss_torrents
+from utils.sqls import get_movie_keys, get_tv_keys, is_torrent_rssd_by_name, insert_rss_torrents, delete_movie_key, \
+    delete_tv_key
 from utils.types import MediaType, SearchType
 
 RSS_CACHED_TORRENTS = []
@@ -59,7 +60,7 @@ class Rss:
         # 代码站点配置优先级的序号
         order_seq = 100
         rss_download_torrents = []
-        no_exists = []
+        no_exists = {}
         for rss_job, job_info in self.__sites.items():
             order_seq -= 1
             # 读取子配置
@@ -144,6 +145,12 @@ class Rss:
                     exist_flag, no_exists = self.downloader.check_exists_medias(in_from=SearchType.RSS,
                                                                                 meta_info=media_info)
                     if exist_flag:
+                        # 如果是电影，已存在时删除订阅，只会删除名字匹配的
+                        if media_info.type == MediaType.MOVIE:
+                            delete_movie_key(media_info.title)
+                        # 如果是电视剧，没有不存在的季集时删除订阅，只会删除名字匹配的
+                        elif not no_exists:
+                            delete_tv_key(media_info.title)
                         continue
                     # 返回对象
                     media_info.set_torrent_info(site_order=order_seq,
@@ -161,6 +168,12 @@ class Rss:
         log.info("【RSS】所有RSS处理结束，共 %s 个有效资源" % len(rss_download_torrents))
         # 去重择优后开始添加下载
         download_num, left_medias = self.downloader.check_and_add_pt(SearchType.RSS, rss_download_torrents, no_exists)
+        # 批量删除订阅
+        for media in rss_download_torrents:
+            if media.type == MediaType.MOVIE:
+                delete_movie_key(media.title)
+            elif not left_medias or not left_medias.get(media.get_title_string()):
+                delete_tv_key(media.title)
         log.info("【RSS】实际下载了 %s 个资源" % download_num)
 
     @staticmethod
