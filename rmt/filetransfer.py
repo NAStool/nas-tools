@@ -340,6 +340,7 @@ class FileTransfer:
 
         # 统计总的文件数、失败文件数
         failed_count = 0
+        success_count = 0
         total_count = 0
         # 电视剧可能有多集，如果在循环里发消息就太多了，要在外面发消息
         message_medias = {}
@@ -457,6 +458,7 @@ class FileTransfer:
                     if ret:
                         insert_transfer_history(in_from, rmt_mode, in_path, dist_path, media)
                         log.info("【RMT】蓝光原盘 %s 转移成功" % file_name)
+                        success_count += 1
                     else:
                         log.error("【RMT】蓝光原盘 %s 转移失败！" % file_name)
                         continue
@@ -473,6 +475,7 @@ class FileTransfer:
             ret = self.transfer_file(file_item, new_file, False, rmt_mode)
             if not ret:
                 continue
+            success_count += 1
             # 转移历史记录
             insert_transfer_history(in_from, rmt_mode, max(file_path, in_path), dist_path, media)
             # 电影立即发送消息
@@ -509,7 +512,7 @@ class FileTransfer:
         if message_medias:
             self.message.send_transfer_tv_message(message_medias, in_from)
         # 刷新媒体库
-        if refresh_library_items:
+        if refresh_library_items and success_count > 0:
             self.emby.refresh_emby_library_by_items(refresh_library_items)
         # 总结
         log.info("【RMT】%s 处理完成，总数：%s，失败：%s" % (in_path, total_count, failed_count))

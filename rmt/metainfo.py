@@ -657,7 +657,7 @@ class MetaInfo(object):
             else:
                 self.category = self.category_handler.get_anime_category(info)
         self.poster_path = "https://image.tmdb.org/t/p/w500%s" % info.get('poster_path')
-        self.backdrop_path = self.get_backdrop_image(self.type, info.get('backdrop_path'), info.get('id'))
+        self.backdrop_path = self.get_backdrop_image(self.type, tmdbid=info.get('id'), default=self.poster_path)
 
     # 整合种了信息
     def set_torrent_info(self, site=None, site_order=0, enclosure=None, res_type=None, res_order=0, size=0, seeders=0,
@@ -674,7 +674,7 @@ class MetaInfo(object):
 
     # 获取消息媒体图片
     @staticmethod
-    def get_backdrop_image(search_type, backdrop_path, tmdbid, default=None):
+    def get_backdrop_image(search_type, tmdbid, default=None):
         if not search_type:
             return ""
         if tmdbid:
@@ -695,8 +695,6 @@ class MetaInfo(object):
                 print(str(e1))
             except Exception as e2:
                 print(str(e2))
-        if backdrop_path:
-            return "https://image.tmdb.org/t/p/w500%s" % backdrop_path
         if default:
             # 返回一个默认图片
             return default
