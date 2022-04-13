@@ -157,7 +157,9 @@ class Rss:
                                                 site=rss_job,
                                                 enclosure=enclosure,
                                                 res_type=res_typestr,
-                                                res_order=res_order)
+                                                res_order=res_order,
+                                                size=size,
+                                                description=description)
                     if media_info not in rss_download_torrents:
                         rss_download_torrents.append(media_info)
                         res_num = res_num + 1

@@ -2,6 +2,8 @@ import os
 import re
 
 import anitopy
+
+from message.send import Message
 from pt.downloader import Downloader
 from pt.jackett import Jackett
 from pt.rss import Rss
@@ -10,6 +12,7 @@ from rmt.metainfo import MetaInfo
 from utils.db_helper import select_by_sql
 from utils.functions import is_anime
 from utils.sqls import get_tv_keys
+from utils.types import SearchType
 from web.backend.search_torrents import search_medias_for_web
 
 if __name__ == "__main__":
@@ -66,15 +69,24 @@ if __name__ == "__main__":
     print(select_by_sql('SELECT * FROM RSS_TVKEYS'))
     media_info = Media().get_media_info('Paripi Koumei S01E01 1080p B-Global WEB-DL H264 AAC-CHDWEB')
     print(Rss().is_torrent_match(media_info, [], get_tv_keys()))
-    print(MetaInfo('西部世界 第2集.mkv').__dict__)
-    print(MetaInfo('刺客伍六七.第03季.Scissor.Seven.Ⅲ.2021.第01话.WEB-DL.1080P.AVC.DD+2.0＆AAC.GB-XHGM.mkv').__dict__)
+    print(MetaInfo('Jurassic.World.3D.2015.1080p.Half-SBS.BluRay.x264.DTS-WiKi.mkv').__dict__)
     print(MetaInfo('Percent.World.3D.2022.2160p.WEB-DL.H265.DDP5.1-LeagueWEB.mkv').__dict__)
     print(MetaInfo('刺客伍六七.第03季.Scissor.Seven.Ⅲ.2021.第06话.WEB-DL.1080P.AVC.DD+2.0＆AAC.GB-XHGM.mkv').__dict__)
-    '''
-    # Jackett().search_one_media('电视剧 行尸走肉')
-    # search_medias_for_web('Walking Dead')
     print(MetaInfo('神奇女侠.1984.Wonder.Woman.1984.2020.3D.BluRay.1080p').__dict__)
     print(MetaInfo('神奇女侠.Wonder.Woman.1984.2020.3D.BluRay.1080p').__dict__)
     print(MetaInfo('Wonder.Woman.1984.2020.3D.BluRay.1080p').__dict__)
     print(MetaInfo('神奇女侠.1984.2020.3D.BluRay.1080p').__dict__)
     print(MetaInfo('1984.2020.3D.BluRay.1080p').__dict__)
+    print(MetaInfo('[U2-Rip] SLAM DUNK 第005話「根性なしの午後」(BDrip 1440x1080 H264 FLAC).mkv').__dict__)
+    print(MetaInfo('西部世界 第2集.mkv').__dict__)
+    print(MetaInfo('西部世界 02.mkv').__dict__)
+    print(MetaInfo('1.mkv').__dict__)
+    '''
+    # Jackett().search_one_media('斗罗大陆 第121-202集')
+    media = Media().get_media_info('Wonder.Woman.1984.2020.WEB-DL.BluRay.1080p')
+    media.site = "pthome"
+    media.size = 342343434333
+    media.description = "刺客伍六七.第03季"
+    Message().send_download_message(SearchType.WX, media)
+
+

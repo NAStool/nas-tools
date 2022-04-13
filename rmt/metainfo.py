@@ -30,9 +30,9 @@ class MetaInfo(object):
     # 总集数
     total_episodes = 0
     # 识别的开始集
-    begin_episode = None
+    begin_episode = 0
     # 识别的结束集
-    end_episode = None
+    end_episode = 0
     # Partx Cd Dvd Disk Disc
     part = None
     # 识别的资源类型
@@ -296,17 +296,18 @@ class MetaInfo(object):
             return
         re_res = re.search(r"%s" % self._part_re, token, re.IGNORECASE)
         if re_res:
-            # part或者part加数字
+            self._last_token_type = "part"
+            self._continue_flag = False
+            self._stop_name_flag = True
             if not self.part:
                 self.part = re_res.group(1)
-                self._last_token_type = "part"
-                self._continue_flag = False
-                self._stop_name_flag = True
         else:
             # 单个数字加入part
             if self._last_token_type == "part" and token.isdigit() and len(token) == 1:
+                self._last_token_type = "part"
                 self.part = "%s%s" % (self.part, token)
                 self._continue_flag = False
+                self._stop_name_flag = True
 
     def __init_year(self, token):
         if not self.get_name():
@@ -327,25 +328,41 @@ class MetaInfo(object):
             return
         re_res = re.search(r"%s" % self._resources_pix_re, token, re.IGNORECASE)
         if re_res:
+            self._last_token_type = "pix"
+            self._continue_flag = False
+            self._stop_name_flag = True
             if not self.resource_pix:
-                self.resource_pix = re_res.group(1).lower()
-                self._last_token_type = "pix"
-                self._continue_flag = False
-                self._stop_name_flag = True
+                self.resource_pix = re_res.group(1).upper()
+            elif self.resource_pix == "3D":
+                self.resource_pix = "%s 3D" % re_res.group(1).upper()
         else:
             re_res = re.search(r"%s" % self._resources_pix_re2, token, re.IGNORECASE)
             if re_res:
+                self._last_token_type = "pix"
+                self._continue_flag = False
+                self._stop_name_flag = True
                 if not self.resource_pix:
-                    self.resource_pix = re_res.group(1).lower()
-                    self._last_token_type = "pix"
-                    self._continue_flag = False
-                    self._stop_name_flag = True
+                    self.resource_pix = re_res.group(1).upper()
+                elif self.resource_pix == "3D":
+                    self.resource_pix = "%s 3D" % re_res.group(1).upper()
+            elif token.upper() == "3D":
+                self._last_token_type = "pix"
+                self._continue_flag = False
+                self._stop_name_flag = True
+                if not self.resource_pix:
+                    self.resource_pix = "3D"
+                else:
+                    self.resource_pix = "%s 3D" % self.resource_pix
 
     def __init_seasion(self, token):
         if not self.get_name():
             return
         re_res = re.findall(r"%s" % self._season_re, token, re.IGNORECASE)
         if re_res:
+            self._last_token_type = "season"
+            self.type = MediaType.TV
+            self._stop_name_flag = True
+            self._continue_flag = True
             for se in re_res:
                 if isinstance(se, tuple):
                     if se[0]:
@@ -360,13 +377,11 @@ class MetaInfo(object):
                     se = int(se)
                 if not self.begin_season:
                     self.begin_season = se
-                    self._last_token_type = "season"
+                    self.total_seasons = 1
                 else:
                     if self.begin_season != se:
                         self.end_season = se
-                        self._last_token_type = "season"
-            self.type = MediaType.TV
-            self._stop_name_flag = True
+                        self.total_seasons = (self.end_season - self.begin_season) + 1
         else:
             if token.isdigit():
                 if self.begin_season \
@@ -375,13 +390,20 @@ class MetaInfo(object):
                         and (int(token) > self.begin_season) \
                         and self._last_token_type == "season":
                     self.end_season = int(token)
+                    self.total_seasons = (self.end_season - self.begin_season) + 1
                     self._last_token_type = "season"
+                    self._stop_name_flag = True
+                    self._continue_flag = False
 
     def __init_episode(self, token):
         if not self.get_name():
             return
         re_res = re.findall(r"%s" % self._episode_re, token, re.IGNORECASE)
         if re_res:
+            self._last_token_type = "episode"
+            self._continue_flag = False
+            self._stop_name_flag = True
+            self.type = MediaType.TV
             for se in re_res:
                 if isinstance(se, tuple):
                     if se[0]:
@@ -396,15 +418,11 @@ class MetaInfo(object):
                     se = int(se)
                 if not self.begin_episode:
                     self.begin_episode = se
-                    self._last_token_type = "episode"
-                    self._continue_flag = False
+                    self.total_episodes = 1
                 else:
                     if self.begin_episode != se:
                         self.end_episode = se
-                        self._last_token_type = "episode"
-                        self._continue_flag = False
-            self.type = MediaType.TV
-            self._stop_name_flag = True
+                        self.total_episodes = (self.end_episode - self.begin_episode) + 1
         if token.isdigit():
             if self.begin_episode \
                     and not self.end_episode \
@@ -412,36 +430,42 @@ class MetaInfo(object):
                     and (int(token) > self.begin_episode) \
                     and self._last_token_type == "episode":
                 self.end_episode = int(token)
+                self.total_episodes = (self.end_episode - self.begin_episode) + 1
+                self._last_token_type = "episode"
+                self._stop_name_flag = True
+                self._continue_flag = False
+                self.type = MediaType.TV
+            elif 1 < len(token) < 4 and token.startswith('0'):
+                self.begin_episode = int(token)
+                self.total_episodes = 1
                 self._last_token_type = "episode"
                 self._continue_flag = False
-            else:
-                if 1 < len(token) < 4 and token.startswith('0'):
-                    self.begin_episode = int(token)
-                    self._last_token_type = "episode"
-                    self._continue_flag = False
-                    self.type = MediaType.TV
-                    self._stop_name_flag = True
+                self._stop_name_flag = True
+                self.type = MediaType.TV
 
     def __init_resource_type(self, token):
         if not self.get_name():
             return
         re_res = re.search(r"(%s)" % self._resources_type_re, token, re.IGNORECASE)
         if re_res:
+            self._last_token_type = "restype"
+            self._continue_flag = False
+            self._stop_name_flag = True
             if not self.resource_type:
                 self.resource_type = re_res.group(1).upper()
                 self._last_token = self.resource_type
-                self._last_token_type = "restype"
-                self._continue_flag = False
-                self._stop_name_flag = True
+
         else:
             if token.upper() == "DL" and self._last_token_type == "restype" and self._last_token == "WEB":
                 self.resource_type = "WEB-DL"
                 self._last_token_type = "restype"
                 self._continue_flag = False
+                self._stop_name_flag = True
             if token.upper() == "RAY" and self._last_token_type == "restype" and self._last_token == "BLU":
                 self.resource_type = "BLURAY"
                 self._last_token_type = "restype"
                 self._continue_flag = False
+                self._stop_name_flag = True
 
     def __init_subtitle(self, title_text):
         if re.search(r'[第季集话話]', title_text, re.IGNORECASE):
@@ -463,8 +487,10 @@ class MetaInfo(object):
                     begin_season = int(cn2an.cn2an(seasons, mode='smart'))
                 if not self.begin_season and isinstance(begin_season, int):
                     self.begin_season = begin_season
+                    self.total_seasons = 1
                 if self.begin_season and not self.end_season and isinstance(end_season, int):
                     self.end_season = end_season
+                    self.total_seasons = (self.end_season - self.begin_season) + 1
                 self.type = MediaType.TV
             # 集
             episode_str = re.search(r'%s' % self._subtitle_episode_re, title_text, re.IGNORECASE)
@@ -484,8 +510,10 @@ class MetaInfo(object):
                     begin_episode = int(cn2an.cn2an(episodes, mode='smart'))
                 if not self.begin_episode and isinstance(begin_episode, int):
                     self.begin_episode = begin_episode
+                    self.total_episodes = 1
                 if self.begin_episode and not self.end_episode and isinstance(end_episode, int):
                     self.end_episode = end_episode
+                    self.total_episodes = (self.end_episode - self.begin_episode) + 1
                 self.type = MediaType.TV
         else:
             # 文件名只有数字的，认为是集号
@@ -657,7 +685,7 @@ class MetaInfo(object):
             else:
                 self.category = self.category_handler.get_anime_category(info)
         self.poster_path = "https://image.tmdb.org/t/p/w500%s" % info.get('poster_path')
-        self.backdrop_path = self.get_backdrop_image(self.type, tmdbid=info.get('id'), default=self.poster_path)
+        self.backdrop_path = self.get_backdrop_image(self.type, tmdbid=info.get('id'))
 
     # 整合种了信息
     def set_torrent_info(self, site=None, site_order=0, enclosure=None, res_type=None, res_order=0, size=0, seeders=0,

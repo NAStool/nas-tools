@@ -106,6 +106,17 @@ def create_flask_app(config):
     def page_server_error(error):
         return render_template("500.html", error=error), 500
 
+    # 加载静态资源
+    @App.route('/header.html', methods=['GET'])
+    def header():
+        return render_template("header.html")
+
+    # 加载静态资源
+    @App.route('/footer.html', methods=['GET'])
+    def footer():
+        return render_template("footer.html",
+                               AppVersion=APP_VERSION)
+
     # 登录页面
     @App.route('/', methods=['POST', 'GET'])
     @App.route('/login', methods=['GET', 'POST'])
@@ -893,7 +904,7 @@ def create_flask_app(config):
                 info = ""
                 code = 0
                 try:
-                    response = requests.get("https://api.github.com/repos/jxxghp/nas-tools/releases/latest")
+                    response = requests.get("https://api.github.com/repos/jxxghp/nas-tools/releases/latest", timeout=10)
                     if response:
                         ver_json = response.json()
                         version = ver_json["tag_name"]

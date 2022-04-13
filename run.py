@@ -27,7 +27,7 @@ if __name__ == "__main__":
             if http_proxy:
                 os.environ['HTTP_PROXY'] = http_proxy
             https_proxy = proxies.get('https')
-            if http_proxy:
+            if https_proxy:
                 os.environ['HTTPS_PROXY'] = https_proxy
 
     # 启动进程

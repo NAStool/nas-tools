@@ -1,6 +1,7 @@
 import logging
 import os
 import threading
+import time
 from logging.handlers import TimedRotatingFileHandler
 from config import LOG_LEVEL, Config, LOG_QUEUE
 
@@ -70,15 +71,15 @@ def debug(text):
 
 
 def info(text):
-    LOG_QUEUE.append("INFO - %s" % text)
+    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S',time.localtime(time.time()))} INFO - {text}")
     return Logger.get_instance().logger.info(text)
 
 
 def error(text):
-    LOG_QUEUE.append("ERROR - %s" % text)
+    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S',time.localtime(time.time()))} ERROR - {text}")
     return Logger.get_instance().logger.error(text)
 
 
 def warn(text):
-    LOG_QUEUE.append("WARN - %s" % text)
+    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S',time.localtime(time.time()))} WARN - {text}")
     return Logger.get_instance().logger.warning(text)

@@ -127,9 +127,6 @@ class FileTransfer:
     # 转移蓝光文件夹
     @staticmethod
     def transfer_bluray_dir(file_path, new_path, rmt_mode=RmtMode.COPY):
-        if os.path.exists(new_path):
-            log.warn("【RMT】%s 已存在" % new_path)
-            return False
         # 复制
         if rmt_mode == RmtMode.COPY:
             try:
@@ -340,13 +337,12 @@ class FileTransfer:
 
         # 统计总的文件数、失败文件数
         failed_count = 0
-        success_count = 0
         total_count = 0
         # 电视剧可能有多集，如果在循环里发消息就太多了，要在外面发消息
         message_medias = {}
         # 需要刷新媒体库的清单
         refresh_library_items = []
-
+        # 处理识别后的每一个文件或单个文件夹
         for file_item, media in Medias.items():
             if re.search(r'[./\s\[]+Sample[/.\s\]]+', file_item, re.IGNORECASE):
                 log.warn("【RMT】%s 可能是预告片，跳过..." % file_item)
@@ -380,8 +376,6 @@ class FileTransfer:
                 continue
             # 类型-类别-标题-年份
             refresh_item = {"type": media.type, "category": media.category, "title": media.title, "year": media.year}
-            if refresh_item not in refresh_library_items:
-                refresh_library_items.append(refresh_item)
             # 对动漫类型进行处理，不配置动漫目录时按电视剧类型处理
             if media.type == MediaType.ANIME and not self.__anime_path:
                 media.type = MediaType.TV
@@ -405,7 +399,7 @@ class FileTransfer:
             if not os.path.exists(dist_path):
                 return False, "目录不存在：%s" % dist_path
             # 当前文件大小
-            media_filesize = os.path.getsize(file_item)
+            media.size = os.path.getsize(file_item)
             # 剩余磁盘空间
             disk_free_size = get_free_space_gb(dist_path)
             if float(disk_free_size) < RMT_DISKFREESIZE:
@@ -436,7 +430,7 @@ class FileTransfer:
                     exist_filenum = exist_filenum + 1
                     if rmt_mode == RmtMode.COPY:
                         existfile_size = os.path.getsize(ret_file_path)
-                        if media_filesize > existfile_size:
+                        if media.size > existfile_size:
                             log.info("【RMT】文件 %s 已存在，但新文件质量更好，覆盖..." % ret_file_path)
                             ret = self.transfer_file(file_item, ret_file_path, True, rmt_mode)
                             if not ret:
@@ -452,67 +446,52 @@ class FileTransfer:
                 if not ret_dir_path:
                     log.error("【RMT】拼装目录路径错误，请确认媒体类型是否匹配！")
                     continue
-                # 转移蓝光原盘
-                if bluray_disk_flag:
-                    ret = self.transfer_bluray_dir(file_item, ret_dir_path)
-                    if ret:
-                        insert_transfer_history(in_from, rmt_mode, in_path, dist_path, media)
-                        log.info("【RMT】蓝光原盘 %s 转移成功" % file_name)
-                        success_count += 1
-                    else:
-                        log.error("【RMT】蓝光原盘 %s 转移失败！" % file_name)
-                        continue
                 else:
                     # 创建电录
                     log.debug("【RMT】正在创建目录：%s" % ret_dir_path)
                     os.makedirs(ret_dir_path)
-            # 开始转移文件
-            file_ext = os.path.splitext(file_item)[-1]
-            if not ret_file_path:
-                log.error("【RMT】拼装文件路径错误，请确认媒体类型是否匹配！")
-                continue
-            new_file = "%s%s" % (ret_file_path, file_ext)
-            ret = self.transfer_file(file_item, new_file, False, rmt_mode)
-            if not ret:
-                continue
-            success_count += 1
+            # 转移蓝光原盘
+            if bluray_disk_flag:
+                ret = self.transfer_bluray_dir(file_item, ret_dir_path)
+                if not ret:
+                    continue
+            else:
+                # 开始转移文件
+                file_ext = os.path.splitext(file_item)[-1]
+                if not ret_file_path:
+                    log.error("【RMT】拼装文件路径错误，请确认媒体类型是否匹配！")
+                    continue
+                new_file = "%s%s" % (ret_file_path, file_ext)
+                ret = self.transfer_file(file_item, new_file, False, rmt_mode)
+                if not ret:
+                    continue
+            # 登记媒体库刷新
+            if refresh_item not in refresh_library_items:
+                refresh_library_items.append(refresh_item)
             # 转移历史记录
             insert_transfer_history(in_from, rmt_mode, max(file_path, in_path), dist_path, media)
             # 电影立即发送消息
             if media.type == MediaType.MOVIE:
                 self.message.send_transfer_movie_message(in_from,
                                                          media,
-                                                         media_filesize,
                                                          exist_filenum,
                                                          self.__movie_category_flag)
-            # 否则汇总发消息
+            # 否则登记汇总发消息
             else:
-                if media.type == MediaType.ANIME:
-                    category_flag = self.__anime_category_flag
-                else:
-                    category_flag = self.__tv_category_flag
-                if not message_medias.get(media.get_title_string()):
-                    message_medias[media.get_title_string()] = {"media": media,
-                                                                "seasons": [],
-                                                                "episodes": [],
-                                                                "totalsize": 0,
-                                                                "categoryflag": category_flag,
-                                                                "type": media.type.value}
-                # 总文件大小
-                message_medias[media.get_title_string()]['totalsize'] = message_medias[media.get_title_string()][
-                                                                            'totalsize'] + media_filesize
-                # 季集合
-                message_medias[media.get_title_string()]['seasons'] = list(
-                    set(message_medias[media.get_title_string()].get('seasons')).union(set(media.get_season_list())))
-                # 集集合
-                message_medias[media.get_title_string()]['episodes'] = list(
-                    set(message_medias[media.get_title_string()].get('episodes')).union(set(media.get_episode_list())))
+                # 按季汇总
+                message_key = "%s-%s" % (media.get_title_string(), media.get_season_string())
+                if not message_medias.get(message_key):
+                    message_medias[message_key] = media
+                # 汇总集数、大小
+                if not message_medias[message_key].is_in_episode(media.get_episode_list()):
+                    message_medias[message_key].total_episodes += media.total_episodes
+                    message_medias[message_key].size += media.size
         # 循环结束
         # 统计完成情况，发送通知
         if message_medias:
             self.message.send_transfer_tv_message(message_medias, in_from)
         # 刷新媒体库
-        if refresh_library_items and success_count > 0:
+        if refresh_library_items:
             self.emby.refresh_emby_library_by_items(refresh_library_items)
         # 总结
         log.info("【RMT】%s 处理完成，总数：%s，失败：%s" % (in_path, total_count, failed_count))

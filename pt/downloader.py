@@ -252,7 +252,7 @@ class Downloader:
                                 break
                             else:
                                 total_tv_no_exists[meta_info.get_title_string()] = [
-                                    {"season": season_number, "episodes": [search_episode],
+                                    {"season": season_number, "episodes": search_episode,
                                      "total_episodes": episode_count}]
                                 break
                         else:
@@ -443,14 +443,18 @@ class Downloader:
     @staticmethod
     def is_torrent_match_sey(media_info, s_num, e_num, year_str):
         if s_num:
-            if not media_info.is_in_seasion(s_num):
+            if not isinstance(s_num, list):
+                s_num = [s_num]
+            if not set(s_num).issuperset(set(media_info.get_season_list())):
                 log.info("【JACKETT】%s：%s %s %s 不匹配季：%s" % (media_info.type.value,
                                                            media_info.get_title_string(),
                                                            media_info.get_season_episode_string(),
                                                            media_info.get_resource_type_string(), s_num))
                 return False
         if e_num:
-            if not media_info.is_in_episode(e_num):
+            if not isinstance(e_num, list):
+                e_num = [e_num]
+            if not set(e_num).issuperset(set(media_info.get_episode_list())):
                 log.info("【JACKETT】%s：%s %s %s 不匹配集：%s" % (media_info.type.value,
                                                            media_info.get_title_string(),
                                                            media_info.get_season_episode_string(),

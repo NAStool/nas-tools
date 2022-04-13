@@ -40,7 +40,7 @@ def insert_jackett_results(media_item):
               media_item.get_episode_string(),
               media_item.get_season_episode_string(),
               media_item.vote_average,
-              media_item.backdrop_path,
+              media_item.get_backdrop_path(),
               media_item.get_resource_type_string(),
               media_item.res_order,
               str_filesize(int(media_item.size)),
