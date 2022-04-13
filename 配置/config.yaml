@@ -3,7 +3,7 @@
 app:
   # 日志记录类型：server、file、console
   # 如果是使用Docker安装建议留空或者设置为console
-  # 如果是使用群晖套件建议配置为 server，可将日志输出到群晖的日志中心便于查看
+  # 如果是使用群晖套件建议配置为 server，可将日志输出到群晖的日志
   # 如果是python本地运行建议设置为file，保存日志到文件
   logtype: console
   # 日志文件的路径，logtype为FILE时生效
