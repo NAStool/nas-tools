@@ -1,685 +1,484 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta content="white" name="apple-mobile-web-app-status-bar-style" />
-    <title>服务 - NASTool</title>
-    <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon" />
-    <link rel="apple-touch-icon" href="../static/img/logo.png">
-    <!-- CSS files -->
-    <link href="../static/css/tabler.min.css" rel="stylesheet"/>
-    <style type="text/css" media="screen">
-		#editor {
-			width:100%;
-			height:500px;
-		}
-	</style>
-  </head>
-  <body  class=" layout-boxed">
-    <div class="page">
-      <header class="navbar navbar-expand-md navbar-light d-print-none">
-        <div class="container-xl">
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-            <a href="/home">
-              <img src="../static/img/logo.svg" width="110" height="32" alt="NASTool" class="navbar-brand-image">
-            </a>
-          </h1>
-          <div class="navbar-nav flex-row order-md-last">
-            <div class="nav-item d-none d-md-flex me-3">
-              <div class="btn-list">
-                <a href="https://github.com/jxxghp/nas-tools" class="btn" target="_blank" rel="noreferrer">
-                  <!-- Download SVG icon from http://tabler-icons.io/i/brand-github -->
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" /></svg>
-                  Source code
-                </a>
-              </div>
-            </div>
-            <div class="d-none d-md-flex">
-              <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="暗黑风格" data-bs-toggle="tooltip" data-bs-placement="bottom">
-                <!-- Download SVG icon from http://tabler-icons.io/i/moon -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
-              </a>
-              <a href="?theme=light" class="nav-link px-0 hide-theme-light" title="明亮风格" data-bs-toggle="tooltip" data-bs-placement="bottom">
-                <!-- Download SVG icon from http://tabler-icons.io/i/sun -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4" /><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" /></svg>
-              </a>
-            </div>
-          </div>
-          <div class="collapse navbar-collapse" id="navbar-menu">
-            <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
-              <ul class="navbar-nav">
-                <li class="nav-item">
-                  <a class="nav-link" href="/home" >
-                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="5 12 3 12 12 3 21 12 19 12" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          服务
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+{% if Count > 0 %}
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-deck row-cards">
+      <div class="col-12">
+        <div class="row row-cards">
+          {% for Scheduler in SchedulerTasks %}
+          <div class="col-sm-6 col-lg-3">
+            <div class="card card-sm">
+              <div class="card-body">
+                <div class="row align-items-center">
+                  <div class="col-auto">
+                    <span class="bg-{{ Scheduler.color }} text-white avatar">
+                      {{ Scheduler.svg|safe }}
                     </span>
-                    <span class="nav-link-title">
-                      开始
-                    </span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/search">
-                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3" /><line x1="12" y1="12" x2="20" y2="7.5" /><line x1="12" y1="12" x2="12" y2="21" /><line x1="12" y1="12" x2="4" y2="7.5" /><line x1="16" y1="5.25" x2="8" y2="9.75" /></svg>
-                    </span>
-                    <span class="nav-link-title">
-                      影视搜索
-                    </span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/sites" >
-                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/checkbox -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 11 12 14 20 6" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>
-                    </span>
-                    <span class="nav-link-title">
-                      站点订阅
-                    </span>
-                  </a>
-                </li>
-                <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false" >
-                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/star -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" /></svg>
-                    </span>
-                    <span class="nav-link-title">
-                      推荐
-                    </span>
-                  </a>
-                  <div class="dropdown-menu">
-                    <a class="dropdown-item" href="/recommend?t=hm">
-                      TMDB热门电影
-                    </a>
-                    <a class="dropdown-item" href="/recommend?t=ht">
-                      TMDB热门电视剧
-                    </a>
-                    <a class="dropdown-item" href="/recommend?t=nm">
-                      TMDB最新电影
-                    </a>
-                    <a class="dropdown-item" href="/recommend?t=nt">
-                      TMDB最新电视剧
-                    </a>
-                    <a class="dropdown-item" href="/recommend?t=dbom">
-                      正在热映
-                      <span class="badge badge-sm bg-orange text-case ms-2">HOT</span>
-                    </a>
-                    <a class="dropdown-item" href="/recommend?t=dbhm">
-                      豆瓣热门电影
-                    </a>
-                    <a class="dropdown-item" href="/recommend?t=dbht">
-                      豆瓣热门电视剧
-                    </a>
-                    <a class="dropdown-item" href="/recommend?t=dbnm">
-                      豆瓣最新电影
-                    </a>
-                    <a class="dropdown-item" href="/recommend?t=dbnt">
-                      豆瓣最新电视剧
-                    </a>
                   </div>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/download" >
-                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/layout-2 -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                       <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                       <polyline points="7 11 12 16 17 11"></polyline>
-                       <line x1="12" y1="4" x2="12" y2="16"></line>
-                    </svg>
-                    </span>
-                    <span class="nav-link-title">
-                      下载
-                    </span>
-                  </a>
-                </li>
-				<li class="nav-item active">
-                  <a class="nav-link" href="/service" >
-                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/layout-2 -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="4" y="4" width="6" height="5" rx="2" /><rect x="4" y="13" width="6" height="7" rx="2" /><rect x="14" y="4" width="6" height="7" rx="2" /><rect x="14" y="15" width="6" height="5" rx="2" /></svg>
-                    </span>
-                    <span class="nav-link-title">
-                      服务
-                    </span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/history" >
-                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/layout-2 -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-history" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                         <polyline points="12 8 12 12 14 14"></polyline>
-                         <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
-                      </svg>
-                    </span>
-                    <span class="nav-link-title">
-                      历史
-                    </span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </header>
-      <div class="page-wrapper">
-        <div class="container-xl">
-          <!-- Page title -->
-          <div class="page-header d-print-none">
-            <div class="row align-items-center">
-              <div class="col">
-                <h2 class="page-title">
-                  服务
-                </h2>
-              </div>
-            </div>
-          </div>
-        </div>        
-		<!-- 业务页面代码 -->
-        {% if Count > 0 %}
-        <div class="page-body">
-          <div class="container-xl">
-            <div class="row row-deck row-cards">
-			  <div class="col-12">
-                <div class="row row-cards">
-                  {% for Scheduler in SchedulerTasks %}
-                  <div class="col-sm-6 col-lg-3">
-                    <div class="card card-sm">
-                      <div class="card-body">
-                        <div class="row align-items-center">
-                          <div class="col-auto">
-                            <span class="bg-{{ Scheduler.color }} text-white avatar">
-                              {{ Scheduler.svg|safe }}
-                            </span>
-                          </div>
-                          <div class="col">
-                            <div class="font-weight-medium">
-                              <a href="javascript:show_service_modal('{{ Scheduler.id }}','{{ Scheduler.name }}')" id="service_btn">{{ Scheduler.name }}</a>
-                            </div>
-                            <div class="text-muted">
-                              {{ Scheduler.time }}
-                            </div>
-                          </div>
-                          {% if Scheduler.state == "ON" %}
-                          <div class="col-auto align-self-center">
-                              <div class="badge bg-primary"></div>
-                          </div>
-                          {% endif %}
-                        </div>
-                      </div>
+                  <div class="col">
+                    <div class="font-weight-medium">
+                      <a href="javascript:show_service_modal('{{ Scheduler.id }}','{{ Scheduler.name }}')" id="service_btn">{{ Scheduler.name }}</a>
+                    </div>
+                    <div class="text-muted">
+                      {{ Scheduler.time }}
                     </div>
                   </div>
-                  {% endfor %}
+                  {% if Scheduler.state == "ON" %}
+                  <div class="col-auto align-self-center">
+                      <div class="badge bg-primary"></div>
+                  </div>
+                  {% endif %}
                 </div>
               </div>
             </div>
           </div>
-        </div>
-        {% else %}
-        <div class="page-wrapper">
-        <div class="container-xl">
-        </div>
-        <div class="page-body">
-          <div class="container-xl d-flex flex-column justify-content-center">
-            <div class="empty">
-              <div class="empty-img"><img src="./static/img/sign_in.svg" height="128"  alt="">
-              </div>
-              <p class="empty-title">没有数据</p>
-              <p class="empty-subtitle text-muted">
-                没有开启任何后台服务。
-              </p>
-            </div>
-          </div>
-        </div>
-        {% endif %}
-        <footer class="footer footer-transparent d-print-none">
-          <div class="container-xl">
-            <div class="row text-center align-items-center flex-row-reverse">
-              <div class="col-12 col-lg-auto mt-3 mt-lg-0">
-                <ul class="list-inline list-inline-dots mb-0">
-                  <li class="list-inline-item">
-                    Copyright &copy; 2022
-                    <a href="." class="link-secondary">NASTool</a>.
-                    All rights reserved.
-                  </li>
-                  <li class="list-inline-item">
-                    {{ AppVersion }}
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </footer>
-      </div>
-    </div>
-    <div class="modal modal-blur fade" id="service-modal" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-body">
-            <div class="modal-title">确认提示</div>
-            <div id="service_start_message">是否确定立即运行服务？</div>
-          </div>
-          <div class="modal-footer">
-            <input type="hidden" id="service_start_id" />
-            <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
-            <button type="button" class="btn btn-danger" id="service_start_btn">确定</button>
-          </div>
+          {% endfor %}
         </div>
       </div>
     </div>
-    <div class="modal modal-blur fade" id="service-modal-success" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          <div class="modal-status bg-success"></div>
-          <div class="modal-body text-center py-4">
-            <!-- Download SVG icon from http://tabler-icons.io/i/circle-check -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M9 12l2 2l4 -4" /></svg>
-            <h3>成功</h3>
-            <input type="hidden" id="service_start_name" />
-            <div class="text-muted" id="service_finished_str">服务已执行完成！</div>
-          </div>
-          <div class="modal-footer">
-            <div class="w-100">
-              <div class="row">
-                <div class="col"><a href="#" class="btn btn-success w-100" data-bs-dismiss="modal">
-                    确定
-                  </a></div>
-              </div>
-            </div>
+  </div>
+</div>
+{% else %}
+<div class="page-wrapper">
+  <div class="container-xl">
+  </div>
+  <div class="page-body">
+    <div class="container-xl d-flex flex-column justify-content-center">
+      <div class="empty">
+        <div class="empty-img"><img src="./static/img/sign_in.svg" height="128"  alt="">
+        </div>
+        <p class="empty-title">没有数据</p>
+        <p class="empty-subtitle text-muted">
+          没有开启任何后台服务。
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+<div class="modal modal-blur fade" id="service-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="modal-title">确认提示</div>
+        <div id="service_start_message">是否确定立即运行服务？</div>
+      </div>
+      <div class="modal-footer">
+        <input type="hidden" id="service_start_id" />
+        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-danger" id="service_start_btn">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="service-modal-success" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-status bg-success"></div>
+      <div class="modal-body text-center py-4">
+        <!-- Download SVG icon from http://tabler-icons.io/i/circle-check -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M9 12l2 2l4 -4" /></svg>
+        <h3>成功</h3>
+        <input type="hidden" id="service_start_name" />
+        <div class="text-muted" id="service_finished_str">服务已执行完成！</div>
+      </div>
+      <div class="modal-footer">
+        <div class="w-100">
+          <div class="row">
+            <div class="col"><a href="#" class="btn btn-success w-100" data-bs-dismiss="modal">
+                确定
+              </a></div>
           </div>
         </div>
       </div>
     </div>
-    <div class="modal modal-blur fade" id="modal-rename" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">未识别转移</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-rename" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">未识别转移</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">路径</label>
+          <select class="form-select" id="rename_path">
+            <option value="" selected>请选择</option>
+          </select>
+          <div class="invalid-feedback" id="rename_retmsg"></div>
+        </div>
+        <label class="form-label">类型</label>
+        <div class="form-selectgroup-boxes row mb-3">
+          <div class="col-lg-4">
+            <label class="form-selectgroup-item">
+              <input type="radio" name="rename_type" value="MOV" class="form-selectgroup-input" checked>
+              <span class="form-selectgroup-label d-flex align-items-center p-3">
+                <span class="me-3">
+                  <span class="form-selectgroup-check"></span>
+                </span>
+                <span class="form-selectgroup-label-content">
+                  <span class="form-selectgroup-title strong mb-1">电影</span>
+                </span>
+              </span>
+            </label>
           </div>
-          <div class="modal-body">
+          <div class="col-lg-4">
+            <label class="form-selectgroup-item">
+              <input type="radio" name="rename_type" value="TV" class="form-selectgroup-input">
+              <span class="form-selectgroup-label d-flex align-items-center p-3">
+                <span class="me-3">
+                  <span class="form-selectgroup-check"></span>
+                </span>
+                <span class="form-selectgroup-label-content">
+                  <span class="form-selectgroup-title strong mb-1">电视剧</span>
+                </span>
+              </span>
+            </label>
+          </div>
+          <div class="col-lg-4">
+            <label class="form-selectgroup-item">
+              <input type="radio" name="rename_type" value="ANIME" class="form-selectgroup-input">
+              <span class="form-selectgroup-label d-flex align-items-center p-3">
+                <span class="me-3">
+                  <span class="form-selectgroup-check"></span>
+                </span>
+                <span class="form-selectgroup-label-content">
+                  <span class="form-selectgroup-title strong mb-1">动漫</span>
+                </span>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label">路径</label>
-              <select class="form-select" id="rename_path">
+              <label class="form-label">标题</label>
+              <input type="text" id="rename_title" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">年份</label>
+              <input type="text" id="rename_year" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div>
+              <label class="form-label">TMDB ID</label>
+              <input type="text" id="rename_tmdb" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6" id="rename_season_div">
+            <div>
+              <label class="form-label">季</label>
+              <select class="form-select" id="rename_season">
                 <option value="" selected>请选择</option>
+                <option value="1">第1季</option>
+                <option value="2">第2季</option>
+                <option value="3">第3季</option>
+                <option value="4">第4季</option>
+                <option value="5">第5季</option>
+                <option value="6">第6季</option>
+                <option value="7">第7季</option>
+                <option value="8">第8季</option>
+                <option value="9">第9季</option>
+                <option value="10">第10季</option>
+                <option value="11">第11季</option>
+                <option value="12">第12季</option>
+                <option value="13">第13季</option>
+                <option value="14">第14季</option>
+                <option value="15">第15季</option>
+                <option value="16">第16季</option>
+                <option value="17">第17季</option>
+                <option value="18">第18季</option>
+                <option value="19">第19季</option>
+                <option value="20">第20季</option>
               </select>
-              <div class="invalid-feedback" id="rename_retmsg"></div>
             </div>
-            <label class="form-label">类型</label>
-            <div class="form-selectgroup-boxes row mb-3">
-              <div class="col-lg-4">
-                <label class="form-selectgroup-item">
-                  <input type="radio" name="rename_type" value="MOV" class="form-selectgroup-input" checked>
-                  <span class="form-selectgroup-label d-flex align-items-center p-3">
-                    <span class="me-3">
-                      <span class="form-selectgroup-check"></span>
-                    </span>
-                    <span class="form-selectgroup-label-content">
-                      <span class="form-selectgroup-title strong mb-1">电影</span>
-                    </span>
-                  </span>
-                </label>
-              </div>
-              <div class="col-lg-4">
-                <label class="form-selectgroup-item">
-                  <input type="radio" name="rename_type" value="TV" class="form-selectgroup-input">
-                  <span class="form-selectgroup-label d-flex align-items-center p-3">
-                    <span class="me-3">
-                      <span class="form-selectgroup-check"></span>
-                    </span>
-                    <span class="form-selectgroup-label-content">
-                      <span class="form-selectgroup-title strong mb-1">电视剧</span>
-                    </span>
-                  </span>
-                </label>
-              </div>
-              <div class="col-lg-4">
-                <label class="form-selectgroup-item">
-                  <input type="radio" name="rename_type" value="ANIME" class="form-selectgroup-input">
-                  <span class="form-selectgroup-label d-flex align-items-center p-3">
-                    <span class="me-3">
-                      <span class="form-selectgroup-check"></span>
-                    </span>
-                    <span class="form-selectgroup-label-content">
-                      <span class="form-selectgroup-title strong mb-1">动漫</span>
-                    </span>
-                  </span>
-                </label>
-              </div>
-            </div>
-          </div>
-          <div class="modal-body">
-            <div class="row">
-              <div class="col-lg-6">
-                <div class="mb-3">
-                  <label class="form-label">标题</label>
-                  <input type="text" id="rename_title" class="form-control">
-                </div>
-              </div>
-              <div class="col-lg-6">
-                <div class="mb-3">
-                  <label class="form-label">年份</label>
-                  <input type="text" id="rename_year" class="form-control">
-                </div>
-              </div>
-              <div class="col-lg-6">
-                <div>
-                  <label class="form-label">TMDB ID</label>
-                  <input type="text" id="rename_tmdb" class="form-control">
-                </div>
-              </div>
-              <div class="col-lg-6" id="rename_season_div">
-                <div>
-                  <label class="form-label">季</label>
-                  <select class="form-select" id="rename_season">
-                    <option value="" selected>请选择</option>
-                    <option value="1">第1季</option>
-                    <option value="2">第2季</option>
-                    <option value="3">第3季</option>
-                    <option value="4">第4季</option>
-                    <option value="5">第5季</option>
-                    <option value="6">第6季</option>
-                    <option value="7">第7季</option>
-                    <option value="8">第8季</option>
-                    <option value="9">第9季</option>
-                    <option value="10">第10季</option>
-                    <option value="11">第11季</option>
-                    <option value="12">第12季</option>
-                    <option value="13">第13季</option>
-                    <option value="14">第14季</option>
-                    <option value="15">第15季</option>
-                    <option value="16">第16季</option>
-                    <option value="17">第17季</option>
-                    <option value="18">第18季</option>
-                    <option value="19">第19季</option>
-                    <option value="20">第20季</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <a href="javascript:del_rename_path()" class="btn btn-link me-auto">
-              删除
-            </a>
-            <input type="button" id="rename_btn" class="btn btn-primary" value="转移">
           </div>
         </div>
       </div>
-    </div>
-    <div class="modal modal-blur fade" id="modal-config" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">配置文件</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body" id="editor">
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn me-auto" data-bs-dismiss="modal">关闭</button>
-            <button type="button" id="save_config_btn" class="btn btn-primary">保存</button>
-          </div>
-        </div>
+      <div class="modal-footer">
+        <a href="javascript:del_rename_path()" class="btn btn-link me-auto">
+          删除
+        </a>
+        <input type="button" id="rename_btn" class="btn btn-primary" value="转移">
       </div>
     </div>
-    <div class="modal modal-blur fade" id="modal-logging" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">实时日志</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="logging_close_head"></button>
-          </div>
-          <div class="modal-body" id="logging_content" style="display:flex; flex-direction:column-reverse;font-size:12px;">
-          </div>
-          <div class="modal-footer">
-            <a href="javascript:pause_logging()" class="btn btn-link link-secondary me-auto" id="logging_stop_btn">
-              暂停
-            </a>
-            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="logging_close_btn">关闭</button>
-          </div>
-        </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-config" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">配置文件</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="editor">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn me-auto" data-bs-dismiss="modal">关闭</button>
+        <button type="button" id="save_config_btn" class="btn btn-primary">保存</button>
       </div>
     </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-logging" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">实时日志</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="logging_close_head"></button>
+      </div>
+      <div class="modal-body" id="logging_content" style="display:flex; flex-direction:column-reverse;font-size:12px;">
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:pause_logging()" class="btn btn-link link-secondary me-auto" id="logging_stop_btn">
+          暂停
+        </a>
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="logging_close_btn">关闭</button>
+      </div>
     </div>
-    <!-- Libs JS -->
-    <!-- Tabler Core -->
-    <script src="../static/js/tabler.min.js"></script>
-    <script src="../static/js/jquery-3.3.1.min.js"></script>
-    <script src="../static/js/util.js"></script>
-    <script src="../static/js/demo.min.js"></script>
-    <script src="../static/js/ace.js"></script>
-    <script type="text/javascript">
-      // 初始化编辑器
-      ace.require("ace/ext/language_tools");
-      ace.require("ace/ext/static_highlight");
-      ace.require("ace/ext/beautify");
-      var editor = ace.edit("editor");
-      editor.setTheme("ace/theme/xcode");
-      editor.setFontSize(14);
-      editor.session.setMode("ace/mode/yaml");
-      editor.session.setUseWrapMode(true);
-      editor.setHighlightActiveLine(true);
-      editor.setOptions({
-              enableBasicAutocompletion: true,
-              enableSnippets: true,
-              enableLiveAutocompletion: true
-          });
-      //刷新LOG标志
-      refresh_logging_flag = false
-      //开始刷新日志
-      function start_logging(){
-        refresh_logging_flag = true;
-        refresh_logging();
-      }
-      //停止刷新日志
-      function stop_logging(){
-        refresh_logging_flag = false;
-      }
-      //刷新日志
-      function refresh_logging(){
-        ajax_post("logging", {}, function(ret){
-          if(ret.text)
-          $("#logging_content").html(ret.text);
-          var height = $('#logging_content').prop("scrollHeight");
-          $('#logging_content').scrollTop(height);
-          if(refresh_logging_flag == true){
-            setTimeout("refresh_logging()", 2000);
-          }
-        });
-      }
-      //拉取列表
-      function refresh_rename_paths(){
-        ajax_post("rename_path", {}, function(ret){
-          paths = ret.paths;
-          $("#rename_path").empty();
-          $("#rename_path").append("<option value='' selected>请选择</option>");
-          for(var i=0; i<paths.length; i++){
-            $("#rename_path").append("<option value='"+ paths[i][0] + "|" + paths[i][1] +"'>" + paths[i][0] + "</option>");
-          }
-          type = $('input:radio[name=rename_type]:checked').val();
-          if(type == "MOV"){
-            $("#rename_season_div").hide();
-            $("#rename_season").val("");
-          }else{
-            $("#rename_season_div").show();
-          }
-        });
-      }
-      //读取配置
-      function load_config(){
-        ajax_post("load_config", {}, function(ret){
-          config_str = ret.config_str;
-          editor.getSession().setValue(config_str)
-        });
-      }
-      //保存配置
-      function save_config(){
-        var data = {
-            "editer_str": editor.getSession().getValue()
-        };
-        $("#save_config_btn").text("保存中...");
-        $("#save_config_btn").attr("disabled", true);
-        ajax_post("save_config", data, function(ret){
-          $("#save_config_btn").attr("disabled", false);
-          $("#save_config_btn").text("保存");
-        });
-      }
-      // 显示服务提示框
-      function show_service_modal(id, name) {
-        if(id == "rename"){
-          refresh_rename_paths();
-          $('#modal-rename').modal('show');
-        }else if(id == "config"){
-          load_config();
-          $('#modal-config').modal('show');
-        }else if(id == "logging"){
-          start_logging();
-          $('#modal-logging').modal('show');
-        }else{
-          $("#service_start_id").val(id);
-          $("#service_start_name").val(name);
-          $("#service_start_message").text("是否立即运行 " + name + "？");
-          $('#service-modal').modal('show');
-        }
-      }
-
-      // 运行服务
-      function run_scheduler(id){
-          var cmd = "sch";
-          var data = { "item": id };
-          ajax_post(cmd, data, function(ret){
-              item = $("#service_start_name").val();;
-              $("#service_finished_str").text(item + " 已执行完成！");
-              $("#service-modal-success").modal('show');
-          });
-      }
-
-      //手动转移
-      function manual_rename(){
-        type = $('input:radio[name=rename_type]:checked').val();
-        path = $("#rename_path").val();
-        tmdb = $("#rename_tmdb").val();
-        title = $("#rename_title").val();
-        year = $("#rename_year").val();
-        season = $("#rename_season").val();
-
-        if(path == ""){
-          $("#rename_path").addClass("is-invalid");
-          return;
-        }else{
-          $("#rename_path").removeClass("is-invalid");
-        }
-
-        if(tmdb == ""){
-          if(title == ""){
-            $("#rename_title").addClass("is-invalid");
-            return;
-          }else{
-            $("#rename_title").removeClass("is-invalid");
-          }
-
-          if(year == "" || isNaN(year)){
-            $("#rename_year").addClass("is-invalid");
-            return;
-          }else{
-            $("#rename_year").removeClass("is-invalid");
-          }
-        }else{
-          if(isNaN(tmdb)){
-            $("#rename_tmdb").addClass("is-invalid");
-            return;
-          }else{
-            $("#rename_tmdb").removeClass("is-invalid");
-          }
-        }
-        // 开始处理
-        var data = { "path": path, "type": type, "title": title, "year": year, "tmdb": tmdb, "season": season};
-        $("#rename_btn").attr("disabled", true);
-        $("#rename_btn").val("处理中...");
-        $("#rename_retmsg").hide()
-        ajax_post("rename", data, function(ret){
-          $("#rename_btn").attr("disabled", false);
-          $("#rename_btn").val("转移");
-          if(ret.retcode == 0){
-            //处理成功
-            refresh_rename_paths();
-          }else{
-            //处理失败
-            regmsg = ret.retmsg;
-            $("#rename_retmsg").show()
-            $("#rename_retmsg").text(regmsg)
-          }
-        });
-      }
-
-      //删除路径
-      function del_rename_path(){
-        path = $("#rename_path").val();
-        if(path == ""){
-          $("#rename_path").addClass("is-invalid");
-          return;
-        }else{
-          $("#rename_path").removeClass("is-invalid");
-        }
-        var cmd = "del_rename_path";
-        var data = { "path": path };
-        ajax_post(cmd, data, function(ret){
-            refresh_rename_paths();
-        });
-      }
-
-      //暂停实时日志
-      function pause_logging(){
-        if(refresh_logging_flag == true){
-          stop_logging();
-          $("#logging_stop_btn").text("开始")
-        }else{
-          start_logging();
-          $("#logging_stop_btn").text("暂停")
-        }
-      }
-
-      //绑定事件
-      $(document).ready(function(){
-        //服务模态框事件
-        $("#service_start_btn").click(function(){
-            $('#service-modal').modal('hide');
-            run_scheduler($("#service_start_id").val());
-        });
-        //转移按钮
-        $("#rename_btn").click(function(){
-            manual_rename();
-        });
-        //保存配置按钮
-        $("#save_config_btn").click(function(){
-            save_config();
-        });
-        //单选框事件
-        $('input[type=radio][name=rename_type]').change(function() {
-          if (this.value == 'MOV') {
-              $("#rename_season_div").hide();
-              $("#rename_season").val("");
-          }
-          else {
-              $("#rename_season_div").show();
-          }
-       });
-       //实时日志关闭
-       $("#logging_close_btn").click(function(){
-            stop_logging();
-        });
-       $("#logging_close_head").click(function(){
-            stop_logging();
-        });
+  </div>
+</div>
+<script src="../static/js/ace.js"></script>
+<script type="text/javascript">
+  // 初始化编辑器
+  ace.require("ace/ext/language_tools");
+  ace.require("ace/ext/static_highlight");
+  ace.require("ace/ext/beautify");
+  var editor = ace.edit("editor");
+  editor.setTheme("ace/theme/xcode");
+  editor.setFontSize(14);
+  editor.session.setMode("ace/mode/yaml");
+  editor.session.setUseWrapMode(true);
+  editor.setHighlightActiveLine(true);
+  editor.setOptions({
+          enableBasicAutocompletion: true,
+          enableSnippets: true,
+          enableLiveAutocompletion: true
       });
-    </script>
-  </body>
-</html>
+  //刷新LOG标志
+  refresh_logging_flag = false
+  //开始刷新日志
+  function start_logging(){
+    refresh_logging_flag = true;
+    refresh_logging();
+  }
+  //停止刷新日志
+  function stop_logging(){
+    refresh_logging_flag = false;
+  }
+  //刷新日志
+  function refresh_logging(){
+    ajax_post("logging", {}, function(ret){
+      if(ret.text)
+      $("#logging_content").html(ret.text);
+      var height = $('#logging_content').prop("scrollHeight");
+      $('#logging_content').scrollTop(height);
+      if(refresh_logging_flag == true){
+        setTimeout("refresh_logging()", 2000);
+      }
+    });
+  }
+  //拉取列表
+  function refresh_rename_paths(){
+    ajax_post("rename_path", {}, function(ret){
+      paths = ret.paths;
+      $("#rename_path").empty();
+      $("#rename_path").append("<option value='' selected>请选择</option>");
+      for(var i=0; i<paths.length; i++){
+        $("#rename_path").append("<option value='"+ paths[i][0] + "|" + paths[i][1] +"'>" + paths[i][0] + "</option>");
+      }
+      type = $('input:radio[name=rename_type]:checked').val();
+      if(type == "MOV"){
+        $("#rename_season_div").hide();
+        $("#rename_season").val("");
+      }else{
+        $("#rename_season_div").show();
+      }
+    });
+  }
+  //读取配置
+  function load_config(){
+    ajax_post("load_config", {}, function(ret){
+      config_str = ret.config_str;
+      editor.getSession().setValue(config_str)
+    });
+  }
+  //保存配置
+  function save_config(){
+    var data = {
+        "editer_str": editor.getSession().getValue()
+    };
+    $("#save_config_btn").text("保存中...");
+    $("#save_config_btn").attr("disabled", true);
+    ajax_post("save_config", data, function(ret){
+      $("#save_config_btn").attr("disabled", false);
+      $("#save_config_btn").text("保存");
+    });
+  }
+  // 显示服务提示框
+  function show_service_modal(id, name) {
+    if(id == "rename"){
+      refresh_rename_paths();
+      $('#modal-rename').modal('show');
+    }else if(id == "config"){
+      load_config();
+      $('#modal-config').modal('show');
+    }else if(id == "logging"){
+      start_logging();
+      $('#modal-logging').modal('show');
+    }else{
+      $("#service_start_id").val(id);
+      $("#service_start_name").val(name);
+      $("#service_start_message").text("是否立即运行 " + name + "？");
+      $('#service-modal').modal('show');
+    }
+  }
+
+  // 运行服务
+  function run_scheduler(id){
+      var cmd = "sch";
+      var data = { "item": id };
+      ajax_post(cmd, data, function(ret){
+          item = $("#service_start_name").val();;
+          $("#service_finished_str").text(item + " 已执行完成！");
+          $("#service-modal-success").modal('show');
+      });
+  }
+
+  //手动转移
+  function manual_rename(){
+    type = $('input:radio[name=rename_type]:checked').val();
+    path = $("#rename_path").val();
+    tmdb = $("#rename_tmdb").val();
+    title = $("#rename_title").val();
+    year = $("#rename_year").val();
+    season = $("#rename_season").val();
+
+    if(path == ""){
+      $("#rename_path").addClass("is-invalid");
+      return;
+    }else{
+      $("#rename_path").removeClass("is-invalid");
+    }
+
+    if(tmdb == ""){
+      if(title == ""){
+        $("#rename_title").addClass("is-invalid");
+        return;
+      }else{
+        $("#rename_title").removeClass("is-invalid");
+      }
+
+      if(year == "" || isNaN(year)){
+        $("#rename_year").addClass("is-invalid");
+        return;
+      }else{
+        $("#rename_year").removeClass("is-invalid");
+      }
+    }else{
+      if(isNaN(tmdb)){
+        $("#rename_tmdb").addClass("is-invalid");
+        return;
+      }else{
+        $("#rename_tmdb").removeClass("is-invalid");
+      }
+    }
+    // 开始处理
+    var data = { "path": path, "type": type, "title": title, "year": year, "tmdb": tmdb, "season": season};
+    $("#rename_btn").attr("disabled", true);
+    $("#rename_btn").val("处理中...");
+    $("#rename_retmsg").hide()
+    ajax_post("rename", data, function(ret){
+      $("#rename_btn").attr("disabled", false);
+      $("#rename_btn").val("转移");
+      if(ret.retcode == 0){
+        //处理成功
+        refresh_rename_paths();
+      }else{
+        //处理失败
+        regmsg = ret.retmsg;
+        $("#rename_retmsg").show()
+        $("#rename_retmsg").text(regmsg)
+      }
+    });
+  }
+
+  //删除路径
+  function del_rename_path(){
+    path = $("#rename_path").val();
+    if(path == ""){
+      $("#rename_path").addClass("is-invalid");
+      return;
+    }else{
+      $("#rename_path").removeClass("is-invalid");
+    }
+    var cmd = "del_rename_path";
+    var data = { "path": path };
+    ajax_post(cmd, data, function(ret){
+        refresh_rename_paths();
+    });
+  }
+
+  //暂停实时日志
+  function pause_logging(){
+    if(refresh_logging_flag == true){
+      stop_logging();
+      $("#logging_stop_btn").text("开始")
+    }else{
+      start_logging();
+      $("#logging_stop_btn").text("暂停")
+    }
+  }
+
+  //服务模态框事件
+  $("#service_start_btn").click(function(){
+      $('#service-modal').modal('hide');
+      run_scheduler($("#service_start_id").val());
+  });
+  //转移按钮
+  $("#rename_btn").click(function(){
+      manual_rename();
+  });
+  //保存配置按钮
+  $("#save_config_btn").click(function(){
+      save_config();
+  });
+  //单选框事件
+  $('input[type=radio][name=rename_type]').change(function() {
+    if (this.value == 'MOV') {
+        $("#rename_season_div").hide();
+        $("#rename_season").val("");
+    }
+    else {
+        $("#rename_season_div").show();
+    }
+ });
+ //实时日志关闭
+ $("#logging_close_btn").click(function(){
+      stop_logging();
+  });
+ $("#logging_close_head").click(function(){
+      stop_logging();
+  });
+
+</script>

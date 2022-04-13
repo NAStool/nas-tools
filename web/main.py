@@ -106,20 +106,8 @@ def create_flask_app(config):
     def page_server_error(error):
         return render_template("500.html", error=error), 500
 
-    # 加载静态资源
-    @App.route('/header.html', methods=['GET'])
-    def header():
-        return render_template("header.html")
-
-    # 加载静态资源
-    @App.route('/footer.html', methods=['GET'])
-    def footer():
-        return render_template("footer.html",
-                               AppVersion=APP_VERSION)
-
-    # 登录页面
-    @App.route('/', methods=['POST', 'GET'])
-    @App.route('/login', methods=['GET', 'POST'])
+    # 主页面
+    @App.route('/', methods=['GET', 'POST'])
     def login():
         if request.method == 'GET':
             return render_template('login.html')
@@ -137,14 +125,15 @@ def create_flask_app(config):
             if user.verify_password(password):
                 # 创建用户 Session
                 login_user(user)
-                return redirect(request.args.get('next') or url_for('home'))
+                return render_template('navigation.html',
+                                       AppVersion=APP_VERSION)
             else:
                 return render_template('login.html', err_msg="用户名或密码错误")
 
-    # 首页
-    @App.route('/home', methods=['POST', 'GET'])
+    # 开始
+    @App.route('/index', methods=['POST', 'GET'])
     @login_required
-    def home():
+    def index():
         # 获取媒体数量
         EmbySucess = 1
         MovieCount = 0
@@ -227,8 +216,7 @@ def create_flask_app(config):
                                FreeSpace=FreeSpace,
                                TotalSpace=TotalSpace,
                                UsedSapce=UsedSapce,
-                               UsedPercent=UsedPercent,
-                               AppVersion=APP_VERSION
+                               UsedPercent=UsedPercent
                                )
 
     # 影音搜索页面
@@ -239,8 +227,7 @@ def create_flask_app(config):
         res = get_jackett_results()
         return render_template("search.html",
                                Count=len(res),
-                               Items=res,
-                               AppVersion=APP_VERSION)
+                               Items=res)
 
     # 站点订阅页面
     @App.route('/sites', methods=['POST', 'GET'])
@@ -251,8 +238,7 @@ def create_flask_app(config):
         tv_key_list = get_tv_keys()
         return render_template("sites.html",
                                MovieKeys=','.join('%s' % key[0] for key in movie_key_list),
-                               TvKeys=','.join('%s' % key[0] for key in tv_key_list),
-                               AppVersion=APP_VERSION)
+                               TvKeys=','.join('%s' % key[0] for key in tv_key_list))
 
     # 推荐页面
     @App.route('/recommend', methods=['POST', 'GET'])
@@ -340,8 +326,7 @@ def create_flask_app(config):
                                Items=Items,
                                RecommendType=RecommendType,
                                CurrentPage=CurrentPage,
-                               PageRange=PageRange,
-                               AppVersion=APP_VERSION)
+                               PageRange=PageRange)
 
     # 影音搜索页面
     @App.route('/download', methods=['POST', 'GET'])
@@ -411,8 +396,7 @@ def create_flask_app(config):
 
         return render_template("download.html",
                                DownloadCount=DownloadCount,
-                               Torrents=DispTorrents,
-                               AppVersion=APP_VERSION)
+                               Torrents=DispTorrents)
 
     # 服务页面
     @App.route('/service', methods=['POST', 'GET'])
@@ -574,8 +558,7 @@ def create_flask_app(config):
 
         return render_template("service.html",
                                Count=len(scheduler_cfg_list),
-                               SchedulerTasks=scheduler_cfg_list,
-                               AppVersion=APP_VERSION)
+                               SchedulerTasks=scheduler_cfg_list)
 
     # 历史记录页面
     @App.route('/history', methods=['POST', 'GET'])
@@ -624,8 +607,7 @@ def create_flask_app(config):
                                CurrentPage=CurrentPage,
                                TotalPage=TotalPage,
                                PageRange=PageRange,
-                               PageNum=PageNum,
-                               AppVersion=APP_VERSION)
+                               PageNum=PageNum)
 
     # 事件响应
     @App.route('/do', methods=['POST', 'GET'])

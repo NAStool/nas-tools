@@ -1,366 +1,171 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta content="white" name="apple-mobile-web-app-status-bar-style" />
-    <title>影视搜索 - NASTool</title>
-    <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon" />
-    <link rel="apple-touch-icon" href="../static/img/logo.png">
-    <!-- CSS files -->
-    <link href="../static/css/tabler.min.css" rel="stylesheet"/>
-  </head>
-  <body  class=" layout-boxed">
-    <div class="page">
-      <header class="navbar navbar-expand-md navbar-light d-print-none">
-        <div class="container-xl">
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <h1 class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3">
-            <a href="/home">
-              <img src="../static/img/logo.svg" width="110" height="32" alt="NASTool" class="navbar-brand-image">
-            </a>
-          </h1>
-          <div class="navbar-nav flex-row order-md-last">
-            <div class="nav-item d-none d-md-flex me-3">
-              <div class="btn-list">
-                <a href="https://github.com/jxxghp/nas-tools" class="btn" target="_blank" rel="noreferrer">
-                  <!-- Download SVG icon from http://tabler-icons.io/i/brand-github -->
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" /></svg>
-                  Source code
-                </a>
+  <div class="container-xl">
+    <!-- Page title -->
+    <div class="page-header d-print-none">
+      <div class="row align-items-center">
+        <div class="col">
+          <h2 class="page-title">
+            影视搜索
+          </h2>
+        </div>
+        <!-- Page title actions -->
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="d-flex">
+          <div class="me-3">
+            <div class="input-icon">
+              <input id="search_word" type="text" value="" class="form-control" placeholder="Search…">
+                <span class="input-icon-addon">
+                  <!-- Download SVG icon from http://tabler-icons.io/i/search -->
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
+                </span>
               </div>
             </div>
-            <div class="d-none d-md-flex">
-              <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="暗黑风格" data-bs-toggle="tooltip" data-bs-placement="bottom">
-                <!-- Download SVG icon from http://tabler-icons.io/i/moon -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
-              </a>
-              <a href="?theme=light" class="nav-link px-0 hide-theme-light" title="明亮风格" data-bs-toggle="tooltip" data-bs-placement="bottom">
-                <!-- Download SVG icon from http://tabler-icons.io/i/sun -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4" /><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" /></svg>
-              </a>
-            </div>
+            <input type="button" id="search_btn" value="搜索" class="btn btn-primary" onclick="javascript:search_media()"/>
           </div>
-          <div class="collapse navbar-collapse" id="navbar-menu">
-            <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
-              <ul class="navbar-nav">
-                <li class="nav-item">
-                  <a class="nav-link" href="/home" >
-                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/home -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="5 12 3 12 12 3 21 12 19 12" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
-                    </span>
-                    <span class="nav-link-title">
-                      开始
-                    </span>
-                  </a>
-                </li>
-                <li class="nav-item active">
-                  <a class="nav-link" href="/search">
-                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/package -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3" /><line x1="12" y1="12" x2="20" y2="7.5" /><line x1="12" y1="12" x2="12" y2="21" /><line x1="12" y1="12" x2="4" y2="7.5" /><line x1="16" y1="5.25" x2="8" y2="9.75" /></svg>
-                    </span>
-                    <span class="nav-link-title">
-                      影视搜索
-                    </span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/sites" >
-                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/checkbox -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 11 12 14 20 6" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>
-                    </span>
-                    <span class="nav-link-title">
-                      站点订阅
-                    </span>
-                  </a>
-                </li>
-                <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false" >
-                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/star -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" /></svg>
-                    </span>
-                    <span class="nav-link-title">
-                      推荐
-                    </span>
-                  </a>
-                  <div class="dropdown-menu">
-                    <a class="dropdown-item" href="/recommend?t=hm">
-                      TMDB热门电影
-                    </a>
-                    <a class="dropdown-item" href="/recommend?t=ht">
-                      TMDB热门电视剧
-                    </a>
-                    <a class="dropdown-item" href="/recommend?t=nm">
-                      TMDB最新电影
-                    </a>
-                    <a class="dropdown-item" href="/recommend?t=nt">
-                      TMDB最新电视剧
-                    </a>
-                    <a class="dropdown-item" href="/recommend?t=dbom">
-                      正在热映
-                      <span class="badge badge-sm bg-orange text-case ms-2">HOT</span>
-                    </a>
-                    <a class="dropdown-item" href="/recommend?t=dbhm">
-                      豆瓣热门电影
-                    </a>
-                    <a class="dropdown-item" href="/recommend?t=dbht">
-                      豆瓣热门电视剧
-                    </a>
-                    <a class="dropdown-item" href="/recommend?t=dbnm">
-                      豆瓣最新电影
-                    </a>
-                    <a class="dropdown-item" href="/recommend?t=dbnt">
-                      豆瓣最新电视剧
-                    </a>
-                  </div>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/download" >
-                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/layout-2 -->
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        </div>
+    </div>
+  </div>
+  <!-- 业务页面代码 -->
+  {% if Count > 0 %}
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="row row-cards">
+        {% for Item in Items  %}
+        <div class="col-sm-6 col-lg-3">
+          <div class="card card-sm">
+            <div class="ribbon ribbon-top ribbon-bookmark {% if Item[11] > 8 %} bg-green {% elif Item[11] <= 8 and Item[11] >= 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ Item[11] }}</div>
+            <a href="javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}')" class="d-block" ><img src="{{ Item[9] }}" class="card-img-top" title="种子：{{ Item[12] }}&#10;描述：{{ Item[13] }}"></a>
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <span class="avatar me-2 rounded">{{ Item[10] }}</span>
+                <div>
+                  <div><strong>{{ Item[1]}}</strong></div>
+                  <div class="text-muted"><strong>{{ Item[6]}}</strong> {{ Item[2]}} {{ Item[3]}}</div>
+                </div>
+                <div class="ms-auto">
+                  <span class="text-muted">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-world-upload" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                       <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                       <polyline points="7 11 12 16 17 11"></polyline>
-                       <line x1="12" y1="4" x2="12" y2="16"></line>
+                       <path d="M21 12a9 9 0 1 0 -9 9"></path>
+                       <path d="M3.6 9h16.8"></path>
+                       <path d="M3.6 15h8.4"></path>
+                       <path d="M11.578 3a17 17 0 0 0 0 18"></path>
+                       <path d="M12.5 3c1.719 2.755 2.5 5.876 2.5 9"></path>
+                       <path d="M18 21v-7m3 3l-3 -3l-3 3"></path>
                     </svg>
-                    </span>
-                    <span class="nav-link-title">
-                      下载
-                    </span>
-                  </a>
-                </li>
-				<li class="nav-item">
-                  <a class="nav-link" href="/service" >
-                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/layout-2 -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="4" y="4" width="6" height="5" rx="2" /><rect x="4" y="13" width="6" height="7" rx="2" /><rect x="14" y="4" width="6" height="7" rx="2" /><rect x="14" y="15" width="6" height="5" rx="2" /></svg>
-                    </span>
-                    <span class="nav-link-title">
-                      服务
-                    </span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="/history" >
-                    <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler-icons.io/i/layout-2 -->
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-history" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                         <polyline points="12 8 12 12 14 14"></polyline>
-                         <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"></path>
-                      </svg>
-                    </span>
-                    <span class="nav-link-title">
-                      历史
-                    </span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </header>
-      <div class="page-wrapper">
-        <div class="container-xl">
-          <!-- Page title -->
-          <div class="page-header d-print-none">
-            <div class="row align-items-center">
-              <div class="col">
-                <h2 class="page-title">
-                  影视搜索
-                </h2>
-              </div>
-			  <!-- Page title actions -->
-            </div>
-            <div class="col-auto ms-auto d-print-none">
-              <div class="d-flex">
-                <div class="me-3">
-                  <div class="input-icon">
-                    <input id="search_word" type="text" value="" class="form-control" placeholder="Search…">
-                      <span class="input-icon-addon">
-                        <!-- Download SVG icon from http://tabler-icons.io/i/search -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
-                      </span>
-                    </div>
-                  </div>
-                  <input type="button" id="search_btn" value="搜索" class="btn btn-primary" onclick="javascript:search_media()"/>
+                    {{ Item[4] }}
+                  </span>
                 </div>
               </div>
-          </div>
-        </div>        
-		<!-- 业务页面代码 -->
-        {% if Count > 0 %}
-		<div class="page-body">
-          <div class="container-xl">
-            <div class="row row-cards">
-              {% for Item in Items  %}
-              <div class="col-sm-6 col-lg-3">
-                <div class="card card-sm">
-                  <div class="ribbon ribbon-top ribbon-bookmark {% if Item[11] > 8 %} bg-green {% elif Item[11] <= 8 and Item[11] >= 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ Item[11] }}</div>
-                  <a href="javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}')" class="d-block" ><img src="{{ Item[9] }}" class="card-img-top" title="种子：{{ Item[12] }}&#10;描述：{{ Item[13] }}"></a>
-                  <div class="card-body">
-                    <div class="d-flex align-items-center">
-                      <span class="avatar me-2 rounded">{{ Item[10] }}</span>
-                      <div>
-                        <div><strong>{{ Item[1]}}</strong></div>
-                        <div class="text-muted"><strong>{{ Item[6]}}</strong> {{ Item[2]}} {{ Item[3]}}</div>
-                      </div>
-                      <div class="ms-auto">
-                        <span class="text-muted">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-world-upload" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                             <path d="M21 12a9 9 0 1 0 -9 9"></path>
-                             <path d="M3.6 9h16.8"></path>
-                             <path d="M3.6 15h8.4"></path>
-                             <path d="M11.578 3a17 17 0 0 0 0 18"></path>
-                             <path d="M12.5 3c1.719 2.755 2.5 5.876 2.5 9"></path>
-                             <path d="M18 21v-7m3 3l-3 -3l-3 3"></path>
-                          </svg>
-                          {{ Item[4] }}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-             {% endfor %}
             </div>
           </div>
         </div>
-        {% else %}
-        <div class="page-wrapper">
-        <div class="container-xl">
-        </div>
-        <div class="page-body">
-          <div class="container-xl d-flex flex-column justify-content-center">
-            <div class="empty">
-              <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128"  alt="">
-              </div>
-              <p class="empty-title" id="search_tip_title">没有记录</p>
-              <p class="empty-subtitle text-muted" id="search_tip_text">
-                输入想看的电影、电视剧名称，点击搜索试试看吧。
-              </p>
-            </div>
-          </div>
-        </div>
-        {% endif %}
-        <footer class="footer footer-transparent d-print-none">
-          <div class="container-xl">
-            <div class="row text-center align-items-center flex-row-reverse">
-              <div class="col-12 col-lg-auto mt-3 mt-lg-0">
-                <ul class="list-inline list-inline-dots mb-0">
-                  <li class="list-inline-item">
-                    Copyright &copy; 2022
-                    <a href="." class="link-secondary">NASTool</a>.
-                    All rights reserved.
-                  </li>
-                  <li class="list-inline-item">
-                    {{ AppVersion }}
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </footer>
+       {% endfor %}
       </div>
     </div>
-    <div class="modal modal-blur fade" id="download-modal" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-body">
-            <div class="modal-title">确认提示</div>
-            <div id="download_start_message">是否立即下载该资源？</div>
-          </div>
-          <div class="modal-footer">
-            <input type="hidden" id="download_start_id" />
-            <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
-            <button type="button" class="btn btn-danger" id="download_start_btn">确定</button>
+  </div>
+  {% else %}
+<div class="page-wrapper">
+  <div class="container-xl">
+  </div>
+  <div class="page-body">
+    <div class="container-xl d-flex flex-column justify-content-center">
+      <div class="empty">
+        <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128"  alt="">
+        </div>
+        <p class="empty-title" id="search_tip_title">没有记录</p>
+        <p class="empty-subtitle text-muted" id="search_tip_text">
+          输入想看的电影、电视剧名称，点击搜索试试看吧。
+        </p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+<div class="modal modal-blur fade" id="download-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="modal-title">确认提示</div>
+        <div id="download_start_message">是否立即下载该资源？</div>
+      </div>
+      <div class="modal-footer">
+        <input type="hidden" id="download_start_id" />
+        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-danger" id="download_start_btn">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="download-modal-success" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-status bg-success"></div>
+      <div class="modal-body text-center py-4">
+        <!-- Download SVG icon from http://tabler-icons.io/i/circle-check -->
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M9 12l2 2l4 -4" /></svg>
+        <h3>成功</h3>
+        <input type="hidden" id="download_start_name" />
+        <div class="text-muted" id="download_finished_str">添加下载成功！</div>
+      </div>
+      <div class="modal-footer">
+        <div class="w-100">
+          <div class="row">
+            <div class="col"><a href="#" class="btn btn-success w-100" data-bs-dismiss="modal">
+                确定
+              </a></div>
           </div>
         </div>
       </div>
     </div>
-    <div class="modal modal-blur fade" id="download-modal-success" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          <div class="modal-status bg-success"></div>
-          <div class="modal-body text-center py-4">
-            <!-- Download SVG icon from http://tabler-icons.io/i/circle-check -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M9 12l2 2l4 -4" /></svg>
-            <h3>成功</h3>
-            <input type="hidden" id="download_start_name" />
-            <div class="text-muted" id="download_finished_str">添加下载成功！</div>
-          </div>
-          <div class="modal-footer">
-            <div class="w-100">
-              <div class="row">
-                <div class="col"><a href="#" class="btn btn-success w-100" data-bs-dismiss="modal">
-                    确定
-                  </a></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    </div>
-    <!-- Libs JS -->
-    <!-- Tabler Core -->
-    <script src="../static/js/tabler.min.js"></script>
-    <script src="../static/js/jquery-3.3.1.min.js"></script>
-    <script src="../static/js/util.js"></script>
-    <script src="../static/js/demo.min.js"></script>
-    <script type="text/javascript">
-      // 关键字
-      search_word = getQueryVariable('s');
-      if(search_word != ""){
-          $("#search_word").val(decodeURI(search_word))
-          search_media()
+  </div>
+</div>
+<script type="text/javascript">
+  // 关键字
+  search_word = getQueryVariable('s');
+  if(search_word != ""){
+      $("#search_word").val(decodeURI(search_word))
+      search_media()
+  }
+  // 显示下载提示框
+  function show_download_modal(id, name){
+      $("#download_start_id").val(id);
+      $("#download_start_name").val(name);
+      $("#download_start_message").text("是否立即下载 " + name + "？");
+      $('#download-modal').modal('show');
+  }
+  // 搜索按钮
+  function search_media(){
+      var cmd = "search";
+      var keyword = $("#search_word").val();
+      if(keyword == ""){
+          return;
       }
-      // 显示下载提示框
-      function show_download_modal(id, name){
-          $("#download_start_id").val(id);
-          $("#download_start_name").val(name);
-          $("#download_start_message").text("是否立即下载 " + name + "？");
-          $('#download-modal').modal('show');
-      }
-      // 搜索按钮
-      function search_media(){
-          var cmd = "search";
-          var keyword = $("#search_word").val();
-          if(keyword == ""){
-              return;
-          }
-          $("#search_btn").val("搜索中...");
-          $("#search_btn").attr("disabled", "true");
-          $("#search_tip_title").text("正在搜索，请稍后...");
-          $("#search_tip_text").text("");
-          var param = {"search_word": keyword};
-          ajax_post(cmd, param, function(ret){
-              //刷新页面
-              window.location.href = window.location.href.split('?')[0];
-          });
-      }
-      //点击链接下载
-      function download_link(id){
-          var cmd = "download";
-          var data = {"id": id};
-          ajax_post(cmd, data, function(ret){
-             item = $("#download_start_name").val();
-              $("#download_finished_str").text(item + " 添加下载成功！");
-              $("#download-modal-success").modal('show');
-          });
-      }
-      //绑定事件
-      $(document).ready(function(){
-          // 下载模态框事件
-          $("#download_start_btn").click(function(){
-              $('#download-modal').modal('hide');
-              download_link($("#download_start_id").val());
-          });
+      $("#search_btn").val("搜索中...");
+      $("#search_btn").attr("disabled", "true");
+      $("#search_tip_title").text("正在搜索，请稍后...");
+      $("#search_tip_text").text("");
+      var param = {"search_word": keyword};
+      ajax_post(cmd, param, function(ret){
+          //刷新页面
+          window.location.href = window.location.href.split('?')[0];
       });
-    </script>
-  </body>
-</html>
+  }
+  //点击链接下载
+  function download_link(id){
+      var cmd = "download";
+      var data = {"id": id};
+      ajax_post(cmd, data, function(ret){
+         item = $("#download_start_name").val();
+          $("#download_finished_str").text(item + " 添加下载成功！");
+          $("#download-modal-success").modal('show');
+      });
+  }
+
+  // 下载模态框事件
+  $("#download_start_btn").click(function(){
+      $('#download-modal').modal('hide');
+      download_link($("#download_start_id").val());
+  });
+</script>
