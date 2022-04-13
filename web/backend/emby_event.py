@@ -137,7 +137,7 @@ class EmbyEvent:
             if self.item_id:
                 image_url = self.emby.get_emby_image_by_id(self.item_id, "Backdrop")
             if not image_url:
-                image_url = MetaInfo.get_backdrop_image(search_type=self.media_type,
-                                                        tmdbid=self.tmdb_id,
-                                                        default="https://emby.media/notificationicon.png")
+                image_url = MetaInfo.get_fanart_image(search_type=self.media_type,
+                                                      tmdbid=self.tmdb_id,
+                                                      default="https://emby.media/notificationicon.png")
             self.message.sendmsg(message_title, message_text, image_url)

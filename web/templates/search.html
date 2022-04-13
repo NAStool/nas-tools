@@ -123,7 +123,7 @@
 </div>
 <script type="text/javascript">
   // 关键字
-  search_word = getQueryVariable('s');
+  search_word = "{{ SearchWord }}";
   if(search_word != ""){
       $("#search_word").val(decodeURI(search_word))
       search_media()
@@ -149,7 +149,7 @@
       var param = {"search_word": keyword};
       ajax_post(cmd, param, function(ret){
           //刷新页面
-          window.location.href = window.location.href.split('?')[0];
+          navmenu('search')
       });
   }
   //点击链接下载

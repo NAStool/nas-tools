@@ -50,6 +50,7 @@ class MetaInfo(object):
     # 封面图片
     backdrop_path = None
     poster_path = None
+    fanart_image = None
     # 评分
     vote_average = 0
     # TMDB 的其它信息
@@ -617,9 +618,13 @@ class MetaInfo(object):
         else:
             return ""
 
-    # 返回图片地址
+    # 返回背景图片地址
     def get_backdrop_path(self):
-        return self.backdrop_path if self.backdrop_path else self.poster_path
+        return self.fanart_image if self.fanart_image else self.backdrop_path
+
+    # 返回消息图片地址
+    def get_message_image(self):
+        return self.fanart_image if self.fanart_image else self.poster_path
 
     # 是否包含季
     def is_in_seasion(self, season):
@@ -685,7 +690,8 @@ class MetaInfo(object):
             else:
                 self.category = self.category_handler.get_anime_category(info)
         self.poster_path = "https://image.tmdb.org/t/p/w500%s" % info.get('poster_path')
-        self.backdrop_path = self.get_backdrop_image(self.type, tmdbid=info.get('id'))
+        self.fanart_image = self.get_fanart_image(self.type, tmdbid=info.get('id'))
+        self.backdrop_path = "https://image.tmdb.org/t/p/w500%s" % info.get('backdrop_path')
 
     # 整合种了信息
     def set_torrent_info(self, site=None, site_order=0, enclosure=None, res_type=None, res_order=0, size=0, seeders=0,
@@ -702,7 +708,7 @@ class MetaInfo(object):
 
     # 获取消息媒体图片
     @staticmethod
-    def get_backdrop_image(search_type, tmdbid, default=None):
+    def get_fanart_image(search_type, tmdbid, default=None):
         if not search_type:
             return ""
         if tmdbid:

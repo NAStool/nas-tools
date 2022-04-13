@@ -96,7 +96,7 @@
                 </li>
                 {% for page in PageRange %}
                 <li class="page-item {% if page==CurrentPage %} active {% endif %}">
-                  <a class="page-link" href="/history?s={{ Search }}&page={{ page }}">{{ page }}</a></li>
+                  <a class="page-link" href="javascript:navmenu('history?s={{ Search }}&page={{ page }}')">{{ page }}</a></li>
                 {% endfor %}
                 <li class="page-item {% if CurrentPage >= TotalPage %} disabled {% endif %}">
                   <a class="page-link" {% if CurrentPage < TotalPage %} href="javascript:go_next_page('{{ Search }}', {{ CurrentPage }})" {% endif %}>
@@ -255,12 +255,12 @@
   <script type="text/javascript">
     // 上一页
     function go_pre_page(search, page){
-      window.location.href = window.location.href.split("?")[0] + "?s=" + search + "&page=" + (page - 1)
+      navmenu("history?s=" + search + "&page=" + (page - 1))
     }
 
     // 下一页
     function go_next_page(search, page){
-      window.location.href = window.location.href.split("?")[0] + "?s=" + search + "&page=" + (page + 1)
+      navmenu("history?s=" + search + "&page=" + (page + 1))
     }
 
     //重新识别
@@ -328,7 +328,7 @@
         $("#rename_btn").text("转移");
         if(ret.retcode == 0){
           //处理成功
-          setTimeout("window.location.reload()", 1000)
+          setTimeout("navmenu('history')", 1000)
         }else{
           //处理失败
           regmsg = ret.retmsg;
@@ -352,7 +352,7 @@
       $("#delete_btn").text("删除中...");
       var data = { "logid": logid};
       ajax_post("delete_history", data, function(ret){
-        window.location.reload();
+        setTimeout("navmenu('history')", 1000)
       });
     }
 
@@ -361,7 +361,7 @@
        if(event.keyCode == "13")
        {
           var keyword = $("#search_word").val();
-          window.location.href = window.location.href.split("?")[0] + "?s=" + keyword;
+          navmenu("history?s=" + keyword);
        }
     });
     //单选框事件

@@ -16,7 +16,7 @@
       <div class="col-sm-3 col-lg-2">
         <div class="card card-sm">
           <div class="ribbon ribbon-top ribbon-bookmark {% if item.vote > 8 %} bg-green {% elif item.vote <= 8 and item.vote > 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ item.vote }}</div>
-          <a href="/search?s={{ item.title }}" title="{{ item.overview }}" class="d-block"><img src="{{ item.image }}" class="card-img-top"></a>
+          <a href="javascript:navmenu('search?s={{ item.title }}')" title="{{ item.overview }}" class="d-block"><img src="{{ item.image }}" class="card-img-top"></a>
           <div class="card-body">
             <div class="d-flex align-items-center">
               <div>
@@ -24,7 +24,7 @@
                 <div class="text-muted">{{ item.date }}</div>
               </div>
               <div class="ms-auto">
-                <a href="/search?s={{ item.title }}" class="text-muted" title="立即搜索">
+                <a href="javascript:navmenu('search?s={{ item.title }}')" class="text-muted" title="立即搜索">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                      <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
@@ -54,7 +54,7 @@
           </a>
         </li>
         {% for page in PageRange %}
-        <li class="page-item {% if page==CurrentPage %} active {% endif %}"><a class="page-link" href="/recommend?t={{ RecommendType }}&page={{ page }}">{{ page }}</a></li>
+        <li class="page-item {% if page==CurrentPage %} active {% endif %}"><a class="page-link" href="javascript:navmenu('recommend?t={{ RecommendType }}&page={{ page }}')">{{ page }}</a></li>
         {% endfor %}
         <li class="page-item">
           <a class="page-link" href="javascript:go_next_page('{{ RecommendType }}', {{ CurrentPage }})">
@@ -111,39 +111,39 @@
   // 标题
   title_type = '{{ RecommendType }}';
   if(title_type == "hm"){
-    $("#recommend_title").text("TMDB热门电影")
+    $("#recommend_title").text("TMDB热门电影");
   }
   if(title_type == "ht"){
-    $("#recommend_title").text("TMDB热门电视剧")
+    $("#recommend_title").text("TMDB热门电视剧");
   }
   if(title_type == "nm"){
-    $("#recommend_title").text("TMDB最新电影")
+    $("#recommend_title").text("TMDB最新电影");
   }
   if(title_type == "nt"){
-    $("#recommend_title").text("TMDB最新电视剧")
+    $("#recommend_title").text("TMDB最新电视剧");
   }
   if(title_type == "dbom"){
-    $("#recommend_title").text("正在热映")
+    $("#recommend_title").text("正在热映");
   }
   if(title_type == "dbhm"){
-    $("#recommend_title").text("豆瓣热门电影")
+    $("#recommend_title").text("豆瓣热门电影");
   }
   if(title_type == "dbht"){
-    $("#recommend_title").text("豆瓣热门电视剧")
+    $("#recommend_title").text("豆瓣热门电视剧");
   }
   if(title_type == "dbnm"){
-    $("#recommend_title").text("豆瓣最新电影")
+    $("#recommend_title").text("豆瓣最新电影");
   }
   if(title_type == "dbnt"){
-    $("#recommend_title").text("豆瓣最新电视剧")
+    $("#recommend_title").text("豆瓣最新电视剧");
   }
   // 上一页
   function go_pre_page(type, page){
-    window.location.href = window.location.href.split("?")[0] + "?t=" + type + "&page=" + (page - 1)
+    navmenu("recommend?t=" + type + "&page=" + (page - 1));
   }
   // 下一页
   function go_next_page(type, page){
-    window.location.href = window.location.href.split("?")[0] + "?t=" + type + "&page=" + (page + 1)
+    navmenu("recommend?t=" + type + "&page=" + (page + 1));
   }
   // 添加订阅关键字
   function add_rss_key(type, name){

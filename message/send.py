@@ -61,7 +61,7 @@ class Message:
             msg_text = f"{msg_text}\n种子：{can_item.org_string}"
         if can_item.description:
             msg_text = f"{msg_text}\n描述：{can_item.description}"
-        self.sendmsg(msg_title, msg_text, can_item.get_backdrop_path())
+        self.sendmsg(msg_title, msg_text, can_item.get_message_image())
 
     # 发送转移电影的消息
     def send_transfer_movie_message(self, in_from, media_info, exist_filenum, category_flag):
@@ -78,7 +78,7 @@ class Message:
         msg_str = f"{msg_str}，大小：{str_filesize(media_info.size)}，来自：{in_from.value}"
         if exist_filenum != 0:
             msg_str = f"{msg_str}，{exist_filenum}个文件已存在"
-        self.sendmsg(msg_title, msg_str, media_info.get_backdrop_path())
+        self.sendmsg(msg_title, msg_str, media_info.get_message_image())
 
     # 发送转移电视剧/动漫的消息
     def send_transfer_tv_message(self, message_medias, in_from):
@@ -98,4 +98,4 @@ class Message:
                 msg_str = f"{msg_str}，大小：{str_filesize(item_info.size)}，来自：{in_from.value}"
             else:
                 msg_str = f"{msg_str}，共{item_info.total_episodes}集，总大小：{str_filesize(item_info.size)}，来自：{in_from.value}"
-            self.sendmsg(msg_title, msg_str, item_info.get_backdrop_path())
+            self.sendmsg(msg_title, msg_str, item_info.get_message_image())
