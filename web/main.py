@@ -697,7 +697,7 @@ def create_flask_app(config):
                     msg_item = MetaInfo("%s %s" % (res[1], res[2]))
                     msg_item.title = res[1]
                     msg_item.vote_average = res[5]
-                    msg_item.backdrop_path = res[6]
+                    msg_item.poster_path = res[6]
                     msg_item.type = mtype
                     Message().send_download_message(SearchType.WEB, msg_item)
                 return {"retcode": 0}

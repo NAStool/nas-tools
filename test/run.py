@@ -82,11 +82,6 @@ if __name__ == "__main__":
     print(MetaInfo('西部世界 02.mkv').__dict__)
     print(MetaInfo('1.mkv').__dict__)
     '''
-    # Jackett().search_one_media('斗罗大陆 第121-202集')
-    media = Media().get_media_info('Wonder.Woman.1984.2020.WEB-DL.BluRay.1080p')
-    media.site = "pthome"
-    media.size = 342343434333
-    media.description = "刺客伍六七.第03季"
-    Message().send_download_message(SearchType.WX, media)
-
-
+    # print(MetaInfo('1001.mkv').__dict__)
+    # print(MetaInfo('刺客伍六七.第03季.Scissor.Seven.Ⅲ.2021.第1136话.WEB-DL.1080P.AVC.DD+2.0＆AAC.GB-XHGM.mkv').__dict__)
+    print(MetaInfo('Meitantei.Conan.1996.E1271.2160p.WEB-DL.H265').__dict__)

@@ -14,10 +14,13 @@ class Qbittorrent:
     __qbpassword = None
     __tv_save_path = None
     __tv_save_containerpath = None
+    __tv_category = None
     __movie_save_path = None
     __movie_save_containerpath = None
+    __movie_category = None
     __anime_save_path = None
     __anime_save_containerpath = None
+    __anime_category = None
     qbc = None
 
     def __init__(self):
@@ -39,11 +42,24 @@ class Qbittorrent:
                     self.__movie_save_path = save_path
                     self.__anime_save_path = save_path
                 else:
-                    self.__tv_save_path = save_path.get('tv')
-                    self.__movie_save_path = save_path.get('movie')
-                    self.__anime_save_path = save_path.get('anime')
+                    if save_path.get('tv'):
+                        tv_save_path = save_path.get('tv').split("|")
+                        self.__tv_save_path = tv_save_path[0]
+                        if len(tv_save_path) > 1:
+                            self.__tv_category = tv_save_path[1]
+                    if save_path.get('movie'):
+                        movie_save_path = save_path.get('movie').split("|")
+                        self.__movie_save_path = movie_save_path[0]
+                        if len(movie_save_path) > 1:
+                            self.__movie_category = movie_save_path[1]
+                    if save_path.get('anime'):
+                        anime_save_path = save_path.get('anime').split("|")
+                        self.__anime_save_path = anime_save_path[0]
+                        if len(anime_save_path) > 1:
+                            self.__anime_category = anime_save_path[1]
                     if not self.__anime_save_path:
                         self.__anime_save_path = self.__tv_save_path
+                        self.__anime_category = self.__tv_category
             save_containerpath = qbittorrent.get('save_containerpath')
             if save_containerpath:
                 if isinstance(save_containerpath, str):
@@ -133,11 +149,11 @@ class Qbittorrent:
             return False
         self.qbc.auth_log_in()
         if mtype == MediaType.TV:
-            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__tv_save_path)
+            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__tv_save_path, category=self.__tv_category)
         elif mtype == MediaType.MOVIE:
-            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__movie_save_path)
+            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__movie_save_path, category=self.__movie_category)
         else:
-            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__anime_save_path)
+            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__anime_save_path, category=self.__anime_category)
         self.qbc.auth_log_out()
         return qbc_ret
 

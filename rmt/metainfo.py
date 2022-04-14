@@ -73,7 +73,7 @@ class MetaInfo(object):
     _unknown_name_str = ""
     # 正则式区
     _season_re = r"S(\d{2})|^S(\d{1,2})"
-    _episode_re = r"EP?(\d{2,3})|^EP?(\d{1,3})"
+    _episode_re = r"EP?(\d{2,4})|^EP?(\d{1,4})"
     _part_re = r"(^PART[\s.]*[1-9]?|^CD[\s.]*[1-9]?|^DVD[\s.]*[1-9]?|^DISK[\s.]*[1-9]?|^DISC[\s.]*[1-9]?)"
     _resources_type_re = r"^BLURAY|^REMUX|^HDTV|^HDDVD|^WEBRIP|^DVDRIP|^BDRIP|^UHD|^SDR|^HDR|^DOLBY|^BLU|^WEB|^BD"
     _name_no_begin_re = r"^\[.+?]"
@@ -81,7 +81,7 @@ class MetaInfo(object):
     _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|NETFLIX|IMAX|^CHC|^3D|\s+3D|^BBC|DISNEY\+" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+季" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+[集话話]" \
-                        r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|\s+S\d{1,2}|EP?\d{2}\s*-\s*EP?\d{2}|EP?\d{2,3}|\s+EP?\d{1,3}" \
+                        r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|\s+S\d{1,2}|EP?\d{2,4}\s*-\s*EP?\d{2,4}|EP?\d{2,4}|\s+EP?\d{1,4}" \
                         r"|BLU-?RAY|REMUX|HDTV|HDDVD|WEBRIP|DVDRIP|UHD|WEB|SDR|HDR|DOLBY|TRUEHD|BDRIP|BD" \
                         r"|[HX]264|[HX]265|AVC|AAC|DTS\d.\d|HEVC|\d{3,4}[PI]" \
                         r"|TV|Series|Movie|Animations|XXX" \
@@ -105,7 +105,7 @@ class MetaInfo(object):
             # 去掉名称中第1个[]的内容
             title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
             # 把xxxx-xxxx年份换成前一个年份，常出现在季集上
-            title = re.sub(r'(\d{4})-(\d{4})', r'\1', title)
+            title = re.sub(r'[\s.]+(\d{4})-(\d{4})', r'\1', title)
             # 拆分tokens
             tokens = Tokens(title)
             # 解析名称、年份、季、集、资源类型、分辨率等
@@ -274,7 +274,9 @@ class MetaInfo(object):
                         elif self._last_token_type == "enname":
                             self.en_name = "%s %s" % (self.en_name, token)
                     elif len(token) == 4:
-                        # 4位数字，可能是年份，也可能真的是标题的一部分，记下来
+                        # 4位数字，可能是年份，也可能真的是标题的一部分，也有可能是集
+                        if token.startswith('0') or not 1900 < int(token) < 2050:
+                            return
                         if not self._unknown_name_str:
                             self._unknown_name_str = token
                 else:
@@ -317,7 +319,7 @@ class MetaInfo(object):
             return
         if len(token) != 4:
             return
-        if not 1900 < int(token) < 2100:
+        if not 1900 < int(token) < 2050:
             return
         self.year = token
         self._last_token_type = "year"
@@ -383,18 +385,17 @@ class MetaInfo(object):
                     if self.begin_season != se:
                         self.end_season = se
                         self.total_seasons = (self.end_season - self.begin_season) + 1
-        else:
-            if token.isdigit():
-                if self.begin_season \
-                        and not self.end_season \
-                        and (0 < int(token) < 100) \
-                        and (int(token) > self.begin_season) \
-                        and self._last_token_type == "season":
-                    self.end_season = int(token)
-                    self.total_seasons = (self.end_season - self.begin_season) + 1
-                    self._last_token_type = "season"
-                    self._stop_name_flag = True
-                    self._continue_flag = False
+        elif token.isdigit():
+            if self.begin_season \
+                    and not self.end_season \
+                    and (0 < int(token) < 100) \
+                    and (int(token) > self.begin_season) \
+                    and self._last_token_type == "season":
+                self.end_season = int(token)
+                self.total_seasons = (self.end_season - self.begin_season) + 1
+                self._last_token_type = "season"
+                self._stop_name_flag = True
+                self._continue_flag = False
 
     def __init_episode(self, token):
         if not self.get_name():
@@ -424,10 +425,10 @@ class MetaInfo(object):
                     if self.begin_episode != se:
                         self.end_episode = se
                         self.total_episodes = (self.end_episode - self.begin_episode) + 1
-        if token.isdigit():
+        elif token.isdigit():
             if self.begin_episode \
                     and not self.end_episode \
-                    and (0 < len(token) < 4) \
+                    and (0 < len(token) < 5) \
                     and (int(token) > self.begin_episode) \
                     and self._last_token_type == "episode":
                 self.end_episode = int(token)
@@ -436,7 +437,7 @@ class MetaInfo(object):
                 self._stop_name_flag = True
                 self._continue_flag = False
                 self.type = MediaType.TV
-            elif 1 < len(token) < 4 and token.startswith('0'):
+            elif 1 < len(token) < 5 and token.startswith('0'):
                 self.begin_episode = int(token)
                 self.total_episodes = 1
                 self._last_token_type = "episode"
