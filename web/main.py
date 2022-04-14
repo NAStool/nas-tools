@@ -225,9 +225,11 @@ def create_flask_app(config):
     def search():
         # 查询结果
         SearchWord = request.args.get("s")
+        NeedSearch = request.args.get("f")
         res = get_jackett_results()
         return render_template("search.html",
                                SearchWord=SearchWord or "",
+                               NeedSearch=NeedSearch or "",
                                Count=len(res),
                                Items=res)
 

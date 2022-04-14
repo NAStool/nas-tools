@@ -328,7 +328,8 @@
         $("#rename_btn").text("转移");
         if(ret.retcode == 0){
           //处理成功
-          setTimeout("navmenu('history')", 1000)
+          setTimeout("navmenu('history')", 1000);
+          $('#modal-rename').modal('hide');
         }else{
           //处理失败
           regmsg = ret.retmsg;
@@ -352,7 +353,8 @@
       $("#delete_btn").text("删除中...");
       var data = { "logid": logid};
       ajax_post("delete_history", data, function(ret){
-        setTimeout("navmenu('history')", 1000)
+        setTimeout("navmenu('history')", 1000);
+        $('#modal-danger').modal('hide');
       });
     }
 

@@ -126,7 +126,7 @@ class FileTransfer:
 
     # 转移蓝光文件夹
     @staticmethod
-    def transfer_bluray_dir(file_path, new_path, rmt_mode=RmtMode.COPY):
+    def transfer_bluray_dir(file_path, new_path, rmt_mode):
         # 复制
         if rmt_mode == RmtMode.COPY:
             try:
@@ -452,7 +452,7 @@ class FileTransfer:
                     os.makedirs(ret_dir_path)
             # 转移蓝光原盘
             if bluray_disk_flag:
-                ret = self.transfer_bluray_dir(file_item, ret_dir_path)
+                ret = self.transfer_bluray_dir(file_item, ret_dir_path, rmt_mode)
                 if not ret:
                     continue
             else:

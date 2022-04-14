@@ -104,7 +104,7 @@
         var cmd = "pt_remove";
         var param = {"id": id};
         ajax_post(cmd, param, function(ret){
-          setTimeout("navmenu('download')", 1000)
+          navmenu('download');
         });
     }
 

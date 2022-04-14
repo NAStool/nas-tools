@@ -252,6 +252,7 @@
         nid = page.split("?")[0];
         $("li[class*='nav-item']").removeClass("active")
         $("#nav_"+nid).addClass("active");
+        $("#navbar-menu").collapse('hide')
         $("#modal-wait").modal("show");
         $("#page_content").load(page, {}, function(response,status,xhr){
           setTimeout("hide_process()", 500);

@@ -1,70 +1,70 @@
-  <div class="container-xl">
-    <!-- Page title -->
-    <div class="page-header d-print-none">
-      <div class="row align-items-center">
-        <div class="col">
-          <h2 class="page-title">
-            影视搜索
-          </h2>
-        </div>
-        <!-- Page title actions -->
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          影视搜索
+        </h2>
       </div>
-      <div class="col-auto ms-auto d-print-none">
-        <div class="d-flex">
-          <div class="me-3">
-            <div class="input-icon">
-              <input id="search_word" type="text" value="" class="form-control" placeholder="Search…">
-                <span class="input-icon-addon">
-                  <!-- Download SVG icon from http://tabler-icons.io/i/search -->
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
+      <!-- Page title actions -->
+    </div>
+    <div class="col-auto ms-auto d-print-none">
+      <div class="d-flex">
+        <div class="me-3">
+          <div class="input-icon">
+            <input id="search_word" type="text" value="" class="form-control" placeholder="Search…">
+              <span class="input-icon-addon">
+                <!-- Download SVG icon from http://tabler-icons.io/i/search -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
+              </span>
+            </div>
+          </div>
+          <input type="button" id="search_btn" value="搜索" class="btn btn-primary" onclick="javascript:search_media()"/>
+        </div>
+      </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+{% if Count > 0 %}
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      {% for Item in Items  %}
+      <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+          <div class="ribbon ribbon-top ribbon-bookmark {% if Item[11] > 8 %} bg-green {% elif Item[11] <= 8 and Item[11] >= 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ Item[11] }}</div>
+          <a href="javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}')" class="d-block" ><img src="{{ Item[9] }}" class="card-img-top" title="种子：{{ Item[12] }}&#10;描述：{{ Item[13] }}"></a>
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <span class="avatar me-2 rounded">{{ Item[10] }}</span>
+              <div>
+                <div><a href="{{ Item[5] }}" target="_blank" title="点击下载种子文件"><strong>{{ Item[1]}}</strong></a></div>
+                <div class="text-muted"><strong>{{ Item[6]}}</strong> {{ Item[2]}} {{ Item[3]}}</div>
+              </div>
+              <div class="ms-auto">
+                <span class="text-muted">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-world-upload" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                     <path d="M21 12a9 9 0 1 0 -9 9"></path>
+                     <path d="M3.6 9h16.8"></path>
+                     <path d="M3.6 15h8.4"></path>
+                     <path d="M11.578 3a17 17 0 0 0 0 18"></path>
+                     <path d="M12.5 3c1.719 2.755 2.5 5.876 2.5 9"></path>
+                     <path d="M18 21v-7m3 3l-3 -3l-3 3"></path>
+                  </svg>
+                  {{ Item[4] }}
                 </span>
               </div>
             </div>
-            <input type="button" id="search_btn" value="搜索" class="btn btn-primary" onclick="javascript:search_media()"/>
           </div>
         </div>
-    </div>
-  </div>
-  <!-- 业务页面代码 -->
-  {% if Count > 0 %}
-  <div class="page-body">
-    <div class="container-xl">
-      <div class="row row-cards">
-        {% for Item in Items  %}
-        <div class="col-sm-6 col-lg-3">
-          <div class="card card-sm">
-            <div class="ribbon ribbon-top ribbon-bookmark {% if Item[11] > 8 %} bg-green {% elif Item[11] <= 8 and Item[11] >= 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ Item[11] }}</div>
-            <a href="javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}')" class="d-block" ><img src="{{ Item[9] }}" class="card-img-top" title="种子：{{ Item[12] }}&#10;描述：{{ Item[13] }}"></a>
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <span class="avatar me-2 rounded">{{ Item[10] }}</span>
-                <div>
-                  <div><strong>{{ Item[1]}}</strong></div>
-                  <div class="text-muted"><strong>{{ Item[6]}}</strong> {{ Item[2]}} {{ Item[3]}}</div>
-                </div>
-                <div class="ms-auto">
-                  <span class="text-muted">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-world-upload" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                       <path d="M21 12a9 9 0 1 0 -9 9"></path>
-                       <path d="M3.6 9h16.8"></path>
-                       <path d="M3.6 15h8.4"></path>
-                       <path d="M11.578 3a17 17 0 0 0 0 18"></path>
-                       <path d="M12.5 3c1.719 2.755 2.5 5.876 2.5 9"></path>
-                       <path d="M18 21v-7m3 3l-3 -3l-3 3"></path>
-                    </svg>
-                    {{ Item[4] }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-       {% endfor %}
       </div>
+     {% endfor %}
     </div>
   </div>
-  {% else %}
+</div>
+{% else %}
 <div class="page-wrapper">
   <div class="container-xl">
   </div>
@@ -80,8 +80,8 @@
       </div>
     </div>
   </div>
-  {% endif %}
 </div>
+{% endif %}
 <div class="modal modal-blur fade" id="download-modal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
     <div class="modal-content">
@@ -124,9 +124,16 @@
 <script type="text/javascript">
   // 关键字
   search_word = "{{ SearchWord }}";
+  need_search = "{{ NeedSearch }}";
+  result_count = {{ Count }}
   if(search_word != ""){
-      $("#search_word").val(decodeURI(search_word))
-      search_media()
+      $("#search_word").val(decodeURI(search_word));
+      if(need_search){
+        search_media();
+      }else if(!result_count){
+        $("#search_tip_title").text(search_word + " 找到未任何资源")
+        $("#search_tip_text").text("")
+      }
   }
   // 显示下载提示框
   function show_download_modal(id, name){
@@ -144,12 +151,12 @@
       }
       $("#search_btn").val("搜索中...");
       $("#search_btn").attr("disabled", "true");
-      $("#search_tip_title").text("正在搜索，请稍后...");
+      $("#search_tip_title").text("正在搜索 " + keyword + "，请稍后...");
       $("#search_tip_text").text("");
       var param = {"search_word": keyword};
       ajax_post(cmd, param, function(ret){
           //刷新页面
-          navmenu('search')
+          navmenu('search?s='+keyword)
       });
   }
   //点击链接下载
