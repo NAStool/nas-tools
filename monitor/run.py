@@ -1,5 +1,6 @@
 import log
 from monitor.media_sync import Sync
+from utils.functions import INSTANCES
 
 
 def run_monitor():
@@ -11,6 +12,9 @@ def run_monitor():
 
 def stop_monitor():
     try:
-        Sync().stop_service()
+        for instance in INSTANCES:
+            if instance.__dict__.get("__module__") == "monitor.media_sync":
+                instance().stop_service()
+                break
     except Exception as err:
         log.error("【RUN】停止monitor失败：%s" % str(err))
