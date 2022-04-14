@@ -176,6 +176,10 @@ def is_media_files_tv(file_list):
 
 # 获取系统存储空间占用信息
 def get_used_of_partition(path):
+    if not path:
+        return 0, 0
+    if not os.path.exists(path):
+        return 0, 0
     try:
         sv = os.statvfs(path)
         total = (sv.f_blocks * sv.f_frsize)

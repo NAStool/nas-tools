@@ -71,21 +71,33 @@ def check_config(cfg):
 
     # 检查媒体库目录路径
     if config.get('media'):
-        movie_path = config['media'].get('movie_path')
-        if not movie_path:
+        movie_paths = config['media'].get('movie_path')
+        if not movie_paths:
             log.error("未配置movie_path")
-        elif not os.path.exists(movie_path):
-            log.error("movie_path目录不存在：%s" % movie_path)
+        else:
+            if not isinstance(movie_paths, list):
+                movie_paths = [movie_paths]
+            for movie_path in movie_paths:
+                if not os.path.exists(movie_path):
+                    log.error("movie_path目录不存在：%s" % movie_path)
 
-        tv_path = config['media'].get('tv_path')
-        if not tv_path:
+        tv_paths = config['media'].get('tv_path')
+        if not tv_paths:
             log.error("未配置tv_path")
-        elif not os.path.exists(tv_path):
-            log.error("tv_path目录不存在：%s" % tv_path)
+        else:
+            if not isinstance(tv_paths, list):
+                tv_paths = [tv_paths]
+            for tv_path in tv_paths:
+                if not os.path.exists(tv_path):
+                    log.error("tv_path目录不存在：%s" % tv_path)
 
-        anime_path = config['media'].get('anime_path')
-        if anime_path and not os.path.exists(anime_path):
-            log.error("anime_path目录不存在：%s" % anime_path)
+        anime_paths = config['media'].get('anime_path')
+        if anime_paths:
+            if not isinstance(anime_paths, list):
+                anime_paths = [anime_paths]
+            for anime_path in anime_paths:
+                if not os.path.exists(anime_path):
+                    log.error("anime_path目录不存在：%s" % anime_path)
 
         category = config['media'].get('category')
         if not category:

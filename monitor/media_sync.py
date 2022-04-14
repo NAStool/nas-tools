@@ -1,14 +1,12 @@
 import os
 import threading
-from time import sleep
-
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
 from config import RMT_MEDIAEXT, Config
 import log
 from rmt.filetransfer import FileTransfer
-from utils.functions import get_dir_files_by_ext, singleton, is_invalid_path, is_path_in_path
+from utils.functions import singleton, is_invalid_path, is_path_in_path
 from utils.sqls import is_transfer_in_blacklist
 from utils.types import SyncType
 
@@ -21,7 +19,6 @@ class Sync(object):
     filetransfer = None
     __observer = []
     __sync_path = None
-    __unknown_path = None
     __sync_sys = "LINUX"
     __synced_files = []
     __need_sync_paths = {}
@@ -44,9 +41,6 @@ class Sync(object):
         sync = config.get_config('sync')
         if sync:
             self.__sync_path = sync.get('sync_path')
-        media = config.get_config('media')
-        if media:
-            self.__unknown_path = media.get('unknown_path')
 
     # 处理文件变化
     def file_change_handler(self, event, text, event_path):

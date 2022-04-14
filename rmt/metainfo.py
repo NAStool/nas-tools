@@ -4,7 +4,7 @@ import anitopy
 import cn2an
 import requests
 from requests import RequestException
-from config import FANART_TV_API_URL, FANART_MOVIE_API_URL, RMT_MEDIAEXT
+from config import FANART_TV_API_URL, FANART_MOVIE_API_URL, RMT_MEDIAEXT, ANIME_GENREIDS
 from rmt.category import Category
 from utils.functions import is_chinese
 from utils.tokens import Tokens
@@ -666,8 +666,7 @@ class MetaInfo(object):
     def set_tmdb_info(self, info):
         if not info:
             return
-        if info.get('media_type'):
-            self.type = info.get('media_type')
+        self.type = self.__get_tmdb_type(info)
         if not self.type:
             return
         self.tmdb_id = info.get('id')
@@ -734,3 +733,24 @@ class MetaInfo(object):
             # 返回一个默认图片
             return default
         return ""
+
+    # 判断电视剧是否为动漫
+    def __get_tmdb_type(self, info):
+        if not info:
+            return self.type
+        if not info.get('media_type'):
+            return self.type
+        if info.get('media_type') == MediaType.TV:
+            genre_ids = info.get("genre_ids")
+            if not genre_ids:
+                return MediaType.TV
+            if isinstance(genre_ids, list):
+                genre_ids = [str(val).upper() for val in genre_ids]
+            else:
+                genre_ids = [str(genre_ids).upper()]
+            if set(genre_ids).intersection(set(ANIME_GENREIDS)):
+                return MediaType.ANIME
+            else:
+                return MediaType.TV
+        else:
+            return info.get('media_type')

@@ -5,7 +5,7 @@ from threading import Lock
 from subprocess import call
 
 import log
-from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_DISKFREESIZE, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE, ANIME_GENREIDS
+from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE
 from rmt.category import Category
 from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_level1_medias, is_invalid_path, \
     is_path_in_path
@@ -46,16 +46,37 @@ class FileTransfer:
         config = Config()
         media = config.get_config('media')
         if media:
+            # 电影目录
             self.__movie_path = media.get('movie_path')
+            if not isinstance(self.__movie_path, list):
+                self.__movie_path = [self.__movie_path]
+            # 电影分类
+            self.__movie_category_flag = self.category.get_movie_category_flag()
+            # 电视剧目录
             self.__tv_path = media.get('tv_path')
+            if not isinstance(self.__tv_path, list):
+                self.__tv_path = [self.__tv_path]
+            # 电视剧分类
+            self.__tv_category_flag = self.category.get_tv_category_flag()
+            # 动漫目录
             self.__anime_path = media.get('anime_path')
+            if not isinstance(self.__anime_path, list):
+                self.__anime_path = [self.__anime_path]
+            # 动漫分类
+            self.__anime_category_flag = self.category.get_anime_category_flag()
+            # 没有动漫目漫切换为电视剧目录和分类
+            if not self.__anime_path:
+                self.__anime_path = self.__tv_path
+                self.__anime_category_flag = self.__tv_category_flag
+            # 未知目录
             self.__unknown_path = media.get('unknown_path')
+            if not isinstance(self.__unknown_path, list):
+                self.__unknown_path = [self.__unknown_path]
+            # 最小文件大小
             min_filesize = media.get('min_filesize')
             if isinstance(min_filesize, int):
                 self.__min_filesize = min_filesize * 1024 * 1024
-        self.__movie_category_flag = self.category.get_movie_category_flag()
-        self.__tv_category_flag = self.category.get_tv_category_flag()
-        self.__anime_category_flag = self.category.get_anime_category_flag()
+
         sync = config.get_config('sync')
         if sync:
             rmt_mode = sync.get('sync_mod', 'copy')
@@ -167,12 +188,18 @@ class FileTransfer:
     def is_target_dir_path(self, path):
         if not path:
             return False
-        if is_path_in_path(self.__tv_path, path):
-            return True
-        if is_path_in_path(self.__movie_path, path):
-            return True
-        if is_path_in_path(self.__unknown_path, path):
-            return True
+        for tv_path in self.__tv_path:
+            if is_path_in_path(tv_path, path):
+                return True
+        for movie_path in self.__movie_path:
+            if is_path_in_path(movie_path, path):
+                return True
+        for anime_path in self.__anime_path:
+            if is_path_in_path(anime_path, path):
+                return True
+        for unknown_path in self.__unknown_path:
+            if is_path_in_path(unknown_path, path):
+                return True
         return False
 
     # 按原文件名link文件到目的目录
@@ -369,43 +396,30 @@ class FileTransfer:
                     log.warn("【RMT】%s 按原文件名转移到unknown目录..." % file_name)
                     self.transfer_origin_file(file_item, unknown_dir, rmt_mode)
                 elif self.__unknown_path:
+                    unknown_dir = self.__get_best_unknown_path(in_path)
+                    if not unknown_dir:
+                        continue
                     log.warn("【RMT】%s 按原文件名转移到unknown目录..." % file_name)
-                    self.transfer_origin_file(file_item, self.__unknown_path, rmt_mode)
+                    self.transfer_origin_file(file_item, unknown_dir, rmt_mode)
                 else:
                     log.error("【RMT】%s 处理失败！" % file_name)
                 continue
+            # 当前文件大小
+            media.size = os.path.getsize(file_item)
             # 类型-类别-标题-年份
             refresh_item = {"type": media.type, "category": media.category, "title": media.title, "year": media.year}
-            # 对动漫类型进行处理，不配置动漫目录时按电视剧类型处理
-            if media.type == MediaType.ANIME and not self.__anime_path:
-                media.type = MediaType.TV
-            # 对电视剧中的动漫进行处理，如配置了动漫目录电视剧下的动漫也转为动漫分类
-            if media.type == MediaType.TV and self.__anime_path and self.is_tv_anime(media):
-                media.type = MediaType.ANIME
             # 目的目录，有输入target_dir时，往这个目录放
             if target_dir:
                 dist_path = target_dir
-            elif media.type == MediaType.MOVIE:
-                dist_path = self.__movie_path
-            elif media.type == MediaType.TV:
-                dist_path = self.__tv_path
-            elif media.type == MediaType.ANIME:
-                dist_path = self.__anime_path
             else:
-                log.error("【RMT】媒体类型错误！")
+                dist_path = self.__get_best_target_path(mtype=media.type, in_path=in_path, size=media.size)
+            if not dist_path:
+                log.error("【RMT】目的路径不对确！")
                 continue
 
             # 检查剩余空间
             if not os.path.exists(dist_path):
                 return False, "目录不存在：%s" % dist_path
-            # 当前文件大小
-            media.size = os.path.getsize(file_item)
-            # 剩余磁盘空间
-            disk_free_size = get_free_space_gb(dist_path)
-            if float(disk_free_size) < RMT_DISKFREESIZE:
-                log.error("【RMT】目录 %s 剩余磁盘空间不足 %s GB，不处理" % (dist_path, RMT_DISKFREESIZE))
-                self.message.sendmsg("【RMT】磁盘空间不足", "目录 %s 剩余磁盘空间不足 %s GB" % (dist_path, RMT_DISKFREESIZE))
-                return False, "磁盘空间不足"
             # 检查是否有识别集
             if media.type != MediaType.MOVIE and not media.get_episode_list():
                 episode_re = re.search(r'[.\s_]+(\d{1,3})[.\s_]+|(\d{1,3})$', file_base_name)
@@ -610,72 +624,6 @@ class FileTransfer:
                             break
         return dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path
 
-    # 检查媒体库是否存在，返回TRUE或FLASE
-    def is_media_file_exists(self, item):
-        mtype = item.type
-        title = item.title
-        title_str = item.get_title_string()
-        season = item.get_season_list()
-        episode = item.get_episode_list()
-        category = item.category
-        if item.part:
-            part = "-%s" % item.part
-        else:
-            part = ""
-        # 如果是电影
-        if mtype == MediaType.MOVIE:
-            if self.__movie_category_flag:
-                dest_path = os.path.join(self.__movie_path, RMT_FAVTYPE, title_str)
-                if os.path.exists(dest_path):
-                    return True
-                dest_path = os.path.join(self.__movie_path, category, title_str)
-            else:
-                dest_path = os.path.join(self.__movie_path, title_str)
-            return os.path.exists(dest_path)
-        else:
-            if mtype == MediaType.TV:
-                dest_dir = self.__tv_path
-                if self.__tv_category_flag:
-                    dest_dir = os.path.join(dest_dir, category)
-            else:
-                dest_dir = self.__anime_path
-                if self.__anime_category_flag:
-                    dest_dir = os.path.join(dest_dir, category)
-            if not season:
-                # 没有季信息的情况下，只判断目录
-                dest_path = os.path.join(dest_dir, title_str)
-                return os.path.exists(dest_path)
-            else:
-                if not episode:
-                    # 有季没有集的情况下，只要有一季缺失就下
-                    for sea in season:
-                        if not sea:
-                            continue
-                        dest_path = os.path.join(dest_dir, title_str, "Season %s" % sea)
-                        if not os.path.exists(dest_path):
-                            return False
-                    return True
-                else:
-                    # 有季又有集的情况下，检查对应的文件有没有，只要有一集缺失就下
-                    for sea in season:
-                        if not sea:
-                            continue
-                        sea_str = "S" + str(sea).rjust(2, "0")
-                        for epi in episode:
-                            if not epi:
-                                continue
-                            epi_str = "E%s" % str(epi).rjust(2, "0")
-                            ext_exist = False
-                            for ext in RMT_MEDIAEXT:
-                                dest_path = os.path.join(dest_dir, title_str,
-                                                         "Season %s" % sea, "%s%s - %s%s - 第 %s 集%s" % (
-                                                             title, part, sea_str, epi_str, epi, ext))
-                                if os.path.exists(dest_path):
-                                    ext_exist = True
-                            if not ext_exist:
-                                return False
-                    return True
-
     # Emby点红星后转移文件
     def transfer_embyfav(self, item_path):
         if not self.__movie_category_flag or not self.__movie_path:
@@ -684,13 +632,20 @@ class FileTransfer:
             movie_dir = item_path
         else:
             movie_dir = os.path.dirname(item_path)
-        if movie_dir.count(self.__movie_path) == 0:
+        # 判断是不是电影目录的子目录
+        movie_dir_flag = False
+        for movie_path in self.__movie_path:
+            if movie_dir.count(movie_path):
+                movie_dir_flag = True
+                break
+        if not movie_dir_flag:
             return False, None
-        name = movie_dir.split('/')[-1]
-        org_type = movie_dir.split('/')[-2]
+        # 已经是精选下的不处理
+        org_type = os.path.basename(os.path.dirname(movie_dir))
         if org_type == RMT_FAVTYPE:
             return False, None
-        new_path = os.path.join(self.__movie_path, RMT_FAVTYPE, name)
+        # 开始转移文件，转移到同目录下的精选目录
+        new_path = os.path.join(os.path.dirname(os.path.dirname(movie_dir)), RMT_FAVTYPE, os.path.basename(movie_dir))
         log.info("【EMBY】开始转移文件 %s 到 %s ..." % (movie_dir, new_path))
         if os.path.exists(new_path):
             log.info("【EMBY】目录 %s 已存在" % new_path)
@@ -737,68 +692,87 @@ class FileTransfer:
     def get_no_exists_medias(self, meta_info, season=None, total_num=None):
         # 电影
         if meta_info.type == MediaType.MOVIE:
-            dest_path = self.__movie_path
-            if self.__movie_category_flag:
-                dest_path = os.path.join(dest_path, meta_info.category, meta_info.get_title_string())
-            else:
-                dest_path = os.path.join(dest_path, meta_info.get_title_string())
-            files = get_dir_files_by_ext(dest_path, RMT_MEDIAEXT)
-            # 判断精选
-            fav_path = os.path.join(self.__movie_path, RMT_FAVTYPE, meta_info.get_title_string())
-            fav_files = get_dir_files_by_ext(fav_path, RMT_MEDIAEXT)
-            if len(files) > 0 or len(fav_files) > 0:
-                return [{'title': meta_info.title, 'year': meta_info.year}]
-            else:
-                return []
+            for dest_path in self.__movie_path:
+                # 判断精选
+                fav_path = os.path.join(dest_path, RMT_FAVTYPE, meta_info.get_title_string())
+                fav_files = get_dir_files_by_ext(fav_path, RMT_MEDIAEXT)
+                # 其它分类
+                if self.__movie_category_flag:
+                    dest_path = os.path.join(dest_path, meta_info.category, meta_info.get_title_string())
+                else:
+                    dest_path = os.path.join(dest_path, meta_info.get_title_string())
+                files = get_dir_files_by_ext(dest_path, RMT_MEDIAEXT)
+                if len(files) > 0 or len(fav_files) > 0:
+                    return [{'title': meta_info.title, 'year': meta_info.year}]
+            return []
         # 电视剧
         else:
             if not season or not total_num:
                 return []
             if meta_info.type == MediaType.ANIME:
-                dest_path = self.__anime_path
-                if self.__anime_category_flag:
-                    dest_path = os.path.join(dest_path, meta_info.category, meta_info.get_title_string(), "Season %s" % season)
+                dest_paths = self.__anime_path
+                category_flag = self.__anime_category_flag
             else:
-                dest_path = self.__tv_path
-                if self.__tv_category_flag:
-                    dest_path = os.path.join(dest_path, meta_info.category, meta_info.get_title_string(), "Season %s" % season)
-            # 目录不存在
+                dest_paths = self.__tv_path
+                category_flag = self.__tv_category_flag
+            # 总需要的集
             total_episodes = [episode for episode in range(1, total_num + 1)]
-            if not os.path.exists(dest_path):
-                return total_episodes
-            # 查询出所有文件，把集解析出来
+            # 已存在的集
             exists_episodes = []
-            files = get_dir_files_by_ext(dest_path, RMT_MEDIAEXT)
-            for file in files:
-                episode_re = re.search(r'EP?(\d{2,3})', os.path.basename(file), re.IGNORECASE)
-                if episode_re:
-                    episode = int(episode_re.group(1))
-                    if episode not in exists_episodes:
-                        exists_episodes.append(episode)
+            for dest_path in dest_paths:
+                if category_flag:
+                    dest_path = os.path.join(dest_path, meta_info.category, meta_info.get_title_string(),
+                                             "Season %s" % season)
+                # 目录不存在
+                if not os.path.exists(dest_path):
+                    continue
+                files = get_dir_files_by_ext(dest_path, RMT_MEDIAEXT)
+                for file in files:
+                    episode_re = re.search(r'EP?(\d{2,3})', os.path.basename(file), re.IGNORECASE)
+                    if episode_re:
+                        episode = int(episode_re.group(1))
+                        if episode not in exists_episodes:
+                            exists_episodes.append(episode)
             return list(set(total_episodes).difference(set(exists_episodes)))
 
-    # 判断电视剧是否为动漫
-    @staticmethod
-    def is_tv_anime(media):
-        if not media:
-            return False
-        if not media.tmdb_info:
-            return False
-        if media.type == MediaType.MOVIE:
-            return False
-        if media.type == MediaType.ANIME:
-            return True
-        genre_ids = media.tmdb_info.get("genre_ids")
-        if not genre_ids:
-            return False
-        if isinstance(genre_ids, list):
-            genre_ids = [str(val).upper() for val in genre_ids]
+    # 查的一个最好的目录返回，有in_path时找与in_path同路径的
+    # 没有in_path时，顺序查找1个符合大小要求的
+    # 没有in_path和size时，返回第1个
+    def __get_best_target_path(self, mtype, in_path=None, size=0):
+        if not mtype:
+            return None
+        if mtype == MediaType.MOVIE:
+            dest_paths = self.__movie_path
+        elif mtype == MediaType.TV:
+            dest_paths = self.__tv_path
         else:
-            genre_ids = [str(genre_ids).upper()]
-        if set(genre_ids).intersection(set(ANIME_GENREIDS)):
-            return True
-        else:
-            return False
+            dest_paths = self.__anime_path
+        if not isinstance(dest_paths, list):
+            return dest_paths
+        if len(dest_paths) == 1:
+            return dest_paths[0]
+        # 有输入路径的，匹配有共同上级路径的
+        if in_path:
+            for path in dest_paths:
+                if os.path.commonpath([path, in_path]) not in ["/", "\\"]:
+                    return path
+        # 有输入大小的，匹配第1个满足空间存储要求的
+        if size:
+            for path in dest_paths:
+                disk_free_size = get_free_space_gb(path)
+                if float(disk_free_size) > float(size/1024/1024/1024):
+                    return path
+        # 默认返回第1个
+        return dest_paths[0]
+
+    # 查找最合适的unknown目录
+    def __get_best_unknown_path(self, in_path):
+        if not self.__unknown_path:
+            return None
+        for unknown_path in self.__unknown_path:
+            if os.path.commonpath([in_path, unknown_path]) not in ["/", "\\"]:
+                return unknown_path
+        return self.__unknown_path[0]
 
 
 if __name__ == "__main__":

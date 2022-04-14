@@ -38,6 +38,9 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 
 
 ## 更新日志
+2022.4.14
+* 媒体库支持多目录，支持多硬盘/存储空间组媒体库
+
 2022.4.12
 * 支持配置代理
 

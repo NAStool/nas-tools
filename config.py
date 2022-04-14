@@ -26,8 +26,6 @@ NO_PROXIES = {
 }
 # 电视剧动漫的分类genre_ids
 ANIME_GENREIDS = ['16']
-# 剩余多少磁盘空间时不再转移，单位GB
-RMT_DISKFREESIZE = 10
 # 默认过滤的文件大小，200M
 RMT_MIN_FILESIZE = 200 * 1024 * 1024
 # PT删种检查时间间隔

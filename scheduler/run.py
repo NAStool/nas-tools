@@ -10,10 +10,12 @@ from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
 from utils.meta_helper import MetaHelper
 
+SCHEDULER = BlockingScheduler(timezone="Asia/Shanghai")
 
+
+# 启动定时服务
 def run_scheduler():
-    try:
-        SCHEDULER = BlockingScheduler(timezone="Asia/Shanghai")
+    try:        
         SCHEDULER.remove_all_jobs()
         config = Config()
         pt = config.get_config('pt')
@@ -86,3 +88,13 @@ def run_scheduler():
 
     except Exception as err:
         log.error("【RUN】启动scheduler失败：%s" % str(err))
+
+
+# 停止定时服务
+def stop_scheduler():
+    if SCHEDULER:
+        try:
+            SCHEDULER.remove_all_jobs()
+            SCHEDULER.shutdown()
+        except Exception as err:
+            log.error("【RUN】停止scheduler失败：%s" % str(err))

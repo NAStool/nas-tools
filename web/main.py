@@ -162,23 +162,47 @@ def create_flask_app(config):
         media = config.get_config('media')
         if media:
             # 电影目录
-            movie_path = media.get('movie_path')
-            if movie_path:
-                movie_used, movie_total = get_used_of_partition(movie_path)
-            else:
-                movie_used, movie_total = 0, 0
+            movie_paths = media.get('movie_path')
+            if not isinstance(movie_paths, list):
+                movie_paths = [movie_paths]
+            movie_used, movie_total = 0, 0
+            movie_space_list = []
+            for movie_path in movie_paths:
+                if not movie_path:
+                    continue
+                used, total = get_used_of_partition(movie_path)
+                if "%s-%s" % (used, total) not in movie_space_list:
+                    movie_space_list.append("%s-%s" % (used, total))
+                    movie_used += used
+                    movie_total += total
             # 电视目录
-            tv_path = media.get('tv_path')
-            if tv_path:
-                tv_used, tv_total = get_used_of_partition(tv_path)
-            else:
-                tv_used, tv_total = 0, 0
+            tv_paths = media.get('tv_path')
+            if not isinstance(tv_paths, list):
+                tv_paths = [tv_paths]
+            tv_used, tv_total = 0, 0
+            tv_space_list = []
+            for tv_path in tv_paths:
+                if not tv_path:
+                    continue
+                used, total = get_used_of_partition(tv_path)
+                if "%s-%s" % (used, total) not in tv_space_list:
+                    tv_space_list.append("%s-%s" % (used, total))
+                    tv_used += used
+                    tv_total += total
             # 动漫目录
-            anime_path = media.get('anime_path')
-            if anime_path:
-                anime_used, anime_total = get_used_of_partition(anime_path)
-            else:
-                anime_used, anime_total = 0, 0
+            anime_paths = media.get('anime_path')
+            if not isinstance(anime_paths, list):
+                anime_paths = [anime_paths]
+            anime_used, anime_total = 0, 0
+            anime_space_list = []
+            for anime_path in anime_paths:
+                if not anime_path:
+                    continue
+                used, total = get_used_of_partition(anime_path)
+                if "%s-%s" % (used, total) not in anime_space_list:
+                    anime_space_list.append("%s-%s" % (used, total))
+                    anime_used += used
+                    anime_total += total
             # 总空间
             TotalSpaceAry = []
             if movie_total not in TotalSpaceAry:
@@ -809,16 +833,10 @@ def create_flask_app(config):
                 season = data.get("season")
                 if mtype == "TV":
                     media_type = MediaType.TV
-                    if not dest_dir:
-                        dest_dir = config.get_config("media").get("tv_path")
                 elif mtype == "MOV":
                     media_type = MediaType.MOVIE
-                    if not dest_dir:
-                        dest_dir = config.get_config("media").get("movie_path")
                 else:
                     media_type = MediaType.ANIME
-                    if not dest_dir:
-                        dest_dir = config.get_config("media").get("anime_path")
                 tmdb_info = Media().get_media_info_manual(media_type, title, year, tmdbid)
                 if not tmdb_info:
                     return {"retcode": 1, "retmsg": "转移失败，无法查询到TMDB信息"}
@@ -854,7 +872,8 @@ def create_flask_app(config):
                     cfg.close()
                     config.init_config()
                     for instance in INSTANCES:
-                        instance().init_config()
+                        if instance.__dict__.get("init_config"):
+                            instance().init_config()
                 return {"retcode": 0}
 
             # 删除识别记录及文件
