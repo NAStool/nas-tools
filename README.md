@@ -14,7 +14,6 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 配置文件模板：https://github.com/jxxghp/nas-tools/blob/master/config/config.yaml
 
 ## 功能：
-初衷是实现PT下载追更全自动，不用去关注PT资源那些复杂的细节，豆瓣或RSS订阅标记好想看的电影电视剧名字等通知就行，突然有个想看的微信发送个名字立即下载，真正回归观影本身，资源的收集和媒体库的整理全让工具来自动化完成。
 
 ### 1、PT自动检索下载
 * PT站RSS订阅，配置想追的电影电视剧名称实现PT资源自动检索追新。
