@@ -909,7 +909,6 @@ def create_flask_app(config):
                             instance().init_config()
                     # 重启服务
                     restart_monitor()
-                    restart_scheduler()
 
                 return {"retcode": 0}
 
