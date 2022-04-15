@@ -109,7 +109,6 @@ nohup python3 run.py &
 
 https://github.com/jxxghp/nas-tools/releases
 
-![image](https://user-images.githubusercontent.com/51039935/155314082-47d5c637-6659-4c32-a12a-d2678cff93fe.png)
 
 ## 配置
 ### 1、申请相关API KEY
@@ -174,7 +173,7 @@ https://github.com/jxxghp/nas-tools/releases
    | /rst  | 目录同步 |
    | /db   | 豆瓣收藏 |
    
-   ![image](https://user-images.githubusercontent.com/51039935/158045006-e0e007e9-ed7d-4001-95ce-0ff796c05f70.png)
+  ![image](https://user-images.githubusercontent.com/51039935/163518481-d1d4fa43-86e6-4477-a414-8d107f2eecee.png)
 
 ### 6、配置Jackett（推荐）
 如果你想通过微信发送电影电视剧的名称，后台就自动检索各PT站并自动下载，或者使用WEB页面的PT聚合资源搜索功能，则需要配置Jackett，获取API Key以及Torznab Feed，相关参数填入配置文件。
@@ -205,11 +204,14 @@ Jackett的相关配置参考网上的各类教程。
 ## 使用
 1) 3000 端口访问 WEB UI界面，可以修改订阅、搜索资源以及启动服务
 
+![image](https://user-images.githubusercontent.com/51039935/163519714-ca2cb339-b5e2-423e-a9d8-b475e2cf9ba2.png)
+
 
 2) 手机端图文通知和控制界面，控制服务运行（输入命令或者点击菜单）
 
-![msg](https://user-images.githubusercontent.com/51039935/156728609-bc301974-663b-48f7-b0c0-c42f4ec6aabc.jpg)
-![photo_2022-03-04_16-27-51](https://user-images.githubusercontent.com/51039935/156728213-08acf146-e661-4851-9491-3d32520d85e0.jpg)
+![image](https://user-images.githubusercontent.com/51039935/163519064-7abad158-0768-450c-82d5-a6a4ae7ccf62.jpg)
+![image](https://user-images.githubusercontent.com/51039935/163519547-8aa2e845-6ffe-452b-909d-bf58f23fbb42.jpg)
+![image](https://user-images.githubusercontent.com/51039935/163519563-0d06c95f-7b31-43eb-a528-7cc5aa1155aa.jpg)
 
 
 3) 效果
