@@ -4,7 +4,7 @@ import log
 from tmdbv3api import TMDb, Search, Movie, TV
 from config import Config
 from rmt.metainfo import MetaInfo
-from utils.functions import xstr, is_anime
+from utils.functions import xstr, is_anime, is_chinese
 from utils.meta_helper import MetaHelper
 from utils.types import MediaType, MatchMode
 
@@ -90,18 +90,12 @@ class Media:
                             if movie.get('title') == file_media_name or movie.get('original_title') == file_media_name:
                                 info = movie
                                 break
-                    if not info:
-                        for movie in movies:
-                            if movie.get('release_date'):
-                                if movie.get('release_date')[0:4] == media_year:
-                                    info = movie
-                                    break
                 else:
                     for movie in movies:
                         if movie.get('title') == file_media_name or movie.get('original_title') == file_media_name:
                             info = movie
                             break
-                if not info:
+                if not info and len(movies) == 1:
                     info = movies[0]
                 log.info(">%sID：%s, %s名称：%s, 上映日期：%s" % (
                     search_type.value, info.get('id'), search_type.value, info.get('title'), info.get('release_date')))
@@ -136,25 +130,22 @@ class Media:
                             if tv.get('name') == file_media_name or tv.get('original_name') == file_media_name:
                                 info = tv
                                 break
-                    if not info:
-                        for tv in tvs:
-                            if tv.get('first_air_date'):
-                                if tv.get('first_air_date')[0:4] == media_year:
-                                    info = tv
-                                    break
                 else:
                     for tv in tvs:
                         if tv.get('name') == file_media_name or tv.get('original_name') == file_media_name:
                             info = tv
                             break
-                if not info:
+                if not info and len(tvs) == 1:
                     info = tvs[0]
                 log.info(">%sID：%s, %s名称：%s, 上映日期：%s" % (
                     search_type.value, info.get('id'), search_type.value, info.get('name'), info.get('first_air_date')))
         # 补充类别信息
         if info:
             info['media_type'] = search_type
-        return info
+            return info
+        else:
+            log.warn("【META】%s 未匹配到媒体信息!" % file_media_name)
+            return None
 
     # 给定名称和年份或者TMDB号，查询媒体信息
     def get_media_info_manual(self, mtype, title, year, tmdbid=None):
