@@ -819,19 +819,21 @@ def create_flask_app(config):
             # 手工转移
             if cmd == "rename":
                 logid = data.get("logid")
+                dest_dir = ""
                 if logid:
                     paths = get_transfer_path_by_id(logid)
-                    if paths:
+                    if paths and len(paths) > 3:
                         path = os.path.join(paths[0][0], paths[0][1])
                         dest_dir = paths[0][2]
                     else:
                         return {"retcode": -1, "retmsg": "未查询到转移日志记录"}
                 else:
                     paths = data.get("path")
-                    path = paths.split("|")[0]
-                    dest_dir = paths.split("|")[1]
-                if not dest_dir or dest_dir == "null":
-                    dest_dir = ""
+                    path_list = paths.split("|")
+                    path = path_list[0]
+                    if len(path_list) > 1:
+                        dest_dir = path_list[1]
+
                 tmdbid = data.get("tmdb")
                 title = data.get("title")
                 year = data.get("year")
