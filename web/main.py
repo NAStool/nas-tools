@@ -435,7 +435,7 @@ def create_flask_app(config):
         scheduler_cfg_list = []
         pt = config.get_config('pt')
         if pt:
-            # RSS下载
+            # RSS订阅
             pt_check_interval = pt.get('pt_check_interval')
             if pt_check_interval:
                 tim_rssdownload = str(round(pt_check_interval / 60)) + " 分钟"
@@ -453,7 +453,7 @@ def create_flask_app(config):
             '''
             color = "blue"
             scheduler_cfg_list.append(
-                {'name': 'RSS下载', 'time': tim_rssdownload, 'state': rss_state, 'id': 'rssdownload', 'svg': svg,
+                {'name': 'RSS订阅', 'time': tim_rssdownload, 'state': rss_state, 'id': 'rssdownload', 'svg': svg,
                  'color': color})
 
             # PT文件转移
@@ -475,7 +475,7 @@ def create_flask_app(config):
             '''
             color = "green"
             scheduler_cfg_list.append(
-                {'name': 'PT文件转移', 'time': tim_pttransfer, 'state': sta_pttransfer, 'id': 'pttransfer', 'svg': svg,
+                {'name': 'PT下载转移', 'time': tim_pttransfer, 'state': sta_pttransfer, 'id': 'pttransfer', 'svg': svg,
                  'color': color})
 
             # PT删种
@@ -517,7 +517,7 @@ def create_flask_app(config):
                     {'name': 'PT站签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin', 'svg': svg,
                      'color': color})
 
-        # 资源同步
+        # 目录同步
         sync = config.get_config('sync')
         if sync:
             sync_path = sync.get('sync_path')
@@ -532,7 +532,7 @@ def create_flask_app(config):
                 '''
                 color = "orange"
                 scheduler_cfg_list.append(
-                    {'name': '资源同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg, 'color': color})
+                    {'name': '目录同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg, 'color': color})
         # 豆瓣同步
         douban = config.get_config('douban')
         if douban:
