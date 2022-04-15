@@ -210,6 +210,8 @@ Jackett的相关配置参考网上的各类教程。
 
 ![photo_2022-04-15_12-31-09 (2)](https://user-images.githubusercontent.com/51039935/163519064-7abad158-0768-450c-82d5-a6a4ae7ccf62.jpg)
 ![photo_2022-04-15_12-31-17 (2)](https://user-images.githubusercontent.com/51039935/163519077-470925b8-a0eb-4e32-99e0-3785f4a59072.jpg)
+![photo_2022-04-15_12-31-17 (2)](https://user-images.githubusercontent.com/51039935/163519191-f6d0bd80-ccdb-460f-801a-f8def0f9cea7.jpg)
+
 
 
 3) 效果
