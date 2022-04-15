@@ -97,8 +97,9 @@ class Media:
                             break
                 if not info and len(movies) == 1:
                     info = movies[0]
-                log.info(">%sID：%s, %s名称：%s, 上映日期：%s" % (
-                    search_type.value, info.get('id'), search_type.value, info.get('title'), info.get('release_date')))
+                if info:
+                    log.info(">%sID：%s, %s名称：%s, 上映日期：%s" % (
+                        search_type.value, info.get('id'), search_type.value, info.get('title'), info.get('release_date')))
         else:
             # 先按年份查，不行再不用年份查
             log.info("【META】正在检索%s：%s, 年份=%s ..." % (search_type.value, file_media_name, xstr(media_year)))
@@ -137,8 +138,9 @@ class Media:
                             break
                 if not info and len(tvs) == 1:
                     info = tvs[0]
-                log.info(">%sID：%s, %s名称：%s, 上映日期：%s" % (
-                    search_type.value, info.get('id'), search_type.value, info.get('name'), info.get('first_air_date')))
+                if info:
+                    log.info(">%sID：%s, %s名称：%s, 上映日期：%s" % (
+                        search_type.value, info.get('id'), search_type.value, info.get('name'), info.get('first_air_date')))
         # 补充类别信息
         if info:
             info['media_type'] = search_type
