@@ -1,3 +1,5 @@
+import re
+
 import log
 from config import Config
 from message.bark import Bark
@@ -60,6 +62,9 @@ class Message:
         if can_item.org_string:
             msg_text = f"{msg_text}\n种子：{can_item.org_string}"
         if can_item.description:
+            html_re = re.compile(r'<[^>]+>', re.S)
+            description = html_re.sub('', can_item.description)
+            can_item.description = re.sub(r'<[^>]+>', '', description)
             msg_text = f"{msg_text}\n描述：{can_item.description}"
         self.sendmsg(msg_title, msg_text, can_item.get_message_image())
 
