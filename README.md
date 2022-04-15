@@ -174,7 +174,7 @@ https://github.com/jxxghp/nas-tools/releases
    | /rst  | 目录同步 |
    | /db   | 豆瓣收藏 |
    
-   ![image](https://user-images.githubusercontent.com/51039935/158045006-e0e007e9-ed7d-4001-95ce-0ff796c05f70.png)
+  ![image](https://user-images.githubusercontent.com/51039935/163518481-d1d4fa43-86e6-4477-a414-8d107f2eecee.png)
 
 ### 6、配置Jackett（推荐）
 如果你想通过微信发送电影电视剧的名称，后台就自动检索各PT站并自动下载，或者使用WEB页面的PT聚合资源搜索功能，则需要配置Jackett，获取API Key以及Torznab Feed，相关参数填入配置文件。
