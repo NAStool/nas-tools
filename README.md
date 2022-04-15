@@ -210,7 +210,6 @@ Jackett的相关配置参考网上的各类教程。
 2) 手机端图文通知和控制界面，控制服务运行（输入命令或者点击菜单）
 
 ![image](https://user-images.githubusercontent.com/51039935/163519064-7abad158-0768-450c-82d5-a6a4ae7ccf62.jpg)
-![image](https://user-images.githubusercontent.com/51039935/163519077-470925b8-a0eb-4e32-99e0-3785f4a59072.jpg)
 ![image](https://user-images.githubusercontent.com/51039935/163519547-8aa2e845-6ffe-452b-909d-bf58f23fbb42.jpg)
 ![image](https://user-images.githubusercontent.com/51039935/163519563-0d06c95f-7b31-43eb-a528-7cc5aa1155aa.jpg)
 
