@@ -822,7 +822,7 @@ def create_flask_app(config):
                 dest_dir = ""
                 if logid:
                     paths = get_transfer_path_by_id(logid)
-                    if paths and len(paths) > 3:
+                    if paths and len(paths) > 2:
                         path = os.path.join(paths[0][0], paths[0][1])
                         dest_dir = paths[0][2]
                     else:
