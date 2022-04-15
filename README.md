@@ -109,7 +109,6 @@ nohup python3 run.py &
 
 https://github.com/jxxghp/nas-tools/releases
 
-![image](https://user-images.githubusercontent.com/51039935/155314082-47d5c637-6659-4c32-a12a-d2678cff93fe.png)
 
 ## 配置
 ### 1、申请相关API KEY
