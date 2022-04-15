@@ -204,7 +204,8 @@ Jackett的相关配置参考网上的各类教程。
 
 ## 使用
 1) 3000 端口访问 WEB UI界面，可以修改订阅、搜索资源以及启动服务
-![image](https://user-images.githubusercontent.com/51039935/163519432-e3b9f42d-1c28-4d92-baeb-638852b0e014.png)
+
+![image](https://user-images.githubusercontent.com/51039935/163519714-ca2cb339-b5e2-423e-a9d8-b475e2cf9ba2.png)
 
 
 2) 手机端图文通知和控制界面，控制服务运行（输入命令或者点击菜单）
