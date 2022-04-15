@@ -722,11 +722,12 @@ def create_flask_app(config):
                     else:
                         mtype = MediaType.MOVIE
                     Downloader().add_pt_torrent(res[0], mtype)
-                    msg_item = MetaInfo("%s %s" % (res[1], res[2]))
+                    msg_item = MetaInfo("%s" % res[8])
                     msg_item.title = res[1]
                     msg_item.vote_average = res[5]
                     msg_item.poster_path = res[6]
                     msg_item.type = mtype
+                    msg_item.description = res[9]
                     Message().send_download_message(SearchType.WEB, msg_item)
                 return {"retcode": 0}
 
