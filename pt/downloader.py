@@ -71,6 +71,8 @@ class Downloader:
     def pt_removetorrents(self):
         if not self.client:
             return False
+        if not self.__seeding_time:
+            return
         log.info("【PT】开始执行transmission做种清理...")
         torrents = self.client.get_remove_torrents(self.__seeding_time)
         for torrent in torrents:
