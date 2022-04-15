@@ -54,7 +54,7 @@ def insert_jackett_results(media_item):
 
 # 根据ID从数据库中查询Jackett检索结果的一条记录
 def get_jackett_result_by_id(dl_id):
-    sql = "SELECT ENCLOSURE,TITLE,YEAR,SEASON,EPISODE,VOTE,IMAGE,TYPE,TORRENT_NAME,DESCRIPTION FROM JACKETT_TORRENTS WHERE ID=%s" % dl_id
+    sql = "SELECT ENCLOSURE,TITLE,YEAR,SEASON,EPISODE,VOTE,IMAGE,TYPE,TORRENT_NAME,DESCRIPTION,SIZE FROM JACKETT_TORRENTS WHERE ID=%s" % dl_id
     return select_by_sql(sql)
 
 

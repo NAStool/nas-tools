@@ -58,7 +58,11 @@ class Message:
         if can_item.get_resource_type_string():
             msg_text = f"{msg_text}\n质量：{can_item.get_resource_type_string()}"
         if can_item.size:
-            msg_text = f"{msg_text}\n大小：{str_filesize(can_item.size)}"
+            if str(can_item.size).isdigit():
+                size = str_filesize(can_item.size)
+            else:
+                size = can_item.size
+            msg_text = f"{msg_text}\n大小：{size}"
         if can_item.org_string:
             msg_text = f"{msg_text}\n种子：{can_item.org_string}"
         if can_item.description:

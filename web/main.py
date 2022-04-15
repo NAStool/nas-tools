@@ -728,6 +728,7 @@ def create_flask_app(config):
                     msg_item.poster_path = res[6]
                     msg_item.type = mtype
                     msg_item.description = res[9]
+                    msg_item.size = res[10]
                     Message().send_download_message(SearchType.WEB, msg_item)
                 return {"retcode": 0}
 
