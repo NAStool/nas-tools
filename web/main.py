@@ -971,7 +971,7 @@ def create_flask_app(config):
 
         if request.method == 'GET':
             sVerifyEchoStr = request.args.get("echostr")
-            log.info("收到微信验证请求: echostr= %s" % sVerifyEchoStr)
+            log.debug("收到微信验证请求: echostr= %s" % sVerifyEchoStr)
             ret, sEchoStr = wxcpt.VerifyURL(sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce, sVerifyEchoStr)
             if ret != 0:
                 log.error("微信请求验证失败 VerifyURL ret: %s" % str(ret))
@@ -979,7 +979,7 @@ def create_flask_app(config):
             return sEchoStr
         else:
             sReqData = request.data
-            log.info("收到微信消息：" + str(sReqData))
+            log.debug("收到微信消息：" + str(sReqData))
             ret, sMsg = wxcpt.DecryptMsg(sReqData, sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce)
             if ret != 0:
                 log.error("解密微信消息失败 DecryptMsg ret：%s" % str(ret))
