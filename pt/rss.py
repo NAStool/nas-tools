@@ -171,11 +171,12 @@ class Rss:
         # 去重择优后开始添加下载
         download_num, left_medias = self.downloader.check_and_add_pt(SearchType.RSS, rss_download_torrents, no_exists)
         # 批量删除订阅
-        for media in rss_download_torrents:
-            if media.type == MediaType.MOVIE:
-                delete_movie_key(media.title)
-            elif not left_medias or not left_medias.get(media.get_title_string()):
-                delete_tv_key(media.title)
+        if download_num:
+            for media in rss_download_torrents:
+                if media.type == MediaType.MOVIE:
+                    delete_movie_key(media.title)
+                elif no_exists and (not left_medias or not left_medias.get(media.get_title_string())):
+                    delete_tv_key(media.title)
         log.info("【RSS】实际下载了 %s 个资源" % download_num)
 
     @staticmethod
