@@ -12,6 +12,7 @@ from utils.functions import str_filesize
 class Message:
     __msg_channel = None
     __webhook_ignore = None
+    __domain = None
     wechat = None
     telegram = None
     serverchan = None
@@ -30,14 +31,24 @@ class Message:
         if message:
             self.__msg_channel = message.get('msg_channel')
             self.__webhook_ignore = message.get('webhook_ignore')
+        app = config.get_config('app')
+        if app:
+            self.__domain = app.get('domain')
 
     def get_webhook_ignore(self):
         return self.__webhook_ignore or []
 
-    def sendmsg(self, title, text="", image=""):
+    def sendmsg(self, title, text="", image="", url=""):
         log.info("【MSG】发送%s消息：title=%s, text=%s" % (self.__msg_channel, title, text))
         if self.__msg_channel == "wechat":
-            return self.wechat.send_wechat_msg(title, text, image)
+            if self.__domain:
+                if url:
+                    url = "%s?next=%s" % (self.__domain, url)
+                else:
+                    url = self.__domain
+            else:
+                url = ""
+            return self.wechat.send_wechat_msg(title, text, image, url)
         elif self.__msg_channel == "serverchan":
             return self.serverchan.send_serverchan_msg(title, text)
         elif self.__msg_channel == "telegram":
@@ -49,9 +60,7 @@ class Message:
 
     # 发送下载的消息
     def send_download_message(self, in_from, can_item):
-        msg_title = can_item.get_title_string()
-        if can_item.vote_average:
-            msg_title = f"{msg_title} 评分：{can_item.vote_average}"
+        msg_title = can_item.get_title_vote_string()
         msg_text = f"{in_from.value}的{can_item.type.value} {can_item.get_title_string()}{can_item.get_season_episode_string()} 已开始下载"
         if can_item.site:
             msg_text = f"{msg_text}\n站点：{can_item.site}"
@@ -70,13 +79,13 @@ class Message:
             description = html_re.sub('', can_item.description)
             can_item.description = re.sub(r'<[^>]+>', '', description)
             msg_text = f"{msg_text}\n描述：{can_item.description}"
-        self.sendmsg(msg_title, msg_text, can_item.get_message_image())
+        self.sendmsg(title=msg_title, text=msg_text, image=can_item.get_message_image(), url='download')
 
     # 发送转移电影的消息
     def send_transfer_movie_message(self, in_from, media_info, exist_filenum, category_flag):
         msg_title = f"{media_info.get_title_string()} 转移完成"
         if media_info.vote_average:
-            msg_str = f"评分：{media_info.vote_average}，类型：电影"
+            msg_str = f"{media_info.get_vote_string()}，类型：电影"
         else:
             msg_str = "类型：电影"
         if media_info.category:
@@ -87,7 +96,7 @@ class Message:
         msg_str = f"{msg_str}，大小：{str_filesize(media_info.size)}，来自：{in_from.value}"
         if exist_filenum != 0:
             msg_str = f"{msg_str}，{exist_filenum}个文件已存在"
-        self.sendmsg(msg_title, msg_str, media_info.get_message_image())
+        self.sendmsg(title=msg_title, text=msg_str, image=media_info.get_message_image(), url='history')
 
     # 发送转移电视剧/动漫的消息
     def send_transfer_tv_message(self, message_medias, in_from):
@@ -98,7 +107,7 @@ class Message:
             else:
                 msg_title = f"{item_info.get_title_string()} {item_info.get_season_string()} 转移完成"
             if item_info.vote_average:
-                msg_str = f"评分：{item_info.vote_average}，类型：{item_info.type.value}"
+                msg_str = f"{item_info.get_vote_string()}，类型：{item_info.type.value}"
             else:
                 msg_str = f"类型：{item_info.type.value}"
             if item_info.category:
@@ -107,4 +116,4 @@ class Message:
                 msg_str = f"{msg_str}，大小：{str_filesize(item_info.size)}，来自：{in_from.value}"
             else:
                 msg_str = f"{msg_str}，共{item_info.total_episodes}集，总大小：{str_filesize(item_info.size)}，来自：{in_from.value}"
-            self.sendmsg(msg_title, msg_str, item_info.get_message_image())
+            self.sendmsg(title=msg_title, text=msg_str, image=item_info.get_message_image(), url='history')

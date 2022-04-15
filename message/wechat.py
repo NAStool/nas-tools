@@ -94,7 +94,7 @@ class WeChat(object):
             return False, str(err)
 
     # 发送图文消息
-    def send_image_message(self, title, text, image_url):
+    def send_image_message(self, title, text, image_url, url):
         message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.get_access_token()
         if not self.__agent_id:
             return False, "参数未配置"
@@ -110,7 +110,8 @@ class WeChat(object):
                     {
                         "title": title,
                         "description": text,
-                        "picurl": image_url
+                        "picurl": image_url,
+                        "url": url
                     }
                 ]
             }
@@ -129,11 +130,11 @@ class WeChat(object):
         except Exception as err:
             return False, str(err)
 
-    def send_wechat_msg(self, title, text, image):
+    def send_wechat_msg(self, title, text, image, url):
         if not title and not text:
             return -1, "标题和内容不能同时为空"
         if image:
-            ret_code, ret_msg = self.send_image_message(title, text, image)
+            ret_code, ret_msg = self.send_image_message(title, text, image, url)
         else:
             ret_code, ret_msg = self.send_message(title, text)
         return ret_code, ret_msg

@@ -535,6 +535,18 @@ class MetaInfo(object):
     def get_title_string(self):
         return "%s (%s)" % (self.title, self.year) if self.year else self.title
 
+    def get_vote_string(self):
+        if self.vote_average:
+            return "评分：%s" % self.vote_average
+        else:
+            return ""
+
+    def get_title_vote_string(self):
+        if not self.vote_average:
+            return self.get_title_string()
+        else:
+            return "%s %s" % (self.get_title_string(), self.get_vote_string())
+
     # 返回季字符串
     def get_season_string(self):
         if self.begin_season:

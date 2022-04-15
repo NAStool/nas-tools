@@ -140,4 +140,4 @@ class EmbyEvent:
                 image_url = MetaInfo.get_fanart_image(search_type=self.media_type,
                                                       tmdbid=self.tmdb_id,
                                                       default="https://emby.media/notificationicon.png")
-            self.message.sendmsg(message_title, message_text, image_url)
+            self.message.sendmsg(title=message_title, text=message_text, image=image_url)

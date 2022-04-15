@@ -19,6 +19,7 @@ class Jackett:
     __api_key = None
     __indexers = []
     __res_type = []
+    __wechat_auto = True
     media = None
     message = None
     downloader = None
@@ -46,6 +47,7 @@ class Jackett:
             self.__indexers = jackett.get('indexers')
             if not isinstance(self.__indexers, list):
                 self.__indexers = [self.__indexers]
+            self.__wechat_auto = jackett.get('wechat_auto', True)
 
     # 检索一个Indexer
     def seach_indexer(self, order_seq, index, key_word, s_num, e_num, year, mtype, whole_word=False):
@@ -226,14 +228,17 @@ class Jackett:
                 save_media_list = self.get_torrents_group_item(media_list)
                 for save_media_item in save_media_list:
                     insert_jackett_results(save_media_item)
-                self.message.sendmsg(title="%s 共检索到 %s 个有效资源" % (content, len(media_list)), text="")
-            # 去重择优后开始添加下载
+                self.message.sendmsg(title=media_info.get_title_vote_string(), text="%s 共检索到 %s 个有效资源，点击查看详情" % (content, len(media_list)), image=media_info.get_backdrop_path(), url='search')
+            # 微信未开自动下载时返回
+            if in_from == SearchType.WX and not self.__wechat_auto:
+                return False
+            # 择优下载
             download_num, left_medias = self.downloader.check_and_add_pt(in_from, media_list, no_exists)
             # 统计下载情况，下全了返回True，没下全返回False
             if download_num == 0:
-                log.info("【JACKETT】%s 搜索结果中没有符合条件的资源" % content)
+                log.info("【JACKETT】%s 搜索结果中没有符合下载条件的资源" % content)
                 if in_from == SearchType.WX:
-                    self.message.sendmsg("%s 搜索结果中没有符合条件的资源" % content, "")
+                    self.message.sendmsg("%s 搜索结果中没有符合下载条件的资源" % content, "")
                 return False
             else:
                 log.info("【JACKETT】实际下载了 %s 个资源" % download_num)

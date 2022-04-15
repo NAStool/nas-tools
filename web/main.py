@@ -5,7 +5,7 @@ import shutil
 from math import floor
 
 import requests
-from flask import Flask, request, json, render_template, make_response
+from flask import Flask, request, json, render_template, make_response, session
 from flask_login import LoginManager, UserMixin, login_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -112,15 +112,32 @@ def create_flask_app(config):
     @App.route('/', methods=['GET', 'POST'])
     def login():
         if request.method == 'GET':
-            return render_template('login.html')
+            GoPage = request.args.get("next") or ""
+            if GoPage.startswith('/'):
+                GoPage = GoPage[1:]
+            user_info = session.get('_user_id')
+            if not user_info:
+                return render_template('login.html',
+                                       GoPage=GoPage)
+            else:
+                return render_template('navigation.html',
+                                       GoPage=GoPage,
+                                       AppVersion=APP_VERSION)
         else:
+            GoPage = request.form.get('next') or ""
+            if GoPage.startswith('/'):
+                GoPage = GoPage[1:]
             username = request.form.get('username')
             if not username:
-                return render_template('login.html', err_msg="请输入用户名")
+                return render_template('login.html',
+                                       GoPage=GoPage,
+                                       err_msg="请输入用户名")
             password = request.form.get('password')
             user_info = get_user(username)
             if not user_info:
-                return render_template('login.html', err_msg="用户名或密码错误")
+                return render_template('login.html',
+                                       GoPage=GoPage,
+                                       err_msg="用户名或密码错误")
             # 创建用户实体
             user = User(user_info)
             # 校验密码
@@ -128,9 +145,12 @@ def create_flask_app(config):
                 # 创建用户 Session
                 login_user(user)
                 return render_template('navigation.html',
+                                       GoPage=GoPage,
                                        AppVersion=APP_VERSION)
             else:
-                return render_template('login.html', err_msg="用户名或密码错误")
+                return render_template('login.html',
+                                       GoPage=GoPage,
+                                       err_msg="用户名或密码错误")
 
     # 开始
     @App.route('/index', methods=['POST', 'GET'])
@@ -821,17 +841,23 @@ def create_flask_app(config):
                 logid = data.get("logid")
                 if logid:
                     paths = get_transfer_path_by_id(logid)
-                    if paths:
+                    if paths and len(paths) > 2:
                         path = os.path.join(paths[0][0], paths[0][1])
                         dest_dir = paths[0][2]
                     else:
                         return {"retcode": -1, "retmsg": "未查询到转移日志记录"}
                 else:
-                    paths = data.get("path")
-                    path = paths.split("|")[0]
-                    dest_dir = paths.split("|")[1]
+                    path = data.get("path", "")
+                    paths = path.split("|")
+                    path = paths[0]
+                    if len(paths) > 1:
+                        dest_dir = paths[1]
+                    else:
+                        dest_dir = None
                 if not dest_dir or dest_dir == "null":
                     dest_dir = ""
+                if not path:
+                    return {"retcode": -1, "retmsg": "输入路径有误"}
                 tmdbid = data.get("tmdb")
                 title = data.get("title")
                 year = data.get("year")

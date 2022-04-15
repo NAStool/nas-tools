@@ -305,7 +305,9 @@
       $("#rename_path").empty();
       $("#rename_path").append("<option value='' selected>请选择</option>");
       for(var i=0; i<paths.length; i++){
-        $("#rename_path").append("<option value='"+ paths[i][0] + "|" + paths[i][1] +"'>" + paths[i][0] + "</option>");
+        if(paths[i][0]){
+          $("#rename_path").append("<option value='"+ paths[i][0] + "|" + paths[i][1] +"'>" + paths[i][0] + "</option>");
+        }
       }
       type = $('input:radio[name=rename_type]:checked').val();
       if(type == "MOV"){

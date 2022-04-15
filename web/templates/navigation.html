@@ -260,7 +260,12 @@
       }
       $(document).ready(function(){
         //加载页面
-        navmenu("index");
+        go_page = "{{ GoPage }}";
+        if(go_page){
+          navmenu(go_page);
+        }else{
+          navmenu("index");
+        }
         //检查版本升级
         check_new_version();
       });
