@@ -1,20 +1,27 @@
+import threading
+
 import log
 from monitor.media_sync import Sync
-from utils.functions import INSTANCES
+
+SYNC = Sync()
 
 
 def run_monitor():
     try:
-        Sync()
+        monitor = threading.Thread(target=SYNC.run_service)
+        monitor.setDaemon(False)
+        monitor.start()
     except Exception as err:
         log.error("【RUN】启动monitor失败：%s" % str(err))
 
 
 def stop_monitor():
     try:
-        for instance in INSTANCES:
-            if instance.__dict__.get("__module__") == "monitor.media_sync":
-                instance().stop_service()
-                break
+        SYNC.stop_service()
     except Exception as err:
         log.error("【RUN】停止monitor失败：%s" % str(err))
+
+
+def restart_monitor():
+    stop_monitor()
+    run_monitor()

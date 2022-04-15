@@ -5,11 +5,12 @@ import shutil
 from math import floor
 
 import requests
-from flask import Flask, request, json, render_template, make_response, redirect, url_for
+from flask import Flask, request, json, render_template, make_response
 from flask_login import LoginManager, UserMixin, login_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import log
+from monitor.run import restart_monitor
 from pt.downloader import Downloader
 from pt.jackett import Jackett
 from rmt.filetransfer import FileTransfer
@@ -23,6 +24,7 @@ from scheduler.rss_download import RSSDownloader
 from message.send import Message
 
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE
+from scheduler.run import restart_scheduler
 from utils.functions import get_used_of_partition, str_filesize, str_timelong, INSTANCES
 from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
@@ -499,6 +501,8 @@ def create_flask_app(config):
             # PT自动签到
             tim_ptsignin = pt.get('ptsignin_cron')
             if tim_ptsignin:
+                if str(tim_ptsignin).find(':') == -1:
+                    tim_ptsignin = "%s 小时" % tim_ptsignin
                 sta_ptsignin = 'ON'
                 svg = '''
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -870,10 +874,15 @@ def create_flask_app(config):
                     cfg.write(editer_str)
                     cfg.flush()
                     cfg.close()
+                    # 生效配置
                     config.init_config()
                     for instance in INSTANCES:
                         if instance.__dict__.get("init_config"):
                             instance().init_config()
+                    # 重启服务
+                    restart_monitor()
+                    restart_scheduler()
+
                 return {"retcode": 0}
 
             # 删除识别记录及文件

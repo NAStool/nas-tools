@@ -90,7 +90,7 @@ class Rss:
                     size = res.get('size')
                     # 判断是否处理过
                     if enclosure in RSS_CACHED_TORRENTS:
-                        log.info("【RSS】%s 已处理过，跳过..." % torrent_name)
+                        log.debug("【RSS】%s 已处理过，跳过..." % torrent_name)
                         continue
                     else:
                         RSS_CACHED_TORRENTS.append(enclosure)
@@ -109,7 +109,7 @@ class Rss:
                                                media_info.year,
                                                media_info.get_season_string(),
                                                media_info.get_episode_string()):
-                        log.info("【RSS】%s 已处理过，跳过..." % (media_info.get_title_string()))
+                        log.debug("【RSS】%s 已处理过，跳过..." % (media_info.get_title_string()))
                         continue
                     # 检查种子名称或者标题是否匹配
                     match_flag = self.is_torrent_match(media_info, movie_keys, tv_keys)

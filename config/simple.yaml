@@ -98,7 +98,7 @@ pt:
   pt_client: qbittorrent
   # 是否监控PT下载软件：true、false，如为true则PT下载完成会自动转移和重命名，如为false则不会处理
   # PT下载软件监控与Sync下载目录监控不要同时开启，否则会处理两遍
-  pt_monitor: true
+  pt_monitor: false
 
 # 配置qBittorrent下载软件，不用可删掉
 qbittorrent:

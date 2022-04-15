@@ -151,7 +151,7 @@ pt:
   pt_client: qbittorrent
   # 是否监控PT下载软件：true、false，如为true则PT下载完成会自动转移和重命名，如为false则不会处理
   # PT下载软件监控与Sync下载目录监控不要同时开启，否则会处理两遍
-  pt_monitor: true
+  pt_monitor: false
   # 是否只下载有中文媒体信息的种子（开了只会下themoviedb有中文描述的影视资源）
   rss_chinese: false
   # PT站每日签到的间隔时间

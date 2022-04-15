@@ -50,14 +50,10 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, sigal_handler)
 
     # 启动定时服务
-    scheduler = threading.Thread(target=run_scheduler)
-    scheduler.setDaemon(False)
-    scheduler.start()
+    run_scheduler()
 
     # 启动监控服务
-    monitor = threading.Thread(target=run_monitor)
-    monitor.setDaemon(False)
-    monitor.start()
+    run_monitor()
 
     # 启动主WEB服务
     FlaskApp().run_service()
