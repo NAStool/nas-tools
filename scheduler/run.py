@@ -3,12 +3,10 @@ import threading
 import log
 from scheduler.scheduler import Scheduler
 
-SCHEDULER = Scheduler()
-
 
 def run_scheduler():
     try:
-        scheduler = threading.Thread(target=SCHEDULER.run_service)
+        scheduler = threading.Thread(target=Scheduler().run_service)
         scheduler.setDaemon(False)
         scheduler.start()
     except Exception as err:
@@ -17,7 +15,7 @@ def run_scheduler():
 
 def stop_scheduler():
     try:
-        SCHEDULER.stop_service()
+        Scheduler().stop_service()
     except Exception as err:
         log.error("【RUN】停止scheduler失败：%s" % str(err))
 
