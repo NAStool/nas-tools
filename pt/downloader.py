@@ -40,6 +40,18 @@ class Downloader:
                 self.client = Transmission()
                 self.__client_type = DownloaderType.TR
             self.__seeding_time = pt.get('pt_seeding_time')
+            if self.__seeding_time:
+                if isinstance(self.__seeding_time, str):
+                    if self.__seeding_time.isdigit():
+                        self.__seeding_time = int(self.__seeding_time)
+                    else:
+                        try:
+                            self.__seeding_time = round(float(self.__seeding_time))
+                        except Exception as e:
+                            log.error("【PT】pt.pt_seeding_time 格式错误：%s" % str(e))
+                            self.__seeding_time = 0
+                else:
+                    self.__seeding_time = round(self.__seeding_time)
 
     # 添加下载任务
     def add_pt_torrent(self, url, mtype=MediaType.MOVIE):
@@ -319,19 +331,19 @@ class Downloader:
         media_list = sorted(media_list, key=lambda x: get_sort_str(x), reverse=True)
         log.debug("【PT】种子信息排序后如下：")
         for media_item in media_list:
-            log.info(">站点：%s，"
-                     "标题：%s，"
-                     "类型：%s，"
-                     "大小：%s，"
-                     "做种数：%s，"
-                     "季集：%s，"
-                     "种子名称：%s" % (media_item.site,
-                                  media_item.get_title_string(),
-                                  media_item.get_resource_type_string(),
-                                  str_filesize(media_item.size),
-                                  media_item.seeders,
-                                  media_item.get_season_episode_string(),
-                                  media_item.org_string))
+            log.debug(">站点：%s，"
+                      "标题：%s，"
+                      "类型：%s，"
+                      "大小：%s，"
+                      "做种数：%s，"
+                      "季集：%s，"
+                      "种子名称：%s" % (media_item.site,
+                                   media_item.get_title_string(),
+                                   media_item.get_resource_type_string(),
+                                   str_filesize(media_item.size),
+                                   media_item.seeders,
+                                   media_item.get_season_episode_string(),
+                                   media_item.org_string))
         # 控重
         can_download_list_item = []
         can_download_list = []

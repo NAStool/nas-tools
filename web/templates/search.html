@@ -154,7 +154,9 @@
       $("#search_tip_title").text("正在搜索 " + keyword + "，请稍后...");
       $("#search_tip_text").text("");
       var param = {"search_word": keyword};
+      $("#modal-wait").modal("show");
       ajax_post(cmd, param, function(ret){
+        $("#modal-wait").modal("hide");
           //刷新页面
           navmenu('search?s='+keyword)
       });

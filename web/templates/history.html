@@ -66,10 +66,10 @@
                         操作
                       </button>
                       <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href="javascript:rename_history('{{ History[2] }}', '{{ History[3] }}', '{{ History[10] }}')">
+                        <a class="dropdown-item" href='javascript:rename_history("{{History[2]}}", "{{History[3]}}", "{{History[10]}}")'>
                           重新识别
                         </a>
-                        <a class="dropdown-item text-danger" href="javascript:manual_delete('{{ History[10] }}', '{{ History[4] }} ({{ History[6] }}) {{ History[7] }}')">
+                        <a class="dropdown-item text-danger" href='javascript:manual_delete("{{History[10]}}", "{{History[4]}} ({{History[6]}}) {{History[7]}}")'>
                           删除
                         </a>
                       </div>

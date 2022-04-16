@@ -677,18 +677,18 @@ def create_flask_app(config):
             if cmd == "sch":
                 sch_item = data.get("item")
                 if sch_item == "autoremovetorrents":
-                    AutoRemoveTorrents().run_schedule()
+                    _thread.start_new_thread(AutoRemoveTorrents().run_schedule, ())
                 if sch_item == "pttransfer":
-                    PTTransfer().run_schedule()
+                    _thread.start_new_thread(PTTransfer().run_schedule, ())
                 if sch_item == "ptsignin":
-                    PTSignin().run_schedule()
+                    _thread.start_new_thread(PTSignin().run_schedule, ())
                 if sch_item == "sync":
-                    FileTransfer().transfer_all_sync()
+                    _thread.start_new_thread(FileTransfer().transfer_all_sync, ())
                 if sch_item == "rssdownload":
-                    RSSDownloader().run_schedule()
+                    _thread.start_new_thread(RSSDownloader().run_schedule, ())
                 if sch_item == "douban":
-                    DoubanSync().run_schedule()
-                return {"retmsg": "执行完成", "item": sch_item}
+                    _thread.start_new_thread(DoubanSync().run_schedule, ())
+                return {"retmsg": "服务已启动", "item": sch_item}
 
             # 电影关键字
             if cmd == "moviekey":
@@ -841,7 +841,7 @@ def create_flask_app(config):
                 logid = data.get("logid")
                 if logid:
                     paths = get_transfer_path_by_id(logid)
-                    if paths and len(paths) > 2:
+                    if paths:
                         path = os.path.join(paths[0][0], paths[0][1])
                         dest_dir = paths[0][2]
                     else:

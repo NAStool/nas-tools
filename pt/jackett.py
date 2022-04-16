@@ -10,6 +10,7 @@ from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
+from utils.functions import str_filesize
 from utils.sqls import delete_all_jackett_torrents, insert_jackett_results
 from utils.types import SearchType, MediaType
 from web.backend.emby import Emby
@@ -152,7 +153,8 @@ class Jackett:
         order_seq = 100
         for index in self.__indexers:
             order_seq = order_seq - 1
-            task = executor.submit(self.seach_indexer, order_seq, index, key_word, s_num, e_num, year, mtype, whole_word)
+            task = executor.submit(self.seach_indexer, order_seq, index, key_word, s_num, e_num, year, mtype,
+                                   whole_word)
             all_task.append(task)
         ret_array = []
         for future in as_completed(all_task):
@@ -216,9 +218,9 @@ class Jackett:
                                                   mtype=media_info.type,
                                                   whole_word=True)
         if len(media_list) == 0:
-            log.info("%s 未检索到任何资源" % content)
+            log.info("%s 未检索到任何资源" % media_info.title)
             if in_from == SearchType.WX:
-                self.message.sendmsg("%s 未检索到任何资源" % content, "")
+                self.message.sendmsg("%s 未检索到任何资源" % media_info.title, "")
             return False
         else:
             if in_from == SearchType.WX:
@@ -228,7 +230,9 @@ class Jackett:
                 save_media_list = self.get_torrents_group_item(media_list)
                 for save_media_item in save_media_list:
                     insert_jackett_results(save_media_item)
-                self.message.sendmsg(title=media_info.get_title_vote_string(), text="%s 共检索到 %s 个有效资源，点击查看详情" % (content, len(media_list)), image=media_info.get_backdrop_path(), url='search')
+                self.message.sendmsg(title=media_info.get_title_vote_string(),
+                                     text="%s 共检索到 %s 个有效资源，点击查看详情" % (media_info.title, len(save_media_list)),
+                                     image=media_info.get_message_image(), url='search')
             # 微信未开自动下载时返回
             if in_from == SearchType.WX and not self.__wechat_auto:
                 return False
@@ -255,26 +259,32 @@ class Jackett:
 
         # 排序函数
         def get_sort_str(x):
-            return "%s%s%s%s" % (str(x.title).ljust(100, ' '),
-                                 str(x.site).ljust(20, ' '),
-                                 str(x.res_type).ljust(20, ' '),
-                                 str(x.seeders).rjust(10, '0'))
+            season_len = str(len(x.get_season_list())).rjust(3, '0')
+            episode_len = str(len(x.get_episode_list())).rjust(3, '0')
+            # 排序：标题、季集、资源类型、站点、做种
+            return "%s%s%s%s%s" % (str(x.title).ljust(100, ' '),
+                                   "%s%s" % (season_len, episode_len),
+                                   str(x.res_order).rjust(3, '0'),
+                                   str(x.site_order).rjust(3, '0'),
+                                   str(x.seeders).rjust(10, '0'))
 
         # 匹配的资源中排序分组
         media_list = sorted(media_list, key=lambda x: get_sort_str(x), reverse=True)
         # 控重
         can_download_list_item = []
         can_download_list = []
-        # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
+        # 按分组显示做种数最多的一个
         for t_item in media_list:
-            # 控重的主链是名称、节份、季、集
             if t_item.type == MediaType.TV:
-                media_name = "%s%s%s%s" % (t_item.get_title_string(),
-                                           t_item.site,
-                                           t_item.get_resource_type_string(),
-                                           t_item.get_season_episode_string())
+                media_name = "%s%s%s%s%s" % (t_item.get_title_string(),
+                                             t_item.site,
+                                             t_item.get_resource_type_string(),
+                                             t_item.get_season_episode_string(),
+                                             str_filesize(t_item.size))
             else:
-                media_name = "%s%s%s" % (t_item.get_title_string(), t_item.site, t_item.get_resource_type_string())
+                media_name = "%s%s%s%s" % (
+                    t_item.get_title_string(), t_item.site, t_item.get_resource_type_string(),
+                    str_filesize(t_item.size))
             if media_name not in can_download_list:
                 can_download_list.append(media_name)
                 can_download_list_item.append(t_item)

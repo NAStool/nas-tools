@@ -108,15 +108,19 @@ class FileTransfer:
     # 使用系统命令处理单个文件
     @staticmethod
     def __transfer_command(file_item, target_file, rmt_mode):
-        if rmt_mode == RmtMode.LINK:
-            retcode = call(['ln', file_item, target_file])
-        elif rmt_mode == RmtMode.SOFTLINK:
-            retcode = call(['ln', '-s', file_item, target_file])
-        else:
-            if os.path.isdir(file_item):
-                retcode = call(['cp', '-r', file_item, target_file])
+        try:
+            lock.acquire()
+            if rmt_mode == RmtMode.LINK:
+                retcode = call(['ln', file_item, target_file])
+            elif rmt_mode == RmtMode.SOFTLINK:
+                retcode = call(['ln', '-s', file_item, target_file])
             else:
-                retcode = call(['cp', file_item, target_file])
+                if os.path.isdir(file_item):
+                    retcode = call(['cp', '-r', file_item, target_file])
+                else:
+                    retcode = call(['cp', file_item, target_file])
+        finally:
+            lock.release()
         return retcode
 
     # 根据文件名转移对应字幕文件
@@ -155,30 +159,13 @@ class FileTransfer:
 
     # 转移蓝光文件夹
     def __transfer_bluray_dir(self, file_path, new_path, rmt_mode):
+        log.info("【RMT】正在%s目录：%s 到 %s" % (rmt_mode.value, file_path, new_path))
         # 复制
         if rmt_mode == RmtMode.COPY:
-            try:
-                lock.acquire()
-                log.info("【RMT】正在复制目录：%s 到 %s" % (file_path, new_path))
-                retcode = self.__transfer_command(file_path, new_path, rmt_mode)
-            finally:
-                lock.release()
+            retcode = self.__transfer_command(file_path, new_path, rmt_mode)
         # 软硬链接
         else:
-            try:
-                lock.acquire()
-                # 检索所有文件
-                log.info("【RMT】正在%s目录：%s 到 %s" % (rmt_mode.value, file_path, new_path))
-                file_list = get_dir_files_by_ext(file_path)
-                retcode = 0
-                for file in file_list:
-                    new_file = file.replace(file_path, new_path)
-                    new_dir = os.path.dirname(new_file)
-                    if not os.path.exists(new_dir):
-                        os.makedirs(new_dir)
-                    retcode = self.__transfer_command(file, new_file, rmt_mode)
-            finally:
-                lock.release()
+            retcode = self.__transfer_dir_files(file_path, new_path, rmt_mode)
         if retcode == 0:
             log.info("【RMT】文件 %s %s完成" % (file_path, rmt_mode.value))
         else:
@@ -204,6 +191,20 @@ class FileTransfer:
                 return True
         return False
 
+    # 按目录结构处理所有文件
+    def __transfer_dir_files(self, src_dir, target_dir, rmt_mode):
+        file_list = get_dir_files_by_ext(src_dir)
+        retcode = 0
+        for file in file_list:
+            new_file = file.replace(src_dir, target_dir)
+            new_dir = os.path.dirname(new_file)
+            if not os.path.exists(new_dir):
+                os.makedirs(new_dir)
+            retcode = self.__transfer_command(file, new_file, rmt_mode)
+            if retcode != 0:
+                break
+        return retcode
+
     # 按原文件名link文件到目的目录
     def __transfer_origin_file(self, file_item, target_dir, rmt_mode):
         if not file_item or not target_dir:
@@ -219,28 +220,13 @@ class FileTransfer:
             os.makedirs(target_dir)
         # 目录
         if os.path.isdir(file_item):
+            log.info("【RMT】正在%s目录：%s 到 %s" % (rmt_mode.value, file_item, target_dir))
             if rmt_mode == RmtMode.COPY:
-                try:
-                    lock.acquire()
-                    log.info("【RMT】正在复制目录：%s 到 %s" % (file_item, target_dir))
-                    retcode = self.__transfer_command(file_item, target_dir, rmt_mode)
-                finally:
-                    lock.release()
+                retcode = self.__transfer_command(file_item, target_dir, rmt_mode)
             else:
-                try:
-                    lock.acquire()
-                    # 检索所有文件
-                    log.info("【RMT】正在%s目录：%s 到 %s" % (rmt_mode.value, file_item, target_dir))
-                    file_list = get_dir_files_by_ext(file_item)
-                    retcode = 0
-                    for file in file_list:
-                        new_file = file.replace(file_item, target_dir)
-                        new_dir = os.path.dirname(new_file)
-                        if not os.path.exists(new_dir):
-                            os.makedirs(new_dir)
-                        retcode = self.__transfer_command(file, new_file, rmt_mode)
-                finally:
-                    lock.release()
+                # 检索所有文件
+                log.info("【RMT】正在%s目录：%s 到 %s" % (rmt_mode.value, file_item, target_dir))
+                retcode = self.__transfer_dir_files(file_item, target_dir, rmt_mode)
         # 文件
         else:
             target_file = os.path.join(target_dir, os.path.basename(file_item))
@@ -259,19 +245,11 @@ class FileTransfer:
         if not over_flag and os.path.exists(new_file):
             log.warn("【RMT】文件已存在：%s" % new_file_name)
             return False
-
-        try:
-            if rmt_mode == RmtMode.COPY:
-                lock.acquire()
-            if over_flag and os.path.isfile(new_file):
-                log.info("【RMT】正在删除已存在的文件：%s" % new_file_name)
-                os.remove(new_file)
-            log.info("【RMT】正在转移文件：%s 到 %s" % (file_name, new_file_name))
-            retcode = self.__transfer_command(file_item, new_file, rmt_mode)
-        finally:
-            if rmt_mode == RmtMode.COPY:
-                lock.release()
-
+        if over_flag and os.path.isfile(new_file):
+            log.info("【RMT】正在删除已存在的文件：%s" % new_file_name)
+            os.remove(new_file)
+        log.info("【RMT】正在转移文件：%s 到 %s" % (file_name, new_file_name))
+        retcode = self.__transfer_command(file_item, new_file, rmt_mode)
         if retcode == 0:
             log.info("【RMT】文件 %s %s完成" % (file_name, rmt_mode.value))
         else:
@@ -427,8 +405,8 @@ class FileTransfer:
                 # 文年存在
                 if file_exist_flag:
                     exist_filenum = exist_filenum + 1
-                    if rmt_mode == RmtMode.COPY:
-                        existfile_size = os.path.getsize(ret_file_path)
+                    existfile_size = os.path.getsize(ret_file_path)
+                    if rmt_mode != RmtMode.SOFTLINK:
                         if media.size > existfile_size:
                             log.info("【RMT】文件 %s 已存在，但新文件质量更好，覆盖..." % ret_file_path)
                             ret = self.__transfer_file(file_item, ret_file_path, rmt_mode, True)

@@ -207,8 +207,6 @@ def is_transfer_history_exists(file_path, file_name, title, se):
     file_name = file_name or ""
     title = title or ""
     se = se or ""
-    file_path = file_path.replace("'", "''")
-    file_name = file_name.replace("'", "''")
     sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_PATH='%s' AND FILE_NAME='%s' AND TITLE='%s' AND SE='%s'" % (file_path, file_name, title, se)
     ret = select_by_sql(sql)
     if ret and ret[0][0] > 0:
@@ -227,10 +225,8 @@ def insert_transfer_history(in_from, rmt_mode, in_path, dest, media_info):
         return False
     if not dest:
         dest = ""
-    file_path = os.path.dirname(in_path)
-    file_path = file_path.replace("'", "''")
-    file_name = os.path.basename(in_path)
-    file_name = file_name.replace("'", "''")
+    file_path = os.path.dirname(in_path).replace("'", "''")
+    file_name = os.path.basename(in_path).replace("'", "''")
     if is_transfer_history_exists(file_path, file_name, media_info.title, media_info.get_season_string()):
         return True
     timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
@@ -277,8 +273,7 @@ def get_transfer_unknown_paths():
 def update_transfer_unknown_state(path):
     if not path:
         return False
-    path = os.path.normpath(path)
-    path = path.replace("'", "''")
+    path = os.path.normpath(path).replace("'", "''")
     sql = f"UPDATE TRANSFER_UNKNOWN SET STATE='Y' WHERE PATH='{path}'"
     return update_by_sql(sql)
 
@@ -287,8 +282,7 @@ def update_transfer_unknown_state(path):
 def delete_transfer_unknown(path):
     if not path:
         return False
-    path = os.path.normpath(path)
-    path = path.replace("'", "''")
+    path = os.path.normpath(path).replace("'", "''")
     sql = f"DELETE FROM TRANSFER_UNKNOWN WHERE PATH='{path}'"
     return update_by_sql(sql)
 
@@ -297,8 +291,7 @@ def delete_transfer_unknown(path):
 def is_transfer_unknown_exists(path):
     if not path:
         return False
-    path = os.path.normpath(path)
-    path = path.replace("'", "''")
+    path = os.path.normpath(path).replace("'", "''")
     sql = f"SELECT COUNT(1) FROM TRANSFER_UNKNOWN WHERE PATH='{path}'"
     ret = select_by_sql(sql)
     if ret and ret[0][0] > 0:
@@ -311,16 +304,14 @@ def is_transfer_unknown_exists(path):
 def insert_transfer_unknown(path, dest):
     if not path:
         return False
-    path = os.path.normpath(path)
-    path = path.replace("'", "''")
-    if dest:
-        dest = os.path.normpath(dest)
-        dest = dest.replace("'", "''")
-    else:
-        dest = ""
     if is_transfer_unknown_exists(path):
         return False
     else:
+        path = os.path.normpath(path).replace("'", "''")
+        if dest:
+            dest = os.path.normpath(dest).replace("'", "''")
+        else:
+            dest = ""
         if not dest:
             dest = ""
         sql = f"INSERT INTO TRANSFER_UNKNOWN(PATH, DEST, STATE) VALUES('{path}', '{dest}', 'N')"
@@ -331,8 +322,7 @@ def insert_transfer_unknown(path, dest):
 def is_transfer_in_blacklist(path):
     if not path:
         return False
-    path = os.path.normpath(path)
-    path = path.replace("'", "''")
+    path = os.path.normpath(path).replace("'", "''")
     sql = f"SELECT COUNT(1) FROM TRANSFER_BLACKLIST WHERE PATH='{path}'"
     ret = select_by_sql(sql)
     if ret and ret[0][0] > 0:
@@ -345,10 +335,9 @@ def is_transfer_in_blacklist(path):
 def insert_transfer_blacklist(path):
     if not path:
         return False
-    path = os.path.normpath(path)
-    path = path.replace("'", "''")
     if is_transfer_in_blacklist(path):
         return False
     else:
+        path = os.path.normpath(path).replace("'", "''")
         sql = f"INSERT INTO TRANSFER_BLACKLIST(PATH) VALUES('{path}')"
         return update_by_sql(sql)

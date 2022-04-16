@@ -93,7 +93,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M9 12l2 2l4 -4" /></svg>
         <h3>成功</h3>
         <input type="hidden" id="service_start_name" />
-        <div class="text-muted" id="service_finished_str">服务已执行完成！</div>
+        <div class="text-muted" id="service_finished_str">服务已在后台运行...</div>
       </div>
       <div class="modal-footer">
         <div class="w-100">
@@ -306,7 +306,7 @@
       $("#rename_path").append("<option value='' selected>请选择</option>");
       for(var i=0; i<paths.length; i++){
         if(paths[i][0]){
-          $("#rename_path").append("<option value='"+ paths[i][0] + "|" + paths[i][1] +"'>" + paths[i][0] + "</option>");
+          $("#rename_path").append("<option value=\""+ paths[i][0] + "|" + paths[i][1] +"\">" + paths[i][0] + "</option>");
         }
       }
       type = $('input:radio[name=rename_type]:checked').val();
@@ -362,7 +362,7 @@
       var data = { "item": id };
       ajax_post(cmd, data, function(ret){
           item = $("#service_start_name").val();;
-          $("#service_finished_str").text(item + " 已执行完成！");
+          $("#service_finished_str").text(item + " 服务启动成功，正在后台运行中...");
           $("#service-modal-success").modal('show');
       });
   }

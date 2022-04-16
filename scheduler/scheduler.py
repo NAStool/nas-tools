@@ -42,29 +42,30 @@ class Scheduler:
             # PT站签到
             ptsignin_cron = str(self.__pt.get('ptsignin_cron'))
             if ptsignin_cron:
-                err_msg = None
                 if ptsignin_cron.find(':') != -1:
                     try:
                         hour = int(ptsignin_cron.split(":")[0])
                         minute = int(ptsignin_cron.split(":")[1])
+                    except Exception as e:
+                        log.info("【RUN】pt.ptsignin_cron 格式错误：%s" % str(e))
+                        hour = minute = 0
+                    if hour and minute:
                         self.SCHEDULER.add_job(PTSignin().run_schedule,
                                                "cron",
                                                hour=hour,
                                                minute=minute)
-                    except Exception as e:
-                        err_msg = str(e)
+                        log.info("【RUN】scheduler.pt_signin启动...")
                 else:
                     try:
                         seconds = round(float(ptsignin_cron) * 3600)
+                    except Exception as e:
+                        log.info("【RUN】pt.ptsignin_cron 格式错误：%s" % str(e))
+                        seconds = 0
+                    if seconds:
                         self.SCHEDULER.add_job(PTSignin().run_schedule,
                                                "interval",
                                                seconds=seconds)
-                    except Exception as e:
-                        err_msg = str(e)
-                if err_msg:
-                    log.info("【RUN】scheduler.pt_signin启动失败：%s" % err_msg)
-                else:
-                    log.info("【RUN】scheduler.pt_signin启动...")
+                        log.info("【RUN】scheduler.pt_signin启动...")
 
             # PT文件转移
             pt_monitor = self.__pt.get('pt_monitor')
@@ -75,15 +76,35 @@ class Scheduler:
             # RSS下载器
             pt_check_interval = self.__pt.get('pt_check_interval')
             if pt_check_interval:
-                self.SCHEDULER.add_job(RSSDownloader().run_schedule, 'interval', seconds=int(pt_check_interval))
-                log.info("【RUN】scheduler.rss_download启动...")
+                if isinstance(pt_check_interval, str):
+                    if pt_check_interval.isdigit():
+                        pt_check_interval = int(pt_check_interval)
+                    else:
+                        try:
+                            pt_check_interval = float(pt_check_interval)
+                        except Exception as e:
+                            log.error("【RUN】pt.pt_check_interval 格式错误：%s" % str(e))
+                            pt_check_interval = 0
+                if pt_check_interval:
+                    self.SCHEDULER.add_job(RSSDownloader().run_schedule, 'interval', seconds=round(pt_check_interval))
+                    log.info("【RUN】scheduler.rss_download启动...")
 
         # 豆瓣电影同步
         if self.__douban:
             douban_interval = self.__douban.get('interval')
             if douban_interval:
-                self.SCHEDULER.add_job(DoubanSync().run_schedule, 'interval', seconds=float(douban_interval) * 3600)
-                log.info("【RUN】scheduler.douban_sync启动...")
+                if isinstance(douban_interval, str):
+                    if douban_interval.isdigit():
+                        douban_interval = int(douban_interval)
+                    else:
+                        try:
+                            douban_interval = float(douban_interval)
+                        except Exception as e:
+                            log.info("【RUN】scheduler.douban_sync启动失败：%s" % str(e))
+                            douban_interval = 0
+                if douban_interval:
+                    self.SCHEDULER.add_job(DoubanSync().run_schedule, 'interval', seconds=round(douban_interval * 3600))
+                    log.info("【RUN】scheduler.douban_sync启动...")
 
         # 配置定时生效
         self.SCHEDULER.add_job(Config().init_config, 'interval', seconds=RELOAD_CONFIG_INTERVAL)
