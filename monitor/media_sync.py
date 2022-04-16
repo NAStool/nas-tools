@@ -30,12 +30,8 @@ class Sync(object):
     def init_config(self):
         config = Config()
         app = config.get_config('app')
-        if app:
-            self.__sync_sys = app.get('nas_sys', "linux")
-            if self.__sync_sys:
-                self.__sync_sys = self.__sync_sys.upper()
-            else:
-                self.__sync_sys = "LINUX"
+        if app and app.get('nas_sys'):
+            self.__sync_sys = app.get('nas_sys').upper()
         sync = config.get_config('sync')
         if sync:
             self.__sync_path = sync.get('sync_path')

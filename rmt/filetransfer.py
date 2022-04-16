@@ -19,6 +19,7 @@ lock = Lock()
 
 
 class FileTransfer:
+    __sync_sys = 'LINUX'
     __pt_rmt_mode = None
     __sync_rmt_mode = None
     __movie_path = None
@@ -44,6 +45,9 @@ class FileTransfer:
 
     def init_config(self):
         config = Config()
+        app = config.get_config('app')
+        if app and app.get('nas_sys'):
+            self.__sync_sys = app.get('nas_sys').upper()
         media = config.get_config('media')
         if media:
             # 电影目录

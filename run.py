@@ -1,6 +1,5 @@
 import os
 import signal
-import threading
 from config import Config
 from monitor.run import run_monitor, stop_monitor
 from scheduler.run import run_scheduler, stop_scheduler
@@ -29,18 +28,6 @@ if __name__ == "__main__":
     config = Config()
     if not check_config(config):
         quit()
-
-    # 设置全局代理
-    app_cfg = config.get_config('app')
-    if app_cfg:
-        proxies = app_cfg.get('proxies')
-        if proxies:
-            http_proxy = proxies.get('http')
-            if http_proxy:
-                os.environ['HTTP_PROXY'] = http_proxy
-            https_proxy = proxies.get('https')
-            if https_proxy:
-                os.environ['HTTPS_PROXY'] = https_proxy
 
     # 启动进程
     print("开始启动进程...")

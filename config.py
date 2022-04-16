@@ -19,11 +19,6 @@ RMT_SUBEXT = ['.srt', '.ass', '.ssa']
 # 默认Headers
 DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"}
-# 默认无代理
-NO_PROXIES = {
-  "http": None,
-  "https": None,
-}
 # 电视剧动漫的分类genre_ids
 ANIME_GENREIDS = ['16']
 # 默认过滤的文件大小，200M
@@ -79,10 +74,13 @@ class Config(object):
             print("【ERROR】加载 config.yaml 配置出错：%s" % str(err))
             return False
 
+    def get_proxies(self):
+        return self.get_config('app').get("proxies")
+
     def get_config(self, node=None):
         if not node:
             return self.__config
-        return self.__config.get(node)
+        return self.__config.get(node, {})
 
     def save_config(self, new_cfg):
         self.__config = new_cfg

@@ -3,8 +3,7 @@ from datetime import datetime
 import requests
 
 import log
-from config import NO_PROXIES, RMT_FAVTYPE
-from rmt.metainfo import MetaInfo
+from config import RMT_FAVTYPE
 from message.send import Message
 from rmt.filetransfer import FileTransfer
 from utils.types import MediaType
@@ -66,7 +65,7 @@ class EmbyEvent:
               '&oe=gbk&cb=op_aladdin_callback&format=json&tn=baidu&' \
               'cb=jQuery110203920624944751099_1529894588086&_=1529894588088&query=%s' % ip
         try:
-            r = requests.get(url, timeout=10, proxies=NO_PROXIES)
+            r = requests.get(url, timeout=10)
             r.encoding = 'gbk'
             html = r.text
             c1 = html.split('location":"')[1]
@@ -137,7 +136,5 @@ class EmbyEvent:
             if self.item_id:
                 image_url = self.emby.get_emby_image_by_id(self.item_id, "Backdrop")
             if not image_url:
-                image_url = MetaInfo.get_fanart_image(search_type=self.media_type,
-                                                      tmdbid=self.tmdb_id,
-                                                      default="https://emby.media/notificationicon.png")
+                image_url = "https://emby.media/notificationicon.png"
             self.message.sendmsg(title=message_title, text=message_text, image=image_url)

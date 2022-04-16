@@ -3,7 +3,7 @@ import requests
 from xml.dom.minidom import parse
 import xml.dom.minidom
 import log
-from config import Config, NO_PROXIES
+from config import Config
 from utils.functions import is_chinese
 from message.send import Message
 from pt.downloader import Downloader
@@ -219,7 +219,7 @@ class Rss:
         if not url:
             return []
         try:
-            ret = requests.get(url, timeout=30, proxies=NO_PROXIES)
+            ret = requests.get(url, timeout=30)
         except Exception as e2:
             print(str(e2))
             return []

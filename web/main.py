@@ -946,7 +946,7 @@ def create_flask_app(config):
                 info = ""
                 code = 0
                 try:
-                    response = requests.get("https://api.github.com/repos/jxxghp/nas-tools/releases/latest", timeout=10)
+                    response = requests.get("https://api.github.com/repos/jxxghp/nas-tools/releases/latest", timeout=10, proxies=config.get_proxies())
                     if response:
                         ver_json = response.json()
                         version = ver_json["tag_name"]

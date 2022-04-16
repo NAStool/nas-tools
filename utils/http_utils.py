@@ -1,7 +1,7 @@
 import requests
 import urllib3
 
-from config import DEFAULT_HEADERS, NO_PROXIES
+from config import DEFAULT_HEADERS
 
 
 class RequestUtils:
@@ -26,8 +26,6 @@ class RequestUtils:
                 self.__cookies = cookies
         if proxies:
             self.__proxies = proxies
-        else:
-            self.__proxies = NO_PROXIES
 
     def post(self, url, params, json=None):
         if json is None:

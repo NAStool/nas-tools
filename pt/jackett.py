@@ -5,7 +5,7 @@ from xml.dom.minidom import parse
 import xml.dom.minidom
 import requests
 import log
-from config import Config, NO_PROXIES
+from config import Config
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
@@ -297,7 +297,7 @@ class Jackett:
         if not url:
             return ret_array
         try:
-            ret = requests.get(url, timeout=30, proxies=NO_PROXIES)
+            ret = requests.get(url, timeout=30)
         except Exception as e2:
             print(str(e2))
             return []

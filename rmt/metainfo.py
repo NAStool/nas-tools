@@ -4,7 +4,7 @@ import anitopy
 import cn2an
 import requests
 from requests import RequestException
-from config import FANART_TV_API_URL, FANART_MOVIE_API_URL, RMT_MEDIAEXT, ANIME_GENREIDS
+from config import FANART_TV_API_URL, FANART_MOVIE_API_URL, RMT_MEDIAEXT, ANIME_GENREIDS, Config
 from rmt.category import Category
 from utils.functions import is_chinese
 from utils.tokens import Tokens
@@ -12,6 +12,7 @@ from utils.types import MediaType
 
 
 class MetaInfo(object):
+    config = None
     category_handler = None
     # 原字符串
     org_string = None
@@ -78,7 +79,7 @@ class MetaInfo(object):
     _resources_type_re = r"^BLURAY|^REMUX|^HDTV|^HDDVD|^WEBRIP|^DVDRIP|^BDRIP|^UHD|^SDR|^HDR|^DOLBY|^BLU|^WEB|^BD"
     _name_no_begin_re = r"^\[.+?]"
     _name_se_words = ['共', '第', '季', '集', '话', '話']
-    _name_nostring_re = r"^JADE|^AOD|^[A-Z]{2,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|NETFLIX|IMAX|^CHC|^3D|\s+3D|^BBC|DISNEY\+" \
+    _name_nostring_re = r"^JADE|^AOD|^[A-Z]{1,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|NETFLIX|IMAX|^CHC|^3D|\s+3D|^BBC|DISNEY\+" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+季" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+[集话話]" \
                         r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|\s+S\d{1,2}|EP?\d{2,4}\s*-\s*EP?\d{2,4}|EP?\d{2,4}|\s+EP?\d{1,4}" \
@@ -99,6 +100,7 @@ class MetaInfo(object):
     def __init__(self, title, subtitle=None, anime=False):
         if not title:
             return
+        self.config = Config()
         self.category_handler = Category()
         self.org_string = title
         if not anime:
@@ -177,8 +179,8 @@ class MetaInfo(object):
                         self.en_name = name
                     # 年份
                     year = anitopy_info.get("anime_year")
-                    if isinstance(year, str) and year.isdigit():
-                        self.year = int(year)
+                    if str(year).isdigit():
+                        self.year = str(year)
                     # 季号
                     anime_season = anitopy_info.get("anime_season")
                     if isinstance(anime_season, list):
@@ -262,7 +264,7 @@ class MetaInfo(object):
                 if self._last_token_type == 'name_se_words':
                     return
                 if self.get_name():
-                    # 名字后面以0开头的不要，极有可能是集
+                    # 名字后面以 0 开头的不要，极有可能是集
                     if token.startswith('0'):
                         return
                     # 名称后面跟着的数字，停止查找名称
@@ -719,8 +721,7 @@ class MetaInfo(object):
         self.description = description
 
     # 获取消息媒体图片
-    @staticmethod
-    def get_fanart_image(search_type, tmdbid, default=None):
+    def get_fanart_image(self, search_type, tmdbid, default=None):
         if not search_type:
             return ""
         if tmdbid:
@@ -729,7 +730,7 @@ class MetaInfo(object):
             else:
                 image_url = FANART_TV_API_URL % tmdbid
             try:
-                ret = requests.get(image_url, timeout=10)
+                ret = requests.get(image_url, timeout=10, proxies=self.config.get_proxies())
                 if ret:
                     moviethumbs = ret.json().get('moviethumb')
                     if moviethumbs:
