@@ -24,7 +24,6 @@ from scheduler.rss_download import RSSDownloader
 from message.send import Message
 
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE
-from scheduler.run import restart_scheduler
 from utils.functions import get_used_of_partition, str_filesize, str_timelong, INSTANCES
 from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
@@ -739,8 +738,10 @@ def create_flask_app(config):
                 for res in results:
                     if res[7] == "TV":
                         mtype = MediaType.TV
-                    else:
+                    elif res[7] == "MOV":
                         mtype = MediaType.MOVIE
+                    else:
+                        mtype = MediaType.ANIME
                     Downloader().add_pt_torrent(res[0], mtype)
                     msg_item = MetaInfo("%s" % res[8])
                     msg_item.title = res[1]

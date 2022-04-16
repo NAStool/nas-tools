@@ -10,6 +10,12 @@ from utils.types import MediaType
 def insert_jackett_results(media_item):
     org_string = media_item.org_string.replace("'", "''")
     description = media_item.description.replace("'", "''")
+    if media_item.type == MediaType.TV:
+        mtype = "TV"
+    elif media_item.type == MediaType.MOVIE:
+        mtype = "MOV"
+    else:
+        mtype = "ANI"
     sql = "INSERT INTO JACKETT_TORRENTS(" \
           "TORRENT_NAME," \
           "ENCLOSURE," \
@@ -33,7 +39,7 @@ def insert_jackett_results(media_item):
               org_string,
               media_item.enclosure,
               description,
-              "TV" if media_item.type == MediaType.TV else "MOV",
+              mtype,
               media_item.title,
               xstr(media_item.year),
               media_item.get_season_string(),

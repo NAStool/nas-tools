@@ -7,7 +7,7 @@ from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
-from utils.functions import str_filesize
+from utils.functions import str_filesize, str_timelong
 from utils.types import MediaType, DownloaderType, SearchType
 from web.backend.emby import Emby
 
@@ -85,11 +85,11 @@ class Downloader:
             return False
         if not self.__seeding_time:
             return
-        log.info("【PT】开始执行transmission做种清理...")
+        log.info("【PT】开始执行PT做种清理，做种时间：%s..." % str_timelong(self.__seeding_time))
         torrents = self.client.get_remove_torrents(self.__seeding_time)
         for torrent in torrents:
             self.delete_torrents(torrent)
-        log.info("【PT】transmission做种清理完成")
+        log.info("【PT】PT做种清理完成")
 
     # 获取种子列表信息
     def get_pt_torrents(self, torrent_ids=None, status_filter=None):

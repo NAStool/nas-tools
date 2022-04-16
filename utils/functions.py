@@ -48,6 +48,12 @@ def str_filesize(size):
 
 # 计算时间
 def str_timelong(time_sec):
+    if not isinstance(time_sec, int) or not isinstance(time_sec, float):
+        try:
+            time_sec = float(time_sec)
+        except Exception as e:
+            print(str(e))
+            return ""
     d = [(0, '秒'), (60 - 1, '分'), (3600 - 1, '小时'), (86400 - 1, '天')]
     s = [x[0] for x in d]
     index = bisect.bisect_left(s, time_sec) - 1
