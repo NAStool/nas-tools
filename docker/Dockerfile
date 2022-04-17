@@ -36,6 +36,7 @@ RUN apk add --no-cache \
     && pip install --upgrade pip setuptools wheel \
     && pip install -r requirements.txt \
     && apk del --purge .build \
+    && mkdir -p /var/log/supervisor \
     && rm -rf \
        /tmp/* \
        /root/.cache \
