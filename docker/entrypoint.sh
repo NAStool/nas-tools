@@ -7,7 +7,7 @@ if [ -n $NASTOOL_AUTO_UPDATE ]; then
     fi
     echo "更新程序..."
     git remote set-url origin ${REPO_URL} &>/dev/null
-    git pull --depth=1
+    git pull
     if [ $? -eq 0 ]; then
         echo "更新成功..."
         hash_old=$(cat /tmp/requirements.txt.sha256sum)
