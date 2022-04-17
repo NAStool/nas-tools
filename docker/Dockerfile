@@ -35,6 +35,8 @@ RUN apk add --no-cache \
     && pip install pip -U \
     && pip install --upgrade pip setuptools wheel \
     && pip install -r requirements.txt \
+    && pip install git+https://github.com/coderanger/supervisor-stdout \
+    && cp supervisor_stdout.py /usr/lib/python${python_ver%.*}/site-packages/ \
     && apk del --purge .build \
     && mkdir -p /var/log/supervisor \
     && rm -rf \
