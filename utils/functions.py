@@ -7,8 +7,11 @@ import time
 import platform
 import bisect
 import datetime
+import psutil
 
 # 全局对象
+from utils.types import OsType
+
 INSTANCES = {}
 
 
@@ -134,17 +137,6 @@ def get_dir_level1_medias(in_path, exts=""):
     return ret_list
 
 
-# 计算目录剩余空间大小
-def get_free_space_gb(folder):
-    if platform.system() == 'Windows':
-        free_bytes = ctypes.c_ulonglong(0)
-        ctypes.windll.kernel32.GetDiskFreeSpaceExW(ctypes.c_wchar_p(folder), None, None, ctypes.pointer(free_bytes))
-        return free_bytes.value / 1024 / 1024 / 1024
-    else:
-        st = os.statvfs(folder)
-        return st.f_bavail * st.f_frsize / 1024 / 1024 / 1024
-
-
 # 获取主机名
 def get_host_name():
     return socket.gethostname()
@@ -187,13 +179,25 @@ def get_used_of_partition(path):
     if not os.path.exists(path):
         return 0, 0
     try:
-        sv = os.statvfs(path)
-        total = (sv.f_blocks * sv.f_frsize)
-        used = (sv.f_blocks - sv.f_bfree) * sv.f_frsize
-        return used, total
+        free = psutil.disk_usage(path).free
+        total = psutil.disk_usage(path).total
+        return total - free, total
     except Exception as e:
         print(str(e))
         return 0, 0
+
+
+# 获取操作系统类型
+def get_system():
+    if platform.system() == 'Windows':
+        return OsType.WINDOWS
+    else:
+        return OsType.LINUX
+
+
+# 计算目录剩余空间大小
+def get_free_space_gb(folder):
+    return psutil.disk_usage(folder).free / 1024 / 1024 / 1024
 
 
 # 通过UTC的时间字符串获取时间

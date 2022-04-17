@@ -8,7 +8,7 @@ import log
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE
 from rmt.category import Category
 from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_level1_medias, is_invalid_path, \
-    is_path_in_path
+    is_path_in_path, get_system
 from message.send import Message
 from rmt.media import Media
 from utils.sqls import insert_transfer_history, insert_transfer_unknown
@@ -44,11 +44,8 @@ class FileTransfer:
         self.init_config()
 
     def init_config(self):
+        self.__system = get_system()
         config = Config()
-        app = config.get_config('app')
-        if app:
-            if app.get('system', '').upper() == "WINDOWS":
-                self.__system = OsType.WINDOWS
         media = config.get_config('media')
         if media:
             # 电影目录

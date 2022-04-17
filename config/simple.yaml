@@ -3,8 +3,6 @@
 app:
   # 这个配置不要改
   simple_mode: true
-  # 【操作系统类型】：linux、windows，对应运行本程序的操作系统
-  system: linux
   # 【TMDB API KEY】：需要在https://www.themoviedb.org/申请，必须配置，否则无法识别媒体资源和重命名
   # 以下地址需要网络能够正常访问：api.themoviedb.org、images.weserv.nl、webservice.fanart.tv
   rmt_tmdbkey:

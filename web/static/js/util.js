@@ -9,7 +9,7 @@ function ajax_post(cmd, data, handler){
         url: "do?random=" + Math.random(),
         dataType: "json",
         data: data,
-        timeout: 60000,
+        timeout: 180000,
         cache: false,
         success: handler,
         error: function(xhr, textStatus, errorThrown){

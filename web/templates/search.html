@@ -34,13 +34,13 @@
       <div class="col-sm-6 col-lg-3">
         <div class="card card-sm">
           <div class="ribbon ribbon-top ribbon-bookmark {% if Item[11] > 8 %} bg-green {% elif Item[11] <= 8 and Item[11] >= 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ Item[11] }}</div>
-          <a href="javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}')" class="d-block" ><img src="{{ Item[9] }}" class="card-img-top" title="种子：{{ Item[12] }}&#10;描述：{{ Item[13] }}"></a>
+          <a href="javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}')" class="d-block" ><img src="{{ Item[9] }}" class="card-img-top" title="点击添加下载"></a>
           <div class="card-body">
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center mb-2">
               <span class="avatar me-2 rounded">{{ Item[10] }}</span>
               <div>
                 <div><a href="{{ Item[5] }}" target="_blank" title="点击下载种子文件"><strong>{{ Item[1]}}</strong></a></div>
-                <div class="text-muted"><strong>{{ Item[6]}}</strong> {{ Item[2]}} {{ Item[3]}}</div>
+                <div class="text-muted"><strong>{{ Item[6]}} {{ Item[2]}} {{ Item[3]}}</strong></div>
               </div>
               <div class="ms-auto">
                 <span class="text-muted">
@@ -57,6 +57,24 @@
                 </span>
               </div>
             </div>
+            {% if Item[12] %}
+            <div class="text-muted border-top pt-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-description" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                 <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+                 <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+                 <path d="M9 17h6"></path>
+                 <path d="M9 13h6"></path>
+              </svg>
+              <small>{{ Item[12] }}</small>
+            </div>
+            {% endif %}
+            {% if Item[13] %}
+            <div class="text-muted">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2 text-muted" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0" /><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0" /><line x1="3" y1="6" x2="3" y2="19" /><line x1="12" y1="6" x2="12" y2="19" /><line x1="21" y1="6" x2="21" y2="19" /></svg>
+              <small>{{ Item[13] }}</small>
+            </div>
+            {% endif %}
           </div>
         </div>
       </div>

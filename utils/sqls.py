@@ -8,8 +8,15 @@ from utils.types import MediaType
 
 # 将Jackett返回信息插入数据库
 def insert_jackett_results(media_item):
-    org_string = media_item.org_string.replace("'", "''")
-    description = media_item.description.replace("'", "''")
+    if media_item.org_string:
+        org_string = media_item.org_string.replace("'", "''")
+    else:
+        org_string = ""
+    if media_item.description:
+        description = media_item.description.replace("'", "''")
+        description = description.replace(org_string, "").strip()
+    else:
+        description = ""
     if media_item.type == MediaType.TV:
         mtype = "TV"
     elif media_item.type == MediaType.MOVIE:
