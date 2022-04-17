@@ -15,5 +15,4 @@ beautifulsoup4>=4.10.0
 flask-login>=0.5.0
 cn2an>=0.5.16
 anitopy>=2.1.0
-supervisor>=4.2.
-supervisor-stdout
+supervisor>=4.2.4
