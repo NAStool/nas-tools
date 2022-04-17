@@ -50,7 +50,7 @@ def create_flask_app(config):
     USERS = [{
         "id": 1,
         "name": admin_user,
-        "password": generate_password_hash(admin_password)
+        "password": generate_password_hash(str(admin_password))
     }]
 
     App = Flask(__name__)
