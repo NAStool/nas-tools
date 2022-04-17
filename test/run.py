@@ -85,3 +85,4 @@ if __name__ == "__main__":
     '''
     # print(MetaInfo('1001.mkv').__dict__)
     # print(MetaInfo('刺客伍六七.第03季.Scissor.Seven.Ⅲ.2021.第1136话.WEB-DL.1080P.AVC.DD+2.0＆AAC.GB-XHGM.mkv').__dict__)
+    # FileTransfer().transfer_media(in_from=SyncType.MAN, in_path="C:\\Users\\jxxgh\\Documents\\Sync\\我和我的祖国 2019")

@@ -410,7 +410,7 @@ class FileTransfer:
             if dir_exist_flag:
                 # 蓝光原盘
                 if bluray_disk_flag:
-                    log.warn("【RMT】蓝光原盘目录已存在：%s" % media)
+                    log.warn("【RMT】蓝光原盘目录已存在：%s" % ret_dir_path)
                     continue
                 # 文年存在
                 if file_exist_flag:
