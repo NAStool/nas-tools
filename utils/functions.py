@@ -1,13 +1,13 @@
 import ctypes
 import os
 import re
+import shutil
 import socket
 import subprocess
 import time
 import platform
 import bisect
 import datetime
-import psutil
 
 # 全局对象
 from utils.types import OsType
@@ -179,9 +179,8 @@ def get_used_of_partition(path):
     if not os.path.exists(path):
         return 0, 0
     try:
-        free = psutil.disk_usage(path).free
-        total = psutil.disk_usage(path).total
-        return total - free, total
+        total_b, used_b, free_b = shutil.disk_usage(path)
+        return used_b, total_b
     except Exception as e:
         print(str(e))
         return 0, 0
@@ -197,7 +196,8 @@ def get_system():
 
 # 计算目录剩余空间大小
 def get_free_space_gb(folder):
-    return psutil.disk_usage(folder).free / 1024 / 1024 / 1024
+    total_b, used_b, free_b = shutil.disk_usage(folder)
+    return free_b / 1024 / 1024 / 1024
 
 
 # 通过UTC的时间字符串获取时间
