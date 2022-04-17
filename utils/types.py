@@ -35,3 +35,8 @@ class RmtMode(Enum):
 class MatchMode(Enum):
     NORMAL = "正常模式"
     STRICT = "严格模式"
+
+
+class OsType(Enum):
+    WINDOWS = "Windows"
+    LINUX = "Linux"

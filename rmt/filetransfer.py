@@ -12,14 +12,14 @@ from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_lev
 from message.send import Message
 from rmt.media import Media
 from utils.sqls import insert_transfer_history, insert_transfer_unknown
-from utils.types import MediaType, DownloaderType, SyncType, RmtMode
+from utils.types import MediaType, DownloaderType, SyncType, RmtMode, OsType
 from web.backend.emby import Emby
 
 lock = Lock()
 
 
 class FileTransfer:
-    __sync_sys = 'LINUX'
+    __system = OsType.LINUX
     __pt_rmt_mode = None
     __sync_rmt_mode = None
     __movie_path = None
@@ -46,26 +46,36 @@ class FileTransfer:
     def init_config(self):
         config = Config()
         app = config.get_config('app')
-        if app and app.get('nas_sys'):
-            self.__sync_sys = app.get('nas_sys').upper()
+        if app:
+            if app.get('system', '').upper() == "WINDOWS":
+                self.__system = OsType.WINDOWS
         media = config.get_config('media')
         if media:
             # 电影目录
             self.__movie_path = media.get('movie_path')
             if not isinstance(self.__movie_path, list):
-                self.__movie_path = [self.__movie_path]
+                if self.__movie_path:
+                    self.__movie_path = [self.__movie_path]
+                else:
+                    self.__movie_path = []
             # 电影分类
             self.__movie_category_flag = self.category.get_movie_category_flag()
             # 电视剧目录
             self.__tv_path = media.get('tv_path')
             if not isinstance(self.__tv_path, list):
-                self.__tv_path = [self.__tv_path]
+                if self.__tv_path:
+                    self.__tv_path = [self.__tv_path]
+                else:
+                    self.__tv_path = []
             # 电视剧分类
             self.__tv_category_flag = self.category.get_tv_category_flag()
             # 动漫目录
             self.__anime_path = media.get('anime_path')
             if not isinstance(self.__anime_path, list):
-                self.__anime_path = [self.__anime_path]
+                if self.__anime_path:
+                    self.__anime_path = [self.__anime_path]
+                else:
+                    self.__anime_path = []
             # 动漫分类
             self.__anime_category_flag = self.category.get_anime_category_flag()
             # 没有动漫目漫切换为电视剧目录和分类
@@ -75,7 +85,10 @@ class FileTransfer:
             # 未知目录
             self.__unknown_path = media.get('unknown_path')
             if not isinstance(self.__unknown_path, list):
-                self.__unknown_path = [self.__unknown_path]
+                if self.__unknown_path:
+                    self.__unknown_path = [self.__unknown_path]
+                else:
+                    self.__unknown_path = []
             # 最小文件大小
             min_filesize = media.get('min_filesize')
             if isinstance(min_filesize, int):
@@ -83,7 +96,7 @@ class FileTransfer:
 
         sync = config.get_config('sync')
         if sync:
-            rmt_mode = sync.get('sync_mod', 'copy')
+            rmt_mode = sync.get('sync_mod')
             if rmt_mode:
                 rmt_mode = rmt_mode.upper()
             else:
@@ -97,7 +110,7 @@ class FileTransfer:
             self.__sync_path = sync.get('sync_path')
         pt = config.get_config('pt')
         if pt:
-            rmt_mode = pt.get('rmt_mode', 'copy')
+            rmt_mode = pt.get('rmt_mode')
             if rmt_mode:
                 rmt_mode = rmt_mode.upper()
             else:
@@ -110,17 +123,22 @@ class FileTransfer:
                 self.__pt_rmt_mode = RmtMode.COPY
 
     # 使用系统命令处理单个文件
-    @staticmethod
-    def __transfer_command(file_item, target_file, rmt_mode):
+    def __transfer_command(self, file_item, target_file, rmt_mode):
         try:
             lock.acquire()
-            if rmt_mode == RmtMode.LINK:
-                retcode = call(['ln', file_item, target_file])
-            elif rmt_mode == RmtMode.SOFTLINK:
-                retcode = call(['ln', '-s', file_item, target_file])
+            if self.__system == OsType.WINDOWS:
+                if rmt_mode == RmtMode.LINK:
+                    print('mklink -H "%s" "%s"' % (target_file, file_item))
+                    retcode = os.system('mklink /H "%s" "%s"' % (target_file, file_item))
+                elif rmt_mode == RmtMode.SOFTLINK:
+                    retcode = os.system('mklink "%s" "%s"' % (target_file, file_item))
+                else:
+                    retcode = os.system('copy /Y "%s" "%s"' % (file_item, target_file))
             else:
-                if os.path.isdir(file_item):
-                    retcode = call(['cp', '-r', file_item, target_file])
+                if rmt_mode == RmtMode.LINK:
+                    retcode = call(['ln', file_item, target_file])
+                elif rmt_mode == RmtMode.SOFTLINK:
+                    retcode = call(['ln', '-s', file_item, target_file])
                 else:
                     retcode = call(['cp', file_item, target_file])
         finally:
@@ -165,11 +183,7 @@ class FileTransfer:
     def __transfer_bluray_dir(self, file_path, new_path, rmt_mode):
         log.info("【RMT】正在%s目录：%s 到 %s" % (rmt_mode.value, file_path, new_path))
         # 复制
-        if rmt_mode == RmtMode.COPY:
-            retcode = self.__transfer_command(file_path, new_path, rmt_mode)
-        # 软硬链接
-        else:
-            retcode = self.__transfer_dir_files(file_path, new_path, rmt_mode)
+        retcode = self.__transfer_dir_files(file_path, new_path, rmt_mode)
         if retcode == 0:
             log.info("【RMT】文件 %s %s完成" % (file_path, rmt_mode.value))
         else:
@@ -225,12 +239,7 @@ class FileTransfer:
         # 目录
         if os.path.isdir(file_item):
             log.info("【RMT】正在%s目录：%s 到 %s" % (rmt_mode.value, file_item, target_dir))
-            if rmt_mode == RmtMode.COPY:
-                retcode = self.__transfer_command(file_item, target_dir, rmt_mode)
-            else:
-                # 检索所有文件
-                log.info("【RMT】正在%s目录：%s 到 %s" % (rmt_mode.value, file_item, target_dir))
-                retcode = self.__transfer_dir_files(file_item, target_dir, rmt_mode)
+            retcode = self.__transfer_dir_files(file_item, target_dir, rmt_mode)
         # 文件
         else:
             target_file = os.path.join(target_dir, os.path.basename(file_item))

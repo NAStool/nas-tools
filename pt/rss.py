@@ -109,7 +109,7 @@ class Rss:
                                                media_info.year,
                                                media_info.get_season_string(),
                                                media_info.get_episode_string()):
-                        log.debug("【RSS】%s 已处理过，跳过..." % (media_info.get_title_string()))
+                        log.info("【RSS】%s%s 已成功订阅过，跳过..." % (media_info.get_title_string(), media_info.get_season_episode_string()))
                         continue
                     # 检查种子名称或者标题是否匹配
                     match_flag = self.is_torrent_match(media_info, movie_keys, tv_keys)
@@ -119,10 +119,10 @@ class Rss:
                                                              media_info.get_season_episode_string(),
                                                              media_info.get_resource_type_string()))
                     else:
-                        log.info("【RSS】%s: %s %s %s 不匹配订阅关键字" % (media_info.type.value,
-                                                                 media_info.get_title_string(),
-                                                                 media_info.get_season_episode_string(),
-                                                                 media_info.get_resource_type_string()))
+                        log.info("【RSS】%s: %s %s %s 不匹配订阅" % (media_info.type.value,
+                                                              media_info.get_title_string(),
+                                                              media_info.get_season_episode_string(),
+                                                              media_info.get_resource_type_string()))
                         continue
                     # 匹配后，看资源类型是否满足
                     # 代表资源类型在配置中的优先级顺序

@@ -7,12 +7,13 @@ from message.send import Message
 from pt.downloader import Downloader
 from pt.jackett import Jackett
 from pt.rss import Rss
+from rmt.filetransfer import FileTransfer
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from utils.db_helper import select_by_sql
 from utils.functions import is_anime
 from utils.sqls import get_tv_keys
-from utils.types import SearchType
+from utils.types import SearchType, SyncType
 from web.backend.search_torrents import search_medias_for_web
 
 if __name__ == "__main__":
@@ -84,4 +85,3 @@ if __name__ == "__main__":
     '''
     # print(MetaInfo('1001.mkv').__dict__)
     # print(MetaInfo('刺客伍六七.第03季.Scissor.Seven.Ⅲ.2021.第1136话.WEB-DL.1080P.AVC.DD+2.0＆AAC.GB-XHGM.mkv').__dict__)
-    Media().get_media_info("异物志")

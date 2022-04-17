@@ -103,6 +103,8 @@ class Media:
             if len(movies) == 0:
                 log.warn("【META】%s 未找到媒体信息!" % file_media_name)
                 return None
+            elif len(movies) == 1:
+                info = movies[0]
             else:
                 info = {}
                 if media_year:
@@ -119,9 +121,8 @@ class Media:
                         if movie.get('title') == file_media_name or movie.get('original_title') == file_media_name:
                             info = movie
                             break
-                if not info and len(movies) == 1:
-                    info = movies[0]
-                elif not info:
+                if not info:
+                    movies = sorted(movies, key=lambda x: x.get("release_date", "0000-00-00"), reverse=True)
                     for movie in movies:
                         if media_year:
                             if not movie.get('release_date'):
@@ -153,6 +154,8 @@ class Media:
             if len(tvs) == 0:
                 log.warn("【META】%s 未找到媒体信息!" % file_media_name)
                 return None
+            elif len(tvs) == 1:
+                info = tvs[0]
             else:
                 info = {}
                 if media_year:
@@ -169,9 +172,8 @@ class Media:
                         if tv.get('name') == file_media_name or tv.get('original_name') == file_media_name:
                             info = tv
                             break
-                if not info and len(tvs) == 1:
-                    info = tvs[0]
-                elif not info:
+                if not info:
+                    tvs = sorted(tvs, key=lambda x: x.get("first_air_date", "0000-00-00"), reverse=True)
                     for tv in tvs:
                         if media_year:
                             if not tv.get('first_air_date'):

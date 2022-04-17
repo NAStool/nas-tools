@@ -37,6 +37,10 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 
 
 ## 更新日志
+2022.4.17
+* 支持Windows运行
+* 优化媒体信息检索匹配
+
 2022.4.14
 * 媒体库支持多目录，支持多硬盘/存储空间组媒体库
 

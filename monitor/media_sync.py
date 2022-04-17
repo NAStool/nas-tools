@@ -8,7 +8,7 @@ import log
 from rmt.filetransfer import FileTransfer
 from utils.functions import singleton, is_invalid_path, is_path_in_path
 from utils.sqls import is_transfer_in_blacklist
-from utils.types import SyncType
+from utils.types import SyncType, OsType
 
 lock = threading.Lock()
 SYNC_DIR_CONFIG = {}
@@ -19,7 +19,7 @@ class Sync(object):
     filetransfer = None
     __observer = []
     __sync_path = None
-    __sync_sys = "LINUX"
+    __sync_sys = OsType.LINUX
     __synced_files = []
     __need_sync_paths = {}
 
@@ -29,12 +29,11 @@ class Sync(object):
 
     def init_config(self):
         config = Config()
-        app = config.get_config('app')
-        if app and app.get('nas_sys'):
-            self.__sync_sys = app.get('nas_sys').upper()
         sync = config.get_config('sync')
         if sync:
             self.__sync_path = sync.get('sync_path')
+            if sync.get('nas_sys', '').upper() == "WINDOWS":
+                self.__sync_sys = OsType.WINDOWS
 
     # 处理文件变化
     def file_change_handler(self, event, text, event_path):
@@ -178,7 +177,7 @@ class Sync(object):
                     log.info("【SYNC】读取监控目录：%s" % monpath)
 
                 if os.path.exists(monpath):
-                    if self.__sync_sys == "LINUX":
+                    if self.__sync_sys == OsType.LINUX:
                         # linux
                         observer = Observer()
                     else:

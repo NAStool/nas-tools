@@ -1,6 +1,8 @@
 # 【全功能模式配置文件】：适用于想做自动PT下载、保种、聚合搜索、识别转移、媒体库管理等全自动解决方案的用户，有很多附属的功能，有WEBUI控制界面
 # 【配置注意要符合yaml语法，:号后有1个空格，不能使用全角标点符号】
 app:
+  # 【操作系统类型】：linux、windows，对应运行本程序的操作系统
+  system: linux
   # 【日志记录类型】：server、file、console
   # 如果是使用Docker安装建议留空或者设置为console
   # 如果是使用群晖套件建议配置为 server，可将日志输出到群晖的日志中心便于查看
@@ -19,8 +21,6 @@ app:
   # 【WEB管理界面使用的HTTPS的证书和KEY的路径】，留空则不启用HTTPS
   ssl_cert:
   ssl_key:
-  # 【存储媒体库设备的操作系统类型】：windows、linux。如果是windows，目录监控功能性能会比较差，会导致NAS不能休眠，建议使用linux运行
-  nas_sys: linux
   # 【TMDB API KEY】：需要在https://www.themoviedb.org/申请，必须配置，否则无法识别媒体资源和重命名
   # 以下地址需要网络能够正常访问：api.themoviedb.org、images.weserv.nl、webservice.fanart.tv
   rmt_tmdbkey:
@@ -104,6 +104,8 @@ sync:
   # link要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间，Docker运行时link模式需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker可能仍然会认为是跨盘
   # softlink模式注意宿主机的源目录映射到docker容器中后要路径要一致，否则可能软链接成功但无法在宿主机使用
   sync_mod: link
+  # 【监控目录操作系统类型】：windows、linux。如果是windows，目录监控功能性能会比较差，会导致NAS不能休眠，除非是挂载的windows的远程共享目录，否则建议设置为linux
+  nas_sys: linux
 
 # 【配置消息通知服务】
 message:
