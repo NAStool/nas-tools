@@ -74,6 +74,7 @@ class MetaInfo(object):
     _last_token_type = ""
     _continue_flag = True
     _unknown_name_str = ""
+    _subtitle_flag = False
     # 正则式区
     _season_re = r"S(\d{2})|^S(\d{1,2})"
     _episode_re = r"EP?(\d{2,4})|^EP?(\d{1,4})"
@@ -139,10 +140,9 @@ class MetaInfo(object):
                 token = tokens.get_next()
                 self._continue_flag = True
             # 解析副标题，只要季和集
-            if subtitle:
+            self.__init_subtitle(title)
+            if not self._subtitle_flag and subtitle:
                 self.__init_subtitle(subtitle)
-            else:
-                self.__init_subtitle(title)
             # 没有识别出类型时默认为电影
             if not self.type:
                 self.type = MediaType.MOVIE
@@ -474,6 +474,8 @@ class MetaInfo(object):
                 self._stop_name_flag = True
 
     def __init_subtitle(self, title_text):
+        if not title_text:
+            return
         if re.search(r'[第季集话話]', title_text, re.IGNORECASE):
             # 季
             season_str = re.search(r'%s' % self._subtitle_season_re, title_text, re.IGNORECASE)
@@ -498,6 +500,7 @@ class MetaInfo(object):
                     self.end_season = end_season
                     self.total_seasons = (self.end_season - self.begin_season) + 1
                 self.type = MediaType.TV
+                self._subtitle_flag = True
             # 集
             episode_str = re.search(r'%s' % self._subtitle_episode_re, title_text, re.IGNORECASE)
             if episode_str:
@@ -521,6 +524,7 @@ class MetaInfo(object):
                     self.end_episode = end_episode
                     self.total_episodes = (self.end_episode - self.begin_episode) + 1
                 self.type = MediaType.TV
+                self._subtitle_flag = True
         else:
             # 文件名只有数字的，认为是集号
             name = os.path.splitext(title_text)[0]
@@ -528,6 +532,7 @@ class MetaInfo(object):
                 if not self.begin_episode:
                     self.begin_episode = int(name)
                     self.type = MediaType.TV
+                    self._subtitle_flag = True
 
     def get_name(self):
         if self.cn_name:
