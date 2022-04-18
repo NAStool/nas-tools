@@ -1,9 +1,11 @@
 import logging
 import os
+import shutil
 from collections import deque
 from threading import Lock
-from subprocess import call
 import yaml
+
+import log
 from utils.functions import singleton
 
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
@@ -56,22 +58,20 @@ class Config(object):
     def init_config(self):
         try:
             if not self.__config_path:
-                print("【ERROR】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
+                log.printf("【ERROR】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
                 quit()
             if not os.path.exists(self.__config_path):
                 cfg_tp_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "config", "config.yaml")
-                call(["cp", cfg_tp_path, self.__config_path])
-                print("【ERROR】config.yaml 配置文件不存在，已将配置文件模板复制到配置目录，请修改后重新启动...")
-                self.__config = {}
-                return
+                shutil.copy(cfg_tp_path, self.__config_path)
+                log.printf("【ERROR】config.yaml 配置文件不存在，已将配置文件模板复制到配置目录...")
             with open(self.__config_path, mode='r', encoding='utf-8') as f:
                 try:
                     self.__config = yaml.safe_load(f)
                 except yaml.YAMLError as e:
-                    print("【ERROR】配置文件 config.yaml 格式出现严重错误！请检查：%s" % str(e))
+                    log.printf("【ERROR】配置文件 config.yaml 格式出现严重错误！请检查：%s" % str(e))
                     self.__config = {}
         except Exception as err:
-            print("【ERROR】加载 config.yaml 配置出错：%s" % str(err))
+            log.printf("【ERROR】加载 config.yaml 配置出错：%s" % str(err))
             return False
 
     def get_proxies(self):

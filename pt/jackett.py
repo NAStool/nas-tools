@@ -59,7 +59,9 @@ class Jackett:
         if indexer_name:
             indexer_name = indexer_name.group(1)
         log.info("【JACKETT】开始检索Indexer：%s ..." % indexer_name)
-        api_url = "%sapi?apikey=%s&t=search&q=%s" % (index, self.__api_key, key_word)
+        # 传给Jackett的需要处理掉特殊符号
+        search_word = key_word.replace("：", "")
+        api_url = "%sapi?apikey=%s&t=search&q=%s" % (index, self.__api_key, search_word)
         media_array = self.parse_jackettxml(api_url)
         if len(media_array) == 0:
             log.warn("【JACKETT】%s 未检索到资源" % indexer_name)
@@ -231,7 +233,7 @@ class Jackett:
                 for save_media_item in save_media_list:
                     insert_jackett_results(save_media_item)
                 self.message.sendmsg(title=media_info.get_title_vote_string(),
-                                     text="%s 共检索到 %s 个有效资源，点击查看详情" % (media_info.title, len(save_media_list)),
+                                     text="%s 共检索到 %s 个有效资源" % (media_info.title, len(save_media_list)),
                                      image=media_info.get_message_image(), url='search')
             # 微信未开自动下载时返回
             if in_from == SearchType.WX and not self.__wechat_auto:
@@ -299,7 +301,7 @@ class Jackett:
         try:
             ret = requests.get(url, timeout=30)
         except Exception as e2:
-            print(str(e2))
+            log.printf(str(e2))
             return []
         if ret:
             ret_xml = ret.text
@@ -357,9 +359,9 @@ class Jackett:
                                     'seeders': seeders, 'peers': peers}
                         ret_array.append(tmp_dict)
                     except Exception as e:
-                        print(str(e))
+                        log.printf(str(e))
                         continue
             except Exception as e2:
-                print(str(e2))
+                log.printf(str(e2))
                 return ret_array
         return ret_array

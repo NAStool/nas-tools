@@ -2,6 +2,7 @@ from datetime import datetime
 import threading
 import requests
 
+import log
 from config import Config
 from utils.functions import singleton
 
@@ -55,7 +56,7 @@ class WeChat(object):
                         self.__expires_in = ret_json['expires_in']
                         self.__access_token_time = datetime.now()
             except Exception as e:
-                print(str(e))
+                log.printf(str(e))
                 return None
         return self.__access_token
 

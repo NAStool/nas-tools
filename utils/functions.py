@@ -1,4 +1,3 @@
-import ctypes
 import os
 import re
 import shutil
@@ -8,8 +7,6 @@ import time
 import platform
 import bisect
 import datetime
-
-# 全局对象
 from utils.types import OsType
 
 INSTANCES = {}
@@ -323,3 +320,10 @@ def is_ses_in_ses(sea, epi, season, episode):
         return True
 
     return False
+
+
+# 判断是否蓝光原盘目录
+def is_bluray_dir(path):
+    if not path:
+        return False
+    return os.path.exists(os.path.join(path, "BDMV", "index.bdmv"))

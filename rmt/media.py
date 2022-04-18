@@ -407,7 +407,7 @@ class Media:
         try:
             return self.movie.details(tmdbid)
         except Exception as e:
-            print(str(e))
+            log.printf(str(e))
             return {}
 
     # 获取电视剧的详情
@@ -417,5 +417,5 @@ class Media:
         try:
             return self.tv.details(tmdbid)
         except Exception as e:
-            print(str(e))
+            log.printf(str(e))
             return {}

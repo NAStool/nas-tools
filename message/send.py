@@ -40,19 +40,19 @@ class Message:
 
     def sendmsg(self, title, text="", image="", url=""):
         log.info("【MSG】发送%s消息：title=%s, text=%s" % (self.__msg_channel, title, text))
-        if self.__msg_channel == "wechat":
-            if self.__domain:
-                if url:
-                    url = "%s?next=%s" % (self.__domain, url)
-                else:
-                    url = self.__domain
+        if self.__domain:
+            if url:
+                url = "%s?next=%s" % (self.__domain, url)
             else:
-                url = ""
+                url = self.__domain
+        else:
+            url = ""
+        if self.__msg_channel == "wechat":
             return self.wechat.send_wechat_msg(title, text, image, url)
         elif self.__msg_channel == "serverchan":
             return self.serverchan.send_serverchan_msg(title, text)
         elif self.__msg_channel == "telegram":
-            return self.telegram.send_telegram_msg(title, text, image)
+            return self.telegram.send_telegram_msg(title, text, image, url)
         elif self.__msg_channel == "bark":
             return self.bark.send_bark_msg(title, text)
         else:

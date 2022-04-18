@@ -10,6 +10,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import log
+from monitor.media_sync import Sync
 from monitor.run import restart_monitor
 from pt.downloader import Downloader
 from pt.jackett import Jackett
@@ -682,7 +683,7 @@ def create_flask_app(config):
                 if sch_item == "ptsignin":
                     _thread.start_new_thread(PTSignin().run_schedule, ())
                 if sch_item == "sync":
-                    _thread.start_new_thread(FileTransfer().transfer_all_sync, ())
+                    _thread.start_new_thread(Sync().transfer_all_sync, ())
                 if sch_item == "rssdownload":
                     _thread.start_new_thread(RSSDownloader().run_schedule, ())
                 if sch_item == "douban":
@@ -931,7 +932,7 @@ def create_flask_app(config):
                             shutil.rmtree(dest_path)
                             delete_transfer_log_by_id(logid)
                         except Exception as e:
-                            print(str(e))
+                            log.printf(str(e))
                 return {"retcode": 0}
 
             # 查询实时日志
@@ -952,7 +953,7 @@ def create_flask_app(config):
                         version = ver_json["tag_name"]
                         info = f'<a href="{ver_json["html_url"]}" target="_blank">{version}</a>'
                 except Exception as e:
-                    print(str(e))
+                    log.printf(str(e))
                     code = -1
                 return {"code": code, "version": version, "info": info}
 
@@ -1008,7 +1009,7 @@ def create_flask_app(config):
             elif content == "/pts":
                 _thread.start_new_thread(PTSignin().run_schedule, ())
             elif content == "/rst":
-                _thread.start_new_thread(FileTransfer().transfer_all_sync, ())
+                _thread.start_new_thread(Sync().transfer_all_sync, ())
             elif content == "/rss":
                 _thread.start_new_thread(RSSDownloader().run_schedule, ())
             elif content == "/db":

@@ -221,7 +221,7 @@ class Rss:
         try:
             ret = requests.get(url, timeout=30)
         except Exception as e2:
-            print(str(e2))
+            log.printf(str(e2))
             return []
         if ret:
             ret_xml = ret.text
@@ -265,9 +265,9 @@ class Rss:
                         tmp_dict = {'title': title, 'enclosure': enclosure, 'size': size, 'description': description}
                         ret_array.append(tmp_dict)
                     except Exception as e1:
-                        print(str(e1))
+                        log.printf(str(e1))
                         continue
             except Exception as e2:
-                print(str(e2))
+                log.printf(str(e2))
                 return ret_array
         return ret_array

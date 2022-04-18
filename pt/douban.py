@@ -218,7 +218,7 @@ class DouBan:
             if res.status_code == 200:
                 return res.text
         except Exception as e:
-            print(str(e))
+            log.printf(str(e))
             return None
         return None
 
@@ -245,7 +245,7 @@ class DouBan:
             if res.status_code == 200:
                 return res.text
         except Exception as e:
-            print(str(e))
+            log.printf(str(e))
             return None
         return None
 

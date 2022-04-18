@@ -196,7 +196,7 @@ class Downloader:
                 self.message.send_download_message(in_from, item)
             else:
                 log.error("【PT】添加下载任务失败：%s" % item.get_title_string())
-                self.message.sendmsg("【PT】添加PT任务失败：%s" % item.get_title_string())
+                self.message.sendmsg("添加PT任务失败：%s" % item.get_title_string())
         # 返回下载数以及，剩下没下完的
         return len(download_items), need_tvs
 

@@ -13,19 +13,19 @@ def check_config(cfg):
             logtype = logtype.upper()
         else:
             logtype = "CONSOLE"
-        print("日志输出类型为：%s" % logtype)
+        log.printf("日志输出类型为：%s" % logtype)
         if logtype == "SERVER":
             logserver = config['app'].get('logserver')
             if not logserver:
-                print("【ERROR】logserver未配置，无法正常输出日志")
+                log.printf("【ERROR】logserver未配置，无法正常输出日志")
             else:
-                print("日志将上送到服务器：%s" % logserver)
+                log.printf("日志将上送到服务器：%s" % logserver)
         elif logtype == "FILE":
             logpath = config['app'].get('logpath')
             if not logpath:
-                print("【ERROR】logpath未配置，无法正常输出日志")
+                log.printf("【ERROR】logpath未配置，无法正常输出日志")
             else:
-                print("日志将写入文件：%s" % logpath)
+                log.printf("日志将写入文件：%s" % logpath)
 
         # 检查WEB端口
         web_port = config['app'].get('web_port')
@@ -67,7 +67,7 @@ def check_config(cfg):
         else:
             log.info("TMDB匹配模式：正常模式")
     else:
-        print("app配置不存在")
+        log.printf("app配置不存在")
 
     # 检查媒体库目录路径
     if config.get('media'):
@@ -122,7 +122,7 @@ def check_config(cfg):
                 if not os.path.exists(sync_path):
                     log.warn("sync_path目录不存在，该目录监控资源同步功能已关闭：%s" % sync_path)
 
-        sync_mod = config['sync'].get('sync_mod', 'COPY')
+        sync_mod = config['sync'].get('sync_mod')
         if sync_mod:
             sync_mod = sync_mod.upper()
         else:

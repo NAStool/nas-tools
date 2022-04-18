@@ -4,6 +4,8 @@ import anitopy
 import cn2an
 import requests
 from requests import RequestException
+
+import log
 from config import FANART_TV_API_URL, FANART_MOVIE_API_URL, RMT_MEDIAEXT, ANIME_GENREIDS, Config
 from rmt.category import Category
 from utils.functions import is_chinese
@@ -232,7 +234,7 @@ class MetaInfo(object):
                     # 分辨率
                     self.resource_pix = anitopy_info.get("video_resolution")
             except Exception as e:
-                print(str(e))
+                log.printf(str(e))
 
     def __init_name(self, token):
         if not token:
@@ -287,7 +289,7 @@ class MetaInfo(object):
                         self._unknown_name_str = token
             else:
                 # 后缀名不要
-                if ".%s" % token in RMT_MEDIAEXT:
+                if ".%s".lower() % token in RMT_MEDIAEXT:
                     return
                 # 英文或者英文+数字，拼装起来
                 if self.en_name:
@@ -337,9 +339,9 @@ class MetaInfo(object):
             self._continue_flag = False
             self._stop_name_flag = True
             if not self.resource_pix:
-                self.resource_pix = re_res.group(1).upper()
+                self.resource_pix = re_res.group(1).lower()
             elif self.resource_pix == "3D":
-                self.resource_pix = "%s 3D" % re_res.group(1).upper()
+                self.resource_pix = "%s 3D" % re_res.group(1).lower()
         else:
             re_res = re.search(r"%s" % self._resources_pix_re2, token, re.IGNORECASE)
             if re_res:
@@ -347,9 +349,9 @@ class MetaInfo(object):
                 self._continue_flag = False
                 self._stop_name_flag = True
                 if not self.resource_pix:
-                    self.resource_pix = re_res.group(1).upper()
+                    self.resource_pix = re_res.group(1).lower()
                 elif self.resource_pix == "3D":
-                    self.resource_pix = "%s 3D" % re_res.group(1).upper()
+                    self.resource_pix = "%s 3D" % re_res.group(1).lower()
             elif token.upper() == "3D":
                 self._last_token_type = "pix"
                 self._continue_flag = False
@@ -739,9 +741,9 @@ class MetaInfo(object):
                             # 有则返回FanArt的图片
                             return moviethumb
             except RequestException as e1:
-                print(str(e1))
+                log.printf(str(e1))
             except Exception as e2:
-                print(str(e2))
+                log.printf(str(e2))
         if default:
             # 返回一个默认图片
             return default

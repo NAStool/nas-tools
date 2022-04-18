@@ -1,22 +1,22 @@
 import os
 import threading
-from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
 from config import RMT_MEDIAEXT, Config
 import log
+from monitor.monitor_handler import FileMonitorHandler
 from rmt.filetransfer import FileTransfer
-from utils.functions import singleton, is_invalid_path, is_path_in_path
+from utils.functions import singleton, is_invalid_path, is_path_in_path, is_bluray_dir, get_dir_level1_medias
 from utils.sqls import is_transfer_in_blacklist
 from utils.types import SyncType, OsType
 
 lock = threading.Lock()
-SYNC_DIR_CONFIG = {}
 
 
 @singleton
 class Sync(object):
     filetransfer = None
+    sync_dir_config = {}
     __observer = []
     __sync_path = None
     __sync_sys = OsType.LINUX
@@ -31,13 +31,57 @@ class Sync(object):
         config = Config()
         sync = config.get_config('sync')
         if sync:
-            self.__sync_path = sync.get('sync_path')
             if sync.get('nas_sys', '').upper() == "WINDOWS":
                 self.__sync_sys = OsType.WINDOWS
+            self.__sync_path = sync.get('sync_path')
+
+    def init_sync_dirs(self):
+        self.sync_dir_config = {}
+        if self.__sync_path:
+            for sync_monpath in self.__sync_path:
+                if not sync_monpath:
+                    continue
+                monpaths = sync_monpath.split('|')
+                if monpaths[0]:
+                    monpath = os.path.normpath(monpaths[0])
+                else:
+                    continue
+                if len(monpaths) > 1:
+                    if monpaths[1]:
+                        target_path = os.path.normpath(monpaths[1])
+                    else:
+                        target_path = None
+                    if len(monpaths) > 2:
+                        if monpaths[2]:
+                            unknown_path = os.path.normpath(monpaths[2])
+                        else:
+                            unknown_path = None
+                    else:
+                        unknown_path = None
+                    if target_path and unknown_path:
+                        log.info("【SYNC】读取到监控目录：%s，目的目录：%s，未识别目录：%s" % (monpath, target_path, unknown_path))
+                    elif target_path:
+                        log.info("【SYNC】读取到监控目录：%s，目的目录：%s" % (monpath, target_path))
+                    else:
+                        log.info("【SYNC】读取到监控目录：%s" % monpath)
+                    if target_path and not os.path.exists(target_path):
+                        log.info("【SYNC】目的目录不存在，正在创建：%s" % target_path)
+                        os.makedirs(target_path)
+                    if unknown_path and not os.path.exists(unknown_path):
+                        log.info("【SYNC】未识别目录不存在，正在创建：%s" % unknown_path)
+                        os.makedirs(unknown_path)
+                else:
+                    target_path = None
+                    unknown_path = None
+                    log.info("【SYNC】读取到监控目录：%s" % monpath)
+                # 登记关系
+                if os.path.exists(monpath):
+                    self.sync_dir_config[monpath] = {'target': target_path, 'unknown': unknown_path}
+                else:
+                    log.error("【SYNC】%s 目录不存在！" % monpath)
 
     # 处理文件变化
     def file_change_handler(self, event, text, event_path):
-        global SYNC_DIR_CONFIG
         if not event.is_directory:
             # 文件发生变化
             try:
@@ -58,15 +102,19 @@ class Sync(object):
                     return
                 # 不是监控目录下的文件不处理
                 is_monitor_file = False
-                for tpath in SYNC_DIR_CONFIG.keys():
+                for tpath in self.sync_dir_config.keys():
                     if is_path_in_path(tpath, event_path):
                         is_monitor_file = True
                         break
                 if not is_monitor_file:
                     return
                 # 目的目录的子文件不处理
-                for tpath in SYNC_DIR_CONFIG.values():
-                    if is_path_in_path(tpath, event_path):
+                for tpath in self.sync_dir_config.values():
+                    if not tpath:
+                        continue
+                    if is_path_in_path(tpath.get('target'), event_path):
+                        return
+                    if is_path_in_path(tpath.get('unknown'), event_path):
                         return
                 # 媒体库目录及子目录不处理
                 if self.filetransfer.is_target_dir_path(event_path):
@@ -79,7 +127,7 @@ class Sync(object):
                 if not name:
                     return
                 ext = os.path.splitext(name)[-1]
-                if ext not in RMT_MEDIAEXT:
+                if ext.lower() not in RMT_MEDIAEXT:
                     return
 
                 log.debug("【SYNC】文件%s：%s" % (text, event_path))
@@ -91,20 +139,22 @@ class Sync(object):
                 # 找到是哪个监控目录下的
                 monitor_dir = event_path
                 is_root_path = False
-                for m_path in SYNC_DIR_CONFIG.keys():
-                    if m_path:
-                        if is_path_in_path(m_path, event_path):
-                            monitor_dir = m_path
-                        if os.path.normpath(m_path) == os.path.normpath(from_dir):
-                            is_root_path = True
+                for m_path in self.sync_dir_config.keys():
+                    if is_path_in_path(m_path, event_path):
+                        monitor_dir = m_path
+                    if m_path == from_dir:
+                        is_root_path = True
 
                 # 查找目的目录
-                target_dir = SYNC_DIR_CONFIG.get(os.path.normpath(monitor_dir))
+                target_dirs = self.sync_dir_config.get(monitor_dir)
+                target_path = target_dirs.get('target')
+                unknown_path = target_dirs.get('unknown')
                 # 监控根目录下的文件发生变化时直接发走
                 if is_root_path:
                     ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
                                                                     in_path=event_path,
-                                                                    target_dir=target_dir)
+                                                                    target_dir=target_path,
+                                                                    unknown_dir=unknown_path)
                     if not ret:
                         log.warn("【SYNC】%s转移失败：%s" % (event_path, ret_msg))
                 else:
@@ -121,7 +171,7 @@ class Sync(object):
                                     return
                             self.__need_sync_paths[from_dir].update({'files': files})
                         else:
-                            self.__need_sync_paths[from_dir] = {'target_dir': target_dir, 'files': [event_path]}
+                            self.__need_sync_paths[from_dir] = {'target': target_path, 'unknown': unknown_path, 'files': [event_path]}
                     finally:
                         lock.release()
 
@@ -134,16 +184,20 @@ class Sync(object):
             lock.acquire()
             items = list(self.__need_sync_paths)
             for path in items:
+                target_info = self.__need_sync_paths.get(path)
                 if os.path.exists(path) and not is_transfer_in_blacklist(path):
                     log.info("【SYNC】开始转移监控目录文件...")
-                    if not os.path.exists(os.path.join(path, "BDMV", "index.bdmv")):
-                        files = self.__need_sync_paths[path].get('files')
+                    if not is_bluray_dir:
+                        files = target_info.get('files')
                     else:
                         files = []
+                    target_path = target_info.get('target')
+                    unknown_path = target_info.get('unknown')
                     ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
                                                                     in_path=path,
                                                                     files=files,
-                                                                    target_dir=self.__need_sync_paths[path].get('target_dir'))
+                                                                    target_dir=target_path,
+                                                                    unknown_dir=unknown_path)
                     if not ret:
                         log.warn("【SYNC】%s转移失败：%s" % (path, ret_msg))
                 self.__need_sync_paths.pop(path)
@@ -152,45 +206,20 @@ class Sync(object):
 
     # 启动进程
     def run_service(self):
-        global SYNC_DIR_CONFIG
-        # Sync监控转移
-        SYNC_DIR_CONFIG = {}
-        if self.__sync_path:
-            for sync_monpath in self.__sync_path:
-                # 目录是两段式，需要把配对关系存起来
-                if sync_monpath.find('|') != -1:
-                    # 源目录|目的目录，这个格式的目的目录在源目录同级建立
-                    monpath = sync_monpath.split("|")[0]
-                    if not monpath:
-                        continue
-                    target_path = sync_monpath.split("|")[1]
-                    if target_path:
-                        log.info("【SYNC】读取到监控目录：%s，目的目录：%s" % (monpath, target_path))
-                        if not os.path.exists(target_path):
-                            log.info("【SYNC】目的目录不存在，正在创建：%s" % target_path)
-                            os.makedirs(target_path)
-                        # 去掉末尾的/
-                        SYNC_DIR_CONFIG[os.path.normpath(monpath)] = os.path.normpath(target_path)
+        self.init_sync_dirs()
+        for monpath in self.sync_dir_config.keys():
+            if monpath and os.path.exists(monpath):
+                if self.__sync_sys == OsType.LINUX:
+                    # linux
+                    observer = Observer()
                 else:
-                    monpath = sync_monpath
-                    SYNC_DIR_CONFIG[os.path.normpath(monpath)] = None
-                    log.info("【SYNC】读取监控目录：%s" % monpath)
-
-                if os.path.exists(monpath):
-                    if self.__sync_sys == OsType.LINUX:
-                        # linux
-                        observer = Observer()
-                    else:
-                        # 其他
-                        observer = PollingObserver()
-                    self.__observer.append(observer)
-
-                    observer.schedule(FileMonitorHandler(monpath, self), path=monpath, recursive=True)
-                    observer.setDaemon(False)
-                    observer.start()
-                    log.info("【RUN】%s 的monitor.media_sync启动..." % monpath)
-                else:
-                    log.error("【SYNC】%s 目录不存在！" % sync_monpath)
+                    # 其他
+                    observer = PollingObserver()
+                self.__observer.append(observer)
+                observer.schedule(FileMonitorHandler(monpath, self), path=monpath, recursive=True)
+                observer.setDaemon(False)
+                observer.start()
+                log.info("【RUN】%s 的monitor.media_sync启动..." % monpath)
 
     # 关闭服务
     def stop_service(self):
@@ -198,21 +227,17 @@ class Sync(object):
             for observer in self.__observer:
                 observer.stop()
 
-
-# 监听文件夹
-class FileMonitorHandler(FileSystemEventHandler):
-    def __init__(self, monpath, sync, **kwargs):
-        super(FileMonitorHandler, self).__init__(**kwargs)
-        # 监控目录 目录下面以device_id为目录存放各自的图片
-        self._watch_path = monpath
-        self.sync = sync
-
-    # 重写文件创建函数，文件创建都会触发文件夹变化
-    def on_created(self, event):
-        self.sync.file_change_handler(event, "创建", event.src_path)
-
-    def on_moved(self, event):
-        self.sync.file_change_handler(event, "移动", event.dest_path)
-
-    def on_modified(self, event):
-        self.sync.file_change_handler(event, "修改", event.src_path)
+    # 全量转移Sync目录下的文件
+    def transfer_all_sync(self):
+        for monpath, target_dirs in self.sync_dir_config.items():
+            if not monpath:
+                continue
+            target_path = target_dirs.get('target')
+            unknown_path = target_dirs.get('unknown')
+            for path in get_dir_level1_medias(monpath, RMT_MEDIAEXT):
+                ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
+                                                                in_path=path,
+                                                                target_dir=target_path,
+                                                                unknown_dir=unknown_path)
+                if not ret:
+                    log.error("【SYNC】%s 处理失败：%s" % (monpath, ret_msg))

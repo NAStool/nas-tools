@@ -1,5 +1,7 @@
 import json
 from datetime import datetime
+
+import log
 from pt.douban import DouBan
 from utils.functions import singleton
 
@@ -96,7 +98,7 @@ class DoubanHot:
 
                 ret_list.append({'id': rid, 'title': title, 'release_date': release_date, 'vote_average': vote_average, 'poster_path': poster_path, 'overview': overview})
             except Exception as e:
-                print(str(e))
+                log.error("【DOUBAN】DoubanHot出错：%s" % str(e))
         self.__online_time = datetime.now()
         return ret_list
 

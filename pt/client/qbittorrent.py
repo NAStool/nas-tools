@@ -122,11 +122,11 @@ class Qbittorrent:
                 true_path = torrent.get('content_path', os.path.join(torrent.get('save_path'), torrent.get('name')))
                 if not true_path:
                     continue
-                if self.__tv_save_containerpath:
+                if self.__tv_save_containerpath and true_path.startswith(self.__tv_save_path):
                     true_path = true_path.replace(str(self.__tv_save_path), str(self.__tv_save_containerpath))
-                if self.__movie_save_containerpath:
+                if self.__movie_save_containerpath and true_path.startswith(self.__movie_save_path):
                     true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
-                if self.__anime_save_containerpath:
+                if self.__anime_save_containerpath and true_path.startswith(self.__anime_save_path):
                     true_path = true_path.replace(str(self.__anime_save_path), str(self.__anime_save_containerpath))
                 trans_tasks.append({'path': true_path, 'id': torrent.get('hash')})
         return trans_tasks

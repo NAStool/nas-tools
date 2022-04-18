@@ -42,4 +42,4 @@ class SignIn:
             return
         else:
             msg_str = "\n".join(status)
-        self.message.sendmsg(title="【PT】每日签到", text=msg_str)
+        self.message.sendmsg(title=msg_str)
