@@ -60,7 +60,7 @@ class Jackett:
             indexer_name = indexer_name.group(1)
         log.info("【JACKETT】开始检索Indexer：%s ..." % indexer_name)
         # 传给Jackett的需要处理掉特殊符号
-        search_word = key_word.replace("：", "")
+        search_word = key_word.replace("：", " ")
         api_url = "%sapi?apikey=%s&t=search&q=%s" % (index, self.__api_key, search_word)
         media_array = self.parse_jackettxml(api_url)
         if len(media_array) == 0:
