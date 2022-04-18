@@ -400,6 +400,7 @@ class FileTransfer:
             dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.__is_media_exists(dist_path, media)
             # 已存在的文件数量
             exist_filenum = 0
+            handler_flag = False
             # 路径存在
             if dir_exist_flag:
                 # 蓝光原盘
@@ -416,6 +417,7 @@ class FileTransfer:
                             ret = self.__transfer_file(file_item, ret_file_path, rmt_mode, True)
                             if not ret:
                                 continue
+                            handler_flag = True
                         else:
                             log.warn("【RMT】文件 %s 已存在" % ret_file_path)
                             continue
@@ -438,14 +440,15 @@ class FileTransfer:
                     continue
             else:
                 # 开始转移文件
-                file_ext = os.path.splitext(file_item)[-1]
-                if not ret_file_path:
-                    log.error("【RMT】拼装文件路径错误，请确认媒体类型是否匹配！")
-                    continue
-                new_file = "%s%s" % (ret_file_path, file_ext)
-                ret = self.__transfer_file(file_item, new_file, rmt_mode, False)
-                if not ret:
-                    continue
+                if not handler_flag:
+                    file_ext = os.path.splitext(file_item)[-1]
+                    if not ret_file_path:
+                        log.error("【RMT】拼装文件路径错误，请确认媒体类型是否匹配！")
+                        continue
+                    new_file = "%s%s" % (ret_file_path, file_ext)
+                    ret = self.__transfer_file(file_item, new_file, rmt_mode, False)
+                    if not ret:
+                        continue
             # 登记媒体库刷新
             if refresh_item not in refresh_library_items:
                 refresh_library_items.append(refresh_item)
