@@ -325,8 +325,6 @@ def insert_transfer_unknown(path, dest):
             dest = os.path.normpath(dest).replace("'", "''")
         else:
             dest = ""
-        if not dest:
-            dest = ""
         sql = f"INSERT INTO TRANSFER_UNKNOWN(PATH, DEST, STATE) VALUES('{path}', '{dest}', 'N')"
         return update_by_sql(sql)
 

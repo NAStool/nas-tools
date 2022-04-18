@@ -306,7 +306,13 @@
       $("#rename_path").append("<option value='' selected>请选择</option>");
       for(var i=0; i<paths.length; i++){
         if(paths[i][0]){
-          $("#rename_path").append("<option value=\""+ paths[i][0] + "|" + paths[i][1] +"\">" + paths[i][0] + "</option>");
+          if(paths[i][0].indexOf("/") != -1){
+            path_names = paths[i][0].split("/");
+          }else{
+            path_names = paths[i][0].split("\\");
+          }
+          path_name = path_names[path_names.length-1];
+          $("#rename_path").append("<option value=\""+ paths[i][0] + "|" + paths[i][1] +"\">" + path_name + "</option>");
         }
       }
       type = $('input:radio[name=rename_type]:checked').val();
