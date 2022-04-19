@@ -17,7 +17,7 @@ class Searcher:
     message = None
     indexer = None
     __search_indexer = None
-    __wechat_auto = True
+    __search_auto = True
 
     def __init__(self):
         self.downloader = Downloader()
@@ -27,7 +27,7 @@ class Searcher:
 
     def init_config(self):
         config = Config()
-        self.__wechat_auto = config.get_config("pt").get('search_auto', True)
+        self.__search_auto = config.get_config("pt").get('search_auto', True)
         search_indexer = config.get_config("pt").get('search_indexer')
         if search_indexer:
             if search_indexer.upper() == "PROWLARR":
@@ -120,7 +120,7 @@ class Searcher:
                                      url='search',
                                      user_id=user_id)
             # 微信未开自动下载时返回
-            if in_from in [SearchType.WX, SearchType.TG] and not self.__wechat_auto:
+            if in_from in [SearchType.WX, SearchType.TG] and not self.__search_auto:
                 return False
             # 择优下载
             download_num, left_medias = self.downloader.check_and_add_pt(in_from, media_list, no_exists)

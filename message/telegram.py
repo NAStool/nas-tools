@@ -32,7 +32,10 @@ class Telegram:
         if message:
             self.__telegram_token = message.get('telegram', {}).get('telegram_token')
             self.__telegram_chat_id = message.get('telegram', {}).get('telegram_chat_id')
-            if message.get('telegram', {}).get('webhook') and self.__domain:
+            if self.__telegram_token \
+                    and self.__telegram_chat_id \
+                    and message.get('telegram', {}).get('webhook') \
+                    and self.__domain:
                 self.__webhook_url = "%stelegram" % self.__domain
 
     def send_telegram_msg(self, title, text="", image="", url=""):
