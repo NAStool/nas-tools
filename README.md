@@ -169,7 +169,7 @@ https://github.com/jxxghp/nas-tools/releases
 
 * 配置微信消息接收服务：在企业微信自建应用管理页面-》API接收消息 开启消息接收服务，URL填写：http(s)://IP:3000/wechat，Token和EncodingAESKey填入配置文件[wechat]区（配置好后需要先重启服务，然后才在微信页面中点确定）。
 配置完成后可以通过微信发送消息直接检索PT资料下载。
-* 配置微信菜单控制：有两种方式，一是直接在聊天窗口中输入命令或想检索的关键字；二是在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单页面按如下图所示维护好菜单（条目顺序需要一模一样，如果不一样需要修改config.py中定义的WECHAT_MENU菜单序号定义），菜单内容为发送消息，消息内容为命令。
+* 配置微信菜单控制：有两种方式，一是直接在聊天窗口中输入命令；二是在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单页面按如下图所示维护好菜单（条目顺序需要一模一样，如果不一样需要修改config.py中定义的WECHAT_MENU菜单序号定义），菜单内容为发送消息，消息内容为命令。
 
 * ![image](https://user-images.githubusercontent.com/51039935/163518481-d1d4fa43-86e6-4477-a414-8d107f2eecee.png)
 
