@@ -191,10 +191,10 @@ https://github.com/jxxghp/nas-tools/releases
    | /db   | 豆瓣收藏 |
    
 
-### 6、配置Jackett（推荐）
-如果你想通过微信发送电影电视剧的名称，后台就自动检索各PT站并自动下载，或者使用WEB页面的PT聚合资源搜索功能，则需要配置Jackett，获取API Key以及Torznab Feed，相关参数填入配置文件。
+### 6、配置Jackett/Prowlarr（推荐）
+如果你想通过微信、Telegram发送电影电视剧的名称，后台就自动检索各PT站并自动下载，或者使用WEB页面的PT聚合资源搜索功能，则需要配置Jackett/Prowlarr，获取API Key以及Torznab Feed/地址，相关参数填入配置文件。
 
-Jackett的相关配置参考网上的各类教程。
+Jackett/Prowlarr二选一，相关配置参考网上的各类教程。
 
 ### 7、整理存量媒体资源（可选）
 如果你的存量资源所在的目录与你在配置文件Sync中配置的源路径目的路径相同，则可以通过WEBUI或微信的“目录同步”按钮触发全量同步。 如果不相同则可以按以下说明操作，手工输入命令整理特定目录下的媒体资源。
