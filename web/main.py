@@ -1004,7 +1004,7 @@ def create_flask_app(config):
             # 处理消息内容
             content = content.strip()
             if content:
-                handle_message_job(content, user_id)
+                handle_message_job(content, SearchType.WX, user_id)
             return make_response(reponse_text, 200)
 
     # Emby消息通知
@@ -1023,11 +1023,11 @@ def create_flask_app(config):
             message = msg_json.get("message", {})
             text = message.get("text")
             if text:
-                handle_message_job(text)
+                handle_message_job(text, SearchType.TG)
         return 'ok'
 
     # 处理消息事件
-    def handle_message_job(msg, user_id=None):
+    def handle_message_job(msg, in_from=SearchType.OT, user_id=None):
         if msg == "/ptr":
             _thread.start_new_thread(AutoRemoveTorrents().run_schedule, ())
         elif msg == "/ptt":
@@ -1041,6 +1041,6 @@ def create_flask_app(config):
         elif msg == "/db":
             _thread.start_new_thread(DoubanSync().run_schedule, ())
         else:
-            _thread.start_new_thread(Searcher().search_one_media, (msg, SearchType.WX, user_id,))
+            _thread.start_new_thread(Searcher().search_one_media, (msg, in_from, user_id,))
 
     return App

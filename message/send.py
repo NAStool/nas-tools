@@ -34,8 +34,9 @@ class Message:
         app = config.get_config('app')
         if app:
             self.__domain = app.get('domain')
-            if not self.__domain.startswith('http://') and not self.__domain.startswith('https://'):
-                self.__domain = "http://" + self.__domain
+            if self.__domain:
+                if not self.__domain.startswith('http://') and not self.__domain.startswith('https://'):
+                    self.__domain = "http://" + self.__domain
 
     def get_webhook_ignore(self):
         return self.__webhook_ignore or []

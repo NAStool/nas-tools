@@ -23,10 +23,11 @@ class Telegram:
         app = self.__config.get_config('app')
         if app:
             self.__domain = app.get('domain')
-            if not self.__domain.startswith('http://') and not self.__domain.startswith('https://'):
-                self.__domain = "http://" + self.__domain
-            if not self.__domain.endswith('/'):
-                self.__domain = self.__domain + "/"
+            if self.__domain:
+                if not self.__domain.startswith('http://') and not self.__domain.startswith('https://'):
+                    self.__domain = "http://" + self.__domain
+                if not self.__domain.endswith('/'):
+                    self.__domain = self.__domain + "/"
         message = self.__config.get_config('message')
         if message:
             self.__telegram_token = message.get('telegram', {}).get('telegram_token')

@@ -67,7 +67,7 @@ class Searcher:
         media_info = self.media.get_media_info(title=content, mtype=mtype, strict=True)
         if media_info and media_info.tmdb_info:
             log.info("类型：%s，标题：%s，年份：%s" % (media_info.type.value, media_info.title, media_info.year))
-            if in_from == SearchType.WX:
+            if in_from in [SearchType.WX, SearchType.TG]:
                 self.message.sendmsg(title="类型：%s，标题：%s，年份：%s" % (media_info.type.value, media_info.title, media_info.year), user_id=user_id)
             # 检查是否存在，电视剧返回不存在的集清单
             exist_flag, no_exists = self.downloader.check_exists_medias(in_from=in_from,
@@ -77,13 +77,13 @@ class Searcher:
             elif exist_flag:
                 return True
         else:
-            if in_from == SearchType.WX:
+            if in_from in [SearchType.WX, SearchType.TG]:
                 self.message.sendmsg(title="%s 无法查询到任何电影或者电视剧信息，请确认名称是否正确" % content, user_id=user_id)
             log.info("【SEARCHER】%s 无法查询到任何电影或者电视剧信息，请确认名称是否正确" % content)
             return False
 
         # 开始真正搜索资源
-        if in_from == SearchType.WX:
+        if in_from in [SearchType.WX, SearchType.TG]:
             self.message.sendmsg(title="开始检索 %s ..." % media_info.title, user_id=user_id)
         log.info("【SEARCHER】开始检索 %s ..." % media_info.title)
         # 查找的季
@@ -103,11 +103,11 @@ class Searcher:
                                         whole_word=True)
         if len(media_list) == 0:
             log.info("%s 未检索到任何资源" % media_info.title)
-            if in_from == SearchType.WX:
+            if in_from in [SearchType.WX, SearchType.TG]:
                 self.message.sendmsg(title="%s 未检索到任何资源" % media_info.title, user_id=user_id)
             return False
         else:
-            if in_from == SearchType.WX:
+            if in_from in [SearchType.WX, SearchType.TG]:
                 # 保存微信搜索记录
                 delete_all_search_torrents()
                 # 插入数据库
@@ -120,14 +120,14 @@ class Searcher:
                                      url='search',
                                      user_id=user_id)
             # 微信未开自动下载时返回
-            if in_from == SearchType.WX and not self.__wechat_auto:
+            if in_from in [SearchType.WX, SearchType.TG] and not self.__wechat_auto:
                 return False
             # 择优下载
             download_num, left_medias = self.downloader.check_and_add_pt(in_from, media_list, no_exists)
             # 统计下载情况，下全了返回True，没下全返回False
             if download_num == 0:
                 log.info("【SEARCHER】%s 搜索结果中没有符合下载条件的资源" % content)
-                if in_from == SearchType.WX:
+                if in_from in [SearchType.WX, SearchType.TG]:
                     self.message.sendmsg(title="%s 搜索结果中没有符合下载条件的资源" % content, user_id=user_id)
                 return False
             else:

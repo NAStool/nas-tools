@@ -24,6 +24,7 @@ class SearchType(Enum):
     DB = "豆瓣收藏"
     RSS = "RSS订阅"
     OT = "手动下载"
+    TG = "Telegram搜索"
 
 
 class RmtMode(Enum):
