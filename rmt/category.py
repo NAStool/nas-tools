@@ -30,15 +30,15 @@ class Category:
                 if not os.path.exists(self.__category_path):
                     cfg_tp_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../config", "default-category.yaml")
                     shutil.copy(cfg_tp_path, self.__category_path)
-                    log.printf("【ERROR】分类配置文件 %s.yaml 不存在，已将配置文件模板复制到配置目录..." % category)
+                    log.console("【ERROR】分类配置文件 %s.yaml 不存在，已将配置文件模板复制到配置目录..." % category)
                 with open(self.__category_path, mode='r', encoding='utf-8') as f:
                     try:
                         self.__categorys = yaml.safe_load(f)
                     except yaml.YAMLError as e:
-                        log.printf("【ERROR】%s.yaml 分类配置文件格式出现严重错误！请检查：%s" % (category, str(e)))
+                        log.console("【ERROR】%s.yaml 分类配置文件格式出现严重错误！请检查：%s" % (category, str(e)))
                         self.__categorys = {}
             except Exception as err:
-                log.printf("【ERROR】加载 %s.yaml 配置出错：%s" % (category, str(err)))
+                log.console("【ERROR】加载 %s.yaml 配置出错：%s" % (category, str(err)))
                 return False
 
             if self.__categorys:

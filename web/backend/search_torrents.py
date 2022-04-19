@@ -1,8 +1,8 @@
 import re
 import cn2an
 import log
-from pt.jackett import Jackett
-from utils.sqls import insert_jackett_results, delete_all_jackett_torrents
+from pt.searcher import Searcher
+from utils.sqls import insert_search_results, delete_all_search_torrents
 
 
 def search_medias_for_web(content):
@@ -12,25 +12,25 @@ def search_medias_for_web(content):
         log.info("【WEB】检索关键字有误！" % content)
         return
     log.info("【WEB】开始检索 %s ..." % content)
-    jackett = Jackett()
-    media_list = jackett.search_medias_from_word(key_word=key_word,
-                                                 s_num=season_num,
-                                                 e_num=episode_num,
-                                                 year=year,
-                                                 mtype=None,
-                                                 whole_word=False)
-    delete_all_jackett_torrents()
+    searcher = Searcher()
+    media_list = searcher.search_medias(key_word=key_word,
+                                        s_num=season_num,
+                                        e_num=episode_num,
+                                        year=year,
+                                        mtype=None,
+                                        whole_word=False)
+    delete_all_search_torrents()
     if len(media_list) == 0:
         log.info("【WEB】%s 未检索到任何媒体资源" % content)
         return
     else:
         log.info("【WEB】共检索到 %s 个有效资源" % len(media_list))
         # 分组择优
-        media_list = jackett.get_torrents_group_item(media_list)
+        media_list = searcher.get_torrents_group_item(media_list)
         log.info("【WEB】分组择优后剩余 %s 个有效资源" % len(media_list))
         # 插入数据库
         for media_item in media_list:
-            insert_jackett_results(media_item)
+            insert_search_results(media_item)
 
 
 # 从检索关键字中拆分中年份、季、集、类型

@@ -34,11 +34,13 @@ class Message:
         app = config.get_config('app')
         if app:
             self.__domain = app.get('domain')
+            if not self.__domain.startswith('http://') and not self.__domain.startswith('https://'):
+                self.__domain = "http://" + self.__domain
 
     def get_webhook_ignore(self):
         return self.__webhook_ignore or []
 
-    def sendmsg(self, title, text="", image="", url=""):
+    def sendmsg(self, title, text="", image="", url="", user_id=""):
         log.info("【MSG】发送%s消息：title=%s, text=%s" % (self.__msg_channel, title, text))
         if self.__domain:
             if url:
@@ -48,7 +50,7 @@ class Message:
         else:
             url = ""
         if self.__msg_channel == "wechat":
-            return self.wechat.send_wechat_msg(title, text, image, url)
+            return self.wechat.send_wechat_msg(title, text, image, url, user_id)
         elif self.__msg_channel == "serverchan":
             return self.serverchan.send_serverchan_msg(title, text)
         elif self.__msg_channel == "telegram":

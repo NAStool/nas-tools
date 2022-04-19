@@ -39,25 +39,6 @@ media:
   # 【转移到媒体库的最小文件大小】：避免预告片/MV等影响识别，单位M
   min_filesize: 200
 
-# 【配置文件夹监控】：文件夹内容发生变化时自动识别转移
-sync:
-  # 【监控目录列表】：监控目录有文件变化时会自动进行媒体识别、转移并命名
-  # 可以配置多个，使用|分隔，按'源目录|目的目录|未识别目录'格式配置，源目录为需要同步的目录，目的目录为识别和改名后存放的目录，未识别目录为无法识别时转移的目录
-  # 配置格式1：'源目录'，比如：'/mnt/pt'，源目录文件会自动识别是电影、电视剧或动漫并分别转移到media中配置的movie_path、tv_path、anime_path目录中，未识别的会转移到media中配置的unknown_path中
-  # 配置格式2：'源目录|目的目录'，比如：'/mnt/pt_movie|mnt/emby_movie'，源目录中文件不会区分类型，均往目的目录转移，未识别的会转移到media中配置的unknown_path中
-  # 配置格式3：'源目录|目的目录|未识别目录'，比如：'/mnt/pt_movie|mnt/emby_movie|emby_unknown'，源目录中文件不会区分类型，均往目的目录转移，未识别的会转移到未识别目录中
-  # 一行的三个目录需要在同一个磁盘分区/共享目录中，有多个目录的，需要映射上级目录，源目录和目的目录为子目录，如果分开映射则可能发生跨盘的问题
-  sync_path:
-    - '/mnt/resiliosync/大片抢先看'
-    - '/mnt/pt|/mnt/emby'
-    - '/mnt/pt|/mnt/emby|/mnt/unknown'
-  # 【监控目录文件的转移方式】：link、copy、softlink，link即硬链接、softlink为软链接，copy为复制，均会重命名
-  # link要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间，Docker运行时link模式需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker可能仍然会认为是跨盘
-  # softlink模式注意宿主机的源目录映射到docker容器中后要路径要一致，否则可能软链接成功但无法在宿主机使用
-  sync_mod: link
-  # 【监控目录操作系统类型】：windows、linux。如果是windows，目录监控功能性能会比较差，会导致NAS不能休眠，除非挂载的windows的远程共享目录，否则建议设置为linux
-  nas_sys: linux
-
 # 【配置消息通知服务】
 message:
   # 【发送消息使用的渠道】：wechat、serverchan、telegram、bark，需在对应的配置区域配置。不使用的渠道配置可以留空或者删除。推荐使用wechat微信渠道。不设置则不启用消息服务
@@ -96,3 +77,22 @@ message:
     server: https://api.day.app
     # Bark客户端生成的KEY
     apikey:
+
+# 【配置文件夹监控】：文件夹内容发生变化时自动识别转移
+sync:
+  # 【监控目录列表】：监控目录有文件变化时会自动进行媒体识别、转移并命名
+  # 可以配置多个，使用|分隔，按'源目录|目的目录|未识别目录'格式配置，源目录为需要同步的目录，目的目录为识别和改名后存放的目录，未识别目录为无法识别时转移的目录
+  # 配置格式1：'源目录'，比如：'/mnt/pt'，源目录文件会自动识别是电影、电视剧或动漫并分别转移到media中配置的movie_path、tv_path、anime_path目录中，未识别的会转移到media中配置的unknown_path中
+  # 配置格式2：'源目录|目的目录'，比如：'/mnt/pt_movie|mnt/emby_movie'，源目录中文件不会区分类型，均往目的目录转移，未识别的会转移到media中配置的unknown_path中
+  # 配置格式3：'源目录|目的目录|未识别目录'，比如：'/mnt/pt_movie|mnt/emby_movie|emby_unknown'，源目录中文件不会区分类型，均往目的目录转移，未识别的会转移到未识别目录中
+  # 一行的三个目录需要在同一个磁盘分区/共享目录中，有多个目录的，需要映射上级目录，源目录和目的目录为子目录，如果分开映射则可能发生跨盘的问题
+  sync_path:
+    - '/mnt/resiliosync/大片抢先看'
+    - '/mnt/pt|/mnt/emby'
+    - '/mnt/pt|/mnt/emby|/mnt/unknown'
+  # 【监控目录文件的转移方式】：link、copy、softlink，link即硬链接、softlink为软链接，copy为复制，均会重命名
+  # link要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间，Docker运行时link模式需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker可能仍然会认为是跨盘
+  # softlink模式注意宿主机的源目录映射到docker容器中后要路径要一致，否则可能软链接成功但无法在宿主机使用
+  sync_mod: link
+  # 【监控目录操作系统类型】：windows、linux。如果是windows，目录监控功能性能会比较差，会导致NAS不能休眠，除非挂载的windows的远程共享目录，否则建议设置为linux
+  nas_sys: linux

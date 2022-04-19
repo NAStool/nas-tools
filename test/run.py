@@ -1,20 +1,7 @@
-import os
-import re
-
-import anitopy
-
-from message.send import Message
-from pt.downloader import Downloader
-from pt.jackett import Jackett
-from pt.rss import Rss
+from pt.searcher import Searcher
 from rmt.filetransfer import FileTransfer
-from rmt.media import Media
 from rmt.metainfo import MetaInfo
-from utils.db_helper import select_by_sql
-from utils.functions import is_anime
-from utils.sqls import get_tv_keys
-from utils.types import SearchType, SyncType
-from web.backend.search_torrents import search_medias_for_web
+from utils.types import SyncType
 
 if __name__ == "__main__":
     '''
@@ -83,8 +70,8 @@ if __name__ == "__main__":
     print(MetaInfo('西部世界 02.mkv').__dict__)
     print(MetaInfo('1.mkv').__dict__)
     '''
-    # print(MetaInfo('1001.mkv').__dict__)
+    # print(MetaInfo('刺客伍六七.第03季.Scissor.Seven.Ⅲ.2021.第06话.WEB-DL.1080P.AVC.DD+2.0＆AAC.GB-XHGM.mkv').__dict__)
     # print(MetaInfo('刺客伍六七.第03季.Scissor.Seven.Ⅲ.2021.第1136话.WEB-DL.1080P.AVC.DD+2.0＆AAC.GB-XHGM.mkv').__dict__)
-    # FileTransfer().transfer_media(in_from=SyncType.MAN, in_path="C:\\Users\\jxxgh\\Documents\\Sync\\我和我的祖国 2019")
-    # Jackett().search_one_media("医是医，二是二")
-    print(Media().get_media_info('[SBSUB][名侦探柯南][1038][1080P][AVC_ACC][CHS_JP](08C1CD72)'))
+    # FileTransfer().transfer_media(in_from=SyncType.MAN, in_path="C:\\Users\\jxxgh\\Documents\\TV\\Breaking.Bad.Season.3.Episode.10.Fly.REMUX-FraMeSToR.mkv")
+    # Searcher().search_one_media("归来")
+    print(MetaInfo('Breaking.Bad.Season.3.Episode.10.Fly.WEB-DL.REMUX-FraMeSToR.mkv').__dict__)

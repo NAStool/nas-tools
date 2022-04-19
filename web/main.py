@@ -13,7 +13,7 @@ import log
 from monitor.media_sync import Sync
 from monitor.run import restart_monitor
 from pt.downloader import Downloader
-from pt.jackett import Jackett
+from pt.searcher import Searcher
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
@@ -26,7 +26,7 @@ from message.send import Message
 
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE
 from utils.functions import get_used_of_partition, str_filesize, str_timelong, INSTANCES
-from utils.sqls import get_jackett_result_by_id, get_jackett_results, get_movie_keys, get_tv_keys, insert_movie_key, \
+from utils.sqls import get_search_result_by_id, get_search_results, get_movie_keys, get_tv_keys, insert_movie_key, \
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
     delete_transfer_log_by_id
@@ -272,7 +272,7 @@ def create_flask_app(config):
         # 查询结果
         SearchWord = request.args.get("s")
         NeedSearch = request.args.get("f")
-        res = get_jackett_results()
+        res = get_search_results()
         return render_template("search.html",
                                SearchWord=SearchWord or "",
                                NeedSearch=NeedSearch or "",
@@ -438,7 +438,7 @@ def create_flask_app(config):
             else:
                 title = "%s %s" % (media_info.get_title_string(), media_info.get_season_episode_string())
             poster_path = media_info.poster_path
-            torrent_info = {'id': key, 'title': title, 'speed': speed, 'image': poster_path, 'state': state,
+            torrent_info = {'id': key, 'title': title, 'speed': speed, 'image': poster_path or "", 'state': state,
                             'progress': progress}
             if torrent_info not in DispTorrents:
                 DownloadCount += 1
@@ -735,7 +735,7 @@ def create_flask_app(config):
             # 添加下载
             if cmd == "download":
                 dl_id = data.get("id")
-                results = get_jackett_result_by_id(dl_id)
+                results = get_search_result_by_id(dl_id)
                 for res in results:
                     if res[7] == "TV":
                         mtype = MediaType.TV
@@ -932,7 +932,7 @@ def create_flask_app(config):
                             shutil.rmtree(dest_path)
                             delete_transfer_log_by_id(logid)
                         except Exception as e:
-                            log.printf(str(e))
+                            log.console(str(e))
                 return {"retcode": 0}
 
             # 查询实时日志
@@ -953,7 +953,7 @@ def create_flask_app(config):
                         version = ver_json["tag_name"]
                         info = f'<a href="{ver_json["html_url"]}" target="_blank">{version}</a>'
                 except Exception as e:
-                    log.printf(str(e))
+                    log.console(str(e))
                     code = -1
                 return {"code": code, "version": version, "info": info}
 
@@ -989,6 +989,7 @@ def create_flask_app(config):
             reponse_text = ""
             try:
                 msg_type = xml_tree.find("MsgType").text
+                user_id = xml_tree.find("FromUserName").text
                 if msg_type == "event":
                     event_key = xml_tree.find("EventKey").text
                     log.info("点击菜单：" + event_key)
@@ -1002,23 +1003,8 @@ def create_flask_app(config):
                 return make_response("", 200)
             # 处理消息内容
             content = content.strip()
-            if content == "/ptr":
-                _thread.start_new_thread(AutoRemoveTorrents().run_schedule, ())
-            elif content == "/ptt":
-                _thread.start_new_thread(PTTransfer().run_schedule, ())
-            elif content == "/pts":
-                _thread.start_new_thread(PTSignin().run_schedule, ())
-            elif content == "/rst":
-                _thread.start_new_thread(Sync().transfer_all_sync, ())
-            elif content == "/rss":
-                _thread.start_new_thread(RSSDownloader().run_schedule, ())
-            elif content == "/db":
-                _thread.start_new_thread(DoubanSync().run_schedule, ())
-            elif content.startswith("http://") or content.startswith("https://") or content.startswith("magnet:"):
-                _thread.start_new_thread(Downloader().add_pt_torrent, (content,))
-            else:
-                _thread.start_new_thread(Jackett().search_one_media, (content, SearchType.WX,))
-
+            if content:
+                handle_message_job(content, user_id)
             return make_response(reponse_text, 200)
 
     # Emby消息通知
@@ -1029,5 +1015,32 @@ def create_flask_app(config):
         event = EmbyEvent(request_json)
         event.report_to_discord()
         return 'Success'
+
+    @App.route('/telegram', methods=['POST', 'GET'])
+    def telegram():
+        msg_json = request.get_json()
+        if msg_json:
+            message = msg_json.get("message", {})
+            text = message.get("text")
+            if text:
+                handle_message_job(text)
+        return 'ok'
+
+    # 处理消息事件
+    def handle_message_job(msg, user_id=None):
+        if msg == "/ptr":
+            _thread.start_new_thread(AutoRemoveTorrents().run_schedule, ())
+        elif msg == "/ptt":
+            _thread.start_new_thread(PTTransfer().run_schedule, ())
+        elif msg == "/pts":
+            _thread.start_new_thread(PTSignin().run_schedule, ())
+        elif msg == "/rst":
+            _thread.start_new_thread(Sync().transfer_all_sync, ())
+        elif msg == "/rss":
+            _thread.start_new_thread(RSSDownloader().run_schedule, ())
+        elif msg == "/db":
+            _thread.start_new_thread(DoubanSync().run_schedule, ())
+        else:
+            _thread.start_new_thread(Searcher().search_one_media, (msg, SearchType.WX, user_id,))
 
     return App

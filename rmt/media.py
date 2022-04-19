@@ -209,6 +209,8 @@ class Media:
                 tmdb_info = self.get_tmdb_movie_info(tmdbid)
             else:
                 tmdb_info = self.get_tmdb_tv_info(tmdbid)
+        if tmdb_info:
+            tmdb_info['media_type'] = mtype
         return tmdb_info
 
     # 只有名称信息，判别是电影还是电视剧并TMDB信息
@@ -407,7 +409,7 @@ class Media:
         try:
             return self.movie.details(tmdbid)
         except Exception as e:
-            log.printf(str(e))
+            log.console(str(e))
             return {}
 
     # 获取电视剧的详情
@@ -417,5 +419,5 @@ class Media:
         try:
             return self.tv.details(tmdbid)
         except Exception as e:
-            log.printf(str(e))
+            log.console(str(e))
             return {}

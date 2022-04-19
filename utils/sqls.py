@@ -6,8 +6,8 @@ from utils.functions import str_filesize, xstr, is_ses_in_ses
 from utils.types import MediaType
 
 
-# 将Jackett返回信息插入数据库
-def insert_jackett_results(media_item):
+# 将返回信息插入数据库
+def insert_search_results(media_item):
     if media_item.org_string:
         org_string = media_item.org_string.replace("'", "''")
     else:
@@ -23,7 +23,7 @@ def insert_jackett_results(media_item):
         mtype = "MOV"
     else:
         mtype = "ANI"
-    sql = "INSERT INTO JACKETT_TORRENTS(" \
+    sql = "INSERT INTO SEARCH_TORRENTS(" \
           "TORRENT_NAME," \
           "ENCLOSURE," \
           "DESCRIPTION," \
@@ -65,15 +65,15 @@ def insert_jackett_results(media_item):
     return update_by_sql(sql)
 
 
-# 根据ID从数据库中查询Jackett检索结果的一条记录
-def get_jackett_result_by_id(dl_id):
-    sql = "SELECT ENCLOSURE,TITLE,YEAR,SEASON,EPISODE,VOTE,IMAGE,TYPE,TORRENT_NAME,DESCRIPTION,SIZE FROM JACKETT_TORRENTS WHERE ID=%s" % dl_id
+# 根据ID从数据库中查询检索结果的一条记录
+def get_search_result_by_id(dl_id):
+    sql = "SELECT ENCLOSURE,TITLE,YEAR,SEASON,EPISODE,VOTE,IMAGE,TYPE,TORRENT_NAME,DESCRIPTION,SIZE FROM SEARCH_TORRENTS WHERE ID=%s" % dl_id
     return select_by_sql(sql)
 
 
-# 查询Jackett检索结果的所有记录
-def get_jackett_results():
-    sql = "SELECT ID,TITLE||' ('||YEAR||') '||ES_STRING,RES_TYPE,SIZE,SEEDERS,ENCLOSURE,SITE,YEAR,ES_STRING,IMAGE,TYPE,VOTE*1,TORRENT_NAME,DESCRIPTION FROM JACKETT_TORRENTS ORDER BY TITLE, SEEDERS DESC"
+# 查询检索结果的所有记录
+def get_search_results():
+    sql = "SELECT ID,TITLE||' ('||YEAR||') '||ES_STRING,RES_TYPE,SIZE,SEEDERS,ENCLOSURE,SITE,YEAR,ES_STRING,IMAGE,TYPE,VOTE*1,TORRENT_NAME,DESCRIPTION FROM SEARCH_TORRENTS ORDER BY TITLE, SEEDERS DESC"
     return select_by_sql(sql)
 
 
@@ -174,9 +174,9 @@ def is_torrent_rssd_by_name(media_title, media_year, media_seaion, media_episode
     return False
 
 
-# 删除所有JACKETT的记录
-def delete_all_jackett_torrents():
-    return update_by_sql("DELETE FROM JACKETT_TORRENTS")
+# 删除所有搜索的记录
+def delete_all_search_torrents():
+    return update_by_sql("DELETE FROM SEARCH_TORRENTS")
 
 
 # 将RSS的记录插入数据库

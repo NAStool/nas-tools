@@ -193,26 +193,6 @@
                 <label class="form-label">季</label>
                 <select class="form-select" id="rename_season">
                   <option value="" selected>请选择</option>
-                  <option value="1">第1季</option>
-                  <option value="2">第2季</option>
-                  <option value="3">第3季</option>
-                  <option value="4">第4季</option>
-                  <option value="5">第5季</option>
-                  <option value="6">第6季</option>
-                  <option value="7">第7季</option>
-                  <option value="8">第8季</option>
-                  <option value="9">第9季</option>
-                  <option value="10">第10季</option>
-                  <option value="11">第11季</option>
-                  <option value="12">第12季</option>
-                  <option value="13">第13季</option>
-                  <option value="14">第14季</option>
-                  <option value="15">第15季</option>
-                  <option value="16">第16季</option>
-                  <option value="17">第17季</option>
-                  <option value="18">第18季</option>
-                  <option value="19">第19季</option>
-                  <option value="20">第20季</option>
                 </select>
               </div>
             </div>
@@ -285,6 +265,11 @@
       $("#rename_path").val(path);
       $("#rename_logid").val(id);
       $('#modal-rename').modal('show');
+      $("#rename_season").empty();
+      $("#rename_season").append('<option value="" selected>请选择</option>');
+      for(var i=0; i<=50; i++){
+        $("#rename_season").append('<option value="' + i + '">第' + i +'季</option>');
+      }
     }
 
     //手动转移

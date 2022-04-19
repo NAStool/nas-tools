@@ -56,12 +56,12 @@ class WeChat(object):
                         self.__expires_in = ret_json['expires_in']
                         self.__access_token_time = datetime.now()
             except Exception as e:
-                log.printf(str(e))
+                log.console(str(e))
                 return None
         return self.__access_token
 
     # 发送文本消息
-    def send_message(self, title, text):
+    def send_message(self, title, text, user_id):
         message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.get_access_token()
         if not self.__agent_id:
             return False, "参数未配置"
@@ -69,8 +69,10 @@ class WeChat(object):
             conent = "%s\n%s" % (title, text.replace("\n\n", "\n"))
         else:
             conent = title
+        if not user_id:
+            user_id = "@all"
         req_json = {
-            "touser": "@all",
+            "touser": user_id,
             "msgtype": "text",
             "agentid": self.__agent_id,
             "text": {
@@ -95,15 +97,16 @@ class WeChat(object):
             return False, str(err)
 
     # 发送图文消息
-    def send_image_message(self, title, text, image_url, url):
+    def send_image_message(self, title, text, image_url, url, user_id):
         message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.get_access_token()
         if not self.__agent_id:
             return False, "参数未配置"
         if text:
             text = text.replace("\n\n", "\n")
-
+        if not user_id:
+            user_id = "@all"
         req_json = {
-            "touser": "@all",
+            "touser": user_id,
             "msgtype": "news",
             "agentid": self.__agent_id,
             "news": {
@@ -131,11 +134,11 @@ class WeChat(object):
         except Exception as err:
             return False, str(err)
 
-    def send_wechat_msg(self, title, text, image, url):
+    def send_wechat_msg(self, title, text, image, url, user_id):
         if not title and not text:
             return -1, "标题和内容不能同时为空"
         if image:
-            ret_code, ret_msg = self.send_image_message(title, text, image, url)
+            ret_code, ret_msg = self.send_image_message(title, text, image, url, user_id)
         else:
-            ret_code, ret_msg = self.send_message(title, text)
+            ret_code, ret_msg = self.send_message(title, text, user_id)
         return ret_code, ret_msg

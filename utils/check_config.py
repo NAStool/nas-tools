@@ -13,19 +13,19 @@ def check_config(cfg):
             logtype = logtype.upper()
         else:
             logtype = "CONSOLE"
-        log.printf("日志输出类型为：%s" % logtype)
+        log.console("日志输出类型为：%s" % logtype)
         if logtype == "SERVER":
             logserver = config['app'].get('logserver')
             if not logserver:
-                log.printf("【ERROR】logserver未配置，无法正常输出日志")
+                log.console("【ERROR】logserver未配置，无法正常输出日志")
             else:
-                log.printf("日志将上送到服务器：%s" % logserver)
+                log.console("日志将上送到服务器：%s" % logserver)
         elif logtype == "FILE":
             logpath = config['app'].get('logpath')
             if not logpath:
-                log.printf("【ERROR】logpath未配置，无法正常输出日志")
+                log.console("【ERROR】logpath未配置，无法正常输出日志")
             else:
-                log.printf("日志将写入文件：%s" % logpath)
+                log.console("日志将写入文件：%s" % logpath)
 
         # 检查WEB端口
         web_port = config['app'].get('web_port')
@@ -67,7 +67,14 @@ def check_config(cfg):
         else:
             log.info("TMDB匹配模式：正常模式")
     else:
-        log.printf("app配置不存在")
+        log.console("app配置不存在")
+
+    # 检查Emby配置
+    if not config.get('emby'):
+        log.warn("emby未配置，部分功能将无法使用")
+    else:
+        if not config['emby'].get('host') or not config['emby'].get('api_key'):
+            log.warn("emby配置不完整，部分功能将无法使用")
 
     # 检查媒体库目录路径
     if config.get('media'):
@@ -113,41 +120,6 @@ def check_config(cfg):
     else:
         log.error("media配置不存在")
 
-    if config.get('sync'):
-        sync_paths = config['sync'].get('sync_path')
-        if sync_paths:
-            for sync_path in sync_paths:
-                if sync_path.find('|') != -1:
-                    sync_path = sync_path.split("|")[0]
-                if not os.path.exists(sync_path):
-                    log.warn("sync_path目录不存在，该目录监控资源同步功能已关闭：%s" % sync_path)
-
-        sync_mod = config['sync'].get('sync_mod')
-        if sync_mod:
-            sync_mod = sync_mod.upper()
-        else:
-            sync_mod = "COPY"
-        if sync_mod == "LINK":
-            log.info("目录监控转移模式为：硬链接")
-        elif sync_mod == "SOFTLINK":
-            log.info("目录监控转移模式为：软链接")
-        else:
-            log.info("目录监控转移模式为：复制")
-
-    # 检查Emby配置
-    if not config.get('emby'):
-        log.warn("emby未配置，部分功能将无法使用")
-    else:
-        if not config['emby'].get('host') or not config['emby'].get('api_key'):
-            log.warn("emby配置不完整，部分功能将无法使用")
-
-    # 检查Douban配置
-    if not config.get('douban'):
-        log.warn("douban未配置，豆瓣同步功能将无法使用")
-    else:
-        if not config['douban'].get('users') or not config['douban'].get('types') or not config['douban'].get('days'):
-            log.warn("douban配置不完整，豆瓣同步功能将无法使用")
-
     # 检查消息配置
     if config.get('message'):
         msg_channel = config['message'].get('msg_channel')
@@ -175,42 +147,30 @@ def check_config(cfg):
     else:
         log.warn("message未配置，将无法接收到通知消息")
 
-    # 检查PT配置
-    if config.get('pt'):
-        rmt_mode = config['pt'].get('rmt_mode', 'copy')
-        if rmt_mode:
-            rmt_mode = rmt_mode.upper()
+    # 检查目录监控
+    if config.get('sync'):
+        sync_paths = config['sync'].get('sync_path')
+        if sync_paths:
+            for sync_path in sync_paths:
+                if sync_path.find('|') != -1:
+                    sync_path = sync_path.split("|")[0]
+                if not os.path.exists(sync_path):
+                    log.warn("sync_path目录不存在，该目录监控资源同步功能已关闭：%s" % sync_path)
+
+        sync_mod = config['sync'].get('sync_mod')
+        if sync_mod:
+            sync_mod = sync_mod.upper()
         else:
-            rmt_mode = "COPY"
-        if rmt_mode == "LINK":
-            log.info("PT下载文件转移模式为：硬链接")
-        elif rmt_mode == "SOFTLINK":
+            sync_mod = "COPY"
+        if sync_mod == "LINK":
+            log.info("目录监控转移模式为：硬链接")
+        elif sync_mod == "SOFTLINK":
             log.info("目录监控转移模式为：软链接")
         else:
-            log.info("PT下载文件转移模式为：复制")
+            log.info("目录监控转移模式为：复制")
 
-        rss_chinese = config['pt'].get('rss_chinese')
-        if rss_chinese:
-            log.info("rss_chinese配置为true，将只会下载含中文标题的影视资源")
-
-        ptsignin_cron = config['pt'].get('ptsignin_cron')
-        if not ptsignin_cron:
-            log.info("ptsignin_cron未配置，PT站签到功能已关闭")
-
-        pt_seeding_time = config['pt'].get('pt_seeding_time')
-        if not pt_seeding_time:
-            log.info("pt_seeding_time未配置，自动删种功能已关闭")
-        else:
-            log.info("PT保种时间设置为：%s 小时" % str(round(pt_seeding_time / 3600)))
-
-        pt_check_interval = config['pt'].get('pt_check_interval')
-        if not pt_check_interval:
-            log.info("pt_check_interval未配置，RSS订阅自动更新功能已关闭")
-
-        pt_monitor = config['pt'].get('pt_monitor')
-        if not pt_monitor:
-            log.info("pt_monitor未配置，PT下载监控功能已关闭")
-
+    # 检查PT配置
+    if config.get('pt'):
         pt_client = config['pt'].get('pt_client')
         log.info("PT下载软件设置为：%s" % pt_client)
         if pt_client == "qbittorrent":
@@ -237,11 +197,60 @@ def check_config(cfg):
                     if isinstance(save_path, dict):
                         if not save_path.get('tv') or not save_path.get('movie'):
                             log.warn("transmission save_path配置不完整，请检查配置！")
+                            
+        rmt_mode = config['pt'].get('rmt_mode', 'copy')
+        if rmt_mode:
+            rmt_mode = rmt_mode.upper()
+        else:
+            rmt_mode = "COPY"
+        if rmt_mode == "LINK":
+            log.info("PT下载文件转移模式为：硬链接")
+        elif rmt_mode == "SOFTLINK":
+            log.info("目录监控转移模式为：软链接")
+        else:
+            log.info("PT下载文件转移模式为：复制")
+
+        rss_chinese = config['pt'].get('rss_chinese')
+        if rss_chinese:
+            log.info("rss_chinese配置为true，将只会下载含中文标题的影视资源")            
+
+        search_indexer = config['pt'].get('search_indexer')
+        if search_indexer:
+            log.info("PT检索软件设置为：%s" % search_indexer)
+
+        search_auto = config['pt'].get('search_auto')
+        if search_auto:
+            log.info("微信等移动端渠道搜索已开启自动择优下载")
+
+        ptsignin_cron = config['pt'].get('ptsignin_cron')
+        if not ptsignin_cron:
+            log.info("ptsignin_cron未配置，PT站签到功能已关闭")
+
+        pt_seeding_time = config['pt'].get('pt_seeding_time')
+        if not pt_seeding_time:
+            log.info("pt_seeding_time未配置，自动删种功能已关闭")
+        else:
+            log.info("PT保种时间设置为：%s 小时" % str(round(pt_seeding_time / 3600)))
+
+        pt_check_interval = config['pt'].get('pt_check_interval')
+        if not pt_check_interval:
+            log.info("pt_check_interval未配置，RSS订阅自动更新功能已关闭")
+
+        pt_monitor = config['pt'].get('pt_monitor')
+        if not pt_monitor:
+            log.info("pt_monitor未配置，PT下载监控功能已关闭")
 
         sites = config['pt'].get('sites')
         if not sites:
             log.warn("sites未配置，RSS订阅下载功能已关闭")
     else:
         log.warn("pt未配置，部分功能将无法使用")
+
+    # 检查Douban配置
+    if not config.get('douban'):
+        log.warn("douban未配置，豆瓣同步功能将无法使用")
+    else:
+        if not config['douban'].get('users') or not config['douban'].get('types') or not config['douban'].get('days'):
+            log.warn("douban配置不完整，豆瓣同步功能将无法使用")
 
     return True

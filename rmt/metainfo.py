@@ -91,7 +91,7 @@ class MetaInfo(object):
                         r"|TV|Series|Movie|Animations|XXX" \
                         r"|连载|日剧|美剧|电视剧|电影|动画片|动漫|欧美|西德|日韩|超高清|高清|蓝光|翡翠台" \
                         r"|最终季|合集|[中国英葡法俄日韩德意西印泰台港粤双文语简繁体特效内封官译外挂]+字幕" \
-                        r"|未删减版|UNCUT|UNRATE|WITH EXTRAS|RERIP|SUBBED|PROPER|REPACK" \
+                        r"|未删减版|UNCUT|UNRATE|WITH EXTRAS|RERIP|SUBBED|PROPER|REPACK|SEASON|EPISODE" \
                         r"|PART[\s.]*[1-9]|CD[\s.]*[1-9]|DVD[\s.]*[1-9]|DISK[\s.]*[1-9]|DISC[\s.]*[1-9]" \
                         r"|[248]K|\d{3,4}[PIX]+"
     _resources_pix_re = r"^[SBUHD]*(\d{3,4}[PIX]+)"
@@ -234,7 +234,7 @@ class MetaInfo(object):
                     # 分辨率
                     self.resource_pix = anitopy_info.get("video_resolution")
             except Exception as e:
-                log.printf(str(e))
+                log.console(str(e))
 
     def __init_name(self, token):
         if not token:
@@ -392,14 +392,24 @@ class MetaInfo(object):
         elif token.isdigit():
             if self.begin_season \
                     and not self.end_season \
-                    and (0 < int(token) < 100) \
-                    and (int(token) > self.begin_season) \
+                    and len(token) < 3 \
+                    and int(token) > self.begin_season \
                     and self._last_token_type == "season":
                 self.end_season = int(token)
                 self.total_seasons = (self.end_season - self.begin_season) + 1
                 self._last_token_type = "season"
+                self._continue_flag = False
+            elif self._last_token_type == "SEASON" \
+                    and not self.begin_season \
+                    and len(token) < 3:
+                self.begin_season = int(token)
+                self.total_seasons = 1
+                self._last_token_type = "season"
                 self._stop_name_flag = True
                 self._continue_flag = False
+                self.type = MediaType.TV
+        elif token.upper() == "SEASON" and not self.begin_season:
+            self._last_token_type = "SEASON"
 
     def __init_episode(self, token):
         if not self.get_name():
@@ -432,22 +442,33 @@ class MetaInfo(object):
         elif token.isdigit():
             if self.begin_episode \
                     and not self.end_episode \
-                    and (0 < len(token) < 5) \
-                    and (int(token) > self.begin_episode) \
+                    and len(token) < 5 \
+                    and int(token) > self.begin_episode \
                     and self._last_token_type == "episode":
                 self.end_episode = int(token)
                 self.total_episodes = (self.end_episode - self.begin_episode) + 1
                 self._last_token_type = "episode"
-                self._stop_name_flag = True
                 self._continue_flag = False
-                self.type = MediaType.TV
-            elif 1 < len(token) < 5 and token.startswith('0'):
+            elif not self.begin_episode \
+                    and 1 < len(token) < 5 \
+                    and token.startswith('0'):
                 self.begin_episode = int(token)
                 self.total_episodes = 1
                 self._last_token_type = "episode"
                 self._continue_flag = False
                 self._stop_name_flag = True
                 self.type = MediaType.TV
+            elif self._last_token_type == "EPISODE" \
+                    and not self.begin_episode \
+                    and len(token) < 5:
+                self.begin_episode = int(token)
+                self.total_episodes = 1
+                self._last_token_type = "episode"
+                self._continue_flag = False
+                self._stop_name_flag = True
+                self.type = MediaType.TV
+        elif token.upper() == "EPISODE":
+            self._last_token_type = "EPISODE"
 
     def __init_resource_type(self, token):
         if not self.get_name():
@@ -458,20 +479,22 @@ class MetaInfo(object):
             self._continue_flag = False
             self._stop_name_flag = True
             if not self.resource_type:
-                self.resource_type = re_res.group(1).upper()
-                self._last_token = self.resource_type
+                self.resource_type = re_res.group(1)
+                self._last_token = self.resource_type.upper()
 
         else:
-            if token.upper() == "DL" and self._last_token_type == "restype" and self._last_token == "WEB":
+            if token.upper() == "DL" \
+                    and self._last_token_type == "restype" \
+                    and self._last_token == "WEB":
                 self.resource_type = "WEB-DL"
                 self._last_token_type = "restype"
                 self._continue_flag = False
-                self._stop_name_flag = True
-            if token.upper() == "RAY" and self._last_token_type == "restype" and self._last_token == "BLU":
-                self.resource_type = "BLURAY"
+            if token.upper() == "RAY" \
+                    and self._last_token_type == "restype" \
+                    and self._last_token == "BLU":
+                self.resource_type = "BluRay"
                 self._last_token_type = "restype"
                 self._continue_flag = False
-                self._stop_name_flag = True
 
     def __init_subtitle(self, title_text):
         if not title_text:
@@ -746,9 +769,9 @@ class MetaInfo(object):
                             # 有则返回FanArt的图片
                             return moviethumb
             except RequestException as e1:
-                log.printf(str(e1))
+                log.console(str(e1))
             except Exception as e2:
-                log.printf(str(e2))
+                log.console(str(e2))
         if default:
             # 返回一个默认图片
             return default

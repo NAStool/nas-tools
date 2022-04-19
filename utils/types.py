@@ -40,3 +40,8 @@ class MatchMode(Enum):
 class OsType(Enum):
     WINDOWS = "Windows"
     LINUX = "Linux"
+
+
+class IndexerType(Enum):
+    JACKETT = "Jackett"
+    PROWLARR = "Prowlarr"

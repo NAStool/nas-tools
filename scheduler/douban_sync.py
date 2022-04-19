@@ -3,7 +3,7 @@ from threading import Lock
 import log
 from config import Config
 from pt.douban import DouBan
-from pt.jackett import Jackett
+from pt.searcher import Searcher
 from utils.sqls import insert_tv_key, insert_movie_key, get_douban_search_state, insert_douban_media_state
 from utils.types import MediaType, SearchType
 
@@ -15,11 +15,11 @@ class DoubanSync:
     __auto_search = True
     __auto_rss = True
     douban = None
-    jackett = None
+    searcher = None
 
     def __init__(self):
         self.douban = DouBan()
-        self.jackett = Jackett()
+        self.searcher = Searcher()
         self.init_config()
 
     def init_config(self):
@@ -63,8 +63,8 @@ class DoubanSync:
                     else:
                         search_str = "电影 %s %s" % (media.get_name(), media.year)
                     # 开始检索，传入总集数
-                    search_result = self.jackett.search_one_media(input_str=search_str,
-                                                                  in_from=SearchType.DB)
+                    search_result = self.searcher.search_one_media(input_str=search_str,
+                                                                   in_from=SearchType.DB)
 
                     if not search_result:
                         if self.__auto_rss:

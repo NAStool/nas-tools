@@ -1,5 +1,4 @@
 from tmdbv3api.tmdb import TMDb
-from tmdbv3api.as_obj import AsObj
 
 try:
     from urllib import urlencode

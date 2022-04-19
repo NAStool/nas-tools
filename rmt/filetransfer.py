@@ -209,6 +209,9 @@ class FileTransfer:
         retcode = 0
         for file in file_list:
             new_file = file.replace(src_dir, target_dir)
+            if os.path.exists(new_file):
+                log.warn("【RMT】%s 文件已存在" % new_file)
+                continue
             new_dir = os.path.dirname(new_file)
             if not os.path.exists(new_dir):
                 os.makedirs(new_dir)
@@ -237,6 +240,9 @@ class FileTransfer:
         # 文件
         else:
             target_file = os.path.join(target_dir, os.path.basename(file_item))
+            if os.path.exists(target_file):
+                log.warn("【RMT】%s 文件已存在" % target_file)
+                return False
             retcode = self.__transfer_command(file_item, target_file, rmt_mode)
         if retcode == 0:
             log.info("【RMT】%s %s到unknown完成" % (file_item, rmt_mode.value))
@@ -353,7 +359,7 @@ class FileTransfer:
             # 上级目录
             file_path = os.path.dirname(file_item)
             # 未识别
-            if not media or not media.tmdb_info:
+            if not media or not media.tmdb_info or not media.get_title_string():
                 log.warn("【RMT】%s 无法识别媒体信息！" % file_name)
                 # 记录未识别
                 insert_transfer_unknown(max(file_path, in_path), target_dir)
@@ -389,7 +395,7 @@ class FileTransfer:
                 return False, "目录不存在：%s" % dist_path
             # 检查是否有识别集
             if media.type != MediaType.MOVIE and not media.get_episode_list():
-                episode_re = re.search(r'[.\s_]+(\d{1,3})[.\s_]+|(\d{1,3})$', file_base_name)
+                episode_re = re.search(r'[.\s_]+(\d{1,3})[.\s_]+|(\d{1,3})$', file_base_name, )
                 if episode_re:
                     episode = episode_re.group(1)
                     if not episode:
@@ -486,18 +492,18 @@ class FileTransfer:
         if not s_path:
             return
         if not os.path.exists(s_path):
-            log.printf("【RMT】源目录不存在：%s" % s_path)
+            log.console("【RMT】源目录不存在：%s" % s_path)
             return
         if t_path:
             if not os.path.exists(t_path):
-                log.printf("【RMT】目的目录不存在：%s" % t_path)
+                log.console("【RMT】目的目录不存在：%s" % t_path)
                 return
-        log.printf("【RMT】正在转移以下目录中的全量文件：%s" % s_path)
-        log.printf("【RMT】转移模式为：%s" % self.__sync_rmt_mode.value)
+        log.console("【RMT】正在转移以下目录中的全量文件：%s" % s_path)
+        log.console("【RMT】转移模式为：%s" % self.__sync_rmt_mode.value)
         for path in get_dir_level1_medias(s_path, RMT_MEDIAEXT):
             ret, ret_msg = self.transfer_media(in_from=SyncType.MAN, in_path=path, target_dir=t_path)
             if not ret:
-                log.printf("【RMT】%s 处理失败：%s" % (path, ret_msg))
+                log.console("【RMT】%s 处理失败：%s" % (path, ret_msg))
 
     # 判断媒体文件是否忆存在，返回：目录存在标志、目录名、文件存在标志、文件名
     def __is_media_exists(self,
@@ -731,12 +737,12 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--target', dest='t_path', required=False, help='硬链接目的目录路径')
     args = parser.parse_args()
     if os.environ.get('NASTOOL_CONFIG'):
-        log.printf("【RMT】配置文件地址：%s" % os.environ.get('NASTOOL_CONFIG'))
-        log.printf("【RMT】源目录路径：%s" % args.s_path)
+        log.console("【RMT】配置文件地址：%s" % os.environ.get('NASTOOL_CONFIG'))
+        log.console("【RMT】源目录路径：%s" % args.s_path)
         if args.t_path:
-            log.printf("【RMT】目的目录路径：%s" % args.t_path)
+            log.console("【RMT】目的目录路径：%s" % args.t_path)
         else:
-            log.printf("【RMT】目的目录为配置文件中的电影、电视剧媒体库目录")
+            log.console("【RMT】目的目录为配置文件中的电影、电视剧媒体库目录")
         FileTransfer().transfer_manually(args.s_path, args.t_path)
     else:
-        log.printf("【RMT】未设置环境变量，请先设置 NASTOOL_CONFIG 环境变量为配置文件地址")
+        log.console("【RMT】未设置环境变量，请先设置 NASTOOL_CONFIG 环境变量为配置文件地址")

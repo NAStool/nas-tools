@@ -85,7 +85,7 @@ def warn(text):
     return Logger.get_instance().logger.warning(text)
 
 
-def printf(text):
+def console(text):
     LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} - {text}")
     print(text)
 

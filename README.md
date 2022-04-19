@@ -37,6 +37,10 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 
 
 ## 更新日志
+2022.4.19
+* 支持使用prowlarr做为资源检索器
+* 支持Telegram Bot远程运行服务及PT检索下载
+
 2022.4.17
 * 支持Windows运行
 * 优化媒体信息检索匹配
@@ -160,14 +164,23 @@ https://github.com/jxxghp/nas-tools/releases
 * 安装resiliosync软件，配置好神KEY（主KEY：BCWHZRSLANR64CGPTXRE54ENNSIUE5SMO，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6，也可以使用其他的Key），resiliosync同步目录配置到本程序的监控目录中，实现有资源更新自动整理。
 * 其它分散的媒体文件夹，可以过配置目录监控的方式实现文件变化时自动整理到媒体库。
 
-### 5、配置微信应用消息及菜单（推荐）
-如果只是使用消息接受服务，则配置好配置文件中的[wechat]前三个参数就可以了，如果需要通过微信进行控制，则需要按如下方式配置（需要有公网IP或域名）：
+### 5、配置微信消息菜单/Telegram Bot机器人（推荐）
+1) 微信消息菜单
+
 * 配置微信消息服务：在企业微信自建应用管理页面-》API接收消息 开启消息接收服务，URL填写：http(s)://IP:3000/wechat，Token和EncodingAESKey填入配置文件[wechat]区（配置好后需要先重启服务，然后才在微信页面中点确定）。
 配置完成后可以通过微信发送消息直接检索PT资料下载。
-   
 * 配置微信菜单控制：有两种方式，一是直接在聊天窗口中输入命令或者PT下载的链接；二是在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单页面按如下图所示维护好菜单（条目顺序需要一模一样，如果不一样需要修改config.py中定义的WECHAT_MENU菜单序号定义），菜单内容为发送消息，消息内容为命令。
-命令与功能的对应关系： 
-   
+
+* ![image](https://user-images.githubusercontent.com/51039935/163518481-d1d4fa43-86e6-4477-a414-8d107f2eecee.png)
+
+2) Telegram Bot机器人
+
+* 在配置文件中设置好本程序的公网地址以及打开telegram webhook开关。
+* 在Telegram Bot机器人中按下表维护好命令菜单（也可以不维护），输入命令运行对应服务，输入其他内容则启动PT聚合检索。
+* 注意：受Telegram限制，程序运行端口需要设置为以下端口之一：443, 80, 88, 8443
+
+命令与功能对应关系：
+
    |  命令   | 功能  |
    |  ----  | ----  |
    | /rss  | RSS订阅 |
@@ -177,7 +190,6 @@ https://github.com/jxxghp/nas-tools/releases
    | /rst  | 目录同步 |
    | /db   | 豆瓣收藏 |
    
-  ![image](https://user-images.githubusercontent.com/51039935/163518481-d1d4fa43-86e6-4477-a414-8d107f2eecee.png)
 
 ### 6、配置Jackett（推荐）
 如果你想通过微信发送电影电视剧的名称，后台就自动检索各PT站并自动下载，或者使用WEB页面的PT聚合资源搜索功能，则需要配置Jackett，获取API Key以及Torznab Feed，相关参数填入配置文件。

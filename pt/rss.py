@@ -4,6 +4,7 @@ from xml.dom.minidom import parse
 import xml.dom.minidom
 import log
 from config import Config
+from pt.torrent import Torrent
 from utils.functions import is_chinese
 from message.send import Message
 from pt.downloader import Downloader
@@ -21,11 +22,13 @@ class Rss:
     message = None
     media = None
     downloader = None
+    torrent = None
 
     def __init__(self):
         self.message = Message()
         self.media = Media()
         self.downloader = Downloader()
+        self.torrent = Torrent()
         self.init_config()
 
     def init_config(self):
@@ -130,13 +133,13 @@ class Rss:
                     res_typestr = ""
                     if match_flag:
                         # 确定标题中是否有资源类型关键字，并返回关键字的顺序号
-                        match_flag, res_order, res_typestr = self.downloader.check_resouce_types(torrent_name, res_type)
+                        match_flag, res_order, res_typestr = self.torrent.check_resouce_types(torrent_name, res_type)
                         if not match_flag:
                             log.info("【RSS】%s 不符合过滤条件" % torrent_name)
                             continue
                     # 判断文件大小是否匹配，只针对电影
                     if match_flag:
-                        match_flag = self.downloader.is_torrent_match_size(media_info, res_type, size)
+                        match_flag = self.torrent.is_torrent_match_size(media_info, res_type, size)
                         if not match_flag:
                             continue
                     # 插入数据库
@@ -221,7 +224,7 @@ class Rss:
         try:
             ret = requests.get(url, timeout=30)
         except Exception as e2:
-            log.printf(str(e2))
+            log.console(str(e2))
             return []
         if ret:
             ret_xml = ret.text
@@ -265,9 +268,9 @@ class Rss:
                         tmp_dict = {'title': title, 'enclosure': enclosure, 'size': size, 'description': description}
                         ret_array.append(tmp_dict)
                     except Exception as e1:
-                        log.printf(str(e1))
+                        log.console(str(e1))
                         continue
             except Exception as e2:
-                log.printf(str(e2))
+                log.console(str(e2))
                 return ret_array
         return ret_array
