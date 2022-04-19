@@ -18,7 +18,7 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 ### 1、PT自动检索下载
 * PT站RSS订阅，配置想追的电影电视剧名称实现PT资源自动检索追新。
 
-* 通过微信或者WEB界面聚合检索各PT站检索资源并择优下载，热门或最新电影电视剧一键搜索或者订阅。
+* 通过微信、Telegram或者WEB界面聚合检索各PT站检索资源并择优下载，热门或最新电影电视剧一键搜索或者订阅。
 
 * 加入豆瓣收藏的电影电视剧，后台自动检索下载，未出全的自动加入RSS追更。
 
@@ -167,16 +167,16 @@ https://github.com/jxxghp/nas-tools/releases
 ### 5、配置微信消息菜单/Telegram Bot机器人（推荐）
 1) 微信消息菜单
 
-* 配置微信消息服务：在企业微信自建应用管理页面-》API接收消息 开启消息接收服务，URL填写：http(s)://IP:3000/wechat，Token和EncodingAESKey填入配置文件[wechat]区（配置好后需要先重启服务，然后才在微信页面中点确定）。
+* 配置微信消息接收服务：在企业微信自建应用管理页面-》API接收消息 开启消息接收服务，URL填写：http(s)://IP:3000/wechat，Token和EncodingAESKey填入配置文件[wechat]区（配置好后需要先重启服务，然后才在微信页面中点确定）。
 配置完成后可以通过微信发送消息直接检索PT资料下载。
-* 配置微信菜单控制：有两种方式，一是直接在聊天窗口中输入命令或者PT下载的链接；二是在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单页面按如下图所示维护好菜单（条目顺序需要一模一样，如果不一样需要修改config.py中定义的WECHAT_MENU菜单序号定义），菜单内容为发送消息，消息内容为命令。
+* 配置微信菜单控制：有两种方式，一是直接在聊天窗口中输入命令或想检索的关键字；二是在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单页面按如下图所示维护好菜单（条目顺序需要一模一样，如果不一样需要修改config.py中定义的WECHAT_MENU菜单序号定义），菜单内容为发送消息，消息内容为命令。
 
 * ![image](https://user-images.githubusercontent.com/51039935/163518481-d1d4fa43-86e6-4477-a414-8d107f2eecee.png)
 
 2) Telegram Bot机器人
 
 * 在配置文件中设置好本程序的公网地址以及打开telegram webhook开关。
-* 在Telegram Bot机器人中按下表维护好命令菜单（也可以不维护），输入命令运行对应服务，输入其他内容则启动PT聚合检索。
+* 在Telegram BotFather机器人中按下表维护好bot命令菜单（也可以不维护），选择菜单或输入命令运行对应服务，输入其它内容则启动PT聚合检索。
 * 注意：受Telegram限制，程序运行端口需要设置为以下端口之一：443, 80, 88, 8443
 
 命令与功能对应关系：
