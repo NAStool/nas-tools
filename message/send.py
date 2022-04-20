@@ -65,6 +65,13 @@ class Message:
 
     # 按渠道发送消息
     def send_channel_msg(self, channel, title, text="", image="", url="", user_id=""):
+        if self.__domain:
+            if url:
+                url = "%s?next=%s" % (self.__domain, url)
+            else:
+                url = self.__domain
+        else:
+            url = ""
         if channel == SearchType.TG:
             return self.telegram.send_telegram_msg(title, text, image, url, user_id)
         elif channel == SearchType.WX:
