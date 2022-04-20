@@ -68,7 +68,10 @@ class Searcher:
         if media_info and media_info.tmdb_info:
             log.info("类型：%s，标题：%s，年份：%s" % (media_info.type.value, media_info.title, media_info.year))
             if in_from in [SearchType.WX, SearchType.TG]:
-                self.message.sendmsg(title="类型：%s，标题：%s，年份：%s" % (media_info.type.value, media_info.title, media_info.year), user_id=user_id)
+                self.message.send_channel_msg(channel=in_from,
+                                              title="类型：%s，标题：%s，年份：%s" % (
+                                                  media_info.type.value, media_info.title, media_info.year),
+                                              user_id=user_id)
             # 检查是否存在，电视剧返回不存在的集清单
             exist_flag, no_exists = self.downloader.check_exists_medias(in_from=in_from,
                                                                         meta_info=media_info)
@@ -78,13 +81,17 @@ class Searcher:
                 return True
         else:
             if in_from in [SearchType.WX, SearchType.TG]:
-                self.message.sendmsg(title="%s 无法查询到任何电影或者电视剧信息，请确认名称是否正确" % content, user_id=user_id)
-            log.info("【SEARCHER】%s 无法查询到任何电影或者电视剧信息，请确认名称是否正确" % content)
+                self.message.send_channel_msg(channel=in_from,
+                                              title="%s 不是电影或者电视剧名称" % content,
+                                              user_id=user_id)
+            log.info("【SEARCHER】%s 不是电影或者电视剧名称" % content)
             return False
 
         # 开始真正搜索资源
         if in_from in [SearchType.WX, SearchType.TG]:
-            self.message.sendmsg(title="开始检索 %s ..." % media_info.title, user_id=user_id)
+            self.message.send_channel_msg(channel=in_from,
+                                          title="开始检索 %s ..." % media_info.title,
+                                          user_id=user_id)
         log.info("【SEARCHER】开始检索 %s ..." % media_info.title)
         # 查找的季
         if not media_info.begin_season:
@@ -104,7 +111,9 @@ class Searcher:
         if len(media_list) == 0:
             log.info("%s 未检索到任何资源" % media_info.title)
             if in_from in [SearchType.WX, SearchType.TG]:
-                self.message.sendmsg(title="%s 未检索到任何资源" % media_info.title, user_id=user_id)
+                self.message.send_channel_msg(channel=in_from,
+                                              title="%s 未检索到任何资源" % media_info.title,
+                                              user_id=user_id)
             return False
         else:
             if in_from in [SearchType.WX, SearchType.TG]:
@@ -114,11 +123,12 @@ class Searcher:
                 save_media_list = self.get_torrents_group_item(media_list)
                 for save_media_item in save_media_list:
                     insert_search_results(save_media_item)
-                self.message.sendmsg(title=media_info.get_title_vote_string(),
-                                     text="%s 共检索到 %s 个有效资源" % (media_info.title, len(save_media_list)),
-                                     image=media_info.get_message_image(),
-                                     url='search',
-                                     user_id=user_id)
+                self.message.send_channel_msg(channel=in_from,
+                                              title=media_info.get_title_vote_string(),
+                                              text="%s 共检索到 %s 个有效资源" % (media_info.title, len(save_media_list)),
+                                              image=media_info.get_message_image(),
+                                              url='search',
+                                              user_id=user_id)
             # 微信未开自动下载时返回
             if in_from in [SearchType.WX, SearchType.TG] and not self.__search_auto:
                 return False
@@ -128,7 +138,9 @@ class Searcher:
             if download_num == 0:
                 log.info("【SEARCHER】%s 搜索结果中没有符合下载条件的资源" % content)
                 if in_from in [SearchType.WX, SearchType.TG]:
-                    self.message.sendmsg(title="%s 搜索结果中没有符合下载条件的资源" % content, user_id=user_id)
+                    self.message.send_channel_msg(channel=in_from,
+                                                  title="%s 搜索结果中没有符合下载条件的资源" % content,
+                                                  user_id=user_id)
                 return False
             else:
                 log.info("【SEARCHER】实际下载了 %s 个资源" % download_num)

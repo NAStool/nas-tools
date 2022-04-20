@@ -106,8 +106,8 @@ message:
     telegram_token:
     # telegram中关注getuserID获取
     telegram_chat_id:
-    # 【webhook开关】：打开该开关会对该机器人设置WebHook，实现在聊天窗口运行服务及进行PT资源检索下载
-    # 注意：受Telegram限制，程序运行端口需要设置为以下端口之一：443, 80, 88, 8443
+    # 【webhook开关】：打开该开关会对该机器人设置WebHook，实现在聊天窗口运行服务及进行PT资源检索下载，只有管理员用户可以使用命令
+    # 注意：受Telegram限制，程序运行端口需要设置为以下端口之一：443, 80, 88, 8443，且可能需要有公网认证的可信SSL证书
     webhook: true
   # 【Bark通知】，手机上安装Bark客户端，Server可以使用默认的也可以自己搭建，自己搭建的更换为服务器地址和端口，格式：http(s)://IP:PORT
   bark:

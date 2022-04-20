@@ -7,6 +7,7 @@ from message.serverchan import ServerChan
 from message.telegram import Telegram
 from message.wechat import WeChat
 from utils.functions import str_filesize
+from utils.types import SearchType
 
 
 class Message:
@@ -41,6 +42,7 @@ class Message:
     def get_webhook_ignore(self):
         return self.__webhook_ignore or []
 
+    # 通用消息发送
     def sendmsg(self, title, text="", image="", url="", user_id=""):
         log.info("【MSG】发送%s消息：title=%s, text=%s" % (self.__msg_channel, title, text))
         if self.__domain:
@@ -60,6 +62,13 @@ class Message:
             return self.bark.send_bark_msg(title, text)
         else:
             return None
+
+    # 按渠道发送消息
+    def send_channel_msg(self, channel, title, text="", image="", url="", user_id=""):
+        if channel == SearchType.TG:
+            return self.telegram.send_telegram_msg(title, text, image, url)
+        elif channel == SearchType.WX:
+            return self.wechat.send_wechat_msg(title, text, image, url, user_id)
 
     # 发送下载的消息
     def send_download_message(self, in_from, can_item):

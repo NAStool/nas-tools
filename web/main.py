@@ -10,6 +10,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import log
+from message.telegram import Telegram
 from monitor.media_sync import Sync
 from monitor.run import restart_monitor
 from pt.downloader import Downloader
@@ -60,6 +61,18 @@ def create_flask_app(config):
     applog = logging.getLogger('werkzeug')
     applog.setLevel(logging.ERROR)
     login_manager.init_app(App)
+
+    @App.after_request
+    def add_header(r):
+        """
+        Add headers to both force latest IE rendering engine or Chrome Frame,
+        and also to cache the rendered page for 10 minutes.
+        """
+        r.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        r.headers["Pragma"] = "no-cache"
+        r.headers["Expires"] = "0"
+        r.headers['Cache-Control'] = 'public, max-age=0'
+        return r
 
     # 根据用户名获得用户记录
     def get_user(user_name):
@@ -1023,24 +1036,37 @@ def create_flask_app(config):
         if msg_json:
             message = msg_json.get("message", {})
             text = message.get("text")
+            user_id = message.get("from", {}).get("id")
             if text:
-                handle_message_job(text, SearchType.TG)
+                handle_message_job(text, SearchType.TG, user_id)
         return 'ok'
 
     # 处理消息事件
     def handle_message_job(msg, in_from=SearchType.OT, user_id=None):
+        # 检查用户权限
+        if in_from == SearchType.TG and user_id:
+            if str(user_id) != Telegram().get_admin_user():
+                Message().send_channel_msg(channel=in_from, title="错误：只有管理员才有权限执行此命令")
+                return
+        # 执行操作
         if msg == "/ptr":
             _thread.start_new_thread(AutoRemoveTorrents().run_schedule, ())
+            Message().send_channel_msg(channel=in_from, title="已启动：PT删种")
         elif msg == "/ptt":
             _thread.start_new_thread(PTTransfer().run_schedule, ())
+            Message().send_channel_msg(channel=in_from, title="已启动：PT下载转移")
         elif msg == "/pts":
             _thread.start_new_thread(PTSignin().run_schedule, ())
+            Message().send_channel_msg(channel=in_from, title="已启动：PT站签到")
         elif msg == "/rst":
             _thread.start_new_thread(Sync().transfer_all_sync, ())
+            Message().send_channel_msg(channel=in_from, title="已启动：监控目录全量同步")
         elif msg == "/rss":
             _thread.start_new_thread(RSSDownloader().run_schedule, ())
+            Message().send_channel_msg(channel=in_from, title="已启动：RSS订阅")
         elif msg == "/db":
             _thread.start_new_thread(DoubanSync().run_schedule, ())
+            Message().send_channel_msg(channel=in_from, title="已启动：豆瓣收藏同步")
         else:
             _thread.start_new_thread(Searcher().search_one_media, (msg, in_from, user_id,))
 

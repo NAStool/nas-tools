@@ -38,6 +38,9 @@ class Telegram:
                     and self.__domain:
                 self.__webhook_url = "%stelegram" % self.__domain
 
+    def get_admin_user(self):
+        return str(self.__telegram_chat_id)
+
     def send_telegram_msg(self, title, text="", image="", url=""):
         if not title and not text:
             return -1, "标题和内容不能同时为空"
@@ -46,7 +49,7 @@ class Telegram:
                 return False, "参数未配置"
 
             if text:
-                caption = "<strong>%s</strong>\n%s" % (title, text.replace("\n\n", "\n"))
+                caption = "<b>%s</b>\n%s" % (title, text.replace("\n\n", "\n"))
             else:
                 caption = title
             if image and url:
@@ -85,6 +88,8 @@ class Telegram:
             res = requests.get(sc_url + urlencode(values), timeout=10, proxies=self.__config.get_proxies())
             if res and res.json() and res.json().get("ok"):
                 log.console("TelegramBot Webhook 设置成功，地址为：%s" % self.__webhook_url)
+            else:
+                log.console("TelegramBot Webhook 设置失败！")
 
     # 1-存在且相等，2-存在不相等，3-不存在，0-网络出错
     def get_bot_webhook(self):
@@ -92,7 +97,9 @@ class Telegram:
         res = requests.get(sc_url, timeout=10, proxies=self.__config.get_proxies())
         if res and res.json():
             if res.json().get("ok"):
-                webhook_url = res.json().get("result", {}).get("url")
+                webhook_url = res.json().get("result", {}).get("url") or ""
+                if webhook_url:
+                    log.console("TelegramBot Webhook 地址为：%s" % webhook_url)
                 if webhook_url == self.__webhook_url:
                     return 1
                 else:
