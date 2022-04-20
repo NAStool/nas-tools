@@ -57,7 +57,7 @@ class Message:
         elif self.__msg_channel == "serverchan":
             return self.serverchan.send_serverchan_msg(title, text)
         elif self.__msg_channel == "telegram":
-            return self.telegram.send_telegram_msg(title, text, image, url)
+            return self.telegram.send_telegram_msg(title, text, image, url, user_id)
         elif self.__msg_channel == "bark":
             return self.bark.send_bark_msg(title, text)
         else:
@@ -66,7 +66,7 @@ class Message:
     # 按渠道发送消息
     def send_channel_msg(self, channel, title, text="", image="", url="", user_id=""):
         if channel == SearchType.TG:
-            return self.telegram.send_telegram_msg(title, text, image, url)
+            return self.telegram.send_telegram_msg(title, text, image, url, user_id)
         elif channel == SearchType.WX:
             return self.wechat.send_wechat_msg(title, text, image, url, user_id)
 

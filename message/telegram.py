@@ -41,7 +41,7 @@ class Telegram:
     def get_admin_user(self):
         return str(self.__telegram_chat_id)
 
-    def send_telegram_msg(self, title, text="", image="", url=""):
+    def send_telegram_msg(self, title, text="", image="", url="", user_id=""):
         if not title and not text:
             return -1, "标题和内容不能同时为空"
         try:
@@ -54,13 +54,17 @@ class Telegram:
                 caption = title
             if image and url:
                 caption = "%s\n\n<a href='%s'>查看详情</a>" % (caption, url)
+            if user_id:
+                chat_id = user_id
+            else:
+                chat_id = self.__telegram_chat_id
             if image:
                 # 发送图文消息
-                values = {"chat_id": self.__telegram_chat_id, "photo": image, "caption": caption, "parse_mode": "HTML"}
+                values = {"chat_id": chat_id, "photo": image, "caption": caption, "parse_mode": "HTML"}
                 sc_url = "https://api.telegram.org/bot%s/sendPhoto?" % self.__telegram_token
             else:
                 # 发送文本
-                values = {"chat_id": self.__telegram_chat_id, "text": caption, "parse_mode": "HTML"}
+                values = {"chat_id": chat_id, "text": caption, "parse_mode": "HTML"}
                 sc_url = "https://api.telegram.org/bot%s/sendMessage?" % self.__telegram_token
 
             res = requests.get(sc_url + urlencode(values), timeout=10, proxies=self.__config.get_proxies())
@@ -86,8 +90,12 @@ class Telegram:
             values = {"url": self.__webhook_url, "allowed_updates": ["message"]}
             sc_url = "https://api.telegram.org/bot%s/setWebhook?" % self.__telegram_token
             res = requests.get(sc_url + urlencode(values), timeout=10, proxies=self.__config.get_proxies())
-            if res and res.json() and res.json().get("ok"):
-                log.console("TelegramBot Webhook 设置成功，地址为：%s" % self.__webhook_url)
+            if res:
+                json = res.json()
+                if json.get("ok"):
+                    log.console("TelegramBot Webhook 设置成功，地址为：%s" % self.__webhook_url)
+                else:
+                    log.console("TelegramBot Webhook 设置失败：" % json.get("description"))
             else:
                 log.console("TelegramBot Webhook 设置失败！")
 

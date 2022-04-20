@@ -1043,31 +1043,28 @@ def create_flask_app(config):
 
     # 处理消息事件
     def handle_message_job(msg, in_from=SearchType.OT, user_id=None):
-        # 检查用户权限
-        if in_from == SearchType.TG and user_id:
-            if str(user_id) != Telegram().get_admin_user():
-                Message().send_channel_msg(channel=in_from, title="错误：只有管理员才有权限执行此命令")
-                return
-        # 执行操作
-        if msg == "/ptr":
-            _thread.start_new_thread(AutoRemoveTorrents().run_schedule, ())
-            Message().send_channel_msg(channel=in_from, title="已启动：PT删种")
-        elif msg == "/ptt":
-            _thread.start_new_thread(PTTransfer().run_schedule, ())
-            Message().send_channel_msg(channel=in_from, title="已启动：PT下载转移")
-        elif msg == "/pts":
-            _thread.start_new_thread(PTSignin().run_schedule, ())
-            Message().send_channel_msg(channel=in_from, title="已启动：PT站签到")
-        elif msg == "/rst":
-            _thread.start_new_thread(Sync().transfer_all_sync, ())
-            Message().send_channel_msg(channel=in_from, title="已启动：监控目录全量同步")
-        elif msg == "/rss":
-            _thread.start_new_thread(RSSDownloader().run_schedule, ())
-            Message().send_channel_msg(channel=in_from, title="已启动：RSS订阅")
-        elif msg == "/db":
-            _thread.start_new_thread(DoubanSync().run_schedule, ())
-            Message().send_channel_msg(channel=in_from, title="已启动：豆瓣收藏同步")
+        if not msg:
+            return
+        commands = {
+            "/ptr": {"func": AutoRemoveTorrents().run_schedule, "desp": "PT删种"},
+            "/ptt": {"func": PTTransfer().run_schedule, "desp": "PT下载转移"},
+            "/pts": {"func": PTSignin().run_schedule, "desp": "PT站签到"},
+            "/rst": {"func": Sync().transfer_all_sync, "desp": "监控目录全量同步"},
+            "/rss": {"func": RSSDownloader().run_schedule, "desp": "RSS订阅"},
+            "/db": {"func": DoubanSync().run_schedule, "desp": "豆瓣收藏同步"}
+        }
+        command = commands.get(msg)
+        if command:
+            # 检查用户权限
+            if in_from == SearchType.TG and user_id:
+                if str(user_id) != Telegram().get_admin_user():
+                    Message().send_channel_msg(channel=in_from, title="错误：只有管理员才有权限执行此命令")
+                    return
+            # 启动服务
+            _thread.start_new_thread(command.get("func"), ())
+            Message().send_channel_msg(channel=in_from, title="已启动：%s" % command.get("desp"))
         else:
+            # PT检索
             _thread.start_new_thread(Searcher().search_one_media, (msg, in_from, user_id,))
 
     return App
