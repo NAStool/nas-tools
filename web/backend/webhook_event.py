@@ -6,15 +6,15 @@ import log
 from config import RMT_FAVTYPE
 from message.send import Message
 from rmt.filetransfer import FileTransfer
+from rmt.media_server import MediaServer
 from utils.types import MediaType
-from rmt.server.emby import Emby
 
 PLAY_LIST = []
 
 
-class EmbyEvent:
+class WebhookEvent:
     message = None
-    emby = None
+    mediaserver = None
     category = None
     filetransfer = None
 
@@ -22,7 +22,7 @@ class EmbyEvent:
         if not input_json:
             return
         self.message = Message()
-        self.emby = Emby()
+        self.mediaserver = MediaServer()
         self.filetransfer = FileTransfer()
         # 解析事件报文
         event = input_json.get('Event')
@@ -125,7 +125,7 @@ class EmbyEvent:
                 ret, org_type = self.filetransfer.transfer_embyfav(self.item_path)
                 if ret:
                     # 刷新媒体库
-                    self.emby.refresh_root_library()
+                    self.mediaserver.refresh_root_library()
                     message_title = '电影 %s 已从 %s 转移到 %s' % (self.item_name, org_type, RMT_FAVTYPE)
                     message_text = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             else:
@@ -134,7 +134,7 @@ class EmbyEvent:
         if message_title:
             image_url = None
             if self.item_id:
-                image_url = self.emby.get_image_by_id(self.item_id, "Backdrop")
+                image_url = self.mediaserver.get_image_by_id(self.item_id, "Backdrop")
             if not image_url:
                 image_url = "https://emby.media/notificationicon.png"
             self.message.sendmsg(title=message_title, text=message_text, image=image_url)

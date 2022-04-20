@@ -144,7 +144,7 @@ https://github.com/jxxghp/nas-tools/releases
 * 群晖套件：在套件安装界面中设置配置文件路径，比如：/homes/admin/.config/nastool/config.yaml，并将修改好的配置文件【提前】放置在对应路径下。
 
 ### 3、设置Emby/Jellyfin媒体库（推荐）
-* 在Emby/Jellyfin的Webhook插件中，设置地址为：http(s)://IP:3000/emby，勾选“播放事件”和“用户事件（建议只对管理用户勾选）“
+* 在Emby/Jellyfin的Webhook插件中，设置地址为：http(s)://IP:3000/emby 或 http(s)://IP:3000/jellyfin，勾选“播放事件”和“用户事件（建议只对管理用户勾选）“
 * 将Emby/Jellyfin的服务器地址及api key配置到程序中，会用于资源下载和检索控重，提升使用体验。
 * 如果启用了默认分类，需按如下的目录结构分别设置好媒体库；如是自定义分类，请按自己的定义建立好媒体库目录，分类定义请参考配置文件模板。
    > 电影

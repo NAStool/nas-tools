@@ -34,7 +34,7 @@ from utils.sqls import get_search_result_by_id, get_search_results, get_movie_ke
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
-from web.backend.emby_event import EmbyEvent
+from web.backend.webhook_event import WebhookEvent
 from web.backend.search_torrents import search_medias_for_web
 from utils.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
@@ -1008,11 +1008,12 @@ def create_flask_app(config):
             return make_response(reponse_text, 200)
 
     # Emby消息通知
+    @App.route('/jellyfin', methods=['POST'])
     @App.route('/emby', methods=['POST'])
     def emby():
         request_json = json.loads(request.form.get('data', {}))
         # log.debug("输入报文：" + str(request_json))
-        event = EmbyEvent(request_json)
+        event = WebhookEvent(request_json)
         event.report_to_discord()
         return 'Success'
 
