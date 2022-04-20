@@ -1,9 +1,13 @@
+from threading import Lock
 from urllib.parse import urlencode
 import requests
 
 import log
 from config import Config
 from utils.functions import singleton
+
+lock = Lock()
+WEBHOOK_STATUS = False
 
 
 @singleton
@@ -83,6 +87,17 @@ class Telegram:
     def set_bot_webhook(self):
         if not self.__webhook_url:
             return
+
+        try:
+            lock.acquire()
+            global WEBHOOK_STATUS
+            if not WEBHOOK_STATUS:
+                WEBHOOK_STATUS = True
+            else:
+                return
+        finally:
+            lock.release()
+
         status = self.get_bot_webhook()
         if status and status != 1:
             if status == 2:
