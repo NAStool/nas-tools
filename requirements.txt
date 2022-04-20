@@ -1,6 +1,6 @@
 markupsafe==2.0.1
 flask>=2.0.3
-requests~=2.27.1
+requests[socks]~=2.27.1
 urllib3~=1.26.8
 APScheduler>=3.7.0
 tmdbv3api>=1.7.5

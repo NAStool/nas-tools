@@ -69,15 +69,24 @@ def check_config(cfg):
     else:
         log.console("app配置不存在")
 
-    # 检查Emby配置
-    if not config.get('emby'):
-        log.warn("emby未配置，部分功能将无法使用")
-    else:
-        if not config['emby'].get('host') or not config['emby'].get('api_key'):
-            log.warn("emby配置不完整，部分功能将无法使用")
-
     # 检查媒体库目录路径
     if config.get('media'):
+        media_server = config['media'].get('media_server')
+        if media_server:
+            log.info("媒体管理软件设置为：%s" % media_server)
+            if media_server.upper() == "JELLYFIN":
+                if not config.get('jellyfin'):
+                    log.warn("jellyfin未配置，部分功能将无法使用")
+                else:
+                    if not config['jellyfin'].get('host') or not config['jellyfin'].get('api_key'):
+                        log.warn("jellyfin配置不完整，部分功能将无法使用")
+            else:
+                if not config.get('emby'):
+                    log.warn("emby未配置，部分功能将无法使用")
+                else:
+                    if not config['emby'].get('host') or not config['emby'].get('api_key'):
+                        log.warn("emby配置不完整，部分功能将无法使用")
+
         movie_paths = config['media'].get('movie_path')
         if not movie_paths:
             log.error("未配置movie_path")

@@ -7,13 +7,13 @@ from subprocess import call
 import log
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE
 from rmt.category import Category
+from rmt.media_server import MediaServer
 from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_level1_medias, is_invalid_path, \
     is_path_in_path, get_system, is_bluray_dir
 from message.send import Message
 from rmt.media import Media
 from utils.sqls import insert_transfer_history, insert_transfer_unknown
 from utils.types import MediaType, DownloaderType, SyncType, RmtMode, OsType
-from web.backend.emby import Emby
 
 lock = Lock()
 
@@ -33,13 +33,13 @@ class FileTransfer:
     media = None
     message = None
     category = None
-    emby = None
+    mediaserver = None
 
     def __init__(self):
         self.media = Media()
         self.message = Message()
         self.category = Category()
-        self.emby = Emby()
+        self.mediaserver = MediaServer()
         self.init_config()
 
     def init_config(self):
@@ -354,8 +354,6 @@ class FileTransfer:
             total_count = total_count + 1
             # 文件名
             file_name = os.path.basename(file_item)
-            # 无后缀文件名
-            file_base_name = os.path.splitext(file_name)[0]
             # 上级目录
             file_path = os.path.dirname(file_item)
             # 未识别
@@ -389,19 +387,9 @@ class FileTransfer:
             if not dist_path:
                 log.error("【RMT】目的路径不对确！")
                 continue
-
-            # 检查剩余空间
             if not os.path.exists(dist_path):
                 return False, "目录不存在：%s" % dist_path
-            # 检查是否有识别集
-            if media.type != MediaType.MOVIE and not media.get_episode_list():
-                episode_re = re.search(r'[.\s_]+(\d{1,3})[.\s_]+|(\d{1,3})$', file_base_name, )
-                if episode_re:
-                    episode = episode_re.group(1)
-                    if not episode:
-                        episode = episode_re.group(2)
-                    if episode:
-                        media.begin_episode = int(episode)
+
             # 判断文件是否已存在，返回：目录存在标志、目录名、文件存在标志、文件名
             dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.__is_media_exists(dist_path, media)
             # 已存在的文件数量
@@ -482,7 +470,7 @@ class FileTransfer:
             self.message.send_transfer_tv_message(message_medias, in_from)
         # 刷新媒体库
         if refresh_library_items:
-            self.emby.refresh_emby_library_by_items(refresh_library_items)
+            self.mediaserver.refresh_library_by_items(refresh_library_items)
         # 总结
         log.info("【RMT】%s 处理完成，总数：%s，失败：%s" % (in_path, total_count, failed_count))
         return True, ""

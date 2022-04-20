@@ -80,7 +80,7 @@ class Jackett:
         result_array = self.parse_jackettxml(api_url)
         if len(result_array) == 0:
             log.warn("【JACKETT】%s 未检索到资源" % indexer_name)
-            return None
+            return []
         else:
             log.warn("【JACKETT】返回数据：%s" % len(result_array))
         # 从检索结果中匹配符合资源条件的记录

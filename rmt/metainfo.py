@@ -146,8 +146,7 @@ class MetaInfo(object):
             # 没有识别出类型时默认为电影
             if not self.type:
                 self.type = MediaType.MOVIE
-            # 去掉名字中不需要的干扰字符
-            # 过短的纯数字不要
+            # 去掉名字中不需要的干扰字符，过短的纯数字不要
             if self.cn_name:
                 self.cn_name = re.sub(r'%s' % self._name_nostring_re, '', self.cn_name,
                                       flags=re.IGNORECASE).strip()
@@ -160,6 +159,16 @@ class MetaInfo(object):
                 self.en_name = re.sub(r'\s+', ' ', self.en_name)
                 if self.en_name.isdigit() and (self.en_name == str(self.begin_episode) or len(self.en_name) < 3):
                     self.en_name = None
+            # 补充识别集
+            if self.type != MediaType.MOVIE and not self.begin_episode:
+                title_name = os.path.splitext(self.org_string)[0]
+                episode_re = re.search(r'[.\s_]+(\d{1,3})[.\s_]+|(\d{1,3})$', title_name)
+                if episode_re:
+                    episode = episode_re.group(1)
+                    if not episode:
+                        episode = episode_re.group(2)
+                    if episode:
+                        self.begin_episode = int(episode)
         else:
             # 调用第三方模块识别动漫
             try:

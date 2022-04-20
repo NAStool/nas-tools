@@ -16,6 +16,7 @@ from pt.downloader import Downloader
 from pt.searcher import Searcher
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
+from rmt.media_server import MediaServer
 from rmt.metainfo import MetaInfo
 from scheduler.autoremove_torrents import AutoRemoveTorrents
 from scheduler.douban_sync import DoubanSync
@@ -33,10 +34,9 @@ from utils.sqls import get_search_result_by_id, get_search_results, get_movie_ke
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
-from web.backend.emby import Emby
 from web.backend.emby_event import EmbyEvent
 from web.backend.search_torrents import search_medias_for_web
-from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
+from utils.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
 
 login_manager = LoginManager()
@@ -157,24 +157,24 @@ def create_flask_app(config):
     @login_required
     def index():
         # 获取媒体数量
-        EmbySucess = 1
+        ServerSucess = True
         MovieCount = 0
         SeriesCount = 0
         SongCount = 0
-        EmbyClient = Emby()
-        media_count = EmbyClient.get_emby_medias_count()
+        MediaServerClient = MediaServer()
+        media_count = MediaServerClient.get_medias_count()
         if media_count:
             MovieCount = "{:,}".format(media_count.get('MovieCount'))
             SeriesCount = "{:,}".format(media_count.get('SeriesCount'))
             SongCount = "{:,}".format(media_count.get('SongCount'))
-        else:
-            EmbySucess = 0
+        elif media_count is None:
+            ServerSucess = False
 
         # 获得活动日志
-        Activity = EmbyClient.get_emby_activity_log(30)
+        Activity = MediaServerClient.get_activity_log(30)
 
         # 用户数量
-        UserCount = EmbyClient.get_emby_user_count()
+        UserCount = MediaServerClient.get_user_count()
 
         # 磁盘空间
         UsedSapce = 0
@@ -254,7 +254,7 @@ def create_flask_app(config):
             TotalSpace = "{:,} TB".format(round(TotalSpace / 1024 / 1024 / 1024 / 1024, 2))
 
         return render_template("index.html",
-                               EmbySucess=EmbySucess,
+                               ServerSucess=ServerSucess,
                                MediaCount={'MovieCount': MovieCount, 'SeriesCount': SeriesCount,
                                            'SongCount': SongCount},
                                Activitys=Activity,

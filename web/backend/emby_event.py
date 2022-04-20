@@ -7,7 +7,7 @@ from config import RMT_FAVTYPE
 from message.send import Message
 from rmt.filetransfer import FileTransfer
 from utils.types import MediaType
-from web.backend.emby import Emby
+from rmt.server.emby import Emby
 
 PLAY_LIST = []
 
@@ -125,7 +125,7 @@ class EmbyEvent:
                 ret, org_type = self.filetransfer.transfer_embyfav(self.item_path)
                 if ret:
                     # 刷新媒体库
-                    self.emby.refresh_emby_root_library()
+                    self.emby.refresh_root_library()
                     message_title = '电影 %s 已从 %s 转移到 %s' % (self.item_name, org_type, RMT_FAVTYPE)
                     message_text = '时间：' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             else:
@@ -134,7 +134,7 @@ class EmbyEvent:
         if message_title:
             image_url = None
             if self.item_id:
-                image_url = self.emby.get_emby_image_by_id(self.item_id, "Backdrop")
+                image_url = self.emby.get_image_by_id(self.item_id, "Backdrop")
             if not image_url:
                 image_url = "https://emby.media/notificationicon.png"
             self.message.sendmsg(title=message_title, text=message_text, image=image_url)

@@ -34,15 +34,10 @@ app:
   # 示例：http://xxxx:3000
   domain: ''
 
-# 配置Emby服务器信息，用于下载检查控重、媒体库展示等，建议配置
-emby:
-  # 【Emby服务器IP地址和端口】：注意区分http和https，http时可以不加http://，https时必须加https://
-  host: http://127.0.0.1:8096
-  # 【Emby ApiKey】：在Emby设置->高级->API密钥处生成，注意不要复制到了应用名称
-  api_key:
-
 # 【配置媒体库信息】
 media:
+  # 【媒体库管理软件】：emby、jellyfin，需要在emby或jellyfin区配置详细信息，用于下载检查控重、媒体库展示等，建议配置
+  media_server: emby
   # 【媒体库电影文件存放目录】：支持配置多个目录，不同的硬盘需映射为不同的根目录，以更于程序区分
   movie_path:
     - '/mnt/media/电影'
@@ -64,6 +59,20 @@ media:
   category: 'default-category'
   # 【转移到媒体库的最小文件大小】：避免预告片/MV等影响识别，单位M
   min_filesize: 200
+
+# 配置Emby服务器信息
+emby:
+  # 【Emby服务器IP地址和端口】：注意区分http和https，http时可以不加http://，https时必须加https://
+  host: http://127.0.0.1:8096
+  # 【Emby ApiKey】：在Emby设置->高级->API密钥处生成，注意不要复制到了应用名称
+  api_key:
+
+# 配置Jellyfin服务器信息
+jellyfin:
+  # 【Jellyfin服务器IP地址和端口】：注意区分http和https，http时可以不加http://，https时必须加https://
+  host: http://127.0.0.1:8096
+  # 【Jellyfin ApiKey】：在Jellyfin设置->高级->API密钥处生成
+  api_key:
 
 # 【配置消息通知服务】
 message:
@@ -302,7 +311,7 @@ douban:
   # 这里可以是自己的，也可以是别人的，比如填写几个大V的账号ID，实现热门影视自动下载
   users:
     - ''
-  # 【豆瓣Cookie】：选配，嫌烦麻的可以不用配置，可能影响个别电影的同步
+  # 【豆瓣Cookie】：选配，嫌麻烦的可以不用配置，可能影响个别电影的同步
   cookie:
   # 【同步天数】：同步多少天内加入的数据
   days: 30

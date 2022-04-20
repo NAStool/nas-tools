@@ -46,3 +46,8 @@ class OsType(Enum):
 class IndexerType(Enum):
     JACKETT = "Jackett"
     PROWLARR = "Prowlarr"
+
+
+class MediaServerType(Enum):
+    JELLYFIN = "Jellyfin"
+    EMBY = "Emby"

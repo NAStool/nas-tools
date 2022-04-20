@@ -5,9 +5,9 @@ from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
+from rmt.media_server import MediaServer
 from utils.functions import str_filesize, str_timelong
 from utils.types import MediaType, DownloaderType, SearchType
-from web.backend.emby import Emby
 
 
 class Downloader:
@@ -15,13 +15,13 @@ class Downloader:
     __client_type = None
     __seeding_time = None
     message = None
-    emby = None
+    mediaserver = None
     filetransfer = None
     media = None
 
     def __init__(self):
         self.message = Message()
-        self.emby = Emby()
+        self.mediaserver = MediaServer()
         self.filetransfer = FileTransfer()
         self.media = Media()
         self.init_config()
@@ -240,9 +240,9 @@ class Downloader:
                     if not season_number or not episode_count:
                         continue
                     # 检查Emby
-                    no_exists_tv_episodes = self.emby.get_emby_no_exists_episodes(meta_info,
-                                                                                  season_number,
-                                                                                  episode_count)
+                    no_exists_tv_episodes = self.mediaserver.get_no_exists_episodes(meta_info,
+                                                                                    season_number,
+                                                                                    episode_count)
                     # 没有配置Emby
                     if no_exists_tv_episodes is None:
                         no_exists_tv_episodes = self.filetransfer.get_no_exists_medias(meta_info,
@@ -296,7 +296,7 @@ class Downloader:
             return return_flag, total_tv_no_exists
         # 检查电影
         else:
-            exists_movies = self.emby.get_emby_movies(meta_info.title, meta_info.year)
+            exists_movies = self.mediaserver.get_movies(meta_info.title, meta_info.year)
             if exists_movies is None:
                 exists_movies = self.filetransfer.get_no_exists_medias(meta_info)
             if exists_movies:

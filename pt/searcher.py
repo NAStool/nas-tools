@@ -16,7 +16,7 @@ class Searcher:
     media = None
     message = None
     indexer = None
-    __search_indexer = None
+    _indexer_type = None
     __search_auto = True
 
     def __init__(self):
@@ -31,12 +31,12 @@ class Searcher:
         search_indexer = config.get_config("pt").get('search_indexer')
         if search_indexer:
             if search_indexer.upper() == "PROWLARR":
-                self.__search_indexer = IndexerType.PROWLARR
+                self._indexer_type = IndexerType.PROWLARR
             else:
-                self.__search_indexer = IndexerType.JACKETT
+                self._indexer_type = IndexerType.JACKETT
         else:
-            self.__search_indexer = IndexerType.JACKETT
-        if self.__search_indexer == IndexerType.PROWLARR:
+            self._indexer_type = IndexerType.JACKETT
+        if self._indexer_type == IndexerType.PROWLARR:
             self.indexer = Prowlarr()
         else:
             self.indexer = Jackett()
@@ -46,7 +46,7 @@ class Searcher:
         if not key_word:
             return []
         if not self.indexer:
-            return
+            return []
         return self.indexer.search_by_keyword(key_word, s_num, e_num, year, mtype, whole_word)
 
     # 检索一个媒体
