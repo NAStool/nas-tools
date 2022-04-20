@@ -4,8 +4,8 @@ requests[socks]>=2.27.1
 urllib3>=1.26.9
 APScheduler>=3.9.1
 tmdbv3api>=1.7.6
-qbittorrent-api==2022.4.30
-watchdog==2.1.7
+qbittorrent-api>=2022.4.30
+watchdog>=2.1.7
 flask-httpauth>=4.5.0
 pycryptodome>=3.14.1
 pyyaml>=6.0
