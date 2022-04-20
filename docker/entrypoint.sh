@@ -1,7 +1,7 @@
 #!/bin/sh
 
 cd /nas-tools
-if [ -n $NASTOOL_AUTO_UPDATE ]; then
+if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
     if [ ! -s /tmp/requirements.txt.sha256sum ]; then
         sha256sum requirements.txt > /tmp/requirements.txt.sha256sum
     fi
@@ -27,7 +27,7 @@ if [ -n $NASTOOL_AUTO_UPDATE ]; then
         echo "更新失败，继续使用旧的程序来启动..."
     fi
 else
-    echo "程序自动升级已关闭，如需打开请设置环境变量：NASTOOL_AUTO_UPDATE 为任意值..."
+    echo "程序自动升级已关闭，如需自动升级请在创建容器时设置环境变量：NASTOOL_AUTO_UPDATE=true"
 fi
 
 echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
