@@ -31,6 +31,6 @@ else
 fi
 
 echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
-chown -R ${PUID}:${PGID} /config /nas-tools
+chown -R ${PUID}:${PGID} /config /nas-tools /var/log/supervisor/
 umask $UMASK
 exec su-exec ${PUID}:${PGID} /usr/bin/supervisord -n -c /nas-tools/supervisord.conf
