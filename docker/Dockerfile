@@ -31,10 +31,14 @@ RUN apk add --no-cache \
     && echo 'fs.inotify.max_user_watches=524288' >> /etc/sysctl.conf \
     && echo 'fs.inotify.max_user_instances=524288' >> /etc/sysctl.conf \
     && git config --global pull.ff only \
-    && git clone -b master ${REPO_URL} . \
+    && git clone -b master ${REPO_URL} --depth=1 . \
     && pip install pip -U \
+    && pip install --upgrade pip setuptools wheel \
     && pip install -r requirements.txt \
+    && pip install git+https://github.com/coderanger/supervisor-stdout \
+    && cp supervisor_stdout.py /usr/lib/python${python_ver%.*}/site-packages/ \
     && apk del --purge .build \
+    && mkdir -p /var/log/supervisor \
     && rm -rf \
        /tmp/* \
        /root/.cache \

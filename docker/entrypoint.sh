@@ -14,6 +14,7 @@ if [ -n $NASTOOL_AUTO_UPDATE ]; then
         hash_new=$(sha256sum requirements.txt)
         if [ "$hash_old" != "$hash_new" ]; then
             echo "检测到requirements.txt有变化，重新安装依赖..."
+            pip install --upgrade pip setuptools wheel
             pip install -r requirements.txt
             if [ $? -ne 0 ]; then
                 echo "无法安装依赖，请更新镜像..."
@@ -32,4 +33,4 @@ fi
 echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 chown -R ${PUID}:${PGID} /config /nas-tools
 umask $UMASK
-exec su-exec ${PUID}:${PGID} python3 run.py
+exec su-exec ${PUID}:${PGID} /usr/bin/supervisord -n -c /nas-tools/supervisord.conf
