@@ -287,8 +287,8 @@ class Downloader:
                 message_list.append("%s 无法查询到媒体详细信息" % meta_info.get_title_string())
                 return_flag = None
             # 发送消息
-            if message_list and in_from == SearchType.WX:
-                self.message.sendmsg(title="\n".join(message_list))
+            if message_list and in_from in [SearchType.WX, SearchType.TG]:
+                self.message.send_channel_msg(channel=in_from, title="\n".join(message_list))
             # 全部存在
             if return_flag is False and not total_tv_no_exists:
                 return_flag = True
@@ -302,8 +302,8 @@ class Downloader:
             if exists_movies:
                 movies_str = "\n * ".join(["%s (%s)" % (m.get('title'), m.get('year')) for m in exists_movies])
                 log.info("【PT】媒体库中已经存在以下电影：\n * %s" % movies_str)
-                if in_from == SearchType.WX:
-                    self.message.sendmsg(title="在媒体库中已经存在以下电影：\n * %s" % movies_str)
+                if in_from in [SearchType.WX, SearchType.TG]:
+                    self.message.send_channel_msg(channel=in_from, title="在媒体库中已经存在以下电影：\n * %s" % movies_str)
                 return True, None
             return False, None
 

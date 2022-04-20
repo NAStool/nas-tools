@@ -73,5 +73,5 @@ if __name__ == "__main__":
     # print(MetaInfo('刺客伍六七.第03季.Scissor.Seven.Ⅲ.2021.第06话.WEB-DL.1080P.AVC.DD+2.0＆AAC.GB-XHGM.mkv').__dict__)
     # print(MetaInfo('刺客伍六七.第03季.Scissor.Seven.Ⅲ.2021.第1136话.WEB-DL.1080P.AVC.DD+2.0＆AAC.GB-XHGM.mkv').__dict__)
     # FileTransfer().transfer_media(in_from=SyncType.MAN, in_path="C:\\Users\\jxxgh\\Documents\\TV\\Breaking.Bad.Season.3.Episode.10.Fly.REMUX-FraMeSToR.mkv")
-    # Searcher().search_one_media("归来")
-    print(MetaInfo('Breaking.Bad.Season.3.Episode.10.Fly.WEB-DL.REMUX-FraMeSToR.mkv').__dict__)
+    Searcher().search_one_media("星球大战：幻象")
+    # print(MetaInfo('Breaking.Bad.Season.3.Episode.10.Fly.WEB-DL.REMUX-FraMeSToR.mkv').__dict__)

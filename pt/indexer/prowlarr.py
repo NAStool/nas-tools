@@ -69,22 +69,24 @@ class Prowlarr:
             # 检查资源类型
             match_flag, res_order, res_typestr = self.torrent.check_resouce_types(torrent_name, self.__res_type)
             if not match_flag:
-                log.debug("【PROWLARR】%s 不符合过滤条件" % torrent_name)
+                log.info("【PROWLARR】%s 不符合过滤条件" % torrent_name)
                 continue
 
             # 识别种子名称
             meta_info = MetaInfo(torrent_name)
-            if mtype and meta_info.type == MediaType.TV and mtype != MediaType.TV:
+            if mtype and meta_info.type != MediaType.MOVIE and mtype == MediaType.MOVIE:
+                log.info("【PROWLARR】%s 类型不匹配" % torrent_name)
                 continue
 
             # 识别媒体信息
             media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
             if not media_info or not media_info.tmdb_info:
-                log.debug("【PROWLARR】%s 未检索到媒体信息" % torrent_name)
+                log.info("【PROWLARR】%s 未检索到媒体信息" % torrent_name)
                 continue
 
             # 类型
             if mtype and media_info.type != mtype:
+                log.info("【PROWLARR】%s 类型不匹配" % torrent_name)
                 continue
 
             # 名称是否匹配
