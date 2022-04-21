@@ -7,7 +7,7 @@ from rmt.filetransfer import FileTransfer
 from rmt.media import Media
 from rmt.media_server import MediaServer
 from utils.functions import str_filesize, str_timelong
-from utils.types import MediaType, DownloaderType, SearchType
+from utils.types import MediaType, DownloaderType
 
 
 class Downloader:
@@ -88,6 +88,12 @@ class Downloader:
         for torrent in torrents:
             self.delete_torrents(torrent)
         log.info("【PT】PT做种清理完成")
+
+    # 正在下载
+    def pt_downloading_torrents(self):
+        if not self.client:
+            return []
+        return self.__client_type, self.client.get_downloading_torrents()
 
     # 获取种子列表信息
     def get_pt_torrents(self, torrent_ids=None, status_filter=None):
@@ -199,7 +205,7 @@ class Downloader:
         return len(download_items), need_tvs
 
     # 检查控重，返回是否存在标志，如果是剧集，返回每季的缺失集
-    def check_exists_medias(self, in_from, meta_info):
+    def check_exists_medias(self, meta_info):
         # 查找的季
         if not meta_info.begin_season:
             search_season = None
@@ -211,8 +217,8 @@ class Downloader:
             search_season = [1]
 
         # 电影、动漫
+        message_list = []
         if meta_info.type != MediaType.MOVIE:
-            message_list = []
             total_tv_no_exists = {}
             return_flag = False
             # 检索电视剧的信息
@@ -220,8 +226,8 @@ class Downloader:
             if tv_info:
                 # 共有多少季，每季有多少季
                 total_seasons = self.get_tmdb_seasons_info(tv_info.get("seasons"))
-                log.info("【PT】电视剧 %s 共有 %s 季" % (meta_info.get_title_string(), len(total_seasons)))
-                message_list.append("电视剧 %s 共有 %s 季" % (meta_info.get_title_string(), len(total_seasons)))
+                log.info("【PT】%s %s 共有 %s 季" % (meta_info.type.value, meta_info.get_title_string(), len(total_seasons)))
+                message_list.append("%s %s 共有 %s 季" % (meta_info.type.value, meta_info.get_title_string(), len(total_seasons)))
                 if search_season:
                     # 有输入季
                     total_seasons = []
@@ -286,14 +292,11 @@ class Downloader:
                 log.info("【PT】%s 无法查询到媒体详细信息" % meta_info.get_title_string())
                 message_list.append("%s 无法查询到媒体详细信息" % meta_info.get_title_string())
                 return_flag = None
-            # 发送消息
-            if message_list and in_from in [SearchType.WX, SearchType.TG]:
-                self.message.send_channel_msg(channel=in_from, title="\n".join(message_list))
             # 全部存在
             if return_flag is False and not total_tv_no_exists:
                 return_flag = True
             # 返回
-            return return_flag, total_tv_no_exists
+            return return_flag, total_tv_no_exists, message_list
         # 检查电影
         else:
             exists_movies = self.mediaserver.get_movies(meta_info.title, meta_info.year)
@@ -302,10 +305,9 @@ class Downloader:
             if exists_movies:
                 movies_str = "\n * ".join(["%s (%s)" % (m.get('title'), m.get('year')) for m in exists_movies])
                 log.info("【PT】媒体库中已经存在以下电影：\n * %s" % movies_str)
-                if in_from in [SearchType.WX, SearchType.TG]:
-                    self.message.send_channel_msg(channel=in_from, title="在媒体库中已经存在以下电影：\n * %s" % movies_str)
-                return True, None
-            return False, None
+                message_list.append("在媒体库中已经存在以下电影：\n * %s" % movies_str)
+                return True, None, message_list
+            return False, None, message_list
 
     # 排序、去重 选种
     @staticmethod

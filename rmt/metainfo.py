@@ -151,24 +151,22 @@ class MetaInfo(object):
                 self.cn_name = re.sub(r'%s' % self._name_nostring_re, '', self.cn_name,
                                       flags=re.IGNORECASE).strip()
                 self.cn_name = re.sub(r'\s+', ' ', self.cn_name)
-                if self.cn_name.isdigit() and (self.cn_name == str(self.begin_episode) or len(self.cn_name) < 3):
-                    self.cn_name = None
+                if self.cn_name.isdigit() and len(self.cn_name) < 4:
+                    if not self.begin_episode:
+                        self.begin_episode = int(self.cn_name)
+                        self.cn_name = None
+                    elif self.is_in_episode(int(self.cn_name)):
+                        self.cn_name = None
             if self.en_name:
                 self.en_name = re.sub(r'%s' % self._name_nostring_re, '', self.en_name,
                                       flags=re.IGNORECASE).strip()
                 self.en_name = re.sub(r'\s+', ' ', self.en_name)
-                if self.en_name.isdigit() and (self.en_name == str(self.begin_episode) or len(self.en_name) < 3):
-                    self.en_name = None
-            # 补充识别集
-            if self.type != MediaType.MOVIE and not self.begin_episode:
-                title_name = os.path.splitext(self.org_string)[0]
-                episode_re = re.search(r'[.\s_]+(\d{1,3})[.\s_]+|(\d{1,3})$', title_name)
-                if episode_re:
-                    episode = episode_re.group(1)
-                    if not episode:
-                        episode = episode_re.group(2)
-                    if episode:
-                        self.begin_episode = int(episode)
+                if self.en_name.isdigit() and len(self.en_name) < 4:
+                    if not self.begin_episode:
+                        self.begin_episode = int(self.en_name)
+                        self.en_name = None
+                    elif self.is_in_episode(int(self.en_name)):
+                        self.en_name = None
         else:
             # 调用第三方模块识别动漫
             try:

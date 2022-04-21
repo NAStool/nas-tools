@@ -222,6 +222,8 @@ class Media:
         if not is_anime(title):
             # 常规识别
             meta_info = MetaInfo(title, subtitle=subtitle)
+            if not meta_info.get_name():
+                return None
             if mtype:
                 meta_info.type = mtype
             media_key = "[%s]%s-%s" % (meta_info.type.value, meta_info.get_name(), meta_info.year)
@@ -258,6 +260,8 @@ class Media:
         else:
             # 动漫识别
             meta_info = MetaInfo(title, anime=True)
+            if not meta_info.get_name():
+                return None
             media_key = "[%s]%s-%s" % (meta_info.type.value, meta_info.get_name(), meta_info.year)
             if meta_info.type != MediaType.UNKNOWN:
                 try:
@@ -316,6 +320,8 @@ class Media:
                             meta_info.year = parent_info.year
                         if parent_info.type != MediaType.MOVIE and meta_info.type == MediaType.MOVIE:
                             meta_info.type = parent_info.type
+                    if not meta_info.get_name():
+                        continue
                     media_key = "[%s]%s-%s" % (meta_info.type.value, meta_info.get_name(), meta_info.year)
                     try:
                         lock.acquire()
@@ -347,6 +353,8 @@ class Media:
                                 meta_info.en_name = parent_info.en_name
                             if not meta_info.year:
                                 meta_info.year = parent_info.year
+                    if not meta_info.get_name():
+                        continue
                     media_key = "[%s]%s-%s" % (meta_info.type.value, meta_info.get_name(), meta_info.year)
                     # 动漫识别到了
                     if meta_info.type != MediaType.UNKNOWN:

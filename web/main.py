@@ -396,12 +396,10 @@ def create_flask_app(config):
     @login_required
     def download():
         DownloadCount = 0
-        Client, Torrents = Downloader().get_pt_torrents()
+        Client, Torrents = Downloader().pt_downloading_torrents()
         DispTorrents = []
         for torrent in Torrents:
             if Client == DownloaderType.QB:
-                if torrent.get('state') not in ['downloading', 'forcedDL', 'pausedDL', 'stalledDL']:
-                    continue
                 name = torrent.get('name')
                 # 进度
                 progress = round(torrent.get('progress') * 100, 1)
@@ -420,8 +418,6 @@ def create_flask_app(config):
                 # 主键
                 key = torrent.get('hash')
             else:
-                if torrent.status not in ['downloading', 'download_pending', 'stopped']:
-                    continue
                 name = torrent.name
                 if torrent.status in ['stopped']:
                     state = "Stoped"
@@ -688,19 +684,17 @@ def create_flask_app(config):
         if cmd:
             # 启动定时服务
             if cmd == "sch":
+                commands = {
+                    "autoremovetorrents": AutoRemoveTorrents().run_schedule,
+                    "pttransfer": PTTransfer().run_schedule,
+                    "ptsignin": PTSignin().run_schedule,
+                    "sync": Sync().transfer_all_sync,
+                    "rssdownload": RSSDownloader().run_schedule,
+                    "douban": DoubanSync().run_schedule
+                }
                 sch_item = data.get("item")
-                if sch_item == "autoremovetorrents":
-                    _thread.start_new_thread(AutoRemoveTorrents().run_schedule, ())
-                if sch_item == "pttransfer":
-                    _thread.start_new_thread(PTTransfer().run_schedule, ())
-                if sch_item == "ptsignin":
-                    _thread.start_new_thread(PTSignin().run_schedule, ())
-                if sch_item == "sync":
-                    _thread.start_new_thread(Sync().transfer_all_sync, ())
-                if sch_item == "rssdownload":
-                    _thread.start_new_thread(RSSDownloader().run_schedule, ())
-                if sch_item == "douban":
-                    _thread.start_new_thread(DoubanSync().run_schedule, ())
+                if sch_item and commands.get(sch_item):
+                    _thread.start_new_thread(commands.get(sch_item), ())
                 return {"retmsg": "服务已启动", "item": sch_item}
 
             # 电影关键字

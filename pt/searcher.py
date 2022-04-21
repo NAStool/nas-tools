@@ -8,7 +8,7 @@ from pt.indexer.prowlarr import Prowlarr
 from rmt.media import Media
 from utils.functions import str_filesize
 from utils.sqls import delete_all_search_torrents, insert_search_results
-from utils.types import SearchType, MediaType, IndexerType
+from utils.types import SearchType, MediaType
 
 
 class Searcher:
@@ -16,7 +16,6 @@ class Searcher:
     media = None
     message = None
     indexer = None
-    _indexer_type = None
     __search_auto = True
 
     def __init__(self):
@@ -28,15 +27,7 @@ class Searcher:
     def init_config(self):
         config = Config()
         self.__search_auto = config.get_config("pt").get('search_auto', True)
-        search_indexer = config.get_config("pt").get('search_indexer')
-        if search_indexer:
-            if search_indexer.upper() == "PROWLARR":
-                self._indexer_type = IndexerType.PROWLARR
-            else:
-                self._indexer_type = IndexerType.JACKETT
-        else:
-            self._indexer_type = IndexerType.JACKETT
-        if self._indexer_type == IndexerType.PROWLARR:
+        if config.get_config("pt").get('search_indexer') == "prowlarr":
             self.indexer = Prowlarr()
         else:
             self.indexer = Jackett()
@@ -55,11 +46,11 @@ class Searcher:
             log.info("【SEARCHER】检索关键字有误！")
             return False
         # 去掉查询中的电影或电视剧关键字
-        if re.search(r'^电视剧|\s+电视剧', input_str):
+        if re.search(r'^电视剧|\s+电视剧|^动漫|\s+动漫', input_str):
             mtype = MediaType.TV
         else:
             mtype = None
-        content = re.sub(r'^电影|^电视剧|\s+电影|\s+电视剧', '', input_str).strip()
+        content = re.sub(r'^电影|^电视剧|^动漫|\s+电影|\s+电视剧|\s+动漫', '', input_str).strip()
         if not content:
             return
         # 识别媒体信息
@@ -73,8 +64,9 @@ class Searcher:
                                                   media_info.type.value, media_info.title, media_info.year),
                                               user_id=user_id)
             # 检查是否存在，电视剧返回不存在的集清单
-            exist_flag, no_exists = self.downloader.check_exists_medias(in_from=in_from,
-                                                                        meta_info=media_info)
+            exist_flag, no_exists, messages = self.downloader.check_exists_medias(meta_info=media_info)
+            if messages and in_from in [SearchType.WX, SearchType.TG]:
+                self.message.send_channel_msg(channel=in_from, title="\n".join(messages))
             if exist_flag is None:
                 return False
             elif exist_flag:

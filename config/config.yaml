@@ -2,11 +2,10 @@
 # 【配置注意要符合yaml语法，:号后有1个空格，不能使用全角标点符号】
 app:
   # 【日志记录类型】：server、file、console
-  # 如果是使用Docker安装建议留空或者设置为console
+  # 如果是使用Docker安装建议设置为console，将日志输出到终端
   # 如果是使用群晖套件建议配置为 server，可将日志输出到群晖的日志中心便于查看
-  # 如果是python本地运行建议设置为file，保存日志到文件
   logtype: console
-  # 【日志文件的路径】：logtype为FILE时生效
+  # 【日志文件的路径】：logtype为file时生效
   logpath: '/config/logs'
   # 【群晖日志中心IP和端口】：logtype为SERVER时生效。端口一般是514，只需要改动IP为群晖的IP
   logserver: 127.0.0.1:514
@@ -30,8 +29,8 @@ app:
   proxies:
     http:
     https:
-  # 【本系统的WEB的外网地址】：需要是外网IP或者域名，用于微信信息点击跳转，如不需要可配空
-  # 示例：http://xxxx:3000
+  # 【本系统的WEB的外网地址】：需要是外网IP或者域名，需要包含端口，用于微信/Telegram信息点击跳转，如不需要可配空
+  # 示例：http://IP:3000
   domain: ''
 
 # 【配置媒体库信息】
@@ -255,6 +254,8 @@ qbittorrent:
   # qBittorrent 登录用户名和密码
   qbusername: admin
   qbpassword: adminadmin
+  # 转移完成后是否自动强制作种，按需要设置
+  force_upload: true
   ## 下面两项配置问的人比较多，解释一下：
   # 1、save_path是nastool检索到需要新增下载时告诉qb下到哪个目录去，是传给qb的
   # 2、save_containerpath是告诉nastool qb的下载路径对应在nastool里又是映射为什么路径，这样nastool才能通过这个路径访问到qb下载好的文件

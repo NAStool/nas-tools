@@ -31,7 +31,7 @@ class Sync(object):
         config = Config()
         sync = config.get_config('sync')
         if sync:
-            if sync.get('nas_sys', '').upper() == "WINDOWS":
+            if sync.get('nas_sys') == "windows":
                 self.__sync_sys = OsType.WINDOWS
             self.__sync_path = sync.get('sync_path')
 

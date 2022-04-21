@@ -113,7 +113,8 @@ class Rss:
                                                media_info.year,
                                                media_info.get_season_string(),
                                                media_info.get_episode_string()):
-                        log.info("【RSS】%s%s 已成功订阅过，跳过..." % (media_info.get_title_string(), media_info.get_season_episode_string()))
+                        log.info("【RSS】%s%s 已成功订阅过，跳过..." % (
+                            media_info.get_title_string(), media_info.get_season_episode_string()))
                         continue
                     # 检查种子名称或者标题是否匹配
                     match_flag = self.is_torrent_match(media_info, movie_keys, tv_keys)
@@ -146,8 +147,7 @@ class Rss:
                     # 插入数据库
                     insert_rss_torrents(media_info)
                     # 检查是否存在，电视剧返回不存在的集清单
-                    exist_flag, no_exists = self.downloader.check_exists_medias(in_from=SearchType.RSS,
-                                                                                meta_info=media_info)
+                    exist_flag, no_exists, messages = self.downloader.check_exists_medias(meta_info=media_info)
                     if exist_flag:
                         # 如果是电影，已存在时删除订阅，只会删除名字匹配的
                         if media_info.type == MediaType.MOVIE:
@@ -194,7 +194,7 @@ class Rss:
                 if re.search(r"%s" % key, media_info.org_string, re.IGNORECASE):
                     return True
                 # 匹配媒体名称
-                if str(key).strip() == media_info.title:
+                if str(key).strip().upper() == str(media_info.title).upper():
                     return True
                 # 匹配年份
                 if str(key).strip() == str(media_info.year):
@@ -209,7 +209,7 @@ class Rss:
                 if re.search(r"%s" % key, media_info.org_string, re.IGNORECASE):
                     return True
                 # 匹配媒体名称
-                if str(key).strip() == media_info.title:
+                if str(key).strip().upper() == str(media_info.title).upper():
                     return True
                 # 匹配年份
                 if str(key).strip() == str(media_info.year):

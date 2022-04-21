@@ -31,7 +31,7 @@ class FlaskApp:
                     host='0.0.0.0',
                     port=self.__web_port,
                     debug=False,
-                    threaded=True,
+                    threaded=False,
                     use_reloader=False,
                     ssl_context=(self.__ssl_cert, self.__ssl_key)
                 )
@@ -40,7 +40,7 @@ class FlaskApp:
                     host='0.0.0.0',
                     port=self.__web_port,
                     debug=False,
-                    threaded=True,
+                    threaded=False,
                     use_reloader=False
                 )
         except Exception as err:

@@ -12,6 +12,7 @@ class Qbittorrent:
     __qbport = None
     __qbusername = None
     __qbpassword = None
+    __force_upload = False
     __tv_save_path = None
     __tv_save_containerpath = None
     __tv_category = None
@@ -34,6 +35,8 @@ class Qbittorrent:
             self.__qbport = qbittorrent.get('qbport')
             self.__qbusername = qbittorrent.get('qbusername')
             self.__qbpassword = qbittorrent.get('qbpassword')
+            # 强制做种开关
+            self.__force_upload = qbittorrent.get('force_upload')
             # 解释下载目录
             save_path = qbittorrent.get('save_path')
             if save_path:
@@ -90,15 +93,35 @@ class Qbittorrent:
             log.error("【QB】qBittorrent连接出错：%s" % str(err))
             return None
 
-    # 读取所有种子信息
+    # 按条件读取种子信息
     def get_torrents(self, ids=None, status=None):
-        # 读取qBittorrent列表
         if not self.qbc:
             return []
         self.qbc.auth_log_in()
         torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status)
         self.qbc.auth_log_out()
-        return torrents
+        if not status:
+            return torrents
+        else:
+            if not isinstance(status, list):
+                status = [status]
+            ret_torrents = []
+            for torrent in torrents:
+                if torrent.get("state") in status:
+                    ret_torrents.append(torrent)
+            return ret_torrents
+
+    # 读取完成的种子信息
+    def get_completed_torrents(self):
+        if not self.qbc:
+            return []
+        return self.get_torrents(status=["forcedUP", "stalledUP", "queuedUP", "pausedUP", "uploading"])
+
+    # 读取下载中的种子信息
+    def get_downloading_torrents(self):
+        if not self.qbc:
+            return []
+        return self.get_torrents(status=["downloading", "forcedDL", "stalledDL", "queuedDL", "pausedDL"])
 
     # 迁移完成后设置种子状态
     def set_torrents_status(self, ids):
@@ -108,39 +131,40 @@ class Qbittorrent:
         # 打标签
         self.qbc.torrents_add_tags(tags="已整理", torrent_hashes=ids)
         # 超级做种
-        self.qbc.torrents_set_force_start(enable=True, torrent_hashes=ids)
-        log.info("【QB】设置qBittorrent种类状态成功")
+        if self.__force_upload:
+            self.qbc.torrents_set_force_start(enable=True, torrent_hashes=ids)
+        log.info("【QB】设置qBittorrent种子状态成功")
         self.qbc.auth_log_out()
 
     # 处理qbittorrent中的种子
     def get_transfer_task(self):
-        # 处理所有任务
-        torrents = self.get_torrents()
+        # 处理下载完成的任务
+        torrents = self.get_completed_torrents()
         trans_tasks = []
         for torrent in torrents:
-            if torrent.get('state') == "uploading" or torrent.get('state') == "stalledUP":
-                true_path = torrent.get('content_path', os.path.join(torrent.get('save_path'), torrent.get('name')))
-                if not true_path:
-                    continue
-                if self.__tv_save_containerpath and true_path.startswith(self.__tv_save_path):
-                    true_path = true_path.replace(str(self.__tv_save_path), str(self.__tv_save_containerpath))
-                if self.__movie_save_containerpath and true_path.startswith(self.__movie_save_path):
-                    true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
-                if self.__anime_save_containerpath and true_path.startswith(self.__anime_save_path):
-                    true_path = true_path.replace(str(self.__anime_save_path), str(self.__anime_save_containerpath))
-                trans_tasks.append({'path': true_path, 'id': torrent.get('hash')})
+            # 判断标签是否包含已整理
+            if torrent.get("tags") and "已整理" in torrent.get("tags"):
+                continue
+            true_path = torrent.get('content_path', os.path.join(torrent.get('save_path'), torrent.get('name')))
+            if not true_path:
+                continue
+            if self.__tv_save_containerpath and true_path.startswith(self.__tv_save_path):
+                true_path = true_path.replace(str(self.__tv_save_path), str(self.__tv_save_containerpath))
+            if self.__movie_save_containerpath and true_path.startswith(self.__movie_save_path):
+                true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
+            if self.__anime_save_containerpath and true_path.startswith(self.__anime_save_path):
+                true_path = true_path.replace(str(self.__anime_save_path), str(self.__anime_save_containerpath))
+            trans_tasks.append({'path': true_path, 'id': torrent.get('hash')})
         return trans_tasks
 
     # 做种清理
     def get_remove_torrents(self, seeding_time):
-        torrents = self.get_torrents()
+        torrents = self.get_completed_torrents()
         remove_torrents = []
         for torrent in torrents:
-            # 只有标记为强制上传的才会清理（经过RMT处理的都是强制上传状态）
-            if torrent.get('state') == "forcedUP":
-                if int(torrent.get('seeding_time')) > int(seeding_time):
-                    log.info("【PT】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (torrent.get('name'), torrent.get('seeding_time')))
-                    remove_torrents.append(torrent.get('hash'))
+            if int(torrent.get('seeding_time')) > int(seeding_time):
+                log.info("【PT】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (torrent.get('name'), torrent.get('seeding_time')))
+                remove_torrents.append(torrent.get('hash'))
         return remove_torrents
 
     # 添加qbittorrent任务

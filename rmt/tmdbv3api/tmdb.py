@@ -52,13 +52,13 @@ class TMDb(object):
     @property
     def proxies(self):
         proxy = os.environ.get(self.TMDB_PROXIES)
-        if not proxy is None:
+        if proxy:
             proxy = eval(proxy)
         return proxy
 
     @proxies.setter
     def proxies(self, proxies):
-        if not proxies is None:
+        if proxies:
             os.environ[self.TMDB_PROXIES] = str(proxies)
 
     @api_key.setter

@@ -1,6 +1,6 @@
 import warnings
-from tmdbv3api.tmdb import TMDb
-from tmdbv3api.as_obj import AsObj
+from rmt.tmdbv3api.tmdb import TMDb
+from rmt.tmdbv3api.as_obj import AsObj
 
 try:
     from urllib import quote
@@ -11,6 +11,7 @@ try:
     from urllib import urlencode
 except ImportError:
     from urllib.parse import urlencode
+
 
 class Movie(TMDb):
     _urls = {
@@ -39,9 +40,9 @@ class Movie(TMDb):
     }
 
     def details(
-        self,
-        movie_id,
-        append_to_response="videos,trailers,images,casts,translations,keywords,release_dates",
+            self,
+            movie_id,
+            append_to_response="videos,trailers,images,casts,translations,keywords,release_dates",
     ):
         """
         Get the primary information about a movie.
@@ -104,7 +105,7 @@ class Movie(TMDb):
         return self._get_obj(
             self._call(self._urls["external_ids"] % (str(movie_id)), ""), None
         )
-    
+
     def images(self, movie_id, include_image_language=""):
         """
         Get the images that belong to a movie.

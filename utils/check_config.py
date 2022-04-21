@@ -8,19 +8,16 @@ def check_config(cfg):
     # 剑查日志输出
     config = cfg.get_config()
     if config.get('app'):
-        logtype = config['app'].get('logtype', 'console')
+        logtype = config['app'].get('logtype')
         if logtype:
-            logtype = logtype.upper()
-        else:
-            logtype = "CONSOLE"
-        log.console("日志输出类型为：%s" % logtype)
-        if logtype == "SERVER":
+            log.console("日志输出类型为：%s" % logtype)
+        if logtype == "server":
             logserver = config['app'].get('logserver')
             if not logserver:
                 log.console("【ERROR】logserver未配置，无法正常输出日志")
             else:
                 log.console("日志将上送到服务器：%s" % logserver)
-        elif logtype == "FILE":
+        elif logtype == "file":
             logpath = config['app'].get('logpath')
             if not logpath:
                 log.console("【ERROR】logpath未配置，无法正常输出日志")
@@ -74,7 +71,7 @@ def check_config(cfg):
         media_server = config['media'].get('media_server')
         if media_server:
             log.info("媒体管理软件设置为：%s" % media_server)
-            if media_server.upper() == "JELLYFIN":
+            if media_server == "jellyfin":
                 if not config.get('jellyfin'):
                     log.warn("jellyfin未配置，部分功能将无法使用")
                 else:
@@ -207,7 +204,7 @@ def check_config(cfg):
                         if not save_path.get('tv') or not save_path.get('movie'):
                             log.warn("transmission save_path配置不完整，请检查配置！")
                             
-        rmt_mode = config['pt'].get('rmt_mode', 'copy')
+        rmt_mode = config['pt'].get('rmt_mode')
         if rmt_mode:
             rmt_mode = rmt_mode.upper()
         else:

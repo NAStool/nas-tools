@@ -16,42 +16,31 @@ class Logger:
         self.logger = logging.Logger(__name__)
         self.logger.setLevel(level=LOG_LEVEL)
         self.__config = Config()
-        app = self.__config.get_config('app')
-        if app:
-            logtype = app.get('logtype')
-            if logtype:
-                logtype = logtype.upper()
-            else:
-                logtype = "CONSOLE"
-        else:
-            logtype = 'CONSOLE'
-        if logtype == "FILE":
+        logtype = self.__config.get_config('app').get('logtype')
+        if logtype:
+            logtype = logtype.lower()
+        if logtype == "file":
             # 记录日志到文件
-            logpath = app.get('logpath')
+            logpath = self.__config.get_config('app').get('logpath')
             if not os.path.exists(logpath):
                 os.makedirs(logpath)
             log_file_handler = TimedRotatingFileHandler(filename=logpath + "/" + __name__ + ".txt", when="D",
                                                         interval=1,
                                                         backupCount=2)
-            formatter = logging.Formatter(
-                '%(asctime)s\tFile \"%(filename)s\",line %(lineno)s\t%(levelname)s: %(message)s')
-            log_file_handler.setFormatter(formatter)
+            log_file_handler.setFormatter(logging.Formatter('%(asctime)s\t%(levelname)s: %(message)s'))
             self.logger.addHandler(log_file_handler)
-        elif logtype == "SERVER":
-            logserver = app.get('logserver')
+        elif logtype == "server":
+            logserver = self.__config.get_config('app').get('logserver')
             logip = logserver.split(':')[0]
             logport = int(logserver.split(':')[1])
             log_server_handler = logging.handlers.SysLogHandler((logip, logport),
                                                                 logging.handlers.SysLogHandler.LOG_USER)
-            formatter = logging.Formatter('%(filename)s: %(message)s')
-            log_server_handler.setFormatter(formatter)
+            log_server_handler.setFormatter(logging.Formatter('%(filename)s: %(message)s'))
             self.logger.addHandler(log_server_handler)
-        else:
-            # 记录日志到终端
-            formatter = logging.Formatter('%(asctime)s\t%(levelname)s: %(message)s')
-            log_console_handler = logging.StreamHandler()
-            log_console_handler.setFormatter(formatter)
-            self.logger.addHandler(log_console_handler)
+        # 记录日志到终端
+        log_console_handler = logging.StreamHandler()
+        log_console_handler.setFormatter(logging.Formatter('%(asctime)s\t%(levelname)s: %(message)s'))
+        self.logger.addHandler(log_console_handler)
 
     @staticmethod
     def get_instance():
@@ -88,4 +77,3 @@ def warn(text):
 def console(text):
     LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} - {text}")
     print(text)
-

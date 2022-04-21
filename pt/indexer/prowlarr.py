@@ -92,14 +92,15 @@ class Prowlarr:
             # 名称是否匹配
             if whole_word:
                 # 全匹配模式，名字需要完全一样才下载
-                if key_word == media_info.title:
+                if str(key_word).upper() == str(media_info.title).upper():
                     match_flag = True
                 else:
                     match_flag = False
                     log.info("【PROWLARR】%s：%s 不匹配名称：%s" % (media_info.type.value, media_info.title, key_word))
             else:
                 # 非全匹配模式，种子中或者名字中有关键字就行
-                if key_word in media_info.get_title_string() or key_word in media_info.org_string:
+                if str(key_word).upper() in str(media_info.get_title_string()).upper() \
+                        or str(key_word).upper() in str(media_info.org_string).upper():
                     match_flag = True
                 else:
                     match_flag = False

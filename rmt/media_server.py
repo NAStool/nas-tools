@@ -5,7 +5,6 @@ from utils.types import MediaServerType
 
 
 class MediaServer:
-    __server_type = None
     server = None
 
     def __init__(self):
@@ -15,18 +14,10 @@ class MediaServer:
         config = Config()
         media = config.get_config('media')
         if media:
-            media_server = media.get('media_server')
-            if media_server:
-                if media_server.upper() == "JELLYFIN":
-                    self.__server_type = MediaServerType.JELLYFIN
-                else:
-                    self.__server_type = MediaServerType.EMBY
+            if media.get('media_server') == "jellyfin":
+                self.server = Jellyfin()
             else:
-                self.__server_type = MediaServerType.EMBY
-        if self.__server_type == MediaServerType.JELLYFIN:
-            self.server = Jellyfin()
-        else:
-            self.server = Emby()
+                self.server = Emby()
 
     def get_activity_log(self, limit):
         if not self.server:

@@ -1,4 +1,4 @@
-from tmdbv3api.tmdb import TMDb
+from rmt.tmdbv3api.tmdb import TMDb
 
 try:
     from urllib import urlencode

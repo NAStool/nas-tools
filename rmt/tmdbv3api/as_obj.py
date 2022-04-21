@@ -1,6 +1,6 @@
 # encoding: utf-8
 import sys
-from tmdbv3api.exceptions import TMDbException
+from rmt.tmdbv3api.exceptions import TMDbException
 
 
 class AsObj:

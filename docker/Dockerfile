@@ -30,8 +30,6 @@ RUN apk add --no-cache \
     && git clone -b master ${REPO_URL} --depth=1 . \
     && pip install --upgrade pip setuptools wheel \
     && pip install -r requirements.txt \
-    && pip install git+https://github.com/coderanger/supervisor-stdout \
-    && cp supervisor_stdout.py /usr/lib/python${python_ver%.*}/site-packages/ \
     && mkdir -p /var/log/supervisor \
     && rm -rf \
        /tmp/* \

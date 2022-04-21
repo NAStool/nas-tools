@@ -75,21 +75,37 @@ class Transmission:
             log.error("【TR】transmission连接出错：%s" % str(err))
             return None
 
-    # 读取所有种子信息
+    # 按条件读取种子信息
     def get_torrents(self, ids=None, status=None):
-        # 读取transmission列表
         if not self.trc:
             return []
-        if status:
-            arguments = {'status': status}
-        else:
-            arguments = None
         if isinstance(ids, list):
             ids = [int(x) for x in ids]
         elif ids:
             ids = int(ids)
-        torrents = self.trc.get_torrents(ids=ids, arguments=arguments)
-        return torrents
+        torrents = self.trc.get_torrents(ids=ids)
+        if not status:
+            return torrents
+        else:
+            if not isinstance(status, list):
+                status = [status]
+            ret_torrents = []
+            for torrent in torrents:
+                if torrent.status in status:
+                    ret_torrents.append(torrent)
+            return ret_torrents
+
+    # 读取完成的种子信息
+    def get_completed_torrents(self):
+        if not self.trc:
+            return []
+        return self.get_torrents(status=["seeding", "seed_pending"])
+
+    # 读取下载中的种子信息
+    def get_downloading_torrents(self):
+        if not self.trc:
+            return []
+        return self.get_torrents(status=["downloading", "download_pending", "stopped"])
 
     # 迁移完成后设置种子状态
     def set_torrents_status(self, ids):
@@ -106,45 +122,40 @@ class Transmission:
     # 处理transmission中的种子
     def get_transfer_task(self):
         # 处理所有任务
-        torrents = self.get_torrents()
+        torrents = self.get_completed_torrents()
         trans_tasks = []
         for torrent in torrents:
-            # 3.0版本以下的Transmission没有labels
-            handlered_flag = False
             try:
+                # 3.0版本以下的Transmission没有labels
                 labels = torrent.labels
             except Exception as e:
                 log.warn("【TR】当前transmission版本可能过低，请安装3.0以上版本！错误：%s" % str(e))
-                labels = []
+                break
             if labels and "已整理" in labels:
-                handlered_flag = True
-            if (torrent.status == "seeding" or torrent.status == "seed_pending") and not handlered_flag:
-                # 查找根目录
-                true_path = os.path.join(torrent.download_dir, torrent.name)
-                if not true_path:
-                    continue
-                if self.__tv_save_containerpath and true_path.startswith(self.__tv_save_path):
-                    true_path = true_path.replace(str(self.__tv_save_path), str(self.__tv_save_containerpath))
-                if self.__movie_save_containerpath and true_path.startswith(self.__movie_save_path):
-                    true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
-                if self.__anime_save_containerpath and true_path.startswith(self.__anime_save_path):
-                    true_path = true_path.replace(str(self.__anime_save_path), str(self.__anime_save_containerpath))
-                trans_tasks.append({'path': true_path, 'id': torrent.id})
+                continue
+            true_path = os.path.join(torrent.download_dir, torrent.name)
+            if not true_path:
+                continue
+            if self.__tv_save_containerpath and true_path.startswith(self.__tv_save_path):
+                true_path = true_path.replace(str(self.__tv_save_path), str(self.__tv_save_containerpath))
+            if self.__movie_save_containerpath and true_path.startswith(self.__movie_save_path):
+                true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
+            if self.__anime_save_containerpath and true_path.startswith(self.__anime_save_path):
+                true_path = true_path.replace(str(self.__anime_save_path), str(self.__anime_save_containerpath))
+            trans_tasks.append({'path': true_path, 'id': torrent.id})
         return trans_tasks
 
     # 做种清理
     def get_remove_torrents(self, seeding_time):
-        torrents = self.get_torrents()
+        torrents = self.get_completed_torrents()
         remove_torrents = []
         for torrent in torrents:
             date_done = torrent.date_done
             date_now = datetime.now().astimezone()
-            # 只有标记为强制上传的才会清理（经过RMT处理的都是强制上传状态）
-            if date_done and (torrent.status == "seeding" or torrent.status == "seed_pending"):
-                torrent_time = (date_now - date_done).seconds
-                if torrent_time > int(seeding_time):
-                    log.info("【PT】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (torrent.name, torrent_time))
-                    remove_torrents.append(torrent.id)
+            torrent_time = (date_now - date_done).seconds
+            if torrent_time > int(seeding_time):
+                log.info("【PT】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (torrent.name, torrent_time))
+                remove_torrents.append(torrent.id)
         return remove_torrents
 
     def add_torrent(self, turl, mtype):
