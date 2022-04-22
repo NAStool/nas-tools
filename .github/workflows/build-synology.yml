@@ -3,17 +3,12 @@ name: Nas-tools Build Synology SPK
 on:
   push:
     branches: [ master ]
-    paths-ignore:
-      - 'README.md'
-  pull_request:
-    branches: [ master ]
+    paths:
+      - version.py
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Build the synology spk
