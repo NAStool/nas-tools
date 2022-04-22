@@ -172,7 +172,7 @@ def delete_all_search_torrents():
 # 将RSS的记录插入数据库
 def insert_rss_torrents(media_info):
     sql = "INSERT INTO RSS_TORRENTS(TORRENT_NAME, ENCLOSURE, TYPE, TITLE, YEAR, SEASON, EPISODE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
-        media_info.title, media_info.enclosure, media_info.type, media_info.title, media_info.year,
+        media_info.title, media_info.enclosure, media_info.type.value, media_info.title, media_info.year,
         media_info.get_season_string(), media_info.get_episode_string())
     return update_by_sql(sql)
 

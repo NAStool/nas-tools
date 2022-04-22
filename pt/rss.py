@@ -150,8 +150,6 @@ class Rss:
                         match_flag = self.torrent.is_torrent_match_size(media_info, res_type, size)
                         if not match_flag:
                             continue
-                    # 插入数据库
-                    insert_rss_torrents(media_info)
                     # 检查是否存在，电视剧返回不存在的集清单
                     exist_flag, no_exists, messages = self.downloader.check_exists_medias(meta_info=media_info)
                     if exist_flag:
@@ -170,6 +168,9 @@ class Rss:
                                                 res_order=res_order,
                                                 size=size,
                                                 description=description)
+                    # 插入数据库
+                    insert_rss_torrents(media_info)
+                    # 加入下载列表
                     if media_info not in rss_download_torrents:
                         rss_download_torrents.append(media_info)
                         res_num = res_num + 1
