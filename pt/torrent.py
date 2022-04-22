@@ -71,7 +71,7 @@ class Torrent:
             for include in includes:
                 if not include:
                     continue
-                re_res = re.search(r'%s' % include, t_title, re.IGNORECASE)
+                re_res = re.search(r'%s' % include.strip(), t_title, re.IGNORECASE)
                 if not re_res:
                     include_flag = False
             if not include_flag:
@@ -88,7 +88,7 @@ class Torrent:
                 if not exclude:
                     continue
                 exclude_count += 1
-                re_res = re.search(r'%s' % exclude, t_title, re.IGNORECASE)
+                re_res = re.search(r'%s' % exclude.strip(), t_title, re.IGNORECASE)
                 if not re_res:
                     exclude_flag = True
             if exclude_count != 0 and not exclude_flag:
