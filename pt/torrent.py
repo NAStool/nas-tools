@@ -60,55 +60,37 @@ class Torrent:
         if not t_types:
             # 未配置默认不过滤
             return True, 0, ""
-        if isinstance(t_types, list):
-            # 如果是个列表，说明是旧配置
-            c_seq = 100
-            for t_type in t_types:
-                c_seq = c_seq - 1
-                t_type = str(t_type)
-                if t_type.upper() == "BLURAY":
-                    match_str = r'blu-?ray'
-                elif t_type.upper() == "4K":
-                    match_str = r'4k|2160p'
-                else:
-                    match_str = r'%s' % t_type
-                re_res = re.search(match_str, t_title, re.IGNORECASE)
-                if re_res:
-                    return True, c_seq, t_type
-            return False, 0, ""
-        else:
-            if not isinstance(t_types, dict):
-                return True, 0, ""
-            # 必须包括的项
-            includes = t_types.get('include')
-            if includes:
-                if isinstance(includes, str):
-                    includes = [includes]
-                include_flag = True
-                for include in includes:
-                    if not include:
-                        continue
-                    re_res = re.search(r'%s' % include, t_title, re.IGNORECASE)
-                    if not re_res:
-                        include_flag = False
-                if not include_flag:
-                    return False, 0, ""
-
-            # 不能包含的项
-            excludes = t_types.get('exclude')
-            if excludes:
-                if isinstance(excludes, str):
-                    excludes = [excludes]
-                exclude_flag = False
-                exclude_count = 0
-                for exclude in excludes:
-                    if not exclude:
-                        continue
-                    exclude_count += 1
-                    re_res = re.search(r'%s' % exclude, t_title, re.IGNORECASE)
-                    if not re_res:
-                        exclude_flag = True
-                if exclude_count != 0 and not exclude_flag:
-                    return False, 0, ""
+        if not isinstance(t_types, dict):
             return True, 0, ""
+        # 必须包括的项
+        includes = t_types.get('include')
+        if includes:
+            if isinstance(includes, str):
+                includes = [includes]
+            include_flag = True
+            for include in includes:
+                if not include:
+                    continue
+                re_res = re.search(r'%s' % include, t_title, re.IGNORECASE)
+                if not re_res:
+                    include_flag = False
+            if not include_flag:
+                return False, 0, ""
 
+        # 不能包含的项
+        excludes = t_types.get('exclude')
+        if excludes:
+            if isinstance(excludes, str):
+                excludes = [excludes]
+            exclude_flag = False
+            exclude_count = 0
+            for exclude in excludes:
+                if not exclude:
+                    continue
+                exclude_count += 1
+                re_res = re.search(r'%s' % exclude, t_title, re.IGNORECASE)
+                if not re_res:
+                    exclude_flag = True
+            if exclude_count != 0 and not exclude_flag:
+                return False, 0, ""
+        return True, 0, ""

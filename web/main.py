@@ -31,7 +31,8 @@ from utils.functions import get_used_of_partition, str_filesize, str_timelong, I
 from utils.sqls import get_search_result_by_id, get_search_results, get_movie_keys, get_tv_keys, insert_movie_key, \
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
-    delete_transfer_log_by_id
+    delete_transfer_log_by_id, get_config_site, insert_config_site, get_site_by_id, delete_config_site, \
+    update_config_site
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
@@ -292,16 +293,24 @@ def create_flask_app(config):
                                Count=len(res),
                                Items=res)
 
-    # 站点订阅页面
-    @App.route('/sites', methods=['POST', 'GET'])
+    # 订阅关键字页面
+    @App.route('/rss', methods=['POST', 'GET'])
     @login_required
-    def sites():
+    def rss():
         # 获取订阅关键字
         movie_key_list = get_movie_keys()
         tv_key_list = get_tv_keys()
-        return render_template("sites.html",
+        return render_template("rss.html",
                                MovieKeys=','.join('%s' % key[0] for key in movie_key_list),
                                TvKeys=','.join('%s' % key[0] for key in tv_key_list))
+
+    # 站点维护页面
+    @App.route('/site', methods=['POST', 'GET'])
+    @login_required
+    def site():
+        Sites = get_config_site()
+        return render_template("site.html",
+                               Sites=Sites)
 
     # 推荐页面
     @App.route('/recommend', methods=['POST', 'GET'])
@@ -954,7 +963,8 @@ def create_flask_app(config):
                 info = ""
                 code = 0
                 try:
-                    response = requests.get("https://api.github.com/repos/jxxghp/nas-tools/releases/latest", timeout=10, proxies=config.get_proxies())
+                    response = requests.get("https://api.github.com/repos/jxxghp/nas-tools/releases/latest", timeout=10,
+                                            proxies=config.get_proxies())
                     if response:
                         ver_json = response.json()
                         version = ver_json["tag_name"]
@@ -963,6 +973,56 @@ def create_flask_app(config):
                     log.console(str(e))
                     code = -1
                 return {"code": code, "version": version, "info": info}
+
+            # 查询实时日志
+            if cmd == "update_site":
+                tid = data.get('site_id')
+                name = data.get('site_name')
+                site_pri = data.get('site_pri')
+                rssurl = data.get('site_rssurl')
+                signurl = data.get('site_signurl')
+                cookie = data.get('site_cookie')
+                include = data.get('site_include')
+                exclude = data.get('site_exclude')
+                size = data.get('site_size')
+                if tid:
+                    ret = update_config_site(tid=tid,
+                                             name=name,
+                                             site_pri=site_pri,
+                                             rssurl=rssurl,
+                                             signurl=signurl,
+                                             cookie=cookie,
+                                             include=include,
+                                             exclude=exclude,
+                                             size=size)
+                else:
+                    ret = insert_config_site(name=name,
+                                             site_pri=site_pri,
+                                             rssurl=rssurl,
+                                             signurl=signurl,
+                                             cookie=cookie,
+                                             include=include,
+                                             exclude=exclude,
+                                             size=size)
+                return {"code": ret}
+
+            # 查询单个站点信息
+            if cmd == "get_site":
+                tid = data.get("id")
+                if tid:
+                    ret = get_site_by_id(tid)
+                else:
+                    ret = []
+                return {"code": 0, "site": ret}
+
+            # 删除单个站点信息
+            if cmd == "del_site":
+                tid = data.get("id")
+                if tid:
+                    ret = delete_config_site(tid)
+                    return {"code": ret}
+                else:
+                    return {"code": 0}
 
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])

@@ -274,12 +274,12 @@
 
     //手动转移
     function manual_rename(){
-      type = $('input:radio[name=rename_type]:checked').val();
-      logid = $("#rename_logid").val();
-      tmdb = $("#rename_tmdb").val();
-      title = $("#rename_title").val();
-      year = $("#rename_year").val();
-      season = $("#rename_season").val();
+      var type = $('input:radio[name=rename_type]:checked').val();
+      var logid = $("#rename_logid").val();
+      var tmdb = $("#rename_tmdb").val();
+      var title = $("#rename_title").val();
+      var year = $("#rename_year").val();
+      var season = $("#rename_season").val();
 
       if(tmdb == ""){
         if(title == ""){
@@ -333,7 +333,7 @@
 
     //删除记录
     function delete_history(){
-      logid = $('#delete_history_id').val();
+      var logid = $('#delete_history_id').val();
       $("#delete_btn").attr("disabled", true);
       $("#delete_btn").text("删除中...");
       var data = { "logid": logid};

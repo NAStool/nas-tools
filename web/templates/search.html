@@ -4,7 +4,7 @@
     <div class="row align-items-center">
       <div class="col">
         <h2 class="page-title">
-          影视搜索
+          聚合搜索
         </h2>
       </div>
       <!-- Page title actions -->
@@ -83,19 +83,15 @@
   </div>
 </div>
 {% else %}
-<div class="page-wrapper">
-  <div class="container-xl">
-  </div>
-  <div class="page-body">
-    <div class="container-xl d-flex flex-column justify-content-center">
-      <div class="empty">
-        <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128"  alt="">
-        </div>
-        <p class="empty-title" id="search_tip_title">没有记录</p>
-        <p class="empty-subtitle text-muted" id="search_tip_text">
-          输入想看的电影、电视剧名称，点击搜索试试看吧。
-        </p>
+<div class="page-body">
+  <div class="container-xl d-flex flex-column justify-content-center">
+    <div class="empty">
+      <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128"  alt="">
       </div>
+      <p class="empty-title" id="search_tip_title">没有记录</p>
+      <p class="empty-subtitle text-muted" id="search_tip_text">
+        输入想看的电影、电视剧名称，点击搜索试试看吧。
+      </p>
     </div>
   </div>
 </div>
@@ -141,9 +137,9 @@
 </div>
 <script type="text/javascript">
   // 关键字
-  search_word = "{{ SearchWord }}";
-  need_search = "{{ NeedSearch }}";
-  result_count = {{ Count }}
+  var search_word = "{{ SearchWord }}";
+  var need_search = "{{ NeedSearch }}";
+  var result_count = {{ Count }}
   if(search_word != ""){
       $("#search_word").val(decodeURI(search_word));
       if(need_search){

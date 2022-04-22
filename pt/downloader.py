@@ -238,7 +238,7 @@ class Downloader:
                             message_list.append("%s 第%s季 不存在" % (meta_info.get_title_string(), season))
                             continue
                         total_seasons.append({"season_number": season, "episode_count": episode_num})
-                        log.info("【PT】第%s季 共有 %s 集" % (season, episode_num))
+                        log.info("【PT】%s 第%s季 共有 %s 集" % (meta_info.get_title_string(), season, episode_num))
                 # 查询缺少多少集
                 for season in total_seasons:
                     season_number = season.get("season_number")
@@ -277,16 +277,16 @@ class Downloader:
                             if len(no_exists_tv_episodes) >= episode_count:
                                 total_tv_no_exists[meta_info.get_title_string()].append(
                                     {"season": season_number, "episodes": [], "total_episodes": episode_count})
-                                log.info("【PT】第%s季 缺失 %s 集" % (season_number, episode_count))
+                                log.info("【PT】%s 第%s季 缺失 %s 集" % (meta_info.get_title_string(), season_number, episode_count))
                                 message_list.append("第%s季 缺失 %s 集" % (season_number, episode_count))
                             else:
                                 total_tv_no_exists[meta_info.get_title_string()].append(
                                     {"season": season_number, "episodes": no_exists_tv_episodes,
                                      "total_episodes": episode_count})
-                                log.info("【PT】第%s季 缺失集：%s" % (season_number, exists_tvs_str))
+                                log.info("【PT】%s 第%s季 缺失集：%s" % (meta_info.get_title_string(), season_number, exists_tvs_str))
                                 message_list.append("第%s季 缺失集：%s" % (season_number, exists_tvs_str))
                     else:
-                        log.info("【PT】第%s季 共%s集 已全部存在" % (season_number, episode_count))
+                        log.info("【PT】%s 第%s季 共%s集 已全部存在" % (meta_info.get_title_string(), season_number, episode_count))
                         message_list.append("第%s季 共%s集 已全部存在" % (season_number, episode_count))
             else:
                 log.info("【PT】%s 无法查询到媒体详细信息" % meta_info.get_title_string())

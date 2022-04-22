@@ -184,6 +184,8 @@ class Sync(object):
             lock.acquire()
             items = list(self.__need_sync_paths)
             for path in items:
+                if is_invalid_path(path):
+                    continue
                 target_info = self.__need_sync_paths.get(path)
                 if os.path.exists(path) and not is_transfer_in_blacklist(path):
                     log.info("【SYNC】开始转移监控目录文件...")
@@ -235,6 +237,8 @@ class Sync(object):
             target_path = target_dirs.get('target')
             unknown_path = target_dirs.get('unknown')
             for path in get_dir_level1_medias(monpath, RMT_MEDIAEXT):
+                if is_invalid_path(path):
+                    continue
                 ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
                                                                 in_path=path,
                                                                 target_dir=target_path,

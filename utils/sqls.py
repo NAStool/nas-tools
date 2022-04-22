@@ -2,21 +2,12 @@ import os.path
 import time
 
 from utils.db_helper import update_by_sql, select_by_sql
-from utils.functions import str_filesize, xstr, is_ses_in_ses
+from utils.functions import str_filesize, xstr, is_ses_in_ses, str_sql
 from utils.types import MediaType
 
 
 # 将返回信息插入数据库
 def insert_search_results(media_item):
-    if media_item.org_string:
-        org_string = media_item.org_string.replace("'", "''")
-    else:
-        org_string = ""
-    if media_item.description:
-        description = media_item.description.replace("'", "''")
-        description = description.replace(org_string, "").strip()
-    else:
-        description = ""
     if media_item.type == MediaType.TV:
         mtype = "TV"
     elif media_item.type == MediaType.MOVIE:
@@ -43,9 +34,9 @@ def insert_search_results(media_item):
           "SITE," \
           "SITE_ORDER) VALUES (" \
           "'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')" % (
-              org_string,
+              str_sql(media_item.org_string),
               media_item.enclosure,
-              description,
+              str_sql(media_item.description),
               mtype,
               media_item.title,
               xstr(media_item.year),
@@ -97,7 +88,7 @@ def delete_all_movie_keys():
 
 # 删除电影关键字
 def delete_movie_key(key):
-    sql = "DELETE FROM RSS_MOVIEKEYS WHERE NAME='%s'" % key
+    sql = "DELETE FROM RSS_MOVIEKEYS WHERE NAME='%s'" % str_sql(key)
     return update_by_sql(sql)
 
 
@@ -109,7 +100,7 @@ def delete_all_tv_keys():
 
 # 删除电视剧关键字
 def delete_tv_key(key):
-    sql = "DELETE FROM RSS_TVKEYS WHERE NAME='%s'" % key
+    sql = "DELETE FROM RSS_TVKEYS WHERE NAME='%s'" % str_sql(key)
     return update_by_sql(sql)
 
 
@@ -117,11 +108,10 @@ def delete_tv_key(key):
 def insert_movie_key(key):
     if not key:
         return False
-    key = str(key).replace("'", "''")
-    sql = "SELECT 1 FROM RSS_MOVIEKEYS WHERE NAME = '%s'" % key
+    sql = "SELECT 1 FROM RSS_MOVIEKEYS WHERE NAME = '%s'" % str_sql(key)
     ret = select_by_sql(sql)
     if not ret or len(ret) == 0:
-        sql = "INSERT INTO RSS_MOVIEKEYS(NAME) VALUES ('%s')" % key
+        sql = "INSERT INTO RSS_MOVIEKEYS(NAME) VALUES ('%s')" % str_sql(key)
         return update_by_sql(sql)
     else:
         return False
@@ -217,10 +207,8 @@ def get_douban_search_state(title, year):
 def is_transfer_history_exists(file_path, file_name, title, se):
     if not file_path:
         return False
-    file_name = file_name or ""
-    title = title or ""
-    se = se or ""
-    sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_PATH='%s' AND FILE_NAME='%s' AND TITLE='%s' AND SE='%s'" % (file_path, file_name, title, se)
+    sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_PATH='%s' AND FILE_NAME='%s' AND TITLE='%s' AND SE='%s'" % (
+        str_sql(file_path), str_sql(file_name), str_sql(title), str_sql(se))
     ret = select_by_sql(sql)
     if ret and ret[0][0] > 0:
         return True
@@ -238,13 +226,15 @@ def insert_transfer_history(in_from, rmt_mode, in_path, dest, media_info):
         return False
     if not dest:
         dest = ""
-    file_path = os.path.dirname(in_path).replace("'", "''")
-    file_name = os.path.basename(in_path).replace("'", "''")
+    file_path = os.path.dirname(in_path)
+    file_name = os.path.basename(in_path)
     if is_transfer_history_exists(file_path, file_name, media_info.title, media_info.get_season_string()):
         return True
     timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-    sql = "INSERT INTO TRANSFER_HISTORY(SOURCE, MODE, TYPE, FILE_PATH, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
-        in_from.value, rmt_mode.value, media_info.type.value, file_path, file_name, media_info.title, media_info.category, media_info.year, media_info.get_season_string(), dest, timestr)
+    sql = "INSERT INTO TRANSFER_HISTORY(SOURCE, MODE, TYPE, FILE_PATH, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE) VALUES " \
+          "('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
+              in_from.value, rmt_mode.value, media_info.type.value, str_sql(file_path), str_sql(file_name), media_info.title,
+              media_info.category, media_info.year, media_info.get_season_string(), dest, timestr)
     return update_by_sql(sql)
 
 
@@ -253,7 +243,7 @@ def get_transfer_history(search, page, rownum):
     if page == 1:
         begin_pos = 0
     else:
-        begin_pos = (page-1) * rownum
+        begin_pos = (page - 1) * rownum
 
     if search:
         count_sql = f"SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_NAME LIKE '%{search}%' OR TITLE LIKE '%{search}%'"
@@ -286,8 +276,8 @@ def get_transfer_unknown_paths():
 def update_transfer_unknown_state(path):
     if not path:
         return False
-    path = os.path.normpath(path).replace("'", "''")
-    sql = f"UPDATE TRANSFER_UNKNOWN SET STATE='Y' WHERE PATH='{path}'"
+    path = os.path.normpath(path)
+    sql = f"UPDATE TRANSFER_UNKNOWN SET STATE='Y' WHERE PATH='{str_sql(path)}'"
     return update_by_sql(sql)
 
 
@@ -295,8 +285,8 @@ def update_transfer_unknown_state(path):
 def delete_transfer_unknown(path):
     if not path:
         return False
-    path = os.path.normpath(path).replace("'", "''")
-    sql = f"DELETE FROM TRANSFER_UNKNOWN WHERE PATH='{path}'"
+    path = os.path.normpath(path)
+    sql = f"DELETE FROM TRANSFER_UNKNOWN WHERE PATH='{str_sql(path)}'"
     return update_by_sql(sql)
 
 
@@ -304,8 +294,8 @@ def delete_transfer_unknown(path):
 def is_transfer_unknown_exists(path):
     if not path:
         return False
-    path = os.path.normpath(path).replace("'", "''")
-    sql = f"SELECT COUNT(1) FROM TRANSFER_UNKNOWN WHERE PATH='{path}'"
+    path = os.path.normpath(path)
+    sql = f"SELECT COUNT(1) FROM TRANSFER_UNKNOWN WHERE PATH='{str_sql(path)}'"
     ret = select_by_sql(sql)
     if ret and ret[0][0] > 0:
         return True
@@ -320,12 +310,12 @@ def insert_transfer_unknown(path, dest):
     if is_transfer_unknown_exists(path):
         return False
     else:
-        path = os.path.normpath(path).replace("'", "''")
+        path = os.path.normpath(path)
         if dest:
-            dest = os.path.normpath(dest).replace("'", "''")
+            dest = os.path.normpath(dest)
         else:
             dest = ""
-        sql = f"INSERT INTO TRANSFER_UNKNOWN(PATH, DEST, STATE) VALUES('{path}', '{dest}', 'N')"
+        sql = f"INSERT INTO TRANSFER_UNKNOWN(PATH, DEST, STATE) VALUES('{str_sql(path)}', '{str_sql(dest)}', 'N')"
         return update_by_sql(sql)
 
 
@@ -333,8 +323,8 @@ def insert_transfer_unknown(path, dest):
 def is_transfer_in_blacklist(path):
     if not path:
         return False
-    path = os.path.normpath(path).replace("'", "''")
-    sql = f"SELECT COUNT(1) FROM TRANSFER_BLACKLIST WHERE PATH='{path}'"
+    path = os.path.normpath(path)
+    sql = f"SELECT COUNT(1) FROM TRANSFER_BLACKLIST WHERE PATH='{str_sql(path)}'"
     ret = select_by_sql(sql)
     if ret and ret[0][0] > 0:
         return True
@@ -352,3 +342,47 @@ def insert_transfer_blacklist(path):
         path = os.path.normpath(path).replace("'", "''")
         sql = f"INSERT INTO TRANSFER_BLACKLIST(PATH) VALUES('{path}')"
         return update_by_sql(sql)
+
+
+# 查询所有站点信息
+def get_config_site():
+    return select_by_sql(
+        "SELECT ID,NAME,PRI,RSSURL,SIGNURL,COOKIE,INCLUDE,EXCLUDE,SIZE,NOTE FROM CONFIG_SITE ORDER BY CAST(PRI AS DECIMAL) ASC")
+
+
+# 查询1个站点信息
+def get_site_by_id(tid):
+    return select_by_sql(
+        "SELECT ID,NAME,PRI,RSSURL,SIGNURL,COOKIE,INCLUDE,EXCLUDE,SIZE,NOTE FROM CONFIG_SITE WHERE ID='%s'" % tid)
+
+
+# 插入站点信息
+def insert_config_site(name, site_pri, rssurl, signurl, cookie, include, exclude, size, note=""):
+    if not name:
+        return
+    sql = "INSERT INTO CONFIG_SITE(NAME,PRI,RSSURL,SIGNURL,COOKIE,INCLUDE,EXCLUDE,SIZE,NOTE) VALUES " \
+          "('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
+              str_sql(name),
+              str_sql(site_pri),
+              str_sql(rssurl),
+              str_sql(signurl),
+              str_sql(cookie),
+              str_sql(include),
+              str_sql(exclude),
+              str_sql(size),
+              str_sql(note)
+          )
+    return update_by_sql(sql)
+
+
+# 删除站点信息
+def delete_config_site(tid):
+    if not tid:
+        return False
+    return update_by_sql("DELETE FROM CONFIG_SITE WHERE ID='%s'" % tid)
+
+
+# 更新站点信息
+def update_config_site(tid, name, site_pri, rssurl, signurl, cookie, include, exclude, size, note=""):
+    delete_config_site(tid)
+    insert_config_site(name, site_pri, rssurl, signurl, cookie, include, exclude, size, note)

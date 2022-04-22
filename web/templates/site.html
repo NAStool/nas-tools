@@ -1,0 +1,341 @@
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          站点信息
+        </h2>
+      </div>
+      <!-- Page title actions -->
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:show_site_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            新增站点
+          </a>
+          <a href="#" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-report" aria-label="Create new report">
+            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% if Sites %}
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      {% for Site in Sites %}
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">
+              <strong>{{ Site[1] }}</strong>
+            </h3>
+            <div class="card-actions">
+              <a href="javascript:edit_site('{{ Site[0] }}')">
+                编缉
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
+              </a>
+            </div>
+          </div>
+          <div class="card-body">
+            <dl class="row">
+              {% if Site[4] %}
+              <dt class="col-3">签到地址:</dt>
+              <dd class="col-9">{{ Site[4] }}</dd>
+              {% endif %}
+              {% if Site[5] %}
+              <dt class="col-3">COOKIE:</dt>
+              <dd class="col-9">{% if Site[5] %}***{% endif %}</dd>
+              {% endif %}
+              {% if Site[3] %}
+              <dt class="col-3">RSS订阅:</dt>
+              <dd class="col-9">{% if Site[3] %}***{% endif %}</dd>
+              {% endif %}
+              {% if Site[6] %}
+              <dt class="col-3">包含规则:</dt>
+              <dd class="col-9"><pre>{{ Site[6] }}</pre></dd>
+              {% endif %}
+              {% if Site[7] %}
+              <dt class="col-3">排除规则:</dt>
+              <dd class="col-9"><pre>{{ Site[7] }}</pre></dd>
+              {% endif %}
+              {% if Site[8] %}
+              <dt class="col-3">大小限制:</dt>
+              <dd class="col-9">{{ Site[8] }} GB</dd>
+              {% endif %}
+            </dl>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="page-body">
+  <div class="container-xl d-flex flex-column justify-content-center">
+    <div class="empty">
+      <div class="empty-img"><img src="./static/img/sign_in.svg" height="128"  alt="">
+      </div>
+      <p class="empty-title">没有站点</p>
+      <p class="empty-subtitle text-muted">
+        没有添加任何站点，请点击”新增站点“按钮。
+      </p>
+    </div>
+  </div>
+</div>
+{% endif %}
+<div class="modal modal-blur fade" id="modal-site" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal-site-title">新增站点</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-8">
+            <div class="mb-3">
+              <label class="form-label">名称</label>
+              <input type="hidden" id="site_id" />
+              <input type="text" class="form-control" id="site_name" placeholder="自定义站点名称">
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">优先级(<a href="#" title="【RSS优先级】：数值越小优先级越高">?</a>)</label>
+              <select class="form-select" id="site_pri">
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="mb-3">
+              <label class="form-label">签到地址(<a href="#" title="【PT站签到Url】：一般为mybonus.php或attendance.php，即PT站点击签到按钮跳转的页面，部分站没有独立的签到页面时可以配置为首页">?</a>)</label>
+              <div class="input-group input-group-flat">
+                <input type="text" class="form-control" id="site_signurl" value="" placeholder="PT站签到页面URL" autocomplete="off">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-12">
+          <div>
+            <label class="form-label">COOKIE(<a href="#" title="【PT站的Cookie】：用于PT站签到，需要在浏览器中F12->网络页抓取">?</a>)</label>
+            <textarea class="form-control" id="site_cookie" rows="2" placeholder="PT站的COOKIE，用于PT站签到"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="mb-3">
+              <label class="form-label">RSS地址(<a href="#" title="【RSS订阅源URL】：点击PT站点RSS图标获取，也可以是PT站的购物车/下载框的链接">?</a>)</label>
+              <div class="input-group input-group-flat">
+                <input type="text" class="form-control" id="site_rssurl" value="" placeholder="PT站点RSS订阅URL" autocomplete="off">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div>
+              <label class="form-label">包含规则(<a href="#" title="【必须包含的关键字】：只有种子名称中包括这些关键字才会命中&#10;1、对大小写不敏感，配置为空为不启用该条件&#10;2、可以配置普通的关键字，也可以配置正则表达式&#10;3、可以配置多行，多行之间是【与】的关系，即多行条件都不包含时才会命中&#10;4、单行内可以用'|'来表示【或】，即包括其一即命中">?</a>)</label>
+              <textarea class="form-control" id="site_include" rows="2" placeholder="必须包含的关键字或正则表达式"></textarea>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div>
+              <label class="form-label">排除规则(<a href="#" title="【不能包含的关键字】：种子名称中如果有这些关键字则会被跳过&#10;1、对大小写不敏感，配置为空为不启用该条件&#10;2、可以配置普通的关键字，也可以配置正则表达式&#10;3、可以配置多行，多行之间是【与】的关系，即多行条件都不包含时才会跳过&#10;4、单行内可以用'|'来表示【或】，即包括其一即跳过">?</a>)</label>
+              <textarea class="form-control" id="site_exclude" rows="2" placeholder="不能包含的关键字或正则表达式"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">大小限制(<a href="#" title="【限制文件大小】：只有满足大小限制的种子文件才会被命中，单位是GB&#10;1、只针对电影有效，配置为0或不配置则不启用该条件&#10;2、对大小写不敏感，配置为空为不启用该条件&#10;3、如只配置1个数字，表示小于等于该大小的才会被命中&#10;4、如配置2个数字(使用英文逗号分隔)，表示在中间大小的才会被命中">?</a>)</label>
+              <div class="input-group input-group-flat">
+                <input type="text" class="form-control" id="site_size" value="" placeholder="限制电影文件大小，单位GB" autocomplete="off">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="site_close_btn" class="btn btn-link link-secondary">
+          取消
+        </button>
+        <button id="add_or_edit_site_btn" class="btn btn-primary ms-auto">
+          新增
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  //打开新增站点框
+  function show_site_modal(){
+    $("#site_id").val('');
+    $("#site_name").val('');
+    $("#site_pri").val('1');
+    $("#site_rssurl").val('');
+    $("#site_signurl").val('');
+    $("#site_cookie").val('');
+    $("#site_include").val('');
+    $("#site_exclude").val('');
+    $("#site_size").val('');
+    $("#site_close_btn").text("取消");
+    $("#modal-site-title").text("新增站点");
+    $("#add_or_edit_site_btn").text("新增");
+    $("#modal-site").modal("show");
+  }
+  //编辑站点
+  function edit_site(tid){
+    $("#site_id").val(tid);
+    $("#site_close_btn").text("删除");
+    //根据ID查询详细信息
+    ajax_post("get_site", {"id": tid}, function(ret){
+      if(ret.site){
+        $("#site_id").val(ret.site[0][0]);
+        $("#site_name").val(ret.site[0][1]);
+        $("#site_pri").val(ret.site[0][2]);
+        $("#site_rssurl").val(ret.site[0][3]);
+        $("#site_signurl").val(ret.site[0][4]);
+        $("#site_cookie").val(ret.site[0][5]);
+        $("#site_include").val(ret.site[0][6]);
+        $("#site_exclude").val(ret.site[0][7]);
+        $("#site_size").val(ret.site[0][8]);
+        $("#modal-site-title").text("编辑站点");
+        $("#add_or_edit_site_btn").text("修改");
+        $("#modal-site").modal("show");
+      }
+    });
+  }
+
+  //删除站点
+  function del_site(tid){
+    ajax_post("del_site", {"id":$("#site_id").val()}, function(ret){
+      navmenu('site');
+    });
+  }
+
+  //新增站点
+  function add_or_edit_site(){
+    //id
+    var site_id = $("#site_id").val();
+    //名称
+    var site_name = $("#site_name").val();
+    if(site_name == ""){
+      $("#site_name").addClass("is-invalid");
+      return;
+    }else{
+      $("#site_name").removeClass("is-invalid");
+    }
+    //优先级
+    var site_pri = $("#site_pri").val();
+    if(site_pri){
+      $("#site_pri").removeClass("is-invalid");
+    }else{
+      $("#site_pri").addClass("is-invalid");
+      return;
+    }
+    //签到URL
+    var site_signurl = $("#site_signurl").val();
+    if(site_signurl){
+      if(site_signurl.startsWith('http')){
+        $("#site_signurl").removeClass("is-invalid");
+      }else{
+        $("#site_signurl").addClass("is-invalid");
+        return;
+      }
+    }
+    //Cookie
+    var site_cookie = $("#site_cookie").val();
+    //RSS URL
+    var site_rssurl = $("#site_rssurl").val();
+    if(site_rssurl){
+      if(site_rssurl.startsWith('http')){
+        $("#site_rssurl").removeClass("is-invalid");
+      }else{
+        $("#site_rssurl").addClass("is-invalid");
+        return;
+      }
+    }
+    var site_include = $("#site_include").val();
+    var site_exclude = $("#site_exclude").val();
+    var site_size = $("#site_size").val();
+    if(site_size){
+      var reg = /^[0-9,]*$/;
+      if(!reg.test(site_size)){
+        $("#site_size").addClass("is-invalid");
+        return;
+      }else{
+        $("#site_size").removeClass("is-invalid");
+      }
+    }
+
+    var data = {"site_id":site_id,
+            "site_name":site_name,
+            "site_pri":site_pri,
+            "site_rssurl":site_rssurl,
+            "site_signurl":site_signurl,
+            "site_cookie":site_cookie,
+             "site_include":site_include,
+             "site_exclude":site_exclude,
+             "site_size":site_size}
+
+    $("#add_or_edit_site_btn").attr("disabled", true);
+    $("#add_or_edit_site_btn").text("处理中...");
+    // 发送请求
+    ajax_post("update_site", data, function(ret){
+      $("#add_or_edit_site_btn").attr("disabled", false);
+      $("#add_or_edit_site_btn").text("新增");
+      $("#modal-site").modal("hide");
+      //刷新页面
+      navmenu('site');
+    });
+  }
+
+  //关闭或者删除
+  function close_or_del(){
+    $("#modal-site").modal("hide");
+    tid = $("#site_id").val();
+    if(tid){
+      del_site(tid);
+    }
+  }
+
+  //绑定事件
+  $("#add_or_edit_site_btn").click(function(){
+      add_or_edit_site();
+  });
+  $("#site_close_btn").click(function(){
+      close_or_del();
+  });
+</script>

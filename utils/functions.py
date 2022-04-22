@@ -95,19 +95,25 @@ def system_exec_command(cmd, timeout=60):
 
 # 获得目录下的媒体文件列表List，按后缀过滤
 def get_dir_files_by_ext(in_path, exts="", filesize=0):
-    ret_list = []
+    if not in_path:
+        return []
     if not os.path.exists(in_path):
         return []
+    ret_list = []
     if os.path.isdir(in_path):
         for root, dirs, files in os.walk(in_path):
             for file in files:
                 ext = os.path.splitext(file)[-1]
                 if not exts or ext.lower() in exts:
                     cur_path = os.path.join(root, file)
+                    if is_invalid_path(cur_path):
+                        continue
                     file_size = os.path.getsize(cur_path)
                     if cur_path not in ret_list and file_size >= filesize:
                         ret_list.append(cur_path)
     else:
+        if is_invalid_path(in_path):
+            return []
         ext = os.path.splitext(in_path)[-1]
         file_size = os.path.getsize(in_path)
         if ext.lower() in exts and file_size >= filesize:
@@ -327,3 +333,11 @@ def is_bluray_dir(path):
     if not path:
         return False
     return os.path.exists(os.path.join(path, "BDMV", "index.bdmv"))
+
+
+# 转化SQL字符
+def str_sql(in_str):
+    if not in_str:
+        return ""
+    else:
+        return str(in_str).replace("'", "''")

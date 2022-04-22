@@ -489,6 +489,8 @@ class FileTransfer:
         log.console("【RMT】正在转移以下目录中的全量文件：%s" % s_path)
         log.console("【RMT】转移模式为：%s" % self.__sync_rmt_mode.value)
         for path in get_dir_level1_medias(s_path, RMT_MEDIAEXT):
+            if is_invalid_path(path):
+                continue
             ret, ret_msg = self.transfer_media(in_from=SyncType.MAN, in_path=path, target_dir=t_path)
             if not ret:
                 log.console("【RMT】%s 处理失败：%s" % (path, ret_msg))

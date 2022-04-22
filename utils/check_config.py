@@ -180,7 +180,7 @@ def check_config(cfg):
         pt_client = config['pt'].get('pt_client')
         log.info("PT下载软件设置为：%s" % pt_client)
         if pt_client == "qbittorrent":
-            # 检查qbittorrent配置并测试连通性
+            # 检查qbittorrent配置
             if not config.get('qbittorrent'):
                 log.error("qbittorrent未配置")
             else:
@@ -192,7 +192,7 @@ def check_config(cfg):
                         if not save_path.get('tv') or not save_path.get('movie'):
                             log.warn("qbittorrent save_path配置不完整，请检查配置")
         elif pt_client == "transmission":
-            # 检查qbittorrent配置并测试连通性
+            # 检查qbittorrent配置
             if not config.get('transmission'):
                 log.error("transmission未配置")
             else:
@@ -236,7 +236,7 @@ def check_config(cfg):
         if not pt_seeding_time:
             log.info("pt_seeding_time未配置，自动删种功能已关闭")
         else:
-            log.info("PT保种时间设置为：%s 小时" % str(round(pt_seeding_time / 3600)))
+            log.info("PT保种时间设置为：%s 小时" % str(round(int(pt_seeding_time) / 3600)))
 
         pt_check_interval = config['pt'].get('pt_check_interval')
         if not pt_check_interval:
@@ -245,10 +245,6 @@ def check_config(cfg):
         pt_monitor = config['pt'].get('pt_monitor')
         if not pt_monitor:
             log.info("pt_monitor未配置，PT下载监控功能已关闭")
-
-        sites = config['pt'].get('sites')
-        if not sites:
-            log.warn("sites未配置，RSS订阅下载功能已关闭")
     else:
         log.warn("pt未配置，部分功能将无法使用")
 

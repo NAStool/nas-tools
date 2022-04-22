@@ -51,19 +51,15 @@
   </div>
 </div>
 {% else %}
-<div class="page-wrapper">
-  <div class="container-xl">
-  </div>
-  <div class="page-body">
-    <div class="container-xl d-flex flex-column justify-content-center">
-      <div class="empty">
-        <div class="empty-img"><img src="./static/img/sign_in.svg" height="128"  alt="">
-        </div>
-        <p class="empty-title">没有数据</p>
-        <p class="empty-subtitle text-muted">
-          没有开启任何后台服务。
-        </p>
+<div class="page-body">
+  <div class="container-xl d-flex flex-column justify-content-center">
+    <div class="empty">
+      <div class="empty-img"><img src="./static/img/sign_in.svg" height="128"  alt="">
       </div>
+      <p class="empty-title">没有服务</p>
+      <p class="empty-subtitle text-muted">
+        没有开启任何后台服务。
+      </p>
     </div>
   </div>
 </div>
@@ -256,7 +252,7 @@
           enableLiveAutocompletion: true
       });
   //刷新LOG标志
-  refresh_logging_flag = false
+  var refresh_logging_flag = false
   //开始刷新日志
   function start_logging(){
     refresh_logging_flag = true;
@@ -269,19 +265,20 @@
   //刷新日志
   function refresh_logging(){
     ajax_post("logging", {}, function(ret){
-      if(ret.text)
-      $("#logging_content").html(ret.text);
-      var height = $('#logging_content').prop("scrollHeight");
-      $('#logging_content').scrollTop(height);
-      if(refresh_logging_flag == true){
-        setTimeout("refresh_logging()", 2000);
+      if(ret.text){
+        $("#logging_content").html(ret.text);
+        var height = $('#logging_content').prop("scrollHeight");
+        $('#logging_content').scrollTop(height);
+        if(refresh_logging_flag == true){
+          setTimeout("refresh_logging()", 2000);
+        }
       }
     });
   }
   //拉取列表
   function refresh_rename_paths(){
     ajax_post("rename_path", {}, function(ret){
-      paths = ret.paths;
+      var paths = ret.paths;
       $("#rename_path").empty();
       $("#rename_path").append("<option value='' selected>请选择</option>");
       for(var i=0; i<paths.length; i++){
@@ -307,7 +304,7 @@
   //读取配置
   function load_config(){
     ajax_post("load_config", {}, function(ret){
-      config_str = ret.config_str;
+      var config_str = ret.config_str;
       editor.getSession().setValue(config_str)
     });
   }
@@ -360,12 +357,12 @@
 
   //手动转移
   function manual_rename(){
-    type = $('input:radio[name=rename_type]:checked').val();
-    path = $("#rename_path").val();
-    tmdb = $("#rename_tmdb").val();
-    title = $("#rename_title").val();
-    year = $("#rename_year").val();
-    season = $("#rename_season").val();
+    var type = $('input:radio[name=rename_type]:checked').val();
+    var path = $("#rename_path").val();
+    var tmdb = $("#rename_tmdb").val();
+    var title = $("#rename_title").val();
+    var year = $("#rename_year").val();
+    var season = $("#rename_season").val();
 
     if(path == ""){
       $("#rename_path").addClass("is-invalid");
@@ -418,7 +415,7 @@
 
   //删除路径
   function del_rename_path(){
-    path = $("#rename_path").val();
+    var path = $("#rename_path").val();
     if(path == ""){
       $("#rename_path").addClass("is-invalid");
       return;

@@ -32,25 +32,25 @@ class DBHelper:
         try:
             # Jackett搜索结果表
             cursor.execute('''CREATE TABLE IF NOT EXISTS SEARCH_TORRENTS
-                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                   TORRENT_NAME    TEXT,
-                   ENCLOSURE    TEXT,
-                   DESCRIPTION    TEXT,
-                   TYPE TEXT,
-                   TITLE    TEXT,
-                   YEAR    TEXT,
-                   SEASON    TEXT,
-                   EPISODE    TEXT,
-                   ES_STRING    TEXT,
-                   VOTE    TEXT,
-                   IMAGE    TEXT,
-                   RES_TYPE    TEXT,
-                   RES_ORDER    TEXT,
-                   SIZE    INTEGER,
-                   SEEDERS    INTEGER,
-                   PEERS    INTEGER,                   
-                   SITE    TEXT,
-                   SITE_ORDER    TEXT);''')
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   TORRENT_NAME    TEXT,
+                                   ENCLOSURE    TEXT,
+                                   DESCRIPTION    TEXT,
+                                   TYPE TEXT,
+                                   TITLE    TEXT,
+                                   YEAR    TEXT,
+                                   SEASON    TEXT,
+                                   EPISODE    TEXT,
+                                   ES_STRING    TEXT,
+                                   VOTE    TEXT,
+                                   IMAGE    TEXT,
+                                   RES_TYPE    TEXT,
+                                   RES_ORDER    TEXT,
+                                   SIZE    INTEGER,
+                                   SEEDERS    INTEGER,
+                                   PEERS    INTEGER,                   
+                                   SITE    TEXT,
+                                   SITE_ORDER    TEXT);''')
             # RSS下载记录表
             cursor.execute('''CREATE TABLE IF NOT EXISTS RSS_TORRENTS
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
@@ -83,34 +83,47 @@ class DBHelper:
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_DOUBAN_MEDIAS_NAME ON DOUBAN_MEDIAS (NAME, YEAR);''')
             # 识别转移历史记录表
             cursor.execute('''CREATE TABLE IF NOT EXISTS TRANSFER_HISTORY
-                                               (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                                               SOURCE    TEXT,
-                                               MODE    TEXT,
-                                               TYPE    TEXT,
-                                               FILE_PATH    TEXT,
-                                               FILE_NAME    TEXT,
-                                               TITLE   TEXT,
-                                               CATEGORY   TEXT,
-                                               YEAR    TEXT,
-                                               SE    TEXT,
-                                               DEST    TEXT,
-                                               DATE    );''')
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   SOURCE    TEXT,
+                                   MODE    TEXT,
+                                   TYPE    TEXT,
+                                   FILE_PATH    TEXT,
+                                   FILE_NAME    TEXT,
+                                   TITLE   TEXT,
+                                   CATEGORY   TEXT,
+                                   YEAR    TEXT,
+                                   SE    TEXT,
+                                   DEST    TEXT,
+                                   DATE    );''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_HISTORY_PATH ON TRANSFER_HISTORY (FILE_PATH);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_HISTORY_NAME ON TRANSFER_HISTORY (FILE_NAME);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_HISTORY_TITLE ON TRANSFER_HISTORY (TITLE);''')
             # 无法识别的文件列表
             cursor.execute('''CREATE TABLE IF NOT EXISTS TRANSFER_UNKNOWN
-                                               (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                                               PATH    TEXT,
-                                               DEST    TEXT,
-                                               STATE    TEXT);''')
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   PATH    TEXT,
+                                   DEST    TEXT,
+                                   STATE    TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_UNKNOWN ON TRANSFER_UNKNOWN (PATH);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_UNKNOWN_STATE ON TRANSFER_UNKNOWN (STATE);''')
             # 识别黑名单
             cursor.execute('''CREATE TABLE IF NOT EXISTS TRANSFER_BLACKLIST
-                                                           (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                                                           PATH    TEXT);''')
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   PATH    TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_BLACKLIST ON TRANSFER_BLACKLIST (PATH);''')
+            # 站点配置表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS CONFIG_SITE
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   NAME    TEXT,
+                                   PRI    TEXT,
+                                   RSSURL   TEXT,
+                                   SIGNURL  TEXT,
+                                   COOKIE   TEXT,
+                                   INCLUDE  TEXT,
+                                   EXCLUDE  TEXT,
+                                   SIZE    TEXT,
+                                   NOTE    TEXT);''')
+            # 提交
             self.__connection.commit()
 
         except Exception as e:

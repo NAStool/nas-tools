@@ -10,7 +10,7 @@ from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
 from utils.sqls import get_movie_keys, get_tv_keys, is_torrent_rssd_by_name, insert_rss_torrents, delete_movie_key, \
-    delete_tv_key
+    delete_tv_key, get_config_site
 from utils.types import MediaType, SearchType
 
 RSS_CACHED_TORRENTS = []
@@ -36,7 +36,7 @@ class Rss:
         pt = config.get_config('pt')
         if pt:
             self.__rss_chinese = pt.get('rss_chinese')
-            self.__sites = pt.get('sites')
+            self.__sites = get_config_site()
 
     def rssdownload(self):
         global RSS_CACHED_TORRENTS
@@ -64,16 +64,22 @@ class Rss:
         order_seq = 100
         rss_download_torrents = []
         no_exists = {}
-        for rss_job, job_info in self.__sites.items():
+        for site_info in self.__sites:
+            if not site_info:
+                continue
             order_seq -= 1
             # 读取子配置
-            rssurl = job_info.get('rssurl')
+            rss_job = site_info[1]
+            rssurl = site_info[3]
             if not rssurl:
                 log.error("【RSS】%s 未配置rssurl，跳过..." % str(rss_job))
                 continue
-            res_type = job_info.get('res_type')
-            if isinstance(res_type, str):
-                res_type = [res_type]
+            if site_info[6] or site_info[7] or site_info[8]:
+                include = str(site_info[6]).split("\n")
+                exclude = str(site_info[7]).split("\n")
+                res_type = {"include": include, "exclude": exclude, "size":  site_info[8]}
+            else:
+                res_type = None
 
             # 开始下载RSS
             log.info("【RSS】正在处理：%s" % rss_job)

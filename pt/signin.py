@@ -2,6 +2,7 @@ import log
 from config import Config
 from message.send import Message
 from utils.http_utils import RequestUtils
+from utils.sqls import get_config_site
 
 
 class SignIn:
@@ -17,17 +18,20 @@ class SignIn:
         config = Config()
         pt = config.get_config('pt')
         if pt:
-            self.__pt_sites = pt.get('sites')
+            self.__pt_sites = get_config_site()
             self.__user_agent = pt.get('user_agent')
 
     def signin(self):
         status = []
         if self.__pt_sites:
-            for pt_task, task_info in self.__pt_sites.items():
+            for site_info in self.__pt_sites:
+                if not site_info:
+                    continue
+                pt_task = site_info[1]
                 try:
+                    pt_url = site_info[4]
+                    pt_cookie = site_info[5]
                     log.info("【PT】开始PT签到：%s" % pt_task)
-                    pt_url = task_info.get('signin_url')
-                    pt_cookie = task_info.get('cookie')
                     if not pt_url or not pt_cookie:
                         log.warn("【PT】未配置 %s 的Url或Cookie，无法签到" % str(pt_task))
                         continue
