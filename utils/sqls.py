@@ -143,25 +143,19 @@ def is_torrent_rssd_by_url(url):
 
 
 # 查询RSS是否处理过，根据名称
-def is_torrent_rssd_by_name(media_title, media_year, media_seaion, media_episode):
-    if not media_title:
+def is_torrent_rssd(media_info):
+    if not media_info:
         return True
-    sql = "SELECT SEASON,EPISODE FROM RSS_TORRENTS WHERE TITLE = '%s'" % media_title
-    if media_year:
-        sql = "%s AND YEAR='%s'" % (sql, media_year)
+    if media_info.type == MediaType.MOVIE:
+        sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TITLE='%s' AND YEAR='%s'" % (media_info.title, media_info.year)
+    else:
+        sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TITLE='%s' AND YEAR='%s' AND SEASON='%s' AND EPISODE='%s'" % \
+              (media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string())
     rets = select_by_sql(sql)
-    if not rets:
+    if rets and rets[0][0] > 0:
+        return True
+    else:
         return False
-    for ret in rets:
-        season = ret[0]
-        episode = ret[1]
-        # 种子没有季和集，说明是电影，查到同名同年数据也没有季和集的则说明下过了
-        if not media_seaion and not media_episode and not season and not episode:
-            return True
-        # 比较电视剧
-        if is_ses_in_ses(media_seaion, media_episode, season, episode):
-            return True
-    return False
 
 
 # 删除所有搜索的记录
@@ -340,8 +334,8 @@ def insert_transfer_blacklist(path):
     if is_transfer_in_blacklist(path):
         return False
     else:
-        path = os.path.normpath(path).replace("'", "''")
-        sql = f"INSERT INTO TRANSFER_BLACKLIST(PATH) VALUES('{path}')"
+        path = os.path.normpath(path)
+        sql = f"INSERT INTO TRANSFER_BLACKLIST(PATH) VALUES('{str_sql(path)}')"
         return update_by_sql(sql)
 
 

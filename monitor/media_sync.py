@@ -239,6 +239,8 @@ class Sync(object):
             for path in get_dir_level1_medias(monpath, RMT_MEDIAEXT):
                 if is_invalid_path(path):
                     continue
+                if is_transfer_in_blacklist(path):
+                    return
                 ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
                                                                 in_path=path,
                                                                 target_dir=target_path,

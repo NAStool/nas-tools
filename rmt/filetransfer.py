@@ -356,11 +356,16 @@ class FileTransfer:
             file_name = os.path.basename(file_item)
             # 上级目录
             file_path = os.path.dirname(file_item)
+            # 数据库记录的路径
+            if media.type == MediaType.MOVIE:
+                reg_path = file_item
+            else:
+                reg_path = max(file_path, in_path)
             # 未识别
             if not media or not media.tmdb_info or not media.get_title_string():
                 log.warn("【RMT】%s 无法识别媒体信息！" % file_name)
                 # 记录未识别
-                insert_transfer_unknown(max(file_path, in_path), target_dir)
+                insert_transfer_unknown(reg_path, target_dir)
                 failed_count = failed_count + 1
                 # 原样转移过去
                 if unknown_dir:
@@ -447,7 +452,7 @@ class FileTransfer:
             if refresh_item not in refresh_library_items:
                 refresh_library_items.append(refresh_item)
             # 转移历史记录
-            insert_transfer_history(in_from, rmt_mode, max(file_path, in_path), dist_path, media)
+            insert_transfer_history(in_from, rmt_mode, reg_path, dist_path, media)
             # 电影立即发送消息
             if media.type == MediaType.MOVIE:
                 self.message.send_transfer_movie_message(in_from,

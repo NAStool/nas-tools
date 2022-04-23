@@ -9,8 +9,8 @@ from utils.functions import is_chinese
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
-from utils.sqls import get_movie_keys, get_tv_keys, is_torrent_rssd_by_name, insert_rss_torrents, delete_movie_key, \
-    delete_tv_key, get_config_site
+from utils.sqls import get_movie_keys, get_tv_keys, insert_rss_torrents, delete_movie_key, \
+    delete_tv_key, get_config_site, is_torrent_rssd
 from utils.types import MediaType, SearchType
 
 RSS_CACHED_TORRENTS = []
@@ -115,10 +115,7 @@ class Rss:
                         log.info("【RSS】%s 没有中文信息，跳过..." % media_info.title)
                         continue
                     # 检查这个名字是不是下过了
-                    if is_torrent_rssd_by_name(media_info.title,
-                                               media_info.year,
-                                               media_info.get_season_string(),
-                                               media_info.get_episode_string()):
+                    if is_torrent_rssd(media_info):
                         log.info("【RSS】%s%s 已成功订阅过，跳过..." % (
                             media_info.get_title_string(), media_info.get_season_episode_string()))
                         continue
