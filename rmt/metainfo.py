@@ -29,15 +29,15 @@ class MetaInfo(object):
     # 总季数
     total_seasons = 0
     # 识别的开始季 数字
-    begin_season = 0
+    begin_season = None
     # 识别的结束季 数字
-    end_season = 0
+    end_season = None
     # 总集数
     total_episodes = 0
     # 识别的开始集
-    begin_episode = 0
+    begin_episode = None
     # 识别的结束集
-    end_episode = 0
+    end_episode = None
     # Partx Cd Dvd Disk Disc
     part = None
     # 识别的资源类型
@@ -98,8 +98,9 @@ class MetaInfo(object):
     _resources_pix_re = r"^[SBUHD]*(\d{3,4}[PIX]+)"
     _resources_pix_re2 = r"(^[248]+K)"
     _subtitle_season_re = r"[第\s]+([0-9一二三四五六七八九十\-]+)\s*季"
-    _subtitle_season_all_re = r"全\s*([0-9一二三四五六七八九十]+)\s*季"
+    _subtitle_season_all_re = r"全\s*([0-9一二三四五六七八九十]+)\s*季|([0-9一二三四五六七八九十]+)\s*季全"
     _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十\-]+)\s*[集话話]"
+    _subtitle_episode_all_re = r"([0-9一二三四五六七八九十]+)\s*集全|全\s*([0-9一二三四五六七八九十]+)\s*集"
     _anime_no_words = ['CHS&CHT']
 
     def __init__(self, title, subtitle=None, anime=False):
@@ -155,7 +156,7 @@ class MetaInfo(object):
                                       flags=re.IGNORECASE).strip()
                 self.cn_name = re.sub(r'\s+', ' ', self.cn_name)
                 if self.cn_name.isdigit() and len(self.cn_name) < 4:
-                    if not self.begin_episode:
+                    if self.begin_episode is None:
                         self.begin_episode = int(self.cn_name)
                         self.cn_name = None
                     elif self.is_in_episode(int(self.cn_name)):
@@ -165,7 +166,7 @@ class MetaInfo(object):
                                       flags=re.IGNORECASE).strip()
                 self.en_name = re.sub(r'\s+', ' ', self.en_name)
                 if self.en_name.isdigit() and len(self.en_name) < 4:
-                    if not self.begin_episode:
+                    if self.begin_episode is None:
                         self.begin_episode = int(self.en_name)
                         self.en_name = None
                     elif self.is_in_episode(int(self.en_name)):
@@ -209,7 +210,7 @@ class MetaInfo(object):
                         self.begin_season = int(begin_season)
                         self.type = MediaType.ANIME
                     if isinstance(end_season, str) and end_season.isdigit():
-                        if self.begin_season and end_season != self.begin_season:
+                        if self.begin_season is not None and end_season != self.begin_season:
                             self.end_season = int(end_season)
                             self.type = MediaType.ANIME
                     # 集号
@@ -228,7 +229,7 @@ class MetaInfo(object):
                         self.begin_episode = int(begin_episode)
                         self.type = MediaType.ANIME
                     if isinstance(end_episode, str) and end_episode.isdigit():
-                        if self.end_episode and end_episode != self.end_episode:
+                        if self.end_episode is not None and end_episode != self.end_episode:
                             self.end_season = int(end_episode)
                             self.type = MediaType.ANIME
                     # 类型
@@ -392,7 +393,7 @@ class MetaInfo(object):
                     continue
                 else:
                     se = int(se)
-                if not self.begin_season:
+                if self.begin_season is None:
                     self.begin_season = se
                     self.total_seasons = 1
                 else:
@@ -400,8 +401,8 @@ class MetaInfo(object):
                         self.end_season = se
                         self.total_seasons = (self.end_season - self.begin_season) + 1
         elif token.isdigit():
-            if self.begin_season \
-                    and not self.end_season \
+            if self.begin_season is not None \
+                    and self.end_season is None \
                     and len(token) < 3 \
                     and int(token) > self.begin_season \
                     and self._last_token_type == "season":
@@ -410,7 +411,7 @@ class MetaInfo(object):
                 self._last_token_type = "season"
                 self._continue_flag = False
             elif self._last_token_type == "SEASON" \
-                    and not self.begin_season \
+                    and self.begin_season is None \
                     and len(token) < 3:
                 self.begin_season = int(token)
                 self.total_seasons = 1
@@ -418,7 +419,7 @@ class MetaInfo(object):
                 self._stop_name_flag = True
                 self._continue_flag = False
                 self.type = MediaType.TV
-        elif token.upper() == "SEASON" and not self.begin_season:
+        elif token.upper() == "SEASON" and self.begin_season is None:
             self._last_token_type = "SEASON"
 
     def __init_episode(self, token):
@@ -442,7 +443,7 @@ class MetaInfo(object):
                     continue
                 else:
                     se = int(se)
-                if not self.begin_episode:
+                if self.begin_episode is None:
                     self.begin_episode = se
                     self.total_episodes = 1
                 else:
@@ -450,8 +451,8 @@ class MetaInfo(object):
                         self.end_episode = se
                         self.total_episodes = (self.end_episode - self.begin_episode) + 1
         elif token.isdigit():
-            if self.begin_episode \
-                    and not self.end_episode \
+            if self.begin_episode is not None \
+                    and self.end_episode is None \
                     and len(token) < 5 \
                     and int(token) > self.begin_episode \
                     and self._last_token_type == "episode":
@@ -459,7 +460,7 @@ class MetaInfo(object):
                 self.total_episodes = (self.end_episode - self.begin_episode) + 1
                 self._last_token_type = "episode"
                 self._continue_flag = False
-            elif not self.begin_episode \
+            elif self.begin_episode is None \
                     and 1 < len(token) < 5 \
                     and token.startswith('0'):
                 self.begin_episode = int(token)
@@ -469,7 +470,7 @@ class MetaInfo(object):
                 self._stop_name_flag = True
                 self.type = MediaType.TV
             elif self._last_token_type == "EPISODE" \
-                    and not self.begin_episode \
+                    and self.begin_episode is None \
                     and len(token) < 5:
                 self.begin_episode = int(token)
                 self.total_episodes = 1
@@ -526,10 +527,10 @@ class MetaInfo(object):
                         end_season = int(cn2an.cn2an(seasons[1].strip(), mode='smart'))
                 else:
                     begin_season = int(cn2an.cn2an(seasons, mode='smart'))
-                if not self.begin_season and isinstance(begin_season, int):
+                if self.begin_season is None and isinstance(begin_season, int):
                     self.begin_season = begin_season
                     self.total_seasons = 1
-                if self.begin_season and not self.end_season and isinstance(end_season, int):
+                if self.begin_season is not None and self.end_season is None and isinstance(end_season, int):
                     self.end_season = end_season
                     self.total_seasons = (self.end_season - self.begin_season) + 1
                 self.type = MediaType.TV
@@ -550,30 +551,30 @@ class MetaInfo(object):
                         end_episode = int(cn2an.cn2an(episodes[1].strip(), mode='smart'))
                 else:
                     begin_episode = int(cn2an.cn2an(episodes, mode='smart'))
-                if not self.begin_episode and isinstance(begin_episode, int):
+                if self.begin_episode is None and isinstance(begin_episode, int):
                     self.begin_episode = begin_episode
                     self.total_episodes = 1
-                if self.begin_episode and not self.end_episode and isinstance(end_episode, int):
+                if self.begin_episode is not None and self.end_episode is None and isinstance(end_episode, int):
                     self.end_episode = end_episode
                     self.total_episodes = (self.end_episode - self.begin_episode) + 1
                 self.type = MediaType.TV
                 self._subtitle_flag = True
-            # 全x季
+            # x集全
+            episode_all_str = re.search(r'%s' % self._subtitle_episode_all_re, title_text, re.IGNORECASE)
+            if episode_all_str:
+                self.begin_episode = None
+                self.end_episode = None
+                self.total_episodes = 0
+            # 全x季 x季全
             season_all_str = re.search(r"%s" % self._subtitle_season_all_re, title_text, re.IGNORECASE)
             if season_all_str:
                 season_all = season_all_str.group(1)
-                if season_all and not self.begin_season and not self.begin_episode:
+                if not season_all:
+                    season_all = season_all_str.group(2)
+                if season_all and self.begin_season is None and self.begin_episode is None:
                     self.total_seasons = int(cn2an.cn2an(season_all.strip(), mode='smart'))
                     self.begin_season = 1
                     self.end_season = self.total_seasons
-
-        else:
-            # 文件名只有数字的，认为是集号
-            name = os.path.splitext(title_text)[0]
-            if name.isdigit() and len(name) < 3:
-                if not self.begin_episode:
-                    self.begin_episode = int(name)
-                    self.type = MediaType.TV
                     self._subtitle_flag = True
 
     def get_name(self):
@@ -600,10 +601,12 @@ class MetaInfo(object):
 
     # 返回季字符串
     def get_season_string(self):
-        if self.begin_season:
+        if self.begin_season is not None:
             return "S%s" % str(self.begin_season).rjust(2, "0") \
-                if not self.end_season else "S%s-S%s" % \
-                                            (str(self.begin_season).rjust(2, "0"), str(self.end_season).rjust(2, "0"))
+                if self.end_season is None \
+                else "S%s-S%s" % \
+                     (str(self.begin_season).rjust(2, "0"),
+                      str(self.end_season).rjust(2, "0"))
         else:
             if self.type == MediaType.MOVIE:
                 return ""
@@ -612,7 +615,7 @@ class MetaInfo(object):
 
     # 返回begin_season 的Sxx
     def get_season_item(self):
-        if self.begin_season:
+        if self.begin_season is not None:
             return "S%s" % str(self.begin_season).rjust(2, "0")
         else:
             if self.type == MediaType.MOVIE:
@@ -622,32 +625,33 @@ class MetaInfo(object):
 
     # 返回季的数组
     def get_season_list(self):
-        if not self.begin_season:
+        if self.begin_season is None:
             if self.type == MediaType.MOVIE:
                 return []
             else:
                 return [1]
-        elif self.end_season:
+        elif self.end_season is not None:
             return [season for season in range(self.begin_season, self.end_season + 1)]
         else:
             return [self.begin_season]
 
     # 返回集字符串
     def get_episode_string(self):
-        if self.begin_episode:
+        if self.begin_episode is not None:
             return "E%s" % str(self.begin_episode).rjust(2, "0") \
-                if not self.end_episode else "E%s-E%s" % \
-                                             (
-                                                 str(self.begin_episode).rjust(2, "0"),
-                                                 str(self.end_episode).rjust(2, "0"))
+                if self.end_episode is None \
+                else "E%s-E%s" % \
+                     (
+                         str(self.begin_episode).rjust(2, "0"),
+                         str(self.end_episode).rjust(2, "0"))
         else:
             return ""
 
     # 返回集的数组
     def get_episode_list(self):
-        if not self.begin_episode:
+        if self.begin_episode is None:
             return []
-        elif self.end_episode:
+        elif self.end_episode is not None:
             return [episode for episode in range(self.begin_episode, self.end_episode + 1)]
         else:
             return [self.begin_episode]
@@ -693,20 +697,20 @@ class MetaInfo(object):
     # 是否包含季
     def is_in_seasion(self, season):
         if isinstance(season, list):
-            if self.end_season:
+            if self.end_season is not None:
                 meta_season = list(range(self.begin_season, self.end_season + 1))
             else:
-                if self.begin_season:
+                if self.begin_season is not None:
                     meta_season = [self.begin_season]
                 else:
                     meta_season = [1]
 
             return set(meta_season).issuperset(set(season))
         else:
-            if self.end_season:
+            if self.end_season is not None:
                 return self.begin_season <= int(season) <= self.end_season
             else:
-                if self.begin_season:
+                if self.begin_season is not None:
                     return int(season) == self.begin_season
                 else:
                     return int(season) == 1
@@ -714,13 +718,13 @@ class MetaInfo(object):
     # 是否包含集
     def is_in_episode(self, episode):
         if isinstance(episode, list):
-            if self.end_episode:
+            if self.end_episode is not None:
                 meta_episode = list(range(self.begin_episode, self.end_episode + 1))
             else:
                 meta_episode = [self.begin_episode]
             return set(meta_episode).issuperset(set(episode))
         else:
-            if self.end_episode:
+            if self.end_episode is not None:
                 return self.begin_episode <= int(episode) <= self.end_episode
             else:
                 return int(episode) == self.begin_episode
