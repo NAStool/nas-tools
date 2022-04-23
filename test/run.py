@@ -72,9 +72,9 @@ if __name__ == "__main__":
     print(MetaInfo('西部世界 02.mkv').__dict__)
     print(MetaInfo('1.mkv').__dict__)
     '''
-    # print(MetaInfo('刺客伍六七.第03季.Scissor.Seven.Ⅲ.2021.第06话.WEB-DL.1080P.AVC.DD+2.0＆AAC.GB-XHGM.mkv').__dict__)
+    # print(MetaInfo('刺客伍六七.全3季.Scissor.Seven.Ⅲ.2021.WEB-DL.1080P.AVC.DD+2.0＆AAC.GB-XHGM.mkv').__dict__)
     # print(MetaInfo('刺客伍六七.第03季.Scissor.Seven.Ⅲ.2021.第1136话.WEB-DL.1080P.AVC.DD+2.0＆AAC.GB-XHGM.mkv').__dict__)
     # FileTransfer().transfer_media(in_from=SyncType.MAN, in_path="C:\\Users\\jxxgh\\Documents\\TV\\Breaking.Bad.Season.3.Episode.10.Fly.REMUX-FraMeSToR.mkv")
     # Searcher().search_one_media("进击的巨人")
     # print(MetaInfo('Hokusai.to.meshi.sae.areba.S01E03.2017.1080p.KKTV.WEB-DL.x264.ACC-ADWeb').__dict__)
-    print(get_config_search_rule())
+    # print(get_config_search_rule())

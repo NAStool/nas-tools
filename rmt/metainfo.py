@@ -98,6 +98,7 @@ class MetaInfo(object):
     _resources_pix_re = r"^[SBUHD]*(\d{3,4}[PIX]+)"
     _resources_pix_re2 = r"(^[248]+K)"
     _subtitle_season_re = r"[第\s]+([0-9一二三四五六七八九十\-]+)\s*季"
+    _subtitle_season_all_re = r"全\s*([0-9一二三四五六七八九十]+)\s*季"
     _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十\-]+)\s*[集话話]"
     _anime_no_words = ['CHS&CHT']
 
@@ -508,8 +509,8 @@ class MetaInfo(object):
     def __init_subtitle(self, title_text):
         if not title_text:
             return
-        if re.search(r'[第季集话話]', title_text, re.IGNORECASE):
-            # 季
+        if re.search(r'[全第季集话話]', title_text, re.IGNORECASE):
+            # 第x季
             season_str = re.search(r'%s' % self._subtitle_season_re, title_text, re.IGNORECASE)
             if season_str:
                 seasons = season_str.group(1)
@@ -533,7 +534,7 @@ class MetaInfo(object):
                     self.total_seasons = (self.end_season - self.begin_season) + 1
                 self.type = MediaType.TV
                 self._subtitle_flag = True
-            # 集
+            # 第x集
             episode_str = re.search(r'%s' % self._subtitle_episode_re, title_text, re.IGNORECASE)
             if episode_str:
                 episodes = episode_str.group(1)
@@ -557,6 +558,15 @@ class MetaInfo(object):
                     self.total_episodes = (self.end_episode - self.begin_episode) + 1
                 self.type = MediaType.TV
                 self._subtitle_flag = True
+            # 全x季
+            season_all_str = re.search(r"%s" % self._subtitle_season_all_re, title_text, re.IGNORECASE)
+            if season_all_str:
+                season_all = season_all_str.group(1)
+                if season_all and not self.begin_season and not self.begin_episode:
+                    self.total_seasons = int(cn2an.cn2an(season_all.strip(), mode='smart'))
+                    self.begin_season = 1
+                    self.end_season = self.total_seasons
+
         else:
             # 文件名只有数字的，认为是集号
             name = os.path.splitext(title_text)[0]

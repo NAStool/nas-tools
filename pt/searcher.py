@@ -149,21 +149,29 @@ class Searcher:
 
         # 排序函数
         def get_sort_str(x):
-            season_len = str(len(x.get_season_list())).rjust(3, '0')
-            episode_len = str(len(x.get_episode_list())).rjust(3, '0')
-            # 排序：标题、季集、资源类型、站点、做种
-            return "%s%s%s%s%s" % (str(x.title).ljust(100, ' '),
-                                   "%s%s" % (season_len, episode_len),
-                                   str(x.res_order).rjust(3, '0'),
-                                   str(x.site_order).rjust(3, '0'),
-                                   str(x.seeders).rjust(10, '0'))
+            # 排序：标题、最优规则、站点、做种
+            return "%s%s%s%s" % (str(x.title).ljust(100, ' '),
+                                 str(x.res_order).rjust(3, '0'),
+                                 str(x.site_order).rjust(3, '0'),
+                                 str(x.seeders).rjust(10, '0'))
 
         # 匹配的资源中排序分组
         media_list = sorted(media_list, key=lambda x: get_sort_str(x), reverse=True)
+        log.debug("【PT】种子信息排序后如下：")
+        for media_item in media_list:
+            log.debug("标题：%s，"
+                      "站点序号：%s，"
+                      "优先序号：%s，"
+                      "做种数：%s，"
+                      "描述：%s" % (media_item.get_title_string(),
+                                 media_item.site_order,
+                                 media_item.res_order,
+                                 media_item.seeders,
+                                 media_item.description))
         # 控重
         can_download_list_item = []
         can_download_list = []
-        # 按分组显示做种数最多的一个
+        # 按分组显示
         for t_item in media_list:
             if t_item.type == MediaType.TV:
                 media_name = "%s%s%s%s%s" % (t_item.get_title_string(),
