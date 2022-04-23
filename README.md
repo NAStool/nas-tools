@@ -37,6 +37,10 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 
 
 ## 更新日志
+2022.4.23
+* 支持设定优先规则检索和下载资源，实现字幕、配音等择优
+* RSS及资源检索的过滤规则现在通过WEB页面设置
+
 2022.4.19
 * 支持prowlarr做为检索器
 * 支持Jellyfin做为媒体服务器
