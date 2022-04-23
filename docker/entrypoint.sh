@@ -1,6 +1,6 @@
 #!/bin/sh
 
-cd /nas-tools
+cd ${WORKDIR}
 if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
     if [ ! -s /tmp/requirements.txt.sha256sum ]; then
         sha256sum requirements.txt > /tmp/requirements.txt.sha256sum
@@ -31,6 +31,6 @@ else
 fi
 
 echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
-chown -R ${PUID}:${PGID} /config /nas-tools /var/log/supervisor/
-umask $UMASK
-exec su-exec ${PUID}:${PGID} /usr/bin/supervisord -n -c /nas-tools/supervisord.conf
+chown -R ${PUID}:${PGID} /config ${WORKDIR} /var/log/supervisor/
+umask ${UMASK}
+exec su-exec ${PUID}:${PGID} /usr/bin/supervisord -n -c ${WORKDIR}/supervisord.conf
