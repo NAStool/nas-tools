@@ -291,16 +291,16 @@
   function show_role_modal(){
     //查询信息
     ajax_post("get_search_rule", {}, function(ret){
-      if(ret.rule){
-        $("#save_or_edit_rule_btn").text("编辑");
+      if(ret.rule[0]){
         //赋值
         $("#search_include").val(ret.rule[0][0]);
         $("#search_exclude").val(ret.rule[0][1]);
         $("#search_note").val(ret.rule[0][2]);
         $("#search_size").val(ret.rule[0][3]);
-        show_role_info();
-        $("#modal-search-rule").modal("show");
       }
+      show_role_info();
+      $("#save_or_edit_rule_btn").text("编辑");
+      $("#modal-search-rule").modal("show");
     });
   }
 
