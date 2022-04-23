@@ -5,6 +5,7 @@ from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from utils.functions import str_filesize
+from utils.sqls import get_config_search_rule
 from utils.types import MediaType
 
 
@@ -13,7 +14,7 @@ class Prowlarr:
     media = None
     __api_key = None
     __host = None
-    __res_type = []
+    __res_type = None
 
     def __init__(self):
         self.torrent = Torrent()
@@ -30,12 +31,15 @@ class Prowlarr:
                 self.__host = "http://" + self.__host
             if not self.__host.endswith('/'):
                 self.__host = self.__host + "/"
-            res_type = prowlarr.get('res_type')
-            if isinstance(res_type, str):
-                # 配单个字符串
-                self.__res_type = [res_type]
-            else:
-                self.__res_type = res_type
+            res_type = get_config_search_rule()
+            if res_type:
+                if res_type[0][0] or res_type[0][1] or res_type[0][2] or res_type[0][3]:
+                    include = str(res_type[0][0]).split("\n")
+                    exclude = str(res_type[0][1]).split("\n")
+                    note = str(res_type[0][2]).split("\n")
+                    self.__res_type = {"include": include, "exclude": exclude, "note": note, "size": res_type[0][3]}
+                else:
+                    self.__res_type = None
 
     # 根据关键字调用 prowlarr API 检索
     def search_by_keyword(self, key_word, s_num, e_num, year, mtype, whole_word=False):
@@ -67,7 +71,7 @@ class Prowlarr:
             peers = item.get('peers')
 
             # 检查资源类型
-            match_flag, res_order, res_typestr = self.torrent.check_resouce_types(torrent_name, self.__res_type)
+            match_flag, res_order = self.torrent.check_resouce_types(torrent_name, description, self.__res_type)
             if not match_flag:
                 log.info("【PROWLARR】%s 不符合过滤条件" % torrent_name)
                 continue
@@ -125,7 +129,6 @@ class Prowlarr:
                 media_info.set_torrent_info(site=indexer_name,
                                             site_order=indexerId,
                                             enclosure=enclosure,
-                                            res_type=res_typestr,
                                             res_order=res_order,
                                             size=size,
                                             seeders=seeders,

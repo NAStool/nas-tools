@@ -141,7 +141,7 @@ class Rss:
                     res_typestr = ""
                     if match_flag:
                         # 确定标题中是否有资源类型关键字，并返回关键字的顺序号
-                        match_flag, res_order, res_typestr = self.torrent.check_resouce_types(torrent_name, res_type)
+                        match_flag, res_order = self.torrent.check_resouce_types(torrent_name, description, res_type)
                         if not match_flag:
                             log.info("【RSS】%s 不符合过滤条件" % torrent_name)
                             continue

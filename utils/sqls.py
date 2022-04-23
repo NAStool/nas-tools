@@ -233,7 +233,8 @@ def insert_transfer_history(in_from, rmt_mode, in_path, dest, media_info):
     timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     sql = "INSERT INTO TRANSFER_HISTORY(SOURCE, MODE, TYPE, FILE_PATH, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE) VALUES " \
           "('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
-              in_from.value, rmt_mode.value, media_info.type.value, str_sql(file_path), str_sql(file_name), media_info.title,
+              in_from.value, rmt_mode.value, media_info.type.value, str_sql(file_path), str_sql(file_name),
+              media_info.title,
               media_info.category, media_info.year, media_info.get_season_string(), dest, timestr)
     return update_by_sql(sql)
 
@@ -357,7 +358,7 @@ def get_site_by_id(tid):
 
 
 # 插入站点信息
-def insert_config_site(name, site_pri, rssurl, signurl, cookie, include, exclude, size, note=""):
+def insert_config_site(name, site_pri, rssurl, signurl, cookie, include, exclude, size, note):
     if not name:
         return
     sql = "INSERT INTO CONFIG_SITE(NAME,PRI,RSSURL,SIGNURL,COOKIE,INCLUDE,EXCLUDE,SIZE,NOTE) VALUES " \
@@ -383,6 +384,23 @@ def delete_config_site(tid):
 
 
 # 更新站点信息
-def update_config_site(tid, name, site_pri, rssurl, signurl, cookie, include, exclude, size, note=""):
+def update_config_site(tid, name, site_pri, rssurl, signurl, cookie, include, exclude, size, note):
     delete_config_site(tid)
     insert_config_site(name, site_pri, rssurl, signurl, cookie, include, exclude, size, note)
+
+
+# 查询搜索过滤规则
+def get_config_search_rule():
+    return select_by_sql(
+        "SELECT INCLUDE,EXCLUDE,NOTE,SIZE FROM CONFIG_SEARCH_RULE")
+
+
+# 更新搜索过滤规则
+def update_config_search_rule(include, exclude, note, size):
+    update_by_sql("DELETE FROM CONFIG_SEARCH_RULE")
+    return update_by_sql(
+        "INSERT INTO CONFIG_SEARCH_RULE(INCLUDE,EXCLUDE,NOTE,SIZE) VALUES "
+        "('%s', '%s', '%s', '%s')" % (str_sql(include),
+                                      str_sql(exclude),
+                                      str_sql(note),
+                                      str_sql(size)))

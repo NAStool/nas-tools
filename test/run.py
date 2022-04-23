@@ -1,7 +1,8 @@
 from pt.searcher import Searcher
 from rmt.filetransfer import FileTransfer
 from rmt.metainfo import MetaInfo
-from utils.sqls import get_config_site
+from utils.db_helper import select_by_sql
+from utils.sqls import get_config_site, get_config_search_rule
 from utils.types import SyncType
 
 if __name__ == "__main__":
@@ -74,6 +75,6 @@ if __name__ == "__main__":
     # print(MetaInfo('刺客伍六七.第03季.Scissor.Seven.Ⅲ.2021.第06话.WEB-DL.1080P.AVC.DD+2.0＆AAC.GB-XHGM.mkv').__dict__)
     # print(MetaInfo('刺客伍六七.第03季.Scissor.Seven.Ⅲ.2021.第1136话.WEB-DL.1080P.AVC.DD+2.0＆AAC.GB-XHGM.mkv').__dict__)
     # FileTransfer().transfer_media(in_from=SyncType.MAN, in_path="C:\\Users\\jxxgh\\Documents\\TV\\Breaking.Bad.Season.3.Episode.10.Fly.REMUX-FraMeSToR.mkv")
-    # Searcher().search_one_media("星球大战：幻象")
+    Searcher().search_one_media("进击的巨人")
     # print(MetaInfo('Hokusai.to.meshi.sae.areba.S01E03.2017.1080p.KKTV.WEB-DL.x264.ACC-ADWeb').__dict__)
-    print(get_config_site())
+    # print(get_config_search_rule())

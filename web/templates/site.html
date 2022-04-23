@@ -4,7 +4,7 @@
     <div class="row align-items-center">
       <div class="col">
         <h2 class="page-title">
-          站点信息
+          订阅站点
         </h2>
       </div>
       <!-- Page title actions -->
@@ -53,7 +53,7 @@
               <dd class="col-9">{% if Site[5] %}***{% endif %}</dd>
               {% endif %}
               {% if Site[3] %}
-              <dt class="col-3">RSS订阅:</dt>
+              <dt class="col-3">RSS地址:</dt>
               <dd class="col-9">{% if Site[3] %}***{% endif %}</dd>
               {% endif %}
               {% if Site[6] %}
@@ -147,7 +147,7 @@
         <div class="col-lg-12">
           <div>
             <label class="form-label">COOKIE(<a href="#" title="【PT站的Cookie】：用于PT站签到，需要在浏览器中F12->网络页抓取">?</a>)</label>
-            <textarea class="form-control" id="site_cookie" rows="2" placeholder="PT站的COOKIE，用于PT站签到"></textarea>
+            <textarea class="form-control" id="site_cookie" rows="2" placeholder="PT站COOKIE"></textarea>
           </div>
         </div>
       </div>
@@ -164,22 +164,22 @@
         </div>
         <div class="row">
           <div class="col-lg-6">
-            <div>
-              <label class="form-label">包含规则(<a href="#" title="【必须包含的关键字】：只有种子名称中包括这些关键字才会命中&#10;1、对大小写不敏感，配置为空为不启用该条件&#10;2、可以配置普通的关键字，也可以配置正则表达式&#10;3、可以配置多行，多行之间是【与】的关系，即多行条件都不包含时才会命中&#10;4、单行内可以用'|'来表示【或】，即包括其一即命中">?</a>)</label>
+            <div class="mb-3">
+              <label class="form-label">包含规则(<a href="#" title="【必须包含的关键字】：只有种子名称中包括这些关键字才会命中&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置普通的关键字，也可以配置正则表达式，可以配置多行&#10;3、多行之间是【与】的关系，即多行条件都不包含时才会命中&#10;4、单行内可以用'|'来表示【或】，即包括其一即命中">?</a>)</label>
               <textarea class="form-control" id="site_include" rows="2" placeholder="必须包含的关键字或正则表达式"></textarea>
             </div>
           </div>
           <div class="col-lg-6">
-            <div>
-              <label class="form-label">排除规则(<a href="#" title="【不能包含的关键字】：种子名称中如果有这些关键字则会被跳过&#10;1、对大小写不敏感，配置为空为不启用该条件&#10;2、可以配置普通的关键字，也可以配置正则表达式&#10;3、可以配置多行，多行之间是【与】的关系，即多行条件都不包含时才会跳过&#10;4、单行内可以用'|'来表示【或】，即包括其一即跳过">?</a>)</label>
+            <div class="mb-3">
+              <label class="form-label">排除规则(<a href="#" title="【不能包含的关键字】：种子名称中如果有这些关键字则会被跳过&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置普通的关键字，也可以配置正则表达式，可以配置多行&#10;3、多行之间是【与】的关系，即多行条件都不包含时才会跳过&#10;4、单行内可以用'|'来表示【或】，即包括其一即跳过">?</a>)</label>
               <textarea class="form-control" id="site_exclude" rows="2" placeholder="不能包含的关键字或正则表达式"></textarea>
             </div>
           </div>
         </div>
         <div class="row">
           <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label">大小限制(<a href="#" title="【限制文件大小】：只有满足大小限制的种子文件才会被命中，单位是GB&#10;1、只针对电影有效，配置为0或不配置则不启用该条件&#10;2、对大小写不敏感，配置为空为不启用该条件&#10;3、如只配置1个数字，表示小于等于该大小的才会被命中&#10;4、如配置2个数字(使用英文逗号分隔)，表示在中间大小的才会被命中">?</a>)</label>
+            <div>
+              <label class="form-label">大小限制(<a href="#" title="【限制文件大小】：只有满足大小限制的种子文件才会被命中，单位是GB&#10;1、只针对电影有效，配置为0或不配置则不启用该条件&#10;2、对大小写不敏感，不能带引号，配置为空为不启用该条件&#10;3、如只配置1个数字，表示小于等于该大小的才会被命中&#10;4、如配置2个数字(使用英文逗号分隔)，表示在中间大小的才会被命中">?</a>)</label>
               <div class="input-group input-group-flat">
                 <input type="text" class="form-control" id="site_size" value="" placeholder="限制电影文件大小，单位GB" autocomplete="off">
               </div>

@@ -6,14 +6,14 @@ class Torrent:
 
     # 种子大小匹配
     @staticmethod
-    def is_torrent_match_size(media_info, t_types, t_size):
+    def is_torrent_match_size(media_info, types, t_size):
         if media_info.type != MediaType.MOVIE:
             return True
-        if not isinstance(t_types, dict):
+        if not isinstance(types, dict):
             return True
         # 大小
         if t_size:
-            sizes = t_types.get('size')
+            sizes = types.get('size')
             if sizes:
                 if sizes.find(',') != -1:
                     sizes = sizes.split(',')
@@ -53,17 +53,19 @@ class Torrent:
                 return False
         return True
 
-    # 检查标题中是否匹配资源类型
-    # 返回：是否匹配，匹配的序号，匹配的值
+    # 检查种子是否匹配资源类型
+    # 返回：是否匹配，匹配的优先值
     @staticmethod
-    def check_resouce_types(t_title, t_types):
-        if not t_types:
+    def check_resouce_types(title, subtitle, types):
+        if not types:
             # 未配置默认不过滤
-            return True, 0, ""
-        if not isinstance(t_types, dict):
-            return True, 0, ""
+            return True, 0
+        if not isinstance(types, dict):
+            return True, 0
+        if not title:
+            return False, 0
         # 必须包括的项
-        includes = t_types.get('include')
+        includes = types.get('include')
         if includes:
             if isinstance(includes, str):
                 includes = [includes]
@@ -71,14 +73,14 @@ class Torrent:
             for include in includes:
                 if not include:
                     continue
-                re_res = re.search(r'%s' % include.strip(), t_title, re.IGNORECASE)
+                re_res = re.search(r'%s' % include.strip(), title, re.IGNORECASE)
                 if not re_res:
                     include_flag = False
             if not include_flag:
-                return False, 0, ""
+                return False, 0
 
         # 不能包含的项
-        excludes = t_types.get('exclude')
+        excludes = types.get('exclude')
         if excludes:
             if isinstance(excludes, str):
                 excludes = [excludes]
@@ -88,9 +90,21 @@ class Torrent:
                 if not exclude:
                     continue
                 exclude_count += 1
-                re_res = re.search(r'%s' % exclude.strip(), t_title, re.IGNORECASE)
+                re_res = re.search(r'%s' % exclude.strip(), title, re.IGNORECASE)
                 if not re_res:
                     exclude_flag = True
             if exclude_count != 0 and not exclude_flag:
-                return False, 0, ""
-        return True, 0, ""
+                return False, 0
+
+        # 优先包含的项
+        notes = types.get('note')
+        res_order = 0
+        if notes:
+            res_seq = 100
+            for note in notes:
+                res_seq = res_seq - 1
+                if re.search(r"%s" % note, title, re.IGNORECASE) or (subtitle and re.search(r"%s" % note, subtitle, re.IGNORECASE)):
+                    res_order = res_seq
+                    break
+
+        return True, res_order

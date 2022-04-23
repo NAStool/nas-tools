@@ -18,6 +18,8 @@ class MetaInfo(object):
     category_handler = None
     # 原字符串
     org_string = None
+    # 副标题
+    subtitle = None
     # 类型 电影、电视剧
     type = None
     # 识别的中文名
@@ -67,7 +69,6 @@ class MetaInfo(object):
     seeders = 0
     peers = 0
     description = None
-    res_type = None
     # 控制标位区
     _stop_name_flag = False
     _last_token = ""
@@ -106,6 +107,7 @@ class MetaInfo(object):
         self.config = Config()
         self.category_handler = Category()
         self.org_string = title
+        self.subtitle = subtitle
         if not anime:
             # 去掉名称中第1个[]的内容
             title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
@@ -745,12 +747,18 @@ class MetaInfo(object):
         self.backdrop_path = "https://image.tmdb.org/t/p/w500%s" % info.get('backdrop_path')
 
     # 整合种了信息
-    def set_torrent_info(self, site=None, site_order=0, enclosure=None, res_type=None, res_order=0, size=0, seeders=0,
-                         peers=0, description=None):
+    def set_torrent_info(self,
+                         site=None,
+                         site_order=0,
+                         enclosure=None,
+                         res_order=0,
+                         size=0,
+                         seeders=0,
+                         peers=0,
+                         description=None):
         self.site = site
         self.site_order = site_order
         self.enclosure = enclosure
-        self.res_type = res_type
         self.res_order = res_order
         self.size = size
         self.seeders = seeders

@@ -32,7 +32,7 @@ from utils.sqls import get_search_result_by_id, get_search_results, get_movie_ke
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
     delete_transfer_log_by_id, get_config_site, insert_config_site, get_site_by_id, delete_config_site, \
-    update_config_site
+    update_config_site, get_config_search_rule, update_config_search_rule
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
@@ -984,6 +984,7 @@ def create_flask_app(config):
                 cookie = data.get('site_cookie')
                 include = data.get('site_include')
                 exclude = data.get('site_exclude')
+                note = data.get('site_note')
                 size = data.get('site_size')
                 if tid:
                     ret = update_config_site(tid=tid,
@@ -994,7 +995,8 @@ def create_flask_app(config):
                                              cookie=cookie,
                                              include=include,
                                              exclude=exclude,
-                                             size=size)
+                                             size=size,
+                                             note=note)
                 else:
                     ret = insert_config_site(name=name,
                                              site_pri=site_pri,
@@ -1003,7 +1005,8 @@ def create_flask_app(config):
                                              cookie=cookie,
                                              include=include,
                                              exclude=exclude,
-                                             size=size)
+                                             size=size,
+                                             note=note)
                 return {"code": ret}
 
             # 查询单个站点信息
@@ -1023,6 +1026,20 @@ def create_flask_app(config):
                     return {"code": ret}
                 else:
                     return {"code": 0}
+
+            # 查询搜索过滤规则
+            if cmd == "get_search_rule":
+                ret = get_config_search_rule()
+                return {"code": 0, "rule": ret}
+
+            # 更新搜索过滤规则
+            if cmd == "update_search_rule":
+                include = data.get('search_include')
+                exclude = data.get('search_exclude')
+                note = data.get('search_note')
+                size = data.get('search_size')
+                ret = update_config_search_rule(include=include, exclude=exclude, note=note, size=size)
+                return {"code": ret}
 
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])
