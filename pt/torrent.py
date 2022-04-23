@@ -103,7 +103,7 @@ class Torrent:
             res_seq = 100
             for note in notes:
                 res_seq = res_seq - 1
-                if re.search(r"%s" % note, title, re.IGNORECASE) or (subtitle and re.search(r"%s" % note, subtitle, re.IGNORECASE)):
+                if re.search(r"%s" % note, "%s%s" % (title, subtitle), re.IGNORECASE):
                     res_order = res_seq
                     break
 
