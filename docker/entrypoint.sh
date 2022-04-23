@@ -34,3 +34,4 @@ echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 chown -R ${PUID}:${PGID} /config ${WORKDIR} /var/log/supervisor/
 umask ${UMASK}
 exec su-exec ${PUID}:${PGID} /usr/bin/supervisord -n -c ${WORKDIR}/supervisord.conf
+echo "程序已启动，日志将停止打印，请通过日志文件或页面中的实时日志查看..."

@@ -138,7 +138,6 @@ class Rss:
                     # 匹配后，看资源类型是否满足
                     # 代表资源类型在配置中的优先级顺序
                     res_order = 99
-                    res_typestr = ""
                     if match_flag:
                         # 确定标题中是否有资源类型关键字，并返回关键字的顺序号
                         match_flag, res_order = self.torrent.check_resouce_types(torrent_name, description, res_type)
@@ -164,7 +163,6 @@ class Rss:
                     media_info.set_torrent_info(site_order=order_seq,
                                                 site=rss_job,
                                                 enclosure=enclosure,
-                                                res_type=res_typestr,
                                                 res_order=res_order,
                                                 size=size,
                                                 description=description)
