@@ -1,10 +1,10 @@
 # 【全功能模式配置文件】：适用于想做自动PT下载、保种、聚合搜索、识别转移、媒体库管理等全自动解决方案的用户，有很多附属的功能，有WEBUI控制界面
 # 【配置注意要符合yaml语法，:号后有1个空格，不能使用全角标点符号】
 app:
-  # 【日志记录类型】：server、file、console
-  # 如果是使用Docker安装建议设置为console，将日志输出到终端
+  # 【日志记录类型】：server、file
+  # 如果是使用Docker安装建议设置为file，将日志输出到配置文件目录
   # 如果是使用群晖套件建议配置为 server，可将日志输出到群晖的日志中心便于查看
-  logtype: console
+  logtype: file
   # 【日志文件的路径】：logtype为file时生效
   logpath: '/config/logs'
   # 【群晖日志中心IP和端口】：logtype为SERVER时生效。端口一般是514，只需要改动IP为群晖的IP

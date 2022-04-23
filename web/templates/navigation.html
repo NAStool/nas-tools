@@ -77,6 +77,24 @@
                 </div>
               </div>
             </div>
+            <div class="nav-item dropdown">
+              <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
+                <span class="avatar avatar-sm avatar-rounded">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                     <circle cx="12" cy="7" r="4"></circle>
+                     <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
+                  </svg>
+                </span>
+                <div class="d-none d-xl-block ps-2">
+                  <div>{{ UserName }}</div>
+                </div>
+              </a>
+              <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                <a href="javascript:restart()" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#restart-modal">重启</a>
+                <a href="javascript:logout()" class="dropdown-item">注销</a>
+              </div>
+            </div>
           </div>
           <div class="collapse navbar-collapse" id="navbar-menu">
             <div class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center">
@@ -230,6 +248,21 @@
         </div>
       </div>
     </div>
+    <div class="modal modal-blur fade" id="restart-modal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-body">
+            <div class="modal-title">确认提示</div>
+            <div id="service_start_message">是否立即重启系统？</div>
+          </div>
+          <div class="modal-footer">
+            <input type="hidden" id="service_start_id" />
+            <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-danger" id="restart_system_btn">确定</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <!-- Libs JS -->
     <!-- Tabler Core -->
     <script src="../static/js/jquery-3.3.1.min.js"></script>
@@ -266,6 +299,13 @@
           setTimeout("hide_process()", 500);
         });
       }
+      //注销
+      function logout(){
+        ajax_post("logout", {}, function(ret){
+          window.location.reload();
+        });
+      }
+      //事件
       $(document).ready(function(){
         //加载页面
         var go_page = "{{ GoPage }}";
@@ -277,6 +317,13 @@
         }
         //检查版本升级
         check_new_version();
+        //重启
+        $("#restart_system_btn").click(function(){
+          $("#restart_system_btn").attr("disabled", true);
+          $("#restart_system_btn").text("重启中...");
+          ajax_post("restart", {}, function(ret){});
+          setTimeout("window.location.reload()", 3000);
+        });
       });
     </script>
   </body>

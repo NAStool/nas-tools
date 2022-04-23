@@ -6,13 +6,13 @@ from math import floor
 
 import requests
 from flask import Flask, request, json, render_template, make_response, session
-from flask_login import LoginManager, UserMixin, login_user, login_required
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import log
 from message.telegram import Telegram
 from monitor.media_sync import Sync
-from monitor.run import restart_monitor
+from monitor.run import restart_monitor, stop_monitor
 from pt.downloader import Downloader
 from pt.searcher import Searcher
 from rmt.filetransfer import FileTransfer
@@ -27,6 +27,7 @@ from scheduler.rss_download import RSSDownloader
 from message.send import Message
 
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE
+from scheduler.run import stop_scheduler
 from utils.functions import get_used_of_partition, str_filesize, str_timelong, INSTANCES
 from utils.sqls import get_search_result_by_id, get_search_results, get_movie_keys, get_tv_keys, insert_movie_key, \
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
@@ -136,6 +137,7 @@ def create_flask_app(config):
             else:
                 return render_template('navigation.html',
                                        GoPage=GoPage,
+                                       UserName=admin_user,
                                        AppVersion=APP_VERSION)
         else:
             GoPage = request.form.get('next') or ""
@@ -160,6 +162,7 @@ def create_flask_app(config):
                 login_user(user)
                 return render_template('navigation.html',
                                        GoPage=GoPage,
+                                       UserName=admin_user,
                                        AppVersion=APP_VERSION)
             else:
                 return render_template('login.html',
@@ -1040,6 +1043,23 @@ def create_flask_app(config):
                 size = data.get('search_size')
                 ret = update_config_search_rule(include=include, exclude=exclude, note=note, size=size)
                 return {"code": ret}
+
+            # 重启
+            if cmd == "restart":
+                # 签退
+                logout_user()
+                # 停止定时服务
+                stop_scheduler()
+                # 停止监控
+                stop_monitor()
+                # 退出主进程
+                quit()
+                return {"code": 0}
+
+            # 注销
+            if cmd == "logout":
+                logout_user()
+                return {"code": 0}
 
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])
