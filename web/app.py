@@ -1,6 +1,9 @@
 import log
 from config import Config
+from utils.functions import get_system
+from utils.types import OsType
 from web.main import create_flask_app
+import multiprocessing
 
 
 class FlaskApp:
@@ -25,13 +28,20 @@ class FlaskApp:
 
     def run_service(self):
         try:
-
+            # Linux
+            if get_system() == OsType.LINUX:
+                processes = multiprocessing.cpu_count()
+                if not processes or processes < 2:
+                    processes = 2
+            else:
+                processes = True
             if self.__ssl_cert:
                 self.__app.run(
                     host='0.0.0.0',
                     port=self.__web_port,
                     debug=False,
                     threaded=False,
+                    processes=processes,
                     use_reloader=False,
                     ssl_context=(self.__ssl_cert, self.__ssl_key)
                 )
@@ -41,6 +51,7 @@ class FlaskApp:
                     port=self.__web_port,
                     debug=False,
                     threaded=False,
+                    processes=processes,
                     use_reloader=False
                 )
         except Exception as err:
