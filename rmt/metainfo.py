@@ -155,7 +155,7 @@ class MetaInfo(object):
                 self.cn_name = re.sub(r'%s' % self._name_nostring_re, '', self.cn_name,
                                       flags=re.IGNORECASE).strip()
                 self.cn_name = re.sub(r'\s+', ' ', self.cn_name)
-                if self.cn_name.isdigit() and len(self.cn_name) < 4:
+                if self.cn_name.isdigit() and int(self.cn_name) < 1800:
                     if self.begin_episode is None:
                         self.begin_episode = int(self.cn_name)
                         self.cn_name = None
@@ -165,7 +165,7 @@ class MetaInfo(object):
                 self.en_name = re.sub(r'%s' % self._name_nostring_re, '', self.en_name,
                                       flags=re.IGNORECASE).strip()
                 self.en_name = re.sub(r'\s+', ' ', self.en_name)
-                if self.en_name.isdigit() and len(self.en_name) < 4:
+                if self.en_name.isdigit() and int(self.en_name) < 1800:
                     if self.begin_episode is None:
                         self.begin_episode = int(self.en_name)
                         self.en_name = None
