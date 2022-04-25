@@ -10,7 +10,7 @@ from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
 from utils.sqls import get_movie_keys, get_tv_keys, insert_rss_torrents, delete_movie_key, \
-    delete_tv_key, get_config_site, is_torrent_rssd
+    delete_tv_key, get_config_site, is_torrent_rssd, get_config_rss_rule
 from utils.types import MediaType, SearchType
 
 RSS_CACHED_TORRENTS = []
@@ -19,6 +19,7 @@ RSS_CACHED_TORRENTS = []
 class Rss:
     __rss_chinese = None
     __sites = None
+    __rss_rule = None
     message = None
     media = None
     downloader = None
@@ -37,6 +38,12 @@ class Rss:
         if pt:
             self.__rss_chinese = pt.get('rss_chinese')
             self.__sites = get_config_site()
+            rss_rule = get_config_rss_rule()
+            if rss_rule:
+                if rss_rule[0][1]:
+                    self.__rss_rule = str(rss_rule[0][1]).split("\n")
+                else:
+                    self.__rss_rule = None
 
     def rssdownload(self):
         global RSS_CACHED_TORRENTS
@@ -77,7 +84,7 @@ class Rss:
             if site_info[6] or site_info[7] or site_info[8]:
                 include = str(site_info[6]).split("\n")
                 exclude = str(site_info[7]).split("\n")
-                res_type = {"include": include, "exclude": exclude, "size":  site_info[8]}
+                res_type = {"include": include, "exclude": exclude, "size":  site_info[8], "note": self.__rss_rule}
             else:
                 res_type = None
 

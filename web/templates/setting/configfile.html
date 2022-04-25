@@ -1,0 +1,87 @@
+<style type="text/css" media="screen">
+    #editor {
+        width:100%;
+        height:500px;
+    }
+</style>
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          配置文件
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+        <div class="col-md-12">
+          <div class="card">
+            <div class="card-body" id="editor">
+            </div>
+            <div class="card-footer">
+              <div class="row align-items-center">
+                <div class="col"></div>
+                <div class="col-auto">
+                  <button id="save_config_btn" class="btn btn-primary">
+                    保存
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+  </div>
+</div>
+<script src="../static/js/ace.js"></script>
+<script type="text/javascript">
+  // 初始化编辑器
+  ace.require("ace/ext/language_tools");
+  ace.require("ace/ext/static_highlight");
+  ace.require("ace/ext/beautify");
+  var editor = ace.edit("editor");
+  editor.setTheme("ace/theme/xcode");
+  editor.setFontSize(14);
+  editor.session.setMode("ace/mode/yaml");
+  editor.session.setUseWrapMode(true);
+  editor.setHighlightActiveLine(true);
+  editor.setOptions({
+    enableBasicAutocompletion: true,
+    enableSnippets: true,
+    enableLiveAutocompletion: true
+  });
+
+  //读取配置
+  function load_config() {
+    ajax_post("load_config", {}, function (ret) {
+      var config_str = ret.config_str;
+      editor.getSession().setValue(config_str)
+    });
+  }
+  //保存配置
+  function save_config() {
+    var data = {
+      "editer_str": editor.getSession().getValue()
+    };
+    $("#save_config_btn").text("保存中...");
+    $("#save_config_btn").attr("disabled", true);
+    ajax_post("save_config", data, function (ret) {
+      $("#save_config_btn").attr("disabled", false);
+      $("#save_config_btn").text("保存");
+    });
+  }
+
+  //加载配置
+  load_config();
+
+  //保存配置按钮
+  $("#save_config_btn").click(function () {
+    save_config();
+  });
+</script>

@@ -1,0 +1,236 @@
+<div class="container-xl">
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          手动识别
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="card">
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label">路径</label>
+          <select class="form-select" id="rename_path">
+            <option value="" selected>请选择</option>
+          </select>
+          <div class="invalid-feedback" id="rename_retmsg"></div>
+        </div>
+        <label class="form-label">类型</label>
+        <div class="form-selectgroup-boxes row mb-3">
+          <div class="col-lg-4">
+            <label class="form-selectgroup-item">
+              <input type="radio" name="rename_type" value="MOV" class="form-selectgroup-input" checked>
+              <span class="form-selectgroup-label d-flex align-items-center p-3">
+                <span class="me-3">
+                  <span class="form-selectgroup-check"></span>
+                </span>
+                <span class="form-selectgroup-label-content">
+                  <span class="form-selectgroup-title strong mb-1">电影</span>
+                </span>
+              </span>
+            </label>
+          </div>
+          <div class="col-lg-4">
+            <label class="form-selectgroup-item">
+              <input type="radio" name="rename_type" value="TV" class="form-selectgroup-input">
+              <span class="form-selectgroup-label d-flex align-items-center p-3">
+                <span class="me-3">
+                  <span class="form-selectgroup-check"></span>
+                </span>
+                <span class="form-selectgroup-label-content">
+                  <span class="form-selectgroup-title strong mb-1">电视剧</span>
+                </span>
+              </span>
+            </label>
+          </div>
+          <div class="col-lg-4">
+            <label class="form-selectgroup-item">
+              <input type="radio" name="rename_type" value="ANIME" class="form-selectgroup-input">
+              <span class="form-selectgroup-label d-flex align-items-center p-3">
+                <span class="me-3">
+                  <span class="form-selectgroup-check"></span>
+                </span>
+                <span class="form-selectgroup-label-content">
+                  <span class="form-selectgroup-title strong mb-1">动漫</span>
+                </span>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">标题</label>
+              <input type="text" id="rename_title" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">年份</label>
+              <input type="text" id="rename_year" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">TMDB ID</label>
+              <input type="text" id="rename_tmdb" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6" id="rename_season_div">
+            <div class="mb-3">
+              <label class="form-label">季</label>
+              <select class="form-select" id="rename_season">
+                <option value="" selected>请选择</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div class="row align-items-center">
+          <div class="col"></div>
+          <div class="col-auto">
+            <a href="javascript:del_rename_path()" class="btn btn-link me-auto">
+              删除
+            </a>
+            <button type="button" id="rename_btn" class="btn btn-primary">转移</button>
+          </div>
+        </div>        
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  //拉取列表
+  function refresh_rename_paths() {
+    ajax_post("rename_path", {}, function (ret) {
+      var paths = ret.paths;
+      $("#rename_path").empty();
+      $("#rename_path").append("<option value='' selected>请选择</option>");
+      for (var i = 0; i < paths.length; i++) {
+        if (paths[i][0]) {
+          if (paths[i][0].indexOf("/") != -1) {
+            path_names = paths[i][0].split("/");
+          } else {
+            path_names = paths[i][0].split("\\");
+          }
+          path_name = path_names[path_names.length - 1];
+          $("#rename_path").append("<option value=\"" + paths[i][0] + "|" + paths[i][1] + "\">" + path_name + "</option>");
+        }
+      }
+      type = $('input:radio[name=rename_type]:checked').val();
+      if (type == "MOV") {
+        $("#rename_season_div").hide();
+        $("#rename_season").val("");
+      } else {
+        $("#rename_season_div").show();
+      }
+    });
+  }
+
+  //手动转移
+  function manual_rename() {
+    var type = $('input:radio[name=rename_type]:checked').val();
+    var path = $("#rename_path").val();
+    var tmdb = $("#rename_tmdb").val();
+    var title = $("#rename_title").val();
+    var year = $("#rename_year").val();
+    var season = $("#rename_season").val();
+
+    if (path == "") {
+      $("#rename_path").addClass("is-invalid");
+      return;
+    } else {
+      $("#rename_path").removeClass("is-invalid");
+    }
+
+    if (tmdb == "") {
+      if (title == "") {
+        $("#rename_title").addClass("is-invalid");
+        return;
+      } else {
+        $("#rename_title").removeClass("is-invalid");
+      }
+
+      if (year == "" || isNaN(year)) {
+        $("#rename_year").addClass("is-invalid");
+        return;
+      } else {
+        $("#rename_year").removeClass("is-invalid");
+      }
+    } else {
+      if (isNaN(tmdb)) {
+        $("#rename_tmdb").addClass("is-invalid");
+        return;
+      } else {
+        $("#rename_tmdb").removeClass("is-invalid");
+      }
+    }
+    // 开始处理
+    var data = { "path": path, "type": type, "title": title, "year": year, "tmdb": tmdb, "season": season };
+    $("#rename_btn").attr("disabled", true);
+    $("#rename_btn").text("处理中...");
+    $("#rename_retmsg").hide()
+    ajax_post("rename", data, function (ret) {
+      $("#rename_btn").attr("disabled", false);
+      $("#rename_btn").text("转移");
+      if (ret.retcode == 0) {
+        //处理成功
+        refresh_rename_paths();
+      } else {
+        //处理失败
+        regmsg = ret.retmsg;
+        $("#rename_retmsg").show()
+        $("#rename_retmsg").text(regmsg)
+      }
+    });
+  }
+
+  //删除路径
+  function del_rename_path() {
+    var path = $("#rename_path").val();
+    if (path == "") {
+      $("#rename_path").addClass("is-invalid");
+      return;
+    } else {
+      $("#rename_path").removeClass("is-invalid");
+    }
+    var cmd = "del_rename_path";
+    var data = { "path": path };
+    ajax_post(cmd, data, function (ret) {
+      refresh_rename_paths();
+    });
+  }
+
+  //转移按钮
+  $("#rename_btn").click(function () {
+    manual_rename();
+  });
+
+  //单选框事件
+  $('input[type=radio][name=rename_type]').change(function () {
+    if (this.value == 'MOV') {
+      $("#rename_season_div").hide();
+      $("#rename_season").val('');
+    }
+    else {
+      $("#rename_season_div").show();
+    }
+  });
+
+  //获取数据
+  refresh_rename_paths();
+  $("#rename_season").empty();
+  $("#rename_season").append('<option value="" selected>请选择</option>');
+  for (var i = 0; i <= 50; i++) {
+    $("#rename_season").append('<option value="' + i + '">第' + i + '季</option>');
+  }
+</script>

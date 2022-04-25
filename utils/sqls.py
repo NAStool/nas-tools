@@ -398,3 +398,16 @@ def update_config_search_rule(include, exclude, note, size):
                                       str_sql(exclude),
                                       str_sql(note),
                                       str_sql(size)))
+
+
+# 查询RSS全局过滤规则
+def get_config_rss_rule():
+    return select_by_sql(
+        "SELECT ID,NOTE FROM CONFIG_RSS_RULE")
+
+
+# 更新RSS全局过滤规则
+def update_config_rss_rule(note):
+    update_by_sql("DELETE FROM CONFIG_RSS_RULE")
+    return update_by_sql(
+        "INSERT INTO CONFIG_RSS_RULE(NOTE) VALUES ('%s')" % str_sql(note))

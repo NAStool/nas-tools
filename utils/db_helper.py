@@ -124,13 +124,17 @@ class DBHelper:
                                    SIZE    TEXT,
                                    NOTE    TEXT);''')
             # 搜索过滤规则表
-            # 站点配置表
             cursor.execute('''CREATE TABLE IF NOT EXISTS CONFIG_SEARCH_RULE
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
                                    INCLUDE  TEXT,
                                    EXCLUDE  TEXT,
                                    SIZE    TEXT,
                                    NOTE    TEXT);''')
+            # RSS全局规则表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS CONFIG_RSS_RULE
+                                               (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                               NOTE    TEXT);''')
+
             # 提交
             self.__connection.commit()
 

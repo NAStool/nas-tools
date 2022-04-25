@@ -33,7 +33,7 @@ from utils.sqls import get_search_result_by_id, get_search_results, get_movie_ke
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
     delete_transfer_log_by_id, get_config_site, insert_config_site, get_site_by_id, delete_config_site, \
-    update_config_site, get_config_search_rule, update_config_search_rule
+    update_config_site, get_config_search_rule, update_config_search_rule, get_config_rss_rule, update_config_rss_rule
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
@@ -298,7 +298,7 @@ def create_flask_app(config):
         # 获取订阅关键字
         movie_key_list = get_movie_keys()
         tv_key_list = get_tv_keys()
-        return render_template("rss.html",
+        return render_template("rss/rss.html",
                                MovieKeys=','.join('%s' % key[0] for key in movie_key_list),
                                TvKeys=','.join('%s' % key[0] for key in tv_key_list))
 
@@ -307,7 +307,7 @@ def create_flask_app(config):
     @login_required
     def site():
         Sites = get_config_site()
-        return render_template("site.html",
+        return render_template("rss/site.html",
                                Sites=Sites)
 
     # 推荐页面
@@ -398,7 +398,7 @@ def create_flask_app(config):
                                CurrentPage=CurrentPage,
                                PageRange=PageRange)
 
-    # 影音搜索页面
+    # 资源搜索页面
     @App.route('/download', methods=['POST', 'GET'])
     @login_required
     def download():
@@ -587,32 +587,6 @@ def create_flask_app(config):
                 scheduler_cfg_list.append(
                     {'name': '豆瓣收藏', 'time': interval, 'state': sta_douban, 'id': 'douban', 'svg': svg, 'color': color})
 
-        # 未识别转移
-        svg = '''
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hand-move" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-           <path d="M8 13v-8.5a1.5 1.5 0 0 1 3 0v7.5"></path>
-           <path d="M11 11.5v-2a1.5 1.5 0 0 1 3 0v2.5"></path>
-           <path d="M14 10.5a1.5 1.5 0 0 1 3 0v1.5"></path>
-           <path d="M17 11.5a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1 -6 6h-2h.208a6 6 0 0 1 -5.012 -2.7l-.196 -.3c-.312 -.479 -1.407 -2.388 -3.286 -5.728a1.5 1.5 0 0 1 .536 -2.022a1.867 1.867 0 0 1 2.28 .28l1.47 1.47"></path>
-           <path d="M2.541 5.594a13.487 13.487 0 0 1 2.46 -1.427"></path>
-           <path d="M14 3.458c1.32 .354 2.558 .902 3.685 1.612"></path>
-        </svg>
-        '''
-        scheduler_cfg_list.append(
-            {'name': '未识别转移', 'time': '手动', 'state': 'OFF', 'id': 'rename', 'svg': svg, 'color': 'yellow'})
-
-        # 配置修改
-        svg = '''
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-           <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path>
-           <circle cx="12" cy="12" r="3"></circle>
-        </svg>
-        '''
-        scheduler_cfg_list.append(
-            {'name': '配置文件', 'time': '', 'state': 'OFF', 'id': 'config', 'svg': svg, 'color': 'purple'})
-
         # 实时日志
         svg = '''
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-terminal" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -667,7 +641,7 @@ def create_flask_app(config):
 
         PageRange = range(StartPage, EndPage + 1)
 
-        return render_template("history.html",
+        return render_template("rename/history.html",
                                TotalCount=totalCount,
                                Count=len(historys),
                                Historys=historys,
@@ -676,6 +650,16 @@ def create_flask_app(config):
                                TotalPage=TotalPage,
                                PageRange=PageRange,
                                PageNum=PageNum)
+
+    # 手工识别页面
+    @App.route('/unidentification', methods=['POST', 'GET'])
+    def unidentification():
+        return render_template("rename/unidentification.html")
+
+    # 配置文件页面
+    @App.route('/configfile', methods=['POST', 'GET'])
+    def configfile():
+        return render_template("setting/configfile.html")
 
     # 事件响应
     @App.route('/do', methods=['POST', 'GET'])
@@ -1039,6 +1023,17 @@ def create_flask_app(config):
                 ret = update_config_search_rule(include=include, exclude=exclude, note=note, size=size)
                 return {"code": ret}
 
+            # 查询RSS全局过滤规则
+            if cmd == "get_rss_rule":
+                ret = get_config_rss_rule()
+                return {"code": 0, "rule": ret}
+
+            # 更新搜索过滤规则
+            if cmd == "update_rss_rule":
+                note = data.get('rss_note')
+                ret = update_config_rss_rule(note=note)
+                return {"code": ret}
+
             # 重启
             if cmd == "restart":
                 # 签退
@@ -1116,6 +1111,7 @@ def create_flask_app(config):
         event.report_to_discord()
         return 'Success'
 
+    # Telegram消息
     @App.route('/telegram', methods=['POST', 'GET'])
     def telegram():
         msg_json = request.get_json()

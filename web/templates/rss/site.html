@@ -11,13 +11,25 @@
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_site_modal()" class="btn btn-primary d-none d-sm-inline-block">
-            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             新增站点
           </a>
           <a href="javascript:show_site_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+          </a>
+          <a href="javascript:show_role_modal()" class="btn btn-icon" title="全局规则">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-adjustments-horizontal" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <circle cx="14" cy="6" r="2"></circle>
+               <line x1="4" y1="6" x2="12" y2="6"></line>
+               <line x1="16" y1="6" x2="20" y2="6"></line>
+               <circle cx="8" cy="12" r="2"></circle>
+               <line x1="4" y1="12" x2="6" y2="12"></line>
+               <line x1="10" y1="12" x2="20" y2="12"></line>
+               <circle cx="17" cy="18" r="2"></circle>
+               <line x1="4" y1="18" x2="15" y2="18"></line>
+               <line x1="19" y1="18" x2="20" y2="18"></line>
+            </svg>
           </a>
         </div>
       </div>
@@ -198,6 +210,35 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-rss-rule" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modal-rss-rule-title">全局规则</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="mb-3">
+              <label class="form-label">优先规则(<a href="#" title="【优先选择的关键字】：种子名称或副标题中如果有这些关键字则会被优先选择，优先级高于站点&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置多行，一行是一个关键字或正则表达式，排前面的优先级高">?</a>)</label>
+              <pre id="rss_note_pre"></pre>
+              <textarea class="form-control" id="rss_note" rows="2" placeholder="优先选择的关键字或正则表达式"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="rule_close_btn" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+          取消
+        </button>
+        <button id="save_or_edit_rule_btn" class="btn btn-primary ms-auto">
+          编辑/保存
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   //打开新增站点框
   function show_site_modal(){
@@ -331,6 +372,46 @@
     }
   }
 
+  //显示搜索规则
+  function show_role_info(){
+    //隐藏
+    $("#rss_note").hide();
+    //显示
+    $("#rss_note_pre").text($("#rss_note").val());
+    $("#rss_note_pre").show();
+  }
+  //编辑搜索规则
+  function edit_role_info(){
+    //隐藏
+    $("#rss_note_pre").hide();
+    //显示
+    $("#rss_note").show();
+  }
+
+  //点击规则按钮
+  function show_role_modal(){
+    //查询信息
+    ajax_post("get_rss_rule", {}, function(ret){
+      if(ret.rule[0]){
+        //赋值
+        $("#rss_note").val(ret.rule[0][1]);
+      }
+      show_role_info();
+      $("#save_or_edit_rule_btn").text("编辑");
+      $("#modal-rss-rule").modal("show");
+    });
+  }
+
+  //保存搜索规则
+  function save_rss_rule(){
+    var rss_note = $("#rss_note").val();
+    var data = {"rss_note":rss_note}
+    ajax_post("update_rss_rule", data, function(ret){
+      show_role_info();
+      $("#save_or_edit_rule_btn").text("编辑");
+    });
+  }
+
   //绑定事件
   $("#add_or_edit_site_btn").click(function(){
       add_or_edit_site();
@@ -338,4 +419,14 @@
   $("#site_close_btn").click(function(){
       close_or_del();
   });
+  //规则编辑保存
+  $("#save_or_edit_rule_btn").click(function(){
+      if($("#save_or_edit_rule_btn").text() == "编辑"){
+        edit_role_info();
+        $("#save_or_edit_rule_btn").text("保存");
+      }else{
+        save_rss_rule();
+      }
+  });
+
 </script>
