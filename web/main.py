@@ -3,6 +3,7 @@ import logging
 import os.path
 import shutil
 from math import floor
+from subprocess import call
 
 import requests
 from flask import Flask, request, json, render_template, make_response, session
@@ -1036,12 +1037,26 @@ def create_flask_app(config):
 
             # 重启
             if cmd == "restart":
-                # 签退
-                logout_user()
                 # 停止定时服务
                 stop_scheduler()
                 # 停止监控
                 stop_monitor()
+                # 签退
+                logout_user()
+                # 退出主进程
+                quit()
+                return {"code": 0}
+
+            # 更新
+            if cmd == "update_system":
+                # 停止定时服务
+                stop_scheduler()
+                # 停止监控
+                stop_monitor()
+                # 升级
+                call(['git', 'pull'])
+                # 签退
+                logout_user()
                 # 退出主进程
                 quit()
                 return {"code": 0}
