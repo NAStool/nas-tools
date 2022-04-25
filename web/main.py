@@ -654,13 +654,63 @@ def create_flask_app(config):
 
     # 手工识别页面
     @App.route('/unidentification', methods=['POST', 'GET'])
+    @login_required
     def unidentification():
         return render_template("rename/unidentification.html")
 
     # 配置文件页面
     @App.route('/configfile', methods=['POST', 'GET'])
+    @login_required
     def configfile():
         return render_template("setting/configfile.html")
+
+    # 基础设置页面
+    @App.route('/basic', methods=['POST', 'GET'])
+    @login_required
+    def basic():
+        return render_template("setting/basic.html")
+
+    # 目录同步页面
+    @App.route('/directorysync', methods=['POST', 'GET'])
+    @login_required
+    def directorysync():
+        return render_template("setting/directorysync.html")
+
+    # 豆瓣页面
+    @App.route('/douban', methods=['POST', 'GET'])
+    @login_required
+    def douban():
+        return render_template("setting/douban.html")
+
+    # 下载器页面
+    @App.route('/downloader', methods=['POST', 'GET'])
+    @login_required
+    def downloader():
+        return render_template("setting/downloader.html")
+
+    # 索引器页面
+    @App.route('/indexer', methods=['POST', 'GET'])
+    @login_required
+    def indexer():
+        return render_template("setting/indexer.html")
+
+    # 媒体库页面
+    @App.route('/library', methods=['POST', 'GET'])
+    @login_required
+    def library():
+        return render_template("setting/library.html")
+
+    # 媒体服务器页面
+    @App.route('/mediaserver', methods=['POST', 'GET'])
+    @login_required
+    def mediaserver():
+        return render_template("setting/mediaserver.html")
+
+    # 通知消息页面
+    @App.route('/notification', methods=['POST', 'GET'])
+    @login_required
+    def notification():
+        return render_template("setting/notification.html")
 
     # 事件响应
     @App.route('/do', methods=['POST', 'GET'])
