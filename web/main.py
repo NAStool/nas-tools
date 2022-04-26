@@ -672,49 +672,71 @@ def create_flask_app(config):
     @App.route('/basic', methods=['POST', 'GET'])
     @login_required
     def basic():
-        return render_template("setting/basic.html")
+        proxy = config.get_config('app').get("proxies", {}).get("http")
+        if proxy:
+            proxy = proxy.replace("http://", "")
+        return render_template("setting/basic.html", Config=config.get_config(), Proxy=proxy)
 
     # 目录同步页面
     @App.route('/directorysync', methods=['POST', 'GET'])
     @login_required
     def directorysync():
-        return render_template("setting/directorysync.html")
+        sync_paths = config.get_config("sync").get("sync_path")
+        SyncPaths = []
+        if isinstance(sync_paths, list):
+            for sync_path in sync_paths:
+                SyncPath = {}
+                paths = sync_path.split("|")
+                if not paths:
+                    continue
+                if len(paths) > 0:
+                    if not paths[0]:
+                        continue
+                    SyncPath['from'] = paths[0]
+                if len(paths) > 1:
+                    SyncPath['to'] = paths[1]
+                if len(paths) > 2:
+                    SyncPath['unknown'] = paths[2]
+                SyncPaths.append(SyncPath)
+        else:
+            SyncPaths = [{"from": sync_paths}]
+        return render_template("setting/directorysync.html", SyncPaths=SyncPaths)
 
     # 豆瓣页面
     @App.route('/douban', methods=['POST', 'GET'])
     @login_required
     def douban():
-        return render_template("setting/douban.html")
+        return render_template("setting/douban.html", Config=config.get_config())
 
     # 下载器页面
     @App.route('/downloader', methods=['POST', 'GET'])
     @login_required
     def downloader():
-        return render_template("setting/downloader.html")
+        return render_template("setting/downloader.html", Config=config.get_config())
 
     # 索引器页面
     @App.route('/indexer', methods=['POST', 'GET'])
     @login_required
     def indexer():
-        return render_template("setting/indexer.html")
+        return render_template("setting/indexer.html", Config=config.get_config())
 
     # 媒体库页面
     @App.route('/library', methods=['POST', 'GET'])
     @login_required
     def library():
-        return render_template("setting/library.html")
+        return render_template("setting/library.html", Config=config.get_config())
 
     # 媒体服务器页面
     @App.route('/mediaserver', methods=['POST', 'GET'])
     @login_required
     def mediaserver():
-        return render_template("setting/mediaserver.html")
+        return render_template("setting/mediaserver.html", Config=config.get_config())
 
     # 通知消息页面
     @App.route('/notification', methods=['POST', 'GET'])
     @login_required
     def notification():
-        return render_template("setting/notification.html")
+        return render_template("setting/notification.html", Config=config.get_config())
 
     # 事件响应
     @App.route('/do', methods=['POST', 'GET'])

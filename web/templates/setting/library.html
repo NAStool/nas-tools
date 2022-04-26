@@ -34,8 +34,12 @@
                   </tr>
                 </thead>
                 <tbody>
+                {% if Config.media.movie_path %}
+                  {% for path in Config.media.movie_path %}
                   <tr>
                     <td>
+                      <input type="hidden" value="{{ path }}">
+                      {{ path }}
                     </td>
                     <td>
                       <a href="#" title="删除目录">
@@ -47,6 +51,10 @@
                       </a>
                     </td>
                   </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr><td colspan="2" align="center">未配置</td></tr>
+                {% endif %}
                 </tbody>
               </table>
             </div>
@@ -72,8 +80,12 @@
                   </tr>
                 </thead>
                 <tbody>
+                {% if Config.media.tv_path %}
+                  {% for path in Config.media.tv_path %}
                   <tr>
                     <td>
+                      <input type="hidden" value="{{ path }}">
+                      {{ path }}
                     </td>
                     <td>
                       <a href="#" title="删除目录">
@@ -85,6 +97,10 @@
                       </a>
                     </td>
                   </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr><td colspan="2" align="center">未配置</td></tr>
+                {% endif %}
                 </tbody>
               </table>
             </div>
@@ -110,8 +126,12 @@
                   </tr>
                 </thead>
                 <tbody>
+                {% if Config.media.anime_path %}
+                  {% for path in Config.media.anime_path %}
                   <tr>
                     <td>
+                      <input type="hidden" value="{{ path }}">
+                      {{ path }}
                     </td>
                     <td>
                       <a href="#" title="删除目录">
@@ -123,6 +143,10 @@
                       </a>
                     </td>
                   </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr><td colspan="2" align="center">未配置</td></tr>
+                {% endif %}
                 </tbody>
               </table>
             </div>
@@ -148,8 +172,12 @@
                   </tr>
                 </thead>
                 <tbody>
+                {% if Config.media.unknown_path %}
+                  {% for path in Config.media.unknown_path %}
                   <tr>
                     <td>
+                      <input type="hidden" value="{{ path }}">
+                      {{ path }}
                     </td>
                     <td>
                       <a href="#" title="删除目录">
@@ -161,6 +189,10 @@
                       </a>
                     </td>
                   </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr><td colspan="2" align="center">未配置</td></tr>
+                {% endif %}
                 </tbody>
               </table>
             </div>

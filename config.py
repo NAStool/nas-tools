@@ -3,7 +3,7 @@ import os
 import shutil
 from collections import deque
 from threading import Lock
-import yaml
+import ruamel.yaml
 
 import log
 from utils.functions import singleton
@@ -66,8 +66,9 @@ class Config(object):
                 log.console("【ERROR】config.yaml 配置文件不存在，已将配置文件模板复制到配置目录...")
             with open(self.__config_path, mode='r', encoding='utf-8') as f:
                 try:
-                    self.__config = yaml.safe_load(f)
-                except yaml.YAMLError as e:
+                    yaml = ruamel.yaml.YAML()
+                    self.__config = yaml.load(f)
+                except Exception as e:
                     log.console("【ERROR】配置文件 config.yaml 格式出现严重错误！请检查：%s" % str(e))
                     self.__config = {}
         except Exception as err:
@@ -85,7 +86,8 @@ class Config(object):
     def save_config(self, new_cfg):
         self.__config = new_cfg
         with open(self.__config_path, mode='w', encoding='utf-8') as f:
-            return yaml.dump(new_cfg, f, allow_unicode=True)
+            yaml = ruamel.yaml.YAML()
+            return yaml.dump(new_cfg, f)
 
     def get_config_path(self):
         return self.__config_path

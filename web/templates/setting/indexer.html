@@ -22,7 +22,7 @@
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Jackett</div>
-            <div class="text-muted">正在使用</div>
+            <div class="text-muted">{% if Config.pt.search_indexer == "jackett" %}正在使用{% endif %}</div>
           </div>
         </a>
       </div>
@@ -34,8 +34,7 @@
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Prowlarr</div>
-            <div class="text-muted">
-            </div>
+            <div class="text-muted">{% if Config.pt.search_indexer == "prowlarr" %}正在使用{% endif %}</div>
           </div>
         </a>
       </div>

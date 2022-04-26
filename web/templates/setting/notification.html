@@ -22,7 +22,7 @@
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">微信</div>
-            <div class="text-muted">正在使用</div>
+            <div class="text-muted">{% if Config.message.msg_channel == "wechat" %}正在使用{% endif %}</div>
           </div>
         </a>
       </div>
@@ -34,7 +34,7 @@
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Telegram</div>
-            <div class="text-muted"></div>
+            <div class="text-muted">{% if Config.message.msg_channel == "telegram" %}正在使用{% endif %}</div>
           </div>
         </a>
       </div>
@@ -46,7 +46,7 @@
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Server酱</div>
-            <div class="text-muted"></div>
+            <div class="text-muted">{% if Config.message.msg_channel == "serverchan" %}正在使用{% endif %}</div>
           </div>
         </a>
       </div>
@@ -58,7 +58,7 @@
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Bark</div>
-            <div class="text-muted"></div>
+            <div class="text-muted">{% if Config.message.msg_channel == "bark" %}正在使用{% endif %}</div>
           </div>
         </a>
       </div>

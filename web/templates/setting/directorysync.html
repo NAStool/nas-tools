@@ -38,11 +38,15 @@
                 </tr>
               </thead>
               <tbody>
+              {% if SyncPaths %}
+                {% for SyncPath in SyncPaths %}
                 <tr>
-                  <td ></td>
+                  <td >{{ SyncPath.from }}</td>
                   <td class="text-muted" >
+                    {{ SyncPath.to }}
                   </td>
                   <td class="text-muted" >
+                    {{ SyncPath.unknown }}
                   </td>
                   <td>
                     <a href="#" title="删除目录">
@@ -54,6 +58,10 @@
                     </a>
                   </td>
                 </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="4">未配置</td></tr>
+              {% endif %}
               </tbody>
             </table>
           </div>

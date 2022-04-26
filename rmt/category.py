@@ -1,7 +1,6 @@
 import os
 import shutil
-import yaml
-
+import ruamel.yaml
 import log
 from config import Config
 from utils.functions import singleton
@@ -33,8 +32,9 @@ class Category:
                     log.console("【ERROR】分类配置文件 %s.yaml 不存在，已将配置文件模板复制到配置目录..." % category)
                 with open(self.__category_path, mode='r', encoding='utf-8') as f:
                     try:
-                        self.__categorys = yaml.safe_load(f)
-                    except yaml.YAMLError as e:
+                        yaml = ruamel.yaml.YAML()
+                        self.__categorys = yaml.load(f)
+                    except Exception as e:
                         log.console("【ERROR】%s.yaml 分类配置文件格式出现严重错误！请检查：%s" % (category, str(e)))
                         self.__categorys = {}
             except Exception as err:

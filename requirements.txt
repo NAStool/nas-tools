@@ -16,3 +16,4 @@ flask-login>=0.6.0
 cn2an>=0.5.16
 anitopy>=2.1.0
 supervisor>=4.2.4
+ruamel.yaml>=0.17.19
