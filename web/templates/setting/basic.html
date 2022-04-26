@@ -15,7 +15,7 @@
   <div class="container-xl">
     <div class="row row-cards">
       <div class="col-md-12">
-        <div class="card">
+        <div class="card" id="basic_system">
           <div class="card-header">
             <h3 class="card-title"><strong>系统</strong></h3>
           </div>
@@ -26,22 +26,22 @@
                   <div class="col-md-6 col-xl-12">
                     <div class="mb-3">
                       <label class="form-label required">日志输出类型</label>
-                      <select class="form-select" id="logtype">
+                      <select class="form-select" id="app.logtype">
                         <option value="file" {% if Config.app.logtype=='file' %}selected{% endif %}>文件</option>
                         <option value="server" {% if Config.app.logtype=='server' %}selected{% endif %}>日志中心</option>
                       </select>
                     </div>
                     <div class="mb-3">
                       <label class="form-label">日志文件路径</label>
-                      <input type="text" value="{{ Config.app.logpath or '' }}" class="form-control" id="logpath" placeholder="/config/logs" autocomplete="false">
+                      <input type="text" value="{{ Config.app.logpath or '' }}" class="form-control" id="app.logpath" placeholder="/config/logs" autocomplete="false">
                     </div>
                     <div class="mb-3">
                       <label class="form-label">日志中心地址</label>
-                      <input type="text" value="{{ Config.app.logserver or '' }}" class="form-control" id="logserver" placeholder="127.0.0.1:514" autocomplete="false">
+                      <input type="text" value="{{ Config.app.logserver or '' }}" class="form-control" id="app.logserver" placeholder="127.0.0.1:514" autocomplete="false">
                     </div>
                     <div class="mb-3">
                       <label class="form-label">外网访问地址</label>
-                      <input type="text" value="{{ Config.app.domain or '' }}" class="form-control" id="domain" placeholder="http://IP:PORT" autocomplete="false">
+                      <input type="text" value="{{ Config.app.domain or '' }}" class="form-control" id="app.domain" placeholder="http://IP:PORT" autocomplete="false">
                     </div>
                   </div>
                 </div>
@@ -51,15 +51,15 @@
                   <div class="col-md-6 col-xl-12">
                     <div class="mb-3">
                       <label class="form-label required">WEB服务端口</label>
-                      <input type="text" value="{{ Config.app.web_port or '' }}" class="form-control" id="web_port" placeholder="3000" autocomplete="false">
+                      <input type="text" value="{{ Config.app.web_port or '' }}" class="form-control" id="app.web_port" placeholder="3000" autocomplete="false">
                     </div>
                     <div class="mb-3">
                       <label class="form-label required">WEB管理用户</label>
-                      <input type="text" value="{{ Config.app.login_user or '' }}" class="form-control" id="login_user" placeholder="admin" autocomplete="false">
+                      <input type="text" value="{{ Config.app.login_user or '' }}" class="form-control" id="app.login_user" placeholder="admin" autocomplete="false">
                     </div>
                     <div class="mb-3">
                       <label class="form-label required">WEB管理密码</label>
-                      <input type="password" value="{{ Config.app.login_password or '' }}" class="form-control" id="login_password" placeholder="password" autocomplete="false">
+                      <input type="password" value="{{ Config.app.login_password or '' }}" class="form-control" id="app.login_password" placeholder="password" autocomplete="false">
                     </div>
                   </div>
                 </div>
@@ -69,11 +69,11 @@
                   <div class="col-md-6 col-xl-12">
                     <div class="mb-3">
                       <label class="form-label">HTTPS证书文件路径</label>
-                      <input type="text" value="{{ Config.app.ssl_cert or '' }}" class="form-control" id="ssl_cert" placeholder="" autocomplete="false">
+                      <input type="text" value="{{ Config.app.ssl_cert or '' }}" class="form-control" id="app.ssl_cert" placeholder="" autocomplete="false">
                     </div>
                     <div class="mb-3">
                       <label class="form-label">HTTPS证书密钥文件路径</label>
-                      <input type="text" value="{{ Config.app.ssl_key or '' }}" class="form-control" id="ssl_key" placeholder="" autocomplete="false">
+                      <input type="text" value="{{ Config.app.ssl_key or '' }}" class="form-control" id="app.ssl_key" placeholder="" autocomplete="false">
                     </div>
                     <div class="mb-3">
                       <label class="form-label">代理服务器</label>
@@ -81,7 +81,7 @@
                         <span class="input-group-text">
                           http(s)://
                         </span>
-                        <input type="text" value="{{ Proxy or '' }}" class="form-control" id="proxies" placeholder="" autocomplete="false">
+                        <input type="text" value="{{ Proxy or '' }}" class="form-control" id="app.proxies" placeholder="" autocomplete="false">
                       </div>
                     </div>
                   </div>
@@ -93,7 +93,7 @@
             <div class="row align-items-center">
               <div class="col"></div>
               <div class="col-auto">
-                <a href="#" class="btn btn-primary">
+                <a id="basic_system_btn" href="javascript:save_basic_config('basic_system')" class="btn btn-primary">
                   保存
                 </a>
               </div>
@@ -102,7 +102,7 @@
         </div>
       </div>
       <div class="col-md-12">
-        <div class="card">
+        <div class="card" id="basic_media">
           <div class="card-header">
             <h3 class="card-title"><strong>媒体</strong></h3>
           </div>
@@ -113,11 +113,11 @@
                   <div class="col-md-6 col-xl-12">
                     <div class="mb-3">
                       <label class="form-label required">TMDB APIKEY</label>
-                      <input type="text" value="{{ Config.app.rmt_tmdbkey or '' }}" class="form-control" id="rmt_tmdbkey" placeholder="" autocomplete="false">
+                      <input type="text" value="{{ Config.app.rmt_tmdbkey or '' }}" class="form-control" id="app.rmt_tmdbkey" placeholder="" autocomplete="false">
                     </div>
                     <div class="mb-3">
                       <label class="form-label">二级分类策略</label>
-                      <input type="text" value="{{ Config.media.category or '' }}" class="form-control" id="category" placeholder="default-category" autocomplete="false">
+                      <input type="text" value="{{ Config.media.category or '' }}" class="form-control" id="media.category" placeholder="default-category" autocomplete="false">
                     </div>
                   </div>
                 </div>
@@ -127,14 +127,14 @@
                   <div class="col-md-6 col-xl-12">
                     <div class="mb-3">
                       <label class="form-label required">TMDB匹配模式</label>
-                      <select class="form-select" id="rmt_match_mode">
+                      <select class="form-select" id="app.rmt_match_mode">
                         <option value="normal" {% if Config.app.rmt_match_mode=='normal' %}selected{% endif %}>正常模式</option>
                         <option value="strict"{% if Config.app.rmt_match_mode=='strict' %}selected{% endif %}>严格模式</option>
                       </select>
                     </div>
                     <div class="mb-3">
                       <label class="form-label required">文件转移方式</label>
-                      <select class="form-select" id="rmt_mode">
+                      <select class="form-select" id="app.rmt_mode">
                         <option value="link" {% if Config.sync.sync_mod=='link' %}selected{% endif %}>硬链接</option>
                         <option value="softlink" {% if Config.sync.sync_mod=='softlink' %}selected{% endif %}>软链接</option>
                         <option value="copy" {% if Config.sync.sync_mod=='copy' %}selected{% endif %}>复制</option>
@@ -148,7 +148,7 @@
                   <div class="col-md-6 col-xl-12">
                     <div class="mb-3">
                       <label class="form-label required">媒体转移最小文件大小(MB)</label>
-                      <input type="text" value="{{ Config.media.min_filesize or '' }}" class="form-control" id="min_filesize" placeholder="200" autocomplete="false">
+                      <input type="text" value="{{ Config.media.min_filesize or '' }}" class="form-control" id="media.min_filesize" placeholder="200" autocomplete="false">
                     </div>
                   </div>
                 </div>
@@ -159,7 +159,7 @@
             <div class="row align-items-center">
               <div class="col"></div>
               <div class="col-auto">
-                <a href="#" class="btn btn-primary">
+                <a id="basic_media_btn" href="javascript:save_basic_config('basic_media')" class="btn btn-primary">
                   保存
                 </a>
               </div>
@@ -168,7 +168,7 @@
         </div>
       </div>
       <div class="col-md-12">
-        <div class="card">
+        <div class="card" id="basic_service">
           <div class="card-header">
             <h3 class="card-title"><strong>服务</strong></h3>
           </div>
@@ -179,11 +179,11 @@
                   <div class="col-md-6 col-xl-12">
                     <div class="mb-3">
                       <label class="form-label">PT站自动签到时间</label>
-                      <input type="text" value="{{ Config.pt.ptsignin_cron or '' }}" class="form-control" id="ptsignin_cron" placeholder="08:00" autocomplete="false">
+                      <input type="text" value="{{ Config.pt.ptsignin_cron or '' }}" class="form-control" id="pt.ptsignin_cron" placeholder="08:00" autocomplete="false">
                     </div>
                     <div class="mb-3">
                       <label class="form-check form-switch">
-                          <input class="form-check-input" type="checkbox" id="pt_monitor" {% if Config.pt.pt_monitor %}checked{% endif %}>
+                          <input class="form-check-input" type="checkbox" id="pt.pt_monitor" {% if Config.pt.pt_monitor %}checked{% endif %}>
                           <span class="form-check-label">下载软件监控</span>
                         </label>
                     </div>
@@ -195,11 +195,11 @@
                   <div class="col-md-6 col-xl-12">
                     <div class="mb-3">
                       <label class="form-label">RSS订阅周期(秒)</label>
-                      <input type="text" value="{{ Config.pt.pt_check_interval or '' }}" class="form-control" id="pt_check_interval" placeholder="1800" autocomplete="false">
+                      <input type="text" value="{{ Config.pt.pt_check_interval or '' }}" class="form-control" id="pt.pt_check_interval" placeholder="1800" autocomplete="false">
                     </div>
                     <div class="mb-3">
                       <label class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="rss_chinese" {% if Config.pt.rss_chinese %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="pt.rss_chinese" {% if Config.pt.rss_chinese %}checked{% endif %}>
                         <span class="form-check-label">仅RSS有中文媒体信息的资源</span>
                       </label>
                     </div>
@@ -211,11 +211,11 @@
                   <div class="col-md-6 col-xl-12">
                     <div class="mb-3">
                       <label class="form-label">PT保留时间(秒)</label>
-                      <input type="text" value="{{ Config.pt.pt_seeding_time or '' }}" class="form-control" id="pt_seeding_time" placeholder="留空关闭删种功能" autocomplete="false">
+                      <input type="text" value="{{ Config.pt.pt_seeding_time or '' }}" class="form-control" id="pt.pt_seeding_time" placeholder="留空关闭删种功能" autocomplete="false">
                     </div>
                     <div class="mb-3">
                       <label class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="search_auto" {% if Config.pt.search_auto %}checked{% endif %}>
+                        <input class="form-check-input" type="checkbox" id="pt.search_auto" {% if Config.pt.search_auto %}checked{% endif %}>
                         <span class="form-check-label">搜索自动下载</span>
                       </label>
                     </div>
@@ -228,7 +228,7 @@
             <div class="row align-items-center">
               <div class="col"></div>
               <div class="col-auto">
-                <a href="#" class="btn btn-primary">
+                <a id="basic_service_btn" href="javascript:save_basic_config('basic_service')" class="btn btn-primary">
                   保存
                 </a>
               </div>
@@ -240,5 +240,27 @@
   </div>
 </div>
 <script type="text/javascript">
-
+  function save_basic_config(type){
+    var params = {};
+    $("#"+ type +" input").each(function(){
+      var key = $(this).attr("id");
+      if($(this).attr("type")=="checkbox"){
+        var value = $(this).prop("checked") ? true:false;
+      }else{
+        var value = $(this).val();
+      }
+      params[key] = value;
+    });
+    $("#"+ type +" select").each(function(){
+      var key = $(this).attr("id");
+      var value = $(this).val();
+      params[key] = value;
+    });
+    $("#"+ type +"_btn").attr("disabled", true);
+    $("#"+ type +"_btn").text("保存中...");
+    ajax_post("update_config", params, function (ret) {
+      $("#"+ type +"_btn").attr("disabled", false);
+      $("#"+ type +"_btn").text("保存");
+    });
+  }
 </script>

@@ -1137,6 +1137,15 @@ def create_flask_app(config):
                 logout_user()
                 return {"code": 0}
 
+            # 更新配置信息
+            if cmd == "update_config":
+                cfg = config.get_config()
+                cfgs = dict(data).items()
+                for key, value in cfgs:
+                    cfg = set_config_value(cfg, key, value)
+                config.save_config(cfg)
+                return {"code": 0}
+
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])
     def wechat():
@@ -1234,5 +1243,30 @@ def create_flask_app(config):
         else:
             # PT检索
             _thread.start_new_thread(Searcher().search_one_media, (msg, in_from, user_id,))
+
+    # 根据Key设置配置值
+    def set_config_value(cfg, cfg_key, cfg_value):
+        if cfg_key == "app.proxies":
+            cfg['app']['proxies'] = {"https": "https://%s" % cfg_value, "http": "http://%s" % cfg_value}
+            return cfg
+        if cfg_key == "app.rmt_mode":
+            cfg['sync']['sync_mod'] = cfg_value
+            cfg['pt']['rmt_mode'] = cfg_value
+            return cfg
+        if cfg_key == "douban.users":
+            vals = cfg_value.split(",")
+            cfg['douban']['users'] = vals
+            return cfg
+        keys = cfg_key.split(".")
+        if keys:
+            if len(keys) == 1:
+                cfg[keys[0]] = cfg_value
+            elif len(keys) == 2:
+                if cfg.get(keys[0]):
+                    cfg[keys[0]][keys[1]] = cfg_value
+                else:
+                    cfg[keys[0]] = {}
+                    cfg[keys[0]][keys[1]] = cfg_value
+        return cfg
 
     return App
