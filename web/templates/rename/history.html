@@ -62,9 +62,9 @@
                   <td>{{ History[9] }}</td>
                   <td>
                     <div class="dropdown">
-                      <button class="btn dropdown-toggle align-text-top" data-bs-toggle="dropdown">
-                        操作
-                      </button>
+                      <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" /><circle cx="12" cy="5" r="1" /></svg>
+                      </a>
                       <div class="dropdown-menu dropdown-menu-end">
                         <a class="dropdown-item" href='javascript:rename_history("{{History[2]}}", "{{History[3]}}", "{{History[10]}}")'>
                           重新识别
@@ -212,7 +212,6 @@
         <input type="hidden" id="delete_history_id">
         <div class="modal-status bg-danger"></div>
         <div class="modal-body text-center py-4">
-          <!-- Download SVG icon from http://tabler-icons.io/i/alert-triangle -->
           <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
           <h3>确定?</h3>
           <div class="text-muted" id="delete_history_alert">记录对应已命名名的媒体文件将被删除</div>

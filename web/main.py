@@ -656,7 +656,11 @@ def create_flask_app(config):
     @App.route('/unidentification', methods=['POST', 'GET'])
     @login_required
     def unidentification():
-        return render_template("rename/unidentification.html")
+        Paths = get_transfer_unknown_paths()
+        TotalCount = len(Paths)
+        return render_template("rename/unidentification.html",
+                               TotalCount=TotalCount,
+                               Paths=Paths)
 
     # 配置文件页面
     @App.route('/configfile', methods=['POST', 'GET'])
@@ -875,11 +879,6 @@ def create_flask_app(config):
 
                 return {"retcode": 0, "torrents": DispTorrents}
 
-            # 手工转移列表
-            if cmd == "rename_path":
-                paths = get_transfer_unknown_paths()
-                return {"paths": paths}
-
             # 删除路径
             if cmd == "del_rename_path":
                 paths = data.get("path")
@@ -978,8 +977,8 @@ def create_flask_app(config):
                                                                      category=category, year=year, season=se)
                     if dest_path and dest_path.find(title) != -1:
                         try:
-                            shutil.rmtree(dest_path)
                             delete_transfer_log_by_id(logid)
+                            shutil.rmtree(dest_path)
                         except Exception as e:
                             log.console(str(e))
                 return {"retcode": 0}

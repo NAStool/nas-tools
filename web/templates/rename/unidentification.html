@@ -12,13 +12,76 @@
 <!-- 业务页面代码 -->
 <div class="page-body">
   <div class="container-xl">
-    <div class="card">
-      <div class="card-body">
+    <div class="row row-cards">
+      <div class="col-md-12">
+        <div class="card">
+          <div class="card-body border-bottom py-3">
+              <div class="d-flex">
+                <div class="text-muted">
+                  共 {{ TotalCount }} 条记录
+                </div>
+              </div>
+            </div>
+          <div class="table-responsive">
+            <table class="table table-vcenter card-table">
+              <thead>
+                <tr>
+                  <th>源目录</th>
+                  <th>目的目录</th>
+                  <th class="w-5"></th>
+                </tr>
+              </thead>
+              <tbody>
+              {% if TotalCount > 0 %}
+                {% for Path in Paths %}
+                <tr>
+                  <td >
+                    {{ Path[0] }}
+                  </td>
+                  <td class="text-muted" >
+                    {{ Path[1] }}
+                  </td>
+                  <td>
+                   <div class="dropdown">
+                      <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" /><circle cx="12" cy="5" r="1" /></svg>
+                      </a>
+                      <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item" href='javascript:show_rename_modal("{{ Path[0]|safe }}")'>
+                          手动识别
+                        </a>
+                        <a class="dropdown-item text-danger" href='javascript:del_rename_path("{{ Path[0]|safe }}")'>
+                          删除
+                        </a>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr>
+                  <td colspan="3" align="center">没有数据</td>
+                </tr>
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-rename" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">未识别转移</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
         <div class="mb-3">
           <label class="form-label">路径</label>
-          <select class="form-select" id="rename_path">
-            <option value="" selected>请选择</option>
-          </select>
+           <input type="text" id="rename_path" class="form-control" readonly>
           <div class="invalid-feedback" id="rename_retmsg"></div>
         </div>
         <label class="form-label">类型</label>
@@ -64,7 +127,7 @@
           </div>
         </div>
       </div>
-      <div class="card-body">
+      <div class="modal-body">
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
@@ -94,48 +157,13 @@
           </div>
         </div>
       </div>
-      <div class="card-footer">
-        <div class="row align-items-center">
-          <div class="col"></div>
-          <div class="col-auto">
-            <a href="javascript:del_rename_path()" class="btn btn-link me-auto">
-              删除
-            </a>
-            <button type="button" id="rename_btn" class="btn btn-primary">转移</button>
-          </div>
-        </div>        
+      <div class="modal-footer">
+        <button type="button" id="rename_btn" class="btn btn-primary">转移</button>
       </div>
     </div>
   </div>
 </div>
 <script type="text/javascript">
-  //拉取列表
-  function refresh_rename_paths() {
-    ajax_post("rename_path", {}, function (ret) {
-      var paths = ret.paths;
-      $("#rename_path").empty();
-      $("#rename_path").append("<option value='' selected>请选择</option>");
-      for (var i = 0; i < paths.length; i++) {
-        if (paths[i][0]) {
-          if (paths[i][0].indexOf("/") != -1) {
-            path_names = paths[i][0].split("/");
-          } else {
-            path_names = paths[i][0].split("\\");
-          }
-          path_name = path_names[path_names.length - 1];
-          $("#rename_path").append("<option value=\"" + paths[i][0] + "|" + paths[i][1] + "\">" + path_name + "</option>");
-        }
-      }
-      type = $('input:radio[name=rename_type]:checked').val();
-      if (type == "MOV") {
-        $("#rename_season_div").hide();
-        $("#rename_season").val("");
-      } else {
-        $("#rename_season_div").show();
-      }
-    });
-  }
-
   //手动转移
   function manual_rename() {
     var type = $('input:radio[name=rename_type]:checked').val();
@@ -184,7 +212,7 @@
       $("#rename_btn").text("转移");
       if (ret.retcode == 0) {
         //处理成功
-        refresh_rename_paths();
+        navmenu('unidentification');
       } else {
         //处理失败
         regmsg = ret.retmsg;
@@ -194,19 +222,33 @@
     });
   }
 
-  //删除路径
-  function del_rename_path() {
-    var path = $("#rename_path").val();
-    if (path == "") {
-      $("#rename_path").addClass("is-invalid");
-      return;
+  //显示弹出窗口
+  function show_rename_modal(path){
+    $('#rename_path').val(path);
+    $("#rename_season").empty();
+    $("#rename_season").append('<option value="" selected>请选择</option>');
+    for(var i=0; i<=50; i++){
+      $("#rename_season").append('<option value="' + i + '">第' + i +'季</option>');
+    }
+    type = $('input:radio[name=rename_type]:checked').val();
+    if (type == "MOV") {
+      $("#rename_season_div").hide();
+      $("#rename_season").val("");
     } else {
-      $("#rename_path").removeClass("is-invalid");
+      $("#rename_season_div").show();
+    }
+    $('#modal-rename').modal('show');
+  }
+
+  //删除路径
+  function del_rename_path(path) {
+    if (path == "") {
+      return;
     }
     var cmd = "del_rename_path";
     var data = { "path": path };
     ajax_post(cmd, data, function (ret) {
-      refresh_rename_paths();
+      navmenu('unidentification');
     });
   }
 
@@ -225,12 +267,4 @@
       $("#rename_season_div").show();
     }
   });
-
-  //获取数据
-  refresh_rename_paths();
-  $("#rename_season").empty();
-  $("#rename_season").append('<option value="" selected>请选择</option>');
-  for (var i = 0; i <= 50; i++) {
-    $("#rename_season").append('<option value="' + i + '">第' + i + '季</option>');
-  }
 </script>

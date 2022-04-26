@@ -1,8 +1,8 @@
 from pt.searcher import Searcher
 from rmt.filetransfer import FileTransfer
 from rmt.metainfo import MetaInfo
-from utils.db_helper import select_by_sql
-from utils.sqls import get_config_site, get_config_search_rule
+from utils.db_helper import select_by_sql, update_by_sql
+from utils.sqls import get_config_site, get_config_search_rule, insert_transfer_unknown
 from utils.types import SyncType
 
 if __name__ == "__main__":
@@ -78,4 +78,6 @@ if __name__ == "__main__":
     # Searcher().search_one_media("进击的巨人")
     # print(MetaInfo('Hokusai.to.meshi.sae.areba.S01E03.2017.1080p.KKTV.WEB-DL.x264.ACC-ADWeb').__dict__)
     # print(get_config_search_rule())
-    print(MetaInfo('556.mkv').__dict__)
+    # print(MetaInfo('556.mkv').__dict__)
+    insert_transfer_unknown("/volume1/PT/任何人 (2022)", "/电影")
+    insert_transfer_unknown("/volume1/PT/Etharkkum.Thunindhavan.2022.1080p.NF.WEB-DL.H264.DDP5.1-ADWeb", "")
