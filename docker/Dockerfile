@@ -2,7 +2,7 @@ FROM alpine
 ENV LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \
     NASTOOL_CONFIG="/config/config.yaml" \
-    NASTOOL_AUTO_UPDATE=true \
+    NASTOOL_AUTO_UPDATE=false \
     PS1="\u@\h:\w \$ " \
     REPO_URL="https://github.com/jxxghp/nas-tools.git" \
     PUID=0 \
