@@ -475,7 +475,7 @@ def create_flask_app(config):
             # RSS订阅
             pt_check_interval = pt.get('pt_check_interval')
             if pt_check_interval:
-                tim_rssdownload = str(round(pt_check_interval / 60)) + " 分钟"
+                tim_rssdownload = str(round(int(pt_check_interval) / 60)) + " 分钟"
                 rss_state = 'ON'
             else:
                 tim_rssdownload = ""
@@ -518,7 +518,7 @@ def create_flask_app(config):
             # PT删种
             pt_seeding_config_time = pt.get('pt_seeding_time')
             if pt_seeding_config_time:
-                pt_seeding_time = str(round(pt_seeding_config_time / 3600)) + " 小时"
+                pt_seeding_time = str(round(int(pt_seeding_config_time) / 3600)) + " 小时"
                 sta_autoremovetorrents = 'ON'
                 svg = '''
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
