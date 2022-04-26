@@ -20,7 +20,74 @@
             <h3 class="card-title"><strong>系统</strong></h3>
           </div>
           <div class="card-body">
-
+            <div class="row">
+              <div class="col-xl-4">
+                <div class="row">
+                  <div class="col-md-6 col-xl-12">
+                    <div class="mb-3">
+                      <label class="form-label required">日志输出类型</label>
+                      <select class="form-select" id="logtype">
+                        <option value="file">文件</option>
+                        <option value="server">日志中心</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">日志文件路径</label>
+                      <input type="text" class="form-control" id="logpath" placeholder="/config/logs">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">日志中心地址</label>
+                      <input type="text" class="form-control" id="logserver" placeholder="127.0.0.1:514">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">外网访问地址</label>
+                      <input type="password" class="form-control" id="domain" placeholder="http://IP:PORT">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4">
+                <div class="row">
+                  <div class="col-md-6 col-xl-12">
+                    <div class="mb-3">
+                      <label class="form-label required">WEB服务端口</label>
+                      <input type="text" class="form-control" id="web_port" placeholder="3000">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label required">WEB管理用户</label>
+                      <input type="text" class="form-control" id="login_user" placeholder="admin">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label required">WEB管理密码</label>
+                      <input type="password" class="form-control" id="login_password" placeholder="password">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4">
+                <div class="row">
+                  <div class="col-md-6 col-xl-12">
+                    <div class="mb-3">
+                      <label class="form-label">HTTPS证书文件路径</label>
+                      <input type="text" class="form-control" id="ssl_cert" placeholder="">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">HTTPS证书密钥文件路径</label>
+                      <input type="text" class="form-control" id="ssl_key" placeholder="">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">代理服务器</label>
+                      <div class="input-group input-group-flat">
+                        <span class="input-group-text">
+                          http(s)://
+                        </span>
+                        <input type="password" class="form-control" id="proxies" placeholder="">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="card-footer">
             <div class="row align-items-center">
@@ -40,7 +107,53 @@
             <h3 class="card-title"><strong>媒体</strong></h3>
           </div>
           <div class="card-body">
-
+            <div class="row">
+              <div class="col-xl-4">
+                <div class="row">
+                  <div class="col-md-6 col-xl-12">
+                    <div class="mb-3">
+                      <label class="form-label required">TMDB APIKEY</label>
+                      <input type="text" class="form-control" id="rmt_tmdbkey" placeholder="">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label">二级分类策略</label>
+                      <input type="text" class="form-control" id="category" placeholder="default-category">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4">
+                <div class="row">
+                  <div class="col-md-6 col-xl-12">
+                    <div class="mb-3">
+                      <label class="form-label required">TMDB匹配模式</label>
+                      <select class="form-select" id="rmt_match_mode">
+                        <option value="normal">正常模式</option>
+                        <option value="strict">严格模式</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label required">文件转移方式</label>
+                      <select class="form-select" id="rmt_mode">
+                        <option value="link">硬链接</option>
+                        <option value="softlink">软链接</option>
+                        <option value="copy">复制</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4">
+                <div class="row">
+                  <div class="col-md-6 col-xl-12">
+                    <div class="mb-3">
+                      <label class="form-label required">媒体转移最小文件大小(MB)</label>
+                      <input type="text" class="form-control" id="min_filesize" placeholder="200">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="card-footer">
             <div class="row align-items-center">
@@ -60,7 +173,56 @@
             <h3 class="card-title"><strong>服务</strong></h3>
           </div>
           <div class="card-body">
-
+            <div class="row">
+              <div class="col-xl-4">
+                <div class="row">
+                  <div class="col-md-6 col-xl-12">
+                    <div class="mb-3">
+                      <label class="form-label">PT站自动签到时间</label>
+                      <input type="text" class="form-control" id="ptsignin_cron" placeholder="08:00">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="pt_monitor">
+                          <span class="form-check-label">下载软件监控</span>
+                        </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4">
+                <div class="row">
+                  <div class="col-md-6 col-xl-12">
+                    <div class="mb-3">
+                      <label class="form-label">RSS订阅周期(秒)</label>
+                      <input type="text" class="form-control" id="pt_check_interval" placeholder="1800">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="rss_chinese">
+                        <span class="form-check-label">仅RSS有中文媒体信息的资源</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xl-4">
+                <div class="row">
+                  <div class="col-md-6 col-xl-12">
+                    <div class="mb-3">
+                      <label class="form-label">PT保留时间(秒)</label>
+                      <input type="text" class="form-control" id="pt_seeding_time" placeholder="留空关闭删种功能">
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="search_auto" checked>
+                        <span class="form-check-label">搜索自动下载</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="card-footer">
             <div class="row align-items-center">
