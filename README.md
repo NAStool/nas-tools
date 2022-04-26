@@ -208,7 +208,7 @@ Jackett/Prowlarr二选一，相关配置参考网上的各类教程。
 
 * Docker版本，宿主机上运行以下命令，nas-tools修改为你的docker名称，修改源目录和目的目录参数。
    ```
-   docker exec -it nas-tools /bin/bash
+   docker exec -it nas-tools sh
    python3 /nas-tools/rmt/filetransfer.py -s /from/path -d /to/path
    ```
 * 群晖套件版本，ssh到后台运行以下命令，同样修改配置文件路径以及源目录、目的目录参数。

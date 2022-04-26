@@ -46,4 +46,4 @@ jobs:
             linux/arm/v7
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/nas-tools:latest
+            ${{ secrets.DOCKER_USERNAME }}/nas-tools:v0.5.23
