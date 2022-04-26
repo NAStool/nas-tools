@@ -15,7 +15,7 @@
   <div class="container-xl">
     <div class="row row-cards">
       <div class="col-md-6 col-xl-3">
-        <a class="card card-link" href="#">
+        <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-emby">
           <div class="card-cover card-cover-blurred text-center bg-green">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/emby.png)">
             </span>
@@ -27,7 +27,7 @@
         </a>
       </div>
       <div class="col-md-6 col-xl-3">
-        <a class="card card-link" href="#">
+        <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-jellyfin">
           <div class="card-cover card-cover-blurred text-center bg-purple">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/jellyfin.jpg)">
             </span>
@@ -41,6 +41,80 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-emby" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Emby</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">Server</label>
+              <input type="text" value="{{ Config.emby.host }}" id="emby.host" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">Api Key</label>
+              <input type="text" value="{{ Config.emby.api_key }}" id="emby.api_key" class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:save_mediaserver_config('emby')" id="emby_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-jellyfin" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Jellyfin</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">Server</label>
+              <input type="text" value="{{ Config.jellyfin.host }}" id="jellyfin.host" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">Api Key</label>
+              <input type="text" value="{{ Config.jellyfin.api_key }}" id="jellyfin.api_key" class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:save_mediaserver_config('jellyfin')" id="jellyfin_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
-
+  function save_mediaserver_config(type){
+    var params = {}
+    $("#modal-"+ type +" input").each(function(){
+      var key = $(this).attr("id");
+      if($(this).attr("type")=="checkbox"){
+        var value = $(this).prop("checked") ? true:false;
+      }else{
+        var value = $(this).val();
+      }
+      params[key] = value;
+    });
+    params['media.media_server'] = type;
+    $("#modal-"+type).modal('hide');
+    ajax_post("update_config", params, function (ret) {
+      navmenu('mediaserver');
+    });
+  }
 </script>

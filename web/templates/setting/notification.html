@@ -15,7 +15,7 @@
   <div class="container-xl">
     <div class="row row-cards">
       <div class="col-md-6 col-xl-3">
-        <a class="card card-link" href="#">
+        <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-wechat">
           <div class="card-cover card-cover-blurred text-center bg-green">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/wechat.png)">
             </span>
@@ -27,7 +27,7 @@
         </a>
       </div>
       <div class="col-md-6 col-xl-3">
-        <a class="card card-link" href="#">
+        <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-telegram">
           <div class="card-cover card-cover-blurred text-center bg-blue">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/telegram.png)">
             </span>
@@ -39,7 +39,7 @@
         </a>
       </div>
       <div class="col-md-6 col-xl-3">
-        <a class="card card-link" href="#">
+        <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-serverchan">
           <div class="card-cover card-cover-blurred text-center bg-pink">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/serverchan.png)">
             </span>
@@ -51,7 +51,7 @@
         </a>
       </div>
       <div class="col-md-6 col-xl-3">
-        <a class="card card-link" href="#">
+        <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-bark">
           <div class="card-cover card-cover-blurred text-center bg-red">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/bark.webp)">
             </span>
@@ -65,6 +65,168 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-wechat" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">微信</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">企业ID</label>
+              <input type="text" value="{{ Config.message.wechat.corpid }}" id="corpid" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">Secret</label>
+              <input type="text" value="{{ Config.message.wechat.corpsecret }}" id="corpsecret" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-label">AgentId</label>
+              <input type="text" value="{{ Config.message.wechat.agentid }}" id="agentid" class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">Token</label>
+              <input type="text" value="{{ Config.message.wechat.Token }}" id="Token" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">EncodingAESKey</label>
+              <input type="text" value="{{ Config.message.wechat.EncodingAESKey }}" id="EncodingAESKey" class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:save_message_config('wechat')" id="wechat_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-telegram" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Telegram</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">Bot Token</label>
+              <input type="text" value="{{ Config.message.telegram.telegram_token }}" id="telegram_token" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">Chat Id</label>
+              <input type="text" value="{{ Config.message.telegram.telegram_chat_id }}" id="telegram_chat_id" class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="webhook" {% if  Config.message.telegram.webhook %}checked{% endif %}>
+                <span class="form-check-label">WebHook</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:save_message_config('telegram')" id="telegram_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-serverchan" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Server酱</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="mb-3">
+              <label class="form-label">SCKEY</label>
+              <input type="text" value="{{ Config.message.serverchan.sckey }}" id="sckey" class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:save_message_config('serverchan')" id="serverchan_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-bark" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Bark</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">Server</label>
+              <input type="text" value="{{ Config.message.bark.server }}" id="server" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">Api Key</label>
+              <input type="text" value="{{ Config.message.bark.apikey }}" id="apikey" class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:save_message_config('bark')" id="bark_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
-
+  function save_message_config(type){
+    var cfg_value = {};
+    var params = {}
+    $("#modal-"+ type +" input").each(function(){
+      var key = $(this).attr("id");
+      if($(this).attr("type")=="checkbox"){
+        var value = $(this).prop("checked") ? true:false;
+      }else{
+        var value = $(this).val();
+      }
+      cfg_value[key] = value;
+    });
+    params["message." + type] = cfg_value;
+    params['message.msg_channel'] = type;
+    $("#modal-"+type).modal('hide');
+    ajax_post("update_config", params, function (ret) {
+      navmenu('notification');
+    });
+  }
 </script>

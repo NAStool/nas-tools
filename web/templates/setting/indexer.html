@@ -15,7 +15,7 @@
   <div class="container-xl">
     <div class="row row-cards">
       <div class="col-md-6 col-xl-3">
-        <a class="card card-link" href="#">
+        <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-jackett">
           <div class="card-cover card-cover-blurred text-center bg-black">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/jackett.png)">
             </span>
@@ -27,7 +27,7 @@
         </a>
       </div>
       <div class="col-md-6 col-xl-3">
-        <a class="card card-link" href="#">
+        <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-prowlarr">
           <div class="card-cover card-cover-blurred text-center bg-orange">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/prowlarr.png)">
             </span>
@@ -41,6 +41,87 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-jackett" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Jackett</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="mb-3">
+              <label class="form-label">Api Key</label>
+              <input type="text" value="{{ Config.jackett.api_key }}" id="jackett.api_key" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="mb-3">
+              <label class="form-label">Indexers</label>
+              <textarea rows="5" id="jackett.indexers" class="form-control">{{ Config.jackett.indexers|join('\n') }}</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:save_indexer_config('jackett')" id="jackett_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-prowlarr" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Prowlarr</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">Server</label>
+              <input type="text" value="{{ Config.prowlarr.host }}" id="prowlarr.host" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">Api Key</label>
+              <input type="text" value="{{ Config.prowlarr.api_key }}" id="prowlarr.api_key" class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:save_indexer_config('prowlarr')" id="prowlarr_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
-
+  function save_indexer_config(type){
+    var params = {}
+    $("#modal-"+ type +" input").each(function(){
+      var key = $(this).attr("id");
+      if($(this).attr("type")=="checkbox"){
+        var value = $(this).prop("checked") ? true:false;
+      }else{
+        var value = $(this).val();
+      }
+      params[key] = value;
+    });
+    $("#modal-"+ type +" textarea").each(function(){
+      var key = $(this).attr("id");
+      var value = $(this).val();
+      params[key] = value;
+    });
+    params['pt.search_indexer'] = type;
+    $("#modal-"+type).modal('hide');
+    ajax_post("update_config", params, function (ret) {
+      navmenu('indexer');
+    });
+  }
 </script>

@@ -1257,6 +1257,10 @@ def create_flask_app(config):
             vals = cfg_value.split(",")
             cfg['douban']['users'] = vals
             return cfg
+        if cfg_key == "jackett.indexers":
+            vals = cfg_value.split("\n")
+            cfg['jackett']['indexers'] = vals
+            return cfg
         keys = cfg_key.split(".")
         if keys:
             if len(keys) == 1:
