@@ -55,13 +55,13 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">IP地址</label>
-              <input type="text" value="{{ Config.qbittorrent.qbhost }}" id="qbittorrent.qbhost" class="form-control">
+              <input type="text" value="{{ Config.qbittorrent.qbhost or '' }}" id="qbittorrent.qbhost" class="form-control">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">端口</label>
-              <input type="text" value="{{ Config.qbittorrent.qbport }}" id="qbittorrent.qbport" class="form-control">
+              <input type="text" value="{{ Config.qbittorrent.qbport or '' }}" id="qbittorrent.qbport" class="form-control">
             </div>
           </div>
         </div>
@@ -69,7 +69,7 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">用户名</label>
-              <input type="text" value="{{ Config.qbittorrent.qbusername }}" id="qbittorrent.qbusername"
+              <input type="text" value="{{ Config.qbittorrent.qbusername or '' }}" id="qbittorrent.qbusername"
                 class="form-control">
             </div>
             <div class="mb-3">
@@ -82,7 +82,7 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">密码</label>
-              <input type="password" value="{{ Config.qbittorrent.qbpassword }}" id="qbittorrent.qbpassword"
+              <input type="password" value="{{ Config.qbittorrent.qbpassword or '' }}" id="qbittorrent.qbpassword"
                 class="form-control">
             </div>
           </div>
@@ -94,15 +94,15 @@
             <label class="form-label required">电影目录</label>
             <div class="row g-2">
               <div class="col-5">
-                <input type="text" value="{{ QbMovieSavePath.path }}" id="qbittorrent.save_path.movie.path"
+                <input type="text" value="{{ QbMovieSavePath.path or '' }}" id="qbittorrent.save_path.movie.path"
                   class="form-control" placeholder="下载目录">
               </div>
               <div class="col-5">
-                <input type="text" value="{{ QbMovieContainerPath }}" id="qbittorrent.save_containerpath.movie"
+                <input type="text" value="{{ QbMovieContainerPath or '' }}" id="qbittorrent.save_containerpath.movie"
                   class="form-control" placeholder="容器目录">
               </div>
               <div class="col-2">
-                <input type="text" value="{{ QbMovieSavePath.tag }}" id="qbittorrent.save_path.movie.tag"
+                <input type="text" value="{{ QbMovieSavePath.tag or '' }}" id="qbittorrent.save_path.movie.tag"
                   class="form-control" placeholder="分类标签">
               </div>
             </div>
@@ -111,15 +111,15 @@
             <label class="form-label required">电视剧目录</label>
             <div class="row g-2">
               <div class="col-5">
-                <input type="text" value="{{ QbTvSavePath.path }}" id="qbittorrent.save_path.tv.path"
+                <input type="text" value="{{ QbTvSavePath.path or '' }}" id="qbittorrent.save_path.tv.path"
                   class="form-control" placeholder="下载目录">
               </div>
               <div class="col-5">
-                <input type="text" value="{{ QbTvContainerPath }}" id="qbittorrent.save_containerpath.tv"
+                <input type="text" value="{{ QbTvContainerPath or '' }}" id="qbittorrent.save_containerpath.tv"
                   class="form-control" placeholder="容器目录">
               </div>
               <div class="col-2">
-                <input type="text" value="{{ QbTvSavePath.tag }}" id="qbittorrent.save_path.tv.tag" class="form-control"
+                <input type="text" value="{{ QbTvSavePath.tag or '' }}" id="qbittorrent.save_path.tv.tag" class="form-control"
                   placeholder="分类标签">
               </div>
             </div>
@@ -128,15 +128,15 @@
             <label class="form-label required">动漫目录</label>
             <div class="row g-2">
               <div class="col-5">
-                <input type="text" value="{{ QbAnimeSavePath.path }}" id="qbittorrent.save_path.anime.path"
+                <input type="text" value="{{ QbAnimeSavePath.path or '' }}" id="qbittorrent.save_path.anime.path"
                   class="form-control" placeholder="下载目录">
               </div>
               <div class="col-5">
-                <input type="text" value="{{ QbAnimeContainerPath }}" id="qbittorrent.save_containerpath.anime"
+                <input type="text" value="{{ QbAnimeContainerPath or '' }}" id="qbittorrent.save_containerpath.anime"
                   class="form-control" placeholder="容器目录">
               </div>
               <div class="col-2">
-                <input type="text" value="{{ QbAnimeSavePath.tag }}" id="qbittorrent.save_path.anime.tag"
+                <input type="text" value="{{ QbAnimeSavePath.tag or '' }}" id="qbittorrent.save_path.anime.tag"
                   class="form-control" placeholder="分类标签">
               </div>
             </div>
@@ -162,13 +162,13 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">IP地址</label>
-              <input type="text" value="{{ Config.transmission.trhost }}" id="transmission.trhost" class="form-control">
+              <input type="text" value="{{ Config.transmission.trhost or '' }}" id="transmission.trhost" class="form-control">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">端口</label>
-              <input type="text" value="{{ Config.transmission.trport }}" id="transmission.trport" class="form-control">
+              <input type="text" value="{{ Config.transmission.trport or '' }}" id="transmission.trport" class="form-control">
             </div>
           </div>
         </div>
@@ -176,14 +176,14 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">用户名</label>
-              <input type="text" value="{{ Config.transmission.trusername }}" id="transmission.trusername"
+              <input type="text" value="{{ Config.transmission.trusername or '' }}" id="transmission.trusername"
                 class="form-control">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">密码</label>
-              <input type="password" value="{{ Config.transmission.trpassword }}" id="transmission.trpassword"
+              <input type="password" value="{{ Config.transmission.trpassword or '' }}" id="transmission.trpassword"
                 class="form-control">
             </div>
           </div>
@@ -195,11 +195,11 @@
             <label class="form-label required">电影目录</label>
             <div class="row g-2">
               <div class="col-6">
-                <input type="text" value="{{ TrMovieSavePath }}" id="transmission.save_path.movie" class="form-control"
+                <input type="text" value="{{ TrMovieSavePath or '' }}" id="transmission.save_path.movie" class="form-control"
                   placeholder="下载目录">
               </div>
               <div class="col-6">
-                <input type="text" value="{{ TrMovieContainerPath }}" id="transmission.save_containerpath.movie"
+                <input type="text" value="{{ TrMovieContainerPath or '' }}" id="transmission.save_containerpath.movie"
                   class="form-control" placeholder="容器目录">
               </div>
             </div>
@@ -208,11 +208,11 @@
             <label class="form-label required">电视剧目录</label>
             <div class="row g-2">
               <div class="col-6">
-                <input type="text" value="{{ TrTvSavePath }}" id="transmission.save_path.tv" class="form-control"
+                <input type="text" value="{{ TrTvSavePath or '' }}" id="transmission.save_path.tv" class="form-control"
                   placeholder="下载目录">
               </div>
               <div class="col-6">
-                <input type="text" value="{{ TrTvContainerPath }}" id="transmission.save_containerpath.tv"
+                <input type="text" value="{{ TrTvContainerPath or '' }}" id="transmission.save_containerpath.tv"
                   class="form-control" placeholder="容器目录">
               </div>
             </div>
@@ -221,11 +221,11 @@
             <label class="form-label required">动漫目录</label>
             <div class="row g-2">
               <div class="col-6">
-                <input type="text" value="{{ TrAnimeSavePath }}" id="transmission.save_path.anime" class="form-control"
+                <input type="text" value="{{ TrAnimeSavePath or '' }}" id="transmission.save_path.anime" class="form-control"
                   placeholder="下载目录">
               </div>
               <div class="col-6">
-                <input type="text" value="{{ TrAnimeContainerPath }}" id="transmission.save_containerpath.anime"
+                <input type="text" value="{{ TrAnimeContainerPath or '' }}" id="transmission.save_containerpath.anime"
                   class="form-control" placeholder="容器目录">
               </div>
             </div>

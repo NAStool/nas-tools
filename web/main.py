@@ -683,23 +683,24 @@ def create_flask_app(config):
     def directorysync():
         sync_paths = config.get_config("sync").get("sync_path")
         SyncPaths = []
-        if isinstance(sync_paths, list):
-            for sync_path in sync_paths:
-                SyncPath = {}
-                paths = sync_path.split("|")
-                if not paths:
-                    continue
-                if len(paths) > 0:
-                    if not paths[0]:
+        if sync_paths:
+            if isinstance(sync_paths, list):
+                for sync_path in sync_paths:
+                    SyncPath = {}
+                    paths = sync_path.split("|")
+                    if not paths:
                         continue
-                    SyncPath['from'] = paths[0]
-                if len(paths) > 1:
-                    SyncPath['to'] = paths[1]
-                if len(paths) > 2:
-                    SyncPath['unknown'] = paths[2]
-                SyncPaths.append(SyncPath)
-        else:
-            SyncPaths = [{"from": sync_paths}]
+                    if len(paths) > 0:
+                        if not paths[0]:
+                            continue
+                        SyncPath['from'] = paths[0]
+                    if len(paths) > 1:
+                        SyncPath['to'] = paths[1]
+                    if len(paths) > 2:
+                        SyncPath['unknown'] = paths[2]
+                    SyncPaths.append(SyncPath)
+            else:
+                SyncPaths = [{"from": sync_paths}]
         return render_template("setting/directorysync.html", SyncPaths=SyncPaths)
 
     # 豆瓣页面
@@ -1353,10 +1354,13 @@ def create_flask_app(config):
     def set_config_value(cfg, cfg_key, cfg_value):
         # 代理
         if cfg_key == "app.proxies":
-            if not cfg_value.startswith("http") and not cfg_value.startswith("sock"):
-                cfg['app']['proxies'] = {"https": "http://%s" % cfg_value, "http": "http://%s" % cfg_value}
+            if cfg_value:
+                if not cfg_value.startswith("http") and not cfg_value.startswith("sock"):
+                    cfg['app']['proxies'] = {"https": "http://%s" % cfg_value, "http": "http://%s" % cfg_value}
+                else:
+                    cfg['app']['proxies'] = {"https": "%s" % cfg_value, "http": "%s" % cfg_value}
             else:
-                cfg['app']['proxies'] = {"https": "%s" % cfg_value, "http": "%s" % cfg_value}
+                cfg['app']['proxies'] = {"https": None, "http": None}
             return cfg
         # 文件转移模式
         if cfg_key == "app.rmt_mode":
@@ -1407,6 +1411,8 @@ def create_flask_app(config):
                         cfg[keys[0]].append(cfg_value)
                     else:
                         cfg[keys[0]].remove(cfg_value)
+                        if not cfg[keys[0]]:
+                            cfg[keys[0]] = None
                 else:
                     cfg[keys[0]] = cfg_value
             elif len(keys) == 2:
@@ -1419,6 +1425,8 @@ def create_flask_app(config):
                         cfg[keys[0]][keys[1]].append(cfg_value)
                     else:
                         cfg[keys[0]][keys[1]].remove(cfg_value)
+                        if not cfg[keys[0]][keys[1]]:
+                            cfg[keys[0]][keys[1]] = None
                 else:
                     cfg[keys[0]] = {}
                     cfg[keys[0]][keys[1]] = cfg_value

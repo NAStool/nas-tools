@@ -53,7 +53,7 @@
           <div class="col-lg-12">
             <div class="mb-3">
               <label class="form-label required">Api Key</label>
-              <input type="text" value="{{ Config.jackett.api_key }}" id="jackett.api_key" class="form-control">
+              <input type="text" value="{{ Config.jackett.api_key or '' }}" id="jackett.api_key" class="form-control">
             </div>
           </div>
         </div>
@@ -84,13 +84,13 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">Server</label>
-              <input type="text" value="{{ Config.prowlarr.host }}" id="prowlarr.host" class="form-control">
+              <input type="text" value="{{ Config.prowlarr.host or '' }}" id="prowlarr.host" class="form-control">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">Api Key</label>
-              <input type="text" value="{{ Config.prowlarr.api_key }}" id="prowlarr.api_key" class="form-control">
+              <input type="text" value="{{ Config.prowlarr.api_key or '' }}" id="prowlarr.api_key" class="form-control">
             </div>
           </div>
         </div>

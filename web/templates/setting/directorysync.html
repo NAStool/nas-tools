@@ -41,15 +41,15 @@
               {% if SyncPaths %}
                 {% for SyncPath in SyncPaths %}
                 <tr>
-                  <td >{{ SyncPath.from }}</td>
+                  <td >{{ SyncPath.from or '' }}</td>
                   <td class="text-muted" >
-                    {{ SyncPath.to }}
+                    {{ SyncPath.to or '' }}
                   </td>
                   <td class="text-muted" >
-                    {{ SyncPath.unknown }}
+                    {{ SyncPath.unknown or '' }}
                   </td>
                   <td>
-                    <a href="javascript:sub_directory_config('{{ SyncPath.from }}|{{ SyncPath.to }}|{{ SyncPath.unknown }}')" title="删除目录">
+                    <a href="javascript:sub_directory_config('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}')" title="删除目录">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                          <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -60,7 +60,7 @@
                 </tr>
                 {% endfor %}
               {% else %}
-                <tr><td colspan="4">未配置</td></tr>
+                <tr><td colspan="4" align="center">未配置</td></tr>
               {% endif %}
               </tbody>
             </table>
@@ -107,7 +107,13 @@
 
   // 新增目录
   function add_directory_config(){
-    value = $("#from_path").val() + "|" + $("#to_path").val() + "|" + $("#unknown_path").val();
+    if($("#unknown_path").val()){
+      value = $("#from_path").val() + "|" + $("#to_path").val() + "|" + $("#unknown_path").val();
+    }else if ($("#to_path").val()){
+      value = $("#from_path").val() + "|" + $("#to_path").val();
+    }else{
+      value = $("#from_path").val();
+    }
     var params = {"oper": "add", "key": "sync.sync_path", "value": value};
     $("#modal-dirctory").modal('hide');
     ajax_post("update_directory", params, function (ret) {
@@ -116,7 +122,14 @@
   }
 
   // 删除目录
-  function sub_directory_config(value){
+  function sub_directory_config(from, to, unknown){
+    if(unknown){
+      value = from + "|" + to + "|" + unknown;
+    }else if(to){
+      value = from + "|" + to;
+    }else{
+      value = from;
+    }
     var params = {"oper": "sub", "key": "sync.sync_path", "value": value};
     ajax_post("update_directory", params, function (ret) {
       navmenu('directorysync');
