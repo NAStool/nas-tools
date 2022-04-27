@@ -15,9 +15,10 @@
   <div class="container-xl">
     <div class="row row-cards">
       <div class="col-md-6 col-xl-3">
-        <a class="card card-link" href="#">
+        <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-qbittorrent">
           <div class="card-cover card-cover-blurred text-center bg-blue">
-            <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/qbittorrent.png)">
+            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
+              style="background-image: url(../static/img/qbittorrent.png)">
             </span>
           </div>
           <div class="card-body text-center">
@@ -27,9 +28,10 @@
         </a>
       </div>
       <div class="col-md-6 col-xl-3">
-        <a class="card card-link" href="#">
+        <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-transmission">
           <div class="card-cover card-cover-blurred text-center bg-danger">
-            <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/transmission.png)">
+            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
+              style="background-image: url(../static/img/transmission.png)">
             </span>
           </div>
           <div class="card-body text-center">
@@ -41,6 +43,236 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-qbittorrent" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Qbittorrent</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">IP地址</label>
+              <input type="text" value="{{ Config.qbittorrent.qbhost }}" id="qbittorrent.qbhost" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">端口</label>
+              <input type="text" value="{{ Config.qbittorrent.qbport }}" id="qbittorrent.qbport" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">用户名</label>
+              <input type="text" value="{{ Config.qbittorrent.qbusername }}" id="qbittorrent.qbusername"
+                class="form-control">
+            </div>
+            <div class="mb-3">
+              <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="qbittorrent.force_upload" {% if
+                  Config.qbittorrent.force_upload %}checked{% endif %}>
+                <span class="form-check-label">自动强制作种</span>
+              </label>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">密码</label>
+              <input type="password" value="{{ Config.qbittorrent.qbpassword }}" id="qbittorrent.qbpassword"
+                class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="mb-3">
+            <label class="form-label">电影目录</label>
+            <div class="row g-2">
+              <div class="col-5">
+                <input type="text" value="{{ QbMovieSavePath.path }}" id="qbittorrent.save_path.movie.path"
+                  class="form-control" placeholder="下载目录">
+              </div>
+              <div class="col-5">
+                <input type="text" value="{{ QbMovieContainerPath }}" id="qbittorrent.save_containerpath.movie"
+                  class="form-control" placeholder="容器目录">
+              </div>
+              <div class="col-2">
+                <input type="text" value="{{ QbMovieSavePath.tag }}" id="qbittorrent.save_path.movie.tag"
+                  class="form-control" placeholder="分类标签">
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">电视剧目录</label>
+            <div class="row g-2">
+              <div class="col-5">
+                <input type="text" value="{{ QbTvSavePath.path }}" id="qbittorrent.save_path.tv.path"
+                  class="form-control" placeholder="下载目录">
+              </div>
+              <div class="col-5">
+                <input type="text" value="{{ QbTvContainerPath }}" id="qbittorrent.save_containerpath.tv"
+                  class="form-control" placeholder="容器目录">
+              </div>
+              <div class="col-2">
+                <input type="text" value="{{ QbTvSavePath.tag }}" id="qbittorrent.save_path.tv.tag" class="form-control"
+                  placeholder="分类标签">
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">动漫目录</label>
+            <div class="row g-2">
+              <div class="col-5">
+                <input type="text" value="{{ QbAnimeSavePath.path }}" id="qbittorrent.save_path.anime.path"
+                  class="form-control" placeholder="下载目录">
+              </div>
+              <div class="col-5">
+                <input type="text" value="{{ QbAnimeContainerPath }}" id="qbittorrent.save_containerpath.anime"
+                  class="form-control" placeholder="容器目录">
+              </div>
+              <div class="col-2">
+                <input type="text" value="{{ QbAnimeSavePath.tag }}" id="qbittorrent.save_path.anime.tag"
+                  class="form-control" placeholder="分类标签">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:save_downloader_config('qbittorrent')" id="qbittorrent_save_btn"
+          class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-transmission" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Transmission</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">IP地址</label>
+              <input type="text" value="{{ Config.transmission.trhost }}" id="transmission.trhost" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">端口</label>
+              <input type="text" value="{{ Config.transmission.trport }}" id="transmission.trport" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">用户名</label>
+              <input type="text" value="{{ Config.transmission.trusername }}" id="transmission.trusername"
+                class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">密码</label>
+              <input type="password" value="{{ Config.transmission.trpassword }}" id="transmission.trpassword"
+                class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="mb-3">
+            <label class="form-label">电影目录</label>
+            <div class="row g-2">
+              <div class="col-6">
+                <input type="text" value="{{ TrMovieSavePath }}" id="transmission.save_path.movie" class="form-control"
+                  placeholder="下载目录">
+              </div>
+              <div class="col-6">
+                <input type="text" value="{{ TrMovieContainerPath }}" id="transmission.save_containerpath.movie"
+                  class="form-control" placeholder="容器目录">
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">电视剧目录</label>
+            <div class="row g-2">
+              <div class="col-6">
+                <input type="text" value="{{ TrTvSavePath }}" id="transmission.save_path.tv" class="form-control"
+                  placeholder="下载目录">
+              </div>
+              <div class="col-6">
+                <input type="text" value="{{ TrTvContainerPath }}" id="transmission.save_containerpath.tv"
+                  class="form-control" placeholder="容器目录">
+              </div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">动漫目录</label>
+            <div class="row g-2">
+              <div class="col-6">
+                <input type="text" value="{{ TrAnimeSavePath }}" id="transmission.save_path.anime" class="form-control"
+                  placeholder="下载目录">
+              </div>
+              <div class="col-6">
+                <input type="text" value="{{ TrAnimeContainerPath }}" id="transmission.save_containerpath.anime"
+                  class="form-control" placeholder="容器目录">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:save_downloader_config('transmission')" id="transmission_save_btn"
+          class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
-
+  function save_downloader_config(type) {
+    var params = {};
+    $("#modal-" + type + " input").each(function () {
+      var key = $(this).attr("id");
+      if ($(this).attr("type") == "checkbox") {
+        var value = $(this).prop("checked") ? true : false;
+      } else {
+        var value = $(this).val();
+      }
+      params[key] = value;
+    });
+    if(type == "qbittorrent"){
+      if (document.getElementById("qbittorrent.save_path.movie.tag").value) {
+        params['qbittorrent.save_path.movie'] = document.getElementById("qbittorrent.save_path.movie.path").value + "|" + document.getElementById("qbittorrent.save_path.movie.tag").value;
+      } else {
+        params['qbittorrent.save_path.movie'] = document.getElementById("qbittorrent.save_path.movie.path").value;
+      }
+      if (document.getElementById("qbittorrent.save_path.tv.tag").value) {
+        params['qbittorrent.save_path.tv'] = document.getElementById("qbittorrent.save_path.tv.path").value + "|" + document.getElementById("qbittorrent.save_path.tv.tag").value;
+      } else {
+        params['qbittorrent.save_path.tv'] = document.getElementById("qbittorrent.save_path.tv.path").value;
+      }
+      if (document.getElementById("qbittorrent.save_path.anime.tag").value) {
+        params['qbittorrent.save_path.anime'] = document.getElementById("qbittorrent.save_path.anime.path").value + "|" + document.getElementById("qbittorrent.save_path.anime.tag").value;
+      } else {
+        params['qbittorrent.save_path.anime'] = document.getElementById("qbittorrent.save_path.anime.path").value;
+      }
+    }
+    params['pt.pt_client'] = type;
+    $("#modal-" + type).modal('hide');
+    ajax_post("update_config", params, function (ret) {
+      navmenu('downloader');
+    });
+  }
 </script>

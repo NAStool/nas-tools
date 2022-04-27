@@ -712,7 +712,106 @@ def create_flask_app(config):
     @App.route('/downloader', methods=['POST', 'GET'])
     @login_required
     def downloader():
-        return render_template("setting/downloader.html", Config=config.get_config())
+        # Qbittorrent
+        qbittorrent = config.get_config('qbittorrent')
+        save_path = qbittorrent.get("save_path")
+        if isinstance(save_path, str):
+            paths = save_path.split("|")
+            if len(paths) > 1:
+                path = paths[0]
+                tag = paths[1]
+            else:
+                path = paths[0]
+                tag = ""
+            QbMovieSavePath = QbTvSavePath = QbAnimeSavePath = {"path": path, "tag": tag}
+        else:
+            # 电影保存目录
+            movie_path = save_path.get("movie")
+            if movie_path:
+                paths = movie_path.split("|")
+                if len(paths) > 1:
+                    path = paths[0]
+                    tag = paths[1]
+                else:
+                    path = paths[0]
+                    tag = ""
+            else:
+                path = ""
+                tag = ""
+            QbMovieSavePath = {"path": path, "tag": tag}
+            # 电视剧保存目录
+            tv_path = save_path.get("tv")
+            if tv_path:
+                paths = tv_path.split("|")
+                if len(paths) > 1:
+                    path = paths[0]
+                    tag = paths[1]
+                else:
+                    path = paths[0]
+                    tag = ""
+            else:
+                path = ""
+                tag = ""
+            QbTvSavePath = {"path": path, "tag": tag}
+            # 动漫保存目录
+            anime_path = save_path.get("tv")
+            if anime_path:
+                paths = anime_path.split("|")
+                if len(paths) > 1:
+                    path = paths[0]
+                    tag = paths[1]
+                else:
+                    path = paths[0]
+                    tag = ""
+            else:
+                path = ""
+                tag = ""
+            QbAnimeSavePath = {"path": path, "tag": tag}
+        contianer_path = qbittorrent.get('save_containerpath')
+        if isinstance(contianer_path, str):
+            QbMovieContainerPath = QbTvContainerPath = QbAnimeContainerPath = contianer_path
+        else:
+            if contianer_path:
+                QbMovieContainerPath = contianer_path.get("movie")
+                QbTvContainerPath = contianer_path.get("tv")
+                QbAnimeContainerPath = contianer_path.get("anime")
+            else:
+                QbMovieContainerPath = QbTvContainerPath = QbAnimeContainerPath = ""
+
+        # Transmission
+        transmission = config.get_config('transmission')
+        save_path = transmission.get("save_path")
+        if isinstance(save_path, str):
+            TrMovieSavePath = TrTvSavePath = TrAnimeSavePath = save_path
+        else:
+            TrMovieSavePath = save_path.get("movie")
+            TrTvSavePath = save_path.get("tv")
+            TrAnimeSavePath = save_path.get("anime")
+        contianer_path = transmission.get('save_containerpath')
+        if isinstance(contianer_path, str):
+            TrMovieContainerPath = TrTvContainerPath = TrAnimeContainerPath = contianer_path
+        else:
+            if contianer_path:
+                TrMovieContainerPath = contianer_path.get("movie")
+                TrTvContainerPath = contianer_path.get("tv")
+                TrAnimeContainerPath = contianer_path.get("anime")
+            else:
+                TrMovieContainerPath = TrTvContainerPath = TrAnimeContainerPath = ""
+
+        return render_template("setting/downloader.html",
+                               Config=config.get_config(),
+                               QbMovieSavePath=QbMovieSavePath,
+                               QbTvSavePath=QbTvSavePath,
+                               QbAnimeSavePath=QbAnimeSavePath,
+                               TrMovieSavePath=TrMovieSavePath,
+                               TrTvSavePath=TrTvSavePath,
+                               TrAnimeSavePath=TrAnimeSavePath,
+                               QbMovieContainerPath=QbMovieContainerPath,
+                               QbTvContainerPath=QbTvContainerPath,
+                               QbAnimeContainerPath=QbAnimeContainerPath,
+                               TrMovieContainerPath=TrMovieContainerPath,
+                               TrTvContainerPath=TrTvContainerPath,
+                               TrAnimeContainerPath=TrAnimeContainerPath)
 
     # 索引器页面
     @App.route('/indexer', methods=['POST', 'GET'])
@@ -1246,21 +1345,26 @@ def create_flask_app(config):
 
     # 根据Key设置配置值
     def set_config_value(cfg, cfg_key, cfg_value):
+        # 代理
         if cfg_key == "app.proxies":
-            cfg['app']['proxies'] = {"https": "https://%s" % cfg_value, "http": "http://%s" % cfg_value}
+            cfg['app']['proxies'] = {"https": "http://%s" % cfg_value, "http": "http://%s" % cfg_value}
             return cfg
+        # 文件转移模式
         if cfg_key == "app.rmt_mode":
             cfg['sync']['sync_mod'] = cfg_value
             cfg['pt']['rmt_mode'] = cfg_value
             return cfg
+        # 豆瓣用户列表
         if cfg_key == "douban.users":
             vals = cfg_value.split(",")
             cfg['douban']['users'] = vals
             return cfg
+        # 索引器
         if cfg_key == "jackett.indexers":
             vals = cfg_value.split("\n")
             cfg['jackett']['indexers'] = vals
             return cfg
+        # 最大支持三层赋值
         keys = cfg_key.split(".")
         if keys:
             if len(keys) == 1:
@@ -1271,6 +1375,20 @@ def create_flask_app(config):
                 else:
                     cfg[keys[0]] = {}
                     cfg[keys[0]][keys[1]] = cfg_value
+            elif len(keys) == 3:
+                if cfg.get(keys[0]):
+                    if cfg[keys[0]].get(keys[1]):
+                        if isinstance(cfg[keys[0]][keys[1]], str):
+                            cfg[keys[0]][keys[1]] = {}
+                        cfg[keys[0]][keys[1]][keys[2]] = cfg_value
+                    else:
+                        cfg[keys[0]][keys[1]] = {}
+                        cfg[keys[0]][keys[1]][keys[2]] = cfg_value
+                else:
+                    cfg[keys[0]] = {}
+                    cfg[keys[0]][keys[1]] = {}
+                    cfg[keys[0]][keys[1]][keys[2]] = cfg_value
+
         return cfg
 
     return App

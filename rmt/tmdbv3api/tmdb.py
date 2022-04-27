@@ -48,7 +48,7 @@ class TMDb(object):
     @property
     def api_key(self):
         return os.environ.get(self.TMDB_API_KEY)
-    
+
     @property
     def proxies(self):
         proxy = os.environ.get(self.TMDB_PROXIES)
@@ -59,7 +59,10 @@ class TMDb(object):
     @proxies.setter
     def proxies(self, proxies):
         if proxies:
-            os.environ[self.TMDB_PROXIES] = str(proxies)
+            proxies_strs = []
+            for key, value in proxies.items():
+                proxies_strs.append("'%s': '%s'" % (key, value))
+            os.environ[self.TMDB_PROXIES] = "{%s}" % ",".join(proxies_strs)
 
     @api_key.setter
     def api_key(self, api_key):
@@ -124,7 +127,7 @@ class TMDb(object):
         return self.cached_request.cache_clear()
 
     def _call(
-        self, action, append_to_response, call_cached=True, method="GET", data=None
+            self, action, append_to_response, call_cached=True, method="GET", data=None
     ):
         if self.api_key is None or self.api_key == "":
             raise TMDbException("No API key found.")
@@ -140,7 +143,7 @@ class TMDb(object):
         if self.cache and self.obj_cached and call_cached and method != "POST":
             req = self.cached_request(method, url, data, self)
         else:
-            req = self._session.request(method, url, data=data,proxies=self.proxies)
+            req = self._session.request(method, url, data=data, proxies=self.proxies)
 
         headers = req.headers
 

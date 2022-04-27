@@ -46,7 +46,27 @@
                 <tr>
                   <td>
                     <div class="d-flex py-1 align-items-center">
-                      <span class="avatar me-2 text-nowrap">{{ History[2] }}</span>
+                      <span class="avatar me-2 text-nowrap">
+                        {% if History[2] == "电影" %}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                           <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                           <line x1="8" y1="4" x2="8" y2="20"></line>
+                           <line x1="16" y1="4" x2="16" y2="20"></line>
+                           <line x1="4" y1="8" x2="8" y2="8"></line>
+                           <line x1="4" y1="16" x2="8" y2="16"></line>
+                           <line x1="4" y1="12" x2="20" y2="12"></line>
+                           <line x1="16" y1="8" x2="20" y2="8"></line>
+                           <line x1="16" y1="16" x2="20" y2="16"></line>
+                        </svg>
+                        {% else %}
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-tv" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                             <rect x="3" y="7" width="18" height="13" rx="2"></rect>
+                             <polyline points="16 3 12 7 8 3"></polyline>
+                          </svg>
+                        {% endif %}
+                      </span>
                       <div class="flex-fill">
                         <div class="font-weight-medium"><a class="text-reset">{{ History[4] }} ({{ History[6] }}) {{ History[7] }}</a></div>
                         {% if History[5] %}
