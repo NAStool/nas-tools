@@ -62,7 +62,8 @@ class TMDb(object):
             proxies_strs = []
             for key, value in proxies.items():
                 proxies_strs.append("'%s': '%s'" % (key, value))
-            os.environ[self.TMDB_PROXIES] = "{%s}" % ",".join(proxies_strs)
+            if proxies_strs:
+                os.environ[self.TMDB_PROXIES] = "{%s}" % ",".join(proxies_strs)
 
     @api_key.setter
     def api_key(self, api_key):
