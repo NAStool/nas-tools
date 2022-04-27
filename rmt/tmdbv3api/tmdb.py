@@ -61,6 +61,8 @@ class TMDb(object):
         if proxies:
             proxies_strs = []
             for key, value in proxies.items():
+                if not value:
+                    continue
                 proxies_strs.append("'%s': '%s'" % (key, value))
             if proxies_strs:
                 os.environ[self.TMDB_PROXIES] = "{%s}" % ",".join(proxies_strs)
