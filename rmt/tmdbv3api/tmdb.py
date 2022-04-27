@@ -65,7 +65,7 @@ class TMDb(object):
             if proxies_strs:
                 os.environ[self.TMDB_PROXIES] = "{%s}" % ",".join(proxies_strs)
             else:
-                os.environ[self.TMDB_PROXIES] = "{'https':None, 'https':None}"
+                os.environ[self.TMDB_PROXIES] = 'None'
 
     @api_key.setter
     def api_key(self, api_key):
