@@ -76,19 +76,19 @@
         <div class="row">
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label">企业ID</label>
+              <label class="form-label required">企业ID</label>
               <input type="text" value="{{ Config.message.wechat.corpid }}" id="corpid" class="form-control">
             </div>
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label">Secret</label>
+              <label class="form-label required">Secret</label>
               <input type="text" value="{{ Config.message.wechat.corpsecret }}" id="corpsecret" class="form-control">
             </div>
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label">AgentId</label>
+              <label class="form-label required">AgentId</label>
               <input type="text" value="{{ Config.message.wechat.agentid }}" id="agentid" class="form-control">
             </div>
           </div>
@@ -127,13 +127,13 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label">Bot Token</label>
+              <label class="form-label required">Bot Token</label>
               <input type="text" value="{{ Config.message.telegram.telegram_token }}" id="telegram_token" class="form-control">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label">Chat Id</label>
+              <label class="form-label required">Chat Id</label>
               <input type="text" value="{{ Config.message.telegram.telegram_chat_id }}" id="telegram_chat_id" class="form-control">
             </div>
           </div>
@@ -168,7 +168,7 @@
         <div class="row">
           <div class="col-lg-12">
             <div class="mb-3">
-              <label class="form-label">SCKEY</label>
+              <label class="form-label required">SCKEY</label>
               <input type="text" value="{{ Config.message.serverchan.sckey }}" id="sckey" class="form-control">
             </div>
           </div>
@@ -191,13 +191,13 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label">Server</label>
-              <input type="text" value="{{ Config.message.bark.server }}" id="server" class="form-control">
+              <label class="form-label required">Server</label>
+              <input type="text" value="{{ Config.message.bark.server }}" id="server" class="form-control" placeholder="https://api.day.app">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label">Api Key</label>
+              <label class="form-label required">Api Key</label>
               <input type="text" value="{{ Config.message.bark.apikey }}" id="apikey" class="form-control">
             </div>
           </div>

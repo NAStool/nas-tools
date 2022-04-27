@@ -4,16 +4,16 @@
     <div class="row align-items-center">
       <div class="col">
         <h2 class="page-title">
-          目录监控
+          目录同步
         </h2>
       </div>
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
-          <a href="#" class="btn btn-primary d-none d-sm-inline-block">
+          <a href="javascript:show_directory_modal()" class="btn btn-primary d-none d-sm-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-            新增目录
+            新增同步目录
           </a>
-          <a href="#" class="btn btn-primary d-sm-none btn-icon">
+          <a href="javascript:show_directory_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           </a>
         </div>
@@ -49,7 +49,7 @@
                     {{ SyncPath.unknown }}
                   </td>
                   <td>
-                    <a href="#" title="删除目录">
+                    <a href="javascript:sub_directory_config('{{ SyncPath.from }}|{{ SyncPath.to }}|{{ SyncPath.unknown }}')" title="删除目录">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                          <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -70,6 +70,56 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-dirctory" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">新增同步目录</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <label class="form-label required">路径</label>
+          <div class="row g-2">
+            <div class="col-4">
+              <input type="text" value="" id="from_path" class="form-control" placeholder="源目录">
+            </div>
+            <div class="col-4">
+              <input type="text" value="" id="to_path" class="form-control" placeholder="目的目录">
+            </div>
+            <div class="col-4">
+              <input type="text" value="" id="unknown_path" class="form-control" placeholder="未识别目录">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:add_directory_config()" id="directory_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
+  // 打开新增窗口
+  function show_directory_modal(){
+    $("#modal-dirctory").modal('show');
+  }
 
+  // 新增目录
+  function add_directory_config(){
+    value = $("#from_path").val() + "|" + $("#to_path").val() + "|" + $("#unknown_path").val();
+    var params = {"oper": "add", "key": "sync.sync_path", "value": value};
+    $("#modal-dirctory").modal('hide');
+    ajax_post("update_directory", params, function (ret) {
+      navmenu('directorysync');
+    });
+  }
+
+  // 删除目录
+  function sub_directory_config(value){
+    var params = {"oper": "sub", "key": "sync.sync_path", "value": value};
+    ajax_post("update_directory", params, function (ret) {
+      navmenu('directorysync');
+    });
+  }
 </script>

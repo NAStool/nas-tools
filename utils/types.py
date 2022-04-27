@@ -15,7 +15,7 @@ class DownloaderType(Enum):
 
 class SyncType(Enum):
     MAN = "手动整理"
-    MON = "目录监控"
+    MON = "目录同步"
 
 
 class SearchType(Enum):

@@ -380,7 +380,8 @@ class Media:
                 else:
                     meta_info = MetaInfo(file_name)
                 meta_info.set_tmdb_info(tmdb_info)
-                if season and meta_info.type != MediaType.MOVIE:
+                meta_info.type = media_type
+                if season and media_type != MediaType.MOVIE:
                     meta_info.begin_season = int(season)
             return_media_infos[file_path] = meta_info
 

@@ -33,7 +33,7 @@ PT_TRANSFER_INTERVAL = 300
 METAINFO_SAVE_INTERVAL = 600
 # 配置文件定时生效时间
 RELOAD_CONFIG_INTERVAL = 600
-# SYNC目录监控聚合转移时间
+# SYNC目录同步聚合转移时间
 SYNC_TRANSFER_INTERVAL = 300
 # fanart的api，用于拉取封面图片
 FANART_MOVIE_API_URL = 'http://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'

@@ -50,7 +50,27 @@
           <a href="javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}')" class="d-block" ><img src="{{ Item[9] }}" class="card-img-top" title="点击添加下载"></a>
           <div class="card-body">
             <div class="d-flex align-items-center mb-2">
-              <span class="avatar me-2 rounded">{{ Item[10] }}</span>
+              <span class="avatar me-2 rounded">
+                {% if Item[10] == "MOV" %}
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                   <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                   <line x1="8" y1="4" x2="8" y2="20"></line>
+                   <line x1="16" y1="4" x2="16" y2="20"></line>
+                   <line x1="4" y1="8" x2="8" y2="8"></line>
+                   <line x1="4" y1="16" x2="8" y2="16"></line>
+                   <line x1="4" y1="12" x2="20" y2="12"></line>
+                   <line x1="16" y1="8" x2="20" y2="8"></line>
+                   <line x1="16" y1="16" x2="20" y2="16"></line>
+                </svg>
+                {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-tv" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                   <rect x="3" y="7" width="18" height="13" rx="2"></rect>
+                   <polyline points="16 3 12 7 8 3"></polyline>
+                </svg>
+                {% endif %}
+              </span>
               <div>
                 <div><a href="{{ Item[5] }}" target="_blank" title="点击下载种子文件"><strong>{{ Item[1]}}</strong></a></div>
                 <div class="text-muted"><strong>{{ Item[6]}} {{ Item[2]}} {{ Item[3]}}</strong></div>

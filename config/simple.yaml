@@ -94,5 +94,5 @@ sync:
   # link要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间，Docker运行时link模式需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker可能仍然会认为是跨盘
   # softlink模式注意宿主机的源目录映射到docker容器中后要路径要一致，否则可能软链接成功但无法在宿主机使用
   sync_mod: link
-  # 【监控目录操作系统类型】：windows、linux。如果是windows，目录监控功能性能会比较差，会导致NAS不能休眠，除非挂载的windows的远程共享目录，否则建议设置为linux
+  # 【监控目录操作系统类型】：windows、linux。如果是windows，目录同步功能性能会比较差，会导致NAS不能休眠，除非挂载的windows的远程共享目录，否则建议设置为linux
   nas_sys: linux

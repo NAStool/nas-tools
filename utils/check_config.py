@@ -153,7 +153,7 @@ def check_config(cfg):
     else:
         log.warn("message未配置，将无法接收到通知消息")
 
-    # 检查目录监控
+    # 检查目录同步
     if config.get('sync'):
         sync_paths = config['sync'].get('sync_path')
         if sync_paths:
@@ -161,7 +161,7 @@ def check_config(cfg):
                 if sync_path.find('|') != -1:
                     sync_path = sync_path.split("|")[0]
                 if not os.path.exists(sync_path):
-                    log.warn("sync_path目录不存在，该目录监控资源同步功能已关闭：%s" % sync_path)
+                    log.warn("sync_path目录不存在，目录同步功能已关闭：%s" % sync_path)
 
         sync_mod = config['sync'].get('sync_mod')
         if sync_mod:
@@ -169,11 +169,11 @@ def check_config(cfg):
         else:
             sync_mod = "COPY"
         if sync_mod == "LINK":
-            log.info("目录监控转移模式为：硬链接")
+            log.info("目录同步转移模式为：硬链接")
         elif sync_mod == "SOFTLINK":
-            log.info("目录监控转移模式为：软链接")
+            log.info("目录同步转移模式为：软链接")
         else:
-            log.info("目录监控转移模式为：复制")
+            log.info("目录同步转移模式为：复制")
 
     # 检查PT配置
     if config.get('pt'):
@@ -212,7 +212,7 @@ def check_config(cfg):
         if rmt_mode == "LINK":
             log.info("PT下载文件转移模式为：硬链接")
         elif rmt_mode == "SOFTLINK":
-            log.info("目录监控转移模式为：软链接")
+            log.info("目录同步转移模式为：软链接")
         else:
             log.info("PT下载文件转移模式为：复制")
 

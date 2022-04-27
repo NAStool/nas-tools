@@ -131,7 +131,7 @@ sync:
   # link要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间，Docker运行时link模式需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker可能仍然会认为是跨盘
   # softlink模式注意宿主机的源目录映射到docker容器中后要路径要一致，否则可能软链接成功但无法在宿主机使用
   sync_mod: link
-  # 【监控目录操作系统类型】：windows、linux。如果是windows，目录监控功能性能会比较差，会导致NAS不能休眠，除非是挂载的windows的远程共享目录，否则建议设置为linux
+  # 【监控目录操作系统类型】：windows、linux。如果是windows，目录同步功能性能会比较差，会导致NAS不能休眠，除非是挂载的windows的远程共享目录，否则建议设置为linux
   nas_sys: linux
 
 # 【配置PT站点和检索信息】
@@ -139,7 +139,7 @@ pt:
   # 【PT下载使用的客户端软件】：qbittorrent、transmission，需要配置qbittorrent或transmission对应的配置区域
   pt_client: qbittorrent
   # 【PT下载软件监控开关】：是否监控PT下载软件：true、false，如为true则PT下载完成会自动转移和重命名，如为false则不会处理
-  # PT下载软件监控与Sync下载目录监控不要同时开启，否则功能存在重复
+  # PT下载软件监控与Sync下载目录同步不要同时开启，否则功能存在重复
   pt_monitor: false
   # 【PT下载完成后转移到媒体库的转移模式】：copy复制模式、link硬链接模式、softlink软链接模式，均会重命名
   # copy下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠

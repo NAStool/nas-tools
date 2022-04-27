@@ -1245,6 +1245,12 @@ def create_flask_app(config):
                 config.save_config(cfg)
                 return {"code": 0}
 
+            # 维护媒体库目录
+            if cmd == "update_directory":
+                cfg = set_config_directory(config.get_config(), data.get("oper"), data.get("key"), data.get("value"))
+                config.save_config(cfg)
+                return {"code": 0}
+
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])
     def wechat():
@@ -1373,25 +1379,49 @@ def create_flask_app(config):
             if len(keys) == 1:
                 cfg[keys[0]] = cfg_value
             elif len(keys) == 2:
-                if cfg.get(keys[0]):
-                    cfg[keys[0]][keys[1]] = cfg_value
-                else:
+                if not cfg.get(keys[0]):
                     cfg[keys[0]] = {}
-                    cfg[keys[0]][keys[1]] = cfg_value
+                cfg[keys[0]][keys[1]] = cfg_value
             elif len(keys) == 3:
                 if cfg.get(keys[0]):
-                    if cfg[keys[0]].get(keys[1]):
-                        if isinstance(cfg[keys[0]][keys[1]], str):
-                            cfg[keys[0]][keys[1]] = {}
-                        cfg[keys[0]][keys[1]][keys[2]] = cfg_value
-                    else:
+                    if not cfg[keys[0]].get(keys[1]) or isinstance(cfg[keys[0]][keys[1]], str):
                         cfg[keys[0]][keys[1]] = {}
-                        cfg[keys[0]][keys[1]][keys[2]] = cfg_value
+                    cfg[keys[0]][keys[1]][keys[2]] = cfg_value
                 else:
                     cfg[keys[0]] = {}
                     cfg[keys[0]][keys[1]] = {}
                     cfg[keys[0]][keys[1]][keys[2]] = cfg_value
 
+        return cfg
+
+    # 更新目录数据
+    def set_config_directory(cfg, oper, cfg_key, cfg_value):
+        # 最大支持二层赋值
+        keys = cfg_key.split(".")
+        if keys:
+            if len(keys) == 1:
+                if cfg.get(keys[0]):
+                    if not isinstance(cfg[keys[0]], list):
+                        cfg[keys[0]] = [cfg[keys[0]]]
+                    if oper == "add":
+                        cfg[keys[0]].append(cfg_value)
+                    else:
+                        cfg[keys[0]].remove(cfg_value)
+                else:
+                    cfg[keys[0]] = cfg_value
+            elif len(keys) == 2:
+                if cfg.get(keys[0]):
+                    if not cfg[keys[0]].get(keys[1]):
+                        cfg[keys[0]][keys[1]] = []
+                    if not isinstance(cfg[keys[0]][keys[1]], list):
+                        cfg[keys[0]][keys[1]] = [cfg[keys[0]][keys[1]]]
+                    if oper == "add":
+                        cfg[keys[0]][keys[1]].append(cfg_value)
+                    else:
+                        cfg[keys[0]][keys[1]].remove(cfg_value)
+                else:
+                    cfg[keys[0]] = {}
+                    cfg[keys[0]][keys[1]] = cfg_value
         return cfg
 
     return App
