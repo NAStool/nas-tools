@@ -1347,7 +1347,10 @@ def create_flask_app(config):
     def set_config_value(cfg, cfg_key, cfg_value):
         # 代理
         if cfg_key == "app.proxies":
-            cfg['app']['proxies'] = {"https": "http://%s" % cfg_value, "http": "http://%s" % cfg_value}
+            if not cfg_value.startswith("http") and not cfg_value.startswith("sock"):
+                cfg['app']['proxies'] = {"https": "http://%s" % cfg_value, "http": "http://%s" % cfg_value}
+            else:
+                cfg['app']['proxies'] = {"https": "%s" % cfg_value, "http": "%s" % cfg_value}
             return cfg
         # 文件转移模式
         if cfg_key == "app.rmt_mode":

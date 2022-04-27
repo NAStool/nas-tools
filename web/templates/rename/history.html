@@ -265,20 +265,20 @@
     //重新识别
     function rename_history(type, path, id){
       if(type == "电视剧"){
-        $("#rename_type_tv").attr("checked",true);
-        $("#rename_type_mov").removeAttr("checked");
-        $("#rename_type_anime").removeAttr("checked");
+        $("#rename_type_tv").prop("checked",true);
+        $("#rename_type_mov").removeProp("checked");
+        $("#rename_type_anime").removeProp("checked");
         $("#rename_season_div").show();
       }else if(type == "电影"){
-        $("#rename_type_mov").attr("checked",true);
-        $("#rename_type_tv").removeAttr("checked");
-        $("#rename_type_anime").removeAttr("checked");
+        $("#rename_type_mov").prop("checked",true);
+        $("#rename_type_tv").removeProp("checked");
+        $("#rename_type_anime").removeProp("checked");
         $("#rename_season_div").hide();
         $("#rename_season").val("");
       }else{
-        $("#rename_type_anime").attr("checked",true);
-        $("#rename_type_tv").removeAttr("checked");
-        $("#rename_type_mov").removeAttr("checked");
+        $("#rename_type_anime").prop("checked",true);
+        $("#rename_type_tv").removeProp("checked");
+        $("#rename_type_mov").removeProp("checked");
         $("#rename_season_div").show();
       }
       $("#rename_path").val(path);
