@@ -701,7 +701,8 @@ def create_flask_app(config):
                     SyncPaths.append(SyncPath)
             else:
                 SyncPaths = [{"from": sync_paths}]
-        return render_template("setting/directorysync.html", SyncPaths=SyncPaths)
+        SyncCount = len(SyncPaths)
+        return render_template("setting/directorysync.html", SyncPaths=SyncPaths, SyncCount=SyncCount)
 
     # 豆瓣页面
     @App.route('/douban', methods=['POST', 'GET'])
