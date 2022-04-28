@@ -78,7 +78,7 @@ class FileTransfer:
             if not self.__anime_path:
                 self.__anime_path = self.__tv_path
                 self.__anime_category_flag = self.__tv_category_flag
-            # 未知目录
+            # 未识别目录
             self.__unknown_path = media.get('unknown_path')
             if not isinstance(self.__unknown_path, list):
                 if self.__unknown_path:
