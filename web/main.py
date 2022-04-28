@@ -656,17 +656,16 @@ def create_flask_app(config):
     @App.route('/unidentification', methods=['POST', 'GET'])
     @login_required
     def unidentification():
-        Paths = get_transfer_unknown_paths()
-        TotalCount = len(Paths)
+        IdentiPaths = []
+        paths = get_transfer_unknown_paths()
+        TotalCount = len(paths)
+        for path in paths:
+            if not path[0]:
+                continue
+            IdentiPaths.append({"path": path[0], "to": path[1], "name": os.path.basename(path[0])})
         return render_template("rename/unidentification.html",
                                TotalCount=TotalCount,
-                               Paths=Paths)
-
-    # 配置文件页面
-    @App.route('/configfile', methods=['POST', 'GET'])
-    @login_required
-    def configfile():
-        return render_template("setting/configfile.html")
+                               IdentiPaths=IdentiPaths)
 
     # 基础设置页面
     @App.route('/basic', methods=['POST', 'GET'])

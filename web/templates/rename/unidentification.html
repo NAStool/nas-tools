@@ -26,20 +26,20 @@
             <table class="table table-vcenter card-table">
               <thead>
                 <tr>
-                  <th>源目录</th>
+                  <th>文件名</th>
                   <th>目的目录</th>
                   <th class="w-5"></th>
                 </tr>
               </thead>
               <tbody>
               {% if TotalCount > 0 %}
-                {% for Path in Paths %}
+                {% for Path in IdentiPaths %}
                 <tr>
                   <td >
-                    {{ Path[0] }}
+                    {{ Path.name }}
                   </td>
                   <td class="text-muted" >
-                    {{ Path[1] }}
+                    {{ Path.to }}
                   </td>
                   <td>
                    <div class="dropdown">
@@ -47,10 +47,10 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" /><circle cx="12" cy="5" r="1" /></svg>
                       </a>
                       <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href='javascript:show_rename_modal("{{ Path[0]|safe }}")'>
+                        <a class="dropdown-item" href='javascript:show_rename_modal("{{ Path.path|safe }}")'>
                           手动识别
                         </a>
-                        <a class="dropdown-item text-danger" href='javascript:del_rename_path("{{ Path[0]|safe }}")'>
+                        <a class="dropdown-item text-danger" href='javascript:del_rename_path("{{ Path.path|safe }}")'>
                           删除
                         </a>
                       </div>
