@@ -32,7 +32,7 @@ class Qbittorrent:
         qbittorrent = config.get_config('qbittorrent')
         if qbittorrent:
             self.__qbhost = qbittorrent.get('qbhost')
-            self.__qbport = qbittorrent.get('qbport')
+            self.__qbport = int(qbittorrent.get('qbport'))
             self.__qbusername = qbittorrent.get('qbusername')
             self.__qbpassword = qbittorrent.get('qbpassword')
             # 强制做种开关

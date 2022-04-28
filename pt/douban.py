@@ -34,7 +34,7 @@ class DouBan:
                     users = [users]
                 self.__users = users
             # 时间范围
-            self.__days = douban.get('days')
+            self.__days = int(douban.get('days'))
             # 类型
             types = douban.get('types')
             if types:

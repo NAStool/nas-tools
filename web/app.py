@@ -1,9 +1,6 @@
 import log
 from config import Config
-from utils.functions import get_system
-from utils.types import OsType
 from web.main import create_flask_app
-import multiprocessing
 
 
 class FlaskApp:
@@ -19,7 +16,7 @@ class FlaskApp:
         config = Config()
         app = config.get_config('app')
         if app:
-            self.__web_port = app.get('web_port')
+            self.__web_port = int(app.get('web_port'))
             self.__ssl_cert = app.get('ssl_cert')
             self.__ssl_key = app.get('ssl_key')
         if not self.__web_port:

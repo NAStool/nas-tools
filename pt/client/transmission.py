@@ -29,7 +29,7 @@ class Transmission:
         transmission = config.get_config('transmission')
         if transmission:
             self.__trhost = transmission.get('trhost')
-            self.__trport = transmission.get('trport')
+            self.__trport = int(transmission.get('trport'))
             self.__trusername = transmission.get('trusername')
             self.__trpassword = transmission.get('trpassword')
             # 解释下载目录

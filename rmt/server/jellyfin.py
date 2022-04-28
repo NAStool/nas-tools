@@ -1,3 +1,5 @@
+import re
+
 import requests
 import log
 from config import Config
@@ -28,16 +30,16 @@ class Jellyfin:
     def __get_jellyfin_librarys(self):
         if not self.__host or not self.__apikey:
             return []
-        req_url = "%sLibrary/SelectableMediaFolders?api_key=%s" % (self.__host, self.__apikey)
+        req_url = "%sLibrary/MediaFolders?api_key=%s" % (self.__host, self.__apikey)
         try:
             res = requests.get(req_url, timeout=10)
             if res:
-                return res.json()
+                return res.json().get("Items")
             else:
-                log.error("【JELLYFIN】Library/SelectableMediaFolders 未获取到返回数据")
+                log.error("【JELLYFIN】Library/MediaFolders 未获取到返回数据")
                 return []
         except Exception as e:
-            log.error("【JELLYFIN】连接Library/SelectableMediaFolders 出错：" + str(e))
+            log.error("【JELLYFIN】连接Library/MediaFolders 出错：" + str(e))
             return []
 
     # 获得用户数量
@@ -68,17 +70,16 @@ class Jellyfin:
                 ret_json = res.json()
                 items = ret_json.get('Items')
                 for item in items:
-                    if item.get("Type") == "AuthenticationSucceeded":
+                    if item.get("Type") == "SessionStarted":
                         event_type = "LG"
-                        event_date = get_local_time(item.get("Date"))
+                        event_date = re.sub(r'\.\d{7}Z', '', item.get("Date")).replace("T", " ")
                         event_str = "%s, %s" % (item.get("Name"), item.get("ShortOverview"))
                         activity = {"type": event_type, "event": event_str, "date": event_date}
                         ret_array.append(activity)
                     if item.get("Type") == "VideoPlayback":
                         event_type = "PL"
-                        event_date = get_local_time(item.get("Date"))
-                        event_str = item.get("Name")
-                        activity = {"type": event_type, "event": event_str, "date": event_date}
+                        event_date = re.sub(r'\.\d{7}Z', '', item.get("Date")).replace("T", " ")
+                        activity = {"type": event_type, "event": item.get("Name"), "date": event_date}
                         ret_array.append(activity)
             else:
                 log.error("【JELLYFIN】System/ActivityLog/Entries 未获取到返回数据")
@@ -265,7 +266,7 @@ class Jellyfin:
                 return None
         # 查找需要刷新的媒体库ID
         for library in self.__get_jellyfin_librarys():
-            for folder in library.get("SubFolders"):
+            for folder in library.get("Path"):
                 if "/%s" % item.get("category") in folder.get("Path"):
                     return library.get("Id")
         # 刷新根目录

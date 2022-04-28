@@ -26,7 +26,7 @@ class DoubanSync:
         config = Config()
         douban = config.get_config('douban')
         if douban:
-            self.__interval = douban.get('interval')
+            self.__interval = int(douban.get('interval'))
             self.__auto_search = douban.get('auto_search')
             self.__auto_rss = douban.get('auto_rss')
 
