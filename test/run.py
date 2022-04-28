@@ -1,6 +1,8 @@
 from pt.searcher import Searcher
 from rmt.filetransfer import FileTransfer
+from rmt.media import Media
 from rmt.metainfo import MetaInfo
+from rmt.server.jellyfin import Jellyfin
 from utils.db_helper import select_by_sql, update_by_sql
 from utils.sqls import get_config_site, get_config_search_rule, insert_transfer_unknown
 from utils.types import SyncType
@@ -79,5 +81,9 @@ if __name__ == "__main__":
     # print(MetaInfo('Hokusai.to.meshi.sae.areba.S01E03.2017.1080p.KKTV.WEB-DL.x264.ACC-ADWeb').__dict__)
     # print(get_config_search_rule())
     # print(MetaInfo('556.mkv').__dict__)
-    insert_transfer_unknown("/volume1/PT/任何人 (2022)", "/电影")
-    insert_transfer_unknown("/volume1/PT/Etharkkum.Thunindhavan.2022.1080p.NF.WEB-DL.H264.DDP5.1-ADWeb", "")
+    # insert_transfer_unknown("/volume1/PT/任何人 (2022)", "/电影")
+    # insert_transfer_unknown("/volume1/PT/Etharkkum.Thunindhavan.2022.1080p.NF.WEB-DL.H264.DDP5.1-ADWeb", "")
+    # meta_info = Media().get_media_info("未来中国 2022")
+    # meta_info.title = "未来中国"
+    # print(Jellyfin().get_no_exists_episodes(meta_info, 1, 10))
+    print(Jellyfin().get_movies("我和我的祖国", "2019"))
