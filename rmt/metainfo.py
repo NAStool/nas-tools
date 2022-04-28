@@ -1,4 +1,3 @@
-import os.path
 import re
 import anitopy
 import cn2an
@@ -58,6 +57,8 @@ class MetaInfo(object):
     fanart_image = None
     # 评分
     vote_average = 0
+    # 描述
+    overview = None
     # TMDB 的其它信息
     tmdb_info = {}
     # 种子附加信息
@@ -741,6 +742,7 @@ class MetaInfo(object):
             return
         self.tmdb_info = info
         self.vote_average = info.get('vote_average')
+        self.overview = info.get('overview')
         if self.type == MediaType.MOVIE:
             self.title = info.get('title')
             release_date = info.get('release_date')

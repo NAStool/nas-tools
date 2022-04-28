@@ -30,12 +30,12 @@ from message.send import Message
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE
 from scheduler.run import stop_scheduler
 from utils.functions import get_used_of_partition, str_filesize, str_timelong, INSTANCES
-from utils.sqls import get_search_result_by_id, get_search_results, get_movie_keys, get_tv_keys, insert_movie_key, \
-    insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
+from utils.sqls import get_search_result_by_id, get_search_results, get_movie_keys, get_tv_keys, \
+    get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
     delete_transfer_log_by_id, get_config_site, insert_config_site, get_site_by_id, delete_config_site, \
     update_config_site, get_config_search_rule, update_config_search_rule, get_config_rss_rule, update_config_rss_rule, \
-    get_unknown_path_by_id
+    get_unknown_path_by_id, get_rss_tvs, get_rss_movies
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
@@ -293,16 +293,21 @@ def create_flask_app(config):
                                Count=len(res),
                                Items=res)
 
-    # 订阅关键字页面
-    @App.route('/rss', methods=['POST', 'GET'])
+    # 电影订阅页面
+    @App.route('/movie_rss', methods=['POST', 'GET'])
     @login_required
-    def rss():
-        # 获取订阅关键字
-        movie_key_list = get_movie_keys()
-        tv_key_list = get_tv_keys()
-        return render_template("rss/rss.html",
-                               MovieKeys=','.join('%s' % key[0] for key in movie_key_list),
-                               TvKeys=','.join('%s' % key[0] for key in tv_key_list))
+    def movie_rss():
+        Items = get_rss_movies()
+        Count = len(Items)
+        return render_template("rss/movie_rss.html", Count=Count, Items=Items)
+
+    # 电视剧订阅页面
+    @App.route('/tv_rss', methods=['POST', 'GET'])
+    @login_required
+    def tv_rss():
+        Items = get_rss_tvs()
+        Count = len(Items)
+        return render_template("rss/tv_rss.html", Count=Count, Items=Items)
 
     # 站点维护页面
     @App.route('/site', methods=['POST', 'GET'])
@@ -866,40 +871,6 @@ def create_flask_app(config):
                     _thread.start_new_thread(commands.get(sch_item), ())
                 return {"retmsg": "服务已启动", "item": sch_item}
 
-            # 电影关键字
-            if cmd == "moviekey":
-                movie_keys = data.get("movie_keys")
-                if movie_keys:
-                    if movie_keys.find(',') != -1:
-                        if movie_keys.endswith(','):
-                            movie_keys = movie_keys[0, -1]
-                        movie_keys = movie_keys.split(',')
-                    else:
-                        movie_keys = [movie_keys]
-                    delete_all_movie_keys()
-                    for movie_key in movie_keys:
-                        insert_movie_key(movie_key)
-                else:
-                    delete_all_movie_keys()
-                return {"retcode": 0}
-
-            # 电视剧关键字
-            if cmd == "tvkey":
-                tv_keys = data.get("tv_keys")
-                if tv_keys:
-                    if tv_keys.find(',') != -1:
-                        if tv_keys.endswith(','):
-                            tv_keys = tv_keys[0, -1]
-                        tv_keys = tv_keys.split(',')
-                    else:
-                        tv_keys = [tv_keys]
-                    delete_all_tv_keys()
-                    for tv_key in tv_keys:
-                        insert_tv_key(tv_key)
-                else:
-                    delete_all_tv_keys()
-                return {"retcode": 0}
-
             # 检索资源
             if cmd == "search":
                 # 开始检索
@@ -928,17 +899,6 @@ def create_flask_app(config):
                     msg_item.description = res[9]
                     msg_item.size = res[10]
                     Message().send_download_message(SearchType.WEB, msg_item)
-                return {"retcode": 0}
-
-            # 添加RSS关键字
-            if cmd == "addrss":
-                name = data.get("name")
-                mtype = data.get("type")
-                if name and mtype:
-                    if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm']:
-                        insert_movie_key(name)
-                    else:
-                        insert_tv_key(name)
                 return {"retcode": 0}
 
             # 开始下载

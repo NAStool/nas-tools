@@ -1,4 +1,3 @@
-import re
 import requests
 from xml.dom.minidom import parse
 import xml.dom.minidom
@@ -56,13 +55,13 @@ class Rss:
         if not movie_keys:
             log.warn("【RSS】未配置电影订阅关键字")
         else:
-            log.info("【RSS】电影订阅规则清单：%s" % " ".join('%s' % key for key in movie_keys))
+            log.info("【RSS】电影订阅规则清单：%s" % " ".join('%s' % key[0] for key in movie_keys))
 
         tv_keys = get_tv_keys()
         if not tv_keys:
             log.warn("【RSS】未配置电视剧订阅关键字")
         else:
-            log.info("【RSS】电视剧订阅规则清单：%s" % " ".join('%s' % key for key in tv_keys))
+            log.info("【RSS】电视剧订阅规则清单：%s" % " ".join('%s' % key[0] for key in tv_keys))
 
         if not movie_keys and not tv_keys:
             return
@@ -154,7 +153,7 @@ class Rss:
                         if not match_flag:
                             continue
                     # 检查是否存在，电视剧返回不存在的集清单
-                    exist_flag, no_exists, messages = self.downloader.check_exists_medias(meta_info=media_info)
+                    exist_flag, total_seasoninfo, no_exists, messages = self.downloader.check_exists_medias(meta_info=media_info)
                     if exist_flag:
                         # 如果是电影，已存在时删除订阅，只会删除名字匹配的
                         if media_info.type == MediaType.MOVIE:
@@ -195,33 +194,24 @@ class Rss:
     @staticmethod
     def is_torrent_match(media_info, movie_keys, tv_keys):
         if media_info.type == MediaType.MOVIE:
-            for key in movie_keys:
-                if not key:
+            for key_info in movie_keys:
+                if not key_info:
                     continue
-                key = key[0]
-                # 匹配种子标题
-                if re.search(r"%s" % key, media_info.org_string, re.IGNORECASE):
-                    return True
-                # 匹配媒体名称
-                if str(key).strip().upper() == str(media_info.title).upper():
-                    return True
-                # 匹配年份
-                if str(key).strip() == str(media_info.year):
+                name = key_info[0]
+                year = key_info[1]
+                # 匹配标题和年份
+                if name == media_info.title and str(year) == str(media_info.year):
                     return True
         else:
             # 匹配种子标题
-            for key in tv_keys:
-                if not key:
+            for key_info in tv_keys:
+                if not key_info:
                     continue
-                key = key[0]
-                # 中英文名跟年份都纳入匹配
-                if re.search(r"%s" % key, media_info.org_string, re.IGNORECASE):
-                    return True
-                # 匹配媒体名称
-                if str(key).strip().upper() == str(media_info.title).upper():
-                    return True
-                # 匹配年份
-                if str(key).strip() == str(media_info.year):
+                name = key_info[0]
+                year = key_info[1]
+                season = key_info[2]
+                # 匹配标题和年份和季
+                if name == media_info.title and str(year) == str(media_info.year) and season == media_info.get_season_string():
                     return True
         return False
 

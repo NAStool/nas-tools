@@ -204,7 +204,8 @@ class Downloader:
         # 返回下载数以及，剩下没下完的
         return len(download_items), need_tvs
 
-    # 检查控重，返回是否存在标志，如果是剧集，返回每季的缺失集
+    # 检查控重
+    # 返回：是否有缺失，总的季集数，缺失的季集数，需要发送的消息
     def check_exists_medias(self, meta_info):
         # 查找的季
         if not meta_info.begin_season:
@@ -218,6 +219,7 @@ class Downloader:
 
         # 电影、动漫
         message_list = []
+        total_seasons = []
         if meta_info.type != MediaType.MOVIE:
             total_tv_no_exists = {}
             return_flag = False
@@ -225,14 +227,14 @@ class Downloader:
             tv_info = self.media.get_tmdb_tv_info(meta_info.tmdb_id)
             if tv_info:
                 # 共有多少季，每季有多少季
-                total_seasons = self.get_tmdb_seasons_info(tv_info.get("seasons"))
+                total_seasons = self.media.get_tmdb_seasons_info(tv_info.get("seasons"))
                 log.info("【PT】%s %s 共有 %s 季" % (meta_info.type.value, meta_info.get_title_string(), len(total_seasons)))
                 message_list.append("%s %s 共有 %s 季" % (meta_info.type.value, meta_info.get_title_string(), len(total_seasons)))
                 if search_season:
                     # 有输入季
                     total_seasons = []
                     for season in search_season:
-                        episode_num = self.get_tmdb_season_episodes_num(tv_info.get("seasons"), season)
+                        episode_num = self.media.get_tmdb_season_episodes_num(tv_info.get("seasons"), season)
                         if not episode_num:
                             log.info("【PT】%s 第%s季 不存在" % (meta_info.get_title_string(), season))
                             message_list.append("%s 第%s季 不存在" % (meta_info.get_title_string(), season))
@@ -296,7 +298,7 @@ class Downloader:
             if return_flag is False and not total_tv_no_exists:
                 return_flag = True
             # 返回
-            return return_flag, total_tv_no_exists, message_list
+            return return_flag, total_seasons, total_tv_no_exists, message_list
         # 检查电影
         else:
             exists_movies = self.mediaserver.get_movies(meta_info.title, meta_info.year)
@@ -306,8 +308,8 @@ class Downloader:
                 movies_str = "\n * ".join(["%s (%s)" % (m.get('title'), m.get('year')) for m in exists_movies])
                 log.info("【PT】媒体库中已经存在以下电影：\n * %s" % movies_str)
                 message_list.append("在媒体库中已经存在以下电影：\n * %s" % movies_str)
-                return True, None, message_list
-            return False, None, message_list
+                return True, None, None, message_list
+            return False, None, None, message_list
 
     # 排序、去重 选种
     @staticmethod
@@ -360,25 +362,3 @@ class Downloader:
                 can_download_list_item.append(t_item)
 
         return can_download_list_item
-
-    # 从TMDB的季集信息中获得季的组
-    @staticmethod
-    def get_tmdb_seasons_info(seasons):
-        if not seasons:
-            return []
-        total_seasons = []
-        for season in seasons:
-            if season.get("season_number") != 0:
-                total_seasons.append(
-                    {"season_number": season.get("season_number"), "episode_count": season.get("episode_count")})
-        return total_seasons
-
-    # 从TMDB的季信息中获得具体季有多少集
-    @staticmethod
-    def get_tmdb_season_episodes_num(seasons, sea):
-        if not seasons:
-            return 0
-        for season in seasons:
-            if season.get("season_number") == sea:
-                return season.get("episode_count")
-        return 0

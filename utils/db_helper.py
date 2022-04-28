@@ -63,14 +63,31 @@ class DBHelper:
                                    EPISODE    TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_RSS_TORRENTS_NAME ON RSS_TORRENTS (TITLE, YEAR, SEASON, EPISODE);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_RSS_TORRENTS_URL ON RSS_TORRENTS (ENCLOSURE);''')
-            # 电影关键字表
-            cursor.execute('''CREATE TABLE IF NOT EXISTS RSS_MOVIEKEYS
+            # 电影订阅表
+            # STATE: D-队列中 S-正在检索 R-正在订阅 F-完成
+            cursor.execute('''CREATE TABLE IF NOT EXISTS RSS_MOVIES
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                                   NAME    TEXT);''')
-            # 电视剧关键字表
-            cursor.execute('''CREATE TABLE IF NOT EXISTS RSS_TVKEYS
+                                   NAME    TEXT,
+                                   YEAR    TEXT,
+                                   TMDBID   TEXT,
+                                   IMAGE    TEXT,
+                                   DESC    TEXT,
+                                   STATE    TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_RSS_MOVIES_NAME ON RSS_MOVIES(NAME);''')
+            # 电视剧订阅表
+            # STATE: D-队列中 S-正在检索 R-正在订阅 F-完成
+            cursor.execute('''CREATE TABLE IF NOT EXISTS RSS_TVS
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                                   NAME    TEXT);''')
+                                   NAME    TEXT,
+                                   YEAR    TEXT,
+                                   SEASON    TEXT,
+                                   TMDBID   TEXT,
+                                   IMAGE    TEXT,
+                                   DESC    TEXT,
+                                   TOTAL    INTEGER,
+                                   LACK    INTEGER,
+                                   STATE    TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_RSS_TVS_NAME ON RSS_TVS(NAME);''')
             # 豆瓣关注信息表
             cursor.execute('''CREATE TABLE IF NOT EXISTS DOUBAN_MEDIAS
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
@@ -99,6 +116,7 @@ class DBHelper:
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_HISTORY_NAME ON TRANSFER_HISTORY (FILE_NAME);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_HISTORY_TITLE ON TRANSFER_HISTORY (TITLE);''')
             # 无法识别的文件列表
+            # STATE N-未处理 Y-已处理
             cursor.execute('''CREATE TABLE IF NOT EXISTS TRANSFER_UNKNOWN
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
                                    PATH    TEXT,

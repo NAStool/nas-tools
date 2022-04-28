@@ -1,0 +1,89 @@
+<div class="container-xl">
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          电影订阅
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:show_rss_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            新增订阅
+          </a>
+          <a href="javascript:show_rss_modal()" class="btn btn-primary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% if Count > 0 %}
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      {% for Item in Items %}
+      <div class="col-md-4 col-xl-3">
+        <a class="card card-link" href="#" title="{{ Item[4] }}">
+          <div class="text-center rounded">
+            <img class="rounded-top" src="{{ Item[3] }}">
+          </div>
+          <div class="card-body text-center">
+            <div class="card-title mb-1">
+              {% if Item[1] %}
+              {{ Item[0] }} ({{ Item[1] }})
+              {% else %}
+              {{ Item[0] }}
+              {% endif %}
+            </div>
+            <div class="text-muted">
+              <span class="badge
+              {% if Item[5] == 'D' %}
+              bg-gray
+              {% elif Item[5] == 'S' %}
+              bg-orange
+              {% elif Item[5] == 'R' %}
+              bg-green
+              {% else %}
+              bg-blue
+              {% endif %}
+              "></span>
+              {% if Item[5] == "D" %}
+              队列中
+              {% elif Item[5] == "S" %}
+              正在搜索
+              {% elif Item[5] == "R" %}
+              正在订阅
+              {% else %}
+              完成
+              {% endif %}
+            </div>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="page-body">
+  <div class="container-xl d-flex flex-column justify-content-center">
+    <div class="empty">
+      <div class="empty-img"><img src="./static/img/sign_in.svg" height="128"  alt="">
+      </div>
+      <p class="empty-title">没有记录</p>
+      <p class="empty-subtitle text-muted">
+        当前没有正在订阅的电影。
+      </p>
+    </div>
+  </div>
+</div>
+{% endif %}
+<script type="text/javascript">
+  //弹出新增订阅对话框
+  function show_rss_modal(){
+
+  }
+</script>

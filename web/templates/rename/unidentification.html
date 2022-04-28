@@ -218,6 +218,7 @@
       $("#rename_btn").text("转移");
       if (ret.retcode == 0) {
         //处理成功
+        $('#modal-rename').modal('hide');
         navmenu('unidentification');
       } else {
         //处理失败

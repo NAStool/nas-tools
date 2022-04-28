@@ -41,10 +41,11 @@ class Searcher:
         return self.indexer.search_by_keyword(key_word, s_num, e_num, year, mtype, whole_word)
 
     # 检索一个媒体
+    # 返回：是否下载全，媒体信息，剧集总季集信息、剧集缺少季集信息
     def search_one_media(self, input_str, in_from=SearchType.OT, user_id=None):
         if not input_str:
             log.info("【SEARCHER】检索关键字有误！")
-            return False
+            return False, None, None, None
         # 去掉查询中的电影或电视剧关键字
         if re.search(r'^电视剧|\s+电视剧|^动漫|\s+动漫', input_str):
             mtype = MediaType.TV
@@ -52,7 +53,7 @@ class Searcher:
             mtype = None
         content = re.sub(r'^电影|^电视剧|^动漫|\s+电影|\s+电视剧|\s+动漫', '', input_str).strip()
         if not content:
-            return
+            return False, None, None, None
         # 识别媒体信息
         log.info("【SEARCHER】正在识别 %s 的媒体信息..." % content)
         media_info = self.media.get_media_info(title=content, mtype=mtype, strict=True)
@@ -64,20 +65,22 @@ class Searcher:
                                                   media_info.type.value, media_info.title, media_info.year),
                                               user_id=user_id)
             # 检查是否存在，电视剧返回不存在的集清单
-            exist_flag, no_exists, messages = self.downloader.check_exists_medias(meta_info=media_info)
+            exist_flag, total_seasoninfo, no_exists, messages = self.downloader.check_exists_medias(meta_info=media_info)
             if messages and in_from in [SearchType.WX, SearchType.TG]:
                 self.message.send_channel_msg(channel=in_from, title="\n".join(messages))
             if exist_flag is None:
-                return False
+                # 检查出错
+                return False, media_info, total_seasoninfo, no_exists
             elif exist_flag:
-                return True
+                # 全部存在
+                return True, media_info, total_seasoninfo, no_exists
         else:
             if in_from in [SearchType.WX, SearchType.TG]:
                 self.message.send_channel_msg(channel=in_from,
                                               title="%s 不是电影或者电视剧名称" % content,
                                               user_id=user_id)
             log.info("【SEARCHER】%s 不是电影或者电视剧名称" % content)
-            return False
+            return False, None, None, None
 
         # 开始真正搜索资源
         if in_from in [SearchType.WX, SearchType.TG]:
@@ -106,7 +109,7 @@ class Searcher:
                 self.message.send_channel_msg(channel=in_from,
                                               title="%s 未检索到任何资源" % media_info.title,
                                               user_id=user_id)
-            return False
+            return False, media_info, total_seasoninfo, no_exists
         else:
             if in_from in [SearchType.WX, SearchType.TG]:
                 # 保存微信搜索记录
@@ -123,7 +126,7 @@ class Searcher:
                                               user_id=user_id)
             # 微信未开自动下载时返回
             if in_from in [SearchType.WX, SearchType.TG] and not self.__search_auto:
-                return False
+                return False, media_info, total_seasoninfo, no_exists
             # 择优下载
             download_num, left_medias = self.downloader.check_and_add_pt(in_from, media_list, no_exists)
             # 统计下载情况，下全了返回True，没下全返回False
@@ -133,13 +136,13 @@ class Searcher:
                     self.message.send_channel_msg(channel=in_from,
                                                   title="%s 搜索结果中没有符合下载条件的资源" % content,
                                                   user_id=user_id)
-                return False
+                return False, media_info, total_seasoninfo, left_medias
             else:
                 log.info("【SEARCHER】实际下载了 %s 个资源" % download_num)
                 # 比较要下的都下完了没有，来决定返回什么状态
                 if left_medias:
-                    return False
-            return True
+                    return False, media_info, total_seasoninfo, left_medias
+            return True, media_info, total_seasoninfo, left_medias
 
     # 种子去重，每一个名称、站点、资源类型 选一个做种人最多的显示
     @staticmethod

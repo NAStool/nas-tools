@@ -68,67 +68,16 @@ def get_search_results():
     return select_by_sql(sql)
 
 
-# 查询电影关键字
-def get_movie_keys():
-    sql = "SELECT NAME FROM RSS_MOVIEKEYS"
-    return select_by_sql(sql)
-
-
-# 查询电视剧关键字
-def get_tv_keys():
-    sql = "SELECT NAME FROM RSS_TVKEYS"
-    return select_by_sql(sql)
-
-
-# 删除全部电影关键字
-def delete_all_movie_keys():
-    sql = "DELETE FROM RSS_MOVIEKEYS"
-    return update_by_sql(sql)
-
-
 # 删除电影关键字
 def delete_movie_key(key):
-    sql = "DELETE FROM RSS_MOVIEKEYS WHERE NAME='%s'" % str_sql(key)
-    return update_by_sql(sql)
-
-
-# 删除全部电视剧关键字
-def delete_all_tv_keys():
-    sql = "DELETE FROM RSS_TVKEYS"
+    sql = "DELETE FROM RSS_MOVIES WHERE NAME='%s'" % str_sql(key)
     return update_by_sql(sql)
 
 
 # 删除电视剧关键字
 def delete_tv_key(key):
-    sql = "DELETE FROM RSS_TVKEYS WHERE NAME='%s'" % str_sql(key)
+    sql = "DELETE FROM RSS_TVS WHERE NAME='%s'" % str_sql(key)
     return update_by_sql(sql)
-
-
-# 插入电影关键字
-def insert_movie_key(key):
-    if not key:
-        return False
-    sql = "SELECT 1 FROM RSS_MOVIEKEYS WHERE NAME = '%s'" % str_sql(key)
-    ret = select_by_sql(sql)
-    if not ret or len(ret) == 0:
-        sql = "INSERT INTO RSS_MOVIEKEYS(NAME) VALUES ('%s')" % str_sql(key)
-        return update_by_sql(sql)
-    else:
-        return False
-
-
-# 插入电视剧关键字
-def insert_tv_key(key):
-    if not key:
-        return False
-    key = str(key).replace("'", "''")
-    sql = "SELECT 1 FROM RSS_TVKEYS WHERE NAME = '%s'" % key
-    ret = select_by_sql(sql)
-    if not ret or len(ret) == 0:
-        sql = "INSERT INTO RSS_TVKEYS(NAME) VALUES ('%s')" % key
-        return update_by_sql(sql)
-    else:
-        return False
 
 
 # 查询RSS是否处理过，根据链接
@@ -418,3 +367,116 @@ def update_config_rss_rule(note):
     update_by_sql("DELETE FROM CONFIG_RSS_RULE")
     return update_by_sql(
         "INSERT INTO CONFIG_RSS_RULE(NOTE) VALUES ('%s')" % str_sql(note))
+
+
+# 查询电影关键字
+def get_movie_keys():
+    sql = "SELECT NAME,YEAR FROM RSS_MOVIES"
+    return select_by_sql(sql)
+
+
+# 查询订阅电影信息
+def get_rss_movies():
+    sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE FROM RSS_MOVIES"
+    return select_by_sql(sql)
+
+
+# 查询订阅电视剧信息
+def get_rss_tvs():
+    sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE,((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100 FROM RSS_TVS"
+    return select_by_sql(sql)
+
+
+# 查询电视剧关键字
+def get_tv_keys():
+    sql = "SELECT NAME,YEAR,SEASON FROM RSS_TVS"
+    return select_by_sql(sql)
+
+
+# 判断RSS电影是否存在
+def is_exists_rss_movie(title, year):
+    if not title:
+        return False
+    sql = "SELECT COUNT(1) FROM RSS_MOVIES WHERE NAME='%s' AND YEAR='%s'" % (title, year)
+    ret = select_by_sql(sql)
+    if ret and ret[0][0] > 0:
+        return True
+    else:
+        return False
+
+
+# 新增RSS电影
+def insert_rss_movie(media_info):
+    if not media_info:
+        return False
+    if not media_info.title or not media_info.year:
+        return False
+    if is_exists_rss_movie(media_info.title, media_info.year):
+        return True
+    sql = "INSERT INTO RSS_MOVIES(NAME,YEAR,TMDBID,IMAGE,DESC,STATE) VALUES('%s','%s','%s','%s','%s','%s')" % (
+        str_sql(media_info.title),
+        str_sql(media_info.year),
+        str_sql(media_info.tmdb_id),
+        str_sql(media_info.get_backdrop_path()),
+        str_sql(media_info.overview),
+        'D'
+    )
+    return update_by_sql(sql)
+
+
+# 删除RSS电影
+def delete_rss_movie(title, year):
+    if not title:
+        return False
+    sql = "DELETE FROM RSS_MOVIES WHERE NAME='%s' AND YEAR='%s'" % (title, year)
+    return update_by_sql(sql)
+
+
+# 判断RSS电视剧是否存在
+def is_exists_rss_tv(title, year, season):
+    if not title:
+        return False
+    sql = "SELECT COUNT(1) FROM RSS_TVS WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (title, year, season)
+    ret = select_by_sql(sql)
+    if ret and ret[0][0] > 0:
+        return True
+    else:
+        return False
+
+
+# 新增RSS电视剧
+def insert_rss_tv(media_info, total, lack=0, state="D"):
+    if not media_info:
+        return False
+    if not media_info.title or not media_info.year:
+        return False
+    if is_exists_rss_tv(media_info.title, media_info.year, media_info.get_season_string()):
+        return True
+    sql = "INSERT INTO RSS_TVS(NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE) VALUES('%s','%s','%s','%s','%s','%s',%s,%s,'%s')" % (
+        str_sql(media_info.title),
+        str_sql(media_info.year),
+        media_info.get_season_string(),
+        str_sql(media_info.tmdb_id),
+        str_sql(media_info.get_backdrop_path()),
+        str_sql(media_info.overview),
+        total,
+        lack,
+        state
+    )
+    return update_by_sql(sql)
+
+
+# 更新电视剧缺失的集数
+def update_rss_tv_lack(title, year, lack):
+    if not title:
+        return False
+    sql = "UPDATE RSS_TVS SET LACK='%s' WHERE NAME='%s' AND YEAR='%s'" % (lack, title, year)
+    return update_by_sql(sql)
+
+
+# 删除RSS电视剧
+def delete_rss_tv(title, year):
+    if not title:
+        return False
+    sql = "DELETE FROM RSS_TVS WHERE NAME='%s' AND YEAR='%s'" % (title, year)
+    return update_by_sql(sql)

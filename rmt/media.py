@@ -430,3 +430,25 @@ class Media:
         except Exception as e:
             log.console(str(e))
             return {}
+
+    # 从TMDB的季集信息中获得季的组
+    @staticmethod
+    def get_tmdb_seasons_info(seasons):
+        if not seasons:
+            return []
+        total_seasons = []
+        for season in seasons:
+            if season.get("season_number") != 0:
+                total_seasons.append(
+                    {"season_number": season.get("season_number"), "episode_count": season.get("episode_count")})
+        return total_seasons
+
+    # 从TMDB的季信息中获得具体季有多少集
+    @staticmethod
+    def get_tmdb_season_episodes_num(seasons, sea):
+        if not seasons:
+            return 0
+        for season in seasons:
+            if season.get("season_number") == sea:
+                return season.get("episode_count")
+        return 0

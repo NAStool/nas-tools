@@ -1,7 +1,6 @@
 from config import Config
 from rmt.server.emby import Emby
 from rmt.server.jellyfin import Jellyfin
-from utils.types import MediaServerType
 
 
 class MediaServer:

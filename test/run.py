@@ -3,8 +3,10 @@ from rmt.filetransfer import FileTransfer
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from rmt.server.jellyfin import Jellyfin
+from scheduler.douban_sync import DoubanSync
 from utils.db_helper import select_by_sql, update_by_sql
-from utils.sqls import get_config_site, get_config_search_rule, insert_transfer_unknown
+from utils.sqls import get_config_site, get_config_search_rule, insert_transfer_unknown, insert_rss_movie, \
+    insert_rss_tv, get_rss_tvs
 from utils.types import SyncType
 
 if __name__ == "__main__":
@@ -58,7 +60,7 @@ if __name__ == "__main__":
     print(MetaInfo('[U2-Rip] SLAM DUNK 第005話「根性なしの午後」(BDrip 1440x1080 H264 FLAC).mkv').__dict__)
     print(MetaInfo('进击的巨人.第4季.Attack.on.Titan.S04E28.1080p.WEB-DL.H264.ACC-OurTV.mkv').__dict__)
     print(MetaInfo('The Knick 2014-2015 Complete 1080p Blu-ray x265 AC3￡cXcY@FRDS').__dict__)
-    print(select_by_sql('SELECT * FROM RSS_TVKEYS'))
+    print(select_by_sql('SELECT * FROM RSS_TVS'))
     media_info = Media().get_media_info('Paripi Koumei S01E01 1080p B-Global WEB-DL H264 AAC-CHDWEB')
     print(Rss().is_torrent_match(media_info, [], get_tv_keys()))
     print(MetaInfo('Jurassic.World.3D.2015.1080p.Half-SBS.BluRay.x264.DTS-WiKi.mkv').__dict__)
@@ -83,7 +85,16 @@ if __name__ == "__main__":
     # print(MetaInfo('556.mkv').__dict__)
     # insert_transfer_unknown("/volume1/PT/任何人 (2022)", "/电影")
     # insert_transfer_unknown("/volume1/PT/Etharkkum.Thunindhavan.2022.1080p.NF.WEB-DL.H264.DDP5.1-ADWeb", "")
-    # meta_info = Media().get_media_info("未来中国 2022")
-    # meta_info.title = "未来中国"
     # print(Jellyfin().get_no_exists_episodes(meta_info, 1, 10))
-    print(Jellyfin().get_movies("我和我的祖国", "2019"))
+    # print(Jellyfin().get_movies("我和我的祖国", "2019"))
+    # meta_info = Media().get_media_info("未来中国 2022")
+    '''insert_rss_tv(meta_info, 30, 12)
+    meta_info = Media().get_media_info("西部世界 2022 S01")
+    insert_rss_tv(meta_info, 8, 2)
+    meta_info = Media().get_media_info("我和我的祖国 2019")
+    insert_rss_movie(meta_info)
+    meta_info = Media().get_media_info("新蝙蝠侠 2022")
+    insert_rss_movie(meta_info)'''
+    # print(get_rss_tvs())
+    # update_by_sql("DELETE FROM DOUBAN_MEDIAS")
+    DoubanSync().run_schedule()
