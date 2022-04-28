@@ -34,7 +34,8 @@ from utils.sqls import get_search_result_by_id, get_search_results, get_movie_ke
     insert_tv_key, delete_all_tv_keys, delete_all_movie_keys, get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
     delete_transfer_log_by_id, get_config_site, insert_config_site, get_site_by_id, delete_config_site, \
-    update_config_site, get_config_search_rule, update_config_search_rule, get_config_rss_rule, update_config_rss_rule
+    update_config_site, get_config_search_rule, update_config_search_rule, get_config_rss_rule, update_config_rss_rule, \
+    get_unknown_path_by_id
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
@@ -571,9 +572,9 @@ def create_flask_app(config):
                 scheduler_cfg_list.append(
                     {'name': '目录同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg, 'color': color})
         # 豆瓣同步
-        douban = config.get_config('douban')
-        if douban:
-            interval = douban.get('interval')
+        douban_cfg = config.get_config('douban')
+        if douban_cfg:
+            interval = douban_cfg.get('interval')
             if interval:
                 interval = "%s 小时" % interval
                 sta_douban = "ON"
@@ -656,16 +657,16 @@ def create_flask_app(config):
     @App.route('/unidentification', methods=['POST', 'GET'])
     @login_required
     def unidentification():
-        IdentiPaths = []
-        paths = get_transfer_unknown_paths()
-        TotalCount = len(paths)
-        for path in paths:
-            if not path[0]:
+        Items = []
+        Records = get_transfer_unknown_paths()
+        TotalCount = len(Records)
+        for rec in Records:
+            if not rec[1]:
                 continue
-            IdentiPaths.append({"path": path[0], "to": path[1], "name": os.path.basename(path[0])})
+            Items.append({"id": rec[0], "path": rec[1], "to": rec[2], "name": os.path.basename(rec[1])})
         return render_template("rename/unidentification.html",
                                TotalCount=TotalCount,
-                               IdentiPaths=IdentiPaths)
+                               Items=Items)
 
     # 基础设置页面
     @App.route('/basic', methods=['POST', 'GET'])
@@ -1002,14 +1003,14 @@ def create_flask_app(config):
                 return {"retcode": 0, "torrents": DispTorrents}
 
             # 删除路径
-            if cmd == "del_rename_path":
-                paths = data.get("path")
-                path = paths.split("|")[0]
-                retcode = delete_transfer_unknown(path)
+            if cmd == "del_unknown_path":
+                tid = data.get("id")
+                retcode = delete_transfer_unknown(tid)
                 return {"retcode": retcode}
 
             # 手工转移
             if cmd == "rename":
+                path = dest_dir = None
                 logid = data.get("logid")
                 if logid:
                     paths = get_transfer_path_by_id(logid)
@@ -1019,14 +1020,15 @@ def create_flask_app(config):
                     else:
                         return {"retcode": -1, "retmsg": "未查询到转移日志记录"}
                 else:
-                    path = data.get("path", "")
-                    paths = path.split("|")
-                    path = paths[0]
-                    if len(paths) > 1:
-                        dest_dir = paths[1]
-                    else:
-                        dest_dir = None
-                if not dest_dir or dest_dir == "null":
+                    unknown_id = data.get("unknown_id")
+                    if unknown_id:
+                        paths = get_unknown_path_by_id(unknown_id)
+                        if paths:
+                            path = paths[0][0]
+                            dest_dir = paths[0][1]
+                        else:
+                            return {"retcode": -1, "retmsg": "未查询到未识别记录"}
+                if not dest_dir:
                     dest_dir = ""
                 if not path:
                     return {"retcode": -1, "retmsg": "输入路径有误"}

@@ -2,7 +2,7 @@ import os.path
 import time
 
 from utils.db_helper import update_by_sql, select_by_sql
-from utils.functions import str_filesize, xstr, is_ses_in_ses, str_sql
+from utils.functions import str_filesize, xstr, str_sql
 from utils.types import MediaType
 
 
@@ -263,7 +263,7 @@ def delete_transfer_log_by_id(logid):
 
 # 查询未识别的记录列表
 def get_transfer_unknown_paths():
-    sql = f"SELECT PATH, DEST FROM TRANSFER_UNKNOWN WHERE STATE='N'"
+    sql = f"SELECT ID, PATH, DEST FROM TRANSFER_UNKNOWN WHERE STATE='N'"
     return select_by_sql(sql)
 
 
@@ -277,12 +277,19 @@ def update_transfer_unknown_state(path):
 
 
 # 删除未识别记录
-def delete_transfer_unknown(path):
-    if not path:
+def delete_transfer_unknown(tid):
+    if not tid:
         return False
-    path = os.path.normpath(path)
-    sql = f"DELETE FROM TRANSFER_UNKNOWN WHERE PATH='{str_sql(path)}'"
+    sql = f"DELETE FROM TRANSFER_UNKNOWN WHERE ID='{tid}'"
     return update_by_sql(sql)
+
+
+# 查询未识别记录
+def get_unknown_path_by_id(tid):
+    if not tid:
+        return False
+    sql = f"SELECT PATH,DEST FROM TRANSFER_UNKNOWN WHERE ID='{tid}'"
+    return select_by_sql(sql)
 
 
 # 查询未识别记录是否存在

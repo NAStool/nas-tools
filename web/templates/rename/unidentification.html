@@ -33,7 +33,7 @@
               </thead>
               <tbody>
               {% if TotalCount > 0 %}
-                {% for Path in IdentiPaths %}
+                {% for Path in Items %}
                 <tr>
                   <td >
                     {{ Path.name }}
@@ -47,10 +47,10 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" /><circle cx="12" cy="5" r="1" /></svg>
                       </a>
                       <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href='javascript:show_rename_modal("{{ Path.path|safe }}")'>
+                        <a class="dropdown-item" href='javascript:show_rename_modal("{{ Path.id }}", "{{ Path.name }}")'>
                           手动识别
                         </a>
-                        <a class="dropdown-item text-danger" href='javascript:del_rename_path("{{ Path.path|safe }}")'>
+                        <a class="dropdown-item text-danger" href='javascript:del_unknown_path("{{ Path.id }}")'>
                           删除
                         </a>
                       </div>
@@ -81,7 +81,8 @@
       <div class="modal-body">
         <div class="mb-3">
           <label class="form-label">路径</label>
-           <input type="text" id="rename_path" class="form-control" readonly>
+          <input type="text" id="rename_path" class="form-control" readonly>
+          <input type="hidden" id="unknown_id">
           <div class="invalid-feedback" id="rename_retmsg"></div>
         </div>
         <label class="form-label">类型</label>
@@ -166,12 +167,17 @@
 <script type="text/javascript">
   //手动转移
   function manual_rename() {
+    var unknown_id = $('#unknown_id').val();
     var type = $('input:radio[name=rename_type]:checked').val();
     var path = $("#rename_path").val();
     var tmdb = $("#rename_tmdb").val();
     var title = $("#rename_title").val();
     var year = $("#rename_year").val();
     var season = $("#rename_season").val();
+
+    if (!unknown_id){
+      return;
+    }
 
     if (path == "") {
       $("#rename_path").addClass("is-invalid");
@@ -203,7 +209,7 @@
       }
     }
     // 开始处理
-    var data = { "path": path, "type": type, "title": title, "year": year, "tmdb": tmdb, "season": season };
+    var data = { "unknown_id": unknown_id, "path": path, "type": type, "title": title, "year": year, "tmdb": tmdb, "season": season };
     $("#rename_btn").attr("disabled", true);
     $("#rename_btn").text("处理中...");
     $("#rename_retmsg").hide()
@@ -223,7 +229,8 @@
   }
 
   //显示弹出窗口
-  function show_rename_modal(path){
+  function show_rename_modal(id, path){
+    $('#unknown_id').val(id);
     $('#rename_path').val(path);
     $("#rename_season").empty();
     $("#rename_season").append('<option value="" selected>请选择</option>');
@@ -241,12 +248,12 @@
   }
 
   //删除路径
-  function del_rename_path(path) {
-    if (path == "") {
+  function del_unknown_path(id) {
+    if (id == "") {
       return;
     }
-    var cmd = "del_rename_path";
-    var data = { "path": path };
+    var cmd = "del_unknown_path";
+    var data = { "id": id };
     ajax_post(cmd, data, function (ret) {
       navmenu('unidentification');
     });
