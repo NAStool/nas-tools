@@ -17,7 +17,7 @@ def stop_scheduler():
     try:
         Scheduler().stop_service()
     except Exception as err:
-        log.error("【RUN】停止scheduler失败：%s" % str(err))
+        log.debug("【RUN】停止scheduler失败：%s" % str(err))
 
 
 def restart_scheduler():
