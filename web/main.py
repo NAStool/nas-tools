@@ -2,6 +2,7 @@ import _thread
 import logging
 import os.path
 import shutil
+import sys
 from math import floor
 from subprocess import call
 
@@ -1193,8 +1194,7 @@ def create_flask_app(config):
                 # 签退
                 logout_user()
                 # 退出主进程
-                quit()
-                return {"code": 0}
+                sys.exit()
 
             # 更新
             if cmd == "update_system":
@@ -1207,8 +1207,7 @@ def create_flask_app(config):
                 # 签退
                 logout_user()
                 # 退出主进程
-                quit()
-                return {"code": 0}
+                sys.exit()
 
             # 注销
             if cmd == "logout":
