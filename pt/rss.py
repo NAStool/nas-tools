@@ -243,8 +243,9 @@ class Rss:
                     continue
                 if no_exists and no_exists.get(media.get_title_string()):
                     no_exist_items = no_exists.get(media.get_title_string())
+                    season_num = int(season.replace("S", ""))
                     for no_exist_item in no_exist_items:
-                        if no_exist_item.get("season") == season:
+                        if no_exist_item.get("season") == season_num:
                             if no_exist_item.get("episodes"):
                                 lack_count = len(no_exist_item.get("episodes"))
                             break

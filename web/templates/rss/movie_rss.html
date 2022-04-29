@@ -156,7 +156,7 @@
     } else {
       $("#movie_name").removeClass("is-invalid");
     }
-    if (!year || isNaN(year)) {
+    if (year && isNaN(year)) {
       $("#movie_year").addClass("is-invalid");
       return;
     } else {

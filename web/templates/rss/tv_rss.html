@@ -168,7 +168,7 @@
     } else {
       $("#tv_name").removeClass("is-invalid");
     }
-    if (!year || isNaN(year)) {
+    if (year && isNaN(year)) {
       $("#tv_year").addClass("is-invalid");
       return;
     } else {
