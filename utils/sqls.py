@@ -357,27 +357,21 @@ def update_config_rss_rule(note):
         "INSERT INTO CONFIG_RSS_RULE(NOTE) VALUES ('%s')" % str_sql(note))
 
 
-# 查询电影关键字
-def get_movie_keys():
-    sql = "SELECT NAME,YEAR FROM RSS_MOVIES"
-    return select_by_sql(sql)
-
-
 # 查询订阅电影信息
-def get_rss_movies():
-    sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE FROM RSS_MOVIES"
+def get_rss_movies(state=None):
+    if not state:
+        sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE FROM RSS_MOVIES"
+    else:
+        sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE FROM RSS_MOVIES WHERE STATE='%s'" % state
     return select_by_sql(sql)
 
 
 # 查询订阅电视剧信息
-def get_rss_tvs():
-    sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE,((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100 FROM RSS_TVS"
-    return select_by_sql(sql)
-
-
-# 查询电视剧关键字
-def get_tv_keys():
-    sql = "SELECT NAME,YEAR,SEASON FROM RSS_TVS"
+def get_rss_tvs(state=None):
+    if not state:
+        sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE,((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100 FROM RSS_TVS"
+    else:
+        sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE,((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100 FROM RSS_TVS WHERE STATE='%s'" % state
     return select_by_sql(sql)
 
 
@@ -467,4 +461,20 @@ def delete_rss_tv(title, year, season):
     if not title:
         return False
     sql = "DELETE FROM RSS_TVS WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (title, year, season)
+    return update_by_sql(sql)
+
+
+# 更新电影订阅状态
+def update_rss_movie_state(title, year, state):
+    if not title:
+        return False
+    sql = "UPDATE RSS_MOVIES SET STATE='%s' WHERE NAME='%s' AND YEAR='%s'" % (state, title, year)
+    return update_by_sql(sql)
+
+
+# 更新电视剧订阅状态
+def update_rss_tv_state(title, year, season, state):
+    if not title:
+        return False
+    sql = "UPDATE RSS_TVS SET STATE='%s' WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (state, title, year, season)
     return update_by_sql(sql)

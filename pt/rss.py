@@ -3,13 +3,15 @@ from xml.dom.minidom import parse
 import xml.dom.minidom
 import log
 from config import Config
+from pt.searcher import Searcher
 from pt.torrent import Torrent
 from utils.functions import is_chinese
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
-from utils.sqls import get_movie_keys, get_tv_keys, insert_rss_torrents, \
-    get_config_site, is_torrent_rssd, get_config_rss_rule, delete_rss_movie, delete_rss_tv, update_rss_tv_lack
+from utils.sqls import get_rss_movies, get_rss_tvs, insert_rss_torrents, \
+    get_config_site, is_torrent_rssd, get_config_rss_rule, delete_rss_movie, delete_rss_tv, update_rss_tv_lack, \
+    update_rss_movie_state, update_rss_tv_state
 from utils.types import MediaType, SearchType
 
 RSS_CACHED_TORRENTS = []
@@ -23,12 +25,14 @@ class Rss:
     media = None
     downloader = None
     torrent = None
+    searcher = None
 
     def __init__(self):
         self.message = Message()
         self.media = Media()
         self.downloader = Downloader()
         self.torrent = Torrent()
+        self.searcher = Searcher()
         self.init_config()
 
     def init_config(self):
@@ -51,13 +55,13 @@ class Rss:
         log.info("【RSS】开始RSS订阅...")
 
         # 读取关键字配置
-        movie_keys = get_movie_keys()
+        movie_keys = get_rss_movies('R')
         if not movie_keys:
             log.warn("【RSS】未配置电影订阅关键字")
         else:
             log.info("【RSS】电影订阅规则清单：%s" % " ".join('%s' % key[0] for key in movie_keys))
 
-        tv_keys = get_tv_keys()
+        tv_keys = get_rss_tvs('R')
         if not tv_keys:
             log.warn("【RSS】未配置电视剧订阅关键字")
         else:
@@ -196,6 +200,62 @@ class Rss:
                     update_rss_tv_lack(media.title, media.year, media.get_season_string(), len(left_medias.get(media.get_title_string())))
 
         log.info("【RSS】实际下载了 %s 个资源" % download_num)
+
+    def rsssearch(self):
+        log.info("【RSS】开始RSS检索...")
+        # 处理电影
+        movies = get_rss_movies('D')
+        if movies:
+            log.info("【RSS】共有 %s 个电影订阅需要检索" % len(movies))
+        for movie in movies:
+            name = movie[0]
+            year = movie[1]
+            update_rss_movie_state(name, year, 'S')
+            # 开始检索
+            search_result, media, total_seasoninfo, no_exists = self.searcher.search_one_media(
+                input_str="%s %s" % (name, year),
+                in_from=SearchType.DB)
+            if search_result:
+                log.info("【RSS】%s 下载完成，删除订阅..." % name)
+                delete_rss_movie(name, year)
+            else:
+                update_rss_movie_state(name, year, 'R')
+        # 处理电视剧
+        tvs = get_rss_tvs('D')
+        if tvs:
+            log.info("【RSS】共有 %s 个电视剧订阅需要检索" % len(tvs))
+        for tv in tvs:
+            name = tv[0]
+            year = tv[1]
+            season = tv[2]
+            lack_count = int(tv[7])
+            update_rss_tv_state(name, year, season, 'S')
+            # 开始检索
+            search_result, media, total_seasoninfo, no_exists = self.searcher.search_one_media(
+                input_str="电视剧 %s %s %s" % (name, season, year),
+                in_from=SearchType.DB)
+            if search_result:
+                log.info("【RSS】电影 %s 下载完成，删除订阅..." % name)
+                delete_rss_tv(name, year, season)
+            else:
+                update_rss_tv_state(name, year, season, 'R')
+                if not media or not total_seasoninfo:
+                    continue
+                if no_exists and no_exists.get(media.get_title_string()):
+                    no_exist_items = no_exists.get(media.get_title_string())
+                    for no_exist_item in no_exist_items:
+                        if no_exist_item.get("season") == season:
+                            if no_exist_item.get("episodes"):
+                                lack_count = len(no_exist_item.get("episodes"))
+                            break
+                else:
+                    lack_count = 0
+                if lack_count == 0:
+                    log.info("【RSS】电视剧 %s 下载完成，删除订阅..." % name)
+                    delete_rss_tv(name, year, season)
+                else:
+                    update_rss_tv_lack(name, year, season, lack_count)
+        log.info("【RSS】RSS检索结束")
 
     @staticmethod
     def is_torrent_match(media_info, movie_keys, tv_keys):

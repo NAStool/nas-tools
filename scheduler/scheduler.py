@@ -1,13 +1,14 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
 import log
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
-    RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL
+    RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_SEARCH_INTERVAL
 from monitor.media_sync import Sync
 from scheduler.autoremove_torrents import AutoRemoveTorrents
 from scheduler.douban_sync import DoubanSync
 from scheduler.pt_signin import PTSignin
 from scheduler.pt_transfer import PTTransfer
 from scheduler.rss_download import RSSDownloader
+from scheduler.rss_search import RssSearch
 from utils.functions import singleton
 from utils.meta_helper import MetaHelper
 
@@ -114,6 +115,9 @@ class Scheduler:
 
         # 定时把队列中的监控文件转移走
         self.SCHEDULER.add_job(Sync().transfer_mon_files, 'interval', seconds=SYNC_TRANSFER_INTERVAL)
+
+        # RSS队列中检索
+        self.SCHEDULER.add_job(RssSearch().run_schedule, 'interval', seconds=RSS_SEARCH_INTERVAL)
 
         self.SCHEDULER.start()
 

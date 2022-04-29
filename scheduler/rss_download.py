@@ -2,7 +2,6 @@ from threading import Lock
 import log
 from pt.rss import Rss
 
-RSS_CACHED_TORRENTS = []
 lock = Lock()
 
 

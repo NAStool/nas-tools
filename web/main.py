@@ -30,7 +30,7 @@ from message.send import Message
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE
 from scheduler.run import stop_scheduler
 from utils.functions import get_used_of_partition, str_filesize, str_timelong, INSTANCES
-from utils.sqls import get_search_result_by_id, get_search_results, get_movie_keys, get_tv_keys, \
+from utils.sqls import get_search_result_by_id, get_search_results, get_rss_movies, get_rss_tvs, \
     get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
     delete_transfer_log_by_id, get_config_site, insert_config_site, get_site_by_id, delete_config_site, \
@@ -371,8 +371,8 @@ def create_flask_app(config):
             res_list = []
 
         Items = []
-        TvKeys = ["%s" % key[0] for key in get_tv_keys()]
-        MovieKeys = ["%s" % key[0] for key in get_movie_keys()]
+        TvKeys = ["%s" % key[0] for key in get_rss_tvs()]
+        MovieKeys = ["%s" % key[0] for key in get_rss_movies()]
         for res in res_list:
             rid = res.get('id')
             if RecommendType in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm']:

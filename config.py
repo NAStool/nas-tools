@@ -35,6 +35,8 @@ METAINFO_SAVE_INTERVAL = 600
 RELOAD_CONFIG_INTERVAL = 600
 # SYNC目录同步聚合转移时间
 SYNC_TRANSFER_INTERVAL = 300
+# RSS队列中处理时间间隔
+RSS_SEARCH_INTERVAL = 600
 # fanart的api，用于拉取封面图片
 FANART_MOVIE_API_URL = 'http://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
 FANART_TV_API_URL = 'http://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
