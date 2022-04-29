@@ -160,7 +160,7 @@ class Rss:
                             delete_rss_movie(media_info.title, media_info.year)
                         # 如果是电视剧，没有不存在的季集时删除订阅，只会删除名字匹配的
                         elif not no_exists:
-                            delete_rss_tv(media_info.title, media_info.year)
+                            delete_rss_tv(media_info.title, media_info.year, media_info.get_season_string())
                         continue
                     # 返回对象
                     media_info.set_torrent_info(site_order=order_seq,
@@ -190,10 +190,10 @@ class Rss:
                     delete_rss_movie(media.title, media.year)
                 elif no_exists and (not left_medias or not left_medias.get(media.get_title_string())):
                     # 删除电视剧订阅
-                    delete_rss_tv(media.title, media.year)
+                    delete_rss_tv(media.title, media.year, media.get_season_string())
                 elif no_exists and left_medias and left_medias.get(media.get_title_string()):
                     # 更新电视剧缺失剧集
-                    update_rss_tv_lack(media.title, media.year, len(left_medias.get(media.get_title_string())))
+                    update_rss_tv_lack(media.title, media.year, media.get_season_string(), len(left_medias.get(media.get_title_string())))
 
         log.info("【RSS】实际下载了 %s 个资源" % download_num)
 

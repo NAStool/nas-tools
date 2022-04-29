@@ -455,16 +455,16 @@ def insert_rss_tv(media_info, total, lack=0, state="D"):
 
 
 # 更新电视剧缺失的集数
-def update_rss_tv_lack(title, year, lack):
+def update_rss_tv_lack(title, year, season, lack):
     if not title:
         return False
-    sql = "UPDATE RSS_TVS SET LACK='%s' WHERE NAME='%s' AND YEAR='%s'" % (lack, title, year)
+    sql = "UPDATE RSS_TVS SET LACK='%s' WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (lack, title, year, season)
     return update_by_sql(sql)
 
 
 # 删除RSS电视剧
-def delete_rss_tv(title, year):
+def delete_rss_tv(title, year, season):
     if not title:
         return False
-    sql = "DELETE FROM RSS_TVS WHERE NAME='%s' AND YEAR='%s'" % (title, year)
+    sql = "DELETE FROM RSS_TVS WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (title, year, season)
     return update_by_sql(sql)

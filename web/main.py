@@ -1228,11 +1228,12 @@ def create_flask_app(config):
                 name = data.get("name")
                 mtype = data.get("type")
                 year = data.get("year")
+                season = data.get("season")
                 if name and mtype:
-                    if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm']:
+                    if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
                         delete_rss_movie(name, year)
                     else:
-                        delete_rss_tv(name, year)
+                        delete_rss_tv(name, year, season)
                 return {"code": 0}
 
             # 添加RSS订阅

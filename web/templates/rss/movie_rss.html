@@ -26,7 +26,7 @@
     <div class="row row-cards">
       {% for Item in Items %}
       <div class="col-md-4 col-xl-3">
-        <a class="card card-link" href="#" title="{{ Item[4] }}">
+        <a class="card card-link" href="javascript:show_rss_del_modal('{{ Item[0] }}', '{{ Item[1] }}')" title="{{ Item[4] }}">
           <div class="text-center rounded">
             <img class="rounded-top" src="{{ Item[3] }}">
           </div>
@@ -129,6 +129,22 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="rss-confirm-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="modal-title">确认提示</div>
+        <div id="rss_start_message">是否确定删除RSS订阅？</div>
+      </div>
+      <div class="modal-footer">
+        <input type="hidden" id="rss_start_name" />
+        <input type="hidden" id="rss_start_year" />
+        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-danger" id="rss_del_btn">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   //新增订阅
   function add_rss_movie(){
@@ -160,4 +176,25 @@
       }
     });
   }
+
+  // 显示删除订阅
+  function show_rss_del_modal(name, year){
+    $("#rss_start_name").val(name);
+    $("#rss_start_year").val(year);
+    $("#rss_start_message").text("是否确定将 " + name + " 从RSS订阅中移除？");
+    $('#rss-confirm-modal').modal('show');
+  }
+
+  // 模枋框事件
+  $("#rss_del_btn").click(function(){
+    $('#rss-confirm-modal').modal('hide');
+    var cmd = "remove_rss_media";
+    var name = $("#rss_start_name").val();
+    var year = $("#rss_start_year").val();
+    var data = { "name": name, "type": "MOV", "year": year};
+    ajax_post(cmd, data, function(ret){
+      name = $("#rss_start_name").val();
+      navmenu("movie_rss");
+    });
+  });
 </script>
