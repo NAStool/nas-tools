@@ -1038,31 +1038,6 @@ def create_flask_app(config):
                 else:
                     return {"retcode": 2, "retmsg": ret_msg}
 
-            # 读取配置文件
-            if cmd == "load_config":
-                cfg = open(config.get_config_path(), mode="r", encoding="utf8")
-                config_str = cfg.read()
-                cfg.close()
-                return {"config_str": config_str}
-
-            # 保存配置文件
-            if cmd == "save_config":
-                editer_str = data.get('editer_str')
-                if editer_str:
-                    cfg = open(config.get_config_path(), mode="w", encoding="utf8")
-                    cfg.write(editer_str)
-                    cfg.flush()
-                    cfg.close()
-                    # 生效配置
-                    config.init_config()
-                    for instance in INSTANCES:
-                        if instance.__dict__.get("init_config"):
-                            instance().init_config()
-                    # 重启服务
-                    restart_monitor()
-
-                return {"retcode": 0}
-
             # 删除识别记录及文件
             if cmd == "delete_history":
                 logid = data.get('logid')
@@ -1193,8 +1168,8 @@ def create_flask_app(config):
                 stop_monitor()
                 # 签退
                 logout_user()
-                # 退出主进程
-                sys.exit()
+                # 退出
+                raise RuntimeError('程序正在退出...')
 
             # 更新
             if cmd == "update_system":
@@ -1207,7 +1182,7 @@ def create_flask_app(config):
                 # 签退
                 logout_user()
                 # 退出主进程
-                sys.exit()
+                raise RuntimeError('程序正在退出...')
 
             # 注销
             if cmd == "logout":
