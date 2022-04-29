@@ -22,7 +22,7 @@
                 </div>
               </div>
             </div>
-          <div class="table-responsive">
+          <div class="table-responsive" style="min-height: 300px">
             <table class="table table-vcenter card-table">
               <thead>
                 <tr>
@@ -47,9 +47,13 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" /><circle cx="12" cy="5" r="1" /></svg>
                       </a>
                       <div class="dropdown-menu dropdown-menu-end">
+                        <a class="dropdown-item" href='javascript:re_identification("{{ Path.id }}")'>
+                          重新识别
+                        </a>
                         <a class="dropdown-item" href='javascript:show_rename_modal("{{ Path.id }}", "{{ Path.name }}")'>
                           手动识别
                         </a>
+                        <div class="dropdown-divider"></div>
                         <a class="dropdown-item text-danger" href='javascript:del_unknown_path("{{ Path.id }}")'>
                           删除
                         </a>
@@ -164,6 +168,28 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="unknown-modal-failed" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-status bg-warning"></div>
+      <div class="modal-body text-center py-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-warning icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
+        <h3>失败</h3>
+        <div class="text-muted" id="unknown_failed_str">重新识别失败！</div>
+      </div>
+      <div class="modal-footer">
+        <div class="w-100">
+          <div class="row">
+            <div class="col"><a href="#" class="btn btn-warning w-100" data-bs-dismiss="modal">
+                确定
+              </a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   //手动转移
   function manual_rename() {
@@ -264,6 +290,22 @@
   $("#rename_btn").click(function () {
     manual_rename();
   });
+
+  //重新识别
+  function re_identification(unknown_id){
+    var cmd = "re_identification";
+    var data = { "unknown_id": unknown_id };
+    $("#modal-wait").modal("show");
+    ajax_post(cmd, data, function (ret) {
+      $("#modal-wait").modal("hide");
+      if(ret.retcode==0){
+        navmenu('unidentification');
+      }else{
+        $("#unknown_failed_str").text("重新识别失败："+ ret.retmsg +"！");
+        $("#unknown-modal-failed").modal('show');
+      }
+    });
+  }
 
   //单选框事件
   $('input[type=radio][name=rename_type]').change(function () {

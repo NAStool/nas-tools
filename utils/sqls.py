@@ -68,18 +68,6 @@ def get_search_results():
     return select_by_sql(sql)
 
 
-# 删除电影关键字
-def delete_movie_key(key):
-    sql = "DELETE FROM RSS_MOVIES WHERE NAME='%s'" % str_sql(key)
-    return update_by_sql(sql)
-
-
-# 删除电视剧关键字
-def delete_tv_key(key):
-    sql = "DELETE FROM RSS_TVS WHERE NAME='%s'" % str_sql(key)
-    return update_by_sql(sql)
-
-
 # 查询RSS是否处理过，根据链接
 def is_torrent_rssd_by_url(url):
     sql = "SELECT 1 FROM RSS_TORRENTS WHERE ENCLOSURE = '%s'" % url

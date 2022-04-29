@@ -8,8 +8,8 @@ from utils.functions import is_chinese
 from message.send import Message
 from pt.downloader import Downloader
 from rmt.media import Media
-from utils.sqls import get_movie_keys, get_tv_keys, insert_rss_torrents, delete_movie_key, \
-    delete_tv_key, get_config_site, is_torrent_rssd, get_config_rss_rule
+from utils.sqls import get_movie_keys, get_tv_keys, insert_rss_torrents, \
+    get_config_site, is_torrent_rssd, get_config_rss_rule, delete_rss_movie, delete_rss_tv, update_rss_tv_lack
 from utils.types import MediaType, SearchType
 
 RSS_CACHED_TORRENTS = []
@@ -157,10 +157,10 @@ class Rss:
                     if exist_flag:
                         # 如果是电影，已存在时删除订阅，只会删除名字匹配的
                         if media_info.type == MediaType.MOVIE:
-                            delete_movie_key(media_info.title)
+                            delete_rss_movie(media_info.title, media_info.year)
                         # 如果是电视剧，没有不存在的季集时删除订阅，只会删除名字匹配的
                         elif not no_exists:
-                            delete_tv_key(media_info.title)
+                            delete_rss_tv(media_info.title, media_info.year)
                         continue
                     # 返回对象
                     media_info.set_torrent_info(site_order=order_seq,
@@ -186,9 +186,15 @@ class Rss:
         if download_num:
             for media in rss_download_torrents:
                 if media.type == MediaType.MOVIE:
-                    delete_movie_key(media.title)
+                    # 删除电影订阅
+                    delete_rss_movie(media.title, media.year)
                 elif no_exists and (not left_medias or not left_medias.get(media.get_title_string())):
-                    delete_tv_key(media.title)
+                    # 删除电视剧订阅
+                    delete_rss_tv(media.title, media.year)
+                elif no_exists and left_medias and left_medias.get(media.get_title_string()):
+                    # 更新电视剧缺失剧集
+                    update_rss_tv_lack(media.title, media.year, len(left_medias.get(media.get_title_string())))
+
         log.info("【RSS】实际下载了 %s 个资源" % download_num)
 
     @staticmethod

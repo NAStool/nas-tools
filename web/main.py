@@ -1269,6 +1269,30 @@ def create_flask_app(config):
 
                 return {"code": 0, "msg": "登记RSS订阅成功"}
 
+            # 未识别的重新识别
+            if cmd == "re_identification":
+                path = dest_dir = None
+                unknown_id = data.get("unknown_id")
+                if unknown_id:
+                    paths = get_unknown_path_by_id(unknown_id)
+                    if paths:
+                        path = paths[0][0]
+                        dest_dir = paths[0][1]
+                    else:
+                        return {"retcode": -1, "retmsg": "未查询到未识别记录"}
+                if not dest_dir:
+                    dest_dir = ""
+                if not path:
+                    return {"retcode": -1, "retmsg": "未识别路径有误"}
+                succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
+                                                                   in_path=path,
+                                                                   target_dir=dest_dir)
+                if succ_flag:
+                    update_transfer_unknown_state(path)
+                    return {"retcode": 0, "retmsg": "转移成功"}
+                else:
+                    return {"retcode": 2, "retmsg": ret_msg}
+
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])
     def wechat():

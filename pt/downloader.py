@@ -120,6 +120,7 @@ class Downloader:
         return self.client.delete_torrents(delete_file=True, ids=ids)
 
     # 检查是否存在决定是否添加下载
+    # 返回：下载数量、剩余没下载的季集
     def check_and_add_pt(self, in_from, media_list, need_tvs=None):
         download_items = []
         # 返回按季、集数倒序排序的列表
