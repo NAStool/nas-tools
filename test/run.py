@@ -84,7 +84,7 @@ if __name__ == "__main__":
     # print(get_config_search_rule())
     # print(MetaInfo('556.mkv').__dict__)
     # insert_transfer_unknown("/volume1/PT/任何人 (2022)", "/电影")
-    insert_transfer_unknown("/volume1/PT/Etharkkum.Thunindhavan.2022.1080p.NF.WEB-DL.H264.DDP5.1-ADWeb", "")
+    insert_transfer_unknown("/volume1/PT/Etharkkum.Thunindhavan.2022.1080p.NF.WEB-DL.H264.DDP5.1-ADWeb5", "")
     # print(Jellyfin().get_no_exists_episodes(meta_info, 1, 10))
     # print(Jellyfin().get_movies("我和我的祖国", "2019"))
     # meta_info = Media().get_media_info("未来中国 2022")

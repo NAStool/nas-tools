@@ -973,9 +973,16 @@ def create_flask_app(config):
 
             # 删除路径
             if cmd == "del_unknown_path":
-                tid = data.get("id")
-                retcode = delete_transfer_unknown(tid)
-                return {"retcode": retcode}
+                tids = data.get("id")
+                if isinstance(tids, list):
+                    for tid in tids:
+                        if not tid:
+                            continue
+                        delete_transfer_unknown(tid)
+                    return {"retcode": 0}
+                else:
+                    retcode = delete_transfer_unknown(tids)
+                    return {"retcode": retcode}
 
             # 手工转移
             if cmd == "rename":

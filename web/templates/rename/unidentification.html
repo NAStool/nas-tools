@@ -15,17 +15,32 @@
     <div class="row row-cards">
       <div class="col-md-12">
         <div class="card">
-          <div class="card-body border-bottom py-3">
-              <div class="d-flex">
-                <div class="text-muted">
-                  共 {{ TotalCount }} 条记录
-                </div>
+          <div class="card-header">
+            <div class="d-flex">
+              <div class="text-muted">
+                共 {{ TotalCount }} 条记录
               </div>
             </div>
+            <div class="card-actions">
+              <a href="javascript:delete_checked_unknown()">
+                批量删除
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                   <desc>Download more icon variants from https://tabler-icons.io/i/trash</desc>
+                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                   <line x1="4" y1="7" x2="20" y2="7"></line>
+                   <line x1="10" y1="11" x2="10" y2="17"></line>
+                   <line x1="14" y1="11" x2="14" y2="17"></line>
+                   <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                   <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                </svg>
+              </a>
+            </div>
+          </div>
           <div class="table-responsive" style="min-height: 300px">
             <table class="table table-vcenter card-table">
               <thead>
                 <tr>
+                  <th class="w-1"><input class="form-check-input m-0 align-middle" id="unknown_check_all_btn" type="checkbox" aria-label="全选"></th>
                   <th>文件名</th>
                   <th>目的目录</th>
                   <th class="w-5"></th>
@@ -35,6 +50,7 @@
               {% if TotalCount > 0 %}
                 {% for Path in Items %}
                 <tr>
+                  <td><input class="form-check-input m-0 align-middle" id="check_{{ Path.id }}" type="checkbox"></td>
                   <td >
                     {{ Path.name }}
                   </td>
@@ -64,7 +80,7 @@
                 {% endfor %}
               {% else %}
                 <tr>
-                  <td colspan="3" align="center">没有数据</td>
+                  <td colspan="4" align="center">没有数据</td>
                 </tr>
               {% endif %}
               </tbody>
@@ -79,7 +95,7 @@
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">未识别转移</h5>
+        <h5 class="modal-title">手动识别</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -307,6 +323,26 @@
     });
   }
 
+  //批量删除
+  function delete_checked_unknown(){
+    var ids = [];
+    var i = 0;
+    $("input[type=checkbox]").each(function(){
+      if($(this).prop("checked")){
+        ids[i] = $(this).attr("id").replace("check_", "");
+        i = i + 1;
+      }
+    });
+    if(i == 0){
+      return;
+    }
+    var cmd = "del_unknown_path";
+    var data = { "id": ids };
+    ajax_post(cmd, data, function (ret) {
+      navmenu('unidentification');
+    });
+  }
+
   //单选框事件
   $('input[type=radio][name=rename_type]').change(function () {
     if (this.value == 'MOV') {
@@ -316,5 +352,10 @@
     else {
       $("#rename_season_div").show();
     }
+  });
+
+  //全选事件
+  $("#unknown_check_all_btn").change(function(){
+    $("input[type=checkbox]").prop("checked", $(this).prop("checked"));
   });
 </script>

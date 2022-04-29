@@ -2,9 +2,11 @@ import re
 import requests
 import log
 from config import Config
+from utils.functions import singleton
 from utils.types import MediaType
 
 
+@singleton
 class Jellyfin:
     __apikey = None
     __host = None
@@ -71,7 +73,6 @@ class Jellyfin:
                     if user.get("Policy", {}).get("IsAdministrator"):
                         self.__user = user.get("Id")
                         break
-
             else:
                 log.error("【JELLYFIN】Users 未获取到返回数据")
         except Exception as e:

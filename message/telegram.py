@@ -112,7 +112,7 @@ class Telegram:
                 else:
                     log.console("TelegramBot Webhook 设置失败：" % json.get("description"))
             else:
-                log.console("TelegramBot Webhook 设置失败！")
+                log.console("TelegramBot Webhook 设置失败：网络连接故障！")
 
     # 1-存在且相等，2-存在不相等，3-不存在，0-网络出错
     def get_bot_webhook(self):

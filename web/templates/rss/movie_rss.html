@@ -181,7 +181,7 @@
   function show_rss_del_modal(name, year){
     $("#rss_start_name").val(name);
     $("#rss_start_year").val(year);
-    $("#rss_start_message").text("是否确定将 " + name + " 从RSS订阅中移除？");
+    $("#rss_start_message").text("是否确定将 " + name + " (" + year + ")" + " 从RSS订阅中移除？");
     $('#rss-confirm-modal').modal('show');
   }
 
