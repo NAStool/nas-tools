@@ -432,8 +432,14 @@ class Media:
             return {}
 
     # 从TMDB的季集信息中获得季的组
-    @staticmethod
-    def get_tmdb_seasons_info(seasons):
+    def get_tmdb_seasons_info(self, tv_info=None, tmdbid=None):
+        if not tv_info and not tmdbid:
+            return []
+        if not tv_info and tmdbid:
+            tv_info = self.get_tmdb_tv_info(tmdbid)
+        if not tv_info:
+            return []
+        seasons = tv_info.get("seasons")
         if not seasons:
             return []
         total_seasons = []
@@ -444,8 +450,14 @@ class Media:
         return total_seasons
 
     # 从TMDB的季信息中获得具体季有多少集
-    @staticmethod
-    def get_tmdb_season_episodes_num(seasons, sea):
+    def get_tmdb_season_episodes_num(self, sea, tv_info=None, tmdbid=None):
+        if not tv_info and not tmdbid:
+            return 0
+        if not tv_info and tmdbid:
+            tv_info = self.get_tmdb_tv_info(tmdbid)
+        if not tv_info:
+            return 0
+        seasons = tv_info.get("seasons")
         if not seasons:
             return 0
         for season in seasons:

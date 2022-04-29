@@ -32,7 +32,7 @@
                      <circle cx="16.5" cy="17.5" r="2.5"></circle>
                      <line x1="18.5" y1="19.5" x2="21" y2="22"></line>
                   </svg></a>
-                <a id="recommend_link_{{ item.id }}" {% if item.fav == 0 %} href="javascript:show_recommend_add_modal('{{ item.id }}','{{ RecommendType }}','{{ item.title }}')" {% else %} href="javascript:show_recommend_del_modal('{{ item.id }}','{{ RecommendType }}','{{ item.title }}')" {% endif %} class="text-muted" title="加入/取消订阅">
+                <a id="recommend_link_{{ item.id }}" {% if item.fav == 0 %} href="javascript:show_recommend_add_modal('{{ item.id }}','{{ RecommendType }}','{{ item.title }}','{{ item.year }}')" {% else %} href="javascript:show_recommend_del_modal('{{ item.id }}','{{ RecommendType }}','{{ item.title }}','{{ item.year }}')" {% endif %} class="text-muted" title="加入/取消订阅">
                   <svg id="recommend_svg_{{ item.id }}" xmlns="http://www.w3.org/2000/svg" class="icon {% if item.fav == 0 %} icon-tabler icon-tabler-heart {% else %} icon-filled text-red {% endif %}" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                      <path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
@@ -77,6 +77,7 @@
         <input type="hidden" id="recommend_start_id" />
         <input type="hidden" id="recommend_start_type" />
         <input type="hidden" id="recommend_start_name" />
+        <input type="hidden" id="recommend_start_year" />
         <input type="hidden" id="recommend_do_type" />
         <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
         <button type="button" class="btn btn-danger" id="recommend_start_btn">确定</button>
@@ -90,7 +91,6 @@
       <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       <div class="modal-status bg-success"></div>
       <div class="modal-body text-center py-4">
-        <!-- Download SVG icon from http://tabler-icons.io/i/circle-check -->
         <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M9 12l2 2l4 -4" /></svg>
         <h3>成功</h3>
         <div class="text-muted" id="recommend_finished_str">添加RSS订阅成功！</div>
@@ -99,6 +99,28 @@
         <div class="w-100">
           <div class="row">
             <div class="col"><a href="#" class="btn btn-success w-100" data-bs-dismiss="modal">
+                确定
+              </a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="recommend-modal-failed" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-status bg-warning"></div>
+      <div class="modal-body text-center py-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-warning icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
+        <h3>失败</h3>
+        <div class="text-muted" id="recommend_failed_str">添加RSS订阅失败！</div>
+      </div>
+      <div class="modal-footer">
+        <div class="w-100">
+          <div class="row">
+            <div class="col"><a href="#" class="btn btn-warning w-100" data-bs-dismiss="modal">
                 确定
               </a></div>
           </div>
@@ -145,51 +167,66 @@
   function go_next_page(type, page){
     navmenu("recommend?t=" + type + "&page=" + (page + 1));
   }
+
   // 添加订阅关键字
-  function add_rss_key(type, name){
-      var cmd = "addrss";
-      var data = { "name": name, "type": type};
+  function add_rss_key(type, name, year){
+      var cmd = "add_rss_media";
+      var data = { "name": name, "type": type, "year": year};
+      $("#modal-wait").modal("show");
       ajax_post(cmd, data, function(ret){
-          name = $("#recommend_start_name").val();
-          type =  $("#recommend_start_type").val();
-          id = $("#recommend_start_id").val();
+        $("#modal-wait").modal("hide");
+        name = $("#recommend_start_name").val();
+        type = $("#recommend_start_type").val();
+        year = $("#recommend_start_year").val();
+        id = $("#recommend_start_id").val();
+        if(ret.code==0){
           $("#recommend_finished_str").text(name + " 添加RSS订阅成功！");
           $("#recommend-modal-success").modal('show');
           $("#recommend_svg_" + id).removeClass();
           $("#recommend_svg_" + id).addClass("icon icon-filled text-red");
-          $("#recommend_link_" + id).attr("href", "javascript:remove_rss_key('" + type + "','" + name + "')")
+          $("#recommend_link_" + id).attr("href", "javascript:remove_rss_key('" + type + "','" + name + "','" + year + "')");
+        }else{
+          $("#recommend_failed_str").text(name + " 添加RSS订阅失败："+ ret.msg +"！");
+          $("#recommend-modal-failed").modal('show');
+        }
       });
   }
+
   // 删除订阅关键字
-  function remove_rss_key(type, name){
-      var cmd = "delrss";
-      var data = { "name": name, "type": type};
+  function remove_rss_key(type, name, year){
+      var cmd = "remove_rss_media";
+      var data = { "name": name, "type": type, "year": year};
       ajax_post(cmd, data, function(ret){
           name = $("#recommend_start_name").val();
           type =  $("#recommend_start_type").val();
+          year =  $("#recommend_start_year").val();
           id = $("#recommend_start_id").val();
           $("#recommend_finished_str").text(name + " 已从RSS订阅中移除！");
           $("#recommend-modal-success").modal('show');
           $("#recommend_svg_" + id).removeClass();
           $("#recommend_svg_" + id).addClass("icon icon-tabler icon-tabler-heart");
-          $("#recommend_link_" + id).attr("href", "javascript:add_rss_key('" + type + "','" + name + "')")
+          $("#recommend_link_" + id).attr("href", "javascript:add_rss_key('" + type + "','" + name + "','" + year + "')");
       });
   }
+
   // 显示添加订阅
-  function show_recommend_add_modal(id, type, name){
+  function show_recommend_add_modal(id, type, name, year){
       $("#recommend_start_id").val(id);
       $("#recommend_start_type").val(type);
       $("#recommend_start_name").val(name);
-      $("#recommend_do_type").val("ADD")
+      $("#recommend_start_year").val(year);
+      $("#recommend_do_type").val("ADD");
       $("#recommend_start_message").text("是否确定将 " + name + " 加入RSS订阅？");
       $('#recommend-modal').modal('show');
   }
+
   // 显示删除订阅
-  function show_recommend_del_modal(id, type, name){
+  function show_recommend_del_modal(id, type, name, year){
       $("#recommend_start_id").val(id);
       $("#recommend_start_type").val(type);
       $("#recommend_start_name").val(name);
-      $("#recommend_do_type").val("DEL")
+      $("#recommend_start_year").val(year);
+      $("#recommend_do_type").val("DEL");
       $("#recommend_start_message").text("是否确定将 " + name + " 从RSS订阅中移除？");
       $('#recommend-modal').modal('show');
   }
@@ -197,11 +234,11 @@
   // 加入RSS订阅模枋框事件
   $("#recommend_start_btn").click(function(){
       $('#recommend-modal').modal('hide');
-      var dotype = $("#recommend_do_type").val()
+      var dotype = $("#recommend_do_type").val();
       if(dotype == "ADD"){
-          add_rss_key($("#recommend_start_type").val(), $("#recommend_start_name").val());
+          add_rss_key($("#recommend_start_type").val(), $("#recommend_start_name").val(), $("#recommend_start_year").val());
       }else{
-          remove_rss_key($("#recommend_start_type").val(), $("#recommend_start_name").val());
+          remove_rss_key($("#recommend_start_type").val(), $("#recommend_start_name").val(), $("#recommend_start_year").val());
       }
   });
 </script>

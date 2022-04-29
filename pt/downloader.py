@@ -227,14 +227,14 @@ class Downloader:
             tv_info = self.media.get_tmdb_tv_info(meta_info.tmdb_id)
             if tv_info:
                 # 共有多少季，每季有多少季
-                total_seasons = self.media.get_tmdb_seasons_info(tv_info.get("seasons"))
+                total_seasons = self.media.get_tmdb_seasons_info(tv_info=tv_info)
                 log.info("【PT】%s %s 共有 %s 季" % (meta_info.type.value, meta_info.get_title_string(), len(total_seasons)))
                 message_list.append("%s %s 共有 %s 季" % (meta_info.type.value, meta_info.get_title_string(), len(total_seasons)))
                 if search_season:
                     # 有输入季
                     total_seasons = []
                     for season in search_season:
-                        episode_num = self.media.get_tmdb_season_episodes_num(tv_info.get("seasons"), season)
+                        episode_num = self.media.get_tmdb_season_episodes_num(tv_info=tv_info, sea=season)
                         if not episode_num:
                             log.info("【PT】%s 第%s季 不存在" % (meta_info.get_title_string(), season))
                             message_list.append("%s 第%s季 不存在" % (meta_info.get_title_string(), season))

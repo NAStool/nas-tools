@@ -35,7 +35,8 @@ from utils.sqls import get_search_result_by_id, get_search_results, get_movie_ke
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
     delete_transfer_log_by_id, get_config_site, insert_config_site, get_site_by_id, delete_config_site, \
     update_config_site, get_config_search_rule, update_config_search_rule, get_config_rss_rule, update_config_rss_rule, \
-    get_unknown_path_by_id, get_rss_tvs, get_rss_movies
+    get_unknown_path_by_id, get_rss_tvs, get_rss_movies, delete_rss_movie, delete_rss_tv, insert_rss_tv, \
+    insert_rss_movie
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
@@ -381,6 +382,10 @@ def create_flask_app(config):
                 else:
                     fav = 0
                 date = res.get('release_date')
+                if date:
+                    year = date[0:4]
+                else:
+                    year = ''
             else:
                 title = res.get('name')
                 if title in TvKeys:
@@ -388,6 +393,10 @@ def create_flask_app(config):
                 else:
                     fav = 0
                 date = res.get('first_air_date')
+                if date:
+                    year = date[0:4]
+                else:
+                    year = ''
             image = res.get('poster_path')
             if RecommendType in ['hm', 'nm', 'ht', 'nt']:
                 image = "https://image.tmdb.org/t/p/original/%s" % image
@@ -396,7 +405,7 @@ def create_flask_app(config):
             vote = res.get('vote_average')
             overview = res.get('overview')
             item = {'id': rid, 'title': title, 'fav': fav, 'date': date, 'vote': vote,
-                    'image': image, 'overview': overview}
+                    'image': image, 'overview': overview, 'year': year}
             Items.append(item)
 
         return render_template("recommend.html",
@@ -1213,6 +1222,52 @@ def create_flask_app(config):
                 cfg = set_config_directory(config.get_config(), data.get("oper"), data.get("key"), data.get("value"))
                 config.save_config(cfg)
                 return {"code": 0}
+
+            # 移除RSS订阅
+            if cmd == "remove_rss_media":
+                name = data.get("name")
+                mtype = data.get("type")
+                year = data.get("year")
+                if name and mtype:
+                    if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm']:
+                        delete_rss_movie(name, year)
+                    else:
+                        delete_rss_tv(name, year)
+                return {"code": 0}
+
+            # 添加RSS订阅
+            if cmd == "add_rss_media":
+                name = data.get("name")
+                mtype = data.get("type")
+                year = data.get("year")
+                if name and mtype:
+                    if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm']:
+                        mtype = MediaType.MOVIE
+                    else:
+                        mtype = MediaType.TV
+                if not name or not mtype:
+                    return {"code": 1, "msg": "标题或类型有误"}
+                # 检索媒体信息
+                media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=mtype, strict=True if year else False)
+                if not media_info or not media_info.tmdb_info:
+                    return {"code": 2, "msg": "无法查询到媒体信息"}
+                if mtype != MediaType.MOVIE:
+                    # 查询季及集信息
+                    total_seasoninfo = Media().get_tmdb_seasons_info(tmdbid=media_info.tmdb_id)
+                    if not total_seasoninfo:
+                        return {"code": 3, "msg": "获取剧集信息失败"}
+                    # 按季号降序排序
+                    total_seasoninfo = sorted(total_seasoninfo, key=lambda x: x.get("season_number"),
+                                              reverse=True)
+                    # 没有季的信息时，取最新季
+                    season = total_seasoninfo[0].get("season_number")
+                    total_count = total_seasoninfo[0].get("episode_count")
+                    media_info.begin_season = season
+                    insert_rss_tv(media_info, total_count, total_count)
+                else:
+                    insert_rss_movie(media_info)
+
+                return {"code": 0, "msg": "登记RSS订阅成功"}
 
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])

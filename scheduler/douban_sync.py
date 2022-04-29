@@ -59,16 +59,15 @@ class DoubanSync:
                 # 查询数据库状态，已经加入RSS的不处理
                 search_state = get_douban_search_state(media.get_name(), media.year)
                 if not search_state or search_state[0][0] == "NEW":
+                    season = None
                     if media.type != MediaType.MOVIE:
                         seasons = media.get_season_list()
                         if len(seasons) == 1:
                             season = seasons[0]
                             search_str = "电视剧 %s 第%s季 %s" % (media.get_name(), season, media.year)
                         else:
-                            season = 1
-                            search_str = "电视剧 %s 第%s季 %s" % (media.get_name(), season, media.year)
+                            search_str = "电视剧 %s %s" % (media.get_name(), media.year)
                     else:
-                        season = None
                         search_str = "电影 %s %s" % (media.get_name(), media.year)
                     # 开始检索
                     search_result, media, total_seasoninfo, no_exists = self.searcher.search_one_media(
@@ -81,12 +80,20 @@ class DoubanSync:
                             if media.type != MediaType.MOVIE:
                                 if not total_seasoninfo:
                                     continue
+                                # 按季号降序排序
+                                total_seasoninfo = sorted(total_seasoninfo, key=lambda x: x.get("season_number"), reverse=True)
                                 # 总集数
                                 total_count = 0
-                                for seasoninfo in total_seasoninfo:
-                                    if seasoninfo.get("season_number") == season:
-                                        total_count = seasoninfo.get("episode_count")
-                                        break
+                                # 没有季的信息时，取最新季
+                                if not season:
+                                    season = total_seasoninfo[0].get("season_number")
+                                    total_count = total_seasoninfo[0].get("episode_count")
+                                # 取当前季的总集数
+                                else:
+                                    for seasoninfo in total_seasoninfo:
+                                        if seasoninfo.get("season_number") == season:
+                                            total_count = seasoninfo.get("episode_count")
+                                            break
                                 if not total_count:
                                     continue
                                 # 缺失集数
@@ -124,28 +131,38 @@ class DoubanSync:
                 # 加入订阅
                 for media in medias:
                     # 查询媒体信息
+                    media_info = self.media.get_media_info(
+                        title="%s %s" % (media.get_name(), media.year),
+                        mtype=media.type,
+                        strict=True)
+                    if not media_info or not media_info.tmdb_info:
+                        continue
                     if media.type != MediaType.MOVIE:
                         seasons = media.get_season_list()
                         if len(seasons) == 1:
+                            # 有季信息的取季的信息
                             season = seasons[0]
+                            total_count = self.media.get_tmdb_season_episodes_num(sea=season, tmdbid=media_info.tmdb_id)
                         else:
-                            season = 1
-                        media_info = self.media.get_media_info(title="%s 第%s季 %s" % (media.get_name(), season, media.year), mtype=media.type, strict=True)
-                        if not media_info or not media_info.tmdb_info:
-                            continue
-                        tv_info = self.media.get_tmdb_tv_info(media_info.tmdb_id)
-                        if not tv_info:
-                            log.warn("【DOUBAN】%s 未找到剧集信息，跳过..." % media_info.get_title_string())
-                            continue
-                        total_count = self.media.get_tmdb_season_episodes_num(tv_info.get("seasons"), season)
+                            # 没有季信息的取最新季
+                            total_seasoninfo = self.media.get_tmdb_seasons_info(tmdbid=media_info.tmdb_id)
+                            if not total_seasoninfo:
+                                log.warn("【DOUBAN】%s 获取剧集信息失败，跳过..." % media_info.get_title_string())
+                            # 按季号降序排序
+                            total_seasoninfo = sorted(total_seasoninfo, key=lambda x: x.get("season_number"),
+                                                      reverse=True)
+                            # 没有季的信息时，取最新季
+                            season = total_seasoninfo[0].get("season_number")
+                            total_count = total_seasoninfo[0].get("episode_count")
                         if not total_count:
                             log.warn("【DOUBAN】%s 获取剧集数失败，跳过..." % media_info.get_title_string())
                             continue
-                        insert_rss_tv(media_info, total_count)
+                        media_info.begin_season = season
+                        insert_rss_tv(media_info, total_count, total_count)
                     else:
                         media_info = self.media.get_media_info(title=media.get_name(), mtype=media.type, strict=True)
                         if not media_info or not media_info.tmdb_info:
                             continue
-                        insert_rss_movie(media)
+                        insert_rss_movie(media_info)
                 log.info("【DOUBAN】豆瓣数据加入订阅完成")
         log.info("【DOUBAN】豆瓣数据同步完成")
