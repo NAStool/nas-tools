@@ -214,7 +214,7 @@ class Rss:
             # 开始检索
             search_result, media, total_seasoninfo, no_exists = self.searcher.search_one_media(
                 input_str="%s %s" % (name, year),
-                in_from=SearchType.DB)
+                in_from=SearchType.RSS)
             if search_result:
                 log.info("【RSS】%s 下载完成，删除订阅..." % name)
                 delete_rss_movie(name, year)
@@ -233,7 +233,7 @@ class Rss:
             # 开始检索
             search_result, media, total_seasoninfo, no_exists = self.searcher.search_one_media(
                 input_str="电视剧 %s %s %s" % (name, season, year),
-                in_from=SearchType.DB)
+                in_from=SearchType.RSS)
             if search_result:
                 log.info("【RSS】电影 %s 下载完成，删除订阅..." % name)
                 delete_rss_tv(name, year, season)
