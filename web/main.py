@@ -2,7 +2,7 @@ import _thread
 import logging
 import os.path
 import shutil
-import sys
+import signal
 from math import floor
 from subprocess import call
 
@@ -67,6 +67,10 @@ def create_flask_app(config):
     applog = logging.getLogger('werkzeug')
     applog.setLevel(logging.ERROR)
     login_manager.init_app(App)
+
+    def shutdown_server():
+        sig = getattr(signal, "SIGKILL", signal.SIGTERM)
+        os.kill(os.getpid(), sig)
 
     @App.after_request
     def add_header(r):
@@ -1169,7 +1173,7 @@ def create_flask_app(config):
                 # 签退
                 logout_user()
                 # 退出
-                raise RuntimeError('程序正在退出...')
+                shutdown_server()
 
             # 更新
             if cmd == "update_system":
@@ -1182,7 +1186,7 @@ def create_flask_app(config):
                 # 签退
                 logout_user()
                 # 退出主进程
-                raise RuntimeError('程序正在退出...')
+                shutdown_server()
 
             # 注销
             if cmd == "logout":

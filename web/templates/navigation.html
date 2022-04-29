@@ -428,14 +428,14 @@
           $("#restart_system_btn").attr("disabled", true);
           $("#restart_system_btn").text("重启中...");
           ajax_post("restart", {}, function(ret){});
-          setTimeout("window.location.reload()", 3000);
+          setTimeout("window.location.reload()", 10000);
         });
         //升级
         $("#update_system_btn").click(function(){
           $("#update_system_btn").attr("disabled", true);
           $("#update_system_btn").text("升级中...");
           ajax_post("update_system", {}, function(ret){});
-          setTimeout("window.location.reload()", 3000);
+          setTimeout("window.location.reload()", 15000);
         });
       });
     </script>
