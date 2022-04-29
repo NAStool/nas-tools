@@ -8,11 +8,11 @@
       </div>
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
-          <a href="javascript:show_rss_modal()" class="btn btn-primary d-none d-sm-inline-block">
+          <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-movie-rss">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             新增订阅
           </a>
-          <a href="javascript:show_rss_modal()" class="btn btn-primary d-sm-none btn-icon">
+          <a href="#" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-movie-rss">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           </a>
         </div>
@@ -81,9 +81,83 @@
   </div>
 </div>
 {% endif %}
+<div class="modal modal-blur fade" id="modal-movie-rss" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">新增订阅</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <label class="form-label required">电影</label>
+          <div class="row g-2">
+            <div class="col-8">
+              <input type="text" value="" id="movie_name" class="form-control" placeholder="标题">
+            </div>
+            <div class="col-4">
+              <input type="text" value="" id="movie_year" class="form-control" placeholder="年份">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:add_rss_movie()" id="rss_add_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="rss-modal-failed" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      <div class="modal-status bg-warning"></div>
+      <div class="modal-body text-center py-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-warning icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
+        <h3>失败</h3>
+        <div class="text-muted" id="rss_failed_str">添加RSS订阅失败！</div>
+      </div>
+      <div class="modal-footer">
+        <div class="w-100">
+          <div class="row">
+            <div class="col"><a href="#" class="btn btn-warning w-100" data-bs-dismiss="modal">
+                确定
+              </a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
-  //弹出新增订阅对话框
-  function show_rss_modal(){
-
+  //新增订阅
+  function add_rss_movie(){
+    name = $("#movie_name").val();
+    year = $("#movie_year").val();
+    if (!name) {
+      $("#movie_name").addClass("is-invalid");
+      return;
+    } else {
+      $("#movie_name").removeClass("is-invalid");
+    }
+    if (!year || isNaN(year)) {
+      $("#movie_year").addClass("is-invalid");
+      return;
+    } else {
+      $("#movie_year").removeClass("is-invalid");
+    }
+    var cmd = "add_rss_media";
+    var data = { "name": name, "type": "MOV", "year": year};
+    $("#modal-movie-rss").modal("hide");
+    $("#modal-wait").modal("show");
+    ajax_post(cmd, data, function(ret){
+      $("#modal-wait").modal("hide");
+      if(ret.code==0){
+        navmenu("movie_rss");
+      }else{
+        $("#rss_failed_str").text(name + " 添加RSS订阅失败："+ ret.msg +"！");
+        $("#rss-modal-failed").modal('show');
+      }
+    });
   }
 </script>

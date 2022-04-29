@@ -1240,28 +1240,36 @@ def create_flask_app(config):
                 name = data.get("name")
                 mtype = data.get("type")
                 year = data.get("year")
+                season = data.get("season")
                 if name and mtype:
-                    if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm']:
+                    if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
                         mtype = MediaType.MOVIE
                     else:
                         mtype = MediaType.TV
                 if not name or not mtype:
                     return {"code": 1, "msg": "标题或类型有误"}
                 # 检索媒体信息
-                media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=mtype, strict=True if year else False)
+                media = Media()
+                media_info = media.get_media_info(title="%s %s" % (name, year), mtype=mtype, strict=True if year else False)
                 if not media_info or not media_info.tmdb_info:
                     return {"code": 2, "msg": "无法查询到媒体信息"}
                 if mtype != MediaType.MOVIE:
-                    # 查询季及集信息
-                    total_seasoninfo = Media().get_tmdb_seasons_info(tmdbid=media_info.tmdb_id)
-                    if not total_seasoninfo:
-                        return {"code": 3, "msg": "获取剧集信息失败"}
-                    # 按季号降序排序
-                    total_seasoninfo = sorted(total_seasoninfo, key=lambda x: x.get("season_number"),
-                                              reverse=True)
-                    # 没有季的信息时，取最新季
-                    season = total_seasoninfo[0].get("season_number")
-                    total_count = total_seasoninfo[0].get("episode_count")
+                    if not season:
+                        # 查询季及集信息
+                        total_seasoninfo = media.get_tmdb_seasons_info(tmdbid=media_info.tmdb_id)
+                        if not total_seasoninfo:
+                            return {"code": 3, "msg": "获取剧集信息失败"}
+                        # 按季号降序排序
+                        total_seasoninfo = sorted(total_seasoninfo, key=lambda x: x.get("season_number"),
+                                                  reverse=True)
+                        # 没有季的信息时，取最新季
+                        season = total_seasoninfo[0].get("season_number")
+                        total_count = total_seasoninfo[0].get("episode_count")
+                    else:
+                        season = int(season)
+                        total_count = media.get_tmdb_season_episodes_num(sea=season, tmdbid=media_info.tmdb_id)
+                    if not total_count:
+                        return {"code": 4, "msg": "获取剧集数失败"}
                     media_info.begin_season = season
                     insert_rss_tv(media_info, total_count, total_count)
                 else:
