@@ -1,4 +1,4 @@
-# NAS媒体库资源自动搜刮整理工具
+# NAS媒体库资源归集整理工具
 
 [![GitHub stars](https://img.shields.io/github/stars/jxxghp/nas-tools?style=plastic)](https://github.com/jxxghp/nas-tools/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/jxxghp/nas-tools?style=plastic)](https://github.com/jxxghp/nas-tools/issues)
@@ -15,17 +15,17 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 
 ## 功能：
 
-### 1、PT自动检索下载
-* PT站RSS订阅，配置想追的电影电视剧名称实现PT资源自动检索追新。
+### 1、资源检索
+* PT站聚合RSS订阅，实现资源自动追新。
 
-* 通过微信、Telegram或者WEB界面聚合检索各PT站检索资源并择优下载，热门或最新电影电视剧一键搜索或者订阅。
+* 通过微信、Telegram或者WEB界面聚合检索资源并择优，最新热门一键搜索或者订阅。
 
-* 加入豆瓣收藏的电影电视剧，后台自动检索下载，未出全的自动加入RSS追更。
+* 在豆瓣中标记，后台自动检索，未出全的自动加入RSS追更。
 
 ### 2、媒体识别和重命名
 * 监控下载软件，下载完成后自动识别真实名称，硬链接到媒体库并重命名。
 
-* 对目录进行监控，目录下新增了影视文件时，自动识别媒体信息硬链接到媒体库并重命名。
+* 对目录进行监控，文件变化时自动识别媒体信息硬链接到媒体库并重命名。
 
 * 支持国产剧集，支持动漫，改名后Emby/Jellyfin/Plex 100%搜刮。
 
@@ -33,7 +33,7 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 * 支持ServerChan、微信、Telegram、Bark等图文消息通知，直接在手机上控制。
 
 ### 4、其它
-* PT站自动签到、Emby/Jellyfin播放状态通知等等。
+* 自动签到、Emby/Jellyfin播放状态通知等等。
 
 
 ## 更新日志
@@ -137,8 +137,6 @@ https://github.com/jxxghp/nas-tools/releases
   3) Telegram：关注BotFather申请机器人，关注getuserID拿到chat_id，填入telegram_token、telegram_chat_id。
   4) Bark：安装Bark客户端获得KEY，可以自建Bark服务器或者使用默认的服务器。
 
-* 申请PT站用户，至少要有1个不然没法玩，点PT的RSS图标获取RSS链接（RSS链接不要用错了，是PT客户端使用的那个）
-
 
 ### 2、配置文件
 * 确定是用【复制】模式还是【硬链接】模式：复制模式下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠；硬链接模式不用额外增加存储空间，一份文件两份目录，但需要下载目录和媒体库目录在一个磁盘分区或者存储空间。两者在媒体库使用上是一致的，按自己需要按配置文件模板说明配置。
@@ -201,7 +199,7 @@ https://github.com/jxxghp/nas-tools/releases
    
 
 ### 6、配置Jackett/Prowlarr（推荐）
-如果你想通过微信、Telegram发送电影电视剧的名称，后台就自动检索各PT站并自动下载，或者使用WEB页面的PT聚合资源搜索功能，则需要配置Jackett/Prowlarr，获取API Key以及Torznab Feed/地址，相关参数填入配置文件。
+如果你想通过微信、Telegram发送名称后就自动检索，或者使用WEB页面的聚合资源检索功能，则需要配置Jackett/Prowlarr，获取API Key以及Torznab Feed/地址，相关参数填入配置文件。
 
 Jackett/Prowlarr二选一，相关配置参考网上的各类教程。
 
