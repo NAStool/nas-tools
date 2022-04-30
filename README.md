@@ -242,6 +242,7 @@ Jackett/Prowlarr二选一，相关配置参考网上的各类教程。
 ![image](https://user-images.githubusercontent.com/51039935/153886867-50a3debd-e982-4723-974b-04ba16f732b1.png)
 
 ## 鸣谢
+* 程序UI模板及图标来源于开源项目<a href="https://github.com/tabler/tabler">tabler</a>
 * 感谢 <a href="https://github.com/Qliangw/notion_sync_data" target="_blank">Qliangw</a> 贡献豆瓣部分的代码
 * 感谢 <a href="https://hub.docker.com/r/nevinee/nas-tools" target="_blank">nevinee</a> 完善docker构建
 * 感谢 PR 代码、完善WIKI、发布教程的所有大佬
