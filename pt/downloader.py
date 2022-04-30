@@ -120,7 +120,7 @@ class Downloader:
         return self.client.delete_torrents(delete_file=True, ids=ids)
 
     # 检查是否存在决定是否添加下载
-    # 返回：下载数量、剩余没下载的季集
+    # 返回：下载数量、下载的媒体信息、剩余没下载的季集
     def check_and_add_pt(self, in_from, media_list, need_tvs=None):
         download_items = []
         # 返回按季、集数倒序排序的列表
@@ -194,16 +194,20 @@ class Downloader:
                     download_items.append(item)
 
         # 添加PT任务
+        return_items = []
         for item in download_items:
             log.info("【PT】添加PT任务：%s ..." % item.org_string)
             ret = self.add_pt_torrent(item.enclosure, item.type)
             if ret:
+                ret_item = {"type": item.type, "title_str": item.get_title_string(), "title": item.title, "year": item.year, "season": item.get_season_string()}
+                if ret_item not in return_items:
+                    return_items.append(ret_item)
                 self.message.send_download_message(in_from, item)
             else:
                 log.error("【PT】添加下载任务失败：%s" % item.get_title_string())
                 self.message.sendmsg("添加PT任务失败：%s" % item.get_title_string())
-        # 返回下载数以及，剩下没下完的
-        return len(download_items), need_tvs
+        # 返回下载的资源，剩下没下完的
+        return len(download_items), return_items, need_tvs
 
     # 检查控重
     # 返回：是否有缺失，总的季集数，缺失的季集数，需要发送的消息

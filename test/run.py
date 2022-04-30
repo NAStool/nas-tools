@@ -4,6 +4,7 @@ from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from rmt.server.jellyfin import Jellyfin
 from scheduler.douban_sync import DoubanSync
+from scheduler.rss_search import RssSearch
 from utils.db_helper import select_by_sql, update_by_sql
 from utils.sqls import get_config_site, get_config_search_rule, insert_transfer_unknown, insert_rss_movie, \
     insert_rss_tv, get_rss_tvs
@@ -84,7 +85,7 @@ if __name__ == "__main__":
     # print(get_config_search_rule())
     # print(MetaInfo('556.mkv').__dict__)
     # insert_transfer_unknown("/volume1/PT/任何人 (2022)", "/电影")
-    insert_transfer_unknown("/volume1/PT/Etharkkum.Thunindhavan.2022.1080p.NF.WEB-DL.H264.DDP5.1-ADWeb5", "")
+    # insert_transfer_unknown("/volume1/PT/Etharkkum.Thunindhavan.2022.1080p.NF.WEB-DL.H264.DDP5.1-ADWeb5", "")
     # print(Jellyfin().get_no_exists_episodes(meta_info, 1, 10))
     # print(Jellyfin().get_movies("我和我的祖国", "2019"))
     # meta_info = Media().get_media_info("未来中国 2022")
@@ -98,3 +99,4 @@ if __name__ == "__main__":
     # print(get_rss_tvs())
     # update_by_sql("DELETE FROM DOUBAN_MEDIAS")
     # DoubanSync().run_schedule()
+    RssSearch().run_schedule()

@@ -128,7 +128,7 @@ class Searcher:
             if in_from in [SearchType.WX, SearchType.TG] and not self.__search_auto:
                 return False, media_info, total_seasoninfo, no_exists
             # 择优下载
-            download_num, left_medias = self.downloader.check_and_add_pt(in_from, media_list, no_exists)
+            download_num, download_items, left_medias = self.downloader.check_and_add_pt(in_from, media_list, no_exists)
             # 统计下载情况，下全了返回True，没下全返回False
             if download_num == 0:
                 log.info("【SEARCHER】%s 搜索结果中没有符合下载条件的资源" % content)
