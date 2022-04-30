@@ -14,7 +14,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import log
 from message.telegram import Telegram
 from monitor.media_sync import Sync
-from monitor.run import restart_monitor, stop_monitor
+from monitor.run import stop_monitor
 from pt.downloader import Downloader
 from pt.searcher import Searcher
 from rmt.filetransfer import FileTransfer
@@ -30,8 +30,8 @@ from message.send import Message
 
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE
 from scheduler.run import stop_scheduler
-from utils.functions import get_used_of_partition, str_filesize, str_timelong, INSTANCES
-from utils.sqls import get_search_result_by_id, get_search_results, get_rss_movies, get_rss_tvs, \
+from utils.functions import get_used_of_partition, str_filesize, str_timelong
+from utils.sqls import get_search_result_by_id, get_search_results, \
     get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
     delete_transfer_log_by_id, get_config_site, insert_config_site, get_site_by_id, delete_config_site, \
@@ -706,6 +706,10 @@ def create_flask_app(config):
             if isinstance(sync_paths, list):
                 for sync_path in sync_paths:
                     SyncPath = {}
+                    rename_flag = True
+                    if sync_path.startswith("["):
+                        rename_flag = False
+                        sync_path = sync_path[1:-1]
                     paths = sync_path.split("|")
                     if not paths:
                         continue
@@ -717,6 +721,7 @@ def create_flask_app(config):
                         SyncPath['to'] = paths[1]
                     if len(paths) > 2:
                         SyncPath['unknown'] = paths[2]
+                    SyncPath['rename'] = rename_flag
                     SyncPaths.append(SyncPath)
             else:
                 SyncPaths = [{"from": sync_paths}]

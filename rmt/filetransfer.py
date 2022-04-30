@@ -726,6 +726,19 @@ class FileTransfer:
                 return unknown_path
         return self.__unknown_path[0]
 
+    # 对文件做纯链接处理，不做识别重命名
+    def link_sync_files(self, in_from, src_path, in_file, target_dir):
+        # 转移模式
+        if in_from in DownloaderType:
+            rmt_mode = self.__pt_rmt_mode
+        else:
+            rmt_mode = self.__sync_rmt_mode
+        new_file = in_file.replace(src_path, target_dir)
+        new_dir = os.path.dirname(new_file)
+        if not os.path.exists(new_dir):
+            os.makedirs(new_dir)
+        return self.__transfer_command(in_file, new_file, rmt_mode)
+
 
 if __name__ == "__main__":
     # 参数

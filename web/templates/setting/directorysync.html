@@ -40,7 +40,7 @@
                 <tr>
                   <th>源目录</th>
                   <th>目的目录</th>
-                  <th>未识别目录</th>
+                  <th class="w-10 text-nowrap">识别重命名</th>
                   <th class="w-3"></th>
                 </tr>
               </thead>
@@ -48,15 +48,24 @@
               {% if SyncPaths %}
                 {% for SyncPath in SyncPaths %}
                 <tr>
-                  <td >{{ SyncPath.from or '' }}</td>
-                  <td class="text-muted" >
+                  <td>{{ SyncPath.from or '' }}</td>
+                  <td>
                     {{ SyncPath.to or '' }}
-                  </td>
-                  <td class="text-muted" >
-                    {{ SyncPath.unknown or '' }}
+                    {% if SyncPath.unknown and SyncPath.rename %}
+                      <div class="text-muted" >
+                      未识别：{{ SyncPath.unknown }}
+                      </div>
+                    {% endif %}
                   </td>
                   <td>
-                    <a href="javascript:sub_directory_config('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}')" title="删除目录">
+                    {% if SyncPath.rename %}
+                    <span class="badge bg-green" title="已开启"></span>
+                    {% else %}
+                    <span class="badge bg-red" title="已关闭"></span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <a href="javascript:sub_directory_config('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.rename }}')" title="删除目录">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                          <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -98,6 +107,14 @@
               <input type="text" value="" id="unknown_path" class="form-control" placeholder="未识别目录">
             </div>
           </div>
+          <div class="row g-2">
+            <div class="col-12">
+              <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="rename_flag" checked>
+                <span class="form-check-label">识别并重命名</span>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -114,12 +131,27 @@
 
   // 新增目录
   function add_directory_config(){
+    if(!$("#from_path").val()){
+      $("#from_path").addClass("is-invalid");
+      return;
+    }else{
+      $("#from_path").removeClass("is-invalid");
+    }
     if($("#unknown_path").val()){
       value = $("#from_path").val() + "|" + $("#to_path").val() + "|" + $("#unknown_path").val();
     }else if ($("#to_path").val()){
       value = $("#from_path").val() + "|" + $("#to_path").val();
     }else{
       value = $("#from_path").val();
+    }
+    if(!$("#rename_flag").prop("checked")){
+      if(!$("#to_path").val()){
+        $("#to_path").addClass("is-invalid");
+        return;
+      }else{
+        $("#to_path").removeClass("is-invalid");
+      }
+      value = "[" + value + "]";
     }
     var params = {"oper": "add", "key": "sync.sync_path", "value": value};
     $("#modal-dirctory").modal('hide');
@@ -129,13 +161,16 @@
   }
 
   // 删除目录
-  function sub_directory_config(from, to, unknown){
+  function sub_directory_config(from, to, unknown, rename){
     if(unknown){
       value = from + "|" + to + "|" + unknown;
     }else if(to){
       value = from + "|" + to;
     }else{
       value = from;
+    }
+    if(rename != "True"){
+      value = "[" + value + "]";
     }
     var params = {"oper": "sub", "key": "sync.sync_path", "value": value};
     ajax_post("update_directory", params, function (ret) {

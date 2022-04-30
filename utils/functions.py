@@ -115,9 +115,9 @@ def get_dir_files_by_ext(in_path, exts="", filesize=0):
         if is_invalid_path(in_path):
             return []
         ext = os.path.splitext(in_path)[-1]
-        file_size = os.path.getsize(in_path)
-        if ext.lower() in exts and file_size >= filesize:
-            if in_path not in ret_list:
+        if not exts or ext.lower() in exts:
+            file_size = os.path.getsize(in_path)
+            if in_path not in ret_list and file_size >= filesize:
                 ret_list.append(in_path)
     return ret_list
 
