@@ -89,6 +89,8 @@ class FileTransfer:
             min_filesize = media.get('min_filesize')
             if isinstance(min_filesize, int):
                 self.__min_filesize = min_filesize * 1024 * 1024
+            elif isinstance(min_filesize, str) and min_filesize.isdigit():
+                self.__min_filesize = int(min_filesize) * 1024 * 1024
 
         sync = config.get_config('sync')
         if sync:

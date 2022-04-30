@@ -775,7 +775,7 @@ def create_flask_app(config):
                 tag = ""
             QbTvSavePath = {"path": path, "tag": tag}
             # 动漫保存目录
-            anime_path = save_path.get("tv")
+            anime_path = save_path.get("anime")
             if anime_path:
                 paths = anime_path.split("|")
                 if len(paths) > 1:

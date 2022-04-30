@@ -242,31 +242,27 @@ class Jellyfin:
             return None
         return None
 
-    # 通知Jellyfin刷新一个项目的媒体库
-    def __refresh_jellyfin_library_by_id(self, item_id):
+    # 通知Jellyfin刷新整个媒体库
+    def refresh_root_library(self):
         if not self.__host or not self.__apikey:
             return False
-        req_url = "%sItems/%s/Refresh?Recursive=true&api_key=%s" % (self.__host, item_id, self.__apikey)
+        req_url = "%sLibrary/Refresh?api_key=%s" % (self.__host, self.__apikey)
         try:
             res = requests.post(req_url, timeout=10)
             if res:
                 return True
         except Exception as e:
-            log.error("【JELLYFIN】连接Items/{Id}/Refresh出错：" + str(e))
+            log.error("【JELLYFIN】连接Library/Refresh出错：" + str(e))
             return False
-        return False
-
-    # 通知Jellyfin刷新整个媒体库
-    @staticmethod
-    def refresh_root_library():
-        # TODO 没找到对应的API
-        return True
 
     # 按类型、名称、年份来刷新媒体库
-    @staticmethod
-    def refresh_library_by_items(items):
-        # TODO 没找到对应的API
-        return True
+    def refresh_library_by_items(self, items):
+        # 没找到单项目刷新的对应的API，先按全库刷新
+        if not items:
+            return False
+        if not self.__host or not self.__apikey:
+            return False
+        return self.refresh_root_library()
 
     # 根据媒体信息查询在哪个媒体库，返回要刷新的位置的ID
     def __get_jellyfin_library_id_by_item(self, item):

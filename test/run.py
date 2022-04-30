@@ -99,4 +99,5 @@ if __name__ == "__main__":
     # print(get_rss_tvs())
     # update_by_sql("DELETE FROM DOUBAN_MEDIAS")
     # DoubanSync().run_schedule()
-    RssSearch().run_schedule()
+    # RssSearch().run_schedule()
+    print(MetaInfo('1984.DVDRIP.x264.2020.3D.BluRay.1080p').__dict__)
