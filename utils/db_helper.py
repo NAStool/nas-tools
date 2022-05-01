@@ -152,6 +152,13 @@ class DBHelper:
             cursor.execute('''CREATE TABLE IF NOT EXISTS CONFIG_RSS_RULE
                                                (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
                                                NOTE    TEXT);''')
+            # 目录同步记录表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS SYNC_HISTORY
+                                               (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                               PATH    TEXT,
+                                               SRC    TEXT,
+                                               DEST    TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SYNC_HISTORY ON SYNC_HISTORY (PATH);''')
 
             # 提交
             self.__connection.commit()

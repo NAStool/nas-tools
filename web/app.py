@@ -27,7 +27,7 @@ class FlaskApp:
         try:
             if self.__ssl_cert:
                 self.__app.run(
-                    host='0.0.0.0',
+                    host='[::]',
                     port=self.__web_port,
                     debug=False,
                     threaded=True,
@@ -36,7 +36,7 @@ class FlaskApp:
                 )
             else:
                 self.__app.run(
-                    host='0.0.0.0',
+                    host='[::]',
                     port=self.__web_port,
                     debug=False,
                     threaded=True,

@@ -478,3 +478,31 @@ def update_rss_tv_state(title, year, season, state):
         return False
     sql = "UPDATE RSS_TVS SET STATE='%s' WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (state, title, year, season)
     return update_by_sql(sql)
+
+
+# 查询是否存在同步历史记录
+def is_sync_in_history(path, dest):
+    if not path:
+        return False
+    path = os.path.normpath(path)
+    dest = os.path.normpath(dest)
+    sql = f"SELECT COUNT(1) FROM SYNC_HISTORY WHERE PATH='{str_sql(path)}' AND DEST='{str_sql(dest)}'"
+    ret = select_by_sql(sql)
+    if ret and ret[0][0] > 0:
+        return True
+    else:
+        return False
+
+
+# 插入黑名单记录
+def insert_sync_history(path, src, dest):
+    if not path or not dest:
+        return False
+    if is_sync_in_history(path, dest):
+        return False
+    else:
+        path = os.path.normpath(path)
+        src = os.path.normpath(src)
+        dest = os.path.normpath(dest)
+        sql = f"INSERT INTO SYNC_HISTORY(PATH, SRC, DEST) VALUES('{str_sql(path)}', '{str_sql(src)}', '{str_sql(dest)}')"
+        return update_by_sql(sql)

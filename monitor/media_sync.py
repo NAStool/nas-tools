@@ -7,7 +7,7 @@ import log
 from monitor.monitor_handler import FileMonitorHandler
 from rmt.filetransfer import FileTransfer
 from utils.functions import singleton, is_invalid_path, is_path_in_path, is_bluray_dir, get_dir_level1_medias
-from utils.sqls import is_transfer_in_blacklist
+from utils.sqls import is_transfer_in_blacklist, insert_sync_history, is_sync_in_history
 from utils.types import SyncType, OsType
 
 lock = threading.Lock()
@@ -148,6 +148,8 @@ class Sync(object):
 
                 # 只做硬链接，不做识别重命名
                 if onlylink:
+                    if is_sync_in_history(event_path, target_path):
+                        return
                     log.info("【SYNC】开始同步 %s" % event_path)
                     ret = self.filetransfer.link_sync_files(in_from=SyncType.MON,
                                                             src_path=monitor_dir,
@@ -156,6 +158,7 @@ class Sync(object):
                     if ret != 0:
                         log.warn("【SYNC】%s 同步失败，错误码：%s" % (event_path, ret))
                     else:
+                        insert_sync_history(event_path, monitor_dir, target_path)
                         log.info("【SYNC】%s 同步完成" % event_path)
                 # 识别转移
                 else:
@@ -207,7 +210,7 @@ class Sync(object):
                 if is_invalid_path(path):
                     continue
                 target_info = self.__need_sync_paths.get(path)
-                if os.path.exists(path) and not is_transfer_in_blacklist(path):
+                if os.path.exists(path):
                     log.info("【SYNC】开始转移监控目录文件...")
                     if not is_bluray_dir:
                         files = target_info.get('files')

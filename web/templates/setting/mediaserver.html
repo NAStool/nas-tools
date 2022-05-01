@@ -22,7 +22,7 @@
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Emby</div>
-            <div class="text-muted">{% if Config.media.media_server == "emby" %}正在使用{% endif %}</div>
+            <div class="text-muted">{% if Config.media.media_server == "emby" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
           </div>
         </a>
       </div>
@@ -34,7 +34,7 @@
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Jellyfin</div>
-            <div class="text-muted">{% if Config.media.media_server == "jellyfin" %}正在使用{% endif %}</div>
+            <div class="text-muted">{% if Config.media.media_server == "jellyfin" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
           </div>
         </a>
       </div>

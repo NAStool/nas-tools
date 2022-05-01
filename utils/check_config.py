@@ -158,6 +158,10 @@ def check_config(cfg):
         sync_paths = config['sync'].get('sync_path')
         if sync_paths:
             for sync_path in sync_paths:
+                if not sync_path:
+                    continue
+                if sync_path.startswith("["):
+                    sync_path = sync_path[1:-1]
                 if sync_path.find('|') != -1:
                     sync_path = sync_path.split("|")[0]
                 if not os.path.exists(sync_path):

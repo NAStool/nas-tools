@@ -59,6 +59,8 @@ media:
   category: 'default-category'
   # 【转移到媒体库的最小文件大小】：避免预告片/MV等影响识别，单位M
   min_filesize: 200
+  # 【洗版开关】：如开启则新下载了更大的文件会覆盖媒体库目录中已有的文件
+  filesize_cover: true
 
 # 配置Emby服务器信息
 emby:

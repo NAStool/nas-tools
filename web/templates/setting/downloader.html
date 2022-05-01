@@ -23,7 +23,7 @@
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Qbittorrent</div>
-            <div class="text-muted">{% if Config.pt.pt_client == "qbittorrent" %}正在使用{% endif %}</div>
+            <div class="text-muted">{% if Config.pt.pt_client == "qbittorrent" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
           </div>
         </a>
       </div>
@@ -36,7 +36,7 @@
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">Transmission</div>
-            <div class="text-muted">{% if Config.pt.pt_client == "transmission" %}正在使用{% endif %}</div>
+            <div class="text-muted">{% if Config.pt.pt_client == "transmission" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
           </div>
         </a>
       </div>

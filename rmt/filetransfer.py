@@ -30,6 +30,7 @@ class FileTransfer:
     __anime_category_flag = None
     __unknown_path = None
     __min_filesize = RMT_MIN_FILESIZE
+    __filesize_cover = False
     media = None
     message = None
     category = None
@@ -91,6 +92,8 @@ class FileTransfer:
                 self.__min_filesize = min_filesize * 1024 * 1024
             elif isinstance(min_filesize, str) and min_filesize.isdigit():
                 self.__min_filesize = int(min_filesize) * 1024 * 1024
+            # 高质量文件覆盖
+            self.__filesize_cover = media.get('filesize_cover')
 
         sync = config.get_config('sync')
         if sync:
@@ -413,7 +416,7 @@ class FileTransfer:
                     exist_filenum = exist_filenum + 1
                     existfile_size = os.path.getsize(ret_file_path)
                     if rmt_mode != RmtMode.SOFTLINK:
-                        if media.size > existfile_size:
+                        if media.size > existfile_size and self.__filesize_cover:
                             log.info("【RMT】文件 %s 已存在，但新文件质量更好，覆盖..." % ret_file_path)
                             ret = self.__transfer_file(file_item, ret_file_path, rmt_mode, True)
                             if not ret:
