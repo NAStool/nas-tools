@@ -61,12 +61,10 @@ class DoubanHot:
             return []
         infos = self.__soup.select('.ui-slide-item')
         ret_list = []
-        rid = 0
         for info in infos:
             try:
                 if not info:
                     continue
-                rid += 1
                 # 评分
                 vote_average = info.get('data-rate')
                 if vote_average:
@@ -95,7 +93,9 @@ class DoubanHot:
                     continue
                 # 简介
                 overview = "国家/地区：%s 主演：%s，导演：%s，时长：%s" % (region, actors, director, duration)
-
+                # ID
+                ticket = info.get('data-ticket') or ""
+                rid = ticket.split("=")[-1]
                 ret_list.append({'id': rid, 'title': title, 'release_date': release_date, 'vote_average': vote_average, 'poster_path': poster_path, 'overview': overview})
             except Exception as e:
                 log.error("【DOUBAN】DoubanHot出错：%s" % str(e))
@@ -106,16 +106,14 @@ class DoubanHot:
     def __refresh_movie(html):
         movies = json.loads(html)
         ret_list = []
-        rid = 0
         if movies and 'subjects' in movies.keys():
             for item in movies.get('subjects'):
-                rid += 1
                 if item.get('rate'):
                     vote_average = float(item.get('rate'))
                 else:
                     vote_average = 0
                 film = {
-                    'id': rid,
+                    'id': item.get('id'),
                     'vote_average': vote_average,
                     'release_date': '',
                     'title': item.get('title'),
@@ -129,10 +127,8 @@ class DoubanHot:
     def __refresh_tv(html):
         tvs = json.loads(html)
         ret_list = []
-        rid = 0
         if tvs and 'subjects' in tvs.keys():
             for item in tvs.get('subjects'):
-                rid += 1
                 if item.get('rate'):
                     vote_average = float(item.get('rate'))
                 else:
@@ -143,7 +139,7 @@ class DoubanHot:
                 else:
                     overview = "%s %s" % (item.get('title'), item.get('episodes_info'))
                 tv = {
-                    'id': rid,
+                    'id': item.get('id'),
                     'vote_average': vote_average,
                     'first_air_date': '',
                     'name': item.get('title'),

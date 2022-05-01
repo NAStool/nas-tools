@@ -26,7 +26,7 @@
     <div class="row row-cards">
       {% for Item in Items %}
       <div class="col-md-4 col-xl-3">
-        <a class="card card-link" href="javascript:show_rss_del_modal('{{ Item[0] }}', '{{ Item[1] }}')" title="{{ Item[4] }}">
+        <a class="card card-link" href="javascript:show_media_info('{{ Item[0] }}', '{{ Item[1] }}', '{{ Item[2] }}')" title="{{ Item[4] }}">
           <div class="text-center rounded">
             <img class="rounded-top" src="{{ Item[3] }}">
           </div>
@@ -129,18 +129,33 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="rss-confirm-modal" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+<div class="modal modal-blur fade" id="modal-media-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="modal-body">
-        <div class="modal-title">确认提示</div>
-        <div id="rss_start_message">是否确定删除RSS订阅？</div>
-      </div>
-      <div class="modal-footer">
-        <input type="hidden" id="rss_start_name" />
-        <input type="hidden" id="rss_start_year" />
-        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-danger" id="rss_del_btn">确定</button>
+      <div class="card">
+        <div class="ribbon ribbon-top ribbon-bookmark" id="media_vote"></div>
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-3">
+              <img src="" class="rounded" id="media_poster">
+            </div>
+            <div class="col vtop">
+              <h4 class="card-title mb-3">
+                <a href="#" target="_blank" id="media_link"><strong id="media_name"></strong></a><br/>
+                <span class="text-muted" id="release_date"></span>
+              </h4>
+              <div class="text-muted" id="media_overview">
+              </div>
+            </div>
+            <div class="col-auto">
+              <a href="javascript:remove_rss_media()" class="btn">
+                取消订阅
+              </a>
+              <input type="hidden" id="media_title">
+              <input type="hidden" id="media_year">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -177,24 +192,34 @@
     });
   }
 
-  // 显示删除订阅
-  function show_rss_del_modal(name, year){
-    $("#rss_start_name").val(name);
-    $("#rss_start_year").val(year);
-    $("#rss_start_message").text("是否确定将 " + name + " (" + year + ")" + " 从RSS订阅中移除？");
-    $('#rss-confirm-modal').modal('show');
+  //显示媒体详情
+  function show_media_info(name, year, id){
+    $("#media_title").val(name);
+    $("#media_year").val(year);
+    $("#modal-wait").modal("show");
+    ajax_post("media_info", {"id": id, "type": "MOV"}, function(ret){
+      $("#modal-wait").modal("hide");
+      if(ret.code == 0){
+        $("#media_vote").text(ret.vote_average);
+        $("#media_poster").attr("src", ret.poster_path);
+        $("#media_name").text(ret.title);
+        $("#media_link").attr("href", "https://www.themoviedb.org/movie/" + ret.id);
+        $("#media_overview").text(ret.overview);
+        $("#release_date").text(ret.release_date)
+        $("#modal-media-modal").modal("show");
+      }
+    });
   }
 
   // 模枋框事件
-  $("#rss_del_btn").click(function(){
-    $('#rss-confirm-modal').modal('hide');
+  function remove_rss_media(){
+    $("#modal-media-modal").modal("hide");
+    var name = $("#media_title").val();
+    var year = $("#media_year").val();
     var cmd = "remove_rss_media";
-    var name = $("#rss_start_name").val();
-    var year = $("#rss_start_year").val();
     var data = { "name": name, "type": "MOV", "year": year};
     ajax_post(cmd, data, function(ret){
-      name = $("#rss_start_name").val();
       navmenu("movie_rss");
     });
-  });
+  }
 </script>

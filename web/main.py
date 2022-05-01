@@ -1292,6 +1292,40 @@ def create_flask_app(config):
                 else:
                     return {"retcode": 2, "retmsg": ret_msg}
 
+            # 根据TMDB查询媒体信息
+            if cmd == "media_info":
+                tmdbid = data.get("id")
+                mtype = data.get("type")
+                if mtype == "MOV":
+                    media_type = MediaType.MOVIE
+                else:
+                    media_type = MediaType.TV
+                tmdb_info = Media().get_media_info_manual(media_type, None, None, tmdbid)
+                if not tmdb_info:
+                    return {"code": 1, "retmsg": "无法查询到TMDB信息"}
+                if media_type == MediaType.MOVIE:
+                    return {
+                        "code": 0,
+                        "id": tmdb_info.get('id'),
+                        "title": tmdb_info.get('title'),
+                        "vote_average": tmdb_info.get("vote_average"),
+                        "poster_path": "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path'),
+                        "release_date": tmdb_info.get('release_date'),
+                        "year": tmdb_info.get('release_date')[0:4],
+                        "overview": tmdb_info.get("overview")
+                    }
+                else:
+                    return {
+                        "code": 0,
+                        "id": tmdb_info.get('id'),
+                        "title": tmdb_info.get('name'),
+                        "vote_average": tmdb_info.get("vote_average"),
+                        "poster_path": "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path'),
+                        "first_air_date": tmdb_info.get('first_air_date'),
+                        "year": tmdb_info.get('first_air_date')[0:4],
+                        "overview": tmdb_info.get("overview")
+                    }
+
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])
     def wechat():
