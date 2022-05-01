@@ -156,17 +156,17 @@ class Rss:
                         match_flag = self.torrent.is_torrent_match_size(media_info, res_type, size)
                         if not match_flag:
                             continue
-                    # 检查是否存在，电视剧返回不存在的集清单
-                    exist_flag, total_seasoninfo, no_exists, messages = self.downloader.check_exists_medias(meta_info=media_info)
-                    if no_exists and no_exists.get(media_info.get_title_string()):
-                        rss_no_exists[media_info.get_title_string()] = no_exists.get(media_info.get_title_string())
+                    # 检查是否存在
+                    exist_flag, rss_no_exists, messages = self.downloader.check_exists_medias(meta_info=media_info, no_exists=rss_no_exists)
                     if exist_flag:
-                        # 如果是电影，已存在时删除订阅，只会删除名字匹配的
+                        # 如果是电影，已存在时删除订阅
                         if media_info.type == MediaType.MOVIE:
                             delete_rss_movie(media_info.title, media_info.year)
-                        # 如果是电视剧，没有不存在的季集时删除订阅，只会删除名字匹配的
-                        elif total_seasoninfo and not no_exists:
-                            delete_rss_tv(media_info.title, media_info.year, media_info.get_season_string())
+                        # 如果是电视剧
+                        else:
+                            # 不存在缺失季集时删除订阅
+                            if not rss_no_exists or not rss_no_exists.get(media_info.get_title_string()):
+                                delete_rss_tv(media_info.title, media_info.year, media_info.get_season_string())
                         continue
                     # 返回对象
                     media_info.set_torrent_info(site_order=order_seq,
@@ -187,29 +187,28 @@ class Rss:
             log.info("【RSS】%s 处理结束，匹配到 %s 个有效资源" % (rss_job, res_num))
         log.info("【RSS】所有RSS处理结束，共 %s 个有效资源" % len(rss_download_torrents))
         # 去重择优后开始添加下载
-        download_num, download_items, left_medias = self.downloader.check_and_add_pt(SearchType.RSS, rss_download_torrents, rss_no_exists)
+        download_items, left_medias = self.downloader.check_and_add_pt(SearchType.RSS, rss_download_torrents, rss_no_exists)
         # 批量删除订阅
         if download_items:
             for item in download_items:
-                if item.get("type") == MediaType.MOVIE:
+                if item.type == MediaType.MOVIE:
                     # 删除电影订阅
                     delete_rss_movie(item.get("title"), item.get("year"))
                 else:
-                    if not left_medias or not left_medias.get(item.get("title_str")):
+                    if not left_medias or not left_medias.get(item.get_title_string()):
                         # 删除电视剧订阅
-                        delete_rss_tv(item.get("title"), item.get("year"), item.get("season"))
+                        delete_rss_tv(item.title, item.year, item.get_season_string())
                     else:
                         # 更新电视剧缺失剧集
-                        left_media = left_medias.get(item.get("title_str"))
+                        left_media = left_medias.get(item.get_title_string())
                         if not left_media:
                             continue
                         for left_season in left_media:
-                            if left_season.get("season") == int(item.get("season").replace("S", "")):
+                            if left_season.get("season") == item.begin_season:
                                 if left_season.get("episodes"):
-                                    left_count = left_season.get("episodes")
-                                    update_rss_tv_lack(item.get("title"), item.get("year"), item.get("season"), left_count)
+                                    update_rss_tv_lack(item.title, item.year, item.get_season_string(), len(left_season.get("episodes")))
                                     break
-            log.info("【RSS】实际下载了 %s 个资源" % download_num)
+            log.info("【RSS】实际下载了 %s 个资源" % len(download_items))
         else:
             log.info("【RSS】实际未下载到任何资源")
 
@@ -224,9 +223,13 @@ class Rss:
             year = movie[1]
             update_rss_movie_state(name, year, 'S')
             # 开始检索
-            search_result, media, total_seasoninfo, no_exists = self.searcher.search_one_media(
+            search_result, media, no_exists = self.searcher.search_one_media(
                 input_str="%s %s" % (name, year),
                 in_from=SearchType.RSS)
+            # 没有检索到媒体信息的，下次再处理
+            if not media:
+                update_rss_movie_state(name, year, 'D')
+                continue
             if search_result:
                 log.info("【RSS】电影 %s 下载完成，删除订阅..." % name)
                 delete_rss_movie(name, year)
@@ -240,34 +243,30 @@ class Rss:
             name = tv[0]
             year = tv[1]
             season = tv[2]
-            lack_count = int(tv[7])
             update_rss_tv_state(name, year, season, 'S')
             # 开始检索
-            search_result, media, total_seasoninfo, no_exists = self.searcher.search_one_media(
+            search_result, media, no_exists = self.searcher.search_one_media(
                 input_str="电视剧 %s %s %s" % (name, season, year),
                 in_from=SearchType.RSS)
-            if search_result:
+            # 没有检索到媒体信息的，下次再处理
+            if not media:
+                update_rss_movie_state(name, year, 'D')
+                continue
+            if not no_exists or not no_exists.get(media.get_title_string()):
+                # 没有剩余或者剩余缺失季集中没有当前标题，说明下完了
                 log.info("【RSS】电视剧 %s 下载完成，删除订阅..." % name)
                 delete_rss_tv(name, year, season)
             else:
+                # 更新状态
                 update_rss_tv_state(name, year, season, 'R')
-                if not media or not total_seasoninfo:
-                    continue
-                if no_exists and no_exists.get(media.get_title_string()):
-                    no_exist_items = no_exists.get(media.get_title_string())
-                    season_num = int(season.replace("S", ""))
-                    for no_exist_item in no_exist_items:
-                        if no_exist_item.get("season") == season_num:
-                            if no_exist_item.get("episodes"):
-                                lack_count = len(no_exist_item.get("episodes"))
-                            break
-                else:
-                    lack_count = 0
-                if lack_count == 0:
-                    log.info("【RSS】电视剧 %s 下载完成，删除订阅..." % name)
-                    delete_rss_tv(name, year, season)
-                else:
-                    update_rss_tv_lack(name, year, season, lack_count)
+                season_num = int(season.replace("S", ""))
+                no_exist_items = no_exists.get(media.get_title_string())
+                for no_exist_item in no_exist_items:
+                    if no_exist_item.get("season") == season_num:
+                        if no_exist_item.get("episodes"):
+                            update_rss_tv_lack(name, year, season, len(no_exist_item.get("episodes")))
+                        break
+
         log.info("【RSS】RSS检索结束")
 
     @staticmethod

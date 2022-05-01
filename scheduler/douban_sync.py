@@ -70,7 +70,7 @@ class DoubanSync:
                     else:
                         search_str = "电影 %s %s" % (media.get_name(), media.year)
                     # 开始检索
-                    search_result, media, total_seasoninfo, no_exists = self.searcher.search_one_media(
+                    search_result, media, no_exists = self.searcher.search_one_media(
                         input_str=search_str,
                         in_from=SearchType.DB)
                     if not media:
@@ -78,21 +78,21 @@ class DoubanSync:
                     if not search_result:
                         if self.__auto_rss:
                             if media.type != MediaType.MOVIE:
-                                if not total_seasoninfo:
+                                if not no_exists:
                                     continue
                                 # 按季号降序排序
-                                total_seasoninfo = sorted(total_seasoninfo, key=lambda x: x.get("season_number"), reverse=True)
+                                total_seasoninfo = sorted(no_exists, key=lambda x: x.get("season"), reverse=True)
                                 # 总集数
                                 total_count = 0
                                 # 没有季的信息时，取最新季
                                 if not season:
-                                    season = total_seasoninfo[0].get("season_number")
-                                    total_count = total_seasoninfo[0].get("episode_count")
+                                    season = total_seasoninfo[0].get("season")
+                                    total_count = total_seasoninfo[0].get("total_episodes")
                                 # 取当前季的总集数
                                 else:
                                     for seasoninfo in total_seasoninfo:
-                                        if seasoninfo.get("season_number") == season:
-                                            total_count = seasoninfo.get("episode_count")
+                                        if seasoninfo.get("season") == season:
+                                            total_count = seasoninfo.get("total_episodes")
                                             break
                                 if not total_count:
                                     continue

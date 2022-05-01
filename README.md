@@ -37,6 +37,9 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 
 
 ## 更新日志
+2022.5.1
+* 支持不识别重命名直接对目录进行硬链接同步
+
 2022.4.27
 * RSS支持全局优先规则
 * 程序所有设置可通过WEB进行配置
