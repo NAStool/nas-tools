@@ -696,7 +696,7 @@ class MetaInfo(object):
         return self.fanart_image if self.fanart_image else self.poster_path
 
     # 是否包含季
-    def is_in_seasion(self, season):
+    def is_in_season(self, season):
         if isinstance(season, list):
             if self.end_season is not None:
                 meta_season = list(range(self.begin_season, self.end_season + 1))

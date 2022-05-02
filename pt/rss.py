@@ -204,7 +204,7 @@ class Rss:
                         if not left_media:
                             continue
                         for left_season in left_media:
-                            if left_season.get("season") == item.begin_season:
+                            if item.is_in_season(left_season.get("season")):
                                 if left_season.get("episodes"):
                                     update_rss_tv_lack(item.title, item.year, item.get_season_string(), len(left_season.get("episodes")))
                                     break
