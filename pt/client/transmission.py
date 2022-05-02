@@ -19,6 +19,11 @@ class Transmission:
     __movie_save_containerpath = None
     __anime_save_path = None
     __anime_save_containerpath = None
+    # 参考transmission web，仅查询需要的参数，加速种子检索
+    __trarg = ["id", "name", "status", "labels", "hashString", "totalSize", "percentDone", "addedDate", "trackerStats",
+               "leftUntilDone", "rateDownload", "rateUpload", "recheckProgress", "rateDownload", "rateUpload",
+               "peersGettingFromUs", "peersSendingToUs", "uploadRatio", "uploadedEver", "downloadedEver", "downloadDir",
+               "error", "errorString", "doneDate", "queuePosition", "activityDate"]
     trc = None
 
     def __init__(self):
@@ -83,7 +88,7 @@ class Transmission:
             ids = [int(x) for x in ids]
         elif ids:
             ids = int(ids)
-        torrents = self.trc.get_torrents(ids=ids)
+        torrents = self.trc.get_torrents(ids=ids, arguments=self.__trarg)
         if not status:
             return torrents
         else:
