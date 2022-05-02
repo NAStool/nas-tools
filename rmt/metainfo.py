@@ -758,9 +758,9 @@ class MetaInfo(object):
                 self.category = self.category_handler.get_tv_category(info)
             else:
                 self.category = self.category_handler.get_anime_category(info)
-        self.poster_path = "https://image.tmdb.org/t/p/w500%s" % info.get('poster_path')
+        self.poster_path = "https://image.tmdb.org/t/p/w500%s" % info.get('poster_path') if info.get('poster_path') else ""
         self.fanart_image = self.get_fanart_image(self.type, tmdbid=info.get('id'))
-        self.backdrop_path = "https://image.tmdb.org/t/p/w500%s" % info.get('backdrop_path')
+        self.backdrop_path = "https://image.tmdb.org/t/p/w500%s" % info.get('backdrop_path') if info.get('backdrop_path') else ""
 
     # 整合种了信息
     def set_torrent_info(self,
