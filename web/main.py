@@ -1296,13 +1296,24 @@ def create_flask_app(config):
             if cmd == "media_info":
                 tmdbid = data.get("id")
                 mtype = data.get("type")
-                if mtype == "MOV":
+                title = data.get("title")
+                year = data.get("year")
+                doubanid = data.get("doubanid")
+                if mtype in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
                     media_type = MediaType.MOVIE
                 else:
                     media_type = MediaType.TV
-                tmdb_info = Media().get_media_info_manual(media_type, None, None, tmdbid)
+
+                if mtype in ['hm', 'nm']:
+                    link_url = "https://www.themoviedb.org/movie/%s" % tmdbid
+                elif mtype in ['ht', 'nt']:
+                    link_url = "https://www.themoviedb.org/tv/%s" % tmdbid
+                else:
+                    link_url = "https://movie.douban.com/subject/%s" % doubanid
+
+                tmdb_info = Media().get_media_info_manual(media_type, title, year, tmdbid)
                 if not tmdb_info:
-                    return {"code": 1, "retmsg": "无法查询到TMDB信息"}
+                    return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url}
                 if media_type == MediaType.MOVIE:
                     return {
                         "code": 0,
@@ -1311,8 +1322,9 @@ def create_flask_app(config):
                         "vote_average": tmdb_info.get("vote_average"),
                         "poster_path": "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path'),
                         "release_date": tmdb_info.get('release_date'),
-                        "year": tmdb_info.get('release_date')[0:4],
-                        "overview": tmdb_info.get("overview")
+                        "year": tmdb_info.get('release_date')[0:4] if tmdb_info.get('release_date') else "",
+                        "overview": tmdb_info.get("overview"),
+                        "link_url": link_url
                     }
                 else:
                     return {
@@ -1322,8 +1334,9 @@ def create_flask_app(config):
                         "vote_average": tmdb_info.get("vote_average"),
                         "poster_path": "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path'),
                         "first_air_date": tmdb_info.get('first_air_date'),
-                        "year": tmdb_info.get('first_air_date')[0:4],
-                        "overview": tmdb_info.get("overview")
+                        "year": tmdb_info.get('first_air_date')[0:4] if tmdb_info.get('first_air_date') else "",
+                        "overview": tmdb_info.get("overview"),
+                        "link_url": link_url
                     }
 
     # 响应企业微信消息

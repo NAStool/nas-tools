@@ -9,6 +9,7 @@ from utils.meta_helper import MetaHelper
 from utils.types import MediaType, MatchMode
 
 lock = Lock()
+TMDB_CACHE = {}
 
 
 class Media:
@@ -81,7 +82,7 @@ class Media:
         if not self.search:
             return None
         if not file_media_name:
-            log.error("【META】检索关键字有误！")
+            log.error("【META】识别关键字有误！")
             return None
         if language:
             self.tmdb.language = language
@@ -90,7 +91,7 @@ class Media:
         # TMDB检索
         if search_type == MediaType.MOVIE:
             # 先按年份查，不行再不用年份查
-            log.info("【META】正在检索%s：%s, 年份=%s ..." % (search_type.value, file_media_name, xstr(media_year)))
+            log.info("【META】正在识别%s：%s, 年份=%s ..." % (search_type.value, file_media_name, xstr(media_year)))
             try:
                 if media_year:
                     movies = self.search.movies({"query": file_media_name, "year": media_year})
@@ -141,7 +142,7 @@ class Media:
                         search_type.value, info.get('id'), search_type.value, info.get('title'), info.get('release_date')))
         else:
             # 先按年份查，不行再不用年份查
-            log.info("【META】正在检索%s：%s, 年份=%s ..." % (search_type.value, file_media_name, xstr(media_year)))
+            log.info("【META】正在识别%s：%s, 年份=%s ..." % (search_type.value, file_media_name, xstr(media_year)))
             try:
                 if media_year:
                     tvs = self.search.tv_shows({"query": file_media_name, "first_air_date_year": media_year})
@@ -201,9 +202,10 @@ class Media:
     # 给定名称和年份或者TMDB号，查询媒体信息
     def get_media_info_manual(self, mtype, title, year, tmdbid=None):
         if not tmdbid:
-            if not mtype or not title or not year:
+            if not mtype or not title:
                 return None
-            tmdb_info = self.__search_tmdb(title, year, mtype)
+            media_info = self.get_media_info(title="%s %s" % (title, year), mtype=mtype, strict=True)
+            tmdb_info = media_info.tmdb_info
         else:
             if mtype == MediaType.MOVIE:
                 tmdb_info = self.get_tmdb_movie_info(tmdbid)
@@ -413,20 +415,36 @@ class Media:
 
     # 获取电影的详情
     def get_tmdb_movie_info(self, tmdbid):
+        global TMDB_CACHE
         if not self.movie:
             return {}
         try:
-            return self.movie.details(tmdbid)
+            tmdbinfo = TMDB_CACHE.get("MOV:%s" % tmdbid)
+            if tmdbinfo:
+                return tmdbinfo
+            else:
+                log.info("【META】正在查询TMDB：%s ..." % tmdbid)
+                tmdbinfo = self.movie.details(tmdbid)
+                TMDB_CACHE["MOV:%s" % tmdbid] = tmdbinfo
+                return tmdbinfo
         except Exception as e:
             log.console(str(e))
             return {}
 
     # 获取电视剧的详情
     def get_tmdb_tv_info(self, tmdbid):
+        global TMDB_CACHE
         if not self.tv:
             return {}
         try:
-            return self.tv.details(tmdbid)
+            tmdbinfo = TMDB_CACHE.get("TV:%s" % tmdbid)
+            if tmdbinfo:
+                return tmdbinfo
+            else:
+                log.info("【META】正在查询TMDB：%s ..." % tmdbid)
+                tmdbinfo = self.tv.details(tmdbid)
+                TMDB_CACHE["TV:%s" % tmdbid] = tmdbinfo
+                return tmdbinfo
         except Exception as e:
             log.console(str(e))
             return {}

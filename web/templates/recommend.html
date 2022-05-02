@@ -16,7 +16,7 @@
       <div class="col-sm-3 col-lg-2">
         <div class="card card-sm">
           <div class="ribbon ribbon-top ribbon-bookmark {% if item.vote > 8 %} bg-green {% elif item.vote <= 8 and item.vote > 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ item.vote }}</div>
-          <a href="{% if RecommendType in ['hm', 'nm'] %}https://www.themoviedb.org/movie/{{item.id}}{% elif RecommendType in ['ht', 'nt'] %}https://www.themoviedb.org/tv/{{ item.id }}{% else %}https://movie.douban.com/subject/{{ item.id }}{% endif %}" target="_blank" title="{{ item.overview }}" class="d-block"><img src="{{ item.image }}" class="card-img-top"></a>
+          <a href="javascript:{% if RecommendType in ['hm', 'nm', 'ht', 'nt'] %}show_media_info('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '{{ item.id }}', ''){% else %}show_media_info('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '', '{{ item.id }}'){% endif %}" title="{{ item.overview }}" class="d-block"><img src="{{ item.image }}" class="card-img-top"></a>
           <div class="card-body">
             <div class="d-flex align-items-center">
               <div>
@@ -124,6 +124,38 @@
                 确定
               </a></div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-media-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card">
+        <div class="ribbon ribbon-top ribbon-bookmark" id="media_vote"></div>
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-3">
+              <img src="" class="rounded" id="media_poster">
+            </div>
+            <div class="col vtop">
+              <h4 class="card-title mb-3">
+                <a href="#" ><strong id="media_name"></strong></a><br/>
+                <span class="text-muted" id="release_date"></span>
+              </h4>
+              <div class="text-muted" id="media_overview">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex">
+          <a href="#" target="_blank" class="card-btn" id="media_url_btn">
+          查看详情
+          </a>
+          <a href="#" class="card-btn" data-bs-dismiss="modal">
+          关闭
+          </a>
         </div>
       </div>
     </div>
@@ -241,4 +273,24 @@
           remove_rss_key($("#recommend_start_type").val(), $("#recommend_start_name").val(), $("#recommend_start_year").val());
       }
   });
+
+  //显示媒体详情
+  function show_media_info(rtype, name, year, tmdbid, doubanid){
+    $("#modal-wait").modal("show");
+    ajax_post("media_info", {"id": tmdbid, "title": name, "year": year, "type": rtype, "doubanid": doubanid}, function(ret){
+      $("#modal-wait").modal("hide");
+      if(ret.code == 0){
+        $("#media_name").text(ret.title);
+        $("#release_date").text(ret.release_date)
+        $("#media_vote").text(ret.vote_average);
+        $("#media_poster").attr("src", ret.poster_path);
+        $("#media_name").text(ret.title);
+        $("#media_url_btn").attr("href", ret.link_url);
+        $("#media_overview").text(ret.overview);
+        $("#modal-media-modal").modal("show");
+      }else if(ret.code == 1){
+        window.open(ret.link_url);
+      }
+    });
+  }
 </script>
