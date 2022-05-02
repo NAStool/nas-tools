@@ -16,7 +16,7 @@
       <div class="col-sm-3 col-lg-2">
         <div class="card card-sm">
           <div class="ribbon ribbon-top ribbon-bookmark {% if item.vote > 8 %} bg-green {% elif item.vote <= 8 and item.vote > 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ item.vote }}</div>
-          <a href="javascript:{% if RecommendType in ['hm', 'nm', 'ht', 'nt'] %}show_media_info('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '{{ item.id }}', ''){% else %}show_media_info('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '', '{{ item.id }}'){% endif %}" title="{{ item.overview }}" class="d-block"><img src="{{ item.image }}" class="card-img-top"></a>
+          <a href="javascript:{% if RecommendType in ['hm', 'nm', 'ht', 'nt'] %}show_media_info('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '{{ item.id }}', '', '{{ item.vote }}'){% else %}show_media_info('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '', '{{ item.id }}', '{{ item.vote }}'){% endif %}" title="{{ item.overview }}" class="d-block"><img src="{{ item.image }}" class="card-img-top"></a>
           <div class="card-body">
             <div class="d-flex align-items-center">
               <div>
@@ -263,7 +263,7 @@
       $('#recommend-modal').modal('show');
   }
 
-  // 加入RSS订阅模枋框事件
+  // 加入RSS订阅模态框事件
   $("#recommend_start_btn").click(function(){
       $('#recommend-modal').modal('hide');
       var dotype = $("#recommend_do_type").val();
@@ -275,14 +275,21 @@
   });
 
   //显示媒体详情
-  function show_media_info(rtype, name, year, tmdbid, doubanid){
+  function show_media_info(rtype, name, year, tmdbid, doubanid, vote){
     $("#modal-wait").modal("show");
+    $("#media_vote").text(vote);
+    if(parseFloat(vote) > 8){
+      $("#media_vote").removeClass().addClass("ribbon ribbon-top ribbon-bookmark bg-green");
+    }else if(parseFloat(vote) > 6){
+      $("#media_vote").removeClass().addClass("ribbon ribbon-top ribbon-bookmark bg-blue");
+    }else{
+      $("#media_vote").removeClass().addClass("ribbon ribbon-top ribbon-bookmark bg-orange");
+    }
     ajax_post("media_info", {"id": tmdbid, "title": name, "year": year, "type": rtype, "doubanid": doubanid}, function(ret){
       $("#modal-wait").modal("hide");
       if(ret.code == 0){
         $("#media_name").text(ret.title);
         $("#release_date").text(ret.release_date)
-        $("#media_vote").text(ret.vote_average);
         $("#media_poster").attr("src", ret.poster_path);
         $("#media_name").text(ret.title);
         $("#media_url_btn").attr("href", ret.link_url);
