@@ -193,7 +193,7 @@ class Rss:
             for item in download_items:
                 if item.type == MediaType.MOVIE:
                     # 删除电影订阅
-                    delete_rss_movie(item.get("title"), item.get("year"))
+                    delete_rss_movie(item.title, item.year)
                 else:
                     if not left_medias or not left_medias.get(item.get_title_string()):
                         # 删除电视剧订阅
