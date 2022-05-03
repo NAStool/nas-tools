@@ -234,8 +234,8 @@ def check_config(cfg):
         if not ptsignin_cron:
             log.info("ptsignin_cron未配置，PT站签到功能已关闭")
 
-        pt_seeding_time = float(config['pt'].get('pt_seeding_time'))
-        if not pt_seeding_time:
+        pt_seeding_time = config['pt'].get('pt_seeding_time')
+        if not pt_seeding_time or pt_seeding_time == '0':
             log.info("pt_seeding_time未配置，自动删种功能已关闭")
         else:
             log.info("PT保种时间设置为：%s 天" % pt_seeding_time)
