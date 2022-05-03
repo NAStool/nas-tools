@@ -127,7 +127,7 @@ nohup python3 run.py &
 ### 3、群晖套件
 仅适用于dsm6，依赖python3套件。
 
-套件版本不支持自动升级且部分功能无法使用（比如WEB页面进地重启和更新），推荐使用Docker版本。
+套件版本不支持自动升级且部分功能无法使用（比如WEB页面重启和更新），推荐使用Docker版本。
 
 https://github.com/jxxghp/nas-tools/releases
 
