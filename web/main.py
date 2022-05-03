@@ -544,8 +544,8 @@ def create_flask_app(config):
                  'color': color})
 
             # PT删种
-            pt_seeding_config_time = float(pt.get('pt_seeding_time'))
-            if pt_seeding_config_time:
+            pt_seeding_config_time = pt.get('pt_seeding_time')
+            if pt_seeding_config_time and pt_seeding_config_time != '0':
                 pt_seeding_time = "%s 天" % pt_seeding_config_time
                 sta_autoremovetorrents = 'ON'
                 svg = '''
