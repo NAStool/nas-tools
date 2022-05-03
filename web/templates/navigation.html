@@ -409,8 +409,8 @@
           $("#system_confirm_btn").attr("disabled", true);
           $("#system_confirm_btn").text("重启中...");
           ajax_post("restart", {}, function(ret){
-            setTimeout("window.location.reload()", 10000);
           });
+          setTimeout("window.location.reload()", 10000);
         });
         $("#system-confirm-modal").modal("show");
       }
@@ -422,8 +422,8 @@
           $("#system_confirm_btn").attr("disabled", true);
           $("#system_confirm_btn").text("更新中...");
           ajax_post("update_system", {}, function(ret){
-            setTimeout("window.location.reload()", 15000);
           });
+          setTimeout("window.location.reload()", 15000);
         });
         $("#system-confirm-modal").modal("show");
       }
@@ -435,8 +435,8 @@
           $("#system_confirm_btn").attr("disabled", true);
           $("#system_confirm_btn").text("升级中...");
           ajax_post("update_system", {}, function(ret){
-            setTimeout("window.location.reload()", 15000);
           });
+          setTimeout("window.location.reload()", 15000);
         });
         $("#system-confirm-modal").modal("show");
       }
