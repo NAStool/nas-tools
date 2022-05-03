@@ -81,33 +81,30 @@ class DoubanSync:
                                 if not no_exists:
                                     continue
                                 # 按季号降序排序
-                                total_seasoninfo = sorted(no_exists, key=lambda x: x.get("season"), reverse=True)
-                                # 总集数
-                                total_count = 0
+                                no_exists_info = no_exists.get(media.get_title_string())
+                                if not no_exists_info:
+                                    continue
+                                no_exists_info = sorted(no_exists_info, key=lambda x: x.get("season"), reverse=True)
+                                # 总集数、缺失集数
+                                total_count = lack_count = 0
                                 # 没有季的信息时，取最新季
                                 if not season:
-                                    season = total_seasoninfo[0].get("season")
-                                    total_count = total_seasoninfo[0].get("total_episodes")
+                                    total_count = no_exists_info[0].get("total_episodes")
+                                    if no_exists_info[0].get("episodes"):
+                                        lack_count = len(no_exists_info[0].get("episodes"))
+                                    else:
+                                        lack_count = total_count
                                 # 取当前季的总集数
                                 else:
-                                    for seasoninfo in total_seasoninfo:
+                                    for seasoninfo in no_exists_info:
                                         if seasoninfo.get("season") == season:
                                             total_count = seasoninfo.get("total_episodes")
+                                            if seasoninfo.get("episodes"):
+                                                lack_count = len(seasoninfo.get("episodes"))
+                                            else:
+                                                lack_count = total_count
                                             break
                                 if not total_count:
-                                    continue
-                                # 缺失集数
-                                lack_count = total_count
-                                if no_exists and no_exists.get(media.get_title_string()):
-                                    no_exist_items = no_exists.get(media.get_title_string())
-                                    for no_exist_item in no_exist_items:
-                                        if no_exist_item.get("season") == season:
-                                            if no_exist_item.get("episodes"):
-                                                lack_count = len(no_exist_item.get("episodes"))
-                                            break
-                                else:
-                                    lack_count = 0
-                                if not lack_count:
                                     continue
                                 # 登记电视剧订阅
                                 log.info("【DOUBAN】 %s %s 更新到电视剧订阅中..." % (media.get_name(), media.year))
@@ -148,6 +145,7 @@ class DoubanSync:
                             total_seasoninfo = self.media.get_tmdb_seasons_info(tmdbid=media_info.tmdb_id)
                             if not total_seasoninfo:
                                 log.warn("【DOUBAN】%s 获取剧集信息失败，跳过..." % media_info.get_title_string())
+                                continue
                             # 按季号降序排序
                             total_seasoninfo = sorted(total_seasoninfo, key=lambda x: x.get("season_number"),
                                                       reverse=True)

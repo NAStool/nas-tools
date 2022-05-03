@@ -360,6 +360,10 @@
     <script src="../static/js/demo.min.js"></script>
     <script src="../static/js/util.js"></script>
     <script type="text/javascript">
+      //浏览器兼容
+      String.prototype.replaceAll = function (s1, s2) {
+        return this.replace(new RegExp(s1, "gm"), s2)
+      }
       // 检查新版本
       var AppVersion = "{{ AppVersion }}";
       var NewVersion = '';
