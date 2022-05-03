@@ -68,6 +68,14 @@ def create_flask_app(config):
     applog.setLevel(logging.ERROR)
     login_manager.init_app(App)
 
+    def stop_service():
+        # 停止定时服务
+        stop_scheduler()
+        # 停止监控
+        stop_monitor()
+        # 签退
+        logout_user()
+
     def shutdown_server():
         sig = getattr(signal, "SIGKILL", signal.SIGTERM)
         os.kill(os.getpid(), sig)
@@ -536,9 +544,9 @@ def create_flask_app(config):
                  'color': color})
 
             # PT删种
-            pt_seeding_config_time = pt.get('pt_seeding_time')
+            pt_seeding_config_time = float(pt.get('pt_seeding_time'))
             if pt_seeding_config_time:
-                pt_seeding_time = str(round(int(pt_seeding_config_time) / 3600)) + " 小时"
+                pt_seeding_time = "%s 天" % pt_seeding_config_time
                 sta_autoremovetorrents = 'ON'
                 svg = '''
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -1171,25 +1179,17 @@ def create_flask_app(config):
 
             # 重启
             if cmd == "restart":
-                # 停止定时服务
-                stop_scheduler()
-                # 停止监控
-                stop_monitor()
-                # 签退
-                logout_user()
-                # 退出
+                # 停止服务
+                stop_service()
+                # 退出主进程
                 shutdown_server()
 
             # 更新
             if cmd == "update_system":
-                # 停止定时服务
-                stop_scheduler()
-                # 停止监控
-                stop_monitor()
+                # 停止服务
+                stop_service()
                 # 升级
                 call(['git', 'pull'])
-                # 签退
-                logout_user()
                 # 退出主进程
                 shutdown_server()
 

@@ -34,6 +34,7 @@ class Sync(object):
             if sync.get('nas_sys') == "windows":
                 self.__sync_sys = OsType.WINDOWS
             self.__sync_path = sync.get('sync_path')
+            self.init_sync_dirs()
 
     def init_sync_dirs(self):
         self.sync_dir_config = {}
@@ -231,7 +232,6 @@ class Sync(object):
 
     # 启动进程
     def run_service(self):
-        self.init_sync_dirs()
         for monpath in self.sync_dir_config.keys():
             if monpath and os.path.exists(monpath):
                 if self.__sync_sys == OsType.LINUX:
@@ -242,7 +242,7 @@ class Sync(object):
                     observer = PollingObserver()
                 self.__observer.append(observer)
                 observer.schedule(FileMonitorHandler(monpath, self), path=monpath, recursive=True)
-                observer.setDaemon(False)
+                observer.setDaemon(True)
                 observer.start()
                 log.info("【RUN】%s 的monitor.media_sync启动..." % monpath)
 

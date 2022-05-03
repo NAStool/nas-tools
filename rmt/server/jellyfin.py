@@ -14,7 +14,6 @@ class Jellyfin:
 
     def __init__(self):
         self.init_config()
-        self.get_admin_user()
 
     # 初始化配置
     def init_config(self):
@@ -27,6 +26,7 @@ class Jellyfin:
             if not self.__host.endswith('/'):
                 self.__host = self.__host + "/"
             self.__apikey = jellyfin.get('api_key')
+            self.get_admin_user()
 
     # 获取Jellyfin媒体库的信息
     def __get_jellyfin_librarys(self):

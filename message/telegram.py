@@ -20,7 +20,6 @@ class Telegram:
 
     def __init__(self):
         self.init_config()
-        self.set_bot_webhook()
 
     def init_config(self):
         self.__config = Config()
@@ -41,6 +40,7 @@ class Telegram:
                     and message.get('telegram', {}).get('webhook') \
                     and self.__domain:
                 self.__webhook_url = "%stelegram" % self.__domain
+                self.set_bot_webhook()
 
     def get_admin_user(self):
         return str(self.__telegram_chat_id)

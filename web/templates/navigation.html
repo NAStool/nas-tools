@@ -40,7 +40,8 @@
                 </div>
               </a>
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <a href="javascript:restart()" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#restart-modal">重启</a>
+                <a href="javascript:restart()" class="dropdown-item">重启</a>
+                <a href="javascript:update()" class="dropdown-item">更新</a>
                 <a href="javascript:logout()" class="dropdown-item">注销</a>
               </div>
             </div>
@@ -262,7 +263,7 @@
                             </div>
                           </div>
                           <div class="col-auto">
-                            <a href="#" class="list-group-item-actions" data-bs-toggle="modal" data-bs-target="#update-modal" title="升级版本">
+                            <a href="javascript:update_to_newversion()" class="list-group-item-actions" title="升级版本">
                               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-lines" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                  <path d="M9 12h-3.586a1 1 0 0 1 -.707 -1.707l6.586 -6.586a1 1 0 0 1 1.414 0l6.586 6.586a1 1 0 0 1 -.707 1.707h-3.586v3h-6v-3z"></path>
@@ -292,7 +293,8 @@
                 </div>
               </a>
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                <a href="javascript:restart()" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#restart-modal">重启</a>
+                <a href="javascript:restart()" class="dropdown-item">重启</a>
+                <a href="javascript:update()" class="dropdown-item">更新</a>
                 <a href="javascript:logout()" class="dropdown-item">注销</a>
               </div>
             </div>
@@ -328,22 +330,7 @@
         </div>
       </div>
     </div>
-    <div class="modal modal-blur fade" id="restart-modal" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-body">
-            <div class="modal-title">确认提示</div>
-            <div id="service_start_message">是否立即重启系统？</div>
-          </div>
-          <div class="modal-footer">
-            <input type="hidden" id="service_start_id" />
-            <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
-            <button type="button" class="btn btn-danger" id="restart_system_btn">确定</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal modal-blur fade" id="update-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal modal-blur fade" id="system-confirm-modal" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
         <div class="modal-content">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -351,7 +338,7 @@
           <div class="modal-body text-center py-4">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
             <h3>确认提示</h3>
-            <div class="text-muted" id="system_update_message">是否确定升级到 ${VERSION} 版本？</div>
+            <div class="text-muted" id="system_confirm_message">是否确定？</div>
           </div>
           <div class="modal-footer">
             <div class="w-100">
@@ -359,7 +346,7 @@
                 <div class="col"><a href="#" class="btn w-100" data-bs-dismiss="modal">
                     取消
                   </a></div>
-                <div class="col"><button class="btn btn-danger w-100" id="update_system_btn">
+                <div class="col"><button class="btn btn-danger w-100" id="system_confirm_btn">
                     确定
                   </button></div>
               </div>
@@ -374,24 +361,27 @@
     <script src="../static/js/util.js"></script>
     <script type="text/javascript">
       // 检查新版本
-      var AppVersion = "{{ AppVersion }}"
+      var AppVersion = "{{ AppVersion }}";
+      var NewVersion = '';
       function check_new_version(){
           ajax_post("version", {}, function(ret){
             if(ret.code == 0){
               if(ret.version != AppVersion){
                   $("#new_version_tip").show();
                   $("#new_version_info").html(ret.info);
-                  $("#system_update_message").text("是否确定升级到 "+ ret.version +" 版本？");
+                  NewVersion = ret.version;
               }else{
                   $("#new_version_tip").hide();
               }
             }
           });
       }
+
       //关闭加载框
       function hide_process(){
         $("#modal-wait").modal("hide");
       }
+
       //导航点击
       function navmenu(page){
         nid = page.split("?")[0];
@@ -404,11 +394,51 @@
           hide_process();
         });
       }
+
       //注销
       function logout(){
         ajax_post("logout", {}, function(ret){
-          window.location.reload();
+            window.location.reload();
+          });
+      }
+
+      //重启
+      function restart(){
+        $("#system_confirm_message").text("立即重启系统？");
+        $("#system_confirm_btn").click(function(){
+          $("#system_confirm_btn").attr("disabled", true);
+          $("#system_confirm_btn").text("重启中...");
+          ajax_post("restart", {}, function(ret){
+            setTimeout("window.location.reload()", 10000);
+          });
         });
+        $("#system-confirm-modal").modal("show");
+      }
+
+      //更新
+      function update(){
+        $("#system_confirm_message").text("将从Github拉取最新程序代码并重启，是否确认？");
+        $("#system_confirm_btn").click(function(){
+          $("#system_confirm_btn").attr("disabled", true);
+          $("#system_confirm_btn").text("更新中...");
+          ajax_post("update_system", {}, function(ret){
+            setTimeout("window.location.reload()", 15000);
+          });
+        });
+        $("#system-confirm-modal").modal("show");
+      }
+
+      //升级新版本
+      function update_to_newversion(){
+        $("#system_confirm_message").text("是否确认升级到 " + NewVersion + " 版本？");
+        $("#system_confirm_btn").click(function(){
+          $("#system_confirm_btn").attr("disabled", true);
+          $("#system_confirm_btn").text("升级中...");
+          ajax_post("update_system", {}, function(ret){
+            setTimeout("window.location.reload()", 15000);
+          });
+        });
+        $("#system-confirm-modal").modal("show");
       }
 
       //事件
@@ -422,22 +452,9 @@
         }else{
           navmenu("index");
         }
+
         //检查版本升级
         check_new_version();
-        //重启
-        $("#restart_system_btn").click(function(){
-          $("#restart_system_btn").attr("disabled", true);
-          $("#restart_system_btn").text("重启中...");
-          ajax_post("restart", {}, function(ret){});
-          setTimeout("window.location.reload()", 10000);
-        });
-        //升级
-        $("#update_system_btn").click(function(){
-          $("#update_system_btn").attr("disabled", true);
-          $("#update_system_btn").text("升级中...");
-          ajax_post("update_system", {}, function(ret){});
-          setTimeout("window.location.reload()", 15000);
-        });
       });
     </script>
   </body>

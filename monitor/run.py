@@ -1,14 +1,10 @@
-import threading
-
 import log
 from monitor.media_sync import Sync
 
 
 def run_monitor():
     try:
-        monitor = threading.Thread(target=Sync().run_service)
-        monitor.setDaemon(False)
-        monitor.start()
+        Sync().run_service()
     except Exception as err:
         log.error("【RUN】启动monitor失败：%s" % str(err))
 

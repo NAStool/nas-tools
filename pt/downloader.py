@@ -39,17 +39,11 @@ class Downloader:
                 self.__client_type = DownloaderType.TR
             self.__seeding_time = pt.get('pt_seeding_time')
             if self.__seeding_time:
-                if isinstance(self.__seeding_time, str):
-                    if self.__seeding_time.isdigit():
-                        self.__seeding_time = int(self.__seeding_time)
-                    else:
-                        try:
-                            self.__seeding_time = round(float(self.__seeding_time))
-                        except Exception as e:
-                            log.error("【PT】pt.pt_seeding_time 格式错误：%s" % str(e))
-                            self.__seeding_time = 0
-                else:
-                    self.__seeding_time = round(self.__seeding_time)
+                try:
+                    self.__seeding_time = round(float(self.__seeding_time) * 24 * 3600)
+                except Exception as e:
+                    log.error("【PT】pt.pt_seeding_time 格式错误：%s" % str(e))
+                    self.__seeding_time = None
 
     # 添加下载任务
     def add_pt_torrent(self, url, mtype=MediaType.MOVIE):
@@ -81,6 +75,7 @@ class Downloader:
     def pt_removetorrents(self):
         if not self.client:
             return False
+        # 空或0不处理
         if not self.__seeding_time:
             return
         log.info("【PT】开始执行PT做种清理，做种时间：%s..." % str_timelong(self.__seeding_time))

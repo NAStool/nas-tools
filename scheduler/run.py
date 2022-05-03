@@ -1,14 +1,10 @@
-import threading
-
 import log
 from scheduler.scheduler import Scheduler
 
 
 def run_scheduler():
     try:
-        scheduler = threading.Thread(target=Scheduler().run_service)
-        scheduler.setDaemon(False)
-        scheduler.start()
+        Scheduler().run_service()
     except Exception as err:
         log.error("【RUN】启动scheduler失败：%s" % str(err))
 

@@ -1,4 +1,4 @@
-from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.schedulers.background import BackgroundScheduler
 import log
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
     RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_SEARCH_INTERVAL
@@ -21,7 +21,7 @@ class Scheduler:
 
     def __init__(self):
         self.init_config()
-        self.SCHEDULER = BlockingScheduler(timezone="Asia/Shanghai")
+        self.SCHEDULER = BackgroundScheduler(timezone="Asia/Shanghai")
 
     def init_config(self):
         config = Config()
@@ -45,8 +45,8 @@ class Scheduler:
             if ptsignin_cron:
                 if ptsignin_cron.find(':') != -1:
                     try:
-                        hour = int(ptsignin_cron.split(":")[0])
-                        minute = int(ptsignin_cron.split(":")[1])
+                        hour = int(ptsignin_cron.split(":")[0]) or 1
+                        minute = int(ptsignin_cron.split(":")[1]) or 1
                     except Exception as e:
                         log.info("【RUN】pt.ptsignin_cron 格式错误：%s" % str(e))
                         hour = minute = 0
@@ -58,14 +58,14 @@ class Scheduler:
                         log.info("【RUN】scheduler.pt_signin启动...")
                 else:
                     try:
-                        seconds = round(float(ptsignin_cron) * 3600)
+                        hours = float(ptsignin_cron)
                     except Exception as e:
                         log.info("【RUN】pt.ptsignin_cron 格式错误：%s" % str(e))
-                        seconds = 0
-                    if seconds:
+                        hours = 0
+                    if hours:
                         self.SCHEDULER.add_job(PTSignin().run_schedule,
                                                "interval",
-                                               seconds=seconds)
+                                               hours=hours)
                         log.info("【RUN】scheduler.pt_signin启动...")
 
             # PT文件转移
@@ -104,7 +104,7 @@ class Scheduler:
                             log.info("【RUN】scheduler.douban_sync启动失败：%s" % str(e))
                             douban_interval = 0
                 if douban_interval:
-                    self.SCHEDULER.add_job(DoubanSync().run_schedule, 'interval', seconds=round(douban_interval * 3600))
+                    self.SCHEDULER.add_job(DoubanSync().run_schedule, 'interval', hours=douban_interval)
                     log.info("【RUN】scheduler.douban_sync启动...")
 
         # 配置定时生效
@@ -118,6 +118,8 @@ class Scheduler:
 
         # RSS队列中检索
         self.SCHEDULER.add_job(RssSearch().run_schedule, 'interval', seconds=RSS_SEARCH_INTERVAL)
+
+        self.SCHEDULER.print_jobs()
 
         self.SCHEDULER.start()
 

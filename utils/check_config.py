@@ -28,8 +28,6 @@ def check_config(cfg):
         web_port = config['app'].get('web_port')
         if not web_port:
             log.error("web_port未设置")
-        else:
-            log.info("WEB管瑞页面监听端口：%s" % str(web_port))
 
         # 检查登录用户和密码
         login_user = config['app'].get('login_user')
@@ -165,7 +163,7 @@ def check_config(cfg):
                 if sync_path.find('|') != -1:
                     sync_path = sync_path.split("|")[0]
                 if not os.path.exists(sync_path):
-                    log.warn("sync_path目录不存在，目录同步功能已关闭：%s" % sync_path)
+                    log.warn("sync_path目录不存在，该目录同步功能已关闭：%s" % sync_path)
 
         sync_mod = config['sync'].get('sync_mod')
         if sync_mod:
@@ -236,15 +234,15 @@ def check_config(cfg):
         if not ptsignin_cron:
             log.info("ptsignin_cron未配置，PT站签到功能已关闭")
 
-        pt_seeding_time = config['pt'].get('pt_seeding_time')
+        pt_seeding_time = float(config['pt'].get('pt_seeding_time'))
         if not pt_seeding_time:
             log.info("pt_seeding_time未配置，自动删种功能已关闭")
         else:
-            log.info("PT保种时间设置为：%s 小时" % str(round(int(pt_seeding_time) / 3600)))
+            log.info("PT保种时间设置为：%s 天" % pt_seeding_time)
 
         pt_check_interval = config['pt'].get('pt_check_interval')
         if not pt_check_interval:
-            log.info("pt_check_interval未配置，RSS订阅自动更新功能已关闭")
+            log.info("pt_check_interval未配置，RSS订阅功能已关闭")
 
         pt_monitor = config['pt'].get('pt_monitor')
         if not pt_monitor:

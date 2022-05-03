@@ -5,6 +5,7 @@ from rmt.metainfo import MetaInfo
 from rmt.server.jellyfin import Jellyfin
 from scheduler.douban_sync import DoubanSync
 from scheduler.rss_search import RssSearch
+from scheduler.scheduler import Scheduler
 from utils.db_helper import select_by_sql, update_by_sql
 from utils.sqls import get_config_site, get_config_search_rule, insert_transfer_unknown, insert_rss_movie, \
     insert_rss_tv, get_rss_tvs
@@ -100,4 +101,6 @@ if __name__ == "__main__":
     # update_by_sql("DELETE FROM DOUBAN_MEDIAS")
     # DoubanSync().run_schedule()
     # RssSearch().run_schedule()
-    print(MetaInfo('1984.DVDRIP.x264.2020.3D.BluRay.1080p').__dict__)
+    # print(MetaInfo('1984.DVDRIP.x264.2020.3D.BluRay.1080p').__dict__)
+    # meta_info = Media().get_media_info("双城之战 2021")
+    # print(Jellyfin().get_no_exists_episodes(meta_info, 1, 36))
