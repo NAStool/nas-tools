@@ -12,6 +12,9 @@ class RSSDownloader:
         self.rss = Rss()
 
     def run_schedule(self):
+        """
+        运行RSS订阅定时服务
+        """
         try:
             lock.acquire()
             self.rss.rssdownload()

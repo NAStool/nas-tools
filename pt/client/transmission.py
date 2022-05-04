@@ -66,8 +66,11 @@ class Transmission:
             if self.__trhost and self.__trport:
                 self.trc = self.__login_transmission()
 
-    # 连接transmission
     def __login_transmission(self):
+        """
+        连接transmission
+        :return: transmission对象
+        """
         try:
             # 登录
             trt = transmission_rpc.Client(host=self.__trhost,
@@ -80,8 +83,12 @@ class Transmission:
             log.error("【TR】transmission连接出错：%s" % str(err))
             return None
 
-    # 按条件读取种子信息
     def get_torrents(self, ids=None, status=None):
+        """
+        按条件读取种子信息
+        :param ids: ID列表，为空则读取所有
+        :param status: 种子状态过滤，为空则读取所有
+        """
         if not self.trc:
             return []
         if isinstance(ids, list):
@@ -100,20 +107,29 @@ class Transmission:
                     ret_torrents.append(torrent)
             return ret_torrents
 
-    # 读取完成的种子信息
     def get_completed_torrents(self):
+        """
+        读取完成的种子信息
+        :return: 种子信息列表
+        """
         if not self.trc:
             return []
         return self.get_torrents(status=["seeding", "seed_pending"])
 
-    # 读取下载中的种子信息
     def get_downloading_torrents(self):
+        """
+        读取下载中的种子信息
+        :return: 种子信息列表
+        """
         if not self.trc:
             return []
         return self.get_torrents(status=["downloading", "download_pending", "stopped"])
 
-    # 迁移完成后设置种子状态
     def set_torrents_status(self, ids):
+        """
+        迁移完成后设置种子状态，设置标签为已整理
+        :param ids: 种子ID列表
+        """
         if not self.trc:
             return
         if isinstance(ids, list):
@@ -124,8 +140,11 @@ class Transmission:
         self.trc.change_torrent(labels=["已整理"], ids=ids)
         log.info("【TR】设置transmission种子标签成功")
 
-    # 处理transmission中的种子
     def get_transfer_task(self):
+        """
+        查询可以转移的种子列表，用于定时服务调用
+        :return: 种子对应的文件路径清单
+        """
         # 处理所有任务
         torrents = self.get_completed_torrents()
         trans_tasks = []
@@ -150,8 +169,11 @@ class Transmission:
             trans_tasks.append({'path': true_path, 'id': torrent.id})
         return trans_tasks
 
-    # 做种清理
     def get_remove_torrents(self, seeding_time):
+        """
+        查询可以清单的种子
+        :return: 可以清理的种子ID列表
+        """
         torrents = self.get_completed_torrents()
         remove_torrents = []
         for torrent in torrents:
@@ -164,6 +186,11 @@ class Transmission:
         return remove_torrents
 
     def add_torrent(self, turl, mtype):
+        """
+        添加下载
+        :param turl: 种子URL
+        :param mtype: 媒体类型：电影、电视剧或动漫，用于选择下载保存目录
+        """
         if mtype == MediaType.TV:
             return self.trc.add_torrent(torrent=turl, download_dir=self.__tv_save_path)
         elif mtype == MediaType.MOVIE:
@@ -171,8 +198,10 @@ class Transmission:
         else:
             return self.trc.add_torrent(torrent=turl, download_dir=self.__anime_save_path)
 
-    # 下载控制：开始
     def start_torrents(self, ids):
+        """
+        下载控制：开始
+        """
         if not self.trc:
             return False
         if isinstance(ids, list):
@@ -181,8 +210,10 @@ class Transmission:
             ids = int(ids)
         return self.trc.start_torrent(ids=ids)
 
-    # 下载控制：停止
     def stop_torrents(self, ids):
+        """
+        下载控制：停止
+        """
         if not self.trc:
             return False
         if isinstance(ids, list):
@@ -192,6 +223,9 @@ class Transmission:
         return self.trc.stop_torrent(ids=ids)
 
     def delete_torrents(self, delete_file, ids):
+        """
+        删除种子
+        """
         if not self.trc:
             return False
         if isinstance(ids, list):

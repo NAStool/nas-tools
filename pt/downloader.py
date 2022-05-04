@@ -45,8 +45,12 @@ class Downloader:
                     log.error("【PT】pt.pt_seeding_time 格式错误：%s" % str(e))
                     self.__seeding_time = None
 
-    # 添加下载任务
     def add_pt_torrent(self, url, mtype=MediaType.MOVIE):
+        """
+        添加PT下载任务，根据当前使用的下载器分别调用不同的客户端处理
+        :param url: 种子地址
+        :param mtype: 媒体类型，电影、电视剧、动漫
+        """
         ret = None
         if self.client:
             try:
@@ -57,8 +61,10 @@ class Downloader:
                 log.error("【PT】添加PT任务出错：" + str(e))
         return ret
 
-    # 转移PT下载文人年
     def pt_transfer(self):
+        """
+        转移PT下载完成的文件，进行文件识别重命名到媒体库目录
+        """
         if self.client:
             log.info("【PT】开始转移文件...")
             trans_tasks = self.client.get_transfer_task()
@@ -71,8 +77,10 @@ class Downloader:
                     self.client.set_torrents_status(task.get("id"))
             log.info("【PT】文件转移结束")
 
-    # 做种清理
     def pt_removetorrents(self):
+        """
+        做种清理，保种时间为空或0时，不进行清理操作
+        """
         if not self.client:
             return False
         # 空或0不处理
@@ -84,40 +92,64 @@ class Downloader:
             self.delete_torrents(torrent)
         log.info("【PT】PT做种清理完成")
 
-    # 正在下载
     def pt_downloading_torrents(self):
+        """
+        查询正在下载中的种子信息
+        :return: 客户端类型，下载中的种子信息列表
+        """
         if not self.client:
             return []
         return self.__client_type, self.client.get_downloading_torrents()
 
-    # 获取种子列表信息
     def get_pt_torrents(self, torrent_ids=None, status_filter=None):
+        """
+        根据ID或状态查询下载器中的种子信息
+        :param torrent_ids: 种子ID列表
+        :param status_filter: 种子状态
+        :return: 客户端类型，种子信息列表
+        """
         if not self.client:
             return None, []
         return self.__client_type, self.client.get_torrents(ids=torrent_ids, status=status_filter)
 
-    # 下载控制：开始
     def start_torrents(self, ids):
+        """
+        下载控制：开始
+        :param ids: 种子ID列表
+        :return: 处理状态
+        """
         if not self.client:
             return False
         return self.client.start_torrents(ids)
 
-    # 下载控制：停止
     def stop_torrents(self, ids):
+        """
+        下载控制：停止
+        :param ids: 种子ID列表
+        :return: 处理状态
+        """
         if not self.client:
             return False
         return self.client.stop_torrents(ids)
 
-    # 下载控制：删除
     def delete_torrents(self, ids):
+        """
+        删除种子
+        :param ids: 种子ID列表
+        :return: 处理状态
+        """
         if not self.client:
             return False
         return self.client.delete_torrents(delete_file=True, ids=ids)
 
-    # 检查是否存在决定是否添加下载
-    # 输入：需要检查下载的媒体列表，缺失的季集
-    # 返回：下载了的媒体信息、剩余没下载的季集
     def check_and_add_pt(self, in_from, media_list, need_tvs=None):
+        """
+        根据命中的种子媒体信息，添加下载，由RSS或Searcher调用
+        :param in_from: 来源
+        :param media_list: 命中并已经识别好的媒体信息列表，包括名称、年份、季、集等信息
+        :param need_tvs: 缺失的剧集清单，对于剧集只有在该清单中的季和集才会下载，对于电影无需输入该参数
+        :return: 已经添加了下载的媒体信息表表、剩余未下载到的媒体信息
+        """
         download_items = []
         # 返回按季、集数倒序排序的列表
         download_list = self.__get_download_list(media_list)
@@ -204,10 +236,13 @@ class Downloader:
         # 返回下载的资源，剩下没下完的
         return return_items, need_tvs
 
-    # 检查控重
-    # 输入：媒体信息，需要补充的缺失季集信息
-    # 返回：当前媒体是否缺失，总的季集和缺失的季集，需要发送的消息
     def check_exists_medias(self, meta_info, no_exists=None):
+        """
+        检查媒体库，查询是否存在，对于剧集同时返回不存在的季集信息
+        :param meta_info: 已识别的媒体信息，包括标题、年份、季、集信息
+        :param no_exists: 在调用该方法前已经存储的不存在的季集信息，有传入时该函数检索的内容将会叠加后输出
+        :return: 当前媒体是否缺失，各标题总的季集和缺失的季集，需要发送的消息
+        """
         if not no_exists:
             no_exists = {}
         # 查找的季
@@ -319,9 +354,11 @@ class Downloader:
                 return True, None, message_list
             return False, None, message_list
 
-    # 排序、去重 选种
     @staticmethod
     def __get_download_list(media_list):
+        """
+        对媒体信息进行排序、去重
+        """
         if not media_list:
             return []
 

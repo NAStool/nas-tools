@@ -13,6 +13,9 @@ class RssSearch:
         self.rss = Rss()
 
     def run_schedule(self):
+        """
+        运行RSS队列中资源检索定时服务
+        """
         try:
             lock.acquire()
             self.rss.rsssearch()

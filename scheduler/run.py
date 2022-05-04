@@ -3,6 +3,9 @@ from scheduler.scheduler import Scheduler
 
 
 def run_scheduler():
+    """
+    启动定时服务
+    """
     try:
         Scheduler().run_service()
     except Exception as err:
@@ -10,6 +13,9 @@ def run_scheduler():
 
 
 def stop_scheduler():
+    """
+    停止定时服务
+    """
     try:
         Scheduler().stop_service()
     except Exception as err:
@@ -17,5 +23,8 @@ def stop_scheduler():
 
 
 def restart_scheduler():
+    """
+    重启定时服务
+    """
     stop_scheduler()
     run_scheduler()

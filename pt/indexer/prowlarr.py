@@ -41,8 +41,17 @@ class Prowlarr:
                 else:
                     self.__res_type = None
 
-    # 根据关键字调用 prowlarr API 检索
     def search_by_keyword(self, key_word, s_num, e_num, year, mtype, whole_word=False):
+        """
+        根据关键字调用 prowlarr API 检索
+        :param key_word: 检索的关键字，不能为空
+        :param s_num: 季号，为空则不过滤
+        :param e_num: 集号，为空则不过滤
+        :param year: 年份，为空则不过滤
+        :param mtype: 类型：电影、电视剧、动漫
+        :param whole_word: 是否完全匹配，为True时只有标题完全一致时才命中
+        :return: 命中的资源媒体信息列表
+        """
         if not key_word:
             return []
         if not self.__api_key or not self.__host:
@@ -142,9 +151,13 @@ class Prowlarr:
         log.info("【PROWLARR】共检索到 %s 条有效资源" % index_sucess)
         return ret_array
 
-    # 解析PROWLARR的XML，返回标题及URL等
     @staticmethod
     def parse_prowlarrjson(url):
+        """
+        解析Prowlarr返回的Json
+        :param url: URL地址
+        :return: 解析出来的种子信息列表
+        """
         ret_array = []
         if not url:
             return ret_array

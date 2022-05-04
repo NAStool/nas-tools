@@ -15,7 +15,6 @@ class Jellyfin:
     def __init__(self):
         self.init_config()
 
-    # 初始化配置
     def init_config(self):
         config = Config()
         jellyfin = config.get_config('jellyfin')
@@ -28,8 +27,10 @@ class Jellyfin:
             self.__apikey = jellyfin.get('api_key')
             self.get_admin_user()
 
-    # 获取Jellyfin媒体库的信息
     def __get_jellyfin_librarys(self):
+        """
+        获取Jellyfin媒体库的信息
+        """
         if not self.__host or not self.__apikey:
             return []
         req_url = "%sLibrary/MediaFolders?api_key=%s" % (self.__host, self.__apikey)
@@ -44,8 +45,10 @@ class Jellyfin:
             log.error("【JELLYFIN】连接Library/MediaFolders 出错：" + str(e))
             return []
 
-    # 获得用户数量
     def get_user_count(self):
+        """
+        获得用户数量
+        """
         if not self.__host or not self.__apikey:
             return 0
         req_url = "%sUsers?api_key=%s" % (self.__host, self.__apikey)
@@ -60,8 +63,10 @@ class Jellyfin:
             log.error("【JELLYFIN】连接Users出错：" + str(e))
             return 0
 
-    # 获得管理员用户
     def get_admin_user(self):
+        """
+        获得管理员用户
+        """
         if not self.__host or not self.__apikey:
             return
         req_url = "%sUsers?api_key=%s" % (self.__host, self.__apikey)
@@ -78,8 +83,10 @@ class Jellyfin:
         except Exception as e:
             log.error("【JELLYFIN】连接Users出错：" + str(e))
 
-    # 获取Jellyfin活动记录
     def get_activity_log(self, num):
+        """
+        获取Jellyfin活动记录
+        """
         if not self.__host or not self.__apikey:
             return []
         req_url = "%sSystem/ActivityLog/Entries?api_key=%s&Limit=%s" % (self.__host, self.__apikey, num)
@@ -109,8 +116,11 @@ class Jellyfin:
             return []
         return ret_array
 
-    # 获得媒体数量
     def get_medias_count(self):
+        """
+        获得电影、电视剧、动漫媒体数量
+        :return: MovieCount SeriesCount SongCount
+        """
         if not self.__host or not self.__apikey:
             return None
         req_url = "%sItems/Counts?api_key=%s" % (self.__host, self.__apikey)
@@ -125,8 +135,10 @@ class Jellyfin:
             log.error("【JELLYFIN】连接Items/Counts出错：" + str(e))
             return {}
 
-    # 根据名称查询Jellyfin中剧集的SeriesId
     def __get_jellyfin_series_id_by_name(self, name, year):
+        """
+        根据名称查询Jellyfin中剧集的SeriesId
+        """
         if not self.__host or not self.__apikey or not self.__user:
             return None
         req_url = "%sUsers/%s/Items?api_key=%s&searchTerm=%s&IncludeItemTypes=Series&Limit=10&Recursive=true" % (
@@ -145,8 +157,10 @@ class Jellyfin:
             return None
         return None
 
-    # 根据名称查询Jellyfin中剧集和季对应季的Id
     def __get_jellyfin_season_id_by_name(self, name, year, season):
+        """
+        根据名称查询Jellyfin中剧集和季对应季的Id
+        """
         if not self.__host or not self.__apikey or not self.__user:
             return None, None
         series_id = self.__get_jellyfin_series_id_by_name(name, year)
@@ -169,8 +183,13 @@ class Jellyfin:
             return None, None
         return None, None
 
-    # 根据标题和年份，检查电影是否在Jellyfin中存在，存在则返回列表
     def get_movies(self, title, year=None):
+        """
+        根据标题和年份，检查电影是否在Jellyfin中存在，存在则返回列表
+        :param title: 标题
+        :param year: 年份，为空则不过滤
+        :return: 含title、year属性的字典列表
+        """
         if not self.__host or not self.__apikey or not self.__user:
             return None
         req_url = "%sUsers/%s/Items?api_key=%s&searchTerm=%s&IncludeItemTypes=Movie&Limit=10&Recursive=true" % (
@@ -192,8 +211,13 @@ class Jellyfin:
             return []
         return []
 
-    # 根据标题和年份和季，返回Jellyfin中的剧集列表
     def __get_jellyfin_tv_episodes(self, title, year=None, season=None):
+        """
+        根据标题和年份和季，返回Jellyfin中的剧集列表
+        :param title: 标题
+        :param year: 年份，可以为空，为空时不按年份过滤
+        :return: 集号的列表
+        """
         if not self.__host or not self.__apikey or not self.__user:
             return []
         # 电视剧
@@ -214,16 +238,27 @@ class Jellyfin:
             log.error("【JELLYFIN】连接Shows/{Id}/Episodes出错：" + str(e))
             return []
 
-    # 根据标题、年份、季、总集数，查询Jellyfin中缺少哪几集
     def get_no_exists_episodes(self, meta_info, season, total_num):
+        """
+        根据标题、年份、季、总集数，查询Jellyfin中缺少哪几集
+        :param meta_info: 已识别的需要查询的媒体信息
+        :param season: 季号，数字
+        :param total_num: 该季的总集数
+        :return: 该季不存在的集号列表
+        """
         if not self.__host or not self.__apikey:
             return None
         exists_episodes = self.__get_jellyfin_tv_episodes(meta_info.title, meta_info.year, season) or []
         total_episodes = [episode for episode in range(1, total_num + 1)]
         return list(set(total_episodes).difference(set(exists_episodes)))
 
-    # 根据ItemId从Jellyfin查询图片地址
     def get_image_by_id(self, item_id, image_type):
+        """
+        根据ItemId从Jellyfin查询图片地址
+        :param item_id: 在Emby中的ID
+        :param image_type: 图片的类弄地，poster或者backdrop等
+        :return: 图片对应在TMDB中的URL
+        """
         if not self.__host or not self.__apikey:
             return None
         req_url = "%sItems/%s/RemoteImages?api_key=%s" % (self.__host, item_id, self.__apikey)
@@ -242,8 +277,10 @@ class Jellyfin:
             return None
         return None
 
-    # 通知Jellyfin刷新整个媒体库
     def refresh_root_library(self):
+        """
+        通知Jellyfin刷新整个媒体库
+        """
         if not self.__host or not self.__apikey:
             return False
         req_url = "%sLibrary/Refresh?api_key=%s" % (self.__host, self.__apikey)
@@ -255,8 +292,11 @@ class Jellyfin:
             log.error("【JELLYFIN】连接Library/Refresh出错：" + str(e))
             return False
 
-    # 按类型、名称、年份来刷新媒体库
     def refresh_library_by_items(self, items):
+        """
+        按类型、名称、年份来刷新媒体库，Jellyfin没有刷单个项目的API，这里直接刷新整库
+        :param items: 已识别的需要刷新媒体库的媒体信息列表
+        """
         # 没找到单项目刷新的对应的API，先按全库刷新
         if not items:
             return False
@@ -264,8 +304,11 @@ class Jellyfin:
             return False
         return self.refresh_root_library()
 
-    # 根据媒体信息查询在哪个媒体库，返回要刷新的位置的ID
     def __get_jellyfin_library_id_by_item(self, item):
+        """
+        根据媒体信息查询在哪个媒体库，返回要刷新的位置的ID
+        :param item: 由title、year、type组成的字典
+        """
         if not item.get("title") or not item.get("year") or not item.get("type"):
             return None
         if item.get("type") == MediaType.TV:

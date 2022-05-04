@@ -31,9 +31,13 @@ class WeChat(object):
             self.__corpsecret = message.get('wechat', {}).get('corpsecret')
             self.__agent_id = message.get('wechat', {}).get('agentid')
         if self.__corpid and self.__corpsecret and self.__agent_id:
-            self.get_access_token()
+            self.__get_access_token()
 
-    def get_access_token(self):
+    def __get_access_token(self):
+        """
+        获取微信Token
+        :return： 微信Token
+        """
         token_flag = True
         if not self.__access_token:
             token_flag = False
@@ -60,8 +64,14 @@ class WeChat(object):
                 return None
         return self.__access_token
 
-    # 发送文本消息
-    def send_message(self, title, text, user_id):
+    def __send_message(self, title, text, user_id):
+        """
+        发送文本消息
+        :param title: 消息标题
+        :param text: 消息内容
+        :param user_id: 消息发送对象的ID，为空则发给所有人
+        :return: 发送状态，错误信息
+        """
         message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.get_access_token()
         if not self.__agent_id:
             return False, "参数未配置"
@@ -96,8 +106,16 @@ class WeChat(object):
         except Exception as err:
             return False, str(err)
 
-    # 发送图文消息
-    def send_image_message(self, title, text, image_url, url, user_id):
+    def __send_image_message(self, title, text, image_url, url, user_id):
+        """
+        发送图文消息
+        :param title: 消息标题
+        :param text: 消息内容
+        :param image_url: 图片地址
+        :param url: 点击消息跳转URL
+        :param user_id: 消息发送对象的ID，为空则发给所有人
+        :return: 发送状态，错误信息
+        """
         message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.get_access_token()
         if not self.__agent_id:
             return False, "参数未配置"
@@ -135,10 +153,19 @@ class WeChat(object):
             return False, str(err)
 
     def send_wechat_msg(self, title, text, image, url, user_id):
+        """
+        微信消息发送入口，支持文本、图片、链接跳转、指定发送对象
+        :param title: 消息标题
+        :param text: 消息内容
+        :param image: 图片地址
+        :param url: 点击消息跳转URL
+        :param user_id: 消息发送对象的ID，为空则发给所有人
+        :return: 发送状态，错误信息
+        """
         if not title and not text:
             return -1, "标题和内容不能同时为空"
         if image:
-            ret_code, ret_msg = self.send_image_message(title, text, image, url, user_id)
+            ret_code, ret_msg = self.__send_image_message(title, text, image, url, user_id)
         else:
-            ret_code, ret_msg = self.send_message(title, text, user_id)
+            ret_code, ret_msg = self.__send_message(title, text, user_id)
         return ret_code, ret_msg

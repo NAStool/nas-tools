@@ -13,6 +13,9 @@ class PTTransfer:
         self.downloader = Downloader()
 
     def run_schedule(self):
+        """
+        运行PT下载文件转移定时服务
+        """
         try:
             lock.acquire()
             if self.downloader:

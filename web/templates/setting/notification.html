@@ -77,19 +77,19 @@
           <div class="col-lg-4">
             <div class="mb-3">
               <label class="form-label required">企业ID</label>
-              <input type="text" value="{{ Config.message.wechat.corpid or '' }}" id="corpid" class="form-control">
+              <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.corpid or '' }}{% endif %}" id="corpid" class="form-control">
             </div>
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
               <label class="form-label required">Secret</label>
-              <input type="text" value="{{ Config.message.wechat.corpsecret or '' }}" id="corpsecret" class="form-control">
+              <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.corpsecret or '' }}{% endif %}" id="corpsecret" class="form-control">
             </div>
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
               <label class="form-label required">AgentId</label>
-              <input type="text" value="{{ Config.message.wechat.agentid or '' }}" id="agentid" class="form-control">
+              <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.agentid or '' }}{% endif %}" id="agentid" class="form-control">
             </div>
           </div>
         </div>
@@ -99,13 +99,13 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label">Token</label>
-              <input type="text" value="{{ Config.message.wechat.Token or '' }}" id="Token" class="form-control">
+              <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.Token or '' }}{% endif %}" id="Token" class="form-control">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label">EncodingAESKey</label>
-              <input type="text" value="{{ Config.message.wechat.EncodingAESKey or '' }}" id="EncodingAESKey" class="form-control">
+              <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.EncodingAESKey or '' }}{% endif %}" id="EncodingAESKey" class="form-control">
             </div>
           </div>
         </div>
@@ -128,13 +128,13 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">Bot Token</label>
-              <input type="text" value="{{ Config.message.telegram.telegram_token or '' }}" id="telegram_token" class="form-control">
+              <input type="text" value="{% if Config.message.telegram %}{{ Config.message.telegram.telegram_token or '' }}{% endif %}" id="telegram_token" class="form-control">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">Chat Id</label>
-              <input type="text" value="{{ Config.message.telegram.telegram_chat_id or '' }}" id="telegram_chat_id" class="form-control">
+              <input type="text" value="{% if Config.message.telegram %}{{ Config.message.telegram.telegram_chat_id or '' }}{% endif %}" id="telegram_chat_id" class="form-control">
             </div>
           </div>
         </div>
@@ -169,7 +169,7 @@
           <div class="col-lg-12">
             <div class="mb-3">
               <label class="form-label required">SCKEY</label>
-              <input type="text" value="{{ Config.message.serverchan.sckey or '' }}" id="sckey" class="form-control">
+              <input type="text" value="{% if Config.message.serverchan %}{{ Config.message.serverchan.sckey or '' }}{% endif %}" id="sckey" class="form-control">
             </div>
           </div>
         </div>
@@ -192,13 +192,13 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">Server</label>
-              <input type="text" value="{{ Config.message.bark.server or '' }}" id="server" class="form-control" placeholder="https://api.day.app">
+              <input type="text" value="{% if Config.message.bark %}{{ Config.message.bark.server or '' }}{% endif %}" id="server" class="form-control" placeholder="https://api.day.app">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">Api Key</label>
-              <input type="text" value="{{ Config.message.bark.apikey or '' }}" id="apikey" class="form-control">
+              <input type="text" value="{% if Config.message.bark %}{{ Config.message.bark.apikey or '' }}{% endif %}" id="apikey" class="form-control">
             </div>
           </div>
         </div>

@@ -4,9 +4,15 @@ from utils.types import MediaType
 
 class Torrent:
 
-    # 种子大小匹配
     @staticmethod
     def is_torrent_match_size(media_info, types, t_size):
+        """
+        判断种子大子是否与配置匹配，只针对电影
+        :param media_info: 已识别好的种子媒体信息
+        :param types: 配置中的过滤规则
+        :param t_size: 种子大小
+        :return: 是否命中
+        """
         if media_info.type != MediaType.MOVIE:
             return True
         if not isinstance(types, dict):
@@ -35,9 +41,16 @@ class Torrent:
                     return False
         return True
 
-    # 种子名称关键字匹配
     @staticmethod
     def is_torrent_match_sey(media_info, s_num, e_num, year_str):
+        """
+        种子名称关键字匹配
+        :param media_info: 已识别的种子信息
+        :param s_num: 要匹配的季号，为空则不匹配
+        :param e_num: 要匹配的集号，为空则不匹配
+        :param year_str: 要匹配的年份，为空则不匹配
+        :return: 是否命中
+        """
         if s_num:
             if not isinstance(s_num, list):
                 s_num = [s_num]
@@ -53,10 +66,15 @@ class Torrent:
                 return False
         return True
 
-    # 检查种子是否匹配资源类型
-    # 返回：是否匹配，匹配的优先值
     @staticmethod
     def check_resouce_types(title, subtitle, types):
+        """
+        检查种子是否匹配过滤规则：排除规则、包含规则，优先规则
+        :param title: 种子标题
+        :param subtitle: 种子副标题
+        :param types: 配置文件中的配置规则
+        :return: 是否匹配，匹配的优先值，值越大越优先
+        """
         if not types:
             # 未配置默认不过滤
             return True, 0

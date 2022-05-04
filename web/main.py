@@ -50,8 +50,10 @@ login_manager = LoginManager()
 login_manager.login_view = "login"
 
 
-# Flask实例
 def create_flask_app(config):
+    """
+    创建Flask实例，定时前端WEB的所有请求接口及页面访问
+    """
     app_cfg = config.get_config('app') or {}
     admin_user = app_cfg.get('login_user') or "admin"
     admin_password = app_cfg.get('login_password') or "password"
@@ -69,6 +71,9 @@ def create_flask_app(config):
     login_manager.init_app(App)
 
     def stop_service():
+        """
+        停止所有服务
+        """
         # 停止定时服务
         stop_scheduler()
         # 停止监控
@@ -77,43 +82,59 @@ def create_flask_app(config):
         logout_user()
 
     def shutdown_server():
+        """
+        停卡Flask进程
+        """
         sig = getattr(signal, "SIGKILL", signal.SIGTERM)
         os.kill(os.getpid(), sig)
 
     @App.after_request
     def add_header(r):
+        """
+        统一添加Http头，标用缓存，避免Flask多线程+Chrome内核会发生的静态资源加载出错的问题
+        """
         r.headers["Cache-Control"] = "no-cache, no-store, max-age=0"
         r.headers["Pragma"] = "no-cache"
         r.headers["Expires"] = "0"
         return r
 
-    # 根据用户名获得用户记录
     def get_user(user_name):
+        """
+        根据用户名获得用户记录
+        """
         for user in USERS:
             if user.get("name") == user_name:
                 return user
         return None
 
-    # 用户类
     class User(UserMixin):
+        """
+        用户
+        """
         def __init__(self, user):
             self.username = user.get('name')
             self.password_hash = user.get('password')
             self.id = 1
 
-        # 密码验证
         def verify_password(self, password):
+            """
+            验证密码
+            """
             if self.password_hash is None:
                 return False
             return check_password_hash(self.password_hash, password)
 
-        # 获取用户ID
         def get_id(self):
+            """
+            获取用户ID
+            """
             return self.id
 
-        # 根据用户ID获取用户实体，为 login_user 方法提供支持
         @staticmethod
         def get(user_id):
+            """
+            根据用户ID获取用户实体，为 login_user 方法提供支持
+            """
             if not user_id:
                 return None
             for user in USERS:
@@ -126,10 +147,12 @@ def create_flask_app(config):
     def load_user(user_id):
         return User.get(user_id)
 
+    # 页面不存在
     @App.errorhandler(404)
     def page_not_found(error):
         return render_template("404.html", error=error), 404
 
+    # 服务错误
     @App.errorhandler(500)
     def page_server_error(error):
         return render_template("500.html", error=error), 500
@@ -1392,9 +1415,9 @@ def create_flask_app(config):
     # Emby消息通知
     @App.route('/jellyfin', methods=['POST'])
     @App.route('/emby', methods=['POST'])
-    def emby():
+    def webhook():
         request_json = json.loads(request.form.get('data', {}))
-        # log.debug("输入报文：" + str(request_json))
+        # print(str(request_json))
         event = WebhookEvent(request_json)
         event.report_to_discord()
         return 'Success'

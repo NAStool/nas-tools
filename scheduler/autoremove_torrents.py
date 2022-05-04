@@ -13,6 +13,9 @@ class AutoRemoveTorrents:
         self.downloader = Downloader()
 
     def run_schedule(self):
+        """
+        运行自动删除定时服务
+        """
         try:
             lock.acquire()
             if self.downloader:

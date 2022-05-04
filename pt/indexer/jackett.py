@@ -44,8 +44,17 @@ class Jackett:
                 else:
                     self.__res_type = None
 
-    # 根据关键字调用 Jackett API 检索
     def search_by_keyword(self, key_word, s_num, e_num, year, mtype, whole_word):
+        """
+        根据关键字调用 Jackett API 检索
+        :param key_word: 检索的关键字，不能为空
+        :param s_num: 季号，为空则不过滤
+        :param e_num: 集号，为空则不过滤
+        :param year: 年份，为空则不过滤
+        :param mtype: 类型：电影、电视剧、动漫
+        :param whole_word: 是否完全匹配，为True时只有标题完全一致时才命中
+        :return: 命中的资源媒体信息列表
+        """
         if not key_word:
             return []
         if not self.__api_key or not self.__indexers:
@@ -69,8 +78,19 @@ class Jackett:
         log.info("【JACKETT】所有API检索完成，有效资源数：%s" % len(ret_array))
         return ret_array
 
-    # 检索一个Indexer
     def search(self, order_seq, index, key_word, s_num, e_num, year, mtype, whole_word=False):
+        """
+        根据关键字多线程检索一个Jackett的Feed
+        :param order_seq: Feed的优先级
+        :param index: Feed的地址，同时用于提取名称
+        :param key_word: 检索的关键字，不能为空
+        :param s_num: 季号，为空则不过滤
+        :param e_num: 集号，为空则不过滤
+        :param year: 年份，为空则不过滤
+        :param mtype: 类型：电影、电视剧、动漫
+        :param whole_word: 是否完全匹配，为True时只有标题完全一致时才命中
+        :return: 命中的资源媒体信息列表
+        """
         if not index or not key_word:
             return None
         ret_array = []
@@ -169,9 +189,13 @@ class Jackett:
         log.info("【JACKETT】%s 共检索到 %s 条有效资源" % (indexer_name, index_sucess))
         return ret_array
 
-    # 解析Jackett的XML，返回标题及URL等
     @staticmethod
     def parse_jackettxml(url):
+        """
+        解析Jackett返回的XML
+        :param url: URL地址
+        :return: 解析出来的种子信息列表
+        """
         ret_array = []
         if not url:
             return ret_array

@@ -42,8 +42,16 @@ class Message:
     def get_webhook_ignore(self):
         return self.__webhook_ignore or []
 
-    # 通用消息发送
     def sendmsg(self, title, text="", image="", url="", user_id=""):
+        """
+        通用消息发送
+        :param title: 消息标题
+        :param text: 消息内容
+        :param image: 图片URL
+        :param url: 消息跳转地址
+        :param user_id: 用户ID，如有则只发给这个用户
+        :return: 发送状态、错误信息
+        """
         log.info("【MSG】发送%s消息：title=%s, text=%s" % (self.__msg_channel, title, text))
         if self.__domain:
             if url:
@@ -63,8 +71,17 @@ class Message:
         else:
             return None
 
-    # 按渠道发送消息
     def send_channel_msg(self, channel, title, text="", image="", url="", user_id=""):
+        """
+        按渠道发送消息
+        :param channel: 消息渠道
+        :param title: 消息标题
+        :param text: 消息内容
+        :param image: 图片URL
+        :param url: 消息跳转地址
+        :param user_id: 用户ID，如有则只发给这个用户
+        :return: 发送状态、错误信息
+        """
         if self.__domain:
             if url:
                 url = "%s?next=%s" % (self.__domain, url)
@@ -77,8 +94,13 @@ class Message:
         elif channel == SearchType.WX:
             return self.wechat.send_wechat_msg(title, text, image, url, user_id)
 
-    # 发送下载的消息
     def send_download_message(self, in_from, can_item):
+        """
+        发送下载的消息
+        :param in_from: 下载来源
+        :param can_item: 下载的媒体信息
+        :return: 发送状态、错误信息
+        """
         msg_title = can_item.get_title_vote_string()
         msg_text = f"{in_from.value}的{can_item.type.value} {can_item.get_title_string()}{can_item.get_season_episode_string()} 已开始下载"
         if can_item.site:
@@ -100,8 +122,15 @@ class Message:
             msg_text = f"{msg_text}\n描述：{can_item.description}"
         self.sendmsg(title=msg_title, text=msg_text, image=can_item.get_message_image(), url='download')
 
-    # 发送转移电影的消息
     def send_transfer_movie_message(self, in_from, media_info, exist_filenum, category_flag):
+        """
+        发送转移电影的消息
+        :param in_from: 转移来源
+        :param media_info: 转移的媒体信息
+        :param exist_filenum: 已存在的文件数
+        :param category_flag: 二级分类开关
+        :return: 发送状态、错误信息
+        """
         msg_title = f"{media_info.get_title_string()} 转移完成"
         if media_info.vote_average:
             msg_str = f"{media_info.get_vote_string()}，类型：电影"

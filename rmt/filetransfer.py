@@ -122,8 +122,13 @@ class FileTransfer:
             else:
                 self.__pt_rmt_mode = RmtMode.COPY
 
-    # 使用系统命令处理单个文件
     def __transfer_command(self, file_item, target_file, rmt_mode):
+        """
+        使用系统命令处理单个文件
+        :param file_item: 文件路径
+        :param target_file: 目标文件路径
+        :param rmt_mode: RmtMode转移方式
+        """
         try:
             lock.acquire()
             if self.__system == OsType.WINDOWS:
@@ -144,8 +149,13 @@ class FileTransfer:
             lock.release()
         return retcode
 
-    # 根据文件名转移对应字幕文件
     def __transfer_subtitles(self, org_name, new_name, rmt_mode):
+        """
+        根据文件名转移对应字幕文件
+        :param org_name: 原文件名
+        :param new_name: 新文件名
+        :param rmt_mode: RmtMode转移方式
+        """
         dir_name = os.path.dirname(org_name)
         file_name = os.path.basename(org_name)
         file_list = get_dir_files_by_ext(dir_name, RMT_SUBEXT)
@@ -178,8 +188,13 @@ class FileTransfer:
                 log.debug("【RMT】没有相同文件名的字幕文件，不处理")
         return True
 
-    # 转移蓝光文件夹
     def __transfer_bluray_dir(self, file_path, new_path, rmt_mode):
+        """
+        转移蓝光文件夹
+        :param file_path: 原路径
+        :param new_path: 新路径
+        :param rmt_mode: RmtMode转移方式
+        """
         log.info("【RMT】正在%s目录：%s 到 %s" % (rmt_mode.value, file_path, new_path))
         # 复制
         retcode = self.__transfer_dir_files(file_path, new_path, rmt_mode)
@@ -190,8 +205,12 @@ class FileTransfer:
             return False
         return True
 
-    # 判断是否为目的路径下的路径
     def is_target_dir_path(self, path):
+        """
+        判断是否为目的路径下的路径
+        :param path: 路径
+        :return: True/False
+        """
         if not path:
             return False
         for tv_path in self.__tv_path:
@@ -208,8 +227,13 @@ class FileTransfer:
                 return True
         return False
 
-    # 按目录结构处理所有文件
     def __transfer_dir_files(self, src_dir, target_dir, rmt_mode):
+        """
+        按目录结构转移所有文件
+        :param src_dir: 原路径
+        :param target_dir: 新路径
+        :param rmt_mode: RmtMode转移方式
+        """
         file_list = get_dir_files_by_ext(src_dir)
         retcode = 0
         for file in file_list:
@@ -225,8 +249,13 @@ class FileTransfer:
                 break
         return retcode
 
-    # 按原文件名link文件到目的目录
     def __transfer_origin_file(self, file_item, target_dir, rmt_mode):
+        """
+        按原文件名link文件到目的目录
+        :param file_item: 原文件路径
+        :param target_dir: 目的目录
+        :param rmt_mode: RmtMode转移方式
+        """
         if not file_item or not target_dir:
             return False
         if not os.path.exists(file_item):
@@ -256,8 +285,14 @@ class FileTransfer:
             return False
         return True
 
-    # 复制或者硬链接一个文件
     def __transfer_file(self, file_item, new_file, rmt_mode, over_flag=False):
+        """
+        转移一个文件，同时处理字幕
+        :param file_item: 原文件路径
+        :param new_file: 新文件路径
+        :param rmt_mode: RmtMode转移方式
+        :param over_flag: 是否覆盖，为True时会先删除再转移
+        """
         file_name = os.path.basename(file_item)
         new_file_name = os.path.basename(new_file)
         if not over_flag and os.path.exists(new_file):
@@ -276,7 +311,6 @@ class FileTransfer:
         # 处理字幕
         return self.__transfer_subtitles(file_item, new_file, rmt_mode)
 
-    # 转移识别媒体文件 in_from：来源  in_path：路径，可有是个目录也可能是一个文件  target_dir：指定目的目录，否则按电影、电视剧目录
     def transfer_media(self,
                        in_from,
                        in_path,
@@ -286,11 +320,22 @@ class FileTransfer:
                        tmdb_info=None,
                        media_type=None,
                        season=None):
+        """
+        识别并转移一个文件、多个文件或者目录
+        :param in_from: 来源，即调用该功能的渠道
+        :param in_path: 转移的路径，可能是一个文件也可以是一个目录
+        :param files: 文件清单，非空时以该文件清单为准，为空时从in_path中按后缀和大小限制检索需要处理的文件清单
+        :param target_dir: 目的文件夹，非空的转移到该文件夹，为空时则按类型转移到配置文件中的媒体库文件夹
+        :param unknown_dir: 未识别文件夹，非空时未识别的媒体文件转移到该文件夹，为空时则使用配置文件中的未识别文件夹
+        :param tmdb_info: 手动识别转移时传入的TMDB信息对象，如未输入，则按名称笔TMDB实时查询
+        :param media_type: 手动识别转移时传入的文件类型，如未输入，则自动识别
+        :param season: 手动识别轩发金时传入的的字号，如未输入，则自动识别
+        :return: 处理状态，错误信息
+        """
         if not in_path:
             log.error("【RMT】输入路径错误!")
             return False, "输入路径错误"
 
-        # 进到这里来的，可能是一个大目录，目录中有电影也有电视剧；也有可能是一个电视剧目录或者一个电影目录；也有可能是一个文件
         if in_from in DownloaderType:
             rmt_mode = self.__pt_rmt_mode
         else:
@@ -485,8 +530,12 @@ class FileTransfer:
         log.info("【RMT】%s 处理完成，总数：%s，失败：%s" % (in_path, total_count, failed_count))
         return True, ""
 
-    # 全量转移，用于使用命令调用
     def transfer_manually(self, s_path, t_path):
+        """
+        全量转移，用于使用命令调用
+        :param s_path: 源目录
+        :param t_path: 目的目录
+        """
         if not s_path:
             return
         if not os.path.exists(s_path):
@@ -505,10 +554,15 @@ class FileTransfer:
             if not ret:
                 log.console("【RMT】%s 处理失败：%s" % (path, ret_msg))
 
-    # 判断媒体文件是否忆存在，返回：目录存在标志、目录名、文件存在标志、文件名
     def __is_media_exists(self,
                           media_dest,
                           media):
+        """
+        判断媒体文件是否忆存在
+        :param media_dest: 媒体文件所在目录
+        :param media: 已识别的媒体信息
+        :return: 目录是否存在，目录路径，文件是否存在，文件路径
+        """
         dir_exist_flag = False
         file_exist_flag = False
         ret_dir_path = None
@@ -579,8 +633,11 @@ class FileTransfer:
                             break
         return dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path
 
-    # Emby点红星后转移文件
     def transfer_embyfav(self, item_path):
+        """
+        Emby/Jellyfin点红星后转移电影文件到精选分类
+        :param item_path: 文件路径
+        """
         if not self.__movie_category_flag or not self.__movie_path:
             return False, None
         if os.path.isdir(item_path):
@@ -611,8 +668,16 @@ class FileTransfer:
         else:
             return False, None
 
-    # 根据信息返回地址
     def get_dest_path_by_info(self, dest, mtype, title, year, category, season):
+        """
+        拼装转移重命名后的新文件地址
+        :param dest: 目的目录
+        :param mtype: 媒体类型：电影、电视剧、动漫
+        :param title: 标题
+        :param year:　年份
+        :param category: 二级分类名
+        :param season: 季号，Sxx
+        """
         if not dest or not mtype or not title:
             return None
         if mtype == MediaType.MOVIE.value:
@@ -642,9 +707,14 @@ class FileTransfer:
                 else:
                     return os.path.join(dest, "%s" % title, season_str)
 
-    # 如果是电视剧：根据标题、年份、季、总集数，查询媒体库中缺少哪几集，返回集的数组
-    # 如果是电影，只判断媒体库目录是否存在
     def get_no_exists_medias(self, meta_info, season=None, total_num=None):
+        """
+        根据媒体库目录结构，判断媒体是否存在
+        :param meta_info: 已识别的媒体信息
+        :param season: 季号，数字，剧集时需要
+        :param total_num: 该季总集数，剧集时需要
+        :return: 如果是电影返回已存在的电影清单：title、year，如果是剧集，则返回不存在的集的清单
+        """
         # 电影
         if meta_info.type == MediaType.MOVIE:
             for dest_path in self.__movie_path:
@@ -690,10 +760,13 @@ class FileTransfer:
                             exists_episodes.append(episode)
             return list(set(total_episodes).difference(set(exists_episodes)))
 
-    # 查的一个最好的目录返回，有in_path时找与in_path同路径的
-    # 没有in_path时，顺序查找1个符合大小要求的
-    # 没有in_path和size时，返回第1个
     def __get_best_target_path(self, mtype, in_path=None, size=0):
+        """
+        查询一个最好的目录返回，有in_path时找与in_path同路径的，没有in_path时，顺序查找1个符合大小要求的，没有in_path和size时，返回第1个
+        :param mtype: 媒体类型：电影、电视剧、动漫
+        :param in_path: 源目录
+        :param size: 文件大小
+        """
         if not mtype:
             return None
         if mtype == MediaType.MOVIE:
@@ -720,8 +793,11 @@ class FileTransfer:
         # 默认返回第1个
         return dest_paths[0]
 
-    # 查找最合适的unknown目录
     def __get_best_unknown_path(self, in_path):
+        """
+        查找最合适的unknown目录
+        :param in_path: 源目录
+        """
         if not self.__unknown_path:
             return None
         for unknown_path in self.__unknown_path:
@@ -729,8 +805,14 @@ class FileTransfer:
                 return unknown_path
         return self.__unknown_path[0]
 
-    # 对文件做纯链接处理，不做识别重命名
     def link_sync_files(self, in_from, src_path, in_file, target_dir):
+        """
+        对文件做纯链接处理，不做识别重命名，则监控模块调用
+        :param in_from: 来源渠道
+        :param src_path: 源目录
+        :param in_file: 源文件
+        :param target_dir: 目的目录
+        """
         # 转移模式
         if in_from in DownloaderType:
             rmt_mode = self.__pt_rmt_mode
@@ -744,7 +826,9 @@ class FileTransfer:
 
 
 if __name__ == "__main__":
-    # 参数
+    """
+    手工转移时，使用命名行调用
+    """
     parser = argparse.ArgumentParser(description='Rename Media Tool')
     parser.add_argument('-s', '--source', dest='s_path', required=True, help='硬链接源目录路径')
     parser.add_argument('-d', '--target', dest='t_path', required=False, help='硬链接目的目录路径')

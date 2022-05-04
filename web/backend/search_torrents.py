@@ -6,7 +6,11 @@ from utils.sqls import insert_search_results, delete_all_search_torrents
 
 
 def search_medias_for_web(content):
-    # 拆分关键字
+    """
+    WEB资源搜索
+    :param content: 关键字文本，可以包括 类型、标题、季、集、年份等信息，使用 空格分隔，也支持种子的命名格式
+    :return: 查询结果直接插入数据库中，进入WEB页面时查询展示
+    """
     key_word, season_num, episode_num, year = get_keyword_from_string(content)
     if not key_word:
         log.info("【WEB】检索关键字有误！" % content)
@@ -33,9 +37,10 @@ def search_medias_for_web(content):
             insert_search_results(media_item)
 
 
-# 从检索关键字中拆分中年份、季、集、类型
-# 名称 年份 第X季 第X集 电影/电视剧，用空格分隔
 def get_keyword_from_string(content):
+    """
+    从检索关键字中拆分中年份、季、集、类型
+    """
     if not content:
         return {}
     # 稍微切一下剧集吧

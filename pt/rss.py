@@ -49,6 +49,9 @@ class Rss:
                     self.__rss_rule = None
 
     def rssdownload(self):
+        """
+        RSS订阅检索下载入口，由定时服务调用
+        """
         global RSS_CACHED_TORRENTS
         if not self.__sites:
             return
@@ -213,6 +216,9 @@ class Rss:
             log.info("【RSS】实际未下载到任何资源")
 
     def rsssearch(self):
+        """
+        RSS订阅队列中状态的任务处理，先进行存量PT资源检索，缺失的才标志为RSS状态，由定时服务调用
+        """
         log.info("【RSS】开始RSS检索...")
         # 处理电影
         movies = get_rss_movies('D')
@@ -271,6 +277,13 @@ class Rss:
 
     @staticmethod
     def is_torrent_match(media_info, movie_keys, tv_keys):
+        """
+        判断种子是否命中订阅
+        :param media_info: 已识别的种子媒体信息
+        :param movie_keys: 电影订阅清单
+        :param tv_keys: 电视剧订阅清单
+        :return: 命中状态
+        """
         if media_info.type == MediaType.MOVIE:
             for key_info in movie_keys:
                 if not key_info:
@@ -293,9 +306,13 @@ class Rss:
                     return True
         return False
 
-    # 解析RSS的XML，返回标题及URL
     @staticmethod
     def parse_rssxml(url):
+        """
+        解析RSS订阅URL，获取RSS中的种子信息
+        :param url: RSS地址
+        :return: 种子信息列表
+        """
         ret_array = []
         if not url:
             return []

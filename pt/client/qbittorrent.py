@@ -79,8 +79,11 @@ class Qbittorrent:
             if self.__qbhost and self.__qbport:
                 self.qbc = self.__login_qbittorrent()
 
-    # 连接qbittorrent
     def __login_qbittorrent(self):
+        """
+        连接qbittorrent
+        :return: qbittorrent对象
+        """
         try:
             # 登录
             qbt = qbittorrentapi.Client(host=self.__qbhost,
@@ -93,8 +96,13 @@ class Qbittorrent:
             log.error("【QB】qBittorrent连接出错：%s" % str(err))
             return None
 
-    # 按条件读取种子信息
     def get_torrents(self, ids=None, status=None):
+        """
+        按条件读取种子信息
+        :param ids: 种子ID，单个ID或者ID列表
+        :param status: 种子状态过滤
+        :return: 种子信息列表
+        """
         if not self.qbc:
             return []
         self.qbc.auth_log_in()
@@ -111,20 +119,27 @@ class Qbittorrent:
                     ret_torrents.append(torrent)
             return ret_torrents
 
-    # 读取完成的种子信息
     def get_completed_torrents(self):
+        """
+        读取完成的种子信息
+        """
         if not self.qbc:
             return []
         return self.get_torrents(status=["forcedUP", "stalledUP", "queuedUP", "pausedUP", "uploading"])
 
-    # 读取下载中的种子信息
     def get_downloading_torrents(self):
+        """
+        读取下载中的种子信息
+        """
         if not self.qbc:
             return []
         return self.get_torrents(status=["downloading", "forcedDL", "stalledDL", "queuedDL", "pausedDL"])
 
-    # 迁移完成后设置种子状态
     def set_torrents_status(self, ids):
+        """
+        迁移完成后设置种子标签为 已整理
+        :param ids: 种子ID列表
+        """
         if not self.qbc:
             return
         self.qbc.auth_log_in()
@@ -136,8 +151,11 @@ class Qbittorrent:
         log.info("【QB】设置qBittorrent种子状态成功")
         self.qbc.auth_log_out()
 
-    # 处理qbittorrent中的种子
     def get_transfer_task(self):
+        """
+        获取需要转移的种子列表
+        :return: 替换好路径的种子文件路径清单
+        """
         # 处理下载完成的任务
         torrents = self.get_completed_torrents()
         trans_tasks = []
@@ -157,8 +175,12 @@ class Qbittorrent:
             trans_tasks.append({'path': true_path, 'id': torrent.get('hash')})
         return trans_tasks
 
-    # 做种清理
     def get_remove_torrents(self, seeding_time):
+        """
+        获取需要清理的种子清单
+        :param seeding_time: 保种时间，单位秒
+        :return: 种子ID列表
+        """
         torrents = self.get_completed_torrents()
         remove_torrents = []
         for torrent in torrents:
@@ -167,8 +189,12 @@ class Qbittorrent:
                 remove_torrents.append(torrent.get('hash'))
         return remove_torrents
 
-    # 添加qbittorrent任务
     def add_torrent(self, turl, mtype):
+        """
+        添加qbittorrent下载任务
+        :param turl: 种子链接
+        :param mtype: 媒体类型：电影、电视剧、动漫
+        """
         if not self.qbc:
             return False
         self.qbc.auth_log_in()
@@ -181,20 +207,26 @@ class Qbittorrent:
         self.qbc.auth_log_out()
         return qbc_ret
 
-    # 下载控制：开始
     def start_torrents(self, ids):
+        """
+        下载控制：开始
+        """
         if not self.qbc:
             return False
         return self.qbc.torrents_resume(torrent_hashes=ids)
 
-    # 下载控制：停止
     def stop_torrents(self, ids):
+        """
+        下载控制：停止
+        """
         if not self.qbc:
             return False
         return self.qbc.torrents_pause(torrent_hashes=ids)
 
-    # 删除种子
     def delete_torrents(self, delete_file, ids):
+        """
+        删除种子
+        """
         if not self.qbc:
             return False
         self.qbc.auth_log_in()

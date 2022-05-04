@@ -13,6 +13,9 @@ class PTSignin:
         self.signin = SignIn()
 
     def run_schedule(self):
+        """
+        运行PT站签到定时服务
+        """
         try:
             lock.acquire()
             if self.signin:

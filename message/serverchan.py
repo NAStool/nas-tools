@@ -16,8 +16,12 @@ class ServerChan:
         if message:
             self.__sckey = message.get('serverchan', {}).get('sckey')
 
-    # 发送ServerChan消息
     def send_serverchan_msg(self, text, desp=""):
+        """
+        发送ServerChan消息
+        :param text: 消息标题
+        :param desp: 消息内容
+        """
         if not text and not desp:
             return -1, "标题和内容不能同时为空"
         values = {"title": text, "desp": desp}

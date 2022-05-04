@@ -198,8 +198,18 @@ class DBHelper:
 
 
 def select_by_sql(sql):
+    """
+    执行查询
+    :param sql: 查询的SQL语句
+    :return: 查询结果的二级列表
+    """
     return DBHelper().select(sql)
 
 
 def update_by_sql(sql):
+    """
+    执行更新或删除
+    :param sql: SQL语句
+    :return: 执行状态
+    """
     return DBHelper().excute(sql)

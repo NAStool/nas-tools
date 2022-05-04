@@ -48,8 +48,13 @@ class Media:
             else:
                 self.__rmt_match_mode = MatchMode.NORMAL
 
-    # 检索tmdb中所有的译名，用于匹配
     def __search_tmdb_names(self, mtype, tmdb_id):
+        """
+        检索tmdb中所有的译名，用于名称匹配
+        :param mtype: 类型：电影、电视剧、动漫
+        :param tmdb_id: TMDB的ID
+        :return: 所有译名的清单
+        """
         if not mtype or not tmdb_id:
             return []
         ret_names = []
@@ -76,9 +81,15 @@ class Media:
             log.error("【META】连接TMDB出错：%s" % str(e))
         return ret_names
 
-    # 检索tmdb中的媒体信息，传入名字、年份、类型
-    # 返回媒体信息对象
     def __search_tmdb(self, file_media_name, media_year, search_type, language=None):
+        """
+        检索tmdb中的媒体信息
+        :param file_media_name: 剑索的名称
+        :param media_year: 年份，如要是季集需要是首播年份
+        :param search_type: 类型：电影、电视剧、动漫
+        :param language: 语言，默认是zh-CN
+        :return: TMDB的INFO，同时会将search_type赋值到media_type中
+        """
         if not self.search:
             return None
         if not file_media_name:
@@ -199,8 +210,14 @@ class Media:
             log.warn("【META】%s 未匹配到媒体信息!" % file_media_name)
             return None
 
-    # 给定名称和年份或者TMDB号，查询媒体信息
     def get_media_info_manual(self, mtype, title, year, tmdbid=None):
+        """
+        给定名称和年份或者TMDB号，查询媒体信息
+        :param mtype: 类型：电影、电视剧、动漫
+        :param title: 标题
+        :param year: 年份
+        :param tmdbid: TMDB的ID，有tmdbid时优先使用tmdbid，否则使用年份和标题
+        """
         if not tmdbid:
             if not mtype or not title:
                 return None
@@ -215,8 +232,15 @@ class Media:
             tmdb_info['media_type'] = mtype
         return tmdb_info
 
-    # 只有名称信息，判别是电影还是电视剧并TMDB信息
     def get_media_info(self, title, subtitle=None, mtype=None, strict=None):
+        """
+        只有名称信息，判别是电影还是电视剧并搜刮TMDB信息，用于种子名称识别
+        :param title: 种子名称
+        :param subtitle: 种子副标题
+        :param mtype: 类型：电影、电视剧、动漫
+        :param strict: 是否严格模式，为true时，不会再去掉年份再查一次
+        :return: 带有TMDB信息的MetaInfo对象
+        """
         if not title:
             return None
         if not self.meta:
@@ -284,13 +308,15 @@ class Media:
         meta_info.set_tmdb_info(self.meta.get_meta_data().get(media_key))
         return meta_info
 
-    # 搜刮媒体信息和类型，返回每个文件对应的媒体信息
-    '''
-    输入：file_list：文件路径清单, 可能是一个目录，也可能是一个文件清单
-    输出：类型，文件路径：媒体信息的List
-    '''
-
     def get_media_info_on_files(self, file_list, tmdb_info=None, media_type=None, season=None):
+        """
+        根据文件清单，搜刮TMDB信息，用于文件名称的识别
+        :param file_list: 文件清单，如果是列表也可以是单个文件，也可以是一个目录
+        :param tmdb_info: 如有传入TMDB信息则以该TMDB信息赋于所有文件，否则按名称从TMDB检索，用于手工识别时传入
+        :param media_type: 媒体类型：电影、电视剧、动漫，如有传入以该类型赋于所有文件，否则按名称从TMDB检索并识别
+        :param season: 季号，如有传入以该季号赋于所有文件，否则从名称中识别
+        :return: 带有TMDB信息的每个文件对应的MetaInfo对象字典
+        """
         # 存储文件路径与媒体的对应关系
         return_media_infos = {}
         if not self.meta:
@@ -389,32 +415,52 @@ class Media:
 
         return return_media_infos
 
-    # 获取热门电影
     def get_tmdb_hot_movies(self, page):
+        """
+        获取热门电影
+        :param page: 第几页
+        :return: TMDB信息列表
+        """
         if not self.movie:
             return []
         return self.movie.popular(page)
 
-    # 获取热门电视剧
     def get_tmdb_hot_tvs(self, page):
+        """
+        获取热门电视剧
+        :param page: 第几页
+        :return: TMDB信息列表
+        """
         if not self.tv:
             return []
         return self.tv.popular(page)
 
-    # 获取最新电影
     def get_tmdb_new_movies(self, page):
+        """
+        获取最新电影
+        :param page: 第几页
+        :return: TMDB信息列表
+        """
         if not self.movie:
             return []
         return self.movie.now_playing(page)
 
-    # 获取最新电视剧
     def get_tmdb_new_tvs(self, page):
+        """
+        获取最新电视剧
+        :param page: 第几页
+        :return: TMDB信息列表
+        """
         if not self.tv:
             return []
         return self.tv.on_the_air(page)
 
-    # 获取电影的详情
     def get_tmdb_movie_info(self, tmdbid):
+        """
+        获取电影的详情
+        :param tmdbid: TMDB ID
+        :return: TMDB信息
+        """
         global TMDB_CACHE
         if not self.movie:
             return {}
@@ -431,8 +477,12 @@ class Media:
             log.console(str(e))
             return {}
 
-    # 获取电视剧的详情
     def get_tmdb_tv_info(self, tmdbid):
+        """
+        获取电视剧的详情
+        :param tmdbid: TMDB ID
+        :return: TMDB信息
+        """
         global TMDB_CACHE
         if not self.tv:
             return {}
@@ -449,8 +499,13 @@ class Media:
             log.console(str(e))
             return {}
 
-    # 从TMDB的季集信息中获得季的组
     def get_tmdb_seasons_info(self, tv_info=None, tmdbid=None):
+        """
+        从TMDB的季集信息中获得季的组
+        :param tv_info: TMDB 的季信息
+        :param tmdbid: TMDB ID 没有tv_info且有tmdbid时，重新从TMDB查询季的信息
+        :return: 带有season_number、episode_count 的每季总集数的字典列表
+        """
         if not tv_info and not tmdbid:
             return []
         if not tv_info and tmdbid:
@@ -467,8 +522,14 @@ class Media:
                     {"season_number": season.get("season_number"), "episode_count": season.get("episode_count")})
         return total_seasons
 
-    # 从TMDB的季信息中获得具体季有多少集
     def get_tmdb_season_episodes_num(self, sea, tv_info=None, tmdbid=None):
+        """
+        从TMDB的季信息中获得具体季有多少集
+        :param sea: 季号，数字
+        :param tv_info: 已获取的TMDB季的信息
+        :param tmdbid: TMDB ID，没有tv_info且有tmdbid时，重新从TMDB查询季的信息
+        :return: 该季的总集数
+        """
         if not tv_info and not tmdbid:
             return 0
         if not tv_info and tmdbid:

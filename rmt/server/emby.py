@@ -12,7 +12,6 @@ class Emby:
     def __init__(self):
         self.init_config()
 
-    # 初始化配置
     def init_config(self):
         config = Config()
         emby = config.get_config('emby')
@@ -24,8 +23,10 @@ class Emby:
                 self.__host = self.__host + "/"
             self.__apikey = emby.get('api_key')
 
-    # 获取Emby媒体库的信息
     def __get_emby_librarys(self):
+        """
+        获取Emby媒体库列表
+        """
         if not self.__host or not self.__apikey:
             return []
         req_url = "%semby/Library/SelectableMediaFolders?api_key=%s" % (self.__host, self.__apikey)
@@ -40,8 +41,10 @@ class Emby:
             log.error("【EMBY】连接Library/SelectableMediaFolders 出错：" + str(e))
             return []
 
-    # 获得用户数量
     def get_user_count(self):
+        """
+        获得用户数量
+        """
         if not self.__host or not self.__apikey:
             return 0
         req_url = "%semby/Users/Query?api_key=%s" % (self.__host, self.__apikey)
@@ -56,8 +59,10 @@ class Emby:
             log.error("【EMBY】连接Users/Query出错：" + str(e))
             return 0
 
-    # 获取Emby活动记录
     def get_activity_log(self, num):
+        """
+        获取Emby活动记录
+        """
         if not self.__host or not self.__apikey:
             return []
         req_url = "%semby/System/ActivityLog/Entries?api_key=%s&Limit=%s" % (self.__host, self.__apikey, num)
@@ -88,8 +93,11 @@ class Emby:
             return []
         return ret_array
 
-    # 获得媒体数量
     def get_medias_count(self):
+        """
+        获得电影、电视剧、动漫媒体数量
+        :return: MovieCount SeriesCount SongCount
+        """
         if not self.__host or not self.__apikey:
             return {}
         req_url = "%semby/Items/Counts?api_key=%s" % (self.__host, self.__apikey)
@@ -104,8 +112,13 @@ class Emby:
             log.error("【EMBY】连接Items/Counts出错：" + str(e))
             return {}
 
-    # 根据名称查询Emby中剧集的SeriesId
     def __get_emby_series_id_by_name(self, name, year):
+        """
+        根据名称查询Emby中剧集的SeriesId
+        :param name: 标题
+        :param year: 年份
+        :return: SeriesId
+        """
         if not self.__host or not self.__apikey:
             return None
         req_url = "%semby/Items?IncludeItemTypes=Series&Fields=ProductionYear&StartIndex=0&Recursive=true&SearchTerm=%s&Limit=10&IncludeSearchTypes=false&api_key=%s" % (
@@ -124,8 +137,13 @@ class Emby:
             return None
         return None
 
-    # 根据标题和年份，检查电影是否在Emby中存在，存在则返回列表
     def get_movies(self, title, year=None):
+        """
+        根据标题和年份，检查电影是否在Emby中存在，存在则返回列表
+        :param title: 标题
+        :param year: 年份，可以为空，为空时不按年份过滤
+        :return: 含title、year属性的字典列表
+        """
         if not self.__host or not self.__apikey:
             return None
         req_url = "%semby/Items?IncludeItemTypes=Movie&Fields=ProductionYear&StartIndex=0&Recursive=true&SearchTerm=%s&Limit=10&IncludeSearchTypes=false&api_key=%s" % (
@@ -147,8 +165,13 @@ class Emby:
             return []
         return []
 
-    # 根据标题和年份和季，返回Emby中的剧集列表
     def __get_emby_tv_episodes(self, title, year=None, season=None):
+        """
+        根据标题和年份和季，返回Emby中的剧集列表
+        :param title: 标题
+        :param year: 年份，可以为空，为空时不按年份过滤
+        :return: 集号的列表
+        """
         if not self.__host or not self.__apikey:
             return []
         # 电视剧
@@ -172,16 +195,27 @@ class Emby:
             log.error("【EMBY】连接Shows/{Id}/Episodes出错：" + str(e))
             return []
 
-    # 根据标题、年份、季、总集数，查询Emby中缺少哪几集
     def get_no_exists_episodes(self, meta_info, season, total_num):
+        """
+        根据标题、年份、季、总集数，查询Emby中缺少哪几集
+        :param meta_info: 已识别的需要查询的媒体信息
+        :param season: 季号，数字
+        :param total_num: 该季的总集数
+        :return: 该季不存在的集号列表
+        """
         if not self.__host or not self.__apikey:
             return None
         exists_episodes = self.__get_emby_tv_episodes(meta_info.title, meta_info.year, season)
         total_episodes = [episode for episode in range(1, total_num + 1)]
         return list(set(total_episodes).difference(set(exists_episodes)))
 
-    # 根据ItemId从Emby查询图片地址
     def get_image_by_id(self, item_id, image_type):
+        """
+        根据ItemId从Emby查询图片地址
+        :param item_id: 在Emby中的ID
+        :param image_type: 图片的类弄地，poster或者backdrop等
+        :return: 图片对应在TMDB中的URL
+        """
         if not self.__host or not self.__apikey:
             return None
         req_url = "%semby/Items/%s/RemoteImages?api_key=%s" % (self.__host, item_id, self.__apikey)
@@ -200,8 +234,10 @@ class Emby:
             return None
         return None
 
-    # 通知Emby刷新一个项目的媒体库
     def __refresh_emby_library_by_id(self, item_id):
+        """
+        通知Emby刷新一个项目的媒体库
+        """
         if not self.__host or not self.__apikey:
             return False
         req_url = "%semby/Items/%s/Refresh?Recursive=true&api_key=%s" % (self.__host, item_id, self.__apikey)
@@ -214,8 +250,10 @@ class Emby:
             return False
         return False
 
-    # 通知Emby刷新整个媒体库
     def refresh_root_library(self):
+        """
+        通知Emby刷新整个媒体库
+        """
         if not self.__host or not self.__apikey:
             return False
         req_url = "%semby/Library/Refresh?api_key=%s" % (self.__host, self.__apikey)
@@ -228,8 +266,11 @@ class Emby:
             return False
         return False
 
-    # 按类型、名称、年份来刷新媒体库
     def refresh_library_by_items(self, items):
+        """
+        按类型、名称、年份来刷新媒体库
+        :param items: 已识别的需要刷新媒体库的媒体信息列表
+        """
         if not items:
             return
         # 收集要刷新的媒体库信息
@@ -250,8 +291,11 @@ class Emby:
                 self.__refresh_emby_library_by_id(library_id)
         log.info("【EMBY】Emby媒体库刷新完成")
 
-    # 根据媒体信息查询在哪个媒体库，返回要刷新的位置的ID
     def __get_emby_library_id_by_item(self, item):
+        """
+        根据媒体信息查询在哪个媒体库，返回要刷新的位置的ID
+        :param item: 由title、year、type组成的字典
+        """
         if not item.get("title") or not item.get("year") or not item.get("type"):
             return None
         if item.get("type") == MediaType.TV:

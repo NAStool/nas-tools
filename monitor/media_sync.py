@@ -37,6 +37,9 @@ class Sync(object):
             self.init_sync_dirs()
 
     def init_sync_dirs(self):
+        """
+        初始化监控文件配置
+        """
         self.sync_dir_config = {}
         if self.__sync_path:
             for sync_monpath in self.__sync_path:
@@ -88,8 +91,13 @@ class Sync(object):
                 else:
                     log.error("【SYNC】%s 目录不存在！" % monpath)
 
-    # 处理文件变化
     def file_change_handler(self, event, text, event_path):
+        """
+        处理文件变化
+        :param event: 事件
+        :param text: 事件描述
+        :param event_path: 事件文件路径
+        """
         if not event.is_directory:
             # 文件发生变化
             try:
@@ -202,8 +210,10 @@ class Sync(object):
             except Exception as e:
                 log.error("【SYNC】发生错误：%s" % str(e))
 
-    # 批量转移文件
     def transfer_mon_files(self):
+        """
+        批量转移文件，由定时服务定期调用执行
+        """
         try:
             lock.acquire()
             items = list(self.__need_sync_paths)
@@ -230,8 +240,10 @@ class Sync(object):
         finally:
             lock.release()
 
-    # 启动进程
     def run_service(self):
+        """
+        启动监控服务
+        """
         for monpath in self.sync_dir_config.keys():
             if monpath and os.path.exists(monpath):
                 if self.__sync_sys == OsType.LINUX:
@@ -246,14 +258,18 @@ class Sync(object):
                 observer.start()
                 log.info("【RUN】%s 的monitor.media_sync启动..." % monpath)
 
-    # 关闭服务
     def stop_service(self):
+        """
+        关闭监控服务
+        """
         if self.__observer:
             for observer in self.__observer:
                 observer.stop()
 
-    # 全量转移Sync目录下的文件
     def transfer_all_sync(self):
+        """
+        全量转移Sync目录下的文件，WEB界面点击目录同步时获发
+        """
         for monpath, target_dirs in self.sync_dir_config.items():
             if not monpath:
                 continue

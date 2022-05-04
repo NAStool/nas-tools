@@ -32,17 +32,31 @@ class Searcher:
         else:
             self.indexer = Jackett()
 
-    # 根据关键字检索
     def search_medias(self, key_word, s_num, e_num, year, mtype, whole_word):
+        """
+        根据关键字调用索引器检查媒体
+        :param key_word: 检索的关键字，不能为空
+        :param s_num: 季号，为空则不过滤
+        :param e_num: 集号，为空则不过滤
+        :param year: 年份，为空则不过滤
+        :param mtype: 类型：电影、电视剧、动漫
+        :param whole_word: 是否完全匹配，为True时只有标题完全一致时才命中
+        :return: 命中的资源媒体信息列表
+        """
         if not key_word:
             return []
         if not self.indexer:
             return []
         return self.indexer.search_by_keyword(key_word, s_num, e_num, year, mtype, whole_word)
 
-    # 检索一个媒体
-    # 返回：是否下载全，识别的媒体信息，下载后剩余的缺失季集
     def search_one_media(self, input_str, in_from=SearchType.OT, user_id=None):
+        """
+        只检索和下载一种资源，用于精确检索下载，由微信、Telegram或豆瓣调用
+        :param input_str: 输入字符串，可以包括标题、年份、季、集的信息，使用空格隔开
+        :param in_from: 搜索下载的请求来源
+        :param user_id: 需要发送消息的，传入该参数，则只给对应用户发送交互消息
+        :return: 请求的资源是否全部下载完整、请求的文本对应识别出来的媒体信息、请求的资源如果是剧集，则返回下载后仍然缺失的季集信息
+        """
         if not input_str:
             log.info("【SEARCHER】检索关键字有误！")
             return False, None, None
@@ -145,9 +159,11 @@ class Searcher:
             # 全部下完了
             return True, media_info, no_exists
 
-    # 种子去重，每一个名称、站点、资源类型 选一个做种人最多的显示
     @staticmethod
     def get_torrents_group_item(media_list):
+        """
+        种子去重，每一个名称、站点、资源类型 选一个做种人最多的显示
+        """
         if not media_list:
             return []
 

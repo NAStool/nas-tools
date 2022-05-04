@@ -22,6 +22,9 @@ class SignIn:
             self.__user_agent = pt.get('user_agent')
 
     def signin(self):
+        """
+        PT站签到入口，由定时服务调用
+        """
         status = []
         if self.__pt_sites:
             for site_info in self.__pt_sites:

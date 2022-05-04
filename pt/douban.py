@@ -55,6 +55,10 @@ class DouBan:
             self.req = RequestUtils(headers=user_agent, cookies=cookie)
 
     def get_all_douban_movies(self):
+        """
+        获取每一个用户的每一个类型的豆瓣标记
+        :return: 检索到的媒体信息列表（不含TMDB信息）
+        """
         movie_list = []
         start_number = 0
         # 每一个用户
@@ -223,6 +227,11 @@ class DouBan:
         return None
 
     def get_douban_new_json(self, mtype='movie', nums=20):
+        """
+        获取豆瓣热门和最新电影
+        :param mtype: 类型，movie或tv
+        :param nums: 每页获取条数，默认20
+        """
         if mtype == "movie":
             data = {
                 'type': 'movie',
@@ -250,7 +259,11 @@ class DouBan:
         return None
 
     def __get_movie_dict(self, soup):
-        # 标签名不加任何修饰，类名前加点，id名前加#
+        """
+        解析电影、电视剧详情页面，获取媒体信息
+        :param soup: 页面soup对象
+        :return: 媒体信息：标题、年份、季（不含TMDB信息）
+        """
         try:
             info = soup.select('#info')
             infos = list(info[0].strings)
@@ -282,6 +295,9 @@ class DouBan:
 
     @staticmethod
     def __get_media_firstair_year(infos):
+        """
+        获取电视剧的首播年份
+        """
         try:
             for info in infos:
                 if info == "首播:":
@@ -295,6 +311,9 @@ class DouBan:
 
     @staticmethod
     def __get_media_rating_list(soup):
+        """
+        获取评分数据
+        """
         rating_list = ['0', '0']
         try:
             rating_info = soup.select("#interest_sectl > div > div.rating_self.clearfix")
@@ -309,7 +328,3 @@ class DouBan:
         except Exception as err:
             log.warn(f"【DOUBAN】未解析到评价数据：{err}")
             return rating_list
-
-
-if __name__ == "__main__":
-    print(DouBan().get_all_douban_movies())

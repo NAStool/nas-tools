@@ -38,6 +38,18 @@
           </div>
         </a>
       </div>
+      <div class="col-md-6 col-xl-3">
+        <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-plex">
+          <div class="card-cover card-cover-blurred text-center bg-yellow">
+            <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/plex.png)">
+            </span>
+          </div>
+          <div class="card-body text-center">
+            <div class="card-title mb-1">Plex</div>
+            <div class="text-muted">{% if Config.media.media_server == "plex" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
+          </div>
+        </a>
+      </div>
     </div>
   </div>
 </div>
@@ -52,14 +64,14 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">Server</label>
-              <input type="text" value="{{ Config.emby.host or '' }}" id="emby.host" class="form-control">
+              <label class="form-label required">服务器地址</label>
+              <input type="text" value="{% if Config.emby %}{{ Config.emby.host or '' }}{% endif %}" id="emby.host" class="form-control" placeholder="http://127.0.0.1:8096">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">Api Key</label>
-              <input type="text" value="{{ Config.emby.api_key or '' }}" id="emby.api_key" class="form-control">
+              <input type="text" value="{% if Config.emby %}{{ Config.emby.api_key or '' }}{% endif %}" id="emby.api_key" class="form-control">
             </div>
           </div>
         </div>
@@ -81,20 +93,63 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">Server</label>
-              <input type="text" value="{{ Config.jellyfin.host or '' }}" id="jellyfin.host" class="form-control">
+              <label class="form-label required">服务器地址</label>
+              <input type="text" value="{% if Config.jellyfin %}{{ Config.jellyfin.host or '' }}{% endif %}" id="jellyfin.host" class="form-control" placeholder="http://127.0.0.1:8096">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">Api Key</label>
-              <input type="text" value="{{ Config.jellyfin.api_key or '' }}" id="jellyfin.api_key" class="form-control">
+              <input type="text" value="{% if Config.jellyfin %}{{ Config.jellyfin.api_key or '' }}{% endif %}" id="jellyfin.api_key" class="form-control">
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
         <a href="javascript:save_mediaserver_config('jellyfin')" id="jellyfin_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-plex" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Plex</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">服务器地址</label>
+              <input type="text" value="{% if Config.plex %}{{ Config.plex.host or '' }}{% endif %}" id="plex.host" class="form-control" placeholder="http://127.0.0.1:32400">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">服务器名称</label>
+              <input type="text" value="{% if Config.plex %}{{ Config.plex.servername or '' }}{% endif %}" id="plex.servername" class="form-control">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">用户名</label>
+              <input type="text" value="{% if Config.plex %}{{ Config.plex.username or '' }}{% endif %}" id="plex.username" class="form-control" placeholder="http://127.0.0.1:32400">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">密码</label>
+              <input type="password" value="{% if Config.plex %}{{ Config.plex.password or '' }}{% endif %}" id="plex.password" class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:save_mediaserver_config('plex')" id="plex_save_btn" class="btn btn-primary">确定</a>
       </div>
     </div>
   </div>

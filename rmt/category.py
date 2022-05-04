@@ -47,46 +47,85 @@ class Category:
                 self.__anime_categorys = self.__categorys.get('anime')
 
     def get_movie_category_flag(self):
+        """
+        获取电影分类标志
+        """
         if self.__movie_categorys:
             return True
         return False
 
     def get_tv_category_flag(self):
+        """
+        获取电视剧分类标志
+        """
         if self.__tv_categorys:
             return True
         return False
 
     def get_anime_category_flag(self):
+        """
+        获取动漫分类标志
+        """
         if self.__anime_categorys:
             return True
         return False
 
     def get_movie_categorys(self):
+        """
+        获取电影分类清单
+        """
         if not self.__movie_categorys:
             return []
         return self.__movie_categorys.keys()
 
     def get_tv_categorys(self):
+        """
+        获取电视剧分类清单
+        """
         if not self.__tv_categorys:
             return []
         return self.__tv_categorys.keys()
 
     def get_anime_categorys(self):
+        """
+        获取动漫分类清单
+        """
         if not self.__anime_categorys:
             return []
         return self.__anime_categorys.keys()
 
     def get_movie_category(self, tmdb_info):
+        """
+        判断电影的分类
+        :param tmdb_info: 识别的TMDB中的信息
+        :return: 二级分类的名称
+        """
         return self.get_category(self.__movie_categorys, tmdb_info)
 
     def get_tv_category(self, tmdb_info):
+        """
+        判断电视剧的分类
+        :param tmdb_info: 识别的TMDB中的信息
+        :return: 二级分类的名称
+        """
         return self.get_category(self.__tv_categorys, tmdb_info)
 
     def get_anime_category(self, tmdb_info):
+        """
+        判断动漫的分类
+        :param tmdb_info: 识别的TMDB中的信息
+        :return: 二级分类的名称
+        """
         return self.get_category(self.__anime_categorys, tmdb_info)
 
     @staticmethod
     def get_category(categorys, tmdb_info):
+        """
+        根据 TMDB信息与分类配置文件进行比较，确定所属分类
+        :param categorys: 分类配置
+        :param tmdb_info: TMDB信息
+        :return: 分类的名称
+        """
         if not tmdb_info:
             return ""
         if not categorys:

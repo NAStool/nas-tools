@@ -3,6 +3,9 @@ from monitor.media_sync import Sync
 
 
 def run_monitor():
+    """
+    启动监控
+    """
     try:
         Sync().run_service()
     except Exception as err:
@@ -10,6 +13,9 @@ def run_monitor():
 
 
 def stop_monitor():
+    """
+    停止监控
+    """
     try:
         Sync().stop_service()
     except Exception as err:
@@ -17,5 +23,8 @@ def stop_monitor():
 
 
 def restart_monitor():
+    """
+    重启监控
+    """
     stop_monitor()
     run_monitor()

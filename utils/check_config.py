@@ -3,8 +3,10 @@ import log
 from rmt.category import Category
 
 
-# 检查配置信息
 def check_config(cfg):
+    """
+    检查配置文件，如有错误进行日志输出
+    """
     # 剑查日志输出
     config = cfg.get_config()
     if config.get('app'):

@@ -29,6 +29,9 @@ class Scheduler:
         self.__douban = config.get_config('douban')
 
     def run_service(self):
+        """
+        读取配置，启动定时服务
+        """
         if not self.SCHEDULER:
             return
         if self.__pt:
@@ -124,6 +127,9 @@ class Scheduler:
         self.SCHEDULER.start()
 
     def stop_service(self):
+        """
+        停止定时服务
+        """
         if self.SCHEDULER:
             self.SCHEDULER.remove_all_jobs()
             self.SCHEDULER.shutdown()

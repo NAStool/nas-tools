@@ -3,6 +3,7 @@ from rmt.filetransfer import FileTransfer
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from rmt.server.jellyfin import Jellyfin
+from rmt.server.plex import Plex
 from scheduler.douban_sync import DoubanSync
 from scheduler.rss_search import RssSearch
 from scheduler.scheduler import Scheduler
@@ -104,3 +105,6 @@ if __name__ == "__main__":
     # print(MetaInfo('1984.DVDRIP.x264.2020.3D.BluRay.1080p').__dict__)
     # meta_info = Media().get_media_info("双城之战 2021")
     # print(Jellyfin().get_no_exists_episodes(meta_info, 1, 36))
+    # meta_info = Media().get_media_info("My Name S01 2021")
+    movie = Plex().get_medias_count()
+    print(movie)

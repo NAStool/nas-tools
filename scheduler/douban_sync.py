@@ -35,6 +35,9 @@ class DoubanSync:
             self.__auto_rss = douban.get('auto_rss')
 
     def run_schedule(self):
+        """
+        运行豆瓣同步定时服务
+        """
         try:
             lock.acquire()
             self.__douban_sync()
@@ -44,6 +47,9 @@ class DoubanSync:
             lock.release()
 
     def __douban_sync(self):
+        """
+        同步豆瓣数据
+        """
         if not self.__interval:
             return
         log.info("【DOUBAN】开始同步豆瓣数据...")
