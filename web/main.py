@@ -1211,6 +1211,8 @@ def create_flask_app(config):
             if cmd == "update_system":
                 # 停止服务
                 stop_service()
+                # 安装依赖
+                call(['pip', 'install', '-r', '/nas-tools/requirements.txt', ])
                 # 升级
                 call(['git', 'pull'])
                 # 退出主进程
