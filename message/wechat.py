@@ -72,7 +72,7 @@ class WeChat(object):
         :param user_id: 消息发送对象的ID，为空则发给所有人
         :return: 发送状态，错误信息
         """
-        message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.get_access_token()
+        message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.__get_access_token()
         if not self.__agent_id:
             return False, "参数未配置"
         if text:
@@ -116,7 +116,7 @@ class WeChat(object):
         :param user_id: 消息发送对象的ID，为空则发给所有人
         :return: 发送状态，错误信息
         """
-        message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.get_access_token()
+        message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.__get_access_token()
         if not self.__agent_id:
             return False, "参数未配置"
         if text:
