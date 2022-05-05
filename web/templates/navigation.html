@@ -40,8 +40,10 @@
                 </div>
               </a>
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                {% if SystemFlag > 0%}
                 <a href="javascript:restart()" class="dropdown-item">重启</a>
                 <a href="javascript:update()" class="dropdown-item">更新</a>
+                {% endif %}
                 <a href="javascript:logout()" class="dropdown-item">注销</a>
               </div>
             </div>
@@ -199,6 +201,9 @@
                   <a class="dropdown-item" href="javascript:navmenu('basic')">
                     基础设置
                   </a>
+                  <a class="dropdown-item" href="javascript:navmenu('users')">
+                    用户管理
+                  </a>
                   <a class="dropdown-item" href="javascript:navmenu('library')">
                     媒体库
                   </a>
@@ -262,6 +267,7 @@
                             <div class="d-block text-muted text-truncate mt-n1" id="new_version_info">
                             </div>
                           </div>
+                          {% if SystemFlag > 0%}
                           <div class="col-auto">
                             <a href="javascript:update_to_newversion()" class="list-group-item-actions" title="升级版本">
                               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-lines" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -272,6 +278,7 @@
                               </svg>
                             </a>
                           </div>
+                          {% endif %}
                         </div>
                       </div>
                     </div>
@@ -293,8 +300,10 @@
                 </div>
               </a>
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                {% if SystemFlag > 0%}
                 <a href="javascript:restart()" class="dropdown-item">重启</a>
                 <a href="javascript:update()" class="dropdown-item">更新</a>
+                {% endif %}
                 <a href="javascript:logout()" class="dropdown-item">注销</a>
               </div>
             </div>
@@ -402,7 +411,7 @@
       //注销
       function logout(){
         ajax_post("logout", {}, function(ret){
-            window.location.reload();
+            window.location.href = "/";
           });
       }
 

@@ -506,3 +506,37 @@ def insert_sync_history(path, src, dest):
         dest = os.path.normpath(dest)
         sql = f"INSERT INTO SYNC_HISTORY(PATH, SRC, DEST) VALUES('{str_sql(path)}', '{str_sql(src)}', '{str_sql(dest)}')"
         return update_by_sql(sql)
+
+
+# 查询用户列表
+def get_users():
+    sql = "SELECT ID,NAME,PASSWORD,PRIS FROM CONFIG_USERS"
+    return select_by_sql(sql)
+
+
+# 判断用户是否存在
+def is_user_exists(name):
+    if not name:
+        return False
+    sql = "SELECT COUNT(1) FROM CONFIG_USERS WHERE NAME='%s'" % name
+    ret = select_by_sql(sql)
+    if ret and ret[0][0] > 0:
+        return True
+    else:
+        return False
+
+
+# 新增用户
+def insert_user(name, password, pris):
+    if not name or not password :
+        return False
+    if is_user_exists(name):
+        return False
+    else:
+        sql = f"INSERT INTO CONFIG_USERS(NAME,PASSWORD,PRIS) VALUES('{str_sql(name)}', '{str_sql(password)}', '{str_sql(pris)}')"
+        return update_by_sql(sql)
+
+
+# 删除用户
+def delete_user(name):
+    return update_by_sql("DELETE FROM CONFIG_USERS WHERE NAME='%s'" % str_sql(name))

@@ -160,6 +160,13 @@ class DBHelper:
                                                DEST    TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SYNC_HISTORY ON SYNC_HISTORY (PATH);''')
 
+            # 用户表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS CONFIG_USERS
+                                                           (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                                           NAME    TEXT,
+                                                           PASSWORD    TEXT,
+                                                           PRIS    TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_CONFIG_USERS ON CONFIG_USERS (NAME);''')
             # 提交
             self.__connection.commit()
 

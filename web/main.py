@@ -3,12 +3,13 @@ import logging
 import os.path
 import shutil
 import signal
+import subprocess
 from math import floor
 from subprocess import call
 import importlib
 import requests
 from flask import Flask, request, json, render_template, make_response, session
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import log
@@ -35,15 +36,15 @@ from message.send import Message
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE
 from scheduler.run import stop_scheduler, restart_scheduler
 from scheduler.scheduler import Scheduler
-from utils.functions import get_used_of_partition, str_filesize, str_timelong, INSTANCES
+from utils.functions import get_used_of_partition, str_filesize, str_timelong, get_system
 from utils.sqls import get_search_result_by_id, get_search_results, \
     get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
     delete_transfer_log_by_id, get_config_site, insert_config_site, get_site_by_id, delete_config_site, \
     update_config_site, get_config_search_rule, update_config_search_rule, get_config_rss_rule, update_config_rss_rule, \
     get_unknown_path_by_id, get_rss_tvs, get_rss_movies, delete_rss_movie, delete_rss_tv, insert_rss_tv, \
-    insert_rss_movie
-from utils.types import MediaType, SearchType, DownloaderType, SyncType
+    insert_rss_movie, get_users, insert_user, delete_user
+from utils.types import MediaType, SearchType, DownloaderType, SyncType, OsType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
 from web.backend.webhook_event import WebhookEvent
@@ -65,8 +66,8 @@ def create_flask_app(config):
     app_cfg = config.get_config('app') or {}
     admin_user = app_cfg.get('login_user') or "admin"
     admin_password = app_cfg.get('login_password') or "password"
-    USERS = [{
-        "id": 1,
+    ADMIN_USERS = [{
+        "id": 0,
         "name": admin_user,
         "password": generate_password_hash(str(admin_password))
     }]
@@ -96,6 +97,15 @@ def create_flask_app(config):
         sig = getattr(signal, "SIGKILL", signal.SIGTERM)
         os.kill(os.getpid(), sig)
 
+    def check_process(pname):
+        """
+        判断进程是否存在
+        """
+        if not pname:
+            return False
+        text = subprocess.Popen('ps -ef | grep -v grep | grep %s' % pname, shell=True).communicate()
+        return True if text else False
+
     @App.after_request
     def add_header(r):
         """
@@ -110,9 +120,12 @@ def create_flask_app(config):
         """
         根据用户名获得用户记录
         """
-        for user in USERS:
+        for user in ADMIN_USERS:
             if user.get("name") == user_name:
                 return user
+        for user in get_users():
+            if user[1] == user_name:
+                return {"id": user[0], "name": user[1], "password": user[2]}
         return None
 
     class User(UserMixin):
@@ -122,7 +135,7 @@ def create_flask_app(config):
         def __init__(self, user):
             self.username = user.get('name')
             self.password_hash = user.get('password')
-            self.id = 1
+            self.id = user.get('id')
 
         def verify_password(self, password):
             """
@@ -143,11 +156,16 @@ def create_flask_app(config):
             """
             根据用户ID获取用户实体，为 login_user 方法提供支持
             """
-            if not user_id:
+            if user_id is None:
                 return None
-            for user in USERS:
+            for user in ADMIN_USERS:
                 if user.get('id') == user_id:
                     return User(user)
+            for user in get_users():
+                if not user:
+                    continue
+                if user[0] == user_id:
+                    return User({"id": user[0], "name": user[1], "password": user[2]})
             return None
 
     # 定义获取登录用户的方法
@@ -168,19 +186,30 @@ def create_flask_app(config):
     # 主页面
     @App.route('/', methods=['GET', 'POST'])
     def login():
+        # 判断当前的运营环境
+        SystemFlag = 0
+        if get_system() == OsType.LINUX and check_process("supervisord"):
+            SystemFlag = 1
         if request.method == 'GET':
             GoPage = request.args.get("next") or ""
             if GoPage.startswith('/'):
                 GoPage = GoPage[1:]
-            user_info = session.get('_user_id')
-            if not user_info:
+            if current_user.is_authenticated:
+                userid = current_user.get("id")
+                username = current_user.get("name")
+                if userid is None or username is None:
+                    return render_template('login.html',
+                                           GoPage=GoPage)
+                else:
+                    return render_template('navigation.html',
+                                           GoPage=GoPage,
+                                           UserName=username,
+                                           SystemFlag=SystemFlag,
+                                           AppVersion=APP_VERSION)
+            else:
                 return render_template('login.html',
                                        GoPage=GoPage)
-            else:
-                return render_template('navigation.html',
-                                       GoPage=GoPage,
-                                       UserName=admin_user,
-                                       AppVersion=APP_VERSION)
+
         else:
             GoPage = request.form.get('next') or ""
             if GoPage.startswith('/'):
@@ -204,7 +233,8 @@ def create_flask_app(config):
                 login_user(user)
                 return render_template('navigation.html',
                                        GoPage=GoPage,
-                                       UserName=admin_user,
+                                       UserName=username,
+                                       SystemFlag=SystemFlag,
                                        AppVersion=APP_VERSION)
             else:
                 return render_template('login.html',
@@ -902,6 +932,13 @@ def create_flask_app(config):
     def notification():
         return render_template("setting/notification.html", Config=config.get_config())
 
+    # 用户管理页面
+    @App.route('/users', methods=['POST', 'GET'])
+    @login_required
+    def users():
+        Users = get_users()
+        return render_template("setting/users.html", Users=Users)
+
     # 事件响应
     @App.route('/do', methods=['POST', 'GET'])
     def do():
@@ -1443,6 +1480,18 @@ def create_flask_app(config):
                         print(str(e))
                     return {"code": 0 if ret else 1}
                 return {"code": 0}
+
+            # 用户管理
+            if cmd == "user_manager":
+                oper = data.get("oper")
+                name = data.get("name")
+                if oper == "add":
+                    password = generate_password_hash(str(data.get("password")))
+                    pris = data.get("pris")
+                    ret = insert_user(name, password, pris)
+                else:
+                    ret = delete_user(name)
+                return {"code": ret}
 
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])
