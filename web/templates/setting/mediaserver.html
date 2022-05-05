@@ -168,9 +168,9 @@
   var currType = "";
 
   // 保存配置
-  function save_config(type, func){
+  function save_config(type, func, test){
     currType = type;
-    var params = {};
+    var params = {"test": test||false};
     $("#modal-"+ type +" input").each(function(){
       var key = $(this).attr("id");
       if($(this).attr("type")=="checkbox"){
@@ -210,6 +210,6 @@
           $("#" + currType + "_test_btn").text("测试失败！");
         }
       });
-    });
+    }, true);
   }
 </script>

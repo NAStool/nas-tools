@@ -27,6 +27,7 @@
               <label class="form-label">用户名</label>
               <input type="text" name="username" class="form-control {% if err_msg %}is-invalid{% endif %}"
                      placeholder="用户名" value="">
+              <div class="invalid-feedback" id="login_retmsg">{{ err_msg }}</div>
             </div>
             <div class="mb-2">
               <label class="form-label">密码</label>

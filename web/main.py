@@ -1273,6 +1273,7 @@ def create_flask_app(config):
                 cfg = config.get_config()
                 cfgs = dict(data).items()
                 # 重载配置标志
+                config_test = False
                 scheduler_reload = False
                 jellyfin_reload = False
                 plex_reload = False
@@ -1282,8 +1283,12 @@ def create_flask_app(config):
                 telegram_reload = False
                 # 修改配置
                 for key, value in cfgs:
+                    if key == "test" and value:
+                        config_test = True
+                        continue
+                    # 生效配置
                     cfg = set_config_value(cfg, key, value)
-                    if key.startswith("pt") or key.startswith("douban"):
+                    if key in ['pt.ptsignin_cron', 'pt.pt_monitor', 'pt.pt_check_interval', 'pt.pt_seeding_time', 'douban.interval']:
                         scheduler_reload = True
                     if key.startswith("jellyfin"):
                         jellyfin_reload = True
@@ -1298,7 +1303,8 @@ def create_flask_app(config):
                     if key.startswith("message.wechat"):
                         wechat_reload = True
                 # 保存配置
-                config.save_config(cfg)
+                if not config_test:
+                    config.save_config(cfg)
                 # 重启定时服务
                 if scheduler_reload:
                     Scheduler().init_config()
@@ -1475,6 +1481,8 @@ def create_flask_app(config):
                                     break
                         else:
                             ret = eval(command)
+                        # 重载配置
+                        config.init_config()
                     except Exception as e:
                         ret = None
                         print(str(e))
