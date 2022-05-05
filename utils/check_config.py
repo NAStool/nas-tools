@@ -37,7 +37,7 @@ def check_config(cfg):
         if not login_user or not login_password:
             log.error("login_user或login_password未设置")
         else:
-            log.info("WEB管瑞页面用户：%s" % str(login_user))
+            log.info("WEB管理页面用户：%s" % str(login_user))
 
         # 检查HTTPS
         ssl_cert = config['app'].get('ssl_cert')

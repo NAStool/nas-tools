@@ -118,7 +118,7 @@ class DoubanSync:
                             else:
                                 # 登记电影订阅
                                 log.info("【DOUBAN】 %s %s 更新到电影订阅中..." % (media.get_name(), media.year))
-                                insert_rss_movie(media)
+                                insert_rss_movie(media, 'R')
                             # 插入为已RSS状态
                             insert_douban_media_state(media, "RSS")
                         else:
@@ -162,11 +162,11 @@ class DoubanSync:
                             log.warn("【DOUBAN】%s 获取剧集数失败，跳过..." % media_info.get_title_string())
                             continue
                         media_info.begin_season = season
-                        insert_rss_tv(media_info, total_count, total_count)
+                        insert_rss_tv(media_info, total_count, total_count, 'R')
                     else:
                         media_info = self.media.get_media_info(title=media.get_name(), mtype=media.type, strict=True)
                         if not media_info or not media_info.tmdb_info:
                             continue
-                        insert_rss_movie(media_info)
+                        insert_rss_movie(media_info, 'R')
                 log.info("【DOUBAN】豆瓣数据加入订阅完成")
         log.info("【DOUBAN】豆瓣数据同步完成")

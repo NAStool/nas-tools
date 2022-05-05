@@ -52,7 +52,7 @@
         <div class="row">
           <div class="col-lg-12">
             <div class="mb-3">
-              <label class="form-label required">Api Key</label>
+              <label class="form-label required">API Key(<a href="#" title="Jackett管理界面右上角复制API Key">?</a>)</label>
               <input type="text" value="{% if Config.jackett %}{{ Config.jackett.api_key or '' }}{% endif %}" id="jackett.api_key" class="form-control">
             </div>
           </div>
@@ -60,7 +60,7 @@
         <div class="row">
           <div class="col-lg-12">
             <div class="mb-3">
-              <label class="form-label required">Torznab Feeds</label>
+              <label class="form-label required">Torznab Feeds(<a href="#" title="Jackett管理界面Indexer中选择Copy Torznab Feed复制链接，一行配置一个地址，可配置多行">?</a>)</label>
               <textarea rows="5" id="jackett.indexers" class="form-control">{% if Config.jackett %}{{ Config.jackett.indexers|join('\n') }}{% endif %}</textarea>
             </div>
           </div>
@@ -83,13 +83,13 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">服务器地址</label>
-              <input type="text" value="{% if Config.prowlarr %}{{ Config.prowlarr.host or '' }}{% endif %}" id="prowlarr.host" class="form-control">
+              <label class="form-label required">服务器地址(<a href="#" title="Prowlarr访问地址，如为https需加https://前缀">?</a>)</label>
+              <input type="text" value="{% if Config.prowlarr %}{{ Config.prowlarr.host or '' }}{% endif %}" id="prowlarr.host" class="form-control" placeholder="http://127.0.0.1:9696">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">Api Key</label>
+              <label class="form-label required">API Key(<a href="#" title="在Prowlarr->Settings->General->Security-> API Key中获取">?</a>)</label>
               <input type="text" value="{% if Config.prowlarr %}{{ Config.prowlarr.api_key or '' }}{% endif %}" id="prowlarr.api_key" class="form-control">
             </div>
           </div>

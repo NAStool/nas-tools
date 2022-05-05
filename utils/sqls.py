@@ -388,7 +388,7 @@ def is_exists_rss_movie(title, year):
 
 
 # 新增RSS电影
-def insert_rss_movie(media_info):
+def insert_rss_movie(media_info, state='D'):
     if not media_info:
         return False
     if not media_info.title or not media_info.year:
@@ -401,7 +401,7 @@ def insert_rss_movie(media_info):
         str_sql(media_info.tmdb_id),
         str_sql(media_info.get_backdrop_path()),
         str_sql(media_info.overview),
-        'D'
+        state
     )
     return update_by_sql(sql)
 

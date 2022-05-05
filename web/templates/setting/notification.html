@@ -76,19 +76,19 @@
         <div class="row">
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label required">企业ID</label>
+              <label class="form-label required">企业ID(<a href="#" title="每个企业都拥有唯一的corpid，获取此信息可在管理后台“我的企业”－“企业信息”下查看“企业ID”（需要有管理员权限）">?</a>)</label>
               <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.corpid or '' }}{% endif %}" id="corpid" class="form-control">
             </div>
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label required">Secret</label>
+              <label class="form-label required">Secret(<a href="#" title="自建应用secret。在管理后台->“应用与小程序”->“应用”->“自建”，点进某个应用，即可看到">?</a>)</label>
               <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.corpsecret or '' }}{% endif %}" id="corpsecret" class="form-control">
             </div>
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label required">AgentId</label>
+              <label class="form-label required">AgentId(<a href="#" title="每个应用都有唯一的agentid。在管理后台->“应用与小程序”->“应用”，点进某个应用，即可看到agentid">?</a>)</label>
               <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.agentid or '' }}{% endif %}" id="agentid" class="form-control">
             </div>
           </div>
@@ -98,13 +98,13 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label">Token</label>
+              <label class="form-label">Token(<a href="#" title="在微信企业应用接收消息设置页面生成并填入，填入完成后重启本应用，然后再在微信页面输入地址确定">?</a>)</label>
               <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.Token or '' }}{% endif %}" id="Token" class="form-control">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label">EncodingAESKey</label>
+              <label class="form-label">EncodingAESKey(<a href="#" title="在微信企业应用接收消息设置页面生成并填入，填入完成后重启本应用，然后再在微信页面输入地址确定">?</a>)</label>
               <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.EncodingAESKey or '' }}{% endif %}" id="EncodingAESKey" class="form-control">
             </div>
           </div>
@@ -127,13 +127,13 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">Bot Token</label>
+              <label class="form-label required">Bot Token(<a href="#" title="telegram机器人的Token，关注BotFather创建机器人">?</a>)</label>
               <input type="text" value="{% if Config.message.telegram %}{{ Config.message.telegram.telegram_token or '' }}{% endif %}" id="telegram_token" class="form-control">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">Chat Id</label>
+              <label class="form-label required">Chat Id(<a href="#" title="telegram中关注getuserID获取">?</a>)</label>
               <input type="text" value="{% if Config.message.telegram %}{{ Config.message.telegram.telegram_chat_id or '' }}{% endif %}" id="telegram_chat_id" class="form-control">
             </div>
           </div>
@@ -145,7 +145,7 @@
             <div class="mb-3">
               <label class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="webhook" {% if  Config.message.telegram.webhook %}checked{% endif %}>
-                <span class="form-check-label">WebHook</span>
+                <span class="form-check-label">WebHook(<a href="#" title="受Telegram限制，程序外网访问地址需要设置为以下端口之一：443, 80, 88, 8443，且需要有公网认证的可信SSL证书">?</a>)</span>
               </label>
             </div>
           </div>
@@ -168,7 +168,7 @@
         <div class="row">
           <div class="col-lg-12">
             <div class="mb-3">
-              <label class="form-label required">SCKEY</label>
+              <label class="form-label required">SCKEY(<a href="#" title="填写ServerChan的API Key，SCT类型，在https://sct.ftqq.com/中申请">?</a>)</label>
               <input type="text" value="{% if Config.message.serverchan %}{{ Config.message.serverchan.sckey or '' }}{% endif %}" id="sckey" class="form-control">
             </div>
           </div>
@@ -191,13 +191,13 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">Server</label>
+              <label class="form-label required">服务器地址(<a href="#" title="自己搭建Bark服务端请实际配置，否则可使用：https://api.day.app">?</a>)</label>
               <input type="text" value="{% if Config.message.bark %}{{ Config.message.bark.server or '' }}{% endif %}" id="server" class="form-control" placeholder="https://api.day.app">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">Api Key</label>
+              <label class="form-label required">API Key(<a href="#" title="Bark客户端生成的KEY">?</a>)</label>
               <input type="text" value="{% if Config.message.bark %}{{ Config.message.bark.apikey or '' }}{% endif %}" id="apikey" class="form-control">
             </div>
           </div>
