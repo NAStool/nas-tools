@@ -96,6 +96,13 @@ class Qbittorrent:
             log.error("【QB】qBittorrent连接出错：%s" % str(err))
             return None
 
+    def get_status(self):
+        """
+        检查连通性
+        :return: True、Fals
+        """
+        return True if self.qbc else False
+
     def get_torrents(self, ids=None, status=None):
         """
         按条件读取种子信息

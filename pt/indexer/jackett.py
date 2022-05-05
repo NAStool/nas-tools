@@ -44,6 +44,20 @@ class Jackett:
                 else:
                     self.__res_type = None
 
+    def get_status(self):
+        """
+        检查连通性
+        :return: True、False
+        """
+        if not self.__api_key or not self.__indexers:
+            return False
+        api_url = "%sapi?apikey=%s&t=search&q=%s" % (self.__indexers[0], self.__api_key, "ASDFGHJKL")
+        res = requests.get(api_url, timeout=10)
+        if res and res.status_code == 200:
+            if res.text.find("Invalid API Key") == -1:
+                return True
+        return False
+
     def search_by_keyword(self, key_word, s_num, e_num, year, mtype, whole_word):
         """
         根据关键字调用 Jackett API 检索

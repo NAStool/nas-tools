@@ -17,6 +17,12 @@ class Bark:
             self.__server = message.get('bark', {}).get('server')
             self.__apikey = message.get('bark', {}).get('apikey')
 
+    def get_status(self):
+        """
+        测试连通性
+        """
+        return self.send_bark_msg("测试", "这是一条测试消息")
+
     def send_bark_msg(self, title, text=""):
         """
         发送Bark消息
@@ -25,7 +31,7 @@ class Bark:
         :return: 发送状态、错误信息
         """
         if not title and not text:
-            return -1, "标题和内容不能同时为空"
+            return False, "标题和内容不能同时为空"
         try:
             if not self.__server or not self.__apikey:
                 return False, "参数未配置"

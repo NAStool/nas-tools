@@ -21,7 +21,6 @@ class Scheduler:
 
     def __init__(self):
         self.init_config()
-        self.SCHEDULER = BackgroundScheduler(timezone="Asia/Shanghai")
 
     def init_config(self):
         config = Config()
@@ -32,6 +31,7 @@ class Scheduler:
         """
         读取配置，启动定时服务
         """
+        self.SCHEDULER = BackgroundScheduler(timezone="Asia/Shanghai")
         if not self.SCHEDULER:
             return
         if self.__pt:
@@ -130,6 +130,10 @@ class Scheduler:
         """
         停止定时服务
         """
-        if self.SCHEDULER:
-            self.SCHEDULER.remove_all_jobs()
-            self.SCHEDULER.shutdown()
+        try:
+            if self.SCHEDULER:
+                self.SCHEDULER.remove_all_jobs()
+                self.SCHEDULER.shutdown()
+                self.SCHEDULER = None
+        except Exception as e:
+            print(str(e))

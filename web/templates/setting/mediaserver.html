@@ -77,6 +77,9 @@
         </div>
       </div>
       <div class="modal-footer">
+        <a href="javascript:test_mediaserver_config('emby')" id="emby_test_btn" class="btn me-auto">
+          测试
+        </a>
         <a href="javascript:save_mediaserver_config('emby')" id="emby_save_btn" class="btn btn-primary">确定</a>
       </div>
     </div>
@@ -106,6 +109,9 @@
         </div>
       </div>
       <div class="modal-footer">
+        <a href="javascript:test_mediaserver_config('jellyfin')" id="jellyfin_test_btn" class="btn me-auto">
+          测试
+        </a>
         <a href="javascript:save_mediaserver_config('jellyfin')" id="jellyfin_save_btn" class="btn btn-primary">确定</a>
       </div>
     </div>
@@ -149,14 +155,22 @@
         </div>
       </div>
       <div class="modal-footer">
+        <a href="javascript:test_mediaserver_config('plex')" id="plex_test_btn" class="btn me-auto">
+          测试
+        </a>
         <a href="javascript:save_mediaserver_config('plex')" id="plex_save_btn" class="btn btn-primary">确定</a>
       </div>
     </div>
   </div>
 </div>
 <script type="text/javascript">
-  function save_mediaserver_config(type){
-    var params = {}
+  // 当前处理的类型
+  var currType = "";
+
+  // 保存配置
+  function save_config(type, func){
+    currType = type;
+    var params = {};
     $("#modal-"+ type +" input").each(function(){
       var key = $(this).attr("id");
       if($(this).attr("type")=="checkbox"){
@@ -167,9 +181,35 @@
       params[key] = value;
     });
     params['media.media_server'] = type;
+    ajax_post("update_config", params, func);
+  }
+
+  //保存配置、关闭和刷新页面
+  function save_mediaserver_config(type){
     $("#modal-"+type).modal('hide');
-    ajax_post("update_config", params, function (ret) {
+    save_config(type, function (ret) {
       navmenu('mediaserver');
+    });
+  }
+
+  //保存配置和测试配置
+  function test_mediaserver_config(type){
+    $("#" + type + "_test_btn").text("测试中...");
+    save_config(type, function (ret) {
+      if(currType == "emby"){
+        command = ["getattr(importlib.import_module('rmt.server.emby'), 'Emby')().get_status()"];
+      }else if(currType == "jellyfin"){
+        command = ["Jellyfin().get_status()"];
+      }else if(currType == "plex"){
+        command = ["Plex().get_status()"];
+      }
+      ajax_post("test_connection", {"command": command}, function(ret){
+        if(ret.code == 0){
+          $("#" + currType + "_test_btn").text("测试成功");
+        }else{
+          $("#" + currType + "_test_btn").text("测试失败！");
+        }
+      });
     });
   }
 </script>

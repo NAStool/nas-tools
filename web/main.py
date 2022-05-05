@@ -5,22 +5,26 @@ import shutil
 import signal
 from math import floor
 from subprocess import call
-
+import importlib
 import requests
 from flask import Flask, request, json, render_template, make_response, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import log
-from message.telegram import Telegram
+from message.wechat import WeChat
 from monitor.media_sync import Sync
-from monitor.run import stop_monitor
+from monitor.run import stop_monitor, restart_monitor
+from pt.client.qbittorrent import Qbittorrent
+from pt.client.transmission import Transmission
 from pt.downloader import Downloader
 from pt.searcher import Searcher
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
 from rmt.media_server import MediaServer
 from rmt.metainfo import MetaInfo
+from rmt.server.jellyfin import Jellyfin
+from rmt.server.plex import Plex
 from scheduler.autoremove_torrents import AutoRemoveTorrents
 from scheduler.douban_sync import DoubanSync
 from scheduler.pt_signin import PTSignin
@@ -29,8 +33,8 @@ from scheduler.rss_download import RSSDownloader
 from message.send import Message
 
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE
-from scheduler.run import stop_scheduler
-from utils.functions import get_used_of_partition, str_filesize, str_timelong
+from scheduler.run import stop_scheduler, restart_scheduler
+from utils.functions import get_used_of_partition, str_filesize, str_timelong, INSTANCES
 from utils.sqls import get_search_result_by_id, get_search_results, \
     get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
@@ -45,6 +49,9 @@ from web.backend.webhook_event import WebhookEvent
 from web.backend.search_torrents import search_medias_for_web
 from utils.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
+
+from message.telegram import Telegram
+
 
 login_manager = LoginManager()
 login_manager.login_view = "login"
@@ -1227,15 +1234,67 @@ def create_flask_app(config):
             if cmd == "update_config":
                 cfg = config.get_config()
                 cfgs = dict(data).items()
+                # 重载配置标志
+                scheduler_reload = False
+                jellyfin_reload = False
+                plex_reload = False
+                qbittorrent_reload = False
+                transmission_reload = False
+                wechat_reload = False
+                telegram_reload = False
+                # 修改配置
                 for key, value in cfgs:
                     cfg = set_config_value(cfg, key, value)
+                    if key.startswith("pt") or key.startswith("douban"):
+                        scheduler_reload = True
+                    if key.startswith("jellyfin"):
+                        jellyfin_reload = True
+                    if key.startswith("plex"):
+                        plex_reload = True
+                    if key.startswith("qbittorrent"):
+                        qbittorrent_reload = True
+                    if key.startswith("transmission"):
+                        transmission_reload = True
+                    if key.startswith("message.telegram"):
+                        telegram_reload = True
+                    if key.startswith("message.wechat"):
+                        wechat_reload = True
+                # 保存配置
                 config.save_config(cfg)
+                # 重启定时服务
+                if scheduler_reload:
+                    restart_scheduler()
+                # 重载Jellyfin
+                if jellyfin_reload:
+                    Jellyfin().init_config()
+                # 重载Plex
+                if plex_reload:
+                    Plex().init_config()
+                # 重载qbittorrent
+                if qbittorrent_reload:
+                    Qbittorrent().init_config()
+                # 重载transmission
+                if transmission_reload:
+                    Transmission().init_config()
+                # 重载wechat
+                if wechat_reload:
+                    WeChat().init_config()
+                # 重载telegram
+                if telegram_reload:
+                    Telegram().init_config()
+
                 return {"code": 0}
 
             # 维护媒体库目录
             if cmd == "update_directory":
                 cfg = set_config_directory(config.get_config(), data.get("oper"), data.get("key"), data.get("value"))
+                # 保存配置
                 config.save_config(cfg)
+                if data.get("key") == "sync.sync_path":
+                    # 生效配置
+                    Sync().init_config()
+                    # 重启目录同步服务
+                    restart_monitor()
                 return {"code": 0}
 
             # 移除RSS订阅
@@ -1363,6 +1422,25 @@ def create_flask_app(config):
                         "overview": tmdb_info.get("overview"),
                         "link_url": link_url
                     }
+
+            # 测试连通性
+            if cmd == "test_connection":
+                command = data.get("command")
+                ret = None
+                if command:
+                    try:
+                        if isinstance(command, list):
+                            for cmd_str in command:
+                                ret = eval(cmd_str)
+                                if not ret:
+                                    break
+                        else:
+                            ret = eval(command)
+                    except Exception as e:
+                        ret = None
+                        print(str(e))
+                    return {"code": 0 if ret else 1}
+                return {"code": 0}
 
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])

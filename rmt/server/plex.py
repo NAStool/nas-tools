@@ -34,6 +34,12 @@ class Plex:
                 self.__plex = None
                 log.error("【PLEX】Plex服务器连接失败：%s" % str(e))
 
+    def get_status(self):
+        """
+        测试连通性
+        """
+        return True if self.__plex else False
+
     @staticmethod
     def get_user_count():
         """

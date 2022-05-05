@@ -23,6 +23,12 @@ class Emby:
                 self.__host = self.__host + "/"
             self.__apikey = emby.get('api_key')
 
+    def get_status(self):
+        """
+        测试连通性
+        """
+        return True if self.get_medias_count() else False
+
     def __get_emby_librarys(self):
         """
         获取Emby媒体库列表

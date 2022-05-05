@@ -42,6 +42,12 @@ class Telegram:
                 self.__webhook_url = "%stelegram" % self.__domain
                 self.set_bot_webhook()
 
+    def get_status(self):
+        """
+        测试连通性
+        """
+        return self.send_telegram_msg("测试", "这是一条测试消息")
+
     def get_admin_user(self):
         """
         获取Telegram配置文件中的ChatId，即管理员用户ID
@@ -59,7 +65,7 @@ class Telegram:
         :user_id: 发送消息的目标用户ID，为空则发给管理员
         """
         if not title and not text:
-            return -1, "标题和内容不能同时为空"
+            return False, "标题和内容不能同时为空"
         try:
             if not self.__telegram_token or not self.__telegram_chat_id:
                 return False, "参数未配置"

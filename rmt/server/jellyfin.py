@@ -27,6 +27,12 @@ class Jellyfin:
             self.__apikey = jellyfin.get('api_key')
             self.get_admin_user()
 
+    def get_status(self):
+        """
+        测试连通性
+        """
+        return True if self.get_medias_count() else False
+
     def __get_jellyfin_librarys(self):
         """
         获取Jellyfin媒体库的信息

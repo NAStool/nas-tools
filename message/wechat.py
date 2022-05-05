@@ -64,7 +64,13 @@ class WeChat(object):
                 return None
         return self.__access_token
 
-    def __send_message(self, title, text, user_id):
+    def get_status(self):
+        """
+        测试连通性
+        """
+        return self.__send_message("测试", "这是一条测试消息")
+
+    def __send_message(self, title, text, user_id=None):
         """
         发送文本消息
         :param title: 消息标题
@@ -106,7 +112,7 @@ class WeChat(object):
         except Exception as err:
             return False, str(err)
 
-    def __send_image_message(self, title, text, image_url, url, user_id):
+    def __send_image_message(self, title, text, image_url, url, user_id=None):
         """
         发送图文消息
         :param title: 消息标题
@@ -152,7 +158,7 @@ class WeChat(object):
         except Exception as err:
             return False, str(err)
 
-    def send_wechat_msg(self, title, text, image, url, user_id):
+    def send_wechat_msg(self, title, text, image, url, user_id=None):
         """
         微信消息发送入口，支持文本、图片、链接跳转、指定发送对象
         :param title: 消息标题
@@ -163,7 +169,7 @@ class WeChat(object):
         :return: 发送状态，错误信息
         """
         if not title and not text:
-            return -1, "标题和内容不能同时为空"
+            return False, "标题和内容不能同时为空"
         if image:
             ret_code, ret_msg = self.__send_image_message(title, text, image, url, user_id)
         else:
