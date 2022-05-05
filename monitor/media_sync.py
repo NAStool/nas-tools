@@ -244,6 +244,7 @@ class Sync(object):
         """
         启动监控服务
         """
+        self.__observer = []
         for monpath in self.sync_dir_config.keys():
             if monpath and os.path.exists(monpath):
                 if self.__sync_sys == OsType.LINUX:
@@ -265,6 +266,7 @@ class Sync(object):
         if self.__observer:
             for observer in self.__observer:
                 observer.stop()
+        self.__observer = []
 
     def transfer_all_sync(self):
         """

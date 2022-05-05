@@ -34,6 +34,7 @@ from message.send import Message
 
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE
 from scheduler.run import stop_scheduler, restart_scheduler
+from scheduler.scheduler import Scheduler
 from utils.functions import get_used_of_partition, str_filesize, str_timelong, INSTANCES
 from utils.sqls import get_search_result_by_id, get_search_results, \
     get_transfer_history, get_transfer_unknown_paths, \
@@ -1263,6 +1264,7 @@ def create_flask_app(config):
                 config.save_config(cfg)
                 # 重启定时服务
                 if scheduler_reload:
+                    Scheduler().init_config()
                     restart_scheduler()
                 # 重载Jellyfin
                 if jellyfin_reload:
