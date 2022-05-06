@@ -950,7 +950,11 @@ def create_flask_app(config):
     def users():
         user_list = get_users()
         user_count = len(user_list)
-        return render_template("setting/users.html", Users=user_list, UserCount=user_count)
+        Users = []
+        for user in user_list:
+            pris = str(user[3]).split(",")
+            Users.append({"id": user[0], "name": user[1], "pris": pris})
+        return render_template("setting/users.html", Users=Users, UserCount=user_count)
 
     # 事件响应
     @App.route('/do', methods=['POST', 'GET'])

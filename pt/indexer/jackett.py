@@ -120,7 +120,7 @@ class Jackett:
             log.warn("【JACKETT】%s 未检索到资源" % indexer_name)
             return []
         else:
-            log.warn("【JACKETT】返回数据：%s" % len(result_array))
+            log.warn("【JACKETT】%s 返回数据：%s" % (indexer_name, len(result_array)))
         # 从检索结果中匹配符合资源条件的记录
         index_sucess = 0
         for item in result_array:
@@ -140,18 +140,18 @@ class Jackett:
             # 识别种子名称
             meta_info = MetaInfo(torrent_name)
             if mtype and meta_info.type != MediaType.MOVIE and mtype == MediaType.MOVIE:
-                log.info("【JACKETT】%s 类型不匹配" % torrent_name)
+                log.info("【JACKETT】%s 是 %s，类型不匹配" % (torrent_name, meta_info.type.value))
                 continue
 
             # 识别媒体信息
             media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
             if not media_info or not media_info.tmdb_info:
-                log.info("【JACKETT】%s 未检索到媒体信息" % torrent_name)
+                log.info("【JACKETT】%s 以名称 %s 从TMDB未检索到媒体信息" % (torrent_name, media_info.get_name()))
                 continue
 
             # 类型
             if mtype and media_info.type != mtype:
-                log.info("【JACKETT】%s 类型不匹配" % torrent_name)
+                log.info("【JACKETT】%s 是 %s，不匹配类型" % (torrent_name, media_info.type.value))
                 continue
 
             # 名称是否匹配

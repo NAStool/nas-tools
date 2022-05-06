@@ -122,7 +122,7 @@ class Rss:
                     # 识别种子名称，开始检索TMDB
                     media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
                     if not media_info or not media_info.tmdb_info:
-                        log.info("【RSS】%s 未查询到媒体信息" % torrent_name)
+                        log.info("【RSS】%s 以名称 %s 从TMDB未查询到媒体信息" % (torrent_name, media_info.get_name()))
                         continue
                     if self.__rss_chinese and not is_chinese(media_info.title):
                         log.info("【RSS】%s 没有中文信息，跳过..." % media_info.title)
