@@ -106,5 +106,6 @@ if __name__ == "__main__":
     # meta_info = Media().get_media_info("双城之战 2021")
     # print(Jellyfin().get_no_exists_episodes(meta_info, 1, 36))
     # meta_info = Media().get_media_info("My Name S01 2021")
-    movie = Plex().get_medias_count()
-    print(movie)
+    # movie = Plex().get_medias_count()
+    # print(movie)
+    print(MetaInfo("Blue Bloods S04 1080p AMZN BLU-RAY DDP5.1 x264-ViSUM").__dict__)

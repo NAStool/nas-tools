@@ -14,7 +14,7 @@ from utils.sqls import get_rss_movies, get_rss_tvs, insert_rss_torrents, \
     update_rss_movie_state, update_rss_tv_state
 from utils.types import MediaType, SearchType
 
-RSS_CACHED_TORRENTS = []
+RSS_CACHED_TORRENTS = {}
 
 
 class Rss:
@@ -106,21 +106,24 @@ class Rss:
             res_num = 0
             for res in rss_result:
                 try:
+                    # 种子名
                     torrent_name = res.get('title')
+                    # 种子链接
                     enclosure = res.get('enclosure')
+                    # 副标题
                     description = res.get('description')
+                    # 种子大小
                     size = res.get('size')
-                    # 判断是否处理过
-                    if enclosure in RSS_CACHED_TORRENTS:
-                        log.debug("【RSS】%s 已处理过，跳过..." % torrent_name)
-                        continue
-                    else:
-                        RSS_CACHED_TORRENTS.append(enclosure)
 
                     log.info("【RSS】开始处理：%s" % torrent_name)
 
-                    # 识别种子名称，开始检索TMDB
-                    media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
+                    # 判断是否处理过
+                    if RSS_CACHED_TORRENTS.get(enclosure):
+                        media_info = RSS_CACHED_TORRENTS.get(enclosure)
+                    else:
+                        # 识别种子名称，开始检索TMDB
+                        media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
+                        RSS_CACHED_TORRENTS[enclosure] = media_info
                     if not media_info or not media_info.tmdb_info:
                         log.info("【RSS】%s 以名称 %s 从TMDB未查询到媒体信息" % (torrent_name, media_info.get_name()))
                         continue
@@ -152,7 +155,7 @@ class Rss:
                         # 确定标题中是否有资源类型关键字，并返回关键字的顺序号
                         match_flag, res_order = self.torrent.check_resouce_types(torrent_name, description, res_type)
                         if not match_flag:
-                            log.info("【RSS】%s 不符合过滤条件" % torrent_name)
+                            log.info("【RSS】%s 不符合过滤条件，跳过..." % torrent_name)
                             continue
                     # 判断文件大小是否匹配，只针对电影
                     if match_flag:
@@ -164,11 +167,13 @@ class Rss:
                     if exist_flag:
                         # 如果是电影，已存在时删除订阅
                         if media_info.type == MediaType.MOVIE:
+                            log.info("【RSS】删除电影订阅：%s" % media_info.get_title_string())
                             delete_rss_movie(media_info.title, media_info.year)
                         # 如果是电视剧
                         else:
                             # 不存在缺失季集时删除订阅
                             if not rss_no_exists or not rss_no_exists.get(media_info.get_title_string()):
+                                log.info("【RSS】删除电视剧订阅：%s %s" % (media_info.get_title_string(), media_info.get_season_string()))
                                 delete_rss_tv(media_info.title, media_info.year, media_info.get_season_string())
                         continue
                     # 返回对象
