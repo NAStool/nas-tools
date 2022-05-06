@@ -19,6 +19,7 @@ from monitor.run import stop_monitor, restart_monitor
 from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
 from pt.downloader import Downloader
+from pt.rss import Rss
 from pt.searcher import Searcher
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
@@ -1519,6 +1520,16 @@ def create_flask_app(config):
                 else:
                     ret = delete_user(name)
                 return {"code": ret}
+
+            # 重新搜索RSS
+            if cmd == "refresh_rss":
+                mtype = data.get("type")
+                rssid = data.get("rssid")
+                if mtype == "MOV":
+                    _thread.start_new_thread(Rss().rsssearch_movie, (rssid,))
+                else:
+                    _thread.start_new_thread(Rss().rsssearch_tv, (rssid,))
+                return {"code": 0}
 
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])

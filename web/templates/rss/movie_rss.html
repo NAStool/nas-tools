@@ -26,7 +26,7 @@
     <div class="row row-cards">
       {% for Item in Items %}
       <div class="col-md-4 col-xl-3">
-        <a class="card card-link" href="javascript:show_media_info('{{ Item[0] }}', '{{ Item[1] }}', '{{ Item[2] }}')" title="{{ Item[4] }}">
+        <a class="card card-link" href="javascript:show_media_info('{{ Item[0] }}', '{{ Item[1] }}', '{{ Item[2] }}', '{{ Item[6] }}')" title="{{ Item[4] }}">
           <div class="text-center rounded">
             <img class="rounded-top" src="{{ Item[3] }}">
           </div>
@@ -153,11 +153,15 @@
           <a href="javascript:remove_rss_media()" class="card-btn">
           取消订阅
           </a>
+          <a href="javascript:research_rss()" class="card-btn">
+          重新搜索
+          </a>
           <a href="#" class="card-btn" data-bs-dismiss="modal">
           关闭
           </a>
           <input type="hidden" id="media_title">
           <input type="hidden" id="media_year">
+          <input type="hidden" id="rss_id">
         </div>
       </div>
     </div>
@@ -196,11 +200,12 @@
   }
 
   //显示媒体详情
-  function show_media_info(name, year, id){
+  function show_media_info(name, year, tmdbid, rssid){
     $("#media_title").val(name);
     $("#media_year").val(year);
+    $("#rss_id").val(rssid);
     $("#modal-wait").modal("show");
-    ajax_post("media_info", {"id": id, "type": "MOV"}, function(ret){
+    ajax_post("media_info", {"id": tmdbid, "type": "MOV"}, function(ret){
       $("#modal-wait").modal("hide");
       if(ret.code == 0){
         $("#media_vote").text(ret.vote_average);
@@ -214,7 +219,16 @@
     });
   }
 
-  // 模枋框事件
+  //重新搜索
+  function research_rss(){
+    $("#modal-media-modal").modal("hide");
+    var rssid = $("#rss_id").val();
+    ajax_post("refresh_rss", {"type": "MOV", "rssid": rssid}, function(ret){
+      navmenu("movie_rss");
+    });
+  }
+
+  // 取消订阅
   function remove_rss_media(){
     $("#modal-media-modal").modal("hide");
     var name = $("#media_title").val();

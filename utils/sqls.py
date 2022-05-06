@@ -358,20 +358,26 @@ def update_config_rss_rule(note):
 
 
 # 查询订阅电影信息
-def get_rss_movies(state=None):
-    if not state:
-        sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE FROM RSS_MOVIES"
+def get_rss_movies(state=None, rssid=None):
+    if rssid:
+        sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE,ID FROM RSS_MOVIES WHERE ID=%s" % rssid
     else:
-        sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE FROM RSS_MOVIES WHERE STATE='%s'" % state
+        if not state:
+            sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE,ID FROM RSS_MOVIES"
+        else:
+            sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE,ID FROM RSS_MOVIES WHERE STATE='%s'" % state
     return select_by_sql(sql)
 
 
 # 查询订阅电视剧信息
-def get_rss_tvs(state=None):
-    if not state:
-        sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE,((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100 FROM RSS_TVS"
+def get_rss_tvs(state=None, rssid=None):
+    if rssid:
+        sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE,((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID FROM RSS_TVS WHERE ID=%s" % rssid
     else:
-        sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE,((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100 FROM RSS_TVS WHERE STATE='%s'" % state
+        if not state:
+            sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE,((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID FROM RSS_TVS"
+        else:
+            sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE,((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID FROM RSS_TVS WHERE STATE='%s'" % state
     return select_by_sql(sql)
 
 

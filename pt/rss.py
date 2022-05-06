@@ -58,13 +58,13 @@ class Rss:
         log.info("【RSS】开始RSS订阅...")
 
         # 读取关键字配置
-        movie_keys = get_rss_movies('R')
+        movie_keys = get_rss_movies(state='R')
         if not movie_keys:
             log.warn("【RSS】未配置电影订阅关键字")
         else:
             log.info("【RSS】电影订阅规则清单：%s" % " ".join('%s' % key[0] for key in movie_keys))
 
-        tv_keys = get_rss_tvs('R')
+        tv_keys = get_rss_tvs(state='R')
         if not tv_keys:
             log.warn("【RSS】未配置电视剧订阅关键字")
         else:
@@ -221,7 +221,20 @@ class Rss:
         """
         log.info("【RSS】开始RSS检索...")
         # 处理电影
-        movies = get_rss_movies('D')
+        self.rsssearch_movie()
+        # 处理电视剧
+        self.rsssearch_tv()
+        log.info("【RSS】RSS检索结束")
+
+    def rsssearch_movie(self, rssid=None):
+        """
+        检索电影RSS
+        :param rssid: 订阅ID，未输入时检索所有状态为D的，输入时检索该ID任何状态的
+        """
+        if rssid:
+            movies = get_rss_movies(rssid=rssid)
+        else:
+            movies = get_rss_movies(state='D')
         if movies:
             log.info("【RSS】共有 %s 个电影订阅需要检索" % len(movies))
         for movie in movies:
@@ -241,8 +254,16 @@ class Rss:
                 delete_rss_movie(name, year)
             else:
                 update_rss_movie_state(name, year, 'R')
-        # 处理电视剧
-        tvs = get_rss_tvs('D')
+
+    def rsssearch_tv(self, rssid=None):
+        """
+        检索电视剧RSS
+        :param rssid: 订阅ID，未输入时检索所有状态为D的，输入时检索该ID任何状态的
+        """
+        if rssid:
+            tvs = get_rss_tvs(rssid=rssid)
+        else:
+            tvs = get_rss_tvs(state='D')
         if tvs:
             log.info("【RSS】共有 %s 个电视剧订阅需要检索" % len(tvs))
         for tv in tvs:
@@ -272,8 +293,6 @@ class Rss:
                         if no_exist_item.get("episodes"):
                             update_rss_tv_lack(name, year, season, len(no_exist_item.get("episodes")))
                         break
-
-        log.info("【RSS】RSS检索结束")
 
     @staticmethod
     def is_torrent_match(media_info, movie_keys, tv_keys):
