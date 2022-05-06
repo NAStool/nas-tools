@@ -216,7 +216,7 @@ class Rss:
                         for left_season in left_media:
                             if item.is_in_season(left_season.get("season")):
                                 if left_season.get("episodes"):
-                                    log.info("【RSS】更新电视剧 %s %s 订阅数为 %s" % (item.get_title_string(), item.get_season_string(), len(left_season.get("episodes"))))
+                                    log.info("【RSS】更新电视剧 %s %s 缺失集数为 %s" % (item.get_title_string(), item.get_season_string(), len(left_season.get("episodes"))))
                                     update_rss_tv_lack(item.title, item.year, item.get_season_string(), len(left_season.get("episodes")))
                                     break
             log.info("【RSS】实际下载了 %s 个资源" % len(download_items))
@@ -299,7 +299,7 @@ class Rss:
                 for no_exist_item in no_exist_items:
                     if no_exist_item.get("season") == season_num:
                         if no_exist_item.get("episodes"):
-                            log.info("【RSS】更新电视剧 %s %s 订阅数为 %s" % (no_exist_item.get_title_string(), no_exist_item.get_season_string(), len(no_exist_item.get("episodes"))))
+                            log.info("【RSS】更新电视剧 %s %s 缺失集数为 %s" % (no_exist_item.get_title_string(), no_exist_item.get_season_string(), len(no_exist_item.get("episodes"))))
                             update_rss_tv_lack(name, year, season, len(no_exist_item.get("episodes")))
                         break
 
