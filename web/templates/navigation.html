@@ -50,6 +50,7 @@
           </div>
           <div class="collapse navbar-collapse" id="navbar-menu">
             <ul class="navbar-nav pt-lg-3">
+              {% if "我的媒体库" in UserPris %}
               <li class="nav-item active" id="nav_index">
                 <a class="nav-link" href="javascript:navmenu('index')" >
                   <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -60,6 +61,7 @@
                   </span>
                 </a>
               </li>
+              {% endif %}
               {% if "资源搜索" in UserPris %}
               <li class="nav-item" id="nav_search">
                 <a class="nav-link" href="javascript:navmenu('search')">
