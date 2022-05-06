@@ -174,7 +174,7 @@
     var data = { "item": id };
     ajax_post(cmd, data, function (ret) {
       item = $("#service_start_name").val();;
-      $("#service_finished_str").text(item + " 服务启动成功，将在后台运行。");
+      $("#service_finished_str").text(item + " 服务启动成功，正在后台运行");
       $("#service-modal-success").modal('show');
     });
   }

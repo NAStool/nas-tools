@@ -5,8 +5,8 @@ from message.send import Message
 from pt.downloader import Downloader
 from pt.indexer.jackett import Jackett
 from pt.indexer.prowlarr import Prowlarr
+from pt.torrent import Torrent
 from rmt.media import Media
-from utils.functions import str_filesize
 from utils.sqls import delete_all_search_torrents, insert_search_results
 from utils.types import SearchType, MediaType
 
@@ -129,7 +129,7 @@ class Searcher:
                 # 保存微信搜索记录
                 delete_all_search_torrents()
                 # 插入数据库
-                save_media_list = self.get_torrents_group_item(media_list)
+                save_media_list = Torrent.get_torrents_group_item(media_list)
                 for save_media_item in save_media_list:
                     insert_search_results(save_media_item)
                 self.message.send_channel_msg(channel=in_from,
@@ -158,52 +158,3 @@ class Searcher:
                     return False, media_info, left_medias
             # 全部下完了
             return True, media_info, no_exists
-
-    @staticmethod
-    def get_torrents_group_item(media_list):
-        """
-        种子去重，每一个名称、站点、资源类型 选一个做种人最多的显示
-        """
-        if not media_list:
-            return []
-
-        # 排序函数
-        def get_sort_str(x):
-            # 排序：标题、最优规则、站点、做种
-            return "%s%s%s%s" % (str(x.title).ljust(100, ' '),
-                                 str(x.res_order).rjust(3, '0'),
-                                 str(x.site_order).rjust(3, '0'),
-                                 str(x.seeders).rjust(10, '0'))
-
-        # 匹配的资源中排序分组
-        media_list = sorted(media_list, key=lambda x: get_sort_str(x), reverse=True)
-        log.debug("【PT】种子信息排序后如下：")
-        for media_item in media_list:
-            log.debug("标题：%s，"
-                      "站点序号：%s，"
-                      "优先序号：%s，"
-                      "做种数：%s，"
-                      "描述：%s" % (media_item.get_title_string(),
-                                 media_item.site_order,
-                                 media_item.res_order,
-                                 media_item.seeders,
-                                 media_item.description))
-        # 控重
-        can_download_list_item = []
-        can_download_list = []
-        # 按分组显示
-        for t_item in media_list:
-            if t_item.type == MediaType.TV:
-                media_name = "%s%s%s%s%s" % (t_item.get_title_string(),
-                                             t_item.site,
-                                             t_item.get_resource_type_string(),
-                                             t_item.get_season_episode_string(),
-                                             str_filesize(t_item.size))
-            else:
-                media_name = "%s%s%s%s" % (
-                    t_item.get_title_string(), t_item.site, t_item.get_resource_type_string(),
-                    str_filesize(t_item.size))
-            if media_name not in can_download_list:
-                can_download_list.append(media_name)
-                can_download_list_item.append(t_item)
-        return can_download_list_item

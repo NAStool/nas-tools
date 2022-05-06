@@ -31,7 +31,6 @@ class Rss:
         self.message = Message()
         self.media = Media()
         self.downloader = Downloader()
-        self.torrent = Torrent()
         self.searcher = Searcher()
         self.init_config()
 
@@ -136,7 +135,7 @@ class Rss:
                             media_info.get_title_string(), media_info.get_season_episode_string()))
                         continue
                     # 检查种子名称或者标题是否匹配
-                    match_flag = self.is_torrent_match(media_info, movie_keys, tv_keys)
+                    match_flag = Torrent.is_torrent_match_rss(media_info, movie_keys, tv_keys)
                     if match_flag:
                         log.info("【RSS】%s: %s %s %s 匹配成功" % (media_info.type.value,
                                                              media_info.get_title_string(),
@@ -153,13 +152,13 @@ class Rss:
                     res_order = 99
                     if match_flag:
                         # 确定标题中是否有资源类型关键字，并返回关键字的顺序号
-                        match_flag, res_order = self.torrent.check_resouce_types(torrent_name, description, res_type)
+                        match_flag, res_order = Torrent.check_resouce_types(torrent_name, description, res_type)
                         if not match_flag:
                             log.info("【RSS】%s 不符合过滤条件，跳过..." % torrent_name)
                             continue
                     # 判断文件大小是否匹配，只针对电影
                     if match_flag:
-                        match_flag = self.torrent.is_torrent_match_size(media_info, res_type, size)
+                        match_flag = Torrent.is_torrent_match_size(media_info, res_type, size)
                         if not match_flag:
                             continue
                     # 检查是否存在
@@ -302,37 +301,6 @@ class Rss:
                             log.info("【RSS】更新电视剧 %s %s 缺失集数为 %s" % (no_exist_item.get_title_string(), no_exist_item.get_season_string(), len(no_exist_item.get("episodes"))))
                             update_rss_tv_lack(name, year, season, len(no_exist_item.get("episodes")))
                         break
-
-    @staticmethod
-    def is_torrent_match(media_info, movie_keys, tv_keys):
-        """
-        判断种子是否命中订阅
-        :param media_info: 已识别的种子媒体信息
-        :param movie_keys: 电影订阅清单
-        :param tv_keys: 电视剧订阅清单
-        :return: 命中状态
-        """
-        if media_info.type == MediaType.MOVIE:
-            for key_info in movie_keys:
-                if not key_info:
-                    continue
-                name = key_info[0]
-                year = key_info[1]
-                # 匹配标题和年份
-                if name == media_info.title and str(year) == str(media_info.year):
-                    return True
-        else:
-            # 匹配种子标题
-            for key_info in tv_keys:
-                if not key_info:
-                    continue
-                name = key_info[0]
-                year = key_info[1]
-                season = key_info[2]
-                # 匹配标题和年份和季
-                if name == media_info.title and str(year) == str(media_info.year) and season == media_info.get_season_string():
-                    return True
-        return False
 
     @staticmethod
     def parse_rssxml(url):

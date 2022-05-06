@@ -8,7 +8,7 @@ from math import floor
 from subprocess import call
 import importlib
 import requests
-from flask import Flask, request, json, render_template, make_response, session
+from flask import Flask, request, json, render_template, make_response
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 

@@ -22,7 +22,6 @@ class Jackett:
     __res_type = None
 
     def __init__(self):
-        self.torrent = Torrent()
         self.media = Media()
         self.init_config()
 
@@ -132,7 +131,7 @@ class Jackett:
             peers = item.get('peers')
 
             # 检查资源类型
-            match_flag, res_order = self.torrent.check_resouce_types(torrent_name, description, self.__res_type)
+            match_flag, res_order = Torrent.check_resouce_types(torrent_name, description, self.__res_type)
             if not match_flag:
                 log.info("【JACKETT】%s 不符合过滤条件" % torrent_name)
                 continue
@@ -174,14 +173,14 @@ class Jackett:
 
             # 检查标题是否匹配剧集
             if match_flag:
-                match_flag = self.torrent.is_torrent_match_sey(media_info, s_num, e_num, year)
+                match_flag = Torrent.is_torrent_match_sey(media_info, s_num, e_num, year)
                 if not match_flag:
                     log.info("【JACKETT】%s：%s %s 不匹配季/集/年份" % (
                         media_info.type.value, media_info.get_title_string(), media_info.get_season_episode_string()))
 
             # 判断文件大小是否匹配，只针对电影
             if match_flag:
-                match_flag = self.torrent.is_torrent_match_size(media_info, self.__res_type, size)
+                match_flag = Torrent.is_torrent_match_size(media_info, self.__res_type, size)
                 if not match_flag:
                     log.info("【JACKETT】%s：%s %s 不符合大小要求" % (media_info.type.value, media_info.get_title_string(), str_filesize(size)))
 

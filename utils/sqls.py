@@ -534,7 +534,7 @@ def is_user_exists(name):
 
 # 新增用户
 def insert_user(name, password, pris):
-    if not name or not password :
+    if not name or not password:
         return False
     if is_user_exists(name):
         return False
