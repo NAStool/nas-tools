@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 import threading
 import requests
 
@@ -98,9 +99,10 @@ class WeChat(object):
             "enable_id_trans": 0,
             "enable_duplicate_check": 0
         }
-        headers = {'content-type': 'charset=utf8'}
+        headers = {'content-type': 'application/json'}
         try:
-            res = requests.post(message_url, json=req_json, headers=headers)
+            res = requests.post(message_url, data=json.dumps(req_json, ensure_ascii=False).encode('utf-8'),
+                                headers=headers)
             if res:
                 ret_json = res.json()
                 if ret_json['errcode'] == 0:
@@ -144,9 +146,10 @@ class WeChat(object):
                 ]
             }
         }
-        headers = {'content-type': 'charset=utf8'}
+        headers = {'content-type': 'application/json'}
         try:
-            res = requests.post(message_url, json=req_json, headers=headers)
+            res = requests.post(message_url, data=json.dumps(req_json, ensure_ascii=False).encode('utf-8'),
+                                headers=headers)
             if res:
                 ret_json = res.json()
                 if ret_json['errcode'] == 0:
