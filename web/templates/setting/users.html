@@ -30,7 +30,7 @@
           <div class="card-body border-bottom py-3">
             <div class="d-flex">
               <div class="text-muted">
-                共 {{ SyncCount }} 条记录
+                共 {{ UserCount }} 条记录
               </div>
             </div>
           </div>
@@ -82,7 +82,61 @@
       </div>
       <div class="modal-body">
         <div class="row">
-
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">用户名</label>
+              <input type="text" value="" id="user_name" class="form-control" autocomplete="false">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">密码</label>
+              <input type="password" value="" id="user_password" class="form-control" autocomplete="false">
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="mb-3">
+            <label class="form-label required">权限</label>
+            <div class="form-selectgroup">
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="资源搜索" class="form-selectgroup-input" checked>
+                <span class="form-selectgroup-label">资源搜索</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="推荐" class="form-selectgroup-input" checked>
+                <span class="form-selectgroup-label">推荐</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="订阅管理" class="form-selectgroup-input">
+                <span class="form-selectgroup-label">订阅管理</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="下载管理" class="form-selectgroup-input">
+                <span class="form-selectgroup-label">下载管理</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="媒体识别" class="form-selectgroup-input">
+                <span class="form-selectgroup-label">媒体识别</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="服务" class="form-selectgroup-input">
+                <span class="form-selectgroup-label">服务</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="系统设置" class="form-selectgroup-input">
+                <span class="form-selectgroup-label">系统设置</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="搜索设置" class="form-selectgroup-input">
+                <span class="form-selectgroup-label">搜索设置</span>
+              </label>
+              <label class="form-selectgroup-item">
+                <input type="checkbox" name="user_pris" value="订阅设置" class="form-selectgroup-input">
+                <span class="form-selectgroup-label">订阅设置</span>
+              </label>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -99,8 +153,33 @@
 
   // 新增用户
   function add_user(){
-
-    var params = {"oper": "add"};
+    var name = $("#user_name").val();
+    var password = $("#user_password").val();
+    var pris = [];
+    var i = 0;
+    $("input[name=user_pris]").each(function(){
+      if($(this).prop("checked")){
+        pris[i] = $(this).val();
+        i = i + 1;
+      }
+    });
+    if (!name) {
+      $("#user_name").addClass("is-invalid");
+      return;
+    } else {
+      $("#user_name").removeClass("is-invalid");
+    }
+    if (!password) {
+      $("#user_password").addClass("is-invalid");
+      return;
+    } else {
+      $("#user_password").removeClass("is-invalid");
+    }
+    if (pris.length == 0){
+      return;
+    }
+    $("#modal-user").modal('hide');
+    var params = {"oper": "add", "name":name, "password": password, "pris": pris};
     ajax_post("user_manager", params, function (ret) {
       navmenu('users');
     });

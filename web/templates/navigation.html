@@ -40,7 +40,7 @@
                 </div>
               </a>
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                {% if SystemFlag > 0%}
+                {% if SystemFlag > 0 and "系统设置" in UserPris %}
                 <a href="javascript:restart()" class="dropdown-item">重启</a>
                 <a href="javascript:update()" class="dropdown-item">更新</a>
                 {% endif %}
@@ -60,6 +60,7 @@
                   </span>
                 </a>
               </li>
+              {% if "资源搜索" in UserPris %}
               <li class="nav-item" id="nav_search">
                 <a class="nav-link" href="javascript:navmenu('search')">
                   <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -70,6 +71,8 @@
                   </span>
                 </a>
               </li>
+              {% endif %}
+              {% if "推荐" in UserPris %}
               <li class="nav-item dropdown" id="nav_recommend">
                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
                   <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -110,6 +113,8 @@
                   </a>
                 </div>
               </li>
+              {% endif %}
+              {% if "订阅管理" in UserPris %}
               <li class="nav-item dropdown" id="nav_sites">
                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
                   <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -126,11 +131,15 @@
                   <a class="dropdown-item" href="javascript:navmenu('tv_rss')">
                     电视剧订阅
                   </a>
+                  {% if "订阅设置" in UserPris %}
                   <a class="dropdown-item" href="javascript:navmenu('site')">
                     订阅站点
                   </a>
+                  {% endif %}
                 </div>
               </li>
+              {% endif %}
+              {% if "下载管理" in UserPris %}
               <li class="nav-item" id="nav_download">
                 <a class="nav-link" href="javascript:navmenu('download')">
                   <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -146,6 +155,8 @@
                   </span>
                 </a>
               </li>
+              {% endif %}
+              {% if "媒体识别" in UserPris %}
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
                   <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -174,6 +185,8 @@
                   </a>
                 </div>
               </li>
+              {% endif %}
+              {% if "服务" in UserPris %}
               <li class="nav-item" id="nav_service">
                 <a class="nav-link" href="javascript:navmenu('service')">
                   <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -184,6 +197,8 @@
                   </span>
                 </a>
               </li>
+              {% endif %}
+              {% if "系统设置" in UserPris %}
               <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
                   <span class="nav-link-icon d-md-none d-lg-inline-block">
@@ -227,6 +242,7 @@
                   </a>
                 </div>
               </li>
+              {% endif %}
             </ul>
           </div>
         </div>
@@ -267,7 +283,7 @@
                             <div class="d-block text-muted text-truncate mt-n1" id="new_version_info">
                             </div>
                           </div>
-                          {% if SystemFlag > 0%}
+                          {% if SystemFlag > 0 and "系统设置" in UserPris %}
                           <div class="col-auto">
                             <a href="javascript:update_to_newversion()" class="list-group-item-actions" title="升级版本">
                               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-lines" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -300,7 +316,7 @@
                 </div>
               </a>
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                {% if SystemFlag > 0%}
+                {% if SystemFlag > 0 and "系统设置" in UserPris %}
                 <a href="javascript:restart()" class="dropdown-item">重启</a>
                 <a href="javascript:update()" class="dropdown-item">更新</a>
                 {% endif %}

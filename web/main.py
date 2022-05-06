@@ -69,7 +69,8 @@ def create_flask_app(config):
     ADMIN_USERS = [{
         "id": 0,
         "name": admin_user,
-        "password": generate_password_hash(str(admin_password))
+        "password": generate_password_hash(str(admin_password)),
+        "pris": "资源搜索,推荐,订阅管理,下载管理,媒体识别,服务,系统设置,搜索设置,订阅设置"
     }]
 
     App = Flask(__name__)
@@ -125,8 +126,8 @@ def create_flask_app(config):
                 return user
         for user in get_users():
             if user[1] == user_name:
-                return {"id": user[0], "name": user[1], "password": user[2]}
-        return None
+                return {"id": user[0], "name": user[1], "password": user[2], "pris": user[3]}
+        return {}
 
     class User(UserMixin):
         """
@@ -165,7 +166,7 @@ def create_flask_app(config):
                 if not user:
                     continue
                 if user[0] == user_id:
-                    return User({"id": user[0], "name": user[1], "password": user[2]})
+                    return User({"id": user[0], "name": user[1], "password": user[2], "pris": user[3]})
             return None
 
     # 定义获取登录用户的方法
@@ -195,8 +196,9 @@ def create_flask_app(config):
             if GoPage.startswith('/'):
                 GoPage = GoPage[1:]
             if current_user.is_authenticated:
-                userid = current_user.get("id")
-                username = current_user.get("name")
+                userid = current_user.id
+                username = current_user.username
+                pris = get_user(username).get("pris")
                 if userid is None or username is None:
                     return render_template('login.html',
                                            GoPage=GoPage)
@@ -204,6 +206,7 @@ def create_flask_app(config):
                     return render_template('navigation.html',
                                            GoPage=GoPage,
                                            UserName=username,
+                                           UserPris=str(pris).split(","),
                                            SystemFlag=SystemFlag,
                                            AppVersion=APP_VERSION)
             else:
@@ -231,9 +234,11 @@ def create_flask_app(config):
             if user.verify_password(password):
                 # 创建用户 Session
                 login_user(user)
+                pris = user_info.get("pris")
                 return render_template('navigation.html',
                                        GoPage=GoPage,
                                        UserName=username,
+                                       UserPris=str(pris).split(","),
                                        SystemFlag=SystemFlag,
                                        AppVersion=APP_VERSION)
             else:
@@ -358,11 +363,18 @@ def create_flask_app(config):
     @App.route('/search', methods=['POST', 'GET'])
     @login_required
     def search():
+        # 权限
+        if current_user.is_authenticated:
+            username = current_user.username
+            pris = get_user(username).get("pris")
+        else:
+            pris = ""
         # 查询结果
         SearchWord = request.args.get("s")
         NeedSearch = request.args.get("f")
         res = get_search_results()
         return render_template("search.html",
+                               UserPris=str(pris).split(","),
                                SearchWord=SearchWord or "",
                                NeedSearch=NeedSearch or "",
                                Count=len(res),
@@ -936,8 +948,9 @@ def create_flask_app(config):
     @App.route('/users', methods=['POST', 'GET'])
     @login_required
     def users():
-        Users = get_users()
-        return render_template("setting/users.html", Users=Users)
+        user_list = get_users()
+        user_count = len(user_list)
+        return render_template("setting/users.html", Users=user_list, UserCount=user_count)
 
     # 事件响应
     @App.route('/do', methods=['POST', 'GET'])
@@ -1496,6 +1509,8 @@ def create_flask_app(config):
                 if oper == "add":
                     password = generate_password_hash(str(data.get("password")))
                     pris = data.get("pris")
+                    if isinstance(pris, list):
+                        pris = ",".join(pris)
                     ret = insert_user(name, password, pris)
                 else:
                     ret = delete_user(name)
