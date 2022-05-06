@@ -481,7 +481,9 @@
           $("aside").hide();
           $("header").hide();
         }else{
-          navmenu("index");
+          //打开第一个页面
+          var page = $("#navbar-menu ul li").first().attr("id").replace("nav_", "");
+          navmenu(page);
         }
 
         //检查版本升级
