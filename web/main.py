@@ -255,6 +255,7 @@ def create_flask_app(config):
         ServerSucess = True
         MovieCount = 0
         SeriesCount = 0
+        EpisodeCount = 0
         SongCount = 0
         MediaServerClient = MediaServer()
         media_count = MediaServerClient.get_medias_count()
@@ -262,6 +263,10 @@ def create_flask_app(config):
             MovieCount = "{:,}".format(media_count.get('MovieCount'))
             SeriesCount = "{:,}".format(media_count.get('SeriesCount'))
             SongCount = "{:,}".format(media_count.get('SongCount'))
+            if media_count.get('EpisodeCount'):
+                EpisodeCount = "{:,}".format(media_count.get('EpisodeCount'))
+            else:
+                EpisodeCount = ""
         elif media_count is None:
             ServerSucess = False
 
@@ -373,7 +378,7 @@ def create_flask_app(config):
         return render_template("index.html",
                                ServerSucess=ServerSucess,
                                MediaCount={'MovieCount': MovieCount, 'SeriesCount': SeriesCount,
-                                           'SongCount': SongCount},
+                                           'SongCount': SongCount, "EpisodeCount": EpisodeCount},
                                Activitys=Activity,
                                UserCount=UserCount,
                                FreeSpace=FreeSpace,

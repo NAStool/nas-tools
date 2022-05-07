@@ -79,7 +79,7 @@ class Plex:
                 MovieCount += sec.totalSize
             if sec.type == "album":
                 MovieCount += sec.totalSize
-        return {"MovieCount": MovieCount, "SeriesCount": SeriesCount, "SongCount": SongCount}
+        return {"MovieCount": MovieCount, "SeriesCount": SeriesCount, "SongCount": SongCount, "EpisodeCount": 0}
 
     def get_movies(self, title, year=None):
         """
