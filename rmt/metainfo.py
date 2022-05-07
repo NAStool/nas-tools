@@ -10,11 +10,13 @@ from rmt.category import Category
 from utils.functions import is_chinese
 from utils.tokens import Tokens
 from utils.types import MediaType
-from functools import lru_cache
+
+
+FANART_CACHE = {}
 
 
 class MetaInfo(object):
-    config = None
+    proxies = None
     category_handler = None
     # 原字符串
     org_string = None
@@ -106,7 +108,8 @@ class MetaInfo(object):
     def __init__(self, title, subtitle=None, anime=False):
         if not title:
             return
-        self.config = Config()
+        config = Config()
+        self.proxies = config.get_proxies()
         self.category_handler = Category()
         self.org_string = title
         self.subtitle = subtitle
@@ -758,7 +761,7 @@ class MetaInfo(object):
             else:
                 self.category = self.category_handler.get_anime_category(info)
         self.poster_path = "https://image.tmdb.org/t/p/w500%s" % info.get('poster_path') if info.get('poster_path') else ""
-        self.fanart_image = self.get_fanart_image(search_type=self.type, tmdbid=info.get('id'), proxies=self.config.get_proxies())
+        self.fanart_image = self.get_fanart_image(search_type=self.type, tmdbid=info.get('id'), proxies=self.proxies)
         self.backdrop_path = "https://image.tmdb.org/t/p/w500%s" % info.get('backdrop_path') if info.get('backdrop_path') else ""
 
     # 整合种了信息
@@ -783,11 +786,12 @@ class MetaInfo(object):
     # 获取消息媒体图片
     # 增加cache，优化资源检索时性能
     @staticmethod
-    @lru_cache(maxsize=256)
     def get_fanart_image(search_type, tmdbid, default=None, proxies=None):
         if not search_type:
             return ""
         if tmdbid:
+            if FANART_CACHE.get(tmdbid):
+                return FANART_CACHE.get(tmdbid)
             if search_type == MediaType.MOVIE:
                 image_url = FANART_MOVIE_API_URL % tmdbid
             else:
@@ -800,6 +804,7 @@ class MetaInfo(object):
                         moviethumb = moviethumbs[0].get('url')
                         if moviethumb:
                             # 有则返回FanArt的图片
+                            FANART_CACHE[tmdbid] = moviethumb
                             return moviethumb
             except RequestException as e1:
                 log.console(str(e1))

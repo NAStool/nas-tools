@@ -106,7 +106,7 @@ class Prowlarr:
             # 识别媒体信息
             media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
             if not media_info or not media_info.tmdb_info:
-                log.info("【PROWLARR】%s 以名称 %s 从TMDB未检索到媒体信息" % (torrent_name, media_info.get_name()))
+                log.info("【PROWLARR】%s 未查询到媒体信息" % torrent_name)
                 continue
 
             # 类型
