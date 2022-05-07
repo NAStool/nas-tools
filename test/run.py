@@ -108,4 +108,4 @@ if __name__ == "__main__":
     # meta_info = Media().get_media_info("My Name S01 2021")
     # movie = Plex().get_medias_count()
     # print(movie)
-    print(MetaInfo("Blue Bloods S04 1080p AMZN BLU-RAY DDP5.1 x264-ViSUM").__dict__)
+    print(Media().get_media_info("Little.Palestine.2021.1080p.WEB-DL.ACC.2.0.H264-UR.mkv").__dict__)
