@@ -10,6 +10,7 @@ from utils.types import MediaType, MatchMode
 
 lock = Lock()
 TMDB_CACHE = {}
+TMDB_NAMES_CACHE = {}
 
 
 class Media:
@@ -60,6 +61,8 @@ class Media:
         ret_names = []
         try:
             if mtype == MediaType.MOVIE:
+                if TMDB_NAMES_CACHE.get("MOV:%s" % tmdb_id):
+                    return TMDB_NAMES_CACHE.get("MOV:%s" % tmdb_id)
                 tmdb_info = self.movie.translations(tmdb_id)
                 if tmdb_info:
                     translations = tmdb_info.get("translations", [])
@@ -68,7 +71,10 @@ class Media:
                         title = data.get("title")
                         if title and title not in ret_names:
                             ret_names.append(title)
+                TMDB_NAMES_CACHE["MOV:%s" % tmdb_id] = ret_names
             else:
+                if TMDB_NAMES_CACHE.get("TV:%s" % tmdb_id):
+                    return TMDB_NAMES_CACHE.get("TV:%s" % tmdb_id)
                 tmdb_info = self.tv.translations(tmdb_id)
                 if tmdb_info:
                     translations = tmdb_info.get("translations", [])
@@ -77,6 +83,7 @@ class Media:
                         name = data.get("name")
                         if name and name not in ret_names:
                             ret_names.append(name)
+                TMDB_NAMES_CACHE["TV:%s" % tmdb_id] = ret_names
         except Exception as e:
             log.error("【META】连接TMDB出错：%s" % str(e))
         return ret_names
