@@ -10,6 +10,7 @@ from rmt.category import Category
 from utils.functions import is_chinese
 from utils.tokens import Tokens
 from utils.types import MediaType
+from functools import lru_cache
 
 
 class MetaInfo(object):
@@ -782,7 +783,10 @@ class MetaInfo(object):
         self.description = description
 
     # 获取消息媒体图片
-    def get_fanart_image(self, search_type, tmdbid, default=None):
+    # 增加cache，优化资源检索时性能
+    @staticmethod
+    @lru_cache(maxsize=256)
+    def get_fanart_image(search_type, tmdbid, default=None, proxies=None):
         if not search_type:
             return ""
         if tmdbid:
@@ -791,7 +795,7 @@ class MetaInfo(object):
             else:
                 image_url = FANART_TV_API_URL % tmdbid
             try:
-                ret = requests.get(image_url, timeout=10, proxies=self.config.get_proxies())
+                ret = requests.get(image_url, timeout=10, proxies=proxies)
                 if ret:
                     moviethumbs = ret.json().get('moviethumb')
                     if moviethumbs:
