@@ -31,5 +31,4 @@ def search_medias_for_web(content):
         media_list = Torrent.get_torrents_group_item(media_list)
         log.info("【WEB】分组择优后剩余 %s 个有效资源" % len(media_list))
         # 插入数据库
-        for media_item in media_list:
-            insert_search_results(media_item)
+        insert_search_results(media_list)

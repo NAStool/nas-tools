@@ -130,8 +130,7 @@ class Searcher:
                 delete_all_search_torrents()
                 # 插入数据库
                 save_media_list = Torrent.get_torrents_group_item(media_list)
-                for save_media_item in save_media_list:
-                    insert_search_results(save_media_item)
+                insert_search_results(save_media_list)
                 self.message.send_channel_msg(channel=in_from,
                                               title=media_info.get_title_vote_string(),
                                               text="%s 共检索到 %s 个有效资源" % (media_info.title, len(save_media_list)),
