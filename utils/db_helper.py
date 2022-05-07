@@ -189,6 +189,20 @@ class DBHelper:
             cursor.close()
         return True
 
+    def excute_many(self, sql, data_list):
+        if not sql or not data_list:
+            return False
+        cursor = self.__connection.cursor()
+        try:
+            cursor.executemany(sql, data_list)
+            self.__connection.commit()
+        except Exception as e:
+            log.error("【DB】执行SQL出错：%s， %s, %s" % (sql, data_list, str(e)))
+            return False
+        finally:
+            cursor.close()
+        return True
+
     def select(self, sql):
         if not sql:
             return False
@@ -220,3 +234,13 @@ def update_by_sql(sql):
     :return: 执行状态
     """
     return DBHelper().excute(sql)
+
+
+def update_by_sql_batch(sql, data_list):
+    """
+    执行更新或删除
+    :param sql: 批量更新SQL语句
+    :param data_list: 数据列表
+    :return: 执行状态
+    """
+    return DBHelper().excute_many(sql, data_list)
