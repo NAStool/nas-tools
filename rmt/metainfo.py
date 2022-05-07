@@ -758,7 +758,7 @@ class MetaInfo(object):
             else:
                 self.category = self.category_handler.get_anime_category(info)
         self.poster_path = "https://image.tmdb.org/t/p/w500%s" % info.get('poster_path') if info.get('poster_path') else ""
-        self.fanart_image = self.get_fanart_image(self.type, tmdbid=info.get('id'))
+        self.fanart_image = self.get_fanart_image(search_type=self.type, tmdbid=info.get('id'), proxies=self.config.get_proxies())
         self.backdrop_path = "https://image.tmdb.org/t/p/w500%s" % info.get('backdrop_path') if info.get('backdrop_path') else ""
 
     # 整合种了信息
