@@ -44,7 +44,7 @@ from utils.sqls import get_search_result_by_id, get_search_results, \
     delete_transfer_log_by_id, get_config_site, insert_config_site, get_site_by_id, delete_config_site, \
     update_config_site, get_config_search_rule, update_config_search_rule, get_config_rss_rule, update_config_rss_rule, \
     get_unknown_path_by_id, get_rss_tvs, get_rss_movies, delete_rss_movie, delete_rss_tv, insert_rss_tv, \
-    insert_rss_movie, get_users, insert_user, delete_user
+    insert_rss_movie, get_users, insert_user, delete_user, get_transfer_statistics
 from utils.types import MediaType, SearchType, DownloaderType, SyncType, OsType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
@@ -348,6 +348,24 @@ def create_flask_app(config):
             # 总空间 格式化
             TotalSpace = "{:,} TB".format(round(TotalSpace / 1024 / 1024 / 1024 / 1024, 2))
 
+        # 查询媒体统计
+        MovieChartLabels = []
+        TvChartLabels = []
+        MovieNums = []
+        TvNums = []
+        AnimeNums = []
+        MediaStatistics = get_transfer_statistics()
+        for statistic in MediaStatistics:
+            if statistic[0] == "电影":
+                MovieChartLabels.append(statistic[1])
+                MovieNums.append(statistic[2])
+            elif statistic[0] == "电视剧":
+                TvChartLabels.append(statistic[1])
+                TvNums.append(statistic[2])
+            elif statistic[0] == "动漫":
+                TvChartLabels.append(statistic[1])
+                AnimeNums.append(statistic[2])
+
         return render_template("index.html",
                                ServerSucess=ServerSucess,
                                MediaCount={'MovieCount': MovieCount, 'SeriesCount': SeriesCount,
@@ -357,7 +375,12 @@ def create_flask_app(config):
                                FreeSpace=FreeSpace,
                                TotalSpace=TotalSpace,
                                UsedSapce=UsedSapce,
-                               UsedPercent=UsedPercent
+                               UsedPercent=UsedPercent,
+                               MovieChartLabels=MovieChartLabels,
+                               TvChartLabels=TvChartLabels,
+                               MovieNums=MovieNums,
+                               TvNums=TvNums,
+                               AnimeNums=AnimeNums
                                )
 
     # 影音搜索页面

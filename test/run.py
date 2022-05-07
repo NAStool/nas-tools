@@ -9,7 +9,7 @@ from scheduler.rss_search import RssSearch
 from scheduler.scheduler import Scheduler
 from utils.db_helper import select_by_sql, update_by_sql
 from utils.sqls import get_config_site, get_config_search_rule, insert_transfer_unknown, insert_rss_movie, \
-    insert_rss_tv, get_rss_tvs
+    insert_rss_tv, get_rss_tvs, get_transfer_statistics
 from utils.types import SyncType
 
 if __name__ == "__main__":
@@ -108,4 +108,5 @@ if __name__ == "__main__":
     # meta_info = Media().get_media_info("My Name S01 2021")
     # movie = Plex().get_medias_count()
     # print(movie)
-    print(Media().get_media_info("Little.Palestine.2021.1080p.WEB-DL.ACC.2.0.H264-UR.mkv").__dict__)
+    # print(Media().get_media_info("Little.Palestine.2021.1080p.WEB-DL.ACC.2.0.H264-UR.mkv").__dict__)
+    print(get_transfer_statistics())

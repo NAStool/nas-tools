@@ -1,3 +1,4 @@
+import datetime
 import os.path
 import time
 
@@ -553,3 +554,10 @@ def insert_user(name, password, pris):
 # 删除用户
 def delete_user(name):
     return update_by_sql("DELETE FROM CONFIG_USERS WHERE NAME='%s'" % str_sql(name))
+
+
+# 查询历史记录统计
+def get_transfer_statistics(days=30):
+    begin_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d %H:%M:%S")
+    sql = "SELECT TYPE,SUBSTR(DATE, 1, 11),COUNT(1) FROM TRANSFER_HISTORY WHERE DATE > '%s' GROUP BY TYPE,SUBSTR(DATE, 1, 11)" % begin_date
+    return select_by_sql(sql)
