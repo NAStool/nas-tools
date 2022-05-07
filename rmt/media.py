@@ -56,6 +56,7 @@ class Media:
         :param tmdb_id: TMDB的ID
         :return: 所有译名的清单
         """
+        global TMDB_NAMES_CACHE
         if not mtype or not tmdb_id:
             return []
         ret_names = []
