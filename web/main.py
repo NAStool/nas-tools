@@ -350,21 +350,25 @@ def create_flask_app(config):
 
         # 查询媒体统计
         MovieChartLabels = []
-        TvChartLabels = []
         MovieNums = []
+        TvChartData = {}
         TvNums = []
         AnimeNums = []
-        MediaStatistics = get_transfer_statistics()
-        for statistic in MediaStatistics:
+        for statistic in get_transfer_statistics():
             if statistic[0] == "电影":
                 MovieChartLabels.append(statistic[1])
                 MovieNums.append(statistic[2])
-            elif statistic[0] == "电视剧":
-                TvChartLabels.append(statistic[1])
-                TvNums.append(statistic[2])
-            elif statistic[0] == "动漫":
-                TvChartLabels.append(statistic[1])
-                AnimeNums.append(statistic[2])
+            else:
+                if not TvChartData.get(statistic[1]):
+                    TvChartData[statistic[1]] = {"tv": 0, "anime": 0}
+                if statistic[0] == "电视剧":
+                    TvChartData[statistic[1]]["tv"] += statistic[2]
+                elif statistic[0] == "动漫":
+                    TvChartData[statistic[1]]["anime"] += statistic[2]
+        TvChartLabels = list(TvChartData)
+        for tv_data in TvChartData.values():
+            TvNums.append(tv_data.get("tv"))
+            AnimeNums.append(tv_data.get("anime"))
 
         return render_template("index.html",
                                ServerSucess=ServerSucess,

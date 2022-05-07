@@ -559,5 +559,5 @@ def delete_user(name):
 # 查询历史记录统计
 def get_transfer_statistics(days=30):
     begin_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d %H:%M:%S")
-    sql = "SELECT TYPE,SUBSTR(DATE, 1, 11),COUNT(1) FROM TRANSFER_HISTORY WHERE DATE > '%s' GROUP BY TYPE,SUBSTR(DATE, 1, 11)" % begin_date
+    sql = "SELECT TYPE,SUBSTR(DATE, 1, 10),COUNT(1) FROM TRANSFER_HISTORY WHERE DATE > '%s' GROUP BY TYPE,SUBSTR(DATE, 1, 10)" % begin_date
     return select_by_sql(sql)
