@@ -108,5 +108,5 @@ if __name__ == "__main__":
     # meta_info = Media().get_media_info("My Name S01 2021")
     # movie = Plex().get_medias_count()
     # print(movie)
-    # print(Media().get_media_info("Little.Palestine.2021.1080p.WEB-DL.ACC.2.0.H264-UR.mkv").__dict__)
-    print(get_transfer_statistics())
+    print(Media().get_media_info("Seasons 2016 BluRay 1080p 2Audio DTS HD MA-5.1 x264-beAst ").__dict__)
+    # print(get_transfer_statistics())
