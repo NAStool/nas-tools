@@ -37,7 +37,8 @@ class Logger:
                 logpath = "/config/logs"
             log_file_handler = TimedRotatingFileHandler(filename=logpath + "/" + __name__ + ".txt", when="D",
                                                         interval=1,
-                                                        backupCount=2)
+                                                        backupCount=2,
+                                                        encoding='utf-8')
             log_file_handler.setFormatter(logging.Formatter('%(asctime)s\t%(levelname)s: %(message)s'))
             self.logger.addHandler(log_file_handler)
         # 记录日志到终端
