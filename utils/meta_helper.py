@@ -21,8 +21,12 @@ class MetaHelper(object):
         self.__meta_path = os.path.join(os.path.dirname(config.get_config_path()), 'meta.dat')
         self.__meta_data = self.__load_meta_data(self.__meta_path)
 
-    def get_meta_data(self):
+    def __get_meta_data(self):
         return self.__meta_data
+
+    def get_meta_data_by_key(self, key):
+        with lock:
+            return self.__get_meta_data().get(key)
 
     @staticmethod
     def __load_meta_data(path):
@@ -34,13 +38,13 @@ class MetaHelper(object):
             return {}
 
     def update_meta_data(self, meta_data):
-        for key, item in meta_data.items():
-            if not self.__meta_data.get(key):
-                self.__meta_data[key] = item
+        with lock:
+            for key, item in meta_data.items():
+                if not self.__meta_data.get(key):
+                    self.__meta_data[key] = item
 
     def save_meta_data(self):
-        try:
-            lock.acquire()
+        with lock:
             meta_data = self.__load_meta_data(self.__meta_path)
             save_flag = False
             for key, item in self.__meta_data.items():
@@ -51,5 +55,3 @@ class MetaHelper(object):
                 return
             with open(self.__meta_path, 'wb') as f:
                 pickle.dump(meta_data, f, pickle.HIGHEST_PROTOCOL)
-        finally:
-            lock.release()
