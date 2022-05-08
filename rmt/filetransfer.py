@@ -343,6 +343,8 @@ class FileTransfer:
 
         log.info("【RMT】开始处理：%s" % in_path)
 
+        success_flag = True
+        error_message = ""
         bluray_disk_flag = False
         if not files:
             # 如果传入的是个目录
@@ -414,6 +416,8 @@ class FileTransfer:
             # 未识别
             if not media or not media.tmdb_info or not media.get_title_string():
                 log.warn("【RMT】%s 无法识别媒体信息！" % file_name)
+                success_flag = False
+                error_message = "无法识别媒体信息"
                 # 记录未识别
                 insert_transfer_unknown(reg_path, target_dir)
                 failed_count = failed_count + 1
@@ -441,6 +445,8 @@ class FileTransfer:
                 dist_path = self.__get_best_target_path(mtype=media.type, in_path=in_path, size=media.size)
             if not dist_path:
                 log.error("【RMT】目的路径不对确！")
+                success_flag = False
+                error_message = "目的路径不对确"
                 continue
             if not os.path.exists(dist_path):
                 return False, "目录不存在：%s" % dist_path
@@ -465,6 +471,8 @@ class FileTransfer:
                             log.info("【RMT】文件 %s 已存在，但新文件质量更好，覆盖..." % ret_file_path)
                             ret = self.__transfer_file(file_item, ret_file_path, rmt_mode, True)
                             if not ret:
+                                success_flag = False
+                                error_message = "文件转移失败，错误码：%s" % ret
                                 continue
                             handler_flag = True
                         else:
@@ -477,6 +485,8 @@ class FileTransfer:
             else:
                 if not ret_dir_path:
                     log.error("【RMT】拼装目录路径错误，请确认媒体类型是否匹配！")
+                    success_flag = False
+                    error_message = "拼装目录路径错误，可能媒体类型不正确"
                     continue
                 else:
                     # 创建电录
@@ -486,6 +496,8 @@ class FileTransfer:
             if bluray_disk_flag:
                 ret = self.__transfer_bluray_dir(file_item, ret_dir_path, rmt_mode)
                 if not ret:
+                    success_flag = False
+                    error_message = "蓝光目录转移失败，错误码：%s" % ret
                     continue
             else:
                 # 开始转移文件
@@ -493,10 +505,14 @@ class FileTransfer:
                     file_ext = os.path.splitext(file_item)[-1]
                     if not ret_file_path:
                         log.error("【RMT】拼装文件路径错误，请确认媒体类型是否匹配！")
+                        success_flag = False
+                        error_message = "拼装文件路径错误，可能媒体类型不正确"
                         continue
                     new_file = "%s%s" % (ret_file_path, file_ext)
                     ret = self.__transfer_file(file_item, new_file, rmt_mode, False)
                     if not ret:
+                        success_flag = False
+                        error_message = "文件转移失败，错误码：%s" % ret
                         continue
             # 登记媒体库刷新
             if refresh_item not in refresh_library_items:
@@ -528,7 +544,7 @@ class FileTransfer:
             self.mediaserver.refresh_library_by_items(refresh_library_items)
         # 总结
         log.info("【RMT】%s 处理完成，总数：%s，失败：%s" % (in_path, total_count, failed_count))
-        return True, ""
+        return success_flag, error_message
 
     def transfer_manually(self, s_path, t_path):
         """

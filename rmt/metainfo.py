@@ -87,11 +87,10 @@ class MetaInfo(object):
     _resources_type_re = r"^BLURAY$|^REMUX$|^HDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^UHD$|^SDR$|^HDR$|^DOLBY$|^BLU$|^WEB$|^BD$"
     _name_no_begin_re = r"^\[.+?]"
     _name_se_words = ['共', '第', '季', '集', '话', '話']
-    _name_nostring_re = r"^JADE|^AOD|^[A-Z]{1,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|NETFLIX|IMAX|^CHC|^3D|\s+3D|^BBC|DISNEY\+" \
+    _name_nostring_re = r"^JADE|^AOD|^[A-Z]{1,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|NETFLIX|IMAX|^CHC|^3D|\s+3D|^BBC|DISNEY\+|XXX" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+季" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+[集话話]" \
                         r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|\s+S\d{1,2}|EP?\d{2,4}\s*-\s*EP?\d{2,4}|EP?\d{2,4}|\s+EP?\d{1,4}" \
-                        r"|TV|Series|Movie|Animations|XXX" \
                         r"|连载|日剧|美剧|电视剧|电影|动画片|动漫|欧美|西德|日韩|超高清|高清|蓝光|翡翠台" \
                         r"|最终季|合集|[中国英葡法俄日韩德意西印泰台港粤双文语简繁体特效内封官译外挂]+字幕" \
                         r"|未删减版|UNCUT|UNRATE|WITH EXTRAS|RERIP|SUBBED|PROPER|REPACK|SEASON[\s.]+|EPISODE[\s.]+" \
