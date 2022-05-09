@@ -181,12 +181,12 @@ class FileTransfer:
                             log.info("【RMT】字幕 %s %s完成" % (file_name, rmt_mode.value))
                         else:
                             log.error("【RMT】字幕 %s %s失败，错误码：%s" % (file_name, rmt_mode.value, str(retcode)))
-                            return False
+                            return retcode
                     else:
                         log.info("【RMT】字幕 %s 已存在" % new_file)
             if not find_flag:
                 log.debug("【RMT】没有相同文件名的字幕文件，不处理")
-        return True
+        return 0
 
     def __transfer_bluray_dir(self, file_path, new_path, rmt_mode):
         """
@@ -202,8 +202,7 @@ class FileTransfer:
             log.info("【RMT】文件 %s %s完成" % (file_path, rmt_mode.value))
         else:
             log.error("【RMT】文件%s %s失败，错误码：%s" % (file_path, rmt_mode.value, str(retcode)))
-            return False
-        return True
+        return retcode
 
     def is_target_dir_path(self, path):
         """
@@ -257,10 +256,10 @@ class FileTransfer:
         :param rmt_mode: RmtMode转移方式
         """
         if not file_item or not target_dir:
-            return False
+            return -1
         if not os.path.exists(file_item):
             log.warn("【RMT】%s 不存在" % file_item)
-            return False
+            return -1
         # 计算目录目录
         parent_name = os.path.basename(os.path.dirname(file_item))
         target_dir = os.path.join(target_dir, parent_name)
@@ -276,14 +275,13 @@ class FileTransfer:
             target_file = os.path.join(target_dir, os.path.basename(file_item))
             if os.path.exists(target_file):
                 log.warn("【RMT】%s 文件已存在" % target_file)
-                return False
+                return 0
             retcode = self.__transfer_command(file_item, target_file, rmt_mode)
         if retcode == 0:
             log.info("【RMT】%s %s到unknown完成" % (file_item, rmt_mode.value))
         else:
             log.error("【RMT】%s %s到unknown失败，错误码：%s" % (file_item, rmt_mode.value, retcode))
-            return False
-        return True
+        return retcode
 
     def __transfer_file(self, file_item, new_file, rmt_mode, over_flag=False):
         """
@@ -297,7 +295,7 @@ class FileTransfer:
         new_file_name = os.path.basename(new_file)
         if not over_flag and os.path.exists(new_file):
             log.warn("【RMT】文件已存在：%s" % new_file_name)
-            return False
+            return 0
         if over_flag and os.path.isfile(new_file):
             log.info("【RMT】正在删除已存在的文件：%s" % new_file_name)
             os.remove(new_file)
@@ -307,7 +305,7 @@ class FileTransfer:
             log.info("【RMT】文件 %s %s完成" % (file_name, rmt_mode.value))
         else:
             log.error("【RMT】文件 %s %s失败，错误码：%s" % (file_name, rmt_mode.value, str(retcode)))
-            return False
+            return retcode
         # 处理字幕
         return self.__transfer_subtitles(file_item, new_file, rmt_mode)
 
@@ -470,7 +468,7 @@ class FileTransfer:
                         if media.size > existfile_size and self.__filesize_cover:
                             log.info("【RMT】文件 %s 已存在，但新文件质量更好，覆盖..." % ret_file_path)
                             ret = self.__transfer_file(file_item, ret_file_path, rmt_mode, True)
-                            if not ret:
+                            if ret != 0:
                                 success_flag = False
                                 error_message = "文件转移失败，错误码：%s" % ret
                                 continue
@@ -495,7 +493,7 @@ class FileTransfer:
             # 转移蓝光原盘
             if bluray_disk_flag:
                 ret = self.__transfer_bluray_dir(file_item, ret_dir_path, rmt_mode)
-                if not ret:
+                if ret != 0:
                     success_flag = False
                     error_message = "蓝光目录转移失败，错误码：%s" % ret
                     continue
@@ -510,7 +508,7 @@ class FileTransfer:
                         continue
                     new_file = "%s%s" % (ret_file_path, file_ext)
                     ret = self.__transfer_file(file_item, new_file, rmt_mode, False)
-                    if not ret:
+                    if ret != 0:
                         success_flag = False
                         error_message = "文件转移失败，错误码：%s" % ret
                         continue

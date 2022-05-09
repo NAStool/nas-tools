@@ -7,9 +7,6 @@ from utils.functions import xstr, is_anime
 from utils.meta_helper import MetaHelper
 from utils.types import MediaType, MatchMode
 
-TMDB_CACHE = {}
-TMDB_NAMES_CACHE = {}
-
 
 class Media:
     # TheMovieDB
@@ -29,6 +26,7 @@ class Media:
         if app:
             if app.get('rmt_tmdbkey'):
                 self.tmdb = TMDb()
+                self.tmdb.cache = True
                 self.tmdb.api_key = app.get('rmt_tmdbkey')
                 self.tmdb.language = 'zh-CN'
                 self.tmdb.proxies = config.get_proxies()
@@ -54,14 +52,11 @@ class Media:
         :param tmdb_id: TMDB的ID
         :return: 所有译名的清单
         """
-        global TMDB_NAMES_CACHE
         if not mtype or not tmdb_id:
             return []
         ret_names = []
         try:
             if mtype == MediaType.MOVIE:
-                if TMDB_NAMES_CACHE.get("MOV:%s" % tmdb_id):
-                    return TMDB_NAMES_CACHE.get("MOV:%s" % tmdb_id)
                 tmdb_info = self.movie.translations(tmdb_id)
                 if tmdb_info:
                     translations = tmdb_info.get("translations", [])
@@ -70,10 +65,7 @@ class Media:
                         title = data.get("title")
                         if title and title not in ret_names:
                             ret_names.append(title)
-                TMDB_NAMES_CACHE["MOV:%s" % tmdb_id] = ret_names
             else:
-                if TMDB_NAMES_CACHE.get("TV:%s" % tmdb_id):
-                    return TMDB_NAMES_CACHE.get("TV:%s" % tmdb_id)
                 tmdb_info = self.tv.translations(tmdb_id)
                 if tmdb_info:
                     translations = tmdb_info.get("translations", [])
@@ -82,7 +74,6 @@ class Media:
                         name = data.get("name")
                         if name and name not in ret_names:
                             ret_names.append(name)
-                TMDB_NAMES_CACHE["TV:%s" % tmdb_id] = ret_names
         except Exception as e:
             log.error("【META】连接TMDB出错：%s" % str(e))
         return ret_names
@@ -451,18 +442,12 @@ class Media:
         :param tmdbid: TMDB ID
         :return: TMDB信息
         """
-        global TMDB_CACHE
         if not self.movie:
             return {}
         try:
-            tmdbinfo = TMDB_CACHE.get("MOV:%s" % tmdbid)
-            if tmdbinfo:
-                return tmdbinfo
-            else:
-                log.info("【META】正在查询TMDB：%s ..." % tmdbid)
-                tmdbinfo = self.movie.details(tmdbid)
-                TMDB_CACHE["MOV:%s" % tmdbid] = tmdbinfo
-                return tmdbinfo
+            log.info("【META】正在查询TMDB：%s ..." % tmdbid)
+            tmdbinfo = self.movie.details(tmdbid)
+            return tmdbinfo
         except Exception as e:
             log.console(str(e))
             return {}
@@ -473,18 +458,12 @@ class Media:
         :param tmdbid: TMDB ID
         :return: TMDB信息
         """
-        global TMDB_CACHE
         if not self.tv:
             return {}
         try:
-            tmdbinfo = TMDB_CACHE.get("TV:%s" % tmdbid)
-            if tmdbinfo:
-                return tmdbinfo
-            else:
-                log.info("【META】正在查询TMDB：%s ..." % tmdbid)
-                tmdbinfo = self.tv.details(tmdbid)
-                TMDB_CACHE["TV:%s" % tmdbid] = tmdbinfo
-                return tmdbinfo
+            log.info("【META】正在查询TMDB：%s ..." % tmdbid)
+            tmdbinfo = self.tv.details(tmdbid)
+            return tmdbinfo
         except Exception as e:
             log.console(str(e))
             return {}

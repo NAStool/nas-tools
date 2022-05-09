@@ -14,8 +14,6 @@ from utils.sqls import get_rss_movies, get_rss_tvs, insert_rss_torrents, \
     update_rss_movie_state, update_rss_tv_state
 from utils.types import MediaType, SearchType
 
-RSS_CACHED_TORRENTS = {}
-
 
 class Rss:
     __rss_chinese = None
@@ -51,7 +49,6 @@ class Rss:
         """
         RSS订阅检索下载入口，由定时服务调用
         """
-        global RSS_CACHED_TORRENTS
         if not self.__sites:
             return
         log.info("【RSS】开始RSS订阅...")
@@ -115,14 +112,8 @@ class Rss:
                     size = res.get('size')
 
                     log.info("【RSS】开始处理：%s" % torrent_name)
-
-                    # 判断是否处理过
-                    if RSS_CACHED_TORRENTS.get(enclosure):
-                        media_info = RSS_CACHED_TORRENTS.get(enclosure)
-                    else:
-                        # 识别种子名称，开始检索TMDB
-                        media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
-                        RSS_CACHED_TORRENTS[enclosure] = media_info
+                    # 识别种子名称，开始检索TMDB
+                    media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
                     if not media_info or not media_info.tmdb_info:
                         log.info("【RSS】%s 未查询到媒体信息" % torrent_name)
                         continue
@@ -284,7 +275,7 @@ class Rss:
                 in_from=SearchType.RSS)
             # 没有检索到媒体信息的，下次再处理
             if not media:
-                update_rss_movie_state(name, year, 'D')
+                update_rss_tv_state(name, year, season, 'D')
                 continue
             if not no_exists or not no_exists.get(media.get_title_string()):
                 # 没有剩余或者剩余缺失季集中没有当前标题，说明下完了
@@ -298,7 +289,7 @@ class Rss:
                 for no_exist_item in no_exist_items:
                     if no_exist_item.get("season") == season_num:
                         if no_exist_item.get("episodes"):
-                            log.info("【RSS】更新电视剧 %s %s 缺失集数为 %s" % (no_exist_item.get_title_string(), no_exist_item.get_season_string(), len(no_exist_item.get("episodes"))))
+                            log.info("【RSS】更新电视剧 %s %s 缺失集数为 %s" % (media.get_title_string(), media.get_season_string(), len(no_exist_item.get("episodes"))))
                             update_rss_tv_lack(name, year, season, len(no_exist_item.get("episodes")))
                         break
 

@@ -186,11 +186,26 @@ class MetaInfo(object):
                             name = anitopy_info.get("anime_title")
                     if not name or name in self._anime_no_words or (len(name) < 5 and not is_chinese(name)):
                         return
-                    # 名称
-                    if is_chinese(name):
-                        self.cn_name = name
-                    else:
-                        self.en_name = name
+                    # 拆份中英文名称
+                    lastword_type = ""
+                    for word in name:
+                        if not word:
+                            continue
+                        if word.isspace() or word.isdigit():
+                            if lastword_type == "cn":
+                                self.cn_name = "%s%s" % (self.cn_name or "", word)
+                            elif lastword_type == "en":
+                                self.en_name = "%s%s" % (self.en_name or "", word)
+                        elif is_chinese(word):
+                            self.cn_name = "%s%s" % (self.cn_name or "", word)
+                            lastword_type = "cn"
+                        else:
+                            self.en_name = "%s%s" % (self.en_name or "", word)
+                            lastword_type = "en"
+                    if self.cn_name:
+                        self.cn_name = self.cn_name.strip()
+                    if self.en_name:
+                        self.en_name = self.en_name.strip()
                     # 年份
                     year = anitopy_info.get("anime_year")
                     if str(year).isdigit():

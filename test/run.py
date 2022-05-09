@@ -8,6 +8,7 @@ from scheduler.douban_sync import DoubanSync
 from scheduler.rss_search import RssSearch
 from scheduler.scheduler import Scheduler
 from utils.db_helper import select_by_sql, update_by_sql
+from utils.functions import is_anime
 from utils.sqls import get_config_site, get_config_search_rule, insert_transfer_unknown, insert_rss_movie, \
     insert_rss_tv, get_rss_tvs, get_transfer_statistics
 from utils.types import SyncType
@@ -108,5 +109,7 @@ if __name__ == "__main__":
     # meta_info = Media().get_media_info("My Name S01 2021")
     # movie = Plex().get_medias_count()
     # print(movie)
-    print(Media().get_media_info("Seasons 2016 BluRay 1080p 2Audio DTS HD MA-5.1 x264-beAst ").__dict__)
+    anime_flag = is_anime('[猎户不发布组]间谍过家家 Spy x Familly[03v2][1080p+][简中][mkv][2022年4月番]')
+    print(anime_flag)
+    print(MetaInfo("[猎户不发布组]间谍过家家 2 Spy x Familly 2[03v2][1080p+][简中][mkv][2022年4月番]", anime=anime_flag).__dict__)
     # print(get_transfer_statistics())
