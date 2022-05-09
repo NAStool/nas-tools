@@ -1,6 +1,7 @@
 import _thread
 import logging
 import os.path
+import re
 import shutil
 import signal
 import subprocess
@@ -37,7 +38,7 @@ from message.send import Message
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE
 from scheduler.run import stop_scheduler, restart_scheduler
 from scheduler.scheduler import Scheduler
-from utils.functions import get_used_of_partition, str_filesize, str_timelong, get_system
+from utils.functions import get_used_of_partition, str_filesize, str_timelong, get_system, get_dir_files_by_ext
 from utils.sqls import get_search_result_by_id, get_search_results, \
     get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
@@ -1178,6 +1179,7 @@ def create_flask_app(config):
                 logid = data.get('logid')
                 paths = get_transfer_path_by_id(logid)
                 if paths:
+                    file_name = paths[0][1]
                     dest_dir = paths[0][2]
                     title = paths[0][3]
                     category = paths[0][4]
@@ -1186,12 +1188,24 @@ def create_flask_app(config):
                     mtype = paths[0][7]
                     dest_path = FileTransfer().get_dest_path_by_info(dest=dest_dir, mtype=mtype, title=title,
                                                                      category=category, year=year, season=se)
+                    meta_info = MetaInfo(file_name)
                     if dest_path and dest_path.find(title) != -1:
-                        try:
-                            delete_transfer_log_by_id(logid)
-                            shutil.rmtree(dest_path)
-                        except Exception as e:
-                            log.console(str(e))
+                        delete_transfer_log_by_id(logid)
+                        if not meta_info.get_episode_string():
+                            # 电影或者没有集数的电视剧，删除整个目录
+                            try:
+                                shutil.rmtree(dest_path)
+                            except Exception as e:
+                                log.console(str(e))
+                        else:
+                            # 有集数的电视剧
+                            for dest_file in get_dir_files_by_ext(dest_path):
+                                file_meta_info = MetaInfo(os.path.basename(dest_file))
+                                if set(file_meta_info.get_episode_list()).issubset(set(meta_info.get_episode_list())):
+                                    try:
+                                        shutil.rmtree(dest_file)
+                                    except Exception as e:
+                                        log.console(str(e))
                 return {"retcode": 0}
 
             # 查询实时日志

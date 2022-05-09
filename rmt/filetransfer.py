@@ -8,6 +8,7 @@ import log
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE
 from rmt.category import Category
 from rmt.media_server import MediaServer
+from rmt.metainfo import MetaInfo
 from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_level1_medias, is_invalid_path, \
     is_path_in_path, get_system, is_bluray_dir
 from message.send import Message
@@ -767,11 +768,8 @@ class FileTransfer:
                     continue
                 files = get_dir_files_by_ext(dest_path, RMT_MEDIAEXT)
                 for file in files:
-                    episode_re = re.search(r'EP?(\d{2,3})', os.path.basename(file), re.IGNORECASE)
-                    if episode_re:
-                        episode = int(episode_re.group(1))
-                        if episode not in exists_episodes:
-                            exists_episodes.append(episode)
+                    file_meta_info = MetaInfo(os.path.basename(file))
+                    exists_episodes = list(set(exists_episodes).union(set(file_meta_info.get_episode_list())))
             return list(set(total_episodes).difference(set(exists_episodes)))
 
     def __get_best_target_path(self, mtype, in_path=None, size=0):
