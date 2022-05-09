@@ -1201,7 +1201,7 @@ def create_flask_app(config):
                             # 有集数的电视剧
                             for dest_file in get_dir_files_by_ext(dest_path):
                                 file_meta_info = MetaInfo(os.path.basename(dest_file))
-                                if set(file_meta_info.get_episode_list()).issubset(set(meta_info.get_episode_list())):
+                                if file_meta_info.get_episode_list() and set(file_meta_info.get_episode_list()).issubset(set(meta_info.get_episode_list())):
                                     try:
                                         shutil.rmtree(dest_file)
                                     except Exception as e:
