@@ -769,6 +769,8 @@ class FileTransfer:
                 files = get_dir_files_by_ext(dest_path, RMT_MEDIAEXT)
                 for file in files:
                     file_meta_info = MetaInfo(os.path.basename(file))
+                    if not file_meta_info.get_episode_list():
+                        continue
                     exists_episodes = list(set(exists_episodes).union(set(file_meta_info.get_episode_list())))
             return list(set(total_episodes).difference(set(exists_episodes)))
 
