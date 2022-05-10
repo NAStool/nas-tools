@@ -87,6 +87,8 @@ class Torrent:
         :return: 是否命中
         """
         if s_num:
+            if not media_info.get_season_list():
+                return False
             if not isinstance(s_num, list):
                 s_num = [s_num]
             if not set(s_num).issuperset(set(media_info.get_season_list())):
@@ -97,7 +99,7 @@ class Torrent:
             if not set(e_num).issuperset(set(media_info.get_episode_list())):
                 return False
         if year_str:
-            if str(media_info.year) != year_str:
+            if str(media_info.year) != str(year_str):
                 return False
         return True
 
