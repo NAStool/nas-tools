@@ -1,3 +1,5 @@
+import re
+
 import requests
 import log
 from config import Config
@@ -15,6 +17,7 @@ class Prowlarr:
     __api_key = None
     __host = None
     __res_type = None
+    __space_chars = r"\.|-|/|:|："
 
     def __init__(self):
         self.media = Media()
@@ -71,7 +74,7 @@ class Prowlarr:
             return []
         ret_array = []
         # 需要处理掉特殊符号
-        search_word = key_word.replace("：", " ")
+        search_word = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__space_chars, ' ', key_word)).strip()
         api_url = "%sapi/v1/search?apikey=%s&Query=%s" % (self.__host, self.__api_key, search_word)
         result_array = self.parse_prowlarrjson(api_url)
         if len(result_array) == 0:

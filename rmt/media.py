@@ -1,9 +1,11 @@
 import os
+import re
+
 import log
 from config import Config
 from rmt.metainfo import MetaInfo
 from rmt.tmdbv3api import TMDb, Search, Movie, TV
-from utils.functions import xstr, is_anime
+from utils.functions import xstr, is_anime, is_chinese
 from utils.meta_helper import MetaHelper
 from utils.types import MediaType, MatchMode
 
@@ -16,6 +18,8 @@ class Media:
     tv = None
     meta = None
     __rmt_match_mode = None
+    __space_chars = r"\.|-|/|:"
+    __empty_chars = r"'"
 
     def __init__(self):
         self.init_config()
@@ -44,6 +48,18 @@ class Media:
                 self.__rmt_match_mode = MatchMode.STRICT
             else:
                 self.__rmt_match_mode = MatchMode.NORMAL
+
+    def __compare_tmdb_names(self, file_name, tmdb_names):
+        if not file_name or not tmdb_names:
+            return False
+        if not isinstance(tmdb_names, list):
+            tmdb_names = [tmdb_names]
+        file_name = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__empty_chars, '', re.sub(r"%s" % self.__space_chars, ' ', file_name))).strip().upper()
+        for tmdb_name in tmdb_names:
+            tmdb_name = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__empty_chars, '', re.sub(r"%s" % self.__space_chars, ' ', tmdb_name))).strip().upper()
+            if file_name == tmdb_name:
+                return True
+        return False
 
     def __search_tmdb_names(self, mtype, tmdb_id):
         """
@@ -92,13 +108,14 @@ class Media:
         if not file_media_name:
             log.error("【META】识别关键字有误！")
             return None
+        if not is_chinese(file_media_name) and len(file_media_name) < 3:
+            return None
         if language:
             self.tmdb.language = language
         else:
             self.tmdb.language = 'zh'
         # TMDB检索
         if search_type == MediaType.MOVIE:
-            # 先按年份查，不行再不用年份查
             log.info("【META】正在识别%s：%s, 年份=%s ..." % (search_type.value, file_media_name, xstr(media_year)))
             try:
                 if media_year:
@@ -119,30 +136,32 @@ class Media:
                 if media_year:
                     for movie in movies:
                         if movie.get('release_date'):
-                            if movie.get('title') == file_media_name and movie.get('release_date')[0:4] == media_year:
+                            if self.__compare_tmdb_names(file_media_name, movie.get('title')) \
+                                    and movie.get('release_date')[0:4] == str(media_year):
                                 info = movie
                                 break
-                            if movie.get('original_title') == file_media_name and movie.get('release_date')[0:4] == media_year:
+                            if self.__compare_tmdb_names(file_media_name, movie.get('original_title')) \
+                                    and movie.get('release_date')[0:4] == str(media_year):
                                 info = movie
                                 break
                 else:
                     for movie in movies:
-                        if movie.get('title') == file_media_name or movie.get('original_title') == file_media_name:
+                        if self.__compare_tmdb_names(file_media_name, movie.get('title')) \
+                                or self.__compare_tmdb_names(file_media_name, movie.get('original_title')):
                             info = movie
                             break
                 if not info:
-                    movies = sorted(movies, key=lambda x: x.get("release_date", "0000-00-00"), reverse=True)
                     for movie in movies:
                         if media_year:
                             if not movie.get('release_date'):
                                 continue
-                            if movie.get('release_date')[0:4] != media_year:
+                            if movie.get('release_date')[0:4] != str(media_year):
                                 continue
-                            if file_media_name in self.__search_tmdb_names(search_type, movie.get("id")):
+                            if self.__compare_tmdb_names(file_media_name, self.__search_tmdb_names(search_type, movie.get("id"))):
                                 info = movie
                                 break
                         else:
-                            if file_media_name in self.__search_tmdb_names(search_type, movie.get("id")):
+                            if self.__compare_tmdb_names(file_media_name, self.__search_tmdb_names(search_type, movie.get("id"))):
                                 info = movie
                                 break
                 if info:
@@ -170,30 +189,32 @@ class Media:
                 if media_year:
                     for tv in tvs:
                         if tv.get('first_air_date'):
-                            if tv.get('name') == file_media_name and tv.get('first_air_date')[0:4] == media_year:
+                            if self.__compare_tmdb_names(file_media_name, tv.get('name')) \
+                                    and tv.get('first_air_date')[0:4] == str(media_year):
                                 info = tv
                                 break
-                            if tv.get('original_name') == file_media_name and tv.get('first_air_date')[0:4] == media_year:
+                            if self.__compare_tmdb_names(file_media_name, tv.get('original_name'))\
+                                    and tv.get('first_air_date')[0:4] == str(media_year):
                                 info = tv
                                 break
                 else:
                     for tv in tvs:
-                        if tv.get('name') == file_media_name or tv.get('original_name') == file_media_name:
+                        if self.__compare_tmdb_names(file_media_name, tv.get('name')) \
+                                or self.__compare_tmdb_names(file_media_name, tv.get('original_name')):
                             info = tv
                             break
                 if not info:
-                    tvs = sorted(tvs, key=lambda x: x.get("first_air_date", "0000-00-00"), reverse=True)
                     for tv in tvs:
                         if media_year:
                             if not tv.get('first_air_date'):
                                 continue
-                            if tv.get('first_air_date')[0:4] != media_year:
+                            if tv.get('first_air_date')[0:4] != str(media_year):
                                 continue
-                            if file_media_name in self.__search_tmdb_names(search_type, tv.get("id")):
+                            if self.__compare_tmdb_names(file_media_name, self.__search_tmdb_names(search_type, tv.get("id"))):
                                 info = tv
                                 break
                         else:
-                            if file_media_name in self.__search_tmdb_names(search_type, tv.get("id")):
+                            if self.__compare_tmdb_names(file_media_name, self.__search_tmdb_names(search_type, tv.get("id"))):
                                 info = tv
                                 break
                 if info:

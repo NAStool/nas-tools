@@ -20,6 +20,7 @@ class Jackett:
     __api_key = None
     __indexers = []
     __res_type = None
+    __space_chars = r"\.|-|/|:|："
 
     def __init__(self):
         self.media = Media()
@@ -112,7 +113,7 @@ class Jackett:
             indexer_name = indexer_name.group(1)
         log.info("【JACKETT】开始检索Indexer：%s ..." % indexer_name)
         # 传给Jackett的需要处理掉特殊符号
-        search_word = key_word.replace("：", " ")
+        search_word = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__space_chars, ' ', key_word)).strip()
         api_url = "%sapi?apikey=%s&t=search&q=%s" % (index, self.__api_key, search_word)
         result_array = self.parse_jackettxml(api_url)
         if len(result_array) == 0:
