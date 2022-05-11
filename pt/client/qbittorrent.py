@@ -115,16 +115,7 @@ class Qbittorrent:
         self.qbc.auth_log_in()
         torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status)
         self.qbc.auth_log_out()
-        if not status:
-            return torrents
-        else:
-            if not isinstance(status, list):
-                status = [status]
-            ret_torrents = []
-            for torrent in torrents:
-                if torrent.get("state") in status:
-                    ret_torrents.append(torrent)
-            return ret_torrents
+        return torrents
 
     def get_completed_torrents(self):
         """
@@ -132,7 +123,7 @@ class Qbittorrent:
         """
         if not self.qbc:
             return []
-        return self.get_torrents(status=["forcedUP", "stalledUP", "queuedUP", "pausedUP", "uploading"])
+        return self.get_torrents(status=["completed"])
 
     def get_downloading_torrents(self):
         """
@@ -140,7 +131,15 @@ class Qbittorrent:
         """
         if not self.qbc:
             return []
-        return self.get_torrents(status=["downloading", "forcedDL", "stalledDL", "queuedDL", "pausedDL"])
+        return self.get_torrents(status=["downloading"])
+
+    def remove_torrents_tag(self, ids, tag):
+        """
+        设置种子Tag
+        :param ids: 种子Hash列表
+        :param tag: 标签内容
+        """
+        return self.qbc.torrents_remove_tags(torrent_hashes=ids, tags=tag)
 
     def set_torrents_status(self, ids):
         """
@@ -167,7 +166,7 @@ class Qbittorrent:
         torrents = self.get_completed_torrents()
         trans_tasks = []
         for torrent in torrents:
-            # 判断标签是否包含已整理
+            # 判断标签是否包含"已整理"
             if torrent.get("tags") and "已整理" in torrent.get("tags"):
                 continue
             true_path = torrent.get('content_path', os.path.join(torrent.get('save_path'), torrent.get('name')))
@@ -196,21 +195,43 @@ class Qbittorrent:
                 remove_torrents.append(torrent.get('hash'))
         return remove_torrents
 
-    def add_torrent(self, turl, mtype):
+    def get_last_add_torrentid_by_tag(self, tag):
+        """
+        根据种子的下载链接获取下载中或暂停的钟子的ID
+        :return: 种子ID
+        """
+        torrents = self.get_torrents(status=["paused"])
+        for torrent in torrents:
+            if torrent.get("tags") and tag in torrent.get("tags"):
+                return torrent.get("hash")
+        return None
+
+    def add_torrent(self, turl, mtype, is_paused=None, tag=None):
         """
         添加qbittorrent下载任务
         :param turl: 种子链接
         :param mtype: 媒体类型：电影、电视剧、动漫
+        :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
+        :param tag: 下载时对种子的标记
         """
         if not self.qbc:
             return False
         self.qbc.auth_log_in()
         if mtype == MediaType.TV:
-            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__tv_save_path, category=self.__tv_category)
+            if self.__tv_category:
+                qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__tv_save_path, category=self.__tv_category, use_auto_torrent_management=True, is_paused=is_paused, tags=[tag])
+            else:
+                qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__tv_save_path,  use_auto_torrent_management=False, is_paused=is_paused, tags=[tag])
         elif mtype == MediaType.MOVIE:
-            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__movie_save_path, category=self.__movie_category)
+            if self.__movie_category:
+                qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__movie_save_path, category=self.__movie_category, use_auto_torrent_management=True, is_paused=is_paused, tags=[tag])
+            else:
+                qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__movie_save_path, use_auto_torrent_management=False, is_paused=is_paused, tags=[tag])
         else:
-            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__anime_save_path, category=self.__anime_category)
+            if self.__anime_category:
+                qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__anime_save_path, category=self.__anime_category, use_auto_torrent_management=True, is_paused=is_paused, tags=[tag])
+            else:
+                qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__anime_save_path, use_auto_torrent_management=False, is_paused=is_paused, tags=[tag])
         self.qbc.auth_log_out()
         return qbc_ret
 
@@ -240,3 +261,18 @@ class Qbittorrent:
         ret = self.qbc.torrents_delete(delete_files=delete_file, torrent_hashes=ids)
         self.qbc.auth_log_out()
         return ret
+
+    def get_files(self, tid):
+        """
+        获取种子文件列表
+        """
+        return self.qbc.torrents_files(torrent_hash=tid)
+
+    def set_files(self, torrent_hash, file_ids, priority):
+        """
+        设置下载文件的状态，priority为0为不下载，priority为1为下载
+        """
+        if not torrent_hash or not file_ids:
+            return False
+        self.qbc.torrents_file_priority(torrent_hash=torrent_hash, file_ids=file_ids, priority=priority)
+        return True

@@ -22,64 +22,72 @@
           <div class="card-body">
             <div class="row">
               <div class="col-xl-4">
-                <div class="row">
-                  <div class="col-md-6 col-xl-12">
-                    <div class="mb-3">
-                      <label class="form-label required">日志输出类型</label>
-                      <select class="form-select" id="app.logtype">
-                        <option value="file" {% if Config.app.logtype=='file' %}selected{% endif %}>文件</option>
-                        <option value="server" {% if Config.app.logtype=='server' %}selected{% endif %}>日志中心</option>
-                      </select>
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label">日志文件路径(<a href="#" title="日志输出类型为文件时需要配置该项">?</a>)</label>
-                      <input type="text" value="{{ Config.app.logpath or '' }}" class="form-control" id="app.logpath" placeholder="/config/logs" autocomplete="false">
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label">日志中心地址(<a href="#" title="日志输出类型为日志中心时需要配置该项；需要配置IP地址和端口，配置示例：127.0.0.1:514">?</a>)</label>
-                      <input type="text" value="{{ Config.app.logserver or '' }}" class="form-control" id="app.logserver" placeholder="127.0.0.1:514" autocomplete="false">
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label">外网访问地址(<a href="#" title="使用该地址进行通知点击跳转以及设置Telegram机器人Webhook；需要配置IP地址和端口，如为https则需要加https://前缀；如启用Telegram机器人Webhook，则端口必须为：443, 80, 88, 8443之一，80、443一般运营商会封禁，建议使用88、8443">?</a>)</label>
-                      <input type="text" value="{{ Config.app.domain or '' }}" class="form-control" id="app.domain" placeholder="http://IP:PORT" autocomplete="false">
-                    </div>
-                  </div>
+                <div class="mb-3">
+                  <label class="form-label required">日志输出类型</label>
+                  <select class="form-select" id="app.logtype">
+                    <option value="file" {% if Config.app.logtype=='file' %}selected{% endif %}>文件</option>
+                    <option value="server" {% if Config.app.logtype=='server' %}selected{% endif %}>日志中心</option>
+                  </select>
                 </div>
               </div>
               <div class="col-xl-4">
-                <div class="row">
-                  <div class="col-md-6 col-xl-12">
-                    <div class="mb-3">
-                      <label class="form-label required">WEB服务端口</label>
-                      <input type="text" value="{{ Config.app.web_port or '' }}" class="form-control" id="app.web_port" placeholder="3000" autocomplete="false">
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label required">WEB管理用户</label>
-                      <input type="text" value="{{ Config.app.login_user or '' }}" class="form-control" id="app.login_user" placeholder="admin" autocomplete="false">
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label required">WEB管理密码</label>
-                      <input type="password" value="{{ Config.app.login_password or '' }}" class="form-control" id="app.login_password" placeholder="password" autocomplete="false">
-                    </div>
-                  </div>
+                <div class="mb-3">
+                  <label class="form-label">日志文件路径(<a href="#" title="日志输出类型为文件时需要配置该项">?</a>)</label>
+                  <input type="text" value="{{ Config.app.logpath or '' }}" class="form-control" id="app.logpath" placeholder="/config/logs" autocomplete="false">
                 </div>
               </div>
               <div class="col-xl-4">
-                <div class="row">
-                  <div class="col-md-6 col-xl-12">
-                    <div class="mb-3">
-                      <label class="form-label">HTTPS证书文件路径(<a href="#" title="需要是pem格式的证书文件">?</a>)</label>
-                      <input type="text" value="{{ Config.app.ssl_cert or '' }}" class="form-control" id="app.ssl_cert" placeholder="" autocomplete="false">
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label">HTTPS证书密钥文件路径</label>
-                      <input type="text" value="{{ Config.app.ssl_key or '' }}" class="form-control" id="app.ssl_key" placeholder="" autocomplete="false">
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label">代理服务器(<a href="#" title="将使用代理访问tmdb、telegram等境外网站，PT站不使用代理；配置格式示例：http://127.0.0.1:7890、socks5://127.0.0.1:8018">?</a>)</label>
-                      <input type="text" value="{{ Proxy or '' }}" class="form-control" id="app.proxies" placeholder="http://127.0.0.1:7890" autocomplete="false">
-                    </div>
-                  </div>
+                <div class="mb-3">
+                  <label class="form-label">日志中心地址(<a href="#" title="日志输出类型为日志中心时需要配置该项；需要配置IP地址和端口，配置示例：127.0.0.1:514">?</a>)</label>
+                  <input type="text" value="{{ Config.app.logserver or '' }}" class="form-control" id="app.logserver" placeholder="127.0.0.1:514" autocomplete="false">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-4">
+                <div class="mb-3">
+                  <label class="form-label required">WEB服务端口</label>
+                  <input type="text" value="{{ Config.app.web_port or '' }}" class="form-control" id="app.web_port" placeholder="3000" autocomplete="false">
+                </div>
+              </div>
+              <div class="col-xl-4">
+                <div class="mb-3">
+                  <label class="form-label required">WEB管理用户</label>
+                  <input type="text" value="{{ Config.app.login_user or '' }}" class="form-control" id="app.login_user" placeholder="admin" autocomplete="false">
+                </div>
+              </div>
+              <div class="col-xl-4">
+                <div class="mb-3">
+                  <label class="form-label required">WEB管理密码</label>
+                  <input type="password" value="{{ Config.app.login_password or '' }}" class="form-control" id="app.login_password" placeholder="password" autocomplete="false">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-4">
+                <div class="mb-3">
+                  <label class="form-label">HTTPS证书文件路径(<a href="#" title="需要是pem格式的证书文件">?</a>)</label>
+                  <input type="text" value="{{ Config.app.ssl_cert or '' }}" class="form-control" id="app.ssl_cert" placeholder="" autocomplete="false">
+                </div>
+              </div>
+              <div class="col-xl-4">
+                <div class="mb-3">
+                  <label class="form-label">HTTPS证书密钥文件路径</label>
+                  <input type="text" value="{{ Config.app.ssl_key or '' }}" class="form-control" id="app.ssl_key" placeholder="" autocomplete="false">
+                </div>
+              </div>
+              <div class="col-xl-4">
+                <div class="mb-3">
+                  <label class="form-label">代理服务器(<a href="#" title="将使用代理访问tmdb、telegram等境外网站，PT站不使用代理；配置格式示例：http://127.0.0.1:7890、socks5://127.0.0.1:8018">?</a>)</label>
+                  <input type="text" value="{{ Proxy or '' }}" class="form-control" id="app.proxies" placeholder="http://127.0.0.1:7890" autocomplete="false">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-4">
+                <div class="mb-3">
+                  <label class="form-label">外网访问地址(<a href="#" title="使用该地址进行通知点击跳转以及设置Telegram机器人Webhook；需要配置IP地址和端口，如为https则需要加https://前缀；如启用Telegram机器人Webhook，则端口必须为：443, 80, 88, 8443之一，80、443一般运营商会封禁，建议使用88、8443">?</a>)</label>
+                  <input type="text" value="{{ Config.app.domain or '' }}" class="form-control" id="app.domain" placeholder="http://IP:PORT" autocomplete="false">
                 </div>
               </div>
             </div>
@@ -104,57 +112,67 @@
           <div class="card-body">
             <div class="row">
               <div class="col-xl-4">
-                <div class="row">
-                  <div class="col-md-6 col-xl-12">
-                    <div class="mb-3">
-                      <label class="form-label required">TMDB API Key(<a href="#" title="该项必须配置，否则所有功能无法正常运行">?</a>)</label>
-                      <input type="text" value="{{ Config.app.rmt_tmdbkey or '' }}" class="form-control" id="app.rmt_tmdbkey" placeholder="" autocomplete="false">
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label">二级分类策略(<a href="#" title="配置策略文件名，需要有同名的.yaml文件放置到配置文件目录中">?</a>)</label>
-                      <input type="text" value="{{ Config.media.category or '' }}" class="form-control" id="media.category" placeholder="default-category" autocomplete="false">
-                    </div>
-                  </div>
+                <div class="mb-3">
+                  <label class="form-label required">TMDB API Key(<a href="#" title="该项必须配置，否则所有功能无法正常运行">?</a>)</label>
+                  <input type="text" value="{{ Config.app.rmt_tmdbkey or '' }}" class="form-control" id="app.rmt_tmdbkey" placeholder="" autocomplete="false">
                 </div>
               </div>
               <div class="col-xl-4">
-                <div class="row">
-                  <div class="col-md-6 col-xl-12">
-                    <div class="mb-3">
-                      <label class="form-label required">TMDB匹配模式(<a href="#" title="正常模式下会提升识别成功率，但也可能会导致误识别率增加；严格模式可以降低误识别率，但可能导致很多文件名/种子名中年份不正确的无法被识别（特别是剧集，需要是首播年份）">?</a>)</label>
-                      <select class="form-select" id="app.rmt_match_mode">
-                        <option value="normal" {% if Config.app.rmt_match_mode=='normal' %}selected{% endif %}>正常模式</option>
-                        <option value="strict"{% if Config.app.rmt_match_mode=='strict' %}selected{% endif %}>严格模式</option>
-                      </select>
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-label required">文件转移方式(<a href="#" title="硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘">?</a>)</label>
-                      <select class="form-select" id="app.rmt_mode">
-                        <option value="link" {% if Config.sync.sync_mod=='link' %}selected{% endif %}>硬链接</option>
-                        <option value="softlink" {% if Config.sync.sync_mod=='softlink' %}selected{% endif %}>软链接</option>
-                        <option value="copy" {% if Config.sync.sync_mod=='copy' %}selected{% endif %}>复制</option>
-                      </select>
-                    </div>
-                  </div>
+                <div class="mb-3">
+                  <label class="form-label required">TMDB匹配模式(<a href="#" title="正常模式下会提升识别成功率，但也可能会导致误识别率增加；严格模式可以降低误识别率，但可能导致很多文件名/种子名中年份不正确的无法被识别（特别是剧集，需要是首播年份）">?</a>)</label>
+                  <select class="form-select" id="app.rmt_match_mode">
+                    <option value="normal" {% if Config.app.rmt_match_mode=='normal' %}selected{% endif %}>正常模式</option>
+                    <option value="strict"{% if Config.app.rmt_match_mode=='strict' %}selected{% endif %}>严格模式</option>
+                  </select>
                 </div>
               </div>
               <div class="col-xl-4">
-                <div class="row">
-                  <div class="col-md-6 col-xl-12">
-                    <div class="mb-3">
-                      <label class="form-label required">媒体转移最小文件大小(MB)(<a href="#" title="小于该大小的文件将会忽略，不进行转移重命名">?</a>)</label>
-                      <input type="text" value="{{ Config.media.min_filesize or '' }}" class="form-control" id="media.min_filesize" placeholder="200" autocomplete="false">
-                    </div>
-                  </div>
+                <div class="mb-3">
+                  <label class="form-label required">文件转移方式(<a href="#" title="硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘">?</a>)</label>
+                  <select class="form-select" id="app.rmt_mode">
+                    <option value="link" {% if Config.sync.sync_mod=='link' %}selected{% endif %}>硬链接</option>
+                    <option value="softlink" {% if Config.sync.sync_mod=='softlink' %}selected{% endif %}>软链接</option>
+                    <option value="copy" {% if Config.sync.sync_mod=='copy' %}selected{% endif %}>复制</option>
+                  </select>
                 </div>
               </div>
             </div>
             <div class="row">
-              <div class="col-md-6 col-xl-12">
+              <div class="col-xl-4">
+                <div class="mb-3">
+                  <label class="form-label">二级分类策略(<a href="#" title="配置策略文件名，需要有同名的.yaml文件放置到配置文件目录中">?</a>)</label>
+                  <input type="text" value="{{ Config.media.category or '' }}" class="form-control" id="media.category" placeholder="default-category" autocomplete="false">
+                </div>
+              </div>
+              <div class="col-xl-4">
+                <div class="mb-3">
+                  <label class="form-label required">媒体转移最小文件大小(MB)(<a href="#" title="小于该大小的文件将会忽略，不进行转移重命名">?</a>)</label>
+                  <input type="text" value="{{ Config.media.min_filesize or '' }}" class="form-control" id="media.min_filesize" placeholder="200" autocomplete="false">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-4">
                 <div class="mb-3">
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="media.filesize_cover" {% if Config.media.filesize_cover %}checked{% endif %}>
-                    <span class="form-check-label">高质量文件覆盖(<a href="#" title="开启后，如手动下载了更高质量的同名同分辨率文件时，会覆盖媒体库中已有的文件；对于电影不同分辨率的文件可以共存，对于电视剧只能保存一个文件在媒体库；自动下载时不会下载已有的重复资源">?</a>)</span>
+                    <span class="form-check-label">高质量文件覆盖(<a href="#" title="开启后，如下载了更高质量的同名同分辨率文件时，会覆盖媒体库中已有的文件，否则不会进行转移处理">?</a>)</span>
+                  </label>
+                </div>
+              </div>
+              <div class="col-xl-4">
+                <div class="mb-3">
+                  <label class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="media.movie_multiversion" {% if Config.media.movie_multiversion == False %}{% else %}checked{% endif %}>
+                    <span class="form-check-label">电影多分辨率(<a href="#" title="如开启，电影文件的命名会包含分辨率，允许同一电影不同分辨率的文件同时存在于媒体库中">?</a>)</span>
+                  </label>
+                </div>
+              </div>
+              <div class="col-xl-4">
+                <div class="mb-3">
+                  <label class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="media.tv_multiversion" {% if Config.media.tv_multiversion %}checked{% endif %}>
+                    <span class="form-check-label">电视剧多分辨率(<a href="#" title="如开启，则剧集文件命名中会加入分辨率，允许同一剧集不同分辨率的文件同时存在于媒体库中">?</a>)</span>
                   </label>
                 </div>
               </div>
@@ -180,51 +198,39 @@
           <div class="card-body">
             <div class="row">
               <div class="col-xl-4">
-                <div class="row">
-                  <div class="col-md-6 col-xl-12">
-                    <div class="mb-3">
-                      <label class="form-label">PT站自动签到时间(<a href="#" title="两种配置方法：1、配置间隔，单位小时，比如23.5；2、配置固定时间，如08:00；配置为空则不启用自动PT站签到功能">?</a>)</label>
-                      <input type="text" value="{{ Config.pt.ptsignin_cron or '' }}" class="form-control" id="pt.ptsignin_cron" placeholder="08:00" autocomplete="false">
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="pt.pt_monitor" {% if Config.pt.pt_monitor %}checked{% endif %}>
-                        <span class="form-check-label">下载软件监控(<a href="#" title="与目录同步监控下载文件夹二选一开启">?</a>)</span>
-                      </label>
-                    </div>
-                  </div>
+                <div class="mb-3">
+                  <label class="form-label">PT站自动签到时间(<a href="#" title="两种配置方法：1、配置间隔，单位小时，比如23.5；2、配置固定时间，如08:00；配置为空则不启用自动PT站签到功能">?</a>)</label>
+                  <input type="text" value="{{ Config.pt.ptsignin_cron or '' }}" class="form-control" id="pt.ptsignin_cron" placeholder="08:00" autocomplete="false">
                 </div>
               </div>
               <div class="col-xl-4">
-                <div class="row">
-                  <div class="col-md-6 col-xl-12">
-                    <div class="mb-3">
-                      <label class="form-label">RSS订阅周期(秒)(<a href="#" title="需要在订阅管理中设置订阅站点；如配置为空则不启动RSS订阅功能">?</a>)</label>
-                      <input type="text" value="{{ Config.pt.pt_check_interval or '' }}" class="form-control" id="pt.pt_check_interval" placeholder="1800" autocomplete="false">
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="pt.rss_chinese" {% if Config.pt.rss_chinese %}checked{% endif %}>
-                        <span class="form-check-label">仅RSS有中文媒体信息的资源</span>
-                      </label>
-                    </div>
-                  </div>
+                <div class="mb-3">
+                  <label class="form-label">RSS订阅周期(秒)(<a href="#" title="需要在订阅管理中设置订阅站点；如配置为空则不启动RSS订阅功能">?</a>)</label>
+                  <input type="text" value="{{ Config.pt.pt_check_interval or '' }}" class="form-control" id="pt.pt_check_interval" placeholder="1800" autocomplete="false">
                 </div>
               </div>
               <div class="col-xl-4">
-                <div class="row">
-                  <div class="col-md-6 col-xl-12">
-                    <div class="mb-3">
-                      <label class="form-label">PT保种时间(天)(<a href="#" title="达到保种时间时将自动删除种子及对应的文件；如配置为空则不启动自动删种功能">?</a>)</label>
-                      <input type="text" value="{{ Config.pt.pt_seeding_time or '' }}" class="form-control" id="pt.pt_seeding_time" placeholder="留空关闭删种功能" autocomplete="false">
-                    </div>
-                    <div class="mb-3">
-                      <label class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="pt.search_auto" {% if Config.pt.search_auto %}checked{% endif %}>
-                        <span class="form-check-label">搜索自动下载(<a href="#" title="启用后在微信、Telegram发送名称后会自动择优下载，否则需要点击链接跳转后手工选择">?</a>)</span>
-                      </label>
-                    </div>
-                  </div>
+                <div class="mb-3">
+                  <label class="form-label">PT保种时间(天)(<a href="#" title="达到保种时间时将自动删除种子及对应的文件；如配置为空则不启动自动删种功能">?</a>)</label>
+                  <input type="text" value="{{ Config.pt.pt_seeding_time or '' }}" class="form-control" id="pt.pt_seeding_time" placeholder="留空关闭删种功能" autocomplete="false">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-xl-4">
+                <div class="mb-3">
+                  <label class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="pt.pt_monitor" {% if Config.pt.pt_monitor %}checked{% endif %}>
+                    <span class="form-check-label">下载软件监控(<a href="#" title="与目录同步监控下载文件夹二选一开启">?</a>)</span>
+                  </label>
+                </div>
+              </div>
+              <div class="col-xl-4">
+                <div class="mb-3">
+                  <label class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="pt.search_auto" {% if Config.pt.search_auto %}checked{% endif %}>
+                    <span class="form-check-label">微信/Telegram搜索自动择优下载(<a href="#" title="启用后在微信、Telegram发送名称后会自动择优下载，否则需要点击链接跳转后手工选择">?</a>)</span>
+                  </label>
                 </div>
               </div>
             </div>

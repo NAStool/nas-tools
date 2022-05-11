@@ -1,3 +1,4 @@
+from pt.client.qbittorrent import Qbittorrent
 from pt.searcher import Searcher
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
@@ -8,7 +9,6 @@ from scheduler.douban_sync import DoubanSync
 from scheduler.rss_search import RssSearch
 from scheduler.scheduler import Scheduler
 from utils.db_helper import select_by_sql, update_by_sql
-from utils.functions import is_anime
 from utils.sqls import get_config_site, get_config_search_rule, insert_transfer_unknown, insert_rss_movie, \
     insert_rss_tv, get_rss_tvs, get_transfer_statistics
 from utils.types import SyncType
@@ -104,12 +104,11 @@ if __name__ == "__main__":
     # DoubanSync().run_schedule()
     # RssSearch().run_schedule()
     # print(MetaInfo('1984.DVDRIP.x264.2020.3D.BluRay.1080p').__dict__)
-    print(Media().get_media_info("inside number 9 s01").__dict__)
+    # meta_info = Media().get_media_info("双城之战 2021")
     # print(Jellyfin().get_no_exists_episodes(meta_info, 1, 36))
     # meta_info = Media().get_media_info("My Name S01 2021")
     # movie = Plex().get_medias_count()
     # print(movie)
-    # anime_flag = is_anime('[猎户不发布组]间谍过家家 Spy x Familly[03v2][1080p+][简中][mkv][2022年4月番]')
-    # print(anime_flag)
-    # print(MetaInfo("[猎户不发布组]间谍过家家 2 Spy x Familly 2[03v2][1080p+][简中][mkv][2022年4月番]", anime=anime_flag).__dict__)
+    # print(Media().get_media_info("Seasons 2016 BluRay 1080p 2Audio DTS HD MA-5.1 x264-beAst ").__dict__)
     # print(get_transfer_statistics())
+    print(len(Qbittorrent().get_completed_torrents()))

@@ -32,6 +32,8 @@ class FileTransfer:
     __unknown_path = None
     __min_filesize = RMT_MIN_FILESIZE
     __filesize_cover = False
+    __movie_multiversion = True
+    __tv_multiversion = False
     media = None
     message = None
     category = None
@@ -95,6 +97,10 @@ class FileTransfer:
                 self.__min_filesize = int(min_filesize) * 1024 * 1024
             # 高质量文件覆盖
             self.__filesize_cover = media.get('filesize_cover')
+            # 电影多分辨率
+            self.__movie_multiversion = True if media.get("movie_multiversion") is None or media.get("movie_multiversion") else False
+            # 电视剧多分辨率
+            self.__tv_multiversion = media.get("tv_multiversion")
 
         sync = config.get_config('sync')
         if sync:
@@ -600,7 +606,7 @@ class FileTransfer:
             file_dest = os.path.join(file_path, dir_name)
             if media.part:
                 file_dest = "%s-%s" % (file_dest, media.part)
-            if media.resource_pix:
+            if media.resource_pix and self.__movie_multiversion:
                 file_dest = "%s - %s" % (file_dest, media.resource_pix)
             ret_file_path = file_dest
             for ext in RMT_MEDIAEXT:
@@ -637,8 +643,12 @@ class FileTransfer:
                     file_path = os.path.join(season_dir, media.title)
                     if media.part:
                         file_path = "%s-%s" % (file_path, media.part)
-                    file_path = "%s - %s%s - 第 %s 集" % (
-                        file_path, media.get_season_item(), media.get_episode_items(), file_seq_num)
+                    if media.resource_pix and self.__tv_multiversion:
+                        file_path = "%s - %s%s - 第 %s 集 - %s" % (
+                            file_path, media.get_season_item(), media.get_episode_items(), file_seq_num, media.resource_pix)
+                    else:
+                        file_path = "%s - %s%s - 第 %s 集" % (
+                            file_path, media.get_season_item(), media.get_episode_items(), file_seq_num)
                     ret_file_path = file_path
                     for ext in RMT_MEDIAEXT:
                         ext_dest = "%s%s" % (file_path, ext)

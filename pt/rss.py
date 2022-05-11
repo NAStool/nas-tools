@@ -16,7 +16,6 @@ from utils.types import MediaType, SearchType
 
 
 class Rss:
-    __rss_chinese = None
     __sites = None
     __rss_rule = None
     message = None
@@ -36,7 +35,6 @@ class Rss:
         config = Config()
         pt = config.get_config('pt')
         if pt:
-            self.__rss_chinese = pt.get('rss_chinese')
             self.__sites = get_config_site()
             rss_rule = get_config_rss_rule()
             if rss_rule:
@@ -116,9 +114,6 @@ class Rss:
                     media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
                     if not media_info or not media_info.tmdb_info:
                         log.info("【RSS】%s 未查询到媒体信息" % torrent_name)
-                        continue
-                    if self.__rss_chinese and not is_chinese(media_info.title):
-                        log.info("【RSS】%s 没有中文信息，跳过..." % media_info.title)
                         continue
                     # 检查这个名字是不是下过了
                     if is_torrent_rssd(media_info):
