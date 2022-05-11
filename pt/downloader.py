@@ -451,7 +451,7 @@ class Downloader:
                 else:
                     files_info[tid][file_id] = {'priority': 'normal', 'selected': selected}
             if files_info:
-                return self.client.set_files(files_info)
+                self.client.set_files(files_info)
         elif self.__client_type == DownloaderType.QB:
             file_ids = []
             torrent_files = self.client.get_files(tid)
@@ -462,5 +462,5 @@ class Downloader:
                 else:
                     sucess_flag = True
             if file_ids:
-                return self.client.set_files(torrent_hash=tid, file_ids=file_ids, priority=0)
+                self.client.set_files(torrent_hash=tid, file_ids=file_ids, priority=0)
         return sucess_flag
