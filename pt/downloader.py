@@ -290,7 +290,8 @@ class Downloader:
                                     self.client.remove_torrents_tag(torrent_id, "待选择文件")
                             # 设置任务只下载想要的文件
                             if not self.set_files_status(torrent_id, need_episodes):
-                                log.error("【PT】对种子 %s 选择下载文件时出错！" % item.org_string)
+                                log.error("【PT】对种子 %s 选择下载文件时出错，删除下载任务..." % item.org_string)
+                                self.client.delete_torrents(delete_file=True, ids=torrent_id)
                                 continue
                             else:
                                 log.info("【PT】%s 选取文件完成" % item.org_string)
@@ -431,6 +432,7 @@ class Downloader:
         :param tid: 种子的hash或id
         :param need_episodes: 需要下载的文件的集信息
         """
+        sucess_flag = False
         if self.__client_type == DownloaderType.TR:
             files_info = {}
             torrent_files = self.client.get_files(tid)
@@ -442,6 +444,8 @@ class Downloader:
                     selected = False
                 else:
                     selected = set(meta_info.get_episode_list()).issubset(set(need_episodes))
+                    if selected:
+                        sucess_flag = True
                 if not files_info.get(tid):
                     files_info[tid] = {file_id: {'priority': 'normal', 'selected': selected}}
                 else:
@@ -455,6 +459,8 @@ class Downloader:
                 meta_info = MetaInfo(torrent_file.get("name"), anime=is_anime(torrent_file.get("name")))
                 if not meta_info.get_episode_list() or not set(meta_info.get_episode_list()).issubset(set(need_episodes)):
                     file_ids.append(torrent_file.get("index"))
+                else:
+                    sucess_flag = True
             if file_ids:
                 return self.client.set_files(torrent_hash=tid, file_ids=file_ids, priority=0)
-        return False
+        return sucess_flag
