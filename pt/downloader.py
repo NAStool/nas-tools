@@ -265,7 +265,7 @@ class Downloader:
                                 and len(item.get_season_list()) == 1 \
                                 and item.get_season_list()[0] == need_season:
                             log.info("【PT】添加PT任务并暂停：%s ..." % item.org_string)
-                            ret = self.add_pt_torrent(url=item.enclosure, mtype=item.type, is_paused=True, tag="待选择文件")
+                            ret = self.add_pt_torrent(url=item.enclosure, mtype=item.type, is_paused=True, tag="NASTOOL")
                             if ret:
                                 return_items.append(item)
                             else:
@@ -282,12 +282,12 @@ class Downloader:
                             else:
                                 # 等待5秒，QB添加下载后需要时间
                                 sleep(5)
-                                torrent_id = self.client.get_last_add_torrentid_by_tag("待选择文件")
+                                torrent_id = self.client.get_last_add_torrentid_by_tag("NASTOOL")
                                 if torrent_id is None:
                                     log.error("【PT】获取Qbittorrent添加的种子信息出错：%s" % item.org_string)
                                     continue
                                 else:
-                                    self.client.remove_torrents_tag(torrent_id, "待选择文件")
+                                    self.client.remove_torrents_tag(torrent_id, "NASTOOL")
                             # 设置任务只下载想要的文件
                             if not self.set_files_status(torrent_id, need_episodes):
                                 log.error("【PT】对种子 %s 选择下载文件时出错或者没有需要的集，删除下载任务..." % item.org_string)
