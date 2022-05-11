@@ -450,8 +450,9 @@ class Downloader:
                     files_info[tid] = {file_id: {'priority': 'normal', 'selected': selected}}
                 else:
                     files_info[tid][file_id] = {'priority': 'normal', 'selected': selected}
-            if files_info:
+            if sucess_flag and files_info:
                 self.client.set_files(files_info)
+                return True
         elif self.__client_type == DownloaderType.QB:
             file_ids = []
             torrent_files = self.client.get_files(tid)
@@ -461,6 +462,7 @@ class Downloader:
                     file_ids.append(torrent_file.get("index"))
                 else:
                     sucess_flag = True
-            if file_ids:
+            if sucess_flag and file_ids:
                 self.client.set_files(torrent_hash=tid, file_ids=file_ids, priority=0)
-        return sucess_flag
+                return True
+        return False
