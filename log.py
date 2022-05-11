@@ -29,15 +29,12 @@ class Logger:
             self.logger.addHandler(log_server_handler)
         elif logtype == "file":
             # 记录日志到文件
-            logpath = self.__config.get_config('app').get('logpath')
-            if logpath:
-                if not os.path.exists(logpath):
-                    os.makedirs(logpath)
-            else:
-                logpath = "/config/logs"
-            log_file_handler = TimedRotatingFileHandler(filename=logpath + "/" + __name__ + ".txt", when="D",
-                                                        interval=1,
-                                                        backupCount=2,
+            logpath = self.__config.get_config('app').get('logpath') or "/config/logs"
+            if not os.path.exists(logpath):
+                os.makedirs(logpath)
+            log_file_handler = TimedRotatingFileHandler(filename=os.path.join(logpath, __name__ + ".txt"),
+                                                        when='D',
+                                                        backupCount=3,
                                                         encoding='utf-8')
             log_file_handler.setFormatter(logging.Formatter('%(asctime)s\t%(levelname)s: %(message)s'))
             self.logger.addHandler(log_file_handler)
