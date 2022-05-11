@@ -290,7 +290,7 @@ class Downloader:
                                     self.client.remove_torrents_tag(torrent_id, "待选择文件")
                             # 设置任务只下载想要的文件
                             if not self.set_files_status(torrent_id, need_episodes):
-                                log.error("【PT】对种子 %s 选择下载文件时出错，删除下载任务..." % item.org_string)
+                                log.error("【PT】对种子 %s 选择下载文件时出错或者没有需要的集，删除下载任务..." % item.org_string)
                                 self.client.delete_torrents(delete_file=True, ids=torrent_id)
                                 continue
                             else:
