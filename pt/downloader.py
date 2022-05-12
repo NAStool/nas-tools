@@ -289,22 +289,27 @@ class Downloader:
                                 else:
                                     self.client.remove_torrents_tag(torrent_id, "NASTOOL")
                             # 设置任务只下载想要的文件
-                            if not self.set_files_status(torrent_id, need_episodes):
-                                log.error("【PT】对种子 %s 选择下载文件时出错或者没有需要的集，删除下载任务..." % item.org_string)
+                            selected_episodes = self.set_files_status(torrent_id, need_episodes)
+                            if not selected_episodes:
+                                log.error("【PT】种子 %s 没有需要的集，删除下载任务..." % item.org_string)
                                 self.client.delete_torrents(delete_file=True, ids=torrent_id)
                                 continue
                             else:
-                                log.info("【PT】%s 选取文件完成" % item.org_string)
+                                log.info("【PT】%s 选取文件完成，选中集数：%s" % (item.org_string, len(selected_episodes)))
                             # 重新开始任务
                             log.info("【PT】%s 开始下载" % item.org_string)
                             self.start_torrents(torrent_id)
                             # 发送消息通知
                             self.message.send_download_message(in_from, item)
                             # 清除记忆并退出一层循环
-                            need_tvs[need_title].pop(index)
-                            if not need_tvs.get(need_title):
-                                need_tvs.pop(need_title)
-                            break
+                            need_episodes = list(set(need_episodes).difference(set(selected_episodes)))
+                            if not need_episodes:
+                                need_tvs[need_title].pop(index)
+                                if not need_tvs.get(need_title):
+                                    need_tvs.pop(need_title)
+                                break
+                            else:
+                                need_tvs[need_title][index]["episodes"] = need_episodes
                 index += 1
 
         # 返回下载的资源，剩下没下完的
@@ -433,13 +438,14 @@ class Downloader:
         设置文件下载状态，选中需要下载的季集对应的文件下载，其余不下载
         :param tid: 种子的hash或id
         :param need_episodes: 需要下载的文件的集信息
+        :return: 返回选中的集的列表
         """
-        sucess_flag = False
+        sucess_epidised = []
         if self.__client_type == DownloaderType.TR:
             files_info = {}
             torrent_files = self.client.get_files(tid)
             if not torrent_files:
-                return False
+                return []
             for file_id, torrent_file in enumerate(torrent_files):
                 meta_info = MetaInfo(torrent_file.name, anime=is_anime(torrent_file.name))
                 if not meta_info.get_episode_list():
@@ -447,24 +453,24 @@ class Downloader:
                 else:
                     selected = set(meta_info.get_episode_list()).issubset(set(need_episodes))
                     if selected:
-                        sucess_flag = True
+                        sucess_epidised = list(set(sucess_epidised).union(set(meta_info.get_episode_list())))
                 if not files_info.get(tid):
                     files_info[tid] = {file_id: {'priority': 'normal', 'selected': selected}}
                 else:
                     files_info[tid][file_id] = {'priority': 'normal', 'selected': selected}
-            if sucess_flag and files_info:
+            if sucess_epidised and files_info:
                 self.client.set_files(files_info)
-                return True
         elif self.__client_type == DownloaderType.QB:
             file_ids = []
             torrent_files = self.client.get_files(tid)
+            if not torrent_files:
+                return []
             for torrent_file in torrent_files:
                 meta_info = MetaInfo(torrent_file.get("name"), anime=is_anime(torrent_file.get("name")))
                 if not meta_info.get_episode_list() or not set(meta_info.get_episode_list()).issubset(set(need_episodes)):
                     file_ids.append(torrent_file.get("index"))
                 else:
-                    sucess_flag = True
-            if sucess_flag and file_ids:
+                    sucess_epidised = list(set(sucess_epidised).union(set(meta_info.get_episode_list())))
+            if sucess_epidised and file_ids:
                 self.client.set_files(torrent_hash=tid, file_ids=file_ids, priority=0)
-                return True
-        return False
+        return sucess_epidised
