@@ -797,7 +797,7 @@ def create_flask_app(config):
         for rec in Records:
             if not rec[1]:
                 continue
-            Items.append({"id": rec[0], "path": rec[1], "to": rec[2], "name": os.path.basename(rec[1])})
+            Items.append({"id": rec[0], "path": rec[1], "to": rec[2], "name": rec[1]})
         return render_template("rename/unidentification.html",
                                TotalCount=TotalCount,
                                Items=Items)

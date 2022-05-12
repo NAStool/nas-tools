@@ -42,7 +42,6 @@
                 <tr>
                   <th class="w-1"><input class="form-check-input m-0 align-middle" id="unknown_check_all_btn" type="checkbox" aria-label="全选"></th>
                   <th>文件名</th>
-                  <th>目的目录</th>
                   <th class="w-5"></th>
                 </tr>
               </thead>
@@ -53,9 +52,11 @@
                   <td><input class="form-check-input m-0 align-middle" id="check_{{ Path.id }}" type="checkbox"></td>
                   <td >
                     {{ Path.name }}
-                  </td>
-                  <td class="text-muted" >
-                    {{ Path.to }}
+                    {% if Path.to %}
+                    <div class="text-muted">
+                      => {{ Path.to }}
+                    </div>
+                    {% endif %}
                   </td>
                   <td>
                    <div class="dropdown">
@@ -80,7 +81,7 @@
                 {% endfor %}
               {% else %}
                 <tr>
-                  <td colspan="4" align="center">没有数据</td>
+                  <td colspan="3" align="center">没有数据</td>
                 </tr>
               {% endif %}
               </tbody>
