@@ -91,9 +91,9 @@ class Searcher:
         else:
             if in_from in [SearchType.WX, SearchType.TG]:
                 self.message.send_channel_msg(channel=in_from,
-                                              title="%s 不是电影或者电视剧名称" % content,
+                                              title="%s 查询不到媒体信息" % content,
                                               user_id=user_id)
-            log.info("【SEARCHER】%s 不是电影或者电视剧名称" % content)
+            log.info("【SEARCHER】%s 查询不到媒体信息" % content)
             return False, None, None
 
         # 开始真正搜索资源
