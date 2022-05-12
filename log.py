@@ -27,7 +27,7 @@ class Logger:
                                                                 logging.handlers.SysLogHandler.LOG_USER)
             log_server_handler.setFormatter(logging.Formatter('%(filename)s: %(message)s'))
             self.logger.addHandler(log_server_handler)
-        elif logtype == "file":
+        else:
             # 记录日志到文件
             logpath = self.__config.get_config('app').get('logpath') or "/config/logs"
             if not os.path.exists(logpath):
