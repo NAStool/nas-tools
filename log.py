@@ -38,10 +38,6 @@ class Logger:
                                                         encoding='utf-8')
             log_file_handler.setFormatter(logging.Formatter('%(asctime)s\t%(levelname)s: %(message)s'))
             self.logger.addHandler(log_file_handler)
-        # 记录日志到终端
-        log_console_handler = logging.StreamHandler()
-        log_console_handler.setFormatter(logging.Formatter('%(asctime)s\t%(levelname)s: %(message)s'))
-        self.logger.addHandler(log_console_handler)
 
     @staticmethod
     def get_instance():
