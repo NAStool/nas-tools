@@ -485,8 +485,6 @@
         var go_page = "{{ GoPage }}";
         if(go_page){
           navmenu(go_page);
-          $("aside").hide();
-          $("header").hide();
         }else{
           //打开第一个页面
           var page = $("#navbar-menu ul li").first().attr("id").replace("nav_", "");
