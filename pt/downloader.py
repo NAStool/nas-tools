@@ -298,6 +298,8 @@ class Downloader:
                             # 重新开始任务
                             log.info("【PT】%s 开始下载" % item.org_string)
                             self.start_torrents(torrent_id)
+                            # 发送消息通知
+                            self.message.send_download_message(in_from, item)
                             # 清除记忆并退出一层循环
                             need_tvs[need_title].pop(index)
                             if not need_tvs.get(need_title):
