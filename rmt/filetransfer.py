@@ -489,9 +489,11 @@ class FileTransfer:
             # 路径不存在
             else:
                 if not ret_dir_path:
-                    log.error("【RMT】拼装目录路径错误，请确认媒体类型是否匹配！")
+                    log.error("【RMT】拼装目录路径错误，无法从文件名中识别出季集信息！")
                     success_flag = False
-                    error_message = "拼装目录路径错误，可能媒体类型不正确"
+                    error_message = "识别失败，无法从文件名中识别出季集信息"
+                    # 记录未识别
+                    insert_transfer_unknown(reg_path, target_dir)
                     continue
                 else:
                     # 创建电录
@@ -509,9 +511,11 @@ class FileTransfer:
                 if not handler_flag:
                     file_ext = os.path.splitext(file_item)[-1]
                     if not ret_file_path:
-                        log.error("【RMT】拼装文件路径错误，请确认媒体类型是否匹配！")
+                        log.error("【RMT】拼装文件路径错误，无法从文件名中识别出集数")
                         success_flag = False
-                        error_message = "拼装文件路径错误，可能媒体类型不正确"
+                        error_message = "识别失败，无法从文件名中识别出集数"
+                        # 记录未识别
+                        insert_transfer_unknown(reg_path, target_dir)
                         continue
                     new_file = "%s%s" % (ret_file_path, file_ext)
                     ret = self.__transfer_file(file_item, new_file, rmt_mode, False)
