@@ -218,20 +218,11 @@ class Qbittorrent:
             return False
         self.qbc.auth_log_in()
         if mtype == MediaType.TV:
-            if self.__tv_category:
-                qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__tv_save_path, category=self.__tv_category, use_auto_torrent_management=True, is_paused=is_paused, tags=[tag])
-            else:
-                qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__tv_save_path,  use_auto_torrent_management=False, is_paused=is_paused, tags=[tag])
+            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__tv_save_path, category=self.__tv_category, is_paused=is_paused, tags=tag)
         elif mtype == MediaType.MOVIE:
-            if self.__movie_category:
-                qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__movie_save_path, category=self.__movie_category, use_auto_torrent_management=True, is_paused=is_paused, tags=[tag])
-            else:
-                qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__movie_save_path, use_auto_torrent_management=False, is_paused=is_paused, tags=[tag])
+            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__movie_save_path, category=self.__movie_category, is_paused=is_paused, tags=tag)
         else:
-            if self.__anime_category:
-                qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__anime_save_path, category=self.__anime_category, use_auto_torrent_management=True, is_paused=is_paused, tags=[tag])
-            else:
-                qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__anime_save_path, use_auto_torrent_management=False, is_paused=is_paused, tags=[tag])
+            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__anime_save_path, category=self.__anime_category, is_paused=is_paused, tags=tag)
         self.qbc.auth_log_out()
         return qbc_ret
 
