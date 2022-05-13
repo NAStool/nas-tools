@@ -1,7 +1,8 @@
+from datetime import datetime
 from time import sleep
 
 import log
-from config import Config
+from config import Config, PT_TAG
 from message.send import Message
 from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
@@ -18,6 +19,7 @@ class Downloader:
     client = None
     __client_type = None
     __seeding_time = None
+    __pt_monitor_only = None
     message = None
     mediaserver = None
     filetransfer = None
@@ -48,6 +50,7 @@ class Downloader:
                 except Exception as e:
                     log.error("【PT】pt.pt_seeding_time 格式错误：%s" % str(e))
                     self.__seeding_time = None
+            self.__pt_monitor_only = pt.get("pt_monitor_only")
 
     def add_pt_torrent(self, url, mtype=MediaType.MOVIE, is_paused=None, tag=None):
         """
@@ -62,9 +65,16 @@ class Downloader:
             try:
                 log.info("【PT】添加PT任务：%s" % url)
                 if self.__client_type == DownloaderType.QB:
+                    if self.__pt_monitor_only:
+                        if not tag:
+                            tag = PT_TAG
+                        else:
+                            tag = [PT_TAG, tag]
                     ret = self.client.add_torrent(url, mtype, is_paused=is_paused, tag=tag)
                 else:
                     ret = self.client.add_torrent(url, mtype, is_paused=is_paused)
+                    if ret and self.__pt_monitor_only:
+                        self.client.set_torrent_tag(tid=ret.id, tag=PT_TAG)
             except Exception as e:
                 log.error("【PT】添加PT任务出错：" + str(e))
         return ret
@@ -75,7 +85,11 @@ class Downloader:
         """
         if self.client:
             log.info("【PT】开始转移文件...")
-            trans_tasks = self.client.get_transfer_task()
+            if self.__pt_monitor_only:
+                tag = PT_TAG
+            else:
+                tag = None
+            trans_tasks = self.client.get_transfer_task(tag=tag)
             for task in trans_tasks:
                 done_flag, done_msg = self.filetransfer.transfer_media(in_from=self.__client_type,
                                                                        in_path=task.get("path"))
@@ -94,8 +108,12 @@ class Downloader:
         # 空或0不处理
         if not self.__seeding_time:
             return
+        if self.__pt_monitor_only:
+            tag = PT_TAG
+        else:
+            tag = None
         log.info("【PT】开始执行PT做种清理，做种时间：%s..." % str_timelong(self.__seeding_time))
-        torrents = self.client.get_remove_torrents(self.__seeding_time)
+        torrents = self.client.get_remove_torrents(seeding_time=self.__seeding_time, tag=tag)
         for torrent in torrents:
             self.delete_torrents(torrent)
         log.info("【PT】PT做种清理完成")
@@ -107,18 +125,21 @@ class Downloader:
         """
         if not self.client:
             return []
-        return self.__client_type, self.client.get_downloading_torrents()
+        if self.__pt_monitor_only:
+            tag = PT_TAG
+        else:
+            tag = None
+        return self.__client_type, self.client.get_downloading_torrents(tag=tag)
 
-    def get_pt_torrents(self, torrent_ids=None, status_filter=None):
+    def get_torrents(self, torrent_ids):
         """
         根据ID或状态查询下载器中的种子信息
         :param torrent_ids: 种子ID列表
-        :param status_filter: 种子状态
         :return: 客户端类型，种子信息列表
         """
         if not self.client:
             return None, []
-        return self.__client_type, self.client.get_torrents(ids=torrent_ids, status=status_filter)
+        return self.__client_type, self.client.get_torrents(ids=torrent_ids)
 
     def start_torrents(self, ids):
         """
@@ -265,7 +286,8 @@ class Downloader:
                                 and len(item.get_season_list()) == 1 \
                                 and item.get_season_list()[0] == need_season:
                             log.info("【PT】添加PT任务并暂停：%s ..." % item.org_string)
-                            ret = self.add_pt_torrent(url=item.enclosure, mtype=item.type, is_paused=True, tag="NASTOOL")
+                            torrent_tag = str(round(datetime.now().timestamp()))
+                            ret = self.add_pt_torrent(url=item.enclosure, mtype=item.type, is_paused=True, tag=torrent_tag)
                             if ret:
                                 return_items.append(item)
                             else:
@@ -280,9 +302,9 @@ class Downloader:
                                     log.error("【PT】获取Transmission添加的种子信息出错：%s" % item.org_string)
                                     continue
                             else:
-                                # 等待5秒，QB添加下载后需要时间
-                                sleep(5)
-                                torrent_id = self.client.get_last_add_torrentid_by_tag("NASTOOL")
+                                # 等待10秒，QB添加下载后需要时间
+                                sleep(10)
+                                torrent_id = self.client.get_last_add_torrentid_by_tag(torrent_tag)
                                 if torrent_id is None:
                                     log.error("【PT】获取Qbittorrent添加的种子信息出错：%s" % item.org_string)
                                     continue

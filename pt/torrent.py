@@ -170,16 +170,24 @@ class Torrent:
         从检索关键字中拆分中年份、季、集、类型
         """
         if not content:
-            return {}
+            return None, None, None, None, None
+        # 去掉查询中的电影或电视剧关键字
+        if re.search(r'^电视剧|\s+电视剧|^动漫|\s+动漫', content):
+            mtype = MediaType.TV
+        else:
+            mtype = None
+        content = re.sub(r'^电影|^电视剧|^动漫|\s+电影|\s+电视剧|\s+动漫', '', content).strip()
         # 稍微切一下剧集吧
         season_num = None
         episode_num = None
         year = None
         season_re = re.search(r"第\s*([0-9一二三四五六七八九十]+)\s*季", content, re.IGNORECASE)
         if season_re:
+            mtype = MediaType.TV
             season_num = int(cn2an.cn2an(season_re.group(1), mode='smart'))
         episode_re = re.search(r"第\s*([0-9一二三四五六七八九十]+)\s*集", content, re.IGNORECASE)
         if episode_re:
+            mtype = MediaType.TV
             episode_num = int(cn2an.cn2an(episode_re.group(1), mode='smart'))
             if episode_num and not season_num:
                 season_num = "1"
@@ -194,7 +202,7 @@ class Torrent:
         if not key_word:
             key_word = year
 
-        return key_word, season_num, episode_num, year
+        return mtype, key_word, season_num, episode_num, year
 
     @staticmethod
     def get_torrents_group_item(media_list):
@@ -244,8 +252,8 @@ class Torrent:
 
         # 排序函数，标题、PT站、资源类型、做种数量
         def get_sort_str(x):
-            season_len = str(len(x.get_season_list())).rjust(3, '0')
-            episode_len = str(len(x.get_episode_list())).rjust(3, '0')
+            season_len = str(len(x.get_season_list())).rjust(2, '0')
+            episode_len = str(len(x.get_episode_list())).rjust(4, '0')
             # 排序：标题、季集、资源类型、站点、做种
             return "%s%s%s%s%s" % (str(x.title).ljust(100, ' '),
                                    "%s%s" % (season_len, episode_len),

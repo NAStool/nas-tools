@@ -1,7 +1,6 @@
 import _thread
 import logging
 import os.path
-import re
 import shutil
 import signal
 import subprocess
@@ -44,11 +43,12 @@ from utils.sqls import get_search_result_by_id, get_search_results, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
     delete_transfer_log_by_id, get_config_site, insert_config_site, get_site_by_id, delete_config_site, \
     update_config_site, get_config_search_rule, update_config_search_rule, get_config_rss_rule, update_config_rss_rule, \
-    get_unknown_path_by_id, get_rss_tvs, get_rss_movies, delete_rss_movie, delete_rss_tv, insert_rss_tv, \
-    insert_rss_movie, get_users, insert_user, delete_user, get_transfer_statistics
+    get_unknown_path_by_id, get_rss_tvs, get_rss_movies, delete_rss_movie, delete_rss_tv, \
+    get_users, insert_user, delete_user, get_transfer_statistics
 from utils.types import MediaType, SearchType, DownloaderType, SyncType, OsType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
+from web.backend.subscribe import add_rss_subscribe, add_rss_substribe_from_string
 from web.backend.webhook_event import WebhookEvent
 from web.backend.search_torrents import search_medias_for_web
 from utils.WXBizMsgCrypt3 import WXBizMsgCrypt
@@ -1071,7 +1071,7 @@ def create_flask_app(config):
             # 查询具体种子的信息
             if cmd == "pt_info":
                 ids = data.get("ids")
-                Client, Torrents = Downloader().get_pt_torrents(torrent_ids=ids)
+                Client, Torrents = Downloader().get_torrents(torrent_ids=ids)
                 DispTorrents = []
                 for torrent in Torrents:
                     if Client == DownloaderType.QB:
@@ -1430,36 +1430,8 @@ def create_flask_app(config):
                         mtype = MediaType.MOVIE
                     else:
                         mtype = MediaType.TV
-                if not name or not mtype:
-                    return {"code": 1, "msg": "标题或类型有误"}
-                # 检索媒体信息
-                media = Media()
-                media_info = media.get_media_info(title="%s %s" % (name, year), mtype=mtype, strict=True if year else False)
-                if not media_info or not media_info.tmdb_info:
-                    return {"code": 2, "msg": "无法查询到媒体信息"}
-                if mtype != MediaType.MOVIE:
-                    if not season:
-                        # 查询季及集信息
-                        total_seasoninfo = media.get_tmdb_seasons_info(tmdbid=media_info.tmdb_id)
-                        if not total_seasoninfo:
-                            return {"code": 3, "msg": "获取剧集信息失败"}
-                        # 按季号降序排序
-                        total_seasoninfo = sorted(total_seasoninfo, key=lambda x: x.get("season_number"),
-                                                  reverse=True)
-                        # 没有季的信息时，取最新季
-                        season = total_seasoninfo[0].get("season_number")
-                        total_count = total_seasoninfo[0].get("episode_count")
-                    else:
-                        season = int(season)
-                        total_count = media.get_tmdb_season_episodes_num(sea=season, tmdbid=media_info.tmdb_id)
-                    if not total_count:
-                        return {"code": 4, "msg": "获取剧集数失败"}
-                    media_info.begin_season = season
-                    insert_rss_tv(media_info, total_count, total_count)
-                else:
-                    insert_rss_movie(media_info)
-
-                return {"code": 0, "msg": "登记RSS订阅成功"}
+                code, msg, media_info = add_rss_subscribe(mtype, name, year, season)
+                return {"code": code, "msg": msg}
 
             # 未识别的重新识别
             if cmd == "re_identification":
@@ -1671,6 +1643,9 @@ def create_flask_app(config):
             # 启动服务
             _thread.start_new_thread(command.get("func"), ())
             Message().send_channel_msg(channel=in_from, title="已启动：%s" % command.get("desp"))
+        elif msg.startswith("订阅"):
+            # 添加订阅
+            _thread.start_new_thread(add_rss_substribe_from_string, (msg, in_from, user_id,))
         else:
             # PT检索
             _thread.start_new_thread(Searcher().search_one_media, (msg, in_from, user_id,))

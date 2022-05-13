@@ -212,12 +212,10 @@ class Rss:
         """
         RSS订阅队列中状态的任务处理，先进行存量PT资源检索，缺失的才标志为RSS状态，由定时服务调用
         """
-        log.info("【RSS】开始RSS检索...")
         # 处理电影
         self.rsssearch_movie()
         # 处理电视剧
         self.rsssearch_tv()
-        log.info("【RSS】RSS检索结束")
 
     def rsssearch_movie(self, rssid=None):
         """

@@ -90,11 +90,12 @@ class Transmission:
         """
         return True if self.trc else False
 
-    def get_torrents(self, ids=None, status=None):
+    def get_torrents(self, ids=None, status=None, tag=None):
         """
         按条件读取种子信息
         :param ids: ID列表，为空则读取所有
         :param status: 种子状态过滤，为空则读取所有
+        :param tag: 标签过滤
         """
         if not self.trc:
             return []
@@ -103,34 +104,35 @@ class Transmission:
         elif ids:
             ids = int(ids)
         torrents = self.trc.get_torrents(ids=ids, arguments=self.__trarg)
-        if not status:
-            return torrents
-        else:
-            if not isinstance(status, list):
-                status = [status]
-            ret_torrents = []
-            for torrent in torrents:
-                if torrent.status in status:
-                    ret_torrents.append(torrent)
-            return ret_torrents
+        if status and not isinstance(status, list):
+            status = [status]
+        ret_torrents = []
+        for torrent in torrents:
+            if status and torrent.status not in status:
+                continue
+            labels = torrent.labels or []
+            if tag and tag not in labels:
+                continue
+            ret_torrents.append(torrent)
+        return ret_torrents
 
-    def get_completed_torrents(self):
+    def get_completed_torrents(self, tag):
         """
         读取完成的种子信息
         :return: 种子信息列表
         """
         if not self.trc:
             return []
-        return self.get_torrents(status=["seeding", "seed_pending"])
+        return self.get_torrents(status=["seeding", "seed_pending"], tag=tag)
 
-    def get_downloading_torrents(self):
+    def get_downloading_torrents(self, tag):
         """
         读取下载中的种子信息
         :return: 种子信息列表
         """
         if not self.trc:
             return []
-        return self.get_torrents(status=["downloading", "download_pending", "stopped"])
+        return self.get_torrents(status=["downloading", "download_pending", "stopped"], tag=tag)
 
     def set_torrents_status(self, ids):
         """
@@ -147,22 +149,26 @@ class Transmission:
         self.trc.change_torrent(labels=["已整理"], ids=ids)
         log.info("【TR】设置transmission种子标签成功")
 
-    def get_transfer_task(self):
+    def set_torrent_tag(self, tid, tag):
+        """
+        给种子设置标签
+        :param tid: 种子ID
+        :param tag: 标签
+        """
+        if not tid or not tag:
+            return
+        self.trc.change_torrent(labels=[tag], ids=int(tid))
+
+    def get_transfer_task(self, tag):
         """
         查询可以转移的种子列表，用于定时服务调用
         :return: 种子对应的文件路径清单
         """
         # 处理所有任务
-        torrents = self.get_completed_torrents()
+        torrents = self.get_completed_torrents(tag=tag)
         trans_tasks = []
         for torrent in torrents:
-            try:
-                # 3.0版本以下的Transmission没有labels
-                labels = torrent.labels
-            except Exception as e:
-                log.warn("【TR】当前transmission版本可能过低，请安装3.0以上版本！错误：%s" % str(e))
-                break
-            if labels and "已整理" in labels:
+            if torrent.labels and "已整理" in torrent.labels:
                 continue
             true_path = os.path.join(torrent.download_dir, torrent.name)
             if not true_path:
@@ -176,12 +182,12 @@ class Transmission:
             trans_tasks.append({'path': true_path, 'id': torrent.id})
         return trans_tasks
 
-    def get_remove_torrents(self, seeding_time):
+    def get_remove_torrents(self, seeding_time, tag):
         """
         查询可以清单的种子
         :return: 可以清理的种子ID列表
         """
-        torrents = self.get_completed_torrents()
+        torrents = self.get_completed_torrents(tag=tag)
         remove_torrents = []
         for torrent in torrents:
             date_done = torrent.date_done

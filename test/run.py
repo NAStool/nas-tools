@@ -11,7 +11,8 @@ from scheduler.scheduler import Scheduler
 from utils.db_helper import select_by_sql, update_by_sql
 from utils.sqls import get_config_site, get_config_search_rule, insert_transfer_unknown, insert_rss_movie, \
     insert_rss_tv, get_rss_tvs, get_transfer_statistics
-from utils.types import SyncType
+from utils.types import SyncType, SearchType
+from web.backend.subscribe import add_rss_substribe_from_string
 
 if __name__ == "__main__":
     '''
@@ -111,4 +112,5 @@ if __name__ == "__main__":
     # print(movie)
     # print(Media().get_media_info("Seasons 2016 BluRay 1080p 2Audio DTS HD MA-5.1 x264-beAst ").__dict__)
     # print(get_transfer_statistics())
-    print(len(Qbittorrent().get_completed_torrents()))
+    # print(len(Qbittorrent().get_completed_torrents()))
+    add_rss_substribe_from_string(rss_string="订阅 西部世界", in_from=SearchType.WX)

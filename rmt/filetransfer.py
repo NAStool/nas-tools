@@ -425,7 +425,7 @@ class FileTransfer:
                 error_message = "无法识别媒体信息"
                 # 记录未识别
                 insert_transfer_unknown(reg_path, target_dir)
-                failed_count = failed_count + 1
+                failed_count += 1
                 # 原样转移过去
                 if unknown_dir:
                     log.warn("【RMT】%s 按原文件名转移到unknown目录：%s" % (file_name, unknown_dir))
@@ -452,6 +452,7 @@ class FileTransfer:
                 log.error("【RMT】目的路径不对确！")
                 success_flag = False
                 error_message = "目的路径不对确"
+                failed_count += 1
                 continue
             if not os.path.exists(dist_path):
                 return False, "目录不存在：%s" % dist_path
@@ -466,6 +467,7 @@ class FileTransfer:
                 # 蓝光原盘
                 if bluray_disk_flag:
                     log.warn("【RMT】蓝光原盘目录已存在：%s" % ret_dir_path)
+                    failed_count += 1
                     continue
                 # 文年存在
                 if file_exist_flag:
@@ -478,13 +480,16 @@ class FileTransfer:
                             if ret != 0:
                                 success_flag = False
                                 error_message = "文件转移失败，错误码：%s" % ret
+                                failed_count += 1
                                 continue
                             handler_flag = True
                         else:
                             log.warn("【RMT】文件 %s 已存在" % ret_file_path)
+                            failed_count += 1
                             continue
                     else:
                         log.warn("【RMT】文件 %s 已存在" % ret_file_path)
+                        failed_count += 1
                         continue
             # 路径不存在
             else:
@@ -494,6 +499,7 @@ class FileTransfer:
                     error_message = "识别失败，无法从文件名中识别出季集信息"
                     # 记录未识别
                     insert_transfer_unknown(reg_path, target_dir)
+                    failed_count += 1
                     continue
                 else:
                     # 创建电录
@@ -505,6 +511,7 @@ class FileTransfer:
                 if ret != 0:
                     success_flag = False
                     error_message = "蓝光目录转移失败，错误码：%s" % ret
+                    failed_count += 1
                     continue
             else:
                 # 开始转移文件
@@ -516,12 +523,14 @@ class FileTransfer:
                         error_message = "识别失败，无法从文件名中识别出集数"
                         # 记录未识别
                         insert_transfer_unknown(reg_path, target_dir)
+                        failed_count += 1
                         continue
                     new_file = "%s%s" % (ret_file_path, file_ext)
                     ret = self.__transfer_file(file_item, new_file, rmt_mode, False)
                     if ret != 0:
                         success_flag = False
                         error_message = "文件转移失败，错误码：%s" % ret
+                        failed_count += 1
                         continue
             # 登记媒体库刷新
             if refresh_item not in refresh_library_items:

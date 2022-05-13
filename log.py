@@ -9,11 +9,12 @@ lock = threading.Lock()
 
 
 class Logger:
+    logger = None
     __instance = None
     __config = None
 
     def __init__(self):
-        self.logger = logging.Logger(__name__)
+        self.logger = logging.getLogger(__name__)
         self.logger.setLevel(level=LOG_LEVEL)
         self.__config = Config()
         logtype = self.__config.get_config('app').get('logtype')
@@ -34,6 +35,7 @@ class Logger:
                 os.makedirs(logpath)
             log_file_handler = TimedRotatingFileHandler(filename=os.path.join(logpath, __name__ + ".txt"),
                                                         when='D',
+                                                        interval=1,
                                                         backupCount=3,
                                                         encoding='utf-8')
             log_file_handler.setFormatter(logging.Formatter('%(asctime)s\t%(levelname)s: %(message)s'))
