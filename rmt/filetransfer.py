@@ -1,6 +1,7 @@
 import argparse
 import os
 import re
+import traceback
 from threading import Lock
 from subprocess import call
 
@@ -404,155 +405,158 @@ class FileTransfer:
         refresh_library_items = []
         # 处理识别后的每一个文件或单个文件夹
         for file_item, media in Medias.items():
-            if re.search(r'[./\s\[]+Sample[/.\s\]]+', file_item, re.IGNORECASE):
-                log.warn("【RMT】%s 可能是预告片，跳过..." % file_item)
-                continue
-            # 总数量
-            total_count = total_count + 1
-            # 文件名
-            file_name = os.path.basename(file_item)
-            # 上级目录
-            file_path = os.path.dirname(file_item)
-            # 数据库记录的路径
-            if media.type == MediaType.MOVIE:
-                reg_path = file_item
-            else:
-                reg_path = max(file_path, in_path)
-            # 未识别
-            if not media or not media.tmdb_info or not media.get_title_string():
-                log.warn("【RMT】%s 无法识别媒体信息！" % file_name)
-                success_flag = False
-                error_message = "无法识别媒体信息"
-                # 记录未识别
-                insert_transfer_unknown(reg_path, target_dir)
-                failed_count += 1
-                # 原样转移过去
-                if unknown_dir:
-                    log.warn("【RMT】%s 按原文件名转移到unknown目录：%s" % (file_name, unknown_dir))
-                    self.__transfer_origin_file(file_item, unknown_dir, rmt_mode)
-                elif self.__unknown_path:
-                    unknown_path = self.__get_best_unknown_path(in_path)
-                    if not unknown_path:
-                        continue
-                    log.warn("【RMT】%s 按原文件名转移到unknown目录：%s" % (file_name, unknown_path))
-                    self.__transfer_origin_file(file_item, unknown_path, rmt_mode)
+            try:
+                if re.search(r'[./\s\[]+Sample[/.\s\]]+', file_item, re.IGNORECASE):
+                    log.warn("【RMT】%s 可能是预告片，跳过..." % file_item)
+                    continue
+                # 总数量
+                total_count = total_count + 1
+                # 文件名
+                file_name = os.path.basename(file_item)
+                # 上级目录
+                file_path = os.path.dirname(file_item)
+                # 数据库记录的路径
+                if media.type == MediaType.MOVIE:
+                    reg_path = file_item
                 else:
-                    log.error("【RMT】%s 处理失败！" % file_name)
-                continue
-            # 当前文件大小
-            media.size = os.path.getsize(file_item)
-            # 类型-类别-标题-年份
-            refresh_item = {"type": media.type, "category": media.category, "title": media.title, "year": media.year}
-            # 目的目录，有输入target_dir时，往这个目录放
-            if target_dir:
-                dist_path = target_dir
-            else:
-                dist_path = self.__get_best_target_path(mtype=media.type, in_path=in_path, size=media.size)
-            if not dist_path:
-                log.error("【RMT】目的路径不对确！")
-                success_flag = False
-                error_message = "目的路径不对确"
-                failed_count += 1
-                continue
-            if not os.path.exists(dist_path):
-                return False, "目录不存在：%s" % dist_path
-
-            # 判断文件是否已存在，返回：目录存在标志、目录名、文件存在标志、文件名
-            dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.__is_media_exists(dist_path, media)
-            # 已存在的文件数量
-            exist_filenum = 0
-            handler_flag = False
-            # 路径存在
-            if dir_exist_flag:
-                # 蓝光原盘
-                if bluray_disk_flag:
-                    log.warn("【RMT】蓝光原盘目录已存在：%s" % ret_dir_path)
+                    reg_path = max(file_path, in_path)
+                # 未识别
+                if not media or not media.tmdb_info or not media.get_title_string():
+                    log.warn("【RMT】%s 无法识别媒体信息！" % file_name)
+                    success_flag = False
+                    error_message = "无法识别媒体信息"
+                    # 记录未识别
+                    insert_transfer_unknown(reg_path, target_dir)
+                    failed_count += 1
+                    # 原样转移过去
+                    if unknown_dir:
+                        log.warn("【RMT】%s 按原文件名转移到unknown目录：%s" % (file_name, unknown_dir))
+                        self.__transfer_origin_file(file_item, unknown_dir, rmt_mode)
+                    elif self.__unknown_path:
+                        unknown_path = self.__get_best_unknown_path(in_path)
+                        if not unknown_path:
+                            continue
+                        log.warn("【RMT】%s 按原文件名转移到unknown目录：%s" % (file_name, unknown_path))
+                        self.__transfer_origin_file(file_item, unknown_path, rmt_mode)
+                    else:
+                        log.error("【RMT】%s 处理失败！" % file_name)
+                    continue
+                # 当前文件大小
+                media.size = os.path.getsize(file_item)
+                # 类型-类别-标题-年份
+                refresh_item = {"type": media.type, "category": media.category, "title": media.title, "year": media.year}
+                # 目的目录，有输入target_dir时，往这个目录放
+                if target_dir:
+                    dist_path = target_dir
+                else:
+                    dist_path = self.__get_best_target_path(mtype=media.type, in_path=in_path, size=media.size)
+                if not dist_path:
+                    log.error("【RMT】目的路径不对确！")
+                    success_flag = False
+                    error_message = "目的路径不对确"
                     failed_count += 1
                     continue
-                # 文年存在
-                if file_exist_flag:
-                    exist_filenum = exist_filenum + 1
-                    existfile_size = os.path.getsize(ret_file_path)
-                    if rmt_mode != RmtMode.SOFTLINK:
-                        if media.size > existfile_size and self.__filesize_cover:
-                            log.info("【RMT】文件 %s 已存在，但新文件质量更好，覆盖..." % ret_file_path)
-                            ret = self.__transfer_file(file_item, ret_file_path, rmt_mode, True)
-                            if ret != 0:
-                                success_flag = False
-                                error_message = "文件转移失败，错误码：%s" % ret
+                if not os.path.exists(dist_path):
+                    return False, "目录不存在：%s" % dist_path
+
+                # 判断文件是否已存在，返回：目录存在标志、目录名、文件存在标志、文件名
+                dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.__is_media_exists(dist_path, media)
+                # 已存在的文件数量
+                exist_filenum = 0
+                handler_flag = False
+                # 路径存在
+                if dir_exist_flag:
+                    # 蓝光原盘
+                    if bluray_disk_flag:
+                        log.warn("【RMT】蓝光原盘目录已存在：%s" % ret_dir_path)
+                        failed_count += 1
+                        continue
+                    # 文年存在
+                    if file_exist_flag:
+                        exist_filenum = exist_filenum + 1
+                        existfile_size = os.path.getsize(ret_file_path)
+                        if rmt_mode != RmtMode.SOFTLINK:
+                            if media.size > existfile_size and self.__filesize_cover:
+                                log.info("【RMT】文件 %s 已存在，但新文件质量更好，覆盖..." % ret_file_path)
+                                ret = self.__transfer_file(file_item, ret_file_path, rmt_mode, True)
+                                if ret != 0:
+                                    success_flag = False
+                                    error_message = "文件转移失败，错误码：%s" % ret
+                                    failed_count += 1
+                                    continue
+                                handler_flag = True
+                            else:
+                                log.warn("【RMT】文件 %s 已存在" % ret_file_path)
                                 failed_count += 1
                                 continue
-                            handler_flag = True
                         else:
                             log.warn("【RMT】文件 %s 已存在" % ret_file_path)
                             failed_count += 1
                             continue
-                    else:
-                        log.warn("【RMT】文件 %s 已存在" % ret_file_path)
-                        failed_count += 1
-                        continue
-            # 路径不存在
-            else:
-                if not ret_dir_path:
-                    log.error("【RMT】拼装目录路径错误，无法从文件名中识别出季集信息！")
-                    success_flag = False
-                    error_message = "识别失败，无法从文件名中识别出季集信息"
-                    # 记录未识别
-                    insert_transfer_unknown(reg_path, target_dir)
-                    failed_count += 1
-                    continue
+                # 路径不存在
                 else:
-                    # 创建电录
-                    log.debug("【RMT】正在创建目录：%s" % ret_dir_path)
-                    os.makedirs(ret_dir_path)
-            # 转移蓝光原盘
-            if bluray_disk_flag:
-                ret = self.__transfer_bluray_dir(file_item, ret_dir_path, rmt_mode)
-                if ret != 0:
-                    success_flag = False
-                    error_message = "蓝光目录转移失败，错误码：%s" % ret
-                    failed_count += 1
-                    continue
-            else:
-                # 开始转移文件
-                if not handler_flag:
-                    file_ext = os.path.splitext(file_item)[-1]
-                    if not ret_file_path:
-                        log.error("【RMT】拼装文件路径错误，无法从文件名中识别出集数")
+                    if not ret_dir_path:
+                        log.error("【RMT】拼装目录路径错误，无法从文件名中识别出季集信息！")
                         success_flag = False
-                        error_message = "识别失败，无法从文件名中识别出集数"
+                        error_message = "识别失败，无法从文件名中识别出季集信息"
                         # 记录未识别
                         insert_transfer_unknown(reg_path, target_dir)
                         failed_count += 1
                         continue
-                    new_file = "%s%s" % (ret_file_path, file_ext)
-                    ret = self.__transfer_file(file_item, new_file, rmt_mode, False)
+                    else:
+                        # 创建电录
+                        log.debug("【RMT】正在创建目录：%s" % ret_dir_path)
+                        os.makedirs(ret_dir_path)
+                # 转移蓝光原盘
+                if bluray_disk_flag:
+                    ret = self.__transfer_bluray_dir(file_item, ret_dir_path, rmt_mode)
                     if ret != 0:
                         success_flag = False
-                        error_message = "文件转移失败，错误码：%s" % ret
+                        error_message = "蓝光目录转移失败，错误码：%s" % ret
                         failed_count += 1
                         continue
-            # 登记媒体库刷新
-            if refresh_item not in refresh_library_items:
-                refresh_library_items.append(refresh_item)
-            # 转移历史记录
-            insert_transfer_history(in_from, rmt_mode, reg_path, dist_path, media)
-            # 电影立即发送消息
-            if media.type == MediaType.MOVIE:
-                self.message.send_transfer_movie_message(in_from,
-                                                         media,
-                                                         exist_filenum,
-                                                         self.__movie_category_flag)
-            # 否则登记汇总发消息
-            else:
-                # 按季汇总
-                message_key = "%s-%s" % (media.get_title_string(), media.get_season_string())
-                if not message_medias.get(message_key):
-                    message_medias[message_key] = media
-                # 汇总集数、大小
-                if not message_medias[message_key].is_in_episode(media.get_episode_list()):
-                    message_medias[message_key].total_episodes += media.total_episodes
-                    message_medias[message_key].size += media.size
+                else:
+                    # 开始转移文件
+                    if not handler_flag:
+                        file_ext = os.path.splitext(file_item)[-1]
+                        if not ret_file_path:
+                            log.error("【RMT】拼装文件路径错误，无法从文件名中识别出集数")
+                            success_flag = False
+                            error_message = "识别失败，无法从文件名中识别出集数"
+                            # 记录未识别
+                            insert_transfer_unknown(reg_path, target_dir)
+                            failed_count += 1
+                            continue
+                        new_file = "%s%s" % (ret_file_path, file_ext)
+                        ret = self.__transfer_file(file_item, new_file, rmt_mode, False)
+                        if ret != 0:
+                            success_flag = False
+                            error_message = "文件转移失败，错误码：%s" % ret
+                            failed_count += 1
+                            continue
+                # 登记媒体库刷新
+                if refresh_item not in refresh_library_items:
+                    refresh_library_items.append(refresh_item)
+                # 转移历史记录
+                insert_transfer_history(in_from, rmt_mode, reg_path, dist_path, media)
+                # 电影立即发送消息
+                if media.type == MediaType.MOVIE:
+                    self.message.send_transfer_movie_message(in_from,
+                                                             media,
+                                                             exist_filenum,
+                                                             self.__movie_category_flag)
+                # 否则登记汇总发消息
+                else:
+                    # 按季汇总
+                    message_key = "%s-%s" % (media.get_title_string(), media.get_season_string())
+                    if not message_medias.get(message_key):
+                        message_medias[message_key] = media
+                    # 汇总集数、大小
+                    if not message_medias[message_key].is_in_episode(media.get_episode_list()):
+                        message_medias[message_key].total_episodes += media.total_episodes
+                        message_medias[message_key].size += media.size
+            except Exception as err:
+                log.console("【RMT】发生错误：%s - %s" % (str(err), traceback.print_exc()))
         # 循环结束
         # 统计完成情况，发送通知
         if message_medias:
