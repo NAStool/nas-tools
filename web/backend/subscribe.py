@@ -77,7 +77,7 @@ def add_rss_subscribe(mtype, name, year, season):
     media_info = media.get_media_info(title="%s %s" % (name, year), mtype=mtype, strict=True if year else False)
     if not media_info or not media_info.tmdb_info:
         return 1, "无法查询到媒体信息", None
-    if mtype != MediaType.MOVIE:
+    if media_info.type != MediaType.MOVIE:
         if not season:
             # 查询季及集信息
             total_seasoninfo = media.get_tmdb_seasons_info(tmdbid=media_info.tmdb_id)
