@@ -191,6 +191,8 @@ class Transmission:
         remove_torrents = []
         for torrent in torrents:
             date_done = torrent.date_done
+            if not date_done:
+                date_done = torrent.date_added
             date_now = datetime.now().astimezone()
             torrent_time = (date_now - date_done).seconds
             if torrent_time > int(seeding_time):
