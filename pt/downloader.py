@@ -95,8 +95,7 @@ class Downloader:
                                                                        in_path=task.get("path"))
                 if not done_flag:
                     log.warn("【PT】%s 转移失败：%s" % (task.get("path"), done_msg))
-                else:
-                    self.client.set_torrents_status(task.get("id"))
+                self.client.set_torrents_status(task.get("id"))
             log.info("【PT】文件转移结束")
 
     def pt_removetorrents(self):
