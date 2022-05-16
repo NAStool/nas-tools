@@ -2,6 +2,7 @@ import logging
 import os
 import threading
 import time
+from html import escape
 from logging.handlers import TimedRotatingFileHandler
 from config import LOG_LEVEL, Config, LOG_QUEUE
 
@@ -63,20 +64,20 @@ def debug(text):
 
 
 def info(text):
-    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S',time.localtime(time.time()))} INFO - {text}")
+    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S',time.localtime(time.time()))} INFO - {escape(text)}")
     return Logger.get_instance().logger.info(text)
 
 
 def error(text):
-    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S',time.localtime(time.time()))} ERROR - {text}")
+    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S',time.localtime(time.time()))} ERROR - {escape(text)}")
     return Logger.get_instance().logger.error(text)
 
 
 def warn(text):
-    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S',time.localtime(time.time()))} WARN - {text}")
+    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S',time.localtime(time.time()))} WARN - {escape(text)}")
     return Logger.get_instance().logger.warning(text)
 
 
 def console(text):
-    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} - {text}")
+    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} - {escape(text)}")
     print(text)
