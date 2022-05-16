@@ -420,7 +420,7 @@ class Media:
                         meta_info.begin_season = int(season)
                 return_media_infos[file_path] = meta_info
             except Exception as err:
-                log.error("【RMT】发生错误：%s - %s" % (str(err), traceback.print_exc()))
+                log.error("【RMT】发生错误：%s - %s" % (str(err), traceback.format_exc()))
         # 循环结束
         return return_media_infos
 

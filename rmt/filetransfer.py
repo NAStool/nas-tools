@@ -556,7 +556,7 @@ class FileTransfer:
                         message_medias[message_key].total_episodes += media.total_episodes
                         message_medias[message_key].size += media.size
             except Exception as err:
-                log.error("【RMT】发生错误：%s - %s" % (str(err), traceback.print_exc()))
+                log.error("【RMT】发生错误：%s - %s" % (str(err), traceback.format_exc()))
         # 循环结束
         # 统计完成情况，发送通知
         if message_medias:
