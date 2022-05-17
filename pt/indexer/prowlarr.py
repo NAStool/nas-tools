@@ -78,7 +78,7 @@ class Prowlarr:
         api_url = "%sapi/v1/search?apikey=%s&Query=%s" % (self.__host, self.__api_key, search_word)
         result_array = self.parse_prowlarrjson(api_url)
         if len(result_array) == 0:
-            log.warn("【PROWLARR】%s 未检索到任何资源")
+            log.warn("【PROWLARR】%s 未检索到任何资源" % search_word)
             return []
         else:
             log.warn("【PROWLARR】返回数据：%s" % len(result_array))
