@@ -11,7 +11,7 @@ from rmt.category import Category
 from rmt.media_server import MediaServer
 from rmt.metainfo import MetaInfo
 from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_level1_medias, is_invalid_path, \
-    is_path_in_path, get_system, is_bluray_dir
+    is_path_in_path, get_system, is_bluray_dir, str_filesize
 from message.send import Message
 from rmt.media import Media
 from utils.sqls import insert_transfer_history, insert_transfer_unknown
@@ -374,8 +374,8 @@ class FileTransfer:
                     Media_FileNum = len(file_list)
                     log.debug("【RMT】文件清单：" + str(file_list))
                     if Media_FileNum == 0:
-                        log.warn("【RMT】目录下未找到媒体文件：%s" % in_path)
-                        return False, "目录下未找到媒体文件"
+                        log.warn("【RMT】%s 目录下未找到媒体文件，当前最小文件大小限制为：%s" % (in_path, str_filesize(self.__min_filesize)))
+                        return False, "目录下未找到媒体文件，当前最小文件大小限制为：%s" % str_filesize(self.__min_filesize)
             # 传入的是个文件
             else:
                 if not os.path.exists(in_path):

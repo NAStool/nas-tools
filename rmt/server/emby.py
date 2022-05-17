@@ -189,7 +189,7 @@ class Emby:
         # /Shows/{Id}/Episodes 查集的信息
         if not season:
             season = 1
-        req_url = "%semby/Shows/%s/Episodes?Season=%s&api_key=%s" % (
+        req_url = "%semby/Shows/%s/Episodes?Season=%s&IsMissing=false&api_key=%s" % (
             self.__host, item_id, season, self.__apikey)
         try:
             res_json = requests.get(req_url, timeout=20)

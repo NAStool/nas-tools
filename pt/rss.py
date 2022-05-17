@@ -206,7 +206,7 @@ class Rss:
                                     break
             log.info("【RSS】实际下载了 %s 个资源" % len(download_items))
         else:
-            log.info("【RSS】实际未下载到任何资源")
+            log.info("【RSS】未下载到任何资源")
 
     def rsssearch(self):
         """

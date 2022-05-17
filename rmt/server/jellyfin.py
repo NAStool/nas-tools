@@ -232,7 +232,7 @@ class Jellyfin:
             return None
         if not series_id or not season_id:
             return []
-        req_url = "%sShows/%s/Episodes?seasonId=%s&&userId=%s&api_key=%s" % (
+        req_url = "%sShows/%s/Episodes?seasonId=%s&&userId=%s&isMissing=false&api_key=%s" % (
             self.__host, series_id, season_id, self.__user, self.__apikey)
         try:
             res_json = requests.get(req_url, timeout=20)
