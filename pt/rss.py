@@ -54,15 +54,15 @@ class Rss:
         # 读取关键字配置
         movie_keys = get_rss_movies(state='R')
         if not movie_keys:
-            log.warn("【RSS】未配置电影订阅关键字")
+            log.warn("【RSS】未订阅电影")
         else:
-            log.info("【RSS】电影订阅规则清单：%s" % " ".join('%s' % key[0] for key in movie_keys))
+            log.info("【RSS】电影订阅清单：%s" % " ".join('%s' % key[0] for key in movie_keys))
 
         tv_keys = get_rss_tvs(state='R')
         if not tv_keys:
-            log.warn("【RSS】未配置电视剧订阅关键字")
+            log.warn("【RSS】未订阅电视剧")
         else:
-            log.info("【RSS】电视剧订阅规则清单：%s" % " ".join('%s' % key[0] for key in tv_keys))
+            log.info("【RSS】电视剧订阅清单：%s" % " ".join('%s' % key[0] for key in tv_keys))
 
         if not movie_keys and not tv_keys:
             return
