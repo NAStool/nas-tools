@@ -6,7 +6,6 @@ import signal
 import subprocess
 from math import floor
 from subprocess import call
-import importlib
 import requests
 from flask import Flask, request, json, render_template, make_response
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
@@ -23,10 +22,10 @@ from pt.rss import Rss
 from pt.searcher import Searcher
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
-from rmt.media_server import MediaServer
+from pt.media_server import MediaServer
 from rmt.metainfo import MetaInfo
-from rmt.server.jellyfin import Jellyfin
-from rmt.server.plex import Plex
+from pt.mediaserver.jellyfin import Jellyfin
+from pt.mediaserver.plex import Plex
 from scheduler.autoremove_torrents import AutoRemoveTorrents
 from scheduler.douban_sync import DoubanSync
 from scheduler.pt_signin import PTSignin
@@ -977,6 +976,12 @@ def create_flask_app(config):
     @login_required
     def notification():
         return render_template("setting/notification.html", Config=config.get_config())
+
+    # 字幕设置页面
+    @App.route('/subtitle', methods=['POST', 'GET'])
+    @login_required
+    def subtitle():
+        return render_template("setting/subtitle.html", Config=config.get_config())
 
     # 用户管理页面
     @App.route('/users', methods=['POST', 'GET'])

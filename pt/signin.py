@@ -16,10 +16,11 @@ class SignIn:
 
     def init_config(self):
         config = Config()
+        app = config.get_config('app')
         pt = config.get_config('pt')
         if pt:
             self.__pt_sites = get_config_site()
-            self.__user_agent = pt.get('user_agent')
+            self.__user_agent = app.get('user_agent')
 
     def signin(self):
         """

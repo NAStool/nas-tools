@@ -248,17 +248,6 @@ def is_path_in_path(path1, path2):
     return False
 
 
-# 根据名称判断是不是动漫
-def is_anime(name):
-    if not name:
-        return False
-    if re.search(r'\[[0-9XVPI-]+]', name, re.IGNORECASE):
-        return True
-    if re.search(r'\s+-\s+\d{1,4}\s+', name, re.IGNORECASE):
-        return True
-    return False
-
-
 # 判断Sxx-Sxx Exx-Exx 是否包含关系
 def is_ses_in_ses(sea, epi, season, episode):
     # 季是否匹配

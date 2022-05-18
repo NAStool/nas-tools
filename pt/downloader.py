@@ -9,9 +9,9 @@ from pt.client.transmission import Transmission
 from pt.torrent import Torrent
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
-from rmt.media_server import MediaServer
+from pt.media_server import MediaServer
 from rmt.metainfo import MetaInfo
-from utils.functions import str_timelong, is_anime
+from utils.functions import str_timelong
 from utils.types import MediaType, DownloaderType
 
 
@@ -468,7 +468,7 @@ class Downloader:
             if not torrent_files:
                 return []
             for file_id, torrent_file in enumerate(torrent_files):
-                meta_info = MetaInfo(torrent_file.name, anime=is_anime(torrent_file.name))
+                meta_info = MetaInfo(torrent_file.name)
                 if not meta_info.get_episode_list():
                     selected = False
                 else:
@@ -487,7 +487,7 @@ class Downloader:
             if not torrent_files:
                 return []
             for torrent_file in torrent_files:
-                meta_info = MetaInfo(torrent_file.get("name"), anime=is_anime(torrent_file.get("name")))
+                meta_info = MetaInfo(torrent_file.get("name"))
                 if not meta_info.get_episode_list() or not set(meta_info.get_episode_list()).issubset(set(need_episodes)):
                     file_ids.append(torrent_file.get("index"))
                 else:

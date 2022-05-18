@@ -1,0 +1,131 @@
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          字幕
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-md-6 col-xl-3">
+        <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-opensubtitles">
+          <div class="card-cover card-cover-blurred text-center bg-lime">
+            <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/opensubtitles.webp)">
+            </span>
+          </div>
+          <div class="card-body text-center">
+            <div class="card-title mb-1">OpenSubtitles</div>
+            <div class="text-muted">{% if Config.subtitle %}{% if Config.subtitle.server == "opensubtitles" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}{% endif %}</div>
+          </div>
+        </a>
+      </div>
+      <div class="col-md-6 col-xl-3">
+        <a class="card card-link" href="#" data-bs-toggle="modal" data-bs-target="#modal-chinesesubfinder">
+          <div class="card-cover card-cover-blurred text-center">
+            <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/chinesesubfinder.png)">
+            </span>
+          </div>
+          <div class="card-body text-center">
+            <div class="card-title mb-1">ChineseSubFinder</div>
+            <div class="text-muted">{% if Config.subtitle %}{% if Config.subtitle.server == "chinesesubfinder" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}{% endif %}</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-opensubtitles" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">OpenSubtitles</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">用户名(<a href="#" title="登录www.opensubtitles.org注册用户">?</a>)</label>
+              <input type="text" value="{% if Config.subtitle %}{% if Config.subtitle.opensubtitles %}{{ Config.subtitle.opensubtitles.username or '' }}{% endif %}{% endif %}" id="subtitle.opensubtitles.username" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">密码</label>
+              <input type="password" value="{% if Config.subtitle %}{% if Config.subtitle.opensubtitles %}{{ Config.subtitle.opensubtitles.password or '' }}{% endif %}{% endif %}" id="subtitle.opensubtitles.password" class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:save_subtitle_config('opensubtitles')" id="opensubtitles_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-chinesesubfinder" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">ChineseSubFinder</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">服务器地址(<a href="#" title="配置IP地址和端口，如为https则需要增加https://前缀">?</a>)</label>
+              <input type="text" value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.host or '' }}{% endif %}{% endif %}" id="subtitle.chinesesubfinder.host" class="form-control" placeholder="http://127.0.0.1:19035">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label required">Api Key(<a href="#" title="在ChineseSubFinder->配置中心->实验室->API Key处生成">?</a>)</label>
+              <input type="text" value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.api_key or '' }}{% endif %}{% endif %}" id="subtitle.chinesesubfinder.api_key" class="form-control">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:save_subtitle_config('chinesesubfinder')" id="chinesesubfinder_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  // 当前处理的类型
+  var currType = "";
+
+  // 保存配置
+  function save_config(type, func, test){
+    currType = type;
+    var params = {"test": test||false};
+    $("#modal-"+ type +" input").each(function(){
+      var key = $(this).attr("id");
+      if($(this).attr("type")=="checkbox"){
+        var value = $(this).prop("checked") ? true:false;
+      }else{
+        var value = $(this).val();
+      }
+      params[key] = value;
+    });
+    params['subtitle.server'] = type;
+    ajax_post("update_config", params, func);
+  }
+
+  //保存配置、关闭和刷新页面
+  function save_subtitle_config(type){
+    $("#modal-"+type).modal('hide');
+    save_config(type, function (ret) {
+      navmenu('subtitle');
+    });
+  }
+
+</script>

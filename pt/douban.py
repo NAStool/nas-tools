@@ -25,6 +25,7 @@ class DouBan:
 
     def init_config(self):
         config = Config()
+        app = config.get_config('app')
         douban = config.get_config('douban')
         if douban:
             # 用户列表
@@ -40,7 +41,7 @@ class DouBan:
             if types:
                 self.__types = types.split(',')
             # headers
-            user_agent = douban.get('user_agent')
+            user_agent = app.get('user_agent')
             # Cookie
             cookie = douban.get('cookie')
             if not cookie:
@@ -195,17 +196,20 @@ class DouBan:
             url = f"https://movie.douban.com/people/{user_id}/{media_status}?start={start_number}&sort=time&rating=all&filter=all&mode=grid"
         try:
             res = self.req.get_res(url=url)
-            if res.status_code == 200:
+            if res and res.status_code == 200:
                 res_text = res.text
                 if res_text.find('有异常请求从你的 IP 发出') != -1:
                     log.warn("【DOUBAN】被豆瓣识别到抓取行为了，请更换 IP 后才能使用")
                     return None
                 return BeautifulSoup(res_text, 'html.parser')
-            elif res.status_code == 404:
-                log.warn(f"【DOUBAN】该页面不存在！{url}")
+            elif res and res.status_code == 404:
+                log.warn(f"【DOUBAN】该页面不存在：{url}")
+                return None
+            else:
+                log.error(f"【DOUBAN】网络连接失败：{url}")
                 return None
         except Exception as err:
-            log.error(f"【RUN】获取{url}页面失败:{format(err)}")
+            log.error(f"【RUN】获取{url}页面失败：{format(err)}")
             return None
 
     def get_douban_hot_json(self, mtype='movie', nums=20):
@@ -219,7 +223,7 @@ class DouBan:
         url = 'https://movie.douban.com/j/search_subjects?' + urlencode(data)
         try:
             res = self.req.get_res(url=url)
-            if res.status_code == 200:
+            if res and res.status_code == 200:
                 return res.text
         except Exception as e:
             log.console(str(e))
@@ -251,7 +255,7 @@ class DouBan:
         url = 'https://movie.douban.com/j/search_subjects?' + urlencode(data)
         try:
             res = self.req.get_res(url=url)
-            if res.status_code == 200:
+            if res and res.status_code == 200:
                 return res.text
         except Exception as e:
             log.console(str(e))

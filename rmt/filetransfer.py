@@ -8,7 +8,7 @@ from subprocess import call
 import log
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE
 from rmt.category import Category
-from rmt.media_server import MediaServer
+from pt.media_server import MediaServer
 from rmt.metainfo import MetaInfo
 from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_level1_medias, is_invalid_path, \
     is_path_in_path, get_system, is_bluray_dir, str_filesize
