@@ -1,3 +1,4 @@
+import _thread
 import argparse
 import os
 import re
@@ -7,6 +8,7 @@ from subprocess import call
 
 import log
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE
+from pt.subtitle import Subtitle
 from rmt.category import Category
 from pt.media_server import MediaServer
 from rmt.metainfo import MetaInfo
@@ -403,6 +405,8 @@ class FileTransfer:
         message_medias = {}
         # 需要刷新媒体库的清单
         refresh_library_items = []
+        # 需要下载字段的清单
+        download_subtitle_items = []
         # 处理识别后的每一个文件或单个文件夹
         for file_item, media in Medias.items():
             try:
@@ -443,8 +447,6 @@ class FileTransfer:
                     continue
                 # 当前文件大小
                 media.size = os.path.getsize(file_item)
-                # 类型-类别-标题-年份
-                refresh_item = {"type": media.type, "category": media.category, "title": media.title, "year": media.year}
                 # 目的目录，有输入target_dir时，往这个目录放
                 if target_dir:
                     dist_path = target_dir
@@ -534,9 +536,16 @@ class FileTransfer:
                             error_message = "文件转移失败，错误码：%s" % ret
                             failed_count += 1
                             continue
+                # 媒体库刷新条目：类型-类别-标题-年份
+                refresh_item = {"type": media.type, "category": media.category, "title": media.title, "year": media.year}
                 # 登记媒体库刷新
                 if refresh_item not in refresh_library_items:
                     refresh_library_items.append(refresh_item)
+                # 下载字幕条目
+                subtitle_item = {"type": media.type, "file": ret_file_path, "file_ext": os.path.splitext(file_item)[-1], "name": media.get_name(), "title": media.title, "year": media.year, "season": media.begin_season, "episode": media.begin_episode, "bluray": bluray_disk_flag}
+                # 登记字幕下载
+                if subtitle_item not in download_subtitle_items:
+                    download_subtitle_items.append(subtitle_item)
                 # 转移历史记录
                 insert_transfer_history(in_from, rmt_mode, reg_path, dist_path, media)
                 # 电影立即发送消息
@@ -564,6 +573,9 @@ class FileTransfer:
         # 刷新媒体库
         if refresh_library_items:
             self.mediaserver.refresh_library_by_items(refresh_library_items)
+        # 启新进程下载字幕
+        if download_subtitle_items:
+            _thread.start_new_thread(Subtitle().download_subtitle, (download_subtitle_items,))
         # 总结
         log.info("【RMT】%s 处理完成，总数：%s，失败：%s" % (in_path, total_count, failed_count))
         return success_flag, error_message
@@ -816,9 +828,11 @@ class FileTransfer:
             dest_paths = self.__tv_path
         else:
             dest_paths = self.__anime_path
+        if not dest_paths:
+            return None
         if not isinstance(dest_paths, list):
             return dest_paths
-        if len(dest_paths) == 1:
+        if isinstance(dest_paths, list) and len(dest_paths) == 1:
             return dest_paths[0]
         # 有输入路径的，匹配有共同上级路径的
         if in_path:

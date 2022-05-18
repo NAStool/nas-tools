@@ -1,3 +1,4 @@
+from pt.subtitle import Subtitle
 from rmt.media import Media
 
 if __name__ == "__main__":
@@ -93,11 +94,13 @@ if __name__ == "__main__":
     # print(MetaInfo('Season 1').__dict__)
     # meta_info = Media().get_media_info("双城之战 2021")
     # print(Jellyfin().get_no_exists_episodes(meta_info, 1, 36))
-    meta_info = Media().get_media_info("灌篮高手.Slam.Dunk.EP017.1993.BluRay.x264.5Audio.1080p-52HD.mkv")
-    print(meta_info.__dict__)
+    # meta_info = Media().get_media_info("灌篮高手.Slam.Dunk.EP017.1993.BluRay.x264.5Audio.1080p-52HD.mkv")
+    # print(meta_info.__dict__)
     # movie = Plex().get_medias_count()
     # print(movie)
     # print(Media().get_media_info("Seasons 2016 BluRay 1080p 2Audio DTS HD MA-5.1 x264-beAst ").__dict__)
     # print(get_transfer_statistics())
     # print(len(Qbittorrent().get_completed_torrents()))
     # add_rss_substribe_from_string(rss_string="订阅 西部世界", in_from=SearchType.WX)
+    items = [{"file": "C:\\Users\\jxxgh\\Documents\\Movie\\任何人 (2022)\\任何人 (2022) - 1080P", "name": "In the Mood for Love"}]
+    Subtitle().download_subtitle(items)
