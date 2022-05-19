@@ -91,9 +91,9 @@ class Searcher:
         else:
             if in_from in [SearchType.WX, SearchType.TG]:
                 self.message.send_channel_msg(channel=in_from,
-                                              title="%s 不是电影或者电视剧名称" % content,
+                                              title="%s 查询不到媒体信息" % content,
                                               user_id=user_id)
-            log.info("【SEARCHER】%s 不是电影或者电视剧名称" % content)
+            log.info("【SEARCHER】%s 查询不到媒体信息" % content)
             return False, None, None
 
         # 开始真正搜索资源
@@ -130,8 +130,7 @@ class Searcher:
                 delete_all_search_torrents()
                 # 插入数据库
                 save_media_list = Torrent.get_torrents_group_item(media_list)
-                for save_media_item in save_media_list:
-                    insert_search_results(save_media_item)
+                insert_search_results(save_media_list)
                 self.message.send_channel_msg(channel=in_from,
                                               title=media_info.get_title_vote_string(),
                                               text="%s 共检索到 %s 个有效资源" % (media_info.title, len(save_media_list)),
@@ -145,10 +144,10 @@ class Searcher:
             download_items, left_medias = self.downloader.check_and_add_pt(in_from, media_list, no_exists)
             # 统计下载情况，下全了返回True，没下全返回False
             if not download_items:
-                log.info("【SEARCHER】%s 搜索结果中没有符合下载条件的资源" % content)
+                log.info("【SEARCHER】%s 未下载到资源" % content)
                 if in_from in [SearchType.WX, SearchType.TG]:
                     self.message.send_channel_msg(channel=in_from,
-                                                  title="%s 搜索结果中没有符合下载条件的资源" % content,
+                                                  title="%s 未下载到资源" % content,
                                                   user_id=user_id)
                 return False, media_info, left_medias
             else:

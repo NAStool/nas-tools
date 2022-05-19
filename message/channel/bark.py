@@ -21,13 +21,16 @@ class Bark:
         """
         测试连通性
         """
-        return self.send_bark_msg("测试", "这是一条测试消息")
+        return self.send_msg("测试", "这是一条测试消息")
 
-    def send_bark_msg(self, title, text=""):
+    def send_msg(self, title, text="", image="", url="", user_id=""):
         """
         发送Bark消息
         :param title: 消息标题
         :param text: 消息内容
+        :param image: 未使用
+        :param url: 未使用
+        :param user_id: 未使用
         :return: 发送状态、错误信息
         """
         if not title and not text:

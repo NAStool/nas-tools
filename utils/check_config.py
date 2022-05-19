@@ -16,26 +16,26 @@ def check_config(cfg):
         if logtype == "server":
             logserver = config['app'].get('logserver')
             if not logserver:
-                log.console("【ERROR】logserver未配置，无法正常输出日志")
+                log.console("【ERROR】日志中心地址未配置，无法正常输出日志")
             else:
                 log.console("日志将上送到服务器：%s" % logserver)
         elif logtype == "file":
             logpath = config['app'].get('logpath')
             if not logpath:
-                log.console("【ERROR】logpath未配置，无法正常输出日志")
+                log.console("【ERROR】日志文件路径未配置，无法正常输出日志")
             else:
                 log.console("日志将写入文件：%s" % logpath)
 
         # 检查WEB端口
         web_port = config['app'].get('web_port')
         if not web_port:
-            log.error("web_port未设置")
+            log.error("WEB服务端口未设置，将使用默认3000端口")
 
         # 检查登录用户和密码
         login_user = config['app'].get('login_user')
         login_password = config['app'].get('login_password')
         if not login_user or not login_password:
-            log.error("login_user或login_password未设置")
+            log.error("WEB管理用户或密码未设置，将使用默认用户：admin，密码：password")
         else:
             log.info("WEB管理页面用户：%s" % str(login_user))
 
@@ -53,7 +53,7 @@ def check_config(cfg):
 
         rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
         if not rmt_tmdbkey:
-            log.error("rmt_tmdbkey未配置")
+            log.error("TMDB API Key未配置，媒体识别、搜索下载等功能将无法正常运行！")
         rmt_match_mode = config['app'].get('rmt_match_mode')
         if rmt_match_mode:
             rmt_match_mode = rmt_match_mode.upper()
@@ -64,7 +64,7 @@ def check_config(cfg):
         else:
             log.info("TMDB匹配模式：正常模式")
     else:
-        log.console("app配置不存在")
+        log.console("配置文件格式错误，找不到app配置项！")
 
     # 检查媒体库目录路径
     if config.get('media'):
@@ -86,23 +86,23 @@ def check_config(cfg):
 
         movie_paths = config['media'].get('movie_path')
         if not movie_paths:
-            log.error("未配置movie_path")
+            log.error("未配置电影媒体库目录")
         else:
             if not isinstance(movie_paths, list):
                 movie_paths = [movie_paths]
             for movie_path in movie_paths:
                 if not os.path.exists(movie_path):
-                    log.error("movie_path目录不存在：%s" % movie_path)
+                    log.error("电影媒体库目录不存在：%s" % movie_path)
 
         tv_paths = config['media'].get('tv_path')
         if not tv_paths:
-            log.error("未配置tv_path")
+            log.error("未配置电视剧媒体库目录")
         else:
             if not isinstance(tv_paths, list):
                 tv_paths = [tv_paths]
             for tv_path in tv_paths:
                 if not os.path.exists(tv_path):
-                    log.error("tv_path目录不存在：%s" % tv_path)
+                    log.error("电视剧媒体库目录不存在：%s" % tv_path)
 
         anime_paths = config['media'].get('anime_path')
         if anime_paths:
@@ -110,7 +110,7 @@ def check_config(cfg):
                 anime_paths = [anime_paths]
             for anime_path in anime_paths:
                 if not os.path.exists(anime_path):
-                    log.error("anime_path目录不存在：%s" % anime_path)
+                    log.error("动漫媒体库目录不存在：%s" % anime_path)
 
         category = config['media'].get('category')
         if not category:
@@ -124,34 +124,34 @@ def check_config(cfg):
             if cates.get_anime_categorys():
                 log.info("动漫分类：%s" % " ".join(cates.get_anime_categorys()))
     else:
-        log.error("media配置不存在")
+        log.error("配置文件格式错误，找不到media配置项！")
 
     # 检查消息配置
     if config.get('message'):
         msg_channel = config['message'].get('msg_channel')
         if not msg_channel:
-            log.warn("msg_channel未配置，将无法接收到通知消息")
+            log.warn("消息通知渠道未配置，将无法接收到通知消息")
         elif msg_channel == "wechat":
             corpid = config['message'].get('wechat', {}).get('corpid')
             corpsecret = config['message'].get('wechat', {}).get('corpsecret')
             agentid = config['message'].get('wechat', {}).get('agentid')
             if not corpid or not corpsecret or not agentid:
-                log.warn("wechat配置不完整，将无法接收到通知消息")
+                log.warn("微信配置不完整，将无法接收到通知消息！")
             Token = config['message'].get('wechat', {}).get('Token')
             EncodingAESKey = config['message'].get('wechat', {}).get('EncodingAESKey')
             if not Token or not EncodingAESKey:
-                log.warn("Token、EncodingAESKey未配置，微信控制功能将无法使用")
+                log.warn("微信Token、EncodingAESKey未配置，微信控制功能将无法使用")
         elif msg_channel == "serverchan":
             sckey = config['message'].get('serverchan', {}).get('sckey')
             if not sckey:
-                log.warn("sckey未配置，将无法接收到通知消息")
+                log.warn("Server酱未配置，将无法接收到通知消息！")
         elif msg_channel == "telegram":
             telegram_token = config['message'].get('telegram', {}).get('telegram_token')
             telegram_chat_id = config['message'].get('telegram', {}).get('telegram_chat_id')
             if not telegram_token or not telegram_chat_id:
-                log.warn("telegram配置不完整，将无法接收到通知消息")
+                log.warn("Telegram配置不完整，将无法接收到通知消息！")
     else:
-        log.warn("message未配置，将无法接收到通知消息")
+        log.error("配置文件格式错误，找不到message配置项！")
 
     # 检查目录同步
     if config.get('sync'):
@@ -165,7 +165,7 @@ def check_config(cfg):
                 if sync_path.find('|') != -1:
                     sync_path = sync_path.split("|")[0]
                 if not os.path.exists(sync_path):
-                    log.warn("sync_path目录不存在，该目录同步功能已关闭：%s" % sync_path)
+                    log.warn("目录不存在，该目录同步功能已关闭：%s" % sync_path)
 
         sync_mod = config['sync'].get('sync_mod')
         if sync_mod:
@@ -178,6 +178,8 @@ def check_config(cfg):
             log.info("目录同步转移模式为：软链接")
         else:
             log.info("目录同步转移模式为：复制")
+    else:
+        log.error("配置文件格式错误，找不到sync配置项！")
 
     # 检查PT配置
     if config.get('pt'):
@@ -186,27 +188,27 @@ def check_config(cfg):
         if pt_client == "qbittorrent":
             # 检查qbittorrent配置
             if not config.get('qbittorrent'):
-                log.error("qbittorrent未配置")
+                log.error("Qbittorrent未配置，将无法正常下载")
             else:
                 save_path = config['qbittorrent'].get('save_path')
                 if not save_path:
-                    log.warn("qbittorrent save_path未设置，请检查配置：%s" % save_path)
+                    log.warn("Qbittorrent未设置下载目录，可能无法正常下载")
                 else:
                     if isinstance(save_path, dict):
                         if not save_path.get('tv') or not save_path.get('movie'):
-                            log.warn("qbittorrent save_path配置不完整，请检查配置")
+                            log.warn("Qbittorrent下载目录配置不完整，可能无法正常下载！")
         elif pt_client == "transmission":
             # 检查qbittorrent配置
             if not config.get('transmission'):
-                log.error("transmission未配置")
+                log.error("Transmission未配置，将无法正常下载")
             else:
                 save_path = config['transmission'].get('save_path')
                 if not save_path:
-                    log.warn("transmission save_path未设置，请检查配置！")
+                    log.warn("transmission下载目录未设置，可能无法正常下载")
                 else:
                     if isinstance(save_path, dict):
                         if not save_path.get('tv') or not save_path.get('movie'):
-                            log.warn("transmission save_path配置不完整，请检查配置！")
+                            log.warn("Transmission下载目录配置不完整，可能无法正常下载！")
                             
         rmt_mode = config['pt'].get('rmt_mode')
         if rmt_mode:
@@ -220,10 +222,6 @@ def check_config(cfg):
         else:
             log.info("PT下载文件转移模式为：复制")
 
-        rss_chinese = config['pt'].get('rss_chinese')
-        if rss_chinese:
-            log.info("rss_chinese配置为true，将只会下载含中文标题的影视资源")            
-
         search_indexer = config['pt'].get('search_indexer')
         if search_indexer:
             log.info("PT检索软件设置为：%s" % search_indexer)
@@ -234,29 +232,29 @@ def check_config(cfg):
 
         ptsignin_cron = config['pt'].get('ptsignin_cron')
         if not ptsignin_cron:
-            log.info("ptsignin_cron未配置，PT站签到功能已关闭")
+            log.info("PT站自动签到时间未配置，PT站签到功能已关闭")
 
         pt_seeding_time = config['pt'].get('pt_seeding_time')
         if not pt_seeding_time or pt_seeding_time == '0':
-            log.info("pt_seeding_time未配置，自动删种功能已关闭")
+            log.info("PT保种时间未配置，自动删种功能已关闭")
         else:
             log.info("PT保种时间设置为：%s 天" % pt_seeding_time)
 
         pt_check_interval = config['pt'].get('pt_check_interval')
         if not pt_check_interval:
-            log.info("pt_check_interval未配置，RSS订阅功能已关闭")
+            log.info("RSS订阅周期未配置，RSS订阅功能已关闭")
 
         pt_monitor = config['pt'].get('pt_monitor')
         if not pt_monitor:
-            log.info("pt_monitor未配置，PT下载监控功能已关闭")
+            log.info("下载软件监控未开启，PT下载监控功能已关闭")
     else:
-        log.warn("pt未配置，部分功能将无法使用")
+        log.error("配置文件格式错误，找不到pt配置项！")
 
     # 检查Douban配置
     if not config.get('douban'):
-        log.warn("douban未配置，豆瓣同步功能将无法使用")
+        log.warn("豆瓣未配置，豆瓣同步功能将无法使用")
     else:
         if not config['douban'].get('users') or not config['douban'].get('types') or not config['douban'].get('days'):
-            log.warn("douban配置不完整，豆瓣同步功能将无法使用")
+            log.warn("豆瓣配置不完整，豆瓣同步功能将无法使用")
 
     return True

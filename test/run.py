@@ -1,16 +1,5 @@
-from pt.searcher import Searcher
-from rmt.filetransfer import FileTransfer
+from pt.subtitle import Subtitle
 from rmt.media import Media
-from rmt.metainfo import MetaInfo
-from rmt.server.jellyfin import Jellyfin
-from rmt.server.plex import Plex
-from scheduler.douban_sync import DoubanSync
-from scheduler.rss_search import RssSearch
-from scheduler.scheduler import Scheduler
-from utils.db_helper import select_by_sql, update_by_sql
-from utils.sqls import get_config_site, get_config_search_rule, insert_transfer_unknown, insert_rss_movie, \
-    insert_rss_tv, get_rss_tvs
-from utils.types import SyncType
 
 if __name__ == "__main__":
     '''
@@ -102,10 +91,16 @@ if __name__ == "__main__":
     # update_by_sql("DELETE FROM DOUBAN_MEDIAS")
     # DoubanSync().run_schedule()
     # RssSearch().run_schedule()
-    # print(MetaInfo('1984.DVDRIP.x264.2020.3D.BluRay.1080p').__dict__)
+    # print(MetaInfo('Season 1').__dict__)
     # meta_info = Media().get_media_info("双城之战 2021")
     # print(Jellyfin().get_no_exists_episodes(meta_info, 1, 36))
-    # meta_info = Media().get_media_info("My Name S01 2021")
+    # meta_info = Media().get_media_info("灌篮高手.Slam.Dunk.EP017.1993.BluRay.x264.5Audio.1080p-52HD.mkv")
+    # print(meta_info.__dict__)
     # movie = Plex().get_medias_count()
     # print(movie)
-    print(Media().get_media_info("Little.Palestine.2021.1080p.WEB-DL.ACC.2.0.H264-UR.mkv").__dict__)
+    # print(Media().get_media_info("Seasons 2016 BluRay 1080p 2Audio DTS HD MA-5.1 x264-beAst ").__dict__)
+    # print(get_transfer_statistics())
+    # print(len(Qbittorrent().get_completed_torrents()))
+    # add_rss_substribe_from_string(rss_string="订阅 西部世界", in_from=SearchType.WX)
+    items = [{"file": "C:\\Users\\jxxgh\\Documents\\Movie\\任何人 (2022)\\任何人 (2022) - 1080P", "name": "In the Mood for Love"}]
+    Subtitle().download_subtitle(items)

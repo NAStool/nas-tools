@@ -233,6 +233,9 @@
                   <a class="dropdown-item" href="javascript:navmenu('library')">
                     媒体库
                   </a>
+                  <a class="dropdown-item" href="javascript:navmenu('directorysync')">
+                    目录同步
+                  </a>
                   <a class="dropdown-item" href="javascript:navmenu('notification')">
                     消息通知
                   </a>
@@ -245,8 +248,8 @@
                   <a class="dropdown-item" href="javascript:navmenu('mediaserver')">
                     媒体服务器
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('directorysync')">
-                    目录同步
+                  <a class="dropdown-item" href="javascript:navmenu('subtitle')">
+                    字幕
                   </a>
                   <a class="dropdown-item" href="javascript:navmenu('douban')">
                     豆瓣
@@ -395,6 +398,7 @@
     <script src="../static/js/tabler.min.js"></script>
     <script src="../static/js/demo.min.js"></script>
     <script src="../static/js/util.js"></script>
+    <script src="../static/js/apexcharts.min.js"></script>
     <script type="text/javascript">
       //浏览器兼容
       String.prototype.replaceAll = function (s1, s2) {
@@ -487,8 +491,6 @@
         var go_page = "{{ GoPage }}";
         if(go_page){
           navmenu(go_page);
-          $("aside").hide();
-          $("header").hide();
         }else{
           //打开第一个页面
           var page = $("#navbar-menu ul li").first().attr("id").replace("nav_", "");

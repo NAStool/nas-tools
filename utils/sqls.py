@@ -1,19 +1,14 @@
+import datetime
 import os.path
 import time
 
-from utils.db_helper import update_by_sql, select_by_sql
+from utils.db_helper import update_by_sql, select_by_sql, update_by_sql_batch
 from utils.functions import str_filesize, xstr, str_sql
 from utils.types import MediaType
 
 
 # 将返回信息插入数据库
-def insert_search_results(media_item):
-    if media_item.type == MediaType.TV:
-        mtype = "TV"
-    elif media_item.type == MediaType.MOVIE:
-        mtype = "MOV"
-    else:
-        mtype = "ANI"
+def insert_search_results(media_items):
     sql = "INSERT INTO SEARCH_TORRENTS(" \
           "TORRENT_NAME," \
           "ENCLOSURE," \
@@ -33,27 +28,40 @@ def insert_search_results(media_item):
           "PEERS," \
           "SITE," \
           "SITE_ORDER) VALUES (" \
-          "'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')" % (
-              str_sql(media_item.org_string),
-              media_item.enclosure,
-              str_sql(media_item.description),
-              mtype,
-              media_item.title,
-              xstr(media_item.year),
-              media_item.get_season_string(),
-              media_item.get_episode_string(),
-              media_item.get_season_episode_string(),
-              media_item.vote_average,
-              media_item.get_backdrop_path(),
-              media_item.get_resource_type_string(),
-              media_item.res_order,
-              str_filesize(int(media_item.size)),
-              media_item.seeders,
-              media_item.peers,
-              media_item.site,
-              media_item.site_order
-          )
-    return update_by_sql(sql)
+          " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    data_list = []
+    for media_item in media_items:
+        if media_item.type == MediaType.TV:
+            mtype = "TV"
+        elif media_item.type == MediaType.MOVIE:
+            mtype = "MOV"
+        else:
+            mtype = "ANI"
+
+        data_list.append(
+            (
+                str_sql(media_item.org_string),
+                media_item.enclosure,
+                str_sql(media_item.description),
+                mtype,
+                media_item.title,
+                xstr(media_item.year),
+                media_item.get_season_string(),
+                media_item.get_episode_string(),
+                media_item.get_season_episode_string(),
+                media_item.vote_average,
+                media_item.get_backdrop_path(),
+                media_item.get_resource_type_string(),
+                media_item.res_order,
+                str_filesize(int(media_item.size)),
+                media_item.seeders,
+                media_item.peers,
+                media_item.site,
+                media_item.site_order
+            )
+        )
+
+    return update_by_sql_batch(sql, data_list)
 
 
 # 根据ID从数据库中查询检索结果的一条记录
@@ -546,3 +554,10 @@ def insert_user(name, password, pris):
 # 删除用户
 def delete_user(name):
     return update_by_sql("DELETE FROM CONFIG_USERS WHERE NAME='%s'" % str_sql(name))
+
+
+# 查询历史记录统计
+def get_transfer_statistics(days=30):
+    begin_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d %H:%M:%S")
+    sql = "SELECT TYPE,SUBSTR(DATE, 1, 10),COUNT(1) FROM TRANSFER_HISTORY WHERE DATE > '%s' GROUP BY TYPE,SUBSTR(DATE, 1, 10)" % begin_date
+    return select_by_sql(sql)

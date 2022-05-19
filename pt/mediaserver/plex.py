@@ -79,7 +79,7 @@ class Plex:
                 MovieCount += sec.totalSize
             if sec.type == "album":
                 MovieCount += sec.totalSize
-        return {"MovieCount": MovieCount, "SeriesCount": SeriesCount, "SongCount": SongCount}
+        return {"MovieCount": MovieCount, "SeriesCount": SeriesCount, "SongCount": SongCount, "EpisodeCount": 0}
 
     def get_movies(self, title, year=None):
         """
@@ -89,7 +89,7 @@ class Plex:
         :return: 含title、year属性的字典列表
         """
         if not self.__plex:
-            return []
+            return None
         ret_movies = []
         if year:
             movies = self.__plex.library.search(title=title, year=year, libtype="movie")
@@ -108,6 +108,8 @@ class Plex:
         :param total_num: 该季的总集数
         :return: 该季不存在的集号列表
         """
+        if not self.__plex:
+            return None
         exists_episodes = []
         video = self.__plex.library.search(title=meta_info.title, year=meta_info.year, libtype="show")
         if video:

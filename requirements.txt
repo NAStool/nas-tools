@@ -18,3 +18,4 @@ anitopy>=2.1.0
 supervisor>=4.2.4
 ruamel.yaml>=0.17.19
 plexapi>=4.10.1
+python-opensubtitles>=0.6.dev0

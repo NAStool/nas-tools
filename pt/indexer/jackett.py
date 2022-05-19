@@ -20,6 +20,7 @@ class Jackett:
     __api_key = None
     __indexers = []
     __res_type = None
+    __space_chars = r"\.|-|/|:|："
 
     def __init__(self):
         self.media = Media()
@@ -112,7 +113,7 @@ class Jackett:
             indexer_name = indexer_name.group(1)
         log.info("【JACKETT】开始检索Indexer：%s ..." % indexer_name)
         # 传给Jackett的需要处理掉特殊符号
-        search_word = key_word.replace("：", " ")
+        search_word = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__space_chars, ' ', key_word)).strip()
         api_url = "%sapi?apikey=%s&t=search&q=%s" % (index, self.__api_key, search_word)
         result_array = self.parse_jackettxml(api_url)
         if len(result_array) == 0:
@@ -130,6 +131,11 @@ class Jackett:
             seeders = item.get('seeders')
             peers = item.get('peers')
 
+            # 合匹配模式下，过滤掉做种数为0的
+            if whole_word and not seeders:
+                log.info("【JACKETT】%s 做种数为0，跳过..." % torrent_name)
+                continue
+
             # 检查资源类型
             match_flag, res_order = Torrent.check_resouce_types(torrent_name, description, self.__res_type)
             if not match_flag:
@@ -145,7 +151,7 @@ class Jackett:
             # 识别媒体信息
             media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
             if not media_info or not media_info.tmdb_info:
-                log.info("【JACKETT】%s 以名称 %s 从TMDB未检索到媒体信息" % (torrent_name, media_info.get_name()))
+                log.info("【JACKETT】%s 未查询到媒体信息" % torrent_name)
                 continue
 
             # 类型

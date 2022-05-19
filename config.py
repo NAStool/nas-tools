@@ -23,8 +23,8 @@ DEFAULT_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"}
 # 电视剧动漫的分类genre_ids
 ANIME_GENREIDS = ['16']
-# 默认过滤的文件大小，200M
-RMT_MIN_FILESIZE = 200 * 1024 * 1024
+# 默认过滤的文件大小，150M
+RMT_MIN_FILESIZE = 150 * 1024 * 1024
 # PT删种检查时间间隔
 AUTO_REMOVE_TORRENTS_INTERVAL = 1700
 # PT转移文件检查时间间隔，
@@ -36,7 +36,7 @@ RELOAD_CONFIG_INTERVAL = 600
 # SYNC目录同步聚合转移时间
 SYNC_TRANSFER_INTERVAL = 300
 # RSS队列中处理时间间隔
-RSS_SEARCH_INTERVAL = 600
+RSS_SEARCH_INTERVAL = 300
 # fanart的api，用于拉取封面图片
 FANART_MOVIE_API_URL = 'http://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
 FANART_TV_API_URL = 'http://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
@@ -44,6 +44,8 @@ FANART_TV_API_URL = 'http://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea0
 LOG_LEVEL = logging.INFO
 # 定义一个列表用来保存最近的日志，以便查看
 LOG_QUEUE = deque(maxlen=200)
+# 添加下载时增加的标签，开始只监控NASTool添加的下载时有效
+PT_TAG = "NASTOOL"
 
 lock = Lock()
 

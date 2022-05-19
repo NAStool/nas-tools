@@ -1,7 +1,7 @@
 from config import Config
-from rmt.server.emby import Emby
-from rmt.server.jellyfin import Jellyfin
-from rmt.server.plex import Plex
+from pt.mediaserver.emby import Emby
+from pt.mediaserver.jellyfin import Jellyfin
+from pt.mediaserver.plex import Plex
 
 
 class MediaServer:

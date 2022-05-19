@@ -4,18 +4,18 @@ import os.path
 import shutil
 import signal
 import subprocess
+import importlib
 from math import floor
 from subprocess import call
-import importlib
 import requests
 from flask import Flask, request, json, render_template, make_response
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import log
-from message.wechat import WeChat
-from monitor.media_sync import Sync
-from monitor.run import stop_monitor, restart_monitor
+from message.channel.wechat import WeChat
+from service.sync import Sync
+from service.run import stop_monitor, restart_monitor
 from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
 from pt.downloader import Downloader
@@ -23,37 +23,37 @@ from pt.rss import Rss
 from pt.searcher import Searcher
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
-from rmt.media_server import MediaServer
+from pt.media_server import MediaServer
 from rmt.metainfo import MetaInfo
-from rmt.server.jellyfin import Jellyfin
-from rmt.server.plex import Plex
-from scheduler.autoremove_torrents import AutoRemoveTorrents
-from scheduler.douban_sync import DoubanSync
-from scheduler.pt_signin import PTSignin
-from scheduler.pt_transfer import PTTransfer
-from scheduler.rss_download import RSSDownloader
+from pt.mediaserver.jellyfin import Jellyfin
+from pt.mediaserver.plex import Plex
+from service.tasks.autoremove_torrents import AutoRemoveTorrents
+from service.tasks.douban_sync import DoubanSync
+from service.tasks.pt_signin import PTSignin
+from service.tasks.pt_transfer import PTTransfer
+from service.tasks.rss_download import RSSDownloader
 from message.send import Message
-
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE
-from scheduler.run import stop_scheduler, restart_scheduler
-from scheduler.scheduler import Scheduler
-from utils.functions import get_used_of_partition, str_filesize, str_timelong, get_system
+from service.run import stop_scheduler, restart_scheduler
+from service.scheduler import Scheduler
+from utils.functions import get_used_of_partition, str_filesize, str_timelong, get_system, get_dir_files_by_ext
 from utils.sqls import get_search_result_by_id, get_search_results, \
     get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
     delete_transfer_log_by_id, get_config_site, insert_config_site, get_site_by_id, delete_config_site, \
     update_config_site, get_config_search_rule, update_config_search_rule, get_config_rss_rule, update_config_rss_rule, \
-    get_unknown_path_by_id, get_rss_tvs, get_rss_movies, delete_rss_movie, delete_rss_tv, insert_rss_tv, \
-    insert_rss_movie, get_users, insert_user, delete_user
+    get_unknown_path_by_id, get_rss_tvs, get_rss_movies, delete_rss_movie, delete_rss_tv, \
+    get_users, insert_user, delete_user, get_transfer_statistics
 from utils.types import MediaType, SearchType, DownloaderType, SyncType, OsType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
+from web.backend.subscribe import add_rss_subscribe, add_rss_substribe_from_string
 from web.backend.webhook_event import WebhookEvent
 from web.backend.search_torrents import search_medias_for_web
 from utils.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
 
-from message.telegram import Telegram
+from message.channel.telegram import Telegram
 
 
 login_manager = LoginManager()
@@ -255,6 +255,7 @@ def create_flask_app(config):
         ServerSucess = True
         MovieCount = 0
         SeriesCount = 0
+        EpisodeCount = 0
         SongCount = 0
         MediaServerClient = MediaServer()
         media_count = MediaServerClient.get_medias_count()
@@ -262,6 +263,10 @@ def create_flask_app(config):
             MovieCount = "{:,}".format(media_count.get('MovieCount'))
             SeriesCount = "{:,}".format(media_count.get('SeriesCount'))
             SongCount = "{:,}".format(media_count.get('SongCount'))
+            if media_count.get('EpisodeCount'):
+                EpisodeCount = "{:,}".format(media_count.get('EpisodeCount'))
+            else:
+                EpisodeCount = ""
         elif media_count is None:
             ServerSucess = False
 
@@ -348,16 +353,43 @@ def create_flask_app(config):
             # 总空间 格式化
             TotalSpace = "{:,} TB".format(round(TotalSpace / 1024 / 1024 / 1024 / 1024, 2))
 
+        # 查询媒体统计
+        MovieChartLabels = []
+        MovieNums = []
+        TvChartData = {}
+        TvNums = []
+        AnimeNums = []
+        for statistic in get_transfer_statistics():
+            if statistic[0] == "电影":
+                MovieChartLabels.append(statistic[1])
+                MovieNums.append(statistic[2])
+            else:
+                if not TvChartData.get(statistic[1]):
+                    TvChartData[statistic[1]] = {"tv": 0, "anime": 0}
+                if statistic[0] == "电视剧":
+                    TvChartData[statistic[1]]["tv"] += statistic[2]
+                elif statistic[0] == "动漫":
+                    TvChartData[statistic[1]]["anime"] += statistic[2]
+        TvChartLabels = list(TvChartData)
+        for tv_data in TvChartData.values():
+            TvNums.append(tv_data.get("tv"))
+            AnimeNums.append(tv_data.get("anime"))
+
         return render_template("index.html",
                                ServerSucess=ServerSucess,
                                MediaCount={'MovieCount': MovieCount, 'SeriesCount': SeriesCount,
-                                           'SongCount': SongCount},
+                                           'SongCount': SongCount, "EpisodeCount": EpisodeCount},
                                Activitys=Activity,
                                UserCount=UserCount,
                                FreeSpace=FreeSpace,
                                TotalSpace=TotalSpace,
                                UsedSapce=UsedSapce,
-                               UsedPercent=UsedPercent
+                               UsedPercent=UsedPercent,
+                               MovieChartLabels=MovieChartLabels,
+                               TvChartLabels=TvChartLabels,
+                               MovieNums=MovieNums,
+                               TvNums=TvNums,
+                               AnimeNums=AnimeNums
                                )
 
     # 影音搜索页面
@@ -767,7 +799,7 @@ def create_flask_app(config):
         for rec in Records:
             if not rec[1]:
                 continue
-            Items.append({"id": rec[0], "path": rec[1], "to": rec[2], "name": os.path.basename(rec[1])})
+            Items.append({"id": rec[0], "path": rec[1], "to": rec[2], "name": rec[1]})
         return render_template("rename/unidentification.html",
                                TotalCount=TotalCount,
                                Items=Items)
@@ -948,6 +980,12 @@ def create_flask_app(config):
     def notification():
         return render_template("setting/notification.html", Config=config.get_config())
 
+    # 字幕设置页面
+    @App.route('/subtitle', methods=['POST', 'GET'])
+    @login_required
+    def subtitle():
+        return render_template("setting/subtitle.html", Config=config.get_config())
+
     # 用户管理页面
     @App.route('/users', methods=['POST', 'GET'])
     @login_required
@@ -1041,7 +1079,7 @@ def create_flask_app(config):
             # 查询具体种子的信息
             if cmd == "pt_info":
                 ids = data.get("ids")
-                Client, Torrents = Downloader().get_pt_torrents(torrent_ids=ids)
+                Client, Torrents = Downloader().get_torrents(torrent_ids=ids)
                 DispTorrents = []
                 for torrent in Torrents:
                     if Client == DownloaderType.QB:
@@ -1149,6 +1187,7 @@ def create_flask_app(config):
                 logid = data.get('logid')
                 paths = get_transfer_path_by_id(logid)
                 if paths:
+                    file_name = paths[0][1]
                     dest_dir = paths[0][2]
                     title = paths[0][3]
                     category = paths[0][4]
@@ -1157,12 +1196,24 @@ def create_flask_app(config):
                     mtype = paths[0][7]
                     dest_path = FileTransfer().get_dest_path_by_info(dest=dest_dir, mtype=mtype, title=title,
                                                                      category=category, year=year, season=se)
+                    meta_info = MetaInfo(file_name)
                     if dest_path and dest_path.find(title) != -1:
-                        try:
-                            delete_transfer_log_by_id(logid)
-                            shutil.rmtree(dest_path)
-                        except Exception as e:
-                            log.console(str(e))
+                        delete_transfer_log_by_id(logid)
+                        if not meta_info.get_episode_string():
+                            # 电影或者没有集数的电视剧，删除整个目录
+                            try:
+                                shutil.rmtree(dest_path)
+                            except Exception as e:
+                                log.console(str(e))
+                        else:
+                            # 有集数的电视剧
+                            for dest_file in get_dir_files_by_ext(dest_path):
+                                file_meta_info = MetaInfo(os.path.basename(dest_file))
+                                if file_meta_info.get_episode_list() and set(file_meta_info.get_episode_list()).issubset(set(meta_info.get_episode_list())):
+                                    try:
+                                        shutil.rmtree(dest_file)
+                                    except Exception as e:
+                                        log.console(str(e))
                 return {"retcode": 0}
 
             # 查询实时日志
@@ -1387,36 +1438,8 @@ def create_flask_app(config):
                         mtype = MediaType.MOVIE
                     else:
                         mtype = MediaType.TV
-                if not name or not mtype:
-                    return {"code": 1, "msg": "标题或类型有误"}
-                # 检索媒体信息
-                media = Media()
-                media_info = media.get_media_info(title="%s %s" % (name, year), mtype=mtype, strict=True if year else False)
-                if not media_info or not media_info.tmdb_info:
-                    return {"code": 2, "msg": "无法查询到媒体信息"}
-                if mtype != MediaType.MOVIE:
-                    if not season:
-                        # 查询季及集信息
-                        total_seasoninfo = media.get_tmdb_seasons_info(tmdbid=media_info.tmdb_id)
-                        if not total_seasoninfo:
-                            return {"code": 3, "msg": "获取剧集信息失败"}
-                        # 按季号降序排序
-                        total_seasoninfo = sorted(total_seasoninfo, key=lambda x: x.get("season_number"),
-                                                  reverse=True)
-                        # 没有季的信息时，取最新季
-                        season = total_seasoninfo[0].get("season_number")
-                        total_count = total_seasoninfo[0].get("episode_count")
-                    else:
-                        season = int(season)
-                        total_count = media.get_tmdb_season_episodes_num(sea=season, tmdbid=media_info.tmdb_id)
-                    if not total_count:
-                        return {"code": 4, "msg": "获取剧集数失败"}
-                    media_info.begin_season = season
-                    insert_rss_tv(media_info, total_count, total_count)
-                else:
-                    insert_rss_movie(media_info)
-
-                return {"code": 0, "msg": "登记RSS订阅成功"}
+                code, msg, media_info = add_rss_subscribe(mtype, name, year, season)
+                return {"code": code, "msg": msg}
 
             # 未识别的重新识别
             if cmd == "re_identification":
@@ -1491,6 +1514,7 @@ def create_flask_app(config):
 
             # 测试连通性
             if cmd == "test_connection":
+                # 支持两种传入方式：命令数组或单个命令，单个命令时xx|xx模式解析为模块和类，进行动态引入
                 command = data.get("command")
                 ret = None
                 if command:
@@ -1501,7 +1525,12 @@ def create_flask_app(config):
                                 if not ret:
                                     break
                         else:
-                            ret = eval(command)
+                            if command.find("|") != -1:
+                                module = command.split("|")[0]
+                                class_name = command.split("|")[1]
+                                ret = getattr(importlib.import_module(module), class_name)().get_status()
+                            else:
+                                ret = eval(command)
                         # 重载配置
                         config.init_config()
                     except Exception as e:
@@ -1628,6 +1657,9 @@ def create_flask_app(config):
             # 启动服务
             _thread.start_new_thread(command.get("func"), ())
             Message().send_channel_msg(channel=in_from, title="已启动：%s" % command.get("desp"))
+        elif msg.startswith("订阅"):
+            # 添加订阅
+            _thread.start_new_thread(add_rss_substribe_from_string, (msg, in_from, user_id,))
         else:
             # PT检索
             _thread.start_new_thread(Searcher().search_one_media, (msg, in_from, user_id,))

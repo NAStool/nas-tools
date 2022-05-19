@@ -187,7 +187,7 @@ class Jellyfin:
         except Exception as e:
             log.error("【JELLYFIN】连接Shows/{Id}/Seasons出错：" + str(e))
             return None, None
-        return None, None
+        return "", ""
 
     def get_movies(self, title, year=None):
         """
@@ -201,7 +201,7 @@ class Jellyfin:
         req_url = "%sUsers/%s/Items?api_key=%s&searchTerm=%s&IncludeItemTypes=Movie&Limit=10&Recursive=true" % (
             self.__host, self.__user, self.__apikey, title)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = requests.get(req_url, timeout=20)
             if res:
                 res_items = res.json().get("Items")
                 if res_items:
@@ -214,8 +214,8 @@ class Jellyfin:
                             return ret_movies
         except Exception as e:
             log.error("【JELLYFIN】连接Items出错：" + str(e))
-            return []
-        return []
+            return None
+        return None
 
     def __get_jellyfin_tv_episodes(self, title, year=None, season=None):
         """
@@ -225,15 +225,17 @@ class Jellyfin:
         :return: 集号的列表
         """
         if not self.__host or not self.__apikey or not self.__user:
-            return []
+            return None
         # 电视剧
         series_id, season_id = self.__get_jellyfin_season_id_by_name(title, year, season)
+        if series_id is None or season_id is None:
+            return None
         if not series_id or not season_id:
             return []
-        req_url = "%sShows/%s/Episodes?seasonId=%s&&userId=%s&api_key=%s" % (
+        req_url = "%sShows/%s/Episodes?seasonId=%s&&userId=%s&isMissing=false&api_key=%s" % (
             self.__host, series_id, season_id, self.__user, self.__apikey)
         try:
-            res_json = requests.get(req_url, timeout=10)
+            res_json = requests.get(req_url, timeout=20)
             if res_json:
                 res_items = res_json.json().get("Items")
                 exists_episodes = []
@@ -242,7 +244,8 @@ class Jellyfin:
                 return exists_episodes
         except Exception as e:
             log.error("【JELLYFIN】连接Shows/{Id}/Episodes出错：" + str(e))
-            return []
+            return None
+        return None
 
     def get_no_exists_episodes(self, meta_info, season, total_num):
         """
@@ -254,7 +257,9 @@ class Jellyfin:
         """
         if not self.__host or not self.__apikey:
             return None
-        exists_episodes = self.__get_jellyfin_tv_episodes(meta_info.title, meta_info.year, season) or []
+        exists_episodes = self.__get_jellyfin_tv_episodes(meta_info.title, meta_info.year, season)
+        if not isinstance(exists_episodes, list):
+            return None
         total_episodes = [episode for episode in range(1, total_num + 1)]
         return list(set(total_episodes).difference(set(exists_episodes)))
 

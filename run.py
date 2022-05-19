@@ -3,8 +3,8 @@ import signal
 
 import log
 from config import Config
-from monitor.run import run_monitor, stop_monitor
-from scheduler.run import run_scheduler, stop_scheduler
+from service.run import run_monitor, stop_monitor
+from service.run import run_scheduler, stop_scheduler
 from utils.check_config import check_config
 from version import APP_VERSION
 from web.app import FlaskApp

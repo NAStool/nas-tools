@@ -1,4 +1,3 @@
-# 【全功能模式配置文件】：适用于想做自动PT下载、保种、聚合搜索、识别转移、媒体库管理等全自动解决方案的用户，有很多附属的功能，有WEBUI控制界面
 # 【配置注意要符合yaml语法，:号后有1个空格，不能使用全角标点符号】
 # 【最新版本已经可以通过WEB页面对所有配置项进行配置，推荐使用WEB页面进行配置】
 app:
@@ -33,6 +32,8 @@ app:
   # 【本系统的WEB的外网地址】：需要是外网IP或者域名，需要包含端口，用于微信/Telegram信息点击跳转，如不需要可配空
   # 示例：http://IP:3000
   domain: ''
+  # 【UserAgent】：可适当修改，用于PT站签到、豆瓣数据抓取等
+  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"
 
 # 【配置媒体库信息】
 media:
@@ -59,9 +60,14 @@ media:
   # 如不需要启动分类，则该项配置为空
   category: 'default-category'
   # 【转移到媒体库的最小文件大小】：避免预告片/MV等影响识别，单位M
-  min_filesize: 200
+  min_filesize: 150
   # 【洗版开关】：如开启则新下载了更大的文件会覆盖媒体库目录中已有的文件
   filesize_cover: true
+  # 【电影多分瓣率开关】：如开启，电影文件的命名会包含分辨率，允许同一电影不同分辨率的文件同时存在于媒体库中，历史上电影命名就是包括分辨率的，所以未设置过该开关时默认开
+  movie_multiversion: true
+  # 【电视剧多分辨率开关】：如开启，则剧集文件命名中会加入分辨率，允许下载同一剧集不同分辨率的文件同时存在于媒体库中
+  # 注意：使用目录监控进行同步的用户，存量剧集文件的命名是未包括分辨率的，打开该开关后，如目录监控文件夹内的文件发生变化，可能会产生重复硬链接
+  tv_multiversion: false
 
 # 配置Emby服务器信息
 emby:
@@ -159,6 +165,8 @@ pt:
   # 【PT下载软件监控开关】：是否监控PT下载软件：true、false，如为true则PT下载完成会自动转移和重命名，如为false则不会处理
   # PT下载软件监控与Sync下载目录同步不要同时开启，否则功能存在重复
   pt_monitor: false
+  # 【只监控NASTool添加的下载】：启用后只有NASTool添加的下载才会被自动转移和显示，关闭则下载软件中所有的任务都会转移和显示
+  pt_monitor_only: True
   # 【PT下载完成后转移到媒体库的转移模式】：copy复制模式、link硬链接模式、softlink软链接模式，均会重命名
   # copy下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠
   # link模式不用额外增加存储空间，一份文件两份目录（显示的大小一样），但需要下载目录和媒体库目录在一个磁盘分区或者存储空间，Docker运行时link模式需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker可能仍然会认为是跨盘
@@ -174,8 +182,6 @@ pt:
   # 【PT站每日签到时间】
   # 两种配置方法，1、配置间隔，单位小时，建议不要设置为24小时的整数倍，避免每天的签到时间一样。2、配置固定时间，如'08:00'，注意要加引号和冒号
   ptsignin_cron: '08:01'
-  # 【PT站签到UserAgent】：可适当修改，以防止被识别为机器人签到
-  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"
   # 【PT做种清理开关】：此处配置PT做种时间，做种超过该时间则会自动删种（包括已下载的文件），单位是【天】。
   # 如果是使用COPY模式，这个根据PT下载盘的大小配置，如果是使用LINK模式，这个一般不配置，
   # 不配置或者配置为0则不启用PT做种清理功能
@@ -183,8 +189,6 @@ pt:
   # 【RSS订阅开关】：此处配置RSS订阅检查时间间隔，即每隔多长时间检查一下各PT站是否有资源更新，建议不要少于30分钟，单位时间为秒
   # 配置为空或者0则不启用RSS订阅功能
   pt_check_interval: 1800
-  # 【RSS是否只下载有中文媒体信息的种子】：开了RSS只会下themoviedb有中文描述的影视资源
-  rss_chinese: false
 
 # 【配置Jackett检索器】
 jackett:
@@ -279,5 +283,18 @@ douban:
   auto_search: true
   # 【自动添加RSS开关】：PT站检索找不到的记录是否自动添加RSS订阅（可实现未搜索到的自动追更）
   auto_rss: true
-  # 【UserAgent】：建议填写，以免触发触发豆瓣的反爬虫机制浏览器获取
-  user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"
+
+# 【配置字幕自动下载】
+subtitle:
+  # 【下载渠道】：opensubtitles、chinesesubfinder
+  server: opensubtitles
+  # 配置OpenSubtitles.org中注册的用户名和密码
+  opensubtitles:
+    # 用户名
+    username:
+    # 密码
+    password:
+  # 配置ChineseSubFinder的服务器地址和API Key，API Key在ChineseSubFinder->配置中心->实验室->API Key处生成
+  chinesesubfinder:
+    host:
+    api_key:

@@ -1,3 +1,5 @@
+import re
+
 import requests
 import log
 from config import Config
@@ -15,6 +17,7 @@ class Prowlarr:
     __api_key = None
     __host = None
     __res_type = None
+    __space_chars = r"\.|-|/|:|："
 
     def __init__(self):
         self.media = Media()
@@ -71,11 +74,11 @@ class Prowlarr:
             return []
         ret_array = []
         # 需要处理掉特殊符号
-        search_word = key_word.replace("：", " ")
+        search_word = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__space_chars, ' ', key_word)).strip()
         api_url = "%sapi/v1/search?apikey=%s&Query=%s" % (self.__host, self.__api_key, search_word)
         result_array = self.parse_prowlarrjson(api_url)
         if len(result_array) == 0:
-            log.warn("【PROWLARR】%s 未检索到任何资源")
+            log.warn("【PROWLARR】%s 未检索到任何资源" % search_word)
             return []
         else:
             log.warn("【PROWLARR】返回数据：%s" % len(result_array))
@@ -90,6 +93,11 @@ class Prowlarr:
             description = item.get('description')
             seeders = item.get('seeders')
             peers = item.get('peers')
+
+            # 合匹配模式下，过滤掉做种数为0的
+            if whole_word and not seeders:
+                log.info("【PROWLARR】%s 做种数为0，跳过..." % torrent_name)
+                continue
 
             # 检查资源类型
             match_flag, res_order = Torrent.check_resouce_types(torrent_name, description, self.__res_type)
@@ -106,7 +114,7 @@ class Prowlarr:
             # 识别媒体信息
             media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
             if not media_info or not media_info.tmdb_info:
-                log.info("【PROWLARR】%s 以名称 %s 从TMDB未检索到媒体信息" % (torrent_name, media_info.get_name()))
+                log.info("【PROWLARR】%s 未查询到媒体信息" % torrent_name)
                 continue
 
             # 类型

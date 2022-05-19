@@ -256,13 +256,13 @@
     $("#" + type + "_test_btn").text("测试中...");
     save_config(type, function (ret) {
       if(currType == "bark"){
-        command = ["getattr(importlib.import_module('message.bark'), 'Bark')().get_status()"];
+        command = "message.channel.bark|Bark";
       }else if(currType == "wechat"){
         command = ["WeChat().get_status()"];
       }else if(currType == "telegram"){
         command = ["Telegram().get_status()"];
       }else if(currType == "serverchan"){
-        command = ["getattr(importlib.import_module('message.serverchan'), 'ServerChan')().get_status()"];
+        command = "message.channel.serverchan|ServerChan";
       }
       ajax_post("test_connection", {"command": command}, function(ret){
         if(ret.code == 0){

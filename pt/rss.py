@@ -14,11 +14,8 @@ from utils.sqls import get_rss_movies, get_rss_tvs, insert_rss_torrents, \
     update_rss_movie_state, update_rss_tv_state
 from utils.types import MediaType, SearchType
 
-RSS_CACHED_TORRENTS = {}
-
 
 class Rss:
-    __rss_chinese = None
     __sites = None
     __rss_rule = None
     message = None
@@ -38,7 +35,6 @@ class Rss:
         config = Config()
         pt = config.get_config('pt')
         if pt:
-            self.__rss_chinese = pt.get('rss_chinese')
             self.__sites = get_config_site()
             rss_rule = get_config_rss_rule()
             if rss_rule:
@@ -51,7 +47,6 @@ class Rss:
         """
         RSS订阅检索下载入口，由定时服务调用
         """
-        global RSS_CACHED_TORRENTS
         if not self.__sites:
             return
         log.info("【RSS】开始RSS订阅...")
@@ -59,15 +54,15 @@ class Rss:
         # 读取关键字配置
         movie_keys = get_rss_movies(state='R')
         if not movie_keys:
-            log.warn("【RSS】未配置电影订阅关键字")
+            log.warn("【RSS】未订阅电影")
         else:
-            log.info("【RSS】电影订阅规则清单：%s" % " ".join('%s' % key[0] for key in movie_keys))
+            log.info("【RSS】电影订阅清单：%s" % " ".join('%s' % key[0] for key in movie_keys))
 
         tv_keys = get_rss_tvs(state='R')
         if not tv_keys:
-            log.warn("【RSS】未配置电视剧订阅关键字")
+            log.warn("【RSS】未订阅电视剧")
         else:
-            log.info("【RSS】电视剧订阅规则清单：%s" % " ".join('%s' % key[0] for key in tv_keys))
+            log.info("【RSS】电视剧订阅清单：%s" % " ".join('%s' % key[0] for key in tv_keys))
 
         if not movie_keys and not tv_keys:
             return
@@ -115,19 +110,10 @@ class Rss:
                     size = res.get('size')
 
                     log.info("【RSS】开始处理：%s" % torrent_name)
-
-                    # 判断是否处理过
-                    if RSS_CACHED_TORRENTS.get(enclosure):
-                        media_info = RSS_CACHED_TORRENTS.get(enclosure)
-                    else:
-                        # 识别种子名称，开始检索TMDB
-                        media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
-                        RSS_CACHED_TORRENTS[enclosure] = media_info
+                    # 识别种子名称，开始检索TMDB
+                    media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
                     if not media_info or not media_info.tmdb_info:
-                        log.info("【RSS】%s 以名称 %s 从TMDB未查询到媒体信息" % (torrent_name, media_info.get_name()))
-                        continue
-                    if self.__rss_chinese and not is_chinese(media_info.title):
-                        log.info("【RSS】%s 没有中文信息，跳过..." % media_info.title)
+                        log.info("【RSS】%s 未查询到媒体信息" % torrent_name)
                         continue
                     # 检查这个名字是不是下过了
                     if is_torrent_rssd(media_info):
@@ -220,18 +206,16 @@ class Rss:
                                     break
             log.info("【RSS】实际下载了 %s 个资源" % len(download_items))
         else:
-            log.info("【RSS】实际未下载到任何资源")
+            log.info("【RSS】未下载到任何资源")
 
     def rsssearch(self):
         """
         RSS订阅队列中状态的任务处理，先进行存量PT资源检索，缺失的才标志为RSS状态，由定时服务调用
         """
-        log.info("【RSS】开始RSS检索...")
         # 处理电影
         self.rsssearch_movie()
         # 处理电视剧
         self.rsssearch_tv()
-        log.info("【RSS】RSS检索结束")
 
     def rsssearch_movie(self, rssid=None):
         """
@@ -284,7 +268,7 @@ class Rss:
                 in_from=SearchType.RSS)
             # 没有检索到媒体信息的，下次再处理
             if not media:
-                update_rss_movie_state(name, year, 'D')
+                update_rss_tv_state(name, year, season, 'D')
                 continue
             if not no_exists or not no_exists.get(media.get_title_string()):
                 # 没有剩余或者剩余缺失季集中没有当前标题，说明下完了
@@ -298,7 +282,7 @@ class Rss:
                 for no_exist_item in no_exist_items:
                     if no_exist_item.get("season") == season_num:
                         if no_exist_item.get("episodes"):
-                            log.info("【RSS】更新电视剧 %s %s 缺失集数为 %s" % (no_exist_item.get_title_string(), no_exist_item.get_season_string(), len(no_exist_item.get("episodes"))))
+                            log.info("【RSS】更新电视剧 %s %s 缺失集数为 %s" % (media.get_title_string(), media.get_season_string(), len(no_exist_item.get("episodes"))))
                             update_rss_tv_lack(name, year, season, len(no_exist_item.get("episodes")))
                         break
 

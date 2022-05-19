@@ -40,13 +40,13 @@ class Telegram:
                     and message.get('telegram', {}).get('webhook') \
                     and self.__domain:
                 self.__webhook_url = "%stelegram" % self.__domain
-                self.set_bot_webhook()
+                self.__set_bot_webhook()
 
     def get_status(self):
         """
         测试连通性
         """
-        return self.send_telegram_msg("测试", "这是一条测试消息")
+        return self.send_msg("测试", "这是一条测试消息")
 
     def get_admin_user(self):
         """
@@ -54,7 +54,7 @@ class Telegram:
         """
         return str(self.__telegram_chat_id)
 
-    def send_telegram_msg(self, title, text="", image="", url="", user_id=""):
+    def send_msg(self, title, text="", image="", url="", user_id=""):
         """
         发送Telegram消息
         :param title: 消息标题
@@ -102,7 +102,7 @@ class Telegram:
         except Exception as msg_e:
             return False, str(msg_e)
 
-    def set_bot_webhook(self):
+    def __set_bot_webhook(self):
         """
         设置Telegram Webhook
         """
@@ -119,10 +119,10 @@ class Telegram:
         finally:
             lock.release()
 
-        status = self.get_bot_webhook()
+        status = self.__get_bot_webhook()
         if status and status != 1:
             if status == 2:
-                self.del_bot_webhook()
+                self.__del_bot_webhook()
             values = {"url": self.__webhook_url, "allowed_updates": ["message"]}
             sc_url = "https://api.telegram.org/bot%s/setWebhook?" % self.__telegram_token
             res = requests.get(sc_url + urlencode(values), timeout=10, proxies=self.__config.get_proxies())
@@ -135,7 +135,7 @@ class Telegram:
             else:
                 log.console("TelegramBot Webhook 设置失败：网络连接故障！")
 
-    def get_bot_webhook(self):
+    def __get_bot_webhook(self):
         """
         获取Telegram已设置的Webhook
         :return: 状态：1-存在且相等，2-存在不相等，3-不存在，0-网络出错
@@ -156,7 +156,7 @@ class Telegram:
         else:
             return 0
 
-    def del_bot_webhook(self):
+    def __del_bot_webhook(self):
         """
         删除Telegram Webhook
         :return: 是否成功

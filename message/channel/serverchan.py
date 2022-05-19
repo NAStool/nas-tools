@@ -20,17 +20,20 @@ class ServerChan:
         """
         测试连通性
         """
-        return self.send_serverchan_msg("测试", "这是一条测试消息")
+        return self.send_msg("测试", "这是一条测试消息")
 
-    def send_serverchan_msg(self, text, desp=""):
+    def send_msg(self, title, text="", image="", url="", user_id=""):
         """
         发送ServerChan消息
-        :param text: 消息标题
-        :param desp: 消息内容
+        :param title: 消息标题
+        :param text: 消息内容
+        :param image: 未使用
+        :param url: 未使用
+        :param user_id: 未使用
         """
-        if not text and not desp:
+        if not title and not text:
             return False, "标题和内容不能同时为空"
-        values = {"title": text, "desp": desp}
+        values = {"title": title, "desp": text}
         try:
             if not self.__sckey:
                 return False, "参数未配置"

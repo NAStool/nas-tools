@@ -55,13 +55,13 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">IP地址(<a href="#" title="配置IP地址，如为https则需要增加https://前缀">?</a>)</label>
-              <input type="text" value="{{ Config.qbittorrent.qbhost or '' }}" id="qbittorrent.qbhost" class="form-control">
+              <input type="text" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbhost or '' }}{% endif %}" id="qbittorrent.qbhost" class="form-control">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">端口</label>
-              <input type="text" value="{{ Config.qbittorrent.qbport or '' }}" id="qbittorrent.qbport" class="form-control">
+              <input type="text" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbport or '' }}{% endif %}" id="qbittorrent.qbport" class="form-control">
             </div>
           </div>
         </div>
@@ -69,7 +69,7 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">用户名</label>
-              <input type="text" value="{{ Config.qbittorrent.qbusername or '' }}" id="qbittorrent.qbusername"
+              <input type="text" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbusername or '' }}{% endif %}" id="qbittorrent.qbusername"
                 class="form-control">
             </div>
             <div class="mb-3">
@@ -82,7 +82,7 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">密码</label>
-              <input type="password" value="{{ Config.qbittorrent.qbpassword or '' }}" id="qbittorrent.qbpassword"
+              <input type="password" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbpassword or '' }}{% endif %}" id="qbittorrent.qbpassword"
                 class="form-control">
             </div>
           </div>
@@ -165,13 +165,13 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">IP地址(<a href="#" title="配置IP地址，如为https则需要增加https://前缀">?</a>)</label>
-              <input type="text" value="{{ Config.transmission.trhost or '' }}" id="transmission.trhost" class="form-control">
+              <input type="text" value="{% if Config.transmission %}{{ Config.transmission.trhost or '' }}{% endif %}" id="transmission.trhost" class="form-control">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">端口</label>
-              <input type="text" value="{{ Config.transmission.trport or '' }}" id="transmission.trport" class="form-control">
+              <input type="text" value="{% if Config.transmission %}{{ Config.transmission.trport or '' }}{% endif %}" id="transmission.trport" class="form-control">
             </div>
           </div>
         </div>
@@ -179,14 +179,14 @@
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">用户名</label>
-              <input type="text" value="{{ Config.transmission.trusername or '' }}" id="transmission.trusername"
+              <input type="text" value="{% if Config.transmission %}{{ Config.transmission.trusername or '' }}{% endif %}" id="transmission.trusername"
                 class="form-control">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
               <label class="form-label required">密码</label>
-              <input type="password" value="{{ Config.transmission.trpassword or '' }}" id="transmission.trpassword"
+              <input type="password" value="{% if Config.transmission %}{{ Config.transmission.trpassword or '' }}{% endif %}" id="transmission.trpassword"
                 class="form-control">
             </div>
           </div>

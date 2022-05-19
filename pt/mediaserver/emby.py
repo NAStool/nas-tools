@@ -123,7 +123,7 @@ class Emby:
         根据名称查询Emby中剧集的SeriesId
         :param name: 标题
         :param year: 年份
-        :return: SeriesId
+        :return: None 表示连不通，""表示未找到，找到返回ID
         """
         if not self.__host or not self.__apikey:
             return None
@@ -141,7 +141,7 @@ class Emby:
         except Exception as e:
             log.error("【EMBY】连接Items出错：" + str(e))
             return None
-        return None
+        return ""
 
     def get_movies(self, title, year=None):
         """
@@ -155,7 +155,7 @@ class Emby:
         req_url = "%semby/Items?IncludeItemTypes=Movie&Fields=ProductionYear&StartIndex=0&Recursive=true&SearchTerm=%s&Limit=10&IncludeSearchTypes=false&api_key=%s" % (
             self.__host, title, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = requests.get(req_url, timeout=20)
             if res:
                 res_items = res.json().get("Items")
                 if res_items:
@@ -168,8 +168,8 @@ class Emby:
                             return ret_movies
         except Exception as e:
             log.error("【EMBY】连接Items出错：" + str(e))
-            return []
-        return []
+            return None
+        return None
 
     def __get_emby_tv_episodes(self, title, year=None, season=None):
         """
@@ -179,18 +179,20 @@ class Emby:
         :return: 集号的列表
         """
         if not self.__host or not self.__apikey:
-            return []
+            return None
         # 电视剧
         item_id = self.__get_emby_series_id_by_name(title, year)
+        if item_id is None:
+            return None
         if not item_id:
             return []
         # /Shows/{Id}/Episodes 查集的信息
         if not season:
             season = 1
-        req_url = "%semby/Shows/%s/Episodes?Season=%s&api_key=%s" % (
+        req_url = "%semby/Shows/%s/Episodes?Season=%s&IsMissing=false&api_key=%s" % (
             self.__host, item_id, season, self.__apikey)
         try:
-            res_json = requests.get(req_url, timeout=10)
+            res_json = requests.get(req_url, timeout=20)
             if res_json:
                 res_items = res_json.json().get("Items")
                 exists_episodes = []
@@ -199,7 +201,8 @@ class Emby:
                 return exists_episodes
         except Exception as e:
             log.error("【EMBY】连接Shows/{Id}/Episodes出错：" + str(e))
-            return []
+            return None
+        return None
 
     def get_no_exists_episodes(self, meta_info, season, total_num):
         """
@@ -212,6 +215,8 @@ class Emby:
         if not self.__host or not self.__apikey:
             return None
         exists_episodes = self.__get_emby_tv_episodes(meta_info.title, meta_info.year, season)
+        if not isinstance(exists_episodes, list):
+            return None
         total_episodes = [episode for episode in range(1, total_num + 1)]
         return list(set(total_episodes).difference(set(exists_episodes)))
 

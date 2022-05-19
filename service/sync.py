@@ -4,13 +4,32 @@ from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
 from config import RMT_MEDIAEXT, Config
 import log
-from monitor.monitor_handler import FileMonitorHandler
 from rmt.filetransfer import FileTransfer
 from utils.functions import singleton, is_invalid_path, is_path_in_path, is_bluray_dir, get_dir_level1_medias
 from utils.sqls import is_transfer_in_blacklist, insert_sync_history, is_sync_in_history
 from utils.types import SyncType, OsType
+from watchdog.events import FileSystemEventHandler
 
 lock = threading.Lock()
+
+
+class FileMonitorHandler(FileSystemEventHandler):
+    """
+    目录监控响应类
+    """
+    def __init__(self, monpath, sync, **kwargs):
+        super(FileMonitorHandler, self).__init__(**kwargs)
+        self._watch_path = monpath
+        self.sync = sync
+
+    def on_created(self, event):
+        self.sync.file_change_handler(event, "创建", event.src_path)
+
+    def on_moved(self, event):
+        self.sync.file_change_handler(event, "移动", event.dest_path)
+
+    def on_modified(self, event):
+        self.sync.file_change_handler(event, "修改", event.src_path)
 
 
 @singleton
@@ -223,7 +242,7 @@ class Sync(object):
                 target_info = self.__need_sync_paths.get(path)
                 if os.path.exists(path):
                     log.info("【SYNC】开始转移监控目录文件...")
-                    if not is_bluray_dir:
+                    if not is_bluray_dir(path):
                         files = target_info.get('files')
                     else:
                         files = []

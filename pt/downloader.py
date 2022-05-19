@@ -1,12 +1,17 @@
+from datetime import datetime
+from time import sleep
+
 import log
-from config import Config
+from config import Config, PT_TAG
 from message.send import Message
 from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
+from pt.torrent import Torrent
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
-from rmt.media_server import MediaServer
-from utils.functions import str_filesize, str_timelong
+from pt.media_server import MediaServer
+from rmt.metainfo import MetaInfo
+from utils.functions import str_timelong
 from utils.types import MediaType, DownloaderType
 
 
@@ -14,6 +19,7 @@ class Downloader:
     client = None
     __client_type = None
     __seeding_time = None
+    __pt_monitor_only = None
     message = None
     mediaserver = None
     filetransfer = None
@@ -44,19 +50,31 @@ class Downloader:
                 except Exception as e:
                     log.error("【PT】pt.pt_seeding_time 格式错误：%s" % str(e))
                     self.__seeding_time = None
+            self.__pt_monitor_only = pt.get("pt_monitor_only")
 
-    def add_pt_torrent(self, url, mtype=MediaType.MOVIE):
+    def add_pt_torrent(self, url, mtype=MediaType.MOVIE, is_paused=None, tag=None):
         """
         添加PT下载任务，根据当前使用的下载器分别调用不同的客户端处理
         :param url: 种子地址
         :param mtype: 媒体类型，电影、电视剧、动漫
+        :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
+        :param tag: 下载时对种子的标记
         """
         ret = None
         if self.client:
             try:
-                ret = self.client.add_torrent(url, mtype)
-                if ret and ret.find("Ok") != -1:
-                    log.info("【PT】添加PT任务：%s" % url)
+                log.info("【PT】添加PT任务：%s" % url)
+                if self.__client_type == DownloaderType.QB:
+                    if self.__pt_monitor_only:
+                        if not tag:
+                            tag = PT_TAG
+                        else:
+                            tag = [PT_TAG, tag]
+                    ret = self.client.add_torrent(url, mtype, is_paused=is_paused, tag=tag)
+                else:
+                    ret = self.client.add_torrent(url, mtype, is_paused=is_paused)
+                    if ret and self.__pt_monitor_only:
+                        self.client.set_torrent_tag(tid=ret.id, tag=PT_TAG)
             except Exception as e:
                 log.error("【PT】添加PT任务出错：" + str(e))
         return ret
@@ -67,14 +85,17 @@ class Downloader:
         """
         if self.client:
             log.info("【PT】开始转移文件...")
-            trans_tasks = self.client.get_transfer_task()
+            if self.__pt_monitor_only:
+                tag = PT_TAG
+            else:
+                tag = None
+            trans_tasks = self.client.get_transfer_task(tag=tag)
             for task in trans_tasks:
                 done_flag, done_msg = self.filetransfer.transfer_media(in_from=self.__client_type,
                                                                        in_path=task.get("path"))
                 if not done_flag:
                     log.warn("【PT】%s 转移失败：%s" % (task.get("path"), done_msg))
-                else:
-                    self.client.set_torrents_status(task.get("id"))
+                self.client.set_torrents_status(task.get("id"))
             log.info("【PT】文件转移结束")
 
     def pt_removetorrents(self):
@@ -86,8 +107,12 @@ class Downloader:
         # 空或0不处理
         if not self.__seeding_time:
             return
+        if self.__pt_monitor_only:
+            tag = PT_TAG
+        else:
+            tag = None
         log.info("【PT】开始执行PT做种清理，做种时间：%s..." % str_timelong(self.__seeding_time))
-        torrents = self.client.get_remove_torrents(self.__seeding_time)
+        torrents = self.client.get_remove_torrents(seeding_time=self.__seeding_time, tag=tag)
         for torrent in torrents:
             self.delete_torrents(torrent)
         log.info("【PT】PT做种清理完成")
@@ -99,18 +124,21 @@ class Downloader:
         """
         if not self.client:
             return []
-        return self.__client_type, self.client.get_downloading_torrents()
+        if self.__pt_monitor_only:
+            tag = PT_TAG
+        else:
+            tag = None
+        return self.__client_type, self.client.get_downloading_torrents(tag=tag)
 
-    def get_pt_torrents(self, torrent_ids=None, status_filter=None):
+    def get_torrents(self, torrent_ids):
         """
         根据ID或状态查询下载器中的种子信息
         :param torrent_ids: 种子ID列表
-        :param status_filter: 种子状态
         :return: 客户端类型，种子信息列表
         """
         if not self.client:
             return None, []
-        return self.__client_type, self.client.get_torrents(ids=torrent_ids, status=status_filter)
+        return self.__client_type, self.client.get_torrents(ids=torrent_ids)
 
     def start_torrents(self, ids):
         """
@@ -152,7 +180,7 @@ class Downloader:
         """
         download_items = []
         # 返回按季、集数倒序排序的列表
-        download_list = self.__get_download_list(media_list)
+        download_list = Torrent.get_download_list(media_list)
         # 电视剧整季匹配
         if need_tvs:
             # 先把整季缺失的拿出来，看是否刚好有所有季都满足的种子
@@ -215,13 +243,13 @@ class Downloader:
                                             need_tvs.pop(need_title)
                                         break
                     index += 1
-        else:
-            # 电影
-            for item in download_list:
-                if item.type == MediaType.MOVIE:
-                    download_items.append(item)
 
-        # 添加PT任务
+        # 处理所有电影
+        for item in download_list:
+            if item.type == MediaType.MOVIE:
+                download_items.append(item)
+
+        # 添加一遍PT任务
         return_items = []
         for item in download_items:
             log.info("【PT】添加PT任务：%s ..." % item.org_string)
@@ -233,6 +261,78 @@ class Downloader:
             else:
                 log.error("【PT】添加下载任务失败：%s" % item.get_title_string())
                 self.message.sendmsg("添加PT任务失败：%s" % item.get_title_string())
+
+        # 仍然缺失的剧集，从整季中选择需要的集数文件下载
+        if need_tvs:
+            need_tv_list = list(need_tvs)
+            for need_title in need_tv_list:
+                need_tv = need_tvs.get(need_title)
+                if not need_tv:
+                    continue
+                index = 0
+                for tv in need_tv:
+                    need_season = tv.get("season")
+                    need_episodes = tv.get("episodes")
+                    if not need_episodes:
+                        continue
+                    for item in download_list:
+                        if item in return_items:
+                            continue
+                        # 选中一个单季整季的
+                        if item.get_title_string() == need_title \
+                                and item.type != MediaType.MOVIE \
+                                and not item.get_episode_list() \
+                                and len(item.get_season_list()) == 1 \
+                                and item.get_season_list()[0] == need_season:
+                            log.info("【PT】添加PT任务并暂停：%s ..." % item.org_string)
+                            torrent_tag = str(round(datetime.now().timestamp()))
+                            ret = self.add_pt_torrent(url=item.enclosure, mtype=item.type, is_paused=True, tag=torrent_tag)
+                            if ret:
+                                return_items.append(item)
+                            else:
+                                log.error("【PT】添加下载任务失败：%s" % item.get_title_string())
+                                self.message.sendmsg("添加PT任务失败：%s" % item.get_title_string())
+                                continue
+                            # 获取刚添加的任务ID
+                            if self.__client_type == DownloaderType.TR:
+                                if ret:
+                                    torrent_id = ret.id
+                                else:
+                                    log.error("【PT】获取Transmission添加的种子信息出错：%s" % item.org_string)
+                                    continue
+                            else:
+                                # 等待10秒，QB添加下载后需要时间
+                                sleep(10)
+                                torrent_id = self.client.get_last_add_torrentid_by_tag(torrent_tag)
+                                if torrent_id is None:
+                                    log.error("【PT】获取Qbittorrent添加的种子信息出错：%s" % item.org_string)
+                                    continue
+                                else:
+                                    self.client.remove_torrents_tag(torrent_id, "NASTOOL")
+                            # 设置任务只下载想要的文件
+                            selected_episodes = self.set_files_status(torrent_id, need_episodes)
+                            if not selected_episodes:
+                                log.error("【PT】种子 %s 没有需要的集，删除下载任务..." % item.org_string)
+                                self.client.delete_torrents(delete_file=True, ids=torrent_id)
+                                continue
+                            else:
+                                log.info("【PT】%s 选取文件完成，选中集数：%s" % (item.org_string, len(selected_episodes)))
+                            # 重新开始任务
+                            log.info("【PT】%s 开始下载" % item.org_string)
+                            self.start_torrents(torrent_id)
+                            # 发送消息通知
+                            self.message.send_download_message(in_from, item)
+                            # 清除记忆并退出一层循环
+                            need_episodes = list(set(need_episodes).difference(set(selected_episodes)))
+                            if not need_episodes:
+                                need_tvs[need_title].pop(index)
+                                if not need_tvs.get(need_title):
+                                    need_tvs.pop(need_title)
+                                break
+                            else:
+                                need_tvs[need_title][index]["episodes"] = need_episodes
+                index += 1
+
         # 返回下载的资源，剩下没下完的
         return return_items, need_tvs
 
@@ -354,56 +454,44 @@ class Downloader:
                 return True, None, message_list
             return False, None, message_list
 
-    @staticmethod
-    def __get_download_list(media_list):
+    def set_files_status(self, tid, need_episodes):
         """
-        对媒体信息进行排序、去重
+        设置文件下载状态，选中需要下载的季集对应的文件下载，其余不下载
+        :param tid: 种子的hash或id
+        :param need_episodes: 需要下载的文件的集信息
+        :return: 返回选中的集的列表
         """
-        if not media_list:
-            return []
-
-        # 排序函数，标题、PT站、资源类型、做种数量
-        def get_sort_str(x):
-            season_len = str(len(x.get_season_list())).rjust(3, '0')
-            episode_len = str(len(x.get_episode_list())).rjust(3, '0')
-            # 排序：标题、季集、资源类型、站点、做种
-            return "%s%s%s%s%s" % (str(x.title).ljust(100, ' '),
-                                   "%s%s" % (season_len, episode_len),
-                                   str(x.res_order).rjust(3, '0'),
-                                   str(x.site_order).rjust(3, '0'),
-                                   str(x.seeders).rjust(10, '0'))
-
-        # 匹配的资源中排序分组选最好的一个下载
-        # 按站点顺序、资源匹配顺序、做种人数下载数逆序排序
-        media_list = sorted(media_list, key=lambda x: get_sort_str(x), reverse=True)
-        log.debug("【PT】种子信息排序后如下：")
-        for media_item in media_list:
-            log.debug(">站点：%s，"
-                      "标题：%s，"
-                      "类型：%s，"
-                      "大小：%s，"
-                      "做种数：%s，"
-                      "季集：%s，"
-                      "种子名称：%s" % (media_item.site,
-                                   media_item.get_title_string(),
-                                   media_item.get_resource_type_string(),
-                                   str_filesize(media_item.size),
-                                   media_item.seeders,
-                                   media_item.get_season_episode_string(),
-                                   media_item.org_string))
-        # 控重
-        can_download_list_item = []
-        can_download_list = []
-        # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
-        for t_item in media_list:
-            # 控重的主链是名称、年份、季、集
-            if t_item.type != MediaType.MOVIE:
-                media_name = "%s%s" % (t_item.get_title_string(),
-                                       t_item.get_season_episode_string())
-            else:
-                media_name = t_item.get_title_string()
-            if media_name not in can_download_list:
-                can_download_list.append(media_name)
-                can_download_list_item.append(t_item)
-
-        return can_download_list_item
+        sucess_epidised = []
+        if self.__client_type == DownloaderType.TR:
+            files_info = {}
+            torrent_files = self.client.get_files(tid)
+            if not torrent_files:
+                return []
+            for file_id, torrent_file in enumerate(torrent_files):
+                meta_info = MetaInfo(torrent_file.name)
+                if not meta_info.get_episode_list():
+                    selected = False
+                else:
+                    selected = set(meta_info.get_episode_list()).issubset(set(need_episodes))
+                    if selected:
+                        sucess_epidised = list(set(sucess_epidised).union(set(meta_info.get_episode_list())))
+                if not files_info.get(tid):
+                    files_info[tid] = {file_id: {'priority': 'normal', 'selected': selected}}
+                else:
+                    files_info[tid][file_id] = {'priority': 'normal', 'selected': selected}
+            if sucess_epidised and files_info:
+                self.client.set_files(files_info)
+        elif self.__client_type == DownloaderType.QB:
+            file_ids = []
+            torrent_files = self.client.get_files(tid)
+            if not torrent_files:
+                return []
+            for torrent_file in torrent_files:
+                meta_info = MetaInfo(torrent_file.get("name"))
+                if not meta_info.get_episode_list() or not set(meta_info.get_episode_list()).issubset(set(need_episodes)):
+                    file_ids.append(torrent_file.get("index"))
+                else:
+                    sucess_epidised = list(set(sucess_epidised).union(set(meta_info.get_episode_list())))
+            if sucess_epidised and file_ids:
+                self.client.set_files(torrent_hash=tid, file_ids=file_ids, priority=0)
+        return sucess_epidised

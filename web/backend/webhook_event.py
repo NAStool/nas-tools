@@ -6,7 +6,7 @@ import log
 from config import RMT_FAVTYPE
 from message.send import Message
 from rmt.filetransfer import FileTransfer
-from rmt.media_server import MediaServer
+from pt.media_server import MediaServer
 from utils.types import MediaType
 
 PLAY_LIST = []

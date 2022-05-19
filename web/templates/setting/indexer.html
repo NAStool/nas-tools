@@ -146,9 +146,9 @@
     $("#" + type + "_test_btn").text("测试中...");
     save_config(type, function (ret) {
       if(currType == "jackett"){
-        command = ["getattr(importlib.import_module('pt.indexer.jackett'), 'Jackett')().get_status()"];
+        command = "pt.indexer.jackett|Jackett";
       }else if(currType == "prowlarr"){
-        command = ["getattr(importlib.import_module('pt.indexer.prowlarr'), 'Prowlarr')().get_status()"];
+        command = "pt.indexer.prowlarr|Prowlarr";
       }
       ajax_post("test_connection", {"command": command}, function(ret){
         if(ret.code == 0){

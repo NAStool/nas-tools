@@ -87,6 +87,8 @@ class Torrent:
         :return: 是否命中
         """
         if s_num:
+            if not media_info.get_season_list():
+                return False
             if not isinstance(s_num, list):
                 s_num = [s_num]
             if not set(s_num).issuperset(set(media_info.get_season_list())):
@@ -97,7 +99,7 @@ class Torrent:
             if not set(e_num).issuperset(set(media_info.get_episode_list())):
                 return False
         if year_str:
-            if str(media_info.year) != year_str:
+            if str(media_info.year) != str(year_str):
                 return False
         return True
 
@@ -168,16 +170,24 @@ class Torrent:
         从检索关键字中拆分中年份、季、集、类型
         """
         if not content:
-            return {}
+            return None, None, None, None, None
+        # 去掉查询中的电影或电视剧关键字
+        if re.search(r'^电视剧|\s+电视剧|^动漫|\s+动漫', content):
+            mtype = MediaType.TV
+        else:
+            mtype = None
+        content = re.sub(r'^电影|^电视剧|^动漫|\s+电影|\s+电视剧|\s+动漫', '', content).strip()
         # 稍微切一下剧集吧
         season_num = None
         episode_num = None
         year = None
         season_re = re.search(r"第\s*([0-9一二三四五六七八九十]+)\s*季", content, re.IGNORECASE)
         if season_re:
+            mtype = MediaType.TV
             season_num = int(cn2an.cn2an(season_re.group(1), mode='smart'))
         episode_re = re.search(r"第\s*([0-9一二三四五六七八九十]+)\s*集", content, re.IGNORECASE)
         if episode_re:
+            mtype = MediaType.TV
             episode_num = int(cn2an.cn2an(episode_re.group(1), mode='smart'))
             if episode_num and not season_num:
                 season_num = "1"
@@ -192,7 +202,7 @@ class Torrent:
         if not key_word:
             key_word = year
 
-        return key_word, season_num, episode_num, year
+        return mtype, key_word, season_num, episode_num, year
 
     @staticmethod
     def get_torrents_group_item(media_list):
@@ -227,6 +237,44 @@ class Torrent:
                 media_name = "%s%s%s%s" % (
                     t_item.get_title_string(), t_item.site, t_item.get_resource_type_string(),
                     str_filesize(t_item.size))
+            if media_name not in can_download_list:
+                can_download_list.append(media_name)
+                can_download_list_item.append(t_item)
+        return can_download_list_item
+
+    @staticmethod
+    def get_download_list(media_list):
+        """
+        对媒体信息进行排序、去重
+        """
+        if not media_list:
+            return []
+
+        # 排序函数，标题、PT站、资源类型、做种数量
+        def get_sort_str(x):
+            season_len = str(len(x.get_season_list())).rjust(2, '0')
+            episode_len = str(len(x.get_episode_list())).rjust(4, '0')
+            # 排序：标题、季集、资源类型、站点、做种
+            return "%s%s%s%s%s" % (str(x.title).ljust(100, ' '),
+                                   "%s%s" % (season_len, episode_len),
+                                   str(x.res_order).rjust(3, '0'),
+                                   str(x.site_order).rjust(3, '0'),
+                                   str(x.seeders).rjust(10, '0'))
+
+        # 匹配的资源中排序分组选最好的一个下载
+        # 按站点顺序、资源匹配顺序、做种人数下载数逆序排序
+        media_list = sorted(media_list, key=lambda x: get_sort_str(x), reverse=True)
+        # 控重
+        can_download_list_item = []
+        can_download_list = []
+        # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
+        for t_item in media_list:
+            # 控重的主链是名称、年份、季、集
+            if t_item.type != MediaType.MOVIE:
+                media_name = "%s%s" % (t_item.get_title_string(),
+                                       t_item.get_season_episode_string())
+            else:
+                media_name = t_item.get_title_string()
             if media_name not in can_download_list:
                 can_download_list.append(media_name)
                 can_download_list_item.append(t_item)
