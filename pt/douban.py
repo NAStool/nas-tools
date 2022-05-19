@@ -213,13 +213,22 @@ class DouBan:
             return None
 
     def get_douban_hot_json(self, mtype='movie', nums=20):
-        data = {
-            'type': mtype,
-            'tag': '热门',
-            'sort': 'recommend',
-            'page_limit': nums,
-            'page_start': 0
-        }
+        if mtype == "movie":
+        	data = {
+         	   'type': mtype,
+         	   'tag': '热门',
+         	   'sort': 'recommend',
+		   'page_limit': nums,
+        	   'page_start': 0
+            }
+        else:
+        	data = {
+         	   'type': 'tv',
+         	   'tag': '日本动画',
+         	   'sort': 'recommend',
+        	   'page_limit': nums,
+        	   'page_start': 0
+       		 }
         url = 'https://movie.douban.com/j/search_subjects?' + urlencode(data)
         try:
             res = self.req.get_res(url=url)

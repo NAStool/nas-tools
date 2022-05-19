@@ -480,6 +480,9 @@ def create_flask_app(config):
         elif RecommendType == "dbht":
             # 豆瓣热门电视剧
             res_list = DoubanHot().get_douban_hot_tv()
+        elif RecommendType == "dbdh":
+            # 豆瓣热门动画
+            res_list = DoubanHot().get_douban_hot_anime()
         elif RecommendType == "dbnm":
             # 豆瓣最新电影
             res_list = DoubanHot().get_douban_new_movie()
