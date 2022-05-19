@@ -38,6 +38,9 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 
 
 ## 更新日志
+2022.5.18
+* 支持Opensubtitles.org、ChineseSubFinder下载字幕
+
 2022.5.4
 * 支持Plex
 
@@ -171,8 +174,7 @@ https://github.com/jxxghp/nas-tools/releases
    >> 儿童
 
 ### 4、配置目录同步（可选）
-* 安装resiliosync软件，配置好神KEY（主KEY：BCWHZRSLANR64CGPTXRE54ENNSIUE5SMO，大片抢先看：BA6RXJ7YOAOOFV42V6HD56XH4QVIBL2P6，也可以使用其他的Key），resiliosync同步目录配置到本程序的监控目录中，实现有资源更新自动整理。
-* 其它分散的媒体文件夹，可以过配置目录同步的方式实现文件变化时自动整理到媒体库。
+* 目录同步可以对多个分散的文件夹进行监控，文件夹中有新增媒体文件时会自动进行识别重命名，并按配置的转移方式转移到媒体库目录或指定的目录中。如将PT下载软件的下载目录也纳入目录同步范围的，建议关闭下载软件监控功能，否则会触发重复处理。
 
 ### 5、配置微信菜单/Telegram机器人（推荐）
 配置好微信或Telegram机器人后，可以直接通过微信/Telegram机器人发送名字实现自动检索下载，以及控制程序运行。
