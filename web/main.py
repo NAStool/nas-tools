@@ -4,6 +4,7 @@ import os.path
 import shutil
 import signal
 import subprocess
+import importlib
 from math import floor
 from subprocess import call
 import requests
@@ -12,9 +13,9 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import log
-from message.wechat import WeChat
-from monitor.media_sync import Sync
-from monitor.run import stop_monitor, restart_monitor
+from message.channel.wechat import WeChat
+from service.sync import Sync
+from service.run import stop_monitor, restart_monitor
 from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
 from pt.downloader import Downloader
@@ -26,16 +27,15 @@ from pt.media_server import MediaServer
 from rmt.metainfo import MetaInfo
 from pt.mediaserver.jellyfin import Jellyfin
 from pt.mediaserver.plex import Plex
-from scheduler.autoremove_torrents import AutoRemoveTorrents
-from scheduler.douban_sync import DoubanSync
-from scheduler.pt_signin import PTSignin
-from scheduler.pt_transfer import PTTransfer
-from scheduler.rss_download import RSSDownloader
+from service.tasks.autoremove_torrents import AutoRemoveTorrents
+from service.tasks.douban_sync import DoubanSync
+from service.tasks.pt_signin import PTSignin
+from service.tasks.pt_transfer import PTTransfer
+from service.tasks.rss_download import RSSDownloader
 from message.send import Message
-
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE
-from scheduler.run import stop_scheduler, restart_scheduler
-from scheduler.scheduler import Scheduler
+from service.run import stop_scheduler, restart_scheduler
+from service.scheduler import Scheduler
 from utils.functions import get_used_of_partition, str_filesize, str_timelong, get_system, get_dir_files_by_ext
 from utils.sqls import get_search_result_by_id, get_search_results, \
     get_transfer_history, get_transfer_unknown_paths, \
@@ -53,7 +53,7 @@ from web.backend.search_torrents import search_medias_for_web
 from utils.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
 
-from message.telegram import Telegram
+from message.channel.telegram import Telegram
 
 
 login_manager = LoginManager()
@@ -1511,6 +1511,7 @@ def create_flask_app(config):
 
             # 测试连通性
             if cmd == "test_connection":
+                # 支持两种传入方式：命令数组或单个命令，单个命令时xx|xx模式解析为模块和类，进行动态引入
                 command = data.get("command")
                 ret = None
                 if command:
@@ -1521,7 +1522,12 @@ def create_flask_app(config):
                                 if not ret:
                                     break
                         else:
-                            ret = eval(command)
+                            if command.find("|") != -1:
+                                module = command.split("|")[0]
+                                class_name = command.split("|")[1]
+                                ret = getattr(importlib.import_module(module), class_name)().get_status()
+                            else:
+                                ret = eval(command)
                         # 重载配置
                         config.init_config()
                     except Exception as e:

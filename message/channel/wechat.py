@@ -161,7 +161,7 @@ class WeChat(object):
         except Exception as err:
             return False, str(err)
 
-    def send_wechat_msg(self, title, text, image, url, user_id=None):
+    def send_msg(self, title, text, image, url, user_id=None):
         """
         微信消息发送入口，支持文本、图片、链接跳转、指定发送对象
         :param title: 消息标题

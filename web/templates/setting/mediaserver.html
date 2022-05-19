@@ -197,7 +197,7 @@
     $("#" + type + "_test_btn").text("测试中...");
     save_config(type, function (ret) {
       if(currType == "emby"){
-        command = ["getattr(importlib.import_module('rmt.server.emby'), 'Emby')().get_status()"];
+        command = "pt.mediaserver.emby|Emby";
       }else if(currType == "jellyfin"){
         command = ["Jellyfin().get_status()"];
       }else if(currType == "plex"){

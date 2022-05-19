@@ -2,10 +2,10 @@ import re
 
 import log
 from config import Config
-from message.bark import Bark
-from message.serverchan import ServerChan
-from message.telegram import Telegram
-from message.wechat import WeChat
+from message.channel.bark import Bark
+from message.channel.serverchan import ServerChan
+from message.channel.telegram import Telegram
+from message.channel.wechat import WeChat
 from utils.functions import str_filesize
 from utils.types import SearchType
 
@@ -14,17 +14,18 @@ class Message:
     __msg_channel = None
     __webhook_ignore = None
     __domain = None
-    wechat = None
-    telegram = None
-    serverchan = None
-    bark = None
+    client = None
 
     def __init__(self):
-        self.wechat = WeChat()
-        self.telegram = Telegram()
-        self.serverchan = ServerChan()
-        self.bark = Bark()
         self.init_config()
+        if self.__msg_channel == "wechat":
+            self.client = WeChat()
+        elif self.__msg_channel == "serverchan":
+            self.client = Telegram()
+        elif self.__msg_channel == "telegram":
+            self.client = ServerChan()
+        elif self.__msg_channel == "bark":
+            self.client = Bark()
 
     def init_config(self):
         config = Config()
@@ -40,6 +41,9 @@ class Message:
                     self.__domain = "http://" + self.__domain
 
     def get_webhook_ignore(self):
+        """
+        获取Emby/Jellyfin不通知的设备清单
+        """
         return self.__webhook_ignore or []
 
     def sendmsg(self, title, text="", image="", url="", user_id=""):
@@ -52,6 +56,8 @@ class Message:
         :param user_id: 用户ID，如有则只发给这个用户
         :return: 发送状态、错误信息
         """
+        if not self.client:
+            return None
         log.info("【MSG】发送%s消息：title=%s, text=%s" % (self.__msg_channel, title, text))
         if self.__domain:
             if url:
@@ -60,16 +66,7 @@ class Message:
                 url = self.__domain
         else:
             url = ""
-        if self.__msg_channel == "wechat":
-            return self.wechat.send_wechat_msg(title, text, image, url, user_id)
-        elif self.__msg_channel == "serverchan":
-            return self.serverchan.send_serverchan_msg(title, text)
-        elif self.__msg_channel == "telegram":
-            return self.telegram.send_telegram_msg(title, text, image, url, user_id)
-        elif self.__msg_channel == "bark":
-            return self.bark.send_bark_msg(title, text)
-        else:
-            return None
+        return self.client.send_msg(title, text, image, url, user_id)
 
     def send_channel_msg(self, channel, title, text="", image="", url="", user_id=""):
         """
@@ -90,9 +87,9 @@ class Message:
         else:
             url = ""
         if channel == SearchType.TG:
-            return self.telegram.send_telegram_msg(title, text, image, url, user_id)
+            return Telegram().send_msg(title, text, image, url, user_id)
         elif channel == SearchType.WX:
-            return self.wechat.send_wechat_msg(title, text, image, url, user_id)
+            return WeChat().send_msg(title, text, image, url, user_id)
 
     def send_download_message(self, in_from, can_item):
         """

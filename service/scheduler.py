@@ -2,13 +2,13 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import log
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
     RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_SEARCH_INTERVAL
-from monitor.media_sync import Sync
-from scheduler.autoremove_torrents import AutoRemoveTorrents
-from scheduler.douban_sync import DoubanSync
-from scheduler.pt_signin import PTSignin
-from scheduler.pt_transfer import PTTransfer
-from scheduler.rss_download import RSSDownloader
-from scheduler.rss_search import RssSearch
+from service.sync import Sync
+from service.tasks.autoremove_torrents import AutoRemoveTorrents
+from service.tasks.douban_sync import DoubanSync
+from service.tasks.pt_signin import PTSignin
+from service.tasks.pt_transfer import PTTransfer
+from service.tasks.rss_download import RSSDownloader
+from service.tasks.rss_search import RssSearch
 from utils.functions import singleton
 from utils.meta_helper import MetaHelper
 

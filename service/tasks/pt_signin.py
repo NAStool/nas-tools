@@ -1,11 +1,15 @@
+from threading import Lock
+
 import log
 from config import Config
 from message.send import Message
 from utils.http_utils import RequestUtils
 from utils.sqls import get_config_site
 
+lock = Lock()
 
-class SignIn:
+
+class PTSignin:
     __pt_sites = None
     __user_agent = None
     message = None
@@ -22,7 +26,19 @@ class SignIn:
             self.__pt_sites = get_config_site()
             self.__user_agent = app.get('user_agent')
 
-    def signin(self):
+    def run_schedule(self):
+        """
+        运行PT站签到定时服务
+        """
+        try:
+            lock.acquire()
+            self.__signin()
+        except Exception as err:
+            log.error("【RUN】执行任务pt_signin出错：%s" % str(err))
+        finally:
+            lock.release()
+
+    def __signin(self):
         """
         PT站签到入口，由定时服务调用
         """

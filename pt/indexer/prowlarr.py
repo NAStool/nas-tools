@@ -94,6 +94,11 @@ class Prowlarr:
             seeders = item.get('seeders')
             peers = item.get('peers')
 
+            # 合匹配模式下，过滤掉做种数为0的
+            if whole_word and not seeders:
+                log.info("【PROWLARR】%s 做种数为0，跳过..." % torrent_name)
+                continue
+
             # 检查资源类型
             match_flag, res_order = Torrent.check_resouce_types(torrent_name, description, self.__res_type)
             if not match_flag:
