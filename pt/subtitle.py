@@ -69,34 +69,38 @@ class Subtitle:
                 continue
             if not item.get("name") or not item.get("file"):
                 continue
-            log.info("【SUBTITLE】开始从Opensubtitle.org检索字幕: %s" % item.get("name"))
-            if not subtitles_cache.get(item.get("name")):
-                subtitles_cache[item.get("name")] = self.__ost.search_subtitles([{'sublanguageid': 'chi', 'query': item.get("name")}])
-            if not subtitles_cache.get(item.get("name")):
-                log.info("【SUBTITLE】%s 未检索到字幕" % item.get("name"))
+            subtitles = subtitles_cache.get(item.get("name"))
+            if subtitles is None:
+                log.info("【SUBTITLE】开始从Opensubtitle.org检索字幕: %s" % item.get("name"))
+                subtitles = self.__ost.search_subtitles([{'sublanguageid': 'chi', 'query': item.get("name")}])
+                if not subtitles:
+                    subtitles_cache[item.get("name")] = []
+                    log.info("【SUBTITLE】%s 未检索到字幕" % item.get("name"))
+                else:
+                    subtitles_cache[item.get("name")] = subtitles
+                    log.info("【SUBTITLE】Opensubtitles.org返回数据：%s" % len(subtitles))
+            if not subtitles:
                 continue
-            else:
-                log.info("【SUBTITLE】Opensubtitles.org返回数据：%s" % len(subtitles_cache.get(item.get("name"))))
             success_flag = False
-            for data in subtitles_cache.get(item.get("name")):
+            for subtitle in subtitles:
                 # 字幕ID
-                IDSubtitleFile = data.get('IDSubtitleFile')
+                IDSubtitleFile = subtitle.get('IDSubtitleFile')
                 # 年份
-                MovieYear = data.get('MovieYear')
+                MovieYear = subtitle.get('MovieYear')
                 if item.get('year') and str(MovieYear) != str(item.get('year')):
                     continue
                 # 季
-                SeriesSeason = data.get('SeriesSeason')
+                SeriesSeason = subtitle.get('SeriesSeason')
                 if item.get('season') and int(SeriesSeason) != int(item.get('season')):
                     continue
                 # 集
-                SeriesEpisode = data.get('SeriesEpisode')
+                SeriesEpisode = subtitle.get('SeriesEpisode')
                 if item.get('episode') and int(SeriesEpisode) != int(item.get('episode')):
                     continue
                 # 字幕文件名
-                SubFileName = data.get('SubFileName')
+                SubFileName = subtitle.get('SubFileName')
                 # 字幕格式
-                SubFormat = data.get('SubFormat')
+                SubFormat = subtitle.get('SubFormat')
                 # 下载后的字幕文件路径
                 Download_File = "%s.zh-cn.%s" % (os.path.basename(item.get("file")), SubFormat)
                 # 下载目录
@@ -128,9 +132,9 @@ class Subtitle:
             else:
                 file_path = "%s%s" % (item.get("file"), item.get("file_ext"))
             # 一个名称只建一个任务
-            if item.get("title") not in notify_items:
-                notify_items.append(item.get("title"))
-                log.info("【SUBTITLE】通知ChineseSubFinder下载字幕: %s" % item.get("title"))
+            if file_path not in notify_items:
+                notify_items.append(file_path)
+                log.info("【SUBTITLE】通知ChineseSubFinder下载字幕: %s" % file_path)
                 params = {
                     "video_type": 0 if item.get("type") == MediaType.MOVIE else 1,
                     "physical_video_file_full_path": file_path,
