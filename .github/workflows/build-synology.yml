@@ -14,7 +14,7 @@ jobs:
     - name: Build the synology spk
       run: |
         mv synology/ui ./
-        tar -zcvf package.tgz *.py *.txt monitor/ rmt/ scheduler/ message/ web/ ui/ config/ pt/ utils/
+        tar -zcvf package.tgz *.py *.txt service/ rmt/ message/ web/ ui/ config/ pt/ utils/
         mkdir spk
         mv package.tgz synology/WIZARD_UIFILES synology/conf synology/scripts/ synology/CHANGELOG synology/INFO synology/*.PNG synology/*.asc spk/
         cd spk/
