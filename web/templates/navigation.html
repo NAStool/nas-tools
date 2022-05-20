@@ -46,9 +46,13 @@
                 </div>
               </a>
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                {% if SystemFlag > 0 and "系统设置" in UserPris %}
+                {% if "系统设置" in UserPris %}
+                <a class="dropdown-item" data-bs-toggle="offcanvas" href="#offcanvasEnd" role="button" aria-controls="offcanvasEnd">消息中心</a>
+                {% if SystemFlag > 0 %}
+                <div class="dropdown-divider"></div>
                 <a href="javascript:restart()" class="dropdown-item">重启</a>
                 <a href="javascript:update()" class="dropdown-item">更新</a>
+                {% endif %}
                 {% endif %}
                 <a href="javascript:logout()" class="dropdown-item">注销</a>
               </div>
@@ -330,9 +334,13 @@
                 </div>
               </a>
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                {% if SystemFlag > 0 and "系统设置" in UserPris %}
+                {% if "系统设置" in UserPris %}
+                <a class="dropdown-item" data-bs-toggle="offcanvas" href="#offcanvasEnd" role="button" aria-controls="offcanvasEnd">消息中心</a>
+                {% if SystemFlag > 0 %}
+                <div class="dropdown-divider"></div>
                 <a href="javascript:restart()" class="dropdown-item">重启</a>
                 <a href="javascript:update()" class="dropdown-item">更新</a>
+                {% endif %}
                 {% endif %}
                 <a href="javascript:logout()" class="dropdown-item">注销</a>
               </div>
@@ -391,6 +399,21 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="消息中心">
+      <div class="offcanvas-header">
+        <h2 class="offcanvas-title" id="offcanvasEndLabel">消息中心</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body" style="padding:0.5rem 0.5rem;">
+        <div class="list-group list-group-flush" id="system-messages">
+        </div>
+        <div class="mt-3">
+          <button class="btn" type="button" data-bs-dismiss="offcanvas">
+            关闭
+          </button>
         </div>
       </div>
     </div>
@@ -472,6 +495,30 @@
         $("#system-confirm-modal").modal("show");
       }
 
+      //刷新消息中心
+      function refresh_message(time_str){
+        ajax_post("refresh_message", {"lst_time": time_str}, function(ret){
+          if(ret.code == 0){
+            var msgs = ret.message;
+            if(msgs.length > 0){
+              var lst_time = msgs[0][4];
+            }else{
+              var lst_time = time_str;
+            }
+            for(var i=msgs.length-1; i>=0; i--){
+              if(msgs[i][1] == "ERROR"){
+                var level = "bg-red";
+              }else{
+                var level = "";
+              }
+              var template = '<div class="list-group-item"><div class="row align-items-center"><div class="col-auto"><span class="status-dot ${LEVEL} d-block"></span></div><div class="col text-truncate"><a href="#" title="${CONTENT}">${TITLE}</a><div class="d-block text-muted text-truncate mt-n1">${DATE}</div></div></div></div>';
+              $("#system-messages").prepend(template.replace("${LEVEL}", level).replace("${TITLE}", msgs[i][2]).replace("${DATE}", msgs[i][4]).replace("${CONTENT}", msgs[i][3]));
+            }
+            setTimeout("refresh_message('" + lst_time + "')", 10000);
+          }
+        });
+      }
+
       //升级新版本
       function update_to_newversion(){
         $("#system_confirm_message").text("是否确认升级到 " + NewVersion + " 版本？");
@@ -497,8 +544,13 @@
           navmenu(page);
         }
 
+        {% if "系统设置" in UserPris %}
         //检查版本升级
         check_new_version();
+
+        //刷新消息
+        refresh_message("");
+        {% endif %}
       });
     </script>
   </body>

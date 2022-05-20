@@ -112,7 +112,10 @@ class Subtitle:
                 self.__ost.download_subtitles([IDSubtitleFile], override_filenames={IDSubtitleFile: Download_File}, output_directory=Download_Dir)
                 success_flag = True
             if not success_flag:
-                log.info("【SUBTITLE】%s 未找到符合条件的字幕" % item.get("name"))
+                if item.get('episode'):
+                    log.info("【SUBTITLE】%s 季：%s 集：%s 未找到符合条件的字幕" % (item.get("name"), item.get("season"), item.get("episode")))
+                else:
+                    log.info("【SUBTITLE】%s 未找到符合条件的字幕" % item.get("name"))
 
     def __download_chinesesubfinder(self, items):
         """

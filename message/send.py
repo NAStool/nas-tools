@@ -7,6 +7,7 @@ from message.channel.serverchan import ServerChan
 from message.channel.telegram import Telegram
 from message.channel.wechat import WeChat
 from utils.functions import str_filesize
+from utils.sqls import insert_system_message
 from utils.types import SearchType
 
 
@@ -66,6 +67,7 @@ class Message:
                 url = self.__domain
         else:
             url = ""
+        insert_system_message(level="INFO", title=title, content=text)
         return self.client.send_msg(title, text, image, url, user_id)
 
     def send_channel_msg(self, channel, title, text="", image="", url="", user_id=""):

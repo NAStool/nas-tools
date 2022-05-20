@@ -561,3 +561,21 @@ def get_transfer_statistics(days=30):
     begin_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d %H:%M:%S")
     sql = "SELECT TYPE,SUBSTR(DATE, 1, 10),COUNT(1) FROM TRANSFER_HISTORY WHERE DATE > '%s' GROUP BY TYPE,SUBSTR(DATE, 1, 10)" % begin_date
     return select_by_sql(sql)
+
+
+# 插入消息中心
+def insert_system_message(level, title, content):
+    if not level or not title:
+        return
+    timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+    sql = "INSERT INTO MESSAGES(LEVEL, TITLE, CONTENT, DATE) VALUES ('%s', '%s', '%s', '%s')" % (str_sql(level), str_sql(title), str_sql(content), timestr)
+    return update_by_sql(sql)
+
+
+# 查询消息中心
+def get_system_messages(num=20, lst_time=None):
+    if not lst_time:
+        sql = "SELECT ID, LEVEL, TITLE, CONTENT, DATE FROM MESSAGES ORDER BY DATE DESC LIMIT %s" % num
+    else:
+        sql = "SELECT ID, LEVEL, TITLE, CONTENT, DATE FROM MESSAGES WHERE DATE > '%s' ORDER BY DATE" % lst_time
+    return select_by_sql(sql)

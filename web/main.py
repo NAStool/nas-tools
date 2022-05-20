@@ -43,7 +43,7 @@ from utils.sqls import get_search_result_by_id, get_search_results, \
     delete_transfer_log_by_id, get_config_site, insert_config_site, get_site_by_id, delete_config_site, \
     update_config_site, get_config_search_rule, update_config_search_rule, get_config_rss_rule, update_config_rss_rule, \
     get_unknown_path_by_id, get_rss_tvs, get_rss_movies, delete_rss_movie, delete_rss_tv, \
-    get_users, insert_user, delete_user, get_transfer_statistics
+    get_users, insert_user, delete_user, get_transfer_statistics, get_system_messages
 from utils.types import MediaType, SearchType, DownloaderType, SyncType, OsType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
@@ -1562,6 +1562,12 @@ def create_flask_app(config):
                 else:
                     _thread.start_new_thread(Rss().rsssearch_tv, (rssid,))
                 return {"code": 0}
+
+            # 刷新首页消息中心
+            if cmd == "refresh_message":
+                lst_time = data.get("lst_time")
+                messages = get_system_messages(lst_time=lst_time)
+                return {"code": 0, "message": messages}
 
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])

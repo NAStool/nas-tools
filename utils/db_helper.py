@@ -111,7 +111,7 @@ class DBHelper:
                                    YEAR    TEXT,
                                    SE    TEXT,
                                    DEST    TEXT,
-                                   DATE    );''')
+                                   DATE    TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_HISTORY_PATH ON TRANSFER_HISTORY (FILE_PATH);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_HISTORY_NAME ON TRANSFER_HISTORY (FILE_NAME);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_HISTORY_TITLE ON TRANSFER_HISTORY (TITLE);''')
@@ -167,6 +167,15 @@ class DBHelper:
                                                            PASSWORD    TEXT,
                                                            PRIS    TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_CONFIG_USERS ON CONFIG_USERS (NAME);''')
+
+            # 消息中心
+            cursor.execute('''CREATE TABLE IF NOT EXISTS MESSAGES
+                                                           (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                                           LEVEL    TEXT,
+                                                           TITLE    TEXT,
+                                                           CONTENT    TEXT,
+                                                           DATE     TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_MESSAGES_DATE ON MESSAGES (DATE);''')
             # 提交
             self.__connection.commit()
 

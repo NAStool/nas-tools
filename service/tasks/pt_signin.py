@@ -56,8 +56,10 @@ class PTSignin:
                         log.warn("【PT】未配置 %s 的Url或Cookie，无法签到" % str(pt_task))
                         continue
                     res = RequestUtils(headers=self.__user_agent, cookies=pt_cookie).get_res(url=pt_url)
-                    if res.status_code == 200:
+                    if res and res.status_code == 200:
                         status.append("%s 签到成功" % pt_task)
+                    elif not res:
+                        status.append("%s 签到失败，无法打开网站" % pt_task)
                     else:
                         status.append("%s 签到失败，状态码：%s" % (pt_task, res.status_code))
                 except Exception as e:

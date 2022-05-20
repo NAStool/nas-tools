@@ -1,5 +1,4 @@
-from pt.subtitle import Subtitle
-from rmt.media import Media
+from utils.sqls import get_system_messages
 
 if __name__ == "__main__":
     '''
@@ -102,5 +101,5 @@ if __name__ == "__main__":
     # print(get_transfer_statistics())
     # print(len(Qbittorrent().get_completed_torrents()))
     # add_rss_substribe_from_string(rss_string="订阅 西部世界", in_from=SearchType.WX)
-    items = [{"file": "C:\\Users\\jxxgh\\Documents\\Movie\\任何人 (2022)\\任何人 (2022) - 1080P", "name": "In the Mood for Love"}]
-    Subtitle().download_subtitle(items)
+    # items = [{"file": "C:\\Users\\jxxgh\\Documents\\Movie\\任何人 (2022)\\任何人 (2022) - 1080P", "name": "In the Mood for Love"}]
+    # Subtitle().download_subtitle(items)

@@ -5,6 +5,7 @@ import time
 from html import escape
 from logging.handlers import TimedRotatingFileHandler
 from config import LOG_LEVEL, Config, LOG_QUEUE
+from utils.sqls import insert_system_message
 
 lock = threading.Lock()
 
@@ -70,6 +71,16 @@ def info(text):
 
 def error(text):
     LOG_QUEUE.append(f"{time.strftime('%H:%M:%S',time.localtime(time.time()))} ERROR - {escape(text)}")
+    try:
+        if text.find("：") != -1:
+            title = text.split("：")[0]
+            content = text.split("：")[1]
+        else:
+            title = text
+            content = ""
+        insert_system_message(level="ERROR", title=title, content=content)
+    except Exception as e:
+        print(str(e))
     return Logger.get_instance().logger.error(text)
 
 
