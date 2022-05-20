@@ -22,9 +22,9 @@ class Message:
         if self.__msg_channel == "wechat":
             self.client = WeChat()
         elif self.__msg_channel == "serverchan":
-            self.client = Telegram()
-        elif self.__msg_channel == "telegram":
             self.client = ServerChan()
+        elif self.__msg_channel == "telegram":
+            self.client = Telegram()
         elif self.__msg_channel == "bark":
             self.client = Bark()
 
