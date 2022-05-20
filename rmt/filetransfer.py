@@ -589,20 +589,20 @@ class FileTransfer:
         if not s_path:
             return
         if not os.path.exists(s_path):
-            log.console("【RMT】源目录不存在：%s" % s_path)
+            print("【RMT】源目录不存在：%s" % s_path)
             return
         if t_path:
             if not os.path.exists(t_path):
-                log.console("【RMT】目的目录不存在：%s" % t_path)
+                print("【RMT】目的目录不存在：%s" % t_path)
                 return
-        log.console("【RMT】正在转移以下目录中的全量文件：%s" % s_path)
-        log.console("【RMT】转移模式为：%s" % self.__sync_rmt_mode.value)
+        print("【RMT】正在转移以下目录中的全量文件：%s" % s_path)
+        print("【RMT】转移模式为：%s" % self.__sync_rmt_mode.value)
         for path in get_dir_level1_medias(s_path, RMT_MEDIAEXT):
             if is_invalid_path(path):
                 continue
             ret, ret_msg = self.transfer_media(in_from=SyncType.MAN, in_path=path, target_dir=t_path)
             if not ret:
-                log.console("【RMT】%s 处理失败：%s" % (path, ret_msg))
+                print("【RMT】%s 处理失败：%s" % (path, ret_msg))
 
     def __is_media_exists(self,
                           media_dest,
@@ -889,12 +889,12 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--target', dest='t_path', required=False, help='硬链接目的目录路径')
     args = parser.parse_args()
     if os.environ.get('NASTOOL_CONFIG'):
-        log.console("【RMT】配置文件地址：%s" % os.environ.get('NASTOOL_CONFIG'))
-        log.console("【RMT】源目录路径：%s" % args.s_path)
+        print("【RMT】配置文件地址：%s" % os.environ.get('NASTOOL_CONFIG'))
+        print("【RMT】源目录路径：%s" % args.s_path)
         if args.t_path:
-            log.console("【RMT】目的目录路径：%s" % args.t_path)
+            print("【RMT】目的目录路径：%s" % args.t_path)
         else:
-            log.console("【RMT】目的目录为配置文件中的电影、电视剧媒体库目录")
+            print("【RMT】目的目录为配置文件中的电影、电视剧媒体库目录")
         FileTransfer().transfer_manually(args.s_path, args.t_path)
     else:
-        log.console("【RMT】未设置环境变量，请先设置 NASTOOL_CONFIG 环境变量为配置文件地址")
+        print("【RMT】未设置环境变量，请先设置 NASTOOL_CONFIG 环境变量为配置文件地址")

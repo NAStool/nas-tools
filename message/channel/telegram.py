@@ -129,11 +129,11 @@ class Telegram:
             if res:
                 json = res.json()
                 if json.get("ok"):
-                    log.console("TelegramBot Webhook 设置成功，地址为：%s" % self.__webhook_url)
+                    log.info("TelegramBot Webhook 设置成功，地址为：%s" % self.__webhook_url)
                 else:
-                    log.console("TelegramBot Webhook 设置失败：" % json.get("description"))
+                    log.error("TelegramBot Webhook 设置失败：" % json.get("description"))
             else:
-                log.console("TelegramBot Webhook 设置失败：网络连接故障！")
+                log.error("TelegramBot Webhook 设置失败：网络连接故障！")
 
     def __get_bot_webhook(self):
         """
@@ -146,7 +146,7 @@ class Telegram:
             if res.json().get("ok"):
                 webhook_url = res.json().get("result", {}).get("url") or ""
                 if webhook_url:
-                    log.console("TelegramBot Webhook 地址为：%s" % webhook_url)
+                    log.info("TelegramBot Webhook 地址为：%s" % webhook_url)
                 if webhook_url == self.__webhook_url:
                     return 1
                 else:

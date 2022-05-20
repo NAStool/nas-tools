@@ -266,17 +266,20 @@ class Sync(object):
         self.__observer = []
         for monpath in self.sync_dir_config.keys():
             if monpath and os.path.exists(monpath):
-                if self.__sync_sys == OsType.LINUX:
-                    # linux
-                    observer = Observer()
-                else:
-                    # 其他
-                    observer = PollingObserver()
-                self.__observer.append(observer)
-                observer.schedule(FileMonitorHandler(monpath, self), path=monpath, recursive=True)
-                observer.setDaemon(True)
-                observer.start()
-                log.info("【RUN】%s 的monitor.media_sync启动..." % monpath)
+                try:
+                    if self.__sync_sys == OsType.LINUX:
+                        # linux
+                        observer = Observer()
+                    else:
+                        # 其他
+                        observer = PollingObserver()
+                    self.__observer.append(observer)
+                    observer.schedule(FileMonitorHandler(monpath, self), path=monpath, recursive=True)
+                    observer.setDaemon(True)
+                    observer.start()
+                    log.info("【RUN】%s 的service.sync启动..." % monpath)
+                except Exception as e:
+                    log.error("【RUN】%s 启动目录监控失败：%s" % (monpath, str(e)))
 
     def stop_service(self):
         """
