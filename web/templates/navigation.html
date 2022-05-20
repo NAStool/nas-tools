@@ -48,8 +48,8 @@
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                 {% if "系统设置" in UserPris %}
                 <a class="dropdown-item" data-bs-toggle="offcanvas" href="#offcanvasEnd" role="button" aria-controls="offcanvasEnd">消息中心</a>
-                {% if SystemFlag > 0 %}
                 <div class="dropdown-divider"></div>
+                {% if SystemFlag > 0 %}
                 <a href="javascript:restart()" class="dropdown-item">重启</a>
                 <a href="javascript:update()" class="dropdown-item">更新</a>
                 {% endif %}
@@ -336,8 +336,8 @@
               <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                 {% if "系统设置" in UserPris %}
                 <a class="dropdown-item" data-bs-toggle="offcanvas" href="#offcanvasEnd" role="button" aria-controls="offcanvasEnd">消息中心</a>
-                {% if SystemFlag > 0 %}
                 <div class="dropdown-divider"></div>
+                {% if SystemFlag > 0 %}
                 <a href="javascript:restart()" class="dropdown-item">重启</a>
                 <a href="javascript:update()" class="dropdown-item">更新</a>
                 {% endif %}
@@ -390,12 +390,16 @@
           <div class="modal-footer">
             <div class="w-100">
               <div class="row">
-                <div class="col"><a href="#" class="btn w-100" data-bs-dismiss="modal">
+                <div class="col">
+                  <a href="#" class="btn w-100" data-bs-dismiss="modal">
                     取消
-                  </a></div>
-                <div class="col"><button class="btn btn-danger w-100" id="system_confirm_btn">
+                  </a>
+                </div>
+                <div class="col">
+                  <button class="btn btn-danger w-100" id="system_confirm_btn">
                     确定
-                  </button></div>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -410,7 +414,7 @@
       <div class="offcanvas-body" style="padding:0.5rem 0.5rem;">
         <div class="list-group list-group-flush" id="system-messages">
         </div>
-        <div class="mt-3">
+        <div class="mt-3" align="center">
           <button class="btn" type="button" data-bs-dismiss="offcanvas">
             关闭
           </button>
