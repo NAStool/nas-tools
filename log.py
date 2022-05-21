@@ -72,11 +72,11 @@ def info(text):
 def error(text):
     LOG_QUEUE.append(f"{time.strftime('%H:%M:%S',time.localtime(time.time()))} ERROR - {escape(text)}")
     try:
-        if text.find("：") != -1:
+        if text.strip().find("：") != -1:
             title = text.split("：")[0]
             content = text.split("：")[1]
         else:
-            title = text
+            title = text.strip()
             content = ""
         insert_system_message(level="ERROR", title=title, content=content)
     except Exception as e:
