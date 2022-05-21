@@ -39,8 +39,8 @@ SYNC_TRANSFER_INTERVAL = 300
 # RSS队列中处理时间间隔
 RSS_SEARCH_INTERVAL = 300
 # fanart的api，用于拉取封面图片
-FANART_MOVIE_API_URL = 'http://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
-FANART_TV_API_URL = 'http://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
+FANART_MOVIE_API_URL = 'https://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
+FANART_TV_API_URL = 'https://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
 # 日志级别
 LOG_LEVEL = logging.INFO
 # 定义一个列表用来保存最近的日志，以便查看
