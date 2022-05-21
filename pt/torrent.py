@@ -202,7 +202,7 @@ class Torrent:
         if not key_word:
             key_word = year
 
-        return mtype, key_word, season_num, episode_num, year
+        return mtype, key_word, season_num, episode_num, year, content
 
     @staticmethod
     def get_torrents_group_item(media_list):

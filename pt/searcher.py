@@ -32,7 +32,7 @@ class Searcher:
         else:
             self.indexer = Jackett()
 
-    def search_medias(self, key_word, s_num, e_num, year, mtype, whole_word):
+    def search_medias(self, key_word, s_num, e_num, year, mtype, whole_word, match_words=None):
         """
         根据关键字调用索引器检查媒体
         :param key_word: 检索的关键字，不能为空
@@ -41,13 +41,14 @@ class Searcher:
         :param year: 年份，为空则不过滤
         :param mtype: 类型：电影、电视剧、动漫
         :param whole_word: 是否完全匹配，为True时只有标题完全一致时才命中
+        :param match_words: 匹配的关键字
         :return: 命中的资源媒体信息列表
         """
         if not key_word:
             return []
         if not self.indexer:
             return []
-        return self.indexer.search_by_keyword(key_word, s_num, e_num, year, mtype, whole_word)
+        return self.indexer.search_by_keyword(key_word, s_num, e_num, year, mtype, whole_word, match_words)
 
     def search_one_media(self, input_str, in_from=SearchType.OT, user_id=None):
         """

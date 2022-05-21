@@ -25,7 +25,7 @@ def add_rss_substribe_from_string(rss_string, in_from=SearchType.OT, user_id=Non
                                      title="订阅内容有误",
                                      user_id=user_id)
         return False
-    mtype, key_word, season_num, episode_num, year = Torrent.get_keyword_from_string(title_str)
+    mtype, key_word, season_num, episode_num, year, title_str = Torrent.get_keyword_from_string(title_str)
     if not key_word:
         log.info("【WEB】%s 名称有误" % rss_string)
         if in_from in [SearchType.WX, SearchType.TG]:

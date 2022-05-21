@@ -1,3 +1,4 @@
+from pt.searcher import Searcher
 from rmt.media import Media
 from utils.sqls import get_system_messages
 
@@ -104,4 +105,5 @@ if __name__ == "__main__":
     # add_rss_substribe_from_string(rss_string="订阅 西部世界", in_from=SearchType.WX)
     # items = [{"file": "C:\\Users\\jxxgh\\Documents\\Movie\\任何人 (2022)\\任何人 (2022) - 1080P", "name": "In the Mood for Love"}]
     # Subtitle().download_subtitle(items)
-    print(Media().get_media_info("The Adam Project 2022 1080p DSNP WEB-DL DDP5.1 Atmos Multiple Audios X264 ASS-DIY@JAKET789").__dict__)
+    # print(Media().get_media_info("The Adam Project 2022 1080p DSNP WEB-DL DDP5.1 Atmos Multiple Audios X264 ASS-DIY@JAKET789").__dict__)
+    Searcher().search_one_media("亚当计划")
