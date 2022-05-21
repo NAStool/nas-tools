@@ -1002,14 +1002,14 @@ def create_flask_app(config):
         return render_template("setting/users.html", Users=Users, UserCount=user_count)
 
     # 事件响应
-    @App.route('/do', methods=['POST', 'GET'])
+    @App.route('/do', methods=['POST'])
+    @login_required
     def do():
-        if request.method == "POST":
+        try:
             cmd = request.form.get("cmd")
             data = request.form.get("data")
-        else:
-            cmd = request.args.get("cmd")
-            data = request.args.get("data")
+        except Exception as e:
+            return {"code": -1, "msg": str(e)}
         if data:
             data = json.loads(data)
         if cmd:
