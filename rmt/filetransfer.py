@@ -443,7 +443,7 @@ class FileTransfer:
                         log.warn("【RMT】%s 按原文件名转移到unknown目录：%s" % (file_name, unknown_path))
                         self.__transfer_origin_file(file_item, unknown_path, rmt_mode)
                     else:
-                        log.error("【RMT】%s 处理失败！" % file_name)
+                        log.error("【RMT】%s 无法识别媒体信息！" % file_name)
                     continue
                 # 当前文件大小
                 media.size = os.path.getsize(file_item)
