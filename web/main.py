@@ -1690,7 +1690,10 @@ def create_flask_app(config):
     def set_config_value(cfg, cfg_key, cfg_value):
         # 密码
         if cfg_key == "app.login_password":
-            cfg['app']['login_password'] = "[hash]%s" % generate_password_hash(cfg_value or "password")
+            if cfg_value and not cfg_value.startswith("[hash]"):
+                cfg['app']['login_password'] = "[hash]%s" % generate_password_hash(cfg_value)
+            else:
+                cfg['app']['login_password'] = cfg_value or "password"
             return cfg
         # 代理
         if cfg_key == "app.proxies":
