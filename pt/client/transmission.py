@@ -110,7 +110,7 @@ class Transmission:
         for torrent in torrents:
             if status and torrent.status not in status:
                 continue
-            labels = torrent.labels or []
+            labels = torrent.labels if hasattr(torrent, "labels") else []
             if tag and tag not in labels:
                 continue
             ret_torrents.append(torrent)
@@ -168,6 +168,11 @@ class Transmission:
         torrents = self.get_completed_torrents(tag=tag)
         trans_tasks = []
         for torrent in torrents:
+            # 3.0版本以下的Transmission没有labels
+            if not hasattr(torrent, "labels"):
+                log.warn(f"【TR】当前transmission版本可能过低，无labels属性，请安装3.0以上版本！")
+                break
+
             if torrent.labels and "已整理" in torrent.labels:
                 continue
             true_path = os.path.join(torrent.download_dir, torrent.name)
