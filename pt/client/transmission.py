@@ -187,12 +187,16 @@ class Transmission:
         查询可以清单的种子
         :return: 可以清理的种子ID列表
         """
+        if not seeding_time:
+            return []
         torrents = self.get_completed_torrents(tag=tag)
         remove_torrents = []
         for torrent in torrents:
             date_done = torrent.date_done
             if not date_done:
                 date_done = torrent.date_added
+            if not date_done:
+                continue
             date_now = datetime.now().astimezone()
             torrent_time = (date_now - date_done).seconds
             if torrent_time > int(seeding_time):

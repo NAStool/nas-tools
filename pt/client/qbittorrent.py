@@ -191,9 +191,13 @@ class Qbittorrent:
         :param tag: 种子标签
         :return: 种子ID列表
         """
+        if not seeding_time:
+            return []
         torrents = self.get_completed_torrents(tag=tag)
         remove_torrents = []
         for torrent in torrents:
+            if not torrent.get('seeding_time'):
+                continue
             if int(torrent.get('seeding_time')) > int(seeding_time):
                 log.info("【PT】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (torrent.get('name'), torrent.get('seeding_time')))
                 remove_torrents.append(torrent.get('hash'))
