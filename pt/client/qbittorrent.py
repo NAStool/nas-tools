@@ -116,7 +116,7 @@ class Qbittorrent:
         self.qbc.auth_log_in()
         torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status, tag=tag)
         self.qbc.auth_log_out()
-        return torrents
+        return torrents or []
 
     def get_completed_torrents(self, tag=None):
         """
