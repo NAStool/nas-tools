@@ -567,6 +567,8 @@ def get_transfer_statistics(days=30):
 def insert_system_message(level, title, content):
     if not level or not title:
         return
+    if content:
+        content = content.replace("\n", "<br/>")
     timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     sql = "INSERT INTO MESSAGES(LEVEL, TITLE, CONTENT, DATE) VALUES ('%s', '%s', '%s', '%s')" % (str_sql(level), str_sql(title), str_sql(content), timestr)
     return update_by_sql(sql)

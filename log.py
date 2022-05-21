@@ -75,8 +75,6 @@ def error(text):
         if text.strip().find("：") != -1:
             title = text.split("：")[0]
             content = text.split("：")[1]
-            if content:
-                content = content.replace("\n", "<br/>")
         else:
             title = text.strip()
             content = ""
