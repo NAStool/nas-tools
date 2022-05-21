@@ -14,6 +14,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 import log
 from message.channel.wechat import WeChat
+from rmt.doubanv2api.douban import Douban
 from service.sync import Sync
 from service.run import stop_monitor, restart_monitor
 from pt.client.qbittorrent import Qbittorrent
@@ -523,6 +524,8 @@ def create_flask_app(config):
             if RecommendType in ['hm', 'nm', 'ht', 'nt']:
                 image = "https://image.tmdb.org/t/p/original/%s" % image
             else:
+                # 替换图片分辨率
+                image = image.replace("s_ratio_poster", "m_ratio_poster")
                 image = "https://images.weserv.nl/?url=%s" % image
             vote = res.get('vote_average')
             overview = res.get('overview')
@@ -1487,28 +1490,41 @@ def create_flask_app(config):
                 tmdb_info = Media().get_media_info_manual(media_type, title, year, tmdbid)
                 if not tmdb_info:
                     return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url}
+
+                overview = tmdb_info.get("overview")
+                poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path')
                 if media_type == MediaType.MOVIE:
+                    if doubanid:
+                        douban_info = Douban().movie_detail(doubanid)
+                        overview = douban_info.get("intro")
+                        poster_path = "https://images.weserv.nl/?url=%s" % douban_info.get("cover_url")
+
                     return {
                         "code": 0,
                         "id": tmdb_info.get('id'),
                         "title": tmdb_info.get('title'),
                         "vote_average": tmdb_info.get("vote_average"),
-                        "poster_path": "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path'),
+                        "poster_path": poster_path,
                         "release_date": tmdb_info.get('release_date'),
                         "year": tmdb_info.get('release_date')[0:4] if tmdb_info.get('release_date') else "",
-                        "overview": tmdb_info.get("overview"),
+                        "overview": overview,
                         "link_url": link_url
                     }
                 else:
+                    if doubanid:
+                        douban_info = Douban().tv_detail(doubanid)
+                        overview = douban_info.get("intro")
+                        poster_path = "https://images.weserv.nl/?url=%s" % douban_info.get("cover_url")
+
                     return {
                         "code": 0,
                         "id": tmdb_info.get('id'),
                         "title": tmdb_info.get('name'),
                         "vote_average": tmdb_info.get("vote_average"),
-                        "poster_path": "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path'),
+                        "poster_path": poster_path,
                         "first_air_date": tmdb_info.get('first_air_date'),
                         "year": tmdb_info.get('first_air_date')[0:4] if tmdb_info.get('first_air_date') else "",
-                        "overview": tmdb_info.get("overview"),
+                        "overview": overview,
                         "link_url": link_url
                     }
 
