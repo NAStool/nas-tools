@@ -567,6 +567,8 @@ def get_transfer_statistics(days=30):
 def insert_system_message(level, title, content):
     if not level or not title:
         return
+    if title:
+        title = title.replace("\n", "<br/>")
     if content:
         content = content.replace("\n", "<br/>")
     timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
