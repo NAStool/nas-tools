@@ -71,7 +71,7 @@ def create_flask_app(config):
     ADMIN_USERS = [{
         "id": 0,
         "name": admin_user,
-        "password": generate_password_hash(str(admin_password)),
+        "password": admin_password[6:],
         "pris": "我的媒体库,资源搜索,推荐,订阅管理,下载管理,媒体识别,服务,系统设置,搜索设置,订阅设置"
     }]
 

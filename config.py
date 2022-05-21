@@ -4,6 +4,7 @@ import shutil
 from collections import deque
 from threading import Lock
 import ruamel.yaml
+from werkzeug.security import generate_password_hash
 
 import log
 from utils.functions import singleton
@@ -72,6 +73,11 @@ class Config(object):
                 try:
                     yaml = ruamel.yaml.YAML()
                     self.__config = yaml.load(f)
+                    if self.__config.get("app"):
+                        login_password = self.__config.get("app").get("login_password")
+                        if login_password and not login_password.startswith("[hash]"):
+                            self.__config['app']['login_password'] = "[hash]%s" % generate_password_hash(login_password)
+                            self.save_config(self.__config)
                 except Exception as e:
                     log.console("【ERROR】配置文件 config.yaml 格式出现严重错误！请检查：%s" % str(e))
                     self.__config = {}
