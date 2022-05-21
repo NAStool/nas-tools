@@ -165,9 +165,9 @@ class Media:
                             if self.__compare_tmdb_names(file_media_name, self.__search_tmdb_names(search_type, movie.get("id"))):
                                 info = movie
                                 break
-                if info:
-                    log.info(">%sID：%s, %s名称：%s, 上映日期：%s" % (
-                        search_type.value, info.get('id'), search_type.value, info.get('title'), info.get('release_date')))
+            if info:
+                log.info(">%sID：%s, %s名称：%s, 上映日期：%s" % (
+                    search_type.value, info.get('id'), search_type.value, info.get('title'), info.get('release_date')))
         else:
             # 先按年份查，不行再不用年份查
             log.info("【META】正在识别%s：%s, 年份=%s ..." % (search_type.value, file_media_name, xstr(media_year)))
@@ -218,9 +218,9 @@ class Media:
                             if self.__compare_tmdb_names(file_media_name, self.__search_tmdb_names(search_type, tv.get("id"))):
                                 info = tv
                                 break
-                if info:
-                    log.info(">%sID：%s, %s名称：%s, 上映日期：%s" % (
-                        search_type.value, info.get('id'), search_type.value, info.get('name'), info.get('first_air_date')))
+            if info:
+                log.info(">%sID：%s, %s名称：%s, 上映日期：%s" % (
+                    search_type.value, info.get('id'), search_type.value, info.get('name'), info.get('first_air_date')))
         # 补充类别信息
         if info:
             info['media_type'] = search_type
