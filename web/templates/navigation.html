@@ -515,7 +515,7 @@
               }else{
                 var level = "";
               }
-              var template = '<div class="list-group-item"><div class="row align-items-center"><div class="col-auto"><span class="status-dot ${LEVEL} d-block"></span></div><div class="col text-truncate"><span class="text-wrap">${TITLE}</span><div class="d-block text-muted text-truncate mt-n1 text-wrap">${CONTENT}<br/>${DATE}</div></div></div></div>';
+              var template = '<div class="list-group-item"><div class="row align-items-center"><div class="col-auto"><span class="status-dot ${LEVEL} d-block"></span></div><div class="col text-truncate"><span class="text-wrap">${TITLE}</span><div class="d-block text-muted text-truncate mt-n1 text-wrap">${CONTENT}</div><div class="d-block text-muted text-truncate mt-n1 text-wrap">${DATE}</div></div></div></div>';
               $("#system-messages").prepend(template.replace("${LEVEL}", level).replace("${TITLE}", msgs[i][2]).replace("${DATE}", msgs[i][4]).replace("${CONTENT}", msgs[i][3]));
             }
             setTimeout("refresh_message('" + lst_time + "')", 10000);
