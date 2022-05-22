@@ -7,7 +7,7 @@ Docker：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
 群晖套件：https://github.com/jxxghp/nas-tools/releases
 
-TG交流：https://t.me/nastool_chat
+TG频道：https://t.me/nastool
 
 WIKI：https://github.com/jxxghp/nas-tools/wiki
 
