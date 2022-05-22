@@ -173,7 +173,7 @@ https://github.com/jxxghp/nas-tools/releases
    >> 综艺
    >> 儿童
 
-### 4、配置目录同步（可选）
+### 4、配置同步目录（可选）
 * 目录同步可以对多个分散的文件夹进行监控，文件夹中有新增媒体文件时会自动进行识别重命名，并按配置的转移方式转移到媒体库目录或指定的目录中。如将PT下载软件的下载目录也纳入目录同步范围的，建议关闭下载软件监控功能，否则会触发重复处理。
 
 ### 5、配置微信菜单/Telegram机器人（推荐）
@@ -221,12 +221,12 @@ Jackett/Prowlarr二选一，但推荐使用Jackett，支持并发且支持副标
    ```
 * 群晖套件版本，ssh到后台运行以下命令，同样修改配置文件路径以及源目录、目的目录参数。
    ```
-   export NASTOOL_CONFIG=/volume1/homes/admin/.config/nastool/config.yaml
+   export NASTOOL_CONFIG=/volume1/NASTOOL/config.yaml
    /var/packages/py3k/target/usr/local/bin/python3 /var/packages/nastool/target/rmt/filetransfer.py -s /from/path -d /to/path
    ```
 * 本地直接运行的，cd 到程序根目录，执行以下命令，修改配置文件、源目录和目的目录参数。
    ```
-   export NASTOOL_CONFIG=/xxx/config/config.yaml
+   export NASTOOL_CONFIG=/xxx/config.yaml
    python3 rmt/filetransfer.py -s /from/path -d /to/path
    ```
 
