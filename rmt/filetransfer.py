@@ -802,17 +802,19 @@ class FileTransfer:
                 if category_flag:
                     dest_path = os.path.join(dest_path, meta_info.category, meta_info.get_title_string(),
                                              "Season %s" % season)
+                else:
+                    dest_path = os.path.join(dest_path, meta_info.get_title_string(), "Season %s" % season)
                 # 目录不存在
                 if not os.path.exists(dest_path):
                     continue
                 files = get_dir_files_by_ext(dest_path, RMT_MEDIAEXT)
                 for file in files:
                     file_meta_info = MetaInfo(os.path.basename(file))
-                    if not file_meta_info.get_season_list() or file_meta_info.get_episode_list():
+                    if not file_meta_info.get_season_list() or not file_meta_info.get_episode_list():
                         continue
-                    if not file_meta_info.cn_name == meta_info.cn_name:
+                    if file_meta_info.get_name() != meta_info.get_name():
                         continue
-                    if season not in file_meta_info.get_season_list():
+                    if not file_meta_info.is_in_season(season):
                         continue
                     exists_episodes = list(set(exists_episodes).union(set(file_meta_info.get_episode_list())))
             return list(set(total_episodes).difference(set(exists_episodes)))
