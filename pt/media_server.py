@@ -1,3 +1,6 @@
+import ipaddress
+
+import log
 from config import Config
 from pt.mediaserver.emby import Emby
 from pt.mediaserver.jellyfin import Jellyfin
@@ -6,6 +9,7 @@ from pt.mediaserver.plex import Plex
 
 class MediaServer:
     server = None
+    webhook_allow_ip = {}
 
     def __init__(self):
         self.init_config()
@@ -13,6 +17,7 @@ class MediaServer:
     def init_config(self):
         config = Config()
         media = config.get_config('media')
+        self.webhook_allow_ip = config.get_config('security').get('media_server_webhook_allow_ip')
         if media:
             if media.get('media_server') == "jellyfin":
                 self.server = Jellyfin()
@@ -20,6 +25,32 @@ class MediaServer:
                 self.server = Plex()
             else:
                 self.server = Emby()
+
+    def webhook_allow_access(self, ip):
+        """
+        判断媒体服务器地址webhook调用是否合法
+        :param ip: 需要检查的ip
+        """
+        try:
+            ipaddr = ipaddress.ip_address(ip)
+            allow_ipv4 = ipaddress.ip_network(self.webhook_allow_ip.get('ipv4'))
+            allow_ipv6 = ipaddress.ip_network(self.webhook_allow_ip.get('ipv6'))
+
+            if ipaddr.version == 4:
+                if ipaddr in allow_ipv4:
+                    return True
+            else:
+                # ipv4 mapped 按照ipv4处理
+                if ipaddr.ipv4_mapped:
+                    if ipaddr.ipv4_mapped in allow_ipv4:
+                        return True
+                else:
+                    if ipaddr in allow_ipv6:
+                        return True
+        except Exception as e:
+            log.warn(f"【PT】%s media server webhook 源地址检查异常 {e}")
+
+        return False
 
     def get_activity_log(self, limit):
         """

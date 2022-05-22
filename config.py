@@ -78,6 +78,16 @@ class Config(object):
                         if login_password and not login_password.startswith("[hash]"):
                             self.__config['app']['login_password'] = "[hash]%s" % generate_password_hash(login_password)
                             self.save_config(self.__config)
+                    if not self.__config.get("security"):
+                        self.__config['security'] = {
+                            'media_server_webhook_allow_ip': {
+                                'ipv4': '0.0.0.0/0',
+                                'ipv6': '::/0'
+                            }
+                        }
+
+                        self.save_config(self.__config)
+
                 except Exception as e:
                     log.console("【ERROR】配置文件 config.yaml 格式出现严重错误！请检查：%s" % str(e))
                     self.__config = {}

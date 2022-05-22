@@ -1639,6 +1639,9 @@ def create_flask_app(config):
     @App.route('/jellyfin', methods=['POST'])
     @App.route('/emby', methods=['POST'])
     def webhook():
+        if not MediaServer().webhook_allow_access(request.remote_addr):
+            log.warn(f"非法IP地址的媒体消息通知 {request.remote_addr}")
+            return 'Success'
         request_json = json.loads(request.form.get('data', {}))
         # print(str(request_json))
         event = WebhookEvent(request_json)

@@ -298,3 +298,10 @@ subtitle:
   chinesesubfinder:
     host:
     api_key:
+
+# 【配置安全】
+security:
+  # 【媒体服务器webhook允许ip范围】：即只有如下范围的IP才允许调用webhook
+  media_server_webhook_allow_ip:
+    ipv4: 0.0.0.0/0
+    ipv6: ::/0
