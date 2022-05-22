@@ -44,7 +44,7 @@ def insert_search_results(media_items):
                 media_item.enclosure,
                 str_sql(media_item.description),
                 mtype,
-                media_item.title,
+                str_sql(media_item.title),
                 xstr(media_item.year),
                 media_item.get_season_string(),
                 media_item.get_episode_string(),
@@ -92,10 +92,10 @@ def is_torrent_rssd(media_info):
     if not media_info:
         return True
     if media_info.type == MediaType.MOVIE:
-        sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TITLE='%s' AND YEAR='%s'" % (media_info.title, media_info.year)
+        sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TITLE='%s' AND YEAR='%s'" % (str_sql(media_info.title), media_info.year)
     else:
         sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TITLE='%s' AND YEAR='%s' AND SEASON='%s' AND EPISODE='%s'" % \
-              (media_info.title, media_info.year, media_info.get_season_string(), media_info.get_episode_string())
+              (str_sql(media_info.title), media_info.year, media_info.get_season_string(), media_info.get_episode_string())
     rets = select_by_sql(sql)
     if rets and rets[0][0] > 0:
         return True
@@ -111,7 +111,7 @@ def delete_all_search_torrents():
 # 将RSS的记录插入数据库
 def insert_rss_torrents(media_info):
     sql = "INSERT INTO RSS_TORRENTS(TORRENT_NAME, ENCLOSURE, TYPE, TITLE, YEAR, SEASON, EPISODE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
-        media_info.title, media_info.enclosure, media_info.type.value, media_info.title, media_info.year,
+        str_sql(media_info.org_string), media_info.enclosure, media_info.type.value, str_sql(media_info.title), media_info.year,
         media_info.get_season_string(), media_info.get_episode_string())
     return update_by_sql(sql)
 
@@ -132,13 +132,13 @@ def insert_douban_media_state(media, state):
 
 # 标记豆瓣数据的状态
 def update_douban_media_state(media, state):
-    sql = "UPDATE DOUBAN_MEDIAS SET STATE = '%s' WHERE NAME = '%s' AND YEAR = '%s'" % (state, media.title, media.year)
+    sql = "UPDATE DOUBAN_MEDIAS SET STATE = '%s' WHERE NAME = '%s' AND YEAR = '%s'" % (state, str_sql(media.title), media.year)
     return update_by_sql(sql)
 
 
 # 查询未检索的豆瓣数据
 def get_douban_search_state(title, year):
-    sql = "SELECT STATE FROM DOUBAN_MEDIAS WHERE NAME = '%s' AND YEAR = '%s'" % (title, year)
+    sql = "SELECT STATE FROM DOUBAN_MEDIAS WHERE NAME = '%s' AND YEAR = '%s'" % (str_sql(title), year)
     return select_by_sql(sql)
 
 
@@ -173,7 +173,7 @@ def insert_transfer_history(in_from, rmt_mode, in_path, dest, media_info):
     sql = "INSERT INTO TRANSFER_HISTORY(SOURCE, MODE, TYPE, FILE_PATH, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE) VALUES " \
           "('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
               in_from.value, rmt_mode.value, media_info.type.value, str_sql(file_path), str_sql(file_name),
-              media_info.title,
+              str_sql(media_info.title),
               media_info.category, media_info.year, media_info.get_season_string(), dest, timestr)
     return update_by_sql(sql)
 
@@ -393,7 +393,7 @@ def get_rss_tvs(state=None, rssid=None):
 def is_exists_rss_movie(title, year):
     if not title:
         return False
-    sql = "SELECT COUNT(1) FROM RSS_MOVIES WHERE NAME='%s' AND YEAR='%s'" % (title, year)
+    sql = "SELECT COUNT(1) FROM RSS_MOVIES WHERE NAME='%s' AND YEAR='%s'" % (str_sql(title), year)
     ret = select_by_sql(sql)
     if ret and ret[0][0] > 0:
         return True
@@ -424,7 +424,7 @@ def insert_rss_movie(media_info, state='D'):
 def delete_rss_movie(title, year):
     if not title:
         return False
-    sql = "DELETE FROM RSS_MOVIES WHERE NAME='%s' AND YEAR='%s'" % (title, year)
+    sql = "DELETE FROM RSS_MOVIES WHERE NAME='%s' AND YEAR='%s'" % (str_sql(title), year)
     return update_by_sql(sql)
 
 
@@ -432,7 +432,7 @@ def delete_rss_movie(title, year):
 def is_exists_rss_tv(title, year, season):
     if not title:
         return False
-    sql = "SELECT COUNT(1) FROM RSS_TVS WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (title, year, season)
+    sql = "SELECT COUNT(1) FROM RSS_TVS WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (str_sql(title), year, season)
     ret = select_by_sql(sql)
     if ret and ret[0][0] > 0:
         return True
@@ -466,7 +466,7 @@ def insert_rss_tv(media_info, total, lack=0, state="D"):
 def update_rss_tv_lack(title, year, season, lack):
     if not title:
         return False
-    sql = "UPDATE RSS_TVS SET LACK='%s' WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (lack, title, year, season)
+    sql = "UPDATE RSS_TVS SET LACK='%s' WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (lack, str_sql(title), year, season)
     return update_by_sql(sql)
 
 
@@ -474,7 +474,7 @@ def update_rss_tv_lack(title, year, season, lack):
 def delete_rss_tv(title, year, season):
     if not title:
         return False
-    sql = "DELETE FROM RSS_TVS WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (title, year, season)
+    sql = "DELETE FROM RSS_TVS WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (str_sql(title), year, season)
     return update_by_sql(sql)
 
 
@@ -482,7 +482,7 @@ def delete_rss_tv(title, year, season):
 def update_rss_movie_state(title, year, state):
     if not title:
         return False
-    sql = "UPDATE RSS_MOVIES SET STATE='%s' WHERE NAME='%s' AND YEAR='%s'" % (state, title, year)
+    sql = "UPDATE RSS_MOVIES SET STATE='%s' WHERE NAME='%s' AND YEAR='%s'" % (state, str_sql(title), year)
     return update_by_sql(sql)
 
 
@@ -490,7 +490,7 @@ def update_rss_movie_state(title, year, state):
 def update_rss_tv_state(title, year, season, state):
     if not title:
         return False
-    sql = "UPDATE RSS_TVS SET STATE='%s' WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (state, title, year, season)
+    sql = "UPDATE RSS_TVS SET STATE='%s' WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (state, str_sql(title), year, season)
     return update_by_sql(sql)
 
 
