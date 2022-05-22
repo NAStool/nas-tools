@@ -230,10 +230,6 @@ Jackett/Prowlarr二选一，但推荐使用Jackett，支持并发且支持副标
    python3 rmt/filetransfer.py -s /from/path -d /to/path
    ```
 
-## 效果 
-
-![image](https://user-images.githubusercontent.com/51039935/153886867-50a3debd-e982-4723-974b-04ba16f732b1.png)
-
 ## 鸣谢
 * 程序UI模板及图标来源于开源项目<a href="https://github.com/tabler/tabler">tabler</a>，此外项目中还使用到了开源模块：<a href="https://github.com/igorcmoura/anitopy" target="_blank">anitopy</a>、<a href="https://github.com/AnthonyBloomer/tmdbv3api" target="_blank">tmdbv3api</a>、<a href="https://github.com/pkkid/python-plexapi" target="_blank">python-plexapi</a>、<a href="https://github.com/rmartin16/qbittorrent-api">qbittorrent-api</a>、<a href="https://github.com/Trim21/transmission-rpc">transmission-rpc</a>等
 * 感谢 <a href="https://github.com/Qliangw/notion_sync_data" target="_blank">Qliangw</a> 贡献豆瓣部分的代码
