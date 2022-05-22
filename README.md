@@ -230,20 +230,7 @@ Jackett/Prowlarr二选一，但推荐使用Jackett，支持并发且支持副标
    python3 rmt/filetransfer.py -s /from/path -d /to/path
    ```
 
-## 使用
-1) 3000 端口访问 WEB UI界面，可以修改配置、添加订阅、搜索资源以及启动服务
-
-![image](https://user-images.githubusercontent.com/51039935/163519714-ca2cb339-b5e2-423e-a9d8-b475e2cf9ba2.png)
-
-
-2) 手机端图文通知和服务控制
-
-![image](https://user-images.githubusercontent.com/51039935/163519064-7abad158-0768-450c-82d5-a6a4ae7ccf62.jpg)
-![image](https://user-images.githubusercontent.com/51039935/163519547-8aa2e845-6ffe-452b-909d-bf58f23fbb42.jpg)
-![image](https://user-images.githubusercontent.com/51039935/163519563-0d06c95f-7b31-43eb-a528-7cc5aa1155aa.jpg)
-
-
-3) 效果
+## 效果 
 
 ![image](https://user-images.githubusercontent.com/51039935/153886867-50a3debd-e982-4723-974b-04ba16f732b1.png)
 
