@@ -72,7 +72,7 @@ def create_flask_app(config):
         "id": 0,
         "name": admin_user,
         "password": admin_password[6:],
-        "pris": "我的媒体库,资源搜索,推荐,订阅管理,下载管理,媒体识别,服务,系统设置,搜索设置,订阅设置"
+        "pris": "我的媒体库,资源搜索,推荐,订阅管理,下载管理,媒体识别,服务,系统设置,搜索设置"
     }]
 
     App = Flask(__name__)
@@ -435,7 +435,7 @@ def create_flask_app(config):
     @login_required
     def site():
         Sites = get_config_site()
-        return render_template("rss/site.html",
+        return render_template("setting/site.html",
                                Sites=Sites)
 
     # 推荐页面
@@ -539,8 +539,8 @@ def create_flask_app(config):
                                CurrentPage=CurrentPage,
                                PageRange=PageRange)
 
-    # 资源搜索页面
-    @App.route('/download', methods=['POST', 'GET'])
+    # 正在下载页面
+    @App.route('/downloading', methods=['POST', 'GET'])
     @login_required
     def download():
         DownloadCount = 0
@@ -601,9 +601,15 @@ def create_flask_app(config):
                 DownloadCount += 1
                 DispTorrents.append(torrent_info)
 
-        return render_template("download.html",
+        return render_template("download/downloading.html",
                                DownloadCount=DownloadCount,
                                Torrents=DispTorrents)
+
+    # 数据统计页面
+    @App.route('/statistics', methods=['POST', 'GET'])
+    @login_required
+    def statistics():
+        return render_template("download/statistics.html")
 
     # 服务页面
     @App.route('/service', methods=['POST', 'GET'])

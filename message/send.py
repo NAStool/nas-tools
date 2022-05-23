@@ -119,7 +119,7 @@ class Message:
             description = html_re.sub('', can_item.description)
             can_item.description = re.sub(r'<[^>]+>', '', description)
             msg_text = f"{msg_text}\n描述：{can_item.description}"
-        self.sendmsg(title=msg_title, text=msg_text, image=can_item.get_message_image(), url='download')
+        self.sendmsg(title=msg_title, text=msg_text, image=can_item.get_message_image(), url='downloading')
 
     def send_transfer_movie_message(self, in_from, media_info, exist_filenum, category_flag):
         """

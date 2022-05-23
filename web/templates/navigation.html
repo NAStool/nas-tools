@@ -62,8 +62,8 @@
           <div class="collapse navbar-collapse" id="navbar-menu">
             <ul class="navbar-nav pt-lg-3">
               {% if "我的媒体库" in UserPris %}
-              <li class="nav-item active" id="nav_index">
-                <a class="nav-link" href="javascript:navmenu('index')" >
+              <li class="nav-item">
+                <a class="nav-link" href="#" onclick="navmenu('index')" >
                   <span class="nav-link-icon d-md-none d-lg-inline-block">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="5 12 3 12 12 3 21 12 19 12" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
                   </span>
@@ -74,8 +74,8 @@
               </li>
               {% endif %}
               {% if "资源搜索" in UserPris %}
-              <li class="nav-item" id="nav_search">
-                <a class="nav-link" href="javascript:navmenu('search')">
+              <li class="nav-item">
+                <a class="nav-link" href="#" onclick="navmenu('search')">
                   <span class="nav-link-icon d-md-none d-lg-inline-block">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3" /><line x1="12" y1="12" x2="20" y2="7.5" /><line x1="12" y1="12" x2="12" y2="21" /><line x1="12" y1="12" x2="4" y2="7.5" /><line x1="16" y1="5.25" x2="8" y2="9.75" /></svg>
                   </span>
@@ -86,7 +86,7 @@
               </li>
               {% endif %}
               {% if "推荐" in UserPris %}
-              <li class="nav-item dropdown" id="nav_recommend">
+              <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
                   <span class="nav-link-icon d-md-none d-lg-inline-block">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" /></svg>
@@ -96,42 +96,42 @@
                   </span>
                 </a>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="javascript:navmenu('recommend?t=hm')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('recommend?t=hm')">
                     TMDB热门电影
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('recommend?t=ht')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('recommend?t=ht')">
                     TMDB热门电视剧
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('recommend?t=nm')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('recommend?t=nm')">
                     TMDB最新电影
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('recommend?t=nt')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('recommend?t=nt')">
                     TMDB最新电视剧
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('recommend?t=dbom')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('recommend?t=dbom')">
                     正在热映
                     <span class="badge badge-sm bg-orange text-case ms-2">HOT</span>
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('recommend?t=dbhm')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('recommend?t=dbhm')">
                     豆瓣热门电影
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('recommend?t=dbht')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('recommend?t=dbht')">
                     豆瓣热门电视剧
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('recommend?t=dbdh')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('recommend?t=dbdh')">
                     豆瓣热门动漫
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('recommend?t=dbnm')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('recommend?t=dbnm')">
                     豆瓣最新电影
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('recommend?t=dbnt')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('recommend?t=dbnt')">
                     豆瓣最新电视剧
                   </a>
                 </div>
               </li>
               {% endif %}
               {% if "订阅管理" in UserPris %}
-              <li class="nav-item dropdown" id="nav_sites">
+              <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
                   <span class="nav-link-icon d-md-none d-lg-inline-block">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 11 12 14 20 6" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>
@@ -141,35 +141,38 @@
                   </span>
                 </a>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="javascript:navmenu('movie_rss')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('movie_rss')">
                     电影订阅
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('tv_rss')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('tv_rss')">
                     电视剧订阅
                   </a>
-                  {% if "订阅设置" in UserPris %}
-                  <a class="dropdown-item" href="javascript:navmenu('site')">
-                    订阅站点
-                  </a>
-                  {% endif %}
                 </div>
               </li>
               {% endif %}
               {% if "下载管理" in UserPris %}
-              <li class="nav-item" id="nav_download">
-                <a class="nav-link" href="javascript:navmenu('download')">
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
                   <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                     <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                     <polyline points="7 11 12 16 17 11"></polyline>
-                     <line x1="12" y1="4" x2="12" y2="16"></line>
-                  </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                       <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                       <polyline points="7 11 12 16 17 11"></polyline>
+                       <line x1="12" y1="4" x2="12" y2="16"></line>
+                    </svg>
                   </span>
                   <span class="nav-link-title">
                     下载管理
                   </span>
                 </a>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" href="#" onclick="navmenu('downloading')">
+                    正在下载
+                  </a>
+                  <a class="dropdown-item" href="#" onclick="navmenu('statistics')">
+                    数据统计
+                  </a>
+                </div>
               </li>
               {% endif %}
               {% if "媒体识别" in UserPris %}
@@ -193,18 +196,18 @@
                   </span>
                 </a>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="javascript:navmenu('unidentification')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('unidentification')">
                     手动识别
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('history')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('history')">
                     历史记录
                   </a>
                 </div>
               </li>
               {% endif %}
               {% if "服务" in UserPris %}
-              <li class="nav-item" id="nav_service">
-                <a class="nav-link" href="javascript:navmenu('service')">
+              <li class="nav-item">
+                <a class="nav-link" href="#" onclick="navmenu('service')">
                   <span class="nav-link-icon d-md-none d-lg-inline-block">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="4" y="4" width="6" height="5" rx="2" /><rect x="4" y="13" width="6" height="7" rx="2" /><rect x="14" y="4" width="6" height="7" rx="2" /><rect x="14" y="15" width="6" height="5" rx="2" /></svg>
                   </span>
@@ -229,34 +232,37 @@
                   </span>
                 </a>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" href="javascript:navmenu('basic')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('basic')">
                     基础设置
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('users')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('users')">
                     用户管理
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('library')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('library')">
                     媒体库
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('directorysync')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('directorysync')">
                     目录同步
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('notification')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('site')">
+                    站点
+                  </a>
+                  <a class="dropdown-item" href="#" onclick="navmenu('notification')">
                     消息通知
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('indexer')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('indexer')">
                     索引器
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('downloader')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('downloader')">
                     下载器
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('mediaserver')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('mediaserver')">
                     媒体服务器
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('subtitle')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('subtitle')">
                     字幕
                   </a>
-                  <a class="dropdown-item" href="javascript:navmenu('douban')">
+                  <a class="dropdown-item" href="#" onclick="navmenu('douban')">
                     豆瓣
                   </a>
                 </div>
@@ -457,8 +463,17 @@
       //导航点击
       function navmenu(page){
         nid = page.split("?")[0];
-        $("li[class*='nav-item']").removeClass("active")
-        $("#nav_"+nid).addClass("active");
+        $("#navbar-menu").find("li").removeClass("active");
+        $("#navbar-menu").find("a").removeClass("active");
+        $("#navbar-menu").find("a").each(function(){
+          if($(this).attr("onclick") == "navmenu('" + page + "')"){
+            if($(this).attr("class") == "dropdown-item"){
+              $(this).addClass("active");
+            }else{
+              $(this).parent().addClass("active");
+            }
+          }
+        });
         $("#navbar-menu").collapse('hide')
         $("#modal-wait").modal("show");
         page = page.replaceAll(" ", "%20");
@@ -545,8 +560,7 @@
           navmenu(go_page);
         }else{
           //打开第一个页面
-          var page = $("#navbar-menu ul li").first().attr("id").replace("nav_", "");
-          navmenu(page);
+          $("#navbar-menu").find("a[onclick]").first().trigger('click');
         }
 
         {% if "系统设置" in UserPris %}
