@@ -46,7 +46,8 @@ class Telegram:
         """
         测试连通性
         """
-        return self.send_msg("测试", "这是一条测试消息")
+        flag, msg = self.send_msg("测试", "这是一条测试消息")
+        return flag
 
     def get_admin_user(self):
         """

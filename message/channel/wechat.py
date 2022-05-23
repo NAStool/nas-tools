@@ -69,7 +69,8 @@ class WeChat(object):
         """
         测试连通性
         """
-        return self.__send_message("测试", "这是一条测试消息")
+        flag, msg = self.__send_message("测试", "这是一条测试消息")
+        return flag
 
     def __send_message(self, title, text, user_id=None):
         """
