@@ -61,7 +61,8 @@ class DBHelper:
                                    YEAR    TEXT,
                                    SEASON    TEXT,
                                    EPISODE    TEXT);''')
-            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_RSS_TORRENTS_NAME ON RSS_TORRENTS (TITLE, YEAR, SEASON, EPISODE);''')
+            cursor.execute(
+                '''CREATE INDEX IF NOT EXISTS INDX_RSS_TORRENTS_NAME ON RSS_TORRENTS (TITLE, YEAR, SEASON, EPISODE);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_RSS_TORRENTS_URL ON RSS_TORRENTS (ENCLOSURE);''')
             # 电影订阅表
             # STATE: D-队列中 S-正在检索 R-正在订阅 F-完成
@@ -180,19 +181,22 @@ class DBHelper:
             self.__connection.commit()
 
         except Exception as e:
-            log.error("【DB】创建数据库错误：%s" % str(e))
+            log.error(f"【DB】创建数据库错误：{e}")
         finally:
             cursor.close()
 
-    def excute(self, sql):
+    def excute(self, sql, data):
         if not sql:
             return False
         cursor = self.__connection.cursor()
         try:
-            cursor.execute(sql)
+            if data:
+                cursor.execute(sql, data)
+            else:
+                cursor.execute(sql)
             self.__connection.commit()
         except Exception as e:
-            log.error("【DB】执行SQL出错：%s，%s" % (sql, str(e)))
+            log.error(f"【DB】执行SQL出错：sql:{sql}; parameters:{data}; {e}")
             return False
         finally:
             cursor.close()
@@ -206,43 +210,48 @@ class DBHelper:
             cursor.executemany(sql, data_list)
             self.__connection.commit()
         except Exception as e:
-            log.error("【DB】执行SQL出错：%s， %s, %s" % (sql, data_list, str(e)))
+            log.error(f"【DB】执行SQL出错：sql:{sql}; parameters:{data_list}; {e}")
             return False
         finally:
             cursor.close()
         return True
 
-    def select(self, sql):
+    def select(self, sql, data):
         if not sql:
             return False
         cursor = self.__connection.cursor()
         try:
-            res = cursor.execute(sql)
+            if data:
+                res = cursor.execute(sql, data)
+            else:
+                res = cursor.execute(sql)
             ret = res.fetchall()
         except Exception as e:
-            log.error("【DB】执行SQL出错：%s，%s" % (sql, str(e)))
+            log.error(f"【DB】执行SQL出错：sql:{sql}; parameters:{data}; {e}")
             return []
         finally:
             cursor.close()
         return ret
 
 
-def select_by_sql(sql):
+def select_by_sql(sql, data=None):
     """
     执行查询
     :param sql: 查询的SQL语句
+    :param data: 数据，需为列表或者元祖
     :return: 查询结果的二级列表
     """
-    return DBHelper().select(sql)
+    return DBHelper().select(sql, data)
 
 
-def update_by_sql(sql):
+def update_by_sql(sql, data=None):
     """
     执行更新或删除
     :param sql: SQL语句
+    :param data: 数据，需为列表或者元祖
     :return: 执行状态
     """
-    return DBHelper().excute(sql)
+    return DBHelper().excute(sql, data)
 
 
 def update_by_sql_batch(sql, data_list):

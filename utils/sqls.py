@@ -66,20 +66,24 @@ def insert_search_results(media_items):
 
 # 根据ID从数据库中查询检索结果的一条记录
 def get_search_result_by_id(dl_id):
-    sql = "SELECT ENCLOSURE,TITLE,YEAR,SEASON,EPISODE,VOTE,IMAGE,TYPE,TORRENT_NAME,DESCRIPTION,SIZE FROM SEARCH_TORRENTS WHERE ID=%s" % dl_id
-    return select_by_sql(sql)
+    sql = "SELECT ENCLOSURE,TITLE,YEAR,SEASON,EPISODE,VOTE,IMAGE,TYPE,TORRENT_NAME,DESCRIPTION,SIZE" \
+          " FROM SEARCH_TORRENTS" \
+          " WHERE ID = ?"
+    return select_by_sql(sql, (dl_id,))
 
 
 # 查询检索结果的所有记录
 def get_search_results():
-    sql = "SELECT ID,TITLE||' ('||YEAR||') '||ES_STRING,RES_TYPE,SIZE,SEEDERS,ENCLOSURE,SITE,YEAR,ES_STRING,IMAGE,TYPE,VOTE*1,TORRENT_NAME,DESCRIPTION FROM SEARCH_TORRENTS"
+    sql = "SELECT ID,TITLE||' ('||YEAR||') '||ES_STRING,RES_TYPE,SIZE,SEEDERS," \
+          "ENCLOSURE,SITE,YEAR,ES_STRING,IMAGE,TYPE,VOTE*1,TORRENT_NAME,DESCRIPTION" \
+          " FROM SEARCH_TORRENTS"
     return select_by_sql(sql)
 
 
 # 查询RSS是否处理过，根据链接
 def is_torrent_rssd_by_url(url):
-    sql = "SELECT 1 FROM RSS_TORRENTS WHERE ENCLOSURE = '%s'" % url
-    ret = select_by_sql(sql)
+    sql = "SELECT 1 FROM RSS_TORRENTS WHERE ENCLOSURE = ?"
+    ret = select_by_sql(sql, (url,))
     if not ret:
         return False
     if len(ret) > 0:
@@ -92,11 +96,15 @@ def is_torrent_rssd(media_info):
     if not media_info:
         return True
     if media_info.type == MediaType.MOVIE:
-        sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TITLE='%s' AND YEAR='%s'" % (str_sql(media_info.title), media_info.year)
+        sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TITLE = ? AND YEAR = ?"
+        rets = select_by_sql(sql, (str_sql(media_info.title), media_info.year))
+
     else:
-        sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TITLE='%s' AND YEAR='%s' AND SEASON='%s' AND EPISODE='%s'" % \
-              (str_sql(media_info.title), media_info.year, media_info.get_season_string(), media_info.get_episode_string())
-    rets = select_by_sql(sql)
+        sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TITLE = ? AND YEAR = ? AND SEASON = ? AND EPISODE = ?"
+
+        rets = select_by_sql(sql, (str_sql(media_info.title), media_info.year, media_info.get_season_string(),
+                                   media_info.get_episode_string()))
+
     if rets and rets[0][0] > 0:
         return True
     else:
@@ -110,45 +118,46 @@ def delete_all_search_torrents():
 
 # 将RSS的记录插入数据库
 def insert_rss_torrents(media_info):
-    sql = "INSERT INTO RSS_TORRENTS(TORRENT_NAME, ENCLOSURE, TYPE, TITLE, YEAR, SEASON, EPISODE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
-        str_sql(media_info.org_string), media_info.enclosure, media_info.type.value, str_sql(media_info.title), media_info.year,
-        media_info.get_season_string(), media_info.get_episode_string())
-    return update_by_sql(sql)
+    sql = "INSERT INTO RSS_TORRENTS(TORRENT_NAME, ENCLOSURE, TYPE, TITLE, YEAR, SEASON, EPISODE) " \
+          "VALUES (?, ?, ?, ?, ?, ?, ?)"
+    return update_by_sql(sql, (str_sql(media_info.org_string), media_info.enclosure, media_info.type.value,
+                               str_sql(media_info.title), media_info.year,
+                               media_info.get_season_string(), media_info.get_episode_string()))
 
 
 # 将豆瓣的数据插入数据库
 def insert_douban_media_state(media, state):
     if not media.year:
-        sql = "DELETE FROM DOUBAN_MEDIAS WHERE NAME = '%s'" % media.get_name()
+        sql = "DELETE FROM DOUBAN_MEDIAS WHERE NAME = ?"
+        update_by_sql(sql, (media.get_name(),))
     else:
-        sql = "DELETE FROM DOUBAN_MEDIAS WHERE NAME = '%s' AND YEAR = '%s'" % (media.get_name(), media.year)
-    # 先删除
-    update_by_sql(sql)
-    sql = "INSERT INTO DOUBAN_MEDIAS(NAME, YEAR, TYPE, RATING, IMAGE, STATE) VALUES ('%s', '%s', '%s', '%s', '%s', '%s')" % (
-        media.get_name(), media.year, media.type.value, media.vote_average, media.poster_path, state)
+        sql = "DELETE FROM DOUBAN_MEDIAS WHERE NAME = ? AND YEAR = ?"
+        update_by_sql(sql, (media.get_name(), media.year))
+
+    sql = "INSERT INTO DOUBAN_MEDIAS(NAME, YEAR, TYPE, RATING, IMAGE, STATE) VALUES (?, ?, ?, ?, ?, ?)"
     # 再插入
-    return update_by_sql(sql)
+    return update_by_sql(sql, (media.get_name(), media.year, media.type.value, media.vote_average, media.poster_path,
+                               state))
 
 
 # 标记豆瓣数据的状态
 def update_douban_media_state(media, state):
-    sql = "UPDATE DOUBAN_MEDIAS SET STATE = '%s' WHERE NAME = '%s' AND YEAR = '%s'" % (state, str_sql(media.title), media.year)
-    return update_by_sql(sql)
+    sql = "UPDATE DOUBAN_MEDIAS SET STATE = ? WHERE NAME = ? AND YEAR = ?"
+    return update_by_sql(sql, (state, str_sql(media.title), media.year))
 
 
 # 查询未检索的豆瓣数据
 def get_douban_search_state(title, year):
-    sql = "SELECT STATE FROM DOUBAN_MEDIAS WHERE NAME = '%s' AND YEAR = '%s'" % (str_sql(title), year)
-    return select_by_sql(sql)
+    sql = "SELECT STATE FROM DOUBAN_MEDIAS WHERE NAME = ? AND YEAR = ?"
+    return select_by_sql(sql, (str_sql(title), year))
 
 
 # 查询识别转移记录
 def is_transfer_history_exists(file_path, file_name, title, se):
     if not file_path:
         return False
-    sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_PATH='%s' AND FILE_NAME='%s' AND TITLE='%s' AND SE='%s'" % (
-        str_sql(file_path), str_sql(file_name), str_sql(title), str_sql(se))
-    ret = select_by_sql(sql)
+    sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_PATH = ? AND FILE_NAME = ? AND TITLE = ? AND SE = ?"
+    ret = select_by_sql(sql, (str_sql(file_path), str_sql(file_name), str_sql(title), str_sql(se)))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -170,12 +179,13 @@ def insert_transfer_history(in_from, rmt_mode, in_path, dest, media_info):
     if is_transfer_history_exists(file_path, file_name, media_info.title, media_info.get_season_string()):
         return True
     timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-    sql = "INSERT INTO TRANSFER_HISTORY(SOURCE, MODE, TYPE, FILE_PATH, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE) VALUES " \
-          "('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
-              in_from.value, rmt_mode.value, media_info.type.value, str_sql(file_path), str_sql(file_name),
-              str_sql(media_info.title),
-              media_info.category, media_info.year, media_info.get_season_string(), dest, timestr)
-    return update_by_sql(sql)
+    sql = "INSERT INTO TRANSFER_HISTORY" \
+          "(SOURCE, MODE, TYPE, FILE_PATH, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE)" \
+          " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    return update_by_sql(sql, (
+        in_from.value, rmt_mode.value, media_info.type.value, str_sql(file_path), str_sql(file_name),
+        str_sql(media_info.title),
+        media_info.category, media_info.year, media_info.get_season_string(), dest, timestr))
 
 
 # 查询识别转移记录
@@ -186,29 +196,35 @@ def get_transfer_history(search, page, rownum):
         begin_pos = (page - 1) * rownum
 
     if search:
-        count_sql = f"SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_NAME LIKE '%{search}%' OR TITLE LIKE '%{search}%'"
-        sql = f"SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE, ID FROM TRANSFER_HISTORY WHERE FILE_NAME LIKE '%{search}%' OR TITLE LIKE '%{search}%' ORDER BY DATE DESC LIMIT {rownum} OFFSET {begin_pos}"
+        search = f"%{search}%"
+        count_sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_NAME LIKE ? OR TITLE LIKE ?"
+        sql = "SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE, ID" \
+              " FROM TRANSFER_HISTORY" \
+              " WHERE FILE_NAME LIKE ? OR TITLE LIKE ? ORDER BY DATE DESC LIMIT ? OFFSET ?"
+        return select_by_sql(count_sql, (search, search)), select_by_sql(sql, (search, search, rownum, begin_pos))
     else:
-        count_sql = f"SELECT COUNT(1) FROM TRANSFER_HISTORY"
-        sql = f"SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE, ID FROM TRANSFER_HISTORY ORDER BY DATE DESC LIMIT {rownum} OFFSET {begin_pos}"
-    return select_by_sql(count_sql), select_by_sql(sql)
+        count_sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY"
+        sql = "SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE, ID" \
+              " FROM TRANSFER_HISTORY" \
+              " ORDER BY DATE DESC LIMIT ? OFFSET ?"
+    return select_by_sql(count_sql), select_by_sql(sql, (rownum, begin_pos))
 
 
 # 根据logid查询PATH
 def get_transfer_path_by_id(logid):
-    sql = f"SELECT FILE_PATH, FILE_NAME, DEST, TITLE, CATEGORY, YEAR, SE, TYPE FROM TRANSFER_HISTORY WHERE ID={logid}"
-    return select_by_sql(sql)
+    sql = "SELECT FILE_PATH, FILE_NAME, DEST, TITLE, CATEGORY, YEAR, SE, TYPE FROM TRANSFER_HISTORY WHERE ID = ?"
+    return select_by_sql(sql, (logid,))
 
 
 # 根据logid删除记录
 def delete_transfer_log_by_id(logid):
-    sql = f"DELETE FROM TRANSFER_HISTORY WHERE ID={logid}"
-    return update_by_sql(sql)
+    sql = "DELETE FROM TRANSFER_HISTORY WHERE ID = ?"
+    return update_by_sql(sql, (logid,))
 
 
 # 查询未识别的记录列表
 def get_transfer_unknown_paths():
-    sql = f"SELECT ID, PATH, DEST FROM TRANSFER_UNKNOWN WHERE STATE='N'"
+    sql = "SELECT ID, PATH, DEST FROM TRANSFER_UNKNOWN WHERE STATE = 'N'"
     return select_by_sql(sql)
 
 
@@ -217,24 +233,24 @@ def update_transfer_unknown_state(path):
     if not path:
         return False
     path = os.path.normpath(path)
-    sql = f"UPDATE TRANSFER_UNKNOWN SET STATE='Y' WHERE PATH='{str_sql(path)}'"
-    return update_by_sql(sql)
+    sql = "UPDATE TRANSFER_UNKNOWN SET STATE = 'Y' WHERE PATH = ?"
+    return update_by_sql(sql, (str_sql(path),))
 
 
 # 删除未识别记录
 def delete_transfer_unknown(tid):
     if not tid:
         return False
-    sql = f"DELETE FROM TRANSFER_UNKNOWN WHERE ID='{tid}'"
-    return update_by_sql(sql)
+    sql = "DELETE FROM TRANSFER_UNKNOWN WHERE ID = ?"
+    return update_by_sql(sql, (tid,))
 
 
 # 查询未识别记录
 def get_unknown_path_by_id(tid):
     if not tid:
         return False
-    sql = f"SELECT PATH,DEST FROM TRANSFER_UNKNOWN WHERE ID='{tid}'"
-    return select_by_sql(sql)
+    sql = "SELECT PATH,DEST FROM TRANSFER_UNKNOWN WHERE ID = ?"
+    return select_by_sql(sql, (tid,))
 
 
 # 查询未识别记录是否存在
@@ -242,8 +258,8 @@ def is_transfer_unknown_exists(path):
     if not path:
         return False
     path = os.path.normpath(path)
-    sql = f"SELECT COUNT(1) FROM TRANSFER_UNKNOWN WHERE PATH='{str_sql(path)}'"
-    ret = select_by_sql(sql)
+    sql = "SELECT COUNT(1) FROM TRANSFER_UNKNOWN WHERE PATH = ?"
+    ret = select_by_sql(sql, (str_sql(path),))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -262,8 +278,8 @@ def insert_transfer_unknown(path, dest):
             dest = os.path.normpath(dest)
         else:
             dest = ""
-        sql = f"INSERT INTO TRANSFER_UNKNOWN(PATH, DEST, STATE) VALUES('{str_sql(path)}', '{str_sql(dest)}', 'N')"
-        return update_by_sql(sql)
+        sql = "INSERT INTO TRANSFER_UNKNOWN(PATH, DEST, STATE) VALUES (?, ?, ?)"
+        return update_by_sql(sql, (str_sql(path), str_sql(dest), 'N'))
 
 
 # 查询是否为黑名单
@@ -271,8 +287,8 @@ def is_transfer_in_blacklist(path):
     if not path:
         return False
     path = os.path.normpath(path)
-    sql = f"SELECT COUNT(1) FROM TRANSFER_BLACKLIST WHERE PATH='{str_sql(path)}'"
-    ret = select_by_sql(sql)
+    sql = "SELECT COUNT(1) FROM TRANSFER_BLACKLIST WHERE PATH = ?"
+    ret = select_by_sql(sql, (str_sql(path),))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -287,20 +303,22 @@ def insert_transfer_blacklist(path):
         return False
     else:
         path = os.path.normpath(path)
-        sql = f"INSERT INTO TRANSFER_BLACKLIST(PATH) VALUES('{str_sql(path)}')"
-        return update_by_sql(sql)
+        sql = "INSERT INTO TRANSFER_BLACKLIST(PATH) VALUES (?)"
+        return update_by_sql(sql, (str_sql(path),))
 
 
 # 查询所有站点信息
 def get_config_site():
     return select_by_sql(
-        "SELECT ID,NAME,PRI,RSSURL,SIGNURL,COOKIE,INCLUDE,EXCLUDE,SIZE,NOTE FROM CONFIG_SITE ORDER BY CAST(PRI AS DECIMAL) ASC")
+        "SELECT ID,NAME,PRI,RSSURL,SIGNURL,COOKIE,INCLUDE,EXCLUDE,SIZE,NOTE"
+        " FROM CONFIG_SITE"
+        " ORDER BY CAST(PRI AS DECIMAL) ASC")
 
 
 # 查询1个站点信息
 def get_site_by_id(tid):
     return select_by_sql(
-        "SELECT ID,NAME,PRI,RSSURL,SIGNURL,COOKIE,INCLUDE,EXCLUDE,SIZE,NOTE FROM CONFIG_SITE WHERE ID='%s'" % tid)
+        "SELECT ID,NAME,PRI,RSSURL,SIGNURL,COOKIE,INCLUDE,EXCLUDE,SIZE,NOTE FROM CONFIG_SITE WHERE ID = ?", (tid,))
 
 
 # 插入站点信息
@@ -308,25 +326,23 @@ def insert_config_site(name, site_pri, rssurl, signurl, cookie, include, exclude
     if not name:
         return
     sql = "INSERT INTO CONFIG_SITE(NAME,PRI,RSSURL,SIGNURL,COOKIE,INCLUDE,EXCLUDE,SIZE,NOTE) VALUES " \
-          "('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (
-              str_sql(name),
-              str_sql(site_pri),
-              str_sql(rssurl),
-              str_sql(signurl),
-              str_sql(cookie),
-              str_sql(include),
-              str_sql(exclude),
-              str_sql(size),
-              str_sql(note)
-          )
-    return update_by_sql(sql)
+          "(?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    return update_by_sql(sql, (str_sql(name),
+                               str_sql(site_pri),
+                               str_sql(rssurl),
+                               str_sql(signurl),
+                               str_sql(cookie),
+                               str_sql(include),
+                               str_sql(exclude),
+                               str_sql(size),
+                               str_sql(note)))
 
 
 # 删除站点信息
 def delete_config_site(tid):
     if not tid:
         return False
-    return update_by_sql("DELETE FROM CONFIG_SITE WHERE ID='%s'" % tid)
+    return update_by_sql("DELETE FROM CONFIG_SITE WHERE ID = ?", (tid,))
 
 
 # 更新站点信息
@@ -337,8 +353,7 @@ def update_config_site(tid, name, site_pri, rssurl, signurl, cookie, include, ex
 
 # 查询搜索过滤规则
 def get_config_search_rule():
-    return select_by_sql(
-        "SELECT INCLUDE,EXCLUDE,NOTE,SIZE FROM CONFIG_SEARCH_RULE")
+    return select_by_sql("SELECT INCLUDE,EXCLUDE,NOTE,SIZE FROM CONFIG_SEARCH_RULE")
 
 
 # 更新搜索过滤规则
@@ -346,55 +361,64 @@ def update_config_search_rule(include, exclude, note, size):
     update_by_sql("DELETE FROM CONFIG_SEARCH_RULE")
     return update_by_sql(
         "INSERT INTO CONFIG_SEARCH_RULE(INCLUDE,EXCLUDE,NOTE,SIZE) VALUES "
-        "('%s', '%s', '%s', '%s')" % (str_sql(include),
-                                      str_sql(exclude),
-                                      str_sql(note),
-                                      str_sql(size)))
+        "(?, ?, ?, ?)", (str_sql(include),
+                         str_sql(exclude),
+                         str_sql(note),
+                         str_sql(size)))
 
 
 # 查询RSS全局过滤规则
 def get_config_rss_rule():
-    return select_by_sql(
-        "SELECT ID,NOTE FROM CONFIG_RSS_RULE")
+    return select_by_sql("SELECT ID,NOTE FROM CONFIG_RSS_RULE")
 
 
 # 更新RSS全局过滤规则
 def update_config_rss_rule(note):
     update_by_sql("DELETE FROM CONFIG_RSS_RULE")
-    return update_by_sql(
-        "INSERT INTO CONFIG_RSS_RULE(NOTE) VALUES ('%s')" % str_sql(note))
+    return update_by_sql("INSERT INTO CONFIG_RSS_RULE(NOTE) VALUES (?)", (str_sql(note),))
 
 
 # 查询订阅电影信息
 def get_rss_movies(state=None, rssid=None):
     if rssid:
-        sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE,ID FROM RSS_MOVIES WHERE ID=%s" % rssid
+        sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE,ID FROM RSS_MOVIES WHERE ID = ?"
+        return select_by_sql(sql, (rssid,))
     else:
         if not state:
             sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE,ID FROM RSS_MOVIES"
+            return select_by_sql(sql)
         else:
-            sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE,ID FROM RSS_MOVIES WHERE STATE='%s'" % state
-    return select_by_sql(sql)
+            sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE,ID FROM RSS_MOVIES WHERE STATE = ?"
+            return select_by_sql(sql, (state,))
 
 
 # 查询订阅电视剧信息
 def get_rss_tvs(state=None, rssid=None):
     if rssid:
-        sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE,((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID FROM RSS_TVS WHERE ID=%s" % rssid
+        sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE" \
+              ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID" \
+              " FROM RSS_TVS" \
+              " WHERE ID = ?"
+        return select_by_sql(sql, (rssid,))
     else:
         if not state:
-            sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE,((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID FROM RSS_TVS"
+            sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE" \
+                  ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID" \
+                  " FROM RSS_TVS"
+            return select_by_sql(sql)
         else:
-            sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE,((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID FROM RSS_TVS WHERE STATE='%s'" % state
-    return select_by_sql(sql)
+            sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE" \
+                  ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID" \
+                  " FROM RSS_TVS WHERE STATE = ?"
+            return select_by_sql(sql, (state,))
 
 
 # 判断RSS电影是否存在
 def is_exists_rss_movie(title, year):
     if not title:
         return False
-    sql = "SELECT COUNT(1) FROM RSS_MOVIES WHERE NAME='%s' AND YEAR='%s'" % (str_sql(title), year)
-    ret = select_by_sql(sql)
+    sql = "SELECT COUNT(1) FROM RSS_MOVIES WHERE NAME=? AND YEAR = ?"
+    ret = select_by_sql(sql, (str_sql(title), year))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -409,31 +433,29 @@ def insert_rss_movie(media_info, state='D'):
         return False
     if is_exists_rss_movie(media_info.title, media_info.year):
         return True
-    sql = "INSERT INTO RSS_MOVIES(NAME,YEAR,TMDBID,IMAGE,DESC,STATE) VALUES('%s','%s','%s','%s','%s','%s')" % (
-        str_sql(media_info.title),
-        str_sql(media_info.year),
-        str_sql(media_info.tmdb_id),
-        str_sql(media_info.get_backdrop_path()),
-        str_sql(media_info.overview),
-        state
-    )
-    return update_by_sql(sql)
+    sql = "INSERT INTO RSS_MOVIES(NAME,YEAR,TMDBID,IMAGE,DESC,STATE) VALUES (?, ?, ?, ?, ?, ?)"
+    return update_by_sql(sql, (str_sql(media_info.title),
+                               str_sql(media_info.year),
+                               str_sql(media_info.tmdb_id),
+                               str_sql(media_info.get_backdrop_path()),
+                               str_sql(media_info.overview),
+                               state))
 
 
 # 删除RSS电影
 def delete_rss_movie(title, year):
     if not title:
         return False
-    sql = "DELETE FROM RSS_MOVIES WHERE NAME='%s' AND YEAR='%s'" % (str_sql(title), year)
-    return update_by_sql(sql)
+    sql = "DELETE FROM RSS_MOVIES WHERE NAME = ? AND YEAR = ?"
+    return update_by_sql(sql, (str_sql(title), year))
 
 
 # 判断RSS电视剧是否存在
 def is_exists_rss_tv(title, year, season):
     if not title:
         return False
-    sql = "SELECT COUNT(1) FROM RSS_TVS WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (str_sql(title), year, season)
-    ret = select_by_sql(sql)
+    sql = "SELECT COUNT(1) FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
+    ret = select_by_sql(sql, (str_sql(title), year, season))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -448,50 +470,48 @@ def insert_rss_tv(media_info, total, lack=0, state="D"):
         return False
     if is_exists_rss_tv(media_info.title, media_info.year, media_info.get_season_string()):
         return True
-    sql = "INSERT INTO RSS_TVS(NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE) VALUES('%s','%s','%s','%s','%s','%s',%s,%s,'%s')" % (
-        str_sql(media_info.title),
-        str_sql(media_info.year),
-        media_info.get_season_string(),
-        str_sql(media_info.tmdb_id),
-        str_sql(media_info.get_backdrop_path()),
-        str_sql(media_info.overview),
-        total,
-        lack,
-        state
-    )
-    return update_by_sql(sql)
+    sql = "INSERT INTO RSS_TVS(NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    return update_by_sql(sql, (str_sql(media_info.title),
+                               str_sql(media_info.year),
+                               media_info.get_season_string(),
+                               str_sql(media_info.tmdb_id),
+                               str_sql(media_info.get_backdrop_path()),
+                               str_sql(media_info.overview),
+                               total,
+                               lack,
+                               state))
 
 
 # 更新电视剧缺失的集数
 def update_rss_tv_lack(title, year, season, lack):
     if not title:
         return False
-    sql = "UPDATE RSS_TVS SET LACK='%s' WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (lack, str_sql(title), year, season)
-    return update_by_sql(sql)
+    sql = "UPDATE RSS_TVS SET LACK=? WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
+    return update_by_sql(sql, (lack, str_sql(title), year, season))
 
 
 # 删除RSS电视剧
 def delete_rss_tv(title, year, season):
     if not title:
         return False
-    sql = "DELETE FROM RSS_TVS WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (str_sql(title), year, season)
-    return update_by_sql(sql)
+    sql = "DELETE FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
+    return update_by_sql(sql, (str_sql(title), year, season))
 
 
 # 更新电影订阅状态
 def update_rss_movie_state(title, year, state):
     if not title:
         return False
-    sql = "UPDATE RSS_MOVIES SET STATE='%s' WHERE NAME='%s' AND YEAR='%s'" % (state, str_sql(title), year)
-    return update_by_sql(sql)
+    sql = "UPDATE RSS_MOVIES SET STATE = ? WHERE NAME = ? AND YEAR = ?"
+    return update_by_sql(sql, (state, str_sql(title), year))
 
 
 # 更新电视剧订阅状态
 def update_rss_tv_state(title, year, season, state):
     if not title:
         return False
-    sql = "UPDATE RSS_TVS SET STATE='%s' WHERE NAME='%s' AND YEAR='%s' AND SEASON='%s'" % (state, str_sql(title), year, season)
-    return update_by_sql(sql)
+    sql = "UPDATE RSS_TVS SET STATE = ? WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
+    return update_by_sql(sql, (state, str_sql(title), year, season))
 
 
 # 查询是否存在同步历史记录
@@ -500,8 +520,8 @@ def is_sync_in_history(path, dest):
         return False
     path = os.path.normpath(path)
     dest = os.path.normpath(dest)
-    sql = f"SELECT COUNT(1) FROM SYNC_HISTORY WHERE PATH='{str_sql(path)}' AND DEST='{str_sql(dest)}'"
-    ret = select_by_sql(sql)
+    sql = "SELECT COUNT(1) FROM SYNC_HISTORY WHERE PATH = ? AND DEST = ?"
+    ret = select_by_sql(sql, (str_sql(path), str_sql(dest)))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -518,8 +538,8 @@ def insert_sync_history(path, src, dest):
         path = os.path.normpath(path)
         src = os.path.normpath(src)
         dest = os.path.normpath(dest)
-        sql = f"INSERT INTO SYNC_HISTORY(PATH, SRC, DEST) VALUES('{str_sql(path)}', '{str_sql(src)}', '{str_sql(dest)}')"
-        return update_by_sql(sql)
+        sql = "INSERT INTO SYNC_HISTORY(PATH, SRC, DEST) VALUES (?, ?, ?)"
+        return update_by_sql(sql, (str_sql(path), str_sql(src), str_sql(dest)))
 
 
 # 查询用户列表
@@ -532,8 +552,8 @@ def get_users():
 def is_user_exists(name):
     if not name:
         return False
-    sql = "SELECT COUNT(1) FROM CONFIG_USERS WHERE NAME='%s'" % name
-    ret = select_by_sql(sql)
+    sql = "SELECT COUNT(1) FROM CONFIG_USERS WHERE NAME = ?"
+    ret = select_by_sql(sql, (name,))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -547,20 +567,22 @@ def insert_user(name, password, pris):
     if is_user_exists(name):
         return False
     else:
-        sql = f"INSERT INTO CONFIG_USERS(NAME,PASSWORD,PRIS) VALUES('{str_sql(name)}', '{str_sql(password)}', '{str_sql(pris)}')"
-        return update_by_sql(sql)
+        sql = "INSERT INTO CONFIG_USERS(NAME,PASSWORD,PRIS) VALUES (?, ?, ?)"
+        return update_by_sql(sql, (str_sql(name), str_sql(password), str_sql(pris)))
 
 
 # 删除用户
 def delete_user(name):
-    return update_by_sql("DELETE FROM CONFIG_USERS WHERE NAME='%s'" % str_sql(name))
+    return update_by_sql("DELETE FROM CONFIG_USERS WHERE NAME = ?", (str_sql(name),))
 
 
 # 查询历史记录统计
 def get_transfer_statistics(days=30):
     begin_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d %H:%M:%S")
-    sql = "SELECT TYPE,SUBSTR(DATE, 1, 10),COUNT(1) FROM TRANSFER_HISTORY WHERE DATE > '%s' GROUP BY TYPE,SUBSTR(DATE, 1, 10)" % begin_date
-    return select_by_sql(sql)
+    sql = "SELECT TYPE,SUBSTR(DATE, 1, 10),COUNT(1)" \
+          " FROM TRANSFER_HISTORY" \
+          " WHERE DATE > ? GROUP BY TYPE,SUBSTR(DATE, 1, 10)"
+    return select_by_sql(sql, (begin_date,))
 
 
 # 插入消息中心
@@ -572,14 +594,15 @@ def insert_system_message(level, title, content):
     if content:
         content = content.replace("\n", "<br/>")
     timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-    sql = "INSERT INTO MESSAGES(LEVEL, TITLE, CONTENT, DATE) VALUES ('%s', '%s', '%s', '%s')" % (str_sql(level), str_sql(title), str_sql(content), timestr)
-    return update_by_sql(sql)
+    sql = "INSERT INTO MESSAGES(LEVEL, TITLE, CONTENT, DATE) VALUES (?, ?, ?, ?)"
+    return update_by_sql(sql, (str_sql(level), str_sql(title), str_sql(content), timestr))
 
 
 # 查询消息中心
 def get_system_messages(num=20, lst_time=None):
     if not lst_time:
-        sql = "SELECT ID, LEVEL, TITLE, CONTENT, DATE FROM MESSAGES ORDER BY DATE DESC LIMIT %s" % num
+        sql = "SELECT ID, LEVEL, TITLE, CONTENT, DATE FROM MESSAGES ORDER BY DATE DESC LIMIT ?"
+        return select_by_sql(sql, (num,))
     else:
-        sql = "SELECT ID, LEVEL, TITLE, CONTENT, DATE FROM MESSAGES WHERE DATE > '%s' ORDER BY DATE" % lst_time
-    return select_by_sql(sql)
+        sql = "SELECT ID, LEVEL, TITLE, CONTENT, DATE FROM MESSAGES WHERE DATE > ? ORDER BY DATE"
+        return select_by_sql(sql, (lst_time,))
