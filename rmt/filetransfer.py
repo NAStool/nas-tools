@@ -812,7 +812,7 @@ class FileTransfer:
                     file_meta_info = MetaInfo(os.path.basename(file))
                     if not file_meta_info.get_season_list() or not file_meta_info.get_episode_list():
                         continue
-                    if file_meta_info.get_name() != meta_info.get_name():
+                    if file_meta_info.get_name() != meta_info.title:
                         continue
                     if not file_meta_info.is_in_season(season):
                         continue
