@@ -4,11 +4,12 @@ ENV LANG="C.UTF-8" \
     NASTOOL_CONFIG="/config/config.yaml" \
     NASTOOL_AUTO_UPDATE=true \
     PS1="\u@\h:\w \$ " \
-    REPO_URL="https://github.com/jxxghp/nas-tools.git" \
+    REPO_URL="https://github.com/johnZp/nas-tools.git" \
     PUID=0 \
     PGID=0 \
     UMASK=000 \
     WORKDIR="/nas-tools"
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 WORKDIR ${WORKDIR}
 RUN apk add --no-cache \
        git \
@@ -28,10 +29,12 @@ RUN apk add --no-cache \
     && echo 'fs.inotify.max_user_watches=524288' >> /etc/sysctl.conf \
     && echo 'fs.inotify.max_user_instances=524288' >> /etc/sysctl.conf \
     && git config --global pull.ff only \
+    && git config --global http.version HTTP/1.1 \
+    && git config --global http.postBuffer 524288000 \
     && git clone -b master ${REPO_URL} --depth=1 ${WORKDIR} \
     && git config --global --add safe.directory ${WORKDIR} \
     && pip install --upgrade pip setuptools wheel \
-    && pip install -r requirements.txt \
+    && pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt \
     && mkdir -p /var/log/supervisor \
     && rm -rf \
        /tmp/* \
