@@ -47,11 +47,12 @@ class Sites:
             try:
                 res = RequestUtils(headers=self.__user_agent, cookies=site_cookie).get_res(url=site_url)
                 if res and res.status_code == 200:
+                    res.encoding = res.apparent_encoding
                     html_text = res.text
                     if not html_text:
                         continue
-                    upload_match = re.search(r"上[传傳]量[:：<>/a-z=\"\s#;]+([0-9,.\s]+[KMGTP]B)", html_text, flags=re.IGNORECASE)
-                    download_match = re.search(r"下[载載]量[:：<>/a-z=\"\s#;]+([0-9,.\s]+[KMGTP]B)", html_text, flags=re.IGNORECASE)
+                    upload_match = re.search(r"上[传傳]量[:：<>/a-zA-Z=\"\s#;]+([0-9,.\s]+[KMGTP]*B)", html_text)
+                    download_match = re.search(r"下[载載]量[:：<>/a-zA-Z=\"\s#;]+([0-9,.\s]+[KMGTP]*B)", html_text)
                     if not upload_match or not download_match:
                         continue
                     # 上传量
