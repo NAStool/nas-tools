@@ -169,7 +169,7 @@ class Emby:
         except Exception as e:
             log.error("【EMBY】连接Items出错：" + str(e))
             return None
-        return None
+        return []
 
     def __get_emby_tv_episodes(self, title, year=None, season=None):
         """
@@ -202,7 +202,7 @@ class Emby:
         except Exception as e:
             log.error("【EMBY】连接Shows/{Id}/Episodes出错：" + str(e))
             return None
-        return None
+        return []
 
     def get_no_exists_episodes(self, meta_info, season, total_num):
         """

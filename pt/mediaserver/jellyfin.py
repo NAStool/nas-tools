@@ -161,7 +161,7 @@ class Jellyfin:
         except Exception as e:
             log.error("【JELLYFIN】连接Items出错：" + str(e))
             return None
-        return None
+        return ""
 
     def __get_jellyfin_season_id_by_name(self, name, year, season):
         """
@@ -170,8 +170,10 @@ class Jellyfin:
         if not self.__host or not self.__apikey or not self.__user:
             return None, None
         series_id = self.__get_jellyfin_series_id_by_name(name, year)
-        if not series_id:
+        if series_id is None:
             return None, None
+        if not series_id:
+            return "", ""
         if not season:
             season = 1
         req_url = "%sShows/%s/Seasons?api_key=%s&userId=%s" % (
@@ -215,7 +217,7 @@ class Jellyfin:
         except Exception as e:
             log.error("【JELLYFIN】连接Items出错：" + str(e))
             return None
-        return None
+        return []
 
     def __get_jellyfin_tv_episodes(self, title, year=None, season=None):
         """
@@ -245,7 +247,7 @@ class Jellyfin:
         except Exception as e:
             log.error("【JELLYFIN】连接Shows/{Id}/Episodes出错：" + str(e))
             return None
-        return None
+        return []
 
     def get_no_exists_episodes(self, meta_info, season, total_num):
         """

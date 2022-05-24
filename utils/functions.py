@@ -46,6 +46,31 @@ def str_filesize(size):
     return str(round(size / (b + 1), 2)) + u
 
 
+# 将文件大小文本转化为字节
+def num_filesize(text):
+    if not text:
+        return 0
+    if not isinstance(text, str):
+        text = str(text)
+    text = text.replace(",", "").replace(" ", "").upper()
+    size = re.sub(r"[KMGTP]B", "", text, flags=re.IGNORECASE)
+    try:
+        size = float(size)
+    except Exception as e:
+        return 0
+    if text.find("PB") != -1:
+        size *= 1024**5
+    elif text.find("TB") != -1:
+        size *= 1024 ** 4
+    elif text.find("GB") != -1:
+        size *= 1024 ** 3
+    elif text.find("MB") != -1:
+        size *= 1024 ** 2
+    elif text.find("KB") != -1:
+        size *= 1024
+    return round(size)
+
+
 # 计算时间
 def str_timelong(time_sec):
     if not isinstance(time_sec, int) or not isinstance(time_sec, float):

@@ -635,13 +635,13 @@ def create_flask_app(config):
                     SiteNames.append(name)
                     TotalUpload += int(up)
                     TotalDownload += int(dl)
-                    SiteUploads.append(round(int(up)/1024/1024/1024, 2))
-                    SiteDownloads.append(round(int(dl)/1024/1024/1024, 2))
+                    SiteUploads.append(round(int(up)/1024/1024/1024, 1))
+                    SiteDownloads.append(round(int(dl)/1024/1024/1024, 1))
         return render_template("download/statistics.html",
-                               CurrentDownload=str_filesize(CurrentDownload),
-                               CurrentUpload=str_filesize(CurrentUpload),
-                               TotalDownload=str_filesize(TotalDownload),
-                               TotalUpload=str_filesize(TotalUpload),
+                               CurrentDownload=str_filesize(CurrentDownload) + "B",
+                               CurrentUpload=str_filesize(CurrentUpload) + "B",
+                               TotalDownload=str_filesize(TotalDownload) + "B",
+                               TotalUpload=str_filesize(TotalUpload) + "B",
                                SiteDownloads=SiteDownloads,
                                SiteUploads=SiteUploads,
                                SiteNames=SiteNames)
