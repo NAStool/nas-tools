@@ -170,6 +170,15 @@ class Downloader:
             return False
         return self.client.delete_torrents(delete_file=True, ids=ids)
 
+    def get_pt_data(self):
+        """
+        获取PT下载软件中当前上传和下载量
+        :return: 上传量、下载量
+        """
+        if not self.client:
+            return 0, 0
+        return self.client.get_pt_data()
+
     def check_and_add_pt(self, in_from, media_list, need_tvs=None):
         """
         根据命中的种子媒体信息，添加下载，由RSS或Searcher调用

@@ -289,3 +289,16 @@ class Transmission:
             return False
         self.trc.set_files(file_items)
         return True
+
+    def get_pt_data(self):
+        """
+        获取PT下载软件中当前上传和下载量
+        :return: 上传量、下载量
+        """
+        if not self.trc:
+            return 0, 0
+        session = self.trc.session_stats()
+        for key, value in session.items():
+            if key == "current_stats":
+                return value.get("uploadedBytes"), value.get("downloadedBytes")
+        return 0, 0

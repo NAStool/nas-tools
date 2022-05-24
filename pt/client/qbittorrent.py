@@ -275,3 +275,15 @@ class Qbittorrent:
             return False
         self.qbc.torrents_file_priority(torrent_hash=torrent_hash, file_ids=file_ids, priority=priority)
         return True
+
+    def get_pt_data(self):
+        """
+        获取PT下载软件中当前上传和下载量
+        :return: 上传量、下载量
+        """
+        if not self.qbc:
+            return 0, 0
+        transfer_info = self.qbc.transfer_info()
+        if transfer_info:
+            return transfer_info.get("up_info_data"), transfer_info.get("dl_info_data")
+        return 0, 0

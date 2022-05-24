@@ -14,6 +14,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 import log
 from message.channel.wechat import WeChat
+from pt.sites import Sites
 from rmt.doubanv2api.douban import Douban
 from service.sync import Sync
 from service.run import stop_monitor, restart_monitor
@@ -55,7 +56,6 @@ from utils.WXBizMsgCrypt3 import WXBizMsgCrypt
 import xml.etree.cElementTree as ETree
 
 from message.channel.telegram import Telegram
-
 
 login_manager = LoginManager()
 login_manager.login_view = "login"
@@ -135,6 +135,7 @@ def create_flask_app(config):
         """
         用户
         """
+
         def __init__(self, user):
             self.username = user.get('name')
             self.password_hash = user.get('password')
@@ -609,7 +610,41 @@ def create_flask_app(config):
     @App.route('/statistics', methods=['POST', 'GET'])
     @login_required
     def statistics():
-        return render_template("download/statistics.html")
+        # 总上传下载
+        TotalUpload = 0
+        TotalDownload = 0
+        # 站点标签及上传下载
+        SiteNames = []
+        SiteUploads = []
+        SiteDownloads = []
+        # 当前上传下载
+        CurrentUpload, CurrentDownload = Downloader().get_pt_data()
+        # 站点上传下载
+        SiteData = Sites().get_pt_date()
+        if isinstance(SiteData, dict):
+            for name, data in SiteData.items():
+                if not data:
+                    continue
+                up = data.get("upload") or 0
+                dl = data.get("download") or 0
+                if not up and not dl:
+                    continue
+                if not str(up).isdigit() or not str(dl).isdigit():
+                    continue
+                if name not in SiteNames:
+                    SiteNames.append(name)
+                    TotalUpload += int(up)
+                    TotalDownload += int(dl)
+                    SiteUploads.append(round(int(up)/1024/1024/1024, 2))
+                    SiteDownloads.append(round(int(dl)/1024/1024/1024, 2))
+        return render_template("download/statistics.html",
+                               CurrentDownload=str_filesize(CurrentDownload),
+                               CurrentUpload=str_filesize(CurrentUpload),
+                               TotalDownload=str_filesize(TotalDownload),
+                               TotalUpload=str_filesize(TotalUpload),
+                               SiteDownloads=SiteDownloads,
+                               SiteUploads=SiteUploads,
+                               SiteNames=SiteNames)
 
     # 服务页面
     @App.route('/service', methods=['POST', 'GET'])
@@ -1218,7 +1253,8 @@ def create_flask_app(config):
                             # 有集数的电视剧
                             for dest_file in get_dir_files_by_ext(dest_path):
                                 file_meta_info = MetaInfo(os.path.basename(dest_file))
-                                if file_meta_info.get_episode_list() and set(file_meta_info.get_episode_list()).issubset(set(meta_info.get_episode_list())):
+                                if file_meta_info.get_episode_list() and set(
+                                        file_meta_info.get_episode_list()).issubset(set(meta_info.get_episode_list())):
                                     try:
                                         shutil.rmtree(dest_file)
                                     except Exception as e:
@@ -1369,7 +1405,8 @@ def create_flask_app(config):
                         continue
                     # 生效配置
                     cfg = set_config_value(cfg, key, value)
-                    if key in ['pt.ptsignin_cron', 'pt.pt_monitor', 'pt.pt_check_interval', 'pt.pt_seeding_time', 'douban.interval']:
+                    if key in ['pt.ptsignin_cron', 'pt.pt_monitor', 'pt.pt_check_interval', 'pt.pt_seeding_time',
+                               'douban.interval']:
                         scheduler_reload = True
                     if key.startswith("jellyfin"):
                         jellyfin_reload = True
