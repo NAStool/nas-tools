@@ -637,9 +637,9 @@ def create_flask_app(config):
                     SiteNames.append(name)
                     TotalUpload += int(up)
                     TotalDownload += int(dl)
-                    SiteUploads.append(round(int(up)/1024/1024/1024, 1))
-                    SiteDownloads.append(round(int(dl)/1024/1024/1024, 1))
-                    SiteRatios.append(ratio)
+                    SiteUploads.append(round(int(up)/1024/1024/1024))
+                    SiteDownloads.append(round(int(dl)/1024/1024/1024))
+                    SiteRatios.append(round(float(ratio), 1))
         # 历史
         StatisticsHis = get_site_statistics()
         TotalHisLabels = []
@@ -647,8 +647,8 @@ def create_flask_app(config):
         TotalDownloadHis = []
         for his in StatisticsHis:
             TotalHisLabels.append(his[0])
-            TotalUploadHis.append(round(int(his[1])/1024/1024/1024, 1))
-            TotalDownloadHis.append(round(int(his[2])/1024/1024/1024, 1))
+            TotalUploadHis.append(round(int(his[1])/1024/1024/1024))
+            TotalDownloadHis.append(round(int(his[2])/1024/1024/1024))
 
         return render_template("download/statistics.html",
                                CurrentDownload=str_filesize(CurrentDownload) + "B",
