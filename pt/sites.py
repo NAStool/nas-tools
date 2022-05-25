@@ -59,9 +59,9 @@ class Sites:
                     if not html_text:
                         continue
                     html_text = re.sub(r"#\d+", "", html_text)
-                    upload_match = re.search(r"[^总]上[传傳]量[:：<>/a-zA-Z=\"\s#;]+([0-9,.\s]+[KMGTP]*B)", html_text)
-                    download_match = re.search(r"[^总]下[载載]量[:：<>/a-zA-Z=\"\s#;]+([0-9,.\s]+[KMGTP]*B)", html_text)
-                    ratio_match = re.search(r"分享率[:：<>/a-zA-Z=\"\s#;]+([0-9.\s]+)", html_text)
+                    upload_match = re.search(r"[^总]上[传傳]量[:：<>/a-zA-Z-=\"'\s#;]+([0-9,.\s]+[KMGTP]*B)", html_text)
+                    download_match = re.search(r"[^总]下[载載]量[:：<>/a-zA-Z-=\"'\s#;]+([0-9,.\s]+[KMGTP]*B)", html_text)
+                    ratio_match = re.search(r"分享率[:：<>/a-zA-Z-=\"'\s#;]+([0-9.\s]+)", html_text)
                     if not upload_match or not download_match:
                         continue
                     # 上传量
