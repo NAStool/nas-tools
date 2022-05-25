@@ -177,6 +177,18 @@ class DBHelper:
                                                            CONTENT    TEXT,
                                                            DATE     TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_MESSAGES_DATE ON MESSAGES (DATE);''')
+
+            # 站点流量
+            cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_STATISTICS
+                                                           (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                                           SITE    TEXT,
+                                                           DATE    TEXT,
+                                                           UPLOAD    TEXT,
+                                                           DOWNLOAD     TEXT,
+                                                           RATIO     TEXT,
+                                                           URL     TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_STATISTICS_DS ON SITE_STATISTICS (DATE, URL);''')
+
             # 提交
             self.__connection.commit()
 

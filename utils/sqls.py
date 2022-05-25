@@ -606,3 +606,34 @@ def get_system_messages(num=20, lst_time=None):
     else:
         sql = "SELECT ID, LEVEL, TITLE, CONTENT, DATE FROM MESSAGES WHERE DATE > ? ORDER BY DATE"
         return select_by_sql(sql, (lst_time,))
+
+
+# 判断站点数据是否存在
+def is_site_statistics_exists(url, date):
+    if not url or not date:
+        return False
+    sql = "SELECT COUNT(1) FROM SITE_STATISTICS WHERE URL = ? AND DATE = ?"
+    ret = select_by_sql(sql, (url, date))
+    if ret and ret[0][0] > 0:
+        return True
+    else:
+        return False
+
+
+# 插入站点数据
+def insert_site_statistics(site, upload, download, ratio, url):
+    if not site or not url:
+        return
+    timestr = time.strftime('%Y-%m-%d', time.localtime(time.time()))
+    if not is_site_statistics_exists(url, timestr):
+        sql = "INSERT INTO SITE_STATISTICS(SITE, DATE, UPLOAD, DOWNLOAD, RATIO, URL) VALUES (?, ?, ?, ?, ?, ?)"
+        return update_by_sql(sql, (str_sql(site), timestr, upload, download, ratio, url))
+    else:
+        sql = "UPDATE SITE_STATISTICS SET SITE = ?, UPLOAD = ?, DOWNLOAD = ?, RATIO = ? WHERE URL = ? AND DATE = ?"
+        return update_by_sql(sql, (str_sql(site), upload, download, ratio, url, timestr))
+
+
+# 查询站点数据历史
+def get_site_statistics(days=30):
+    sql = "SELECT DATE, SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS GROUP BY DATE ORDER BY DATE DESC LIMIT ?"
+    return select_by_sql(sql, (days,))

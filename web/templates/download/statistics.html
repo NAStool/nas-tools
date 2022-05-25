@@ -125,76 +125,213 @@
           </div>
         </div>
       </div>
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex">
+              <h3 class="card-title">分享率（倍）</h3>
+            </div>
+            <div id="chart-sites-ratio"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex">
+              <h3 class="card-title">流量趋势（GB）</h3>
+            </div>
+            <div id="chart-sites-his"></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 <script type="text/javascript">
   // @formatter:off
-  // document.addEventListener("DOMContentLoaded", function () {
-    window.ApexCharts && (new ApexCharts(document.getElementById('chart-sites-detail'), {
-        chart: {
-            type: "bar",
-            fontFamily: 'inherit',
-            height: 400,
-            parentHeightOffset: 0,
-            toolbar: {
-                show: false,
-            },
-            animations: {
-                enabled: true
-            },
-        },
-        plotOptions: {
-            bar: {
-                columnWidth: '50%',
-            }
-        },
-        dataLabels: {
-            enabled: false,
-        },
-        fill: {
-            opacity: 1,
-        },
-        series: [{
-            name: "上传",
-            data: {{ SiteUploads|safe }}
-        },{
-            name: "下载",
-            data: {{ SiteDownloads|safe }}
-        }],
-        grid: {
-            padding: {
-                top: -20,
-                right: 0,
-                left: -4,
-                bottom: -4
-            },
-            strokeDashArray: 4,
-        },
-        xaxis: {
-            labels: {
-                padding: 0,
-            },
-            tooltip: {
-                enabled: false
-            },
-            axisBorder: {
-                show: false,
-            },
-            type: 'category',
-        },
-        yaxis: {
-            labels: {
-                padding: 4
-            },
-        },
-        labels: {{ SiteNames|safe }},
-        colors: ["#206bc4", "#cd201f"],
-        legend: {
-            show: true,
-        },
-    })).render();
-  // });
+  window.ApexCharts && (new ApexCharts(document.getElementById('chart-sites-detail'), {
+      chart: {
+          type: "bar",
+          fontFamily: 'inherit',
+          height: 200,
+          parentHeightOffset: 0,
+          toolbar: {
+              show: false,
+          },
+          animations: {
+              enabled: true
+          },
+      },
+      plotOptions: {
+          bar: {
+              columnWidth: '50%',
+          }
+      },
+      dataLabels: {
+          enabled: false,
+      },
+      fill: {
+          opacity: 1,
+      },
+      series: [{
+          name: "上传",
+          data: {{ SiteUploads|safe }}
+      },{
+          name: "下载",
+          data: {{ SiteDownloads|safe }}
+      }],
+      grid: {
+          padding: {
+              top: -20,
+              right: 0,
+              left: -4,
+              bottom: -4
+          },
+          strokeDashArray: 2,
+      },
+      xaxis: {
+          labels: {
+              padding: 0,
+          },
+          tooltip: {
+              enabled: false
+          },
+          axisBorder: {
+              show: false,
+          },
+          type: 'category',
+      },
+      yaxis: {
+          labels: {
+              padding: 4
+          },
+      },
+      labels: {{ SiteNames|safe }},
+      colors: ["#206bc4", "#cd201f"],
+      legend: {
+          show: true,
+      },
+  })).render();
+  // @formatter:on
+</script>
+<script type="text/javascript">
+  // @formatter:off
+  window.ApexCharts && (new ApexCharts(document.getElementById('chart-sites-ratio'), {
+      chart: {
+          type: "bar",
+          fontFamily: 'inherit',
+          height: 200,
+          parentHeightOffset: 0,
+          toolbar: {
+              show: false,
+          },
+          animations: {
+              enabled: true
+          },
+      },
+      plotOptions: {
+          bar: {
+              columnWidth: '50%',
+          }
+      },
+      dataLabels: {
+          enabled: true,
+      },
+      fill: {
+          opacity: 1,
+      },
+      series: [{
+          name: "分享率",
+          data: {{ SiteRatios|safe }}
+      }],
+      grid: {
+          padding: {
+              top: -20,
+              right: 0,
+              left: -4,
+              bottom: -4
+          },
+          strokeDashArray: 1,
+      },
+      xaxis: {
+          labels: {
+              padding: 0,
+          },
+          tooltip: {
+              enabled: false
+          },
+          axisBorder: {
+              show: false,
+          },
+          type: 'category',
+      },
+      yaxis: {
+          labels: {
+              padding: 4
+          },
+      },
+      labels: {{ SiteNames|safe }},
+      colors: ["#206bc4"],
+      legend: {
+          show: true,
+      },
+  })).render();
+  // @formatter:on
+</script>
+<script type="text/javascript">
+  // 变化图
+  window.ApexCharts && (new ApexCharts(document.getElementById('chart-sites-his'), {
+      chart: {
+          type: "area",
+          fontFamily: 'inherit',
+          height: 200.0,
+          sparkline: {
+              enabled: true
+          },
+          animations: {
+              enabled: true
+          },
+      },
+      fill: {
+          opacity: 1,
+      },
+      stroke: {
+          width: [2, 1],
+          dashArray: [0, 3],
+          lineCap: "round",
+          curve: "smooth",
+      },
+      series: [{
+          name: "总上传",
+          data: {{ TotalUploadHis|safe }}
+      },{
+          name: "总下载",
+          data: {{ TotalDownloadHis|safe }}
+      }],
+      grid: {
+          strokeDashArray: 2,
+      },
+      xaxis: {
+          labels: {
+              padding: 0,
+          },
+          tooltip: {
+              enabled: false
+          },
+          type: 'category',
+      },
+      yaxis: {
+          labels: {
+              padding: 4
+          },
+      },
+      labels: {{ TotalHisLabels|safe }},
+      colors: ["#206bc4", "#cd201f"],
+      legend: {
+          show: true,
+      },
+  })).render();
   // @formatter:on
 </script>
 {% else %}

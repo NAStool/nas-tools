@@ -1,7 +1,8 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 import log
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
-    RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_SEARCH_INTERVAL
+    RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_SEARCH_INTERVAL, REFRESH_PT_DATA_INTERVAL
+from pt.sites import Sites
 from service.sync import Sync
 from service.tasks.autoremove_torrents import AutoRemoveTorrents
 from service.tasks.douban_sync import DoubanSync
@@ -121,6 +122,9 @@ class Scheduler:
 
         # RSS队列中检索
         self.SCHEDULER.add_job(RssSearch().run_schedule, 'interval', seconds=RSS_SEARCH_INTERVAL)
+
+        # PT站数据刷新
+        self.SCHEDULER.add_job(Sites().refresh_pt_date_now, 'interval', hours=REFRESH_PT_DATA_INTERVAL)
 
         self.SCHEDULER.print_jobs()
 

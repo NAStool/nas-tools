@@ -45,7 +45,7 @@ from utils.sqls import get_search_result_by_id, get_search_results, \
     delete_transfer_log_by_id, get_config_site, insert_config_site, get_site_by_id, delete_config_site, \
     update_config_site, get_config_search_rule, update_config_search_rule, get_config_rss_rule, update_config_rss_rule, \
     get_unknown_path_by_id, get_rss_tvs, get_rss_movies, delete_rss_movie, delete_rss_tv, \
-    get_users, insert_user, delete_user, get_transfer_statistics, get_system_messages
+    get_users, insert_user, delete_user, get_transfer_statistics, get_system_messages, get_site_statistics
 from utils.types import MediaType, SearchType, DownloaderType, SyncType, OsType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
@@ -435,9 +435,9 @@ def create_flask_app(config):
     @App.route('/site', methods=['POST', 'GET'])
     @login_required
     def site():
-        Sites = get_config_site()
+        CfgSites = get_config_site()
         return render_template("setting/site.html",
-                               Sites=Sites)
+                               Sites=CfgSites)
 
     # 推荐页面
     @App.route('/recommend', methods=['POST', 'GET'])
@@ -617,6 +617,7 @@ def create_flask_app(config):
         SiteNames = []
         SiteUploads = []
         SiteDownloads = []
+        SiteRatios = []
         # 当前上传下载
         CurrentUpload, CurrentDownload = Downloader().get_pt_data()
         # 站点上传下载
@@ -627,7 +628,8 @@ def create_flask_app(config):
                     continue
                 up = data.get("upload") or 0
                 dl = data.get("download") or 0
-                if not up and not dl:
+                ratio = data.get("ratio") or 0
+                if not up and not dl and not ratio:
                     continue
                 if not str(up).isdigit() or not str(dl).isdigit():
                     continue
@@ -637,6 +639,17 @@ def create_flask_app(config):
                     TotalDownload += int(dl)
                     SiteUploads.append(round(int(up)/1024/1024/1024, 1))
                     SiteDownloads.append(round(int(dl)/1024/1024/1024, 1))
+                    SiteRatios.append(ratio)
+        # 历史
+        StatisticsHis = get_site_statistics()
+        TotalHisLabels = []
+        TotalUploadHis = []
+        TotalDownloadHis = []
+        for his in StatisticsHis:
+            TotalHisLabels.append(his[0])
+            TotalUploadHis.append(round(int(his[1])/1024/1024/1024, 1))
+            TotalDownloadHis.append(round(int(his[2])/1024/1024/1024, 1))
+
         return render_template("download/statistics.html",
                                CurrentDownload=str_filesize(CurrentDownload) + "B",
                                CurrentUpload=str_filesize(CurrentUpload) + "B",
@@ -644,7 +657,11 @@ def create_flask_app(config):
                                TotalUpload=str_filesize(TotalUpload) + "B",
                                SiteDownloads=SiteDownloads,
                                SiteUploads=SiteUploads,
-                               SiteNames=SiteNames)
+                               SiteRatios=SiteRatios,
+                               SiteNames=SiteNames,
+                               TotalHisLabels=TotalHisLabels,
+                               TotalUploadHis=TotalUploadHis,
+                               TotalDownloadHis=TotalDownloadHis)
 
     # 服务页面
     @App.route('/service', methods=['POST', 'GET'])
