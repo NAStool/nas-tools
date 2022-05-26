@@ -31,7 +31,7 @@ from rmt.metainfo import MetaInfo
 from pt.mediaserver.jellyfin import Jellyfin
 from pt.mediaserver.plex import Plex
 from message.send import Message
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE
+from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE, RMT_MEDIAEXT
 from service.run import stop_scheduler, restart_scheduler
 from service.scheduler import Scheduler
 from utils.functions import get_used_of_partition, str_filesize, str_timelong, get_system, get_dir_files_by_ext
@@ -1225,18 +1225,25 @@ def create_flask_app(config):
                 tmdb_info = Media().get_media_info_manual(media_type, title, year, tmdbid)
                 if not tmdb_info:
                     return {"retcode": 1, "retmsg": "转移失败，无法查询到TMDB信息"}
+                # 如果改次手动修复时一个单文件，自动修复改目录下同名文件，需要配合episode_format生效
+                need_fix_all = False
+                if ".%s" % path.split(".")[-1].lower() in RMT_MEDIAEXT and episode_format:
+                    path = os.path.dirname(path)
+                    need_fix_all = True
                 succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
                                                                    in_path=path,
                                                                    target_dir=dest_dir,
                                                                    tmdb_info=tmdb_info,
                                                                    media_type=media_type,
                                                                    season=season,
-                                                                   episode_format=episode_format)
+                                                                   # 此处有个logid，不知道业务含义什么，先透传过去，做insert_transfer_blacklist
+                                                                   episode_format=(episode_format, need_fix_all, logid))
                 if succ_flag:
-                    if logid:
-                        insert_transfer_blacklist(path)
-                    else:
-                        update_transfer_unknown_state(path)
+                    if not need_fix_all:
+                        if logid:
+                            insert_transfer_blacklist(path)
+                        else:
+                            update_transfer_unknown_state(path)
                     return {"retcode": 0, "retmsg": "转移成功"}
                 else:
                     return {"retcode": 2, "retmsg": ret_msg}

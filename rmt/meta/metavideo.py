@@ -19,7 +19,7 @@ class MetaVideo(MetaBase):
     _unknown_name_str = ""
     _subtitle_flag = False
     # 正则式区
-    _season_re = r"SE(\d{2})|^SE(\d{1,2})"
+    _season_re = r"SE?(\d{2})|^SE?(\d{1,2})"
     _episode_re = r"EP?(\d{2,4})|^EP?(\d{1,4})"
     _part_re = r"(^PART[1-9]?$|^CD[1-9]?$|^DVD[1-9]?$|^DISK[1-9]?$|^DISC[1-9]?$)"
     _resources_type_re = r"^BLURAY$|^REMUX$|^HDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^UHD$|^SDR$|^HDR$|^DOLBY$|^BLU$|^WEB$|^BD$"
