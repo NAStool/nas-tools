@@ -21,11 +21,9 @@
                 共 {{ TotalCount }} 条记录
               </div>
             </div>
-            <div class="card-actions">
-              <a href="javascript:delete_checked_unknown()">
-                批量删除
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                   <desc>Download more icon variants from https://tabler-icons.io/i/trash</desc>
+            <div class="card-actions btn-actions">
+              <a href="javascript:delete_checked_unknown()" class="btn-action" title="删除选中">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                    <line x1="4" y1="7" x2="20" y2="7"></line>
                    <line x1="10" y1="11" x2="10" y2="17"></line>
@@ -177,7 +175,7 @@
               </select>
             </div>
           </div>
-            <div class="col-lg-6">
+            <div class="col-lg-6" id="rename_episode_div">
               <div class="mb-3">
                 <label class="form-label">自定义集数位置(<a href="#" title="标定集数位置，例如：铁齿铜牙纪晓岚{episode}.iso">?</a>)</label>
                 <input type="text" id="rename_episode" class="form-control">
@@ -292,9 +290,11 @@
     type = $('input:radio[name=rename_type]:checked').val();
     if (type == "MOV") {
       $("#rename_season_div").hide();
+      $("#rename_episode_div").hide();
       $("#rename_season").val("");
     } else {
       $("#rename_season_div").show();
+      $("#rename_episode_div").show();
     }
     $('#modal-rename').modal('show');
   }
@@ -356,10 +356,12 @@
   $('input[type=radio][name=rename_type]').change(function () {
     if (this.value == 'MOV') {
       $("#rename_season_div").hide();
+      $("#rename_episode_div").hide();
       $("#rename_season").val('');
     }
     else {
       $("#rename_season_div").show();
+      $("#rename_episode_div").show();
     }
   });
 

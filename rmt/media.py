@@ -309,8 +309,8 @@ class Media:
         :param tmdb_info: 如有传入TMDB信息则以该TMDB信息赋于所有文件，否则按名称从TMDB检索，用于手工识别时传入
         :param media_type: 媒体类型：电影、电视剧、动漫，如有传入以该类型赋于所有文件，否则按名称从TMDB检索并识别
         :param season: 季号，如有传入以该季号赋于所有文件，否则从名称中识别
+        :param episode_format: 手动识别轩发金时传入的集数位置
         :return: 带有TMDB信息的每个文件对应的MetaInfo对象字典
-        :episode_format: 手动识别轩发金时传入的集数位置
         """
         # 存储文件路径与媒体的对应关系
         return_media_infos = {}
@@ -339,9 +339,9 @@ class Media:
                         parent_info = MetaInfo(parent_name)
                         if not parent_info.get_name() or not parent_info.year:
                             parent_parent_info = MetaInfo(parent_parent_name)
-                            parent_info.type = parent_parent_info.type if parent_info.type in [MediaType.MOVIE, MediaType.UNKNOWN]  else parent_info.type
-                            parent_info.cn_name = parent_parent_info.cn_name if parent_parent_info.cn_name  else parent_info.cn_name
-                            parent_info.en_name = parent_parent_info.en_name if parent_parent_info.en_name  else parent_info.en_name
+                            parent_info.type = parent_parent_info.type if parent_info.type in [MediaType.MOVIE, MediaType.UNKNOWN] else parent_info.type
+                            parent_info.cn_name = parent_parent_info.cn_name if parent_parent_info.cn_name else parent_info.cn_name
+                            parent_info.en_name = parent_parent_info.en_name if parent_parent_info.en_name else parent_info.en_name
                             parent_info.year = parent_parent_info.year if parent_parent_info.year else parent_info.year
                             parent_info.begin_season = self.max_ele(parent_info.begin_season, parent_parent_info.begin_season)
                             parent_info.end_season = self.max_ele(parent_info.end_season, parent_parent_info.end_season)
@@ -352,7 +352,7 @@ class Media:
                             meta_info.year = parent_info.year
                         if parent_info.type not in [MediaType.MOVIE, MediaType.UNKNOWN] and meta_info.type in [MediaType.MOVIE, MediaType.UNKNOWN]:
                             meta_info.type = parent_info.type
-                        if media_type == MediaType.TV:
+                        if meta_info.type in [MediaType.TV, MediaType.ANIME]:
                             meta_info.begin_season = self.max_ele(parent_info.begin_season, meta_info.begin_season)
                             meta_info.end_season = self.max_ele(parent_info.end_season, meta_info.end_season)
                     if not meta_info.get_name():
@@ -379,8 +379,8 @@ class Media:
                     meta_info.type = media_type
                     if season and media_type != MediaType.MOVIE:
                         meta_info.begin_season = int(season)
-                if episode_format:
-                    meta_info.begin_episode, meta_info.end_episode = self.split_episode(file_name, episode_format)
+                    if episode_format:
+                        meta_info.begin_episode, meta_info.end_episode = self.split_episode(file_name, episode_format)
                 return_media_infos[file_path] = meta_info
             except Exception as err:
                 log.error("【RMT】发生错误：%s - %s" % (str(err), traceback.format_exc()))
@@ -504,14 +504,16 @@ class Media:
                 return season.get("episode_count")
         return 0
 
-    def max_ele(self, a, b):
+    @staticmethod
+    def max_ele(a, b):
         if not a:
             return b
         if not b:
             return a
         return max(a, b)
 
-    def split_episode(self,  file_name, episode_format):
+    @staticmethod
+    def split_episode(file_name, episode_format):
         ret = parse.parse(episode_format, file_name)
         if ret:
             episodes = ret.__getitem__('episode')
@@ -522,4 +524,3 @@ class Media:
                 return int(re.compile(r'[a-zA-Z]*', re.IGNORECASE).sub("", episode_splits[0])), int(re.compile(r'[a-zA-Z]*', re.IGNORECASE).sub("", episode_splits[1]))
         else:
             return 1, None
-

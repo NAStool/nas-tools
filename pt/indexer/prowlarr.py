@@ -103,10 +103,13 @@ class Prowlarr:
                 continue
 
             # 检查资源类型
-            match_flag, res_order = Torrent.check_resouce_types(torrent_name, description, self.__res_type)
-            if not match_flag:
-                log.info("【PROWLARR】%s 不符合过滤条件" % torrent_name)
-                continue
+            if whole_word:
+                match_flag, res_order = Torrent.check_resouce_types(torrent_name, description, self.__res_type)
+                if not match_flag:
+                    log.info("【PROWLARR】%s 不符合过滤条件" % torrent_name)
+                    continue
+            else:
+                res_order = 0
 
             # 识别种子名称
             meta_info = MetaInfo(torrent_name)
@@ -158,9 +161,10 @@ class Prowlarr:
                 continue
 
             # 判断文件大小是否匹配，只针对电影
-            if not Torrent.is_torrent_match_size(media_info, self.__res_type, size):
-                log.info("【PROWLARR】%s：%s %s 不符合大小要求" % (media_info.type.value, media_info.get_title_string(), str_filesize(size)))
-                continue
+            if whole_word:
+                if not Torrent.is_torrent_match_size(media_info, self.__res_type, size):
+                    log.info("【PROWLARR】%s：%s %s 不符合大小要求" % (media_info.type.value, media_info.get_title_string(), str_filesize(size)))
+                    continue
 
             # 匹配到了
             media_info.set_torrent_info(site=indexer_name,

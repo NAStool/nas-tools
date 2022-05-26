@@ -216,7 +216,7 @@
                 </select>
               </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-6" id="rename_episode_div">
               <div class="mb-3">
                 <label class="form-label">自定义集数位置(<a href="#" title="标定集数位置，例如：铁齿铜牙纪晓岚{episode}.iso">?</a>)</label>
                 <input type="text" id="rename_episode" class="form-control">
@@ -275,17 +275,20 @@
         $("#rename_type_mov").removeProp("checked");
         $("#rename_type_anime").removeProp("checked");
         $("#rename_season_div").show();
+        $("#rename_episode_div").show();
       }else if(type == "电影"){
         $("#rename_type_mov").prop("checked",true);
         $("#rename_type_tv").removeProp("checked");
         $("#rename_type_anime").removeProp("checked");
         $("#rename_season_div").hide();
+        $("#rename_episode_div").hide();
         $("#rename_season").val("");
       }else{
         $("#rename_type_anime").prop("checked",true);
         $("#rename_type_tv").removeProp("checked");
         $("#rename_type_mov").removeProp("checked");
         $("#rename_season_div").show();
+        $("#rename_episode_div").show();
       }
       $("#rename_path").val(path);
       $("#rename_logid").val(id);
@@ -382,10 +385,12 @@
     $('input[type=radio][name=rename_type]').change(function() {
       if (this.value == 'MOV') {
         $("#rename_season_div").hide();
+        $("#rename_episode_div").hide();
         $("#rename_season").val("");
       }
       else {
         $("#rename_season_div").show();
+        $("#rename_episode_div").show();
       }
     });
     //转移按钮

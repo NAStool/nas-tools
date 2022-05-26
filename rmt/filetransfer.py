@@ -6,7 +6,6 @@ import traceback
 from threading import Lock
 from subprocess import call
 
-import config
 import log
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE
 from pt.subtitle import Subtitle
@@ -132,7 +131,6 @@ class FileTransfer:
                 self.__pt_rmt_mode = RmtMode.SOFTLINK
             else:
                 self.__pt_rmt_mode = RmtMode.COPY
-        sign_dir_flag = True if config.get_config('sign_dir_flag') else False
 
     def __transfer_command(self, file_item, target_file, rmt_mode):
         """
@@ -424,7 +422,6 @@ class FileTransfer:
                 file_name = os.path.basename(file_item)
                 # 上级目录
                 file_path = os.path.dirname(file_item)
-
 
                 # 数据库记录的路径
                 if media.type == MediaType.MOVIE:
