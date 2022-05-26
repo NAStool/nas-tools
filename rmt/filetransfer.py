@@ -6,7 +6,6 @@ import traceback
 from threading import Lock
 from subprocess import call
 
-import config
 import log
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE
 from pt.subtitle import Subtitle
@@ -132,7 +131,6 @@ class FileTransfer:
                 self.__pt_rmt_mode = RmtMode.SOFTLINK
             else:
                 self.__pt_rmt_mode = RmtMode.COPY
-        sign_dir_flag = True if config.get_config('sign_dir_flag') else False
 
     def __transfer_command(self, file_item, target_file, rmt_mode):
         """
@@ -341,7 +339,7 @@ class FileTransfer:
         :param tmdb_info: 手动识别转移时传入的TMDB信息对象，如未输入，则按名称笔TMDB实时查询
         :param media_type: 手动识别转移时传入的文件类型，如未输入，则自动识别
         :param season: 手动识别轩发金时传入的的字号，如未输入，则自动识别
-        :episode_format: 手动识别轩发金时传入的集数位置
+        :param episode_format: 手动识别轩发金时传入的集数位置
         :return: 处理状态，错误信息
         """
         if not in_path:
@@ -423,7 +421,6 @@ class FileTransfer:
                 file_name = os.path.basename(file_item)
                 # 上级目录
                 file_path = os.path.dirname(file_item)
-
 
                 # 数据库记录的路径
                 if media.type == MediaType.MOVIE:
