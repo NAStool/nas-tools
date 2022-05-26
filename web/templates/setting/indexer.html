@@ -306,6 +306,20 @@
     });
   }
 
+  //编辑搜索规则
+  function edit_role_info(){
+    //隐藏
+    $("#search_include_pre").hide();
+    $("#search_exclude_pre").hide();
+    $("#search_note_pre").hide();
+    $("#search_size_pre").hide();
+    //显示
+    $("#search_include").show();
+    $("#search_exclude").show();
+    $("#search_note").show();
+    $("#search_size").show();
+  }
+
   //规则编辑保存
   $("#save_or_edit_rule_btn").click(function(){
       if($("#save_or_edit_rule_btn").text() == "编辑"){
