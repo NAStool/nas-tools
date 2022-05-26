@@ -635,5 +635,5 @@ def insert_site_statistics(site, upload, download, ratio, url):
 
 # 查询站点数据历史
 def get_site_statistics(days=30):
-    sql = "SELECT DATE, SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS GROUP BY DATE ORDER BY DATE DESC LIMIT ?"
+    sql = "SELECT DATE, SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS GROUP BY DATE ORDER BY DATE ASC LIMIT ?"
     return select_by_sql(sql, (days,))

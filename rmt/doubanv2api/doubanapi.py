@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 @singleton
-class Douban(object):
+class DoubanApi(object):
     _urls = {
         # 搜索类 sort=U:近期热门 T:标记最多 S:评分最高 R:最新上映
         # q=search_word&start=0&count=20&sort=U

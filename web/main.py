@@ -14,8 +14,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 import log
 from message.channel.wechat import WeChat
+from pt.douban import DouBan
 from pt.sites import Sites
-from rmt.doubanv2api.douban import Douban
+from rmt.doubanv2api.doubanapi import DoubanApi
 from service.sync import Sync
 from service.run import stop_monitor, restart_monitor
 from pt.client.qbittorrent import Qbittorrent
@@ -29,11 +30,6 @@ from pt.media_server import MediaServer
 from rmt.metainfo import MetaInfo
 from pt.mediaserver.jellyfin import Jellyfin
 from pt.mediaserver.plex import Plex
-from service.tasks.autoremove_torrents import AutoRemoveTorrents
-from service.tasks.douban_sync import DoubanSync
-from service.tasks.pt_signin import PTSignin
-from service.tasks.pt_transfer import PTTransfer
-from service.tasks.rss_download import RSSDownloader
 from message.send import Message
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE
 from service.run import stop_scheduler, restart_scheduler
@@ -784,7 +780,7 @@ def create_flask_app(config):
                 '''
                 color = "pink"
                 scheduler_cfg_list.append(
-                    {'name': '豆瓣收藏', 'time': interval, 'state': sta_douban, 'id': 'douban', 'svg': svg, 'color': color})
+                    {'name': '豆瓣想看', 'time': interval, 'state': sta_douban, 'id': 'douban', 'svg': svg, 'color': color})
 
         # 实时日志
         svg = '''
@@ -1074,12 +1070,12 @@ def create_flask_app(config):
             # 启动定时服务
             if cmd == "sch":
                 commands = {
-                    "autoremovetorrents": AutoRemoveTorrents().run_schedule,
-                    "pttransfer": PTTransfer().run_schedule,
-                    "ptsignin": PTSignin().run_schedule,
+                    "autoremovetorrents": Downloader().pt_removetorrents,
+                    "pttransfer": Downloader().pt_transfer,
+                    "ptsignin": Sites().signin,
                     "sync": Sync().transfer_all_sync,
-                    "rssdownload": RSSDownloader().run_schedule,
-                    "douban": DoubanSync().run_schedule
+                    "rssdownload": Rss().rssdownload,
+                    "douban": DouBan().sync
                 }
                 sch_item = data.get("item")
                 if sch_item and commands.get(sch_item):
@@ -1334,6 +1330,8 @@ def create_flask_app(config):
                                              exclude=exclude,
                                              size=size,
                                              note=note)
+                # 生效站点配置
+                Sites().init_config()
                 return {"code": ret}
 
             # 查询单个站点信息
@@ -1555,7 +1553,7 @@ def create_flask_app(config):
                 poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path')
                 if media_type == MediaType.MOVIE:
                     if doubanid:
-                        douban_info = Douban().movie_detail(doubanid)
+                        douban_info = DoubanApi().movie_detail(doubanid)
                         overview = douban_info.get("intro")
                         poster_path = "https://images.weserv.nl/?url=%s" % douban_info.get("cover_url")
 
@@ -1572,7 +1570,7 @@ def create_flask_app(config):
                     }
                 else:
                     if doubanid:
-                        douban_info = Douban().tv_detail(doubanid)
+                        douban_info = DoubanApi().tv_detail(doubanid)
                         overview = douban_info.get("intro")
                         poster_path = "https://images.weserv.nl/?url=%s" % douban_info.get("cover_url")
 
@@ -1725,12 +1723,12 @@ def create_flask_app(config):
         if not msg:
             return
         commands = {
-            "/ptr": {"func": AutoRemoveTorrents().run_schedule, "desp": "PT删种"},
-            "/ptt": {"func": PTTransfer().run_schedule, "desp": "PT下载转移"},
-            "/pts": {"func": PTSignin().run_schedule, "desp": "PT站签到"},
+            "/ptr": {"func": Downloader().pt_removetorrents, "desp": "PT删种"},
+            "/ptt": {"func": Downloader().pt_transfer, "desp": "PT下载转移"},
+            "/pts": {"func": Sites().signin, "desp": "PT站签到"},
             "/rst": {"func": Sync().transfer_all_sync, "desp": "监控目录全量同步"},
-            "/rss": {"func": RSSDownloader().run_schedule, "desp": "RSS订阅"},
-            "/db": {"func": DoubanSync().run_schedule, "desp": "豆瓣收藏同步"}
+            "/rss": {"func": Rss().rssdownload, "desp": "RSS订阅"},
+            "/db": {"func": DouBan().sync, "desp": "豆瓣同步"}
         }
         command = commands.get(msg)
         if command:

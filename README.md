@@ -201,7 +201,7 @@ https://github.com/jxxghp/nas-tools/releases
    | /ptr  | PT删种 |
    | /pts | PT站签到 |
    | /rst  | 目录同步 |
-   | /db   | 豆瓣收藏 |
+   | /db   | 豆瓣想看 |
    
 
 ### 6、配置Jackett/Prowlarr（推荐）
