@@ -38,6 +38,9 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 
 
 ## 更新日志
+2022.5.24
+* 新增站点数据统计
+
 2022.5.18
 * 支持Opensubtitles.org、ChineseSubFinder下载字幕
 
