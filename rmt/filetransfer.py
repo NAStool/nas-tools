@@ -6,6 +6,7 @@ import traceback
 from threading import Lock
 from subprocess import call
 
+import config
 import log
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE
 from pt.subtitle import Subtitle
@@ -131,6 +132,7 @@ class FileTransfer:
                 self.__pt_rmt_mode = RmtMode.SOFTLINK
             else:
                 self.__pt_rmt_mode = RmtMode.COPY
+        sign_dir_flag = True if config.get_config('sign_dir_flag') else False
 
     def __transfer_command(self, file_item, target_file, rmt_mode):
         """
@@ -327,7 +329,8 @@ class FileTransfer:
                        unknown_dir=None,
                        tmdb_info=None,
                        media_type=None,
-                       season=None):
+                       season=None,
+                       episode_format=None):
         """
         识别并转移一个文件、多个文件或者目录
         :param in_from: 来源，即调用该功能的渠道
@@ -338,6 +341,7 @@ class FileTransfer:
         :param tmdb_info: 手动识别转移时传入的TMDB信息对象，如未输入，则按名称笔TMDB实时查询
         :param media_type: 手动识别转移时传入的文件类型，如未输入，则自动识别
         :param season: 手动识别轩发金时传入的的字号，如未输入，则自动识别
+        :episode_format: 手动识别轩发金时传入的集数位置
         :return: 处理状态，错误信息
         """
         if not in_path:
@@ -393,7 +397,7 @@ class FileTransfer:
             file_list = files
 
         # API检索出媒体信息，传入一个文件列表，得出每一个文件的名称，这里是当前目录下所有的文件了
-        Medias = self.media.get_media_info_on_files(file_list, tmdb_info, media_type, season)
+        Medias = self.media.get_media_info_on_files(file_list, tmdb_info, media_type, season, episode_format)
         if not Medias:
             log.error("【RMT】检索媒体信息出错！")
             return False, "检索媒体信息出错"
@@ -419,6 +423,8 @@ class FileTransfer:
                 file_name = os.path.basename(file_item)
                 # 上级目录
                 file_path = os.path.dirname(file_item)
+
+
                 # 数据库记录的路径
                 if media.type == MediaType.MOVIE:
                     reg_path = file_item

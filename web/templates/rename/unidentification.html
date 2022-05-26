@@ -177,6 +177,12 @@
               </select>
             </div>
           </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">自定义集数位置(<a href="#" title="标定集数位置，例如：铁齿铜牙纪晓岚{episode}.iso">?</a>)</label>
+                <input type="text" id="rename_episode" class="form-control">
+              </div>
+            </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -217,6 +223,7 @@
     var title = $("#rename_title").val();
     var year = $("#rename_year").val();
     var season = $("#rename_season").val();
+    var episode_format = $("#rename_episode").val();
 
     if (!unknown_id){
       return;
@@ -251,8 +258,9 @@
         $("#rename_tmdb").removeClass("is-invalid");
       }
     }
+
     // 开始处理
-    var data = { "unknown_id": unknown_id, "path": path, "type": type, "title": title, "year": year, "tmdb": tmdb, "season": season };
+    var data = { "unknown_id": unknown_id, "path": path, "type": type, "title": title, "year": year, "tmdb": tmdb, "season": season, "episode_format": episode_format};
     $("#rename_btn").attr("disabled", true);
     $("#rename_btn").text("处理中...");
     $("#rename_retmsg").hide()
