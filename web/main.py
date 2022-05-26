@@ -1215,6 +1215,7 @@ def create_flask_app(config):
                 year = data.get("year")
                 mtype = data.get("type")
                 season = data.get("season")
+                episode_format = data.get("episode_format")
                 if mtype == "TV":
                     media_type = MediaType.TV
                 elif mtype == "MOV":
@@ -1229,7 +1230,8 @@ def create_flask_app(config):
                                                                    target_dir=dest_dir,
                                                                    tmdb_info=tmdb_info,
                                                                    media_type=media_type,
-                                                                   season=season)
+                                                                   season=season,
+                                                                   episode_format=episode_format)
                 if succ_flag:
                     if logid:
                         insert_transfer_blacklist(path)

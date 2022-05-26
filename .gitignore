@@ -2,3 +2,14 @@ __pycache__
 *.sock
 *.log
 *.pid
+
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+gen/
+
+test/
