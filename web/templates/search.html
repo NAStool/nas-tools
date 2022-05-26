@@ -18,24 +18,6 @@
           </span>
         </div>
         <button id="search_btn" value="" class="btn btn-primary d-sm-inline-block" onclick="javascript:search_media()">搜索</button>
-        {% if "搜索设置" in UserPris %}
-        <span class="d-sm-inline">
-          <a href="javascript:show_role_modal()" class="btn w-100 btn-icon" title="过滤规则">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-adjustments-horizontal" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-               <circle cx="14" cy="6" r="2"></circle>
-               <line x1="4" y1="6" x2="12" y2="6"></line>
-               <line x1="16" y1="6" x2="20" y2="6"></line>
-               <circle cx="8" cy="12" r="2"></circle>
-               <line x1="4" y1="12" x2="6" y2="12"></line>
-               <line x1="10" y1="12" x2="20" y2="12"></line>
-               <circle cx="17" cy="18" r="2"></circle>
-               <line x1="4" y1="18" x2="15" y2="18"></line>
-               <line x1="19" y1="18" x2="20" y2="18"></line>
-            </svg>
-          </a>
-        </span>
-        {% endif %}
       </div>
     </div>
   </div>
@@ -169,62 +151,6 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-search-rule" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modal-search-rule-title">过滤规则</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="mb-3">
-              <label class="form-label">包含规则(<a href="#" title="【必须包含的关键字】：只有种子名称中包括这些关键字才会命中&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置普通的关键字，也可以配置正则表达式，可以配置多行&#10;3、多行之间是【与】的关系，即多行条件都包含时才会命中&#10;4、单行内可以用'|'来表示【或】，即包括其一即命中">?</a>)</label>
-              <pre id="search_include_pre"></pre>
-              <textarea class="form-control" id="search_include" rows="2" placeholder="必须包含的关键字或正则表达式"></textarea>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="mb-3">
-              <label class="form-label">排除规则(<a href="#" title="【不能包含的关键字】：种子名称中如果有这些关键字则会被跳过&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置普通的关键字，也可以配置正则表达式，可以配置多行&#10;3、多行之间是【与】的关系，即多行条件都不包含时才会跳过&#10;4、单行内可以用'|'来表示【或】，即包括其一即跳过">?</a>)</label>
-              <pre id="search_exclude_pre"></pre>
-              <textarea class="form-control" id="search_exclude" rows="2" placeholder="不能包含的关键字或正则表达式"></textarea>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="mb-3">
-              <label class="form-label">优先规则(<a href="#" title="【优先选择的关键字】：种子名称或副标题中如果有这些关键字则会被优先选择，优先级高于站点&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置多行，一行是一个关键字或正则表达式，排前面的优先级高">?</a>)</label>
-              <pre id="search_note_pre"></pre>
-              <textarea class="form-control" id="search_note" rows="2" placeholder="优先选择的关键字或正则表达式"></textarea>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-lg-12">
-            <div>
-              <label class="form-label">大小限制(<a href="#" title="【限制文件大小】：只有满足大小限制的种子文件才会被命中，单位是GB&#10;1、只针对电影有效，配置为0或不配置则不启用该条件&#10;2、对大小写不敏感，不能带引号，配置为空为不启用该条件&#10;3、如只配置1个数字，表示小于等于该大小的才会被命中&#10;4、如配置2个数字(使用英文逗号分隔)，表示在中间大小的才会被命中">?</a>)</label>
-              <pre id="search_size_pre"></pre>
-              <input type="text" class="form-control" id="search_size" value="" placeholder="限制电影文件大小，单位GB" autocomplete="off">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button id="rule_close_btn" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-          取消
-        </button>
-        <button id="save_or_edit_rule_btn" class="btn btn-primary ms-auto">
-          编辑/保存
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
 <script type="text/javascript">
   // 关键字
   var search_word = "{{ SearchWord }}";
@@ -276,23 +202,6 @@
       });
   }
 
-  //显示搜索规则
-  function show_role_info(){
-    //隐藏
-    $("#search_include").hide();
-    $("#search_exclude").hide();
-    $("#search_note").hide();
-    $("#search_size").hide();
-    //显示
-    $("#search_include_pre").text($("#search_include").val());
-    $("#search_exclude_pre").text($("#search_exclude").val());
-    $("#search_note_pre").text($("#search_note").val());
-    $("#search_size_pre").text($("#search_size").val());
-    $("#search_include_pre").show();
-    $("#search_exclude_pre").show();
-    $("#search_note_pre").show();
-    $("#search_size_pre").show();
-  }
   //编辑搜索规则
   function edit_role_info(){
     //隐藏
@@ -305,45 +214,6 @@
     $("#search_exclude").show();
     $("#search_note").show();
     $("#search_size").show();
-  }
-
-  //点击规则按钮
-  function show_role_modal(){
-    //查询信息
-    ajax_post("get_search_rule", {}, function(ret){
-      if(ret.rule[0]){
-        //赋值
-        $("#search_include").val(ret.rule[0][0]);
-        $("#search_exclude").val(ret.rule[0][1]);
-        $("#search_note").val(ret.rule[0][2]);
-        $("#search_size").val(ret.rule[0][3]);
-      }
-      show_role_info();
-      $("#save_or_edit_rule_btn").text("编辑");
-      $("#modal-search-rule").modal("show");
-    });
-  }
-
-  //保存搜索规则
-  function save_search_rule(){
-    var search_include = $("#search_include").val();
-    var search_exclude = $("#search_exclude").val();
-    var search_note = $("#search_note").val();
-    var search_size = $("#search_size").val();
-    if(search_size){
-      var reg = /^[0-9,]*$/;
-      if(!reg.test(search_size)){
-        $("#search_size").addClass("is-invalid");
-        return;
-      }else{
-        $("#search_size").removeClass("is-invalid");
-      }
-    }
-    var data = {"search_include":search_include,"search_exclude":search_exclude,"search_note":search_note,"search_size":search_size}
-    ajax_post("update_search_rule", data, function(ret){
-      show_role_info();
-      $("#save_or_edit_rule_btn").text("编辑");
-    });
   }
 
   // 下载模态框事件
@@ -360,13 +230,4 @@
      }
   });
 
-  //规则编辑保存
-  $("#save_or_edit_rule_btn").click(function(){
-      if($("#save_or_edit_rule_btn").text() == "编辑"){
-        edit_role_info();
-        $("#save_or_edit_rule_btn").text("保存");
-      }else{
-        save_search_rule();
-      }
-  });
 </script>

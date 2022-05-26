@@ -277,7 +277,7 @@ class Sync(object):
                     observer.schedule(FileMonitorHandler(monpath, self), path=monpath, recursive=True)
                     observer.setDaemon(True)
                     observer.start()
-                    log.info("【RUN】%s 的service.sync启动..." % monpath)
+                    log.info("【RUN】%s 的监控服务启动..." % monpath)
                 except Exception as e:
                     log.error("【RUN】%s 启动目录监控失败：%s" % (monpath, str(e)))
 

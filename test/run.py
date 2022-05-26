@@ -111,4 +111,4 @@ if __name__ == "__main__":
     # print(Media().get_media_info("The Adam Project 2022 1080p DSNP WEB-DL DDP5.1 Atmos Multiple Audios X264 ASS-DIY@JAKET789").__dict__)
     # Searcher().search_one_media("亚当计划")
     # print(Media().get_media_info('Mud.2012.1080p.BluRay.DD5.1x264-SA89.mkv').__dict__)
-
+    print(Media().get_media_info("[星空字幕组][间谍过家家 / SPY×FAMILY][03][简日双语][1080P][WEBrip][MP4]（急招翻译、校对、时轴）").__dict__)

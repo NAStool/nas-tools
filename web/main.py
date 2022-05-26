@@ -68,7 +68,7 @@ def create_flask_app(config):
         "id": 0,
         "name": admin_user,
         "password": admin_password[6:],
-        "pris": "我的媒体库,资源搜索,推荐,订阅管理,下载管理,媒体识别,服务,系统设置,搜索设置"
+        "pris": "我的媒体库,资源搜索,推荐,订阅管理,下载管理,媒体识别,服务,系统设置"
     }]
 
     App = Flask(__name__)

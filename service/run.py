@@ -10,7 +10,7 @@ def run_scheduler():
     try:
         Scheduler().run_service()
     except Exception as err:
-        log.error("【RUN】启动scheduler失败：%s" % str(err))
+        log.error("【RUN】启动定时服务失败：%s" % str(err))
 
 
 def stop_scheduler():
@@ -20,7 +20,7 @@ def stop_scheduler():
     try:
         Scheduler().stop_service()
     except Exception as err:
-        log.debug("【RUN】停止scheduler失败：%s" % str(err))
+        log.debug("【RUN】停止定时服务失败：%s" % str(err))
 
 
 def restart_scheduler():
@@ -38,7 +38,7 @@ def run_monitor():
     try:
         Sync().run_service()
     except Exception as err:
-        log.error("【RUN】启动sync失败：%s" % str(err))
+        log.error("【RUN】启动目录同步服务失败：%s" % str(err))
 
 
 def stop_monitor():
@@ -48,7 +48,7 @@ def stop_monitor():
     try:
         Sync().stop_service()
     except Exception as err:
-        log.error("【RUN】停止sync失败：%s" % str(err))
+        log.error("【RUN】停止目录同步服务失败：%s" % str(err))
 
 
 def restart_monitor():

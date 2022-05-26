@@ -17,8 +17,23 @@
           <a href="javascript:show_site_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           </a>
-          <a href="javascript:show_role_modal()" class="btn btn-icon" title="全局规则">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-adjustments-horizontal" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <a href="javascript:show_role_modal()" class="btn d-none d-sm-inline-block" title="全局规则">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <circle cx="14" cy="6" r="2"></circle>
+               <line x1="4" y1="6" x2="12" y2="6"></line>
+               <line x1="16" y1="6" x2="20" y2="6"></line>
+               <circle cx="8" cy="12" r="2"></circle>
+               <line x1="4" y1="12" x2="6" y2="12"></line>
+               <line x1="10" y1="12" x2="20" y2="12"></line>
+               <circle cx="17" cy="18" r="2"></circle>
+               <line x1="4" y1="18" x2="15" y2="18"></line>
+               <line x1="19" y1="18" x2="20" y2="18"></line>
+            </svg>
+            全局规则
+          </a>
+          <a href="javascript:show_role_modal()" class="btn d-sm-none btn-icon" title="全局规则">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                <circle cx="14" cy="6" r="2"></circle>
                <line x1="4" y1="6" x2="12" y2="6"></line>
@@ -203,7 +218,7 @@
       </div>
       <div class="modal-footer">
         <button id="site_close_btn" class="btn btn-link link-secondary">
-          取消
+          关闭
         </button>
         <button id="add_or_edit_site_btn" class="btn btn-primary ms-auto">
           新增
@@ -232,7 +247,7 @@
       </div>
       <div class="modal-footer">
         <button id="rule_close_btn" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-          取消
+          关闭
         </button>
         <button id="save_or_edit_rule_btn" class="btn btn-primary ms-auto">
           编辑/保存
