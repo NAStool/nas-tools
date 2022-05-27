@@ -75,34 +75,6 @@
             </a>
             {% endfor %}
           </div>
-          <div class="subheader mb-2">大小</div>
-          <div class="row g-2 align-items-center mb-3" id="filter_size">
-            <div class="col">
-              <div class="input-group">
-                <input type="text" class="form-control" autocomplete="off" id="filter_size_begin">
-                <span class="input-group-text">
-                  G
-                </span>
-              </div>
-            </div>
-            <div class="col-auto">-</div>
-            <div class="col">
-              <div class="input-group">
-                <input type="text" class="form-control" autocomplete="off" id="filter_size_end">
-                <span class="input-group-text">
-                  G
-                </span>
-              </div>
-            </div>
-          </div>
-          <div class="mt-2">
-            <button class="btn btn-primary w-100" onclick="filter_do()">
-              筛选
-            </button>
-            <button class="btn btn-link w-100" onclick="reset_filter()">
-              重置
-            </button>
-          </div>
         </form>
       </div>
       {% endif %}

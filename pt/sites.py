@@ -22,7 +22,6 @@ class Sites:
 
     def __init__(self):
         self.init_config()
-        self.refresh_pt_data()
 
     def init_config(self):
         self.message = Message()
