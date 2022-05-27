@@ -16,7 +16,7 @@ from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_lev
     is_path_in_path, get_system, is_bluray_dir, str_filesize
 from message.send import Message
 from rmt.media import Media
-from utils.sqls import insert_transfer_history, insert_transfer_unknown
+from utils.sqls import insert_transfer_history, insert_transfer_unknown, update_transfer_unknown_state, insert_transfer_blacklist
 from utils.types import MediaType, DownloaderType, SyncType, RmtMode, OsType
 
 lock = Lock()
@@ -338,10 +338,11 @@ class FileTransfer:
         :param unknown_dir: 未识别文件夹，非空时未识别的媒体文件转移到该文件夹，为空时则使用配置文件中的未识别文件夹
         :param tmdb_info: 手动识别转移时传入的TMDB信息对象，如未输入，则按名称笔TMDB实时查询
         :param media_type: 手动识别转移时传入的文件类型，如未输入，则自动识别
-        :param season: 手动识别轩发金时传入的的字号，如未输入，则自动识别
-        :param episode_format: 手动识别轩发金时传入的集数位置
+        :param season: 手动识别目录或文件时传入的的字号，如未输入，则自动识别
+        :episode_format: (手动识别录或文件传入的集数位置， 是否需要整体识别同类型文件)
         :return: 处理状态，错误信息
         """
+        episode_format = (None, False, None) if not episode_format else episode_format
         if not in_path:
             log.error("【RMT】输入路径错误!")
             return False, "输入路径错误"
@@ -395,7 +396,7 @@ class FileTransfer:
             file_list = files
 
         # API检索出媒体信息，传入一个文件列表，得出每一个文件的名称，这里是当前目录下所有的文件了
-        Medias = self.media.get_media_info_on_files(file_list, tmdb_info, media_type, season, episode_format)
+        Medias = self.media.get_media_info_on_files(file_list, tmdb_info, media_type, season, episode_format[0])
         if not Medias:
             log.error("【RMT】检索媒体信息出错！")
             return False, "检索媒体信息出错"
@@ -551,6 +552,12 @@ class FileTransfer:
                     download_subtitle_items.append(subtitle_item)
                 # 转移历史记录
                 insert_transfer_history(in_from, rmt_mode, reg_path, dist_path, media)
+                if episode_format[1]:
+                    if episode_format[2]:
+                        insert_transfer_blacklist(file_item)
+                    else:
+                        # 更改未知记录为已知
+                        update_transfer_unknown_state(file_item)
                 # 电影立即发送消息
                 if media.type == MediaType.MOVIE:
                     self.message.send_transfer_movie_message(in_from,
