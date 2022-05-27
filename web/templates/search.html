@@ -36,65 +36,41 @@
     <div class="row g-4">
       <div class="col-md-3 col-lg-2 d-none d-md-block">
         <form action="" method="get">
+          <div class="subheader mb-2">媒体类型</div>
+          <div class="list-group list-group-transparent mb-3">
+            {% for mtype in MediaMTypes %}
+            <a class="list-group-item list-group-item-action d-flex align-items-center" href="#">
+              {{ mtype.name }}
+              <small class="text-muted ms-auto">{{ mtype.num }}</small>
+            </a>
+            {% endfor %}
+          </div>
           <div class="subheader mb-2">站点</div>
           <div class="list-group list-group-transparent mb-3">
-            <a class="list-group-item list-group-item-action d-flex align-items-center active" href="#">
-              pthome
-              <small class="text-muted ms-auto">24</small>
-            </a>
+            {% for site in MediaSites %}
             <a class="list-group-item list-group-item-action d-flex align-items-center" href="#">
-              m-team
-              <small class="text-muted ms-auto">149</small>
+              {{ site.name }}
+              <small class="text-muted ms-auto">{{ site.num }}</small>
             </a>
-            <a class="list-group-item list-group-item-action d-flex align-items-center" href="#">
-              ptsbao
-              <small class="text-muted ms-auto">88</small>
-            </a>
+            {% endfor %}
           </div>
-          <div class="subheader mb-2">类型</div>
+          <div class="subheader mb-2">资源类型</div>
           <div class="list-group list-group-transparent mb-3">
-            <a class="list-group-item list-group-item-action d-flex align-items-center active" href="#">
-              电影
-              <small class="text-muted ms-auto">24</small>
-            </a>
+            {% for restype in MediaRestypes %}
             <a class="list-group-item list-group-item-action d-flex align-items-center" href="#">
-              电视剧
-              <small class="text-muted ms-auto">149</small>
+              {{ restype.name }}
+              <small class="text-muted ms-auto">{{ restype.num }}</small>
             </a>
-            <a class="list-group-item list-group-item-action d-flex align-items-center" href="#">
-              动漫
-              <small class="text-muted ms-auto">88</small>
-            </a>
-          </div>
-          <div class="subheader mb-2">质量</div>
-          <div class="list-group list-group-transparent mb-3">
-            <a class="list-group-item list-group-item-action d-flex align-items-center active" href="#">
-              BluRay
-              <small class="text-muted ms-auto">24</small>
-            </a>
-            <a class="list-group-item list-group-item-action d-flex align-items-center" href="#">
-              WEB-DL
-              <small class="text-muted ms-auto">149</small>
-            </a>
-            <a class="list-group-item list-group-item-action d-flex align-items-center" href="#">
-              HDR
-              <small class="text-muted ms-auto">88</small>
-            </a>
+            {% endfor %}
           </div>
           <div class="subheader mb-2">分辨率</div>
           <div class="list-group list-group-transparent mb-3">
-            <a class="list-group-item list-group-item-action d-flex align-items-center active" href="#">
-              4K/2160p
-              <small class="text-muted ms-auto">24</small>
-            </a>
+            {% for pix in MediaPixs %}
             <a class="list-group-item list-group-item-action d-flex align-items-center" href="#">
-              1080p
-              <small class="text-muted ms-auto">149</small>
+              {{ pix.name }}
+              <small class="text-muted ms-auto">{{ pix.num }}</small>
             </a>
-            <a class="list-group-item list-group-item-action d-flex align-items-center" href="#">
-              720p
-              <small class="text-muted ms-auto">88</small>
-            </a>
+            {% endfor %}
           </div>
           <div class="subheader mb-2">大小</div>
           <div class="row g-2 align-items-center mb-3">
