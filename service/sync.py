@@ -5,7 +5,8 @@ from watchdog.observers.polling import PollingObserver
 from config import RMT_MEDIAEXT, Config
 import log
 from rmt.filetransfer import FileTransfer
-from utils.functions import singleton, is_invalid_path, is_path_in_path, is_bluray_dir, get_dir_level1_medias
+from utils.functions import singleton, is_invalid_path, is_path_in_path, is_bluray_dir, get_dir_level1_medias, \
+    get_dir_files_by_ext
 from utils.sqls import is_transfer_in_blacklist, insert_sync_history, is_sync_in_history
 from utils.types import SyncType, OsType
 from watchdog.events import FileSystemEventHandler
@@ -299,14 +300,31 @@ class Sync(object):
                 continue
             target_path = target_dirs.get('target')
             unknown_path = target_dirs.get('unknown')
-            for path in get_dir_level1_medias(monpath, RMT_MEDIAEXT):
-                if is_invalid_path(path):
-                    continue
-                if is_transfer_in_blacklist(path):
-                    continue
-                ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
-                                                                in_path=path,
-                                                                target_dir=target_path,
-                                                                unknown_dir=unknown_path)
-                if not ret:
-                    log.error("【SYNC】%s 处理失败：%s" % (monpath, ret_msg))
+            onlylink = target_dirs.get('onlylink')
+            # 只做硬链接，不做识别重命名
+            if onlylink:
+                for link_file in get_dir_files_by_ext(monpath):
+                    if is_sync_in_history(link_file, target_path):
+                        return
+                    log.info("【SYNC】开始同步 %s" % link_file)
+                    ret = self.filetransfer.link_sync_files(in_from=SyncType.MON,
+                                                            src_path=monpath,
+                                                            in_file=link_file,
+                                                            target_dir=target_path)
+                    if ret != 0:
+                        log.warn("【SYNC】%s 同步失败，错误码：%s" % (link_file, ret))
+                    else:
+                        insert_sync_history(link_file, monpath, target_path)
+                        log.info("【SYNC】%s 同步完成" % link_file)
+            else:
+                for path in get_dir_level1_medias(monpath, RMT_MEDIAEXT):
+                    if is_invalid_path(path):
+                        continue
+                    if is_transfer_in_blacklist(path):
+                        continue
+                    ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
+                                                                    in_path=path,
+                                                                    target_dir=target_path,
+                                                                    unknown_dir=unknown_path)
+                    if not ret:
+                        log.error("【SYNC】%s 处理失败：%s" % (monpath, ret_msg))
