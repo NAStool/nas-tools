@@ -1,4 +1,5 @@
 import _thread
+import base64
 import logging
 import os.path
 import shutil
@@ -35,6 +36,7 @@ from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE, RMT_MEDIAEXT
 from service.run import stop_scheduler, restart_scheduler
 from service.scheduler import Scheduler
 from utils.functions import get_used_of_partition, str_filesize, str_timelong, get_system, get_dir_files_by_ext
+from utils.meta_helper import MetaHelper
 from utils.sqls import get_search_result_by_id, get_search_results, \
     get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
@@ -918,6 +920,51 @@ def create_flask_app(config):
                                PageRange=PageRange,
                                PageNum=PageNum)
 
+    # TMDB缓存页面
+    @App.route('/tmdbcache', methods=['POST', 'GET'])
+    @login_required
+    def tmdbcache():
+        page_num = request.args.get("pagenum")
+        if not page_num:
+            page_num = 30
+        search_str = request.args.get("s")
+        if not search_str:
+            search_str = ""
+        current_page = request.args.get("page")
+        if not current_page:
+            current_page = 1
+        else:
+            current_page = int(current_page)
+        total_count, tmdb_caches = MetaHelper().dump_meta_data(search_str, current_page, page_num)
+
+        total_page = floor(total_count / page_num) + 1
+
+        if total_page <= 5:
+            start_page = 1
+            end_page = total_page
+        else:
+            if current_page <= 3:
+                start_page = 1
+                end_page = 5
+            else:
+                start_page = current_page - 3
+                if total_page > current_page + 3:
+                    end_page = current_page + 3
+                else:
+                    end_page = total_page
+
+        page_range = range(start_page, end_page + 1)
+
+        return render_template("rename/tmdbcache.html",
+                               TotalCount=total_count,
+                               Count=len(tmdb_caches),
+                               TmdbCaches=tmdb_caches,
+                               Search=search_str,
+                               CurrentPage=current_page,
+                               TotalPage=total_page,
+                               PageRange=page_range,
+                               PageNum=page_num)
+
     # 手工识别页面
     @App.route('/unidentification', methods=['POST', 'GET'])
     @login_required
@@ -1728,6 +1775,12 @@ def create_flask_app(config):
                 messages = get_system_messages(lst_time=lst_time)
                 return {"code": 0, "message": messages}
 
+            # 删除tmdb缓存
+            if cmd == "delete_tmdb_cache":
+                if MetaHelper().delete_meta_data(data.get("cache_key")):
+                    MetaHelper().save_meta_data()
+                return {"code": 0}
+
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])
     def wechat():
@@ -1802,6 +1855,11 @@ def create_flask_app(config):
             if text:
                 handle_message_job(text, SearchType.TG, user_id)
         return 'ok'
+
+    # 自定义模板过滤器
+    @App.template_filter('b64encode')
+    def b64encode(s):
+        return base64.b64encode(s.encode()).decode()
 
     # 处理消息事件
     def handle_message_job(msg, in_from=SearchType.OT, user_id=None):

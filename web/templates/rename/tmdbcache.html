@@ -1,0 +1,299 @@
+<div class="container-xl">
+    <!-- Page title -->
+    <div class="page-header d-print-none">
+        <div class="row align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    TMDB缓存
+                </h2>
+            </div>
+            <!-- Page title actions -->
+        </div>
+    </div>
+</div>
+<!-- 业务页面代码 -->
+<div class="page-body">
+    <div class="container-xl">
+        <div class="row row-cards">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body border-bottom py-3">
+                        <div class="d-flex">
+                            <div class="text-muted">
+                                共 {{ TotalCount }} 条记录
+                            </div>
+                            <div class="ms-auto text-muted">
+                                搜索:
+                                <div class="ms-2 d-inline-block">
+                                    <input id="search_word" value="{{ Search }}" type="text"
+                                           class="form-control form-control-sm" aria-label="搜索">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive" style="min-height: 300px">
+                        <table class="table table-vcenter card-table">
+                            <thead>
+                            <tr>
+                                <th>缓存索引</th>
+                                <th>条目标题</th>
+                                <th>条目概述</th>
+                                <th class="w-5"></th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% if TotalCount > 0 %}
+                                {% for TmdbCache in TmdbCaches %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex py-1 align-items-center">
+                      <span class="avatar me-2 text-nowrap">
+                        {% if TmdbCache[1].media_type == "电影" %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie"
+                                 width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                 fill="none" stroke-linecap="round" stroke-linejoin="round">
+                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                           <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                           <line x1="8" y1="4" x2="8" y2="20"></line>
+                           <line x1="16" y1="4" x2="16" y2="20"></line>
+                           <line x1="4" y1="8" x2="8" y2="8"></line>
+                           <line x1="4" y1="16" x2="8" y2="16"></line>
+                           <line x1="4" y1="12" x2="20" y2="12"></line>
+                           <line x1="16" y1="8" x2="20" y2="8"></line>
+                           <line x1="16" y1="16" x2="20" y2="16"></line>
+                        </svg>
+                        {% else %}
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-tv"
+                                 width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                 fill="none" stroke-linecap="round" stroke-linejoin="round">
+                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                           <rect x="3" y="7" width="18" height="13" rx="2"></rect>
+                           <polyline points="16 3 12 7 8 3"></polyline>
+                        </svg>
+                        {% endif %}
+                      </span>
+                                                <div class="flex-fill">
+                                                    <div class="font-weight-medium">{{ TmdbCache[0] }}</div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="text-nowrap">{% if TmdbCache[1].name %}
+                                                {{ TmdbCache[1].name }} {% else %}
+                                                {{ TmdbCache[1].title }} {% endif %}</div>
+                                            <div class="text-muted text-nowrap">{{ TmdbCache[1].id }}
+                                                {% if TmdbCache[1].media_type == "电影" %}
+                                                    <a class="ms-1"
+                                                       href="https://www.themoviedb.org/movie/{{ TmdbCache[1].id }}"
+                                                       target="_blank">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                                             height="24" viewBox="0 0 24 24" stroke-width="2"
+                                                             stroke="currentColor" fill="none" stroke-linecap="round"
+                                                             stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                            <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path>
+                                                            <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path>
+                                                        </svg>
+                                                    </a>
+                                                {% else %}
+                                                    <a class="ms-1"
+                                                       href="https://www.themoviedb.org/tv/{{ TmdbCache[1].id }}"
+                                                       target="_blank">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                                             height="24" viewBox="0 0 24 24" stroke-width="2"
+                                                             stroke="currentColor" fill="none" stroke-linecap="round"
+                                                             stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                            <path d="M10 14a3.5 3.5 0 0 0 5 0l4 -4a3.5 3.5 0 0 0 -5 -5l-.5 .5"></path>
+                                                            <path d="M14 10a3.5 3.5 0 0 0 -5 0l-4 4a3.5 3.5 0 0 0 5 5l.5 -.5"></path>
+                                                        </svg>
+                                                    </a>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                        <td>{{ TmdbCache[1].overview|truncate(140, True)}}</td>
+                                        <td>{% if TmdbCache[1].poster_path %}
+                                            <img src="https://image.tmdb.org/t/p/w500{{ TmdbCache[1].poster_path }}"
+                                                 alt=""/> {% endif %}</td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <a href="#" class="btn-action" data-bs-toggle="dropdown"
+                                                   aria-expanded="false">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                                         height="24" viewBox="0 0 24 24" stroke-width="2"
+                                                         stroke="currentColor" fill="none" stroke-linecap="round"
+                                                         stroke-linejoin="round">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                        <circle cx="12" cy="12" r="1"></circle>
+                                                        <circle cx="12" cy="19" r="1"></circle>
+                                                        <circle cx="12" cy="5" r="1"></circle>
+                                                    </svg>
+                                                </a>
+                                                <div class="dropdown-menu dropdown-menu-end">
+                                                    <a class="dropdown-item"
+                                                       href='javascript:show_detail("{{ TmdbCache[0] }}", "{{ TmdbCache[1]|tojson(indent=2)|urlencode|b64encode}}")'>
+                                                        详情
+                                                    </a>
+                                                    <a class="dropdown-item text-danger"
+                                                       href='javascript:manual_delete("{{ TmdbCache[0] }}")'>
+                                                        删除
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" align="center">没有数据</td>
+                                </tr>
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if TotalCount > 0 %}
+                        <div class="card-footer d-flex align-items-center">
+                            <p class="m-0 text-muted">当前页 <span>{{ Count }}</span> 条</p>
+                            <ul class="pagination m-0 ms-auto">
+                                <li class="page-item {% if CurrentPage==1 %} disabled {% endif %}">
+                                    <a class="page-link"
+                                       href="javascript:go_pre_page('{{ Search }}', {{ CurrentPage }})" tabindex="-1"
+                                       aria-disabled="true">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                             stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <polyline points="15 6 9 12 15 18"></polyline>
+                                        </svg>
+                                    </a>
+                                </li>
+                                {% for page in PageRange %}
+                                    <li class="page-item {% if page==CurrentPage %} active {% endif %}">
+                                        <a class="page-link"
+                                           href="javascript:navmenu('tmdbcache?s={{ Search }}&page={{ page }}')">{{ page }}</a>
+                                    </li>
+                                {% endfor %}
+                                <li class="page-item {% if CurrentPage >= TotalPage %} disabled {% endif %}">
+                                    <a class="page-link" {% if CurrentPage < TotalPage %}
+                                       href="javascript:go_next_page('{{ Search }}', {{ CurrentPage }})" {% endif %}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                             stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <polyline points="9 6 15 12 9 18"></polyline>
+                                        </svg>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal modal-blur fade" id="tmdb_cache_detail" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="tmdb_cache_title">缓存条目</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <pre class="modal-body" id="tmdb_cache_content">
+                缓存内容
+            </pre>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">关闭</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal modal-blur fade" id="modal-danger" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <input type="hidden" id="delete_cache_key">
+            <div class="modal-status bg-danger"></div>
+            <div class="modal-body text-center py-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24"
+                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M12 9v2m0 4v.01"></path>
+                    <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path>
+                </svg>
+                <h3>确定?</h3>
+                <div class="text-muted" id="delete_cache_alert">对应记录的缓存将被删除</div>
+            </div>
+            <div class="modal-footer">
+                <div class="w-100">
+                    <div class="row">
+                        <div class="col">
+                            <button class="btn w-100" data-bs-dismiss="modal">
+                                取消
+                            </button>
+                        </div>
+                        <div class="col">
+                            <button class="btn btn-danger w-100" id="delete_btn">
+                                删除
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    // 上一页
+    function go_pre_page(search, page) {
+        navmenu("tmdbcache?s=" + search + "&page=" + (page - 1))
+    }
+
+    // 下一页
+    function go_next_page(search, page) {
+        navmenu("tmdbcache?s=" + search + "&page=" + (page + 1))
+    }
+
+    // 显示详情
+    function show_detail(title, detail) {
+        $("#tmdb_cache_title").text(title);
+        $("#tmdb_cache_content").text(decodeURIComponent(atob(detail)));
+        $('#tmdb_cache_detail').modal('show');
+    }
+
+    //删除提示
+    function manual_delete(key) {
+        $("#delete_cache_alert").text(key + " 对应的缓存TMDB条目将被删除");
+        $('#delete_cache_key').val(key);
+        $('#modal-danger').modal('show');
+    }
+
+    //删除记录
+    function delete_tmdb_cache() {
+        let cache_key = $('#delete_cache_key').val();
+        $("#delete_btn").attr("disabled", true);
+        $("#delete_btn").text("删除中...");
+        let data = {"cache_key": cache_key};
+        ajax_post("delete_tmdb_cache", data, function () {
+            setTimeout("navmenu('tmdbcache')", 1000);
+            $('#modal-danger').modal('hide');
+        });
+    }
+
+    // 搜索按钮
+    $('#search_word').bind('keypress', function (event) {
+        if (event.keyCode == "13") {
+            let keyword = $("#search_word").val();
+            navmenu("tmdbcache?s=" + keyword);
+        }
+    });
+
+    // 删除按钮
+    $("#delete_btn").click(function () {
+        delete_tmdb_cache();
+    });
+
+</script>

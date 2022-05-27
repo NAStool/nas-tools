@@ -3,7 +3,7 @@ import pickle
 from threading import Lock
 
 from config import Config
-from utils.functions import singleton
+from utils.functions import singleton, json_serializable
 
 lock = Lock()
 
@@ -28,6 +28,33 @@ class MetaHelper(object):
         with lock:
             return self.__get_meta_data().get(key)
 
+    def dump_meta_data(self, search, page, num):
+        """
+        分页获取当前缓存列表
+        @param search: 检索的缓存key
+        @param page: 页码
+        @param num: 单页大小
+        @return: 总数, 缓存列表
+        """
+        if page == 1:
+            begin_pos = 0
+        else:
+            begin_pos = (page - 1) * num
+
+        with lock:
+            search_metas = [(k, json_serializable(v)) for k, v in
+                            self.__get_meta_data().items() if search.lower() in k.lower() and v.get("id") != 0]
+            return len(search_metas), search_metas[begin_pos: begin_pos + num]
+
+    def delete_meta_data(self, key):
+        """
+        删除缓存信息
+        @param key: 缓存key
+        @return: 被删除的缓存内容
+        """
+        with lock:
+            return self.__meta_data.pop(key, None)
+
     @staticmethod
     def __load_meta_data(path):
         try:
@@ -46,12 +73,10 @@ class MetaHelper(object):
     def save_meta_data(self):
         with lock:
             meta_data = self.__load_meta_data(self.__meta_path)
-            save_flag = False
-            for key, item in self.__meta_data.items():
-                if not meta_data.get(key) and item.get("id") != 0:
-                    save_flag = True
-                    meta_data[key] = item
-            if not save_flag:
+            new_meta_data = {k: v for k, v in self.__meta_data.items() if v.get("id") != 0}
+
+            if meta_data.keys() == new_meta_data.keys():
                 return
+
             with open(self.__meta_path, 'wb') as f:
-                pickle.dump(meta_data, f, pickle.HIGHEST_PROTOCOL)
+                pickle.dump(new_meta_data, f, pickle.HIGHEST_PROTOCOL)
