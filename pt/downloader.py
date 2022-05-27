@@ -79,7 +79,7 @@ class Downloader:
                     if ret and self.__pt_monitor_only:
                         self.client.set_torrent_tag(tid=ret.id, tag=PT_TAG)
             except Exception as e:
-                log.error("【PT】添加PT任务出错：" + str(e))
+                log.error("【PT】添加PT任务 %s 出错：%s" % (url, str(e)))
         return ret
 
     def pt_transfer(self):

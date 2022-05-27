@@ -319,7 +319,7 @@ class DouBan:
             # 图片网址
             meta_info.poster_path = soup.select("#mainpic > a > img")[0].attrs['src']
         except Exception as e:
-            log.error("【DOUBAN】解析出错：%s" % str(e))
+            log.error("【DOUBAN】解析豆瓣页面出错：%s" % str(e))
             return None
         return meta_info
 

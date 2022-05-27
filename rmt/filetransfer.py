@@ -190,7 +190,7 @@ class FileTransfer:
                         if retcode == 0:
                             log.info("【RMT】字幕 %s %s完成" % (file_name, rmt_mode.value))
                         else:
-                            log.error("【RMT】字幕 %s %s失败，错误码：%s" % (file_name, rmt_mode.value, str(retcode)))
+                            log.error("【RMT】字幕 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
                             return retcode
                     else:
                         log.info("【RMT】字幕 %s 已存在" % new_file)
@@ -211,7 +211,7 @@ class FileTransfer:
         if retcode == 0:
             log.info("【RMT】文件 %s %s完成" % (file_path, rmt_mode.value))
         else:
-            log.error("【RMT】文件%s %s失败，错误码：%s" % (file_path, rmt_mode.value, str(retcode)))
+            log.error("【RMT】文件%s %s失败，错误码 %s" % (file_path, rmt_mode.value, str(retcode)))
         return retcode
 
     def is_target_dir_path(self, path):
@@ -290,7 +290,7 @@ class FileTransfer:
         if retcode == 0:
             log.info("【RMT】%s %s到unknown完成" % (file_item, rmt_mode.value))
         else:
-            log.error("【RMT】%s %s到unknown失败，错误码：%s" % (file_item, rmt_mode.value, retcode))
+            log.error("【RMT】%s %s到unknown失败，错误码 %s" % (file_item, rmt_mode.value, retcode))
         return retcode
 
     def __transfer_file(self, file_item, new_file, rmt_mode, over_flag=False):
@@ -314,7 +314,7 @@ class FileTransfer:
         if retcode == 0:
             log.info("【RMT】文件 %s %s完成" % (file_name, rmt_mode.value))
         else:
-            log.error("【RMT】文件 %s %s失败，错误码：%s" % (file_name, rmt_mode.value, str(retcode)))
+            log.error("【RMT】文件 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
             return retcode
         # 处理字幕
         return self.__transfer_subtitles(file_item, new_file, rmt_mode)
@@ -361,7 +361,7 @@ class FileTransfer:
             # 如果传入的是个目录
             if os.path.isdir(in_path):
                 if not os.path.exists(in_path):
-                    log.error("【RMT】目录不存在：%s" % in_path)
+                    log.error("【RMT】文件转移失败，目录不存在 %s" % in_path)
                     return False, "目录不存在"
                 # 回收站及隐藏的文件不处理
                 if is_invalid_path(in_path):
@@ -379,12 +379,12 @@ class FileTransfer:
                     Media_FileNum = len(file_list)
                     log.debug("【RMT】文件清单：" + str(file_list))
                     if Media_FileNum == 0:
-                        log.warn("【RMT】%s 目录下未找到媒体文件，当前最小文件大小限制为：%s" % (in_path, str_filesize(self.__min_filesize)))
-                        return False, "目录下未找到媒体文件，当前最小文件大小限制为：%s" % str_filesize(self.__min_filesize)
+                        log.warn("【RMT】%s 目录下未找到媒体文件，当前最小文件大小限制为 %s" % (in_path, str_filesize(self.__min_filesize)))
+                        return False, "目录下未找到媒体文件，当前最小文件大小限制为 %s" % str_filesize(self.__min_filesize)
             # 传入的是个文件
             else:
                 if not os.path.exists(in_path):
-                    log.error("【RMT】文件不存在：%s" % in_path)
+                    log.error("【RMT】文件转移失败，文件不存在：%s" % in_path)
                     return False, "文件不存在"
                 ext = os.path.splitext(in_path)[-1]
                 if ext.lower() not in RMT_MEDIAEXT:
@@ -457,7 +457,7 @@ class FileTransfer:
                 else:
                     dist_path = self.__get_best_target_path(mtype=media.type, in_path=in_path, size=media.size)
                 if not dist_path:
-                    log.error("【RMT】目的路径不对确！")
+                    log.error("【RMT】文件转移失败，目的路径不对确！")
                     success_flag = False
                     error_message = "目的路径不对确"
                     failed_count += 1
@@ -487,7 +487,7 @@ class FileTransfer:
                                 ret = self.__transfer_file(file_item, ret_file_path, rmt_mode, True)
                                 if ret != 0:
                                     success_flag = False
-                                    error_message = "文件转移失败，错误码：%s" % ret
+                                    error_message = "文件转移失败，错误码 %s" % ret
                                     failed_count += 1
                                     continue
                                 handler_flag = True
@@ -502,7 +502,7 @@ class FileTransfer:
                 # 路径不存在
                 else:
                     if not ret_dir_path:
-                        log.error("【RMT】拼装目录路径错误，无法从文件名中识别出季集信息！")
+                        log.error("【RMT】拼装目录路径错误，无法从文件名中识别出季集信息：%s" % file_item)
                         success_flag = False
                         error_message = "识别失败，无法从文件名中识别出季集信息"
                         # 记录未识别
@@ -526,7 +526,7 @@ class FileTransfer:
                     if not handler_flag:
                         file_ext = os.path.splitext(file_item)[-1]
                         if not ret_file_path:
-                            log.error("【RMT】拼装文件路径错误，无法从文件名中识别出集数")
+                            log.error("【RMT】拼装文件路径错误，无法从文件名中识别出集数：%s" % file_item)
                             success_flag = False
                             error_message = "识别失败，无法从文件名中识别出集数"
                             # 记录未识别
@@ -537,7 +537,7 @@ class FileTransfer:
                         ret = self.__transfer_file(file_item, new_file, rmt_mode, False)
                         if ret != 0:
                             success_flag = False
-                            error_message = "文件转移失败，错误码：%s" % ret
+                            error_message = "文件转移失败，错误码 %s" % ret
                             failed_count += 1
                             continue
                 # 媒体库刷新条目：类型-类别-标题-年份
@@ -575,7 +575,7 @@ class FileTransfer:
                         message_medias[message_key].total_episodes += media.total_episodes
                         message_medias[message_key].size += media.size
             except Exception as err:
-                log.error("【RMT】发生错误：%s - %s" % (str(err), traceback.format_exc()))
+                log.error("【RMT】文件转移时发生错误：%s - %s" % (str(err), traceback.format_exc()))
         # 循环结束
         # 统计完成情况，发送通知
         if message_medias:
