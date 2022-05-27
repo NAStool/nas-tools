@@ -1,4 +1,4 @@
-<div class="container-xl">
+<div class="container-fluid">
   <div class="page-header d-print-none">
     <div class="row align-items-center">
       <div class="col">
@@ -22,10 +22,10 @@
 </div>
 {% if Count > 0 %}
 <div class="page-body">
-  <div class="container-xl">
+  <div class="container-fluid">
     <div class="row row-cards">
       {% for Item in Items %}
-      <div class="col-md-4 col-xl-3">
+      <div class="col-sm-6 col-md-4 col-xl-3">
         <a class="card card-link" href="javascript:show_media_info('{{ Item[0] }}', '{{ Item[1] }}', '{{ Item[2] }}', '{{ Item[3] }}', '{{ Item[10] }}')" title="{{ Item[5] }}">
           <div class="text-center rounded">
             <img class="rounded-top" src="{{ Item[4] }}">
