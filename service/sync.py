@@ -305,7 +305,7 @@ class Sync(object):
             if onlylink:
                 for link_file in get_dir_files_by_ext(monpath):
                     if is_sync_in_history(link_file, target_path):
-                        return
+                        continue
                     log.info("【SYNC】开始同步 %s" % link_file)
                     ret = self.filetransfer.link_sync_files(in_from=SyncType.MON,
                                                             src_path=monpath,
