@@ -339,7 +339,7 @@ class FileTransfer:
         :param tmdb_info: 手动识别转移时传入的TMDB信息对象，如未输入，则按名称笔TMDB实时查询
         :param media_type: 手动识别转移时传入的文件类型，如未输入，则自动识别
         :param season: 手动识别目录或文件时传入的的字号，如未输入，则自动识别
-        :episode_format: (手动识别录或文件传入的集数位置， 是否需要整体识别同类型文件)
+        :param episode_format: (手动识别录或文件传入的集数位置， 是否需要整体识别同类型文件)
         :return: 处理状态，错误信息
         """
         episode_format = (None, False, None) if not episode_format else episode_format
