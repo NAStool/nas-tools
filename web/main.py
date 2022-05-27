@@ -41,7 +41,8 @@ from utils.sqls import get_search_result_by_id, get_search_results, \
     delete_transfer_log_by_id, get_config_site, insert_config_site, get_site_by_id, delete_config_site, \
     update_config_site, get_config_search_rule, update_config_search_rule, get_config_rss_rule, update_config_rss_rule, \
     get_unknown_path_by_id, get_rss_tvs, get_rss_movies, delete_rss_movie, delete_rss_tv, \
-    get_users, insert_user, delete_user, get_transfer_statistics, get_system_messages, get_site_statistics
+    get_users, insert_user, delete_user, get_transfer_statistics, get_system_messages, get_site_statistics, \
+    get_download_history
 from utils.types import MediaType, SearchType, DownloaderType, SyncType, OsType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
@@ -601,7 +602,7 @@ def create_flask_app(config):
     # 正在下载页面
     @App.route('/downloading', methods=['POST', 'GET'])
     @login_required
-    def download():
+    def downloading():
         DownloadCount = 0
         Client, Torrents = Downloader().pt_downloading_torrents()
         DispTorrents = []
@@ -663,6 +664,15 @@ def create_flask_app(config):
         return render_template("download/downloading.html",
                                DownloadCount=DownloadCount,
                                Torrents=DispTorrents)
+
+    # 近期下载页面
+    @App.route('/downloaded', methods=['POST', 'GET'])
+    @login_required
+    def downloaded():
+        Items = get_download_history()
+        return render_template("download/downloaded.html",
+                               Count=len(Items),
+                               Items=Items)
 
     # 数据统计页面
     @App.route('/statistics', methods=['POST', 'GET'])
@@ -1171,6 +1181,11 @@ def create_flask_app(config):
                     msg_item.type = mtype
                     msg_item.description = res[9]
                     msg_item.size = res[10]
+                    msg_item.tmdb_id = res[11]
+                    msg_item.poster_path = res[12]
+                    msg_item.overview = res[13]
+                    msg_item.enclosure = res[0]
+                    msg_item.site = res[14]
                     Message().send_download_message(SearchType.WEB, msg_item)
                 return {"retcode": 0}
 

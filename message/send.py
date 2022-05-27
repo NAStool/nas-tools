@@ -7,7 +7,7 @@ from message.channel.serverchan import ServerChan
 from message.channel.telegram import Telegram
 from message.channel.wechat import WeChat
 from utils.functions import str_filesize
-from utils.sqls import insert_system_message
+from utils.sqls import insert_system_message, insert_download_history
 from utils.types import SearchType
 
 
@@ -119,7 +119,10 @@ class Message:
             description = html_re.sub('', can_item.description)
             can_item.description = re.sub(r'<[^>]+>', '', description)
             msg_text = f"{msg_text}\n描述：{can_item.description}"
+        # 发送消息
         self.sendmsg(title=msg_title, text=msg_text, image=can_item.get_message_image(), url='downloading')
+        # 登记下载历史
+        insert_download_history(can_item)
 
     def send_transfer_movie_message(self, in_from, media_info, exist_filenum, category_flag):
         """

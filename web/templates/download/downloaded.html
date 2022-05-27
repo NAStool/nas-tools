@@ -1,0 +1,86 @@
+<div class="container-xxl">
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">近期下载</h2>
+      </div>
+    </div>
+  </div>
+</div>
+{% if Count > 0 %}
+<div class="page-body">
+  <div class="container-xxl">
+    <div class="row row-cards">
+      {% for item in Items %}
+      <div class="col-sm-6 col-md-4 col-lg-2">
+        <div class="card card-sm rounded-3">
+          <a href='javascript:show_media_info("{{ item[1] }}", "{{ item[2] }}", "{{ item[5] }}", "{{ item[6] }}", "{{ item[7] }}", "{{ item[8] }}", "{{ item[11] }}", "{{ item[12] }}")' title="{{ item[1] }} ({{ item[2] }})" class="d-block">
+            <img src="{{ item[6] }}" class="card-img-top rounded-3">
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="page-body">
+  <div class="container-xl d-flex flex-column justify-content-center">
+    <div class="empty">
+      <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128"  alt="">
+      </div>
+      <p class="empty-title" id="search_tip_title">没有记录</p>
+      <p class="empty-subtitle text-muted" id="search_tip_text">
+        近期没有下载任何影视资源。
+      </p>
+    </div>
+  </div>
+</div>
+{% endif %}
+<div class="modal modal-blur fade" id="modal-media-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card">
+        <div class="ribbon ribbon-top ribbon-bookmark" id="media_vote"></div>
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-3">
+              <img src="" class="rounded" id="media_poster">
+            </div>
+            <div class="col vtop">
+              <h4 class="card-title mb-3">
+                <a href="#" ><strong id="media_name"></strong></a><br/>
+                <span class="text-muted" id="release_date"></span>
+              </h4>
+              <div class="text-muted" id="media_overview">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="d-flex">
+          <a href="#" class="card-btn" data-bs-dismiss="modal">
+          关闭
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  //显示媒体详情
+  function show_media_info(title, year, vote, poster, overview, torrent, date, site){
+    $("#media_name").text(title);
+    $("#release_date").text(year)
+    $("#media_poster").attr("src", poster);
+    $("#media_overview").html(overview + "<br/><br/><strong>站点：</strong>" + site + "<br/><strong>种子：</strong>" + torrent + "<br/><strong>时间：</strong>" + date);
+    $("#media_vote").text(vote);
+    if(parseFloat(vote) > 8){
+      $("#media_vote").removeClass().addClass("ribbon ribbon-top ribbon-bookmark bg-green");
+    }else if(parseFloat(vote) > 6){
+      $("#media_vote").removeClass().addClass("ribbon ribbon-top ribbon-bookmark bg-blue");
+    }else{
+      $("#media_vote").removeClass().addClass("ribbon ribbon-top ribbon-bookmark bg-orange");
+    }
+    $("#modal-media-modal").modal("show");
+  }
+</script>

@@ -31,7 +31,7 @@ class DBHelper:
         cursor = self.__connection.cursor()
         try:
             # Jackett搜索结果表
-            cursor.execute('''CREATE TABLE IF NOT EXISTS SEARCH_TORRENTS
+            cursor.execute('''CREATE TABLE IF NOT EXISTS SEARCH_RESULTS
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
                                    TORRENT_NAME    TEXT,
                                    ENCLOSURE    TEXT,
@@ -44,6 +44,9 @@ class DBHelper:
                                    ES_STRING    TEXT,
                                    VOTE    TEXT,
                                    IMAGE    TEXT,
+                                   POSTER   TEXT,
+                                   TMDBID   TEXT,
+                                   OVERVIEW    TEXT,
                                    RES_TYPE    TEXT,
                                    RES_ORDER    TEXT,
                                    SIZE    INTEGER,
@@ -188,6 +191,24 @@ class DBHelper:
                                                            RATIO     TEXT,
                                                            URL     TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_STATISTICS_DS ON SITE_STATISTICS (DATE, URL);''')
+
+            # 下载历史
+            cursor.execute('''CREATE TABLE IF NOT EXISTS DOWNLOAD_HISTORY
+                                                           (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                                           TITLE    TEXT,
+                                                           YEAR    TEXT,
+                                                           TYPE    TEXT,
+                                                           TMDBID     TEXT,
+                                                           VOTE     TEXT,
+                                                           POSTER     TEXT,
+                                                           OVERVIEW    TEXT,
+                                                           TORRENT     TEXT,
+                                                           ENCLOSURE     TEXT,
+                                                           SITE     TEXT,
+                                                           DESC     TEXT,
+                                                           DATE     TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_DOWNLOAD_HISTORY_DATE ON DOWNLOAD_HISTORY (DATE);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_DOWNLOAD_HISTORY_TITLE ON DOWNLOAD_HISTORY (TITLE);''')
 
             # 提交
             self.__connection.commit()
