@@ -17,7 +17,7 @@ def search_medias_for_web(content):
         return
     # 尝试进行识别真实名称加入匹配
     media_info = Media().get_media_info(title=content, mtype=mtype, strict=True)
-    if media_info and media_info.tmdb_info:
+    if media_info and media_info.tmdb_info and key_word != media_info.title:
         match_words = [key_word, media_info.title]
     else:
         match_words = None
