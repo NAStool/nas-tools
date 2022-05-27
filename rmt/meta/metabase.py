@@ -192,11 +192,21 @@ class MetaBase(object):
 
     # 返回背景图片地址
     def get_backdrop_path(self):
-        return self.fanart_image if self.fanart_image else self.backdrop_path
+        if self.fanart_image:
+            return self.fanart_image
+        elif self.backdrop_path:
+            return self.backdrop_path
+        else:
+            return "../static/img/tmdb.webp"
 
     # 返回消息图片地址
     def get_message_image(self):
-        return self.fanart_image if self.fanart_image else self.poster_path
+        if self.fanart_image:
+            return self.fanart_image
+        elif self.poster_path:
+            return self.poster_path
+        else:
+            return "../static/img/tmdb.webp"
 
     # 是否包含季
     def is_in_season(self, season):

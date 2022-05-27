@@ -53,7 +53,7 @@ def insert_search_results(media_items):
                 media_item.get_episode_string(),
                 media_item.get_season_episode_string(),
                 media_item.vote_average,
-                media_item.get_backdrop_path() or "../static/img/tmdb.webp",
+                media_item.get_backdrop_path(),
                 str_sql(media_item.poster_path),
                 media_item.tmdb_id,
                 str_sql(media_item.overview),
@@ -443,7 +443,7 @@ def insert_rss_movie(media_info, state='D'):
     return update_by_sql(sql, (str_sql(media_info.title),
                                str_sql(media_info.year),
                                str_sql(media_info.tmdb_id),
-                               str_sql(media_info.get_backdrop_path() or "../static/img/tmdb.webp"),
+                               str_sql(media_info.get_backdrop_path()),
                                str_sql(media_info.overview),
                                state))
 
@@ -481,7 +481,7 @@ def insert_rss_tv(media_info, total, lack=0, state="D"):
                                str_sql(media_info.year),
                                media_info.get_season_string(),
                                str_sql(media_info.tmdb_id),
-                               str_sql(media_info.get_backdrop_path() or "../static/img/tmdb.webp"),
+                               str_sql(media_info.get_backdrop_path()),
                                str_sql(media_info.overview),
                                total,
                                lack,
