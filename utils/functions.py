@@ -1,3 +1,4 @@
+import json
 import os
 import re
 import shutil
@@ -7,6 +8,8 @@ import time
 import platform
 import bisect
 import datetime
+from enum import Enum
+
 from utils.types import OsType
 
 INSTANCES = {}
@@ -59,7 +62,7 @@ def num_filesize(text):
     except Exception as e:
         return 0
     if text.find("PB") != -1:
-        size *= 1024**5
+        size *= 1024 ** 5
     elif text.find("TB") != -1:
         size *= 1024 ** 4
     elif text.find("GB") != -1:
@@ -355,3 +358,21 @@ def str_sql(in_str):
         return ""
     else:
         return str(in_str).replace("'", "''")
+
+
+def json_serializable(obj):
+    """
+    将普通对象转化为支持json序列化的对象
+    @param obj: 待转化的对象
+    @return: 支持json序列化的对象
+    """
+
+    def _try(o):
+        if isinstance(o, Enum):
+            return o.value
+        try:
+            return o.__dict__
+        except:
+            return str(o)
+
+    return json.loads(json.dumps(obj, default=lambda o: _try(o)))
