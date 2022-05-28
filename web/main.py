@@ -7,6 +7,7 @@ import shutil
 import signal
 import subprocess
 import importlib
+import traceback
 from math import floor
 from subprocess import call
 import requests
@@ -1807,7 +1808,7 @@ def create_flask_app(config):
             return sEchoStr
         else:
             sReqData = request.data
-            log.debug("收到微信消息：" + str(sReqData))
+            log.debug("收到微信消息：%s" % str(sReqData))
             ret, sMsg = wxcpt.DecryptMsg(sReqData, sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce)
             if ret != 0:
                 log.error("解密微信消息失败 DecryptMsg ret = %s" % str(ret))
@@ -1820,18 +1821,18 @@ def create_flask_app(config):
                 if msg_type == "event":
                     event_key = xml_tree.find("EventKey").text if xml_tree.find("EventKey") else None
                     if event_key:
-                        log.info("点击菜单：" + event_key)
+                        log.info("点击菜单：%s" % event_key)
                         keys = event_key.split('#')
                         if len(keys) > 2:
-                            content = WECHAT_MENU[keys[2]]
+                            content = WECHAT_MENU.get(keys[2])
                 else:
                     content = xml_tree.find("Content").text if xml_tree.find("Content") else None
-                    log.info("消息内容：" + content)
+                    log.info("消息内容：%s" % content)
                 # 处理消息内容
                 handle_message_job(content, SearchType.WX, user_id)
                 return make_response(content, 200)
             except Exception as err:
-                log.error("微信消息处理发生错误：%s" % str(err))
+                log.error("微信消息处理发生错误：%s - %s" % (str(err), traceback.format_exc()))
                 return make_response("", 200)
 
     # Emby消息通知
