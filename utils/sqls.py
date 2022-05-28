@@ -646,11 +646,11 @@ def get_site_statistics(days=30):
 
 
 # 查询下载历史是否存在
-def is_exists_download_history(title, year, torrent):
-    if not title or not year or not torrent:
+def is_exists_download_history(title, year, mtype):
+    if not mtype or not title or not year:
         return False
-    sql = "SELECT COUNT(1) FROM DOWNLOAD_HISTORY WHERE TITLE = ? AND YEAR = ? AND TORRENT = ?"
-    ret = select_by_sql(sql, (str_sql(title), year, str_sql(torrent)))
+    sql = "SELECT COUNT(1) FROM DOWNLOAD_HISTORY WHERE TITLE = ? AND YEAR = ? AND TYPE = ?"
+    ret = select_by_sql(sql, (str_sql(title), year, mtype))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -663,21 +663,30 @@ def insert_download_history(media_info):
         return False
     if not media_info.title or not media_info.year:
         return False
-    if is_exists_download_history(media_info.title, media_info.year, media_info.org_string):
-        return True
-    sql = "INSERT INTO DOWNLOAD_HISTORY(TITLE,YEAR,TYPE,TMDBID,VOTE,POSTER,OVERVIEW,TORRENT,ENCLOSURE,DESC,DATE,SITE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    return update_by_sql(sql, (str_sql(media_info.title),
-                               media_info.year,
-                               media_info.type.value,
-                               media_info.tmdb_id,
-                               media_info.vote_average,
-                               str_sql(media_info.poster_path),
-                               str_sql(media_info.overview),
-                               str_sql(media_info.org_string),
-                               str_sql(media_info.enclosure),
-                               str_sql(media_info.description),
-                               time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
-                               str_sql(media_info.site),))
+    if is_exists_download_history(media_info.title, media_info.year, media_info.type.value):
+        sql = "UPDATE DOWNLOAD_HISTORY SET TORRENT = ?, ENCLOSURE = ?, DESC = ?, DATE = ?, SITE = ? WHERE TITLE = ? AND YEAR = ? AND TYPE = ?"
+        return update_by_sql(sql, (str_sql(media_info.org_string),
+                                   str_sql(media_info.enclosure),
+                                   str_sql(media_info.description),
+                                   time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                                   str_sql(media_info.site),
+                                   str_sql(media_info.title),
+                                   media_info.year,
+                                   media_info.type.value,))
+    else:
+        sql = "INSERT INTO DOWNLOAD_HISTORY(TITLE,YEAR,TYPE,TMDBID,VOTE,POSTER,OVERVIEW,TORRENT,ENCLOSURE,DESC,DATE,SITE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        return update_by_sql(sql, (str_sql(media_info.title),
+                                   media_info.year,
+                                   media_info.type.value,
+                                   media_info.tmdb_id,
+                                   media_info.vote_average,
+                                   str_sql(media_info.poster_path),
+                                   str_sql(media_info.overview),
+                                   str_sql(media_info.org_string),
+                                   str_sql(media_info.enclosure),
+                                   str_sql(media_info.description),
+                                   time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                                   str_sql(media_info.site),))
 
 
 # 查询下载历史
