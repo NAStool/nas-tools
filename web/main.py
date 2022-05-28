@@ -11,7 +11,7 @@ import traceback
 from math import floor
 from subprocess import call
 import requests
-from flask import Flask, request, json, render_template, make_response
+from flask import Flask, request, json, render_template, make_response, session
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -223,11 +223,12 @@ def create_flask_app(config):
             if GoPage.startswith('/'):
                 GoPage = GoPage[1:]
             username = request.form.get('username')
+            password = request.form.get('password')
+            remember = request.form.get('remember')
             if not username:
                 return render_template('login.html',
                                        GoPage=GoPage,
                                        err_msg="请输入用户名")
-            password = request.form.get('password')
             user_info = get_user(username)
             if not user_info:
                 return render_template('login.html',
@@ -239,6 +240,7 @@ def create_flask_app(config):
             if user.verify_password(password):
                 # 创建用户 Session
                 login_user(user)
+                session.permanent = True if remember else False
                 pris = user_info.get("pris")
                 return render_template('navigation.html',
                                        GoPage=GoPage,

@@ -480,7 +480,7 @@
             }
           }
         });
-        $("#navbar-menu").collapse('hide')
+        $("#navbar-menu").collapse('hide');
         $("#modal-wait").modal("show");
         page = page.replaceAll(" ", "%20");
         $("#page_content").load(page, {}, function(response,status,xhr){
