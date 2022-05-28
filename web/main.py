@@ -1810,28 +1810,29 @@ def create_flask_app(config):
             log.debug("收到微信消息：" + str(sReqData))
             ret, sMsg = wxcpt.DecryptMsg(sReqData, sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce)
             if ret != 0:
-                log.error("解密微信消息失败 DecryptMsg ret：%s" % str(ret))
-            xml_tree = ETree.fromstring(sMsg)
-            reponse_text = ""
-            try:
-                msg_type = xml_tree.find("MsgType").text
-                user_id = xml_tree.find("FromUserName").text
-                if msg_type == "event":
-                    event_key = xml_tree.find("EventKey").text
-                    log.info("点击菜单：" + event_key)
-                    content = WECHAT_MENU[event_key.split('#')[2]]
-                else:
-                    content = xml_tree.find("Content").text
-                    log.info("消息内容：" + content)
-                    reponse_text = content
-            except Exception as err:
-                log.error("发生错误：%s" % str(err))
+                log.error("解密微信消息失败 DecryptMsg ret = %s" % str(ret))
                 return make_response("", 200)
-            # 处理消息内容
-            content = content.strip()
-            if content:
+            xml_tree = ETree.fromstring(sMsg)
+            try:
+                content = ""
+                msg_type = xml_tree.find("MsgType").text if xml_tree.find("MsgType") else None
+                user_id = xml_tree.find("FromUserName").text if xml_tree.find("FromUserName") else None
+                if msg_type == "event":
+                    event_key = xml_tree.find("EventKey").text if xml_tree.find("EventKey") else None
+                    if event_key:
+                        log.info("点击菜单：" + event_key)
+                        keys = event_key.split('#')
+                        if len(keys) > 2:
+                            content = WECHAT_MENU[keys[2]]
+                else:
+                    content = xml_tree.find("Content").text if xml_tree.find("Content") else None
+                    log.info("消息内容：" + content)
+                # 处理消息内容
                 handle_message_job(content, SearchType.WX, user_id)
-            return make_response(reponse_text, 200)
+                return make_response(content, 200)
+            except Exception as err:
+                log.error("微信消息处理发生错误：%s" % str(err))
+                return make_response("", 200)
 
     # Emby消息通知
     @App.route('/jellyfin', methods=['POST'])

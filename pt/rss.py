@@ -83,7 +83,7 @@ class Rss:
                 rss_job = site_info[1]
                 rssurl = site_info[3]
                 if not rssurl:
-                    log.error("【RSS】%s 未配置rssurl，跳过..." % str(rss_job))
+                    log.info("【RSS】%s 未配置rssurl，跳过..." % str(rss_job))
                     continue
                 if site_info[6] or site_info[7] or site_info[8]:
                     include = str(site_info[6]).split("\n")
