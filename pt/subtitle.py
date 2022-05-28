@@ -150,11 +150,15 @@ class Subtitle:
                     if not res or res.status_code != 200:
                         log.error("【SUBTITLE】调用ChineseSubFinder API失败！")
                     else:
-                        job_id = res.json().get("job_id")
-                        message = res.json().get("message")
-                        if not job_id:
-                            log.warn("【SUBTITLE】ChineseSubFinder下载字幕出错：%s" % message)
-                        else:
-                            log.info("【SUBTITLE】ChineseSubFinder任务添加成功：%s" % job_id)
+                        # 如果文件目录没有识别的nfo元数据， 此接口会返回控制符，推测是ChineseSubFinder的原因
+                        # emby refresh元数据时异步的
+                        if res.text:
+                            job_id = res.json().get("job_id")
+                            message = res.json().get("message")
+                            if not job_id:
+                                log.warn("【SUBTITLE】ChineseSubFinder下载字幕出错：%s" % message)
+                            else:
+                                log.info("【SUBTITLE】ChineseSubFinder任务添加成功：%s" % job_id)
+                        log.error("【SUBTITLE】%s 当前目录缺失nfo元数据：" % file_path)
                 except Exception as e:
                     log.error("【SUBTITLE】连接ChineseSubFinder出错：" + str(e))
