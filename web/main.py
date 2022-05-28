@@ -593,7 +593,6 @@ def create_flask_app(config):
             else:
                 # 替换图片分辨率
                 image = image.replace("s_ratio_poster", "m_ratio_poster")
-                image = "https://images.weserv.nl/?url=%s" % image
             vote = res.get('vote_average')
             overview = res.get('overview')
             item = {'id': rid, 'title': title, 'fav': fav, 'date': date, 'vote': vote,
@@ -1692,7 +1691,7 @@ def create_flask_app(config):
                     if doubanid:
                         douban_info = DoubanApi().movie_detail(doubanid)
                         overview = douban_info.get("intro")
-                        poster_path = "https://images.weserv.nl/?url=%s" % douban_info.get("cover_url")
+                        poster_path = douban_info.get("cover_url")
 
                     return {
                         "code": 0,
@@ -1709,7 +1708,7 @@ def create_flask_app(config):
                     if doubanid:
                         douban_info = DoubanApi().tv_detail(doubanid)
                         overview = douban_info.get("intro")
-                        poster_path = "https://images.weserv.nl/?url=%s" % douban_info.get("cover_url")
+                        poster_path = douban_info.get("cover_url")
 
                     return {
                         "code": 0,
