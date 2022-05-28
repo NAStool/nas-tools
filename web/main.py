@@ -1,5 +1,6 @@
 import _thread
 import base64
+import datetime
 import logging
 import os.path
 import shutil
@@ -76,7 +77,8 @@ def create_flask_app(config):
 
     App = Flask(__name__)
     App.config['JSON_AS_ASCII'] = False
-    App.secret_key = 'jxxghp'
+    App.secret_key = os.urandom(24)
+    App.permanent_session_lifetime = datetime.timedelta(days=30)
     applog = logging.getLogger('werkzeug')
     applog.setLevel(logging.ERROR)
     login_manager.init_app(App)
