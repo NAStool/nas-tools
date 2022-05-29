@@ -13,7 +13,7 @@
   <div class="container-xxl">
     <div class="row row-cards">
       {% for item in Items %}
-      <div class="col-sm-6 col-md-4 col-lg-2">
+      <div class="col-sm-6 col-md-3 col-lg-2">
         <div class="card card-sm rounded-3">
           <div class="ribbon ribbon-top ribbon-bookmark {% if item.vote > 8 %} bg-green {% elif item.vote <= 8 and item.vote > 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ item.vote }}</div>
           <a href="javascript:{% if RecommendType in ['hm', 'nm', 'ht', 'nt'] %}show_media_info('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '{{ item.id }}', '', '{{ item.vote }}'){% else %}show_media_info('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '', '{{ item.id }}', '{{ item.vote }}'){% endif %}" title="{{ item.overview }}" class="d-block">

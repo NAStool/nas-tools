@@ -77,14 +77,17 @@
                                                 {% endif %}
                                             </span>
                                             <div class="flex-fill">
-                                                <div class="font-weight-medium">{{ TmdbCache[0] }}</div>
+                                                <div class="font-weight-medium">{{ TmdbCache[2] }}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
                                         <div>{% if TmdbCache[1].name %}
-                                            {{ TmdbCache[1].name }} {% else %}
-                                            {{ TmdbCache[1].title }} {% endif %}</div>
+                                            {{ TmdbCache[1].name }}
+                                            {% else %}
+                                            {{ TmdbCache[1].title }}
+                                            {% endif %}
+                                        </div>
                                         <div class="text-muted text-nowrap">{{ TmdbCache[1].id }}
                                             {% if TmdbCache[1].media_type == "电影" %}
                                             <a class="ms-1"
@@ -119,9 +122,11 @@
                                         </div>
                                     </td>
                                     <td><span class="d-none d-md-block">{{ TmdbCache[1].overview|truncate(140, True)}}</span><span class="d-md-none">...</span></td>
-                                    <td>{% if TmdbCache[1].poster_path %}
-                                        <img src="https://image.tmdb.org/t/p/w500{{ TmdbCache[1].poster_path }}"
-                                            alt="" /> {% endif %}
+                                    <td>
+                                        {% if TmdbCache[1].poster_path %}
+                                        <img class="rounded" src="https://image.tmdb.org/t/p/w500{{ TmdbCache[1].poster_path }}"
+                                            alt="" />
+                                        {% endif %}
                                     </td>
                                     <td>
                                         <div class="dropdown">
@@ -139,7 +144,7 @@
                                             </a>
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <a class="dropdown-item"
-                                                    href='javascript:show_detail("{{ TmdbCache[0] }}", "{{ TmdbCache[1]|tojson(indent=2)|urlencode|b64encode}}")'>
+                                                    href='javascript:show_detail("{{ TmdbCache[2] }}", "{{ TmdbCache[1]|tojson(indent=2)|urlencode|b64encode}}")'>
                                                     详情
                                                 </a>
                                                 <a class="dropdown-item text-danger"
@@ -200,7 +205,7 @@
     </div>
 </div>
 <div class="modal modal-blur fade" id="tmdb_cache_detail" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="tmdb_cache_title">缓存条目</h5>
