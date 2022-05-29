@@ -14,7 +14,7 @@
       {% for item in Items %}
       <div class="col-sm-6 col-md-3 col-lg-2">
         <div class="card card-sm rounded-3">
-          <a href='javascript:show_media_info("{{ item[1] }}", "{{ item[2] }}", "{{ item[5] }}", "{{ item[6] }}", "{{ item[7] }}", "{{ item[8] }}", "{{ item[11] }}", "{{ item[12] }}")' title="{{ item[1] }} ({{ item[2] }})" class="d-block">
+          <a href='javascript:show_media_info("{{ item[1] }}", "{{ item[2] }}", "{{ item[5] }}", "{{ item[6] }}", "{{ item[7] }}", "{{ item[8] }}", "{{ item[11] }}", "{{ item[12] }}", "{{ item[4] }}", "{{ item[3] }}")' title="{{ item[1] }} ({{ item[2] }})" class="d-block">
             <img src="{{ item[6] }}" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important">
           </a>
           <div class="card-body">
@@ -67,6 +67,9 @@
           </div>
         </div>
         <div class="d-flex">
+          <a href="#" target="_blank" class="card-btn" id="media_url_btn">
+          查看详情
+          </a>
           <a href="#" class="card-btn" data-bs-dismiss="modal">
           关闭
           </a>
@@ -77,7 +80,7 @@
 </div>
 <script type="text/javascript">
   //显示媒体详情
-  function show_media_info(title, year, vote, poster, overview, torrent, date, site){
+  function show_media_info(title, year, vote, poster, overview, torrent, date, site, tmdbid, type){
     $("#media_name").text(title);
     $("#release_date").text(year)
     $("#media_poster").attr("src", poster);
@@ -90,6 +93,11 @@
       $("#media_vote").removeClass().addClass("ribbon ribbon-top ribbon-bookmark bg-blue");
     }else{
       $("#media_vote").removeClass().addClass("ribbon ribbon-top ribbon-bookmark bg-orange");
+    }
+    if(type == "电影"){
+      $("#media_url_btn").attr("href", "https://www.themoviedb.org/movie/" + tmdbid);
+    }else{
+      $("#media_url_btn").attr("href", "https://www.themoviedb.org/tv/" + tmdbid);
     }
     $("#modal-media-modal").modal("show");
   }
