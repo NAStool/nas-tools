@@ -646,35 +646,14 @@ def get_site_statistics(days=30):
 
 
 # 查询近期上传下载量
-def get_site_statistics_recent_sum(days=7):
-    b_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d")
-    sql_b = "SELECT SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS WHERE DATE > ? GROUP BY DATE ORDER BY DATE ASC LIMIT 1"
-    ret_b = select_by_sql(sql_b, (b_date,))
-    if ret_b:
-        b_upload = int(ret_b[0][0])
-        b_download = int(ret_b[0][1])
-    else:
-        b_upload = 0
-        b_download = 0
-    sql_e = "SELECT SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS GROUP BY DATE ORDER BY DATE DESC LIMIT 1"
-    ret_e = select_by_sql(sql_e)
-    if ret_e:
-        e_upload = int(ret_e[0][0])
-        e_download = int(ret_e[0][1])
-    else:
-        e_upload = 0
-        e_download = 0
-
-    return e_upload - b_upload, e_download - b_download
-
-
-# 查询近期上传下载量
 def get_site_statistics_recent_sites(days=7):
     # 查询最大最小日期
     b_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d")
     date_sql = "SELECT MAX(DATE), MIN(DATE) FROM SITE_STATISTICS WHERE DATE > ?"
     date_ret = select_by_sql(date_sql, (b_date,))
     if date_ret:
+        total_upload = 0
+        total_download = 0
         ret_sites = []
         ret_site_uploads = []
         ret_site_downloads = []
@@ -689,15 +668,25 @@ def get_site_statistics_recent_sites(days=7):
         for ret_e in select_by_sql(sql, (max_date,)):
             ret_sites.append(ret_e[0])
             if site_b_data.get(ret_e[0]):
-                ret_site_uploads.append(round((int(ret_e[1]) - site_b_data[ret_e[0]].get("upload"))/1024/1024/1024, 1))
-                ret_site_downloads.append(round((int(ret_e[2]) - site_b_data[ret_e[0]].get("download"))/1024/1024/1024, 1))
+                b_upload = site_b_data[ret_e[0]].get("upload")
+                if b_upload < int(ret_e[1]):
+                    total_upload += int(ret_e[1]) - b_upload
+                    ret_site_uploads.append(round((int(ret_e[1]) - b_upload) / 1024 / 1024 / 1024, 1))
+                else:
+                    ret_site_uploads.append(0)
+                b_download = site_b_data[ret_e[0]].get("download")
+                if b_download < int(ret_e[2]):
+                    total_download += int(ret_e[2]) - b_download
+                    ret_site_downloads.append(round((int(ret_e[2]) - b_download) / 1024 / 1024 / 1024, 1))
+                else:
+                    ret_site_downloads.append(0)
             else:
-                ret_site_uploads.append(round(int(ret_e[1])/1024/1024/1024, 1))
-                ret_site_downloads.append(round(int(ret_e[2])/1024/1024/1024, 1))
+                ret_site_uploads.append(round(int(ret_e[1]) / 1024 / 1024 / 1024, 1))
+                ret_site_downloads.append(round(int(ret_e[2]) / 1024 / 1024 / 1024, 1))
 
-        return ret_sites, ret_site_uploads, ret_site_downloads
+        return total_upload, total_download, ret_sites, ret_site_uploads, ret_site_downloads
     else:
-        return [], [], []
+        return 0, 0, [], [], []
 
 
 # 查询下载历史是否存在

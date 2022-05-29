@@ -1,3 +1,4 @@
+import traceback
 from threading import Lock
 
 import requests
@@ -179,7 +180,7 @@ class Rss:
                             rss_download_torrents.append(media_info)
                             res_num = res_num + 1
                     except Exception as e:
-                        log.error("【RSS】错误：%s" % str(e))
+                        log.error("【RSS】处理RSS发生错误：%s - %s" % (str(e), traceback.format_exc()))
                         continue
                 log.info("【RSS】%s 处理结束，匹配到 %s 个有效资源" % (rss_job, res_num))
             log.info("【RSS】所有RSS处理结束，共 %s 个有效资源" % len(rss_download_torrents))

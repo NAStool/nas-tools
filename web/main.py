@@ -46,7 +46,7 @@ from utils.sqls import get_search_result_by_id, get_search_results, \
     update_config_site, get_config_search_rule, update_config_search_rule, get_config_rss_rule, update_config_rss_rule, \
     get_unknown_path_by_id, get_rss_tvs, get_rss_movies, delete_rss_movie, delete_rss_tv, \
     get_users, insert_user, delete_user, get_transfer_statistics, get_system_messages, get_site_statistics, \
-    get_download_history, get_site_statistics_recent_sum, get_site_statistics_recent_sites
+    get_download_history, get_site_statistics_recent_sites
 from utils.types import MediaType, SearchType, DownloaderType, SyncType, OsType
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
@@ -709,14 +709,13 @@ def create_flask_app(config):
                     SiteNames.append(name)
                     TotalUpload += int(up)
                     TotalDownload += int(dl)
-                    SiteUploads.append(round(int(up)/1024/1024/1024))
-                    SiteDownloads.append(round(int(dl)/1024/1024/1024))
+                    SiteUploads.append(round(int(up) / 1024 / 1024 / 1024))
+                    SiteDownloads.append(round(int(dl) / 1024 / 1024 / 1024))
                     SiteRatios.append(round(float(ratio), 1))
 
-        # 近期上传下载
-        CurrentUpload, CurrentDownload = get_site_statistics_recent_sum(days=7)
         # 近期上传下载各站点汇总
-        CurrentSiteLabels, CurrentSiteUploads, CurrentSiteDownloads = get_site_statistics_recent_sites(days=7)
+        CurrentUpload, CurrentDownload, CurrentSiteLabels, CurrentSiteUploads, CurrentSiteDownloads = get_site_statistics_recent_sites(
+            days=7)
         # 总上传下载历史
         StatisticsHis = get_site_statistics(days=30)
         TotalHisLabels = []

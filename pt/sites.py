@@ -1,4 +1,5 @@
 import re
+import traceback
 from datetime import datetime
 from threading import Lock
 
@@ -81,7 +82,7 @@ class Sites:
                     else:
                         log.error("【PT】站点 %s 获取流量数据失败，状态码：%s" % (site_name, res.status_code))
                 except Exception as e:
-                    log.error("【PT】站点 %s 获取流量数据失败：%s" % (site_name, str(e)))
+                    log.error("【PT】站点 %s 获取流量数据失败：%s - %s" % (site_name, str(e), traceback.format_exc()))
             # 更新时间
             if self.__sites_data:
                 self.__last_update_time = datetime.now()
@@ -113,7 +114,7 @@ class Sites:
                     else:
                         status.append("%s 签到失败，状态码：%s" % (pt_task, res.status_code))
                 except Exception as e:
-                    log.error("【PT】%s 签到出错：%s" % (pt_task, str(e)))
+                    log.error("【PT】%s 签到出错：%s - %s" % (pt_task, str(e), traceback.format_exc()))
         if status:
             self.message.sendmsg(title="\n".join(status))
 

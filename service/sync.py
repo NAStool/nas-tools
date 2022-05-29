@@ -1,5 +1,7 @@
 import os
 import threading
+import traceback
+
 from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
 from config import RMT_MEDIAEXT, Config
@@ -228,7 +230,7 @@ class Sync(object):
                         finally:
                             lock.release()
             except Exception as e:
-                log.error("【SYNC】发生错误：%s" % str(e))
+                log.error("【SYNC】发生错误：%s - %s" % (str(e), traceback.format_exc()))
 
     def transfer_mon_files(self):
         """

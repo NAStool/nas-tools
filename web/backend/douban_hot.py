@@ -105,7 +105,7 @@ class DoubanHot:
                 rid = ticket.split("=")[-1]
                 ret_list.append({'id': rid, 'title': title, 'release_date': release_date, 'vote_average': vote_average, 'poster_path': poster_path, 'overview': overview})
             except Exception as e:
-                log.error("【DOUBAN】DoubanHot出错：%s" % str(e))
+                log.error("【DOUBAN】获取豆瓣热门数据出错：%s" % str(e))
         self.__online_time = datetime.now()
         return ret_list
 
