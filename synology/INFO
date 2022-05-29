@@ -1,5 +1,5 @@
 package="nastool"
-version="1.3.1"
+version="1.3.2"
 description="NAS资源归集整理工具：https://github.com/jxxghp/nas-tools"
 arch="noarch"
 distributor="jxxghp"

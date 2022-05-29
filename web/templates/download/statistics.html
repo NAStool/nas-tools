@@ -24,7 +24,7 @@
               </div>
               <div class="col">
                 <div class="d-flex align-items-center">
-                  <div class="subheader">当前上传</div>
+                  <div class="subheader">近7日上传</div>
                 </div>
                 <div class="d-flex align-items-baseline">
                   <div class="h1 mb-0 me-2">{{ CurrentUpload }}</div>
@@ -45,7 +45,7 @@
               </div>
               <div class="col">
                 <div class="d-flex align-items-center">
-                  <div class="subheader">当前下载</div>
+                  <div class="subheader">近7日下载</div>
                 </div>
                 <div class="d-flex align-items-baseline">
                   <div class="h1 mb-0 me-2">{{ CurrentDownload }}</div>
@@ -115,6 +115,26 @@
           </div>
         </div>
       </div>
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex">
+              <h3 class="card-title">近7日上传（GB）</h3>
+            </div>
+            <div id="chart-recent-upload"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex">
+              <h3 class="card-title">近7日下载（GB）</h3>
+            </div>
+            <div id="chart-recent-download"></div>
+          </div>
+        </div>
+      </div>
       <div class="col-lg-12">
         <div class="card">
           <div class="card-body">
@@ -129,7 +149,7 @@
         <div class="card">
           <div class="card-body">
             <div class="d-flex">
-              <h3 class="card-title">分享率（倍）</h3>
+              <h3 class="card-title">站点分享率</h3>
             </div>
             <div id="chart-sites-ratio"></div>
           </div>
@@ -139,9 +159,19 @@
         <div class="card">
           <div class="card-body">
             <div class="d-flex">
-              <h3 class="card-title">流量趋势（GB）</h3>
+              <h3 class="card-title">总上传</h3>
             </div>
-            <div id="chart-sites-his"></div>
+            <div id="chart-sites-upload-his"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex">
+              <h3 class="card-title">总下载</h3>
+            </div>
+            <div id="chart-sites-download-his"></div>
           </div>
         </div>
       </div>
@@ -149,7 +179,33 @@
   </div>
 </div>
 <script type="text/javascript">
-  // @formatter:off
+  // 近7日上传饼图
+  window.ApexCharts && (new ApexCharts(document.getElementById('chart-recent-upload'), {
+    series: {{ CurrentSiteUploads|safe }},
+    chart: {
+      type: 'pie',
+      height: 250.0,
+    },
+    labels: {{ CurrentSiteLabels|safe }},
+    dataLabels: {
+        enabled: true
+    }
+  })).render();
+
+  // 近7日下载饼图
+  window.ApexCharts && (new ApexCharts(document.getElementById('chart-recent-download'), {
+    series: {{ CurrentSiteDownloads|safe }},
+    chart: {
+      type: 'pie',
+      height: 250.0,
+    },
+    labels: {{ CurrentSiteLabels|safe }},
+    dataLabels: {
+        enabled: true
+    }
+  })).render();
+
+  // 站点流量明细
   window.ApexCharts && (new ApexCharts(document.getElementById('chart-sites-detail'), {
       chart: {
           type: "bar",
@@ -195,7 +251,10 @@
               padding: 0,
           },
           tooltip: {
-              enabled: false
+              enabled: true,
+              formatter: function (val, opt) {
+                return val.toLocaleString() + " GB"
+              },
           },
           axisBorder: {
               show: false,
@@ -213,10 +272,8 @@
           show: true,
       },
   })).render();
-  // @formatter:on
-</script>
-<script type="text/javascript">
-  // @formatter:off
+
+  // 站点分享率
   window.ApexCharts && (new ApexCharts(document.getElementById('chart-sites-ratio'), {
       chart: {
           type: "bar",
@@ -277,11 +334,9 @@
           show: true,
       },
   })).render();
-  // @formatter:on
-</script>
-<script type="text/javascript">
-  // 变化图
-  window.ApexCharts && (new ApexCharts(document.getElementById('chart-sites-his'), {
+
+  // 总上传趋势
+  window.ApexCharts && (new ApexCharts(document.getElementById('chart-sites-upload-his'), {
       chart: {
           type: "area",
           fontFamily: 'inherit',
@@ -296,6 +351,12 @@
       fill: {
           opacity: 1,
       },
+      dataLabels: {
+          enabled: true,
+          formatter: function (val, opt) {
+            return val.toLocaleString() + " GB"
+          },
+      },
       stroke: {
           width: [2, 1],
           dashArray: [0, 3],
@@ -305,7 +366,60 @@
       series: [{
           name: "总上传",
           data: {{ TotalUploadHis|safe }}
-      },{
+      }],
+      grid: {
+          strokeDashArray: 2,
+      },
+      xaxis: {
+          labels: {
+              padding: 0,
+          },
+          tooltip: {
+              enabled: false
+          },
+          type: 'category',
+      },
+      yaxis: {
+          labels: {
+              padding: 0
+          },
+      },
+      labels: {{ TotalHisLabels|safe }},
+      colors: ["#206bc4"],
+      legend: {
+          show: true,
+      },
+  })).render();
+
+  // 总下载趋势
+  window.ApexCharts && (new ApexCharts(document.getElementById('chart-sites-download-his'), {
+      chart: {
+          type: "area",
+          fontFamily: 'inherit',
+          height: 200.0,
+          sparkline: {
+              enabled: true
+          },
+          animations: {
+              enabled: true
+          },
+      },
+      fill: {
+          opacity: 1,
+      },
+      dataLabels: {
+          enabled: true,
+          formatter: function (val, opt) {
+            return val.toLocaleString() + " GB"
+          },
+      },
+      stroke: {
+          width: [2, 1],
+          dashArray: [0, 3],
+          lineCap: "round",
+          curve: "smooth",
+      },
+      series: [{
           name: "总下载",
           data: {{ TotalDownloadHis|safe }}
       }],
@@ -323,16 +437,15 @@
       },
       yaxis: {
           labels: {
-              padding: 4
+              padding: 0
           },
       },
       labels: {{ TotalHisLabels|safe }},
-      colors: ["#206bc4", "#cd201f"],
+      colors: ["#cd210f"],
       legend: {
           show: true,
       },
   })).render();
-  // @formatter:on
 </script>
 {% else %}
 <div class="page-body">

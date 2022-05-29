@@ -56,10 +56,11 @@ def num_filesize(text):
     if not isinstance(text, str):
         text = str(text)
     text = text.replace(",", "").replace(" ", "").upper()
-    size = re.sub(r"[KMGTP]B", "", text, flags=re.IGNORECASE)
+    size = re.sub(r"[KMGTPI]*B", "", text, flags=re.IGNORECASE)
     try:
         size = float(size)
     except Exception as e:
+        print(str(e))
         return 0
     if text.find("PB") != -1:
         size *= 1024 ** 5
