@@ -308,6 +308,7 @@ class Rss:
             return []
         try:
             ret = requests.get(url, timeout=30)
+            ret.encoding = ret.apparent_encoding
         except Exception as e2:
             log.console(str(e2))
             return []
