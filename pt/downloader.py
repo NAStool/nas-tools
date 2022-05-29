@@ -321,14 +321,19 @@ class Downloader:
                                     log.error("【PT】获取Transmission添加的种子信息出错：%s" % item.org_string)
                                     continue
                             else:
-                                # 等待10秒，QB添加下载后需要时间
-                                sleep(10)
-                                torrent_id = self.client.get_last_add_torrentid_by_tag(torrent_tag)
-                                if torrent_id is None:
-                                    log.error("【PT】获取Qbittorrent添加的种子信息出错：%s" % item.org_string)
-                                    continue
-                                else:
-                                    self.client.remove_torrents_tag(torrent_id, "NASTOOL")
+                                # QB添加下载后需要时间，重试5次每次等待5秒
+                                torrent_id = None
+                                for i in range(1, 6):
+                                    sleep(5)
+                                    torrent_id = self.client.get_last_add_torrentid_by_tag(torrent_tag)
+                                    if torrent_id is None:
+                                        log.error("【PT】获取Qbittorrent添加的种子信息出错：%s" % item.org_string)
+                                        continue
+                                    else:
+                                        self.client.remove_torrents_tag(torrent_id, torrent_tag)
+                                        break
+                            if not torrent_id:
+                                continue
                             # 设置任务只下载想要的文件
                             selected_episodes = self.set_files_status(torrent_id, need_episodes)
                             if not selected_episodes:
