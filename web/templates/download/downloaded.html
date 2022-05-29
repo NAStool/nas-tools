@@ -15,8 +15,15 @@
       <div class="col-sm-6 col-md-3 col-lg-2">
         <div class="card card-sm rounded-3">
           <a href='javascript:show_media_info("{{ item[1] }}", "{{ item[2] }}", "{{ item[5] }}", "{{ item[6] }}", "{{ item[7] }}", "{{ item[8] }}", "{{ item[11] }}", "{{ item[12] }}")' title="{{ item[1] }} ({{ item[2] }})" class="d-block">
-            <img src="{{ item[6] }}" class="card-img-top rounded-3">
+            <img src="{{ item[6] }}" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important">
           </a>
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div>
+                <div><strong>{{ item[1] }}</strong></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       {% endfor %}
@@ -54,6 +61,8 @@
               </h4>
               <div class="text-muted" id="media_overview">
               </div>
+              <div class="text-muted mt-3" id="torrent_info">
+              </div>
             </div>
           </div>
         </div>
@@ -72,7 +81,8 @@
     $("#media_name").text(title);
     $("#release_date").text(year)
     $("#media_poster").attr("src", poster);
-    $("#media_overview").html(overview + "<br/><br/><strong>站点：</strong>" + site + "<br/><strong>种子：</strong>" + torrent + "<br/><strong>时间：</strong>" + date);
+    $("#media_overview").html(overview);
+    $("#torrent_info").html("站点：" + site + "<br/>种子：" + torrent + "<br/>时间：" + date);
     $("#media_vote").text(vote);
     if(parseFloat(vote) > 8){
       $("#media_vote").removeClass().addClass("ribbon ribbon-top ribbon-bookmark bg-green");
