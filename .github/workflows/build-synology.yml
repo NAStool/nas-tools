@@ -52,4 +52,4 @@ jobs:
 
     - name: Send telegram message
       run: |
-        curl https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage?chat_id=${{ secrets.TELEGRAM_TO }}&text=${{ github.event.commits[0].message }}
+        curl "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage?chat_id=${{ secrets.TELEGRAM_TO }}&text=${{ github.event.commits[0].message }}"
