@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - master
-    paths:
-      - requirements.txt
-      - docker/Dockerfile
-      - docker/entrypoint.sh
 
 jobs:
   build:
