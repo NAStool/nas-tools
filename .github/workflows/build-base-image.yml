@@ -1,14 +1,11 @@
-name: Build Image
+name: Build Base Image
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build Docker Image
+    name: Build Base Image
     steps:
       - 
         name: Checkout
@@ -34,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: docker/Dockerfile
+          file: docker/Dockerfile.base
           platforms: |
             linux/386
             linux/amd64
@@ -42,4 +39,4 @@ jobs:
             linux/arm/v7
           push: true
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/nas-tools:latest
+            ${{ secrets.DOCKER_USERNAME }}/nas-tools-base-image:latest
