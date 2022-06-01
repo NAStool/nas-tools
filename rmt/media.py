@@ -110,8 +110,6 @@ class Media:
         if not file_media_name:
             log.error("【META】识别关键字有误！")
             return None
-        if not is_chinese(file_media_name) and len(file_media_name) < 3:
-            return None
         if language:
             self.tmdb.language = language
         else:
