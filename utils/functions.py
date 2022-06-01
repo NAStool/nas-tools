@@ -358,7 +358,7 @@ def str_sql(in_str):
     if not in_str:
         return ""
     else:
-        return str(in_str).replace("'", "''")
+        return str(in_str)
 
 
 def json_serializable(obj):
