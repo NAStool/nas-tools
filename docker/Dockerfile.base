@@ -13,5 +13,5 @@ RUN apk add --no-cache \
     && echo "${TZ}" > /etc/timezone \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && pip install --upgrade pip setuptools wheel \
-    && pip install -r https://raw.githubusercontent.com/devome/nas-tools/master/requirements.txt \
+    && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/master/requirements.txt \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*
