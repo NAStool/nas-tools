@@ -372,7 +372,7 @@ class Media:
                     meta_info.set_tmdb_info(self.meta.get_meta_data_by_key(media_key))
                 # 自带TMDB信息
                 else:
-                    meta_info = MetaInfo(file_name, mtype=MediaType.ANIME)
+                    meta_info = MetaInfo(file_name, mtype=media_type)
                     meta_info.set_tmdb_info(tmdb_info)
                     meta_info.type = media_type
                     if season and media_type != MediaType.MOVIE:
