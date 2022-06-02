@@ -23,7 +23,7 @@ class Torrent:
                 name = key_info[0]
                 year = key_info[1]
                 # 匹配标题和年份
-                if name == media_info.title and str(year) == str(media_info.year):
+                if name == media_info.title and (not year or str(year) == str(media_info.year)):
                     return True
         else:
             # 匹配种子标题
@@ -34,8 +34,7 @@ class Torrent:
                 year = key_info[1]
                 season = key_info[2]
                 # 匹配标题和年份和季
-                if name == media_info.title and str(year) == str(
-                        media_info.year) and season == media_info.get_season_string():
+                if name == media_info.title and (not year or str(year) == str(media_info.year)) and season == media_info.get_season_string():
                     return True
         return False
 

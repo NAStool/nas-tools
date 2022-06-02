@@ -4,7 +4,7 @@ import traceback
 import parse
 
 import log
-from config import Config
+from config import Config, SPLIT_CHARS
 from rmt.metainfo import MetaInfo
 from rmt.tmdbv3api import TMDb, Search, Movie, TV
 from utils.functions import xstr, is_chinese
@@ -515,7 +515,7 @@ class Media:
         ret = parse.parse(episode_format, file_name)
         if ret:
             episodes = ret.__getitem__('episode')
-            episode_splits = list(filter(lambda x: re.compile(r'[a-zA-Z]*\d{1,4}', re.IGNORECASE).match(x), re.split(r'\.|\s+|\(|\)|\[|]|-|\+|【|】|/|～|;|&|\||#|_|「|」|（|）', episodes)))
+            episode_splits = list(filter(lambda x: re.compile(r'[a-zA-Z]*\d{1,4}', re.IGNORECASE).match(x), re.split(r'%s' % SPLIT_CHARS, episodes)))
             if len(episode_splits) == 1:
                 return int(re.compile(r'[a-zA-Z]*', re.IGNORECASE).sub("", episode_splits[0])), None
             else:

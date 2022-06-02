@@ -424,7 +424,7 @@ def is_exists_rss_movie(title, year):
     if not title:
         return False
     sql = "SELECT COUNT(1) FROM RSS_MOVIES WHERE NAME=? AND YEAR = ?"
-    ret = select_by_sql(sql, (str_sql(title), year))
+    ret = select_by_sql(sql, (str_sql(title), str_sql(year)))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -435,7 +435,7 @@ def is_exists_rss_movie(title, year):
 def insert_rss_movie(media_info, state='D'):
     if not media_info:
         return False
-    if not media_info.title or not media_info.year:
+    if not media_info.title:
         return False
     if is_exists_rss_movie(media_info.title, media_info.year):
         return True

@@ -1,5 +1,7 @@
 import re
 
+from config import SPLIT_CHARS
+
 
 class Tokens:
     __text = ""
@@ -12,7 +14,7 @@ class Tokens:
         self.load_text(text)
 
     def load_text(self, text):
-        splited_text = re.split(r'\.|\s+|\(|\)|\[|]|-|\+|【|】|/|～|;|&|\||#|_|「|」|（|）', text)
+        splited_text = re.split(r'%s' % SPLIT_CHARS, text)
         for sub_text in splited_text:
             if sub_text:
                 self.__tokens.append(sub_text)
