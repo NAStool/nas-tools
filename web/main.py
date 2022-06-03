@@ -1679,50 +1679,69 @@ def create_flask_app(config):
                 else:
                     media_type = MediaType.TV
 
-                if mtype in ['hm', 'nm']:
-                    link_url = "https://www.themoviedb.org/movie/%s" % tmdbid
-                elif mtype in ['ht', 'nt']:
-                    link_url = "https://www.themoviedb.org/tv/%s" % tmdbid
-                else:
-                    link_url = "https://movie.douban.com/subject/%s" % doubanid
-
-                tmdb_info = Media().get_media_info_manual(media_type, title, year, tmdbid)
-                if not tmdb_info:
-                    return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url}
-
-                overview = tmdb_info.get("overview")
-                poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path')
                 if media_type == MediaType.MOVIE:
                     if doubanid:
+                        link_url = "https://movie.douban.com/subject/%s" % doubanid
                         douban_info = DoubanApi().movie_detail(doubanid)
+                        if not douban_info:
+                            return {"code": 1, "retmsg": "无法查询到豆瓣信息", "link_url": link_url}
                         overview = douban_info.get("intro")
                         poster_path = douban_info.get("cover_url")
-
+                        title = douban_info.get("title")
+                        vote_average = douban_info.get("rating", {}).get("value") or ""
+                        release_date = douban_info.get("pubdate")
+                        year = douban_info.get("year")
+                    else:
+                        link_url = "https://www.themoviedb.org/movie/%s" % tmdbid
+                        tmdb_info = Media().get_media_info_manual(media_type, title, year, tmdbid)
+                        if not tmdb_info:
+                            return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url}
+                        overview = tmdb_info.get("overview")
+                        poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path')
+                        title = tmdb_info.get('title')
+                        vote_average = tmdb_info.get("vote_average")
+                        release_date = tmdb_info.get('release_date')
+                        year = tmdb_info.get('release_date')[0:4] if tmdb_info.get('release_date') else ""
                     return {
                         "code": 0,
-                        "id": tmdb_info.get('id'),
-                        "title": tmdb_info.get('title'),
-                        "vote_average": tmdb_info.get("vote_average"),
+                        "title": title,
+                        "vote_average": vote_average,
                         "poster_path": poster_path,
-                        "release_date": tmdb_info.get('release_date'),
-                        "year": tmdb_info.get('release_date')[0:4] if tmdb_info.get('release_date') else "",
+                        "release_date": release_date,
+                        "year": year,
                         "overview": overview,
                         "link_url": link_url
                     }
                 else:
                     if doubanid:
+                        link_url = "https://movie.douban.com/subject/%s" % doubanid
                         douban_info = DoubanApi().tv_detail(doubanid)
+                        if not douban_info:
+                            return {"code": 1, "retmsg": "无法查询到豆瓣信息", "link_url": link_url}
                         overview = douban_info.get("intro")
                         poster_path = douban_info.get("cover_url")
-
+                        title = douban_info.get("title")
+                        vote_average = douban_info.get("rating", {}).get("value") or ""
+                        release_date = douban_info.get("pubdate")
+                        year = douban_info.get("year")
+                    else:
+                        link_url = "https://www.themoviedb.org/tv/%s" % tmdbid
+                        tmdb_info = Media().get_media_info_manual(media_type, title, year, tmdbid)
+                        if not tmdb_info:
+                            return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url}
+                        overview = tmdb_info.get("overview")
+                        poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path')
+                        title = tmdb_info.get('name')
+                        vote_average = tmdb_info.get("vote_average")
+                        release_date = tmdb_info.get('first_air_date')
+                        year = tmdb_info.get('first_air_date')[0:4] if tmdb_info.get('first_air_date') else ""
                     return {
                         "code": 0,
-                        "id": tmdb_info.get('id'),
-                        "title": tmdb_info.get('name'),
-                        "vote_average": tmdb_info.get("vote_average"),
+                        "title": title,
+                        "vote_average": vote_average,
                         "poster_path": poster_path,
-                        "first_air_date": tmdb_info.get('first_air_date'),
-                        "year": tmdb_info.get('first_air_date')[0:4] if tmdb_info.get('first_air_date') else "",
+                        "release_date": release_date,
+                        "year": year,
                         "overview": overview,
                         "link_url": link_url
                     }
