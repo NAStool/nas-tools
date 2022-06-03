@@ -42,7 +42,7 @@ class MetaHelper(object):
             begin_pos = (page - 1) * num
 
         with lock:
-            search_metas = [(k, json_serializable(v), str(k).replace("[电影]", "").replace("[电视剧]", "").replace("-None", "")) for k, v in
+            search_metas = [(k, json_serializable(v), str(k).replace("[电影]", "").replace("[电视剧]", "").replace("[未知]", "").replace("-None", "")) for k, v in
                             self.__get_meta_data().items() if search.lower() in k.lower() and v.get("id") != 0]
             return len(search_metas), search_metas[begin_pos: begin_pos + num]
 
