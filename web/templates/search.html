@@ -38,44 +38,46 @@
     <div class="row g-4">
       {% if Count > 8 %}
       <div class="col-md-3 col-lg-2 d-none d-md-block">
-        <form action="" method="get" id="filter_form">
-          <div class="subheader mb-2">类型</div>
-          <div class="list-group list-group-transparent mb-3" id="filter_type">
-            {% for mtype in MediaMTypes %}
-            <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:return false;" onclick="filter_medias('filter_type', this)">
-              <span>{{ mtype.name }}</span>
-              <small class="text-muted ms-auto">{{ mtype.num }}</small>
-            </a>
-            {% endfor %}
-          </div>
-          <div class="subheader mb-2">站点</div>
-          <div class="list-group list-group-transparent mb-3" id="filter_site">
-            {% for site in MediaSites %}
-            <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:return false;" onclick="filter_medias('filter_site', this)">
-              <span>{{ site.name }}</span>
-              <small class="text-muted ms-auto">{{ site.num }}</small>
-            </a>
-            {% endfor %}
-          </div>
-          <div class="subheader mb-2">质量</div>
-          <div class="list-group list-group-transparent mb-3" id="filter_res">
-            {% for restype in MediaRestypes %}
-            <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:return false;" onclick="filter_medias('filter_res', this)">
-              <span>{{ restype.name }}</span>
-              <small class="text-muted ms-auto">{{ restype.num }}</small>
-            </a>
-            {% endfor %}
-          </div>
-          <div class="subheader mb-2">分辨率</div>
-          <div class="list-group list-group-transparent mb-3" id="filter_pix">
-            {% for pix in MediaPixs %}
-            <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:return false;" onclick="filter_medias('filter_pix', this)">
-              <span>{{ pix.name }}</span>
-              <small class="text-muted ms-auto">{{ pix.num }}</small>
-            </a>
-            {% endfor %}
-          </div>
-        </form>
+        <div class="sticky-top">
+          <form action="" method="get" id="filter_form">
+            <div class="subheader mb-2">类型</div>
+            <div class="list-group list-group-transparent mb-3" id="filter_type">
+              {% for mtype in MediaMTypes %}
+              <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:return false;" onclick="filter_medias('filter_type', this)">
+                <span>{{ mtype.name }}</span>
+                <small class="text-muted ms-auto">{{ mtype.num }}</small>
+              </a>
+              {% endfor %}
+            </div>
+            <div class="subheader mb-2">站点</div>
+            <div class="list-group list-group-transparent mb-3" id="filter_site">
+              {% for site in MediaSites %}
+              <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:return false;" onclick="filter_medias('filter_site', this)">
+                <span>{{ site.name }}</span>
+                <small class="text-muted ms-auto">{{ site.num }}</small>
+              </a>
+              {% endfor %}
+            </div>
+            <div class="subheader mb-2">质量</div>
+            <div class="list-group list-group-transparent mb-3" id="filter_res">
+              {% for restype in MediaRestypes %}
+              <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:return false;" onclick="filter_medias('filter_res', this)">
+                <span>{{ restype.name }}</span>
+                <small class="text-muted ms-auto">{{ restype.num }}</small>
+              </a>
+              {% endfor %}
+            </div>
+            <div class="subheader mb-2">分辨率</div>
+            <div class="list-group list-group-transparent mb-3" id="filter_pix">
+              {% for pix in MediaPixs %}
+              <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:return false;" onclick="filter_medias('filter_pix', this)">
+                <span>{{ pix.name }}</span>
+                <small class="text-muted ms-auto">{{ pix.num }}</small>
+              </a>
+              {% endfor %}
+            </div>
+          </form>
+        </div>
       </div>
       {% endif %}
       <div class="{% if Count > 8 %}col-sm-12 col-md-9 col-lg-10{% else %}col-12{% endif %}">
