@@ -16,7 +16,8 @@ from utils.functions import get_dir_files_by_ext, get_free_space_gb, get_dir_lev
     is_path_in_path, get_system, is_bluray_dir, str_filesize, get_dir_files
 from message.send import Message
 from rmt.media import Media
-from utils.sqls import insert_transfer_history, insert_transfer_unknown, update_transfer_unknown_state, insert_transfer_blacklist
+from utils.sqls import insert_transfer_history, insert_transfer_unknown, update_transfer_unknown_state, \
+    insert_transfer_blacklist
 from utils.types import MediaType, DownloaderType, SyncType, RmtMode, OsType
 
 lock = Lock()
@@ -101,7 +102,8 @@ class FileTransfer:
             # 高质量文件覆盖
             self.__filesize_cover = media.get('filesize_cover')
             # 电影多分辨率
-            self.__movie_multiversion = True if media.get("movie_multiversion") is None or media.get("movie_multiversion") else False
+            self.__movie_multiversion = True if media.get("movie_multiversion") is None or media.get(
+                "movie_multiversion") else False
             # 电视剧多分辨率
             self.__tv_multiversion = media.get("tv_multiversion")
 
@@ -377,7 +379,8 @@ class FileTransfer:
                     file_list = [in_path]
                     log.info("【RMT】当前为蓝光原盘文件夹：%s" % str(in_path))
                 else:
-                    now_filesize = self.__min_filesize if not min_filesize or not min_filesize.isdigit() else int(min_filesize) * 1024 * 1024
+                    now_filesize = self.__min_filesize if not min_filesize or not min_filesize.isdigit() else int(
+                        min_filesize) * 1024 * 1024
                     file_list = get_dir_files_by_ext(in_path, RMT_MEDIAEXT, now_filesize)
                     Media_FileNum = len(file_list)
                     log.debug("【RMT】文件清单：" + str(file_list))
@@ -544,12 +547,16 @@ class FileTransfer:
                             failed_count += 1
                             continue
                 # 媒体库刷新条目：类型-类别-标题-年份
-                refresh_item = {"type": media.type, "category": media.category, "title": media.title, "year": media.year}
+                refresh_item = {"type": media.type, "category": media.category, "title": media.title,
+                                "year": media.year}
                 # 登记媒体库刷新
                 if refresh_item not in refresh_library_items:
                     refresh_library_items.append(refresh_item)
                 # 下载字幕条目
-                subtitle_item = {"type": media.type, "file": ret_file_path, "file_ext": os.path.splitext(file_item)[-1], "name": media.get_name(), "title": media.title, "year": media.year, "season": media.begin_season, "episode": media.begin_episode, "bluray": bluray_disk_flag}
+                subtitle_item = {"type": media.type, "file": ret_file_path, "file_ext": os.path.splitext(file_item)[-1],
+                                 "name": media.get_name(), "title": media.title, "year": media.year,
+                                 "season": media.begin_season, "episode": media.begin_episode,
+                                 "bluray": bluray_disk_flag}
                 # 登记字幕下载
                 if subtitle_item not in download_subtitle_items:
                     download_subtitle_items.append(subtitle_item)
@@ -594,15 +601,15 @@ class FileTransfer:
         return success_flag, error_message
 
     def transfer_udf_media(self,
-                       in_path,
-                       out_path,
-                       tmdb_info,
-                       media_type,
-                       season=None,
-                       episode=None,
-                       min_filesize=None):
+                           in_path,
+                           out_path,
+                           tmdb_info,
+                           media_type,
+                           season=None,
+                           episode=None,
+                           min_filesize=None):
         """
-        识别并转移一个文件或者目录
+        自定义识别并转移一个文件或者目录
         :param in_path: 转移的路径，可能是一个文件也可以是一个目录
         :param out_path: 转移的路径，可能是一个文件也可以是一个目录
         :param tmdb_info: 手动识别转移时传入的TMDB信息对象，如未输入，则按名称笔TMDB实时查询
@@ -619,9 +626,6 @@ class FileTransfer:
         bluray_disk_flag = False
         # 如果传入的是个目录
         if os.path.isdir(in_path):
-            # if media_type == MediaType.MOVIE:
-            #     log.error("【RMT】文件转移失败，电影类型必须指定到文件 %s" % in_path)
-            #     return False, "电影文件未指定"
             if not os.path.exists(in_path):
                 log.error("【RMT】文件转移失败，目录不存在 %s" % in_path)
                 return False, "目录不存在"
@@ -629,10 +633,10 @@ class FileTransfer:
             if is_invalid_path(in_path):
                 return False, "回收站或者隐藏文件夹"
 
-             # 判断是不是原盘文件夹
+            # 判断是不是原盘文件夹
             bluray_disk_flag = is_bluray_dir(in_path)
 
-                # 开始处理里面的文件
+            # 开始处理里面的文件
             if bluray_disk_flag:
                 file_list = [in_path]
                 log.info("【RMT】当前为蓝光原盘文件夹：%s" % str(in_path))
@@ -679,8 +683,6 @@ class FileTransfer:
                 total_count = total_count + 1
                 # 文件名
                 file_name = os.path.basename(file_item)
-                # 上级目录
-                file_path = os.path.dirname(file_item)
                 # 未识别
                 if not media or not media.tmdb_info or not media.get_title_string():
                     log.warn("【RMT】%s 无法识别媒体信息！" % file_name)
@@ -746,12 +748,16 @@ class FileTransfer:
                         error_message = "文件转移失败，错误码 %s" % ret
                         return success_flag, error_message
                 # 媒体库刷新条目：类型-类别-标题-年份
-                refresh_item = {"type": media.type, "category": media.category, "title": media.title, "year": media.year}
+                refresh_item = {"type": media.type, "category": media.category, "title": media.title,
+                                "year": media.year}
                 # 登记媒体库刷新
                 if refresh_item not in refresh_library_items:
                     refresh_library_items.append(refresh_item)
                 # 下载字幕条目
-                subtitle_item = {"type": media.type, "file": ret_file_path, "file_ext": os.path.splitext(file_item)[-1], "name": media.get_name(), "title": media.title, "year": media.year, "season": media.begin_season, "episode": media.begin_episode, "bluray": bluray_disk_flag}
+                subtitle_item = {"type": media.type, "file": ret_file_path, "file_ext": os.path.splitext(file_item)[-1],
+                                 "name": media.get_name(), "title": media.title, "year": media.year,
+                                 "season": media.begin_season, "episode": media.begin_episode,
+                                 "bluray": bluray_disk_flag}
                 # 登记字幕下载
                 if subtitle_item not in download_subtitle_items:
                     download_subtitle_items.append(subtitle_item)
@@ -881,7 +887,8 @@ class FileTransfer:
                         file_path = "%s-%s" % (file_path, media.part)
                     if media.resource_pix and self.__tv_multiversion:
                         file_path = "%s - %s%s - 第 %s 集 - %s" % (
-                            file_path, media.get_season_item(), media.get_episode_items(), file_seq_num, media.resource_pix)
+                            file_path, media.get_season_item(), media.get_episode_items(), file_seq_num,
+                            media.resource_pix)
                     else:
                         file_path = "%s - %s%s - 第 %s 集" % (
                             file_path, media.get_season_item(), media.get_episode_items(), file_seq_num)

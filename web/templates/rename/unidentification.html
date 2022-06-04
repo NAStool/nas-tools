@@ -197,8 +197,14 @@
           <div class="col-lg-6" id="rename_episode_div">
               <div class="mb-3">
                 <label class="form-label">集数定位(<a href="#" title="标定集数位置，例如：铁齿铜牙纪晓岚{ep}.iso,默认取定位集数">?</a>)</label>
-                <input type="text" id="rename_episode" class="form-control" placeholder="{ep}.mp4">
-                <select class="form-select" id="rename_episode_details"><option value="" selected>请选择</option></select>
+                <div class="row">
+                  <div class="col-8">
+                    <input type="text" id="rename_episode" class="form-control" placeholder="{ep}.mp4">
+                  </div>
+                  <div class="col-4">
+                    <select class="form-select" id="rename_episode_details"><option value="" selected>请选择</option></select>
+                  </div>
+                </div>
               </div>
             </div>
           <div class="col-lg-6" id="rename_min_filesize_div">
@@ -428,7 +434,7 @@
     }
     $("#rename_episode_details").empty();
     $("#rename_episode_details").append('<option value="" selected>请选择</option>');
-    for(var i=0; i<=50; i++){
+    for(var i=0; i<=1200; i++){
       $("#rename_episode_details").append('<option value="' + i + '">第' + i +'集</option>');
     }
     $("#rename_episode_details").show();

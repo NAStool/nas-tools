@@ -1407,13 +1407,13 @@ def create_flask_app(config):
                 if not tmdb_info:
                     return {"retcode": 1, "retmsg": "识别失败，无法查询到TMDB信息"}
                 succ_flag, ret_msg = FileTransfer().transfer_udf_media(in_path=inpath,
-                                                                        out_path=outpath,
-                                                                        tmdb_info=tmdb_info,
-                                                                        media_type=media_type,
-                                                                        season=season,
-                                                                        episode=(episode_format, episode_details),
-                                                                        min_filesize=min_filesize
-                                                                   )
+                                                                       out_path=outpath,
+                                                                       tmdb_info=tmdb_info,
+                                                                       media_type=media_type,
+                                                                       season=season,
+                                                                       episode=(episode_format, episode_details),
+                                                                       min_filesize=min_filesize
+                                                                       )
                 if succ_flag:
                     return {"retcode": 0, "retmsg": "转移成功"}
                 else:
