@@ -390,7 +390,7 @@
     $('#rename_min_filesize_div').show();
     $('#rename_btn').show();
     $('#rename_udf_btn').hide();
-
+    $('#rename_episode_details').hide();
     $("#rename_season").empty();
     $("#rename_season").append('<option value="" selected>请选择</option>');
     for(var i=0; i<=50; i++){
@@ -407,7 +407,6 @@
       $("#rename_season_div").show();
       $("#rename_episode_div").show();
       $("#rename_min_filesize_div").show();
-      $('#rename_episode_details').hide();
     }
     $('#modal-rename').modal('show');
   }
