@@ -342,7 +342,7 @@ class FileTransfer:
         :param tmdb_info: 手动识别转移时传入的TMDB信息对象，如未输入，则按名称笔TMDB实时查询
         :param media_type: 手动识别转移时传入的文件类型，如未输入，则自动识别
         :param season: 手动识别目录或文件时传入的的字号，如未输入，则自动识别
-        :param episode: (手动识别录或文件传入的集数位置， 是否需要整体识别同类型文件)
+        :param episode: (手动识别录或文件传入的集数位置，指定的集数/是否批处理匹配，转移记录的ID)
         :param min_filesize: 过滤小文件大小的上限值
         :param udf_flag: 自定义转移标志，为True时代表是自定义转移，此时很多处理不一样
         :return: 处理状态，错误信息
@@ -380,12 +380,15 @@ class FileTransfer:
                 else:
                     if udf_flag:
                         # 自定义转移时未输入大小限制默认不限制
-                        now_filesize = 0 if not min_filesize or not min_filesize.isdigit() else int(min_filesize) * 1024 * 1024
+                        now_filesize = 0 if not min_filesize or not min_filesize.isdigit() else int(
+                            min_filesize) * 1024 * 1024
                     else:
                         # 未输入大小限制默认为配置大小限制
-                        now_filesize = self.__min_filesize if not min_filesize or not min_filesize.isdigit() else int(min_filesize) * 1024 * 1024
+                        now_filesize = self.__min_filesize if not min_filesize or not min_filesize.isdigit() else int(
+                            min_filesize) * 1024 * 1024
                     # 查找目录下的文件
-                    file_list = get_dir_files(in_path=in_path, episode_format=episode[0], exts=RMT_MEDIAEXT, filesize=now_filesize)
+                    file_list = get_dir_files(in_path=in_path, episode_format=episode[0], exts=RMT_MEDIAEXT,
+                                              filesize=now_filesize)
                     log.debug("【RMT】文件清单：" + str(file_list))
                     if len(file_list) == 0:
                         log.warn("【RMT】%s 目录下未找到媒体文件，当前最小文件大小限制为 %s" % (in_path, str_filesize(now_filesize)))
@@ -578,11 +581,13 @@ class FileTransfer:
                     download_subtitle_items.append(subtitle_item)
                 # 转移历史记录
                 insert_transfer_history(in_from, rmt_mode, reg_path, dist_path, media)
-                if episode[1]:
+                # 未识别手动识别或历史记录重新识别的批处理模式
+                if isinstance(episode[1], bool) and episode[1]:
                     if episode[2]:
+                        # 历史记录重新识别，加入黑名单
                         insert_transfer_blacklist(file_item)
                     else:
-                        # 更改未知记录为已知
+                        # 未识别手动识别，更改未识别记录为已处理
                         update_transfer_unknown_state(file_item)
                 # 电影立即发送消息
                 if media.type == MediaType.MOVIE:

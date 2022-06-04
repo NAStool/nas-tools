@@ -401,7 +401,7 @@ class Media:
         :param media_type: 媒体类型：电影、电视剧、动漫，如有传入以该类型赋于所有文件，否则按名称从TMDB检索并识别
         :param season: 季号，如有传入以该季号赋于所有文件，否则从名称中识别
         :param episode_format: 手动识别轩发金时传入的集数位置
-        :param episode_details: 具体集数
+        :param episode_details: 具体集数，也有可能为True/False此时无意义
         :return: 带有TMDB信息的每个文件对应的MetaInfo对象字典
         """
         # 存储文件路径与媒体的对应关系
@@ -622,8 +622,10 @@ class Media:
 
     @staticmethod
     def split_episode(file_name, episode_format, episode_details=None):
-        if episode_details:
+        if episode_details and str(episode_details).isdigit():
             return episode_details, None
+        if not episode_format:
+            return None, None
         ret = parse.parse(episode_format, file_name)
         if ret:
             episodes = ret.__getitem__('ep')
