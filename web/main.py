@@ -1349,6 +1349,7 @@ def create_flask_app(config):
                 mtype = data.get("type")
                 season = data.get("season")
                 episode_format = data.get("episode_format")
+                min_filesize = data.get("min_filesize")
                 if mtype == "TV":
                     media_type = MediaType.TV
                 elif mtype == "MOV":
@@ -1369,13 +1370,51 @@ def create_flask_app(config):
                                                                    tmdb_info=tmdb_info,
                                                                    media_type=media_type,
                                                                    season=season,
-                                                                   episode_format=(episode_format, need_fix_all, logid))
+                                                                   episode=(episode_format, need_fix_all, logid),
+                                                                   min_filesize=min_filesize
+                                                                   )
                 if succ_flag:
                     if not need_fix_all:
                         if logid:
                             insert_transfer_blacklist(path)
                         else:
                             update_transfer_unknown_state(path)
+                    return {"retcode": 0, "retmsg": "转移成功"}
+                else:
+                    return {"retcode": 2, "retmsg": ret_msg}
+
+            # 自定义识别
+            if cmd == "rename_udf":
+                inpath = data.get("inpath")
+                outpath = data.get("outpath")
+                if not os.path.exists(inpath):
+                    return {"retcode": -1, "retmsg": "输入路径不存在"}
+                tmdbid = data.get("tmdb")
+                if not tmdbid.strip() and not tmdbid.isdigit():
+                    return {"retcode": -1, "retmsg": "tmdbid 格式不正确！"}
+                mtype = data.get("type")
+                season = data.get("season")
+                episode_format = data.get("episode_format")
+                episode_details = data.get("episode_details")
+                min_filesize = data.get("min_filesize")
+                if mtype == "TV":
+                    media_type = MediaType.TV
+                elif mtype == "MOV":
+                    media_type = MediaType.MOVIE
+                else:
+                    media_type = MediaType.ANIME
+                tmdb_info = Media().get_media_info_manual(media_type, None, None, tmdbid)
+                if not tmdb_info:
+                    return {"retcode": 1, "retmsg": "识别失败，无法查询到TMDB信息"}
+                succ_flag, ret_msg = FileTransfer().transfer_udf_media(in_path=inpath,
+                                                                        out_path=outpath,
+                                                                        tmdb_info=tmdb_info,
+                                                                        media_type=media_type,
+                                                                        season=season,
+                                                                        episode=(episode_format, episode_details),
+                                                                        min_filesize=min_filesize
+                                                                   )
+                if succ_flag:
                     return {"retcode": 0, "retmsg": "转移成功"}
                 else:
                     return {"retcode": 2, "retmsg": ret_msg}
@@ -1842,7 +1881,7 @@ def create_flask_app(config):
             xml_tree = ETree.fromstring(sMsg)
             try:
                 # 打开企业微信会产生心跳，filter
-                if xml_tree.find("MsgType") is None:
+                if xml_tree.find("MsgType") is None or xml_tree.find("EventKey") is None:
                     return
                 content = ""
                 msg_type = xml_tree.find("MsgType").text

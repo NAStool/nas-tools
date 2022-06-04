@@ -9,6 +9,7 @@ import platform
 import bisect
 import datetime
 from enum import Enum
+import parse
 
 from utils.types import OsType
 
@@ -148,6 +149,34 @@ def get_dir_files_by_ext(in_path, exts="", filesize=0):
             file_size = os.path.getsize(in_path)
             if in_path not in ret_list and file_size >= filesize:
                 ret_list.append(in_path)
+    return ret_list
+
+# 获得目录下的媒体文件列表List
+def get_dir_files(in_path, episode_format, filesize=0):
+    if not in_path:
+        return []
+    if not os.path.exists(in_path):
+        return []
+    ret_list = []
+    if os.path.isdir(in_path):
+        for root, dirs, files in os.walk(in_path):
+            for file in files:
+                if episode_format and not parse.parse(episode_format, file):
+                    continue
+                cur_path = os.path.join(root, file)
+                if is_invalid_path(cur_path):
+                    continue
+                file_size = os.path.getsize(cur_path)
+                if cur_path not in ret_list and file_size >= filesize:
+                    ret_list.append(cur_path)
+
+    else:
+        if is_invalid_path(in_path) or not parse.parse(episode_format, os.path.basename(in_path)):
+            return []
+        ext = os.path.splitext(in_path)[-1]
+        file_size = os.path.getsize(in_path)
+        if in_path not in ret_list and file_size >= filesize:
+            ret_list.append(in_path)
     return ret_list
 
 

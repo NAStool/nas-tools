@@ -6,6 +6,17 @@
           手动识别
         </h2>
       </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:show_rename_udf_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            自定义识别
+          </a>
+          <a href="#" class="btn btn-primary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -94,16 +105,24 @@
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">手动识别</h5>
+        <h5 class="modal-title" id="rename_header">手动识别</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="mb-3">
+        <div class="mb-3" id="rename_path_div">
           <label class="form-label">路径</label>
           <input type="text" id="rename_path" class="form-control" readonly>
           <input type="hidden" id="unknown_id">
-          <div class="invalid-feedback" id="rename_retmsg"></div>
         </div>
+        <div class="mb-3" id="rename_inpath_div">
+          <label class="form-label">输入路径</label>
+          <input type="text" id="rename_inpath" class="form-control">
+        </div>
+        <div class="mb-3" id="rename_outpath_div">
+          <label class="form-label">输出路径</label>
+          <input type="text" id="rename_outpath" class="form-control">
+        </div>
+        <div class="invalid-feedback" id="rename_retmsg"></div>
         <label class="form-label">类型</label>
         <div class="form-selectgroup-boxes row mb-3">
           <div class="col-lg-4">
@@ -149,13 +168,13 @@
       </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-lg-6">
+          <div class="col-lg-6" id="rename_title_div">
             <div class="mb-3">
               <label class="form-label">标题</label>
               <input type="text" id="rename_title" class="form-control">
             </div>
           </div>
-          <div class="col-lg-6">
+          <div class="col-lg-6" id="rename_year_div">
             <div class="mb-3">
               <label class="form-label">年份</label>
               <input type="text" id="rename_year" class="form-control">
@@ -175,16 +194,24 @@
               </select>
             </div>
           </div>
-            <div class="col-lg-6" id="rename_episode_div">
+          <div class="col-lg-6" id="rename_episode_div">
               <div class="mb-3">
-                <label class="form-label">自定义集数位置(<a href="#" title="标定集数位置，例如：铁齿铜牙纪晓岚{episode}.iso">?</a>)</label>
-                <input type="text" id="rename_episode" class="form-control">
+                <label class="form-label">集数定位(<a href="#" title="标定集数位置，例如：铁齿铜牙纪晓岚{ep}.iso,默认取定位集数">?</a>)</label>
+                <input type="text" id="rename_episode" class="form-control" placeholder="{ep}.mp4">
+                <select class="form-select" id="rename_episode_details"><option value="" selected>请选择</option></select>
               </div>
             </div>
+          <div class="col-lg-6" id="rename_min_filesize_div">
+              <div class="mb-3">
+                <label class="form-label">最小文件大小</label>
+                <input type="text" id="rename_min_filesize" class="form-control" placeholder="过滤当前最小文件大小(MB)">
+              </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" id="rename_btn" class="btn btn-primary">转移</button>
+        <button type="button" id="rename_udf_btn" class="btn btn-primary" style="display: none">识别</button>
       </div>
     </div>
   </div>
@@ -222,6 +249,7 @@
     var year = $("#rename_year").val();
     var season = $("#rename_season").val();
     var episode_format = $("#rename_episode").val();
+    var min_filesize = $("#rename_min_filesize").val();
 
     if (!unknown_id){
       return;
@@ -249,16 +277,23 @@
         $("#rename_year").removeClass("is-invalid");
       }
     } else {
-      if (isNaN(tmdb)) {
-        $("#rename_tmdb").addClass("is-invalid");
+        if (isNaN(tmdb)) {
+            $("#rename_tmdb").addClass("is-invalid");
+            return;
+        } else {
+            $("#rename_tmdb").removeClass("is-invalid");
+        }
+    }
+    if (min_filesize !== "" && isNaN(min_filesize)) {
+        $("#rename_min_filesize").addClass("is-invalid");
         return;
-      } else {
-        $("#rename_tmdb").removeClass("is-invalid");
-      }
+    } else {
+        $("#rename_min_filesize").removeClass("is-invalid");
     }
 
     // 开始处理
-    var data = { "unknown_id": unknown_id, "path": path, "type": type, "title": title, "year": year, "tmdb": tmdb, "season": season, "episode_format": episode_format};
+    var data = { "unknown_id": unknown_id, "path": path, "type": type, "title": title, "year": year, "tmdb": tmdb
+        , "season": season, "episode_format": episode_format, "min_filesize": min_filesize};
     $("#rename_btn").attr("disabled", true);
     $("#rename_btn").text("处理中...");
     $("#rename_retmsg").hide()
@@ -278,10 +313,84 @@
     });
   }
 
+  //自定义识别
+  function manual_udf_rename() {
+    var type = $('input:radio[name=rename_type]:checked').val();
+    var inpath = $("#rename_inpath").val();
+    var outpath = $("#rename_outpath").val();
+    var tmdb = $("#rename_tmdb").val();
+    var season = $("#rename_season").val();
+    var episode_format = $("#rename_episode").val();
+    var episode_details = $("#rename_episode_details").val();
+    var min_filesize = $("#rename_min_filesize").val();
+
+    if (inpath === "") {
+      $("#rename_inpath").addClass("is-invalid");
+      return;
+    } else {
+      $("#rename_inpath").removeClass("is-invalid");
+    }
+
+    if (outpath === "") {
+      $("#rename_outpath").addClass("is-invalid");
+      return;
+    } else {
+      $("#rename_outpath").removeClass("is-invalid");
+    }
+
+    if (tmdb === "" || isNaN(tmdb)) {
+      $("#rename_tmdb").addClass("is-invalid");
+      return;
+    } else {
+      $("#rename_tmdb").removeClass("is-invalid");
+    }
+    if (type !== "MOV") {
+      if (min_filesize !== "" && isNaN(min_filesize)) {
+        $("#rename_min_filesize").addClass("is-invalid");
+        return;
+      } else {
+        $("#rename_min_filesize").removeClass("is-invalid");
+      }
+    }
+
+
+    // 开始处理
+    var data = { "inpath": inpath, "outpath": outpath, "type": type, "tmdb": tmdb
+        , "season": season, "episode_format": episode_format, "episode_details": episode_details, "min_filesize": min_filesize};
+    $("#rename_udf_btn").attr("disabled", true);
+    $("#rename_udf_btn").text("处理中...");
+    $("#rename_retmsg").hide()
+    ajax_post("rename_udf", data, function (ret) {
+      $("#rename_udf_btn").attr("disabled", false);
+      $("#rename_udf_btn").text("识别");
+      if (ret.retcode == 0) {
+        //处理成功
+        $('#modal-rename').modal('hide');
+        navmenu('unidentification');
+      } else {
+        //处理失败
+        regmsg = ret.retmsg;
+        $("#rename_retmsg").show()
+        $("#rename_retmsg").text(regmsg)
+      }
+    });
+  }
+
   //显示弹出窗口
   function show_rename_modal(id, path){
     $('#unknown_id').val(id);
     $('#rename_path').val(path);
+
+    $('#rename_header').text("手动识别");
+    $('#rename_path_div').show();
+    $('#rename_inpath_div').hide();
+    $('#rename_outpath_div').hide();
+    $('#rename_title_div').show();
+    $('#rename_year_div').show();
+    $('#rename_min_filesize_div').show();
+    $('#rename_btn').show();
+    $('#rename_udf_btn').hide();
+    $('#rename_episode_details').hide();
     $("#rename_season").empty();
     $("#rename_season").append('<option value="" selected>请选择</option>');
     for(var i=0; i<=50; i++){
@@ -291,10 +400,49 @@
     if (type == "MOV") {
       $("#rename_season_div").hide();
       $("#rename_episode_div").hide();
+      $("#rename_min_filesize_div").hide();
       $("#rename_season").val("");
+      $("#rename_episode_details").val("");
     } else {
       $("#rename_season_div").show();
       $("#rename_episode_div").show();
+      $("#rename_min_filesize_div").show();
+    }
+    $('#modal-rename').modal('show');
+  }
+
+  //显示自定义识别窗口
+  function show_rename_udf_modal(){
+    $('#rename_header').text("自定义识别");
+    $('#rename_path_div').hide();
+    $('#rename_inpath_div').show();
+    $('#rename_outpath_div').show();
+    $('#rename_title_div').hide();
+    $('#rename_year_div').hide();
+    $('#rename_btn').hide();
+    $('#rename_udf_btn').show();
+    $("#rename_season").empty();
+    $("#rename_season").append('<option value="" selected>请选择</option>');
+    for(var i=0; i<=50; i++){
+      $("#rename_season").append('<option value="' + i + '">第' + i +'季</option>');
+    }
+    $("#rename_episode_details").empty();
+    $("#rename_episode_details").append('<option value="" selected>请选择</option>');
+    for(var i=0; i<=50; i++){
+      $("#rename_episode_details").append('<option value="' + i + '">第' + i +'集</option>');
+    }
+    $("#rename_episode_details").show();
+    type = $('input:radio[name=rename_type]:checked').val();
+    if (type == "MOV") {
+      $("#rename_season_div").hide();
+      $("#rename_episode_div").hide();
+      $("#rename_min_filesize_div").hide();
+      $("#rename_season").val("");
+      $("#rename_episode_details").val("");
+    } else {
+      $("#rename_season_div").show();
+      $("#rename_episode_div").show();
+      $("#rename_min_filesize_div").show();
     }
     $('#modal-rename').modal('show');
   }
@@ -314,6 +462,11 @@
   //转移按钮
   $("#rename_btn").click(function () {
     manual_rename();
+  });
+
+  //识别按钮
+  $("#rename_udf_btn").click(function () {
+    manual_udf_rename();
   });
 
   //重新识别
@@ -357,11 +510,14 @@
     if (this.value == 'MOV') {
       $("#rename_season_div").hide();
       $("#rename_episode_div").hide();
+      $("#rename_min_filesize_div").hide();
       $("#rename_season").val('');
+      $("#rename_episode_details").val('');
     }
     else {
       $("#rename_season_div").show();
       $("#rename_episode_div").show();
+      $("#rename_min_filesize_div").show();
     }
   });
 
