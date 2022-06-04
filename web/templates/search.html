@@ -81,7 +81,7 @@
       <div class="{% if Count > 8 %}col-sm-12 col-md-9 col-lg-10{% else %}col-12{% endif %}">
         <div class="row row-cards" id="media_cards">
           {% for Item in Items  %}
-          <div class="col-sm-6 {% if Count > 8 %}col-lg-4{% else %}col-lg-3{% endif %} media_card" id="media_card_{{ Item[0] }}">
+          <div class="col-sm-6 {% if Count > 8 %}col-xl-4{% else %}col-md-4 col-xl-3{% endif %} media_card" id="media_card_{{ Item[0] }}">
             <div class="card card-sm card-link-pop rounded-3">
               <div class="ribbon ribbon-top ribbon-bookmark {% if Item[11] > 8 %} bg-green {% elif Item[11] <= 8 and Item[11] >= 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ Item[11] }}</div>
               <a href="javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}')" class="d-block" >
