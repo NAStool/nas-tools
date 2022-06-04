@@ -5,8 +5,9 @@ import sqlite3
 import log
 
 
-class SQLit3PoolConnection():
-    def create_conn(self, **config):
+class SQLit3PoolConnection:
+    @staticmethod
+    def create_conn(**config):
         return sqlite3.connect(**config)
 
 
@@ -16,7 +17,9 @@ dbcs = {
 
 
 class DBPool(object):
-    '''数据库连接池'''
+    """
+    数据库连接池
+    """
 
     def __init__(self, max_active=5, max_wait=10, init_size=0, db_type="SQLite3", **config):
         self.__free_conns = Queue(max_active)
@@ -34,7 +37,9 @@ class DBPool(object):
         self.release()
 
     def release(self):
-        '''释放资源，关闭池中的所有连接'''
+        """
+        释放资源，关闭池中的所有连接
+        """
         print("release Pool..")
         while self.__free_conns and not self.__free_conns.empty():
             con = self.get()
@@ -44,15 +49,18 @@ class DBPool(object):
         self.__free_conns = None
 
     def _create_conn(self):
-        '''创建连接 '''
+        """
+        创建连接
+        """
         if self.db_type in dbcs:
             log.debug("【DB】创建连接")
             return dbcs[self.db_type]().create_conn(**self.config)
 
     def get(self, timeout=None):
-        '''获取一个连接
+        """
+        获取一个连接
         @param timeout:超时时间
-        '''
+        """
         log.debug("【DB】获取连接")
         conn = None
         if timeout is None:
@@ -69,9 +77,10 @@ class DBPool(object):
         return conn
 
     def free(self, conn):
-        '''将一个连接放回池中
+        """
+        将一个连接放回池中
         @param conn: 连接对象
-        '''
+        """
         if conn is None:
             return
         if self.__free_conns.full():  # 如果当前连接池已满，直接关闭连接

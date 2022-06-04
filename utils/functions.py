@@ -124,7 +124,7 @@ def system_exec_command(cmd, timeout=60):
 
 
 # 获得目录下的媒体文件列表List，按后缀过滤
-def get_dir_files_by_ext(in_path, exts="", filesize=0):
+def get_dir_files(in_path, exts="", filesize=0, episode_format=None):
     if not in_path:
         return []
     if not os.path.exists(in_path):
@@ -133,50 +133,36 @@ def get_dir_files_by_ext(in_path, exts="", filesize=0):
     if os.path.isdir(in_path):
         for root, dirs, files in os.walk(in_path):
             for file in files:
-                ext = os.path.splitext(file)[-1]
-                if not exts or ext.lower() in exts:
-                    cur_path = os.path.join(root, file)
-                    if is_invalid_path(cur_path):
-                        continue
-                    file_size = os.path.getsize(cur_path)
-                    if cur_path not in ret_list and file_size >= filesize:
-                        ret_list.append(cur_path)
-    else:
-        if is_invalid_path(in_path):
-            return []
-        ext = os.path.splitext(in_path)[-1]
-        if not exts or ext.lower() in exts:
-            file_size = os.path.getsize(in_path)
-            if in_path not in ret_list and file_size >= filesize:
-                ret_list.append(in_path)
-    return ret_list
-
-# 获得目录下的媒体文件列表List
-def get_dir_files(in_path, episode_format, filesize=0):
-    if not in_path:
-        return []
-    if not os.path.exists(in_path):
-        return []
-    ret_list = []
-    if os.path.isdir(in_path):
-        for root, dirs, files in os.walk(in_path):
-            for file in files:
-                if episode_format and not parse.parse(episode_format, file):
-                    continue
                 cur_path = os.path.join(root, file)
+                # 检查路径是否合法
                 if is_invalid_path(cur_path):
                     continue
-                file_size = os.path.getsize(cur_path)
-                if cur_path not in ret_list and file_size >= filesize:
+                # 检查格式匹配
+                if episode_format and not parse.parse(episode_format, file):
+                    continue
+                # 检查后缀
+                if exts and os.path.splitext(file)[-1].lower() not in exts:
+                    continue
+                # 检查文件大小
+                if filesize and os.path.getsize(cur_path) < filesize:
+                    continue
+                # 命中
+                if cur_path not in ret_list:
                     ret_list.append(cur_path)
-
     else:
-        if is_invalid_path(in_path) or not parse.parse(episode_format, os.path.basename(in_path)):
+        # 检查路径是否合法
+        if is_invalid_path(in_path):
             return []
-        ext = os.path.splitext(in_path)[-1]
-        file_size = os.path.getsize(in_path)
-        if in_path not in ret_list and file_size >= filesize:
-            ret_list.append(in_path)
+        # 检查后缀
+        if exts and os.path.splitext(in_path)[-1].lower() not in exts:
+            return []
+        # 检查格式
+        if episode_format and not parse.parse(episode_format, os.path.basename(in_path)):
+            return []
+        # 检查文件大小
+        if filesize and os.path.getsize(in_path) < filesize:
+            return []
+        ret_list.append(in_path)
     return ret_list
 
 
@@ -396,6 +382,7 @@ def json_serializable(obj):
     @param obj: 待转化的对象
     @return: 支持json序列化的对象
     """
+
     def _try(o):
         if isinstance(o, Enum):
             return o.value

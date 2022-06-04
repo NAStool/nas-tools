@@ -481,12 +481,12 @@ class Media:
                     meta_info.type = media_type
                     if season and media_type != MediaType.MOVIE:
                         meta_info.begin_season = int(season)
-                if episode_format or episode_details:
-                    begin_ep, end_ep = self.split_episode(file_name, episode_format, episode_details)
-                    if begin_ep:
-                        meta_info.begin_episode = begin_ep
-                    if end_ep:
-                        meta_info.end_episode = end_ep
+                    if episode_format or episode_details:
+                        begin_ep, end_ep = self.split_episode(file_name, episode_format, episode_details)
+                        if begin_ep:
+                            meta_info.begin_episode = begin_ep
+                        if end_ep:
+                            meta_info.end_episode = end_ep
                 return_media_infos[file_path] = meta_info
             except Exception as err:
                 log.error("【RMT】发生错误：%s - %s" % (str(err), traceback.format_exc()))

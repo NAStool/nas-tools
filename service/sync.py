@@ -8,7 +8,7 @@ from config import RMT_MEDIAEXT, Config
 import log
 from rmt.filetransfer import FileTransfer
 from utils.functions import singleton, is_invalid_path, is_path_in_path, is_bluray_dir, get_dir_level1_medias, \
-    get_dir_files_by_ext
+    get_dir_files
 from utils.sqls import is_transfer_in_blacklist, insert_sync_history, is_sync_in_history
 from utils.types import SyncType, OsType
 from watchdog.events import FileSystemEventHandler
@@ -305,7 +305,7 @@ class Sync(object):
             onlylink = target_dirs.get('onlylink')
             # 只做硬链接，不做识别重命名
             if onlylink:
-                for link_file in get_dir_files_by_ext(monpath):
+                for link_file in get_dir_files(monpath):
                     if is_sync_in_history(link_file, target_path):
                         continue
                     log.info("【SYNC】开始同步 %s" % link_file)
