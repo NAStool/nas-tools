@@ -38,6 +38,10 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 
 
 ## 更新日志
+2022.6.1
+* 新增近期下载
+* 新增TMDB缓存管理
+
 2022.5.24
 * 新增站点数据统计
 
