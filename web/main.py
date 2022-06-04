@@ -1635,12 +1635,13 @@ def create_flask_app(config):
                 mtype = data.get("type")
                 year = data.get("year")
                 season = data.get("season")
+                match = data.get("match")
                 if name and mtype:
                     if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
                         mtype = MediaType.MOVIE
                     else:
                         mtype = MediaType.TV
-                code, msg, media_info = add_rss_subscribe(mtype, name, year, season)
+                code, msg, media_info = add_rss_subscribe(mtype, name, year, season, match)
                 return {"code": code, "msg": msg}
 
             # 未识别的重新识别

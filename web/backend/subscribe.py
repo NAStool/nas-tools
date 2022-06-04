@@ -4,6 +4,7 @@ import log
 from message.send import Message
 from pt.torrent import Torrent
 from rmt.media import Media
+from rmt.metainfo import MetaInfo
 from utils.sqls import insert_rss_tv, insert_rss_movie
 from utils.types import MediaType, SearchType
 
@@ -61,42 +62,56 @@ def add_rss_substribe_from_string(rss_string, in_from=SearchType.OT, user_id=Non
         return False
 
 
-def add_rss_subscribe(mtype, name, year, season):
+def add_rss_subscribe(mtype, name, year, season, match=False):
     """
     添加电影、电视剧订阅
     :param mtype: 类型，电影、电视剧、动漫
     :param name: 标题
     :param year: 年份，如要是剧集需要是首播年份
     :param season: 第几季，数字
+    :param match: 是否模糊匹配
     :return: 错误码：0代表成功，错误信息
     """
     if not name:
         return -1, "标题或类型有误", None
     # 检索媒体信息
-    media = Media()
-    media_info = media.get_media_info(title="%s %s" % (name, year), mtype=mtype, strict=True if year else False)
-    if not media_info or not media_info.tmdb_info:
-        return 1, "无法查询到媒体信息", None
-    if media_info.type != MediaType.MOVIE:
-        if not season:
-            # 查询季及集信息
-            total_seasoninfo = media.get_tmdb_seasons_info(tmdbid=media_info.tmdb_id)
-            if not total_seasoninfo:
-                return 2, "获取剧集信息失败", media_info
-            # 按季号降序排序
-            total_seasoninfo = sorted(total_seasoninfo, key=lambda x: x.get("season_number"),
-                                      reverse=True)
-            # 没有季的信息时，取最新季
-            season = total_seasoninfo[0].get("season_number")
-            total_count = total_seasoninfo[0].get("episode_count")
+    if not match:
+        # 精确匹配
+        media = Media()
+        media_info = media.get_media_info(title="%s %s" % (name, year), mtype=mtype, strict=True if year else False)
+        if not media_info or not media_info.tmdb_info:
+            return 1, "无法查询到媒体信息", None
+        if media_info.type != MediaType.MOVIE:
+            if not season:
+                # 查询季及集信息
+                total_seasoninfo = media.get_tmdb_seasons_info(tmdbid=media_info.tmdb_id)
+                if not total_seasoninfo:
+                    return 2, "获取剧集信息失败", media_info
+                # 按季号降序排序
+                total_seasoninfo = sorted(total_seasoninfo, key=lambda x: x.get("season_number"),
+                                          reverse=True)
+                # 没有季的信息时，取最新季
+                season = total_seasoninfo[0].get("season_number")
+                total_count = total_seasoninfo[0].get("episode_count")
+            else:
+                season = int(season)
+                total_count = media.get_tmdb_season_episodes_num(sea=season, tmdbid=media_info.tmdb_id)
+            if not total_count:
+                return 3, "%s 获取剧集数失败，请确认该季是否存在" % media_info.get_title_string(), media_info
+            media_info.begin_season = season
+            insert_rss_tv(media_info, total_count, total_count)
         else:
-            season = int(season)
-            total_count = media.get_tmdb_season_episodes_num(sea=season, tmdbid=media_info.tmdb_id)
-        if not total_count:
-            return 3, "%s 获取剧集数失败，请确认该季是否存在" % media_info.get_title_string(), media_info
-        media_info.begin_season = season
-        insert_rss_tv(media_info, total_count, total_count)
+            insert_rss_movie(media_info)
     else:
-        insert_rss_movie(media_info)
+        # 模糊匹配
+        media_info = MetaInfo(title=name, mtype=mtype)
+        media_info.title = name
+        media_info.year = year
+        media_info.type = mtype
+        media_info.begin_season = season
+        if mtype == MediaType.MOVIE:
+            insert_rss_movie(media_info=media_info, state="R")
+        else:
+            insert_rss_tv(media_info=media_info, total=0, lack=0, state="R")
 
     return 0, "添加订阅成功", media_info

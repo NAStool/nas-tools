@@ -22,9 +22,20 @@ class Torrent:
                     continue
                 name = key_info[0]
                 year = key_info[1]
-                # 匹配标题和年份
-                if name == media_info.title and (not year or str(year) == str(media_info.year)):
-                    return True
+                tmdbid = key_info[2]
+                # 有tmdbid时精确匹配
+                if tmdbid:
+                    # 匹配名称、年份，年份可以没有
+                    if name == media_info.title and (not year or str(year) == str(media_info.year)):
+                        return True
+                # 模糊匹配
+                else:
+                    # 匹配年份
+                    if year and str(year) != str(media_info.year):
+                        continue
+                    # 匹配名称
+                    if name in media_info.org_string or name == media_info.title or name == str(media_info.year):
+                        return True
         else:
             # 匹配种子标题
             for key_info in tv_keys:
@@ -33,9 +44,28 @@ class Torrent:
                 name = key_info[0]
                 year = key_info[1]
                 season = key_info[2]
-                # 匹配标题和年份和季
-                if name == media_info.title and (not year or str(year) == str(media_info.year)) and season == media_info.get_season_string():
-                    return True
+                tmdbid = key_info[3]
+                # 有tmdbid时精确匹配
+                if tmdbid:
+                    # 匹配季，季可以为空
+                    if season and season != media_info.get_season_string():
+                        continue
+                    # 匹配年份，年份可以为空
+                    if year and str(year) != str(media_info.year):
+                        continue
+                    # 匹配名称
+                    if name == media_info.title:
+                        return True
+                else:
+                    # 匹配季
+                    if season and season != media_info.get_season_string():
+                        continue
+                    # 匹配年份
+                    if year and str(year) != str(media_info.year):
+                        continue
+                    # 匹配名称
+                    if name in media_info.org_string or name == media_info.title or name == str(media_info.year):
+                        return True
         return False
 
     @staticmethod

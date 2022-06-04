@@ -96,7 +96,7 @@
       <div class="modal-body">
         <div class="row">
           <label class="form-label required">电视剧</label>
-          <div class="row g-2">
+          <div class="row mb-3">
             <div class="col-6">
               <input type="text" value="" id="tv_name" class="form-control" placeholder="标题">
             </div>
@@ -108,6 +108,14 @@
                 <option value="" selected>请选择</option>
               </select>
             </div>
+          </div>
+        </div>
+        <div class="col-xl-4">
+          <div class="mb-3">
+            <label class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="key_match">
+              <span class="form-check-label">模糊匹配(<a href="#" title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，适用于订阅未上映剧集或按年份匹配所有新出剧集">?</a>)</span>
+            </label>
           </div>
         </div>
       </div>
@@ -178,12 +186,29 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="rss-remove-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="modal-title">确认提示</div>
+        <div id="rss_remove_message">是否确认取消订阅?</div>
+      </div>
+      <div class="modal-footer">
+        <input type="hidden" id="rss_name" />
+        <input type="hidden" id="rss_year" />
+        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-danger" id="rss_remove_btn">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   //新增订阅
   function add_rss_tv(){
-    name = $("#tv_name").val();
-    year = $("#tv_year").val();
-    season = $("#tv_season").val();
+    var name = $("#tv_name").val();
+    var year = $("#tv_year").val();
+    var season = $("#tv_season").val();
+    var match = $("#key_match").prop("checked");
     if (!name) {
       $("#tv_name").addClass("is-invalid");
       return;
@@ -197,7 +222,7 @@
       $("#tv_year").removeClass("is-invalid");
     }
     var cmd = "add_rss_media";
-    var data = { "name": name, "type": "TV", "year": year, "season": season};
+    var data = { "name": name, "type": "TV", "year": year, "season": season, "match": match};
     $("#modal-tv-rss").modal("hide");
     $("#modal-wait").modal("show");
     ajax_post(cmd, data, function(ret){
@@ -212,11 +237,17 @@
   }
 
   // 取消订阅
-  function remove_rss_media(){
+  function remove_rss_media(name, year, season){
     $("#modal-media-modal").modal("hide");
-    var name = $("#media_title").val();
-    var year = $("#media_year").val();
-    var season = $("#media_season").val();
+    if(!name){
+      name = $("#media_title").val();
+    }
+    if(!year){
+      year = $("#media_year").val();
+    }
+    if(!season){
+      season = $("#media_season").val();
+    }
     var cmd = "remove_rss_media";
     var data = { "name": name, "type": "TV", "year": year, "season": season};
     ajax_post(cmd, data, function(ret){
@@ -236,19 +267,30 @@
     $("#media_year").val(year);
     $("#rss_id").val(rssid);
     $("#media_season").val(season);
-    $("#modal-wait").modal("show");
-    ajax_post("media_info", {"id": tmdbid, "type": "TV"}, function(ret){
-      $("#modal-wait").modal("hide");
-      if(ret.code == 0){
-        $("#media_vote").text(ret.vote_average);
-        $("#media_poster").attr("src", ret.poster_path);
-        $("#media_name").text(ret.title);
-        $("#media_link").attr("href", "https://www.themoviedb.org/tv/" + ret.id);
-        $("#media_overview").text(ret.overview);
-        $("#first_air_date").text(ret.first_air_date)
-        $("#modal-media-modal").modal("show");
-      }
-    });
+    if(tmdbid){
+      $("#modal-wait").modal("show");
+      ajax_post("media_info", {"id": tmdbid, "type": "TV"}, function(ret){
+        $("#modal-wait").modal("hide");
+        if(ret.code == 0){
+          $("#media_vote").text(ret.vote_average);
+          $("#media_poster").attr("src", ret.poster_path);
+          $("#media_name").text(ret.title);
+          $("#media_link").attr("href", "https://www.themoviedb.org/tv/" + ret.id);
+          $("#media_overview").text(ret.overview);
+          $("#first_air_date").text(ret.first_air_date)
+          $("#modal-media-modal").modal("show");
+        }
+      });
+    }else{
+      $("#rss_remove_message").text("是否确认取消订阅 " + name);
+      $("#rss_name").val(name);
+      $("#rss_year").val(year);
+      $("#rss_remove_btn").click(function(){
+        $("#rss-remove-modal").modal('hide');
+        remove_rss_media(name, year, season);
+      });
+      $("#rss-remove-modal").modal('show');
+    }
   }
 
   //重新搜索

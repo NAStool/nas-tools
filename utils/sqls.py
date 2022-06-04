@@ -472,7 +472,7 @@ def is_exists_rss_tv(title, year, season):
 def insert_rss_tv(media_info, total, lack=0, state="D"):
     if not media_info:
         return False
-    if not media_info.title or not media_info.year:
+    if not media_info.title:
         return False
     if is_exists_rss_tv(media_info.title, media_info.year, media_info.get_season_string()):
         return True
