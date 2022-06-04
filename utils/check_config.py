@@ -160,10 +160,17 @@ def check_config(cfg):
             for sync_path in sync_paths:
                 if not sync_path:
                     continue
+                is_enabled = True
+                if sync_path.startswith("#"):
+                    sync_path = sync_path[1:-1]
+                    is_enabled = False
                 if sync_path.startswith("["):
                     sync_path = sync_path[1:-1]
                 if sync_path.find('|') != -1:
                     sync_path = sync_path.split("|")[0]
+                if not is_enabled:
+                    log.info("未开启同步，该目录同步功能已关闭：%s" % sync_path)
+                    continue
                 if not os.path.exists(sync_path):
                     log.warn("目录不存在，该目录同步功能已关闭：%s" % sync_path)
 
