@@ -36,9 +36,9 @@ class MetaVideo(MetaBase):
                         r"|[248]K|\d{3,4}[PIX]+"
     _resources_pix_re = r"^[SBUHD]*(\d{3,4}[PIX]+)"
     _resources_pix_re2 = r"(^[248]+K)"
-    _subtitle_season_re = r"[第\s]+([0-9一二三四五六七八九十\-]+)\s*季"
+    _subtitle_season_re = r"[第\s]+([0-9一二三四五六七八九十S\-]+)\s*季"
     _subtitle_season_all_re = r"全\s*([0-9一二三四五六七八九十]+)\s*季|([0-9一二三四五六七八九十]+)\s*季全"
-    _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十\-]+)\s*[集话話]"
+    _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十EP\-]+)\s*[集话話]"
     _subtitle_episode_all_re = r"([0-9一二三四五六七八九十]+)\s*集全|全\s*([0-9一二三四五六七八九十]+)\s*集"
 
     def __init__(self, title, subtitle=None):
@@ -375,7 +375,7 @@ class MetaVideo(MetaBase):
             if season_str:
                 seasons = season_str.group(1)
                 if seasons:
-                    seasons = seasons.strip()
+                    seasons = seasons.upper().replace("S", "").strip()
                 else:
                     return
                 end_season = None
@@ -399,7 +399,7 @@ class MetaVideo(MetaBase):
             if episode_str:
                 episodes = episode_str.group(1)
                 if episodes:
-                    episodes = episodes.strip()
+                    episodes = episodes.upper().replace("E", "").replace("P", "").strip()
                 else:
                     return
                 end_episode = None
