@@ -59,7 +59,7 @@
                     {% endif %}
                   </td>
                   <td>
-                    <label class="form-check">
+                    <label class="form-check form-switch">
                       <input class="form-check-input" type="checkbox" {% if SyncPath.rename %} checked {% endif %}
                              onclick="set_directory_config_rename('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}', this.checked)">
                     </label>
@@ -115,7 +115,7 @@
           </div>
           <div class="row g-2">
             <div class="col-4">
-              <label class="form-check">
+              <label class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="rename_flag" checked>
                 <span class="form-check-label">识别并重命名</span>
               </label>
@@ -188,7 +188,7 @@
           value = "[" + value + "]";
       }
 
-      if (rename != "True") {
+      if (enabled != "True") {
           value = "#" + value + "#";
       }
       var params = {"oper": "sub", "key": "sync.sync_path", "value": value};
