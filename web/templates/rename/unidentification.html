@@ -12,7 +12,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             自定义识别
           </a>
-          <a href="#" class="btn btn-primary d-sm-none btn-icon">
+          <a href="javascript:show_rename_udf_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           </a>
         </div>
@@ -113,11 +113,12 @@
           <label class="form-label">路径</label>
           <input type="text" id="rename_path" class="form-control" readonly>
           <input type="hidden" id="unknown_id">
+          <div class="invalid-feedback" id="rename_retmsg"></div>
         </div>
         <div class="mb-3" id="rename_inpath_div">
           <label class="form-label">输入路径</label>
           <input type="text" id="rename_inpath" class="form-control" placeholder="需要识别的目录或文件">
-          <div class="invalid-feedback" id="rename_retmsg"></div>
+          <div class="invalid-feedback" id="rename_udf_retmsg"></div>
         </div>
         <div class="mb-3" id="rename_outpath_div">
           <label class="form-label">输出路径</label>
@@ -365,7 +366,7 @@
         , "season": season, "episode_format": episode_format, "episode_details": episode_details, "min_filesize": min_filesize};
     $("#rename_udf_btn").attr("disabled", true);
     $("#rename_udf_btn").text("处理中...");
-    $("#rename_retmsg").hide()
+    $("#rename_udf_retmsg").hide()
     ajax_post("rename_udf", data, function (ret) {
       $("#rename_udf_btn").attr("disabled", false);
       $("#rename_udf_btn").text("识别");
@@ -376,8 +377,8 @@
       } else {
         //处理失败
         regmsg = ret.retmsg;
-        $("#rename_retmsg").show()
-        $("#rename_retmsg").text(regmsg)
+        $("#rename_udf_retmsg").show()
+        $("#rename_udf_retmsg").text(regmsg)
       }
     });
   }
