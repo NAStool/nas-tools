@@ -68,6 +68,10 @@ class Sync(object):
                 if not sync_monpath:
                     continue
                 only_link = False
+                enabled = True
+                if sync_monpath.startswith('#'):
+                    enabled = False
+                    sync_monpath = sync_monpath[1:-1]
                 if sync_monpath.startswith('['):
                     only_link = True
                     sync_monpath = sync_monpath[1:-1]
@@ -94,6 +98,9 @@ class Sync(object):
                         log.info("【SYNC】读取到监控目录：%s，目的目录：%s" % (monpath, target_path))
                     else:
                         log.info("【SYNC】读取到监控目录：%s" % monpath)
+                    if not enabled:
+                        log.info("【SYNC】%s 不进行监控和同步：手动关闭" % monpath)
+                        continue
                     if only_link:
                         log.info("【SYNC】%s 不进行识别和重命名" % monpath)
                     if target_path and not os.path.exists(target_path):

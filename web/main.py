@@ -1008,9 +1008,13 @@ def create_flask_app(config):
             if isinstance(sync_paths, list):
                 for sync_path in sync_paths:
                     SyncPath = {}
-                    rename_flag = True
+                    is_rename = True
+                    is_enabled = True
+                    if sync_path.startswith("#"):
+                        is_enabled = False
+                        sync_path = sync_path[1:-1]
                     if sync_path.startswith("["):
-                        rename_flag = False
+                        is_rename = False
                         sync_path = sync_path[1:-1]
                     paths = sync_path.split("|")
                     if not paths:
@@ -1023,10 +1027,12 @@ def create_flask_app(config):
                         SyncPath['to'] = paths[1]
                     if len(paths) > 2:
                         SyncPath['unknown'] = paths[2]
-                    SyncPath['rename'] = rename_flag
+                    SyncPath['rename'] = is_rename
+                    SyncPath['enabled'] = is_enabled
                     SyncPaths.append(SyncPath)
             else:
                 SyncPaths = [{"from": sync_paths}]
+        SyncPaths = sorted(SyncPaths, key=lambda o: o.get("from"))
         SyncCount = len(SyncPaths)
         return render_template("setting/directorysync.html", SyncPaths=SyncPaths, SyncCount=SyncCount)
 
@@ -1647,7 +1653,8 @@ def create_flask_app(config):
 
             # 维护媒体库目录
             if cmd == "update_directory":
-                cfg = set_config_directory(config.get_config(), data.get("oper"), data.get("key"), data.get("value"))
+                cfg = set_config_directory(config.get_config(), data.get("oper"), data.get("key"),
+                                           data.get("value"), data.get("replace_value"))
                 # 保存配置
                 config.save_config(cfg)
                 if data.get("key") == "sync.sync_path":
@@ -2020,7 +2027,7 @@ def create_flask_app(config):
         return cfg
 
     # 更新目录数据
-    def set_config_directory(cfg, oper, cfg_key, cfg_value):
+    def set_config_directory(cfg, oper, cfg_key, cfg_value, update_value=None):
         # 最大支持二层赋值
         keys = cfg_key.split(".")
         if keys:
@@ -2030,10 +2037,14 @@ def create_flask_app(config):
                         cfg[keys[0]] = [cfg[keys[0]]]
                     if oper == "add":
                         cfg[keys[0]].append(cfg_value)
-                    else:
+                    elif oper == "sub":
                         cfg[keys[0]].remove(cfg_value)
                         if not cfg[keys[0]]:
                             cfg[keys[0]] = None
+                    elif oper == "set":
+                        cfg[keys[0]].remove(cfg_value)
+                        if update_value:
+                            cfg[keys[0]].append(update_value)
                 else:
                     cfg[keys[0]] = cfg_value
             elif len(keys) == 2:
@@ -2044,10 +2055,14 @@ def create_flask_app(config):
                         cfg[keys[0]][keys[1]] = [cfg[keys[0]][keys[1]]]
                     if oper == "add":
                         cfg[keys[0]][keys[1]].append(cfg_value)
-                    else:
+                    elif oper == "sub":
                         cfg[keys[0]][keys[1]].remove(cfg_value)
                         if not cfg[keys[0]][keys[1]]:
                             cfg[keys[0]][keys[1]] = None
+                    elif oper == "set":
+                        cfg[keys[0]][keys[1]].remove(cfg_value)
+                        if update_value:
+                            cfg[keys[0]][keys[1]].append(update_value)
                 else:
                     cfg[keys[0]] = {}
                     cfg[keys[0]][keys[1]] = cfg_value
