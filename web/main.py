@@ -1883,12 +1883,12 @@ def create_flask_app(config):
             xml_tree = ETree.fromstring(sMsg)
             try:
                 # 打开企业微信会产生心跳，filter
-                if xml_tree.find("MsgType") is None or xml_tree.find("EventKey") is None:
+                if xml_tree.find("MsgType") is None:
                     return
                 content = ""
                 msg_type = xml_tree.find("MsgType").text
                 user_id = xml_tree.find("FromUserName").text
-                if msg_type == "event":
+                if msg_type == "event" and xml_tree.find("EventKey"):
                     event_key = xml_tree.find("EventKey").text
                     if event_key:
                         log.info("点击菜单：%s" % event_key)
