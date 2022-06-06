@@ -49,6 +49,7 @@ from utils.sqls import get_search_result_by_id, get_search_results, \
     get_users, insert_user, delete_user, get_transfer_statistics, get_system_messages, get_site_statistics, \
     get_download_history, get_site_statistics_recent_sites
 from utils.types import MediaType, SearchType, DownloaderType, SyncType, OsType
+from utils.commons import EpisodeFormat
 from version import APP_VERSION
 from web.backend.douban_hot import DoubanHot
 from web.backend.subscribe import add_rss_subscribe, add_rss_substribe_from_string
@@ -1379,7 +1380,7 @@ def create_flask_app(config):
                                                                    tmdb_info=tmdb_info,
                                                                    media_type=media_type,
                                                                    season=season,
-                                                                   episode=(episode_format, need_fix_all, logid),
+                                                                   episode=(EpisodeFormat(episode_format), need_fix_all, logid),
                                                                    min_filesize=min_filesize
                                                                    )
                 if succ_flag:
@@ -1405,6 +1406,7 @@ def create_flask_app(config):
                 season = data.get("season")
                 episode_format = data.get("episode_format")
                 episode_details = data.get("episode_details")
+                episode_offset= data.get("episode_offset")
                 min_filesize = data.get("min_filesize")
                 if mtype == "TV":
                     media_type = MediaType.TV
@@ -1422,7 +1424,7 @@ def create_flask_app(config):
                                                                    tmdb_info=tmdb_info,
                                                                    media_type=media_type,
                                                                    season=season,
-                                                                   episode=(episode_format, episode_details, None),
+                                                                   episode=(EpisodeFormat(episode_format, episode_details, episode_offset), False, None),
                                                                    min_filesize=min_filesize,
                                                                    udf_flag=True)
                 if succ_flag:

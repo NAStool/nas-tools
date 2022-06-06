@@ -10,7 +10,7 @@ from rmt.tmdbv3api import TMDb, Search, Movie, TV
 from utils.functions import xstr
 from utils.meta_helper import MetaHelper
 from utils.types import MediaType, MatchMode
-
+from utils.commons import EpisodeFormat
 
 class Media:
     # TheMovieDB
@@ -397,16 +397,14 @@ class Media:
         meta_info.set_tmdb_info(self.meta.get_meta_data_by_key(media_key))
         return meta_info
 
-    def get_media_info_on_files(self, file_list, tmdb_info=None, media_type=None, season=None, episode_format=None,
-                                episode_details=None):
+    def get_media_info_on_files(self, file_list, tmdb_info=None, media_type=None, season=None, episode_format: EpisodeFormat = None):
         """
         根据文件清单，搜刮TMDB信息，用于文件名称的识别
         :param file_list: 文件清单，如果是列表也可以是单个文件，也可以是一个目录
         :param tmdb_info: 如有传入TMDB信息则以该TMDB信息赋于所有文件，否则按名称从TMDB检索，用于手工识别时传入
         :param media_type: 媒体类型：电影、电视剧、动漫，如有传入以该类型赋于所有文件，否则按名称从TMDB检索并识别
         :param season: 季号，如有传入以该季号赋于所有文件，否则从名称中识别
-        :param episode_format: 手动识别轩发金时传入的集数位置
-        :param episode_details: 具体集数，也有可能为True/False此时无意义
+        :param episode_format: EpisodeFormat
         :return: 带有TMDB信息的每个文件对应的MetaInfo对象字典
         """
         # 存储文件路径与媒体的对应关系
@@ -487,8 +485,8 @@ class Media:
                     meta_info.type = media_type
                     if season and media_type != MediaType.MOVIE:
                         meta_info.begin_season = int(season)
-                    if episode_format or episode_details:
-                        begin_ep, end_ep = self.split_episode(file_name, episode_format, episode_details)
+                    if episode_format:
+                        begin_ep, end_ep = episode_format.split_episode(file_name)
                         if begin_ep:
                             meta_info.begin_episode = begin_ep
                         if end_ep:
@@ -625,22 +623,3 @@ class Media:
         if not b:
             return a
         return max(a, b)
-
-    @staticmethod
-    def split_episode(file_name, episode_format, episode_details=None):
-        if episode_details and str(episode_details).isdigit():
-            return episode_details, None
-        if not episode_format:
-            return None, None
-        ret = parse.parse(episode_format, file_name)
-        if ret:
-            episodes = ret.__getitem__('ep')
-            episode_splits = list(filter(lambda x: re.compile(r'[a-zA-Z]*\d{1,4}', re.IGNORECASE).match(x),
-                                         re.split(r'%s' % SPLIT_CHARS, episodes)))
-            if len(episode_splits) == 1:
-                return int(re.compile(r'[a-zA-Z]*', re.IGNORECASE).sub("", episode_splits[0])), None
-            else:
-                return int(re.compile(r'[a-zA-Z]*', re.IGNORECASE).sub("", episode_splits[0])), int(
-                    re.compile(r'[a-zA-Z]*', re.IGNORECASE).sub("", episode_splits[1]))
-        else:
-            return None, None

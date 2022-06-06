@@ -19,6 +19,7 @@ from rmt.media import Media
 from utils.sqls import insert_transfer_history, insert_transfer_unknown, update_transfer_unknown_state, \
     insert_transfer_blacklist
 from utils.types import MediaType, DownloaderType, SyncType, RmtMode, OsType
+from utils.commons import EpisodeFormat
 
 lock = Lock()
 
@@ -329,7 +330,7 @@ class FileTransfer:
                        tmdb_info=None,
                        media_type=None,
                        season=None,
-                       episode=None,
+                       episode: (EpisodeFormat, bool, str) = None,
                        min_filesize=None,
                        udf_flag=False):
         """
@@ -342,7 +343,7 @@ class FileTransfer:
         :param tmdb_info: 手动识别转移时传入的TMDB信息对象，如未输入，则按名称笔TMDB实时查询
         :param media_type: 手动识别转移时传入的文件类型，如未输入，则自动识别
         :param season: 手动识别目录或文件时传入的的字号，如未输入，则自动识别
-        :param episode: (手动识别录或文件传入的集数位置，指定的集数/是否批处理匹配，转移记录的ID)
+        :param episode: (EpisodeFormat，是否批处理匹配，转移记录的ID)
         :param min_filesize: 过滤小文件大小的上限值
         :param udf_flag: 自定义转移标志，为True时代表是自定义转移，此时很多处理不一样
         :return: 处理状态，错误信息
@@ -407,7 +408,7 @@ class FileTransfer:
             file_list = files
 
         # API检索出媒体信息，传入一个文件列表，得出每一个文件的名称，这里是当前目录下所有的文件了
-        Medias = self.media.get_media_info_on_files(file_list, tmdb_info, media_type, season, episode[0], episode[1])
+        Medias = self.media.get_media_info_on_files(file_list, tmdb_info, media_type, season, episode[0])
         if not Medias:
             log.error("【RMT】检索媒体信息出错！")
             return False, "检索媒体信息出错"
@@ -926,7 +927,6 @@ class FileTransfer:
         if not os.path.exists(new_dir):
             os.makedirs(new_dir)
         return self.__transfer_command(in_file, new_file, rmt_mode)
-
 
 if __name__ == "__main__":
     """

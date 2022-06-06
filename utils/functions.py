@@ -9,9 +9,7 @@ import platform
 import bisect
 import datetime
 from enum import Enum
-import parse
 import requests
-
 from utils.types import OsType
 
 INSTANCES = {}
@@ -125,7 +123,7 @@ def system_exec_command(cmd, timeout=60):
 
 
 # 获得目录下的媒体文件列表List，按后缀过滤
-def get_dir_files(in_path, exts="", filesize=0, episode_format=None):
+def get_dir_files(in_path, exts="", filesize=0, episode_format = None):
     if not in_path:
         return []
     if not os.path.exists(in_path):
@@ -139,7 +137,8 @@ def get_dir_files(in_path, exts="", filesize=0, episode_format=None):
                 if is_invalid_path(cur_path):
                     continue
                 # 检查格式匹配
-                if episode_format and not parse.parse(episode_format, file):
+
+                if episode_format and not episode_format.match(file):
                     continue
                 # 检查后缀
                 if exts and os.path.splitext(file)[-1].lower() not in exts:
@@ -158,7 +157,7 @@ def get_dir_files(in_path, exts="", filesize=0, episode_format=None):
         if exts and os.path.splitext(in_path)[-1].lower() not in exts:
             return []
         # 检查格式
-        if episode_format and not parse.parse(episode_format, os.path.basename(in_path)):
+        if episode_format and not episode_format.match(os.path.basename(in_path)):
             return []
         # 检查文件大小
         if filesize and os.path.getsize(in_path) < filesize:
