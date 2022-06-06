@@ -41,11 +41,11 @@ class EpisodeFormat(object):
     def match(self, file: str):
         if self.__format is None:
             return False
-        if self.__start_ep is None:
-            return True
         s, e = self.__handle_single(file)
         if not s:
             return False
+        if self.__start_ep is None:
+            return True
         if self.__start_ep <= s <= self.__end_ep:
             return True
         return False

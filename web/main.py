@@ -1908,6 +1908,9 @@ def create_flask_app(config):
                         if len(keys) > 2:
                             content = WECHAT_MENU.get(keys[2])
                 else:
+                    if not xml_tree.find("Content"):
+                        log.info("heartbeat。。。。。。。")
+                        return
                     content = xml_tree.find("Content").text
                     log.info("消息内容：%s" % content)
                 # 处理消息内容
