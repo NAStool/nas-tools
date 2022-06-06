@@ -37,7 +37,8 @@ from message.send import Message
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE, RMT_MEDIAEXT
 from service.run import stop_scheduler, restart_scheduler
 from service.scheduler import Scheduler
-from utils.functions import get_used_of_partition, str_filesize, str_timelong, get_system, get_dir_files
+from utils.functions import get_used_of_partition, str_filesize, str_timelong, get_system, get_dir_files, \
+    get_bing_wallpaper
 from utils.meta_helper import MetaHelper
 from utils.sqls import get_search_result_by_id, get_search_results, \
     get_transfer_history, get_transfer_unknown_paths, \
@@ -206,7 +207,8 @@ def create_flask_app(config):
                 pris = get_user(username).get("pris")
                 if userid is None or username is None:
                     return render_template('login.html',
-                                           GoPage=GoPage)
+                                           GoPage=GoPage,
+                                           BingWallpaper=get_bing_wallpaper())
                 else:
                     return render_template('navigation.html',
                                            GoPage=GoPage,
@@ -216,7 +218,8 @@ def create_flask_app(config):
                                            AppVersion=APP_VERSION)
             else:
                 return render_template('login.html',
-                                       GoPage=GoPage)
+                                       GoPage=GoPage,
+                                       BingWallpaper=get_bing_wallpaper())
 
         else:
             GoPage = request.form.get('next') or ""

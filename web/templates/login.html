@@ -13,13 +13,13 @@
     <!-- CSS files -->
     <link href="../static/css/tabler.min.css" rel="stylesheet"/>
   </head>
-  <body  class=" border-top-wide border-primary d-flex flex-column">
+  <body  class="d-flex flex-column" style="background-image: url({{ BingWallpaper }})">
     <div class="page page-center">
       <div class="container-tight py-4">
         <div class="text-center mb-4">
           <a href="/" class="navbar-brand navbar-brand-autodark"><img src="../static/img/logo.svg" height="36" alt=""></a>
         </div>
-        <form class="card card-md" action="/" method="post" autocomplete="off">
+        <form class="card card-md" action="/" method="post" autocomplete="off" style="background-color:rgba(255,255,255,0.5);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)">
           <input type="hidden" name="next" value="{{ GoPage }}" />
           <div class="card-body">
             <h2 class="card-title text-center mb-4"><strong>登录</strong></h2>
@@ -47,8 +47,6 @@
         </form>
       </div>
     </div>
-    <!-- Libs JS -->
-    <!-- Tabler Core -->
     <script src="../static/js/tabler.min.js"></script>
     <script src="../static/js/demo.min.js"></script>
   </body>

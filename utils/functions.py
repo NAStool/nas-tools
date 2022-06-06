@@ -10,6 +10,7 @@ import bisect
 import datetime
 from enum import Enum
 import parse
+import requests
 
 from utils.types import OsType
 
@@ -393,3 +394,20 @@ def json_serializable(obj):
             return str(o)
 
     return json.loads(json.dumps(obj, default=lambda o: _try(o)))
+
+
+# 获取Bing每日避纸
+def get_bing_wallpaper(num=1):
+    url = "http://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=%s" % num
+    try:
+        resp = requests.get(url, timeout=5)
+    except Exception as err:
+        print(str(err))
+        return "" if num == 1 else []
+    images = []
+    if resp and resp.status_code == 200:
+        for image in resp.json()['images']:
+            images.append(f"https://cn.bing.com{image['url']}")
+    if num == 1:
+        return images[0] if len(images) > 0 else ""
+    return images
