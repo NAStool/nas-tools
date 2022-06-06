@@ -41,12 +41,11 @@ class EpisodeFormat(object):
     def match(self, file: str):
         if self.__format is None:
             return False
-        ret = parse.parse(self.__format, file)
-        if not ret:
-            return False
         if self.__start_ep is None:
             return True
-        s, e = self.__handle_single(ret)
+        s, e = self.__handle_single(file)
+        if not s:
+            return False
         if self.__start_ep <= s <= self.__end_ep:
             return True
         return False
@@ -57,15 +56,16 @@ class EpisodeFormat(object):
             return self.__start_ep + self.__offset, None
         if not self.__format:
             return None, None
-        ret = parse.parse(self.__format, file_name)
-        if ret:
-            s, e = self.__handle_single(ret)
-            return s + self.__offset, e + self.__offset if e else None
-        else:
-            return None, None
+        s, e = self.__handle_single(file_name)
+        return s + self.__offset if s else None, e + self.__offset if e else None
 
-    def __handle_single(self, parse_ret):
-        episodes = parse_ret.__getitem__(self.__key)
+    def __handle_single(self, file: str):
+        ret = parse.parse(self.__format, file)
+        if not ret:
+            return None, None
+        episodes = ret.__getitem__(self.__key)
+        if not re.compile("^(EP)?(\d{1,4})(-(EP)?(\d{1,4}))?$", re.IGNORECASE).match(file):
+            return None, None
         episode_splits = list(filter(lambda x: re.compile(r'[a-zA-Z]*\d{1,4}', re.IGNORECASE).match(x),
                                      re.split(r'%s' % SPLIT_CHARS, episodes)))
         if len(episode_splits) == 1:
