@@ -62,9 +62,11 @@ class Media:
             return False
         if not isinstance(tmdb_names, list):
             tmdb_names = [tmdb_names]
-        file_name = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__empty_chars, '', re.sub(r"%s" % self.__space_chars, ' ', file_name))).strip().upper()
+        file_name = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__empty_chars, '',
+                                               re.sub(r"%s" % self.__space_chars, ' ', file_name))).strip().upper()
         for tmdb_name in tmdb_names:
-            tmdb_name = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__empty_chars, '', re.sub(r"%s" % self.__space_chars, ' ', tmdb_name))).strip().upper()
+            tmdb_name = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__empty_chars, '',
+                                                   re.sub(r"%s" % self.__space_chars, ' ', tmdb_name))).strip().upper()
             if file_name == tmdb_name:
                 return True
         return False
@@ -264,6 +266,7 @@ class Media:
         :param season_number: 季序号
         :return: 匹配的媒体信息
         """
+
         def __season_match(tmdb_id):
             try:
                 seasons = self.get_tmdb_seasons_info(tmdbid=tmdb_id)
@@ -345,7 +348,8 @@ class Media:
             return None
         if mtype:
             meta_info.type = mtype
-        media_key = "[%s]%s-%s-%s" % (meta_info.type.value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
+        media_key = "[%s]%s-%s-%s" % (
+            meta_info.type.value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
         if not self.meta.get_meta_data_by_key(media_key):
             # 缓存中没有开始查询
             if meta_info.type in [MediaType.TV, MediaType.ANIME]:
@@ -393,7 +397,8 @@ class Media:
         meta_info.set_tmdb_info(self.meta.get_meta_data_by_key(media_key))
         return meta_info
 
-    def get_media_info_on_files(self, file_list, tmdb_info=None, media_type=None, season=None, episode_format=None, episode_details=None):
+    def get_media_info_on_files(self, file_list, tmdb_info=None, media_type=None, season=None, episode_format=None,
+                                episode_details=None):
         """
         根据文件清单，搜刮TMDB信息，用于文件名称的识别
         :param file_list: 文件清单，如果是列表也可以是单个文件，也可以是一个目录
@@ -431,8 +436,9 @@ class Media:
                         parent_info = MetaInfo(parent_name)
                         if not parent_info.get_name() or not parent_info.year:
                             parent_parent_info = MetaInfo(parent_parent_name)
-                            parent_info.type = parent_parent_info.type if parent_info.type in [MediaType.MOVIE,
-                                                                                               MediaType.UNKNOWN] else parent_info.type
+                            parent_info.type = parent_parent_info.type if parent_parent_info.type and parent_info.type in [
+                                MediaType.MOVIE,
+                                MediaType.UNKNOWN] else parent_info.type
                             parent_info.cn_name = parent_parent_info.cn_name if parent_parent_info.cn_name else parent_info.cn_name
                             parent_info.en_name = parent_parent_info.en_name if parent_parent_info.en_name else parent_info.en_name
                             parent_info.year = parent_parent_info.year if parent_parent_info.year else parent_info.year
@@ -444,7 +450,7 @@ class Media:
                             meta_info.en_name = parent_info.en_name
                         if not meta_info.year:
                             meta_info.year = parent_info.year
-                        if parent_info.type not in [MediaType.MOVIE, MediaType.UNKNOWN] \
+                        if parent_info.type and parent_info.type not in [MediaType.MOVIE, MediaType.UNKNOWN] \
                                 and meta_info.type in [MediaType.MOVIE, MediaType.UNKNOWN]:
                             meta_info.type = parent_info.type
                         if meta_info.type in [MediaType.TV, MediaType.ANIME]:
@@ -629,7 +635,8 @@ class Media:
         ret = parse.parse(episode_format, file_name)
         if ret:
             episodes = ret.__getitem__('ep')
-            episode_splits = list(filter(lambda x: re.compile(r'[a-zA-Z]*\d{1,4}', re.IGNORECASE).match(x), re.split(r'%s' % SPLIT_CHARS, episodes)))
+            episode_splits = list(filter(lambda x: re.compile(r'[a-zA-Z]*\d{1,4}', re.IGNORECASE).match(x),
+                                         re.split(r'%s' % SPLIT_CHARS, episodes)))
             if len(episode_splits) == 1:
                 return int(re.compile(r'[a-zA-Z]*', re.IGNORECASE).sub("", episode_splits[0])), None
             else:
