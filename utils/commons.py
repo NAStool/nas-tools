@@ -61,10 +61,10 @@ class EpisodeFormat(object):
 
     def __handle_single(self, file: str):
         ret = parse.parse(self.__format, file)
-        if not ret:
+        if not ret or not ret.__contains__(self.__key):
             return None, None
         episodes = ret.__getitem__(self.__key)
-        if not re.compile("^(EP)?(\d{1,4})(-(EP)?(\d{1,4}))?$", re.IGNORECASE).match(file):
+        if not re.compile("^(EP)?(\d{1,4})(-(EP)?(\d{1,4}))?$", re.IGNORECASE).match(episodes):
             return None, None
         episode_splits = list(filter(lambda x: re.compile(r'[a-zA-Z]*\d{1,4}', re.IGNORECASE).match(x),
                                      re.split(r'%s' % SPLIT_CHARS, episodes)))
