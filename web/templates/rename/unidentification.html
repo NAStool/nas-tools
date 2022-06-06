@@ -195,15 +195,18 @@
               </select>
             </div>
           </div>
-          <div class="col-lg-6" id="rename_episode_div">
+          <div class="col-lg-12" id="rename_episode_div">
               <div class="mb-3">
-                <label class="form-label">集数定位(<a href="#" title="标定集数位置，例如：铁齿铜牙纪晓岚{ep}.iso,默认取定位集数">?</a>)</label>
+                <label class="form-label">集数定位(<a href="#" title="{ep}: 标定集数位置，例如：铁齿铜牙纪晓岚{ep}.x264.iso,默认取定位集数;&#10 start_ep[, end_ep], 裁定范围， 例如 '1' 只取第一集, '2,4' 只取第2集到第4集;&#10 offset: 集数偏移, 例如ep定位出集数是11, 实际是第一集, 此处填-10, 以应付多季合集的场景 ">?</a>)</label>
                 <div class="row">
-                  <div class="col-8">
+                  <div class="col-6">
                     <input type="text" id="rename_episode" class="form-control" placeholder="{ep}.mp4">
                   </div>
                   <div class="col-4">
-                    <select class="form-select" id="rename_episode_details"><option value="" selected>请选择</option></select>
+                    <input type="text" id="rename_episode_details" class="form-control" placeholder="start_ep[, end_ep] 可选">
+                  </div>
+                  <div class="col-2">
+                    <input type="text" id="rename_episode_offset" class="form-control" placeholder="offset, 可选">
                   </div>
                 </div>
               </div>
@@ -329,6 +332,7 @@
     var season = $("#rename_season").val();
     var episode_format = $("#rename_episode").val();
     var episode_details = $("#rename_episode_details").val();
+    var episode_offset = $("#rename_episode_offset").val();
     var min_filesize = $("#rename_min_filesize").val();
 
     if (inpath === "") {
@@ -351,6 +355,18 @@
     } else {
       $("#rename_tmdb").removeClass("is-invalid");
     }
+    if (episode_details !== "" && !/^\d{1,5}(,\d{1,5})?$/.test(episode_details)) {
+      $("#rename_episode_details").addClass("is-invalid");
+      return;
+    } else {
+      $("#rename_episode_details").removeClass("is-invalid");
+    }
+    if (episode_offset !== "" && !/^-?\d{1,5}$/.test(episode_offset)) {
+      $("#rename_episode_offset").addClass("is-invalid");
+      return;
+    } else {
+      $("#rename_episode_offset").removeClass("is-invalid");
+    }
     if (type !== "MOV") {
       if (min_filesize !== "" && isNaN(min_filesize)) {
         $("#rename_min_filesize").addClass("is-invalid");
@@ -363,7 +379,8 @@
 
     // 开始处理
     var data = { "inpath": inpath, "outpath": outpath, "type": type, "tmdb": tmdb
-        , "season": season, "episode_format": episode_format, "episode_details": episode_details, "min_filesize": min_filesize};
+        , "season": season, "episode_format": episode_format, "episode_details": episode_details
+        , "episode_offset": episode_offset, "min_filesize": min_filesize};
     $("#rename_udf_btn").attr("disabled", true);
     $("#rename_udf_btn").text("处理中...");
     $("#rename_udf_retmsg").hide()
@@ -398,6 +415,7 @@
     $('#rename_btn').show();
     $('#rename_udf_btn').hide();
     $('#rename_episode_details').hide();
+    $('#rename_episode_offset').hide();
     $("#rename_season").empty();
     $("#rename_season").append('<option value="" selected>请选择</option>');
     for(var i=0; i<=50; i++){
@@ -409,7 +427,6 @@
       $("#rename_episode_div").hide();
       $("#rename_min_filesize_div").hide();
       $("#rename_season").val("");
-      $("#rename_episode_details").val("");
     } else {
       $("#rename_season_div").show();
       $("#rename_episode_div").show();
@@ -433,19 +450,14 @@
     for(var i=0; i<=50; i++){
       $("#rename_season").append('<option value="' + i + '">第' + i +'季</option>');
     }
-    $("#rename_episode_details").empty();
-    $("#rename_episode_details").append('<option value="" selected>请选择</option>');
-    for(var i=0; i<=1200; i++){
-      $("#rename_episode_details").append('<option value="' + i + '">第' + i +'集</option>');
-    }
     $("#rename_episode_details").show();
+    $("#rename_episode_offset").show();
     type = $('input:radio[name=rename_type]:checked').val();
     if (type == "MOV") {
       $("#rename_season_div").hide();
       $("#rename_episode_div").hide();
       $("#rename_min_filesize_div").hide();
       $("#rename_season").val("");
-      $("#rename_episode_details").val("");
     } else {
       $("#rename_season_div").show();
       $("#rename_episode_div").show();
@@ -519,7 +531,6 @@
       $("#rename_episode_div").hide();
       $("#rename_min_filesize_div").hide();
       $("#rename_season").val('');
-      $("#rename_episode_details").val('');
     }
     else {
       $("#rename_season_div").show();
