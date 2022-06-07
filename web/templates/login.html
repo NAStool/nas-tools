@@ -13,28 +13,44 @@
     <!-- CSS files -->
     <link href="../static/css/tabler.min.css" rel="stylesheet"/>
   </head>
-  <body  class="d-flex flex-column" style="background-image: url({{ BingWallpaper }})">
+  <body  class="d-flex flex-column" style="overflow:hidden; background-image:url({{ BingWallpaper }}); background-size:cover; background-position:center;">
     <div class="page page-center">
       <div class="container-tight py-4">
-        <div class="text-center mb-4">
-          <a href="/" class="navbar-brand navbar-brand-autodark"><img src="../static/img/logo.svg" height="36" alt=""></a>
-        </div>
-        <form class="card card-md" action="/" method="post" autocomplete="off" style="background-color:rgba(255,255,255,0.5);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)">
+        <form class="card card-md" action="/" method="post" autocomplete="off" style="{% if BingWallpaper %}background-color:rgba(255,255,255,0.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px){% endif %}">
           <input type="hidden" name="next" value="{{ GoPage }}" />
           <div class="card-body">
-            <h2 class="card-title text-center mb-4"><strong>登录</strong></h2>
-            <div class="mb-3">
-              <label class="form-label">用户名</label>
+            <div class="text-center mb-4">
+              <a href="/" class="navbar-brand navbar-brand-autodark"><img src="../static/img/logo.svg" height="36" alt=""></a>
+            </div>
+            <label class="form-label">用户名</label>
+            <div class="input-icon mb-3">
+              <span class="input-icon-addon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><desc>Download more icon variants from https://tabler-icons.io/i/user</desc><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="7" r="4" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+              </span>
               <input type="text" name="username" class="form-control {% if err_msg %}is-invalid{% endif %}"
                      placeholder="用户名" value="">
-              <div class="invalid-feedback" id="login_retmsg">{{ err_msg }}</div>
             </div>
-            <div class="mb-2">
-              <label class="form-label">密码</label>
+            <label class="form-label">密码</label>
+            <div class="input-icon">
+              <span class="input-icon-addon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-keyboard" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                   <desc>Download more icon variants from https://tabler-icons.io/i/keyboard</desc>
+                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                   <rect x="2" y="6" width="20" height="12" rx="2"></rect>
+                   <line x1="6" y1="10" x2="6" y2="10"></line>
+                   <line x1="10" y1="10" x2="10" y2="10"></line>
+                   <line x1="14" y1="10" x2="14" y2="10"></line>
+                   <line x1="18" y1="10" x2="18" y2="10"></line>
+                   <line x1="6" y1="14" x2="6" y2="14.01"></line>
+                   <line x1="18" y1="14" x2="18" y2="14.01"></line>
+                   <line x1="10" y1="14" x2="14" y2="14"></line>
+                </svg>
+              </span>
               <input type="password" class="form-control {% if err_msg %}is-invalid{% endif %}" name="password"
                      placeholder="密码" autocomplete="off">
             </div>
-            <div class="mb-2">
+            <div class="invalid-feedback mb-3" id="login_retmsg" style="display:block">{{ err_msg }}</div>
+            <div class="mb-3">
               <label class="form-check">
                 <input type="checkbox" name="remember" class="form-check-input" checked/>
                 <span class="form-check-label">保持登录</span>

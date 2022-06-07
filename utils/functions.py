@@ -13,6 +13,7 @@ import requests
 from utils.types import OsType
 
 INSTANCES = {}
+WALLPAPERS = {}
 
 
 # 单例模式注解
@@ -123,7 +124,7 @@ def system_exec_command(cmd, timeout=60):
 
 
 # 获得目录下的媒体文件列表List，按后缀过滤
-def get_dir_files(in_path, exts="", filesize=0, episode_format = None):
+def get_dir_files(in_path, exts="", filesize=0, episode_format=None):
     if not in_path:
         return []
     if not os.path.exists(in_path):
@@ -396,17 +397,18 @@ def json_serializable(obj):
 
 
 # 获取Bing每日避纸
-def get_bing_wallpaper(num=1):
-    url = "http://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=%s" % num
+def get_bing_wallpaper():
+    today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
+    if WALLPAPERS.get(today):
+        return WALLPAPERS.get(today)
+    url = "http://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1"
     try:
         resp = requests.get(url, timeout=5)
     except Exception as err:
         print(str(err))
-        return "" if num == 1 else []
-    images = []
+        return ""
     if resp and resp.status_code == 200:
         for image in resp.json()['images']:
-            images.append(f"https://cn.bing.com{image['url']}")
-    if num == 1:
-        return images[0] if len(images) > 0 else ""
-    return images
+            WALLPAPERS[today] = f"https://cn.bing.com{image['url']}"
+            return WALLPAPERS.get(today)
+    return ""

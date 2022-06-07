@@ -5,11 +5,10 @@ from config import SPLIT_CHARS
 
 
 class EpisodeFormat(object):
-
     __key = ""
 
-    def __init__(self, format, details: str = None, offset = None, key = "ep"):
-        self.__format = format
+    def __init__(self, eformat, details: str = None, offset=None, key="ep"):
+        self.__format = eformat
         self.__start_ep = None
         self.__end_ep = None
         if details:
@@ -64,7 +63,7 @@ class EpisodeFormat(object):
         if not ret or not ret.__contains__(self.__key):
             return None, None
         episodes = ret.__getitem__(self.__key)
-        if not re.compile("^(EP)?(\d{1,4})(-(EP)?(\d{1,4}))?$", re.IGNORECASE).match(episodes):
+        if not re.compile(r"^(EP)?(\d{1,4})(-(EP)?(\d{1,4}))?$", re.IGNORECASE).match(episodes):
             return None, None
         episode_splits = list(filter(lambda x: re.compile(r'[a-zA-Z]*\d{1,4}', re.IGNORECASE).match(x),
                                      re.split(r'%s' % SPLIT_CHARS, episodes)))
