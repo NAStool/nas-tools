@@ -366,7 +366,10 @@ def is_ses_in_ses(sea, epi, season, episode):
 def is_bluray_dir(path):
     if not path:
         return False
-    return os.path.exists(os.path.join(path, "BDMV", "index.bdmv"))
+    if os.path.normpath(path).endswith("BDMV"):
+        return os.path.exists(os.path.join(path, "index.bdmv"))
+    else:
+        return os.path.exists(os.path.join(path, "BDMV", "index.bdmv"))
 
 
 # 转化SQL字符

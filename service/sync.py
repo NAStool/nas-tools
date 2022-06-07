@@ -204,9 +204,10 @@ class Sync(object):
                     name = os.path.basename(event_path)
                     if not name:
                         return
-                    ext = os.path.splitext(name)[-1]
-                    if ext.lower() not in RMT_MEDIAEXT:
-                        return
+                    if name.lower() != "index.bdmv":
+                        ext = os.path.splitext(name)[-1]
+                        if ext.lower() not in RMT_MEDIAEXT:
+                            return
                     # 黑名单不处理
                     if is_transfer_in_blacklist(from_dir):
                         return
