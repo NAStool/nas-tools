@@ -256,6 +256,7 @@ class Sync(object):
                     if not is_bluray_dir(path):
                         files = target_info.get('files')
                     else:
+                        path = os.path.dirname(path) if os.path.normpath(path).endswith("BDMV") else path
                         files = []
                     target_path = target_info.get('target')
                     unknown_path = target_info.get('unknown')
