@@ -376,7 +376,7 @@ class FileTransfer:
                 bluray_disk_flag = is_bluray_dir(in_path)
                 # 开始处理里面的文件
                 if bluray_disk_flag:
-                    file_list = [in_path]
+                    file_list = [os.path.dirname(in_path)] if os.path.normpath(in_path).endswith("BDMV") else [in_path]
                     log.info("【RMT】当前为蓝光原盘文件夹：%s" % str(in_path))
                 else:
                     if udf_flag:
@@ -927,6 +927,7 @@ class FileTransfer:
         if not os.path.exists(new_dir):
             os.makedirs(new_dir)
         return self.__transfer_command(in_file, new_file, rmt_mode)
+
 
 if __name__ == "__main__":
     """
