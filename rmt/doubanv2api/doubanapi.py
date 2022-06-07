@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 from functools import lru_cache
+from time import time
 
 import requests.exceptions
 
@@ -122,7 +123,7 @@ class DoubanApi(object):
         pass
 
     @classmethod
-    @lru_cache()
+    @lru_cache(maxsize=256)
     def __invoke(cls, url, **kwargs):
         req_url = cls._base_url + url
 
@@ -133,44 +134,44 @@ class DoubanApi(object):
         resp = cls._session.get(url=req_url, params=params, headers=cls._headers)
         return resp.json()
 
-    def search(self, keyword, start=0, count=20):
-        return self.__invoke(self._urls["search"], q=keyword, start=start, count=count)
+    def search(self, keyword, start=0, count=20, ts=int(time())):
+        return self.__invoke(self._urls["search"], q=keyword, start=start, count=count, _ts=ts)
 
-    def movie_search(self, keyword, start=0, count=20):
-        return self.__invoke(self._urls["movie_search"], q=keyword, start=start, count=count)
+    def movie_search(self, keyword, start=0, count=20, ts=int(time())):
+        return self.__invoke(self._urls["movie_search"], q=keyword, start=start, count=count, _ts=ts)
 
-    def tv_search(self, keyword, start=0, count=20):
-        return self.__invoke(self._urls["tv_search"], q=keyword, start=start, count=count)
+    def tv_search(self, keyword, start=0, count=20, ts=int(time())):
+        return self.__invoke(self._urls["tv_search"], q=keyword, start=start, count=count, _ts=ts)
 
-    def book_search(self, keyword, start=0, count=20):
-        return self.__invoke(self._urls["book_search"], q=keyword, start=start, count=count)
+    def book_search(self, keyword, start=0, count=20, ts=int(time())):
+        return self.__invoke(self._urls["book_search"], q=keyword, start=start, count=count, _ts=ts)
 
-    def group_search(self, keyword, start=0, count=20):
-        return self.__invoke(self._urls["group_search"], q=keyword, start=start, count=count)
+    def group_search(self, keyword, start=0, count=20, ts=int(time())):
+        return self.__invoke(self._urls["group_search"], q=keyword, start=start, count=count, _ts=ts)
 
-    def movie_showing(self, start=0, count=20):
-        return self.__invoke(self._urls["movie_showing"], start=start, count=count)
+    def movie_showing(self, start=0, count=20, ts=int(time())):
+        return self.__invoke(self._urls["movie_showing"], start=start, count=count, _ts=ts)
 
-    def movie_soon(self, start=0, count=20):
-        return self.__invoke(self._urls["movie_soon"], start=start, count=count)
+    def movie_soon(self, start=0, count=20, ts=int(time())):
+        return self.__invoke(self._urls["movie_soon"], start=start, count=count, _ts=ts)
 
-    def movie_hot_gaia(self, start=0, count=20):
-        return self.__invoke(self._urls["movie_hot_gaia"], start=start, count=count)
+    def movie_hot_gaia(self, start=0, count=20, ts=int(time())):
+        return self.__invoke(self._urls["movie_hot_gaia"], start=start, count=count, _ts=ts)
 
-    def tv_hot(self, start=0, count=20):
-        return self.__invoke(self._urls["tv_hot"], start=start, count=count)
+    def tv_hot(self, start=0, count=20, ts=int(time())):
+        return self.__invoke(self._urls["tv_hot"], start=start, count=count, _ts=ts)
 
-    def tv_animation(self, start=0, count=20):
-        return self.__invoke(self._urls["tv_animation"], start=start, count=count)
+    def tv_animation(self, start=0, count=20, ts=int(time())):
+        return self.__invoke(self._urls["tv_animation"], start=start, count=count, _ts=ts)
 
-    def tv_variety_show(self, start=0, count=20):
-        return self.__invoke(self._urls["tv_variety_show"], start=start, count=count)
+    def tv_variety_show(self, start=0, count=20, ts=int(time())):
+        return self.__invoke(self._urls["tv_variety_show"], start=start, count=count, _ts=ts)
 
-    def tv_rank_list(self, start=0, count=20):
-        return self.__invoke(self._urls["tv_rank_list"], start=start, count=count)
+    def tv_rank_list(self, start=0, count=20, ts=int(time())):
+        return self.__invoke(self._urls["tv_rank_list"], start=start, count=count, _ts=ts)
 
-    def show_hot(self, start=0, count=20):
-        return self.__invoke(self._urls["show_hot"], start=start, count=count)
+    def show_hot(self, start=0, count=20, ts=int(time())):
+        return self.__invoke(self._urls["show_hot"], start=start, count=count, _ts=ts)
 
     def movie_detail(self, subject_id):
         return self.__invoke(self._urls["movie_detail"] + subject_id)
