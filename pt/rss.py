@@ -2,7 +2,6 @@ import traceback
 from threading import Lock
 
 import requests
-from xml.dom.minidom import parse
 import xml.dom.minidom
 import log
 from config import Config

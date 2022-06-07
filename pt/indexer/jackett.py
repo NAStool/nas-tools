@@ -1,5 +1,4 @@
 import re
-from xml.dom.minidom import parse
 import xml.dom.minidom
 import requests
 import log
