@@ -169,6 +169,9 @@ class DoubanApi(object):
     def tv_rank_list(self, start=0, count=20):
         return self.__invoke(self._urls["tv_rank_list"], start=start, count=count)
 
+    def show_hot(self, start=0, count=20):
+        return self.__invoke(self._urls["show_hot"], start=start, count=count)
+
     def movie_detail(self, subject_id):
         return self.__invoke(self._urls["movie_detail"] + subject_id)
 

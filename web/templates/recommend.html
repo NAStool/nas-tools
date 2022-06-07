@@ -15,7 +15,9 @@
       {% for item in Items %}
       <div class="col-sm-6 col-md-3 col-xl-2">
         <div class="card card-sm card-link-pop rounded-3">
+          {% if item.vote > 0%}
           <div class="ribbon ribbon-top ribbon-bookmark {% if item.vote > 8 %} bg-green {% elif item.vote <= 8 and item.vote > 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ item.vote }}</div>
+          {% endif %}
           <a href="javascript:{% if RecommendType in ['hm', 'nm', 'ht', 'nt'] %}show_media_info('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '{{ item.id }}', '', '{{ item.vote }}'){% else %}show_media_info('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '', '{{ item.id }}', '{{ item.vote }}'){% endif %}" title="{{ item.overview }}" class="d-block">
             <img src="{{ item.image }}" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important">
           </a>
@@ -23,7 +25,7 @@
             <div class="d-flex align-items-center">
               <div>
                 <div><strong>{{ item.title }}</strong></div>
-                <div class="text-muted">{{ item.date }}</div>
+                <div class="text-muted">{{ item.year }}</div>
               </div>
               <div class="ms-auto">
                 <a href="javascript:navmenu('search?s={{ item.title }} {{ item.year }}&f=1')" class="text-muted" title="立即搜索">
@@ -34,8 +36,8 @@
                      <circle cx="16.5" cy="17.5" r="2.5"></circle>
                      <line x1="18.5" y1="19.5" x2="21" y2="22"></line>
                   </svg></a>
-                <a id="recommend_link_{{ item.id }}" {% if item.fav == 0 %} href="javascript:show_recommend_add_modal('{{ item.id }}','{{ RecommendType }}','{{ item.title }}','{{ item.year }}')" {% else %} href="javascript:show_recommend_del_modal('{{ item.id }}','{{ RecommendType }}','{{ item.title }}','{{ item.year }}')" {% endif %} class="text-muted" title="加入/取消订阅">
-                  <svg id="recommend_svg_{{ item.id }}" xmlns="http://www.w3.org/2000/svg" class="icon {% if item.fav == 0 %} icon-tabler icon-tabler-heart {% else %} icon-filled text-red {% endif %}" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <a id="recommend_link_{{ item.id }}" href="{% if item.fav == 0 %} javascript:show_recommend_add_modal('{{ item.id }}','{{ RecommendType }}','{{ item.title }}','{{ item.year }}'){% elif item.fav == 1 %}javascript:show_recommend_del_modal('{{ item.id }}','{{ RecommendType }}','{{ item.title }}','{{ item.year }}'){% else %}javascript:return false;{% endif %}" class="text-muted" title="{% if item.fav in [0,1] %}加入/取消订阅{% else %}已下载{% endif %}">
+                  <svg id="recommend_svg_{{ item.id }}" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart {% if item.fav == 0 %}{% elif item.fav == 1 %}icon-filled text-red{% else %}icon-filled text-green{% endif %}" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                      <path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
                   </svg>
@@ -193,8 +195,8 @@
   if(title_type == "dbnm"){
     $("#recommend_title").text("豆瓣最新电影");
   }
-  if(title_type == "dbnt"){
-    $("#recommend_title").text("豆瓣最新电视剧");
+  if(title_type == "dbzy"){
+    $("#recommend_title").text("豆瓣热门综艺");
   }
   // 上一页
   function go_pre_page(type, page){

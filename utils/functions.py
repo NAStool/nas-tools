@@ -138,7 +138,6 @@ def get_dir_files(in_path, exts="", filesize=0, episode_format=None):
                 if is_invalid_path(cur_path):
                     continue
                 # 检查格式匹配
-
                 if episode_format and not episode_format.match(file):
                     continue
                 # 检查后缀
@@ -176,7 +175,7 @@ def get_dir_level1_medias(in_path, exts=""):
         for file in os.listdir(in_path):
             path = os.path.join(in_path, file)
             if os.path.isfile(path):
-                if os.path.splitext(file)[-1].lower() in exts:
+                if not exts or os.path.splitext(file)[-1].lower() in exts:
                     ret_list.append(path)
             else:
                 ret_list.append(path)

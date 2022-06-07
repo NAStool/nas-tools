@@ -48,7 +48,7 @@ from utils.sqls import get_search_result_by_id, get_search_results, \
     update_config_site, get_config_search_rule, update_config_search_rule, get_config_rss_rule, update_config_rss_rule, \
     get_unknown_path_by_id, get_rss_tvs, get_rss_movies, delete_rss_movie, delete_rss_tv, \
     get_users, insert_user, delete_user, get_transfer_statistics, get_system_messages, get_site_statistics, \
-    get_download_history, get_site_statistics_recent_sites
+    get_download_history, get_site_statistics_recent_sites, is_media_downloaded
 from utils.types import MediaType, SearchType, DownloaderType, SyncType, OsType
 from utils.commons import EpisodeFormat
 from version import APP_VERSION
@@ -560,9 +560,9 @@ def create_flask_app(config):
         elif RecommendType == "dbnm":
             # 豆瓣最新电影
             res_list = DoubanHot().get_douban_new_movie()
-        elif RecommendType == "dbnt":
+        elif RecommendType == "dbzy":
             # 豆瓣最新电视剧
-            res_list = DoubanHot().get_douban_new_tv()
+            res_list = DoubanHot().get_douban_hot_show()
         else:
             res_list = []
 
@@ -573,26 +573,36 @@ def create_flask_app(config):
             rid = res.get('id')
             if RecommendType in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm']:
                 title = res.get('title')
-                if title in MovieKeys:
-                    fav = 1
-                else:
-                    fav = 0
                 date = res.get('release_date')
                 if date:
                     year = date[0:4]
                 else:
                     year = ''
+                if title in MovieKeys:
+                    # 已订阅
+                    fav = 1
+                elif is_media_downloaded(title, year):
+                    # 已下载
+                    fav = 2
+                else:
+                    # 未订阅、未下载
+                    fav = 0
             else:
                 title = res.get('name')
-                if title in TvKeys:
-                    fav = 1
-                else:
-                    fav = 0
                 date = res.get('first_air_date')
                 if date:
                     year = date[0:4]
                 else:
                     year = ''
+                if title in TvKeys:
+                    # 已订阅
+                    fav = 1
+                elif is_media_downloaded(title, year):
+                    # 已下载
+                    fav = 2
+                else:
+                    # 未订阅、未下载
+                    fav = 0
             image = res.get('poster_path')
             if RecommendType in ['hm', 'nm', 'ht', 'nt']:
                 image = "https://image.tmdb.org/t/p/original/%s" % image

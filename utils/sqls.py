@@ -690,11 +690,15 @@ def get_site_statistics_recent_sites(days=7):
 
 
 # 查询下载历史是否存在
-def is_exists_download_history(title, year, mtype):
-    if not mtype or not title or not year:
+def is_exists_download_history(title, year, mtype=None):
+    if not title:
         return False
-    sql = "SELECT COUNT(1) FROM DOWNLOAD_HISTORY WHERE TITLE = ? AND YEAR = ? AND TYPE = ?"
-    ret = select_by_sql(sql, (str_sql(title), year, mtype))
+    if mtype:
+        sql = "SELECT COUNT(1) FROM DOWNLOAD_HISTORY WHERE TITLE = ? AND YEAR = ? AND TYPE = ?"
+        ret = select_by_sql(sql, (str_sql(title), year, mtype))
+    else:
+        sql = "SELECT COUNT(1) FROM DOWNLOAD_HISTORY WHERE TITLE = ? AND YEAR = ?"
+        ret = select_by_sql(sql, (str_sql(title), year))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -744,3 +748,15 @@ def get_download_history(date=None, hid=None):
     else:
         sql = "SELECT ID,TITLE,YEAR,TYPE,TMDBID,VOTE,POSTER,OVERVIEW,TORRENT,ENCLOSURE,DESC,DATE,SITE FROM DOWNLOAD_HISTORY ORDER BY DATE DESC"
         return select_by_sql(sql)
+
+
+# 根据标题和年份检查是否下载过
+def is_media_downloaded(title, year):
+    if is_exists_download_history(title, year):
+        return True
+    sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE TITLE = ? AND YEAR = ?"
+    ret = select_by_sql(sql, (str_sql(title), str_sql(year)))
+    if ret and ret[0][0] > 0:
+        return True
+    else:
+        return False
