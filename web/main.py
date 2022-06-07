@@ -1899,7 +1899,7 @@ def create_flask_app(config):
             try:
                 # 打开企业微信会产生心跳，filter
                 if xml_tree.find("MsgType") is None:
-                    return
+                    return make_response("ok", 200)
                 content = ""
                 msg_type = xml_tree.find("MsgType").text
                 user_id = xml_tree.find("FromUserName").text
@@ -1911,9 +1911,6 @@ def create_flask_app(config):
                         if len(keys) > 2:
                             content = WECHAT_MENU.get(keys[2])
                 else:
-                    if not xml_tree.find("Content"):
-                        log.info("heartbeat。。。。。。。")
-                        return
                     content = xml_tree.find("Content").text
                     log.info("消息内容：%s" % content)
                 # 处理消息内容

@@ -181,13 +181,13 @@
               <input type="text" id="rename_year" class="form-control">
             </div>
           </div>
-          <div class="col-lg-6">
+          <div class="col-lg-4">
             <div class="mb-3">
               <label class="form-label">TMDB ID</label>
               <input type="text" id="rename_tmdb" class="form-control">
             </div>
           </div>
-          <div class="col-lg-6" id="rename_season_div">
+          <div class="col-lg-4" id="rename_season_div">
             <div class="mb-3">
               <label class="form-label">季</label>
               <select class="form-select" id="rename_season">
@@ -195,27 +195,27 @@
               </select>
             </div>
           </div>
+          <div class="col-lg-4" id="rename_min_filesize_div">
+            <div class="mb-3">
+              <label class="form-label">最小文件大小</label>
+              <input type="text" id="rename_min_filesize" class="form-control" placeholder="最小文件大小(MB)">
+            </div>
+          </div>
           <div class="col-lg-12" id="rename_episode_div">
-              <div class="mb-3">
-                <label class="form-label">集数定位(<a href="#" title="{ep}: 标定集数位置，例如：铁齿铜牙纪晓岚{ep}.x264.iso,默认取定位集数;&#10 start_ep[, end_ep], 裁定范围， 例如 '1' 只取第一集, '2,4' 只取第2集到第4集;&#10 offset: 集数偏移, 例如ep定位出集数是11, 实际是第一集, 此处填-10, 以应付多季合集的场景 ">?</a>)</label>
-                <div class="row">
-                  <div class="col-6">
-                    <input type="text" id="rename_episode" class="form-control" placeholder="{ep}.mp4">
-                  </div>
-                  <div class="col-4">
-                    <input type="text" id="rename_episode_details" class="form-control" placeholder="start_ep[, end_ep] 可选">
-                  </div>
-                  <div class="col-2">
-                    <input type="text" id="rename_episode_offset" class="form-control" placeholder="offset, 可选">
-                  </div>
+            <div class="mb-3">
+              <label class="form-label">集数定位(<a href="#" title="{ep}: 标定集数位置，例如：铁齿铜牙纪晓岚{ep}.x264.iso,默认取定位集数;&#10 start_ep[, end_ep], 裁定范围， 例如 '1' 只取第一集, '2,4' 只取第2集到第4集;&#10 offset: 集数偏移, 例如ep定位出集数是11, 实际是第一集, 此处填-10, 以应付多季合集的场景 ">?</a>)</label>
+              <div class="row">
+                <div class="col-4">
+                  <input type="text" id="rename_episode" class="form-control" placeholder="{ep}.mp4">
+                </div>
+                <div class="col-4">
+                  <input type="text" id="rename_episode_details" class="form-control" placeholder="start_ep[, end_ep] 可选">
+                </div>
+                <div class="col-4">
+                  <input type="text" id="rename_episode_offset" class="form-control" placeholder="offset, 可选">
                 </div>
               </div>
             </div>
-          <div class="col-lg-6" id="rename_min_filesize_div">
-              <div class="mb-3">
-                <label class="form-label">最小文件大小</label>
-                <input type="text" id="rename_min_filesize" class="form-control" placeholder="过滤当前最小文件大小(MB)">
-              </div>
           </div>
         </div>
       </div>

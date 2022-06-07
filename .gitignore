@@ -12,4 +12,4 @@ __pycache__
 out/
 gen/
 
-test/
+test/!/test.py
