@@ -35,7 +35,7 @@ class DBHelper:
         conn = self.__pools.get()
         cursor = conn.cursor()
         try:
-            # Jackett搜索结果表
+            # 资源搜索结果表
             cursor.execute('''CREATE TABLE IF NOT EXISTS SEARCH_RESULTS
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
                                    TORRENT_NAME    TEXT,
@@ -56,9 +56,20 @@ class DBHelper:
                                    RES_ORDER    TEXT,
                                    SIZE    INTEGER,
                                    SEEDERS    INTEGER,
-                                   PEERS    INTEGER,                   
+                                   PEERS    INTEGER,  
+                                   UPLOAD_VOLUME_FACTOR    REAL,
+                                   DOWNLOAD_VOLUME_FACTOR    REAL,                     
                                    SITE    TEXT,
                                    SITE_ORDER    TEXT);''')
+
+            # 资源搜索结果表变更，增加上传下载因子
+            cursor.execute("PRAGMA table_info('SEARCH_RESULTS')")
+            table_cols = {t[1] for t in cursor.fetchall()}
+            if 'UPLOAD_VOLUME_FACTOR' not in table_cols:
+                cursor.execute("ALTER TABLE SEARCH_RESULTS ADD COLUMN UPLOAD_VOLUME_FACTOR REAL default 1;")
+            if 'DOWNLOAD_VOLUME_FACTOR' not in table_cols:
+                cursor.execute("ALTER TABLE SEARCH_RESULTS ADD COLUMN DOWNLOAD_VOLUME_FACTOR REAL default 1;")
+
             # RSS下载记录表
             cursor.execute('''CREATE TABLE IF NOT EXISTS RSS_TORRENTS
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,

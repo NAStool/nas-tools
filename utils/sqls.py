@@ -31,9 +31,11 @@ def insert_search_results(media_items):
           "SIZE," \
           "SEEDERS," \
           "PEERS," \
+          "UPLOAD_VOLUME_FACTOR," \
+          "DOWNLOAD_VOLUME_FACTOR," \
           "SITE," \
           "SITE_ORDER) VALUES (" \
-          " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+          " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     data_list = []
     for media_item in media_items:
         if media_item.type == MediaType.TV:
@@ -63,6 +65,8 @@ def insert_search_results(media_items):
                 str_filesize(int(media_item.size)),
                 media_item.seeders,
                 media_item.peers,
+                media_item.upload_volume_factor,
+                media_item.download_volume_factor,
                 media_item.site,
                 media_item.site_order
             )
@@ -81,7 +85,8 @@ def get_search_result_by_id(dl_id):
 # 查询检索结果的所有记录
 def get_search_results():
     sql = "SELECT ID,TITLE||' ('||YEAR||') '||ES_STRING,RES_TYPE,SIZE,SEEDERS," \
-          "ENCLOSURE,SITE,YEAR,ES_STRING,IMAGE,TYPE,VOTE*1,TORRENT_NAME,DESCRIPTION,TMDBID,POSTER,OVERVIEW" \
+          "ENCLOSURE,SITE,YEAR,ES_STRING,IMAGE,TYPE,VOTE*1,TORRENT_NAME,DESCRIPTION,TMDBID,POSTER,OVERVIEW," \
+          "UPLOAD_VOLUME_FACTOR, DOWNLOAD_VOLUME_FACTOR" \
           " FROM SEARCH_RESULTS"
     return select_by_sql(sql)
 

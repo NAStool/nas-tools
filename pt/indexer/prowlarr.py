@@ -95,6 +95,8 @@ class Prowlarr:
             description = item.get('description')
             seeders = item.get('seeders')
             peers = item.get('peers')
+            upload_volume_factor = item.get('uploadvolumefactor')
+            download_volume_factor = item.get('downloadvolumefactor')
 
             # 全匹配模式下，过滤掉做种数为0的
             if match_type == 1 and not seeders:
@@ -176,7 +178,9 @@ class Prowlarr:
                                         size=size,
                                         seeders=seeders,
                                         peers=peers,
-                                        description=description)
+                                        description=description,
+                                        upload_volume_factor=upload_volume_factor,
+                                        download_volume_factor=download_volume_factor)
             if media_info not in ret_array:
                 index_sucess = index_sucess + 1
                 ret_array.append(media_info)
@@ -210,8 +214,12 @@ class Prowlarr:
                 peers = item.get("leechers")
                 indexer = item.get("indexer")
                 indexerId = item.get("indexerId")
+                # todo prowlarr增加当前种子促销，调整为使用torznab接口获取
+                uploadvolumefactor = 1.0
+                downloadvolumefactor = 1.0
                 tmp_dict = {'title': title, 'enclosure': enclosure, 'description': description, 'size': size,
-                            'seeders': seeders, 'peers': peers, 'indexer': indexer, 'indexerId': indexerId}
+                            'seeders': seeders, 'peers': peers, 'indexer': indexer, 'indexerId': indexerId,
+                            'uploadvolumefactor': uploadvolumefactor, 'downloadvolumefactor': downloadvolumefactor}
                 ret_array.append(tmp_dict)
 
         return ret_array

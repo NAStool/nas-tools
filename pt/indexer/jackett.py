@@ -138,6 +138,8 @@ class Jackett:
             description = item.get('description')
             seeders = item.get('seeders')
             peers = item.get('peers')
+            upload_volume_factor = item.get('uploadvolumefactor')
+            download_volume_factor = item.get('downloadvolumefactor')
 
             # 合匹配模式下，过滤掉做种数为0的
             if match_type == 1 and not seeders:
@@ -221,7 +223,9 @@ class Jackett:
                                         size=size,
                                         seeders=seeders,
                                         peers=peers,
-                                        description=description)
+                                        description=description,
+                                        upload_volume_factor=upload_volume_factor,
+                                        download_volume_factor=download_volume_factor)
             if media_info not in ret_array:
                 index_sucess = index_sucess + 1
                 ret_array.append(media_info)
@@ -287,6 +291,11 @@ class Jackett:
                         seeders = 0
                         # 下载数
                         peers = 0
+                        # 上传量因子
+                        uploadvolumefactor = 1.0
+                        # 下载量因子
+                        downloadvolumefactor = 1.0
+
                         torznab_attrs = item.getElementsByTagName("torznab:attr")
                         for torznab_attr in torznab_attrs:
                             name = torznab_attr.getAttribute('name')
@@ -295,9 +304,15 @@ class Jackett:
                                 seeders = value
                             if name == "peers":
                                 peers = value
+                            if name == "downloadvolumefactor":
+                                downloadvolumefactor = value
+                            if name == "uploadvolumefactor":
+                                uploadvolumefactor = value
 
                         tmp_dict = {'title': title, 'enclosure': enclosure, 'description': description, 'size': size,
-                                    'seeders': seeders, 'peers': peers}
+                                    'seeders': seeders, 'peers': peers,
+                                    'uploadvolumefactor': uploadvolumefactor,
+                                    'downloadvolumefactor': downloadvolumefactor}
                         ret_array.append(tmp_dict)
                     except Exception as e:
                         log.console(str(e))
