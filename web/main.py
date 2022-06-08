@@ -1996,7 +1996,7 @@ def create_flask_app(config):
             log.warn(f"非法IP地址的媒体消息通知 {request.remote_addr}")
             return 'Success'
         request_json = json.loads(request.form.get('data', {}))
-        # print(str(request_json))
+        log.debug("收到Webhook报文：%s" % str(request_json))
         event = WebhookEvent(request_json)
         event.report_to_discord()
         return 'Success'
@@ -2005,6 +2005,7 @@ def create_flask_app(config):
     @App.route('/telegram', methods=['POST', 'GET'])
     def telegram():
         msg_json = request.get_json()
+        log.info("收到来自 %s 的Telegram消息：%s" % (request.remote_addr, str(msg_json)))
         if msg_json:
             message = msg_json.get("message", {})
             text = message.get("text")

@@ -93,11 +93,11 @@ class Telegram:
             res = requests.get(sc_url + urlencode(values), timeout=10, proxies=self.__config.get_proxies())
             if res:
                 ret_json = res.json()
-                errno = ret_json['ok']
-                if errno == 0:
-                    return True, errno
+                status = ret_json.get("ok")
+                if status:
+                    return True, ""
                 else:
-                    return False, errno
+                    return False, ret_json.get("description")
             else:
                 return False, "未获取到返回信息"
         except Exception as msg_e:
