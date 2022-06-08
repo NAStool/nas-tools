@@ -171,8 +171,6 @@ class Media:
         if len(movies) == 0:
             log.warn(f"【META】{file_media_name} 未找到媒体信息!")
             return None
-        elif len(movies) == 1:
-            return movies[0]
         else:
             info = {}
             if first_media_year:
@@ -224,8 +222,6 @@ class Media:
         if len(tvs) == 0:
             log.warn(f"【META】{file_media_name} 未找到媒体信息!")
             return None
-        elif len(tvs) == 1:
-            return tvs[0]
         else:
             info = {}
             if first_media_year:
