@@ -130,7 +130,7 @@ class Sites:
         解析上传量
         """
         html_text = self.__prepare_html_text(html_text)
-        upload_match = re.search(r"[^总]上[传傳]量[:：<>/a-zA-Z-=\"'\s#;]+([0-9,.\s]+[KMGTPI]*B)", html_text, re.IGNORECASE)
+        upload_match = re.search(r"[^总]上[传傳]量?[:：<>/a-zA-Z-=\"'\s#;]+([0-9,.\s]+[KMGTPI]*B)", html_text, re.IGNORECASE)
         if upload_match:
             return num_filesize(upload_match.group(1).strip())
         else:
@@ -141,7 +141,7 @@ class Sites:
         解析下载量
         """
         html_text = self.__prepare_html_text(html_text)
-        download_match = re.search(r"[^总]下[载載]量[:：<>/a-zA-Z-=\"'\s#;]+([0-9,.\s]+[KMGTPI]*B)", html_text, re.IGNORECASE)
+        download_match = re.search(r"[^总]下[载載]量?[:：<>/a-zA-Z-=\"'\s#;]+([0-9,.\s]+[KMGTPI]*B)", html_text, re.IGNORECASE)
         if download_match:
             return num_filesize(download_match.group(1).strip())
         else:
