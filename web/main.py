@@ -41,6 +41,7 @@ from service.scheduler import Scheduler
 from utils.functions import get_used_of_partition, str_filesize, str_timelong, get_system, get_dir_files, \
     get_bing_wallpaper
 from utils.meta_helper import MetaHelper
+from utils.security import Security
 from utils.sqls import get_search_result_by_id, get_search_results, \
     get_transfer_history, get_transfer_unknown_paths, \
     update_transfer_unknown_state, delete_transfer_unknown, get_transfer_path_by_id, insert_transfer_blacklist, \
@@ -1992,9 +1993,9 @@ def create_flask_app(config):
     @App.route('/jellyfin', methods=['POST'])
     @App.route('/emby', methods=['POST'])
     def webhook():
-        if not MediaServer().webhook_allow_access(request.remote_addr):
-            log.warn(f"非法IP地址的媒体消息通知 {request.remote_addr}")
-            return 'Success'
+        if not Security().check_mediaserver_ip(request.remote_addr):
+            log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
+            return 'Reject'
         request_json = json.loads(request.form.get('data', {}))
         log.debug("收到Webhook报文：%s" % str(request_json))
         event = WebhookEvent(request_json)
@@ -2005,14 +2006,17 @@ def create_flask_app(config):
     @App.route('/telegram', methods=['POST', 'GET'])
     def telegram():
         msg_json = request.get_json()
-        log.info("收到来自 %s 的Telegram消息：%s" % (request.remote_addr, str(msg_json)))
+        if not Security().check_telegram_ip(request.remote_addr):
+            log.error("收到来自 %s 的非法Telegram消息：%s" % (request.remote_addr, msg_json))
+            return 'Reject'
         if msg_json:
             message = msg_json.get("message", {})
             text = message.get("text")
             user_id = message.get("from", {}).get("id")
+            log.info("收到Telegram消息：from=%s, text=%s" % (user_id, text))
             if text:
                 handle_message_job(text, SearchType.TG, user_id)
-        return 'ok'
+        return 'Success'
 
     # 自定义模板过滤器
     @App.template_filter('b64encode')
