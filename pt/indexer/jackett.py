@@ -14,7 +14,6 @@ from concurrent.futures._base import as_completed
 
 
 class Jackett:
-    torrent = None
     media = None
     __api_key = None
     __indexers = []
@@ -57,7 +56,7 @@ class Jackett:
                 return True
         return False
 
-    def search_by_keyword(self, key_word, s_num, e_num, year, mtype, whole_word, match_words=None):
+    def search_by_keyword(self, key_word, s_num, e_num, year, mtype, match_type=0, match_words=None):
         """
         根据关键字调用 Jackett API 检索
         :param key_word: 检索的关键字，不能为空
@@ -65,7 +64,7 @@ class Jackett:
         :param e_num: 集号，为空则不过滤
         :param year: 年份，为空则不过滤
         :param mtype: 类型：电影、电视剧、动漫
-        :param whole_word: 是否完全匹配，为True时只有标题完全一致时才命中
+        :param match_type: 匹配模式：0-识别并模糊匹配；1-识别并精确匹配；2-不识别匹配
         :param match_words: 匹配的关键字，为空时等于key_word
         :return: 命中的资源媒体信息列表
         """
@@ -89,7 +88,7 @@ class Jackett:
                                    e_num,
                                    year,
                                    mtype,
-                                   whole_word,
+                                   match_type,
                                    match_words)
             all_task.append(task)
         ret_array = []
@@ -100,7 +99,7 @@ class Jackett:
         log.info("【JACKETT】所有API检索完成，有效资源数：%s" % len(ret_array))
         return ret_array
 
-    def search(self, order_seq, index, key_word, s_num, e_num, year, mtype, whole_word, match_words):
+    def search(self, order_seq, index, key_word, s_num, e_num, year, mtype, match_type, match_words):
         """
         根据关键字多线程检索一个Jackett的Feed
         :param order_seq: Feed的优先级
@@ -110,7 +109,7 @@ class Jackett:
         :param e_num: 集号，为空则不过滤
         :param year: 年份，为空则不过滤
         :param mtype: 类型：电影、电视剧、动漫
-        :param whole_word: 是否完全匹配，为True时只有标题完全一致时才命中
+        :param match_type: 匹配模式：0-识别并模糊匹配；1-识别并精确匹配；2-不识别模糊匹配
         :param match_words: 匹配的关键字列表
         :return: 命中的资源媒体信息列表
         """
@@ -141,73 +140,78 @@ class Jackett:
             peers = item.get('peers')
 
             # 合匹配模式下，过滤掉做种数为0的
-            if whole_word and not seeders:
+            if match_type == 1 and not seeders:
                 log.info("【JACKETT】%s 做种数为0，跳过..." % torrent_name)
                 continue
 
             # 检查资源类型
-            if whole_word:
+            if match_type == 1:
                 match_flag, res_order = Torrent.check_resouce_types(torrent_name, description, self.__res_type)
                 if not match_flag:
                     log.info("【JACKETT】%s 不符合过滤条件" % torrent_name)
                     continue
             else:
-                res_order = 0
+                res_order = Torrent.check_res_order(torrent_name, description, self.__res_type)
 
             # 识别种子名称
             meta_info = MetaInfo(torrent_name)
-            if mtype and meta_info.type not in [MediaType.MOVIE, MediaType.UNKNOWN] and mtype == MediaType.MOVIE:
+            if meta_info.type not in [MediaType.MOVIE, MediaType.UNKNOWN] and mtype == MediaType.MOVIE:
                 log.info("【JACKETT】%s 是 %s，类型不匹配" % (torrent_name, meta_info.type.value))
+                continue
+            if not meta_info.get_name():
                 continue
 
             # 识别媒体信息
-            media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
-            if not media_info or not media_info.tmdb_info:
-                log.info("【JACKETT】%s 未查询到媒体信息" % torrent_name)
-                continue
-
-            # 类型
-            if mtype and media_info.type != mtype:
-                log.info("【JACKETT】%s 是 %s，不匹配类型" % (torrent_name, media_info.type.value))
-                continue
-
-            # 名称是否匹配
-            if whole_word:
-                # 全匹配模式，名字需要完全一样才下载
-                match_flag = False
-                for match_word in match_words:
-                    if str(match_word).upper() == str(media_info.title).upper() \
-                            or str(match_word).upper() == str(media_info.original_title).upper():
-                        match_flag = True
-                        break
-                if not match_flag:
-                    log.info("【JACKETT】%s：%s 不匹配名称：%s" % (media_info.type.value, media_info.title, match_words))
+            if match_type != 2:
+                media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
+                if not media_info or not media_info.tmdb_info:
+                    log.info("【JACKETT】%s 未查询到媒体信息" % torrent_name)
                     continue
+
+                # 类型
+                if mtype and media_info.type != mtype:
+                    log.info("【JACKETT】%s 是 %s，不匹配类型" % (torrent_name, media_info.type.value))
+                    continue
+
+                # 名称是否匹配
+                if match_type == 1:
+                    # 全匹配模式，名字需要完全一样才下载
+                    match_flag = False
+                    for match_word in match_words:
+                        if str(match_word).upper() == str(media_info.title).upper() \
+                                or str(match_word).upper() == str(media_info.original_title).upper():
+                            match_flag = True
+                            break
+                    if not match_flag:
+                        log.info("【JACKETT】%s：%s 不匹配名称：%s" % (media_info.type.value, media_info.title, match_words))
+                        continue
+                else:
+                    # 非全匹配模式，种子中或者名字中有关键字就行
+                    match_flag = False
+                    for match_word in match_words:
+                        if str(match_word).upper() in str(media_info.get_title_string()).upper() \
+                                or str(match_word).upper() in str(media_info.original_title).upper() \
+                                or str(match_word).upper() in str(media_info.org_string).upper():
+                            match_flag = True
+                            break
+                    if not match_flag:
+                        log.info("【JACKETT】%s：%s %s 不匹配名称：%s" % (
+                            media_info.type.value, media_info.org_string, media_info.get_title_string(), match_words))
+                        continue
+
+                # 判断文件大小是否匹配，只针对电影
+                if match_type == 1:
+                    if not Torrent.is_torrent_match_size(media_info, self.__res_type, size):
+                        log.info("【JACKETT】%s：%s %s 不符合大小要求" % (media_info.type.value, media_info.get_title_string(), str_filesize(size)))
+                        continue
             else:
-                # 非全匹配模式，种子中或者名字中有关键字就行
-                match_flag = False
-                for match_word in match_words:
-                    if str(match_word).upper() in str(media_info.get_title_string()).upper() \
-                            or str(match_word).upper() in str(media_info.original_title).upper() \
-                            or str(match_word).upper() in str(media_info.org_string).upper():
-                        match_flag = True
-                        break
-                if not match_flag:
-                    log.info("【JACKETT】%s：%s %s 不匹配名称：%s" % (
-                        media_info.type.value, media_info.org_string, media_info.get_title_string(), match_words))
-                    continue
+                media_info = meta_info
 
-            # 检查标题是否匹配剧集
+            # 检查标题是否匹配季、集、年
             if not Torrent.is_torrent_match_sey(media_info, s_num, e_num, year):
                 log.info("【JACKETT】%s：%s %s 不匹配季/集/年份" % (
                     media_info.type.value, media_info.get_title_string(), media_info.get_season_episode_string()))
                 continue
-
-            # 判断文件大小是否匹配，只针对电影
-            if whole_word:
-                if not Torrent.is_torrent_match_size(media_info, self.__res_type, size):
-                    log.info("【JACKETT】%s：%s %s 不符合大小要求" % (media_info.type.value, media_info.get_title_string(), str_filesize(size)))
-                    continue
 
             # 匹配到了
             media_info.set_torrent_info(site=indexer_name,

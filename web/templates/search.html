@@ -12,20 +12,23 @@
       </div>
       <div class="col-auto ms-auto d-print-none">
         <div class="d-flex btn-list">
-          <div class="input-icon">
-            <input id="search_word" type="text" value="" class="form-control" placeholder="搜索…">
-            <span class="input-icon-addon">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
-            </span>
+          <div class="input-group">
+            <input id="search_word" class="form-control" type="text" value="" placeholder="电影/电视剧名称">
+            <button id="search_btn" class="btn btn-primary d-none d-sm-inline-block" onclick="javascript:search_media()">搜索</button>
+            <button id="quick_search_btn" data-bs-toggle="dropdown" type="button" class="btn btn-primary d-none d-sm-inline-block dropdown-toggle dropdown-toggle-split"></button>
+            <div class="dropdown-menu dropdown-menu-end">
+              <a class="dropdown-item" href="javascript:search_media(true)">
+                快速搜索
+              </a>
+            </div>
+            <button id="search_icon" onclick="javascript:search_media()" class="btn btn-primary d-sm-none btn-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                 <circle cx="10" cy="10" r="7"></circle>
+                 <line x1="21" y1="21" x2="15" y2="15"></line>
+              </svg>
+            </button>
           </div>
-          <button id="search_btn" value="" class="btn btn-primary d-none d-sm-inline-block" onclick="javascript:search_media()">搜索</button>
-          <button id="search_icon" onclick="javascript:search_media()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-               <circle cx="10" cy="10" r="7"></circle>
-               <line x1="21" y1="21" x2="15" y2="15"></line>
-            </svg>
-          </button>
         </div>
       </div>
     </div>
@@ -83,13 +86,18 @@
           {% for Item in Items  %}
           <div class="col-sm-6 {% if Count > 8 %}col-xl-4{% else %}col-md-4 col-xl-3{% endif %} media_card" id="media_card_{{ Item[0] }}">
             <div class="card card-sm card-link-pop rounded-3">
+              {% if Item[11] > 0 %}
               <div class="ribbon ribbon-top ribbon-bookmark {% if Item[11] > 8 %} bg-green {% elif Item[11] <= 8 and Item[11] >= 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ Item[11] }}</div>
+              {% endif %}
+              {% if Item[9] %}
               <a href="javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}')" class="d-block" >
-                <img src="{{ Item[9] }}" class="card-img-top" title="点击添加下载" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important">
+                <img src="{{ Item[9] }}" class="card-img-top" title="点击添加下载" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">
               </a>
+              {% endif %}
               <div class="card-body">
                 <div class="d-flex align-items-center mb-2">
                   <input type="hidden" name="media_card_type" value="{{ Item[10] }}">
+                  {% if Item[9] %}
                   <span class="avatar me-2 rounded">
                     {% if Item[10] == "MOV" %}
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -111,8 +119,9 @@
                     </svg>
                     {% endif %}
                   </span>
+                  {% endif %}
                   <div>
-                    <div><a href="{{ Item[5] }}" target="_blank" title="点击下载种子文件"><strong>{{ Item[1]}}</strong></a><span class="badge ms-2">{{ Item[4] }}</span></div>
+                    <div><a href="{% if not Item[9] %}javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}'){% else %}{{ Item[5] }}{% endif %}" target="{% if Item[9] %}_blank{% endif %}" title="{% if not Item[9] %}点击添加下载{% else %}点击下载种子文件{% endif %}"><strong>{{ Item[1]|replace("()", "") }}</strong></a><span class="badge ms-2">{{ Item[4] }}</span></div>
                     <div class="text-muted"><strong class="media_card_info">{{ Item[6]}} {{ Item[2]}} {{ Item[3]}}</strong></div>
                     <input type="hidden" name="media_card_size" value="{{ Item[3] }}">
                   </div>
@@ -220,20 +229,25 @@
       $('#download-modal').modal('show');
   }
   // 搜索按钮
-  function search_media(){
-      var cmd = "search";
+  function search_media(unident){
+      if(!unident){
+        unident = "";
+      }else{
+        unident = "1";
+      }
       var keyword = $("#search_word").val();
       if(keyword == ""){
           return;
       }
       $("#search_btn").text("搜索中...");
       $("#search_btn").attr("disabled", "true");
+      $("#quick_search_btn").attr("disabled", "true");
       $("#search_icon").attr("disabled", "true");
       $("#search_tip_title").text("正在搜索 " + keyword + "，请稍后...");
       $("#search_tip_text").text("");
-      var param = {"search_word": keyword};
+      var param = {"search_word": keyword, "unident": unident};
       $("#modal-wait").modal("show");
-      ajax_post(cmd, param, function(ret){
+      ajax_post("search", param, function(ret){
         $("#modal-wait").modal("hide");
           //刷新页面
           navmenu('search?s='+keyword)

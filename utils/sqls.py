@@ -9,6 +9,8 @@ from utils.types import MediaType
 
 # 将返回信息插入数据库
 def insert_search_results(media_items):
+    if not media_items:
+        return
     sql = "INSERT INTO SEARCH_RESULTS(" \
           "TORRENT_NAME," \
           "ENCLOSURE," \
@@ -40,22 +42,21 @@ def insert_search_results(media_items):
             mtype = "MOV"
         else:
             mtype = "ANI"
-
         data_list.append(
             (
                 str_sql(media_item.org_string),
-                media_item.enclosure,
+                str_sql(media_item.enclosure),
                 str_sql(media_item.description),
                 mtype,
-                str_sql(media_item.title),
+                str_sql(media_item.title) or str_sql(media_item.get_name()),
                 xstr(media_item.year),
                 media_item.get_season_string(),
                 media_item.get_episode_string(),
                 media_item.get_season_episode_string(),
-                media_item.vote_average,
-                media_item.get_backdrop_path(),
+                media_item.vote_average or 0,
+                media_item.get_backdrop_path(default=False),
                 str_sql(media_item.poster_path),
-                media_item.tmdb_id,
+                str_sql(media_item.tmdb_id),
                 str_sql(media_item.overview),
                 media_item.get_resource_type_string(),
                 media_item.res_order,
@@ -66,7 +67,6 @@ def insert_search_results(media_items):
                 media_item.site_order
             )
         )
-
     return update_by_sql_batch(sql, data_list)
 
 

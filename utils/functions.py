@@ -9,11 +9,12 @@ import platform
 import bisect
 import datetime
 from enum import Enum
+from functools import lru_cache
+
 import requests
 from utils.types import OsType
 
 INSTANCES = {}
-WALLPAPERS = {}
 
 
 # 单例模式注解
@@ -373,10 +374,7 @@ def is_bluray_dir(path):
 
 # 转化SQL字符
 def str_sql(in_str):
-    if not in_str:
-        return ""
-    else:
-        return str(in_str)
+    return "" if not in_str else str(in_str)
 
 
 # 将普通对象转化为支持json序列化的对象
@@ -399,11 +397,9 @@ def json_serializable(obj):
 
 
 # 获取Bing每日避纸
-def get_bing_wallpaper():
-    today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
-    if WALLPAPERS.get(today):
-        return WALLPAPERS.get(today)
-    url = "http://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1"
+@lru_cache(maxsize=7)
+def get_bing_wallpaper(today=datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d')):
+    url = "http://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&today=%s" % today
     try:
         resp = requests.get(url, timeout=5)
     except Exception as err:
@@ -411,6 +407,5 @@ def get_bing_wallpaper():
         return ""
     if resp and resp.status_code == 200:
         for image in resp.json()['images']:
-            WALLPAPERS[today] = f"https://cn.bing.com{image['url']}"
-            return WALLPAPERS.get(today)
+            return f"https://cn.bing.com{image['url']}"
     return ""

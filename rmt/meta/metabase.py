@@ -89,7 +89,12 @@ class MetaBase(object):
         return ""
 
     def get_title_string(self):
-        return "%s (%s)" % (self.title, self.year) if self.year else self.title
+        if self.title:
+            return "%s (%s)" % (self.title, self.year) if self.year else self.title
+        elif self.get_name():
+            return "%s (%s)" % (self.get_name(), self.year) if self.year else self.get_name()
+        else:
+            return ""
 
     def get_vote_string(self):
         if self.vote_average:
@@ -191,13 +196,13 @@ class MetaBase(object):
             return ""
 
     # 返回背景图片地址
-    def get_backdrop_path(self):
+    def get_backdrop_path(self, default=True):
         if self.fanart_image:
             return self.fanart_image
         elif self.backdrop_path:
             return self.backdrop_path
         else:
-            return "../static/img/tmdb.webp"
+            return "../static/img/tmdb.webp" if default else ""
 
     # 返回消息图片地址
     def get_message_image(self):

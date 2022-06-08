@@ -19,7 +19,7 @@
           <div class="ribbon ribbon-top ribbon-bookmark {% if item.vote > 8 %} bg-green {% elif item.vote <= 8 and item.vote > 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ item.vote }}</div>
           {% endif %}
           <a href="javascript:{% if RecommendType in ['hm', 'nm', 'ht', 'nt'] %}show_media_info('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '{{ item.id }}', '', '{{ item.vote }}'){% else %}show_media_info('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '', '{{ item.id }}', '{{ item.vote }}'){% endif %}" title="{{ item.overview }}" class="d-block">
-            <img src="{{ item.image }}" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important">
+            <img src="{{ item.image }}" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">
           </a>
           <div class="card-body">
             <div class="d-flex align-items-center">
@@ -208,9 +208,16 @@
   }
 
   // 添加订阅关键字
-  function add_rss_key(type, name, year){
+  function add_rss_key(type, name, year, id){
       var cmd = "add_rss_media";
-      var data = { "name": name, "type": type, "year": year};
+      if(['hm','nm','ht','nt'].includes(type)){
+        var doubanid = "";
+        var tmdbid = id;
+      }else{
+        var doubanid = id;
+        var tmdbid = "";
+      }
+      var data = { "doubanid": doubanid, "tmdbid": tmdbid, "name": name, "type": type, "year": year};
       $("#modal-wait").modal("show");
       ajax_post(cmd, data, function(ret){
         $("#modal-wait").modal("hide");
@@ -244,7 +251,7 @@
           $("#recommend-modal-success").modal('show');
           $("#recommend_svg_" + id).removeClass();
           $("#recommend_svg_" + id).addClass("icon icon-tabler icon-tabler-heart");
-          $("#recommend_link_" + id).attr("href", "javascript:add_rss_key('" + type + "','" + name + "','" + year + "')");
+          $("#recommend_link_" + id).attr("href", "javascript:add_rss_key('" + type + "','" + name + "','" + year + "','" + id + "')");
       });
   }
 
@@ -275,7 +282,7 @@
       $('#recommend-modal').modal('hide');
       var dotype = $("#recommend_do_type").val();
       if(dotype == "ADD"){
-          add_rss_key($("#recommend_start_type").val(), $("#recommend_start_name").val(), $("#recommend_start_year").val());
+          add_rss_key($("#recommend_start_type").val(), $("#recommend_start_name").val(), $("#recommend_start_year").val(), $("#recommend_start_id").val());
       }else{
           remove_rss_key($("#recommend_start_type").val(), $("#recommend_start_name").val(), $("#recommend_start_year").val());
       }

@@ -14,6 +14,7 @@ lock = threading.Lock()
 class DBHelper:
     __connection = None
     __db_path = None
+    __pools = None
 
     def __init__(self):
         self.init_config()
@@ -249,7 +250,7 @@ class DBHelper:
             cursor.executemany(sql, data_list)
             conn.commit()
         except Exception as e:
-            log.error(f"【DB】执行SQL出错：sql:{sql}; parameters:{data_list}; {e}")
+            log.error(f"【DB】执行SQL出错：sql:{sql}; {e}")
             return False
         finally:
             self.__pools.free(conn)

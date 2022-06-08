@@ -27,8 +27,8 @@
       {% for Item in Items %}
       <div class="col-sm-6 col-md-4 col-xl-3">
         <a class="card card-link card-link-pop rounded-3" href="javascript:show_media_info('{{ Item[0] }}', '{{ Item[1] }}', '{{ Item[2] }}', '{{ Item[6] }}')" title="{{ Item[4] }}">
-          <div class="text-center">
-            <img class="rounded-top" src="{{ Item[3] }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important">
+          <div class="text-center" style="height:160px; overflow:hidden;">
+            <img class="rounded-top" src="{{ Item[3] }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover;">
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">
@@ -233,7 +233,13 @@
     $("#rss_id").val(rssid);
     if(tmdbid){
       $("#modal-wait").modal("show");
-      ajax_post("media_info", {"id": tmdbid, "type": "MOV"}, function(ret){
+      if(tmdbid.startsWith("DB:")){
+        var doubanid = tmdbid.replace("DB:", "");
+        tmdbid = "";
+      }else{
+        var doubanid = "";
+      }
+      ajax_post("media_info", {"id": tmdbid, "doubanid": doubanid, "type": "MOV"}, function(ret){
         $("#modal-wait").modal("hide");
         if(ret.code == 0){
           $("#media_vote").text(ret.vote_average);

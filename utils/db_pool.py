@@ -61,7 +61,7 @@ class DBPool(object):
         获取一个连接
         @param timeout:超时时间
         """
-        log.debug("【DB】获取连接")
+        log.debug("【DB】获取连接...")
         conn = None
         if timeout is None:
             timeout = self.max_wait

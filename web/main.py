@@ -594,10 +594,10 @@ def create_flask_app(config):
                     year = date[0:4]
                 else:
                     year = ''
-                if title in TvKeys:
+                if MetaInfo(title=title).get_name() in TvKeys:
                     # 已订阅
                     fav = 1
-                elif is_media_downloaded(title, year):
+                elif is_media_downloaded(MetaInfo(title=title).get_name(), year):
                     # 已下载
                     fav = 2
                 else:
@@ -1236,8 +1236,9 @@ def create_flask_app(config):
             if cmd == "search":
                 # 开始检索
                 search_word = data.get("search_word")
+                ident_flag = False if data.get("unident") else True
                 if search_word:
-                    search_medias_for_web(search_word)
+                    search_medias_for_web(content=search_word, ident_flag=ident_flag)
                 return {"retcode": 0}
 
             # 添加下载
@@ -1688,6 +1689,10 @@ def create_flask_app(config):
                 year = data.get("year")
                 season = data.get("season")
                 if name and mtype:
+                    meta_info = MetaInfo(title=name)
+                    name = meta_info.get_name()
+                    if not season:
+                        season = meta_info.get_season_string()
                     if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
                         delete_rss_movie(name, year)
                     else:
@@ -1696,6 +1701,8 @@ def create_flask_app(config):
 
             # 添加RSS订阅
             if cmd == "add_rss_media":
+                doubanid = data.get("doubanid")
+                tmdbid = data.get("tmdbid")
                 name = data.get("name")
                 mtype = data.get("type")
                 year = data.get("year")
@@ -1706,7 +1713,13 @@ def create_flask_app(config):
                         mtype = MediaType.MOVIE
                     else:
                         mtype = MediaType.TV
-                code, msg, media_info = add_rss_subscribe(mtype, name, year, season, match)
+                code, msg, media_info = add_rss_subscribe(mtype=mtype,
+                                                          name=name,
+                                                          year=year,
+                                                          season=season,
+                                                          match=match,
+                                                          doubanid=doubanid,
+                                                          tmdbid=tmdbid)
                 return {"code": code, "msg": msg}
 
             # 未识别的重新识别
