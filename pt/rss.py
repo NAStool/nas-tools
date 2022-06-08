@@ -246,9 +246,8 @@ class Rss:
             search_result, media, no_exists = self.searcher.search_one_media(
                 input_str="%s %s" % (name, year),
                 in_from=SearchType.RSS)
-            # 没有检索到媒体信息的，下次再处理
             if not media:
-                update_rss_movie_state(name, year, 'D')
+                update_rss_movie_state(name, year, 'R')
                 continue
             if search_result:
                 log.info("【RSS】电影 %s 下载完成，删除订阅..." % name)
@@ -276,9 +275,8 @@ class Rss:
             search_result, media, no_exists = self.searcher.search_one_media(
                 input_str="电视剧 %s %s %s" % (name, season, year),
                 in_from=SearchType.RSS)
-            # 没有检索到媒体信息的，下次再处理
             if not media:
-                update_rss_tv_state(name, year, season, 'D')
+                update_rss_tv_state(name, year, season, 'R')
                 continue
             if not no_exists or not no_exists.get(media.get_title_string()):
                 # 没有剩余或者剩余缺失季集中没有当前标题，说明下完了

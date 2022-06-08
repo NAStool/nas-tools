@@ -15,7 +15,7 @@
           <div class="input-group">
             <input id="search_word" class="form-control" type="text" value="" placeholder="电影/电视剧名称">
             <button id="search_btn" class="btn btn-primary d-none d-sm-inline-block" onclick="javascript:search_media()">搜索</button>
-            <button id="quick_search_btn" data-bs-toggle="dropdown" type="button" class="btn btn-primary d-none d-sm-inline-block dropdown-toggle dropdown-toggle-split"></button>
+            <button id="quick_search_btn" data-bs-toggle="dropdown" type="button" class="btn btn-primary d-none d-sm-inline-block dropdown-toggle dropdown-toggle-split" style="border-top-right-radius:4px;border-bottom-right-radius:4px;"></button>
             <div class="dropdown-menu dropdown-menu-end">
               <a class="dropdown-item" href="javascript:search_media(true)">
                 快速搜索
@@ -224,8 +224,8 @@
   // 显示下载提示框
   function show_download_modal(id, name){
       $("#download_start_id").val(id);
-      $("#download_start_name").val(name);
-      $("#download_start_message").text("是否立即下载 " + name + "？");
+      $("#download_start_name").val(name.replace("()", ""));
+      $("#download_start_message").text("是否立即下载 " + $("#download_start_name").val() + "？");
       $('#download-modal').modal('show');
   }
   // 搜索按钮
