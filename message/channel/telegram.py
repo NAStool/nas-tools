@@ -145,9 +145,14 @@ class Telegram:
         res = requests.get(sc_url, timeout=10, proxies=self.__config.get_proxies())
         if res and res.json():
             if res.json().get("ok"):
-                webhook_url = res.json().get("result", {}).get("url") or ""
+                result = res.json().get("result") or {}
+                webhook_url = result.get("url") or ""
                 if webhook_url:
                     log.info("TelegramBot Webhook 地址为：%s" % webhook_url)
+                pending_update_count = result.get("pending_update_count")
+                last_error_message = result.get("last_error_message")
+                if pending_update_count and last_error_message:
+                    log.warn("TelegramBot Webhook 有 %s 条消息挂起，最后一次失败原因为：%s" % (pending_update_count, last_error_message))
                 if webhook_url == self.__webhook_url:
                     return 1
                 else:
