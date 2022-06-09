@@ -95,12 +95,22 @@ def str_timelong(time_sec):
     return str(round(time_sec / (b + 1))) + u
 
 
-# 判断是否为中文
+# 判断是否含有中文
 def is_chinese(word):
     for ch in word:
         if '\u4e00' <= ch <= '\u9fff':
             return True
     return False
+
+
+# 判断是否全是中文
+def is_all_chinese(word):
+    for ch in word:
+        if '\u4e00' <= ch <= '\u9fff':
+            continue
+        else:
+            return False
+    return True
 
 
 # 执地本地命令，返回信息

@@ -5,6 +5,7 @@ from requests import RequestException
 import log
 from config import FANART_TV_API_URL, FANART_MOVIE_API_URL, ANIME_GENREIDS, Config
 from rmt.category import Category
+from utils.functions import is_all_chinese
 from utils.types import MediaType
 
 
@@ -84,9 +85,9 @@ class MetaBase(object):
         self.subtitle = subtitle
 
     def get_name(self):
-        if self.cn_name:
+        if self.cn_name and is_all_chinese(self.cn_name):
             return self.cn_name
-        if self.en_name:
+        elif self.en_name:
             return self.en_name
         return ""
 
