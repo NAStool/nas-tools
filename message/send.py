@@ -100,7 +100,7 @@ class Message:
         :param can_item: 下载的媒体信息
         :return: 发送状态、错误信息
         """
-        msg_title = can_item.get_title_vote_string()
+        msg_title = can_item.get_title_ep_vote_string()
         msg_text = f"{in_from.value}的{can_item.type.value} {can_item.get_title_string()}{can_item.get_season_episode_string()} 已开始下载"
         if can_item.site:
             msg_text = f"{msg_text}\n站点：{can_item.site}"

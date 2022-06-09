@@ -110,6 +110,17 @@ class MetaBase(object):
         else:
             return "%s %s" % (self.get_title_string(), self.get_vote_string())
 
+    def get_title_ep_vote_string(self):
+        string = self.get_title_string()
+        if self.get_episode_list():
+            string = "%s %s" % (string, self.get_season_episode_string())
+        else:
+            if self.get_season_list():
+                string = "%s %s" % (string, self.get_season_string())
+            if self.vote_average:
+                string = "%s %s" % (string, self.get_vote_string())
+        return string
+
     # 返回季字符串
     def get_season_string(self):
         if self.begin_season is not None:
