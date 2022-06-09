@@ -279,13 +279,13 @@
           <div class="col-sm-6 col-lg-4">
             <div class="mb-3">
               <label class="form-label required">名称</label>
-              <input type="text" value="" id="search_name" class="form-control" placeholder="">
+              <input type="text" value="" id="search_name" class="form-control" placeholder="电影/电视剧名称">
             </div>
           </div>
           <div class="col-sm-6 col-lg-2">
             <div class="mb-3">
               <label class="form-label">年份</label>
-              <input type="text" value="" id="search_year" class="form-control" placeholder="">
+              <input type="text" value="" id="search_year" class="form-control" placeholder="20xx">
             </div>
           </div>
           <div class="col-sm-6 col-lg-2">
@@ -300,9 +300,12 @@
         <div class="row">
           <div class="col-sm-6 col-lg-4">
             <div class="mb-3">
-              <label class="form-label">站点</label>
+              <label class="form-label">站点(<a href="#" title="仅针对Jackett有效">?</a>)</label>
               <select class="form-select" id="search_site">
                 <option value="" selected>全部</option>
+                {% for site in SiteDict %}
+                <option value="{{ site }}">{{ site }}</option>
+                {% endfor %}
               </select>
             </div>
           </div>
@@ -311,6 +314,9 @@
               <label class="form-label">质量</label>
               <select class="form-select" id="search_restype">
                 <option value="" selected>全部</option>
+                {% for restype in RestypeDict %}
+                <option value="{{ restype }}">{{ restype }}</option>
+                {% endfor %}
               </select>
             </div>
           </div>
@@ -319,6 +325,9 @@
               <label class="form-label">分辨率</label>
               <select class="form-select" id="search_pix">
                 <option value="" selected>全部</option>
+                {% for pix in PixDict %}
+                <option value="{{ pix }}">{{ pix }}</option>
+                {% endfor %}
               </select>
             </div>
           </div>
@@ -334,13 +343,13 @@
           <div class="col-sm-6 col-lg-8">
             <div class="mb-3">
               <label class="form-label">其它关键字</label>
-              <input type="text" value="" id="search_key" class="form-control" placeholder="">
+              <input type="text" value="" id="search_key" class="form-control" placeholder="HEVC/AVC/[HX].?26[45]">
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <a href="#" id="rss_add_btn" class="btn btn-primary">开始搜索</a>
+        <a href="javascript:search_media_advanced()" id="search_advanced_btn" class="btn btn-primary">开始搜索</a>
       </div>
     </div>
   </div>
@@ -495,6 +504,48 @@
   // 显示高级搜索框
   function show_search_advanced_modal(){
     $("#modal-search-advanced").modal("show");
+  }
+
+  // 开始高级搜索
+  function search_media_advanced(){
+    $("#search_advanced_btn").text("搜索中...");
+    $("#search_advanced_btn").attr("disabled", "true");
+    $("#search_icon").attr("disabled", "true");
+    // 读取数据
+    var search_name = $("#search_name").val();
+    var search_type = $("#search_type").val();
+    var search_season = $("#search_season").val();
+    var search_year = $("#search_year").val();
+    var search_site = $("#search_site").val();
+    var search_restype = $("#search_restype").val();
+    var search_pix = $("#search_pix").val();
+    var search_free = $("#search_free").val();
+    var search_key = $("#search_key").val();
+    // 拼装请求
+    if(search_type){
+      var keyword = search_type + " " + search_name;
+    }else{
+      var keyword = search_name;
+    }
+    if(search_year){
+      keyword = keyword + " " + search_year;
+    }
+    if(search_season){
+      keyword = keyword + " " + search_season;
+    }
+    var filters = {"site": search_site, "restype": search_restype, "pix": search_pix, "free": search_free, "key": search_key};
+    var param = {"search_word": keyword, "filters": filters};
+    ajax_post("search", param, function(ret){
+      $("#modal-search-advanced").modal("hide");
+      navmenu('search?s='+keyword)
+    });
+  }
+
+  //初始化下拉框
+  $("#search_season").empty();
+  $("#search_season").append('<option value="">请选择</option>');
+  for(var i=1; i<=50; i++){
+    $("#search_season").append('<option value="第' + i + '季">第' + i +'季</option>');
   }
 
 </script>

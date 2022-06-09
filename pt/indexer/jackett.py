@@ -6,7 +6,7 @@ from concurrent.futures.thread import ThreadPoolExecutor
 import requests
 
 import log
-from config import Config
+from config import Config, TORRENT_SEARCH_PARAMS
 from pt.indexer.indexer import IIndexer
 from pt.torrent import Torrent
 from rmt.media import Media
@@ -77,7 +77,10 @@ class Jackett(IIndexer):
             log.error("【JACKETT】Jackett配置信息有误！")
             return []
         # 多线程检索
-        log.info("【JACKETT】开始并行检索 %s，线程数：%s" % (key_word, len(self.__indexers)))
+        if filter_args and filter_args.get("site"):
+            log.info("【JACKETT】开始检索 %s，站点：%s ..." % (key_word, filter_args.get("site")))
+        else:
+            log.info("【JACKETT】开始并行检索 %s，线程数：%s ..." % (key_word, len(self.__indexers)))
         executor = ThreadPoolExecutor(max_workers=len(self.__indexers))
         all_task = []
         order_seq = 100
@@ -105,10 +108,14 @@ class Jackett(IIndexer):
         """
         if not index or not key_word:
             return None
+        if filter_args is None:
+            filter_args = {}
         ret_array = []
         indexer_name = re.search(r'/indexers/([a-zA-Z0-9]+)/results/', index)
         if indexer_name:
             indexer_name = indexer_name.group(1)
+        if filter_args.get("site") and filter_args.get("site") != indexer_name:
+            return []
         log.info("【JACKETT】开始检索Indexer：%s ..." % indexer_name)
         # 传给Jackett的需要处理掉特殊符号
         search_word = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__space_chars, ' ', key_word)).strip()
@@ -148,10 +155,32 @@ class Jackett(IIndexer):
 
             # 识别种子名称
             meta_info = MetaInfo(torrent_name)
+            if not meta_info.get_name():
+                continue
             if meta_info.type not in [MediaType.MOVIE, MediaType.UNKNOWN] and filter_args.get("type") == MediaType.MOVIE:
                 log.info("【JACKETT】%s 是 %s，类型不匹配" % (torrent_name, meta_info.type.value))
                 continue
-            if not meta_info.get_name():
+
+            # 有高级过滤条件时，先过滤一遍
+            if filter_args.get("restype"):
+                restype_re = TORRENT_SEARCH_PARAMS["restype"].get(filter_args.get("restype"))
+                if not meta_info.resource_type:
+                    continue
+                if restype_re and not re.search(r"%s" % restype_re, meta_info.resource_type, re.IGNORECASE):
+                    log.info("【JACKETT】%s 不符合质量条件：%s" % (torrent_name, filter_args.get("restype")))
+                    continue
+            if filter_args.get("pix"):
+                restype_re = TORRENT_SEARCH_PARAMS["pix"].get(filter_args.get("pix"))
+                if not meta_info.resource_pix:
+                    continue
+                if restype_re and not re.search(r"%s" % restype_re, meta_info.resource_pix, re.IGNORECASE):
+                    log.info("【JACKETT】%s 不符合分辨率条件：%s" % (torrent_name, filter_args.get("pix")))
+                    continue
+            if filter_args.get("free") and not freeleech:
+                log.info("【JACKETT】%s 不符合免费条件" % torrent_name)
+                continue
+            if filter_args.get("key") and not re.search(r"%s" % filter_args.get("key"), torrent_name, re.IGNORECASE):
+                log.info("【JACKETT】%s 不符合关键字：%s" % (torrent_name, filter_args.get("key")))
                 continue
 
             # 识别媒体信息

@@ -3,6 +3,7 @@ import base64
 import datetime
 import logging
 import os.path
+import re
 import shutil
 import signal
 import subprocess
@@ -35,7 +36,7 @@ from rmt.metainfo import MetaInfo
 from pt.mediaserver.jellyfin import Jellyfin
 from pt.mediaserver.plex import Plex
 from message.send import Message
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE, RMT_MEDIAEXT
+from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, LOG_QUEUE, RMT_MEDIAEXT, TORRENT_SEARCH_PARAMS
 from service.run import stop_scheduler, restart_scheduler
 from service.scheduler import Scheduler
 from utils.functions import get_used_of_partition, str_filesize, str_timelong, get_system, get_dir_files, \
@@ -481,7 +482,13 @@ def create_flask_app(config):
         for k, v in MediaRestypeDict.items():
             MediaRestypes.append({"name": k, "num": v})
         MediaRestypes = sorted(MediaRestypes, key=lambda x: int(x.get("num")), reverse=True)
-
+        # 站点列表
+        SiteDict = []
+        Indexers = config.get_config("jackett").get("indexers")
+        for item in Indexers:
+            site_re = re.search(r'/indexers/([a-zA-Z0-9]+)/results/', item)
+            if site_re:
+                SiteDict.append(site_re.group(1))
         return render_template("search.html",
                                UserPris=str(pris).split(","),
                                SearchWord=SearchWord or "",
@@ -492,7 +499,10 @@ def create_flask_app(config):
                                MediaSites=MediaSites,
                                MediaPixs=MediaPixs,
                                MediaRestypes=MediaRestypes,
-                               FreeCount=FreeCount)
+                               FreeCount=FreeCount,
+                               RestypeDict=TORRENT_SEARCH_PARAMS.get("restype").keys(),
+                               PixDict=TORRENT_SEARCH_PARAMS.get("pix").keys(),
+                               SiteDict=SiteDict)
 
     # 电影订阅页面
     @App.route('/movie_rss', methods=['POST', 'GET'])
@@ -1242,8 +1252,9 @@ def create_flask_app(config):
                 # 开始检索
                 search_word = data.get("search_word")
                 ident_flag = False if data.get("unident") else True
+                filters = data.get("filters")
                 if search_word:
-                    search_medias_for_web(content=search_word, ident_flag=ident_flag)
+                    search_medias_for_web(content=search_word, ident_flag=ident_flag, filters=filters)
                 return {"retcode": 0}
 
             # 添加下载

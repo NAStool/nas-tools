@@ -51,6 +51,25 @@ LOG_LEVEL = logging.INFO
 LOG_QUEUE = deque(maxlen=200)
 # 添加下载时增加的标签，开始只监控NASTool添加的下载时有效
 PT_TAG = "NASTOOL"
+# 搜索种子过滤属性
+TORRENT_SEARCH_PARAMS = {
+    "restype": {
+        "BLURAY": r"Blu-?Ray|BD|BDRIP",
+        "REMUX": r"REMUX",
+        "DOLBY": r"DOLBY",
+        "WEB": r"WEB-?DL|WEBRIP",
+        "HDTV": r"U?HDTV",
+        "UHD": r"UHD",
+        "HDR": r"HDR",
+        "3D": r"3D"
+    },
+    "pix": {
+        "8k": r"8K",
+        "4k": r"4K|2160K",
+        "1080p": r"1080[PIX]",
+        "720p": r"720P"
+    }
+}
 
 lock = Lock()
 

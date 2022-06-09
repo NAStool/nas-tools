@@ -3,7 +3,7 @@ import re
 import requests
 
 import log
-from config import Config
+from config import Config, TORRENT_SEARCH_PARAMS
 from pt.indexer.indexer import IIndexer
 from pt.torrent import Torrent
 from rmt.media import Media
@@ -69,6 +69,8 @@ class Prowlarr(IIndexer):
         """
         if not key_word:
             return []
+        if filter_args is None:
+            filter_args = {}
         if not match_words:
             match_words = [key_word]
         if not self.__api_key or not self.__host:
@@ -114,10 +116,33 @@ class Prowlarr(IIndexer):
 
             # 识别种子名称
             meta_info = MetaInfo(torrent_name)
+            if not meta_info.get_name():
+                continue
             if meta_info.type not in [MediaType.MOVIE, MediaType.UNKNOWN] and filter_args.get("type") == MediaType.MOVIE:
                 log.info("【PROWLARR】%s 是 %s，类型不匹配" % (torrent_name, meta_info.type.value))
                 continue
-            if not meta_info.get_name():
+
+            # 有高级过滤条件时，先过滤一遍
+            if filter_args.get("restype"):
+                restype_re = TORRENT_SEARCH_PARAMS["restype"].get(filter_args.get("restype"))
+                if not meta_info.resource_type:
+                    continue
+                if restype_re and not re.search(r"%s" % restype_re, meta_info.resource_type, re.IGNORECASE):
+                    log.info("【JACKETT】%s 不符合质量条件：%s" % (torrent_name, filter_args.get("restype")))
+                    continue
+            if filter_args.get("pix"):
+                restype_re = TORRENT_SEARCH_PARAMS["pix"].get(filter_args.get("pix"))
+                if not meta_info.resource_pix:
+                    continue
+                if restype_re and not re.search(r"%s" % restype_re, meta_info.resource_pix, re.IGNORECASE):
+                    log.info("【JACKETT】%s 不符合分辨率条件：%s" % (torrent_name, filter_args.get("pix")))
+                    continue
+            if filter_args.get("free") and not freeleech:
+                log.info("【JACKETT】%s 不符合免费条件" % torrent_name)
+                continue
+            if filter_args.get("key") and not re.search(r"%s" % filter_args.get("key"), torrent_name,
+                                                        re.IGNORECASE):
+                log.info("【JACKETT】%s 不符合关键字：%s" % (torrent_name, filter_args.get("key")))
                 continue
 
             # 识别媒体信息
