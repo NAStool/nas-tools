@@ -89,6 +89,8 @@ class MetaBase(object):
             return self.cn_name
         elif self.en_name:
             return self.en_name
+        elif self.cn_name:
+            return self.cn_name
         return ""
 
     def get_title_string(self):
