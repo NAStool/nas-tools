@@ -125,8 +125,7 @@ class Rss:
                                 media_info.get_title_string(), media_info.get_season_episode_string()))
                             continue
                         # 检查种子名称或者标题是否匹配
-                        match_flag = Torrent.is_torrent_match_rss(media_info, movie_keys, tv_keys)
-                        if match_flag:
+                        if Torrent.is_torrent_match_rss(media_info, movie_keys, tv_keys):
                             log.info("【RSS】%s: %s %s %s 匹配成功" % (media_info.type.value,
                                                                  media_info.get_title_string(),
                                                                  media_info.get_season_episode_string(),
@@ -137,20 +136,14 @@ class Rss:
                                                                   media_info.get_season_episode_string(),
                                                                   media_info.get_resource_type_string()))
                             continue
-                        # 匹配后，看资源类型是否满足
-                        # 代表资源类型在配置中的优先级顺序
-                        res_order = 99
-                        if match_flag:
-                            # 确定标题中是否有资源类型关键字，并返回关键字的顺序号
-                            match_flag, res_order = Torrent.check_resouce_types(torrent_name, description, res_type)
-                            if not match_flag:
-                                log.info("【RSS】%s 不符合过滤条件，跳过..." % torrent_name)
-                                continue
+                        # 确定标题中是否符合过滤规则，并返回关键字的顺序号
+                        match_flag, res_order = Torrent.check_resouce_types(torrent_name, description, res_type)
+                        if not match_flag:
+                            log.info("【RSS】%s 不符合过滤条件，跳过..." % torrent_name)
+                            continue
                         # 判断文件大小是否匹配，只针对电影
-                        if match_flag:
-                            match_flag = Torrent.is_torrent_match_size(media_info, res_type, size)
-                            if not match_flag:
-                                continue
+                        if not Torrent.is_torrent_match_size(media_info, res_type, size):
+                            continue
                         # 检查是否存在
                         exist_flag, rss_no_exists, messages = self.downloader.check_exists_medias(meta_info=media_info, no_exists=rss_no_exists)
                         if exist_flag:

@@ -71,6 +71,8 @@ class MetaBase(object):
     seeders = 0
     peers = 0
     description = None
+    freeleech = False
+    page_url = None
 
     def __init__(self, title, subtitle=None):
         if not title:
@@ -291,7 +293,9 @@ class MetaBase(object):
                          size=0,
                          seeders=0,
                          peers=0,
-                         description=None):
+                         description=None,
+                         freeleech=False,
+                         page_url=None):
         self.site = site
         self.site_order = site_order
         self.enclosure = enclosure
@@ -300,6 +304,8 @@ class MetaBase(object):
         self.seeders = seeders
         self.peers = peers
         self.description = description
+        self.freeleech = freeleech
+        self.page_url = page_url
 
     # 获取消息媒体图片
     # 增加cache，优化资源检索时性能

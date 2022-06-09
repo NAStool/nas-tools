@@ -36,7 +36,7 @@ class DBHelper:
         cursor = conn.cursor()
         try:
             # Jackett搜索结果表
-            cursor.execute('''CREATE TABLE IF NOT EXISTS SEARCH_RESULTS
+            cursor.execute('''CREATE TABLE IF NOT EXISTS SEARCH_TORRENTS_RESULT
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
                                    TORRENT_NAME    TEXT,
                                    ENCLOSURE    TEXT,
@@ -58,7 +58,10 @@ class DBHelper:
                                    SEEDERS    INTEGER,
                                    PEERS    INTEGER,                   
                                    SITE    TEXT,
-                                   SITE_ORDER    TEXT);''')
+                                   SITE_ORDER    TEXT,
+                                   FREELEECH    TEXT,
+                                   PAGEURL    TEXT,
+                                   OTHERINFO    TEXT);''')
             # RSS下载记录表
             cursor.execute('''CREATE TABLE IF NOT EXISTS RSS_TORRENTS
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,

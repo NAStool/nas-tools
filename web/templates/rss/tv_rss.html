@@ -31,16 +31,16 @@
             <img class="rounded-top" src="{{ Item[4] }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover;">
           </div>
           <div class="card-progress">
-            <div class="progress-bar bg-green" style="width: {{ Item[9] }}%" role="progressbar" aria-valuenow="{{ Item[9] }}" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar bg-green" style="width: {{ Item[9] or 0 }}%" role="progressbar" aria-valuenow="{{ Item[9] or 0 }}" aria-valuemin="0" aria-valuemax="100">
               <span class="visually-hidden">{{ Item[9] }}%</span>
             </div>
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">
               {% if Item[1] %}
-              {{ Item[0] }} ({{ Item[1] }}) {{ Item[2] }}
+              {{ Item[0] }} ({{ Item[1] }}) {% if Item[2] != "S00" %}{{ Item[2] }}{% endif %}
               {% else %}
-              {{ Item[0] }} {{ Item[2] }}
+              {{ Item[0] }} {% if Item[2] != "S00" %}{{ Item[2] }}{% endif %}
               {% endif %}
             </div>
             <div class="text-muted">
@@ -114,7 +114,7 @@
           <div class="mb-3">
             <label class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="key_match">
-              <span class="form-check-label">模糊匹配(<a href="#" title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，适用于订阅未上映剧集或按年份匹配所有新出剧集">?</a>)</span>
+              <span class="form-check-label">模糊匹配(<a href="#" title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，此时标题可以配置正则表达式实现模糊匹配">?</a>)</span>
             </label>
           </div>
         </div>
@@ -180,7 +180,7 @@
           <input type="hidden" id="media_title">
           <input type="hidden" id="media_year">
           <input type="hidden" id="media_season">
-          <input type="hidden" id="rss_id">
+          <input type="hidden" id="media_id">
         </div>
       </div>
     </div>
@@ -194,8 +194,6 @@
         <div id="rss_remove_message">是否确认取消订阅?</div>
       </div>
       <div class="modal-footer">
-        <input type="hidden" id="rss_name" />
-        <input type="hidden" id="rss_year" />
         <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
         <button type="button" class="btn btn-danger" id="rss_remove_btn">确定</button>
       </div>
@@ -221,6 +219,12 @@
     } else {
       $("#tv_year").removeClass("is-invalid");
     }
+    if(!match && !season){
+      $("#tv_season").addClass("is-invalid");
+      return;
+    }else{
+      $("#tv_season").removeClass("is-invalid");
+    }
     var cmd = "add_rss_media";
     var data = { "name": name, "type": "TV", "year": year, "season": season, "match": match};
     $("#modal-tv-rss").modal("hide");
@@ -237,7 +241,7 @@
   }
 
   // 取消订阅
-  function remove_rss_media(name, year, season){
+  function remove_rss_media(name, year, season, rssid){
     $("#modal-media-modal").modal("hide");
     if(!name){
       name = $("#media_title").val();
@@ -248,8 +252,11 @@
     if(!season){
       season = $("#media_season").val();
     }
+    if(!rssid){
+      rssid = $("#media_id").val();
+    }
     var cmd = "remove_rss_media";
-    var data = { "name": name, "type": "TV", "year": year, "season": season};
+    var data = { "name": name, "type": "TV", "year": year, "season": season, "rssid": rssid};
     ajax_post(cmd, data, function(ret){
       navmenu("tv_rss");
     });
@@ -257,6 +264,7 @@
 
   //初始化下拉框
   $("#tv_season").empty();
+  $("#tv_season").append('<option value="">请选择</option>');
   for(var i=1; i<=50; i++){
     $("#tv_season").append('<option value="' + i + '">第' + i +'季</option>');
   }
@@ -265,8 +273,8 @@
   function show_media_info(name, year, season, tmdbid, rssid){
     $("#media_title").val(name);
     $("#media_year").val(year);
-    $("#rss_id").val(rssid);
     $("#media_season").val(season);
+    $("#media_id").val(rssid);
     if(tmdbid){
       $("#modal-wait").modal("show");
       if(tmdbid.startsWith("DB:")){
@@ -289,11 +297,9 @@
       });
     }else{
       $("#rss_remove_message").text("是否确认取消订阅 " + name);
-      $("#rss_name").val(name);
-      $("#rss_year").val(year);
       $("#rss_remove_btn").click(function(){
         $("#rss-remove-modal").modal('hide');
-        remove_rss_media(name, year, season);
+        remove_rss_media();
       });
       $("#rss-remove-modal").modal('show');
     }

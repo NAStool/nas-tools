@@ -1,6 +1,7 @@
 import re
 
 import requests
+
 import log
 from config import Config
 from pt.torrent import Torrent
@@ -95,6 +96,8 @@ class Prowlarr:
             description = item.get('description')
             seeders = item.get('seeders')
             peers = item.get('peers')
+            page_url = item.get('page_url')
+            freeleech = item.get('freeleech')
 
             # 全匹配模式下，过滤掉做种数为0的
             if match_type == 1 and not seeders:
@@ -157,7 +160,8 @@ class Prowlarr:
                 # 判断文件大小是否匹配，只针对电影
                 if match_type == 1:
                     if not Torrent.is_torrent_match_size(media_info, self.__res_type, size):
-                        log.info("【PROWLARR】%s：%s %s 不符合大小要求" % (media_info.type.value, media_info.get_title_string(), str_filesize(size)))
+                        log.info("【PROWLARR】%s：%s %s 不符合大小要求" % (
+                            media_info.type.value, media_info.get_title_string(), str_filesize(size)))
                         continue
             else:
                 media_info = meta_info
@@ -176,7 +180,9 @@ class Prowlarr:
                                         size=size,
                                         seeders=seeders,
                                         peers=peers,
-                                        description=description)
+                                        description=description,
+                                        page_url=page_url,
+                                        freeleech=freeleech)
             if media_info not in ret_array:
                 index_sucess = index_sucess + 1
                 ret_array.append(media_info)
@@ -204,14 +210,21 @@ class Prowlarr:
             for item in results:
                 title = item.get("title")
                 enclosure = item.get("downloadUrl")
-                description = item.get("infoUrl")
+                description = item.get("commentUrl")
+                page_url = item.get("infoUrl")
                 size = item.get("size")
                 seeders = item.get("seeders")
                 peers = item.get("leechers")
                 indexer = item.get("indexer")
                 indexerId = item.get("indexerId")
+                indexerFlags = item.get("indexerFlags")
+                if "freeleech" in indexerFlags:
+                    freeleech = True
+                else:
+                    freeleech = False
                 tmp_dict = {'title': title, 'enclosure': enclosure, 'description': description, 'size': size,
-                            'seeders': seeders, 'peers': peers, 'indexer': indexer, 'indexerId': indexerId}
+                            'seeders': seeders, 'peers': peers, 'indexer': indexer, 'indexerId': indexerId,
+                            'page_url': page_url, "freeleech": freeleech}
                 ret_array.append(tmp_dict)
 
         return ret_array

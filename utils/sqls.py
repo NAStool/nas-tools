@@ -11,7 +11,7 @@ from utils.types import MediaType
 def insert_search_results(media_items):
     if not media_items:
         return
-    sql = "INSERT INTO SEARCH_RESULTS(" \
+    sql = "INSERT INTO SEARCH_TORRENTS_RESULT(" \
           "TORRENT_NAME," \
           "ENCLOSURE," \
           "DESCRIPTION," \
@@ -32,8 +32,10 @@ def insert_search_results(media_items):
           "SEEDERS," \
           "PEERS," \
           "SITE," \
-          "SITE_ORDER) VALUES (" \
-          " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+          "SITE_ORDER," \
+          "FREELEECH," \
+          "PAGEURL) VALUES (" \
+          " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     data_list = []
     for media_item in media_items:
         if media_item.type == MediaType.TV:
@@ -53,7 +55,7 @@ def insert_search_results(media_items):
                 media_item.get_season_string(),
                 media_item.get_episode_string(),
                 media_item.get_season_episode_string(),
-                media_item.vote_average or 0,
+                media_item.vote_average or "0",
                 media_item.get_backdrop_path(default=False),
                 str_sql(media_item.poster_path),
                 str_sql(media_item.tmdb_id),
@@ -64,7 +66,9 @@ def insert_search_results(media_items):
                 media_item.seeders,
                 media_item.peers,
                 media_item.site,
-                media_item.site_order
+                media_item.site_order,
+                "1" if media_item.freeleech else "0",
+                str_sql(media_item.page_url)
             )
         )
     return update_by_sql_batch(sql, data_list)
@@ -73,7 +77,7 @@ def insert_search_results(media_items):
 # 根据ID从数据库中查询检索结果的一条记录
 def get_search_result_by_id(dl_id):
     sql = "SELECT ENCLOSURE,TITLE,YEAR,SEASON,EPISODE,VOTE,IMAGE,TYPE,TORRENT_NAME,DESCRIPTION,SIZE,TMDBID,POSTER,OVERVIEW,SITE" \
-          " FROM SEARCH_RESULTS" \
+          " FROM SEARCH_TORRENTS_RESULT" \
           " WHERE ID = ?"
     return select_by_sql(sql, (dl_id,))
 
@@ -81,8 +85,8 @@ def get_search_result_by_id(dl_id):
 # 查询检索结果的所有记录
 def get_search_results():
     sql = "SELECT ID,TITLE||' ('||YEAR||') '||ES_STRING,RES_TYPE,SIZE,SEEDERS," \
-          "ENCLOSURE,SITE,YEAR,ES_STRING,IMAGE,TYPE,VOTE*1,TORRENT_NAME,DESCRIPTION,TMDBID,POSTER,OVERVIEW" \
-          " FROM SEARCH_RESULTS"
+          "ENCLOSURE,SITE,YEAR,ES_STRING,IMAGE,TYPE,VOTE*1,TORRENT_NAME,DESCRIPTION,TMDBID,POSTER,OVERVIEW,FREELEECH,PAGEURL,OTHERINFO" \
+          " FROM SEARCH_TORRENTS_RESULT"
     return select_by_sql(sql)
 
 
@@ -119,7 +123,7 @@ def is_torrent_rssd(media_info):
 
 # 删除所有搜索的记录
 def delete_all_search_torrents():
-    return update_by_sql("DELETE FROM SEARCH_RESULTS")
+    return update_by_sql("DELETE FROM SEARCH_TORRENTS_RESULT")
 
 
 # 将RSS的记录插入数据库
@@ -449,11 +453,15 @@ def insert_rss_movie(media_info, state='D'):
 
 
 # 删除RSS电影
-def delete_rss_movie(title, year):
-    if not title:
+def delete_rss_movie(title, year, rssid=None):
+    if not title and not rssid:
         return False
-    sql = "DELETE FROM RSS_MOVIES WHERE NAME = ? AND YEAR = ?"
-    return update_by_sql(sql, (str_sql(title), year))
+    if rssid:
+        sql = "DELETE FROM RSS_MOVIES WHERE ID = ?"
+        return update_by_sql(sql, (rssid,))
+    else:
+        sql = "DELETE FROM RSS_MOVIES WHERE NAME = ? AND YEAR = ?"
+        return update_by_sql(sql, (str_sql(title), year))
 
 
 # 判断RSS电视剧是否存在
@@ -497,11 +505,15 @@ def update_rss_tv_lack(title, year, season, lack):
 
 
 # 删除RSS电视剧
-def delete_rss_tv(title, year, season):
-    if not title:
+def delete_rss_tv(title, year, season, rssid=None):
+    if not title and not rssid:
         return False
-    sql = "DELETE FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-    return update_by_sql(sql, (str_sql(title), year, season))
+    if rssid:
+        sql = "DELETE FROM RSS_TVS WHERE ID = ?"
+        return update_by_sql(sql, (rssid,))
+    else:
+        sql = "DELETE FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
+        return update_by_sql(sql, (str_sql(title), year, season))
 
 
 # 更新电影订阅状态

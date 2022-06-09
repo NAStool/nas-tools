@@ -1,6 +1,10 @@
 import re
 import xml.dom.minidom
+from concurrent.futures._base import as_completed
+from concurrent.futures.thread import ThreadPoolExecutor
+
 import requests
+
 import log
 from config import Config
 from pt.torrent import Torrent
@@ -9,8 +13,6 @@ from rmt.metainfo import MetaInfo
 from utils.functions import str_filesize
 from utils.sqls import get_config_search_rule
 from utils.types import MediaType
-from concurrent.futures.thread import ThreadPoolExecutor
-from concurrent.futures._base import as_completed
 
 
 class Jackett:
@@ -132,12 +134,15 @@ class Jackett:
         # 从检索结果中匹配符合资源条件的记录
         index_sucess = 0
         for item in result_array:
+            # 获取属性
             torrent_name = item.get('title')
             enclosure = item.get('enclosure')
             size = item.get('size')
             description = item.get('description')
             seeders = item.get('seeders')
             peers = item.get('peers')
+            freeleech = item.get('freeleech')
+            page_url = item.get('page_url')
 
             # 合匹配模式下，过滤掉做种数为0的
             if match_type == 1 and not seeders:
@@ -202,7 +207,8 @@ class Jackett:
                 # 判断文件大小是否匹配，只针对电影
                 if match_type == 1:
                     if not Torrent.is_torrent_match_size(media_info, self.__res_type, size):
-                        log.info("【JACKETT】%s：%s %s 不符合大小要求" % (media_info.type.value, media_info.get_title_string(), str_filesize(size)))
+                        log.info("【JACKETT】%s：%s %s 不符合大小要求" % (
+                            media_info.type.value, media_info.get_title_string(), str_filesize(size)))
                         continue
             else:
                 media_info = meta_info
@@ -221,7 +227,9 @@ class Jackett:
                                         size=size,
                                         seeders=seeders,
                                         peers=peers,
-                                        description=description)
+                                        description=description,
+                                        freeleech=freeleech,
+                                        page_url=page_url)
             if media_info not in ret_array:
                 index_sucess = index_sucess + 1
                 ret_array.append(media_info)
@@ -283,10 +291,19 @@ class Jackett:
                             firstChild = tagNames[0].firstChild
                             if firstChild:
                                 size = firstChild.data
+                        # 种子页面
+                        page_url = ""
+                        tagNames = item.getElementsByTagName("comments")
+                        if tagNames:
+                            firstChild = tagNames[0].firstChild
+                            if firstChild:
+                                page_url = firstChild.data
                         # 做种数
                         seeders = 0
                         # 下载数
                         peers = 0
+                        # 免费
+                        freeleech = False
                         torznab_attrs = item.getElementsByTagName("torznab:attr")
                         for torznab_attr in torznab_attrs:
                             name = torznab_attr.getAttribute('name')
@@ -295,9 +312,11 @@ class Jackett:
                                 seeders = value
                             if name == "peers":
                                 peers = value
-
+                            if name == "downloadvolumefactor":
+                                if float(value) == 0:
+                                    freeleech = True
                         tmp_dict = {'title': title, 'enclosure': enclosure, 'description': description, 'size': size,
-                                    'seeders': seeders, 'peers': peers}
+                                    'seeders': seeders, 'peers': peers, 'freeleech': freeleech, "page_url": page_url}
                         ret_array.append(tmp_dict)
                     except Exception as e:
                         log.console(str(e))

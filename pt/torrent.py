@@ -33,8 +33,10 @@ class Torrent:
                     # 匹配年份
                     if year and str(year) != str(media_info.year):
                         continue
-                    # 匹配名称
-                    if name in media_info.org_string or name == media_info.title or name == str(media_info.year):
+                    # 匹配关键字，可能是正则表达式
+                    if re.search(r"%s" % name,
+                                 "%s %s %s" % (media_info.org_string, media_info.title, media_info.year),
+                                 re.IGNORECASE):
                         return True
         else:
             # 匹配种子标题
@@ -56,15 +58,18 @@ class Torrent:
                     # 匹配名称
                     if name == media_info.title:
                         return True
+                # 模糊匹配
                 else:
                     # 匹配季
-                    if season and season != media_info.get_season_string():
+                    if season and season != "S00" and season != media_info.get_season_string():
                         continue
                     # 匹配年份
                     if year and str(year) != str(media_info.year):
                         continue
-                    # 匹配名称
-                    if name in media_info.org_string or name == media_info.title or name == str(media_info.year):
+                    # 匹配关键字，可能是正则表达式
+                    if re.search(r"%s" % name,
+                                 "%s %s %s" % (media_info.org_string, media_info.title, media_info.year),
+                                 re.IGNORECASE):
                         return True
         return False
 

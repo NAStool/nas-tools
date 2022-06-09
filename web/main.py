@@ -427,6 +427,8 @@ def create_flask_app(config):
         MediaRestypeDict = {}
         # 分辨率字典
         MediaPixDict = {}
+        # 免费数量
+        FreeCount = 0
         # 查询统计值
         for item in res:
             # 资源类型
@@ -456,6 +458,9 @@ def create_flask_app(config):
                     MediaSiteDict[item[6]] = 1
                 else:
                     MediaSiteDict[item[6]] += 1
+            # 免费
+            if item[17] == "1":
+                FreeCount += 1
         # 展示类型
         MediaMTypes = []
         for k, v in MeidaTypeDict.items():
@@ -486,23 +491,22 @@ def create_flask_app(config):
                                MediaMTypes=MediaMTypes,
                                MediaSites=MediaSites,
                                MediaPixs=MediaPixs,
-                               MediaRestypes=MediaRestypes)
+                               MediaRestypes=MediaRestypes,
+                               FreeCount=FreeCount)
 
     # 电影订阅页面
     @App.route('/movie_rss', methods=['POST', 'GET'])
     @login_required
     def movie_rss():
         Items = get_rss_movies()
-        Count = len(Items)
-        return render_template("rss/movie_rss.html", Count=Count, Items=Items)
+        return render_template("rss/movie_rss.html", Count=len(Items), Items=Items)
 
     # 电视剧订阅页面
     @App.route('/tv_rss', methods=['POST', 'GET'])
     @login_required
     def tv_rss():
         Items = get_rss_tvs()
-        Count = len(Items)
-        return render_template("rss/tv_rss.html", Count=Count, Items=Items)
+        return render_template("rss/tv_rss.html", Count=len(Items), Items=Items)
 
     # 站点维护页面
     @App.route('/site', methods=['POST', 'GET'])
@@ -1689,15 +1693,17 @@ def create_flask_app(config):
                 mtype = data.get("type")
                 year = data.get("year")
                 season = data.get("season")
-                if name and mtype:
+                rssid = data.get("rssid")
+                if name:
                     meta_info = MetaInfo(title=name)
                     name = meta_info.get_name()
                     if not season:
                         season = meta_info.get_season_string()
+                if mtype:
                     if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
-                        delete_rss_movie(name, year)
+                        delete_rss_movie(title=name, year=year, rssid=rssid)
                     else:
-                        delete_rss_tv(name, year, season)
+                        delete_rss_tv(title=name, year=year, season=season, rssid=rssid)
                 return {"code": 0}
 
             # 添加RSS订阅

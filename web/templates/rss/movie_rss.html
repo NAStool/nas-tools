@@ -105,7 +105,7 @@
             <div class="mb-3">
               <label class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="key_match">
-                <span class="form-check-label">模糊匹配(<a href="#" title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，适用于订阅未上映电影或按年份匹配所有新出电影">?</a>)</span>
+                <span class="form-check-label">模糊匹配(<a href="#" title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，此时标题可以配置正则表达式实现模糊匹配">?</a>)</span>
               </label>
             </div>
           </div>
@@ -171,7 +171,7 @@
           </a>
           <input type="hidden" id="media_title">
           <input type="hidden" id="media_year">
-          <input type="hidden" id="rss_id">
+          <input type="hidden" id="media_id">
         </div>
       </div>
     </div>
@@ -185,8 +185,6 @@
         <div id="rss_remove_message">是否确认取消订阅?</div>
       </div>
       <div class="modal-footer">
-        <input type="hidden" id="rss_name" />
-        <input type="hidden" id="rss_year" />
         <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
         <button type="button" class="btn btn-danger" id="rss_remove_btn">确定</button>
       </div>
@@ -230,7 +228,7 @@
   function show_media_info(name, year, tmdbid, rssid){
     $("#media_title").val(name);
     $("#media_year").val(year);
-    $("#rss_id").val(rssid);
+    $("#media_id").val(rssid);
     if(tmdbid){
       $("#modal-wait").modal("show");
       if(tmdbid.startsWith("DB:")){
@@ -253,11 +251,9 @@
       });
     }else{
       $("#rss_remove_message").text("是否确认取消订阅 " + name);
-      $("#rss_name").val(name);
-      $("#rss_year").val(year);
       $("#rss_remove_btn").click(function(){
         $("#rss-remove-modal").modal('hide');
-        remove_rss_media(name, year);
+        remove_rss_media();
       });
       $("#rss-remove-modal").modal('show');
     }
@@ -273,7 +269,7 @@
   }
 
   // 取消订阅
-  function remove_rss_media(name, year){
+  function remove_rss_media(name, year, rssid){
     $("#modal-media-modal").modal("hide");
     if(!name){
       name = $("#media_title").val();
@@ -281,8 +277,11 @@
     if(!year){
       year = $("#media_year").val();
     }
+    if(!rssid){
+      rssid = $("#media_id").val();
+    }
     var cmd = "remove_rss_media";
-    var data = { "name": name, "type": "MOV", "year": year};
+    var data = { "name": name, "type": "MOV", "year": year, "rssid": rssid};
     ajax_post(cmd, data, function(ret){
       navmenu("movie_rss");
     });

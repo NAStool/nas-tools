@@ -94,6 +94,7 @@ def add_rss_subscribe(mtype, name, year, season, match=False, doubanid=None, tmd
             media_info.type = mtype
             media_info.backdrop_path = douban_info.get("cover_url")
             media_info.tmdb_id = "DB:%s" % doubanid
+            media_info.overview = douban_info.get("intro")
             if mtype == MediaType.MOVIE:
                 insert_rss_movie(media_info=media_info)
             else:
@@ -134,7 +135,7 @@ def add_rss_subscribe(mtype, name, year, season, match=False, doubanid=None, tmd
                 insert_rss_movie(media_info)
     else:
         # 模糊匹配
-        media_info = MetaInfo(title="%s %s" % (name, year), mtype=mtype)
+        media_info = MetaInfo(title=name, mtype=mtype)
         media_info.title = name
         media_info.type = mtype
         media_info.begin_season = season

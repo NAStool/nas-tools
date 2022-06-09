@@ -121,6 +121,25 @@
               </div>
             </div>
           </div>
+          {% if FreeCount > 0 %}
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-filter_free">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filter_free" aria-expanded="true">
+                FREE
+              </button>
+            </h2>
+            <div id="filter_free" class="accordion-collapse collapse" data-bs-parent="#filter_form_accordion">
+              <div class="accordion-body pt-0">
+                <div class="list-group list-group-transparent">
+                  <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:void(0)" onclick="filter_medias('filter_free', this)">
+                    <span>下载免费</span>
+                    <small class="text-muted ms-auto">{{ FreeCount }}</small>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endif %}
         </div>
       </div>
       {% endif %}
@@ -140,50 +159,38 @@
               <div class="card-body">
                 <div class="d-flex align-items-center mb-2">
                   <input type="hidden" name="media_card_type" value="{{ Item[10] }}">
-                  {% if Item[9] %}
-                  <span class="avatar me-2 rounded">
-                    {% if Item[10] == "MOV" %}
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                       <rect x="4" y="4" width="16" height="16" rx="2"></rect>
-                       <line x1="8" y1="4" x2="8" y2="20"></line>
-                       <line x1="16" y1="4" x2="16" y2="20"></line>
-                       <line x1="4" y1="8" x2="8" y2="8"></line>
-                       <line x1="4" y1="16" x2="8" y2="16"></line>
-                       <line x1="4" y1="12" x2="20" y2="12"></line>
-                       <line x1="16" y1="8" x2="20" y2="8"></line>
-                       <line x1="16" y1="16" x2="20" y2="16"></line>
-                    </svg>
-                    {% else %}
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-tv" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                       <rect x="3" y="7" width="18" height="13" rx="2"></rect>
-                       <polyline points="16 3 12 7 8 3"></polyline>
-                    </svg>
-                    {% endif %}
-                  </span>
-                  {% endif %}
+                  <input type="hidden" name="media_card_free" value="{{ Item[17] }}">
                   <div>
-                    <div><a href="{% if not Item[9] %}javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}'){% else %}{{ Item[5] }}{% endif %}" target="{% if Item[9] %}_blank{% endif %}" title="{% if not Item[9] %}点击添加下载{% else %}点击下载种子文件{% endif %}"><strong>{{ Item[1]|replace("()", "") }}</strong></a><span class="badge ms-2">{{ Item[4] }}</span></div>
+                    <div><a href="{% if not Item[9] %}javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}'){% else %}{{ Item[18] }}{% endif %}" target="{% if Item[9] %}_blank{% endif %}" title="{% if not Item[9] %}点击添加下载{% else %}点击打开种子详情页面{% endif %}"><strong>{{ Item[1]|replace("()", "") }}</strong></a><span class="badge ms-2">{{ Item[4] }}</span>{% if Item[17] == "1" %}<span class="badge badge-sm bg-green text-case ms-2">FREE</span>{% endif %}</div>
                     <div class="text-muted"><strong class="media_card_info">{{ Item[6]}} {{ Item[2]}} {{ Item[3]}}</strong></div>
-                    <input type="hidden" name="media_card_size" value="{{ Item[3] }}">
                   </div>
                 </div>
                 {% if Item[12] %}
                 <div class="text-muted border-top pt-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-description" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  {% if Item[10] == "MOV" %}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                     <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
-                     <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
-                     <path d="M9 17h6"></path>
-                     <path d="M9 13h6"></path>
+                     <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                     <line x1="8" y1="4" x2="8" y2="20"></line>
+                     <line x1="16" y1="4" x2="16" y2="20"></line>
+                     <line x1="4" y1="8" x2="8" y2="8"></line>
+                     <line x1="4" y1="16" x2="8" y2="16"></line>
+                     <line x1="4" y1="12" x2="20" y2="12"></line>
+                     <line x1="16" y1="8" x2="20" y2="8"></line>
+                     <line x1="16" y1="16" x2="20" y2="16"></line>
                   </svg>
+                  {% else %}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-tv" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                     <rect x="3" y="7" width="18" height="13" rx="2"></rect>
+                     <polyline points="16 3 12 7 8 3"></polyline>
+                  </svg>
+                  {% endif %}
                   <small>{{ Item[12] }}</small>
                 </div>
                 {% endif %}
                 {% if Item[13] %}
                 <div class="text-muted">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon me-2 text-muted" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0" /><path d="M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0" /><line x1="3" y1="6" x2="3" y2="19" /><line x1="12" y1="6" x2="12" y2="19" /><line x1="21" y1="6" x2="21" y2="19" /></svg>
                   <small>{{ Item[13] }}</small>
                 </div>
                 {% endif %}
@@ -417,6 +424,7 @@
       $("#media_cards").find("div[class*='media_card']").each(function(){
         media_string = $(this).find("strong[class='media_card_info']").text();
         type_string = $(this).find("input[name='media_card_type']").val();
+        free_flag = $(this).find("input[name='media_card_free']").val();
         show_flag = true;
         for(var i=0; i<strings.length; i++){
           if(strings[i] == "电影" && type_string != "MOV"){
@@ -431,7 +439,11 @@
             show_flag = false;
             break;
           }
-          if(strings[i] != "电影" && strings[i] != "电视剧" && strings[i] != "动漫"  && media_string.search(strings[i]) == -1){
+          if(strings[i] == "下载免费" && free_flag != "1"){
+            show_flag = false;
+            break;
+          }
+          if(strings[i] != "电影" && strings[i] != "电视剧" && strings[i] != "动漫" && strings[i] != "下载免费" && media_string.search(strings[i]) == -1){
             show_flag = false;
             break;
           }
