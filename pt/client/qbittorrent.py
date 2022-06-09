@@ -2,12 +2,13 @@ import os
 import qbittorrentapi
 import log
 from config import Config, PT_TAG
+from pt.client.client import IDownloadClient
 from utils.functions import singleton
 from utils.types import MediaType
 
 
 @singleton
-class Qbittorrent:
+class Qbittorrent(IDownloadClient):
     __qbhost = None
     __qbport = None
     __qbusername = None
@@ -118,7 +119,7 @@ class Qbittorrent:
         self.qbc.auth_log_out()
         return torrents or []
 
-    def get_completed_torrents(self, tag=None):
+    def __get_completed_torrents(self, tag=None):
         """
         读取完成的种子信息
         """
@@ -136,7 +137,7 @@ class Qbittorrent:
 
     def remove_torrents_tag(self, ids, tag):
         """
-        设置种子Tag
+        移除种子Tag
         :param ids: 种子Hash列表
         :param tag: 标签内容
         """
@@ -166,7 +167,7 @@ class Qbittorrent:
         :return: 替换好路径的种子文件路径清单
         """
         # 处理下载完成的任务
-        torrents = self.get_completed_torrents(tag=tag)
+        torrents = self.__get_completed_torrents(tag=tag)
         trans_tasks = []
         for torrent in torrents:
             # 判断标签是否包含"已整理"
@@ -193,7 +194,7 @@ class Qbittorrent:
         """
         if not seeding_time:
             return []
-        torrents = self.get_completed_torrents(tag=tag)
+        torrents = self.__get_completed_torrents(tag=tag)
         remove_torrents = []
         for torrent in torrents:
             if not torrent.get('seeding_time'):

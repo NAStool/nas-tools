@@ -4,6 +4,7 @@ import requests
 
 import log
 from config import Config
+from pt.indexer.indexer import IIndexer
 from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
@@ -12,7 +13,7 @@ from utils.sqls import get_config_search_rule
 from utils.types import MediaType
 
 
-class Prowlarr:
+class Prowlarr(IIndexer):
     media = None
     __api_key = None
     __host = None
@@ -56,14 +57,12 @@ class Prowlarr:
             return True
         return False
 
-    def search_by_keyword(self, key_word, s_num, e_num, year, mtype, match_type=0, match_words=None):
+    def search_by_keyword(self, key_word, filter_args: dict, match_type=0, match_words=None):
         """
         根据关键字调用 prowlarr API 检索
         :param key_word: 检索的关键字，不能为空
-        :param s_num: 季号，为空则不过滤
-        :param e_num: 集号，为空则不过滤
-        :param year: 年份，为空则不过滤
-        :param mtype: 类型：电影、电视剧、动漫
+        :param filter_args: 过滤条件，对应属性为空则不过滤，{"season":季, "episode":集, "year":年, "type":类型,
+                            "site":站点, "":, "restype":质量, "pix":分辨率, "free":免费, "key":其它关键字}
         :param match_type: 匹配模式：0-识别并模糊匹配；1-识别并精确匹配；2-不识别匹配
         :param match_words: 匹配的关键字，为空时等于key_word
         :return: 命中的资源媒体信息列表
@@ -79,7 +78,7 @@ class Prowlarr:
         # 需要处理掉特殊符号
         search_word = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__space_chars, ' ', key_word)).strip()
         api_url = "%sapi/v1/search?apikey=%s&Query=%s" % (self.__host, self.__api_key, search_word)
-        result_array = self.parse_prowlarrjson(api_url)
+        result_array = self.__parse_prowlarrjson(api_url)
         if len(result_array) == 0:
             log.warn("【PROWLARR】%s 未检索到任何资源" % search_word)
             return []
@@ -115,7 +114,7 @@ class Prowlarr:
 
             # 识别种子名称
             meta_info = MetaInfo(torrent_name)
-            if meta_info.type not in [MediaType.MOVIE, MediaType.UNKNOWN] and mtype == MediaType.MOVIE:
+            if meta_info.type not in [MediaType.MOVIE, MediaType.UNKNOWN] and filter_args.get("type") == MediaType.MOVIE:
                 log.info("【PROWLARR】%s 是 %s，类型不匹配" % (torrent_name, meta_info.type.value))
                 continue
             if not meta_info.get_name():
@@ -128,7 +127,7 @@ class Prowlarr:
                     log.info("【PROWLARR】%s 未查询到媒体信息" % torrent_name)
                     continue
                 # 类型
-                if mtype and media_info.type != mtype:
+                if filter_args.get("type") and media_info.type != filter_args.get("type"):
                     log.info("【PROWLARR】%s 是 %s，类型不匹配" % (torrent_name, media_info.type.value))
                     continue
                 # 名称是否匹配
@@ -167,7 +166,7 @@ class Prowlarr:
                 media_info = meta_info
 
             # 检查标题是否匹配季、集、年
-            if not Torrent.is_torrent_match_sey(media_info, s_num, e_num, year):
+            if not Torrent.is_torrent_match_sey(media_info, filter_args.get("season"), filter_args.get("episode"), filter_args.get("year")):
                 log.info("【PROWLARR】%s：%s %s 不匹配季/集/年份" % (
                     media_info.type.value, media_info.get_title_string(), media_info.get_season_episode_string()))
                 continue
@@ -191,7 +190,7 @@ class Prowlarr:
         return ret_array
 
     @staticmethod
-    def parse_prowlarrjson(url):
+    def __parse_prowlarrjson(url):
         """
         解析Prowlarr返回的Json
         :param url: URL地址

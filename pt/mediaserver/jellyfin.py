@@ -2,12 +2,14 @@ import re
 import requests
 import log
 from config import Config
+from pt.mediaserver.server import IMediaServer
+from rmt.meta.metabase import MetaBase
 from utils.functions import singleton, get_local_time
 from utils.types import MediaType
 
 
 @singleton
-class Jellyfin:
+class Jellyfin(IMediaServer):
     __apikey = None
     __host = None
     __user = None
@@ -249,7 +251,7 @@ class Jellyfin:
             return None
         return []
 
-    def get_no_exists_episodes(self, meta_info, season, total_num):
+    def get_no_exists_episodes(self, meta_info: MetaBase, season, total_num):
         """
         根据标题、年份、季、总集数，查询Jellyfin中缺少哪几集
         :param meta_info: 已识别的需要查询的媒体信息

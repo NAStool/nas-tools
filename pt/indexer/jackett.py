@@ -7,6 +7,7 @@ import requests
 
 import log
 from config import Config
+from pt.indexer.indexer import IIndexer
 from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
@@ -15,7 +16,7 @@ from utils.sqls import get_config_search_rule
 from utils.types import MediaType
 
 
-class Jackett:
+class Jackett(IIndexer):
     media = None
     __api_key = None
     __indexers = []
@@ -58,14 +59,12 @@ class Jackett:
                 return True
         return False
 
-    def search_by_keyword(self, key_word, s_num, e_num, year, mtype, match_type=0, match_words=None):
+    def search_by_keyword(self, key_word, filter_args: dict, match_type=0, match_words=None):
         """
         根据关键字调用 Jackett API 检索
         :param key_word: 检索的关键字，不能为空
-        :param s_num: 季号，为空则不过滤
-        :param e_num: 集号，为空则不过滤
-        :param year: 年份，为空则不过滤
-        :param mtype: 类型：电影、电视剧、动漫
+        :param filter_args: 过滤条件，对应属性为空则不过滤，{"season":季, "episode":集, "year":年, "type":类型, "site":站点,
+                            "":, "restype":质量, "pix":分辨率, "free":免费, "key":其它关键字}
         :param match_type: 匹配模式：0-识别并模糊匹配；1-识别并精确匹配；2-不识别匹配
         :param match_words: 匹配的关键字，为空时等于key_word
         :return: 命中的资源媒体信息列表
@@ -84,12 +83,11 @@ class Jackett:
         order_seq = 100
         for index in self.__indexers:
             order_seq = order_seq - 1
-            task = executor.submit(self.search, order_seq, index,
+            task = executor.submit(self.__search,
+                                   order_seq,
+                                   index,
                                    key_word,
-                                   s_num,
-                                   e_num,
-                                   year,
-                                   mtype,
+                                   filter_args,
                                    match_type,
                                    match_words)
             all_task.append(task)
@@ -101,19 +99,9 @@ class Jackett:
         log.info("【JACKETT】所有API检索完成，有效资源数：%s" % len(ret_array))
         return ret_array
 
-    def search(self, order_seq, index, key_word, s_num, e_num, year, mtype, match_type, match_words):
+    def __search(self, order_seq, index, key_word, filter_args: dict, match_type, match_words):
         """
         根据关键字多线程检索一个Jackett的Feed
-        :param order_seq: Feed的优先级
-        :param index: Feed的地址，同时用于提取名称
-        :param key_word: 检索的关键字，不能为空
-        :param s_num: 季号，为空则不过滤
-        :param e_num: 集号，为空则不过滤
-        :param year: 年份，为空则不过滤
-        :param mtype: 类型：电影、电视剧、动漫
-        :param match_type: 匹配模式：0-识别并模糊匹配；1-识别并精确匹配；2-不识别模糊匹配
-        :param match_words: 匹配的关键字列表
-        :return: 命中的资源媒体信息列表
         """
         if not index or not key_word:
             return None
@@ -125,7 +113,7 @@ class Jackett:
         # 传给Jackett的需要处理掉特殊符号
         search_word = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__space_chars, ' ', key_word)).strip()
         api_url = "%sapi?apikey=%s&t=search&q=%s" % (index, self.__api_key, search_word)
-        result_array = self.parse_jackettxml(api_url)
+        result_array = self.__parse_jackettxml(api_url)
         if len(result_array) == 0:
             log.warn("【JACKETT】%s 未检索到资源" % indexer_name)
             return []
@@ -160,7 +148,7 @@ class Jackett:
 
             # 识别种子名称
             meta_info = MetaInfo(torrent_name)
-            if meta_info.type not in [MediaType.MOVIE, MediaType.UNKNOWN] and mtype == MediaType.MOVIE:
+            if meta_info.type not in [MediaType.MOVIE, MediaType.UNKNOWN] and filter_args.get("type") == MediaType.MOVIE:
                 log.info("【JACKETT】%s 是 %s，类型不匹配" % (torrent_name, meta_info.type.value))
                 continue
             if not meta_info.get_name():
@@ -174,7 +162,7 @@ class Jackett:
                     continue
 
                 # 类型
-                if mtype and media_info.type != mtype:
+                if filter_args.get("type") and media_info.type != filter_args.get("type"):
                     log.info("【JACKETT】%s 是 %s，不匹配类型" % (torrent_name, media_info.type.value))
                     continue
 
@@ -214,7 +202,7 @@ class Jackett:
                 media_info = meta_info
 
             # 检查标题是否匹配季、集、年
-            if not Torrent.is_torrent_match_sey(media_info, s_num, e_num, year):
+            if not Torrent.is_torrent_match_sey(media_info, filter_args.get("season"), filter_args.get("episode"), filter_args.get("year")):
                 log.info("【JACKETT】%s：%s %s 不匹配季/集/年份" % (
                     media_info.type.value, media_info.get_title_string(), media_info.get_season_episode_string()))
                 continue
@@ -238,7 +226,7 @@ class Jackett:
         return ret_array
 
     @staticmethod
-    def parse_jackettxml(url):
+    def __parse_jackettxml(url):
         """
         解析Jackett返回的XML
         :param url: URL地址

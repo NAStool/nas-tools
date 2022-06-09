@@ -2,10 +2,7 @@
 import logging
 from datetime import datetime
 from functools import lru_cache
-from time import time
-
 import requests.exceptions
-
 from utils.functions import singleton
 
 logger = logging.getLogger(__name__)

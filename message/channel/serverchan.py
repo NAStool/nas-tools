@@ -2,9 +2,10 @@ from urllib.parse import urlencode
 import requests
 
 from config import Config
+from message.channel.channel import IMessageChannel
 
 
-class ServerChan:
+class ServerChan(IMessageChannel):
     __sckey = None
 
     def __init__(self):

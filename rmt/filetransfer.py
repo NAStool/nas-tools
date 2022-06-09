@@ -3,6 +3,7 @@ import argparse
 import os
 import re
 import traceback
+from enum import Enum
 from threading import Lock
 from subprocess import call
 
@@ -322,13 +323,13 @@ class FileTransfer:
         return self.__transfer_subtitles(file_item, new_file, rmt_mode)
 
     def transfer_media(self,
-                       in_from,
+                       in_from: Enum,
                        in_path,
-                       files=None,
+                       files: list = None,
                        target_dir=None,
                        unknown_dir=None,
                        tmdb_info=None,
-                       media_type=None,
+                       media_type: MediaType = None,
                        season=None,
                        episode: (EpisodeFormat, bool, str) = None,
                        min_filesize=None,

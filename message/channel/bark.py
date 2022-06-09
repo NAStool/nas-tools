@@ -1,9 +1,10 @@
 import requests
 
 from config import Config
+from message.channel.channel import IMessageChannel
 
 
-class Bark:
+class Bark(IMessageChannel):
     __server = None
     __apikey = None
 

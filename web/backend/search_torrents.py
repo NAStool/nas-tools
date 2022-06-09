@@ -24,10 +24,9 @@ def search_medias_for_web(content, ident_flag=True):
             match_words = [key_word, media_info.title]
     log.info("【WEB】开始检索 %s ..." % content)
     media_list = Searcher().search_medias(key_word=key_word,
-                                          s_num=season_num,
-                                          e_num=episode_num,
-                                          year=year,
-                                          mtype=None,
+                                          filter_args={"season": season_num,
+                                                       "episode": episode_num,
+                                                       "year": year},
                                           match_type=0 if ident_flag else 2,
                                           match_words=match_words)
     delete_all_search_torrents()

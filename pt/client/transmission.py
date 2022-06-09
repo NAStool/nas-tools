@@ -3,12 +3,13 @@ import transmission_rpc
 from datetime import datetime
 import log
 from config import Config
+from pt.client.client import IDownloadClient
 from utils.functions import singleton
 from utils.types import MediaType
 
 
 @singleton
-class Transmission:
+class Transmission(IDownloadClient):
     __trhost = None
     __trport = None
     __trusername = None
@@ -209,7 +210,7 @@ class Transmission:
                 remove_torrents.append(torrent.id)
         return remove_torrents
 
-    def add_torrent(self, turl, mtype, is_paused=None):
+    def add_torrent(self, turl, mtype, is_paused=None, **kwargs):
         """
         添加下载
         :param turl: 种子URL

@@ -11,6 +11,7 @@ from web.app import FlaskApp
 
 
 def sigal_handler(num, stack):
+    print(str(stack))
     log.warn('捕捉到退出信号：%s，开始退出...' % num)
     # 停止定时服务
     stop_scheduler()

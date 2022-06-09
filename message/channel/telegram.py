@@ -4,6 +4,7 @@ import requests
 
 import log
 from config import Config
+from message.channel.channel import IMessageChannel
 from utils.functions import singleton
 
 lock = Lock()
@@ -11,7 +12,7 @@ WEBHOOK_STATUS = False
 
 
 @singleton
-class Telegram:
+class Telegram(IMessageChannel):
     __telegram_token = None
     __telegram_chat_id = None
     __webhook_url = None

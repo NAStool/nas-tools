@@ -62,6 +62,7 @@ class MetaHelper(object):
                 data = pickle.load(f)
             return data
         except Exception as e:
+            print(str(e))
             return {}
 
     def update_meta_data(self, meta_data):

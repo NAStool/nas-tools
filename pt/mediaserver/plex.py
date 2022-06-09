@@ -2,11 +2,13 @@ from plexapi.myplex import MyPlexAccount
 
 import log
 from config import Config
+from pt.mediaserver.server import IMediaServer
+from rmt.meta.metabase import MetaBase
 from utils.functions import singleton
 
 
 @singleton
-class Plex:
+class Plex(IMediaServer):
     __host = None
     __username = None
     __password = None
@@ -41,7 +43,7 @@ class Plex:
         return True if self.__plex else False
 
     @staticmethod
-    def get_user_count():
+    def get_user_count(**kwargs):
         """
         获得用户数量，Plex只能配置一个用户，固定返回1
         """
@@ -100,7 +102,7 @@ class Plex:
         return ret_movies
 
     # 根据标题、年份、季、总集数，查询Plex中缺少哪几集
-    def get_no_exists_episodes(self, meta_info, season, total_num):
+    def get_no_exists_episodes(self, meta_info: MetaBase, season, total_num):
         """
         根据标题、年份、季、总集数，查询Plex中缺少哪几集
         :param meta_info: 已识别的需要查询的媒体信息
@@ -119,8 +121,7 @@ class Plex:
         total_episodes = [episode for episode in range(1, total_num + 1)]
         return list(set(total_episodes).difference(set(exists_episodes)))
 
-    @staticmethod
-    def get_image_by_id(item_id, image_type):
+    def get_image_by_id(self, item_id, image_type):
         """
         根据ItemId从Plex查询图片地址，该函数Plex下不使用
         """

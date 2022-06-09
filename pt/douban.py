@@ -12,6 +12,7 @@ import log
 from config import Config
 from pt.searcher import Searcher
 from rmt.media import Media
+from rmt.meta.metabase import MetaBase
 from rmt.metainfo import MetaInfo
 from utils.http_utils import RequestUtils
 from utils.sqls import get_douban_search_state, insert_rss_tv, insert_rss_movie, insert_douban_media_state
@@ -288,7 +289,7 @@ class DouBan:
             return None
         return None
 
-    def __get_movie_dict(self, soup):
+    def __get_movie_dict(self, soup) -> MetaBase or None:
         """
         解析电影、电视剧详情页面，获取媒体信息
         :param soup: 页面soup对象

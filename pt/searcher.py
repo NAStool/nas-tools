@@ -32,14 +32,11 @@ class Searcher:
         else:
             self.indexer = Jackett()
 
-    def search_medias(self, key_word, s_num, e_num, year, mtype, match_type, match_words=None):
+    def search_medias(self, key_word, filter_args: dict, match_type, match_words=None):
         """
         根据关键字调用索引器检查媒体
         :param key_word: 检索的关键字，不能为空
-        :param s_num: 季号，为空则不过滤
-        :param e_num: 集号，为空则不过滤
-        :param year: 年份，为空则不过滤
-        :param mtype: 类型：电影、电视剧、动漫
+        :param filter_args: 过滤条件
         :param match_type: 匹配模式：0-识别并模糊匹配；1-识别并精确匹配；2-不识别匹配
         :param match_words: 匹配的关键字
         :return: 命中的资源媒体信息列表
@@ -48,7 +45,10 @@ class Searcher:
             return []
         if not self.indexer:
             return []
-        return self.indexer.search_by_keyword(key_word, s_num, e_num, year, mtype, match_type, match_words)
+        return self.indexer.search_by_keyword(key_word=key_word,
+                                              filter_args=filter_args,
+                                              match_type=match_type,
+                                              match_words=match_words)
 
     def search_one_media(self, input_str, in_from=SearchType.OT, user_id=None):
         """
@@ -113,10 +113,8 @@ class Searcher:
         if search_episode and not search_season:
             search_season = [1]
         media_list = self.search_medias(key_word=media_info.title,
-                                        s_num=search_season,
-                                        e_num=search_episode,
-                                        year=media_info.year,
-                                        mtype=media_info.type,
+                                        filter_args={"season": search_season, "episode": search_episode,
+                                                     "year": media_info.year, "type": media_info.type},
                                         match_type=1)
         if len(media_list) == 0:
             log.info("%s 未检索到任何资源" % media_info.title)

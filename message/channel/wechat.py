@@ -5,13 +5,14 @@ import requests
 
 import log
 from config import Config
+from message.channel.channel import IMessageChannel
 from utils.functions import singleton
 
 lock = threading.Lock()
 
 
 @singleton
-class WeChat(object):
+class WeChat(IMessageChannel):
     __instance = None
     __access_token = None
     __expires_in = None
