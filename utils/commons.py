@@ -39,7 +39,7 @@ class EpisodeFormat(object):
 
     def match(self, file: str):
         if self.__format is None:
-            return False
+            return True
         s, e = self.__handle_single(file)
         if not s:
             return False
