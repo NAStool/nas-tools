@@ -262,7 +262,7 @@
   //重新搜索
   function research_rss(){
     $("#modal-media-modal").modal("hide");
-    var rssid = $("#rss_id").val();
+    var rssid = $("#media_id").val();
     ajax_post("refresh_rss", {"type": "MOV", "rssid": rssid}, function(ret){
       navmenu("movie_rss");
     });
