@@ -349,7 +349,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <a href="javascript:search_media_advanced()" id="search_advanced_btn" class="btn btn-primary">开始搜索</a>
+        <button onclick="search_media_advanced()" id="search_advanced_btn" class="btn btn-primary">开始搜索</button>
       </div>
     </div>
   </div>
@@ -508,11 +508,15 @@
 
   // 开始高级搜索
   function search_media_advanced(){
-    $("#search_advanced_btn").text("搜索中...");
-    $("#search_advanced_btn").attr("disabled", "true");
     $("#search_icon").attr("disabled", "true");
     // 读取数据
     var search_name = $("#search_name").val();
+    if(!search_name){
+      $("#search_name").addClass("is-invalid");
+      return;
+    }else{
+      $("#search_name").removeClass("is-invalid");
+    }
     var search_type = $("#search_type").val();
     var search_season = $("#search_season").val();
     var search_year = $("#search_year").val();
@@ -535,6 +539,8 @@
     }
     var filters = {"site": search_site, "restype": search_restype, "pix": search_pix, "free": search_free, "key": search_key};
     var param = {"search_word": keyword, "filters": filters};
+    $("#search_advanced_btn").text("搜索中...");
+    $("#search_advanced_btn").attr("disabled", "true");
     ajax_post("search", param, function(ret){
       $("#modal-search-advanced").modal("hide");
       navmenu('search?s='+keyword)
