@@ -533,6 +533,16 @@ class Media:
             return []
         return self.tv.on_the_air(page)
 
+    def get_tmdb_upcoming_movies(self, page):
+        """
+        获取即将上映电影
+        :param page: 第几页
+        :return: TMDB信息列表
+        """
+        if not self.movie:
+            return []
+        return self.movie.upcoming(page)
+
     def get_tmdb_movie_info(self, tmdbid):
         """
         获取电影的详情

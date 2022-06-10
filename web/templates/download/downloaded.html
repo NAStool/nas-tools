@@ -48,7 +48,7 @@
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="card">
-        <div class="ribbon ribbon-top ribbon-bookmark" id="media_vote"></div>
+        <div class="ribbon" id="media_vote"></div>
         <div class="card-body">
           <div class="row align-items-center">
             <div class="col-3">
@@ -88,11 +88,16 @@
     $("#torrent_info").html("站点：" + site + "<br/>种子：" + torrent + "<br/>时间：" + date);
     $("#media_vote").text(vote);
     if(parseFloat(vote) > 8){
-      $("#media_vote").removeClass().addClass("ribbon ribbon-top ribbon-bookmark bg-green");
+      $("#media_vote").removeClass().addClass("ribbon bg-green");
     }else if(parseFloat(vote) > 6){
-      $("#media_vote").removeClass().addClass("ribbon ribbon-top ribbon-bookmark bg-blue");
+      $("#media_vote").removeClass().addClass("ribbon bg-blue");
     }else{
-      $("#media_vote").removeClass().addClass("ribbon ribbon-top ribbon-bookmark bg-orange");
+      $("#media_vote").removeClass().addClass("ribbon bg-orange");
+    }
+    if(!vote || vote == "0"){
+      $("#media_vote").hide();
+    }else{
+      $("#media_vote").show();
     }
     if(type == "电影"){
       $("#media_url_btn").attr("href", "https://www.themoviedb.org/movie/" + tmdbid);

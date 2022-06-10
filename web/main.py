@@ -50,7 +50,7 @@ from utils.sqls import get_search_result_by_id, get_search_results, \
     update_config_site, get_config_search_rule, update_config_search_rule, get_config_rss_rule, update_config_rss_rule, \
     get_unknown_path_by_id, get_rss_tvs, get_rss_movies, delete_rss_movie, delete_rss_tv, \
     get_users, insert_user, delete_user, get_transfer_statistics, get_system_messages, get_site_statistics, \
-    get_download_history, get_site_statistics_recent_sites, is_media_downloaded
+    get_download_history, get_site_statistics_recent_sites, is_media_downloaded, is_exists_rss_movie
 from utils.types import MediaType, SearchType, DownloaderType, SyncType, OsType
 from utils.commons import EpisodeFormat
 from version import APP_VERSION
@@ -517,6 +517,26 @@ def create_flask_app(config):
     def tv_rss():
         Items = get_rss_tvs()
         return render_template("rss/tv_rss.html", Count=len(Items), Items=Items)
+
+    # 订阅日历页面
+    @App.route('/rss_calendar', methods=['POST', 'GET'])
+    @login_required
+    def rss_calendar():
+        Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
+        Events = []
+        TmdbMovies = Media().get_tmdb_upcoming_movies(1)
+        for movie in TmdbMovies:
+            if movie.get("release_date"):
+                Events.append({"title": "[电影] " + movie.get("title"), "start": movie.get("release_date"), "id": movie.get("id")})
+        DoubanMovies = DoubanApi().movie_soon()
+        if DoubanMovies:
+            for movie in DoubanMovies.get("subject_collection_items"):
+                if movie.get("release_date"):
+                    release_date = "%s-%s" % (datetime.datetime.now().year, movie.get("release_date").replace(".", "-"))
+                    Events.append({"title": "[电影] " + movie.get("title"), "start": release_date, "id": "DB:" + movie.get("id")})
+        return render_template("rss/rss_calendar.html",
+                               Today=Today,
+                               Events=Events)
 
     # 站点维护页面
     @App.route('/site', methods=['POST', 'GET'])
@@ -1409,7 +1429,8 @@ def create_flask_app(config):
                                                                    tmdb_info=tmdb_info,
                                                                    media_type=media_type,
                                                                    season=season,
-                                                                   episode=(EpisodeFormat(episode_format), need_fix_all, logid),
+                                                                   episode=(
+                                                                   EpisodeFormat(episode_format), need_fix_all, logid),
                                                                    min_filesize=min_filesize
                                                                    )
                 if succ_flag:
@@ -1453,7 +1474,9 @@ def create_flask_app(config):
                                                                    tmdb_info=tmdb_info,
                                                                    media_type=media_type,
                                                                    season=season,
-                                                                   episode=(EpisodeFormat(episode_format, episode_details, episode_offset), False, None),
+                                                                   episode=(
+                                                                   EpisodeFormat(episode_format, episode_details,
+                                                                                 episode_offset), False, None),
                                                                    min_filesize=min_filesize,
                                                                    udf_flag=True)
                 if succ_flag:
@@ -1807,7 +1830,8 @@ def create_flask_app(config):
                         "release_date": release_date,
                         "year": year,
                         "overview": overview,
-                        "link_url": link_url
+                        "link_url": link_url,
+                        "rssd": is_exists_rss_movie(title=title, year=year)
                     }
                 else:
                     if doubanid:
@@ -1840,7 +1864,8 @@ def create_flask_app(config):
                         "release_date": release_date,
                         "year": year,
                         "overview": overview,
-                        "link_url": link_url
+                        "link_url": link_url,
+                        "rssd": False
                     }
 
             # 测试连通性

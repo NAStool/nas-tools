@@ -143,7 +143,7 @@
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="card">
-        <div class="ribbon ribbon-top ribbon-bookmark" id="media_vote"></div>
+        <div class="ribbon" id="media_vote"></div>
         <div class="card-body">
           <div class="row align-items-center">
             <div class="col-3">
@@ -241,9 +241,21 @@
         $("#modal-wait").modal("hide");
         if(ret.code == 0){
           $("#media_vote").text(ret.vote_average);
+          if(parseFloat(ret.vote_average) > 8){
+            $("#media_vote").removeClass().addClass("ribbon bg-green");
+          }else if(parseFloat(ret.vote_average) > 6){
+            $("#media_vote").removeClass().addClass("ribbon bg-blue");
+          }else{
+            $("#media_vote").removeClass().addClass("ribbon bg-orange");
+          }
+          if(!ret.vote_average || ret.vote_average == "0"){
+            $("#media_vote").hide();
+          }else{
+            $("#media_vote").show();
+          }
           $("#media_poster").attr("src", ret.poster_path);
           $("#media_name").text(ret.title);
-          $("#media_link").attr("href", "https://www.themoviedb.org/movie/" + ret.id);
+          $("#media_link").attr("href", ret.link_url);
           $("#media_overview").text(ret.overview);
           $("#release_date").text(ret.release_date)
           $("#modal-media-modal").modal("show");

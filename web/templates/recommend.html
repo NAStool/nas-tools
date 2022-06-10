@@ -16,7 +16,7 @@
       <div class="col-sm-6 col-md-3 col-xl-2">
         <div class="card card-sm card-link-pop rounded-3">
           {% if item.vote > 0%}
-          <div class="ribbon ribbon-top ribbon-bookmark {% if item.vote > 8 %} bg-green {% elif item.vote <= 8 and item.vote > 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ item.vote }}</div>
+          <div class="ribbon {% if item.vote > 8 %} bg-green {% elif item.vote <= 8 and item.vote > 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ item.vote }}</div>
           {% endif %}
           <a href="javascript:{% if RecommendType in ['hm', 'nm', 'ht', 'nt'] %}show_media_info('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '{{ item.id }}', '', '{{ item.vote }}'){% else %}show_media_info('{{ RecommendType }}', '{{ item.title }}', '{{ item.year }}', '', '{{ item.id }}', '{{ item.vote }}'){% endif %}" title="{{ item.overview }}" class="d-block">
             <img src="{{ item.image }}" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">
@@ -137,7 +137,7 @@
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="card">
-        <div class="ribbon ribbon-top ribbon-bookmark" id="media_vote"></div>
+        <div class="ribbon" id="media_vote"></div>
         <div class="card-body">
           <div class="row align-items-center">
             <div class="col-3">
@@ -293,11 +293,16 @@
     $("#modal-wait").modal("show");
     $("#media_vote").text(vote);
     if(parseFloat(vote) > 8){
-      $("#media_vote").removeClass().addClass("ribbon ribbon-top ribbon-bookmark bg-green");
+      $("#media_vote").removeClass().addClass("ribbon bg-green");
     }else if(parseFloat(vote) > 6){
-      $("#media_vote").removeClass().addClass("ribbon ribbon-top ribbon-bookmark bg-blue");
+      $("#media_vote").removeClass().addClass("ribbon bg-blue");
     }else{
-      $("#media_vote").removeClass().addClass("ribbon ribbon-top ribbon-bookmark bg-orange");
+      $("#media_vote").removeClass().addClass("ribbon bg-orange");
+    }
+    if(!vote || vote == "0"){
+      $("#media_vote").hide();
+    }else{
+      $("#media_vote").show();
     }
     ajax_post("media_info", {"id": tmdbid, "title": name, "year": year, "type": rtype, "doubanid": doubanid}, function(ret){
       $("#modal-wait").modal("hide");

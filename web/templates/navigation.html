@@ -14,6 +14,7 @@
     <link rel="icon" href="../static/img/logo.png">
     <!-- CSS files -->
     <link href="../static/css/tabler.min.css" rel="stylesheet"/>
+    <link href="../static/css/fullcalendar.min.css" rel="stylesheet"/>
   </head>
   <body>
     <div class="page">
@@ -148,6 +149,9 @@
                 </a>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('tv_rss')">
                   电视剧订阅
+                </a>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('rss_calendar')">
+                  订阅日历
                 </a>
               </div>
             </li>
@@ -441,6 +445,8 @@
     <script src="../static/js/demo.min.js"></script>
     <script src="../static/js/util.js"></script>
     <script src="../static/js/apexcharts.min.js"></script>
+    <script src="../static/js/fullcalendar.min.js"></script>
+    <script src="../static/js/locales/zh-cn.js"></script>
     <script type="text/javascript">
       //浏览器兼容
       String.prototype.replaceAll = function (s1, s2) {
