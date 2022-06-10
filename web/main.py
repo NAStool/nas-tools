@@ -528,7 +528,7 @@ def create_flask_app(config):
         for movie in TmdbMovies:
             if movie.get("release_date"):
                 Events.append({"title": "[电影] " + movie.get("title"), "start": movie.get("release_date"), "id": movie.get("id")})
-        DoubanMovies = DoubanApi().movie_soon()
+        DoubanMovies = DoubanApi().movie_soon(count=50)
         if DoubanMovies:
             for movie in DoubanMovies.get("subject_collection_items"):
                 if movie.get("release_date"):
