@@ -284,7 +284,7 @@
         </div>
       </div>
     </aside>
-      <header class="navbar navbar-expand-md navbar-light d-none d-lg-flex d-print-none">
+      <header class="navbar navbar-expand-md navbar-light d-none d-lg-flex d-print-none sticky-top">
         <div class="container-xl">
           <div class="navbar-nav flex-row order-md-last">
             <div class="nav-item d-none d-md-flex me-3">
@@ -366,6 +366,14 @@
             </div>
           </div>
           <div class="collapse navbar-collapse">
+            <div>
+              <div class="input-icon">
+                <span class="input-icon-addon">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><desc>Download more icon variants from https://tabler-icons.io/i/search</desc><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
+                </span>
+                <input type="text" id="top_search_word" value="" class="form-control" placeholder="搜索…" aria-label="资源搜索">
+              </div>
+            </div>
           </div>
         </div>
       </header>
@@ -568,6 +576,17 @@
 
       //事件
       $(document).ready(function(){
+        // 搜索输入框
+        $('#top_search_word').bind('keypress',function(event){
+           if(event.keyCode == "13")
+           {
+             if(!$(this).val()){
+               return;
+             }
+             navmenu('search?s='+$(this).val()+'&f=1');
+             $(this).val('');
+           }
+        });
         //加载页面
         var go_page = "{{ GoPage }}";
         if(go_page){
