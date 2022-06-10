@@ -484,11 +484,9 @@ def create_flask_app(config):
         MediaRestypes = sorted(MediaRestypes, key=lambda x: int(x.get("num")), reverse=True)
         # 站点列表
         SiteDict = []
-        Indexers = config.get_config("jackett").get("indexers")
+        Indexers = Searcher().indexer.get_indexers()
         for item in Indexers:
-            site_re = re.search(r'/indexers/([a-zA-Z0-9]+)/results/', item)
-            if site_re:
-                SiteDict.append(site_re.group(1))
+            SiteDict.append(item[1])
         return render_template("search.html",
                                UserPris=str(pris).split(","),
                                SearchWord=SearchWord or "",
