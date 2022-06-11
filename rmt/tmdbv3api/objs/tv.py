@@ -25,6 +25,7 @@ class TV(TMDb):
         "keywords": "/tv/%s/keywords",
         "watch_providers": "/tv/%s/watch/providers",
         "translations": "/tv/%s/translations",
+        "season_details": "/tv/%s/season/%s"
     }
 
     def details(
@@ -180,8 +181,17 @@ class TV(TMDb):
 
     def translations(self, tv_id):
         """
-        Get the Watch Providers for a TV show.
-        :param tv_id:
+        Get the translations for a TV show.
+        :param tv_id: tvid
         :return:
         """
         return AsObj(**self._call(self._urls["translations"] % tv_id, ""))
+
+    def season_details(self, tv_id, season_number):
+        """
+        Get the Season Detail for a TV show.
+        :param tv_id: tmdbid
+        :param season_number: season number
+        :return:
+        """
+        return AsObj(**self._call(self._urls["season_details"] % (tv_id, season_number), ""))

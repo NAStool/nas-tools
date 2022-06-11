@@ -3,6 +3,7 @@ import base64
 import datetime
 import logging
 import os.path
+import re
 import shutil
 import signal
 import subprocess
@@ -521,10 +522,12 @@ def create_flask_app(config):
     @login_required
     def rss_calendar():
         Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
+        RssMovieIds = [movie[2] for movie in get_rss_movies()]
+        RssTvItems = [{"id": tv[3], "season": int(str(tv[2]).replace("S", "")), "name": tv[0]} for tv in get_rss_tvs()]
         Events = []
         TmdbMovies = Media().get_tmdb_upcoming_movies(1)
         for movie in TmdbMovies:
-            if movie.get("release_date"):
+            if movie.get("release_date") and movie.get("id") not in RssMovieIds:
                 year = movie.get("release_date")[0:4]
                 Events.append(
                     {"type": "电影",
@@ -533,27 +536,25 @@ def create_flask_app(config):
                      "id": movie.get("id"),
                      "year": year,
                      "poster": "https://image.tmdb.org/t/p/w500%s" % movie.get('poster_path'),
-                     "vote_average": movie.get("vote_average"),
-                     "info": "",
-                     "rssid": get_rss_movie_id(movie.get("title"), year)})
+                     "vote_average": movie.get("vote_average")})
         DoubanMovies = DoubanApi().movie_soon(count=50)
         if DoubanMovies:
             for movie in DoubanMovies.get("subject_collection_items"):
-                if movie.get("release_date"):
+                if movie.get("release_date") and "DB:%s" % movie.get("id") not in RssMovieIds:
                     release_date = "%s-%s" % (datetime.datetime.now().year, movie.get("release_date").replace(".", "-"))
                     Events.append(
                         {"type": "电影",
                          "title": movie.get("title"),
                          "start": release_date,
-                         "id": "DB:" + movie.get("id"),
+                         "id": "DB:%s" % movie.get("id"),
                          "year": release_date[0:4],
                          "poster": movie.get("cover").get("url"),
-                         "vote_average": movie.get("rating").get("value") if movie.get("rating") else "无",
-                         "info": movie.get("info"),
-                         "rssid": get_rss_movie_id(movie.get("title"), release_date[0:4])})
+                         "vote_average": movie.get("rating").get("value") if movie.get("rating") else "无"})
 
         return render_template("rss/rss_calendar.html",
                                Today=Today,
+                               RssMovieIds=RssMovieIds,
+                               RssTvItems=RssTvItems,
                                Events=Events)
 
     # 站点维护页面
@@ -1844,7 +1845,7 @@ def create_flask_app(config):
                         title = tmdb_info.get('title')
                         vote_average = tmdb_info.get("vote_average")
                         release_date = tmdb_info.get('release_date')
-                        year = tmdb_info.get('release_date')[0:4] if tmdb_info.get('release_date') else ""
+                        year = release_date[0:4] if release_date else ""
                     return {
                         "code": 0,
                         "type": mtype,
@@ -1882,7 +1883,7 @@ def create_flask_app(config):
                         title = tmdb_info.get('name')
                         vote_average = tmdb_info.get("vote_average")
                         release_date = tmdb_info.get('first_air_date')
-                        year = tmdb_info.get('first_air_date')[0:4] if tmdb_info.get('first_air_date') else ""
+                        year = release_date[0:4] if release_date else ""
                     return {
                         "code": 0,
                         "type": mtype,
@@ -1962,6 +1963,97 @@ def create_flask_app(config):
                 if MetaHelper().delete_meta_data(data.get("cache_key")):
                     MetaHelper().save_meta_data()
                 return {"code": 0}
+
+            # 查询电影上映日期
+            if cmd == "movie_calendar_data":
+                tid = data.get("id")
+                if tid and tid.startswith("DB:"):
+                    doubanid = tid.replace("DB:", "")
+                    douban_info = DoubanApi().movie_detail(doubanid)
+                    if not douban_info:
+                        return {"code": 1, "retmsg": "无法查询到豆瓣信息"}
+                    poster_path = douban_info.get("cover_url")
+                    title = douban_info.get("title")
+                    vote_average = douban_info.get("rating", {}).get("value") or "无"
+                    release_date = re.sub(r"\(.*\)", "", douban_info.get("pubdate")[0])
+                    if not release_date:
+                        return {"code": 1, "retmsg": "上映日期不正确"}
+                    else:
+                        return {"code": 0,
+                                "type": "电影",
+                                "title": title,
+                                "start": release_date,
+                                "id": tid,
+                                "year": release_date[0:4] if release_date else "",
+                                "poster": poster_path,
+                                "vote_average": vote_average
+                                }
+                else:
+                    tmdb_info = Media().get_media_info_manual(MediaType.MOVIE, None, None, tid)
+                    if not tmdb_info:
+                        return {"code": 1, "retmsg": "无法查询到TMDB信息"}
+                    poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path')
+                    title = tmdb_info.get('title')
+                    vote_average = tmdb_info.get("vote_average")
+                    release_date = tmdb_info.get('release_date')
+                    if not release_date:
+                        return {"code": 1, "retmsg": "上映日期不正确"}
+                    else:
+                        return {"code": 0,
+                                "type": "电影",
+                                "title": title,
+                                "start": release_date,
+                                "id": tid,
+                                "year": release_date[0:4] if release_date else "",
+                                "poster": poster_path,
+                                "vote_average": vote_average
+                                }
+
+            # 查询电视剧上映日期
+            if cmd == "tv_calendar_data":
+                tid = data.get("id")
+                season = data.get("season")
+                name = data.get("name")
+                if tid and tid.startswith("DB:"):
+                    doubanid = tid.replace("DB:", "")
+                    douban_info = DoubanApi().tv_detail(doubanid)
+                    if not douban_info:
+                        return {"code": 1, "retmsg": "无法查询到豆瓣信息"}
+                    poster_path = douban_info.get("cover_url")
+                    title = douban_info.get("title")
+                    vote_average = douban_info.get("rating", {}).get("value") or "无"
+                    release_date = re.sub(r"\(.*\)", "", douban_info.get("pubdate")[0])
+                    if not release_date:
+                        return {"code": 1, "retmsg": "上映日期不正确"}
+                    else:
+                        return {"code": 0,
+                                "type": "电视剧",
+                                "title": title,
+                                "start": release_date,
+                                "id": tid,
+                                "year": release_date[0:4] if release_date else "",
+                                "poster": poster_path,
+                                "vote_average": vote_average
+                                }
+                else:
+                    tmdb_info = Media().get_tmdb_tv_season_info(tmdbid=tid, season=season)
+                    if not tmdb_info:
+                        return {"code": 1, "retmsg": "无法查询到TMDB信息"}
+                    episode_events = []
+                    air_date = tmdb_info.get("air_date")
+                    poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get("poster_path")
+                    year = air_date[0:4] if air_date else ""
+                    for episode in tmdb_info.get("episodes"):
+                        episode_events.append({
+                            "type": "剧集",
+                            "title": "%s 第%s季第%s集" % (name, season, episode.get("episode_number")) if season != 1 else "%s 第%s集" % (name, episode.get("episode_number")),
+                            "start": episode.get("air_date"),
+                            "id": tid,
+                            "year": year,
+                            "poster": poster_path,
+                            "vote_average": episode.get("vote_average") or "无"
+                        })
+                    return {"code": 0, "events": episode_events}
 
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])

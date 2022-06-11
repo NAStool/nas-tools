@@ -575,6 +575,23 @@ class Media:
             log.console(str(e))
             return {}
 
+    def get_tmdb_tv_season_info(self, tmdbid, season):
+        """
+        获取电视剧的详情
+        :param tmdbid: TMDB ID
+        :param season: 季，数字
+        :return: TMDB信息
+        """
+        if not self.tv:
+            return {}
+        try:
+            log.info("【META】正在查询TMDB：%s ..." % tmdbid)
+            tmdbinfo = self.tv.season_details(tmdbid, season)
+            return tmdbinfo
+        except Exception as e:
+            log.console(str(e))
+            return {}
+
     def get_tmdb_seasons_info(self, tv_info=None, tmdbid=None):
         """
         从TMDB的季集信息中获得季的组
