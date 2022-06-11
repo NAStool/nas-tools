@@ -3,6 +3,11 @@
     <div id='calendar'></div>
   </div>
 </div>
+<style type="text/css">
+  .fc-toolbar-title{
+    font-size: 1.5em !important;
+  }
+</style>
 <script type="text/javascript">
   var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
     themeSystem: 'bootstrap',
@@ -35,9 +40,9 @@
   eventContent: function(info) {
     var eventData = info.event.extendedProps;
     if (eventData.rssid) {
-      var innerText = '<a class="card card-link" href="#"><div class="card-status-start bg-green"></div><div class="card-body" style="padding: 0.5rem 1rem"><div class="row"><div class="col-auto" style="padding:0px;"><span class="avatar rounded" style="background-image: url(' + eventData.poster + ')"></span></div><div class="col"><div class="font-weight-medium" style="white-space:pre-wrap;word-break:break-all;"><strong>' + info.event.title + '</strong></div><div class="text-muted d-none d-lg-block">' + eventData.type + ' 评分: ' + eventData.vote_average + '</div></div></div></div></a>';
+      var innerText = '<a class="card card-link" href="#"><div class="card-status-start bg-green"></div><div class="card-body" style="padding: 0.5rem 1rem"><div class="row"><div class="col-auto rounded" style="width:40px; height:55px; background-image:url(' + eventData.poster + '); background-size:cover;"></div><div class="col"><div class="font-weight-medium" style="white-space:pre-wrap;word-break:break-all;"><strong>' + info.event.title + '</strong></div><div class="text-muted d-none d-lg-block">' + eventData.type + ' 评分: ' + eventData.vote_average + '</div></div></div></div></a>';
     } else {
-      var innerText = '<a class="card card-link" href="#"><div class="card-status-start bg-primary"></div><div class="card-body" style="padding: 0.5rem 1rem"><div class="row"><div class="col-auto" style="padding:0px;"><span class="avatar rounded" style="background-image: url(' + eventData.poster + ')"></span></div><div class="col"><div class="font-weight-medium" style="white-space:pre-wrap;word-break:break-all;"><strong>' + info.event.title + '</strong></div><div class="text-muted d-none d-lg-block">' + eventData.type + ' 评分: ' + eventData.vote_average + '</div></div></div></div></a>';
+      var innerText = '<a class="card card-link" href="#"><div class="card-status-start bg-primary"></div><div class="card-body" style="padding: 0.5rem 1rem"><div class="row"><div class="col-auto rounded" style="width:40px; height:55px; background-image:url(' + eventData.poster + '); background-size:cover;"></div><div class="col"><div class="font-weight-medium" style="white-space:pre-wrap;word-break:break-all;"><strong>' + info.event.title + '</strong></div><div class="text-muted d-none d-lg-block">' + eventData.type + ' 评分: ' + eventData.vote_average + '</div></div></div></div></a>';
     }
     return { html: innerText };
   }
