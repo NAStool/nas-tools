@@ -65,50 +65,6 @@
   </div>
 </div>
 {% endif %}
-<div class="modal modal-blur fade" id="service-modal" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-        <div class="modal-title">确认提示</div>
-        <div id="service_start_message">是否确定立即运行服务？</div>
-      </div>
-      <div class="modal-footer">
-        <input type="hidden" id="service_start_id" />
-        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-danger" id="service_start_btn">确定</button>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal modal-blur fade" id="service-modal-success" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      <div class="modal-status bg-success"></div>
-      <div class="modal-body text-center py-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24"
-          viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-          stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-          <circle cx="12" cy="12" r="9" />
-          <path d="M9 12l2 2l4 -4" />
-        </svg>
-        <h3>成功</h3>
-        <input type="hidden" id="service_start_name" />
-        <div class="text-muted" id="service_finished_str">服务已在后台运行...</div>
-      </div>
-      <div class="modal-footer">
-        <div class="w-100">
-          <div class="row">
-            <div class="col"><a href="#" class="btn btn-success w-100" data-bs-dismiss="modal">
-                确定
-              </a></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 <div class="modal modal-blur fade" id="modal-logging" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
     <div class="modal-content">
@@ -161,21 +117,19 @@
       start_logging();
       $('#modal-logging').modal('show');
     } else {
-      $("#service_start_id").val(id);
-      $("#service_start_name").val(name);
-      $("#service_start_message").text("是否立即运行 " + name + "？");
-      $('#service-modal').modal('show');
+      show_ask_modal("是否立即运行 " + name + "？", function () {
+        hide_ask_modal();
+        run_scheduler(id, name);
+      });
     }
   }
 
   // 运行服务
-  function run_scheduler(id) {
+  function run_scheduler(id, name) {
     var cmd = "sch";
     var data = { "item": id };
     ajax_post(cmd, data, function (ret) {
-      item = $("#service_start_name").val();;
-      $("#service_finished_str").text(item + " 服务启动成功，正在后台运行");
-      $("#service-modal-success").modal('show');
+      show_success_modal(name + " 服务启动成功，正在后台运行");
     });
   }
 
@@ -190,16 +144,11 @@
     }
   }
 
-  //服务模态框事件
-  $("#service_start_btn").click(function () {
-    $('#service-modal').modal('hide');
-    run_scheduler($("#service_start_id").val());
-  });
-
   //实时日志关闭
   $("#logging_close_btn").click(function () {
     stop_logging();
   });
+
   $("#logging_close_head").click(function () {
     stop_logging();
   });

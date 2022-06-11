@@ -8,7 +8,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="Robots" content="noindex,nofollow,noarchive">
     <meta content="default" name="apple-mobile-web-app-status-bar-style" />
-    <title>NASTool - PT资源归集、整理自动化工具</title>
+    <title>NASTool - 资源归集、整理自动化工具</title>
     <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon" />
     <link rel="apple-touch-icon" href="../static/img/logo.png">
     <link rel="icon" href="../static/img/logo.png">
@@ -397,13 +397,30 @@
             </div>
           </div>
         </footer>
-        <div class="modal" id="modal-wait" tabindex="-1" role="dialog" aria-hidden="true">
-          <div class="modal-dialog modal-full-width modal-dialog-centered" role="document">
-            <div class="spinner-border text-primary m-auto"></div>
-          </div>
+      </div>
+    </div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="消息中心">
+      <div class="offcanvas-header">
+        <h2 class="offcanvas-title" id="offcanvasEndLabel">消息中心</h2>
+        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body" style="padding:0.5rem 0.5rem;">
+        <div class="list-group list-group-flush" id="system-messages">
+        </div>
+        <div class="mt-3" align="center">
+          <button class="btn" type="button" data-bs-dismiss="offcanvas">
+            关闭
+          </button>
         </div>
       </div>
     </div>
+    <!-- 等待框 -->
+    <div class="modal" id="modal-wait" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-full-width modal-dialog-centered" role="document">
+        <div class="spinner-border text-primary m-auto"></div>
+      </div>
+    </div>
+    <!-- 确认提示框 -->
     <div class="modal modal-blur fade" id="system-confirm-modal" tabindex="-1" role="dialog" aria-hidden="true">
       <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -411,7 +428,7 @@
           <div class="modal-status bg-danger"></div>
           <div class="modal-body text-center py-4">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
-            <h3>确认提示</h3>
+            <h3>确认</h3>
             <div class="text-muted" id="system_confirm_message">是否确定？</div>
           </div>
           <div class="modal-footer">
@@ -433,18 +450,106 @@
         </div>
       </div>
     </div>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="消息中心">
-      <div class="offcanvas-header">
-        <h2 class="offcanvas-title" id="offcanvasEndLabel">消息中心</h2>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body" style="padding:0.5rem 0.5rem;">
-        <div class="list-group list-group-flush" id="system-messages">
+    <!-- 询问框 -->
+    <div class="modal modal-blur fade" id="system-ask-modal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-body">
+            <div class="modal-title">询问</div>
+            <div id="system_ask_message">是否执行？</div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-danger" id="system_ask_btn">确定</button>
+          </div>
         </div>
-        <div class="mt-3" align="center">
-          <button class="btn" type="button" data-bs-dismiss="offcanvas">
-            关闭
-          </button>
+      </div>
+    </div>
+    <!-- 成功提示 -->
+    <div class="modal modal-blur fade" id="system-success-modal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="modal-status bg-success"></div>
+          <div class="modal-body text-center py-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M9 12l2 2l4 -4" /></svg>
+            <h3>成功</h3>
+            <div class="text-muted" id="system_success_message">成功！</div>
+          </div>
+          <div class="modal-footer">
+            <div class="w-100">
+              <div class="row">
+                <div class="col">
+                  <a href="#" class="btn btn-success w-100" data-bs-dismiss="modal">
+                    确定
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 失败提示 -->
+    <div class="modal modal-blur fade" id="system-fail-modal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="modal-status bg-warning"></div>
+          <div class="modal-body text-center py-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-warning icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
+            <h3>失败</h3>
+            <div class="text-muted" id="system_fail_message">失败！</div>
+          </div>
+          <div class="modal-footer">
+            <div class="w-100">
+              <div class="row">
+                <div class="col"><a href="#" class="btn btn-warning w-100" data-bs-dismiss="modal">
+                    确定
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 媒体详情 -->
+    <div class="modal modal-blur fade" id="system-media-modal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="card">
+            <div class="ribbon" id="system_media_vote"></div>
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-3">
+                  <img src="" class="rounded" id="system_media_poster">
+                </div>
+                <div class="col vtop">
+                  <h4 class="card-title mb-3">
+                    <a href="#" ><strong id="system_media_name"></strong></a><br/>
+                    <span class="text-muted" id="system_release_date"></span>
+                  </h4>
+                  <div class="text-muted" id="system_media_overview">
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex">
+              <a href="#" target="_blank" class="card-btn" id="system_media_url_btn">
+              查看详情
+              </a>
+              <a href="javascript:void(0)" class="card-btn" id="system_media_rss_btn">
+              订阅
+              </a>
+              <a href="javascript:void(0)" class="card-btn" id="system_media_search_btn">
+              立即搜索
+              </a>
+              <a href="javascript:void(0)" class="card-btn" data-bs-dismiss="modal">
+              关闭
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -455,31 +560,123 @@
     <script src="../static/js/apexcharts.min.js"></script>
     <script src="../static/js/fullcalendar.min.js"></script>
     <script src="../static/js/locales/zh-cn.js"></script>
+    <!-- 公共函数 -->
     <script type="text/javascript">
-      //浏览器兼容
-      String.prototype.replaceAll = function (s1, s2) {
-        return this.replace(new RegExp(s1, "gm"), s2)
-      }
-      // 检查新版本
-      var AppVersion = "{{ AppVersion }}";
-      var NewVersion = '';
-      function check_new_version(){
-          ajax_post("version", {}, function(ret){
-            if(ret.code == 0){
-              if(ret.version != AppVersion){
-                  $("#new_version_tip").show();
-                  $("#new_version_info").html(ret.info);
-                  NewVersion = ret.version;
-              }else{
-                  $("#new_version_tip").hide();
-              }
-            }
-          });
+      //显示全局加载框
+      function show_wait_process(){
+        $("#modal-wait").modal("show");
       }
 
-      //关闭加载框
-      function hide_process(){
+      //关闭全局加载框
+      function hide_wait_process(){
         $("#modal-wait").modal("hide");
+      }
+
+      //显示确认提示框
+      function show_confirm_modal(title, func){
+        $("#system_confirm_message").text(title);
+        $("#system_confirm_btn").unbind('click');
+        $("#system_confirm_btn").click(func);
+        $("#system-confirm-modal").modal("show");
+      }
+
+      //隐藏确认提示框
+      function hide_confirm_modal(){
+        $("#system-confirm-modal").modal("hide");
+      }
+
+      //显示询问提示框
+      function show_ask_modal(title, func){
+        $("#system_ask_message").text(title);
+        $("#system_ask_btn").unbind('click');
+        $("#system_ask_btn").click(func);
+        $("#system-ask-modal").modal("show");
+      }
+
+      //隐藏询问提示框
+      function hide_ask_modal(){
+        $("#system-ask-modal").modal("hide");
+      }
+
+      //显示成功提示
+      function show_success_modal(title){
+        $("#system_success_message").text(title);
+        $("#system-success-modal").modal("show");
+      }
+
+      //显示失败提示
+      function show_fail_modal(title){
+        $("#system_fail_message").text(title);
+        $("#system-fail-modal").modal("show");
+      }
+
+      //显示媒体详情
+      function show_mediainfo_modal(rtype, name, year, tmdbid, page, rssid){
+        show_wait_process();
+        if(tmdbid.startsWith("DB:")){
+          var doubanid = tmdbid.replace("DB:", "");
+          tmdbid = "";
+        }else{
+          var doubanid = "";
+        }
+        if(!page){
+          page = "";
+        }
+        if(!rssid){
+          rssid = "";
+        }
+        ajax_post("media_info", {"id": tmdbid, "title": name, "year": year, "type": rtype, "doubanid": doubanid, "page": page, "rssid": rssid}, function(ret){
+          hide_wait_process();
+          if(ret.code == 0){
+            //显示信息
+            $("#system_media_name").text(ret.title);
+            $("#system_release_date").text(ret.release_date)
+            $("#system_media_poster").attr("src", ret.poster_path);
+            $("#system_media_overview").text(ret.overview);
+            if(parseFloat(ret.vote_average) > 8){
+              $("#system_media_vote").removeClass().addClass("ribbon bg-green");
+            }else if(parseFloat(ret.vote_average) > 6){
+              $("#system_media_vote").removeClass().addClass("ribbon bg-blue");
+            }else{
+              $("#system_media_vote").removeClass().addClass("ribbon bg-orange");
+            }
+            if(!ret.vote_average || ret.vote_average == "0"){
+              $("#system_media_vote").hide();
+            }else{
+              $("#system_media_vote").text(ret.vote_average);
+              $("#system_media_vote").show();
+            }
+            //订阅按钮、搜索按钮
+            if(ret.rssid){
+              $("#system_media_rss_btn").text("取消订阅");
+              $("#system_media_rss_btn").attr("href", 'javascript:remove_rss_media("'+ret.title+'","'+ret.year+'","'+ret.type+'","'+ret.rssid+'","'+ret.page+'")');
+              if(ret.page.startsWith("movie_rss")||ret.page.startsWith("tv_rss")){
+                $("#system_media_search_btn").text("刷新");
+                $("#system_media_search_btn").attr("href", 'javascript:refresh_rss_media("'+ret.type+'","'+ret.rssid+'","'+ret.page+'")');
+                $("#system_media_search_btn").show();
+              }else{
+                $("#system_media_search_btn").hide();
+              }
+            }else{
+              $("#system_media_rss_btn").text("订阅");
+              $("#system_media_rss_btn").attr("href", 'javascript:add_rss_media("'+ret.title+'","'+ret.year+'","'+ret.type+'","'+ret.tmdbid+'","'+ret.doubanid+'","'+ret.page+'")');
+              $("#system_media_search_btn").text("搜索");
+              $("#system_media_search_btn").attr("href", 'javascript:search_mediainfo_media("'+ret.title+'","'+ret.year+'")');
+              $("#system_media_search_btn").show();
+            }
+            //详情按钮
+            $("#system_media_url_btn").attr("href", ret.link_url);
+            //弹窗
+            $("#system-media-modal").modal("show");
+          }else if(ret.code == 1){
+            window.open(ret.link_url);
+          }
+        });
+      }
+
+      //隐藏媒体详情
+      function hide_mediainfo_modal(){
+        $("#system-media-modal").modal("hide");
       }
 
       //导航点击
@@ -497,11 +694,83 @@
           }
         });
         $("#navbar-menu").collapse('hide');
-        $("#modal-wait").modal("show");
+        show_wait_process();
         page = page.replaceAll(" ", "%20");
         $("#page_content").load(page, {}, function(response,status,xhr){
-          hide_process();
+          hide_wait_process();
         });
+      }
+
+      //新增订阅
+      function add_rss_media(name, year, type, tmdbid, doubanid, page){
+        hide_mediainfo_modal();
+        var data = { "name": name, "type": type, "year": year, "doubanid": doubanid, "tmdbid": tmdbid, "page": page};
+        show_wait_process();
+        ajax_post("add_rss_media", data, function(ret){
+          hide_wait_process();
+          if(ret.code==0){
+            if(ret.page){
+              navmenu(ret.page);
+            }else{
+              show_success_modal(ret.name + " 添加RSS订阅成功！");
+            }
+          }else{
+            show_fail_modal(ret.name + " 添加RSS订阅失败："+ ret.msg +"！");
+          }
+        });
+      }
+
+      // 取消订阅
+      function remove_rss_media(name, year, type, rssid, page){
+        hide_mediainfo_modal();
+        var cmd = "remove_rss_media";
+        var data = { "name": name, "type": type, "year": year, "rssid": rssid, "page": page};
+        ajax_post(cmd, data, function(ret){
+          if(ret.page){
+            navmenu(ret.page);
+          }else{
+            show_success_modal(ret.name + " 已从RSS订阅中移除！");
+          }
+        });
+      }
+
+      // 刷新订阅
+      function refresh_rss_media(type, rssid, page){
+        hide_mediainfo_modal();
+        ajax_post("refresh_rss", {"type": type, "rssid": rssid, "page": page}, function(ret){
+          if(ret.page){
+            navmenu(ret.page);
+          }
+        });
+      }
+
+      //搜索
+      function search_mediainfo_media(title, year){
+        hide_mediainfo_modal();
+        navmenu('search?s='+title+' '+year+'&f=1');
+      }
+    </script>
+    <script type="text/javascript">
+      //浏览器兼容
+      String.prototype.replaceAll = function (s1, s2) {
+        return this.replace(new RegExp(s1, "gm"), s2)
+      }
+
+      // 检查新版本
+      var AppVersion = "{{ AppVersion }}";
+      var NewVersion = '';
+      function check_new_version(){
+          ajax_post("version", {}, function(ret){
+            if(ret.code == 0){
+              if(ret.version != AppVersion){
+                  $("#new_version_tip").show();
+                  $("#new_version_info").html(ret.info);
+                  NewVersion = ret.version;
+              }else{
+                  $("#new_version_tip").hide();
+              }
+            }
+          });
       }
 
       //注销
@@ -513,28 +782,24 @@
 
       //重启
       function restart(){
-        $("#system_confirm_message").text("立即重启系统？");
-        $("#system_confirm_btn").click(function(){
+        show_confirm_modal("立即重启系统？", function(){
           $("#system_confirm_btn").attr("disabled", true);
           $("#system_confirm_btn").text("重启中...");
           ajax_post("restart", {}, function(ret){
           });
           setTimeout("window.location.reload()", 10000);
         });
-        $("#system-confirm-modal").modal("show");
       }
 
       //更新
       function update(){
-        $("#system_confirm_message").text("将从Github拉取最新程序代码并重启，是否确认？");
-        $("#system_confirm_btn").click(function(){
+        show_confirm_modal("将从Github拉取最新程序代码并重启，是否确认？", function(){
           $("#system_confirm_btn").attr("disabled", true);
           $("#system_confirm_btn").text("更新中...");
           ajax_post("update_system", {}, function(ret){
           });
           setTimeout("window.location.reload()", 15000);
         });
-        $("#system-confirm-modal").modal("show");
       }
 
       //刷新消息中心
@@ -563,15 +828,13 @@
 
       //升级新版本
       function update_to_newversion(){
-        $("#system_confirm_message").text("是否确认升级到 " + NewVersion + " 版本？");
-        $("#system_confirm_btn").click(function(){
+        show_confirm_modal("是否确认升级到 " + NewVersion + " 版本？", function(){
           $("#system_confirm_btn").attr("disabled", true);
           $("#system_confirm_btn").text("升级中...");
           ajax_post("update_system", {}, function(ret){
           });
           setTimeout("window.location.reload()", 15000);
         });
-        $("#system-confirm-modal").modal("show");
       }
 
       //事件
@@ -587,6 +850,7 @@
              $(this).val('');
            }
         });
+
         //加载页面
         var go_page = "{{ GoPage }}";
         if(go_page){

@@ -1,202 +1,46 @@
 <div class="page-body">
-    <div class="container-xl">
-        <div id='calendar'></div>
-    </div>
-</div>
-<div class="modal modal-blur fade" id="modal-media-modal" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="card">
-        <div class="ribbon" id="media_vote"></div>
-        <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col-3">
-              <img src="" class="rounded" id="media_poster">
-            </div>
-            <div class="col vtop">
-              <h4 class="card-title mb-3">
-                <a><strong id="media_name"></strong></a><br/>
-                <span class="text-muted" id="release_date"></span>
-              </h4>
-              <div class="text-muted" id="media_overview">
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="d-flex">
-          <a href="javascript:add_rss_media()" class="card-btn" id="calender_btn_rss">
-          订阅
-          </a>
-          <a href="#" target="_blank" class="card-btn" id="calender_btn_detail">
-          详情
-          </a>
-          <a href="#" class="card-btn" data-bs-dismiss="modal">
-          关闭
-          </a>
-          <input type="hidden" id="calendar_title">
-          <input type="hidden" id="calendar_year">
-          <input type="hidden" id="calendar_season">
-          <input type="hidden" id="calendar_id">
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal modal-blur fade" id="rss-modal-success" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      <div class="modal-status bg-success"></div>
-      <div class="modal-body text-center py-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M9 12l2 2l4 -4" /></svg>
-        <h3>成功</h3>
-        <div class="text-muted" id="recommend_finished_str">添加RSS订阅成功！</div>
-      </div>
-      <div class="modal-footer">
-        <div class="w-100">
-          <div class="row">
-            <div class="col"><a href="#" class="btn btn-success w-100" data-bs-dismiss="modal">
-                确定
-              </a></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal modal-blur fade" id="rss-modal-failed" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      <div class="modal-status bg-warning"></div>
-      <div class="modal-body text-center py-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-warning icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
-        <h3>失败</h3>
-        <div class="text-muted" id="rss_failed_str">添加RSS订阅失败！</div>
-      </div>
-      <div class="modal-footer">
-        <div class="w-100">
-          <div class="row">
-            <div class="col"><a href="#" class="btn btn-warning w-100" data-bs-dismiss="modal">
-                确定
-              </a></div>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="container-xl">
+    <div id='calendar'></div>
   </div>
 </div>
 <script type="text/javascript">
-    var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
-      themeSystem: 'bootstrap',
-      bootstrapFontAwesome: false,
-      fixedWeekCount: false,
-      expandRows: true,
-      height: 'auto',
-      locale: 'zh-cn',
-      headerToolbar: {
-        left: 'prev,next',
-        center: 'title',
-        right: 'dayGridMonth,dayGridWeek,listMonth'
-      },
-      initialDate: '{{ Today }}',
-      navLinks: true,
-      editable: true,
-      dayMaxEvents: true,
-      selectable: false,
-      events: {{ Events|safe }},
-      eventClick: function(info) {
-        show_media_info(info.event.id);
-      }
-    });
-    calendar.render();
-</script>
-<script type="text/javascript">
-  //新增订阅
-  function add_rss_media(){
-    $("#modal-media-modal").modal("hide");
-    var tmdbid = $("#calendar_id").val();
-    if(tmdbid.startsWith("DB:")){
-      var doubanid = tmdbid.replace("DB:", "");
-      tmdbid = "";
-    }else{
-      var doubanid = "";
-    }
-    var name = $("#calendar_title").val();
-    var year = $("#calendar_year").val();
-    var data = { "name": name, "type": "MOV", "year": year, "doubanid": doubanid, "tmdbid": tmdbid};
-    $("#modal-wait").modal("show");
-    ajax_post("add_rss_media", data, function(ret){
-      $("#modal-wait").modal("hide");
-      if(ret.code==0){
-        $("#recommend_finished_str").text(name + " 添加RSS订阅成功！");
-        $("#rss-modal-success").modal('show');
+  var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    themeSystem: 'bootstrap',
+    bootstrapFontAwesome: false,
+    fixedWeekCount: false,
+    expandRows: true,
+    height: 'auto',
+    locale: 'zh-cn',
+    headerToolbar: {
+      left: 'prev,next',
+      center: 'title',
+      right: 'dayGridMonth,dayGridWeek,listMonth'
+    },
+    initialDate: '{{ Today }}',
+    navLinks: true,
+    editable: true,
+    dayMaxEvents: true,
+    selectable: false,
+    events: {{ Events| safe }},
+  eventDisplay: 'list-item',
+    eventClick: function(info) {
+      var eventData = info.event.extendedProps;
+      if(eventData.type == "电影"){
+        var type = "MOV";
       }else{
-        $("#rss_failed_str").text(name + " 添加RSS订阅失败："+ ret.msg +"！");
-        $("#rss-modal-failed").modal('show');
+        var type = "TV";
       }
-    });
-  }
-
-  //显示媒体详情
-  function show_media_info(tmdbid){
-      $("#calendar_id").val(tmdbid);
-      $("#modal-wait").modal("show");
-      if(tmdbid.startsWith("DB:")){
-        var doubanid = tmdbid.replace("DB:", "");
-        tmdbid = "";
-      }else{
-        var doubanid = "";
-      }
-      ajax_post("media_info", {"id": tmdbid, "doubanid": doubanid, "type": "MOV"}, function(ret){
-        $("#modal-wait").modal("hide");
-        if(ret.code == 0){
-          $("#calendar_title").val(ret.title);
-          $("#calendar_year").val(ret.year);
-          $("#media_vote").text(ret.vote_average);
-          if(parseFloat(ret.vote_average) > 8){
-            $("#media_vote").removeClass().addClass("ribbon bg-green");
-          }else if(parseFloat(ret.vote_average) > 6){
-            $("#media_vote").removeClass().addClass("ribbon bg-blue");
-          }else{
-            $("#media_vote").removeClass().addClass("ribbon bg-orange");
-          }
-          if(!ret.vote_average || ret.vote_average == "0"){
-            $("#media_vote").hide();
-          }else{
-            $("#media_vote").show();
-          }
-          $("#media_poster").attr("src", ret.poster_path);
-          $("#media_name").text(ret.title);
-          $("#calender_btn_detail").attr("href", ret.link_url);
-          $("#media_overview").text(ret.overview);
-          $("#release_date").text(ret.release_date)
-          $("#modal-media-modal").modal("show");
-          if(ret.rssd){
-            $("#calender_btn_rss").attr("href", "javascript:remove_rss_media()");
-            $("#calender_btn_rss").text("取消订阅");
-          }else{
-            $("#calender_btn_rss").attr("href", "javascript:add_rss_media()");
-            $("#calender_btn_rss").text("订阅");
-          }
-        }
-      });
-  }
-
-  // 取消订阅
-  function remove_rss_media(name, year){
-    $("#modal-media-modal").modal("hide");
-    if(!name){
-      name = $("#calendar_title").val();
+      show_mediainfo_modal(type, info.event.title, eventData.year, info.event.id, "rss_calendar");
+    },
+  eventContent: function(info) {
+    var eventData = info.event.extendedProps;
+    if (eventData.rssid) {
+      var innerText = '<a class="card card-link" href="#"><div class="card-status-start bg-green"></div><div class="card-body" style="padding: 0.5rem 1rem"><div class="row"><div class="col-auto" style="padding:0px;"><span class="avatar rounded" style="background-image: url(' + eventData.poster + ')"></span></div><div class="col"><div class="font-weight-medium" style="white-space:pre-wrap;word-break:break-all;"><strong>' + info.event.title + '</strong></div><div class="text-muted d-none d-lg-block">' + eventData.type + ' 评分: ' + eventData.vote_average + '</div></div></div></div></a>';
+    } else {
+      var innerText = '<a class="card card-link" href="#"><div class="card-status-start bg-primary"></div><div class="card-body" style="padding: 0.5rem 1rem"><div class="row"><div class="col-auto" style="padding:0px;"><span class="avatar rounded" style="background-image: url(' + eventData.poster + ')"></span></div><div class="col"><div class="font-weight-medium" style="white-space:pre-wrap;word-break:break-all;"><strong>' + info.event.title + '</strong></div><div class="text-muted d-none d-lg-block">' + eventData.type + ' 评分: ' + eventData.vote_average + '</div></div></div></div></a>';
     }
-    if(!year){
-      year = $("#calendar_year").val();
-    }
-    var cmd = "remove_rss_media";
-    var data = { "name": name, "type": "MOV", "year": year};
-    ajax_post(cmd, data, function(ret){
-      $("#recommend_finished_str").text(name + " 已取消订阅！");
-      $("#rss-modal-success").modal('show');
-    });
+    return { html: innerText };
   }
+    });
+  calendar.render();
 </script>

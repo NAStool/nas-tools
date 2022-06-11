@@ -1,46 +1,47 @@
-  <div class="container-xl">
-    <!-- Page title -->
-    <div class="page-header d-print-none">
-      <div class="row align-items-center">
-        <div class="col">
-          <h2 class="page-title">
-            历史记录
-          </h2>
-        </div>
-        <!-- Page title actions -->
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          历史记录
+        </h2>
       </div>
+      <!-- Page title actions -->
     </div>
   </div>
-  <!-- 业务页面代码 -->
-  <div class="page-body">
-    <div class="container-xl">
-      <div class="row row-cards">
-        <div class="col-12">
-          <div class="card">
-            <div class="card-body border-bottom py-3">
-              <div class="d-flex">
-                <div class="text-muted">
-                  共 {{ TotalCount }} 条记录
-                </div>
-                <div class="ms-auto text-muted">
-                  搜索:
-                  <div class="ms-2 d-inline-block">
-                    <input id="search_word" value="{{ Search }}" type="text" class="form-control form-control-sm" aria-label="搜索">
-                  </div>
+</div>
+<!-- 业务页面代码 -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body border-bottom py-3">
+            <div class="d-flex">
+              <div class="text-muted">
+                共 {{ TotalCount }} 条记录
+              </div>
+              <div class="ms-auto text-muted">
+                搜索:
+                <div class="ms-2 d-inline-block">
+                  <input id="search_word" value="{{ Search }}" type="text" class="form-control form-control-sm"
+                    aria-label="搜索">
                 </div>
               </div>
             </div>
-            <div class="table-responsive" style="min-height: 300px">
-              <table class="table table-vcenter card-table">
-                <thead>
-                  <tr>
-                    <th>媒体信息</th>
-                    <th>文件信息</th>
-                    <th>时间</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
+          </div>
+          <div class="table-responsive" style="min-height: 300px">
+            <table class="table table-vcenter card-table">
+              <thead>
+                <tr>
+                  <th>媒体信息</th>
+                  <th>文件信息</th>
+                  <th>时间</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
                 {% if TotalCount > 0 %}
                 {% for History in Historys %}
                 <tr>
@@ -48,27 +49,32 @@
                     <div class="d-flex py-1 align-items-center">
                       <span class="avatar me-2 text-nowrap">
                         {% if History[2] == "电影" %}
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                           <rect x="4" y="4" width="16" height="16" rx="2"></rect>
-                           <line x1="8" y1="4" x2="8" y2="20"></line>
-                           <line x1="16" y1="4" x2="16" y2="20"></line>
-                           <line x1="4" y1="8" x2="8" y2="8"></line>
-                           <line x1="4" y1="16" x2="8" y2="16"></line>
-                           <line x1="4" y1="12" x2="20" y2="12"></line>
-                           <line x1="16" y1="8" x2="20" y2="8"></line>
-                           <line x1="16" y1="16" x2="20" y2="16"></line>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie" width="24"
+                          height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                          <line x1="8" y1="4" x2="8" y2="20"></line>
+                          <line x1="16" y1="4" x2="16" y2="20"></line>
+                          <line x1="4" y1="8" x2="8" y2="8"></line>
+                          <line x1="4" y1="16" x2="8" y2="16"></line>
+                          <line x1="4" y1="12" x2="20" y2="12"></line>
+                          <line x1="16" y1="8" x2="20" y2="8"></line>
+                          <line x1="16" y1="16" x2="20" y2="16"></line>
                         </svg>
                         {% else %}
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-tv" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                           <rect x="3" y="7" width="18" height="13" rx="2"></rect>
-                           <polyline points="16 3 12 7 8 3"></polyline>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-tv"
+                          width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                          stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <rect x="3" y="7" width="18" height="13" rx="2"></rect>
+                          <polyline points="16 3 12 7 8 3"></polyline>
                         </svg>
                         {% endif %}
                       </span>
                       <div class="flex-fill">
-                        <div class="font-weight-medium"><a class="text-reset">{{ History[4] }} ({{ History[6] }}) {{ History[7] }}</a></div>
+                        <div class="font-weight-medium"><a class="text-reset">{{ History[4] }} ({{ History[6] }}) {{
+                            History[7] }}</a></div>
                         {% if History[5] %}
                         <div class="text-muted">类别：{{ History[5] }}</div>
                         {% endif %}
@@ -83,13 +89,22 @@
                   <td>
                     <div class="dropdown">
                       <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" /><circle cx="12" cy="5" r="1" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                          stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <circle cx="12" cy="12" r="1" />
+                          <circle cx="12" cy="19" r="1" />
+                          <circle cx="12" cy="5" r="1" />
+                        </svg>
                       </a>
                       <div class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href='javascript:rename_history("{{History[2]}}", "{{History[3]}}", "{{History[10]}}")'>
+                        <a class="dropdown-item"
+                          href='javascript:rename_history("{{History[2]}}", "{{History[3]}}", "{{History[10]}}")'>
                           重新识别
                         </a>
-                        <a class="dropdown-item text-danger" href='javascript:manual_delete("{{History[10]}}", "{{History[4]}} ({{History[6]}}) {{History[7]}}")'>
+                        <a class="dropdown-item text-danger"
+                          href='javascript:manual_delete("{{History[10]}}", "{{History[4]}} ({{History[6]}}) {{History[7]}}")'>
                           删除
                         </a>
                       </div>
@@ -98,321 +113,298 @@
                 </tr>
                 {% endfor %}
                 {% else %}
-                  <tr>
-                    <td colspan="4" align="center">没有数据</td>
-                  </tr>
+                <tr>
+                  <td colspan="4" align="center">没有数据</td>
+                </tr>
                 {% endif %}
-                </tbody>
-              </table>
-            </div>
-            {% if TotalCount > 0 %}
-            <div class="card-footer d-flex align-items-center">
-              <p class="m-0 text-muted">当前页 <span>{{ Count }}</span> 条</p>
-              <ul class="pagination m-0 ms-auto">
-                <li class="page-item {% if CurrentPage==1 %} disabled {% endif %}">
-                  <a class="page-link" href="javascript:go_pre_page('{{ Search }}', {{ CurrentPage }})" tabindex="-1" aria-disabled="true">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="15 6 9 12 15 18" /></svg>
-                  </a>
-                </li>
-                {% for page in PageRange %}
-                <li class="page-item {% if page==CurrentPage %} active {% endif %}">
-                  <a class="page-link" href="javascript:navmenu('history?s={{ Search }}&page={{ page }}')">{{ page }}</a></li>
-                {% endfor %}
-                <li class="page-item {% if CurrentPage >= TotalPage %} disabled {% endif %}">
-                  <a class="page-link" href="{% if CurrentPage < TotalPage %}javascript:go_next_page('{{ Search }}', {{ CurrentPage }}){% else %}javascript:void(0){% endif %}">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 6 15 12 9 18" /></svg>
-                  </a>
-                </li>
-              </ul>
-            </div>
-            {% endif %}
+              </tbody>
+            </table>
           </div>
+          {% if TotalCount > 0 %}
+          <div class="card-footer d-flex align-items-center">
+            <p class="m-0 text-muted">当前页 <span>{{ Count }}</span> 条</p>
+            <ul class="pagination m-0 ms-auto">
+              <li class="page-item {% if CurrentPage==1 %} disabled {% endif %}">
+                <a class="page-link" href="javascript:go_pre_page('{{ Search }}', {{ CurrentPage }})" tabindex="-1"
+                  aria-disabled="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <polyline points="15 6 9 12 15 18" />
+                  </svg>
+                </a>
+              </li>
+              {% for page in PageRange %}
+              <li class="page-item {% if page==CurrentPage %} active {% endif %}">
+                <a class="page-link" href="javascript:navmenu('history?s={{ Search }}&page={{ page }}')">{{ page }}</a>
+              </li>
+              {% endfor %}
+              <li class="page-item {% if CurrentPage >= TotalPage %} disabled {% endif %}">
+                <a class="page-link"
+                  href="{% if CurrentPage < TotalPage %}javascript:go_next_page('{{ Search }}', {{ CurrentPage }}){% else %}javascript:void(0){% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <polyline points="9 6 15 12 9 18" />
+                  </svg>
+                </a>
+              </li>
+            </ul>
+          </div>
+          {% endif %}
         </div>
       </div>
     </div>
   </div>
-  <div class="modal modal-blur fade" id="modal-rename" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">重新识别</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">路径</label>
-            <input type="text" id="rename_path" class="form-control" readonly>
-            <input type="hidden" id="rename_logid" class="form-control">
-            <div class="invalid-feedback" id="rename_retmsg"></div>
-          </div>
-          <label class="form-label">类型</label>
-          <div class="form-selectgroup-boxes row mb-3">
-            <div class="col-lg-4">
-              <label class="form-selectgroup-item" for="rename_type_mov">
-                <input type="radio" name="rename_type" id="rename_type_mov" value="MOV" class="form-selectgroup-input" checked>
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">电影</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-            <div class="col-lg-4">
-              <label class="form-selectgroup-item" for="rename_type_tv">
-                <input type="radio" name="rename_type" id="rename_type_tv" value="TV" class="form-selectgroup-input">
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">电视剧</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-            <div class="col-lg-4">
-              <label class="form-selectgroup-item" for="rename_type_anime">
-                <input type="radio" name="rename_type" id="rename_type_anime" value="ANIME" class="form-selectgroup-input">
-                <span class="form-selectgroup-label d-flex align-items-center p-3">
-                  <span class="me-3">
-                    <span class="form-selectgroup-check"></span>
-                  </span>
-                  <span class="form-selectgroup-label-content">
-                    <span class="form-selectgroup-title strong mb-1">动漫</span>
-                  </span>
-                </span>
-              </label>
-            </div>
-          </div>
-        </div>
-        <div class="modal-body">
-          <div class="row">
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label">标题</label>
-                <input type="text" id="rename_title" class="form-control">
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label">年份</label>
-                <input type="text" id="rename_year" class="form-control">
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label">TMDB ID</label>
-                <input type="text" id="rename_tmdb" class="form-control">
-              </div>
-            </div>
-            <div class="col-lg-6" id="rename_season_div">
-              <div class="mb-3">
-                <label class="form-label">季</label>
-                <select class="form-select" id="rename_season">
-                  <option value="" selected>请选择</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-lg-6" id="rename_episode_div">
-              <div class="mb-3">
-                <label class="form-label">自定义集数位置(<a href="#" title="标定集数位置，例如：铁齿铜牙纪晓岚{ep}.iso">?</a>)</label>
-                <input type="text" id="rename_episode" class="form-control" placeholder="{ep}.mp4">
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label">最小文件大小</label>
-                <input type="text" id="rename_min_filesize" class="form-control" placeholder="过滤当前最小文件大小(MB)">
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn me-auto" data-bs-dismiss="modal">关闭</button>
-          <button type="button" id="rename_btn" class="btn btn-primary">转移</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="modal modal-blur fade" id="modal-danger" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-      <div class="modal-content">
+</div>
+<div class="modal modal-blur fade" id="modal-rename" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">重新识别</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        <input type="hidden" id="delete_history_id">
-        <div class="modal-status bg-danger"></div>
-        <div class="modal-body text-center py-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
-          <h3>确定?</h3>
-          <div class="text-muted" id="delete_history_alert">记录对应已命名名的媒体文件将被删除</div>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">路径</label>
+          <input type="text" id="rename_path" class="form-control" readonly>
+          <input type="hidden" id="rename_logid" class="form-control">
+          <div class="invalid-feedback" id="rename_retmsg"></div>
         </div>
-        <div class="modal-footer">
-          <div class="w-100">
-            <div class="row">
-              <div class="col"><button class="btn w-100" data-bs-dismiss="modal">
-                  取消
-                </button></div>
-              <div class="col"><button class="btn btn-danger w-100" id="delete_btn">
-                  删除
-              </button></div>
+        <label class="form-label">类型</label>
+        <div class="form-selectgroup-boxes row mb-3">
+          <div class="col-lg-4">
+            <label class="form-selectgroup-item" for="rename_type_mov">
+              <input type="radio" name="rename_type" id="rename_type_mov" value="MOV" class="form-selectgroup-input"
+                checked>
+              <span class="form-selectgroup-label d-flex align-items-center p-3">
+                <span class="me-3">
+                  <span class="form-selectgroup-check"></span>
+                </span>
+                <span class="form-selectgroup-label-content">
+                  <span class="form-selectgroup-title strong mb-1">电影</span>
+                </span>
+              </span>
+            </label>
+          </div>
+          <div class="col-lg-4">
+            <label class="form-selectgroup-item" for="rename_type_tv">
+              <input type="radio" name="rename_type" id="rename_type_tv" value="TV" class="form-selectgroup-input">
+              <span class="form-selectgroup-label d-flex align-items-center p-3">
+                <span class="me-3">
+                  <span class="form-selectgroup-check"></span>
+                </span>
+                <span class="form-selectgroup-label-content">
+                  <span class="form-selectgroup-title strong mb-1">电视剧</span>
+                </span>
+              </span>
+            </label>
+          </div>
+          <div class="col-lg-4">
+            <label class="form-selectgroup-item" for="rename_type_anime">
+              <input type="radio" name="rename_type" id="rename_type_anime" value="ANIME"
+                class="form-selectgroup-input">
+              <span class="form-selectgroup-label d-flex align-items-center p-3">
+                <span class="me-3">
+                  <span class="form-selectgroup-check"></span>
+                </span>
+                <span class="form-selectgroup-label-content">
+                  <span class="form-selectgroup-title strong mb-1">动漫</span>
+                </span>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">标题</label>
+              <input type="text" id="rename_title" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">年份</label>
+              <input type="text" id="rename_year" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">TMDB ID</label>
+              <input type="text" id="rename_tmdb" class="form-control">
+            </div>
+          </div>
+          <div class="col-lg-6" id="rename_season_div">
+            <div class="mb-3">
+              <label class="form-label">季</label>
+              <select class="form-select" id="rename_season">
+                <option value="" selected>请选择</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-lg-6" id="rename_episode_div">
+            <div class="mb-3">
+              <label class="form-label">自定义集数位置(<a href="#" title="标定集数位置，例如：铁齿铜牙纪晓岚{ep}.iso">?</a>)</label>
+              <input type="text" id="rename_episode" class="form-control" placeholder="{ep}.mp4">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">最小文件大小</label>
+              <input type="text" id="rename_min_filesize" class="form-control" placeholder="过滤当前最小文件大小(MB)">
             </div>
           </div>
         </div>
       </div>
+      <div class="modal-footer">
+        <button type="button" class="btn me-auto" data-bs-dismiss="modal">关闭</button>
+        <button type="button" id="rename_btn" class="btn btn-primary">转移</button>
+      </div>
     </div>
   </div>
-  <script type="text/javascript">
-    // 上一页
-    function go_pre_page(search, page){
-      navmenu("history?s=" + search + "&page=" + (page - 1))
+</div>
+<script type="text/javascript">
+  // 上一页
+  function go_pre_page(search, page) {
+    navmenu("history?s=" + search + "&page=" + (page - 1))
+  }
+
+  // 下一页
+  function go_next_page(search, page) {
+    navmenu("history?s=" + search + "&page=" + (page + 1))
+  }
+
+  //重新识别
+  function rename_history(type, path, id) {
+    if (type == "电视剧") {
+      $("#rename_type_tv").prop("checked", true);
+      $("#rename_type_mov").removeProp("checked");
+      $("#rename_type_anime").removeProp("checked");
+      $("#rename_season_div").show();
+      $("#rename_episode_div").show();
+    } else if (type == "电影") {
+      $("#rename_type_mov").prop("checked", true);
+      $("#rename_type_tv").removeProp("checked");
+      $("#rename_type_anime").removeProp("checked");
+      $("#rename_season_div").hide();
+      $("#rename_episode_div").hide();
+      $("#rename_season").val("");
+    } else {
+      $("#rename_type_anime").prop("checked", true);
+      $("#rename_type_tv").removeProp("checked");
+      $("#rename_type_mov").removeProp("checked");
+      $("#rename_season_div").show();
+      $("#rename_episode_div").show();
     }
-
-    // 下一页
-    function go_next_page(search, page){
-      navmenu("history?s=" + search + "&page=" + (page + 1))
+    $("#rename_path").val(path);
+    $("#rename_logid").val(id);
+    $('#modal-rename').modal('show');
+    $("#rename_season").empty();
+    $("#rename_season").append('<option value="" selected>请选择</option>');
+    for (var i = 0; i <= 50; i++) {
+      $("#rename_season").append('<option value="' + i + '">第' + i + '季</option>');
     }
+  }
 
-    //重新识别
-    function rename_history(type, path, id){
-      if(type == "电视剧"){
-        $("#rename_type_tv").prop("checked",true);
-        $("#rename_type_mov").removeProp("checked");
-        $("#rename_type_anime").removeProp("checked");
-        $("#rename_season_div").show();
-        $("#rename_episode_div").show();
-      }else if(type == "电影"){
-        $("#rename_type_mov").prop("checked",true);
-        $("#rename_type_tv").removeProp("checked");
-        $("#rename_type_anime").removeProp("checked");
-        $("#rename_season_div").hide();
-        $("#rename_episode_div").hide();
-        $("#rename_season").val("");
-      }else{
-        $("#rename_type_anime").prop("checked",true);
-        $("#rename_type_tv").removeProp("checked");
-        $("#rename_type_mov").removeProp("checked");
-        $("#rename_season_div").show();
-        $("#rename_episode_div").show();
-      }
-      $("#rename_path").val(path);
-      $("#rename_logid").val(id);
-      $('#modal-rename').modal('show');
-      $("#rename_season").empty();
-      $("#rename_season").append('<option value="" selected>请选择</option>');
-      for(var i=0; i<=50; i++){
-        $("#rename_season").append('<option value="' + i + '">第' + i +'季</option>');
-      }
-    }
+  //手动转移
+  function manual_rename() {
+    var type = $('input:radio[name=rename_type]:checked').val();
+    var logid = $("#rename_logid").val();
+    var tmdb = $("#rename_tmdb").val();
+    var title = $("#rename_title").val();
+    var year = $("#rename_year").val();
+    var episode_format = $("#rename_episode").val();
+    var min_filesize = $("#rename_min_filesize").val();
+    var season = $("#rename_season").val();
 
-    //手动转移
-    function manual_rename(){
-      var type = $('input:radio[name=rename_type]:checked').val();
-      var logid = $("#rename_logid").val();
-      var tmdb = $("#rename_tmdb").val();
-      var title = $("#rename_title").val();
-      var year = $("#rename_year").val();
-      var episode_format = $("#rename_episode").val();
-      var min_filesize = $("#rename_min_filesize").val();
-      var season = $("#rename_season").val();
-
-      if(tmdb == ""){
-        if(title == ""){
-          $("#rename_title").addClass("is-invalid");
-          return;
-        }else{
-          $("#rename_title").removeClass("is-invalid");
-        }
-
-        if(year == "" || isNaN(year)){
-          $("#rename_year").addClass("is-invalid");
-          return;
-        }else{
-          $("#rename_year").removeClass("is-invalid");
-        }
-      }else{
-        if(isNaN(tmdb)){
-          $("#rename_tmdb").addClass("is-invalid");
-          return;
-        }else{
-          $("#rename_tmdb").removeClass("is-invalid");
-        }
-      }
-      if (min_filesize !== "" && isNaN(min_filesize)) {
-          $("#rename_min_filesize").addClass("is-invalid");
-          return;
+    if (tmdb == "") {
+      if (title == "") {
+        $("#rename_title").addClass("is-invalid");
+        return;
       } else {
-          $("#rename_min_filesize").removeClass("is-invalid");
+        $("#rename_title").removeClass("is-invalid");
       }
 
-      // 开始处理
-      var data = { "logid": logid, "type": type, "title": title, "year": year, "tmdb": tmdb, "season": season
-          , "episode_format": episode_format, "min_filesize": min_filesize};
-      $("#rename_btn").attr("disabled", true);
-      $("#rename_btn").text("处理中...");
-      $("#rename_retmsg").hide();
-      ajax_post("rename", data, function(ret){
-        $("#rename_btn").attr("disabled", false);
-        $("#rename_btn").text("转移");
-        if(ret.retcode == 0){
-          //处理成功
-          setTimeout("navmenu('history')", 1000);
-          $('#modal-rename').modal('hide');
-        }else{
-          //处理失败
-          regmsg = ret.retmsg;
-          $("#rename_retmsg").show();
-          $("#rename_retmsg").text(regmsg);
-        }
-      });
+      if (year == "" || isNaN(year)) {
+        $("#rename_year").addClass("is-invalid");
+        return;
+      } else {
+        $("#rename_year").removeClass("is-invalid");
+      }
+    } else {
+      if (isNaN(tmdb)) {
+        $("#rename_tmdb").addClass("is-invalid");
+        return;
+      } else {
+        $("#rename_tmdb").removeClass("is-invalid");
+      }
+    }
+    if (min_filesize !== "" && isNaN(min_filesize)) {
+      $("#rename_min_filesize").addClass("is-invalid");
+      return;
+    } else {
+      $("#rename_min_filesize").removeClass("is-invalid");
     }
 
-    //删除提示
-    function manual_delete(id, name){
-      $("#delete_history_alert").text(name + " 对应已重命名的文件将被删除");
-      $('#delete_history_id').val(id);
-      $('#modal-danger').modal('show');
-    }
-
-    //删除记录
-    function delete_history(){
-      var logid = $('#delete_history_id').val();
-      $("#delete_btn").attr("disabled", true);
-      $("#delete_btn").text("删除中...");
-      var data = { "logid": logid};
-      ajax_post("delete_history", data, function(ret){
+    // 开始处理
+    var data = {
+      "logid": logid, "type": type, "title": title, "year": year, "tmdb": tmdb, "season": season
+      , "episode_format": episode_format, "min_filesize": min_filesize
+    };
+    $("#rename_btn").attr("disabled", true);
+    $("#rename_btn").text("处理中...");
+    $("#rename_retmsg").hide();
+    ajax_post("rename", data, function (ret) {
+      $("#rename_btn").attr("disabled", false);
+      $("#rename_btn").text("转移");
+      if (ret.retcode == 0) {
+        //处理成功
         setTimeout("navmenu('history')", 1000);
-        $('#modal-danger').modal('hide');
+        $('#modal-rename').modal('hide');
+      } else {
+        //处理失败
+        regmsg = ret.retmsg;
+        $("#rename_retmsg").show();
+        $("#rename_retmsg").text(regmsg);
+      }
+    });
+  }
+  //删除提示
+  function manual_delete(logid, name) {
+    show_confirm_modal(name + " 对应已重命名的文件将被同步删除，是否确认？", function(){
+      hide_confirm_modal();
+      ajax_post("delete_history", { "logid": logid }, function (ret) {
+        navmenu('history');
       });
+    });
+  }
+  // 搜索按钮
+  $('#search_word').bind('keypress', function (event) {
+    if (event.keyCode == "13") {
+      var keyword = $("#search_word").val();
+      navmenu("history?s=" + keyword);
     }
-
-    // 搜索按钮
-    $('#search_word').bind('keypress',function(event){
-       if(event.keyCode == "13")
-       {
-          var keyword = $("#search_word").val();
-          navmenu("history?s=" + keyword);
-       }
-    });
-    //单选框事件
-    $('input[type=radio][name=rename_type]').change(function() {
-      if (this.value == 'MOV') {
-        $("#rename_season_div").hide();
-        $("#rename_episode_div").hide();
-        $("#rename_season").val("");
-      }
-      else {
-        $("#rename_season_div").show();
-        $("#rename_episode_div").show();
-      }
-    });
-    //转移按钮
-    $("#rename_btn").click(function(){
-      manual_rename();
-    });
-    //删除按钮
-    $("#delete_btn").click(function(){
-      delete_history();
-    });
-  </script>
+  });
+  //单选框事件
+  $('input[type=radio][name=rename_type]').change(function () {
+    if (this.value == 'MOV') {
+      $("#rename_season_div").hide();
+      $("#rename_episode_div").hide();
+      $("#rename_season").val("");
+    }
+    else {
+      $("#rename_season_div").show();
+      $("#rename_episode_div").show();
+    }
+  });
+  //转移按钮
+  $("#rename_btn").click(function () {
+    manual_rename();
+  });
+  //删除按钮
+  $("#delete_btn").click(function () {
+    delete_history();
+  });
+</script>

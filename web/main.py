@@ -3,7 +3,6 @@ import base64
 import datetime
 import logging
 import os.path
-import re
 import shutil
 import signal
 import subprocess
@@ -50,7 +49,8 @@ from utils.sqls import get_search_result_by_id, get_search_results, \
     update_config_site, get_config_search_rule, update_config_search_rule, get_config_rss_rule, update_config_rss_rule, \
     get_unknown_path_by_id, get_rss_tvs, get_rss_movies, delete_rss_movie, delete_rss_tv, \
     get_users, insert_user, delete_user, get_transfer_statistics, get_system_messages, get_site_statistics, \
-    get_download_history, get_site_statistics_recent_sites, is_media_downloaded, is_exists_rss_movie
+    get_download_history, get_site_statistics_recent_sites, is_media_downloaded, \
+    get_rss_tv_id, get_rss_movie_id
 from utils.types import MediaType, SearchType, DownloaderType, SyncType, OsType
 from utils.commons import EpisodeFormat
 from version import APP_VERSION
@@ -525,13 +525,33 @@ def create_flask_app(config):
         TmdbMovies = Media().get_tmdb_upcoming_movies(1)
         for movie in TmdbMovies:
             if movie.get("release_date"):
-                Events.append({"title": "[电影] " + movie.get("title"), "start": movie.get("release_date"), "id": movie.get("id")})
+                year = movie.get("release_date")[0:4]
+                Events.append(
+                    {"type": "电影",
+                     "title": movie.get("title"),
+                     "start": movie.get("release_date"),
+                     "id": movie.get("id"),
+                     "year": year,
+                     "poster": "https://image.tmdb.org/t/p/w500%s" % movie.get('poster_path'),
+                     "vote_average": movie.get("vote_average"),
+                     "info": "",
+                     "rssid": get_rss_movie_id(movie.get("title"), year)})
         DoubanMovies = DoubanApi().movie_soon(count=50)
         if DoubanMovies:
             for movie in DoubanMovies.get("subject_collection_items"):
                 if movie.get("release_date"):
                     release_date = "%s-%s" % (datetime.datetime.now().year, movie.get("release_date").replace(".", "-"))
-                    Events.append({"title": "[电影] " + movie.get("title"), "start": release_date, "id": "DB:" + movie.get("id")})
+                    Events.append(
+                        {"type": "电影",
+                         "title": movie.get("title"),
+                         "start": release_date,
+                         "id": "DB:" + movie.get("id"),
+                         "year": release_date[0:4],
+                         "poster": movie.get("cover").get("url"),
+                         "vote_average": movie.get("rating").get("value") if movie.get("rating") else "无",
+                         "info": movie.get("info"),
+                         "rssid": get_rss_movie_id(movie.get("title"), release_date[0:4])})
+
         return render_template("rss/rss_calendar.html",
                                Today=Today,
                                Events=Events)
@@ -1428,7 +1448,8 @@ def create_flask_app(config):
                                                                    media_type=media_type,
                                                                    season=season,
                                                                    episode=(
-                                                                   EpisodeFormat(episode_format), need_fix_all, logid),
+                                                                       EpisodeFormat(episode_format), need_fix_all,
+                                                                       logid),
                                                                    min_filesize=min_filesize
                                                                    )
                 if succ_flag:
@@ -1473,8 +1494,8 @@ def create_flask_app(config):
                                                                    media_type=media_type,
                                                                    season=season,
                                                                    episode=(
-                                                                   EpisodeFormat(episode_format, episode_details,
-                                                                                 episode_offset), False, None),
+                                                                       EpisodeFormat(episode_format, episode_details,
+                                                                                     episode_offset), False, None),
                                                                    min_filesize=min_filesize,
                                                                    udf_flag=True)
                 if succ_flag:
@@ -1726,6 +1747,7 @@ def create_flask_app(config):
                 year = data.get("year")
                 season = data.get("season")
                 rssid = data.get("rssid")
+                page = data.get("page")
                 if name:
                     meta_info = MetaInfo(title=name)
                     name = meta_info.get_name()
@@ -1736,7 +1758,7 @@ def create_flask_app(config):
                         delete_rss_movie(title=name, year=year, rssid=rssid)
                     else:
                         delete_rss_tv(title=name, year=year, season=season, rssid=rssid)
-                return {"code": 0}
+                return {"code": 0, "page": page, "name": name}
 
             # 添加RSS订阅
             if cmd == "add_rss_media":
@@ -1747,6 +1769,7 @@ def create_flask_app(config):
                 year = data.get("year")
                 season = data.get("season")
                 match = data.get("match")
+                page = data.get("page")
                 if name and mtype:
                     if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
                         mtype = MediaType.MOVIE
@@ -1759,7 +1782,7 @@ def create_flask_app(config):
                                                           match=match,
                                                           doubanid=doubanid,
                                                           tmdbid=tmdbid)
-                return {"code": code, "msg": msg}
+                return {"code": code, "msg": msg, "page": page, "name": name}
 
             # 未识别的重新识别
             if cmd == "re_identification":
@@ -1791,7 +1814,9 @@ def create_flask_app(config):
                 mtype = data.get("type")
                 title = data.get("title")
                 year = data.get("year")
+                page = data.get("page")
                 doubanid = data.get("doubanid")
+                rssid = data.get("rssid")
                 if mtype in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
                     media_type = MediaType.MOVIE
                 else:
@@ -1822,6 +1847,8 @@ def create_flask_app(config):
                         year = tmdb_info.get('release_date')[0:4] if tmdb_info.get('release_date') else ""
                     return {
                         "code": 0,
+                        "type": mtype,
+                        "page": page,
                         "title": title,
                         "vote_average": vote_average,
                         "poster_path": poster_path,
@@ -1829,7 +1856,9 @@ def create_flask_app(config):
                         "year": year,
                         "overview": overview,
                         "link_url": link_url,
-                        "rssd": is_exists_rss_movie(title=title, year=year)
+                        "tmdbid": tmdbid,
+                        "doubanid": doubanid,
+                        "rssid": rssid or get_rss_movie_id(title=title, year=year)
                     }
                 else:
                     if doubanid:
@@ -1856,6 +1885,8 @@ def create_flask_app(config):
                         year = tmdb_info.get('first_air_date')[0:4] if tmdb_info.get('first_air_date') else ""
                     return {
                         "code": 0,
+                        "type": mtype,
+                        "page": page,
                         "title": title,
                         "vote_average": vote_average,
                         "poster_path": poster_path,
@@ -1863,7 +1894,9 @@ def create_flask_app(config):
                         "year": year,
                         "overview": overview,
                         "link_url": link_url,
-                        "rssd": False
+                        "tmdbid": tmdbid,
+                        "doubanid": doubanid,
+                        "rssid": rssid or get_rss_tv_id(title=title, year=year)
                     }
 
             # 测试连通性
@@ -1911,11 +1944,12 @@ def create_flask_app(config):
             if cmd == "refresh_rss":
                 mtype = data.get("type")
                 rssid = data.get("rssid")
+                page = data.get("page")
                 if mtype == "MOV":
                     _thread.start_new_thread(Rss().rsssearch_movie, (rssid,))
                 else:
                     _thread.start_new_thread(Rss().rsssearch_tv, (rssid,))
-                return {"code": 0}
+                return {"code": 0, "page": page}
 
             # 刷新首页消息中心
             if cmd == "refresh_message":

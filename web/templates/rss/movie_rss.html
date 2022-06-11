@@ -26,7 +26,7 @@
     <div class="row row-cards">
       {% for Item in Items %}
       <div class="col-sm-6 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop rounded-3" href="javascript:show_media_info('{{ Item[0] }}', '{{ Item[1] }}', '{{ Item[2] }}', '{{ Item[6] }}')" title="{{ Item[4] }}">
+        <a class="card card-link card-link-pop rounded-3" href="javascript:show_mediainfo_modal('MOV', '{{ Item[0] }}', '{{ Item[1] }}', '{{ Item[2] }}', 'movie_rss', '{{ Item[6] }}')" title="{{ Item[4] }}">
           <div class="text-center" style="height:160px; overflow:hidden;">
             <img class="rounded-top" src="{{ Item[3] }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover;">
           </div>
@@ -117,80 +117,6 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="rss-modal-failed" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      <div class="modal-status bg-warning"></div>
-      <div class="modal-body text-center py-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-warning icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
-        <h3>失败</h3>
-        <div class="text-muted" id="rss_failed_str">添加RSS订阅失败！</div>
-      </div>
-      <div class="modal-footer">
-        <div class="w-100">
-          <div class="row">
-            <div class="col"><a href="#" class="btn btn-warning w-100" data-bs-dismiss="modal">
-                确定
-              </a></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal modal-blur fade" id="modal-media-modal" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="card">
-        <div class="ribbon" id="media_vote"></div>
-        <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col-3">
-              <img src="" class="rounded" id="media_poster">
-            </div>
-            <div class="col vtop">
-              <h4 class="card-title mb-3">
-                <a href="#" target="_blank" id="media_link"><strong id="media_name"></strong></a><br/>
-                <span class="text-muted" id="release_date"></span>
-              </h4>
-              <div class="text-muted" id="media_overview">
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="d-flex">
-          <a href="javascript:remove_rss_media()" class="card-btn">
-          取消订阅
-          </a>
-          <a href="javascript:research_rss()" class="card-btn">
-          立即搜索
-          </a>
-          <a href="#" class="card-btn" data-bs-dismiss="modal">
-          关闭
-          </a>
-          <input type="hidden" id="media_title">
-          <input type="hidden" id="media_year">
-          <input type="hidden" id="media_id">
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal modal-blur fade" id="rss-remove-modal" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-        <div class="modal-title">确认提示</div>
-        <div id="rss_remove_message">是否确认取消订阅?</div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-danger" id="rss_remove_btn">确定</button>
-      </div>
-    </div>
-  </div>
-</div>
 <script type="text/javascript">
   //新增订阅
   function add_rss_movie(){
@@ -212,90 +138,14 @@
     var cmd = "add_rss_media";
     var data = { "name": name, "type": "MOV", "year": year, "match": match};
     $("#modal-movie-rss").modal("hide");
-    $("#modal-wait").modal("show");
+    show_wait_process();
     ajax_post(cmd, data, function(ret){
-      $("#modal-wait").modal("hide");
+      hide_wait_process();
       if(ret.code==0){
         navmenu("movie_rss");
       }else{
-        $("#rss_failed_str").text(name + " 添加RSS订阅失败："+ ret.msg +"！");
-        $("#rss-modal-failed").modal('show');
+        show_fail_modal(ret.name + " 添加RSS订阅失败："+ ret.msg +"！");
       }
-    });
-  }
-
-  //显示媒体详情
-  function show_media_info(name, year, tmdbid, rssid){
-    $("#media_title").val(name);
-    $("#media_year").val(year);
-    $("#media_id").val(rssid);
-    if(tmdbid){
-      $("#modal-wait").modal("show");
-      if(tmdbid.startsWith("DB:")){
-        var doubanid = tmdbid.replace("DB:", "");
-        tmdbid = "";
-      }else{
-        var doubanid = "";
-      }
-      ajax_post("media_info", {"id": tmdbid, "doubanid": doubanid, "type": "MOV"}, function(ret){
-        $("#modal-wait").modal("hide");
-        if(ret.code == 0){
-          $("#media_vote").text(ret.vote_average);
-          if(parseFloat(ret.vote_average) > 8){
-            $("#media_vote").removeClass().addClass("ribbon bg-green");
-          }else if(parseFloat(ret.vote_average) > 6){
-            $("#media_vote").removeClass().addClass("ribbon bg-blue");
-          }else{
-            $("#media_vote").removeClass().addClass("ribbon bg-orange");
-          }
-          if(!ret.vote_average || ret.vote_average == "0"){
-            $("#media_vote").hide();
-          }else{
-            $("#media_vote").show();
-          }
-          $("#media_poster").attr("src", ret.poster_path);
-          $("#media_name").text(ret.title);
-          $("#media_link").attr("href", ret.link_url);
-          $("#media_overview").text(ret.overview);
-          $("#release_date").text(ret.release_date)
-          $("#modal-media-modal").modal("show");
-        }
-      });
-    }else{
-      $("#rss_remove_message").text("是否确认取消订阅 " + name);
-      $("#rss_remove_btn").click(function(){
-        $("#rss-remove-modal").modal('hide');
-        remove_rss_media();
-      });
-      $("#rss-remove-modal").modal('show');
-    }
-  }
-
-  //重新搜索
-  function research_rss(){
-    $("#modal-media-modal").modal("hide");
-    var rssid = $("#media_id").val();
-    ajax_post("refresh_rss", {"type": "MOV", "rssid": rssid}, function(ret){
-      navmenu("movie_rss");
-    });
-  }
-
-  // 取消订阅
-  function remove_rss_media(name, year, rssid){
-    $("#modal-media-modal").modal("hide");
-    if(!name){
-      name = $("#media_title").val();
-    }
-    if(!year){
-      year = $("#media_year").val();
-    }
-    if(!rssid){
-      rssid = $("#media_id").val();
-    }
-    var cmd = "remove_rss_media";
-    var data = { "name": name, "type": "MOV", "year": year, "rssid": rssid};
-    ajax_post(cmd, data, function(ret){
-      navmenu("movie_rss");
     });
   }
 </script>

@@ -114,7 +114,6 @@ class IIndexer(metaclass=ABCMeta):
         if filter_args is None:
             filter_args = {}
         ret_array = []
-        indexer_id = indexer[0]
         indexer_name = indexer[1]
         indexer_url = indexer[2]
 
@@ -211,7 +210,7 @@ class IIndexer(metaclass=ABCMeta):
                             break
                     if not match_flag:
                         log.info(f"【{self.index_type}】%s：%s 不匹配名称：%s" % (
-                        media_info.type.value, media_info.title, match_words))
+                            media_info.type.value, media_info.title, match_words))
                         continue
                 else:
                     # 非全匹配模式，种子中或者名字中有关键字就行
@@ -261,15 +260,16 @@ class IIndexer(metaclass=ABCMeta):
         log.info(f"【{self.index_type}】%s 共检索到 %s 条有效资源" % (indexer_name, index_sucess))
         return ret_array
 
-    def __parse_torznabxml(self, url):
+    @staticmethod
+    def __parse_torznabxml(url):
         """
         从torznab xml中解析种子信息
         :param url: URL地址
         :return: 解析出来的种子信息列表
         """
 
-        def tag_value(item, tag_name, attname="", default=None):
-            tagNames = item.getElementsByTagName(tag_name)
+        def tag_value(tag_item, tag_name, attname="", default=None):
+            tagNames = tag_item.getElementsByTagName(tag_name)
             if tagNames:
                 if attname:
                     attvalue = tagNames[0].getAttribute("url")
@@ -280,6 +280,7 @@ class IIndexer(metaclass=ABCMeta):
                     if firstChild:
                         return firstChild.data
             return default
+
         if not url:
             return []
         try:

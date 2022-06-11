@@ -14,8 +14,11 @@
         <div class="d-flex btn-list">
           <div class="input-group">
             <input id="search_word" class="form-control" type="text" value="" placeholder="电影/电视剧名称">
-            <button id="search_btn" class="btn btn-primary d-none d-sm-inline-block" onclick="javascript:search_media()">搜索</button>
-            <button id="quick_search_btn" data-bs-toggle="dropdown" type="button" class="btn btn-primary d-none d-sm-inline-block dropdown-toggle dropdown-toggle-split" style="border-top-right-radius:4px;border-bottom-right-radius:4px;"></button>
+            <button id="search_btn" class="btn btn-primary d-none d-sm-inline-block"
+              onclick="javascript:search_media()">搜索</button>
+            <button id="quick_search_btn" data-bs-toggle="dropdown" type="button"
+              class="btn btn-primary d-none d-sm-inline-block dropdown-toggle dropdown-toggle-split"
+              style="border-top-right-radius:4px;border-bottom-right-radius:4px;"></button>
             <div class="dropdown-menu dropdown-menu-end">
               <a class="dropdown-item" href="javascript:search_media(true)">
                 快速搜索
@@ -25,10 +28,12 @@
               </a>
             </div>
             <button id="search_icon" onclick="javascript:search_media()" class="btn btn-primary d-sm-none btn-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                 <circle cx="10" cy="10" r="7"></circle>
-                 <line x1="21" y1="21" x2="15" y2="15"></line>
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <circle cx="10" cy="10" r="7"></circle>
+                <line x1="21" y1="21" x2="15" y2="15"></line>
               </svg>
             </button>
           </div>
@@ -44,10 +49,12 @@
     <div class="row">
       {% if Count > 8 %}
       <div class="col-md-3 col-lg-2 d-none d-md-block">
-        <div class="accordion" id="filter_form_accordion" style="position:-webkit-sticky;position:sticky;top:4rem;z-index:1;">
+        <div class="accordion" id="filter_form_accordion"
+          style="position:-webkit-sticky;position:sticky;top:4rem;z-index:1;">
           <div class="accordion-item">
             <h2 class="accordion-header" id="heading-filter_type">
-              <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#filter_type" aria-expanded="true">
+              <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#filter_type"
+                aria-expanded="true">
                 类型
               </button>
             </h2>
@@ -55,7 +62,8 @@
               <div class="accordion-body pt-0">
                 <div class="list-group list-group-transparent">
                   {% for mtype in MediaMTypes %}
-                  <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:void(0)" onclick="filter_medias('filter_type', this)">
+                  <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:void(0)"
+                    onclick="filter_medias('filter_type', this)">
                     <span>{{ mtype.name }}</span>
                     <small class="text-muted ms-auto">{{ mtype.num }}</small>
                   </a>
@@ -66,7 +74,8 @@
           </div>
           <div class="accordion-item">
             <h2 class="accordion-header" id="heading-filter_site">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filter_site" aria-expanded="true">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#filter_site" aria-expanded="true">
                 站点
               </button>
             </h2>
@@ -74,7 +83,8 @@
               <div class="accordion-body pt-0">
                 <div class="list-group list-group-transparent">
                   {% for site in MediaSites %}
-                  <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:void(0)" onclick="filter_medias('filter_site', this)">
+                  <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:void(0)"
+                    onclick="filter_medias('filter_site', this)">
                     <span>{{ site.name }}</span>
                     <small class="text-muted ms-auto">{{ site.num }}</small>
                   </a>
@@ -85,7 +95,8 @@
           </div>
           <div class="accordion-item">
             <h2 class="accordion-header" id="heading-filter_res">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filter_res" aria-expanded="true">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#filter_res" aria-expanded="true">
                 质量
               </button>
             </h2>
@@ -93,7 +104,8 @@
               <div class="accordion-body pt-0">
                 <div class="list-group list-group-transparent">
                   {% for restype in MediaRestypes %}
-                  <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:void(0)" onclick="filter_medias('filter_res', this)">
+                  <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:void(0)"
+                    onclick="filter_medias('filter_res', this)">
                     <span>{{ restype.name }}</span>
                     <small class="text-muted ms-auto">{{ restype.num }}</small>
                   </a>
@@ -104,7 +116,8 @@
           </div>
           <div class="accordion-item">
             <h2 class="accordion-header" id="heading-filter_pix">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filter_pix" aria-expanded="true">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#filter_pix" aria-expanded="true">
                 分辨率
               </button>
             </h2>
@@ -112,7 +125,8 @@
               <div class="accordion-body pt-0">
                 <div class="list-group list-group-transparent">
                   {% for pix in MediaPixs %}
-                  <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:void(0)" onclick="filter_medias('filter_pix', this)">
+                  <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:void(0)"
+                    onclick="filter_medias('filter_pix', this)">
                     <span>{{ pix.name }}</span>
                     <small class="text-muted ms-auto">{{ pix.num }}</small>
                   </a>
@@ -124,14 +138,16 @@
           {% if FreeCount > 0 %}
           <div class="accordion-item">
             <h2 class="accordion-header" id="heading-filter_free">
-              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filter_free" aria-expanded="true">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                data-bs-target="#filter_free" aria-expanded="true">
                 FREE
               </button>
             </h2>
             <div id="filter_free" class="accordion-collapse collapse" data-bs-parent="#filter_form_accordion">
               <div class="accordion-body pt-0">
                 <div class="list-group list-group-transparent">
-                  <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:void(0)" onclick="filter_medias('filter_free', this)">
+                  <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:void(0)"
+                    onclick="filter_medias('filter_free', this)">
                     <span>下载免费</span>
                     <small class="text-muted ms-auto">{{ FreeCount }}</small>
                   </a>
@@ -145,15 +161,19 @@
       {% endif %}
       <div class="{% if Count > 8 %}col-sm-12 col-md-9 col-lg-10{% else %}col-12{% endif %}">
         <div class="row row-cards" id="media_cards">
-          {% for Item in Items  %}
-          <div class="col-sm-6 {% if Count > 8 %}col-xl-4{% else %}col-md-4 col-xl-3{% endif %} media_card" id="media_card_{{ Item[0] }}">
+          {% for Item in Items %}
+          <div class="col-sm-6 {% if Count > 8 %}col-xl-4{% else %}col-md-4 col-xl-3{% endif %} media_card"
+            id="media_card_{{ Item[0] }}">
             <div class="card card-sm card-link-pop rounded-3">
               {% if Item[11] > 0 %}
-              <div class="ribbon {% if Item[11] > 8 %} bg-green {% elif Item[11] <= 8 and Item[11] >= 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ Item[11] }}</div>
+              <div
+                class="ribbon {% if Item[11] > 8 %} bg-green {% elif Item[11] <= 8 and Item[11] >= 6 %} bg-blue {% else %} bg-orange {% endif %}">
+                {{ Item[11] }}</div>
               {% endif %}
               {% if Item[9] %}
-              <a href="javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}')" class="d-block" >
-                <img src="{{ Item[9] }}" class="card-img-top" title="点击添加下载" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">
+              <a href="javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}')" class="d-block">
+                <img src="{{ Item[9] }}" class="card-img-top" title="点击添加下载"
+                  style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">
               </a>
               {% endif %}
               <div class="card-body">
@@ -161,29 +181,40 @@
                   <input type="hidden" name="media_card_type" value="{{ Item[10] }}">
                   <input type="hidden" name="media_card_free" value="{{ Item[17] }}">
                   <div>
-                    <div><a href="{% if not Item[9] %}javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}'){% else %}{{ Item[18] }}{% endif %}" target="{% if Item[9] %}_blank{% endif %}" title="{% if not Item[9] %}点击添加下载{% else %}点击打开种子详情页面{% endif %}"><strong>{{ Item[1]|replace("()", "") }}</strong></a><span class="badge ms-2">{{ Item[4] }}</span>{% if Item[17] == "1" %}<span class="badge badge-sm bg-green text-case ms-2">FREE</span>{% endif %}</div>
-                    <div class="text-muted"><strong class="media_card_info">{{ Item[6]}} {{ Item[2]}} {{ Item[3]}}</strong></div>
+                    <div><a
+                        href="{% if not Item[9] %}javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}'){% else %}{{ Item[18] }}{% endif %}"
+                        target="{% if Item[9] %}_blank{% endif %}"
+                        title="{% if not Item[9] %}点击添加下载{% else %}点击打开种子详情页面{% endif %}"><strong>{{
+                          Item[1]|replace("()", "") }}</strong></a><span class="badge ms-2">{{ Item[4] }}</span>{% if
+                      Item[17] == "1" %}<span class="badge badge-sm bg-green text-case ms-2">FREE</span>{% endif %}
+                    </div>
+                    <div class="text-muted"><strong class="media_card_info">{{ Item[6]}} {{ Item[2]}} {{
+                        Item[3]}}</strong></div>
                   </div>
                 </div>
                 {% if Item[12] %}
                 <div class="text-muted border-top pt-2">
                   {% if Item[10] == "MOV" %}
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                     <rect x="4" y="4" width="16" height="16" rx="2"></rect>
-                     <line x1="8" y1="4" x2="8" y2="20"></line>
-                     <line x1="16" y1="4" x2="16" y2="20"></line>
-                     <line x1="4" y1="8" x2="8" y2="8"></line>
-                     <line x1="4" y1="16" x2="8" y2="16"></line>
-                     <line x1="4" y1="12" x2="20" y2="12"></line>
-                     <line x1="16" y1="8" x2="20" y2="8"></line>
-                     <line x1="16" y1="16" x2="20" y2="16"></line>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie" width="24"
+                    height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                    <line x1="8" y1="4" x2="8" y2="20"></line>
+                    <line x1="16" y1="4" x2="16" y2="20"></line>
+                    <line x1="4" y1="8" x2="8" y2="8"></line>
+                    <line x1="4" y1="16" x2="8" y2="16"></line>
+                    <line x1="4" y1="12" x2="20" y2="12"></line>
+                    <line x1="16" y1="8" x2="20" y2="8"></line>
+                    <line x1="16" y1="16" x2="20" y2="16"></line>
                   </svg>
                   {% else %}
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-tv" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                     <rect x="3" y="7" width="18" height="13" rx="2"></rect>
-                     <polyline points="16 3 12 7 8 3"></polyline>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-tv" width="24"
+                    height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <rect x="3" y="7" width="18" height="13" rx="2"></rect>
+                    <polyline points="16 3 12 7 8 3"></polyline>
                   </svg>
                   {% endif %}
                   <small>{{ Item[12] }}</small>
@@ -197,7 +228,7 @@
               </div>
             </div>
           </div>
-         {% endfor %}
+          {% endfor %}
         </div>
       </div>
     </div>
@@ -207,7 +238,7 @@
 <div class="page-body">
   <div class="container-xl d-flex flex-column justify-content-center">
     <div class="empty">
-      <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128"  alt="">
+      <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128" alt="">
       </div>
       <p class="empty-title" id="search_tip_title">没有记录</p>
       <p class="empty-subtitle text-muted" id="search_tip_text">
@@ -217,46 +248,6 @@
   </div>
 </div>
 {% endif %}
-<div class="modal modal-blur fade" id="download-modal" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-        <div class="modal-title">确认提示</div>
-        <div id="download_start_message">是否立即下载该资源？</div>
-      </div>
-      <div class="modal-footer">
-        <input type="hidden" id="download_start_id" />
-        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
-        <button type="button" class="btn btn-danger" id="download_start_btn">确定</button>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal modal-blur fade" id="download-modal-success" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      <div class="modal-status bg-success"></div>
-      <div class="modal-body text-center py-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M9 12l2 2l4 -4" /></svg>
-        <h3>成功</h3>
-        <input type="hidden" id="download_start_name" />
-        <div class="text-muted" id="download_finished_str">添加下载成功！</div>
-      </div>
-      <div class="modal-footer">
-        <div class="w-100">
-          <div class="row">
-            <div class="col">
-              <a href="#" class="btn btn-success w-100" data-bs-dismiss="modal">
-                确定
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 <div class="modal modal-blur fade" id="modal-search-advanced" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
@@ -359,116 +350,108 @@
   var search_word = "{{ SearchWord }}";
   var need_search = "{{ NeedSearch }}";
   var result_count = {{ Count }}
-  if(search_word != ""){
-      $("#search_word").val(decodeURI(search_word));
-      if(need_search){
-        search_media();
-      }else if(!result_count){
-        $("#search_tip_title").text(search_word + " 未找到任何资源")
-        $("#search_tip_text").text("")
-      }
+  if (search_word != "") {
+    $("#search_word").val(decodeURI(search_word));
+    if (need_search) {
+      search_media();
+    } else if (!result_count) {
+      $("#search_tip_title").text(search_word + " 未找到任何资源")
+      $("#search_tip_text").text("")
+    }
   }
   // 显示下载提示框
-  function show_download_modal(id, name){
-      $("#download_start_id").val(id);
-      $("#download_start_name").val(name.replace("()", ""));
-      $("#download_start_message").text("是否立即下载 " + $("#download_start_name").val() + "？");
-      $('#download-modal').modal('show');
+  function show_download_modal(id, name) {
+    show_ask_modal("是否立即下载 " + name + "？", function () {
+      hide_ask_modal();
+      download_link(id, name);
+    });
   }
+
   // 搜索按钮
-  function search_media(unident){
-      if(!unident){
-        unident = "";
-      }else{
-        unident = "1";
-      }
-      var keyword = $("#search_word").val();
-      if(keyword == ""){
-          return;
-      }
-      $("#search_btn").text("搜索中...");
-      $("#search_btn").attr("disabled", "true");
-      $("#quick_search_btn").attr("disabled", "true");
-      $("#search_icon").attr("disabled", "true");
-      $("#search_tip_title").text("正在搜索 " + keyword + "，请稍后...");
-      $("#search_tip_text").text("");
-      var param = {"search_word": keyword, "unident": unident};
-      $("#modal-wait").modal("show");
-      ajax_post("search", param, function(ret){
-        $("#modal-wait").modal("hide");
-          //刷新页面
-          navmenu('search?s='+keyword)
-      });
+  function search_media(unident) {
+    if (!unident) {
+      unident = "";
+    } else {
+      unident = "1";
+    }
+    var keyword = $("#search_word").val();
+    if (keyword == "") {
+      return;
+    }
+    $("#search_btn").text("搜索中...");
+    $("#search_btn").attr("disabled", "true");
+    $("#quick_search_btn").attr("disabled", "true");
+    $("#search_icon").attr("disabled", "true");
+    $("#search_tip_title").text("正在搜索 " + keyword + "，请稍后...");
+    $("#search_tip_text").text("");
+    var param = { "search_word": keyword, "unident": unident };
+    show_wait_process();
+    ajax_post("search", param, function (ret) {
+      hide_wait_process();
+      //刷新页面
+      navmenu('search?s=' + keyword)
+    });
   }
   //点击链接下载
-  function download_link(id){
-      var cmd = "download";
-      var data = {"id": id};
-      ajax_post(cmd, data, function(ret){
-         item = $("#download_start_name").val();
-          $("#download_finished_str").text(item + " 添加下载成功！");
-          $("#download-modal-success").modal('show');
-      });
+  function download_link(id, name) {
+    var cmd = "download";
+    var data = { "id": id };
+    ajax_post(cmd, data, function (ret) {
+      show_success_modal(name + " 添加下载成功！");
+    });
   }
 
-  // 下载模态框事件
-  $("#download_start_btn").click(function(){
-      $('#download-modal').modal('hide');
-      download_link($("#download_start_id").val());
-  });
-
   // 搜索输入框
-  $('#search_word').bind('keypress',function(event){
-     if(event.keyCode == "13")
-     {
-       search_media();
-     }
+  $('#search_word').bind('keypress', function (event) {
+    if (event.keyCode == "13") {
+      search_media();
+    }
   });
 
   // 执行过滤
-  function filter_do(){
+  function filter_do() {
     var strings = [];
     var i = 0;
-    $("#filter_form_accordion").find("a").each(function(){
-      if($(this).hasClass("active")){
+    $("#filter_form_accordion").find("a").each(function () {
+      if ($(this).hasClass("active")) {
         strings[i] = $(this).find("span").text().trim();
         i++;
       }
     });
 
-    if(strings.length == 0){
+    if (strings.length == 0) {
       $("#media_cards").find("div[class*='media_card']").show();
-    }else{
-      $("#media_cards").find("div[class*='media_card']").each(function(){
+    } else {
+      $("#media_cards").find("div[class*='media_card']").each(function () {
         media_string = $(this).find("strong[class='media_card_info']").text();
         type_string = $(this).find("input[name='media_card_type']").val();
         free_flag = $(this).find("input[name='media_card_free']").val();
         show_flag = true;
-        for(var i=0; i<strings.length; i++){
-          if(strings[i] == "电影" && type_string != "MOV"){
+        for (var i = 0; i < strings.length; i++) {
+          if (strings[i] == "电影" && type_string != "MOV") {
             show_flag = false;
             break;
           }
-          if(strings[i] == "电视剧" && type_string != "TV"){
+          if (strings[i] == "电视剧" && type_string != "TV") {
             show_flag = false;
             break;
           }
-          if(strings[i] == "动漫" && type_string != "ANI"){
+          if (strings[i] == "动漫" && type_string != "ANI") {
             show_flag = false;
             break;
           }
-          if(strings[i] == "下载免费" && free_flag != "1"){
+          if (strings[i] == "下载免费" && free_flag != "1") {
             show_flag = false;
             break;
           }
-          if(strings[i] != "电影" && strings[i] != "电视剧" && strings[i] != "动漫" && strings[i] != "下载免费" && media_string.search(strings[i]) == -1){
+          if (strings[i] != "电影" && strings[i] != "电视剧" && strings[i] != "动漫" && strings[i] != "下载免费" && media_string.search(strings[i]) == -1) {
             show_flag = false;
             break;
           }
         }
-        if(show_flag){
+        if (show_flag) {
           $(this).show();
-        }else{
+        } else {
           $(this).hide();
         }
       });
@@ -477,15 +460,15 @@
   }
 
   // 过滤媒体展示
-  function filter_medias(typeid, obj){
+  function filter_medias(typeid, obj) {
     // 处理响应
-    if(obj){
-      if($(obj).hasClass("active")){
+    if (obj) {
+      if ($(obj).hasClass("active")) {
         $(obj).removeClass("active");
-      }else{
+      } else {
         $(obj).addClass("active");
-        if(typeid){
-          $("#"+typeid).find("a").not(obj).removeClass("active");
+        if (typeid) {
+          $("#" + typeid).find("a").not(obj).removeClass("active");
         }
       }
     }
@@ -494,7 +477,7 @@
   }
 
   // 重置过滤器
-  function reset_filter(){
+  function reset_filter() {
     $("#filter_form").find("a").removeClass("active");
     $("#filter_size_begin").val("");
     $("#filter_size_end").val("");
@@ -502,19 +485,19 @@
   }
 
   // 显示高级搜索框
-  function show_search_advanced_modal(){
+  function show_search_advanced_modal() {
     $("#modal-search-advanced").modal("show");
   }
 
   // 开始高级搜索
-  function search_media_advanced(){
+  function search_media_advanced() {
     $("#search_icon").attr("disabled", "true");
     // 读取数据
     var search_name = $("#search_name").val();
-    if(!search_name){
+    if (!search_name) {
       $("#search_name").addClass("is-invalid");
       return;
-    }else{
+    } else {
       $("#search_name").removeClass("is-invalid");
     }
     var search_type = $("#search_type").val();
@@ -526,32 +509,32 @@
     var search_free = $("#search_free").val();
     var search_key = $("#search_key").val();
     // 拼装请求
-    if(search_type){
+    if (search_type) {
       var keyword = search_type + " " + search_name;
-    }else{
+    } else {
       var keyword = search_name;
     }
-    if(search_year){
+    if (search_year) {
       keyword = keyword + " " + search_year;
     }
-    if(search_season){
+    if (search_season) {
       keyword = keyword + " " + search_season;
     }
-    var filters = {"site": search_site, "restype": search_restype, "pix": search_pix, "free": search_free, "key": search_key};
-    var param = {"search_word": keyword, "filters": filters};
+    var filters = { "site": search_site, "restype": search_restype, "pix": search_pix, "free": search_free, "key": search_key };
+    var param = { "search_word": keyword, "filters": filters };
     $("#search_advanced_btn").text("搜索中...");
     $("#search_advanced_btn").attr("disabled", "true");
-    ajax_post("search", param, function(ret){
+    ajax_post("search", param, function (ret) {
       $("#modal-search-advanced").modal("hide");
-      navmenu('search?s='+keyword)
+      navmenu('search?s=' + keyword)
     });
   }
 
   //初始化下拉框
   $("#search_season").empty();
   $("#search_season").append('<option value="">请选择</option>');
-  for(var i=1; i<=50; i++){
-    $("#search_season").append('<option value="第' + i + '季">第' + i +'季</option>');
+  for (var i = 1; i <= 50; i++) {
+    $("#search_season").append('<option value="第' + i + '季">第' + i + '季</option>');
   }
 
 </script>

@@ -14,7 +14,7 @@
       {% for item in Items %}
       <div class="col-sm-6 col-md-3 col-xl-2">
         <div class="card card-sm card-link-pop rounded-3">
-          <a href='javascript:show_media_info("{{ item[1] }}", "{{ item[2] }}", "{{ item[5] }}", "{{ item[6] }}", "{{ item[7] }}", "{{ item[8] }}", "{{ item[11] }}", "{{ item[12] }}", "{{ item[4] }}", "{{ item[3] }}")' title="{{ item[1] }} ({{ item[2] }})" class="d-block">
+          <a href='javascript:show_mediainfo_modal("{% if item[3] == "电影" %}MOV{% else %}TV{% endif %}", "{{ item[1] }}", "{{ item[2] }}", "{{ item[4] }}")' title="{{ item[1] }} ({{ item[2] }})" class="d-block">
             <img src="{{ item[6] }}" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important">
           </a>
           <div class="card-body">
@@ -44,66 +44,3 @@
   </div>
 </div>
 {% endif %}
-<div class="modal modal-blur fade" id="modal-media-modal" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="card">
-        <div class="ribbon" id="media_vote"></div>
-        <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col-3">
-              <img src="" class="rounded" id="media_poster">
-            </div>
-            <div class="col vtop">
-              <h4 class="card-title mb-3">
-                <a href="#" ><strong id="media_name"></strong></a><br/>
-                <span class="text-muted" id="release_date"></span>
-              </h4>
-              <div class="text-muted" id="media_overview">
-              </div>
-              <div class="text-muted mt-3" id="torrent_info">
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="d-flex">
-          <a href="#" target="_blank" class="card-btn" id="media_url_btn">
-          查看详情
-          </a>
-          <a href="#" class="card-btn" data-bs-dismiss="modal">
-          关闭
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-<script type="text/javascript">
-  //显示媒体详情
-  function show_media_info(title, year, vote, poster, overview, torrent, date, site, tmdbid, type){
-    $("#media_name").text(title);
-    $("#release_date").text(year)
-    $("#media_poster").attr("src", poster);
-    $("#media_overview").html(overview);
-    $("#torrent_info").html("站点：" + site + "<br/>种子：" + torrent + "<br/>时间：" + date);
-    $("#media_vote").text(vote);
-    if(parseFloat(vote) > 8){
-      $("#media_vote").removeClass().addClass("ribbon bg-green");
-    }else if(parseFloat(vote) > 6){
-      $("#media_vote").removeClass().addClass("ribbon bg-blue");
-    }else{
-      $("#media_vote").removeClass().addClass("ribbon bg-orange");
-    }
-    if(!vote || vote == "0"){
-      $("#media_vote").hide();
-    }else{
-      $("#media_vote").show();
-    }
-    if(type == "电影"){
-      $("#media_url_btn").attr("href", "https://www.themoviedb.org/movie/" + tmdbid);
-    }else{
-      $("#media_url_btn").attr("href", "https://www.themoviedb.org/tv/" + tmdbid);
-    }
-    $("#modal-media-modal").modal("show");
-  }
-</script>

@@ -404,6 +404,17 @@ def get_rss_movies(state=None, rssid=None):
             return select_by_sql(sql, (state,))
 
 
+# 获取订阅电影ID
+def get_rss_movie_id(title, year):
+    if not title:
+        return ""
+    sql = "SELECT ID FROM RSS_MOVIES WHERE NAME=? AND YEAR = ?"
+    ret = select_by_sql(sql, (str_sql(title), str_sql(year)))
+    if ret:
+        return ret[0][0]
+    return ""
+
+
 # 查询订阅电视剧信息
 def get_rss_tvs(state=None, rssid=None):
     if rssid:
@@ -423,6 +434,21 @@ def get_rss_tvs(state=None, rssid=None):
                   ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID" \
                   " FROM RSS_TVS WHERE STATE = ?"
             return select_by_sql(sql, (state,))
+
+
+# 获取订阅电影ID
+def get_rss_tv_id(title, year, season=None):
+    if not title:
+        return ""
+    if season:
+        sql = "SELECT ID FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
+        ret = select_by_sql(sql, (str_sql(title), year, season))
+    else:
+        sql = "SELECT ID FROM RSS_TVS WHERE NAME = ? AND YEAR = ?"
+        ret = select_by_sql(sql, (str_sql(title), year))
+    if ret:
+        return ret[0][0]
+    return ""
 
 
 # 判断RSS电影是否存在
@@ -467,11 +493,15 @@ def delete_rss_movie(title, year, rssid=None):
 
 
 # 判断RSS电视剧是否存在
-def is_exists_rss_tv(title, year, season):
+def is_exists_rss_tv(title, year, season=None):
     if not title:
         return False
-    sql = "SELECT COUNT(1) FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-    ret = select_by_sql(sql, (str_sql(title), year, season))
+    if season:
+        sql = "SELECT COUNT(1) FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
+        ret = select_by_sql(sql, (str_sql(title), year, season))
+    else:
+        sql = "SELECT COUNT(1) FROM RSS_TVS WHERE NAME = ? AND YEAR = ?"
+        ret = select_by_sql(sql, (str_sql(title), year))
     if ret and ret[0][0] > 0:
         return True
     else:
