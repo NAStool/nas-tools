@@ -483,9 +483,9 @@ class Media:
                         meta_info.begin_season = int(season)
                     if episode_format:
                         begin_ep, end_ep = episode_format.split_episode(file_name)
-                        if begin_ep:
+                        if begin_ep is not None:
                             meta_info.begin_episode = begin_ep
-                        if end_ep:
+                        if end_ep is not None:
                             meta_info.end_episode = end_ep
                 return_media_infos[file_path] = meta_info
             except Exception as err:
