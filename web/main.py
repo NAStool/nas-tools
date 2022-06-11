@@ -428,8 +428,8 @@ def create_flask_app(config):
         MediaRestypeDict = {}
         # 分辨率字典
         MediaPixDict = {}
-        # 免费数量
-        FreeCount = 0
+        # 促销信息
+        MediaSPStateDict = {}
         # 查询统计值
         for item in res:
             # 资源类型
@@ -459,9 +459,13 @@ def create_flask_app(config):
                     MediaSiteDict[item[6]] = 1
                 else:
                     MediaSiteDict[item[6]] += 1
-            # 免费
-            if item[17] == "1":
-                FreeCount += 1
+            # 促销信息
+            sp_key = f"{item[19]} {item[20]}"
+            if sp_key not in MediaSPStateDict:
+                MediaSPStateDict[sp_key] = 1
+            else:
+                MediaSPStateDict[sp_key] += 1
+
         # 展示类型
         MediaMTypes = []
         for k, v in MeidaTypeDict.items():
@@ -482,6 +486,10 @@ def create_flask_app(config):
         for k, v in MediaRestypeDict.items():
             MediaRestypes.append({"name": k, "num": v})
         MediaRestypes = sorted(MediaRestypes, key=lambda x: int(x.get("num")), reverse=True)
+        # 展示促销
+        MediaSPStates = [{"name": k, "num": v} for k, v in MediaSPStateDict.items()]
+        MediaSPStates = sorted(MediaSPStates, key=lambda x: int(x.get("num")), reverse=True)
+
         # 站点列表
         SiteDict = []
         Indexers = Searcher().indexer.get_indexers()
@@ -496,8 +504,8 @@ def create_flask_app(config):
                                MediaMTypes=MediaMTypes,
                                MediaSites=MediaSites,
                                MediaPixs=MediaPixs,
+                               MediaSPStates=MediaSPStates,
                                MediaRestypes=MediaRestypes,
-                               FreeCount=FreeCount,
                                RestypeDict=TORRENT_SEARCH_PARAMS.get("restype").keys(),
                                PixDict=TORRENT_SEARCH_PARAMS.get("pix").keys(),
                                SiteDict=SiteDict)

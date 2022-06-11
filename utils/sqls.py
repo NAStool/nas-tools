@@ -35,9 +35,10 @@ def insert_search_results(media_items: list):
           "PEERS," \
           "SITE," \
           "SITE_ORDER," \
-          "FREELEECH," \
-          "PAGEURL) VALUES (" \
-          " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+          "PAGEURL," \
+          "UPLOAD_VOLUME_FACTOR," \
+          "DOWNLOAD_VOLUME_FACTOR) VALUES (" \
+          " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     data_list = []
     for media_item in media_items:
         if media_item.type == MediaType.TV:
@@ -69,8 +70,9 @@ def insert_search_results(media_items: list):
                 media_item.peers,
                 media_item.site,
                 media_item.site_order,
-                "1" if media_item.freeleech else "0",
-                str_sql(media_item.page_url)
+                str_sql(media_item.page_url),
+                media_item.upload_volume_factor,
+                media_item.download_volume_factor
             )
         )
     return update_by_sql_batch(sql, data_list)
@@ -87,7 +89,7 @@ def get_search_result_by_id(dl_id):
 # 查询检索结果的所有记录
 def get_search_results():
     sql = "SELECT ID,TITLE||' ('||YEAR||') '||ES_STRING,RES_TYPE,SIZE,SEEDERS," \
-          "ENCLOSURE,SITE,YEAR,ES_STRING,IMAGE,TYPE,VOTE*1,TORRENT_NAME,DESCRIPTION,TMDBID,POSTER,OVERVIEW,FREELEECH,PAGEURL,OTHERINFO" \
+          "ENCLOSURE,SITE,YEAR,ES_STRING,IMAGE,TYPE,VOTE*1,TORRENT_NAME,DESCRIPTION,TMDBID,POSTER,OVERVIEW,PAGEURL,OTHERINFO,UPLOAD_VOLUME_FACTOR,DOWNLOAD_VOLUME_FACTOR" \
           " FROM SEARCH_TORRENTS_RESULT"
     return select_by_sql(sql)
 
