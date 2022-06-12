@@ -92,12 +92,17 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         search_result, no_exists, search_count, download_count = Searcher().search_one_media(media_info=media_info,
                                                                                              in_from=in_from,
                                                                                              no_exists=no_exists)
-        # 没有下载到数据
+        # 没有搜索到数据
         if not search_count:
             Message().send_channel_msg(channel=in_from,
                                        title="%s 未搜索到任何资源" % media_info.title,
                                        user_id=user_id)
-        elif not download_count:
+        # 搜索到了但是没开自动下载
+        elif download_count is None:
+            Message().send_channel_msg(channel=in_from,
+                                       title="%s 共搜索到%s个资源，点击选择下载" % (media_info.title, search_count),
+                                       user_id=user_id)
+        elif download_count == 0:
             Message().send_channel_msg(channel=in_from,
                                        title="%s 未下载到任何资源" % media_info.title,
                                        user_id=user_id)
