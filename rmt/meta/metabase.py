@@ -72,8 +72,9 @@ class MetaBase(object):
     seeders = 0
     peers = 0
     description = None
-    freeleech = False
     page_url = None
+    upload_volume_factor = 1.0
+    download_volume_factor = 1.0
 
     def __init__(self, title, subtitle=None):
         if not title:
@@ -308,8 +309,9 @@ class MetaBase(object):
                          seeders=0,
                          peers=0,
                          description=None,
-                         freeleech=False,
-                         page_url=None):
+                         page_url=None,
+                         upload_volume_factor=1.0,
+                         download_volume_factor=1.0):
         self.site = site
         self.site_order = site_order
         self.enclosure = enclosure
@@ -318,8 +320,9 @@ class MetaBase(object):
         self.seeders = seeders
         self.peers = peers
         self.description = description
-        self.freeleech = freeleech
         self.page_url = page_url
+        self.upload_volume_factor = upload_volume_factor
+        self.download_volume_factor = download_volume_factor
 
     # 获取消息媒体图片
     # 增加cache，优化资源检索时性能

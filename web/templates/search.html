@@ -135,27 +135,45 @@
               </div>
             </div>
           </div>
-          {% if FreeCount > 0 %}
           <div class="accordion-item">
             <h2 class="accordion-header" id="heading-filter_free">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                data-bs-target="#filter_free" aria-expanded="true">
-                FREE
+                data-bs-target="#filter_spstate" aria-expanded="true">
+                促销
               </button>
             </h2>
-            <div id="filter_free" class="accordion-collapse collapse" data-bs-parent="#filter_form_accordion">
+            <div id="filter_spstate" class="accordion-collapse collapse" data-bs-parent="#filter_form_accordion">
               <div class="accordion-body pt-0">
                 <div class="list-group list-group-transparent">
+                  {% for spstate in MediaSPStates %}
                   <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:void(0)"
-                    onclick="filter_medias('filter_free', this)">
-                    <span>下载免费</span>
-                    <small class="text-muted ms-auto">{{ FreeCount }}</small>
+                    onclick="filter_medias('filter_spstate', this)">
+                    {% if spstate.name == "1.0 1.0" %}
+                    <span>普通</span>
+                    {% elif spstate.name == "1.0 0.0" %}
+                    <span>免费</span>
+                    {% elif spstate.name == "2.0 1.0" %}
+                    <span>2X</span>
+                    {% elif spstate.name == "2.0 0.0" %}
+                    <span>2X免费</span>
+                    {% elif spstate.name == "1.0 0.5" %}
+                    <span>50%</span>
+                    {% elif spstate.name == "2.0 0.5" %}
+                    <span>2X 50%</span>
+                    {% elif spstate.name == "1.0 0.7" %}
+                    <span>70%</span>
+                    {% elif spstate.name == "1.0 0.3" %}
+                    <span>30%</span>
+                    {% else %}
+                    <span>{{ spstate.name }}</span>
+                    {% endif %}
+                    <small class="text-muted ms-auto">{{ spstate.num }}</small>
                   </a>
+                  {% endfor %}
                 </div>
               </div>
             </div>
           </div>
-          {% endif %}
         </div>
       </div>
       {% endif %}
@@ -179,14 +197,23 @@
               <div class="card-body">
                 <div class="d-flex align-items-center mb-2">
                   <input type="hidden" name="media_card_type" value="{{ Item[10] }}">
-                  <input type="hidden" name="media_card_free" value="{{ Item[17] }}">
+                  <input type="hidden" name="media_card_spstate" value="{{Item[19]}} {{Item[20]}}">
                   <div>
                     <div><a
                         href="{% if not Item[9] %}javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}'){% else %}{{ Item[18] }}{% endif %}"
                         target="{% if Item[9] %}_blank{% endif %}"
                         title="{% if not Item[9] %}点击添加下载{% else %}点击打开种子详情页面{% endif %}"><strong>{{
-                          Item[1]|replace("()", "") }}</strong></a><span class="badge ms-2">{{ Item[4] }}</span>{% if
-                      Item[17] == "1" %}<span class="badge badge-sm bg-green text-case ms-2">FREE</span>{% endif %}
+                          Item[1]|replace("()", "") }}</strong></a><span class="badge ms-2">{{ Item[4] }}</span>
+                        {% if Item[19] != 1.0 %}
+                            <span class="badge ms-2 text-white bg-azure">{{ (Item[19] * 100) | int }}%UL</span>
+                        {% endif %}
+                        {% if Item[20] != 1.0 %}
+                            {% if Item[20] == 0.0 %}
+                                <span class="badge ms-2 text-white bg-lime">FREE</span>
+                            {% else %}
+                                <span class="badge ms-2 text-white bg-blue">{{ (Item[20] * 100) | int }}%DL</span>
+                            {% endif %}
+                        {% endif %}
                     </div>
                     <div class="text-muted"><strong class="media_card_info">{{ Item[6]}} {{ Item[2]}} {{
                         Item[3]}}</strong></div>
@@ -324,10 +351,17 @@
           </div>
           <div class="col-sm-6 col-lg-4">
             <div class="mb-3">
-              <label class="form-label">FREE</label>
-              <select class="form-select" id="search_free">
-                <option value="" selected>全部</option>
-                <option value="1">是</option>
+              <label class="form-label">促销</label>
+              <select class="form-select" id="sp_state">
+                <option value="* *" selected>全部</option>
+                <option value="1.0 1.0">普通</option>
+                <option value="1.0 0.0">免费</option>
+                <option value="2.0 1.0">2X</option>
+                <option value="2.0 0.0">2X免费</option>
+                <option value="1.0 0.5">50%</option>
+                <option value="2.0 0.5">2X 50%</option>
+                <option value="1.0 0.7">70%</option>
+                <option value="1.0 0.3">30%</option>
               </select>
             </div>
           </div>
@@ -425,7 +459,7 @@
       $("#media_cards").find("div[class*='media_card']").each(function () {
         media_string = $(this).find("strong[class='media_card_info']").text();
         type_string = $(this).find("input[name='media_card_type']").val();
-        free_flag = $(this).find("input[name='media_card_free']").val();
+        spstate_string = $(this).find("input[name='media_card_spstate']").val();
         show_flag = true;
         for (var i = 0; i < strings.length; i++) {
           if (strings[i] == "电影" && type_string != "MOV") {
@@ -440,11 +474,27 @@
             show_flag = false;
             break;
           }
-          if (strings[i] == "下载免费" && free_flag != "1") {
-            show_flag = false;
-            break;
+          const sp_name_map = new Map([
+              ["普通", '1.0 1.0'],
+              ["免费", '1.0 0.0'],
+              ["2X", '2.0 1.0'],
+              ["2X免费", '2.0 0.0'],
+              ["50%", '1.0 0.5'],
+              ["2X 50%", '2.0 0.5'],
+              ["70%", '1.0 0.7'],
+              ["30%", '1.0 0.3']
+          ]);
+          if (Array.from(sp_name_map.keys()).includes(strings[i])) {
+              let sp_state = sp_name_map.get(strings[i]);
+              if (sp_state != spstate_string) {
+                  show_flag = false;
+                  break;
+              }
           }
-          if (strings[i] != "电影" && strings[i] != "电视剧" && strings[i] != "动漫" && strings[i] != "下载免费" && media_string.search(strings[i]) == -1) {
+
+          if (strings[i] != "电影" && strings[i] != "电视剧" && strings[i] != "动漫"
+              && !Array.from(sp_name_map.keys()).includes(strings[i])
+              && media_string.search(strings[i]) == -1) {
             show_flag = false;
             break;
           }
@@ -506,7 +556,7 @@
     var search_site = $("#search_site").val();
     var search_restype = $("#search_restype").val();
     var search_pix = $("#search_pix").val();
-    var search_free = $("#search_free").val();
+    var sp_state = $("#sp_state").val();
     var search_key = $("#search_key").val();
     // 拼装请求
     if (search_type) {
@@ -520,7 +570,7 @@
     if (search_season) {
       keyword = keyword + " " + search_season;
     }
-    var filters = { "site": search_site, "restype": search_restype, "pix": search_pix, "free": search_free, "key": search_key };
+    var filters = { "site": search_site, "restype": search_restype, "pix": search_pix, "sp_state": sp_state, "key": search_key };
     var param = { "search_word": keyword, "filters": filters };
     $("#search_advanced_btn").text("搜索中...");
     $("#search_advanced_btn").attr("disabled", "true");
