@@ -323,7 +323,7 @@ class Media:
             tmdb_info['media_type'] = mtype
         return tmdb_info
 
-    def search_tmdb_infos(self, title, year=None, mtype: MediaType = None):
+    def search_tmdb_infos(self, title, year=None, mtype: MediaType = None, num=6):
         """
         查询名称中有关键字的所有的TMDB信息并返回
         """
@@ -335,7 +335,8 @@ class Media:
             results = self.__search_movie_infos(title, year)
         else:
             results = self.__search_tv_infos(title, year)
-        return results
+        results = sorted(results, key=lambda x: x.get("release_date") or x.get("first_air_date") or "0000-00-00", reverse=True)
+        return results[:num]
 
     def __search_movie_infos(self, title, year):
         """
@@ -352,8 +353,7 @@ class Media:
             if title in movie.get("title"):
                 movie['media_type'] = MediaType.MOVIE
                 ret_infos.append(movie)
-        ret_infos = sorted(ret_infos, key=lambda x: x.get("release_date"), reverse=True)
-        return ret_infos[:5]
+        return ret_infos
 
     def __search_tv_infos(self, title, year):
         """
@@ -370,8 +370,7 @@ class Media:
             if title in tv.get("name"):
                 tv['media_type'] = MediaType.TV
                 ret_infos.append(tv)
-        ret_infos = sorted(ret_infos, key=lambda x: x.get("first_air_date"), reverse=True)
-        return ret_infos[:5]
+        return ret_infos
 
     def get_media_info(self, title, subtitle=None, mtype=None, strict=None):
         """

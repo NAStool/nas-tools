@@ -55,7 +55,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None):
         insert_search_results(media_list)
 
 
-def search_media_by_message(input_str, in_from: SearchType, user_id: None):
+def search_media_by_message(input_str, in_from: SearchType, user_id=None):
     """
     输入字符串，解析要求并进行资源检索
     :param input_str: 输入字符串，可以包括标题、年份、季、集的信息，使用空格隔开

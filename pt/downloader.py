@@ -308,9 +308,7 @@ class Downloader:
                             torrent_tag = str(round(datetime.now().timestamp()))
                             ret = self.add_pt_torrent(url=item.enclosure, mtype=item.type, is_paused=True,
                                                       tag=torrent_tag)
-                            if ret:
-                                return_items.append(item)
-                            else:
+                            if not ret:
                                 log.error("【PT】添加下载任务失败：%s" % item.get_title_string())
                                 self.message.sendmsg("添加PT任务失败：%s" % item.get_title_string())
                                 continue
@@ -346,6 +344,8 @@ class Downloader:
                             # 重新开始任务
                             log.info("【PT】%s 开始下载" % item.org_string)
                             self.start_torrents(torrent_id)
+                            # 记录下载项
+                            return_items.append(item)
                             # 发送消息通知
                             self.message.send_download_message(in_from, item)
                             # 清除记忆并退出一层循环
@@ -456,9 +456,8 @@ class Downloader:
                                 return_flag = True
                                 break
                     else:
-                        log.info(
-                            "【PT】%s 第%s季 共%s集 已全部存在" % (meta_info.get_title_string(), season_number, episode_count))
-                        message_list.append("第%s季 共%s集 已全部存在" % (season_number, episode_count))
+                        log.info("【PT】%s 第%s季 共%s集 已全部存在" % (meta_info.get_title_string(), season_number, episode_count))
+                        message_list.append("%s第%s季 共%s集 已全部存在" % (meta_info.get_title_string(), season_number, episode_count))
             else:
                 log.info("【PT】%s 无法查询到媒体详细信息" % meta_info.get_title_string())
                 message_list.append("%s 无法查询到媒体详细信息" % meta_info.get_title_string())
