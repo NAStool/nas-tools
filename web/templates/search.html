@@ -16,17 +16,6 @@
             <input id="search_word" class="form-control" type="text" value="" placeholder="电影/电视剧名称">
             <button id="search_btn" class="btn btn-primary d-none d-sm-inline-block"
               onclick="javascript:search_media()">搜索</button>
-            <button id="quick_search_btn" data-bs-toggle="dropdown" type="button"
-              class="btn btn-primary d-none d-sm-inline-block dropdown-toggle dropdown-toggle-split"
-              style="border-top-right-radius:4px;border-bottom-right-radius:4px;"></button>
-            <div class="dropdown-menu dropdown-menu-end">
-              <a class="dropdown-item" href="javascript:search_media(true)">
-                快速搜索
-              </a>
-              <a class="dropdown-item" href="javascript:show_search_advanced_modal()">
-                高级搜索
-              </a>
-            </div>
             <button id="search_icon" onclick="javascript:search_media()" class="btn btn-primary d-sm-none btn-icon">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24"
                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
@@ -36,6 +25,17 @@
                 <line x1="21" y1="21" x2="15" y2="15"></line>
               </svg>
             </button>
+            <button id="quick_search_btn" data-bs-toggle="dropdown" type="button"
+              class="btn btn-primary dropdown-toggle dropdown-toggle-split"
+              style="border-top-right-radius:4px;border-bottom-right-radius:4px;"></button>
+            <div class="dropdown-menu dropdown-menu-end">
+              <a class="dropdown-item" href="javascript:search_media(true)">
+                快速搜索
+              </a>
+              <a class="dropdown-item" href="javascript:show_search_advanced_modal()">
+                高级搜索
+              </a>
+            </div>
           </div>
         </div>
       </div>
@@ -200,7 +200,7 @@
                   <input type="hidden" name="media_card_spstate" value="{{Item[19]}} {{Item[20]}}">
                   <div>
                     <div><a
-                        href="{% if not Item[9] %}javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}'){% else %}{{ Item[18] }}{% endif %}"
+                        href="{% if not Item[9] %}javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}'){% else %}{{ Item[17] }}{% endif %}"
                         target="{% if Item[9] %}_blank{% endif %}"
                         title="{% if not Item[9] %}点击添加下载{% else %}点击打开种子详情页面{% endif %}"><strong>{{
                           Item[1]|replace("()", "") }}</strong></a><span class="badge ms-2">{{ Item[4] }}</span>

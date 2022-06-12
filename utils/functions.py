@@ -419,3 +419,14 @@ def get_bing_wallpaper(today=datetime.datetime.strftime(datetime.datetime.now(),
         for image in resp.json()['images']:
             return f"https://cn.bing.com{image['url']}"
     return ""
+
+
+# 检查进程序是否存在
+def check_process(pname):
+    """
+    判断进程是否存在
+    """
+    if not pname:
+        return False
+    text = subprocess.Popen('ps -ef | grep -v grep | grep %s' % pname, shell=True).communicate()
+    return True if text else False
