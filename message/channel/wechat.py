@@ -22,6 +22,8 @@ class WeChat(IMessageChannel):
     __corpsecret = None
     __agent_id = None
 
+    __send_msg_url = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s"
+
     def __init__(self):
         self.init_config()
 
@@ -83,7 +85,7 @@ class WeChat(IMessageChannel):
         """
         if not self.__get_access_token():
             return False, "参数未配置或配置不正确"
-        message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.__get_access_token()
+        message_url = self.__send_msg_url % self.__get_access_token()
         if text:
             conent = "%s\n%s" % (title, text.replace("\n\n", "\n"))
         else:
@@ -128,7 +130,7 @@ class WeChat(IMessageChannel):
         """
         if not self.__get_access_token():
             return False, "参数未配置或配置不正确"
-        message_url = 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s' % self.__get_access_token()
+        message_url = self.__send_msg_url % self.__get_access_token()
         if text:
             text = text.replace("\n\n", "\n")
         if not user_id:
@@ -163,7 +165,7 @@ class WeChat(IMessageChannel):
         except Exception as err:
             return False, str(err)
 
-    def send_msg(self, title, text, image, url, user_id=None):
+    def send_msg(self, title, text="", image="", url="", user_id=None):
         """
         微信消息发送入口，支持文本、图片、链接跳转、指定发送对象
         :param title: 消息标题
@@ -180,3 +182,47 @@ class WeChat(IMessageChannel):
         else:
             ret_code, ret_msg = self.__send_message(title, text, user_id)
         return ret_code, ret_msg
+
+    def send_list_msg(self, medias: list, url="", user_id=""):
+        """
+        发送列表类消息
+        """
+        if not self.__get_access_token():
+            return False, "参数未配置或配置不正确"
+        if not isinstance(medias, list):
+            return False, "数据错误"
+        message_url = self.__send_msg_url % self.__get_access_token()
+        if not user_id:
+            user_id = "@all"
+        articles = []
+        index = 1
+        for media in medias:
+            articles.append({
+                "title": "%s. %s" % (index, media.get_title_vote_string()),
+                "description": "",
+                "picurl": media.get_message_image(),
+                "url": url
+            })
+            index += 1
+        req_json = {
+            "touser": user_id,
+            "msgtype": "news",
+            "agentid": self.__agent_id,
+            "news": {
+                "articles": articles
+            }
+        }
+        headers = {'content-type': 'application/json'}
+        try:
+            res = requests.post(message_url, data=json.dumps(req_json, ensure_ascii=False).encode('utf-8'),
+                                headers=headers)
+            if res:
+                ret_json = res.json()
+                if ret_json['errcode'] == 0:
+                    return True, ret_json['errmsg']
+                else:
+                    return False, ret_json['errmsg']
+            else:
+                return False, None
+        except Exception as err:
+            return False, str(err)

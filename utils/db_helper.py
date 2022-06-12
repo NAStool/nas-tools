@@ -35,7 +35,7 @@ class DBHelper:
         cursor = conn.cursor()
         try:
             # 资源搜索结果表
-            cursor.execute('''CREATE TABLE IF NOT EXISTS SEARCH_TORRENTS_RESULT
+            cursor.execute('''CREATE TABLE IF NOT EXISTS SEARCH_RESULT_INFO
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
                                    TORRENT_NAME    TEXT,
                                    ENCLOSURE    TEXT,
@@ -61,17 +61,8 @@ class DBHelper:
                                    PAGEURL    TEXT,
                                    OTHERINFO    TEXT,
                                    UPLOAD_VOLUME_FACTOR REAL,
-                                   DOWNLOAD_VOLUME_FACTOR REAL);''')
-
-            # 资源搜索结果表变更，增加上传下载因子
-            cursor.execute("PRAGMA table_info('SEARCH_TORRENTS_RESULT')")
-            table_cols = {t[1] for t in cursor.fetchall()}
-            if 'UPLOAD_VOLUME_FACTOR' not in table_cols:
-                cursor.execute("ALTER TABLE SEARCH_TORRENTS_RESULT ADD COLUMN UPLOAD_VOLUME_FACTOR REAL default 1.0;")
-            if 'DOWNLOAD_VOLUME_FACTOR' not in table_cols:
-                cursor.execute("ALTER TABLE SEARCH_TORRENTS_RESULT ADD COLUMN DOWNLOAD_VOLUME_FACTOR REAL default 1.0;")
-            if 'FREELEECH' in table_cols:
-                cursor.execute("ALTER TABLE SEARCH_TORRENTS_RESULT DROP COLUMN FREELEECH;")
+                                   DOWNLOAD_VOLUME_FACTOR REAL,
+                                   NOTE     TEXT);''')
 
             # RSS下载记录表
             cursor.execute('''CREATE TABLE IF NOT EXISTS RSS_TORRENTS

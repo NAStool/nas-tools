@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 
 import log
 from config import Config
+from pt.downloader import Downloader
 from pt.searcher import Searcher
 from rmt.media import Media
 from rmt.meta.metabase import MetaBase
@@ -25,6 +26,7 @@ class DouBan:
     req = None
     searcher = None
     media = None
+    downloader = None
     __users = []
     __days = 0
     __interval = None
@@ -34,6 +36,7 @@ class DouBan:
 
     def __init__(self):
         self.searcher = Searcher()
+        self.downloader = Downloader()
         self.media = Media()
         self.init_config()
 
@@ -378,39 +381,45 @@ class DouBan:
                     return
                 log.info("【DOUBAN】开始检索豆瓣中的影视资源...")
                 for media in medias:
+                    if not media:
+                        continue
                     # 查询数据库状态，已经加入RSS的不处理
                     search_state = get_douban_search_state(media.get_name(), media.year)
                     if not search_state or search_state[0][0] == "NEW":
-                        season = None
-                        if media.type != MediaType.MOVIE:
-                            seasons = media.get_season_list()
-                            if len(seasons) == 1:
-                                season = seasons[0]
-                                search_str = "电视剧 %s 第%s季 %s" % (media.get_name(), season, media.year)
-                            else:
-                                search_str = "电视剧 %s %s" % (media.get_name(), media.year)
-                        else:
-                            search_str = "电影 %s %s" % (media.get_name(), media.year)
-                        # 开始检索
-                        search_result, media, no_exists = self.searcher.search_one_media(
-                            input_str=search_str,
-                            in_from=SearchType.DB)
-                        if not media:
+                        media_info = self.media.get_media_info(title="%s %s" % (media.get_name(), media.year),
+                                                               mtype=media.type, strict=True)
+                        if not media_info or not media_info.tmdb_info:
+                            log.warn("【DOUBAN】%s 未查询到媒体信息" % media.get_name())
                             continue
+                        # 合并季的信息
+                        media_info.begin_season = media.begin_season
+                        # 检查是否存在，电视剧返回不存在的集清单
+                        exist_flag, no_exists, messages = self.downloader.check_exists_medias(meta_info=media_info)
+                        # 已经存在
+                        if exist_flag:
+                            # 更新为已下载状态
+                            log.info("【DOUBAN】%s 已存在" % media.get_name())
+                            insert_douban_media_state(media, "DOWNLOADED")
+                            continue
+                        # 开始检索
+                        search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
+                            media_info=media_info,
+                            in_from=SearchType.DB,
+                            no_exists=no_exists)
                         if not search_result:
                             if self.__auto_rss:
-                                if media.type != MediaType.MOVIE:
+                                if media_info.type != MediaType.MOVIE:
                                     if not no_exists:
                                         continue
                                     # 按季号降序排序
-                                    no_exists_info = no_exists.get(media.get_title_string())
+                                    no_exists_info = no_exists.get(media_info.get_title_string())
                                     if not no_exists_info:
                                         continue
                                     no_exists_info = sorted(no_exists_info, key=lambda x: x.get("season"), reverse=True)
                                     # 总集数、缺失集数
                                     total_count = lack_count = 0
                                     # 没有季的信息时，取最新季
-                                    if not season:
+                                    if not media_info.get_season_list():
                                         total_count = no_exists_info[0].get("total_episodes")
                                         if no_exists_info[0].get("episodes"):
                                             lack_count = len(no_exists_info[0].get("episodes"))
@@ -419,7 +428,7 @@ class DouBan:
                                     # 取当前季的总集数
                                     else:
                                         for seasoninfo in no_exists_info:
-                                            if seasoninfo.get("season") == season:
+                                            if seasoninfo.get("season") == media_info.begin_season:
                                                 total_count = seasoninfo.get("total_episodes")
                                                 if seasoninfo.get("episodes"):
                                                     lack_count = len(seasoninfo.get("episodes"))
@@ -429,16 +438,16 @@ class DouBan:
                                     if not total_count:
                                         continue
                                     # 登记电视剧订阅
-                                    log.info("【DOUBAN】 %s %s 更新到电视剧订阅中..." % (media.get_name(), media.year))
-                                    insert_rss_tv(media, total_count, lack_count, "R")
+                                    log.info("【DOUBAN】 %s %s 更新到电视剧订阅中..." % (media_info.title, media_info.year))
+                                    insert_rss_tv(media_info, total_count, lack_count, "R")
                                 else:
                                     # 登记电影订阅
-                                    log.info("【DOUBAN】 %s %s 更新到电影订阅中..." % (media.get_name(), media.year))
-                                    insert_rss_movie(media, 'R')
+                                    log.info("【DOUBAN】 %s %s 更新到电影订阅中..." % (media_info.title, media_info.year))
+                                    insert_rss_movie(media_info, 'R')
                                 # 插入为已RSS状态
                                 insert_douban_media_state(media, "RSS")
                             else:
-                                log.info("【DOUBAN】 %s %s 等待下一次处理..." % (media.get_name(), media.year))
+                                log.info("【DOUBAN】 %s %s 等待下一次处理..." % (media_info.title, media_info.year))
                         else:
                             # 更新为已下载状态
                             insert_douban_media_state(media, "DOWNLOADED")
@@ -456,12 +465,13 @@ class DouBan:
                             strict=True)
                         if not media_info or not media_info.tmdb_info:
                             continue
-                        if media.type != MediaType.MOVIE:
+                        if media_info.type != MediaType.MOVIE:
                             seasons = media.get_season_list()
                             if len(seasons) == 1:
                                 # 有季信息的取季的信息
                                 season = seasons[0]
-                                total_count = self.media.get_tmdb_season_episodes_num(sea=season, tmdbid=media_info.tmdb_id)
+                                total_count = self.media.get_tmdb_season_episodes_num(sea=season,
+                                                                                      tmdbid=media_info.tmdb_id)
                             else:
                                 # 没有季信息的取最新季
                                 total_seasoninfo = self.media.get_tmdb_seasons_info(tmdbid=media_info.tmdb_id)
@@ -480,7 +490,8 @@ class DouBan:
                             media_info.begin_season = season
                             insert_rss_tv(media_info, total_count, total_count, 'R')
                         else:
-                            media_info = self.media.get_media_info(title=media.get_name(), mtype=media.type, strict=True)
+                            media_info = self.media.get_media_info(title=media.get_name(), mtype=media.type,
+                                                                   strict=True)
                             if not media_info or not media_info.tmdb_info:
                                 continue
                             insert_rss_movie(media_info, 'R')

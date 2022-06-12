@@ -16,7 +16,6 @@ from pt.downloader import Downloader
 from pt.mediaserver.jellyfin import Jellyfin
 from pt.mediaserver.plex import Plex
 from pt.rss import Rss
-from pt.searcher import Searcher
 from pt.sites import Sites
 from rmt.doubanv2api.doubanapi import DoubanApi
 from rmt.filetransfer import FileTransfer
@@ -30,7 +29,7 @@ from utils.functions import *
 from utils.meta_helper import MetaHelper
 from utils.sqls import *
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
-from web.backend.search_torrents import search_medias_for_web
+from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 from web.backend.subscribe import add_rss_subscribe, add_rss_substribe_from_string
 
 
@@ -136,7 +135,7 @@ class WebAction:
             _thread.start_new_thread(add_rss_substribe_from_string, (msg, in_from, user_id,))
         else:
             # PT检索
-            _thread.start_new_thread(Searcher().search_one_media, (msg, in_from, user_id,))
+            _thread.start_new_thread(search_media_by_message, (msg, in_from, user_id,))
 
     @staticmethod
     def set_config_value(cfg, cfg_key, cfg_value):
@@ -429,7 +428,7 @@ class WebAction:
             media_type = MediaType.MOVIE
         else:
             media_type = MediaType.ANIME
-        tmdb_info = Media().get_media_info_manual(media_type, title, year, tmdbid)
+        tmdb_info = Media().get_tmdb_info(media_type, title, year, tmdbid)
         if not tmdb_info:
             return {"retcode": 1, "retmsg": "转移失败，无法查询到TMDB信息"}
         # 如果改次手动修复时一个单文件，自动修复改目录下同名文件，需要配合episode_format生效
@@ -482,7 +481,7 @@ class WebAction:
             media_type = MediaType.MOVIE
         else:
             media_type = MediaType.ANIME
-        tmdb_info = Media().get_media_info_manual(media_type, None, None, tmdbid)
+        tmdb_info = Media().get_tmdb_info(media_type, None, None, tmdbid)
         if not tmdb_info:
             return {"retcode": 1, "retmsg": "识别失败，无法查询到TMDB信息"}
         # 自定义转移
@@ -887,7 +886,7 @@ class WebAction:
                 year = douban_info.get("year")
             else:
                 link_url = "https://www.themoviedb.org/movie/%s" % tmdbid
-                tmdb_info = Media().get_media_info_manual(media_type, title, year, tmdbid)
+                tmdb_info = Media().get_tmdb_info(media_type, title, year, tmdbid)
                 if not tmdb_info:
                     return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url}
                 overview = tmdb_info.get("overview")
@@ -925,7 +924,7 @@ class WebAction:
                 year = douban_info.get("year")
             else:
                 link_url = "https://www.themoviedb.org/tv/%s" % tmdbid
-                tmdb_info = Media().get_media_info_manual(media_type, title, year, tmdbid)
+                tmdb_info = Media().get_tmdb_info(media_type, title, year, tmdbid)
                 if not tmdb_info:
                     return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url}
                 overview = tmdb_info.get("overview")
@@ -1056,7 +1055,7 @@ class WebAction:
                         "vote_average": vote_average
                         }
         else:
-            tmdb_info = Media().get_media_info_manual(MediaType.MOVIE, None, None, tid)
+            tmdb_info = Media().get_tmdb_info(MediaType.MOVIE, None, None, tid)
             if not tmdb_info:
                 return {"code": 1, "retmsg": "无法查询到TMDB信息"}
             poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path')

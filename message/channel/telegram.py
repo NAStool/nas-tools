@@ -104,6 +104,45 @@ class Telegram(IMessageChannel):
         except Exception as msg_e:
             return False, str(msg_e)
 
+    def send_list_msg(self, title, medias: list, user_id=""):
+        """
+        发送列表类消息
+        """
+        try:
+            if not self.__telegram_token or not self.__telegram_chat_id:
+                return False, "参数未配置"
+            if not title or not isinstance(medias, list):
+                return False, "数据错误"
+            index, image, caption = 1, "", "<b>%s</b>" % title
+            for media in medias:
+                if not image:
+                    image = media.get_message_image()
+                caption = "%s\n%s. %s" % (caption, index, media.get_title_vote_string())
+                index += 1
+            image = medias[0].get_message_image()
+
+            if user_id:
+                chat_id = user_id
+            else:
+                chat_id = self.__telegram_chat_id
+
+            # 发送图文消息
+            values = {"chat_id": chat_id, "photo": image, "caption": caption, "parse_mode": "HTML"}
+            sc_url = "https://api.telegram.org/bot%s/sendPhoto?" % self.__telegram_token
+
+            res = requests.get(sc_url + urlencode(values), timeout=10, proxies=self.__config.get_proxies())
+            if res:
+                ret_json = res.json()
+                status = ret_json.get("ok")
+                if status:
+                    return True, ""
+                else:
+                    return False, ret_json.get("description")
+            else:
+                return False, "未获取到返回信息"
+        except Exception as msg_e:
+            return False, str(msg_e)
+
     def __set_bot_webhook(self):
         """
         设置Telegram Webhook

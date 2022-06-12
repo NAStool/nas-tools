@@ -95,6 +95,21 @@ class Message:
         elif channel == SearchType.WX:
             return WeChat().send_msg(title, text, image, url, user_id)
 
+    def send_channel_list_msg(self, channel, title, medias: list, user_id=""):
+        """
+        发送列表选择消息
+        :param channel: 消息渠道
+        :param title: 消息标题
+        :param medias: 媒体信息列表
+        :param user_id: 用户ID，如有则只发给这个用户
+        :return: 发送状态、错误信息
+        """
+        if channel == SearchType.TG:
+            return Telegram().send_list_msg(title, medias, user_id)
+        elif channel == SearchType.WX:
+            WeChat().send_msg(title)
+            return WeChat().send_list_msg(medias, self.__domain, user_id)
+
     def send_download_message(self, in_from: SearchType, can_item: MetaBase):
         """
         发送下载的消息
@@ -150,9 +165,10 @@ class Message:
             msg_str = f"{msg_str}，{exist_filenum}个文件已存在"
         self.sendmsg(title=msg_title, text=msg_str, image=media_info.get_message_image(), url='history')
 
-    # 发送转移电视剧/动漫的消息
     def send_transfer_tv_message(self, message_medias: dict, in_from: Enum):
-        # 统计完成情况，发送通知
+        """
+        发送转移电视剧/动漫的消息
+        """
         for item_info in message_medias.values():
             if item_info.total_episodes == 1:
                 msg_title = f"{item_info.get_title_string()} {item_info.get_season_episode_string()} 转移完成"
