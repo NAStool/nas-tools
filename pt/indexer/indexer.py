@@ -222,18 +222,8 @@ class IIndexer(metaclass=ABCMeta):
                         log.info(f"【{self.index_type}】{media_info.type.value}：{media_info.title} 不匹配名称：{match_words}")
                         continue
                 else:
-                    # 非全匹配模式，种子中或者名字中有关键字就行
-                    match_flag = False
-                    for match_word in match_words:
-                        if str(match_word).upper() in str(media_info.get_title_string()).upper() \
-                                or str(match_word).upper() in str(media_info.original_title).upper() \
-                                or str(match_word).upper() in str(media_info.org_string).upper():
-                            match_flag = True
-                            break
-                    if not match_flag:
-                        log.info(
-                            f"【{self.index_type}】{media_info.type.value}：{media_info.org_string} {media_info.get_title_string()} 不匹配名称：{match_words}")
-                        continue
+                    # 非全匹配模式，找出来的全要，不过滤名称
+                    pass
 
                 # 判断文件大小是否匹配，只针对电影
                 if match_type == 1:

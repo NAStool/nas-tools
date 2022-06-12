@@ -23,12 +23,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None):
     if not key_word:
         log.info("【WEB】%s 检索关键字有误！" % content)
         return
-    # 尝试进行识别真实名称加入匹配
-    match_words = None
-    if ident_flag:
-        media_info = Media().get_media_info(title=content, mtype=mtype, strict=True)
-        if media_info and media_info.tmdb_info and key_word != media_info.title:
-            match_words = [key_word, media_info.title]
+
     # 过滤条件
     filter_args = {"season": season_num,
                    "episode": episode_num,
@@ -36,12 +31,12 @@ def search_medias_for_web(content, ident_flag=True, filters=None):
     # 整合高级查询条件
     if filters:
         filter_args.update(filters)
+
     # 开始检索
     log.info("【WEB】开始检索 %s ..." % content)
     media_list = Searcher().search_medias(key_word=key_word,
                                           filter_args=filter_args,
-                                          match_type=0 if ident_flag else 2,
-                                          match_words=match_words)
+                                          match_type=0 if ident_flag else 2)
     delete_all_search_torrents()
     if len(media_list) == 0:
         log.info("【WEB】%s 未检索到任何媒体资源" % content)
