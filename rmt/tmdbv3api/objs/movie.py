@@ -167,14 +167,14 @@ class Movie(TMDb):
             self._call(self._urls["reviews"] % movie_id, "page=" + str(page))
         )
 
-    def videos(self, id, page=1):
+    def videos(self, vid, page=1):
         """
         Get the videos that have been added to a movie.
-        :param id:
+        :param vid:
         :param page:
         :return:
         """
-        return self._get_obj(self._call(self._urls["videos"] % id, "page=" + str(page)))
+        return self._get_obj(self._call(self._urls["videos"] % vid, "page=" + str(page)))
 
     def latest(self):
         """

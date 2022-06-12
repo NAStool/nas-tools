@@ -415,40 +415,12 @@ def get_rss_movie_id(title, year):
     return ""
 
 
-# 查询订阅电视剧信息
-def get_rss_tvs(state=None, rssid=None):
-    if rssid:
-        sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE" \
-              ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID" \
-              " FROM RSS_TVS" \
-              " WHERE ID = ?"
-        return select_by_sql(sql, (rssid,))
-    else:
-        if not state:
-            sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE" \
-                  ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID" \
-                  " FROM RSS_TVS"
-            return select_by_sql(sql)
-        else:
-            sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE" \
-                  ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID" \
-                  " FROM RSS_TVS WHERE STATE = ?"
-            return select_by_sql(sql, (state,))
-
-
-# 获取订阅电影ID
-def get_rss_tv_id(title, year, season=None):
-    if not title:
-        return ""
-    if season:
-        sql = "SELECT ID FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-        ret = select_by_sql(sql, (str_sql(title), year, season))
-    else:
-        sql = "SELECT ID FROM RSS_TVS WHERE NAME = ? AND YEAR = ?"
-        ret = select_by_sql(sql, (str_sql(title), year))
-    if ret:
-        return ret[0][0]
-    return ""
+# 更新订阅电影的TMDBID
+def update_rss_movie_tmdbid(rid, tmdbid):
+    if not tmdbid:
+        return False
+    sql = "UPDATE RSS_MOVIES SET TMDBID = ? WHERE ID = ?"
+    return update_by_sql(sql, (tmdbid, rid))
 
 
 # 判断RSS电影是否存在
@@ -490,6 +462,58 @@ def delete_rss_movie(title, year, rssid=None):
     else:
         sql = "DELETE FROM RSS_MOVIES WHERE NAME = ? AND YEAR = ?"
         return update_by_sql(sql, (str_sql(title), year))
+
+
+# 更新电影订阅状态
+def update_rss_movie_state(title, year, state):
+    if not title:
+        return False
+    sql = "UPDATE RSS_MOVIES SET STATE = ? WHERE NAME = ? AND YEAR = ?"
+    return update_by_sql(sql, (state, str_sql(title), year))
+
+
+# 查询订阅电视剧信息
+def get_rss_tvs(state=None, rssid=None):
+    if rssid:
+        sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE" \
+              ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID" \
+              " FROM RSS_TVS" \
+              " WHERE ID = ?"
+        return select_by_sql(sql, (rssid,))
+    else:
+        if not state:
+            sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE" \
+                  ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID" \
+                  " FROM RSS_TVS"
+            return select_by_sql(sql)
+        else:
+            sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE" \
+                  ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID" \
+                  " FROM RSS_TVS WHERE STATE = ?"
+            return select_by_sql(sql, (state,))
+
+
+# 获取订阅电影ID
+def get_rss_tv_id(title, year, season=None):
+    if not title:
+        return ""
+    if season:
+        sql = "SELECT ID FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
+        ret = select_by_sql(sql, (str_sql(title), year, season))
+    else:
+        sql = "SELECT ID FROM RSS_TVS WHERE NAME = ? AND YEAR = ?"
+        ret = select_by_sql(sql, (str_sql(title), year))
+    if ret:
+        return ret[0][0]
+    return ""
+
+
+# 更新订阅电影的TMDBID
+def update_rss_tv_tmdbid(rid, tmdbid):
+    if not tmdbid:
+        return False
+    sql = "UPDATE RSS_TVS SET TMDBID = ? WHERE ID = ?"
+    return update_by_sql(sql, (tmdbid, rid))
 
 
 # 判断RSS电视剧是否存在
@@ -546,14 +570,6 @@ def delete_rss_tv(title, year, season, rssid=None):
     else:
         sql = "DELETE FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
         return update_by_sql(sql, (str_sql(title), year, season))
-
-
-# 更新电影订阅状态
-def update_rss_movie_state(title, year, state):
-    if not title:
-        return False
-    sql = "UPDATE RSS_MOVIES SET STATE = ? WHERE NAME = ? AND YEAR = ?"
-    return update_by_sql(sql, (state, str_sql(title), year))
 
 
 # 更新电视剧订阅状态

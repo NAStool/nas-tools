@@ -12,7 +12,7 @@ from pt.downloader import Downloader
 from rmt.media import Media
 from utils.sqls import get_rss_movies, get_rss_tvs, insert_rss_torrents, \
     get_config_site, is_torrent_rssd, get_config_rss_rule, delete_rss_movie, delete_rss_tv, update_rss_tv_lack, \
-    update_rss_movie_state, update_rss_tv_state
+    update_rss_movie_state, update_rss_tv_state, update_rss_movie_tmdbid, update_rss_tv_tmdbid
 from utils.types import MediaType, SearchType
 
 lock = Lock()
@@ -286,6 +286,34 @@ class Rss:
                             log.info("【RSS】更新电视剧 %s %s 缺失集数为 %s" % (media.get_title_string(), media.get_season_string(), len(no_exist_item.get("episodes"))))
                             update_rss_tv_lack(name, year, season, len(no_exist_item.get("episodes")))
                         break
+
+    @staticmethod
+    def rssdouban_to_tmdb():
+        """
+        定时将豆瓣订阅转换为TMDB的订阅
+        """
+        # 更新电影
+        movies = get_rss_movies(state='R')
+        for movie in movies:
+            rid = movie[6]
+            name = movie[0]
+            year = movie[1]
+            tmdbid = movie[2]
+            if tmdbid and tmdbid.startswith("DB:"):
+                media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=MediaType.MOVIE, strict=True)
+                if media_info and media_info.tmdb_id:
+                    update_rss_movie_tmdbid(rid=rid, tmdbid=media_info.tmdb_id)
+        # 更新电视剧
+        tvs = get_rss_tvs(state='R')
+        for tv in tvs:
+            rid = tv[10]
+            name = tv[0]
+            year = tv[1]
+            tmdbid = tv[3]
+            if tmdbid and tmdbid.startswith("DB:"):
+                media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=MediaType.TV, strict=True)
+                if media_info and media_info.tmdb_id:
+                    update_rss_tv_tmdbid(rid=rid, tmdbid=media_info.tmdb_id)
 
     @staticmethod
     def parse_rssxml(url):

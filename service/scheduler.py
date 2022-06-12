@@ -1,7 +1,8 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 import log
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
-    RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_SEARCH_INTERVAL, REFRESH_PT_DATA_INTERVAL
+    RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_SEARCH_INTERVAL, REFRESH_PT_DATA_INTERVAL, \
+    RSS_DOUBAN_TO_TMDB_INTEVAL
 from pt.douban import DouBan
 from pt.downloader import Downloader
 from pt.rss import Rss
@@ -122,6 +123,9 @@ class Scheduler:
 
         # PT站数据刷新
         self.SCHEDULER.add_job(Sites().refresh_pt_date_now, 'interval', hours=REFRESH_PT_DATA_INTERVAL)
+
+        # 豆摊RSS转TMDB
+        self.SCHEDULER.add_job(Rss().rssdouban_to_tmdb, 'interval', hours=RSS_DOUBAN_TO_TMDB_INTEVAL)
 
         self.SCHEDULER.print_jobs()
 

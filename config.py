@@ -42,6 +42,8 @@ SYNC_TRANSFER_INTERVAL = 300
 RSS_SEARCH_INTERVAL = 300
 # PT站流量数据刷新时间间隔（小时）
 REFRESH_PT_DATA_INTERVAL = 24
+# 将豆瓣订阅转为TMDB订阅的检查时间间隔（小时）
+RSS_DOUBAN_TO_TMDB_INTEVAL = 12
 # fanart的api，用于拉取封面图片
 FANART_MOVIE_API_URL = 'https://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
 FANART_TV_API_URL = 'https://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'

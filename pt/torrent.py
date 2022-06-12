@@ -26,7 +26,8 @@ class Torrent:
                 # 有tmdbid时精确匹配
                 if tmdbid:
                     # 匹配名称、年份，年份可以没有
-                    if name == media_info.title and (not year or str(year) == str(media_info.year)):
+                    if name == media_info.title and (not year or str(year) == str(media_info.year)) \
+                            or str(media_info.tmdb_id) == str(tmdbid):
                         return True
                 # 模糊匹配
                 else:
@@ -56,7 +57,7 @@ class Torrent:
                     if year and str(year) != str(media_info.year):
                         continue
                     # 匹配名称
-                    if name == media_info.title:
+                    if name == media_info.title or str(media_info.tmdb_id) == str(tmdbid):
                         return True
                 # 模糊匹配
                 else:

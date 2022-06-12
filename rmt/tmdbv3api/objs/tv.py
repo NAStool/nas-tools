@@ -142,14 +142,14 @@ class TV(TMDb):
             self._call(self._urls["screened_theatrically"] % tv_id, "")
         )
 
-    def external_ids(self, id):
+    def external_ids(self, vid):
         """
         Get the external ids for a TV show.
-        :param id:
+        :param vid:
         :return:
         """
         return self._get_obj(
-            self._call(self._urls["external_ids"] % (str(id)), ""), None
+            self._call(self._urls["external_ids"] % (str(vid)), ""), None
         )
 
     def keywords(self, tv_id):
