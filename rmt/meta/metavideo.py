@@ -75,6 +75,9 @@ class MetaVideo(MetaBase):
             # 资源类型
             if self._continue_flag:
                 self.__init_resource_type(token)
+            # 编码类型
+            if self._continue_flag:
+                self.__init_encode_type(token)
             # 取下一个，直到没有为卡
             token = tokens.get_next()
             self._continue_flag = True
@@ -322,7 +325,8 @@ class MetaVideo(MetaBase):
                 self._continue_flag = False
             elif self.begin_episode is None \
                     and 1 < len(token) < 5 \
-                    and self._last_token_type != "year":
+                    and self._last_token_type != "year"\
+                    and self._last_token_type != "encode":
                 self.begin_episode = int(token)
                 self.total_episodes = 1
                 self._last_token_type = "episode"
@@ -366,6 +370,12 @@ class MetaVideo(MetaBase):
                 self.resource_type = "BluRay"
                 self._last_token_type = "restype"
                 self._continue_flag = False
+
+    def __init_encode_type(self, token):
+        if token.upper() == "H":
+            self._last_token_type = "encode"
+            self._last_token = "H"
+            self._continue_flag = False
 
     def __init_subtitle(self, title_text):
         if not title_text:
