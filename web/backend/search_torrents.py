@@ -69,7 +69,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id: None):
     # 如果是数字，表示选择项
     if input_str.isdigit():
         # 获取之前保存的可选项
-        choose = int(input_str - 1)
+        choose = int(input_str) - 1
         if choose < 0 or choose >= len(SEARCH_MEDIA_CACHE):
             Message().send_channel_msg(channel=in_from,
                                        title="输入有误！",
