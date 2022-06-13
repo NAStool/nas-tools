@@ -370,6 +370,8 @@ def create_flask_app(config):
         MediaPixDict = {}
         # 促销信息
         MediaSPStateDict = {}
+        # 名称
+        MediaNameDict = {}
         # 查询统计值
         for item in res:
             # 资源类型
@@ -405,6 +407,13 @@ def create_flask_app(config):
                 MediaSPStateDict[sp_key] = 1
             else:
                 MediaSPStateDict[sp_key] += 1
+            # 名称
+            if item[1]:
+                name = item[1].split("(")[0].strip()
+                if name not in MediaNameDict:
+                    MediaNameDict[name] = 1
+                else:
+                    MediaNameDict[name] += 1
 
         # 展示类型
         MediaMTypes = []
@@ -429,6 +438,10 @@ def create_flask_app(config):
         # 展示促销
         MediaSPStates = [{"name": k, "num": v} for k, v in MediaSPStateDict.items()]
         MediaSPStates = sorted(MediaSPStates, key=lambda x: int(x.get("num")), reverse=True)
+        # 展示名称
+        MediaNames = []
+        for k, v in MediaNameDict.items():
+            MediaNames.append({"name": k, "num": v})
 
         # 站点列表
         SiteDict = []
@@ -445,6 +458,7 @@ def create_flask_app(config):
                                MediaSites=MediaSites,
                                MediaPixs=MediaPixs,
                                MediaSPStates=MediaSPStates,
+                               MediaNames=MediaNames,
                                MediaRestypes=MediaRestypes,
                                RestypeDict=TORRENT_SEARCH_PARAMS.get("restype").keys(),
                                PixDict=TORRENT_SEARCH_PARAMS.get("pix").keys(),

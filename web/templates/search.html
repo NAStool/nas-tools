@@ -73,6 +73,27 @@
             </div>
           </div>
           <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-filter_title">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#filter_title"
+                aria-expanded="true">
+                标题
+              </button>
+            </h2>
+            <div id="filter_title" class="accordion-collapse collapse" data-bs-parent="#filter_form_accordion">
+              <div class="accordion-body pt-0">
+                <div class="list-group list-group-transparent">
+                  {% for name in MediaNames %}
+                  <a class="list-group-item list-group-item-action d-flex align-items-center" href="javascript:void(0)"
+                    onclick="filter_medias('filter_title', this)">
+                    <span>{{ name.name }}</span>
+                    <small class="text-muted ms-auto">{{ name.num }}</small>
+                  </a>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
             <h2 class="accordion-header" id="heading-filter_site">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                 data-bs-target="#filter_site" aria-expanded="true">
@@ -180,8 +201,7 @@
       <div class="{% if Count > 8 %}col-sm-12 col-md-9 col-lg-10{% else %}col-12{% endif %}">
         <div class="row row-cards" id="media_cards">
           {% for Item in Items %}
-          <div class="col-sm-6 {% if Count > 8 %}col-xl-4{% else %}col-md-4 col-xl-3{% endif %} media_card"
-            id="media_card_{{ Item[0] }}">
+          <div class="col-sm-6 {% if Count > 8 %}col-xl-4{% else %}col-md-4 col-xl-3{% endif %} media_card" id="media_card_{{ Item[0] }}">
             <div class="card card-sm card-link-pop rounded-3">
               {% if Item[11] > 0 %}
               <div
@@ -197,7 +217,8 @@
               <div class="card-body">
                 <div class="d-flex align-items-center mb-2">
                   <input type="hidden" name="media_card_type" value="{{ Item[10] }}">
-                  <input type="hidden" name="media_card_spstate" value="{{Item[19]}} {{Item[20]}}">
+                  <input type="hidden" name="media_card_spstate" value="{{ Item[19] }} {{ Item[20] }}">
+                  <input type="hidden" name="media_card_title" value="{{ Item[1] }}">
                   <div>
                     <div><a
                         href="{% if not Item[9] %}javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}'){% else %}{{ Item[17] }}{% endif %}"
@@ -460,6 +481,7 @@
         media_string = $(this).find("strong[class='media_card_info']").text();
         type_string = $(this).find("input[name='media_card_type']").val();
         spstate_string = $(this).find("input[name='media_card_spstate']").val();
+        title_string = $(this).find("input[name='media_card_title']").val();
         show_flag = true;
         for (var i = 0; i < strings.length; i++) {
           if (strings[i] == "电影" && type_string != "MOV") {
@@ -491,10 +513,10 @@
                   break;
               }
           }
-
           if (strings[i] != "电影" && strings[i] != "电视剧" && strings[i] != "动漫"
               && !Array.from(sp_name_map.keys()).includes(strings[i])
-              && media_string.search(strings[i]) == -1) {
+              && media_string.search(strings[i]) == -1
+              && title_string.search(strings[i]) == -1) {
             show_flag = false;
             break;
           }
