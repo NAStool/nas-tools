@@ -1,6 +1,7 @@
 import re
 import traceback
 from datetime import datetime
+from multiprocessing.dummy import Pool as ThreadPool
 from threading import Lock
 
 import log
@@ -34,60 +35,69 @@ class Sites:
             self.__user_agent = app.get('user_agent')
             self.__sites_data = {}
 
-    def refresh_pt_data(self, force=False):
+    def refresh_all_pt_data(self, force=False):
         """
-        刷新PT站下载上传量，默认间隔3小时
+        多线程刷新PT站下载上传量，默认间隔3小时
         """
         if not self.__pt_sites:
             return
         if not force and self.__last_update_time and (datetime.now() - self.__last_update_time).seconds < 3 * 3600:
             return
-        try:
-            lock.acquire()
+
+        with lock:
             self.__sites_data = {}
-            for site_info in self.__pt_sites:
-                if not site_info:
-                    continue
-                site_name = site_info[1]
-                site_url = site_info[4]
-                if not site_url and site_info[3]:
-                    site_url = site_info[3]
-                if not site_url:
-                    continue
-                split_pos = str(site_url).rfind("/")
-                if split_pos != -1 and split_pos > 8:
-                    site_url = site_url[:split_pos]
-                site_cookie = str(site_info[5])
-                try:
-                    res = RequestUtils(headers=self.__user_agent, cookies=site_cookie).get_res(url=site_url)
-                    if res and res.status_code == 200:
-                        res.encoding = res.apparent_encoding
-                        html_text = res.text
-                        if not html_text:
-                            continue
-                        # 上传量
-                        upload = self.__get_site_upload(html_text)
-                        # 下载量
-                        download = self.__get_site_download(html_text)
-                        if upload is None and download is None:
-                            continue
-                        # 分享率
-                        ratio = self.__get_site_ratio(html_text)
-                        if not self.__sites_data.get(site_name):
-                            self.__sites_data[site_name] = {"upload": upload or 0, "download": download or 0, "ratio": ratio}
-                            # 登记历史数据
-                            insert_site_statistics(site=site_name, upload=upload or 0, download=download or 0, ratio=ratio, url=site_url)
-                    elif not res:
-                        log.error("【PT】站点 %s 连接失败：%s" % (site_name, site_url))
-                    else:
-                        log.error("【PT】站点 %s 获取流量数据失败，状态码：%s" % (site_name, res.status_code))
-                except Exception as e:
-                    log.error("【PT】站点 %s 获取流量数据失败：%s - %s" % (site_name, str(e), traceback.format_exc()))
-            # 更新时间
-            if self.__sites_data:
-                self.__last_update_time = datetime.now()
-        finally:
-            lock.release()
+            with ThreadPool(len(self.__pt_sites)) as p:
+                p.map(self.__refresh_pt_data, self.__pt_sites)
+
+        # 更新时间
+        if self.__sites_data:
+            self.__last_update_time = datetime.now()
+
+    def __refresh_pt_data(self, site_info):
+        """
+        更新单个pt site 数据信息
+        :param site_info:
+        :return:
+        """
+        if not site_info:
+            return
+        site_name = site_info[1]
+        site_url = site_info[4]
+        if not site_url and site_info[3]:
+            site_url = site_info[3]
+        if not site_url:
+            return
+        split_pos = str(site_url).rfind("/")
+        if split_pos != -1 and split_pos > 8:
+            site_url = site_url[:split_pos]
+        site_cookie = str(site_info[5])
+        try:
+            res = RequestUtils(headers=self.__user_agent, cookies=site_cookie).get_res(url=site_url)
+            if res and res.status_code == 200:
+                res.encoding = res.apparent_encoding
+                html_text = res.text
+                if not html_text:
+                    return
+                # 上传量
+                upload = self.__get_site_upload(html_text)
+                # 下载量
+                download = self.__get_site_download(html_text)
+                if upload is None and download is None:
+                    return
+                # 分享率
+                ratio = self.__get_site_ratio(html_text)
+                if not self.__sites_data.get(site_name):
+                    self.__sites_data[site_name] = {"upload": upload or 0, "download": download or 0,
+                                                    "ratio": ratio}
+                    # 登记历史数据
+                    insert_site_statistics(site=site_name, upload=upload or 0, download=download or 0,
+                                           ratio=ratio, url=site_url)
+            elif not res:
+                log.error("【PT】站点 %s 连接失败：%s" % (site_name, site_url))
+            else:
+                log.error("【PT】站点 %s 获取流量数据失败，状态码：%s" % (site_name, res.status_code))
+        except Exception as e:
+            log.error("【PT】站点 %s 获取流量数据失败：%s - %s" % (site_name, str(e), traceback.format_exc()))
 
     def signin(self):
         """
@@ -141,7 +151,8 @@ class Sites:
         解析下载量
         """
         html_text = self.__prepare_html_text(html_text)
-        download_match = re.search(r"[^总]下[载載]量?[:：<>/a-zA-Z-=\"'\s#;]+([0-9,.\s]+[KMGTPI]*B)", html_text, re.IGNORECASE)
+        download_match = re.search(r"[^总]下[载載]量?[:：<>/a-zA-Z-=\"'\s#;]+([0-9,.\s]+[KMGTPI]*B)", html_text,
+                                   re.IGNORECASE)
         if download_match:
             return num_filesize(download_match.group(1).strip())
         else:
@@ -162,11 +173,11 @@ class Sites:
         """
         强制刷新PT站数据
         """
-        self.refresh_pt_data(True)
+        self.refresh_all_pt_data(True)
 
     def get_pt_date(self):
         """
         获取PT站上传下载量
         """
-        self.refresh_pt_data()
+        self.refresh_all_pt_data()
         return self.__sites_data
