@@ -806,20 +806,10 @@
       function refresh_message(time_str){
         ajax_post("refresh_message", {"lst_time": time_str}, function(ret){
           if(ret.code == 0){
+            lst_time = ret.lst_time;
             var msgs = ret.message;
-            if(msgs.length > 0){
-              var lst_time = msgs[0][4];
-            }else{
-              var lst_time = time_str;
-            }
-            for(var i=msgs.length-1; i>=0; i--){
-              if(msgs[i][1] == "ERROR"){
-                var level = "bg-red";
-              }else{
-                var level = "";
-              }
-              var template = '<div class="list-group-item"><div class="row align-items-center"><div class="col-auto"><span class="status-dot ${LEVEL} d-block"></span></div><div class="col text-truncate"><span class="text-wrap">${TITLE}</span><div class="d-block text-muted text-truncate mt-n1 text-wrap">${CONTENT}</div><div class="d-block text-muted text-truncate mt-n1 text-wrap">${DATE}</div></div></div></div>';
-              $("#system-messages").prepend(template.replace("${LEVEL}", level).replace("${TITLE}", msgs[i][2]).replace("${DATE}", msgs[i][4]).replace("${CONTENT}", msgs[i][3]));
+            for(var i=0; i<msgs.length; i++){
+              $("#system-messages").prepend(msgs[i]);
             }
             setTimeout("refresh_message('" + lst_time + "')", 10000);
           }

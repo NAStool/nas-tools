@@ -672,7 +672,7 @@ def get_system_messages(num=20, lst_time=None):
         sql = "SELECT ID, LEVEL, TITLE, CONTENT, DATE FROM MESSAGES ORDER BY DATE DESC LIMIT ?"
         return select_by_sql(sql, (num,))
     else:
-        sql = "SELECT ID, LEVEL, TITLE, CONTENT, DATE FROM MESSAGES WHERE DATE > ? ORDER BY DATE"
+        sql = "SELECT ID, LEVEL, TITLE, CONTENT, DATE FROM MESSAGES WHERE DATE > ? ORDER BY DATE DESC"
         return select_by_sql(sql, (lst_time,))
 
 

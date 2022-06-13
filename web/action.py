@@ -1,5 +1,6 @@
 import _thread
 import importlib
+import re
 import signal
 from flask_login import logout_user
 from werkzeug.security import generate_password_hash
@@ -1016,7 +1017,26 @@ class WebAction:
         """
         lst_time = data.get("lst_time")
         messages = get_system_messages(lst_time=lst_time)
-        return {"code": 0, "message": messages}
+        message_html = []
+        for message in list(reversed(messages)):
+            lst_time = message[4]
+            level = "bg-red" if message[1] == "ERROR" else ""
+            content = re.sub(r"[#]+", "<br>", re.sub(r"<[^>]+>", "", re.sub(r"<br/?>", "####", message[3], flags=re.IGNORECASE)))
+            message_html.append(f"""
+            <div class="list-group-item">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                  <span class="status-dot {level} d-block"></span>
+                </div>
+                <div class="col text-truncate">
+                  <span class="text-wrap">{message[2]}</span>
+                  <div class="d-block text-muted text-truncate mt-n1 text-wrap">{content}</div>
+                  <div class="d-block text-muted text-truncate mt-n1 text-wrap">{message[4]}</div>
+                </div>
+              </div>
+            </div>
+            """)
+        return {"code": 0, "message": message_html, "lst_time": lst_time}
 
     @staticmethod
     def __delete_tmdb_cache(data):
