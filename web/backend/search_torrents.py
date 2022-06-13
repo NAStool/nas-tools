@@ -95,7 +95,9 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         # 搜索到了但是没开自动下载
         elif download_count is None:
             Message().send_channel_msg(channel=in_from,
-                                       title="%s 共搜索到%s个资源，点击选择下载" % (media_info.title, search_count),
+                                       title="%s 共搜索到%s个资源，点击选择下载" % (media_info.get_title_string(), search_count),
+                                       image=media_info.get_message_image(),
+                                       url="search",
                                        user_id=user_id)
         elif download_count == 0:
             Message().send_channel_msg(channel=in_from,

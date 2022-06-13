@@ -3,7 +3,7 @@ import os
 import threading
 import time
 from html import escape
-from logging.handlers import TimedRotatingFileHandler
+from logging.handlers import RotatingFileHandler
 from config import LOG_LEVEL, Config, LOG_QUEUE
 from utils.sqls import insert_system_message
 
@@ -35,11 +35,10 @@ class Logger:
             logpath = self.__config.get_config('app').get('logpath') or "/config/logs"
             if not os.path.exists(logpath):
                 os.makedirs(logpath)
-            log_file_handler = TimedRotatingFileHandler(filename=os.path.join(logpath, __name__ + ".txt"),
-                                                        when='D',
-                                                        interval=1,
-                                                        backupCount=3,
-                                                        encoding='utf-8')
+            log_file_handler = RotatingFileHandler(filename=os.path.join(logpath, __name__ + ".txt"),
+                                                   maxBytes=5 * 1024 * 1024,
+                                                   backupCount=3,
+                                                   encoding='utf-8')
             log_file_handler.setFormatter(logging.Formatter('%(asctime)s\t%(levelname)s: %(message)s'))
             self.logger.addHandler(log_file_handler)
         # 记录日志到终端
@@ -65,12 +64,12 @@ def debug(text):
 
 
 def info(text):
-    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S',time.localtime(time.time()))} INFO - {escape(text)}")
+    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} INFO - {escape(text)}")
     return Logger.get_instance().logger.info(text)
 
 
 def error(text):
-    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S',time.localtime(time.time()))} ERROR - {escape(text)}")
+    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} ERROR - {escape(text)}")
     try:
         if text.strip().find("：") != -1:
             title = text.split("：")[0]
@@ -85,7 +84,7 @@ def error(text):
 
 
 def warn(text):
-    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S',time.localtime(time.time()))} WARN - {escape(text)}")
+    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} WARN - {escape(text)}")
     return Logger.get_instance().logger.warning(text)
 
 
