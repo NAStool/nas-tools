@@ -118,7 +118,10 @@ class Sites:
                         continue
                     res = RequestUtils(headers=self.__user_agent, cookies=pt_cookie).get_res(url=pt_url)
                     if res and res.status_code == 200:
-                        status.append("%s 签到成功" % pt_task)
+                        if not self.__is_signin_success(res.text):
+                            status.append("%s 签到失败，Cookie已过期" % pt_task)
+                        else:
+                            status.append("%s 签到成功" % pt_task)
                     elif not res:
                         status.append("%s 签到失败，无法打开网站" % pt_task)
                     else:
@@ -168,6 +171,15 @@ class Sites:
             return float(ratio_match.group(1).strip())
         else:
             return 0
+
+    @staticmethod
+    def __is_signin_success(html_text):
+        """
+        检进是否成功进入PT网站而不是登录界面
+        """
+        if not html_text:
+            return False
+        return True if html_text.find("userdetails") != -1 else False
 
     def refresh_pt_date_now(self):
         """
