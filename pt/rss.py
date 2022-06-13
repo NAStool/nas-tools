@@ -114,15 +114,15 @@ class Rss:
                         # 种子大小
                         size = res.get('size')
 
-                        log.info("【RSS】开始处理：%s" % torrent_name)
+                        log.debug("【RSS】开始处理：%s" % torrent_name)
                         # 识别种子名称，开始检索TMDB
                         media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
                         if not media_info or not media_info.tmdb_info:
-                            log.info("【RSS】%s 未查询到媒体信息" % torrent_name)
+                            log.debug("【RSS】%s 未查询到媒体信息" % torrent_name)
                             continue
                         # 检查这个名字是不是下过了
                         if is_torrent_rssd(media_info):
-                            log.info("【RSS】%s%s 已成功订阅过，跳过..." % (
+                            log.info("【RSS】%s%s 已成功订阅过" % (
                                 media_info.get_title_string(), media_info.get_season_episode_string()))
                             continue
                         # 检查种子名称或者标题是否匹配
@@ -132,15 +132,15 @@ class Rss:
                                                                  media_info.get_season_episode_string(),
                                                                  media_info.get_resource_type_string()))
                         else:
-                            log.info("【RSS】%s: %s %s %s 不匹配订阅" % (media_info.type.value,
-                                                                  media_info.get_title_string(),
-                                                                  media_info.get_season_episode_string(),
-                                                                  media_info.get_resource_type_string()))
+                            log.debug("【RSS】%s: %s %s %s 不匹配订阅" % (media_info.type.value,
+                                                                   media_info.get_title_string(),
+                                                                   media_info.get_season_episode_string(),
+                                                                   media_info.get_resource_type_string()))
                             continue
                         # 确定标题中是否符合过滤规则，并返回关键字的顺序号
                         match_flag, res_order = Torrent.check_resouce_types(torrent_name, description, res_type)
                         if not match_flag:
-                            log.info("【RSS】%s 不符合过滤条件，跳过..." % torrent_name)
+                            log.info("【RSS】%s 不符合过滤规则" % torrent_name)
                             continue
                         # 判断文件大小是否匹配，只针对电影
                         if not Torrent.is_torrent_match_size(media_info, res_type, size):

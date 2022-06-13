@@ -99,27 +99,27 @@ class DouBan:
                 while True:
                     page_number = int(start_number / 15 + 1)
                     # 每一页的文本
-                    log.info(f"【DOUBAN】开始解析第 {page_number} 页数据...")
+                    log.debug(f"【DOUBAN】开始解析第 {page_number} 页数据...")
                     soup = self.get_html_soup(user_id=user, media_status=mtype, start_number=start_number)
                     # 获取全部url
                     url_dict = self.__get_url_list(soup, self.__days)
                     url_list = url_dict["url_list"]
                     url_num = len(url_list)
-                    log.info(f"【DOUBAN】第 {page_number} 页有 {url_num} 个媒体")
+                    log.debug(f"【DOUBAN】第 {page_number} 页有 {url_num} 个媒体")
                     monitoring_info = url_dict["monitoring_info"]
-                    log.info(f"【DOUBAN】本页监控日期内的数据为：{monitoring_info[0]}")
-                    log.info(f"【DOUBAN】是否继续访问下一页：{monitoring_info[1]}")
+                    log.debug(f"【DOUBAN】本页监控日期内的数据为：{monitoring_info[0]}")
+                    log.debug(f"【DOUBAN】是否继续访问下一页：{monitoring_info[1]}")
                     sucess_urlnum = 0
                     url_count = 0
                     for url in url_list:
                         if url_count == monitoring_info[0] and not monitoring_info[1]:
-                            log.info("【DOUBAN】其他媒体不在监控时间内，结束导入")
+                            log.debug("【DOUBAN】其他媒体不在监控时间内，结束导入")
                             break
                         else:
                             url_count += 1
                         # 随机休眠
                         time_number = round(random.uniform(1, 5), 1)
-                        log.info(f"【DOUBAN】解析媒体 {url_count} 随机休眠：{time_number}s")
+                        log.debug(f"【DOUBAN】解析媒体 {url_count} 随机休眠：{time_number}s")
                         sleep(time_number)
                         # 每一个条目的内容
                         media_soup = self.get_html_soup(user_id=user, url=url, media_status=mtype)
@@ -142,8 +142,8 @@ class DouBan:
                         start_number += 15
                     else:
                         break
-                    log.info(f"【DOUBAN】第 {page_number} 页解析完成，共获取到 {sucess_urlnum} 个媒体")
-                log.info(f"【DOUBAN】用户 {user} 的 {mtype} 解析完成，共获取到 {user_type_succnum} 个媒体")
+                    log.debug(f"【DOUBAN】第 {page_number} 页解析完成，共获取到 {sucess_urlnum} 个媒体")
+                log.debug(f"【DOUBAN】用户 {user} 的 {mtype} 解析完成，共获取到 {user_type_succnum} 个媒体")
             log.info(f"【DOUBAN】用户 {user} 解析完成，共获取到 {user_succnum} 个媒体")
         log.info(f"【DOUBAN】所有用户解析完成，共获取到 {len(movie_list)} 个媒体")
 
@@ -452,7 +452,7 @@ class DouBan:
                             # 更新为已下载状态
                             insert_douban_media_state(media, "DOWNLOADED")
                     else:
-                        log.info("【DOUBAN】 %s %s 已处理过，跳过..." % (media.get_name(), media.year))
+                        log.debug("【DOUBAN】 %s %s 已处理过" % (media.get_name(), media.year))
             else:
                 # 不需要检索
                 if self.__auto_rss:

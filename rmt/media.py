@@ -118,7 +118,6 @@ class Media:
         if not self.search:
             return None
         if not file_media_name:
-            log.error("【META】识别关键字有误！")
             return None
         if language:
             self.tmdb.language = language
@@ -127,28 +126,28 @@ class Media:
         # TMDB检索
         info = {}
         if search_type == MediaType.MOVIE:
-            log.info(f"【META】正在识别{search_type.value}：{file_media_name}, 年份={xstr(first_media_year)} ...")
+            log.debug(f"【META】正在识别{search_type.value}：{file_media_name}, 年份={xstr(first_media_year)} ...")
             info = self.__search_movie_by_name(file_media_name, first_media_year)
             if info:
-                log.info(">%sID：%s, %s名称：%s, 上映日期：%s" % (
+                log.debug(">%sID：%s, %s名称：%s, 上映日期：%s" % (
                     search_type.value, info.get('id'), search_type.value, info.get('title'), info.get('release_date')))
         else:
             # 有当前季和当前季集年份，使用精确匹配
             if media_year and season_number:
-                log.info(f"【META】正在识别{search_type.value}：{file_media_name}, 季集={season_number}, 季集年份={media_year} ...")
+                log.debug(f"【META】正在识别{search_type.value}：{file_media_name}, 季集={season_number}, 季集年份={media_year} ...")
                 info = self.__search_tv_by_season(file_media_name, media_year, season_number)
             if not info:
-                log.info(f"【META】正在识别{search_type.value}：{file_media_name}, 年份={xstr(first_media_year)} ...")
+                log.debug(f"【META】正在识别{search_type.value}：{file_media_name}, 年份={xstr(first_media_year)} ...")
                 info = self.__search_tv_by_name(file_media_name, first_media_year)
             if info:
-                log.info(">%sID：%s, %s名称：%s, 首播日期：%s" % (
+                log.debug(">%sID：%s, %s名称：%s, 首播日期：%s" % (
                     search_type.value, info.get('id'), search_type.value, info.get('name'), info.get('first_air_date')))
         # 补充类别信息
         if info:
             info['media_type'] = search_type
             return info
         else:
-            log.warn("【META】%s 未匹配到媒体信息!" % file_media_name)
+            log.debug("【META】%s 未匹配到媒体信息!" % file_media_name)
             return None
 
     def __search_movie_by_name(self, file_media_name, first_media_year):
@@ -600,7 +599,7 @@ class Media:
         if not self.movie:
             return {}
         try:
-            log.info("【META】正在查询TMDB电影：%s ..." % tmdbid)
+            log.debug("【META】正在查询TMDB电影：%s ..." % tmdbid)
             tmdbinfo = self.movie.details(tmdbid)
             return tmdbinfo
         except Exception as e:
@@ -616,7 +615,7 @@ class Media:
         if not self.tv:
             return {}
         try:
-            log.info("【META】正在查询TMDB电视剧：%s ..." % tmdbid)
+            log.debug("【META】正在查询TMDB电视剧：%s ..." % tmdbid)
             tmdbinfo = self.tv.details(tmdbid)
             return tmdbinfo
         except Exception as e:
@@ -633,7 +632,7 @@ class Media:
         if not self.tv:
             return {}
         try:
-            log.info("【META】正在查询TMDB电视剧：%s，季：%s ..." % (tmdbid, season))
+            log.debug("【META】正在查询TMDB电视剧：%s，季：%s ..." % (tmdbid, season))
             tmdbinfo = self.tv.season_details(tmdbid, season)
             return tmdbinfo
         except Exception as e:
