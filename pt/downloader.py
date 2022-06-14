@@ -326,12 +326,12 @@ class Downloader:
                                     sleep(5)
                                     torrent_id = self.client.get_last_add_torrentid_by_tag(torrent_tag)
                                     if torrent_id is None:
-                                        log.error("【PT】获取Qbittorrent添加的种子信息出错：%s" % item.org_string)
                                         continue
                                     else:
                                         self.client.remove_torrents_tag(torrent_id, torrent_tag)
                                         break
                             if not torrent_id:
+                                log.error("【PT】获取Qbittorrent添加的种子信息出错：%s" % item.org_string)
                                 continue
                             # 设置任务只下载想要的文件
                             selected_episodes = self.set_files_status(torrent_id, need_episodes)

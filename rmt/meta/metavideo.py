@@ -389,14 +389,18 @@ class MetaVideo(MetaBase):
                     seasons = seasons.upper().replace("S", "").strip()
                 else:
                     return
-                end_season = None
-                if seasons.find('-') != -1:
-                    seasons = seasons.split('-')
-                    begin_season = int(cn2an.cn2an(seasons[0].strip(), mode='smart'))
-                    if len(seasons) > 1:
-                        end_season = int(cn2an.cn2an(seasons[1].strip(), mode='smart'))
-                else:
-                    begin_season = int(cn2an.cn2an(seasons, mode='smart'))
+                try:
+                    end_season = None
+                    if seasons.find('-') != -1:
+                        seasons = seasons.split('-')
+                        begin_season = int(cn2an.cn2an(seasons[0].strip(), mode='smart'))
+                        if len(seasons) > 1:
+                            end_season = int(cn2an.cn2an(seasons[1].strip(), mode='smart'))
+                    else:
+                        begin_season = int(cn2an.cn2an(seasons, mode='smart'))
+                except Exception as err:
+                    print(str(err))
+                    return
                 if self.begin_season is None and isinstance(begin_season, int):
                     self.begin_season = begin_season
                     self.total_seasons = 1
@@ -413,14 +417,18 @@ class MetaVideo(MetaBase):
                     episodes = episodes.upper().replace("E", "").replace("P", "").strip()
                 else:
                     return
-                end_episode = None
-                if episodes.find('-') != -1:
-                    episodes = episodes.split('-')
-                    begin_episode = int(cn2an.cn2an(episodes[0].strip(), mode='smart'))
-                    if len(episodes) > 1:
-                        end_episode = int(cn2an.cn2an(episodes[1].strip(), mode='smart'))
-                else:
-                    begin_episode = int(cn2an.cn2an(episodes, mode='smart'))
+                try:
+                    end_episode = None
+                    if episodes.find('-') != -1:
+                        episodes = episodes.split('-')
+                        begin_episode = int(cn2an.cn2an(episodes[0].strip(), mode='smart'))
+                        if len(episodes) > 1:
+                            end_episode = int(cn2an.cn2an(episodes[1].strip(), mode='smart'))
+                    else:
+                        begin_episode = int(cn2an.cn2an(episodes, mode='smart'))
+                except Exception as err:
+                    print(str(err))
+                    return
                 if self.begin_episode is None and isinstance(begin_episode, int):
                     self.begin_episode = begin_episode
                     self.total_episodes = 1
@@ -442,7 +450,11 @@ class MetaVideo(MetaBase):
                 if not season_all:
                     season_all = season_all_str.group(2)
                 if season_all and self.begin_season is None and self.begin_episode is None:
-                    self.total_seasons = int(cn2an.cn2an(season_all.strip(), mode='smart'))
+                    try:
+                        self.total_seasons = int(cn2an.cn2an(season_all.strip(), mode='smart'))
+                    except Exception as err:
+                        print(str(err))
+                        return
                     self.begin_season = 1
                     self.end_season = self.total_seasons
                     self._subtitle_flag = True

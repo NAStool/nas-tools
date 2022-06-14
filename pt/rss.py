@@ -118,7 +118,7 @@ class Rss:
                         # 识别种子名称，开始检索TMDB
                         media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
                         if not media_info or not media_info.tmdb_info:
-                            log.debug("【RSS】%s 未查询到媒体信息" % torrent_name)
+                            log.debug("【RSS】%s 未识别到媒体信息" % torrent_name)
                             continue
                         # 检查这个名字是不是下过了
                         if is_torrent_rssd(media_info):

@@ -9,6 +9,8 @@ app:
   logpath: '/config/logs'
   # 【群晖日志中心IP和端口】：logtype为SERVER时生效。端口一般是514，只需要改动IP为群晖的IP
   logserver: 127.0.0.1:514
+  # 【日志级别】：info、debug、error
+  loglevel: info
   # 【WEB管理界面端口】：默认3000
   web_port: 3000
   # 【WEB管理页面登录用户】，默认admin

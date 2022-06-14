@@ -166,8 +166,7 @@ class IIndexer(metaclass=ABCMeta):
                 log.debug(f"【{self.index_type}】{torrent_name} 无法识别")
                 continue
 
-            if meta_info.type not in [MediaType.MOVIE, MediaType.UNKNOWN] and filter_args.get(
-                    "type") == MediaType.MOVIE:
+            if meta_info.type != MediaType.MOVIE and filter_args.get("type") == MediaType.MOVIE:
                 log.info(f"【{self.index_type}】{torrent_name} 是 {meta_info.type.value}，不匹配类型：{filter_args.get('type')}")
                 continue
 

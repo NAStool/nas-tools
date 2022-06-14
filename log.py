@@ -4,7 +4,7 @@ import threading
 import time
 from html import escape
 from logging.handlers import RotatingFileHandler
-from config import LOG_LEVEL, Config, LOG_QUEUE
+from config import Config, LOG_QUEUE
 from utils.sqls import insert_system_message
 
 lock = threading.Lock()
@@ -15,13 +15,18 @@ class Logger:
     __instance = None
     __config = None
 
+    __loglevels = {
+        "info": logging.INFO,
+        "debug": logging.DEBUG,
+        "error": logging.ERROR
+    }
+
     def __init__(self):
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(level=LOG_LEVEL)
         self.__config = Config()
-        logtype = self.__config.get_config('app').get('logtype')
-        if logtype:
-            logtype = logtype.lower()
+        logtype = self.__config.get_config('app').get('logtype') or "file"
+        loglevel = self.__config.get_config('app').get('loglevel') or "info"
+        self.logger.setLevel(level=self.__loglevels.get(loglevel))
         if logtype == "server":
             logserver = self.__config.get_config('app').get('logserver')
             logip = logserver.split(':')[0]

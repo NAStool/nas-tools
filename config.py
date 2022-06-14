@@ -47,8 +47,6 @@ RSS_DOUBAN_TO_TMDB_INTEVAL = 12
 # fanart的api，用于拉取封面图片
 FANART_MOVIE_API_URL = 'https://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
 FANART_TV_API_URL = 'https://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
-# 日志级别
-LOG_LEVEL = logging.INFO
 # 定义一个列表用来保存最近的日志，以便查看
 LOG_QUEUE = deque(maxlen=200)
 # 添加下载时增加的标签，开始只监控NASTool添加的下载时有效
