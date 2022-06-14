@@ -4,7 +4,6 @@ from message.send import Message
 from pt.downloader import Downloader
 from pt.indexer.jackett import Jackett
 from pt.indexer.prowlarr import Prowlarr
-from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.meta.metabase import MetaBase
 from utils.sqls import delete_all_search_torrents, insert_search_results
@@ -90,11 +89,10 @@ class Searcher:
                 # 保存搜索记录
                 delete_all_search_torrents()
                 # 插入数据库
-                save_media_list = Torrent.get_torrents_group_item(media_list)
-                insert_search_results(save_media_list)
+                insert_search_results(media_list)
                 # 微信未开自动下载时返回
                 if not self.__search_auto:
-                    return False, no_exists, len(save_media_list), None
+                    return False, no_exists, len(media_list), None
             # 择优下载
             download_items, left_medias = self.downloader.check_and_add_pt(in_from, media_list, no_exists)
             # 统计下载情况，下全了返回True，没下全返回False

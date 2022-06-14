@@ -163,7 +163,7 @@ class IIndexer(metaclass=ABCMeta):
             if not meta_info.get_name():
                 continue
             if meta_info.type == MediaType.UNKNOWN:
-                log.debug(f"【{self.index_type}】{torrent_name} 无法识别")
+                log.info(f"【{self.index_type}】{torrent_name} 无法识别")
                 continue
 
             if meta_info.type != MediaType.MOVIE and filter_args.get("type") == MediaType.MOVIE:

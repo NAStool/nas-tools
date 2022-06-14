@@ -281,7 +281,7 @@ class Media:
             return None
 
         if len(tvs) == 0:
-            log.warn("【META】%s 未找到媒体信息!" % file_media_name)
+            log.warn("【META】%s 未识别到媒体信息!" % file_media_name)
             return None
         else:
             for tv in tvs:

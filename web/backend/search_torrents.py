@@ -39,13 +39,10 @@ def search_medias_for_web(content, ident_flag=True, filters=None):
                                           match_type=0 if ident_flag else 2)
     delete_all_search_torrents()
     if len(media_list) == 0:
-        log.info("【WEB】%s 未检索到任何媒体资源" % content)
+        log.info("【WEB】%s 未检索到任何资源" % content)
         return
     else:
         log.info("【WEB】共检索到 %s 个有效资源" % len(media_list))
-        # 分组择优
-        media_list = Torrent.get_torrents_group_item(media_list)
-        log.info("【WEB】分组择优后剩余 %s 个有效资源" % len(media_list))
         # 插入数据库
         insert_search_results(media_list)
 
