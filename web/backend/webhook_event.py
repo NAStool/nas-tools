@@ -122,7 +122,7 @@ class WebhookEvent:
         if self.is_ignore_webhook_message(event_info.get('user_name'), event_info.get('device_name')):
             return
         # 消息标题
-        message_title = f"用户 {event_info.get('user_name')} {_webhook_actions.get('event')} {event_info.get('item_name')}"
+        message_title = f"用户 {event_info.get('user_name')} {_webhook_actions.get(event_info.get('event'))} {event_info.get('item_name')}"
         # 消息内容
         message_texts = []
         if event_info.get('device_name'):
