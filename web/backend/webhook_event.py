@@ -9,7 +9,6 @@ class WebhookEvent:
     __json = None
     message = None
     mediaserver = None
-    category = None
     filetransfer = None
 
     def __init__(self):
@@ -97,7 +96,6 @@ class WebhookEvent:
                 if ret:
                     # 刷新媒体库
                     self.mediaserver.refresh_root_library()
-                    self.send_webhook_message(event_info, 'emby')
 
     def send_webhook_message(self, event_info, channel):
         """
