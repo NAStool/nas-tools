@@ -69,37 +69,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
             log.warn("【WEB】错误的输入值：%s" % input_str)
             return
         media_info = SEARCH_MEDIA_CACHE[choose]
-        # 检查是否存在，电视剧返回不存在的集清单
-        exist_flag, no_exists, messages = Downloader().check_exists_medias(meta_info=media_info)
-        # 已经存在
-        if exist_flag:
-            Message().send_channel_msg(channel=in_from,
-                                       title="\n".join(messages),
-                                       user_id=user_id)
-            return
-        # 开始检索
-        Message().send_channel_msg(channel=in_from,
-                                   title="开始检索 %s ..." % media_info.title,
-                                   user_id=user_id)
-        search_result, no_exists, search_count, download_count = Searcher().search_one_media(media_info=media_info,
-                                                                                             in_from=in_from,
-                                                                                             no_exists=no_exists)
-        # 没有搜索到数据
-        if not search_count:
-            Message().send_channel_msg(channel=in_from,
-                                       title="%s 未搜索到任何资源" % media_info.title,
-                                       user_id=user_id)
-        # 搜索到了但是没开自动下载
-        elif download_count is None:
-            Message().send_channel_msg(channel=in_from,
-                                       title="%s 共搜索到%s个资源，点击选择下载" % (media_info.get_title_string(), search_count),
-                                       image=media_info.get_message_image(),
-                                       url="search",
-                                       user_id=user_id)
-        elif download_count == 0:
-            Message().send_channel_msg(channel=in_from,
-                                       title="%s 未下载到任何资源" % media_info.title,
-                                       user_id=user_id)
+        __search_media(in_from, media_info, user_id)
     # 接收到文本，开始查询可能的媒体信息供选择
     else:
         # 去掉查询中的电影或电视剧关键字
@@ -127,8 +97,55 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
             meta_info.set_tmdb_info(tmdb_info)
             SEARCH_MEDIA_CACHE.append(meta_info)
 
-        # 发送消息通知选择
-        Message().send_channel_list_msg(channel=in_from,
-                                        title="共找到%s条相关信息，请回复对应序号开始搜索" % len(SEARCH_MEDIA_CACHE),
-                                        medias=SEARCH_MEDIA_CACHE,
-                                        user_id=user_id)
+        if 1 == len(SEARCH_MEDIA_CACHE):
+            # 只有一条数据，直接开始搜索
+            media_info = SEARCH_MEDIA_CACHE[0]
+            Message().send_channel_msg(channel=in_from,
+                                       title="查询到精确媒体信息，准备启动检索",
+                                       user_id=user_id)
+            Message().send_channel_msg(channel=in_from,
+                                       title=media_info.get_title_ep_vote_string(),
+                                       text=media_info.get_overview_string(),
+                                       image=media_info.get_message_image(),
+                                       user_id=user_id)
+            __search_media(in_from, media_info, user_id)
+        else:
+            # 发送消息通知选择
+            Message().send_channel_list_msg(channel=in_from,
+                                            title="共找到%s条相关信息，请回复对应序号开始搜索" % len(SEARCH_MEDIA_CACHE),
+                                            medias=SEARCH_MEDIA_CACHE,
+                                            user_id=user_id)
+
+
+def __search_media(in_from, media_info, user_id):
+    # 检查是否存在，电视剧返回不存在的集清单
+    exist_flag, no_exists, messages = Downloader().check_exists_medias(meta_info=media_info)
+    # 已经存在
+    if exist_flag:
+        Message().send_channel_msg(channel=in_from,
+                                   title="\n".join(messages),
+                                   user_id=user_id)
+        return
+    # 开始检索
+    Message().send_channel_msg(channel=in_from,
+                               title="开始检索 %s ..." % media_info.title,
+                               user_id=user_id)
+    search_result, no_exists, search_count, download_count = Searcher().search_one_media(media_info=media_info,
+                                                                                         in_from=in_from,
+                                                                                         no_exists=no_exists)
+    # 没有搜索到数据
+    if not search_count:
+        Message().send_channel_msg(channel=in_from,
+                                   title="%s 未搜索到任何资源" % media_info.title,
+                                   user_id=user_id)
+    # 搜索到了但是没开自动下载
+    elif download_count is None:
+        Message().send_channel_msg(channel=in_from,
+                                   title="%s 共搜索到%s个资源，点击选择下载" % (media_info.get_title_string(), search_count),
+                                   image=media_info.get_message_image(),
+                                   url="search",
+                                   user_id=user_id)
+    elif download_count == 0:
+        Message().send_channel_msg(channel=in_from,
+                                   title="%s 未下载到任何资源" % media_info.title,
+                                   user_id=user_id)

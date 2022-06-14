@@ -125,6 +125,24 @@ class MetaBase(object):
                 string = "%s %s" % (string, self.get_vote_string())
         return string
 
+    def get_overview_string(self, max_len=140):
+        """
+        返回带限定长度的简介信息
+        :param max_len: 内容长度
+        :return:
+        """
+        if not hasattr(self, "overview"):
+            return ""
+
+        overview = self.overview
+        placeholder = ' ...'
+        max_len = max(len(placeholder), max_len - len(placeholder))
+
+        if not overview.startswith("　　"):
+            overview = f"　　{overview}"
+        overview = (overview[:max_len] + placeholder) if len(overview) > max_len else overview
+        return overview
+
     # 返回季字符串
     def get_season_string(self):
         if self.begin_season is not None:
@@ -295,9 +313,11 @@ class MetaBase(object):
                 self.category = self.category_handler.get_tv_category(info)
             else:
                 self.category = self.category_handler.get_anime_category(info)
-        self.poster_path = "https://image.tmdb.org/t/p/w500%s" % info.get('poster_path') if info.get('poster_path') else ""
+        self.poster_path = "https://image.tmdb.org/t/p/w500%s" % info.get('poster_path') if info.get(
+            'poster_path') else ""
         self.fanart_image = self.get_fanart_image(search_type=self.type, tmdbid=info.get('id'))
-        self.backdrop_path = "https://image.tmdb.org/t/p/w500%s" % info.get('backdrop_path') if info.get('backdrop_path') else ""
+        self.backdrop_path = "https://image.tmdb.org/t/p/w500%s" % info.get('backdrop_path') if info.get(
+            'backdrop_path') else ""
 
     # 整合种了信息
     def set_torrent_info(self,
