@@ -1343,17 +1343,37 @@ def create_flask_app(config):
                 log.error("微信消息处理发生错误：%s - %s" % (str(err), traceback.format_exc()))
                 return make_response("ok", 200)
 
-    # Emby消息通知
+    # Plex Webhook
+    @App.route('/plex', methods=['POST'])
+    def plex_webhook():
+        if not Security().check_mediaserver_ip(request.remote_addr):
+            log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
+            return 'Reject'
+        request_json = json.loads(request.form.get('payload', {}))
+        log.debug("收到Plex Webhook报文：%s" % str(request_json))
+        WebhookEvent().plex_action(request_json)
+        return 'Success'
+
+    # Emby Webhook
     @App.route('/jellyfin', methods=['POST'])
+    def jellyfin_webhook():
+        if not Security().check_mediaserver_ip(request.remote_addr):
+            log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
+            return 'Reject'
+        request_json = request.get_json()
+        log.debug("收到Jellyfin Webhook报文：%s" % str(request_json))
+        WebhookEvent().jellyfin_action(request_json)
+        return 'Success'
+
     @App.route('/emby', methods=['POST'])
-    def webhook():
+    # Emby Webhook
+    def emby_webhook():
         if not Security().check_mediaserver_ip(request.remote_addr):
             log.warn(f"非法IP地址的媒体服务器消息通知：{request.remote_addr}")
             return 'Reject'
         request_json = json.loads(request.form.get('data', {}))
-        log.debug("收到Webhook报文：%s" % str(request_json))
-        event = WebhookEvent(request_json)
-        event.report_to_discord()
+        log.debug("收到Emby Webhook报文：%s" % str(request_json))
+        WebhookEvent().emby_action(request_json)
         return 'Success'
 
     # Telegram消息

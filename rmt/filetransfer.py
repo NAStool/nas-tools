@@ -736,6 +736,8 @@ class FileTransfer:
         Emby/Jellyfin点红星后转移电影文件到精选分类
         :param item_path: 文件路径
         """
+        if not item_path:
+            return
         if not self.__movie_category_flag or not self.__movie_path:
             return False, None
         if os.path.isdir(item_path):

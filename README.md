@@ -34,7 +34,7 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 * 支持ServerChan、微信、Telegram、Bark等图文消息通知，直接在手机上控制。
 
 ### 4、其它
-* 自动签到、Emby/Jellyfin播放状态通知等等。
+* 自动签到、Emby/Jellyfin/Plex播放状态通知等等。
 
 
 ## 更新日志
@@ -166,7 +166,7 @@ https://github.com/jxxghp/nas-tools/releases
 * 启动程序并配置：默认使用3000端口启动，默认用户密码：admin/password（docker需要参考教程提前映射好端口、下载目录、媒体库目录），登录管理界面后，在设置中根据每个配置项的提示在WEB页面修改好配置并重启生效。
 
 ### 3、设置Emby/Jellyfin/Plex媒体库（推荐）
-* 在Emby/Jellyfin的Webhook插件中，设置地址为：http(s)://IP:3000/emby、jellyfin，用于接收播放通知
+* 在Emby/Jellyfin/Plex的Webhook插件中，设置地址为：http(s)://IP:3000/emby、jellyfin、plex，用于接收播放通知
 * 将Emby/Jellyfin/Plex的相关信息配置到程序中，会用于资源下载和检索控重，提升使用体验。
 * 如果启用了默认分类，需按如下的目录结构分别设置好媒体库；如是自定义分类，请按自己的定义建立好媒体库目录，分类定义请参考default-category.yaml分类配置文件模板。
    > 电影
