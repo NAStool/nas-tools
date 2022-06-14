@@ -3,7 +3,7 @@ import logging
 import os.path
 import traceback
 from math import floor
-from flask import Flask, request, json, render_template, make_response, session
+from flask import Flask, request, json, render_template, make_response, session, send_from_directory
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 from werkzeug.security import check_password_hash
 import xml.dom.minidom
@@ -1232,6 +1232,11 @@ def create_flask_app(config):
         if data:
             data = json.loads(data)
         return WebAction().action(cmd, data)
+
+    # 禁止搜索引擎
+    @App.route('/robots.txt', methods=['GET', 'POST'])
+    def robots():
+        return send_from_directory("", "robots.txt")
 
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])
