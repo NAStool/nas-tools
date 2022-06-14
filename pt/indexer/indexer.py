@@ -140,7 +140,6 @@ class IIndexer(metaclass=ABCMeta):
             description = item.get('description')
             seeders = item.get('seeders')
             peers = item.get('peers')
-            freeleech = item.get('freeleech')
             page_url = item.get('page_url')
             uploadvolumefactor = float(item.get('uploadvolumefactor'))
             downloadvolumefactor = float(item.get('downloadvolumefactor'))
@@ -200,8 +199,8 @@ class IIndexer(metaclass=ABCMeta):
             # 识别媒体信息
             if match_type != 2:
                 media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
-                if not media_info or not media_info.tmdb_info:
-                    log.debug(f"【{self.index_type}】{torrent_name} 未查询到媒体信息")
+                if not media_info or not media_info.tmdb_info or media_info.type == MediaType.UNKNOWN:
+                    log.debug(f"【{self.index_type}】{torrent_name} 未识别")
                     continue
 
                 # 类型
