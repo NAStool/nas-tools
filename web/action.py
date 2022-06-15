@@ -475,6 +475,7 @@ class WebAction:
         episode_format = data.get("episode_format")
         episode_details = data.get("episode_details")
         episode_offset = data.get("episode_offset")
+        subtitle_format = data.get("subtitle_format")
         min_filesize = data.get("min_filesize")
         if mtype == "TV":
             media_type = MediaType.TV
@@ -496,7 +497,8 @@ class WebAction:
                                                                EpisodeFormat(episode_format, episode_details,
                                                                              episode_offset), False, None),
                                                            min_filesize=min_filesize,
-                                                           udf_flag=True)
+                                                           udf_flag=True,
+                                                           subtitle_format=subtitle_format)
         if succ_flag:
             return {"retcode": 0, "retmsg": "转移成功"}
         else:

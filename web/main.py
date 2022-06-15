@@ -1046,6 +1046,9 @@ def create_flask_app(config):
                     SyncPath = {}
                     is_rename = True
                     is_enabled = True
+                    tmp = sync_path.split("&")
+                    sync_path = tmp[0]
+                    vars = tmp[1:]
                     if sync_path.startswith("#"):
                         is_enabled = False
                         sync_path = sync_path[1:-1]
@@ -1059,14 +1062,26 @@ def create_flask_app(config):
                         if not paths[0]:
                             continue
                         SyncPath['from'] = paths[0]
+                        if get_system() == OsType.WINDOWS:
+                            SyncPath['from'] = os.path.normpath(paths[0]).replace("\\", "\\\\")
                     if len(paths) > 1:
                         SyncPath['to'] = paths[1]
+                        if get_system() == OsType.WINDOWS:
+                            SyncPath['to'] = os.path.normpath(paths[1]).replace("\\", "\\\\")
                     if len(paths) > 2:
                         SyncPath['unknown'] = paths[2]
+                        if get_system() == OsType.WINDOWS:
+                            SyncPath['unknown'] = os.path.normpath(paths[2]).replace("\\", "\\\\")
                     SyncPath['rename'] = is_rename
                     SyncPath['enabled'] = is_enabled
+                    SyncPath['subtitle_enable_flag'] = False
+                    for v in vars:
+                        if v.startswith("subtitle_enable_flag=1"):
+                            SyncPath['subtitle_enable_flag'] = True
                     SyncPaths.append(SyncPath)
             else:
+                if get_system() == OsType.WINDOWS:
+                    sync_paths = os.path.normpath(sync_paths).replace("\\", "\\\\")
                 SyncPaths = [{"from": sync_paths}]
         SyncPaths = sorted(SyncPaths, key=lambda o: o.get("from"))
         SyncCount = len(SyncPaths)

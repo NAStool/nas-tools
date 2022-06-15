@@ -21,7 +21,7 @@ from utils.sqls import insert_transfer_history, insert_transfer_unknown, update_
     insert_transfer_blacklist
 from utils.types import MediaType, DownloaderType, SyncType, RmtMode, OsType
 from utils.commons import EpisodeFormat
-
+import parse
 lock = Lock()
 
 
@@ -163,13 +163,20 @@ class FileTransfer:
             lock.release()
         return retcode
 
-    def __transfer_subtitles(self, org_name, new_name, rmt_mode):
+    def __transfer_subtitles(self, org_name, new_name, rmt_mode, subtitle_format=None):
         """
         根据文件名转移对应字幕文件
         :param org_name: 原文件名
         :param new_name: 新文件名
         :param rmt_mode: RmtMode转移方式
+        :param subtitle_format: 字幕定位
         """
+
+        ep=None
+        if subtitle_format:
+            ret = parse.parse("{tmp}第{ep}集{end}", os.path.basename(new_name))
+            if ret and ret.__contains__("ep"):
+                ep = ret.__getitem__("ep").strip()
         dir_name = os.path.dirname(org_name)
         file_name = os.path.basename(org_name)
         file_list = get_dir_files(dir_name, RMT_SUBEXT)
@@ -179,24 +186,41 @@ class FileTransfer:
             log.debug("【RMT】字幕文件清单：" + str(file_list))
             find_flag = False
             for file_item in file_list:
-                org_subname = os.path.splitext(org_name)[0]
-                if org_subname in file_item:
-                    find_flag = True
-                    file_ext = os.path.splitext(file_item)[-1]
-                    if file_item.find(".zh-cn" + file_ext) != -1:
-                        new_file = os.path.splitext(new_name)[0] + ".zh-cn" + file_ext
-                    else:
-                        new_file = os.path.splitext(new_name)[0] + file_ext
-                    if not os.path.exists(new_file):
-                        log.debug("【RMT】正在处理字幕：%s" % file_name)
-                        retcode = self.__transfer_command(file_item, new_file, rmt_mode)
-                        if retcode == 0:
-                            log.info("【RMT】字幕 %s %s完成" % (file_name, rmt_mode.value))
+                new_file = None
+                if subtitle_format:
+                    ret = parse.parse(subtitle_format, os.path.basename(file_item))
+                    if ret and ret.__contains__("ep"):
+                        title_ep = ret.__getitem__("ep").strip()
+                        if ep != '' and title_ep != '':
+                            if ep.isdigit() and title_ep.isdigit():
+                                ep1 = int(ep)
+                                title_ep1 = int(title_ep)
+                                if ep1 != title_ep1:
+                                    continue
+                            elif ep != title_ep:
+                                continue
+                            new_file = os.path.splitext(new_name)[0] + os.path.splitext(file_item)[-1]
+                else:
+                    org_subname = os.path.splitext(org_name)[0]
+                    if org_subname in file_item:
+                        find_flag = True
+                        file_ext = os.path.splitext(file_item)[-1]
+                        if file_item.find(".zh-cn" + file_ext) != -1:
+                            new_file = os.path.splitext(new_name)[0] + ".zh-cn" + file_ext
                         else:
-                            log.error("【RMT】字幕 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
-                            return retcode
+                            new_file = os.path.splitext(new_name)[0] + file_ext
+                if not new_file:
+                    continue
+                if not os.path.exists(new_file):
+                    log.debug("【RMT】正在处理字幕：%s" % file_name)
+                    retcode = self.__transfer_command(file_item, new_file, rmt_mode)
+                    if retcode == 0:
+                        log.info("【RMT】字幕 %s %s完成" % (file_name, rmt_mode.value))
                     else:
-                        log.info("【RMT】字幕 %s 已存在" % new_file)
+                        log.error("【RMT】字幕 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
+                        return retcode
+                else:
+                    log.info("【RMT】字幕 %s 已存在" % new_file)
             if not find_flag:
                 log.debug("【RMT】没有相同文件名的字幕文件，不处理")
         return 0
@@ -296,13 +320,14 @@ class FileTransfer:
             log.error("【RMT】%s %s到unknown失败，错误码 %s" % (file_item, rmt_mode.value, retcode))
         return retcode
 
-    def __transfer_file(self, file_item, new_file, rmt_mode, over_flag=False):
+    def __transfer_file(self, file_item, new_file, rmt_mode, over_flag=False, subtitle_format=None):
         """
         转移一个文件，同时处理字幕
         :param file_item: 原文件路径
         :param new_file: 新文件路径
         :param rmt_mode: RmtMode转移方式
         :param over_flag: 是否覆盖，为True时会先删除再转移
+        :param subtitle_format: 字幕定位
         """
         file_name = os.path.basename(file_item)
         new_file_name = os.path.basename(new_file)
@@ -320,7 +345,7 @@ class FileTransfer:
             log.error("【RMT】文件 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
             return retcode
         # 处理字幕
-        return self.__transfer_subtitles(file_item, new_file, rmt_mode)
+        return self.__transfer_subtitles(file_item, new_file, rmt_mode, subtitle_format)
 
     def transfer_media(self,
                        in_from: Enum,
@@ -333,7 +358,9 @@ class FileTransfer:
                        season=None,
                        episode: (EpisodeFormat, bool, str) = None,
                        min_filesize=None,
-                       udf_flag=False):
+                       udf_flag=False,
+                       subtitle_format=None
+                       ):
         """
         识别并转移一个文件、多个文件或者目录
         :param in_from: 来源，即调用该功能的渠道
@@ -347,6 +374,7 @@ class FileTransfer:
         :param episode: (EpisodeFormat，是否批处理匹配，转移记录的ID)
         :param min_filesize: 过滤小文件大小的上限值
         :param udf_flag: 自定义转移标志，为True时代表是自定义转移，此时很多处理不一样
+        :param subtitle_format: 字幕定位
         :return: 处理状态，错误信息
         """
         episode = (None, False, None) if not episode else episode
@@ -501,7 +529,7 @@ class FileTransfer:
                         if rmt_mode != RmtMode.SOFTLINK:
                             if media.size > os.path.getsize(ret_file_path) and self.__filesize_cover or udf_flag:
                                 log.info("【RMT】文件 %s 已存在，覆盖..." % ret_file_path)
-                                ret = self.__transfer_file(file_item, ret_file_path, rmt_mode, True)
+                                ret = self.__transfer_file(file_item, ret_file_path, rmt_mode, True, subtitle_format)
                                 if ret != 0:
                                     success_flag = False
                                     error_message = "文件转移失败，错误码 %s" % ret
@@ -559,7 +587,7 @@ class FileTransfer:
                             failed_count += 1
                             continue
                         new_file = "%s%s" % (ret_file_path, file_ext)
-                        ret = self.__transfer_file(file_item, new_file, rmt_mode, False)
+                        ret = self.__transfer_file(file_item, new_file, rmt_mode, False, subtitle_format)
                         if ret != 0:
                             success_flag = False
                             error_message = "文件转移失败，错误码 %s" % ret

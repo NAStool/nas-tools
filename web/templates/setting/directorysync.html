@@ -42,6 +42,8 @@
                   <th>目的目录</th>
                   <th class="w-5 text-nowrap">识别重命名</th>
                   <th class="w-5 text-nowrap">开启同步</th>
+                  <th class="w-5 text-nowrap">监控目的目录字幕(<a href="#"
+                  title="将检测目的地目录下新增字幕文件，自动更名视频相应视频，已经存在字幕的不会更新;" style="color: red">注意</a>)</th>
                   <th class="w-3"></th>
                 </tr>
               </thead>
@@ -61,17 +63,23 @@
                   <td>
                     <label class="form-check form-switch">
                       <input class="form-check-input" type="checkbox" {% if SyncPath.rename %} checked {% endif %}
-                             onclick="set_directory_config_rename('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}', this.checked)">
+                             onclick="set_directory_config_rename('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}', '{{ SyncPath.subtitle_enable_flag }}', this.checked)">
                     </label>
                   </td>
                   <td>
                     <label class="form-check form-switch">
                       <input class="form-check-input" type="checkbox" {% if SyncPath.enabled %} checked {% endif %}
-                             onclick="set_directory_config_enabled('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}', this.checked)">
+                             onclick="set_directory_config_enabled('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}', '{{ SyncPath.subtitle_enable_flag }}', this.checked)">
                     </label>
                   </td>
                   <td>
-                    <a href="javascript:sub_directory_config('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}')" title="删除目录">
+                    <label class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" {% if SyncPath.subtitle_enable_flag %} checked {% endif %}
+                             onclick="set_directory_config_subtitle_monitor('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}', '{{ SyncPath.subtitle_enable_flag }}', this.checked)">
+                    </label>
+                  </td>
+                  <td>
+                    <a href="javascript:sub_directory_config('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}', '{{ SyncPath.subtitle_enable_flag }}')" title="删除目录">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                          <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -126,6 +134,12 @@
                 <span class="form-check-label">开启同步</span>
               </label>
             </div>
+            <div class="col-4">
+              <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="subtitle_enable_flag" checked>
+                <span class="form-check-label">监控目的目录字幕</span>
+              </label>
+            </div>
           </div>
         </div>
       </div>
@@ -168,6 +182,9 @@
       if (!$("#enable_flag").prop("checked")) {
           value = "#" + value + "#";
       }
+      if (!$("#subtitle_enable_flag").prop("checked")) {
+          value += "&subtitle_enable_flag=1";
+      }
       var params = {"oper": "add", "key": "sync.sync_path", "value": value};
       $("#modal-directory").modal('hide');
       ajax_post("update_directory", params, function (ret) {
@@ -176,7 +193,7 @@
   }
 
   // 删除目录
-  function sub_directory_config(from, to, unknown, rename, enabled) {
+  function sub_directory_config(from, to, unknown, rename, enabled, subtitle_enable_flag) {
       if (unknown) {
           value = from + "|" + to + "|" + unknown;
       } else if (to) {
@@ -191,6 +208,11 @@
       if (enabled != "True") {
           value = "#" + value + "#";
       }
+
+      value += "&" + "subtitle_enable_flag=";
+      if (subtitle_enable_flag === "True") {
+          value += "&subtitle_enable_flag=1";
+      }
       var params = {"oper": "sub", "key": "sync.sync_path", "value": value};
       ajax_post("update_directory", params, function (ret) {
           navmenu('directorysync');
@@ -198,7 +220,7 @@
   }
 
   // 更新目录是否开启重命名
-  function set_directory_config_rename(from, to, unknown, rename, enabled, new_rename) {
+  function set_directory_config_rename(from, to, unknown, rename, enabled, subtitle_enable_flag, new_rename) {
       if (unknown) {
           value = from + "|" + to + "|" + unknown;
       } else if (to) {
@@ -220,6 +242,11 @@
           replace_value = "#" + replace_value + "#";
       }
 
+      if (subtitle_enable_flag === "True") {
+          value += "&subtitle_enable_flag=1";
+          replace_value += "&subtitle_enable_flag=1";
+      }
+
       var params = {"oper": "set", "key": "sync.sync_path", "value": value, "replace_value": replace_value};
       ajax_post("update_directory", params, function (ret) {
           navmenu('directorysync');
@@ -227,7 +254,7 @@
   }
 
   // 更新目录是否开启监控
-  function set_directory_config_enabled(from, to, unknown, rename, enabled, new_enabled) {
+  function set_directory_config_enabled(from, to, unknown, rename, enabled, subtitle_enable_flag, new_enabled) {
       if (unknown) {
           value = from + "|" + to + "|" + unknown;
       } else if (to) {
@@ -247,6 +274,43 @@
 
       if (new_enabled !== true) {
           replace_value = "#" + replace_value + "#";
+      }
+
+      if (subtitle_enable_flag === "True") {
+          value += "&subtitle_enable_flag=1";
+          replace_value += "&subtitle_enable_flag=1";
+      }
+
+      var params = {"oper": "set", "key": "sync.sync_path", "value": value, "replace_value": replace_value};
+      ajax_post("update_directory", params, function (ret) {
+          navmenu('directorysync');
+      });
+  }
+
+  // 更新目录是否开启监控
+  function set_directory_config_subtitle_monitor(from, to, unknown, rename, enabled, subtitle_enable_flag, new_enabled) {
+      if (unknown) {
+          value = from + "|" + to + "|" + unknown;
+      } else if (to) {
+          value = from + "|" + to;
+      } else {
+          value = from;
+      }
+
+      if (rename != "True") {
+          value = "[" + value + "]";
+      }
+
+      if (enabled != "True") {
+          value = "#" + value + "#";
+      }
+
+      let replace_value = value
+      if (new_enabled) {
+          replace_value += "&subtitle_enable_flag=1";
+      }
+      if (subtitle_enable_flag === "True") {
+          value += "&subtitle_enable_flag=1";
       }
 
       var params = {"oper": "set", "key": "sync.sync_path", "value": value, "replace_value": replace_value};
