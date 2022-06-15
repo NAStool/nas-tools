@@ -1,0 +1,46 @@
+<div class="container-xl">
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">近期下载</h2>
+      </div>
+    </div>
+  </div>
+</div>
+{% if Count > 0 %}
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      {% for item in Items %}
+      <div class="col-sm-6 col-md-3 col-xl-2">
+        <div class="card card-sm card-link-pop rounded-3">
+          <a href='javascript:show_mediainfo_modal("{% if item[3] == "电影" %}MOV{% else %}TV{% endif %}", "{{ item[1] }}", "{{ item[2] }}", "{{ item[4] }}")' title="{{ item[1] }} ({{ item[2] }})" class="d-block">
+            <img src="{{ item[6] }}" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important">
+          </a>
+          <div class="card-body">
+            <div class="d-flex align-items-center">
+              <div>
+                <div><strong>{{ item[1] }}</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="page-body">
+  <div class="container-xl d-flex flex-column justify-content-center">
+    <div class="empty">
+      <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128"  alt="">
+      </div>
+      <p class="empty-title" id="search_tip_title">没有记录</p>
+      <p class="empty-subtitle text-muted" id="search_tip_text">
+        近期没有下载任何影视资源
+      </p>
+    </div>
+  </div>
+</div>
+{% endif %}

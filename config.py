@@ -4,18 +4,21 @@ import shutil
 from collections import deque
 from threading import Lock
 import ruamel.yaml
+from werkzeug.security import generate_password_hash
 
 import log
 from utils.functions import singleton
 
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
 # 菜单序号在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护，然后看日志输出的菜单序号是啥（按顺利能猜到的）....
-# 命令对应关系：/ptt qBittorrent转移；/ptr qBittorrent删种；/pts PT签到；/rst ResilioSync同步；/rss RSS下载
+# 命令对应关系：/ptt PT文件转移；/ptr PT删种；/pts PT签到；/rst 目录同步；/rss RSS下载
 WECHAT_MENU = {'_0_0': '/ptt', '_0_1': '/ptr', '_0_2': '/rss', '_1_0': '/rst', '_1_1': '/db', '_2_0': '/pts'}
+# 种子名/文件名要素分隔字符
+SPLIT_CHARS = r"\.|\s+|\(|\)|\[|]|-|\+|【|】|/|～|;|&|\||#|_|「|」|（|）"
 # 收藏了的媒体的目录名，名字可以改，在Emby中点击红星则会自动将电影转移到此分类下，需要在Emby Webhook中配置用户行为通知
 RMT_FAVTYPE = '精选'
 # 支持的媒体文件后缀格式
-RMT_MEDIAEXT = ['.mp4', '.mkv', '.ts', '.iso', '.rmvb', '.avi', '.mov', '.mpeg', '.mpg', '.wmv', '.3gp', '.asf']
+RMT_MEDIAEXT = ['.mp4', '.mkv', '.ts', '.iso', '.rmvb', '.avi', '.mov', '.mpeg', '.mpg', '.wmv', '.3gp', '.asf', '.m4v', '.flv']
 # 支持的字幕文件后缀格式
 RMT_SUBEXT = ['.srt', '.ass', '.ssa']
 # 默认Headers
@@ -26,7 +29,7 @@ ANIME_GENREIDS = ['16']
 # 默认过滤的文件大小，150M
 RMT_MIN_FILESIZE = 150 * 1024 * 1024
 # PT删种检查时间间隔
-AUTO_REMOVE_TORRENTS_INTERVAL = 1700
+AUTO_REMOVE_TORRENTS_INTERVAL = 1800
 # PT转移文件检查时间间隔，
 PT_TRANSFER_INTERVAL = 300
 # TMDB信息缓存定时保存时间
@@ -37,15 +40,36 @@ RELOAD_CONFIG_INTERVAL = 600
 SYNC_TRANSFER_INTERVAL = 300
 # RSS队列中处理时间间隔
 RSS_SEARCH_INTERVAL = 300
+# PT站流量数据刷新时间间隔（小时）
+REFRESH_PT_DATA_INTERVAL = 24
+# 将豆瓣订阅转为TMDB订阅的检查时间间隔（小时）
+RSS_DOUBAN_TO_TMDB_INTEVAL = 12
 # fanart的api，用于拉取封面图片
-FANART_MOVIE_API_URL = 'http://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
-FANART_TV_API_URL = 'http://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
-# 日志级别
-LOG_LEVEL = logging.INFO
+FANART_MOVIE_API_URL = 'https://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
+FANART_TV_API_URL = 'https://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
 # 定义一个列表用来保存最近的日志，以便查看
 LOG_QUEUE = deque(maxlen=200)
 # 添加下载时增加的标签，开始只监控NASTool添加的下载时有效
 PT_TAG = "NASTOOL"
+# 搜索种子过滤属性
+TORRENT_SEARCH_PARAMS = {
+    "restype": {
+        "BLURAY": r"Blu-?Ray|BD|BDRIP",
+        "REMUX": r"REMUX",
+        "DOLBY": r"DOLBY",
+        "WEB": r"WEB-?DL|WEBRIP",
+        "HDTV": r"U?HDTV",
+        "UHD": r"UHD",
+        "HDR": r"HDR",
+        "3D": r"3D"
+    },
+    "pix": {
+        "8k": r"8K",
+        "4k": r"4K|2160K",
+        "1080p": r"1080[PIX]",
+        "720p": r"720P"
+    }
+}
 
 lock = Lock()
 
@@ -72,6 +96,21 @@ class Config(object):
                 try:
                     yaml = ruamel.yaml.YAML()
                     self.__config = yaml.load(f)
+                    if self.__config.get("app"):
+                        login_password = self.__config.get("app").get("login_password")
+                        if login_password and not login_password.startswith("[hash]"):
+                            self.__config['app']['login_password'] = "[hash]%s" % generate_password_hash(login_password)
+                            self.save_config(self.__config)
+                    if not self.__config.get("security"):
+                        self.__config['security'] = {
+                            'media_server_webhook_allow_ip': {
+                                'ipv4': '0.0.0.0/0',
+                                'ipv6': '::/0'
+                            }
+                        }
+
+                        self.save_config(self.__config)
+
                 except Exception as e:
                     log.console("【ERROR】配置文件 config.yaml 格式出现严重错误！请检查：%s" % str(e))
                     self.__config = {}

@@ -3,12 +3,13 @@ import transmission_rpc
 from datetime import datetime
 import log
 from config import Config
+from pt.client.client import IDownloadClient
 from utils.functions import singleton
 from utils.types import MediaType
 
 
 @singleton
-class Transmission:
+class Transmission(IDownloadClient):
     __trhost = None
     __trport = None
     __trusername = None
@@ -110,7 +111,7 @@ class Transmission:
         for torrent in torrents:
             if status and torrent.status not in status:
                 continue
-            labels = torrent.labels or []
+            labels = torrent.labels if hasattr(torrent, "labels") else []
             if tag and tag not in labels:
                 continue
             ret_torrents.append(torrent)
@@ -168,6 +169,11 @@ class Transmission:
         torrents = self.get_completed_torrents(tag=tag)
         trans_tasks = []
         for torrent in torrents:
+            # 3.0版本以下的Transmission没有labels
+            if not hasattr(torrent, "labels"):
+                log.warn(f"【TR】当前transmission版本可能过低，无labels属性，请安装3.0以上版本！")
+                break
+
             if torrent.labels and "已整理" in torrent.labels:
                 continue
             true_path = os.path.join(torrent.download_dir, torrent.name)
@@ -187,12 +193,16 @@ class Transmission:
         查询可以清单的种子
         :return: 可以清理的种子ID列表
         """
+        if not seeding_time:
+            return []
         torrents = self.get_completed_torrents(tag=tag)
         remove_torrents = []
         for torrent in torrents:
             date_done = torrent.date_done
             if not date_done:
                 date_done = torrent.date_added
+            if not date_done:
+                continue
             date_now = datetime.now().astimezone()
             torrent_time = (date_now - date_done).seconds
             if torrent_time > int(seeding_time):
@@ -200,7 +210,7 @@ class Transmission:
                 remove_torrents.append(torrent.id)
         return remove_torrents
 
-    def add_torrent(self, turl, mtype, is_paused=None):
+    def add_torrent(self, turl, mtype, is_paused=None, **kwargs):
         """
         添加下载
         :param turl: 种子URL
@@ -280,3 +290,16 @@ class Transmission:
             return False
         self.trc.set_files(file_items)
         return True
+
+    def get_pt_data(self):
+        """
+        获取PT下载软件中当前上传和下载量
+        :return: 上传量、下载量
+        """
+        if not self.trc:
+            return 0, 0
+        session = self.trc.session_stats()
+        for key, value in session.items():
+            if key == "current_stats":
+                return value.get("uploadedBytes"), value.get("downloadedBytes")
+        return 0, 0

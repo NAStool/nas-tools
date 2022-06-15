@@ -21,7 +21,7 @@ class SyncType(Enum):
 class SearchType(Enum):
     WX = "微信搜索"
     WEB = "WEB搜索"
-    DB = "豆瓣收藏"
+    DB = "豆瓣想看"
     RSS = "RSS订阅"
     OT = "手动下载"
     TG = "Telegram搜索"

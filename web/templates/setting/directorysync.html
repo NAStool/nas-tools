@@ -40,7 +40,8 @@
                 <tr>
                   <th>源目录</th>
                   <th>目的目录</th>
-                  <th class="w-10 text-nowrap">识别重命名</th>
+                  <th class="w-5 text-nowrap">识别重命名</th>
+                  <th class="w-5 text-nowrap">开启同步</th>
                   <th class="w-3"></th>
                 </tr>
               </thead>
@@ -58,14 +59,19 @@
                     {% endif %}
                   </td>
                   <td>
-                    {% if SyncPath.rename %}
-                    <span class="badge bg-green" title="已开启"></span>
-                    {% else %}
-                    <span class="badge bg-red" title="已关闭"></span>
-                    {% endif %}
+                    <label class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" {% if SyncPath.rename %} checked {% endif %}
+                             onclick="set_directory_config_rename('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}', this.checked)">
+                    </label>
                   </td>
                   <td>
-                    <a href="javascript:sub_directory_config('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.rename }}')" title="删除目录">
+                    <label class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" {% if SyncPath.enabled %} checked {% endif %}
+                             onclick="set_directory_config_enabled('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}', this.checked)">
+                    </label>
+                  </td>
+                  <td>
+                    <a href="javascript:sub_directory_config('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}')" title="删除目录">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                          <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -86,7 +92,7 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-dirctory" tabindex="-1" role="dialog" aria-hidden="true">
+<div class="modal modal-blur fade" id="modal-directory" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -108,10 +114,16 @@
             </div>
           </div>
           <div class="row g-2">
-            <div class="col-12">
+            <div class="col-4">
               <label class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="rename_flag" checked>
                 <span class="form-check-label">识别并重命名</span>
+              </label>
+            </div>
+            <div class="col-4">
+              <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="enable_flag" checked>
+                <span class="form-check-label">开启同步</span>
               </label>
             </div>
           </div>
@@ -126,55 +138,120 @@
 <script type="text/javascript">
   // 打开新增窗口
   function show_directory_modal(){
-    $("#modal-dirctory").modal('show');
+    $("#modal-directory").modal('show');
   }
 
   // 新增目录
-  function add_directory_config(){
-    if(!$("#from_path").val()){
-      $("#from_path").addClass("is-invalid");
-      return;
-    }else{
-      $("#from_path").removeClass("is-invalid");
-    }
-    if($("#unknown_path").val()){
-      value = $("#from_path").val() + "|" + $("#to_path").val() + "|" + $("#unknown_path").val();
-    }else if ($("#to_path").val()){
-      value = $("#from_path").val() + "|" + $("#to_path").val();
-    }else{
-      value = $("#from_path").val();
-    }
-    if(!$("#rename_flag").prop("checked")){
-      if(!$("#to_path").val()){
-        $("#to_path").addClass("is-invalid");
-        return;
-      }else{
-        $("#to_path").removeClass("is-invalid");
+  function add_directory_config() {
+      if (!$("#from_path").val()) {
+          $("#from_path").addClass("is-invalid");
+          return;
+      } else {
+          $("#from_path").removeClass("is-invalid");
       }
-      value = "[" + value + "]";
-    }
-    var params = {"oper": "add", "key": "sync.sync_path", "value": value};
-    $("#modal-dirctory").modal('hide');
-    ajax_post("update_directory", params, function (ret) {
-      navmenu('directorysync');
-    });
+      if ($("#unknown_path").val()) {
+          value = $("#from_path").val() + "|" + $("#to_path").val() + "|" + $("#unknown_path").val();
+      } else if ($("#to_path").val()) {
+          value = $("#from_path").val() + "|" + $("#to_path").val();
+      } else {
+          value = $("#from_path").val();
+      }
+      if (!$("#rename_flag").prop("checked")) {
+          if (!$("#to_path").val()) {
+              $("#to_path").addClass("is-invalid");
+              return;
+          } else {
+              $("#to_path").removeClass("is-invalid");
+          }
+          value = "[" + value + "]";
+      }
+      if (!$("#enable_flag").prop("checked")) {
+          value = "#" + value + "#";
+      }
+      var params = {"oper": "add", "key": "sync.sync_path", "value": value};
+      $("#modal-directory").modal('hide');
+      ajax_post("update_directory", params, function (ret) {
+          navmenu('directorysync');
+      });
   }
 
   // 删除目录
-  function sub_directory_config(from, to, unknown, rename){
-    if(unknown){
-      value = from + "|" + to + "|" + unknown;
-    }else if(to){
-      value = from + "|" + to;
-    }else{
-      value = from;
-    }
-    if(rename != "True"){
-      value = "[" + value + "]";
-    }
-    var params = {"oper": "sub", "key": "sync.sync_path", "value": value};
-    ajax_post("update_directory", params, function (ret) {
-      navmenu('directorysync');
-    });
+  function sub_directory_config(from, to, unknown, rename, enabled) {
+      if (unknown) {
+          value = from + "|" + to + "|" + unknown;
+      } else if (to) {
+          value = from + "|" + to;
+      } else {
+          value = from;
+      }
+      if (rename != "True") {
+          value = "[" + value + "]";
+      }
+
+      if (enabled != "True") {
+          value = "#" + value + "#";
+      }
+      var params = {"oper": "sub", "key": "sync.sync_path", "value": value};
+      ajax_post("update_directory", params, function (ret) {
+          navmenu('directorysync');
+      });
+  }
+
+  // 更新目录是否开启重命名
+  function set_directory_config_rename(from, to, unknown, rename, enabled, new_rename) {
+      if (unknown) {
+          value = from + "|" + to + "|" + unknown;
+      } else if (to) {
+          value = from + "|" + to;
+      } else {
+          value = from;
+      }
+      let replace_value = value
+
+      if (rename != "True") {
+          value = "[" + value + "]";
+      }
+
+      if (new_rename !== true) {
+          replace_value = "[" + replace_value + "]";
+      }
+      if (enabled != "True") {
+          value = "#" + value + "#";
+          replace_value = "#" + replace_value + "#";
+      }
+
+      var params = {"oper": "set", "key": "sync.sync_path", "value": value, "replace_value": replace_value};
+      ajax_post("update_directory", params, function (ret) {
+          navmenu('directorysync');
+      });
+  }
+
+  // 更新目录是否开启监控
+  function set_directory_config_enabled(from, to, unknown, rename, enabled, new_enabled) {
+      if (unknown) {
+          value = from + "|" + to + "|" + unknown;
+      } else if (to) {
+          value = from + "|" + to;
+      } else {
+          value = from;
+      }
+
+      if (rename != "True") {
+          value = "[" + value + "]";
+      }
+
+      let replace_value = value
+      if (enabled != "True") {
+          value = "#" + value + "#";
+      }
+
+      if (new_enabled !== true) {
+          replace_value = "#" + replace_value + "#";
+      }
+
+      var params = {"oper": "set", "key": "sync.sync_path", "value": value, "replace_value": replace_value};
+      ajax_post("update_directory", params, function (ret) {
+          navmenu('directorysync');
+      });
   }
 </script>

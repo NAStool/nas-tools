@@ -1,11 +1,13 @@
 import requests
 import log
 from config import Config
+from pt.mediaserver.server import IMediaServer
+from rmt.meta.metabase import MetaBase
 from utils.functions import get_local_time
 from utils.types import MediaType
 
 
-class Emby:
+class Emby(IMediaServer):
     __apikey = None
     __host = None
 
@@ -169,7 +171,7 @@ class Emby:
         except Exception as e:
             log.error("【EMBY】连接Items出错：" + str(e))
             return None
-        return None
+        return []
 
     def __get_emby_tv_episodes(self, title, year=None, season=None):
         """
@@ -202,9 +204,9 @@ class Emby:
         except Exception as e:
             log.error("【EMBY】连接Shows/{Id}/Episodes出错：" + str(e))
             return None
-        return None
+        return []
 
-    def get_no_exists_episodes(self, meta_info, season, total_num):
+    def get_no_exists_episodes(self, meta_info: MetaBase, season, total_num):
         """
         根据标题、年份、季、总集数，查询Emby中缺少哪几集
         :param meta_info: 已识别的需要查询的媒体信息

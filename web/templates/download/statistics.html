@@ -1,0 +1,463 @@
+<div class="container-xl">
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          数据统计
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+{% if SiteNames %}
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-sm-6 col-md-4 col-xl-3">
+        <div class="card card-sm">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto">
+                <span class="bg-green avatar">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><desc>Download more icon variants from https://tabler-icons.io/i/arrow-up</desc><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="18" y1="11" x2="12" y2="5" /><line x1="6" y1="11" x2="12" y2="5" /></svg>
+                </span>
+              </div>
+              <div class="col">
+                <div class="d-flex align-items-center">
+                  <div class="subheader">近7日上传</div>
+                </div>
+                <div class="d-flex align-items-baseline">
+                  <div class="h1 mb-0 me-2">{{ CurrentUpload }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4 col-xl-3">
+        <div class="card card-sm">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto">
+                <span class="bg-orange avatar">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><desc>Download more icon variants from https://tabler-icons.io/i/arrow-down</desc><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="18" y1="13" x2="12" y2="19" /><line x1="6" y1="13" x2="12" y2="19" /></svg>
+                </span>
+              </div>
+              <div class="col">
+                <div class="d-flex align-items-center">
+                  <div class="subheader">近7日下载</div>
+                </div>
+                <div class="d-flex align-items-baseline">
+                  <div class="h1 mb-0 me-2">{{ CurrentDownload }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4 col-xl-3">
+        <div class="card card-sm">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto">
+                <span class="bg-blue avatar">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-world-upload" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                     <desc>Download more icon variants from https://tabler-icons.io/i/world-upload</desc>
+                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                     <path d="M21 12a9 9 0 1 0 -9 9"></path>
+                     <path d="M3.6 9h16.8"></path>
+                     <path d="M3.6 15h8.4"></path>
+                     <path d="M11.578 3a17 17 0 0 0 0 18"></path>
+                     <path d="M12.5 3c1.719 2.755 2.5 5.876 2.5 9"></path>
+                     <path d="M18 21v-7m3 3l-3 -3l-3 3"></path>
+                  </svg>
+                </span>
+              </div>
+              <div class="col">
+                <div class="d-flex align-items-center">
+                  <div class="subheader">总上传</div>
+                </div>
+                <div class="d-flex align-items-baseline">
+                  <div class="h1 mb-0 me-2">{{ TotalUpload }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-sm-6 col-md-4 col-xl-3">
+        <div class="card card-sm">
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-auto">
+                <span class="bg-red avatar">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-world-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                     <desc>Download more icon variants from https://tabler-icons.io/i/world-download</desc>
+                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                     <path d="M21 12a9 9 0 1 0 -9 9"></path>
+                     <path d="M3.6 9h16.8"></path>
+                     <path d="M3.6 15h8.4"></path>
+                     <path d="M11.578 3a17 17 0 0 0 0 18"></path>
+                     <path d="M12.5 3c1.719 2.755 2.5 5.876 2.5 9"></path>
+                     <path d="M18 14v7m-3 -3l3 3l3 -3"></path>
+                  </svg>
+                </span>
+              </div>
+              <div class="col">
+                <div class="d-flex align-items-center">
+                  <div class="subheader">总下载</div>
+                </div>
+                <div class="d-flex align-items-baseline">
+                  <div class="h1 mb-0 me-2">{{ TotalDownload }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex">
+              <h3 class="card-title">近7日上传（GB）</h3>
+            </div>
+            <div id="chart-recent-upload"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex">
+              <h3 class="card-title">近7日下载（GB）</h3>
+            </div>
+            <div id="chart-recent-download"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex">
+              <h3 class="card-title">站点流量（GB）</h3>
+            </div>
+            <div id="chart-sites-detail"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex">
+              <h3 class="card-title">站点分享率</h3>
+            </div>
+            <div id="chart-sites-ratio"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex">
+              <h3 class="card-title">总上传</h3>
+            </div>
+            <div id="chart-sites-upload-his"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex">
+              <h3 class="card-title">总下载</h3>
+            </div>
+            <div id="chart-sites-download-his"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  // 近7日上传饼图
+  window.ApexCharts && (new ApexCharts(document.getElementById('chart-recent-upload'), {
+    series: {{ CurrentSiteUploads|safe }},
+    chart: {
+      type: 'pie',
+      height: 300.0,
+    },
+    labels: {{ CurrentSiteLabels|safe }},
+    dataLabels: {
+        enabled: true
+    }
+  })).render();
+
+  // 近7日下载饼图
+  window.ApexCharts && (new ApexCharts(document.getElementById('chart-recent-download'), {
+    series: {{ CurrentSiteDownloads|safe }},
+    chart: {
+      type: 'pie',
+      height: 300.0,
+    },
+    labels: {{ CurrentSiteLabels|safe }},
+    dataLabels: {
+        enabled: true
+    }
+  })).render();
+
+  // 站点流量明细
+  window.ApexCharts && (new ApexCharts(document.getElementById('chart-sites-detail'), {
+      chart: {
+          type: "bar",
+          fontFamily: 'inherit',
+          height: 200,
+          parentHeightOffset: 0,
+          toolbar: {
+              show: false,
+          },
+          animations: {
+              enabled: true
+          },
+      },
+      plotOptions: {
+          bar: {
+              columnWidth: '50%',
+          }
+      },
+      dataLabels: {
+          enabled: false,
+      },
+      fill: {
+          opacity: 1,
+      },
+      series: [{
+          name: "上传",
+          data: {{ SiteUploads|safe }}
+      },{
+          name: "下载",
+          data: {{ SiteDownloads|safe }}
+      }],
+      grid: {
+          padding: {
+              top: -20,
+              right: 0,
+              left: -4,
+              bottom: -4
+          },
+          strokeDashArray: 2,
+      },
+      xaxis: {
+          labels: {
+              padding: 0,
+          },
+          tooltip: {
+              enabled: true,
+              formatter: function (val, opt) {
+                return val.toLocaleString() + " GB"
+              },
+          },
+          axisBorder: {
+              show: false,
+          },
+          type: 'category',
+      },
+      yaxis: {
+          labels: {
+              padding: 4
+          },
+      },
+      labels: {{ SiteNames|safe }},
+      colors: ["#206bc4", "#cd201f"],
+      legend: {
+          show: true,
+      },
+  })).render();
+
+  // 站点分享率
+  window.ApexCharts && (new ApexCharts(document.getElementById('chart-sites-ratio'), {
+      chart: {
+          type: "bar",
+          fontFamily: 'inherit',
+          height: 200,
+          parentHeightOffset: 0,
+          toolbar: {
+              show: false,
+          },
+          animations: {
+              enabled: true
+          },
+      },
+      plotOptions: {
+          bar: {
+              columnWidth: '50%',
+          }
+      },
+      dataLabels: {
+          enabled: true,
+      },
+      fill: {
+          opacity: 1,
+      },
+      series: [{
+          name: "分享率",
+          data: {{ SiteRatios|safe }}
+      }],
+      grid: {
+          padding: {
+              top: -20,
+              right: 0,
+              left: -4,
+              bottom: -4
+          },
+          strokeDashArray: 1,
+      },
+      xaxis: {
+          labels: {
+              padding: 0,
+          },
+          tooltip: {
+              enabled: false
+          },
+          axisBorder: {
+              show: false,
+          },
+          type: 'category',
+      },
+      yaxis: {
+          labels: {
+              padding: 4
+          },
+      },
+      labels: {{ SiteNames|safe }},
+      colors: ["#206bc4"],
+      legend: {
+          show: true,
+      },
+  })).render();
+
+  // 总上传趋势
+  window.ApexCharts && (new ApexCharts(document.getElementById('chart-sites-upload-his'), {
+      chart: {
+          type: "area",
+          fontFamily: 'inherit',
+          height: 200.0,
+          sparkline: {
+              enabled: true
+          },
+          animations: {
+              enabled: true
+          },
+      },
+      fill: {
+          opacity: 1,
+      },
+      dataLabels: {
+          enabled: true,
+          formatter: function (val, opt) {
+            return val.toLocaleString() + " GB"
+          },
+      },
+      stroke: {
+          width: [2, 1],
+          dashArray: [0, 3],
+          lineCap: "round",
+          curve: "smooth",
+      },
+      series: [{
+          name: "总上传",
+          data: {{ TotalUploadHis|safe }}
+      }],
+      grid: {
+          strokeDashArray: 2,
+      },
+      xaxis: {
+          labels: {
+              padding: 0,
+          },
+          tooltip: {
+              enabled: false
+          },
+          type: 'category',
+      },
+      yaxis: {
+          labels: {
+              padding: 0
+          },
+      },
+      labels: {{ TotalHisLabels|safe }},
+      colors: ["#206bc4"],
+      legend: {
+          show: true,
+      },
+  })).render();
+
+  // 总下载趋势
+  window.ApexCharts && (new ApexCharts(document.getElementById('chart-sites-download-his'), {
+      chart: {
+          type: "area",
+          fontFamily: 'inherit',
+          height: 200.0,
+          sparkline: {
+              enabled: true
+          },
+          animations: {
+              enabled: true
+          },
+      },
+      fill: {
+          opacity: 1,
+      },
+      dataLabels: {
+          enabled: true,
+          formatter: function (val, opt) {
+            return val.toLocaleString() + " GB"
+          },
+      },
+      stroke: {
+          width: [2, 1],
+          dashArray: [0, 3],
+          lineCap: "round",
+          curve: "smooth",
+      },
+      series: [{
+          name: "总下载",
+          data: {{ TotalDownloadHis|safe }}
+      }],
+      grid: {
+          strokeDashArray: 2,
+      },
+      xaxis: {
+          labels: {
+              padding: 0,
+          },
+          tooltip: {
+              enabled: false
+          },
+          type: 'category',
+      },
+      yaxis: {
+          labels: {
+              padding: 0
+          },
+      },
+      labels: {{ TotalHisLabels|safe }},
+      colors: ["#cd210f"],
+      legend: {
+          show: true,
+      },
+  })).render();
+</script>
+{% else %}
+<div class="page-body">
+  <div class="container-xl d-flex flex-column justify-content-center">
+    <div class="empty">
+      <div class="empty-img"><img src="./static/img/sign_in.svg" height="128"  alt="">
+      </div>
+      <p class="empty-title">没有数据</p>
+      <p class="empty-subtitle text-muted">
+        没有生成站点统计数据，请确认是否正确配置站点信息
+      </p>
+    </div>
+  </div>
+</div>
+{% endif %}

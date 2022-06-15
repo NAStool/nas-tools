@@ -9,6 +9,8 @@ app:
   logpath: '/config/logs'
   # 【群晖日志中心IP和端口】：logtype为SERVER时生效。端口一般是514，只需要改动IP为群晖的IP
   logserver: 127.0.0.1:514
+  # 【日志级别】：info、debug、error
+  loglevel: info
   # 【WEB管理界面端口】：默认3000
   web_port: 3000
   # 【WEB管理页面登录用户】，默认admin
@@ -19,7 +21,7 @@ app:
   ssl_cert:
   ssl_key:
   # 【TMDB API KEY】：需要在https://www.themoviedb.org/申请，必须配置，否则无法识别媒体资源和重命名
-  # 以下地址需要网络能够正常访问：api.themoviedb.org、images.weserv.nl、webservice.fanart.tv
+  # 以下地址需要网络能够正常访问：api.themoviedb.org、webservice.fanart.tv
   rmt_tmdbkey:
   # 【TMDB匹配模式】：normal、strict，normal模式下如使用文件名/种子名中的年份无法匹配到媒体信息，会去掉年份再匹配一次；strict模式则严格按文件中年份匹配
   # normal模式下会提升识别成功率，但也可能会导致误识别率增加；strict模式可以降低误识别率，但可能导致很多文件名/种子名中年份不正确的无法被识别（特别是剧集，需要是首播年份）
@@ -276,7 +278,7 @@ douban:
   # 【同步天数】：同步多少天内加入的数据
   days: 30
   # 【同步间隔】：多久同步一次数据，单位小时，建议不要太频繁，避免被检测到后封号
-  interval: 6
+  interval: 2
   # 【同步数据类型】：同步哪些类型的收藏数据：do 在看，wish 想看，collect 看过，用逗号分隔配置
   types: 'do,wish,collect'
   # 【自动开载开关】：同步到豆瓣的数据后是否自动检索PT站并下载（需要配置Jackett）
@@ -298,3 +300,14 @@ subtitle:
   chinesesubfinder:
     host:
     api_key:
+
+# 【配置安全】
+security:
+  # 【媒体服务器webhook允许ip范围】：即只有如下范围的IP才允许调用webhook
+  media_server_webhook_allow_ip:
+    ipv4: 0.0.0.0/0
+    ipv6: ::/0
+  # 【Telegram webhook允许ip范围】：即只有如下范围的IP才允许调用webhook
+  telegram_webhook_allow_ip:
+    ipv4: 149.154.160.0/20,91.108.4.0/22
+    ipv6: ::/0

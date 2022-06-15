@@ -7,7 +7,7 @@ Docker：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
 群晖套件：https://github.com/jxxghp/nas-tools/releases
 
-TG交流：https://t.me/nastool_chat
+TG频道：https://t.me/nastool
 
 WIKI：https://github.com/jxxghp/nas-tools/wiki
 
@@ -34,10 +34,20 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 * 支持ServerChan、微信、Telegram、Bark等图文消息通知，直接在手机上控制。
 
 ### 4、其它
-* 自动签到、Emby/Jellyfin播放状态通知等等。
+* 自动签到、Emby/Jellyfin/Plex播放状态通知等等。
 
 
 ## 更新日志
+2022.6.11
+* 新增订阅日历
+
+2022.6.1
+* 新增近期下载
+* 新增TMDB缓存管理
+
+2022.5.24
+* 新增站点数据统计
+
 2022.5.18
 * 支持Opensubtitles.org、ChineseSubFinder下载字幕
 
@@ -156,7 +166,7 @@ https://github.com/jxxghp/nas-tools/releases
 * 启动程序并配置：默认使用3000端口启动，默认用户密码：admin/password（docker需要参考教程提前映射好端口、下载目录、媒体库目录），登录管理界面后，在设置中根据每个配置项的提示在WEB页面修改好配置并重启生效。
 
 ### 3、设置Emby/Jellyfin/Plex媒体库（推荐）
-* 在Emby/Jellyfin的Webhook插件中，设置地址为：http(s)://IP:3000/emby、jellyfin，用于接收播放通知
+* 在Emby/Jellyfin/Plex的Webhook插件中，设置地址为：http(s)://IP:3000/emby、jellyfin、plex，用于接收播放通知
 * 将Emby/Jellyfin/Plex的相关信息配置到程序中，会用于资源下载和检索控重，提升使用体验。
 * 如果启用了默认分类，需按如下的目录结构分别设置好媒体库；如是自定义分类，请按自己的定义建立好媒体库目录，分类定义请参考default-category.yaml分类配置文件模板。
    > 电影
@@ -173,7 +183,7 @@ https://github.com/jxxghp/nas-tools/releases
    >> 综艺
    >> 儿童
 
-### 4、配置目录同步（可选）
+### 4、配置同步目录（可选）
 * 目录同步可以对多个分散的文件夹进行监控，文件夹中有新增媒体文件时会自动进行识别重命名，并按配置的转移方式转移到媒体库目录或指定的目录中。如将PT下载软件的下载目录也纳入目录同步范围的，建议关闭下载软件监控功能，否则会触发重复处理。
 
 ### 5、配置微信菜单/Telegram机器人（推荐）
@@ -184,7 +194,7 @@ https://github.com/jxxghp/nas-tools/releases
 * 配置微信消息接收服务：在企业微信自建应用管理页面-》API接收消息 开启消息接收服务：1、在微信页面生成Token和EncodingAESKey，并在NASTool设置->消息通知->微信中填入对应的输入项并保存。2、重启NASTool。3、微信页面地址URL填写：http(s)://IP:3000/wechat，点确定进行认证。
 * 配置微信菜单控制：有两种方式，一是直接在聊天窗口中输入命令；二是在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单页面按如下图所示维护好菜单（条目顺序需要一模一样，如果不一样需要修改config.py中定义的WECHAT_MENU菜单序号定义），菜单内容为发送消息，消息内容为命令。
 
-* ![image](https://user-images.githubusercontent.com/51039935/163518481-d1d4fa43-86e6-4477-a414-8d107f2eecee.png)
+  ![image](https://user-images.githubusercontent.com/51039935/170855173-cca62553-4f5d-49dd-a255-e132bc0d8c3e.png)
 
 2) Telegram Bot机器人
 
@@ -201,7 +211,7 @@ https://github.com/jxxghp/nas-tools/releases
    | /ptr  | PT删种 |
    | /pts | PT站签到 |
    | /rst  | 目录同步 |
-   | /db   | 豆瓣收藏 |
+   | /db   | 豆瓣想看 |
    
 
 ### 6、配置Jackett/Prowlarr（推荐）
@@ -221,31 +231,14 @@ Jackett/Prowlarr二选一，但推荐使用Jackett，支持并发且支持副标
    ```
 * 群晖套件版本，ssh到后台运行以下命令，同样修改配置文件路径以及源目录、目的目录参数。
    ```
-   export NASTOOL_CONFIG=/volume1/homes/admin/.config/nastool/config.yaml
+   export NASTOOL_CONFIG=/volume1/NASTOOL/config.yaml
    /var/packages/py3k/target/usr/local/bin/python3 /var/packages/nastool/target/rmt/filetransfer.py -s /from/path -d /to/path
    ```
 * 本地直接运行的，cd 到程序根目录，执行以下命令，修改配置文件、源目录和目的目录参数。
    ```
-   export NASTOOL_CONFIG=/xxx/config/config.yaml
+   export NASTOOL_CONFIG=/xxx/config.yaml
    python3 rmt/filetransfer.py -s /from/path -d /to/path
    ```
-
-## 使用
-1) 3000 端口访问 WEB UI界面，可以修改配置、添加订阅、搜索资源以及启动服务
-
-![image](https://user-images.githubusercontent.com/51039935/163519714-ca2cb339-b5e2-423e-a9d8-b475e2cf9ba2.png)
-
-
-2) 手机端图文通知和服务控制
-
-![image](https://user-images.githubusercontent.com/51039935/163519064-7abad158-0768-450c-82d5-a6a4ae7ccf62.jpg)
-![image](https://user-images.githubusercontent.com/51039935/163519547-8aa2e845-6ffe-452b-909d-bf58f23fbb42.jpg)
-![image](https://user-images.githubusercontent.com/51039935/163519563-0d06c95f-7b31-43eb-a528-7cc5aa1155aa.jpg)
-
-
-3) 效果
-
-![image](https://user-images.githubusercontent.com/51039935/153886867-50a3debd-e982-4723-974b-04ba16f732b1.png)
 
 ## 鸣谢
 * 程序UI模板及图标来源于开源项目<a href="https://github.com/tabler/tabler">tabler</a>，此外项目中还使用到了开源模块：<a href="https://github.com/igorcmoura/anitopy" target="_blank">anitopy</a>、<a href="https://github.com/AnthonyBloomer/tmdbv3api" target="_blank">tmdbv3api</a>、<a href="https://github.com/pkkid/python-plexapi" target="_blank">python-plexapi</a>、<a href="https://github.com/rmartin16/qbittorrent-api">qbittorrent-api</a>、<a href="https://github.com/Trim21/transmission-rpc">transmission-rpc</a>等

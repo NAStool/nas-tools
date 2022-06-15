@@ -6,6 +6,27 @@
           手动识别
         </h2>
       </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:show_rename_udf_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            自定义识别
+          </a>
+          <a href="javascript:show_rename_udf_modal()" class="btn btn-primary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -21,17 +42,16 @@
                 共 {{ TotalCount }} 条记录
               </div>
             </div>
-            <div class="card-actions">
-              <a href="javascript:delete_checked_unknown()">
-                批量删除
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                   <desc>Download more icon variants from https://tabler-icons.io/i/trash</desc>
-                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                   <line x1="4" y1="7" x2="20" y2="7"></line>
-                   <line x1="10" y1="11" x2="10" y2="17"></line>
-                   <line x1="14" y1="11" x2="14" y2="17"></line>
-                   <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
-                   <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+            <div class="card-actions btn-actions">
+              <a href="javascript:delete_checked_unknown()" class="btn-action" title="删除选中">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <line x1="4" y1="7" x2="20" y2="7"></line>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                  <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                  <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
                 </svg>
               </a>
             </div>
@@ -40,17 +60,18 @@
             <table class="table table-vcenter card-table">
               <thead>
                 <tr>
-                  <th class="w-1"><input class="form-check-input m-0 align-middle" id="unknown_check_all_btn" type="checkbox" aria-label="全选"></th>
+                  <th class="w-1"><input class="form-check-input m-0 align-middle" id="unknown_check_all_btn"
+                      type="checkbox" aria-label="全选"></th>
                   <th>文件名</th>
                   <th class="w-5"></th>
                 </tr>
               </thead>
               <tbody>
-              {% if TotalCount > 0 %}
+                {% if TotalCount > 0 %}
                 {% for Path in Items %}
                 <tr>
                   <td><input class="form-check-input m-0 align-middle" id="check_{{ Path.id }}" type="checkbox"></td>
-                  <td >
+                  <td>
                     {{ Path.name }}
                     {% if Path.to %}
                     <div class="text-muted">
@@ -59,15 +80,23 @@
                     {% endif %}
                   </td>
                   <td>
-                   <div class="dropdown">
+                    <div class="dropdown">
                       <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="1" /><circle cx="12" cy="19" r="1" /><circle cx="12" cy="5" r="1" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                          stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                          <circle cx="12" cy="12" r="1" />
+                          <circle cx="12" cy="19" r="1" />
+                          <circle cx="12" cy="5" r="1" />
+                        </svg>
                       </a>
                       <div class="dropdown-menu dropdown-menu-end">
                         <a class="dropdown-item" href='javascript:re_identification("{{ Path.id }}")'>
                           重新识别
                         </a>
-                        <a class="dropdown-item" href='javascript:show_rename_modal("{{ Path.id }}", "{{ Path.name }}")'>
+                        <a class="dropdown-item"
+                          href='javascript:show_rename_modal("{{ Path.id }}", "{{ Path.name }}")'>
                           手动识别
                         </a>
                         <div class="dropdown-divider"></div>
@@ -79,11 +108,11 @@
                   </td>
                 </tr>
                 {% endfor %}
-              {% else %}
+                {% else %}
                 <tr>
                   <td colspan="3" align="center">没有数据</td>
                 </tr>
-              {% endif %}
+                {% endif %}
               </tbody>
             </table>
           </div>
@@ -96,15 +125,24 @@
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">手动识别</h5>
+        <h5 class="modal-title" id="rename_header">手动识别</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="mb-3">
+        <div class="mb-3" id="rename_path_div">
           <label class="form-label">路径</label>
           <input type="text" id="rename_path" class="form-control" readonly>
           <input type="hidden" id="unknown_id">
           <div class="invalid-feedback" id="rename_retmsg"></div>
+        </div>
+        <div class="mb-3" id="rename_inpath_div">
+          <label class="form-label">输入路径</label>
+          <input type="text" id="rename_inpath" class="form-control" placeholder="需要识别的目录或文件">
+          <div class="invalid-feedback" id="rename_udf_retmsg"></div>
+        </div>
+        <div class="mb-3" id="rename_outpath_div">
+          <label class="form-label">输出路径</label>
+          <input type="text" id="rename_outpath" class="form-control" placeholder="识别后文件存储路径">
         </div>
         <label class="form-label">类型</label>
         <div class="form-selectgroup-boxes row mb-3">
@@ -151,25 +189,25 @@
       </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-lg-6">
+          <div class="col-lg-6" id="rename_title_div">
             <div class="mb-3">
               <label class="form-label">标题</label>
               <input type="text" id="rename_title" class="form-control">
             </div>
           </div>
-          <div class="col-lg-6">
+          <div class="col-lg-6" id="rename_year_div">
             <div class="mb-3">
               <label class="form-label">年份</label>
               <input type="text" id="rename_year" class="form-control">
             </div>
           </div>
-          <div class="col-lg-6">
+          <div class="col-lg-4">
             <div class="mb-3">
               <label class="form-label">TMDB ID</label>
               <input type="text" id="rename_tmdb" class="form-control">
             </div>
           </div>
-          <div class="col-lg-6" id="rename_season_div">
+          <div class="col-lg-4" id="rename_season_div">
             <div class="mb-3">
               <label class="form-label">季</label>
               <select class="form-select" id="rename_season">
@@ -177,32 +215,35 @@
               </select>
             </div>
           </div>
+          <div class="col-lg-4" id="rename_min_filesize_div">
+            <div class="mb-3">
+              <label class="form-label">最小文件大小</label>
+              <input type="text" id="rename_min_filesize" class="form-control" placeholder="最小文件大小(MB)">
+            </div>
+          </div>
+          <div class="col-lg-12" id="rename_episode_div">
+            <div class="mb-3">
+              <label class="form-label">集数定位(<a href="#"
+                  title="{ep}: 标定集数位置，例如：铁齿铜牙纪晓岚{ep}.x264.iso,默认取定位集数;&#10 start_ep[, end_ep], 裁定范围， 例如 '1' 只取第一集, '2,4' 只取第2集到第4集;&#10 offset: 集数偏移, 例如ep定位出集数是11, 实际是第一集, 此处填-10, 以应付多季合集的场景 ">?</a>)</label>
+              <div class="row">
+                <div class="col-4">
+                  <input type="text" id="rename_episode" class="form-control" placeholder="{ep}.mp4">
+                </div>
+                <div class="col-4">
+                  <input type="text" id="rename_episode_details" class="form-control"
+                    placeholder="start_ep[, end_ep] 可选">
+                </div>
+                <div class="col-4">
+                  <input type="text" id="rename_episode_offset" class="form-control" placeholder="offset, 可选">
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" id="rename_btn" class="btn btn-primary">转移</button>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="modal modal-blur fade" id="unknown-modal-failed" tabindex="-1" role="dialog" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      <div class="modal-status bg-warning"></div>
-      <div class="modal-body text-center py-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-warning icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
-        <h3>失败</h3>
-        <div class="text-muted" id="unknown_failed_str">重新识别失败！</div>
-      </div>
-      <div class="modal-footer">
-        <div class="w-100">
-          <div class="row">
-            <div class="col"><a href="#" class="btn btn-warning w-100" data-bs-dismiss="modal">
-                确定
-              </a></div>
-          </div>
-        </div>
+        <button type="button" id="rename_udf_btn" class="btn btn-primary" style="display: none">识别</button>
       </div>
     </div>
   </div>
@@ -217,8 +258,10 @@
     var title = $("#rename_title").val();
     var year = $("#rename_year").val();
     var season = $("#rename_season").val();
+    var episode_format = $("#rename_episode").val();
+    var min_filesize = $("#rename_min_filesize").val();
 
-    if (!unknown_id){
+    if (!unknown_id) {
       return;
     }
 
@@ -251,8 +294,18 @@
         $("#rename_tmdb").removeClass("is-invalid");
       }
     }
+    if (min_filesize !== "" && isNaN(min_filesize)) {
+      $("#rename_min_filesize").addClass("is-invalid");
+      return;
+    } else {
+      $("#rename_min_filesize").removeClass("is-invalid");
+    }
+
     // 开始处理
-    var data = { "unknown_id": unknown_id, "path": path, "type": type, "title": title, "year": year, "tmdb": tmdb, "season": season };
+    var data = {
+      "unknown_id": unknown_id, "path": path, "type": type, "title": title, "year": year, "tmdb": tmdb
+      , "season": season, "episode_format": episode_format, "min_filesize": min_filesize
+    };
     $("#rename_btn").attr("disabled", true);
     $("#rename_btn").text("处理中...");
     $("#rename_retmsg").hide()
@@ -272,21 +325,147 @@
     });
   }
 
+  //自定义识别
+  function manual_udf_rename() {
+    var type = $('input:radio[name=rename_type]:checked').val();
+    var inpath = $("#rename_inpath").val();
+    var outpath = $("#rename_outpath").val();
+    var tmdb = $("#rename_tmdb").val();
+    var season = $("#rename_season").val();
+    var episode_format = $("#rename_episode").val();
+    var episode_details = $("#rename_episode_details").val();
+    var episode_offset = $("#rename_episode_offset").val();
+    var min_filesize = $("#rename_min_filesize").val();
+
+    if (inpath === "") {
+      $("#rename_inpath").addClass("is-invalid");
+      return;
+    } else {
+      $("#rename_inpath").removeClass("is-invalid");
+    }
+
+    if (outpath === "") {
+      $("#rename_outpath").addClass("is-invalid");
+      return;
+    } else {
+      $("#rename_outpath").removeClass("is-invalid");
+    }
+
+    if (tmdb === "" || isNaN(tmdb)) {
+      $("#rename_tmdb").addClass("is-invalid");
+      return;
+    } else {
+      $("#rename_tmdb").removeClass("is-invalid");
+    }
+    if (episode_details !== "" && !/^\d{1,5}(,\d{1,5})?$/.test(episode_details)) {
+      $("#rename_episode_details").addClass("is-invalid");
+      return;
+    } else {
+      $("#rename_episode_details").removeClass("is-invalid");
+    }
+    if (episode_offset !== "" && !/^-?\d{1,5}$/.test(episode_offset)) {
+      $("#rename_episode_offset").addClass("is-invalid");
+      return;
+    } else {
+      $("#rename_episode_offset").removeClass("is-invalid");
+    }
+    if (type !== "MOV") {
+      if (min_filesize !== "" && isNaN(min_filesize)) {
+        $("#rename_min_filesize").addClass("is-invalid");
+        return;
+      } else {
+        $("#rename_min_filesize").removeClass("is-invalid");
+      }
+    }
+
+
+    // 开始处理
+    var data = {
+      "inpath": inpath, "outpath": outpath, "type": type, "tmdb": tmdb
+      , "season": season, "episode_format": episode_format, "episode_details": episode_details
+      , "episode_offset": episode_offset, "min_filesize": min_filesize
+    };
+    $("#rename_udf_btn").attr("disabled", true);
+    $("#rename_udf_btn").text("处理中...");
+    $("#rename_udf_retmsg").hide()
+    ajax_post("rename_udf", data, function (ret) {
+      $("#rename_udf_btn").attr("disabled", false);
+      $("#rename_udf_btn").text("识别");
+      if (ret.retcode == 0) {
+        //处理成功
+        $('#modal-rename').modal('hide');
+        navmenu('unidentification');
+      } else {
+        //处理失败
+        regmsg = ret.retmsg;
+        $("#rename_udf_retmsg").show()
+        $("#rename_udf_retmsg").text(regmsg)
+      }
+    });
+  }
+
   //显示弹出窗口
-  function show_rename_modal(id, path){
+  function show_rename_modal(id, path) {
     $('#unknown_id').val(id);
     $('#rename_path').val(path);
+
+    $('#rename_header').text("手动识别");
+    $('#rename_path_div').show();
+    $('#rename_inpath_div').hide();
+    $('#rename_outpath_div').hide();
+    $('#rename_title_div').show();
+    $('#rename_year_div').show();
+    $('#rename_min_filesize_div').show();
+    $('#rename_btn').show();
+    $('#rename_udf_btn').hide();
+    $('#rename_episode_details').hide();
+    $('#rename_episode_offset').hide();
     $("#rename_season").empty();
     $("#rename_season").append('<option value="" selected>请选择</option>');
-    for(var i=0; i<=50; i++){
-      $("#rename_season").append('<option value="' + i + '">第' + i +'季</option>');
+    for (var i = 0; i <= 50; i++) {
+      $("#rename_season").append('<option value="' + i + '">第' + i + '季</option>');
     }
     type = $('input:radio[name=rename_type]:checked').val();
     if (type == "MOV") {
       $("#rename_season_div").hide();
+      $("#rename_episode_div").hide();
+      $("#rename_min_filesize_div").hide();
       $("#rename_season").val("");
     } else {
       $("#rename_season_div").show();
+      $("#rename_episode_div").show();
+      $("#rename_min_filesize_div").show();
+    }
+    $('#modal-rename').modal('show');
+  }
+
+  //显示自定义识别窗口
+  function show_rename_udf_modal() {
+    $('#rename_header').text("自定义识别");
+    $('#rename_path_div').hide();
+    $('#rename_inpath_div').show();
+    $('#rename_outpath_div').show();
+    $('#rename_title_div').hide();
+    $('#rename_year_div').hide();
+    $('#rename_btn').hide();
+    $('#rename_udf_btn').show();
+    $("#rename_season").empty();
+    $("#rename_season").append('<option value="" selected>请选择</option>');
+    for (var i = 0; i <= 50; i++) {
+      $("#rename_season").append('<option value="' + i + '">第' + i + '季</option>');
+    }
+    $("#rename_episode_details").show();
+    $("#rename_episode_offset").show();
+    type = $('input:radio[name=rename_type]:checked').val();
+    if (type == "MOV") {
+      $("#rename_season_div").hide();
+      $("#rename_episode_div").hide();
+      $("#rename_min_filesize_div").hide();
+      $("#rename_season").val("");
+    } else {
+      $("#rename_season_div").show();
+      $("#rename_episode_div").show();
+      $("#rename_min_filesize_div").show();
     }
     $('#modal-rename').modal('show');
   }
@@ -308,33 +487,37 @@
     manual_rename();
   });
 
+  //识别按钮
+  $("#rename_udf_btn").click(function () {
+    manual_udf_rename();
+  });
+
   //重新识别
-  function re_identification(unknown_id){
+  function re_identification(unknown_id) {
     var cmd = "re_identification";
     var data = { "unknown_id": unknown_id };
-    $("#modal-wait").modal("show");
+    show_wait_process();
     ajax_post(cmd, data, function (ret) {
-      $("#modal-wait").modal("hide");
-      if(ret.retcode==0){
+      hide_wait_process();
+      if (ret.retcode == 0) {
         navmenu('unidentification');
-      }else{
-        $("#unknown_failed_str").text("重新识别失败："+ ret.retmsg +"！");
-        $("#unknown-modal-failed").modal('show');
+      } else {
+        show_fail_modal("重新识别失败：" + ret.retmsg + "！");
       }
     });
   }
 
   //批量删除
-  function delete_checked_unknown(){
+  function delete_checked_unknown() {
     var ids = [];
     var i = 0;
-    $("input[type=checkbox]").each(function(){
-      if($(this).prop("checked")){
+    $("input[type=checkbox]").each(function () {
+      if ($(this).prop("checked")) {
         ids[i] = $(this).attr("id").replace("check_", "");
         i = i + 1;
       }
     });
-    if(i == 0){
+    if (i == 0) {
       return;
     }
     var cmd = "del_unknown_path";
@@ -348,15 +531,19 @@
   $('input[type=radio][name=rename_type]').change(function () {
     if (this.value == 'MOV') {
       $("#rename_season_div").hide();
+      $("#rename_episode_div").hide();
+      $("#rename_min_filesize_div").hide();
       $("#rename_season").val('');
     }
     else {
       $("#rename_season_div").show();
+      $("#rename_episode_div").show();
+      $("#rename_min_filesize_div").show();
     }
   });
 
   //全选事件
-  $("#unknown_check_all_btn").change(function(){
+  $("#unknown_check_all_btn").change(function () {
     $("input[type=checkbox]").prop("checked", $(this).prop("checked"));
   });
 </script>

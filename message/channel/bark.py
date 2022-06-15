@@ -1,9 +1,10 @@
 import requests
 
 from config import Config
+from message.channel.channel import IMessageChannel
 
 
-class Bark:
+class Bark(IMessageChannel):
     __server = None
     __apikey = None
 
@@ -21,7 +22,8 @@ class Bark:
         """
         测试连通性
         """
-        return self.send_msg("测试", "这是一条测试消息")
+        flag, msg = self.send_msg("测试", "这是一条测试消息")
+        return flag
 
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """

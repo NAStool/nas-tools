@@ -2,12 +2,13 @@ import os
 import qbittorrentapi
 import log
 from config import Config, PT_TAG
+from pt.client.client import IDownloadClient
 from utils.functions import singleton
 from utils.types import MediaType
 
 
 @singleton
-class Qbittorrent:
+class Qbittorrent(IDownloadClient):
     __qbhost = None
     __qbport = None
     __qbusername = None
@@ -116,9 +117,9 @@ class Qbittorrent:
         self.qbc.auth_log_in()
         torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status, tag=tag)
         self.qbc.auth_log_out()
-        return torrents
+        return torrents or []
 
-    def get_completed_torrents(self, tag=None):
+    def __get_completed_torrents(self, tag=None):
         """
         读取完成的种子信息
         """
@@ -136,7 +137,7 @@ class Qbittorrent:
 
     def remove_torrents_tag(self, ids, tag):
         """
-        设置种子Tag
+        移除种子Tag
         :param ids: 种子Hash列表
         :param tag: 标签内容
         """
@@ -166,7 +167,7 @@ class Qbittorrent:
         :return: 替换好路径的种子文件路径清单
         """
         # 处理下载完成的任务
-        torrents = self.get_completed_torrents(tag=tag)
+        torrents = self.__get_completed_torrents(tag=tag)
         trans_tasks = []
         for torrent in torrents:
             # 判断标签是否包含"已整理"
@@ -191,9 +192,13 @@ class Qbittorrent:
         :param tag: 种子标签
         :return: 种子ID列表
         """
-        torrents = self.get_completed_torrents(tag=tag)
+        if not seeding_time:
+            return []
+        torrents = self.__get_completed_torrents(tag=tag)
         remove_torrents = []
         for torrent in torrents:
+            if not torrent.get('seeding_time'):
+                continue
             if int(torrent.get('seeding_time')) > int(seeding_time):
                 log.info("【PT】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (torrent.get('name'), torrent.get('seeding_time')))
                 remove_torrents.append(torrent.get('hash'))
@@ -271,3 +276,15 @@ class Qbittorrent:
             return False
         self.qbc.torrents_file_priority(torrent_hash=torrent_hash, file_ids=file_ids, priority=priority)
         return True
+
+    def get_pt_data(self):
+        """
+        获取PT下载软件中当前上传和下载量
+        :return: 上传量、下载量
+        """
+        if not self.qbc:
+            return 0, 0
+        transfer_info = self.qbc.transfer_info()
+        if transfer_info:
+            return transfer_info.get("up_info_data"), transfer_info.get("dl_info_data")
+        return 0, 0

@@ -22,9 +22,23 @@ class Torrent:
                     continue
                 name = key_info[0]
                 year = key_info[1]
-                # 匹配标题和年份
-                if name == media_info.title and str(year) == str(media_info.year):
-                    return True
+                tmdbid = key_info[2]
+                # 有tmdbid时精确匹配
+                if tmdbid:
+                    # 匹配名称、年份，年份可以没有
+                    if name == media_info.title and (not year or str(year) == str(media_info.year)) \
+                            or str(media_info.tmdb_id) == str(tmdbid):
+                        return True
+                # 模糊匹配
+                else:
+                    # 匹配年份
+                    if year and str(year) != str(media_info.year):
+                        continue
+                    # 匹配关键字，可能是正则表达式
+                    if re.search(r"%s" % name,
+                                 "%s %s %s" % (media_info.org_string, media_info.title, media_info.year),
+                                 re.IGNORECASE):
+                        return True
         else:
             # 匹配种子标题
             for key_info in tv_keys:
@@ -33,10 +47,31 @@ class Torrent:
                 name = key_info[0]
                 year = key_info[1]
                 season = key_info[2]
-                # 匹配标题和年份和季
-                if name == media_info.title and str(year) == str(
-                        media_info.year) and season == media_info.get_season_string():
-                    return True
+                tmdbid = key_info[3]
+                # 有tmdbid时精确匹配
+                if tmdbid:
+                    # 匹配季，季可以为空
+                    if season and season != media_info.get_season_string():
+                        continue
+                    # 匹配年份，年份可以为空
+                    if year and str(year) != str(media_info.year):
+                        continue
+                    # 匹配名称
+                    if name == media_info.title or str(media_info.tmdb_id) == str(tmdbid):
+                        return True
+                # 模糊匹配
+                else:
+                    # 匹配季
+                    if season and season != "S00" and season != media_info.get_season_string():
+                        continue
+                    # 匹配年份
+                    if year and str(year) != str(media_info.year):
+                        continue
+                    # 匹配关键字，可能是正则表达式
+                    if re.search(r"%s" % name,
+                                 "%s %s %s" % (media_info.org_string, media_info.title, media_info.year),
+                                 re.IGNORECASE):
+                        return True
         return False
 
     @staticmethod
@@ -103,8 +138,8 @@ class Torrent:
                 return False
         return True
 
-    @staticmethod
-    def check_resouce_types(title, subtitle, types):
+    @classmethod
+    def check_resouce_types(cls, title, subtitle, types):
         """
         检查种子是否匹配过滤规则：排除规则、包含规则，优先规则
         :param title: 种子标题
@@ -151,9 +186,21 @@ class Torrent:
             if exclude_count != 0 and not exclude_flag:
                 return False, 0
 
-        # 优先包含的项
-        notes = types.get('note')
+        return True, cls.check_res_order(title, subtitle, types)
+
+    @staticmethod
+    def check_res_order(title, subtitle, types):
+        """
+        检查种子是否匹配优先规则
+        :param title: 种子标题
+        :param subtitle: 种子副标题
+        :param types: 配置文件中的配置规则
+        :return: 匹配的优先顺序
+        """
         res_order = 0
+        if not types:
+            return res_order
+        notes = types.get('note')
         if notes:
             res_seq = 100
             for note in notes:
@@ -161,8 +208,7 @@ class Torrent:
                 if re.search(r"%s" % note, "%s%s" % (title, subtitle), re.IGNORECASE):
                     res_order = res_seq
                     break
-
-        return True, res_order
+        return res_order
 
     @staticmethod
     def get_keyword_from_string(content):
@@ -202,7 +248,7 @@ class Torrent:
         if not key_word:
             key_word = year
 
-        return mtype, key_word, season_num, episode_num, year
+        return mtype, key_word, season_num, episode_num, year, content
 
     @staticmethod
     def get_torrents_group_item(media_list):

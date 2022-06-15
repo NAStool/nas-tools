@@ -1,14 +1,13 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 import log
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
-    RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_SEARCH_INTERVAL
+    RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_SEARCH_INTERVAL, REFRESH_PT_DATA_INTERVAL, \
+    RSS_DOUBAN_TO_TMDB_INTEVAL
+from pt.douban import DouBan
+from pt.downloader import Downloader
+from pt.rss import Rss
+from pt.sites import Sites
 from service.sync import Sync
-from service.tasks.autoremove_torrents import AutoRemoveTorrents
-from service.tasks.douban_sync import DoubanSync
-from service.tasks.pt_signin import PTSignin
-from service.tasks.pt_transfer import PTTransfer
-from service.tasks.rss_download import RSSDownloader
-from service.tasks.rss_search import RssSearch
 from utils.functions import singleton
 from utils.meta_helper import MetaHelper
 
@@ -38,10 +37,10 @@ class Scheduler:
             # PT种子清理
             pt_seeding_time = self.__pt.get('pt_seeding_time')
             if pt_seeding_time:
-                self.SCHEDULER.add_job(AutoRemoveTorrents().run_schedule,
+                self.SCHEDULER.add_job(Downloader().pt_removetorrents,
                                        'interval',
                                        seconds=AUTO_REMOVE_TORRENTS_INTERVAL)
-                log.info("【RUN】scheduler.autoremove_torrents启动...")
+                log.info("【RUN】PT下载自动删种服务启动...")
 
             # PT站签到
             ptsignin_cron = str(self.__pt.get('ptsignin_cron'))
@@ -54,11 +53,11 @@ class Scheduler:
                         log.info("【RUN】pt.ptsignin_cron 格式错误：%s" % str(e))
                         hour = minute = 0
                     if hour and minute:
-                        self.SCHEDULER.add_job(PTSignin().run_schedule,
+                        self.SCHEDULER.add_job(Sites().signin,
                                                "cron",
                                                hour=hour,
                                                minute=minute)
-                        log.info("【RUN】scheduler.pt_signin启动...")
+                        log.info("【RUN】PT站自动签到服务启动...")
                 else:
                     try:
                         hours = float(ptsignin_cron)
@@ -66,16 +65,16 @@ class Scheduler:
                         log.info("【RUN】pt.ptsignin_cron 格式错误：%s" % str(e))
                         hours = 0
                     if hours:
-                        self.SCHEDULER.add_job(PTSignin().run_schedule,
+                        self.SCHEDULER.add_job(Sites().signin,
                                                "interval",
                                                hours=hours)
-                        log.info("【RUN】scheduler.pt_signin启动...")
+                        log.info("【RUN】PT站自动签到服务启动...")
 
             # PT文件转移
             pt_monitor = self.__pt.get('pt_monitor')
             if pt_monitor:
-                self.SCHEDULER.add_job(PTTransfer().run_schedule, 'interval', seconds=PT_TRANSFER_INTERVAL)
-                log.info("【RUN】scheduler.pt_transfer启动...")
+                self.SCHEDULER.add_job(Downloader().pt_transfer, 'interval', seconds=PT_TRANSFER_INTERVAL)
+                log.info("【RUN】PT下载文件转移服务启动...")
 
             # RSS下载器
             pt_check_interval = self.__pt.get('pt_check_interval')
@@ -90,8 +89,8 @@ class Scheduler:
                             log.error("【RUN】pt.pt_check_interval 格式错误：%s" % str(e))
                             pt_check_interval = 0
                 if pt_check_interval:
-                    self.SCHEDULER.add_job(RSSDownloader().run_schedule, 'interval', seconds=round(pt_check_interval))
-                    log.info("【RUN】scheduler.rss_download启动...")
+                    self.SCHEDULER.add_job(Rss().rssdownload, 'interval', seconds=round(pt_check_interval))
+                    log.info("【RUN】RSS订阅服务启动...")
 
         # 豆瓣电影同步
         if self.__douban:
@@ -104,11 +103,11 @@ class Scheduler:
                         try:
                             douban_interval = float(douban_interval)
                         except Exception as e:
-                            log.info("【RUN】scheduler.douban_sync启动失败：%s" % str(e))
+                            log.info("【RUN】豆瓣同步服务启动失败：%s" % str(e))
                             douban_interval = 0
                 if douban_interval:
-                    self.SCHEDULER.add_job(DoubanSync().run_schedule, 'interval', hours=douban_interval)
-                    log.info("【RUN】scheduler.douban_sync启动...")
+                    self.SCHEDULER.add_job(DouBan().sync, 'interval', hours=douban_interval)
+                    log.info("【RUN】豆瓣同步服务启动...")
 
         # 配置定时生效
         self.SCHEDULER.add_job(Config().init_config, 'interval', seconds=RELOAD_CONFIG_INTERVAL)
@@ -120,7 +119,13 @@ class Scheduler:
         self.SCHEDULER.add_job(Sync().transfer_mon_files, 'interval', seconds=SYNC_TRANSFER_INTERVAL)
 
         # RSS队列中检索
-        self.SCHEDULER.add_job(RssSearch().run_schedule, 'interval', seconds=RSS_SEARCH_INTERVAL)
+        self.SCHEDULER.add_job(Rss().rsssearch, 'interval', seconds=RSS_SEARCH_INTERVAL)
+
+        # PT站数据刷新
+        self.SCHEDULER.add_job(Sites().refresh_pt_date_now, 'interval', hours=REFRESH_PT_DATA_INTERVAL)
+
+        # 豆摊RSS转TMDB
+        self.SCHEDULER.add_job(Rss().rssdouban_to_tmdb, 'interval', hours=RSS_DOUBAN_TO_TMDB_INTEVAL)
 
         self.SCHEDULER.print_jobs()
 

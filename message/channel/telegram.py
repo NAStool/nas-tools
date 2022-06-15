@@ -4,6 +4,7 @@ import requests
 
 import log
 from config import Config
+from message.channel.channel import IMessageChannel
 from utils.functions import singleton
 
 lock = Lock()
@@ -11,7 +12,7 @@ WEBHOOK_STATUS = False
 
 
 @singleton
-class Telegram:
+class Telegram(IMessageChannel):
     __telegram_token = None
     __telegram_chat_id = None
     __webhook_url = None
@@ -46,7 +47,8 @@ class Telegram:
         """
         测试连通性
         """
-        return self.send_msg("测试", "这是一条测试消息")
+        flag, msg = self.send_msg("测试", "这是一条测试消息")
+        return flag
 
     def get_admin_user(self):
         """
@@ -92,11 +94,50 @@ class Telegram:
             res = requests.get(sc_url + urlencode(values), timeout=10, proxies=self.__config.get_proxies())
             if res:
                 ret_json = res.json()
-                errno = ret_json['ok']
-                if errno == 0:
-                    return True, errno
+                status = ret_json.get("ok")
+                if status:
+                    return True, ""
                 else:
-                    return False, errno
+                    return False, ret_json.get("description")
+            else:
+                return False, "未获取到返回信息"
+        except Exception as msg_e:
+            return False, str(msg_e)
+
+    def send_list_msg(self, title, medias: list, user_id=""):
+        """
+        发送列表类消息
+        """
+        try:
+            if not self.__telegram_token or not self.__telegram_chat_id:
+                return False, "参数未配置"
+            if not title or not isinstance(medias, list):
+                return False, "数据错误"
+            index, image, caption = 1, "", "<b>%s</b>" % title
+            for media in medias:
+                if not image:
+                    image = media.get_message_image()
+                caption = "%s\n%s. %s" % (caption, index, media.get_title_vote_string())
+                index += 1
+            image = medias[0].get_message_image()
+
+            if user_id:
+                chat_id = user_id
+            else:
+                chat_id = self.__telegram_chat_id
+
+            # 发送图文消息
+            values = {"chat_id": chat_id, "photo": image, "caption": caption, "parse_mode": "HTML"}
+            sc_url = "https://api.telegram.org/bot%s/sendPhoto?" % self.__telegram_token
+
+            res = requests.get(sc_url + urlencode(values), timeout=10, proxies=self.__config.get_proxies())
+            if res:
+                ret_json = res.json()
+                status = ret_json.get("ok")
+                if status:
+                    return True, ""
+                else:
+                    return False, ret_json.get("description")
             else:
                 return False, "未获取到返回信息"
         except Exception as msg_e:
@@ -129,11 +170,11 @@ class Telegram:
             if res:
                 json = res.json()
                 if json.get("ok"):
-                    log.console("TelegramBot Webhook 设置成功，地址为：%s" % self.__webhook_url)
+                    log.info("TelegramBot Webhook 设置成功，地址为：%s" % self.__webhook_url)
                 else:
-                    log.console("TelegramBot Webhook 设置失败：" % json.get("description"))
+                    log.error("TelegramBot Webhook 设置失败：" % json.get("description"))
             else:
-                log.console("TelegramBot Webhook 设置失败：网络连接故障！")
+                log.error("TelegramBot Webhook 设置失败：网络连接故障！")
 
     def __get_bot_webhook(self):
         """
@@ -144,9 +185,14 @@ class Telegram:
         res = requests.get(sc_url, timeout=10, proxies=self.__config.get_proxies())
         if res and res.json():
             if res.json().get("ok"):
-                webhook_url = res.json().get("result", {}).get("url") or ""
+                result = res.json().get("result") or {}
+                webhook_url = result.get("url") or ""
                 if webhook_url:
-                    log.console("TelegramBot Webhook 地址为：%s" % webhook_url)
+                    log.info("TelegramBot Webhook 地址为：%s" % webhook_url)
+                pending_update_count = result.get("pending_update_count")
+                last_error_message = result.get("last_error_message")
+                if pending_update_count and last_error_message:
+                    log.warn("TelegramBot Webhook 有 %s 条消息挂起，最后一次失败原因为：%s" % (pending_update_count, last_error_message))
                 if webhook_url == self.__webhook_url:
                     return 1
                 else:

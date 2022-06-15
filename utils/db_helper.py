@@ -1,10 +1,10 @@
 import os
-import sqlite3
 import threading
 
 import log
 from config import Config
 from utils.functions import singleton
+from utils.db_pool import DBPool
 
 lock = threading.Lock()
 
@@ -13,6 +13,7 @@ lock = threading.Lock()
 class DBHelper:
     __connection = None
     __db_path = None
+    __pools = None
 
     def __init__(self):
         self.init_config()
@@ -25,13 +26,16 @@ class DBHelper:
             log.console("【ERROR】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
             quit()
         self.__db_path = os.path.join(os.path.dirname(config_path), 'user.db')
-        self.__connection = sqlite3.connect(self.__db_path, check_same_thread=False)
+        self.__pools = DBPool(
+            max_active=5, max_wait=20, init_size=5, db_type="SQLite3",
+            **{'database': self.__db_path, 'check_same_thread': False})
 
     def __init_tables(self):
-        cursor = self.__connection.cursor()
+        conn = self.__pools.get()
+        cursor = conn.cursor()
         try:
-            # Jackett搜索结果表
-            cursor.execute('''CREATE TABLE IF NOT EXISTS SEARCH_TORRENTS
+            # 资源搜索结果表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS SEARCH_RESULT_INFO
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
                                    TORRENT_NAME    TEXT,
                                    ENCLOSURE    TEXT,
@@ -44,13 +48,22 @@ class DBHelper:
                                    ES_STRING    TEXT,
                                    VOTE    TEXT,
                                    IMAGE    TEXT,
+                                   POSTER   TEXT,
+                                   TMDBID   TEXT,
+                                   OVERVIEW    TEXT,
                                    RES_TYPE    TEXT,
                                    RES_ORDER    TEXT,
                                    SIZE    INTEGER,
                                    SEEDERS    INTEGER,
                                    PEERS    INTEGER,                   
                                    SITE    TEXT,
-                                   SITE_ORDER    TEXT);''')
+                                   SITE_ORDER    TEXT,
+                                   PAGEURL    TEXT,
+                                   OTHERINFO    TEXT,
+                                   UPLOAD_VOLUME_FACTOR REAL,
+                                   DOWNLOAD_VOLUME_FACTOR REAL,
+                                   NOTE     TEXT);''')
+
             # RSS下载记录表
             cursor.execute('''CREATE TABLE IF NOT EXISTS RSS_TORRENTS
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
@@ -61,7 +74,8 @@ class DBHelper:
                                    YEAR    TEXT,
                                    SEASON    TEXT,
                                    EPISODE    TEXT);''')
-            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_RSS_TORRENTS_NAME ON RSS_TORRENTS (TITLE, YEAR, SEASON, EPISODE);''')
+            cursor.execute(
+                '''CREATE INDEX IF NOT EXISTS INDX_RSS_TORRENTS_NAME ON RSS_TORRENTS (TITLE, YEAR, SEASON, EPISODE);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_RSS_TORRENTS_URL ON RSS_TORRENTS (ENCLOSURE);''')
             # 电影订阅表
             # STATE: D-队列中 S-正在检索 R-正在订阅 F-完成
@@ -111,7 +125,7 @@ class DBHelper:
                                    YEAR    TEXT,
                                    SE    TEXT,
                                    DEST    TEXT,
-                                   DATE    );''')
+                                   DATE    TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_HISTORY_PATH ON TRANSFER_HISTORY (FILE_PATH);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_HISTORY_NAME ON TRANSFER_HISTORY (FILE_NAME);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_TRANSFER_HISTORY_TITLE ON TRANSFER_HISTORY (TITLE);''')
@@ -167,73 +181,123 @@ class DBHelper:
                                                            PASSWORD    TEXT,
                                                            PRIS    TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_CONFIG_USERS ON CONFIG_USERS (NAME);''')
+
+            # 消息中心
+            cursor.execute('''CREATE TABLE IF NOT EXISTS MESSAGES
+                                                           (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                                           LEVEL    TEXT,
+                                                           TITLE    TEXT,
+                                                           CONTENT    TEXT,
+                                                           DATE     TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_MESSAGES_DATE ON MESSAGES (DATE);''')
+
+            # 站点流量
+            cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_STATISTICS
+                                                           (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                                           SITE    TEXT,
+                                                           DATE    TEXT,
+                                                           UPLOAD    TEXT,
+                                                           DOWNLOAD     TEXT,
+                                                           RATIO     TEXT,
+                                                           URL     TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_STATISTICS_DS ON SITE_STATISTICS (DATE, URL);''')
+
+            # 下载历史
+            cursor.execute('''CREATE TABLE IF NOT EXISTS DOWNLOAD_HISTORY
+                                                           (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                                           TITLE    TEXT,
+                                                           YEAR    TEXT,
+                                                           TYPE    TEXT,
+                                                           TMDBID     TEXT,
+                                                           VOTE     TEXT,
+                                                           POSTER     TEXT,
+                                                           OVERVIEW    TEXT,
+                                                           TORRENT     TEXT,
+                                                           ENCLOSURE     TEXT,
+                                                           SITE     TEXT,
+                                                           DESC     TEXT,
+                                                           DATE     TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_DOWNLOAD_HISTORY_DATE ON DOWNLOAD_HISTORY (DATE);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_DOWNLOAD_HISTORY_TITLE ON DOWNLOAD_HISTORY (TITLE);''')
+
             # 提交
-            self.__connection.commit()
+            conn.commit()
 
         except Exception as e:
-            log.error("【DB】创建数据库错误：%s" % str(e))
+            log.error(f"【DB】创建数据库错误：{e}")
         finally:
-            cursor.close()
+            self.__pools.free(conn)
 
-    def excute(self, sql):
+    def excute(self, sql, data):
         if not sql:
             return False
-        cursor = self.__connection.cursor()
+        conn = self.__pools.get()
+        cursor = conn.cursor()
         try:
-            cursor.execute(sql)
-            self.__connection.commit()
+            if data:
+                cursor.execute(sql, data)
+            else:
+                cursor.execute(sql)
+            conn.commit()
         except Exception as e:
-            log.error("【DB】执行SQL出错：%s，%s" % (sql, str(e)))
+            log.error(f"【DB】执行SQL出错：sql:{sql}; parameters:{data}; {e}")
             return False
         finally:
-            cursor.close()
+            self.__pools.free(conn)
         return True
 
     def excute_many(self, sql, data_list):
         if not sql or not data_list:
             return False
-        cursor = self.__connection.cursor()
+        conn = self.__pools.get()
+        cursor = conn.cursor()
         try:
             cursor.executemany(sql, data_list)
-            self.__connection.commit()
+            conn.commit()
         except Exception as e:
-            log.error("【DB】执行SQL出错：%s， %s, %s" % (sql, data_list, str(e)))
+            log.error(f"【DB】执行SQL出错：sql:{sql}; {e}")
             return False
         finally:
-            cursor.close()
+            self.__pools.free(conn)
         return True
 
-    def select(self, sql):
+    def select(self, sql, data):
         if not sql:
             return False
-        cursor = self.__connection.cursor()
+        conn = self.__pools.get()
+        cursor = conn.cursor()
         try:
-            res = cursor.execute(sql)
+            if data:
+                res = cursor.execute(sql, data)
+            else:
+                res = cursor.execute(sql)
             ret = res.fetchall()
         except Exception as e:
-            log.error("【DB】执行SQL出错：%s，%s" % (sql, str(e)))
+            log.error(f"【DB】执行SQL出错：sql:{sql}; parameters:{data}; {e}")
             return []
         finally:
-            cursor.close()
+            self.__pools.free(conn)
         return ret
 
 
-def select_by_sql(sql):
+def select_by_sql(sql, data=None):
     """
     执行查询
     :param sql: 查询的SQL语句
+    :param data: 数据，需为列表或者元祖
     :return: 查询结果的二级列表
     """
-    return DBHelper().select(sql)
+    return DBHelper().select(sql, data)
 
 
-def update_by_sql(sql):
+def update_by_sql(sql, data=None):
     """
     执行更新或删除
     :param sql: SQL语句
+    :param data: 数据，需为列表或者元祖
     :return: 执行状态
     """
-    return DBHelper().excute(sql)
+    return DBHelper().excute(sql, data)
 
 
 def update_by_sql_batch(sql, data_list):

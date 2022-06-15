@@ -16,7 +16,7 @@
     <div class="row row-cards">
       {% for Torrent in Torrents %}
       <div class="col-lg-4">
-        <div class="card">
+        <div class="card card-link-pop">
           <div class="card-body">
             <div class="row align-items-center">
               {% if Torrent.image %}
@@ -75,7 +75,7 @@
       </div>
       <p class="empty-title">没有记录</p>
       <p class="empty-subtitle text-muted">
-        当前没有正在下载的项目...
+        当前没有正在下载的项目
       </p>
     </div>
   </div>
@@ -101,7 +101,7 @@
       var cmd = "pt_remove";
       var param = {"id": id};
       ajax_post(cmd, param, function(ret){
-        navmenu('download');
+        navmenu('downloading');
       });
   }
 

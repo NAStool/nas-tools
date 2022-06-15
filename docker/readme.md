@@ -42,7 +42,7 @@ docker run -d \
 
 **docker-compose**
 
-新建`docker-compose.yml`文件如下，并以命令`docker-compose up -d`启动。
+新建`docker-compose.yaml`文件如下，并以命令`docker-compose up -d`启动。
 
 ```
 version: "3"

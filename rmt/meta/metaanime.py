@@ -102,5 +102,7 @@ class MetaAnime(MetaBase):
                             self.type = MediaType.MOVIE
                 # 分辨率
                 self.resource_pix = anitopy_info.get("video_resolution")
+                if isinstance(self.resource_pix, list):
+                    self.resource_pix = self.resource_pix[0]
         except Exception as e:
             log.console(str(e))

@@ -2,9 +2,10 @@ from urllib.parse import urlencode
 import requests
 
 from config import Config
+from message.channel.channel import IMessageChannel
 
 
-class ServerChan:
+class ServerChan(IMessageChannel):
     __sckey = None
 
     def __init__(self):
@@ -20,7 +21,8 @@ class ServerChan:
         """
         测试连通性
         """
-        return self.send_msg("测试", "这是一条测试消息")
+        flag, msg = self.send_msg("测试", "这是一条测试消息")
+        return flag
 
     def send_msg(self, title, text="", image="", url="", user_id=""):
         """
