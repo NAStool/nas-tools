@@ -69,7 +69,7 @@ TORRENT_SEARCH_PARAMS = {
 # 电影默认命名格式
 DEFAULT_MOVIE_FORMAT = '{title} ({year})/{title} ({year}) - {videoFormat}'
 # 电视剧默认命名格式
-DEFAULT_TV_FORMAT = '{title} ({year})/Season {season}/{title} - {season_episode} - 第{episode}集'
+DEFAULT_TV_FORMAT = '{title} ({year})/Season {season}/{title} - {season_episode} - 第 {episode} 集'
 
 lock = Lock()
 
