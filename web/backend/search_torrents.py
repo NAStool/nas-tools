@@ -101,7 +101,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
             # 只有一条数据，直接开始搜索
             media_info = SEARCH_MEDIA_CACHE[0]
             Message().send_channel_msg(channel=in_from,
-                                       title=media_info.get_title_ep_vote_string(),
+                                       title=media_info.get_title_vote_string(),
                                        text=media_info.get_overview_string(),
                                        image=media_info.get_message_image(),
                                        user_id=user_id)
