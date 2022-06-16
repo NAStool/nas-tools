@@ -375,6 +375,12 @@ class MetaVideo(MetaBase):
     def __init_video_encode(self, token):
         if not self.get_name():
             return
+        if not self.year \
+                and not self.resource_pix \
+                and not self.resource_type \
+                and not self.begin_season \
+                and not self.begin_episode:
+            return
         re_res = re.search(r"(%s)" % self._video_encode_re, token, re.IGNORECASE)
         if re_res:
             self._continue_flag = False
@@ -402,6 +408,12 @@ class MetaVideo(MetaBase):
 
     def __init_audio_encode(self, token):
         if not self.get_name():
+            return
+        if not self.year \
+                and not self.resource_pix \
+                and not self.resource_type \
+                and not self.begin_season \
+                and not self.begin_episode:
             return
         re_res = re.search(r"(%s)" % self._audio_encode_re, token, re.IGNORECASE)
         if re_res:

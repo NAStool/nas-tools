@@ -141,7 +141,7 @@ class Qbittorrent(IDownloadClient):
         :param ids: 种子Hash列表
         :param tag: 标签内容
         """
-        return self.qbc.torrents_remove_tags(torrent_hashes=ids, tags=tag)
+        return self.qbc.torrents_delete_tags(torrent_hashes=ids, tags=tag)
 
     def set_torrents_status(self, ids):
         """
