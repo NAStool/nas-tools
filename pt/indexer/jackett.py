@@ -42,7 +42,7 @@ class Jackett(IIndexer):
         indexers = []
         indexer_id = 0
         for item in self.__indexers:
-            indexer_name = re.search(r'/indexers/([a-zA-Z0-9]+)/results/', item)
+            indexer_name = re.search(r'/indexers/([\s\S]+)/results/', item)
             if indexer_name:
                 indexer_name = indexer_name.group(1)
                 indexer_id += 1
