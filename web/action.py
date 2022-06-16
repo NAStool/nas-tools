@@ -5,7 +5,7 @@ from flask_login import logout_user
 from werkzeug.security import generate_password_hash
 
 import log
-from config import RMT_MEDIAEXT, LOG_QUEUE, Config
+from config import RMT_MEDIAEXT, Config
 from message.channel.telegram import Telegram
 from message.channel.wechat import WeChat
 from message.send import Message
@@ -544,8 +544,10 @@ class WebAction:
         """
         查询实时日志
         """
-        if LOG_QUEUE:
-            return {"text": "<br/>".join(list(LOG_QUEUE))}
+        if log.LOG_INDEX:
+            text = "<br/>".join(list(log.LOG_QUEUE)[-log.LOG_INDEX:])
+            log.LOG_INDEX = 0
+            return {"text": text}
         return {"text": ""}
 
     def __version(self, data):
@@ -875,6 +877,7 @@ class WebAction:
             media_type = MediaType.TV
 
         if media_type == MediaType.MOVIE:
+            # 查媒体信息
             if doubanid:
                 link_url = "https://movie.douban.com/subject/%s" % doubanid
                 douban_info = DoubanApi().movie_detail(doubanid)
@@ -897,6 +900,21 @@ class WebAction:
                 vote_average = tmdb_info.get("vote_average")
                 release_date = tmdb_info.get('release_date')
                 year = release_date[0:4] if release_date else ""
+
+            # 查订阅信息
+            if not rssid:
+                rssid = get_rss_movie_id(title=title, year=year)
+            if rssid:
+                sites = get_rss_movie_sites(rssid=rssid)
+                if sites.find('|') != -1:
+                    sites = sites.split('|')
+                else:
+                    sites = []
+            else:
+                sites = []
+
+            # 查下载信息
+
             return {
                 "code": 0,
                 "type": mtype,
@@ -910,9 +928,11 @@ class WebAction:
                 "link_url": link_url,
                 "tmdbid": tmdbid,
                 "doubanid": doubanid,
-                "rssid": rssid or get_rss_movie_id(title=title, year=year)
+                "rssid": rssid,
+                "sites": sites
             }
         else:
+            # 查媒体信息
             if doubanid:
                 link_url = "https://movie.douban.com/subject/%s" % doubanid
                 douban_info = DoubanApi().tv_detail(doubanid)
@@ -935,6 +955,24 @@ class WebAction:
                 vote_average = tmdb_info.get("vote_average")
                 release_date = tmdb_info.get('first_air_date')
                 year = release_date[0:4] if release_date else ""
+
+            # 查媒体信息
+            if not rssid:
+                rssid = get_rss_tv_id(title=title, year=year)
+            if rssid:
+                sites = get_rss_tv_sites(rssid=rssid)
+                if sites.find('|') != -1:
+                    if sites.find('|') != -1:
+                        sites = sites.split('|')
+                    else:
+                        sites = []
+                else:
+                    sites = []
+            else:
+                sites = ""
+
+            # 查下载信息
+
             return {
                 "code": 0,
                 "type": mtype,
@@ -948,7 +986,8 @@ class WebAction:
                 "link_url": link_url,
                 "tmdbid": tmdbid,
                 "doubanid": doubanid,
-                "rssid": rssid or get_rss_tv_id(title=title, year=year)
+                "rssid": rssid,
+                "sites": sites
             }
 
     def __test_connection(self, data):

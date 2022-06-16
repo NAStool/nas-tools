@@ -98,15 +98,18 @@
     refresh_logging_flag = false;
   }
   //刷新日志
-  function refresh_logging() {
+  function refresh_logging(flag) {
     ajax_post("logging", {}, function (ret) {
       if (ret.text) {
-        $("#logging_content").html(ret.text);
+        $("#logging_content").append(ret.text);
         var height = $('#logging_content').prop("scrollHeight");
         $('#logging_content').scrollTop(height);
-        if (refresh_logging_flag == true) {
-          setTimeout("refresh_logging()", 2000);
-        }
+      }
+      if($("#modal-logging").is(":hidden") && flag){
+        stop_logging();
+      }
+      if (refresh_logging_flag == true) {
+        setTimeout("refresh_logging(true)", 2000);
       }
     });
   }
@@ -114,8 +117,8 @@
   // 显示服务提示框
   function show_service_modal(id, name) {
     if (id == "logging") {
-      start_logging();
       $('#modal-logging').modal('show');
+      start_logging();
     } else {
       show_ask_modal("是否立即运行 " + name + "？", function () {
         hide_ask_modal();

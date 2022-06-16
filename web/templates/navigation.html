@@ -544,8 +544,9 @@
                     <a href="#" ><strong id="system_media_name"></strong></a><br/>
                     <span class="text-muted" id="system_release_date"></span>
                   </h4>
-                  <div class="text-muted" id="system_media_overview">
+                  <div class="text-muted mb-3" id="system_media_overview">
                   </div>
+                  <div id="system_sites_info"></div>
                 </div>
               </div>
             </div>
@@ -659,6 +660,16 @@
             }else{
               $("#system_media_vote").text(ret.vote_average);
               $("#system_media_vote").show();
+            }
+            //附加信息
+            if(ret.sites){
+              $("#system_sites_info").empty();
+              for(var i=0; i<ret.sites.length; i++){
+                $("#system_sites_info").append('<span class="badge ms-2 mb-2 text-white">' + ret.sites[i] + '</span>');
+              }
+              $("#system_sites_info").show();
+            }else{
+              $("#system_sites_info").hide();
             }
             //订阅按钮、搜索按钮
             if(ret.rssid){

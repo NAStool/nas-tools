@@ -2,12 +2,15 @@ import logging
 import os
 import threading
 import time
+from collections import deque
 from html import escape
 from logging.handlers import RotatingFileHandler
-from config import Config, LOG_QUEUE
+from config import Config
 from utils.sqls import insert_system_message
 
 lock = threading.Lock()
+LOG_QUEUE = deque(maxlen=200)
+LOG_INDEX = 0
 
 
 class Logger:
@@ -69,12 +72,18 @@ def debug(text):
 
 
 def info(text):
-    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} INFO - {escape(text)}")
+    global LOG_INDEX, LOG_QUEUE
+    with lock:
+        LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} INFO - {escape(text)}")
+        LOG_INDEX += 1
     return Logger.get_instance().logger.info(text)
 
 
 def error(text):
-    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} ERROR - {escape(text)}")
+    global LOG_INDEX, LOG_QUEUE
+    with lock:
+        LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} ERROR - {escape(text)}")
+        LOG_INDEX += 1
     try:
         if text.strip().find("：") != -1:
             title = text.split("：")[0]
@@ -89,10 +98,16 @@ def error(text):
 
 
 def warn(text):
-    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} WARN - {escape(text)}")
+    global LOG_INDEX, LOG_QUEUE
+    with lock:
+        LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} WARN - {escape(text)}")
+        LOG_INDEX += 1
     return Logger.get_instance().logger.warning(text)
 
 
 def console(text):
-    LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} - {escape(text)}")
+    global LOG_INDEX, LOG_QUEUE
+    with lock:
+        LOG_QUEUE.append(f"{time.strftime('%H:%M:%S', time.localtime(time.time()))} - {escape(text)}")
+        LOG_INDEX += 1
     print(text)

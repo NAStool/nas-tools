@@ -15,7 +15,7 @@
       <div class="col-sm-6 col-md-3 col-xl-2">
         <div class="card card-sm card-link-pop rounded-3">
           <a href='javascript:show_mediainfo_modal("{% if item[3] == "电影" %}MOV{% else %}TV{% endif %}", "{{ item[1] }}", "{{ item[2] }}", "{{ item[4] }}")' title="{{ item[1] }} ({{ item[2] }})" class="d-block">
-            <img src="{{ item[6] }}" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important">
+            <img src="{{ item[6] }}" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important" title="站点：{{ item[12] }}&#10;种子：{{ item[8] }}&#10;时间：{{ item[11] }}">
           </a>
           <div class="card-body">
             <div class="d-flex align-items-center">

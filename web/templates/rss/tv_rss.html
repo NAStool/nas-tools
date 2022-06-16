@@ -165,12 +165,18 @@
     }
     var sites = [];
     var i = 0;
+    var checkall = true;
     $("input[name=sites]").each(function(){
       if($(this).prop("checked")){
         sites[i] = $(this).val();
         i = i + 1;
+      }else{
+        checkall = false;
       }
     });
+    if(checkall){
+      sites = [];
+    }
     var cmd = "add_rss_media";
     var data = { "name": name, "type": "TV", "year": year, "season": season, "match": match, "sites": sites};
     $("#modal-tv-rss").modal("hide");

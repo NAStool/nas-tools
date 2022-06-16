@@ -417,6 +417,17 @@ def get_rss_movie_id(title, year):
     return ""
 
 
+# 获取订阅电影站点
+def get_rss_movie_sites(rssid):
+    if not rssid:
+        return ""
+    sql = "SELECT DESC FROM RSS_MOVIES WHERE ID = ?"
+    ret = select_by_sql(sql, (rssid,))
+    if ret:
+        return ret[0][0]
+    return ""
+
+
 # 更新订阅电影的TMDBID
 def update_rss_movie_tmdbid(rid, tmdbid):
     if not tmdbid:
@@ -505,6 +516,17 @@ def get_rss_tv_id(title, year, season=None):
     else:
         sql = "SELECT ID FROM RSS_TVS WHERE NAME = ? AND YEAR = ?"
         ret = select_by_sql(sql, (str_sql(title), year))
+    if ret:
+        return ret[0][0]
+    return ""
+
+
+# 获取订阅电视剧站点
+def get_rss_tv_sites(rssid):
+    if not rssid:
+        return ""
+    sql = "SELECT DESC FROM RSS_TVS WHERE ID = ?"
+    ret = select_by_sql(sql, (rssid,))
     if ret:
         return ret[0][0]
     return ""
