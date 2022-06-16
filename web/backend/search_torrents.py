@@ -101,9 +101,6 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
             # 只有一条数据，直接开始搜索
             media_info = SEARCH_MEDIA_CACHE[0]
             Message().send_channel_msg(channel=in_from,
-                                       title="查询到精确媒体信息，准备启动检索",
-                                       user_id=user_id)
-            Message().send_channel_msg(channel=in_from,
                                        title=media_info.get_title_ep_vote_string(),
                                        text=media_info.get_overview_string(),
                                        image=media_info.get_message_image(),
@@ -147,5 +144,5 @@ def __search_media(in_from, media_info, user_id):
                                    user_id=user_id)
     elif download_count == 0:
         Message().send_channel_msg(channel=in_from,
-                                   title="%s 未下载到任何资源" % media_info.title,
+                                   title="%s 共搜索到%s个结果，但没有下载到任何资源" % (media_info.title, search_count),
                                    user_id=user_id)

@@ -1,6 +1,5 @@
 import _thread
 import importlib
-import re
 import signal
 from flask_login import logout_user
 from werkzeug.security import generate_password_hash
@@ -815,6 +814,7 @@ class WebAction:
         season = data.get("season")
         match = data.get("match")
         page = data.get("page")
+        sites = data.get("sites")
         if name and mtype:
             if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
                 mtype = MediaType.MOVIE
@@ -826,7 +826,8 @@ class WebAction:
                                                   season=season,
                                                   match=match,
                                                   doubanid=doubanid,
-                                                  tmdbid=tmdbid)
+                                                  tmdbid=tmdbid,
+                                                  sites=sites)
         return {"code": code, "msg": msg, "page": page, "name": name}
 
     @staticmethod

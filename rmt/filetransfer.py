@@ -8,7 +8,8 @@ from threading import Lock
 from subprocess import call
 
 import log
-from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE
+from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
+    DEFAULT_TV_FORMAT
 from pt.subtitle import Subtitle
 from rmt.category import Category
 from pt.media_server import MediaServer
@@ -26,6 +27,11 @@ lock = Lock()
 
 
 class FileTransfer:
+    media = None
+    message = None
+    category = None
+    mediaserver = None
+
     __system = OsType.LINUX
     __pt_rmt_mode = None
     __sync_rmt_mode = None
@@ -38,12 +44,11 @@ class FileTransfer:
     __unknown_path = None
     __min_filesize = RMT_MIN_FILESIZE
     __filesize_cover = False
-    __movie_multiversion = True
-    __tv_multiversion = False
-    media = None
-    message = None
-    category = None
-    mediaserver = None
+    __movie_dir_rmt_format = ""
+    __movie_file_rmt_format = ""
+    __tv_dir_rmt_format = ""
+    __tv_season_rmt_format = ""
+    __tv_file_rmt_format = ""
 
     def __init__(self):
         self.media = Media()
@@ -103,12 +108,23 @@ class FileTransfer:
                 self.__min_filesize = int(min_filesize) * 1024 * 1024
             # 高质量文件覆盖
             self.__filesize_cover = media.get('filesize_cover')
-            # 电影多分辨率
-            self.__movie_multiversion = True if media.get("movie_multiversion") is None or media.get(
-                "movie_multiversion") else False
-            # 电视剧多分辨率
-            self.__tv_multiversion = media.get("tv_multiversion")
-
+            # 电影重命名格式
+            movie_name_format = media.get('movie_name_format') or DEFAULT_MOVIE_FORMAT
+            movie_formats = movie_name_format.split('/')
+            if movie_formats:
+                self.__movie_dir_rmt_format = movie_formats[0]
+                if len(movie_formats) > 1:
+                    self.__movie_file_rmt_format = movie_formats[1]
+            # 电视剧重命名格式
+            tv_name_format = media.get('tv_name_format') or DEFAULT_TV_FORMAT
+            tv_formats = tv_name_format.split('/')
+            if tv_formats:
+                self.__tv_dir_rmt_format = tv_formats[0]
+                if len(tv_formats) > 1:
+                    self.__tv_season_rmt_format = tv_formats[1]
+                if len(tv_formats) > 2:
+                    self.__tv_file_rmt_format = tv_formats[2]
+        # 转移模式
         sync = config.get_config('sync')
         if sync:
             rmt_mode = sync.get('sync_mod')
@@ -656,14 +672,31 @@ class FileTransfer:
         :param media: 已识别的媒体信息
         :return: 目录是否存在，目录路径，文件是否存在，文件路径
         """
+        # 返回变量
         dir_exist_flag = False
         file_exist_flag = False
         ret_dir_path = None
         ret_file_path = None
-        dir_name = media.get_title_string()
+        # 重命名要求
+        format_dict = {
+            "title": media.title if not media.part else "%s-%s" % (media.title, media.part),
+            "year": media.year,
+            "edition": media.resource_type,
+            "videoFormat": media.resource_pix,
+            "videoCodec": media.video_encode,
+            "audioCodec": media.audio_encode,
+            "tmdbid": media.tmdb_id,
+            "season": media.begin_season,
+            "episode": media.get_episode_seqs(),
+            "season_episode": "%s%s" % (media.get_season_item(), media.get_episode_items())
+        }
         # 电影
         if media.type == MediaType.MOVIE:
+            # 目录名称
+            dir_name = re.sub(r"[-_\s.]*None", "", self.__movie_dir_rmt_format.format(**format_dict))
+            # 默认目录路径
             file_path = os.path.join(media_dest, dir_name)
+            # 开启分类时目录路径
             if self.__movie_category_flag:
                 file_path = os.path.join(media_dest, media.category, dir_name)
                 for m_type in [RMT_FAVTYPE, media.category]:
@@ -672,15 +705,16 @@ class FileTransfer:
                     if os.path.exists(type_path):
                         file_path = type_path
                         break
+            # 返回路径
             ret_dir_path = file_path
+            # 路径存在标志
             if os.path.exists(file_path):
                 dir_exist_flag = True
-            file_dest = os.path.join(file_path, dir_name)
-            if media.part:
-                file_dest = "%s-%s" % (file_dest, media.part)
-            if media.resource_pix and self.__movie_multiversion:
-                file_dest = "%s - %s" % (file_dest, media.resource_pix)
+            # 文件路径
+            file_dest = os.path.join(file_path, re.sub(r"[-_\s.]*None", "", self.__movie_file_rmt_format.format(**format_dict)))
+            # 返回文件路径
             ret_file_path = file_dest
+            # 文件是否存在
             for ext in RMT_MEDIAEXT:
                 ext_dest = "%s%s" % (file_dest, ext)
                 if os.path.exists(ext_dest):
@@ -689,6 +723,8 @@ class FileTransfer:
                     break
         # 电视剧或者动漫
         else:
+            # 目录名称
+            dir_name = re.sub(r"[-_\s.]*None", "", self.__tv_dir_rmt_format.format(**format_dict))
             # 剧集目录
             if (media.type == MediaType.TV and self.__tv_category_flag) or (
                     media.type == MediaType.ANIME and self.__anime_category_flag):
@@ -698,31 +734,23 @@ class FileTransfer:
             # 季
             seasons = media.get_season_list()
             if seasons:
-                # 季 Season
-                season_str = "Season %s" % seasons[0]
+                # 季目录
+                season_str = re.sub(r"[-_\s.]*None", "", self.__tv_season_rmt_format.format(**format_dict))
+                # 季路径
                 season_dir = os.path.join(media_path, season_str)
+                # 返回目录路径
                 ret_dir_path = season_dir
+                # 目录是否存在
                 if os.path.exists(season_dir):
                     dir_exist_flag = True
+                # 处理集
                 episodes = media.get_episode_list()
                 if episodes:
-                    # 集 xx
-                    if len(episodes) == 1:
-                        file_seq_num = episodes[0]
-                    else:
-                        file_seq_num = "%s-%s" % (episodes[0], episodes[-1])
-                    # 文件路径
-                    file_path = os.path.join(season_dir, media.title)
-                    if media.part:
-                        file_path = "%s-%s" % (file_path, media.part)
-                    if media.resource_pix and self.__tv_multiversion:
-                        file_path = "%s - %s%s - 第 %s 集 - %s" % (
-                            file_path, media.get_season_item(), media.get_episode_items(), file_seq_num,
-                            media.resource_pix)
-                    else:
-                        file_path = "%s - %s%s - 第 %s 集" % (
-                            file_path, media.get_season_item(), media.get_episode_items(), file_seq_num)
+                    # 集文件路径
+                    file_path = os.path.join(season_dir, re.sub(r"[-_\s.]*None", "", self.__tv_file_rmt_format.format(**format_dict)))
+                    # 返回文件路径
                     ret_file_path = file_path
+                    # 文件存在标志
                     for ext in RMT_MEDIAEXT:
                         ext_dest = "%s%s" % (file_path, ext)
                         if os.path.exists(ext_dest):

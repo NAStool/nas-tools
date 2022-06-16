@@ -22,7 +22,7 @@ class MetaVideo(MetaBase):
     _season_re = r"S(\d{2})|^S(\d{1,2})"
     _episode_re = r"EP?(\d{2,4})|^EP?(\d{1,4})"
     _part_re = r"(^PART[1-9]?$|^CD[1-9]?$|^DVD[1-9]?$|^DISK[1-9]?$|^DISC[1-9]?$)"
-    _resources_type_re = r"^BLURAY$|^REMUX$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^UHD$|^SDR$|^HDR$|^DOLBY$|^BLU$|^WEB$|^BD$"
+    _resources_type_re = r"^BLURAY$|^REMUX$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^BLU$|^WEB$|^BD$"
     _name_no_begin_re = r"^\[.+?]"
     _name_se_words = ['共', '第', '季', '集', '话', '話']
     _name_nostring_re = r"^JADE|^AOD|^[A-Z]{1,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|NETFLIX|IMAX|^CHC|^3D|\s+3D|^BBC|DISNEY\+|XXX" \
@@ -31,9 +31,10 @@ class MetaVideo(MetaBase):
                         r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|\s+S\d{1,2}|EP?\d{2,4}\s*-\s*EP?\d{2,4}|EP?\d{2,4}|\s+EP?\d{1,4}" \
                         r"|连载|日剧|美剧|电视剧|动画片|动漫|欧美|西德|日韩|超高清|高清|蓝光|翡翠台" \
                         r"|最终季|合集|[中国英葡法俄日韩德意西印泰台港粤双文语简繁体特效内封官译外挂]+字幕" \
-                        r"|未删减版|UNCUT|UNRATE|WITH EXTRAS|RERIP|SUBBED|PROPER|REPACK|SEASON$|EPISODE[\s.]+" \
+                        r"|未删减版|UNCUT$|UNRATE$|WITH EXTRAS$|RERIP$|SUBBED$|PROPER$|REPACK$|SEASON$|EPISODE$" \
                         r"|PART[\s.]*[1-9]|CD[\s.]*[1-9]|DVD[\s.]*[1-9]|DISK[\s.]*[1-9]|DISC[\s.]*[1-9]" \
-                        r"|BLU-?RAY$|REMUX$|UHD$|U?HDTV$|HDDVD$|WEBRIP$|DVDRIP$|BDRIP$|SDR$|$HDR$|DOLBY$|WEB$|BD$" \
+                        r"|BLU-?RAY$|REMUX$|UHD$|U?HDTV$|HDDVD$|WEBRIP$|DVDRIP$|BDRIP$|SDR$|HDR\d*$|DOLBY$|WEB$|BD$" \
+                        r"|DTS\d?$|DTSHD$|DTSHDMA$|Atmos$|TrueHD\d?$|AC3$|\dAudios?$|DDP\d?$|DD\d?$|LPCM\d?$|AAC\d?$|FLAC\d?$|HD\d?$|MA\d?$" \
                         r"|[248]K|\d{3,4}[PIX]+"
     _resources_pix_re = r"^[SBUHD]*(\d{3,4}[PIX]+)"
     _resources_pix_re2 = r"(^[248]+K)"
@@ -41,6 +42,8 @@ class MetaVideo(MetaBase):
     _subtitle_season_all_re = r"全\s*([0-9一二三四五六七八九十]+)\s*季|([0-9一二三四五六七八九十]+)\s*季全"
     _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十EP\-]+)\s*[集话話]"
     _subtitle_episode_all_re = r"([0-9一二三四五六七八九十]+)\s*集全|全\s*([0-9一二三四五六七八九十]+)\s*集"
+    _video_encode_re = r"^[HX]26[45]$|^AVC$|^HEVC$|^VC\d?$|^MPEG\d?$|^Xvid$|^DivX$|^HDR\d*$"
+    _audio_encode_re = r"^DTS\d?$|^DTSHD$|^DTSHDMA$|^Atmos$|^TrueHD\d?$|^AC3$|^\dAudios?$|^DDP\d?$|^DD\d?$|^LPCM\d?$|^AAC\d?$|^FLAC\d?$|^HD\d?$|^MA\d?$"
 
     def __init__(self, title, subtitle=None):
         super().__init__(title, subtitle)
@@ -75,9 +78,12 @@ class MetaVideo(MetaBase):
             # 资源类型
             if self._continue_flag:
                 self.__init_resource_type(token)
-            # 编码类型
+            # 视频编码
             if self._continue_flag:
-                self.__init_encode_type(token)
+                self.__init_video_encode(token)
+            # 音频编码
+            if self._continue_flag:
+                self.__init_audio_encode(token)
             # 取下一个，直到没有为卡
             token = tokens.get_next()
             self._continue_flag = True
@@ -185,7 +191,6 @@ class MetaVideo(MetaBase):
         else:
             # 单个数字加入part
             if self._last_token_type == "part" and token.isdigit() and len(token) == 1:
-                self._last_token_type = "part"
                 self.part = "%s%s" % (self.part, token)
                 self._continue_flag = False
                 self._stop_name_flag = True
@@ -271,7 +276,6 @@ class MetaVideo(MetaBase):
                     and self._last_token_type == "season":
                 self.end_season = int(token)
                 self.total_seasons = (self.end_season - self.begin_season) + 1
-                self._last_token_type = "season"
                 self._continue_flag = False
             elif self._last_token_type == "SEASON" \
                     and self.begin_season is None \
@@ -321,12 +325,11 @@ class MetaVideo(MetaBase):
                     and self._last_token_type == "episode":
                 self.end_episode = int(token)
                 self.total_episodes = (self.end_episode - self.begin_episode) + 1
-                self._last_token_type = "episode"
                 self._continue_flag = False
             elif self.begin_episode is None \
                     and 1 < len(token) < 5 \
                     and self._last_token_type != "year"\
-                    and self._last_token_type != "encode":
+                    and self._last_token_type != "videoencode":
                 self.begin_episode = int(token)
                 self.total_episodes = 1
                 self._last_token_type = "episode"
@@ -362,20 +365,67 @@ class MetaVideo(MetaBase):
                     and self._last_token_type == "restype" \
                     and self._last_token == "WEB":
                 self.resource_type = "WEB-DL"
-                self._last_token_type = "restype"
                 self._continue_flag = False
             if token.upper() == "RAY" \
                     and self._last_token_type == "restype" \
                     and self._last_token == "BLU":
                 self.resource_type = "BluRay"
-                self._last_token_type = "restype"
                 self._continue_flag = False
 
-    def __init_encode_type(self, token):
-        if token.upper() == "H":
-            self._last_token_type = "encode"
-            self._last_token = "H"
+    def __init_video_encode(self, token):
+        if not self.get_name():
+            return
+        re_res = re.search(r"(%s)" % self._video_encode_re, token, re.IGNORECASE)
+        if re_res:
             self._continue_flag = False
+            self._stop_name_flag = True
+            self._last_token_type = "videoencode"
+            if not self.video_encode:
+                if re_res.group(1).find('.') == -1 and re.search(r'\d+', re_res.group(1)):
+                    self.video_encode = "%s.%s" % (re_res.group(1)[0], re_res.group(1)[1:])
+                else:
+                    self.video_encode = re_res.group(1)
+                self._last_token = re_res.group(1).upper()
+        elif token.upper() in ['H', 'X']:
+            self._continue_flag = False
+            self._stop_name_flag = True
+            self._last_token_type = "videoencode"
+            self._last_token = token.upper()
+        elif token.isdigit() \
+                and self._last_token_type == "videoencode" \
+                and self._last_token in ['H', 'X']:
+            self.video_encode = "%s.%s" % (self._last_token, token)
+        elif token.isdigit() \
+                and self._last_token_type == "videoencode" \
+                and self._last_token in ['VC', 'MPEG']:
+            self.video_encode = "%s%s" % (self._last_token, token)
+
+    def __init_audio_encode(self, token):
+        if not self.get_name():
+            return
+        re_res = re.search(r"(%s)" % self._audio_encode_re, token, re.IGNORECASE)
+        if re_res:
+            self._continue_flag = False
+            self._stop_name_flag = True
+            self._last_token_type = "audioencode"
+            self._last_token = re_res.group(1).upper()
+            if not self.audio_encode:
+                self.audio_encode = re_res.group(1)
+            else:
+                if self.audio_encode.upper() == "DTS":
+                    self.audio_encode = "%s-%s" % (self.audio_encode, re_res.group(1))
+                else:
+                    self.audio_encode = "%s %s" % (self.audio_encode, re_res.group(1))
+        elif token.isdigit() \
+                and self._last_token_type == "audioencode":
+            if self.audio_encode:
+                if self._last_token.isdigit():
+                    self.audio_encode = "%s.%s" % (self.audio_encode, token)
+                elif self.audio_encode[-1].isdigit():
+                    self.audio_encode = "%s %s.%s" % (self.audio_encode[:-1], self.audio_encode[-1], token)
+                else:
+                    self.audio_encode = "%s %s" % (self.audio_encode, token)
+            self._last_token = token
 
     def __init_subtitle(self, title_text):
         if not title_text:

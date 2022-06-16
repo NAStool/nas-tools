@@ -129,8 +129,7 @@ class Media:
             log.debug(f"【META】正在识别{search_type.value}：{file_media_name}, 年份={xstr(first_media_year)} ...")
             info = self.__search_movie_by_name(file_media_name, first_media_year)
             if info:
-                log.debug(">%sID：%s, %s名称：%s, 上映日期：%s" % (
-                    search_type.value, info.get('id'), search_type.value, info.get('title'), info.get('release_date')))
+                log.info("%s 匹配到 %s：TMDBID=%s, 名称=%s, 上映日期=%s" % (file_media_name, search_type.value, info.get('id'), info.get('title'), info.get('release_date')))
         else:
             # 有当前季和当前季集年份，使用精确匹配
             if media_year and season_number:
@@ -140,14 +139,13 @@ class Media:
                 log.debug(f"【META】正在识别{search_type.value}：{file_media_name}, 年份={xstr(first_media_year)} ...")
                 info = self.__search_tv_by_name(file_media_name, first_media_year)
             if info:
-                log.debug(">%sID：%s, %s名称：%s, 首播日期：%s" % (
-                    search_type.value, info.get('id'), search_type.value, info.get('name'), info.get('first_air_date')))
+                log.info("%s 匹配到 %s：TMDBID=%s, 名称=%s, 首播日期=%s" % (file_media_name, search_type.value, info.get('id'), info.get('name'), info.get('first_air_date')))
         # 补充类别信息
         if info:
             info['media_type'] = search_type
             return info
         else:
-            log.debug("【META】%s 未匹配到媒体信息!" % file_media_name)
+            log.info("【META】%s 以年份 %s 在TMDB中未匹配到%s信息!" % (file_media_name, first_media_year, search_type.value))
             return None
 
     def __search_movie_by_name(self, file_media_name, first_media_year):
@@ -167,7 +165,7 @@ class Media:
             return None
         log.debug(f"【META】API返回：{str(self.search.total_results)}")
         if len(movies) == 0:
-            log.warn(f"【META】{file_media_name} 未找到媒体信息!")
+            log.debug(f"【META】{file_media_name} 未找到相关电影信息!")
             return None
         else:
             info = {}
@@ -218,7 +216,7 @@ class Media:
             return None
         log.debug(f"【META】API返回：{str(self.search.total_results)}")
         if len(tvs) == 0:
-            log.warn(f"【META】{file_media_name} 未找到媒体信息!")
+            log.debug(f"【META】{file_media_name} 未找到相关剧集信息!")
             return None
         else:
             info = {}
@@ -281,7 +279,7 @@ class Media:
             return None
 
         if len(tvs) == 0:
-            log.warn("【META】%s 未识别到媒体信息!" % file_media_name)
+            log.debug("【META】%s 未找到季%s相关信息!" % (file_media_name, season_number))
             return None
         else:
             for tv in tvs:

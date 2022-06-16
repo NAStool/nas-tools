@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=0"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta content="white" name="apple-mobile-web-app-status-bar-style" />
@@ -65,5 +65,25 @@
     </div>
     <script src="../static/js/tabler.min.js"></script>
     <script src="../static/js/demo.min.js"></script>
+    <script type="text/javascript">
+
+      //禁止双指放大
+      document.documentElement.addEventListener('touchstart', function (event) {
+        if (event.touches.length > 1) {
+          event.preventDefault();
+        }
+      }, false);
+
+      //禁止双击放大
+      var lastTouchEnd = 0;
+      document.documentElement.addEventListener('touchend', function (event) {
+        var now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+          event.preventDefault();
+        }
+        lastTouchEnd = now;
+      }, false);
+
+    </script>
   </body>
 </html>

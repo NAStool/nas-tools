@@ -63,7 +63,7 @@ def add_rss_substribe_from_string(rss_string, in_from=SearchType.OT, user_id=Non
         return False
 
 
-def add_rss_subscribe(mtype, name, year, season, match=False, doubanid=None, tmdbid=None):
+def add_rss_subscribe(mtype, name, year, season, match=False, doubanid=None, tmdbid=None, sites=None):
     """
     添加电影、电视剧订阅
     :param mtype: 类型，电影、电视剧、动漫
@@ -73,6 +73,7 @@ def add_rss_subscribe(mtype, name, year, season, match=False, doubanid=None, tmd
     :param match: 是否模糊匹配
     :param doubanid: 豆瓣ID，有此ID时从豆瓣查询信息
     :param tmdbid: TMDBID，有此ID时优先使用ID查询TMDB信息，没有则使用名称查询
+    :param sites: 站点列表，为空则表示全部站点
     :return: 错误码：0代表成功，错误信息
     """
     if not name:
@@ -132,9 +133,9 @@ def add_rss_subscribe(mtype, name, year, season, match=False, doubanid=None, tmd
                     return 3, "%s 获取剧集数失败，请确认该季是否存在" % media_info.get_title_string(), media_info
                 media_info.begin_season = season
                 media_info.total_episodes = total_episode
-            insert_rss_tv(media_info=media_info, total=media_info.total_episodes, lack=media_info.total_episodes)
+            insert_rss_tv(media_info=media_info, total=media_info.total_episodes, lack=media_info.total_episodes, sites=sites)
         else:
-            insert_rss_movie(media_info=media_info)
+            insert_rss_movie(media_info=media_info, sites=sites)
     else:
         # 模糊匹配
         media_info = MetaInfo(title=name, mtype=mtype)
@@ -142,8 +143,8 @@ def add_rss_subscribe(mtype, name, year, season, match=False, doubanid=None, tmd
         media_info.type = mtype
         media_info.begin_season = season
         if mtype == MediaType.MOVIE:
-            insert_rss_movie(media_info=media_info, state="R")
+            insert_rss_movie(media_info=media_info, state="R", sites=sites)
         else:
-            insert_rss_tv(media_info=media_info, total=0, lack=0, state="R")
+            insert_rss_tv(media_info=media_info, total=0, lack=0, state="R", sites=sites)
 
     return 0, "添加订阅成功", media_info

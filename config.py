@@ -1,4 +1,3 @@
-import logging
 import os
 import shutil
 from collections import deque
@@ -70,6 +69,10 @@ TORRENT_SEARCH_PARAMS = {
         "720p": r"720P"
     }
 }
+# 电影默认命名格式
+DEFAULT_MOVIE_FORMAT = '{title} {year}/{title} {year} - {videoFormat}'
+# 电视剧默认命名格式
+DEFAULT_TV_FORMAT = '{title} {year}/Season {season}/{title} - {season_episode} - 第{episode}集'
 
 lock = Lock()
 

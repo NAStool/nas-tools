@@ -133,6 +133,26 @@
               </div>
             </li>
             {% endif %}
+            {% if "站点管理" in UserPris %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
+                <span class="nav-link-icon d-md-none d-lg-inline-block">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 11 12 14 20 6" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>
+                </span>
+                <span class="nav-link-title">
+                  站点管理
+                </span>
+              </a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('site')">
+                  站点维护
+                </a>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('statistics')">
+                  数据统计
+                </a>
+              </div>
+            </li>
+            {% endif %}
             {% if "订阅管理" in UserPris %}
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
@@ -177,9 +197,6 @@
                 </a>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('downloaded')">
                   近期下载
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('statistics')">
-                  数据统计
                 </a>
               </div>
             </li>
@@ -255,9 +272,6 @@
                 </a>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('directorysync')">
                   目录同步
-                </a>
-                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('site')">
-                  站点
                 </a>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('notification')">
                   消息通知

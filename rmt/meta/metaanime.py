@@ -104,5 +104,13 @@ class MetaAnime(MetaBase):
                 self.resource_pix = anitopy_info.get("video_resolution")
                 if isinstance(self.resource_pix, list):
                     self.resource_pix = self.resource_pix[0]
+                # 视频编码
+                self.video_encode = anitopy_info.get("video_term")
+                if isinstance(self.video_encode, list):
+                    self.video_encode = self.video_encode[0]
+                # 音频编码
+                self.audio_encode = anitopy_info.get("audio_term")
+                if isinstance(self.audio_encode, list):
+                    self.audio_encode = self.audio_encode[0]
         except Exception as e:
             log.console(str(e))

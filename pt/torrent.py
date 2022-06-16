@@ -8,12 +8,13 @@ from utils.types import MediaType
 class Torrent:
 
     @staticmethod
-    def is_torrent_match_rss(media_info, movie_keys, tv_keys):
+    def is_torrent_match_rss(media_info, movie_keys, tv_keys, site_name):
         """
         判断种子是否命中订阅
         :param media_info: 已识别的种子媒体信息
         :param movie_keys: 电影订阅清单
         :param tv_keys: 电视剧订阅清单
+        :param site_name: 站点名称
         :return: 命中状态
         """
         if media_info.type == MediaType.MOVIE:
@@ -23,6 +24,10 @@ class Torrent:
                 name = key_info[0]
                 year = key_info[1]
                 tmdbid = key_info[2]
+                sites = key_info[4]
+                # 未订阅站点不匹配
+                if sites and sites.find('|') != -1 and site_name not in sites:
+                    continue
                 # 有tmdbid时精确匹配
                 if tmdbid:
                     # 匹配名称、年份，年份可以没有
@@ -48,6 +53,10 @@ class Torrent:
                 year = key_info[1]
                 season = key_info[2]
                 tmdbid = key_info[3]
+                sites = key_info[5]
+                # 未订阅站点不匹配
+                if sites and sites.find('|') != -1 and site_name not in sites:
+                    continue
                 # 有tmdbid时精确匹配
                 if tmdbid:
                     # 匹配季，季可以为空

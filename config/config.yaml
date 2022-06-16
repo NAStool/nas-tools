@@ -63,13 +63,14 @@ media:
   category: 'default-category'
   # 【转移到媒体库的最小文件大小】：避免预告片/MV等影响识别，单位M
   min_filesize: 150
-  # 【洗版开关】：如开启则新下载了更大的文件会覆盖媒体库目录中已有的文件
+  # 【洗版开关】：如开启则则新下载了更大的文件会覆盖媒体库目录中已有的文件
   filesize_cover: true
-  # 【电影多分瓣率开关】：如开启，电影文件的命名会包含分辨率，允许同一电影不同分辨率的文件同时存在于媒体库中，历史上电影命名就是包括分辨率的，所以未设置过该开关时默认开
-  movie_multiversion: true
-  # 【电视剧多分辨率开关】：如开启，则剧集文件命名中会加入分辨率，允许下载同一剧集不同分辨率的文件同时存在于媒体库中
-  # 注意：使用目录监控进行同步的用户，存量剧集文件的命名是未包括分辨率的，打开该开关后，如目录监控文件夹内的文件发生变化，可能会产生重复硬链接
-  tv_multiversion: false
+  # 【电影命名定义】：程序会按定义的命名格式对电影进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换；占位符外的字符会当成普通字符，直接体现在名称上
+  # 电影占位符有：{title}：标题，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{tmdbid}：TMDB的ID
+  movie_name_format: '{title} ({year})/{title} ({year}) - {videoFormat}'
+  # 【电视剧命名定义】：程序会按定义的命名格式对电视剧进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换，占位符外的字符会当成普通字符，直接体现在名称上
+  # 电视剧占位符有：{title}：标题，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{tmdbid}：TMDB的ID，{season}：季数，{episode}：集数，{season_episode}：剧集SxxExx
+  tv_name_format: '{title} ({year})/Season {season}/{title} - {season_episode} - 第{episode}集'
 
 # 配置Emby服务器信息
 emby:

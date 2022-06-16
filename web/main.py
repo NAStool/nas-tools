@@ -43,7 +43,7 @@ def create_flask_app(config):
         "id": 0,
         "name": admin_user,
         "password": admin_password[6:],
-        "pris": "我的媒体库,资源搜索,推荐,订阅管理,下载管理,媒体识别,服务,系统设置"
+        "pris": "我的媒体库,资源搜索,推荐,站点管理,订阅管理,下载管理,媒体识别,服务,系统设置"
     }]
 
     App = Flask(__name__)
@@ -468,15 +468,17 @@ def create_flask_app(config):
     @App.route('/movie_rss', methods=['POST', 'GET'])
     @login_required
     def movie_rss():
-        Items = get_rss_movies()
-        return render_template("rss/movie_rss.html", Count=len(Items), Items=Items)
+        RssItems = get_rss_movies()
+        RssSites = get_config_site()
+        return render_template("rss/movie_rss.html", Count=len(RssItems), Items=RssItems, Sites=RssSites)
 
     # 电视剧订阅页面
     @App.route('/tv_rss', methods=['POST', 'GET'])
     @login_required
     def tv_rss():
-        Items = get_rss_tvs()
-        return render_template("rss/tv_rss.html", Count=len(Items), Items=Items)
+        RssItems = get_rss_tvs()
+        RssSites = get_config_site()
+        return render_template("rss/tv_rss.html", Count=len(RssItems), Items=RssItems, Sites=RssSites)
 
     # 订阅日历页面
     @App.route('/rss_calendar', methods=['POST', 'GET'])
@@ -528,7 +530,7 @@ def create_flask_app(config):
     @login_required
     def site():
         CfgSites = get_config_site()
-        return render_template("setting/site.html",
+        return render_template("site/site.html",
                                Sites=CfgSites)
 
     # 推荐页面
@@ -762,7 +764,7 @@ def create_flask_app(config):
             TotalUploadHis.append(round(int(his[1]) / 1024 / 1024 / 1024))
             TotalDownloadHis.append(round(int(his[2]) / 1024 / 1024 / 1024))
 
-        return render_template("download/statistics.html",
+        return render_template("site/statistics.html",
                                CurrentDownload=str_filesize(CurrentDownload) + "B",
                                CurrentUpload=str_filesize(CurrentUpload) + "B",
                                TotalDownload=str_filesize(TotalDownload) + "B",

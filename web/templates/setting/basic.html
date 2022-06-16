@@ -152,27 +152,27 @@
               </div>
             </div>
             <div class="row">
+              <div class="col">
+                <div class="mb-3">
+                  <label class="form-label required">电影重命名格式(<a href="#" title="程序会按定义的命名格式对电影进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换；占位符外的字符会当成普通字符，直接体现在名称上&#10;电影占位符：{title}：标题，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{tmdbid}：TMDB的ID">?</a>)</label>
+                  <input type="text" value="{{ Config.media.movie_name_format or '' }}" class="form-control" id="media.movie_name_format" placeholder="{title} ({year})/{title} ({year}) - {videoFormat}" autocomplete="false">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col">
+                <div class="mb-3">
+                  <label class="form-label required">电视剧重命名格式(<a href="#" title="程序会按定义的命名格式对电视剧进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换，占位符外的字符会当成普通字符，直接体现在名称上&#10;电视剧占位符：{title}：标题，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{tmdbid}：TMDB的ID，{season}：季数，{episode}：集数，{season_episode}：剧集SxxExx">?</a>)</label>
+                  <input type="text" value="{{ Config.media.tv_name_format or '' }}" class="form-control" id="media.tv_name_format" placeholder="{title} ({year})/Season {season}/{title} - {season_episode} - 第{episode}集" autocomplete="false">
+                </div>
+              </div>
+            </div>
+            <div class="row">
               <div class="col-xl-4">
                 <div class="mb-3">
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="media.filesize_cover" {% if Config.media.filesize_cover %}checked{% endif %}>
-                    <span class="form-check-label">高质量文件覆盖(<a href="#" title="开启后，如下载了更高质量的同名同分辨率文件时，会覆盖媒体库中已有的文件，否则不会进行转移处理">?</a>)</span>
-                  </label>
-                </div>
-              </div>
-              <div class="col-xl-4">
-                <div class="mb-3">
-                  <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="media.movie_multiversion" {% if Config.media.movie_multiversion == False %}{% else %}checked{% endif %}>
-                    <span class="form-check-label">电影多分辨率(<a href="#" title="如开启，电影文件的命名会包含分辨率，允许同一电影不同分辨率的文件同时存在于媒体库中">?</a>)</span>
-                  </label>
-                </div>
-              </div>
-              <div class="col-xl-4">
-                <div class="mb-3">
-                  <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="media.tv_multiversion" {% if Config.media.tv_multiversion %}checked{% endif %}>
-                    <span class="form-check-label">电视剧多分辨率(<a href="#" title="如开启，则剧集文件命名中会加入分辨率，允许同一剧集不同分辨率的文件同时存在于媒体库中">?</a>)</span>
+                    <span class="form-check-label">高质量文件覆盖(<a href="#" title="开启后，如下载了更高质量的同名文件时，会覆盖媒体库中已有的文件，否则不会进行转移处理">?</a>)</span>
                   </label>
                 </div>
               </div>

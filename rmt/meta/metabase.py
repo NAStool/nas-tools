@@ -43,6 +43,10 @@ class MetaBase(object):
     resource_type = None
     # 识别的分辨率
     resource_pix = None
+    # 视频编码
+    video_encode = None
+    # 音频编码
+    audio_encode = None
     # 二级分类
     category = None
     # TMDB ID
@@ -137,9 +141,6 @@ class MetaBase(object):
         overview = self.overview
         placeholder = ' ...'
         max_len = max(len(placeholder), max_len - len(placeholder))
-
-        if not overview.startswith("　　"):
-            overview = f"　　{overview}"
         overview = (overview[:max_len] + placeholder) if len(overview) > max_len else overview
         return overview
 
@@ -204,6 +205,18 @@ class MetaBase(object):
     def get_episode_items(self):
         return "E%s" % "E".join(str(episode).rjust(2, '0') for episode in self.get_episode_list())
 
+    # 返回单文件多集的集数表达方式，用于支持单文件多集
+    def get_episode_seqs(self):
+        episodes = self.get_episode_list()
+        if episodes:
+            # 集 xx
+            if len(episodes) == 1:
+                return str(episodes[0])
+            else:
+                return "%s-%s" % (episodes[0], episodes[-1])
+        else:
+            return ""
+
     # 返回季集字符串
     def get_season_episode_string(self):
         if self.type == MediaType.MOVIE:
@@ -229,6 +242,14 @@ class MetaBase(object):
             return self.resource_pix
         else:
             return ""
+
+    # 返回视频编码
+    def get_video_encode_string(self):
+        return self.video_encode or ""
+
+    # 返回音频编码
+    def get_audio_encode_string(self):
+        return self.audio_encode or ""
 
     # 返回背景图片地址
     def get_backdrop_path(self, default=True):

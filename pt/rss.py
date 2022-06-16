@@ -126,7 +126,7 @@ class Rss:
                                 media_info.get_title_string(), media_info.get_season_episode_string()))
                             continue
                         # 检查种子名称或者标题是否匹配
-                        if Torrent.is_torrent_match_rss(media_info, movie_keys, tv_keys):
+                        if Torrent.is_torrent_match_rss(media_info, movie_keys, tv_keys, rss_job):
                             log.info("【RSS】%s: %s %s %s 匹配成功" % (media_info.type.value,
                                                                  media_info.get_title_string(),
                                                                  media_info.get_season_episode_string(),
