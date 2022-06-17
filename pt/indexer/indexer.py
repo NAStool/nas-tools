@@ -159,7 +159,7 @@ class IIndexer(metaclass=ABCMeta):
                 res_order = Torrent.check_res_order(torrent_name, description, self.__res_type)
 
             # 识别种子名称
-            meta_info = MetaInfo(torrent_name)
+            meta_info = MetaInfo(title=torrent_name, subtitle=description)
             if not meta_info.get_name():
                 continue
 

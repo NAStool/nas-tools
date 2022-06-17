@@ -546,9 +546,12 @@ class WebAction:
         查询实时日志
         """
         if log.LOG_INDEX:
-            text = "<br/>".join(list(log.LOG_QUEUE)[-log.LOG_INDEX:])
+            if log.LOG_INDEX > len(list(log.LOG_QUEUE)):
+                text = "<br/>".join(list(log.LOG_QUEUE))
+            else:
+                text = "<br/>".join(list(log.LOG_QUEUE)[-log.LOG_INDEX:])
             log.LOG_INDEX = 0
-            return {"text": text}
+            return {"text": text + "<br/>"}
         return {"text": ""}
 
     def __version(self, data):
