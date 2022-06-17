@@ -63,7 +63,6 @@ class Searcher:
         if not media_info:
             return False, {}, 0, 0
 
-        log.info("【SEARCHER】开始检索 %s ..." % media_info.original_title)
         # 查找的季
         if not media_info.begin_season:
             search_season = None
@@ -73,9 +72,10 @@ class Searcher:
         search_episode = media_info.get_episode_list()
         if search_episode and not search_season:
             search_season = [1]
-        # 如果原标题是英文的则用原标题去检索，用原标题及中文标题去匹配，以兼容国外网站
+        # 如果原标题是英文：用原标题去检索，用原标题及中文标题去匹配，以兼容国外网站
         search_title = media_info.original_title if media_info.original_language == "en" else media_info.title
         match_words = [media_info.title].append(search_title) if search_title != media_info.title else [media_info.title]
+        log.info("【SEARCHER】开始检索 %s ..." % search_title)
         media_list = self.search_medias(key_word=search_title,
                                         filter_args={"season": search_season,
                                                      "episode": search_episode,
