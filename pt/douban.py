@@ -386,8 +386,7 @@ class DouBan:
                     # 查询数据库状态，已经加入RSS的不处理
                     search_state = get_douban_search_state(media.get_name(), media.year)
                     if not search_state or search_state[0][0] == "NEW":
-                        media_info = self.media.get_media_info(title="%s %s" % (media.get_name(), media.year),
-                                                               mtype=media.type, strict=True)
+                        media_info = self.media.get_media_info(title="%s %s" % (media.get_name(), media.year or ""), mtype=media.type)
                         if not media_info or not media_info.tmdb_info:
                             log.warn("【DOUBAN】%s 未查询到媒体信息" % media.get_name())
                             continue

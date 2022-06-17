@@ -116,7 +116,9 @@ def is_torrent_rssd(media_info: MetaBase):
     else:
         sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TITLE = ? AND YEAR = ? AND SEASON = ? AND EPISODE = ?"
 
-        rets = select_by_sql(sql, (str_sql(media_info.title), media_info.year, media_info.get_season_string(),
+        rets = select_by_sql(sql, (str_sql(media_info.title),
+                                   str_sql(media_info.year),
+                                   media_info.get_season_string(),
                                    media_info.get_episode_string()))
 
     if rets and rets[0][0] > 0:
@@ -134,36 +136,44 @@ def delete_all_search_torrents():
 def insert_rss_torrents(media_info: MetaBase):
     sql = "INSERT INTO RSS_TORRENTS(TORRENT_NAME, ENCLOSURE, TYPE, TITLE, YEAR, SEASON, EPISODE) " \
           "VALUES (?, ?, ?, ?, ?, ?, ?)"
-    return update_by_sql(sql, (str_sql(media_info.org_string), media_info.enclosure, media_info.type.value,
-                               str_sql(media_info.title), media_info.year,
-                               media_info.get_season_string(), media_info.get_episode_string()))
+    return update_by_sql(sql, (str_sql(media_info.org_string),
+                               media_info.enclosure,
+                               media_info.type.value,
+                               str_sql(media_info.title),
+                               str_sql(media_info.year),
+                               media_info.get_season_string(),
+                               media_info.get_episode_string()))
 
 
 # 将豆瓣的数据插入数据库
 def insert_douban_media_state(media: MetaBase, state):
     if not media.year:
         sql = "DELETE FROM DOUBAN_MEDIAS WHERE NAME = ?"
-        update_by_sql(sql, (media.get_name(),))
+        update_by_sql(sql, (str_sql(media.get_name()),))
     else:
         sql = "DELETE FROM DOUBAN_MEDIAS WHERE NAME = ? AND YEAR = ?"
-        update_by_sql(sql, (media.get_name(), media.year))
+        update_by_sql(sql, (str_sql(media.get_name()), str_sql(media.year)))
 
     sql = "INSERT INTO DOUBAN_MEDIAS(NAME, YEAR, TYPE, RATING, IMAGE, STATE) VALUES (?, ?, ?, ?, ?, ?)"
     # 再插入
-    return update_by_sql(sql, (media.get_name(), media.year, media.type.value, media.vote_average, media.poster_path,
+    return update_by_sql(sql, (str_sql(media.get_name()),
+                               str_sql(media.year),
+                               media.type.value,
+                               media.vote_average,
+                               str_sql(media.poster_path),
                                state))
 
 
 # 标记豆瓣数据的状态
 def update_douban_media_state(media: MetaBase, state):
     sql = "UPDATE DOUBAN_MEDIAS SET STATE = ? WHERE NAME = ? AND YEAR = ?"
-    return update_by_sql(sql, (state, str_sql(media.title), media.year))
+    return update_by_sql(sql, (state, str_sql(media.title), str_sql(media.year)))
 
 
 # 查询未检索的豆瓣数据
 def get_douban_search_state(title, year):
     sql = "SELECT STATE FROM DOUBAN_MEDIAS WHERE NAME = ? AND YEAR = ?"
-    return select_by_sql(sql, (str_sql(title), year))
+    return select_by_sql(sql, (str_sql(title), str_sql(year)))
 
 
 # 查询识别转移记录
@@ -196,10 +206,17 @@ def insert_transfer_history(in_from: Enum, rmt_mode: RmtMode, in_path, dest, med
     sql = "INSERT INTO TRANSFER_HISTORY" \
           "(SOURCE, MODE, TYPE, FILE_PATH, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE)" \
           " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    return update_by_sql(sql, (
-        in_from.value, rmt_mode.value, media_info.type.value, str_sql(file_path), str_sql(file_name),
-        str_sql(media_info.title),
-        media_info.category, media_info.year, media_info.get_season_string(), dest, timestr))
+    return update_by_sql(sql, (in_from.value,
+                               rmt_mode.value,
+                               media_info.type.value,
+                               str_sql(file_path),
+                               str_sql(file_name),
+                               str_sql(media_info.title),
+                               media_info.category,
+                               str_sql(media_info.year),
+                               media_info.get_season_string(),
+                               dest,
+                               timestr))
 
 
 # 查询识别转移记录
@@ -474,7 +491,7 @@ def delete_rss_movie(title, year, rssid=None):
         return update_by_sql(sql, (rssid,))
     else:
         sql = "DELETE FROM RSS_MOVIES WHERE NAME = ? AND YEAR = ?"
-        return update_by_sql(sql, (str_sql(title), year))
+        return update_by_sql(sql, (str_sql(title), str_sql(year)))
 
 
 # 更新电影订阅状态
@@ -482,7 +499,7 @@ def update_rss_movie_state(title, year, state):
     if not title:
         return False
     sql = "UPDATE RSS_MOVIES SET STATE = ? WHERE NAME = ? AND YEAR = ?"
-    return update_by_sql(sql, (state, str_sql(title), year))
+    return update_by_sql(sql, (state, str_sql(title), str_sql(year)))
 
 
 # 查询订阅电视剧信息
@@ -512,10 +529,10 @@ def get_rss_tv_id(title, year, season=None):
         return ""
     if season:
         sql = "SELECT ID FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-        ret = select_by_sql(sql, (str_sql(title), year, season))
+        ret = select_by_sql(sql, (str_sql(title), str_sql(year), season))
     else:
         sql = "SELECT ID FROM RSS_TVS WHERE NAME = ? AND YEAR = ?"
-        ret = select_by_sql(sql, (str_sql(title), year))
+        ret = select_by_sql(sql, (str_sql(title), str_sql(year)))
     if ret:
         return ret[0][0]
     return ""
@@ -546,10 +563,10 @@ def is_exists_rss_tv(title, year, season=None):
         return False
     if season:
         sql = "SELECT COUNT(1) FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-        ret = select_by_sql(sql, (str_sql(title), year, season))
+        ret = select_by_sql(sql, (str_sql(title), str_sql(year), season))
     else:
         sql = "SELECT COUNT(1) FROM RSS_TVS WHERE NAME = ? AND YEAR = ?"
-        ret = select_by_sql(sql, (str_sql(title), year))
+        ret = select_by_sql(sql, (str_sql(title), str_sql(year)))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -581,7 +598,7 @@ def update_rss_tv_lack(title, year, season, lack):
     if not title:
         return False
     sql = "UPDATE RSS_TVS SET LACK=? WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-    return update_by_sql(sql, (lack, str_sql(title), year, season))
+    return update_by_sql(sql, (lack, str_sql(title), str_sql(year), season))
 
 
 # 删除RSS电视剧
@@ -593,7 +610,7 @@ def delete_rss_tv(title, year, season, rssid=None):
         return update_by_sql(sql, (rssid,))
     else:
         sql = "DELETE FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-        return update_by_sql(sql, (str_sql(title), year, season))
+        return update_by_sql(sql, (str_sql(title), str_sql(year), season))
 
 
 # 更新电视剧订阅状态
@@ -601,7 +618,7 @@ def update_rss_tv_state(title, year, season, state):
     if not title:
         return False
     sql = "UPDATE RSS_TVS SET STATE = ? WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-    return update_by_sql(sql, (state, str_sql(title), year, season))
+    return update_by_sql(sql, (state, str_sql(title), str_sql(year), season))
 
 
 # 查询是否存在同步历史记录
@@ -779,10 +796,10 @@ def is_exists_download_history(title, year, mtype=None):
         return False
     if mtype:
         sql = "SELECT COUNT(1) FROM DOWNLOAD_HISTORY WHERE TITLE = ? AND YEAR = ? AND TYPE = ?"
-        ret = select_by_sql(sql, (str_sql(title), year, mtype))
+        ret = select_by_sql(sql, (str_sql(title), str_sql(year), mtype))
     else:
         sql = "SELECT COUNT(1) FROM DOWNLOAD_HISTORY WHERE TITLE = ? AND YEAR = ?"
-        ret = select_by_sql(sql, (str_sql(title), year))
+        ret = select_by_sql(sql, (str_sql(title), str_sql(year)))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -803,12 +820,12 @@ def insert_download_history(media_info: MetaBase):
                                    time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
                                    str_sql(media_info.site),
                                    str_sql(media_info.title),
-                                   media_info.year,
+                                   str_sql(media_info.year),
                                    media_info.type.value,))
     else:
         sql = "INSERT INTO DOWNLOAD_HISTORY(TITLE,YEAR,TYPE,TMDBID,VOTE,POSTER,OVERVIEW,TORRENT,ENCLOSURE,DESC,DATE,SITE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         return update_by_sql(sql, (str_sql(media_info.title),
-                                   media_info.year,
+                                   str_sql(media_info.year),
                                    media_info.type.value,
                                    media_info.tmdb_id,
                                    media_info.vote_average,
