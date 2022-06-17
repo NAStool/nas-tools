@@ -240,7 +240,7 @@ class Rss:
             log.info("【RSS】共有 %s 个电影订阅需要检索" % len(movies))
         for movie in movies:
             name = movie[0]
-            year = movie[1]
+            year = movie[1] or ""
             tmdbid = movie[2]
             # 跳过模糊匹配的
             if not tmdbid:
@@ -248,7 +248,7 @@ class Rss:
             update_rss_movie_state(name, year, 'S')
             # 开始识别
             if tmdbid and not tmdbid.startswith("DB:"):
-                media_info = MetaInfo(title="%s %s" % (name, year))
+                media_info = MetaInfo(title="%s %s".strip() % (name, year))
                 tmdb_info = Media().get_tmdb_info(mtype=MediaType.MOVIE, title=name, year=year, tmdbid=tmdbid)
                 media_info.set_tmdb_info(tmdb_info)
             else:
@@ -287,7 +287,7 @@ class Rss:
             log.info("【RSS】共有 %s 个电视剧订阅需要检索" % len(tvs))
         for tv in tvs:
             name = tv[0]
-            year = tv[1]
+            year = tv[1] or ""
             season = tv[2]
             tmdbid = tv[3]
             lack = int(tv[7])
@@ -297,7 +297,7 @@ class Rss:
             update_rss_tv_state(name, year, season, 'S')
             # 开始识别
             if tmdbid and not tmdbid.startswith("DB:"):
-                media_info = MetaInfo(title="%s %s" % (name, year))
+                media_info = MetaInfo(title="%s %s".strip() % (name, year))
                 tmdb_info = Media().get_tmdb_info(mtype=MediaType.TV, title=name, year=year, tmdbid=tmdbid)
                 media_info.set_tmdb_info(tmdb_info)
             else:
@@ -346,7 +346,7 @@ class Rss:
         for movie in movies:
             rid = movie[6]
             name = movie[0]
-            year = movie[1]
+            year = movie[1] or ""
             tmdbid = movie[2]
             if tmdbid and tmdbid.startswith("DB:"):
                 media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=MediaType.MOVIE, strict=True)
@@ -357,7 +357,7 @@ class Rss:
         for tv in tvs:
             rid = tv[10]
             name = tv[0]
-            year = tv[1]
+            year = tv[1] or ""
             tmdbid = tv[3]
             if tmdbid and tmdbid.startswith("DB:"):
                 media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=MediaType.TV, strict=True)

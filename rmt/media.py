@@ -145,7 +145,7 @@ class Media:
             info['media_type'] = search_type
             return info
         else:
-            log.info("【META】%s 以年份 %s 在TMDB中未匹配到%s信息!" % (file_media_name, first_media_year, search_type.value))
+            log.info("【META】%s 以年份 %s 在TMDB中未匹配到%s信息!" % (file_media_name, xstr(first_media_year), search_type.value))
             return None
 
     def __search_movie_by_name(self, file_media_name, first_media_year):

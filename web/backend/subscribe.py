@@ -78,13 +78,15 @@ def add_rss_subscribe(mtype, name, year, season, match=False, doubanid=None, tmd
     """
     if not name:
         return -1, "标题或类型有误", None
+    if not year:
+        year = ""
     # 检索媒体信息
     if not match:
         # 精确匹配
         media = Media()
         # 根据TMDBID查询，从推荐加订阅的情况
         if tmdbid:
-            media_info = MetaInfo(title="%s %s" % (name, year), mtype=mtype)
+            media_info = MetaInfo(title="%s %s".strip() % (name, year), mtype=mtype)
             media_info.set_tmdb_info(media.get_tmdb_info(mtype, None, None, tmdbid))
             if not media_info or not media_info.tmdb_info or not tmdbid:
                 return 1, "无法查询到媒体信息", None
@@ -102,7 +104,7 @@ def add_rss_subscribe(mtype, name, year, season, match=False, doubanid=None, tmd
                         douban_info = DoubanApi().tv_detail(doubanid)
                     if not douban_info:
                         return 1, "无法查询到媒体信息", None
-                    media_info = MetaInfo(title="%s %s" % (name, year), mtype=mtype)
+                    media_info = MetaInfo(title="%s %s".strip() % (name, year), mtype=mtype)
                     media_info.title = media_info.get_name()
                     media_info.year = douban_info.get("year")
                     media_info.type = mtype
