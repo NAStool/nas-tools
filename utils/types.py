@@ -51,3 +51,4 @@ class IndexerType(Enum):
 class MediaServerType(Enum):
     JELLYFIN = "Jellyfin"
     EMBY = "Emby"
+    PLEX = "Plex"

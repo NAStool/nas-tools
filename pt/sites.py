@@ -247,14 +247,18 @@ class Sites:
         :return:
         """
         html_text = self.__prepare_html_text(html_text)
-        bonus_match = re.search(r"mybonus.php[\[\]:：<>/a-zA-Z-=\"'\s#;.(使用魔力值豆]+\s*([\d,.\s]+)", html_text)
-        if bonus_match and bonus_match.group(1).strip():
-            return float(bonus_match.group(1).strip().replace(',', ''))
-        bonus_match = re.search(r"魔力值[\[\]:：<>/a-zA-Z-=\"'\s#;]+\s*([\d,.\s]+)", html_text)
-        if bonus_match and bonus_match.group(1).strip():
-            return float(bonus_match.group(1).strip().replace(',', ''))
-        else:
-            return 0.0
+        bonus_match = re.search(r"mybonus.[\[\]:：<>/a-zA-Z_\-=\"'\s#;.(使用魔力值豆]+\s*([\d,.]+)[<(&\s]", html_text)
+        try:
+            if bonus_match and bonus_match.group(1).strip():
+                bonus_text = bonus_match.group(1).strip().replace(',', '')
+                if len(bonus_text) > 1:
+                    return float(bonus_text)
+            bonus_match = re.search(r"[魔力值|\]][\[\]:：<>/a-zA-Z_\-=\"'\s#;]+\s*([\d,.]+)[<(&\s]", html_text, flags=re.S)
+            if bonus_match and bonus_match.group(1).strip():
+                return float(bonus_match.group(1).strip().replace(',', ''))
+        except Exception as err:
+            print(str(err))
+        return 0.0
 
     @staticmethod
     def __is_signin_success(html_text):
