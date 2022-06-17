@@ -686,7 +686,7 @@ class FileTransfer:
             "videoCodec": media.video_encode,
             "audioCodec": media.audio_encode,
             "tmdbid": media.tmdb_id,
-            "season": media.begin_season,
+            "season": media.get_season_seq(),
             "episode": media.get_episode_seqs(),
             "season_episode": "%s%s" % (media.get_season_item(), media.get_episode_items())
         }

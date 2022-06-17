@@ -168,6 +168,16 @@ class MetaBase(object):
             else:
                 return "S01"
 
+    # 返回begin_season 的数字
+    def get_season_seq(self):
+        if self.begin_season is not None:
+            return str(self.begin_season)
+        else:
+            if self.type == MediaType.MOVIE:
+                return ""
+            else:
+                return "1"
+
     # 返回季的数组
     def get_season_list(self):
         if self.begin_season is None:
