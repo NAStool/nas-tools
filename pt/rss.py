@@ -1,6 +1,8 @@
 import traceback
 from threading import Lock
 
+import re
+from urllib import parse
 import requests
 import xml.dom.minidom
 import log
@@ -407,7 +409,38 @@ class Rss:
                             enclosure = tagNames[0].getAttribute("url")
                             size = tagNames[0].getAttribute("length")
                         if not enclosure:
-                            continue
+                            size_map = {
+                                'KiB': 1024,
+                                'MiB': 1024 * 1024,
+                                'GiB': 1024 * 1024 * 1024,
+                                'TiB': 1024 * 1024 * 1024 * 1024
+                            }
+                            site_map = {
+                            'blutopia.xyz': 'Unit3D',
+                            'desitorrents.tv': 'Unit3D',
+                            'jptv.club': 'Unit3D',
+                            'www.torrentseeds.org': 'Unit3D',
+                            'beyond-hd.me': 'beyondhd',
+                            }
+                            url_host = parse.urlparse(url).netloc
+                            if site_map[url_host] == 'Unit3D':
+                                tagNames = item.getElementsByTagName("link")
+                                enclosure = tagNames[0].firstChild.data
+                                tagNames = item.getElementsByTagName("description")
+                                description = tagNames[0].firstChild.data
+                                size_temp = re.search(r'Size<\/strong>: (\d*\.\d*|\d*)(\s)(GiB|MiB|TiB|KiB)', description)
+                                if size_temp:
+                                    size = float(size_temp.group(1)) * size_map[size_temp.group(3)]
+                                    size = str(int(size))
+                            elif site_map[url_host] == 'beyondhd':
+                                tagNames = item.getElementsByTagName("link")
+                                enclosure = tagNames[0].firstChild.data
+                                size_temp = re.search(r'(\d*\.\d*|\d*) (GiB|MiB|TiB|KiB)', title)
+                                if size_temp:
+                                    size = float(size_temp.group(1)) * size_map[size_temp.group(2)]
+                                    size = str(int(size))
+                            else:
+                                continue
                         if size and size.isdigit():
                             size = int(size)
                         else:
