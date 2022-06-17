@@ -267,7 +267,7 @@ class Movie(TMDb):
 
     def translations(self, movie_id):
         """
-        Get the Watch Providers for a TV show.
+        Get the Watch Providers for a movie.
         :param movie_id:
         :return:
         """

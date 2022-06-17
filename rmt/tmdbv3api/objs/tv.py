@@ -25,7 +25,8 @@ class TV(TMDb):
         "keywords": "/tv/%s/keywords",
         "watch_providers": "/tv/%s/watch/providers",
         "translations": "/tv/%s/translations",
-        "season_details": "/tv/%s/season/%s"
+        "season_details": "/tv/%s/season/%s",
+        "alternative_titles": "/tv/%s/alternative_titles",
     }
 
     def details(
@@ -195,3 +196,11 @@ class TV(TMDb):
         :return:
         """
         return AsObj(**self._call(self._urls["season_details"] % (tv_id, season_number), ""))
+
+    def alternative_titles(self, tv_id):
+        """
+        Get all of the alternative titles for a  TV show.
+        :param tv_id:
+        :return:
+        """
+        return AsObj(**self._call(self._urls["alternative_titles"] % tv_id, ""))

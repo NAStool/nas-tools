@@ -82,21 +82,19 @@ class Media:
         ret_names = []
         try:
             if mtype == MediaType.MOVIE:
-                tmdb_info = self.movie.translations(tmdb_id)
+                tmdb_info = self.movie.alternative_titles(tmdb_id)
                 if tmdb_info:
-                    translations = tmdb_info.get("translations", [])
+                    translations = tmdb_info.get("titles", [])
                     for translation in translations:
-                        data = translation.get("data", {})
-                        title = data.get("title")
+                        title = translation.get("title")
                         if title and title not in ret_names:
                             ret_names.append(title)
             else:
-                tmdb_info = self.tv.translations(tmdb_id)
+                tmdb_info = self.tv.alternative_titles(tmdb_id)
                 if tmdb_info:
-                    translations = tmdb_info.get("translations", [])
+                    translations = tmdb_info.get("results", [])
                     for translation in translations:
-                        data = translation.get("data", {})
-                        name = data.get("name")
+                        name = translation.get("title")
                         if name and name not in ret_names:
                             ret_names.append(name)
         except Exception as e:

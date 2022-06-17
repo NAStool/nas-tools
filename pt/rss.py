@@ -327,7 +327,7 @@ class Rss:
                 update_rss_tv_state(name, year, season, 'R')
                 no_exist_items = no_exists.get(media_info.get_title_string())
                 for no_exist_item in no_exist_items:
-                    if no_exist_item.get("season") == media_info.begin_season:
+                    if str(no_exist_item.get("season")) == media_info.get_season_seq():
                         if no_exist_item.get("episodes"):
                             log.info("【RSS】更新电视剧 %s %s 缺失集数为 %s" % (
                                 media_info.get_title_string(), media_info.get_season_string(),

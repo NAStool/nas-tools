@@ -428,7 +428,7 @@ class DouBan:
                                     # 取当前季的总集数
                                     else:
                                         for seasoninfo in no_exists_info:
-                                            if seasoninfo.get("season") == media_info.begin_season:
+                                            if str(seasoninfo.get("season")) == media_info.get_season_seq():
                                                 total_count = seasoninfo.get("total_episodes")
                                                 if seasoninfo.get("episodes"):
                                                     lack_count = len(seasoninfo.get("episodes"))
