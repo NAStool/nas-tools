@@ -163,7 +163,7 @@ class IIndexer(metaclass=ABCMeta):
             if not meta_info.get_name():
                 continue
 
-            if meta_info.type in [MediaType.TV, MediaType.ANIME] and filter_args.get("type") == MediaType.MOVIE:
+            if meta_info.type == MediaType.TV and filter_args.get("type") == MediaType.MOVIE:
                 log.info(f"【{self.index_type}】{torrent_name} 是 {meta_info.type.value}，不匹配类型：{filter_args.get('type')}")
                 continue
 
@@ -205,8 +205,8 @@ class IIndexer(metaclass=ABCMeta):
 
                 # 类型
                 if filter_args.get("type"):
-                    if filter_args.get("type") in [MediaType.ANIME, MediaType.TV] and media_info.type == MediaType.MOVIE \
-                            or filter_args.get("type") == MediaType.MOVIE and media_info.type in [MediaType.TV, MediaType.ANIME]:
+                    if filter_args.get("type") == MediaType.TV and media_info.type == MediaType.MOVIE \
+                            or filter_args.get("type") == MediaType.MOVIE and media_info.type == MediaType.TV:
                         log.info(f"【{self.index_type}】{torrent_name} 是 {media_info.type.value}，不匹配类型：{filter_args.get('type')}")
                         continue
 
@@ -273,7 +273,7 @@ class IIndexer(metaclass=ABCMeta):
             tagNames = tag_item.getElementsByTagName(tag_name)
             if tagNames:
                 if attname:
-                    attvalue = tagNames[0].getAttribute("url")
+                    attvalue = tagNames[0].getAttribute(attname)
                     if attvalue:
                         return attvalue
                 else:

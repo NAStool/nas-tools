@@ -70,6 +70,14 @@ TORRENT_SEARCH_PARAMS = {
 DEFAULT_MOVIE_FORMAT = '{title} ({year})/{title} ({year}) - {videoFormat}'
 # 电视剧默认命名格式
 DEFAULT_TV_FORMAT = '{title} ({year})/Season {season}/{title} - {season_episode} - 第 {episode} 集'
+# 非常规RSS网站
+RSS_EXTRA_SITES = {
+    'blutopia.xyz': 'Unit3D',
+    'desitorrents.tv': 'Unit3D',
+    'jptv.club': 'Unit3D',
+    'www.torrentseeds.org': 'Unit3D',
+    'beyond-hd.me': 'beyondhd',
+}
 
 lock = Lock()
 

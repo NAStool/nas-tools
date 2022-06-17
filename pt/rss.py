@@ -6,7 +6,7 @@ from urllib import parse
 import requests
 import xml.dom.minidom
 import log
-from config import Config
+from config import Config, RSS_EXTRA_SITES
 from pt.searcher import Searcher
 from pt.torrent import Torrent
 from message.send import Message
@@ -373,6 +373,21 @@ class Rss:
         :param url: RSS地址
         :return: 种子信息列表
         """
+
+        def tag_value(tag_item, tag_name, attname="", default=None):
+            tagNames = tag_item.getElementsByTagName(tag_name)
+            if tagNames:
+                if attname:
+                    attvalue = tagNames[0].getAttribute(attname)
+                    if attvalue:
+                        return attvalue
+                else:
+                    firstChild = tagNames[0].firstChild
+                    if firstChild:
+                        return firstChild.data
+            return default
+
+        # 开始处理
         ret_array = []
         if not url:
             return []
@@ -392,66 +407,43 @@ class Rss:
                 for item in items:
                     try:
                         # 标题
-                        title = ""
-                        tagNames = item.getElementsByTagName("title")
-                        if tagNames:
-                            firstChild = tagNames[0].firstChild
-                            if firstChild:
-                                title = firstChild.data
+                        title = tag_value(item, "title", default="")
                         if not title:
                             continue
+                        # 描述
+                        description = tag_value(item, "description", default="")
                         # 种子链接
-                        enclosure = ""
-                        # 大小
-                        size = 0
-                        tagNames = item.getElementsByTagName("enclosure")
-                        if tagNames:
-                            enclosure = tagNames[0].getAttribute("url")
-                            size = tagNames[0].getAttribute("length")
+                        enclosure = tag_value(item, "enclosure", "url", default="")
                         if not enclosure:
+                            # 种子链接
+                            enclosure = tag_value(item, "link", default="")
+                            # 大小
+                            size = 0
                             size_map = {
                                 'KiB': 1024,
                                 'MiB': 1024 * 1024,
                                 'GiB': 1024 * 1024 * 1024,
                                 'TiB': 1024 * 1024 * 1024 * 1024
                             }
-                            site_map = {
-                                'blutopia.xyz': 'Unit3D',
-                                'desitorrents.tv': 'Unit3D',
-                                'jptv.club': 'Unit3D',
-                                'www.torrentseeds.org': 'Unit3D',
-                                'beyond-hd.me': 'beyondhd',
-                            }
                             url_host = parse.urlparse(url).netloc
-                            if site_map[url_host] == 'Unit3D':
-                                tagNames = item.getElementsByTagName("link")
-                                enclosure = tagNames[0].firstChild.data
-                                tagNames = item.getElementsByTagName("description")
-                                description = tagNames[0].firstChild.data
-                                size_temp = re.search(r'Size<\/strong>: (\d*\.\d*|\d*)(\s)(GiB|MiB|TiB|KiB)', description)
+                            if RSS_EXTRA_SITES[url_host] == 'Unit3D':
+                                size_temp = re.search(r'Size</strong>: (\d*\.\d*|\d*)(\s)(GiB|MiB|TiB|KiB)', description)
                                 if size_temp:
-                                    size = float(size_temp.group(1)) * size_map[size_temp.group(3)]
-                                    size = str(int(size))
-                            elif site_map[url_host] == 'beyondhd':
-                                tagNames = item.getElementsByTagName("link")
-                                enclosure = tagNames[0].firstChild.data
+                                    size = int(float(size_temp.group(1)) * size_map[size_temp.group(3)])
+                            elif RSS_EXTRA_SITES[url_host] == 'beyondhd':
                                 size_temp = re.search(r'(\d*\.\d*|\d*) (GiB|MiB|TiB|KiB)', title)
                                 if size_temp:
-                                    size = float(size_temp.group(1)) * size_map[size_temp.group(2)]
-                                    size = str(int(size))
+                                    size = int(float(size_temp.group(1)) * size_map[size_temp.group(2)])
                             else:
                                 continue
-                        if size and size.isdigit():
-                            size = int(size)
                         else:
-                            size = 0
-                        # 描述
-                        description = ""
-                        tagNames = item.getElementsByTagName("description")
-                        if tagNames:
-                            firstChild = tagNames[0].firstChild
-                            if firstChild:
-                                description = firstChild.data
+                            # 大小
+                            size = tag_value(item, "enclosure", "length", default=0)
+                            if size and str(size).isdigit():
+                                size = int(size)
+                            else:
+                                size = 0
+                        # 返回对象
                         tmp_dict = {'title': title, 'enclosure': enclosure, 'size': size, 'description': description}
                         ret_array.append(tmp_dict)
                     except Exception as e1:

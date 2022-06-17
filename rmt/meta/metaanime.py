@@ -66,11 +66,11 @@ class MetaAnime(MetaBase):
                     end_season = 0
                 if isinstance(begin_season, str) and begin_season.isdigit():
                     self.begin_season = int(begin_season)
-                    self.type = MediaType.ANIME
+                    self.type = MediaType.TV
                 if isinstance(end_season, str) and end_season.isdigit():
                     if self.begin_season is not None and end_season != self.begin_season:
                         self.end_season = int(end_season)
-                        self.type = MediaType.ANIME
+                        self.type = MediaType.TV
                 # 集号
                 episode_number = anitopy_info.get("episode_number")
                 if isinstance(episode_number, list):
@@ -85,11 +85,11 @@ class MetaAnime(MetaBase):
                     end_episode = 0
                 if isinstance(begin_episode, str) and begin_episode.isdigit():
                     self.begin_episode = int(begin_episode)
-                    self.type = MediaType.ANIME
+                    self.type = MediaType.TV
                 if isinstance(end_episode, str) and end_episode.isdigit():
                     if self.end_episode is not None and end_episode != self.end_episode:
                         self.end_season = int(end_episode)
-                        self.type = MediaType.ANIME
+                        self.type = MediaType.TV
                 # 类型
                 if not self.type:
                     anime_type = anitopy_info.get('anime_type')
@@ -97,7 +97,7 @@ class MetaAnime(MetaBase):
                         anime_type = anime_type[0]
                     if isinstance(anime_type, str):
                         if anime_type.upper() == "TV":
-                            self.type = MediaType.ANIME
+                            self.type = MediaType.TV
                         else:
                             self.type = MediaType.MOVIE
                 # 分辨率
