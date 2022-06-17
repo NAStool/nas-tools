@@ -4,6 +4,7 @@ from threading import Lock
 
 from config import Config
 from utils.functions import singleton, json_serializable
+from utils.types import MediaType
 
 lock = Lock()
 
@@ -55,6 +56,21 @@ class MetaHelper(object):
         with lock:
             return self.__meta_data.pop(key, None)
 
+    def modify_meta_data(self, key, title):
+        """
+        删除缓存信息
+        @param key: 缓存key
+        @param title: 标题
+        @return: 被修改后缓存内容
+        """
+        with lock:
+            if self.__meta_data.get(key):
+                if self.__meta_data[key]['media_type'] == MediaType.MOVIE:
+                    self.__meta_data[key]['title'] = title
+                else:
+                    self.__meta_data[key]['name'] = title
+            return self.__meta_data.get(key)
+
     @staticmethod
     def __load_meta_data(path):
         try:
@@ -71,12 +87,12 @@ class MetaHelper(object):
                 if not self.__meta_data.get(key):
                     self.__meta_data[key] = item
 
-    def save_meta_data(self):
+    def save_meta_data(self, force=False):
         with lock:
             meta_data = self.__load_meta_data(self.__meta_path)
             new_meta_data = {k: v for k, v in self.__meta_data.items() if v.get("id") != 0}
 
-            if meta_data.keys() == new_meta_data.keys():
+            if not force and meta_data.keys() == new_meta_data.keys():
                 return
 
             with open(self.__meta_path, 'wb') as f:

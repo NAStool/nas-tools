@@ -146,6 +146,10 @@
                                             </a>
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <a class="dropdown-item"
+                                                    href='javascript:show_modify("{{ TmdbCache[2] }}", "{{ TmdbCache[1].name or TmdbCache[1].title }}")'>
+                                                    修改
+                                                </a>
+                                                <a class="dropdown-item"
                                                     href='javascript:show_detail("{{ TmdbCache[2] }}", "{{ TmdbCache[1]|tojson(indent=2)|urlencode|b64encode}}")'>
                                                     详情
                                                 </a>
@@ -222,6 +226,28 @@
         </div>
     </div>
 </div>
+<div class="modal modal-blur fade" id="modal-tmdbcache-modify" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">修改TMDB缓存</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <label class="form-label required">标题</label>
+          <div class="row mb-3">
+            <input type="hidden" id="tmdbcache_key">
+            <input type="text" value="" id="tmdbcache_title" class="form-control" placeholder="标题">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:modify_title()" id="tmdbcache_modify_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
     // 上一页
     function go_pre_page(search, page) {
@@ -238,6 +264,32 @@
         $("#tmdb_cache_title").text(title);
         $("#tmdb_cache_content").text(decodeURIComponent(atob(detail)));
         $('#tmdb_cache_detail').modal('show');
+    }
+
+    // 显示修改
+    function show_modify(key, title){
+        $("#tmdbcache_key").val(key);
+        $("#tmdbcache_title").val(title);
+        $("#modal-tmdbcache-modify").modal('show');
+    }
+
+    // 修改标题
+    function modify_title(){
+        var key = $("#tmdbcache_key").val();
+        if(!key){
+            return;
+        }
+        var title = $("#tmdbcache_title").val();
+        if(!title){
+            $("#tmdbcache_title").addClass("is-invalid");
+          return;
+        } else {
+          $("#tmdbcache_title").removeClass("is-invalid");
+        }
+        $("#modal-tmdbcache-modify").modal('hide');
+        ajax_post("modify_tmdb_cache", { "key": key, "title": title }, function () {
+            navmenu('tmdbcache');
+        });
     }
 
     //删除提示
