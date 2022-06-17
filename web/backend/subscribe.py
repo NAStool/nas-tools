@@ -92,7 +92,7 @@ def add_rss_subscribe(mtype, name, year, season, match=False, doubanid=None, tmd
                 return 1, "无法查询到媒体信息", None
         else:
             # 根据名称和年份查询
-            media_info = media.get_media_info(title="%s %s" % (name, year), mtype=mtype, strict=True if year else False)
+            media_info = media.get_media_info(title="%s %s" % (name, year), mtype=mtype)
             if media_info:
                 tmdbid = media_info.tmdb_id
             if not tmdbid:
