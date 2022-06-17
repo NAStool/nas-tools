@@ -137,29 +137,97 @@
       </div>
       <div class="col-lg-12">
         <div class="card">
-          <div class="card-body">
-            <div class="d-flex">
-              <h3 class="card-title">站点流量（GB）</h3>
-            </div>
-            <div id="chart-sites-detail"></div>
-          </div>
+                <div class="card-body border-bottom py-3">
+                        <div class="d-flex">
+                            <div><h3>站点数据</h3></div>
+                            <div class="ms-auto text-muted">
+                                共 {{ SiteUserStatistics | count }} 条记录
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive" style="min-height: 300px">
+                        <table class="table table-vcenter card-table">
+                            <thead>
+                                <tr>
+                                    <th>站点</th>
+                                    <th>用户</th>
+                                    <th>数据量</th>
+                                    <th>分享率</th>
+                                    <th>做种/下载</th>
+                                    <th>魔力值(积分)</th>
+                                    <th>数据更新时间</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if SiteUserStatistics | count > 0 %}
+                                {% for item in SiteUserStatistics %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex py-1 align-items-center">
+                                            <img class="rounded me-2"
+                                            src="{{ item[12] }}/favicon.ico" width="24" height="24"
+                                            alt="" />
+                                          <div class="flex-fill">
+                                            <div class="font-weight-medium">{{ item[0] }}</div>
+                                          </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>{{ item[1] }}</div>
+                                    </td>
+                                    <td>
+                                        <div class="align-items-center">
+                                            <div class="flex-fill">
+                                                <div>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="green" fill="none" stroke-linecap="round" stroke-linejoin="round"><desc>Download more icon variants from https://tabler-icons.io/i/arrow-up</desc><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><line x1="12" y1="5" x2="12" y2="19"></line><line x1="18" y1="11" x2="12" y2="5"></line><line x1="6" y1="11" x2="12" y2="5"></line></svg>
+                                                    <small>{{ item[5] | filesizeformat }}</small>
+                                                </div>
+                                                <div>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="red" fill="none" stroke-linecap="round" stroke-linejoin="round"><desc>Download more icon variants from https://tabler-icons.io/i/arrow-down</desc><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><line x1="12" y1="5" x2="12" y2="19"></line><line x1="18" y1="13" x2="12" y2="19"></line><line x1="6" y1="13" x2="12" y2="19"></line></svg>
+                                                    <small>{{ item[6] | filesizeformat }}</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>{{ item[7] }}</div>
+                                    </td>
+                                    <td>
+                                        <div>{{ item[8] }} / {{ item[9] }}</div>
+                                    </td>
+                                    <td>
+                                        <div>{{ item[11] }}</div>
+                                    </td>
+                                    <td>
+                                        <div>{{ item[4] }}</div>
+                                    </td>
+                                    <td>
+                                        <a href="javascript:void(0)" class="btn-icon" onclick="navmenu('statistics?refresh_site={{ item[0] }}')">
+                                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                              <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+                                              <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+                                          </svg>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" align="center">没有数据</td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
         </div>
       </div>
       <div class="col-lg-12">
         <div class="card">
           <div class="card-body">
             <div class="d-flex">
-              <h3 class="card-title">站点分享率</h3>
-            </div>
-            <div id="chart-sites-ratio"></div>
-          </div>
-        </div>
-      </div>
-      <div class="col-lg-12">
-        <div class="card">
-          <div class="card-body">
-            <div class="d-flex">
-              <h3 class="card-title">总上传</h3>
+              <h3 class="card-title">历史总上传</h3>
             </div>
             <div id="chart-sites-upload-his"></div>
           </div>
@@ -169,7 +237,7 @@
         <div class="card">
           <div class="card-body">
             <div class="d-flex">
-              <h3 class="card-title">总下载</h3>
+              <h3 class="card-title">历史总下载</h3>
             </div>
             <div id="chart-sites-download-his"></div>
           </div>
@@ -203,136 +271,6 @@
     dataLabels: {
         enabled: true
     }
-  })).render();
-
-  // 站点流量明细
-  window.ApexCharts && (new ApexCharts(document.getElementById('chart-sites-detail'), {
-      chart: {
-          type: "bar",
-          fontFamily: 'inherit',
-          height: 200,
-          parentHeightOffset: 0,
-          toolbar: {
-              show: false,
-          },
-          animations: {
-              enabled: true
-          },
-      },
-      plotOptions: {
-          bar: {
-              columnWidth: '50%',
-          }
-      },
-      dataLabels: {
-          enabled: false,
-      },
-      fill: {
-          opacity: 1,
-      },
-      series: [{
-          name: "上传",
-          data: {{ SiteUploads|safe }}
-      },{
-          name: "下载",
-          data: {{ SiteDownloads|safe }}
-      }],
-      grid: {
-          padding: {
-              top: -20,
-              right: 0,
-              left: -4,
-              bottom: -4
-          },
-          strokeDashArray: 2,
-      },
-      xaxis: {
-          labels: {
-              padding: 0,
-          },
-          tooltip: {
-              enabled: true,
-              formatter: function (val, opt) {
-                return val.toLocaleString() + " GB"
-              },
-          },
-          axisBorder: {
-              show: false,
-          },
-          type: 'category',
-      },
-      yaxis: {
-          labels: {
-              padding: 4
-          },
-      },
-      labels: {{ SiteNames|safe }},
-      colors: ["#206bc4", "#cd201f"],
-      legend: {
-          show: true,
-      },
-  })).render();
-
-  // 站点分享率
-  window.ApexCharts && (new ApexCharts(document.getElementById('chart-sites-ratio'), {
-      chart: {
-          type: "bar",
-          fontFamily: 'inherit',
-          height: 200,
-          parentHeightOffset: 0,
-          toolbar: {
-              show: false,
-          },
-          animations: {
-              enabled: true
-          },
-      },
-      plotOptions: {
-          bar: {
-              columnWidth: '50%',
-          }
-      },
-      dataLabels: {
-          enabled: true,
-      },
-      fill: {
-          opacity: 1,
-      },
-      series: [{
-          name: "分享率",
-          data: {{ SiteRatios|safe }}
-      }],
-      grid: {
-          padding: {
-              top: -20,
-              right: 0,
-              left: -4,
-              bottom: -4
-          },
-          strokeDashArray: 1,
-      },
-      xaxis: {
-          labels: {
-              padding: 0,
-          },
-          tooltip: {
-              enabled: false
-          },
-          axisBorder: {
-              show: false,
-          },
-          type: 'category',
-      },
-      yaxis: {
-          labels: {
-              padding: 4
-          },
-      },
-      labels: {{ SiteNames|safe }},
-      colors: ["#206bc4"],
-      legend: {
-          show: true,
-      },
   })).render();
 
   // 总上传趋势

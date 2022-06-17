@@ -715,8 +715,62 @@ def get_system_messages(num=20, lst_time=None):
         return select_by_sql(sql, (lst_time,))
 
 
-# 判断站点数据是否存在
-def is_site_statistics_exists(url, date):
+# 更新站点用户粒度数据
+def update_site_user_statistics(site, username, upload, download, ratio, seeding, leeching, bonus, url, seeding_size=0,
+                                user_level="", join_at=""):
+    if not site or not url:
+        return
+    update_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+    if not is_site_user_statistics_exists(url):
+        sql = "INSERT INTO SITE_USER_STATISTICS(SITE, USERNAME, USER_LEVEL," \
+              " JOIN_AT, UPDATE_AT," \
+              " UPLOAD, DOWNLOAD, RATIO," \
+              " SEEDING, LEECHING, SEEDING_SIZE," \
+              " BONUS," \
+              " URL) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    else:
+        sql = "UPDATE SITE_USER_STATISTICS SET SITE = ?, USERNAME = ?, USER_LEVEL = ?," \
+              " JOIN_AT = ?, UPDATE_AT = ?," \
+              " UPLOAD = ?, DOWNLOAD = ?, RATIO = ?," \
+              " SEEDING = ?, LEECHING = ?, SEEDING_SIZE = ?," \
+              " BONUS = ? WHERE URL = ?"
+
+    return update_by_sql(sql, (
+            str_sql(site), username, user_level, join_at, update_at, upload, download, ratio, seeding, leeching,
+            seeding_size, bonus, url))
+
+
+# 判断站点用户数据是否存在
+def is_site_user_statistics_exists(url):
+    if not url:
+        return False
+    sql = "SELECT COUNT(1) FROM SITE_USER_STATISTICS WHERE URL = ? "
+    ret = select_by_sql(sql, (url,))
+    if ret and ret[0][0] > 0:
+        return True
+    else:
+        return False
+
+
+# 查询站点数据历史
+def get_site_user_statistics(num=100):
+    sql = "SELECT SITE, USERNAME, USER_LEVEL," \
+          " JOIN_AT, UPDATE_AT," \
+          " UPLOAD, DOWNLOAD, RATIO," \
+          " SEEDING, LEECHING, SEEDING_SIZE," \
+          " BONUS, URL" \
+          " FROM SITE_USER_STATISTICS LIMIT ?"
+    return select_by_sql(sql, (num,))
+
+
+# 查询站点数据历史
+def get_site_statistics_history(days=30):
+    sql = "SELECT DATE, SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS GROUP BY DATE ORDER BY DATE ASC LIMIT ?"
+    return select_by_sql(sql, (days,))
+
+
+# 判断站点历史数据是否存在
+def is_site_statistics_history_exists(url, date):
     if not url or not date:
         return False
     sql = "SELECT COUNT(1) FROM SITE_STATISTICS WHERE URL = ? AND DATE = ?"
@@ -728,11 +782,11 @@ def is_site_statistics_exists(url, date):
 
 
 # 插入站点数据
-def insert_site_statistics(site, upload, download, ratio, url):
+def insert_site_statistics_history(site, upload, download, ratio, url):
     if not site or not url:
         return
     timestr = time.strftime('%Y-%m-%d', time.localtime(time.time()))
-    if not is_site_statistics_exists(url, timestr):
+    if not is_site_statistics_history_exists(url, timestr):
         sql = "INSERT INTO SITE_STATISTICS(SITE, DATE, UPLOAD, DOWNLOAD, RATIO, URL) VALUES (?, ?, ?, ?, ?, ?)"
         return update_by_sql(sql, (str_sql(site), timestr, upload, download, ratio, url))
     else:
@@ -741,7 +795,7 @@ def insert_site_statistics(site, upload, download, ratio, url):
 
 
 # 查询站点数据历史
-def get_site_statistics(days=30):
+def get_site_statistics_history(days=30):
     sql = "SELECT DATE, SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS GROUP BY DATE ORDER BY DATE ASC LIMIT ?"
     return select_by_sql(sql, (days,))
 

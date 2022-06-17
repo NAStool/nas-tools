@@ -191,7 +191,7 @@ class DBHelper:
                                                            DATE     TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_MESSAGES_DATE ON MESSAGES (DATE);''')
 
-            # 站点流量
+            # 站点流量历史
             cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_STATISTICS
                                                            (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
                                                            SITE    TEXT,
@@ -201,6 +201,27 @@ class DBHelper:
                                                            RATIO     TEXT,
                                                            URL     TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_STATISTICS_DS ON SITE_STATISTICS (DATE, URL);''')
+
+            # 实时站点数据
+            cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_USER_STATISTICS
+                                                           (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                                           SITE    TEXT,
+                                                           USERNAME    TEXT,
+                                                           USER_LEVEL    TEXT,
+                                                           JOIN_AT    TEXT,
+                                                           UPDATE_AT    TEXT,
+                                                           UPLOAD    INTEGER,
+                                                           DOWNLOAD     INTEGER,
+                                                           RATIO     real,
+                                                           SEEDING     INTEGER,
+                                                           LEECHING     INTEGER,
+                                                           SEEDING_SIZE     INTEGER,
+                                                           BONUS     real,
+                                                           URL     TEXT);''')
+            cursor.execute(
+                '''CREATE INDEX IF NOT EXISTS INDX_SITE_USER_STATISTICS_URL ON SITE_USER_STATISTICS (URL);''')
+            cursor.execute(
+                '''CREATE INDEX IF NOT EXISTS INDX_SITE_USER_STATISTICS_SITE ON SITE_USER_STATISTICS (SITE);''')
 
             # 下载历史
             cursor.execute('''CREATE TABLE IF NOT EXISTS DOWNLOAD_HISTORY
