@@ -722,6 +722,8 @@ def create_flask_app(config):
     @App.route('/statistics', methods=['POST', 'GET'])
     @login_required
     def statistics():
+        # 刷新单个site
+        refresh_site = request.args.get("refresh_site")
         # 总上传下载
         TotalUpload = 0
         TotalDownload = 0
@@ -730,6 +732,8 @@ def create_flask_app(config):
         SiteUploads = []
         SiteDownloads = []
         SiteRatios = []
+        # 刷新指定站点
+        Sites().refresh_pt(specify_sites=refresh_site)
         # 站点上传下载
         SiteData = Sites().get_pt_date()
         if isinstance(SiteData, dict):
@@ -755,7 +759,7 @@ def create_flask_app(config):
         CurrentUpload, CurrentDownload, CurrentSiteLabels, CurrentSiteUploads, CurrentSiteDownloads = get_site_statistics_recent_sites(
             days=7)
         # 总上传下载历史
-        StatisticsHis = get_site_statistics(days=30)
+        StatisticsHis = get_site_statistics_history(days=30)
         TotalHisLabels = []
         TotalUploadHis = []
         TotalDownloadHis = []
@@ -764,6 +768,8 @@ def create_flask_app(config):
             TotalUploadHis.append(round(int(his[1]) / 1024 / 1024 / 1024))
             TotalDownloadHis.append(round(int(his[2]) / 1024 / 1024 / 1024))
 
+        # 站点用户数据
+        SiteUserStatistics = get_site_user_statistics()
         return render_template("site/statistics.html",
                                CurrentDownload=str_filesize(CurrentDownload) + "B",
                                CurrentUpload=str_filesize(CurrentUpload) + "B",
@@ -778,7 +784,8 @@ def create_flask_app(config):
                                TotalDownloadHis=TotalDownloadHis,
                                CurrentSiteLabels=CurrentSiteLabels,
                                CurrentSiteUploads=CurrentSiteUploads,
-                               CurrentSiteDownloads=CurrentSiteDownloads)
+                               CurrentSiteDownloads=CurrentSiteDownloads,
+                               SiteUserStatistics=SiteUserStatistics)
 
     # 服务页面
     @App.route('/service', methods=['POST', 'GET'])

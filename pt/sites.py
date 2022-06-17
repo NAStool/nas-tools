@@ -9,7 +9,7 @@ from config import Config
 from message.send import Message
 from utils.functions import singleton, num_filesize
 from utils.http_utils import RequestUtils
-from utils.sqls import get_config_site, insert_site_statistics
+from utils.sqls import get_config_site, insert_site_statistics_history, update_site_user_statistics
 
 lock = Lock()
 
@@ -35,7 +35,7 @@ class Sites:
             self.__user_agent = app.get('user_agent')
             self.__sites_data = {}
 
-    def refresh_all_pt_data(self, force=False):
+    def refresh_all_pt_data(self, force=False, specify_sites=None):
         """
         多线程刷新PT站下载上传量，默认间隔3小时
         """
@@ -45,12 +45,21 @@ class Sites:
             return
 
         with lock:
-            self.__sites_data = {}
-            with ThreadPool(len(self.__pt_sites)) as p:
-                p.map(self.__refresh_pt_data, self.__pt_sites)
+            # 没有指定站点，默认使用全部站点
+            if not specify_sites:
+                refresh_site_names = [site[1] for site in self.__pt_sites]
+            else:
+                refresh_site_names = specify_sites
+
+            refresh_sites = [site for site in self.__pt_sites if site[1] in refresh_site_names]
+            for site in refresh_site_names:
+                self.__sites_data.pop(site, None)
+
+            with ThreadPool(len(refresh_sites)) as p:
+                p.map(self.__refresh_pt_data, refresh_sites)
 
         # 更新时间
-        if self.__sites_data:
+        if self.__sites_data and not specify_sites:
             self.__last_update_time = datetime.now()
 
     def __refresh_pt_data(self, site_info):
@@ -86,12 +95,25 @@ class Sites:
                     return
                 # 分享率
                 ratio = self.__get_site_ratio(html_text)
+
+                # 用户名
+                username = self.__get_site_user_name(html_text)
+                # 做种/下载
+                seeding, leeching = self.__get_site_torrents(html_text)
+                # 魔力值
+                bonus = self.__get_site_bonus(html_text)
+
                 if not self.__sites_data.get(site_name):
                     self.__sites_data[site_name] = {"upload": upload or 0, "download": download or 0,
                                                     "ratio": ratio}
                     # 登记历史数据
-                    insert_site_statistics(site=site_name, upload=upload or 0, download=download or 0,
-                                           ratio=ratio, url=site_url)
+                    insert_site_statistics_history(site=site_name, upload=upload or 0, download=download or 0,
+                                                   ratio=ratio, url=site_url)
+                    # 实时用户数据
+                    update_site_user_statistics(site=site_name, username=username, upload=upload, download=download,
+                                                ratio=ratio, seeding=seeding, leeching=leeching, bonus=bonus,
+                                                url=site_url)
+
             elif not res:
                 log.error("【PT】站点 %s 连接失败：%s" % (site_name, site_url))
             else:
@@ -147,7 +169,7 @@ class Sites:
         if upload_match:
             return num_filesize(upload_match.group(1).strip())
         else:
-            return None
+            return 0
 
     def __get_site_download(self, html_text):
         """
@@ -159,7 +181,7 @@ class Sites:
         if download_match:
             return num_filesize(download_match.group(1).strip())
         else:
-            return None
+            return 0
 
     def __get_site_ratio(self, html_text):
         """
@@ -171,6 +193,68 @@ class Sites:
             return float(ratio_match.group(1).strip())
         else:
             return 0
+
+    def __get_site_user_url(self, html_text):
+        """
+        解析用户信息url
+        :param html_text:
+        :return:
+        """
+        html_text = self.__prepare_html_text(html_text)
+        user_detail = re.search(r"userdetails.php\?id=\d+", html_text)
+        if user_detail and user_detail.group().strip():
+            return user_detail.group().strip().lstrip('/')
+        else:
+            return ""
+
+    def __get_site_user_name(self, html_text):
+        """
+        解析用户名称
+        :param html_text:
+        :return:
+        """
+        html_text = self.__prepare_html_text(html_text)
+        user_name = re.search(r"userdetails.php\?id=\d+[a-zA-Z\"'=_\-\s]+>[<b>\s]*([^<>]*)[</b>]*</a>", html_text)
+        if user_name and user_name.group(1).strip():
+            return user_name.group(1).strip()
+        else:
+            return ""
+
+    def __get_site_torrents(self, html_text):
+        """
+        解析做种/下载数量
+        :param html_text:
+        :return: 做种数,下载数
+        """
+        seeding = 0
+        leeching = 0
+        html_text = self.__prepare_html_text(html_text)
+        seeding_match = re.search(r"(Torrents seeding|做种中)[\u4E00-\u9FA5\D\s]+(\d+)[\s\S]+<", html_text)
+        leeching_match = re.search(r"(Torrents leeching|下载中)[\u4E00-\u9FA5\D\s]+(\d+)[\s\S]+<", html_text)
+
+        if seeding_match and seeding_match.group(2).strip():
+            seeding = int(seeding_match.group(2).strip())
+
+        if leeching_match and leeching_match.group(2).strip():
+            leeching = int(leeching_match.group(2).strip())
+
+        return seeding, leeching
+
+    def __get_site_bonus(self, html_text):
+        """
+        解析魔力值
+        :param html_text:
+        :return:
+        """
+        html_text = self.__prepare_html_text(html_text)
+        bonus_match = re.search(r"mybonus.php[\[\]:：<>/a-zA-Z-=\"'\s#;.(使用魔力值豆]+\s*([\d,.\s]+)", html_text)
+        if bonus_match and bonus_match.group(1).strip():
+            return float(bonus_match.group(1).strip().replace(',', ''))
+        bonus_match = re.search(r"魔力值[\[\]:：<>/a-zA-Z-=\"'\s#;]+\s*([\d,.\s]+)", html_text)
+        if bonus_match and bonus_match.group(1).strip():
+            return float(bonus_match.group(1).strip().replace(',', ''))
+        else:
+            return 0.0
 
     @staticmethod
     def __is_signin_success(html_text):
@@ -193,3 +277,15 @@ class Sites:
         """
         self.refresh_all_pt_data()
         return self.__sites_data
+
+    def refresh_pt(self, specify_sites=None):
+        """
+        强制刷新PT指定站数据
+        """
+        if not specify_sites:
+            return
+
+        if not isinstance(specify_sites, list):
+            specify_sites = [specify_sites]
+
+        self.refresh_all_pt_data(force=True, specify_sites=specify_sites)
