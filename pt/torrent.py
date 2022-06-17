@@ -260,44 +260,6 @@ class Torrent:
         return mtype, key_word, season_num, episode_num, year, content
 
     @staticmethod
-    def get_torrents_group_item(media_list):
-        """
-        种子去重，每一个名称、站点、资源类型 选一个做种人最多的显示
-        """
-        if not media_list:
-            return []
-
-        # 排序函数
-        def get_sort_str(x):
-            # 排序：标题、最优规则、站点、做种
-            return "%s%s%s%s" % (str(x.title).ljust(100, ' '),
-                                 str(x.res_order).rjust(3, '0'),
-                                 str(x.site_order).rjust(3, '0'),
-                                 str(x.seeders).rjust(10, '0'))
-
-        # 匹配的资源中排序分组
-        media_list = sorted(media_list, key=lambda x: get_sort_str(x), reverse=True)
-        # 控重
-        can_download_list_item = []
-        can_download_list = []
-        # 按分组显示
-        for t_item in media_list:
-            if t_item.type == MediaType.TV:
-                media_name = "%s%s%s%s%s" % (t_item.get_title_string(),
-                                             t_item.site,
-                                             t_item.get_resource_type_string(),
-                                             t_item.get_season_episode_string(),
-                                             str_filesize(t_item.size))
-            else:
-                media_name = "%s%s%s%s" % (
-                    t_item.get_title_string(), t_item.site, t_item.get_resource_type_string(),
-                    str_filesize(t_item.size))
-            if media_name not in can_download_list:
-                can_download_list.append(media_name)
-                can_download_list_item.append(t_item)
-        return can_download_list_item
-
-    @staticmethod
     def get_download_list(media_list):
         """
         对媒体信息进行排序、去重
@@ -309,12 +271,12 @@ class Torrent:
         def get_sort_str(x):
             season_len = str(len(x.get_season_list())).rjust(2, '0')
             episode_len = str(len(x.get_episode_list())).rjust(4, '0')
-            # 排序：标题、季集、资源类型、站点、做种
+            # 排序：标题、资源类型、站点、做种、季集
             return "%s%s%s%s%s" % (str(x.title).ljust(100, ' '),
-                                   "%s%s" % (season_len, episode_len),
                                    str(x.res_order).rjust(3, '0'),
                                    str(x.site_order).rjust(3, '0'),
-                                   str(x.seeders).rjust(10, '0'))
+                                   str(x.seeders).rjust(10, '0'),
+                                   "%s%s" % (season_len, episode_len))
 
         # 匹配的资源中排序分组选最好的一个下载
         # 按站点顺序、资源匹配顺序、做种人数下载数逆序排序
