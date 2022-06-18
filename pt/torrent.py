@@ -32,7 +32,7 @@ class Torrent:
                 sites = key_info[4]
                 # 未订阅站点不匹配
                 if sites and sites.find('|') != -1 and site_name not in sites:
-                    continue
+                    return False
                 # 有tmdbid时精确匹配
                 if tmdbid:
                     # 匹配名称、年份，年份可以没有
@@ -61,7 +61,7 @@ class Torrent:
                 sites = key_info[5]
                 # 未订阅站点不匹配
                 if sites and sites.find('|') != -1 and site_name not in sites:
-                    continue
+                    return False
                 # 有tmdbid时精确匹配
                 if tmdbid:
                     # 匹配季，季可以为空
