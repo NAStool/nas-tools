@@ -8,9 +8,9 @@ import xml.dom.minidom
 import log
 from config import Config, RSS_EXTRA_SITES
 from pt.searcher import Searcher
-from pt.torrent import Torrent
 from message.send import Message
 from pt.downloader import Downloader
+from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from utils.sqls import get_rss_movies, get_rss_tvs, insert_rss_torrents, \
@@ -24,10 +24,10 @@ lock = Lock()
 class Rss:
     __sites = None
     __rss_rule = None
+    __user_agent = None
     message = None
     media = None
     downloader = None
-    torrent = None
     searcher = None
 
     def __init__(self):
@@ -39,15 +39,14 @@ class Rss:
 
     def init_config(self):
         config = Config()
-        pt = config.get_config('pt')
-        if pt:
-            self.__sites = get_config_site()
-            rss_rule = get_config_rss_rule()
-            if rss_rule:
-                if rss_rule[0][1]:
-                    self.__rss_rule = str(rss_rule[0][1]).split("\n")
-                else:
-                    self.__rss_rule = None
+        self.__user_agent = config.get_config('app').get('user_agent')
+        self.__sites = get_config_site()
+        rss_rule = get_config_rss_rule()
+        if rss_rule:
+            if rss_rule[0][1]:
+                self.__rss_rule = str(rss_rule[0][1]).split("\n")
+            else:
+                self.__rss_rule = None
 
     def rssdownload(self):
         """
@@ -85,6 +84,9 @@ class Rss:
                 # 读取子配置
                 rss_job = site_info[1]
                 rssurl = site_info[3]
+                rss_cookie = site_info[5]
+                # 是否仅RSS促销
+                rss_free = True if str(site_info[9]).split("|")[0] == "FREE" else False
                 if not rssurl:
                     log.info("【RSS】%s 未配置rssurl，跳过..." % str(rss_job))
                     continue
@@ -111,6 +113,8 @@ class Rss:
                         torrent_name = res.get('title')
                         # 种子链接
                         enclosure = res.get('enclosure')
+                        # 种子页面
+                        page_url = res.get('link')
                         # 副标题
                         description = res.get('description')
                         # 种子大小
@@ -162,6 +166,10 @@ class Rss:
                                     log.info("【RSS】删除电视剧订阅：%s %s" % (
                                         media_info.get_title_string(), media_info.get_season_string()))
                                     delete_rss_tv(media_info.title, media_info.year, media_info.get_season_string())
+                            continue
+                        # 判断种子是否免费
+                        if rss_free and not Torrent.check_torrent_free(torrent_url=page_url, cookie=rss_cookie, user_agent=self.__user_agent):
+                            log.info("【RSS】%s 不是免费种子" % torrent_name)
                             continue
                         # 返回对象
                         media_info.set_torrent_info(site_order=order_seq,
@@ -412,6 +420,8 @@ class Rss:
                             continue
                         # 描述
                         description = tag_value(item, "description", default="")
+                        # 种子页面
+                        link = tag_value(item, "link", default="")
                         # 种子链接
                         enclosure = tag_value(item, "enclosure", "url", default="")
                         if not enclosure:
@@ -444,7 +454,7 @@ class Rss:
                             else:
                                 size = 0
                         # 返回对象
-                        tmp_dict = {'title': title, 'enclosure': enclosure, 'size': size, 'description': description}
+                        tmp_dict = {'title': title, 'enclosure': enclosure, 'size': size, 'description': description, 'link': link}
                         ret_array.append(tmp_dict)
                     except Exception as e1:
                         log.console(str(e1))

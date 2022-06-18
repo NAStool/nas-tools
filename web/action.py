@@ -1,11 +1,13 @@
 import _thread
 import importlib
 import signal
+from urllib import parse
+
 from flask_login import logout_user
 from werkzeug.security import generate_password_hash
 
 import log
-from config import RMT_MEDIAEXT, Config
+from config import RMT_MEDIAEXT, Config, GRAP_FREE_SITES
 from message.channel.telegram import Telegram
 from message.channel.wechat import WeChat
 from message.send import Message
@@ -619,11 +621,16 @@ class WebAction:
         查询单个站点信息
         """
         tid = data.get("id")
+        site_free = False
         if tid:
             ret = get_site_by_id(tid)
+            if ret[0][3]:
+                url_host = parse.urlparse(ret[0][3]).netloc
+                if url_host in GRAP_FREE_SITES.keys():
+                    site_free = True
         else:
             ret = []
-        return {"code": 0, "site": ret}
+        return {"code": 0, "site": ret, "site_free": site_free}
 
     @staticmethod
     def __del_site(data):

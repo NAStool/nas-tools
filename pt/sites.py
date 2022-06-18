@@ -28,12 +28,9 @@ class Sites:
     def init_config(self):
         self.message = Message()
         config = Config()
-        app = config.get_config('app')
-        pt = config.get_config('pt')
-        if pt:
-            self.__pt_sites = get_config_site()
-            self.__user_agent = app.get('user_agent')
-            self.__sites_data = {}
+        self.__user_agent = config.get_config('app').get('user_agent')
+        self.__pt_sites = get_config_site()
+        self.__sites_data = {}
 
     def refresh_all_pt_data(self, force=False, specify_sites=None):
         """
@@ -247,13 +244,11 @@ class Sites:
         :return:
         """
         html_text = self.__prepare_html_text(html_text)
-        bonus_match = re.search(r"mybonus.[\[\]:：<>/a-zA-Z_\-=\"'\s#;.(使用魔力值豆]+\s*([\d,.]+)[<(&\s]", html_text)
+        bonus_match = re.search(r"mybonus.[\[\]:：<>/a-zA-Z_\-=\"'\s#;.(使用魔力值豆]+\s*([\d,.]+)[<()&\s]", html_text)
         try:
             if bonus_match and bonus_match.group(1).strip():
-                bonus_text = bonus_match.group(1).strip().replace(',', '')
-                if len(bonus_text) > 1:
-                    return float(bonus_text)
-            bonus_match = re.search(r"[魔力值|\]][\[\]:：<>/a-zA-Z_\-=\"'\s#;]+\s*([\d,.]+)[<(&\s]", html_text, flags=re.S)
+                return float(bonus_match.group(1).strip().replace(',', ''))
+            bonus_match = re.search(r"[魔力值|\]][\[\]:：<>/a-zA-Z_\-=\"'\s#;]+\s*([\d,.]+)[<()&\s]", html_text, flags=re.S)
             if bonus_match and bonus_match.group(1).strip():
                 return float(bonus_match.group(1).strip().replace(',', ''))
         except Exception as err:

@@ -139,7 +139,7 @@
         <div class="card">
                 <div class="card-body border-bottom py-3">
                         <div class="d-flex">
-                            <div><h3>站点数据</h3></div>
+                            <h3 class="card-title">站点数据</h3>
                             <div class="ms-auto text-muted">
                                 共 {{ SiteUserStatistics | count }} 条记录
                             </div>
@@ -150,12 +150,12 @@
                             <thead>
                                 <tr>
                                     <th>站点</th>
-                                    <th>用户</th>
+                                    <th class="d-none d-md-block">用户</th>
                                     <th>数据量</th>
                                     <th>分享率</th>
                                     <th>做种/下载</th>
                                     <th>魔力值(积分)</th>
-                                    <th>数据更新时间</th>
+                                    <th class="d-none d-md-block">数据更新时间</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -165,7 +165,7 @@
                                 <tr>
                                     <td>
                                         <div class="d-flex py-1 align-items-center">
-                                            <img class="rounded me-2"
+                                            <img class="rounded me-2 d-none d-md-block"
                                             src="{{ item[12] }}/favicon.ico" width="24" height="24"
                                             alt=""
                                             onerror="this.src='../static/img/pt.jpg'"/>
@@ -174,7 +174,7 @@
                                           </div>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td class="d-none d-md-block">
                                         <div>{{ item[1] }}</div>
                                     </td>
                                     <td>
@@ -200,7 +200,7 @@
                                     <td>
                                         <div>{{ item[11] }}</div>
                                     </td>
-                                    <td>
+                                    <td class="d-none d-md-block">
                                         <div>{{ item[4] }}</div>
                                     </td>
                                     <td>

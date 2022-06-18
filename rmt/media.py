@@ -128,7 +128,7 @@ class Media:
             info = self.__search_movie_by_name(file_media_name, first_media_year)
             if info:
                 info['media_type'] = MediaType.MOVIE
-                log.info("%s 匹配到 %s：TMDBID=%s, 名称=%s, 上映日期=%s" % (file_media_name, search_type.value, info.get('id'), info.get('title'), info.get('release_date')))
+                log.info("%s 识别到 %s：TMDBID=%s, 名称=%s, 上映日期=%s" % (file_media_name, search_type.value, info.get('id'), info.get('title'), info.get('release_date')))
         else:
             # 有当前季和当前季集年份，使用精确匹配
             if media_year and season_number:
@@ -139,12 +139,12 @@ class Media:
                 info = self.__search_tv_by_name(file_media_name, first_media_year)
             if info:
                 info['media_type'] = MediaType.TV
-                log.info("%s 匹配到 %s：TMDBID=%s, 名称=%s, 首播日期=%s" % (file_media_name, search_type.value, info.get('id'), info.get('name'), info.get('first_air_date')))
+                log.info("%s 识别到 %s：TMDBID=%s, 名称=%s, 首播日期=%s" % (file_media_name, search_type.value, info.get('id'), info.get('name'), info.get('first_air_date')))
         # 补充类别信息
         if info:
             return info
         else:
-            log.info("【META】%s 以年份 %s 在TMDB中未匹配到%s信息!" % (file_media_name, xstr(first_media_year), search_type.value))
+            log.info("【META】%s 以年份 %s 在TMDB中未找到%s信息!" % (file_media_name, xstr(first_media_year), search_type.value))
             return None
 
     def __search_movie_by_name(self, file_media_name, first_media_year):

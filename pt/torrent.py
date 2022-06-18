@@ -1,7 +1,12 @@
 import re
-import cn2an
+from functools import lru_cache
+from urllib import parse
 
-from utils.functions import str_filesize
+import cn2an
+from lxml import etree
+
+from config import GRAP_FREE_SITES
+from utils.http_utils import RequestUtils
 from utils.types import MediaType
 
 
@@ -296,3 +301,35 @@ class Torrent:
                 can_download_list.append(media_name)
                 can_download_list_item.append(t_item)
         return can_download_list_item
+
+    @staticmethod
+    @lru_cache(maxsize=128)
+    def check_torrent_free(torrent_url, cookie, user_agent):
+        """
+        检验种子是否免费
+        :param torrent_url: 种子的详情页面
+        :param cookie: 站点的Cookie
+        :param user_agent: user_agent
+        """
+        if not torrent_url:
+            return False
+        url_host = parse.urlparse(torrent_url).netloc
+        if not url_host:
+            return False
+        xpath_strs = GRAP_FREE_SITES.get(url_host)
+        if not xpath_strs:
+            return False
+        res = RequestUtils(headers=user_agent, cookies=cookie).get_res(url=torrent_url)
+        if res and res.status_code == 200:
+            res.encoding = res.apparent_encoding
+            html_text = res.text
+            if not html_text:
+                return False
+            try:
+                html = etree.HTML(html_text)
+                for xpath_str in xpath_strs:
+                    if html.xpath(xpath_str):
+                        return True
+            except Exception as err:
+                print(err)
+        return False

@@ -97,6 +97,10 @@
               <dt class="col-3">大小限制:</dt>
               <dd class="col-9">{{ Site[8] }} GB</dd>
               {% endif %}
+              {% if Site[9] %}
+              <dt class="col-3">促销:</dt>
+              <dd class="col-9"><span class="badge me-2 bg-green">{{ Site[9] }}</span></dd>
+              {% endif %}
             </dl>
           </div>
         </div>
@@ -167,9 +171,7 @@
           <div class="col-lg-12">
             <div class="mb-3">
               <label class="form-label">签到地址(<a href="#" title="【PT站签到Url】：用于PT站自动签到，以及上传下载流量统计等。一般为mybonus.php或attendance.php，即PT站点击签到按钮跳转的页面，部分站没有独立的签到页面时可以配置为首页">?</a>)</label>
-              <div class="input-group input-group-flat">
-                <input type="text" class="form-control" id="site_signurl" value="" placeholder="PT站签到页面URL" autocomplete="off">
-              </div>
+              <input type="text" class="form-control" id="site_signurl" value="" placeholder="PT站签到页面URL" autocomplete="off">
             </div>
           </div>
         </div>
@@ -185,9 +187,7 @@
           <div class="col-lg-12">
             <div class="mb-3">
               <label class="form-label">订阅地址(<a href="#" title="【订阅源URL地址】：用于电影、电视剧订阅追更，点击PT站点RSS图标获取">?</a>)</label>
-              <div class="input-group input-group-flat">
-                <input type="text" class="form-control" id="site_rssurl" value="" placeholder="PT站点RSS订阅URL" autocomplete="off">
-              </div>
+              <input type="text" class="form-control" id="site_rssurl" value="" placeholder="PT站点RSS订阅URL" autocomplete="off">
             </div>
           </div>
         </div>
@@ -207,11 +207,18 @@
         </div>
         <div class="row">
           <div class="col-lg-6">
-            <div>
+            <div class="mb-3">
               <label class="form-label">大小限制(<a href="#" title="【限制文件大小】：只有满足大小限制的种子文件才会被命中，单位是GB&#10;1、只针对电影有效，配置为0或不配置则不启用该条件&#10;2、对大小写不敏感，不能带引号，配置为空为不启用该条件&#10;3、如只配置1个数字，表示小于等于该大小的才会被命中&#10;4、如配置2个数字(使用英文逗号分隔)，表示在中间大小的才会被命中">?</a>)</label>
-              <div class="input-group input-group-flat">
-                <input type="text" class="form-control" id="site_size" value="" placeholder="限制电影文件大小，单位GB" autocomplete="off">
-              </div>
+              <input type="text" class="form-control" id="site_size" value="" placeholder="限制电影文件大小，单位GB" autocomplete="off">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">促销(<a href="#" title="选择免费时，只有促销免费的种子才会被订阅命中和下载，站点正在不断适配中，如下拉框中没有免费选项则代表暂不支持该站点">?</a>)</label>
+              <select class="form-select" id="site_free">
+                <option value="" selected>全部</option>
+                <option value="FREE">免费</option>
+              </select>
             </div>
           </div>
         </div>
@@ -293,6 +300,12 @@
         $("#add_or_edit_site_btn").text("修改");
         $("#modal-site").modal("show");
       }
+      $("#site_free").empty();
+      $("#site_free").append('<option value="" selected>全部</option>');
+      if(ret.site_free){
+        $("#site_free").append('<option value="FREE">免费</option>');
+        $("#site_free").val(ret.site[0][9]);
+      }
     });
   }
 
@@ -357,16 +370,17 @@
         $("#site_size").removeClass("is-invalid");
       }
     }
-
+    var site_free = $("#site_free").val();
     var data = {"site_id":site_id,
-            "site_name":site_name,
-            "site_pri":site_pri,
-            "site_rssurl":site_rssurl,
-            "site_signurl":site_signurl,
-            "site_cookie":site_cookie,
-             "site_include":site_include,
-             "site_exclude":site_exclude,
-             "site_size":site_size}
+          "site_name":site_name,
+          "site_pri":site_pri,
+          "site_rssurl":site_rssurl,
+          "site_signurl":site_signurl,
+          "site_cookie":site_cookie,
+          "site_include":site_include,
+          "site_exclude":site_exclude,
+          "site_size":site_size,
+          "site_note":site_free}
 
     $("#add_or_edit_site_btn").attr("disabled", true);
     $("#add_or_edit_site_btn").text("处理中...");

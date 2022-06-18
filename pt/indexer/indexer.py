@@ -200,7 +200,7 @@ class IIndexer(metaclass=ABCMeta):
             if match_type != 2:
                 media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
                 if not media_info or not media_info.tmdb_info:
-                    log.debug(f"【{self.index_type}】{torrent_name} 未匹配到媒体信息")
+                    log.debug(f"【{self.index_type}】{torrent_name} 未识别到媒体信息")
                     continue
 
                 # 类型
