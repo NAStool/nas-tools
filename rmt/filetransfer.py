@@ -18,6 +18,7 @@ from utils.functions import get_dir_files, get_free_space_gb, get_dir_level1_med
     is_path_in_path, get_system, is_bluray_dir, str_filesize
 from message.send import Message
 from rmt.media import Media
+from utils.nfo_helper import NfoHelper
 from utils.sqls import insert_transfer_history, insert_transfer_unknown, update_transfer_unknown_state, \
     insert_transfer_blacklist
 from utils.types import MediaType, DownloaderType, SyncType, RmtMode, OsType
@@ -31,6 +32,7 @@ class FileTransfer:
     message = None
     category = None
     mediaserver = None
+    nfohelper = None
 
     __system = OsType.LINUX
     __pt_rmt_mode = None
@@ -55,6 +57,7 @@ class FileTransfer:
         self.message = Message()
         self.category = Category()
         self.mediaserver = MediaServer()
+        self.nfohelper = NfoHelper()
         self.init_config()
 
     def init_config(self):
@@ -623,6 +626,9 @@ class FileTransfer:
                     if not message_medias[message_key].is_in_episode(media.get_episode_list()):
                         message_medias[message_key].total_episodes += media.total_episodes
                         message_medias[message_key].size += media.size
+                # 生成nfo及poster
+                self.nfohelper.gen_nfo_files(media, ret_dir_path, os.path.basename(ret_file_path))
+
             except Exception as err:
                 log.error("【RMT】文件转移时发生错误：%s - %s" % (str(err), traceback.format_exc()))
         # 循环结束

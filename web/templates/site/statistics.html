@@ -150,12 +150,12 @@
                             <thead>
                                 <tr>
                                     <th>站点</th>
-                                    <th class="d-none d-md-block">用户</th>
+                                    <th><span class="d-none d-md-block">用户</span></th>
                                     <th>数据量</th>
                                     <th>分享率</th>
                                     <th>做种/下载</th>
                                     <th>魔力值(积分)</th>
-                                    <th class="d-none d-md-block">数据更新时间</th>
+                                    <th><span class="d-none d-md-block">数据更新时间</span></th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -174,8 +174,8 @@
                                           </div>
                                         </div>
                                     </td>
-                                    <td class="d-none d-md-block">
-                                        <div>{{ item[1] }}</div>
+                                    <td>
+                                        <div class="d-none d-md-block">{{ item[1] }}</div>
                                     </td>
                                     <td>
                                         <div class="align-items-center">
@@ -200,8 +200,8 @@
                                     <td>
                                         <div>{{ item[11] }}</div>
                                     </td>
-                                    <td class="d-none d-md-block">
-                                        <div>{{ item[4] }}</div>
+                                    <td>
+                                        <div class="d-none d-md-block">{{ item[4] }}</div>
                                     </td>
                                     <td>
                                         <a href="javascript:void(0)" class="btn-icon" onclick="navmenu('statistics?refresh_site={{ item[0] }}')">
