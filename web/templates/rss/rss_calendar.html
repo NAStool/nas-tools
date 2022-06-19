@@ -10,11 +10,16 @@
   .fc-list-event .media_calendar_item_info {
     display: block !important;
   }
+  .fc .fc-list-event:hover td {
+    background-color: rgba(200,200,200,0.1) !important;
+    background-color: var(--fc-list-event-hover-bg-color, rgba(200,200,200,0.1));
+  }
 </style>
 <script type="text/javascript">
   var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
     themeSystem: 'bootstrap',
     bootstrapFontAwesome: false,
+    stickyHeaderDates: false,
     fixedWeekCount: false,
     expandRows: true,
     height: 'auto',
@@ -98,7 +103,6 @@
       });
     }
   };
-
   //拉取订阅电影
   init_rss_movies_event();
   //拉取订阅电视剧

@@ -1114,7 +1114,7 @@ class WebAction:
             douban_info = DoubanApi().movie_detail(doubanid)
             if not douban_info:
                 return {"code": 1, "retmsg": "无法查询到豆瓣信息"}
-            poster_path = douban_info.get("cover_url")
+            poster_path = douban_info.get("cover_url") or ""
             title = douban_info.get("title")
             vote_average = douban_info.get("rating", {}).get("value") or "无"
             release_date = re.sub(r"\(.*\)", "", douban_info.get("pubdate")[0])
@@ -1134,7 +1134,7 @@ class WebAction:
             tmdb_info = Media().get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=tid)
             if not tmdb_info:
                 return {"code": 1, "retmsg": "无法查询到TMDB信息"}
-            poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path')
+            poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path') if tmdb_info.get('poster_path') else ""
             title = tmdb_info.get('title')
             vote_average = tmdb_info.get("vote_average")
             release_date = tmdb_info.get('release_date')
@@ -1164,7 +1164,7 @@ class WebAction:
             douban_info = DoubanApi().tv_detail(doubanid)
             if not douban_info:
                 return {"code": 1, "retmsg": "无法查询到豆瓣信息"}
-            poster_path = douban_info.get("cover_url")
+            poster_path = douban_info.get("cover_url") or ""
             title = douban_info.get("title")
             vote_average = douban_info.get("rating", {}).get("value") or "无"
             release_date = re.sub(r"\(.*\)", "", douban_info.get("pubdate")[0])
@@ -1186,7 +1186,7 @@ class WebAction:
                 return {"code": 1, "retmsg": "无法查询到TMDB信息"}
             episode_events = []
             air_date = tmdb_info.get("air_date")
-            poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get("poster_path")
+            poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get("poster_path") if tmdb_info.get("poster_path") else ""
             year = air_date[0:4] if air_date else ""
             for episode in tmdb_info.get("episodes"):
                 episode_events.append({
