@@ -1,11 +1,10 @@
-import os.path
 import re
 from functools import lru_cache
 from urllib import parse
 import cn2an
 import requests
 from lxml import etree
-from config import GRAP_FREE_SITES, DEFAULT_HEADERS, Config
+from config import GRAP_FREE_SITES, DEFAULT_HEADERS
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
 import bencode

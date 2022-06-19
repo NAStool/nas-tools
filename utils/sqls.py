@@ -763,12 +763,6 @@ def get_site_user_statistics(num=100):
     return select_by_sql(sql, (num,))
 
 
-# 查询站点数据历史
-def get_site_statistics_history(days=30):
-    sql = "SELECT DATE, SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS GROUP BY DATE ORDER BY DATE ASC LIMIT ?"
-    return select_by_sql(sql, (days,))
-
-
 # 判断站点历史数据是否存在
 def is_site_statistics_history_exists(url, date):
     if not url or not date:

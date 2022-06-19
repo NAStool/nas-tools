@@ -10,7 +10,6 @@ import xml.dom.minidom
 
 import log
 from pt.sites import Sites
-from rmt.doubanv2api.doubanapi import DoubanApi
 from pt.downloader import Downloader
 from pt.searcher import Searcher
 from rmt.media import Media
