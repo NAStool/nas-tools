@@ -63,6 +63,12 @@ class Downloader:
         :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
         :param tag: 下载时对种子的标记
         """
+        if not url:
+            return None
+        content, retmsg = Torrent.get_torrent_content(url)
+        if not content:
+            log.error("【DOWNLOADER】下载种子文件出错：%s" % retmsg)
+            return None
         ret = None
         if self.client:
             try:
@@ -73,13 +79,14 @@ class Downloader:
                             tag = PT_TAG
                         else:
                             tag = [PT_TAG, tag]
-                    ret = self.client.add_torrent(url, mtype, is_paused=is_paused, tag=tag)
+                    ret = self.client.add_torrent(content, mtype, is_paused=is_paused, tag=tag)
                 else:
-                    ret = self.client.add_torrent(url, mtype, is_paused=is_paused)
+                    ret = self.client.add_torrent(content, mtype, is_paused=is_paused)
                     if ret and self.__pt_monitor_only:
                         self.client.set_torrent_tag(tid=ret.id, tag=PT_TAG)
             except Exception as e:
-                log.error("【DOWNLOADER】添加PT任务 %s 出错：%s" % (url, str(e)))
+                log.error("【DOWNLOADER】添加PT任务出错：%s" % str(e))
+                return None
         return ret
 
     def pt_transfer(self):

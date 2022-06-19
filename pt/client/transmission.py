@@ -210,19 +210,19 @@ class Transmission(IDownloadClient):
                 remove_torrents.append(torrent.id)
         return remove_torrents
 
-    def add_torrent(self, turl, mtype, is_paused=None, **kwargs):
+    def add_torrent(self, content, mtype, is_paused=None, **kwargs):
         """
         添加下载
-        :param turl: 种子URL
+        :param content: 种子数据
         :param mtype: 媒体类型：电影、电视剧或动漫，用于选择下载保存目录
         :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
         """
         if mtype == MediaType.TV:
-            return self.trc.add_torrent(torrent=turl, download_dir=self.__tv_save_path, paused=is_paused)
+            return self.trc.add_torrent(torrent=content, download_dir=self.__tv_save_path, paused=is_paused)
         elif mtype == MediaType.MOVIE:
-            return self.trc.add_torrent(torrent=turl, download_dir=self.__movie_save_path, paused=is_paused)
+            return self.trc.add_torrent(torrent=content, download_dir=self.__movie_save_path, paused=is_paused)
         else:
-            return self.trc.add_torrent(torrent=turl, download_dir=self.__anime_save_path, paused=is_paused)
+            return self.trc.add_torrent(torrent=content, download_dir=self.__anime_save_path, paused=is_paused)
 
     def start_torrents(self, ids):
         """

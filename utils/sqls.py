@@ -111,7 +111,7 @@ def is_torrent_rssd(media_info: MetaBase):
         return True
     if media_info.type == MediaType.MOVIE:
         sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TITLE = ? AND YEAR = ?"
-        rets = select_by_sql(sql, (str_sql(media_info.title), media_info.year))
+        rets = select_by_sql(sql, (str_sql(media_info.title), str_sql(media_info.year)))
 
     else:
         sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TITLE = ? AND YEAR = ? AND SEASON = ? AND EPISODE = ?"

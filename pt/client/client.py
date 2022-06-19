@@ -46,7 +46,7 @@ class IDownloadClient(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def add_torrent(self, turl, mtype, is_paused, tag):
+    def add_torrent(self, content, mtype, is_paused, tag):
         """
         添加下载任务
         """

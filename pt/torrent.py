@@ -1,13 +1,14 @@
+import os.path
 import re
 from functools import lru_cache
 from urllib import parse
-
 import cn2an
+import requests
 from lxml import etree
-
-from config import GRAP_FREE_SITES
+from config import GRAP_FREE_SITES, DEFAULT_HEADERS, Config
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
+import bencode
 
 
 class Torrent:
@@ -339,3 +340,27 @@ class Torrent:
             except Exception as err:
                 print(err)
         return None
+
+    @staticmethod
+    def get_torrent_content(url):
+        """
+        把种子下载到本地，返回种子内容
+        :param url: 种子链接
+        """
+        if not url:
+            return None, "URL为空"
+        try:
+            req = requests.get(url=url, headers=DEFAULT_HEADERS, timeout=30)
+            if req and req.status_code == 200:
+                if not req.content:
+                    return None, "未下载到种子数据"
+                metadata = bencode.bdecode(req.content)
+                if not metadata or not isinstance(metadata, dict):
+                    return None, "不正确的种子文件"
+                return req.content, ""
+            elif not req:
+                return None, "无法打开链接"
+            else:
+                return None, "状态码：%s" % req.status_code
+        except Exception as err:
+            return None, "%s" % str(err)

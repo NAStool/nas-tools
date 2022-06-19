@@ -287,22 +287,25 @@ class WebAction:
                 mtype = MediaType.MOVIE
             else:
                 mtype = MediaType.ANIME
-            Downloader().add_pt_torrent(res[0], mtype)
-            msg_item = MetaInfo("%s" % res[8])
-            msg_item.title = res[1]
-            msg_item.vote_average = res[5]
-            msg_item.poster_path = res[6]
-            msg_item.type = mtype
-            msg_item.description = res[9]
-            msg_item.size = res[10]
-            msg_item.tmdb_id = res[11]
-            msg_item.poster_path = res[12]
-            msg_item.overview = res[13]
-            msg_item.enclosure = res[0]
-            msg_item.site = res[14]
-            msg_item.upload_volume_factor = float(res[15] or 1.0)
-            msg_item.download_volume_factor = float(res[16] or 1.0)
-            Message().send_download_message(SearchType.WEB, msg_item)
+            ret = Downloader().add_pt_torrent(res[0], mtype)
+            if ret:
+                msg_item = MetaInfo("%s" % res[8])
+                msg_item.title = res[1]
+                msg_item.vote_average = res[5]
+                msg_item.poster_path = res[6]
+                msg_item.type = mtype
+                msg_item.description = res[9]
+                msg_item.size = res[10]
+                msg_item.tmdb_id = res[11]
+                msg_item.poster_path = res[12]
+                msg_item.overview = res[13]
+                msg_item.enclosure = res[0]
+                msg_item.site = res[14]
+                msg_item.upload_volume_factor = float(res[15] or 1.0)
+                msg_item.download_volume_factor = float(res[16] or 1.0)
+                Message().send_download_message(SearchType.WEB, msg_item)
+            else:
+                return {"retcode": -1}
         return {"retcode": 0}
 
     @staticmethod

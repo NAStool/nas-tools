@@ -215,10 +215,10 @@ class Qbittorrent(IDownloadClient):
         else:
             return None
 
-    def add_torrent(self, turl, mtype, is_paused=None, tag=None):
+    def add_torrent(self, content, mtype, is_paused=None, tag=None):
         """
         添加qbittorrent下载任务
-        :param turl: 种子链接
+        :param content: 种子数据
         :param mtype: 媒体类型：电影、电视剧、动漫
         :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
         :param tag: 下载时对种子的标记
@@ -227,13 +227,13 @@ class Qbittorrent(IDownloadClient):
             return False
         self.qbc.auth_log_in()
         if mtype == MediaType.TV:
-            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__tv_save_path, category=self.__tv_category, is_paused=is_paused, tags=tag)
+            qbc_ret = self.qbc.torrents_add(torrent_files=content, save_path=self.__tv_save_path, category=self.__tv_category, is_paused=is_paused, tags=tag)
         elif mtype == MediaType.MOVIE:
-            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__movie_save_path, category=self.__movie_category, is_paused=is_paused, tags=tag)
+            qbc_ret = self.qbc.torrents_add(torrent_files=content, save_path=self.__movie_save_path, category=self.__movie_category, is_paused=is_paused, tags=tag)
         else:
-            qbc_ret = self.qbc.torrents_add(urls=turl, save_path=self.__anime_save_path, category=self.__anime_category, is_paused=is_paused, tags=tag)
+            qbc_ret = self.qbc.torrents_add(torrent_files=content, save_path=self.__anime_save_path, category=self.__anime_category, is_paused=is_paused, tags=tag)
         self.qbc.auth_log_out()
-        return qbc_ret
+        return True if qbc_ret and str(qbc_ret).find("Ok") != -1 else False
 
     def start_torrents(self, ids):
         """

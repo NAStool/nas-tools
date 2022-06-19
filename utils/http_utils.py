@@ -9,6 +9,7 @@ class RequestUtils:
     __headers = None
     __cookies = None
     __proxies = None
+    __timeout = 15
 
     def __init__(self, headers, cookies, proxies=False):
         if headers:
@@ -42,7 +43,7 @@ class RequestUtils:
         i = 0
         while i < 3:
             try:
-                r = requests.get(url, verify=False, headers=self.__headers, proxies=self.__proxies, params=params, timeout=10)
+                r = requests.get(url, verify=False, headers=self.__headers, proxies=self.__proxies, params=params, timeout=self.__timeout)
                 return str(r.content, 'UTF-8')
             except requests.exceptions.RequestException:
                 i += 1
@@ -51,7 +52,7 @@ class RequestUtils:
         i = 0
         while i < 3:
             try:
-                return requests.get(url, params=params, verify=False, headers=self.__headers, proxies=self.__proxies, cookies=self.__cookies, timeout=10)
+                return requests.get(url, params=params, verify=False, headers=self.__headers, proxies=self.__proxies, cookies=self.__cookies, timeout=self.__timeout)
             except requests.exceptions.RequestException as e:
                 print(e)
                 i += 1

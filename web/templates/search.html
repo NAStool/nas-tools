@@ -452,7 +452,11 @@
     var cmd = "download";
     var data = { "id": id };
     ajax_post(cmd, data, function (ret) {
-      show_success_modal(name + " 添加下载成功！");
+      if(ret.retcode == 0){
+        show_success_modal(name + " 添加下载成功！");
+      }else{
+        show_fail_modal(name + " 添加下载失败！");
+      }
     });
   }
 
