@@ -1,4 +1,3 @@
-import re
 import traceback
 from datetime import datetime
 from multiprocessing.dummy import Pool as ThreadPool
@@ -7,7 +6,8 @@ from threading import Lock
 import log
 from config import Config
 from message.send import Message
-from utils.functions import singleton, num_filesize
+from pt.siteuserinfo.site_user_info_factory import SiteUserInfoFactory
+from utils.functions import singleton
 from utils.http_utils import RequestUtils
 from utils.sqls import get_config_site, insert_site_statistics_history, update_site_user_statistics
 
@@ -80,35 +80,29 @@ class Sites:
         try:
             res = RequestUtils(headers=self.__user_agent, cookies=site_cookie).get_res(url=site_url)
             if res and res.status_code == 200:
-                res.encoding = res.apparent_encoding
-                html_text = res.text
-                if not html_text:
-                    return
-                # 上传量
-                upload = self.__get_site_upload(html_text)
-                # 下载量
-                download = self.__get_site_download(html_text)
-                if upload is None and download is None:
-                    return
-                # 分享率
-                ratio = self.__get_site_ratio(html_text)
-
-                # 用户名
-                username = self.__get_site_user_name(html_text)
-                # 做种/下载
-                seeding, leeching = self.__get_site_torrents(html_text)
-                # 魔力值
-                bonus = self.__get_site_bonus(html_text)
+                site_user_info = SiteUserInfoFactory.build(url=site_url, user_agent=self.__user_agent,
+                                                           site_cookie=site_cookie)
+                log.debug(f"【PT】站点 {site_name} 开始以 {site_user_info.site_schema()} 模型解析")
+                # 开始解析
+                site_user_info.parse()
+                log.debug(f"【PT】站点 {site_name} 解析完成")
 
                 if not self.__sites_data.get(site_name):
-                    self.__sites_data[site_name] = {"upload": upload or 0, "download": download or 0,
-                                                    "ratio": ratio}
+                    self.__sites_data[site_name] = {"upload": site_user_info.upload,
+                                                    "download": site_user_info.download,
+                                                    "ratio": site_user_info.ratio}
                     # 登记历史数据
-                    insert_site_statistics_history(site=site_name, upload=upload or 0, download=download or 0,
-                                                   ratio=ratio, url=site_url)
+                    insert_site_statistics_history(site=site_name, upload=site_user_info.upload,
+                                                   download=site_user_info.download,
+                                                   ratio=site_user_info.ratio,
+                                                   url=site_url)
                     # 实时用户数据
-                    update_site_user_statistics(site=site_name, username=username, upload=upload, download=download,
-                                                ratio=ratio, seeding=seeding, leeching=leeching, bonus=bonus,
+                    update_site_user_statistics(site=site_name, username=site_user_info.username,
+                                                user_level=site_user_info.user_level,
+                                                upload=site_user_info.upload, download=site_user_info.download,
+                                                ratio=site_user_info.ratio, seeding=site_user_info.seeding,
+                                                seeding_size=site_user_info.seeding_size,
+                                                leeching=site_user_info.leeching, bonus=site_user_info.bonus,
                                                 url=site_url)
 
             elif not res:
@@ -149,111 +143,6 @@ class Sites:
                     log.error("【PT】%s 签到出错：%s - %s" % (pt_task, str(e), traceback.format_exc()))
         if status:
             self.message.sendmsg(title="\n".join(status))
-
-    @staticmethod
-    def __prepare_html_text(html_text):
-        """
-        处理掉HTML中的干扰部分
-        """
-        return re.sub(r"#\d+", "", re.sub(r"\d+px", "", html_text))
-
-    def __get_site_upload(self, html_text):
-        """
-        解析上传量
-        """
-        html_text = self.__prepare_html_text(html_text)
-        upload_match = re.search(r"[^总]上[传傳]量?[:：<>/a-zA-Z-=\"'\s#;]+([0-9,.\s]+[KMGTPI]*B)", html_text, re.IGNORECASE)
-        if upload_match:
-            return num_filesize(upload_match.group(1).strip())
-        else:
-            return 0
-
-    def __get_site_download(self, html_text):
-        """
-        解析下载量
-        """
-        html_text = self.__prepare_html_text(html_text)
-        download_match = re.search(r"[^总]下[载載]量?[:：<>/a-zA-Z-=\"'\s#;]+([0-9,.\s]+[KMGTPI]*B)", html_text,
-                                   re.IGNORECASE)
-        if download_match:
-            return num_filesize(download_match.group(1).strip())
-        else:
-            return 0
-
-    def __get_site_ratio(self, html_text):
-        """
-        解析分享率
-        """
-        html_text = self.__prepare_html_text(html_text)
-        ratio_match = re.search(r"分享率[:：<>/a-zA-Z-=\"'\s#;]+([0-9.\s]+)", html_text)
-        if ratio_match and ratio_match.group(1).strip():
-            return float(ratio_match.group(1).strip())
-        else:
-            return 0
-
-    def __get_site_user_url(self, html_text):
-        """
-        解析用户信息url
-        :param html_text:
-        :return:
-        """
-        html_text = self.__prepare_html_text(html_text)
-        user_detail = re.search(r"userdetails.php\?id=\d+", html_text)
-        if user_detail and user_detail.group().strip():
-            return user_detail.group().strip().lstrip('/')
-        else:
-            return ""
-
-    def __get_site_user_name(self, html_text):
-        """
-        解析用户名称
-        :param html_text:
-        :return:
-        """
-        html_text = self.__prepare_html_text(html_text)
-        user_name = re.search(r"userdetails.php\?id=\d+[a-zA-Z\"'=_\-\s]+>[<b>\s]*([^<>]*)[</b>]*</a>", html_text)
-        if user_name and user_name.group(1).strip():
-            return user_name.group(1).strip()
-        else:
-            return ""
-
-    def __get_site_torrents(self, html_text):
-        """
-        解析做种/下载数量
-        :param html_text:
-        :return: 做种数,下载数
-        """
-        seeding = 0
-        leeching = 0
-        html_text = self.__prepare_html_text(html_text)
-        seeding_match = re.search(r"(Torrents seeding|做种中)[\u4E00-\u9FA5\D\s]+(\d+)[\s\S]+<", html_text)
-        leeching_match = re.search(r"(Torrents leeching|下载中)[\u4E00-\u9FA5\D\s]+(\d+)[\s\S]+<", html_text)
-
-        if seeding_match and seeding_match.group(2).strip():
-            seeding = int(seeding_match.group(2).strip())
-
-        if leeching_match and leeching_match.group(2).strip():
-            leeching = int(leeching_match.group(2).strip())
-
-        return seeding, leeching
-
-    def __get_site_bonus(self, html_text):
-        """
-        解析魔力值
-        :param html_text:
-        :return:
-        """
-        html_text = self.__prepare_html_text(html_text)
-        bonus_match = re.search(r"mybonus.[\[\]:：<>/a-zA-Z_\-=\"'\s#;.(使用魔力值豆]+\s*([\d,.]+)[<()&\s]", html_text)
-        try:
-            if bonus_match and bonus_match.group(1).strip():
-                return float(bonus_match.group(1).strip().replace(',', ''))
-            bonus_match = re.search(r"[魔力值|\]][\[\]:：<>/a-zA-Z_\-=\"'\s#;]+\s*([\d,.]+)[<()&\s]", html_text, flags=re.S)
-            if bonus_match and bonus_match.group(1).strip():
-                return float(bonus_match.group(1).strip().replace(',', ''))
-        except Exception as err:
-            print(str(err))
-        return 0.0
 
     @staticmethod
     def __is_signin_success(html_text):
