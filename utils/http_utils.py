@@ -54,7 +54,7 @@ class RequestUtils:
             try:
                 if self.__session:
                     r = self.__session.get(url, verify=False, headers=self.__headers,
-                                           proxies=self.__proxies, params=params, timeout=10)
+                                           proxies=self.__proxies, params=params, timeout=self.__timeout)
                 else:
                     r = requests.get(url, verify=False, headers=self.__headers,
                                      proxies=self.__proxies, params=params, timeout=self.__timeout)
@@ -68,7 +68,7 @@ class RequestUtils:
             try:
                 if self.__session:
                     return self.__session.get(url, params=params, verify=False, headers=self.__headers,
-                                              proxies=self.__proxies, cookies=self.__cookies, timeout=10)
+                                              proxies=self.__proxies, cookies=self.__cookies, timeout=self.__timeout)
                 else:
                     return requests.get(url, params=params, verify=False, headers=self.__headers,
                                         proxies=self.__proxies, cookies=self.__cookies, timeout=self.__timeout)
