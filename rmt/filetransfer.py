@@ -51,6 +51,7 @@ class FileTransfer:
     __tv_dir_rmt_format = ""
     __tv_season_rmt_format = ""
     __tv_file_rmt_format = ""
+    __nfo_poster = False
 
     def __init__(self):
         self.media = Media()
@@ -65,6 +66,8 @@ class FileTransfer:
         config = Config()
         media = config.get_config('media')
         if media:
+            # NFO开关
+            self.__nfo_poster = media.get("nfo_poster")
             # 电影目录
             self.__movie_path = media.get('movie_path')
             if not isinstance(self.__movie_path, list):
@@ -627,7 +630,8 @@ class FileTransfer:
                         message_medias[message_key].total_episodes += media.total_episodes
                         message_medias[message_key].size += media.size
                 # 生成nfo及poster
-                self.nfohelper.gen_nfo_files(media, ret_dir_path, os.path.basename(ret_file_path))
+                if self.__nfo_poster:
+                    self.nfohelper.gen_nfo_files(media, ret_dir_path, os.path.basename(ret_file_path))
 
             except Exception as err:
                 log.error("【RMT】文件转移时发生错误：%s - %s" % (str(err), traceback.format_exc()))

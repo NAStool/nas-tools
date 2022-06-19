@@ -42,7 +42,7 @@ class Movie(TMDb):
     def details(
             self,
             movie_id,
-            append_to_response="videos,trailers,images,casts,translations,keywords,release_dates",
+            append_to_response="videos,trailers,images,credits,keywords,release_dates",
     ):
         """
         Get the primary information about a movie.

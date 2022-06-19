@@ -298,7 +298,7 @@ class Media:
                     return tv
         return {}
 
-    def get_tmdb_info(self, mtype: MediaType, title, year, tmdbid=None):
+    def get_tmdb_info(self, mtype: MediaType, title=None, year=None, tmdbid=None):
         """
         给定名称和年份或者TMDB号，查询一条媒体信息
         :param mtype: 类型：电影、电视剧、动漫
@@ -312,10 +312,10 @@ class Media:
             tmdb_info = self.__search_tmdb(file_media_name=title, first_media_year=year, search_type=mtype)
         else:
             if mtype == MediaType.MOVIE:
-                tmdb_info = self.get_tmdb_movie_info(tmdbid)
+                tmdb_info = self.__get_tmdb_movie_info(tmdbid)
                 tmdb_info['media_type'] = MediaType.MOVIE
             else:
-                tmdb_info = self.get_tmdb_tv_info(tmdbid)
+                tmdb_info = self.__get_tmdb_tv_info(tmdbid)
                 tmdb_info['media_type'] = MediaType.TV
         return tmdb_info
 
@@ -586,7 +586,7 @@ class Media:
             return []
         return self.movie.upcoming(page)
 
-    def get_tmdb_movie_info(self, tmdbid):
+    def __get_tmdb_movie_info(self, tmdbid):
         """
         获取电影的详情
         :param tmdbid: TMDB ID
@@ -602,7 +602,7 @@ class Media:
             log.console(str(e))
             return {}
 
-    def get_tmdb_tv_info(self, tmdbid):
+    def __get_tmdb_tv_info(self, tmdbid):
         """
         获取电视剧的详情
         :param tmdbid: TMDB ID
@@ -645,7 +645,7 @@ class Media:
         if not tv_info and not tmdbid:
             return []
         if not tv_info and tmdbid:
-            tv_info = self.get_tmdb_tv_info(tmdbid)
+            tv_info = self.__get_tmdb_tv_info(tmdbid)
         if not tv_info:
             return []
         seasons = tv_info.get("seasons")
@@ -671,7 +671,7 @@ class Media:
         if not tv_info and not tmdbid:
             return 0
         if not tv_info and tmdbid:
-            tv_info = self.get_tmdb_tv_info(tmdbid)
+            tv_info = self.__get_tmdb_tv_info(tmdbid)
         if not tv_info:
             return 0
         seasons = tv_info.get("seasons")
@@ -689,3 +689,28 @@ class Media:
         if not b:
             return a
         return max(a, b)
+
+    @staticmethod
+    def get_tmdb_directors_actors(tmdbinfo):
+        """
+        查询导演和演员
+        :param tmdbinfo: TMDB元数据
+        :return: 导演列表，演员列表
+        """
+        if not tmdbinfo:
+            return [], []
+        directors = []
+        actors = []
+        casts = tmdbinfo.get("cast") or []
+        for cast in casts:
+            if not cast:
+                continue
+            if cast.get("known_for_department") == "Acting":
+                actors.append(cast)
+        crews = tmdbinfo.get("crew") or []
+        for crew in crews:
+            if not crew:
+                continue
+            if crew.get("job") == "Director":
+                directors.append(crew)
+        return directors, actors

@@ -11,7 +11,7 @@ from config import TORRENT_SEARCH_PARAMS
 from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
-from utils.functions import str_filesize
+from utils.functions import str_filesize, tag_value
 from utils.sqls import get_config_search_rule
 from utils.types import MediaType
 
@@ -268,20 +268,6 @@ class IIndexer(metaclass=ABCMeta):
         :param url: URL地址
         :return: 解析出来的种子信息列表
         """
-
-        def tag_value(tag_item, tag_name, attname="", default=None):
-            tagNames = tag_item.getElementsByTagName(tag_name)
-            if tagNames:
-                if attname:
-                    attvalue = tagNames[0].getAttribute(attname)
-                    if attvalue:
-                        return attvalue
-                else:
-                    firstChild = tagNames[0].firstChild
-                    if firstChild:
-                        return firstChild.data
-            return default
-
         if not url:
             return []
         try:
@@ -294,8 +280,8 @@ class IIndexer(metaclass=ABCMeta):
         xmls = ret.text
         if not xmls:
             return []
-        torrents = []
 
+        torrents = []
         try:
             # 解析XML
             dom_tree = xml.dom.minidom.parseString(xmls)

@@ -486,44 +486,11 @@ def create_flask_app(config):
     def rss_calendar():
         Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
         RssMovieIds = [movie[2] for movie in get_rss_movies()]
-        RssMovieNames = [movie[0] for movie in get_rss_movies()]
         RssTvItems = [{"id": tv[3], "season": int(str(tv[2]).replace("S", "")), "name": tv[0]} for tv in get_rss_tvs()]
-        Events = []
-        TmdbMovies = Media().get_tmdb_upcoming_movies(1)
-        for movie in TmdbMovies:
-            if movie.get("release_date") \
-                    and movie.get("id") not in RssMovieIds \
-                    and movie.get("title") not in RssMovieNames:
-                year = movie.get("release_date")[0:4]
-                Events.append(
-                    {"type": "电影",
-                     "title": movie.get("title"),
-                     "start": movie.get("release_date"),
-                     "id": movie.get("id"),
-                     "year": year,
-                     "poster": "https://image.tmdb.org/t/p/w500%s" % movie.get('poster_path'),
-                     "vote_average": movie.get("vote_average")})
-        DoubanMovies = DoubanApi().movie_soon(count=50)
-        if DoubanMovies:
-            for movie in DoubanMovies.get("subject_collection_items"):
-                if movie.get("release_date") \
-                        and "DB:%s" % movie.get("id") not in RssMovieIds \
-                        and movie.get("title") not in RssMovieNames:
-                    release_date = "%s-%s" % (datetime.datetime.now().year, movie.get("release_date").replace(".", "-"))
-                    Events.append(
-                        {"type": "电影",
-                         "title": movie.get("title"),
-                         "start": release_date,
-                         "id": "DB:%s" % movie.get("id"),
-                         "year": release_date[0:4],
-                         "poster": movie.get("cover").get("url"),
-                         "vote_average": movie.get("rating").get("value") if movie.get("rating") else "无"})
-
         return render_template("rss/rss_calendar.html",
                                Today=Today,
                                RssMovieIds=RssMovieIds,
-                               RssTvItems=RssTvItems,
-                               Events=Events)
+                               RssTvItems=RssTvItems)
 
     # 站点维护页面
     @App.route('/site', methods=['POST', 'GET'])
@@ -1307,17 +1274,9 @@ def create_flask_app(config):
                 dom_tree = xml.dom.minidom.parseString(sMsg.decode('UTF-8'))
                 root_node = dom_tree.documentElement
                 # 消息类型
-                msg_type_node = root_node.getElementsByTagName("MsgType")
-                if msg_type_node and msg_type_node[0].firstChild:
-                    msg_type = msg_type_node[0].firstChild.data
-                else:
-                    msg_type = None
+                msg_type = tag_value(root_node, "MsgType")
                 # 用户ID
-                user_id_node = root_node.getElementsByTagName("FromUserName")
-                if user_id_node and user_id_node[0].firstChild:
-                    user_id = user_id_node[0].firstChild.data
-                else:
-                    user_id = None
+                user_id = tag_value(root_node, "FromUserName")
                 # 没的消息类型和用户ID的消息不要
                 if not msg_type or not user_id:
                     log.info("收到微信心跳报文...")
@@ -1326,11 +1285,7 @@ def create_flask_app(config):
                 content = ""
                 if msg_type == "event":
                     # 事件消息
-                    event_key_node = root_node.getElementsByTagName("EventKey")
-                    if event_key_node and event_key_node[0].firstChild:
-                        event_key = event_key_node[0].firstChild.data
-                    else:
-                        event_key = None
+                    event_key = tag_value(root_node, "EventKey")
                     if event_key:
                         log.info("点击菜单：%s" % event_key)
                         keys = event_key.split('#')
@@ -1338,12 +1293,7 @@ def create_flask_app(config):
                             content = WECHAT_MENU.get(keys[2])
                 elif msg_type == "text":
                     # 文本消息
-                    content_node = root_node.getElementsByTagName("Content")
-                    if content_node and content_node[0].firstChild:
-                        content = content_node[0].firstChild.data
-                        log.info("消息内容：%s" % content)
-                    else:
-                        content = ""
+                    content = tag_value(root_node, "Content", default="")
                 if content:
                     # 处理消息内容
                     WebAction().handle_message_job(content, SearchType.WX, user_id)

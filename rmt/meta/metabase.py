@@ -229,6 +229,14 @@ class MetaBase(object):
         else:
             return ""
 
+    # 返回begin_episode 的数字
+    def get_episode_seq(self):
+        episodes = self.get_episode_list()
+        if episodes:
+            return str(episodes[0])
+        else:
+            return ""
+
     # 返回季集字符串
     def get_season_episode_string(self):
         if self.type == MediaType.MOVIE:

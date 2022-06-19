@@ -13,6 +13,7 @@ from pt.downloader import Downloader
 from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
+from utils.functions import tag_value
 from utils.sqls import get_rss_movies, get_rss_tvs, insert_rss_torrents, \
     get_config_site, is_torrent_rssd, get_config_rss_rule, delete_rss_movie, delete_rss_tv, update_rss_tv_lack, \
     update_rss_movie_state, update_rss_tv_state, update_rss_movie_tmdbid, update_rss_tv_tmdbid
@@ -168,16 +169,21 @@ class Rss:
                                     delete_rss_tv(media_info.title, media_info.year, media_info.get_season_string())
                             continue
                         # 判断种子是否免费
-                        if rss_free and not Torrent.check_torrent_free(torrent_url=page_url, cookie=rss_cookie, user_agent=self.__user_agent):
-                            log.info("【RSS】%s 不是免费种子" % torrent_name)
-                            continue
+                        download_volume_factor = 1.0
+                        if rss_free:
+                            if Torrent.check_torrent_free(torrent_url=page_url, cookie=rss_cookie, user_agent=self.__user_agent):
+                                download_volume_factor = 0
+                            else:
+                                log.info("【RSS】%s 不是免费种子" % torrent_name)
+                                continue
                         # 返回对象
                         media_info.set_torrent_info(site_order=order_seq,
                                                     site=rss_job,
                                                     enclosure=enclosure,
                                                     res_order=res_order,
                                                     size=size,
-                                                    description=description)
+                                                    description=description,
+                                                    download_volume_factor=download_volume_factor)
                         # 插入数据库
                         insert_rss_torrents(media_info)
                         # 加入下载列表
@@ -381,20 +387,6 @@ class Rss:
         :param url: RSS地址
         :return: 种子信息列表
         """
-
-        def tag_value(tag_item, tag_name, attname="", default=None):
-            tagNames = tag_item.getElementsByTagName(tag_name)
-            if tagNames:
-                if attname:
-                    attvalue = tagNames[0].getAttribute(attname)
-                    if attvalue:
-                        return attvalue
-                else:
-                    firstChild = tagNames[0].firstChild
-                    if firstChild:
-                        return firstChild.data
-            return default
-
         # 开始处理
         ret_array = []
         if not url:

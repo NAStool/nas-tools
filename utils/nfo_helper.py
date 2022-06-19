@@ -1,58 +1,170 @@
 import os.path
+import time
+from xml.dom import minidom
 
 import requests
 
-from config import Config
+from rmt.media import Media
 from rmt.meta.metabase import MetaBase
+from utils.functions import add_node
 from utils.types import MediaType
 
 
 class NfoHelper:
-    __nfo_poster = False
+    media = None
 
     def __init__(self):
-        self.init_config()
+        self.media = Media()
 
-    def init_config(self):
-        config = Config()
-        self.__nfo_poster = config.get_config("media").get("nfo_poster")
+    def __gen_common_nfo(self, tmdbinfo: dict, doc, root):
+        # 添加时间
+        add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        # TMDBID
+        uniqueid = add_node(doc, root, "uniqueid", tmdbinfo.get("id"))
+        uniqueid.setAttribute("type", "tmdb")
+        uniqueid.setAttribute("default", "true")
+        # 简介
+        xplot = add_node(doc, root, "plot")
+        xplot.appendChild(doc.createCDATASection(tmdbinfo.get("overview")))
+        xoutline = add_node(doc, root, "outline")
+        xoutline.appendChild(doc.createCDATASection(tmdbinfo.get("overview")))
+        # 导演
+        directors, actors = self.media.get_tmdb_directors_actors(tmdbinfo.get("credits"))
+        for director in directors:
+            xdirector = add_node(doc, root, "director", director.get("name"))
+            xdirector.setAttribute("tmdbid", str(director.get("id")))
+        # 演员
+        for actor in actors:
+            xactor = add_node(doc, root, "actor")
+            add_node(doc, xactor, "name", actor.get("name"))
+            add_node(doc, xactor, "type", "Actor")
+            add_node(doc, xactor, "tmdbid", actor.get("id"))
+        # 风格
+        genres = tmdbinfo.get("genres") or []
+        for genre in genres:
+            add_node(doc, root, "genre", genre.get("name"))
+        # 评分
+        add_node(doc, root, "rating", tmdbinfo.get("vote_average"))
+        return doc
 
-    def gen_movie_nfo_file(self, media: MetaBase, out_path, file_name):
+    def gen_movie_nfo_file(self, tmdbinfo: dict, out_path, file_name):
         """
         生成电影的NFO描述文件
-        :param media: 媒体信息
+        :param tmdbinfo: TMDB元数据
         :param out_path: 电影根目录
         :param file_name: 电影文件名，不含后缀
         """
-        pass
+        # 开始生成XML
+        doc = minidom.Document()
+        root = add_node(doc, doc, "movie")
+        # 公共部分
+        doc = self.__gen_common_nfo(tmdbinfo, doc, root)
+        # 标题
+        add_node(doc, root, "title", tmdbinfo.get("title"))
+        add_node(doc, root, "originaltitle", tmdbinfo.get("original_title"))
+        # 发布日期
+        add_node(doc, root, "premiered", tmdbinfo.get("release_date"))
+        # 年份
+        add_node(doc, root, "year", tmdbinfo.get("release_date")[:4])
+        # tmdbid
+        add_node(doc, root, "tmdbid", tmdbinfo.get("id"))
+        # 保存
+        self.__save_nfo(doc, os.path.join(out_path, "%s.nfo" % file_name))
 
-    def gen_tv_nfo_file(self, media: MetaBase, out_path):
+    def gen_tv_nfo_file(self, tmdbinfo: dict, out_path):
         """
         生成电视剧的NFO描述文件
-        :param media: 媒体信息
+        :param tmdbinfo: TMDB元数据
         :param out_path: 电视剧根目录
         """
-        pass
+        # 开始生成XML
+        doc = minidom.Document()
+        root = add_node(doc, doc, "tvshow")
+        # 公共部分
+        doc = self.__gen_common_nfo(tmdbinfo, doc, root)
+        # 标题
+        add_node(doc, root, "title", tmdbinfo.get("name"))
+        add_node(doc, root, "originaltitle", tmdbinfo.get("original_name"))
+        # 发布日期
+        add_node(doc, root, "premiered", tmdbinfo.get("first_air_date"))
+        # 年份
+        add_node(doc, root, "year", tmdbinfo.get("first_air_date")[:4])
+        add_node(doc, root, "season", "-1")
+        add_node(doc, root, "episode", "-1")
+        # tmdbid
+        add_node(doc, root, "tmdbid", tmdbinfo.get("id"))
+        # 保存
+        self.__save_nfo(doc, os.path.join(out_path, "tvshow.nfo"))
 
-    def gen_tv_season_nfo_file(self, media: MetaBase, out_path):
+    def gen_tv_season_nfo_file(self, tmdbinfo: dict, season, out_path):
         """
         生成电视剧季的NFO描述文件
-        :param media: 媒体信息
+        :param tmdbinfo: TMDB季媒体信息
+        :param season: 季号
         :param out_path: 电视剧季的目录
         """
-        pass
+        doc = minidom.Document()
+        root = add_node(doc, doc, "season")
+        # 添加时间
+        add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        # 简介
+        xplot = add_node(doc, root, "plot")
+        xplot.appendChild(doc.createCDATASection(tmdbinfo.get("overview")))
+        xoutline = add_node(doc, root, "outline")
+        xoutline.appendChild(doc.createCDATASection(tmdbinfo.get("overview")))
+        # 标题
+        add_node(doc, root, "title", "季 %s" % season)
+        # 发行日期
+        add_node(doc, root, "premiered", tmdbinfo.get("air_date"))
+        add_node(doc, root, "releasedate", tmdbinfo.get("air_date"))
+        # 发行年份
+        add_node(doc, root, "year", tmdbinfo.get("air_date")[:4])
+        # seasonnumber
+        add_node(doc, root, "seasonnumber", season)
+        # 保存
+        self.__save_nfo(doc, os.path.join(out_path, "season.nfo"))
 
-    def gen_tv_episode_nfo_file(self, media: MetaBase, out_path, file_name):
+    def gen_tv_episode_nfo_file(self, tmdbinfo: dict, season: int, episode: int, out_path, file_name):
         """
         生成电视剧集的NFO描述文件
-        :param media: 媒体信息
+        :param tmdbinfo: TMDB元数据
+        :param season: 季号
+        :param episode: 集号
         :param out_path: 电视剧季的目录
         :param file_name: 电视剧文件名，不含后缀
         """
-        pass
+        # 开始生成集的信息
+        doc = minidom.Document()
+        root = add_node(doc, doc, "episodedetails")
+        # 公共部分
+        doc = self.__gen_common_nfo(tmdbinfo, doc, root)
+        episode_detail = {}
+        for episode_info in tmdbinfo.get("episodes"):
+            if int(episode_info.get("episode_number")) == int(episode):
+                episode_detail = episode_info
+        if not episode_detail:
+            return
+        # 标题
+        add_node(doc, root, "title", episode_detail.get("name") or "第 %s 集" % episode)
+        # 演员
+        actors = episode_detail.get("cast") or []
+        for actor in actors:
+            xactor = add_node(doc, root, "actor")
+            add_node(doc, xactor, "name", actor.get("name"))
+            add_node(doc, xactor, "type", "Actor")
+            add_node(doc, xactor, "tmdbid", actor.get("id"))
+        # 发布日期
+        add_node(doc, root, "aired", episode_detail.get("air_date"))
+        # 年份
+        add_node(doc, root, "year", episode_detail.get("air_date")[:4])
+        # 季
+        add_node(doc, root, "season", season)
+        # 集
+        add_node(doc, root, "episode", episode)
+        self.__save_nfo(doc, os.path.join(out_path, os.path.join(out_path, "%s.nfo" % file_name)))
 
     @staticmethod
-    def save_image(url, out_path, itype="poster"):
+    def __save_image(url, out_path, itype="poster"):
         """
         下载poster.jpg并保存
         """
@@ -63,34 +175,57 @@ class NfoHelper:
         try:
             r = requests.get(url)
             with open(file=os.path.join(out_path, "%s.%s" % (itype, str(url).split('.')[-1])),
-                      mode="wb",
-                      encoding="utf-8") as img:
+                      mode="wb") as img:
                 img.write(r.content)
         except Exception as err:
             print(str(err))
 
+    @staticmethod
+    def __save_nfo(doc, out_file):
+        xml_str = doc.toprettyxml(indent="  ", encoding="utf-8")
+        with open(out_file, "wb") as xml_file:
+            xml_file.write(xml_str)
+
     def gen_nfo_files(self, media: MetaBase, dir_path, file_name):
-        if not self.__nfo_poster:
-            return
         # 电影
         if media.type == MediaType.MOVIE:
+            # 已存在时不处理
+            if os.path.exists(os.path.join(dir_path, "movie.nfo")):
+                return
+            if os.path.exists(os.path.join(dir_path, "%s.nfo" % file_name)):
+                return
+            # 查询TMDB信息
+            tmdbinfo = self.media.get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=media.tmdb_id)
             # 生成电影描述文件
-            self.gen_movie_nfo_file(media, dir_path, file_name)
+            self.gen_movie_nfo_file(tmdbinfo, dir_path, file_name)
             # 保存海报
             if media.poster_path:
-                self.save_image(media.poster_path, dir_path)
+                self.__save_image(media.poster_path, dir_path)
             if media.fanart_image:
-                self.save_image(media.fanart_image, dir_path, "fanart")
+                self.__save_image(media.fanart_image, dir_path, "fanart")
         # 电视剧
         else:
-            # 根目录描述文件
-            self.gen_tv_nfo_file(media, os.path.dirname(dir_path))
-            # 季的描述文件
-            self.gen_tv_season_nfo_file(media, dir_path)
-            # 集的描述文件
-            self.gen_tv_episode_nfo_file(media, dir_path, file_name)
-            # 保存海报
-            if media.poster_path:
-                self.save_image(media.poster_path, os.path.dirname(dir_path))
-            if media.fanart_image:
-                self.save_image(media.fanart_image, os.path.dirname(dir_path), "fanart")
+            # 处理根目录
+            if not os.path.exists(os.path.join(dir_path, "tvshow.nfo")):
+                # 查询TMDB信息
+                tmdbinfo = self.media.get_tmdb_info(mtype=MediaType.TV, tmdbid=media.tmdb_id)
+                # 根目录描述文件
+                self.gen_tv_nfo_file(tmdbinfo, os.path.dirname(dir_path))
+                # 根目录海报
+                if media.poster_path:
+                    self.__save_image(media.poster_path, os.path.dirname(dir_path))
+                if media.fanart_image:
+                    self.__save_image(media.fanart_image, os.path.dirname(dir_path), "fanart")
+            # 处理集
+            if not os.path.exists(os.path.join(dir_path, "%s.nfo" % file_name)):
+                # 查询TMDB信息
+                tmdbinfo = self.media.get_tmdb_tv_season_info(tmdbid=media.tmdb_id, season=int(media.get_season_seq()))
+                self.gen_tv_episode_nfo_file(tmdbinfo, int(media.get_season_seq()), int(media.get_episode_seq()), dir_path, file_name)
+                # 处理季
+                if not os.path.exists(os.path.join(dir_path, "season.nfo")):
+                    # 生成季的信息
+                    self.gen_tv_season_nfo_file(tmdbinfo, int(media.get_season_seq()), dir_path)
+                    # 季的海报
+                    self.__save_image("https://image.tmdb.org/t/p/w500%s" % tmdbinfo.get("poster_path"),
+                                      os.path.dirname(dir_path),
+                                      "season%s-poster" % media.get_season_seq().rjust(2, '0'))

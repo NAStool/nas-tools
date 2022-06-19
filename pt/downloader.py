@@ -387,7 +387,7 @@ class Downloader:
             # 是否存在的标志
             return_flag = False
             # 检索电视剧的信息
-            tv_info = self.media.get_tmdb_tv_info(meta_info.tmdb_id)
+            tv_info = self.media.get_tmdb_info(mtype=MediaType.TV, tmdbid=meta_info.tmdb_id)
             if tv_info:
                 # 传入检查季
                 total_seasons = []

@@ -484,7 +484,7 @@ class WebAction:
             media_type = MediaType.MOVIE
         else:
             media_type = MediaType.ANIME
-        tmdb_info = Media().get_tmdb_info(media_type, None, None, tmdbid)
+        tmdb_info = Media().get_tmdb_info(mtype=media_type, tmdbid=tmdbid)
         if not tmdb_info:
             return {"retcode": 1, "retmsg": "识别失败，无法查询到TMDB信息"}
         # 自定义转移
@@ -1126,7 +1126,7 @@ class WebAction:
                         "vote_average": vote_average
                         }
         else:
-            tmdb_info = Media().get_tmdb_info(MediaType.MOVIE, None, None, tid)
+            tmdb_info = Media().get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=tid)
             if not tmdb_info:
                 return {"code": 1, "retmsg": "无法查询到TMDB信息"}
             poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path')
