@@ -223,8 +223,7 @@
                     <div><a
                         href="{% if not Item[9] %}javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}'){% else %}{{ Item[17] }}{% endif %}"
                         target="{% if Item[9] %}_blank{% endif %}"
-                        title="{% if not Item[9] %}点击添加下载{% else %}点击打开种子详情页面{% endif %}"><strong>{{
-                          Item[1]|replace("()", "") }}</strong></a><span class="badge ms-2">{{ Item[4] }}</span>
+                        title="{% if not Item[9] %}点击添加下载{% else %}点击打开种子详情页面{% endif %}"><strong>{{ Item[1]|replace("()", "") }}</strong></a><span class="badge ms-2">{{ Item[4] }}</span>
                         {% if Item[19] != 1.0 %}
                             <span class="badge ms-2 text-white bg-azure">{{ (Item[19] * 100) | int }}%UL</span>
                         {% endif %}

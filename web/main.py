@@ -724,15 +724,6 @@ def create_flask_app(config):
         # 近期上传下载各站点汇总
         CurrentUpload, CurrentDownload, CurrentSiteLabels, CurrentSiteUploads, CurrentSiteDownloads = get_site_statistics_recent_sites(
             days=7)
-        # 总上传下载历史
-        StatisticsHis = get_site_statistics_history(days=30)
-        TotalHisLabels = []
-        TotalUploadHis = []
-        TotalDownloadHis = []
-        for his in StatisticsHis:
-            TotalHisLabels.append(his[0])
-            TotalUploadHis.append(round(int(his[1]) / 1024 / 1024 / 1024))
-            TotalDownloadHis.append(round(int(his[2]) / 1024 / 1024 / 1024))
 
         # 站点用户数据
         SiteUserStatistics = get_site_user_statistics()
@@ -745,9 +736,6 @@ def create_flask_app(config):
                                SiteUploads=SiteUploads,
                                SiteRatios=SiteRatios,
                                SiteNames=SiteNames,
-                               TotalHisLabels=TotalHisLabels,
-                               TotalUploadHis=TotalUploadHis,
-                               TotalDownloadHis=TotalDownloadHis,
                                CurrentSiteLabels=CurrentSiteLabels,
                                CurrentSiteUploads=CurrentSiteUploads,
                                CurrentSiteDownloads=CurrentSiteDownloads,
