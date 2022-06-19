@@ -79,14 +79,38 @@ RSS_EXTRA_SITES = {
 }
 # 检测种子促销的PT站点XPATH，不在此清单的无法开启仅RSS免费种子功能
 GRAP_FREE_SITES = {
-    'pthome.net': ["//font[@class='free']", "//font[@class='twoupfree']"],
-    'ptsbao.club': ["//font[@class='free']", "//font[@class='twoupfree']"],
-    'totheglory.im': ["//img[@class='topic'][contains(@src,'ico_free.gif')]"],
-    'www.beitai.pt': ["//font[@class='free']", "//font[@class='twoupfree']"],
-    'hdtime.org': ["//font[@class='free']", "//font[@class='twoupfree']"],
-    'www.haidan.video': ["//img[@class='pro_free'][@title='免费']"],
-    'kp.m-team.cc': ["//font[@class='free']"],
-    'lemonhd.org': ["//font[@class='free'][text()='免费']"]
+    'pthome.net': {
+        'FREE': ["//font[@class='free']"],
+        '2XFREE': ["//font[@class='twoupfree']"]
+    },
+    'ptsbao.club':  {
+        'FREE': ["//font[@class='free']"],
+        '2XFREE': ["//font[@class='twoupfree']"]
+    },
+    'totheglory.im':  {
+        'FREE': ["//img[@class='topic'][contains(@src,'ico_free.gif')]"],
+        '2XFREE': []
+    },
+    'www.beitai.pt':  {
+        'FREE': ["//font[@class='free']"],
+        '2XFREE': ["//font[@class='twoupfree']"]
+    },
+    'hdtime.org':  {
+        'FREE': ["//font[@class='free']"],
+        '2XFREE': ["//font[@class='twoupfree']"]
+    },
+    'www.haidan.video':  {
+        'FREE': ["//img[@class='pro_free'][@title='免费']"],
+        '2XFREE': []
+    },
+    'kp.m-team.cc':  {
+        'FREE': ["//font[@class='free']"],
+        '2XFREE': ["//font[@class='twoupfree']"]
+    },
+    'lemonhd.org':  {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': ["//font[@class='twoupfree']"]
+    }
 }
 
 lock = Lock()

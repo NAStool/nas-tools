@@ -310,26 +310,32 @@ class Torrent:
         :param torrent_url: 种子的详情页面
         :param cookie: 站点的Cookie
         :param user_agent: user_agent
+        :return: 促销类型 FREE 2XFREE
         """
         if not torrent_url:
-            return False
+            return None
         url_host = parse.urlparse(torrent_url).netloc
         if not url_host:
-            return False
+            return None
         xpath_strs = GRAP_FREE_SITES.get(url_host)
         if not xpath_strs:
-            return False
+            return None
         res = RequestUtils(headers=user_agent, cookies=cookie).get_res(url=torrent_url)
         if res and res.status_code == 200:
             res.encoding = res.apparent_encoding
             html_text = res.text
             if not html_text:
-                return False
+                return None
             try:
                 html = etree.HTML(html_text)
-                for xpath_str in xpath_strs:
+                # 检测2XFREE
+                for xpath_str in xpath_strs.get("2XFREE"):
                     if html.xpath(xpath_str):
-                        return True
+                        return "2XFREE"
+                # 检测FREE
+                for xpath_str in xpath_strs.get("FREE"):
+                    if html.xpath(xpath_str):
+                        return "FREE"
             except Exception as err:
                 print(err)
-        return False
+        return None

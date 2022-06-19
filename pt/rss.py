@@ -87,7 +87,7 @@ class Rss:
                 rssurl = site_info[3]
                 rss_cookie = site_info[5]
                 # 是否仅RSS促销
-                rss_free = True if str(site_info[9]).split("|")[0] == "FREE" else False
+                rss_free = str(site_info[9]).split("|")[0] if str(site_info[9]).split("|")[0] in ["FREE", "2XFREE"] else None
                 if not rssurl:
                     log.info("【RSS】%s 未配置rssurl，跳过..." % str(rss_job))
                     continue
@@ -170,11 +170,17 @@ class Rss:
                             continue
                         # 判断种子是否免费
                         download_volume_factor = 1.0
+                        upload_volume_factor = 1.0
                         if rss_free:
-                            if Torrent.check_torrent_free(torrent_url=page_url, cookie=rss_cookie, user_agent=self.__user_agent):
-                                download_volume_factor = 0
-                            else:
-                                log.info("【RSS】%s 不是免费种子" % torrent_name)
+                            free_type = Torrent.check_torrent_free(torrent_url=page_url, cookie=rss_cookie, user_agent=self.__user_agent)
+                            if free_type == "2XFREE":
+                                download_volume_factor = 0.0
+                                upload_volume_factor = 2.0
+                            elif free_type == "FREE":
+                                download_volume_factor = 0.0
+                                upload_volume_factor = 1.0
+                            if rss_free != free_type:
+                                log.info("【RSS】%s 不是 %s 种子" % (torrent_name, rss_free))
                                 continue
                         # 返回对象
                         media_info.set_torrent_info(site_order=order_seq,
@@ -183,7 +189,8 @@ class Rss:
                                                     res_order=res_order,
                                                     size=size,
                                                     description=description,
-                                                    download_volume_factor=download_volume_factor)
+                                                    download_volume_factor=download_volume_factor,
+                                                    upload_volume_factor=upload_volume_factor)
                         # 插入数据库
                         insert_rss_torrents(media_info)
                         # 加入下载列表
