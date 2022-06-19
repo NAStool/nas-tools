@@ -141,7 +141,7 @@ class Message:
             "1.0 0.7": "70%",
             "1.0 0.3": "30%"
         }
-        msg_text = f"{msg_text}\n促销：{free_strs.get('%.1f %.1f') % (can_item.upload_volume_factor, can_item.download_volume_factor)}"
+        msg_text = f"{msg_text}\n促销：{free_strs.get('%.1f %.1f' % (can_item.upload_volume_factor, can_item.download_volume_factor))}"
         if can_item.description:
             html_re = re.compile(r'<[^>]+>', re.S)
             description = html_re.sub('', can_item.description)

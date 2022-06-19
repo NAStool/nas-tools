@@ -300,6 +300,8 @@ class WebAction:
             msg_item.overview = res[13]
             msg_item.enclosure = res[0]
             msg_item.site = res[14]
+            msg_item.upload_volume_factor = float(res[15] or 1.0)
+            msg_item.download_volume_factor = float(res[16] or 1.0)
             Message().send_download_message(SearchType.WEB, msg_item)
         return {"retcode": 0}
 
