@@ -305,6 +305,7 @@
       $("#site_free").append('<option value="" selected>全部</option>');
       if(ret.site_free){
         $("#site_free").append('<option value="FREE">免费</option>');
+        $("#site_free").append('<option value="2XFREE">2X免费</option>');
         $("#site_free").val(ret.site[0][9]);
       }
     });
