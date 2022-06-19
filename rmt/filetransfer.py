@@ -689,7 +689,7 @@ class FileTransfer:
         ret_file_path = None
         # 重命名要求
         format_dict = {
-            "title": media.title if not media.part else "%s-%s" % (media.title, media.part),
+            "title": media.title,
             "year": media.year,
             "edition": media.resource_type,
             "videoFormat": media.resource_pix,
@@ -698,7 +698,8 @@ class FileTransfer:
             "tmdbid": media.tmdb_id,
             "season": media.get_season_seq(),
             "episode": media.get_episode_seqs(),
-            "season_episode": "%s%s" % (media.get_season_item(), media.get_episode_items())
+            "season_episode": "%s%s" % (media.get_season_item(), media.get_episode_items()),
+            "part": media.part
         }
         # 电影
         if media.type == MediaType.MOVIE:
