@@ -37,7 +37,7 @@
                                 <tr>
                                     <th>索引</th>
                                     <th>标题</th>
-                                    <th class="text-nowrap">概述</th>
+                                    <th class="text-nowrap"><span class="d-none d-md-block">概述</span></th>
                                     <th class="w-5"></th>
                                     <th></th>
                                 </tr>
@@ -121,8 +121,7 @@
                                             {% endif %}
                                         </div>
                                     </td>
-                                    <td><span class="d-none d-md-block">{{ TmdbCache[1].overview|truncate(140,
-                                            True)}}</span><span class="d-md-none">...</span></td>
+                                    <td><span class="d-none d-md-block">{{ TmdbCache[1].overview|truncate(140, True)}}</span></td>
                                     <td>
                                         {% if TmdbCache[1].poster_path %}
                                         <img class="rounded"

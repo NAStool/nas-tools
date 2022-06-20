@@ -223,15 +223,30 @@ class Qbittorrent(IDownloadClient):
         :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
         :param tag: 下载时对种子的标记
         """
-        if not self.qbc:
+        if not self.qbc or not content:
             return False
         self.qbc.auth_log_in()
         if mtype == MediaType.TV:
-            qbc_ret = self.qbc.torrents_add(torrent_files=content, save_path=self.__tv_save_path, category=self.__tv_category, is_paused=is_paused, tags=tag)
+            save_path = self.__tv_save_path
+            category = self.__tv_category
         elif mtype == MediaType.MOVIE:
-            qbc_ret = self.qbc.torrents_add(torrent_files=content, save_path=self.__movie_save_path, category=self.__movie_category, is_paused=is_paused, tags=tag)
+            save_path = self.__movie_save_path
+            category = self.__movie_category
         else:
-            qbc_ret = self.qbc.torrents_add(torrent_files=content, save_path=self.__anime_save_path, category=self.__anime_category, is_paused=is_paused, tags=tag)
+            save_path = self.__anime_save_path
+            category = self.__anime_category
+        if isinstance(content, str):
+            qbc_ret = self.qbc.torrents_add(urls=content,
+                                            save_path=save_path,
+                                            category=category,
+                                            is_paused=is_paused,
+                                            tags=tag)
+        else:
+            qbc_ret = self.qbc.torrents_add(torrent_files=content,
+                                            save_path=save_path,
+                                            category=category,
+                                            is_paused=is_paused,
+                                            tags=tag)
         self.qbc.auth_log_out()
         return True if qbc_ret and str(qbc_ret).find("Ok") != -1 else False
 

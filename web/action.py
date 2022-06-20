@@ -1186,7 +1186,14 @@ class WebAction:
                 return {"code": 1, "retmsg": "无法查询到TMDB信息"}
             episode_events = []
             air_date = tmdb_info.get("air_date")
-            poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get("poster_path") if tmdb_info.get("poster_path") else ""
+            if not tmdb_info.get("poster_path"):
+                tv_tmdb_info = Media().get_tmdb_info(mtype=MediaType.TV, tmdbid=tid)
+                if tv_tmdb_info:
+                    poster_path = "https://image.tmdb.org/t/p/w500%s" % tv_tmdb_info.get("poster_path")
+                else:
+                    poster_path = ""
+            else:
+                poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get("poster_path")
             year = air_date[0:4] if air_date else ""
             for episode in tmdb_info.get("episodes"):
                 episode_events.append({

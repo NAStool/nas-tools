@@ -349,6 +349,8 @@ class Torrent:
         if not url:
             return None, "URL为空"
         try:
+            if url.startswith("magnet:"):
+                return url, "磁力链接"
             req = requests.get(url=url, headers=DEFAULT_HEADERS, timeout=30)
             if req and req.status_code == 200:
                 if not req.content:
