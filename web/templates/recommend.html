@@ -13,7 +13,7 @@
   <div class="container-xl">
     <div class="row row-cards">
       {% for item in Items %}
-      <div class="col-sm-6 col-md-3 col-xl-2">
+      <div class="col-6 col-sm-4 col-md-3 col-xl-2">
         <div class="card card-sm card-link-pop rounded-3">
           {% if item.vote > 0%}
           <div class="ribbon {% if item.vote > 8 %} bg-green {% elif item.vote <= 8 and item.vote > 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ item.vote }}</div>
