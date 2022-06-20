@@ -83,6 +83,7 @@ class DouBan:
         """
         movie_list = []
         start_number = 0
+        perpage_number = 15
         # 每一个用户
         for user in self.__users:
             if not user:
@@ -93,23 +94,31 @@ class DouBan:
                 if not mtype:
                     continue
                 log.info(f"【DOUBAN】开始获取 {user} 的 {mtype} 数据...")
-                err_url = []
                 user_type_succnum = 0
                 # 每一页
                 while True:
-                    page_number = int(start_number / 15 + 1)
+                    page_number = int(start_number / perpage_number + 1)
                     # 每一页的文本
                     log.debug(f"【DOUBAN】开始解析第 {page_number} 页数据...")
                     soup = self.get_html_soup(user_id=user, media_status=mtype, start_number=start_number)
-                    # 获取全部url
+                    if not soup:
+                        break
+                    # 获取当前页全部url及有效数据量
                     url_dict = self.__get_url_list(soup, self.__days)
-                    url_list = url_dict["url_list"]
-                    url_num = len(url_list)
-                    log.debug(f"【DOUBAN】第 {page_number} 页有 {url_num} 个媒体")
-                    monitoring_info = url_dict["monitoring_info"]
+                    if not url_dict:
+                        break
+                    # 当页有效数据量及是否继续下一页
+                    monitoring_info = url_dict.get("monitoring_info")
                     log.debug(f"【DOUBAN】本页监控日期内的数据为：{monitoring_info[0]}")
                     log.debug(f"【DOUBAN】是否继续访问下一页：{monitoring_info[1]}")
+                    # URL列表
+                    url_list = url_dict.get("url_list")
+                    if not url_list:
+                        break
+                    log.debug(f"【DOUBAN】第 {page_number} 页有 {len(url_list)} 个媒体")
+                    # 当前页成功数量
                     sucess_urlnum = 0
+                    # 当前页URL数量
                     url_count = 0
                     for url in url_list:
                         if url_count == monitoring_info[0] and not monitoring_info[1]:
@@ -124,25 +133,22 @@ class DouBan:
                         # 每一个条目的内容
                         media_soup = self.get_html_soup(user_id=user, url=url, media_status=mtype)
                         if not media_soup:
-                            log.warn(f"【DOUBAN】访问该页面出现问题，媒体链接：{url}")
-                            err_url.append(url)
+                            continue
                         else:
                             movie_dict = self.__get_movie_dict(media_soup)
-                            if movie_dict:
-                                # 加入数组
-                                if movie_dict not in movie_list:
-                                    log.info(f"【DOUBAN】解析到媒体：%s" % movie_dict.get_name())
-                                    movie_list.append(movie_dict)
-                                    sucess_urlnum += 1
-                                    user_type_succnum += 1
-                                    user_succnum += 1
-                    if monitoring_info[1] is False:
-                        break
-                    if url_num > 14:
-                        start_number += 15
-                    else:
+                            if movie_dict and movie_dict not in movie_list:
+                                log.info(f"【DOUBAN】解析到媒体：%s" % movie_dict.get_name())
+                                movie_list.append(movie_dict)
+                                sucess_urlnum += 1
+                                user_type_succnum += 1
+                                user_succnum += 1
+                    # 当前页解析结束
+                    if not monitoring_info[1]:
                         break
                     log.debug(f"【DOUBAN】第 {page_number} 页解析完成，共获取到 {sucess_urlnum} 个媒体")
+                    # 继续下一页
+                    start_number += perpage_number
+                # 当前类型解析结束
                 log.debug(f"【DOUBAN】用户 {user} 的 {mtype} 解析完成，共获取到 {user_type_succnum} 个媒体")
             log.info(f"【DOUBAN】用户 {user} 解析完成，共获取到 {user_succnum} 个媒体")
         log.info(f"【DOUBAN】所有用户解析完成，共获取到 {len(movie_list)} 个媒体")
@@ -155,6 +161,8 @@ class DouBan:
         解析个人wish/do/collect内容的每个url
         :return: { url_list: [url数组], monitoring_info: [符合日期的个数,是否继续]}
         """
+        if not soup:
+            return {}
         url_list = []
         continue_request = True
         monitoring_info = [0, continue_request]
@@ -227,7 +235,7 @@ class DouBan:
                 log.warn(f"【DOUBAN】该页面不存在：{url}")
                 return None
             else:
-                log.error(f"【DOUBAN】网络连接失败：{url}")
+                log.error(f"【DOUBAN】打开页面失败：{url}")
                 return None
         except Exception as err:
             log.error(f"【RUN】获取{url}页面失败：{format(err)}")
