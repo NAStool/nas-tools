@@ -593,7 +593,7 @@ def create_flask_app(config):
                     fav = 0
             image = res.get('poster_path')
             if RecommendType in ['hm', 'nm', 'ht', 'nt']:
-                image = "https://image.tmdb.org/t/p/original/%s" % image
+                image = "https://image.tmdb.org/t/p/original/%s" % image if image else ""
             else:
                 # 替换图片分辨率
                 image = image.replace("s_ratio_poster", "m_ratio_poster")

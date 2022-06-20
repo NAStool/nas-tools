@@ -204,8 +204,7 @@
           <div class="col-sm-6 {% if Count > 8 %}col-xl-4{% else %}col-md-4 col-xl-3{% endif %} media_card" id="media_card_{{ Item[0] }}">
             <div class="card card-sm card-link-pop rounded-3">
               {% if Item[11] > 0 %}
-              <div
-                class="ribbon {% if Item[11] > 8 %} bg-green {% elif Item[11] <= 8 and Item[11] >= 6 %} bg-blue {% else %} bg-orange {% endif %}">
+              <div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">
                 {{ Item[11] }}</div>
               {% endif %}
               {% if Item[9] %}

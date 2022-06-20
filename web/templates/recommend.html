@@ -16,26 +16,17 @@
       <div class="col-6 col-sm-4 col-md-3 col-xl-2">
         <div class="card card-sm card-link-pop rounded-3">
           {% if item.vote > 0%}
-          <div class="ribbon {% if item.vote > 8 %} bg-green {% elif item.vote <= 8 and item.vote > 6 %} bg-blue {% else %} bg-orange {% endif %}">{{ item.vote }}</div>
+          <div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">{{ item.vote }}</div>
           {% endif %}
           <a href='javascript:show_mediainfo_modal("{{ RecommendType }}", "{{ item.title }}", "{{ item.year }}", "{% if RecommendType in ["hm", "nm", "ht", "nt"] %}{% else %}DB:{% endif %}{{ item.id }}", "recommend?t={{ RecommendType }}")' title="{{ item.overview }}" class="d-block">
-            <img src="{{ item.image }}" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">
+            <img src="{{ item.image or '../static/img/no-image.png' }}" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">
           </a>
           <div class="card-body">
             <div class="d-flex align-items-center">
               <div>
                 <div><strong>{{ item.title }}</strong></div>
-                <div class="text-muted">{{ item.year }}</div>
               </div>
               <div class="ms-auto">
-                <a href="javascript:navmenu('search?s={{ item.title }} {{ item.year }}&f=1')" class="text-muted" title="立即搜索">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                     <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
-                     <path d="M12 21h-5a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v4.5"></path>
-                     <circle cx="16.5" cy="17.5" r="2.5"></circle>
-                     <line x1="18.5" y1="19.5" x2="21" y2="22"></line>
-                  </svg></a>
                 <a id="recommend_link_{{ item.id }}" href='{% if item.fav == 0 %} javascript:show_recommend_add_modal("{{ item.id }}","{{ RecommendType }}","{{ item.title }}","{{ item.year }}"){% elif item.fav == 1 %}javascript:show_recommend_del_modal("{{ item.id }}","{{ RecommendType }}","{{ item.title }}","{{ item.year }}"){% else %}javascript:void(0){% endif %}' class="text-muted" title="{% if item.fav in [0,1] %}加入/取消订阅{% else %}已下载{% endif %}">
                   <svg id="recommend_svg_{{ item.id }}" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart {% if item.fav == 0 %}{% elif item.fav == 1 %}icon-filled text-red{% else %}icon-filled text-green{% endif %}" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>

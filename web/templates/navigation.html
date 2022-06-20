@@ -533,7 +533,7 @@
       <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="card">
-            <div class="ribbon" id="system_media_vote"></div>
+            <div class="ribbon ribbon-top ribbon-bookmark bg-purple" id="system_media_vote"></div>
             <div class="card-body">
               <div class="row align-items-center">
                 <div class="col-3">
@@ -648,13 +648,6 @@
             $("#system_release_date").text(ret.release_date)
             $("#system_media_poster").attr("src", ret.poster_path);
             $("#system_media_overview").text(ret.overview);
-            if(parseFloat(ret.vote_average) > 8){
-              $("#system_media_vote").removeClass().addClass("ribbon bg-green");
-            }else if(parseFloat(ret.vote_average) > 6){
-              $("#system_media_vote").removeClass().addClass("ribbon bg-blue");
-            }else{
-              $("#system_media_vote").removeClass().addClass("ribbon bg-orange");
-            }
             if(!ret.vote_average || ret.vote_average == "0"){
               $("#system_media_vote").hide();
             }else{
