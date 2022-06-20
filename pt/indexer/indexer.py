@@ -164,7 +164,7 @@ class IIndexer(metaclass=ABCMeta):
                 continue
 
             if meta_info.type == MediaType.TV and filter_args.get("type") == MediaType.MOVIE:
-                log.info(f"【{self.index_type}】{torrent_name} 是 {meta_info.type.value}，不匹配类型：{filter_args.get('type')}")
+                log.info(f"【{self.index_type}】{torrent_name} 是 {meta_info.type.value}，不匹配类型：{filter_args.get('type').value}")
                 continue
 
             # 有高级过滤条件时，先过滤一遍
@@ -207,7 +207,7 @@ class IIndexer(metaclass=ABCMeta):
                 if filter_args.get("type"):
                     if filter_args.get("type") == MediaType.TV and media_info.type == MediaType.MOVIE \
                             or filter_args.get("type") == MediaType.MOVIE and media_info.type == MediaType.TV:
-                        log.info(f"【{self.index_type}】{torrent_name} 是 {media_info.type.value}，不匹配类型：{filter_args.get('type')}")
+                        log.info(f"【{self.index_type}】{torrent_name} 是 {media_info.type.value}，不匹配类型：{filter_args.get('type').value}")
                         continue
 
                 # 名称是否匹配
