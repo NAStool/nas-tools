@@ -13,10 +13,10 @@
     <!-- CSS files -->
     <link href="../static/css/tabler.min.css" rel="stylesheet"/>
   </head>
-  <body  class="d-flex flex-column" style="overflow:hidden; background-image:url({{ BingWallpaper }}); background-size:cover; background-position:center;">
+  <body  class="d-flex flex-column" style="overflow:hidden; background-image:url({{ LoginWallpaper }}); background-size:cover; background-position:center;">
     <div class="page page-center">
       <div class="container-tight py-4">
-        <form class="card card-md" action="/" method="post" autocomplete="off" style="{% if BingWallpaper %}background-color:rgba(255,255,255,0.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px){% endif %}">
+        <form class="card card-md" action="/" method="post" autocomplete="off" style="{% if LoginWallpaper %}background-color:rgba(255,255,255,0.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px){% endif %}">
           <input type="hidden" name="next" value="{{ GoPage }}" />
           <div class="card-body">
             <div class="text-center mb-4">

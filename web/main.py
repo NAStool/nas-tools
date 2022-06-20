@@ -150,7 +150,7 @@ def create_flask_app(config):
                 if userid is None or username is None:
                     return render_template('login.html',
                                            GoPage=GoPage,
-                                           BingWallpaper=get_random_discover_backdrop())
+                                           LoginWallpaper=get_random_discover_backdrop())
                 else:
                     return render_template('navigation.html',
                                            GoPage=GoPage,
@@ -161,7 +161,7 @@ def create_flask_app(config):
             else:
                 return render_template('login.html',
                                        GoPage=GoPage,
-                                       BingWallpaper=get_random_discover_backdrop())
+                                       LoginWallpaper=get_random_discover_backdrop())
 
         else:
             GoPage = request.form.get('next') or ""
@@ -173,13 +173,13 @@ def create_flask_app(config):
             if not username:
                 return render_template('login.html',
                                        GoPage=GoPage,
-                                       BingWallpaper=get_random_discover_backdrop(),
+                                       LoginWallpaper=get_random_discover_backdrop(),
                                        err_msg="请输入用户名")
             user_info = get_user(username)
             if not user_info:
                 return render_template('login.html',
                                        GoPage=GoPage,
-                                       BingWallpaper=get_random_discover_backdrop(),
+                                       LoginWallpaper=get_random_discover_backdrop(),
                                        err_msg="用户名或密码错误")
             # 创建用户实体
             user = User(user_info)
@@ -198,7 +198,7 @@ def create_flask_app(config):
             else:
                 return render_template('login.html',
                                        GoPage=GoPage,
-                                       BingWallpaper=get_random_discover_backdrop(),
+                                       LoginWallpaper=get_random_discover_backdrop(),
                                        err_msg="用户名或密码错误")
 
     # 开始
