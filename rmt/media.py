@@ -714,3 +714,16 @@ class Media:
             if crew.get("job") == "Director":
                 directors.append(crew)
         return directors, actors
+
+    def get_movie_discover(self, page=1):
+        """
+        发现电影
+        """
+        if not self.movie:
+            return {}
+        try:
+            movies = self.movie.discover(page)
+            return movies
+        except Exception as e:
+            log.console(str(e))
+            return {}
