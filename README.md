@@ -2,6 +2,7 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/jxxghp/nas-tools?style=plastic)](https://github.com/jxxghp/nas-tools/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/jxxghp/nas-tools?style=plastic)](https://github.com/jxxghp/nas-tools/issues)
+<a href="https://github.com/jxxghp/nas-tools/blob/master/LICENSE.md"><img src="https://img.shields.io/npm/l/tabler.svg?label=License&message=GPL&color=1c7ed6" alt="License"></a>
 
 Docker：https://hub.docker.com/repository/docker/jxxghp/nas-tools
 
