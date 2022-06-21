@@ -62,15 +62,15 @@ def num_filesize(text):
     except Exception as e:
         print(str(e))
         return 0
-    if text.find("PB") != -1:
+    if text.find("PB") != -1 or text.find("PIB") != -1:
         size *= 1024 ** 5
-    elif text.find("TB") != -1:
+    elif text.find("TB") != -1 or text.find("TIB") != -1:
         size *= 1024 ** 4
-    elif text.find("GB") != -1:
+    elif text.find("GB") != -1 or text.find("GIB") != -1:
         size *= 1024 ** 3
-    elif text.find("MB") != -1:
+    elif text.find("MB") != -1 or text.find("MIB") != -1:
         size *= 1024 ** 2
-    elif text.find("KB") != -1:
+    elif text.find("KB") != -1 or text.find("KIB") != -1:
         size *= 1024
     return round(size)
 

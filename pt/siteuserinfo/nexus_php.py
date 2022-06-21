@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 
 from pt.siteuserinfo.site_user_info import ISiteUserInfo
 from utils.functions import num_filesize
+from lxml import etree
 
 
 class NexusPhpSiteUserInfo(ISiteUserInfo):
@@ -29,6 +30,15 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         user_name = re.search(r"userdetails.php\?id=\d+[a-zA-Z\"'=_\-\s]+>[<b>\s]*([^<>]*)[</b>]*</a>", html_text)
         if user_name and user_name.group(1).strip():
             self.username = user_name.group(1).strip()
+            return
+        html = etree.HTML(html_text)
+        ret = html.xpath('//a[contains(@href, "userdetails")]//b//text()')
+        if ret:
+            self.username = str(ret[-1])
+            return
+        ret = html.xpath('//a[contains(@href, "userdetails")]//text()')
+        if ret:
+            self.username = str(ret[-1])
 
     def _parse_user_traffic_info(self, html_text):
         """
@@ -54,15 +64,20 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         self.leeching = int(leeching_match.group(2).strip()) if leeching_match and leeching_match.group(
             2).strip() else 0
 
-        bonus_match = re.search(r"mybonus.[\[\]:：<>/a-zA-Z_\-=\"'\s#;.(使用魔力值豆]+\s*([\d,.]+)[<()&\s]", html_text)
-        try:
-            if bonus_match and bonus_match.group(1).strip():
-                self.bonus = float(bonus_match.group(1).strip().replace(',', ''))
-            bonus_match = re.search(r"[魔力值|\]][\[\]:：<>/a-zA-Z_\-=\"'\s#;]+\s*([\d,.]+)[<()&\s]", html_text, flags=re.S)
-            if bonus_match and bonus_match.group(1).strip():
-                self.bonus = float(bonus_match.group(1).strip().replace(',', ''))
-        except Exception as err:
-            print(str(err))
+        html = etree.HTML(html_text)
+        tmps = html.xpath('//span[@class = "ucoin-symbol ucoin-gold"]//text()')
+        if tmps:
+            self.bonus = float(str(tmps[-1]).strip())
+        else:
+            bonus_match = re.search(r"mybonus.[\[\]:：<>/a-zA-Z_\-=\"'\s#;.(使用魔力值豆]+\s*([\d,.]+)[<()&\s]", html_text)
+            try:
+                if bonus_match and bonus_match.group(1).strip():
+                    self.bonus = float(bonus_match.group(1).strip().replace(',', ''))
+                bonus_match = re.search(r"[魔力值|\]][\[\]:：<>/a-zA-Z_\-=\"'\s#;]+\s*([\d,.]+)[<()&\s]", html_text, flags=re.S)
+                if bonus_match and bonus_match.group(1).strip():
+                    self.bonus = float(bonus_match.group(1).strip().replace(',', ''))
+            except Exception as err:
+                print(str(err))
 
     def _parse_user_torrent_seeding_info(self, html_text):
         """
@@ -87,6 +102,8 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         soup = BeautifulSoup(html_text, "lxml")
         for tr in soup.find_all('tr')[1:]:
             tds = tr.find_all('td')
+            if len(tds) == 0:
+                continue
             if "当前上传" == tds[0].text.strip():
                 # seeding size 获取不到的话，此处再获取一次
                 if tds[1].table and self.seeding_size == 0:
