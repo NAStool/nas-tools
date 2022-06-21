@@ -222,20 +222,23 @@
                     <div><a
                         href="{% if not Item[9] %}javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}'){% else %}{{ Item[17] }}{% endif %}"
                         target="{% if Item[9] %}_blank{% endif %}"
-                        title="{% if not Item[9] %}点击添加下载{% else %}点击打开种子详情页面{% endif %}"><strong>{{ Item[1]|replace("()", "") }}</strong></a><span class="badge ms-2">{{ Item[4] }}</span>
+                        title="{% if not Item[9] %}点击添加下载{% else %}点击打开种子详情页面{% endif %}">
+                      <strong>{% if Item[14] or not Item[13] %}{{ Item[1]|replace("()", "") }}{% else %} {{ Item[13] }} {% endif %}</strong></a>
+                      <span class="badge ms-2">{{ Item[4] }}</span>
                         {% if Item[19] != 1.0 %}
-                            <span class="badge ms-2 text-white bg-azure">{{ (Item[19] * 100) | int }}%UL</span>
+                            <span class="badge text-white bg-azure">{{ (Item[19] * 100) | int }}%UL</span>
                         {% endif %}
                         {% if Item[20] != 1.0 %}
                             {% if Item[20] == 0.0 %}
-                                <span class="badge ms-2 text-white bg-lime">FREE</span>
+                                <span class="badge text-white bg-lime">FREE</span>
                             {% else %}
-                                <span class="badge ms-2 text-white bg-blue">{{ (Item[20] * 100) | int }}%DL</span>
+                                <span class="badge text-white bg-blue">{{ (Item[20] * 100) | int }}%DL</span>
                             {% endif %}
                         {% endif %}
                     </div>
-                    <div class="text-muted"><strong class="media_card_info">{{ Item[6]}} {{ Item[2]}} {{
-                        Item[3]}}</strong></div>
+                    <div class="text-muted mt-1">
+                      <strong class="media_card_info"><span class="badge badge-outline text-blue">{{ Item[6]}}</span> <span class="badge badge-outline text-orange">{{ Item[2]}}</span> <span class="badge badge-outline text-yellow">{{ Item[3]}}</span></strong>
+                    </div>
                   </div>
                 </div>
                 {% if Item[12] %}
@@ -266,7 +269,7 @@
                   <small>{{ Item[12] }}</small>
                 </div>
                 {% endif %}
-                {% if Item[13] %}
+                {% if Item[14] and Item[13] %}
                 <div class="text-muted">
                   <small>{{ Item[13] }}</small>
                 </div>
