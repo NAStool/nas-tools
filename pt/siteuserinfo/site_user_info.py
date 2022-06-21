@@ -71,11 +71,14 @@ class ISiteUserInfo(metaclass=ABCMeta):
         :return:
         """
         self._parse_site_page(self._index_html)
-        self._parse_user_base_info(self._get_page_content(urljoin(self._base_url, self._brief_page)))
-        self._parse_user_traffic_info(self._get_page_content(urljoin(self._base_url, self._user_traffic_page)))
-        self._parse_user_torrent_seeding_info(
-            self._get_page_content(urljoin(self._base_url, self._torrent_seeding_page)))
-        self._parse_user_detail_info(self._get_page_content(urljoin(self._base_url, self._user_detail_page)))
+        if self._brief_page:
+            self._parse_user_base_info(self._get_page_content(urljoin(self._base_url, self._brief_page)))
+        if self._user_traffic_page:
+            self._parse_user_traffic_info(self._get_page_content(urljoin(self._base_url, self._user_traffic_page)))
+        if self._torrent_seeding_page:
+            self._parse_user_torrent_seeding_info(self._get_page_content(urljoin(self._base_url, self._torrent_seeding_page)))
+        if self._user_detail_page:
+            self._parse_user_detail_info(self._get_page_content(urljoin(self._base_url, self._user_detail_page)))
 
     @staticmethod
     def _prepare_html_text(html_text):

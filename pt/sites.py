@@ -78,10 +78,9 @@ class Sites:
             site_url = site_url[:split_pos]
         site_cookie = str(site_info[5])
         try:
-            res = RequestUtils(headers=self.__user_agent, cookies=site_cookie).get_res(url=site_url)
-            if res and res.status_code == 200:
-                site_user_info = SiteUserInfoFactory.build(url=site_url, user_agent=self.__user_agent,
-                                                           site_cookie=site_cookie)
+            site_user_info = SiteUserInfoFactory.build(url=site_url, site_name=site_name, user_agent=self.__user_agent,
+                                                       site_cookie=site_cookie)
+            if site_user_info:
                 log.debug(f"【PT】站点 {site_name} 开始以 {site_user_info.site_schema()} 模型解析")
                 # 开始解析
                 site_user_info.parse()
@@ -104,11 +103,6 @@ class Sites:
                                                 seeding_size=site_user_info.seeding_size,
                                                 leeching=site_user_info.leeching, bonus=site_user_info.bonus,
                                                 url=site_url)
-
-            elif not res:
-                log.error("【PT】站点 %s 连接失败：%s" % (site_name, site_url))
-            else:
-                log.error("【PT】站点 %s 获取流量数据失败，状态码：%s" % (site_name, res.status_code))
         except Exception as e:
             log.error("【PT】站点 %s 获取流量数据失败：%s - %s" % (site_name, str(e), traceback.format_exc()))
 
