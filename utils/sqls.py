@@ -478,7 +478,7 @@ def insert_rss_movie(media_info: MetaBase, state='D', sites: list = None):
                                str_sql(media_info.year),
                                str_sql(media_info.tmdb_id),
                                str_sql(media_info.get_backdrop_path()),
-                               "" if not sites else "|".join(sites),
+                               "" if not sites else "|".join(sites) + "|",
                                state))
 
 
@@ -587,7 +587,7 @@ def insert_rss_tv(media_info: MetaBase, total, lack=0, state="D", sites: list = 
                                media_info.get_season_string(),
                                str_sql(media_info.tmdb_id),
                                str_sql(media_info.get_backdrop_path()),
-                               "" if not sites else "|".join(sites),
+                               "" if not sites else "|".join(sites) + "|",
                                total,
                                lack,
                                state))

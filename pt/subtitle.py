@@ -1,4 +1,5 @@
 import os.path
+from functools import lru_cache
 
 import requests
 from pythonopensubtitles.opensubtitles import OpenSubtitles
@@ -56,6 +57,10 @@ class Subtitle:
         elif self.__server == "chinesesubfinder":
             self.__download_chinesesubfinder(items)
 
+    @lru_cache(maxsize=128)
+    def search_opensubtitles(self, name):
+        return self.__ost.search_subtitles([{'sublanguageid': 'chi', 'query': name}])
+
     def __download_opensubtitles(self, items):
         """
         调用OpenSubtitles Api下载字幕
@@ -72,7 +77,7 @@ class Subtitle:
             subtitles = subtitles_cache.get(item.get("name"))
             if subtitles is None:
                 log.info("【SUBTITLE】开始从Opensubtitle.org检索字幕: %s" % item.get("name"))
-                subtitles = self.__ost.search_subtitles([{'sublanguageid': 'chi', 'query': item.get("name")}])
+                subtitles = self.search_opensubtitles(item.get("name"))
                 if not subtitles:
                     subtitles_cache[item.get("name")] = []
                     log.info("【SUBTITLE】%s 未检索到字幕" % item.get("name"))

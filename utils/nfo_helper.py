@@ -23,6 +23,8 @@ class NfoHelper:
         uniqueid = add_node(doc, root, "uniqueid", tmdbinfo.get("id"))
         uniqueid.setAttribute("type", "tmdb")
         uniqueid.setAttribute("default", "true")
+        # tmdbid
+        add_node(doc, root, "tmdbid", tmdbinfo.get("id"))
         # 简介
         xplot = add_node(doc, root, "plot")
         xplot.appendChild(doc.createCDATASection(tmdbinfo.get("overview")))
@@ -66,8 +68,6 @@ class NfoHelper:
         add_node(doc, root, "premiered", tmdbinfo.get("release_date"))
         # 年份
         add_node(doc, root, "year", tmdbinfo.get("release_date")[:4])
-        # tmdbid
-        add_node(doc, root, "tmdbid", tmdbinfo.get("id"))
         # 保存
         self.__save_nfo(doc, os.path.join(out_path, "%s.nfo" % file_name))
 
@@ -91,8 +91,6 @@ class NfoHelper:
         add_node(doc, root, "year", tmdbinfo.get("first_air_date")[:4])
         add_node(doc, root, "season", "-1")
         add_node(doc, root, "episode", "-1")
-        # tmdbid
-        add_node(doc, root, "tmdbid", tmdbinfo.get("id"))
         # 保存
         self.__save_nfo(doc, os.path.join(out_path, "tvshow.nfo"))
 
@@ -136,8 +134,15 @@ class NfoHelper:
         # 开始生成集的信息
         doc = minidom.Document()
         root = add_node(doc, doc, "episodedetails")
-        # 公共部分
-        doc = self.__gen_common_nfo(tmdbinfo, doc, root)
+        # 添加时间
+        add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        # TMDBID
+        uniqueid = add_node(doc, root, "uniqueid", tmdbinfo.get("id"))
+        uniqueid.setAttribute("type", "tmdb")
+        uniqueid.setAttribute("default", "true")
+        # tmdbid
+        add_node(doc, root, "tmdbid", tmdbinfo.get("id"))
+        # 集的信息
         episode_detail = {}
         for episode_info in tmdbinfo.get("episodes"):
             if int(episode_info.get("episode_number")) == int(episode):
@@ -146,13 +151,25 @@ class NfoHelper:
             return
         # 标题
         add_node(doc, root, "title", episode_detail.get("name") or "第 %s 集" % episode)
+        # 简介
+        xplot = add_node(doc, root, "plot")
+        xplot.appendChild(doc.createCDATASection(episode_detail.get("overview")))
+        xoutline = add_node(doc, root, "outline")
+        xoutline.appendChild(doc.createCDATASection(episode_detail.get("overview")))
+        # 导演
+        directors = episode_detail.get("crew") or []
+        for director in directors:
+            if director.get("known_for_department") == "Directing":
+                xdirector = add_node(doc, root, "director", director.get("name"))
+                xdirector.setAttribute("tmdbid", str(director.get("id")))
         # 演员
-        actors = episode_detail.get("cast") or []
+        actors = episode_detail.get("guest_stars") or []
         for actor in actors:
-            xactor = add_node(doc, root, "actor")
-            add_node(doc, xactor, "name", actor.get("name"))
-            add_node(doc, xactor, "type", "Actor")
-            add_node(doc, xactor, "tmdbid", actor.get("id"))
+            if actor.get("known_for_department") == "Acting":
+                xactor = add_node(doc, root, "actor")
+                add_node(doc, xactor, "name", actor.get("name"))
+                add_node(doc, xactor, "type", "Actor")
+                add_node(doc, xactor, "tmdbid", actor.get("id"))
         # 发布日期
         add_node(doc, root, "aired", episode_detail.get("air_date"))
         # 年份
@@ -161,6 +178,8 @@ class NfoHelper:
         add_node(doc, root, "season", season)
         # 集
         add_node(doc, root, "episode", episode)
+        # 评分
+        add_node(doc, root, "rating", episode_detail.get("vote_average"))
         self.__save_nfo(doc, os.path.join(out_path, os.path.join(out_path, "%s.nfo" % file_name)))
 
     @staticmethod

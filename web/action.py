@@ -923,7 +923,7 @@ class WebAction:
             if rssid:
                 sites = get_rss_movie_sites(rssid=rssid)
                 if sites.find('|') != -1:
-                    sites = sites.split('|')
+                    sites = [site for site in sites.split('|') if site]
                 else:
                     sites = []
             else:
@@ -978,14 +978,11 @@ class WebAction:
             if rssid:
                 sites = get_rss_tv_sites(rssid=rssid)
                 if sites.find('|') != -1:
-                    if sites.find('|') != -1:
-                        sites = sites.split('|')
-                    else:
-                        sites = []
+                    sites = [site for site in sites.split('|') if site]
                 else:
                     sites = []
             else:
-                sites = ""
+                sites = []
 
             # 查下载信息
 

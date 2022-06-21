@@ -247,6 +247,7 @@ class DBHelper:
         except Exception as e:
             log.error(f"【DB】创建数据库错误：{e}")
         finally:
+            cursor.close()
             self.__pools.free(conn)
 
     def excute(self, sql, data):
@@ -264,6 +265,7 @@ class DBHelper:
             log.error(f"【DB】执行SQL出错：sql:{sql}; parameters:{data}; {e}")
             return False
         finally:
+            cursor.close()
             self.__pools.free(conn)
         return True
 
@@ -279,6 +281,7 @@ class DBHelper:
             log.error(f"【DB】执行SQL出错：sql:{sql}; {e}")
             return False
         finally:
+            cursor.close()
             self.__pools.free(conn)
         return True
 
@@ -297,6 +300,7 @@ class DBHelper:
             log.error(f"【DB】执行SQL出错：sql:{sql}; parameters:{data}; {e}")
             return []
         finally:
+            cursor.close()
             self.__pools.free(conn)
         return ret
 

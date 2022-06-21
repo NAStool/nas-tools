@@ -58,22 +58,41 @@ class Rss:
         try:
             lock.acquire()
             log.info("【RSS】开始RSS订阅...")
-            # 读取关键字配置
+            # 读取电影订阅
             movie_keys = get_rss_movies(state='R')
             if not movie_keys:
-                log.warn("【RSS】未订阅电影")
+                log.warn("【RSS】没有正在订阅的电影")
             else:
                 log.info("【RSS】电影订阅清单：%s" % " ".join('%s' % key[0] for key in movie_keys))
-
+            # 读取电视剧订阅
             tv_keys = get_rss_tvs(state='R')
             if not tv_keys:
-                log.warn("【RSS】未订阅电视剧")
+                log.warn("【RSS】没有正在订阅的电视剧")
             else:
                 log.info("【RSS】电视剧订阅清单：%s" % " ".join('%s' % key[0] for key in tv_keys))
-
+            # 没有订阅退出
             if not movie_keys and not tv_keys:
                 return
-
+            # 获取有订阅的站点范围
+            check_sites = []
+            check_all = False
+            for movie in movie_keys:
+                if not movie[4] or movie[4].find("|") == -1:
+                    check_all = True
+                    break
+                else:
+                    check_sites += movie[4].split("|")
+            if not check_all:
+                for tv in tv_keys:
+                    if not tv[5] or tv[5].find("|") == -1:
+                        check_all = True
+                        break
+                    else:
+                        check_sites += tv[5].split("|")
+            if check_all:
+                check_sites = []
+            else:
+                check_sites = [site for site in check_sites if site]
             # 代码站点配置优先级的序号
             order_seq = 100
             rss_download_torrents = []
@@ -81,32 +100,35 @@ class Rss:
             for site_info in self.__sites:
                 if not site_info:
                     continue
-                order_seq -= 1
-                # 读取子配置
+                # 站点名称
                 rss_job = site_info[1]
+                # 没有订阅的站点中的不检索
+                if check_sites and rss_job not in check_sites:
+                    continue
                 rssurl = site_info[3]
-                rss_cookie = site_info[5]
-                # 是否仅RSS促销
-                rss_free = str(site_info[9]).split("|")[0] if str(site_info[9]).split("|")[0] in ["FREE", "2XFREE"] else None
                 if not rssurl:
                     log.info("【RSS】%s 未配置rssurl，跳过..." % str(rss_job))
                     continue
+                rss_cookie = site_info[5]
+                # 是否仅RSS促销
+                rss_free = str(site_info[9]).split("|")[0] if str(site_info[9]).split("|")[0] in ["FREE", "2XFREE"] else None
+                # 过滤条件
                 if site_info[6] or site_info[7] or site_info[8]:
                     include = str(site_info[6]).split("\n")
                     exclude = str(site_info[7]).split("\n")
                     res_type = {"include": include, "exclude": exclude, "size": site_info[8], "note": self.__rss_rule}
                 else:
                     res_type = None
-
                 # 开始下载RSS
                 log.info("【RSS】正在处理：%s" % rss_job)
+                order_seq -= 1
                 rss_result = self.parse_rssxml(rssurl)
                 if len(rss_result) == 0:
                     log.warn("【RSS】%s 未下载到数据" % rss_job)
                     continue
                 else:
                     log.info("【RSS】%s 获取数据：%s" % (rss_job, len(rss_result)))
-
+                # 处理RSS结果
                 res_num = 0
                 for res in rss_result:
                     try:

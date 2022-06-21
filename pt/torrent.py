@@ -31,7 +31,7 @@ class Torrent:
                 tmdbid = key_info[2]
                 sites = key_info[4]
                 # 未订阅站点不匹配
-                if sites and sites.find('|') != -1 and site_name not in sites:
+                if sites and sites.find('|') != -1 and site_name not in sites.split('|'):
                     continue
                 # 有tmdbid时精确匹配
                 if tmdbid:
