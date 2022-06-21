@@ -7,7 +7,8 @@ import requests
 from rmt.media import Media
 
 
-def get_random_discover_backdrop():
+@lru_cache(maxsize=1)
+def get_random_discover_backdrop(today=datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d')):
     """
     获取TMDB热门电影随机一张背景图
     """
