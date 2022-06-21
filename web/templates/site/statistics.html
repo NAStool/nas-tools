@@ -160,30 +160,42 @@
           <div class="card-body">
             <div class="d-flex">
               <h3 class="card-title">站点数据</h3>
-              <div class="ms-auto text-muted">
+               <div class="ms-auto">
+                   <a href="javascript:void(0)" class="btn-icon"
+                      {% if SiteUserStatistics | count > 0 %} onclick="navmenu('statistics?_ts={% for item in SiteUserStatistics %}&refresh_site={{ item[0] }}{% endfor %}')"
+                      {%  endif %}
+                   >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+                          <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+                      </svg>
+                   </a>
+               </div>
+              <div class="ms-2 text-muted">
                 共 {{ SiteUserStatistics | count }} 条记录
               </div>
             </div>
           </div>
-          <div class="table-responsive" style="min-height: 300px">
-            <table class="table table-vcenter card-table">
+          <div id="table-site-user-data" class="table-responsive" style="min-height: 300px">
+            <table class="table table-vcenter card-table table-hover table-striped">
               <thead>
                 <tr>
-                  <th class="flex-fill">站点</th>
-                  <th><span class="d-none d-lg-block">等级</span></th>
-                  <th>数据量</th>
-                  <th>分享率</th>
-                  <th>做种/下载</th>
-                  <th>做种体积</th>
-                  <th>魔力值(积分)</th>
-                  <th><span class="d-none d-lg-block">更新时间</span></th>
+                    <th class="flex-fill"><button class="table-sort" data-sort="sort-name">站点</button></th>
+                    <th><span class="d-none d-lg-block">等级</span></th>
+                    <th><button class="table-sort" data-sort="sort-data">数据量</button></th>
+                    <th><button class="table-sort" data-sort="sort-ratio">分享率</button></th>
+                    <th><button class="table-sort" data-sort="sort-seeding">做种数</button></th>
+                    <th><button class="table-sort" data-sort="sort-size">做种体积</button></th>
+                    <th><button class="table-sort" data-sort="sort-bonus">魔力值(积分)</button></th>
+                    <th><span class="d-none d-lg-block"><button class="table-sort" data-sort="sort-rtime">更新时间</button></span></th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody class="table-tbody">
                 {% if SiteUserStatistics | count > 0 %}
                 {% for item in SiteUserStatistics %}
                 <tr>
-                  <td>
+                  <td class="sort-name">
                     <div class="d-flex py-1 align-items-center">
                       <img onclick="navmenu('statistics?refresh_site={{ item[0] }}')" title="点击刷新站点数据" class="rounded me-2 d-none d-md-block" src="{{ item[12] }}/favicon.ico" width="24" height="24" alt=""
                         onerror="this.src='../static/img/pt.jpg'" style="cursor:pointer"/>
@@ -196,7 +208,7 @@
                   <td>
                     <span class="d-none d-lg-block">{{ item[2] }}</span>
                   </td>
-                  <td>
+                  <td class="sort-data" data-data="{{ item[5] }}">
                       <div class="flex-fill">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                           stroke-width="2" stroke="green" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -218,11 +230,11 @@
                         <small>{{ item[6] | filesizeformat(true) }}</small>
                       </div>
                   </td>
-                  <td>{{ item[7] }}</td>
-                  <td>{{ item[8] }} / {{ item[9] }}</td>
-                  <td>{{ item[10] | filesizeformat(true) }}</td>
-                  <td>{{ item[11] }}</td>
-                  <td>
+                  <td class="sort-ratio">{{ item[7] }}</td>
+                  <td class="sort-seeding" data-seeding="{{ item[8] }}">{{ item[8] }}</td>
+                  <td class="sort-size" data-size="{{ item[10] }}">{{ item[10] | filesizeformat(true) }}</td>
+                  <td class="sort-bonus">{{ item[11] }}</td>
+                  <td class="sort-rtime">
                     <span class="d-none d-lg-block">{{ item[4] }}</span>
                   </td>
                 </tr>
@@ -266,6 +278,16 @@
     enabled: true
   }
   })).render();
+
+const tableDataList = new List('table-site-user-data', {
+    sortClass: 'table-sort',
+    listClass: 'table-tbody',
+    valueNames: [ 'sort-name', 'sort-ratio', 'sort-bonus', 'sort-rtime',
+        { attr: 'data-size', name: 'sort-size' },
+        { attr: 'data-seeding', name: 'sort-seeding' },
+        { attr: 'data-data', name: 'sort-data' }
+    ]
+  });
 </script>
 {% else %}
 <div class="page-body">

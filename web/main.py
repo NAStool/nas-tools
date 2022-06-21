@@ -690,7 +690,7 @@ def create_flask_app(config):
     @login_required
     def statistics():
         # 刷新单个site
-        refresh_site = request.args.get("refresh_site")
+        refresh_site = request.args.getlist("refresh_site")
         # 总上传下载
         TotalUpload = 0
         TotalDownload = 0
