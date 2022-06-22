@@ -1,7 +1,6 @@
-import requests
-
 from config import Config
 from message.channel.channel import IMessageChannel
+from utils.http_utils import RequestUtils
 
 
 class Bark(IMessageChannel):
@@ -41,7 +40,7 @@ class Bark(IMessageChannel):
             if not self.__server or not self.__apikey:
                 return False, "参数未配置"
             sc_url = "%s/%s/%s/%s" % (self.__server, self.__apikey, title, text)
-            res = requests.get(sc_url, timeout=10)
+            res = RequestUtils().post_res(sc_url)
             if res:
                 ret_json = res.json()
                 code = ret_json['code']

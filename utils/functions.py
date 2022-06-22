@@ -9,7 +9,8 @@ import platform
 import bisect
 import datetime
 from enum import Enum
-import requests
+
+from utils.http_utils import RequestUtils
 from utils.types import OsType
 
 INSTANCES = {}
@@ -422,15 +423,16 @@ def get_location(ip):
     url = 'https://sp0.baidu.com/8aQDcjqpAAV3otqbppnN2DJv/api.php?co=&resource_id=6006&t=1529895387942&ie=utf8' \
           '&oe=gbk&cb=op_aladdin_callback&format=json&tn=baidu&' \
           'cb=jQuery110203920624944751099_1529894588086&_=1529894588088&query=%s' % ip
+    r = RequestUtils().get_res(url)
+    r.encoding = 'gbk'
+    html = r.text
     try:
-        r = requests.get(url, timeout=10)
-        r.encoding = 'gbk'
-        html = r.text
         c1 = html.split('location":"')[1]
         c2 = c1.split('","')[0]
         return c2
-    except requests.exceptions:
-        return ''
+    except Exception as err:
+        print(str(err))
+        return ""
 
 
 def tag_value(tag_item, tag_name, attname="", default=None):
@@ -460,3 +462,14 @@ def add_node(doc, parent, name, value=None):
         text = doc.createTextNode(str(value))
         node.appendChild(text)
     return node
+
+
+def max_ele(a, b):
+    """
+    返回非空最大值
+    """
+    if not a:
+        return b
+    if not b:
+        return a
+    return max(a, b)

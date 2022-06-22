@@ -82,7 +82,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
                                        title="无法识别搜索内容！",
                                        user_id=user_id)
             return
-        tmdb_infos = Media().search_tmdb_infos(title=media_info.get_name(), year=media_info.year, mtype=mtype)
+        tmdb_infos = Media().get_tmdb_infos(title=media_info.get_name(), year=media_info.year, mtype=mtype)
         if not tmdb_infos:
             # 查询不到媒体信息
             Message().send_channel_msg(channel=in_from,

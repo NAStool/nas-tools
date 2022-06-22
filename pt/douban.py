@@ -481,7 +481,7 @@ class DouBan:
                                                                                       tmdbid=media_info.tmdb_id)
                             else:
                                 # 没有季信息的取最新季
-                                total_seasoninfo = self.media.get_tmdb_seasons_info(tmdbid=media_info.tmdb_id)
+                                total_seasoninfo = self.media.get_tmdb_seasons_list(tmdbid=media_info.tmdb_id)
                                 if not total_seasoninfo:
                                     log.warn("【DOUBAN】%s 获取剧集信息失败，跳过..." % media_info.get_title_string())
                                     continue

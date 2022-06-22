@@ -2,9 +2,8 @@ import re
 from functools import lru_cache
 from urllib import parse
 import cn2an
-import requests
 from lxml import etree
-from config import GRAP_FREE_SITES, DEFAULT_HEADERS
+from config import GRAP_FREE_SITES
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
 import bencode
@@ -351,7 +350,7 @@ class Torrent:
         try:
             if url.startswith("magnet:"):
                 return url, "磁力链接"
-            req = requests.get(url=url, headers=DEFAULT_HEADERS, timeout=30)
+            req = RequestUtils().get(url=url)
             if req and req.status_code == 200:
                 if not req.content:
                     return None, "未下载到种子数据"

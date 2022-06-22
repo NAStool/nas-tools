@@ -569,8 +569,7 @@ class WebAction:
         info = ""
         code = 0
         try:
-            response = requests.get("https://api.github.com/repos/jxxghp/nas-tools/releases/latest", timeout=10,
-                                    proxies=self.config.get_proxies())
+            response = RequestUtils(proxies=self.config.get_proxies()).get_res("https://api.github.com/repos/jxxghp/nas-tools/releases/latest")
             if response:
                 ver_json = response.json()
                 version = ver_json["tag_name"]
@@ -1178,7 +1177,7 @@ class WebAction:
                         "vote_average": vote_average
                         }
         else:
-            tmdb_info = Media().get_tmdb_tv_season_info(tmdbid=tid, season=season)
+            tmdb_info = Media().get_tmdb_tv_season_detail(tmdbid=tid, season=season)
             if not tmdb_info:
                 return {"code": 1, "retmsg": "无法查询到TMDB信息"}
             episode_events = []

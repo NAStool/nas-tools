@@ -4,14 +4,13 @@ from abc import ABCMeta, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures._base import as_completed
 
-import requests
-
 import log
 from config import TORRENT_SEARCH_PARAMS
 from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from utils.functions import str_filesize, tag_value
+from utils.http_utils import RequestUtils
 from utils.sqls import get_config_search_rule
 from utils.types import MediaType
 
@@ -271,7 +270,7 @@ class IIndexer(metaclass=ABCMeta):
         if not url:
             return []
         try:
-            ret = requests.get(url, timeout=30)
+            ret = RequestUtils().get_res(url)
         except Exception as e2:
             log.console(str(e2))
             return []

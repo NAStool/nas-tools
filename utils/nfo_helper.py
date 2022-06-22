@@ -1,12 +1,10 @@
 import os.path
 import time
 from xml.dom import minidom
-
-import requests
-
 from rmt.media import Media
 from rmt.meta.metabase import MetaBase
 from utils.functions import add_node
+from utils.http_utils import RequestUtils
 from utils.types import MediaType
 
 
@@ -31,7 +29,7 @@ class NfoHelper:
         xoutline = add_node(doc, root, "outline")
         xoutline.appendChild(doc.createCDATASection(tmdbinfo.get("overview")))
         # 导演
-        directors, actors = self.media.get_tmdb_directors_actors(tmdbinfo.get("credits"))
+        directors, actors = self.media.get_tmdbinfo_directors_actors(tmdbinfo.get("credits"))
         for director in directors:
             xdirector = add_node(doc, root, "director", director.get("name"))
             xdirector.setAttribute("tmdbid", str(director.get("id")))
@@ -192,7 +190,7 @@ class NfoHelper:
         if os.path.exists(os.path.join(out_path, "%s.%s" % (itype, str(url).split('.')[-1]))):
             return
         try:
-            r = requests.get(url)
+            r = RequestUtils().get_res(url)
             with open(file=os.path.join(out_path, "%s.%s" % (itype, str(url).split('.')[-1])),
                       mode="wb") as img:
                 img.write(r.content)
@@ -238,7 +236,7 @@ class NfoHelper:
             # 处理集
             if not os.path.exists(os.path.join(dir_path, "%s.nfo" % file_name)):
                 # 查询TMDB信息
-                tmdbinfo = self.media.get_tmdb_tv_season_info(tmdbid=media.tmdb_id, season=int(media.get_season_seq()))
+                tmdbinfo = self.media.get_tmdb_tv_season_detail(tmdbid=media.tmdb_id, season=int(media.get_season_seq()))
                 self.gen_tv_episode_nfo_file(tmdbinfo, int(media.get_season_seq()), int(media.get_episode_seq()), dir_path, file_name)
                 # 处理季
                 if not os.path.exists(os.path.join(dir_path, "season.nfo")):

@@ -119,7 +119,7 @@ def add_rss_subscribe(mtype, name, year, season, match=False, doubanid=None, tmd
             if tmdbid:
                 if not season:
                     # 查询季及集信息
-                    total_seasoninfo = media.get_tmdb_seasons_info(tmdbid=tmdbid)
+                    total_seasoninfo = media.get_tmdb_seasons_list(tmdbid=tmdbid)
                     if not total_seasoninfo:
                         return 2, "获取剧集信息失败", media_info
                     # 按季号降序排序

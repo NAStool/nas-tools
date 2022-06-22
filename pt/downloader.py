@@ -409,7 +409,7 @@ class Downloader:
                         log.info("【DOWNLOADER】%s 第%s季 共有 %s 集" % (meta_info.get_title_string(), season, episode_num))
                 else:
                     # 共有多少季，每季有多少季
-                    total_seasons = self.media.get_tmdb_seasons_info(tv_info=tv_info)
+                    total_seasons = self.media.get_tmdb_seasons_list(tv_info=tv_info)
                     log.info(
                         "【DOWNLOADER】%s %s 共有 %s 季" % (meta_info.type.value, meta_info.get_title_string(), len(total_seasons)))
                     message_list.append(

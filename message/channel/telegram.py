@@ -1,11 +1,11 @@
 from threading import Lock
 from urllib.parse import urlencode
-import requests
 
 import log
 from config import Config
 from message.channel.channel import IMessageChannel
 from utils.functions import singleton
+from utils.http_utils import RequestUtils
 
 lock = Lock()
 WEBHOOK_STATUS = False
@@ -91,7 +91,7 @@ class Telegram(IMessageChannel):
                 values = {"chat_id": chat_id, "text": caption, "parse_mode": "HTML"}
                 sc_url = "https://api.telegram.org/bot%s/sendMessage?" % self.__telegram_token
 
-            res = requests.get(sc_url + urlencode(values), timeout=10, proxies=self.__config.get_proxies())
+            res = RequestUtils(proxies=self.__config.get_proxies()).get_res(sc_url + urlencode(values))
             if res:
                 ret_json = res.json()
                 status = ret_json.get("ok")
@@ -130,7 +130,7 @@ class Telegram(IMessageChannel):
             values = {"chat_id": chat_id, "photo": image, "caption": caption, "parse_mode": "HTML"}
             sc_url = "https://api.telegram.org/bot%s/sendPhoto?" % self.__telegram_token
 
-            res = requests.get(sc_url + urlencode(values), timeout=10, proxies=self.__config.get_proxies())
+            res = RequestUtils(proxies=self.__config.get_proxies()).get_res(sc_url + urlencode(values))
             if res:
                 ret_json = res.json()
                 status = ret_json.get("ok")
@@ -166,7 +166,7 @@ class Telegram(IMessageChannel):
                 self.__del_bot_webhook()
             values = {"url": self.__webhook_url, "allowed_updates": ["message"]}
             sc_url = "https://api.telegram.org/bot%s/setWebhook?" % self.__telegram_token
-            res = requests.get(sc_url + urlencode(values), timeout=10, proxies=self.__config.get_proxies())
+            res = RequestUtils(proxies=self.__config.get_proxies()).get_res(sc_url + urlencode(values))
             if res:
                 json = res.json()
                 if json.get("ok"):
@@ -182,7 +182,7 @@ class Telegram(IMessageChannel):
         :return: 状态：1-存在且相等，2-存在不相等，3-不存在，0-网络出错
         """
         sc_url = "https://api.telegram.org/bot%s/getWebhookInfo" % self.__telegram_token
-        res = requests.get(sc_url, timeout=10, proxies=self.__config.get_proxies())
+        res = RequestUtils(proxies=self.__config.get_proxies()).get_res(sc_url)
         if res and res.json():
             if res.json().get("ok"):
                 result = res.json().get("result") or {}
@@ -208,7 +208,7 @@ class Telegram(IMessageChannel):
         :return: 是否成功
         """
         sc_url = "https://api.telegram.org/bot%s/deleteWebhook" % self.__telegram_token
-        res = requests.get(sc_url, timeout=10, proxies=self.__config.get_proxies())
+        res = RequestUtils(proxies=self.__config.get_proxies()).get_res(sc_url)
         if res and res.json() and res.json().get("ok"):
             return True
         else:

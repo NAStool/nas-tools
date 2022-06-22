@@ -3,7 +3,6 @@ from threading import Lock
 
 import re
 from urllib import parse
-import requests
 import xml.dom.minidom
 import log
 from config import Config, RSS_EXTRA_SITES
@@ -14,6 +13,7 @@ from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from utils.functions import tag_value
+from utils.http_utils import RequestUtils
 from utils.sqls import get_rss_movies, get_rss_tvs, insert_rss_torrents, \
     get_config_site, is_torrent_rssd, get_config_rss_rule, delete_rss_movie, delete_rss_tv, update_rss_tv_lack, \
     update_rss_movie_state, update_rss_tv_state, update_rss_movie_tmdbid, update_rss_tv_tmdbid
@@ -421,7 +421,7 @@ class Rss:
         if not url:
             return []
         try:
-            ret = requests.get(url, timeout=30)
+            ret = RequestUtils().get_res(url)
             ret.encoding = ret.apparent_encoding
         except Exception as e2:
             log.console(str(e2))

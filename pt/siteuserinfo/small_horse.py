@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 import re
 
-from bs4 import BeautifulSoup
-
 from pt.siteuserinfo.site_user_info import ISiteUserInfo
 from utils.functions import num_filesize
 from lxml import etree
@@ -47,8 +45,8 @@ class SmallHorseSiteUserInfo(ISiteUserInfo):
             self.ratio = float(str(tmps[1].xpath("li")[4].xpath("span//text()")[0]).strip())
             self.bonus = float(str(tmps[1].xpath("li")[5].xpath("text()")[0]).split(":")[1].strip())
             self.user_level = str(tmps[3].xpath("li")[0].xpath("text()")[0]).split(":")[1].strip()
-            self.seeding = int((tmps[4].xpath("li")[5].xpath("text()")[0]).split(":")[1].replace("[","").strip())
-            self.leeching = int((tmps[4].xpath("li")[6].xpath("text()")[0]).split(":")[1].replace("[","").strip())
+            self.seeding = int((tmps[4].xpath("li")[5].xpath("text()")[0]).split(":")[1].replace("[", "").strip())
+            self.leeching = int((tmps[4].xpath("li")[6].xpath("text()")[0]).split(":")[1].replace("[", "").strip())
 
     def _parse_user_detail_info(self, html_text):
         pass

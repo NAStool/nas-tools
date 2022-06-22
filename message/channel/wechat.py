@@ -1,12 +1,11 @@
 from datetime import datetime
 import json
 import threading
-import requests
-
 import log
 from config import Config
 from message.channel.channel import IMessageChannel
 from utils.functions import singleton
+from utils.http_utils import RequestUtils
 
 lock = threading.Lock()
 
@@ -56,7 +55,7 @@ class WeChat(IMessageChannel):
             try:
                 token_url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s" \
                             % (self.__corpid, self.__corpsecret)
-                res = requests.get(token_url, timeout=10)
+                res = RequestUtils().get_res(token_url)
                 if res:
                     ret_json = res.json()
                     if ret_json['errcode'] == 0:
@@ -105,8 +104,8 @@ class WeChat(IMessageChannel):
         }
         headers = {'content-type': 'application/json'}
         try:
-            res = requests.post(message_url, data=json.dumps(req_json, ensure_ascii=False).encode('utf-8'),
-                                headers=headers)
+            res = RequestUtils(headers=headers).post(message_url,
+                                                     params=json.dumps(req_json, ensure_ascii=False).encode('utf-8'))
             if res:
                 ret_json = res.json()
                 if ret_json['errcode'] == 0:
@@ -152,8 +151,8 @@ class WeChat(IMessageChannel):
         }
         headers = {'content-type': 'application/json'}
         try:
-            res = requests.post(message_url, data=json.dumps(req_json, ensure_ascii=False).encode('utf-8'),
-                                headers=headers)
+            res = RequestUtils(headers=headers).post(message_url,
+                                                     params=json.dumps(req_json, ensure_ascii=False).encode('utf-8'))
             if res:
                 ret_json = res.json()
                 if ret_json['errcode'] == 0:
@@ -214,8 +213,8 @@ class WeChat(IMessageChannel):
         }
         headers = {'content-type': 'application/json'}
         try:
-            res = requests.post(message_url, data=json.dumps(req_json, ensure_ascii=False).encode('utf-8'),
-                                headers=headers)
+            res = RequestUtils(headers=headers).post(message_url,
+                                                     params=json.dumps(req_json, ensure_ascii=False).encode('utf-8'))
             if res:
                 ret_json = res.json()
                 if ret_json['errcode'] == 0:

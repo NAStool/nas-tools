@@ -1,11 +1,11 @@
 import os.path
 from functools import lru_cache
 
-import requests
 from pythonopensubtitles.opensubtitles import OpenSubtitles
 
 import log
 from config import Config
+from utils.http_utils import RequestUtils
 from utils.types import MediaType
 
 
@@ -151,7 +151,7 @@ class Subtitle:
                     "is_bluray": item.get("bluray")
                 }
                 try:
-                    res = requests.post(req_url, headers={"Authorization": "Bearer %s" % self.__api_key}, json=params, timeout=10)
+                    res = RequestUtils(headers={"Authorization": "Bearer %s" % self.__api_key}).post(req_url, json=params)
                     if not res or res.status_code != 200:
                         log.error("【SUBTITLE】调用ChineseSubFinder API失败！")
                     else:

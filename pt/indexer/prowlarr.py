@@ -1,8 +1,7 @@
-import requests
-
 import log
 from config import Config
 from pt.indexer.indexer import IIndexer
+from utils.http_utils import RequestUtils
 
 
 class Prowlarr(IIndexer):
@@ -28,7 +27,7 @@ class Prowlarr(IIndexer):
         if not self.api_key or not self.__host:
             return False
         api_url = "%sapi/v1/search?apikey=%s&Query=%s" % (self.__host, self.api_key, "ASDFGHJKL")
-        res = requests.get(api_url, timeout=10)
+        res = RequestUtils().get_res(api_url)
         if res and res.status_code == 200:
             return True
         return False
@@ -40,7 +39,7 @@ class Prowlarr(IIndexer):
         """
         indexer_query_url = f"{self.__host}api/v1/indexerstats?apikey={self.api_key}"
         try:
-            ret = requests.get(indexer_query_url, timeout=30)
+            ret = RequestUtils().get_res(indexer_query_url)
         except Exception as e2:
             log.console(str(e2))
             return []

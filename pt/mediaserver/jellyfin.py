@@ -1,10 +1,10 @@
 import re
-import requests
 import log
 from config import Config
 from pt.mediaserver.server import IMediaServer
 from rmt.meta.metabase import MetaBase
 from utils.functions import singleton, get_local_time
+from utils.http_utils import RequestUtils
 from utils.types import MediaType
 
 
@@ -43,7 +43,7 @@ class Jellyfin(IMediaServer):
             return []
         req_url = "%sLibrary/MediaFolders?api_key=%s" % (self.__host, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = RequestUtils().get_res(req_url)
             if res:
                 return res.json().get("Items")
             else:
@@ -61,7 +61,7 @@ class Jellyfin(IMediaServer):
             return 0
         req_url = "%sUsers?api_key=%s" % (self.__host, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = RequestUtils().get_res(req_url)
             if res:
                 return len(res.json())
             else:
@@ -79,7 +79,7 @@ class Jellyfin(IMediaServer):
             return
         req_url = "%sUsers?api_key=%s" % (self.__host, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = RequestUtils().get_res(req_url)
             if res:
                 users = res.json()
                 for user in users:
@@ -100,7 +100,7 @@ class Jellyfin(IMediaServer):
         req_url = "%sSystem/ActivityLog/Entries?api_key=%s&Limit=%s" % (self.__host, self.__apikey, num)
         ret_array = []
         try:
-            res = requests.get(req_url, timeout=10)
+            res = RequestUtils().get_res(req_url)
             if res:
                 ret_json = res.json()
                 items = ret_json.get('Items')
@@ -133,7 +133,7 @@ class Jellyfin(IMediaServer):
             return None
         req_url = "%sItems/Counts?api_key=%s" % (self.__host, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = RequestUtils().get_res(req_url)
             if res:
                 return res.json()
             else:
@@ -152,7 +152,7 @@ class Jellyfin(IMediaServer):
         req_url = "%sUsers/%s/Items?api_key=%s&searchTerm=%s&IncludeItemTypes=Series&Limit=10&Recursive=true" % (
             self.__host, self.__user, self.__apikey, name)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = RequestUtils().get_res(req_url)
             if res:
                 res_items = res.json().get("Items")
                 if res_items:
@@ -181,7 +181,7 @@ class Jellyfin(IMediaServer):
         req_url = "%sShows/%s/Seasons?api_key=%s&userId=%s" % (
             self.__host, series_id, self.__apikey, self.__user)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = RequestUtils().get_res(req_url)
             if res:
                 res_items = res.json().get("Items")
                 if res_items:
@@ -205,7 +205,7 @@ class Jellyfin(IMediaServer):
         req_url = "%sUsers/%s/Items?api_key=%s&searchTerm=%s&IncludeItemTypes=Movie&Limit=10&Recursive=true" % (
             self.__host, self.__user, self.__apikey, title)
         try:
-            res = requests.get(req_url, timeout=20)
+            res = RequestUtils().get_res(req_url)
             if res:
                 res_items = res.json().get("Items")
                 if res_items:
@@ -239,7 +239,7 @@ class Jellyfin(IMediaServer):
         req_url = "%sShows/%s/Episodes?seasonId=%s&&userId=%s&isMissing=false&api_key=%s" % (
             self.__host, series_id, season_id, self.__user, self.__apikey)
         try:
-            res_json = requests.get(req_url, timeout=20)
+            res_json = RequestUtils().get_res(req_url)
             if res_json:
                 res_items = res_json.json().get("Items")
                 exists_episodes = []
@@ -278,7 +278,7 @@ class Jellyfin(IMediaServer):
             return None
         req_url = "%sItems/%s/RemoteImages?api_key=%s" % (self.__host, item_id, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = RequestUtils().get_res(req_url)
             if res:
                 images = res.json().get("Images")
                 for image in images:
@@ -300,7 +300,7 @@ class Jellyfin(IMediaServer):
             return False
         req_url = "%sLibrary/Refresh?api_key=%s" % (self.__host, self.__apikey)
         try:
-            res = requests.post(req_url, timeout=10)
+            res = RequestUtils().post_res(req_url)
             if res:
                 return True
         except Exception as e:

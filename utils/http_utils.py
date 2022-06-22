@@ -1,10 +1,7 @@
 import requests
 import urllib3
 
-from config import DEFAULT_HEADERS
 
-
-# noinspection RequestsNoVerify
 class RequestUtils:
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     __headers = None
@@ -13,14 +10,15 @@ class RequestUtils:
     __timeout = 15
     __session = None
 
-    def __init__(self, headers, cookies, proxies=False, session=None):
+    def __init__(self, headers=None, cookies=None, proxies=False, session=None):
         if headers:
             if isinstance(headers, str):
                 self.__headers = {"User-Agent": f"{headers}"}
             else:
                 self.__headers = headers
         else:
-            self.__headers = DEFAULT_HEADERS
+            self.__headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"}
 
         if cookies:
             if isinstance(cookies, str):
@@ -33,7 +31,7 @@ class RequestUtils:
         if session:
             self.__session = session
 
-    def post(self, url, params, json=None):
+    def post(self, url, params=None, json=None):
         if json is None:
             json = {}
         i = 0

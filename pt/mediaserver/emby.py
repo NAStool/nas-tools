@@ -1,9 +1,9 @@
-import requests
 import log
 from config import Config
 from pt.mediaserver.server import IMediaServer
 from rmt.meta.metabase import MetaBase
 from utils.functions import get_local_time
+from utils.http_utils import RequestUtils
 from utils.types import MediaType
 
 
@@ -39,7 +39,7 @@ class Emby(IMediaServer):
             return []
         req_url = "%semby/Library/SelectableMediaFolders?api_key=%s" % (self.__host, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = RequestUtils().get_res(req_url)
             if res:
                 return res.json()
             else:
@@ -57,7 +57,7 @@ class Emby(IMediaServer):
             return 0
         req_url = "%semby/Users/Query?api_key=%s" % (self.__host, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = RequestUtils().get_res(req_url)
             if res:
                 return res.json().get("TotalRecordCount")
             else:
@@ -76,7 +76,7 @@ class Emby(IMediaServer):
         req_url = "%semby/System/ActivityLog/Entries?api_key=%s&Limit=%s" % (self.__host, self.__apikey, num)
         ret_array = []
         try:
-            res = requests.get(req_url, timeout=10)
+            res = RequestUtils().get_res(req_url)
             if res:
                 ret_json = res.json()
                 items = ret_json.get('Items')
@@ -110,7 +110,7 @@ class Emby(IMediaServer):
             return {}
         req_url = "%semby/Items/Counts?api_key=%s" % (self.__host, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = RequestUtils().get_res(req_url)
             if res:
                 return res.json()
             else:
@@ -132,7 +132,7 @@ class Emby(IMediaServer):
         req_url = "%semby/Items?IncludeItemTypes=Series&Fields=ProductionYear&StartIndex=0&Recursive=true&SearchTerm=%s&Limit=10&IncludeSearchTypes=false&api_key=%s" % (
             self.__host, name, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = RequestUtils().get_res(req_url)
             if res:
                 res_items = res.json().get("Items")
                 if res_items:
@@ -157,7 +157,7 @@ class Emby(IMediaServer):
         req_url = "%semby/Items?IncludeItemTypes=Movie&Fields=ProductionYear&StartIndex=0&Recursive=true&SearchTerm=%s&Limit=10&IncludeSearchTypes=false&api_key=%s" % (
             self.__host, title, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=20)
+            res = RequestUtils().get_res(req_url)
             if res:
                 res_items = res.json().get("Items")
                 if res_items:
@@ -194,7 +194,7 @@ class Emby(IMediaServer):
         req_url = "%semby/Shows/%s/Episodes?Season=%s&IsMissing=false&api_key=%s" % (
             self.__host, item_id, season, self.__apikey)
         try:
-            res_json = requests.get(req_url, timeout=20)
+            res_json = RequestUtils().get_res(req_url)
             if res_json:
                 res_items = res_json.json().get("Items")
                 exists_episodes = []
@@ -233,7 +233,7 @@ class Emby(IMediaServer):
             return None
         req_url = "%semby/Items/%s/RemoteImages?api_key=%s" % (self.__host, item_id, self.__apikey)
         try:
-            res = requests.get(req_url, timeout=10)
+            res = RequestUtils().get_res(req_url)
             if res:
                 images = res.json().get("Images")
                 for image in images:
@@ -255,7 +255,7 @@ class Emby(IMediaServer):
             return False
         req_url = "%semby/Items/%s/Refresh?Recursive=true&api_key=%s" % (self.__host, item_id, self.__apikey)
         try:
-            res = requests.post(req_url, timeout=10)
+            res = RequestUtils().post_res(req_url)
             if res:
                 return True
         except Exception as e:
@@ -271,7 +271,7 @@ class Emby(IMediaServer):
             return False
         req_url = "%semby/Library/Refresh?api_key=%s" % (self.__host, self.__apikey)
         try:
-            res = requests.post(req_url, timeout=10)
+            res = RequestUtils().post_res(req_url)
             if res:
                 return True
         except Exception as e:

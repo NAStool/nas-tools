@@ -680,7 +680,7 @@
               $("#system_media_rss_btn").text("订阅");
               $("#system_media_rss_btn").attr("href", 'javascript:add_rss_media("'+ret.title+'","'+ret.year+'","'+ret.type+'","'+ret.tmdbid+'","'+ret.doubanid+'","'+ret.page+'")');
               $("#system_media_search_btn").text("搜索");
-              $("#system_media_search_btn").attr("href", 'javascript:search_mediainfo_media("'+ret.title+'","'+ret.year+'")');
+              $("#system_media_search_btn").attr("href", 'javascript:search_mediainfo_media("'+ret.title+'")');
               $("#system_media_search_btn").show();
             }
             //详情按钮
@@ -764,9 +764,9 @@
       }
 
       //搜索
-      function search_mediainfo_media(title, year){
+      function search_mediainfo_media(title){
         hide_mediainfo_modal();
-        navmenu('search?s='+title+' '+year+'&f=1');
+        navmenu('search?s='+title+'&f=1');
       }
     </script>
     <script type="text/javascript">

@@ -157,6 +157,7 @@ class MetaVideo(MetaBase):
                             self.cn_name = "%s %s" % (self.cn_name, token)
                         elif self._last_token_type == "enname":
                             self.en_name = "%s %s" % (self.en_name, token)
+                        self._continue_flag = False
                     elif len(token) == 4:
                         # 4位数字，可能是年份，也可能真的是标题的一部分，也有可能是集
                         if token.startswith('0') or not 1900 < int(token) < 2050:

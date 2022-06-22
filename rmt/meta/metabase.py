@@ -1,11 +1,9 @@
 from functools import lru_cache
-import requests
-from requests import RequestException
-
 import log
 from config import FANART_TV_API_URL, FANART_MOVIE_API_URL, ANIME_GENREIDS, Config
 from rmt.category import Category
 from utils.functions import is_all_chinese
+from utils.http_utils import RequestUtils
 from utils.types import MediaType
 
 
@@ -400,7 +398,7 @@ class MetaBase(object):
             else:
                 image_url = FANART_TV_API_URL % tmdbid
             try:
-                ret = requests.get(image_url, timeout=10, proxies=cls.proxies)
+                ret = RequestUtils(proxies=cls.proxies).get_res(image_url)
                 if ret:
                     moviethumbs = ret.json().get('moviethumb')
                     if moviethumbs:
@@ -408,8 +406,6 @@ class MetaBase(object):
                         if moviethumb:
                             # 有则返回FanArt的图片
                             return moviethumb
-            except RequestException as e1:
-                log.console(str(e1))
             except Exception as e2:
                 log.console(str(e2))
         if default:

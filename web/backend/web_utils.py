@@ -1,10 +1,8 @@
 import datetime
 import random
 from functools import lru_cache
-
-import requests
-
 from rmt.media import Media
+from utils.http_utils import RequestUtils
 
 
 @lru_cache(maxsize=1)
@@ -26,7 +24,7 @@ def get_bing_wallpaper(today=datetime.datetime.strftime(datetime.datetime.now(),
     """
     url = "http://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&today=%s" % today
     try:
-        resp = requests.get(url, timeout=5)
+        resp = RequestUtils().get_res(url)
     except Exception as err:
         print(str(err))
         return ""
