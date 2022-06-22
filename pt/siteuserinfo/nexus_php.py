@@ -86,14 +86,18 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         :return:
         """
         html = etree.HTML(html_text)
-
+        if not html:
+            return
         # 做种体积
         if self.seeding_size != 0:
             return
 
+        seeding_torrents = html.xpath('//tr[position()>1]/td[3]')
         self.seeding_size = 0
-        for per_size in html.xpath('//tr[position()>1]/td[3]'):
-            self.seeding_size += num_filesize(per_size.xpath("string(.)").strip())
+        if seeding_torrents:
+            self.seeding = len(seeding_torrents)
+            for per_size in seeding_torrents:
+                self.seeding_size += num_filesize(per_size.xpath("string(.)").strip())
 
     def _parse_user_detail_info(self, html_text):
         """
@@ -102,7 +106,8 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         :return:
         """
         html = etree.HTML(html_text)
-
+        if not html:
+            return
         # 等级
         user_levels_text = html.xpath('//tr/td[text()="等級" or text()="等级" or *[text()="等级"]]/'
                                       'following-sibling::td[1]/img[1]/@title'
