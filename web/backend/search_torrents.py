@@ -44,6 +44,9 @@ def search_medias_for_web(content, ident_flag=True, filters=None):
     else:
         log.info("【WEB】共检索到 %s 个有效资源" % len(media_list))
         # 插入数据库
+        media_list = sorted(media_list, key=lambda x: "%s%s%s" % (str(x.res_order).rjust(3, '0'),
+                                                                  str(x.site_order).rjust(3, '0'),
+                                                                  str(x.seeders).rjust(10, '0')), reverse=True)
         insert_search_results(media_list)
 
 
