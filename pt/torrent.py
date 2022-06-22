@@ -350,7 +350,7 @@ class Torrent:
         try:
             if url.startswith("magnet:"):
                 return url, "磁力链接"
-            req = RequestUtils().get(url=url)
+            req = RequestUtils().get_res(url=url)
             if req and req.status_code == 200:
                 if not req.content:
                     return None, "未下载到种子数据"
