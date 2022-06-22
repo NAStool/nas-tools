@@ -17,7 +17,6 @@ class MetaAnime(MetaBase):
             return
         # 调用第三方模块识别动漫
         try:
-            self.type = MediaType.UNKNOWN
             anitopy_info = anitopy.parse(title)
             if anitopy_info:
                 # 名称
@@ -112,5 +111,7 @@ class MetaAnime(MetaBase):
                 self.audio_encode = anitopy_info.get("audio_term")
                 if isinstance(self.audio_encode, list):
                     self.audio_encode = self.audio_encode[0]
+            if not self.type:
+                self.type = MediaType.TV
         except Exception as e:
             log.console(str(e))
