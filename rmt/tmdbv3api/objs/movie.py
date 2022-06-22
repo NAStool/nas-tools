@@ -58,14 +58,13 @@ class Movie(TMDb):
             )
         )
 
-    def alternative_titles(self, movie_id, country=""):
+    def alternative_titles(self, movie_id):
         """
         Get all of the alternative titles for a movie.
         :param movie_id:
-        :param country:
         :return:
         """
-        return AsObj(**self._call(self._urls["alternative_titles"] % movie_id, "country=" + country))
+        return AsObj(**self._call(self._urls["alternative_titles"] % movie_id, ""))
 
     def changes(self, movie_id, start_date="", end_date="", page=1):
         """

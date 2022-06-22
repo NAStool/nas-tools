@@ -325,14 +325,29 @@ class Media:
         """
         if not title:
             return []
-        if not mtype:
-            results = list(set(self.__search_movie_infos(title, year)).union(set(self.__search_tv_infos(title, year))))
-        elif mtype == MediaType.MOVIE:
-            results = self.__search_movie_infos(title, year)
+        if not mtype and not year:
+            results = self.__search_multi_infos(title)
         else:
-            results = self.__search_tv_infos(title, year)
+            if mtype == MediaType.MOVIE:
+                results = self.__search_movie_infos(title, year)
+            else:
+                results = self.__search_tv_infos(title, year)
         results = sorted(results, key=lambda x: x.get("release_date") or x.get("first_air_date") or "0000-00-00", reverse=True)
         return results[:num]
+
+    def __search_multi_infos(self, title):
+        """
+        同时查询模糊匹配的电影、电视剧TMDB信息
+        """
+        if not title:
+            return []
+        ret_infos = []
+        multis = self.search.multi({"query": title})
+        for multi in multis:
+            if multi.get("media_type") in ["movie", "tv"]:
+                multi['media_type'] = MediaType.MOVIE if multi.get("media_type") == "movie" else MediaType.TV
+                ret_infos.append(multi)
+        return ret_infos
 
     def __search_movie_infos(self, title, year):
         """
