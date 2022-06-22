@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 import re
 
-from bs4 import BeautifulSoup
+from lxml import etree
 
 from pt.siteuserinfo.site_user_info import ISiteUserInfo
 from utils.functions import num_filesize
-from lxml import etree
 
 
 class NexusPhpSiteUserInfo(ISiteUserInfo):
@@ -73,7 +72,8 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
             try:
                 if bonus_match and bonus_match.group(1).strip():
                     self.bonus = float(bonus_match.group(1).strip().replace(',', ''))
-                bonus_match = re.search(r"[魔力值|\]][\[\]:：<>/a-zA-Z_\-=\"'\s#;]+\s*([\d,.]+)[<()&\s]", html_text, flags=re.S)
+                bonus_match = re.search(r"[魔力值|\]][\[\]:：<>/a-zA-Z_\-=\"'\s#;]+\s*([\d,.]+)[<()&\s]", html_text,
+                                        flags=re.S)
                 if bonus_match and bonus_match.group(1).strip():
                     self.bonus = float(bonus_match.group(1).strip().replace(',', ''))
             except Exception as err:
@@ -85,13 +85,15 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         :param html_text:
         :return:
         """
-        soup = BeautifulSoup(html_text, "lxml")
+        html = etree.HTML(html_text)
 
         # 做种体积
+        if self.seeding_size != 0:
+            return
+
         self.seeding_size = 0
-        for tr in soup.find_all('tr')[1:]:
-            tds = tr.find_all('td')
-            self.seeding_size += num_filesize(tds[2].text.strip())
+        for per_size in html.xpath('//tr[position()>1]/td[3]'):
+            self.seeding_size += num_filesize(per_size.xpath("string(.)").strip())
 
     def _parse_user_detail_info(self, html_text):
         """
@@ -99,27 +101,26 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         :param html_text:
         :return:
         """
-        soup = BeautifulSoup(html_text, "lxml")
-        for tr in soup.find_all('tr')[1:]:
-            tds = tr.find_all('td')
-            if len(tds) == 0:
-                continue
-            if "当前上传" == tds[0].text.strip():
-                # seeding size 获取不到的话，此处再获取一次
-                if tds[1].table and self.seeding_size == 0:
-                    self.seeding_size = 0
-                    inner_tb = tds[1].table
-                    for inner_tr in inner_tb.find_all('tr')[1:]:
-                        inner_tds = inner_tr.find_all('td')
-                        self.seeding_size += num_filesize(inner_tds[3].text.strip())
-                continue
+        html = etree.HTML(html_text)
 
-            if "加入日期" == tds[0].text.strip() or "注册日期" == tds[0].text.strip():
-                self.join_at = tds[1].text
-                continue
-            if "等级" == tds[0].text.strip() or "等級" == tds[0].text.strip():
-                if tds[1].img and 'title' in tds[1].img.attrs:
-                    self.user_level = tds[1].img.attrs['title']
-                else:
-                    self.user_level = tds[1].text.strip()
-                continue
+        # 等级
+        user_levels_text = html.xpath('//tr/td[text()="等級" or text()="等级" or *[text()="等级"]]/'
+                                      'following-sibling::td[1]/img[1]/@title'
+                                      '|//tr/td[text()="等級" or text()="等级"]/'
+                                      'following-sibling::td[1 and img[not(@title)]]/text()')
+        if user_levels_text:
+            self.user_level = user_levels_text[0].strip()
+
+        # 加入日期
+        join_at_text = html.xpath('//tr/td[text()="加入日期" or text()="注册日期"]/following-sibling::td[1]/text()')
+        if join_at_text:
+            self.join_at = join_at_text[0].strip()
+
+        # 做种体积
+        # seeding 页面获取不到的话，此处再获取一次
+        if not self.seeding_size:
+            self.seeding_size = 0
+            seeding_sizes = html.xpath('//tr/td[text()="当前上传"]/following-sibling::td[1]//'
+                                       'table[tr[1][td[4 and text()="尺寸"]]]//tr[position()>1]/td[4]')
+            for per_size in seeding_sizes:
+                self.seeding_size += num_filesize(per_size.xpath("string(.)").strip())
