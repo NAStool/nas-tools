@@ -328,7 +328,10 @@ class Media:
         if not mtype and not year:
             results = self.__search_multi_infos(title)
         else:
-            if mtype == MediaType.MOVIE:
+            if not mtype:
+                results = list(
+                    set(self.__search_movie_infos(title, year)).union(set(self.__search_tv_infos(title, year))))
+            elif mtype == MediaType.MOVIE:
                 results = self.__search_movie_infos(title, year)
             else:
                 results = self.__search_tv_infos(title, year)
