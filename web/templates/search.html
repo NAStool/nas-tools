@@ -208,7 +208,7 @@
                 {{ Item[11] }}</div>
               {% endif %}
               {% if Item[9] %}
-              <a href="javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}')" class="d-block">
+              <a href='javascript:show_download_modal("{{ Item[0] }}","{{ Item[1] }}")' class="d-block">
                 <img src="{{ Item[9] }}" class="card-img-top" title="点击添加下载"
                   style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">
               </a>
@@ -220,7 +220,7 @@
                   <input type="hidden" name="media_card_title" value="{{ Item[1] }}">
                   <div>
                     <div><a
-                        href="{% if not Item[9] %}javascript:show_download_modal('{{ Item[0] }}','{{ Item[1] }}'){% else %}{{ Item[17] }}{% endif %}"
+                        href='{% if not Item[9] %}javascript:show_download_modal("{{ Item[0] }}","{{ Item[13] }}"){% else %}{{ Item[17] }}{% endif %}'
                         target="{% if Item[9] %}_blank{% endif %}"
                         title="{% if not Item[9] %}点击添加下载{% else %}点击打开种子详情页面{% endif %}">
                       <strong>{% if Item[14] or not Item[13] %}{{ Item[1]|replace("()", "") }}{% else %} {{ Item[13] }} {% endif %}</strong></a>
