@@ -4,7 +4,6 @@ from multiprocessing.dummy import Pool as ThreadPool
 from threading import Lock
 
 import log
-from config import Config
 from message.send import Message
 from pt.siteuserinfo.site_user_info_factory import SiteUserInfoFactory
 from utils.functions import singleton
@@ -19,7 +18,6 @@ class Sites:
     message = None
     __sites_data = {}
     __pt_sites = None
-    __user_agent = None
     __last_update_time = None
 
     def __init__(self):
@@ -27,8 +25,6 @@ class Sites:
 
     def init_config(self):
         self.message = Message()
-        config = Config()
-        self.__user_agent = config.get_config('app').get('user_agent')
         self.__pt_sites = get_config_site()
         self.__sites_data = {}
 
@@ -78,8 +74,7 @@ class Sites:
             site_url = site_url[:split_pos]
         site_cookie = str(site_info[5])
         try:
-            site_user_info = SiteUserInfoFactory.build(url=site_url, site_name=site_name, user_agent=self.__user_agent,
-                                                       site_cookie=site_cookie)
+            site_user_info = SiteUserInfoFactory.build(url=site_url, site_name=site_name, site_cookie=site_cookie)
             if site_user_info:
                 log.debug(f"【PT】站点 {site_name} 开始以 {site_user_info.site_schema()} 模型解析")
                 # 开始解析
@@ -123,7 +118,7 @@ class Sites:
                     if not pt_url or not pt_cookie:
                         log.warn("【PT】未配置 %s 的Url或Cookie，无法签到" % str(pt_task))
                         continue
-                    res = RequestUtils(headers=self.__user_agent, cookies=pt_cookie).get_res(url=pt_url)
+                    res = RequestUtils(cookies=pt_cookie).get_res(url=pt_url)
                     if res and res.status_code == 200:
                         if not self.__is_signin_success(res.text):
                             status.append("%s 签到失败，Cookie已过期" % pt_task)

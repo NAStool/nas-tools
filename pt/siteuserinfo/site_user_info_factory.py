@@ -8,8 +8,8 @@ import log
 
 class SiteUserInfoFactory(object):
     @staticmethod
-    def build(url, site_name, user_agent=None, site_cookie=None):
-        res = RequestUtils(headers=user_agent, cookies=site_cookie).get_res(url=url)
+    def build(url, site_name, site_cookie=None):
+        res = RequestUtils(cookies=site_cookie).get_res(url=url)
         if res and res.status_code == 200:
             res.encoding = res.apparent_encoding
             html_text = res.text
@@ -20,7 +20,7 @@ class SiteUserInfoFactory(object):
                     return None
                 tmp_url = url + html_text[i:html_text.find(";")] \
                     .replace("\"", "").replace("+", "").replace(" ", "").replace("window.location=", "")
-                res = RequestUtils(headers=user_agent, cookies=site_cookie).get_res(url=tmp_url)
+                res = RequestUtils(cookies=site_cookie).get_res(url=tmp_url)
                 if res and res.status_code == 200:
                     res.encoding = res.apparent_encoding
                     html_text = res.text
@@ -30,18 +30,18 @@ class SiteUserInfoFactory(object):
                     log.error("【PT】站点 %s 被反爬限制：%s, 状态码：%s" % (site_name, url, res.status_code))
                     return None
             if "NexusPHP" in html_text in html_text:
-                return NexusPhpSiteUserInfo(url, user_agent, site_cookie, html_text)
+                return NexusPhpSiteUserInfo(url, site_cookie, html_text)
 
             if "Nexus Project" in html_text:
-                return NexusProjectSiteUserInfo(url, user_agent, site_cookie, html_text)
+                return NexusProjectSiteUserInfo(url, site_cookie, html_text)
 
             if "Small Horse" in html_text:
-                return SmallHorseSiteUserInfo(url, user_agent, site_cookie, html_text)
+                return SmallHorseSiteUserInfo(url, site_cookie, html_text)
 
             if "IPTorrents" in html_text:
-                return IptSiteUserInfo(url, user_agent, site_cookie, html_text)
+                return IptSiteUserInfo(url, site_cookie, html_text)
             # 默认NexusPhp
-            return NexusPhpSiteUserInfo(url, user_agent, site_cookie, html_text)
+            return NexusPhpSiteUserInfo(url, site_cookie, html_text)
         elif not res:
             log.error("【PT】站点 %s 连接失败：%s" % (site_name, url))
             return None

@@ -42,7 +42,6 @@ class DouBan:
 
     def init_config(self):
         config = Config()
-        app = config.get_config('app')
         douban = config.get_config('douban')
         if douban:
             # 同步间隔
@@ -61,8 +60,6 @@ class DouBan:
             types = douban.get('types')
             if types:
                 self.__types = types.split(',')
-            # headers
-            user_agent = app.get('user_agent')
             # Cookie
             cookie = douban.get('cookie')
             if not cookie:
@@ -74,7 +71,7 @@ class DouBan:
                             cookie = requests.utils.dict_from_cookiejar(cookies)
                 except Exception as err:
                     log.warn(f"【DOUBAN】获取cookie失败:{format(err)}")
-            self.req = RequestUtils(headers=user_agent, cookies=cookie)
+            self.req = RequestUtils(cookies=cookie)
 
     def get_all_douban_movies(self):
         """

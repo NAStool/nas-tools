@@ -220,9 +220,8 @@
                   <input type="hidden" name="media_card_title" value="{{ Item[1] }}">
                   <div>
                     <div><a
-                        href='{% if not Item[9] %}javascript:show_download_modal("{{ Item[0] }}","{{ Item[13] }}"){% else %}{{ Item[17] }}{% endif %}'
-                        target="{% if Item[9] %}_blank{% endif %}"
-                        title="{% if not Item[9] %}点击添加下载{% else %}点击打开种子详情页面{% endif %}">
+                        href='{% if not Item[9] %}javascript:show_download_modal("{{ Item[0] }}","{{ Item[13] }}"){% else %}javascript:show_download_modal("{{ Item[0] }}","{{ Item[1] }}"){% endif %}'
+                        title="点击添加下载">
                       <strong>{% if Item[14] or not Item[13] %}{{ Item[1]|replace("()", "") }}{% else %} {{ Item[13] }} {% endif %}</strong></a>
                       <span class="badge ms-2">{{ Item[4] }}</span>
                         {% if Item[19] != 1.0 %}
@@ -266,7 +265,7 @@
                     <polyline points="16 3 12 7 8 3"></polyline>
                   </svg>
                   {% endif %}
-                  <small>{% if not Item[9] %}<a href="{{ Item[17] }}" target="_blank">{{ Item[12] }}</a>{% else %}{{ Item[12] }}{% endif %}</small>
+                  <small><a href="{{ Item[17] }}" target="_blank">{{ Item[12] }}</a></small>
                 </div>
                 {% endif %}
                 {% if Item[14] and Item[13] %}
@@ -444,8 +443,15 @@
     show_wait_process();
     ajax_post("search", param, function (ret) {
       hide_wait_process();
-      //刷新页面
-      navmenu('search?s=' + keyword)
+      if(ret.code == 0){
+        navmenu('search?s=' + keyword);
+      }else{
+        $("#search_btn").text("搜索");
+        $("#search_btn").attr("disabled", false);
+        $("#quick_search_btn").attr("disabled", false);
+        $("#search_icon").attr("disabled", false);
+        show_fail_modal(ret.msg);
+      }
     });
   }
   //点击链接下载

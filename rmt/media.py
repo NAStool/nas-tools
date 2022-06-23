@@ -418,18 +418,21 @@ class Media:
                 print(err)
         return {}
 
-    def get_tmdb_info(self, mtype: MediaType, title=None, year=None, tmdbid=None):
+    def get_tmdb_info(self, mtype: MediaType = None, title=None, year=None, tmdbid=None):
         """
         给定名称和年份或者TMDB号，查询一条媒体信息
-        :param mtype: 类型：电影、电视剧、动漫
+        :param mtype: 类型：电影、电视剧、动漫，为空时都查（此时用不上年份）
         :param title: 标题
         :param year: 年份
         :param tmdbid: TMDB的ID，有tmdbid时优先使用tmdbid，否则使用年份和标题
         """
-        if not tmdbid:
-            if not mtype or not title:
+        if not tmdbid or not mtype:
+            if not title:
                 return None
-            tmdb_info = self.__search_tmdb(file_media_name=title, first_media_year=year, search_type=mtype)
+            if mtype:
+                tmdb_info = self.__search_tmdb(file_media_name=title, first_media_year=year, search_type=mtype)
+            else:
+                tmdb_info = self.__search_multi_tmdb(file_media_name=title)
         else:
             if mtype == MediaType.MOVIE:
                 tmdb_info = self.__get_tmdb_movie_detail(tmdbid)

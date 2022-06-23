@@ -2,7 +2,7 @@ import time
 from message.send import Message
 from rmt.filetransfer import FileTransfer
 from pt.media_server import MediaServer
-from utils.functions import get_location
+from web.backend.web_utils import get_location
 
 
 class WebhookEvent:

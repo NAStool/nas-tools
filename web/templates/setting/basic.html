@@ -90,6 +90,12 @@
                   <input type="text" value="{{ Config.app.domain or '' }}" class="form-control" id="app.domain" placeholder="http://IP:PORT" autocomplete="false">
                 </div>
               </div>
+              <div class="col-xl-8">
+                <div class="mb-3">
+                  <label class="form-label">User-Agent(<a href="#" title="如发现被豆瓣、PT站等封堵，请适当修改此项">?</a>)</label>
+                  <input type="text" value="{{ Config.app.user_agent or '' }}" class="form-control" id="app.user_agent" placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36" autocomplete="false">
+                </div>
+              </div>
             </div>
           </div>
           <div class="card-footer">

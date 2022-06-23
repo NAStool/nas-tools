@@ -37,7 +37,6 @@ class ISiteUserInfo(metaclass=ABCMeta):
 
     # 内部数据
     _base_url = None
-    _user_agent = None
     _site_cookie = None
     _index_html = None
 
@@ -50,11 +49,10 @@ class ISiteUserInfo(metaclass=ABCMeta):
     _torrent_seeding_page = "getusertorrentlistajax.php?userid="
     _session = requests.Session()
 
-    def __init__(self, url, user_agent, site_cookie, index_html):
+    def __init__(self, url, site_cookie, index_html):
         super().__init__()
         split_url = urlsplit(url)
         self._base_url = f"{split_url.scheme}://{split_url.netloc}"
-        self._user_agent = user_agent
         self._site_cookie = site_cookie
         self._index_html = index_html
 
@@ -92,7 +90,7 @@ class ISiteUserInfo(metaclass=ABCMeta):
         :param url:
         :return:
         """
-        res = RequestUtils(headers=self._user_agent, cookies=self._site_cookie, session=self._session).get_res(url=url)
+        res = RequestUtils(cookies=self._site_cookie, session=self._session).get_res(url=url)
         if res and res.status_code == 200:
             if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                 res.encoding = "UTF-8"

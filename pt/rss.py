@@ -5,7 +5,7 @@ import re
 from urllib import parse
 import xml.dom.minidom
 import log
-from config import Config, RSS_EXTRA_SITES
+from config import RSS_EXTRA_SITES
 from pt.searcher import Searcher
 from message.send import Message
 from pt.downloader import Downloader
@@ -25,7 +25,6 @@ lock = Lock()
 class Rss:
     __sites = None
     __rss_rule = None
-    __user_agent = None
     message = None
     media = None
     downloader = None
@@ -39,8 +38,6 @@ class Rss:
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        self.__user_agent = config.get_config('app').get('user_agent')
         self.__sites = get_config_site()
         rss_rule = get_config_rss_rule()
         if rss_rule:
@@ -194,7 +191,7 @@ class Rss:
                         download_volume_factor = 1.0
                         upload_volume_factor = 1.0
                         if rss_free:
-                            free_type = Torrent.check_torrent_free(torrent_url=page_url, cookie=rss_cookie, user_agent=self.__user_agent)
+                            free_type = Torrent.check_torrent_free(torrent_url=page_url, cookie=rss_cookie)
                             if free_type == "2XFREE":
                                 download_volume_factor = 0.0
                                 upload_volume_factor = 2.0

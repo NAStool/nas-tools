@@ -270,8 +270,10 @@ class WebAction:
         ident_flag = False if data.get("unident") else True
         filters = data.get("filters")
         if search_word:
-            search_medias_for_web(content=search_word, ident_flag=ident_flag, filters=filters)
-        return {"retcode": 0}
+            ret, ret_msg = search_medias_for_web(content=search_word, ident_flag=ident_flag, filters=filters)
+            if ret != 0:
+                return {"code": ret, "msg": ret_msg}
+        return {"code": 0}
 
     @staticmethod
     def __download(data):

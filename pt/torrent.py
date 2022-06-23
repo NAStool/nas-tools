@@ -303,12 +303,11 @@ class Torrent:
 
     @staticmethod
     @lru_cache(maxsize=128)
-    def check_torrent_free(torrent_url, cookie, user_agent):
+    def check_torrent_free(torrent_url, cookie):
         """
         检验种子是否免费
         :param torrent_url: 种子的详情页面
         :param cookie: 站点的Cookie
-        :param user_agent: user_agent
         :return: 促销类型 FREE 2XFREE
         """
         if not torrent_url:
@@ -319,7 +318,7 @@ class Torrent:
         xpath_strs = GRAP_FREE_SITES.get(url_host)
         if not xpath_strs:
             return None
-        res = RequestUtils(headers=user_agent, cookies=cookie).get_res(url=torrent_url)
+        res = RequestUtils(cookies=cookie).get_res(url=torrent_url)
         if res and res.status_code == 200:
             res.encoding = res.apparent_encoding
             html_text = res.text
