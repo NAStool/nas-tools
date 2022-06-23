@@ -16,6 +16,7 @@ from utils.types import MediaType, MatchMode
 from utils.commons import EpisodeFormat
 from utils.cache_manager import cacheman
 
+
 class Media:
     # TheMovieDB
     tmdb = None
@@ -24,6 +25,7 @@ class Media:
     tv = None
     meta = None
     __rmt_match_mode = None
+    __search_keyword = None
     __space_chars = r"\.|-|/|:"
     __empty_chars = r"'|,"
 
@@ -54,6 +56,9 @@ class Media:
                 self.__rmt_match_mode = MatchMode.STRICT
             else:
                 self.__rmt_match_mode = MatchMode.NORMAL
+        laboratory = config.get_config('laboratory')
+        if laboratory:
+            self.__search_keyword = laboratory.get("search_keyword")
 
     def __compare_tmdb_names(self, file_name, tmdb_names):
         """
@@ -568,7 +573,7 @@ class Media:
                         file_media_info = self.__search_multi_tmdb(file_media_name=meta_info.get_name())
             if not file_media_info:
                 file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name())
-            if not file_media_info:
+            if not file_media_info and self.__search_keyword:
                 log.info("【META】无法搜索到相关资源：%s " % meta_info.get_name())
                 cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())
                 if not cache_name:
@@ -663,7 +668,7 @@ class Media:
                         if not file_media_info:
                             # 从网站查询
                             file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name())
-                        if not file_media_info:
+                        if not file_media_info and self.__search_keyword:
                             log.info("【META】无法搜索到相关资源：%s " % meta_info.get_name())
                             cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())
                             if not cache_name:
@@ -881,7 +886,8 @@ class Media:
             log.console(str(e))
             return {}
 
-    def __search_bing(self, feature_name):
+    @staticmethod
+    def __search_bing(feature_name):
 
         if not feature_name:
             return None
@@ -917,10 +923,10 @@ class Media:
                 keyword = ret[0][0]
             else:
                 pre = ret[0]
-                next = ret[1]
-                if pre[0].find(next[0]) > -1:
-                    keyword =  next[0]
+                nextw = ret[1]
+                if pre[0].find(nextw[0]) > -1:
+                    keyword = nextw[0]
                 else:
-                    keyword =  pre[0]
+                    keyword = pre[0]
             log.info("【META】选择关键字为：%s " % keyword)
             return keyword

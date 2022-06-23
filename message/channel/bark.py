@@ -4,6 +4,7 @@ from utils.http_utils import RequestUtils
 
 
 class Bark(IMessageChannel):
+
     __server = None
     __apikey = None
 
@@ -53,3 +54,6 @@ class Bark(IMessageChannel):
                 return False, "未获取到返回信息"
         except Exception as msg_e:
             return False, str(msg_e)
+
+    def send_list_msg(self, title, medias: list, user_id=""):
+        pass

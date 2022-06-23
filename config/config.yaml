@@ -314,3 +314,8 @@ security:
   telegram_webhook_allow_ip:
     ipv4: 149.154.160.0/20,91.108.4.0/22
     ipv6: ::/0
+
+# 【实验室】
+laboratory:
+  # 【识别增强】关键字猜想
+  search_keyword: false

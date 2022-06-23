@@ -22,3 +22,13 @@ class IMessageChannel(metaclass=ABCMeta):
         :return: 发送状态，错误信息
         """
         pass
+
+    @abstractmethod
+    def send_list_msg(self, title, medias: list, user_id=""):
+        """
+        发送列表类消息
+        :param title: 消息标题
+        :param medias: 媒体列表
+        :param user_id: 消息发送对象的ID，为空则发给所有人
+        """
+        pass
