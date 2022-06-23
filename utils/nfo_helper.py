@@ -1,6 +1,8 @@
 import os.path
 import time
 from xml.dom import minidom
+
+import log
 from rmt.media import Media
 from rmt.meta.metabase import MetaBase
 from utils.functions import add_node
@@ -55,6 +57,7 @@ class NfoHelper:
         :param file_name: 电影文件名，不含后缀
         """
         # 开始生成XML
+        log.info("【NFO】正在生成电影NFO文件：%s" % file_name)
         doc = minidom.Document()
         root = add_node(doc, doc, "movie")
         # 公共部分
@@ -76,6 +79,7 @@ class NfoHelper:
         :param out_path: 电视剧根目录
         """
         # 开始生成XML
+        log.info("【NFO】正在生成电视剧NFO文件：%s" % out_path)
         doc = minidom.Document()
         root = add_node(doc, doc, "tvshow")
         # 公共部分
@@ -99,6 +103,7 @@ class NfoHelper:
         :param season: 季号
         :param out_path: 电视剧季的目录
         """
+        log.info("【NFO】正在生成季NFO文件：%s" % out_path)
         doc = minidom.Document()
         root = add_node(doc, doc, "season")
         # 添加时间
@@ -130,6 +135,7 @@ class NfoHelper:
         :param file_name: 电视剧文件名，不含后缀
         """
         # 开始生成集的信息
+        log.info("【NFO】正在生成剧集NFO文件：%s" % file_name)
         doc = minidom.Document()
         root = add_node(doc, doc, "episodedetails")
         # 添加时间
@@ -190,6 +196,7 @@ class NfoHelper:
         if os.path.exists(os.path.join(out_path, "%s.%s" % (itype, str(url).split('.')[-1]))):
             return
         try:
+            log.info("【NFO】正在保存 %s 图片：%s" % (itype, out_path))
             r = RequestUtils().get_res(url)
             with open(file=os.path.join(out_path, "%s.%s" % (itype, str(url).split('.')[-1])),
                       mode="wb") as img:
