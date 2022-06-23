@@ -131,17 +131,7 @@ class Message:
             msg_text = f"{msg_text}\n大小：{size}"
         if can_item.org_string:
             msg_text = f"{msg_text}\n种子：{can_item.org_string}"
-        free_strs = {
-            "1.0 1.0": "普通",
-            "1.0 0.0": "免费",
-            "2.0 1.0": "2X",
-            "2.0 0.0": "2X免费",
-            "1.0 0.5": "50%",
-            "2.0 0.5": "2X 50%",
-            "1.0 0.7": "70%",
-            "1.0 0.3": "30%"
-        }
-        msg_text = f"{msg_text}\n促销：{free_strs.get('%.1f %.1f' % (can_item.upload_volume_factor, can_item.download_volume_factor))}"
+        msg_text = f"{msg_text}\n促销：{can_item.get_volume_factor_string()}"
         if can_item.description:
             html_re = re.compile(r'<[^>]+>', re.S)
             description = html_re.sub('', can_item.description)

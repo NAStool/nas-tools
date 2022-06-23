@@ -905,7 +905,7 @@ class WebAction:
             if doubanid:
                 link_url = "https://movie.douban.com/subject/%s" % doubanid
                 douban_info = DoubanApi().movie_detail(doubanid)
-                if not douban_info:
+                if not douban_info or douban_info.get("localized_message"):
                     return {"code": 1, "retmsg": "无法查询到豆瓣信息", "link_url": link_url}
                 overview = douban_info.get("intro")
                 poster_path = douban_info.get("cover_url")
@@ -960,7 +960,7 @@ class WebAction:
             if doubanid:
                 link_url = "https://movie.douban.com/subject/%s" % doubanid
                 douban_info = DoubanApi().tv_detail(doubanid)
-                if not douban_info:
+                if not douban_info or douban_info.get("localized_message"):
                     return {"code": 1, "retmsg": "无法查询到豆瓣信息", "link_url": link_url}
                 overview = douban_info.get("intro")
                 poster_path = douban_info.get("cover_url")

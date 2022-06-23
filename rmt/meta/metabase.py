@@ -49,6 +49,8 @@ class MetaBase(object):
     category = None
     # TMDB ID
     tmdb_id = 0
+    # 豆瓣 ID
+    douban_id = 0
     # 媒体标题
     title = None
     # 媒体原语种
@@ -286,6 +288,20 @@ class MetaBase(object):
             return self.poster_path
         else:
             return "../static/img/tmdb.webp"
+
+    # 返回促销信息
+    def get_volume_factor_string(self):
+        free_strs = {
+            "1.0 1.0": "普通",
+            "1.0 0.0": "免费",
+            "2.0 1.0": "2X",
+            "2.0 0.0": "2X免费",
+            "1.0 0.5": "50%",
+            "2.0 0.5": "2X 50%",
+            "1.0 0.7": "70%",
+            "1.0 0.3": "30%"
+        }
+        return free_strs.get('%.1f %.1f' % (self.upload_volume_factor, self.download_volume_factor), "普通")
 
     # 是否包含季
     def is_in_season(self, season):

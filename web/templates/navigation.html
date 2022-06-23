@@ -534,12 +534,12 @@
         <div class="modal-content">
           <div class="card">
             <div class="ribbon ribbon-top ribbon-bookmark bg-purple" id="system_media_vote"></div>
-            <div class="card-body">
-              <div class="row align-items-center">
-                <div class="col-3">
-                  <img src="" class="rounded" id="system_media_poster">
-                </div>
-                <div class="col vtop">
+            <div class="row row-0">
+              <div class="col-3 d-none d-lg-block">
+                <img id="system_media_poster" src="" class="w-100 h-100 object-cover">
+              </div>
+              <div class="col">
+                <div class="card-body">
                   <h4 class="card-title mb-3">
                     <a href="#" ><strong id="system_media_name"></strong></a><br/>
                     <span class="text-muted" id="system_release_date"></span>
@@ -648,7 +648,11 @@
             $("#system_media_name").text(ret.title);
             $("#system_release_date").text(ret.release_date)
             $("#system_media_poster").attr("src", ret.poster_path);
-            $("#system_media_overview").text(ret.overview);
+            if(ret.overview.length > 200){
+              $("#system_media_overview").text(ret.overview.substr(0, 200) + " ...");
+            }else{
+              $("#system_media_overview").text(ret.overview);
+            }
             if(!ret.vote_average || ret.vote_average == "0"){
               $("#system_media_vote").hide();
             }else{
