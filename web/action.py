@@ -28,6 +28,7 @@ from service.scheduler import Scheduler
 from service.sync import Sync
 from utils.commons import EpisodeFormat
 from utils.functions import *
+from utils.http_utils import RequestUtils
 from utils.meta_helper import MetaHelper
 from utils.sqls import *
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
