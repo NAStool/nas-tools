@@ -326,6 +326,11 @@ def is_transfer_in_blacklist(path):
         return False
 
 
+# 查询是否为黑名单
+def is_transfer_notin_blacklist(path):
+    return not is_transfer_in_blacklist(path)
+
+
 # 插入黑名单记录
 def insert_transfer_blacklist(path):
     if not path:

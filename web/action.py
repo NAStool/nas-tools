@@ -459,17 +459,12 @@ class WebAction:
                                                            tmdb_info=tmdb_info,
                                                            media_type=media_type,
                                                            season=season,
-                                                           episode=(
-                                                               EpisodeFormat(episode_format), need_fix_all,
-                                                               logid),
+                                                           episode=(EpisodeFormat(episode_format), need_fix_all),
                                                            min_filesize=min_filesize
                                                            )
         if succ_flag:
-            if not need_fix_all:
-                if logid:
-                    insert_transfer_blacklist(path)
-                else:
-                    update_transfer_unknown_state(path)
+            if not need_fix_all and not logid:
+                update_transfer_unknown_state(path)
             return {"retcode": 0, "retmsg": "转移成功"}
         else:
             return {"retcode": 2, "retmsg": ret_msg}
@@ -510,7 +505,7 @@ class WebAction:
                                                            season=season,
                                                            episode=(
                                                                EpisodeFormat(episode_format, episode_details,
-                                                                             episode_offset), False, None),
+                                                                             episode_offset), False),
                                                            min_filesize=min_filesize,
                                                            udf_flag=True)
         if succ_flag:
