@@ -256,28 +256,35 @@ class Rss:
         finally:
             lock.release()
 
-    def rsssearch(self):
+    def rsssearch_all(self):
+        """
+        搜索R状态的所有订阅，由定时服务调用
+        """
+        self.rsssearch(state="R")
+
+    def rsssearch(self, state="D"):
         """
         RSS订阅队列中状态的任务处理，先进行存量PT资源检索，缺失的才标志为RSS状态，由定时服务调用
         """
         try:
             lock.acquire()
             # 处理电影
-            self.rsssearch_movie()
+            self.rsssearch_movie(state=state)
             # 处理电视剧
-            self.rsssearch_tv()
+            self.rsssearch_tv(state=state)
         finally:
             lock.release()
 
-    def rsssearch_movie(self, rssid=None):
+    def rsssearch_movie(self, rssid=None, state='D'):
         """
         检索电影RSS
         :param rssid: 订阅ID，未输入时检索所有状态为D的，输入时检索该ID任何状态的
+        :param state: 检索的状态，默认为队列中才检索
         """
         if rssid:
             movies = get_rss_movies(rssid=rssid)
         else:
-            movies = get_rss_movies(state='D')
+            movies = get_rss_movies(state=state)
         if movies:
             log.info("【RSS】共有 %s 个电影订阅需要检索" % len(movies))
         for movie in movies:
@@ -305,6 +312,7 @@ class Rss:
             if exist_flag:
                 log.info("【RSS】电影 %s 已存在，删除订阅..." % name)
                 delete_rss_movie(name, year)
+                continue
             # 开始检索
             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
                 media_info=media_info,
@@ -316,15 +324,16 @@ class Rss:
             else:
                 update_rss_movie_state(name, year, 'R')
 
-    def rsssearch_tv(self, rssid=None):
+    def rsssearch_tv(self, rssid=None, state="D"):
         """
         检索电视剧RSS
         :param rssid: 订阅ID，未输入时检索所有状态为D的，输入时检索该ID任何状态的
+        :param state: 检索的状态，默认为队列中才检索
         """
         if rssid:
             tvs = get_rss_tvs(rssid=rssid)
         else:
-            tvs = get_rss_tvs(state='D')
+            tvs = get_rss_tvs(state=state)
         if tvs:
             log.info("【RSS】共有 %s 个电视剧订阅需要检索" % len(tvs))
         for tv in tvs:
@@ -354,6 +363,7 @@ class Rss:
             if exist_flag:
                 log.info("【RSS】电视剧 %s 已存在，删除订阅..." % name)
                 delete_rss_tv(name, year, season)
+                continue
             # 开始检索
             media_info.begin_season = int(season.replace("S", ""))
             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(

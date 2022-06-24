@@ -32,13 +32,13 @@
               </div>
               <div class="col-xl-4">
                 <div class="mb-3">
-                  <label class="form-label">日志文件路径(<a href="#" title="日志输出类型为文件时需要配置该项">?</a>)</label>
+                  <label class="form-label">日志文件路径 <span class="form-help" title="日志输出类型为文件时需要配置该项">?</span></label>
                   <input type="text" value="{{ Config.app.logpath or '' }}" class="form-control" id="app.logpath" placeholder="/config/logs" autocomplete="false">
                 </div>
               </div>
               <div class="col-xl-4">
                 <div class="mb-3">
-                  <label class="form-label">日志中心地址(<a href="#" title="日志输出类型为日志中心时需要配置该项；需要配置IP地址和端口，配置示例：127.0.0.1:514">?</a>)</label>
+                  <label class="form-label">日志中心地址 <span class="form-help" title="日志输出类型为日志中心时需要配置该项；需要配置IP地址和端口，配置示例：127.0.0.1:514">?</span></label>
                   <input type="text" value="{{ Config.app.logserver or '' }}" class="form-control" id="app.logserver" placeholder="127.0.0.1:514" autocomplete="false">
                 </div>
               </div>
@@ -66,7 +66,7 @@
             <div class="row">
               <div class="col-xl-4">
                 <div class="mb-3">
-                  <label class="form-label">HTTPS证书文件路径(<a href="#" title="需要是pem格式的证书文件">?</a>)</label>
+                  <label class="form-label">HTTPS证书文件路径 <span class="form-help" title="需要是pem格式的证书文件">?</span></label>
                   <input type="text" value="{{ Config.app.ssl_cert or '' }}" class="form-control" id="app.ssl_cert" placeholder="" autocomplete="false">
                 </div>
               </div>
@@ -78,7 +78,7 @@
               </div>
               <div class="col-xl-4">
                 <div class="mb-3">
-                  <label class="form-label">代理服务器(<a href="#" title="将使用代理访问tmdb、telegram等境外网站，PT站不使用代理；配置格式示例：http://127.0.0.1:7890、socks5://127.0.0.1:8018">?</a>)</label>
+                  <label class="form-label">代理服务器 <span class="form-help" title="将使用代理访问tmdb、telegram等境外网站，PT站不使用代理；配置格式示例：http://127.0.0.1:7890、socks5://127.0.0.1:8018">?</span></label>
                   <input type="text" value="{{ Proxy or '' }}" class="form-control" id="app.proxies" placeholder="http://127.0.0.1:7890" autocomplete="false">
                 </div>
               </div>
@@ -86,13 +86,13 @@
             <div class="row">
               <div class="col-xl-4">
                 <div class="mb-3">
-                  <label class="form-label">外网访问地址(<a href="#" title="使用该地址进行通知点击跳转以及设置Telegram机器人Webhook；需要配置IP地址和端口，如为https则需要加https://前缀；如启用Telegram机器人Webhook，则端口必须为：443, 80, 88, 8443之一，80、443一般运营商会封禁，建议使用88、8443">?</a>)</label>
+                  <label class="form-label">外网访问地址 <span class="form-help" title="使用该地址进行通知点击跳转以及设置Telegram机器人Webhook；需要配置IP地址和端口，如为https则需要加https://前缀；如启用Telegram机器人Webhook，则端口必须为：443, 80, 88, 8443之一，80、443一般运营商会封禁，建议使用88、8443">?</span></label>
                   <input type="text" value="{{ Config.app.domain or '' }}" class="form-control" id="app.domain" placeholder="http://IP:PORT" autocomplete="false">
                 </div>
               </div>
               <div class="col-xl-8">
                 <div class="mb-3">
-                  <label class="form-label">User-Agent(<a href="#" title="如发现被豆瓣、PT站等封堵，请适当修改此项">?</a>)</label>
+                  <label class="form-label">User-Agent <span class="form-help" title="如发现被豆瓣、PT站等封堵，请适当修改此项">?</span></label>
                   <input type="text" value="{{ Config.app.user_agent or '' }}" class="form-control" id="app.user_agent" placeholder="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36" autocomplete="false">
                 </div>
               </div>
@@ -119,13 +119,13 @@
             <div class="row">
               <div class="col-xl-4">
                 <div class="mb-3">
-                  <label class="form-label required">TMDB API Key(<a href="#" title="在themoviedb.org网站申请API Key，该项必须配置，否则所有功能无法正常运行">?</a>)</label>
+                  <label class="form-label required">TMDB API Key <span class="form-help" title="在themoviedb.org网站申请API Key，该项必须配置，否则所有功能无法正常运行">?</span></label>
                   <input type="text" value="{{ Config.app.rmt_tmdbkey or '' }}" class="form-control" id="app.rmt_tmdbkey" placeholder="" autocomplete="false">
                 </div>
               </div>
               <div class="col-xl-4">
                 <div class="mb-3">
-                  <label class="form-label required">TMDB匹配模式(<a href="#" title="正常模式下会提升识别成功率，但也可能会导致误识别率增加；严格模式可以降低误识别率，但可能导致很多文件名/种子名中年份不正确的无法被识别（特别是剧集，需要是首播年份）">?</a>)</label>
+                  <label class="form-label required">TMDB匹配模式 <span class="form-help" title="正常模式下会提升识别成功率，但也可能会导致误识别率增加；严格模式可以降低误识别率，但可能导致很多文件名/种子名中年份不正确的无法被识别（特别是剧集，需要是首播年份）">?</span></label>
                   <select class="form-select" id="app.rmt_match_mode">
                     <option value="normal" {% if Config.app.rmt_match_mode=='normal' %}selected{% endif %}>正常模式</option>
                     <option value="strict"{% if Config.app.rmt_match_mode=='strict' %}selected{% endif %}>严格模式</option>
@@ -134,7 +134,7 @@
               </div>
               <div class="col-xl-4">
                 <div class="mb-3">
-                  <label class="form-label required">文件转移方式(<a href="#" title="硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘">?</a>)</label>
+                  <label class="form-label required">文件转移方式 <span class="form-help" title="硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘">?</span></label>
                   <select class="form-select" id="app.rmt_mode">
                     <option value="link" {% if Config.sync.sync_mod=='link' %}selected{% endif %}>硬链接</option>
                     <option value="softlink" {% if Config.sync.sync_mod=='softlink' %}selected{% endif %}>软链接</option>
@@ -146,13 +146,13 @@
             <div class="row">
               <div class="col-xl-4">
                 <div class="mb-3">
-                  <label class="form-label">二级分类策略(<a href="#" title="配置策略文件名，需要有同名的.yaml文件放置到配置文件目录中">?</a>)</label>
+                  <label class="form-label">二级分类策略 <span class="form-help" title="配置策略文件名，需要有同名的.yaml文件放置到配置文件目录中">?</span></label>
                   <input type="text" value="{{ Config.media.category or '' }}" class="form-control" id="media.category" placeholder="default-category" autocomplete="false">
                 </div>
               </div>
               <div class="col-xl-4">
                 <div class="mb-3">
-                  <label class="form-label required">媒体转移最小文件大小(MB)(<a href="#" title="小于该大小的文件将会忽略，不进行转移重命名">?</a>)</label>
+                  <label class="form-label required">媒体转移最小文件大小(MB) <span class="form-help" title="小于该大小的文件将会忽略，不进行转移重命名">?</span></label>
                   <input type="text" value="{{ Config.media.min_filesize or '' }}" class="form-control" id="media.min_filesize" placeholder="200" autocomplete="false">
                 </div>
               </div>
@@ -160,7 +160,7 @@
             <div class="row">
               <div class="col">
                 <div class="mb-3">
-                  <label class="form-label required">电影重命名格式(<a href="#" title="程序会按定义的命名格式对电影进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换；占位符外的字符会当成普通字符，直接体现在名称上&#10;电影占位符：{title}：标题，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{tmdbid}：TMDB的ID，{part}：part1/disc1/dvd1等">?</a>)</label>
+                  <label class="form-label required">电影重命名格式 <span class="form-help" title="程序会按定义的命名格式对电影进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换；占位符外的字符会当成普通字符，直接体现在名称上&#10;电影占位符：{title}：标题，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{tmdbid}：TMDB的ID，{part}：part1/disc1/dvd1等">?</span></label>
                   <input type="text" value="{{ Config.media.movie_name_format or '' }}" class="form-control" id="media.movie_name_format" placeholder="{title} ({year})/{title}-{part} ({year}) - {videoFormat}" autocomplete="false">
                 </div>
               </div>
@@ -168,7 +168,7 @@
             <div class="row">
               <div class="col">
                 <div class="mb-3">
-                  <label class="form-label required">电视剧重命名格式(<a href="#" title="程序会按定义的命名格式对电视剧进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换，占位符外的字符会当成普通字符，直接体现在名称上&#10;电视剧占位符：{title}：标题，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{tmdbid}：TMDB的ID，{season}：季数，{episode}：集数，{season_episode}：剧集SxxExx，{part}：part1/disc1/dvd1等">?</a>)</label>
+                  <label class="form-label required">电视剧重命名格式 <span class="form-help" title="程序会按定义的命名格式对电视剧进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换，占位符外的字符会当成普通字符，直接体现在名称上&#10;电视剧占位符：{title}：标题，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{tmdbid}：TMDB的ID，{season}：季数，{episode}：集数，{season_episode}：剧集SxxExx，{part}：part1/disc1/dvd1等">?</span></label>
                   <input type="text" value="{{ Config.media.tv_name_format or '' }}" class="form-control" id="media.tv_name_format" placeholder="{title} ({year})/Season {season}/{title}-{part} - {season_episode} - 第 {episode} 集" autocomplete="false">
                 </div>
               </div>
@@ -178,7 +178,7 @@
                 <div class="mb-3">
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="media.filesize_cover" {% if Config.media.filesize_cover %}checked{% endif %}>
-                    <span class="form-check-label">高质量文件覆盖(<a href="#" title="开启后，如下载了更高质量的同名文件时，会覆盖媒体库中已有的文件，否则不会进行转移处理">?</a>)</span>
+                    <span class="form-check-label">高质量文件覆盖 <span class="form-help" title="开启后，如下载了更高质量的同名文件时，会覆盖媒体库中已有的文件，否则不会进行转移处理">?</span></span>
                   </label>
                 </div>
               </div>
@@ -186,7 +186,7 @@
                 <div class="mb-3">
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="media.nfo_poster" {% if Config.media.nfo_poster %}checked{% endif %}>
-                    <span class="form-check-label">生成NFO及海报(<a href="#" title="开启后，会自动生成nfo描述文件及poster海报，协助媒体服务器识别和搜刮">?</a>)</span>
+                    <span class="form-check-label">生成NFO及海报 <span class="form-help" title="开启后，会自动生成nfo描述文件及poster海报，协助媒体服务器识别和搜刮">?</span></span>
                   </label>
                 </div>
               </div>
@@ -211,47 +211,53 @@
           </div>
           <div class="card-body">
             <div class="row">
-              <div class="col-xl-4">
+              <div class="col-xl-3">
                 <div class="mb-3">
-                  <label class="form-label">PT站自动签到时间(<a href="#" title="PT站自动签到时间，两种配置方法：1、配置间隔，单位小时，比如23.5；2、配置固定时间，如08:00；配置为空则不启用自动PT站签到功能">?</a>)</label>
-                  <input type="text" value="{{ Config.pt.ptsignin_cron or '' }}" class="form-control" id="pt.ptsignin_cron" placeholder="08:00" autocomplete="false">
+                  <label class="form-label">PT站自动签到时间 <span class="form-help" title="PT站自动签到时间，两种配置方法：1、配置间隔，单位小时，比如23.5；2、配置固定时间，如08:00；配置为空则不启用自动PT站签到功能（有的站点不支持签到，仅登录一次网站保号）">?</span></label>
+                  <input type="text" value="{{ Config.pt.ptsignin_cron or '' }}" class="form-control" id="pt.ptsignin_cron" placeholder="留空关闭自动签到" autocomplete="false">
                 </div>
               </div>
-              <div class="col-xl-4">
+              <div class="col-xl-3">
                 <div class="mb-3">
-                  <label class="form-label">RSS订阅周期(秒)(<a href="#" title="RSS订阅刷新的时间间隔，需要在订阅管理中设置订阅站点；如配置为空则不启动RSS订阅功能">?</a>)</label>
-                  <input type="text" value="{{ Config.pt.pt_check_interval or '' }}" class="form-control" id="pt.pt_check_interval" placeholder="1800" autocomplete="false">
+                  <label class="form-label">RSS订阅检查周期(秒) <span class="form-help" title="RSS订阅刷新的时间间隔，需要在订阅管理中设置订阅站点；如配置为空则不启动RSS订阅功能">?</span></label>
+                  <input type="text" value="{{ Config.pt.pt_check_interval or '' }}" class="form-control" id="pt.pt_check_interval" placeholder="留空关闭RSS订阅" autocomplete="false">
                 </div>
               </div>
-              <div class="col-xl-4">
+              <div class="col-xl-3">
                 <div class="mb-3">
-                  <label class="form-label">PT保种时间(天)(<a href="#" title="达到保种时间时将自动删除种子及对应的文件；如配置为空则不启动自动删种功能">?</a>)</label>
-                  <input type="text" value="{{ Config.pt.pt_seeding_time or '' }}" class="form-control" id="pt.pt_seeding_time" placeholder="留空关闭删种功能" autocomplete="false">
+                  <label class="form-label">订阅定时搜索周期(天) <span class="form-help" title="定时对订阅内容进行存量资源搜索，以天为单位，最小间隔为1天，该项会对PT站造成搜索压力，如非必要请不要开启">?</span></label>
+                  <input type="text" value="{{ Config.pt.search_rss_interval or '' }}" class="form-control" id="pt.search_rss_interval" placeholder="留空关闭订阅定时搜索" autocomplete="false">
+                </div>
+              </div>
+              <div class="col-xl-3">
+                <div class="mb-3">
+                  <label class="form-label">PT保种时间(天) <span class="form-help" title="达到保种时间时将自动删除种子及对应的文件；如配置为空则不启动自动删种功能">?</span></label>
+                  <input type="text" value="{{ Config.pt.pt_seeding_time or '' }}" class="form-control" id="pt.pt_seeding_time" placeholder="留空关闭定时删种" autocomplete="false">
                 </div>
               </div>
             </div>
             <div class="row">
-              <div class="col-xl-4">
+              <div class="col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="pt.pt_monitor" {% if Config.pt.pt_monitor %}checked{% endif %}>
-                    <span class="form-check-label">下载软件监控(<a href="#" title="监控下载软件，下载完成后自动进行文件转移。与目录同步监控下载目录二选一开启">?</a>)</span>
+                    <span class="form-check-label">下载软件监控 <span class="form-help" title="监控下载软件，下载完成后自动进行文件转移。与目录同步监控下载目录二选一开启">?</span></span>
                   </label>
                 </div>
               </div>
-              <div class="col-xl-4">
+              <div class="col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="pt.pt_monitor_only" {% if Config.pt.pt_monitor_only %}checked{% endif %}>
-                    <span class="form-check-label">只管理NASTool添加的下载(<a href="#" title="启用后只有NASTool添加的下载才会被自动转移和显示，关闭则下载软件中所有的任务都会转移和显示">?</a>)</span>
+                    <span class="form-check-label">只管理NASTool添加的下载 <span class="form-help" title="启用后只有NASTool添加的下载才会被自动转移和显示，关闭则下载软件中所有的任务都会转移和显示">?</span></span>
                   </label>
                 </div>
               </div>
-              <div class="col-xl-4">
+              <div class="col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="pt.search_auto" {% if Config.pt.search_auto %}checked{% endif %}>
-                    <span class="form-check-label">微信/Telegram搜索自动择优下载(<a href="#" title="启用后在微信、Telegram发送名称后会自动择优下载，否则需要点击链接跳转后手工选择">?</a>)</span>
+                    <span class="form-check-label">远程搜索自动择优下载 <span class="form-help" title="启用后在微信、Telegram发送名称后会自动择优下载，否则需要点击链接跳转后手工选择">?</span></span>
                   </label>
                 </div>
               </div>
@@ -278,7 +284,7 @@
             <div class="row">
               <div class="col-sm-6 col-xl-4">
                 <div class="mb-1">
-                  <label class="form-label">媒体服务器Webhook源地址(<a href="#" title="仅允许配置的地址范围内地址调用Webhook，多个地址段用,号分隔，默认为0.0.0.0/0,::/0即不做限制">?</a>)</label>
+                  <label class="form-label">媒体服务器Webhook源地址 <span class="form-help" title="仅允许配置的地址范围内地址调用Webhook，多个地址段用,号分隔，默认为0.0.0.0/0,::/0即不做限制">?</span></label>
                   <input type="text" value="{{ Config.security.media_server_webhook_allow_ip.ipv4 or '' }}" class="form-control" id="security.media_server_webhook_allow_ip.ipv4" placeholder="允许的IPv4 CIDR" autocomplete="false">
                 </div>
                 <div class="mb-3">
@@ -287,7 +293,7 @@
               </div>
               <div class="col-sm-6 col-xl-4">
                 <div class="mb-1">
-                  <label class="form-label">Telegram Webhook源地址(<a href="#" title="仅允许配置的地址范围内地址调用Webhook，多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制">?</a>)</label>
+                  <label class="form-label">Telegram Webhook源地址 <span class="form-help" title="仅允许配置的地址范围内地址调用Webhook，多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制">?</span></label>
                   <input type="text" value="{% if Config.security.telegram_webhook_allow_ip %}{{ Config.security.telegram_webhook_allow_ip.ipv4 or '' }}{% endif %}" class="form-control" id="security.telegram_webhook_allow_ip.ipv4" placeholder="允许的IPv4 CIDR" autocomplete="false">
                 </div>
                 <div class="mb-3">
@@ -319,7 +325,7 @@
                 <div class="mb-3">
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="laboratory.search_keyword" {% if Config.laboratory and Config.laboratory.search_keyword %}checked{% endif %}>
-                    <span class="form-check-label">辅助识别(<a href="#" title="开启后，无法识别到媒体信息时会尝试猜测和纠正关键词并再次匹配，可能会增加识别耗时">?</a>)</span>
+                    <span class="form-check-label">辅助识别 <span class="form-help" title="开启后，无法识别到媒体信息时会尝试猜测和纠正关键词并再次匹配，可能会增加识别耗时">?</span></span>
                   </label>
                 </div>
               </div>

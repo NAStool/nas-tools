@@ -1,7 +1,7 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 import log
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
-    RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_SEARCH_INTERVAL, REFRESH_PT_DATA_INTERVAL, \
+    RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_CHECK_INTERVAL, REFRESH_PT_DATA_INTERVAL, \
     RSS_DOUBAN_TO_TMDB_INTEVAL
 from pt.douban import DouBan
 from pt.downloader import Downloader
@@ -50,7 +50,7 @@ class Scheduler:
                         hour = int(ptsignin_cron.split(":")[0]) or 1
                         minute = int(ptsignin_cron.split(":")[1]) or 1
                     except Exception as e:
-                        log.info("【RUN】pt.ptsignin_cron 格式错误：%s" % str(e))
+                        log.info("【RUN】PT站自动签到时间 配置格式错误：%s" % str(e))
                         hour = minute = 0
                     if hour and minute:
                         self.SCHEDULER.add_job(Sites().signin,
@@ -62,7 +62,7 @@ class Scheduler:
                     try:
                         hours = float(ptsignin_cron)
                     except Exception as e:
-                        log.info("【RUN】pt.ptsignin_cron 格式错误：%s" % str(e))
+                        log.info("【RUN】PT站自动签到时间 配置格式错误：%s" % str(e))
                         hours = 0
                     if hours:
                         self.SCHEDULER.add_job(Sites().signin,
@@ -79,18 +79,32 @@ class Scheduler:
             # RSS下载器
             pt_check_interval = self.__pt.get('pt_check_interval')
             if pt_check_interval:
-                if isinstance(pt_check_interval, str):
-                    if pt_check_interval.isdigit():
-                        pt_check_interval = int(pt_check_interval)
-                    else:
-                        try:
-                            pt_check_interval = float(pt_check_interval)
-                        except Exception as e:
-                            log.error("【RUN】pt.pt_check_interval 格式错误：%s" % str(e))
-                            pt_check_interval = 0
+                if isinstance(pt_check_interval, str) and pt_check_interval.isdigit():
+                    pt_check_interval = int(pt_check_interval)
+                else:
+                    try:
+                        pt_check_interval = round(float(pt_check_interval))
+                    except Exception as e:
+                        log.error("【RUN】RSS订阅周期 配置格式错误：%s" % str(e))
+                        pt_check_interval = 0
                 if pt_check_interval:
                     self.SCHEDULER.add_job(Rss().rssdownload, 'interval', seconds=round(pt_check_interval))
                     log.info("【RUN】RSS订阅服务启动...")
+
+            # RSS订阅定时检索
+            search_rss_interval = self.__pt.get('search_rss_interval')
+            if search_rss_interval:
+                if isinstance(search_rss_interval, str) and search_rss_interval.isdigit():
+                    search_rss_interval = int(search_rss_interval)
+                else:
+                    try:
+                        search_rss_interval = round(float(search_rss_interval))
+                    except Exception as e:
+                        log.error("【RUN】订阅定时搜索周期 配置格式错误：%s" % str(e))
+                        search_rss_interval = 0
+                if search_rss_interval:
+                    self.SCHEDULER.add_job(Rss().rsssearch_all, 'interval', hours=search_rss_interval * 24)
+                    log.info("【RUN】订阅定时搜索服务启动...")
 
         # 豆瓣电影同步
         if self.__douban:
@@ -119,12 +133,12 @@ class Scheduler:
         self.SCHEDULER.add_job(Sync().transfer_mon_files, 'interval', seconds=SYNC_TRANSFER_INTERVAL)
 
         # RSS队列中检索
-        self.SCHEDULER.add_job(Rss().rsssearch, 'interval', seconds=RSS_SEARCH_INTERVAL)
+        self.SCHEDULER.add_job(Rss().rsssearch, 'interval', seconds=RSS_CHECK_INTERVAL)
 
         # PT站数据刷新
         self.SCHEDULER.add_job(Sites().refresh_pt_date_now, 'interval', hours=REFRESH_PT_DATA_INTERVAL)
 
-        # 豆摊RSS转TMDB
+        # 豆瓣RSS转TMDB
         self.SCHEDULER.add_job(Rss().rssdouban_to_tmdb, 'interval', hours=RSS_DOUBAN_TO_TMDB_INTEVAL)
 
         self.SCHEDULER.print_jobs()

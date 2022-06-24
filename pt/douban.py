@@ -218,11 +218,18 @@ class DouBan:
                     if not search_state or search_state[0][0] == "NEW":
                         if not self.__auto_rss:
                             # 不需要自动加订阅，则直接搜索
+                            if media.begin_season:
+                                subtitle = "第%s季" % media.begin_season
+                            else:
+                                subtitle = None
                             media_info = self.media.get_media_info(title="%s %s" % (media.get_name(), media.year or ""),
+                                                                   subtitle=subtitle,
                                                                    mtype=media.type)
                             if not media_info or not media_info.tmdb_info:
                                 log.warn("【DOUBAN】%s 未查询到媒体信息" % media.get_name())
                                 continue
+                            # 合并季
+                            media_info.begin_season = media.begin_season
                             # 检查是否存在，电视剧返回不存在的集清单
                             exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info)
                             # 已经存在
