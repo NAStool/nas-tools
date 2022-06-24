@@ -168,11 +168,26 @@ def __search_media(in_from, media_info: MetaBase, user_id):
                                    user_id=user_id)
         # 自动添加订阅
         if Config().get_config('pt').get('search_no_result_rss'):
-            add_rss_subscribe(mtype=media_info.type,
-                              name=media_info.title,
-                              year=media_info.year,
-                              season=media_info.begin_season,
-                              tmdbid=media_info.tmdb_id)
+            # 添加订阅
+            if add_rss_subscribe(mtype=media_info.type,
+                                 name=media_info.title,
+                                 year=media_info.year,
+                                 season=media_info.begin_season,
+                                 tmdbid=media_info.tmdb_id):
+                # 发送通知
+                if media_info.type == MediaType.MOVIE:
+                    msg_title = f"{media_info.get_title_string()} 已添加订阅"
+                else:
+                    msg_title = f"{media_info.get_title_string()} {media_info.get_season_string()} 已添加订阅"
+                msg_str = f"类型：{media_info.type.value}"
+                if media_info.vote_average:
+                    msg_str = f"{msg_str}，{media_info.get_vote_string()}"
+                Message().send_channel_msg(channel=in_from,
+                                           title=msg_title,
+                                           text=msg_str,
+                                           image=media_info.get_message_image(),
+                                           url='movie_rss' if media_info.type == MediaType.MOVIE else 'tv_rss',
+                                           user_id=user_id)
     # 搜索到了但是没开自动下载
     elif download_count is None:
         Message().send_channel_msg(channel=in_from,
