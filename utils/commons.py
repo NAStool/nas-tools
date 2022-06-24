@@ -12,12 +12,16 @@ class EpisodeFormat(object):
         self.__start_ep = None
         self.__end_ep = None
         if details:
-            tmp = details.split(",")
-            if len(tmp) > 1:
-                self.__start_ep = int(tmp[0])
-                self.__end_ep = int(tmp[0]) if int(tmp[0]) > int(tmp[1]) else int(tmp[1])
+            if re.compile("\\d{1,4}-\\d{1,4}").match(details):
+                self.__start_ep = details
+                self.__end_ep = details
             else:
-                self.__start_ep = self.__end_ep = int(tmp[0])
+                tmp = details.split(",")
+                if len(tmp) > 1:
+                    self.__start_ep = int(tmp[0])
+                    self.__end_ep = int(tmp[0]) if int(tmp[0]) > int(tmp[1]) else int(tmp[1])
+                else:
+                    self.__start_ep = self.__end_ep = int(tmp[0])
         self.__offset = int(offset) if offset else 0
         self.__key = key
 
@@ -52,6 +56,11 @@ class EpisodeFormat(object):
     def split_episode(self, file_name):
         # 指定的具体集数，直接返回
         if self.__start_ep is not None and self.__start_ep == self.__end_ep:
+            if isinstance(self.__start_ep, str):
+                s, e = self.__start_ep.split("-")
+                if int(s) == int(e):
+                    return int(s) + self.__offset, None
+                return int(s) + self.__offset, int(e) + self.__offset
             return self.__start_ep + self.__offset, None
         if not self.__format:
             return None, None
