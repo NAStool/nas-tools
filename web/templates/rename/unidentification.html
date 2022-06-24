@@ -357,7 +357,7 @@
     } else {
       $("#rename_tmdb").removeClass("is-invalid");
     }
-    if (episode_details !== "" && !/^\d{1,5}(,\d{1,5})?$/.test(episode_details)) {
+    if (episode_details !== "" && !/^\d{1,5}([,-]\d{1,5})?$/.test(episode_details)) {
       $("#rename_episode_details").addClass("is-invalid");
       return;
     } else {
