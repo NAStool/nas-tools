@@ -574,7 +574,6 @@ class Media:
             if not file_media_info:
                 file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name())
             if not file_media_info and self.__search_keyword:
-                log.info("【META】无法搜索到相关资源：%s " % meta_info.get_name())
                 cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())
                 if not cache_name:
                     cache_name = self.__search_bing(meta_info.get_name())
@@ -669,7 +668,6 @@ class Media:
                             # 从网站查询
                             file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name())
                         if not file_media_info and self.__search_keyword:
-                            log.info("【META】无法搜索到相关资源：%s " % meta_info.get_name())
                             cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())
                             if not cache_name:
                                 cache_name = self.__search_bing(meta_info.get_name())

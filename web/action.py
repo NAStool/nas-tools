@@ -133,7 +133,7 @@ class WebAction:
                     return
             # 启动服务
             _thread.start_new_thread(command.get("func"), ())
-            Message().send_channel_msg(channel=in_from, title="已启动：%s" % command.get("desp"))
+            Message().send_channel_msg(channel=in_from, title="%s 已启动" % command.get("desp"))
         elif msg.startswith("订阅"):
             # 添加订阅
             _thread.start_new_thread(add_rss_substribe_from_string, (msg, in_from, user_id,))
