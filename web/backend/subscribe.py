@@ -63,7 +63,7 @@ def add_rss_substribe_from_string(rss_string, in_from=SearchType.OT, user_id=Non
         return False
 
 
-def add_rss_subscribe(mtype, name, year, season, match=False, doubanid=None, tmdbid=None, sites=None, state="D"):
+def add_rss_subscribe(mtype, name, year, season=None, match=False, doubanid=None, tmdbid=None, sites=None, state="D"):
     """
     添加电影、电视剧订阅
     :param mtype: 类型，电影、电视剧、动漫
@@ -93,40 +93,39 @@ def add_rss_subscribe(mtype, name, year, season, match=False, doubanid=None, tmd
                 return 1, "无法查询到媒体信息", None
         else:
             # 根据名称和年份查询
-            if season:
-                subtitle = "第%s季" % season
-            else:
-                subtitle = None
             media_info = media.get_media_info(title="%s %s" % (name, year),
-                                              subtitle=subtitle,
                                               mtype=mtype,
                                               strict=True if year else False)
             if media_info and media_info.tmdb_info:
                 tmdbid = media_info.tmdb_id
-            if not tmdbid:
-                if doubanid:
-                    # 查询豆瓣，从推荐加订阅的情况
-                    if mtype == MediaType.MOVIE:
-                        douban_info = DoubanApi().movie_detail(doubanid)
-                    else:
-                        douban_info = DoubanApi().tv_detail(doubanid)
-                    if not douban_info or douban_info.get("localized_message"):
-                        return 1, "无法查询到豆瓣媒体信息", None
-                    media_info = MetaInfo(title="%s %s".strip() % (name, year), mtype=mtype)
-                    media_info.title = media_info.get_name()
-                    media_info.year = douban_info.get("year")
-                    media_info.type = mtype
-                    media_info.backdrop_path = douban_info.get("cover_url")
-                    media_info.tmdb_id = "DB:%s" % doubanid
-                    media_info.begin_season = int(season)
-                    media_info.overview = douban_info.get("intro")
-                    media_info.total_episodes = douban_info.get("episodes_count")
+            elif doubanid:
+                # 查询豆瓣，从推荐加订阅的情况
+                if mtype == MediaType.MOVIE:
+                    douban_info = DoubanApi().movie_detail(doubanid)
                 else:
-                    return 1, "无法查询到媒体信息", None
+                    douban_info = DoubanApi().tv_detail(doubanid)
+                if not douban_info or douban_info.get("localized_message"):
+                    return 1, "无法查询到豆瓣媒体信息", None
+                media_info = MetaInfo(title="%s %s".strip() % (douban_info.get('title'), year), mtype=mtype)
+                media_info.title = media_info.get_name()
+                media_info.year = douban_info.get("year")
+                media_info.type = mtype
+                media_info.backdrop_path = douban_info.get("cover_url")
+                media_info.tmdb_id = "DB:%s" % doubanid
+                media_info.overview = douban_info.get("intro")
+                media_info.total_episodes = douban_info.get("episodes_count")
+                # 合并季
+                if season:
+                    media_info.begin_season = int(season)
+            else:
+                return 1, "无法查询到媒体信息", None
         # 添加订阅
         if media_info.type != MediaType.MOVIE:
             if tmdbid:
-                if not season:
+                if season:
+                    season = int(season)
+                    total_episode = media.get_tmdb_season_episodes_num(sea=season, tmdbid=tmdbid)
+                else:
                     # 查询季及集信息
                     total_seasoninfo = media.get_tmdb_seasons_list(tmdbid=tmdbid)
                     if not total_seasoninfo:
@@ -134,12 +133,9 @@ def add_rss_subscribe(mtype, name, year, season, match=False, doubanid=None, tmd
                     # 按季号降序排序
                     total_seasoninfo = sorted(total_seasoninfo, key=lambda x: x.get("season_number"),
                                               reverse=True)
-                    # 没有季的信息时，取最新季
+                    # 取最新季
                     season = total_seasoninfo[0].get("season_number")
                     total_episode = total_seasoninfo[0].get("episode_count")
-                else:
-                    season = int(season)
-                    total_episode = media.get_tmdb_season_episodes_num(sea=season, tmdbid=tmdbid)
                 if not total_episode:
                     return 3, "%s 获取剧集数失败，请确认该季是否存在" % media_info.get_title_string(), media_info
                 media_info.begin_season = season
@@ -158,7 +154,8 @@ def add_rss_subscribe(mtype, name, year, season, match=False, doubanid=None, tmd
         media_info = MetaInfo(title=name, mtype=mtype)
         media_info.title = name
         media_info.type = mtype
-        media_info.begin_season = season
+        if season:
+            media_info.begin_season = int(season)
         if mtype == MediaType.MOVIE:
             insert_rss_movie(media_info=media_info, state="R", sites=sites)
         else:

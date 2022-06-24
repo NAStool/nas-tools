@@ -261,6 +261,14 @@
                   </label>
                 </div>
               </div>
+              <div class="col-xl-3">
+                <div class="mb-3">
+                  <label class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="pt.search_no_result_rss" {% if Config.pt.search_no_result_rss %}checked{% endif %}>
+                    <span class="form-check-label">远程搜索无结果添加订阅 <span class="form-help" title="启用后在微信、Telegram发送名称搜索无结果时将自动添加订阅">?</span></span>
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
           <div class="card-footer">
