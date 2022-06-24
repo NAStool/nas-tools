@@ -15,7 +15,12 @@ from utils.meta_helper import MetaHelper
 from utils.types import MediaType, MatchMode
 from utils.commons import EpisodeFormat
 from utils.cache_manager import cacheman
+import difflib
 
+SEARCH_WEIGHT_1 = [10, 3, 2, 0.5, 0.5]
+SEARCH_WEIGHT_2 = [10, 2, 1]
+SEARCH_WEIGHT_3 = [10, 2]
+STR_SIMILARITY_THRESHOLD = 0.4
 
 class Media:
     # TheMovieDB
@@ -575,12 +580,16 @@ class Media:
                 file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name())
             if not file_media_info and self.__search_keyword:
                 cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())
+                is_movie = False
                 if not cache_name:
-                    cache_name = self.__search_bing(meta_info.get_name())
+                    cache_name, is_movie = self.__search_bing(meta_info.get_name())
                     cacheman["tmdb_supply"].set(meta_info.get_name(), cache_name)
                 if cache_name:
                     log.info("【META】开始辅助查询：%s ..." % cache_name)
-                    file_media_info = self.__search_multi_tmdb(file_media_name=cache_name)
+                    if is_movie:
+                        file_media_info = self.__search_tmdb(file_media_name=cache_name, search_type=MediaType.MOVIE)
+                    else:
+                        file_media_info = self.__search_multi_tmdb(file_media_name=cache_name)
 
             # 加入缓存
             if file_media_info:
@@ -669,12 +678,17 @@ class Media:
                             file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name())
                         if not file_media_info and self.__search_keyword:
                             cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())
+                            is_movie = False
                             if not cache_name:
-                                cache_name = self.__search_bing(meta_info.get_name())
+                                cache_name, is_movie = self.__search_bing(meta_info.get_name())
                                 cacheman["tmdb_supply"].set(meta_info.get_name(), cache_name)
                             if cache_name:
                                 log.info("【META】开始辅助查询：%s ..." % cache_name)
-                                file_media_info = self.__search_multi_tmdb(file_media_name=cache_name)
+                                if is_movie:
+                                    file_media_info = self.__search_tmdb(file_media_name=cache_name,
+                                                                         search_type=MediaType.MOVIE)
+                                else:
+                                    file_media_info = self.__search_multi_tmdb(file_media_name=cache_name)
                         if file_media_info:
                             self.meta.update_meta_data({media_key: file_media_info})
                         else:
@@ -886,45 +900,63 @@ class Media:
 
     @staticmethod
     def __search_bing(feature_name):
-
+        """
+        辅助识别关键字
+        """
+        is_movie = False
         if not feature_name:
-            return None
-        weights1 = [3, 2, 0.5, 0.5]
-        weights2 = [2, 1]
-        weights3 = [1]
-        bing_url = "https://www.bing.com/search?q=%s" % feature_name
+            return None, is_movie
+        bing_url = "https://www.cn.bing.com/search?q=%s&qs=n&form=QBRE&sp=-1" % feature_name
         res = RequestUtils().get_res(url=bing_url)
         if res and res.status_code == 200:
             html_text = res.text
             if not html_text:
-                return None
+                return None, is_movie
             html = etree.HTML(html_text)
-            strongs = html.xpath("//strong/text()")
+            strongs = list(filter(lambda x: difflib.SequenceMatcher(None, feature_name, x).ratio() > STR_SIMILARITY_THRESHOLD,
+                                  map(lambda x: x.text, html.cssselect(
+                                      "#sp_requery strong, #sp_recourse strong, #tile_link_cn strong, .b_ad .ad_esltitle~div strong, h2 strong, .b_caption p strong, .b_snippetBigText strong, .recommendationsTableTitle+.b_slideexp strong, .recommendationsTableTitle+table strong, .recommendationsTableTitle+ul strong, .pageRecoContainer .b_module_expansion_control strong, .pageRecoContainer .b_title>strong, .b_rs strong, .b_rrsr strong, #dict_ans strong, .b_listnav>.b_ans_stamp>strong, #b_content #ans_nws .na_cnt strong, .adltwrnmsg strong"))))
             if not strongs:
-                return None
+                return None, is_movie
             ret_dict = {}
+            doubans = html.xpath("//aside//a[contains(@href, \"movie.douban.com\")]")
+            if len(doubans) > 0:
+                title = html.xpath("//aside//h2[@class = \" b_entityTitle\"]/text()")
+                if title:
+                    ret_dict[title[0]] = 100
+                    if html.xpath("//aside//div[@data-feedbk-ids = \"Movie\"]"):
+                        is_movie = True
             for i, s in enumerate(strongs):
                 if len(strongs) < 5:
-                    score = weights3[0]
+                    if i < 2:
+                        score = SEARCH_WEIGHT_3[0]
+                    else:
+                        score = SEARCH_WEIGHT_3[1]
                 elif len(strongs) < 10:
-                    score = weights2[0] if i < (len(strongs) >> 1) else weights2[1]
+                    if i < 2:
+                        score = SEARCH_WEIGHT_2[0]
+                    else:
+                        score = SEARCH_WEIGHT_2[1] if i < (len(strongs) >> 1) else SEARCH_WEIGHT_2[2]
                 else:
-                    score = weights1[0] if i < (len(strongs) >> 2) else weights1[1] if i < (len(strongs) >> 1) \
-                        else weights1[2] if i < (len(strongs) >> 2 + len(strongs) >> 1) else weights1[3]
-                if ret_dict.__contains__(s):
-                    ret_dict[s] += score
+                    if i < 2:
+                        score = SEARCH_WEIGHT_1[0]
+                    else:
+                        score = SEARCH_WEIGHT_1[1] if i < (len(strongs) >> 2) else SEARCH_WEIGHT_1[2] if i < (len(strongs) >> 1) \
+                            else SEARCH_WEIGHT_1[3] if i < (len(strongs) >> 2 + len(strongs) >> 1) else SEARCH_WEIGHT_1[4]
+                if ret_dict.__contains__(s.lower()):
+                    ret_dict[s.lower()] += score
                     continue
-                ret_dict[s] = score
+                ret_dict[s.lower()] = score
             ret = sorted(ret_dict.items(), key=lambda d: d[1], reverse=True)
-            log.info("【META】推断关键字为：%s ..." % ([k[0] for k in ret]))
+            log.info("【META】推断关键字为：%s ..." % ([k[0] for i, k in enumerate(ret) if i < 4]))
             if len(ret) == 1:
                 keyword = ret[0][0]
             else:
                 pre = ret[0]
-                nextw = ret[1]
-                if pre[0].find(nextw[0]) > -1:
-                    keyword = nextw[0]
+                next = ret[1]
+                if next[0].find(pre[0]) > -1:
+                    keyword = next[0]
                 else:
                     keyword = pre[0]
             log.info("【META】选择关键字为：%s " % keyword)
-            return keyword
+            return keyword, is_movie
