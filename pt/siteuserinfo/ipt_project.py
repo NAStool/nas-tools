@@ -36,7 +36,7 @@ class IptSiteUserInfo(ISiteUserInfo):
         # TODO
         pass
 
-    def _parse_user_torrent_seeding_info(self, html_text):
+    def _parse_user_torrent_seeding_info(self, html_text, multi_page=False):
         # TODO
         pass
 

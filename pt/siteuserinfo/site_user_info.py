@@ -73,10 +73,19 @@ class ISiteUserInfo(metaclass=ABCMeta):
             self._parse_user_base_info(self._get_page_content(urljoin(self._base_url, self._brief_page)))
         if self._user_traffic_page:
             self._parse_user_traffic_info(self._get_page_content(urljoin(self._base_url, self._user_traffic_page)))
-        if self._torrent_seeding_page:
-            self._parse_user_torrent_seeding_info(self._get_page_content(urljoin(self._base_url, self._torrent_seeding_page)))
         if self._user_detail_page:
             self._parse_user_detail_info(self._get_page_content(urljoin(self._base_url, self._user_detail_page)))
+
+        if self._torrent_seeding_page:
+            # 第一页
+            next_page = self._parse_user_torrent_seeding_info(
+                self._get_page_content(urljoin(self._base_url, self._torrent_seeding_page)))
+
+            # 其他页处理
+            while next_page:
+                next_page = self._parse_user_torrent_seeding_info(
+                    self._get_page_content(urljoin(urljoin(self._base_url, self._torrent_seeding_page), next_page)),
+                    multi_page=True)
 
     @staticmethod
     def _prepare_html_text(html_text):
@@ -128,11 +137,12 @@ class ISiteUserInfo(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def _parse_user_torrent_seeding_info(self, html_text):
+    def _parse_user_torrent_seeding_info(self, html_text, multi_page=False):
         """
         解析用户的做种相关信息
         :param html_text:
-        :return:
+        :param multi_page: 是否多页数据
+        :return: 下页地址
         """
         pass
 

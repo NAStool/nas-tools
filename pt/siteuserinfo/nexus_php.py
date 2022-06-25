@@ -79,25 +79,42 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
             except Exception as err:
                 print(str(err))
 
-    def _parse_user_torrent_seeding_info(self, html_text):
+    def _parse_user_torrent_seeding_info(self, html_text, multi_page=False):
         """
         做种相关信息
         :param html_text:
-        :return:
+        :param multi_page: 是否多页数据
+        :return: 下页地址
         """
         html = etree.HTML(html_text)
         if not html:
-            return
-        # 做种体积
-        if self.seeding_size != 0:
-            return
+            return None
 
+        page_seeding = 0
+        page_seeding_size = 0
         seeding_torrents = html.xpath('//tr[position()>1]/td[3]')
-        self.seeding_size = 0
         if seeding_torrents:
-            self.seeding = len(seeding_torrents)
+            page_seeding = len(seeding_torrents)
+
             for per_size in seeding_torrents:
-                self.seeding_size += num_filesize(per_size.xpath("string(.)").strip())
+                page_seeding_size += num_filesize(per_size.xpath("string(.)").strip())
+
+        if multi_page:
+            self.seeding += page_seeding
+            self.seeding_size += page_seeding_size
+        else:
+            if not self.seeding:
+                self.seeding = page_seeding
+            if not self.seeding_size:
+                self.seeding_size = page_seeding_size
+
+        # 是否存在下页数据
+        next_page = None
+        next_page_text = html.xpath('//a[contains(.//text(), "下一页") or contains(.//text(), "下一頁")]/@href')
+        if next_page_text:
+            next_page = next_page_text[-1].strip()
+
+        return next_page
 
     def _parse_user_detail_info(self, html_text):
         """
@@ -108,11 +125,13 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         html = etree.HTML(html_text)
         if not html:
             return
-        # 等级
+        # 等级 获取同一行等级数据，图片格式等级，取title信息，否则取文本信息
         user_levels_text = html.xpath('//tr/td[text()="等級" or text()="等级" or *[text()="等级"]]/'
                                       'following-sibling::td[1]/img[1]/@title'
                                       '|//tr/td[text()="等級" or text()="等级"]/'
-                                      'following-sibling::td[1 and img[not(@title)]]/text()')
+                                      'following-sibling::td[1 and img[not(@title)]]/text()'
+                                      '|//tr/td[text()="等級" or text()="等级"]/'
+                                      'following-sibling::td[1 and not(img)]/text()')
         if user_levels_text:
             self.user_level = user_levels_text[0].strip()
 
@@ -129,3 +148,9 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
                                        'table[tr[1][td[4 and text()="尺寸"]]]//tr[position()>1]/td[4]')
             for per_size in seeding_sizes:
                 self.seeding_size += num_filesize(per_size.xpath("string(.)").strip())
+
+        # 存在链接跳转新页面，代表较多数据量，需要使用跳转链接查询
+        seeding_url_text = html.xpath('//tr/td[text()="目前做種"]/following-sibling::td[1]/'
+                                      'a[1 and @target = "_blank"]/@href')
+        if seeding_url_text:
+            self._torrent_seeding_page = seeding_url_text[0].strip()
