@@ -5,27 +5,39 @@ on:
     branches: [ master ]
     paths:
       - version.py
+      - .github/workflows/build-synology.yml
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Build the synology spk
-      run: |
-        mv synology/ui ./
-        tar -zcvf package.tgz *.py *.txt service/ rmt/ message/ web/ ui/ config/ pt/ utils/
-        mkdir spk
-        mv package.tgz synology/WIZARD_UIFILES synology/conf synology/scripts/ synology/CHANGELOG synology/INFO synology/*.PNG synology/*.asc spk/
-        cd spk/
-        chmod 777 scripts/*
-        tar -cvf nastool_dsm_6.x.spk *
-
     - name: Release version
+    - uses: actions/checkout@v2
       id: release_version
       run: |
         app_version=$(cat version.py |sed -ne "s/APP_VERSION\s=\s'\(.*\)'/\1/gp")
         echo "app_version=$app_version" >> $GITHUB_ENV
+
+    - name: Build the synology spk
+      run: |
+        cp -r synology/ui ./
+        sed 's/3000/3003/g' config/config.yaml
+        tar -zcvf package.tgz *.py *.txt service/ rmt/ message/ web/ ui/ config/ pt/ utils/
+        mkdir spk6
+        cp -r package.tgz synology/WIZARD_UIFILES synology/dsm6/conf synology/dsm6/scripts/ synology/dsm6/INFO synology/CHANGELOG synology/*.PNG synology/*.asc spk6/
+        cd spk6/
+        chmod 777 scripts/*
+        sed 's/NASTOOL_VERSION/${{ env.app_version }}/g' INFO
+        tar -cvf nastool_dsm_6.x.spk *
+        cd ..
+        rm -f package.tgz
+        tar -zcvf package.tgz *.py *.txt service/ rmt/ message/ web/ ui/ config/ pt/ utils/
+        mkdir spk7
+        cp -r package.tgz synology/WIZARD_UIFILES synology/dsm7/conf synology/dsm7/scripts/ synology/dsm7/INFO synology/CHANGELOG synology/*.PNG synology/*.asc spk7/
+        cd spk7/
+        chmod 777 scripts/*
+        sed 's/NASTOOL_VERSION/${{ env.app_version }}/g' INFO
+        tar -cvf nastool_dsm_7.x.spk *
 
     - name: Create release
       id: create_release
@@ -39,7 +51,7 @@ jobs:
         draft: false
         prerelease: false
 
-    - name: Upload release asset
+    - name: Upload dsm6 release asset
       id: upload-release-asset
       uses: actions/upload-release-asset@latest
       env:
@@ -48,6 +60,17 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: spk/nastool_dsm_6.x.spk
         asset_name: nastool_dsm6_${{ env.app_version }}.spk
+        asset_content_type: application/gzip
+
+    - name: Upload dsm7 release asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: spk/nastool_dsm_7.x.spk
+        asset_name: nastool_dsm7_${{ env.app_version }}.spk
         asset_content_type: application/gzip
 
     - name: Send telegram message

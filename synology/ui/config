@@ -6,7 +6,7 @@
             "icon": "images/nastool.png",
             "type": "url",
             "protocol": "http",
-            "port": "3000",
+            "port": "3003",
             "allUsers": false
         }
     }

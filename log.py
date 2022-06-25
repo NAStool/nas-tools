@@ -40,7 +40,7 @@ class Logger:
             self.logger.addHandler(log_server_handler)
         else:
             # 记录日志到文件
-            logpath = self.__config.get_config('app').get('logpath') or "/config/logs"
+            logpath = self.__config.get_config('app').get('logpath') or ""
             if not os.path.exists(logpath):
                 os.makedirs(logpath)
             log_file_handler = RotatingFileHandler(filename=os.path.join(logpath, __name__ + ".txt"),
