@@ -39,6 +39,9 @@ jobs:
         chmod 777 scripts/*
         sed 's/NASTOOL_VERSION/${{ env.app_version }}/g' INFO
         tar -cvf nastool_dsm_7.x.spk *
+        cd..
+        mkdir spks
+        mv spk6/nastool_dsm_6.x.spk spk7/nastool_dsm_7.x.spk spks/
 
     - name: Create release
       id: create_release
@@ -54,12 +57,12 @@ jobs:
 
     - name: Upload release asset
       id: upload-release-asset
-      uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
+      uses: dwenegar/upload-release-assets@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        files: |
-          spk6/nastool_dsm_6.x.spk
-          spk7/nastool_dsm_7.x.spk
+        release_id: ${{ steps.create_release.outputs.id }}
+        assets_path: spks/
 
     - name: Send telegram message
       uses: appleboy/telegram-action@master
