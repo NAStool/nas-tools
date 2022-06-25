@@ -15,7 +15,7 @@ jobs:
     - name: Release version
       id: release_version
       run: |
-        app_version=$(cat version.py |sed -ne "s/APP_VERSION\s=\s'\(.*\)'/\1/gp")
+        app_version=$(cat version.py |sed -ne "s/APP_VERSION\s=\s'v\(.*\)'/\1/gp")
         echo "app_version=$app_version" >> $GITHUB_ENV
 
     - name: Build the synology spk
@@ -49,8 +49,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.app_version }}
-        release_name: ${{ env.app_version }}
+        tag_name: v${{ env.app_version }}
+        release_name: v${{ env.app_version }}
         body: ${{ github.event.commits[0].message }}
         draft: false
         prerelease: false
