@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+    paths:
+      - version.py
+      - .github/workflows/build-image.yml
 
 jobs:
   build:
