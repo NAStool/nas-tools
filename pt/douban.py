@@ -181,6 +181,9 @@ class DouBan:
             # 组装媒体信息
             title = douban_info.get("title")
             year = douban_info.get("year")
+            if title == "未知电影" and not year:
+                log.warn("【DOUBAN】%s 无权限访问，需要配置豆瓣Cookie" % doubanid)
+                continue
             log.info("【DOUBAN】%s：%s %s".strip() % (media_type.value, title, year))
             meta_info = MetaInfo(title="%s %s" % (title, year or ""))
             meta_info.douban_id = doubanid

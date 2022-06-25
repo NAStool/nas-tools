@@ -44,6 +44,14 @@
               </div>
             </div>
             <div class="row">
+              <div class="col-12">
+                <div class="mb-3">
+                  <label class="form-label required">豆瓣Cookie <span class="form-help bg-red-lt" title="部分电影需要配置Cookie才能同步到数据" data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.douban.cookie or '' }}" class="form-control" id="douban.cookie" placeholder="" autocomplete="false">
+                </div>
+              </div>
+            </div>
+            <div class="row">
               <div class="col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
