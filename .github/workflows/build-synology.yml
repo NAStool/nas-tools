@@ -58,8 +58,8 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       with:
         files: |
-          Release.txt
-          LICENSE
+          spk6/nastool_dsm_6.x.spk
+          spk7/nastool_dsm_7.x.spk
 
     - name: Send telegram message
       uses: appleboy/telegram-action@master
