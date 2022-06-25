@@ -11,8 +11,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Release version
     - uses: actions/checkout@v2
+    - name: Release version
       id: release_version
       run: |
         app_version=$(cat version.py |sed -ne "s/APP_VERSION\s=\s'\(.*\)'/\1/gp")
