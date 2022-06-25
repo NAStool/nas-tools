@@ -118,7 +118,7 @@
             </label>
           </div>
         </div>
-        <div class="row">
+        <div class="row rss_sites_container">
           <div class="mb-3">
             <label class="form-label">订阅站点</label>
             <div class="form-selectgroup">
@@ -130,6 +130,8 @@
               {% endfor %}
             </div>
           </div>
+        </div>
+        <div class="row rss_sites_container">
           <div class="mb-3">
             <label class="form-label">搜索站点</label>
             <div class="form-selectgroup">
@@ -144,6 +146,9 @@
         </div>
       </div>
       <div class="modal-footer">
+        <a href="javascript:rss_sites_select()" class="btn btn-link link-secondary me-auto" id="rss_sites_select_btn">
+          取消全选
+        </a>
         <a href="javascript:add_rss_tv()" id="rss_add_btn" class="btn btn-primary">确定</a>
       </div>
     </div>
@@ -230,6 +235,26 @@
       hide_ask_modal();
       remove_rss_media(name, year, "TV", rssid, "tv_rss");
     });
+  }
+
+  //RSS站点批量选择
+  rss_sites_select_all = true;
+  function rss_sites_select(){
+    if(rss_sites_select_all){
+      // 取消全选
+      $(".rss_sites_container").find("input[type=checkbox]").each(function(){
+        $(this).prop("checked",false);
+      });
+      rss_sites_select_all = false;
+      $("#rss_sites_select_btn").text("全选");
+    }else{
+      //全选
+      $(".rss_sites_container").find("input[type=checkbox]").each(function(){
+        $(this).prop("checked",true);
+      });
+      rss_sites_select_all = true;
+      $("#rss_sites_select_btn").text("取消全选");
+    }
   }
 
 </script>
