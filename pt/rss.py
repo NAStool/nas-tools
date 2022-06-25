@@ -74,18 +74,20 @@ class Rss:
             check_sites = []
             check_all = False
             for movie in movie_keys:
-                if not movie[4] or movie[4].find("|") == -1:
+                rss_sites = str(movie[4]).split('#')[0]
+                if not rss_sites or rss_sites.find("|") == -1:
                     check_all = True
                     break
                 else:
-                    check_sites += movie[4].split("|")
+                    check_sites += rss_sites.split("|")
             if not check_all:
                 for tv in tv_keys:
-                    if not tv[5] or tv[5].find("|") == -1:
+                    rss_sites = str(tv[5]).split('#')[0]
+                    if not rss_sites or rss_sites.find("|") == -1:
                         check_all = True
                         break
                     else:
-                        check_sites += tv[5].split("|")
+                        check_sites += rss_sites.split("|")
             if check_all:
                 check_sites = []
             else:
@@ -291,6 +293,11 @@ class Rss:
             name = movie[0]
             year = movie[1] or ""
             tmdbid = movie[2]
+            notes = str(movie[4]).split('#')
+            if len(notes) > 1:
+                sites = [site for site in notes[1].split('|') if site]
+            else:
+                sites = []
             # 跳过模糊匹配的
             if not tmdbid:
                 continue
@@ -317,7 +324,8 @@ class Rss:
             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
                 media_info=media_info,
                 in_from=SearchType.RSS,
-                no_exists=no_exists)
+                no_exists=no_exists,
+                sites=sites)
             if search_result:
                 log.info("【RSS】电影 %s 下载完成，删除订阅..." % name)
                 delete_rss_movie(name, year)
@@ -341,6 +349,11 @@ class Rss:
             year = tv[1] or ""
             season = tv[2]
             tmdbid = tv[3]
+            notes = tv[5].split('#')
+            if len(notes) > 1:
+                sites = [site for site in notes[1].split('|') if site]
+            else:
+                sites = []
             lack = int(tv[7])
             # 跳过模糊匹配的
             if not season or not tmdbid:
@@ -369,7 +382,8 @@ class Rss:
             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
                 media_info=media_info,
                 in_from=SearchType.RSS,
-                no_exists=no_exists)
+                no_exists=no_exists,
+                sites=sites)
             if not no_exists or not no_exists.get(media_info.get_title_string()):
                 # 没有剩余或者剩余缺失季集中没有当前标题，说明下完了
                 log.info("【RSS】电视剧 %s 下载完成，删除订阅..." % name)

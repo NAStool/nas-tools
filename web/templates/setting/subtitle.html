@@ -52,7 +52,7 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">用户名 <span class="form-help" title="登录www.opensubtitles.org注册用户">?</span></label>
+              <label class="form-label required">用户名 <span class="form-help bg-red-lt" title="登录www.opensubtitles.org注册用户" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.subtitle %}{% if Config.subtitle.opensubtitles %}{{ Config.subtitle.opensubtitles.username or '' }}{% endif %}{% endif %}" id="subtitle.opensubtitles.username" class="form-control">
             </div>
           </div>
@@ -81,13 +81,13 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">服务器地址 <span class="form-help" title="配置IP地址和端口，如为https则需要增加https://前缀">?</span></label>
+              <label class="form-label required">服务器地址 <span class="form-help bg-red-lt" title="配置IP地址和端口，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.host or '' }}{% endif %}{% endif %}" id="subtitle.chinesesubfinder.host" class="form-control" placeholder="http://127.0.0.1:19035">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">Api Key <span class="form-help" title="在ChineseSubFinder->配置中心->实验室->API Key处生成">?</span></label>
+              <label class="form-label required">Api Key <span class="form-help bg-red-lt" title="在ChineseSubFinder->配置中心->实验室->API Key处生成" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.api_key or '' }}{% endif %}{% endif %}" id="subtitle.chinesesubfinder.api_key" class="form-control">
             </div>
           </div>

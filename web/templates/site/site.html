@@ -141,7 +141,7 @@
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label">优先级 <span class="form-help" title="【RSS优先级】：数值越小优先级越高">?</span></label>
+              <label class="form-label">优先级 <span class="form-help bg-red-lt" title="【RSS优先级】：数值越小优先级越高" data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="site_pri">
                 <option value="1" selected>1</option>
                 <option value="2">2</option>
@@ -170,14 +170,14 @@
         <div class="row">
           <div class="col-lg-12">
             <div class="mb-3">
-              <label class="form-label">签到地址 <span class="form-help" title="【PT站签到Url】：用于PT站自动签到，以及上传下载流量统计等。一般为mybonus.php或attendance.php，即PT站点击签到按钮跳转的页面，部分站没有独立的签到页面时可以配置为首页">?</span></label>
+              <label class="form-label">签到地址 <span class="form-help bg-red-lt" title="【PT站签到Url】：用于PT站自动签到，以及上传下载流量统计等。一般为mybonus.php或attendance.php，即PT站点击签到按钮跳转的页面，部分站没有独立的签到页面时可以配置为首页" data-bs-toggle="tooltip">?</span></label>
               <input type="text" class="form-control" id="site_signurl" value="" placeholder="PT站签到页面URL" autocomplete="off">
             </div>
           </div>
         </div>
         <div class="col-lg-12">
           <div>
-            <label class="form-label">COOKIE <span class="form-help" title="【PT站的Cookie】：用于PT站自动签到，以及上传下载流量统计等，需要在浏览器中F12->网络页抓取">?</span></label>
+            <label class="form-label">COOKIE <span class="form-help bg-red-lt" title="【PT站的Cookie】：用于PT站自动签到，以及上传下载流量统计等，需要在浏览器中F12->网络页抓取" data-bs-toggle="tooltip">?</span></label>
             <textarea class="form-control" id="site_cookie" rows="2" placeholder="PT站COOKIE"></textarea>
           </div>
         </div>
@@ -186,7 +186,7 @@
         <div class="row">
           <div class="col-lg-12">
             <div class="mb-3">
-              <label class="form-label">订阅地址 <span class="form-help" title="【订阅源URL地址】：用于电影、电视剧订阅追更，点击PT站点RSS图标获取">?</span></label>
+              <label class="form-label">订阅地址 <span class="form-help bg-red-lt" title="【订阅源URL地址】：用于电影、电视剧订阅追更，点击PT站点RSS图标获取" data-bs-toggle="tooltip">?</span></label>
               <input type="text" class="form-control" id="site_rssurl" value="" placeholder="PT站点RSS订阅URL" autocomplete="off">
             </div>
           </div>
@@ -194,13 +194,13 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label">包含规则 <span class="form-help" title="【必须包含的关键字】：只有种子名称中包括这些关键字才会命中&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置普通的关键字，也可以配置正则表达式，可以配置多行&#10;3、多行之间是【与】的关系，即多行条件都包含时才会命中&#10;4、单行内可以用'|'来表示【或】，即包括其一即命中">?</span></label>
+              <label class="form-label">包含规则 <span class="form-help bg-red-lt" title="【必须包含的关键字】：只有种子名称中包括这些关键字才会命中&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置普通的关键字，也可以配置正则表达式，可以配置多行&#10;3、多行之间是【与】的关系，即多行条件都包含时才会命中&#10;4、单行内可以用'|'来表示【或】，即包括其一即命中" data-bs-toggle="tooltip">?</span></label>
               <textarea class="form-control" id="site_include" rows="2" placeholder="必须包含的关键字或正则表达式"></textarea>
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label">排除规则 <span class="form-help" title="【不能包含的关键字】：种子名称中如果有这些关键字则会被跳过&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置普通的关键字，也可以配置正则表达式，可以配置多行&#10;3、多行之间是【与】的关系，即多行条件都不包含时才会跳过&#10;4、单行内可以用'|'来表示【或】，即包括其一即跳过">?</span></label>
+              <label class="form-label">排除规则 <span class="form-help bg-red-lt" title="【不能包含的关键字】：种子名称中如果有这些关键字则会被跳过&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置普通的关键字，也可以配置正则表达式，可以配置多行&#10;3、多行之间是【与】的关系，即多行条件都不包含时才会跳过&#10;4、单行内可以用'|'来表示【或】，即包括其一即跳过" data-bs-toggle="tooltip">?</span></label>
               <textarea class="form-control" id="site_exclude" rows="2" placeholder="不能包含的关键字或正则表达式"></textarea>
             </div>
           </div>
@@ -208,13 +208,13 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label">大小限制 <span class="form-help" title="【限制文件大小】：只有满足大小限制的种子文件才会被命中，单位是GB&#10;1、只针对电影有效，配置为0或不配置则不启用该条件&#10;2、对大小写不敏感，不能带引号，配置为空为不启用该条件&#10;3、如只配置1个数字，表示小于等于该大小的才会被命中&#10;4、如配置2个数字(使用英文逗号分隔)，表示在中间大小的才会被命中">?</span></label>
+              <label class="form-label">大小限制 <span class="form-help bg-red-lt" title="【限制文件大小】：只有满足大小限制的种子文件才会被命中，单位是GB&#10;1、只针对电影有效，配置为0或不配置则不启用该条件&#10;2、对大小写不敏感，不能带引号，配置为空为不启用该条件&#10;3、如只配置1个数字，表示小于等于该大小的才会被命中&#10;4、如配置2个数字(使用英文逗号分隔)，表示在中间大小的才会被命中" data-bs-toggle="tooltip">?</span></label>
               <input type="text" class="form-control" id="site_size" value="" placeholder="限制电影文件大小，单位GB" autocomplete="off">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label">促销 <span class="form-help" title="选择免费时，只有促销免费的种子才会被订阅命中和下载，站点正在不断适配中，如下拉框中没有免费选项则代表暂不支持该站点">?</span></label>
+              <label class="form-label">促销 <span class="form-help bg-red-lt" title="选择免费时，只有促销免费的种子才会被订阅命中和下载，站点正在不断适配中，如下拉框中没有免费选项则代表暂不支持该站点" data-bs-toggle="tooltip">?</span></label>
               <select class="form-select" id="site_free">
                 <option value="" selected>全部</option>
                 <option value="FREE">免费</option>
@@ -246,7 +246,7 @@
         <div class="row">
           <div class="col-lg-12">
             <div class="mb-3">
-              <label class="form-label">优先规则 <span class="form-help" title="【优先选择的关键字】：种子名称或副标题中如果有这些关键字则会被优先选择，优先级高于站点&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置多行，一行是一个关键字或正则表达式，排前面的优先级高">?</span></label>
+              <label class="form-label">优先规则 <span class="form-help bg-red-lt" title="【优先选择的关键字】：种子名称或副标题中如果有这些关键字则会被优先选择，优先级高于站点&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置多行，一行是一个关键字或正则表达式，排前面的优先级高" data-bs-toggle="tooltip">?</span></label>
               <pre id="rss_note_pre"></pre>
               <textarea class="form-control" id="rss_note" rows="2" placeholder="优先选择的关键字或正则表达式"></textarea>
             </div>

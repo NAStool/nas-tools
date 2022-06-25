@@ -117,7 +117,7 @@ class IIndexer(metaclass=ABCMeta):
         indexer_name = indexer[1]
         indexer_url = indexer[2]
 
-        if filter_args.get("site") and filter_args.get("site") != indexer_name:
+        if filter_args.get("site") and indexer_name not in filter_args.get("site"):
             return []
         log.info(f"【{self.index_type}】开始检索Indexer：{indexer_name} ...")
         # 特殊符号处理

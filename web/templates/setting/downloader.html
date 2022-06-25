@@ -54,7 +54,7 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">IP地址 <span class="form-help" title="配置IP地址，如为https则需要增加https://前缀">?</span></label>
+              <label class="form-label required">IP地址 <span class="form-help bg-red-lt" title="配置IP地址，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.qbittorrent %}{{ Config.qbittorrent.qbhost or '' }}{% endif %}" id="qbittorrent.qbhost" class="form-control">
             </div>
           </div>
@@ -75,7 +75,7 @@
             <div class="mb-3">
               <label class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="qbittorrent.force_upload" {% if Config.qbittorrent.force_upload %}checked{% endif %}>
-                <span class="form-check-label">自动强制作种 <span class="form-help" title="开启后PT下载文件转移完成时会自动将对应种子设置为强制做种状态，需在基础设置中开启下载软件监控功能">?</span></span>
+                <span class="form-check-label">自动强制作种 <span class="form-help bg-red-lt" title="开启后PT下载文件转移完成时会自动将对应种子设置为强制做种状态，需在基础设置中开启下载软件监控功能" data-bs-toggle="tooltip">?</span></span>
               </label>
             </div>
           </div>
@@ -91,7 +91,7 @@
       <div class="modal-body">
         <div class="row">
           <div class="mb-3">
-            <label class="form-label required">电影目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录">?</span></label>
+            <label class="form-label required">电影目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
             <div class="row">
               <div class="col-sm-6 col-lg-5 mb-1">
                 <input type="text" value="{{ QbMovieSavePath.path or '' }}" id="qbittorrent.save_path.movie.path"
@@ -108,7 +108,7 @@
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label required">电视剧目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录">?</span></label>
+            <label class="form-label required">电视剧目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
             <div class="row">
               <div class="col-sm-6 col-lg-5 mb-1">
                 <input type="text" value="{{ QbTvSavePath.path or '' }}" id="qbittorrent.save_path.tv.path"
@@ -125,7 +125,7 @@
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label required">动漫目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录">?</span></label>
+            <label class="form-label required">动漫目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
             <div class="row">
               <div class="col-sm-6 col-lg-5 mb-1">
                 <input type="text" value="{{ QbAnimeSavePath.path or '' }}" id="qbittorrent.save_path.anime.path"
@@ -164,7 +164,7 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">IP地址 <span class="form-help" title="配置IP地址，如为https则需要增加https://前缀">?</span></label>
+              <label class="form-label required">IP地址 <span class="form-help bg-red-lt" title="配置IP地址，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.transmission %}{{ Config.transmission.trhost or '' }}{% endif %}" id="transmission.trhost" class="form-control">
             </div>
           </div>
@@ -195,7 +195,7 @@
       <div class="modal-body">
         <div class="row">
           <div class="mb-3">
-            <label class="form-label required">电影目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径">?</span></label>
+            <label class="form-label required">电影目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
             <div class="row g-2">
               <div class="col-6">
                 <input type="text" value="{{ TrMovieSavePath or '' }}" id="transmission.save_path.movie" class="form-control"
@@ -208,7 +208,7 @@
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label required">电视剧目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径">?</span></label>
+            <label class="form-label required">电视剧目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
             <div class="row g-2">
               <div class="col-6">
                 <input type="text" value="{{ TrTvSavePath or '' }}" id="transmission.save_path.tv" class="form-control"
@@ -221,7 +221,7 @@
             </div>
           </div>
           <div class="mb-3">
-            <label class="form-label required">动漫目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径">?</span></label>
+            <label class="form-label required">动漫目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
             <div class="row g-2">
               <div class="col-6">
                 <input type="text" value="{{ TrAnimeSavePath or '' }}" id="transmission.save_path.anime" class="form-control"

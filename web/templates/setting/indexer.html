@@ -85,7 +85,7 @@
         <div class="row">
           <div class="col-lg-12">
             <div class="mb-3">
-              <label class="form-label required">API Key <span class="form-help" title="Jackett管理界面右上角复制API Key">?</span></label>
+              <label class="form-label required">API Key <span class="form-help bg-red-lt" title="Jackett管理界面右上角复制API Key" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.jackett %}{{ Config.jackett.api_key or '' }}{% endif %}" id="jackett.api_key" class="form-control">
             </div>
           </div>
@@ -93,7 +93,7 @@
         <div class="row">
           <div class="col-lg-12">
             <div class="mb-3">
-              <label class="form-label required">Torznab Feeds <span class="form-help" title="Jackett管理界面Indexer中选择Copy Torznab Feed复制链接，一行配置一个地址，可配置多行">?</span></label>
+              <label class="form-label required">Torznab Feeds <span class="form-help bg-red-lt" title="Jackett管理界面Indexer中选择Copy Torznab Feed复制链接，一行配置一个地址，可配置多行" data-bs-toggle="tooltip">?</span></label>
               <textarea rows="5" id="jackett.indexers" class="form-control">{% if Config.jackett %}{{ Config.jackett.indexers|join('\n') }}{% endif %}</textarea>
             </div>
           </div>
@@ -119,13 +119,13 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">服务器地址 <span class="form-help" title="Prowlarr访问地址，如为https需加https://前缀">?</span></label>
+              <label class="form-label required">服务器地址 <span class="form-help bg-red-lt" title="Prowlarr访问地址，如为https需加https://前缀" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.prowlarr %}{{ Config.prowlarr.host or '' }}{% endif %}" id="prowlarr.host" class="form-control" placeholder="http://127.0.0.1:9696">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">API Key <span class="form-help" title="在Prowlarr->Settings->General->Security-> API Key中获取">?</span></label>
+              <label class="form-label required">API Key <span class="form-help bg-red-lt" title="在Prowlarr->Settings->General->Security-> API Key中获取" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.prowlarr %}{{ Config.prowlarr.api_key or '' }}{% endif %}" id="prowlarr.api_key" class="form-control">
             </div>
           </div>
@@ -144,14 +144,14 @@
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modal-search-rule-title">过滤规则 <span class="form-help" title="部分规则只适用于微信/Telegram/豆瓣等自动匹配下载场景">?</span></h5>
+        <h5 class="modal-title" id="modal-search-rule-title">过滤规则 <span class="form-help bg-red-lt" title="部分规则只适用于微信/Telegram/豆瓣等自动匹配下载场景" data-bs-toggle="tooltip">?</span></h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <div class="row">
           <div class="col-lg-12">
             <div class="mb-3">
-              <label class="form-label">包含规则 <span class="form-help" title="【必须包含的关键字】：只有种子名称中包括这些关键字才会命中&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置普通的关键字，也可以配置正则表达式，可以配置多行&#10;3、多行之间是【与】的关系，即多行条件都包含时才会命中&#10;4、单行内可以用'|'来表示【或】，即包括其一即命中">?</span></label>
+              <label class="form-label">包含规则 <span class="form-help bg-red-lt" title="【必须包含的关键字】：只有种子名称中包括这些关键字才会命中&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置普通的关键字，也可以配置正则表达式，可以配置多行&#10;3、多行之间是【与】的关系，即多行条件都包含时才会命中&#10;4、单行内可以用'|'来表示【或】，即包括其一即命中" data-bs-toggle="tooltip">?</span></label>
               <pre id="search_include_pre"></pre>
               <textarea class="form-control" id="search_include" rows="2" placeholder="必须包含的关键字或正则表达式"></textarea>
             </div>
@@ -160,7 +160,7 @@
         <div class="row">
           <div class="col-lg-12">
             <div class="mb-3">
-              <label class="form-label">排除规则 <span class="form-help" title="【不能包含的关键字】：种子名称中如果有这些关键字则会被跳过&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置普通的关键字，也可以配置正则表达式，可以配置多行&#10;3、多行之间是【与】的关系，即多行条件都不包含时才会跳过&#10;4、单行内可以用'|'来表示【或】，即包括其一即跳过">?</span></label>
+              <label class="form-label">排除规则 <span class="form-help bg-red-lt" title="【不能包含的关键字】：种子名称中如果有这些关键字则会被跳过&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置普通的关键字，也可以配置正则表达式，可以配置多行&#10;3、多行之间是【与】的关系，即多行条件都不包含时才会跳过&#10;4、单行内可以用'|'来表示【或】，即包括其一即跳过" data-bs-toggle="tooltip">?</span></label>
               <pre id="search_exclude_pre"></pre>
               <textarea class="form-control" id="search_exclude" rows="2" placeholder="不能包含的关键字或正则表达式"></textarea>
             </div>
@@ -169,7 +169,7 @@
         <div class="row">
           <div class="col-lg-12">
             <div class="mb-3">
-              <label class="form-label">优先规则 <span class="form-help" title="【优先选择的关键字】：种子名称或副标题中如果有这些关键字则会被优先选择，优先级高于站点&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置多行，一行是一个关键字或正则表达式，排前面的优先级高">?</span></label>
+              <label class="form-label">优先规则 <span class="form-help bg-red-lt" title="【优先选择的关键字】：种子名称或副标题中如果有这些关键字则会被优先选择，优先级高于站点&#10;1、对大小写不敏感，不能带引号，配置为空为不启用该规则&#10;2、可以配置多行，一行是一个关键字或正则表达式，排前面的优先级高" data-bs-toggle="tooltip">?</span></label>
               <pre id="search_note_pre"></pre>
               <textarea class="form-control" id="search_note" rows="2" placeholder="优先选择的关键字或正则表达式"></textarea>
             </div>
@@ -178,7 +178,7 @@
         <div class="row">
           <div class="col-lg-12">
             <div>
-              <label class="form-label">大小限制 <span class="form-help" title="【限制文件大小】：只有满足大小限制的种子文件才会被命中，单位是GB&#10;1、只针对电影有效，配置为0或不配置则不启用该条件&#10;2、对大小写不敏感，不能带引号，配置为空为不启用该条件&#10;3、如只配置1个数字，表示小于等于该大小的才会被命中&#10;4、如配置2个数字(使用英文逗号分隔)，表示在中间大小的才会被命中">?</span></label>
+              <label class="form-label">大小限制 <span class="form-help bg-red-lt" title="【限制文件大小】：只有满足大小限制的种子文件才会被命中，单位是GB&#10;1、只针对电影有效，配置为0或不配置则不启用该条件&#10;2、对大小写不敏感，不能带引号，配置为空为不启用该条件&#10;3、如只配置1个数字，表示小于等于该大小的才会被命中&#10;4、如配置2个数字(使用英文逗号分隔)，表示在中间大小的才会被命中" data-bs-toggle="tooltip">?</span></label>
               <pre id="search_size_pre"></pre>
               <input type="text" class="form-control" id="search_size" value="" placeholder="限制电影文件大小，单位GB" autocomplete="off">
             </div>

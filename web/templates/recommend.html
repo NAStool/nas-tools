@@ -18,7 +18,7 @@
           {% if item.vote > 0%}
           <div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">{{ item.vote }}</div>
           {% endif %}
-          <a href='javascript:show_mediainfo_modal("{{ RecommendType }}", "{{ item.title }}", "{{ item.year }}", "{% if RecommendType in ["hm", "nm", "ht", "nt"] %}{% else %}DB:{% endif %}{{ item.id }}", "recommend?t={{ RecommendType }}")' title="{{ item.overview }}" class="d-block">
+          <a href='javascript:show_mediainfo_modal("{{ RecommendType }}", "{{ item.title }}", "{{ item.year }}", "{% if RecommendType in ["hm", "nm", "ht", "nt"] %}{% else %}DB:{% endif %}{{ item.id }}", "recommend?t={{ RecommendType }}")' title="{{ item.overview }}" class="d-block" data-bs-toggle="tooltip">
             <img src="{{ item.image or '../static/img/no-image.png' }}" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">
           </a>
           <div class="card-body">

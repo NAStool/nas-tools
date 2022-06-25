@@ -26,7 +26,7 @@
     <div class="row row-cards">
       {% for Item in Items %}
       <div class="col-sm-6 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item[2] %}show_mediainfo_modal("MOV", "{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[2] }}", "movie_rss", "{{ Item[6] }}"){% else %}remove_rss_movie("{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[6] }}"){% endif %}' title="{{ Item[4] }}">
+        <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item[2] %}show_mediainfo_modal("MOV", "{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[2] }}", "movie_rss", "{{ Item[6] }}"){% else %}remove_rss_movie("{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[6] }}"){% endif %}' title="{{ Item[4]|rss_sites_string }}" data-bs-toggle="tooltip" data-bs-html="true">
           <div class="text-center" style="height:160px; overflow:hidden;">
             <img class="rounded-top" src="{{ Item[3] }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover;">
           </div>
@@ -105,19 +105,30 @@
             <div class="mb-3">
               <label class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="key_match">
-                <span class="form-check-label">模糊匹配 <span class="form-help" title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，此时标题可以配置正则表达式实现模糊匹配">?</span></span>
+                <span class="form-check-label">模糊匹配 <span class="form-help bg-red-lt" title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，此时标题可以配置正则表达式实现模糊匹配" data-bs-toggle="tooltip">?</span></span>
               </label>
             </div>
           </div>
         </div>
         <div class="row">
           <div class="mb-3">
-            <label class="form-label required">站点</label>
+            <label class="form-label">订阅站点</label>
             <div class="form-selectgroup">
               {% for site in Sites %}
                <label class="form-selectgroup-item">
                 <input type="checkbox" name="sites" value="{{ site[1] }}" class="form-selectgroup-input" checked>
                 <span class="form-selectgroup-label">{{ site[1] }}</span>
+              </label>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">搜索站点</label>
+            <div class="form-selectgroup">
+              {% for site in SearchSites %}
+               <label class="form-selectgroup-item">
+                <input type="checkbox" name="search_sites" value="{{ site }}" class="form-selectgroup-input" checked>
+                <span class="form-selectgroup-label">{{ site }}</span>
               </label>
               {% endfor %}
             </div>
@@ -148,10 +159,11 @@
     } else {
       $("#movie_year").removeClass("is-invalid");
     }
+    //订阅站点
     var sites = [];
     var i = 0;
     var checkall = true;
-    $("input[name=sites]").each(function(){
+    $("input[name='sites']").each(function(){
       if($(this).prop("checked")){
         sites[i] = $(this).val();
         i = i + 1;
@@ -162,11 +174,25 @@
     if(checkall){
       sites = [];
     }
-    var cmd = "add_rss_media";
-    var data = { "name": name, "type": "MOV", "year": year, "match": match, "sites": sites};
+    //搜索站点
+    var search_sites = [];
+    var i = 0;
+    var search_checkall = true;
+    $("input[name='search_sites']").each(function(){
+      if($(this).prop("checked")){
+        search_sites[i] = $(this).val();
+        i = i + 1;
+      }else{
+        search_checkall = false;
+      }
+    });
+    if(search_checkall){
+      search_sites = [];
+    }
+    var data = { "name": name, "type": "MOV", "year": year, "match": match, "sites": sites, "search_sites": search_sites};
     $("#modal-movie-rss").modal("hide");
     show_wait_process();
-    ajax_post(cmd, data, function(ret){
+    ajax_post("add_rss_media", data, function(ret){
       hide_wait_process();
       if(ret.code==0){
         navmenu("movie_rss");
@@ -183,4 +209,5 @@
       remove_rss_media(name, year, "MOV", rssid, "movie_rss");
     });
   }
+
 </script>

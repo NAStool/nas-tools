@@ -49,12 +49,13 @@ class Searcher:
                                               match_type=match_type,
                                               match_words=match_words)
 
-    def search_one_media(self, media_info: MetaBase, in_from: SearchType, no_exists: dict):
+    def search_one_media(self, media_info: MetaBase, in_from: SearchType, no_exists: dict, sites: list = None):
         """
         只检索和下载一个资源，用于精确检索下载，由微信、Telegram或豆瓣调用
         :param media_info: 已识别的媒体信息
         :param in_from: 搜索渠道
         :param no_exists: 缺失的剧集清单
+        :param sites: 检索哪些站点
         :return: 请求的资源是否全部下载完整
                  请求的资源如果是剧集则返回下载后仍然缺失的季集信息
                  搜索到的结果数量
@@ -80,7 +81,8 @@ class Searcher:
                                         filter_args={"season": search_season,
                                                      "episode": search_episode,
                                                      "year": media_info.year,
-                                                     "type": media_info.type},
+                                                     "type": media_info.type,
+                                                     "site": sites},
                                         match_type=1,
                                         match_words=match_words)
         if len(media_list) == 0:

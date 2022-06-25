@@ -470,7 +470,12 @@ def create_flask_app(config):
     def movie_rss():
         RssItems = get_rss_movies()
         RssSites = get_config_site()
-        return render_template("rss/movie_rss.html", Count=len(RssItems), Items=RssItems, Sites=RssSites)
+        SearchSites = [item[1] for item in Searcher().indexer.get_indexers()]
+        return render_template("rss/movie_rss.html",
+                               Count=len(RssItems),
+                               Items=RssItems,
+                               Sites=RssSites,
+                               SearchSites=SearchSites)
 
     # 电视剧订阅页面
     @App.route('/tv_rss', methods=['POST', 'GET'])
@@ -478,7 +483,12 @@ def create_flask_app(config):
     def tv_rss():
         RssItems = get_rss_tvs()
         RssSites = get_config_site()
-        return render_template("rss/tv_rss.html", Count=len(RssItems), Items=RssItems, Sites=RssSites)
+        SearchSites = [item[1] for item in Searcher().indexer.get_indexers()]
+        return render_template("rss/tv_rss.html",
+                               Count=len(RssItems),
+                               Items=RssItems,
+                               Sites=RssSites,
+                               SearchSites=SearchSites)
 
     # 订阅日历页面
     @App.route('/rss_calendar', methods=['POST', 'GET'])
@@ -1343,5 +1353,10 @@ def create_flask_app(config):
     @App.template_filter('b64encode')
     def b64encode(s):
         return base64.b64encode(s.encode()).decode()
+
+    # 站点信息拆分模板过滤器
+    @App.template_filter('rss_sites_string')
+    def rss_sites_string(notes):
+        return WebAction().parse_sites_string(notes)
 
     return App

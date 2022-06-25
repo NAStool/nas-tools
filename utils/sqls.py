@@ -471,7 +471,7 @@ def is_exists_rss_movie(title, year):
 
 
 # 新增RSS电影
-def insert_rss_movie(media_info: MetaBase, state='D', sites: list = None):
+def insert_rss_movie(media_info: MetaBase, state='D', sites: list = None, search_sites: list = None):
     if not media_info:
         return False
     if not media_info.title:
@@ -483,7 +483,7 @@ def insert_rss_movie(media_info: MetaBase, state='D', sites: list = None):
                                str_sql(media_info.year),
                                str_sql(media_info.tmdb_id),
                                str_sql(media_info.get_backdrop_path()),
-                               "" if not sites else "|".join(sites) + "|",
+                               "|".join(sites or []) + "|#|" + "|".join(search_sites or []),
                                state))
 
 
@@ -579,7 +579,7 @@ def is_exists_rss_tv(title, year, season=None):
 
 
 # 新增RSS电视剧
-def insert_rss_tv(media_info: MetaBase, total, lack=0, state="D", sites: list = None):
+def insert_rss_tv(media_info: MetaBase, total, lack=0, state="D", sites: list = None, search_sites: list = None):
     if not media_info:
         return False
     if not media_info.title:
@@ -587,12 +587,13 @@ def insert_rss_tv(media_info: MetaBase, total, lack=0, state="D", sites: list = 
     if is_exists_rss_tv(media_info.title, media_info.year, media_info.get_season_string()):
         return True
     sql = "INSERT INTO RSS_TVS(NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+
     return update_by_sql(sql, (str_sql(media_info.title),
                                str_sql(media_info.year),
                                media_info.get_season_string(),
                                str_sql(media_info.tmdb_id),
                                str_sql(media_info.get_backdrop_path()),
-                               "" if not sites else "|".join(sites) + "|",
+                               "|".join(sites or []) + "|#|" + "|".join(search_sites or []),
                                total,
                                lack,
                                state))

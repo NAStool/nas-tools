@@ -836,6 +836,7 @@ class WebAction:
         match = data.get("match")
         page = data.get("page")
         sites = data.get("sites")
+        search_sites = data.get("search_sites")
         if name and mtype:
             if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
                 mtype = MediaType.MOVIE
@@ -848,7 +849,8 @@ class WebAction:
                                                   match=match,
                                                   doubanid=doubanid,
                                                   tmdbid=tmdbid,
-                                                  sites=sites)
+                                                  sites=sites,
+                                                  search_sites=search_sites)
         return {"code": code, "msg": msg, "page": page, "name": name}
 
     @staticmethod
@@ -878,8 +880,7 @@ class WebAction:
         else:
             return {"retcode": 2, "retmsg": ret_msg}
 
-    @staticmethod
-    def __media_info(data):
+    def __media_info(self, data):
         """
         查询媒体信息
         """
@@ -921,16 +922,11 @@ class WebAction:
                 year = release_date[0:4] if release_date else ""
 
             # 查订阅信息
+            site_string = ""
             if not rssid:
                 rssid = get_rss_movie_id(title=title, year=year)
             if rssid:
-                sites = get_rss_movie_sites(rssid=rssid)
-                if sites.find('|') != -1:
-                    sites = [site for site in sites.split('|') if site]
-                else:
-                    sites = []
-            else:
-                sites = []
+                site_string = self.parse_sites_string(get_rss_movie_sites(rssid=rssid))
 
             # 查下载信息
 
@@ -948,7 +944,7 @@ class WebAction:
                 "tmdbid": tmdbid,
                 "doubanid": doubanid,
                 "rssid": rssid,
-                "sites": sites
+                "site_string": site_string
             }
         else:
             # 查媒体信息
@@ -975,17 +971,12 @@ class WebAction:
                 release_date = tmdb_info.get('first_air_date')
                 year = release_date[0:4] if release_date else ""
 
-            # 查媒体信息
+            # 查订阅信息
+            site_string = ""
             if not rssid:
                 rssid = get_rss_tv_id(title=title, year=year)
             if rssid:
-                sites = get_rss_tv_sites(rssid=rssid)
-                if sites.find('|') != -1:
-                    sites = [site for site in sites.split('|') if site]
-                else:
-                    sites = []
-            else:
-                sites = []
+                site_string = self.parse_sites_string(get_rss_tv_sites(rssid=rssid))
 
             # 查下载信息
 
@@ -1003,7 +994,7 @@ class WebAction:
                 "tmdbid": tmdbid,
                 "doubanid": doubanid,
                 "rssid": rssid,
-                "sites": sites
+                "site_string": site_string
             }
 
     def __test_connection(self, data):
@@ -1217,3 +1208,25 @@ class WebAction:
         if MetaHelper().modify_meta_data(data.get("key"), data.get("title")):
             MetaHelper().save_meta_data(force=True)
         return {"code": 0}
+
+    @staticmethod
+    def parse_sites_string(notes):
+        if not notes:
+            return ""
+        sites = []
+        search_sites = []
+        site_string = ""
+        notes = str(notes).split("#")
+        if len(notes) > 1:
+            if notes[0].find('|') != -1:
+                sites = ['<span class="badge me-1 mb-1 bg-indigo text-white" title="订阅站点">%s</span>' % s for s in notes[0].split('|') if s]
+            search_sites = ['<span class="badge me-1 mb-1 bg-orange text-white" title="搜索站点">%s</span>' % s for s in notes[1].split('|') if s]
+        else:
+            if notes[0].find('|') != -1:
+                sites = ['<span class="badge me-1 mb-1 bg-indigo text-white" title="订阅站点">%s</span>' % s for s in notes[0].split('|') if s]
+        if sites:
+            site_string = "".join(sites)
+        if search_sites:
+            site_string = "%s" % (site_string + "<br>" if site_string else site_string) + "".join(search_sites)
+
+        return site_string

@@ -15,6 +15,11 @@
     <!-- CSS files -->
     <link href="../static/css/tabler.min.css" rel="stylesheet"/>
     <link href="../static/css/fullcalendar.min.css" rel="stylesheet"/>
+    <style type="text/css">
+      .tooltip-inner {
+        text-align: left;
+      }
+    </style>
   </head>
   <body>
     <div class="page">
@@ -660,11 +665,9 @@
               $("#system_media_vote").show();
             }
             //附加信息
-            if(ret.sites){
+            if(ret.site_string){
               $("#system_sites_info").empty();
-              for(var i=0; i<ret.sites.length; i++){
-                $("#system_sites_info").append('<span class="badge ms-2 mb-2 text-white">' + ret.sites[i] + '</span>');
-              }
+              $("#system_sites_info").append(ret.site_string);
               $("#system_sites_info").show();
             }else{
               $("#system_sites_info").hide();
@@ -702,6 +705,14 @@
         $("#system-media-modal").modal("hide");
       }
 
+      //刷新tooltip
+      function fresh_tooltip(){
+        var tooltipTriggerList = Array.prototype.slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
+      }
+
       //导航点击
       function navmenu(page){
         nid = page.split("?")[0];
@@ -721,6 +732,7 @@
         page = page.replaceAll(" ", "%20");
         $("#page_content").load(page, {}, function(response,status,xhr){
           hide_wait_process();
+          fresh_tooltip();
         });
       }
 

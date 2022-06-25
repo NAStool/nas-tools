@@ -173,7 +173,8 @@ def __search_media(in_from, media_info: MetaBase, user_id):
                                  name=media_info.title,
                                  year=media_info.year,
                                  season=media_info.begin_season,
-                                 tmdbid=media_info.tmdb_id):
+                                 tmdbid=media_info.tmdb_id,
+                                 state='R'):
                 # 发送通知
                 if media_info.type == MediaType.MOVIE:
                     msg_title = f"{media_info.get_title_string()} 已添加订阅"

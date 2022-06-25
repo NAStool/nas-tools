@@ -76,19 +76,19 @@
         <div class="row">
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label required">企业ID <span class="form-help" title="每个企业都拥有唯一的corpid，获取此信息可在管理后台“我的企业”－“企业信息”下查看“企业ID”（需要有管理员权限）">?</span></label>
+              <label class="form-label required">企业ID <span class="form-help bg-red-lt" title="每个企业都拥有唯一的corpid，获取此信息可在管理后台“我的企业”－“企业信息”下查看“企业ID”（需要有管理员权限）" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.corpid or '' }}{% endif %}" id="corpid" class="form-control">
             </div>
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label required">Secret <span class="form-help" title="自建应用secret。在管理后台->“应用与小程序”->“应用”->“自建”，点进某个应用，即可看到">?</span></label>
+              <label class="form-label required">Secret <span class="form-help bg-red-lt" title="自建应用secret。在管理后台->“应用与小程序”->“应用”->“自建”，点进某个应用，即可看到" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.corpsecret or '' }}{% endif %}" id="corpsecret" class="form-control">
             </div>
           </div>
           <div class="col-lg-4">
             <div class="mb-3">
-              <label class="form-label required">AgentId <span class="form-help" title="每个应用都有唯一的agentid。在管理后台->“应用与小程序”->“应用”，点进某个应用，即可看到agentid">?</span></label>
+              <label class="form-label required">AgentId <span class="form-help bg-red-lt" title="每个应用都有唯一的agentid。在管理后台->“应用与小程序”->“应用”，点进某个应用，即可看到agentid" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.agentid or '' }}{% endif %}" id="agentid" class="form-control">
             </div>
           </div>
@@ -98,13 +98,13 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label">Token <span class="form-help" title="在微信企业应用接收消息设置页面生成并填入，填入完成后重启本应用，然后再在微信页面输入地址确定">?</span></label>
+              <label class="form-label">Token <span class="form-help bg-red-lt" title="在微信企业应用接收消息设置页面生成并填入，填入完成后重启本应用，然后再在微信页面输入地址确定" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.Token or '' }}{% endif %}" id="Token" class="form-control">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label">EncodingAESKey <span class="form-help" title="在微信企业应用接收消息设置页面生成并填入，填入完成后重启本应用，然后再在微信页面输入地址确定">?</span></label>
+              <label class="form-label">EncodingAESKey <span class="form-help bg-red-lt" title="在微信企业应用接收消息设置页面生成并填入，填入完成后重启本应用，然后再在微信页面输入地址确定" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.EncodingAESKey or '' }}{% endif %}" id="EncodingAESKey" class="form-control">
             </div>
           </div>
@@ -130,13 +130,13 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">Bot Token <span class="form-help" title="telegram机器人的Token，关注BotFather创建机器人">?</span></label>
+              <label class="form-label required">Bot Token <span class="form-help bg-red-lt" title="telegram机器人的Token，关注BotFather创建机器人" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.message.telegram %}{{ Config.message.telegram.telegram_token or '' }}{% endif %}" id="telegram_token" class="form-control">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">Chat Id <span class="form-help" title="telegram中关注getuserID获取">?</span></label>
+              <label class="form-label required">Chat Id <span class="form-help bg-red-lt" title="telegram中关注getuserID获取" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.message.telegram %}{{ Config.message.telegram.telegram_chat_id or '' }}{% endif %}" id="telegram_chat_id" class="form-control">
             </div>
           </div>
@@ -148,7 +148,7 @@
             <div class="mb-3">
               <label class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="webhook" {% if  Config.message.telegram.webhook %}checked{% endif %}>
-                <span class="form-check-label">WebHook <span class="form-help" title="受Telegram限制，程序外网访问地址需要设置为以下端口之一：443, 80, 88, 8443，且需要有公网认证的可信SSL证书">?</span></span>
+                <span class="form-check-label">WebHook <span class="form-help bg-red-lt" title="受Telegram限制，程序外网访问地址需要设置为以下端口之一：443, 80, 88, 8443，且需要有公网认证的可信SSL证书" data-bs-toggle="tooltip">?</span></span>
               </label>
             </div>
           </div>
@@ -174,7 +174,7 @@
         <div class="row">
           <div class="col-lg-12">
             <div class="mb-3">
-              <label class="form-label required">SCKEY <span class="form-help" title="填写ServerChan的API Key，SCT类型，在https://sct.ftqq.com/中申请">?</span></label>
+              <label class="form-label required">SCKEY <span class="form-help bg-red-lt" title="填写ServerChan的API Key，SCT类型，在https://sct.ftqq.com/中申请" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.message.serverchan %}{{ Config.message.serverchan.sckey or '' }}{% endif %}" id="sckey" class="form-control">
             </div>
           </div>
@@ -200,13 +200,13 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">服务器地址 <span class="form-help" title="自己搭建Bark服务端请实际配置，否则可使用：https://api.day.app">?</span></label>
+              <label class="form-label required">服务器地址 <span class="form-help bg-red-lt" title="自己搭建Bark服务端请实际配置，否则可使用：https://api.day.app" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.message.bark %}{{ Config.message.bark.server or '' }}{% endif %}" id="server" class="form-control" placeholder="https://api.day.app">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">API Key <span class="form-help" title="Bark客户端生成的KEY">?</span></label>
+              <label class="form-label required">API Key <span class="form-help bg-red-lt" title="Bark客户端生成的KEY" data-bs-toggle="tooltip">?</span></label>
               <input type="text" value="{% if Config.message.bark %}{{ Config.message.bark.apikey or '' }}{% endif %}" id="apikey" class="form-control">
             </div>
           </div>
