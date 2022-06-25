@@ -9,6 +9,7 @@ import log
 from config import Config
 from rmt.metainfo import MetaInfo
 from rmt.tmdbv3api import TMDb, Search, Movie, TV
+from rmt.tmdbv3api.exceptions import TMDbException
 from utils.functions import xstr, max_ele
 from utils.http_utils import RequestUtils
 from utils.meta_helper import MetaHelper
@@ -52,6 +53,8 @@ class Media:
                 self.movie = Movie()
                 self.tv = TV()
                 self.meta = MetaHelper()
+            else:
+                log.error("TMDB API Key未配置")
             rmt_match_mode = app.get('rmt_match_mode', 'normal')
             if rmt_match_mode:
                 rmt_match_mode = rmt_match_mode.upper()
@@ -194,6 +197,9 @@ class Media:
                 movies = self.search.movies({"query": file_media_name, "year": first_media_year})
             else:
                 movies = self.search.movies({"query": file_media_name})
+        except TMDbException as err:
+            log.error(f"【META】连接TMDB出错：{str(err)}")
+            return None
         except Exception as e:
             log.error(f"【META】连接TMDB出错：{str(e)}")
             return None
@@ -247,6 +253,9 @@ class Media:
                 tvs = self.search.tv_shows({"query": file_media_name, "first_air_date_year": first_media_year})
             else:
                 tvs = self.search.tv_shows({"query": file_media_name})
+        except TMDbException as err:
+            log.error(f"【META】连接TMDB出错：{str(err)}")
+            return None
         except Exception as e:
             log.error(f"【META】连接TMDB出错：{str(e)}")
             return None
@@ -310,6 +319,9 @@ class Media:
 
         try:
             tvs = self.search.tv_shows({"query": file_media_name})
+        except TMDbException as err:
+            log.error(f"【META】连接TMDB出错：{str(err)}")
+            return None
         except Exception as e:
             log.error(f"【META】连接TMDB出错：{e}")
             return None
@@ -344,6 +356,9 @@ class Media:
         """
         try:
             multis = self.search.multi({"query": file_media_name})
+        except TMDbException as err:
+            log.error(f"【META】连接TMDB出错：{str(err)}")
+            return None
         except Exception as e:
             log.error(f"【META】连接TMDB出错：{str(e)}")
             return None
