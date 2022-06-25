@@ -392,9 +392,9 @@
       $("#rename_udf_btn").attr("disabled", false);
       $("#rename_udf_btn").text("识别");
       if (ret.retcode == 0) {
-        //处理成功
-        $('#modal-rename').modal('hide');
-        navmenu('unidentification');
+        //处理成功, 关闭刷新比较好
+        {#$('#modal-rename').modal('hide');#}
+        {#navmenu('unidentification');#}
       } else {
         //处理失败
         regmsg = ret.retmsg;
