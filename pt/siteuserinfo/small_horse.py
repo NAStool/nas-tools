@@ -51,5 +51,5 @@ class SmallHorseSiteUserInfo(ISiteUserInfo):
     def _parse_user_detail_info(self, html_text):
         pass
 
-    def _parse_user_torrent_seeding_info(self, html_text):
+    def _parse_user_torrent_seeding_info(self, html_text, multi_page=False):
         pass
