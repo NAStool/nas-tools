@@ -462,7 +462,7 @@
       if(ret.retcode == 0){
         show_success_modal(name + " 添加下载成功！");
       }else{
-        show_fail_modal(name + " 添加下载失败！");
+        show_fail_modal(name + " 添加下载失败 " + ret.retmsg + "！");
       }
     });
   }

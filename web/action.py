@@ -309,13 +309,13 @@ class WebAction:
                 tmdbinfo = Media().get_tmdb_info(mtype=mtype, title=msg_item.get_name(), year=msg_item.year)
                 msg_item.set_tmdb_info(tmdbinfo)
             # 添加下载
-            ret = Downloader().add_pt_torrent(res[0], mtype)
+            ret, ret_msg = Downloader().add_pt_torrent(res[0], mtype)
             if ret:
                 # 发送消息
                 Message().send_download_message(SearchType.WEB, msg_item)
             else:
-                return {"retcode": -1}
-        return {"retcode": 0}
+                return {"retcode": -1, "retmsg": ret_msg}
+        return {"retcode": 0, "retmsg": ""}
 
     @staticmethod
     def __pt_start(data):
