@@ -39,7 +39,7 @@ jobs:
         chmod 777 scripts/*
         sed 's/NASTOOL_VERSION/${{ env.app_version }}/g' INFO
         tar -cvf nastool_dsm_7.x.spk *
-        cd..
+        cd ..
         mkdir spks
         mv spk6/nastool_dsm_6.x.spk spk7/nastool_dsm_7.x.spk spks/
 
