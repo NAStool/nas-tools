@@ -245,20 +245,19 @@ class Sync(object):
             lock.acquire()
             items = list(self.__need_sync_paths)
             for path in items:
-                if is_invalid_path(path):
-                    continue
-                target_info = self.__need_sync_paths.get(path)
-                if os.path.exists(path):
+                if not is_invalid_path(path) and os.path.exists(path):
                     log.info("【SYNC】开始转移监控目录文件...")
+                    target_info = self.__need_sync_paths.get(path)
                     if not is_bluray_dir(path):
+                        src_path = path
                         files = target_info.get('files')
                     else:
-                        path = os.path.dirname(path) if os.path.normpath(path).endswith("BDMV") else path
+                        src_path = os.path.dirname(path) if os.path.normpath(path).endswith("BDMV") else path
                         files = []
                     target_path = target_info.get('target')
                     unknown_path = target_info.get('unknown')
                     ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
-                                                                    in_path=path,
+                                                                    in_path=src_path,
                                                                     files=files,
                                                                     target_dir=target_path,
                                                                     unknown_dir=unknown_path)
