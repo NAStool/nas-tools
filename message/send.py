@@ -199,3 +199,9 @@ class Message:
             else:
                 msg_str = f"{msg_str}，共{item_info.total_episodes}集，总大小：{str_filesize(item_info.size)}，来自：{in_from.value}"
             self.sendmsg(title=msg_title, text=msg_str, image=item_info.get_message_image(), url='history')
+
+    def send_download_fail_message(self, item: MetaBase, error_msg):
+        self.sendmsg(
+            title="添加下载任务失败：%s %s" % (item.get_title_string(), item.get_season_episode_string()),
+            text=f"种子：{item.org_string}\n错误信息：{error_msg}",
+            image=item.get_message_image())

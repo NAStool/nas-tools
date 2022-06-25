@@ -284,6 +284,8 @@ class MetaBase(object):
     def get_message_image(self):
         if self.fanart_image:
             return self.fanart_image
+        elif self.backdrop_path:
+            return self.backdrop_path
         elif self.poster_path:
             return self.poster_path
         else:

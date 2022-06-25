@@ -287,10 +287,7 @@ class Downloader:
                 self.message.send_download_message(in_from, item)
             else:
                 log.error("【DOWNLOADER】添加下载任务失败：%s" % item.get_title_string())
-                self.message.sendmsg(
-                    title="添加下载任务失败：%s %s" % (item.get_title_string(), item.get_season_episode_string()),
-                    text=f"种子：{item.org_string}，错误信息：{ret_msg}",
-                    image=item.get_message_image())
+                self.message.send_download_fail_message(item, ret_msg)
 
         # 仍然缺失的剧集，从整季中选择需要的集数文件下载
         if need_tvs:
@@ -320,11 +317,6 @@ class Downloader:
                                                                tag=torrent_tag)
                             if not ret:
                                 log.error("【DOWNLOADER】添加下载任务失败：%s" % item.org_string)
-                                self.message.sendmsg(
-                                    title="添加下载任务失败：%s %s" % (
-                                        item.get_title_string(), item.get_season_episode_string()),
-                                    text=f"种子：{item.org_string}，错误信息：{ret_msg}",
-                                    image=item.get_message_image())
                                 continue
                             # 获取刚添加的任务ID
                             if self.__client_type == DownloaderType.TR:
