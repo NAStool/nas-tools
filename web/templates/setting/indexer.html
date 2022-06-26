@@ -94,7 +94,7 @@
           <div class="col-lg-12">
             <div class="mb-3">
               <label class="form-label required">Torznab Feeds <span class="form-help bg-red-lt" title="Jackett管理界面Indexer中选择Copy Torznab Feed复制链接，一行配置一个地址，可配置多行" data-bs-toggle="tooltip">?</span></label>
-              <textarea rows="5" id="jackett.indexers" class="form-control">{% if Config.jackett %}{{ Config.jackett.indexers|join('\n') }}{% endif %}</textarea>
+              <textarea rows="5" id="jackett.indexers" class="form-control">{% if Config.jackett.indexers %}{{ Config.jackett.indexers|join('\n') }}{% endif %}</textarea>
             </div>
           </div>
         </div>

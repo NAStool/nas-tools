@@ -14,7 +14,7 @@ class Jackett(IIndexer):
         jackett = config.get_config('jackett')
         if jackett:
             self.api_key = jackett.get('api_key')
-            self.__indexers = jackett.get('indexers')
+            self.__indexers = jackett.get('indexers') or []
             if self.__indexers and not isinstance(self.__indexers, list):
                 self.__indexers = [self.__indexers]
 

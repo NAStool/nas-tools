@@ -53,8 +53,6 @@ class Media:
                 self.movie = Movie()
                 self.tv = TV()
                 self.meta = MetaHelper()
-            else:
-                log.error("TMDB API Key未配置")
             rmt_match_mode = app.get('rmt_match_mode', 'normal')
             if rmt_match_mode:
                 rmt_match_mode = rmt_match_mode.upper()

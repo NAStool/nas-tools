@@ -445,7 +445,7 @@ def create_flask_app(config):
 
         # 站点列表
         SiteDict = []
-        Indexers = Searcher().indexer.get_indexers()
+        Indexers = Searcher().indexer.get_indexers() or []
         for item in Indexers:
             SiteDict.append(item[1])
         return render_template("search.html",
@@ -483,7 +483,7 @@ def create_flask_app(config):
     def tv_rss():
         RssItems = get_rss_tvs()
         RssSites = get_config_site()
-        SearchSites = [item[1] for item in Searcher().indexer.get_indexers()]
+        SearchSites = [item[1] for item in Searcher().indexer.get_indexers() or []]
         return render_template("rss/tv_rss.html",
                                Count=len(RssItems),
                                Items=RssItems,
