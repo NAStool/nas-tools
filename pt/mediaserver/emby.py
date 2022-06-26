@@ -73,7 +73,7 @@ class Emby(IMediaServer):
         """
         if not self.__host or not self.__apikey:
             return []
-        req_url = "%semby/System/ActivityLog/Entries?api_key=%s&Limit=%s" % (self.__host, self.__apikey, num)
+        req_url = "%semby/System/ActivityLog/Entries?api_key=%s&" % (self.__host, self.__apikey)
         ret_array = []
         try:
             res = RequestUtils().get_res(req_url)
@@ -99,7 +99,7 @@ class Emby(IMediaServer):
         except Exception as e:
             log.error("【EMBY】连接System/ActivityLog/Entries出错：" + str(e))
             return []
-        return ret_array
+        return ret_array[:num]
 
     def get_medias_count(self):
         """
