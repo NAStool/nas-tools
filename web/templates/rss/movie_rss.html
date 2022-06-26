@@ -26,8 +26,8 @@
     <div class="row row-cards">
       {% for Item in Items %}
       <div class="col-sm-6 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item[2] %}show_mediainfo_modal("MOV", "{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[2] }}", "movie_rss", "{{ Item[6] }}"){% else %}remove_rss_movie("{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[6] }}"){% endif %}' title="{{ Item[4]|rss_sites_string }}" data-bs-toggle="tooltip" data-bs-html="true">
-          <div class="text-center" style="height:160px; overflow:hidden;">
+        <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item[2] %}show_mediainfo_modal("MOV", "{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[2] }}", "movie_rss", "{{ Item[6] }}"){% else %}remove_rss_movie("{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[6] }}"){% endif %}'>
+          <div class="text-center">
             <img class="rounded-top" src="{{ Item[3] }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover;">
           </div>
           <div class="card-body text-center">
@@ -60,6 +60,11 @@
               完成
               {% endif %}
             </div>
+            {% if Item[4]|rss_sites_string %}
+            <div class="text-muted border-top pt-2 mt-2">
+              <small>{{ Item[4]|rss_sites_string|safe }}</small>
+            </div>
+            {% endif %}
           </div>
         </a>
       </div>

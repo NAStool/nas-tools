@@ -664,14 +664,6 @@
               $("#system_media_vote").text(ret.vote_average);
               $("#system_media_vote").show();
             }
-            //附加信息
-            if(ret.site_string){
-              $("#system_sites_info").empty();
-              $("#system_sites_info").append(ret.site_string);
-              $("#system_sites_info").show();
-            }else{
-              $("#system_sites_info").hide();
-            }
             //订阅按钮、搜索按钮
             if(ret.rssid){
               $("#system_media_rss_btn").text("取消订阅");
