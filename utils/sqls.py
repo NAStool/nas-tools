@@ -482,7 +482,7 @@ def insert_rss_movie(media_info: MetaBase, state='D', sites: list = None, search
     return update_by_sql(sql, (str_sql(media_info.title),
                                str_sql(media_info.year),
                                str_sql(media_info.tmdb_id),
-                               str_sql(media_info.get_backdrop_path()),
+                               str_sql(media_info.get_message_image()),
                                "|".join(sites or []) + "|#|" + "|".join(search_sites or []),
                                state))
 
@@ -592,7 +592,7 @@ def insert_rss_tv(media_info: MetaBase, total, lack=0, state="D", sites: list = 
                                str_sql(media_info.year),
                                media_info.get_season_string(),
                                str_sql(media_info.tmdb_id),
-                               str_sql(media_info.get_backdrop_path()),
+                               str_sql(media_info.get_message_image()),
                                "|".join(sites or []) + "|#|" + "|".join(search_sites or []),
                                total,
                                lack,
