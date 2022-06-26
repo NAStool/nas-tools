@@ -84,11 +84,19 @@ class Sites:
                 if not self.__sites_data.get(site_name):
                     self.__sites_data[site_name] = {"upload": site_user_info.upload,
                                                     "download": site_user_info.download,
-                                                    "ratio": site_user_info.ratio}
+                                                    "ratio": site_user_info.ratio,
+                                                    "seeding_size": site_user_info.seeding_size,
+                                                    "seeding": site_user_info.seeding,
+                                                    "leeching": site_user_info.leeching,
+                                                    "bonus": site_user_info.bonus}
                     # 登记历史数据
                     insert_site_statistics_history(site=site_name, upload=site_user_info.upload,
+                                                   user_level=site_user_info.user_level,
                                                    download=site_user_info.download,
                                                    ratio=site_user_info.ratio,
+                                                   seeding=site_user_info.seeding,
+                                                   seeding_size=site_user_info.seeding_size,
+                                                   leeching=site_user_info.leeching, bonus=site_user_info.bonus,
                                                    url=site_url)
                     # 实时用户数据
                     update_site_user_statistics(site=site_name, username=site_user_info.username,

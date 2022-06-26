@@ -704,6 +704,8 @@ def create_flask_app(config):
         # 总上传下载
         TotalUpload = 0
         TotalDownload = 0
+        TotalSeedingSize = 0
+        TotalSeeding = 0
         # 站点标签及上传下载
         SiteNames = []
         SiteUploads = []
@@ -720,6 +722,8 @@ def create_flask_app(config):
                 up = data.get("upload") or 0
                 dl = data.get("download") or 0
                 ratio = data.get("ratio") or 0
+                seeding = data.get("seeding") or 0
+                seeding_size = data.get("seeding_size") or 0
                 if not up and not dl and not ratio:
                     continue
                 if not str(up).isdigit() or not str(dl).isdigit():
@@ -728,21 +732,25 @@ def create_flask_app(config):
                     SiteNames.append(name)
                     TotalUpload += int(up)
                     TotalDownload += int(dl)
-                    SiteUploads.append(round(int(up) / 1024 / 1024 / 1024))
-                    SiteDownloads.append(round(int(dl) / 1024 / 1024 / 1024))
+                    TotalSeeding += int(seeding)
+                    TotalSeedingSize += int(seeding_size)
+                    SiteUploads.append(int(up))
+                    SiteDownloads.append(int(dl))
                     SiteRatios.append(round(float(ratio), 1))
 
         # 近期上传下载各站点汇总
         CurrentUpload, CurrentDownload, CurrentSiteLabels, CurrentSiteUploads, CurrentSiteDownloads = get_site_statistics_recent_sites(
-            days=7)
+            days=2)
 
         # 站点用户数据
         SiteUserStatistics = get_site_user_statistics()
         return render_template("site/statistics.html",
-                               CurrentDownload=str_filesize(CurrentDownload) + "B",
-                               CurrentUpload=str_filesize(CurrentUpload) + "B",
-                               TotalDownload=str_filesize(TotalDownload) + "B",
-                               TotalUpload=str_filesize(TotalUpload) + "B",
+                               CurrentDownload=CurrentDownload,
+                               CurrentUpload=CurrentUpload,
+                               TotalDownload=TotalDownload,
+                               TotalUpload=TotalUpload,
+                               TotalSeedingSize=TotalSeedingSize,
+                               TotalSeeding=TotalSeeding,
                                SiteDownloads=SiteDownloads,
                                SiteUploads=SiteUploads,
                                SiteRatios=SiteRatios,

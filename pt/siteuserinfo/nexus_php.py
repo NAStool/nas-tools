@@ -31,6 +31,8 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
             self.username = user_name.group(1).strip()
             return
         html = etree.HTML(html_text)
+        if not html:
+            return
         ret = html.xpath('//a[contains(@href, "userdetails")]//b//text()')
         if ret:
             self.username = str(ret[-1])
@@ -64,7 +66,7 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
             2).strip() else 0
 
         html = etree.HTML(html_text)
-        tmps = html.xpath('//span[@class = "ucoin-symbol ucoin-gold"]//text()')
+        tmps = html.xpath('//span[@class = "ucoin-symbol ucoin-gold"]//text()') if html else None
         if tmps:
             self.bonus = float(str(tmps[-1]).strip())
         else:
