@@ -91,5 +91,6 @@ class RequestUtils:
         cookies = cookies_str.split(';')
         for cookie in cookies:
             cstr = cookie.split('=')
-            cookie_dict[cstr[0]] = cstr[1]
+            if len(cstr) > 1:
+                cookie_dict[cstr[0]] = cstr[1]
         return cookie_dict

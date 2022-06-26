@@ -96,19 +96,22 @@ class Downloader:
         if self.client:
             try:
                 lock.acquire()
-                log.debug("【PT】开始转移文件...")
                 if self.__pt_monitor_only:
                     tag = PT_TAG
                 else:
                     tag = None
                 trans_tasks = self.client.get_transfer_task(tag=tag)
+                if trans_tasks:
+                    log.info("【PT】开始转移下载文件...")
+                else:
+                    return
                 for task in trans_tasks:
                     done_flag, done_msg = self.filetransfer.transfer_media(in_from=self.__client_type,
                                                                            in_path=task.get("path"))
                     if not done_flag:
                         log.warn("【PT】%s 转移失败：%s" % (task.get("path"), done_msg))
                     self.client.set_torrents_status(task.get("id"))
-                log.debug("【PT】文件转移结束")
+                log.info("【PT】下载文件转移结束")
             finally:
                 lock.release()
 
