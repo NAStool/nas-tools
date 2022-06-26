@@ -791,7 +791,7 @@ def insert_site_statistics_history(site, upload, download, ratio, url, seeding, 
         sql = "INSERT INTO SITE_STATISTICS_HISTORY(SITE, USER_LEVEL, DATE, UPLOAD, DOWNLOAD, RATIO," \
               " SEEDING, LEECHING, SEEDING_SIZE," \
               " BONUS," \
-              " URL) VALUES (?, ?, ?, ?, ?, ?)"
+              " URL) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         return update_by_sql(sql, (str_sql(site), user_level, date_now, upload, download, ratio, seeding, leeching,
                                    seeding_size, bonus, url))
     else:
