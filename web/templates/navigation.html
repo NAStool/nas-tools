@@ -725,6 +725,9 @@
         $("#page_content").load(page, {}, function(response,status,xhr){
           hide_wait_process();
           fresh_tooltip();
+          if($("#page_content").find("title").first().text() == "登录 - NASTool"){
+            window.location.reload();
+          }
         });
       }
 
