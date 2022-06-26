@@ -773,7 +773,7 @@ def get_site_user_statistics(num=100):
 def is_site_statistics_history_exists(url, date):
     if not url or not date:
         return False
-    sql = "SELECT COUNT(1) FROM SITE_STATISTICS WHERE URL = ? AND DATE = ?"
+    sql = "SELECT COUNT(1) FROM SITE_STATISTICS_HISTORY WHERE URL = ? AND DATE = ?"
     ret = select_by_sql(sql, (url, date))
     if ret and ret[0][0] > 0:
         return True
@@ -788,14 +788,14 @@ def insert_site_statistics_history(site, upload, download, ratio, url, seeding, 
         return
     date_now = time.strftime('%Y-%m-%d', time.localtime(time.time()))
     if not is_site_statistics_history_exists(url, date_now):
-        sql = "INSERT INTO SITE_STATISTICS(SITE, USER_LEVEL, DATE, UPLOAD, DOWNLOAD, RATIO," \
+        sql = "INSERT INTO SITE_STATISTICS_HISTORY(SITE, USER_LEVEL, DATE, UPLOAD, DOWNLOAD, RATIO," \
               " SEEDING, LEECHING, SEEDING_SIZE," \
               " BONUS," \
               " URL) VALUES (?, ?, ?, ?, ?, ?)"
         return update_by_sql(sql, (str_sql(site), user_level, date_now, upload, download, ratio, seeding, leeching,
                                    seeding_size, bonus, url))
     else:
-        sql = "UPDATE SITE_STATISTICS SET SITE = ?, USER_LEVEL = ?, UPLOAD = ?, DOWNLOAD = ?, RATIO = ?," \
+        sql = "UPDATE SITE_STATISTICS_HISTORY SET SITE = ?, USER_LEVEL = ?, UPLOAD = ?, DOWNLOAD = ?, RATIO = ?," \
               " SEEDING = ?, LEECHING = ?, SEEDING_SIZE = ?," \
               " BONUS = ? WHERE URL = ? AND DATE = ?"
         return update_by_sql(sql, (str_sql(site), user_level, upload, download, ratio, seeding, leeching,
@@ -804,7 +804,7 @@ def insert_site_statistics_history(site, upload, download, ratio, url, seeding, 
 
 # 查询站点数据历史
 def get_site_statistics_history(days=30):
-    sql = "SELECT DATE, SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS GROUP BY DATE ORDER BY DATE ASC LIMIT ?"
+    sql = "SELECT DATE, SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS_HISTORY GROUP BY DATE ORDER BY DATE ASC LIMIT ?"
     return select_by_sql(sql, (days,))
 
 
@@ -812,7 +812,7 @@ def get_site_statistics_history(days=30):
 def get_site_statistics_recent_sites(days=7):
     # 查询最大最小日期
     b_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d")
-    date_sql = "SELECT MAX(DATE), MIN(DATE) FROM SITE_STATISTICS WHERE DATE > ?"
+    date_sql = "SELECT MAX(DATE), MIN(DATE) FROM SITE_STATISTICS_HISTORY WHERE DATE > ?"
     date_ret = select_by_sql(date_sql, (b_date,))
     if date_ret:
         total_upload = 0
@@ -824,7 +824,7 @@ def get_site_statistics_recent_sites(days=7):
         min_date = date_ret[0][1]
         # 查询开始值
         site_b_data = {}
-        sql = "SELECT SITE, SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS WHERE DATE = ? GROUP BY SITE"
+        sql = "SELECT SITE, SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS_HISTORY WHERE DATE = ? GROUP BY SITE"
         for ret_b in select_by_sql(sql, (min_date,)):
             site_b_data[ret_b[0]] = {"upload": int(ret_b[1]), "download": int(ret_b[2])}
         # 查询结束值

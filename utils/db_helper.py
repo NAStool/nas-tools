@@ -192,7 +192,7 @@ class DBHelper:
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_MESSAGES_DATE ON MESSAGES (DATE);''')
 
             # 站点流量历史
-            cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_STATISTICS
+            cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_STATISTICS_HISTORY
                                                            (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
                                                            SITE    TEXT,
                                                            DATE    TEXT,
@@ -206,20 +206,7 @@ class DBHelper:
                                                            BONUS     REAL default 0.0,
                                                            URL     TEXT);''')
 
-            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_STATISTICS_HISTORY_DS ON SITE_STATISTICS (DATE, URL);''')
-            # 站点流量历史变更
-            cursor.execute("PRAGMA table_info('SITE_STATISTICS')")
-            table_cols = {t[1] for t in cursor.fetchall()}
-            if 'USER_LEVEL' not in table_cols:
-                cursor.execute("ALTER TABLE SITE_STATISTICS ADD COLUMN USER_LEVEL TEXT;")
-            if 'SEEDING' not in table_cols:
-                cursor.execute("ALTER TABLE SITE_STATISTICS ADD COLUMN SEEDING INTEGER default 0;")
-            if 'LEECHING' not in table_cols:
-                cursor.execute("ALTER TABLE SITE_STATISTICS ADD COLUMN LEECHING INTEGER default 0;")
-            if 'SEEDING_SIZE' not in table_cols:
-                cursor.execute("ALTER TABLE SITE_STATISTICS ADD COLUMN SEEDING_SIZE INTEGER default 0;")
-            if 'BONUS' not in table_cols:
-                cursor.execute("ALTER TABLE SITE_STATISTICS ADD COLUMN BONUS REAL default 0.0;")
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_STATISTICS_HISTORY_DS ON SITE_STATISTICS_HISTORY (DATE, URL);''')
 
             # 实时站点数据
             cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_USER_STATISTICS
