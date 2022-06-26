@@ -196,11 +196,30 @@ class DBHelper:
                                                            (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
                                                            SITE    TEXT,
                                                            DATE    TEXT,
+                                                           USER_LEVEL    TEXT,
                                                            UPLOAD    TEXT,
                                                            DOWNLOAD     TEXT,
                                                            RATIO     TEXT,
+                                                           SEEDING     INTEGER default 0,
+                                                           LEECHING     INTEGER default 0,
+                                                           SEEDING_SIZE     INTEGER default 0,
+                                                           BONUS     REAL default 0.0,
                                                            URL     TEXT);''')
-            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_STATISTICS_DS ON SITE_STATISTICS (DATE, URL);''')
+
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_STATISTICS_HISTORY_DS ON SITE_STATISTICS (DATE, URL);''')
+            # 站点流量历史变更
+            cursor.execute("PRAGMA table_info('SITE_STATISTICS')")
+            table_cols = {t[1] for t in cursor.fetchall()}
+            if 'USER_LEVEL' not in table_cols:
+                cursor.execute("ALTER TABLE SITE_STATISTICS ADD COLUMN USER_LEVEL TEXT;")
+            if 'SEEDING' not in table_cols:
+                cursor.execute("ALTER TABLE SITE_STATISTICS ADD COLUMN SEEDING INTEGER default 0;")
+            if 'LEECHING' not in table_cols:
+                cursor.execute("ALTER TABLE SITE_STATISTICS ADD COLUMN LEECHING INTEGER default 0;")
+            if 'SEEDING_SIZE' not in table_cols:
+                cursor.execute("ALTER TABLE SITE_STATISTICS ADD COLUMN SEEDING_SIZE INTEGER default 0;")
+            if 'BONUS' not in table_cols:
+                cursor.execute("ALTER TABLE SITE_STATISTICS ADD COLUMN BONUS REAL default 0.0;")
 
             # 实时站点数据
             cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_USER_STATISTICS
@@ -212,11 +231,11 @@ class DBHelper:
                                                            UPDATE_AT    TEXT,
                                                            UPLOAD    INTEGER,
                                                            DOWNLOAD     INTEGER,
-                                                           RATIO     real,
+                                                           RATIO     REAL,
                                                            SEEDING     INTEGER,
                                                            LEECHING     INTEGER,
                                                            SEEDING_SIZE     INTEGER,
-                                                           BONUS     real,
+                                                           BONUS     REAL,
                                                            URL     TEXT);''')
             cursor.execute(
                 '''CREATE INDEX IF NOT EXISTS INDX_SITE_USER_STATISTICS_URL ON SITE_USER_STATISTICS (URL);''')
