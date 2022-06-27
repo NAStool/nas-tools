@@ -129,11 +129,11 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
             return
         # 等级 获取同一行等级数据，图片格式等级，取title信息，否则取文本信息
         user_levels_text = html.xpath('//tr/td[text()="等級" or text()="等级" or *[text()="等级"]]/'
-                                      'following-sibling::td[1]/img[1]/@title'
-                                      '|//tr/td[text()="等級" or text()="等级"]/'
-                                      'following-sibling::td[1 and img[not(@title)]]/text()'
-                                      '|//tr/td[text()="等級" or text()="等级"]/'
-                                      'following-sibling::td[1 and not(img)]/text()')
+                                  'following-sibling::td[1]/img[1]/@title'
+                                  '|//tr/td[text()="等級" or text()="等级"]/'
+                                  'following-sibling::td[1 and img[not(@title)]]/text()'
+                                  '|//tr/td[text()="等級" or text()="等级"]/'
+                                  'following-sibling::td[1]//text()')
         if user_levels_text:
             self.user_level = user_levels_text[0].strip()
 

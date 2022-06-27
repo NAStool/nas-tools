@@ -916,10 +916,12 @@ class Media:
         if not feature_name:
             return None, is_movie
         # 剔除不必要字符
+        feature_name = re.compile(r"^\w+字幕[组社]?", re.IGNORECASE).sub("", feature_name)
         backlist = sorted(KEYWORD_BLACKLIST, key=lambda x: len(x), reverse=True)
         for single in backlist:
             feature_name = feature_name.replace(single, " ")
-
+        if not feature_name:
+            return None, is_movie
         def cal_score(strongs, ret_dict):
             for i, s in enumerate(strongs):
                 if len(strongs) < 5:
@@ -1001,6 +1003,9 @@ class Media:
                 # 重复的不选
                 elif next[0].replace(pre[0], "").strip() == pre[0]:
                     keyword = pre[0]
+                # 纯数字不选
+                elif pre[0].isdigit():
+                    keyword = next[0]
                 else:
                     keyword = next[0]
 
