@@ -3,7 +3,8 @@ from functools import lru_cache
 from urllib import parse
 import cn2an
 from lxml import etree
-from config import GRAP_FREE_SITES
+from config import GRAP_FREE_SITES, TORRENT_SEARCH_PARAMS
+from rmt.meta.metabase import MetaBase
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
 import bencode
@@ -11,15 +12,14 @@ import bencode
 
 class Torrent:
 
-    @staticmethod
-    def is_torrent_match_rss(media_info, movie_keys, tv_keys, site_name):
+    def is_torrent_match_rss(self, media_info, movie_keys, tv_keys, site_name):
         """
         判断种子是否命中订阅
         :param media_info: 已识别的种子媒体信息
         :param movie_keys: 电影订阅清单
         :param tv_keys: 电视剧订阅清单
         :param site_name: 站点名称
-        :return: 命中状态
+        :return: 匹配到的订阅ID、是否洗版
         """
         if media_info.type == MediaType.MOVIE:
             for key_info in movie_keys:
@@ -28,16 +28,21 @@ class Torrent:
                 name = key_info[0]
                 year = key_info[1]
                 tmdbid = key_info[2]
-                sites = key_info[4]
-                # 未订阅站点不匹配
-                if sites and sites.find('|') != -1 and site_name not in sites.split('|'):
+                rssid = key_info[6]
+                # 订阅站点，是否洗板，过滤字典
+                sites, _, over_edition, filter_map = self.get_rss_note_item(key_info[4])
+                # 过滤订阅站点
+                if sites and site_name not in sites:
+                    continue
+                # 过滤字典
+                if filter_map and not Torrent.check_torrent_filter(media_info, filter_map):
                     continue
                 # 有tmdbid时精确匹配
                 if tmdbid:
                     # 匹配名称、年份，年份可以没有
                     if name == media_info.title and (not year or str(year) == str(media_info.year)) \
                             or str(media_info.tmdb_id) == str(tmdbid):
-                        return True
+                        return rssid, over_edition
                 # 模糊匹配
                 else:
                     # 匹配年份
@@ -47,7 +52,7 @@ class Torrent:
                     if re.search(r"%s" % name,
                                  "%s %s %s" % (media_info.org_string, media_info.title, media_info.year),
                                  re.IGNORECASE):
-                        return True
+                        return 0, False
         else:
             # 匹配种子标题
             for key_info in tv_keys:
@@ -57,9 +62,14 @@ class Torrent:
                 year = key_info[1]
                 season = key_info[2]
                 tmdbid = key_info[3]
-                sites = key_info[5]
-                # 未订阅站点不匹配
-                if sites and sites.find('|') != -1 and site_name not in sites:
+                rssid = key_info[10]
+                # 订阅站点
+                sites, _, over_edition, filter_map = self.get_rss_note_item(key_info[5])
+                # 过滤订阅站点
+                if sites and site_name not in sites:
+                    continue
+                # 过滤字典
+                if filter_map and not Torrent.check_torrent_filter(media_info, filter_map):
                     continue
                 # 有tmdbid时精确匹配
                 if tmdbid:
@@ -71,7 +81,7 @@ class Torrent:
                         continue
                     # 匹配名称
                     if name == media_info.title or str(media_info.tmdb_id) == str(tmdbid):
-                        return True
+                        return rssid, over_edition
                 # 模糊匹配
                 else:
                     # 匹配季
@@ -84,8 +94,8 @@ class Torrent:
                     if re.search(r"%s" % name,
                                  "%s %s %s" % (media_info.org_string, media_info.title, media_info.year),
                                  re.IGNORECASE):
-                        return True
-        return False
+                        return 0, False
+        return None, None
 
     @staticmethod
     def is_torrent_match_size(media_info, types, t_size):
@@ -152,9 +162,9 @@ class Torrent:
         return True
 
     @classmethod
-    def check_resouce_types(cls, title, subtitle, types):
+    def check_site_resouce_filter(cls, title, subtitle, types):
         """
-        检查种子是否匹配过滤规则：排除规则、包含规则，优先规则
+        检查种子是否匹配站点过滤规则：排除规则、包含规则，优先规则
         :param title: 种子标题
         :param subtitle: 种子副标题
         :param types: 配置文件中的配置规则
@@ -199,12 +209,12 @@ class Torrent:
             if exclude_count != 0 and not exclude_flag:
                 return False, 0
 
-        return True, cls.check_res_order(title, subtitle, types)
+        return True, cls.check_site_resouce_order(title, subtitle, types)
 
     @staticmethod
-    def check_res_order(title, subtitle, types):
+    def check_site_resouce_order(title, subtitle, types):
         """
-        检查种子是否匹配优先规则
+        检查种子是否匹配站点的优先规则
         :param title: 种子标题
         :param subtitle: 种子副标题
         :param types: 配置文件中的配置规则
@@ -363,3 +373,79 @@ class Torrent:
                 return None, "状态码：%s" % req.status_code
         except Exception as err:
             return None, "%s" % str(err)
+
+    @staticmethod
+    def check_torrent_filter(meta_info: MetaBase, filter_args, uploadvolumefactor=None, downloadvolumefactor=None):
+        """
+        对种子进行过滤
+        :param meta_info: 名称识别后的MetaBase对象
+        :param filter_args: 过滤条件的字典
+        :param uploadvolumefactor: 种子的上传因子 传空不过滤
+        :param downloadvolumefactor: 种子的下载因子 传空不过滤
+        """
+        if filter_args.get("restype"):
+            restype_re = TORRENT_SEARCH_PARAMS["restype"].get(filter_args.get("restype"))
+            if not meta_info.resource_type:
+                return False
+            if restype_re and not re.search(r"%s" % restype_re, meta_info.resource_type, re.IGNORECASE):
+                return False
+        if filter_args.get("pix"):
+            restype_re = TORRENT_SEARCH_PARAMS["pix"].get(filter_args.get("pix"))
+            if not meta_info.resource_pix:
+                return False
+            if restype_re and not re.search(r"%s" % restype_re, meta_info.resource_pix, re.IGNORECASE):
+                return False
+        if filter_args.get("sp_state"):
+            ul_factor, dl_factor = filter_args.get("sp_state").split()
+            if uploadvolumefactor and ul_factor not in ("*", str(uploadvolumefactor)):
+                return False
+            if downloadvolumefactor and dl_factor not in ("*", str(downloadvolumefactor)):
+                return False
+        if filter_args.get("key") and not re.search(r"%s" % filter_args.get("key"), meta_info.org_string, re.IGNORECASE):
+            return False
+        return True
+
+    @staticmethod
+    def get_rss_note_item(desc):
+        """
+        解析订阅的NOTE字段，从中获取订阅站点、搜索站点、是否洗版、订阅质量、订阅分辨率、过滤关键字等信息
+        DESC字段组成：RSS站点#搜索站点#是否洗版(Y/N)#过滤条件，站点用|分隔多个站点，过滤条件用@分隔多个条件
+        :param desc: RSS订阅DESC字段的值
+        :return: 订阅站点、搜索站点、是否洗版、过滤字典
+        """
+        if not desc:
+            return [], [], False, {}
+        rss_sites = []
+        search_sites = []
+        over_edition = False
+        rss_restype = None
+        rss_pix = None
+        rss_keyword = None
+        notes = str(desc).split('#')
+        # 订阅站点
+        if len(notes) > 0:
+            if notes[0]:
+                rss_sites = [site for site in notes[0].split('|') if site and len(site) < 20]
+        # 搜索站点
+        if len(notes) > 1:
+            if notes[1]:
+                search_sites = [site for site in notes[1].split('|') if site]
+        # 洗版
+        if len(notes) > 2:
+            if notes[2] == 'Y':
+                over_edition = True
+            else:
+                over_edition = False
+        # 过滤条件
+        if len(notes) > 3:
+            if notes[3]:
+                filters = notes[3].split('@')
+                if len(filters) > 0:
+                    rss_restype = filters[0]
+                if len(filters) > 1:
+                    rss_pix = filters[1]
+                if len(filters) > 2:
+                    rss_keyword = filters[2]
+
+        return rss_sites, search_sites, over_edition, {"restype": rss_restype, "pix": rss_pix, "key": rss_keyword}
+

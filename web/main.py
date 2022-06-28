@@ -475,7 +475,10 @@ def create_flask_app(config):
                                Count=len(RssItems),
                                Items=RssItems,
                                Sites=RssSites,
-                               SearchSites=SearchSites)
+                               SearchSites=SearchSites,
+                               RestypeDict=TORRENT_SEARCH_PARAMS.get("restype").keys(),
+                               PixDict=TORRENT_SEARCH_PARAMS.get("pix").keys()
+                               )
 
     # 电视剧订阅页面
     @App.route('/tv_rss', methods=['POST', 'GET'])
@@ -488,7 +491,10 @@ def create_flask_app(config):
                                Count=len(RssItems),
                                Items=RssItems,
                                Sites=RssSites,
-                               SearchSites=SearchSites)
+                               SearchSites=SearchSites,
+                               RestypeDict=TORRENT_SEARCH_PARAMS.get("restype").keys(),
+                               PixDict=TORRENT_SEARCH_PARAMS.get("pix").keys()
+                               )
 
     # 订阅日历页面
     @App.route('/rss_calendar', methods=['POST', 'GET'])
@@ -1366,5 +1372,10 @@ def create_flask_app(config):
     @App.template_filter('rss_sites_string')
     def rss_sites_string(notes):
         return WebAction().parse_sites_string(notes)
+
+    # RSS过滤规则拆分模板过滤器
+    @App.template_filter('rss_filter_string')
+    def rss_filter_string(notes):
+        return WebAction().parse_filter_string(notes)
 
     return App

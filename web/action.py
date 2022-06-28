@@ -19,6 +19,7 @@ from pt.mediaserver.jellyfin import Jellyfin
 from pt.mediaserver.plex import Plex
 from pt.rss import Rss
 from pt.sites import Sites
+from pt.torrent import Torrent
 from rmt.doubanv2api.doubanapi import DoubanApi
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
@@ -573,7 +574,8 @@ class WebAction:
         info = ""
         code = 0
         try:
-            response = RequestUtils(proxies=self.config.get_proxies()).get_res("https://api.github.com/repos/jxxghp/nas-tools/releases/latest")
+            response = RequestUtils(proxies=self.config.get_proxies()).get_res(
+                "https://api.github.com/repos/jxxghp/nas-tools/releases/latest")
             if response:
                 ver_json = response.json()
                 version = ver_json["tag_name"]
@@ -837,6 +839,10 @@ class WebAction:
         page = data.get("page")
         sites = data.get("sites")
         search_sites = data.get("search_sites")
+        over_edition = data.get("over_edition")
+        rss_restype = data.get("rss_restype")
+        rss_pix = data.get("rss_pix")
+        rss_keyword = data.get("rss_keyword")
         if name and mtype:
             if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
                 mtype = MediaType.MOVIE
@@ -850,7 +856,11 @@ class WebAction:
                                                   doubanid=doubanid,
                                                   tmdbid=tmdbid,
                                                   sites=sites,
-                                                  search_sites=search_sites)
+                                                  search_sites=search_sites,
+                                                  over_edition=over_edition,
+                                                  rss_restype=rss_restype,
+                                                  rss_pix=rss_pix,
+                                                  rss_keyword=rss_keyword)
         return {"code": code, "msg": msg, "page": page, "name": name}
 
     @staticmethod
@@ -1061,7 +1071,8 @@ class WebAction:
         for message in list(reversed(messages)):
             lst_time = message[4]
             level = "bg-red" if message[1] == "ERROR" else ""
-            content = re.sub(r"[#]+", "<br>", re.sub(r"<[^>]+>", "", re.sub(r"<br/?>", "####", message[3], flags=re.IGNORECASE)))
+            content = re.sub(r"[#]+", "<br>",
+                             re.sub(r"<[^>]+>", "", re.sub(r"<br/?>", "####", message[3], flags=re.IGNORECASE)))
             message_html.append(f"""
             <div class="list-group-item">
               <div class="row align-items-center">
@@ -1118,7 +1129,8 @@ class WebAction:
             tmdb_info = Media().get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=tid)
             if not tmdb_info:
                 return {"code": 1, "retmsg": "无法查询到TMDB信息"}
-            poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path') if tmdb_info.get('poster_path') else ""
+            poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path') if tmdb_info.get(
+                'poster_path') else ""
             title = tmdb_info.get('title')
             vote_average = tmdb_info.get("vote_average")
             release_date = tmdb_info.get('release_date')
@@ -1206,19 +1218,24 @@ class WebAction:
     def parse_sites_string(notes):
         if not notes:
             return ""
-        sites = []
-        search_sites = []
-        site_string = ""
-        notes = str(notes).split("#")
-        if notes[0].find('|') != -1:
-            sites = ['<span class="badge bg-indigo me-1 mb-1" title="订阅站点">%s</span>' % s for s in
-                     notes[0].split('|') if s]
-        if len(notes) > 1:
-            search_sites = ['<span class="badge bg-purple me-1 mb-1" title="搜索站点">%s</span>' % s for s in
-                            notes[1].split('|') if s]
-        if sites:
-            site_string = "".join(sites)
-        if search_sites:
-            site_string = site_string + "".join(search_sites)
+        rss_sites, search_sites, _, _ = Torrent.get_rss_note_item(notes)
+        rss_site_htmls = ['<span class="badge bg-lime me-1 mb-1" title="订阅站点">%s</span>' % s for s in
+                          rss_sites if s]
+        search_site_htmls = ['<span class="badge bg-yellow me-1 mb-1" title="搜索站点">%s</span>' % s for s in
+                             search_sites if s]
 
-        return site_string
+        return "".join(rss_site_htmls) + "".join(search_site_htmls)
+
+    @staticmethod
+    def parse_filter_string(notes):
+        if not notes:
+            return ""
+        if not notes:
+            return ""
+        _, _, over_edition, filter_map = Torrent.get_rss_note_item(notes)
+        filter_htmls = []
+        if over_edition:
+            filter_htmls.append('<span class="badge badge-outline text-red me-1 mb-1" title="已开启洗版">洗版</span>')
+        filter_htmls += ['<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % v for v in filter_map.values() if v]
+
+        return "".join(filter_htmls)

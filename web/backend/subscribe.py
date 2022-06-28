@@ -63,7 +63,18 @@ def add_rss_substribe_from_string(rss_string, in_from=SearchType.OT, user_id=Non
         return False
 
 
-def add_rss_subscribe(mtype, name, year, season=None, match=False, doubanid=None, tmdbid=None, sites=None, search_sites=None, state="D"):
+def add_rss_subscribe(mtype, name, year,
+                      season=None,
+                      match=False,
+                      doubanid=None,
+                      tmdbid=None,
+                      sites=None,
+                      search_sites=None,
+                      over_edition=False,
+                      rss_restype=None,
+                      rss_pix=None,
+                      rss_keyword=None,
+                      state="D"):
     """
     添加电影、电视剧订阅
     :param mtype: 类型，电影、电视剧、动漫
@@ -75,6 +86,10 @@ def add_rss_subscribe(mtype, name, year, season=None, match=False, doubanid=None
     :param tmdbid: TMDBID，有此ID时优先使用ID查询TMDB信息，没有则使用名称查询
     :param sites: 站点列表，为空则表示全部站点
     :param search_sites: 搜索站点列表，为空则表示全部站点
+    :param over_edition: 是否选版
+    :param rss_restype: 质量过滤
+    :param rss_pix: 分辨率过滤
+    :param rss_keyword: 关键字过滤
     :param state: 添加订阅时的状态
     :return: 错误码：0代表成功，错误信息
     """
@@ -87,14 +102,18 @@ def add_rss_subscribe(mtype, name, year, season=None, match=False, doubanid=None
         # 精确匹配
         media = Media()
         # 根据TMDBID查询，从推荐加订阅的情况
+        if season:
+            title = "%s %s 第%s季".strip() % (name, year, season)
+        else:
+            title = "%s %s".strip() % (name, year)
         if tmdbid:
-            media_info = MetaInfo(title="%s %s".strip() % (name, year), mtype=mtype)
+            media_info = MetaInfo(title=title, mtype=mtype)
             media_info.set_tmdb_info(media.get_tmdb_info(mtype=mtype, tmdbid=tmdbid))
             if not media_info or not media_info.tmdb_info or not tmdbid:
                 return 1, "无法查询到媒体信息", None
         else:
             # 根据名称和年份查询
-            media_info = media.get_media_info(title="%s %s" % (name, year),
+            media_info = media.get_media_info(title=title,
                                               mtype=mtype,
                                               strict=True if year else False)
             if media_info and media_info.tmdb_info:
@@ -146,11 +165,19 @@ def add_rss_subscribe(mtype, name, year, season=None, match=False, doubanid=None
                           lack=media_info.total_episodes,
                           sites=sites,
                           search_sites=search_sites,
+                          over_edition=over_edition,
+                          rss_restype=rss_restype,
+                          rss_pix=rss_pix,
+                          rss_keyword=rss_keyword,
                           state=state)
         else:
             insert_rss_movie(media_info=media_info,
                              sites=sites,
                              search_sites=search_sites,
+                             over_edition=over_edition,
+                             rss_restype=rss_restype,
+                             rss_pix=rss_pix,
+                             rss_keyword=rss_keyword,
                              state=state)
     else:
         # 模糊匹配
@@ -160,8 +187,24 @@ def add_rss_subscribe(mtype, name, year, season=None, match=False, doubanid=None
         if season:
             media_info.begin_season = int(season)
         if mtype == MediaType.MOVIE:
-            insert_rss_movie(media_info=media_info, state="R", sites=sites, search_sites=search_sites)
+            insert_rss_movie(media_info=media_info,
+                             state="R",
+                             sites=sites,
+                             search_sites=search_sites,
+                             over_edition=over_edition,
+                             rss_restype=rss_restype,
+                             rss_pix=rss_pix,
+                             rss_keyword=rss_keyword)
         else:
-            insert_rss_tv(media_info=media_info, total=0, lack=0, state="R", sites=sites, search_sites=search_sites)
+            insert_rss_tv(media_info=media_info,
+                          total=0,
+                          lack=0,
+                          state="R",
+                          sites=sites,
+                          search_sites=search_sites,
+                          over_edition=over_edition,
+                          rss_restype=rss_restype,
+                          rss_pix=rss_pix,
+                          rss_keyword=rss_keyword)
 
     return 0, "添加订阅成功", media_info

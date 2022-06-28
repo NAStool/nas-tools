@@ -65,8 +65,13 @@
               完成
               {% endif %}
             </div>
-            {% if Item[5]|rss_sites_string %}
+            {% if Item[5]|rss_filter_string %}
             <div class="text-muted border-top pt-2 mt-2">
+              <small>{{ Item[5]|rss_filter_string|safe }}</small>
+            </div>
+            {% endif %}
+            {% if Item[5]|rss_sites_string %}
+            <div class="text-muted {% if not Item[5]|rss_filter_string %}border-top pt-2 mt-2{% endif %}">
               <small>{{ Item[5]|rss_sites_string|safe }}</small>
             </div>
             {% endif %}
@@ -115,12 +120,46 @@
             </div>
           </div>
         </div>
-        <div class="col-xl-4">
-          <div class="mb-3">
-            <label class="form-check form-switch">
-              <input class="form-check-input" type="checkbox" id="key_match">
-              <span class="form-check-label">模糊匹配 <span class="form-help bg-red-lt" title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，此时标题可以配置正则表达式实现模糊匹配" data-bs-toggle="tooltip">?</span></span>
-            </label>
+        <div class="row">
+          <div class="col-xl-4">
+            <div class="mb-3">
+              <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="key_match" onclick="javascript:change_match_check(this)">
+                <span class="form-check-label">模糊匹配 <span class="form-help bg-red-lt" title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，此时标题可以配置正则表达式实现模糊匹配" data-bs-toggle="tooltip">?</span></span>
+              </label>
+            </div>
+          </div>
+          <div class="col-xl-4">
+            <div class="mb-3">
+              <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="over_edition">
+                <span class="form-check-label">洗版 <span class="form-help bg-red-lt" title="开启后RSS不检查媒体库是否已存在，命中即会下载，搜索刷新仍然只会搜索下载缺失的" data-bs-toggle="tooltip">?</span></span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <label class="form-label">过滤规则</label>
+          <div class="row mb-3">
+            <div class="col-sm-6 col-lg-4 mb-1">
+              <select class="form-select" id="rss_restype">
+                <option value="" selected>全部</option>
+                {% for restype in RestypeDict %}
+                <option value="{{ restype }}">{{ restype }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-sm-6 col-lg-4 mb-1">
+              <select class="form-select" id="rss_pix">
+                <option value="" selected>全部</option>
+                {% for pix in PixDict %}
+                <option value="{{ pix }}">{{ pix }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-sm-6 col-lg-4 mb-1">
+              <input type="text" value="" id="rss_keyword" class="form-control" placeholder="自定义规则">
+            </div>
           </div>
         </div>
         <div class="row rss_sites_container">
@@ -136,7 +175,7 @@
             </div>
           </div>
         </div>
-        <div class="row rss_sites_container">
+        <div class="row rss_sites_container" id="rss_search_sites_div">
           <div class="mb-3">
             <label class="form-label">搜索站点</label>
             <div class="form-selectgroup">
@@ -166,6 +205,10 @@
     var year = $("#tv_year").val();
     var season = $("#tv_season").val();
     var match = $("#key_match").prop("checked");
+    var rss_restype = $("#rss_restype").val();
+    var rss_pix = $("#rss_pix").val();
+    var rss_keyword = $("#rss_keyword").val();
+    var over_edition = $("#over_edition").prop("checked");
     if (!name) {
       $("#tv_name").addClass("is-invalid");
       return;
@@ -201,20 +244,22 @@
     }
     //搜索站点
     var search_sites = [];
-    var i = 0;
-    var search_checkall = true;
-    $("input[name=search_sites]").each(function(){
-      if($(this).prop("checked")){
-        search_sites[i] = $(this).val();
-        i = i + 1;
-      }else{
-        search_checkall = false;
+    if(!match){
+      var i = 0;
+      var search_checkall = true;
+      $("input[name=search_sites]").each(function(){
+        if($(this).prop("checked")){
+          search_sites[i] = $(this).val();
+          i = i + 1;
+        }else{
+          search_checkall = false;
+        }
+      });
+      if(search_checkall){
+        search_sites = [];
       }
-    });
-    if(search_checkall){
-      search_sites = [];
     }
-    var data = { "name": name, "type": "TV", "year": year, "season": season, "match": match, "sites": sites, "search_sites": search_sites};
+    var data = { "name": name, "type": "TV", "year": year, "season": season, "match": match, "sites": sites, "search_sites": search_sites, "rss_restype": rss_restype, "rss_pix": rss_pix, "rss_keyword": rss_keyword, "over_edition": over_edition};
     $("#modal-tv-rss").modal("hide");
     show_wait_process();
     ajax_post("add_rss_media", data, function(ret){
@@ -259,6 +304,15 @@
       });
       rss_sites_select_all = true;
       $("#rss_sites_select_btn").text("取消全选");
+    }
+  }
+
+  // 选择模糊匹配
+  function change_match_check(obj){
+    if($(obj).prop("checked")){
+      $("#rss_search_sites_div").hide();
+    }else{
+      $("#rss_search_sites_div").show();
     }
   }
 

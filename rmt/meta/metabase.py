@@ -81,6 +81,7 @@ class MetaBase(object):
     page_url = None
     upload_volume_factor = 1.0
     download_volume_factor = 1.0
+    rssid = None
 
     def __init__(self, title, subtitle=None):
         if not title:
@@ -390,7 +391,8 @@ class MetaBase(object):
                          description=None,
                          page_url=None,
                          upload_volume_factor=1.0,
-                         download_volume_factor=1.0):
+                         download_volume_factor=1.0,
+                         rssid=None):
         self.site = site
         self.site_order = site_order
         self.enclosure = enclosure
@@ -402,6 +404,7 @@ class MetaBase(object):
         self.page_url = page_url
         self.upload_volume_factor = upload_volume_factor
         self.download_volume_factor = download_volume_factor
+        self.rssid = rssid
 
     # 获取消息媒体图片
     # 增加cache，优化资源检索时性能

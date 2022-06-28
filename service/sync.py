@@ -72,7 +72,7 @@ class Sync(object):
                 if sync_monpath.startswith('#'):
                     enabled = False
                     sync_monpath = sync_monpath[1:-1]
-                if sync_monpath.startswith('['):
+                elif sync_monpath.startswith('['):
                     only_link = True
                     sync_monpath = sync_monpath[1:-1]
                 monpaths = sync_monpath.split('|')
@@ -113,6 +113,9 @@ class Sync(object):
                     target_path = None
                     unknown_path = None
                     log.info("【SYNC】读取到监控目录：%s" % monpath)
+                    if not enabled:
+                        log.info("【SYNC】%s 不进行监控和同步：手动关闭" % monpath)
+                        continue
                 # 登记关系
                 if os.path.exists(monpath):
                     self.sync_dir_config[monpath] = {'target': target_path, 'unknown': unknown_path,

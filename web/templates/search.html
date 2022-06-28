@@ -339,7 +339,7 @@
         <div class="row">
           <div class="col-sm-6 col-lg-4">
             <div class="mb-3">
-              <label class="form-label">站点 <span class="form-help bg-red-lt" title="仅针对Jackett有效" data-bs-toggle="tooltip">?</span></label>
+              <label class="form-label">站点</label>
               <select class="form-select" id="search_site">
                 <option value="" selected>全部</option>
                 {% for site in SiteDict %}
@@ -388,8 +388,8 @@
           </div>
           <div class="col-sm-6 col-lg-8">
             <div class="mb-3">
-              <label class="form-label">其它关键字</label>
-              <input type="text" value="" id="search_key" class="form-control" placeholder="HEVC/AVC/[HX].?26[45]">
+              <label class="form-label">自定义</label>
+              <input type="text" value="" id="search_key" class="form-control" placeholder="自定义过滤规则">
             </div>
           </div>
         </div>
@@ -615,7 +615,7 @@
 
   //初始化下拉框
   $("#search_season").empty();
-  $("#search_season").append('<option value="">请选择</option>');
+  $("#search_season").append('<option value="">全部</option>');
   for (var i = 1; i <= 50; i++) {
     $("#search_season").append('<option value="第' + i + '季">第' + i + '季</option>');
   }

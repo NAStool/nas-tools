@@ -106,21 +106,11 @@ def is_torrent_rssd_by_url(url):
 
 
 # 查询RSS是否处理过，根据名称
-def is_torrent_rssd(media_info: MetaBase):
-    if not media_info:
+def is_torrent_rssd(enclosure):
+    if not enclosure:
         return True
-    if media_info.type == MediaType.MOVIE:
-        sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TITLE = ? AND YEAR = ?"
-        rets = select_by_sql(sql, (str_sql(media_info.title), str_sql(media_info.year)))
-
-    else:
-        sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TITLE = ? AND YEAR = ? AND SEASON = ? AND EPISODE = ?"
-
-        rets = select_by_sql(sql, (str_sql(media_info.title),
-                                   str_sql(media_info.year),
-                                   media_info.get_season_string(),
-                                   media_info.get_episode_string()))
-
+    sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE ENCLOSURE = ?"
+    rets = select_by_sql(sql, (enclosure,))
     if rets and rets[0][0] > 0:
         return True
     else:
@@ -471,7 +461,14 @@ def is_exists_rss_movie(title, year):
 
 
 # 新增RSS电影
-def insert_rss_movie(media_info: MetaBase, state='D', sites: list = None, search_sites: list = None):
+def insert_rss_movie(media_info: MetaBase,
+                     state='D',
+                     sites: list = None,
+                     search_sites: list = None,
+                     over_edition=False,
+                     rss_restype=None,
+                     rss_pix=None,
+                     rss_keyword=None):
     if not media_info:
         return False
     if not media_info.title:
@@ -479,16 +476,22 @@ def insert_rss_movie(media_info: MetaBase, state='D', sites: list = None, search
     if is_exists_rss_movie(media_info.title, media_info.year):
         return True
     sql = "INSERT INTO RSS_MOVIES(NAME,YEAR,TMDBID,IMAGE,DESC,STATE) VALUES (?, ?, ?, ?, ?, ?)"
+    desc = "#".join(["|".join(sites or []),
+                     "|".join(search_sites or []),
+                     "Y" if over_edition else "N",
+                     "%s@%s@%s" % (str_sql(rss_restype),
+                                   str_sql(rss_pix),
+                                   str_sql(rss_keyword))])
     return update_by_sql(sql, (str_sql(media_info.title),
                                str_sql(media_info.year),
                                str_sql(media_info.tmdb_id),
                                str_sql(media_info.get_message_image()),
-                               "|".join(sites or []) + "|#|" + "|".join(search_sites or []),
+                               desc,
                                state))
 
 
 # 删除RSS电影
-def delete_rss_movie(title, year, rssid=None):
+def delete_rss_movie(title=None, year=None, rssid=None):
     if not title and not rssid:
         return False
     if rssid:
@@ -500,11 +503,15 @@ def delete_rss_movie(title, year, rssid=None):
 
 
 # 更新电影订阅状态
-def update_rss_movie_state(title, year, state):
-    if not title:
+def update_rss_movie_state(title=None, year=None, rssid=None, state='R'):
+    if not title and not rssid:
         return False
-    sql = "UPDATE RSS_MOVIES SET STATE = ? WHERE NAME = ? AND YEAR = ?"
-    return update_by_sql(sql, (state, str_sql(title), str_sql(year)))
+    if rssid:
+        sql = "UPDATE RSS_MOVIES SET STATE = ? WHERE ID = ?"
+        return update_by_sql(sql, (state, rssid))
+    else:
+        sql = "UPDATE RSS_MOVIES SET STATE = ? WHERE NAME = ? AND YEAR = ?"
+        return update_by_sql(sql, (state, str_sql(title), str_sql(year)))
 
 
 # 查询订阅电视剧信息
@@ -579,7 +586,14 @@ def is_exists_rss_tv(title, year, season=None):
 
 
 # 新增RSS电视剧
-def insert_rss_tv(media_info: MetaBase, total, lack=0, state="D", sites: list = None, search_sites: list = None):
+def insert_rss_tv(media_info: MetaBase, total, lack=0, state="D",
+                  sites: list = None,
+                  search_sites: list = None,
+                  over_edition=False,
+                  rss_restype=None,
+                  rss_pix=None,
+                  rss_keyword=None
+                  ):
     if not media_info:
         return False
     if not media_info.title:
@@ -587,28 +601,37 @@ def insert_rss_tv(media_info: MetaBase, total, lack=0, state="D", sites: list = 
     if is_exists_rss_tv(media_info.title, media_info.year, media_info.get_season_string()):
         return True
     sql = "INSERT INTO RSS_TVS(NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
-
+    desc = "#".join(["|".join(sites or []),
+                     "|".join(search_sites or []),
+                     "Y" if over_edition else "N",
+                     "@".join([str_sql(rss_restype),
+                               str_sql(rss_pix),
+                               str_sql(rss_keyword)])])
     return update_by_sql(sql, (str_sql(media_info.title),
                                str_sql(media_info.year),
                                media_info.get_season_string(),
                                str_sql(media_info.tmdb_id),
                                str_sql(media_info.get_message_image()),
-                               "|".join(sites or []) + "|#|" + "|".join(search_sites or []),
+                               desc,
                                total,
                                lack,
                                state))
 
 
 # 更新电视剧缺失的集数
-def update_rss_tv_lack(title, year, season, lack):
-    if not title:
+def update_rss_tv_lack(title=None, year=None, season=None, rssid=None, lack=0):
+    if not title and not rssid:
         return False
-    sql = "UPDATE RSS_TVS SET LACK=? WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-    return update_by_sql(sql, (lack, str_sql(title), str_sql(year), season))
+    if rssid:
+        sql = "UPDATE RSS_TVS SET LACK=? WHERE ID = ?"
+        return update_by_sql(sql, (lack, rssid))
+    else:
+        sql = "UPDATE RSS_TVS SET LACK=? WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
+        return update_by_sql(sql, (lack, str_sql(title), str_sql(year), season))
 
 
 # 删除RSS电视剧
-def delete_rss_tv(title, year, season, rssid=None):
+def delete_rss_tv(title=None, year=None, season=None, rssid=None):
     if not title and not rssid:
         return False
     if rssid:
@@ -620,11 +643,15 @@ def delete_rss_tv(title, year, season, rssid=None):
 
 
 # 更新电视剧订阅状态
-def update_rss_tv_state(title, year, season, state):
-    if not title:
+def update_rss_tv_state(title=None, year=None, season=None, rssid=None, state='R'):
+    if not title and not rssid:
         return False
-    sql = "UPDATE RSS_TVS SET STATE = ? WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-    return update_by_sql(sql, (state, str_sql(title), str_sql(year), season))
+    if rssid:
+        sql = "UPDATE RSS_TVS SET STATE = ? WHERE ID = ?"
+        return update_by_sql(sql, (state, rssid))
+    else:
+        sql = "UPDATE RSS_TVS SET STATE = ? WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
+        return update_by_sql(sql, (state, str_sql(title), str_sql(year), season))
 
 
 # 查询是否存在同步历史记录

@@ -5,7 +5,6 @@ from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures._base import as_completed
 
 import log
-from config import TORRENT_SEARCH_PARAMS
 from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
@@ -150,12 +149,12 @@ class IIndexer(metaclass=ABCMeta):
 
             # 检查资源类型
             if match_type == 1:
-                match_flag, res_order = Torrent.check_resouce_types(torrent_name, description, self.__res_type)
+                match_flag, res_order = Torrent.check_site_resouce_filter(torrent_name, description, self.__res_type)
                 if not match_flag:
                     log.info(f"【{self.index_type}】{torrent_name} 不符合过滤规则")
                     continue
             else:
-                res_order = Torrent.check_res_order(torrent_name, description, self.__res_type)
+                res_order = Torrent.check_site_resouce_order(torrent_name, description, self.__res_type)
 
             # 识别种子名称
             meta_info = MetaInfo(title=torrent_name, subtitle=description)
@@ -167,32 +166,7 @@ class IIndexer(metaclass=ABCMeta):
                 continue
 
             # 有高级过滤条件时，先过滤一遍
-            if filter_args.get("restype"):
-                restype_re = TORRENT_SEARCH_PARAMS["restype"].get(filter_args.get("restype"))
-                if not meta_info.resource_type:
-                    continue
-                if restype_re and not re.search(r"%s" % restype_re, meta_info.resource_type, re.IGNORECASE):
-                    log.info(f"【{self.index_type}】{torrent_name} 不符合质量条件：{filter_args.get('restype')}")
-                    continue
-            if filter_args.get("pix"):
-                restype_re = TORRENT_SEARCH_PARAMS["pix"].get(filter_args.get("pix"))
-                if not meta_info.resource_pix:
-                    continue
-                if restype_re and not re.search(r"%s" % restype_re, meta_info.resource_pix, re.IGNORECASE):
-                    log.info(f"【{self.index_type}】{torrent_name} 不符合分辨率条件：{filter_args.get('pix')}")
-                    continue
-            if filter_args.get("sp_state"):
-                sp_state = filter_args.get("sp_state")
-                ul_factor, dl_factor = sp_state.split()
-
-                if ul_factor not in ("*", str(uploadvolumefactor)):
-                    log.info(f"【{self.index_type}】{torrent_name} 不符合促销条件：上传因子 {ul_factor}")
-                    continue
-                if dl_factor not in ("*", str(downloadvolumefactor)):
-                    log.info(f"【{self.index_type}】{torrent_name} 不符合促销条件：下载因子 {dl_factor}")
-                    continue
-            if filter_args.get("key") and not re.search(r"%s" % filter_args.get("key"), torrent_name, re.IGNORECASE):
-                log.info(f"【{self.index_type}】{torrent_name} 不符合关键字：{filter_args.get('key')}")
+            if not Torrent.check_torrent_filter(meta_info, filter_args, uploadvolumefactor, downloadvolumefactor):
                 continue
 
             # 识别媒体信息

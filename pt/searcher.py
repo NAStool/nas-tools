@@ -49,13 +49,18 @@ class Searcher:
                                               match_type=match_type,
                                               match_words=match_words)
 
-    def search_one_media(self, media_info: MetaBase, in_from: SearchType, no_exists: dict, sites: list = None):
+    def search_one_media(self, media_info: MetaBase,
+                         in_from: SearchType,
+                         no_exists: dict,
+                         sites: list = None,
+                         filters: dict = None):
         """
         只检索和下载一个资源，用于精确检索下载，由微信、Telegram或豆瓣调用
         :param media_info: 已识别的媒体信息
         :param in_from: 搜索渠道
         :param no_exists: 缺失的剧集清单
         :param sites: 检索哪些站点
+        :param filters: 过滤条件，为空则不过滤
         :return: 请求的资源是否全部下载完整
                  请求的资源如果是剧集则返回下载后仍然缺失的季集信息
                  搜索到的结果数量
@@ -76,13 +81,18 @@ class Searcher:
         # 如果原标题是英文：用原标题去检索，用原标题及中文标题去匹配，以兼容国外网站
         search_title = media_info.original_title if media_info.original_language == "en" else media_info.title
         match_words = [media_info.title, search_title] if search_title != media_info.title else [media_info.title]
+        # 过滤条件
+        filter_args = {"season": search_season,
+                       "episode": search_episode,
+                       "year": media_info.year,
+                       "type": media_info.type,
+                       "site": sites}
+        if filters:
+            filter_args.update(filters)
+        # 开始搜索
         log.info("【SEARCHER】开始检索 %s ..." % search_title)
         media_list = self.search_medias(key_word=search_title,
-                                        filter_args={"season": search_season,
-                                                     "episode": search_episode,
-                                                     "year": media_info.year,
-                                                     "type": media_info.type,
-                                                     "site": sites},
+                                        filter_args=filter_args,
                                         match_type=1,
                                         match_words=match_words)
         if len(media_list) == 0:
