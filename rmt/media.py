@@ -459,6 +459,7 @@ class Media:
             else:
                 tmdb_info = self.__get_tmdb_tv_detail(tmdbid)
                 tmdb_info['media_type'] = MediaType.TV
+            tmdb_info['genre_ids'] = self.__get_genre_ids_from_detail(tmdb_info.get('genres'))
         return tmdb_info
 
     def get_tmdb_infos(self, title, year=None, mtype: MediaType = None, num=6):
@@ -1013,3 +1014,12 @@ class Media:
                 keyword = pre[0]
         log.info("【META】选择关键字为：%s " % keyword)
         return keyword, is_movie
+
+    @staticmethod
+    def __get_genre_ids_from_detail(genres):
+        if not genres:
+            return []
+        genre_ids = []
+        for genre in genres:
+            genre_ids.append(genre.get('id'))
+        return genre_ids

@@ -308,6 +308,9 @@ class Rss:
             update_rss_movie_state(rssid=rssid, state='S')
             # 搜索站点、洗版、过滤条件
             _, sites, over_edition, filter_map = Torrent.get_rss_note_item(movie[4])
+            # 洗版时，禁用定时搜索，否则会重复下同一资源
+            if over_edition and state == 'R':
+                continue
             # 识别
             if tmdbid and not tmdbid.startswith("DB:"):
                 media_info = MetaInfo(title="%s %s".strip() % (name, year))
@@ -319,15 +322,18 @@ class Rss:
             if not media_info or not media_info.tmdb_info:
                 update_rss_movie_state(rssid=rssid, state='R')
                 continue
-            # 检查是否存在，电视剧返回不存在的集清单
-            exist_flag, no_exists, messages = self.downloader.check_exists_medias(meta_info=media_info)
-            # 已经存在
-            if exist_flag:
-                log.info("【RSS】电影 %s 已存在" % name)
-                if not over_edition:
-                    log.info("【RSS】删除电影订阅：%s" % name)
+            # 非洗版的情况检查是否存在
+            if not over_edition:
+                # 检查是否存在
+                exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info)
+                # 已经存在
+                if exist_flag:
+                    log.info("【RSS】电影 %s 已存在，删除订阅..." % name)
                     delete_rss_movie(rssid=rssid)
-                continue
+                    continue
+            else:
+                # 洗版时按缺失来下载
+                no_exists = None
             # 开始检索
             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
                 media_info=media_info,
@@ -360,6 +366,7 @@ class Rss:
             season = tv[2]
             tmdbid = tv[3]
             lack = int(tv[7])
+            total = int(tv[6])
             # 跳过模糊匹配的
             if not season or not tmdbid:
                 continue
@@ -367,6 +374,9 @@ class Rss:
             update_rss_tv_state(rssid=rssid, state='S')
             # 搜索站点、洗版、过滤条件
             _, sites, over_edition, filter_map = Torrent.get_rss_note_item(tv[5])
+            # 洗版时，禁用定时搜索，否则会重复下同一资源
+            if over_edition and state == 'R':
+                continue
             # 开始识别
             if tmdbid and not tmdbid.startswith("DB:"):
                 media_info = MetaInfo(title="%s %s".strip() % (name, year))
@@ -378,17 +388,22 @@ class Rss:
             if not media_info or not media_info.tmdb_info:
                 update_rss_tv_state(rssid=rssid, state='R')
                 continue
-            # 检查是否存在，电视剧返回不存在的集清单
-            exist_flag, no_exists, messages = self.downloader.check_exists_medias(meta_info=media_info)
-            # 已经存在
-            if exist_flag:
-                log.info("【RSS】电视剧 %s%s 已存在" % (name, season))
-                if not over_edition:
-                    log.info("【RSS】删除电视剧订阅：%s%s" % (name, season))
-                    delete_rss_tv(rssid=rssid)
-                continue
-            # 开始检索
+            # 季
             media_info.begin_season = int(season.replace("S", ""))
+            # 非洗版的情况检查是否存在
+            if not over_edition:
+                # 检查是否存在，电视剧返回不存在的集清单
+                exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info)
+                # 已经存在
+                if exist_flag:
+                    log.info("【RSS】电视剧 %s%s 已存在，删除订阅..." % (name, season))
+                    delete_rss_tv(rssid=rssid)
+                    continue
+            # 洗版情况下按全部缺失搜索下载
+            else:
+                no_exists = {media_info.get_title_string(): [
+                    {"season": media_info.begin_season, "episodes": [], "total_episodes": total}]}
+            # 开始检索
             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
                 media_info=media_info,
                 in_from=SearchType.RSS,
