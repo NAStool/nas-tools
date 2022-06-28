@@ -58,9 +58,6 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         ratio_match = re.search(r"分享率[:：<>/a-zA-Z-=\"'\s#;]+([0-9.\s]+)", html_text)
         self.ratio = float(ratio_match.group(1).strip()) if (ratio_match and ratio_match.group(1).strip()) else 0.0
 
-        seeding_match = re.search(r"(Torrents seeding|做种中)[\u4E00-\u9FA5\D\s]+(\d+)[\s\S]+<", html_text)
-        self.seeding = int(seeding_match.group(2).strip()) if seeding_match and seeding_match.group(2).strip() else 0
-
         leeching_match = re.search(r"(Torrents leeching|下载中)[\u4E00-\u9FA5\D\s]+(\d+)[\s\S]+<", html_text)
         self.leeching = int(leeching_match.group(2).strip()) if leeching_match and leeching_match.group(
             2).strip() else 0
@@ -133,7 +130,7 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
                                       '|//tr/td[text()="等級" or text()="等级"]/'
                                       'following-sibling::td[1 and img[not(@title)]]/text()'
                                       '|//tr/td[text()="等級" or text()="等级"]/'
-                                      'following-sibling::td[1 and not(img)]/text()')
+                                      'following-sibling::td[1]//text()')
         if user_levels_text:
             self.user_level = user_levels_text[0].strip()
 
@@ -142,14 +139,19 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         if join_at_text:
             self.join_at = join_at_text[0].strip()
 
-        # 做种体积
+        # 做种体积 & 做种数
         # seeding 页面获取不到的话，此处再获取一次
+        seeding_sizes = html.xpath('//tr/td[text()="当前上传"]/following-sibling::td[1]//'
+                                   'table[tr[1][td[4 and text()="尺寸"]]]//tr[position()>1]/td[4]')
+        tmp_seeding = len(seeding_sizes)
+        tmp_seeding_size = 0
+        for per_size in seeding_sizes:
+            tmp_seeding_size += num_filesize(per_size.xpath("string(.)").strip())
+
         if not self.seeding_size:
-            self.seeding_size = 0
-            seeding_sizes = html.xpath('//tr/td[text()="当前上传"]/following-sibling::td[1]//'
-                                       'table[tr[1][td[4 and text()="尺寸"]]]//tr[position()>1]/td[4]')
-            for per_size in seeding_sizes:
-                self.seeding_size += num_filesize(per_size.xpath("string(.)").strip())
+            self.seeding_size = tmp_seeding_size
+        if not self.seeding:
+            self.seeding = tmp_seeding
 
         # 存在链接跳转新页面，代表较多数据量，需要使用跳转链接查询
         seeding_url_text = html.xpath('//tr/td[text()="目前做種"]/following-sibling::td[1]/'
