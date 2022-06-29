@@ -150,7 +150,7 @@ class Rss:
                             continue
                         # 检查这个种子是不是下过了
                         if is_torrent_rssd(enclosure):
-                            log.info("【RSS】%s%s 已成功订阅过" % torrent_name)
+                            log.info("【RSS】%s 已成功订阅过" % torrent_name)
                             continue
                         # 识别种子名称，开始检索TMDB
                         media_info = self.media.get_media_info(title=torrent_name, subtitle=description)

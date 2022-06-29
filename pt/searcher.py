@@ -108,6 +108,12 @@ class Searcher:
             if in_from in [SearchType.WX, SearchType.TG]:
                 # 保存搜索记录
                 delete_all_search_torrents()
+                # 搜索结果排序
+                media_list = sorted(media_list, key=lambda x: "%s%s%s%s" % (str(x.title).ljust(100, ' '),
+                                                                            str(x.res_order).rjust(3, '0'),
+                                                                            str(x.site_order).rjust(3, '0'),
+                                                                            str(x.seeders).rjust(10, '0')),
+                                    reverse=True)
                 # 插入数据库
                 insert_search_results(media_list)
                 # 微信未开自动下载时返回

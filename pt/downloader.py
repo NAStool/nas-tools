@@ -471,7 +471,7 @@ class Downloader:
                         log.info("【DOWNLOADER】%s 第%s季 共%s集 已全部存在" % (
                             meta_info.get_title_string(), season_number, episode_count))
                         message_list.append(
-                            "%s第%s季 共%s集 已全部存在" % (meta_info.get_title_string(), season_number, episode_count))
+                            "第%s季 共%s集 已全部存在" % (season_number, episode_count))
             else:
                 log.info("【DOWNLOADER】%s 无法查询到媒体详细信息" % meta_info.get_title_string())
                 message_list.append("%s 无法查询到媒体详细信息" % meta_info.get_title_string())

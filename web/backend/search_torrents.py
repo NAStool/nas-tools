@@ -148,11 +148,12 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
 def __search_media(in_from, media_info: MetaBase, user_id):
     # 检查是否存在，电视剧返回不存在的集清单
     exist_flag, no_exists, messages = Downloader().check_exists_medias(meta_info=media_info)
-    # 已经存在
-    if exist_flag:
+    if messages:
         Message().send_channel_msg(channel=in_from,
                                    title="\n".join(messages),
                                    user_id=user_id)
+    # 已经存在
+    if exist_flag:
         return
     # 开始检索
     Message().send_channel_msg(channel=in_from,
