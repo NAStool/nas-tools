@@ -661,11 +661,13 @@ def update_rss_tv_episodes(rid, episodes):
         return
     if not episodes:
         episodes = []
+    else:
+        episodes = [str(epi) for epi in episodes]
     if is_exists_rss_tv_episodes(rid):
         sql = "UPDATE RSS_TV_EPISODES SET EPISODES = ? WHERE RSSID = ?"
         ret = update_by_sql(sql, (",".join(episodes), rid))
     else:
-        sql = "INSERT INTO RSS_TV_EPISODES(RSSID, EPISODES) VALUES(?)"
+        sql = "INSERT INTO RSS_TV_EPISODES(RSSID, EPISODES) VALUES(?, ?)"
         ret = update_by_sql(sql, (rid, ",".join(episodes)))
     return ret
 
