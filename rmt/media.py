@@ -437,7 +437,7 @@ class Media:
                 print(err)
         return {}
 
-    def get_tmdb_info(self, mtype: MediaType = None, title=None, year=None, tmdbid=None):
+    def get_tmdb_info(self, mtype: MediaType = None, title=None, year=None, tmdbid=None, language=None):
         """
         给定名称和年份或者TMDB号，查询一条媒体信息
         :param mtype: 类型：电影、电视剧、动漫，为空时都查（此时用不上年份）
@@ -445,6 +445,10 @@ class Media:
         :param year: 年份
         :param tmdbid: TMDB的ID，有tmdbid时优先使用tmdbid，否则使用年份和标题
         """
+        if language:
+            self.tmdb.language = language
+        else:
+            self.tmdb.language = 'zh-CN'
         if not tmdbid or not mtype:
             if not title:
                 return None

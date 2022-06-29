@@ -7,7 +7,7 @@ from pt.indexer.prowlarr import Prowlarr
 from rmt.media import Media
 from rmt.meta.metabase import MetaBase
 from utils.sqls import delete_all_search_torrents, insert_search_results
-from utils.types import SearchType
+from utils.types import SearchType, MediaType
 
 
 class Searcher:
@@ -78,9 +78,13 @@ class Searcher:
         search_episode = media_info.get_episode_list()
         if search_episode and not search_season:
             search_season = [1]
-        # 如果原标题是英文：用原标题去检索，用原标题及中文标题去匹配，以兼容国外网站
-        search_title = media_info.original_title if media_info.original_language == "en" else media_info.title
-        match_words = [media_info.title, search_title] if search_title != media_info.title else [media_info.title]
+        # 英文标题
+        if media_info.original_language != "en":
+            en_info = Media().get_tmdb_info(mtype=media_info.type, tmdbid=media_info.tmdb_id, language="en-US")
+            en_title = en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get("name")
+        # 如果原标题是英文：用原标题去检索，否则使用英文+原标题搜索去匹配，优化小语种资源
+        search_title = media_info.original_title if media_info.original_language == "en" else en_title
+        match_words = [media_info.title, search_title] if search_title != media_info.title else [en_title]
         # 过滤条件
         filter_args = {"season": search_season,
                        "episode": search_episode,
