@@ -5,10 +5,12 @@ import sqlite3
 import log
 import threading
 
+
 class SQLit3PoolConnection:
     @staticmethod
     def create_conn(**config):
         return sqlite3.connect(**config)
+
 
 dbcs = {
     "SQLite3": SQLit3PoolConnection

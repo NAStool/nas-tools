@@ -7,7 +7,7 @@ from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.meta.metabase import MetaBase
 from rmt.metainfo import MetaInfo
-from utils.sqls import insert_search_results, delete_all_search_torrents, insert_rss_tv, insert_rss_movie
+from utils.sqls import insert_search_results, delete_all_search_torrents
 from utils.types import SearchType, MediaType
 from web.backend.subscribe import add_rss_subscribe
 

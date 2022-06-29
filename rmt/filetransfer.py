@@ -13,6 +13,7 @@ from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESI
 from pt.subtitle import Subtitle
 from rmt.category import Category
 from pt.media_server import MediaServer
+from rmt.meta.metabase import MetaBase
 from rmt.metainfo import MetaInfo
 from utils.functions import get_dir_files, get_free_space_gb, get_dir_level1_medias, is_invalid_path, \
     is_path_in_path, get_system, is_bluray_dir, str_filesize
@@ -708,24 +709,10 @@ class FileTransfer:
         file_exist_flag = False
         ret_dir_path = None
         ret_file_path = None
-        # 重命名要求
-        format_dict = {
-            "title": media.title,
-            "year": media.year,
-            "edition": media.resource_type,
-            "videoFormat": media.resource_pix,
-            "videoCodec": media.video_encode,
-            "audioCodec": media.audio_encode,
-            "tmdbid": media.tmdb_id,
-            "season": media.get_season_seq(),
-            "episode": media.get_episode_seqs(),
-            "season_episode": "%s%s" % (media.get_season_item(), media.get_episode_items()),
-            "part": media.part
-        }
         # 电影
         if media.type == MediaType.MOVIE:
             # 目录名称
-            dir_name = re.sub(r"[-_\s.]*None", "", self.__movie_dir_rmt_format.format(**format_dict))
+            dir_name, file_name = self.get_moive_dest_path(media)
             # 默认目录路径
             file_path = os.path.join(media_dest, dir_name)
             # 开启分类时目录路径
@@ -743,7 +730,7 @@ class FileTransfer:
             if os.path.exists(file_path):
                 dir_exist_flag = True
             # 文件路径
-            file_dest = os.path.join(file_path, re.sub(r"[-_\s.]*None", "", self.__movie_file_rmt_format.format(**format_dict)))
+            file_dest = os.path.join(file_path, file_name)
             # 返回文件路径
             ret_file_path = file_dest
             # 文件是否存在
@@ -756,7 +743,7 @@ class FileTransfer:
         # 电视剧或者动漫
         else:
             # 目录名称
-            dir_name = re.sub(r"[-_\s.]*None", "", self.__tv_dir_rmt_format.format(**format_dict))
+            dir_name, season_name, file_name = self.get_tv_dest_path(media)
             # 剧集目录
             if (media.type == MediaType.TV and self.__tv_category_flag) or (
                     media.type == MediaType.ANIME and self.__anime_category_flag):
@@ -764,12 +751,9 @@ class FileTransfer:
             else:
                 media_path = os.path.join(media_dest, dir_name)
             # 季
-            seasons = media.get_season_list()
-            if seasons:
-                # 季目录
-                season_str = re.sub(r"[-_\s.]*None", "", self.__tv_season_rmt_format.format(**format_dict))
+            if media.get_season_list():
                 # 季路径
-                season_dir = os.path.join(media_path, season_str)
+                season_dir = os.path.join(media_path, season_name)
                 # 返回目录路径
                 ret_dir_path = season_dir
                 # 目录是否存在
@@ -779,7 +763,7 @@ class FileTransfer:
                 episodes = media.get_episode_list()
                 if episodes:
                     # 集文件路径
-                    file_path = os.path.join(season_dir, re.sub(r"[-_\s.]*None", "", self.__tv_file_rmt_format.format(**format_dict)))
+                    file_path = os.path.join(season_dir, file_name)
                     # 返回文件路径
                     ret_file_path = file_path
                     # 文件存在标志
@@ -828,44 +812,26 @@ class FileTransfer:
         else:
             return False, None
 
-    def get_dest_path_by_info(self, dest, mtype, title, year, category, season):
+    def get_dest_path_by_info(self, dest, meta_info: MetaBase):
         """
         拼装转移重命名后的新文件地址
         :param dest: 目的目录
-        :param mtype: 媒体类型：电影、电视剧、动漫
-        :param title: 标题
-        :param year:　年份
-        :param category: 二级分类名
-        :param season: 季号，Sxx
+        :param meta_info: 媒体信息
         """
-        if not dest or not mtype or not title:
+        if not dest or not meta_info:
             return None
-        if mtype == MediaType.MOVIE.value:
+        if meta_info.type == MediaType.MOVIE:
+            dir_name, _ = self.get_moive_dest_path(meta_info)
             if self.__movie_category_flag:
-                if year:
-                    return os.path.join(dest, category, "%s (%s)" % (title, year))
-                else:
-                    return os.path.join(dest, category, "%s" % title)
+                return os.path.join(dest, meta_info.category, dir_name)
             else:
-                if year:
-                    return os.path.join(dest, "%s (%s)" % (title, year))
-                else:
-                    return os.path.join(dest, "%s" % title)
+                return os.path.join(dest, dir_name)
         else:
-            if season:
-                season_str = "Season %s" % int(season.replace("S", ""))
-            else:
-                season_str = ""
+            dir_name, season_name, _ = self.get_tv_dest_path(meta_info)
             if self.__tv_category_flag:
-                if year:
-                    return os.path.join(dest, category, "%s (%s)" % (title, year), season_str)
-                else:
-                    return os.path.join(dest, category, "%s" % title, season_str)
+                return os.path.join(dest, meta_info.category, dir_name, season_name)
             else:
-                if year:
-                    return os.path.join(dest, "%s (%s)" % (title, year), season_str)
-                else:
-                    return os.path.join(dest, "%s" % title, season_str)
+                return os.path.join(dest, dir_name, season_name)
 
     def get_no_exists_medias(self, meta_info, season=None, total_num=None):
         """
@@ -877,21 +843,23 @@ class FileTransfer:
         """
         # 电影
         if meta_info.type == MediaType.MOVIE:
+            dir_name, _ = self.get_moive_dest_path(meta_info)
             for dest_path in self.__movie_path:
                 # 判断精选
-                fav_path = os.path.join(dest_path, RMT_FAVTYPE, meta_info.get_title_string())
+                fav_path = os.path.join(dest_path, RMT_FAVTYPE, dir_name)
                 fav_files = get_dir_files(fav_path, RMT_MEDIAEXT)
                 # 其它分类
                 if self.__movie_category_flag:
-                    dest_path = os.path.join(dest_path, meta_info.category, meta_info.get_title_string())
+                    dest_path = os.path.join(dest_path, meta_info.category, dir_name)
                 else:
-                    dest_path = os.path.join(dest_path, meta_info.get_title_string())
+                    dest_path = os.path.join(dest_path, dir_name)
                 files = get_dir_files(dest_path, RMT_MEDIAEXT)
                 if len(files) > 0 or len(fav_files) > 0:
                     return [{'title': meta_info.title, 'year': meta_info.year}]
             return []
         # 电视剧
         else:
+            dir_name, season_name, _ = self.get_tv_dest_path(meta_info)
             if not season or not total_num:
                 return []
             if meta_info.type == MediaType.ANIME:
@@ -906,10 +874,9 @@ class FileTransfer:
             exists_episodes = []
             for dest_path in dest_paths:
                 if category_flag:
-                    dest_path = os.path.join(dest_path, meta_info.category, meta_info.get_title_string(),
-                                             "Season %s" % season)
+                    dest_path = os.path.join(dest_path, meta_info.category, dir_name, season_name)
                 else:
-                    dest_path = os.path.join(dest_path, meta_info.get_title_string(), "Season %s" % season)
+                    dest_path = os.path.join(dest_path, dir_name, season_name)
                 # 目录不存在
                 if not os.path.exists(dest_path):
                     continue
@@ -990,6 +957,48 @@ class FileTransfer:
         if not os.path.exists(new_dir):
             os.makedirs(new_dir)
         return self.__transfer_command(in_file, new_file, rmt_mode)
+
+    @staticmethod
+    def get_format_dict(media: MetaBase):
+        """
+        根据媒体信息，返回Format字典
+        """
+        if not media:
+            return {}
+        return {
+            "title": media.title,
+            "year": media.year,
+            "edition": media.resource_type,
+            "videoFormat": media.resource_pix,
+            "videoCodec": media.video_encode,
+            "audioCodec": media.audio_encode,
+            "tmdbid": media.tmdb_id,
+            "season": media.get_season_seq(),
+            "episode": media.get_episode_seqs(),
+            "season_episode": "%s%s" % (media.get_season_item(), media.get_episode_items()),
+            "part": media.part
+        }
+
+    def get_moive_dest_path(self, media_info: MetaBase):
+        """
+        计算电影文件路径
+        :return: 电影目录、电影名称
+        """
+        format_dict = self.get_format_dict(media_info)
+        dir_name = re.sub(r"[-_\s.]*None", "", self.__movie_dir_rmt_format.format(**format_dict))
+        file_name = re.sub(r"[-_\s.]*None", "", self.__movie_file_rmt_format.format(**format_dict))
+        return dir_name, file_name
+
+    def get_tv_dest_path(self, media_info: MetaBase):
+        """
+        计算电视剧文件路径
+        :return: 电视剧目录、季目录、集名称
+        """
+        format_dict = self.get_format_dict(media_info)
+        dir_name = re.sub(r"[-_\s.]*None", "", self.__tv_dir_rmt_format.format(**format_dict))
+        season_name = re.sub(r"[-_\s.]*None", "", self.__tv_season_rmt_format.format(**format_dict))
+        file_name = re.sub(r"[-_\s.]*None", "", self.__tv_file_rmt_format.format(**format_dict))
+        return dir_name, season_name, file_name
 
 
 if __name__ == "__main__":

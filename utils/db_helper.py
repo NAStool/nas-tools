@@ -102,6 +102,12 @@ class DBHelper:
                                    LACK    INTEGER,
                                    STATE    TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_RSS_TVS_NAME ON RSS_TVS(NAME);''')
+            # 电视剧订阅剧集明细
+            cursor.execute('''CREATE TABLE IF NOT EXISTS RSS_TV_EPISODES
+                                               (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                               RSSID    TEXT,
+                                               EPISODES    TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_RSS_TV_EPISODES_RSSID ON RSS_TV_EPISODES (RSSID);''')
             # 豆瓣关注信息表
             cursor.execute('''CREATE TABLE IF NOT EXISTS DOUBAN_MEDIAS
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,

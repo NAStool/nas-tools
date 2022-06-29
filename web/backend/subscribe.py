@@ -169,7 +169,8 @@ def add_rss_subscribe(mtype, name, year,
                           rss_restype=rss_restype,
                           rss_pix=rss_pix,
                           rss_keyword=rss_keyword,
-                          state=state)
+                          state=state,
+                          match=match)
         else:
             insert_rss_movie(media_info=media_info,
                              sites=sites,
@@ -205,6 +206,7 @@ def add_rss_subscribe(mtype, name, year,
                           over_edition=over_edition,
                           rss_restype=rss_restype,
                           rss_pix=rss_pix,
-                          rss_keyword=rss_keyword)
+                          rss_keyword=rss_keyword,
+                          match=match)
 
     return 0, "添加订阅成功", media_info

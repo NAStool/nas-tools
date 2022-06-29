@@ -79,9 +79,11 @@ class Searcher:
         if search_episode and not search_season:
             search_season = [1]
         # 英文标题
+        en_title = media_info.title
         if media_info.original_language != "en":
             en_info = Media().get_tmdb_info(mtype=media_info.type, tmdbid=media_info.tmdb_id, language="en-US")
-            en_title = en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get("name")
+            if en_info:
+                en_title = en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get("name")
         # 如果原标题是英文：用原标题去检索，否则使用英文+原标题搜索去匹配，优化小语种资源
         search_title = media_info.original_title if media_info.original_language == "en" else en_title
         match_words = [media_info.title, search_title] if search_title != media_info.title else [en_title]

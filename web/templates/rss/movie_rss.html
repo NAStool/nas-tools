@@ -122,7 +122,7 @@
           <div class="col-xl-4">
             <div class="mb-3">
               <label class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="over_edition">
+                <input class="form-check-input" type="checkbox" id="over_edition" onclick="javascript:change_over_edition_check(this)">
                 <span class="form-check-label">洗版 <span class="form-help bg-red-lt" title="开启后RSS不检查媒体库是否已存在，命中即会下载" data-bs-toggle="tooltip">?</span></span>
               </label>
             </div>
@@ -287,7 +287,16 @@
   function change_match_check(obj){
     if($(obj).prop("checked")){
       $("#rss_search_sites_div").hide();
+      $("#over_edition").prop("checked", false);
     }else{
+      $("#rss_search_sites_div").show();
+    }
+  }
+
+  // 选择洗版
+  function change_over_edition_check(obj){
+    if($(obj).prop("checked")){
+      $("#key_match").prop("checked", false);
       $("#rss_search_sites_div").show();
     }
   }

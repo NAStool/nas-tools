@@ -19,6 +19,7 @@ from utils.cache_manager import cacheman
 import difflib
 from rmt.constants import *
 
+
 class Media:
     # TheMovieDB
     tmdb = None
@@ -306,8 +307,8 @@ class Media:
                         if season.get("air_date")[0:4] == str(media_year) \
                                 and season.get("season_number") == int(season_number):
                             return True
-            except Exception as err:
-                log.error(f"【META】连接TMDB出错：{err}")
+            except Exception as e1:
+                log.error(f"【META】连接TMDB出错：{e1}")
                 return False
             return False
 
@@ -444,6 +445,7 @@ class Media:
         :param title: 标题
         :param year: 年份
         :param tmdbid: TMDB的ID，有tmdbid时优先使用tmdbid，否则使用年份和标题
+        :param language: 语种
         """
         if language:
             self.tmdb.language = language
@@ -927,7 +929,8 @@ class Media:
             feature_name = feature_name.replace(single, " ")
         if not feature_name:
             return None, is_movie
-        def cal_score(strongs, ret_dict):
+
+        def cal_score(strongs, r_dict):
             for i, s in enumerate(strongs):
                 if len(strongs) < 5:
                     if i < 2:
@@ -947,12 +950,12 @@ class Media:
                             2] if i < (
                                 len(strongs) >> 1) \
                             else KEYWORD_SEARCH_WEIGHT_1[3] if i < (len(strongs) >> 2 + len(strongs) >> 1) else \
-                        KEYWORD_SEARCH_WEIGHT_1[
-                            4]
-                if ret_dict.__contains__(s.lower()):
-                    ret_dict[s.lower()] += score
+                            KEYWORD_SEARCH_WEIGHT_1[
+                                4]
+                if r_dict.__contains__(s.lower()):
+                    r_dict[s.lower()] += score
                     continue
-                ret_dict[s.lower()] = score
+                r_dict[s.lower()] = score
 
         bing_url = "https://www.cn.bing.com/search?q=%s&qs=n&form=QBRE&sp=-1" % feature_name
         baidu_url = "https://www.baidu.com/s?ie=utf-8&tn=baiduhome_pg&wd=%s" % feature_name
@@ -997,22 +1000,22 @@ class Media:
             keyword = ret[0][0]
         else:
             pre = ret[0]
-            next = ret[1]
-            if next[0].find(pre[0]) > -1:
+            nextw = ret[1]
+            if nextw[0].find(pre[0]) > -1:
                 # 满分直接判定
                 if int(pre[1]) >= 100:
                     keyword = pre[0]
                 # 得分相差30 以上， 选分高
-                elif int(pre[1]) - int(next[1]) > KEYWORD_DIFF_SCORE_THRESHOLD:
+                elif int(pre[1]) - int(nextw[1]) > KEYWORD_DIFF_SCORE_THRESHOLD:
                     keyword = pre[0]
                 # 重复的不选
-                elif next[0].replace(pre[0], "").strip() == pre[0]:
+                elif nextw[0].replace(pre[0], "").strip() == pre[0]:
                     keyword = pre[0]
                 # 纯数字不选
                 elif pre[0].isdigit():
-                    keyword = next[0]
+                    keyword = nextw[0]
                 else:
-                    keyword = next[0]
+                    keyword = nextw[0]
 
             else:
                 keyword = pre[0]

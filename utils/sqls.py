@@ -94,17 +94,6 @@ def get_search_results():
     return select_by_sql(sql)
 
 
-# 查询RSS是否处理过，根据链接
-def is_torrent_rssd_by_url(url):
-    sql = "SELECT 1 FROM RSS_TORRENTS WHERE ENCLOSURE = ?"
-    ret = select_by_sql(sql, (url,))
-    if not ret:
-        return False
-    if len(ret) > 0:
-        return True
-    return False
-
-
 # 查询RSS是否处理过，根据名称
 def is_torrent_rssd(enclosure):
     if not enclosure:
@@ -592,14 +581,20 @@ def insert_rss_tv(media_info: MetaBase, total, lack=0, state="D",
                   over_edition=False,
                   rss_restype=None,
                   rss_pix=None,
-                  rss_keyword=None
+                  rss_keyword=None,
+                  match=False
                   ):
     if not media_info:
         return False
     if not media_info.title:
         return False
-    if is_exists_rss_tv(media_info.title, media_info.year, media_info.get_season_string()):
+    if match and not media_info.begin_season:
+        season_str = ""
+    else:
+        season_str = media_info.get_season_string()
+    if is_exists_rss_tv(media_info.title, media_info.year, season_str):
         return True
+    # 插入订阅数据
     sql = "INSERT INTO RSS_TVS(NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
     desc = "#".join(["|".join(sites or []),
                      "|".join(search_sites or []),
@@ -609,7 +604,7 @@ def insert_rss_tv(media_info: MetaBase, total, lack=0, state="D",
                                str_sql(rss_keyword)])])
     return update_by_sql(sql, (str_sql(media_info.title),
                                str_sql(media_info.year),
-                               media_info.get_season_string(),
+                               season_str,
                                str_sql(media_info.tmdb_id),
                                str_sql(media_info.get_message_image()),
                                desc,
@@ -619,10 +614,15 @@ def insert_rss_tv(media_info: MetaBase, total, lack=0, state="D",
 
 
 # 更新电视剧缺失的集数
-def update_rss_tv_lack(title=None, year=None, season=None, rssid=None, lack=0):
+def update_rss_tv_lack(title=None, year=None, season=None, rssid=None, lack_episodes: list = None):
     if not title and not rssid:
         return False
+    if not lack_episodes:
+        lack = 0
+    else:
+        lack = len(lack_episodes)
     if rssid:
+        update_rss_tv_episodes(rssid, lack_episodes)
         sql = "UPDATE RSS_TVS SET LACK=? WHERE ID = ?"
         return update_by_sql(sql, (lack, rssid))
     else:
@@ -635,11 +635,59 @@ def delete_rss_tv(title=None, year=None, season=None, rssid=None):
     if not title and not rssid:
         return False
     if rssid:
+        delete_rss_tv_episodes(rssid)
         sql = "DELETE FROM RSS_TVS WHERE ID = ?"
         return update_by_sql(sql, (rssid,))
     else:
         sql = "DELETE FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
         return update_by_sql(sql, (str_sql(title), str_sql(year), season))
+
+
+# 判断RSS电视剧是否存在
+def is_exists_rss_tv_episodes(rid):
+    if not rid:
+        return False
+    sql = "SELECT COUNT(1) FROM RSS_TV_EPISODES WHERE RSSID = ?"
+    ret = select_by_sql(sql, (rid,))
+    if ret and ret[0][0] > 0:
+        return True
+    else:
+        return False
+
+
+# 插入或更新电视剧订阅缺失剧集
+def update_rss_tv_episodes(rid, episodes):
+    if not rid:
+        return
+    if not episodes:
+        episodes = []
+    if is_exists_rss_tv_episodes(rid):
+        sql = "UPDATE RSS_TV_EPISODES SET EPISODES = ? WHERE RSSID = ?"
+        ret = update_by_sql(sql, (",".join(episodes), rid))
+    else:
+        sql = "INSERT INTO RSS_TV_EPISODES(RSSID, EPISODES) VALUES(?)"
+        ret = update_by_sql(sql, (rid, ",".join(episodes)))
+    return ret
+
+
+# 查询电视剧订阅缺失剧集
+def get_rss_tv_episodes(rid):
+    if not rid:
+        return []
+    sql = "SELECT EPISODES FROM RSS_TV_EPISODES WHERE RSSID = ?"
+    ret = select_by_sql(sql, (rid,))
+    if ret:
+        return str(ret[0][0]).split(',')
+    else:
+        return []
+
+
+# 删除电视剧订阅缺失剧集
+def delete_rss_tv_episodes(rid):
+    if not rid:
+        return []
+    sql = "DELETE FROM RSS_TV_EPISODES WHERE RSSID = ?"
+    return update_by_sql(sql, (rid,))
 
 
 # 更新电视剧订阅状态

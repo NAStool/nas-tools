@@ -522,17 +522,18 @@ class WebAction:
         logid = data.get('logid')
         paths = get_transfer_path_by_id(logid)
         if paths:
-            file_name = paths[0][1]
             dest_dir = paths[0][2]
-            title = paths[0][3]
-            category = paths[0][4]
-            year = paths[0][5]
-            se = paths[0][6]
-            mtype = paths[0][7]
-            dest_path = FileTransfer().get_dest_path_by_info(dest=dest_dir, mtype=mtype, title=title,
-                                                             category=category, year=year, season=se)
-            meta_info = MetaInfo(file_name)
-            if dest_path and dest_path.find(title) != -1:
+            meta_info = MetaInfo(title=paths[0][1])
+            meta_info.title = paths[0][3]
+            meta_info.category = paths[0][4]
+            meta_info.year = paths[0][5]
+            meta_info.begin_season = int(str(paths[0][6]).replace("S", ""))
+            if paths[0][7] == MediaType.MOVIE.value:
+                meta_info.type = MediaType.MOVIE
+            else:
+                meta_info.type = MediaType.TV
+            dest_path = FileTransfer().get_dest_path_by_info(dest=dest_dir, meta_info=meta_info)
+            if dest_path and dest_path.find(meta_info.title) != -1:
                 delete_transfer_log_by_id(logid)
                 if not meta_info.get_episode_string():
                     # 电影或者没有集数的电视剧，删除整个目录

@@ -19,7 +19,7 @@ class Torrent:
         :param movie_keys: 电影订阅清单
         :param tv_keys: 电视剧订阅清单
         :param site_name: 站点名称
-        :return: 匹配到的订阅ID、是否洗版
+        :return: 匹配到的订阅ID、是否洗版、总集数
         """
         if media_info.type == MediaType.MOVIE:
             for key_info in movie_keys:
@@ -42,7 +42,7 @@ class Torrent:
                     # 匹配名称、年份，年份可以没有
                     if name == media_info.title and (not year or str(year) == str(media_info.year)) \
                             or str(media_info.tmdb_id) == str(tmdbid):
-                        return rssid, over_edition
+                        return rssid, over_edition, None
                 # 模糊匹配
                 else:
                     # 匹配年份
@@ -52,7 +52,7 @@ class Torrent:
                     if re.search(r"%s" % name,
                                  "%s %s %s" % (media_info.org_string, media_info.title, media_info.year),
                                  re.IGNORECASE):
-                        return 0, False
+                        return 0, False, None
         else:
             # 匹配种子标题
             for key_info in tv_keys:
@@ -63,6 +63,7 @@ class Torrent:
                 season = key_info[2]
                 tmdbid = key_info[3]
                 rssid = key_info[10]
+                total = key_info[6]
                 # 订阅站点
                 sites, _, over_edition, filter_map = self.get_rss_note_item(key_info[5])
                 # 过滤订阅站点
@@ -81,7 +82,7 @@ class Torrent:
                         continue
                     # 匹配名称
                     if name == media_info.title or str(media_info.tmdb_id) == str(tmdbid):
-                        return rssid, over_edition
+                        return rssid, over_edition, total
                 # 模糊匹配
                 else:
                     # 匹配季
@@ -94,8 +95,8 @@ class Torrent:
                     if re.search(r"%s" % name,
                                  "%s %s %s" % (media_info.org_string, media_info.title, media_info.year),
                                  re.IGNORECASE):
-                        return 0, False
-        return None, None
+                        return 0, False, None
+        return None, None, None
 
     @staticmethod
     def is_torrent_match_size(media_info, types, t_size):
