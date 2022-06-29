@@ -836,13 +836,24 @@ def is_site_user_statistics_exists(url):
 
 
 # 查询站点数据历史
-def get_site_user_statistics(num=100):
+def get_site_user_statistics(num=100, strict_urls=None):
+    if strict_urls is None:
+        strict_urls = []
+
     sql = "SELECT SITE, USERNAME, USER_LEVEL," \
           " JOIN_AT, UPDATE_AT," \
           " UPLOAD, DOWNLOAD, RATIO," \
           " SEEDING, LEECHING, SEEDING_SIZE," \
           " BONUS, URL" \
           " FROM SITE_USER_STATISTICS LIMIT ?"
+    if strict_urls:
+        sql = "SELECT SITE, USERNAME, USER_LEVEL," \
+              " JOIN_AT, UPDATE_AT," \
+              " UPLOAD, DOWNLOAD, RATIO," \
+              " SEEDING, LEECHING, SEEDING_SIZE," \
+              " BONUS, URL" \
+              " FROM SITE_USER_STATISTICS WHERE URL in {} LIMIT ?".format(tuple(strict_urls))
+
     return select_by_sql(sql, (num,))
 
 
@@ -886,10 +897,13 @@ def get_site_statistics_history(days=30):
 
 
 # 查询近期上传下载量
-def get_site_statistics_recent_sites(days=7):
+def get_site_statistics_recent_sites(days=7, strict_urls=None):
     # 查询最大最小日期
+    if strict_urls is None:
+        strict_urls = []
+
     b_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d")
-    date_sql = "SELECT MAX(DATE), MIN(DATE) FROM SITE_STATISTICS_HISTORY WHERE DATE > ?"
+    date_sql = "SELECT MAX(DATE), MIN(DATE) FROM SITE_STATISTICS_HISTORY WHERE DATE > ? "
     date_ret = select_by_sql(date_sql, (b_date,))
     if date_ret:
         total_upload = 0
@@ -902,6 +916,9 @@ def get_site_statistics_recent_sites(days=7):
         # 查询开始值
         site_b_data = {}
         sql = "SELECT SITE, SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS_HISTORY WHERE DATE = ? GROUP BY SITE"
+        if strict_urls:
+            sql = "SELECT SITE, SUM(UPLOAD), SUM(DOWNLOAD) " \
+                  "FROM SITE_STATISTICS_HISTORY WHERE DATE = ? AND URL in {} GROUP BY SITE".format(tuple(strict_urls))
         for ret_b in select_by_sql(sql, (min_date,)):
             site_b_data[ret_b[0]] = {"upload": int(ret_b[1]), "download": int(ret_b[2])}
         # 查询结束值

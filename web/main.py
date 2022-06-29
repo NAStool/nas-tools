@@ -745,11 +745,12 @@ def create_flask_app(config):
                     SiteRatios.append(round(float(ratio), 1))
 
         # 近期上传下载各站点汇总
-        CurrentUpload, CurrentDownload, CurrentSiteLabels, CurrentSiteUploads, CurrentSiteDownloads = get_site_statistics_recent_sites(
+        CurrentUpload, CurrentDownload, CurrentSiteLabels, CurrentSiteUploads, CurrentSiteDownloads = Sites().get_pt_site_statistics_history(
             days=2)
 
         # 站点用户数据
-        SiteUserStatistics = get_site_user_statistics()
+        SiteUserStatistics = Sites().get_pt_site_user_statistics()
+
         return render_template("site/statistics.html",
                                CurrentDownload=CurrentDownload,
                                CurrentUpload=CurrentUpload,

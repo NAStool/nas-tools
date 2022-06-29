@@ -651,6 +651,7 @@ class WebAction:
         tid = data.get("id")
         if tid:
             ret = delete_config_site(tid)
+            Sites().init_config()
             return {"code": ret}
         else:
             return {"code": 0}
