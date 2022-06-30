@@ -527,7 +527,8 @@ class WebAction:
             meta_info.title = paths[0][3]
             meta_info.category = paths[0][4]
             meta_info.year = paths[0][5]
-            meta_info.begin_season = int(str(paths[0][6]).replace("S", ""))
+            if paths[0][6]:
+                meta_info.begin_season = int(str(paths[0][6]).replace("S", ""))
             if paths[0][7] == MediaType.MOVIE.value:
                 meta_info.type = MediaType.MOVIE
             else:
@@ -548,7 +549,7 @@ class WebAction:
                         if file_meta_info.get_episode_list() and set(
                                 file_meta_info.get_episode_list()).issubset(set(meta_info.get_episode_list())):
                             try:
-                                shutil.rmtree(dest_file)
+                                os.remove(dest_file)
                             except Exception as e:
                                 log.console(str(e))
         return {"retcode": 0}
