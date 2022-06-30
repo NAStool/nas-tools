@@ -852,7 +852,7 @@ def get_site_user_statistics(num=100, strict_urls=None):
               " UPLOAD, DOWNLOAD, RATIO," \
               " SEEDING, LEECHING, SEEDING_SIZE," \
               " BONUS, URL" \
-              " FROM SITE_USER_STATISTICS WHERE URL in {} LIMIT ?".format(tuple(strict_urls))
+              " FROM SITE_USER_STATISTICS WHERE URL in {} LIMIT ?".format(tuple(strict_urls + ["__DUMMY__"]))
 
     return select_by_sql(sql, (num,))
 
@@ -918,7 +918,8 @@ def get_site_statistics_recent_sites(days=7, strict_urls=None):
         sql = "SELECT SITE, SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS_HISTORY WHERE DATE = ? GROUP BY SITE"
         if strict_urls:
             sql = "SELECT SITE, SUM(UPLOAD), SUM(DOWNLOAD) " \
-                  "FROM SITE_STATISTICS_HISTORY WHERE DATE = ? AND URL in {} GROUP BY SITE".format(tuple(strict_urls))
+                  "FROM SITE_STATISTICS_HISTORY " \
+                  "WHERE DATE = ? AND URL in {} GROUP BY SITE".format(tuple(strict_urls + ["__DUMMY__"]))
         for ret_b in select_by_sql(sql, (min_date,)):
             site_b_data[ret_b[0]] = {"upload": int(ret_b[1]), "download": int(ret_b[2])}
         # 查询结束值
