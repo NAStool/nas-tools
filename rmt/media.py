@@ -43,7 +43,7 @@ class Media:
                 self.tmdb = TMDb()
                 self.tmdb.cache = True
                 self.tmdb.api_key = app.get('rmt_tmdbkey')
-                self.tmdb.language = 'zh-CN'
+                self.tmdb.language = 'zh-TW'
                 self.tmdb.proxies = config.get_proxies()
                 self.tmdb.debug = True
                 self.search = Search()
@@ -133,7 +133,7 @@ class Media:
         :param first_media_year: 年份，如要是季集需要是首播年份(first_air_date)
         :param media_year: 当前季集年份
         :param season_number: 季集，整数
-        :param language: 语言，默认是zh-CN
+        :param language: 语言，默认是zh-TW
         :return: TMDB的INFO，同时会将search_type赋值到media_type中
         """
         if not self.search:
@@ -143,7 +143,7 @@ class Media:
         if language:
             self.tmdb.language = language
         else:
-            self.tmdb.language = 'zh-CN'
+            self.tmdb.language = 'zh-TW'
         # TMDB检索
         info = {}
         if search_type == MediaType.MOVIE:
@@ -450,7 +450,7 @@ class Media:
         if language:
             self.tmdb.language = language
         else:
-            self.tmdb.language = 'zh-CN'
+            self.tmdb.language = 'zh-TW'
         if not tmdbid or not mtype:
             if not title:
                 return None
