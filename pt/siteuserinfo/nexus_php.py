@@ -89,9 +89,15 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         if not html:
             return None
 
+        size_col = 3
+        # 搜索size列
+        if html.xpath('//tr[position()=1]/td[img[@class="size"] and img[@alt="size"]]'):
+            size_col = len(html.xpath('//tr[position()=1]/td[img[@class="size"] '
+                                      'and img[@alt="size"]]/preceding-sibling::td')) + 1
+
         page_seeding = 0
         page_seeding_size = 0
-        seeding_torrents = html.xpath('//tr[position()>1]/td[3]')
+        seeding_torrents = html.xpath(f'//tr[position()>1]/td[{size_col}]')
         if seeding_torrents:
             page_seeding = len(seeding_torrents)
 
@@ -153,8 +159,8 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         if not self.seeding:
             self.seeding = tmp_seeding
 
-        # 存在链接跳转新页面，代表较多数据量，需要使用跳转链接查询
-        seeding_url_text = html.xpath('//tr/td[text()="目前做種"]/following-sibling::td[1]/'
-                                      'a[1 and @target = "_blank"]/@href')
+        # 单独的种子页面
+        seeding_url_text = html.xpath('//a[contains(@href,"getusertorrentlist.php") '
+                                      'and contains(@href,"seeding")]/@href')
         if seeding_url_text:
             self._torrent_seeding_page = seeding_url_text[0].strip()
