@@ -137,15 +137,17 @@ class MetaAnime(MetaBase):
         else:
             title = re.sub(r"^[^]】]*[]】]", "", title).strip()
         names = title.split("]")
-        titles = []
-        for name in names:
-            if not is_all_chinese(name[1:]):
-                name = re.sub(r'[\u4e00-\u9fa5]', '', name)
-            if name and name.find("/") != -1:
-                if name.split("/")[-1].strip():
-                    titles.append("[%s" % name.split("/")[-1].strip())
+        if len(names) > 1:
+            titles = []
+            for name in names:
+                if not is_all_chinese(name[1:]):
+                    name = re.sub(r'[\u4e00-\u9fa5]', '', name)
+                if name and name.find("/") != -1:
+                    if name.split("/")[-1].strip():
+                        titles.append("[%s" % name.split("/")[-1].strip())
+                    else:
+                        titles.append("[%s" % name.split("/")[0].strip())
                 else:
-                    titles.append("[%s" % name.split("/")[0].strip())
-            else:
-                titles.append(name.strip())
-        return "]".join(titles)
+                    titles.append(name.strip())
+            return "]".join(titles)
+        return title
