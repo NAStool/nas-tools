@@ -369,7 +369,7 @@ class Torrent:
                     return None, "不正确的种子文件"
                 return req.content, ""
             elif not req:
-                return None, "无法打开链接"
+                return url, "无法打开链接"
             else:
                 return None, "状态码：%s" % req.status_code
         except Exception as err:
