@@ -11,7 +11,7 @@ class MetaAnime(MetaBase):
     """
     识别动漫
     """
-    _anime_no_words = ['CHS&CHT', 'MP4', 'WEB-DL']
+    _anime_no_words = ['CHS&CHT', 'MP4', 'GB MP4', 'WEB-DL']
 
     def __init__(self, title, subtitle=None):
         super().__init__(title, subtitle)
