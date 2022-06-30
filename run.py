@@ -6,19 +6,22 @@ from config import Config
 from service.run import run_monitor, stop_monitor
 from service.run import run_scheduler, stop_scheduler
 from utils.check_config import check_config
+from utils.functions import get_system, check_process
+from utils.types import OsType
 from version import APP_VERSION
 from web.app import FlaskApp
 
 
 def sigal_handler(num, stack):
-    print(str(stack))
-    log.warn('捕捉到退出信号：%s，开始退出...' % num)
-    # 停止定时服务
-    stop_scheduler()
-    # 停止监控
-    stop_monitor()
-    # 退出主进程
-    quit()
+    if get_system() == OsType.LINUX and check_process("supervisord"):
+        print(str(stack))
+        log.warn('捕捉到退出信号：%s，开始退出...' % num)
+        # 停止定时服务
+        stop_scheduler()
+        # 停止监控
+        stop_monitor()
+        # 退出主进程
+        quit()
 
 
 if __name__ == "__main__":
