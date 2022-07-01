@@ -645,15 +645,19 @@ class WebAction:
         """
         tid = data.get("id")
         site_free = False
+        site_2xfree = False
         if tid:
             ret = get_site_by_id(tid)
             if ret[0][3]:
                 url_host = parse.urlparse(ret[0][3]).netloc
                 if url_host in GRAP_FREE_SITES.keys():
-                    site_free = True
+                    if GRAP_FREE_SITES[url_host].get("FREE"):
+                        site_free = True
+                    if GRAP_FREE_SITES[url_host].get("2XFREE"):
+                        site_2xfree = True
         else:
             ret = []
-        return {"code": 0, "site": ret, "site_free": site_free}
+        return {"code": 0, "site": ret, "site_free": site_free, "site_2xfree": site_2xfree}
 
     @staticmethod
     def __del_site(data):

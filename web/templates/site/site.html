@@ -279,6 +279,8 @@
     $("#site_close_btn").text("取消");
     $("#modal-site-title").text("新增站点");
     $("#add_or_edit_site_btn").text("新增");
+    $("#site_free").empty();
+    $("#site_free").append('<option value="" selected>全部</option>');
     $("#modal-site").modal("show");
   }
   //编辑站点
@@ -305,7 +307,11 @@
       $("#site_free").append('<option value="" selected>全部</option>');
       if(ret.site_free){
         $("#site_free").append('<option value="FREE">免费</option>');
+      }
+      if(ret.site_2xfree){
         $("#site_free").append('<option value="2XFREE">2X免费</option>');
+      }
+      if(ret.site[0][9]){
         $("#site_free").val(ret.site[0][9]);
       }
     });

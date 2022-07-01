@@ -102,7 +102,14 @@ class Qbittorrent(IDownloadClient):
         检查连通性
         :return: True、Fals
         """
-        return True if self.qbc else False
+        try:
+            data, _ = self.get_pt_data()
+            if data is None:
+                return False
+            return True
+        except Exception as e:
+            print(str(e))
+            return False
 
     def get_torrents(self, ids=None, status=None, tag=None):
         """
@@ -302,4 +309,4 @@ class Qbittorrent(IDownloadClient):
         transfer_info = self.qbc.transfer_info()
         if transfer_info:
             return transfer_info.get("up_info_data"), transfer_info.get("dl_info_data")
-        return 0, 0
+        return None, None

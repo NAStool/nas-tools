@@ -102,15 +102,15 @@ GRAP_FREE_SITES = {
     },
     'kp.m-team.cc':  {
         'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"]
+        '2XFREE': []
     },
     'lemonhd.org':  {
         'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree']"]
+        '2XFREE': []
     },
     'discfan.net':  {
         'FREE': ["//font[@class='free'][text()='免費']"],
-        '2XFREE': ["//font[@class='twoupfree']"]
+        '2XFREE': []
     }
 }
 
