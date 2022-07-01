@@ -111,6 +111,30 @@ GRAP_FREE_SITES = {
     'discfan.net':  {
         'FREE': ["//font[@class='free'][text()='免費']"],
         '2XFREE': []
+    },
+    'pt.sjtu.edu.cn':  {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': []
+    },
+    'nanyangpt.com':  {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': []
+    },
+    'audiences.me':  {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': []
+    },
+    'pterclub.com':  {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': []
+    },
+    'et8.org':  {
+        'FREE': ["//font[@class='free']"],
+        '2XFREE': ["//font[@class='twoupfree']"]
+    },
+    'pt.keepfrds.com':  {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': ["//font[@class='twoupfree']"]
     }
 }
 
