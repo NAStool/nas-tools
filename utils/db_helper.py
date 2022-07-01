@@ -234,6 +234,9 @@ class DBHelper:
                 '''CREATE INDEX IF NOT EXISTS INDX_SITE_USER_STATISTICS_URL ON SITE_USER_STATISTICS (URL);''')
             cursor.execute(
                 '''CREATE INDEX IF NOT EXISTS INDX_SITE_USER_STATISTICS_SITE ON SITE_USER_STATISTICS (SITE);''')
+            # 删除重复数据
+            cursor.execute(
+                """DELETE FROM SITE_USER_STATISTICS WHERE EXISTS (SELECT 1 FROM SITE_USER_STATISTICS p2 WHERE SITE_USER_STATISTICS.URL = p2.URL AND SITE_USER_STATISTICS.rowid < p2.rowid);""")
 
             # 下载历史
             cursor.execute('''CREATE TABLE IF NOT EXISTS DOWNLOAD_HISTORY
