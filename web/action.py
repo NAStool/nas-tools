@@ -272,8 +272,18 @@ class WebAction:
         ident_flag = False if data.get("unident") else True
         filters = data.get("filters")
         tmdbid = data.get("tmdbid")
+        media_type = data.get("media_type")
+        if media_type:
+            if media_type == "电影":
+                media_type = MediaType.MOVIE
+            else:
+                media_type = MediaType.TV
         if search_word:
-            ret, ret_msg = search_medias_for_web(content=search_word, ident_flag=ident_flag, filters=filters, tmdbid=tmdbid)
+            ret, ret_msg = search_medias_for_web(content=search_word,
+                                                 ident_flag=ident_flag,
+                                                 filters=filters,
+                                                 tmdbid=tmdbid,
+                                                 media_type=media_type)
             if ret != 0:
                 return {"code": ret, "msg": ret_msg}
         return {"code": 0}

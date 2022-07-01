@@ -10,7 +10,7 @@ from config import Config
 from rmt.metainfo import MetaInfo
 from rmt.tmdbv3api import TMDb, Search, Movie, TV
 from rmt.tmdbv3api.exceptions import TMDbException
-from utils.functions import xstr, max_ele
+from utils.functions import xstr, max_ele, is_chinese
 from utils.http_utils import RequestUtils
 from utils.meta_helper import MetaHelper
 from utils.types import MediaType, MatchMode
@@ -151,7 +151,7 @@ class Media:
             info = self.__search_movie_by_name(file_media_name, first_media_year)
             if info:
                 info['media_type'] = MediaType.MOVIE
-                log.info("%s 识别到 电影：TMDBID=%s, 名称=%s, 上映日期=%s" % (file_media_name,
+                log.info("【META】%s 识别到 电影：TMDBID=%s, 名称=%s, 上映日期=%s" % (file_media_name,
                                                                   info.get('id'),
                                                                   info.get('title'),
                                                                   info.get('release_date')))
@@ -168,7 +168,7 @@ class Media:
                                                 first_media_year)
             if info:
                 info['media_type'] = MediaType.TV
-                log.info("%s 识别到 电视剧：TMDBID=%s, 名称=%s, 首播日期=%s" % (file_media_name,
+                log.info("【META】%s 识别到 电视剧：TMDBID=%s, 名称=%s, 首播日期=%s" % (file_media_name,
                                                                    info.get('id'),
                                                                    info.get('name'),
                                                                    info.get('first_air_date')))
@@ -399,6 +399,8 @@ class Media:
         """
         if not file_media_name:
             return None
+        if is_chinese(file_media_name):
+            return None
         log.info("【META】正在从TheDbMovie网站查询：%s ..." % file_media_name)
         tmdb_url = "https://www.themoviedb.org/search?query=%s" % file_media_name
         res = RequestUtils().get_res(url=tmdb_url)
@@ -431,9 +433,9 @@ class Media:
                                                                                      tmdbinfo.get('first_air_date')))
                     return tmdbinfo
                 elif len(tmdb_links) > 1:
-                    log.info("【META】%s WEB返回数据过多：%s" % (file_media_name, len(tmdb_links)))
+                    log.info("【META】%s TMDB网站返回数据过多：%s" % (file_media_name, len(tmdb_links)))
                 else:
-                    log.info("【META】%s WEB未查询到媒体信息！" % file_media_name)
+                    log.info("【META】%s TMDB网站未查询到媒体信息！" % file_media_name)
             except Exception as err:
                 print(err)
         return {}

@@ -464,6 +464,29 @@ def create_flask_app(config):
                                PixDict=TORRENT_SEARCH_PARAMS.get("pix").keys(),
                                SiteDict=SiteDict)
 
+    # 媒体列表页面
+    @App.route('/medialist', methods=['POST', 'GET'])
+    @login_required
+    def medialist():
+        # 查询结果
+        SearchWord = request.args.get("s")
+        NeedSearch = request.args.get("f")
+        OperType = request.args.get("t")
+        medias = []
+        if SearchWord and NeedSearch:
+            meta_info = MetaInfo(title=SearchWord)
+            tmdbinfos = Media().get_tmdb_infos(title=meta_info.get_name(), year=meta_info.year, num=20)
+            for tmdbinfo in tmdbinfos:
+                tmp_info = MetaInfo(title=SearchWord)
+                tmp_info.set_tmdb_info(tmdbinfo)
+                medias.append(tmp_info)
+        return render_template("medialist.html",
+                               SearchWord=SearchWord or "",
+                               NeedSearch=NeedSearch or "",
+                               OperType=OperType or "search",
+                               Count=len(medias),
+                               Medias=medias)
+
     # 电影订阅页面
     @App.route('/movie_rss', methods=['POST', 'GET'])
     @login_required
