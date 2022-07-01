@@ -14,12 +14,13 @@ from web.backend.subscribe import add_rss_subscribe
 SEARCH_MEDIA_CACHE = []
 
 
-def search_medias_for_web(content, ident_flag=True, filters=None):
+def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None):
     """
     WEB资源搜索
     :param content: 关键字文本，可以包括 类型、标题、季、集、年份等信息，使用 空格分隔，也支持种子的命名格式
     :param ident_flag: 是否进行媒体信息识别
     :param filters: 其它过滤条件
+    :param tmdbid: TMDBID
     :return: 错误码，错误原因，成功时直接插入数据库
     """
     mtype, key_word, season_num, episode_num, year, content = Torrent.get_keyword_from_string(content)
@@ -30,7 +31,11 @@ def search_medias_for_web(content, ident_flag=True, filters=None):
     # 识别媒体
     match_words = None
     if ident_flag:
-        media_info = Media().get_media_info(mtype=mtype, title=content)
+        if tmdbid:
+            media_info = MetaInfo(mtype=mtype, title=content)
+            media_info.set_tmdb_info(Media().get_tmdb_info(mtype=mtype, tmdbid=tmdbid))
+        else:
+            media_info = Media().get_media_info(mtype=mtype, title=content)
         if not media_info or not media_info.tmdb_info:
             return -1, "%s 查询不到媒体信息，请确认名称是否正确！" % content
         # 查找的季

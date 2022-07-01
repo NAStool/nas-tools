@@ -271,8 +271,9 @@ class WebAction:
         search_word = data.get("search_word")
         ident_flag = False if data.get("unident") else True
         filters = data.get("filters")
+        tmdbid = data.get("tmdbid")
         if search_word:
-            ret, ret_msg = search_medias_for_web(content=search_word, ident_flag=ident_flag, filters=filters)
+            ret, ret_msg = search_medias_for_web(content=search_word, ident_flag=ident_flag, filters=filters, tmdbid=tmdbid)
             if ret != 0:
                 return {"code": ret, "msg": ret_msg}
         return {"code": 0}

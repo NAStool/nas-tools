@@ -107,6 +107,10 @@ GRAP_FREE_SITES = {
     'lemonhd.org':  {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': ["//font[@class='twoupfree']"]
+    },
+    'discfan.net':  {
+        'FREE': ["//font[@class='free'][text()='免費']"],
+        '2XFREE': ["//font[@class='twoupfree']"]
     }
 }
 
