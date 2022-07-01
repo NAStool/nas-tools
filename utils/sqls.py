@@ -915,33 +915,31 @@ def get_site_statistics_recent_sites(days=7, strict_urls=None):
         min_date = date_ret[0][1]
         # 查询开始值
         site_b_data = {}
-        sql = "SELECT SITE, SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS_HISTORY WHERE DATE = ? GROUP BY SITE"
+        sql = """SELECT SITE, MIN(UPLOAD), MIN(DOWNLOAD), MAX(UPLOAD), MAX(DOWNLOAD)
+                 FROM (SELECT SITE, DATE, SUM(UPLOAD) as UPLOAD, SUM(DOWNLOAD) as DOWNLOAD FROM SITE_STATISTICS_HISTORY WHERE DATE >= ? GROUP BY SITE, DATE) X 
+                 GROUP BY SITE"""
         if strict_urls:
-            sql = "SELECT SITE, SUM(UPLOAD), SUM(DOWNLOAD) " \
-                  "FROM SITE_STATISTICS_HISTORY " \
-                  "WHERE DATE = ? AND URL in {} GROUP BY SITE".format(tuple(strict_urls + ["__DUMMY__"]))
+            sql = """
+                 SELECT SITE, MIN(UPLOAD), MIN(DOWNLOAD), MAX(UPLOAD), MAX(DOWNLOAD)
+                 FROM (SELECT SITE, DATE, SUM(UPLOAD) as UPLOAD, SUM(DOWNLOAD) as DOWNLOAD FROM SITE_STATISTICS_HISTORY WHERE DATE >= ? AND URL in {} GROUP BY SITE, DATE) X 
+                 GROUP BY SITE""".format(tuple(strict_urls + ["__DUMMY__"]))
         for ret_b in select_by_sql(sql, (min_date,)):
-            site_b_data[ret_b[0]] = {"upload": int(ret_b[1]), "download": int(ret_b[2])}
-        # 查询结束值
-        for ret_e in select_by_sql(sql, (max_date,)):
-            ret_sites.append(ret_e[0])
-            if site_b_data.get(ret_e[0]):
-                b_upload = site_b_data[ret_e[0]].get("upload")
-                if b_upload < int(ret_e[1]):
-                    total_upload += int(ret_e[1]) - b_upload
-                    ret_site_uploads.append(int(ret_e[1]) - b_upload)
-                else:
-                    ret_site_uploads.append(0)
-                b_download = site_b_data[ret_e[0]].get("download")
-                if b_download < int(ret_e[2]):
-                    total_download += int(ret_e[2]) - b_download
-                    ret_site_downloads.append(int(ret_e[2]) - b_download)
-                else:
-                    ret_site_downloads.append(0)
+            # 如果最小值都是0，可能时由于近几日没有更新数据，或者cookie过期，正常有数据的话，第二天能正常
+            ret_b = list(ret_b)
+            if ret_b[1] == 0 and ret_b[2] == 0:
+                ret_b[1] = ret_b[3]
+                ret_b[2] = ret_b[4]
+            ret_sites.append(ret_b[0])
+            if int(ret_b[1])< int(ret_b[3]):
+                total_upload += int(ret_b[3]) - int(ret_b[1])
+                ret_site_uploads.append(int(ret_b[3]) - int(ret_b[1]))
             else:
-                ret_site_uploads.append(int(ret_e[1]))
-                ret_site_downloads.append(int(ret_e[2]))
-
+                ret_site_uploads.append(0)
+            if int(ret_b[2])< int(ret_b[4]):
+                total_download += int(ret_b[4]) - int(ret_b[2])
+                ret_site_downloads.append(int(ret_b[4]) - int(ret_b[2]))
+            else:
+                ret_site_downloads.append(0)
         return total_upload, total_download, ret_sites, ret_site_uploads, ret_site_downloads
     else:
         return 0, 0, [], [], []
