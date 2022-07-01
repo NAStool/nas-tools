@@ -25,7 +25,7 @@
   <div class="container-xl">
     <div class="row row-cards">
       {% for Item in Items %}
-      <div class="col-sm-6 col-md-4 col-xl-3">
+      <div class="col-12 col-md-4 col-xl-3">
         <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item[3] %}show_mediainfo_modal("TV", "{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[3] }}", "tv_rss", "{{ Item[10] }}"){% else %}remove_rss_tv("{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[10] }}"){% endif %}'>
           <div class="text-center" style="height:170px; overflow:hidden">
             <img class="rounded-top" src="{{ Item[4] }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover">
@@ -107,13 +107,13 @@
         <div class="row">
           <label class="form-label required">电视剧</label>
           <div class="row mb-3">
-            <div class="col-sm-6 col-lg-6 mb-1">
+            <div class="col-12 col-lg-6 mb-1">
               <input type="text" value="" id="tv_name" class="form-control" placeholder="标题">
             </div>
-            <div class="col-sm-6 col-lg-3 mb-1">
+            <div class="col-12 col-lg-3 mb-1">
               <input type="text" value="" id="tv_year" class="form-control" placeholder="年份">
             </div>
-            <div class="col-sm-6 col-lg-3 mb-1">
+            <div class="col-12 col-lg-3 mb-1">
               <select class="form-select" id="tv_season">
                 <option value="" selected>请选择</option>
               </select>
@@ -141,7 +141,7 @@
         <div class="row">
           <label class="form-label">过滤规则</label>
           <div class="row mb-3">
-            <div class="col-sm-6 col-lg-4 mb-1">
+            <div class="col-12 col-lg-4 mb-1">
               <select class="form-select" id="rss_restype">
                 <option value="" selected>全部</option>
                 {% for restype in RestypeDict %}
@@ -149,7 +149,7 @@
                 {% endfor %}
               </select>
             </div>
-            <div class="col-sm-6 col-lg-4 mb-1">
+            <div class="col-12 col-lg-4 mb-1">
               <select class="form-select" id="rss_pix">
                 <option value="" selected>全部</option>
                 {% for pix in PixDict %}
@@ -157,7 +157,7 @@
                 {% endfor %}
               </select>
             </div>
-            <div class="col-sm-6 col-lg-4 mb-1">
+            <div class="col-12 col-lg-4 mb-1">
               <input type="text" value="" id="rss_keyword" class="form-control" placeholder="自定义规则">
             </div>
           </div>

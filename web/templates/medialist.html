@@ -1,13 +1,13 @@
 {% if Count > 0 %}
 <div class="page-body">
   <div class="container-xl">
-    <div class="row row-cards mt-3">
+    <div class="row row-cards">
       {% for Media in Medias %}
-      <div class="row mb-3">
+      <div class="col-12 col-xl-6">
         <a class="card card-link card-link-pop rounded-3" href="{% if OperType == 'search' %}javascript:medialist_search('{{ Media.tmdb_id }}', '{{ Media.title }}', '{{ Media.type.value }}'){% else %}#{% endif %}" style="padding:0px 0px; overflow:hidden">
           <div class="ribbon ribbon-top ribbon-bookmark bg-purple">{{ Media.vote_average }}</div>
           <div class="row">
-            <div class="col-3 col-md-2" style="padding:0px 0px">
+            <div class="col-4 col-md-3 col-lg-4 col-xl-3" style="padding:0px 0px">
               <span class="badge badge-pill {% if Media.type.value == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position:absolute;top:10px;left:10px;">{{Media.type.value}}</span>
               <img src="{% if Media.poster_path %}https://image.tmdb.org/t/p/w500{{ Media.poster_path }}{% else %}../static/img/no-image.png{% endif %}" class="w-100 h-100 object-cover">
             </div>
@@ -17,7 +17,7 @@
                   {{ Media.title }} <span class="text-muted">({{ Media.year }})</span>
                 </h1>
                 <div class="text-muted mb-3">
-                  {{ Media.overview }}
+                  {{ Media.overview|truncate(200, True) }}
                 </div>
               </div>
             </div>

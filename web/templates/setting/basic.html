@@ -290,7 +290,7 @@
           </div>
           <div class="card-body">
             <div class="row">
-              <div class="col-sm-6 col-xl-4">
+              <div class="col-12 col-xl-4">
                 <div class="mb-1">
                   <label class="form-label">媒体服务器Webhook源地址 <span class="form-help bg-red-lt" title="仅允许配置的地址范围内地址调用Webhook，多个地址段用,号分隔，默认为0.0.0.0/0,::/0即不做限制" data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Config.security.media_server_webhook_allow_ip.ipv4 or '' }}" class="form-control" id="security.media_server_webhook_allow_ip.ipv4" placeholder="允许的IPv4 CIDR" autocomplete="false">
@@ -299,7 +299,7 @@
                   <input type="text" value="{{ Config.security.media_server_webhook_allow_ip.ipv6 or '' }}" class="form-control" id="security.media_server_webhook_allow_ip.ipv6" placeholder="允许的IPv6 CIDR" autocomplete="false">
                 </div>
               </div>
-              <div class="col-sm-6 col-xl-4">
+              <div class="col-12 col-xl-4">
                 <div class="mb-1">
                   <label class="form-label">Telegram Webhook源地址 <span class="form-help bg-red-lt" title="仅允许配置的地址范围内地址调用Webhook，多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制" data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{% if Config.security.telegram_webhook_allow_ip %}{{ Config.security.telegram_webhook_allow_ip.ipv4 or '' }}{% endif %}" class="form-control" id="security.telegram_webhook_allow_ip.ipv4" placeholder="允许的IPv4 CIDR" autocomplete="false">
@@ -329,7 +329,7 @@
           </div>
           <div class="card-body">
             <div class="row">
-              <div class="col-sm-6 col-xl-4">
+              <div class="col-12 col-xl-4">
                 <div class="mb-3">
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="laboratory.search_keyword" {% if Config.laboratory and Config.laboratory.search_keyword %}checked{% endif %}>
