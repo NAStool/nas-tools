@@ -34,9 +34,9 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     if ident_flag:
         if tmdbid:
             media_info = MetaInfo(mtype=media_type or mtype, title=content)
-            media_info.set_tmdb_info(Media().get_tmdb_info(mtype=media_type or mtype, tmdbid=tmdbid))
+            media_info.set_tmdb_info(Media().get_tmdb_info(mtype=media_type or mtype, tmdbid=tmdbid), fanart=False)
         else:
-            media_info = Media().get_media_info(mtype=media_type or mtype, title=content)
+            media_info = Media().get_media_info(mtype=media_type or mtype, title=content, fanart=False)
         if not media_info or not media_info.tmdb_info:
             return -1, "%s 查询不到媒体信息，请确认名称是否正确！" % content
         # 查找的季
@@ -113,6 +113,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
             log.warn("【WEB】错误的输入值：%s" % input_str)
             return
         media_info = SEARCH_MEDIA_CACHE[choose]
+        # 重新获取Fanart图片
+        media_info.refresh_fanart_image()
         __search_media(in_from, media_info, user_id)
     # 接收到文本，开始查询可能的媒体信息供选择
     else:
@@ -138,7 +140,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         SEARCH_MEDIA_CACHE.clear()
         for tmdb_info in tmdb_infos:
             meta_info = MetaInfo(title=content)
-            meta_info.set_tmdb_info(tmdb_info)
+            meta_info.set_tmdb_info(tmdb_info, fanart=False)
             SEARCH_MEDIA_CACHE.append(meta_info)
 
         if 1 == len(SEARCH_MEDIA_CACHE):
@@ -190,19 +192,8 @@ def __search_media(in_from, media_info: MetaBase, user_id):
                                  tmdbid=media_info.tmdb_id,
                                  state='R'):
                 # 发送通知
-                if media_info.type == MediaType.MOVIE:
-                    msg_title = f"{media_info.get_title_string()} 已添加订阅"
-                else:
-                    msg_title = f"{media_info.get_title_string()} {media_info.get_season_string()} 已添加订阅"
-                msg_str = f"类型：{media_info.type.value}"
-                if media_info.vote_average:
-                    msg_str = f"{msg_str}，{media_info.get_vote_string()}"
-                Message().send_channel_msg(channel=in_from,
-                                           title=msg_title,
-                                           text=msg_str,
-                                           image=media_info.get_message_image(),
-                                           url='movie_rss' if media_info.type == MediaType.MOVIE else 'tv_rss',
-                                           user_id=user_id)
+                Message().send_rss_success_message(in_from=in_from, media_info=media_info, user_id=user_id)
+
     # 搜索到了但是没开自动下载
     elif download_count is None:
         Message().send_channel_msg(channel=in_from,

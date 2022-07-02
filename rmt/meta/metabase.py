@@ -342,7 +342,7 @@ class MetaBase(object):
                 return int(episode) == self.begin_episode
 
     # 整合TMDB识别的信息
-    def set_tmdb_info(self, info):
+    def set_tmdb_info(self, info, fanart=True):
         if not info:
             return
         self.type = self.__get_tmdb_type(info)
@@ -375,9 +375,16 @@ class MetaBase(object):
                 self.category = self.category_handler.get_anime_category(info)
         self.poster_path = "https://image.tmdb.org/t/p/w500%s" % info.get('poster_path') if info.get(
             'poster_path') else ""
-        self.fanart_image = self.get_fanart_image(search_type=self.type, tmdbid=info.get('id'))
+        if fanart:
+            self.fanart_image = self.get_fanart_image(search_type=self.type, tmdbid=info.get('id'))
         self.backdrop_path = "https://image.tmdb.org/t/p/w500%s" % info.get('backdrop_path') if info.get(
             'backdrop_path') else ""
+
+    # 刷新Fanart图片
+    def refresh_fanart_image(self):
+        if not self.tmdb_id:
+            return
+        self.fanart_image = self.get_fanart_image(search_type=self.type, tmdbid=self.tmdb_id)
 
     # 整合种了信息
     def set_torrent_info(self,
@@ -409,7 +416,7 @@ class MetaBase(object):
     # 获取消息媒体图片
     # 增加cache，优化资源检索时性能
     @classmethod
-    @lru_cache(maxsize=256)
+    @lru_cache(maxsize=512)
     def get_fanart_image(cls, search_type, tmdbid, default=None):
         if not search_type:
             return ""

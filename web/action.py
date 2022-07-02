@@ -20,6 +20,7 @@ from pt.mediaserver.plex import Plex
 from pt.rss import Rss
 from pt.sites import Sites
 from pt.torrent import Torrent
+from rmt.category import Category
 from rmt.doubanv2api.doubanapi import DoubanApi
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
@@ -754,6 +755,7 @@ class WebAction:
         transmission_reload = False
         wechat_reload = False
         telegram_reload = False
+        category_reload = False
         # 修改配置
         for key, value in cfgs:
             if key == "test" and value:
@@ -776,6 +778,8 @@ class WebAction:
                 telegram_reload = True
             if key.startswith("message.wechat"):
                 wechat_reload = True
+            if key.startswith("media.category"):
+                category_reload = True
         # 保存配置
         if not config_test:
             self.config.save_config(cfg)
@@ -801,6 +805,9 @@ class WebAction:
         # 重载telegram
         if telegram_reload:
             Telegram().init_config()
+        # 重载二级分类
+        if category_reload:
+            Category().init_config()
 
         return {"code": 0}
 

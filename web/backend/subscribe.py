@@ -39,20 +39,7 @@ def add_rss_substribe_from_string(rss_string, in_from=SearchType.OT, user_id=Non
     if code == 0:
         log.info("【WEB】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))
         if in_from in [SearchType.WX, SearchType.TG]:
-            if media_info.type == MediaType.MOVIE:
-                msg_title = f"{media_info.get_title_string()} 已添加订阅"
-            else:
-                msg_title = f"{media_info.get_title_string()} {media_info.get_season_string()} 已添加订阅"
-            msg_str = f"类型：{media_info.type.value}"
-            if media_info.vote_average:
-                msg_str = f"{msg_str}，{media_info.get_vote_string()}"
-
-            message.send_channel_msg(channel=in_from,
-                                     title=msg_title,
-                                     text=msg_str,
-                                     image=media_info.get_message_image(),
-                                     url='movie_rss' if media_info.type == MediaType.MOVIE else 'tv_rss',
-                                     user_id=user_id)
+            message.send_rss_success_message(in_from=in_from, media_info=media_info, user_id=user_id)
         return True
     else:
         if in_from in [SearchType.WX, SearchType.TG]:

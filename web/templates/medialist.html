@@ -13,9 +13,10 @@
             </div>
             <div class="col">
               <div class="card-body">
-                <h1 class="mb-3">
+                <h1>
                   {{ Media.title }} <span class="text-muted">({{ Media.year }})</span>
                 </h1>
+                <div class="badge badge-outline text-orange mb-3">{{ Media.tmdb_id }}</div>
                 <div class="text-muted mb-3">
                   {{ Media.overview|truncate(200, True) }}
                 </div>

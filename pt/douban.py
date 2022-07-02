@@ -227,7 +227,8 @@ class DouBan:
                                 subtitle = None
                             media_info = self.media.get_media_info(title="%s %s" % (media.get_name(), media.year or ""),
                                                                    subtitle=subtitle,
-                                                                   mtype=media.type)
+                                                                   mtype=media.type,
+                                                                   fanart=False)
                             if not media_info or not media_info.tmdb_info:
                                 log.warn("【DOUBAN】%s 未查询到媒体信息" % media.get_name())
                                 continue

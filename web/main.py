@@ -478,7 +478,7 @@ def create_flask_app(config):
             tmdbinfos = Media().get_tmdb_infos(title=meta_info.get_name(), year=meta_info.year, num=20)
             for tmdbinfo in tmdbinfos:
                 tmp_info = MetaInfo(title=SearchWord)
-                tmp_info.set_tmdb_info(tmdbinfo)
+                tmp_info.set_tmdb_info(tmdbinfo, fanart=False)
                 medias.append(tmp_info)
         return render_template("medialist.html",
                                SearchWord=SearchWord or "",
@@ -693,7 +693,7 @@ def create_flask_app(config):
             if not name:
                 continue
             # 识别
-            media_info = Media().get_media_info(name)
+            media_info = Media().get_media_info(title=name, fanart=False)
             if not media_info:
                 continue
             if not media_info.tmdb_info:

@@ -153,7 +153,7 @@ class Rss:
                             log.info("【RSS】%s 已成功订阅过" % torrent_name)
                             continue
                         # 识别种子名称，开始检索TMDB
-                        media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
+                        media_info = self.media.get_media_info(title=torrent_name, subtitle=description, fanart=False)
                         if not media_info or not media_info.tmdb_info:
                             log.debug("【RSS】%s 未识别到媒体信息" % torrent_name)
                             continue
@@ -237,6 +237,7 @@ class Rss:
                         insert_rss_torrents(media_info)
                         # 加入下载列表
                         if media_info not in rss_download_torrents:
+                            media_info.refresh_fanart_image()
                             rss_download_torrents.append(media_info)
                             res_num = res_num + 1
                     except Exception as e:
@@ -327,9 +328,9 @@ class Rss:
             if tmdbid and not tmdbid.startswith("DB:"):
                 media_info = MetaInfo(title="%s %s".strip() % (name, year))
                 tmdb_info = Media().get_tmdb_info(mtype=MediaType.MOVIE, title=name, year=year, tmdbid=tmdbid)
-                media_info.set_tmdb_info(tmdb_info)
+                media_info.set_tmdb_info(tmdb_info, fanart=False)
             else:
-                media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=MediaType.MOVIE, strict=True)
+                media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=MediaType.MOVIE, strict=True, fanart=False)
             # 未识别到媒体信息
             if not media_info or not media_info.tmdb_info:
                 update_rss_movie_state(rssid=rssid, state='R')
@@ -389,9 +390,9 @@ class Rss:
             if tmdbid and not tmdbid.startswith("DB:"):
                 media_info = MetaInfo(title="%s %s".strip() % (name, year))
                 tmdb_info = Media().get_tmdb_info(mtype=MediaType.TV, title=name, year=year, tmdbid=tmdbid)
-                media_info.set_tmdb_info(tmdb_info)
+                media_info.set_tmdb_info(tmdb_info, fanart=False)
             else:
-                media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=MediaType.TV, strict=True)
+                media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=MediaType.TV, strict=True, fanart=False)
             # 未识别到媒体信息
             if not media_info or not media_info.tmdb_info:
                 update_rss_tv_state(rssid=rssid, state='R')
@@ -453,7 +454,7 @@ class Rss:
             year = movie[1] or ""
             tmdbid = movie[2]
             if tmdbid and tmdbid.startswith("DB:"):
-                media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=MediaType.MOVIE, strict=True)
+                media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=MediaType.MOVIE, strict=True, fanart=False)
                 if media_info and media_info.tmdb_id:
                     update_rss_movie_tmdbid(rid=rid, tmdbid=media_info.tmdb_id)
         # 更新电视剧
@@ -464,7 +465,7 @@ class Rss:
             year = tv[1] or ""
             tmdbid = tv[3]
             if tmdbid and tmdbid.startswith("DB:"):
-                media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=MediaType.TV, strict=True)
+                media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=MediaType.TV, strict=True, fanart=False)
                 if media_info and media_info.tmdb_id:
                     update_rss_tv_tmdbid(rid=rid, tmdbid=media_info.tmdb_id)
 
