@@ -27,8 +27,8 @@
       {% for Item in Items %}
       <div class="col-12 col-md-4 col-xl-3">
         <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item[3] %}show_mediainfo_modal("TV", "{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[3] }}", "tv_rss", "{{ Item[10] }}"){% else %}remove_rss_tv("{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[10] }}"){% endif %}'>
-          <div class="text-center" style="height:170px; overflow:hidden">
-            <img class="rounded-top" src="{{ Item[4] }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover">
+          <div class="text-center" style="overflow:hidden">
+            <img class="rounded-top w-100" src="{{ Item[4] }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
           </div>
           <div class="card-progress">
             <div class="progress-bar bg-green" style="width: {{ Item[9] or 0 }}%" role="progressbar" aria-valuenow="{{ Item[9] or 0 }}" aria-valuemin="0" aria-valuemax="100">

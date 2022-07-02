@@ -652,7 +652,11 @@
             //显示信息
             $("#system_media_name").text(ret.title);
             $("#system_release_date").text(ret.release_date)
-            $("#system_media_poster").attr("src", ret.poster_path);
+            if(ret.poster_path){
+              $("#system_media_poster").attr("src", ret.poster_path);
+            }else{
+              $("#system_media_poster").attr("src", "../static/img/no-image.png");
+            }
             if(ret.overview.length > 200){
               $("#system_media_overview").text(ret.overview.substr(0, 200) + " ...");
             }else{

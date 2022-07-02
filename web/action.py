@@ -951,7 +951,7 @@ class WebAction:
                 if not tmdb_info:
                     return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url}
                 overview = tmdb_info.get("overview")
-                poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path')
+                poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path') if tmdb_info.get('poster_path') else ""
                 title = tmdb_info.get('title')
                 vote_average = tmdb_info.get("vote_average")
                 release_date = tmdb_info.get('release_date')
@@ -997,7 +997,7 @@ class WebAction:
                 if not tmdb_info:
                     return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url}
                 overview = tmdb_info.get("overview")
-                poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path')
+                poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path') if tmdb_info.get('poster_path') else ""
                 title = tmdb_info.get('name')
                 vote_average = tmdb_info.get("vote_average")
                 release_date = tmdb_info.get('first_air_date')
