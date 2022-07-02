@@ -3,6 +3,7 @@ import os
 import re
 import shutil
 import socket
+import threading
 import subprocess
 import time
 import platform
@@ -13,7 +14,7 @@ from enum import Enum
 from utils.types import OsType
 
 INSTANCES = {}
-
+lock = threading.RLock()
 
 # 单例模式注解
 def singleton(cls):
@@ -24,7 +25,10 @@ def singleton(cls):
     def _singleton(*args, **kwargs):
         # 先判断这个类有没有对象
         if cls not in INSTANCES:
-            INSTANCES[cls] = cls(*args, **kwargs)  # 创建一个对象,并保存到字典当中
+            with lock:
+                if cls not in INSTANCES:
+                    INSTANCES[cls] = cls(*args, **kwargs)  # 创建一个对象,并保存到字典当中
+                    pass
         # 将实例对象返回
         return INSTANCES[cls]
 
