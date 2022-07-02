@@ -135,6 +135,10 @@ GRAP_FREE_SITES = {
     'pt.keepfrds.com':  {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': ["//font[@class='twoupfree']"]
+    },
+    'www.pttime.org':  {
+        'FREE': ["//font[@class='free']"],
+        '2XFREE': []
     }
 }
 
