@@ -28,7 +28,7 @@ class DBHelper:
         self.__db_path = os.path.join(os.path.dirname(config_path), 'user.db')
         self.__pools = DBPool(
             max_active=5, max_wait=20, init_size=5, db_type="SQLite3",
-            **{'database': self.__db_path, 'check_same_thread': False})
+            **{'database': self.__db_path, 'check_same_thread': False, 'timeout': 15})
 
     def __init_tables(self):
         conn = self.__pools.get()
