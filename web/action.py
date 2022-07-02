@@ -1,4 +1,3 @@
-import _thread
 import importlib
 import signal
 from urllib import parse
@@ -33,6 +32,7 @@ from utils.functions import *
 from utils.http_utils import RequestUtils
 from utils.meta_helper import MetaHelper
 from utils.sqls import *
+from utils.thread_helper import ThreadHelper
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 from web.backend.subscribe import add_rss_subscribe, add_rss_substribe_from_string
@@ -134,14 +134,14 @@ class WebAction:
                     Message().send_channel_msg(channel=in_from, title="错误：只有管理员才有权限执行此命令")
                     return
             # 启动服务
-            _thread.start_new_thread(command.get("func"), ())
+            ThreadHelper().start_thread(command.get("func"), ())
             Message().send_channel_msg(channel=in_from, title="%s 已启动" % command.get("desp"))
         elif msg.startswith("订阅"):
             # 添加订阅
-            _thread.start_new_thread(add_rss_substribe_from_string, (msg, in_from, user_id,))
+            ThreadHelper().start_thread(add_rss_substribe_from_string, (msg, in_from, user_id,))
         else:
             # PT检索
-            _thread.start_new_thread(search_media_by_message, (msg, in_from, user_id,))
+            ThreadHelper().start_thread(search_media_by_message, (msg, in_from, user_id,))
 
     @staticmethod
     def set_config_value(cfg, cfg_key, cfg_value):
@@ -261,7 +261,7 @@ class WebAction:
         }
         sch_item = data.get("item")
         if sch_item and commands.get(sch_item):
-            _thread.start_new_thread(commands.get(sch_item), ())
+            ThreadHelper().start_thread(commands.get(sch_item), ())
         return {"retmsg": "服务已启动", "item": sch_item}
 
     @staticmethod
@@ -1080,9 +1080,9 @@ class WebAction:
         rssid = data.get("rssid")
         page = data.get("page")
         if mtype == "MOV":
-            _thread.start_new_thread(Rss().rsssearch_movie, (rssid,))
+            ThreadHelper().start_thread(Rss().rsssearch_movie, (rssid,))
         else:
-            _thread.start_new_thread(Rss().rsssearch_tv, (rssid,))
+            ThreadHelper().start_thread(Rss().rsssearch_tv, (rssid,))
         return {"code": 0, "page": page}
 
     @staticmethod
