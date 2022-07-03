@@ -8,11 +8,11 @@
       </div>
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
-          <a href="#" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#modal-tv-rss">
+          <a href="javascript:show_add_rss_media_modal()" class="btn btn-primary d-none d-sm-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             新增订阅
           </a>
-          <a href="#" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#modal-tv-rss">
+          <a href="javascript:show_add_rss_media_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           </a>
         </div>
@@ -26,7 +26,7 @@
     <div class="row row-cards">
       {% for Item in Items %}
       <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item[3] %}show_mediainfo_modal("TV", "{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[3] }}", "tv_rss", "{{ Item[10] }}"){% else %}remove_rss_tv("{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[10] }}"){% endif %}'>
+        <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item[3] %}show_mediainfo_modal("TV", "{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[3] }}", "tv_rss", "{{ Item[10] }}"){% else %}show_edit_rss_media_modal("{{ Item[10] }}"){% endif %}'>
           <div class="text-center" style="overflow:hidden">
             <img class="rounded-top w-100" src="{{ Item[4] }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
           </div>
@@ -100,7 +100,9 @@
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">新增订阅</h5>
+        <h5 class="modal-title" id="tv_rss_modal_title">新增订阅</h5>
+        <input type="hidden" id="tv_rssid">
+        <input type="hidden" id="tv_tmdbid">
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -162,7 +164,7 @@
             </div>
           </div>
         </div>
-        <div class="row rss_sites_container">
+        <div class="row rss_sites_container" id="rss_sites_div">
           <div class="mb-3">
             <label class="form-label">订阅站点</label>
             <div class="form-selectgroup">
@@ -193,6 +195,9 @@
         <a href="javascript:rss_sites_select()" class="btn btn-link link-secondary me-auto" id="rss_sites_select_btn">
           取消全选
         </a>
+        <a href="#" class="btn btn-link link-secondary" id="rss_delete_btn">
+          删除订阅
+        </a>
         <a href="javascript:add_rss_tv()" id="rss_add_btn" class="btn btn-primary">确定</a>
       </div>
     </div>
@@ -201,6 +206,9 @@
 <script type="text/javascript">
   //新增订阅
   function add_rss_tv(){
+    var rssid = $("#tv_rssid").val();
+    var tmdbid = $("#tv_tmdbid").val();
+    var rssid = $("#tv_rssid").val();
     var name = $("#tv_name").val();
     var year = $("#tv_year").val();
     var season = $("#tv_season").val();
@@ -226,6 +234,12 @@
       return;
     }else{
       $("#tv_season").removeClass("is-invalid");
+    }
+    if(tmdbid && tmdbid.startsWith("DB:")){
+      var doubanid = tmdbid.replace("DB:", "");
+      tmdbid = "";
+    }else{
+      var doubanid = "";
     }
     //订阅站点
     var sites = [];
@@ -259,7 +273,20 @@
         search_sites = [];
       }
     }
-    var data = { "name": name, "type": "TV", "year": year, "season": season, "match": match, "sites": sites, "search_sites": search_sites, "rss_restype": rss_restype, "rss_pix": rss_pix, "rss_keyword": rss_keyword, "over_edition": over_edition};
+    var data = { "name": name,
+                 "type": "TV",
+                 "year": year,
+                 "season": season,
+                 "match": match,
+                 "sites": sites,
+                 "search_sites": search_sites,
+                 "rss_restype": rss_restype,
+                 "rss_pix": rss_pix,
+                 "rss_keyword": rss_keyword,
+                 "over_edition": over_edition,
+                 "rssid": rssid,
+                 "tmdbid": tmdbid,
+                 "doubanid": doubanid};
     $("#modal-tv-rss").modal("hide");
     show_wait_process();
     ajax_post("add_rss_media", data, function(ret){
@@ -267,7 +294,7 @@
       if(ret.code==0){
         navmenu("tv_rss");
       }else{
-        show_fail_modal(ret.name + " 添加RSS订阅失败："+ ret.msg +"！");
+        show_fail_modal(ret.name + " 订阅失败："+ ret.msg +"！");
       }
     });
   }
@@ -281,6 +308,7 @@
 
   //取消订阅
   function remove_rss_tv(name, year, rssid){
+    $("#modal-tv-rss").modal('hide');
     show_ask_modal("是否确认取消订阅 " + name + "？", function(){
       hide_ask_modal();
       remove_rss_media(name, year, "TV", rssid, "tv_rss");
@@ -323,6 +351,74 @@
       $("#key_match").prop("checked", false);
       $("#rss_search_sites_div").show();
     }
+  }
+
+  // 显示新增订阅
+  function show_add_rss_media_modal(){
+    $("#tv_rssid").val("");
+    $("#tv_tmdbid").val("");
+    $("#tv_rss_modal_title").text("新增订阅");
+    $("#key_match").prop("checked", false);
+    $("#rss_search_sites_div").show();
+    $("#over_edition").prop("checked", false);
+    $("#tv_name").attr("readonly", false);
+    $("#tv_year").attr("readonly", false);
+    $("#modal-tv-rss").modal('show');
+  }
+
+  // 显示编辑订阅
+  function show_edit_rss_media_modal(rssid){
+    $("#system-media-modal").modal('hide');
+    $("#tv_rssid").val(rssid);
+    $("#tv_rss_modal_title").text("编辑订阅");
+    show_wait_process();
+    ajax_post("rss_detail", {"rssid": rssid, "rsstype": "TV"}, function(ret){
+      hide_wait_process();
+      if(ret.code==0){
+        $("#tv_tmdbid").val(ret.detail.tmdbid);
+        $("#tv_name").val(ret.detail.name);
+        if(ret.detail.season){
+          $("#tv_season").val(parseInt(ret.detail.season.replace("S", "")));
+        }else{
+          $("#tv_season").val("");
+        }
+        $("#tv_name").attr("readonly", true);
+        $("#tv_year").val(ret.detail.year);
+        $("#tv_year").attr("readonly", true);
+        if(ret.detail.tmdbid){
+          $("#key_match").prop("checked", false);
+          $("#rss_search_sites_div").show();
+        }else{
+          $("#key_match").prop("checked", true);
+          $("#rss_search_sites_div").hide();
+          $("#over_edition").prop("checked", false);
+        }
+        if(ret.detail.over_edition){
+          $("#over_edition").prop("checked", true);
+        }else{
+          $("#over_edition").prop("checked", false);
+        }
+        $("#rss_restype").val(ret.detail.filter.restype);
+        $("#rss_pix").val(ret.detail.filter.pix);
+        $("#rss_keyword").val(ret.detail.filter.key);
+        $("#rss_sites_div").find("input[type=checkbox]").each(function(){
+          if(ret.detail.r_sites.includes($(this).val())){
+            $(this).prop("checked",true);
+          }else{
+            $(this).prop("checked",false);
+          }
+        });
+       $("#rss_search_sites_div").find("input[type=checkbox]").each(function(){
+          if(ret.detail.s_sites.includes($(this).val())){
+            $(this).prop("checked",true);
+          }else{
+            $(this).prop("checked",false);
+          }
+        });
+        $("#rss_delete_btn").attr("href", 'javascript:remove_rss_tv("'+ret.detail.name+'","'+ret.detail.year+'","'+rssid+'")');
+        $("#modal-tv-rss").modal('show');
+      }
+    });
   }
 
 </script>

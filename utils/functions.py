@@ -24,10 +24,11 @@ def singleton(cls):
 
     def _singleton(*args, **kwargs):
         # 先判断这个类有没有对象
-        with lock:
-            if cls not in INSTANCES:
-                INSTANCES[cls] = cls(*args, **kwargs)
-                pass
+        if cls not in INSTANCES:
+            with lock:
+                if cls not in INSTANCES:
+                    INSTANCES[cls] = cls(*args, **kwargs)
+                    pass
         # 将实例对象返回
         return INSTANCES[cls]
 

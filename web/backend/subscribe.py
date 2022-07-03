@@ -6,7 +6,7 @@ from pt.torrent import Torrent
 from rmt.doubanv2api.doubanapi import DoubanApi
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
-from utils.sqls import insert_rss_tv, insert_rss_movie
+from utils.sqls import insert_rss_tv, insert_rss_movie, delete_rss_tv, delete_rss_movie
 from utils.types import MediaType, SearchType
 
 
@@ -61,7 +61,8 @@ def add_rss_subscribe(mtype, name, year,
                       rss_restype=None,
                       rss_pix=None,
                       rss_keyword=None,
-                      state="D"):
+                      state="D",
+                      rssid=None):
     """
     添加电影、电视剧订阅
     :param mtype: 类型，电影、电视剧、动漫
@@ -78,6 +79,7 @@ def add_rss_subscribe(mtype, name, year,
     :param rss_pix: 分辨率过滤
     :param rss_keyword: 关键字过滤
     :param state: 添加订阅时的状态
+    :param rssid: 修改订阅时传入
     :return: 错误码：0代表成功，错误信息
     """
     if not name:
@@ -147,6 +149,8 @@ def add_rss_subscribe(mtype, name, year,
                     return 3, "%s 获取剧集数失败，请确认该季是否存在" % media_info.get_title_string(), media_info
                 media_info.begin_season = season
                 media_info.total_episodes = total_episode
+            if rssid:
+                delete_rss_tv(rssid=rssid)
             insert_rss_tv(media_info=media_info,
                           total=media_info.total_episodes,
                           lack=media_info.total_episodes,
@@ -159,6 +163,8 @@ def add_rss_subscribe(mtype, name, year,
                           state=state,
                           match=match)
         else:
+            if rssid:
+                delete_rss_movie(rssid=rssid)
             insert_rss_movie(media_info=media_info,
                              sites=sites,
                              search_sites=search_sites,
@@ -175,6 +181,8 @@ def add_rss_subscribe(mtype, name, year,
         if season:
             media_info.begin_season = int(season)
         if mtype == MediaType.MOVIE:
+            if rssid:
+                delete_rss_movie(rssid=rssid)
             insert_rss_movie(media_info=media_info,
                              state="R",
                              sites=sites,
@@ -184,6 +192,8 @@ def add_rss_subscribe(mtype, name, year,
                              rss_pix=rss_pix,
                              rss_keyword=rss_keyword)
         else:
+            if rssid:
+                delete_rss_tv(rssid=rssid)
             insert_rss_tv(media_info=media_info,
                           total=0,
                           lack=0,
