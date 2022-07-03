@@ -41,7 +41,7 @@ class MetaHelper(object):
                 expire = info.get(CACHE_EXPIRE_TIMESTAMP_STR)
                 if not expire or int(time.time()) < expire:
                     info[CACHE_EXPIRE_TIMESTAMP_STR] = int(time.time()) + EXPIRE_TIMESTAMP
-                    ThreadHelper().start_thread(self.update_meta_data, ({key, info}))
+                    ThreadHelper().start_thread(self.update_meta_data, ({key: info}))
                     return info
                 elif expire and self.__tmdb_cache_expire:
                     ThreadHelper().start_thread(self.delete_meta_data, (key))
