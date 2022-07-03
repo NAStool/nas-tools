@@ -141,9 +141,9 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
             self.user_level = user_levels_text[0].strip()
 
         # 加入日期
-        join_at_text = html.xpath('//tr/td[text()="加入日期" or text()="注册日期"]/following-sibling::td[1]/text()')
+        join_at_text = html.xpath('//tr/td[text()="加入日期" or text()="注册日期" or *[text()="加入日期"]]/following-sibling::td[1]//text()')
         if join_at_text:
-            self.join_at = join_at_text[0].strip()
+            self.join_at = join_at_text[0].split(' (')[0]
 
         # 做种体积 & 做种数
         # seeding 页面获取不到的话，此处再获取一次

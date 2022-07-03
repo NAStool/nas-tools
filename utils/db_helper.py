@@ -212,7 +212,14 @@ class DBHelper:
                                                            BONUS     REAL default 0.0,
                                                            URL     TEXT);''')
 
+            # 删除重复数据
+            cursor.execute(
+                """DELETE FROM SITE_STATISTICS_HISTORY WHERE EXISTS (SELECT 1 FROM SITE_STATISTICS_HISTORY p2 WHERE SITE_STATISTICS_HISTORY.URL = p2.URL and SITE_STATISTICS_HISTORY.DATE = p2.DATE AND SITE_STATISTICS_HISTORY.rowid < p2.rowid);""")
+
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_STATISTICS_HISTORY_DS ON SITE_STATISTICS_HISTORY (DATE, URL);''')
+
+            # 唯一约束
+            cursor.execute('''CREATE UNIQUE INDEX IF NOT EXISTS UN_INDX_SITE_STATISTICS_HISTORY_DS ON SITE_STATISTICS_HISTORY (DATE, URL);''')
 
             # 实时站点数据
             cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_USER_STATISTICS
@@ -230,13 +237,16 @@ class DBHelper:
                                                            SEEDING_SIZE     INTEGER,
                                                            BONUS     REAL,
                                                            URL     TEXT);''')
+            # 删除重复数据
+            cursor.execute(
+                """DELETE FROM SITE_USER_STATISTICS WHERE EXISTS (SELECT 1 FROM SITE_USER_STATISTICS p2 WHERE SITE_USER_STATISTICS.URL = p2.URL AND SITE_USER_STATISTICS.rowid < p2.rowid);""")
             cursor.execute(
                 '''CREATE INDEX IF NOT EXISTS INDX_SITE_USER_STATISTICS_URL ON SITE_USER_STATISTICS (URL);''')
             cursor.execute(
                 '''CREATE INDEX IF NOT EXISTS INDX_SITE_USER_STATISTICS_SITE ON SITE_USER_STATISTICS (SITE);''')
-            # 删除重复数据
+            # 唯一约束
             cursor.execute(
-                """DELETE FROM SITE_USER_STATISTICS WHERE EXISTS (SELECT 1 FROM SITE_USER_STATISTICS p2 WHERE SITE_USER_STATISTICS.URL = p2.URL AND SITE_USER_STATISTICS.rowid < p2.rowid);""")
+                '''CREATE UNIQUE INDEX IF NOT EXISTS UN_INDX_SITE_USER_STATISTICS_URL ON SITE_USER_STATISTICS (URL);''')
 
             # 下载历史
             cursor.execute('''CREATE TABLE IF NOT EXISTS DOWNLOAD_HISTORY

@@ -804,19 +804,12 @@ def update_site_user_statistics(site, username, upload, download, ratio, seeding
     if not site or not url:
         return
     update_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-    if not is_site_user_statistics_exists(url):
-        sql = "INSERT INTO SITE_USER_STATISTICS(SITE, USERNAME, USER_LEVEL," \
-              " JOIN_AT, UPDATE_AT," \
-              " UPLOAD, DOWNLOAD, RATIO," \
-              " SEEDING, LEECHING, SEEDING_SIZE," \
-              " BONUS," \
-              " URL) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    else:
-        sql = "UPDATE SITE_USER_STATISTICS SET SITE = ?, USERNAME = ?, USER_LEVEL = ?," \
-              " JOIN_AT = ?, UPDATE_AT = ?," \
-              " UPLOAD = ?, DOWNLOAD = ?, RATIO = ?," \
-              " SEEDING = ?, LEECHING = ?, SEEDING_SIZE = ?," \
-              " BONUS = ? WHERE URL = ?"
+    sql = "INSERT OR REPLACE INTO SITE_USER_STATISTICS(SITE, USERNAME, USER_LEVEL," \
+          " JOIN_AT, UPDATE_AT," \
+          " UPLOAD, DOWNLOAD, RATIO," \
+          " SEEDING, LEECHING, SEEDING_SIZE," \
+          " BONUS," \
+          " URL) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
     return update_by_sql(sql, (
         str_sql(site), username, user_level, join_at, update_at, upload, download, ratio, seeding, leeching,
@@ -875,19 +868,13 @@ def insert_site_statistics_history(site, upload, download, ratio, url, seeding, 
     if not site or not url:
         return
     date_now = time.strftime('%Y-%m-%d', time.localtime(time.time()))
-    if not is_site_statistics_history_exists(url, date_now):
-        sql = "INSERT INTO SITE_STATISTICS_HISTORY(SITE, USER_LEVEL, DATE, UPLOAD, DOWNLOAD, RATIO," \
-              " SEEDING, LEECHING, SEEDING_SIZE," \
-              " BONUS," \
-              " URL) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        return update_by_sql(sql, (str_sql(site), user_level, date_now, upload, download, ratio, seeding, leeching,
+    sql = "INSERT OR REPLACE INTO SITE_STATISTICS_HISTORY(SITE, USER_LEVEL, DATE, UPLOAD, DOWNLOAD, RATIO," \
+          " SEEDING, LEECHING, SEEDING_SIZE," \
+          " BONUS," \
+          " URL) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+
+    return update_by_sql(sql, (str_sql(site), user_level, date_now, upload, download, ratio, seeding, leeching,
                                    seeding_size, bonus, url))
-    else:
-        sql = "UPDATE SITE_STATISTICS_HISTORY SET SITE = ?, USER_LEVEL = ?, UPLOAD = ?, DOWNLOAD = ?, RATIO = ?," \
-              " SEEDING = ?, LEECHING = ?, SEEDING_SIZE = ?," \
-              " BONUS = ? WHERE URL = ? AND DATE = ?"
-        return update_by_sql(sql, (str_sql(site), user_level, upload, download, ratio, seeding, leeching,
-                                   seeding_size, bonus, url, date_now))
 
 
 # 查询站点数据历史

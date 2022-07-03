@@ -20,6 +20,7 @@ class Sites:
     __sites_data = {}
     __pt_sites = None
     __last_update_time = None
+    _MAX_CONCURRENCY = 10
 
     def __init__(self):
         self.init_config()
@@ -46,15 +47,14 @@ class Sites:
             else:
                 refresh_site_names = specify_sites
 
+            refresh_all = len(self.__sites_data) == len(refresh_site_names)
             refresh_sites = [site for site in self.__pt_sites if site[1] in refresh_site_names]
-            for site in refresh_site_names:
-                self.__sites_data.pop(site, None)
 
-            with ThreadPool(len(refresh_sites)) as p:
+            with ThreadPool(min(len(refresh_sites), self._MAX_CONCURRENCY)) as p:
                 p.map(self.__refresh_pt_data, refresh_sites)
 
         # 更新时间
-        if self.__sites_data and not specify_sites:
+        if refresh_all:
             self.__last_update_time = datetime.now()
 
     def __refresh_pt_data(self, site_info):
@@ -75,31 +75,39 @@ class Sites:
                 site_user_info.parse()
                 log.debug(f"【PT】站点 {site_name} 解析完成")
 
-                if not self.__sites_data.get(site_name):
-                    self.__sites_data[site_name] = {"upload": site_user_info.upload,
-                                                    "download": site_user_info.download,
-                                                    "ratio": site_user_info.ratio,
-                                                    "seeding_size": site_user_info.seeding_size,
-                                                    "seeding": site_user_info.seeding,
-                                                    "leeching": site_user_info.leeching,
-                                                    "bonus": site_user_info.bonus}
-                    # 登记历史数据
-                    insert_site_statistics_history(site=site_name, upload=site_user_info.upload,
-                                                   user_level=site_user_info.user_level,
-                                                   download=site_user_info.download,
-                                                   ratio=site_user_info.ratio,
-                                                   seeding=site_user_info.seeding,
-                                                   seeding_size=site_user_info.seeding_size,
-                                                   leeching=site_user_info.leeching, bonus=site_user_info.bonus,
-                                                   url=site_url)
-                    # 实时用户数据
-                    update_site_user_statistics(site=site_name, username=site_user_info.username,
-                                                user_level=site_user_info.user_level,
-                                                upload=site_user_info.upload, download=site_user_info.download,
-                                                ratio=site_user_info.ratio, seeding=site_user_info.seeding,
-                                                seeding_size=site_user_info.seeding_size,
-                                                leeching=site_user_info.leeching, bonus=site_user_info.bonus,
-                                                url=site_url)
+                self.__sites_data.update({site_name: {"upload": site_user_info.upload,
+                                                      "username": site_user_info.username,
+                                                      "user_level": site_user_info.user_level,
+                                                      "join_at": site_user_info.join_at,
+                                                      "download": site_user_info.download,
+                                                      "ratio": site_user_info.ratio,
+                                                      "seeding": site_user_info.seeding,
+                                                      "seeding_size": site_user_info.seeding_size,
+                                                      "leeching": site_user_info.leeching,
+                                                      "bonus": site_user_info.bonus,
+                                                      "url": site_url,
+                                                      "err_msg": ""}
+                                          })
+
+                # 登记历史数据
+                insert_site_statistics_history(site=site_name, upload=site_user_info.upload,
+                                               user_level=site_user_info.user_level,
+                                               download=site_user_info.download,
+                                               ratio=site_user_info.ratio,
+                                               seeding=site_user_info.seeding,
+                                               seeding_size=site_user_info.seeding_size,
+                                               leeching=site_user_info.leeching, bonus=site_user_info.bonus,
+                                               url=site_url)
+                # 实时用户数据
+                update_site_user_statistics(site=site_name, username=site_user_info.username,
+                                            user_level=site_user_info.user_level,
+                                            join_at=site_user_info.join_at,
+                                            upload=site_user_info.upload, download=site_user_info.download,
+                                            ratio=site_user_info.ratio, seeding=site_user_info.seeding,
+                                            seeding_size=site_user_info.seeding_size,
+                                            leeching=site_user_info.leeching, bonus=site_user_info.bonus,
+                                            url=site_url)
+
         except Exception as e:
             log.error("【PT】站点 %s 获取流量数据失败：%s - %s" % (site_name, str(e), traceback.format_exc()))
 
