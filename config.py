@@ -35,7 +35,7 @@ SYNC_TRANSFER_INTERVAL = 60
 # RSS队列中处理时间间隔
 RSS_CHECK_INTERVAL = 300
 # PT站流量数据刷新时间间隔（小时）
-REFRESH_PT_DATA_INTERVAL = 24
+REFRESH_PT_DATA_INTERVAL = 6
 # 将豆瓣订阅转为TMDB订阅的检查时间间隔（小时）
 RSS_DOUBAN_TO_TMDB_INTEVAL = 12
 # fanart的api，用于拉取封面图片

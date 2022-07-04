@@ -33,11 +33,11 @@ class Sites:
 
     def refresh_all_pt_data(self, force=False, specify_sites=None):
         """
-        多线程刷新PT站下载上传量，默认间隔3小时
+        多线程刷新PT站下载上传量，默认间隔6小时
         """
         if not self.__pt_sites:
             return
-        if not force and self.__last_update_time and (datetime.now() - self.__last_update_time).seconds < 3 * 3600:
+        if not force and self.__last_update_time and (datetime.now() - self.__last_update_time).seconds < 6 * 3600:
             return
 
         with lock:
@@ -47,7 +47,7 @@ class Sites:
             else:
                 refresh_site_names = specify_sites
 
-            refresh_all = len(self.__sites_data) == len(refresh_site_names)
+            refresh_all = len(self.__pt_sites) == len(refresh_site_names)
             refresh_sites = [site for site in self.__pt_sites if site[1] in refresh_site_names]
 
             with ThreadPool(min(len(refresh_sites), self._MAX_CONCURRENCY)) as p:
