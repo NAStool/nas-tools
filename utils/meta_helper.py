@@ -19,6 +19,7 @@ EXPIRE_TIMESTAMP = 7 * 24 * 3600
 class MetaHelper(object):
     __meta_data = {}
     __meta_path = None
+    __tmdb_cache_expire = False
 
     def __init__(self):
         self.init_config()
@@ -44,7 +45,7 @@ class MetaHelper(object):
                     ThreadHelper().start_thread(self.update_meta_data, ({key: info}))
                     return info
                 elif expire and self.__tmdb_cache_expire:
-                    ThreadHelper().start_thread(self.delete_meta_data, (key))
+                    ThreadHelper().start_thread(self.delete_meta_data, (key,))
             return None
 
     def dump_meta_data(self, search, page, num):

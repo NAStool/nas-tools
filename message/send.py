@@ -144,6 +144,8 @@ class Message:
             msg_text = f"{msg_text}\n大小：{size}"
         if can_item.org_string:
             msg_text = f"{msg_text}\n种子：{can_item.org_string}"
+        if can_item.seeders:
+            msg_text = f"{msg_text}\n做种数：{can_item.seeders}"
         msg_text = f"{msg_text}\n促销：{can_item.get_volume_factor_string()}"
         if can_item.description:
             html_re = re.compile(r'<[^>]+>', re.S)
