@@ -9,14 +9,14 @@
           <div class="row" style="max-height:240px; overflow:hidden">
             <div class="col-4 col-md-3 col-lg-4 col-xl-3" style="padding:0px 0px">
               <span class="badge badge-pill {% if Media.type.value == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position:absolute;top:10px;left:10px;">{{Media.type.value}}</span>
-              <img src="{% if Media.poster_path %}https://image.tmdb.org/t/p/w500{{ Media.poster_path }}{% else %}../static/img/no-image.png{% endif %}" class="w-100 h-100 object-cover">
+              <img src="{% if Media.poster_path %}{{ Media.poster_path }}{% else %}../static/img/no-image.png{% endif %}" class="w-100 h-100 object-cover">
             </div>
             <div class="col">
               <div class="card-body">
                 <h2>
                   {{ Media.title }} <span class="text-muted">({{ Media.year }})</span>
                 </h2>
-                <div class="badge badge-outline text-orange mb-1">{{ Media.tmdb_id }}</div>
+                <div class="badge badge-outline text-orange mb-1">{% if Media.tmdb_id is string and Media.tmdb_id.startswith('DB') %}{{ Media.tmdb_id[3:] }}{% else %}{{ Media.tmdb_id }}{% endif %}</div>
                 <div class="text-muted mb-3 pb-3">
                   {{ Media.overview|truncate(100, True) }}
                 </div>

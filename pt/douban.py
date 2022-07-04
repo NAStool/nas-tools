@@ -285,3 +285,36 @@ class DouBan:
             log.info("【DOUBAN】豆瓣数据同步完成")
         finally:
             lock.release()
+
+    def search_douban_medias(self, keyword, mtype: MediaType = None):
+        """
+        根据关键字搜索豆瓣，返回可能的标题和年份信息
+        """
+        if not keyword:
+            return []
+        result = self.doubanapi.search(keyword)
+        if not result:
+            return []
+        ret_medias = []
+        for item_obj in result.get("items"):
+            if mtype and mtype.value != item_obj.get("type_name"):
+                continue
+            if item_obj.get("type_name") not in (MediaType.TV.value, MediaType.MOVIE.value):
+                continue
+            item = item_obj.get("target")
+            meta_info = MetaInfo(title=item.get("title"))
+            meta_info.year = item.get("year")
+            meta_info.title = item.get("title")
+            meta_info.tmdb_id = "DB:%s" % item.get("id")
+            meta_info.douban_id = item.get("id")
+            meta_info.overview = item.get("card_subtitle") or ""
+            meta_info.poster_path = item.get("cover_url").split('?')[0]
+            meta_info.vote_average = item.get("rating", {}).get("value")
+            if item_obj.get("type_name") == MediaType.MOVIE.value:
+                meta_info.type = MediaType.MOVIE
+            else:
+                meta_info.type = MediaType.TV
+            if meta_info not in ret_medias:
+                ret_medias.append(meta_info)
+
+        return ret_medias

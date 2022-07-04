@@ -313,5 +313,7 @@ security:
 laboratory:
   # 【识别增强】关键字猜想
   search_keyword: false
-  # 【TMDB缓存过期策略】 是否开启TMDB缓存过期策略，默认7天过期，过期缓存将被删除,  7天内访问过期时间可以被刷新
+  # 【TMDB缓存过期策略】：是否开启TMDB缓存过期策略，默认7天过期，过期缓存将被删除,  7天内访问过期时间可以被刷新
   tmdb_cache_expire: false
+  # 【使用豆瓣名称联想】：开启将使用豆瓣进行电影电视剧的名称联想，否则使用TMDB的数据
+  use_douban_titles: true

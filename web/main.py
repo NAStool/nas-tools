@@ -9,6 +9,7 @@ from werkzeug.security import check_password_hash
 import xml.dom.minidom
 
 import log
+from pt.douban import DouBan
 from pt.sites import Sites
 from pt.downloader import Downloader
 from pt.searcher import Searcher
@@ -473,13 +474,18 @@ def create_flask_app(config):
         NeedSearch = request.args.get("f")
         OperType = request.args.get("t")
         medias = []
+        use_douban_titles = config.get_config("laboratory").get("use_douban_titles")
         if SearchWord and NeedSearch:
-            meta_info = MetaInfo(title=SearchWord)
-            tmdbinfos = Media().get_tmdb_infos(title=meta_info.get_name(), year=meta_info.year, num=20)
-            for tmdbinfo in tmdbinfos:
-                tmp_info = MetaInfo(title=SearchWord)
-                tmp_info.set_tmdb_info(tmdbinfo, fanart=False)
-                medias.append(tmp_info)
+            if use_douban_titles:
+                medias = DouBan().search_douban_medias(SearchWord)
+            else:
+                meta_info = MetaInfo(title=SearchWord)
+                tmdbinfos = Media().get_tmdb_infos(title=meta_info.get_name(), year=meta_info.year, num=20)
+                for tmdbinfo in tmdbinfos:
+                    tmp_info = MetaInfo(title=SearchWord)
+                    tmp_info.set_tmdb_info(tmdbinfo, fanart=False)
+                    tmp_info.poster_path = "https://image.tmdb.org/t/p/w500%s" % tmp_info.poster_path
+                    medias.append(tmp_info)
         return render_template("medialist.html",
                                SearchWord=SearchWord or "",
                                NeedSearch=NeedSearch or "",

@@ -35,7 +35,7 @@ from utils.sqls import *
 from utils.thread_helper import ThreadHelper
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
-from web.backend.subscribe import add_rss_subscribe, add_rss_substribe_from_string
+from web.backend.subscribe import add_rss_subscribe
 
 
 class WebAction:
@@ -137,11 +137,8 @@ class WebAction:
             # 启动服务
             ThreadHelper().start_thread(command.get("func"), ())
             Message().send_channel_msg(channel=in_from, title="%s 已启动" % command.get("desp"))
-        elif msg.startswith("订阅"):
-            # 添加订阅
-            ThreadHelper().start_thread(add_rss_substribe_from_string, (msg, in_from, user_id,))
         else:
-            # PT检索
+            # PT检索或者添加订阅
             ThreadHelper().start_thread(search_media_by_message, (msg, in_from, user_id,))
 
     @staticmethod
