@@ -189,7 +189,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         # 搜索名称
         use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
         if use_douban_titles:
-            tmdb_infos = DouBan().search_douban_medias(keyword=media_info.get_name(), mtype=mtype)
+            tmdb_infos = DouBan().search_douban_medias(keyword=media_info.get_name(), mtype=mtype, num=6)
         else:
             tmdb_infos = Media().get_tmdb_infos(title=media_info.get_name(), year=media_info.year, mtype=mtype)
         if not tmdb_infos:
@@ -221,7 +221,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         else:
             # 发送消息通知选择
             Message().send_channel_list_msg(channel=in_from,
-                                            title="共找到%s条相关信息，请回复对应序号开始搜索" % len(SEARCH_MEDIA_CACHE),
+                                            title="共找到%s条相关信息，请回复对应序号" % len(SEARCH_MEDIA_CACHE),
                                             medias=SEARCH_MEDIA_CACHE,
                                             user_id=user_id)
 

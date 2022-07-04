@@ -286,7 +286,7 @@ class DouBan:
         finally:
             lock.release()
 
-    def search_douban_medias(self, keyword, mtype: MediaType = None):
+    def search_douban_medias(self, keyword, mtype: MediaType = None, num=20):
         """
         根据关键字搜索豆瓣，返回可能的标题和年份信息
         """
@@ -317,4 +317,4 @@ class DouBan:
             if meta_info not in ret_medias:
                 ret_medias.append(meta_info)
 
-        return ret_medias
+        return ret_medias[:6]
