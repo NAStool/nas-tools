@@ -378,7 +378,6 @@
       }
     }
 
-
     // 开始处理
     var data = {
       "inpath": inpath, "outpath": outpath, "type": type, "tmdb": tmdb
@@ -392,9 +391,8 @@
       $("#rename_udf_btn").attr("disabled", false);
       $("#rename_udf_btn").text("识别");
       if (ret.retcode == 0) {
-        //处理成功, 关闭刷新比较好
-        {#$('#modal-rename').modal('hide');#}
-        {#navmenu('unidentification');#}
+        $('#modal-rename').modal('hide');
+        show_success_modal("处理成功！");
       } else {
         //处理失败
         regmsg = ret.retmsg;
