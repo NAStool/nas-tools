@@ -11,7 +11,10 @@ class SiteUserInfoFactory(object):
     def build(url, site_name, site_cookie=None):
         res = RequestUtils(cookies=site_cookie).get_res(url=url)
         if res and res.status_code == 200:
-            res.encoding = res.apparent_encoding
+            if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
+                res.encoding = "UTF-8"
+            else:
+                res.encoding = res.apparent_encoding
             html_text = res.text
             # 第一次登录反爬
             if html_text.find("title") == -1:
@@ -22,7 +25,10 @@ class SiteUserInfoFactory(object):
                     .replace("\"", "").replace("+", "").replace(" ", "").replace("window.location=", "")
                 res = RequestUtils(cookies=site_cookie).get_res(url=tmp_url)
                 if res and res.status_code == 200:
-                    res.encoding = res.apparent_encoding
+                    if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
+                        res.encoding = "UTF-8"
+                    else:
+                        res.encoding = res.apparent_encoding
                     html_text = res.text
                     if not html_text:
                         return None
