@@ -137,7 +137,7 @@ GRAP_FREE_SITES = {
         '2XFREE': ["//font[@class='twoupfree']"]
     },
     'www.pttime.org':  {
-        'FREE': ["//font[@class='free']"],
+        'FREE': ["//font[@class='free']", "//font[@class='zeroupzerodown']"],
         '2XFREE': []
     }
 }
