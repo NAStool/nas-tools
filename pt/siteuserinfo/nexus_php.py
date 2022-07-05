@@ -24,7 +24,14 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
 
         self._torrent_seeding_page = f"getusertorrentlistajax.php?userid={self.userid}&type=seeding"
 
+        if not self.userid:
+            self.err_msg = "获取不到用户信息，请检查cookies是否过期"
+
     def _parse_user_base_info(self, html_text):
+        # 合并解析，减少额外请求调用
+        self.__parse_user_traffic_info(html_text)
+        self._user_traffic_page = None
+
         html_text = self._prepare_html_text(html_text)
         user_name = re.search(r"userdetails.php\?id=\d+[a-zA-Z\"'=_\-\s]+>[<b>\s]*([^<>]*)[</b>]*</a>", html_text)
         if user_name and user_name.group(1).strip():
@@ -41,27 +48,18 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         if ret:
             self.username = str(ret[-1])
 
-    def _parse_user_traffic_info(self, html_text):
-        """
-        上传/下载/分享率 [做种数/魔力值]
-        :param html_text:
-        :return:
-        """
+    def __parse_user_traffic_info(self, html_text):
         html_text = self._prepare_html_text(html_text)
         upload_match = re.search(r"[^总]上[传傳]量?[:：<>/a-zA-Z-=\"'\s#;]+([0-9,.\s]+[KMGTPI]*B)", html_text, re.IGNORECASE)
         self.upload = num_filesize(upload_match.group(1).strip()) if upload_match else 0
-
         download_match = re.search(r"[^总]下[载載]量?[:：<>/a-zA-Z-=\"'\s#;]+([0-9,.\s]+[KMGTPI]*B)", html_text,
                                    re.IGNORECASE)
         self.download = num_filesize(download_match.group(1).strip()) if download_match else 0
-
         ratio_match = re.search(r"分享率[:：<>/a-zA-Z-=\"'\s#;]+([0-9.\s]+)", html_text)
         self.ratio = float(ratio_match.group(1).strip()) if (ratio_match and ratio_match.group(1).strip()) else 0.0
-
         leeching_match = re.search(r"(Torrents leeching|下载中)[\u4E00-\u9FA5\D\s]+(\d+)[\s\S]+<", html_text)
         self.leeching = int(leeching_match.group(2).strip()) if leeching_match and leeching_match.group(
             2).strip() else 0
-
         html = etree.HTML(html_text)
         tmps = html.xpath('//span[@class = "ucoin-symbol ucoin-gold"]//text()') if html else None
         if tmps:
@@ -77,6 +75,14 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
                     self.bonus = float(bonus_match.group(1).strip().replace(',', ''))
             except Exception as err:
                 print(str(err))
+
+    def _parse_user_traffic_info(self, html_text):
+        """
+        上传/下载/分享率 [做种数/魔力值]
+        :param html_text:
+        :return:
+        """
+        pass
 
     def _parse_user_torrent_seeding_info(self, html_text, multi_page=False):
         """

@@ -746,6 +746,7 @@ def create_flask_app(config):
         SiteUploads = []
         SiteDownloads = []
         SiteRatios = []
+        SiteErrs = {}
         # 刷新指定站点
         Sites().refresh_pt(specify_sites=refresh_site)
         # 站点上传下载
@@ -754,11 +755,15 @@ def create_flask_app(config):
             for name, data in SiteData.items():
                 if not data:
                     continue
-                up = data.get("upload") or 0
-                dl = data.get("download") or 0
-                ratio = data.get("ratio") or 0
-                seeding = data.get("seeding") or 0
-                seeding_size = data.get("seeding_size") or 0
+                up = data.get("upload", 0)
+                dl = data.get("download", 0)
+                ratio = data.get("ratio", 0)
+                seeding = data.get("seeding", 0)
+                seeding_size = data.get("seeding_size", 0)
+                err_msg = data.get("err_msg", "")
+
+                SiteErrs.update({name: err_msg})
+
                 if not up and not dl and not ratio:
                     continue
                 if not str(up).isdigit() or not str(dl).isdigit():
@@ -791,6 +796,7 @@ def create_flask_app(config):
                                SiteUploads=SiteUploads,
                                SiteRatios=SiteRatios,
                                SiteNames=SiteNames,
+                               SiteErr=SiteErrs,
                                CurrentSiteLabels=CurrentSiteLabels,
                                CurrentSiteUploads=CurrentSiteUploads,
                                CurrentSiteDownloads=CurrentSiteDownloads,

@@ -22,6 +22,9 @@ class SmallHorseSiteUserInfo(ISiteUserInfo):
             self.userid = user_detail.group(1)
         self._user_traffic_page = self._user_traffic_page + self.userid
 
+        if not self.userid:
+            self.err_msg = "获取不到用户信息，请检查cookies是否过期"
+
     def _parse_user_base_info(self, html_text):
         html_text = self._prepare_html_text(html_text)
         html = etree.HTML(html_text)

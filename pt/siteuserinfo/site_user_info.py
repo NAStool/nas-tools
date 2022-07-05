@@ -35,6 +35,8 @@ class ISiteUserInfo(metaclass=ABCMeta):
     join_at = None
     bonus = 0.0
 
+    # 错误信息
+    err_msg = None
     # 内部数据
     _base_url = None
     _site_cookie = None
@@ -98,7 +100,7 @@ class ISiteUserInfo(metaclass=ABCMeta):
         :param url:
         :return:
         """
-        res = RequestUtils(cookies=self._site_cookie, session=self._session).get_res(url=url)
+        res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60).get_res(url=url)
         if res and res.status_code == 200:
             if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                 res.encoding = "UTF-8"

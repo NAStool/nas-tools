@@ -28,6 +28,9 @@ class IptSiteUserInfo(ISiteUserInfo):
             self.ratio = float(str(tmps[0].xpath('span/text()')[0]).strip())
             self.bonus = float(tmps[0].xpath('a')[3].xpath('text()')[0])
 
+        if not self.username:
+            self.err_msg = "获取不到用户信息，请检查cookies是否过期"
+
     def _parse_site_page(self, html_text):
         # TODO
         pass
