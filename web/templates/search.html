@@ -15,7 +15,7 @@
           <div class="input-group">
             <input id="search_word" class="form-control" type="text" value="" placeholder="电影/电视剧名称">
             <button id="search_btn" class="btn btn-primary d-none d-sm-inline-block"
-              onclick="javascript:search_media(true)">搜索</button>
+              onclick="javascript:navmenu('medialist?s='+$('#search_word').val()+'&f=1&t=search')">搜索</button>
             <button id="search_icon" onclick="javascript:search_media(true)" class="btn btn-primary d-sm-none btn-icon">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24"
                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
@@ -29,8 +29,8 @@
               class="btn btn-primary dropdown-toggle dropdown-toggle-split"
               style="border-top-right-radius:4px;border-bottom-right-radius:4px;"></button>
             <div class="dropdown-menu dropdown-menu-end">
-              <a class="dropdown-item" href="javascript:navmenu('medialist?s='+$('#search_word').val()+'&f=1')">
-                精确搜索
+              <a class="dropdown-item" href="javascript:search_media(true)">
+                快速搜索
               </a>
               <a class="dropdown-item" href="javascript:show_search_advanced_modal()">
                 高级搜索
@@ -470,7 +470,7 @@
   // 搜索输入框
   $('#search_word').bind('keypress', function (event) {
     if (event.keyCode == "13") {
-      search_media();
+      navmenu('medialist?s='+$('#search_word').val()+'&f=1&t=search')
     }
   });
 

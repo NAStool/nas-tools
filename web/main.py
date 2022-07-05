@@ -489,7 +489,7 @@ def create_flask_app(config):
         return render_template("medialist.html",
                                SearchWord=SearchWord or "",
                                NeedSearch=NeedSearch or "",
-                               OperType=OperType or "search",
+                               OperType=OperType,
                                Count=len(medias),
                                Medias=medias)
 
