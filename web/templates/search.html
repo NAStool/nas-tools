@@ -29,7 +29,7 @@
               class="btn btn-primary dropdown-toggle dropdown-toggle-split"
               style="border-top-right-radius:4px;border-bottom-right-radius:4px;"></button>
             <div class="dropdown-menu dropdown-menu-end">
-              <a class="dropdown-item" href="javascript:search_media()">
+              <a class="dropdown-item" href="javascript:navmenu('medialist?s='+$('#search_word').val()+'&f=1')">
                 精确搜索
               </a>
               <a class="dropdown-item" href="javascript:show_search_advanced_modal()">
@@ -201,7 +201,7 @@
       <div class="{% if Count > 8 %}col-sm-12 col-md-9 col-lg-10{% else %}col-12{% endif %}">
         <div class="row row-cards" id="media_cards">
           {% for Item in Items %}
-          <div class="col-sm-6 {% if Count > 8 %}col-xl-4{% else %}col-md-4 col-xl-3{% endif %} media_card" id="media_card_{{ Item[0] }}">
+          <div class="col-12 {% if Count > 8 %}col-xl-4{% else %}col-md-4 col-xl-3{% endif %} media_card" id="media_card_{{ Item[0] }}">
             <div class="card card-sm card-link-pop rounded-3">
               {% if Item[11] > 0 %}
               <div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">
@@ -305,7 +305,7 @@
       </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-sm-6 col-lg-4">
+          <div class="col-12 col-lg-4">
             <div class="mb-3">
               <label class="form-label">类型</label>
               <select class="form-select" id="search_type">
@@ -315,19 +315,19 @@
               </select>
             </div>
           </div>
-          <div class="col-sm-6 col-lg-4">
+          <div class="col-12 col-lg-4">
             <div class="mb-3">
               <label class="form-label required">名称</label>
               <input type="text" value="" id="search_name" class="form-control" placeholder="电影/电视剧名称">
             </div>
           </div>
-          <div class="col-sm-6 col-lg-2">
+          <div class="col-12 col-lg-2">
             <div class="mb-3">
               <label class="form-label">年份</label>
               <input type="text" value="" id="search_year" class="form-control" placeholder="20xx">
             </div>
           </div>
-          <div class="col-sm-6 col-lg-2">
+          <div class="col-12 col-lg-2">
             <div class="mb-3">
               <label class="form-label">季</label>
               <select class="form-select" id="search_season">
@@ -337,7 +337,7 @@
           </div>
         </div>
         <div class="row">
-          <div class="col-sm-6 col-lg-4">
+          <div class="col-12 col-lg-4">
             <div class="mb-3">
               <label class="form-label">站点</label>
               <select class="form-select" id="search_site">
@@ -348,7 +348,7 @@
               </select>
             </div>
           </div>
-          <div class="col-sm-6 col-lg-4">
+          <div class="col-12 col-lg-4">
             <div class="mb-3">
               <label class="form-label">质量</label>
               <select class="form-select" id="search_restype">
@@ -359,7 +359,7 @@
               </select>
             </div>
           </div>
-          <div class="col-sm-6 col-lg-4">
+          <div class="col-12 col-lg-4">
             <div class="mb-3">
               <label class="form-label">分辨率</label>
               <select class="form-select" id="search_pix">
@@ -370,7 +370,7 @@
               </select>
             </div>
           </div>
-          <div class="col-sm-6 col-lg-4">
+          <div class="col-12 col-lg-4">
             <div class="mb-3">
               <label class="form-label">促销</label>
               <select class="form-select" id="sp_state">
@@ -386,7 +386,7 @@
               </select>
             </div>
           </div>
-          <div class="col-sm-6 col-lg-8">
+          <div class="col-12 col-lg-8">
             <div class="mb-3">
               <label class="form-label">自定义</label>
               <input type="text" value="" id="search_key" class="form-control" placeholder="自定义过滤规则">

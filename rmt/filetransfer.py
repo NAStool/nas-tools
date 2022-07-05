@@ -1,4 +1,3 @@
-import _thread
 import argparse
 import os
 import re
@@ -22,6 +21,7 @@ from rmt.media import Media
 from utils.nfo_helper import NfoHelper
 from utils.sqls import insert_transfer_history, insert_transfer_unknown, update_transfer_unknown_state, \
     insert_transfer_blacklist, is_transfer_notin_blacklist
+from utils.thread_helper import ThreadHelper
 from utils.types import MediaType, DownloaderType, SyncType, RmtMode, OsType
 from utils.commons import EpisodeFormat
 
@@ -34,6 +34,7 @@ class FileTransfer:
     category = None
     mediaserver = None
     nfohelper = None
+    threadhelper = None
 
     __system = OsType.LINUX
     __pt_rmt_mode = None
@@ -60,6 +61,7 @@ class FileTransfer:
         self.category = Category()
         self.mediaserver = MediaServer()
         self.nfohelper = NfoHelper()
+        self.threadhelper = ThreadHelper()
         self.init_config()
 
     def init_config(self):
@@ -664,7 +666,7 @@ class FileTransfer:
             self.mediaserver.refresh_library_by_items(refresh_library_items)
         # 启新进程下载字幕
         if download_subtitle_items:
-            _thread.start_new_thread(Subtitle().download_subtitle, (download_subtitle_items,))
+            self.threadhelper.start_thread(Subtitle().download_subtitle, (download_subtitle_items,))
         # 总结
         log.info("【RMT】%s 处理完成，总数：%s，失败：%s" % (in_path, total_count, failed_count))
         if alert_count > 0:

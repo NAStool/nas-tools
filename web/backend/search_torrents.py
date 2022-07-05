@@ -1,9 +1,13 @@
+import re
+
 import log
 from config import Config
 from message.send import Message
+from pt.douban import DouBan
 from pt.downloader import Downloader
 from pt.searcher import Searcher
 from pt.torrent import Torrent
+from rmt.doubanv2api.doubanapi import DoubanApi
 from rmt.media import Media
 from rmt.meta.metabase import MetaBase
 from rmt.metainfo import MetaInfo
@@ -12,14 +16,17 @@ from utils.types import SearchType, MediaType
 from web.backend.subscribe import add_rss_subscribe
 
 SEARCH_MEDIA_CACHE = []
+SEARCH_MEDIA_TYPE = "SEARCH"
 
 
-def search_medias_for_web(content, ident_flag=True, filters=None):
+def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, media_type=None):
     """
     WEB资源搜索
     :param content: 关键字文本，可以包括 类型、标题、季、集、年份等信息，使用 空格分隔，也支持种子的命名格式
     :param ident_flag: 是否进行媒体信息识别
     :param filters: 其它过滤条件
+    :param tmdbid: TMDBID或DB:豆瓣ID
+    :param media_type: 媒体类型，配合tmdbid传入
     :return: 错误码，错误原因，成功时直接插入数据库
     """
     mtype, key_word, season_num, episode_num, year, content = Torrent.get_keyword_from_string(content)
@@ -30,7 +37,22 @@ def search_medias_for_web(content, ident_flag=True, filters=None):
     # 识别媒体
     match_words = None
     if ident_flag:
-        media_info = Media().get_media_info(mtype=mtype, title=content)
+        if tmdbid:
+            if tmdbid.startswith("DB:"):
+                doubanid = tmdbid[3:]
+                if media_type == MediaType.MOVIE:
+                    doubaninfo = DoubanApi().movie_detail(doubanid)
+                else:
+                    doubaninfo = DoubanApi().tv_detail(doubanid)
+                media_info = Media().get_media_info(mtype=media_type,
+                                                    title="%s %s" % (doubaninfo.get("title"), doubaninfo.get("year")),
+                                                    strict=True,
+                                                    fanart=False)
+            else:
+                media_info = MetaInfo(mtype=media_type or mtype, title=content)
+                media_info.set_tmdb_info(Media().get_tmdb_info(mtype=media_type or mtype, tmdbid=tmdbid), fanart=False)
+        else:
+            media_info = Media().get_media_info(mtype=media_type or mtype, title=content, fanart=False)
         if not media_info or not media_info.tmdb_info:
             return -1, "%s 查询不到媒体信息，请确认名称是否正确！" % content
         # 查找的季
@@ -93,6 +115,9 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
     :param user_id: 需要发送消息的，传入该参数，则只给对应用户发送交互消息
     :return: 请求的资源是否全部下载完整、请求的文本对应识别出来的媒体信息、请求的资源如果是剧集，则返回下载后仍然缺失的季集信息
     """
+    global SEARCH_MEDIA_TYPE
+    global SEARCH_MEDIA_CACHE
+
     if not input_str:
         log.info("【SEARCHER】检索关键字有误！")
         return
@@ -107,9 +132,51 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
             log.warn("【WEB】错误的输入值：%s" % input_str)
             return
         media_info = SEARCH_MEDIA_CACHE[choose]
-        __search_media(in_from, media_info, user_id)
+        # 如果是豆瓣数据，需要重新查询TMDB的数据
+        if media_info.douban_id:
+            media_info = Media().get_media_info(title="%s %s" % (media_info.title, media_info.year), mtype=media_info.type, strict=True, fanart=False)
+        if not media_info or not media_info.tmdb_info:
+            Message().send_channel_msg(channel=in_from,
+                                       title="%s 从TMDB查询不到媒体信息！" % media_info.title,
+                                       user_id=user_id)
+            return
+        # 重新获取Fanart图片
+        media_info.refresh_fanart_image()
+        if SEARCH_MEDIA_TYPE == "SEARCH":
+            # 搜索
+            __search_media(in_from, media_info, user_id)
+        else:
+            # 添加订阅
+            if media_info.douban_id:
+                code, msg, media_info = add_rss_subscribe(media_info.type,
+                                                          media_info.title,
+                                                          media_info.year,
+                                                          media_info.begin_season,
+                                                          doubanid=media_info.douban_id)
+            else:
+                code, msg, media_info = add_rss_subscribe(media_info.type,
+                                                          media_info.title,
+                                                          media_info.year,
+                                                          media_info.begin_season,
+                                                          tmdbid=media_info.tmdb_id)
+            if code == 0:
+                log.info("【WEB】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))
+                if in_from in [SearchType.WX, SearchType.TG]:
+                    Message().send_rss_success_message(in_from=in_from, media_info=media_info, user_id=user_id)
+            else:
+                if in_from in [SearchType.WX, SearchType.TG]:
+                    log.info("【WEB】%s 添加订阅失败：%s" % (media_info.title, msg))
+                    Message().send_channel_msg(channel=in_from,
+                                               title="%s 添加订阅失败：%s" % (media_info.title, msg),
+                                               user_id=user_id)
     # 接收到文本，开始查询可能的媒体信息供选择
     else:
+        if input_str.startswith("订阅"):
+            SEARCH_MEDIA_TYPE = "RSS"
+            input_str = re.sub(r"订阅[:：\s]*", "", input_str)
+        else:
+            SEARCH_MEDIA_TYPE = "SEARCH"
+
         # 去掉查询中的电影或电视剧关键字
         mtype, _, _, _, _, content = Torrent.get_keyword_from_string(input_str)
         # 识别媒体信息，列出匹配到的所有媒体
@@ -120,7 +187,12 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
                                        title="无法识别搜索内容！",
                                        user_id=user_id)
             return
-        tmdb_infos = Media().get_tmdb_infos(title=media_info.get_name(), year=media_info.year, mtype=mtype)
+        # 搜索名称
+        use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
+        if use_douban_titles:
+            tmdb_infos = DouBan().search_douban_medias(keyword=media_info.get_name(), mtype=mtype, num=6)
+        else:
+            tmdb_infos = Media().get_tmdb_infos(title=media_info.get_name(), year=media_info.year, mtype=mtype)
         if not tmdb_infos:
             # 查询不到媒体信息
             Message().send_channel_msg(channel=in_from,
@@ -130,10 +202,13 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
 
         # 保存识别信息到临时结果中
         SEARCH_MEDIA_CACHE.clear()
-        for tmdb_info in tmdb_infos:
-            meta_info = MetaInfo(title=content)
-            meta_info.set_tmdb_info(tmdb_info)
-            SEARCH_MEDIA_CACHE.append(meta_info)
+        if use_douban_titles:
+            SEARCH_MEDIA_CACHE = tmdb_infos
+        else:
+            for tmdb_info in tmdb_infos:
+                meta_info = MetaInfo(title=content)
+                meta_info.set_tmdb_info(tmdb_info, fanart=False)
+                SEARCH_MEDIA_CACHE.append(meta_info)
 
         if 1 == len(SEARCH_MEDIA_CACHE):
             # 只有一条数据，直接开始搜索
@@ -147,7 +222,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         else:
             # 发送消息通知选择
             Message().send_channel_list_msg(channel=in_from,
-                                            title="共找到%s条相关信息，请回复对应序号开始搜索" % len(SEARCH_MEDIA_CACHE),
+                                            title="共找到%s条相关信息，请回复对应序号" % len(SEARCH_MEDIA_CACHE),
                                             medias=SEARCH_MEDIA_CACHE,
                                             user_id=user_id)
 
@@ -184,19 +259,8 @@ def __search_media(in_from, media_info: MetaBase, user_id):
                                  tmdbid=media_info.tmdb_id,
                                  state='R'):
                 # 发送通知
-                if media_info.type == MediaType.MOVIE:
-                    msg_title = f"{media_info.get_title_string()} 已添加订阅"
-                else:
-                    msg_title = f"{media_info.get_title_string()} {media_info.get_season_string()} 已添加订阅"
-                msg_str = f"类型：{media_info.type.value}"
-                if media_info.vote_average:
-                    msg_str = f"{msg_str}，{media_info.get_vote_string()}"
-                Message().send_channel_msg(channel=in_from,
-                                           title=msg_title,
-                                           text=msg_str,
-                                           image=media_info.get_message_image(),
-                                           url='movie_rss' if media_info.type == MediaType.MOVIE else 'tv_rss',
-                                           user_id=user_id)
+                Message().send_rss_success_message(in_from=in_from, media_info=media_info, user_id=user_id)
+
     # 搜索到了但是没开自动下载
     elif download_count is None:
         Message().send_channel_msg(channel=in_from,

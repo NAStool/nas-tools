@@ -14,7 +14,7 @@
 <div class="page-body">
   <div class="container-xl">
     <div class="row row-cards">
-      <div class="col-sm-6 col-md-4 col-xl-3">
+      <div class="col-12 col-md-4 col-xl-3">
         <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-qbittorrent">
           <div class="card-cover card-cover-blurred text-center bg-blue">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded"
@@ -27,7 +27,7 @@
           </div>
         </a>
       </div>
-      <div class="col-sm-6 col-md-4 col-xl-3">
+      <div class="col-12 col-md-4 col-xl-3">
         <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-transmission">
           <div class="card-cover card-cover-blurred text-center bg-danger">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded"
@@ -93,15 +93,15 @@
           <div class="mb-3">
             <label class="form-label required">电影目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
             <div class="row">
-              <div class="col-sm-6 col-lg-5 mb-1">
+              <div class="col-12 col-lg-5 mb-1">
                 <input type="text" value="{{ QbMovieSavePath.path or '' }}" id="qbittorrent.save_path.movie.path"
                   class="form-control" placeholder="下载目录">
               </div>
-              <div class="col-sm-6 col-lg-5 mb-1">
+              <div class="col-12 col-lg-5 mb-1">
                 <input type="text" value="{{ QbMovieContainerPath or '' }}" id="qbittorrent.save_containerpath.movie"
                   class="form-control" placeholder="容器目录">
               </div>
-              <div class="col-sm-6 col-lg-2 mb-1">
+              <div class="col-12 col-lg-2 mb-1">
                 <input type="text" value="{{ QbMovieSavePath.tag or '' }}" id="qbittorrent.save_path.movie.tag"
                   class="form-control" placeholder="分类标签">
               </div>
@@ -110,15 +110,15 @@
           <div class="mb-3">
             <label class="form-label required">电视剧目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
             <div class="row">
-              <div class="col-sm-6 col-lg-5 mb-1">
+              <div class="col-12 col-lg-5 mb-1">
                 <input type="text" value="{{ QbTvSavePath.path or '' }}" id="qbittorrent.save_path.tv.path"
                   class="form-control" placeholder="下载目录">
               </div>
-              <div class="col-sm-6 col-lg-5 mb-1">
+              <div class="col-12 col-lg-5 mb-1">
                 <input type="text" value="{{ QbTvContainerPath or '' }}" id="qbittorrent.save_containerpath.tv"
                   class="form-control" placeholder="容器目录">
               </div>
-              <div class="col-sm-6 col-lg-2 mb-1">
+              <div class="col-12 col-lg-2 mb-1">
                 <input type="text" value="{{ QbTvSavePath.tag or '' }}" id="qbittorrent.save_path.tv.tag" class="form-control"
                   placeholder="分类标签">
               </div>
@@ -127,15 +127,15 @@
           <div class="mb-3">
             <label class="form-label required">动漫目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
             <div class="row">
-              <div class="col-sm-6 col-lg-5 mb-1">
+              <div class="col-12 col-lg-5 mb-1">
                 <input type="text" value="{{ QbAnimeSavePath.path or '' }}" id="qbittorrent.save_path.anime.path"
                   class="form-control" placeholder="下载目录">
               </div>
-              <div class="col-sm-6 col-lg-5 mb-1">
+              <div class="col-12 col-lg-5 mb-1">
                 <input type="text" value="{{ QbAnimeContainerPath or '' }}" id="qbittorrent.save_containerpath.anime"
                   class="form-control" placeholder="容器目录">
               </div>
-              <div class="col-sm-6 col-lg-2 mb-1">
+              <div class="col-12 col-lg-2 mb-1">
                 <input type="text" value="{{ QbAnimeSavePath.tag or '' }}" id="qbittorrent.save_path.anime.tag"
                   class="form-control" placeholder="分类标签">
               </div>

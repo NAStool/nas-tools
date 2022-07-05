@@ -9,6 +9,7 @@ from werkzeug.security import check_password_hash
 import xml.dom.minidom
 
 import log
+from pt.douban import DouBan
 from pt.sites import Sites
 from pt.downloader import Downloader
 from pt.searcher import Searcher
@@ -464,6 +465,34 @@ def create_flask_app(config):
                                PixDict=TORRENT_SEARCH_PARAMS.get("pix").keys(),
                                SiteDict=SiteDict)
 
+    # 媒体列表页面
+    @App.route('/medialist', methods=['POST', 'GET'])
+    @login_required
+    def medialist():
+        # 查询结果
+        SearchWord = request.args.get("s")
+        NeedSearch = request.args.get("f")
+        OperType = request.args.get("t")
+        medias = []
+        use_douban_titles = config.get_config("laboratory").get("use_douban_titles")
+        if SearchWord and NeedSearch:
+            if use_douban_titles:
+                medias = DouBan().search_douban_medias(SearchWord)
+            else:
+                meta_info = MetaInfo(title=SearchWord)
+                tmdbinfos = Media().get_tmdb_infos(title=meta_info.get_name(), year=meta_info.year, num=20)
+                for tmdbinfo in tmdbinfos:
+                    tmp_info = MetaInfo(title=SearchWord)
+                    tmp_info.set_tmdb_info(tmdbinfo, fanart=False)
+                    tmp_info.poster_path = "https://image.tmdb.org/t/p/w500%s" % tmp_info.poster_path
+                    medias.append(tmp_info)
+        return render_template("medialist.html",
+                               SearchWord=SearchWord or "",
+                               NeedSearch=NeedSearch or "",
+                               OperType=OperType or "search",
+                               Count=len(medias),
+                               Medias=medias)
+
     # 电影订阅页面
     @App.route('/movie_rss', methods=['POST', 'GET'])
     @login_required
@@ -502,7 +531,7 @@ def create_flask_app(config):
     def rss_calendar():
         Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
         RssMovieIds = [movie[2] for movie in get_rss_movies()]
-        RssTvItems = [{"id": tv[3], "season": int(str(tv[2]).replace("S", "")), "name": tv[0]} for tv in get_rss_tvs()]
+        RssTvItems = [{"id": tv[3], "season": int(str(tv[2]).replace("S", "")), "name": tv[0]} for tv in get_rss_tvs() if tv[2]]
         return render_template("rss/rss_calendar.html",
                                Today=Today,
                                RssMovieIds=RssMovieIds,
@@ -670,7 +699,7 @@ def create_flask_app(config):
             if not name:
                 continue
             # 识别
-            media_info = Media().get_media_info(name)
+            media_info = Media().get_media_info(title=name, fanart=False)
             if not media_info:
                 continue
             if not media_info.tmdb_info:

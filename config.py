@@ -35,7 +35,7 @@ SYNC_TRANSFER_INTERVAL = 60
 # RSS队列中处理时间间隔
 RSS_CHECK_INTERVAL = 300
 # PT站流量数据刷新时间间隔（小时）
-REFRESH_PT_DATA_INTERVAL = 24
+REFRESH_PT_DATA_INTERVAL = 6
 # 将豆瓣订阅转为TMDB订阅的检查时间间隔（小时）
 RSS_DOUBAN_TO_TMDB_INTEVAL = 12
 # fanart的api，用于拉取封面图片
@@ -102,11 +102,43 @@ GRAP_FREE_SITES = {
     },
     'kp.m-team.cc':  {
         'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"]
+        '2XFREE': []
     },
     'lemonhd.org':  {
         'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': []
+    },
+    'discfan.net':  {
+        'FREE': ["//font[@class='free'][text()='免費']"],
+        '2XFREE': []
+    },
+    'pt.sjtu.edu.cn':  {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': []
+    },
+    'nanyangpt.com':  {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': []
+    },
+    'audiences.me':  {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': []
+    },
+    'pterclub.com':  {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': []
+    },
+    'et8.org':  {
+        'FREE': ["//font[@class='free']"],
         '2XFREE': ["//font[@class='twoupfree']"]
+    },
+    'pt.keepfrds.com':  {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': ["//font[@class='twoupfree']"]
+    },
+    'www.pttime.org':  {
+        'FREE': ["//font[@class='free']"],
+        '2XFREE': []
     }
 }
 

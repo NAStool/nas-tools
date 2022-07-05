@@ -171,7 +171,7 @@ class IIndexer(metaclass=ABCMeta):
 
             # 识别媒体信息
             if match_type != 2:
-                media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
+                media_info = self.media.get_media_info(title=torrent_name, subtitle=description, fanart=False)
                 if not media_info or not media_info.tmdb_info:
                     log.debug(f"【{self.index_type}】{torrent_name} 未识别到媒体信息")
                     continue
@@ -216,6 +216,7 @@ class IIndexer(metaclass=ABCMeta):
                 continue
 
             # 匹配到了
+            log.info(f"【{self.index_type}】{torrent_name} 匹配成功")
             media_info.set_torrent_info(site=indexer_name,
                                         site_order=order_seq,
                                         enclosure=enclosure,
@@ -229,6 +230,7 @@ class IIndexer(metaclass=ABCMeta):
                                         download_volume_factor=downloadvolumefactor)
             if media_info not in ret_array:
                 index_sucess = index_sucess + 1
+                media_info.refresh_fanart_image()
                 ret_array.append(media_info)
         # 循环结束
         log.info(f"【{self.index_type}】{indexer_name} 共检索到 {index_sucess} 条有效资源")

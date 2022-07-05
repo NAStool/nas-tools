@@ -10,7 +10,7 @@ from message.channel.wechat import WeChat
 from rmt.meta.metabase import MetaBase
 from utils.functions import str_filesize
 from utils.sqls import insert_system_message, insert_download_history
-from utils.types import SearchType
+from utils.types import SearchType, MediaType
 
 
 class Message:
@@ -144,6 +144,8 @@ class Message:
             msg_text = f"{msg_text}\n大小：{size}"
         if can_item.org_string:
             msg_text = f"{msg_text}\n种子：{can_item.org_string}"
+        if can_item.seeders:
+            msg_text = f"{msg_text}\n做种数：{can_item.seeders}"
         msg_text = f"{msg_text}\n促销：{can_item.get_volume_factor_string()}"
         if can_item.description:
             html_re = re.compile(r'<[^>]+>', re.S)
@@ -201,7 +203,28 @@ class Message:
             self.sendmsg(title=msg_title, text=msg_str, image=item_info.get_message_image(), url='history')
 
     def send_download_fail_message(self, item: MetaBase, error_msg):
+        """
+        发送下载失败的消息
+        """
         self.sendmsg(
             title="添加下载任务失败：%s %s" % (item.get_title_string(), item.get_season_episode_string()),
             text=f"种子：{item.org_string}\n错误信息：{error_msg}",
             image=item.get_message_image())
+
+    def send_rss_success_message(self, in_from: Enum, media_info: MetaBase, user_id=""):
+        """
+        发送订阅成功的消息
+        """
+        if media_info.type == MediaType.MOVIE:
+            msg_title = f"{media_info.get_title_string()} 已添加订阅"
+        else:
+            msg_title = f"{media_info.get_title_string()} {media_info.get_season_string()} 已添加订阅"
+        msg_str = f"类型：{media_info.type.value}"
+        if media_info.vote_average:
+            msg_str = f"{msg_str}，{media_info.get_vote_string()}"
+        self.send_channel_msg(channel=in_from,
+                              title=msg_title,
+                              text=msg_str,
+                              image=media_info.get_message_image(),
+                              url='movie_rss' if media_info.type == MediaType.MOVIE else 'tv_rss',
+                              user_id=user_id)

@@ -1,7 +1,9 @@
+import re
+
 import anitopy
 import log
 from rmt.meta.metabase import MetaBase
-from utils.functions import is_chinese
+from utils.functions import is_chinese, is_all_chinese
 from utils.types import MediaType
 
 
@@ -9,7 +11,7 @@ class MetaAnime(MetaBase):
     """
     识别动漫
     """
-    _anime_no_words = ['CHS&CHT']
+    _anime_no_words = ['CHS&CHT', 'MP4', 'GB MP4', 'WEB-DL']
 
     def __init__(self, title, subtitle=None):
         super().__init__(title, subtitle)
@@ -17,6 +19,7 @@ class MetaAnime(MetaBase):
             return
         # 调用第三方模块识别动漫
         try:
+            title = self.__prepare_title(title)
             anitopy_info = anitopy.parse(title)
             if anitopy_info:
                 # 名称
@@ -26,7 +29,9 @@ class MetaAnime(MetaBase):
                     if anitopy_info:
                         name = anitopy_info.get("anime_title")
                 if not name or name in self._anime_no_words or (len(name) < 5 and not is_chinese(name)):
-                    return
+                    name_match = re.search(r'\[(.+?)]', title)
+                    if name_match and name_match.group(1):
+                        name = name_match.group(1).strip()
                 # 拆份中英文名称
                 lastword_type = ""
                 for word in name:
@@ -103,6 +108,9 @@ class MetaAnime(MetaBase):
                 self.resource_pix = anitopy_info.get("video_resolution")
                 if isinstance(self.resource_pix, list):
                     self.resource_pix = self.resource_pix[0]
+                if self.resource_pix:
+                    if re.search(r'x', self.resource_pix, re.IGNORECASE):
+                        self.resource_pix = re.split(r'[Xx]', self.resource_pix)[0] + "p"
                 # 视频编码
                 self.video_encode = anitopy_info.get("video_term")
                 if isinstance(self.video_encode, list):
@@ -115,3 +123,31 @@ class MetaAnime(MetaBase):
                 self.type = MediaType.TV
         except Exception as e:
             log.console(str(e))
+
+    @staticmethod
+    def __prepare_title(title):
+        """
+        对命名进行预处理
+        """
+        if not title:
+            return title
+        title = title.replace("【", "[").replace("】", "]")
+        if re.search(r"新番|月?番", title):
+            title = re.sub(".*新番.", "", title)
+        else:
+            title = re.sub(r"^[^]】]*[]】]", "", title).strip()
+        names = title.split("]")
+        if len(names) > 1:
+            titles = []
+            for name in names:
+                if not is_all_chinese(name[1:]):
+                    name = re.sub(r'[\u4e00-\u9fa5]', '', name)
+                if name and name.find("/") != -1:
+                    if name.split("/")[-1].strip():
+                        titles.append("[%s" % name.split("/")[-1].strip())
+                    else:
+                        titles.append("[%s" % name.split("/")[0].strip())
+                else:
+                    titles.append(name.strip())
+            return "]".join(titles)
+        return title

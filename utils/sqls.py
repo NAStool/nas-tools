@@ -804,19 +804,12 @@ def update_site_user_statistics(site, username, upload, download, ratio, seeding
     if not site or not url:
         return
     update_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-    if not is_site_user_statistics_exists(url):
-        sql = "INSERT INTO SITE_USER_STATISTICS(SITE, USERNAME, USER_LEVEL," \
-              " JOIN_AT, UPDATE_AT," \
-              " UPLOAD, DOWNLOAD, RATIO," \
-              " SEEDING, LEECHING, SEEDING_SIZE," \
-              " BONUS," \
-              " URL) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-    else:
-        sql = "UPDATE SITE_USER_STATISTICS SET SITE = ?, USERNAME = ?, USER_LEVEL = ?," \
-              " JOIN_AT = ?, UPDATE_AT = ?," \
-              " UPLOAD = ?, DOWNLOAD = ?, RATIO = ?," \
-              " SEEDING = ?, LEECHING = ?, SEEDING_SIZE = ?," \
-              " BONUS = ? WHERE URL = ?"
+    sql = "INSERT OR REPLACE INTO SITE_USER_STATISTICS(SITE, USERNAME, USER_LEVEL," \
+          " JOIN_AT, UPDATE_AT," \
+          " UPLOAD, DOWNLOAD, RATIO," \
+          " SEEDING, LEECHING, SEEDING_SIZE," \
+          " BONUS," \
+          " URL) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
     return update_by_sql(sql, (
         str_sql(site), username, user_level, join_at, update_at, upload, download, ratio, seeding, leeching,
@@ -852,7 +845,7 @@ def get_site_user_statistics(num=100, strict_urls=None):
               " UPLOAD, DOWNLOAD, RATIO," \
               " SEEDING, LEECHING, SEEDING_SIZE," \
               " BONUS, URL" \
-              " FROM SITE_USER_STATISTICS WHERE URL in {} LIMIT ?".format(tuple(strict_urls))
+              " FROM SITE_USER_STATISTICS WHERE URL in {} LIMIT ?".format(tuple(strict_urls + ["__DUMMY__"]))
 
     return select_by_sql(sql, (num,))
 
@@ -875,19 +868,13 @@ def insert_site_statistics_history(site, upload, download, ratio, url, seeding, 
     if not site or not url:
         return
     date_now = time.strftime('%Y-%m-%d', time.localtime(time.time()))
-    if not is_site_statistics_history_exists(url, date_now):
-        sql = "INSERT INTO SITE_STATISTICS_HISTORY(SITE, USER_LEVEL, DATE, UPLOAD, DOWNLOAD, RATIO," \
-              " SEEDING, LEECHING, SEEDING_SIZE," \
-              " BONUS," \
-              " URL) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        return update_by_sql(sql, (str_sql(site), user_level, date_now, upload, download, ratio, seeding, leeching,
+    sql = "INSERT OR REPLACE INTO SITE_STATISTICS_HISTORY(SITE, USER_LEVEL, DATE, UPLOAD, DOWNLOAD, RATIO," \
+          " SEEDING, LEECHING, SEEDING_SIZE," \
+          " BONUS," \
+          " URL) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+
+    return update_by_sql(sql, (str_sql(site), user_level, date_now, upload, download, ratio, seeding, leeching,
                                    seeding_size, bonus, url))
-    else:
-        sql = "UPDATE SITE_STATISTICS_HISTORY SET SITE = ?, USER_LEVEL = ?, UPLOAD = ?, DOWNLOAD = ?, RATIO = ?," \
-              " SEEDING = ?, LEECHING = ?, SEEDING_SIZE = ?," \
-              " BONUS = ? WHERE URL = ? AND DATE = ?"
-        return update_by_sql(sql, (str_sql(site), user_level, upload, download, ratio, seeding, leeching,
-                                   seeding_size, bonus, url, date_now))
 
 
 # 查询站点数据历史
@@ -915,32 +902,31 @@ def get_site_statistics_recent_sites(days=7, strict_urls=None):
         min_date = date_ret[0][1]
         # 查询开始值
         site_b_data = {}
-        sql = "SELECT SITE, SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS_HISTORY WHERE DATE = ? GROUP BY SITE"
+        sql = """SELECT SITE, MIN(UPLOAD), MIN(DOWNLOAD), MAX(UPLOAD), MAX(DOWNLOAD)
+                 FROM (SELECT SITE, DATE, SUM(UPLOAD) as UPLOAD, SUM(DOWNLOAD) as DOWNLOAD FROM SITE_STATISTICS_HISTORY WHERE DATE >= ? GROUP BY SITE, DATE) X 
+                 GROUP BY SITE"""
         if strict_urls:
-            sql = "SELECT SITE, SUM(UPLOAD), SUM(DOWNLOAD) " \
-                  "FROM SITE_STATISTICS_HISTORY WHERE DATE = ? AND URL in {} GROUP BY SITE".format(tuple(strict_urls))
+            sql = """
+                 SELECT SITE, MIN(UPLOAD), MIN(DOWNLOAD), MAX(UPLOAD), MAX(DOWNLOAD)
+                 FROM (SELECT SITE, DATE, SUM(UPLOAD) as UPLOAD, SUM(DOWNLOAD) as DOWNLOAD FROM SITE_STATISTICS_HISTORY WHERE DATE >= ? AND URL in {} GROUP BY SITE, DATE) X 
+                 GROUP BY SITE""".format(tuple(strict_urls + ["__DUMMY__"]))
         for ret_b in select_by_sql(sql, (min_date,)):
-            site_b_data[ret_b[0]] = {"upload": int(ret_b[1]), "download": int(ret_b[2])}
-        # 查询结束值
-        for ret_e in select_by_sql(sql, (max_date,)):
-            ret_sites.append(ret_e[0])
-            if site_b_data.get(ret_e[0]):
-                b_upload = site_b_data[ret_e[0]].get("upload")
-                if b_upload < int(ret_e[1]):
-                    total_upload += int(ret_e[1]) - b_upload
-                    ret_site_uploads.append(int(ret_e[1]) - b_upload)
-                else:
-                    ret_site_uploads.append(0)
-                b_download = site_b_data[ret_e[0]].get("download")
-                if b_download < int(ret_e[2]):
-                    total_download += int(ret_e[2]) - b_download
-                    ret_site_downloads.append(int(ret_e[2]) - b_download)
-                else:
-                    ret_site_downloads.append(0)
+            # 如果最小值都是0，可能时由于近几日没有更新数据，或者cookie过期，正常有数据的话，第二天能正常
+            ret_b = list(ret_b)
+            if ret_b[1] == 0 and ret_b[2] == 0:
+                ret_b[1] = ret_b[3]
+                ret_b[2] = ret_b[4]
+            ret_sites.append(ret_b[0])
+            if int(ret_b[1])< int(ret_b[3]):
+                total_upload += int(ret_b[3]) - int(ret_b[1])
+                ret_site_uploads.append(int(ret_b[3]) - int(ret_b[1]))
             else:
-                ret_site_uploads.append(int(ret_e[1]))
-                ret_site_downloads.append(int(ret_e[2]))
-
+                ret_site_uploads.append(0)
+            if int(ret_b[2])< int(ret_b[4]):
+                total_download += int(ret_b[4]) - int(ret_b[2])
+                ret_site_downloads.append(int(ret_b[4]) - int(ret_b[2]))
+            else:
+                ret_site_downloads.append(0)
         return total_upload, total_download, ret_sites, ret_site_uploads, ret_site_downloads
     else:
         return 0, 0, [], [], []

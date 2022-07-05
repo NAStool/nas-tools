@@ -148,7 +148,7 @@ class NfoHelper:
         add_node(doc, root, "tmdbid", tmdbinfo.get("id"))
         # 集的信息
         episode_detail = {}
-        for episode_info in tmdbinfo.get("episodes"):
+        for episode_info in tmdbinfo.get("episodes") or []:
             if int(episode_info.get("episode_number")) == int(episode):
                 episode_detail = episode_info
         if not episode_detail:
