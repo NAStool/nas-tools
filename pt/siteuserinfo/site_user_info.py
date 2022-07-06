@@ -49,14 +49,14 @@ class ISiteUserInfo(metaclass=ABCMeta):
     _user_detail_page = "userdetails.php?id="
     _user_traffic_page = "index.php"
     _torrent_seeding_page = "getusertorrentlistajax.php?userid="
-    _session = requests.Session()
 
-    def __init__(self, url, site_cookie, index_html):
+    def __init__(self, url, site_cookie, index_html, session=None):
         super().__init__()
         split_url = urlsplit(url)
         self._base_url = f"{split_url.scheme}://{split_url.netloc}"
         self._site_cookie = site_cookie
         self._index_html = index_html
+        self._session = session if session else requests.Session()
 
     def site_schema(self):
         """

@@ -1,3 +1,5 @@
+import requests
+
 from pt.siteuserinfo.nexus_php import NexusPhpSiteUserInfo
 from pt.siteuserinfo.nexus_project import NexusProjectSiteUserInfo
 from pt.siteuserinfo.ipt_project import IptSiteUserInfo
@@ -9,7 +11,8 @@ import log
 class SiteUserInfoFactory(object):
     @staticmethod
     def build(url, site_name, site_cookie=None):
-        res = RequestUtils(cookies=site_cookie).get_res(url=url)
+        session = requests.Session()
+        res = RequestUtils(cookies=site_cookie, session=session).get_res(url=url)
         if res and res.status_code == 200:
             if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                 res.encoding = "UTF-8"
@@ -23,7 +26,7 @@ class SiteUserInfoFactory(object):
                     return None
                 tmp_url = url + html_text[i:html_text.find(";")] \
                     .replace("\"", "").replace("+", "").replace(" ", "").replace("window.location=", "")
-                res = RequestUtils(cookies=site_cookie).get_res(url=tmp_url)
+                res = RequestUtils(cookies=site_cookie, session=session).get_res(url=tmp_url)
                 if res and res.status_code == 200:
                     if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                         res.encoding = "UTF-8"
@@ -36,18 +39,18 @@ class SiteUserInfoFactory(object):
                     log.error("【PT】站点 %s 被反爬限制：%s, 状态码：%s" % (site_name, url, res.status_code))
                     return None
             if "NexusPHP" in html_text in html_text:
-                return NexusPhpSiteUserInfo(url, site_cookie, html_text)
+                return NexusPhpSiteUserInfo(url, site_cookie, html_text, session=session)
 
             if "Nexus Project" in html_text:
-                return NexusProjectSiteUserInfo(url, site_cookie, html_text)
+                return NexusProjectSiteUserInfo(url, site_cookie, html_text, session=session)
 
             if "Small Horse" in html_text:
-                return SmallHorseSiteUserInfo(url, site_cookie, html_text)
+                return SmallHorseSiteUserInfo(url, site_cookie, html_text, session=session)
 
             if "IPTorrents" in html_text:
-                return IptSiteUserInfo(url, site_cookie, html_text)
+                return IptSiteUserInfo(url, site_cookie, html_text, session=session)
             # 默认NexusPhp
-            return NexusPhpSiteUserInfo(url, site_cookie, html_text)
+            return NexusPhpSiteUserInfo(url, site_cookie, html_text, session=session)
         elif not res:
             log.error("【PT】站点 %s 连接失败：%s" % (site_name, url))
             return None

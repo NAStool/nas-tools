@@ -23,4 +23,4 @@ class NexusProjectSiteUserInfo(NexusPhpSiteUserInfo):
         self._torrent_seeding_page = f"viewusertorrents.php?id={self.userid}&show=seeding"
 
         if not self.userid:
-            self.err_msg = "获取不到用户信息，请检查cookies是否过期"
+            self.err_msg = "获取不到用户信息，请检查Cookies是否过期"
