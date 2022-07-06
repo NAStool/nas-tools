@@ -681,7 +681,7 @@ def get_rss_tv_episodes(rid):
     if ret:
         return str(ret[0][0]).split(',')
     else:
-        return []
+        return None
 
 
 # 删除电视剧订阅缺失剧集

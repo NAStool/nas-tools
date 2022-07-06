@@ -18,6 +18,7 @@ class DBHelper:
     def __init__(self):
         self.init_config()
         self.__init_tables()
+        self.__cleardata()
 
     def init_config(self):
         config = Config()
@@ -63,7 +64,6 @@ class DBHelper:
                                    UPLOAD_VOLUME_FACTOR REAL,
                                    DOWNLOAD_VOLUME_FACTOR REAL,
                                    NOTE     TEXT);''')
-
             # RSS下载记录表
             cursor.execute('''CREATE TABLE IF NOT EXISTS RSS_TORRENTS
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
@@ -179,7 +179,6 @@ class DBHelper:
                                                SRC    TEXT,
                                                DEST    TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SYNC_HISTORY ON SYNC_HISTORY (PATH);''')
-
             # 用户表
             cursor.execute('''CREATE TABLE IF NOT EXISTS CONFIG_USERS
                                                            (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
@@ -187,7 +186,6 @@ class DBHelper:
                                                            PASSWORD    TEXT,
                                                            PRIS    TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_CONFIG_USERS ON CONFIG_USERS (NAME);''')
-
             # 消息中心
             cursor.execute('''CREATE TABLE IF NOT EXISTS MESSAGES
                                                            (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
@@ -196,7 +194,6 @@ class DBHelper:
                                                            CONTENT    TEXT,
                                                            DATE     TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_MESSAGES_DATE ON MESSAGES (DATE);''')
-
             # 站点流量历史
             cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_STATISTICS_HISTORY
                                                            (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
@@ -212,15 +209,9 @@ class DBHelper:
                                                            BONUS     REAL default 0.0,
                                                            URL     TEXT);''')
 
-            # 删除重复数据
-            cursor.execute(
-                """DELETE FROM SITE_STATISTICS_HISTORY WHERE EXISTS (SELECT 1 FROM SITE_STATISTICS_HISTORY p2 WHERE SITE_STATISTICS_HISTORY.URL = p2.URL and SITE_STATISTICS_HISTORY.DATE = p2.DATE AND SITE_STATISTICS_HISTORY.rowid < p2.rowid);""")
-
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_STATISTICS_HISTORY_DS ON SITE_STATISTICS_HISTORY (DATE, URL);''')
-
             # 唯一约束
             cursor.execute('''CREATE UNIQUE INDEX IF NOT EXISTS UN_INDX_SITE_STATISTICS_HISTORY_DS ON SITE_STATISTICS_HISTORY (DATE, URL);''')
-
             # 实时站点数据
             cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_USER_STATISTICS
                                                            (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
@@ -237,9 +228,6 @@ class DBHelper:
                                                            SEEDING_SIZE     INTEGER,
                                                            BONUS     REAL,
                                                            URL     TEXT);''')
-            # 删除重复数据
-            cursor.execute(
-                """DELETE FROM SITE_USER_STATISTICS WHERE EXISTS (SELECT 1 FROM SITE_USER_STATISTICS p2 WHERE SITE_USER_STATISTICS.URL = p2.URL AND SITE_USER_STATISTICS.rowid < p2.rowid);""")
             cursor.execute(
                 '''CREATE INDEX IF NOT EXISTS INDX_SITE_USER_STATISTICS_URL ON SITE_USER_STATISTICS (URL);''')
             cursor.execute(
@@ -247,7 +235,6 @@ class DBHelper:
             # 唯一约束
             cursor.execute(
                 '''CREATE UNIQUE INDEX IF NOT EXISTS UN_INDX_SITE_USER_STATISTICS_URL ON SITE_USER_STATISTICS (URL);''')
-
             # 下载历史
             cursor.execute('''CREATE TABLE IF NOT EXISTS DOWNLOAD_HISTORY
                                                            (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
@@ -328,6 +315,26 @@ class DBHelper:
             cursor.close()
             self.__pools.free(conn)
         return ret
+
+    def __cleardata(self):
+        conn = self.__pools.get()
+        cursor = conn.cursor()
+        try:
+            # 删除站点重复数据
+            cursor.execute(
+                """DELETE FROM SITE_USER_STATISTICS WHERE EXISTS (SELECT 1 FROM SITE_USER_STATISTICS p2 WHERE SITE_USER_STATISTICS.URL = p2.URL AND SITE_USER_STATISTICS.rowid < p2.rowid);""")
+            cursor.execute(
+                """DELETE FROM SITE_STATISTICS_HISTORY WHERE EXISTS (SELECT 1 FROM SITE_STATISTICS_HISTORY p2 WHERE SITE_STATISTICS_HISTORY.URL = p2.URL and SITE_STATISTICS_HISTORY.DATE = p2.DATE AND SITE_STATISTICS_HISTORY.rowid < p2.rowid);""")
+            # 删除系统消息表数据
+            cursor.execute(
+                """DELETE FROM MESSAGES""")
+            # 提交
+            conn.commit()
+        except Exception as e:
+            print(str(e))
+        finally:
+            cursor.close()
+            self.__pools.free(conn)
 
 
 def select_by_sql(sql, data=None):
