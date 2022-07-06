@@ -266,6 +266,8 @@ class DBHelper:
                                    TRANSFER     TEXT,
                                    DOWNLOAD_COUNT     TEXT,
                                    REMOVE_COUNT     TEXT,
+                                   DOWNLOAD_SIZE     TEXT,
+                                   UPLOAD_SIZE     TEXT,
                                    STATE     TEXT,
                                    LST_MOD_DATE     TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_BRUSH_TASK_NAME ON SITE_BRUSH_TASK (NAME);''')
