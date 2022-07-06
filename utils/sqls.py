@@ -60,7 +60,7 @@ def insert_search_results(media_items: list):
                 media_item.get_season_episode_string(),
                 media_item.vote_average or "0",
                 media_item.get_backdrop_path(default=False),
-                str_sql(media_item.poster_path),
+                media_item.get_poster_image(),
                 str_sql(media_item.tmdb_id),
                 str_sql(media_item.overview),
                 media_item.get_resource_type_string(),
@@ -139,7 +139,7 @@ def insert_douban_media_state(media: MetaBase, state):
                                str_sql(media.year),
                                media.type.value,
                                media.vote_average,
-                               str_sql(media.poster_path),
+                               media.get_poster_image(),
                                state))
 
 
@@ -971,7 +971,7 @@ def insert_download_history(media_info: MetaBase):
                                    media_info.type.value,
                                    media_info.tmdb_id,
                                    media_info.vote_average,
-                                   str_sql(media_info.poster_path),
+                                   media_info.get_poster_image(),
                                    str_sql(media_info.overview),
                                    str_sql(media_info.org_string),
                                    str_sql(media_info.enclosure),

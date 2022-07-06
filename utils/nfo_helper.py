@@ -223,8 +223,8 @@ class NfoHelper:
             # 生成电影描述文件
             self.gen_movie_nfo_file(tmdbinfo, dir_path, file_name)
             # 保存海报
-            if media.poster_path:
-                self.__save_image(media.poster_path, dir_path)
+            if media.get_poster_image():
+                self.__save_image(media.get_poster_image(), dir_path)
             fanart_image = media.get_fanart_image()
             if fanart_image:
                 self.__save_image(fanart_image, dir_path, "fanart")
@@ -237,8 +237,8 @@ class NfoHelper:
                 # 根目录描述文件
                 self.gen_tv_nfo_file(tmdbinfo, os.path.dirname(dir_path))
                 # 根目录海报
-                if media.poster_path:
-                    self.__save_image(media.poster_path, os.path.dirname(dir_path))
+                if media.get_poster_image():
+                    self.__save_image(media.get_poster_image(), os.path.dirname(dir_path))
                 fanart_image = media.get_fanart_image()
                 if fanart_image:
                     self.__save_image(fanart_image, os.path.dirname(dir_path), "fanart")

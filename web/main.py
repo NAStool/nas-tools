@@ -710,7 +710,7 @@ def create_flask_app(config):
                     title = "%s %s" % (media_info.get_name(), media_info.get_season_episode_string())
             else:
                 title = "%s %s" % (media_info.get_title_string(), media_info.get_season_episode_string())
-            poster_path = media_info.poster_path
+            poster_path = media_info.get_poster_image()
             torrent_info = {'id': key, 'title': title, 'speed': speed, 'image': poster_path or "", 'state': state,
                             'progress': progress}
             if torrent_info not in DispTorrents:

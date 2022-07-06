@@ -296,6 +296,10 @@ class MetaBase(object):
         else:
             return "../static/img/tmdb.webp"
 
+    # 返回海报图片地址
+    def get_poster_image(self):
+        return self.poster_path if self.poster_path else ""
+
     # 返回促销信息
     def get_volume_factor_string(self):
         free_strs = {
