@@ -260,7 +260,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn me-auto" data-bs-dismiss="modal">关闭</button>
-        <button type="button" id="rename_btn" class="btn btn-primary">转移</button>
+        <button type="button" id="rename_btn" class="btn btn-primary">识别</button>
       </div>
     </div>
   </div>
@@ -308,7 +308,7 @@
     }
   }
 
-  //手动转移
+  //手动识别
   function manual_rename() {
     var type = $('input:radio[name=rename_type]:checked').val();
     var logid = $("#rename_logid").val();
@@ -358,7 +358,7 @@
     $("#rename_retmsg").hide();
     ajax_post("rename", data, function (ret) {
       $("#rename_btn").attr("disabled", false);
-      $("#rename_btn").text("转移");
+      $("#rename_btn").text("识别");
       if (ret.retcode == 0) {
         //处理成功
         setTimeout("navmenu('history')", 1000);
@@ -399,7 +399,7 @@
       $("#rename_episode_div").show();
     }
   });
-  //转移按钮
+  //识别按钮
   $("#rename_btn").click(function () {
     manual_rename();
   });
