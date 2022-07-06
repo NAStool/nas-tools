@@ -140,7 +140,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
                     Message().send_channel_msg(channel=in_from,
                                                title="%s 从TMDB查询不到媒体信息！" % media_info.title,
                                                user_id=user_id)
-                return
+                    return
             # 搜索
             __search_media(in_from, media_info, user_id)
         else:
