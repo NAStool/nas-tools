@@ -119,7 +119,6 @@ class Telegram(IMessageChannel):
                     image = media.get_message_image()
                 caption = "%s\n%s. %s" % (caption, index, media.get_title_vote_string())
                 index += 1
-            image = medias[0].get_message_image()
 
             if user_id:
                 chat_id = user_id

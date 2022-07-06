@@ -483,7 +483,7 @@ def create_flask_app(config):
                 tmdbinfos = Media().get_tmdb_infos(title=meta_info.get_name(), year=meta_info.year, num=20)
                 for tmdbinfo in tmdbinfos:
                     tmp_info = MetaInfo(title=SearchWord)
-                    tmp_info.set_tmdb_info(tmdbinfo, fanart=False)
+                    tmp_info.set_tmdb_info(tmdbinfo)
                     tmp_info.poster_path = "https://image.tmdb.org/t/p/w500%s" % tmp_info.poster_path
                     medias.append(tmp_info)
         return render_template("medialist.html",
@@ -699,7 +699,7 @@ def create_flask_app(config):
             if not name:
                 continue
             # 识别
-            media_info = Media().get_media_info(title=name, fanart=False)
+            media_info = Media().get_media_info(title=name)
             if not media_info:
                 continue
             if not media_info.tmdb_info:

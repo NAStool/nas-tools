@@ -225,8 +225,9 @@ class NfoHelper:
             # 保存海报
             if media.poster_path:
                 self.__save_image(media.poster_path, dir_path)
-            if media.fanart_image:
-                self.__save_image(media.fanart_image, dir_path, "fanart")
+            fanart_image = media.get_fanart_image()
+            if fanart_image:
+                self.__save_image(fanart_image, dir_path, "fanart")
         # 电视剧
         else:
             # 处理根目录
@@ -238,8 +239,9 @@ class NfoHelper:
                 # 根目录海报
                 if media.poster_path:
                     self.__save_image(media.poster_path, os.path.dirname(dir_path))
-                if media.fanart_image:
-                    self.__save_image(media.fanart_image, os.path.dirname(dir_path), "fanart")
+                fanart_image = media.get_fanart_image()
+                if fanart_image:
+                    self.__save_image(fanart_image, os.path.dirname(dir_path), "fanart")
             # 处理集
             if not os.path.exists(os.path.join(dir_path, "%s.nfo" % file_name)):
                 # 查询TMDB信息

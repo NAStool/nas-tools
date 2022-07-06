@@ -323,12 +323,13 @@ class DBHelper:
             # 删除站点重复数据
             cursor.execute(
                 """DELETE FROM SITE_USER_STATISTICS WHERE EXISTS (SELECT 1 FROM SITE_USER_STATISTICS p2 WHERE SITE_USER_STATISTICS.URL = p2.URL AND SITE_USER_STATISTICS.rowid < p2.rowid);""")
+            conn.commit()
             cursor.execute(
                 """DELETE FROM SITE_STATISTICS_HISTORY WHERE EXISTS (SELECT 1 FROM SITE_STATISTICS_HISTORY p2 WHERE SITE_STATISTICS_HISTORY.URL = p2.URL and SITE_STATISTICS_HISTORY.DATE = p2.DATE AND SITE_STATISTICS_HISTORY.rowid < p2.rowid);""")
+            conn.commit()
             # 删除系统消息表数据
             cursor.execute(
                 """DELETE FROM MESSAGES""")
-            # 提交
             conn.commit()
         except Exception as e:
             print(str(e))

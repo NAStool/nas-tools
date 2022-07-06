@@ -152,9 +152,9 @@ class Media:
             if info:
                 info['media_type'] = MediaType.MOVIE
                 log.info("【META】%s 识别到 电影：TMDBID=%s, 名称=%s, 上映日期=%s" % (file_media_name,
-                                                                  info.get('id'),
-                                                                  info.get('title'),
-                                                                  info.get('release_date')))
+                                                                        info.get('id'),
+                                                                        info.get('title'),
+                                                                        info.get('release_date')))
         else:
             # 有当前季和当前季集年份，使用精确匹配
             if media_year and season_number:
@@ -169,9 +169,9 @@ class Media:
             if info:
                 info['media_type'] = MediaType.TV
                 log.info("【META】%s 识别到 电视剧：TMDBID=%s, 名称=%s, 首播日期=%s" % (file_media_name,
-                                                                   info.get('id'),
-                                                                   info.get('name'),
-                                                                   info.get('first_air_date')))
+                                                                         info.get('id'),
+                                                                         info.get('name'),
+                                                                         info.get('first_air_date')))
         # 返回
         if info:
             return info
@@ -540,14 +540,13 @@ class Media:
                 ret_infos.append(tv)
         return ret_infos
 
-    def get_media_info(self, title, subtitle=None, mtype=None, strict=None, fanart=True):
+    def get_media_info(self, title, subtitle=None, mtype=None, strict=None):
         """
         只有名称信息，判别是电影还是电视剧并搜刮TMDB信息，用于种子名称识别
         :param title: 种子名称
         :param subtitle: 种子副标题
         :param mtype: 类型：电影、电视剧、动漫
         :param strict: 是否严格模式，为true时，不会再去掉年份再查一次
-        :param fanart: 是否需要拉取Fanart封面，为False时可以减少识别时间
         :return: 带有TMDB信息的MetaInfo对象
         """
         if not title:
@@ -617,7 +616,7 @@ class Media:
                 # 标记为未找到，避免再次查询
                 self.meta.update_meta_data({media_key: {'id': 0}})
         # 赋值返回
-        meta_info.set_tmdb_info(self.meta.get_meta_data_by_key(media_key), fanart=fanart)
+        meta_info.set_tmdb_info(self.meta.get_meta_data_by_key(media_key))
         return meta_info
 
     def get_media_info_on_files(self, file_list, tmdb_info=None, media_type=None, season=None,

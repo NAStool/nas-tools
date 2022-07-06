@@ -274,6 +274,8 @@ class MetaBase(object):
 
     # 返回背景图片地址
     def get_backdrop_path(self, default=True):
+        if not self.fanart_image:
+            self.__refresh_fanart_image()
         if self.fanart_image:
             return self.fanart_image
         elif self.backdrop_path:
@@ -283,6 +285,8 @@ class MetaBase(object):
 
     # 返回消息图片地址
     def get_message_image(self):
+        if not self.fanart_image:
+            self.__refresh_fanart_image()
         if self.fanart_image:
             return self.fanart_image
         elif self.backdrop_path:
@@ -342,7 +346,7 @@ class MetaBase(object):
                 return int(episode) == self.begin_episode
 
     # 整合TMDB识别的信息
-    def set_tmdb_info(self, info, fanart=True):
+    def set_tmdb_info(self, info):
         if not info:
             return
         self.type = self.__get_tmdb_type(info)
@@ -375,16 +379,22 @@ class MetaBase(object):
                 self.category = self.category_handler.get_anime_category(info)
         self.poster_path = "https://image.tmdb.org/t/p/w500%s" % info.get('poster_path') if info.get(
             'poster_path') else ""
-        if fanart:
-            self.fanart_image = self.get_fanart_image(search_type=self.type, tmdbid=info.get('id'))
         self.backdrop_path = "https://image.tmdb.org/t/p/w500%s" % info.get('backdrop_path') if info.get(
             'backdrop_path') else ""
 
     # 刷新Fanart图片
-    def refresh_fanart_image(self):
+    def __refresh_fanart_image(self):
         if not self.tmdb_id:
             return
-        self.fanart_image = self.get_fanart_image(search_type=self.type, tmdbid=self.tmdb_id)
+        if self.fanart_image:
+            return
+        self.fanart_image = self.__get_fanart_image(search_type=self.type, tmdbid=self.tmdb_id)
+
+    # 获取Fanart图片
+    def get_fanart_image(self):
+        if not self.fanart_image:
+            self.__refresh_fanart_image()
+        return self.fanart_image
 
     # 整合种了信息
     def set_torrent_info(self,
@@ -417,7 +427,7 @@ class MetaBase(object):
     # 增加cache，优化资源检索时性能
     @classmethod
     @lru_cache(maxsize=512)
-    def get_fanart_image(cls, search_type, tmdbid, default=None):
+    def __get_fanart_image(cls, search_type, tmdbid, default=None):
         if not search_type:
             return ""
         if tmdbid:

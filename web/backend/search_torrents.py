@@ -46,13 +46,12 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                     doubaninfo = DoubanApi().tv_detail(doubanid)
                 media_info = Media().get_media_info(mtype=media_type,
                                                     title="%s %s" % (doubaninfo.get("title"), doubaninfo.get("year")),
-                                                    strict=True,
-                                                    fanart=False)
+                                                    strict=True)
             else:
                 media_info = MetaInfo(mtype=media_type or mtype, title=content)
-                media_info.set_tmdb_info(Media().get_tmdb_info(mtype=media_type or mtype, tmdbid=tmdbid), fanart=False)
+                media_info.set_tmdb_info(Media().get_tmdb_info(mtype=media_type or mtype, tmdbid=tmdbid))
         else:
-            media_info = Media().get_media_info(mtype=media_type or mtype, title=content, fanart=False)
+            media_info = Media().get_media_info(mtype=media_type or mtype, title=content)
         if not media_info or not media_info.tmdb_info:
             return -1, "%s 查询不到媒体信息，请确认名称是否正确！" % content
         # 查找的季
@@ -134,14 +133,12 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         media_info = SEARCH_MEDIA_CACHE[choose]
         # 如果是豆瓣数据，需要重新查询TMDB的数据
         if media_info.douban_id:
-            media_info = Media().get_media_info(title="%s %s" % (media_info.title, media_info.year), mtype=media_info.type, strict=True, fanart=False)
+            media_info = Media().get_media_info(title="%s %s" % (media_info.title, media_info.year), mtype=media_info.type, strict=True)
         if not media_info or not media_info.tmdb_info:
             Message().send_channel_msg(channel=in_from,
                                        title="%s 从TMDB查询不到媒体信息！" % media_info.title,
                                        user_id=user_id)
             return
-        # 重新获取Fanart图片
-        media_info.refresh_fanart_image()
         if SEARCH_MEDIA_TYPE == "SEARCH":
             # 搜索
             __search_media(in_from, media_info, user_id)
@@ -207,7 +204,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         else:
             for tmdb_info in tmdb_infos:
                 meta_info = MetaInfo(title=content)
-                meta_info.set_tmdb_info(tmdb_info, fanart=False)
+                meta_info.set_tmdb_info(tmdb_info)
                 SEARCH_MEDIA_CACHE.append(meta_info)
 
         if 1 == len(SEARCH_MEDIA_CACHE):
