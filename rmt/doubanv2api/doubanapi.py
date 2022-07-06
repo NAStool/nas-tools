@@ -2,6 +2,9 @@
 import logging
 from datetime import datetime
 from functools import lru_cache
+
+import requests
+
 from utils.functions import singleton
 from utils.http_utils import RequestUtils
 
@@ -115,7 +118,7 @@ class DoubanApi(object):
                 'content-type': 'application/json'}
     _api_key = "0ac44ae016490db2204ce0a042db2916"
     _base_url = "https://frodo.douban.com/api/v2"
-    _session = RequestUtils(headers=_headers)
+    _req = RequestUtils(headers=_headers, session=requests.Session())
 
     def __init__(self):
         pass
@@ -129,7 +132,7 @@ class DoubanApi(object):
         if kwargs:
             params.update(kwargs)
 
-        resp = cls._session.get_res(url=req_url, params=params)
+        resp = cls._req.get_res(url=req_url, params=params)
         return resp.json() if resp else None
 
     def search(self, keyword, start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
