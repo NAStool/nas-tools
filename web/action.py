@@ -18,6 +18,7 @@ from pt.mediaserver.jellyfin import Jellyfin
 from pt.mediaserver.plex import Plex
 from pt.rss import Rss
 from pt.sites import Sites
+from pt.subtitle import Subtitle
 from pt.torrent import Torrent
 from rmt.category import Category
 from rmt.doubanv2api.doubanapi import DoubanApi
@@ -82,7 +83,8 @@ class WebAction:
             "movie_calendar_data": self.__movie_calendar_data,
             "tv_calendar_data": self.__tv_calendar_data,
             "modify_tmdb_cache": self.__modify_tmdb_cache,
-            "rss_detail": self.__rss_detail
+            "rss_detail": self.__rss_detail,
+            "truncate_blacklist": self.__truncate_blacklist
         }
 
     def action(self, cmd, data):
@@ -754,6 +756,7 @@ class WebAction:
         wechat_reload = False
         telegram_reload = False
         category_reload = False
+        subtitle_reload = False
         # 修改配置
         for key, value in cfgs:
             if key == "test" and value:
@@ -778,6 +781,8 @@ class WebAction:
                 wechat_reload = True
             if key.startswith("media.category"):
                 category_reload = True
+            if key.startswith("subtitle"):
+                subtitle_reload = True
         # 保存配置
         if not config_test:
             self.config.save_config(cfg)
@@ -806,6 +811,9 @@ class WebAction:
         # 重载二级分类
         if category_reload:
             Category().init_config()
+        # 重载字幕
+        if subtitle_reload:
+            Subtitle().init_config()
 
         return {"code": 0}
 
@@ -1274,6 +1282,13 @@ class WebAction:
         if MetaHelper().modify_meta_data(data.get("key"), data.get("title")):
             MetaHelper().save_meta_data(force=True)
         return {"code": 0}
+
+    @staticmethod
+    def __truncate_blacklist(data):
+        """
+        清空文件转移黑名单记录
+        """
+        return {"code": truncate_transfer_blacklist()}
 
     @staticmethod
     def parse_sites_string(notes):

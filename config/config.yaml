@@ -297,8 +297,14 @@ subtitle:
     password:
   # 配置ChineseSubFinder的服务器地址和API Key，API Key在ChineseSubFinder->配置中心->实验室->API Key处生成
   chinesesubfinder:
+    # IP地址和端口
     host:
+    # API KEY
     api_key:
+    # NASTOOL媒体的映射路径
+    local_path:
+    # ChineseSubFinder媒体的映射路径
+    remote_path:
 
 # 【配置安全】
 security:

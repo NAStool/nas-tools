@@ -92,6 +92,20 @@
             </div>
           </div>
         </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">本地路径 <span class="form-help bg-red-lt" title="NASTool本地媒体库的路径，如为Docker安装则为映射路径，如NASTool与ChineseSubFinder的媒体目录路径一致则不用配置" data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.local_path or '' }}{% endif %}{% endif %}" id="subtitle.chinesesubfinder.local_path" class="form-control" placeholder="绝对路径">
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="mb-3">
+              <label class="form-label">远程路径 <span class="form-help bg-red-lt" title="ChineseSubFinder的媒体目录映射路径，会用此路径替换掉本地路径后传递给ChineseSubFinder下载字幕，如NASTool与ChineseSubFinder的媒体目录路径一致则不用配置" data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.remote_path or '' }}{% endif %}{% endif %}" id="subtitle.chinesesubfinder.remote_path" class="form-control" placeholder="绝对路径">
+            </div>
+          </div>
+        </div>
       </div>
       <div class="modal-footer">
         <a href="javascript:save_subtitle_config('chinesesubfinder')" id="chinesesubfinder_save_btn" class="btn btn-primary">确定</a>
@@ -123,7 +137,7 @@
   //保存配置、关闭和刷新页面
   function save_subtitle_config(type){
     $("#modal-"+type).modal('hide');
-    save_config(type, function (ret) {
+    save_config(type, function(ret) {
       navmenu('subtitle');
     });
   }

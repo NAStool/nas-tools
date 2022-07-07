@@ -322,6 +322,12 @@ def insert_transfer_blacklist(path):
         return update_by_sql(sql, (str_sql(path),))
 
 
+# 清空黑名单记录
+def truncate_transfer_blacklist():
+    sql = "DELETE FROM TRANSFER_BLACKLIST"
+    return update_by_sql(sql)
+
+
 # 查询所有站点信息
 def get_config_site():
     return select_by_sql(
