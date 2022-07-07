@@ -809,9 +809,9 @@ def create_flask_app(config):
         # 站点列表
         CfgSites = get_config_site()
         # 任务列表
-        Tasks = ['']
+        Tasks = get_brushtasks()
         return render_template("site/brushtask.html",
-                               Count=1,
+                               Count=len(Tasks),
                                Sites=CfgSites,
                                Tasks=Tasks)
 

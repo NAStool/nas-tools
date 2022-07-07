@@ -1298,6 +1298,52 @@ class WebAction:
         """
         新增刷流任务
         """
+        # 输入值
+        brushtask_id = data.get("brushtask_id")
+        brushtask_name = data.get("brushtask_name")
+        brushtask_site = data.get("brushtask_site")
+        brushtask_inteval = data.get("brushtask_inteval")
+        brushtask_downloader = data.get("brushtask_downloader")
+        brushtask_totalsize = data.get("brushtask_totalsize")
+        brushtask_state = data.get("brushtask_state")
+        brushtask_transfer = 'Y' if data.get("brushtask_transfer") else 'N'
+        brushtask_free = data.get("brushtask_free")
+        brushtask_torrent_size = data.get("brushtask_torrent_size")
+        brushtask_include = data.get("brushtask_include")
+        brushtask_exclude = data.get("brushtask_exclude")
+        brushtask_seedtime = data.get("brushtask_seedtime")
+        brushtask_seedratio = data.get("brushtask_seedratio")
+        brushtask_seedsize = data.get("brushtask_seedsize")
+        # 选种规则
+        rss_rule = {
+            "free": brushtask_free,
+            "size": brushtask_torrent_size,
+            "include": brushtask_include,
+            "exclude": brushtask_exclude
+        }
+        # 删除规则
+        remove_rule = {
+            "time": brushtask_seedtime,
+            "ratio": brushtask_seedratio,
+            "uploadsize": brushtask_seedsize
+        }
+        # 添加记录
+        item = {
+            "name": brushtask_name,
+            "site": brushtask_site,
+            "free": brushtask_free,
+            "interval": brushtask_inteval,
+            "downloader": brushtask_downloader,
+            "seed_size": brushtask_totalsize,
+            "transfer": brushtask_transfer,
+            "state": brushtask_state,
+            "rss_rule": rss_rule,
+            "remove_rule": remove_rule
+        }
+        if brushtask_id:
+            delete_brushtask(brushtask_id)
+        insert_brushtask(item)
+        return {"code": 0}
 
     @staticmethod
     def __del_brushtask(data):

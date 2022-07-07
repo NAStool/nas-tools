@@ -1013,7 +1013,42 @@ def is_media_downloaded(title, year):
 
 # 新增刷流任务
 def insert_brushtask(item):
-    pass
+    sql = '''
+        INSERT INTO SITE_BRUSH_TASK(
+            NAME,
+            SITE,
+            FREELEECH,
+            RSS_RULE,
+            REMOVE_RULE,
+            SEED_SIZE,
+            INTEVAL,
+            DOWNLOADER,
+            TRANSFER,
+            DOWNLOAD_COUNT,
+            REMOVE_COUNT,
+            DOWNLOAD_SIZE,
+            UPLOAD_SIZE,
+            STATE,
+            LST_MOD_DATE
+        ) VALUES (
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        )
+    '''
+    return update_by_sql(sql, (item.get('name'),
+                               item.get('site'),
+                               item.get('free'),
+                               str(item.get('rss_rule')),
+                               str(item.get('remove_rule')),
+                               item.get('seed_size'),
+                               item.get('interval'),
+                               item.get('downloader'),
+                               item.get('transfer'),
+                               0,
+                               0,
+                               0,
+                               0,
+                               item.get('state'),
+                               time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
 
 
 # 删除刷流任务
@@ -1027,14 +1062,14 @@ def delete_brushtask(brush_id):
 # 查询刷流任务
 def get_brushtasks(brush_id=None):
     if brush_id:
-        sql = "SELECT T.ID,T.NAME,T.SITE,T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
+        sql = "SELECT T.ID,T.NAME,T.SITE,C.NAME,T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
               "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
               "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE " \
-              "FROM SITE_BRUSH_TASK T WHERE T.ID = ?"
+              "FROM SITE_BRUSH_TASK T, CONFIG_SITE C WHERE T.SITE=C.ID T.ID = ?"
         return select_by_sql(sql, (brush_id,))
     else:
-        sql = "SELECT T.ID,T.NAME,T.SITE,T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
+        sql = "SELECT T.ID,T.NAME,T.SITE,C.NAME,T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
               "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
               "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE " \
-              "FROM SITE_BRUSH_TASK T"
+              "FROM SITE_BRUSH_TASK T, CONFIG_SITE C WHERE T.SITE=C.ID"
         return select_by_sql(sql)
