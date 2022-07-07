@@ -30,10 +30,10 @@
         <div class="card-header">
           <h3 class="card-title">名称</h3>
           <div class="card-actions btn-actions">
-              <a href="#" class="btn-action" title="编辑任务">
+              <a href="javascript:edit_brushtask_modal('{{ Task[0] }}')" class="btn-action" title="编辑任务">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
               </a>
-              <a href="#" class="btn-action" title="删除任务">
+              <a href="javascript:del_brushtask_modal('{{ Task[0] }}', '{{ Task[1] }}')" class="btn-action" title="删除任务">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><desc>Download more icon variants from https://tabler-icons.io/i/x</desc><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
               </a>
             </div>
@@ -74,7 +74,7 @@
               <div class="datagrid-content">Qbittorrent</div>
             </div>
             <div class="datagrid-item">
-              <div class="datagrid-title">识别转移</div>
+              <div class="datagrid-title">转移到媒体库</div>
               <div class="datagrid-content">
                 <span class="status status-green">
                   开
@@ -130,10 +130,366 @@
   </div>
 </div>
 {% endif %}
+<div class="modal modal-blur fade" id="modal-brushtask" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="modal-title" id="brushtask_modal_title">新建任务</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">任务名称</label>
+                <input type="text" id="brushtask_name" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">站点</label>
+                <select class="form-select" id="brushtask_site">
+                  <option value="" selected>请选择</option>
+                  {% for site in Sites %}
+                  <option value="{{ site[0] }}">{{ site[1] }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">刷新间隔(分钟) <span class="form-help bg-red-lt" title="检查站点RSS更新的间隔时间，为了减小PT站压力，建议不小于10分钟" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="brushtask_inteval" class="form-control" placeholder="30">
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">下载器 <span class="form-help bg-red-lt" title="选择刷流任务使用的下载器，如需识别转移到媒体库，则需选择当前正在使用的下载器" data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="brushtask_downloader">
+                  <option value="" selected>请选择</option>
+                  <option value="qbittorrent">Qbittorrent</option>
+                  <option value="transmission">Transmission</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">保种体积(GB) <span class="form-help bg-red-lt" title="该任务所有下载任务的保种体积超过设定值时不再新增下载" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="brushtask_totalsize" class="form-control" placeholder="">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">状态</label>
+                <select class="form-select" id="brushtask_state">
+                  <option value="Y">正常</option>
+                  <option value="N">暂停</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-4">
+            <div class="mb-3">
+              <label class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="brushtask_transfer">
+                <span class="form-check-label">转移到媒体库 <span class="form-help bg-red-lt" title="开启后刷流的下载也会进行转移并识别重命名到媒体库" data-bs-toggle="tooltip">?</span></span>
+              </label>
+            </div>
+          </div>
+          </div>
+        </div>
+        <div class="hr-text hr-text-center hr-text-spaceless">选种规则</div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">促销</label>
+                <select class="form-select" id="brushtask_free">
+                  <option value="" selected>全部</option>
+                  <option value="FREE">免费</option>
+                  <option value="2XFREE">2X免费</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">种子大小(GB) <span class="form-help bg-red-lt" title="设置大小范围的种子才会下载，介于时使用英文逗号,分隔两个值" data-bs-toggle="tooltip">?</span></label>
+                <div class="input-group">
+                  <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_torrent_size_btn">
+                    全部
+                  </button>
+                  <input type="hidden" id="brushtask_torrent_size_do">
+                  <div class="dropdown-menu" style="">
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="javascript:filter_item_change('', 'brushtask_torrent_size', this)">
+                      全部
+                    </a>
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="javascript:filter_item_change('gt', 'brushtask_torrent_size', this)">
+                      大于
+                    </a>
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="javascript:filter_item_change('lt', 'brushtask_torrent_size', this)">
+                      小于
+                    </a>
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="javascript:filter_item_change('bt', 'brushtask_torrent_size', this)">
+                      介于
+                    </a>
+                  </div>
+                  <input type="text" class="form-control" id="brushtask_torrent_size" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">包含 <span class="form-help bg-red-lt" title="种子名称或副标题中包括对应关键字或者匹配正则式时才会下载" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="brushtask_include" class="form-control" placeholder="关键字或正则表达式">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">排除 <span class="form-help bg-red-lt" title="种子名称或副标题中包括对应关键字或者匹配正则式时不会下载" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="brushtask_exclude" class="form-control" placeholder="关键字或正则表达式">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hr-text hr-text-center hr-text-spaceless">删种规则</div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">做种时间(小时) <span class="form-help bg-red-lt" title="做种超过设定时间时会删除下载任务（包括已下载的文件）" data-bs-toggle="tooltip">?</span></label>
+                <div class="input-group">
+                  <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_seedtime_btn">
+                    忽略
+                  </button>
+                  <input type="hidden" id="brushtask_seedtime_do">
+                  <div class="dropdown-menu" style="">
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="javascript:filter_item_change('', 'brushtask_seedtime', this)">
+                      忽略
+                    </a>
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="javascript:filter_item_change('gt', 'brushtask_seedtime', this)">
+                      大于
+                    </a>
+                  </div>
+                  <input type="text" class="form-control" id="brushtask_seedtime" readonly>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">分享率 <span class="form-help bg-red-lt" title="分享率超过设定值时会删除下载任务（包括已下载的文件）" data-bs-toggle="tooltip">?</span></label>
+                <div class="input-group">
+                  <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_seedratio_btn">
+                    忽略
+                  </button>
+                  <input type="hidden" id="brushtask_seedratio_do">
+                  <div class="dropdown-menu" style="">
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="javascript:filter_item_change('', 'brushtask_seedratio', this)">
+                      忽略
+                    </a>
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="javascript:filter_item_change('gt', 'brushtask_seedratio', this)">
+                      大于
+                    </a>
+                  </div>
+                  <input type="text" class="form-control" id="brushtask_seedratio" readonly>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">上传量(GB) <span class="form-help bg-red-lt" title="上传量超过设定值时会删除下载任务（包括已下载的文件）" data-bs-toggle="tooltip">?</span></label>
+                <div class="input-group">
+                  <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_seedsize_btn">
+                    忽略
+                  </button>
+                  <input type="hidden" id="brushtask_seedsize_do">
+                  <div class="dropdown-menu" style="">
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="javascript:filter_item_change('', 'brushtask_seedsize', this)">
+                      忽略
+                    </a>
+                    <a class="dropdown-item" href="javascript:void(0)" onclick="javascript:filter_item_change('gt', 'brushtask_seedsize', this)">
+                      大于
+                    </a>
+                  </div>
+                  <input type="text" class="form-control" id="brushtask_seedsize" readonly>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:add_brushtask_job()" id="brushtask_add_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   // 显示新增刷流任务
   function show_brushtask_modal(){
-
+    $("#brushtask_modal_title").text("新增任务");
+    $("#modal-brushtask").modal('show');
   }
+
+  // 显示编辑刷流任务
+  function edit_brushtask_modal(brushid){
+    ajax_post("brushtask_detail", {"id": brushid}, function(ret){
+      $("#brushtask_modal_title").text("编辑任务");
+      $("#modal-brushtask").modal('show');
+    });
+  }
+
+  // 显示删除刷流任务
+  function del_brushtask_modal(brushid, name){
+    show_confirm_modal("立即删除刷流任务：" + name + "？" , function(){
+      hide_confirm_modal();
+      ajax_post("del_brushtask", {"id": brushid}, function(ret){
+        navmenu('brushtask');
+      });
+    });
+  }
+
+  // 选择了站点
+  function brushtask_site_change(site_id){
+    if(!site_id){
+      return;
+    }
+    ajax_post("get_site", {"id": site_id}, function(ret){
+      $("#brushtask_free").empty();
+      $("#brushtask_free").append('<option value="" selected>全部</option>');
+      if(ret.site_free){
+        $("#brushtask_free").append('<option value="FREE">免费</option>');
+      }
+      if(ret.site_2xfree){
+        $("#brushtask_free").append('<option value="2XFREE">2X免费</option>');
+      }
+    });
+  }
+
+  // 范围条件
+  function filter_item_change(type, id, item){
+    input_obj = $("#" + id);
+    button_obj = $("#" + id + "_btn");
+    do_obj = $("#" + id + "_do");
+    if(!type){
+      input_obj.val("");
+      o_obj.val("");
+      input_obj.attr("readonly", true);
+    }else{
+      input_obj.removeAttr("readonly");
+      do_obj.val(type);
+    }
+    button_obj.text($(item).text());
+  }
+
+  // 新增任务保存
+  function add_brushtask_job(){
+    // 检查输入项
+    var brushtask_name = $("#brushtask_name").val();
+    if(!brushtask_name){
+      $("#brushtask_name").addClass("is-invalid");
+      return;
+    } else {
+      $("#brushtask_name").removeClass("is-invalid");
+    }
+    var brushtask_site = $("#brushtask_site").val();
+    if(!brushtask_site){
+      $("#brushtask_site").addClass("is-invalid");
+      return;
+    } else {
+      $("#brushtask_site").removeClass("is-invalid");
+    }
+    var brushtask_inteval = $("#brushtask_inteval").val();
+    if(!brushtask_inteval){
+      $("#brushtask_inteval").addClass("is-invalid");
+      return;
+    } else {
+      $("#brushtask_inteval").removeClass("is-invalid");
+    }
+    var brushtask_downloader = $("#brushtask_downloader").val();
+    if(!brushtask_downloader){
+      $("#brushtask_downloader").addClass("is-invalid");
+      return;
+    } else {
+      $("#brushtask_downloader").removeClass("is-invalid");
+    }
+    var brushtask_totalsize = $("#brushtask_totalsize").val();
+    var brushtask_state = $("#brushtask_state").val();
+    var brushtask_transfer = $("#brushtask_transfer").prop('checked');
+    var brushtask_free = $("#brushtask_free").val();
+    var brushtask_torrent_size_do = $("#brushtask_torrent_size_do").val();
+    var brushtask_torrent_size = $("#brushtask_torrent_size").val();
+    if(brushtask_torrent_size_do && !brushtask_torrent_size){
+      $("#brushtask_torrent_size").addClass("is-invalid");
+      return;
+    } else {
+      $("#brushtask_torrent_size").removeClass("is-invalid");
+    }
+    var brushtask_include = $("#brushtask_include").val();
+    var brushtask_exclude = $("#brushtask_exclude").val();
+    var brushtask_seedtime_do = $("#brushtask_seedtime_do").val();
+    var brushtask_seedtime = $("#brushtask_seedtime").val();
+    if(brushtask_seedtime_do && !brushtask_seedtime){
+      $("#brushtask_seedtime").addClass("is-invalid");
+      return;
+    } else {
+      $("#brushtask_seedtime").removeClass("is-invalid");
+    }
+    var brushtask_seedratio_do = $("#brushtask_seedratio_do").val();
+    var brushtask_seedratio = $("#brushtask_seedratio").val();
+    if(brushtask_seedratio_do && !brushtask_seedratio){
+      $("#brushtask_seedratio").addClass("is-invalid");
+      return;
+    } else {
+      $("#brushtask_seedratio").removeClass("is-invalid");
+    }
+    var brushtask_seedsize_do = $("#brushtask_seedsize_do").val();
+    var brushtask_seedsize = $("#brushtask_seedsize").val();
+    if(brushtask_seedsize_do && !brushtask_seedsize){
+      $("#brushtask_seedsize").addClass("is-invalid");
+      return;
+    } else {
+      $("#brushtask_seedsize").removeClass("is-invalid");
+    }
+
+    // 参数
+    var params = {
+      brushtask_name: brushtask_name,
+      brushtask_site: brushtask_site,
+      brushtask_inteval: brushtask_inteval,
+      brushtask_downloader: brushtask_downloader,
+      brushtask_totalsize: brushtask_totalsize,
+      brushtask_state: brushtask_state,
+      brushtask_transfer: brushtask_transfer,
+      brushtask_free: brushtask_free,
+      brushtask_torrent_size: brushtask_torrent_size_do + "#" + brushtask_torrent_size,
+      brushtask_include: brushtask_include,
+      brushtask_exclude: brushtask_exclude,
+      brushtask_seedtime: brushtask_seedtime_do + "#" + brushtask_seedtime,
+      brushtask_seedratio: brushtask_seedratio_do + "#" + brushtask_seedratio,
+      brushtask_seedsize: brushtask_seedsize_do + "#" + brushtask_seedsize
+    };
+
+    ajax_post("add_brushtask", params, function(ret){
+      $("#modal-brushtask").modal('hide');
+      if(ret.code == 0){
+        navmenu('brushtask');
+      }else{
+        show_fail_modal("任务添加失败："+ ret.msg +"！");
+      }
+    });
+  }
+
+  // 绑定事件
+  $(document).ready(function(){
+    $("#brushtask_site").change(function(){
+      brushtask_site_change($(this).val());
+    });
+  });
 
 </script>

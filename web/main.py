@@ -806,9 +806,14 @@ def create_flask_app(config):
     @App.route('/brushtask', methods=['POST', 'GET'])
     @login_required
     def brushtask():
+        # 站点列表
+        CfgSites = get_config_site()
+        # 任务列表
+        Tasks = ['']
         return render_template("site/brushtask.html",
                                Count=1,
-                               Tasks=[''])
+                               Sites=CfgSites,
+                               Tasks=Tasks)
 
     # 服务页面
     @App.route('/service', methods=['POST', 'GET'])

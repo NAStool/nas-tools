@@ -1009,3 +1009,32 @@ def is_media_downloaded(title, year):
         return True
     else:
         return False
+
+
+# 新增刷流任务
+def insert_brushtask(item):
+    pass
+
+
+# 删除刷流任务
+def delete_brushtask(brush_id):
+    sql = "DELETE FROM SITE_BRUSH_TASK WHERE ID = ?"
+    update_by_sql(sql, (brush_id,))
+    sql = "DELETE FROM SITE_BRUSH_TORRENTS WHERE TASK_ID = ?"
+    update_by_sql(sql, (brush_id,))
+
+
+# 查询刷流任务
+def get_brushtasks(brush_id=None):
+    if brush_id:
+        sql = "SELECT T.ID,T.NAME,T.SITE,T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
+              "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
+              "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE " \
+              "FROM SITE_BRUSH_TASK T WHERE T.ID = ?"
+        return select_by_sql(sql, (brush_id,))
+    else:
+        sql = "SELECT T.ID,T.NAME,T.SITE,T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
+              "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
+              "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE " \
+              "FROM SITE_BRUSH_TASK T"
+        return select_by_sql(sql)

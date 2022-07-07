@@ -84,7 +84,10 @@ class WebAction:
             "tv_calendar_data": self.__tv_calendar_data,
             "modify_tmdb_cache": self.__modify_tmdb_cache,
             "rss_detail": self.__rss_detail,
-            "truncate_blacklist": self.__truncate_blacklist
+            "truncate_blacklist": self.__truncate_blacklist,
+            "add_brushtask": self.__add_brushtask,
+            "del_brushtask": self.__del_brushtask,
+            "brushtask_detail": self.__brushtask_detail
         }
 
     def action(self, cmd, data):
@@ -1289,6 +1292,31 @@ class WebAction:
         清空文件转移黑名单记录
         """
         return {"code": truncate_transfer_blacklist()}
+
+    @staticmethod
+    def __add_brushtask(data):
+        """
+        新增刷流任务
+        """
+
+    @staticmethod
+    def __del_brushtask(data):
+        """
+        删除刷流任务
+        """
+        brush_id = data.get("id")
+        if brush_id:
+            delete_brushtask(brush_id)
+            return {"code": 0}
+        return {"code": 1}
+
+    @staticmethod
+    def __brushtask_detail(data):
+        """
+        查询刷流任务详情
+        """
+        brush_id = data.get("id")
+        return {"code": 0, "tasks": get_brushtasks(brush_id)}
 
     @staticmethod
     def parse_sites_string(notes):
