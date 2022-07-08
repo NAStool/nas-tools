@@ -153,6 +153,7 @@ class DouBan:
                         log.debug(f"【DOUBAN】第 {page_number} 页解析完成，共获取到 {sucess_urlnum} 个媒体")
                     except Exception as err:
                         log.error(f"【DOUBAN】第 {page_number} 页解析出错：%s" % str(err))
+                        break
                     # 继续下一页
                     if continue_next_page:
                         start_number += perpage_number

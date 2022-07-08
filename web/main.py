@@ -3,6 +3,8 @@ import logging
 import os.path
 import traceback
 from math import floor
+from urllib import parse
+
 from flask import Flask, request, json, render_template, make_response, session, send_from_directory
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 from werkzeug.security import check_password_hash
@@ -809,7 +811,29 @@ def create_flask_app(config):
         # 站点列表
         CfgSites = get_config_site()
         # 任务列表
-        Tasks = get_brushtasks()
+        brushtasks = get_brushtasks()
+        Tasks = []
+        for task in brushtasks:
+            Tasks.append({
+                "id": task[0],
+                "name": task[1],
+                "site": task[3],
+                "inteval": task[4],
+                "state": task[5],
+                "downloader": task[6],
+                "transfer": task[7],
+                "free": task[8],
+                "rss_rule": eval(task[9]),
+                "remove_rule": eval(task[10]),
+                "seed_size": task[11],
+                "download_count": task[12],
+                "remove_count": task[13],
+                "download_size": str_filesize(task[14]),
+                "upload_size": str_filesize(task[15]),
+                "lst_mod_date": task[16],
+                "site_url": "http://%s" % parse.urlparse(task[17]).netloc if task[17] else ""
+            })
+
         return render_template("site/brushtask.html",
                                Count=len(Tasks),
                                Sites=CfgSites,
@@ -1437,5 +1461,10 @@ def create_flask_app(config):
     @App.template_filter('rss_filter_string')
     def rss_filter_string(notes):
         return WebAction().parse_filter_string(notes)
+
+    # 刷流规则过滤器
+    @App.template_filter('brush_rule_string')
+    def brush_rule_string(rules):
+        return WebAction.parse_brush_rule_string(rules)
 
     return App
