@@ -62,13 +62,21 @@
             <div class="datagrid-item">
               <div class="datagrid-title">选种规则</div>
               <div class="datagrid-content">
+                {% if Task.rss_rule|brush_rule_string|safe %}
                 {{ Task.rss_rule|brush_rule_string|safe }}
+                {% else %}
+                无限制
+                {% endif %}
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">删种规则</div>
               <div class="datagrid-content">
+                {% if Task.remove_rule|brush_rule_string|safe %}
                 {{ Task.remove_rule|brush_rule_string|safe }}
+                {% else %}
+                未启用
+                {% endif %}
               </div>
             </div>
             <div class="datagrid-item">
@@ -367,7 +375,7 @@
         $("#brushtask_downloader").val(ret.task.downloader);
         $("#brushtask_totalsize").val(ret.task.seed_size);
         $("#brushtask_state").val(ret.task.state);
-        if(ret.task.transfer){
+        if(ret.task.transfer == "Y"){
           $("#brushtask_transfer").prop("checked", true);
         }else{
           $("#brushtask_transfer").prop("checked", false);

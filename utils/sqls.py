@@ -1093,8 +1093,8 @@ def add_brushtask_download_count(brush_id, size):
         return
     if not str(size).isdigit():
         return
-    sql = "UPDATE SITE_BRUSH_TASK T SET T.DOWNLOAD_COUNT = T.DOWNLOAD_COUNT + 1, T.DOWNLOAD_SIZE = T.DOWNLOAD_SIZE + ? WHERE T.ID = ?"
-    return update_by_sql(sql, (int(size), brush_id))
+    sql = "UPDATE SITE_BRUSH_TASK SET DOWNLOAD_COUNT = DOWNLOAD_COUNT + 1, DOWNLOAD_SIZE = DOWNLOAD_SIZE + ?, LST_MOD_DATE = ? WHERE ID = ?"
+    return update_by_sql(sql, (int(size), time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())), brush_id))
 
 
 # 增加刷流下载的种子信息

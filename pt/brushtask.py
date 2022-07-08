@@ -18,7 +18,7 @@ from utils.types import MediaType
 
 @singleton
 class BrushTask(object):
-    _scheduler = BackgroundScheduler(timezone="Asia/Shanghai")
+    _scheduler = None
     _brush_tasks = []
     _torrents_cache = []
     _qb_client = "qbittorrent"
@@ -30,8 +30,10 @@ class BrushTask(object):
     def init_config(self):
         # 移除现有任务
         try:
-            self._scheduler.remove_all_jobs()
-            self._scheduler.shutdown()
+            if self._scheduler:
+                self._scheduler.remove_all_jobs()
+                self._scheduler.shutdown()
+                self._scheduler = None
         except Exception as e:
             print(str(e))
         # 读取任务任务列表
@@ -57,6 +59,7 @@ class BrushTask(object):
             return
         # 启动RSS任务
         task_flag = False
+        self._scheduler = BackgroundScheduler(timezone="Asia/Shanghai")
         for task in self._brush_tasks:
             if task.get("state") == "Y" and task.get("interval") and str(task.get("interval")).isdigit():
                 task_flag = True
@@ -69,9 +72,10 @@ class BrushTask(object):
             self._scheduler.add_job(func=self.remove_tasks_torrents,
                                     trigger='interval',
                                     seconds=BRUSH_REMOVE_TORRENTS_INTERVAL)
-        # 启动
-        self._scheduler.print_jobs()
-        self._scheduler.start()
+            # 启动
+            self._scheduler.print_jobs()
+            self._scheduler.start()
+            log.info("【RUN】刷流服务启动...")
 
     def get_brushtask_info(self, taskid):
         for task in self._brush_tasks:
@@ -95,6 +99,7 @@ class BrushTask(object):
         task_name = taskinfo.get("name")
         site_name = taskinfo.get("site")
         rss_url = taskinfo.get("rss_url")
+        log.info("【BRUSH】开始站点 %s 的刷流任务：%s..." % (site_name, task_name))
         if not rss_url:
             log.warn("【BRUSH】站点 %s 未配置RSS订阅地址，无法刷流" % site_name)
             return
@@ -109,6 +114,7 @@ class BrushTask(object):
             return
         else:
             log.info("【BRUSH】%s RSS获取数据：%s" % (site_name, len(rss_result)))
+        success_count = 0
         for res in rss_result:
             try:
                 # 种子名
@@ -148,10 +154,11 @@ class BrushTask(object):
                                         size=size,
                                         taskid=taskid,
                                         transfer=True if taskinfo.get("transfer") == 'Y' else False)
-
+                success_count += 1
             except Exception as err:
                 print(str(err))
                 continue
+        log.info("【BRUSH】任务 %s 本次添加了 %s 个下载" % (task_name, success_count))
 
     def remove_tasks_torrents(self):
         """
@@ -159,6 +166,7 @@ class BrushTask(object):
         由定时服务调用
         """
         # 遍历所有任务
+        delete_count = 0
         for taskinfo in self._brush_tasks:
             # 查询所有种子
             taskid = taskinfo.get("id")
@@ -181,6 +189,7 @@ class BrushTask(object):
                                                 uploaded=uploaded):
                         log.info("【BRUSH】%s 达到删种条件，删除下载任务..." % torrent.get('name'))
                         Qbittorrent().delete_torrents(delete_file=True, ids=torrent_id)
+                        delete_count += 1
             else:
                 torrents = Transmission().get_torrents(ids=torrent_ids, status=["seeding", "seed_pending"])
                 for torrent in torrents:
@@ -201,6 +210,9 @@ class BrushTask(object):
                                                 uploaded=uploaded):
                         log.info("【BRUSH】%s 达到删种条件，删除下载任务..." % torrent.get('name'))
                         Transmission().delete_torrents(delete_file=True, ids=torrent_id)
+                        delete_count += 1
+        if delete_count:
+            log.info("【BRUSH】共删除 %s 个刷流下载任务" % delete_count)
 
     def __is_allow_new_torrent(self, taskid, size=0):
         """
