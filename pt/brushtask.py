@@ -215,7 +215,7 @@ class BrushTask(object):
                         Transmission().delete_torrents(delete_file=True, ids=torrent_id)
                         delete_count += 1
             # 更新上传量和删除种子数
-            add_brushtask_upload_count(brush_id=taskid, size=total_uploaded)
+            add_brushtask_upload_count(brush_id=taskid, size=total_uploaded, count=delete_count)
         if delete_count:
             log.info("【BRUSH】共删除 %s 个刷流下载任务" % delete_count)
 

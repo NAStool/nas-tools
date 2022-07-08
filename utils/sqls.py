@@ -1125,13 +1125,13 @@ def add_brushtask_download_count(brush_id, size):
 
 
 # 更新上传量
-def add_brushtask_upload_count(brush_id, size):
+def add_brushtask_upload_count(brush_id, size, count):
     if not brush_id:
         return
     if not str(size).isdigit():
         return
-    sql = "UPDATE SITE_BRUSH_TASK SET REMOVE_COUNT = REMOVE_COUNT + 1, UPLOAD_SIZE = ? WHERE ID = ?"
-    return update_by_sql(sql, (int(size), brush_id))
+    sql = "UPDATE SITE_BRUSH_TASK SET REMOVE_COUNT = REMOVE_COUNT + ?, UPLOAD_SIZE = ? WHERE ID = ?"
+    return update_by_sql(sql, (count, int(size), brush_id))
 
 
 # 增加刷流下载的种子信息

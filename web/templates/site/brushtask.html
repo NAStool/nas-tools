@@ -371,6 +371,7 @@
         $("#brushtask_modal_title").text("编辑任务");
         $("#brushtask_name").val(ret.task.name);
         $("#brushtask_site").val(ret.task.site);
+        brushtask_site_change(ret.task.site);
         $("#brushtask_interval").val(ret.task.interval);
         $("#brushtask_downloader").val(ret.task.downloader);
         $("#brushtask_totalsize").val(ret.task.seed_size);
