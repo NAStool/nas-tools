@@ -46,7 +46,7 @@
                 <div class="d-flex align-items-center">
                   <img class="avatar-sm me-2" src="{{ Task.site_url }}/favicon.ico" width="24" height="24" alt=""
                         onerror="this.src='../static/img/pt.jpg'" style="cursor:pointer"/>
-                  <h2>{{ Task.site }}</h2>
+                  <h3>{{ Task.site }}</h3>
                 </div>
               </div>
             </div>
@@ -371,7 +371,7 @@
         $("#brushtask_modal_title").text("编辑任务");
         $("#brushtask_name").val(ret.task.name);
         $("#brushtask_site").val(ret.task.site);
-        brushtask_site_change(ret.task.site);
+        brushtask_site_change(ret.task.site, ret.task.free);
         $("#brushtask_interval").val(ret.task.interval);
         $("#brushtask_downloader").val(ret.task.downloader);
         $("#brushtask_totalsize").val(ret.task.seed_size);
@@ -383,7 +383,6 @@
         }
         $("#brushtask_include").val(ret.task.rss_rule.include);
         $("#brushtask_exclude").val(ret.task.rss_rule.exclude);
-        $("#brushtask_free").val(ret.task.free);
         //种子大小
         size_str = ret.task.rss_rule.size.split('#');
         filter_item_change(size_str[0], 'brushtask_torrent_size', $('#brushtask_torrent_size_do_' + size_str[0]), size_str[1])
@@ -413,7 +412,7 @@
   }
 
   // 选择了站点
-  function brushtask_site_change(site_id){
+  function brushtask_site_change(site_id, value){
     if(!site_id){
       return;
     }
@@ -425,6 +424,9 @@
       }
       if(ret.site_2xfree){
         $("#brushtask_free").append('<option value="2XFREE">2X免费</option>');
+      }
+      if(value){
+        $("#brushtask_free").val(value);
       }
     });
   }

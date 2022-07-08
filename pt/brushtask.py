@@ -166,11 +166,12 @@ class BrushTask(object):
         由定时服务调用
         """
         # 遍历所有任务
-        delete_count = 0
         for taskinfo in self._brush_tasks:
             # 查询所有种子
+            delete_count = 0
             total_uploaded = 0
             taskid = taskinfo.get("id")
+            task_name = taskinfo.get("name")
             task_torrents = get_brushtask_torrents(taskid)
             torrent_ids = [item[6] for item in task_torrents if item[6]]
             if taskinfo.get("downloader") == self._qb_client:
@@ -179,11 +180,11 @@ class BrushTask(object):
                     # ID
                     torrent_id = torrent.get("hash")
                     # 做种时间
-                    seeding_time = torrent.get('seeding_time')
+                    seeding_time = torrent.get('seeding_time') or 0
                     # 分享率
-                    ratio = torrent.get("ratio")
+                    ratio = torrent.get("ratio") or 0
                     # 上传量
-                    uploaded = torrent.get("uploaded")
+                    uploaded = torrent.get("uploaded") or 0
                     total_uploaded += uploaded
                     if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"),
                                                 seeding_time=seeding_time,
@@ -203,7 +204,7 @@ class BrushTask(object):
                         date_done = torrent.date_added
                     seeding_time = (datetime.now().astimezone() - date_done).seconds
                     # 分享率
-                    ratio = torrent.ratio
+                    ratio = torrent.ratio or 0
                     # 上传量
                     uploaded = int(torrent.total_size * torrent.ratio)
                     total_uploaded += uploaded
@@ -216,8 +217,8 @@ class BrushTask(object):
                         delete_count += 1
             # 更新上传量和删除种子数
             add_brushtask_upload_count(brush_id=taskid, size=total_uploaded, count=delete_count)
-        if delete_count:
-            log.info("【BRUSH】共删除 %s 个刷流下载任务" % delete_count)
+            if delete_count:
+                log.info("【BRUSH】任务 %s 共删除 %s 个刷流下载任务" % (task_name, delete_count))
 
     def __is_allow_new_torrent(self, taskid, size=0):
         """
@@ -253,7 +254,7 @@ class BrushTask(object):
                 tag = [tag, torrent_tag]
             else:
                 tag = torrent_tag
-            ret = Qbittorrent().add_torrent(content=enclosure, mtype=MediaType.MOVIE, tag=tag)
+            ret = Qbittorrent().add_torrent(content=enclosure, mtype=MediaType.MOVIE, tag=tag, is_paused=True)
             if ret:
                 # QB添加下载后需要时间，重试5次每次等待5秒
                 for i in range(1, 6):
@@ -263,6 +264,7 @@ class BrushTask(object):
                         continue
                     else:
                         Qbittorrent().remove_torrents_tag(download_id, torrent_tag)
+                        Qbittorrent().start_torrents(download_id)
                         break
         else:
             ret = Transmission().add_torrent(content=enclosure, mtype=MediaType.MOVIE)

@@ -211,12 +211,14 @@ class Qbittorrent(IDownloadClient):
                 remove_torrents.append(torrent.get('hash'))
         return remove_torrents
 
-    def get_last_add_torrentid_by_tag(self, tag):
+    def get_last_add_torrentid_by_tag(self, tag, status=None):
         """
         根据种子的下载链接获取下载中或暂停的钟子的ID
         :return: 种子ID
         """
-        torrents = self.get_torrents(status=["paused"], tag=tag)
+        if not status:
+            status = ["paused"]
+        torrents = self.get_torrents(status=status, tag=tag)
         if torrents:
             return torrents[0].get("hash")
         else:
