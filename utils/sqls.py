@@ -1140,7 +1140,7 @@ def add_brushtask_upload_count(brush_id, size):
         return
     if not str(size).isdigit():
         return
-    sql = "UPDATE SITE_BRUSH_TASK SET REMOVE_COUNT = REMOVE_COUNT + 1, UPLOAD_SIZE = UPLOAD_SIZE + ? WHERE ID = ?"
+    sql = "UPDATE SITE_BRUSH_TASK SET REMOVE_COUNT = REMOVE_COUNT + 1, UPLOAD_SIZE = ? WHERE ID = ?"
     return update_by_sql(sql, (int(size), brush_id))
 
 
