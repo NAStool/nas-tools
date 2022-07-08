@@ -880,7 +880,7 @@ def insert_site_statistics_history(site, upload, download, ratio, url, seeding, 
           " URL) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
     return update_by_sql(sql, (str_sql(site), user_level, date_now, upload, download, ratio, seeding, leeching,
-                                   seeding_size, bonus, url))
+                               seeding_size, bonus, url))
 
 
 # 查询站点数据历史
@@ -904,10 +904,8 @@ def get_site_statistics_recent_sites(days=7, strict_urls=None):
         ret_sites = []
         ret_site_uploads = []
         ret_site_downloads = []
-        max_date = date_ret[0][0]
         min_date = date_ret[0][1]
         # 查询开始值
-        site_b_data = {}
         sql = """SELECT SITE, MIN(UPLOAD), MIN(DOWNLOAD), MAX(UPLOAD), MAX(DOWNLOAD)
                  FROM (SELECT SITE, DATE, SUM(UPLOAD) as UPLOAD, SUM(DOWNLOAD) as DOWNLOAD FROM SITE_STATISTICS_HISTORY WHERE DATE >= ? GROUP BY SITE, DATE) X 
                  GROUP BY SITE"""
@@ -923,12 +921,12 @@ def get_site_statistics_recent_sites(days=7, strict_urls=None):
                 ret_b[1] = ret_b[3]
                 ret_b[2] = ret_b[4]
             ret_sites.append(ret_b[0])
-            if int(ret_b[1])< int(ret_b[3]):
+            if int(ret_b[1]) < int(ret_b[3]):
                 total_upload += int(ret_b[3]) - int(ret_b[1])
                 ret_site_uploads.append(int(ret_b[3]) - int(ret_b[1]))
             else:
                 ret_site_uploads.append(0)
-            if int(ret_b[2])< int(ret_b[4]):
+            if int(ret_b[2]) < int(ret_b[4]):
                 total_download += int(ret_b[4]) - int(ret_b[2])
                 ret_site_downloads.append(int(ret_b[4]) - int(ret_b[2]))
             else:
@@ -1062,10 +1060,6 @@ def insert_brushtask(brush_id, item):
                 INTEVAL = ?,
                 DOWNLOADER = ?,
                 TRANSFER = ?,
-                DOWNLOAD_COUNT = ?,
-                REMOVE_COUNT = ?,
-                DOWNLOAD_SIZE = ?,
-                UPLOAD_SIZE = ?,
                 STATE = ?,
                 LST_MOD_DATE = ?
             WHERE ID = ?
@@ -1079,10 +1073,6 @@ def insert_brushtask(brush_id, item):
                                    item.get('interval'),
                                    item.get('downloader'),
                                    item.get('transfer'),
-                                   0,
-                                   0,
-                                   0,
-                                   0,
                                    item.get('state'),
                                    time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
                                    brush_id))
