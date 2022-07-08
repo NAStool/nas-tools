@@ -46,7 +46,7 @@ class DouBan:
         douban = config.get_config('douban')
         if douban:
             # 同步间隔
-            self.__interval = int(douban.get('interval'))
+            self.__interval = int(douban.get('interval')) if douban.get('interval') and str(douban.get('interval')).isdigit() else None
             self.__auto_search = douban.get('auto_search')
             self.__auto_rss = douban.get('auto_rss')
             # 用户列表
@@ -56,7 +56,7 @@ class DouBan:
                     users = [users]
                 self.__users = users
             # 时间范围
-            self.__days = int(douban.get('days'))
+            self.__days = int(douban.get('days')) if douban.get('days') and str(douban.get('days')).isdigit() else None
             # 类型
             types = douban.get('types')
             if types:
@@ -78,6 +78,12 @@ class DouBan:
         获取每一个用户的每一个类型的豆瓣标记
         :return: 检索到的媒体信息列表（不含TMDB信息）
         """
+        if not self.__interval \
+                or not self.__days \
+                or not self.__users \
+                or not self.__types:
+            log.warn("【DOUBAN】豆瓣未配置或配置不正确")
+            return []
         # 返回媒体列表
         media_list = []
         # 豆瓣ID列表

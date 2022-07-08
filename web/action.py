@@ -1341,9 +1341,7 @@ class WebAction:
             "rss_rule": rss_rule,
             "remove_rule": remove_rule
         }
-        if brushtask_id:
-            delete_brushtask(brushtask_id)
-        insert_brushtask(item)
+        insert_brushtask(brushtask_id, item)
         # 重新初始化任务
         BrushTask().init_config()
         return {"code": 0}

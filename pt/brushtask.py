@@ -147,7 +147,7 @@ class BrushTask(object):
                     log.warn("【BRUSH】刷流任务 %s 已达到保种体积 %sGB，不再新增下载" % (task_name, taskinfo.get("seed_size")))
                     return
 
-                log.info("【BRUSH】%s 符合条件，开始下载..." % torrent_name)
+                log.debug("【BRUSH】%s 符合条件，开始下载..." % torrent_name)
                 self.__download_torrent(client=taskinfo.get("downloader"),
                                         title=torrent_name,
                                         enclosure=enclosure,
@@ -205,7 +205,7 @@ class BrushTask(object):
                     # 分享率
                     ratio = torrent.ratio
                     # 上传量
-                    uploaded = torrent.total_size * torrent.ratio
+                    uploaded = int(torrent.total_size * torrent.ratio)
                     total_uploaded += uploaded
                     if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"),
                                                 seeding_time=seeding_time,
@@ -228,7 +228,7 @@ class BrushTask(object):
         total_size = get_brushtask_totalsize(taskid)
         allow_size = self.get_brushtask_info(taskid).get("seed_size")
         if allow_size:
-            if int(allow_size) * 1024**3 <= total_size + size:
+            if int(allow_size) * 1024 ** 3 <= total_size + size:
                 return False
         return True
 
@@ -253,16 +253,17 @@ class BrushTask(object):
                 tag = [tag, torrent_tag]
             else:
                 tag = torrent_tag
-            Qbittorrent().add_torrent(content=enclosure, mtype=MediaType.MOVIE, tag=tag)
-            # QB添加下载后需要时间，重试5次每次等待5秒
-            for i in range(1, 6):
-                sleep(5)
-                download_id = Qbittorrent().get_last_add_torrentid_by_tag(tag)
-                if download_id is None:
-                    continue
-                else:
-                    Qbittorrent().remove_torrents_tag(download_id, torrent_tag)
-                    break
+            ret = Qbittorrent().add_torrent(content=enclosure, mtype=MediaType.MOVIE, tag=tag)
+            if ret:
+                # QB添加下载后需要时间，重试5次每次等待5秒
+                for i in range(1, 6):
+                    sleep(5)
+                    download_id = Qbittorrent().get_last_add_torrentid_by_tag(tag)
+                    if download_id is None:
+                        continue
+                    else:
+                        Qbittorrent().remove_torrents_tag(download_id, torrent_tag)
+                        break
         else:
             ret = Transmission().add_torrent(content=enclosure, mtype=MediaType.MOVIE)
             if ret:
@@ -270,17 +271,21 @@ class BrushTask(object):
                 if download_id and tag:
                     Transmission().set_torrent_tag(tid=download_id, tag=tag)
         if not download_id:
-            log.warn("【BRUSH】%s 获取添加的下载任务信息出错" % title)
+            log.warn("【BRUSH】%s 添加下载任务出错" % title)
             return
+        else:
+            log.info("【BRUSH】成功添加下载：%s" % title)
         # 插入种子数据
-        insert_brushtask_torrent(brush_id=taskid,
-                                 title=title,
-                                 enclosure=enclosure,
-                                 downloader=client,
-                                 download_id=download_id,
-                                 size=size)
-        # 更新下载大小和次数
-        add_brushtask_download_count(brush_id=taskid, size=size)
+        if insert_brushtask_torrent(brush_id=taskid,
+                                    title=title,
+                                    enclosure=enclosure,
+                                    downloader=client,
+                                    download_id=download_id,
+                                    size=size):
+            # 更新下载大小和次数
+            add_brushtask_download_count(brush_id=taskid, size=size)
+        else:
+            log.info("【BRUSH】%s 已下载过" % title)
 
     @staticmethod
     def __check_rss_rule(rss_rule, title, description, torrent_url, torrent_size, cookie):
@@ -308,11 +313,12 @@ class BrushTask(object):
                             max_size = min_max_size[1]
                         else:
                             max_size = 0
-                        if rule_sizes[0] == "gt" and int(torrent_size) < int(min_size) * 1024**3:
+                        if rule_sizes[0] == "gt" and float(torrent_size) < float(min_size) * 1024 ** 3:
                             return False
-                        if rule_sizes[0] == "lt" and int(torrent_size) > int(min_size) * 1024**3:
+                        if rule_sizes[0] == "lt" and float(torrent_size) > float(min_size) * 1024 ** 3:
                             return False
-                        if rule_sizes[0] == "bw" and not int(min_size) * 1024**3 < int(torrent_size) < int(max_size) * 1024**3:
+                        if rule_sizes[0] == "bw" and not float(min_size) * 1024 ** 3 < float(torrent_size) < float(
+                                max_size) * 1024 ** 3:
                             return False
 
             # 检查包含规则
@@ -369,7 +375,7 @@ class BrushTask(object):
                 if rule_uploadsizes[0]:
                     match_flag = True
                     if len(rule_uploadsizes) > 1 and rule_uploadsizes[1]:
-                        if int(uploaded) < float(rule_uploadsizes[1]) * 1024**3:
+                        if int(uploaded) < float(rule_uploadsizes[1]) * 1024 ** 3:
                             return False
 
         except Exception as err:

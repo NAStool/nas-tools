@@ -1012,43 +1012,80 @@ def is_media_downloaded(title, year):
 
 
 # 新增刷流任务
-def insert_brushtask(item):
-    sql = '''
-        INSERT INTO SITE_BRUSH_TASK(
-            NAME,
-            SITE,
-            FREELEECH,
-            RSS_RULE,
-            REMOVE_RULE,
-            SEED_SIZE,
-            INTEVAL,
-            DOWNLOADER,
-            TRANSFER,
-            DOWNLOAD_COUNT,
-            REMOVE_COUNT,
-            DOWNLOAD_SIZE,
-            UPLOAD_SIZE,
-            STATE,
-            LST_MOD_DATE
-        ) VALUES (
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-        )
-    '''
-    return update_by_sql(sql, (item.get('name'),
-                               item.get('site'),
-                               item.get('free'),
-                               str(item.get('rss_rule')),
-                               str(item.get('remove_rule')),
-                               item.get('seed_size'),
-                               item.get('interval'),
-                               item.get('downloader'),
-                               item.get('transfer'),
-                               0,
-                               0,
-                               0,
-                               0,
-                               item.get('state'),
-                               time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
+def insert_brushtask(brush_id, item):
+    if not brush_id:
+        sql = '''
+            INSERT INTO SITE_BRUSH_TASK(
+                NAME,
+                SITE,
+                FREELEECH,
+                RSS_RULE,
+                REMOVE_RULE,
+                SEED_SIZE,
+                INTEVAL,
+                DOWNLOADER,
+                TRANSFER,
+                DOWNLOAD_COUNT,
+                REMOVE_COUNT,
+                DOWNLOAD_SIZE,
+                UPLOAD_SIZE,
+                STATE,
+                LST_MOD_DATE
+            ) VALUES (
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            )
+        '''
+        return update_by_sql(sql, (item.get('name'),
+                                   item.get('site'),
+                                   item.get('free'),
+                                   str(item.get('rss_rule')),
+                                   str(item.get('remove_rule')),
+                                   item.get('seed_size'),
+                                   item.get('interval'),
+                                   item.get('downloader'),
+                                   item.get('transfer'),
+                                   0,
+                                   0,
+                                   0,
+                                   0,
+                                   item.get('state'),
+                                   time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
+    else:
+        sql = '''
+            UPDATE SITE_BRUSH_TASK SET
+                NAME = ?,
+                SITE = ?,
+                FREELEECH = ?,
+                RSS_RULE = ?,
+                REMOVE_RULE = ?,
+                SEED_SIZE = ?,
+                INTEVAL = ?,
+                DOWNLOADER = ?,
+                TRANSFER = ?,
+                DOWNLOAD_COUNT = ?,
+                REMOVE_COUNT = ?,
+                DOWNLOAD_SIZE = ?,
+                UPLOAD_SIZE = ?,
+                STATE = ?,
+                LST_MOD_DATE = ?
+            WHERE ID = ?
+        '''
+        return update_by_sql(sql, (item.get('name'),
+                                   item.get('site'),
+                                   item.get('free'),
+                                   str(item.get('rss_rule')),
+                                   str(item.get('remove_rule')),
+                                   item.get('seed_size'),
+                                   item.get('interval'),
+                                   item.get('downloader'),
+                                   item.get('transfer'),
+                                   0,
+                                   0,
+                                   0,
+                                   0,
+                                   item.get('state'),
+                                   time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                                   brush_id))
 
 
 # 删除刷流任务
@@ -1124,6 +1161,8 @@ def insert_brushtask_torrent(brush_id, title, enclosure, downloader, download_id
             ?, ?, ?, ?, ?, ?, ?
         )
     '''
+    if is_brushtask_torrent_exists(brush_id, title, enclosure):
+        return False
     return update_by_sql(sql, (brush_id,
                                title,
                                size,
@@ -1141,3 +1180,15 @@ def get_brushtask_torrents(brush_id):
           "FROM SITE_BRUSH_TORRENTS " \
           "WHERE TASK_ID = ? "
     return select_by_sql(sql, (brush_id,))
+
+
+# 查询刷流任务种子是否已存在
+def is_brushtask_torrent_exists(brush_id, title, enclosure):
+    if not brush_id:
+        return False
+    sql = "SELECT COUNT(1) FROM SITE_BRUSH_TORRENTS WHERE TASK_ID = ? AND TORRENT_NAME = ? AND ENCLOSURE = ?"
+    ret = select_by_sql(sql, (brush_id, title, enclosure))
+    if ret and ret[0][0] > 0:
+        return True
+    else:
+        return False
