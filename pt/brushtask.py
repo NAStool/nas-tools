@@ -252,7 +252,7 @@ class BrushTask(object):
             # QB添加下载后需要时间，重试5次每次等待5秒
             for i in range(1, 6):
                 sleep(5)
-                download_id = Qbittorrent().get_last_add_torrentid_by_tag(torrent_tag)
+                download_id = Qbittorrent().get_last_add_torrentid_by_tag(tag)
                 if download_id is None:
                     continue
                 else:
