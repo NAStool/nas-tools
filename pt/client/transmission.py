@@ -117,7 +117,7 @@ class Transmission(IDownloadClient):
             ret_torrents.append(torrent)
         return ret_torrents
 
-    def get_completed_torrents(self, tag):
+    def get_completed_torrents(self, tag=None):
         """
         读取完成的种子信息
         :return: 种子信息列表

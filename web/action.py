@@ -10,6 +10,7 @@ from config import RMT_MEDIAEXT, Config, GRAP_FREE_SITES
 from message.channel.telegram import Telegram
 from message.channel.wechat import WeChat
 from message.send import Message
+from pt.brushtask import BrushTask
 from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
 from pt.douban import DouBan
@@ -1302,7 +1303,7 @@ class WebAction:
         brushtask_id = data.get("brushtask_id")
         brushtask_name = data.get("brushtask_name")
         brushtask_site = data.get("brushtask_site")
-        brushtask_inteval = data.get("brushtask_inteval")
+        brushtask_interval = data.get("brushtask_interval")
         brushtask_downloader = data.get("brushtask_downloader")
         brushtask_totalsize = data.get("brushtask_totalsize")
         brushtask_state = data.get("brushtask_state")
@@ -1332,7 +1333,7 @@ class WebAction:
             "name": brushtask_name,
             "site": brushtask_site,
             "free": brushtask_free,
-            "interval": brushtask_inteval,
+            "interval": brushtask_interval,
             "downloader": brushtask_downloader,
             "seed_size": brushtask_totalsize,
             "transfer": brushtask_transfer,
@@ -1343,6 +1344,8 @@ class WebAction:
         if brushtask_id:
             delete_brushtask(brushtask_id)
         insert_brushtask(item)
+        # 重新初始化任务
+        BrushTask().init_config()
         return {"code": 0}
 
     @staticmethod
@@ -1353,6 +1356,8 @@ class WebAction:
         brush_id = data.get("id")
         if brush_id:
             delete_brushtask(brush_id)
+            # 重新初始化任务
+            BrushTask().init_config()
             return {"code": 0}
         return {"code": 1}
 
@@ -1369,7 +1374,7 @@ class WebAction:
             "id": brushtask[0][0],
             "name": brushtask[0][1],
             "site": brushtask[0][2],
-            "inteval": brushtask[0][4],
+            "interval": brushtask[0][4],
             "state": brushtask[0][5],
             "downloader": brushtask[0][6],
             "transfer": brushtask[0][7],

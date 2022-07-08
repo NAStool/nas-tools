@@ -818,7 +818,7 @@ def create_flask_app(config):
                 "id": task[0],
                 "name": task[1],
                 "site": task[3],
-                "inteval": task[4],
+                "interval": task[4],
                 "state": task[5],
                 "downloader": task[6],
                 "transfer": task[7],

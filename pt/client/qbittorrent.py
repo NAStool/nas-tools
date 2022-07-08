@@ -126,7 +126,7 @@ class Qbittorrent(IDownloadClient):
         self.qbc.auth_log_out()
         return torrents or []
 
-    def __get_completed_torrents(self, tag=None):
+    def get_completed_torrents(self, tag=None):
         """
         读取完成的种子信息
         """
@@ -174,7 +174,7 @@ class Qbittorrent(IDownloadClient):
         :return: 替换好路径的种子文件路径清单
         """
         # 处理下载完成的任务
-        torrents = self.__get_completed_torrents(tag=tag)
+        torrents = self.get_completed_torrents(tag=tag)
         trans_tasks = []
         for torrent in torrents:
             # 判断标签是否包含"已整理"
@@ -201,7 +201,7 @@ class Qbittorrent(IDownloadClient):
         """
         if not seeding_time:
             return []
-        torrents = self.__get_completed_torrents(tag=tag)
+        torrents = self.get_completed_torrents(tag=tag)
         remove_torrents = []
         for torrent in torrents:
             if not torrent.get('seeding_time'):

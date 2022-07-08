@@ -1064,12 +1064,70 @@ def get_brushtasks(brush_id=None):
     if brush_id:
         sql = "SELECT T.ID,T.NAME,T.SITE,C.NAME,T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
               "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
-              "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL " \
+              "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL,C.COOKIE " \
               "FROM SITE_BRUSH_TASK T, CONFIG_SITE C WHERE T.SITE=C.ID AND T.ID = ?"
         return select_by_sql(sql, (brush_id,))
     else:
         sql = "SELECT T.ID,T.NAME,T.SITE,C.NAME,T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
               "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
-              "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL " \
+              "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL,C.COOKIE " \
               "FROM SITE_BRUSH_TASK T, CONFIG_SITE C WHERE T.SITE=C.ID"
         return select_by_sql(sql)
+
+
+# 查询刷流任务总体积
+def get_brushtask_totalsize(brush_id):
+    if not brush_id:
+        return 0
+    sql = "SELECT SUM(CAST(S.TORRENT_SIZE AS DECIMAL)) FROM SITE_BRUSH_TORRENTS S WHERE S.ID = ?"
+    ret = select_by_sql(sql, (brush_id,))
+    if ret and ret[0][0]:
+        return int(ret[0][0])
+    else:
+        return 0
+
+
+# 增加刷流下载量
+def add_brushtask_download_count(brush_id, size):
+    if not brush_id:
+        return
+    if not str(size).isdigit():
+        return
+    sql = "UPDATE SITE_BRUSH_TASK T SET T.DOWNLOAD_COUNT = T.DOWNLOAD_COUNT + 1, T.DOWNLOAD_SIZE = T.DOWNLOAD_SIZE + ? WHERE T.ID = ?"
+    return update_by_sql(sql, (int(size), brush_id))
+
+
+# 增加刷流下载的种子信息
+def insert_brushtask_torrent(brush_id, title, enclosure, downloader, download_id, size):
+    if not brush_id:
+        return
+    sql = '''
+        INSERT INTO SITE_BRUSH_TORRENTS(
+            TASK_ID,
+            TORRENT_NAME,
+            TORRENT_SIZE,
+            ENCLOSURE,
+            DOWNLOADER,
+            DOWNLOAD_ID,
+            LST_MOD_DATE
+        ) VALUES (
+            ?, ?, ?, ?, ?, ?, ?
+        )
+    '''
+    return update_by_sql(sql, (brush_id,
+                               title,
+                               size,
+                               enclosure,
+                               downloader,
+                               download_id,
+                               time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
+
+
+# 查询刷流任务所有种子
+def get_brushtask_torrents(brush_id):
+    if not brush_id:
+        return []
+    sql = "SELECT ID,TASK_ID,TORRENT_NAME,TORRENT_SIZE,ENCLOSURE,DOWNLOADER,DOWNLOAD_ID,LST_MOD_DATE " \
+          "FROM SITE_BRUSH_TORRENTS " \
+          "WHERE TASK_ID = ? "
+    return select_by_sql(sql, (brush_id,))

@@ -77,7 +77,7 @@
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">刷新间隔</div>
-              <div class="datagrid-content">{{ Task.inteval }} 分钟</div>
+              <div class="datagrid-content">{{ Task.interval }} 分钟</div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">下载器</div>
@@ -177,7 +177,7 @@
             <div class="col-lg-4">
               <div class="mb-3">
                 <label class="form-label required">刷新间隔(分钟) <span class="form-help bg-red-lt" title="检查站点RSS更新的间隔时间，为了减小PT站压力，建议不小于10分钟" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" id="brushtask_inteval" class="form-control" placeholder="30">
+                <input type="text" id="brushtask_interval" class="form-control" placeholder="30">
               </div>
             </div>
           </div>
@@ -363,7 +363,7 @@
         $("#brushtask_modal_title").text("编辑任务");
         $("#brushtask_name").val(ret.task.name);
         $("#brushtask_site").val(ret.task.site);
-        $("#brushtask_inteval").val(ret.task.inteval);
+        $("#brushtask_interval").val(ret.task.interval);
         $("#brushtask_downloader").val(ret.task.downloader);
         $("#brushtask_totalsize").val(ret.task.seed_size);
         $("#brushtask_state").val(ret.task.state);
@@ -457,12 +457,12 @@
     } else {
       $("#brushtask_site").removeClass("is-invalid");
     }
-    var brushtask_inteval = $("#brushtask_inteval").val();
-    if(!brushtask_inteval||isNaN(brushtask_inteval)){
-      $("#brushtask_inteval").addClass("is-invalid");
+    var brushtask_interval = $("#brushtask_interval").val();
+    if(!brushtask_interval||isNaN(brushtask_interval)){
+      $("#brushtask_interval").addClass("is-invalid");
       return;
     } else {
-      $("#brushtask_inteval").removeClass("is-invalid");
+      $("#brushtask_interval").removeClass("is-invalid");
     }
     var brushtask_downloader = $("#brushtask_downloader").val();
     if(!brushtask_downloader){
@@ -538,7 +538,7 @@
       brushtask_id: brushtask_id,
       brushtask_name: brushtask_name,
       brushtask_site: brushtask_site,
-      brushtask_inteval: brushtask_inteval,
+      brushtask_interval: brushtask_interval,
       brushtask_downloader: brushtask_downloader,
       brushtask_totalsize: brushtask_totalsize,
       brushtask_state: brushtask_state,
