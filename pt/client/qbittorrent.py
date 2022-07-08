@@ -168,6 +168,14 @@ class Qbittorrent(IDownloadClient):
         log.info("【QB】设置qBittorrent种子状态成功")
         self.qbc.auth_log_out()
 
+    def torrents_set_force_start(self, ids):
+        """
+        设置强制作种
+        """
+        self.qbc.auth_log_in()
+        self.qbc.torrents_set_force_start(enable=True, torrent_hashes=ids)
+        self.qbc.auth_log_out()
+
     def get_transfer_task(self, tag):
         """
         获取需要转移的种子列表

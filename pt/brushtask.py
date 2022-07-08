@@ -265,6 +265,7 @@ class BrushTask(object):
                     else:
                         Qbittorrent().remove_torrents_tag(download_id, torrent_tag)
                         Qbittorrent().start_torrents(download_id)
+                        Qbittorrent().torrents_set_force_start(download_id)
                         break
         else:
             ret = Transmission().add_torrent(content=enclosure, mtype=MediaType.MOVIE)
