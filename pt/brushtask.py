@@ -12,7 +12,7 @@ from pt.rss import Rss
 from pt.torrent import Torrent
 from utils.functions import singleton
 from utils.sqls import get_brushtasks, get_brushtask_totalsize, add_brushtask_download_count, insert_brushtask_torrent, \
-    get_brushtask_torrents
+    get_brushtask_torrents, add_brushtask_upload_count
 from utils.types import MediaType
 
 
@@ -169,6 +169,7 @@ class BrushTask(object):
         delete_count = 0
         for taskinfo in self._brush_tasks:
             # 查询所有种子
+            total_uploaded = 0
             taskid = taskinfo.get("id")
             task_torrents = get_brushtask_torrents(taskid)
             torrent_ids = [item[6] for item in task_torrents if item[6]]
@@ -183,6 +184,7 @@ class BrushTask(object):
                     ratio = torrent.get("ratio")
                     # 上传量
                     uploaded = torrent.get("uploaded")
+                    total_uploaded += uploaded
                     if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"),
                                                 seeding_time=seeding_time,
                                                 ratio=ratio,
@@ -204,6 +206,7 @@ class BrushTask(object):
                     ratio = torrent.ratio
                     # 上传量
                     uploaded = torrent.total_size * torrent.ratio
+                    total_uploaded += uploaded
                     if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"),
                                                 seeding_time=seeding_time,
                                                 ratio=ratio,
@@ -211,6 +214,8 @@ class BrushTask(object):
                         log.info("【BRUSH】%s 达到删种条件，删除下载任务..." % torrent.get('name'))
                         Transmission().delete_torrents(delete_file=True, ids=torrent_id)
                         delete_count += 1
+            # 更新上传量和删除种子数
+            add_brushtask_upload_count(brush_id=taskid, size=total_uploaded)
         if delete_count:
             log.info("【BRUSH】共删除 %s 个刷流下载任务" % delete_count)
 
