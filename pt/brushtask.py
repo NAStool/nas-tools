@@ -174,6 +174,8 @@ class BrushTask(object):
             task_name = taskinfo.get("name")
             task_torrents = get_brushtask_torrents(taskid)
             torrent_ids = [item[6] for item in task_torrents if item[6]]
+            if not torrent_ids:
+                continue
             if taskinfo.get("downloader") == self._qb_client:
                 torrents = Qbittorrent().get_torrents(ids=torrent_ids, status=["completed"])
                 for torrent in torrents:
