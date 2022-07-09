@@ -273,15 +273,26 @@ class DBHelper:
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_BRUSH_TASK_NAME ON SITE_BRUSH_TASK (NAME);''')
             # 刷流任务明细表
             cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_BRUSH_TORRENTS
-                                               (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                                               TASK_ID    TEXT,
-                                               TORRENT_NAME    TEXT,
-                                               TORRENT_SIZE     TEXT,
-                                               ENCLOSURE    TEXT,
-                                               DOWNLOADER     TEXT,
-                                               DOWNLOAD_ID    TEXT,
-                                               LST_MOD_DATE     TEXT);''')
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   TASK_ID    TEXT,
+                                   TORRENT_NAME    TEXT,
+                                   TORRENT_SIZE     TEXT,
+                                   ENCLOSURE    TEXT,
+                                   DOWNLOADER     TEXT,
+                                   DOWNLOAD_ID    TEXT,
+                                   LST_MOD_DATE     TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_BRUSH_TORRENTS_TASKID ON SITE_BRUSH_TORRENTS (TASK_ID);''')
+            # 自定义下载器表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_BRUSH_DOWNLOADERS
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   NAME    TEXT,
+                                   TYPE    TEXT,
+                                   HOST    TEXT,
+                                   PORT     TEXT,
+                                   USERNAME    TEXT,
+                                   PASSWORD     TEXT,
+                                   SAVE_DIR    TEXT,
+                                   NOTE     TEXT);''')
             # 提交
             conn.commit()
 

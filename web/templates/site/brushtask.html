@@ -16,6 +16,27 @@
           <a href="javascript:show_brushtask_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           </a>
+          <a href="javascript:show_brushtask_downloader_modal()" class="btn d-none d-sm-inline-block" title="自定义下载器">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-apps" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <rect x="4" y="4" width="6" height="6" rx="1"></rect>
+               <rect x="4" y="14" width="6" height="6" rx="1"></rect>
+               <rect x="14" y="14" width="6" height="6" rx="1"></rect>
+               <line x1="14" y1="7" x2="20" y2="7"></line>
+               <line x1="17" y1="4" x2="17" y2="10"></line>
+            </svg>
+            自定义下载器
+          </a>
+          <a href="javascript:show_brushtask_downloader_modal()" class="btn d-sm-none btn-icon" title="自定义下载器">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-apps" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <rect x="4" y="4" width="6" height="6" rx="1"></rect>
+               <rect x="4" y="14" width="6" height="6" rx="1"></rect>
+               <rect x="14" y="14" width="6" height="6" rx="1"></rect>
+               <line x1="14" y1="7" x2="20" y2="7"></line>
+               <line x1="17" y1="4" x2="17" y2="10"></line>
+            </svg>
+          </a>
         </div>
       </div>
     </div>
@@ -192,11 +213,12 @@
           <div class="row">
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">下载器 <span class="form-help bg-red-lt" title="选择刷流任务使用的下载器，如需识别转移到媒体库，则需选择当前正在使用的下载器" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">下载器 <span class="form-help bg-red-lt" title="选择刷流任务使用的下载器，在自定义下载器中添加，如需识别转移到媒体库，需与正在使用的下载器相同" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="brushtask_downloader">
                   <option value="" selected>请选择</option>
-                  <option value="qbittorrent">Qbittorrent</option>
-                  <option value="transmission">Transmission</option>
+                  {% for downloader in Downloaders %}
+                  <option value="{{ downloader[0] }}">{{ downloader[2] }}</option>
+                  {% endfor %}
                 </select>
               </div>
             </div>
@@ -579,6 +601,11 @@
       $("#modal-brushtask").modal('hide');
       navmenu('brushtask');
     });
+  }
+
+  // 自定义下载器
+  function show_brushtask_downloader_modal(){
+    navmenu('userdownloader');
   }
 
   // 绑定事件

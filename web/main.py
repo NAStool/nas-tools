@@ -810,6 +810,8 @@ def create_flask_app(config):
     def brushtask():
         # 站点列表
         CfgSites = get_config_site()
+        # 下载器列表
+        downloaders = get_user_downloaders()
         # 任务列表
         brushtasks = get_brushtasks()
         Tasks = []
@@ -820,7 +822,7 @@ def create_flask_app(config):
                 "site": task[3],
                 "interval": task[4],
                 "state": task[5],
-                "downloader": task[6],
+                "downloader": task[19],
                 "transfer": task[7],
                 "free": task[8],
                 "rss_rule": eval(task[9]),
@@ -837,7 +839,17 @@ def create_flask_app(config):
         return render_template("site/brushtask.html",
                                Count=len(Tasks),
                                Sites=CfgSites,
-                               Tasks=Tasks)
+                               Tasks=Tasks,
+                               Downloaders=downloaders)
+
+    # 自定义下载器页面
+    @App.route('/userdownloader', methods=['POST', 'GET'])
+    @login_required
+    def userdownloader():
+        downloaders = get_user_downloaders()
+        return render_template("download/userdownloader.html",
+                               Count=len(downloaders),
+                               Downloaders=downloaders)
 
     # 服务页面
     @App.route('/service', methods=['POST', 'GET'])
@@ -1240,7 +1252,7 @@ def create_flask_app(config):
             else:
                 TrMovieContainerPath = TrTvContainerPath = TrAnimeContainerPath = ""
 
-        return render_template("setting/downloader.html",
+        return render_template("setting/userdownloader.html",
                                Config=config.get_config(),
                                QbMovieSavePath=QbMovieSavePath,
                                QbTvSavePath=QbTvSavePath,

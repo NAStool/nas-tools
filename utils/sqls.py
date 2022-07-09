@@ -1091,14 +1091,14 @@ def get_brushtasks(brush_id=None):
     if brush_id:
         sql = "SELECT T.ID,T.NAME,T.SITE,C.NAME,T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
               "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
-              "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL,C.COOKIE " \
-              "FROM SITE_BRUSH_TASK T, CONFIG_SITE C WHERE T.SITE=C.ID AND T.ID = ?"
+              "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL,C.COOKIE,D.NAME " \
+              "FROM SITE_BRUSH_TASK T, CONFIG_SITE C, SITE_BRUSH_DOWNLOADERS D WHERE T.SITE=C.ID AND T.DOWNLOADER=D.ID AND T.ID = ?"
         return select_by_sql(sql, (brush_id,))
     else:
         sql = "SELECT T.ID,T.NAME,T.SITE,C.NAME,T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
               "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
-              "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL,C.COOKIE " \
-              "FROM SITE_BRUSH_TASK T, CONFIG_SITE C WHERE T.SITE=C.ID"
+              "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL,C.COOKIE,D.NAME " \
+              "FROM SITE_BRUSH_TASK T, CONFIG_SITE C, SITE_BRUSH_DOWNLOADERS D WHERE T.DOWNLOADER=D.ID AND T.SITE=C.ID"
         return select_by_sql(sql)
 
 
@@ -1106,7 +1106,7 @@ def get_brushtasks(brush_id=None):
 def get_brushtask_totalsize(brush_id):
     if not brush_id:
         return 0
-    sql = "SELECT SUM(CAST(S.TORRENT_SIZE AS DECIMAL)) FROM SITE_BRUSH_TORRENTS S WHERE S.ID = ?"
+    sql = "SELECT SUM(CAST(S.TORRENT_SIZE AS DECIMAL)) FROM SITE_BRUSH_TORRENTS S WHERE S.TASK_ID = ?"
     ret = select_by_sql(sql, (brush_id,))
     if ret and ret[0][0]:
         return int(ret[0][0])
@@ -1182,3 +1182,33 @@ def is_brushtask_torrent_exists(brush_id, title, enclosure):
         return True
     else:
         return False
+
+
+# 查询自定义下载器
+def get_user_downloaders(did=None):
+    if did:
+        sql = "SELECT ID,TASK_ID,NAME,TYPE,HOST,PORT,USERNAME,PASSWORD,SAVE_DIR,NOTE FROM SITE_BRUSH_DOWNLOADERS WHERE ID = ?"
+        return select_by_sql(sql, (did,))
+    else:
+        sql = "SELECT ID,TASK_ID,NAME,TYPE,HOST,PORT,USERNAME,PASSWORD,SAVE_DIR,NOTE FROM SITE_BRUSH_DOWNLOADERS"
+        return select_by_sql(sql)
+
+
+# 新增自定义下载器
+def insert_user_downloader(name, dtype, user_config, note):
+    sql = "INSERT INTO SITE_BRUSH_DOWNLOADERS (NAME,TYPE,HOST,PORT,USERNAME,PASSWORD,SAVE_DIR,NOTE)" \
+          "VALUES (?,?,?,?,?,?,?,?)"
+    return update_by_sql(sql, (str_sql(name),
+                               dtype,
+                               str_sql(user_config.get("host")),
+                               str_sql(user_config.get("port")),
+                               str_sql(user_config.get("username")),
+                               str_sql(user_config.get("password")),
+                               str_sql(user_config.get("save_dir")),
+                               str_sql(note)))
+
+
+# 删除自定义下载器
+def delete_user_downloader(did):
+    sql = "DELETE FROM SITE_BRUSH_DOWNLOADERS WHERE ID = ?"
+    return update_by_sql(sql, (did,))

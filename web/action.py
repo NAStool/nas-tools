@@ -89,7 +89,9 @@ class WebAction:
             "truncate_blacklist": self.__truncate_blacklist,
             "add_brushtask": self.__add_brushtask,
             "del_brushtask": self.__del_brushtask,
-            "brushtask_detail": self.__brushtask_detail
+            "brushtask_detail": self.__brushtask_detail,
+            "add_downloader": self.__add_downloader,
+            "delete_downloader": self.__delete_downloader
         }
 
     def action(self, cmd, data):
@@ -756,8 +758,6 @@ class WebAction:
         scheduler_reload = False
         jellyfin_reload = False
         plex_reload = False
-        qbittorrent_reload = False
-        transmission_reload = False
         wechat_reload = False
         telegram_reload = False
         category_reload = False
@@ -801,12 +801,6 @@ class WebAction:
         # 重载Plex
         if plex_reload:
             Plex().init_config()
-        # 重载qbittorrent
-        if qbittorrent_reload:
-            Qbittorrent().init_config()
-        # 重载transmission
-        if transmission_reload:
-            Transmission().init_config()
         # 重载wechat
         if wechat_reload:
             WeChat().init_config()
@@ -1391,6 +1385,44 @@ class WebAction:
             "site_url": "http://%s" % parse.urlparse(brushtask[0][17]).netloc if brushtask[0][17] else ""
         }
         return {"code": 0, "task": task}
+
+    @staticmethod
+    def __add_downloader(data):
+        """
+        添加自定义下载器
+        """
+        test = data.get("test")
+        dl_name = data.get("name")
+        dl_type = data.get("type")
+        user_config = {"host": data.get("host"),
+                       "port": data.get("port"),
+                       "username": data.get("username"),
+                       "password": data.get("password"),
+                       "save_dir": data.get("save_dir")}
+        if test:
+            # 测试
+            if dl_type == "qbittorrent":
+                downloader = Qbittorrent(user_config=user_config)
+            else:
+                downloader = Transmission(user_config=user_config)
+            if downloader.get_status():
+                return {"code": 0}
+            else:
+                return {"code": 1}
+        else:
+            # 保存
+            insert_user_downloader(name=dl_name, dtype=dl_type, user_config=user_config, note=None)
+            return {"code": 0}
+
+    @staticmethod
+    def __delete_downloader(data):
+        """
+        删除自定义下载器
+        """
+        dl_id = data.get("id")
+        if dl_id:
+            delete_user_downloader(dl_id)
+        return {"code": 0}
 
     @staticmethod
     def parse_sites_string(notes):
