@@ -257,7 +257,7 @@ class BrushTask(object):
             log.error("【BRUSH】任务 %s 下载器不存在，无法下载" % taskname)
             return
         # 下载器参数
-        client = downloader_info[0][3]
+        client = downloader_info[0][2]
         downloader_name = downloader_info[0][1]
         user_config = {"host": downloader_info[0][3],
                        "port": downloader_info[0][4],
