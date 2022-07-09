@@ -258,12 +258,12 @@ class BrushTask(object):
             return
         # 下载器参数
         client = downloader_info[0][3]
-        downloader_name = downloader_info[0][2]
-        user_config = {"host": downloader_info[0][4],
-                       "port": downloader_info[0][5],
-                       "username": downloader_info[0][6],
-                       "password": downloader_info[0][7],
-                       "save_dir": downloader_info[0][8]}
+        downloader_name = downloader_info[0][1]
+        user_config = {"host": downloader_info[0][3],
+                       "port": downloader_info[0][4],
+                       "username": downloader_info[0][5],
+                       "password": downloader_info[0][6],
+                       "save_dir": downloader_info[0][7]}
         # 标签
         tag = "已整理" if not transfer else None
         # 下载任务ID

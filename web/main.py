@@ -1252,7 +1252,7 @@ def create_flask_app(config):
             else:
                 TrMovieContainerPath = TrTvContainerPath = TrAnimeContainerPath = ""
 
-        return render_template("setting/userdownloader.html",
+        return render_template("setting/downloader.html",
                                Config=config.get_config(),
                                QbMovieSavePath=QbMovieSavePath,
                                QbTvSavePath=QbTvSavePath,

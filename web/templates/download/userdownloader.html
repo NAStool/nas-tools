@@ -48,9 +48,9 @@
               {% if Downloaders %}
                 {% for Downloader in Downloaders %}
                 <tr>
+                  <td>{{ Downloader[1] or '' }}</td>
                   <td>{{ Downloader[2] or '' }}</td>
-                  <td>{{ Downloader[3] or '' }}</td>
-                  <td>{{ Downloader[4]}}:{{ Downloader[5]}}</td>
+                  <td>{{ Downloader[3]}}:{{ Downloader[4]}}</td>
                   <td>
                     <a href="javascript:delete_downloader('{{ Downloader[0] }}')" title="删除下载器">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
