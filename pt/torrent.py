@@ -3,7 +3,8 @@ from functools import lru_cache
 from urllib import parse
 import cn2an
 from lxml import etree
-from config import GRAP_FREE_SITES, TORRENT_SEARCH_PARAMS
+from config import TORRENT_SEARCH_PARAMS
+from pt.siteconf import RSS_SITE_GRAP_CONF
 from rmt.meta.metabase import MetaBase
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
@@ -276,40 +277,46 @@ class Torrent:
 
     @staticmethod
     @lru_cache(maxsize=128)
-    def check_torrent_free(torrent_url, cookie):
+    def check_torrent_attr(torrent_url, cookie) -> list:
         """
         检验种子是否免费
         :param torrent_url: 种子的详情页面
         :param cookie: 站点的Cookie
-        :return: 促销类型 FREE 2XFREE
+        :return: 促销类型 FREE 2XFREE HR 的数组
         """
+        ret_attr = []
         if not torrent_url:
-            return None
+            return ret_attr
         url_host = parse.urlparse(torrent_url).netloc
         if not url_host:
-            return None
-        xpath_strs = GRAP_FREE_SITES.get(url_host)
+            return ret_attr
+        xpath_strs = RSS_SITE_GRAP_CONF.get(url_host)
         if not xpath_strs:
-            return None
+            return ret_attr
         res = RequestUtils(cookies=cookie).get_res(url=torrent_url)
         if res and res.status_code == 200:
             res.encoding = res.apparent_encoding
             html_text = res.text
             if not html_text:
-                return None
+                return []
             try:
                 html = etree.HTML(html_text)
                 # 检测2XFREE
                 for xpath_str in xpath_strs.get("2XFREE"):
                     if html.xpath(xpath_str):
-                        return "2XFREE"
+                        ret_attr.append("FREE")
+                        ret_attr.append("2XFREE")
                 # 检测FREE
                 for xpath_str in xpath_strs.get("FREE"):
                     if html.xpath(xpath_str):
-                        return "FREE"
+                        ret_attr.append("FREE")
+                # 检测HR
+                for xpath_str in xpath_strs.get("HR"):
+                    if html.xpath(xpath_str):
+                        ret_attr.append("HR")
             except Exception as err:
                 print(err)
-        return None
+        return ret_attr
 
     @staticmethod
     def get_torrent_content(url):
@@ -411,4 +418,3 @@ class Torrent:
                     rss_keyword = filters[2]
 
         return rss_sites, search_sites, over_edition, {"restype": rss_restype, "pix": rss_pix, "key": rss_keyword}
-

@@ -479,7 +479,9 @@ class FileTransfer:
                 file_path = os.path.dirname(file_item)
 
                 # 数据库记录的路径
-                if media.type == MediaType.MOVIE:
+                if bluray_disk_flag:
+                    reg_path = in_path
+                elif media.type == MediaType.MOVIE:
                     reg_path = file_item
                 else:
                     reg_path = max(file_path, in_path)

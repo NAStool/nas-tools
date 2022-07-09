@@ -336,9 +336,16 @@ class BrushTask(object):
 
             # 检查免费状态
             if rss_rule.get("free"):
-                free_type = Torrent.check_torrent_free(torrent_url=torrent_url, cookie=cookie)
-                if not free_type or rss_rule.get("free") != free_type:
+                attr_type = Torrent.check_torrent_attr(torrent_url=torrent_url, cookie=cookie)
+                if rss_rule.get("free") not in attr_type:
                     return False
+
+            # 检查HR状态
+            if rss_rule.get("hr"):
+                attr_type = Torrent.check_torrent_attr(torrent_url=torrent_url, cookie=cookie)
+                if rss_rule.get("hr") in attr_type:
+                    return False
+
         except Exception as err:
             print(str(err))
 

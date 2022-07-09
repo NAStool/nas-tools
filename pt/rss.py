@@ -5,10 +5,10 @@ import re
 from urllib import parse
 import xml.dom.minidom
 import log
-from config import RSS_EXTRA_SITES
 from pt.searcher import Searcher
 from message.send import Message
 from pt.downloader import Downloader
+from pt.siteconf import RSS_EXTRA_SITES
 from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
@@ -219,14 +219,14 @@ class Rss:
                         download_volume_factor = 1.0
                         upload_volume_factor = 1.0
                         if rss_free:
-                            free_type = Torrent.check_torrent_free(torrent_url=page_url, cookie=rss_cookie)
-                            if free_type == "2XFREE":
+                            attr_type = Torrent.check_torrent_attr(torrent_url=page_url, cookie=rss_cookie)
+                            if "2XFREE" in attr_type:
                                 download_volume_factor = 0.0
                                 upload_volume_factor = 2.0
-                            elif free_type == "FREE":
+                            elif "FREE" in attr_type:
                                 download_volume_factor = 0.0
                                 upload_volume_factor = 1.0
-                            if rss_free != free_type:
+                            if rss_free not in attr_type:
                                 log.info("【RSS】%s 不是 %s 种子" % (torrent_name, rss_free))
                                 continue
                         # 返回对象

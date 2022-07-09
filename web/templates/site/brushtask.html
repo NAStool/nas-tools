@@ -95,9 +95,9 @@
               <div class="datagrid-title">转移到媒体库</div>
               <div class="datagrid-content">
                 {% if Task.transfer == 'Y' %}
-                <span class="status status-green">ON</span>
+                <span class="status status-green">开</span>
                 {% else %}
-                <span class="status status-red">OFF</span>
+                <span class="status status-red">关</span>
                 {% endif %}
               </div>
             </div>
@@ -242,6 +242,15 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
+                <label class="form-label">Hit&Run</label>
+                <select class="form-select" id="brushtask_hr">
+                  <option value="" selected>全部</option>
+                  <option value="HR">排除HR</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
                 <label class="form-label">种子大小(GB) <span class="form-help bg-red-lt" title="设置大小范围的种子才会下载，介于时使用英文逗号,分隔两个值" data-bs-toggle="tooltip">?</span></label>
                 <div class="input-group">
                   <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_torrent_size_btn">
@@ -381,6 +390,7 @@
         }else{
           $("#brushtask_transfer").prop("checked", false);
         }
+        $("#brushtask_hr").val(ret.task.rss_rule.hr);
         $("#brushtask_include").val(ret.task.rss_rule.include);
         $("#brushtask_exclude").val(ret.task.rss_rule.exclude);
         //种子大小
@@ -490,6 +500,7 @@
     var brushtask_state = $("#brushtask_state").val();
     var brushtask_transfer = $("#brushtask_transfer").prop('checked');
     var brushtask_free = $("#brushtask_free").val();
+    var brushtask_hr = $("#brushtask_hr").val();
     var brushtask_torrent_size_do = $("#brushtask_torrent_size_do").val();
     var brushtask_torrent_size = $("#brushtask_torrent_size").val();
     if(brushtask_torrent_size_do && !brushtask_torrent_size){
@@ -555,6 +566,7 @@
       brushtask_state: brushtask_state,
       brushtask_transfer: brushtask_transfer,
       brushtask_free: brushtask_free,
+      brushtask_hr: brushtask_hr,
       brushtask_torrent_size: brushtask_torrent_size_do + "#" + brushtask_torrent_size,
       brushtask_include: brushtask_include,
       brushtask_exclude: brushtask_exclude,

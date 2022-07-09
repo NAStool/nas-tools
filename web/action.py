@@ -6,7 +6,7 @@ from flask_login import logout_user
 from werkzeug.security import generate_password_hash
 
 import log
-from config import RMT_MEDIAEXT, Config, GRAP_FREE_SITES
+from config import RMT_MEDIAEXT, Config
 from message.channel.telegram import Telegram
 from message.channel.wechat import WeChat
 from message.send import Message
@@ -18,6 +18,7 @@ from pt.downloader import Downloader
 from pt.mediaserver.jellyfin import Jellyfin
 from pt.mediaserver.plex import Plex
 from pt.rss import Rss
+from pt.siteconf import RSS_SITE_GRAP_CONF
 from pt.sites import Sites
 from pt.subtitle import Subtitle
 from pt.torrent import Torrent
@@ -655,10 +656,10 @@ class WebAction:
             ret = get_site_by_id(tid)
             if ret[0][3]:
                 url_host = parse.urlparse(ret[0][3]).netloc
-                if url_host in GRAP_FREE_SITES.keys():
-                    if GRAP_FREE_SITES[url_host].get("FREE"):
+                if url_host in RSS_SITE_GRAP_CONF.keys():
+                    if RSS_SITE_GRAP_CONF[url_host].get("FREE"):
                         site_free = True
-                    if GRAP_FREE_SITES[url_host].get("2XFREE"):
+                    if RSS_SITE_GRAP_CONF[url_host].get("2XFREE"):
                         site_2xfree = True
         else:
             ret = []
@@ -1309,6 +1310,7 @@ class WebAction:
         brushtask_state = data.get("brushtask_state")
         brushtask_transfer = 'Y' if data.get("brushtask_transfer") else 'N'
         brushtask_free = data.get("brushtask_free")
+        brushtask_hr = data.get("brushtask_hr")
         brushtask_torrent_size = data.get("brushtask_torrent_size")
         brushtask_include = data.get("brushtask_include")
         brushtask_exclude = data.get("brushtask_exclude")
@@ -1318,6 +1320,7 @@ class WebAction:
         # 选种规则
         rss_rule = {
             "free": brushtask_free,
+            "hr": brushtask_hr,
             "size": brushtask_torrent_size,
             "include": brushtask_include,
             "exclude": brushtask_exclude
@@ -1430,7 +1433,8 @@ class WebAction:
         if rules.get("include"):
             rule_htmls.append('<span class="badge badge-outline text-green me-1 mb-1" title="包含规则">包含: %s</span>'
                               % rules.get("include"))
-
+        if rules.get("hr"):
+            rule_htmls.append('<span class="badge badge-outline text-red me-1 mb-1" title="排除HR">排除: HR</span>')
         if rules.get("exclude"):
             rule_htmls.append('<span class="badge badge-outline text-red me-1 mb-1" title="排除规则">排除: %s</span>'
                               % rules.get("exclude"))
