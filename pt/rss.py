@@ -330,12 +330,7 @@ class Rss:
             # 搜索站点、洗版、过滤条件
             _, sites, over_edition, filter_map = Torrent.get_rss_note_item(movie[4])
             # 识别
-            if tmdbid and not tmdbid.startswith("DB:"):
-                media_info = MetaInfo(title="%s %s".strip() % (name, year))
-                tmdb_info = Media().get_tmdb_info(mtype=MediaType.MOVIE, title=name, year=year, tmdbid=tmdbid)
-                media_info.set_tmdb_info(tmdb_info)
-            else:
-                media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=MediaType.MOVIE, strict=True)
+            media_info = self.__get_media_info(tmdbid, name, year, MediaType.MOVIE)
             # 未识别到媒体信息
             if not media_info or not media_info.tmdb_info:
                 update_rss_movie_state(rssid=rssid, state='R')
@@ -392,12 +387,7 @@ class Rss:
             # 搜索站点、洗版、过滤条件
             _, sites, over_edition, filter_map = Torrent.get_rss_note_item(tv[5])
             # 开始识别
-            if tmdbid and not tmdbid.startswith("DB:"):
-                media_info = MetaInfo(title="%s %s".strip() % (name, year))
-                tmdb_info = Media().get_tmdb_info(mtype=MediaType.TV, title=name, year=year, tmdbid=tmdbid)
-                media_info.set_tmdb_info(tmdb_info)
-            else:
-                media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=MediaType.TV, strict=True)
+            media_info = self.__get_media_info(tmdbid, name, year, MediaType.TV)
             # 未识别到媒体信息
             if not media_info or not media_info.tmdb_info:
                 update_rss_tv_state(rssid=rssid, state='R')
@@ -450,8 +440,7 @@ class Rss:
                             update_rss_tv_lack(rssid=rssid, lack_episodes=no_exist_item.get("episodes"))
                         break
 
-    @staticmethod
-    def rssdouban_to_tmdb():
+    def rssdouban_to_tmdb(self):
         """
         定时将豆瓣订阅转换为TMDB的订阅
         """
@@ -462,10 +451,11 @@ class Rss:
             name = movie[0]
             year = movie[1] or ""
             tmdbid = movie[2]
-            if tmdbid and tmdbid.startswith("DB:"):
-                media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=MediaType.MOVIE, strict=True)
-                if media_info and media_info.tmdb_id:
-                    update_rss_movie_tmdbid(rid=rid, tmdbid=media_info.tmdb_id)
+            if not tmdbid or not tmdbid.startswith("DB:"):
+                continue
+            media_info = self.__get_media_info(tmdbid, name, year, MediaType.MOVIE)
+            if media_info and media_info.tmdb_id:
+                update_rss_movie_tmdbid(rid=rid, tmdbid=media_info.tmdb_id)
         # 更新电视剧
         tvs = get_rss_tvs(state='R')
         for tv in tvs:
@@ -473,10 +463,24 @@ class Rss:
             name = tv[0]
             year = tv[1] or ""
             tmdbid = tv[3]
-            if tmdbid and tmdbid.startswith("DB:"):
-                media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=MediaType.TV, strict=True)
-                if media_info and media_info.tmdb_id:
-                    update_rss_tv_tmdbid(rid=rid, tmdbid=media_info.tmdb_id)
+            if not tmdbid or not tmdbid.startswith("DB:"):
+                continue
+            media_info = self.__get_media_info(tmdbid, name, year, MediaType.TV)
+            if media_info and media_info.tmdb_id:
+                update_rss_tv_tmdbid(rid=rid, tmdbid=media_info.tmdb_id)
+
+    @staticmethod
+    def __get_media_info(tmdbid, name, year, mtype):
+        """
+        综合返回媒体信息
+        """
+        if tmdbid and not tmdbid.startswith("DB:"):
+            media_info = MetaInfo(title="%s %s".strip() % (name, year))
+            tmdb_info = Media().get_tmdb_info(mtype=mtype, title=name, year=year, tmdbid=tmdbid)
+            media_info.set_tmdb_info(tmdb_info)
+        else:
+            media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=mtype, strict=True)
+        return media_info
 
     @staticmethod
     def parse_rssxml(url):
@@ -491,6 +495,8 @@ class Rss:
             return []
         try:
             ret = RequestUtils().get_res(url)
+            if not ret:
+                return []
             ret.encoding = ret.apparent_encoding
         except Exception as e2:
             log.console(str(e2))
