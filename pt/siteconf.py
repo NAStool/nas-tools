@@ -13,153 +13,168 @@ RSS_SITE_GRAP_CONF = {
         '2XFREE': ["//font[@class='twoupfree']"],
         'HR': []
     },
-    'ptsbao.club':  {
+    'ptsbao.club': {
         'FREE': ["//font[@class='free']"],
         '2XFREE': ["//font[@class='twoupfree']"],
         'HR': []
     },
-    'totheglory.im':  {
+    'totheglory.im': {
         'FREE': ["//img[@class='topic'][contains(@src,'ico_free.gif')]"],
         '2XFREE': [],
         'HR': ["//img[@src='/pic/hit_run.gif']"]
     },
-    'www.beitai.pt':  {
+    'www.beitai.pt': {
         'FREE': ["//font[@class='free']"],
         '2XFREE': ["//font[@class='twoupfree']"],
         'HR': []
     },
-    'hdtime.org':  {
+    'hdtime.org': {
         'FREE': ["//font[@class='free']"],
         '2XFREE': ["//font[@class='twoupfree']"],
         'HR': []
     },
-    'www.haidan.video':  {
+    'www.haidan.video': {
         'FREE': ["//img[@class='pro_free'][@title='免费']"],
         '2XFREE': [],
         'HR': []
     },
-    'kp.m-team.cc':  {
+    'kp.m-team.cc': {
         'FREE': ["//font[@class='free']"],
         '2XFREE': [],
         'HR': []
     },
-    'lemonhd.org':  {
+    'lemonhd.org': {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': [],
         'HR': []
     },
-    'discfan.net':  {
+    'discfan.net': {
         'FREE': ["//font[@class='free'][text()='免費']"],
         '2XFREE': [],
         'HR': []
     },
-    'pt.sjtu.edu.cn':  {
+    'pt.sjtu.edu.cn': {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': [],
         'HR': []
     },
-    'nanyangpt.com':  {
+    'nanyangpt.com': {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': [],
         'HR': []
     },
-    'audiences.me':  {
+    'audiences.me': {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': ["//font[@class='twoupfree']"],
         'HR': []
     },
-    'pterclub.com':  {
+    'pterclub.com': {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
         'HR': []
     },
-    'et8.org':  {
+    'et8.org': {
         'FREE': ["//font[@class='free']"],
         '2XFREE': ["//font[@class='twoupfree']"],
         'HR': []
     },
-    'pt.keepfrds.com':  {
+    'pt.keepfrds.com': {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': ["//font[@class='twoupfree']"],
         'HR': []
     },
-    'www.pttime.org':  {
+    'www.pttime.org': {
         'FREE': ["//font[@class='free']", "//font[@class='zeroupzerodown']"],
         '2XFREE': ["//font[@class='twoupfree']"],
         'HR': []
     },
-    '1ptba.com':  {
+    '1ptba.com': {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': [],
         'HR': ["//img[@class='hitandrun']"]
     },
-    'www.tjupt.org':  {
+    'www.tjupt.org': {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': ["//font[@class='twoup'][text()='2X']"],
         'HR': ["//font[@color='red'][text()='Hit&Run']"]
     },
-    'hdhome.org':  {
+    'hdhome.org': {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
         'HR': []
     },
-    'hdsky.me':  {
+    'hdsky.me': {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
         'HR': []
     },
-    'hdcity.city':  {
+    'hdcity.city': {
         'FREE': ["//img[@class='pro_free']"],
         '2XFREE': [],
         'HR': []
     },
-    'hdcity.leniter.org':  {
+    'hdcity.leniter.org': {
         'FREE': ["//img[@class='pro_free']"],
         '2XFREE': [],
         'HR': []
     },
-    'hdcity.work':  {
+    'hdcity.work': {
         'FREE': ["//img[@class='pro_free']"],
         '2XFREE': [],
         'HR': []
     },
-    'hdcity4.leniter.org':  {
+    'hdcity4.leniter.org': {
         'FREE': ["//img[@class='pro_free']"],
         '2XFREE': [],
         'HR': []
     },
-    'open.cd':  {
+    'open.cd': {
         'FREE': ["//img[@class='pro_free']"],
         '2XFREE': ["//img[@class='pro_free2up']"],
         'HR': []
     },
-    'ourbits.club':  {
+    'ourbits.club': {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
         'HR': []
     },
-    'pt.btschool.club':  {
+    'pt.btschool.club': {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
         'HR': []
     },
-    'pt.eastgame.org':  {
+    'pt.eastgame.org': {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
         'HR': []
     },
-    'pt.soulvoice.club':  {
+    'pt.soulvoice.club': {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': [],
         'HR': ["//img[@class='hitandrun']"]
     },
-    'springsunday.net':  {
+    'springsunday.net': {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
         'HR': ["//img[@class='hitandrun']"]
     },
-    'www.htpt.cc':  {
+    'www.htpt.cc': {
         'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': [],
+        'HR': []
+    },
+    'chdbits.co': {
+        'FREE': ["//img[@class='pro_free']"],
+        '2XFREE': [],
+        'HR': []
+    },
+    'hdchina.org': {
+        'FREE': ["//img[@class='pro_free']"],
+        '2XFREE': [],
+        'HR': []
+    },
+    "ccfbits.org": {
+        'FREE': ["//font[@color='red'][text()='本种子不计下载量，只计上传量!']"],
         '2XFREE': [],
         'HR': []
     }

@@ -402,7 +402,7 @@
         $("#brushtask_modal_title").text("编辑任务");
         $("#brushtask_name").val(ret.task.name);
         $("#brushtask_site").val(ret.task.site);
-        brushtask_site_change(ret.task.site, ret.task.free);
+        brushtask_site_change(ret.task.site, ret.task.free, ret.task.hr);
         $("#brushtask_interval").val(ret.task.interval);
         $("#brushtask_downloader").val(ret.task.downloader);
         $("#brushtask_totalsize").val(ret.task.seed_size);
@@ -444,7 +444,7 @@
   }
 
   // 选择了站点
-  function brushtask_site_change(site_id, value){
+  function brushtask_site_change(site_id, free_value, hr_value){
     if(!site_id){
       return;
     }
@@ -457,8 +457,16 @@
       if(ret.site_2xfree){
         $("#brushtask_free").append('<option value="2XFREE">2X免费</option>');
       }
-      if(value){
-        $("#brushtask_free").val(value);
+      if(free_value){
+        $("#brushtask_free").val(free_value);
+      }
+      $("#brushtask_hr").empty();
+      $("#brushtask_hr").append('<option value="" selected>全部</option>');
+      if(ret.site_hr){
+        $("#brushtask_hr").append('<option value="HR">排除HR</option>');
+      }
+      if(hr_value){
+        $("#brushtask_hr").val(hr_value);
       }
     });
   }

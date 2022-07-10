@@ -1,6 +1,6 @@
 from functools import lru_cache
 import log
-from config import FANART_TV_API_URL, FANART_MOVIE_API_URL, ANIME_GENREIDS, Config
+from config import FANART_TV_API_URL, FANART_MOVIE_API_URL, ANIME_GENREIDS, Config, DEFAULT_TMDB_IMAGE
 from rmt.category import Category
 from utils.functions import is_all_chinese
 from utils.http_utils import RequestUtils
@@ -294,7 +294,7 @@ class MetaBase(object):
         elif self.poster_path:
             return self.poster_path
         else:
-            return "../static/img/tmdb.webp"
+            return DEFAULT_TMDB_IMAGE
 
     # 返回海报图片地址
     def get_poster_image(self):

@@ -654,6 +654,7 @@ class WebAction:
         tid = data.get("id")
         site_free = False
         site_2xfree = False
+        site_hr = False
         if tid:
             ret = get_site_by_id(tid)
             if ret[0][3]:
@@ -663,9 +664,11 @@ class WebAction:
                         site_free = True
                     if RSS_SITE_GRAP_CONF[url_host].get("2XFREE"):
                         site_2xfree = True
+                    if RSS_SITE_GRAP_CONF[url_host].get("HR"):
+                        site_hr = True
         else:
             ret = []
-        return {"code": 0, "site": ret, "site_free": site_free, "site_2xfree": site_2xfree}
+        return {"code": 0, "site": ret, "site_free": site_free, "site_2xfree": site_2xfree, "site_hr": site_hr}
 
     @staticmethod
     def __del_site(data):
@@ -1375,6 +1378,7 @@ class WebAction:
             "transfer": brushtask[0][7],
             "free": brushtask[0][8],
             "rss_rule": eval(brushtask[0][9]),
+            "hr": eval(brushtask[0][9]).get("hr"),
             "remove_rule": eval(brushtask[0][10]),
             "seed_size": brushtask[0][11],
             "download_count": brushtask[0][12],
