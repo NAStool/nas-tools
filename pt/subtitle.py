@@ -65,13 +65,8 @@ class Subtitle:
 
     @classmethod
     @lru_cache(maxsize=128)
-<<<<<<< HEAD
     def search_opensubtitles(self, name):
-        return self.__ost.search_subtitles([{'sublanguageid': 'zht', 'query': name}])
-=======
-    def search_opensubtitles(cls, name):
-        return cls.__ost.search_subtitles([{'sublanguageid': 'chi', 'query': name}])
->>>>>>> 93ef10c9f9e524a6a9216cb879028919af0ace75
+        return cls.__ost.search_subtitles([{'sublanguageid': 'zht', 'query': name}])
 
     def __download_opensubtitles(self, items):
         """
