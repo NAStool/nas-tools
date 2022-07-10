@@ -211,14 +211,13 @@
     </div>
 </div>
 <div class="modal modal-blur fade" id="tmdb_cache_detail" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header border-bottom-0">
                 <h5 class="modal-title" id="tmdb_cache_title">缓存条目</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <pre class="modal-body" id="tmdb_cache_content">
-                缓存内容
             </pre>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">关闭</button>
@@ -229,18 +228,20 @@
 <div class="modal modal-blur fade" id="modal-tmdbcache-modify" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">修改TMDB缓存</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <label class="form-label required">标题</label>
-          <div class="row mb-3">
-            <input type="hidden" id="tmdbcache_key">
-            <input type="text" value="" id="tmdbcache_title" class="form-control" placeholder="标题">
+      <div class="card border-top-0">
+          <div class="card-header">
+            <h5 class="modal-title">修改TMDB缓存</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-        </div>
+          <div class="card-body">
+            <div class="row">
+              <label class="form-label required">标题</label>
+              <div class="row mb-3">
+                <input type="hidden" id="tmdbcache_key">
+                <input type="text" value="" id="tmdbcache_title" class="form-control" placeholder="标题">
+              </div>
+            </div>
+          </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-white me-auto" data-bs-dismiss="modal">关闭</button>

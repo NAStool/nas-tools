@@ -76,60 +76,62 @@
 <div class="modal modal-blur fade" id="modal-add-downloader" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">新增下载器</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">名称</label>
-              <input type="text" value="" id="dl_name" class="form-control" placeholder="别名">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">新增下载器</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">名称</label>
+                <input type="text" value="" id="dl_name" class="form-control" placeholder="别名">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">类型</label>
+                <select class="form-select" id="dl_type">
+                  <option value="qbittorrent">Qbittorrent</option>
+                  <option value="transmission">Transmission</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">IP地址或域名 <span class="form-help bg-red-lt" title="配置IP地址或域名，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="" id="dl_host" class="form-control" placeholder="ip/http/https">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">端口</label>
+                <input type="text" value="" id="dl_port" class="form-control">
+              </div>
             </div>
           </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">类型</label>
-              <select class="form-select" id="dl_type">
-                <option value="qbittorrent">Qbittorrent</option>
-                <option value="transmission">Transmission</option>
-              </select>
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">用户名</label>
+                <input type="text" value="" id="dl_username" class="form-control">
+              </div>
             </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">IP地址或域名 <span class="form-help bg-red-lt" title="配置IP地址或域名，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="" id="dl_host" class="form-control" placeholder="ip/http/https">
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">端口</label>
-              <input type="text" value="" id="dl_port" class="form-control">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">密码</label>
+                <input type="password" value="" id="dl_password" class="form-control">
+              </div>
             </div>
           </div>
         </div>
-        <div class="row">
-          <div class="col-lg-6">
+        <div class="card-body">
+          <div class="row">
             <div class="mb-3">
-              <label class="form-label required">用户名</label>
-              <input type="text" value="" id="dl_username" class="form-control">
+              <label class="form-label required">保存目录 <span class="form-help bg-red-lt" title="下载器使用的文件保存目录" data-bs-toggle="tooltip">?</span></label>
+              <input type="text" value="" id="dl_save_dir" class="form-control" placeholder="下载器使用路径">
             </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">密码</label>
-              <input type="password" value="" id="dl_password" class="form-control">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="mb-3">
-            <label class="form-label required">保存目录 <span class="form-help bg-red-lt" title="下载器使用的文件保存目录" data-bs-toggle="tooltip">?</span></label>
-            <input type="text" value="" id="dl_save_dir" class="form-control" placeholder="下载器使用路径">
           </div>
         </div>
       </div>
