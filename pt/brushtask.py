@@ -204,7 +204,7 @@ class BrushTask(object):
             # 下载器类型
             client_type = downloader_cfg.get("type")
             if client_type == self._qb_client:
-                torrents = Qbittorrent().get_torrents(ids=torrent_ids, status=["completed"])
+                torrents = Qbittorrent(user_config=downloader_cfg).get_torrents(ids=torrent_ids, status=["completed"])
                 for torrent in torrents:
                     # ID
                     torrent_id = torrent.get("hash")
@@ -220,10 +220,10 @@ class BrushTask(object):
                                                 ratio=ratio,
                                                 uploaded=uploaded):
                         log.info("【BRUSH】%s 达到删种条件，删除下载任务..." % torrent.get('name'))
-                        Qbittorrent().delete_torrents(delete_file=True, ids=torrent_id)
+                        Qbittorrent(user_config=downloader_cfg).delete_torrents(delete_file=True, ids=torrent_id)
                         delete_count += 1
             else:
-                torrents = Transmission().get_torrents(ids=torrent_ids, status=["seeding", "seed_pending"])
+                torrents = Transmission(user_config=downloader_cfg).get_torrents(ids=torrent_ids, status=["seeding", "seed_pending"])
                 for torrent in torrents:
                     # ID
                     torrent_id = torrent.id
@@ -242,7 +242,7 @@ class BrushTask(object):
                                                 ratio=ratio,
                                                 uploaded=uploaded):
                         log.info("【BRUSH】%s 达到删种条件，删除下载任务..." % torrent.get('name'))
-                        Transmission().delete_torrents(delete_file=True, ids=torrent_id)
+                        Transmission(user_config=downloader_cfg).delete_torrents(delete_file=True, ids=torrent_id)
                         delete_count += 1
             # 更新上传量和删除种子数
             add_brushtask_upload_count(brush_id=taskid, size=total_uploaded, count=delete_count)
