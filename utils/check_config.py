@@ -73,16 +73,16 @@ def check_config(cfg):
             log.info("媒体管理软件设置为：%s" % media_server)
             if media_server == "jellyfin":
                 if not config.get('jellyfin'):
-                    log.warn("jellyfin未配置，部分功能将无法使用")
+                    log.warn("jellyfin未配置")
                 else:
                     if not config['jellyfin'].get('host') or not config['jellyfin'].get('api_key'):
-                        log.warn("jellyfin配置不完整，部分功能将无法使用")
+                        log.warn("jellyfin配置不完整")
             else:
                 if not config.get('emby'):
-                    log.warn("emby未配置，部分功能将无法使用")
+                    log.warn("emby未配置")
                 else:
                     if not config['emby'].get('host') or not config['emby'].get('api_key'):
-                        log.warn("emby配置不完整，部分功能将无法使用")
+                        log.warn("emby配置不完整")
 
         movie_paths = config['media'].get('movie_path')
         if not movie_paths:
@@ -114,7 +114,7 @@ def check_config(cfg):
 
         category = config['media'].get('category')
         if not category:
-            log.warn("未配置分类策略")
+            log.info("未配置分类策略")
         else:
             cates = Category()
             if cates.get_movie_categorys():
@@ -259,9 +259,9 @@ def check_config(cfg):
 
     # 检查Douban配置
     if not config.get('douban'):
-        log.warn("豆瓣未配置，豆瓣同步功能将无法使用")
+        log.info("豆瓣未配置")
     else:
         if not config['douban'].get('users') or not config['douban'].get('types') or not config['douban'].get('days'):
-            log.warn("豆瓣配置不完整，豆瓣同步功能将无法使用")
+            log.info("豆瓣配置不完整")
 
     return True

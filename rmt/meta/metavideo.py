@@ -21,7 +21,7 @@ class MetaVideo(MetaBase):
     # 正则式区
     _season_re = r"S(\d{2})|^S(\d{1,2})"
     _episode_re = r"EP?(\d{2,4})|^EP?(\d{1,4})"
-    _part_re = r"(^PART[1-9]?$|^CD[1-9]?$|^DVD[1-9]?$|^DISK[1-9]?$|^DISC[1-9]?$)"
+    _part_re = r"(^PART[0-9]{0,2}$|^CD[0-9]{0,2}$|^DVD[0-9]{0,2}$|^DISK[0-9]{0,2}$|^DISC[0-9]{0,2}$)"
     _resources_type_re = r"^BLURAY$|^REMUX$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^BLU$|^WEB$|^BD$"
     _name_no_begin_re = r"^\[.+?]"
     _name_se_words = ['共', '第', '季', '集', '话', '話']
@@ -191,7 +191,9 @@ class MetaVideo(MetaBase):
                 self.part = re_res.group(1)
         else:
             # 单个数字加入part
-            if self._last_token_type == "part" and token.isdigit() and len(token) == 1:
+            if self._last_token_type == "part" \
+                    and token.isdigit() \
+                    and (len(token) == 1 or len(token) == 2 and token.startswith('0')):
                 self.part = "%s%s" % (self.part, token)
                 self._continue_flag = False
                 self._stop_name_flag = True

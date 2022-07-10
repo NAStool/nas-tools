@@ -124,117 +124,119 @@
 <div class="modal modal-blur fade" id="modal-rename" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="rename_header">手动识别</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3" id="rename_path_div">
-          <label class="form-label">路径</label>
-          <input type="text" id="rename_path" class="form-control" readonly>
-          <input type="hidden" id="unknown_id">
-          <div class="invalid-feedback" id="rename_retmsg"></div>
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title" id="rename_header">手动识别</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="mb-3" id="rename_inpath_div">
-          <label class="form-label">输入路径</label>
-          <input type="text" id="rename_inpath" class="form-control" placeholder="需要识别的目录或文件">
-          <div class="invalid-feedback" id="rename_udf_retmsg"></div>
+        <div class="card-body">
+          <div class="mb-3" id="rename_path_div">
+            <label class="form-label">路径</label>
+            <input type="text" id="rename_path" class="form-control" readonly>
+            <input type="hidden" id="unknown_id">
+            <div class="invalid-feedback" id="rename_retmsg"></div>
+          </div>
+          <div class="mb-3" id="rename_inpath_div">
+            <label class="form-label">输入路径</label>
+            <input type="text" id="rename_inpath" class="form-control" placeholder="需要识别的目录或文件">
+            <div class="invalid-feedback" id="rename_udf_retmsg"></div>
+          </div>
+          <div class="mb-3" id="rename_outpath_div">
+            <label class="form-label">输出路径</label>
+            <input type="text" id="rename_outpath" class="form-control" placeholder="识别后文件存储路径">
+          </div>
+          <label class="form-label">类型</label>
+          <div class="form-selectgroup-boxes row mb-3">
+            <div class="col-lg-4">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="rename_type" value="MOV" class="form-selectgroup-input" checked>
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">电影</span>
+                  </span>
+                </span>
+              </label>
+            </div>
+            <div class="col-lg-4">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="rename_type" value="TV" class="form-selectgroup-input">
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">电视剧</span>
+                  </span>
+                </span>
+              </label>
+            </div>
+            <div class="col-lg-4">
+              <label class="form-selectgroup-item">
+                <input type="radio" name="rename_type" value="ANIME" class="form-selectgroup-input">
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">动漫</span>
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
         </div>
-        <div class="mb-3" id="rename_outpath_div">
-          <label class="form-label">输出路径</label>
-          <input type="text" id="rename_outpath" class="form-control" placeholder="识别后文件存储路径">
-        </div>
-        <label class="form-label">类型</label>
-        <div class="form-selectgroup-boxes row mb-3">
-          <div class="col-lg-4">
-            <label class="form-selectgroup-item">
-              <input type="radio" name="rename_type" value="MOV" class="form-selectgroup-input" checked>
-              <span class="form-selectgroup-label d-flex align-items-center p-3">
-                <span class="me-3">
-                  <span class="form-selectgroup-check"></span>
-                </span>
-                <span class="form-selectgroup-label-content">
-                  <span class="form-selectgroup-title strong mb-1">电影</span>
-                </span>
-              </span>
-            </label>
-          </div>
-          <div class="col-lg-4">
-            <label class="form-selectgroup-item">
-              <input type="radio" name="rename_type" value="TV" class="form-selectgroup-input">
-              <span class="form-selectgroup-label d-flex align-items-center p-3">
-                <span class="me-3">
-                  <span class="form-selectgroup-check"></span>
-                </span>
-                <span class="form-selectgroup-label-content">
-                  <span class="form-selectgroup-title strong mb-1">电视剧</span>
-                </span>
-              </span>
-            </label>
-          </div>
-          <div class="col-lg-4">
-            <label class="form-selectgroup-item">
-              <input type="radio" name="rename_type" value="ANIME" class="form-selectgroup-input">
-              <span class="form-selectgroup-label d-flex align-items-center p-3">
-                <span class="me-3">
-                  <span class="form-selectgroup-check"></span>
-                </span>
-                <span class="form-selectgroup-label-content">
-                  <span class="form-selectgroup-title strong mb-1">动漫</span>
-                </span>
-              </span>
-            </label>
-          </div>
-        </div>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-6" id="rename_title_div">
-            <div class="mb-3">
-              <label class="form-label">标题</label>
-              <input type="text" id="rename_title" class="form-control">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-6" id="rename_title_div">
+              <div class="mb-3">
+                <label class="form-label">标题</label>
+                <input type="text" id="rename_title" class="form-control" placeholder="TMDB中的名称">
+              </div>
             </div>
-          </div>
-          <div class="col-lg-6" id="rename_year_div">
-            <div class="mb-3">
-              <label class="form-label">年份</label>
-              <input type="text" id="rename_year" class="form-control">
+            <div class="col-lg-6" id="rename_year_div">
+              <div class="mb-3">
+                <label class="form-label">年份</label>
+                <input type="text" id="rename_year" class="form-control" placeholder="首播年份">
+              </div>
             </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="mb-3">
-              <label class="form-label">TMDB ID</label>
-              <input type="text" id="rename_tmdb" class="form-control">
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">TMDB ID</label>
+                <input type="text" id="rename_tmdb" class="form-control" placeholder="TMDB的编号">
+              </div>
             </div>
-          </div>
-          <div class="col-lg-4" id="rename_season_div">
-            <div class="mb-3">
-              <label class="form-label">季</label>
-              <select class="form-select" id="rename_season">
-                <option value="" selected>请选择</option>
-              </select>
+            <div class="col-lg-4" id="rename_season_div">
+              <div class="mb-3">
+                <label class="form-label">季</label>
+                <select class="form-select" id="rename_season">
+                  <option value="" selected>请选择</option>
+                </select>
+              </div>
             </div>
-          </div>
-          <div class="col-lg-4" id="rename_min_filesize_div">
-            <div class="mb-3">
-              <label class="form-label">最小文件大小</label>
-              <input type="text" id="rename_min_filesize" class="form-control" placeholder="最小文件大小(MB)">
+            <div class="col-lg-4" id="rename_min_filesize_div">
+              <div class="mb-3">
+                <label class="form-label">最小文件大小</label>
+                <input type="text" id="rename_min_filesize" class="form-control" placeholder="最小文件大小(MB)">
+              </div>
             </div>
-          </div>
-          <div class="col-lg-12" id="rename_episode_div">
-            <div class="mb-3">
-              <label class="form-label">集数定位(<span class="form-help bg-red-lt"
-                  title="3个都不填，用默认识别&#13;{ep}: 标定集数位置，例如：&#13;&nbsp;&nbsp;&nbsp;&nbsp;(BD)十二国記 第45話「東の海神 西の滄海 五章」(1440x1080 x264-10bpp flac).mkv&#13;&nbsp;&nbsp;&nbsp;&nbsp;(BD)十二国記 第32話「風の万里 黎明の空　九章」(1440x1080 x264-10bpp flac).mkv&#13;&nbsp;&nbsp;&nbsp;&nbsp;此处可以填(BD)十二国記 第{ep}話{a}(1440x1080 x264-10bpp flac).mkv ep表示集，a表示理解成一个变量，随意用一个变量表示，如果没有变化的部分，只标定ep就行&#13;start_ep[, end_ep], 裁定范围， 如果输入是文件，输出就是单个文件，如果输入是目录，输出可以根据填的值批量识别&#13;&nbsp;&nbsp;&nbsp;&nbsp;例如 '1' 表示第一集, '2,4' 只取第2集到第4集，'1-2'表示第1-2集，此选项优先级最高&#13;offset: 集数偏移, 例如ep定位出集数是11, 实际是第一集, 此处填-10, 以应付多季合集的场景 " >?</span>)</label>
-              <div class="row">
-                <div class="col-4">
-                  <input type="text" id="rename_episode" class="form-control" placeholder="{ep}.mp4">
-                </div>
-                <div class="col-4">
-                  <input type="text" id="rename_episode_details" class="form-control"
-                    placeholder="start_ep[, end_ep] 可选">
-                </div>
-                <div class="col-4">
-                  <input type="text" id="rename_episode_offset" class="form-control" placeholder="offset, 可选">
+            <div class="col-lg-12" id="rename_episode_div">
+              <div class="mb-3">
+                <label class="form-label">集数定位(<span class="form-help bg-red-lt"
+                    title="3个都不填，用默认识别&#13;{ep}: 标定集数位置，例如：&#13;&nbsp;&nbsp;&nbsp;&nbsp;(BD)十二国記 第45話「東の海神 西の滄海 五章」(1440x1080 x264-10bpp flac).mkv&#13;&nbsp;&nbsp;&nbsp;&nbsp;(BD)十二国記 第32話「風の万里 黎明の空　九章」(1440x1080 x264-10bpp flac).mkv&#13;&nbsp;&nbsp;&nbsp;&nbsp;此处可以填(BD)十二国記 第{ep}話{a}(1440x1080 x264-10bpp flac).mkv ep表示集，a表示理解成一个变量，随意用一个变量表示，如果没有变化的部分，只标定ep就行&#13;start_ep[, end_ep], 裁定范围， 如果输入是文件，输出就是单个文件，如果输入是目录，输出可以根据填的值批量识别&#13;&nbsp;&nbsp;&nbsp;&nbsp;例如 '1' 表示第一集, '2,4' 只取第2集到第4集，'1-2'表示第1-2集，此选项优先级最高&#13;offset: 集数偏移, 例如ep定位出集数是11, 实际是第一集, 此处填-10, 以应付多季合集的场景 " >?</span>)</label>
+                <div class="row">
+                  <div class="col-4">
+                    <input type="text" id="rename_episode" class="form-control" placeholder="{ep}.mp4">
+                  </div>
+                  <div class="col-4">
+                    <input type="text" id="rename_episode_details" class="form-control"
+                      placeholder="start_ep[, end_ep] 可选">
+                  </div>
+                  <div class="col-4">
+                    <input type="text" id="rename_episode_offset" class="form-control" placeholder="offset, 可选">
+                  </div>
                 </div>
               </div>
             </div>
@@ -242,14 +244,15 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" id="rename_btn" class="btn btn-primary">转移</button>
+        <button type="button" class="btn btn-white me-auto" data-bs-dismiss="modal">关闭</button>
+        <button type="button" id="rename_btn" class="btn btn-primary">识别</button>
         <button type="button" id="rename_udf_btn" class="btn btn-primary" style="display: none">识别</button>
       </div>
     </div>
   </div>
 </div>
 <script type="text/javascript">
-  //手动转移
+  //手动识别
   function manual_rename() {
     var unknown_id = $('#unknown_id').val();
     var type = $('input:radio[name=rename_type]:checked').val();
@@ -311,7 +314,7 @@
     $("#rename_retmsg").hide()
     ajax_post("rename", data, function (ret) {
       $("#rename_btn").attr("disabled", false);
-      $("#rename_btn").text("转移");
+      $("#rename_btn").text("识别");
       if (ret.retcode == 0) {
         //处理成功
         $('#modal-rename').modal('hide');
@@ -378,7 +381,6 @@
       }
     }
 
-
     // 开始处理
     var data = {
       "inpath": inpath, "outpath": outpath, "type": type, "tmdb": tmdb
@@ -392,9 +394,8 @@
       $("#rename_udf_btn").attr("disabled", false);
       $("#rename_udf_btn").text("识别");
       if (ret.retcode == 0) {
-        //处理成功, 关闭刷新比较好
-        {#$('#modal-rename').modal('hide');#}
-        {#navmenu('unidentification');#}
+        $('#modal-rename').modal('hide');
+        show_success_modal("处理成功！");
       } else {
         //处理失败
         regmsg = ret.retmsg;
@@ -482,7 +483,7 @@
     });
   }
 
-  //转移按钮
+  //识别按钮
   $("#rename_btn").click(function () {
     manual_rename();
   });

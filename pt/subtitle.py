@@ -5,10 +5,12 @@ from pythonopensubtitles.opensubtitles import OpenSubtitles
 
 import log
 from config import Config
+from utils.functions import singleton
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
 
 
+@singleton
 class Subtitle:
     __server = None
     __username = None
@@ -16,6 +18,8 @@ class Subtitle:
     __host = None
     __api_key = None
     __ost = None
+    __remote_path = None
+    __local_path = None
 
     def __init__(self):
         self.init_config()
@@ -42,6 +46,8 @@ class Subtitle:
                     self.__host = "http://" + self.__host
                 if not self.__host.endswith('/'):
                     self.__host = self.__host + "/"
+                self.__local_path = subtitle.get("chinesesubfinder", {}).get("local_path")
+                self.__remote_path = subtitle.get("chinesesubfinder", {}).get("remote_path")
 
     def download_subtitle(self, items):
         """
@@ -57,9 +63,15 @@ class Subtitle:
         elif self.__server == "chinesesubfinder":
             self.__download_chinesesubfinder(items)
 
+    @classmethod
     @lru_cache(maxsize=128)
+<<<<<<< HEAD
     def search_opensubtitles(self, name):
         return self.__ost.search_subtitles([{'sublanguageid': 'zht', 'query': name}])
+=======
+    def search_opensubtitles(cls, name):
+        return cls.__ost.search_subtitles([{'sublanguageid': 'chi', 'query': name}])
+>>>>>>> 93ef10c9f9e524a6a9216cb879028919af0ace75
 
     def __download_opensubtitles(self, items):
         """
@@ -139,6 +151,11 @@ class Subtitle:
                 file_path = "%s.mp4" % item.get("file")
             else:
                 file_path = "%s%s" % (item.get("file"), item.get("file_ext"))
+
+            # 路径替换
+            if self.__local_path and self.__remote_path and file_path.startswith(self.__local_path):
+                file_path = file_path.replace(self.__local_path, self.__remote_path)
+
             # 一个名称只建一个任务
             if file_path not in notify_items:
                 notify_items.append(file_path)

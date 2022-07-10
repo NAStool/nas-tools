@@ -6,10 +6,11 @@ from flask_login import logout_user
 from werkzeug.security import generate_password_hash
 
 import log
-from config import RMT_MEDIAEXT, Config, GRAP_FREE_SITES
+from config import RMT_MEDIAEXT, Config
 from message.channel.telegram import Telegram
 from message.channel.wechat import WeChat
 from message.send import Message
+from pt.brushtask import BrushTask
 from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
 from pt.douban import DouBan
@@ -17,7 +18,9 @@ from pt.downloader import Downloader
 from pt.mediaserver.jellyfin import Jellyfin
 from pt.mediaserver.plex import Plex
 from pt.rss import Rss
+from pt.siteconf import RSS_SITE_GRAP_CONF
 from pt.sites import Sites
+from pt.subtitle import Subtitle
 from pt.torrent import Torrent
 from rmt.category import Category
 from rmt.doubanv2api.doubanapi import DoubanApi
@@ -82,7 +85,13 @@ class WebAction:
             "movie_calendar_data": self.__movie_calendar_data,
             "tv_calendar_data": self.__tv_calendar_data,
             "modify_tmdb_cache": self.__modify_tmdb_cache,
-            "rss_detail": self.__rss_detail
+            "rss_detail": self.__rss_detail,
+            "truncate_blacklist": self.__truncate_blacklist,
+            "add_brushtask": self.__add_brushtask,
+            "del_brushtask": self.__del_brushtask,
+            "brushtask_detail": self.__brushtask_detail,
+            "add_downloader": self.__add_downloader,
+            "delete_downloader": self.__delete_downloader
         }
 
     def action(self, cmd, data):
@@ -645,18 +654,21 @@ class WebAction:
         tid = data.get("id")
         site_free = False
         site_2xfree = False
+        site_hr = False
         if tid:
             ret = get_site_by_id(tid)
             if ret[0][3]:
                 url_host = parse.urlparse(ret[0][3]).netloc
-                if url_host in GRAP_FREE_SITES.keys():
-                    if GRAP_FREE_SITES[url_host].get("FREE"):
+                if url_host in RSS_SITE_GRAP_CONF.keys():
+                    if RSS_SITE_GRAP_CONF[url_host].get("FREE"):
                         site_free = True
-                    if GRAP_FREE_SITES[url_host].get("2XFREE"):
+                    if RSS_SITE_GRAP_CONF[url_host].get("2XFREE"):
                         site_2xfree = True
+                    if RSS_SITE_GRAP_CONF[url_host].get("HR"):
+                        site_hr = True
         else:
             ret = []
-        return {"code": 0, "site": ret, "site_free": site_free, "site_2xfree": site_2xfree}
+        return {"code": 0, "site": ret, "site_free": site_free, "site_2xfree": site_2xfree, "site_hr": site_hr}
 
     @staticmethod
     def __del_site(data):
@@ -749,11 +761,10 @@ class WebAction:
         scheduler_reload = False
         jellyfin_reload = False
         plex_reload = False
-        qbittorrent_reload = False
-        transmission_reload = False
         wechat_reload = False
         telegram_reload = False
         category_reload = False
+        subtitle_reload = False
         # 修改配置
         for key, value in cfgs:
             if key == "test" and value:
@@ -778,6 +789,8 @@ class WebAction:
                 wechat_reload = True
             if key.startswith("media.category"):
                 category_reload = True
+            if key.startswith("subtitle"):
+                subtitle_reload = True
         # 保存配置
         if not config_test:
             self.config.save_config(cfg)
@@ -791,12 +804,6 @@ class WebAction:
         # 重载Plex
         if plex_reload:
             Plex().init_config()
-        # 重载qbittorrent
-        if qbittorrent_reload:
-            Qbittorrent().init_config()
-        # 重载transmission
-        if transmission_reload:
-            Transmission().init_config()
         # 重载wechat
         if wechat_reload:
             WeChat().init_config()
@@ -806,6 +813,9 @@ class WebAction:
         # 重载二级分类
         if category_reload:
             Category().init_config()
+        # 重载字幕
+        if subtitle_reload:
+            Subtitle().init_config()
 
         return {"code": 0}
 
@@ -1276,6 +1286,150 @@ class WebAction:
         return {"code": 0}
 
     @staticmethod
+    def __truncate_blacklist(data):
+        """
+        清空文件转移黑名单记录
+        """
+        return {"code": truncate_transfer_blacklist()}
+
+    @staticmethod
+    def __add_brushtask(data):
+        """
+        新增刷流任务
+        """
+        # 输入值
+        brushtask_id = data.get("brushtask_id")
+        brushtask_name = data.get("brushtask_name")
+        brushtask_site = data.get("brushtask_site")
+        brushtask_interval = data.get("brushtask_interval")
+        brushtask_downloader = data.get("brushtask_downloader")
+        brushtask_totalsize = data.get("brushtask_totalsize")
+        brushtask_state = data.get("brushtask_state")
+        brushtask_transfer = 'Y' if data.get("brushtask_transfer") else 'N'
+        brushtask_free = data.get("brushtask_free")
+        brushtask_hr = data.get("brushtask_hr")
+        brushtask_torrent_size = data.get("brushtask_torrent_size")
+        brushtask_include = data.get("brushtask_include")
+        brushtask_exclude = data.get("brushtask_exclude")
+        brushtask_dlcount = data.get("brushtask_dlcount")
+        brushtask_seedtime = data.get("brushtask_seedtime")
+        brushtask_seedratio = data.get("brushtask_seedratio")
+        brushtask_seedsize = data.get("brushtask_seedsize")
+        # 选种规则
+        rss_rule = {
+            "free": brushtask_free,
+            "hr": brushtask_hr,
+            "size": brushtask_torrent_size,
+            "include": brushtask_include,
+            "exclude": brushtask_exclude,
+            "dlcount": brushtask_dlcount
+        }
+        # 删除规则
+        remove_rule = {
+            "time": brushtask_seedtime,
+            "ratio": brushtask_seedratio,
+            "uploadsize": brushtask_seedsize
+        }
+        # 添加记录
+        item = {
+            "name": brushtask_name,
+            "site": brushtask_site,
+            "free": brushtask_free,
+            "interval": brushtask_interval,
+            "downloader": brushtask_downloader,
+            "seed_size": brushtask_totalsize,
+            "transfer": brushtask_transfer,
+            "state": brushtask_state,
+            "rss_rule": rss_rule,
+            "remove_rule": remove_rule
+        }
+        insert_brushtask(brushtask_id, item)
+        # 重新初始化任务
+        BrushTask().init_config()
+        return {"code": 0}
+
+    @staticmethod
+    def __del_brushtask(data):
+        """
+        删除刷流任务
+        """
+        brush_id = data.get("id")
+        if brush_id:
+            delete_brushtask(brush_id)
+            # 重新初始化任务
+            BrushTask().init_config()
+            return {"code": 0}
+        return {"code": 1}
+
+    @staticmethod
+    def __brushtask_detail(data):
+        """
+        查询刷流任务详情
+        """
+        brush_id = data.get("id")
+        brushtask = get_brushtasks(brush_id)
+        if not brushtask:
+            return {"code": 1, "task": {}}
+        task = {
+            "id": brushtask[0][0],
+            "name": brushtask[0][1],
+            "site": brushtask[0][2],
+            "interval": brushtask[0][4],
+            "state": brushtask[0][5],
+            "downloader": brushtask[0][6],
+            "transfer": brushtask[0][7],
+            "free": brushtask[0][8],
+            "rss_rule": eval(brushtask[0][9]),
+            "remove_rule": eval(brushtask[0][10]),
+            "seed_size": brushtask[0][11],
+            "download_count": brushtask[0][12],
+            "remove_count": brushtask[0][13],
+            "download_size": str_filesize(brushtask[0][14]),
+            "upload_size": str_filesize(brushtask[0][15]),
+            "lst_mod_date": brushtask[0][16],
+            "site_url": "http://%s" % parse.urlparse(brushtask[0][17]).netloc if brushtask[0][17] else ""
+        }
+        return {"code": 0, "task": task}
+
+    @staticmethod
+    def __add_downloader(data):
+        """
+        添加自定义下载器
+        """
+        test = data.get("test")
+        dl_name = data.get("name")
+        dl_type = data.get("type")
+        user_config = {"host": data.get("host"),
+                       "port": data.get("port"),
+                       "username": data.get("username"),
+                       "password": data.get("password"),
+                       "save_dir": data.get("save_dir")}
+        if test:
+            # 测试
+            if dl_type == "qbittorrent":
+                downloader = Qbittorrent(user_config=user_config)
+            else:
+                downloader = Transmission(user_config=user_config)
+            if downloader.get_status():
+                return {"code": 0}
+            else:
+                return {"code": 1}
+        else:
+            # 保存
+            insert_user_downloader(name=dl_name, dtype=dl_type, user_config=user_config, note=None)
+            return {"code": 0}
+
+    @staticmethod
+    def __delete_downloader(data):
+        """
+        删除自定义下载器
+        """
+        dl_id = data.get("id")
+        if dl_id:
+            delete_user_downloader(dl_id)
+        return {"code": 0}
+
+    @staticmethod
     def parse_sites_string(notes):
         if not notes:
             return ""
@@ -1291,8 +1445,6 @@ class WebAction:
     def parse_filter_string(notes):
         if not notes:
             return ""
-        if not notes:
-            return ""
         _, _, over_edition, filter_map = Torrent.get_rss_note_item(notes)
         filter_htmls = []
         if over_edition:
@@ -1301,3 +1453,45 @@ class WebAction:
                          filter_map.values() if v]
 
         return "".join(filter_htmls)
+
+    @staticmethod
+    def parse_brush_rule_string(rules: dict):
+        if not rules:
+            return ""
+        rule_filter_string = {"gt": "大于", "lt": "小于", "bw": "介于"}
+        rule_htmls = []
+        if rules.get("size"):
+            sizes = rules.get("size").split("#")
+            if sizes[0]:
+                if sizes[1]:
+                    sizes[1] = sizes[1].replace(",", "-")
+                rule_htmls.append('<span class="badge badge-outline text-blue me-1 mb-1" title="种子大小">%s: %s GB</span>'
+                                  % (rule_filter_string.get(sizes[0]), sizes[1]))
+        if rules.get("include"):
+            rule_htmls.append('<span class="badge badge-outline text-green me-1 mb-1" title="包含规则">包含: %s</span>'
+                              % rules.get("include"))
+        if rules.get("hr"):
+            rule_htmls.append('<span class="badge badge-outline text-red me-1 mb-1" title="排除HR">排除: HR</span>')
+        if rules.get("exclude"):
+            rule_htmls.append('<span class="badge badge-outline text-red me-1 mb-1" title="排除规则">排除: %s</span>'
+                              % rules.get("exclude"))
+        if rules.get("dlcount"):
+            rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="同时下载数量限制">同时下载: %s</span>'
+                              % rules.get("dlcount"))
+        if rules.get("time"):
+            times = rules.get("time").split("#")
+            if times[0]:
+                rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="做种时间">做种%s: %s 小时</span>'
+                                  % (rule_filter_string.get(times[0]), times[1]))
+        if rules.get("ratio"):
+            ratios = rules.get("ratio").split("#")
+            if ratios[0]:
+                rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="分享率">分享率%s: %s</span>'
+                                  % (rule_filter_string.get(ratios[0]), ratios[1]))
+        if rules.get("uploadsize"):
+            uploadsizes = rules.get("uploadsize").split("#")
+            if uploadsizes[0]:
+                rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="上传量">上传量%s: %s GB</span>'
+                                  % (rule_filter_string.get(uploadsizes[0]), uploadsizes[1]))
+
+        return "<br>".join(rule_htmls)

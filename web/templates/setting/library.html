@@ -204,22 +204,25 @@
 <div class="modal modal-blur fade" id="modal-dirctory" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">新增目录</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="mb-3">
-              <label class="form-label">路径 <span class="form-help bg-red-lt" title="Emby/Jellyfin/Plex媒体库对应文件的路径，PT下载转移、目录同步未配置目的目录时，媒体文件将重命名转移到该目录" data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="" id="path_str" class="form-control">
-              <input type="hidden" value="" id="path_type" class="form-control">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">新增目录</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="mb-3">
+                <label class="form-label">路径 <span class="form-help bg-red-lt" title="Emby/Jellyfin/Plex媒体库对应文件的路径，PT下载转移、目录同步未配置目的目录时，媒体文件将重命名转移到该目录" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="" id="path_str" class="form-control">
+                <input type="hidden" value="" id="path_type" class="form-control">
+              </div>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn btn-white me-auto" data-bs-dismiss="modal">关闭</button>
         <a href="javascript:add_directory_config()" id="directory_save_btn" class="btn btn-primary">确定</a>
       </div>
     </div>

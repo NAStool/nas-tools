@@ -4,16 +4,23 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=0"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
+    <title>NASTool - 资源归集、整理自动化工具</title>
     <meta name="referrer" content="never">
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="Robots" content="noindex,nofollow,noarchive">
-    <meta content="default" name="apple-mobile-web-app-status-bar-style" />
-    <title>NASTool - 资源归集、整理自动化工具</title>
-    <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon" />
-    <link rel="apple-touch-icon" href="../static/img/logo.png">
+    <meta name="msapplication-TileColor" content="#1e293b"/>
+    <meta name="theme-color" content="#1e293b"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="mobile-web-app-capable" content="yes"/>
+    <meta name="HandheldFriendly" content="True"/>
+    <meta name="MobileOptimized" content="320"/>
     <link rel="icon" href="../static/img/logo.png">
+    <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon"/>
+    <link rel="apple-touch-icon" href="../static/img/logo.png">
+    <meta name="Robots" content="noindex,nofollow,noarchive">
     <!-- CSS files -->
     <link href="../static/css/tabler.min.css" rel="stylesheet"/>
+    <link href="../static/css/demo.min.css" rel="stylesheet"/>
     <link href="../static/css/fullcalendar.min.css" rel="stylesheet"/>
     <style type="text/css">
       .tooltip-inner {
@@ -67,6 +74,14 @@
           </div>
         </div>
         <div class="collapse navbar-collapse" id="navbar-menu">
+          <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last d-lg-none">
+            <div class="input-icon">
+              <span class="input-icon-addon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
+              </span>
+              <input type="text" value="" class="form-control home_search_word" placeholder="搜索...">
+            </div>
+          </div>
           <ul class="navbar-nav pt-lg-3">
             {% if "我的媒体库" in UserPris %}
             <li class="nav-item">
@@ -154,6 +169,9 @@
                 </a>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('statistics')">
                   数据统计
+                </a>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('brushtask')">
+                  刷流任务
                 </a>
               </div>
             </li>
@@ -390,7 +408,7 @@
                 <span class="input-icon-addon">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><desc>Download more icon variants from https://tabler-icons.io/i/search</desc><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
                 </span>
-                <input type="text" id="top_search_word" value="" class="form-control" placeholder="搜索…" aria-label="资源搜索">
+                <input type="text" value="" class="form-control home_search_word" placeholder="搜索…" aria-label="资源搜索">
               </div>
             </div>
           </div>
@@ -879,7 +897,7 @@
       //事件
       $(document).ready(function(){
         // 搜索输入框
-        $('#top_search_word').bind('keypress',function(event){
+        $('.home_search_word').bind('keypress',function(event){
            if(event.keyCode == "13")
            {
              if(!$(this).val()){

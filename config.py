@@ -37,10 +37,14 @@ RSS_CHECK_INTERVAL = 300
 # PT站流量数据刷新时间间隔（小时）
 REFRESH_PT_DATA_INTERVAL = 6
 # 将豆瓣订阅转为TMDB订阅的检查时间间隔（小时）
-RSS_DOUBAN_TO_TMDB_INTEVAL = 12
+RSS_DOUBAN_TO_TMDB_INTERVAL = 6
+# 刷流删除的检查时间间隔
+BRUSH_REMOVE_TORRENTS_INTERVAL = 600
 # fanart的api，用于拉取封面图片
 FANART_MOVIE_API_URL = 'https://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
 FANART_TV_API_URL = 'https://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
+# 默认背景图地址
+DEFAULT_TMDB_IMAGE = 'https://s3.bmp.ovh/imgs/2022/07/10/77ef9500c851935b.webp'
 # 添加下载时增加的标签，开始只监控NASTool添加的下载时有效
 PT_TAG = "NASTOOL"
 # 搜索种子过滤属性
@@ -66,81 +70,6 @@ TORRENT_SEARCH_PARAMS = {
 DEFAULT_MOVIE_FORMAT = '{title} ({year})/{title}-{part} ({year}) - {videoFormat}'
 # 电视剧默认命名格式
 DEFAULT_TV_FORMAT = '{title} ({year})/Season {season}/{title}-{part} - {season_episode} - 第 {episode} 集'
-# 非常规RSS站点
-RSS_EXTRA_SITES = {
-    'blutopia.xyz': 'Unit3D',
-    'desitorrents.tv': 'Unit3D',
-    'jptv.club': 'Unit3D',
-    'www.torrentseeds.org': 'Unit3D',
-    'beyond-hd.me': 'beyondhd',
-}
-# 检测种子促销的PT站点XPATH，不在此清单的无法开启仅RSS免费种子功能
-GRAP_FREE_SITES = {
-    'pthome.net': {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"]
-    },
-    'ptsbao.club':  {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"]
-    },
-    'totheglory.im':  {
-        'FREE': ["//img[@class='topic'][contains(@src,'ico_free.gif')]"],
-        '2XFREE': []
-    },
-    'www.beitai.pt':  {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"]
-    },
-    'hdtime.org':  {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"]
-    },
-    'www.haidan.video':  {
-        'FREE': ["//img[@class='pro_free'][@title='免费']"],
-        '2XFREE': []
-    },
-    'kp.m-team.cc':  {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': []
-    },
-    'lemonhd.org':  {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': []
-    },
-    'discfan.net':  {
-        'FREE': ["//font[@class='free'][text()='免費']"],
-        '2XFREE': []
-    },
-    'pt.sjtu.edu.cn':  {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': []
-    },
-    'nanyangpt.com':  {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': []
-    },
-    'audiences.me':  {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': []
-    },
-    'pterclub.com':  {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': []
-    },
-    'et8.org':  {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"]
-    },
-    'pt.keepfrds.com':  {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree']"]
-    },
-    'www.pttime.org':  {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': []
-    }
-}
 
 lock = Lock()
 

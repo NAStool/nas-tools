@@ -75,6 +75,11 @@ class Sites:
                 site_user_info.parse()
                 log.debug(f"【PT】站点 {site_name} 解析完成")
 
+                # 获取不到数据时，仅返回错误信息，不做历史数据更新
+                if site_user_info.err_msg:
+                    self.__sites_data.update({site_name: {"err_msg": site_user_info.err_msg}})
+                    return
+
                 self.__sites_data.update({site_name: {"upload": site_user_info.upload,
                                                       "username": site_user_info.username,
                                                       "user_level": site_user_info.user_level,
@@ -86,7 +91,7 @@ class Sites:
                                                       "leeching": site_user_info.leeching,
                                                       "bonus": site_user_info.bonus,
                                                       "url": site_url,
-                                                      "err_msg": ""}
+                                                      "err_msg": site_user_info.err_msg}
                                           })
 
                 # 登记历史数据

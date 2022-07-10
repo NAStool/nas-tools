@@ -160,107 +160,109 @@
 <div class="modal modal-blur fade" id="modal-rename" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">重新识别</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label">路径</label>
-          <input type="text" id="rename_path" class="form-control" readonly>
-          <input type="hidden" id="rename_logid" class="form-control">
-          <div class="invalid-feedback" id="rename_retmsg"></div>
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">重新识别</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <label class="form-label">类型</label>
-        <div class="form-selectgroup-boxes row mb-3">
-          <div class="col-lg-4">
-            <label class="form-selectgroup-item" for="rename_type_mov">
-              <input type="radio" name="rename_type" id="rename_type_mov" value="MOV" class="form-selectgroup-input"
-                checked>
-              <span class="form-selectgroup-label d-flex align-items-center p-3">
-                <span class="me-3">
-                  <span class="form-selectgroup-check"></span>
-                </span>
-                <span class="form-selectgroup-label-content">
-                  <span class="form-selectgroup-title strong mb-1">电影</span>
-                </span>
-              </span>
-            </label>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label">路径</label>
+            <input type="text" id="rename_path" class="form-control" readonly>
+            <input type="hidden" id="rename_logid" class="form-control">
+            <div class="invalid-feedback" id="rename_retmsg"></div>
           </div>
-          <div class="col-lg-4">
-            <label class="form-selectgroup-item" for="rename_type_tv">
-              <input type="radio" name="rename_type" id="rename_type_tv" value="TV" class="form-selectgroup-input">
-              <span class="form-selectgroup-label d-flex align-items-center p-3">
-                <span class="me-3">
-                  <span class="form-selectgroup-check"></span>
+          <label class="form-label">类型</label>
+          <div class="form-selectgroup-boxes row mb-3">
+            <div class="col-lg-4">
+              <label class="form-selectgroup-item" for="rename_type_mov">
+                <input type="radio" name="rename_type" id="rename_type_mov" value="MOV" class="form-selectgroup-input"
+                  checked>
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">电影</span>
+                  </span>
                 </span>
-                <span class="form-selectgroup-label-content">
-                  <span class="form-selectgroup-title strong mb-1">电视剧</span>
+              </label>
+            </div>
+            <div class="col-lg-4">
+              <label class="form-selectgroup-item" for="rename_type_tv">
+                <input type="radio" name="rename_type" id="rename_type_tv" value="TV" class="form-selectgroup-input">
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">电视剧</span>
+                  </span>
                 </span>
-              </span>
-            </label>
-          </div>
-          <div class="col-lg-4">
-            <label class="form-selectgroup-item" for="rename_type_anime">
-              <input type="radio" name="rename_type" id="rename_type_anime" value="ANIME"
-                class="form-selectgroup-input">
-              <span class="form-selectgroup-label d-flex align-items-center p-3">
-                <span class="me-3">
-                  <span class="form-selectgroup-check"></span>
+              </label>
+            </div>
+            <div class="col-lg-4">
+              <label class="form-selectgroup-item" for="rename_type_anime">
+                <input type="radio" name="rename_type" id="rename_type_anime" value="ANIME"
+                  class="form-selectgroup-input">
+                <span class="form-selectgroup-label d-flex align-items-center p-3">
+                  <span class="me-3">
+                    <span class="form-selectgroup-check"></span>
+                  </span>
+                  <span class="form-selectgroup-label-content">
+                    <span class="form-selectgroup-title strong mb-1">动漫</span>
+                  </span>
                 </span>
-                <span class="form-selectgroup-label-content">
-                  <span class="form-selectgroup-title strong mb-1">动漫</span>
-                </span>
-              </span>
-            </label>
+              </label>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label">标题</label>
-              <input type="text" id="rename_title" class="form-control">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">标题</label>
+                <input type="text" id="rename_title" class="form-control" placeholder="TMDB中的名称">
+              </div>
             </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label">年份</label>
-              <input type="text" id="rename_year" class="form-control">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">年份</label>
+                <input type="text" id="rename_year" class="form-control" placeholder="首播年份">
+              </div>
             </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label">TMDB ID</label>
-              <input type="text" id="rename_tmdb" class="form-control">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">TMDB ID</label>
+                <input type="text" id="rename_tmdb" class="form-control" placeholder="TMDB中的编号">
+              </div>
             </div>
-          </div>
-          <div class="col-lg-6" id="rename_season_div">
-            <div class="mb-3">
-              <label class="form-label">季</label>
-              <select class="form-select" id="rename_season">
-                <option value="" selected>请选择</option>
-              </select>
+            <div class="col-lg-6" id="rename_season_div">
+              <div class="mb-3">
+                <label class="form-label">季</label>
+                <select class="form-select" id="rename_season">
+                  <option value="" selected>请选择</option>
+                </select>
+              </div>
             </div>
-          </div>
-          <div class="col-lg-6" id="rename_episode_div">
-            <div class="mb-3">
-              <label class="form-label">自定义集数位置 <span class="form-help bg-red-lt" title="标定集数位置，例如：铁齿铜牙纪晓岚{ep}.iso" data-bs-toggle="tooltip" data-bs-toggle="tooltip">?</span></label>
-              <input type="text" id="rename_episode" class="form-control" placeholder="{ep}.mp4">
+            <div class="col-lg-6" id="rename_episode_div">
+              <div class="mb-3">
+                <label class="form-label">自定义集数位置 <span class="form-help bg-red-lt" title="标定集数位置，例如：铁齿铜牙纪晓岚{ep}.iso" data-bs-toggle="tooltip" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="rename_episode" class="form-control" placeholder="{ep}.mp4">
+              </div>
             </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label">最小文件大小</label>
-              <input type="text" id="rename_min_filesize" class="form-control" placeholder="过滤当前最小文件大小(MB)">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">最小文件大小</label>
+                <input type="text" id="rename_min_filesize" class="form-control" placeholder="过滤当前最小文件大小(MB)">
+              </div>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn me-auto" data-bs-dismiss="modal">关闭</button>
-        <button type="button" id="rename_btn" class="btn btn-primary">转移</button>
+        <button type="button" class="btn btn-white me-auto" data-bs-dismiss="modal">关闭</button>
+        <button type="button" id="rename_btn" class="btn btn-primary">识别</button>
       </div>
     </div>
   </div>
@@ -308,7 +310,7 @@
     }
   }
 
-  //手动转移
+  //手动识别
   function manual_rename() {
     var type = $('input:radio[name=rename_type]:checked').val();
     var logid = $("#rename_logid").val();
@@ -358,7 +360,7 @@
     $("#rename_retmsg").hide();
     ajax_post("rename", data, function (ret) {
       $("#rename_btn").attr("disabled", false);
-      $("#rename_btn").text("转移");
+      $("#rename_btn").text("识别");
       if (ret.retcode == 0) {
         //处理成功
         setTimeout("navmenu('history')", 1000);
@@ -399,7 +401,7 @@
       $("#rename_episode_div").show();
     }
   });
-  //转移按钮
+  //识别按钮
   $("#rename_btn").click(function () {
     manual_rename();
   });

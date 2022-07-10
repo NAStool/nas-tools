@@ -25,6 +25,13 @@ class IDownloadClient(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def get_completed_torrents(self, tag):
+        """
+        读取下载完成的种子信息
+        """
+        pass
+
+    @abstractmethod
     def set_torrents_status(self, ids):
         """
         迁移完成后设置种子标签为 已整理

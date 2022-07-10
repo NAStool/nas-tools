@@ -23,6 +23,7 @@ class Downloader:
     __client_type = None
     __seeding_time = None
     __pt_monitor_only = None
+    __download_order = None
     message = None
     mediaserver = None
     filetransfer = None
@@ -54,6 +55,7 @@ class Downloader:
                     log.error("【pt.pt_seeding_time 格式错误：%s" % str(e))
                     self.__seeding_time = None
             self.__pt_monitor_only = pt.get("pt_monitor_only")
+            self.__download_order = pt.get("download_order")
 
     def add_pt_torrent(self, url, mtype=MediaType.MOVIE, is_paused=None, tag=None):
         """
@@ -210,7 +212,7 @@ class Downloader:
         """
         download_items = []
         # 返回按季、集数倒序排序的列表
-        download_list = Torrent.get_download_list(media_list)
+        download_list = self.get_download_list(media_list)
         # 电视剧整季匹配
         if need_tvs:
             # 先把整季缺失的拿出来，看是否刚好有所有季都满足的种子
@@ -545,3 +547,47 @@ class Downloader:
             if sucess_epidised and file_ids:
                 self.client.set_files(torrent_hash=tid, file_ids=file_ids, priority=0)
         return sucess_epidised
+
+    def get_download_list(self, media_list):
+        """
+        对媒体信息进行排序、去重
+        """
+        if not media_list:
+            return []
+
+        # 排序函数，标题、PT站、资源类型、做种数量
+        def get_sort_str(x):
+            season_len = str(len(x.get_season_list())).rjust(2, '0')
+            episode_len = str(len(x.get_episode_list())).rjust(4, '0')
+            # 排序：标题、资源类型、站点、做种、季集
+            if self.__download_order == "seeder":
+                return "%s%s%s%s%s" % (str(x.title).ljust(100, ' '),
+                                       str(x.res_order).rjust(3, '0'),
+                                       str(x.seeders).rjust(10, '0'),
+                                       str(x.site_order).rjust(3, '0'),
+                                       "%s%s" % (season_len, episode_len))
+            else:
+                return "%s%s%s%s%s" % (str(x.title).ljust(100, ' '),
+                                       str(x.res_order).rjust(3, '0'),
+                                       str(x.site_order).rjust(3, '0'),
+                                       str(x.seeders).rjust(10, '0'),
+                                       "%s%s" % (season_len, episode_len))
+
+        # 匹配的资源中排序分组选最好的一个下载
+        # 按站点顺序、资源匹配顺序、做种人数下载数逆序排序
+        media_list = sorted(media_list, key=lambda x: get_sort_str(x), reverse=True)
+        # 控重
+        can_download_list_item = []
+        can_download_list = []
+        # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
+        for t_item in media_list:
+            # 控重的主链是名称、年份、季、集
+            if t_item.type != MediaType.MOVIE:
+                media_name = "%s%s" % (t_item.get_title_string(),
+                                       t_item.get_season_episode_string())
+            else:
+                media_name = t_item.get_title_string()
+            if media_name not in can_download_list:
+                can_download_list.append(media_name)
+                can_download_list_item.append(t_item)
+        return can_download_list_item

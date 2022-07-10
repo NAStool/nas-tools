@@ -3,6 +3,8 @@ import logging
 import os.path
 import traceback
 from math import floor
+from urllib import parse
+
 from flask import Flask, request, json, render_template, make_response, session, send_from_directory
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 from werkzeug.security import check_password_hash
@@ -483,13 +485,13 @@ def create_flask_app(config):
                 tmdbinfos = Media().get_tmdb_infos(title=meta_info.get_name(), year=meta_info.year, num=20)
                 for tmdbinfo in tmdbinfos:
                     tmp_info = MetaInfo(title=SearchWord)
-                    tmp_info.set_tmdb_info(tmdbinfo, fanart=False)
+                    tmp_info.set_tmdb_info(tmdbinfo)
                     tmp_info.poster_path = "https://image.tmdb.org/t/p/w500%s" % tmp_info.poster_path
                     medias.append(tmp_info)
         return render_template("medialist.html",
                                SearchWord=SearchWord or "",
                                NeedSearch=NeedSearch or "",
-                               OperType=OperType or "search",
+                               OperType=OperType,
                                Count=len(medias),
                                Medias=medias)
 
@@ -699,7 +701,7 @@ def create_flask_app(config):
             if not name:
                 continue
             # 识别
-            media_info = Media().get_media_info(title=name, fanart=False)
+            media_info = Media().get_media_info(title=name)
             if not media_info:
                 continue
             if not media_info.tmdb_info:
@@ -710,7 +712,7 @@ def create_flask_app(config):
                     title = "%s %s" % (media_info.get_name(), media_info.get_season_episode_string())
             else:
                 title = "%s %s" % (media_info.get_title_string(), media_info.get_season_episode_string())
-            poster_path = media_info.poster_path
+            poster_path = media_info.get_poster_image()
             torrent_info = {'id': key, 'title': title, 'speed': speed, 'image': poster_path or "", 'state': state,
                             'progress': progress}
             if torrent_info not in DispTorrents:
@@ -746,6 +748,7 @@ def create_flask_app(config):
         SiteUploads = []
         SiteDownloads = []
         SiteRatios = []
+        SiteErrs = {}
         # 刷新指定站点
         Sites().refresh_pt(specify_sites=refresh_site)
         # 站点上传下载
@@ -754,11 +757,15 @@ def create_flask_app(config):
             for name, data in SiteData.items():
                 if not data:
                     continue
-                up = data.get("upload") or 0
-                dl = data.get("download") or 0
-                ratio = data.get("ratio") or 0
-                seeding = data.get("seeding") or 0
-                seeding_size = data.get("seeding_size") or 0
+                up = data.get("upload", 0)
+                dl = data.get("download", 0)
+                ratio = data.get("ratio", 0)
+                seeding = data.get("seeding", 0)
+                seeding_size = data.get("seeding_size", 0)
+                err_msg = data.get("err_msg", "")
+
+                SiteErrs.update({name: err_msg})
+
                 if not up and not dl and not ratio:
                     continue
                 if not str(up).isdigit() or not str(dl).isdigit():
@@ -791,10 +798,58 @@ def create_flask_app(config):
                                SiteUploads=SiteUploads,
                                SiteRatios=SiteRatios,
                                SiteNames=SiteNames,
+                               SiteErr=SiteErrs,
                                CurrentSiteLabels=CurrentSiteLabels,
                                CurrentSiteUploads=CurrentSiteUploads,
                                CurrentSiteDownloads=CurrentSiteDownloads,
                                SiteUserStatistics=SiteUserStatistics)
+
+    # 刷流任务页面
+    @App.route('/brushtask', methods=['POST', 'GET'])
+    @login_required
+    def brushtask():
+        # 站点列表
+        CfgSites = get_config_site()
+        # 下载器列表
+        downloaders = get_user_downloaders()
+        # 任务列表
+        brushtasks = get_brushtasks()
+        Tasks = []
+        for task in brushtasks:
+            Tasks.append({
+                "id": task[0],
+                "name": task[1],
+                "site": task[3],
+                "interval": task[4],
+                "state": task[5],
+                "downloader": task[19],
+                "transfer": task[7],
+                "free": task[8],
+                "rss_rule": eval(task[9]),
+                "remove_rule": eval(task[10]),
+                "seed_size": task[11],
+                "download_count": task[12],
+                "remove_count": task[13],
+                "download_size": str_filesize(task[14]),
+                "upload_size": str_filesize(task[15]),
+                "lst_mod_date": task[16],
+                "site_url": "http://%s" % parse.urlparse(task[17]).netloc if task[17] else ""
+            })
+
+        return render_template("site/brushtask.html",
+                               Count=len(Tasks),
+                               Sites=CfgSites,
+                               Tasks=Tasks,
+                               Downloaders=downloaders)
+
+    # 自定义下载器页面
+    @App.route('/userdownloader', methods=['POST', 'GET'])
+    @login_required
+    def userdownloader():
+        downloaders = get_user_downloaders()
+        return render_template("download/userdownloader.html",
+                               Count=len(downloaders),
+                               Downloaders=downloaders)
 
     # 服务页面
     @App.route('/service', methods=['POST', 'GET'])
@@ -929,6 +984,17 @@ def create_flask_app(config):
         '''
         scheduler_cfg_list.append(
             {'name': '实时日志', 'time': '', 'state': 'OFF', 'id': 'logging', 'svg': svg, 'color': 'indigo'})
+
+        # 清理文件整理缓存
+        svg = '''
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eraser" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+           <path d="M19 20h-10.5l-4.21 -4.3a1 1 0 0 1 0 -1.41l10 -10a1 1 0 0 1 1.41 0l5 5a1 1 0 0 1 0 1.41l-9.2 9.3"></path>
+           <path d="M18 13.3l-6.3 -6.3"></path>
+        </svg>
+        '''
+        scheduler_cfg_list.append(
+            {'name': '清理文件缓存', 'time': '手动', 'state': 'OFF', 'id': 'blacklist', 'svg': svg, 'color': 'red'})
 
         return render_template("service.html",
                                Count=len(scheduler_cfg_list),
@@ -1407,5 +1473,10 @@ def create_flask_app(config):
     @App.template_filter('rss_filter_string')
     def rss_filter_string(notes):
         return WebAction().parse_filter_string(notes)
+
+    # 刷流规则过滤器
+    @App.template_filter('brush_rule_string')
+    def brush_rule_string(rules):
+        return WebAction.parse_brush_rule_string(rules)
 
     return App

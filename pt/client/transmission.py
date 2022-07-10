@@ -4,12 +4,11 @@ from datetime import datetime
 import log
 from config import Config
 from pt.client.client import IDownloadClient
-from utils.functions import singleton
 from utils.types import MediaType
 
 
-@singleton
 class Transmission(IDownloadClient):
+    __user_config = None
     __trhost = None
     __trport = None
     __trusername = None
@@ -27,45 +26,57 @@ class Transmission(IDownloadClient):
                "error", "errorString", "doneDate", "queuePosition", "activityDate"]
     trc = None
 
-    def __init__(self):
+    def __init__(self, user_config=None):
+        if user_config:
+            self.__user_config = user_config
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        transmission = config.get_config('transmission')
-        if transmission:
-            self.__trhost = transmission.get('trhost')
-            self.__trport = int(transmission.get('trport'))
-            self.__trusername = transmission.get('trusername')
-            self.__trpassword = transmission.get('trpassword')
-            # 解释下载目录
-            save_path = transmission.get('save_path')
-            if save_path:
-                if isinstance(save_path, str):
-                    self.__tv_save_path = save_path
-                    self.__movie_save_path = save_path
-                    self.__anime_save_path = save_path
-                else:
-                    self.__tv_save_path = save_path.get('tv')
-                    self.__movie_save_path = save_path.get('movie')
-                    self.__anime_save_path = save_path.get('anime')
-                    if not self.__anime_save_path:
-                        self.__anime_save_path = self.__tv_save_path
-            save_containerpath = transmission.get('save_containerpath')
-            if save_containerpath:
-                if isinstance(save_containerpath, str):
-                    self.__tv_save_containerpath = save_containerpath
-                    self.__movie_save_containerpath = save_containerpath
-                    self.__anime_save_containerpath = save_containerpath
-                else:
-                    self.__tv_save_containerpath = save_containerpath.get('tv')
-                    self.__movie_save_containerpath = save_containerpath.get('movie')
-                    self.__anime_save_containerpath = save_containerpath.get('anime')
-                    # 没有配置anime目录则使用tv目录
-                    if not self.__anime_save_containerpath:
-                        self.__anime_save_containerpath = self.__tv_save_containerpath
-            if self.__trhost and self.__trport:
-                self.trc = self.__login_transmission()
+        if not self.__user_config:
+            # 读取配置文件
+            config = Config()
+            transmission = config.get_config('transmission')
+            if transmission:
+                self.__trhost = transmission.get('trhost')
+                self.__trport = int(transmission.get('trport'))
+                self.__trusername = transmission.get('trusername')
+                self.__trpassword = transmission.get('trpassword')
+                # 解释下载目录
+                save_path = transmission.get('save_path')
+                if save_path:
+                    if isinstance(save_path, str):
+                        self.__tv_save_path = save_path
+                        self.__movie_save_path = save_path
+                        self.__anime_save_path = save_path
+                    else:
+                        self.__tv_save_path = save_path.get('tv')
+                        self.__movie_save_path = save_path.get('movie')
+                        self.__anime_save_path = save_path.get('anime')
+                        if not self.__anime_save_path:
+                            self.__anime_save_path = self.__tv_save_path
+                save_containerpath = transmission.get('save_containerpath')
+                if save_containerpath:
+                    if isinstance(save_containerpath, str):
+                        self.__tv_save_containerpath = save_containerpath
+                        self.__movie_save_containerpath = save_containerpath
+                        self.__anime_save_containerpath = save_containerpath
+                    else:
+                        self.__tv_save_containerpath = save_containerpath.get('tv')
+                        self.__movie_save_containerpath = save_containerpath.get('movie')
+                        self.__anime_save_containerpath = save_containerpath.get('anime')
+                        # 没有配置anime目录则使用tv目录
+                        if not self.__anime_save_containerpath:
+                            self.__anime_save_containerpath = self.__tv_save_containerpath
+        else:
+            # 使用输入配置
+            self.__trhost = self.__user_config.get("host")
+            self.__trport = self.__user_config.get("port")
+            self.__trusername = self.__user_config.get("username")
+            self.__trpassword = self.__user_config.get("password")
+            self.__movie_save_path = self.__tv_save_path = self.__anime_save_path = self.__user_config.get("save_dir")
+
+        if self.__trhost and self.__trport:
+            self.trc = self.__login_transmission()
 
     def __login_transmission(self):
         """
@@ -117,7 +128,7 @@ class Transmission(IDownloadClient):
             ret_torrents.append(torrent)
         return ret_torrents
 
-    def get_completed_torrents(self, tag):
+    def get_completed_torrents(self, tag=None):
         """
         读取完成的种子信息
         :return: 种子信息列表
@@ -126,7 +137,7 @@ class Transmission(IDownloadClient):
             return []
         return self.get_torrents(status=["seeding", "seed_pending"], tag=tag)
 
-    def get_downloading_torrents(self, tag):
+    def get_downloading_torrents(self, tag=None):
         """
         读取下载中的种子信息
         :return: 种子信息列表

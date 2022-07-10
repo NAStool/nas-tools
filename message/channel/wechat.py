@@ -199,7 +199,7 @@ class WeChat(IMessageChannel):
             articles.append({
                 "title": "%s. %s" % (index, media.get_title_vote_string()),
                 "description": "",
-                "picurl": media.get_message_image(),
+                "picurl": media.get_message_image() if index == 1 else media.get_poster_image(),
                 "url": url
             })
             index += 1

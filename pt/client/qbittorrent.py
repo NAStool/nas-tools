@@ -3,12 +3,11 @@ import qbittorrentapi
 import log
 from config import Config, PT_TAG
 from pt.client.client import IDownloadClient
-from utils.functions import singleton
 from utils.types import MediaType
 
 
-@singleton
 class Qbittorrent(IDownloadClient):
+    __user_config = {}
     __qbhost = None
     __qbport = None
     __qbusername = None
@@ -25,60 +24,72 @@ class Qbittorrent(IDownloadClient):
     __anime_category = None
     qbc = None
 
-    def __init__(self):
+    def __init__(self, user_config=None):
+        if user_config:
+            self.__user_config = user_config
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        qbittorrent = config.get_config('qbittorrent')
-        if qbittorrent:
-            self.__qbhost = qbittorrent.get('qbhost')
-            self.__qbport = int(qbittorrent.get('qbport'))
-            self.__qbusername = qbittorrent.get('qbusername')
-            self.__qbpassword = qbittorrent.get('qbpassword')
-            # 强制做种开关
-            self.__force_upload = qbittorrent.get('force_upload')
-            # 解释下载目录
-            save_path = qbittorrent.get('save_path')
-            if save_path:
-                if isinstance(save_path, str):
-                    self.__tv_save_path = save_path
-                    self.__movie_save_path = save_path
-                    self.__anime_save_path = save_path
-                else:
-                    if save_path.get('tv'):
-                        tv_save_path = save_path.get('tv').split("|")
-                        self.__tv_save_path = tv_save_path[0]
-                        if len(tv_save_path) > 1:
-                            self.__tv_category = tv_save_path[1]
-                    if save_path.get('movie'):
-                        movie_save_path = save_path.get('movie').split("|")
-                        self.__movie_save_path = movie_save_path[0]
-                        if len(movie_save_path) > 1:
-                            self.__movie_category = movie_save_path[1]
-                    if save_path.get('anime'):
-                        anime_save_path = save_path.get('anime').split("|")
-                        self.__anime_save_path = anime_save_path[0]
-                        if len(anime_save_path) > 1:
-                            self.__anime_category = anime_save_path[1]
-                    if not self.__anime_save_path:
-                        self.__anime_save_path = self.__tv_save_path
-                        self.__anime_category = self.__tv_category
-            save_containerpath = qbittorrent.get('save_containerpath')
-            if save_containerpath:
-                if isinstance(save_containerpath, str):
-                    self.__tv_save_containerpath = save_containerpath
-                    self.__movie_save_containerpath = save_containerpath
-                    self.__anime_save_containerpath = save_containerpath
-                else:
-                    self.__tv_save_containerpath = save_containerpath.get('tv')
-                    self.__movie_save_containerpath = save_containerpath.get('movie')
-                    self.__anime_save_containerpath = save_containerpath.get('anime')
-                    # 没有配置anime目录则使用tv目录
-                    if not self.__anime_save_containerpath:
-                        self.__anime_save_containerpath = self.__tv_save_containerpath
-            if self.__qbhost and self.__qbport:
-                self.qbc = self.__login_qbittorrent()
+        if not self.__user_config:
+            # 读取配置文件
+            config = Config()
+            qbittorrent = config.get_config('qbittorrent')
+            if qbittorrent:
+                self.__qbhost = qbittorrent.get('qbhost')
+                self.__qbport = int(qbittorrent.get('qbport'))
+                self.__qbusername = qbittorrent.get('qbusername')
+                self.__qbpassword = qbittorrent.get('qbpassword')
+                # 强制做种开关
+                self.__force_upload = qbittorrent.get('force_upload')
+                # 解释下载目录
+                save_path = qbittorrent.get('save_path')
+                if save_path:
+                    if isinstance(save_path, str):
+                        self.__tv_save_path = save_path
+                        self.__movie_save_path = save_path
+                        self.__anime_save_path = save_path
+                    else:
+                        if save_path.get('tv'):
+                            tv_save_path = save_path.get('tv').split("|")
+                            self.__tv_save_path = tv_save_path[0]
+                            if len(tv_save_path) > 1:
+                                self.__tv_category = tv_save_path[1]
+                        if save_path.get('movie'):
+                            movie_save_path = save_path.get('movie').split("|")
+                            self.__movie_save_path = movie_save_path[0]
+                            if len(movie_save_path) > 1:
+                                self.__movie_category = movie_save_path[1]
+                        if save_path.get('anime'):
+                            anime_save_path = save_path.get('anime').split("|")
+                            self.__anime_save_path = anime_save_path[0]
+                            if len(anime_save_path) > 1:
+                                self.__anime_category = anime_save_path[1]
+                        if not self.__anime_save_path:
+                            self.__anime_save_path = self.__tv_save_path
+                            self.__anime_category = self.__tv_category
+                save_containerpath = qbittorrent.get('save_containerpath')
+                if save_containerpath:
+                    if isinstance(save_containerpath, str):
+                        self.__tv_save_containerpath = save_containerpath
+                        self.__movie_save_containerpath = save_containerpath
+                        self.__anime_save_containerpath = save_containerpath
+                    else:
+                        self.__tv_save_containerpath = save_containerpath.get('tv')
+                        self.__movie_save_containerpath = save_containerpath.get('movie')
+                        self.__anime_save_containerpath = save_containerpath.get('anime')
+                        # 没有配置anime目录则使用tv目录
+                        if not self.__anime_save_containerpath:
+                            self.__anime_save_containerpath = self.__tv_save_containerpath
+        else:
+            # 使用输入配置
+            self.__qbhost = self.__user_config.get("host")
+            self.__qbport = self.__user_config.get("port")
+            self.__qbusername = self.__user_config.get("username")
+            self.__qbpassword = self.__user_config.get("password")
+            self.__movie_save_path = self.__tv_save_path = self.__anime_save_path = self.__user_config.get("save_dir")
+
+        if self.__qbhost and self.__qbport:
+            self.qbc = self.__login_qbittorrent()
 
     def __login_qbittorrent(self):
         """
@@ -126,7 +137,7 @@ class Qbittorrent(IDownloadClient):
         self.qbc.auth_log_out()
         return torrents or []
 
-    def __get_completed_torrents(self, tag=None):
+    def get_completed_torrents(self, tag=None):
         """
         读取完成的种子信息
         """
@@ -168,13 +179,21 @@ class Qbittorrent(IDownloadClient):
         log.info("【QB】设置qBittorrent种子状态成功")
         self.qbc.auth_log_out()
 
+    def torrents_set_force_start(self, ids):
+        """
+        设置强制作种
+        """
+        self.qbc.auth_log_in()
+        self.qbc.torrents_set_force_start(enable=True, torrent_hashes=ids)
+        self.qbc.auth_log_out()
+
     def get_transfer_task(self, tag):
         """
         获取需要转移的种子列表
         :return: 替换好路径的种子文件路径清单
         """
         # 处理下载完成的任务
-        torrents = self.__get_completed_torrents(tag=tag)
+        torrents = self.get_completed_torrents(tag=tag)
         trans_tasks = []
         for torrent in torrents:
             # 判断标签是否包含"已整理"
@@ -201,7 +220,7 @@ class Qbittorrent(IDownloadClient):
         """
         if not seeding_time:
             return []
-        torrents = self.__get_completed_torrents(tag=tag)
+        torrents = self.get_completed_torrents(tag=tag)
         remove_torrents = []
         for torrent in torrents:
             if not torrent.get('seeding_time'):
@@ -211,12 +230,14 @@ class Qbittorrent(IDownloadClient):
                 remove_torrents.append(torrent.get('hash'))
         return remove_torrents
 
-    def get_last_add_torrentid_by_tag(self, tag):
+    def get_last_add_torrentid_by_tag(self, tag, status=None):
         """
         根据种子的下载链接获取下载中或暂停的钟子的ID
         :return: 种子ID
         """
-        torrents = self.get_torrents(status=["paused"], tag=tag)
+        if not status:
+            status = ["paused"]
+        torrents = self.get_torrents(status=status, tag=tag)
         if torrents:
             return torrents[0].get("hash")
         else:

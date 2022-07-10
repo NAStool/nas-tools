@@ -189,6 +189,8 @@ pt:
   pt_check_interval: 1800
   # 【定量搜索RSS开关】：打开后，每隔与置时间会通过PT站资源检索的方式查询和下载订阅，单位：天，不配置则为关
   search_rss_interval:
+  # 【下载优先规则】：订阅及远程搜索下载将按此优先规则选择下载资源，字典：site 站点优先、seeder做种数优先
+  download_order: site
 
 # 【配置Jackett检索器】
 jackett:
@@ -295,8 +297,14 @@ subtitle:
     password:
   # 配置ChineseSubFinder的服务器地址和API Key，API Key在ChineseSubFinder->配置中心->实验室->API Key处生成
   chinesesubfinder:
+    # IP地址和端口
     host:
+    # API KEY
     api_key:
+    # NASTOOL媒体的映射路径
+    local_path:
+    # ChineseSubFinder媒体的映射路径
+    remote_path:
 
 # 【配置安全】
 security:

@@ -3,7 +3,8 @@ from functools import lru_cache
 from urllib import parse
 import cn2an
 from lxml import etree
-from config import GRAP_FREE_SITES, TORRENT_SEARCH_PARAMS
+from config import TORRENT_SEARCH_PARAMS
+from pt.siteconf import RSS_SITE_GRAP_CONF
 from rmt.meta.metabase import MetaBase
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
@@ -275,79 +276,47 @@ class Torrent:
         return mtype, key_word, season_num, episode_num, year, content
 
     @staticmethod
-    def get_download_list(media_list):
-        """
-        对媒体信息进行排序、去重
-        """
-        if not media_list:
-            return []
-
-        # 排序函数，标题、PT站、资源类型、做种数量
-        def get_sort_str(x):
-            season_len = str(len(x.get_season_list())).rjust(2, '0')
-            episode_len = str(len(x.get_episode_list())).rjust(4, '0')
-            # 排序：标题、资源类型、站点、做种、季集
-            return "%s%s%s%s%s" % (str(x.title).ljust(100, ' '),
-                                   str(x.res_order).rjust(3, '0'),
-                                   str(x.site_order).rjust(3, '0'),
-                                   str(x.seeders).rjust(10, '0'),
-                                   "%s%s" % (season_len, episode_len))
-
-        # 匹配的资源中排序分组选最好的一个下载
-        # 按站点顺序、资源匹配顺序、做种人数下载数逆序排序
-        media_list = sorted(media_list, key=lambda x: get_sort_str(x), reverse=True)
-        # 控重
-        can_download_list_item = []
-        can_download_list = []
-        # 排序后重新加入数组，按真实名称控重，即只取每个名称的第一个
-        for t_item in media_list:
-            # 控重的主链是名称、年份、季、集
-            if t_item.type != MediaType.MOVIE:
-                media_name = "%s%s" % (t_item.get_title_string(),
-                                       t_item.get_season_episode_string())
-            else:
-                media_name = t_item.get_title_string()
-            if media_name not in can_download_list:
-                can_download_list.append(media_name)
-                can_download_list_item.append(t_item)
-        return can_download_list_item
-
-    @staticmethod
     @lru_cache(maxsize=128)
-    def check_torrent_free(torrent_url, cookie):
+    def check_torrent_attr(torrent_url, cookie) -> list:
         """
         检验种子是否免费
         :param torrent_url: 种子的详情页面
         :param cookie: 站点的Cookie
-        :return: 促销类型 FREE 2XFREE
+        :return: 促销类型 FREE 2XFREE HR 的数组
         """
+        ret_attr = []
         if not torrent_url:
-            return None
+            return ret_attr
         url_host = parse.urlparse(torrent_url).netloc
         if not url_host:
-            return None
-        xpath_strs = GRAP_FREE_SITES.get(url_host)
+            return ret_attr
+        xpath_strs = RSS_SITE_GRAP_CONF.get(url_host)
         if not xpath_strs:
-            return None
+            return ret_attr
         res = RequestUtils(cookies=cookie).get_res(url=torrent_url)
         if res and res.status_code == 200:
             res.encoding = res.apparent_encoding
             html_text = res.text
             if not html_text:
-                return None
+                return []
             try:
                 html = etree.HTML(html_text)
                 # 检测2XFREE
                 for xpath_str in xpath_strs.get("2XFREE"):
                     if html.xpath(xpath_str):
-                        return "2XFREE"
+                        ret_attr.append("FREE")
+                        ret_attr.append("2XFREE")
                 # 检测FREE
                 for xpath_str in xpath_strs.get("FREE"):
                     if html.xpath(xpath_str):
-                        return "FREE"
+                        ret_attr.append("FREE")
+                # 检测HR
+                for xpath_str in xpath_strs.get("HR"):
+                    if html.xpath(xpath_str):
+                        ret_attr.append("HR")
             except Exception as err:
                 print(err)
-        return None
+        return ret_attr
 
     @staticmethod
     def get_torrent_content(url):
@@ -449,4 +418,3 @@ class Torrent:
                     rss_keyword = filters[2]
 
         return rss_sites, search_sites, over_edition, {"restype": rss_restype, "pix": rss_pix, "key": rss_keyword}
-

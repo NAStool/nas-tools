@@ -56,22 +56,24 @@
 <div class="modal modal-blur fade" id="modal-emby" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Emby</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">服务器地址 <span class="form-help bg-red-lt" title="配置IP地址和端口，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{% if Config.emby %}{{ Config.emby.host or '' }}{% endif %}" id="emby.host" class="form-control" placeholder="http://127.0.0.1:8096">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">Emby</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">服务器地址 <span class="form-help bg-red-lt" title="配置IP地址和端口，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{% if Config.emby %}{{ Config.emby.host or '' }}{% endif %}" id="emby.host" class="form-control" placeholder="http://127.0.0.1:8096">
+              </div>
             </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">Api Key <span class="form-help bg-red-lt" title="在Emby设置->高级->API密钥处生成，注意不要复制到了应用名称" data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{% if Config.emby %}{{ Config.emby.api_key or '' }}{% endif %}" id="emby.api_key" class="form-control">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">Api Key <span class="form-help bg-red-lt" title="在Emby设置->高级->API密钥处生成，注意不要复制到了应用名称" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{% if Config.emby %}{{ Config.emby.api_key or '' }}{% endif %}" id="emby.api_key" class="form-control">
+              </div>
             </div>
           </div>
         </div>
@@ -88,22 +90,24 @@
 <div class="modal modal-blur fade" id="modal-jellyfin" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Jellyfin</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">服务器地址 <span class="form-help bg-red-lt" title="配置IP地址和端口，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{% if Config.jellyfin %}{{ Config.jellyfin.host or '' }}{% endif %}" id="jellyfin.host" class="form-control" placeholder="http://127.0.0.1:8096">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">Jellyfin</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">服务器地址 <span class="form-help bg-red-lt" title="配置IP地址和端口，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{% if Config.jellyfin %}{{ Config.jellyfin.host or '' }}{% endif %}" id="jellyfin.host" class="form-control" placeholder="http://127.0.0.1:8096">
+              </div>
             </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">Api Key <span class="form-help bg-red-lt" title="在Jellyfin设置->高级->API密钥处生成" data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{% if Config.jellyfin %}{{ Config.jellyfin.api_key or '' }}{% endif %}" id="jellyfin.api_key" class="form-control">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">Api Key <span class="form-help bg-red-lt" title="在Jellyfin设置->高级->API密钥处生成" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{% if Config.jellyfin %}{{ Config.jellyfin.api_key or '' }}{% endif %}" id="jellyfin.api_key" class="form-control">
+              </div>
             </div>
           </div>
         </div>
@@ -120,36 +124,38 @@
 <div class="modal modal-blur fade" id="modal-plex" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Plex</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">服务器地址 <span class="form-help bg-red-lt" title="配置IP地址和端口，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{% if Config.plex %}{{ Config.plex.host or '' }}{% endif %}" id="plex.host" class="form-control" placeholder="http://127.0.0.1:32400">
-            </div>
-          </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">服务器名称 <span class="form-help bg-red-lt" title="配置Plex设置->左侧下拉框中看到的服务器名称" data-bs-toggle="tooltip">?</span></label>
-              <input type="text" value="{% if Config.plex %}{{ Config.plex.servername or '' }}{% endif %}" id="plex.servername" class="form-control">
-            </div>
-          </div>
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">Plex</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">用户名</label>
-              <input type="text" value="{% if Config.plex %}{{ Config.plex.username or '' }}{% endif %}" id="plex.username" class="form-control" placeholder="http://127.0.0.1:32400">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">服务器地址 <span class="form-help bg-red-lt" title="配置IP地址和端口，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{% if Config.plex %}{{ Config.plex.host or '' }}{% endif %}" id="plex.host" class="form-control" placeholder="http://127.0.0.1:32400">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">服务器名称 <span class="form-help bg-red-lt" title="配置Plex设置->左侧下拉框中看到的服务器名称" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{% if Config.plex %}{{ Config.plex.servername or '' }}{% endif %}" id="plex.servername" class="form-control">
+              </div>
             </div>
           </div>
-          <div class="col-lg-6">
-            <div class="mb-3">
-              <label class="form-label required">密码</label>
-              <input type="password" value="{% if Config.plex %}{{ Config.plex.password or '' }}{% endif %}" id="plex.password" class="form-control">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">用户名</label>
+                <input type="text" value="{% if Config.plex %}{{ Config.plex.username or '' }}{% endif %}" id="plex.username" class="form-control" placeholder="http://127.0.0.1:32400">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">密码</label>
+                <input type="password" value="{% if Config.plex %}{{ Config.plex.password or '' }}{% endif %}" id="plex.password" class="form-control">
+              </div>
             </div>
           </div>
         </div>

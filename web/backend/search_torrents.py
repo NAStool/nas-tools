@@ -46,13 +46,12 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                     doubaninfo = DoubanApi().tv_detail(doubanid)
                 media_info = Media().get_media_info(mtype=media_type,
                                                     title="%s %s" % (doubaninfo.get("title"), doubaninfo.get("year")),
-                                                    strict=True,
-                                                    fanart=False)
+                                                    strict=True)
             else:
                 media_info = MetaInfo(mtype=media_type or mtype, title=content)
-                media_info.set_tmdb_info(Media().get_tmdb_info(mtype=media_type or mtype, tmdbid=tmdbid), fanart=False)
+                media_info.set_tmdb_info(Media().get_tmdb_info(mtype=media_type or mtype, tmdbid=tmdbid))
         else:
-            media_info = Media().get_media_info(mtype=media_type or mtype, title=content, fanart=False)
+            media_info = Media().get_media_info(mtype=media_type or mtype, title=content)
         if not media_info or not media_info.tmdb_info:
             return -1, "%s 查询不到媒体信息，请确认名称是否正确！" % content
         # 查找的季
@@ -132,43 +131,21 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
             log.warn("【WEB】错误的输入值：%s" % input_str)
             return
         media_info = SEARCH_MEDIA_CACHE[choose]
-        # 如果是豆瓣数据，需要重新查询TMDB的数据
-        if media_info.douban_id:
-            media_info = Media().get_media_info(title="%s %s" % (media_info.title, media_info.year), mtype=media_info.type, strict=True, fanart=False)
-        if not media_info or not media_info.tmdb_info:
-            Message().send_channel_msg(channel=in_from,
-                                       title="%s 从TMDB查询不到媒体信息！" % media_info.title,
-                                       user_id=user_id)
-            return
-        # 重新获取Fanart图片
-        media_info.refresh_fanart_image()
         if SEARCH_MEDIA_TYPE == "SEARCH":
+            # 如果是豆瓣数据，需要重新查询TMDB的数据
+            if media_info.douban_id:
+                media_info = Media().get_media_info(title="%s %s" % (media_info.title, media_info.year),
+                                                    mtype=media_info.type, strict=True)
+                if not media_info or not media_info.tmdb_info:
+                    Message().send_channel_msg(channel=in_from,
+                                               title="%s 从TMDB查询不到媒体信息！" % media_info.title,
+                                               user_id=user_id)
+                    return
             # 搜索
             __search_media(in_from, media_info, user_id)
         else:
-            # 添加订阅
-            if media_info.douban_id:
-                code, msg, media_info = add_rss_subscribe(media_info.type,
-                                                          media_info.title,
-                                                          media_info.year,
-                                                          media_info.begin_season,
-                                                          doubanid=media_info.douban_id)
-            else:
-                code, msg, media_info = add_rss_subscribe(media_info.type,
-                                                          media_info.title,
-                                                          media_info.year,
-                                                          media_info.begin_season,
-                                                          tmdbid=media_info.tmdb_id)
-            if code == 0:
-                log.info("【WEB】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))
-                if in_from in [SearchType.WX, SearchType.TG]:
-                    Message().send_rss_success_message(in_from=in_from, media_info=media_info, user_id=user_id)
-            else:
-                if in_from in [SearchType.WX, SearchType.TG]:
-                    log.info("【WEB】%s 添加订阅失败：%s" % (media_info.title, msg))
-                    Message().send_channel_msg(channel=in_from,
-                                               title="%s 添加订阅失败：%s" % (media_info.title, msg),
-                                               user_id=user_id)
+            # 订阅
+            __rss_media(in_from, media_info, user_id)
     # 接收到文本，开始查询可能的媒体信息供选择
     else:
         if input_str.startswith("订阅"):
@@ -207,18 +184,33 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         else:
             for tmdb_info in tmdb_infos:
                 meta_info = MetaInfo(title=content)
-                meta_info.set_tmdb_info(tmdb_info, fanart=False)
+                meta_info.set_tmdb_info(tmdb_info)
                 SEARCH_MEDIA_CACHE.append(meta_info)
 
         if 1 == len(SEARCH_MEDIA_CACHE):
             # 只有一条数据，直接开始搜索
             media_info = SEARCH_MEDIA_CACHE[0]
-            Message().send_channel_msg(channel=in_from,
-                                       title=media_info.get_title_vote_string(),
-                                       text=media_info.get_overview_string(),
-                                       image=media_info.get_message_image(),
-                                       user_id=user_id)
-            __search_media(in_from, media_info, user_id)
+            if SEARCH_MEDIA_TYPE == "SEARCH":
+                # 如果是豆瓣数据，需要重新查询TMDB的数据
+                if media_info.douban_id:
+                    media_info = Media().get_media_info(title="%s %s" % (media_info.title, media_info.year),
+                                                        mtype=media_info.type, strict=True)
+                    if not media_info or not media_info.tmdb_info:
+                        Message().send_channel_msg(channel=in_from,
+                                                   title="%s 从TMDB查询不到媒体信息！" % media_info.title,
+                                                   user_id=user_id)
+                        return
+                # 发送消息
+                Message().send_channel_msg(channel=in_from,
+                                           title=media_info.get_title_vote_string(),
+                                           text=media_info.get_overview_string(),
+                                           image=media_info.get_message_image(),
+                                           user_id=user_id)
+                # 开始搜索
+                __search_media(in_from, media_info, user_id)
+            else:
+                # 添加订阅
+                __rss_media(in_from, media_info, user_id)
         else:
             # 发送消息通知选择
             Message().send_channel_list_msg(channel=in_from,
@@ -228,6 +220,9 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
 
 
 def __search_media(in_from, media_info: MetaBase, user_id):
+    """
+    开始搜索和发送消息
+    """
     # 检查是否存在，电视剧返回不存在的集清单
     exist_flag, no_exists, messages = Downloader().check_exists_medias(meta_info=media_info)
     if messages:
@@ -272,3 +267,32 @@ def __search_media(in_from, media_info: MetaBase, user_id):
         Message().send_channel_msg(channel=in_from,
                                    title="%s 共搜索到%s个结果，但没有下载到任何资源" % (media_info.title, search_count),
                                    user_id=user_id)
+
+
+def __rss_media(in_from, media_info: MetaBase, user_id=None):
+    """
+    开始添加订阅和发送消息
+    """
+    # 添加订阅
+    if media_info.douban_id:
+        code, msg, media_info = add_rss_subscribe(media_info.type,
+                                                  media_info.title,
+                                                  media_info.year,
+                                                  media_info.begin_season,
+                                                  doubanid=media_info.douban_id)
+    else:
+        code, msg, media_info = add_rss_subscribe(media_info.type,
+                                                  media_info.title,
+                                                  media_info.year,
+                                                  media_info.begin_season,
+                                                  tmdbid=media_info.tmdb_id)
+    if code == 0:
+        log.info("【WEB】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))
+        if in_from in [SearchType.WX, SearchType.TG]:
+            Message().send_rss_success_message(in_from=in_from, media_info=media_info, user_id=user_id)
+    else:
+        if in_from in [SearchType.WX, SearchType.TG]:
+            log.info("【WEB】%s 添加订阅失败：%s" % (media_info.title, msg))
+            Message().send_channel_msg(channel=in_from,
+                                       title="%s 添加订阅失败：%s" % (media_info.title, msg),
+                                       user_id=user_id)

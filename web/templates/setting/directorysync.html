@@ -95,41 +95,44 @@
 <div class="modal modal-blur fade" id="modal-directory" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">新增同步目录</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <label class="form-label required">路径 <span class="form-help bg-red-lt" title="源目录为需要同步的目录，目的目录为识别和改名后存放的目录，未识别目录为无法识别时转移的目录；只有源目录必须配置；目的目录未配置时将自动识别分类并转移到媒体库对应目录中；未识别目录下产生的文件程序不会主动清理，建议不配置，未识别记录可在媒体识别->手动识别功能下处理" data-bs-toggle="tooltip">?</span></label>
-          <div class="row mb-3">
-            <div class="col-12 col-lg-4 mb-1">
-              <input type="text" value="" id="from_path" class="form-control" placeholder="源目录">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">新增同步目录</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <label class="form-label required">路径 <span class="form-help bg-red-lt" title="源目录为需要同步的目录，目的目录为识别和改名后存放的目录，未识别目录为无法识别时转移的目录；只有源目录必须配置；目的目录未配置时将自动识别分类并转移到媒体库对应目录中；未识别目录下产生的文件程序不会主动清理，建议不配置，未识别记录可在媒体识别->手动识别功能下处理" data-bs-toggle="tooltip">?</span></label>
+            <div class="row mb-3">
+              <div class="col-12 col-lg-4 mb-1">
+                <input type="text" value="" id="from_path" class="form-control" placeholder="源目录">
+              </div>
+              <div class="col-12 col-lg-4 mb-1">
+                <input type="text" value="" id="to_path" class="form-control" placeholder="目的目录">
+              </div>
+              <div class="col-12 col-lg-4 mb-1">
+                <input type="text" value="" id="unknown_path" class="form-control" placeholder="未识别目录">
+              </div>
             </div>
-            <div class="col-12 col-lg-4 mb-1">
-              <input type="text" value="" id="to_path" class="form-control" placeholder="目的目录">
-            </div>
-            <div class="col-12 col-lg-4 mb-1">
-              <input type="text" value="" id="unknown_path" class="form-control" placeholder="未识别目录">
-            </div>
-          </div>
-          <div class="row mb-3">
-            <div class="col-6">
-              <label class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="rename_flag" checked>
-                <span class="form-check-label">识别并重命名</span>
-              </label>
-            </div>
-            <div class="col-6">
-              <label class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="enable_flag" checked>
-                <span class="form-check-label">开启同步</span>
-              </label>
+            <div class="row mb-3">
+              <div class="col-6">
+                <label class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="rename_flag" checked>
+                  <span class="form-check-label">识别并重命名</span>
+                </label>
+              </div>
+              <div class="col-6">
+                <label class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="enable_flag" checked>
+                  <span class="form-check-label">开启同步</span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn btn-white me-auto" data-bs-dismiss="modal">关闭</button>
         <a href="javascript:add_directory_config()" id="directory_save_btn" class="btn btn-primary">确定</a>
       </div>
     </div>

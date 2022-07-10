@@ -99,103 +99,105 @@
 <div class="modal modal-blur fade" id="modal-tv-rss" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="tv_rss_modal_title">新增订阅</h5>
-        <input type="hidden" id="tv_rssid">
-        <input type="hidden" id="tv_tmdbid">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <label class="form-label required">电视剧</label>
-          <div class="row mb-3">
-            <div class="col-12 col-lg-6 mb-1">
-              <input type="text" value="" id="tv_name" class="form-control" placeholder="标题">
-            </div>
-            <div class="col-12 col-lg-3 mb-1">
-              <input type="text" value="" id="tv_year" class="form-control" placeholder="年份">
-            </div>
-            <div class="col-12 col-lg-3 mb-1">
-              <select class="form-select" id="tv_season">
-                <option value="" selected>请选择</option>
-              </select>
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title" id="tv_rss_modal_title">新增订阅</h5>
+          <input type="hidden" id="tv_rssid">
+          <input type="hidden" id="tv_tmdbid">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <label class="form-label required">电视剧</label>
+            <div class="row mb-3">
+              <div class="col-12 col-lg-6 mb-1">
+                <input type="text" value="" id="tv_name" class="form-control" placeholder="标题">
+              </div>
+              <div class="col-12 col-lg-3 mb-1">
+                <input type="text" value="" id="tv_year" class="form-control" placeholder="年份">
+              </div>
+              <div class="col-12 col-lg-3 mb-1">
+                <select class="form-select" id="tv_season">
+                  <option value="" selected>请选择</option>
+                </select>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="col-xl-4">
+          <div class="row">
+            <div class="col-xl-4">
+              <div class="mb-3">
+                <label class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="key_match" onclick="javascript:change_match_check(this)">
+                  <span class="form-check-label">模糊匹配 <span class="form-help bg-red-lt" title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，此时标题可以配置正则表达式实现模糊匹配" data-bs-toggle="tooltip">?</span></span>
+                </label>
+              </div>
+            </div>
+            <div class="col-xl-4">
+              <div class="mb-3">
+                <label class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="over_edition" onclick="javascript:change_over_edition_check(this)">
+                  <span class="form-check-label">洗版 <span class="form-help bg-red-lt" title="开启后RSS不检查媒体库是否已存在，命中即会下载" data-bs-toggle="tooltip">?</span></span>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <label class="form-label">过滤规则</label>
+            <div class="row mb-3">
+              <div class="col-12 col-lg-4 mb-1">
+                <select class="form-select" id="rss_restype">
+                  <option value="" selected>全部</option>
+                  {% for restype in RestypeDict %}
+                  <option value="{{ restype }}">{{ restype }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-12 col-lg-4 mb-1">
+                <select class="form-select" id="rss_pix">
+                  <option value="" selected>全部</option>
+                  {% for pix in PixDict %}
+                  <option value="{{ pix }}">{{ pix }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-12 col-lg-4 mb-1">
+                <input type="text" value="" id="rss_keyword" class="form-control" placeholder="自定义规则">
+              </div>
+            </div>
+          </div>
+          <div class="row rss_sites_container" id="rss_sites_div">
             <div class="mb-3">
-              <label class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="key_match" onclick="javascript:change_match_check(this)">
-                <span class="form-check-label">模糊匹配 <span class="form-help bg-red-lt" title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，此时标题可以配置正则表达式实现模糊匹配" data-bs-toggle="tooltip">?</span></span>
-              </label>
+              <label class="form-label">订阅站点</label>
+              <div class="form-selectgroup">
+                {% for site in Sites %}
+                 <label class="form-selectgroup-item">
+                  <input type="checkbox" name="sites" value="{{ site[1] }}" class="form-selectgroup-input" checked>
+                  <span class="form-selectgroup-label">{{ site[1] }}</span>
+                </label>
+                {% endfor %}
+              </div>
             </div>
           </div>
-          <div class="col-xl-4">
+          <div class="row rss_sites_container" id="rss_search_sites_div">
             <div class="mb-3">
-              <label class="form-check form-switch">
-                <input class="form-check-input" type="checkbox" id="over_edition" onclick="javascript:change_over_edition_check(this)">
-                <span class="form-check-label">洗版 <span class="form-help bg-red-lt" title="开启后RSS不检查媒体库是否已存在，命中即会下载" data-bs-toggle="tooltip">?</span></span>
-              </label>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <label class="form-label">过滤规则</label>
-          <div class="row mb-3">
-            <div class="col-12 col-lg-4 mb-1">
-              <select class="form-select" id="rss_restype">
-                <option value="" selected>全部</option>
-                {% for restype in RestypeDict %}
-                <option value="{{ restype }}">{{ restype }}</option>
+              <label class="form-label">搜索站点</label>
+              <div class="form-selectgroup">
+                {% for site in SearchSites %}
+                 <label class="form-selectgroup-item">
+                  <input type="checkbox" name="search_sites" value="{{ site }}" class="form-selectgroup-input" checked>
+                  <span class="form-selectgroup-label">{{ site }}</span>
+                </label>
                 {% endfor %}
-              </select>
-            </div>
-            <div class="col-12 col-lg-4 mb-1">
-              <select class="form-select" id="rss_pix">
-                <option value="" selected>全部</option>
-                {% for pix in PixDict %}
-                <option value="{{ pix }}">{{ pix }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="col-12 col-lg-4 mb-1">
-              <input type="text" value="" id="rss_keyword" class="form-control" placeholder="自定义规则">
-            </div>
-          </div>
-        </div>
-        <div class="row rss_sites_container" id="rss_sites_div">
-          <div class="mb-3">
-            <label class="form-label">订阅站点</label>
-            <div class="form-selectgroup">
-              {% for site in Sites %}
-               <label class="form-selectgroup-item">
-                <input type="checkbox" name="sites" value="{{ site[1] }}" class="form-selectgroup-input" checked>
-                <span class="form-selectgroup-label">{{ site[1] }}</span>
-              </label>
-              {% endfor %}
-            </div>
-          </div>
-        </div>
-        <div class="row rss_sites_container" id="rss_search_sites_div">
-          <div class="mb-3">
-            <label class="form-label">搜索站点</label>
-            <div class="form-selectgroup">
-              {% for site in SearchSites %}
-               <label class="form-selectgroup-item">
-                <input type="checkbox" name="search_sites" value="{{ site }}" class="form-selectgroup-input" checked>
-                <span class="form-selectgroup-label">{{ site }}</span>
-              </label>
-              {% endfor %}
+              </div>
             </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <a href="javascript:rss_sites_select()" class="btn btn-link link-secondary me-auto" id="rss_sites_select_btn">
+        <a href="javascript:rss_sites_select()" class="btn btn-white me-auto" id="rss_sites_select_btn">
           取消全选
         </a>
-        <a href="#" class="btn btn-link link-secondary" id="rss_delete_btn">
+        <a href="#" class="btn btn-white" id="rss_delete_btn">
           删除订阅
         </a>
         <a href="javascript:add_rss_tv()" id="rss_add_btn" class="btn btn-primary">确定</a>
