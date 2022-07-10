@@ -254,7 +254,7 @@
           <div class="row">
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">促销</label>
+                <label class="form-label">促销 <span class="form-help bg-red-lt" title="选全部会下载到促销的种子，免费包括2X免费" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="brushtask_free">
                   <option value="" selected>全部</option>
                   <option value="FREE">免费</option>
@@ -299,16 +299,22 @@
             </div>
           </div>
           <div class="row">
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <div class="mb-3">
                 <label class="form-label">包含 <span class="form-help bg-red-lt" title="种子名称或副标题中包括对应关键字或者匹配正则式时才会下载" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" id="brushtask_include" class="form-control" placeholder="关键字或正则表达式">
               </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <div class="mb-3">
                 <label class="form-label">排除 <span class="form-help bg-red-lt" title="种子名称或副标题中包括对应关键字或者匹配正则式时不会下载" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" id="brushtask_exclude" class="form-control" placeholder="关键字或正则表达式">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">同时下载数量限制 <span class="form-help bg-red-lt" title="下载器中正在下载的任务数超过此值时不再添加下载" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="brushtask_dlcount" class="form-control" placeholder="10">
               </div>
             </div>
           </div>
@@ -402,7 +408,7 @@
         $("#brushtask_modal_title").text("编辑任务");
         $("#brushtask_name").val(ret.task.name);
         $("#brushtask_site").val(ret.task.site);
-        brushtask_site_change(ret.task.site, ret.task.free, ret.task.hr);
+        brushtask_site_change(ret.task.site, ret.task.free, ret.task.rss_rule.hr);
         $("#brushtask_interval").val(ret.task.interval);
         $("#brushtask_downloader").val(ret.task.downloader);
         $("#brushtask_totalsize").val(ret.task.seed_size);
@@ -412,7 +418,7 @@
         }else{
           $("#brushtask_transfer").prop("checked", false);
         }
-        $("#brushtask_hr").val(ret.task.rss_rule.hr);
+        $("#brushtask_dlcount").val(ret.task.rss_rule.dlcount)
         $("#brushtask_include").val(ret.task.rss_rule.include);
         $("#brushtask_exclude").val(ret.task.rss_rule.exclude);
         //种子大小
@@ -548,6 +554,13 @@
     }
     var brushtask_include = $("#brushtask_include").val();
     var brushtask_exclude = $("#brushtask_exclude").val();
+    var brushtask_dlcount = $("#brushtask_dlcount").val();
+    if(brushtask_dlcount && isNaN(brushtask_dlcount)){
+      $("#brushtask_dlcount").addClass("is-invalid");
+      return;
+    }else{
+      $("#brushtask_dlcount").removeClass("is-invalid");
+    }
     var brushtask_seedtime_do = $("#brushtask_seedtime_do").val();
     var brushtask_seedtime = $("#brushtask_seedtime").val();
     if(brushtask_seedtime_do && !brushtask_seedtime){
@@ -600,6 +613,7 @@
       brushtask_torrent_size: brushtask_torrent_size_do + "#" + brushtask_torrent_size,
       brushtask_include: brushtask_include,
       brushtask_exclude: brushtask_exclude,
+      brushtask_dlcount: brushtask_dlcount,
       brushtask_seedtime: brushtask_seedtime_do + "#" + brushtask_seedtime,
       brushtask_seedratio: brushtask_seedratio_do + "#" + brushtask_seedratio,
       brushtask_seedsize: brushtask_seedsize_do + "#" + brushtask_seedsize

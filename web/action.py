@@ -1311,6 +1311,7 @@ class WebAction:
         brushtask_torrent_size = data.get("brushtask_torrent_size")
         brushtask_include = data.get("brushtask_include")
         brushtask_exclude = data.get("brushtask_exclude")
+        brushtask_dlcount = data.get("brushtask_dlcount")
         brushtask_seedtime = data.get("brushtask_seedtime")
         brushtask_seedratio = data.get("brushtask_seedratio")
         brushtask_seedsize = data.get("brushtask_seedsize")
@@ -1320,7 +1321,8 @@ class WebAction:
             "hr": brushtask_hr,
             "size": brushtask_torrent_size,
             "include": brushtask_include,
-            "exclude": brushtask_exclude
+            "exclude": brushtask_exclude,
+            "dlcount": brushtask_dlcount
         }
         # 删除规则
         remove_rule = {
@@ -1378,7 +1380,6 @@ class WebAction:
             "transfer": brushtask[0][7],
             "free": brushtask[0][8],
             "rss_rule": eval(brushtask[0][9]),
-            "hr": eval(brushtask[0][9]).get("hr"),
             "remove_rule": eval(brushtask[0][10]),
             "seed_size": brushtask[0][11],
             "download_count": brushtask[0][12],
@@ -1474,6 +1475,9 @@ class WebAction:
         if rules.get("exclude"):
             rule_htmls.append('<span class="badge badge-outline text-red me-1 mb-1" title="排除规则">排除: %s</span>'
                               % rules.get("exclude"))
+        if rules.get("dlcount"):
+            rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="同时下载数量限制">同时下载: %s</span>'
+                              % rules.get("dlcount"))
         if rules.get("time"):
             times = rules.get("time").split("#")
             if times[0]:

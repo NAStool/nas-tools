@@ -13,7 +13,6 @@ from pt.torrent import Torrent
 from utils.functions import singleton
 from utils.sqls import get_brushtasks, get_brushtask_totalsize, add_brushtask_download_count, insert_brushtask_torrent, \
     get_brushtask_torrents, add_brushtask_upload_count, get_user_downloaders
-from utils.types import MediaType
 
 
 @singleton
@@ -86,9 +85,11 @@ class BrushTask(object):
     def check_task_rss(self, taskid):
         """
         检查RSS并添加下载，由定时服务调用
+        :param taskid: 刷流任务的ID
         """
         if not taskid:
             return
+        # 任务信息
         taskinfo = self.get_brushtask_info(taskid)
         if not taskinfo:
             return
@@ -97,18 +98,28 @@ class BrushTask(object):
         task_name = taskinfo.get("name")
         site_name = taskinfo.get("site")
         rss_url = taskinfo.get("rss_url")
+        rss_rule = taskinfo.get("rss_rule")
+        cookie = taskinfo.get("cookie")
+        rss_free = taskinfo.get("free")
+        downloader_id = taskinfo.get("downloader")
         log.info("【BRUSH】开始站点 %s 的刷流任务：%s..." % (site_name, task_name))
         if not rss_url:
             log.warn("【BRUSH】站点 %s 未配置RSS订阅地址，无法刷流" % site_name)
             return
-        cookie = taskinfo.get("cookie")
-        rss_free = taskinfo.get("free")
         if rss_free and not cookie:
             log.warn("【BRUSH】站点 %s 未配置Cookie，无法开启促销刷流" % site_name)
             return
+        # 下载器参数
+        downloader_cfg = self.__get_downloader_config(downloader_id)
+        if not downloader_cfg:
+            log.warn("【BRUSH】任务 %s 下载器不存在，无法刷流" % task_name)
+            return
         # 检查是否达到保种体积
-        if not self.__is_allow_new_torrent(taskid=taskid, seed_size=seed_size):
-            log.warn("【BRUSH】刷流任务 %s 已达到保种体积 %sGB，不再新增下载" % (task_name, seed_size))
+        if not self.__is_allow_new_torrent(taskid=taskid,
+                                           taskname=task_name,
+                                           seedsize=seed_size,
+                                           downloadercfg=downloader_cfg,
+                                           dlcount=rss_rule.get("dlcount")):
             return
         rss_result = Rss.parse_rssxml(rss_url)
         if len(rss_result) == 0:
@@ -136,28 +147,32 @@ class BrushTask(object):
                     log.debug("【BRUSH】%s 已处理过" % torrent_name)
                     continue
 
-                # 检查种子大小是否符合要求
-                if not self.__check_rss_rule(rss_rule=taskinfo.get("rss_rule"),
+                # 检查种子是否符合选种规则
+                if not self.__check_rss_rule(rss_rule=rss_rule,
                                              title=torrent_name,
                                              description=description,
                                              torrent_url=page_url,
                                              torrent_size=size,
-                                             cookie=taskinfo.get("cookie")):
+                                             cookie=cookie):
                     continue
-
-                if not self.__is_allow_new_torrent(taskid=taskid, seed_size=seed_size, size=size):
-                    log.warn("【BRUSH】刷流任务 %s 已达到保种体积 %sGB，不再新增下载" % (task_name, taskinfo.get("seed_size")))
-                    return
-
+                # 开始下载
                 log.debug("【BRUSH】%s 符合条件，开始下载..." % torrent_name)
-                self.__download_torrent(client_id=taskinfo.get("downloader"),
+                self.__download_torrent(downloadercfg=downloader_cfg,
                                         title=torrent_name,
                                         enclosure=enclosure,
                                         size=size,
                                         taskid=taskid,
                                         transfer=True if taskinfo.get("transfer") == 'Y' else False,
                                         taskname=task_name)
+                # 计数
                 success_count += 1
+                # 再判断一次
+                if not self.__is_allow_new_torrent(taskid=taskid,
+                                                   taskname=task_name,
+                                                   seedsize=seed_size,
+                                                   dlcount=rss_rule.get("dlcount"),
+                                                   downloadercfg=downloader_cfg):
+                    break
             except Exception as err:
                 print(str(err))
                 continue
@@ -175,17 +190,20 @@ class BrushTask(object):
             total_uploaded = 0
             taskid = taskinfo.get("id")
             task_name = taskinfo.get("name")
+            download_id = taskinfo.get("downloader")
+            # 当前任务种子详情
             task_torrents = get_brushtask_torrents(taskid)
             torrent_ids = [item[6] for item in task_torrents if item[6]]
             if not torrent_ids:
                 continue
-            downloader_info = get_user_downloaders(taskinfo.get("downloader"))
-            if not downloader_info:
+            # 下载器参数
+            downloader_cfg = self.__get_downloader_config(download_id)
+            if not downloader_cfg:
                 log.warn("【BRUSH】任务 %s 下载器不存在" % task_name)
                 continue
-            # 下载器参数
-            client = downloader_info[0][2]
-            if client == self._qb_client:
+            # 下载器类型
+            client_type = downloader_cfg.get("type")
+            if client_type == self._qb_client:
                 torrents = Qbittorrent().get_torrents(ids=torrent_ids, status=["completed"])
                 for torrent in torrents:
                     # ID
@@ -231,23 +249,75 @@ class BrushTask(object):
             if delete_count:
                 log.info("【BRUSH】任务 %s 共删除 %s 个刷流下载任务" % (task_name, delete_count))
 
-    @staticmethod
-    def __is_allow_new_torrent(taskid, seed_size, size=0):
+    def __is_allow_new_torrent(self, taskid, taskname, downloadercfg, seedsize, dlcount):
         """
         检查是否还能添加新的下载
         """
         if not taskid:
             return False
-        total_size = int(get_brushtask_totalsize(taskid))
-        if seed_size:
-            if int(seed_size) * 1024 ** 3 <= total_size + size:
+        # 判断大小
+        total_size = get_brushtask_totalsize(taskid)
+        if seedsize:
+            if int(seedsize) * 1024 ** 3 <= int(total_size):
+                log.warn("【BRUSH】刷流任务 %s 已达到保种体积 %sGB，不再新增下载" % (taskname, seedsize))
+                return False
+        # 检查正在下载的任务数
+        if dlcount:
+            downloading_count = self.__get_downloading_count(downloadercfg)
+            if downloading_count is None:
+                log.error("【BRUSH】任务 %s 下载器 %s 无法连接" % (taskname, downloadercfg.get("name")))
+                return False
+            if int(downloading_count) > int(dlcount):
+                log.warn("【BRUSH】下载器 %s 正在下载任务数：%s，超过设定上限，暂不添加下载" % (downloadercfg.get("name"), downloading_count))
                 return False
         return True
 
-    def __download_torrent(self, client_id, title, enclosure, size, taskid, transfer, taskname):
+    @staticmethod
+    def __get_downloader_config(dlid):
+        """
+        获取下载器的参数
+        """
+        if not dlid:
+            return None
+        downloader_info = get_user_downloaders(dlid)
+        if downloader_info:
+            userconfig = {"id": downloader_info[0][0],
+                          "name": downloader_info[0][1],
+                          "type": downloader_info[0][2],
+                          "host": downloader_info[0][3],
+                          "port": downloader_info[0][4],
+                          "username": downloader_info[0][5],
+                          "password": downloader_info[0][6],
+                          "save_dir": downloader_info[0][7]}
+            return userconfig
+        return None
+
+    def __get_downloading_count(self, downloadercfg):
+        """
+        查询当前正在下载的任务数
+        """
+        if not downloadercfg:
+            return 0
+        if downloadercfg.get("type") == self._qb_client:
+            downloader = Qbittorrent(user_config=downloadercfg)
+            if not downloader.qbc:
+                return None
+            dlitems = downloader.get_downloading_torrents()
+            if dlitems is not None:
+                return int(len(dlitems))
+        else:
+            downloader = Transmission(user_config=downloadercfg)
+            if not downloader.trc:
+                return None
+            dlitems = downloader.get_downloading_torrents()
+            if dlitems is not None:
+                return int(len(dlitems))
+        return None
+
+    def __download_torrent(self, downloadercfg, title, enclosure, size, taskid, transfer, taskname):
         """
         添加下载任务，更新任务数据
-        :param client_id: 下载客户端ID
+        :param downloadercfg: 下载器的所有参数
         :param title: 种子名称
         :param enclosure: 种子地址
         :param size: 种子大小
@@ -255,38 +325,25 @@ class BrushTask(object):
         :param transfer: 是否要转移，为False时直接添加已整理的标签
         :param taskname: 任务名称
         """
-        if not client_id:
+        if not downloadercfg:
             return
-        # 查询下载器
-        downloader_info = get_user_downloaders(client_id)
-        if not downloader_info:
-            log.error("【BRUSH】任务 %s 下载器不存在，无法下载" % taskname)
-            return
-        # 下载器参数
-        client = downloader_info[0][2]
-        downloader_name = downloader_info[0][1]
-        user_config = {"host": downloader_info[0][3],
-                       "port": downloader_info[0][4],
-                       "username": downloader_info[0][5],
-                       "password": downloader_info[0][6],
-                       "save_dir": downloader_info[0][7]}
         # 标签
         tag = "已整理" if not transfer else None
         # 下载任务ID
         download_id = None
         # 添加下载
-        if client == self._qb_client:
+        if downloadercfg.get("type") == self._qb_client:
             # 初始化下载器
-            downloader = Qbittorrent(user_config=user_config)
+            downloader = Qbittorrent(user_config=downloadercfg)
             if not downloader.qbc:
-                log.error("【BRUSH】任务 %s 下载器 %s 无法连接" % (taskname, downloader_name))
+                log.error("【BRUSH】任务 %s 下载器 %s 无法连接" % (taskname, downloadercfg.get("name")))
                 return
             torrent_tag = str(round(datetime.now().timestamp()))
             if tag:
                 tag = [tag, torrent_tag]
             else:
                 tag = torrent_tag
-            ret = downloader.add_torrent(content=enclosure, mtype=MediaType.MOVIE, tag=tag, is_paused=True)
+            ret = downloader.add_torrent(content=enclosure, mtype=None, tag=tag, is_paused=True)
             if ret:
                 # QB添加下载后需要时间，重试5次每次等待5秒
                 for i in range(1, 6):
@@ -301,11 +358,11 @@ class BrushTask(object):
                         break
         else:
             # 初始化下载器
-            downloader = Transmission(user_config=user_config)
+            downloader = Transmission(user_config=downloadercfg)
             if not downloader.trc:
-                log.error("【BRUSH】任务 %s 下载器 %s 无法连接" % (taskname, downloader_name))
+                log.error("【BRUSH】任务 %s 下载器 %s 无法连接" % (taskname, downloadercfg.get("name")))
                 return
-            ret = downloader.add_torrent(content=enclosure, mtype=MediaType.MOVIE)
+            ret = downloader.add_torrent(content=enclosure, mtype=None)
             if ret:
                 download_id = ret.id
                 if download_id and tag:
@@ -319,7 +376,7 @@ class BrushTask(object):
         if insert_brushtask_torrent(brush_id=taskid,
                                     title=title,
                                     enclosure=enclosure,
-                                    downloader=client,
+                                    downloader=downloadercfg.get("id"),
                                     download_id=download_id,
                                     size=size):
             # 更新下载大小和次数

@@ -177,5 +177,10 @@ RSS_SITE_GRAP_CONF = {
         'FREE': ["//font[@color='red'][text()='本种子不计下载量，只计上传量!']"],
         '2XFREE': [],
         'HR': []
+    },
+    'u2.dmhy.org': {
+        'FREE': ["//img[@class='pro_free']"],
+        '2XFREE': [],
+        'HR': []
     }
 }

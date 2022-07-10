@@ -137,7 +137,7 @@ class Transmission(IDownloadClient):
             return []
         return self.get_torrents(status=["seeding", "seed_pending"], tag=tag)
 
-    def get_downloading_torrents(self, tag):
+    def get_downloading_torrents(self, tag=None):
         """
         读取下载中的种子信息
         :return: 种子信息列表
