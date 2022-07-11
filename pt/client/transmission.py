@@ -27,7 +27,11 @@ class Transmission(IDownloadClient):
             self.password = transmission.get('trpassword')
             self.save_path = transmission.get('save_path')
             self.save_containerpath = transmission.get('save_containerpath')
-        # 连接
+
+    def connect(self):
+        """
+        连接
+        """
         if self.host and self.port:
             self.trc = self.__login_transmission()
 

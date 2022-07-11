@@ -28,7 +28,11 @@ class Qbittorrent(IDownloadClient):
             # 解析下载目录
             self.save_path = qbittorrent.get('save_path')
             self.save_containerpath = qbittorrent.get('save_containerpath')
-        # 连接
+
+    def connect(self):
+        """
+        连接
+        """
         if self.host and self.port:
             self.qbc = self.__login_qbittorrent()
 

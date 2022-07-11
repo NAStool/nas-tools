@@ -30,11 +30,19 @@ class IDownloadClient(metaclass=ABCMeta):
         """
         self.get_config()
         self.set_user_config()
+        self.connect()
 
     @abstractmethod
     def get_config(self):
         """
         获取配置
+        """
+        pass
+
+    @abstractmethod
+    def connect(self):
+        """
+        连接
         """
         pass
 
