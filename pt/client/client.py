@@ -2,26 +2,26 @@ from abc import ABCMeta, abstractmethod
 
 
 class IDownloadClient(metaclass=ABCMeta):
-    __user_config = None
-    __host = None
-    __port = None
-    __username = None
-    __password = None
-    __save_path = None
-    __save_containerpath = None
-    __tv_save_path = None
-    __tv_save_containerpath = None
-    __tv_category = None
-    __movie_save_path = None
-    __movie_save_containerpath = None
-    __movie_category = None
-    __anime_save_path = None
-    __anime_save_containerpath = None
-    __anime_category = None
+    user_config = None
+    host = None
+    port = None
+    username = None
+    password = None
+    save_path = None
+    save_containerpath = None
+    tv_save_path = None
+    tv_save_containerpath = None
+    tv_category = None
+    movie_save_path = None
+    movie_save_containerpath = None
+    movie_category = None
+    anime_save_path = None
+    anime_save_containerpath = None
+    anime_category = None
 
     def __init__(self, user_config=None):
         if user_config:
-            self.__user_config = user_config
+            self.user_config = user_config
         self.init_config()
 
     def init_config(self):
@@ -39,50 +39,50 @@ class IDownloadClient(metaclass=ABCMeta):
         pass
 
     def set_user_config(self):
-        if self.__user_config:
+        if self.user_config:
             # 使用输入配置
-            self.__host = self.__user_config.get("host")
-            self.__port = self.__user_config.get("port")
-            self.__username = self.__user_config.get("username")
-            self.__password = self.__user_config.get("password")
-            self.__movie_save_path = self.__tv_save_path = self.__anime_save_path = self.__user_config.get("save_dir")
+            self.host = self.user_config.get("host")
+            self.port = self.user_config.get("port")
+            self.username = self.user_config.get("username")
+            self.password = self.user_config.get("password")
+            self.movie_save_path = self.tv_save_path = self.anime_save_path = self.user_config.get("save_dir")
         else:
-            if self.__save_path:
-                if isinstance(self.__save_path, str):
-                    self.__tv_save_path = self.__save_path
-                    self.__movie_save_path = self.__save_path
-                    self.__anime_save_path = self.__save_path
+            if self.save_path:
+                if isinstance(self.save_path, str):
+                    self.tv_save_path = self.save_path
+                    self.movie_save_path = self.save_path
+                    self.anime_save_path = self.save_path
                 else:
-                    if self.__save_path.get('tv'):
-                        tv_save_path = self.__save_path.get('tv').split("|")
-                        self.__tv_save_path = tv_save_path[0]
+                    if self.save_path.get('tv'):
+                        tv_save_path = self.save_path.get('tv').split("|")
+                        self.tv_save_path = tv_save_path[0]
                         if len(tv_save_path) > 1:
-                            self.__tv_category = tv_save_path[1]
-                    if self.__save_path.get('movie'):
-                        movie_save_path = self.__save_path.get('movie').split("|")
-                        self.__movie_save_path = movie_save_path[0]
+                            self.tv_category = tv_save_path[1]
+                    if self.save_path.get('movie'):
+                        movie_save_path = self.save_path.get('movie').split("|")
+                        self.movie_save_path = movie_save_path[0]
                         if len(movie_save_path) > 1:
-                            self.__movie_category = movie_save_path[1]
-                    if self.__save_path.get('anime'):
-                        anime_save_path = self.__save_path.get('anime').split("|")
-                        self.__anime_save_path = anime_save_path[0]
+                            self.movie_category = movie_save_path[1]
+                    if self.save_path.get('anime'):
+                        anime_save_path = self.save_path.get('anime').split("|")
+                        self.anime_save_path = anime_save_path[0]
                         if len(anime_save_path) > 1:
-                            self.__anime_category = anime_save_path[1]
-                    if not self.__anime_save_path:
-                        self.__anime_save_path = self.__tv_save_path
-                        self.__anime_category = self.__tv_category
-            if self.__save_containerpath:
-                if isinstance(self.__save_containerpath, str):
-                    self.__tv_save_containerpath = self.__save_containerpath
-                    self.__movie_save_containerpath = self.__save_containerpath
-                    self.__anime_save_containerpath = self.__save_containerpath
+                            self.anime_category = anime_save_path[1]
+                    if not self.anime_save_path:
+                        self.anime_save_path = self.tv_save_path
+                        self.anime_category = self.tv_category
+            if self.save_containerpath:
+                if isinstance(self.save_containerpath, str):
+                    self.tv_save_containerpath = self.save_containerpath
+                    self.movie_save_containerpath = self.save_containerpath
+                    self.anime_save_containerpath = self.save_containerpath
                 else:
-                    self.__tv_save_containerpath = self.__save_containerpath.get('tv')
-                    self.__movie_save_containerpath = self.__save_containerpath.get('movie')
-                    self.__anime_save_containerpath = self.__save_containerpath.get('anime')
+                    self.tv_save_containerpath = self.save_containerpath.get('tv')
+                    self.movie_save_containerpath = self.save_containerpath.get('movie')
+                    self.anime_save_containerpath = self.save_containerpath.get('anime')
                     # 没有配置anime目录则使用tv目录
-                    if not self.__anime_save_containerpath:
-                        self.__anime_save_containerpath = self.__tv_save_containerpath
+                    if not self.anime_save_containerpath:
+                        self.anime_save_containerpath = self.tv_save_containerpath
 
     @abstractmethod
     def get_status(self):
@@ -168,14 +168,14 @@ class IDownloadClient(metaclass=ABCMeta):
         """
         pass
 
-    def __get_replace_path(self, true_path):
+    def get_replace_path(self, true_path):
         """
         对目录路径进行转换
         """
-        if self.__tv_save_containerpath and true_path.startswith(self.__tv_save_path):
-            true_path = true_path.replace(str(self.__tv_save_path), str(self.__tv_save_containerpath))
-        if self.__movie_save_containerpath and true_path.startswith(self.__movie_save_path):
-            true_path = true_path.replace(str(self.__movie_save_path), str(self.__movie_save_containerpath))
-        if self.__anime_save_containerpath and true_path.startswith(self.__anime_save_path):
-            true_path = true_path.replace(str(self.__anime_save_path), str(self.__anime_save_containerpath))
+        if self.tv_save_containerpath and true_path.startswith(self.tv_save_path):
+            true_path = true_path.replace(str(self.tv_save_path), str(self.tv_save_containerpath))
+        if self.movie_save_containerpath and true_path.startswith(self.movie_save_path):
+            true_path = true_path.replace(str(self.movie_save_path), str(self.movie_save_containerpath))
+        if self.anime_save_containerpath and true_path.startswith(self.anime_save_path):
+            true_path = true_path.replace(str(self.anime_save_path), str(self.anime_save_containerpath))
         return true_path

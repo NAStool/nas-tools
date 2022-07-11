@@ -19,17 +19,17 @@ class Qbittorrent(IDownloadClient):
         config = Config()
         qbittorrent = config.get_config('qbittorrent')
         if qbittorrent:
-            self.__host = qbittorrent.get('qbhost')
-            self.__port = int(qbittorrent.get('qbport'))
-            self.__username = qbittorrent.get('qbusername')
-            self.__password = qbittorrent.get('qbpassword')
+            self.host = qbittorrent.get('qbhost')
+            self.port = int(qbittorrent.get('qbport'))
+            self.username = qbittorrent.get('qbusername')
+            self.password = qbittorrent.get('qbpassword')
             # 强制做种开关
             self.__force_upload = qbittorrent.get('force_upload')
             # 解析下载目录
-            self.__save_path = qbittorrent.get('save_path')
-            self.__save_containerpath = qbittorrent.get('save_containerpath')
+            self.save_path = qbittorrent.get('save_path')
+            self.save_containerpath = qbittorrent.get('save_containerpath')
         # 连接
-        if self.__host and self.__port:
+        if self.host and self.port:
             self.qbc = self.__login_qbittorrent()
 
     def __login_qbittorrent(self):
@@ -39,10 +39,10 @@ class Qbittorrent(IDownloadClient):
         """
         try:
             # 登录
-            qbt = qbittorrentapi.Client(host=self.__host,
-                                        port=self.__port,
-                                        username=self.__username,
-                                        password=self.__password,
+            qbt = qbittorrentapi.Client(host=self.host,
+                                        port=self.port,
+                                        username=self.username,
+                                        password=self.password,
                                         VERIFY_WEBUI_CERTIFICATE=False)
             return qbt
         except Exception as err:
@@ -143,7 +143,7 @@ class Qbittorrent(IDownloadClient):
             true_path = torrent.get('content_path', os.path.join(torrent.get('save_path'), torrent.get('name')))
             if not true_path:
                 continue
-            true_path = self.__get_replace_path(true_path)
+            true_path = self.get_replace_path(true_path)
             trans_tasks.append({'path': true_path, 'id': torrent.get('hash')})
         return trans_tasks
 
@@ -191,14 +191,14 @@ class Qbittorrent(IDownloadClient):
             return False
         self.qbc.auth_log_in()
         if mtype == MediaType.TV:
-            save_path = self.__tv_save_path
-            category = self.__tv_category
+            save_path = self.tv_save_path
+            category = self.tv_category
         elif mtype == MediaType.MOVIE:
-            save_path = self.__movie_save_path
-            category = self.__movie_category
+            save_path = self.movie_save_path
+            category = self.movie_category
         else:
-            save_path = self.__anime_save_path
-            category = self.__anime_category
+            save_path = self.anime_save_path
+            category = self.anime_category
         if isinstance(content, str):
             qbc_ret = self.qbc.torrents_add(urls=content,
                                             save_path=save_path,

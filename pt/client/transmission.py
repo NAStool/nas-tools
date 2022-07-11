@@ -21,14 +21,14 @@ class Transmission(IDownloadClient):
         config = Config()
         transmission = config.get_config('transmission')
         if transmission:
-            self.__host = transmission.get('trhost')
-            self.__port = int(transmission.get('trport'))
-            self.__username = transmission.get('trusername')
-            self.__password = transmission.get('trpassword')
-            self.__save_path = transmission.get('save_path')
-            self.__save_containerpath = transmission.get('save_containerpath')
+            self.host = transmission.get('trhost')
+            self.port = int(transmission.get('trport'))
+            self.username = transmission.get('trusername')
+            self.password = transmission.get('trpassword')
+            self.save_path = transmission.get('save_path')
+            self.save_containerpath = transmission.get('save_containerpath')
         # 连接
-        if self.__host and self.__port:
+        if self.host and self.port:
             self.trc = self.__login_transmission()
 
     def __login_transmission(self):
@@ -38,10 +38,10 @@ class Transmission(IDownloadClient):
         """
         try:
             # 登录
-            trt = transmission_rpc.Client(host=self.__host,
-                                          port=self.__port,
-                                          username=self.__username,
-                                          password=self.__password,
+            trt = transmission_rpc.Client(host=self.host,
+                                          port=self.port,
+                                          username=self.username,
+                                          password=self.password,
                                           timeout=10)
             return trt
         except Exception as err:
@@ -143,7 +143,7 @@ class Transmission(IDownloadClient):
             true_path = os.path.join(torrent.download_dir, torrent.name)
             if not true_path:
                 continue
-            true_path = self.__get_replace_path(true_path)
+            true_path = self.get_replace_path(true_path)
             trans_tasks.append({'path': true_path, 'id': torrent.id})
         return trans_tasks
 
@@ -177,11 +177,11 @@ class Transmission(IDownloadClient):
         :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
         """
         if mtype == MediaType.TV:
-            return self.trc.add_torrent(torrent=content, download_dir=self.__tv_save_path, paused=is_paused)
+            return self.trc.add_torrent(torrent=content, download_dir=self.tv_save_path, paused=is_paused)
         elif mtype == MediaType.MOVIE:
-            return self.trc.add_torrent(torrent=content, download_dir=self.__movie_save_path, paused=is_paused)
+            return self.trc.add_torrent(torrent=content, download_dir=self.movie_save_path, paused=is_paused)
         else:
-            return self.trc.add_torrent(torrent=content, download_dir=self.__anime_save_path, paused=is_paused)
+            return self.trc.add_torrent(torrent=content, download_dir=self.anime_save_path, paused=is_paused)
 
     def start_torrents(self, ids):
         """
