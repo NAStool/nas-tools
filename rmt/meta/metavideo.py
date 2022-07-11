@@ -53,6 +53,8 @@ class MetaVideo(MetaBase):
         title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
         # 把xxxx-xxxx年份换成前一个年份，常出现在季集上
         title = re.sub(r'([\s.]+)(\d{4})-(\d{4})', r'\1\2', title)
+        # 把大小去掉
+        title = re.sub(r'[0-9.]+\s*[MGT]i?B', "", title, flags=re.IGNORECASE)
         # 拆分tokens
         tokens = Tokens(title)
         # 解析名称、年份、季、集、资源类型、分辨率等

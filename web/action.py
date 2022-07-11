@@ -91,7 +91,8 @@ class WebAction:
             "del_brushtask": self.__del_brushtask,
             "brushtask_detail": self.__brushtask_detail,
             "add_downloader": self.__add_downloader,
-            "delete_downloader": self.__delete_downloader
+            "delete_downloader": self.__delete_downloader,
+            "name_test": self.__name_test
         }
 
     def action(self, cmd, data):
@@ -1430,6 +1431,29 @@ class WebAction:
         if dl_id:
             delete_user_downloader(dl_id)
         return {"code": 0}
+
+    @staticmethod
+    def __name_test(data):
+        """
+        名称识别测试
+        """
+        name = data.get("name")
+        if not name:
+            return {"code": -1}
+        media_info = Media().get_media_info(title=name)
+        return {"code": 0, "data": {
+            "type": media_info.type.value,
+            "name": media_info.get_name(),
+            "title": media_info.title,
+            "year": media_info.year,
+            "season_episode": media_info.get_season_episode_string(),
+            "tmdbid": media_info.tmdb_id,
+            "category": media_info.category,
+            "restype": media_info.resource_type,
+            "pix": media_info.resource_pix,
+            "video_codec": media_info.video_encode,
+            "audio_codec": media_info.audio_encode
+        }}
 
     @staticmethod
     def parse_sites_string(notes):

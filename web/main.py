@@ -974,17 +974,6 @@ def create_flask_app(config):
                 scheduler_cfg_list.append(
                     {'name': '豆瓣想看', 'time': interval, 'state': sta_douban, 'id': 'douban', 'svg': svg, 'color': color})
 
-        # 实时日志
-        svg = '''
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-terminal" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-           <path d="M5 7l5 5l-5 5"></path>
-           <line x1="12" y1="19" x2="19" y2="19"></line>
-        </svg>
-        '''
-        scheduler_cfg_list.append(
-            {'name': '实时日志', 'time': '', 'state': 'OFF', 'id': 'logging', 'svg': svg, 'color': 'indigo'})
-
         # 清理文件整理缓存
         svg = '''
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eraser" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -995,6 +984,29 @@ def create_flask_app(config):
         '''
         scheduler_cfg_list.append(
             {'name': '清理文件缓存', 'time': '手动', 'state': 'OFF', 'id': 'blacklist', 'svg': svg, 'color': 'red'})
+
+        # 名称识别测试
+        svg = '''
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alphabet-greek" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+           <path d="M10 10v7"></path>
+           <rect x="5" y="10" width="5" height="7" rx="2"></rect>
+           <path d="M14 20v-11a2 2 0 0 1 2 -2h1a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2"></path>
+        </svg>
+        '''
+        scheduler_cfg_list.append(
+            {'name': '名称识别测试', 'time': '', 'state': 'OFF', 'id': 'nametest', 'svg': svg, 'color': 'lime'})
+
+        # 实时日志
+        svg = '''
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-terminal" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+           <path d="M5 7l5 5l-5 5"></path>
+           <line x1="12" y1="19" x2="19" y2="19"></line>
+        </svg>
+        '''
+        scheduler_cfg_list.append(
+            {'name': '实时日志', 'time': '', 'state': 'OFF', 'id': 'logging', 'svg': svg, 'color': 'indigo'})
 
         return render_template("service.html",
                                Count=len(scheduler_cfg_list),
