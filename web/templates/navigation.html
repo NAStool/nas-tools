@@ -714,7 +714,7 @@
               $("#system_media_rss_btn").attr("href", 'javascript:add_rss_media("'+ret.title+'","'+ret.year+'","'+ret.type+'","'+ret.tmdbid+'","'+ret.doubanid+'","'+ret.page+'")');
               //搜索按钮
               $("#system_media_search_btn").text("搜索");
-              $("#system_media_search_btn").attr("href", 'javascript:search_mediainfo_media("'+ret.title+'")');
+              $("#system_media_search_btn").attr("href", 'javascript:search_mediainfo_media("'+ret.tmdbid+'", "'+ret.doubanid+'", "'+ret.title+'", "'+ret.type_str+'")');
               $("#system_media_search_btn").show();
               //详情按钮
               $("#system_media_url_btn").text("详情");
@@ -812,9 +812,21 @@
       }
 
       //搜索
-      function search_mediainfo_media(title){
+      function search_mediainfo_media(tmdbid, doubanid, title, typestr){
         hide_mediainfo_modal();
-        navmenu('search?s='+title+'&f=1');
+        if(!tmdbid && doubanid){
+          tmdbid = "DB:" + doubanid;
+        }
+        var param = {"tmdbid": tmdbid, "search_word": title, "media_type":typestr};
+        show_wait_process();
+        ajax_post("search", param, function (ret) {
+          hide_wait_process();
+          if(ret.code == 0){
+            navmenu('search?s=' + title);
+          }else{
+            show_fail_modal(ret.msg);
+          }
+        });
       }
     </script>
     <script type="text/javascript">

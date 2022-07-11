@@ -19,7 +19,7 @@ class IIndexer(metaclass=ABCMeta):
     index_type = None
     api_key = None
     __res_type = None
-    __space_chars = r"\.|-|/|:|："
+    __space_chars = r"\.|-|/|:|：|'|‘|!|！"
 
     def __init__(self):
         self.media = Media()

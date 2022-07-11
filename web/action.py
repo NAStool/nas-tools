@@ -977,6 +977,7 @@ class WebAction:
             return {
                 "code": 0,
                 "type": mtype,
+                "type_str": media_type.value,
                 "page": page,
                 "title": title,
                 "vote_average": vote_average,
@@ -1024,6 +1025,7 @@ class WebAction:
             return {
                 "code": 0,
                 "type": mtype,
+                "type_str": media_type.value,
                 "page": page,
                 "title": title,
                 "vote_average": vote_average,
