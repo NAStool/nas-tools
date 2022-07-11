@@ -117,6 +117,10 @@ message:
     # 3、在微信企业应用接收消息设置页面输入此地址：http(s)://ip:3000/wechat，需要有公网IP并做好端口转发，最好要有域名
     Token:
     EncodingAESKey:
+    # 【使用默认微信代理服务器】：由于微信官方限制，2022年6月20日后创建的企业微信应用需要有固定的公网IP地址并加入IP白名单后才能发送消息，使用代理服务器转发可解决该问题
+    # 选中该项则代表使用默认的代理服务器
+    # 1、默认的代理服务器为免费使用，仅转发请求不会收集用户数据，如不放心可不开始，如无法发送消息请自行解决。2、需要将nastool.jxxghp.cn域名对应的IP地址加入企业微信应用的白名单中（通过ping域名获取IP地址）
+    default_proxy: false
   # 【Server酱消息通知】：填写ServerChan的API KEY，SCT类型，在https://sct.ftqq.com/中申请（非VIP貌似每日限制只能收到5条消息）
   serverchan:
     sckey:

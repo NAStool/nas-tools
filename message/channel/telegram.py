@@ -90,17 +90,8 @@ class Telegram(IMessageChannel):
                 # 发送文本
                 values = {"chat_id": chat_id, "text": caption, "parse_mode": "HTML"}
                 sc_url = "https://api.telegram.org/bot%s/sendMessage?" % self.__telegram_token
+            return self.__send_request(sc_url, values)
 
-            res = RequestUtils(proxies=self.__config.get_proxies()).get_res(sc_url + urlencode(values))
-            if res:
-                ret_json = res.json()
-                status = ret_json.get("ok")
-                if status:
-                    return True, ""
-                else:
-                    return False, ret_json.get("description")
-            else:
-                return False, "未获取到返回信息"
         except Exception as msg_e:
             return False, str(msg_e)
 
@@ -128,19 +119,25 @@ class Telegram(IMessageChannel):
             # 发送图文消息
             values = {"chat_id": chat_id, "photo": image, "caption": caption, "parse_mode": "HTML"}
             sc_url = "https://api.telegram.org/bot%s/sendPhoto?" % self.__telegram_token
+            return self.__send_request(sc_url, values)
 
-            res = RequestUtils(proxies=self.__config.get_proxies()).get_res(sc_url + urlencode(values))
-            if res:
-                ret_json = res.json()
-                status = ret_json.get("ok")
-                if status:
-                    return True, ""
-                else:
-                    return False, ret_json.get("description")
-            else:
-                return False, "未获取到返回信息"
         except Exception as msg_e:
             return False, str(msg_e)
+
+    def __send_request(self, sc_url, values):
+        """
+        向Telegram发送报文
+        """
+        res = RequestUtils(proxies=self.__config.get_proxies()).get_res(sc_url + urlencode(values))
+        if res:
+            ret_json = res.json()
+            status = ret_json.get("ok")
+            if status:
+                return True, ""
+            else:
+                return False, ret_json.get("description")
+        else:
+            return False, "未获取到返回信息"
 
     def __set_bot_webhook(self):
         """

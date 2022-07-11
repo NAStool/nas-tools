@@ -2,7 +2,7 @@ from datetime import datetime
 import json
 import threading
 import log
-from config import Config
+from config import Config, DEFAULT_WECHAT_PROXY
 from message.channel.channel import IMessageChannel
 from utils.functions import singleton
 from utils.http_utils import RequestUtils
@@ -16,12 +16,14 @@ class WeChat(IMessageChannel):
     __access_token = None
     __expires_in = None
     __access_token_time = None
+    __default_proxy = False
 
     __corpid = None
     __corpsecret = None
     __agent_id = None
 
     __send_msg_url = "https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=%s"
+    __token_url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
 
     def __init__(self):
         self.init_config()
@@ -33,6 +35,10 @@ class WeChat(IMessageChannel):
             self.__corpid = message.get('wechat', {}).get('corpid')
             self.__corpsecret = message.get('wechat', {}).get('corpsecret')
             self.__agent_id = message.get('wechat', {}).get('agentid')
+            self.__default_proxy = message.get('wechat', {}).get('default_proxy')
+        if self.__default_proxy:
+            self.__send_msg_url = f"{DEFAULT_WECHAT_PROXY}/cgi-bin/message/send?access_token=%s"
+            self.__token_url = f"{DEFAULT_WECHAT_PROXY}/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
         if self.__corpid and self.__corpsecret and self.__agent_id:
             self.__get_access_token()
 
@@ -53,8 +59,7 @@ class WeChat(IMessageChannel):
             if not self.__corpid or not self.__corpsecret:
                 return None
             try:
-                token_url = "https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid=%s&corpsecret=%s" \
-                            % (self.__corpid, self.__corpsecret)
+                token_url = self.__token_url % (self.__corpid, self.__corpsecret)
                 res = RequestUtils().get_res(token_url)
                 if res:
                     ret_json = res.json()
@@ -102,20 +107,7 @@ class WeChat(IMessageChannel):
             "enable_id_trans": 0,
             "enable_duplicate_check": 0
         }
-        headers = {'content-type': 'application/json'}
-        try:
-            res = RequestUtils(headers=headers).post(message_url,
-                                                     params=json.dumps(req_json, ensure_ascii=False).encode('utf-8'))
-            if res:
-                ret_json = res.json()
-                if ret_json['errcode'] == 0:
-                    return True, ret_json['errmsg']
-                else:
-                    return False, ret_json['errmsg']
-            else:
-                return False, None
-        except Exception as err:
-            return False, str(err)
+        return self.__post_request(message_url, req_json)
 
     def __send_image_message(self, title, text, image_url, url, user_id=None):
         """
@@ -149,20 +141,7 @@ class WeChat(IMessageChannel):
                 ]
             }
         }
-        headers = {'content-type': 'application/json'}
-        try:
-            res = RequestUtils(headers=headers).post(message_url,
-                                                     params=json.dumps(req_json, ensure_ascii=False).encode('utf-8'))
-            if res:
-                ret_json = res.json()
-                if ret_json['errcode'] == 0:
-                    return True, ret_json['errmsg']
-                else:
-                    return False, ret_json['errmsg']
-            else:
-                return False, None
-        except Exception as err:
-            return False, str(err)
+        return self.__post_request(message_url, req_json)
 
     def send_msg(self, title, text="", image="", url="", user_id=None):
         """
@@ -211,6 +190,13 @@ class WeChat(IMessageChannel):
                 "articles": articles
             }
         }
+        return self.__post_request(message_url, req_json)
+
+    @staticmethod
+    def __post_request(message_url, req_json):
+        """
+        向微信发送请求
+        """
         headers = {'content-type': 'application/json'}
         try:
             res = RequestUtils(headers=headers).post(message_url,
