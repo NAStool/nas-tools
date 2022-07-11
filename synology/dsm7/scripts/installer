@@ -11,9 +11,9 @@ preinst ()
 install_service(){
   chmod +x "/var/packages/nastool/scripts/"
   # 安装pip
-  "${PYTHON_BIN}" "${PACKAGE_BASE}/get-pip.py"
+  # "${PYTHON_BIN}" "${PACKAGE_BASE}/get-pip.py"
   # pip安装依赖包
-  "${PYTHON_BIN}" -m pip install -r "${PACKAGE_BASE}/requirements.txt"
+  "${PYTHON_BIN}" -m pip install --no-index --find-links="${PACKAGE_BASE}/wheelhouse" -r "${PACKAGE_BASE}/requirements.txt"
   # 检测Pthon版本
   PYV=$(${PYTHON_BIN} -V 2>&1 | sed 's/.* \([0-9]\).\([0-9]\).*/\1.\2/')
   PYTHON_PACKAGE="/var/packages/python38/target/lib/python3.8/site-packages"

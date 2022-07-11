@@ -1,5 +1,5 @@
 #!/bin/sh
-PYTHON_BIN="/var/packages/py3k/target/usr/local/bin/python3"
+PYTHON_BIN="/var/packages/python38/target/bin/python3"
 PACKAGE_BASE="/var/packages/nastool/target"
 CONFIG_FILE="/var/packages/nastool/target/config/config.yaml"
 TIMEOUT=30
