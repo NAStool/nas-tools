@@ -20,6 +20,8 @@ class IIndexer(metaclass=ABCMeta):
     api_key = None
     __res_type = None
     __space_chars = r"\.|-|/|:|：|'|‘|!|！"
+    __reverse_title_sites = ['keepfriends']
+    __invalid_description_sites = ['tjupt']
 
     def __init__(self):
         self.media = Media()
@@ -131,11 +133,18 @@ class IIndexer(metaclass=ABCMeta):
         # 从检索结果中匹配符合资源条件的记录
         index_sucess = 0
         for item in result_array:
-            # 获取属性
-            torrent_name = item.get('title')
+            # 这此站标题和副标题相反
+            if indexer_name in self.__reverse_title_sites:
+                torrent_name = item.get('description')
+                description = item.get('title')
+            else:
+                torrent_name = item.get('title')
+                description = item.get('description')
+            # 这些站副标题无意义，需要去除
+            if indexer_name in self.__invalid_description_sites:
+                description = ""
             enclosure = item.get('enclosure')
             size = item.get('size')
-            description = item.get('description')
             seeders = item.get('seeders')
             peers = item.get('peers')
             page_url = item.get('page_url')
