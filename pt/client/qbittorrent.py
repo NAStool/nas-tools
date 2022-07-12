@@ -240,6 +240,8 @@ class Qbittorrent(IDownloadClient):
         """
         if not self.qbc:
             return False
+        if not ids:
+            return False
         self.qbc.auth_log_in()
         ret = self.qbc.torrents_delete(delete_files=delete_file, torrent_hashes=ids)
         self.qbc.auth_log_out()

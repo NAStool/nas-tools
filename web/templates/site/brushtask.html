@@ -382,10 +382,31 @@
                 </div>
               </div>
             </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">下载耗时(小时) <span class="form-help bg-red-lt" title="下载耗时超过设定值仍然未下载完成的，删除下载任务（包括已下载的文件）" data-bs-toggle="tooltip">?</span></label>
+                <div class="input-group">
+                  <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_dltime_btn">
+                    忽略
+                  </button>
+                  <input type="hidden" id="brushtask_dltime_do">
+                  <div class="dropdown-menu" style="">
+                    <a class="dropdown-item" id="brushtask_dltime_do_" href="javascript:void(0)" onclick="javascript:filter_item_change('', 'brushtask_dltime',$(this))">
+                      忽略
+                    </a>
+                    <a class="dropdown-item" id="brushtask_dltime_do_gt" href="javascript:void(0)" onclick="javascript:filter_item_change('gt', 'brushtask_dltime',$(this))">
+                      大于
+                    </a>
+                  </div>
+                  <input type="text" class="form-control" id="brushtask_dltime" readonly>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
+        <button type="button" class="btn btn-white me-auto" data-bs-dismiss="modal">关闭</button>
         <a href="javascript:add_brushtask_job()" id="brushtask_add_btn" class="btn btn-primary">确定</a>
       </div>
     </div>
@@ -422,17 +443,30 @@
         $("#brushtask_include").val(ret.task.rss_rule.include);
         $("#brushtask_exclude").val(ret.task.rss_rule.exclude);
         //种子大小
-        size_str = ret.task.rss_rule.size.split('#');
-        filter_item_change(size_str[0], 'brushtask_torrent_size', $('#brushtask_torrent_size_do_' + size_str[0]), size_str[1])
+        if(ret.task.rss_rule.size){
+          size_str = ret.task.rss_rule.size.split('#');
+          filter_item_change(size_str[0], 'brushtask_torrent_size', $('#brushtask_torrent_size_do_' + size_str[0]), size_str[1])
+        }
         //做种时间
-        seedtime_str = ret.task.remove_rule.time.split('#');
-        filter_item_change(seedtime_str[0], 'brushtask_seedtime', $('#brushtask_seedtime_do_' + seedtime_str[0]), seedtime_str[1])
+        if(ret.task.remove_rule.time){
+          seedtime_str = ret.task.remove_rule.time.split('#');
+          filter_item_change(seedtime_str[0], 'brushtask_seedtime', $('#brushtask_seedtime_do_' + seedtime_str[0]), seedtime_str[1])
+        }
         //做种大小
-        seedsize_str = ret.task.remove_rule.uploadsize.split('#');
-        filter_item_change(seedsize_str[0], 'brushtask_seedsize', $('#brushtask_seedsize_do_' + seedsize_str[0]), seedsize_str[1])
+        if(ret.task.remove_rule.uploadsize){
+          seedsize_str = ret.task.remove_rule.uploadsize.split('#');
+          filter_item_change(seedsize_str[0], 'brushtask_seedsize', $('#brushtask_seedsize_do_' + seedsize_str[0]), seedsize_str[1])
+        }
         //分享率
-        seedratio_str = ret.task.remove_rule.ratio.split('#');
-        filter_item_change(seedratio_str[0], 'brushtask_seedratio', $('#brushtask_seedratio_do_' + seedratio_str[0]), seedratio_str[1])
+        if(ret.task.remove_rule.ratio){
+          seedratio_str = ret.task.remove_rule.ratio.split('#');
+          filter_item_change(seedratio_str[0], 'brushtask_seedratio', $('#brushtask_seedratio_do_' + seedratio_str[0]), seedratio_str[1])
+        }
+        //下载耗时
+        if(ret.task.remove_rule.dltime){
+          dltime_str = ret.task.remove_rule.dltime.split('#');
+          filter_item_change(dltime_str[0], 'brushtask_dltime', $('#brushtask_dltime_do_' + dltime_str[0]), dltime_str[1])
+        }
         //弹窗
         $("#modal-brushtask").modal('show');
       }
@@ -537,6 +571,7 @@
     var brushtask_transfer = $("#brushtask_transfer").prop('checked');
     var brushtask_free = $("#brushtask_free").val();
     var brushtask_hr = $("#brushtask_hr").val();
+    //种子大小
     var brushtask_torrent_size_do = $("#brushtask_torrent_size_do").val();
     var brushtask_torrent_size = $("#brushtask_torrent_size").val();
     if(brushtask_torrent_size_do && !brushtask_torrent_size){
@@ -552,8 +587,11 @@
       }
       $("#brushtask_torrent_size").removeClass("is-invalid");
     }
+    //包含
     var brushtask_include = $("#brushtask_include").val();
+    //排除
     var brushtask_exclude = $("#brushtask_exclude").val();
+    //同时下载数
     var brushtask_dlcount = $("#brushtask_dlcount").val();
     if(brushtask_dlcount && isNaN(brushtask_dlcount)){
       $("#brushtask_dlcount").addClass("is-invalid");
@@ -561,6 +599,7 @@
     }else{
       $("#brushtask_dlcount").removeClass("is-invalid");
     }
+    //做种时间
     var brushtask_seedtime_do = $("#brushtask_seedtime_do").val();
     var brushtask_seedtime = $("#brushtask_seedtime").val();
     if(brushtask_seedtime_do && !brushtask_seedtime){
@@ -573,6 +612,7 @@
       }
       $("#brushtask_seedtime").removeClass("is-invalid");
     }
+    //分享率
     var brushtask_seedratio_do = $("#brushtask_seedratio_do").val();
     var brushtask_seedratio = $("#brushtask_seedratio").val();
     if(brushtask_seedratio_do && !brushtask_seedratio){
@@ -585,6 +625,7 @@
       }
       $("#brushtask_seedratio").removeClass("is-invalid");
     }
+    //上传量
     var brushtask_seedsize_do = $("#brushtask_seedsize_do").val();
     var brushtask_seedsize = $("#brushtask_seedsize").val();
     if(brushtask_seedsize_do && !brushtask_seedsize){
@@ -596,6 +637,19 @@
         return;
       }
       $("#brushtask_seedsize").removeClass("is-invalid");
+    }
+    //下载耗时
+    var brushtask_dltime_do = $("#brushtask_dltime_do").val();
+    var brushtask_dltime = $("#brushtask_dltime").val();
+    if(brushtask_dltime_do && !brushtask_dltime){
+      $("#brushtask_dltime").addClass("is-invalid");
+      return;
+    } else {
+      if(brushtask_dltime && isNaN(brushtask_dltime)){
+        $("#brushtask_dltime").addClass("is-invalid");
+        return;
+      }
+      $("#brushtask_dltime").removeClass("is-invalid");
     }
 
     // 参数
@@ -616,7 +670,8 @@
       brushtask_dlcount: brushtask_dlcount,
       brushtask_seedtime: brushtask_seedtime_do + "#" + brushtask_seedtime,
       brushtask_seedratio: brushtask_seedratio_do + "#" + brushtask_seedratio,
-      brushtask_seedsize: brushtask_seedsize_do + "#" + brushtask_seedsize
+      brushtask_seedsize: brushtask_seedsize_do + "#" + brushtask_seedsize,
+      brushtask_dltime: brushtask_dltime_do + "#" + brushtask_dltime
     };
 
     ajax_post("add_brushtask", params, function(ret){

@@ -217,6 +217,8 @@ class Transmission(IDownloadClient):
         """
         if not self.trc:
             return False
+        if not ids:
+            return False
         if isinstance(ids, list):
             ids = [int(x) for x in ids]
         elif ids:

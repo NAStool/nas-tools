@@ -1318,6 +1318,7 @@ class WebAction:
         brushtask_seedtime = data.get("brushtask_seedtime")
         brushtask_seedratio = data.get("brushtask_seedratio")
         brushtask_seedsize = data.get("brushtask_seedsize")
+        brushtask_dltime = data.get("brushtask_dltime")
         # 选种规则
         rss_rule = {
             "free": brushtask_free,
@@ -1331,7 +1332,8 @@ class WebAction:
         remove_rule = {
             "time": brushtask_seedtime,
             "ratio": brushtask_seedratio,
-            "uploadsize": brushtask_seedsize
+            "uploadsize": brushtask_seedsize,
+            "dltime": brushtask_dltime
         }
         # 添加记录
         item = {
@@ -1519,5 +1521,10 @@ class WebAction:
             if uploadsizes[0]:
                 rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="上传量">上传量%s: %s GB</span>'
                                   % (rule_filter_string.get(uploadsizes[0]), uploadsizes[1]))
+        if rules.get("dltime"):
+            dltimes = rules.get("dltime").split("#")
+            if dltimes[0]:
+                rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="下载耗时">下载耗时%s: %s 小时</span>'
+                                  % (rule_filter_string.get(dltimes[0]), dltimes[1]))
 
         return "<br>".join(rule_htmls)
