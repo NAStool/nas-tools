@@ -92,7 +92,8 @@ class WebAction:
             "brushtask_detail": self.__brushtask_detail,
             "add_downloader": self.__add_downloader,
             "delete_downloader": self.__delete_downloader,
-            "name_test": self.__name_test
+            "name_test": self.__name_test,
+            "get_site_activity": self.__get_site_activity
         }
 
     def action(self, cmd, data):
@@ -1454,6 +1455,20 @@ class WebAction:
             "video_codec": media_info.video_encode,
             "audio_codec": media_info.audio_encode
         }}
+
+    @staticmethod
+    def __get_site_activity(data):
+        """
+        查询site活动[上传，下载，魔力值]
+        :param data: {"name":site_name}
+        :return:
+        """
+        if not data or "name" not in data:
+            return {"code": 1, "msg": "查询参数错误"}
+
+        resp = {"code": 0}
+        resp.update(Sites().get_pt_site_activity_history(data["name"]))
+        return resp
 
     @staticmethod
     def parse_sites_string(notes):
