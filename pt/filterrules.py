@@ -88,6 +88,8 @@ class FilterRule:
             rolegroup = self.get_rule_groups(default=True)
             if not rolegroup:
                 return True, 0
+        else:
+            rolegroup = self.get_rule_groups(groupid=rolegroup)
         filters = self.get_rules(groupid=rolegroup.get("id"))
         # 命中优先级
         order_seq = 100
