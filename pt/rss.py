@@ -5,17 +5,19 @@ import re
 from urllib import parse
 import xml.dom.minidom
 import log
+from pt.filterrules import FilterRule
 from pt.searcher import Searcher
 from message.send import Message
 from pt.downloader import Downloader
 from pt.siteconf import RSS_EXTRA_SITES
+from pt.sites import Sites
 from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
-from utils.functions import tag_value
+from utils.functions import tag_value, str_filesize
 from utils.http_utils import RequestUtils
 from utils.sqls import get_rss_movies, get_rss_tvs, insert_rss_torrents, \
-    get_config_site, is_torrent_rssd, get_config_rss_rule, delete_rss_movie, delete_rss_tv, update_rss_tv_lack, \
+    is_torrent_rssd, delete_rss_movie, delete_rss_tv, update_rss_tv_lack, \
     update_rss_movie_state, update_rss_tv_state, update_rss_movie_tmdbid, update_rss_tv_tmdbid, get_rss_tv_episodes
 from utils.types import MediaType, SearchType
 
@@ -24,7 +26,7 @@ lock = Lock()
 
 class Rss:
     __sites = None
-    __rss_rule = None
+    filterrule = None
     message = None
     media = None
     downloader = None
@@ -35,16 +37,12 @@ class Rss:
         self.media = Media()
         self.downloader = Downloader()
         self.searcher = Searcher()
+        self.sites = Sites()
+        self.filterrule = FilterRule()
         self.init_config()
 
     def init_config(self):
-        self.__sites = get_config_site()
-        rss_rule = get_config_rss_rule()
-        if rss_rule:
-            if rss_rule[0][1]:
-                self.__rss_rule = str(rss_rule[0][1]).split("\n")
-            else:
-                self.__rss_rule = None
+        self.__sites = self.sites.get_sites()
 
     def rssdownload(self):
         """
@@ -99,25 +97,19 @@ class Rss:
                 if not site_info:
                     continue
                 # 站点名称
-                rss_job = site_info[1]
+                rss_job = site_info.get("name")
                 # 没有订阅的站点中的不检索
                 if check_sites and rss_job not in check_sites:
                     continue
-                rssurl = site_info[3]
+                rssurl = site_info.get("rssurl")
                 if not rssurl:
                     log.info("【RSS】%s 未配置rssurl，跳过..." % str(rss_job))
                     continue
-                rss_cookie = site_info[5]
+                rss_cookie = site_info.get("cookie")
                 # 是否仅RSS促销
-                rss_free = str(site_info[9]).split("|")[0] if str(site_info[9]).split("|")[0] in ["FREE",
-                                                                                                  "2XFREE"] else None
-                # 过滤条件
-                if site_info[6] or site_info[7] or site_info[8]:
-                    include = str(site_info[6]).split("\n")
-                    exclude = str(site_info[7]).split("\n")
-                    res_type = {"include": include, "exclude": exclude, "size": site_info[8], "note": self.__rss_rule}
-                else:
-                    res_type = None
+                rss_free = site_info.get("free")
+                # 使用的规则
+                rss_rule_group = site_info.get("rule")
                 # 开始下载RSS
                 log.info("【RSS】正在处理：%s" % rss_job)
                 order_seq -= 1
@@ -144,9 +136,12 @@ class Rss:
 
                         log.debug("【RSS】开始处理：%s" % torrent_name)
                         # 确定标题中是否符合站点过滤规则，并返回是否匹配及优先级
-                        match_flag, res_order = Torrent.check_site_resouce_filter(torrent_name, description, res_type)
+                        # RSS不使用decsription，内容太多容易误中
+                        match_flag, res_order = self.filterrule.check_rules(title=torrent_name,
+                                                                            torrent_size=size,
+                                                                            rolegroup=rss_rule_group)
                         if not match_flag:
-                            log.info("【RSS】%s 不符合过滤规则" % torrent_name)
+                            log.info("【RSS】%s %s 不符合过滤规则" % (torrent_name, str_filesize(size)))
                             continue
                         # 检查这个种子是不是下过了
                         if is_torrent_rssd(enclosure):
@@ -172,9 +167,6 @@ class Rss:
                                                                    media_info.get_season_episode_string(),
                                                                    media_info.get_resource_type_string()))
                             continue
-                        # 判断文件大小是否匹配，只针对电影
-                        if not Torrent.is_torrent_match_size(media_info, res_type, size):
-                            continue
                         # 检查是否存在，非洗板的时候才检查
                         if not over_edition:
                             exist_flag, rss_no_exists, _ = self.downloader.check_exists_medias(
@@ -188,7 +180,8 @@ class Rss:
                                 # 如果是电视剧
                                 else:
                                     # 不存在缺失季集时删除订阅
-                                    if match_rssid and (not rss_no_exists or not rss_no_exists.get(media_info.get_title_string())):
+                                    if match_rssid and (
+                                            not rss_no_exists or not rss_no_exists.get(media_info.get_title_string())):
                                         log.info("【RSS】电视剧 %s %s 已存在，删除订阅..." % (
                                             media_info.get_title_string(), media_info.get_season_string()))
                                         delete_rss_tv(rssid=match_rssid)
@@ -265,7 +258,8 @@ class Rss:
                         if not left_medias or not left_medias.get(item.get_title_string()):
                             # 删除电视剧订阅
                             if item.rssid:
-                                log.info("【RSS】电视剧 %s %s 订阅完成，删除订阅..." % (item.get_title_string(), item.get_season_string()))
+                                log.info(
+                                    "【RSS】电视剧 %s %s 订阅完成，删除订阅..." % (item.get_title_string(), item.get_season_string()))
                                 delete_rss_tv(rssid=item.rssid)
                         else:
                             # 更新电视剧缺失剧集

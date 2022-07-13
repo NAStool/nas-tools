@@ -4,6 +4,7 @@ from urllib import parse
 import cn2an
 from lxml import etree
 from config import TORRENT_SEARCH_PARAMS
+from pt.filterrules import FilterRule
 from pt.siteconf import RSS_SITE_GRAP_CONF
 from rmt.meta.metabase import MetaBase
 from utils.http_utils import RequestUtils
@@ -100,43 +101,6 @@ class Torrent:
         return None, None, None
 
     @staticmethod
-    def is_torrent_match_size(media_info, types, t_size):
-        """
-        判断种子大子是否与配置匹配，只针对电影
-        :param media_info: 已识别好的种子媒体信息
-        :param types: 配置中的过滤规则
-        :param t_size: 种子大小
-        :return: 是否命中
-        """
-        if media_info.type != MediaType.MOVIE:
-            return True
-        if not isinstance(types, dict):
-            return True
-        # 大小
-        if t_size:
-            sizes = types.get('size')
-            if sizes:
-                if sizes.find(',') != -1:
-                    sizes = sizes.split(',')
-                    if sizes[0].isdigit():
-                        begin_size = int(sizes[0].strip())
-                    else:
-                        begin_size = 0
-                    if sizes[1].isdigit():
-                        end_size = int(sizes[1].strip())
-                    else:
-                        end_size = 0
-                else:
-                    begin_size = 0
-                    if sizes.isdigit():
-                        end_size = int(sizes.strip())
-                    else:
-                        end_size = 0
-                if not begin_size * 1024 * 1024 * 1024 <= int(t_size) <= end_size * 1024 * 1024 * 1024:
-                    return False
-        return True
-
-    @staticmethod
     def is_torrent_match_sey(media_info, s_num, e_num, year_str):
         """
         种子名称关键字匹配
@@ -162,78 +126,6 @@ class Torrent:
             if str(media_info.year) != str(year_str):
                 return False
         return True
-
-    @classmethod
-    def check_site_resouce_filter(cls, title, subtitle, types):
-        """
-        检查种子是否匹配站点过滤规则：排除规则、包含规则，优先规则
-        :param title: 种子标题
-        :param subtitle: 种子副标题
-        :param types: 配置文件中的配置规则
-        :return: 是否匹配，匹配的优先值，值越大越优先
-        """
-        if not types:
-            # 未配置默认不过滤
-            return True, 0
-        if not isinstance(types, dict):
-            return True, 0
-        if not title:
-            return False, 0
-        # 必须包括的项
-        includes = types.get('include')
-        if includes:
-            if isinstance(includes, str):
-                includes = [includes]
-            include_flag = True
-            for include in includes:
-                if not include:
-                    continue
-                re_res = re.search(r'%s' % include.strip(), title, re.IGNORECASE)
-                if not re_res:
-                    include_flag = False
-            if not include_flag:
-                return False, 0
-
-        # 不能包含的项
-        excludes = types.get('exclude')
-        if excludes:
-            if isinstance(excludes, str):
-                excludes = [excludes]
-            exclude_flag = False
-            exclude_count = 0
-            for exclude in excludes:
-                if not exclude:
-                    continue
-                exclude_count += 1
-                re_res = re.search(r'%s' % exclude.strip(), title, re.IGNORECASE)
-                if not re_res:
-                    exclude_flag = True
-            if exclude_count != 0 and not exclude_flag:
-                return False, 0
-
-        return True, cls.check_site_resouce_order(title, subtitle, types)
-
-    @staticmethod
-    def check_site_resouce_order(title, subtitle, types):
-        """
-        检查种子是否匹配站点的优先规则
-        :param title: 种子标题
-        :param subtitle: 种子副标题
-        :param types: 配置文件中的配置规则
-        :return: 匹配的优先顺序
-        """
-        res_order = 0
-        if not types:
-            return res_order
-        notes = types.get('note')
-        if notes:
-            res_seq = 100
-            for note in notes:
-                res_seq = res_seq - 1
-                if re.search(r"%s" % note, "%s%s" % (title, subtitle), re.IGNORECASE):
-                    res_order = res_seq
-                    break
-        return res_order
 
     @staticmethod
     def get_keyword_from_string(content):
@@ -371,14 +263,21 @@ class Torrent:
                 return False
             if downloadvolumefactor and dl_factor not in ("*", str(downloadvolumefactor)):
                 return False
-        if filter_args.get("key") and not re.search(r"%s" % filter_args.get("key"), meta_info.org_string, re.IGNORECASE):
+        if filter_args.get("key") and not re.search(r"%s" % filter_args.get("key"),
+                                                    meta_info.org_string,
+                                                    re.IGNORECASE):
+            return False
+        if filter_args.get("rule") and not FilterRule().check_rules(title=meta_info.org_string,
+                                                                    subtitle=meta_info.description,
+                                                                    torrent_size=meta_info.size,
+                                                                    rolegroup=filter_args.get("rule")):
             return False
         return True
 
     @staticmethod
     def get_rss_note_item(desc):
         """
-        解析订阅的NOTE字段，从中获取订阅站点、搜索站点、是否洗版、订阅质量、订阅分辨率、过滤关键字等信息
+        解析订阅的NOTE字段，从中获取订阅站点、搜索站点、是否洗版、订阅质量、订阅分辨率、过滤规则等信息
         DESC字段组成：RSS站点#搜索站点#是否洗版(Y/N)#过滤条件，站点用|分隔多个站点，过滤条件用@分隔多个条件
         :param desc: RSS订阅DESC字段的值
         :return: 订阅站点、搜索站点、是否洗版、过滤字典
@@ -390,7 +289,7 @@ class Torrent:
         over_edition = False
         rss_restype = None
         rss_pix = None
-        rss_keyword = None
+        rss_rule = None
         notes = str(desc).split('#')
         # 订阅站点
         if len(notes) > 0:
@@ -415,6 +314,6 @@ class Torrent:
                 if len(filters) > 1:
                     rss_pix = filters[1]
                 if len(filters) > 2:
-                    rss_keyword = filters[2]
+                    rss_rule = filters[2]
 
-        return rss_sites, search_sites, over_edition, {"restype": rss_restype, "pix": rss_pix, "key": rss_keyword}
+        return rss_sites, search_sites, over_edition, {"restype": rss_restype, "pix": rss_pix, "rule": rss_rule}

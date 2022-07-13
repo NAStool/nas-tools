@@ -219,7 +219,8 @@
                   <input type="hidden" name="media_card_spstate" value="{{ Item[19] }} {{ Item[20] }}">
                   <input type="hidden" name="media_card_title" value="{{ Item[1] }}">
                   <div>
-                    <div><a
+                    <div>
+                      <a
                         href='{% if not Item[9] %}javascript:show_download_modal("{{ Item[0] }}","{{ Item[13] }}"){% else %}javascript:show_download_modal("{{ Item[0] }}","{{ Item[1] }}"){% endif %}'
                         title="点击添加下载">
                       <strong>{% if Item[14] or not Item[13] %}{{ Item[1]|replace("()", "") }}{% else %} {{ Item[13] }} {% endif %}</strong></a>

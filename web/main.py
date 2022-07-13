@@ -12,6 +12,7 @@ import xml.dom.minidom
 
 import log
 from pt.douban import DouBan
+from pt.filterrules import FilterRule
 from pt.sites import Sites
 from pt.downloader import Downloader
 from pt.searcher import Searcher
@@ -500,15 +501,17 @@ def create_flask_app(config):
     @login_required
     def movie_rss():
         RssItems = get_rss_movies()
-        RssSites = get_config_site()
+        RssSites = Sites().get_sites()
         SearchSites = [item[1] for item in Searcher().indexer.get_indexers()]
+        RuleGroups = FilterRule().get_rule_groups()
         return render_template("rss/movie_rss.html",
                                Count=len(RssItems),
                                Items=RssItems,
                                Sites=RssSites,
                                SearchSites=SearchSites,
                                RestypeDict=TORRENT_SEARCH_PARAMS.get("restype").keys(),
-                               PixDict=TORRENT_SEARCH_PARAMS.get("pix").keys()
+                               PixDict=TORRENT_SEARCH_PARAMS.get("pix").keys(),
+                               RuleGroups=RuleGroups
                                )
 
     # 电视剧订阅页面
@@ -516,15 +519,17 @@ def create_flask_app(config):
     @login_required
     def tv_rss():
         RssItems = get_rss_tvs()
-        RssSites = get_config_site()
+        RssSites = Sites().get_sites()
         SearchSites = [item[1] for item in Searcher().indexer.get_indexers() or []]
+        RuleGroups = FilterRule().get_rule_groups()
         return render_template("rss/tv_rss.html",
                                Count=len(RssItems),
                                Items=RssItems,
                                Sites=RssSites,
                                SearchSites=SearchSites,
                                RestypeDict=TORRENT_SEARCH_PARAMS.get("restype").keys(),
-                               PixDict=TORRENT_SEARCH_PARAMS.get("pix").keys()
+                               PixDict=TORRENT_SEARCH_PARAMS.get("pix").keys(),
+                               RuleGroups=RuleGroups
                                )
 
     # 订阅日历页面
@@ -543,9 +548,11 @@ def create_flask_app(config):
     @App.route('/site', methods=['POST', 'GET'])
     @login_required
     def site():
-        CfgSites = get_config_site()
+        CfgSites = Sites().get_sites()
+        RuleGroups = FilterRule().get_rule_groups()
         return render_template("site/site.html",
-                               Sites=CfgSites)
+                               Sites=CfgSites,
+                               RuleGroups=RuleGroups)
 
     # 推荐页面
     @App.route('/recommend', methods=['POST', 'GET'])
@@ -809,7 +816,7 @@ def create_flask_app(config):
     @login_required
     def brushtask():
         # 站点列表
-        CfgSites = get_config_site()
+        CfgSites = Sites().get_sites()
         # 下载器列表
         downloaders = get_user_downloaders()
         # 任务列表
@@ -1321,6 +1328,15 @@ def create_flask_app(config):
             Users.append({"id": user[0], "name": user[1], "pris": pris})
         return render_template("setting/users.html", Users=Users, UserCount=user_count)
 
+    # 过滤规则设置页面
+    @App.route('/filterrule', methods=['POST', 'GET'])
+    @login_required
+    def filterrule():
+        RuleGroups = FilterRule().get_rule_infos()
+        return render_template("setting/filterrule.html",
+                               Count=len(RuleGroups),
+                               RuleGroups=RuleGroups)
+
     # 事件响应
     @App.route('/do', methods=['POST'])
     @login_required
@@ -1354,6 +1370,8 @@ def create_flask_app(config):
         sVerifyNonce = request.args.get("nonce")
 
         if request.method == 'GET':
+            if not sVerifyMsgSig and not sVerifyTimeStamp and not sVerifyNonce:
+                return "放心吧，服务是正常的！"
             sVerifyEchoStr = request.args.get("echostr")
             log.debug("收到微信验证请求: echostr= %s" % sVerifyEchoStr)
             ret, sEchoStr = wxcpt.VerifyURL(sVerifyMsgSig, sVerifyTimeStamp, sVerifyNonce, sVerifyEchoStr)

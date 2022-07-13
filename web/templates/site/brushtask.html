@@ -198,7 +198,7 @@
                 <select class="form-select" id="brushtask_site">
                   <option value="" selected>请选择</option>
                   {% for site in Sites %}
-                  <option value="{{ site[0] }}">{{ site[1] }}</option>
+                  <option value="{{ site.id }}">{{ site.name }}</option>
                   {% endfor %}
                 </select>
               </div>
@@ -406,7 +406,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-white me-auto" data-bs-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
         <a href="javascript:add_brushtask_job()" id="brushtask_add_btn" class="btn btn-primary">确定</a>
       </div>
     </div>
@@ -415,7 +415,7 @@
 <script type="text/javascript">
   // 显示新增刷流任务
   function show_brushtask_modal(){
-    $("#brushtask_modal_title").text("新增任务");
+    $("#brushtask_modal_title").text("新建任务");
     $("#brushtask_id").val("");
     $("#modal-brushtask").modal('show');
   }

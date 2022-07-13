@@ -1,13 +1,8 @@
-import re
-
-import log
-from message.send import Message
-from pt.torrent import Torrent
 from rmt.doubanv2api.doubanapi import DoubanApi
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from utils.sqls import insert_rss_tv, insert_rss_movie, delete_rss_tv, delete_rss_movie
-from utils.types import MediaType, SearchType
+from utils.types import MediaType
 
 
 def add_rss_subscribe(mtype, name, year,
@@ -20,7 +15,7 @@ def add_rss_subscribe(mtype, name, year,
                       over_edition=False,
                       rss_restype=None,
                       rss_pix=None,
-                      rss_keyword=None,
+                      rss_rule=None,
                       state="D",
                       rssid=None):
     """
@@ -37,7 +32,7 @@ def add_rss_subscribe(mtype, name, year,
     :param over_edition: 是否选版
     :param rss_restype: 质量过滤
     :param rss_pix: 分辨率过滤
-    :param rss_keyword: 关键字过滤
+    :param rss_rule: 关键字过滤
     :param state: 添加订阅时的状态
     :param rssid: 修改订阅时传入
     :return: 错误码：0代表成功，错误信息
@@ -119,7 +114,7 @@ def add_rss_subscribe(mtype, name, year,
                           over_edition=over_edition,
                           rss_restype=rss_restype,
                           rss_pix=rss_pix,
-                          rss_keyword=rss_keyword,
+                          rss_rule=rss_rule,
                           state=state,
                           match=match)
         else:
@@ -131,7 +126,7 @@ def add_rss_subscribe(mtype, name, year,
                              over_edition=over_edition,
                              rss_restype=rss_restype,
                              rss_pix=rss_pix,
-                             rss_keyword=rss_keyword,
+                             rss_rule=rss_rule,
                              state=state)
     else:
         # 模糊匹配
@@ -150,7 +145,7 @@ def add_rss_subscribe(mtype, name, year,
                              over_edition=over_edition,
                              rss_restype=rss_restype,
                              rss_pix=rss_pix,
-                             rss_keyword=rss_keyword)
+                             rss_rule=rss_rule)
         else:
             if rssid:
                 delete_rss_tv(rssid=rssid)
@@ -163,7 +158,7 @@ def add_rss_subscribe(mtype, name, year,
                           over_edition=over_edition,
                           rss_restype=rss_restype,
                           rss_pix=rss_pix,
-                          rss_keyword=rss_keyword,
+                          rss_rule=rss_rule,
                           match=match)
 
     return 0, "添加订阅成功", media_info

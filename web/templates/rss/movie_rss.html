@@ -151,7 +151,12 @@
                 </select>
               </div>
               <div class="col-12 col-lg-4 mb-1">
-                <input type="text" value="" id="rss_keyword" class="form-control" placeholder="自定义规则">
+                <select class="form-select" id="rss_rule">
+                  <option value="" selected>请选择</option>
+                  {% for RuleGroup in RuleGroups %}
+                  <option value="{{ RuleGroup.id }}" selected>{{ RuleGroup.name }}</option>
+                  {% endfor %}
+                </select>
               </div>
             </div>
           </div>
@@ -161,8 +166,8 @@
               <div class="form-selectgroup">
                 {% for site in Sites %}
                  <label class="form-selectgroup-item">
-                  <input type="checkbox" name="sites" value="{{ site[1] }}" class="form-selectgroup-input" checked>
-                  <span class="form-selectgroup-label">{{ site[1] }}</span>
+                  <input type="checkbox" name="sites" value="{{ site.name }}" class="form-selectgroup-input" checked>
+                  <span class="form-selectgroup-label">{{ site.name }}</span>
                 </label>
                 {% endfor %}
               </div>
@@ -184,10 +189,10 @@
         </div>
       </div>
       <div class="modal-footer">
-        <a href="javascript:rss_sites_select()" class="btn btn-white me-auto" id="rss_sites_select_btn">
+        <a href="javascript:rss_sites_select()" class="btn btn-link me-auto" id="rss_sites_select_btn">
           取消全选
         </a>
-        <a href="#" class="btn btn-white" id="rss_delete_btn">
+        <a href="#" class="btn btn-link" id="rss_delete_btn">
           删除订阅
         </a>
         <a href="javascript:add_rss_movie()" id="rss_add_btn" class="btn btn-primary">确定</a>
@@ -205,7 +210,7 @@
     var match = $("#key_match").prop("checked");
     var rss_restype = $("#rss_restype").val();
     var rss_pix = $("#rss_pix").val();
-    var rss_keyword = $("#rss_keyword").val();
+    var rss_rule = $("#rss_rule").val();
     var over_edition = $("#over_edition").prop("checked");
     if (!name) {
       $("#movie_name").addClass("is-invalid");
@@ -265,7 +270,7 @@
                  "search_sites": search_sites,
                  "rss_restype": rss_restype,
                  "rss_pix": rss_pix,
-                 "rss_keyword": rss_keyword,
+                 "rss_rule": rss_rule,
                  "over_edition": over_edition,
                  "rssid": rssid,
                  "tmdbid": tmdbid,
@@ -371,7 +376,7 @@
         }
         $("#rss_restype").val(ret.detail.filter.restype);
         $("#rss_pix").val(ret.detail.filter.pix);
-        $("#rss_keyword").val(ret.detail.filter.key);
+        $("#rss_rule").val(ret.detail.filter.rule);
         $("#rss_sites_div").find("input[type=checkbox]").each(function(){
           if(ret.detail.r_sites.includes($(this).val())){
             $(this).prop("checked",true);

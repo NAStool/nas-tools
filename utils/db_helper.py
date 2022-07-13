@@ -161,17 +161,23 @@ class DBHelper:
                                    EXCLUDE  TEXT,
                                    SIZE    TEXT,
                                    NOTE    TEXT);''')
-            # 搜索过滤规则表
-            cursor.execute('''CREATE TABLE IF NOT EXISTS CONFIG_SEARCH_RULE
+            # 过滤规则组表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS CONFIG_FILTER_GROUP
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   GROUP_NAME  TEXT,
+                                   IS_DEFAULT    TEXT,
+                                   NOTE    TEXT);''')
+            # 过滤规则明细
+            cursor.execute('''CREATE TABLE IF NOT EXISTS CONFIG_FILTER_RULES
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   GROUP_ID  TEXT,
+                                   ROLE_NAME  TEXT,
+                                   PRIORITY  TEXT,                                   
                                    INCLUDE  TEXT,
                                    EXCLUDE  TEXT,
-                                   SIZE    TEXT,
+                                   SIZE_LIMIT    TEXT,
                                    NOTE    TEXT);''')
-            # RSS全局规则表
-            cursor.execute('''CREATE TABLE IF NOT EXISTS CONFIG_RSS_RULE
-                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                                   NOTE    TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_CONFIG_FILTER_RULES_GROUP ON CONFIG_FILTER_RULES (GROUP_ID);''')
             # 目录同步记录表
             cursor.execute('''CREATE TABLE IF NOT EXISTS SYNC_HISTORY
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
@@ -186,14 +192,6 @@ class DBHelper:
                                    PASSWORD    TEXT,
                                    PRIS    TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_CONFIG_USERS ON CONFIG_USERS (NAME);''')
-            # 消息中心
-            cursor.execute('''CREATE TABLE IF NOT EXISTS MESSAGES
-                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                                   LEVEL    TEXT,
-                                   TITLE    TEXT,
-                                   CONTENT    TEXT,
-                                   DATE     TEXT);''')
-            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_MESSAGES_DATE ON MESSAGES (DATE);''')
             # 站点流量历史
             cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_STATISTICS_HISTORY
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
@@ -366,10 +364,6 @@ class DBHelper:
             conn.commit()
             cursor.execute(
                 """DELETE FROM SITE_STATISTICS_HISTORY WHERE EXISTS (SELECT 1 FROM SITE_STATISTICS_HISTORY p2 WHERE SITE_STATISTICS_HISTORY.URL = p2.URL and SITE_STATISTICS_HISTORY.DATE = p2.DATE AND SITE_STATISTICS_HISTORY.rowid < p2.rowid);""")
-            conn.commit()
-            # 删除系统消息表数据
-            cursor.execute(
-                """DELETE FROM MESSAGES""")
             conn.commit()
         except Exception as e:
             print(str(e))
