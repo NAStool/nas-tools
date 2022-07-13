@@ -137,7 +137,7 @@ class MetaAnime(MetaBase):
         else:
             title = re.sub(r"^[^]】]*[]】]", "", title).strip()
         names = title.split("]")
-        if len(names) > 1:
+        if len(names) > 1 and title.find("-") == -1:
             titles = []
             for name in names:
                 if not is_all_chinese(name[1:]):
