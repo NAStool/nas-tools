@@ -96,7 +96,8 @@ class WebAction:
             "del_filtergroup": self.__del_filtergroup,
             "add_filterrule": self.__add_filterrule,
             "del_filterrule": self.__del_filterrule,
-            "filterrule_detail": self.__filterrule_detail
+            "filterrule_detail": self.__filterrule_detail,
+            "get_site_activity": self.__get_site_activity
         }
 
     def action(self, cmd, data):
@@ -1074,9 +1075,9 @@ class WebAction:
                   <span class="status-dot {level} d-block"></span>
                 </div>
                 <div class="col text-truncate">
-                  <span class="text-wrap">{message.get("title")}</span>
+                  <span class="text-wrap">{message[2]}</span>
                   <div class="d-block text-muted text-truncate mt-n1 text-wrap">{content}</div>
-                  <div class="d-block text-muted text-truncate mt-n1 text-wrap">{message.get("time")}</div>
+                  <div class="d-block text-muted text-truncate mt-n1 text-wrap">{message[4]}</div>
                 </div>
               </div>
             </div>
@@ -1410,6 +1411,20 @@ class WebAction:
             "video_codec": media_info.video_encode,
             "audio_codec": media_info.audio_encode
         }}
+
+    @staticmethod
+    def __get_site_activity(data):
+        """
+        查询site活动[上传，下载，魔力值]
+        :param data: {"name":site_name}
+        :return:
+        """
+        if not data or "name" not in data:
+            return {"code": 1, "msg": "查询参数错误"}
+
+        resp = {"code": 0}
+        resp.update(Sites().get_pt_site_activity_history(data["name"]))
+        return resp
 
     @staticmethod
     def __add_filtergroup(data):

@@ -10,7 +10,7 @@ from pt.siteuserinfo.site_user_info_factory import SiteUserInfoFactory
 from utils.functions import singleton
 from utils.http_utils import RequestUtils
 from utils.sqls import get_config_site, insert_site_statistics_history, update_site_user_statistics, \
-    get_site_statistics_recent_sites, get_site_user_statistics
+    get_site_statistics_recent_sites, get_site_user_statistics, get_site_statistics_history
 
 lock = Lock()
 
@@ -261,3 +261,23 @@ class Sites:
             specify_sites = [specify_sites]
 
         self.refresh_all_pt_data(force=True, specify_sites=specify_sites)
+
+    @staticmethod
+    def get_pt_site_activity_history(site, days=365*2):
+        """
+        查询站点 上传，下载，做种数据
+        :param site: 站点名称
+        :param days: 最大数据量
+        :return:
+        """
+        site_activities = {"upload": [], "download": [], "bonus": [], "seeding": [], "seeding_size": []}
+        sql_site_activities = get_site_statistics_history(site=site, days=days)
+        for sql_site_activity in sql_site_activities:
+            timestamp = datetime.strptime(sql_site_activity[0], '%Y-%m-%d').timestamp() * 1000
+            site_activities["upload"].append([timestamp, sql_site_activity[1]])
+            site_activities["download"].append([timestamp, sql_site_activity[2]])
+            site_activities["bonus"].append([timestamp, sql_site_activity[3]])
+            site_activities["seeding"].append([timestamp, sql_site_activity[4]])
+            site_activities["seeding_size"].append([timestamp, sql_site_activity[5]])
+
+        return site_activities

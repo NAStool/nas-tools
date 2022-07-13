@@ -864,9 +864,10 @@ def insert_site_statistics_history(site, upload, download, ratio, url, seeding, 
 
 
 # 查询站点数据历史
-def get_site_statistics_history(days=30):
-    sql = "SELECT DATE, SUM(UPLOAD), SUM(DOWNLOAD) FROM SITE_STATISTICS_HISTORY GROUP BY DATE ORDER BY DATE ASC LIMIT ?"
-    return select_by_sql(sql, (days,))
+def get_site_statistics_history(site, days=30):
+    sql = "SELECT DATE, UPLOAD, DOWNLOAD, BONUS, SEEDING, SEEDING_SIZE " \
+          "FROM SITE_STATISTICS_HISTORY WHERE SITE = ? ORDER BY DATE ASC LIMIT ?"
+    return select_by_sql(sql, (site, days,))
 
 
 # 查询近期上传下载量
