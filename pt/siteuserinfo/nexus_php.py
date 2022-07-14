@@ -167,8 +167,8 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
 
         seeding_sizes = html.xpath('//tr/td[text()="做种统计"]/following-sibling::td[1]//text()')
         if seeding_sizes:
-            seeding_match = re.search(r"总做种数.+(\d+)", seeding_sizes[0], re.IGNORECASE)
-            seeding_size_match = re.search(r"总做种体积.+([\d,.\s]+[KMGTPI]*B)", seeding_sizes[0], re.IGNORECASE)
+            seeding_match = re.search(r"总做种数:\s+(\d+)", seeding_sizes[0], re.IGNORECASE)
+            seeding_size_match = re.search(r"总做种体积:\s+([\d,.\s]+[KMGTPI]*B)", seeding_sizes[0], re.IGNORECASE)
             tmp_seeding = int(seeding_match.group(1).strip()) if (seeding_match and seeding_match.group(1)) else 0
             tmp_seeding_size = num_filesize(seeding_size_match.group(1).strip()) if seeding_size_match else 0
         if not self.seeding_size:
