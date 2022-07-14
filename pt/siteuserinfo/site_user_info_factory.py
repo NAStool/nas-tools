@@ -39,18 +39,18 @@ class SiteUserInfoFactory(object):
                     log.error("【PT】站点 %s 被反爬限制：%s, 状态码：%s" % (site_name, url, res.status_code))
                     return None
             if "NexusPHP" in html_text in html_text:
-                return NexusPhpSiteUserInfo(url, site_cookie, html_text, session=session)
+                return NexusPhpSiteUserInfo(site_name, url, site_cookie, html_text, session=session)
 
             if "Nexus Project" in html_text:
-                return NexusProjectSiteUserInfo(url, site_cookie, html_text, session=session)
+                return NexusProjectSiteUserInfo(site_name, url, site_cookie, html_text, session=session)
 
             if "Small Horse" in html_text:
-                return SmallHorseSiteUserInfo(url, site_cookie, html_text, session=session)
+                return SmallHorseSiteUserInfo(site_name, url, site_cookie, html_text, session=session)
 
             if "IPTorrents" in html_text:
-                return IptSiteUserInfo(url, site_cookie, html_text, session=session)
+                return IptSiteUserInfo(site_name, url, site_cookie, html_text, session=session)
             # 默认NexusPhp
-            return NexusPhpSiteUserInfo(url, site_cookie, html_text, session=session)
+            return NexusPhpSiteUserInfo(site_name, url, site_cookie, html_text, session=session)
         elif not res:
             log.error("【PT】站点 %s 连接失败：%s" % (site_name, url))
             return None

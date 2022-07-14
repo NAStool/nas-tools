@@ -9,6 +9,9 @@ from utils.http_utils import RequestUtils
 
 
 class ISiteUserInfo(metaclass=ABCMeta):
+    # 站点信息
+    site_name = None
+    site_url = None
     # 用户信息
     username = None
     userid = None
@@ -50,9 +53,11 @@ class ISiteUserInfo(metaclass=ABCMeta):
     _user_traffic_page = "index.php"
     _torrent_seeding_page = "getusertorrentlistajax.php?userid="
 
-    def __init__(self, url, site_cookie, index_html, session=None):
+    def __init__(self, site_name, url, site_cookie, index_html, session=None):
         super().__init__()
         split_url = urlsplit(url)
+        self.site_name = site_name
+        self.site_url = url
         self._base_url = f"{split_url.scheme}://{split_url.netloc}"
         self._site_cookie = site_cookie
         self._index_html = index_html

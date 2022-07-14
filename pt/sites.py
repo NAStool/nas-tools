@@ -84,7 +84,13 @@ class Sites:
             refresh_sites = [site for site in self.__pt_sites if site[1] in refresh_site_names]
 
             with ThreadPool(min(len(refresh_sites), self._MAX_CONCURRENCY)) as p:
-                p.map(self.__refresh_pt_data, refresh_sites)
+                site_user_infos = p.map(self.__refresh_pt_data, refresh_sites)
+                site_user_infos = [info for info in site_user_infos if info]
+
+                # 登记历史数据
+                insert_site_statistics_history(site_user_infos)
+                # 实时用户数据
+                update_site_user_statistics(site_user_infos)
 
         # 更新时间
         if refresh_all:
@@ -127,24 +133,7 @@ class Sites:
                                                       "err_msg": site_user_info.err_msg}
                                           })
 
-                # 登记历史数据
-                insert_site_statistics_history(site=site_name, upload=site_user_info.upload,
-                                               user_level=site_user_info.user_level,
-                                               download=site_user_info.download,
-                                               ratio=site_user_info.ratio,
-                                               seeding=site_user_info.seeding,
-                                               seeding_size=site_user_info.seeding_size,
-                                               leeching=site_user_info.leeching, bonus=site_user_info.bonus,
-                                               url=site_url)
-                # 实时用户数据
-                update_site_user_statistics(site=site_name, username=site_user_info.username,
-                                            user_level=site_user_info.user_level,
-                                            join_at=site_user_info.join_at,
-                                            upload=site_user_info.upload, download=site_user_info.download,
-                                            ratio=site_user_info.ratio, seeding=site_user_info.seeding,
-                                            seeding_size=site_user_info.seeding_size,
-                                            leeching=site_user_info.leeching, bonus=site_user_info.bonus,
-                                            url=site_url)
+                return site_user_info
 
         except Exception as e:
             log.error("【PT】站点 %s 获取流量数据失败：%s - %s" % (site_name, str(e), traceback.format_exc()))

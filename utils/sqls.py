@@ -785,9 +785,8 @@ def get_transfer_statistics(days=30):
 
 
 # 更新站点用户粒度数据
-def update_site_user_statistics(site, username, upload, download, ratio, seeding, leeching, bonus, url, seeding_size=0,
-                                user_level="", join_at=""):
-    if not site or not url:
+def update_site_user_statistics(site_user_infos: list):
+    if not site_user_infos:
         return
     update_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
     sql = "INSERT OR REPLACE INTO SITE_USER_STATISTICS(SITE, USERNAME, USER_LEVEL," \
@@ -797,9 +796,26 @@ def update_site_user_statistics(site, username, upload, download, ratio, seeding
           " BONUS," \
           " URL) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
-    return update_by_sql(sql, (
-        str_sql(site), username, user_level, join_at, update_at, upload, download, ratio, seeding, leeching,
-        seeding_size, bonus, url))
+    data_list = []
+
+    for site_user_info in site_user_infos:
+        site = site_user_info.site_name
+        username = site_user_info.username
+        user_level = site_user_info.user_level
+        join_at = site_user_info.join_at
+        upload = site_user_info.upload
+        download = site_user_info.download
+        ratio = site_user_info.ratio
+        seeding = site_user_info.seeding
+        seeding_size = site_user_info.seeding_size
+        leeching = site_user_info.leeching
+        bonus = site_user_info.bonus
+        url = site_user_info.site_url
+
+        data_list.append((
+            str_sql(site), username, user_level, join_at, update_at, upload, download, ratio, seeding, leeching,
+            seeding_size, bonus, url))
+    return update_by_sql_batch(sql, data_list)
 
 
 # 判断站点用户数据是否存在
@@ -849,18 +865,33 @@ def is_site_statistics_history_exists(url, date):
 
 
 # 插入站点数据
-def insert_site_statistics_history(site, upload, download, ratio, url, seeding, leeching, bonus, seeding_size=0,
-                                   user_level=""):
-    if not site or not url:
+def insert_site_statistics_history(site_user_infos: list):
+    if not site_user_infos:
         return
+
     date_now = time.strftime('%Y-%m-%d', time.localtime(time.time()))
     sql = "INSERT OR REPLACE INTO SITE_STATISTICS_HISTORY(SITE, USER_LEVEL, DATE, UPLOAD, DOWNLOAD, RATIO," \
           " SEEDING, LEECHING, SEEDING_SIZE," \
           " BONUS," \
           " URL) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
-    return update_by_sql(sql, (str_sql(site), user_level, date_now, upload, download, ratio, seeding, leeching,
-                               seeding_size, bonus, url))
+    data_list = []
+    for site_user_info in site_user_infos:
+        site = site_user_info.site_name
+        upload = site_user_info.upload
+        user_level = site_user_info.user_level
+        download = site_user_info.download
+        ratio = site_user_info.ratio
+        seeding = site_user_info.seeding
+        seeding_size = site_user_info.seeding_size
+        leeching = site_user_info.leeching
+        bonus = site_user_info.bonus
+        url = site_user_info.site_url
+
+        data_list.append((str_sql(site), user_level, date_now, upload, download, ratio, seeding, leeching,
+                          seeding_size, bonus, url))
+
+    return update_by_sql_batch(sql, data_list)
 
 
 # 查询站点数据历史
