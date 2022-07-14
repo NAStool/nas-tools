@@ -339,7 +339,7 @@
           </div>
           <div class="card-body">
             <div class="row">
-              <div class="col-12 col-xl-4">
+              <div class="col-12 col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="laboratory.search_keyword" {% if Config.laboratory and Config.laboratory.search_keyword %}checked{% endif %}>
@@ -347,7 +347,7 @@
                   </label>
                 </div>
               </div>
-              <div class="col-12 col-xl-4">
+              <div class="col-12 col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="laboratory.tmdb_cache_expire" {% if Config.laboratory and Config.laboratory.tmdb_cache_expire %}checked{% endif %}>
@@ -355,11 +355,19 @@
                   </label>
                 </div>
               </div>
-              <div class="col-12 col-xl-4">
+              <div class="col-12 col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="laboratory.use_douban_titles" {% if Config.laboratory and Config.laboratory.use_douban_titles %}checked{% endif %}>
                     <span class="form-check-label">使用豆瓣名称联想 <span class="form-help bg-red-lt" title="开启将使用豆瓣进行电影电视剧的名称联想，否则使用TMDB的数据" data-bs-toggle="tooltip">?</span></span>
+                  </label>
+                </div>
+              </div>
+              <div class="col-12 col-xl-3">
+                <div class="mb-3">
+                  <label class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="laboratory.search_en_title" {% if Config.laboratory and Config.laboratory.search_en_title %}checked{% endif %}>
+                    <span class="form-check-label">精确搜索使用英文名称 <span class="form-help bg-red-lt" title="开启后对于精确搜索场景（远程搜索、订阅搜索等）将会使用英文名检索站点资源以提升匹配度，但对有些站点资源标题全是中文的则需要关闭，否则匹配不到" data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>

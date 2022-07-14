@@ -78,14 +78,16 @@ class Searcher:
         search_episode = media_info.get_episode_list()
         if search_episode and not search_season:
             search_season = [1]
-        # 如果原标题是英文：用原标题去检索，否则使用英文+原标题搜索去匹配，优化小语种资源
+        # 检索标题
         search_title = media_info.title
-        if media_info.original_language != "en":
-            en_info = Media().get_tmdb_info(mtype=media_info.type, tmdbid=media_info.tmdb_id, language="en-US")
-            if en_info:
-                search_title = en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get("name")
-        else:
-            search_title = media_info.original_title
+        if Config().get_config("laboratory").get("search_en_title"):
+            # 如果原标题是英文：用原标题去检索，否则使用英文+原标题搜索去匹配，优化小语种资源
+            if media_info.original_language != "en":
+                en_info = Media().get_tmdb_info(mtype=media_info.type, tmdbid=media_info.tmdb_id, language="en-US")
+                if en_info:
+                    search_title = en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get("name")
+            else:
+                search_title = media_info.original_title
         match_words = [media_info.title, search_title] if search_title != media_info.title else [media_info.title]
         # 过滤条件
         filter_args = {"season": search_season,
