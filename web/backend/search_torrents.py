@@ -138,7 +138,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
                                                     mtype=media_info.type, strict=True)
                 if not media_info or not media_info.tmdb_info:
                     Message().send_channel_msg(channel=in_from,
-                                               title="%s 从TMDB查询不到媒体信息！" % media_info.title,
+                                               title="%s%s 从TMDB查询不到媒体信息！" % (media_info.get_name(), media_info.get_season_string()),
                                                user_id=user_id)
                     return
             # 搜索
@@ -197,7 +197,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
                                                         mtype=media_info.type, strict=True)
                     if not media_info or not media_info.tmdb_info:
                         Message().send_channel_msg(channel=in_from,
-                                                   title="%s 从TMDB查询不到媒体信息！" % media_info.title,
+                                                   title="%s%s 从TMDB查询不到媒体信息！" % (media_info.get_name(), media_info.get_season_string()),
                                                    user_id=user_id)
                         return
                 # 发送消息

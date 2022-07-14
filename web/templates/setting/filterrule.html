@@ -7,8 +7,7 @@
           过滤规则
         </h2>
       </div>
-    </div>
-    <div class="col-auto ms-auto d-print-none">
+      <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
           <a href="javascript:show_add_filtergroup_modal()" class="btn btn-primary d-none d-sm-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
@@ -19,6 +18,7 @@
           </a>
         </div>
       </div>
+    </div>
   </div>
 </div>
 <!-- 业务页面代码 -->
@@ -58,15 +58,15 @@
                 <a class="card card-link card-link-pop card-borderless" href="javascript:show_modify_filterrule_modal('{{ RuleGroup.id }}', '{{ Rule.id }}', '{{ RuleGroup.name }}')" title="编辑规则">
                   <div class="card-body">
                     <h3 class="card-title">{{ Rule.name }}</h3>
-                    <div>
+                    <div class="w-100">
                       {% for include in Rule.include %}
-                        <span class="badge badge-outline text-green me-1 mb-1" title="包含规则">包含: {{ include }}</span>
+                        <span class="badge badge-outline text-green me-1 mb-1 text-wrap text-start" title="包含规则">包含: {{ include }}</span>
                       {% endfor %}
                       {% for exclude in Rule.exclude %}
-                        <span class="badge badge-outline text-red me-1 mb-1" title="排除规则">排除: {{ exclude }}</span>
+                        <span class="badge badge-outline text-red me-1 mb-1 text-wrap text-start" title="排除规则">排除: {{ exclude }}</span>
                       {% endfor %}
                       {% if Rule.size %}
-                        <span class="badge badge-outline text-orange me-1 mb-1" title="大小限制">大小: {{ Rule.size }}</span>
+                        <span class="badge badge-outline text-orange me-1 mb-1 text-wrap text-start" title="大小限制">大小: {{ Rule.size }}</span>
                       {% endif %}
                     </div>
                   </div>

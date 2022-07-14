@@ -1075,9 +1075,9 @@ class WebAction:
                   <span class="status-dot {level} d-block"></span>
                 </div>
                 <div class="col text-truncate">
-                  <span class="text-wrap">{message[2]}</span>
+                  <span class="text-wrap">{message.get("title")}</span>
                   <div class="d-block text-muted text-truncate mt-n1 text-wrap">{content}</div>
-                  <div class="d-block text-muted text-truncate mt-n1 text-wrap">{message[4]}</div>
+                  <div class="d-block text-muted text-truncate mt-n1 text-wrap">{message.get("time")}</div>
                 </div>
               </div>
             </div>

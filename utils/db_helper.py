@@ -3,7 +3,7 @@ import threading
 
 import log
 from config import Config
-from utils.functions import singleton
+from utils.functions import singleton, get_dir_level1_files
 from utils.db_pool import DBPool
 
 lock = threading.Lock()
@@ -19,6 +19,7 @@ class DBHelper:
         self.init_config()
         self.__init_tables()
         self.__cleardata()
+        self.__initdata()
 
     def init_config(self):
         config = Config()
@@ -300,7 +301,40 @@ class DBHelper:
             cursor.close()
             self.__pools.free(conn)
 
-    def excute(self, sql, data):
+    def __cleardata(self):
+        self.excute(
+                """DELETE FROM SITE_USER_STATISTICS 
+                    WHERE EXISTS (SELECT 1 
+                        FROM SITE_USER_STATISTICS p2 
+                        WHERE SITE_USER_STATISTICS.URL = p2.URL 
+                        AND SITE_USER_STATISTICS.rowid < p2.rowid);""")
+        self.excute(
+                """DELETE FROM SITE_STATISTICS_HISTORY 
+                    WHERE EXISTS (SELECT 1 
+                        FROM SITE_STATISTICS_HISTORY p2 
+                        WHERE SITE_STATISTICS_HISTORY.URL = p2.URL 
+                        AND SITE_STATISTICS_HISTORY.DATE = p2.DATE 
+                        AND SITE_STATISTICS_HISTORY.rowid < p2.rowid);""")
+
+    def __initdata(self):
+        config = Config().get_config()
+        init_files = config.get("app", {}).get("init_files") or []
+        config_dir = os.path.dirname(Config().get_config_path())
+        sql_files = get_dir_level1_files(in_path=config_dir, exts=".sql")
+        config_flag = False
+        for sql_file in sql_files:
+            if os.path.basename(sql_file) not in init_files:
+                config_flag = True
+                with open(sql_file, "r", encoding="utf-8") as f:
+                    sql_list = f.read().split(';\n')
+                    for sql in sql_list:
+                        self.excute(sql)
+                init_files.append(os.path.basename(sql_file))
+        if config_flag:
+            config['app']['init_files'] = init_files
+            Config().save_config(config)
+
+    def excute(self, sql, data=None):
         if not sql:
             return False
         conn = self.__pools.get()
@@ -353,23 +387,6 @@ class DBHelper:
             cursor.close()
             self.__pools.free(conn)
         return ret
-
-    def __cleardata(self):
-        conn = self.__pools.get()
-        cursor = conn.cursor()
-        try:
-            # 删除站点重复数据
-            cursor.execute(
-                """DELETE FROM SITE_USER_STATISTICS WHERE EXISTS (SELECT 1 FROM SITE_USER_STATISTICS p2 WHERE SITE_USER_STATISTICS.URL = p2.URL AND SITE_USER_STATISTICS.rowid < p2.rowid);""")
-            conn.commit()
-            cursor.execute(
-                """DELETE FROM SITE_STATISTICS_HISTORY WHERE EXISTS (SELECT 1 FROM SITE_STATISTICS_HISTORY p2 WHERE SITE_STATISTICS_HISTORY.URL = p2.URL and SITE_STATISTICS_HISTORY.DATE = p2.DATE AND SITE_STATISTICS_HISTORY.rowid < p2.rowid);""")
-            conn.commit()
-        except Exception as e:
-            print(str(e))
-        finally:
-            cursor.close()
-            self.__pools.free(conn)
 
 
 def select_by_sql(sql, data=None):

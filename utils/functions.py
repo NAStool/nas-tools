@@ -179,6 +179,19 @@ def get_dir_files(in_path, exts="", filesize=0, episode_format=None):
     return ret_list
 
 
+# 查询目录下的文件（只查询一级）
+def get_dir_level1_files(in_path, exts=""):
+    ret_list = []
+    if not os.path.exists(in_path):
+        return []
+    for file in os.listdir(in_path):
+        path = os.path.join(in_path, file)
+        if os.path.isfile(path):
+            if not exts or os.path.splitext(file)[-1].lower() in exts:
+                ret_list.append(path)
+    return ret_list
+
+
 # 根据后缀，返回目录下所有的文件及文件夹列表（只查询一级）
 def get_dir_level1_medias(in_path, exts=""):
     ret_list = []
