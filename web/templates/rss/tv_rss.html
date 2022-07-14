@@ -409,14 +409,14 @@
         $("#rss_pix").val(ret.detail.filter.pix);
         $("#rss_rule").val(ret.detail.filter.rule);
         $("#rss_sites_div").find("input[type=checkbox]").each(function(){
-          if(ret.detail.r_sites.includes($(this).val())){
+          if(ret.detail.r_sites.length==0 || ret.detail.r_sites.includes($(this).val())){
             $(this).prop("checked",true);
           }else{
             $(this).prop("checked",false);
           }
         });
        $("#rss_search_sites_div").find("input[type=checkbox]").each(function(){
-          if(ret.detail.s_sites.includes($(this).val())){
+          if(ret.detail.s_sites.length==0 || ret.detail.s_sites.includes($(this).val())){
             $(this).prop("checked",true);
           }else{
             $(this).prop("checked",false);
