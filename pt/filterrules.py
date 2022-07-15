@@ -1,7 +1,9 @@
 import re
 
+from rmt.meta.metabase import MetaBase
 from utils.functions import singleton
 from utils.sqls import get_config_filter_rule, get_config_filter_group
+from utils.types import MediaType
 
 
 @singleton
@@ -71,23 +73,24 @@ class FilterRule:
             return ret_rules[0] if ret_rules else {}
         return ret_rules
 
-    def check_rules(self, title, torrent_size, subtitle=None, rolegroup=None):
+    def check_rules(self, meta_info: MetaBase, torrent_size, rolegroup=None):
         """
         检查种子是否匹配站点过滤规则：排除规则、包含规则，优先规则
-        :param title: 种子标题
-        :param subtitle: 种子副标题
+        :param meta_info: 识别的信息
         :param torrent_size: 种子大小
         :param rolegroup: 规则组ID
-        :return: 是否匹配，匹配的优先值，值越大越优先
+        :return: 是否匹配，匹配的优先值，规则名称，值越大越优先
         """
-        if not title:
-            return False, 0
-        if subtitle:
-            title = "%s %s" % (title, subtitle)
+        if not meta_info:
+            return False, 0, ""
+        if meta_info.subtitle:
+            title = "%s %s" % (meta_info.org_string, meta_info.subtitle)
+        else:
+            title = meta_info.org_string
         if not rolegroup:
             rolegroup = self.get_rule_groups(default=True)
             if not rolegroup:
-                return True, 0
+                return True, 0, ""
         else:
             rolegroup = self.get_rule_groups(groupid=rolegroup)
         filters = self.get_rules(groupid=rolegroup.get("id"))
@@ -128,7 +131,7 @@ class FilterRule:
                     rule_match = False
             # 大小
             sizes = filter_info.get('size')
-            if sizes and rule_match:
+            if sizes and rule_match and meta_info.type == MediaType.MOVIE:
                 if sizes.find(',') != -1:
                     sizes = sizes.split(',')
                     if sizes[0].isdigit():
@@ -149,9 +152,9 @@ class FilterRule:
                     rule_match = False
 
             if rule_match:
-                return True, order_seq
+                return True, order_seq, rolegroup.get("name")
             else:
                 group_match = False
         if not group_match:
-            return False, 0
-        return True, order_seq
+            return False, 0, ""
+        return True, order_seq, rolegroup.get("name")

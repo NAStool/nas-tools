@@ -91,6 +91,7 @@ class WebAction:
             "add_downloader": self.__add_downloader,
             "delete_downloader": self.__delete_downloader,
             "name_test": self.__name_test,
+            "rule_test": self.__rule_test,
             "add_filtergroup": self.__add_filtergroup,
             "set_default_filtergroup": self.__set_default_filtergroup,
             "del_filtergroup": self.__del_filtergroup,
@@ -976,8 +977,6 @@ class WebAction:
             if not rssid:
                 rssid = get_rss_tv_id(title=title, year=year)
 
-            # 查下载信息
-
             return {
                 "code": 0,
                 "type": mtype,
@@ -1067,7 +1066,8 @@ class WebAction:
             lst_time = message.get("time")
             level = "bg-red" if message.get("level") == "ERROR" else ""
             content = re.sub(r"[#]+", "<br>",
-                             re.sub(r"<[^>]+>", "", re.sub(r"<br/?>", "####", message.get("content"), flags=re.IGNORECASE)))
+                             re.sub(r"<[^>]+>", "",
+                                    re.sub(r"<br/?>", "####", message.get("content"), flags=re.IGNORECASE)))
             message_html.append(f"""
             <div class="list-group-item">
               <div class="row align-items-center">
@@ -1413,6 +1413,26 @@ class WebAction:
         }}
 
     @staticmethod
+    def __rule_test(data):
+        title = data.get("title")
+        subtitle = data.get("subtitle")
+        size = data.get("size")
+        if size:
+            size = float(size) * 1024 ** 3
+        if not title:
+            return {"code": -1}
+        meta_info = MetaInfo(title=title, subtitle=subtitle)
+        match_flag, res_order, rule_name = FilterRule().check_rules(meta_info=meta_info,
+                                                                    torrent_size=size)
+        return {
+            "code": 0,
+            "flag": match_flag,
+            "text": "匹配" if match_flag else "未匹配",
+            "name": rule_name if rule_name else "未设置默认规则",
+            "order": 100 - res_order if res_order else 0
+        }
+
+    @staticmethod
     def __get_site_activity(data):
         """
         查询site活动[上传，下载，魔力值]
@@ -1508,9 +1528,11 @@ class WebAction:
         if over_edition:
             filter_htmls.append('<span class="badge badge-outline text-red me-1 mb-1" title="已开启洗版">洗版</span>')
         if filter_map.get("restype"):
-            filter_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % filter_map.get("restype"))
+            filter_htmls.append(
+                '<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % filter_map.get("restype"))
         if filter_map.get("pix"):
-            filter_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % filter_map.get("pix"))
+            filter_htmls.append(
+                '<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % filter_map.get("pix"))
         if filter_map.get("rule"):
             filter_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' %
                                 FilterRule().get_rule_groups(groupid=filter_map.get("rule")).get("name") or "")
@@ -1543,8 +1565,9 @@ class WebAction:
         if rules.get("time"):
             times = rules.get("time").split("#")
             if times[0]:
-                rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="做种时间">做种%s: %s 小时</span>'
-                                  % (rule_filter_string.get(times[0]), times[1]))
+                rule_htmls.append(
+                    '<span class="badge badge-outline text-orange me-1 mb-1" title="做种时间">做种%s: %s 小时</span>'
+                    % (rule_filter_string.get(times[0]), times[1]))
         if rules.get("ratio"):
             ratios = rules.get("ratio").split("#")
             if ratios[0]:
@@ -1553,12 +1576,14 @@ class WebAction:
         if rules.get("uploadsize"):
             uploadsizes = rules.get("uploadsize").split("#")
             if uploadsizes[0]:
-                rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="上传量">上传量%s: %s GB</span>'
-                                  % (rule_filter_string.get(uploadsizes[0]), uploadsizes[1]))
+                rule_htmls.append(
+                    '<span class="badge badge-outline text-orange me-1 mb-1" title="上传量">上传量%s: %s GB</span>'
+                    % (rule_filter_string.get(uploadsizes[0]), uploadsizes[1]))
         if rules.get("dltime"):
             dltimes = rules.get("dltime").split("#")
             if dltimes[0]:
-                rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="下载耗时">下载耗时%s: %s 小时</span>'
-                                  % (rule_filter_string.get(dltimes[0]), dltimes[1]))
+                rule_htmls.append(
+                    '<span class="badge badge-outline text-orange me-1 mb-1" title="下载耗时">下载耗时%s: %s 小时</span>'
+                    % (rule_filter_string.get(dltimes[0]), dltimes[1]))
 
         return "<br>".join(rule_htmls)

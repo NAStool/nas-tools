@@ -997,7 +997,7 @@ def insert_download_history(media_info: MetaBase):
 
 
 # 查询下载历史
-def get_download_history(date=None, hid=None, num=100):
+def get_download_history(date=None, hid=None, num=200):
     if hid:
         sql = "SELECT ID,TITLE,YEAR,TYPE,TMDBID,VOTE,POSTER,OVERVIEW,TORRENT,ENCLOSURE,DESC,DATE,SITE FROM DOWNLOAD_HISTORY WHERE ID = ?"
         return select_by_sql(sql, (hid,))

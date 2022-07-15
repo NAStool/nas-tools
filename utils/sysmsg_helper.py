@@ -31,7 +31,7 @@ class MessageCenter:
                 msg_content = ""
         else:
             msg_title = title.strip()
-            msg_content = content.strip()
+            msg_content = content.replace("\n", "<br>").strip()
         self.__append_message_queue(level, msg_title, msg_content)
 
     def __append_message_queue(self, level, title, content):

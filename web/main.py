@@ -881,10 +881,9 @@ def create_flask_app(config):
                      <polyline points="9 19 12 22 15 19"></polyline>
                 </svg>
             '''
-            color = "blue"
             scheduler_cfg_list.append(
                 {'name': 'RSS订阅', 'time': tim_rssdownload, 'state': rss_state, 'id': 'rssdownload', 'svg': svg,
-                 'color': color})
+                 'color': "blue"})
 
             # PT文件转移
             pt_monitor = pt.get('pt_monitor')
@@ -903,10 +902,9 @@ def create_flask_app(config):
                  <path d="M3 13v3a2 2 0 0 0 2 2h6l-3 -3m0 6l3 -3"></path>
             </svg>
             '''
-            color = "green"
             scheduler_cfg_list.append(
                 {'name': 'PT下载转移', 'time': tim_pttransfer, 'state': sta_pttransfer, 'id': 'pttransfer', 'svg': svg,
-                 'color': color})
+                 'color': "green"})
 
             # PT删种
             pt_seeding_config_time = pt.get('pt_seeding_time')
@@ -923,10 +921,9 @@ def create_flask_app(config):
                      <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
                 </svg>
                 '''
-                color = "twitter"
                 scheduler_cfg_list.append(
                     {'name': 'PT删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents,
-                     'id': 'autoremovetorrents', 'svg': svg, 'color': color})
+                     'id': 'autoremovetorrents', 'svg': svg, 'color': "twitter"})
 
             # PT自动签到
             tim_ptsignin = pt.get('ptsignin_cron')
@@ -942,10 +939,9 @@ def create_flask_app(config):
                      <path d="M16 11l2 2l4 -4"></path>
                 </svg>
                 '''
-                color = "facebook"
                 scheduler_cfg_list.append(
                     {'name': 'PT站签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin', 'svg': svg,
-                     'color': color})
+                     'color': "facebook"})
 
         # 目录同步
         sync = config.get_config('sync')
@@ -960,9 +956,8 @@ def create_flask_app(config):
                      <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
                 </svg>
                 '''
-                color = "orange"
                 scheduler_cfg_list.append(
-                    {'name': '目录同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg, 'color': color})
+                    {'name': '目录同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg, 'color': "orange"})
         # 豆瓣同步
         douban_cfg = config.get_config('douban')
         if douban_cfg:
@@ -977,9 +972,8 @@ def create_flask_app(config):
                    <path d="M9.265 4a2 2 0 0 1 1.735 -1h6a2 2 0 0 1 2 2v12l-1 -.6"></path>
                 </svg>
                 '''
-                color = "pink"
                 scheduler_cfg_list.append(
-                    {'name': '豆瓣想看', 'time': interval, 'state': sta_douban, 'id': 'douban', 'svg': svg, 'color': color})
+                    {'name': '豆瓣想看', 'time': interval, 'state': sta_douban, 'id': 'douban', 'svg': svg, 'color': "pink"})
 
         # 清理文件整理缓存
         svg = '''
@@ -1003,6 +997,24 @@ def create_flask_app(config):
         '''
         scheduler_cfg_list.append(
             {'name': '名称识别测试', 'time': '', 'state': 'OFF', 'id': 'nametest', 'svg': svg, 'color': 'lime'})
+
+        # 过滤规则测试
+        svg = '''
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-adjustments-horizontal" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+           <circle cx="14" cy="6" r="2"></circle>
+           <line x1="4" y1="6" x2="12" y2="6"></line>
+           <line x1="16" y1="6" x2="20" y2="6"></line>
+           <circle cx="8" cy="12" r="2"></circle>
+           <line x1="4" y1="12" x2="6" y2="12"></line>
+           <line x1="10" y1="12" x2="20" y2="12"></line>
+           <circle cx="17" cy="18" r="2"></circle>
+           <line x1="4" y1="18" x2="15" y2="18"></line>
+           <line x1="19" y1="18" x2="20" y2="18"></line>
+        </svg>
+        '''
+        scheduler_cfg_list.append(
+            {'name': '过滤规则测试', 'time': '', 'state': 'OFF', 'id': 'ruletest', 'svg': svg, 'color': 'yellow'})
 
         # 实时日志
         svg = '''

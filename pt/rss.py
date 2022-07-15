@@ -136,10 +136,10 @@ class Rss:
 
                         log.debug("【RSS】开始处理：%s" % torrent_name)
                         # 确定标题中是否符合站点过滤规则，并返回是否匹配及优先级
-                        # RSS不使用decsription，内容太多容易误中
-                        match_flag, res_order = self.filterrule.check_rules(title=torrent_name,
-                                                                            torrent_size=size,
-                                                                            rolegroup=rss_rule_group)
+                        meta_info = MetaInfo(title=torrent_name, subtitle=description)
+                        match_flag, res_order, _ = self.filterrule.check_rules(meta_info=meta_info,
+                                                                               torrent_size=size,
+                                                                               rolegroup=rss_rule_group)
                         if not match_flag:
                             log.info("【RSS】%s %s 不符合过滤规则" % (torrent_name, str_filesize(size)))
                             continue
