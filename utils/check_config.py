@@ -53,7 +53,7 @@ def check_config(cfg):
 
         rmt_tmdbkey = config['app'].get('rmt_tmdbkey')
         if not rmt_tmdbkey:
-            log.error("TMDB API Key未配置，媒体识别、搜索下载等功能将无法正常运行！")
+            log.error("TMDB API Key未配置，媒体整理、搜索下载等功能将无法正常运行！")
         rmt_match_mode = config['app'].get('rmt_match_mode')
         if rmt_match_mode:
             rmt_match_mode = rmt_match_mode.upper()
