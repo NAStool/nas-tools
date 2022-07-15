@@ -35,6 +35,18 @@ class SiteUserInfoFactory(object):
                     html_text = res.text
                     if not html_text:
                         return None
+
+                    # 兼容假首页情况，假首页通常没有 <link rel="search" 属性
+                    if '"search"' not in html_text:
+                        res = RequestUtils(cookies=site_cookie, session=session).get_res(url=url+"/index.php")
+                        if res and res.status_code == 200:
+                            if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
+                                res.encoding = "UTF-8"
+                            else:
+                                res.encoding = res.apparent_encoding
+                            html_text = res.text
+                            if not html_text:
+                                return None
                 else:
                     log.error("【PT】站点 %s 被反爬限制：%s, 状态码：%s" % (site_name, url, res.status_code))
                     return None
