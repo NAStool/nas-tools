@@ -29,7 +29,7 @@ class FilterRule:
                 "default": group[2],
                 "note": group[3]
             }
-            if groupid and int(groupid) == int(group[0])\
+            if groupid and str(groupid) == str(group[0])\
                     or default and group[2] == "Y":
                 return group_info
             ret_groups.append(group_info)
@@ -64,7 +64,7 @@ class FilterRule:
                 "size": rule[6],
                 "note": rule[7]
             }
-            if int(rule[1]) == int(groupid) \
+            if str(rule[1]) == str(groupid) \
                     and (not ruleid or int(ruleid) == rule[0]):
                 ret_rules.append(rule_info)
         if ruleid:
