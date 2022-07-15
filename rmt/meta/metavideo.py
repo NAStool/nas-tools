@@ -172,8 +172,7 @@ class MetaVideo(MetaBase):
                     return
                 # 英文或者英文+数字，拼装起来
                 if self.en_name:
-                    if token not in self.en_name.split():
-                        self.en_name = "%s %s" % (self.en_name, token)
+                    self.en_name = "%s %s" % (self.en_name, token)
                 else:
                     self.en_name = token
                 self._last_token_type = "enname"

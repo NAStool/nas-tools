@@ -267,11 +267,6 @@ class Torrent:
                                                     meta_info.org_string,
                                                     re.IGNORECASE):
             return False
-        if filter_args.get("rule") and not FilterRule().check_rules(title=meta_info.org_string,
-                                                                    subtitle=meta_info.description,
-                                                                    torrent_size=meta_info.size,
-                                                                    rolegroup=filter_args.get("rule")):
-            return False
         return True
 
     @staticmethod

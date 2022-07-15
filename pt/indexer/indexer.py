@@ -145,17 +145,26 @@ class IIndexer(metaclass=ABCMeta):
                 log.info(f"【{self.index_type}】{torrent_name} 做种数为0")
                 continue
 
-            # 检查过滤规则匹配
-            match_flag, res_order = self.filterrule.check_rules(title=torrent_name,
-                                                                subtitle=description,
-                                                                torrent_size=size)
-            if match_type == 1 and not match_flag:
-                log.info(f"【{self.index_type}】{torrent_name} {str_filesize(size)} 不符合过滤规则")
-                continue
+            # 检查过滤规则匹配，使用默认规则
+            if filter_args.get("rule"):
+                if not FilterRule().check_rules(title=torrent_name,
+                                                subtitle=description,
+                                                torrent_size=size,
+                                                rolegroup=filter_args.get("rule")):
+                    log.info(f"【{self.index_type}】{torrent_name} {str_filesize(size)} 不符合订阅过滤规则")
+                    continue
+            else:
+                match_flag, res_order = self.filterrule.check_rules(title=torrent_name,
+                                                                    subtitle=description,
+                                                                    torrent_size=size)
+                if match_type == 1 and not match_flag:
+                    log.info(f"【{self.index_type}】{torrent_name} {str_filesize(size)} 不符合默认过滤规则")
+                    continue
 
             # 识别种子名称
             meta_info = MetaInfo(title=torrent_name, subtitle=description)
             if not meta_info.get_name():
+                log.info(f"【{self.index_type}】{torrent_name} 无法识别到名称")
                 continue
 
             if meta_info.type == MediaType.TV and filter_args.get("type") == MediaType.MOVIE:
@@ -165,13 +174,14 @@ class IIndexer(metaclass=ABCMeta):
 
             # 有高级过滤条件时，先过滤一遍
             if not Torrent.check_torrent_filter(meta_info, filter_args, uploadvolumefactor, downloadvolumefactor):
+                log.info(f"【{self.index_type}】{torrent_name} 不符合高级过滤条件")
                 continue
 
             # 识别媒体信息
             if match_type != 2:
                 media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
                 if not media_info or not media_info.tmdb_info:
-                    log.debug(f"【{self.index_type}】{torrent_name} 未识别到媒体信息")
+                    log.info(f"【{self.index_type}】{torrent_name} 未识别到媒体信息")
                     continue
 
                 # 类型
