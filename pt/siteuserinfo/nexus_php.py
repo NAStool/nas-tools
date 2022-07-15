@@ -21,6 +21,10 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         if user_detail and user_detail.group().strip():
             self._user_detail_page = user_detail.group().strip().lstrip('/')
             self.userid = user_detail.group(1)
+        else:
+            user_detail = re.search(r"userdetails\?id=(\d+)", html_text)
+            self._user_detail_page = user_detail.group().strip().lstrip('/')
+            self.userid = user_detail.group(1)
 
         self._torrent_seeding_page = f"getusertorrentlistajax.php?userid={self.userid}&type=seeding"
 
@@ -50,13 +54,13 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
 
     def __parse_user_traffic_info(self, html_text):
         html_text = self._prepare_html_text(html_text)
-        upload_match = re.search(r"[^总]上[传傳]量?[:：<>/a-zA-Z-=\"'\s#;]+([0-9,.\s]+[KMGTPI]*B)", html_text, re.IGNORECASE)
+        upload_match = re.search(r"[^总]上[传傳]量?[:：<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+[KMGTPI]*B)", html_text, re.IGNORECASE)
         self.upload = num_filesize(upload_match.group(1).strip()) if upload_match else 0
-        download_match = re.search(r"[^总]下[载載]量?[:：<>/a-zA-Z-=\"'\s#;]+([0-9,.\s]+[KMGTPI]*B)", html_text,
+        download_match = re.search(r"[^总]下[载載]量?[:：<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+[KMGTPI]*B)", html_text,
                                    re.IGNORECASE)
         self.download = num_filesize(download_match.group(1).strip()) if download_match else 0
-        ratio_match = re.search(r"分享率[:：<>/a-zA-Z-=\"'\s#;]+([0-9.\s]+)", html_text)
-        self.ratio = float(ratio_match.group(1).strip()) if (ratio_match and ratio_match.group(1).strip()) else 0.0
+        ratio_match = re.search(r"分享率[:：<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+)", html_text)
+        self.ratio = float(ratio_match.group(1).strip().replace(',', '')) if (ratio_match and ratio_match.group(1).strip()) else 0.0
         leeching_match = re.search(r"(Torrents leeching|下载中)[\u4E00-\u9FA5\D\s]+(\d+)[\s\S]+<", html_text)
         self.leeching = int(leeching_match.group(2).strip()) if leeching_match and leeching_match.group(
             2).strip() else 0
@@ -140,9 +144,7 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         user_levels_text = html.xpath('//tr/td[text()="等級" or text()="等级" or *[text()="等级"]]/'
                                       'following-sibling::td[1]/img[1]/@title'
                                       '|//tr/td[text()="等級" or text()="等级"]/'
-                                      'following-sibling::td[1 and img[not(@title)]]/text()'
-                                      '|//tr/td[text()="等級" or text()="等级"]/'
-                                      'following-sibling::td[1]//text()')
+                                      'following-sibling::td[1 and img[not(@title)]]//text()')
         if user_levels_text:
             self.user_level = user_levels_text[0].strip()
 
