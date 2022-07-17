@@ -74,22 +74,25 @@ class Downloader:
         ret = None
         if self.client:
             try:
+                # 合并TAG
+                if self.__pt_monitor_only:
+                    if not tag:
+                        tag = PT_TAG
+                    elif isinstance(tag, list):
+                        tag += [PT_TAG]
+                    else:
+                        tag = [PT_TAG, tag]
                 log.info("【DOWNLOADER】添加PT任务：%s" % url)
                 if self.__client_type == DownloaderType.QB:
-                    if self.__pt_monitor_only:
-                        if not tag:
-                            tag = PT_TAG
-                        else:
-                            tag = [PT_TAG, tag]
                     ret = self.client.add_torrent(content, mtype, is_paused=is_paused, tag=tag)
                 else:
                     ret = self.client.add_torrent(content, mtype, is_paused=is_paused)
-                    if ret and self.__pt_monitor_only:
-                        self.client.set_torrent_tag(tid=ret.id, tag=PT_TAG)
+                    if ret and tag:
+                        self.client.set_torrent_tag(tid=ret.id, tag=tag)
             except Exception as e:
                 log.error("【DOWNLOADER】添加下载任务出错：%s" % str(e))
                 return None, str(e)
-        return ret, ""
+        return ret, "下载任务添加成功"
 
     def pt_transfer(self):
         """
