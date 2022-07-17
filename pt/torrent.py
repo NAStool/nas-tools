@@ -1,5 +1,7 @@
+import random
 import re
 from functools import lru_cache
+from time import sleep
 from urllib import parse
 import cn2an
 from lxml import etree
@@ -208,6 +210,8 @@ class Torrent:
                         ret_attr.append("HR")
             except Exception as err:
                 print(err)
+        # 随机休眼后再返回
+        sleep(round(random.uniform(1, 5), 1))
         return ret_attr
 
     @staticmethod
