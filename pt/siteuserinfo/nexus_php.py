@@ -61,7 +61,7 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         html_text = self._prepare_html_text(html_text)
         upload_match = re.search(r"[^总]上[传傳]量?[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+[KMGTPI]*B)", html_text, re.IGNORECASE)
         self.upload = num_filesize(upload_match.group(1).strip()) if upload_match else 0
-        download_match = re.search(r"[^总]下[载載]量?[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+[KMGTPI]*B)", html_text,
+        download_match = re.search(r"[^总子影力]下[载載]量?[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+[KMGTPI]*B)", html_text,
                                    re.IGNORECASE)
         self.download = num_filesize(download_match.group(1).strip()) if download_match else 0
         ratio_match = re.search(r"分享率[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+)", html_text)
