@@ -19,10 +19,22 @@ class Tokens:
             if sub_text:
                 self.__tokens.append(sub_text)
 
-    def get_next(self):
+    def cur(self):
         if self.__index >= len(self.__tokens):
             return None
         else:
             token = self.__tokens[self.__index]
-            self.__index = self.__index + 1
             return token
+
+    def get_next(self):
+        token = self.cur();
+        if token:
+            self.__index = self.__index + 1
+        return token
+
+    def peek(self):
+        index = self.__index + 1
+        if index >= len(self.__tokens):
+            return None
+        else:
+            return self.__tokens[index]
