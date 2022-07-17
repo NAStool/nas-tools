@@ -46,11 +46,11 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
             return
         ret = html.xpath('//a[contains(@href, "userdetails")]//b//text()')
         if ret:
-            self.username = str(ret[-1])
+            self.username = str(ret[0])
             return
         ret = html.xpath('//a[contains(@href, "userdetails")]//text()')
         if ret:
-            self.username = str(ret[-1])
+            self.username = str(ret[0])
 
     def __parse_user_traffic_info(self, html_text):
         html_text = self._prepare_html_text(html_text)
@@ -143,6 +143,8 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         # 等级 获取同一行等级数据，图片格式等级，取title信息，否则取文本信息
         user_levels_text = html.xpath('//tr/td[text()="等級" or text()="等级" or *[text()="等级"]]/'
                                       'following-sibling::td[1]/img[1]/@title'
+                                      '|//tr/td[text()="等級" or text()="等级"]/'
+                                      'following-sibling::td[1 and not(img)]//text()'
                                       '|//tr/td[text()="等級" or text()="等级"]/'
                                       'following-sibling::td[1 and img[not(@title)]]//text()')
         if user_levels_text:

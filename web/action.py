@@ -98,7 +98,8 @@ class WebAction:
             "add_filterrule": self.__add_filterrule,
             "del_filterrule": self.__del_filterrule,
             "filterrule_detail": self.__filterrule_detail,
-            "get_site_activity": self.__get_site_activity
+            "get_site_activity": self.__get_site_activity,
+            "get_site_history": self.__get_site_history
         }
 
     def action(self, cmd, data):
@@ -1444,6 +1445,21 @@ class WebAction:
 
         resp = {"code": 0}
         resp.update(Sites().get_pt_site_activity_history(data["name"]))
+        return resp
+
+    @staticmethod
+    def __get_site_history(data):
+        """
+        查询site 历史[上传，下载]
+        :param data: {"days":累计时间}
+        :return:
+        """
+        if not data or "days" not in data or not isinstance(data["days"], int):
+            return {"code": 1, "msg": "查询参数错误"}
+
+        resp = {"code": 0}
+        _, _, site, upload, download = Sites().get_pt_site_statistics_history(data["days"]+1)
+        resp.update({"site": site, "upload": upload, "download": download})
         return resp
 
     @staticmethod
