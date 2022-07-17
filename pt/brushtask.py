@@ -505,45 +505,31 @@ class BrushTask(object):
         """
         if not remove_rule:
             return False
-        match_flag = False
         try:
             if remove_rule.get("time") and seeding_time:
                 rule_times = remove_rule.get("time").split("#")
                 if rule_times[0]:
-                    match_flag = True
                     if len(rule_times) > 1 and rule_times[1]:
-                        if int(seeding_time) < float(rule_times[1]) * 3600:
-                            return False
-
+                        if int(seeding_time) > float(rule_times[1]) * 3600:
+                            return True
             if remove_rule.get("ratio") and ratio:
                 rule_ratios = remove_rule.get("ratio").split("#")
                 if rule_ratios[0]:
-                    match_flag = True
                     if len(rule_ratios) > 1 and rule_ratios[1]:
-                        if float(ratio) < float(rule_ratios[1]):
-                            return False
-
+                        if float(ratio) > float(rule_ratios[1]):
+                            return True
             if remove_rule.get("uploadsize") and uploaded:
                 rule_uploadsizes = remove_rule.get("uploadsize").split("#")
                 if rule_uploadsizes[0]:
-                    match_flag = True
                     if len(rule_uploadsizes) > 1 and rule_uploadsizes[1]:
-                        if int(uploaded) < float(rule_uploadsizes[1]) * 1024 ** 3:
-                            return False
-
+                        if int(uploaded) > float(rule_uploadsizes[1]) * 1024 ** 3:
+                            return True
             if remove_rule.get("dltime") and dltime:
                 rule_times = remove_rule.get("dltime").split("#")
                 if rule_times[0]:
-                    match_flag = True
                     if len(rule_times) > 1 and rule_times[1]:
-                        if int(dltime) < float(rule_times[1]) * 3600:
-                            return False
-
+                        if int(dltime) > float(rule_times[1]) * 3600:
+                            return True
         except Exception as err:
             print(str(err))
-
-        # 没开任何条件时不删种
-        if not match_flag:
-            return False
-        # 开了条件且均命中
-        return True
+        return False
