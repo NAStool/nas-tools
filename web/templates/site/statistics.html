@@ -155,7 +155,7 @@
         <div class="card">
           <div class="card-body">
             <div class="d-flex">
-              <h3 class="card-title">历史数据</h3>
+              <h3 class="card-title" id="site-history-title">历史数据</h3>
             </div>
             <div class="row align-items-center">
                 <div class="col-auto ms-auto d-print-none">
@@ -251,7 +251,7 @@
                         <small>{{ item[6] | filesizeformat(true) }}</small>
                       </div>
                   </td>
-                  <td class="sort-ratio">{{ item[7] }}</td>
+                  <td class="sort-ratio">{% if item[7] == 0.0 %}Infinity{% else %}{{ item[7] }}{% endif %}</td>
                   <td class="sort-seeding" data-seeding="{{ item[8] }}">{{ item[8] }}</td>
                   <td class="sort-size" data-size="{{ item[10] }}">{{ item[10] | filesizeformat(true) }}</td>
                   <td class="sort-bonus">{{ item[11] }}</td>
@@ -900,21 +900,35 @@
             ajax_post("get_site_history", {"days": days}, function (ret) {
                     hide_wait_process();
                     if (ret.code == 0) {
-                            chart_history.updateOptions(
-                                {
-                                    series: [{
-                                        name: '下载量',
-                                        data: ret.download
+                        chart_history.updateOptions(
+                            {
+                                series: [{
+                                    name: '下载量',
+                                    data: ret.download
 
-                                    }, {
-                                        name: '上传量',
-                                        data: ret.upload
-                                    }],
-                                    xaxis: {
-                                      categories: ret.site
-                                    },
-                                }, true, true, false
-                            );
+                                }, {
+                                    name: '上传量',
+                                    data: ret.upload
+                                }],
+                                xaxis: {
+                                    categories: ret.site
+                                },
+                            }, true, true, false
+                        );
+                        let up_all = 0;
+                        let dl_all = 0;
+                        let i = 0;
+                        let len = ret.upload.length;
+                        for (i = 0; i < len; i++) {
+                            up_all += ret.upload[i];
+                        }
+                        len = ret.download.length;
+                        for (i = 0; i < len; i++) {
+                            dl_all += ret.download[i];
+                        }
+                        up_all = humanFileSize(up_all)
+                        dl_all = humanFileSize(dl_all)
+                        $('#site-history-title').text("历史数据 (上传量 " + up_all + " / 下载量 " + dl_all + ")")
                     } else {
                         show_fail_modal("历史数据 查询失败：" + ret.msg + "！");
                     }
