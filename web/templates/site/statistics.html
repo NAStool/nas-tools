@@ -151,7 +151,7 @@
           </div>
         </div>
       </div>
-    <div class="col-lg-12">
+    <div class="d-none d-lg-block col-lg-12">
         <div class="card">
           <div class="card-body">
             <div class="d-flex">
@@ -163,7 +163,6 @@
                         <button id="btn-history-one-week" class="btn btn-ghost-info active btn-site-history">最近一周</button>
                         <button id="btn-history-one-month" class="btn btn-ghost-info btn-site-history">最近一月</button>
                         <button id="btn-history-one-year" class="btn btn-ghost-info btn-site-history">最近一年</button>
-                        <button id="btn-history-today" class="btn btn-ghost-info btn-site-history">今日</button>
                     </div>
                 </div>
             </div>
@@ -859,18 +858,21 @@
             chart: {
                 type: 'bar',
                 height: 350.0,
-                stacked: true,
+                stacked: false,
                 toolbar: {
                     show: false
                 },
             },
             xaxis: {
               categories: {{ CurrentSiteLabels| safe }},
+                labels: {
+                    rotate: -45,
+                    {% if CurrentSiteLabels | count > 15 %}
+                        rotateAlways: true
+                    {% endif %}
+                },
             },
             yaxis: {
-              title: {
-                text: '数据量',
-              },
               labels: {
                 formatter: function (y) {
                   return humanFileSize(y)
@@ -878,10 +880,10 @@
               }
             },
             dataLabels: {
-                enabled: true,
-                formatter: function (val, opts) {
-                    return humanFileSize(val)
-                }
+                enabled: false
+            },
+            fill: {
+                opacity: 0.9,
             },
             tooltip: {
                 y: {
@@ -938,13 +940,8 @@
             show_site_history(365);
         });
 
-        $('#btn-history-today').click(function () {
-            $('.btn-site-history').removeClass('active');
-            $(this).addClass('active');
-            show_site_history(2);
-        });
-        $('.btn-site-history').removeClass('active');
-        $('#btn-history-today').addClass('active');
+        // 加载当周数据
+        $('#btn-history-one-week').trigger('click');
 
         tableDataList = new List('table-site-user-data', {
             sortClass: 'table-sort',
