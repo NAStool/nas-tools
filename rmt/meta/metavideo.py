@@ -22,6 +22,7 @@ class MetaVideo(MetaBase):
     _season_re = r"S(\d{2})|^S(\d{1,2})"
     _episode_re = r"EP?(\d{2,4})|^EP?(\d{1,4})"
     _part_re = r"(^PART[0-9]{0,2}$|^CD[0-9]{0,2}$|^DVD[0-9]{0,2}$|^DISK[0-9]{0,2}$|^DISC[0-9]{0,2}$)"
+    _roman_numerals = r"(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})"
     _resources_type_re = r"^BLURAY$|^REMUX$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^BLU$|^WEB$|^BD$"
     _name_no_begin_re = r"^\[.+?]"
     _name_se_words = ['共', '第', '季', '集', '话', '話']
@@ -57,14 +58,15 @@ class MetaVideo(MetaBase):
         title = re.sub(r'[0-9.]+\s*[MGT]i?B', "", title, flags=re.IGNORECASE)
         # 拆分tokens
         tokens = Tokens(title)
+        self.tokens = tokens
         # 解析名称、年份、季、集、资源类型、分辨率等
         token = tokens.get_next()
         while token:
-            # 标题
-            self.__init_name(token)
             # Part
+            self.__init_part(token)
+            # 标题
             if self._continue_flag:
-                self.__init_part(token)
+                self.__init_name(token)
             # 年份
             if self._continue_flag:
                 self.__init_year(token)
@@ -138,8 +140,9 @@ class MetaVideo(MetaBase):
                 self.cn_name = token
                 self._last_token_type = "cnname"
         else:
-            # 数字
-            if token.isdigit():
+            is_roman_digit = re.search(self._roman_numerals, token)
+            # 阿拉伯数字或者罗马数字
+            if token.isdigit() or is_roman_digit:
                 # 第季集后面的不要
                 if self._last_token_type == 'name_se_words':
                     return
@@ -149,14 +152,14 @@ class MetaVideo(MetaBase):
                         return
                     # 名称后面跟着的数字，停止查找名称
                     self._stop_name_flag = True
-                    if len(token) < 4:
-                        # 4位以下的数字，拼装到已有标题中
+                    if (token.isdigit() and len(token) < 4) or is_roman_digit:
+                        # 4位以下的数字或者罗马数字，拼装到已有标题中
                         if self._last_token_type == "cnname":
                             self.cn_name = "%s %s" % (self.cn_name, token)
                         elif self._last_token_type == "enname":
                             self.en_name = "%s %s" % (self.en_name, token)
                         self._continue_flag = False
-                    elif len(token) == 4:
+                    elif token.isdigit() and len(token) == 4:
                         # 4位数字，可能是年份，也可能真的是标题的一部分，也有可能是集
                         if token.startswith('0') or not 1900 < int(token) < 2050:
                             return
@@ -181,20 +184,18 @@ class MetaVideo(MetaBase):
         if not self.get_name():
             return
         re_res = re.search(r"%s" % self._part_re, token, re.IGNORECASE)
-        if re_res:
-            self._last_token_type = "part"
-            self._continue_flag = False
-            self._stop_name_flag = True
+        next = self.tokens.cur()
+        if re_res and\
+            next.isdigit() and (len(next) == 1 or len(next) == 2 and next.startswith('0')):
+            self.tokens.get_next()
+
             if not self.part:
                 self.part = re_res.group(1)
-        else:
-            # 单个数字加入part
-            if self._last_token_type == "part" \
-                    and token.isdigit() \
-                    and (len(token) == 1 or len(token) == 2 and token.startswith('0')):
-                self.part = "%s%s" % (self.part, token)
-                self._continue_flag = False
-                self._stop_name_flag = True
+
+            self.part = "%s%s" % (self.part, next)
+            self._last_token_type = "part"
+            self._continue_flag = False
+            self._stop_name_flag = False
 
     def __init_year(self, token):
         if not self.get_name():
