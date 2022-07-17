@@ -35,7 +35,7 @@
               </div>
               <div class="col">
                 <div class="d-flex align-items-center">
-                  <div class="subheader">总上传</div>
+                  <div class="subheader">总上传量</div>
                 </div>
                 <div class="d-flex align-items-baseline">
                   <div class="h1 mb-0 me-2">{{ TotalUpload | filesizeformat(true) }}</div>
@@ -67,7 +67,7 @@
               </div>
               <div class="col">
                 <div class="d-flex align-items-center">
-                  <div class="subheader">总下载</div>
+                  <div class="subheader">总下载量</div>
                 </div>
                 <div class="d-flex align-items-baseline">
                   <div class="h1 mb-0 me-2">{{ TotalDownload | filesizeformat(true) }}</div>
@@ -135,7 +135,7 @@
         <div class="card">
           <div class="card-body">
             <div class="d-flex">
-              <h3 class="card-title">今日上传 共{{ CurrentUpload | filesizeformat(true) }}</h3>
+              <h3 class="card-title">今日上传量 共{{ CurrentUpload | filesizeformat(true) }}</h3>
             </div>
             <div id="chart-recent-upload"></div>
           </div>
@@ -145,12 +145,32 @@
         <div class="card">
           <div class="card-body">
             <div class="d-flex">
-              <h3 class="card-title">今日下载 共{{ CurrentDownload | filesizeformat(true) }}</h3>
+              <h3 class="card-title">今日下载量 共{{ CurrentDownload | filesizeformat(true) }}</h3>
             </div>
             <div id="chart-recent-download"></div>
           </div>
         </div>
       </div>
+    <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex">
+              <h3 class="card-title">历史数据</h3>
+            </div>
+            <div class="row align-items-center">
+                <div class="col-auto ms-auto d-print-none">
+                    <div class="btn-list">
+                        <button id="btn-history-one-week" class="btn btn-ghost-info active btn-site-history">最近一周</button>
+                        <button id="btn-history-one-month" class="btn btn-ghost-info btn-site-history">最近一月</button>
+                        <button id="btn-history-one-year" class="btn btn-ghost-info btn-site-history">最近一年</button>
+                        <button id="btn-history-today" class="btn btn-ghost-info btn-site-history">今日</button>
+                    </div>
+                </div>
+            </div>
+            <div id="chart-site-history"></div>
+          </div>
+        </div>
+    </div>
       <div class="col-lg-12">
         <div class="card">
           <div class="card-body">
@@ -263,7 +283,7 @@
   </div>
 </div>
     <div class="modal modal-blur fade" id="site-activity" tabindex="-1" style="display: none;" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="site-activity-title">站点信息</h5>
@@ -284,6 +304,7 @@
                         <div id="site-activity-chart-upload"></div>
                         <div id="site-activity-chart-download"></div>
                         <div id="site-activity-chart-seeding-size"></div>
+                        <div id="site-activity-chart-bouns"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -670,21 +691,22 @@
         if (typeof (chart_seeding_size) != 'undefined') {
             chart_seeding_size.destroy();
         }
-
+        if (typeof (chart_bonus) != 'undefined') {
+            chart_bonus.destroy();
+        }
         chart_ul = new ApexCharts($('#site-activity-chart-upload')[0], options_ul);
         chart_ul.render();
         chart_dl = new ApexCharts($('#site-activity-chart-download')[0], options_dl);
         chart_dl.render();
         chart_seeding_size = new ApexCharts($('#site-activity-chart-seeding-size')[0], options_seeding_size);
         chart_seeding_size.render();
+        chart_bonus = new ApexCharts($('#site-activity-chart-bouns')[0], options_bouns);
+        chart_bonus.render();
 
-        resetCssClasses = function (activeEl) {
-            $('.btn-site-activity').removeClass('active');
-            activeEl.addClass('active');
-        };
-
+        // 按钮监听
         $('#btn-one-week').click(function () {
-            resetCssClasses($(this));
+            $('.btn-site-activity').removeClass('active');
+            $(this).addClass('active');
             chart_ul.zoomX(
                 Math.max(chart_ul.data.twoDSeriesX[0], new Date().setDate(new Date().getDate() - 7)),
                 new Date().setDate(new Date().getDate() - 1),
@@ -692,7 +714,8 @@
         });
 
         $('#btn-one-month').click(function () {
-            resetCssClasses($(this));
+            $('.btn-site-activity').removeClass('active');
+            $(this).addClass('active');
             chart_ul.zoomX(
                 Math.max(chart_ul.data.twoDSeriesX[0], new Date().setMonth(new Date().getMonth() - 1)),
                 new Date().setDate(new Date().getDate() - 1),
@@ -700,7 +723,8 @@
         });
 
         $('#btn-one-year').click(function () {
-            resetCssClasses($(this));
+            $('.btn-site-activity').removeClass('active');
+            $(this).addClass('active');
             chart_ul.zoomX(
                 Math.max(chart_ul.data.twoDSeriesX[0], new Date().setFullYear(new Date().getFullYear() - 1)),
                 new Date().setDate(new Date().getDate() - 1),
@@ -708,10 +732,12 @@
         });
 
         $('#btn-all-data').click(function () {
-            resetCssClasses($(this));
+            $('.btn-site-activity').removeClass('active');
+            $(this).addClass('active');
             chart_ul.resetSeries();
             chart_dl.resetSeries();
             chart_seeding_size.resetSeries();
+            chart_bonus.resetSeries();
         });
 
         function show_site_activity(site_name) {
@@ -721,7 +747,8 @@
                     if (ret.code == 0) {
                         $('#site-activity-title').text(site_name + " 历史数据");
                         $('#site-activity').modal("show");
-                        resetCssClasses($('#btn-all-data'))
+                        $('.btn-site-activity').removeClass('active');
+                        $('#btn-one-month').addClass('active');
                         window.setTimeout(function () {
                             chart_ul.updateOptions(
                                 {
@@ -747,6 +774,16 @@
                                     }]
                                 }, true, true, false
                             );
+                            chart_bonus.updateOptions(
+                                {
+                                    series: [{
+                                        name: '积分',
+                                        data: ret.bonus
+                                    }]
+                                }, true, true, false
+                            );
+
+                            $('#btn-one-month').trigger('click');
                         }, 500);
                     } else {
                         show_fail_modal(site_name + " 查询失败：" + ret.msg + "！");
@@ -784,7 +821,7 @@
         // 今日下载饼图
         if (typeof (pie_dl) != 'undefined')
             pie_dl.destroy();
-        pie_dl = new ApexCharts(document.getElementById('chart-recent-download'), {
+        pie_dl = new ApexCharts($('#chart-recent-download')[0], {
             series: {{ CurrentSiteDownloads | safe }},
             chart: {
                 type: 'pie',
@@ -806,6 +843,108 @@
             }
         });
         pie_dl.render();
+
+        // 站点历史柱状图
+        if (typeof (chart_history) != 'undefined')
+            chart_history.destroy();
+        chart_history = new ApexCharts($('#chart-site-history')[0], {
+            series: [{
+                name: '下载量',
+                data: {{ CurrentSiteDownloads | safe }}
+            },{
+                name: '上传量',
+                data: {{ CurrentSiteUploads | safe }}
+            }],
+            colors:['#d63939', '#206bc4'],
+            chart: {
+                type: 'bar',
+                height: 350.0,
+                stacked: true,
+                toolbar: {
+                    show: false
+                },
+            },
+            xaxis: {
+              categories: {{ CurrentSiteLabels| safe }},
+            },
+            yaxis: {
+              title: {
+                text: '数据量',
+              },
+              labels: {
+                formatter: function (y) {
+                  return humanFileSize(y)
+                }
+              }
+            },
+            dataLabels: {
+                enabled: true,
+                formatter: function (val, opts) {
+                    return humanFileSize(val)
+                }
+            },
+            tooltip: {
+                y: {
+                    formatter: function (value, opts) {
+                        return humanFileSize(value)
+                    }
+                }
+            }
+        });
+        chart_history.render();
+
+        function show_site_history(days) {
+            show_wait_process();
+            ajax_post("get_site_history", {"days": days}, function (ret) {
+                    hide_wait_process();
+                    if (ret.code == 0) {
+                            chart_history.updateOptions(
+                                {
+                                    series: [{
+                                        name: '下载量',
+                                        data: ret.download
+
+                                    }, {
+                                        name: '上传量',
+                                        data: ret.upload
+                                    }],
+                                    xaxis: {
+                                      categories: ret.site
+                                    },
+                                }, true, true, false
+                            );
+                    } else {
+                        show_fail_modal("历史数据 查询失败：" + ret.msg + "！");
+                    }
+                }
+            );
+        }
+
+         $('#btn-history-one-week').click(function () {
+            $('.btn-site-history').removeClass('active');
+            $(this).addClass('active');
+            show_site_history(7);
+        });
+
+        $('#btn-history-one-month').click(function () {
+            $('.btn-site-history').removeClass('active');
+            $(this).addClass('active');
+            show_site_history(30);
+        });
+
+        $('#btn-history-one-year').click(function () {
+            $('.btn-site-history').removeClass('active');
+            $(this).addClass('active');
+            show_site_history(365);
+        });
+
+        $('#btn-history-today').click(function () {
+            $('.btn-site-history').removeClass('active');
+            $(this).addClass('active');
+            show_site_history(2);
+        });
+        $('.btn-site-history').removeClass('active');
+        $('#btn-history-today').addClass('active');
 
         tableDataList = new List('table-site-user-data', {
             sortClass: 'table-sort',
