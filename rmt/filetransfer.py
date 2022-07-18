@@ -971,6 +971,7 @@ class FileTransfer:
             return {}
         return {
             "title": media.title,
+            "en_title": media.en_name,
             "year": media.year,
             "edition": media.resource_type,
             "videoFormat": media.resource_pix,
