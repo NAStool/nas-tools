@@ -185,20 +185,33 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         if not self.seeding:
             self.seeding = tmp_seeding
 
+        self.__fixup_torrent_seeding_page(html)
+
+    def __fixup_torrent_seeding_page(self, html):
+        """
+        修正种子页面链接
+        :param html:
+        :return:
+        """
         # 单独的种子页面
         seeding_url_text = html.xpath('//a[contains(@href,"getusertorrentlist.php") '
                                       'and contains(@href,"seeding")]/@href')
         if seeding_url_text:
             self._torrent_seeding_page = seeding_url_text[0].strip()
-
         # 从JS调用种获取用户ID
         seeding_url_text = html.xpath('//a[contains(@href, "javascript: getusertorrentlistajax") '
                                       'and contains(@href,"seeding")]/@href')
+        csrf_text = html.xpath('//meta[@name="x-csrf"]/@content')
         if not self._torrent_seeding_page and seeding_url_text:
             user_js = re.search(r"javascript: getusertorrentlistajax\(\s*'(\d+)", seeding_url_text[0])
             if user_js and user_js.group(1).strip():
                 self.userid = user_js.group(1).strip()
                 self._torrent_seeding_page = f"getusertorrentlistajax.php?userid={self.userid}&type=seeding"
+        elif seeding_url_text and csrf_text:
+            if csrf_text[0].strip():
+                self._torrent_seeding_page \
+                    = f"ajax_getusertorrentlist.php"
+                self._torrent_seeding_params = {'userid': self.userid, 'type': 'seeding', 'csrf': csrf_text[0].strip()}
 
     def __get_user_level(self, html):
         # 等级 获取同一行等级数据，图片格式等级，取title信息，否则取文本信息
