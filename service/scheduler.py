@@ -15,6 +15,7 @@ from datetime import datetime
 import random
 import math
 
+
 @singleton
 class Scheduler:
     SCHEDULER = None
@@ -59,14 +60,16 @@ class Scheduler:
                         start_minute = int(start_time_range_array[1]) or 1
                         end_hour = int(end_time_range_array[0]) or 1
                         end_minute = int(end_time_range_array[1]) or 1
+
                         def start_random_job():
-                            task_time_count = random.randint(start_hour*60+start_minute,end_hour*60+end_minute)
-                            self.start_data_site_signin_job(math.floor(task_time_count/60),task_time_count%60)
+                            task_time_count = random.randint(start_hour * 60 + start_minute, end_hour * 60 + end_minute)
+                            self.start_data_site_signin_job(math.floor(task_time_count / 60), task_time_count % 60)
+
                         self.SCHEDULER.add_job(start_random_job,
                                                "cron",
                                                hour=start_hour,
                                                minute=start_minute)
-                        log.info("【RUN】PT站自动签到服务时间范围随机模式启动...起始时间于%s:%s" % (str(start_hour),str(start_minute)) )
+                        log.info("【RUN】PT站自动签到服务时间范围随机模式启动，起始时间于%s:%s" % (str(start_hour).rjust(2, '0'), str(start_minute).rjust(2, '0')))
                     except Exception as e:
                         log.info("【RUN】PT站自动签到时间 时间范围随机模式 配置格式错误：%s %s" % (ptsignin_cron, str(e)))
                 elif ptsignin_cron.find(':') != -1:
@@ -180,20 +183,22 @@ class Scheduler:
                 self.SCHEDULER = None
         except Exception as e:
             print(str(e))
+
     def start_data_site_signin_job(self, hour, minute):
         year = datetime.now().year
         month = datetime.now().month
         day = datetime.now().day
         # 随机数从1秒开始，不在整点签到
-        second = random.randint(1,59)
-        log.info("【RUN】PT站自动签到时间 即将在%s-%s-%s,%s:%s:%s签到" % (str(year),str(month),str(day),str(hour),str(minute),str(second)))
-        if (hour<0 or hour>24):
+        second = random.randint(1, 59)
+        log.info("【RUN】PT站自动签到时间 即将在%s-%s-%s,%s:%s:%s签到" % (
+        str(year), str(month), str(day), str(hour), str(minute), str(second)))
+        if (hour < 0 or hour > 24):
             hour = -1
-        if (minute<0 or minute>60):
-            minute = -1  
-        if (hour<0 or minute<0):
+        if (minute < 0 or minute > 60):
+            minute = -1
+        if (hour < 0 or minute < 0):
             log.warn("【RUN】PT站自动签到时间 配置格式错误：不启动任务")
             return
         self.SCHEDULER.add_job(Sites().signin,
-            "date",
-            run_date=datetime(year, month, day, hour, minute, second))
+                               "date",
+                               run_date=datetime(year, month, day, hour, minute, second))

@@ -138,11 +138,11 @@
       return;
     }
     loading = true;
-    show_wait_process();
     CurrentPage ++;
     if(CurrentPage > 10){
       return;
     }
+    show_wait_process();
     ajax_post("get_recommend", {"type": title_type, "page": CurrentPage}, function(ret){
       if(ret.Items.length > 0){
         loading = false;
@@ -198,6 +198,5 @@
       }
     });
   });
-
 
 </script>

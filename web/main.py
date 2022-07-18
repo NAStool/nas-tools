@@ -636,7 +636,7 @@ def create_flask_app(config):
     @App.route('/downloaded', methods=['POST', 'GET'])
     @login_required
     def downloaded():
-        Items = get_download_history()
+        Items = WebAction().get_downloaded({"page": 1}).get("Items")
         return render_template("download/downloaded.html",
                                Count=len(Items),
                                Items=Items)

@@ -101,7 +101,8 @@ class WebAction:
             "filterrule_detail": self.__filterrule_detail,
             "get_site_activity": self.__get_site_activity,
             "get_site_history": self.__get_site_history,
-            "get_recommend": self.get_recommend
+            "get_recommend": self.get_recommend,
+            "get_downloaded": self.get_downloaded
         }
 
     def action(self, cmd, data):
@@ -1620,6 +1621,12 @@ class WebAction:
                     'overview': overview,
                     'year': year}
             Items.append(item)
+        return {"code": 0, "Items": Items}
+
+    @staticmethod
+    def get_downloaded(data):
+        page = data.get("page")
+        Items = get_download_history(page=page) or []
         return {"code": 0, "Items": Items}
 
     @staticmethod
