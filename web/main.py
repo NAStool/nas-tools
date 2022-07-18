@@ -559,110 +559,12 @@ def create_flask_app(config):
     @login_required
     def recommend():
         RecommendType = request.args.get("t")
-        if RecommendType in ['hm', 'ht', 'nm', 'nt']:
-            CurrentPage = request.args.get("page")
-            if not CurrentPage:
-                CurrentPage = 1
-            else:
-                CurrentPage = int(CurrentPage)
-
-            if CurrentPage < 5:
-                StartPage = 1
-                EndPage = 6
-            else:
-                StartPage = CurrentPage - 2
-                EndPage = CurrentPage + 3
-            PageRange = range(StartPage, EndPage)
-        else:
-            PageRange = None
-            CurrentPage = 0
-        if RecommendType == "hm":
-            # TMDB热门电影
-            res_list = Media().get_tmdb_hot_movies(CurrentPage)
-        elif RecommendType == "ht":
-            # TMDB热门电视剧
-            res_list = Media().get_tmdb_hot_tvs(CurrentPage)
-        elif RecommendType == "nm":
-            # TMDB最新电影
-            res_list = Media().get_tmdb_new_movies(CurrentPage)
-        elif RecommendType == "nt":
-            # TMDB最新电视剧
-            res_list = Media().get_tmdb_new_tvs(CurrentPage)
-        elif RecommendType == "dbom":
-            # 豆瓣正在上映
-            res_list = DoubanHot().get_douban_online_movie()
-        elif RecommendType == "dbhm":
-            # 豆瓣热门电影
-            res_list = DoubanHot().get_douban_hot_movie()
-        elif RecommendType == "dbht":
-            # 豆瓣热门电视剧
-            res_list = DoubanHot().get_douban_hot_tv()
-        elif RecommendType == "dbdh":
-            # 豆瓣热门动画
-            res_list = DoubanHot().get_douban_hot_anime()
-        elif RecommendType == "dbnm":
-            # 豆瓣最新电影
-            res_list = DoubanHot().get_douban_new_movie()
-        elif RecommendType == "dbzy":
-            # 豆瓣最新电视剧
-            res_list = DoubanHot().get_douban_hot_show()
-        else:
-            res_list = []
-
-        Items = []
-        TvKeys = ["%s" % key[0] for key in get_rss_tvs()]
-        MovieKeys = ["%s" % key[0] for key in get_rss_movies()]
-        for res in res_list:
-            rid = res.get('id')
-            if RecommendType in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm']:
-                title = res.get('title')
-                date = res.get('release_date')
-                if date:
-                    year = date[0:4]
-                else:
-                    year = ''
-                if title in MovieKeys:
-                    # 已订阅
-                    fav = 1
-                elif is_media_downloaded(title, year):
-                    # 已下载
-                    fav = 2
-                else:
-                    # 未订阅、未下载
-                    fav = 0
-            else:
-                title = res.get('name')
-                date = res.get('first_air_date')
-                if date:
-                    year = date[0:4]
-                else:
-                    year = ''
-                if MetaInfo(title=title).get_name() in TvKeys:
-                    # 已订阅
-                    fav = 1
-                elif is_media_downloaded(MetaInfo(title=title).get_name(), year):
-                    # 已下载
-                    fav = 2
-                else:
-                    # 未订阅、未下载
-                    fav = 0
-            image = res.get('poster_path')
-            if RecommendType in ['hm', 'nm', 'ht', 'nt']:
-                image = "https://image.tmdb.org/t/p/original/%s" % image if image else ""
-            else:
-                # 替换图片分辨率
-                image = image.replace("s_ratio_poster", "m_ratio_poster")
-            vote = res.get('vote_average')
-            overview = res.get('overview')
-            item = {'id': rid, 'title': title, 'fav': fav, 'date': date, 'vote': vote,
-                    'image': image, 'overview': overview, 'year': year}
-            Items.append(item)
-
+        CurrentPage = request.args.get("page") or 1
+        Items = WebAction().get_recommend({"type": RecommendType, "page": CurrentPage}).get("Items")
         return render_template("recommend.html",
                                Items=Items,
                                RecommendType=RecommendType,
-                               CurrentPage=CurrentPage,
-                               PageRange=PageRange)
+                               CurrentPage=CurrentPage)
 
     # 正在下载页面
     @App.route('/downloading', methods=['POST', 'GET'])

@@ -39,6 +39,7 @@ from utils.sqls import *
 from utils.sysmsg_helper import MessageCenter
 from utils.thread_helper import ThreadHelper
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
+from web.backend.douban_hot import DoubanHot
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 from web.backend.subscribe import add_rss_subscribe
 
@@ -99,7 +100,8 @@ class WebAction:
             "del_filterrule": self.__del_filterrule,
             "filterrule_detail": self.__filterrule_detail,
             "get_site_activity": self.__get_site_activity,
-            "get_site_history": self.__get_site_history
+            "get_site_history": self.__get_site_history,
+            "get_recommend": self.get_recommend
         }
 
     def action(self, cmd, data):
@@ -1522,6 +1524,103 @@ class WebAction:
             ruleinfo['include'] = "\n".join(ruleinfo.get("include"))
             ruleinfo['exclude'] = "\n".join(ruleinfo.get("exclude"))
         return {"code": 0, "info": ruleinfo}
+
+    @staticmethod
+    def get_recommend(data):
+        RecommendType = data.get("type")
+        CurrentPage = data.get("page")
+        if not CurrentPage:
+            CurrentPage = 1
+        else:
+            CurrentPage = int(CurrentPage)
+        if RecommendType == "hm":
+            # TMDB热门电影
+            res_list = Media().get_tmdb_hot_movies(CurrentPage)
+        elif RecommendType == "ht":
+            # TMDB热门电视剧
+            res_list = Media().get_tmdb_hot_tvs(CurrentPage)
+        elif RecommendType == "nm":
+            # TMDB最新电影
+            res_list = Media().get_tmdb_new_movies(CurrentPage)
+        elif RecommendType == "nt":
+            # TMDB最新电视剧
+            res_list = Media().get_tmdb_new_tvs(CurrentPage)
+        elif RecommendType == "dbom":
+            # 豆瓣正在上映
+            res_list = DoubanHot().get_douban_online_movie(CurrentPage)
+        elif RecommendType == "dbhm":
+            # 豆瓣热门电影
+            res_list = DoubanHot().get_douban_hot_movie(CurrentPage)
+        elif RecommendType == "dbht":
+            # 豆瓣热门电视剧
+            res_list = DoubanHot().get_douban_hot_tv(CurrentPage)
+        elif RecommendType == "dbdh":
+            # 豆瓣热门动画
+            res_list = DoubanHot().get_douban_hot_anime(CurrentPage)
+        elif RecommendType == "dbnm":
+            # 豆瓣最新电影
+            res_list = DoubanHot().get_douban_new_movie(CurrentPage)
+        elif RecommendType == "dbzy":
+            # 豆瓣最新电视剧
+            res_list = DoubanHot().get_douban_hot_show(CurrentPage)
+        else:
+            res_list = []
+
+        Items = []
+        TvKeys = ["%s" % key[0] for key in get_rss_tvs()]
+        MovieKeys = ["%s" % key[0] for key in get_rss_movies()]
+        for res in res_list:
+            rid = res.get('id')
+            if RecommendType in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm']:
+                title = res.get('title')
+                date = res.get('release_date')
+                if date:
+                    year = date[0:4]
+                else:
+                    year = ''
+                if title in MovieKeys:
+                    # 已订阅
+                    fav = 1
+                elif is_media_downloaded(title, year):
+                    # 已下载
+                    fav = 2
+                else:
+                    # 未订阅、未下载
+                    fav = 0
+            else:
+                title = res.get('name')
+                date = res.get('first_air_date')
+                if date:
+                    year = date[0:4]
+                else:
+                    year = ''
+                if MetaInfo(title=title).get_name() in TvKeys:
+                    # 已订阅
+                    fav = 1
+                elif is_media_downloaded(MetaInfo(title=title).get_name(), year):
+                    # 已下载
+                    fav = 2
+                else:
+                    # 未订阅、未下载
+                    fav = 0
+            image = res.get('poster_path')
+            if RecommendType in ['hm', 'nm', 'ht', 'nt']:
+                image = "https://image.tmdb.org/t/p/original/%s" % image if image else ""
+            else:
+                # 替换图片分辨率
+                image = image.replace("s_ratio_poster", "m_ratio_poster")
+            vote = res.get('vote_average')
+            overview = res.get('overview')
+            item = {'id': rid,
+                    'title': title,
+                    'fav': fav,
+                    'date': date,
+                    'vote': vote,
+                    'image': image,
+                    'overview': overview,
+                    'year': year}
+            Items.append(item)
+        return {"code": 0, "Items": Items}
 
     @staticmethod
     def parse_sites_string(notes):

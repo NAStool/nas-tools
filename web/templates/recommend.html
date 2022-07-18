@@ -11,7 +11,7 @@
 <!-- 业务页面代码 -->
 <div class="page-body">
   <div class="container-xl">
-    <div class="row row-cards">
+    <div class="row row-cards" id="recommend_content">
       {% for item in Items %}
       <div class="col-6 col-md-3 col-xl-2">
         <div class="card card-sm card-link-pop rounded-3">
@@ -40,28 +40,11 @@
       </div>
       {% endfor %}
     </div>
-    {% if PageRange%}
-    <div class="d-flex mt-3">
-      <ul class="pagination ms-auto">
-        <li class="page-item {% if CurrentPage==1 %} disabled {% endif %}">
-          <a class="page-link" href="javascript:go_pre_page('{{ RecommendType }}', {{ CurrentPage }})" tabindex="-1" aria-disabled="true">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="15 6 9 12 15 18" /></svg>
-          </a>
-        </li>
-        {% for page in PageRange %}
-        <li class="page-item {% if page==CurrentPage %} active {% endif %}"><a class="page-link" href="javascript:navmenu('recommend?t={{ RecommendType }}&page={{ page }}')">{{ page }}</a></li>
-        {% endfor %}
-        <li class="page-item">
-          <a class="page-link" href="javascript:go_next_page('{{ RecommendType }}', {{ CurrentPage }})">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 6 15 12 9 18" /></svg>
-          </a>
-        </li>
-      </ul>
-    </div>
-    {% endif %}
   </div>
 </div>
 <script type="text/javascript">
+  // 当前页码
+  var CurrentPage = {{ CurrentPage }};
   // 标题
   var title_type = '{{ RecommendType }}';
   if(title_type == "hm"){
@@ -93,14 +76,6 @@
   }
   if(title_type == "dbzy"){
     $("#recommend_title").text("豆瓣热门综艺");
-  }
-  // 上一页
-  function go_pre_page(type, page){
-    navmenu("recommend?t=" + type + "&page=" + (page - 1));
-  }
-  // 下一页
-  function go_next_page(type, page){
-    navmenu("recommend?t=" + type + "&page=" + (page + 1));
   }
 
   // 添加订阅关键字
@@ -155,5 +130,74 @@
       remove_rss_key(type, name, year, id);
     });
   }
+
+  //状态标记
+  var loading = false;
+  function loading_data() {
+    if(loading){
+      return;
+    }
+    loading = true;
+    show_wait_process();
+    CurrentPage ++;
+    if(CurrentPage > 10){
+      return;
+    }
+    ajax_post("get_recommend", {"type": title_type, "page": CurrentPage}, function(ret){
+      if(ret.Items.length > 0){
+        loading = false;
+      }
+      hide_wait_process();
+      // 插入HTML
+      for(var i=0; i<ret.Items.length; i++){
+        item = ret.Items[i];
+        var html = '';
+        html += '<div class="col-6 col-md-3 col-xl-2"><div class="card card-sm card-link-pop rounded-3">';
+        if(item.vote){
+          html += '<div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">' + item.vote + '</div>'
+        }
+        if(['hm','nm','ht','nt'].includes(title_type)){
+          html += '<a href=\'javascript:show_mediainfo_modal("'+title_type+'", "'+item.title+'", "'+item.year+'", "'+item.id+'", "recommend?t='+title_type+'")\'>';
+        }else{
+          html += '<a href=\'javascript:show_mediainfo_modal("'+title_type+'", "'+item.title+'", "'+item.year+'", "DB:'+item.id+'", "recommend?t='+title_type+'")\'>';
+        }
+        if(item.image){
+          html += '<img src="'+item.image+'" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
+        }else{
+          html += '<img src="../static/img/no-image.png" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
+        }
+        html += '</a>';
+        html += '<div class="card-body"><div class="d-flex align-items-center">';
+        html += '<div><strong>'+item.title+'</strong></div>';
+        html += '<div class="ms-auto">';
+        if(item.fav == 0){
+          html += '<a id="recommend_link_'+item.id+'" href=\'javascript:show_recommend_add_modal("'+item.id+'","'+title_type+'","'+item.title+'","'+item.year+'")\' class="text-muted" title="加入/取消订阅">';
+          html += '<svg id="recommend_svg_'+item.id+'" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path></svg>';
+        }else if(item.fav == 1){
+          html += '<a id="recommend_link_'+item.id+'" href=\'javascript:show_recommend_del_modal("'+item.id+'","'+title_type+'","'+item.title+'","'+item.year+'")\' class="text-muted" title="加入/取消订阅">';
+          html += '<svg id="recommend_svg_'+item.id+'" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart icon-filled text-red" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path></svg>';
+        }else{
+          html += '<a id="recommend_link_'+item.id+'" href=\'javascript:void(0)\' class="text-muted" title="已下载">';
+          html += '<svg id="recommend_svg_'+item.id+'" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart icon-filled text-green" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path></svg>';
+        }        
+        html += '</a>';
+        html += '</div>';
+        html += '</div></div>';
+        html += '</div></div>';
+        $("#recommend_content").append(html);
+      }
+    });
+  }
+
+  $(document).ready(function () {
+    $(window).scroll(function () {
+      var $body = $("body");
+      /*判断窗体高度与竖向滚动位移大小相加 是否 超过内容页高度*/
+      if (($(window).height() + $(window).scrollTop()) >= $body.height()) {
+        loading_data();
+      }
+    });
+  });
+
 
 </script>

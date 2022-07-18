@@ -5,8 +5,8 @@ from utils.functions import singleton
 @singleton
 class DoubanHot:
     doubanapi = None
-    __movie_num = 50
-    __tv_num = 50
+    __movie_num = 30
+    __tv_num = 30
 
     def __init__(self):
         self.doubanapi = DoubanApi()
@@ -14,58 +14,58 @@ class DoubanHot:
     def init_config(self):
         pass
 
-    def get_douban_online_movie(self):
+    def get_douban_online_movie(self, page=1):
         if not self.doubanapi:
             return []
-        infos = self.doubanapi.movie_showing(count=self.__movie_num)
+        infos = self.doubanapi.movie_showing(start=(page - 1) * self.__movie_num, count=self.__movie_num)
         if not infos:
             return []
         return self.__refresh_movie(infos.get("subject_collection_items"))
 
-    def get_douban_hot_movie(self):
+    def get_douban_hot_movie(self, page=1):
         if not self.doubanapi:
             return []
-        infos = self.doubanapi.movie_hot_gaia(count=self.__movie_num)
+        infos = self.doubanapi.movie_hot_gaia(start=(page - 1) * self.__movie_num, count=self.__movie_num)
         if not infos:
             return []
         return self.__refresh_movie(infos.get("subject_collection_items"))
     
-    def get_douban_hot_anime(self):
+    def get_douban_hot_anime(self, page=1):
         if not self.doubanapi:
             return []
-        infos = self.doubanapi.tv_animation(count=self.__tv_num)
+        infos = self.doubanapi.tv_animation(start=(page - 1) * self.__tv_num, count=self.__tv_num)
         if not infos:
             return []
         return self.__refresh_tv(infos.get("subject_collection_items"))
     
-    def get_douban_hot_tv(self):
+    def get_douban_hot_tv(self, page=1):
         if not self.doubanapi:
             return []
-        infos = self.doubanapi.tv_hot(count=self.__tv_num)
+        infos = self.doubanapi.tv_hot(start=(page - 1) * self.__tv_num, count=self.__tv_num)
         if not infos:
             return []
         return self.__refresh_tv(infos.get("subject_collection_items"))
 
-    def get_douban_new_movie(self):
+    def get_douban_new_movie(self, page=1):
         if not self.doubanapi:
             return []
-        infos = self.doubanapi.movie_soon(count=self.__movie_num)
+        infos = self.doubanapi.movie_soon(start=(page - 1) * self.__movie_num, count=self.__movie_num)
         if not infos:
             return []
         return self.__refresh_movie(infos.get("subject_collection_items"))
 
-    def get_douban_hot_show(self):
+    def get_douban_hot_show(self, page=1):
         if not self.doubanapi:
             return []
-        infos = self.doubanapi.show_hot(count=self.__tv_num)
+        infos = self.doubanapi.show_hot(start=(page - 1) * self.__tv_num, count=self.__tv_num)
         if not infos:
             return []
         return self.__refresh_tv(infos.get("subject_collection_items"))
 
-    def refresh_online_movie(self):
+    def refresh_online_movie(self, page=1):
         if not self.doubanapi:
             return []
-        infos = self.doubanapi.movie_showing(count=self.__movie_num)
+        infos = self.doubanapi.movie_showing(start=(page - 1) * self.__movie_num, count=self.__movie_num)
         if not infos:
             return []
         return self.__refresh_movie(infos.get("subject_collection_items"))
