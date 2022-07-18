@@ -25,7 +25,7 @@ class IptSiteUserInfo(ISiteUserInfo):
             self.download = num_filesize(str(tmps[0].xpath('span/text()')[2]).strip())
             self.seeding = int(tmps[0].xpath('a')[2].xpath('text()')[0].strip())
             self.leeching = int(tmps[0].xpath('a')[2].xpath('text()')[1].strip())
-            self.ratio = float(str(tmps[0].xpath('span/text()')[0]).strip())
+            self.ratio = float(str(tmps[0].xpath('span/text()')[0]).strip().replace('-', '0'))
             self.bonus = float(tmps[0].xpath('a')[3].xpath('text()')[0])
 
         if not self.username:

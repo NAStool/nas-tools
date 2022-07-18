@@ -75,11 +75,11 @@ class RequestUtils:
     def post_res(self, url, params=None, allow_redirects=True):
         try:
             if self.__session:
-                return self.__session.post(url, params=params, verify=False, headers=self.__headers,
+                return self.__session.post(url, data=params, verify=False, headers=self.__headers,
                                            proxies=self.__proxies, cookies=self.__cookies,
                                            allow_redirects=allow_redirects)
             else:
-                return requests.post(url, params=params, verify=False, headers=self.__headers,
+                return requests.post(url, data=params, verify=False, headers=self.__headers,
                                      proxies=self.__proxies, cookies=self.__cookies,
                                      allow_redirects=allow_redirects)
         except requests.exceptions.RequestException:
