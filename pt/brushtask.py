@@ -265,7 +265,7 @@ class BrushTask(object):
                                                 seeding_time=seeding_time,
                                                 ratio=ratio,
                                                 uploaded=uploaded):
-                        log.info("【BRUSH】%s 做种达到删种条件，删除下载任务..." % torrent.get('name'))
+                        log.info("【BRUSH】%s 做种达到删种条件，删除下载任务..." % torrent.name)
                         if torrent_id not in delete_ids:
                             delete_ids.append(torrent_id)
                             update_torrents.append((uploaded, taskid, torrent_id))
@@ -282,7 +282,7 @@ class BrushTask(object):
                     total_uploaded += uploaded
                     if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"),
                                                 dltime=dltime):
-                        log.info("【BRUSH】%s 下载耗时达到删种条件，删除下载任务..." % torrent.get('name'))
+                        log.info("【BRUSH】%s 下载耗时达到删种条件，删除下载任务..." % torrent.name)
                         if torrent_id not in delete_ids:
                             delete_ids.append(torrent_id)
                             update_torrents.append((uploaded, taskid, torrent_id))
