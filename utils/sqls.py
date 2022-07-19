@@ -1220,7 +1220,7 @@ def is_brushtask_torrent_exists(brush_id, title, enclosure):
 def update_brushtask_torrent_state(ids: list):
     if not ids:
         return
-    sql = "UPDATE SITE_BRUSH_TORRENTS SET TORRENT_SIZE = ?, DOWNLOAD_ID = '0' WHERE ID = ?"
+    sql = "UPDATE SITE_BRUSH_TORRENTS SET TORRENT_SIZE = ?, DOWNLOAD_ID = '0' WHERE TASK_ID = ? AND DOWNLOAD_ID = ?"
     return update_by_sql_batch(sql, ids)
 
 

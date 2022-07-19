@@ -136,7 +136,7 @@ class Rss:
 
                         log.debug("【RSS】开始处理：%s" % torrent_name)
                         # 确定标题中是否符合站点过滤规则，并返回是否匹配及优先级
-                        meta_info = MetaInfo(title=torrent_name, subtitle=description)
+                        meta_info = MetaInfo(title=torrent_name)
                         match_flag, res_order, _ = self.filterrule.check_rules(meta_info=meta_info,
                                                                                torrent_size=size,
                                                                                rolegroup=rss_rule_group)
@@ -244,7 +244,8 @@ class Rss:
                 log.info("【RSS】%s 处理结束，匹配到 %s 个有效资源" % (rss_job, res_num))
             log.info("【RSS】所有RSS处理结束，共 %s 个有效资源" % len(rss_download_torrents))
             # 去重择优后开始添加下载
-            download_items, left_medias = self.downloader.check_and_add_pt(SearchType.RSS, rss_download_torrents,
+            download_items, left_medias = self.downloader.check_and_add_pt(SearchType.RSS,
+                                                                           rss_download_torrents,
                                                                            rss_no_exists)
             # 批量删除订阅
             if download_items:
@@ -259,7 +260,8 @@ class Rss:
                             # 删除电视剧订阅
                             if item.rssid:
                                 log.info(
-                                    "【RSS】电视剧 %s %s 订阅完成，删除订阅..." % (item.get_title_string(), item.get_season_string()))
+                                    "【RSS】电视剧 %s %s 订阅完成，删除订阅..." % (item.get_title_string(),
+                                                                     item.get_season_string()))
                                 delete_rss_tv(rssid=item.rssid)
                         else:
                             # 更新电视剧缺失剧集

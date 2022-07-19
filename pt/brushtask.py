@@ -228,7 +228,7 @@ class BrushTask(object):
                         log.info("【BRUSH】%s 做种达到删种条件，删除下载任务..." % torrent.get('name'))
                         if torrent_id not in delete_ids:
                             delete_ids.append(torrent_id)
-                            update_torrents.append((uploaded, torrent_id))
+                            update_torrents.append((uploaded, taskid, torrent_id))
                 # 检查下载中状态的
                 torrents = downloader.get_torrents(ids=torrent_ids, status=["downloading"])
                 for torrent in torrents:
@@ -243,7 +243,7 @@ class BrushTask(object):
                         log.info("【BRUSH】%s 下载耗时达到删种条件，删除下载任务..." % torrent.get('name'))
                         if torrent_id not in delete_ids:
                             delete_ids.append(torrent_id)
-                            update_torrents.append((uploaded, torrent_id))
+                            update_torrents.append((uploaded, taskid, torrent_id))
             else:
                 # 检查完成状态
                 downloader = Transmission(user_config=downloader_cfg)
@@ -268,7 +268,7 @@ class BrushTask(object):
                         log.info("【BRUSH】%s 做种达到删种条件，删除下载任务..." % torrent.get('name'))
                         if torrent_id not in delete_ids:
                             delete_ids.append(torrent_id)
-                            update_torrents.append((uploaded, torrent_id))
+                            update_torrents.append((uploaded, taskid, torrent_id))
                 # 检查下载状态
                 torrents = downloader.get_torrents(ids=torrent_ids,
                                                    status=["downloading", "download_pending", "stopped"])
@@ -285,7 +285,7 @@ class BrushTask(object):
                         log.info("【BRUSH】%s 下载耗时达到删种条件，删除下载任务..." % torrent.get('name'))
                         if torrent_id not in delete_ids:
                             delete_ids.append(torrent_id)
-                            update_torrents.append((uploaded, torrent_id))
+                            update_torrents.append((uploaded, taskid, torrent_id))
             # 更新上传量和删除种子数
             add_brushtask_upload_count(brush_id=taskid, size=total_uploaded, count=len(delete_ids))
             # 更新种子状态
