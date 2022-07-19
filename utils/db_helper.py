@@ -406,7 +406,8 @@ def update_by_sql(sql, data=None):
     :param data: 数据，需为列表或者元祖
     :return: 执行状态
     """
-    return DBHelper().excute(sql, data)
+    with lock:
+        return DBHelper().excute(sql, data)
 
 
 def update_by_sql_batch(sql, data_list):
@@ -416,4 +417,5 @@ def update_by_sql_batch(sql, data_list):
     :param data_list: 数据列表
     :return: 执行状态
     """
-    return DBHelper().excute_many(sql, data_list)
+    with lock:
+        return DBHelper().excute_many(sql, data_list)
