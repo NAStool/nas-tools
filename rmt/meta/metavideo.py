@@ -185,8 +185,9 @@ class MetaVideo(MetaBase):
             return
         re_res = re.search(r"%s" % self._part_re, token, re.IGNORECASE)
         nextv = self.tokens.cur()
-        if re_res and\
-            nextv.isdigit() \
+        if re_res \
+                and nextv \
+                and nextv.isdigit() \
                 and (len(nextv) == 1 or len(nextv) == 2 and nextv.startswith('0')):
             self.tokens.get_next()
             if not self.part:

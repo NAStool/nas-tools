@@ -27,7 +27,7 @@ class Tokens:
             return token
 
     def get_next(self):
-        token = self.cur();
+        token = self.cur()
         if token:
             self.__index = self.__index + 1
         return token
