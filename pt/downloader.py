@@ -422,71 +422,75 @@ class Downloader:
                             meta_info.type.value, meta_info.get_title_string(), len(total_seasons)))
                     message_list.append(
                         "%s %s 共有 %s 季" % (meta_info.type.value, meta_info.get_title_string(), len(total_seasons)))
-                # 查询缺少多少集
-                for season in total_seasons:
-                    season_number = season.get("season_number")
-                    episode_count = season.get("episode_count")
-                    if not season_number or not episode_count:
-                        continue
-                    # 检查Emby
-                    no_exists_episodes = self.mediaserver.get_no_exists_episodes(meta_info,
-                                                                                 season_number,
-                                                                                 episode_count)
-                    # 没有配置Emby
-                    if no_exists_episodes is None:
-                        no_exists_episodes = self.filetransfer.get_no_exists_medias(meta_info,
-                                                                                    season_number,
-                                                                                    episode_count)
-                    if no_exists_episodes:
-                        # 排序
-                        no_exists_episodes.sort()
-                        # 缺失集初始化
-                        if not no_exists.get(meta_info.get_title_string()):
-                            no_exists[meta_info.get_title_string()] = []
-                        # 缺失集提示文本
-                        exists_tvs_str = "、".join(["%s" % tv for tv in no_exists_episodes])
-                        # 存入总缺失集
-                        if len(no_exists_episodes) >= episode_count:
-                            no_item = {"season": season_number, "episodes": [], "total_episodes": episode_count}
-                            log.info(
-                                "【DOWNLOADER】%s 第%s季 缺失 %s 集" % (
-                                    meta_info.get_title_string(), season_number, episode_count))
-                            if search_season:
-                                message_list.append("%s 第%s季 缺失 %s 集" % (meta_info.title, season_number, episode_count))
+                # 没有得到总季数时，返回None
+                if not total_seasons:
+                    return_flag = None
+                else:
+                    # 查询缺少多少集
+                    for season in total_seasons:
+                        season_number = season.get("season_number")
+                        episode_count = season.get("episode_count")
+                        if not season_number or not episode_count:
+                            continue
+                        # 检查Emby
+                        no_exists_episodes = self.mediaserver.get_no_exists_episodes(meta_info,
+                                                                                     season_number,
+                                                                                     episode_count)
+                        # 没有配置Emby
+                        if no_exists_episodes is None:
+                            no_exists_episodes = self.filetransfer.get_no_exists_medias(meta_info,
+                                                                                        season_number,
+                                                                                        episode_count)
+                        if no_exists_episodes:
+                            # 排序
+                            no_exists_episodes.sort()
+                            # 缺失集初始化
+                            if not no_exists.get(meta_info.get_title_string()):
+                                no_exists[meta_info.get_title_string()] = []
+                            # 缺失集提示文本
+                            exists_tvs_str = "、".join(["%s" % tv for tv in no_exists_episodes])
+                            # 存入总缺失集
+                            if len(no_exists_episodes) >= episode_count:
+                                no_item = {"season": season_number, "episodes": [], "total_episodes": episode_count}
+                                log.info(
+                                    "【DOWNLOADER】%s 第%s季 缺失 %s 集" % (
+                                        meta_info.get_title_string(), season_number, episode_count))
+                                if search_season:
+                                    message_list.append("%s 第%s季 缺失 %s 集" % (meta_info.title, season_number, episode_count))
+                                else:
+                                    message_list.append("第%s季 缺失 %s 集" % (season_number, episode_count))
                             else:
-                                message_list.append("第%s季 缺失 %s 集" % (season_number, episode_count))
+                                no_item = {"season": season_number, "episodes": no_exists_episodes,
+                                           "total_episodes": episode_count}
+                                log.info(
+                                    "【DOWNLOADER】%s 第%s季 缺失集：%s" % (
+                                        meta_info.get_title_string(), season_number, exists_tvs_str))
+                                if search_season:
+                                    message_list.append("%s 第%s季 缺失集：%s" % (meta_info.title, season_number, exists_tvs_str))
+                                else:
+                                    message_list.append("第%s季 缺失集：%s" % (season_number, exists_tvs_str))
+                            if no_item not in no_exists.get(meta_info.get_title_string()):
+                                no_exists[meta_info.get_title_string()].append(no_item)
+                            # 输入检查集
+                            if search_episode:
+                                # 有集数，肯定只有一季
+                                if not set(search_episode).intersection(set(no_exists_episodes)):
+                                    # 搜索的跟不存在的没有交集，说明都存在了
+                                    log.info("【DOWNLOADER】%s %s 在媒体库中已经存在" % (
+                                        meta_info.get_title_string(), meta_info.get_season_episode_string()))
+                                    message_list.append("%s %s 在媒体库中已经存在" % (
+                                        meta_info.get_title_string(), meta_info.get_season_episode_string()))
+                                    return_flag = True
+                                    break
                         else:
-                            no_item = {"season": season_number, "episodes": no_exists_episodes,
-                                       "total_episodes": episode_count}
-                            log.info(
-                                "【DOWNLOADER】%s 第%s季 缺失集：%s" % (
-                                    meta_info.get_title_string(), season_number, exists_tvs_str))
+                            log.info("【DOWNLOADER】%s 第%s季 共%s集 已全部存在" % (
+                                meta_info.get_title_string(), season_number, episode_count))
                             if search_season:
-                                message_list.append("%s 第%s季 缺失集：%s" % (meta_info.title, season_number, exists_tvs_str))
+                                message_list.append(
+                                    "%s 第%s季 共%s集 已全部存在" % (meta_info.title, season_number, episode_count))
                             else:
-                                message_list.append("第%s季 缺失集：%s" % (season_number, exists_tvs_str))
-                        if no_item not in no_exists.get(meta_info.get_title_string()):
-                            no_exists[meta_info.get_title_string()].append(no_item)
-                        # 输入检查集
-                        if search_episode:
-                            # 有集数，肯定只有一季
-                            if not set(search_episode).intersection(set(no_exists_episodes)):
-                                # 搜索的跟不存在的没有交集，说明都存在了
-                                log.info("【DOWNLOADER】%s %s 在媒体库中已经存在" % (
-                                    meta_info.get_title_string(), meta_info.get_season_episode_string()))
-                                message_list.append("%s %s 在媒体库中已经存在" % (
-                                    meta_info.get_title_string(), meta_info.get_season_episode_string()))
-                                return_flag = True
-                                break
-                    else:
-                        log.info("【DOWNLOADER】%s 第%s季 共%s集 已全部存在" % (
-                            meta_info.get_title_string(), season_number, episode_count))
-                        if search_season:
-                            message_list.append(
-                                "%s 第%s季 共%s集 已全部存在" % (meta_info.title, season_number, episode_count))
-                        else:
-                            message_list.append(
-                                "第%s季 共%s集 已全部存在" % (season_number, episode_count))
+                                message_list.append(
+                                    "第%s季 共%s集 已全部存在" % (season_number, episode_count))
             else:
                 log.info("【DOWNLOADER】%s 无法查询到媒体详细信息" % meta_info.get_title_string())
                 message_list.append("%s 无法查询到媒体详细信息" % meta_info.get_title_string())
