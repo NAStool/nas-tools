@@ -126,7 +126,8 @@
                                         {% if TmdbCache[1].poster_path %}
                                         <span class="d-none d-md-block" style="width: 60px">
                                         <img class="rounded"
-                                            src="https://image.tmdb.org/t/p/w500{{ TmdbCache[1].poster_path }}"/>
+                                            src="https://image.tmdb.org/t/p/w500{{ TmdbCache[1].poster_path }}"
+                                            onerror="this.src='../static/img/no-image.png'"/>
                                         </span>
                                         {% endif %}
                                     </td>

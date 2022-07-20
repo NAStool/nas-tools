@@ -19,7 +19,7 @@
           <div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">{{ item[5] }}</div>
           {% endif %}
           <a href='javascript:show_mediainfo_modal("{% if item[3] == "电影" %}MOV{% else %}TV{% endif %}", "{{ item[1] }}", "{{ item[2] }}", "{{ item[4] }}")' class="d-block">
-            <img src="{{ item[6] or '../static/img/no-image.png' }}" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important">
+            <img src="{{ item[6] or '../static/img/no-image.png' }}" onerror="this.src='../static/img/no-image.png'" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important">
           </a>
           <div class="card-body">
             <div class="d-flex align-items-center">
@@ -83,7 +83,7 @@
           html += '<a href=\'javascript:show_mediainfo_modal("TV", "'+item[1]+'", "'+item[2]+'", "'+item[4]+'")\' class="d-block">';
         }
         if(item[6]){
-          html += '<img src="'+item[6]+'" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
+          html += '<img src="'+item[6]+'" onerror="this.src=\'../static/img/no-image.png\'" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
         }else{
           html += '<img src="../static/img/no-image.png" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
         }
