@@ -1,3 +1,4 @@
+import json
 import traceback
 from datetime import datetime
 from multiprocessing.dummy import Pool as ThreadPool
@@ -10,7 +11,8 @@ from pt.siteuserinfo.site_user_info_factory import SiteUserInfoFactory
 from utils.functions import singleton
 from utils.http_utils import RequestUtils
 from utils.sqls import get_config_site, insert_site_statistics_history, update_site_user_statistics, \
-    get_site_statistics_recent_sites, get_site_user_statistics, get_site_statistics_history
+    get_site_statistics_recent_sites, get_site_user_statistics, get_site_statistics_history, get_site_seeding_info, \
+    update_site_seed_info
 
 lock = Lock()
 
@@ -91,6 +93,8 @@ class Sites:
                 insert_site_statistics_history(site_user_infos)
                 # 实时用户数据
                 update_site_user_statistics(site_user_infos)
+                # 实时做种信息
+                update_site_seed_info(site_user_infos)
 
         # 更新时间
         if refresh_all:
@@ -270,3 +274,18 @@ class Sites:
             site_activities["seeding_size"].append([timestamp, sql_site_activity[5]])
 
         return site_activities
+
+    @staticmethod
+    def get_pt_site_seeding_info(site):
+        """
+        查询站点 做种分布信息
+        :param site: 站点名称
+        :return: seeding_info:[uploader_num, seeding_size]
+        """
+        site_seeding_info = {"seeding_info": []}
+        seeding_info = get_site_seeding_info(site=site)
+        if not seeding_info:
+            return site_seeding_info
+
+        site_seeding_info["seeding_info"] = json.loads(seeding_info[0][0])
+        return site_seeding_info

@@ -113,28 +113,42 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
             return None
 
         size_col = 3
+        seeders_col = 4
         # 搜索size列
         if html.xpath('//tr[position()=1]/td[img[@class="size"] and img[@alt="size"]]'):
             size_col = len(html.xpath('//tr[position()=1]/td[img[@class="size"] '
                                       'and img[@alt="size"]]/preceding-sibling::td')) + 1
+        # 搜索seeders列
+        if html.xpath('//tr[position()=1]/td[img[@class="seeders"] and img[@alt="seeders"]]'):
+            seeders_col = len(html.xpath('//tr[position()=1]/td[img[@class="seeders"] '
+                                         'and img[@alt="seeders"]]/preceding-sibling::td')) + 1
 
         page_seeding = 0
         page_seeding_size = 0
-        seeding_torrents = html.xpath(f'//tr[position()>1]/td[{size_col}]')
-        if seeding_torrents:
-            page_seeding = len(seeding_torrents)
+        page_seeding_info = []
+        seeding_sizes = html.xpath(f'//tr[position()>1]/td[{size_col}]')
+        seeding_seeders = html.xpath(f'//tr[position()>1]/td[{seeders_col}]/text()')
+        if seeding_sizes and seeding_seeders:
+            page_seeding = len(seeding_sizes)
 
-            for per_size in seeding_torrents:
-                page_seeding_size += num_filesize(per_size.xpath("string(.)").strip())
+            for i in range(0, len(seeding_sizes)):
+                size = num_filesize(seeding_sizes[i].xpath("string(.)").strip())
+                seeders = int(seeding_seeders[i])
+
+                page_seeding_size += size
+                page_seeding_info.append([seeders, size])
 
         if multi_page:
             self.seeding += page_seeding
             self.seeding_size += page_seeding_size
+            self.seeding_info.extend(page_seeding_info)
         else:
             if not self.seeding:
                 self.seeding = page_seeding
             if not self.seeding_size:
                 self.seeding_size = page_seeding_size
+            if not self.seeding_info:
+                self.seeding_info = page_seeding_info
 
         # 是否存在下页数据
         next_page = None
@@ -165,15 +179,24 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         # seeding 页面获取不到的话，此处再获取一次
         seeding_sizes = html.xpath('//tr/td[text()="当前上传"]/following-sibling::td[1]//'
                                    'table[tr[1][td[4 and text()="尺寸"]]]//tr[position()>1]/td[4]')
+        seeding_seeders = html.xpath('//tr/td[text()="当前上传"]/following-sibling::td[1]//'
+                                     'table[tr[1][td[5 and text()="做种者"]]]//tr[position()>1]/td[5]/text()')
         tmp_seeding = len(seeding_sizes)
         tmp_seeding_size = 0
-        for per_size in seeding_sizes:
-            tmp_seeding_size += num_filesize(per_size.xpath("string(.)").strip())
+        tmp_seeding_info = []
+        for i in range(0, len(seeding_sizes)):
+            size = num_filesize(seeding_sizes[i].xpath("string(.)").strip())
+            seeders = int(seeding_seeders[i])
+
+            tmp_seeding_size += size
+            tmp_seeding_info.append([seeders, size])
 
         if not self.seeding_size:
             self.seeding_size = tmp_seeding_size
         if not self.seeding:
             self.seeding = tmp_seeding
+        if not self.seeding_info:
+            self.seeding_info = tmp_seeding_info
 
         seeding_sizes = html.xpath('//tr/td[text()="做种统计"]/following-sibling::td[1]//text()')
         if seeding_sizes:

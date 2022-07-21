@@ -818,6 +818,22 @@ def update_site_user_statistics(site_user_infos: list):
     return update_by_sql_batch(sql, data_list)
 
 
+# 更新站点做种数据
+def update_site_seed_info(site_user_infos: list):
+    if not site_user_infos:
+        return
+    update_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+    sql = "INSERT OR REPLACE INTO SITE_USER_SEEDING_INFO(SITE, UPDATE_AT," \
+          " SEEDING_INFO," \
+          " URL) VALUES (?, ?, ?, ?)"
+
+    data_list = []
+    for site_user_info in site_user_infos:
+        data_list.append((str_sql(site_user_info.site_name), update_at, site_user_info.seeding_info,
+                          site_user_info.site_url))
+
+    return update_by_sql_batch(sql, data_list)
+
 # 判断站点用户数据是否存在
 def is_site_user_statistics_exists(url):
     if not url:
@@ -899,6 +915,13 @@ def get_site_statistics_history(site, days=30):
     sql = "SELECT DATE, UPLOAD, DOWNLOAD, BONUS, SEEDING, SEEDING_SIZE " \
           "FROM SITE_STATISTICS_HISTORY WHERE SITE = ? ORDER BY DATE ASC LIMIT ?"
     return select_by_sql(sql, (site, days,))
+
+
+# 查询站点做种信息
+def get_site_seeding_info(site):
+    sql = "SELECT SEEDING_INFO " \
+          "FROM SITE_USER_SEEDING_INFO WHERE SITE = ? LIMIT 1"
+    return select_by_sql(sql, (site,))
 
 
 # 查询近期上传下载量
@@ -1005,7 +1028,7 @@ def get_download_history(date=None, hid=None, num=30, page=1):
         sql = "SELECT ID,TITLE,YEAR,TYPE,TMDBID,VOTE,POSTER,OVERVIEW,TORRENT,ENCLOSURE,DESC,DATE,SITE FROM DOWNLOAD_HISTORY WHERE DATE > ? ORDER BY DATE DESC"
         return select_by_sql(sql, (date,))
     else:
-        offset = (int(page)-1) * int(num)
+        offset = (int(page) - 1) * int(num)
         sql = "SELECT ID,TITLE,YEAR,TYPE,TMDBID,VOTE,POSTER,OVERVIEW,TORRENT,ENCLOSURE,DESC,DATE,SITE FROM DOWNLOAD_HISTORY ORDER BY DATE DESC LIMIT ? OFFSET ?"
         return select_by_sql(sql, (num, offset))
 
