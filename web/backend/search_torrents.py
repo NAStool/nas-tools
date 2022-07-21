@@ -65,12 +65,13 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
             search_season = [1]
         # 如果原标题是英文：用原标题去检索，否则使用英文+原标题搜索去匹配，优化小语种资源
         key_word = media_info.title
-        if media_info.original_language != "en":
-            en_info = Media().get_tmdb_info(mtype=media_info.type, tmdbid=media_info.tmdb_id, language="en-US")
-            if en_info:
-                key_word = en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get("name")
-        else:
-            key_word = media_info.original_title
+        if Config().get_config("laboratory").get("search_en_title"):
+            if media_info.original_language != "en":
+                en_info = Media().get_tmdb_info(mtype=media_info.type, tmdbid=media_info.tmdb_id, language="en-US")
+                if en_info:
+                    key_word = en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get("name")
+            else:
+                key_word = media_info.original_title
         match_words = [media_info.title, key_word] if key_word != media_info.title else [media_info.title]
 
         filter_args = {"season": search_season,
