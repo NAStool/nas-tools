@@ -1,38 +1,52 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=0"/>
-    <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-    <title>NASTool - 资源归集、整理自动化工具</title>
-    <meta name="referrer" content="never">
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="msapplication-TileColor" content="#1e293b"/>
-    <meta name="theme-color" content="#1e293b"/>
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-    <meta name="apple-mobile-web-app-capable" content="yes"/>
-    <meta name="mobile-web-app-capable" content="yes"/>
-    <meta name="HandheldFriendly" content="True"/>
-    <meta name="MobileOptimized" content="320"/>
-    <link rel="icon" href="../static/img/logo.png">
-    <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon"/>
-    <link rel="apple-touch-icon" href="../static/img/logo.png">
-    <meta name="Robots" content="noindex,nofollow,noarchive">
-    <!-- CSS files -->
-    <link href="../static/css/tabler.min.css" rel="stylesheet"/>
-    <link href="../static/css/demo.min.css" rel="stylesheet"/>
-    <link href="../static/css/fullcalendar.min.css" rel="stylesheet"/>
-    <style type="text/css">
-      .tooltip-inner {
-        text-align: left;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="page">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>NASTool - 资源归集、整理自动化工具</title>
+  <meta name="referrer" content="never">
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="msapplication-TileColor" content="#1e293b" />
+  <meta name="theme-color" content="#1e293b" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="MobileOptimized" content="320" />
+  <link rel="icon" href="../static/img/logo.png">
+  <link rel="shortcut icon" href="../static/favicon.ico" type="image/x-icon" />
+  <link rel="apple-touch-icon" href="../static/img/logo.png">
+  <meta name="Robots" content="noindex,nofollow,noarchive">
+  <!-- CSS files -->
+  <link href="../static/css/tabler.min.css" rel="stylesheet" />
+  <link href="../static/css/demo.min.css" rel="stylesheet" />
+  <link href="../static/css/fullcalendar.min.css" rel="stylesheet" />
+  <link href="../static/css/jquery.filetree.css" rel="stylesheet" />
+  <style type="text/css">
+    .tooltip-inner {
+      text-align: left;
+    }
+
+    .fileTree {
+      width: 240px;
+      max-height: 200px;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      position: absolute;
+      display: none;
+      background-color: var(--tblr-body-bg);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
     <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark sticky-top">
       <div class="container-xl">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true" data-bs-target="#navbar-menu">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-auto-collapse="true"
+          data-bs-target="#navbar-menu">
           <span class="navbar-toggler-icon"></span>
         </button>
         <h1 class="navbar-brand" style="filter:brightness(0) invert(1)">
@@ -41,19 +55,32 @@
           </a>
         </h1>
         <div class="navbar-nav flex-row d-lg-none">
-          <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="暗黑风格" data-bs-toggle="tooltip" data-bs-placement="bottom">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
+          <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="暗黑风格" data-bs-toggle="tooltip"
+            data-bs-placement="bottom">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+            </svg>
           </a>
-          <a href="?theme=light" class="nav-link px-0 hide-theme-light" title="明亮风格" data-bs-toggle="tooltip" data-bs-placement="bottom">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4" /><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" /></svg>
+          <a href="?theme=light" class="nav-link px-0 hide-theme-light" title="明亮风格" data-bs-toggle="tooltip"
+            data-bs-placement="bottom">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+              stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <circle cx="12" cy="12" r="4" />
+              <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" />
+            </svg>
           </a>
           <div class="nav-item dropdown">
             <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown">
               <span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                   <circle cx="12" cy="7" r="4"></circle>
-                   <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+                  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
                 </svg>
               </span>
               <div class="d-none d-xl-block ps-2">
@@ -62,7 +89,8 @@
             </a>
             <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
               {% if "系统设置" in UserPris %}
-              <a class="dropdown-item" data-bs-toggle="offcanvas" href="#offcanvasEnd" role="button" aria-controls="offcanvasEnd">消息中心</a>
+              <a class="dropdown-item" data-bs-toggle="offcanvas" href="#offcanvasEnd" role="button"
+                aria-controls="offcanvasEnd">消息中心</a>
               <div class="dropdown-divider"></div>
               {% if SystemFlag > 0 %}
               <a href="javascript:restart()" class="dropdown-item">重启</a>
@@ -77,7 +105,12 @@
           <div class="my-2 my-md-0 flex-grow-1 flex-md-grow-0 order-first order-md-last d-lg-none">
             <div class="input-icon">
               <span class="input-icon-addon">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <circle cx="10" cy="10" r="7" />
+                  <line x1="21" y1="21" x2="15" y2="15" />
+                </svg>
               </span>
               <input type="text" value="" class="form-control home_search_word" placeholder="搜索...">
             </div>
@@ -85,9 +118,15 @@
           <ul class="navbar-nav pt-lg-3">
             {% if "我的媒体库" in UserPris %}
             <li class="nav-item">
-              <a class="nav-link" href="javascript:void(0)" onclick="navmenu('index')" >
+              <a class="nav-link" href="javascript:void(0)" onclick="navmenu('index')">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="5 12 3 12 12 3 21 12 19 12" /><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" /><path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" /></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <polyline points="5 12 3 12 12 3 21 12 19 12" />
+                    <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+                    <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+                  </svg>
                 </span>
                 <span class="nav-link-title">
                   开始
@@ -99,7 +138,15 @@
             <li class="nav-item">
               <a class="nav-link" href="javascript:void(0)" onclick="navmenu('search')">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3" /><line x1="12" y1="12" x2="20" y2="7.5" /><line x1="12" y1="12" x2="12" y2="21" /><line x1="12" y1="12" x2="4" y2="7.5" /><line x1="16" y1="5.25" x2="8" y2="9.75" /></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <polyline points="12 3 20 7.5 20 16.5 12 21 4 16.5 4 7.5 12 3" />
+                    <line x1="12" y1="12" x2="20" y2="7.5" />
+                    <line x1="12" y1="12" x2="12" y2="21" />
+                    <line x1="12" y1="12" x2="4" y2="7.5" />
+                    <line x1="16" y1="5.25" x2="8" y2="9.75" />
+                  </svg>
                 </span>
                 <span class="nav-link-title">
                   资源搜索
@@ -109,9 +156,15 @@
             {% endif %}
             {% if "推荐" in UserPris %}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
+              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false"
+                role="button" aria-expanded="false">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" /></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path
+                      d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z" />
+                  </svg>
                 </span>
                 <span class="nav-link-title">
                   推荐
@@ -155,9 +208,15 @@
             {% endif %}
             {% if "站点管理" in UserPris %}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
+              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false"
+                role="button" aria-expanded="false">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 11 12 14 20 6" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <polyline points="9 11 12 14 20 6" />
+                    <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" />
+                  </svg>
                 </span>
                 <span class="nav-link-title">
                   站点管理
@@ -178,9 +237,15 @@
             {% endif %}
             {% if "订阅管理" in UserPris %}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
+              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false"
+                role="button" aria-expanded="false">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 11 12 14 20 6" /><path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" /></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <polyline points="9 11 12 14 20 6" />
+                    <path d="M20 12v6a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h9" />
+                  </svg>
                 </span>
                 <span class="nav-link-title">
                   订阅管理
@@ -201,13 +266,16 @@
             {% endif %}
             {% if "下载管理" in UserPris %}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
+              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false"
+                role="button" aria-expanded="false">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                     <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                     <polyline points="7 11 12 16 17 11"></polyline>
-                     <line x1="12" y1="4" x2="12" y2="16"></line>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24"
+                    height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                    <polyline points="7 11 12 16 17 11"></polyline>
+                    <line x1="12" y1="4" x2="12" y2="16"></line>
                   </svg>
                 </span>
                 <span class="nav-link-title">
@@ -226,18 +294,21 @@
             {% endif %}
             {% if "媒体整理" in UserPris %}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
+              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false"
+                role="button" aria-expanded="false">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                     <rect x="4" y="4" width="16" height="16" rx="2"></rect>
-                     <line x1="8" y1="4" x2="8" y2="20"></line>
-                     <line x1="16" y1="4" x2="16" y2="20"></line>
-                     <line x1="4" y1="8" x2="8" y2="8"></line>
-                     <line x1="4" y1="16" x2="8" y2="16"></line>
-                     <line x1="4" y1="12" x2="20" y2="12"></line>
-                     <line x1="16" y1="8" x2="20" y2="8"></line>
-                     <line x1="16" y1="16" x2="20" y2="16"></line>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie" width="24"
+                    height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+                    <line x1="8" y1="4" x2="8" y2="20"></line>
+                    <line x1="16" y1="4" x2="16" y2="20"></line>
+                    <line x1="4" y1="8" x2="8" y2="8"></line>
+                    <line x1="4" y1="16" x2="8" y2="16"></line>
+                    <line x1="4" y1="12" x2="20" y2="12"></line>
+                    <line x1="16" y1="8" x2="20" y2="8"></line>
+                    <line x1="16" y1="16" x2="20" y2="16"></line>
                   </svg>
                 </span>
                 <span class="nav-link-title">
@@ -261,7 +332,14 @@
             <li class="nav-item">
               <a class="nav-link" href="javascript:void(0)" onclick="navmenu('service')">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><rect x="4" y="4" width="6" height="5" rx="2" /><rect x="4" y="13" width="6" height="7" rx="2" /><rect x="14" y="4" width="6" height="7" rx="2" /><rect x="14" y="15" width="6" height="5" rx="2" /></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <rect x="4" y="4" width="6" height="5" rx="2" />
+                    <rect x="4" y="13" width="6" height="7" rx="2" />
+                    <rect x="14" y="4" width="6" height="7" rx="2" />
+                    <rect x="14" y="15" width="6" height="5" rx="2" />
+                  </svg>
                 </span>
                 <span class="nav-link-title">
                   服务
@@ -271,12 +349,17 @@
             {% endif %}
             {% if "系统设置" in UserPris %}
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
+              <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false"
+                role="button" aria-expanded="false">
                 <span class="nav-link-icon d-md-none d-lg-inline-block">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                     <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path>
-                     <circle cx="12" cy="12" r="3"></circle>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24"
+                    height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path
+                      d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z">
+                    </path>
+                    <circle cx="12" cy="12" r="3"></circle>
                   </svg>
                 </span>
                 <span class="nav-link-title">
@@ -324,638 +407,739 @@
         </div>
       </div>
     </aside>
-      <header class="navbar navbar-expand-md navbar-light d-none d-lg-flex d-print-none sticky-top">
-        <div class="container-xl">
-          <div class="navbar-nav flex-row order-md-last">
-            <div class="nav-item d-none d-md-flex me-3">
-              <div class="btn-list">
-                <a href="https://github.com/jxxghp/nas-tools" class="btn" target="_blank" rel="noreferrer">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" /></svg>
-                  Source code
-                </a>
-              </div>
+    <header class="navbar navbar-expand-md navbar-light d-none d-lg-flex d-print-none sticky-top">
+      <div class="container-xl">
+        <div class="navbar-nav flex-row order-md-last">
+          <div class="nav-item d-none d-md-flex me-3">
+            <div class="btn-list">
+              <a href="https://github.com/jxxghp/nas-tools" class="btn" target="_blank" rel="noreferrer">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path
+                    d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+                </svg>
+                Source code
+              </a>
             </div>
-            <div class="d-none d-md-flex">
-              <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="暗黑风格" data-bs-toggle="tooltip" data-bs-placement="bottom">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
+          </div>
+          <div class="d-none d-md-flex">
+            <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="暗黑风格" data-bs-toggle="tooltip"
+              data-bs-placement="bottom">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+              </svg>
+            </a>
+            <a href="?theme=light" class="nav-link px-0 hide-theme-light" title="明亮风格" data-bs-toggle="tooltip"
+              data-bs-placement="bottom">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <circle cx="12" cy="12" r="4" />
+                <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" />
+              </svg>
+            </a>
+            <div class="nav-item dropdown d-none d-md-flex me-3">
+              <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="新版本提示"
+                id="new_version_tip">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" />
+                  <path d="M9 17v1a3 3 0 0 0 6 0v-1" />
+                </svg>
+                <span class="badge bg-red"></span>
               </a>
-              <a href="?theme=light" class="nav-link px-0 hide-theme-light" title="明亮风格" data-bs-toggle="tooltip" data-bs-placement="bottom">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="4" /><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" /></svg>
-              </a>
-              <div class="nav-item dropdown d-none d-md-flex me-3">
-                <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="新版本提示" id="new_version_tip">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" /><path d="M9 17v1a3 3 0 0 0 6 0v-1" /></svg>
-                  <span class="badge bg-red"></span>
-                </a>
-                <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
-                  <div class="card">
-                    <div class="card-header">
-                      <h3 class="card-title">新版本</h3>
-                    </div>
-                    <div class="list-group list-group-flush list-group-hoverable">
-                      <div class="list-group-item">
-                        <div class="row align-items-center">
-                          <div class="col-auto"><span class="status-dot status-dot-animated bg-red d-block"></span></div>
-                          <div class="col text-truncate">
-                            <div class="d-block text-muted text-truncate mt-n1" id="new_version_info">
-                            </div>
+              <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">新版本</h3>
+                  </div>
+                  <div class="list-group list-group-flush list-group-hoverable">
+                    <div class="list-group-item">
+                      <div class="row align-items-center">
+                        <div class="col-auto"><span class="status-dot status-dot-animated bg-red d-block"></span></div>
+                        <div class="col text-truncate">
+                          <div class="d-block text-muted text-truncate mt-n1" id="new_version_info">
                           </div>
-                          {% if SystemFlag > 0 and "系统设置" in UserPris %}
-                          <div class="col-auto">
-                            <a href="javascript:update_to_newversion()" class="list-group-item-actions" title="升级版本">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-up-lines" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                 <path d="M9 12h-3.586a1 1 0 0 1 -.707 -1.707l6.586 -6.586a1 1 0 0 1 1.414 0l6.586 6.586a1 1 0 0 1 -.707 1.707h-3.586v3h-6v-3z"></path>
-                                 <path d="M9 21h6"></path>
-                                 <path d="M9 18h6"></path>
-                              </svg>
-                            </a>
-                          </div>
-                          {% endif %}
                         </div>
+                        {% if SystemFlag > 0 and "系统设置" in UserPris %}
+                        <div class="col-auto">
+                          <a href="javascript:update_to_newversion()" class="list-group-item-actions" title="升级版本">
+                            <svg xmlns="http://www.w3.org/2000/svg"
+                              class="icon icon-tabler icon-tabler-arrow-big-up-lines" width="24" height="24"
+                              viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                              stroke-linecap="round" stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                              <path
+                                d="M9 12h-3.586a1 1 0 0 1 -.707 -1.707l6.586 -6.586a1 1 0 0 1 1.414 0l6.586 6.586a1 1 0 0 1 -.707 1.707h-3.586v3h-6v-3z">
+                              </path>
+                              <path d="M9 21h6"></path>
+                              <path d="M9 18h6"></path>
+                            </svg>
+                          </a>
+                        </div>
+                        {% endif %}
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="nav-item dropdown">
-              <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
-                <span class="avatar avatar-sm">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                     <circle cx="12" cy="7" r="4"></circle>
-                     <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
-                  </svg>
-                </span>
-                <div class="d-none d-xl-block ps-2">
-                  <div>{{ UserName }}</div>
-                </div>
-              </a>
-              <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                {% if "系统设置" in UserPris %}
-                <a class="dropdown-item" data-bs-toggle="offcanvas" href="#offcanvasEnd" role="button" aria-controls="offcanvasEnd">消息中心</a>
-                <div class="dropdown-divider"></div>
-                {% if SystemFlag > 0 %}
-                <a href="javascript:restart()" class="dropdown-item">重启</a>
-                <a href="javascript:update()" class="dropdown-item">更新</a>
-                {% endif %}
-                {% endif %}
-                <a href="javascript:logout()" class="dropdown-item">注销</a>
-              </div>
-            </div>
           </div>
-          <div class="collapse navbar-collapse">
-            <div>
-              <div class="input-icon">
-                <span class="input-icon-addon">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><desc>Download more icon variants from https://tabler-icons.io/i/search</desc><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="10" cy="10" r="7" /><line x1="21" y1="21" x2="15" y2="15" /></svg>
-                </span>
-                <input type="text" value="" class="form-control home_search_word" placeholder="搜索…" aria-label="资源搜索">
+          <div class="nav-item dropdown">
+            <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
+              aria-label="Open user menu">
+              <span class="avatar avatar-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24"
+                  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
+                </svg>
+              </span>
+              <div class="d-none d-xl-block ps-2">
+                <div>{{ UserName }}</div>
               </div>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+              {% if "系统设置" in UserPris %}
+              <a class="dropdown-item" data-bs-toggle="offcanvas" href="#offcanvasEnd" role="button"
+                aria-controls="offcanvasEnd">消息中心</a>
+              <div class="dropdown-divider"></div>
+              {% if SystemFlag > 0 %}
+              <a href="javascript:restart()" class="dropdown-item">重启</a>
+              <a href="javascript:update()" class="dropdown-item">更新</a>
+              {% endif %}
+              {% endif %}
+              <a href="javascript:logout()" class="dropdown-item">注销</a>
             </div>
           </div>
         </div>
-      </header>
-      <div class="page-wrapper">
-        <div id="page_content"></div>
-        <footer class="footer footer-transparent d-print-none">
-          <div class="container-xl">
-            <div class="row text-center align-items-center flex-row-reverse">
-              <div class="col-12 col-lg-auto mt-3 mt-lg-0">
-                <ul class="list-inline list-inline-dots mb-0">
-                  <li class="list-inline-item">
-                    Copyright &copy; 2022
-                    <a href="." class="link-secondary">NASTool</a>.
-                    All rights reserved.
-                  </li>
-                  <li class="list-inline-item">
-                    {{ AppVersion }}
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </footer>
-      </div>
-    </div>
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="消息中心">
-      <div class="offcanvas-header">
-        <h2 class="offcanvas-title" id="offcanvasEndLabel">消息中心</h2>
-        <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body" style="padding:0.5rem 0.5rem;">
-        <div class="list-group list-group-flush" id="system-messages">
-        </div>
-        <div class="mt-3" align="center">
-          <button class="btn" type="button" data-bs-dismiss="offcanvas">
-            关闭
-          </button>
-        </div>
-      </div>
-    </div>
-    <!-- 等待框 -->
-    <div class="modal" id="modal-wait" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-full-width modal-dialog-centered" role="document">
-        <div class="spinner-border text-primary m-auto"></div>
-      </div>
-    </div>
-    <!-- 确认提示框 -->
-    <div class="modal modal-blur fade" id="system-confirm-modal" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          <div class="modal-status bg-danger"></div>
-          <div class="modal-body text-center py-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
-            <h3>确认</h3>
-            <div class="text-muted" id="system_confirm_message">是否确定？</div>
-          </div>
-          <div class="modal-footer">
-            <div class="w-100">
-              <div class="row">
-                <div class="col">
-                  <a href="#" class="btn w-100" data-bs-dismiss="modal">
-                    取消
-                  </a>
-                </div>
-                <div class="col">
-                  <button class="btn btn-danger w-100" id="system_confirm_btn">
-                    确定
-                  </button>
-                </div>
-              </div>
+        <div class="collapse navbar-collapse">
+          <div>
+            <div class="input-icon">
+              <span class="input-icon-addon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                  stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <desc>Download more icon variants from https://tabler-icons.io/i/search</desc>
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <circle cx="10" cy="10" r="7" />
+                  <line x1="21" y1="21" x2="15" y2="15" />
+                </svg>
+              </span>
+              <input type="text" value="" class="form-control home_search_word" placeholder="搜索…" aria-label="资源搜索">
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <!-- 询问框 -->
-    <div class="modal modal-blur fade" id="system-ask-modal" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-body">
-            <div class="modal-title">询问</div>
-            <div id="system_ask_message">是否执行？</div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
-            <button type="button" class="btn btn-danger" id="system_ask_btn">确定</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- 成功提示 -->
-    <div class="modal modal-blur fade" id="system-success-modal" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          <div class="modal-status bg-success"></div>
-          <div class="modal-body text-center py-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><circle cx="12" cy="12" r="9" /><path d="M9 12l2 2l4 -4" /></svg>
-            <h3>成功</h3>
-            <div class="text-muted" id="system_success_message">成功！</div>
-          </div>
-          <div class="modal-footer">
-            <div class="w-100">
-              <div class="row">
-                <div class="col">
-                  <a href="#" class="btn btn-success w-100" data-bs-dismiss="modal">
-                    确定
-                  </a>
-                </div>
-              </div>
+    </header>
+    <div class="page-wrapper">
+      <div id="page_content"></div>
+      <footer class="footer footer-transparent d-print-none">
+        <div class="container-xl">
+          <div class="row text-center align-items-center flex-row-reverse">
+            <div class="col-12 col-lg-auto mt-3 mt-lg-0">
+              <ul class="list-inline list-inline-dots mb-0">
+                <li class="list-inline-item">
+                  Copyright &copy; 2022
+                  <a href="." class="link-secondary">NASTool</a>.
+                  All rights reserved.
+                </li>
+                <li class="list-inline-item">
+                  {{ AppVersion }}
+                </li>
+              </ul>
             </div>
           </div>
         </div>
+      </footer>
+    </div>
+  </div>
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasEnd" aria-labelledby="消息中心">
+    <div class="offcanvas-header">
+      <h2 class="offcanvas-title" id="offcanvasEndLabel">消息中心</h2>
+      <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body" style="padding:0.5rem 0.5rem;">
+      <div class="list-group list-group-flush" id="system-messages">
+      </div>
+      <div class="mt-3" align="center">
+        <button class="btn" type="button" data-bs-dismiss="offcanvas">
+          关闭
+        </button>
       </div>
     </div>
-    <!-- 失败提示 -->
-    <div class="modal modal-blur fade" id="system-fail-modal" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          <div class="modal-status bg-warning"></div>
-          <div class="modal-body text-center py-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-warning icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 9v2m0 4v.01" /><path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" /></svg>
-            <h3>失败</h3>
-            <div class="text-muted" id="system_fail_message">失败！</div>
-          </div>
-          <div class="modal-footer">
-            <div class="w-100">
-              <div class="row">
-                <div class="col"><a href="#" class="btn btn-warning w-100" data-bs-dismiss="modal">
-                    确定
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
+  </div>
+  <!-- 等待框 -->
+  <div class="modal" id="modal-wait" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-full-width modal-dialog-centered" role="document">
+      <div class="spinner-border text-primary m-auto"></div>
+    </div>
+  </div>
+  <!-- 确认提示框 -->
+  <div class="modal modal-blur fade" id="system-confirm-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-status bg-danger"></div>
+        <div class="modal-body text-center py-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24"
+            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M12 9v2m0 4v.01" />
+            <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" />
+          </svg>
+          <h3>确认</h3>
+          <div class="text-muted" id="system_confirm_message">是否确定？</div>
         </div>
-      </div>
-    </div>
-    <!-- 媒体详情 -->
-    <div class="modal modal-blur fade" id="system-media-modal" tabindex="-1" role="dialog" aria-hidden="true">
-      <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="card">
-            <div class="ribbon ribbon-top ribbon-bookmark bg-purple" id="system_media_vote"></div>
-            <div class="row row-0">
-              <div class="col-3 d-none d-lg-block">
-                <img id="system_media_poster" src="" onerror="this.src='../static/img/no-image.png'" class="w-100 h-100 object-cover">
+        <div class="modal-footer">
+          <div class="w-100">
+            <div class="row">
+              <div class="col">
+                <a href="#" class="btn w-100" data-bs-dismiss="modal">
+                  取消
+                </a>
               </div>
               <div class="col">
-                <div class="card-body">
-                  <h4 class="card-title mb-3">
-                    <a href="#" ><strong id="system_media_name"></strong></a><br/>
-                    <span class="text-muted" id="system_release_date"></span>
-                  </h4>
-                  <div class="text-muted mb-3" id="system_media_overview">
-                  </div>
-                  <div id="system_sites_info"></div>
-                </div>
+                <button class="btn btn-danger w-100" id="system_confirm_btn">
+                  确定
+                </button>
               </div>
-            </div>
-            <div class="d-flex">
-              <a href="#" target="_blank" class="card-btn" id="system_media_url_btn">
-              详情
-              </a>
-              <a href="javascript:void(0)" class="card-btn" id="system_media_rss_btn">
-              订阅
-              </a>
-              <a href="javascript:void(0)" class="card-btn" id="system_media_search_btn">
-              搜索
-              </a>
-              <a href="javascript:void(0)" class="card-btn" data-bs-dismiss="modal">
-              关闭
-              </a>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <script src="../static/js/libs/list.min.js"></script>
-    <script src="../static/js/jquery-3.3.1.min.js"></script>
-    <script src="../static/js/tabler.min.js"></script>
-    <script src="../static/js/demo.min.js"></script>
-    <script src="../static/js/util.js"></script>
-    <script src="../static/js/apexcharts.min.js"></script>
-    <script src="../static/js/fullcalendar.min.js"></script>
-    <script src="../static/js/locales/zh-cn.js"></script>
-    <!-- 公共函数 -->
-    <script type="text/javascript">
-      //显示全局加载框
-      function show_wait_process(){
-        $("#modal-wait").modal("show");
-      }
+  </div>
+  <!-- 询问框 -->
+  <div class="modal modal-blur fade" id="system-ask-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+          <div class="modal-title">询问</div>
+          <div id="system_ask_message">是否执行？</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
+          <button type="button" class="btn btn-danger" id="system_ask_btn">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 成功提示 -->
+  <div class="modal modal-blur fade" id="system-success-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-status bg-success"></div>
+        <div class="modal-body text-center py-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24"
+            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9 12l2 2l4 -4" />
+          </svg>
+          <h3>成功</h3>
+          <div class="text-muted" id="system_success_message">成功！</div>
+        </div>
+        <div class="modal-footer">
+          <div class="w-100">
+            <div class="row">
+              <div class="col">
+                <a href="#" class="btn btn-success w-100" data-bs-dismiss="modal">
+                  确定
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 失败提示 -->
+  <div class="modal modal-blur fade" id="system-fail-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-status bg-warning"></div>
+        <div class="modal-body text-center py-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-warning icon-lg" width="24" height="24"
+            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <path d="M12 9v2m0 4v.01" />
+            <path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75" />
+          </svg>
+          <h3>失败</h3>
+          <div class="text-muted" id="system_fail_message">失败！</div>
+        </div>
+        <div class="modal-footer">
+          <div class="w-100">
+            <div class="row">
+              <div class="col"><a href="#" class="btn btn-warning w-100" data-bs-dismiss="modal">
+                  确定
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 媒体详情 -->
+  <div class="modal modal-blur fade" id="system-media-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="card">
+          <div class="ribbon ribbon-top ribbon-bookmark bg-purple" id="system_media_vote"></div>
+          <div class="row row-0">
+            <div class="col-3 d-none d-lg-block">
+              <img id="system_media_poster" src="" onerror="this.src='../static/img/no-image.png'"
+                class="w-100 h-100 object-cover">
+            </div>
+            <div class="col">
+              <div class="card-body">
+                <h4 class="card-title mb-3">
+                  <a href="#"><strong id="system_media_name"></strong></a><br />
+                  <span class="text-muted" id="system_release_date"></span>
+                </h4>
+                <div class="text-muted mb-3" id="system_media_overview">
+                </div>
+                <div id="system_sites_info"></div>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex">
+            <a href="#" target="_blank" class="card-btn" id="system_media_url_btn">
+              详情
+            </a>
+            <a href="javascript:void(0)" class="card-btn" id="system_media_rss_btn">
+              订阅
+            </a>
+            <a href="javascript:void(0)" class="card-btn" id="system_media_search_btn">
+              搜索
+            </a>
+            <a href="javascript:void(0)" class="card-btn" data-bs-dismiss="modal">
+              关闭
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="../static/js/libs/list.min.js"></script>
+  <script src="../static/js/jquery-3.3.1.min.js"></script>
+  <script src="../static/js/tabler.min.js"></script>
+  <script src="../static/js/demo.min.js"></script>
+  <script src="../static/js/util.js"></script>
+  <script src="../static/js/apexcharts.min.js"></script>
+  <script src="../static/js/fullcalendar.min.js"></script>
+  <script src="../static/js/locales/zh-cn.js"></script>
+  <script src="../static/js/jquery.filetree.js"></script>
+  <!-- 公共函数 -->
+  <script type="text/javascript">
+    //显示全局加载框
+    function show_wait_process() {
+      $("#modal-wait").modal("show");
+    }
 
-      //关闭全局加载框
-      function hide_wait_process(){
-        $("#modal-wait").modal("hide");
-      }
+    //关闭全局加载框
+    function hide_wait_process() {
+      $("#modal-wait").modal("hide");
+    }
 
-      //显示确认提示框
-      function show_confirm_modal(title, func){
-        $("#system_confirm_message").text(title);
-        $("#system_confirm_btn").unbind('click');
-        $("#system_confirm_btn").click(func);
-        $("#system-confirm-modal").modal("show");
-      }
+    //显示确认提示框
+    function show_confirm_modal(title, func) {
+      $("#system_confirm_message").text(title);
+      $("#system_confirm_btn").unbind('click');
+      $("#system_confirm_btn").click(func);
+      $("#system-confirm-modal").modal("show");
+    }
 
-      //隐藏确认提示框
-      function hide_confirm_modal(){
-        $("#system-confirm-modal").modal("hide");
-      }
+    //隐藏确认提示框
+    function hide_confirm_modal() {
+      $("#system-confirm-modal").modal("hide");
+    }
 
-      //显示询问提示框
-      function show_ask_modal(title, func){
-        $("#system_ask_message").text(title);
-        $("#system_ask_btn").unbind('click');
-        $("#system_ask_btn").click(func);
-        $("#system-ask-modal").modal("show");
-      }
+    //显示询问提示框
+    function show_ask_modal(title, func) {
+      $("#system_ask_message").text(title);
+      $("#system_ask_btn").unbind('click');
+      $("#system_ask_btn").click(func);
+      $("#system-ask-modal").modal("show");
+    }
 
-      //隐藏询问提示框
-      function hide_ask_modal(){
-        $("#system-ask-modal").modal("hide");
-      }
+    //隐藏询问提示框
+    function hide_ask_modal() {
+      $("#system-ask-modal").modal("hide");
+    }
 
-      //显示成功提示
-      function show_success_modal(title){
-        $("#system_success_message").text(title);
-        $("#system-success-modal").modal("show");
-      }
+    //显示成功提示
+    function show_success_modal(title) {
+      $("#system_success_message").text(title);
+      $("#system-success-modal").modal("show");
+    }
 
-      //显示失败提示
-      function show_fail_modal(title){
-        $("#system_fail_message").text(title);
-        $("#system-fail-modal").modal("show");
-      }
+    //显示失败提示
+    function show_fail_modal(title) {
+      $("#system_fail_message").text(title);
+      $("#system-fail-modal").modal("show");
+    }
 
-      //显示媒体详情
-      function show_mediainfo_modal(rtype, name, year, tmdbid, page, rssid){
-        show_wait_process();
-        if(tmdbid.startsWith("DB:")){
-          var doubanid = tmdbid.replace("DB:", "");
-          tmdbid = "";
-        }else{
-          var doubanid = "";
-        }
-        if(!page){
-          page = "";
-        }
-        if(!rssid){
-          rssid = "";
-        }
-        ajax_post("media_info", {"id": tmdbid, "title": name, "year": year, "type": rtype, "doubanid": doubanid, "page": page, "rssid": rssid}, function(ret){
-          hide_wait_process();
-          if(ret.code == 0){
-            //显示信息
-            $("#system_media_name").text(ret.title);
-            $("#system_release_date").text(ret.release_date)
-            if(ret.poster_path){
-              $("#system_media_poster").attr("src", ret.poster_path);
-            }else{
-              $("#system_media_poster").attr("src", "../static/img/no-image.png");
-            }
-            if(ret.overview.length > 200){
-              $("#system_media_overview").text(ret.overview.substr(0, 200) + " ...");
-            }else{
-              $("#system_media_overview").text(ret.overview);
-            }
-            if(!ret.vote_average || ret.vote_average == "0"){
-              $("#system_media_vote").hide();
-            }else{
-              $("#system_media_vote").text(ret.vote_average);
-              $("#system_media_vote").show();
-            }
-            //订阅按钮、搜索按钮
-            if(ret.rssid){
-              //取消订阅按钮
-              $("#system_media_rss_btn").text("删除订阅");
-              $("#system_media_rss_btn").attr("href", 'javascript:remove_rss_media("'+ret.title+'","'+ret.year+'","'+ret.type+'","'+ret.rssid+'","'+ret.page+'")');
-              //刷新和编辑按钮
-              if(ret.page.startsWith("movie_rss")||ret.page.startsWith("tv_rss")){
-                //刷新
-                $("#system_media_search_btn").text("刷新");
-                $("#system_media_search_btn").attr("href", 'javascript:refresh_rss_media("'+ret.type+'","'+ret.rssid+'","'+ret.page+'")');
-                $("#system_media_search_btn").show();
-                //编辑
-                $("#system_media_url_btn").text("编辑");
-                $("#system_media_url_btn").removeAttr("target");
-                $("#system_media_url_btn").attr("href", "javascript:show_edit_rss_media_modal('" + ret.rssid + "')");
-              }else{
-                $("#system_media_search_btn").hide();
-                //详情按钮
-                $("#system_media_url_btn").text("详情");
-                $("#system_media_url_btn").attr("target", "_blank");
-                $("#system_media_url_btn").attr("href", ret.link_url);
-              }
-            }else{
-              //订阅按钮
-              $("#system_media_rss_btn").text("订阅");
-              $("#system_media_rss_btn").attr("href", 'javascript:add_rss_media("'+ret.title+'","'+ret.year+'","'+ret.type+'","'+ret.tmdbid+'","'+ret.doubanid+'","'+ret.page+'")');
-              //搜索按钮
-              $("#system_media_search_btn").text("搜索");
-              $("#system_media_search_btn").attr("href", 'javascript:search_mediainfo_media("'+ret.tmdbid+'", "'+ret.doubanid+'", "'+ret.title+'", "'+ret.type_str+'")');
+    //显示媒体详情
+    function show_mediainfo_modal(rtype, name, year, tmdbid, page, rssid) {
+      show_wait_process();
+      if (tmdbid.startsWith("DB:")) {
+        var doubanid = tmdbid.replace("DB:", "");
+        tmdbid = "";
+      } else {
+        var doubanid = "";
+      }
+      if (!page) {
+        page = "";
+      }
+      if (!rssid) {
+        rssid = "";
+      }
+      ajax_post("media_info", { "id": tmdbid, "title": name, "year": year, "type": rtype, "doubanid": doubanid, "page": page, "rssid": rssid }, function (ret) {
+        hide_wait_process();
+        if (ret.code == 0) {
+          //显示信息
+          $("#system_media_name").text(ret.title);
+          $("#system_release_date").text(ret.release_date)
+          if (ret.poster_path) {
+            $("#system_media_poster").attr("src", ret.poster_path);
+          } else {
+            $("#system_media_poster").attr("src", "../static/img/no-image.png");
+          }
+          if (ret.overview.length > 200) {
+            $("#system_media_overview").text(ret.overview.substr(0, 200) + " ...");
+          } else {
+            $("#system_media_overview").text(ret.overview);
+          }
+          if (!ret.vote_average || ret.vote_average == "0") {
+            $("#system_media_vote").hide();
+          } else {
+            $("#system_media_vote").text(ret.vote_average);
+            $("#system_media_vote").show();
+          }
+          //订阅按钮、搜索按钮
+          if (ret.rssid) {
+            //取消订阅按钮
+            $("#system_media_rss_btn").text("删除订阅");
+            $("#system_media_rss_btn").attr("href", 'javascript:remove_rss_media("' + ret.title + '","' + ret.year + '","' + ret.type + '","' + ret.rssid + '","' + ret.page + '")');
+            //刷新和编辑按钮
+            if (ret.page.startsWith("movie_rss") || ret.page.startsWith("tv_rss")) {
+              //刷新
+              $("#system_media_search_btn").text("刷新");
+              $("#system_media_search_btn").attr("href", 'javascript:refresh_rss_media("' + ret.type + '","' + ret.rssid + '","' + ret.page + '")');
               $("#system_media_search_btn").show();
+              //编辑
+              $("#system_media_url_btn").text("编辑");
+              $("#system_media_url_btn").removeAttr("target");
+              $("#system_media_url_btn").attr("href", "javascript:show_edit_rss_media_modal('" + ret.rssid + "')");
+            } else {
+              $("#system_media_search_btn").hide();
               //详情按钮
               $("#system_media_url_btn").text("详情");
               $("#system_media_url_btn").attr("target", "_blank");
               $("#system_media_url_btn").attr("href", ret.link_url);
             }
-            //弹窗
-            $("#system-media-modal").modal("show");
-          }else if(ret.code == 1){
-            window.open(ret.link_url);
+          } else {
+            //订阅按钮
+            $("#system_media_rss_btn").text("订阅");
+            $("#system_media_rss_btn").attr("href", 'javascript:add_rss_media("' + ret.title + '","' + ret.year + '","' + ret.type + '","' + ret.tmdbid + '","' + ret.doubanid + '","' + ret.page + '")');
+            //搜索按钮
+            $("#system_media_search_btn").text("搜索");
+            $("#system_media_search_btn").attr("href", 'javascript:search_mediainfo_media("' + ret.tmdbid + '", "' + ret.doubanid + '", "' + ret.title + '", "' + ret.type_str + '")');
+            $("#system_media_search_btn").show();
+            //详情按钮
+            $("#system_media_url_btn").text("详情");
+            $("#system_media_url_btn").attr("target", "_blank");
+            $("#system_media_url_btn").attr("href", ret.link_url);
           }
-        });
-      }
+          //弹窗
+          $("#system-media-modal").modal("show");
+        } else if (ret.code == 1) {
+          window.open(ret.link_url);
+        }
+      });
+    }
 
-      //隐藏媒体详情
-      function hide_mediainfo_modal(){
-        $("#system-media-modal").modal("hide");
-      }
+    //隐藏媒体详情
+    function hide_mediainfo_modal() {
+      $("#system-media-modal").modal("hide");
+    }
 
-      //刷新tooltip
-      function fresh_tooltip(){
-        var tooltipTriggerList = Array.prototype.slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-          return new bootstrap.Tooltip(tooltipTriggerEl)
-        });
-      }
+    //刷新tooltip
+    function fresh_tooltip() {
+      var tooltipTriggerList = Array.prototype.slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+      var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl)
+      });
+    }
 
-      //导航点击
-      function navmenu(page){
-        nid = page.split("?")[0];
-        $("#navbar-menu").find("li").removeClass("active");
-        $("#navbar-menu").find("a").removeClass("active");
-        $("#navbar-menu").find("a").each(function(){
-          if($(this).attr("onclick") == "navmenu('" + page + "')"){
-            if($(this).attr("class") == "dropdown-item"){
-              $(this).addClass("active");
-            }else{
-              $(this).parent().addClass("active");
-            }
+    //打开路径选择框
+    function openFileBrowser(el, root, filter, on_folders, on_files, close_on_select) {
+      if (on_folders === undefined) on_folders = true;
+      if (on_files   === undefined) on_files = true;
+      if (!filter && !on_files) filter = 'HIDE_FILES_FILTER';
+      if (!root.trim()) root = "/";
+      p = $(el);
+      // Skip is fileTree is already open
+      if (p.next().hasClass('fileTree')) return null;
+      // create a random id
+      var r = Math.floor((Math.random()*1000)+1);
+      // Add a new span and load fileTree
+      p.after("<span id='fileTree"+r+"' class='textarea fileTree'></span>");
+      var ft = $('#fileTree'+r);
+      ft.fileTree({
+        script: 'dirlist',
+        root: root,
+        filter: filter,
+        allowBrowsing: true
+      },
+      function(file){if(on_files){p.val(file);p.trigger('change');if(close_on_select){ft.slideUp('fast',function(){ft.remove();});}}},
+      function(folder){if(on_folders){p.val(folder);p.trigger('change');if(close_on_select){$(ft).slideUp('fast',function(){$(ft).remove();});}}});
+      // Format fileTree according to parent position, height and width
+      ft.css({'left':p.position().left,'top':(p.position().top+p.outerHeight()),'width':(p.parent().width())});
+      // close if click elsewhere
+      $(document).mouseup(function(e){if(!ft.is(e.target) && ft.has(e.target).length === 0){ft.slideUp('fast',function(){$(ft).remove();});}});
+      // close if parent changed
+      p.bind("keydown", function(){ft.slideUp('fast', function(){$(ft).remove();});});
+      // Open fileTree
+      ft.slideDown('fast');
+    }
+
+    //初始化目录选择控件
+    function init_filetree_element() {
+      $('.filetree-folders-only').each(function () {
+        $(this).attr("onclick", "openFileBrowser(this,$(this).val(),'',true,false);");
+      });
+      $('.filetree-files-only').each(function () {
+        $(this).attr("onclick", "openFileBrowser(this,$(this).val(),'',false,true);");
+      });
+    }
+
+    //导航点击
+    function navmenu(page) {
+      nid = page.split("?")[0];
+      $("#navbar-menu").find("li").removeClass("active");
+      $("#navbar-menu").find("a").removeClass("active");
+      $("#navbar-menu").find("a").each(function () {
+        if ($(this).attr("onclick") == "navmenu('" + page + "')") {
+          if ($(this).attr("class") == "dropdown-item") {
+            $(this).addClass("active");
+          } else {
+            $(this).parent().addClass("active");
           }
-        });
-        $("#navbar-menu").collapse('hide');
-        show_wait_process();
-        $(window).unbind('scroll');
-        page = page.replaceAll(" ", "%20");
-        $("#page_content").load(page, {}, function(response,status,xhr){
-          hide_wait_process();
+        }
+      });
+      $("#navbar-menu").collapse('hide');
+      show_wait_process();
+      $(window).unbind('scroll');
+      page = page.replaceAll(" ", "%20");
+      $("#page_content").load(page, {}, function (response, status, xhr) {
+        hide_wait_process();
+        if ($("#page_content").find("title").first().text() == "登录 - NASTool") {
+          window.location.reload();
+        } else {
           fresh_tooltip();
-          if($("#page_content").find("title").first().text() == "登录 - NASTool"){
-            window.location.reload();
-          }
-        });
-      }
-
-      //新增订阅
-      function add_rss_media(name, year, type, tmdbid, doubanid, page){
-        hide_mediainfo_modal();
-        var data = { "name": name, "type": type, "year": year, "doubanid": doubanid, "tmdbid": tmdbid, "page": page};
-        show_wait_process();
-        ajax_post("add_rss_media", data, function(ret){
-          hide_wait_process();
-          if(ret.code==0){
-            if(ret.page){
-              navmenu(ret.page);
-            }else{
-              show_success_modal(ret.name + " 添加RSS订阅成功！");
-            }
-          }else{
-            show_fail_modal(ret.name + " 添加RSS订阅失败："+ ret.msg +"！");
-          }
-        });
-      }
-
-      // 取消订阅
-      function remove_rss_media(name, year, type, rssid, page){
-        hide_mediainfo_modal();
-        var cmd = "remove_rss_media";
-        var data = { "name": name, "type": type, "year": year, "rssid": rssid, "page": page};
-        ajax_post(cmd, data, function(ret){
-          if(ret.page){
-            navmenu(ret.page);
-          }else{
-            show_success_modal(ret.name + " 已从RSS订阅中移除！");
-          }
-        });
-      }
-
-      // 刷新订阅
-      function refresh_rss_media(type, rssid, page){
-        hide_mediainfo_modal();
-        ajax_post("refresh_rss", {"type": type, "rssid": rssid, "page": page}, function(ret){
-          if(ret.page){
-            navmenu(ret.page);
-          }
-        });
-      }
-
-      //搜索
-      function search_mediainfo_media(tmdbid, doubanid, title, typestr){
-        hide_mediainfo_modal();
-        if(!tmdbid && doubanid){
-          tmdbid = "DB:" + doubanid;
+          init_filetree_element();
         }
-        var param = {"tmdbid": tmdbid, "search_word": title, "media_type":typestr};
-        show_wait_process();
-        ajax_post("search", param, function (ret) {
-          hide_wait_process();
-          if(ret.code == 0){
-            navmenu('search?s=' + title);
-          }else{
-            show_fail_modal(ret.msg);
+      });
+    }
+
+    //新增订阅
+    function add_rss_media(name, year, type, tmdbid, doubanid, page) {
+      hide_mediainfo_modal();
+      var data = { "name": name, "type": type, "year": year, "doubanid": doubanid, "tmdbid": tmdbid, "page": page };
+      show_wait_process();
+      ajax_post("add_rss_media", data, function (ret) {
+        hide_wait_process();
+        if (ret.code == 0) {
+          if (ret.page) {
+            navmenu(ret.page);
+          } else {
+            show_success_modal(ret.name + " 添加RSS订阅成功！");
           }
-        });
-      }
-    </script>
-    <script type="text/javascript">
-      //浏览器兼容
-      String.prototype.replaceAll = function (s1, s2) {
-        return this.replace(new RegExp(s1, "gm"), s2)
-      }
-
-      // 检查新版本
-      var AppVersion = "{{ AppVersion }}";
-      var NewVersion = '';
-      $("#new_version_tip").hide();
-      function check_new_version(){
-        ajax_post("version", {}, function(ret){
-          if(ret.code == 0){
-            if(ret.version != AppVersion){
-                $("#new_version_info").html(ret.info);
-                $("#new_version_tip").show();
-                NewVersion = ret.version;
-            }
-          }
-        });
-      }
-
-      //注销
-      function logout(){
-        ajax_post("logout", {}, function(ret){
-            window.location.href = "/";
-          });
-      }
-
-      //重启
-      function restart(){
-        show_confirm_modal("立即重启系统？", function(){
-          $("#system_confirm_btn").attr("disabled", true);
-          $("#system_confirm_btn").text("重启中...");
-          ajax_post("restart", {}, function(ret){
-          });
-          setTimeout("window.location.reload()", 10000);
-        });
-      }
-
-      //更新
-      function update(){
-        show_confirm_modal("将从Github拉取最新程序代码并重启，是否确认？", function(){
-          $("#system_confirm_btn").attr("disabled", true);
-          $("#system_confirm_btn").text("更新中...");
-          ajax_post("update_system", {}, function(ret){
-          });
-          setTimeout("window.location.reload()", 15000);
-        });
-      }
-
-      //刷新消息中心
-      function refresh_message(time_str){
-        ajax_post("refresh_message", {"lst_time": time_str}, function(ret){
-          if(ret.code == 0){
-            lst_time = ret.lst_time;
-            var msgs = ret.message;
-            for(var i=0; i<msgs.length; i++){
-              $("#system-messages").prepend(msgs[i]);
-            }
-            setTimeout("refresh_message('" + lst_time + "')", 10000);
-          }
-        });
-      }
-
-      //升级新版本
-      function update_to_newversion(){
-        show_confirm_modal("是否确认升级到 " + NewVersion + " 版本？", function(){
-          $("#system_confirm_btn").attr("disabled", true);
-          $("#system_confirm_btn").text("升级中...");
-          ajax_post("update_system", {}, function(ret){
-          });
-          setTimeout("window.location.reload()", 15000);
-        });
-      }
-
-      //事件
-      $(document).ready(function(){
-        // 搜索输入框
-        $('.home_search_word').bind('keypress',function(event){
-           if(event.keyCode == "13")
-           {
-             if(!$(this).val()){
-               return;
-             }
-             navmenu('medialist?s='+$(this).val()+'&f=1');
-             $(this).val('');
-           }
-        });
-
-        //加载页面
-        var go_page = "{{ GoPage }}";
-        if(go_page){
-          navmenu(go_page);
-        }else{
-          //打开第一个页面
-          $("#navbar-menu").find("a[onclick]").first().trigger('click');
+        } else {
+          show_fail_modal(ret.name + " 添加RSS订阅失败：" + ret.msg + "！");
         }
+      });
+    }
 
-        {% if "系统设置" in UserPris %}
-        //检查版本升级
-        check_new_version();
-        //刷新消息
-        refresh_message("");
-        {% endif %}
+    // 取消订阅
+    function remove_rss_media(name, year, type, rssid, page) {
+      hide_mediainfo_modal();
+      var cmd = "remove_rss_media";
+      var data = { "name": name, "type": type, "year": year, "rssid": rssid, "page": page };
+      ajax_post(cmd, data, function (ret) {
+        if (ret.page) {
+          navmenu(ret.page);
+        } else {
+          show_success_modal(ret.name + " 已从RSS订阅中移除！");
+        }
+      });
+    }
+
+    // 刷新订阅
+    function refresh_rss_media(type, rssid, page) {
+      hide_mediainfo_modal();
+      ajax_post("refresh_rss", { "type": type, "rssid": rssid, "page": page }, function (ret) {
+        if (ret.page) {
+          navmenu(ret.page);
+        }
+      });
+    }
+
+    //搜索
+    function search_mediainfo_media(tmdbid, doubanid, title, typestr) {
+      hide_mediainfo_modal();
+      if (!tmdbid && doubanid) {
+        tmdbid = "DB:" + doubanid;
+      }
+      var param = { "tmdbid": tmdbid, "search_word": title, "media_type": typestr };
+      show_wait_process();
+      ajax_post("search", param, function (ret) {
+        hide_wait_process();
+        if (ret.code == 0) {
+          navmenu('search?s=' + title);
+        } else {
+          show_fail_modal(ret.msg);
+        }
+      });
+    }
+  </script>
+  <script type="text/javascript">
+    //浏览器兼容
+    String.prototype.replaceAll = function (s1, s2) {
+      return this.replace(new RegExp(s1, "gm"), s2)
+    }
+
+    // 检查新版本
+    var AppVersion = "{{ AppVersion }}";
+    var NewVersion = '';
+    $("#new_version_tip").hide();
+    function check_new_version() {
+      ajax_post("version", {}, function (ret) {
+        if (ret.code == 0) {
+          if (ret.version != AppVersion) {
+            $("#new_version_info").html(ret.info);
+            $("#new_version_tip").show();
+            NewVersion = ret.version;
+          }
+        }
+      });
+    }
+
+    //注销
+    function logout() {
+      ajax_post("logout", {}, function (ret) {
+        window.location.href = "/";
+      });
+    }
+
+    //重启
+    function restart() {
+      show_confirm_modal("立即重启系统？", function () {
+        $("#system_confirm_btn").attr("disabled", true);
+        $("#system_confirm_btn").text("重启中...");
+        ajax_post("restart", {}, function (ret) {
+        });
+        setTimeout("window.location.reload()", 10000);
+      });
+    }
+
+    //更新
+    function update() {
+      show_confirm_modal("将从Github拉取最新程序代码并重启，是否确认？", function () {
+        $("#system_confirm_btn").attr("disabled", true);
+        $("#system_confirm_btn").text("更新中...");
+        ajax_post("update_system", {}, function (ret) {
+        });
+        setTimeout("window.location.reload()", 15000);
+      });
+    }
+
+    //刷新消息中心
+    function refresh_message(time_str) {
+      ajax_post("refresh_message", { "lst_time": time_str }, function (ret) {
+        if (ret.code == 0) {
+          lst_time = ret.lst_time;
+          var msgs = ret.message;
+          for (var i = 0; i < msgs.length; i++) {
+            $("#system-messages").prepend(msgs[i]);
+          }
+          setTimeout("refresh_message('" + lst_time + "')", 10000);
+        }
+      });
+    }
+
+    //升级新版本
+    function update_to_newversion() {
+      show_confirm_modal("是否确认升级到 " + NewVersion + " 版本？", function () {
+        $("#system_confirm_btn").attr("disabled", true);
+        $("#system_confirm_btn").text("升级中...");
+        ajax_post("update_system", {}, function (ret) {
+        });
+        setTimeout("window.location.reload()", 15000);
+      });
+    }
+
+    //事件
+    $(document).ready(function () {
+      // 搜索输入框
+      $('.home_search_word').bind('keypress', function (event) {
+        if (event.keyCode == "13") {
+          if (!$(this).val()) {
+            return;
+          }
+          navmenu('medialist?s=' + $(this).val() + '&f=1');
+          $(this).val('');
+        }
       });
 
-      //禁止双指放大
-      document.documentElement.addEventListener('touchstart', function (event) {
-        if (event.touches.length > 1) {
-          event.preventDefault();
-        }
-      }, false);
+      //加载页面
+      var go_page = "{{ GoPage }}";
+      if (go_page) {
+        navmenu(go_page);
+      } else {
+        //打开第一个页面
+        $("#navbar-menu").find("a[onclick]").first().trigger('click');
+      }
 
-      //禁止双击放大
-      var lastTouchEnd = 0;
-      document.documentElement.addEventListener('touchend', function (event) {
-        var now = Date.now();
-        if (now - lastTouchEnd <= 300) {
-          event.preventDefault();
-        }
-        lastTouchEnd = now;
-      }, false);
-    </script>
-  </body>
+      {% if "系统设置" in UserPris %}
+      //检查版本升级
+      check_new_version();
+      //刷新消息
+      refresh_message("");
+      {% endif %}
+    });
+
+    //禁止双指放大
+    document.documentElement.addEventListener('touchstart', function (event) {
+      if (event.touches.length > 1) {
+        event.preventDefault();
+      }
+    }, false);
+
+    //禁止双击放大
+    var lastTouchEnd = 0;
+    document.documentElement.addEventListener('touchend', function (event) {
+      var now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+      }
+      lastTouchEnd = now;
+    }, false);
+  </script>
+</body>
+
 </html>
