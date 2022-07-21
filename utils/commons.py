@@ -65,7 +65,7 @@ class EpisodeFormat(object):
         if not self.__format:
             return None, None
         s, e = self.__handle_single(file_name)
-        return s + self.__offset if s else None, e + self.__offset if e else None
+        return s + self.__offset if s is not None else None, e + self.__offset if e is not None else None
 
     def __handle_single(self, file: str):
         if not self.__format:
