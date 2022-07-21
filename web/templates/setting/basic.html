@@ -33,7 +33,7 @@
               <div class="col-xl-4">
                 <div class="mb-3">
                   <label class="form-label">日志文件路径 <span class="form-help bg-red-lt" title="日志输出类型为文件时需要配置该项" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.app.logpath or '' }}" class="form-control" id="app.logpath" placeholder="/config/logs" autocomplete="false">
+                  <input type="text" value="{{ Config.app.logpath or '' }}" class="form-control filetree-folders-only" id="app.logpath" placeholder="/config/logs" autocomplete="false">
                 </div>
               </div>
               <div class="col-xl-4">
@@ -67,13 +67,13 @@
               <div class="col-xl-4">
                 <div class="mb-3">
                   <label class="form-label">HTTPS证书文件路径 <span class="form-help bg-red-lt" title="需要是pem格式的证书文件" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.app.ssl_cert or '' }}" class="form-control" id="app.ssl_cert" placeholder="" autocomplete="false">
+                  <input type="text" value="{{ Config.app.ssl_cert or '' }}" class="form-control filetree-files-only" id="app.ssl_cert" placeholder="" autocomplete="false">
                 </div>
               </div>
               <div class="col-xl-4">
                 <div class="mb-3">
                   <label class="form-label">HTTPS证书密钥文件路径</label>
-                  <input type="text" value="{{ Config.app.ssl_key or '' }}" class="form-control" id="app.ssl_key" placeholder="" autocomplete="false">
+                  <input type="text" value="{{ Config.app.ssl_key or '' }}" class="form-control filetree-files-only" id="app.ssl_key" placeholder="" autocomplete="false">
                 </div>
               </div>
               <div class="col-xl-4">

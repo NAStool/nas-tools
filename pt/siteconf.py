@@ -182,5 +182,10 @@ RSS_SITE_GRAP_CONF = {
         'FREE': ["//img[@class='pro_free']"],
         '2XFREE': [],
         'HR': []
+    },
+    'www.hdarea.co': {
+        'FREE': ["//img[@class='pro_free'][@title='免费']"],
+        '2XFREE': ["//img[@class='pro_free'][@title='2X免费']"],
+        'HR': []
     }
 }

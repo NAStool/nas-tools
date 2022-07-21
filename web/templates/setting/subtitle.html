@@ -100,7 +100,7 @@
             <div class="col-lg-6">
               <div class="mb-3">
                 <label class="form-label">本地路径 <span class="form-help bg-red-lt" title="NASTool本地媒体库的路径，如为Docker安装则为映射路径，如NASTool与ChineseSubFinder的媒体目录路径一致则不用配置" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.local_path or '' }}{% endif %}{% endif %}" id="subtitle.chinesesubfinder.local_path" class="form-control" placeholder="本地映射路径">
+                <input type="text" value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.local_path or '' }}{% endif %}{% endif %}" id="subtitle.chinesesubfinder.local_path" class="form-control filetree-folders-only" placeholder="本地映射路径">
               </div>
             </div>
             <div class="col-lg-6">

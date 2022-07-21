@@ -2,6 +2,7 @@ import base64
 import logging
 import os.path
 import traceback
+import urllib
 from math import floor
 from urllib import parse
 
@@ -1263,6 +1264,31 @@ def create_flask_app(config):
         if data:
             data = json.loads(data)
         return WebAction().action(cmd, data)
+
+    # 目录事件响应
+    @App.route('/dirlist', methods=['POST'])
+    @login_required
+    def dirlist():
+        r = ['<ul class="jqueryFileTree" style="display: none;">']
+        try:
+            r = ['<ul class="jqueryFileTree" style="display: none;">']
+            d = os.path.normpath(urllib.parse.unquote(request.form.get('dir', '/')))
+            ft = request.form.get("filter")
+            if not os.path.isdir(d):
+                d = os.path.dirname(d)
+            for f in os.listdir(d):
+                ff = os.path.join(d, f)
+                if os.path.isdir(ff):
+                    r.append('<li class="directory collapsed"><a rel="%s/">%s</a></li>' % (ff, f))
+                else:
+                    if ft != "HIDE_FILES_FILTER":
+                        e = os.path.splitext(f)[1][1:]
+                        r.append('<li class="file ext_%s"><a rel="%s">%s</a></li>' % (e, ff, f))
+            r.append('</ul>')
+        except Exception as e:
+            r.append('加载路径失败: %s' % str(e))
+        r.append('</ul>')
+        return make_response(''.join(r), 200)
 
     # 禁止搜索引擎
     @App.route('/robots.txt', methods=['GET', 'POST'])
