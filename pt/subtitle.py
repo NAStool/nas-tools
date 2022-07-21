@@ -145,7 +145,10 @@ class Subtitle:
             if item.get("bluray"):
                 file_path = "%s.mp4" % item.get("file")
             else:
-                file_path = "%s%s" % (item.get("file"), item.get("file_ext"))
+                if os.path.splitext(item.get("file"))[-1] != item.get("file_ext"):
+                    file_path = "%s%s" % (item.get("file"), item.get("file_ext"))
+                else:
+                    file_path = item.get("file")
 
             # 路径替换
             if self.__local_path and self.__remote_path and file_path.startswith(self.__local_path):

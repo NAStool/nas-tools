@@ -63,7 +63,7 @@ TORRENT_SEARCH_PARAMS = {
     },
     "pix": {
         "8k": r"8K",
-        "4k": r"4K|2160K",
+        "4k": r"4K|2160P",
         "1080p": r"1080[PIX]",
         "720p": r"720P"
     }
