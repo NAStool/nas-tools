@@ -613,7 +613,7 @@ class WebAction:
                 version = ver_json["tag_name"]
                 info = f'<a href="{ver_json["html_url"]}" target="_blank">{version}</a>'
         except Exception as e:
-            log.console(str(e))
+            print(str(e))
             code = -1
         return {"code": code, "version": version, "info": info}
 

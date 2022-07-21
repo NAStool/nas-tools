@@ -78,9 +78,9 @@ class Plex(IMediaServer):
             if sec.type == "movie":
                 MovieCount += sec.totalSize
             if sec.type == "show":
-                MovieCount += sec.totalSize
-            if sec.type == "album":
-                MovieCount += sec.totalSize
+                SeriesCount += sec.totalSize
+            if sec.type == "artist":
+                SongCount += sec.totalSize
         return {"MovieCount": MovieCount, "SeriesCount": SeriesCount, "SongCount": SongCount, "EpisodeCount": 0}
 
     def get_movies(self, title, year=None):

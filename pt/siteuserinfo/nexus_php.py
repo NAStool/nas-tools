@@ -24,9 +24,10 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
             self._torrent_seeding_page = f"getusertorrentlistajax.php?userid={self.userid}&type=seeding"
         else:
             user_detail = re.search(r"(userdetails)", html_text)
-            self._user_detail_page = user_detail.group().strip().lstrip('/')
-            self.userid = None
-            self._torrent_seeding_page = None
+            if user_detail and user_detail.group().strip():
+                self._user_detail_page = user_detail.group().strip().lstrip('/')
+                self.userid = None
+                self._torrent_seeding_page = None
 
         if not self._user_detail_page:
             self.err_msg = "获取不到用户信息，请检查cookies是否过期"
