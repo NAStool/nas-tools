@@ -211,6 +211,22 @@ class DBHelper:
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_STATISTICS_HISTORY_DS ON SITE_STATISTICS_HISTORY (DATE, URL);''')
             # 唯一约束
             cursor.execute('''CREATE UNIQUE INDEX IF NOT EXISTS UN_INDX_SITE_STATISTICS_HISTORY_DS ON SITE_STATISTICS_HISTORY (DATE, URL);''')
+
+            # 实时站点做种数据
+            cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_USER_SEEDING_INFO
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   SITE    TEXT,
+                                   SEEDING_INFO TEXT default '[]',
+                                   UPDATE_AT TEXT,
+                                   URL     TEXT);''')
+            cursor.execute(
+                '''CREATE INDEX IF NOT EXISTS INDX_SITE_USER_SEEDING_INFO_URL ON SITE_USER_SEEDING_INFO (URL);''')
+            cursor.execute(
+                '''CREATE INDEX IF NOT EXISTS INDX_SITE_USER_SEEDING_INFO_SITE ON SITE_USER_SEEDING_INFO (SITE);''')
+            # 唯一约束
+            cursor.execute(
+                '''CREATE UNIQUE INDEX IF NOT EXISTS UN_INDX_SITE_USER_SEEDING_INFO_URL ON SITE_USER_SEEDING_INFO (URL);''')
+
             # 实时站点数据
             cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_USER_STATISTICS
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,

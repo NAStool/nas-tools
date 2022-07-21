@@ -251,10 +251,14 @@
                         <small>{{ item[6] | filesizeformat(true) }}</small>
                       </div>
                   </td>
-                  <td class="sort-ratio">{% if item[7] == 0.0 %}Infinity{% else %}{{ item[7] }}{% endif %}</td>
-                  <td class="sort-seeding" data-seeding="{{ item[8] }}">{{ item[8] }}</td>
-                  <td class="sort-size" data-size="{{ item[10] }}">{{ item[10] | filesizeformat(true) }}</td>
-                  <td class="sort-bonus">{{ item[11] }}</td>
+                    <td class="sort-ratio">{% if item[7] == 0.0 %}Infinity{% else %}{{ item[7] }}{% endif %}</td>
+                    <td class="sort-seeding" data-seeding="{{ item[8] }}"><a
+                            href="javascript:show_site_seeding_info('{{ item[0] }}')"
+                            aria-label="seeding_info">{{ item[8] }}</a></td>
+                    <td class="sort-size" data-size="{{ item[10] }}"><a
+                            href="javascript:show_site_seeding_info('{{ item[0] }}')"
+                            aria-label="seeding_info">{{ item[10] | filesizeformat(true) }}</a></td>
+                    <td class="sort-bonus">{{ item[11] }}</td>
                   <td class="sort-rtime">
                     <span class="d-none d-lg-block">{{ item[4] }}</span>
                   </td>
@@ -305,6 +309,21 @@
                         <div id="site-activity-chart-seeding-size"></div>
                         <div id="site-activity-chart-bouns"></div>
                     </div>
+                </div>
+                <div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal modal-blur fade" id="site-seeding-info" tabindex="-1" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="site-seeding-info-title">站点信息</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="site-seeding-info-chart"></div>
                 </div>
                 <div class="modal-footer">
                 </div>
@@ -739,6 +758,51 @@
             chart_bonus.resetSeries();
         });
 
+        options_seeding_info = {
+            series: [{
+                name: "种子体积",
+                data: []
+            }],
+            chart: {
+                height: 350,
+                type: 'scatter',
+                locales: [locale_zh_cn],
+                defaultLocale: 'zh-cn',
+                toolbar: {
+                    show: false,
+                },
+                zoom: {
+                    enabled: true,
+                    type: 'xy'
+                }
+            },
+            xaxis: {
+                tickAmount: 10
+            },
+            yaxis: {
+                tickAmount: 7,
+                labels: {
+                    formatter: function (value) {
+                        return humanFileSize(value)
+                    }
+                }
+            },
+            tooltip: {
+                x: {
+                    show: true,
+                    formatter: function (value, opt) {
+                        return "做种人数 " + value
+                    }
+                }
+            }
+        };
+
+        if (typeof (chart_seeding_info) != 'undefined') {
+            chart_seeding_info.destroy();
+        }
+        chart_seeding_info = new ApexCharts($('#site-seeding-info-chart')[0], options_seeding_info);
+        chart_seeding_info.render();
+
         function show_site_activity(site_name) {
             show_wait_process();
             ajax_post("get_site_activity", {"name": site_name}, function (ret) {
@@ -791,6 +855,31 @@
             );
         }
 
+        function show_site_seeding_info(site_name) {
+            show_wait_process();
+            ajax_post("get_site_seeding_info", {"name": site_name}, function (ret) {
+                    hide_wait_process();
+                    if (ret.code == 0) {
+                        $('#site-seeding-info-title').text(site_name + " 做种分布");
+                        $('#site-seeding-info').modal("show");
+
+                        window.setTimeout(function () {
+                            chart_seeding_info.updateOptions(
+                                {
+                                    series: [{
+                                        name: "种子体积",
+                                        data: ret.seeding_info
+                                    }]
+                                }, true, true, false
+                            );
+
+                        }, 500);
+                    } else {
+                        show_fail_modal(site_name + " 查询失败：" + ret.msg + "！");
+                    }
+                }
+            );
+        }
         // 今日上传饼图
         if (typeof (pie_ul) != 'undefined')
             pie_ul.destroy();

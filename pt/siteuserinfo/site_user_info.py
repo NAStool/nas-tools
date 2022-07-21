@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import re
 from abc import ABCMeta, abstractmethod
 from urllib.parse import urljoin, urlsplit
@@ -32,6 +33,8 @@ class ISiteUserInfo(metaclass=ABCMeta):
     uploaded_size = 0
     completed_size = 0
     incomplete_size = 0
+    # 做种人数, 种子大小
+    seeding_info = []
 
     # 用户详细信息
     user_level = None
@@ -94,6 +97,8 @@ class ISiteUserInfo(metaclass=ABCMeta):
                     self._get_page_content(urljoin(urljoin(self._base_url, self._torrent_seeding_page), next_page),
                                            self._torrent_seeding_params),
                     multi_page=True)
+
+        self.seeding_info = json.dumps(self.seeding_info)
 
     @staticmethod
     def _prepare_html_text(html_text):

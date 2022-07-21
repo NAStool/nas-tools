@@ -102,7 +102,8 @@ class WebAction:
             "get_site_activity": self.__get_site_activity,
             "get_site_history": self.__get_site_history,
             "get_recommend": self.get_recommend,
-            "get_downloaded": self.get_downloaded
+            "get_downloaded": self.get_downloaded,
+            "get_site_seeding_info": self.__get_site_seeding_info
         }
 
     def action(self, cmd, data):
@@ -1463,6 +1464,20 @@ class WebAction:
         resp = {"code": 0}
         _, _, site, upload, download = Sites().get_pt_site_statistics_history(data["days"]+1)
         resp.update({"site": site, "upload": upload, "download": download})
+        return resp
+
+    @staticmethod
+    def __get_site_seeding_info(data):
+        """
+        查询site 做种分布信息 大小，做种数
+        :param data: {"name":site_name}
+        :return:
+        """
+        if not data or "name" not in data:
+            return {"code": 1, "msg": "查询参数错误"}
+
+        resp = {"code": 0}
+        resp.update(Sites().get_pt_site_seeding_info(data["name"]))
         return resp
 
     @staticmethod
