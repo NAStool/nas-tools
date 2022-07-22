@@ -3,7 +3,6 @@ import threading
 import traceback
 
 from watchdog.observers import Observer
-from watchdog.observers.polling import PollingObserver
 from config import RMT_MEDIAEXT, Config
 import log
 from rmt.filetransfer import FileTransfer
@@ -278,12 +277,8 @@ class Sync(object):
         for monpath in self.sync_dir_config.keys():
             if monpath and os.path.exists(monpath):
                 try:
-                    if self.__sync_sys == OsType.LINUX:
-                        # linux
-                        observer = Observer()
-                    else:
-                        # 其他
-                        observer = PollingObserver()
+                    # 内部处理系统操作类型选择最优解
+                    observer = Observer()
                     self.__observer.append(observer)
                     observer.schedule(FileMonitorHandler(monpath, self), path=monpath, recursive=True)
                     observer.setDaemon(True)
