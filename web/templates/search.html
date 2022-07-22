@@ -15,8 +15,8 @@
           <div class="input-group">
             <input id="search_word" class="form-control" type="text" value="" placeholder="电影/电视剧名称">
             <button id="search_btn" class="btn btn-primary d-none d-sm-inline-block"
-              onclick="javascript:navmenu('medialist?s='+$('#search_word').val()+'&f=1&t=search')">搜索</button>
-            <button id="search_icon" onclick="javascript:navmenu('medialist?s='+$('#search_word').val()+'&f=1&t=search')" class="btn btn-primary d-sm-none btn-icon">
+              onclick="javascript:search_media_list()">搜索</button>
+            <button id="search_icon" onclick="javascript:search_media_list()" class="btn btn-primary d-sm-none btn-icon">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24"
                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
                 stroke-linejoin="round">
@@ -455,6 +455,16 @@
       }
     });
   }
+
+  //搜索联想
+  function search_media_list(){
+    var keyword = $("#search_word").val();
+    if (keyword == "") {
+      return;
+    }
+    navmenu('medialist?s='+keyword+'&f=1&t=search');
+  }
+
   //点击链接下载
   function download_link(id, name) {
     var cmd = "download";
@@ -471,7 +481,7 @@
   // 搜索输入框
   $('#search_word').bind('keypress', function (event) {
     if (event.keyCode == "13") {
-      navmenu('medialist?s='+$('#search_word').val()+'&f=1&t=search')
+      search_media_list();
     }
   });
 
