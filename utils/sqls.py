@@ -688,7 +688,7 @@ def get_rss_tv_episodes(rid):
     sql = "SELECT EPISODES FROM RSS_TV_EPISODES WHERE RSSID = ?"
     ret = select_by_sql(sql, (rid,))
     if ret:
-        return str(ret[0][0]).split(',')
+        return [int(epi) for epi in str(ret[0][0]).split(',')]
     else:
         return None
 

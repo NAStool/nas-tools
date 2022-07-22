@@ -187,12 +187,15 @@ class Rss:
                                 episodes = get_rss_tv_episodes(match_rssid)
                                 if episodes is None:
                                     rss_no_exists[media_info.get_title_string()] = [
-                                        {"season": media_info.begin_season, "episodes": [], "total_episodes": total_episodes}]
+                                        {"season": media_info.begin_season, "episodes": [],
+                                         "total_episodes": total_episodes}]
                                 elif episodes:
                                     rss_no_exists[media_info.get_title_string()] = [
-                                        {"season": media_info.begin_season, "episodes": episodes, "total_episodes": total_episodes}]
+                                        {"season": media_info.begin_season, "episodes": episodes,
+                                         "total_episodes": total_episodes}]
                                 else:
-                                    log.info("【RSS】电视剧 %s%s 已全部订阅完成，删除订阅..." % (media_info.title, media_info.get_season_string()))
+                                    log.info("【RSS】电视剧 %s%s 已全部订阅完成，删除订阅..." % (
+                                        media_info.title, media_info.get_season_string()))
                                     delete_rss_tv(rssid=match_rssid)
                                     continue
                                 # 非洗版时检查本地媒体库情况
@@ -597,9 +600,9 @@ class Rss:
             if not source_info.get("episodes"):
                 continue
             if not target_info.get("episodes"):
-                target_info["episodes"] = source_info.get("episodes")
-                target[title][index] = target_info
+                target_episodes = source_info.get("episodes")
+                target[title][index]["episodes"] = target_episodes
                 continue
-            target_info["episodes"] = list(set(target_info.get("episodes")).intersection(set(source_info.get("episodes"))))
-            target[title][index] = target_info
+            target_episodes = list(set(target_info.get("episodes")).intersection(set(source_info.get("episodes"))))
+            target[title][index]["episodes"] = target_episodes
         return target
