@@ -92,7 +92,7 @@ class Downloader:
             except Exception as e:
                 log.error("【DOWNLOADER】添加下载任务出错：%s" % str(e))
                 return None, str(e)
-        return ret, "下载任务添加成功"
+        return ret, ""
 
     def pt_transfer(self):
         """
@@ -294,8 +294,9 @@ class Downloader:
                     return_items.append(item)
                 self.message.send_download_message(in_from, item)
             else:
-                log.error("【DOWNLOADER】添加下载任务失败：%s" % item.get_title_string())
-                self.message.send_download_fail_message(item, ret_msg)
+                log.error("【DOWNLOADER】添加下载任务 %s 失败：%s" % (item.get_title_string(), ret_msg or "请检查下载任务是否已存在"))
+                if ret_msg:
+                    self.message.send_download_fail_message(item, ret_msg)
 
         # 仍然缺失的剧集，从整季中选择需要的集数文件下载
         if need_tvs:
@@ -324,7 +325,7 @@ class Downloader:
                             ret, ret_msg = self.add_pt_torrent(url=item.enclosure, mtype=item.type, is_paused=True,
                                                                tag=torrent_tag)
                             if not ret:
-                                log.error("【DOWNLOADER】添加下载任务失败：%s" % item.org_string)
+                                log.error("【DOWNLOADER】添加下载任务 %s 失败：%s" % (item.org_string, ret_msg or "请检查下载任务是否已存在"))
                                 continue
                             # 获取刚添加的任务ID
                             if self.__client_type == DownloaderType.TR:

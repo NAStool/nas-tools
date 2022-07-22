@@ -13,6 +13,8 @@ import log
 class SiteUserInfoFactory(object):
     @staticmethod
     def build(url, site_name, site_cookie=None):
+        if not site_cookie:
+            return None
         session = requests.Session()
         res = RequestUtils(cookies=site_cookie, session=session).get_res(url=url)
         if res and res.status_code == 200:

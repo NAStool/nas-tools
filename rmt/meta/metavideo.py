@@ -21,7 +21,7 @@ class MetaVideo(MetaBase):
     # 正则式区
     _season_re = r"S(\d{2})|^S(\d{1,2})"
     _episode_re = r"EP?(\d{2,4})|^EP?(\d{1,4})"
-    _part_re = r"(^PART[0-9]{0,2}$|^CD[0-9]{0,2}$|^DVD[0-9]{0,2}$|^DISK[0-9]{0,2}$|^DISC[0-9]{0,2}$)"
+    _part_re = r"(^PART[0-9AB]{0,2}$|^CD[0-9]{0,2}$|^DVD[0-9]{0,2}$|^DISK[0-9]{0,2}$|^DISC[0-9]{0,2}$)"
     _roman_numerals = r"^(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$"
     _resources_type_re = r"^BLURAY$|^REMUX$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^BLU$|^WEB$|^BD$"
     _name_no_begin_re = r"^\[.+?]"
@@ -184,15 +184,15 @@ class MetaVideo(MetaBase):
         if not self.get_name():
             return
         re_res = re.search(r"%s" % self._part_re, token, re.IGNORECASE)
-        nextv = self.tokens.cur()
-        if re_res \
-                and nextv \
-                and nextv.isdigit() \
-                and (len(nextv) == 1 or len(nextv) == 2 and nextv.startswith('0')):
-            self.tokens.get_next()
+        if re_res:
             if not self.part:
                 self.part = re_res.group(1)
-            self.part = "%s%s" % (self.part, nextv)
+            nextv = self.tokens.cur()
+            if nextv \
+                    and ((nextv.isdigit() and (len(nextv) == 1 or len(nextv) == 2 and nextv.startswith('0')))
+                         or nextv.upper() in ['A', 'B']):
+                self.part = "%s%s" % (self.part, nextv)
+                self.tokens.get_next()
             self._last_token_type = "part"
             self._continue_flag = False
             self._stop_name_flag = False

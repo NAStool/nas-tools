@@ -187,8 +187,12 @@ class DouBan:
                 # 随机休眠
                 sleep(round(random.uniform(1, 5), 1))
                 continue
+            if not douban_info.get("title"):
+                # 随机休眠
+                sleep(round(random.uniform(1, 5), 1))
+                continue
             # 组装媒体信息
-            if douban_info.get("title") == "未知电影" and not douban_info.get("year"):
+            if douban_info.get("title") == "未知电影":
                 douban_info = self.get_media_detail_from_web("https://movie.douban.com/subject/%s/" % doubanid)
                 if not douban_info:
                     log.warn("【DOUBAN】%s 无权限访问，需要配置豆瓣Cookie" % doubanid)

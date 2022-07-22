@@ -167,46 +167,48 @@ class Rss:
                                                                    media_info.get_season_episode_string(),
                                                                    media_info.get_resource_type_string()))
                             continue
-                        # 检查是否存在，非洗板的时候才检查
-                        if not over_edition:
-                            exist_flag, rss_no_exists, _ = self.downloader.check_exists_medias(
-                                meta_info=media_info,
-                                no_exists=rss_no_exists)
-                            if exist_flag:
-                                # 如果是电影，已存在时删除订阅
-                                if match_rssid and media_info.type == MediaType.MOVIE:
-                                    log.info("【RSS】电影 %s 已存在，删除订阅..." % media_info.get_title_string())
-                                    delete_rss_movie(rssid=match_rssid)
-                                # 如果是电视剧
+
+                        # 非模糊匹配命中
+                        if match_rssid:
+                            # 如果是电影
+                            if media_info.type == MediaType.MOVIE:
+                                # 非洗版时检查是否存在
+                                if not over_edition:
+                                    exist_flag, rss_no_exists, _ = self.downloader.check_exists_medias(
+                                        meta_info=media_info,
+                                        no_exists=rss_no_exists)
+                                    if exist_flag:
+                                        log.info("【RSS】电影 %s 已存在，删除订阅..." % media_info.get_title_string())
+                                        delete_rss_movie(rssid=match_rssid)
+                                        continue
+                            # 如果是电视剧
+                            else:
+                                # 从登记薄中获取缺失剧集
+                                episodes = get_rss_tv_episodes(match_rssid)
+                                if episodes is None:
+                                    rss_no_exists[media_info.get_title_string()] = [
+                                        {"season": media_info.begin_season, "episodes": [], "total_episodes": total_episodes}]
+                                elif episodes:
+                                    rss_no_exists[media_info.get_title_string()] = [
+                                        {"season": media_info.begin_season, "episodes": episodes, "total_episodes": total_episodes}]
                                 else:
-                                    # 不存在缺失季集时删除订阅
-                                    if match_rssid and (
-                                            not rss_no_exists or not rss_no_exists.get(media_info.get_title_string())):
+                                    log.info("【RSS】电视剧 %s%s 已全部订阅完成，删除订阅..." % (media_info.title, media_info.get_season_string()))
+                                    delete_rss_tv(rssid=match_rssid)
+                                    continue
+                                # 非洗版时检查本地媒体库情况
+                                if not over_edition:
+                                    exist_flag, library_no_exists, _ = self.downloader.check_exists_medias(
+                                        meta_info=media_info)
+                                    if exist_flag and (
+                                            not library_no_exists or not library_no_exists.get(media_info.get_title_string())):
                                         log.info("【RSS】电视剧 %s %s 已存在，删除订阅..." % (
                                             media_info.get_title_string(), media_info.get_season_string()))
                                         delete_rss_tv(rssid=match_rssid)
-                                continue
-                        # 洗版时从登记薄中获取缺失集数
-                        else:
-                            # 电视剧
-                            if media_info.type != MediaType.MOVIE:
-                                episodes = get_rss_tv_episodes(match_rssid)
-                                if episodes is None:
-                                    # 未查到记录表示全部缺失
-                                    rss_no_exists[media_info.get_title_string()] = [{"season": media_info.begin_season,
-                                                                                     "episodes": [],
-                                                                                     "total_episodes": total_episodes}]
-                                elif episodes:
-                                    # 存在部分集数
-                                    rss_no_exists[media_info.get_title_string()] = [{"season": media_info.begin_season,
-                                                                                     "episodes": episodes,
-                                                                                     "total_episodes": total_episodes}]
-                                else:
-                                    # 已全部下完
-                                    log.info("【RSS】电视剧 %s %s 下载完成，删除订阅..." % (
-                                        media_info.get_title_string(), media_info.get_season_string()))
-                                    delete_rss_tv(rssid=match_rssid)
-                                    continue
+                                        continue
+                                    # 取交集做为缺失集
+                                    rss_no_exists = self.__get_rss_no_exists(target=rss_no_exists,
+                                                                             source=library_no_exists,
+                                                                             title=media_info.get_title_string())
 
                         # 判断种子是否免费
                         download_volume_factor = 1.0
@@ -390,28 +392,34 @@ class Rss:
                 continue
             # 季
             media_info.begin_season = int(season.replace("S", ""))
+
+            # 从登记薄中获取缺失剧集
+            episodes = get_rss_tv_episodes(rssid)
+            if episodes is None:
+                no_exists = {media_info.get_title_string(): [
+                    {"season": media_info.begin_season, "episodes": [], "total_episodes": total}]}
+            elif episodes:
+                no_exists = {media_info.get_title_string(): [
+                    {"season": media_info.begin_season, "episodes": episodes, "total_episodes": total}]}
+            else:
+                log.info("【RSS】电视剧 %s%s 已全部订阅完成，删除订阅..." % (name, season))
+                delete_rss_tv(rssid=rssid)
+                continue
+
             # 非洗版的情况检查是否存在
             if not over_edition:
                 # 检查是否存在，电视剧返回不存在的集清单
-                exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info)
+                exist_flag, library_no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info)
                 # 已经存在
                 if exist_flag:
                     log.info("【RSS】电视剧 %s%s 已存在，删除订阅..." % (name, season))
                     delete_rss_tv(rssid=rssid)
                     continue
-            # 洗版情况下从登记薄中获取缺失剧集
-            else:
-                episodes = get_rss_tv_episodes(rssid)
-                if episodes is None:
-                    no_exists = {media_info.get_title_string(): [
-                        {"season": media_info.begin_season, "episodes": [], "total_episodes": total}]}
-                elif episodes:
-                    no_exists = {media_info.get_title_string(): [
-                        {"season": media_info.begin_season, "episodes": episodes, "total_episodes": total}]}
-                else:
-                    log.info("【RSS】电视剧 %s%s 已存在，删除订阅..." % (name, season))
-                    delete_rss_tv(rssid=rssid)
-                    continue
+                # 取交集做为缺失集
+                no_exists = self.__get_rss_no_exists(target=no_exists,
+                                                     source=library_no_exists,
+                                                     title=media_info.get_title_string())
+
             # 开始检索
             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
                 media_info=media_info,
@@ -557,3 +565,35 @@ class Rss:
                 log.console(str(e2))
                 return ret_array
         return ret_array
+
+    @staticmethod
+    def __get_rss_no_exists(target, source, title):
+        """
+        对两个字典进行判重，有相同项目的取集的交集
+        """
+        if not source or not title:
+            return target
+        if not source.get(title):
+            return target
+        if not target.get(title):
+            target[title] = source.get(title)
+            return target
+        index = -1
+        for target_info in target.get(title):
+            index += 1
+            source_info = None
+            for info in source.get(title):
+                if info.get("season") == target_info.get("season"):
+                    source_info = info
+                    break
+            if not source_info:
+                continue
+            if not source_info.get("episodes"):
+                continue
+            if not target_info.get("episodes"):
+                target_info["episodes"] = source_info.get("episodes")
+                target[title][index] = target_info
+                continue
+            target_info["episodes"] = list(set(target_info.get("episodes")).intersection(set(source_info.get("episodes"))))
+            target[title][index] = target_info
+        return target
