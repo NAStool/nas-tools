@@ -135,7 +135,7 @@ class MetaAnime(MetaBase):
         """
         if not title:
             return title
-        title = title.replace("【", "[").replace("】", "]")
+        title = title.replace("【", "[").replace("】", "]").strip()
         if re.search(r"新番|月?番", title):
             title = re.sub(".*新番.", "", title)
         else:
