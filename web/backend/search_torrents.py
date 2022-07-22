@@ -233,6 +233,7 @@ def __search_media(in_from, media_info: MetaBase, user_id):
     # 已经存在
     if exist_flag:
         return
+
     # 开始检索
     Message().send_channel_msg(channel=in_from,
                                title="开始检索 %s ..." % media_info.title,
@@ -245,29 +246,31 @@ def __search_media(in_from, media_info: MetaBase, user_id):
         Message().send_channel_msg(channel=in_from,
                                    title="%s 未搜索到任何资源" % media_info.title,
                                    user_id=user_id)
-        # 自动添加订阅
-        if Config().get_config('pt').get('search_no_result_rss'):
-            # 添加订阅
-            if add_rss_subscribe(mtype=media_info.type,
-                                 name=media_info.title,
-                                 year=media_info.year,
-                                 season=media_info.begin_season,
-                                 tmdbid=media_info.tmdb_id,
-                                 state='R'):
-                # 发送通知
-                Message().send_rss_success_message(in_from=in_from, media_info=media_info, user_id=user_id)
-
-    # 搜索到了但是没开自动下载
-    elif download_count is None:
-        Message().send_channel_msg(channel=in_from,
-                                   title="%s 共搜索到%s个资源，点击选择下载" % (media_info.get_title_string(), search_count),
-                                   image=media_info.get_message_image(),
-                                   url="search",
-                                   user_id=user_id)
-    elif download_count == 0:
-        Message().send_channel_msg(channel=in_from,
-                                   title="%s 共搜索到%s个结果，但没有下载到任何资源" % (media_info.title, search_count),
-                                   user_id=user_id)
+    else:
+        # 搜索到了但是没开自动下载
+        if download_count is None:
+            Message().send_channel_msg(channel=in_from,
+                                       title="%s 共搜索到%s个资源，点击选择下载" % (media_info.get_title_string(), search_count),
+                                       image=media_info.get_message_image(),
+                                       url="search",
+                                       user_id=user_id)
+        else:
+            # 搜索到了但是没下载到数据
+            if download_count == 0:
+                Message().send_channel_msg(channel=in_from,
+                                           title="%s 共搜索到%s个结果，但没有下载到任何资源" % (media_info.title, search_count),
+                                           user_id=user_id)
+            # 没有下载完成，且打开了自动添加订阅
+            if not search_result and Config().get_config('pt').get('search_no_result_rss'):
+                # 添加订阅
+                if add_rss_subscribe(mtype=media_info.type,
+                                     name=media_info.title,
+                                     year=media_info.year,
+                                     season=media_info.begin_season,
+                                     tmdbid=media_info.tmdb_id,
+                                     state='R'):
+                    # 发送通知
+                    Message().send_rss_success_message(in_from=in_from, media_info=media_info, user_id=user_id)
 
 
 def __rss_media(in_from, media_info: MetaBase, user_id=None):
