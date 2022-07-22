@@ -199,11 +199,14 @@ class Rss:
                                 if not over_edition:
                                     exist_flag, library_no_exists, _ = self.downloader.check_exists_medias(
                                         meta_info=media_info)
-                                    if exist_flag and (
-                                            not library_no_exists or not library_no_exists.get(media_info.get_title_string())):
-                                        log.info("【RSS】电视剧 %s %s 已存在，删除订阅..." % (
-                                            media_info.get_title_string(), media_info.get_season_string()))
-                                        delete_rss_tv(rssid=match_rssid)
+                                    # 当前剧集已存在，跳过
+                                    if exist_flag:
+                                        # 已全部存在
+                                        if not library_no_exists or not library_no_exists.get(
+                                                media_info.get_title_string()):
+                                            log.info("【RSS】电视剧 %s %s 已存在，删除订阅..." % (
+                                                media_info.get_title_string(), media_info.get_season_string()))
+                                            delete_rss_tv(rssid=match_rssid)
                                         continue
                                     # 取交集做为缺失集
                                     rss_no_exists = self.__get_rss_no_exists(target=rss_no_exists,
@@ -412,8 +415,11 @@ class Rss:
                 exist_flag, library_no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info)
                 # 已经存在
                 if exist_flag:
-                    log.info("【RSS】电视剧 %s%s 已存在，删除订阅..." % (name, season))
-                    delete_rss_tv(rssid=rssid)
+                    # 已全部存在
+                    if not library_no_exists or not library_no_exists.get(
+                            media_info.get_title_string()):
+                        log.info("【RSS】电视剧 %s%s 已存在，删除订阅..." % (name, season))
+                        delete_rss_tv(rssid=rssid)
                     continue
                 # 取交集做为缺失集
                 no_exists = self.__get_rss_no_exists(target=no_exists,

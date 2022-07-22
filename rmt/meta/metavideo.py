@@ -21,7 +21,7 @@ class MetaVideo(MetaBase):
     # 正则式区
     _season_re = r"S(\d{2})|^S(\d{1,2})"
     _episode_re = r"EP?(\d{2,4})|^EP?(\d{1,4})"
-    _part_re = r"(^PART[0-9AB]{0,2}$|^CD[0-9]{0,2}$|^DVD[0-9]{0,2}$|^DISK[0-9]{0,2}$|^DISC[0-9]{0,2}$)"
+    _part_re = r"(^PART[0-9ABI]{0,2}$|^CD[0-9]{0,2}$|^DVD[0-9]{0,2}$|^DISK[0-9]{0,2}$|^DISC[0-9]{0,2}$)"
     _roman_numerals = r"^(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$"
     _resources_type_re = r"^BLURAY$|^REMUX$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^BLU$|^WEB$|^BD$"
     _name_no_begin_re = r"^\[.+?]"
@@ -33,7 +33,7 @@ class MetaVideo(MetaBase):
                         r"|连载|日剧|美剧|电视剧|动画片|动漫|欧美|西德|日韩|超高清|高清|蓝光|翡翠台" \
                         r"|最终季|合集|[多中国英葡法俄日韩德意西印泰台港粤双文语简繁体特效内封官译外挂]+字幕|版本|出品|台版|港版" \
                         r"|未删减版|UNCUT$|UNRATE$|WITH EXTRAS$|RERIP$|SUBBED$|PROPER$|REPACK$|SEASON$|EPISODE$" \
-                        r"|PART[\s.]*[1-9]|CD[\s.]*[1-9]|DVD[\s.]*[1-9]|DISK[\s.]*[1-9]|DISC[\s.]*[1-9]" \
+                        r"|CD[\s.]*[1-9]|DVD[\s.]*[1-9]|DISK[\s.]*[1-9]|DISC[\s.]*[1-9]" \
                         r"|BLU-?RAY$|REMUX$|UHD$|U?HDTV$|HDDVD$|WEBRIP$|DVDRIP$|BDRIP$|SDR$|HDR\d*$|DOLBY$|WEB$|BD$" \
                         r"|DTS\d?$|DTSHD$|DTSHDMA$|Atmos$|TrueHD\d?$|AC3$|\dAudios?$|DDP\d?$|DD\d?$|LPCM\d?$|AAC\d?$|FLAC\d?$|HD\d?$|MA\d?$" \
                         r"|[248]K|\d{3,4}[PIX]+"
@@ -101,6 +101,9 @@ class MetaVideo(MetaBase):
         # 去掉名字中不需要的干扰字符，过短的纯数字不要
         self.cn_name = self.__fix_name(self.cn_name)
         self.en_name = self.__fix_name(self.en_name)
+        # 处理part
+        if self.part and self.part.upper() == "PART":
+            self.part = None
 
     def __fix_name(self, name):
         if not name:
@@ -183,6 +186,12 @@ class MetaVideo(MetaBase):
     def __init_part(self, token):
         if not self.get_name():
             return
+        if not self.year \
+                and not self.begin_season \
+                and not self.begin_episode \
+                and not self.resource_pix \
+                and not self.resource_type:
+            return
         re_res = re.search(r"%s" % self._part_re, token, re.IGNORECASE)
         if re_res:
             if not self.part:
@@ -190,7 +199,7 @@ class MetaVideo(MetaBase):
             nextv = self.tokens.cur()
             if nextv \
                     and ((nextv.isdigit() and (len(nextv) == 1 or len(nextv) == 2 and nextv.startswith('0')))
-                         or nextv.upper() in ['A', 'B']):
+                         or nextv.upper() in ['A', 'B', 'C', 'I', 'II', 'III']):
                 self.part = "%s%s" % (self.part, nextv)
                 self.tokens.get_next()
             self._last_token_type = "part"
@@ -389,10 +398,7 @@ class MetaVideo(MetaBase):
             self._stop_name_flag = True
             self._last_token_type = "videoencode"
             if not self.video_encode:
-                if re_res.group(1).find('.') == -1 and re.search(r'\d+', re_res.group(1)):
-                    self.video_encode = "%s.%s" % (re_res.group(1)[0], re_res.group(1)[1:])
-                else:
-                    self.video_encode = re_res.group(1)
+                self.video_encode = re_res.group(1)
                 self._last_token = re_res.group(1).upper()
         elif token.upper() in ['H', 'X']:
             self._continue_flag = False
@@ -402,7 +408,7 @@ class MetaVideo(MetaBase):
         elif token.isdigit() \
                 and self._last_token_type == "videoencode" \
                 and self._last_token in ['H', 'X']:
-            self.video_encode = "%s.%s" % (self._last_token, token)
+            self.video_encode = "%s%s" % (self._last_token, token)
         elif token.isdigit() \
                 and self._last_token_type == "videoencode" \
                 and self._last_token in ['VC', 'MPEG']:

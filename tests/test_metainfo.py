@@ -3,7 +3,7 @@
 from unittest import TestCase
 
 from rmt.metainfo import MetaInfo
-from tests.fixtures.meta_table import meta_table
+from tests.fixtures.meta_cases import meta_cases
 
 
 class MetaInfoTest(TestCase):
@@ -14,7 +14,7 @@ class MetaInfoTest(TestCase):
         pass
 
     def test_metainfo(self):
-        for info in meta_table:
+        for info in meta_cases:
             if not info.get("title"):
                 continue
             meta_info = MetaInfo(title=info.get("title"), subtitle=info.get("subtitle"))
