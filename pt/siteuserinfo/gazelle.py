@@ -2,7 +2,7 @@
 import re
 
 from pt.siteuserinfo.site_user_info import ISiteUserInfo
-from utils.functions import num_filesize
+from utils.functions import num_filesize, str_float
 from lxml import etree
 
 
@@ -43,7 +43,7 @@ class GazelleUserInfo(ISiteUserInfo):
         if tmps:
             bonus_match = re.search(r"\(([\d,.]+)\)", tmps[0])
             if bonus_match and bonus_match.group(1).strip():
-                self.bonus = float(bonus_match.group(1).strip().replace(',', ''))
+                self.bonus = str_float(bonus_match.group(1))
 
         if not self.username:
             self.err_msg = "获取不到用户信息，请检查cookies是否过期"

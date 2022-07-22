@@ -470,3 +470,32 @@ def max_ele(a, b):
     if not b:
         return a
     return max(a, b)
+
+
+def str_int(text):
+    """
+    web字符串转int
+    :param text:
+    :return:
+    """
+    int_val = 0
+    try:
+        int_val = int(text.strip().replace(',', ''))
+    except Exception as e:
+        print(str(e))
+
+    return int_val
+
+
+def str_float(text):
+    """
+    web字符串转float
+    :param text:
+    :return:
+    """
+    float_val = 0.0
+    try:
+        float_val = float(text.strip().replace(',', ''))
+    except Exception as e:
+        print(str(e))
+    return float_val
