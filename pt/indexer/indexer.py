@@ -19,7 +19,7 @@ class IIndexer(metaclass=ABCMeta):
     index_type = None
     api_key = None
     filterrule = None
-    __space_chars = r"\.|-|/|:|：|'|‘|!|！"
+    __space_chars = r"\.|-|/|:|：|'|‘|!|！|～"
     __reverse_title_sites = ['keepfriends']
     __invalid_description_sites = ['tjupt']
 
