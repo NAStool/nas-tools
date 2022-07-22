@@ -24,6 +24,8 @@ class MetaAnime(MetaBase):
             if anitopy_info:
                 # 名称
                 name = anitopy_info.get("anime_title")
+                if name and name.find("/") != -1:
+                    name = name.split("/")[-1].strip()
                 if not name or name in self._anime_no_words or (len(name) < 5 and not is_chinese(name)):
                     anitopy_info = anitopy.parse("[ANIME]" + title)
                     if anitopy_info:
@@ -146,14 +148,14 @@ class MetaAnime(MetaBase):
                 if name.startswith('['):
                     left_char = '['
                     name = name[1:]
-                if is_chinese(name) and not is_all_chinese(name):
-                    name = re.sub(r'[\u4e00-\u9fa5]', '', name)
                 if name and name.find("/") != -1:
                     if name.split("/")[-1].strip():
                         titles.append("%s%s" % (left_char, name.split("/")[-1].strip()))
                     else:
                         titles.append("%s%s" % (left_char, name.split("/")[0].strip()))
                 else:
+                    if is_chinese(name) and not is_all_chinese(name):
+                        name = re.sub(r'[\u4e00-\u9fff]', '', name)
                     titles.append("%s%s" % (left_char, name.strip()))
             return "]".join(titles)
         return title

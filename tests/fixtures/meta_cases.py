@@ -158,4 +158,20 @@ meta_cases = [{
         "video_codec": "",
         "audio_codec": ""
     }
+}, {
+    "title": "[NC-Raws] 打工吧！魔王大人 第二季 / Hataraku Maou-sama!! - 02 (B-Global 1920x1080 HEVC AAC MKV)",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Hataraku Maou-sama!!",
+        "year": "",
+        "part": "",
+        "season": "S01",
+        "episode": "E02",
+        "restype": "",
+        "pix": "1920p",
+        "video_codec": "HEVC",
+        "audio_codec": "AAC"
+    }
 }]
