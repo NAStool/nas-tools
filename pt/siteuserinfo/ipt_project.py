@@ -2,7 +2,7 @@
 import re
 
 from pt.siteuserinfo.site_user_info import ISiteUserInfo
-from utils.functions import num_filesize
+from utils.functions import num_filesize, str_float, str_int
 from lxml import etree
 
 
@@ -31,10 +31,10 @@ class IptSiteUserInfo(ISiteUserInfo):
         if tmps:
             self.upload = num_filesize(str(tmps[0].xpath('span/text()')[1]).strip())
             self.download = num_filesize(str(tmps[0].xpath('span/text()')[2]).strip())
-            self.seeding = int(tmps[0].xpath('a')[2].xpath('text()')[0].strip())
-            self.leeching = int(tmps[0].xpath('a')[2].xpath('text()')[1].strip())
-            self.ratio = float(str(tmps[0].xpath('span/text()')[0]).strip().replace('-', '0'))
-            self.bonus = float(tmps[0].xpath('a')[3].xpath('text()')[0])
+            self.seeding = str_int(tmps[0].xpath('a')[2].xpath('text()')[0])
+            self.leeching = str_int(tmps[0].xpath('a')[2].xpath('text()')[1])
+            self.ratio = str_float(str(tmps[0].xpath('span/text()')[0]).strip().replace('-', '0'))
+            self.bonus = str_float(tmps[0].xpath('a')[3].xpath('text()')[0])
 
         if not self.username:
             self.err_msg = "获取不到用户信息，请检查cookies是否过期"
