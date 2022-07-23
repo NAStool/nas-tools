@@ -17,33 +17,36 @@ class GazelleUserInfo(ISiteUserInfo):
     def _parse_user_base_info(self, html_text):
         html_text = self._prepare_html_text(html_text)
         html = etree.HTML(html_text)
-        tmps = html.xpath('//a[@id="header-username-value"]/@data-value')
-        if tmps:
-            self.username = str(tmps[0]).strip()
 
-        tmps = html.xpath('//a[contains(@href, "user.php?id=")]/@href')
+        tmps = html.xpath('//a[contains(@href, "user.php?id=")]')
         if tmps:
-            user_id_match = re.search(r"user.php\?id=(\d+)", tmps[0])
+            user_id_match = re.search(r"user.php\?id=(\d+)", tmps[0].attrib['href'])
             if user_id_match and user_id_match.group().strip():
                 self.userid = user_id_match.group(1)
                 self._torrent_seeding_page = f"torrents.php?type=seeding&userid={self.userid}"
                 self._user_detail_page = f"user.php?id={self.userid}"
+                self.username = tmps[0].text.strip()
 
         tmps = html.xpath('//*[@id="header-uploaded-value"]/@data-value')
         if tmps:
-            self.upload = str(tmps[0]).strip()
+            self.upload = num_filesize(tmps[0])
         tmps = html.xpath('//*[@id="header-downloaded-value"]/@data-value')
         if tmps:
-            self.download = str(tmps[0]).strip()
-        tmps = html.xpath('//*[@id="header-ratio-value"]/@data-value')
-        if tmps:
-            self.ratio = str(tmps[0]).strip()
+            self.download = num_filesize(tmps[0])
+
+        self.ratio = 0.0 if self.download <= 0.0 else round(self.upload / self.download, 3)
 
         tmps = html.xpath('//a[contains(@href, "bonus.php")]/@data-tooltip')
         if tmps:
             bonus_match = re.search(r"\(([\d,.]+)\)", tmps[0])
             if bonus_match and bonus_match.group(1).strip():
                 self.bonus = str_float(bonus_match.group(1))
+        else:
+            tmps = html.xpath('//a[contains(@href, "bonus.php")]/text()')
+            if tmps:
+                bonus_match = re.search(r"\(([\d,.]+)\)", tmps[0])
+                if bonus_match and bonus_match.group(1).strip():
+                    self.bonus = str_float(bonus_match.group(1))
 
         if not self.username:
             self.err_msg = "获取不到用户信息，请检查cookies是否过期"
@@ -84,12 +87,17 @@ class GazelleUserInfo(ISiteUserInfo):
             return None
 
         size_col = 3
-        seeders_col = 5
+        # 搜索size列
+        if html.xpath('//table[contains(@id, "torrent")]//tr[1]/td'):
+            size_col = len(html.xpath('//table[contains(@id, "torrent")]//tr[1]/td')) - 3
+        # 搜索seeders列
+        seeders_col = size_col + 2
+
         page_seeding = 0
         page_seeding_size = 0
         page_seeding_info = []
-        seeding_sizes = html.xpath(f'//tr[position()>1]/td[{size_col}]')
-        seeding_seeders = html.xpath(f'//tr[position()>1]/td[{seeders_col}]/text()')
+        seeding_sizes = html.xpath(f'//table[contains(@id, "torrent")]//tr[position()>1]/td[{size_col}]')
+        seeding_seeders = html.xpath(f'//table[contains(@id, "torrent")]//tr[position()>1]/td[{seeders_col}]/text()')
         if seeding_sizes and seeding_seeders:
             page_seeding = len(seeding_sizes)
 
@@ -111,6 +119,14 @@ class GazelleUserInfo(ISiteUserInfo):
                 self.seeding_size = page_seeding_size
             if not self.seeding_info:
                 self.seeding_info = page_seeding_info
+
+        # 是否存在下页数据
+        next_page = None
+        next_page_text = html.xpath('//a[contains(.//text(), "Next") or contains(.//text(), "下一页")]/@href')
+        if next_page_text:
+            next_page = next_page_text[-1].strip()
+
+        return next_page
 
     def _parse_user_traffic_info(self, html_text):
         # TODO
