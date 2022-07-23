@@ -365,6 +365,9 @@
 
   //动态检查站点FREE
   function check_site_free(url){
+    if(!url){
+      return;
+    }
     ajax_post("check_site_attr", {"url": url}, function(ret){
       $("#site_free").empty();
       $("#site_free").append('<option value="" selected>全部</option>');
