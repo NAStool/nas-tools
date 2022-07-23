@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from queue import Queue
 import sqlite3
-import log
 import threading
+from queue import Empty, Queue
+
+import log
 
 
 class SQLit3PoolConnection:
@@ -45,9 +46,10 @@ class DBPool(object):
         print("release Pool..")
         self.__lock.acquire()
         while self.__free_conns and not self.__free_conns.empty():
-            con = self.get()
-            con.close()
-            if self.__free_conns.empty():
+            try:
+                con = self.__free_conns.get()
+                con.close()
+            except Empty:
                 break
         self.__free_conns = None
         self.__lock.release()
