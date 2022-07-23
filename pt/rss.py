@@ -19,7 +19,7 @@ from utils.http_utils import RequestUtils
 from utils.meta_helper import MetaHelper
 from utils.sqls import get_rss_movies, get_rss_tvs, insert_rss_torrents, \
     is_torrent_rssd, delete_rss_movie, delete_rss_tv, update_rss_tv_lack, \
-    update_rss_movie_state, update_rss_tv_state, update_rss_movie_tmdbid, update_rss_tv_tmdbid, get_rss_tv_episodes
+    update_rss_movie_state, update_rss_tv_state, update_rss_movie_tmdb, update_rss_tv_tmdb, get_rss_tv_episodes
 from utils.types import MediaType, SearchType
 
 lock = Lock()
@@ -477,10 +477,11 @@ class Rss:
             if media_info and media_info.tmdb_id and media_info.title != name:
                 log.info(f"【RSS】检测到TMDB信息变化，更新电影订阅 {name} 为 {media_info.title}")
                 # 更新订阅信息
-                update_rss_movie_tmdbid(rid=rid,
-                                        tmdbid=media_info.tmdb_id,
-                                        title=media_info.title,
-                                        year=media_info.year)
+                update_rss_movie_tmdb(rid=rid,
+                                      tmdbid=media_info.tmdb_id,
+                                      title=media_info.title,
+                                      year=media_info.year,
+                                      image=media_info.get_message_image())
                 # 清除TMDB缓存
                 self.metahelper.delete_meta_data_by_tmdbid(media_info.tmdb_id)
 
@@ -507,11 +508,12 @@ class Rss:
                 if total_episode and (name != media_info.title or total != total_episode):
                     log.info(f"【RSS】检测到TMDB信息变化，更新电视剧订阅 {name} 为 {media_info.title}，总集数为：{total_episode}")
                     # 更新订阅信息
-                    update_rss_tv_tmdbid(rid=rid,
-                                         tmdbid=media_info.tmdb_id,
-                                         title=media_info.title,
-                                         year=media_info.year,
-                                         total=total_episode)
+                    update_rss_tv_tmdb(rid=rid,
+                                       tmdbid=media_info.tmdb_id,
+                                       title=media_info.title,
+                                       year=media_info.year,
+                                       total=total_episode,
+                                       image=media_info.get_message_image())
                     # 清除TMDB缓存
                     self.metahelper.delete_meta_data_by_tmdbid(media_info.tmdb_id)
 
