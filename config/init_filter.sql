@@ -81,27 +81,18 @@ remux','[Hx].?26[45]','20,99',NULL),
  (10024,'1001','典藏-1080p-REMUX','8','1080[pi]
 remux','[Hx].?26[45]','20,99',NULL),
  (10025,'1000','1080p特效-其他来源','1','特效
-1080[pi]
-[Hx].?26[45]','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','1,30',NULL),
+1080[pi]','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','1,30',NULL),
  (10026,'1000','1080p中字-其他来源','2','[中国國繁简](/|\s|\\|\|)?[繁简英粤]|[英简繁](/|\s|\\|\|)?[中繁简]|繁體|简体|[中国國][字配]|国语|國語|中文
-1080[pi]
-[Hx].?26[45]','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','1,30',NULL),
+1080[pi]','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','1,30',NULL),
  (10027,'1000','4k特效-其他来源','3','特效
-4k|2160p
-[Hx].?26[45]','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','1,30',NULL),
+4k|2160p','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','1,30',NULL),
  (10028,'1000','4k中字-其他来源','4','[中国國繁简](/|\s|\\|\|)?[繁简英粤]|[英简繁](/|\s|\\|\|)?[中繁简]|繁體|简体|[中国國][字配]|国语|國語|中文
-4k|2160p
-[Hx].?26[45]','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','1,30',NULL),
+4k|2160p','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','1,30',NULL),
  (10029,'1000','高清特效-其他来源','5','特效
-720p
-[Hx].?26[45]','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','30',NULL),
+720p','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','30',NULL),
  (10030,'1000','高清中字-其他来源','6','[中国國繁简](/|\s|\\|\|)?[繁简英粤]|[英简繁](/|\s|\\|\|)?[中繁简]|繁體|简体|[中国國][字配]|国语|國語|中文
-720p
-[Hx].?26[45]','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','30',NULL),
- (10031,'1000','1080p-其他来源','7','1080[pi]
-[Hx].?26[45]','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','30',NULL),
- (10032,'1000','4k-其他来源','8','4k|2160p
-[Hx].?26[45]','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','30',NULL),
- (10033,'1000','高清-其他来源','9','720p
-[Hx].?26[45]','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','30',NULL);
+720p','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','30',NULL),
+ (10031,'1000','1080p-其他来源','7','1080[pi]','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','30',NULL),
+ (10032,'1000','4k-其他来源','8','4k|2160p','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','30',NULL),
+ (10033,'1000','高清-其他来源','9','720p','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','30',NULL);
 COMMIT;
