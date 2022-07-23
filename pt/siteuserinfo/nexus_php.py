@@ -191,6 +191,17 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         if not self.seeding_info:
             self.seeding_info = tmp_seeding_info
 
+        seeding_sizes = html.xpath('//tr/td[text()="做种统计"]/following-sibling::td[1]//text()')
+        if seeding_sizes:
+            seeding_match = re.search(r"总做种数:\s+(\d+)", seeding_sizes[0], re.IGNORECASE)
+            seeding_size_match = re.search(r"总做种体积:\s+([\d,.\s]+[KMGTPI]*B)", seeding_sizes[0], re.IGNORECASE)
+            tmp_seeding = str_int(seeding_match.group(1)) if (seeding_match and seeding_match.group(1)) else 0
+            tmp_seeding_size = num_filesize(seeding_size_match.group(1).strip()) if seeding_size_match else 0
+        if not self.seeding_size:
+            self.seeding_size = tmp_seeding_size
+        if not self.seeding:
+            self.seeding = tmp_seeding
+
         self.__fixup_torrent_seeding_page(html)
 
     def __fixup_torrent_seeding_page(self, html):
@@ -220,10 +231,11 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
                 self._torrent_seeding_params = {'userid': self.userid, 'type': 'seeding', 'csrf': csrf_text[0].strip()}
 
         # 分类做种模式
-        seeding_url_text = html.xpath('//tr/td[text()="当前做种"]/following-sibling::td[1]'
-                                      '/table//td/a[contains(@href,"seeding")]/@href')
-        if seeding_url_text:
-            self._torrent_seeding_page = seeding_url_text
+        # 临时屏蔽
+        # seeding_url_text = html.xpath('//tr/td[text()="当前做种"]/following-sibling::td[1]'
+        #                              '/table//td/a[contains(@href,"seeding")]/@href')
+        # if seeding_url_text:
+        #    self._torrent_seeding_page = seeding_url_text
 
     def __get_user_level(self, html):
         # 等级 获取同一行等级数据，图片格式等级，取title信息，否则取文本信息
