@@ -1,4 +1,3 @@
-import re
 from apscheduler.schedulers.background import BackgroundScheduler
 import log
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
@@ -69,7 +68,8 @@ class Scheduler:
                                                "cron",
                                                hour=start_hour,
                                                minute=start_minute)
-                        log.info("【RUN】PT站自动签到服务时间范围随机模式启动，起始时间于%s:%s" % (str(start_hour).rjust(2, '0'), str(start_minute).rjust(2, '0')))
+                        log.info("【RUN】PT站自动签到服务时间范围随机模式启动，起始时间于%s:%s" % (
+                            str(start_hour).rjust(2, '0'), str(start_minute).rjust(2, '0')))
                     except Exception as e:
                         log.info("【RUN】PT站自动签到时间 时间范围随机模式 配置格式错误：%s %s" % (ptsignin_cron, str(e)))
                 elif ptsignin_cron.find(':') != -1:
@@ -165,8 +165,8 @@ class Scheduler:
         # PT站数据刷新
         self.SCHEDULER.add_job(Sites().refresh_pt_date_now, 'interval', hours=REFRESH_PT_DATA_INTERVAL)
 
-        # 豆瓣RSS转TMDB
-        self.SCHEDULER.add_job(Rss().rssdouban_to_tmdb, 'interval', hours=RSS_DOUBAN_TO_TMDB_INTERVAL)
+        # 豆瓣RSS转TMDB，定时更新TMDB数据
+        self.SCHEDULER.add_job(Rss().refresh_rss_metainfo, 'interval', hours=RSS_DOUBAN_TO_TMDB_INTERVAL)
 
         self.SCHEDULER.print_jobs()
 
@@ -191,12 +191,12 @@ class Scheduler:
         # 随机数从1秒开始，不在整点签到
         second = random.randint(1, 59)
         log.info("【RUN】PT站自动签到时间 即将在%s-%s-%s,%s:%s:%s签到" % (
-        str(year), str(month), str(day), str(hour), str(minute), str(second)))
-        if (hour < 0 or hour > 24):
+            str(year), str(month), str(day), str(hour), str(minute), str(second)))
+        if hour < 0 or hour > 24:
             hour = -1
-        if (minute < 0 or minute > 60):
+        if minute < 0 or minute > 60:
             minute = -1
-        if (hour < 0 or minute < 0):
+        if hour < 0 or minute < 0:
             log.warn("【RUN】PT站自动签到时间 配置格式错误：不启动任务")
             return
         self.SCHEDULER.add_job(Sites().signin,

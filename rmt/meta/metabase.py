@@ -430,7 +430,7 @@ class MetaBase(object):
     # 获取消息媒体图片
     # 增加cache，优化资源检索时性能
     @classmethod
-    @lru_cache(maxsize=512)
+    @lru_cache(maxsize=128)
     def __get_fanart_image(cls, search_type, tmdbid, default=None):
         if not search_type:
             return ""

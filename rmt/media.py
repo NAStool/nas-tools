@@ -543,13 +543,14 @@ class Media:
                 ret_infos.append(tv)
         return ret_infos
 
-    def get_media_info(self, title, subtitle=None, mtype=None, strict=None):
+    def get_media_info(self, title, subtitle=None, mtype=None, strict=None, cache=True):
         """
         只有名称信息，判别是电影还是电视剧并搜刮TMDB信息，用于种子名称识别
         :param title: 种子名称
         :param subtitle: 种子副标题
         :param mtype: 类型：电影、电视剧、动漫
         :param strict: 是否严格模式，为true时，不会再去掉年份再查一次
+        :param cache: 是否使用缓存，默认TRUE
         :return: 带有TMDB信息的MetaInfo对象
         """
         if not title:
@@ -564,7 +565,7 @@ class Media:
             meta_info.type = mtype
         media_key = "[%s]%s-%s-%s" % (
             meta_info.type.value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
-        if not self.meta.get_meta_data_by_key(media_key):
+        if not cache or not self.meta.get_meta_data_by_key(media_key):
             # 缓存中没有开始查询
             if meta_info.type != MediaType.TV and not meta_info.year:
                 file_media_info = self.__search_multi_tmdb(file_media_name=meta_info.get_name())
@@ -859,7 +860,7 @@ class Media:
                      "air_date": season.get("air_date")})
         return total_seasons
 
-    def get_tmdb_season_episodes_num(self, sea, tv_info=None, tmdbid=None):
+    def get_tmdb_season_episodes_num(self, sea: int, tv_info=None, tmdbid=None):
         """
         从TMDB的季信息中获得具体季有多少集
         :param sea: 季号，数字
@@ -878,7 +879,7 @@ class Media:
             return 0
         for season in seasons:
             if season.get("season_number") == sea:
-                return season.get("episode_count")
+                return int(season.get("episode_count"))
         return 0
 
     @staticmethod

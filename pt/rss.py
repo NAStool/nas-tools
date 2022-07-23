@@ -16,6 +16,7 @@ from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from utils.functions import tag_value, str_filesize
 from utils.http_utils import RequestUtils
+from utils.meta_helper import MetaHelper
 from utils.sqls import get_rss_movies, get_rss_tvs, insert_rss_torrents, \
     is_torrent_rssd, delete_rss_movie, delete_rss_tv, update_rss_tv_lack, \
     update_rss_movie_state, update_rss_tv_state, update_rss_movie_tmdbid, update_rss_tv_tmdbid, get_rss_tv_episodes
@@ -31,6 +32,7 @@ class Rss:
     media = None
     downloader = None
     searcher = None
+    metahelper = None
 
     def __init__(self):
         self.message = Message()
@@ -39,6 +41,7 @@ class Rss:
         self.searcher = Searcher()
         self.sites = Sites()
         self.filterrule = FilterRule()
+        self.metahelper = MetaHelper()
         self.init_config()
 
     def init_config(self):
@@ -453,9 +456,9 @@ class Rss:
                             update_rss_tv_lack(rssid=rssid, lack_episodes=no_exist_item.get("episodes"))
                         break
 
-    def rssdouban_to_tmdb(self):
+    def refresh_rss_metainfo(self):
         """
-        定时将豆瓣订阅转换为TMDB的订阅
+        定时将豆瓣订阅转换为TMDB的订阅，并更新订阅的TMDB信息
         """
         # 更新电影
         movies = get_rss_movies(state='R')
@@ -464,26 +467,56 @@ class Rss:
             name = movie[0]
             year = movie[1] or ""
             tmdbid = movie[2]
-            if not tmdbid or not tmdbid.startswith("DB:"):
+            if not tmdbid:
                 continue
-            media_info = self.__get_media_info(tmdbid, name, year, MediaType.MOVIE)
-            if media_info and media_info.tmdb_id:
-                update_rss_movie_tmdbid(rid=rid, tmdbid=media_info.tmdb_id)
+            media_info = self.__get_media_info(tmdbid=tmdbid,
+                                               name=name,
+                                               year=year,
+                                               mtype=MediaType.MOVIE,
+                                               cache=False)
+            if media_info and media_info.tmdb_id and media_info.title != name:
+                log.info(f"【RSS】检测到TMDB信息变化，更新电影订阅 {name} 为 {media_info.title}")
+                # 更新订阅信息
+                update_rss_movie_tmdbid(rid=rid,
+                                        tmdbid=media_info.tmdb_id,
+                                        title=media_info.title,
+                                        year=media_info.year)
+                # 清除TMDB缓存
+                self.metahelper.delete_meta_data_by_tmdbid(media_info.tmdb_id)
+
         # 更新电视剧
         tvs = get_rss_tvs(state='R')
         for tv in tvs:
             rid = tv[10]
             name = tv[0]
             year = tv[1] or ""
+            season = tv[2]
             tmdbid = tv[3]
-            if not tmdbid or not tmdbid.startswith("DB:"):
+            total = int(tv[6])
+            if not tmdbid:
                 continue
-            media_info = self.__get_media_info(tmdbid, name, year, MediaType.TV)
+            media_info = self.__get_media_info(tmdbid=tmdbid,
+                                               name=name,
+                                               year=year,
+                                               mtype=MediaType.TV,
+                                               cache=False)
             if media_info and media_info.tmdb_id:
-                update_rss_tv_tmdbid(rid=rid, tmdbid=media_info.tmdb_id)
+                # 获取总集数
+                total_episode = self.media.get_tmdb_season_episodes_num(sea=int(str(season).replace("S", "")),
+                                                                        tv_info=media_info.tmdb_info)
+                if total_episode and (name != media_info.title or total != total_episode):
+                    log.info(f"【RSS】检测到TMDB信息变化，更新电视剧订阅 {name} 为 {media_info.title}，总集数为：{total_episode}")
+                    # 更新订阅信息
+                    update_rss_tv_tmdbid(rid=rid,
+                                         tmdbid=media_info.tmdb_id,
+                                         title=media_info.title,
+                                         year=media_info.year,
+                                         total=total_episode)
+                    # 清除TMDB缓存
+                    self.metahelper.delete_meta_data_by_tmdbid(media_info.tmdb_id)
 
     @staticmethod
-    def __get_media_info(tmdbid, name, year, mtype):
+    def __get_media_info(tmdbid, name, year, mtype, cache=True):
         """
         综合返回媒体信息
         """
@@ -492,7 +525,7 @@ class Rss:
             tmdb_info = Media().get_tmdb_info(mtype=mtype, title=name, year=year, tmdbid=tmdbid)
             media_info.set_tmdb_info(tmdb_info)
         else:
-            media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=mtype, strict=True)
+            media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=mtype, strict=True, cache=cache)
         return media_info
 
     @staticmethod
@@ -578,7 +611,7 @@ class Rss:
     @staticmethod
     def __get_rss_no_exists(target, source, title):
         """
-        对两个字典进行判重，有相同项目的取集的交集
+        对两个字典值进行判重，有相同项目的取集的交集
         """
         if not source or not title:
             return target

@@ -397,11 +397,6 @@ def get_config_filter_rule(groupid=None):
                              "ORDER BY CAST(PRIORITY AS DECIMAL) ASC", (groupid,))
 
 
-# 更新过滤规则
-def update_config_filter_rule(ruleid, item):
-    pass
-
-
 # 查询订阅电影信息
 def get_rss_movies(state=None, rssid=None):
     if rssid:
@@ -439,11 +434,11 @@ def get_rss_movie_sites(rssid):
 
 
 # 更新订阅电影的TMDBID
-def update_rss_movie_tmdbid(rid, tmdbid):
+def update_rss_movie_tmdbid(rid, tmdbid, title, year):
     if not tmdbid:
         return False
-    sql = "UPDATE RSS_MOVIES SET TMDBID = ? WHERE ID = ?"
-    return update_by_sql(sql, (tmdbid, rid))
+    sql = "UPDATE RSS_MOVIES SET TMDBID = ?, NAME = ?, YEAR = ? WHERE ID = ?"
+    return update_by_sql(sql, (tmdbid, str_sql(title), str_sql(year), rid))
 
 
 # 判断RSS电影是否存在
@@ -560,11 +555,11 @@ def get_rss_tv_sites(rssid):
 
 
 # 更新订阅电影的TMDBID
-def update_rss_tv_tmdbid(rid, tmdbid):
+def update_rss_tv_tmdbid(rid, tmdbid, title, year, total):
     if not tmdbid:
         return False
-    sql = "UPDATE RSS_TVS SET TMDBID = ? WHERE ID = ?"
-    return update_by_sql(sql, (tmdbid, rid))
+    sql = "UPDATE RSS_TVS SET TMDBID = ?, NAME = ?, YEAR = ?, TOTAL = ? WHERE ID = ?"
+    return update_by_sql(sql, (tmdbid, str_sql(title), year, total, rid))
 
 
 # 判断RSS电视剧是否存在
@@ -833,6 +828,7 @@ def update_site_seed_info(site_user_infos: list):
                           site_user_info.site_url))
 
     return update_by_sql_batch(sql, data_list)
+
 
 # 判断站点用户数据是否存在
 def is_site_user_statistics_exists(url):
