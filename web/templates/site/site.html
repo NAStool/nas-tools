@@ -363,4 +363,26 @@
     });
   }
 
+  //动态检查站点FREE
+  function check_site_free(url){
+    ajax_post("check_site_attr", {"url": url}, function(ret){
+      $("#site_free").empty();
+      $("#site_free").append('<option value="" selected>全部</option>');
+      if(ret.site_free){
+        $("#site_free").append('<option value="FREE">免费</option>');
+      }
+      if(ret.site_2xfree){
+        $("#site_free").append('<option value="2XFREE">2X免费</option>');
+      }
+    });
+  }
+
+  //绑定事件
+  $("#site_signurl").blur(function(){
+      check_site_free($(this).val());
+  });
+  $("#site_rssurl").blur(function(){
+      check_site_free($(this).val());
+  });
+
 </script>

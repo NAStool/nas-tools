@@ -103,7 +103,9 @@ class WebAction:
             "get_site_history": self.__get_site_history,
             "get_recommend": self.get_recommend,
             "get_downloaded": self.get_downloaded,
-            "get_site_seeding_info": self.__get_site_seeding_info
+            "get_site_seeding_info": self.__get_site_seeding_info,
+            "clear_tmdb_cache": self.__clear_tmdb_cache,
+            "check_site_attr": self.__check_site_attr
         }
 
     def action(self, cmd, data):
@@ -603,9 +605,6 @@ class WebAction:
         """
         检查新版本
         """
-        version = ""
-        info = ""
-        code = 0
         try:
             response = RequestUtils(proxies=self.config.get_proxies()).get_res(
                 "https://api.github.com/repos/jxxghp/nas-tools/releases/latest")
@@ -613,10 +612,10 @@ class WebAction:
                 ver_json = response.json()
                 version = ver_json["tag_name"]
                 info = f'<a href="{ver_json["html_url"]}" target="_blank">{version}</a>'
+                return {"code": 0, "version": version, "info": info}
         except Exception as e:
             print(str(e))
-            code = -1
-        return {"code": code, "version": version, "info": info}
+        return {"code": -1, "version": "", "info": ""}
 
     @staticmethod
     def __update_site(data):
@@ -1724,3 +1723,32 @@ class WebAction:
                     % (rule_filter_string.get(dltimes[0]), dltimes[1]))
 
         return "<br>".join(rule_htmls)
+
+    @staticmethod
+    def __clear_tmdb_cache(data):
+        """
+        清空TMDB缓存
+        """
+        try:
+            MetaHelper().clear_meta_data()
+            os.remove(MetaHelper().get_meta_data_path())
+        except Exception as e:
+            return {"code": 0, "msg": str(e)}
+        return {"code": 0}
+
+    @staticmethod
+    def __check_site_attr(data):
+        """
+        检查站点标识
+        """
+        url = data.get("url")
+        url_host = parse.urlparse(url).netloc
+        site_free = site_2xfree = site_hr = False
+        if url_host in RSS_SITE_GRAP_CONF.keys():
+            if RSS_SITE_GRAP_CONF[url_host].get("FREE"):
+                site_free = True
+            if RSS_SITE_GRAP_CONF[url_host].get("2XFREE"):
+                site_2xfree = True
+            if RSS_SITE_GRAP_CONF[url_host].get("HR"):
+                site_hr = True
+        return {"code": 0, "site_free": site_free, "site_2xfree": site_2xfree, "site_hr": site_hr}

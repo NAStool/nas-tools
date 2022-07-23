@@ -35,6 +35,13 @@ class MetaHelper(object):
     def __get_meta_data(self):
         return self.__meta_data
 
+    def clear_meta_data(self):
+        with lock:
+            self.__meta_data = {}
+
+    def get_meta_data_path(self):
+        return self.__meta_path
+
     def get_meta_data_by_key(self, key):
         with lock:
             info: dict = self.__get_meta_data().get(key)
@@ -95,9 +102,11 @@ class MetaHelper(object):
     @staticmethod
     def __load_meta_data(path):
         try:
-            with open(path, 'rb') as f:
-                data = pickle.load(f)
-            return data
+            if os.path.exists(path):
+                with open(path, 'rb') as f:
+                    data = pickle.load(f)
+                return data
+            return {}
         except Exception as e:
             print(str(e))
             return {}

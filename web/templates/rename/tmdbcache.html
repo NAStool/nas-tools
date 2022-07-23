@@ -7,7 +7,33 @@
                     TMDB缓存
                 </h2>
             </div>
-            <!-- Page title actions -->
+            <div class="col-auto ms-auto d-print-none">
+                <div class="btn-list">
+                    <a href="javascript:clear_tmdb_cache()" class="btn btn-primary d-none d-sm-inline-block">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eraser" width="40"
+                            height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path
+                                d="M19 20h-10.5l-4.21 -4.3a1 1 0 0 1 0 -1.41l10 -10a1 1 0 0 1 1.41 0l5 5a1 1 0 0 1 0 1.41l-9.2 9.3">
+                            </path>
+                            <path d="M18 13.3l-6.3 -6.3"></path>
+                        </svg>
+                        清空TMDB缓存
+                    </a>
+                    <a href="javascript:clear_tmdb_cache()" class="btn btn-primary d-sm-none btn-icon" title="清空TMDB缓存">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eraser" width="40"
+                            height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path
+                                d="M19 20h-10.5l-4.21 -4.3a1 1 0 0 1 0 -1.41l10 -10a1 1 0 0 1 1.41 0l5 5a1 1 0 0 1 0 1.41l-9.2 9.3">
+                            </path>
+                            <path d="M18 13.3l-6.3 -6.3"></path>
+                        </svg>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -121,13 +147,14 @@
                                             {% endif %}
                                         </div>
                                     </td>
-                                    <td><span class="d-none d-md-block">{{ TmdbCache[1].overview|truncate(140, True)}}</span></td>
+                                    <td><span class="d-none d-md-block">{{ TmdbCache[1].overview|truncate(140,
+                                            True)}}</span></td>
                                     <td>
                                         {% if TmdbCache[1].poster_path %}
                                         <span class="d-none d-md-block" style="width: 60px">
-                                        <img class="rounded"
-                                            src="https://image.tmdb.org/t/p/w500{{ TmdbCache[1].poster_path }}"
-                                            onerror="this.src='../static/img/no-image.png'"/>
+                                            <img class="rounded"
+                                                src="https://image.tmdb.org/t/p/w500{{ TmdbCache[1].poster_path }}"
+                                                onerror="this.src='../static/img/no-image.png'" />
                                         </span>
                                         {% endif %}
                                     </td>
@@ -211,7 +238,8 @@
         </div>
     </div>
 </div>
-<div class="modal modal-blur fade" id="tmdb_cache_detail" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="tmdb_cache_detail" tabindex="-1" role="dialog" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header border-bottom-0">
@@ -226,30 +254,31 @@
         </div>
     </div>
 </div>
-<div class="modal modal-blur fade" id="modal-tmdbcache-modify" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="card border-top-0">
-          <div class="card-header">
-            <h5 class="modal-title">修改TMDB缓存</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="card-body">
-            <div class="row">
-              <label class="form-label required">标题</label>
-              <div class="row mb-3">
-                <input type="hidden" id="tmdbcache_key">
-                <input type="text" value="" id="tmdbcache_title" class="form-control" placeholder="标题">
-              </div>
+<div class="modal modal-blur fade" id="modal-tmdbcache-modify" tabindex="-1" role="dialog" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="card border-top-0">
+                <div class="card-header">
+                    <h5 class="modal-title">修改TMDB缓存</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <label class="form-label required">标题</label>
+                        <div class="row mb-3">
+                            <input type="hidden" id="tmdbcache_key">
+                            <input type="text" value="" id="tmdbcache_title" class="form-control" placeholder="标题">
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a href="javascript:modify_title()" id="tmdbcache_modify_btn" class="btn btn-primary">确定</a>
-      </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+                <a href="javascript:modify_title()" id="tmdbcache_modify_btn" class="btn btn-primary">确定</a>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 <script type="text/javascript">
     // 上一页
@@ -270,24 +299,24 @@
     }
 
     // 显示修改
-    function show_modify(key, title){
+    function show_modify(key, title) {
         $("#tmdbcache_key").val(key);
         $("#tmdbcache_title").val(title);
         $("#modal-tmdbcache-modify").modal('show');
     }
 
     // 修改标题
-    function modify_title(){
+    function modify_title() {
         var key = $("#tmdbcache_key").val();
-        if(!key){
+        if (!key) {
             return;
         }
         var title = $("#tmdbcache_title").val();
-        if(!title){
+        if (!title) {
             $("#tmdbcache_title").addClass("is-invalid");
-          return;
+            return;
         } else {
-          $("#tmdbcache_title").removeClass("is-invalid");
+            $("#tmdbcache_title").removeClass("is-invalid");
         }
         $("#modal-tmdbcache-modify").modal('hide');
         ajax_post("modify_tmdb_cache", { "key": key, "title": title }, function () {
@@ -295,9 +324,20 @@
         });
     }
 
+    //清空TMDB缓存
+    function clear_tmdb_cache(){
+        show_confirm_modal("清空TMDB缓存后，将会增加TMDB API的请求次数，增加搜索响应时间，但是可以一次性解决TMDB改名后本地缓存未更新的问题，是否确认？", function(){
+        hide_confirm_modal();
+        ajax_post("clear_tmdb_cache", {}, function (ret) {
+          show_success_modal("TMDB缓存清理完成！");
+          navmenu('tmdbcache');
+        });
+      });
+    }
+
     //删除提示
     function manual_delete(key) {
-        show_confirm_modal(key + " 对应的缓存TMDB条目将被删除，是否确认？", function(){
+        show_confirm_modal(key + " 对应的缓存TMDB条目将被删除，是否确认？", function () {
             hide_confirm_modal();
             ajax_post("delete_tmdb_cache", { "cache_key": key }, function () {
                 navmenu('tmdbcache');
