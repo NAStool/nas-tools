@@ -10,55 +10,55 @@ from utils.http_utils import RequestUtils
 
 
 class ISiteUserInfo(metaclass=ABCMeta):
-    # 站点信息
-    site_name = None
-    site_url = None
-    # 用户信息
-    username = None
-    userid = None
-
-    # 流量信息
-    upload = 0
-    download = 0
-    ratio = 0
-
-    # 种子信息
-    seeding = 0
-    leeching = 0
-    uploaded = 0
-    completed = 0
-    incomplete = 0
-    seeding_size = 0
-    leeching_size = 0
-    uploaded_size = 0
-    completed_size = 0
-    incomplete_size = 0
-    # 做种人数, 种子大小
-    seeding_info = []
-
-    # 用户详细信息
-    user_level = None
-    join_at = None
-    bonus = 0.0
-
-    # 错误信息
-    err_msg = None
-    # 内部数据
-    _base_url = None
-    _site_cookie = None
-    _index_html = None
-
-    # 站点模版
-    _site_schema = None
-    # 站点页面
-    _brief_page = "index.php"
-    _user_detail_page = "userdetails.php?id="
-    _user_traffic_page = "index.php"
-    _torrent_seeding_page = "getusertorrentlistajax.php?userid="
-    _torrent_seeding_params = None
-
     def __init__(self, site_name, url, site_cookie, index_html, session=None):
         super().__init__()
+        # 站点信息
+        self.site_name = None
+        self.site_url = None
+        # 用户信息
+        self.username = None
+        self.userid = None
+
+        # 流量信息
+        self.upload = 0
+        self.download = 0
+        self.ratio = 0
+
+        # 种子信息
+        self.seeding = 0
+        self.leeching = 0
+        self.uploaded = 0
+        self.completed = 0
+        self.incomplete = 0
+        self.seeding_size = 0
+        self.leeching_size = 0
+        self.uploaded_size = 0
+        self.completed_size = 0
+        self.incomplete_size = 0
+        # 做种人数, 种子大小
+        self.seeding_info = []
+
+        # 用户详细信息
+        self.user_level = None
+        self.join_at = None
+        self.bonus = 0.0
+
+        # 错误信息
+        self.err_msg = None
+        # 内部数据
+        self._base_url = None
+        self._site_cookie = None
+        self._index_html = None
+
+        # 站点模版
+        self._site_schema = None
+        # 站点页面
+        self._brief_page = "index.php"
+        self._user_detail_page = "userdetails.php?id="
+        self._user_traffic_page = "index.php"
+        self._torrent_seeding_page = "getusertorrentlistajax.php?userid="
+        self._torrent_seeding_params = None
+
         split_url = urlsplit(url)
         self.site_name = site_name
         self.site_url = url
