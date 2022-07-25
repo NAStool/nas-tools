@@ -3,7 +3,7 @@
 from unittest import TestCase
 
 from rmt.metainfo import MetaInfo
-from tests.fixtures.meta_cases import meta_cases
+from tests.cases.meta_cases import meta_cases
 
 
 class MetaInfoTest(TestCase):
