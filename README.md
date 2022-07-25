@@ -197,10 +197,10 @@ https://github.com/jxxghp/nas-tools/releases
 ### 5、配置微信菜单/Telegram机器人（推荐）
 配置好微信或Telegram机器人后，可以直接通过微信/Telegram机器人发送名字实现自动检索下载，以及控制程序运行。
 
-1) 微信消息菜单
+1) 微信消息回调及菜单
 
 * 配置微信消息接收服务：在企业微信自建应用管理页面-》API接收消息 开启消息接收服务：1、在微信页面生成Token和EncodingAESKey，并在NASTool设置->消息通知->微信中填入对应的输入项并保存。2、重启NASTool。3、微信页面地址URL填写：http(s)://IP:PORT/wechat，点确定进行认证。
-* 配置微信菜单控制：有两种方式，一是直接在聊天窗口中输入命令；二是在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单页面按如下图所示维护好菜单（条目顺序需要一模一样，如果不一样需要修改config.py中定义的WECHAT_MENU菜单序号定义），菜单内容为发送消息，消息内容为命令。
+* 配置微信菜单控制：1、在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单页面按如下图所示维护好菜单，菜单内容为发送消息，消息内容随意（一级菜单及一级菜单下的前几个子菜单顺序需要一模一样，在符合截图的示例项后可以自己增加别的二级菜单项），通过菜单远程控制工具运行。2、通过微信发送电影电视剧名称，或者“订阅”加电影电视剧名称，可以实现远程搜索和订阅，详细使用方法参考WIKI说明。
 
   ![image](https://user-images.githubusercontent.com/51039935/170855173-cca62553-4f5d-49dd-a255-e132bc0d8c3e.png)
 
