@@ -37,8 +37,12 @@ class WeChat(IMessageChannel):
             self.__agent_id = message.get('wechat', {}).get('agentid')
             self.__default_proxy = message.get('wechat', {}).get('default_proxy')
         if self.__default_proxy:
-            self.__send_msg_url = f"{DEFAULT_WECHAT_PROXY}/cgi-bin/message/send?access_token=%s"
-            self.__token_url = f"{DEFAULT_WECHAT_PROXY}/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
+            if isinstance(self.__default_proxy, bool):
+                self.__send_msg_url = f"{DEFAULT_WECHAT_PROXY}/cgi-bin/message/send?access_token=%s"
+                self.__token_url = f"{DEFAULT_WECHAT_PROXY}/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
+            else:
+                self.__send_msg_url = f"{self.__default_proxy}/cgi-bin/message/send?access_token=%s"
+                self.__token_url = f"{self.__default_proxy}/cgi-bin/gettoken?corpid=%s&corpsecret=%s"
         if self.__corpid and self.__corpsecret and self.__agent_id:
             self.__get_access_token()
 

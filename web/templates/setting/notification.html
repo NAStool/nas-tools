@@ -97,10 +97,8 @@
           <div class="row">
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="default_proxy" {% if Config.message.wechat %}{% if Config.message.wechat.default_proxy %}checked{% endif %}{% endif %}>
-                  <span class="form-check-label">使用微信代理服务器 <span class="form-help bg-red-lt" title="由于微信官方限制，2022年6月20日后创建的企业微信应用需要有固定的公网IP地址并加入IP白名单后才能发送消息，使用代理服务器转发可解决该问题，选中该项则代表使用默认的代理服务器：1、默认的代理服务器为免费使用，仅转发请求不会收集用户数据，如不放心可不使用；2、需要将nastool.jxxghp.cn域名对应的IP地址加入企业微信应用的白名单中（通过ping域名获取IP地址）" data-bs-toggle="tooltip">?</span></span>
-                </label>
+                <label class="form-label">消息推送代理 <span class="form-help bg-red-lt" title="由于微信官方限制，2022年6月20日后创建的企业微信应用需要有固定的公网IP地址并加入IP白名单后才能发送消息，使用有固定公网IP的代理服务器转发可解决该问题；代理服务器需自行搭建，搭建方法可参考项目主页说明" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{% if Config.message.wechat %}{% if Config.message.wechat.default_proxy == true %}https://nastool.jxxghp.cn{% else %}{{ Config.message.wechat.default_proxy or '' }}{% endif %}{% endif %}" id="default_proxy" class="form-control" placeholder="https://xxxx.xxxx.xxx">
               </div>
             </div>
           </div>

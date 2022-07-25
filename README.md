@@ -41,7 +41,7 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 
 ## 更新日志
 2022.7.11
-* 内建了微信消息推送代理服务，解决6月20日后新增的企业微信应用需要固定公网IP的问题
+* 微信消息推送支持设置代理服务，更加强大的过滤规则设置
 
 2022.7.8
 * 新增自动化托管刷流功能
@@ -162,7 +162,7 @@ https://github.com/jxxghp/nas-tools/releases
 * 申请TMDB用户，在 https://www.themoviedb.org/ 申请用户，得到API KEY，填入rmt_tmdbkey。
 
 * 申请消息通知服务
-  1) 微信（推荐）：在 https://work.weixin.qq.com/ 申请企业微信自建应用，获得corpid、corpsecret、agentid，扫描二维码在微信中关注企业自建应用。
+  1) 微信（推荐）：在 https://work.weixin.qq.com/ 申请企业微信自建应用，获得corpid、corpsecret、agentid；微信扫描自建应用二维码可实现在微信中使用消息服务，无需打开企业微信。
   2) Server酱：或者在 https://sct.ftqq.com/ 申请SendKey，填入sckey。
   3) Telegram：关注BotFather申请机器人，关注getuserID拿到chat_id，填入telegram_token、telegram_chat_id。
   4) Bark：安装Bark客户端获得KEY，可以自建Bark服务器或者使用默认的服务器。
@@ -203,6 +203,17 @@ https://github.com/jxxghp/nas-tools/releases
 * 配置微信菜单控制：有两种方式，一是直接在聊天窗口中输入命令；二是在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单页面按如下图所示维护好菜单（条目顺序需要一模一样，如果不一样需要修改config.py中定义的WECHAT_MENU菜单序号定义），菜单内容为发送消息，消息内容为命令。
 
   ![image](https://user-images.githubusercontent.com/51039935/170855173-cca62553-4f5d-49dd-a255-e132bc0d8c3e.png)
+
+* 配置消息推送代理：由于微信官方限制，2022年6月20日后创建的企业微信应用需要有固定的公网IP地址并加入IP白名单后才能接收到消息，使用有固定公网IP的代理服务器转发可解决该问题；如使用nginx搭建代理服务，需在配置中增加以下代理配置：
+```
+location /cgi-bin/gettoken {
+  proxy_pass https://qyapi.weixin.qq.com;
+}
+location /cgi-bin/message/send {
+  proxy_pass https://qyapi.weixin.qq.com; 
+}
+```
+注意：代理服务器仅适用于在微信中接收工具推送的消息，消息回调与代理服务器无关。
 
 2) Telegram Bot机器人
 
