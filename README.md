@@ -159,19 +159,19 @@ https://github.com/jxxghp/nas-tools/releases
 
 ## 配置
 ### 1、申请相关API KEY
-* 申请TMDB用户，在 https://www.themoviedb.org/ 申请用户，得到API KEY，填入rmt_tmdbkey。
+* 申请TMDB用户，在 https://www.themoviedb.org/ 申请用户，得到API KEY。
 
 * 申请消息通知服务
-  1) 微信（推荐）：在 https://work.weixin.qq.com/ 申请企业微信自建应用，获得corpid、corpsecret、agentid；微信扫描自建应用二维码可实现在微信中使用消息服务，无需打开企业微信。
-  2) Server酱：或者在 https://sct.ftqq.com/ 申请SendKey，填入sckey。
-  3) Telegram：关注BotFather申请机器人，关注getuserID拿到chat_id，填入telegram_token、telegram_chat_id。
+  1) 微信（推荐）：在 https://work.weixin.qq.com/ 申请企业微信自建应用，获得企业ID、自建应用secret、agentid；微信扫描自建应用二维码可实现在微信中使用消息服务，无需打开企业微信。
+  2) Server酱：或者在 https://sct.ftqq.com/ 申请SendKey。
+  3) Telegram：关注BotFather申请机器人获取token，关注getuserID拿到chat_id。
   4) Bark：安装Bark客户端获得KEY，可以自建Bark服务器或者使用默认的服务器。
 
 
 ### 2、基础配置
 * 文件转移模式说明：目前支持三种模式：复制、硬链接、软链接。复制模式下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠；硬链接模式不用额外增加存储空间，一份文件两份目录，但需要下载目录和媒体库目录在一个磁盘分区或者存储空间；软链接模式就是快捷方式，需要容器内路径与真实路径一致才能正常使用。
 
-* 启动程序并配置：Docker默认使用3000端口启动（群晖套件默认3003端口），默认用户密码：admin/password（docker需要参考教程提前映射好端口、下载目录、媒体库目录），登录管理界面后，在设置中根据每个配置项的提示在WEB页面修改好配置并重启生效（基础设置中有标红星的是必须要配置的，如TMDB APIKEY等）。
+* 启动程序并配置：Docker默认使用3000端口启动（群晖套件默认3003端口），默认用户密码：admin/password（docker需要参考教程提前映射好端口、下载目录、媒体库目录），登录管理界面后，在设置中根据每个配置项的提示在WEB页面修改好配置并重启生效（基础设置中有标红星的是必须要配置的，如TMDB APIKEY等）。详细配置方法可参考默认配置文件的注释及WIKI中的教程。
 
 ### 3、设置Emby/Jellyfin/Plex媒体库（推荐）
 * 在Emby/Jellyfin/Plex的Webhook插件中，设置地址为：http(s)://IP:PORT/emby、jellyfin、plex，用于接收播放通知
