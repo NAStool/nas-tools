@@ -22,17 +22,12 @@ class MessageCenter:
         """
         if not level or not title:
             return
-        if not content:
-            if title.strip().find("：") != -1:
-                msg_title = title.split("：")[0]
-                msg_content = title.split("：")[1]
-            else:
-                msg_title = title.strip()
-                msg_content = ""
-        else:
-            msg_title = title.strip()
-            msg_content = content.replace("\n", "<br>").strip()
-        self.__append_message_queue(level, msg_title, msg_content)
+        if not content and title.find("：") != -1:
+            title = title.split("：")[0]
+            content = title.split("：")[1]
+        title = title.replace("\n", "<br>").strip() if title else ""
+        content = content.replace("\n", "<br>").strip() if content else ""
+        self.__append_message_queue(level, title, content)
 
     def __append_message_queue(self, level, title, content):
         """
