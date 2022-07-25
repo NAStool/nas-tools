@@ -777,7 +777,10 @@
                 }
             },
             xaxis: {
-                tickAmount: 10
+                tickAmount: 10,
+                title: {
+                    text:"做种人数"
+                }
             },
             yaxis: {
                 tickAmount: 7,
@@ -786,6 +789,23 @@
                         return humanFileSize(value)
                     }
                 }
+            },
+            annotations: {
+                xaxis: [{
+                    x: 30,
+                    fillColor: '#B3F7CA',
+                    opacity: 0.4,
+                    label: {
+                        borderColor: '#B3F7CA',
+                        style: {
+                            fontSize: '10px',
+                            color: '#fff',
+                            background: '#00E396',
+                        },
+                        offsetY: -10,
+                        text: '',
+                    }
+                }]
             },
             tooltip: {
                 x: {
@@ -864,12 +884,39 @@
                         $('#site-seeding-info').modal("show");
 
                         window.setTimeout(function () {
+                            let seed_less_30 = 0
+                            let max_seeder = 0
+                            for (let seed of ret.seeding_info) {
+                                if (seed[0] < 30) {
+                                    seed_less_30++;
+                                }
+                                if (seed[0] > max_seeder) {
+                                    max_seeder = seed[0]
+                                }
+                            }
                             chart_seeding_info.updateOptions(
                                 {
                                     series: [{
                                         name: "种子体积",
                                         data: ret.seeding_info
-                                    }]
+                                    }],
+                                    annotations: {
+                                        xaxis: [{
+                                            x: Math.min(30, max_seeder),
+                                            fillColor: '#B3F7CA',
+                                            opacity: 0.4,
+                                            label: {
+                                                borderColor: '#B3F7CA',
+                                                style: {
+                                                    fontSize: '10px',
+                                                    color: '#fff',
+                                                    background: '#00E396',
+                                                },
+                                                offsetY: -10,
+                                                text: '小于人30做种 种子数：' + seed_less_30 + ' (' + ret.seeding_info.length + ')',
+                                            }
+                                        }]
+                                    },
                                 }, true, true, false
                             );
 
