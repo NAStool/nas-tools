@@ -23,8 +23,10 @@ class MessageCenter:
         if not level or not title:
             return
         if not content and title.find("：") != -1:
-            title = title.split("：")[0]
-            content = title.split("：")[1]
+            strings = title.split("：")
+            if strings and len(strings) > 1:
+                title = strings[0]
+                content = strings[1]
         title = title.replace("\n", "<br>").strip() if title else ""
         content = content.replace("\n", "<br>").strip() if content else ""
         self.__append_message_queue(level, title, content)
