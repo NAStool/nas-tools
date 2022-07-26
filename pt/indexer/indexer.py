@@ -71,8 +71,6 @@ class IIndexer(metaclass=ABCMeta):
         if not self.api_key or not indexers:
             log.error(f"【{self.index_type}】配置信息有误！")
             return []
-        # 多线程检索
-        ProcessHandler().reset()
         # 计算耗时
         start_time = datetime.datetime.now()
         if filter_args and filter_args.get("site"):

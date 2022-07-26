@@ -11,6 +11,7 @@ from rmt.doubanv2api.doubanapi import DoubanApi
 from rmt.media import Media
 from rmt.meta.metabase import MetaBase
 from rmt.metainfo import MetaInfo
+from utils.commons import ProcessHandler
 from utils.sqls import insert_search_results, delete_all_search_torrents
 from utils.types import SearchType, MediaType
 from web.backend.subscribe import add_rss_subscribe
@@ -33,7 +34,8 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     if not key_word:
         log.info("【WEB】%s 检索关键字有误！" % content)
         return -1, "%s 未识别到搜索关键字！" % content
-
+    # 进度计数重置
+    ProcessHandler().reset()
     # 识别媒体
     match_words = None
     if ident_flag:
@@ -168,7 +170,15 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         # 搜索名称
         use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
         if use_douban_titles:
-            tmdb_infos = DouBan().search_douban_medias(keyword=media_info.get_name(), mtype=mtype, num=6)
+            douban_search_key = media_info.get_name()
+            if media_info.begin_season:
+                douban_search_key = "%s第%s季" % (douban_search_key, media_info.begin_season)
+            if media_info.year:
+                douban_search_key = "%s %s" % (douban_search_key, media_info.year)
+            tmdb_infos = DouBan().search_douban_medias(keyword=douban_search_key,
+                                                       mtype=mtype,
+                                                       num=6,
+                                                       episode=media_info.begin_episode)
         else:
             tmdb_infos = Media().get_tmdb_infos(title=media_info.get_name(), year=media_info.year, mtype=mtype)
         if not tmdb_infos:

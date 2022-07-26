@@ -589,7 +589,6 @@
           </div>
           <div class="card-body text-center">
             <h3 class="card-title strong" id="modal_process_title">
-              正在处理
             </h3>
             <small class="text-muted" id="modal_process_text">请稍候...</small>
           </div>
@@ -793,6 +792,9 @@
       }else{
         $("#modal_process_title").hide();
       }
+      $("#modal_process_bar").attr("style", "width: 0%");
+      $("#modal_process_bar").attr("aria-valuenow", 0);
+      $("#modal_process_text").text("请稍候...");
       $("#modal-process").modal("show");
       //刷新进度
       refresh_process_flag = true;
@@ -803,9 +805,6 @@
     function hide_refresh_process() {
       $("#modal-process").modal("hide");
       refresh_process_flag = false;
-      $("#modal_process_bar").attr("style", "width: 0%");
-      $("#modal_process_bar").attr("aria-valuenow", 0);
-      $("#modal_process_text").text("请稍候...");
     }
 
     //显示确认提示框

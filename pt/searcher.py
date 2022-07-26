@@ -6,6 +6,7 @@ from pt.indexer.jackett import Jackett
 from pt.indexer.prowlarr import Prowlarr
 from rmt.media import Media
 from rmt.meta.metabase import MetaBase
+from utils.commons import ProcessHandler
 from utils.sqls import delete_all_search_torrents, insert_search_results
 from utils.types import SearchType, MediaType
 
@@ -68,7 +69,8 @@ class Searcher:
         """
         if not media_info:
             return False, {}, 0, 0
-
+        # 进度计数重置
+        ProcessHandler().reset()
         # 查找的季
         if not media_info.begin_season:
             search_season = None
