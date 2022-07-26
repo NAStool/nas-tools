@@ -850,7 +850,7 @@ class Media:
             return []
         total_seasons = []
         for season in seasons:
-            if season.get("season_number") != 0:
+            if season.get("season_number") != 0 and season.get("episode_count") != 0:
                 total_seasons.append(
                     {"season_number": season.get("season_number"),
                      "episode_count": season.get("episode_count"),
