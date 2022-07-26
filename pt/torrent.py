@@ -6,7 +6,6 @@ from urllib import parse
 import cn2an
 from lxml import etree
 from config import TORRENT_SEARCH_PARAMS
-from pt.filterrules import FilterRule
 from pt.siteconf import RSS_SITE_GRAP_CONF
 from rmt.meta.metabase import MetaBase
 from utils.http_utils import RequestUtils

@@ -1,5 +1,4 @@
 import datetime
-import re
 import xml.dom.minidom
 from abc import ABCMeta, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
@@ -11,7 +10,7 @@ from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
 from utils.commons import ProcessHandler
-from utils.functions import tag_value, str_filesize
+from utils.functions import tag_value, str_filesize, handler_special_chars
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
 
@@ -21,7 +20,6 @@ class IIndexer(metaclass=ABCMeta):
     index_type = None
     api_key = None
     filterrule = None
-    __space_chars = r"\.|-|/|:|：|'|‘|!|！|～|&|,"
     __reverse_title_sites = ['keepfriends']
     __invalid_description_sites = ['tjupt']
 
@@ -127,7 +125,7 @@ class IIndexer(metaclass=ABCMeta):
         start_time = datetime.datetime.now()
         log.info(f"【{self.index_type}】开始检索Indexer：{indexer_name} ...")
         # 特殊符号处理
-        search_word = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__space_chars, ' ', key_word)).strip()
+        search_word = handler_special_chars(key_word)
         api_url = f"{indexer_url}?apikey={self.api_key}&t=search&q={search_word}"
         result_array = self.__parse_torznabxml(api_url)
         if len(result_array) == 0:

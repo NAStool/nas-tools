@@ -10,7 +10,7 @@ from config import Config
 from rmt.metainfo import MetaInfo
 from rmt.tmdbv3api import TMDb, Search, Movie, TV
 from rmt.tmdbv3api.exceptions import TMDbException
-from utils.functions import xstr, max_ele, is_chinese
+from utils.functions import xstr, max_ele, is_chinese, handler_special_chars
 from utils.http_utils import RequestUtils
 from utils.meta_helper import MetaHelper
 from utils.types import MediaType, MatchMode
@@ -29,8 +29,6 @@ class Media:
     meta = None
     __rmt_match_mode = None
     __search_keyword = None
-    __space_chars = r"\.|,|-|/|:|：|～|&"
-    __empty_chars = r"'|’|!|！"
 
     def __init__(self):
         self.init_config()
@@ -63,7 +61,8 @@ class Media:
         if laboratory:
             self.__search_keyword = laboratory.get("search_keyword")
 
-    def __compare_tmdb_names(self, file_name, tmdb_names):
+    @staticmethod
+    def __compare_tmdb_names(file_name, tmdb_names):
         """
         比较文件名是否匹配，忽略大小写和特殊字符
         :param file_name: 识别的文件名或者种子名
@@ -74,11 +73,9 @@ class Media:
             return False
         if not isinstance(tmdb_names, list):
             tmdb_names = [tmdb_names]
-        file_name = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__empty_chars, '',
-                                               re.sub(r"%s" % self.__space_chars, ' ', file_name))).strip().upper()
+        file_name = handler_special_chars(file_name).upper()
         for tmdb_name in tmdb_names:
-            tmdb_name = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__empty_chars, '',
-                                                   re.sub(r"%s" % self.__space_chars, ' ', tmdb_name))).strip().upper()
+            tmdb_name = handler_special_chars(tmdb_name).strip().upper()
             if file_name == tmdb_name:
                 return True
         return False

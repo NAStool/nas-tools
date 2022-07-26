@@ -28,7 +28,6 @@ from utils.sqls import *
 from utils.types import *
 from version import APP_VERSION
 from web.action import WebAction
-from web.backend.douban_hot import DoubanHot
 from web.backend.web_utils import get_random_discover_backdrop
 from web.backend.webhook_event import WebhookEvent
 from utils.WXBizMsgCrypt3 import WXBizMsgCrypt
