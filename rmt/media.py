@@ -29,7 +29,7 @@ class Media:
     meta = None
     __rmt_match_mode = None
     __search_keyword = None
-    __space_chars = r"\.|,|-|/|:|："
+    __space_chars = r"\.|,|-|/|:|：|～|&"
     __empty_chars = r"'|’|!|！"
 
     def __init__(self):
