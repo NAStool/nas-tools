@@ -37,6 +37,10 @@
       position: absolute;
       display: none;
     }
+
+    .navbar-vertical {
+      padding-top: env(safe-area-inset-top);
+    }
   </style>
 </head>
 
@@ -585,7 +589,8 @@
       <div class="modal-content">
         <div class="card border-0" style="overflow:hidden">
           <div class="progress rounded-0">
-            <div class="progress-bar progress-bar-striped progress-bar-animated" id="modal_process_bar" style="width: 0%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+            <div class="progress-bar progress-bar-striped progress-bar-animated" id="modal_process_bar"
+              style="width: 0%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
           </div>
           <div class="card-body text-center">
             <h3 class="card-title strong" id="modal_process_title">
@@ -762,24 +767,24 @@
   <!-- 公共函数 -->
   <script type="text/javascript">
     //显示全局加载框
-    function show_wait_process() {
+    function show_wait_process () {
       $("#modal-wait").modal("show");
     }
 
     //关闭全局加载框
-    function hide_wait_process() {
+    function hide_wait_process () {
       $("#modal-wait").modal("hide");
     }
 
     //刷新进度及文件
     var refresh_process_flag = false;
-    function refresh_process() {
+    function refresh_process () {
       ajax_post("refresh_process", {}, function (ret) {
         if (ret.code == 0) {
           $("#modal_process_bar").attr("style", "width: " + ret.value + "%");
           $("#modal_process_bar").attr("aria-valuenow", ret.value);
           $("#modal_process_text").text(ret.text);
-          if(refresh_process_flag){
+          if (refresh_process_flag) {
             setTimeout("refresh_process()", 200);
           }
         }
@@ -787,10 +792,10 @@
     }
 
     //显示全局进度框
-    function show_refresh_process(title) {
-      if(title){
+    function show_refresh_process (title) {
+      if (title) {
         $("#modal_process_title").text(title);
-      }else{
+      } else {
         $("#modal_process_title").hide();
       }
       $("#modal-process").modal("show");
@@ -800,7 +805,7 @@
     }
 
     //关闭全局进度框
-    function hide_refresh_process() {
+    function hide_refresh_process () {
       $("#modal-process").modal("hide");
       refresh_process_flag = false;
       $("#modal_process_bar").attr("style", "width: 0%");
@@ -809,7 +814,7 @@
     }
 
     //显示确认提示框
-    function show_confirm_modal(title, func) {
+    function show_confirm_modal (title, func) {
       $("#system_confirm_message").text(title);
       $("#system_confirm_btn").unbind('click');
       $("#system_confirm_btn").click(func);
@@ -817,12 +822,12 @@
     }
 
     //隐藏确认提示框
-    function hide_confirm_modal() {
+    function hide_confirm_modal () {
       $("#system-confirm-modal").modal("hide");
     }
 
     //显示询问提示框
-    function show_ask_modal(title, func) {
+    function show_ask_modal (title, func) {
       $("#system_ask_message").text(title);
       $("#system_ask_btn").unbind('click');
       $("#system_ask_btn").click(func);
@@ -830,24 +835,24 @@
     }
 
     //隐藏询问提示框
-    function hide_ask_modal() {
+    function hide_ask_modal () {
       $("#system-ask-modal").modal("hide");
     }
 
     //显示成功提示
-    function show_success_modal(title) {
+    function show_success_modal (title) {
       $("#system_success_message").text(title);
       $("#system-success-modal").modal("show");
     }
 
     //显示失败提示
-    function show_fail_modal(title) {
+    function show_fail_modal (title) {
       $("#system_fail_message").text(title);
       $("#system-fail-modal").modal("show");
     }
 
     //显示媒体详情
-    function show_mediainfo_modal(rtype, name, year, tmdbid, page, rssid) {
+    function show_mediainfo_modal (rtype, name, year, tmdbid, page, rssid) {
       show_wait_process();
       if (tmdbid.startsWith("DB:")) {
         var doubanid = tmdbid.replace("DB:", "");
@@ -927,12 +932,12 @@
     }
 
     //隐藏媒体详情
-    function hide_mediainfo_modal() {
+    function hide_mediainfo_modal () {
       $("#system-media-modal").modal("hide");
     }
 
     //刷新tooltip
-    function fresh_tooltip() {
+    function fresh_tooltip () {
       var tooltipTriggerList = Array.prototype.slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
       var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
@@ -940,39 +945,39 @@
     }
 
     //打开路径选择框
-    function openFileBrowser(el, root, filter, on_folders, on_files, close_on_select) {
+    function openFileBrowser (el, root, filter, on_folders, on_files, close_on_select) {
       if (on_folders === undefined) on_folders = true;
-      if (on_files   === undefined) on_files = true;
+      if (on_files === undefined) on_files = true;
       if (!filter && !on_files) filter = 'HIDE_FILES_FILTER';
       if (!root.trim()) root = "/";
       p = $(el);
       // Skip is fileTree is already open
       if (p.next().hasClass('fileTree')) return null;
       // create a random id
-      var r = Math.floor((Math.random()*1000)+1);
+      var r = Math.floor((Math.random() * 1000) + 1);
       // Add a new span and load fileTree
-      p.after("<div id='fileTree"+r+"' class='fileTree card shadow'></div>");
-      var ft = $('#fileTree'+r);
+      p.after("<div id='fileTree" + r + "' class='fileTree card shadow'></div>");
+      var ft = $('#fileTree' + r);
       ft.fileTree({
         script: 'dirlist',
         root: root,
         filter: filter,
         allowBrowsing: true
       },
-      function(file){if(on_files){p.val(file);p.trigger('change');if(close_on_select){ft.slideUp('fast',function(){ft.remove();});}}},
-      function(folder){if(on_folders){p.val(folder);p.trigger('change');if(close_on_select){$(ft).slideUp('fast',function(){$(ft).remove();});}}});
+        function (file) { if (on_files) { p.val(file); p.trigger('change'); if (close_on_select) { ft.slideUp('fast', function () { ft.remove(); }); } } },
+        function (folder) { if (on_folders) { p.val(folder); p.trigger('change'); if (close_on_select) { $(ft).slideUp('fast', function () { $(ft).remove(); }); } } });
       // Format fileTree according to parent position, height and width
-      ft.css({'left':p.position().left,'top':(p.position().top+p.outerHeight()),'width':(p.parent().width())});
+      ft.css({ 'left': p.position().left, 'top': (p.position().top + p.outerHeight()), 'width': (p.parent().width()) });
       // close if click elsewhere
-      $(document).mouseup(function(e){if(!ft.is(e.target) && ft.has(e.target).length === 0){ft.slideUp('fast',function(){$(ft).remove();});}});
+      $(document).mouseup(function (e) { if (!ft.is(e.target) && ft.has(e.target).length === 0) { ft.slideUp('fast', function () { $(ft).remove(); }); } });
       // close if parent changed
-      p.bind("keydown", function(){ft.slideUp('fast', function(){$(ft).remove();});});
+      p.bind("keydown", function () { ft.slideUp('fast', function () { $(ft).remove(); }); });
       // Open fileTree
       ft.slideDown('fast');
     }
 
     //初始化目录选择控件
-    function init_filetree_element() {
+    function init_filetree_element () {
       $('.filetree-folders-only').each(function () {
         $(this).attr("onclick", "openFileBrowser(this,$(this).val(),'',true,false);");
       });
@@ -982,7 +987,7 @@
     }
 
     //导航点击
-    function navmenu(page) {
+    function navmenu (page) {
       nid = page.split("?")[0];
       $("#navbar-menu").find("li").removeClass("active");
       $("#navbar-menu").find("a").removeClass("active");
@@ -1011,7 +1016,7 @@
     }
 
     //新增订阅
-    function add_rss_media(name, year, type, tmdbid, doubanid, page) {
+    function add_rss_media (name, year, type, tmdbid, doubanid, page) {
       hide_mediainfo_modal();
       var data = { "name": name, "type": type, "year": year, "doubanid": doubanid, "tmdbid": tmdbid, "page": page };
       show_wait_process();
@@ -1030,7 +1035,7 @@
     }
 
     // 取消订阅
-    function remove_rss_media(name, year, type, rssid, page) {
+    function remove_rss_media (name, year, type, rssid, page) {
       hide_mediainfo_modal();
       var cmd = "remove_rss_media";
       var data = { "name": name, "type": type, "year": year, "rssid": rssid, "page": page };
@@ -1044,7 +1049,7 @@
     }
 
     // 刷新订阅
-    function refresh_rss_media(type, rssid, page) {
+    function refresh_rss_media (type, rssid, page) {
       hide_mediainfo_modal();
       ajax_post("refresh_rss", { "type": type, "rssid": rssid, "page": page }, function (ret) {
         if (ret.page) {
@@ -1054,7 +1059,7 @@
     }
 
     //搜索
-    function search_mediainfo_media(tmdbid, doubanid, title, typestr) {
+    function search_mediainfo_media (tmdbid, doubanid, title, typestr) {
       hide_mediainfo_modal();
       if (!tmdbid && doubanid) {
         tmdbid = "DB:" + doubanid;
@@ -1081,7 +1086,7 @@
     var AppVersion = "{{ AppVersion }}";
     var NewVersion = '';
     $("#new_version_tip").hide();
-    function check_new_version() {
+    function check_new_version () {
       ajax_post("version", {}, function (ret) {
         if (ret.code == 0) {
           if (ret.version != AppVersion) {
@@ -1094,14 +1099,14 @@
     }
 
     //注销
-    function logout() {
+    function logout () {
       ajax_post("logout", {}, function (ret) {
         window.location.href = "/";
       });
     }
 
     //重启
-    function restart() {
+    function restart () {
       show_confirm_modal("立即重启系统？", function () {
         $("#system_confirm_btn").attr("disabled", true);
         $("#system_confirm_btn").text("重启中...");
@@ -1112,7 +1117,7 @@
     }
 
     //更新
-    function update() {
+    function update () {
       show_confirm_modal("将从Github拉取最新程序代码并重启，是否确认？", function () {
         $("#system_confirm_btn").attr("disabled", true);
         $("#system_confirm_btn").text("更新中...");
@@ -1123,7 +1128,7 @@
     }
 
     //刷新消息中心
-    function refresh_message(time_str) {
+    function refresh_message (time_str) {
       ajax_post("refresh_message", { "lst_time": time_str }, function (ret) {
         if (ret.code == 0) {
           lst_time = ret.lst_time;
@@ -1137,7 +1142,7 @@
     }
 
     //升级新版本
-    function update_to_newversion() {
+    function update_to_newversion () {
       show_confirm_modal("是否确认升级到 " + NewVersion + " 版本？", function () {
         $("#system_confirm_btn").attr("disabled", true);
         $("#system_confirm_btn").text("升级中...");
