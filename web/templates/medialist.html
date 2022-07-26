@@ -64,10 +64,18 @@
     <div class="empty">
       <div class="empty-img"><img src="./static/img/posting_photo.svg" height="128" alt="">
       </div>
-      <p class="empty-title" id="search_tip_title">未找到</p>
+      <p class="empty-title" id="search_tip_title">未找到数据</p>
       <p class="empty-subtitle text-muted" id="search_tip_text">
         没有找到任何电影、电视剧叫这个名字："{{ SearchWord }}"
       </p>
+      {% if OperType == 'search' %}
+      <div class="empty-action">
+        <a href="javascript:navmenu('search?s={{ SearchWord }}')" class="btn btn-primary">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="5" y1="12" x2="19" y2="12" /><line x1="5" y1="12" x2="11" y2="18" /><line x1="5" y1="12" x2="11" y2="6" /></svg>
+          返回
+        </a>
+      </div>
+      {% endif %}
     </div>
   </div>
 </div>
@@ -76,10 +84,14 @@
   //搜索
   function medialist_search(tmdbid, title, type){
     var param = { "tmdbid": tmdbid, "search_word": title, "media_type": type };
-    show_wait_process();
+    show_refresh_process("正在搜索 " + title + " ...");
     ajax_post("search", param, function (ret) {
-      hide_wait_process();
-      navmenu('search?s=' + title)
+      hide_refresh_process();
+      if(ret.code == 0){
+        navmenu('search?s=' + title)
+      }else{
+        show_fail_modal(ret.msg);
+      }
     });
   }
   //新增订阅

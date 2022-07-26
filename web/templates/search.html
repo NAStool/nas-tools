@@ -439,11 +439,11 @@
     $("#quick_search_btn").attr("disabled", "true");
     $("#search_icon").attr("disabled", "true");
     $("#search_tip_title").text("正在搜索 " + keyword + "，请稍后...");
-    $("#search_tip_text").text("");
+    $("#search_tip_text").text("正在搜索 " + keyword + " ...");
     var param = { "search_word": keyword, "unident": unident };
-    show_wait_process();
+    show_refresh_process();
     ajax_post("search", param, function (ret) {
-      hide_wait_process();
+      hide_refresh_process();
       if(ret.code == 0){
         navmenu('search?s=' + keyword);
       }else{

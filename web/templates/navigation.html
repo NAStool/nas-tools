@@ -579,6 +579,24 @@
       <div class="spinner-border text-primary m-auto"></div>
     </div>
   </div>
+  <!-- 进度框 -->
+  <div class="modal modal-blur" id="modal-process" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="card border-0" style="overflow:hidden">
+          <div class="progress rounded-0">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" id="modal_process_bar" style="width: 0%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <div class="card-body text-center">
+            <h3 class="card-title strong" id="modal_process_title">
+              正在处理
+            </h3>
+            <small class="text-muted" id="modal_process_text">请稍候...</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
   <!-- 确认提示框 -->
   <div class="modal modal-blur fade" id="system-confirm-modal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
@@ -751,6 +769,43 @@
     //关闭全局加载框
     function hide_wait_process() {
       $("#modal-wait").modal("hide");
+    }
+
+    //刷新进度及文件
+    var refresh_process_flag = false;
+    function refresh_process() {
+      ajax_post("refresh_process", {}, function (ret) {
+        if (ret.code == 0) {
+          $("#modal_process_bar").attr("style", "width: " + ret.value + "%");
+          $("#modal_process_bar").attr("aria-valuenow", ret.value);
+          $("#modal_process_text").text(ret.text);
+          if(refresh_process_flag){
+            setTimeout("refresh_process()", 200);
+          }
+        }
+      });
+    }
+
+    //显示全局进度框
+    function show_refresh_process(title) {
+      if(title){
+        $("#modal_process_title").text(title);
+      }else{
+        $("#modal_process_title").hide();
+      }
+      $("#modal-process").modal("show");
+      //刷新进度
+      refresh_process_flag = true;
+      refresh_process();
+    }
+
+    //关闭全局进度框
+    function hide_refresh_process() {
+      $("#modal-process").modal("hide");
+      refresh_process_flag = false;
+      $("#modal_process_bar").attr("style", "width: 0%");
+      $("#modal_process_bar").attr("aria-valuenow", 0);
+      $("#modal_process_text").text("请稍候...");
     }
 
     //显示确认提示框
@@ -1005,9 +1060,9 @@
         tmdbid = "DB:" + doubanid;
       }
       var param = { "tmdbid": tmdbid, "search_word": title, "media_type": typestr };
-      show_wait_process();
+      show_refresh_process("正在搜索 " + title + " ...");
       ajax_post("search", param, function (ret) {
-        hide_wait_process();
+        hide_refresh_process();
         if (ret.code == 0) {
           navmenu('search?s=' + title);
         } else {

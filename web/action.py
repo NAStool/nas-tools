@@ -31,7 +31,7 @@ from rmt.metainfo import MetaInfo
 from service.run import stop_scheduler, stop_monitor, restart_scheduler, restart_monitor
 from service.scheduler import Scheduler
 from service.sync import Sync
-from utils.commons import EpisodeFormat
+from utils.commons import EpisodeFormat, ProcessHandler
 from utils.functions import *
 from utils.http_utils import RequestUtils
 from utils.meta_helper import MetaHelper
@@ -105,7 +105,8 @@ class WebAction:
             "get_downloaded": self.get_downloaded,
             "get_site_seeding_info": self.__get_site_seeding_info,
             "clear_tmdb_cache": self.__clear_tmdb_cache,
-            "check_site_attr": self.__check_site_attr
+            "check_site_attr": self.__check_site_attr,
+            "refresh_process": self.__refresh_process
         }
 
     def action(self, cmd, data):
@@ -1752,3 +1753,11 @@ class WebAction:
             if RSS_SITE_GRAP_CONF[url_host].get("HR"):
                 site_hr = True
         return {"code": 0, "site_free": site_free, "site_2xfree": site_2xfree, "site_hr": site_hr}
+
+    @staticmethod
+    def __refresh_process(data):
+        """
+        刷新进度条
+        """
+        detail = ProcessHandler().get_process()
+        return {"code": 0, "value": detail.get("value"), "text": detail.get("text")}

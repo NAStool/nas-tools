@@ -1,3 +1,4 @@
+import datetime
 import re
 import xml.dom.minidom
 from abc import ABCMeta, abstractmethod
@@ -9,6 +10,7 @@ from pt.filterrules import FilterRule
 from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
+from utils.commons import ProcessHandler
 from utils.functions import tag_value, str_filesize
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
@@ -70,10 +72,15 @@ class IIndexer(metaclass=ABCMeta):
             log.error(f"【{self.index_type}】配置信息有误！")
             return []
         # 多线程检索
+        ProcessHandler().reset()
+        # 计算耗时
+        start_time = datetime.datetime.now()
         if filter_args and filter_args.get("site"):
             log.info(f"【{self.index_type}】开始检索 %s，站点：%s ..." % (key_word, filter_args.get("site")))
+            ProcessHandler().update(text="开始检索 %s，站点：%s ..." % (key_word, filter_args.get("site")))
         else:
             log.info(f"【{self.index_type}】开始并行检索 %s，线程数：%s ..." % (key_word, len(indexers)))
+            ProcessHandler().update(text="开始并行检索 %s，线程数：%s ..." % (key_word, len(indexers)))
         executor = ThreadPoolExecutor(max_workers=len(indexers))
         all_task = []
         order_seq = 100
@@ -88,11 +95,20 @@ class IIndexer(metaclass=ABCMeta):
                                    match_words)
             all_task.append(task)
         ret_array = []
+        finish_count = 0
         for future in as_completed(all_task):
             result = future.result()
+            finish_count += 1
+            ProcessHandler().update(value=round(100 * (finish_count/len(all_task))))
             if result:
                 ret_array = ret_array + result
-        log.info(f"【{self.index_type}】所有API检索完成，有效资源数：%s" % len(ret_array))
+        # 计算耗时
+        end_time = datetime.datetime.now()
+        log.info(f"【{self.index_type}】所有站点检索完成，有效资源数：%s，总耗时 %s 秒"
+                 % (len(ret_array), (end_time-start_time).seconds))
+        ProcessHandler().update(text="所有站点检索完成，有效资源数：%s，总耗时 %s 秒"
+                                     % (len(ret_array), (end_time-start_time).seconds),
+                                value=100)
         return ret_array
 
     def __search(self, order_seq, indexer, key_word, filter_args: dict, match_type, match_words):
@@ -109,18 +125,23 @@ class IIndexer(metaclass=ABCMeta):
 
         if filter_args.get("site") and indexer_name not in filter_args.get("site"):
             return []
+        # 计算耗时
+        start_time = datetime.datetime.now()
         log.info(f"【{self.index_type}】开始检索Indexer：{indexer_name} ...")
         # 特殊符号处理
         search_word = re.sub(r'\s+', ' ', re.sub(r"%s" % self.__space_chars, ' ', key_word)).strip()
         api_url = f"{indexer_url}?apikey={self.api_key}&t=search&q={search_word}"
         result_array = self.__parse_torznabxml(api_url)
         if len(result_array) == 0:
-            log.warn(f"【{self.index_type}】{indexer_name} 未检索到资源")
+            log.warn(f"【{self.index_type}】{indexer_name} 未检索到数据")
+            ProcessHandler().update(text=f"{indexer_name} 未检索到数据")
             return []
         else:
             log.warn(f"【{self.index_type}】{indexer_name} 返回数据：{len(result_array)}")
         # 从检索结果中匹配符合资源条件的记录
         index_sucess = 0
+        index_rule_fail = 0
+        index_match_fail = 0
         for item in result_array:
             # 这此站标题和副标题相反
             if indexer_name in self.__reverse_title_sites:
@@ -149,6 +170,7 @@ class IIndexer(metaclass=ABCMeta):
             meta_info = MetaInfo(title=torrent_name, subtitle=description)
             if not meta_info.get_name():
                 log.info(f"【{self.index_type}】{torrent_name} 无法识别到名称")
+                index_match_fail += 1
                 continue
 
             if meta_info.type == MediaType.TV and filter_args.get("type") == MediaType.MOVIE:
@@ -163,17 +185,20 @@ class IIndexer(metaclass=ABCMeta):
                                                                        rolegroup=filter_args.get("rule"))
                 if not match_flag:
                     log.info(f"【{self.index_type}】{torrent_name} {str_filesize(size)} 不符合订阅过滤规则")
+                    index_rule_fail += 1
                     continue
             else:
                 match_flag, res_order, _ = self.filterrule.check_rules(meta_info=meta_info,
                                                                        torrent_size=size)
                 if match_type == 1 and not match_flag:
                     log.info(f"【{self.index_type}】{torrent_name} {str_filesize(size)} 不符合默认过滤规则")
+                    index_rule_fail += 1
                     continue
 
             # 有高级过滤条件时，先过滤一遍
             if not Torrent.check_torrent_filter(meta_info, filter_args, uploadvolumefactor, downloadvolumefactor):
                 log.info(f"【{self.index_type}】{torrent_name} 不符合高级过滤条件")
+                index_rule_fail += 1
                 continue
 
             # 识别媒体信息
@@ -181,6 +206,7 @@ class IIndexer(metaclass=ABCMeta):
                 media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
                 if not media_info or not media_info.tmdb_info:
                     log.info(f"【{self.index_type}】{torrent_name} 未识别到媒体信息")
+                    index_match_fail += 1
                     continue
 
                 # 类型
@@ -189,6 +215,7 @@ class IIndexer(metaclass=ABCMeta):
                             or filter_args.get("type") == MediaType.MOVIE and media_info.type == MediaType.TV:
                         log.info(
                             f"【{self.index_type}】{torrent_name} 是 {media_info.type.value}，不匹配类型：{filter_args.get('type').value}")
+                        index_rule_fail += 1
                         continue
 
                 # 名称是否匹配
@@ -202,6 +229,7 @@ class IIndexer(metaclass=ABCMeta):
                             break
                     if not match_flag:
                         log.info(f"【{self.index_type}】{media_info.type.value}：{media_info.title} 不匹配名称：{match_words}")
+                        index_match_fail += 1
                         continue
                 else:
                     # 非全匹配模式，找出来的全要，不过滤名称
@@ -215,6 +243,7 @@ class IIndexer(metaclass=ABCMeta):
                                                 filter_args.get("year")):
                 log.info(
                     f"【{self.index_type}】{media_info.type.value}：{media_info.get_title_string()} {media_info.get_season_episode_string()} 不匹配季/集/年份")
+                index_match_fail += 1
                 continue
 
             # 匹配到了
@@ -231,10 +260,13 @@ class IIndexer(metaclass=ABCMeta):
                                         upload_volume_factor=uploadvolumefactor,
                                         download_volume_factor=downloadvolumefactor)
             if media_info not in ret_array:
-                index_sucess = index_sucess + 1
+                index_sucess += 1
                 ret_array.append(media_info)
         # 循环结束
-        log.info(f"【{self.index_type}】{indexer_name} 共检索到 {index_sucess} 条有效资源")
+        # 计算耗时
+        end_time = datetime.datetime.now()
+        log.info(f"【{self.index_type}】{indexer_name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，有效资源 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
+        ProcessHandler().update(text=f"{indexer_name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，有效资源 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
         return ret_array
 
     @staticmethod
