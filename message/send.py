@@ -118,7 +118,7 @@ class Message:
         if channel == SearchType.TG:
             state, ret_msg = Telegram().send_list_msg(title, medias, user_id)
         elif channel == SearchType.WX:
-            WeChat().send_msg(title)
+            WeChat().send_msg(title, user_id=user_id)
             state, ret_msg = WeChat().send_list_msg(medias, self.__domain, user_id)
         else:
             return False
