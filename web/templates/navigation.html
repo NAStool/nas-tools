@@ -955,7 +955,7 @@
       // create a random id
       var r = Math.floor((Math.random() * 1000) + 1);
       // Add a new span and load fileTree
-      p.after("<div id='fileTree" + r + "' class='fileTree card shadow'></div>");
+      p.after("<div id='fileTree" + r + "' class='fileTree card shadow' style='z-index: 99999'></div>");
       var ft = $('#fileTree' + r);
       ft.fileTree({
         script: 'dirlist',
