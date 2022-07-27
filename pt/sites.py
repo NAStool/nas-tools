@@ -187,10 +187,10 @@ class Sites:
                             status.append("%s 签到失败，Cookie已过期" % pt_task)
                         else:
                             status.append("%s 签到成功" % pt_task)
-                    elif not res:
-                        status.append("%s 签到失败，无法打开网站" % pt_task)
-                    else:
+                    elif res.status_code:
                         status.append("%s 签到失败，状态码：%s" % (pt_task, res.status_code))
+                    else:
+                        status.append("%s 签到失败，无法打开网站" % pt_task)
                 except Exception as e:
                     log.error("【PT】%s 签到出错：%s - %s" % (pt_task, str(e), traceback.format_exc()))
         if status:
