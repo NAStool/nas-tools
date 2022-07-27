@@ -91,6 +91,10 @@ class Searcher:
             else:
                 search_title = media_info.original_title
         match_words = [media_info.title, search_title] if search_title != media_info.title else [media_info.title]
+        # 匹配关键字 如果 media_info.cn_name 存在 且 cn_name 不在 match_words 里面, 则添加到 match_words
+        if media_info.cn_name and media_info.cn_name not in match_words:
+            match_words.append(media_info.cn_name)
+
         # 过滤条件
         filter_args = {"season": search_season,
                        "episode": search_episode,
