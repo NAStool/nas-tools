@@ -105,6 +105,16 @@ class Searcher:
                                         filter_args=filter_args,
                                         match_type=1,
                                         match_words=match_words)
+        # 如果通过 search_title (media_info.title) 没有找到的话
+        # 同时 media_info.cn_name 不为空，同时 media_info.title 不等于 cn_name 则再搜索 cn_name
+        if len(media_list) == 0 and media_info.cn_name and media_info.title != media_info.cn_name:
+
+            log.info("【SEARCHER】未检索到资源,尝试通过 %s 检索" % media_info.cn_name)
+            media_list = self.search_medias(key_word=media_info.cn_name,
+                                             filter_args=filter_args,
+                                             match_type=1,
+                                             match_words=match_words)
+
         if len(media_list) == 0:
             log.info("%s 未搜索到任何资源" % search_title)
             return False, no_exists, 0, 0
