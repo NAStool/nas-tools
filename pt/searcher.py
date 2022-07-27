@@ -91,6 +91,10 @@ class Searcher:
             else:
                 search_title = media_info.original_title
         match_words = [media_info.title, search_title] if search_title != media_info.title else [media_info.title]
+        # 匹配关键字 如果 media_info.cn_name 存在 且 cn_name 不在 match_words 里面, 则添加到 match_words
+        if media_info.cn_name and media_info.cn_name not in match_words:
+            match_words.append(media_info.cn_name)
+
         # 过滤条件
         filter_args = {"season": search_season,
                        "episode": search_episode,
@@ -105,6 +109,16 @@ class Searcher:
                                         filter_args=filter_args,
                                         match_type=1,
                                         match_words=match_words)
+        # 如果通过 search_title (media_info.title) 没有找到的话
+        # 同时 media_info.cn_name 不为空，同时 media_info.title 不等于 cn_name 则再搜索 cn_name
+        if len(media_list) == 0 and media_info.cn_name and media_info.title != media_info.cn_name:
+
+            log.info("【SEARCHER】未检索到资源,尝试通过 %s 检索" % media_info.cn_name)
+            media_list = self.search_medias(key_word=media_info.cn_name,
+                                             filter_args=filter_args,
+                                             match_type=1,
+                                             match_words=match_words)
+
         if len(media_list) == 0:
             log.info("%s 未搜索到任何资源" % search_title)
             return False, no_exists, 0, 0
