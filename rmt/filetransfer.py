@@ -975,6 +975,7 @@ class FileTransfer:
             "title": media.title,
             "en_title": media.en_name,
             "original_name": media.org_string,
+            "original_title": media.original_title,
             "year": media.year,
             "edition": media.resource_type,
             "videoFormat": media.resource_pix,
