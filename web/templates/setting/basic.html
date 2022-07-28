@@ -170,7 +170,7 @@
             <div class="row">
               <div class="col">
                 <div class="mb-3">
-                  <label class="form-label required">电影重命名格式 <span class="form-help bg-red-lt" title="程序会按定义的命名格式对电影进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换；占位符外的字符会当成普通字符，直接体现在名称上&#10;电影占位符：{title}：标题，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{tmdbid}：TMDB的ID，{part}：part1/disc1/dvd1等" data-bs-toggle="tooltip">?</span></label>
+                  <label class="form-label required">电影重命名格式 <span class="form-help bg-red-lt" title="程序会按定义的命名格式对电影进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换；占位符外的字符会当成普通字符，直接体现在名称上&#10;电影占位符：{title}：标题，{en_title}：英文标题，{original_name}：原文件名，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{tmdbid}：TMDB的ID，{part}：part1/disc1/dvd1等" data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Config.media.movie_name_format or '' }}" class="form-control" id="media.movie_name_format" placeholder="{title} ({year})/{title}-{part} ({year}) - {videoFormat}" autocomplete="off">
                 </div>
               </div>
@@ -178,7 +178,7 @@
             <div class="row">
               <div class="col">
                 <div class="mb-3">
-                  <label class="form-label required">电视剧重命名格式 <span class="form-help bg-red-lt" title="程序会按定义的命名格式对电视剧进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换，占位符外的字符会当成普通字符，直接体现在名称上&#10;电视剧占位符：{title}：标题，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{tmdbid}：TMDB的ID，{season}：季数，{episode}：集数，{season_episode}：剧集SxxExx，{part}：part1/disc1/dvd1等" data-bs-toggle="tooltip">?</span></label>
+                  <label class="form-label required">电视剧重命名格式 <span class="form-help bg-red-lt" title="程序会按定义的命名格式对电视剧进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换，占位符外的字符会当成普通字符，直接体现在名称上&#10;电视剧占位符：{title}：标题，{en_title}：英文标题，{original_name}：原文件名，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{tmdbid}：TMDB的ID，{season}：季数，{episode}：集数，{season_episode}：剧集SxxExx，{part}：part1/disc1/dvd1等" data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Config.media.tv_name_format or '' }}" class="form-control" id="media.tv_name_format" placeholder="{title} ({year})/Season {season}/{title}-{part} - {season_episode} - 第 {episode} 集" autocomplete="off">
                 </div>
               </div>
