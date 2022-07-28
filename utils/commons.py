@@ -89,6 +89,7 @@ class EpisodeFormat(object):
 @singleton
 class ProcessHandler(object):
     _process_detail = None
+    _enable = False
 
     def __init__(self):
         self.reset()
@@ -99,11 +100,23 @@ class ProcessHandler(object):
             "text": "请稍候..."
         }
 
+    def start(self):
+        self.reset()
+        self._enable = True
+
+    def end(self):
+        self._enable = False
+
     def update(self, value=None, text=None):
+        if not self._enable:
+            return
         if value:
             self._process_detail['value'] = value
         if text:
             self._process_detail['text'] = text
 
     def get_process(self):
-        return self._process_detail
+        if self._enable:
+            return self._process_detail
+        else:
+            return None

@@ -783,9 +783,9 @@
           $("#modal_process_bar").attr("style", "width: " + ret.value + "%");
           $("#modal_process_bar").attr("aria-valuenow", ret.value);
           $("#modal_process_text").text(ret.text);
-          if (refresh_process_flag) {
-            setTimeout("refresh_process()", 200);
-          }
+        }
+        if ((ret.code == 0 || ret.code == 1) && refresh_process_flag) {
+          setTimeout("refresh_process()", 200);
         }
       });
     }
@@ -808,8 +808,8 @@
 
     //关闭全局进度框
     function hide_refresh_process () {
-      $("#modal-process").modal("hide");
       refresh_process_flag = false;
+      $("#modal-process").modal("hide");
     }
 
     //显示确认提示框

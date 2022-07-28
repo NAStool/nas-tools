@@ -1760,4 +1760,7 @@ class WebAction:
         刷新进度条
         """
         detail = ProcessHandler().get_process()
-        return {"code": 0, "value": detail.get("value"), "text": detail.get("text")}
+        if detail:
+            return {"code": 0, "value": detail.get("value"), "text": detail.get("text")}
+        else:
+            return {"code": 1}

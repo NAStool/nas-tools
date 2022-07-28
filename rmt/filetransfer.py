@@ -15,7 +15,7 @@ from pt.media_server import MediaServer
 from rmt.meta.metabase import MetaBase
 from rmt.metainfo import MetaInfo
 from utils.functions import get_dir_files, get_free_space_gb, get_dir_level1_medias, is_invalid_path, \
-    is_path_in_path, get_system, is_bluray_dir, str_filesize
+    is_path_in_path, get_system, is_bluray_dir, str_filesize, get_dir_level1_files
 from message.send import Message
 from rmt.media import Media
 from utils.nfo_helper import NfoHelper
@@ -197,18 +197,21 @@ class FileTransfer:
         """
         dir_name = os.path.dirname(org_name)
         file_name = os.path.basename(org_name)
-        file_list = get_dir_files(dir_name, RMT_SUBEXT)
+        file_list = get_dir_level1_files(dir_name, RMT_SUBEXT)
         if len(file_list) == 0:
             log.debug("【RMT】%s 目录下没有找到字幕文件..." % dir_name)
         else:
             log.debug("【RMT】字幕文件清单：" + str(file_list))
-            find_flag = False
+            metainfo = MetaInfo(title=file_name)
             for file_item in file_list:
-                org_subname = os.path.splitext(org_name)[0]
-                if org_subname in file_item:
-                    find_flag = True
+                sub_metainfo = MetaInfo(title=os.path.basename(file_item))
+                if (sub_metainfo.cn_name and sub_metainfo.cn_name == metainfo.cn_name) \
+                        or (sub_metainfo.en_name and sub_metainfo.en_name == metainfo.en_name):
                     file_ext = os.path.splitext(file_item)[-1]
-                    if file_item.find(".zh-cn" + file_ext) != -1:
+                    sub_language = os.path.split(".")[-2]
+                    if sub_language and (sub_language.lower() in ["zh-cn", "zh", "zh_CN", "chs", "cht"]
+                                         or "简体" in sub_language
+                                         or "中文" in sub_language):
                         new_file = os.path.splitext(new_name)[0] + ".zh-cn" + file_ext
                     else:
                         new_file = os.path.splitext(new_name)[0] + file_ext
@@ -222,8 +225,6 @@ class FileTransfer:
                             return retcode
                     else:
                         log.info("【RMT】字幕 %s 已存在" % new_file)
-            if not find_flag:
-                log.debug("【RMT】没有相同文件名的字幕文件，不处理")
         return 0
 
     def __transfer_bluray_dir(self, file_path, new_path, rmt_mode):

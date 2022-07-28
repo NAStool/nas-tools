@@ -34,10 +34,11 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     if not key_word:
         log.info("【WEB】%s 检索关键字有误！" % content)
         return -1, "%s 未识别到搜索关键字！" % content
-    # 进度计数重置
-    ProcessHandler().reset()
+    # 开始进度
+    ProcessHandler().start()
     # 识别媒体
     match_words = None
+    media_name = None
     if ident_flag:
         if tmdbid:
             if tmdbid.startswith("DB:"):
@@ -49,6 +50,8 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                 media_info = Media().get_media_info(mtype=media_type,
                                                     title="%s %s" % (doubaninfo.get("title"), doubaninfo.get("year")),
                                                     strict=True)
+                if media_info and episode_num:
+                    media_info.begin_episode = int(episode_num)
             else:
                 media_info = MetaInfo(mtype=media_type or mtype, title=content)
                 media_info.set_tmdb_info(Media().get_tmdb_info(mtype=media_type or mtype, tmdbid=tmdbid))
@@ -75,6 +78,10 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
             else:
                 key_word = media_info.original_title
         match_words = [media_info.title, key_word] if key_word != media_info.title else [media_info.title]
+        # 增加名称为匹配关键字
+        if media_info.get_name() and media_info.get_name() not in match_words:
+            match_words.append(media_info.get_name())
+        media_name = media_info.get_name()
 
         filter_args = {"season": search_season,
                        "episode": search_episode,
@@ -95,7 +102,19 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                                           filter_args=filter_args,
                                           match_type=1 if ident_flag else 2,
                                           match_words=match_words)
+    # 使用名称重新搜索
+    if ident_flag and len(media_list) == 0 and media_name and key_word != media_name:
+        ProcessHandler().start()
+        ProcessHandler().update(text="%s 未检索到资源,尝试通过 %s 重新检索 ..." % (key_word, media_name))
+        log.info("【SEARCHER】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (key_word, media_name))
+        media_list = Searcher().search_medias(key_word=media_name,
+                                              filter_args=filter_args,
+                                              match_type=1,
+                                              match_words=match_words)
+    # 清空缓存结果
     delete_all_search_torrents()
+    # 结束进度
+    ProcessHandler().end()
     if len(media_list) == 0:
         log.info("【WEB】%s 未检索到任何资源" % content)
         return 0, "%s 未检索到任何资源" % content
@@ -141,7 +160,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
                                                     mtype=media_info.type, strict=True)
                 if not media_info or not media_info.tmdb_info:
                     Message().send_channel_msg(channel=in_from,
-                                               title="%s%s 从TMDB查询不到媒体信息！" % (media_info.get_name(), media_info.get_season_string()),
+                                               title="%s%s 从TMDB查询不到媒体信息！" % (
+                                                   media_info.get_name(), media_info.get_season_string()),
                                                user_id=user_id)
                     return
             # 搜索
@@ -208,7 +228,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
                                                         mtype=media_info.type, strict=True)
                     if not media_info or not media_info.tmdb_info:
                         Message().send_channel_msg(channel=in_from,
-                                                   title="%s%s 从TMDB查询不到媒体信息！" % (media_info.get_name(), media_info.get_season_string()),
+                                                   title="%s%s 从TMDB查询不到媒体信息！" % (
+                                                       media_info.get_name(), media_info.get_season_string()),
                                                    user_id=user_id)
                         return
                 # 发送消息
