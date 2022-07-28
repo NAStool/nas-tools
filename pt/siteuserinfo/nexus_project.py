@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import re
 
+from lxml import etree
+
 from pt.siteuserinfo.nexus_php import NexusPhpSiteUserInfo
 
 
@@ -22,5 +24,12 @@ class NexusProjectSiteUserInfo(NexusPhpSiteUserInfo):
 
         self._torrent_seeding_page = f"viewusertorrents.php?id={self.userid}&show=seeding"
 
-        if not self.userid:
-            self.err_msg = "获取不到用户信息，请检查Cookies是否过期"
+        html = etree.HTML(html_text)
+        if not html:
+            self.err_msg = "未检测到已登陆，请检查cookies是否过期"
+            return
+
+        logout = html.xpath('//a[contains(@href, "logout") or contains(@data-url, "logout")'
+                            ' or contains(@onclick, "logout")]')
+        if not logout:
+            self.err_msg = "未检测到已登陆，请检查cookies是否过期"

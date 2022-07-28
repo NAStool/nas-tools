@@ -48,8 +48,10 @@ class GazelleUserInfo(ISiteUserInfo):
                 if bonus_match and bonus_match.group(1).strip():
                     self.bonus = str_float(bonus_match.group(1))
 
-        if not self.username:
-            self.err_msg = "获取不到用户信息，请检查cookies是否过期"
+        logout = html.xpath('//a[contains(@href, "logout") or contains(@data-url, "logout")'
+                            ' or contains(@onclick, "logout")]')
+        if not logout:
+            self.err_msg = "未检测到已登陆，请检查cookies是否过期"
 
     def _parse_site_page(self, html_text):
         # TODO
