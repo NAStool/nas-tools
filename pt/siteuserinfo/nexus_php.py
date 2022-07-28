@@ -29,8 +29,15 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
                 self.userid = None
                 self._torrent_seeding_page = None
 
-        if not self._user_detail_page:
-            self.err_msg = "获取不到用户信息，请检查cookies是否过期"
+        html = etree.HTML(html_text)
+        if not html:
+            self.err_msg = "未检测到已登陆，请检查cookies是否过期"
+            return
+
+        logout = html.xpath('//a[contains(@href, "logout") or contains(@data-url, "logout")'
+                            ' or contains(@onclick, "logout")]')
+        if not logout:
+            self.err_msg = "未检测到已登陆，请检查cookies是否过期"
 
     def _parse_user_base_info(self, html_text):
         # 合并解析，减少额外请求调用
