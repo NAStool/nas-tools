@@ -174,7 +174,7 @@ class IIndexer(metaclass=ABCMeta):
                     f"【{self.index_type}】{torrent_name} 是 {meta_info.type.value}，不匹配类型：{filter_args.get('type').value}")
                 continue
 
-            # 检查过滤规则匹配，使用默认规则
+            # 检查订阅过滤规则匹配
             if filter_args.get("rule"):
                 match_flag, res_order, _ = self.filterrule.check_rules(meta_info=meta_info,
                                                                        torrent_size=size,
@@ -183,6 +183,7 @@ class IIndexer(metaclass=ABCMeta):
                     log.info(f"【{self.index_type}】{torrent_name} {str_filesize(size)} 不符合订阅过滤规则")
                     index_rule_fail += 1
                     continue
+            # 使用默认规则
             else:
                 match_flag, res_order, _ = self.filterrule.check_rules(meta_info=meta_info,
                                                                        torrent_size=size)
@@ -192,7 +193,10 @@ class IIndexer(metaclass=ABCMeta):
                     continue
 
             # 有高级过滤条件时，先过滤一遍
-            if not Torrent.check_torrent_filter(meta_info, filter_args, uploadvolumefactor, downloadvolumefactor):
+            if not Torrent.check_torrent_filter(meta_info=meta_info,
+                                                filter_args=filter_args,
+                                                uploadvolumefactor=uploadvolumefactor,
+                                                downloadvolumefactor=downloadvolumefactor):
                 log.info(f"【{self.index_type}】{torrent_name} 不符合高级过滤条件")
                 index_rule_fail += 1
                 continue

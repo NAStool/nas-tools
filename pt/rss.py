@@ -14,7 +14,7 @@ from pt.sites import Sites
 from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.metainfo import MetaInfo
-from utils.functions import tag_value, str_filesize
+from utils.functions import tag_value
 from utils.http_utils import RequestUtils
 from utils.meta_helper import MetaHelper
 from utils.sqls import get_rss_movies, get_rss_tvs, insert_rss_torrents, \
@@ -112,7 +112,7 @@ class Rss:
                 # 是否仅RSS促销
                 rss_free = site_info.get("free")
                 # 使用的规则
-                rss_rule_group = site_info.get("rule")
+                site_rule_group = site_info.get("rule")
                 # 开始下载RSS
                 log.info("【RSS】正在处理：%s" % rss_job)
                 order_seq -= 1
@@ -138,14 +138,7 @@ class Rss:
                         size = res.get('size')
 
                         log.debug("【RSS】开始处理：%s" % torrent_name)
-                        # 确定标题中是否符合站点过滤规则，并返回是否匹配及优先级
-                        meta_info = MetaInfo(title=torrent_name)
-                        match_flag, res_order, _ = self.filterrule.check_rules(meta_info=meta_info,
-                                                                               torrent_size=size,
-                                                                               rolegroup=rss_rule_group)
-                        if not match_flag:
-                            log.info("【RSS】%s %s 不符合过滤规则" % (torrent_name, str_filesize(size)))
-                            continue
+
                         # 检查这个种子是不是下过了
                         if is_torrent_rssd(enclosure):
                             log.info("【RSS】%s 已成功订阅过" % torrent_name)
@@ -156,9 +149,13 @@ class Rss:
                             log.debug("【RSS】%s 未识别到媒体信息" % torrent_name)
                             continue
                         # 检查种子是否匹配订阅，返回匹配到的订阅ID、是否洗版、总集数
-                        match_rssid, over_edition, total_episodes = Torrent().is_torrent_match_rss(media_info,
-                                                                                                   movie_keys, tv_keys,
-                                                                                                   rss_job)
+                        match_rssid, over_edition, total_episodes, res_order = Torrent().is_torrent_match_rss(
+                            media_info=media_info,
+                            movie_keys=movie_keys,
+                            tv_keys=tv_keys,
+                            site_name=rss_job,
+                            site_rule=site_rule_group,
+                            size=size)
                         if match_rssid is not None:
                             log.info("【RSS】%s: %s %s %s 匹配成功" % (media_info.type.value,
                                                                  media_info.get_title_string(),
