@@ -207,6 +207,10 @@ class FileTransfer:
                 sub_metainfo = MetaInfo(title=os.path.basename(file_item))
                 if (sub_metainfo.cn_name and sub_metainfo.cn_name == metainfo.cn_name) \
                         or (sub_metainfo.en_name and sub_metainfo.en_name == metainfo.en_name):
+                    if metainfo.get_season_string() and metainfo.get_season_string() != sub_metainfo.get_season_string():
+                        continue
+                    if metainfo.get_episode_string() and metainfo.get_episode_string() != sub_metainfo.get_episode_string():
+                        continue
                     file_ext = os.path.splitext(file_item)[-1]
                     sub_language = os.path.split(".")[-2]
                     if sub_language and (sub_language.lower() in ["zh-cn", "zh", "zh_CN", "chs", "cht"]
