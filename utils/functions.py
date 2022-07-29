@@ -508,7 +508,7 @@ def handler_special_chars(text):
     # 需要转换为空格的特殊字符
     CONVERT_SPACES_CHARS = r"\.|-|/|:|：|&"
     # 需要忽略的特殊字符
-    CONVERT_EMPTY_CHARS = r"'|’|!|！|,|～"
+    CONVERT_EMPTY_CHARS = r"'|’|!|！|,|～|·"
     if not text:
         return ""
     return re.sub(r'\s+', ' ', re.sub(r"%s" % CONVERT_EMPTY_CHARS, '',
