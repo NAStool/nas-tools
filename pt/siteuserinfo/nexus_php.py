@@ -35,7 +35,7 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
             return
 
         logout = html.xpath('//a[contains(@href, "logout") or contains(@data-url, "logout")'
-                            ' or contains(@onclick, "logout")]')
+                            ' or contains(@onclick, "logout") or contains(@href, "usercp")]')
         if not logout:
             self.err_msg = "未检测到已登陆，请检查cookies是否过期"
 
