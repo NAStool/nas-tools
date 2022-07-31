@@ -10,6 +10,9 @@ from utils.http_utils import RequestUtils
 
 
 class ISiteUserInfo(metaclass=ABCMeta):
+    # 站点模版
+    _site_schema = None
+
     def __init__(self, site_name, url, site_cookie, index_html, session=None):
         super().__init__()
         # 站点信息
@@ -50,8 +53,6 @@ class ISiteUserInfo(metaclass=ABCMeta):
         self._site_cookie = None
         self._index_html = None
 
-        # 站点模版
-        self._site_schema = None
         # 站点页面
         self._brief_page = "index.php"
         self._user_detail_page = "userdetails.php?id="

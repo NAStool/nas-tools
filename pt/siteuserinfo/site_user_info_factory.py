@@ -1,6 +1,7 @@
 import requests
 from lxml import etree
 
+from pt.siteuserinfo.discuz import DiscuzUserInfo
 from pt.siteuserinfo.gazelle import GazelleUserInfo
 from pt.siteuserinfo.nexus_php import NexusPhpSiteUserInfo
 from pt.siteuserinfo.nexus_project import NexusProjectSiteUserInfo
@@ -60,6 +61,9 @@ class SiteUserInfoFactory(object):
 
             if "Powered by Gazelle" in printable_text:
                 return GazelleUserInfo(site_name, url, site_cookie, html_text, session=session)
+
+            if "Powered by Discuz!" in printable_text:
+                return DiscuzUserInfo(site_name, url, site_cookie, html_text, session=session)
 
             if "NexusPHP" in html_text in html_text:
                 return NexusPhpSiteUserInfo(site_name, url, site_cookie, html_text, session=session)
