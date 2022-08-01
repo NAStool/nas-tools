@@ -69,6 +69,8 @@ media:
   tv_name_format: '{title} ({year})/Season {season}/{title}-{part} - {season_episode} - 第{episode}集'
   # 【生成NFO描述文件及海报】：开启后文件转移完成时会自动生成nfo描述文件及poster海报，协助媒体服务器识别和搜刮
   nfo_poster: false
+  # 【实时刷新媒体库】：开启后文件转移完成时会实时刷新媒体服务器（Emby/Jellyfin/Plex）的媒体库
+  refresh_mediaserver: true
 
 # 配置Emby服务器信息
 emby:

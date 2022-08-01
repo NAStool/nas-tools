@@ -324,7 +324,7 @@
           <div class="row">
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">做种时间(小时) <span class="form-help bg-red-lt" title="做种超过设定时间时会删除下载任务（包括已下载的文件）" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">做种时间(小时) <span class="form-help bg-red-lt" title="做种超过设定时间时会删除下载任务" data-bs-toggle="tooltip">?</span></label>
                 <div class="input-group">
                   <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_seedtime_btn">
                     忽略
@@ -344,7 +344,7 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">分享率 <span class="form-help bg-red-lt" title="分享率超过设定值时会删除下载任务（包括已下载的文件）" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">分享率 <span class="form-help bg-red-lt" title="分享率超过设定值时会删除下载任务" data-bs-toggle="tooltip">?</span></label>
                 <div class="input-group">
                   <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_seedratio_btn">
                     忽略
@@ -364,7 +364,7 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">上传量(GB) <span class="form-help bg-red-lt" title="上传量超过设定值时会删除下载任务（包括已下载的文件）" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">上传量(GB) <span class="form-help bg-red-lt" title="上传量超过设定值时会删除下载任务" data-bs-toggle="tooltip">?</span></label>
                 <div class="input-group">
                   <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_seedsize_btn">
                     忽略
@@ -384,7 +384,7 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">下载耗时(小时) <span class="form-help bg-red-lt" title="下载耗时超过设定值仍然未下载完成的，删除下载任务（包括已下载的文件）" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">下载耗时(小时) <span class="form-help bg-red-lt" title="下载耗时超过设定值仍然未下载完成时会删除下载任务" data-bs-toggle="tooltip">?</span></label>
                 <div class="input-group">
                   <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_dltime_btn">
                     忽略
@@ -399,6 +399,26 @@
                     </a>
                   </div>
                   <input type="text" class="form-control" id="brushtask_dltime" readonly>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">平均上传速度(KB/S) <span class="form-help bg-red-lt" title="平均上传速度低于设定值时删除下载任务，检查周期为10分钟" data-bs-toggle="tooltip">?</span></label>
+                <div class="input-group">
+                  <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_avg_upspeed_btn">
+                    忽略
+                  </button>
+                  <input type="hidden" id="brushtask_avg_upspeed_do">
+                  <div class="dropdown-menu" style="">
+                    <a class="dropdown-item" id="brushtask_avg_upspeed_do_" href="javascript:void(0)" onclick="javascript:filter_item_change('', 'brushtask_avg_upspeed',$(this))">
+                      忽略
+                    </a>
+                    <a class="dropdown-item" id="brushtask_avg_upspeed_do_lt" href="javascript:void(0)" onclick="javascript:filter_item_change('lt', 'brushtask_avg_upspeed',$(this))">
+                      小于
+                    </a>
+                  </div>
+                  <input type="text" class="form-control" id="brushtask_avg_upspeed" readonly>
                 </div>
               </div>
             </div>
@@ -466,6 +486,11 @@
         if(ret.task.remove_rule.dltime){
           dltime_str = ret.task.remove_rule.dltime.split('#');
           filter_item_change(dltime_str[0], 'brushtask_dltime', $('#brushtask_dltime_do_' + dltime_str[0]), dltime_str[1])
+        }
+        //上传速度
+        if(ret.task.remove_rule.avg_upspeed){
+          avg_upspeed_str = ret.task.remove_rule.avg_upspeed.split('#');
+          filter_item_change(avg_upspeed_str[0], 'brushtask_avg_upspeed', $('#brushtask_avg_upspeed_do_' + avg_upspeed_str[0]), avg_upspeed_str[1])
         }
         //弹窗
         $("#modal-brushtask").modal('show');
@@ -651,6 +676,19 @@
       }
       $("#brushtask_dltime").removeClass("is-invalid");
     }
+    //上传速度
+    var brushtask_avg_upspeed_do = $("#brushtask_avg_upspeed_do").val();
+    var brushtask_avg_upspeed = $("#brushtask_avg_upspeed").val();
+    if(brushtask_avg_upspeed_do && !brushtask_avg_upspeed){
+      $("#brushtask_avg_upspeed").addClass("is-invalid");
+      return;
+    } else {
+      if(brushtask_avg_upspeed && isNaN(brushtask_avg_upspeed)){
+        $("#brushtask_avg_upspeed").addClass("is-invalid");
+        return;
+      }
+      $("#brushtask_avg_upspeed").removeClass("is-invalid");
+    }
 
     // 参数
     var params = {
@@ -671,7 +709,8 @@
       brushtask_seedtime: brushtask_seedtime_do + "#" + brushtask_seedtime,
       brushtask_seedratio: brushtask_seedratio_do + "#" + brushtask_seedratio,
       brushtask_seedsize: brushtask_seedsize_do + "#" + brushtask_seedsize,
-      brushtask_dltime: brushtask_dltime_do + "#" + brushtask_dltime
+      brushtask_dltime: brushtask_dltime_do + "#" + brushtask_dltime,
+      brushtask_avg_upspeed: brushtask_avg_upspeed_do + "#" + brushtask_avg_upspeed
     };
 
     ajax_post("add_brushtask", params, function(ret){

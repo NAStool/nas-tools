@@ -238,4 +238,36 @@ meta_cases = [{
         "video_codec": "x264",
         "audio_codec": "Atmos TrueHD 7.1"
     }
+}, {
+    "title": "The Heart of Genius S01 13-14 2022 1080p WEB-DL H264 AAC",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "The Heart of Genius",
+        "year": "2022",
+        "part": "",
+        "season": "S01",
+        "episode": "E13-E14",
+        "restype": "WEB-DL",
+        "pix": "1080p",
+        "video_codec": "H264",
+        "audio_codec": "AAC"
+    }
+}, {
+    "title": "The Heart of Genius E13-14 2022 1080p WEB-DL H264 AAC",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "The Heart of Genius",
+        "year": "2022",
+        "part": "",
+        "season": "S01",
+        "episode": "E13-E14",
+        "restype": "WEB-DL",
+        "pix": "1080p",
+        "video_codec": "H264",
+        "audio_codec": "AAC"
+    }
 }]

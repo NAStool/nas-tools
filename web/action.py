@@ -1278,6 +1278,7 @@ class WebAction:
         brushtask_seedratio = data.get("brushtask_seedratio")
         brushtask_seedsize = data.get("brushtask_seedsize")
         brushtask_dltime = data.get("brushtask_dltime")
+        brushtask_avg_upspeed = data.get("brushtask_avg_upspeed")
         # 选种规则
         rss_rule = {
             "free": brushtask_free,
@@ -1292,7 +1293,8 @@ class WebAction:
             "time": brushtask_seedtime,
             "ratio": brushtask_seedratio,
             "uploadsize": brushtask_seedsize,
-            "dltime": brushtask_dltime
+            "dltime": brushtask_dltime,
+            "avg_upspeed": brushtask_avg_upspeed
         }
         # 添加记录
         item = {
@@ -1721,6 +1723,12 @@ class WebAction:
                 rule_htmls.append(
                     '<span class="badge badge-outline text-orange me-1 mb-1" title="下载耗时">下载耗时%s: %s 小时</span>'
                     % (rule_filter_string.get(dltimes[0]), dltimes[1]))
+        if rules.get("avg_upspeed"):
+            avg_upspeeds = rules.get("avg_upspeed").split("#")
+            if avg_upspeeds[0]:
+                rule_htmls.append(
+                    '<span class="badge badge-outline text-orange me-1 mb-1" title="平均上传速度">平均上传速度%s: %s KB/S</span>'
+                    % (rule_filter_string.get(avg_upspeeds[0]), avg_upspeeds[1]))
 
         return "<br>".join(rule_htmls)
 

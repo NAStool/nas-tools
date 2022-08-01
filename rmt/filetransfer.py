@@ -54,6 +54,7 @@ class FileTransfer:
     __tv_season_rmt_format = ""
     __tv_file_rmt_format = ""
     __nfo_poster = False
+    __refresh_mediaserver = False
 
     def __init__(self):
         self.media = Media()
@@ -71,6 +72,8 @@ class FileTransfer:
         if media:
             # NFO开关
             self.__nfo_poster = media.get("nfo_poster")
+            # 刷新媒体库开关
+            self.__refresh_mediaserver = media.get("refresh_mediaserver")
             # 电影目录
             self.__movie_path = media.get('movie_path')
             if not isinstance(self.__movie_path, list):
@@ -670,7 +673,7 @@ class FileTransfer:
         if message_medias:
             self.message.send_transfer_tv_message(message_medias, in_from)
         # 刷新媒体库
-        if refresh_library_items:
+        if refresh_library_items and self.__refresh_mediaserver:
             self.mediaserver.refresh_library_by_items(refresh_library_items)
         # 启新进程下载字幕
         if download_subtitle_items:
