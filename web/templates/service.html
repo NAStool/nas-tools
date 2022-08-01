@@ -286,6 +286,9 @@
         if(ret.data.season_episode){
           $("#test_result").append('<span class="badge badge-outline text-orange me-1 mb-1" title="季集">' + ret.data.season_episode + '</span>');
         }
+        if(ret.data.part){
+          $("#test_result").append('<span class="badge badge-outline text-orange me-1 mb-1" title="分集">' + ret.data.part + '</span>');
+        }
         if(ret.data.tmdbid){
           $("#test_result").append('<span class="badge badge-outline text-green me-1 mb-1" title="TMDB ID">' + ret.data.tmdbid + '</span>');
         }

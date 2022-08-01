@@ -1,4 +1,5 @@
 import re
+import time
 import traceback
 from datetime import datetime
 from time import sleep
@@ -197,6 +198,7 @@ class BrushTask(object):
                 taskid = taskinfo.get("id")
                 task_name = taskinfo.get("name")
                 download_id = taskinfo.get("downloader")
+                remove_rule = taskinfo.get("remove_rule")
                 # 当前任务种子详情
                 task_torrents = get_brushtask_torrents(taskid)
                 torrent_ids = [item[6] for item in task_torrents if item[6]]
@@ -209,6 +211,7 @@ class BrushTask(object):
                     continue
                 # 下载器类型
                 client_type = downloader_cfg.get("type")
+                # qbittorrent
                 if client_type == self._qb_client:
                     downloader = Qbittorrent(user_config=downloader_cfg)
                     # 检查完成状态的
@@ -216,16 +219,18 @@ class BrushTask(object):
                     for torrent in torrents:
                         # ID
                         torrent_id = torrent.get("hash")
-                        # 做种时间
+                        # 已开始时间 秒
+                        dltime = int(time.time() - torrent.get("added_on"))
+                        # 已做种时间 秒
                         seeding_time = torrent.get('seeding_time') or 0
                         # 分享率
                         ratio = torrent.get("ratio") or 0
                         # 上传量
                         uploaded = torrent.get("uploaded") or 0
                         total_uploaded += uploaded
-                        # 平均上传速度
-                        avg_upspeed = torrent.get("up_speed_avg") or 0
-                        if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"),
+                        # 平均上传速度 Byte/s
+                        avg_upspeed = int(uploaded / dltime)
+                        if self.__check_remove_rule(remove_rule=remove_rule,
                                                     seeding_time=seeding_time,
                                                     ratio=ratio,
                                                     uploaded=uploaded,
@@ -239,16 +244,17 @@ class BrushTask(object):
                     for torrent in torrents:
                         # ID
                         torrent_id = torrent.get("hash")
-                        # 下载耗时
-                        dltime = torrent.get("time_elapsed") or 0
-                        # 上传量
+                        # 下载耗时 秒
+                        dltime = int(time.time() - torrent.get("added_on"))
+                        # 上传量 Byte
                         uploaded = torrent.get("uploaded") or 0
                         total_uploaded += uploaded
-                        if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"), dltime=dltime):
+                        if self.__check_remove_rule(remove_rule=remove_rule, dltime=dltime):
                             log.info("【BRUSH】%s 下载耗时达到删种条件，删除下载任务..." % torrent.get('name'))
                             if torrent_id not in delete_ids:
                                 delete_ids.append(torrent_id)
                                 update_torrents.append((uploaded, taskid, torrent_id))
+                # transmission
                 else:
                     # 检查完成状态
                     downloader = Transmission(user_config=downloader_cfg)
@@ -257,18 +263,17 @@ class BrushTask(object):
                         # ID
                         torrent_id = torrent.id
                         # 做种时间
-                        date_added = torrent.date_added
-                        date_done = torrent.date_done if torrent.date_done else date_added
-                        started_time = (datetime.now().astimezone() - date_added).seconds
-                        seeding_time = (datetime.now().astimezone() - date_done).seconds
+                        date_done = torrent.date_done if torrent.date_done else torrent.date_added
+                        dltime = (datetime.now() - torrent.date_added).seconds
+                        seeding_time = (datetime.now() - date_done).seconds
                         # 分享率
                         ratio = torrent.ratio or 0
                         # 上传量
                         uploaded = int(torrent.total_size * torrent.ratio)
                         total_uploaded += uploaded
                         # 平均上传速度
-                        avg_upspeed = int(uploaded / started_time)
-                        if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"),
+                        avg_upspeed = int(uploaded / dltime)
+                        if self.__check_remove_rule(remove_rule=remove_rule,
                                                     seeding_time=seeding_time,
                                                     ratio=ratio,
                                                     uploaded=uploaded,
@@ -288,7 +293,7 @@ class BrushTask(object):
                         # 上传量
                         uploaded = int(torrent.total_size * torrent.ratio)
                         total_uploaded += uploaded
-                        if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"),
+                        if self.__check_remove_rule(remove_rule=remove_rule,
                                                     dltime=dltime):
                             log.info("【BRUSH】%s 下载耗时达到删种条件，删除下载任务..." % torrent.name)
                             if torrent_id not in delete_ids:

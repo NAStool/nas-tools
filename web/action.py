@@ -1410,6 +1410,7 @@ class WebAction:
             "title": media_info.title,
             "year": media_info.year,
             "season_episode": media_info.get_season_episode_string(),
+            "part": media_info.part,
             "tmdbid": media_info.tmdb_id,
             "category": media_info.category,
             "restype": media_info.resource_type,
