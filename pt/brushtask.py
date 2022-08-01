@@ -1,4 +1,5 @@
 import re
+import traceback
 from datetime import datetime
 from time import sleep
 
@@ -174,7 +175,7 @@ class BrushTask(object):
                                                        downloadercfg=downloader_cfg):
                         break
             except Exception as err:
-                print(str(err))
+                log.console(str(err) + " - " + traceback.format_exc())
                 continue
         log.info("【BRUSH】任务 %s 本次添加了 %s 个下载" % (task_name, success_count))
 
@@ -185,121 +186,124 @@ class BrushTask(object):
         """
         # 遍历所有任务
         for taskinfo in self._brush_tasks:
-            # 查询所有种子
-            total_uploaded = 0
-            # 可以删种的种子
-            delete_ids = []
-            # 需要更新状态的种子
-            update_torrents = []
-            # 任务信息
-            taskid = taskinfo.get("id")
-            task_name = taskinfo.get("name")
-            download_id = taskinfo.get("downloader")
-            # 当前任务种子详情
-            task_torrents = get_brushtask_torrents(taskid)
-            torrent_ids = [item[6] for item in task_torrents if item[6]]
-            if not torrent_ids:
-                continue
-            # 下载器参数
-            downloader_cfg = self.__get_downloader_config(download_id)
-            if not downloader_cfg:
-                log.warn("【BRUSH】任务 %s 下载器不存在" % task_name)
-                continue
-            # 下载器类型
-            client_type = downloader_cfg.get("type")
-            if client_type == self._qb_client:
-                downloader = Qbittorrent(user_config=downloader_cfg)
-                # 检查完成状态的
-                torrents = downloader.get_torrents(ids=torrent_ids, status=["completed"])
-                for torrent in torrents:
-                    # ID
-                    torrent_id = torrent.get("hash")
-                    # 做种时间
-                    seeding_time = torrent.get('seeding_time') or 0
-                    # 分享率
-                    ratio = torrent.get("ratio") or 0
-                    # 上传量
-                    uploaded = torrent.get("uploaded") or 0
-                    total_uploaded += uploaded
-                    # 平均上传速度
-                    avg_upspeed = torrent.get("up_speed_avg") or 0
-                    if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"),
-                                                seeding_time=seeding_time,
-                                                ratio=ratio,
-                                                uploaded=uploaded,
-                                                avg_upspeed=avg_upspeed):
-                        log.info("【BRUSH】%s 做种达到删种条件，删除下载任务..." % torrent.get('name'))
-                        if torrent_id not in delete_ids:
-                            delete_ids.append(torrent_id)
-                            update_torrents.append((uploaded, taskid, torrent_id))
-                # 检查下载中状态的
-                torrents = downloader.get_torrents(ids=torrent_ids, status=["downloading"])
-                for torrent in torrents:
-                    # ID
-                    torrent_id = torrent.get("hash")
-                    # 下载耗时
-                    dltime = torrent.get("time_elapsed") or 0
-                    # 上传量
-                    uploaded = torrent.get("uploaded") or 0
-                    total_uploaded += uploaded
-                    if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"), dltime=dltime):
-                        log.info("【BRUSH】%s 下载耗时达到删种条件，删除下载任务..." % torrent.get('name'))
-                        if torrent_id not in delete_ids:
-                            delete_ids.append(torrent_id)
-                            update_torrents.append((uploaded, taskid, torrent_id))
-            else:
-                # 检查完成状态
-                downloader = Transmission(user_config=downloader_cfg)
-                torrents = downloader.get_torrents(ids=torrent_ids, status=["seeding", "seed_pending"])
-                for torrent in torrents:
-                    # ID
-                    torrent_id = torrent.id
-                    # 做种时间
-                    date_added = torrent.date_added
-                    date_done = torrent.date_done if torrent.date_done else date_added
-                    started_time = (datetime.now().astimezone() - date_added).seconds
-                    seeding_time = (datetime.now().astimezone() - date_done).seconds
-                    # 分享率
-                    ratio = torrent.ratio or 0
-                    # 上传量
-                    uploaded = int(torrent.total_size * torrent.ratio)
-                    total_uploaded += uploaded
-                    # 平均上传速度
-                    avg_upspeed = int(uploaded / started_time)
-                    if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"),
-                                                seeding_time=seeding_time,
-                                                ratio=ratio,
-                                                uploaded=uploaded,
-                                                avg_upspeed=avg_upspeed):
-                        log.info("【BRUSH】%s 做种达到删种条件，删除下载任务..." % torrent.name)
-                        if torrent_id not in delete_ids:
-                            delete_ids.append(torrent_id)
-                            update_torrents.append((uploaded, taskid, torrent_id))
-                # 检查下载状态
-                torrents = downloader.get_torrents(ids=torrent_ids,
-                                                   status=["downloading", "download_pending", "stopped"])
-                for torrent in torrents:
-                    # ID
-                    torrent_id = torrent.id
-                    # 下载耗时
-                    dltime = (datetime.now().astimezone() - torrent.date_added).seconds
-                    # 上传量
-                    uploaded = int(torrent.total_size * torrent.ratio)
-                    total_uploaded += uploaded
-                    if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"),
-                                                dltime=dltime):
-                        log.info("【BRUSH】%s 下载耗时达到删种条件，删除下载任务..." % torrent.name)
-                        if torrent_id not in delete_ids:
-                            delete_ids.append(torrent_id)
-                            update_torrents.append((uploaded, taskid, torrent_id))
-            # 更新上传量和删除种子数
-            add_brushtask_upload_count(brush_id=taskid, size=total_uploaded, count=len(delete_ids))
-            # 更新种子状态
-            update_brushtask_torrent_state(update_torrents)
-            # 删除种子
-            if delete_ids:
-                downloader.delete_torrents(delete_file=True, ids=delete_ids)
-                log.info("【BRUSH】任务 %s 共删除 %s 个刷流下载任务" % (task_name, len(delete_ids)))
+            try:
+                # 查询所有种子
+                total_uploaded = 0
+                # 可以删种的种子
+                delete_ids = []
+                # 需要更新状态的种子
+                update_torrents = []
+                # 任务信息
+                taskid = taskinfo.get("id")
+                task_name = taskinfo.get("name")
+                download_id = taskinfo.get("downloader")
+                # 当前任务种子详情
+                task_torrents = get_brushtask_torrents(taskid)
+                torrent_ids = [item[6] for item in task_torrents if item[6]]
+                if not torrent_ids:
+                    continue
+                # 下载器参数
+                downloader_cfg = self.__get_downloader_config(download_id)
+                if not downloader_cfg:
+                    log.warn("【BRUSH】任务 %s 下载器不存在" % task_name)
+                    continue
+                # 下载器类型
+                client_type = downloader_cfg.get("type")
+                if client_type == self._qb_client:
+                    downloader = Qbittorrent(user_config=downloader_cfg)
+                    # 检查完成状态的
+                    torrents = downloader.get_torrents(ids=torrent_ids, status=["completed"])
+                    for torrent in torrents:
+                        # ID
+                        torrent_id = torrent.get("hash")
+                        # 做种时间
+                        seeding_time = torrent.get('seeding_time') or 0
+                        # 分享率
+                        ratio = torrent.get("ratio") or 0
+                        # 上传量
+                        uploaded = torrent.get("uploaded") or 0
+                        total_uploaded += uploaded
+                        # 平均上传速度
+                        avg_upspeed = torrent.get("up_speed_avg") or 0
+                        if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"),
+                                                    seeding_time=seeding_time,
+                                                    ratio=ratio,
+                                                    uploaded=uploaded,
+                                                    avg_upspeed=avg_upspeed):
+                            log.info("【BRUSH】%s 做种达到删种条件，删除下载任务..." % torrent.get('name'))
+                            if torrent_id not in delete_ids:
+                                delete_ids.append(torrent_id)
+                                update_torrents.append((uploaded, taskid, torrent_id))
+                    # 检查下载中状态的
+                    torrents = downloader.get_torrents(ids=torrent_ids, status=["downloading"])
+                    for torrent in torrents:
+                        # ID
+                        torrent_id = torrent.get("hash")
+                        # 下载耗时
+                        dltime = torrent.get("time_elapsed") or 0
+                        # 上传量
+                        uploaded = torrent.get("uploaded") or 0
+                        total_uploaded += uploaded
+                        if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"), dltime=dltime):
+                            log.info("【BRUSH】%s 下载耗时达到删种条件，删除下载任务..." % torrent.get('name'))
+                            if torrent_id not in delete_ids:
+                                delete_ids.append(torrent_id)
+                                update_torrents.append((uploaded, taskid, torrent_id))
+                else:
+                    # 检查完成状态
+                    downloader = Transmission(user_config=downloader_cfg)
+                    torrents = downloader.get_torrents(ids=torrent_ids, status=["seeding", "seed_pending"])
+                    for torrent in torrents:
+                        # ID
+                        torrent_id = torrent.id
+                        # 做种时间
+                        date_added = torrent.date_added
+                        date_done = torrent.date_done if torrent.date_done else date_added
+                        started_time = (datetime.now().astimezone() - date_added).seconds
+                        seeding_time = (datetime.now().astimezone() - date_done).seconds
+                        # 分享率
+                        ratio = torrent.ratio or 0
+                        # 上传量
+                        uploaded = int(torrent.total_size * torrent.ratio)
+                        total_uploaded += uploaded
+                        # 平均上传速度
+                        avg_upspeed = int(uploaded / started_time)
+                        if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"),
+                                                    seeding_time=seeding_time,
+                                                    ratio=ratio,
+                                                    uploaded=uploaded,
+                                                    avg_upspeed=avg_upspeed):
+                            log.info("【BRUSH】%s 做种达到删种条件，删除下载任务..." % torrent.name)
+                            if torrent_id not in delete_ids:
+                                delete_ids.append(torrent_id)
+                                update_torrents.append((uploaded, taskid, torrent_id))
+                    # 检查下载状态
+                    torrents = downloader.get_torrents(ids=torrent_ids,
+                                                       status=["downloading", "download_pending", "stopped"])
+                    for torrent in torrents:
+                        # ID
+                        torrent_id = torrent.id
+                        # 下载耗时
+                        dltime = (datetime.now().astimezone() - torrent.date_added).seconds
+                        # 上传量
+                        uploaded = int(torrent.total_size * torrent.ratio)
+                        total_uploaded += uploaded
+                        if self.__check_remove_rule(remove_rule=taskinfo.get("remove_rule"),
+                                                    dltime=dltime):
+                            log.info("【BRUSH】%s 下载耗时达到删种条件，删除下载任务..." % torrent.name)
+                            if torrent_id not in delete_ids:
+                                delete_ids.append(torrent_id)
+                                update_torrents.append((uploaded, taskid, torrent_id))
+                # 更新上传量和删除种子数
+                add_brushtask_upload_count(brush_id=taskid, size=total_uploaded, count=len(delete_ids))
+                # 更新种子状态
+                update_brushtask_torrent_state(update_torrents)
+                # 删除种子
+                if delete_ids:
+                    downloader.delete_torrents(delete_file=True, ids=delete_ids)
+                    log.info("【BRUSH】任务 %s 共删除 %s 个刷流下载任务" % (task_name, len(delete_ids)))
+            except Exception as e:
+                log.console(str(e) + " - " + traceback.format_exc())
 
     def __is_allow_new_torrent(self, taskid, taskname, downloadercfg, seedsize, dlcount):
         """
@@ -495,7 +499,7 @@ class BrushTask(object):
                     return False
 
         except Exception as err:
-            print(str(err))
+            log.console(str(err) + " - " + traceback.format_exc())
 
         return True
 
@@ -544,5 +548,5 @@ class BrushTask(object):
                         if int(avg_upspeed) < float(rule_avg_upspeeds[1]) * 1024:
                             return True
         except Exception as err:
-            print(str(err))
+            log.console(str(err) + " - " + traceback.format_exc())
         return False
