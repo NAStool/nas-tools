@@ -1151,37 +1151,42 @@ def get_brushtask_totalsize(brush_id):
         return 0
 
 
-# 增加刷流下载量
-def add_brushtask_download_count(brush_id, size):
+# 增加刷流下载数
+def add_brushtask_download_count(brush_id):
     if not brush_id:
         return
-    if not str(size).isdigit():
-        return
-    sql = "UPDATE SITE_BRUSH_TASK SET DOWNLOAD_COUNT = DOWNLOAD_COUNT + 1, DOWNLOAD_SIZE = DOWNLOAD_SIZE + ?, LST_MOD_DATE = ? WHERE ID = ?"
-    return update_by_sql(sql, (int(size), time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())), brush_id))
+    sql = "UPDATE SITE_BRUSH_TASK SET DOWNLOAD_COUNT = DOWNLOAD_COUNT + 1, LST_MOD_DATE = ? WHERE ID = ?"
+    return update_by_sql(sql, (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())), brush_id))
 
 
 # 获取已删除种子的上传量
-def get_brushtask_remove_upload(brush_id):
+def get_brushtask_remove_size(brush_id):
     if not brush_id:
         return 0
-    sql = "SELECT SUM(CAST(S.TORRENT_SIZE AS DECIMAL)) FROM SITE_BRUSH_TORRENTS S WHERE S.TASK_ID = ? AND S.DOWNLOAD_ID = '0'"
-    ret = select_by_sql(sql, (brush_id,))
-    if ret and ret[0][0]:
-        return int(ret[0][0])
-    else:
-        return 0
+    sql = "SELECT S.TORRENT_SIZE FROM SITE_BRUSH_TORRENTS S WHERE S.TASK_ID = ? AND S.DOWNLOAD_ID = '0'"
+    return select_by_sql(sql, (brush_id,))
 
 
-# 更新上传量
-def add_brushtask_upload_count(brush_id, size, count):
+# 更新上传下载量和删除种子数
+def add_brushtask_upload_count(brush_id, upload_size, download_size, remove_count):
     if not brush_id:
         return
-    if not str(size).isdigit():
-        return
-    delete_size = get_brushtask_remove_upload(brush_id)
-    sql = "UPDATE SITE_BRUSH_TASK SET REMOVE_COUNT = REMOVE_COUNT + ?, UPLOAD_SIZE = ? WHERE ID = ?"
-    return update_by_sql(sql, (count, int(size) + delete_size, brush_id))
+    delete_upsize = 0
+    delete_dlsize = 0
+    remove_sizes = get_brushtask_remove_size(brush_id)
+    for remove_size in remove_sizes:
+        if not remove_size[0]:
+            continue
+        if str(remove_size[0]).find(",") != -1:
+            sizes = str(remove_size[0]).split(",")
+            delete_upsize += int(sizes[0] or 0)
+            if len(sizes) > 1:
+                delete_dlsize += int(sizes[1] or 0)
+        else:
+            delete_upsize += int(remove_size[0])
+    sql = "UPDATE SITE_BRUSH_TASK SET REMOVE_COUNT = REMOVE_COUNT + ?, UPLOAD_SIZE = ?, DOWNLOAD_SIZE = ? WHERE ID = ?"
+    return update_by_sql(sql,
+                         (remove_count, int(upload_size) + delete_upsize, int(download_size) + delete_dlsize, brush_id))
 
 
 # 增加刷流下载的种子信息
