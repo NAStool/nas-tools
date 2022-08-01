@@ -270,4 +270,20 @@ meta_cases = [{
         "video_codec": "H264",
         "audio_codec": "AAC"
     }
+}, {
+    "title": "2022.8.2.Twelve.Monkeys.1995.GBR.4K.REMASTERED.BluRay.1080p.x264.DTS [3.4 GB]",
+    "subtitle": "",
+    "target": {
+        "type": "电影",
+        "cn_name": "",
+        "en_name": "Twelve Monkeys",
+        "year": "1995",
+        "part": "",
+        "season": "",
+        "episode": "",
+        "restype": "BluRay",
+        "pix": "4k",
+        "video_codec": "x264",
+        "audio_codec": "DTS"
+    }
 }]
