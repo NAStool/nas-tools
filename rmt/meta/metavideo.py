@@ -54,8 +54,8 @@ class MetaVideo(MetaBase):
         title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
         # 把xxxx-xxxx年份换成前一个年份，常出现在季集上
         title = re.sub(r'([\s.]+)(\d{4})-(\d{4})', r'\1\2', title)
-        # 把大小去掉
-        title = re.sub(r'[0-9.]+\s*[MGT]i?B', "", title, flags=re.IGNORECASE)
+        # 把大小去掉；排除年份后跟随 GBR 的边界情况
+        title = re.sub(r'[0-9.]+\s*[MGT]i?B(?!R)', "", title, flags=re.IGNORECASE)
         # 把年月日去掉
         title = re.sub(r'\d{4}[\s._-]\d{1,2}[\s._-]\d{1,2}', "", title)
         # 拆分tokens
