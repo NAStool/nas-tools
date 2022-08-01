@@ -249,7 +249,11 @@ class BrushTask(object):
                         # 上传量 Byte
                         uploaded = torrent.get("uploaded") or 0
                         total_uploaded += uploaded
-                        if self.__check_remove_rule(remove_rule=remove_rule, dltime=dltime):
+                        # 平均上传速度 Byte/s
+                        avg_upspeed = int(uploaded / dltime)
+                        if self.__check_remove_rule(remove_rule=remove_rule,
+                                                    dltime=dltime,
+                                                    avg_upspeed=avg_upspeed):
                             log.info("【BRUSH】%s 下载耗时达到删种条件，删除下载任务..." % torrent.get('name'))
                             if torrent_id not in delete_ids:
                                 delete_ids.append(torrent_id)
@@ -293,8 +297,11 @@ class BrushTask(object):
                         # 上传量
                         uploaded = int(torrent.total_size * torrent.ratio)
                         total_uploaded += uploaded
+                        # 平均上传速度
+                        avg_upspeed = int(uploaded / dltime)
                         if self.__check_remove_rule(remove_rule=remove_rule,
-                                                    dltime=dltime):
+                                                    dltime=dltime,
+                                                    avg_upspeed=avg_upspeed):
                             log.info("【BRUSH】%s 下载耗时达到删种条件，删除下载任务..." % torrent.name)
                             if torrent_id not in delete_ids:
                                 delete_ids.append(torrent_id)
