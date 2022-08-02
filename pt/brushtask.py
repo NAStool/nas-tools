@@ -276,8 +276,8 @@ class BrushTask(object):
                         torrent_id = torrent.id
                         # 做种时间
                         date_done = torrent.date_done if torrent.date_done else torrent.date_added
-                        dltime = (datetime.now() - torrent.date_added).seconds
-                        seeding_time = (datetime.now() - date_done).seconds
+                        dltime = (datetime.now().astimezone() - torrent.date_added).seconds
+                        seeding_time = (datetime.now().astimezone() - date_done).seconds
                         # 分享率
                         ratio = torrent.ratio or 0
                         # 上传量
