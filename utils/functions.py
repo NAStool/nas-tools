@@ -511,5 +511,6 @@ def handler_special_chars(text):
     CONVERT_EMPTY_CHARS = r"'|’|!|！|,|～|·"
     if not text:
         return ""
+    text = re.sub(r"[\u200B-\u200D\uFEFF]", "", text, flags=re.IGNORECASE)
     return re.sub(r'\s+', ' ', re.sub(r"%s" % CONVERT_EMPTY_CHARS, '',
                                       re.sub(r"%s" % CONVERT_SPACES_CHARS, ' ', text))).strip()
