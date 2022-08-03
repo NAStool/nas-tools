@@ -98,6 +98,15 @@ class MetaHelper(object):
                 with lock:
                     self.__meta_data.pop(key)
 
+    def delete_unknown_meta(self):
+        """
+        清除未识别的缓存记录，以便重新检索TMDB
+        """
+        for key in list(self.__meta_data):
+            if str(self.__meta_data.get(key, {}).get("id")) == '0':
+                with lock:
+                    self.__meta_data.pop(key)
+
     def modify_meta_data(self, key, title):
         """
         删除缓存信息
