@@ -213,6 +213,12 @@ location /cgi-bin/message/send {
   proxy_pass https://qyapi.weixin.qq.com; 
 }
 ```
+Caddy 代理配置，`{upstream_hostport}` 部分不是变量，不要改，原封不动复制粘贴过去即可。
+```
+reverse_proxy https://qyapi.weixin.qq.com {
+  header_up Host {upstream_hostport}
+}
+```
 注意：代理服务器仅适用于在微信中接收工具推送的消息，消息回调与代理服务器无关。
 
 2) Telegram Bot机器人
