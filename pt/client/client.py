@@ -1,3 +1,4 @@
+import os.path
 from abc import ABCMeta, abstractmethod
 
 
@@ -186,4 +187,4 @@ class IDownloadClient(metaclass=ABCMeta):
             true_path = true_path.replace(str(self.movie_save_path), str(self.movie_save_containerpath))
         if self.anime_save_containerpath and true_path.startswith(self.anime_save_path):
             true_path = true_path.replace(str(self.anime_save_path), str(self.anime_save_containerpath))
-        return true_path
+        return os.path.normpath(true_path)

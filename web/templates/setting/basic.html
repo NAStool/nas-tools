@@ -134,11 +134,12 @@
               </div>
               <div class="col-xl-4">
                 <div class="mb-3">
-                  <label class="form-label required">文件转移方式 <span class="form-help bg-red-lt" title="硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘" data-bs-toggle="tooltip">?</span></label>
+                  <label class="form-label required">文件转移方式 <span class="form-help bg-red-lt" title="硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用" data-bs-toggle="tooltip">?</span></label>
                   <select class="form-select" id="app.rmt_mode">
                     <option value="link" {% if Config.sync.sync_mod=='link' %}selected{% endif %}>硬链接</option>
                     <option value="softlink" {% if Config.sync.sync_mod=='softlink' %}selected{% endif %}>软链接</option>
                     <option value="copy" {% if Config.sync.sync_mod=='copy' %}selected{% endif %}>复制</option>
+                    <option value="move" {% if Config.sync.sync_mod=='move' %}selected{% endif %}>移动</option>
                   </select>
                 </div>
               </div>

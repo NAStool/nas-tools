@@ -20,7 +20,7 @@ class IIndexer(metaclass=ABCMeta):
     index_type = None
     api_key = None
     filterrule = None
-    __reverse_title_sites = ['keepfriends']
+    __reverse_title_sites = ['keepfriends', 'dmhy']
     __invalid_description_sites = ['tjupt']
 
     def __init__(self):
