@@ -59,6 +59,9 @@
                   <div class="card-body">
                     <h3 class="card-title">{{ Rule.name }}</h3>
                     <div class="w-100">
+                      {% if Rule.free_text %}
+                        <span class="badge bg-green me-1 mb-1 text-wrap text-start" title="促销">{{ Rule.free_text }}</span>
+                      {% endif %}
                       {% for include in Rule.include %}
                         <span class="badge badge-outline text-green me-1 mb-1 text-wrap text-start" title="包含规则">包含: {{ include }}</span>
                       {% endfor %}
@@ -165,6 +168,17 @@
                 <input type="text" class="form-control" id="rule_sizelimit" value="" placeholder="限制文件大小，单位GB">
               </div>
             </div>
+            <div class="col-12 col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">促销 <span class="form-help bg-red-lt" title="只有满足促销条件的种子才会被命中，免费包括2X免费" data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="rule_free">
+                  <option value="" selected>全部</option>
+                  <option value="1.0 1.0">普通</option>
+                  <option value="1.0 0.0">免费</option>
+                  <option value="2.0 0.0">2X免费</option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -260,6 +274,7 @@
         $("#rule_include").val(ret.info.include);
         $("#rule_exclude").val(ret.info.exclude);
         $("#rule_sizelimit").val(ret.info.size);
+        $("#rule_free").val(ret.info.free);
         $("#filterrule_close_btn").text("删除");
         $("#add_or_edit_filterrule_btn").text("修改");
         $("#filterrule_close_btn").unbind('click');
@@ -309,6 +324,7 @@
     var rule_id = $("#filterrule_id").val();
     var group_id = $("#filtergroup_id").val();
     var rule_name = $("#rule_name").val();
+    var rule_free = $("#rule_free").val();
     if(!rule_name){
       $("#rule_name").addClass("is-invalid");
       return;
@@ -331,7 +347,8 @@
                   rule_pri: $("#rule_pri").val(),
                   rule_include: $("#rule_include").val(),
                   rule_exclude: $("#rule_exclude").val(),
-                  rule_sizelimit: rule_sizelimit
+                  rule_sizelimit: rule_sizelimit,
+                  rule_free: rule_free
                   };
     ajax_post("add_filterrule", params, function (ret) {
       if(ret.code == 0){

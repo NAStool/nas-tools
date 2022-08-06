@@ -1,12 +1,14 @@
 import argparse
 import os
 import platform
+import random
 import re
 import shutil
 import traceback
 from enum import Enum
 from threading import Lock
 from subprocess import call
+from time import sleep
 
 import log
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
@@ -165,12 +167,12 @@ class FileTransfer:
                 elif rmt_mode == RmtMode.SOFTLINK:
                     retcode = os.system('mklink "%s" "%s"' % (target_file, file_item))
                 elif rmt_mode == RmtMode.MOVE:
-                    retcode = os.system('move "%s" "%s"' % (target_file, file_item))
+                    retcode = os.system('move /Y "%s" "%s"' % (file_item, target_file))
                 else:
                     retcode = os.system('copy /Y "%s" "%s"' % (file_item, target_file))
             else:
                 if rmt_mode == RmtMode.LINK:
-                    if platform.release().find("-z4-") >= 0 and os.path.splitext(target_file)[-1].lower() in RMT_MEDIAEXT:
+                    if platform.release().find("-z4-") >= 0:
                         tmp = "%s/%s" % (os.path.dirname(os.path.dirname(target_file)), os.path.basename(target_file))
                         retcode = os.system('ln "%s" "%s" ; mv "%s" "%s"' % (file_item, tmp, tmp, target_file))
                     else:
@@ -659,6 +661,9 @@ class FileTransfer:
                 # 生成nfo及poster
                 if self.__nfo_poster:
                     self.nfohelper.gen_nfo_files(media, ret_dir_path, os.path.basename(ret_file_path))
+                # 移动模式随机休眠（兼容一些网盘挂载目录）
+                if rmt_mode == RmtMode.MOVE:
+                    sleep(round(random.uniform(0, 1), 1))
 
             except Exception as err:
                 log.error("【RMT】文件转移时发生错误：%s - %s" % (str(err), traceback.format_exc()))

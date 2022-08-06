@@ -1314,21 +1314,23 @@ def delete_filterrule(ruleid):
 def insert_filter_rule(ruleid, item):
     if ruleid:
         sql = "UPDATE CONFIG_FILTER_RULES " \
-              "SET ROLE_NAME=?,PRIORITY=?,INCLUDE=?,EXCLUDE=?,SIZE_LIMIT=? " \
+              "SET ROLE_NAME=?,PRIORITY=?,INCLUDE=?,EXCLUDE=?,SIZE_LIMIT=?,NOTE=?" \
               "WHERE ID=?"
         return update_by_sql(sql, (item.get("name"),
                                    item.get("pri"),
                                    item.get("include"),
                                    item.get("exclude"),
                                    item.get("size"),
+                                   item.get("free"),
                                    ruleid))
     else:
         sql = "INSERT INTO CONFIG_FILTER_RULES " \
-              "(GROUP_ID, ROLE_NAME, PRIORITY, INCLUDE, EXCLUDE, SIZE_LIMIT)" \
-              "VALUES (?, ?, ?, ?, ?, ?)"
+              "(GROUP_ID, ROLE_NAME, PRIORITY, INCLUDE, EXCLUDE, SIZE_LIMIT, NOTE)" \
+              "VALUES (?, ?, ?, ?, ?, ?, ?)"
         return update_by_sql(sql, (item.get("group"),
                                    item.get("name"),
                                    item.get("pri"),
                                    item.get("include"),
                                    item.get("exclude"),
-                                   item.get("size")))
+                                   item.get("size"),
+                                   item.get("free")))

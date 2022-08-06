@@ -58,11 +58,7 @@
               {% endif %}
               {% if Site.rule %}
               <dt class="col-3">过滤规则:</dt>
-              <dd class="col-9"><span class="badge badge-outline text-orange me-2">{{ Site.rule_name }}</span></dd>
-              {% endif %}
-              {% if Site.free %}
-              <dt class="col-3">促销:</dt>
-              <dd class="col-9"><span class="badge me-2 bg-green">{{ Site.free }}</span></dd>
+              <dd class="col-9"><span class="badge bg-green me-2">{{ Site.rule_name }}</span></dd>
               {% endif %}
             </dl>
           </div>
@@ -165,16 +161,6 @@
                 </select>
               </div>
             </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label">促销 <span class="form-help bg-red-lt" title="选择免费时，只有促销免费的种子才会被订阅命中和下载，站点正在不断适配中，如下拉框中没有免费选项则代表暂不支持该站点" data-bs-toggle="tooltip">?</span></label>
-                <select class="form-select" id="site_free">
-                  <option value="" selected>全部</option>
-                  <option value="FREE">免费</option>
-                  <option value="2XFREE">2X免费</option>
-                </select>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -233,8 +219,6 @@
     $("#site_close_btn").text("关闭");
     $("#modal-site-title").text("新增站点");
     $("#add_or_edit_site_btn").text("新增");
-    $("#site_free").empty();
-    $("#site_free").append('<option value="" selected>全部</option>');
     $("#modal-site").modal("show");
   }
   //编辑站点
@@ -254,15 +238,6 @@
         $("#add_or_edit_site_btn").text("修改");
         $("#modal-site").modal("show");
       }
-      $("#site_free").empty();
-      $("#site_free").append('<option value="" selected>全部</option>');
-      if(ret.site_free){
-        $("#site_free").append('<option value="FREE">免费</option>');
-      }
-      if(ret.site_2xfree){
-        $("#site_free").append('<option value="2XFREE">2X免费</option>');
-      }
-      $("#site_free").val(ret.site.free);
       $("#site_rule").val(ret.site.rule);
     });
   }
@@ -317,14 +292,13 @@
       }
     }
     var site_rule = $("#site_rule").val();
-    var site_free = $("#site_free").val();
     var data = {"site_id":site_id,
           "site_name":site_name,
           "site_pri":site_pri,
           "site_rssurl":site_rssurl,
           "site_signurl":site_signurl,
           "site_cookie":site_cookie,
-          "site_note":site_free + "|" + site_rule}
+          "site_note":"|" + site_rule}
 
     $("#add_or_edit_site_btn").attr("disabled", true);
     $("#add_or_edit_site_btn").text("处理中...");
@@ -362,30 +336,5 @@
       del_site(siteid);
     });
   }
-
-  //动态检查站点FREE
-  function check_site_free(url){
-    if(!url){
-      return;
-    }
-    ajax_post("check_site_attr", {"url": url}, function(ret){
-      $("#site_free").empty();
-      $("#site_free").append('<option value="" selected>全部</option>');
-      if(ret.site_free){
-        $("#site_free").append('<option value="FREE">免费</option>');
-      }
-      if(ret.site_2xfree){
-        $("#site_free").append('<option value="2XFREE">2X免费</option>');
-      }
-    });
-  }
-
-  //绑定事件
-  $("#site_signurl").blur(function(){
-      check_site_free($(this).val());
-  });
-  $("#site_rssurl").blur(function(){
-      check_site_free($(this).val());
-  });
 
 </script>

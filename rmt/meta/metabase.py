@@ -411,21 +411,33 @@ class MetaBase(object):
                          peers=0,
                          description=None,
                          page_url=None,
-                         upload_volume_factor=1.0,
-                         download_volume_factor=1.0,
+                         upload_volume_factor=0,
+                         download_volume_factor=0,
                          rssid=None):
-        self.site = site
-        self.site_order = site_order
-        self.enclosure = enclosure
-        self.res_order = res_order
-        self.size = size
-        self.seeders = seeders
-        self.peers = peers
-        self.description = description
-        self.page_url = page_url
-        self.upload_volume_factor = upload_volume_factor
-        self.download_volume_factor = download_volume_factor
-        self.rssid = rssid
+        if site:
+            self.site = site
+        if site_order:
+            self.site_order = site_order
+        if enclosure:
+            self.enclosure = enclosure
+        if res_order:
+            self.res_order = res_order
+        if size:
+            self.size = size
+        if seeders:
+            self.seeders = seeders
+        if peers:
+            self.peers = peers
+        if description:
+            self.description = description
+        if page_url:
+            self.page_url = page_url
+        if upload_volume_factor:
+            self.upload_volume_factor = upload_volume_factor
+        if download_volume_factor:
+            self.download_volume_factor = download_volume_factor
+        if rssid:
+            self.rssid = rssid
 
     # 获取消息媒体图片
     # 增加cache，优化资源检索时性能

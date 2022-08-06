@@ -181,10 +181,12 @@ class IDownloadClient(metaclass=ABCMeta):
         """
         对目录路径进行转换
         """
+        if not true_path:
+            return ""
         if self.tv_save_containerpath and true_path.startswith(self.tv_save_path):
             true_path = true_path.replace(str(self.tv_save_path), str(self.tv_save_containerpath))
-        if self.movie_save_containerpath and true_path.startswith(self.movie_save_path):
+        elif self.movie_save_containerpath and true_path.startswith(self.movie_save_path):
             true_path = true_path.replace(str(self.movie_save_path), str(self.movie_save_containerpath))
-        if self.anime_save_containerpath and true_path.startswith(self.anime_save_path):
+        elif self.anime_save_containerpath and true_path.startswith(self.anime_save_path):
             true_path = true_path.replace(str(self.anime_save_path), str(self.anime_save_containerpath))
-        return os.path.normpath(true_path)
+        return os.path.normpath(true_path.replace('\\', '/'))

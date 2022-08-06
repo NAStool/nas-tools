@@ -8,7 +8,6 @@ from utils.types import MediaType
 
 @singleton
 class FilterRule:
-
     _groups = []
     _rules = []
 
@@ -31,7 +30,7 @@ class FilterRule:
                 "default": group[2],
                 "note": group[3]
             }
-            if groupid and str(groupid) == str(group[0])\
+            if groupid and str(groupid) == str(group[0]) \
                     or default and group[2] == "Y":
                 return group_info
             ret_groups.append(group_info)
@@ -64,7 +63,12 @@ class FilterRule:
                 "include": rule[4].split("\n") if rule[4] else [],
                 "exclude": rule[5].split("\n") if rule[5] else [],
                 "size": rule[6],
-                "note": rule[7]
+                "free": rule[7],
+                "free_text": {
+                    "1.0 1.0": "普通",
+                    "1.0 0.0": "免费",
+                    "2.0 0.0": "2X免费"
+                }.get(rule[7], "全部") if rule[7] else ""
             }
             if str(rule[1]) == str(groupid) \
                     and (not ruleid or int(ruleid) == rule[0]):
@@ -73,11 +77,10 @@ class FilterRule:
             return ret_rules[0] if ret_rules else {}
         return ret_rules
 
-    def check_rules(self, meta_info: MetaBase, torrent_size, rolegroup=None):
+    def check_rules(self, meta_info: MetaBase, rolegroup=None):
         """
         检查种子是否匹配站点过滤规则：排除规则、包含规则，优先规则
         :param meta_info: 识别的信息
-        :param torrent_size: 种子大小
         :param rolegroup: 规则组ID
         :return: 是否匹配，匹配的优先值，规则名称，值越大越优先
         """
@@ -131,7 +134,7 @@ class FilterRule:
                     rule_match = False
             # 大小
             sizes = filter_info.get('size')
-            if sizes and rule_match and meta_info.type == MediaType.MOVIE:
+            if sizes and rule_match and meta_info.size and meta_info.type == MediaType.MOVIE:
                 if sizes.find(',') != -1:
                     sizes = sizes.split(',')
                     if sizes[0].isdigit():
@@ -148,7 +151,15 @@ class FilterRule:
                         end_size = int(sizes.strip())
                     else:
                         end_size = 0
-                if not begin_size * 1024 ** 3 <= int(torrent_size) <= end_size * 1024 ** 3:
+                if not begin_size * 1024 ** 3 <= int(meta_info.size) <= end_size * 1024 ** 3:
+                    rule_match = False
+
+            # 促销
+            free = filter_info.get("free")
+            if free:
+                ul_factor, dl_factor = free.split()
+                if float(ul_factor) < meta_info.upload_volume_factor \
+                        or float(dl_factor) > meta_info.download_volume_factor:
                     rule_match = False
 
             if rule_match:
@@ -158,3 +169,19 @@ class FilterRule:
         if not group_match:
             return False, 0, ""
         return True, order_seq, rolegroup.get("name")
+
+    def is_rule_free(self, rolegroup=None):
+        """
+        判断规则中是否需要Free检测
+        """
+        if not rolegroup:
+            rolegroup = self.get_rule_groups(default=True)
+            if not rolegroup:
+                return True, 0, ""
+        else:
+            rolegroup = self.get_rule_groups(groupid=rolegroup)
+        filters = self.get_rules(groupid=rolegroup.get("id"))
+        for filter_info in filters:
+            if filter_info.get("free"):
+                return True
+        return False

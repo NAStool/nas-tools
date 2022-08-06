@@ -148,7 +148,6 @@ class Transmission(IDownloadClient):
             if not true_path:
                 continue
             true_path = self.get_replace_path(true_path)
-            true_path = true_path.replace('\\', '/')
             trans_tasks.append({'path': true_path, 'id': torrent.id})
         return trans_tasks
 

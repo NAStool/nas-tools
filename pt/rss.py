@@ -109,8 +109,6 @@ class Rss:
                     log.info("【RSS】%s 未配置rssurl，跳过..." % str(rss_job))
                     continue
                 rss_cookie = site_info.get("cookie")
-                # 是否仅RSS促销
-                rss_free = site_info.get("free")
                 # 使用的规则
                 site_rule_group = site_info.get("rule")
                 # 开始下载RSS
@@ -148,14 +146,19 @@ class Rss:
                         if not media_info or not media_info.tmdb_info:
                             log.debug("【RSS】%s 未识别到媒体信息" % torrent_name)
                             continue
-                        # 检查种子是否匹配订阅，返回匹配到的订阅ID、是否洗版、总集数
-                        match_rssid, over_edition, total_episodes, res_order = Torrent().is_torrent_match_rss(
+                        # 大小及种子页面
+                        media_info.set_torrent_info(size=size,
+                                                    page_url=page_url,
+                                                    site=rss_job,
+                                                    site_order=order_seq,
+                                                    enclosure=enclosure)
+                        # 检查种子是否匹配订阅，返回匹配到的订阅ID、是否洗版、总集数、上传因子、下载因子
+                        match_rssid, over_edition, total_episodes, res_order, upload_volume_factor, download_volume_factor = Torrent().is_torrent_match_rss(
                             media_info=media_info,
                             movie_keys=movie_keys,
                             tv_keys=tv_keys,
-                            site_name=rss_job,
                             site_rule=site_rule_group,
-                            size=size)
+                            site_cookie=rss_cookie)
                         if match_rssid is not None:
                             log.info("【RSS】%s: %s %s %s 匹配成功" % (media_info.type.value,
                                                                  media_info.get_title_string(),
@@ -215,31 +218,12 @@ class Rss:
                                     rss_no_exists = self.__get_rss_no_exists(target=rss_no_exists,
                                                                              source=library_no_exists,
                                                                              title=media_info.get_title_string())
-
-                        # 判断种子是否免费
-                        download_volume_factor = 1.0
-                        upload_volume_factor = 1.0
-                        if rss_free:
-                            attr_type = Torrent.check_torrent_attr(torrent_url=page_url, cookie=rss_cookie)
-                            if "2XFREE" in attr_type:
-                                download_volume_factor = 0.0
-                                upload_volume_factor = 2.0
-                            elif "FREE" in attr_type:
-                                download_volume_factor = 0.0
-                                upload_volume_factor = 1.0
-                            if rss_free not in attr_type:
-                                log.info("【RSS】%s 不是 %s 种子" % (torrent_name, rss_free))
-                                continue
                         # 返回对象
-                        media_info.set_torrent_info(site_order=order_seq,
-                                                    site=rss_job,
-                                                    enclosure=enclosure,
-                                                    res_order=res_order,
-                                                    size=size,
-                                                    description=description,
+                        media_info.set_torrent_info(res_order=res_order,
                                                     download_volume_factor=download_volume_factor,
                                                     upload_volume_factor=upload_volume_factor,
-                                                    rssid=match_rssid)
+                                                    rssid=match_rssid,
+                                                    description=description)
                         # 插入数据库
                         insert_rss_torrents(media_info)
                         # 加入下载列表

@@ -1424,13 +1424,11 @@ class WebAction:
         title = data.get("title")
         subtitle = data.get("subtitle")
         size = data.get("size")
-        if size:
-            size = float(size) * 1024 ** 3
         if not title:
             return {"code": -1}
         meta_info = MetaInfo(title=title, subtitle=subtitle)
-        match_flag, res_order, rule_name = FilterRule().check_rules(meta_info=meta_info,
-                                                                    torrent_size=size)
+        meta_info.size = float(size) * 1024 ** 3 if size else 0
+        match_flag, res_order, rule_name = FilterRule().check_rules(meta_info=meta_info)
         return {
             "code": 0,
             "flag": match_flag,
@@ -1520,7 +1518,8 @@ class WebAction:
             "pri": data.get("rule_pri"),
             "include": data.get("rule_include"),
             "exclude": data.get("rule_exclude"),
-            "size": data.get("rule_sizelimit")
+            "size": data.get("rule_sizelimit"),
+            "free": data.get("rule_free")
         }
         insert_filter_rule(rule_id, item)
         FilterRule().init_config()

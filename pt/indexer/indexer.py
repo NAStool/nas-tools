@@ -95,15 +95,15 @@ class IIndexer(metaclass=ABCMeta):
         for future in as_completed(all_task):
             result = future.result()
             finish_count += 1
-            ProcessHandler().update(value=round(100 * (finish_count/len(all_task))))
+            ProcessHandler().update(value=round(100 * (finish_count / len(all_task))))
             if result:
                 ret_array = ret_array + result
         # 计算耗时
         end_time = datetime.datetime.now()
         log.info(f"【{self.index_type}】所有站点检索完成，有效资源数：%s，总耗时 %s 秒"
-                 % (len(ret_array), (end_time-start_time).seconds))
+                 % (len(ret_array), (end_time - start_time).seconds))
         ProcessHandler().update(text="所有站点检索完成，有效资源数：%s，总耗时 %s 秒"
-                                     % (len(ret_array), (end_time-start_time).seconds),
+                                     % (len(ret_array), (end_time - start_time).seconds),
                                 value=100)
         return ret_array
 
@@ -168,6 +168,10 @@ class IIndexer(metaclass=ABCMeta):
                 log.info(f"【{self.index_type}】{torrent_name} 无法识别到名称")
                 index_match_fail += 1
                 continue
+            # 大小及促销
+            meta_info.set_torrent_info(size=size,
+                                       upload_volume_factor=uploadvolumefactor,
+                                       download_volume_factor=downloadvolumefactor)
 
             if meta_info.type == MediaType.TV and filter_args.get("type") == MediaType.MOVIE:
                 log.info(
@@ -177,7 +181,6 @@ class IIndexer(metaclass=ABCMeta):
             # 检查订阅过滤规则匹配
             if filter_args.get("rule"):
                 match_flag, res_order, _ = self.filterrule.check_rules(meta_info=meta_info,
-                                                                       torrent_size=size,
                                                                        rolegroup=filter_args.get("rule"))
                 if not match_flag:
                     log.info(f"【{self.index_type}】{torrent_name} {str_filesize(size)} 不符合订阅过滤规则")
@@ -185,8 +188,7 @@ class IIndexer(metaclass=ABCMeta):
                     continue
             # 使用默认规则
             else:
-                match_flag, res_order, _ = self.filterrule.check_rules(meta_info=meta_info,
-                                                                       torrent_size=size)
+                match_flag, res_order, _ = self.filterrule.check_rules(meta_info=meta_info)
                 if match_type == 1 and not match_flag:
                     log.info(f"【{self.index_type}】{torrent_name} {str_filesize(size)} 不符合默认过滤规则")
                     index_rule_fail += 1
@@ -265,8 +267,10 @@ class IIndexer(metaclass=ABCMeta):
         # 循环结束
         # 计算耗时
         end_time = datetime.datetime.now()
-        log.info(f"【{self.index_type}】{indexer_name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，有效资源 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
-        ProcessHandler().update(text=f"{indexer_name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，有效资源 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
+        log.info(
+            f"【{self.index_type}】{indexer_name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，有效资源 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
+        ProcessHandler().update(
+            text=f"{indexer_name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，有效资源 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
         return ret_array
 
     @staticmethod
