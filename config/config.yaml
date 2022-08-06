@@ -160,6 +160,8 @@ sync:
   sync_mod: link
   # 【监控目录操作系统类型】：windows、linux。如果是windows，目录同步功能性能会比较差，会导致NAS不能休眠，除非是挂载的windows的远程共享目录或者是windows的docker，否则建议设置为linux
   nas_sys: linux
+  # 【转移每个文件后等待的间隔】：115等某些网盘有API请求频率限制。单位[秒]
+  transfer_spacetime: 0.1
 
 # 【配置PT站点和检索信息】
 pt:
