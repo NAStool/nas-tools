@@ -158,8 +158,8 @@ class FilterRule:
             free = filter_info.get("free")
             if free:
                 ul_factor, dl_factor = free.split()
-                if float(ul_factor) < meta_info.upload_volume_factor \
-                        or float(dl_factor) > meta_info.download_volume_factor:
+                if float(ul_factor) > meta_info.upload_volume_factor \
+                        or float(dl_factor) < meta_info.download_volume_factor:
                     rule_match = False
 
             if rule_match:
