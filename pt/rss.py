@@ -165,10 +165,10 @@ class Rss:
                                                                  media_info.get_season_episode_string(),
                                                                  media_info.get_resource_type_string()))
                         else:
-                            log.debug("【RSS】%s: %s %s %s 不匹配订阅" % (media_info.type.value,
-                                                                   media_info.get_title_string(),
-                                                                   media_info.get_season_episode_string(),
-                                                                   media_info.get_resource_type_string()))
+                            log.info("【RSS】%s: %s %s %s 不匹配订阅" % (media_info.type.value,
+                                                                  media_info.get_title_string(),
+                                                                  media_info.get_season_episode_string(),
+                                                                  media_info.get_resource_type_string()))
                             continue
 
                         # 非模糊匹配命中
