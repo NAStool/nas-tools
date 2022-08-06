@@ -411,8 +411,8 @@ class MetaBase(object):
                          peers=0,
                          description=None,
                          page_url=None,
-                         upload_volume_factor=0,
-                         download_volume_factor=0,
+                         upload_volume_factor=None,
+                         download_volume_factor=None,
                          rssid=None):
         if site:
             self.site = site
@@ -432,9 +432,9 @@ class MetaBase(object):
             self.description = description
         if page_url:
             self.page_url = page_url
-        if upload_volume_factor:
+        if upload_volume_factor is not None:
             self.upload_volume_factor = upload_volume_factor
-        if download_volume_factor:
+        if download_volume_factor is not None:
             self.download_volume_factor = download_volume_factor
         if rssid:
             self.rssid = rssid
