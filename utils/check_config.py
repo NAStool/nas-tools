@@ -183,6 +183,8 @@ def check_config(cfg):
             log.info("目录同步转移模式为：硬链接")
         elif sync_mod == "SOFTLINK":
             log.info("目录同步转移模式为：软链接")
+        elif sync_mod == "MOVE":
+            log.info("目录同步转移模式为：移动")
         else:
             log.info("目录同步转移模式为：复制")
     else:
