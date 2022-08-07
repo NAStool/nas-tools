@@ -682,13 +682,26 @@ class FileTransfer:
         if alert_count > 0:
             self.message.sendmsg(title="%s 有 %s 个文件转移失败，请登录NASTool查看" % (in_path, alert_count))
         else:
-            # 删除空目录
+            # 删除空目录 优化下移动模式删除空目录，遍历当前目录如果没有子目录或者子目录没有文件(不再遍历下级子目录可能下级子目录过多)，当前目录没有可匹配的视频文件就删除当前目录，现在磁力下载基本都会带很多特殊文件，比如txt nfo文件等，原来是只有为空的时候才删除
             if rmt_mode == RmtMode.MOVE \
                     and os.path.exists(in_path) \
-                    and os.path.isdir(in_path) \
-                    and not get_dir_files(in_path):
-                log.info("【RMT】移动模式下删除空目录：%s" % in_path)
-                shutil.rmtree(in_path)
+                    and os.path.isdir(in_path):
+                names = os.listdir(in_path)
+                hasmediafile = False
+                for name in names:
+                    path = os.path.abspath(os.path.join(in_path, name))
+                    if os.path.isfile(path):
+                        if os.path.splitext(path)[-1].lower() in RMT_MEDIAEXT:
+                            hasmediafile = True
+                            break
+                    elif os.path.isdir(path):
+                        if get_dir_files(path):
+                            hasmediafile = True
+                            break
+
+                if hasmediafile == False:
+                    log.info("【RMT】移动模式下删除空目录：%s" % in_path)
+                    shutil.rmtree(in_path)
         return success_flag, error_message
 
     def transfer_manually(self, s_path, t_path):
