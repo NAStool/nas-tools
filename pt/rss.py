@@ -13,8 +13,9 @@ from pt.siteconf import RSS_EXTRA_SITES
 from pt.sites import Sites
 from pt.torrent import Torrent
 from rmt.media import Media
+from rmt.meta.metabase import MetaBase
 from rmt.metainfo import MetaInfo
-from utils.functions import tag_value
+from utils.functions import tag_value, str_filesize
 from utils.http_utils import RequestUtils
 from utils.meta_helper import MetaHelper
 from utils.sqls import get_rss_movies, get_rss_tvs, insert_rss_torrents, \
@@ -153,7 +154,7 @@ class Rss:
                                                     site_order=order_seq,
                                                     enclosure=enclosure)
                         # 检查种子是否匹配订阅，返回匹配到的订阅ID、是否洗版、总集数、上传因子、下载因子
-                        match_rssid, over_edition, total_episodes, res_order, upload_volume_factor, download_volume_factor = Torrent().is_torrent_match_rss(
+                        match_rssid, over_edition, total_episodes, res_order, upload_volume_factor, download_volume_factor = self.__is_torrent_match_rss(
                             media_info=media_info,
                             movie_keys=movie_keys,
                             tv_keys=tv_keys,
@@ -618,3 +619,152 @@ class Rss:
             target_episodes = list(set(target_info.get("episodes")).intersection(set(source_info.get("episodes"))))
             target[title][index]["episodes"] = target_episodes
         return target
+
+    @staticmethod
+    def __is_torrent_match_rss(media_info: MetaBase,
+                               movie_keys,
+                               tv_keys,
+                               site_rule,
+                               site_cookie):
+        """
+        判断种子是否命中订阅
+        :param media_info: 已识别的种子媒体信息
+        :param movie_keys: 电影订阅清单
+        :param tv_keys: 电视剧订阅清单
+        :param site_rule: 站点过滤规则
+        :param site_cookie: 站点的Cookie
+        :return: 匹配到的订阅ID、是否洗版、总集数、匹配规则的资源顺序、上传因子、下载因子
+        """
+        # 默认值
+        match_flag = False
+        res_order = 0
+        rssid = None
+        over_edition = None
+        upload_volume_factor = 1.0
+        download_volume_factor = 1.0
+        rulegroup = site_rule
+        total_episodes = 0
+
+        # 匹配电影
+        if media_info.type == MediaType.MOVIE:
+            for key_info in movie_keys:
+                if not key_info:
+                    continue
+                name = key_info[0]
+                year = key_info[1]
+                tmdbid = key_info[2]
+                rssid = key_info[6]
+                # 订阅站点，是否洗板，过滤字典
+                sites, _, over_edition, filter_map = Torrent.get_rss_note_item(key_info[4])
+                # 订阅有指定过滤规则时优先使用订阅的
+                if filter_map and filter_map.get("rule"):
+                    rulegroup = filter_map.get("rule")
+                # 过滤订阅站点
+                if sites and media_info.site not in sites:
+                    continue
+                # 过滤字典
+                if filter_map and not Torrent.check_torrent_filter(media_info, filter_map):
+                    continue
+                # 有tmdbid时使用TMDBID匹配
+                if tmdbid:
+                    if not tmdbid.startswith("DB:"):
+                        if str(media_info.tmdb_id) != str(tmdbid):
+                            continue
+                    else:
+                        if year and str(year) != str(media_info.year):
+                            continue
+                        if str(name) != str(media_info.title):
+                            continue
+                # 模糊匹配
+                else:
+                    # 模糊匹配时的默认值
+                    rssid = 0
+                    # 匹配年份
+                    if year and str(year) != str(media_info.year):
+                        continue
+                    # 匹配关键字，可能是正则表达式
+                    if not re.search(r"%s" % name,
+                                     "%s %s %s" % (media_info.org_string, media_info.title, media_info.year),
+                                     re.IGNORECASE):
+                        continue
+                # 媒体匹配成功
+                match_flag = True
+                break
+        # 匹配电视剧
+        else:
+            # 匹配种子标题
+            for key_info in tv_keys:
+                if not key_info:
+                    continue
+                name = key_info[0]
+                year = key_info[1]
+                season = key_info[2]
+                tmdbid = key_info[3]
+                rssid = key_info[10]
+                total_episodes = key_info[6]
+                # 订阅站点
+                sites, _, over_edition, filter_map = Torrent.get_rss_note_item(key_info[5])
+                # 订阅有指定过滤规则时优先使用订阅的
+                if filter_map and filter_map.get("rule"):
+                    rulegroup = filter_map.get("rule")
+                # 过滤订阅站点
+                if sites and media_info.site not in sites:
+                    continue
+                # 过滤字典
+                if filter_map and not Torrent.check_torrent_filter(media_info, filter_map):
+                    continue
+                # 有tmdbid时精确匹配
+                if tmdbid:
+                    if not tmdbid.startswith("DB:"):
+                        if str(media_info.tmdb_id) != str(tmdbid):
+                            continue
+                    else:
+                        # 匹配名称
+                        if str(name) != str(media_info.title):
+                            continue
+                        # 匹配年份，年份可以为空
+                        if year and str(year) != str(media_info.year):
+                            continue
+                    # 匹配季，季可以为空
+                    if season and season != media_info.get_season_string():
+                        continue
+                # 模糊匹配
+                else:
+                    # 模糊匹配时的默认值
+                    rssid = 0
+                    # 匹配季
+                    if season and season != "S00" and season != media_info.get_season_string():
+                        continue
+                    # 匹配年份
+                    if year and str(year) != str(media_info.year):
+                        continue
+                    # 匹配关键字，可能是正则表达式
+                    if not re.search(r"%s" % name,
+                                     "%s %s %s" % (media_info.org_string, media_info.title, media_info.year),
+                                     re.IGNORECASE):
+                        continue
+                # 媒体匹配成功
+                match_flag = True
+                break
+        # 名称匹配成功，开始匹配规则
+        if match_flag:
+            # 检测Free
+            attr_type = Torrent.check_torrent_attr(torrent_url=media_info.page_url, cookie=site_cookie)
+            if "2XFREE" in attr_type:
+                download_volume_factor = 0.0
+                upload_volume_factor = 2.0
+            elif "FREE" in attr_type:
+                download_volume_factor = 0.0
+                upload_volume_factor = 1.0
+            # 设置属性
+            media_info.set_torrent_info(upload_volume_factor=upload_volume_factor,
+                                        download_volume_factor=download_volume_factor)
+            match_flag, res_order, _ = FilterRule().check_rules(meta_info=media_info,
+                                                                rolegroup=rulegroup)
+            if not match_flag:
+                log.info(
+                    f"【RSS】{media_info.org_string} 大小：{str_filesize(media_info.size)} 促销：{media_info.get_volume_factor_string()} 不符合过滤规则")
+        if match_flag:
+            return rssid, over_edition, total_episodes, res_order, upload_volume_factor, download_volume_factor
+        else:
+            return None, None, total_episodes, res_order, upload_volume_factor, download_volume_factor
