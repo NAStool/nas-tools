@@ -686,8 +686,8 @@ class FileTransfer:
             if rmt_mode == RmtMode.MOVE \
                     and os.path.exists(in_path) \
                     and os.path.isdir(in_path) \
-                    and not get_dir_files(in_path):
-                log.info("【RMT】移动模式下删除空目录：%s" % in_path)
+                    and not get_dir_files(in_path=in_path, exts=RMT_MEDIAEXT):
+                log.info("【RMT】目录下已无媒体文件，移动模式下删除目录：%s" % in_path)
                 shutil.rmtree(in_path)
         return success_flag, error_message
 
