@@ -183,14 +183,14 @@ class IIndexer(metaclass=ABCMeta):
                 match_flag, res_order, _ = self.filterrule.check_rules(meta_info=meta_info,
                                                                        rolegroup=filter_args.get("rule"))
                 if not match_flag:
-                    log.info(f"【{self.index_type}】{torrent_name} {str_filesize(size)} 不符合订阅过滤规则")
+                    log.info(f"【{self.index_type}】{torrent_name} 大小：{str_filesize(meta_info.size)} 促销：{meta_info.get_volume_factor_string()} 不符合订阅过滤规则")
                     index_rule_fail += 1
                     continue
             # 使用默认规则
             else:
                 match_flag, res_order, _ = self.filterrule.check_rules(meta_info=meta_info)
                 if match_type == 1 and not match_flag:
-                    log.info(f"【{self.index_type}】{torrent_name} {str_filesize(size)} 不符合默认过滤规则")
+                    log.info(f"【{self.index_type}】{torrent_name} 大小：{str_filesize(meta_info.size)} 促销：{meta_info.get_volume_factor_string()} 不符合默认过滤规则")
                     index_rule_fail += 1
                     continue
 

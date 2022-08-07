@@ -135,7 +135,7 @@ class Rss:
                         # 种子大小
                         size = res.get('size')
 
-                        log.debug("【RSS】开始处理：%s" % torrent_name)
+                        log.info("【RSS】开始处理：%s" % torrent_name)
 
                         # 检查这个种子是不是下过了
                         if is_torrent_rssd(enclosure):
@@ -160,15 +160,11 @@ class Rss:
                             site_rule=site_rule_group,
                             site_cookie=rss_cookie)
                         if match_rssid is not None:
-                            log.info("【RSS】%s: %s %s %s 匹配成功" % (media_info.type.value,
-                                                                 media_info.get_title_string(),
-                                                                 media_info.get_season_episode_string(),
-                                                                 media_info.get_resource_type_string()))
+                            log.info("【RSS】%s %s%s 匹配成功" % (media_info.org_string,
+                                                            media_info.get_title_string(),
+                                                            media_info.get_season_episode_string()))
                         else:
-                            log.info("【RSS】%s: %s %s %s 不匹配订阅" % (media_info.type.value,
-                                                                  media_info.get_title_string(),
-                                                                  media_info.get_season_episode_string(),
-                                                                  media_info.get_resource_type_string()))
+                            log.info("【RSS】%s %s 不匹配订阅" % (media_info.org_string, media_info.get_title_string()))
                             continue
 
                         # 非模糊匹配命中
