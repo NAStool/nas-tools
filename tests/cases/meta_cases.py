@@ -286,4 +286,20 @@ meta_cases = [{
         "video_codec": "x264",
         "audio_codec": "DTS"
     }
+}, {
+    "title": "[NC-Raws] 王者天下 第四季 - 17 (Baha 1920x1080 AVC AAC MP4) [3B1AA7BB].mp4",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "王者天下",
+        "en_name": "",
+        "year": "",
+        "part": "",
+        "season": "S04",
+        "episode": "E17",
+        "restype": "",
+        "pix": "1920p",
+        "video_codec": "AVC",
+        "audio_codec": "AAC"
+    }
 }]
