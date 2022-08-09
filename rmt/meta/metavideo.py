@@ -17,8 +17,8 @@ class MetaVideo(MetaBase):
     _continue_flag = True
     _unknown_name_str = ""
     # 正则式区
-    _season_re = r"S(\d{2})|^S(\d{1,2})"
-    _episode_re = r"EP?(\d{2,4})|^EP?(\d{1,4})"
+    _season_re = r"S(\d{2})|^S(\d{1,2})|S(\d{1,2})E"
+    _episode_re = r"EP?(\d{2,4})|^EP?(\d{1,4})|S\d{1,2}EP?(\d{1,4})"
     _part_re = r"(^PART[0-9ABI]{0,2}$|^CD[0-9]{0,2}$|^DVD[0-9]{0,2}$|^DISK[0-9]{0,2}$|^DISC[0-9]{0,2}$)"
     _roman_numerals = r"^(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$"
     _resources_type_re = r"^BLURAY$|^REMUX$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^BLU$|^WEB$|^BD$"
@@ -166,6 +166,12 @@ class MetaVideo(MetaBase):
                     # 名字未出现前的第一个数字，记下来
                     if not self._unknown_name_str:
                         self._unknown_name_str = token
+            elif re.search(r"%s" % self._season_re, token, re.IGNORECASE) \
+                    or re.search(r"%s" % self._episode_re, token, re.IGNORECASE) \
+                    or re.search(r"(%s)" % self._resources_type_re, token, re.IGNORECASE):
+                # 季集等不要
+                self._stop_name_flag = True
+                return
             else:
                 # 后缀名不要
                 if ".%s".lower() % token in RMT_MEDIAEXT:
@@ -256,14 +262,13 @@ class MetaVideo(MetaBase):
             self._continue_flag = True
             for se in re_res:
                 if isinstance(se, tuple):
-                    if se[0]:
-                        se = se[0]
-                    else:
-                        se = se[1]
-                if not se:
-                    continue
-                if not se.isdigit():
-                    continue
+                    se_t = None
+                    for se_i in se:
+                        if se_i and str(se_i).isdigit():
+                            se_t = se_i
+                            break
+                    if se_t:
+                        se = int(se_t)
                 else:
                     se = int(se)
                 if self.begin_season is None:
@@ -306,14 +311,13 @@ class MetaVideo(MetaBase):
             self.type = MediaType.TV
             for se in re_res:
                 if isinstance(se, tuple):
-                    if se[0]:
-                        se = se[0]
-                    else:
-                        se = se[1]
-                if not se:
-                    continue
-                if not se.isdigit():
-                    continue
+                    se_t = None
+                    for se_i in se:
+                        if se_i and str(se_i).isdigit():
+                            se_t = se_i
+                            break
+                    if se_t:
+                        se = int(se_t)
                 else:
                     se = int(se)
                 if self.begin_episode is None:

@@ -302,4 +302,20 @@ meta_cases = [{
         "video_codec": "AVC",
         "audio_codec": "AAC"
     }
+}, {
+    "title": "Sense8 S2E1 2015-2017 1080P WEB-DL x265 AC3￡cXcY@FRDS",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Sense8",
+        "year": "2015",
+        "part": "",
+        "season": "S02",
+        "episode": "E01",
+        "restype": "WEB-DL",
+        "pix": "1080p",
+        "video_codec": "x265",
+        "audio_codec": ""
+    }
 }]
