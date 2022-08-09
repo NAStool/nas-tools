@@ -167,7 +167,7 @@ meta_cases = [{
         "en_name": "Hataraku Maou-sama!!",
         "year": "",
         "part": "",
-        "season": "S01",
+        "season": "S02",
         "episode": "E02",
         "restype": "",
         "pix": "1920p",

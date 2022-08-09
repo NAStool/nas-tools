@@ -1,4 +1,8 @@
+import re
 from functools import lru_cache
+
+import cn2an
+
 import log
 from config import FANART_TV_API_URL, FANART_MOVIE_API_URL, ANIME_GENREIDS, Config, DEFAULT_TMDB_IMAGE
 from rmt.category import Category
@@ -82,6 +86,12 @@ class MetaBase(object):
     upload_volume_factor = 1.0
     download_volume_factor = 1.0
     rssid = None
+    # 副标题解析
+    _subtitle_flag = False
+    _subtitle_season_re = r"[第\s]+([0-9一二三四五六七八九十S\-]+)\s*季"
+    _subtitle_season_all_re = r"全\s*([0-9一二三四五六七八九十]+)\s*季|([0-9一二三四五六七八九十]+)\s*季全"
+    _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十EP\-]+)\s*[集话話]"
+    _subtitle_episode_all_re = r"([0-9一二三四五六七八九十]+)\s*集全|全\s*([0-9一二三四五六七八九十]+)\s*集"
 
     def __init__(self, title, subtitle=None):
         if not title:
@@ -487,3 +497,85 @@ class MetaBase(object):
                 return MediaType.TV
         else:
             return info.get('media_type')
+
+    def init_subtitle(self, title_text):
+        if not title_text:
+            return
+        if re.search(r'[全第季集话話]', title_text, re.IGNORECASE):
+            # 第x季
+            season_str = re.search(r'%s' % self._subtitle_season_re, title_text, re.IGNORECASE)
+            if season_str:
+                seasons = season_str.group(1)
+                if seasons:
+                    seasons = seasons.upper().replace("S", "").strip()
+                else:
+                    return
+                try:
+                    end_season = None
+                    if seasons.find('-') != -1:
+                        seasons = seasons.split('-')
+                        begin_season = int(cn2an.cn2an(seasons[0].strip(), mode='smart'))
+                        if len(seasons) > 1:
+                            end_season = int(cn2an.cn2an(seasons[1].strip(), mode='smart'))
+                    else:
+                        begin_season = int(cn2an.cn2an(seasons, mode='smart'))
+                except Exception as err:
+                    print(str(err))
+                    return
+                if self.begin_season is None and isinstance(begin_season, int):
+                    self.begin_season = begin_season
+                    self.total_seasons = 1
+                if self.begin_season is not None and self.end_season is None and isinstance(end_season, int):
+                    self.end_season = end_season
+                    self.total_seasons = (self.end_season - self.begin_season) + 1
+                self.type = MediaType.TV
+                self._subtitle_flag = True
+            # 第x集
+            episode_str = re.search(r'%s' % self._subtitle_episode_re, title_text, re.IGNORECASE)
+            if episode_str:
+                episodes = episode_str.group(1)
+                if episodes:
+                    episodes = episodes.upper().replace("E", "").replace("P", "").strip()
+                else:
+                    return
+                try:
+                    end_episode = None
+                    if episodes.find('-') != -1:
+                        episodes = episodes.split('-')
+                        begin_episode = int(cn2an.cn2an(episodes[0].strip(), mode='smart'))
+                        if len(episodes) > 1:
+                            end_episode = int(cn2an.cn2an(episodes[1].strip(), mode='smart'))
+                    else:
+                        begin_episode = int(cn2an.cn2an(episodes, mode='smart'))
+                except Exception as err:
+                    print(str(err))
+                    return
+                if self.begin_episode is None and isinstance(begin_episode, int):
+                    self.begin_episode = begin_episode
+                    self.total_episodes = 1
+                if self.begin_episode is not None and self.end_episode is None and isinstance(end_episode, int):
+                    self.end_episode = end_episode
+                    self.total_episodes = (self.end_episode - self.begin_episode) + 1
+                self.type = MediaType.TV
+                self._subtitle_flag = True
+            # x集全
+            episode_all_str = re.search(r'%s' % self._subtitle_episode_all_re, title_text, re.IGNORECASE)
+            if episode_all_str:
+                self.begin_episode = None
+                self.end_episode = None
+                self.total_episodes = 0
+            # 全x季 x季全
+            season_all_str = re.search(r"%s" % self._subtitle_season_all_re, title_text, re.IGNORECASE)
+            if season_all_str:
+                season_all = season_all_str.group(1)
+                if not season_all:
+                    season_all = season_all_str.group(2)
+                if season_all and self.begin_season is None and self.begin_episode is None:
+                    try:
+                        self.total_seasons = int(cn2an.cn2an(season_all.strip(), mode='smart'))
+                    except Exception as err:
+                        print(str(err))
+                        return
+                    self.begin_season = 1
+                    self.end_season = self.total_seasons
+                    self._subtitle_flag = True
