@@ -555,11 +555,11 @@ def get_rss_tv_sites(rssid):
 
 
 # 更新订阅电影的TMDBID
-def update_rss_tv_tmdb(rid, tmdbid, title, year, total, image):
+def update_rss_tv_tmdb(rid, tmdbid, title, year, total, lack, image):
     if not tmdbid:
         return False
-    sql = "UPDATE RSS_TVS SET TMDBID = ?, NAME = ?, YEAR = ?, TOTAL = ?, IMAGE = ? WHERE ID = ?"
-    return update_by_sql(sql, (tmdbid, str_sql(title), year, total, str_sql(image), rid))
+    sql = "UPDATE RSS_TVS SET TMDBID = ?, NAME = ?, YEAR = ?, TOTAL = ?, LACK = ?, IMAGE = ? WHERE ID = ?"
+    return update_by_sql(sql, (tmdbid, str_sql(title), year, total, lack, str_sql(image), rid))
 
 
 # 判断RSS电视剧是否存在

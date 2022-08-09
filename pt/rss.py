@@ -472,6 +472,7 @@ class Rss:
             season = tv[2]
             tmdbid = tv[3]
             total = int(tv[6])
+            lack = int(tv[7])
             if not tmdbid:
                 continue
             media_info = self.__get_media_info(tmdbid=tmdbid,
@@ -484,6 +485,8 @@ class Rss:
                 total_episode = self.media.get_tmdb_season_episodes_num(sea=int(str(season).replace("S", "")),
                                                                         tv_info=media_info.tmdb_info)
                 if total_episode and (name != media_info.title or total != total_episode):
+                    # 新的缺失集数
+                    lack_episode = total_episode - (total - lack)
                     log.info(f"【RSS】检测到TMDB信息变化，更新电视剧订阅 {name} 为 {media_info.title}，总集数为：{total_episode}")
                     # 更新订阅信息
                     update_rss_tv_tmdb(rid=rid,
@@ -491,6 +494,7 @@ class Rss:
                                        title=media_info.title,
                                        year=media_info.year,
                                        total=total_episode,
+                                       lack=lack_episode,
                                        image=media_info.get_message_image())
                     # 清除TMDB缓存
                     self.metahelper.delete_meta_data_by_tmdbid(media_info.tmdb_id)
