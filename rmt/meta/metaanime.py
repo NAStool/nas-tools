@@ -94,8 +94,8 @@ class MetaAnime(MetaBase):
                     self.begin_episode = int(begin_episode)
                     self.type = MediaType.TV
                 if isinstance(end_episode, str) and end_episode.isdigit():
-                    if self.end_episode is not None and end_episode != self.end_episode:
-                        self.end_season = int(end_episode)
+                    if self.end_episode is None and end_episode != self.begin_episode:
+                        self.end_episode = int(end_episode)
                         self.type = MediaType.TV
                 # 类型
                 if not self.type:
@@ -145,6 +145,7 @@ class MetaAnime(MetaBase):
             title = re.sub(".*新番.", "", title)
         else:
             title = re.sub(r"^[^]】]*[]】]", "", title).strip()
+        title = re.sub(r"\[TV\s*(\d{1,4}-\d{1-4}|\d{1,4})\s*[a-zA-Z]*", r"[\1", title, flags=re.IGNORECASE)
         names = title.split("]")
         if len(names) > 1 and title.find("-") == -1:
             titles = []

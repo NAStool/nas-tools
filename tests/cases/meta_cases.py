@@ -318,4 +318,20 @@ meta_cases = [{
         "video_codec": "x265",
         "audio_codec": ""
     }
+}, {
+    "title": "[xyx98]传颂之物/Utawarerumono/うたわれるもの[BDrip][1920x1080][TV 01-26 Fin][hevc-yuv420p10 flac_ac3][ENG PGS]",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "うたわれるもの",
+        "year": "",
+        "part": "",
+        "season": "S01",
+        "episode": "E01-E26",
+        "restype": "",
+        "pix": "1920p",
+        "video_codec": "",
+        "audio_codec": "flac"
+    }
 }]
