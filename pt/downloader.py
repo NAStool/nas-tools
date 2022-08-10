@@ -7,6 +7,7 @@ from config import Config, PT_TAG
 from message.send import Message
 from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
+from pt.client.cloudtorrent import CloudTorrent
 from pt.torrent import Torrent
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
@@ -47,6 +48,9 @@ class Downloader:
             elif pt_client == "transmission":
                 self.client = Transmission()
                 self.__client_type = DownloaderType.TR
+            elif pt_client == "cloudtorrent":
+                self.client = CloudTorrent()
+                self.__client_type = DownloaderType.Cloud
             self.__seeding_time = pt.get('pt_seeding_time')
             if self.__seeding_time:
                 try:
@@ -85,6 +89,8 @@ class Downloader:
                 log.info("【DOWNLOADER】添加PT任务：%s" % url)
                 if self.__client_type == DownloaderType.QB:
                     ret = self.client.add_torrent(content, mtype, is_paused=is_paused, tag=tag)
+                elif self.__client_type == DownloaderType.Cloud:
+                    ret = self.client.add_torrent(content, mtype)
                 else:
                     ret = self.client.add_torrent(content, mtype, is_paused=is_paused)
                     if ret and tag:
@@ -108,11 +114,15 @@ class Downloader:
                 trans_tasks = self.client.get_transfer_task(tag=tag)
                 if trans_tasks:
                     log.info("【PT】开始转移下载文件...")
+                    log.info("【PT】电影转移目录[{}] 电视剧转移目录[{}] 动漫转移目录[{}]".format(self.client.tv_move_path, self.client.movie_move_path, self.client.anime_move_path))
                 else:
                     return
                 for task in trans_tasks:
                     done_flag, done_msg = self.filetransfer.transfer_media(in_from=self.__client_type,
-                                                                           in_path=task.get("path"))
+                                                                           in_path=task.get("path"),
+                                                                           tv_move_path=self.client.tv_move_path,
+                                                                           movie_move_path=self.client.movie_move_path,
+                                                                           anime_move_path=self.client.anime_move_path)
                     if not done_flag:
                         log.warn("【PT】%s 转移失败：%s" % (task.get("path"), done_msg))
                     self.client.set_torrents_status(task.get("id"))
@@ -333,6 +343,11 @@ class Downloader:
                                     torrent_id = ret.id
                                 else:
                                     log.error("【DOWNLOADER】获取Transmission添加的种子信息出错：%s" % item.org_string)
+                                    continue
+                            elif self.__client_type == DownloaderType.Cloud:
+                                if ret:
+                                    torrent_id = self.client.get_last_add_torrentid_by_tag(torrent_tag)
+                                else:
                                     continue
                             else:
                                 # QB添加下载后需要时间，重试5次每次等待5秒

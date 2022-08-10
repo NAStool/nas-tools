@@ -28,6 +28,7 @@ class Qbittorrent(IDownloadClient):
             # 解析下载目录
             self.save_path = qbittorrent.get('save_path')
             self.save_containerpath = qbittorrent.get('save_containerpath')
+            self.move_path = qbittorrent.get('move_path')
 
     def connect(self):
         """

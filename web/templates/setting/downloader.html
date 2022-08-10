@@ -40,6 +40,19 @@
           </div>
         </a>
       </div>
+      <div class="col-12 col-md-4 col-xl-3">
+        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-cloudtorrent">
+          <div class="card-cover card-cover-blurred text-center bg-danger">
+            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
+              style="background-image: url(../static/img/cloudtorrent.png)">
+            </span>
+          </div>
+          <div class="card-body text-center">
+            <div class="card-title mb-1">Cloudtorrent(115网盘)</div>
+            <div class="text-muted">{% if Config.pt.pt_client == "cloudtorrent" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
+          </div>
+        </a>
+      </div>
     </div>
   </div>
 </div>
@@ -92,7 +105,7 @@
         <div class="card-body">
           <div class="row">
             <div class="mb-3">
-              <label class="form-label required">电影目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
+              <label class="form-label required">电影目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录；转移目录是本程序下载完成转移文件的路径" data-bs-toggle="tooltip">?</span></label>
               <div class="row">
                 <div class="col-12 col-lg-5 mb-1">
                   <input type="text" value="{{ QbMovieSavePath.path or '' }}" id="qbittorrent.save_path.movie.path"
@@ -106,10 +119,14 @@
                   <input type="text" value="{{ QbMovieSavePath.tag or '' }}" id="qbittorrent.save_path.movie.tag"
                     class="form-control" placeholder="分类标签">
                 </div>
+                <div class="col-6">
+                  <input type="text" value="{{ QbMovieMovePath or '' }}" id="qbittorrent.move_path.movie"
+                    class="form-control filetree-folders-only" placeholder="转移目录" autocomplete="off">
+                </div>
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label required">电视剧目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
+              <label class="form-label required">电视剧目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录；转移目录是本程序下载完成转移文件的路径" data-bs-toggle="tooltip">?</span></label>
               <div class="row">
                 <div class="col-12 col-lg-5 mb-1">
                   <input type="text" value="{{ QbTvSavePath.path or '' }}" id="qbittorrent.save_path.tv.path"
@@ -123,10 +140,14 @@
                   <input type="text" value="{{ QbTvSavePath.tag or '' }}" id="qbittorrent.save_path.tv.tag" class="form-control"
                     placeholder="分类标签">
                 </div>
+                <div class="col-6">
+                  <input type="text" value="{{ QbTvMovePath or '' }}" id="qbittorrent.move_path.tv"
+                    class="form-control filetree-folders-only" placeholder="转移目录" autocomplete="off">
+                </div>
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label required">动漫目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
+              <label class="form-label required">动漫目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录；转移目录是本程序下载完成转移文件的路径" data-bs-toggle="tooltip">?</span></label>
               <div class="row">
                 <div class="col-12 col-lg-5 mb-1">
                   <input type="text" value="{{ QbAnimeSavePath.path or '' }}" id="qbittorrent.save_path.anime.path"
@@ -140,6 +161,10 @@
                   <input type="text" value="{{ QbAnimeSavePath.tag or '' }}" id="qbittorrent.save_path.anime.tag"
                     class="form-control" placeholder="分类标签">
                 </div>
+                <div class="col-6">
+                  <input type="text" value="{{ QbAnimeMovePath or '' }}" id="qbittorrent.move_path.anime"
+                    class="form-control filetree-folders-only" placeholder="转移目录" autocomplete="off">
+                </div>		
               </div>
             </div>
           </div>
@@ -198,7 +223,7 @@
         <div class="card-body">
           <div class="row">
             <div class="mb-3">
-              <label class="form-label required">电影目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
+              <label class="form-label required">电影目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；转移目录是本程序下载完成转移文件的路径" data-bs-toggle="tooltip">?</span></label>
               <div class="row g-2">
                 <div class="col-6">
                   <input type="text" value="{{ TrMovieSavePath or '' }}" id="transmission.save_path.movie" class="form-control"
@@ -208,10 +233,14 @@
                   <input type="text" value="{{ TrMovieContainerPath or '' }}" id="transmission.save_containerpath.movie"
                     class="form-control filetree-folders-only" placeholder="容器目录" autocomplete="off">
                 </div>
+                <div class="col-6">
+                  <input type="text" value="{{ TrMovieMovePath or '' }}" id="transmission.move_path.movie"
+                    class="form-control filetree-folders-only" placeholder="转移目录" autocomplete="off">
+                </div>
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label required">电视剧目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
+              <label class="form-label required">电视剧目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；转移目录是本程序下载完成转移文件的路径" data-bs-toggle="tooltip">?</span></label>
               <div class="row g-2">
                 <div class="col-6">
                   <input type="text" value="{{ TrTvSavePath or '' }}" id="transmission.save_path.tv" class="form-control"
@@ -221,10 +250,14 @@
                   <input type="text" value="{{ TrTvContainerPath or '' }}" id="transmission.save_containerpath.tv"
                     class="form-control filetree-folders-only" placeholder="容器目录" autocomplete="off">
                 </div>
+                <div class="col-6">
+                  <input type="text" value="{{ TrTvMovePath or '' }}" id="transmission.move_path.tv"
+                    class="form-control filetree-folders-only" placeholder="转移目录" autocomplete="off">
+                </div>
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label required">动漫目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
+              <label class="form-label required">动漫目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；转移目录是本程序下载完成转移文件的路径" data-bs-toggle="tooltip">?</span></label>
               <div class="row g-2">
                 <div class="col-6">
                   <input type="text" value="{{ TrAnimeSavePath or '' }}" id="transmission.save_path.anime" class="form-control"
@@ -233,6 +266,10 @@
                 <div class="col-6">
                   <input type="text" value="{{ TrAnimeContainerPath or '' }}" id="transmission.save_containerpath.anime"
                     class="form-control filetree-folders-only" placeholder="容器目录" autocomplete="off">
+                </div>
+                <div class="col-6">
+                  <input type="text" value="{{ TrAnimeMovePath or '' }}" id="transmission.move_path.anime"
+                    class="form-control filetree-folders-only" placeholder="转移目录" autocomplete="off">
                 </div>
               </div>
             </div>
@@ -244,6 +281,90 @@
           测试
         </a>
         <a href="javascript:save_downloader_config('transmission')" id="transmission_save_btn"
+          class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-cloudtorrent" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">Cloudtorrent(115网盘)</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">Cookie <span class="form-help bg-red-lt" title="配置115 Cookie" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{% if Config.cloudtorrent %}{{ Config.cloudtorrent.cookie or '' }}{% endif %}" id="cloudtorrent.cookie" class="form-control">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="mb-3">
+              <label class="form-label required">电影目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；转移目录是本程序下载完成转移文件的路径" data-bs-toggle="tooltip">?</span></label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <input type="text" value="{{ CloudMovieSavePath or '' }}" id="cloudtorrent.save_path.movie" class="form-control"
+                    placeholder="下载目录">
+                </div>
+                <div class="col-6">
+                  <input type="text" value="{{ CloudMovieContainerPath or '' }}" id="cloudtorrent.save_containerpath.movie"
+                    class="form-control filetree-folders-only" placeholder="容器目录" autocomplete="off">
+                </div>
+                <div class="col-6">
+                  <input type="text" value="{{ CloudMovieMovePath or '' }}" id="cloudtorrent.move_path.movie"
+                    class="form-control filetree-folders-only" placeholder="转移目录" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label required">电视剧目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；转移目录是本程序下载完成转移文件的路径" data-bs-toggle="tooltip">?</span></label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <input type="text" value="{{ CloudTvSavePath or '' }}" id="cloudtorrent.save_path.tv" class="form-control"
+                    placeholder="下载目录">
+                </div>
+                <div class="col-6">
+                  <input type="text" value="{{ CloudTvContainerPath or '' }}" id="cloudtorrent.save_containerpath.tv"
+                    class="form-control filetree-folders-only" placeholder="容器目录" autocomplete="off">
+                </div>
+                <div class="col-6">
+                  <input type="text" value="{{ CloudTvMovePath or '' }}" id="cloudtorrent.move_path.tv"
+                    class="form-control filetree-folders-only" placeholder="转移目录" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label required">动漫目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；转移目录是本程序下载完成转移文件的路径" data-bs-toggle="tooltip">?</span></label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <input type="text" value="{{ CloudAnimeSavePath or '' }}" id="cloudtorrent.save_path.anime" class="form-control"
+                    placeholder="下载目录">
+                </div>
+                <div class="col-6">
+                  <input type="text" value="{{ CloudAnimeContainerPath or '' }}" id="cloudtorrent.save_containerpath.anime"
+                    class="form-control filetree-folders-only" placeholder="容器目录" autocomplete="off">
+                </div>
+                <div class="col-6">
+                  <input type="text" value="{{ CloudAnimeMovePath or '' }}" id="cloudtorrent.move_path.anime"
+                    class="form-control filetree-folders-only" placeholder="转移目录" autocomplete="off">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:test_downloader_config('cloudtorrent')" id="cloudtorrent_test_btn" class="btn btn-white me-auto">
+          测试
+        </a>
+        <a href="javascript:save_downloader_config('cloudtorrent')" id="cloudtorrent_save_btn"
           class="btn btn-primary">确定</a>
       </div>
     </div>
@@ -303,7 +424,10 @@
         command = ["Qbittorrent().get_status()"];
       }else if(currType == "transmission"){
         command = ["Transmission().get_status()"];
+      }else if(currType == "cloudtorrent"){
+        command = ["CloudTorrent().get_status()"];
       }
+      
       ajax_post("test_connection", {"command": command}, function(ret){
         if(ret.code == 0){
           $("#" + currType + "_test_btn").text("测试成功");

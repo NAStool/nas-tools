@@ -27,6 +27,7 @@ class Transmission(IDownloadClient):
             self.password = transmission.get('trpassword')
             self.save_path = transmission.get('save_path')
             self.save_containerpath = transmission.get('save_containerpath')
+            self.move_path = transmission.get('move_path')
 
     def connect(self):
         """

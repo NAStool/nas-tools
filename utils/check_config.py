@@ -178,7 +178,7 @@ def check_config(config):
         elif sync_mod == "softlink":
             log.info("目录同步转移模式为：软链接")
         elif sync_mod == "move":
-            log.info("目录同步转移模式为：软链接")
+            log.info("目录同步转移模式为：移动")
         else:
             log.info("目录同步转移模式为：复制")
     else:
@@ -200,6 +200,17 @@ def check_config(config):
                     if isinstance(save_path, dict):
                         if not save_path.get('tv') or not save_path.get('movie'):
                             log.warn("Qbittorrent下载目录配置不完整，可能无法正常下载！")
+        elif pt_client == "cloudtorrent":
+            if not config.get_config('cloudtorrent'):
+                log.error("Cloudtorrent未配置，将无法正常下载")
+            else:
+                save_path = config.get_config('cloudtorrent').get('save_path')
+                if not save_path:
+                    log.warn("Cloudtorrent下载目录未设置，可能无法正常下载")
+                else:
+                    if isinstance(save_path, dict):
+                        if not save_path.get('tv') or not save_path.get('movie'):
+                            log.warn("Cloudtorrent下载目录配置不完整，可能无法正常下载！")
         elif pt_client == "transmission":
             # 检查qbittorrent配置
             if not config.get_config('transmission'):
@@ -221,7 +232,9 @@ def check_config(config):
         if rmt_mode == "LINK":
             log.info("PT下载文件转移模式为：硬链接")
         elif rmt_mode == "SOFTLINK":
-            log.info("目录同步转移模式为：软链接")
+            log.info("PT下载文件转移模式为：软链接")
+        elif rmt_mode == "MOVE":
+            log.info("PT下载文件转移模式为：移动")
         else:
             log.info("PT下载文件转移模式为：复制")
 
