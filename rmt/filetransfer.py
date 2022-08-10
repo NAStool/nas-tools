@@ -986,10 +986,10 @@ class FileTransfer:
         if not media:
             return {}
         return {
-            "title": media.title,
-            "en_title": media.en_name,
+            "title": str(media.title).replace("/", "") if media.title else None,
+            "en_title": str(media.en_name).replace("/", "") if media.en_name else None,
             "original_name": media.org_string,
-            "original_title": media.original_title,
+            "original_title": str(media.original_title).replace("/", "") if media.original_title else None,
             "year": media.year,
             "edition": media.resource_type,
             "videoFormat": media.resource_pix,
