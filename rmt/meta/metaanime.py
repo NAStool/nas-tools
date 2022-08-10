@@ -145,7 +145,6 @@ class MetaAnime(MetaBase):
             title = re.sub(".*新番.", "", title)
         else:
             title = re.sub(r"^[^]】]*[]】]", "", title).strip()
-        title = re.sub(r"\[TV\s*(\d{1,4}-\d{1-4}|\d{1,4})\s*[a-zA-Z]*", r"[\1", title, flags=re.IGNORECASE)
         names = title.split("]")
         if len(names) > 1 and title.find("-") == -1:
             titles = []

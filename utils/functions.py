@@ -108,6 +108,8 @@ def is_chinese(word):
 # 判断是否全是中文
 def is_all_chinese(word):
     for ch in word:
+        if ch == ' ':
+            continue
         if '\u4e00' <= ch <= '\u9fff':
             continue
         else:

@@ -334,4 +334,20 @@ meta_cases = [{
         "video_codec": "",
         "audio_codec": "flac"
     }
+}, {
+    "title": "[云歌字幕组][7月新番][欢迎来到实力至上主义的教室 第二季][01][x264 10bit][1080p][简体中文].mp4",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "欢迎来到实力至上主义的教室",
+        "en_name": "",
+        "year": "",
+        "part": "",
+        "season": "S02",
+        "episode": "E01",
+        "restype": "",
+        "pix": "1080p",
+        "video_codec": "x264",
+        "audio_codec": ""
+    }
 }]
