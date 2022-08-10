@@ -350,4 +350,20 @@ meta_cases = [{
         "video_codec": "x264",
         "audio_codec": ""
     }
+}, {
+    "title": "[诛仙][Jade Dynasty][2022][WEB-DL][2160][TV Series][TV 04][LeagueWEB]",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Jade Dynasty",
+        "year": "2022",
+        "part": "",
+        "season": "S01",
+        "episode": "E04",
+        "restype": "",
+        "pix": "",
+        "video_codec": "",
+        "audio_codec": ""
+    }
 }]
