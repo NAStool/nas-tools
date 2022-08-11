@@ -22,7 +22,7 @@ class Cloud115Client:
     def login(self):
         if not self.getuid():
             return False
-        if self.getsign():
+        if not self.getsign():
             return False
         return True
 
@@ -34,11 +34,11 @@ class Cloud115Client:
             if p:
                 rootobject = p.json()
                 if not rootobject.get("state"):
-                    self.err = "获取目录[{}] ID 错误, {}".format(tdir, rootobject["error"])
+                    self.err = "【115】获取目录[{}] ID 错误, {}".format(tdir, rootobject["error"])
                     return False, ''
                 return True, rootobject.get("id")
         except Exception as result:
-            self.err = "异常错误, {}".format(result)
+            self.err = "【115】异常错误, {}".format(result)
         return False, ''
 
     # 获取sign
@@ -50,12 +50,12 @@ class Cloud115Client:
             if p:
                 rootobject = p.json()
                 if not rootobject.get("state"):
-                    self.err = "获取 SIGN 错误, {}".format(rootobject.get("error"))
+                    self.err = "【115】获取 SIGN 错误, {}".format(rootobject.get("error"))
                     return False
                 self.sign = rootobject.get("sign")
                 return True
         except Exception as result:
-            self.err = "异常错误, {}".format(result)
+            self.err = "【115】异常错误, {}".format(result)
         return False
 
     # 获取UID
@@ -67,12 +67,12 @@ class Cloud115Client:
             if p:
                 rootobject = p.json()
                 if not rootobject.get("state"):
-                    self.err = "获取 UID 错误, {}".format(rootobject.get("error"))
+                    self.err = "【115】获取 UID 错误, {}".format(rootobject.get("error"))
                     return False
                 self.uid = rootobject.get("uid")
                 return True
         except Exception as result:
-            self.err = "异常错误, {}".format(result)
+            self.err = "【115】异常错误, {}".format(result)
         return False
 
     # 获取任务列表
@@ -87,7 +87,7 @@ class Cloud115Client:
                 if p:
                     rootobject = p.json()
                     if not rootobject.get("state"):
-                        self.err = "获取任务列表错误, {}".format(rootobject["error"])
+                        self.err = "【115】获取任务列表错误, {}".format(rootobject["error"])
                         return False, tasks
                     if rootobject.get("count") == 0:
                         break
@@ -96,7 +96,7 @@ class Cloud115Client:
                         break
             return True, tasks
         except Exception as result:
-            self.err = "异常错误, {}".format(result)
+            self.err = "【115】异常错误, {}".format(result)
         return False, []
 
     # 添加任务
@@ -123,11 +123,11 @@ class Cloud115Client:
             if p:
                 rootobject = p.json()
                 if not rootobject.get("state"):
-                    self.err = "添加下载任务错误, {}".format(rootobject.get("error"))
+                    self.err = "【115】添加下载任务错误, {}".format(rootobject.get("error"))
                     return False, ''
                 return True, rootobject.get("info_hash")
         except Exception as result:
-            self.err = "异常错误, {}".format(result)
+            self.err = "【115】异常错误, {}".format(result)
         return False, ''
 
     # 删除任务
@@ -140,11 +140,11 @@ class Cloud115Client:
             if p:
                 rootobject = p.json()
                 if not rootobject.get("state"):
-                    self.err = "删除下载任务错误, {}".format(rootobject.get("error"))
+                    self.err = "【115】删除下载任务错误, {}".format(rootobject.get("error"))
                     return False
                 return True
         except Exception as result:
-            self.err = "异常错误, {}".format(result)
+            self.err = "【115】异常错误, {}".format(result)
         return False
 
     # 根据ID获取文件夹路径
@@ -157,7 +157,7 @@ class Cloud115Client:
             if p:
                 rootobject = p.json()
                 if not rootobject.get("state"):
-                    self.err = "获取 ID[{}] 路径错误, {}".format(id, rootobject["error"])
+                    self.err = "【115】获取 ID[{}] 路径错误, {}".format(id, rootobject["error"])
                     return False, path
                 patharray = rootobject["path"]
                 for pathobject in patharray:
@@ -169,5 +169,5 @@ class Cloud115Client:
                     return False, path
                 return True, path
         except Exception as result:
-            self.err = "异常错误, {}".format(result)
+            self.err = "【115】异常错误, {}".format(result)
         return False, '/'

@@ -86,7 +86,7 @@ class Downloader:
                         tag += [PT_TAG]
                     else:
                         tag = [PT_TAG, tag]
-                log.info("【DOWNLOADER】添加PT任务：%s" % url)
+                log.info("【DOWNLOADER】添加下载任务：%s" % url)
                 if self.__client_type == DownloaderType.QB:
                     ret = self.client.add_torrent(content, mtype, is_paused=is_paused, tag=tag)
                 elif self.__client_type == DownloaderType.Cloud:
@@ -293,7 +293,7 @@ class Downloader:
         # 添加一遍PT任务
         return_items = []
         for item in download_items:
-            log.info("【DOWNLOADER】添加PT任务：%s ..." % item.org_string)
+            log.info("【DOWNLOADER】添加下载任务：%s ..." % item.org_string)
             ret, ret_msg = self.add_pt_torrent(item.enclosure, item.type)
             if ret:
                 if item not in return_items:

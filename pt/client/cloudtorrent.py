@@ -33,17 +33,17 @@ class CloudTorrent(IDownloadClient):
         tlist = []
         ret, tasks = self.downclient.gettasklist(page=1)
         if not ret:
-            log.info("获取任务列表错误, {}".format(self.downclient.err))
+            log.info("【115】获取任务列表错误, {}".format(self.downclient.err))
             return tlist
         if tasks:
             for task in tasks:
                 if ids:
-                    if task["info_hash"] not in ids:
+                    if task.get("info_hash") not in ids:
                         continue
                 if status:
-                    if task["status"] not in status:
+                    if task.get("status") not in status:
                         continue
-                ret, tdir = self.downclient.getiddir(task["file_id"])
+                ret, tdir = self.downclient.getiddir(task.get("file_id"))
                 task["path"] = tdir
                 tlist.append(task)
 
@@ -72,7 +72,7 @@ class CloudTorrent(IDownloadClient):
                 trans_tasks.append({'path': true_path, 'id': torrent.get('info_hash')})
             return trans_tasks
         except Exception as result:
-            log.error("异常错误, {}".format(result))
+            log.error("【115】异常错误, {}".format(result))
             return trans_tasks
 
     def get_remove_torrents(self, seeding_time, tag):
@@ -85,7 +85,7 @@ class CloudTorrent(IDownloadClient):
                     remove_torrents.append(torrent.get('info_hash'))
             return remove_torrents
         except Exception as result:
-            log.error("异常错误, {}".format(result))
+            log.error("【115】异常错误, {}".format(result))
             return remove_torrents
 
     def add_torrent(self, content, mtype, is_paused=None, tag=None):
@@ -98,10 +98,10 @@ class CloudTorrent(IDownloadClient):
         if isinstance(content, str):
             ret, self.lasthash = self.downclient.addtask(tdir=save_path, content=content)
         else:
-            log.info("暂时不支持非磁力链接下载")
+            log.info("【115】暂时不支持非磁力链接下载")
             return False
         if not ret:
-            log.error("添加下载任务失败, {}".format(self.downclient.err))
+            log.error("【115】添加下载任务失败, {}".format(self.downclient.err))
             return False
         return True
 
