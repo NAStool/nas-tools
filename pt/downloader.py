@@ -71,10 +71,13 @@ class Downloader:
         """
         if not url:
             return None, "Url链接为空"
-        content, retmsg = Torrent.get_torrent_content(url)
-        if not content:
-            log.error("【DOWNLOADER】下载种子文件出错：%s" % retmsg)
-            return None, retmsg
+        if self.__client_type == DownloaderType.Cloud:
+            content = url
+        else:
+            content, retmsg = Torrent.get_torrent_content(url)
+            if not content:
+                log.error("【DOWNLOADER】下载种子文件出错：%s" % retmsg)
+                return None, retmsg
         ret = None
         if self.client:
             try:

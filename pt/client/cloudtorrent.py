@@ -33,7 +33,7 @@ class CloudTorrent(IDownloadClient):
         tlist = []
         ret, tasks = self.downclient.gettasklist(page=1)
         if not ret:
-            log.info("【115】获取任务列表错误, {}".format(self.downclient.err))
+            log.info("【115】获取任务列表错误：{}".format(self.downclient.err))
             return tlist
         if tasks:
             for task in tasks:
@@ -56,7 +56,7 @@ class CloudTorrent(IDownloadClient):
         return self.get_torrents(status=[0, 1])
 
     def remove_torrents_tag(self, ids, tag):
-        self.downclient.deltask(thash=ids)
+        pass
 
     def get_transfer_task(self, tag):
         trans_tasks = []
@@ -72,7 +72,7 @@ class CloudTorrent(IDownloadClient):
                 trans_tasks.append({'path': true_path, 'id': torrent.get('info_hash')})
             return trans_tasks
         except Exception as result:
-            log.error("【115】异常错误, {}".format(result))
+            log.error("【115】异常错误：{}".format(result))
             return trans_tasks
 
     def get_remove_torrents(self, seeding_time, tag):
@@ -81,7 +81,7 @@ class CloudTorrent(IDownloadClient):
         try:
             for torrent in torrents:
                 if torrent.get('path') == "/":
-                    log.info("【115】%s 文件路径不存在，已达清理条件，进行清理..." % (torrent.get('name')))
+                    log.info("【115】%s 文件路径不存在，进行清理..." % (torrent.get('name')))
                     remove_torrents.append(torrent.get('info_hash'))
             return remove_torrents
         except Exception as result:
@@ -101,7 +101,7 @@ class CloudTorrent(IDownloadClient):
             log.info("【115】暂时不支持非磁力链接下载")
             return False
         if not ret:
-            log.error("【115】添加下载任务失败, {}".format(self.downclient.err))
+            log.error("【115】添加下载任务失败：{}".format(self.downclient.err))
             return False
         return True
 
