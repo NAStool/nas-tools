@@ -46,7 +46,7 @@ class WeChat(IMessageChannel):
         if self.__corpid and self.__corpsecret and self.__agent_id:
             self.__get_access_token()
 
-    def __get_access_token(self):
+    def __get_access_token(self, force=False):
         """
         获取微信Token
         :return： 微信Token
@@ -55,11 +55,10 @@ class WeChat(IMessageChannel):
         if not self.__access_token:
             token_flag = False
         else:
-            cur_time = datetime.now()
-            if (cur_time - self.__access_token_time).seconds >= self.__expires_in:
+            if (datetime.now() - self.__access_token_time).seconds >= self.__expires_in:
                 token_flag = False
 
-        if not token_flag:
+        if not token_flag or force:
             if not self.__corpid or not self.__corpsecret:
                 return None
             try:
@@ -67,9 +66,9 @@ class WeChat(IMessageChannel):
                 res = RequestUtils().get_res(token_url)
                 if res:
                     ret_json = res.json()
-                    if ret_json['errcode'] == 0:
-                        self.__access_token = ret_json['access_token']
-                        self.__expires_in = ret_json['expires_in']
+                    if ret_json.get('errcode') == 0:
+                        self.__access_token = ret_json.get('access_token')
+                        self.__expires_in = ret_json.get('expires_in')
                         self.__access_token_time = datetime.now()
             except Exception as e:
                 log.console(str(e))
@@ -196,8 +195,7 @@ class WeChat(IMessageChannel):
         }
         return self.__post_request(message_url, req_json)
 
-    @staticmethod
-    def __post_request(message_url, req_json):
+    def __post_request(self, message_url, req_json):
         """
         向微信发送请求
         """
@@ -207,10 +205,12 @@ class WeChat(IMessageChannel):
                                                      params=json.dumps(req_json, ensure_ascii=False).encode('utf-8'))
             if res:
                 ret_json = res.json()
-                if ret_json['errcode'] == 0:
-                    return True, ret_json['errmsg']
+                if ret_json.get('errcode') == 0:
+                    return True, ret_json.get('errmsg')
                 else:
-                    return False, ret_json['errmsg']
+                    if ret_json.get('errcode') == 42001:
+                        self.__get_access_token(force=True)
+                    return False, ret_json.get('errmsg')
             else:
                 return False, None
         except Exception as err:

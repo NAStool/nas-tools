@@ -538,7 +538,8 @@ def create_flask_app(config):
     def rss_calendar():
         Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
         RssMovieIds = [movie[2] for movie in get_rss_movies()]
-        RssTvItems = [{"id": tv[3], "season": int(str(tv[2]).replace("S", "")), "name": tv[0]} for tv in get_rss_tvs() if tv[2]]
+        RssTvItems = [{"id": tv[3], "season": int(str(tv[2]).replace("S", "")), "name": tv[0]} for tv in get_rss_tvs()
+                      if tv[2]]
         return render_template("rss/rss_calendar.html",
                                Today=Today,
                                RssMovieIds=RssMovieIds,
@@ -885,7 +886,8 @@ def create_flask_app(config):
                 </svg>
                 '''
                 scheduler_cfg_list.append(
-                    {'name': '豆瓣想看', 'time': interval, 'state': sta_douban, 'id': 'douban', 'svg': svg, 'color': "pink"})
+                    {'name': '豆瓣想看', 'time': interval, 'state': sta_douban, 'id': 'douban', 'svg': svg,
+                     'color': "pink"})
 
         # 清理文件整理缓存
         svg = '''
@@ -1111,7 +1113,7 @@ def create_flask_app(config):
     def downloader():
         # Qbittorrent
         qbittorrent = config.get_config('qbittorrent')
-        save_path = qbittorrent.get("save_path")
+        save_path = qbittorrent.get("save_path", {})
         if isinstance(save_path, str):
             paths = save_path.split("|")
             if len(paths) > 1:
@@ -1164,7 +1166,7 @@ def create_flask_app(config):
                 path = ""
                 tag = ""
             QbAnimeSavePath = {"path": path, "tag": tag}
-        contianer_path = qbittorrent.get('save_containerpath')
+        contianer_path = qbittorrent.get('save_containerpath', {})
         if isinstance(contianer_path, str):
             QbMovieContainerPath = QbTvContainerPath = QbAnimeContainerPath = contianer_path
         else:
@@ -1175,17 +1177,16 @@ def create_flask_app(config):
             else:
                 QbMovieContainerPath = QbTvContainerPath = QbAnimeContainerPath = ""
 
-        
         # Transmission
         transmission = config.get_config('transmission')
-        save_path = transmission.get("save_path")
+        save_path = transmission.get("save_path", {})
         if isinstance(save_path, str):
             TrMovieSavePath = TrTvSavePath = TrAnimeSavePath = save_path
         else:
             TrMovieSavePath = save_path.get("movie")
             TrTvSavePath = save_path.get("tv")
             TrAnimeSavePath = save_path.get("anime")
-        contianer_path = transmission.get('save_containerpath')
+        contianer_path = transmission.get('save_containerpath', {})
         if isinstance(contianer_path, str):
             TrMovieContainerPath = TrTvContainerPath = TrAnimeContainerPath = contianer_path
         else:
@@ -1196,17 +1197,16 @@ def create_flask_app(config):
             else:
                 TrMovieContainerPath = TrTvContainerPath = TrAnimeContainerPath = ""
 
-
         # Cloudtorrent
         cloudtorrent = config.get_config('cloudtorrent')
-        save_path = cloudtorrent.get("save_path")
+        save_path = cloudtorrent.get("save_path", {})
         if isinstance(save_path, str):
             CloudMovieSavePath = CloudTvSavePath = CloudAnimeSavePath = save_path
         else:
             CloudMovieSavePath = save_path.get("movie")
             CloudTvSavePath = save_path.get("tv")
             CloudAnimeSavePath = save_path.get("anime")
-        contianer_path = cloudtorrent.get('save_containerpath')
+        contianer_path = cloudtorrent.get('save_containerpath', {})
         if isinstance(contianer_path, str):
             CloudMovieContainerPath = CloudTvContainerPath = CloudAnimeContainerPath = contianer_path
         else:
@@ -1216,7 +1216,6 @@ def create_flask_app(config):
                 CloudAnimeContainerPath = contianer_path.get("anime")
             else:
                 CloudMovieContainerPath = CloudTvContainerPath = CloudAnimeContainerPath = ""
-
 
         return render_template("setting/downloader.html",
                                Config=config.get_config(),

@@ -21,9 +21,11 @@ class RequestUtils:
         else:
             user_agent = Config().get_config("app").get("user_agent")
             if user_agent:
-                self.__headers = {"User-Agent": user_agent}
+                self.__headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                                  "User-Agent": user_agent}
             else:
-                self.__headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"}
+                self.__headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36"}
         if cookies:
             if isinstance(cookies, str):
                 self.__cookies = self.cookie_parse(cookies)
