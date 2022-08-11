@@ -33,6 +33,7 @@ class RmtMode(Enum):
     SOFTLINK = "软链接"
     COPY = "复制"
     MOVE = "移动"
+    RCLONE = "RCLONE"
 
 
 class MatchMode(Enum):

@@ -155,10 +155,11 @@ sync:
   # 一行的三个目录需要在同一个磁盘分区/共享目录中，有多个目录的，需要映射上级目录，源目录和目的目录为子目录，如果分开映射则可能发生跨盘的问题
   # 未识别的记录同时会在媒体整理->手动识别下面出现，未识别目录只是硬链接一份用于备份，同时手工识别处理后程序也不会主动删除，如果不想要多硬链接一份，可以不配置该目录
   sync_path:
-  # 【监控目录文件的转移方式】：link、copy、softlink、move，link即硬链接、softlink为软链接、copy为复制、move为移动，均会重命名
+  # 【监控目录文件的转移方式】：link、copy、softlink、move、rclone，link即硬链接、softlink为软链接、copy为复制、move为移动、rclone针对rclone网盘挂载，均会重命名
   # link要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间，Docker运行时link模式需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker可能仍然会认为是跨盘
   # softlink模式注意宿主机的源目录映射到docker容器中后要路径要一致，否则可能软链接成功但无法在宿主机使用
   # move会直接移动原文件，会影响做种，请谨慎使用
+  # rclone需要自行映射rclone配置目录到容器中，或在容器内完成rclone配置，且网盘配置名称必须为：NASTOOL
   sync_mod: link
   # 【监控目录操作系统类型】：windows、linux。如果是windows，目录同步功能性能会比较差，会导致NAS不能休眠，除非是挂载的windows的远程共享目录或者是windows的docker，否则建议设置为linux
   nas_sys: linux
@@ -172,11 +173,12 @@ pt:
   pt_monitor: false
   # 【只监控NASTool添加的下载】：启用后只有NASTool添加的下载才会被自动转移和显示，关闭则下载软件中所有的任务都会转移和显示
   pt_monitor_only: True
-  # 【PT下载完成后转移到媒体库的转移模式】：copy复制模式、link硬链接模式、softlink软链接模式、move为移动，均会重命名
+  # 【PT下载完成后转移到媒体库的转移模式】：copy复制模式、link硬链接模式、softlink软链接模式、move为移动、rclone针对网盘场景，均会重命名
   # copy下载做种和媒体库是两份，多占用存储（下载盘大小决定能保多少种），好处是媒体库的盘不用24小时运行可以休眠
   # link模式不用额外增加存储空间，一份文件两份目录（显示的大小一样），但需要下载目录和媒体库目录在一个磁盘分区或者存储空间，Docker运行时link模式需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker可能仍然会认为是跨盘
   # softlink模式注意宿主机的源目录映射到docker容器中后要路径要一致，否则可能软链接成功但无法在宿主机使用
   # move会直接移动原文件，会影响做种，请谨慎使用
+  # rclone需要自行映射rclone配置目录到容器中，或在容器内完成rclone配置，且网盘配置名称必须为：NASTOOL
   rmt_mode: link
   #【PT聚合检索使用的检索器】：jackett、prowlarr，需要配置jackett或prowlarr对应的配置区域
   # 1、通过微信发送关键字，实时检索下载，发送格式示例：电视剧 西部世界、西部世界第1季、西部世界第1季第2集、西部世界 2022，只会匹配真实名称，命中后会自动下载，使用说明参考：https://github.com/jxxghp/nas-tools/wiki/

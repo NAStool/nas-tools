@@ -179,6 +179,8 @@ def check_config(config):
             log.info("目录同步转移模式为：软链接")
         elif sync_mod == "move":
             log.info("目录同步转移模式为：移动")
+        elif sync_mod == "rclone":
+            log.info("目录同步转移模式为：RCLONE")
         else:
             log.info("目录同步转移模式为：复制")
     else:
@@ -224,17 +226,15 @@ def check_config(config):
                         if not save_path.get('tv') or not save_path.get('movie'):
                             log.warn("Transmission下载目录配置不完整，可能无法正常下载！")
                             
-        rmt_mode = config.get_config('pt').get('rmt_mode')
-        if rmt_mode:
-            rmt_mode = rmt_mode.upper()
-        else:
-            rmt_mode = "COPY"
-        if rmt_mode == "LINK":
+        rmt_mode = config.get_config('pt').get('rmt_mode', 'copy')
+        if rmt_mode == "link":
             log.info("PT下载文件转移模式为：硬链接")
-        elif rmt_mode == "SOFTLINK":
+        elif rmt_mode == "softlink":
             log.info("PT下载文件转移模式为：软链接")
-        elif rmt_mode == "MOVE":
+        elif rmt_mode == "move":
             log.info("PT下载文件转移模式为：移动")
+        elif rmt_mode == "rclone":
+            log.info("PT下载文件转移模式为：RCLONE")
         else:
             log.info("PT下载文件转移模式为：复制")
 
