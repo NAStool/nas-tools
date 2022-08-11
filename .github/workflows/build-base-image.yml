@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - requirements.txt
+      - docker/Dockerfile.base
 
 jobs:
   build:

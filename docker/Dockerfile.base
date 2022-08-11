@@ -9,9 +9,13 @@ RUN apk add --no-cache \
        libxslt-dev \
        tzdata \
        su-exec \
+       zip \
+       curl \
+       bash \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone \
     && ln -sf /usr/bin/python3 /usr/bin/python \
+    && curl https://rclone.org/install.sh | bash \
     && pip install --upgrade pip setuptools wheel \
     && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/master/requirements.txt \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*
