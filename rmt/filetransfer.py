@@ -1,4 +1,5 @@
 import argparse
+from lib2to3.pytree import Node
 import os
 import platform
 import random
@@ -935,6 +936,30 @@ class FileTransfer:
             return dest_paths[0]
         # 有输入路径的，匹配有共同上级路径的
         if in_path:
+
+            #先用自定义规则匹配 找同级目录最多的路径
+            max_equal_num = 0
+            max_equal_path = Node
+            for path in dest_paths:
+                paths = re.split(pattern="\\\\+|/+", string=path)
+                in_paths = re.split(pattern="\\\\+|/+", string=in_path)
+                i = 0
+                equal_num = 0
+                while i < len(paths) and i < len(in_paths):
+                    if paths[i] == in_paths[i]:
+                        equal_num += 1
+                    else:
+                        break
+                    i += 1
+                
+                if max_equal_num < equal_num:
+                    max_equal_num = equal_num
+                    max_equal_path = path
+
+
+            if max_equal_path:
+                return max_equal_path
+
             for path in dest_paths:
                 #要用异常捕获 匹配失败会直接抛异常而不是返回False
                 try:
