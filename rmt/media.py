@@ -19,6 +19,7 @@ from utils.cache_manager import cacheman
 import difflib
 from rmt.constants import *
 
+from rmt.douban import Douban
 
 class Media:
     # TheMovieDB
@@ -468,6 +469,10 @@ class Media:
                     tmdb_info['media_type'] = MediaType.TV
             if tmdb_info:
                 tmdb_info['genre_ids'] = self.__get_genre_ids_from_detail(tmdb_info.get('genres'))
+        #如果tmdb没有中文名称由豆瓣替换
+        tmdb_name =str(tmdb_info.get("name"))
+        if Douban(tmdb_name).name_check():
+            tmdb_info['name'] = Douban(tmdb_name).run()
         return tmdb_info
 
     def get_tmdb_infos(self, title, year=None, mtype: MediaType = None, num=6):
