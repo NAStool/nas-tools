@@ -38,13 +38,14 @@ class GazelleUserInfo(ISiteUserInfo):
 
         tmps = html.xpath('//a[contains(@href, "bonus.php")]/@data-tooltip')
         if tmps:
-            bonus_match = re.search(r"\(([\d,.]+)\)", tmps[0])
+            bonus_match = re.search(r"([\d,.]+)", tmps[0])
             if bonus_match and bonus_match.group(1).strip():
                 self.bonus = str_float(bonus_match.group(1))
         else:
-            tmps = html.xpath('//a[contains(@href, "bonus.php")]/text()')
+            tmps = html.xpath('//a[contains(@href, "bonus.php")]')
             if tmps:
-                bonus_match = re.search(r"\(([\d,.]+)\)", tmps[0])
+                bonus_text = tmps[0].xpath("string(.)")
+                bonus_match = re.search(r"([\d,.]+)", bonus_text)
                 if bonus_match and bonus_match.group(1).strip():
                     self.bonus = str_float(bonus_match.group(1))
 

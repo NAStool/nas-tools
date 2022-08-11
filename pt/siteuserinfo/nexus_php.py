@@ -117,7 +117,7 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         :param multi_page: 是否多页数据
         :return: 下页地址
         """
-        html = etree.HTML(html_text)
+        html = etree.HTML(str(html_text).replace(r'\/', '/'))
         if not html:
             return None
 
