@@ -936,8 +936,13 @@ class FileTransfer:
         # 有输入路径的，匹配有共同上级路径的
         if in_path:
             for path in dest_paths:
-                if os.path.commonpath([path, in_path]) not in ["/", "\\"]:
-                    return path
+                #要用异常捕获 匹配失败会直接抛异常而不是返回False
+                try:
+                    if os.path.commonpath([path, in_path]) not in ["/", "\\"]:
+                        return path
+                except:
+                    continue
+
         # 有输入大小的，匹配第1个满足空间存储要求的
         if size:
             for path in dest_paths:
