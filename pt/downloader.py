@@ -114,15 +114,11 @@ class Downloader:
                 trans_tasks = self.client.get_transfer_task(tag=tag)
                 if trans_tasks:
                     log.info("【PT】开始转移下载文件...")
-                    log.info("【PT】电影转移目录[{}] 电视剧转移目录[{}] 动漫转移目录[{}]".format(self.client.tv_move_path, self.client.movie_move_path, self.client.anime_move_path))
                 else:
                     return
                 for task in trans_tasks:
                     done_flag, done_msg = self.filetransfer.transfer_media(in_from=self.__client_type,
-                                                                           in_path=task.get("path"),
-                                                                           tv_move_path=self.client.tv_move_path,
-                                                                           movie_move_path=self.client.movie_move_path,
-                                                                           anime_move_path=self.client.anime_move_path)
+                                                                           in_path=task.get("path"))
                     if not done_flag:
                         log.warn("【PT】%s 转移失败：%s" % (task.get("path"), done_msg))
                     self.client.set_torrents_status(task.get("id"))

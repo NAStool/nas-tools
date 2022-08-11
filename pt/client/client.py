@@ -10,19 +10,15 @@ class IDownloadClient(metaclass=ABCMeta):
     password = None
     save_path = None
     save_containerpath = None
-    move_path = None
     tv_save_path = None
     tv_save_containerpath = None
     tv_category = None
-    tv_move_path = None
     movie_save_path = None
     movie_save_containerpath = None
     movie_category = None
-    movie_move_path = None
     anime_save_path = None
     anime_save_containerpath = None
     anime_category = None
-    anime_move_path = None
 
     def __init__(self, user_config=None):
         if user_config:
@@ -96,18 +92,7 @@ class IDownloadClient(metaclass=ABCMeta):
                     # 没有配置anime目录则使用tv目录
                     if not self.anime_save_containerpath:
                         self.anime_save_containerpath = self.tv_save_containerpath
-            if self.move_path:
-                if isinstance(self.move_path, str):
-                    self.tv_move_path = self.move_path
-                    self.movie_move_path = self.move_path
-                    self.anime_move_path = self.move_path
-                else:
-                    self.tv_move_path = self.move_path.get('tv')
-                    self.movie_move_path = self.move_path.get('movie')
-                    self.anime_move_path = self.move_path.get('anime')
-                    # 没有配置anime目录则使用tv目录
-                    if not self.anime_move_path:
-                        self.anime_move_path = self.tv_move_path
+
     @abstractmethod
     def get_status(self):
         """

@@ -372,10 +372,7 @@ class FileTransfer:
                        season=None,
                        episode: (EpisodeFormat, bool) = None,
                        min_filesize=None,
-                       udf_flag=False,
-                       tv_move_path=None,
-                       movie_move_path=None,
-                       anime_move_path=None):
+                       udf_flag=False):
         """
         识别并转移一个文件、多个文件或者目录
         :param in_from: 来源，即调用该功能的渠道
@@ -389,9 +386,6 @@ class FileTransfer:
         :param episode: (EpisodeFormat，是否批处理匹配)
         :param min_filesize: 过滤小文件大小的上限值
         :param udf_flag: 自定义转移标志，为True时代表是自定义转移，此时很多处理不一样
-        :param tv_move_path: 下载转移电视剧的目标路径
-        :param movie_move_path: 下载转移电影的目标路径
-        :param anime_move_path: 下载转移动漫的目标路径
         :return: 处理状态，错误信息
         """
         episode = (None, False) if not episode else episode
@@ -526,7 +520,7 @@ class FileTransfer:
                 if target_dir:
                     dist_path = target_dir
                 else:
-                    dist_path = self.__get_best_target_path(in_from=in_from, mtype=media.type, in_path=in_path, size=media.size, tv_move_path=tv_move_path, movie_move_path=movie_move_path, anime_move_path=anime_move_path)
+                    dist_path = self.__get_best_target_path(mtype=media.type, in_path=in_path, size=media.size)
                 if not dist_path:
                     log.error("【RMT】文件转移失败，目的路径不存在！")
                     success_flag = False
@@ -691,23 +685,10 @@ class FileTransfer:
             # 删除空目录
             if rmt_mode == RmtMode.MOVE \
                     and os.path.exists(in_path) \
-                    and os.path.isdir(in_path):
-                names = os.listdir(in_path)
-                hasmediafile = False
-                for name in names:
-                    path = os.path.abspath(os.path.join(in_path, name))
-                    if os.path.isfile(path):
-                        if os.path.splitext(path)[-1].lower() in RMT_MEDIAEXT:
-                            hasmediafile = True
-                            break
-                    elif os.path.isdir(path):
-                        if get_dir_files(path):
-                            hasmediafile = True
-                            break
-
-                if hasmediafile == False:
-                    log.info("【RMT】移动模式下删除目录：%s" % in_path)
-                    shutil.rmtree(in_path)
+                    and os.path.isdir(in_path) \
+                    and not get_dir_files(in_path=in_path, exts=RMT_MEDIAEXT):
+                log.info("【RMT】目录下已无媒体文件，移动模式下删除目录：%s" % in_path)
+                shutil.rmtree(in_path)
         return success_flag, error_message
 
     def transfer_manually(self, s_path, t_path):
@@ -931,7 +912,7 @@ class FileTransfer:
                     exists_episodes = list(set(exists_episodes).union(set(file_meta_info.get_episode_list())))
             return list(set(total_episodes).difference(set(exists_episodes)))
 
-    def __get_best_target_path(self, in_from: Enum, mtype, in_path=None, size=0, tv_move_path=None, movie_move_path=None, anime_move_path=None):
+    def __get_best_target_path(self, mtype, in_path=None, size=0):
         """
         查询一个最好的目录返回，有in_path时找与in_path同路径的，没有in_path时，顺序查找1个符合大小要求的，没有in_path和size时，返回第1个
         :param mtype: 媒体类型：电影、电视剧、动漫
@@ -939,42 +920,32 @@ class FileTransfer:
         :param size: 文件大小
         """
         if not mtype:
-                return None
-        #下载器转移用下载器配置的路径，防止115下载内容移动到其他磁盘
-        if in_from in DownloaderType:
-            if mtype == MediaType.MOVIE:
-                path = movie_move_path
-            elif mtype == MediaType.TV:
-                path = tv_move_path
-            else:
-                path = anime_move_path
-            return path
+            return None
+        if mtype == MediaType.MOVIE:
+            dest_paths = self.__movie_path
+        elif mtype == MediaType.TV:
+            dest_paths = self.__tv_path
         else:
-            if mtype == MediaType.MOVIE:
-                dest_paths = self.__movie_path
-            elif mtype == MediaType.TV:
-                dest_paths = self.__tv_path
-            else:
-                dest_paths = self.__anime_path
-            if not dest_paths:
-                return None
-            if not isinstance(dest_paths, list):
-                return dest_paths
-            if isinstance(dest_paths, list) and len(dest_paths) == 1:
-                return dest_paths[0]
-            # 有输入路径的，匹配有共同上级路径的
-            if in_path:
-                for path in dest_paths:
-                    if os.path.commonpath([path, in_path]) not in ["/", "\\"]:
-                        return path
-            # 有输入大小的，匹配第1个满足空间存储要求的
-            if size:
-                for path in dest_paths:
-                    disk_free_size = get_free_space_gb(path)
-                    if float(disk_free_size) > float(size / 1024 / 1024 / 1024):
-                        return path
-            # 默认返回第1个
+            dest_paths = self.__anime_path
+        if not dest_paths:
+            return None
+        if not isinstance(dest_paths, list):
+            return dest_paths
+        if isinstance(dest_paths, list) and len(dest_paths) == 1:
             return dest_paths[0]
+        # 有输入路径的，匹配有共同上级路径的
+        if in_path:
+            for path in dest_paths:
+                if os.path.commonpath([path, in_path]) not in ["/", "\\"]:
+                    return path
+        # 有输入大小的，匹配第1个满足空间存储要求的
+        if size:
+            for path in dest_paths:
+                disk_free_size = get_free_space_gb(path)
+                if float(disk_free_size) > float(size / 1024 / 1024 / 1024):
+                    return path
+        # 默认返回第1个
+        return dest_paths[0]
 
     def __get_best_unknown_path(self, in_path):
         """

@@ -245,16 +245,13 @@ qbittorrent:
     movie:
     tv:
     anime:
-  # 下载转移时存储的路径
-  move_path:
-    movie:
-    tv:
-    anime:
+
 
 #配置115
 cloudtorrent:
+  #115 Cookie 抓包获取
   cookie:
-   ## 下面两项配置问的人比较多，解释一下：
+  ## 下面两项配置问的人比较多，解释一下：
   # 1、save_path是nastool检索到需要新增下载时告诉qb下到哪个目录去，是传给qb的
   # 2、save_containerpath是告诉nastool qb的下载路径对应在nastool里又是映射为什么路径，这样nastool才能通过这个路径访问到qb下载好的文件
   # qBittorrent下载保存目录，如果是Docker版本的qb这个是容器内的路径
@@ -275,11 +272,7 @@ cloudtorrent:
     movie:
     tv:
     anime:
-  # 下载转移时存储的路径
-  move_path:
-    movie:
-    tv:
-    anime:
+
 # 【配置transmission下载软件】：pt区的pt_client如配置为transmission则需要同步配置该项，需要3.0以上版本，否则可能会报错
 transmission:
   # 【transmission IP地址和端口】：注意如果tr启用了HTTPS证书，则需要配置为https://IP
@@ -307,11 +300,7 @@ transmission:
     movie:
     tv:
     anime:
-  # 下载转移时存储的路径
-  move_path:
-    movie:
-    tv:
-    anime:
+
 # 【配置豆瓣账号信息】：配置后会自动同步豆瓣收藏，豆瓣标记想看内容后，后台自动下载
 douban:
   # 【用户ID列表】：豆瓣电影点个我主页people后面的那一串数字，或者使用豆瓣App个人信息中查看。可以配置多个，注意要加引号

@@ -1174,14 +1174,7 @@ def create_flask_app(config):
                 QbAnimeContainerPath = contianer_path.get("anime")
             else:
                 QbMovieContainerPath = QbTvContainerPath = QbAnimeContainerPath = ""
-        move_path = qbittorrent.get('move_path')
-        if isinstance(move_path, str):
-            QbMovieMovePath = QbTvMovePath = QbAnimeMovePath = move_path
-        else:
-            if move_path:
-                QbMovieMovePath = move_path.get("movie")
-                QbTvMovePath = move_path.get("tv")
-                QbAnimeMovePath = move_path.get("anime")
+
         
         # Transmission
         transmission = config.get_config('transmission')
@@ -1202,14 +1195,7 @@ def create_flask_app(config):
                 TrAnimeContainerPath = contianer_path.get("anime")
             else:
                 TrMovieContainerPath = TrTvContainerPath = TrAnimeContainerPath = ""
-        move_path = transmission.get('move_path')
-        if isinstance(move_path, str):
-            TrMovieMovePath = TrTvMovePath = TrAnimeMovePath = move_path
-        else:
-            if move_path:
-                TrMovieMovePath = move_path.get("movie")
-                TrTvMovePath = move_path.get("tv")
-                TrAnimeMovePath = move_path.get("anime")
+
 
         # Cloudtorrent
         cloudtorrent = config.get_config('cloudtorrent')
@@ -1230,41 +1216,25 @@ def create_flask_app(config):
                 CloudAnimeContainerPath = contianer_path.get("anime")
             else:
                 CloudMovieContainerPath = CloudTvContainerPath = CloudAnimeContainerPath = ""
-        move_path = cloudtorrent.get('move_path')
-        if isinstance(move_path, str):
-            CloudMovieMovePath = CloudTvMovePath = CloudAnimeMovePath = move_path
-        else:
-            if move_path:
-                CloudMovieMovePath = move_path.get("movie")
-                CloudTvMovePath = move_path.get("tv")
-                CloudAnimeMovePath = move_path.get("anime")
+
 
         return render_template("setting/downloader.html",
                                Config=config.get_config(),
                                QbMovieSavePath=QbMovieSavePath,
                                QbTvSavePath=QbTvSavePath,
                                QbAnimeSavePath=QbAnimeSavePath,
-                               QbMovieMovePath=QbMovieMovePath,
-                               QbTvMovePath=QbTvMovePath,
-                               QbAnimeMovePath=QbAnimeMovePath,
                                QbMovieContainerPath=QbMovieContainerPath,
                                QbTvContainerPath=QbTvContainerPath,
                                QbAnimeContainerPath=QbAnimeContainerPath,
                                TrMovieSavePath=TrMovieSavePath,
                                TrTvSavePath=TrTvSavePath,
                                TrAnimeSavePath=TrAnimeSavePath,
-                               TrMovieMovePath=TrMovieMovePath,
-                               TrTvMovePath=TrTvMovePath,
-                               TrAnimeMovePath=TrAnimeMovePath,
                                TrMovieContainerPath=TrMovieContainerPath,
                                TrTvContainerPath=TrTvContainerPath,
                                TrAnimeContainerPath=TrAnimeContainerPath,
                                CloudMovieSavePath=CloudMovieSavePath,
                                CloudTvSavePath=CloudTvSavePath,
                                CloudAnimeSavePath=CloudAnimeSavePath,
-                               CloudMovieMovePath=CloudMovieMovePath,
-                               CloudTvMovePath=CloudTvMovePath,
-                               CloudAnimeMovePath=CloudAnimeMovePath,
                                CloudMovieContainerPath=CloudMovieContainerPath,
                                CloudTvContainerPath=CloudTvContainerPath,
                                CloudAnimeContainerPath=CloudAnimeContainerPath)
