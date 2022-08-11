@@ -11,6 +11,8 @@ app:
   logserver: 127.0.0.1:514
   # 【日志级别】：info、debug、error
   loglevel: info
+  # 【WEB管理界面监听地址】：如需支持ipv6需设置为::，如::无法访问可改为0.0.0.0
+  web_host: '::'
   # 【WEB管理界面端口】：默认3000
   web_port: 3000
   # 【WEB管理页面登录用户】，默认admin

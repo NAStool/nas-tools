@@ -15,7 +15,8 @@ class RequestUtils:
     def __init__(self, headers=None, cookies=None, proxies=False, session=None, timeout=None):
         if headers:
             if isinstance(headers, str):
-                self.__headers = {"User-Agent": f"{headers}"}
+                self.__headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                                  "User-Agent": f"{headers}"}
             else:
                 self.__headers = headers
         else:

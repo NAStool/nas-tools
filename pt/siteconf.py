@@ -66,7 +66,7 @@ RSS_SITE_GRAP_CONF = {
     'audiences.me': {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': ["//font[@class='twoupfree']"],
-        'HR': []
+        'HR': ["//img[@class='hitandrun']"]
     },
     'pterclub.com': {
         'FREE': ["//font[@class='free'][text()='免费']"],
