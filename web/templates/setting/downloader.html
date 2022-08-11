@@ -40,6 +40,19 @@
           </div>
         </a>
       </div>
+      <div class="col-12 col-md-4 col-xl-3">
+        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-cloudtorrent">
+          <div class="card-cover card-cover-blurred text-center bg-danger">
+            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
+              style="background-image: url(../static/img/cloudtorrent.png)">
+            </span>
+          </div>
+          <div class="card-body text-center">
+            <div class="card-title mb-1">115网盘</div>
+            <div class="text-muted">{% if Config.pt.pt_client == "cloudtorrent" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
+          </div>
+        </a>
+      </div>
     </div>
   </div>
 </div>
@@ -249,6 +262,78 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-cloudtorrent" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">115网盘</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">Cookie <span class="form-help bg-red-lt" title="配置115 Cookie" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{% if Config.cloudtorrent %}{{ Config.cloudtorrent.cookie or '' }}{% endif %}" id="cloudtorrent.cookie" class="form-control">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="mb-3">
+              <label class="form-label required">电影目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <input type="text" value="{{ CloudMovieSavePath or '' }}" id="cloudtorrent.save_path.movie" class="form-control"
+                    placeholder="下载目录">
+                </div>
+                <div class="col-6">
+                  <input type="text" value="{{ CloudMovieContainerPath or '' }}" id="cloudtorrent.save_containerpath.movie"
+                    class="form-control filetree-folders-only" placeholder="容器目录" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label required">电视剧目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <input type="text" value="{{ CloudTvSavePath or '' }}" id="cloudtorrent.save_path.tv" class="form-control"
+                    placeholder="下载目录">
+                </div>
+                <div class="col-6">
+                  <input type="text" value="{{ CloudTvContainerPath or '' }}" id="cloudtorrent.save_containerpath.tv"
+                    class="form-control filetree-folders-only" placeholder="容器目录" autocomplete="off">
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label required">动漫目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
+              <div class="row g-2">
+                <div class="col-6">
+                  <input type="text" value="{{ CloudAnimeSavePath or '' }}" id="cloudtorrent.save_path.anime" class="form-control"
+                    placeholder="下载目录">
+                </div>
+                <div class="col-6">
+                  <input type="text" value="{{ CloudAnimeContainerPath or '' }}" id="cloudtorrent.save_containerpath.anime"
+                    class="form-control filetree-folders-only" placeholder="容器目录" autocomplete="off">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:test_downloader_config('cloudtorrent')" id="cloudtorrent_test_btn" class="btn btn-white me-auto">
+          测试
+        </a>
+        <a href="javascript:save_downloader_config('cloudtorrent')" id="cloudtorrent_save_btn"
+          class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   // 当前处理的类型
   var currType = "";
@@ -303,7 +388,10 @@
         command = ["Qbittorrent().get_status()"];
       }else if(currType == "transmission"){
         command = ["Transmission().get_status()"];
+      }else if(currType == "cloudtorrent"){
+        command = ["CloudTorrent().get_status()"];
       }
+      
       ajax_post("test_connection", {"command": command}, function(ret){
         if(ret.code == 0){
           $("#" + currType + "_test_btn").text("测试成功");

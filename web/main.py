@@ -592,6 +592,16 @@ def create_flask_app(config):
                         speed = "%s%sB/s %s%sB/s %s" % (chr(8595), dlspeed, chr(8593), upspeed, eta)
                 # 主键
                 key = torrent.get('hash')
+            elif Client == DownloaderType.Cloud:
+                name = torrent.get('name')
+                # 进度
+                progress = round(torrent.get('percentDone'), 1)
+                state = "Downloading"
+                dlspeed = str_filesize(torrent.get('peers'))
+                upspeed = str_filesize(torrent.get('rateDownload'))
+                speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
+                # 主键
+                key = torrent.get('info_hash')
             else:
                 name = torrent.name
                 if torrent.status in ['stopped']:
@@ -1165,6 +1175,7 @@ def create_flask_app(config):
             else:
                 QbMovieContainerPath = QbTvContainerPath = QbAnimeContainerPath = ""
 
+        
         # Transmission
         transmission = config.get_config('transmission')
         save_path = transmission.get("save_path")
@@ -1185,20 +1196,48 @@ def create_flask_app(config):
             else:
                 TrMovieContainerPath = TrTvContainerPath = TrAnimeContainerPath = ""
 
+
+        # Cloudtorrent
+        cloudtorrent = config.get_config('cloudtorrent')
+        save_path = cloudtorrent.get("save_path")
+        if isinstance(save_path, str):
+            CloudMovieSavePath = CloudTvSavePath = CloudAnimeSavePath = save_path
+        else:
+            CloudMovieSavePath = save_path.get("movie")
+            CloudTvSavePath = save_path.get("tv")
+            CloudAnimeSavePath = save_path.get("anime")
+        contianer_path = cloudtorrent.get('save_containerpath')
+        if isinstance(contianer_path, str):
+            CloudMovieContainerPath = CloudTvContainerPath = CloudAnimeContainerPath = contianer_path
+        else:
+            if contianer_path:
+                CloudMovieContainerPath = contianer_path.get("movie")
+                CloudTvContainerPath = contianer_path.get("tv")
+                CloudAnimeContainerPath = contianer_path.get("anime")
+            else:
+                CloudMovieContainerPath = CloudTvContainerPath = CloudAnimeContainerPath = ""
+
+
         return render_template("setting/downloader.html",
                                Config=config.get_config(),
                                QbMovieSavePath=QbMovieSavePath,
                                QbTvSavePath=QbTvSavePath,
                                QbAnimeSavePath=QbAnimeSavePath,
-                               TrMovieSavePath=TrMovieSavePath,
-                               TrTvSavePath=TrTvSavePath,
-                               TrAnimeSavePath=TrAnimeSavePath,
                                QbMovieContainerPath=QbMovieContainerPath,
                                QbTvContainerPath=QbTvContainerPath,
                                QbAnimeContainerPath=QbAnimeContainerPath,
+                               TrMovieSavePath=TrMovieSavePath,
+                               TrTvSavePath=TrTvSavePath,
+                               TrAnimeSavePath=TrAnimeSavePath,
                                TrMovieContainerPath=TrMovieContainerPath,
                                TrTvContainerPath=TrTvContainerPath,
-                               TrAnimeContainerPath=TrAnimeContainerPath)
+                               TrAnimeContainerPath=TrAnimeContainerPath,
+                               CloudMovieSavePath=CloudMovieSavePath,
+                               CloudTvSavePath=CloudTvSavePath,
+                               CloudAnimeSavePath=CloudAnimeSavePath,
+                               CloudMovieContainerPath=CloudMovieContainerPath,
+                               CloudTvContainerPath=CloudTvContainerPath,
+                               CloudAnimeContainerPath=CloudAnimeContainerPath)
 
     # 索引器页面
     @App.route('/indexer', methods=['POST', 'GET'])

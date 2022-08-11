@@ -246,6 +246,33 @@ qbittorrent:
     tv:
     anime:
 
+
+#配置115
+cloudtorrent:
+  #115 Cookie 抓包获取
+  cookie:
+  ## 下面两项配置问的人比较多，解释一下：
+  # 1、save_path是nastool检索到需要新增下载时告诉qb下到哪个目录去，是传给qb的
+  # 2、save_containerpath是告诉nastool qb的下载路径对应在nastool里又是映射为什么路径，这样nastool才能通过这个路径访问到qb下载好的文件
+  # qBittorrent下载保存目录，如果是Docker版本的qb这个是容器内的路径
+  ## 有两种配置方法：
+  # 1、直接在：号后面配置一个路径（删掉下面的movie、tv、anime项），则所有电影电视剧动漫均下载到这个目录中
+  # 2、在save_path下面配置子栏目，可以按电影movie、电视剧tv、动漫anime分开目录存储，anime动漫可以不配置，不配时使用tv目录
+  # 如果需要配置的下载目录生效，QB的下载管理模式需要为【手动】
+  # 配置子栏目的情况下同时也支持分类自动管理（使用qb的分类下载目录），在路径后面使用|加上分类名即可，比如：'/download/movie|电影'
+  save_path:
+    movie:
+    tv:
+    anime:
+  # 1、如果本程序是用Docker运行，则这个是PT下载目录对应映射到本程序Docker容器内的路径
+  # 2、如果本程序不是Docker运行但qb是Docker运行，则设置为PT下载目录在宿主机上的真实路径
+  # 3、不是以上两种情况，或者在容器中的映射路径与宿主机的路径一致（推荐）则留空即可
+  # 配置项需要跟save_path一一对应
+  save_containerpath:
+    movie:
+    tv:
+    anime:
+
 # 【配置transmission下载软件】：pt区的pt_client如配置为transmission则需要同步配置该项，需要3.0以上版本，否则可能会报错
 transmission:
   # 【transmission IP地址和端口】：注意如果tr启用了HTTPS证书，则需要配置为https://IP
