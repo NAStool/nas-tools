@@ -1,7 +1,6 @@
 from config import Config
 from pt.client.client import IDownloadClient
 from pt.client.pyaria2 import PyAria2
-from utils.types import MediaType
 
 
 class Aria2(IDownloadClient):
@@ -13,9 +12,6 @@ class Aria2(IDownloadClient):
         config = Config()
         aria2config = config.get_config('aria2')
         if aria2config:
-            # 解析下载目录
-            self.save_path = aria2config.get('save_path')
-            self.save_containerpath = aria2config.get('save_containerpath')
             self.host = aria2config.get("host")
             self.port = aria2config.get("port")
             self.secret = aria2config.get("secret")
@@ -74,16 +70,10 @@ class Aria2(IDownloadClient):
     def add_torrent(self, content, mtype, **kwargs):
         if not self._client:
             return None
-        if mtype == MediaType.TV:
-            dl_dir = self.tv_save_path
-        elif mtype == MediaType.ANIME:
-            dl_dir = self.anime_save_path
-        else:
-            dl_dir = self.movie_category
         if isinstance(content, str):
-            return self._client.addUri(uris=[content], options={"dir": dl_dir})
+            return self._client.addUri(uris=[content])
         else:
-            return self._client.addTorrent(torrent=content, options={"dir": dl_dir})
+            return self._client.addTorrent(torrent=content)
 
     def start_torrents(self, ids):
         if not self._client:
