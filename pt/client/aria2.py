@@ -1,7 +1,3 @@
-import os
-import time
-
-import log
 from config import Config
 from pt.client.client import IDownloadClient
 from pt.client.pyaria2 import PyAria2
@@ -70,38 +66,10 @@ class Aria2(IDownloadClient):
         pass
 
     def get_transfer_task(self, tag):
-        if not self._client:
-            return []
-
-        torrents = self.get_completed_torrents()
-        trans_tasks = []
-        for torrent in torrents:
-            name = torrent.get('bittorrent', {}).get('info', {}).get("name")
-            if not name:
-                continue
-            true_path = os.path.join(torrent.get("dir"), name)
-            if not true_path:
-                continue
-            true_path = self.get_replace_path(true_path)
-            trans_tasks.append({'path': true_path, 'id': torrent.get("gid")})
-        return trans_tasks
+        return []
 
     def get_remove_torrents(self, seeding_time, **kwargs):
-        if not self._client:
-            return []
-        if not seeding_time:
-            return []
-        torrents = self.get_completed_torrents()
-        remove_torrents = []
-        for torrent in torrents:
-            torrent_time = int(time.time() - torrent.get("creationDate"))
-            name = torrent.get('bittorrent', {}).get('info', {}).get("name")
-            if not name:
-                continue
-            if torrent_time > int(seeding_time):
-                log.info("【Aria2】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (name, torrent_time))
-                remove_torrents.append(torrent.get("gid"))
-        return remove_torrents
+        return []
 
     def add_torrent(self, content, mtype, **kwargs):
         if not self._client:

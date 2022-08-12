@@ -1227,26 +1227,6 @@ def create_flask_app(config):
             else:
                 CloudMovieContainerPath = CloudTvContainerPath = CloudAnimeContainerPath = ""
 
-        # Aria2
-        aria2 = config.get_config('aria2')
-        save_path = aria2.get("save_path", {})
-        if isinstance(save_path, str):
-            Aria2MovieSavePath = Aria2TvSavePath = Aria2AnimeSavePath = save_path
-        else:
-            Aria2MovieSavePath = save_path.get("movie")
-            Aria2TvSavePath = save_path.get("tv")
-            Aria2AnimeSavePath = save_path.get("anime")
-        contianer_path = aria2.get('save_containerpath', {})
-        if isinstance(contianer_path, str):
-            Aria2MovieContainerPath = Aria2TvContainerPath = Aria2AnimeContainerPath = contianer_path
-        else:
-            if contianer_path:
-                Aria2MovieContainerPath = contianer_path.get("movie")
-                Aria2TvContainerPath = contianer_path.get("tv")
-                Aria2AnimeContainerPath = contianer_path.get("anime")
-            else:
-                Aria2MovieContainerPath = Aria2TvContainerPath = Aria2AnimeContainerPath = ""
-
         return render_template("setting/downloader.html",
                                Config=config.get_config(),
                                QbMovieSavePath=QbMovieSavePath,
@@ -1266,13 +1246,7 @@ def create_flask_app(config):
                                CloudAnimeSavePath=CloudAnimeSavePath,
                                CloudMovieContainerPath=CloudMovieContainerPath,
                                CloudTvContainerPath=CloudTvContainerPath,
-                               CloudAnimeContainerPath=CloudAnimeContainerPath,
-                               Aria2MovieSavePath=Aria2MovieSavePath,
-                               Aria2TvSavePath=Aria2TvSavePath,
-                               Aria2AnimeSavePath=Aria2AnimeSavePath,
-                               Aria2MovieContainerPath=Aria2MovieContainerPath,
-                               Aria2TvContainerPath=Aria2TvContainerPath,
-                               Aria2AnimeContainerPath=Aria2AnimeContainerPath)
+                               CloudAnimeContainerPath=CloudAnimeContainerPath)
 
     # 索引器页面
     @App.route('/indexer', methods=['POST', 'GET'])
