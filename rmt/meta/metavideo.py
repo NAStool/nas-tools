@@ -27,14 +27,10 @@ class MetaVideo(MetaBase):
     _name_nostring_re = r"^PTS|^JADE|^AOD|^CHC|^[A-Z]{1,4}TV[\-0-9UVHDK]*|HBO|\d{1,2}th|\d{1,2}bit|NETFLIX|AMAZON|IMAX|^3D|\s+3D|BBC|DISNEY\+?|XXX|\s+DC$" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+季" \
                         r"|[第\s共]+[0-9一二三四五六七八九十\-\s]+[集话話]" \
-                        r"|S\d{2}\s*-\s*S\d{2}|S\d{2}|\s+S\d{1,2}|EP?\d{2,4}\s*-\s*EP?\d{2,4}|EP?\d{2,4}|\s+EP?\d{1,4}" \
-                        r"|连载|日剧|美剧|电视剧|动画片|动漫|欧美|西德|日韩|超高清|高清|蓝光|翡翠台" \
+                        r"|连载|日剧|美剧|电视剧|动画片|动漫|欧美|西德|日韩|超高清|高清|蓝光|翡翠台|梦幻天堂·龙网" \
                         r"|最终季|合集|[多中国英葡法俄日韩德意西印泰台港粤双文语简繁体特效内封官译外挂]+字幕|版本|出品|台版|港版" \
                         r"|未删减版|UNCUT$|UNRATE$|WITH EXTRAS$|RERIP$|SUBBED$|PROPER$|REPACK$|SEASON$|EPISODE$" \
-                        r"|CD[\s.]*[1-9]|DVD[\s.]*[1-9]|DISK[\s.]*[1-9]|DISC[\s.]*[1-9]" \
-                        r"|BLU-?RAY$|REMUX$|UHD$|U?HDTV$|HDDVD$|WEBRIP$|DVDRIP$|BDRIP$|SDR$|HDR\d*$|DOLBY$|WEB$|BD$" \
-                        r"|DTS\d?$|DTSHD$|DTSHDMA$|Atmos$|TrueHD\d?$|AC3$|\dAudios?$|DDP\d?$|DD\d?$|LPCM\d?$|AAC\d?$|FLAC\d?$|HD\d?$|MA\d?$" \
-                        r"|[248]K|\d{3,4}[PIX]+"
+                        r"|CD[\s.]*[1-9]|DVD[\s.]*[1-9]|DISK[\s.]*[1-9]|DISC[\s.]*[1-9]"
     _resources_pix_re = r"^[SBUHD]*(\d{3,4}[PIX]+)"
     _resources_pix_re2 = r"(^[248]+K)"
     _video_encode_re = r"^[HX]26[45]$|^AVC$|^HEVC$|^VC\d?$|^MPEG\d?$|^Xvid$|^DivX$|^HDR\d*$"
@@ -168,7 +164,8 @@ class MetaVideo(MetaBase):
                         self._unknown_name_str = token
             elif re.search(r"%s" % self._season_re, token, re.IGNORECASE) \
                     or re.search(r"%s" % self._episode_re, token, re.IGNORECASE) \
-                    or re.search(r"(%s)" % self._resources_type_re, token, re.IGNORECASE):
+                    or re.search(r"(%s)" % self._resources_type_re, token, re.IGNORECASE) \
+                    or re.search(r"%s" % self._resources_pix_re, token, re.IGNORECASE):
                 # 季集等不要
                 self._stop_name_flag = True
                 return

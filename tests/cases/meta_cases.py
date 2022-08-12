@@ -1,4 +1,20 @@
 meta_cases = [{
+    "title": "Hataraku.Maou-sama.S02E05.2022.1080p.CR.WEB-DL.x264.AAC-ADWeb.mkv",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Hataraku Maou sama",
+        "year": "2022",
+        "part": "",
+        "season": "S02",
+        "episode": "E05",
+        "restype": "WEB-DL",
+        "pix": "1080p",
+        "video_codec": "x264",
+        "audio_codec": "AAC"
+    }
+}, {
     "title": "The Witch Part 2：The Other One 2022 1080p WEB-DL AAC5.1 H264-tG1R0",
     "subtitle": "",
     "target": {
