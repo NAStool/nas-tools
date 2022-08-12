@@ -160,10 +160,10 @@ class MetaAnime(MetaBase):
                         titles.append("%s%s" % (left_char, name.split("/")[-1].strip()))
                     else:
                         titles.append("%s%s" % (left_char, name.split("/")[0].strip()))
-                else:
+                elif name:
                     if is_chinese(name) and not is_all_chinese(name):
                         name = re.sub(r'[\u4e00-\u9fff]', '', name)
-                        if name and name.strip().isdigit():
+                        if not name or name.strip().isdigit():
                             continue
                     titles.append("%s%s" % (left_char, name.strip()))
             return "]".join(titles)

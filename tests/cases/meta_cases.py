@@ -1,4 +1,20 @@
 meta_cases = [{
+    "title": "[喵萌奶茶屋&LoliHouse] 金装的薇尔梅 / Kinsou no Vermeil - 01 [WebRip 1080p HEVC-10bit AAC][简繁内封字幕]",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Kinsou no Vermeil",
+        "year": "",
+        "part": "",
+        "season": "S01",
+        "episode": "E01",
+        "restype": "",
+        "pix": "1080p",
+        "video_codec": "",
+        "audio_codec": "AAC"
+    }
+}, {
     "title": "[GM-Team][国漫][寻剑 第1季][Sword Quest Season 1][2002][02][AVC][GB][1080P]",
     "subtitle": "",
     "target": {
