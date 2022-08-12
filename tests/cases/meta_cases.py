@@ -1,4 +1,20 @@
 meta_cases = [{
+    "title": "[GM-Team][国漫][寻剑 第1季][Sword Quest Season 1][2002][02][AVC][GB][1080P]",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Sword Quest",
+        "year": "2002",
+        "part": "",
+        "season": "S01",
+        "episode": "E02",
+        "restype": "",
+        "pix": "1080p",
+        "video_codec": "AVC",
+        "audio_codec": ""
+    }
+}, {
     "title": "Hataraku.Maou-sama.S02E05.2022.1080p.CR.WEB-DL.x264.AAC-ADWeb.mkv",
     "subtitle": "",
     "target": {

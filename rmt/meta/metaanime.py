@@ -142,8 +142,8 @@ class MetaAnime(MetaBase):
         if not title:
             return title
         title = title.replace("【", "[").replace("】", "]").strip()
-        if re.search(r"新番|月?番", title):
-            title = re.sub(".*番.", "", title)
+        if re.search(r"新番|月?番|[国日]漫", title):
+            title = re.sub(".*番.|.*[国日]漫.", "", title)
         else:
             title = re.sub(r"^[^]】]*[]】]", "", title).strip()
         title = re.sub(r"\[TV\s+(\d{1,4})", r"[\1", title, flags=re.IGNORECASE)
@@ -163,6 +163,8 @@ class MetaAnime(MetaBase):
                 else:
                     if is_chinese(name) and not is_all_chinese(name):
                         name = re.sub(r'[\u4e00-\u9fff]', '', name)
+                        if name and name.strip().isdigit():
+                            continue
                     titles.append("%s%s" % (left_char, name.strip()))
             return "]".join(titles)
         return title
