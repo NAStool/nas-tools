@@ -11,7 +11,8 @@ from message.channel.telegram import Telegram
 from message.channel.wechat import WeChat
 from message.send import Message
 from pt.brushtask import BrushTask
-from pt.client.cloudtorrent import CloudTorrent
+from pt.client.aria2 import Aria2
+from pt.client.client115 import Client115
 from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
 from pt.douban import DouBan
@@ -391,6 +392,8 @@ class WebAction:
         Client, Torrents = Downloader().get_torrents(torrent_ids=ids)
         DispTorrents = []
         for torrent in Torrents:
+            if not torrent:
+                continue
             if Client == DownloaderType.QB:
                 if torrent.get('state') in ['pausedDL']:
                     state = "Stoped"
@@ -405,7 +408,7 @@ class WebAction:
                 progress = round(torrent.get('progress') * 100)
                 # 主键
                 key = torrent.get('hash')
-            elif Client == DownloaderType.Cloud:
+            elif Client == DownloaderType.Client115:
                 state = "Downloading"
                 dlspeed = str_filesize(torrent.get('peers'))
                 upspeed = str_filesize(torrent.get('rateDownload'))
@@ -414,6 +417,19 @@ class WebAction:
                 progress = round(torrent.get('percentDone'), 1)
                 # 主键
                 key = torrent.get('info_hash')
+            elif Client == DownloaderType.Aria2:
+                if torrent.get('status') != 'active':
+                    state = "Stoped"
+                    speed = "已暂停"
+                else:
+                    state = "Downloading"
+                    dlspeed = str_filesize(torrent.get('downloadSpeed'))
+                    upspeed = str_filesize(torrent.get('uploadSpeed'))
+                    speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
+                # 进度
+                progress = round(int(torrent.get('completedLength')) / int(torrent.get("totalLength")), 1)
+                # 主键
+                key = torrent.get('gid')
             else:
                 if torrent.status in ['stopped']:
                     state = "Stoped"
@@ -1384,8 +1400,6 @@ class WebAction:
             # 测试
             if dl_type == "qbittorrent":
                 downloader = Qbittorrent(user_config=user_config)
-            elif dl_type == "cloudtorrent":
-                downloader = CloudTorrent(user_config=user_config)
             else:
                 downloader = Transmission(user_config=user_config)
             if downloader.get_status():

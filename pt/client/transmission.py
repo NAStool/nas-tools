@@ -169,7 +169,7 @@ class Transmission(IDownloadClient):
             date_now = datetime.now().astimezone()
             torrent_time = (date_now - date_done).seconds
             if torrent_time > int(seeding_time):
-                log.info("【PT】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (torrent.name, torrent_time))
+                log.info("【TR】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (torrent.name, torrent_time))
                 remove_torrents.append(torrent.id)
         return remove_torrents
 
@@ -255,16 +255,3 @@ class Transmission(IDownloadClient):
             return False
         self.trc.set_files(file_items)
         return True
-
-    def get_pt_data(self):
-        """
-        获取PT下载软件中当前上传和下载量
-        :return: 上传量、下载量
-        """
-        if not self.trc:
-            return 0, 0
-        session = self.trc.session_stats()
-        for key, value in session.items():
-            if key == "current_stats":
-                return value.get("uploadedBytes"), value.get("downloadedBytes")
-        return 0, 0

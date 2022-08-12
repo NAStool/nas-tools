@@ -11,7 +11,8 @@ class MediaType(Enum):
 class DownloaderType(Enum):
     QB = 'Qbittorrent'
     TR = 'Transmission'
-    Cloud = 'Cloudtorrent'
+    Client115 = '115网盘'
+    Aria2 = 'Aria2'
 
 
 class SyncType(Enum):

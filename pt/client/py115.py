@@ -6,7 +6,7 @@ import re
 from utils.http_utils import RequestUtils
 
 
-class Cloud115Client:
+class Py115:
     cookie = None
     user_agent = None
     req = None

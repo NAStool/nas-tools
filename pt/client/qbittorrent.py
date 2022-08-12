@@ -58,14 +58,9 @@ class Qbittorrent(IDownloadClient):
         检查连通性
         :return: True、Fals
         """
-        try:
-            data, _ = self.get_pt_data()
-            if data is None:
-                return False
-            return True
-        except Exception as e:
-            print(str(e))
+        if not self.qbc:
             return False
+        return True if self.qbc.transfer_info() else False
 
     def get_torrents(self, ids=None, status=None, tag=None):
         """
@@ -166,7 +161,7 @@ class Qbittorrent(IDownloadClient):
             if not torrent.get('seeding_time'):
                 continue
             if int(torrent.get('seeding_time')) > int(seeding_time):
-                log.info("【PT】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (torrent.get('name'), torrent.get('seeding_time')))
+                log.info("【QB】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (torrent.get('name'), torrent.get('seeding_time')))
                 remove_torrents.append(torrent.get('hash'))
         return remove_torrents
 
@@ -261,15 +256,3 @@ class Qbittorrent(IDownloadClient):
             return False
         self.qbc.torrents_file_priority(torrent_hash=torrent_hash, file_ids=file_ids, priority=priority)
         return True
-
-    def get_pt_data(self):
-        """
-        获取PT下载软件中当前上传和下载量
-        :return: 上传量、下载量
-        """
-        if not self.qbc:
-            return 0, 0
-        transfer_info = self.qbc.transfer_info()
-        if transfer_info:
-            return transfer_info.get("up_info_data"), transfer_info.get("dl_info_data")
-        return None, None

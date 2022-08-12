@@ -8,6 +8,7 @@ class IDownloadClient(metaclass=ABCMeta):
     port = None
     username = None
     password = None
+    secret = None
     save_path = None
     save_containerpath = None
     tv_save_path = None
@@ -167,13 +168,6 @@ class IDownloadClient(metaclass=ABCMeta):
     def delete_torrents(self, delete_file, ids):
         """
         删除种子
-        """
-        pass
-
-    @abstractmethod
-    def get_pt_data(self):
-        """
-        获取PT下载软件中当前上传和下载量
         """
         pass
 

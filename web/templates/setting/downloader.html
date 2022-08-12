@@ -41,7 +41,7 @@
         </a>
       </div>
       <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-cloudtorrent">
+        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-client115">
           <div class="card-cover card-cover-blurred text-center" style="background-color: #129EFF">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded"
               style="background-image: url(../static/img/115.jpg)">
@@ -49,7 +49,20 @@
           </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">115网盘</div>
-            <div class="text-muted">{% if Config.pt.pt_client == "cloudtorrent" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
+            <div class="text-muted">{% if Config.pt.pt_client == "client115" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
+          </div>
+        </a>
+      </div>
+      <div class="col-12 col-md-4 col-xl-3">
+        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-aria2">
+          <div class="card-cover card-cover-blurred text-center bg-green">
+            <span class="avatar avatar-xl avatar-thumb avatar-rounded"
+              style="background-image: url(../static/img/aria2.png)">
+            </span>
+          </div>
+          <div class="card-body text-center">
+            <div class="card-title mb-1">Aria2</div>
+            <div class="text-muted">{% if Config.pt.pt_client == "aria2" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
           </div>
         </a>
       </div>
@@ -262,7 +275,7 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-cloudtorrent" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-client115" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="card border-top-0">
@@ -275,7 +288,7 @@
             <div class="col">
               <div class="mb-3">
                 <label class="form-label required">Cookie <span class="form-help bg-red-lt" title="115网盘Cookie" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.cloudtorrent %}{{ Config.cloudtorrent.cookie or '' }}{% endif %}" id="cloudtorrent.cookie" class="form-control">
+                <input type="text" value="{% if Config.client115 %}{{ Config.client115.cookie or '' }}{% endif %}" id="client115.cookie" class="form-control">
               </div>
             </div>
           </div>
@@ -286,11 +299,11 @@
               <label class="form-label required">电影目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
               <div class="row g-2">
                 <div class="col-6">
-                  <input type="text" value="{{ CloudMovieSavePath or '' }}" id="cloudtorrent.save_path.movie" class="form-control"
+                  <input type="text" value="{{ CloudMovieSavePath or '' }}" id="client115.save_path.movie" class="form-control"
                     placeholder="下载目录">
                 </div>
                 <div class="col-6">
-                  <input type="text" value="{{ CloudMovieContainerPath or '' }}" id="cloudtorrent.save_containerpath.movie"
+                  <input type="text" value="{{ CloudMovieContainerPath or '' }}" id="client115.save_containerpath.movie"
                     class="form-control filetree-folders-only" placeholder="容器目录" autocomplete="off">
                 </div>
               </div>
@@ -299,11 +312,11 @@
               <label class="form-label required">电视剧目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
               <div class="row g-2">
                 <div class="col-6">
-                  <input type="text" value="{{ CloudTvSavePath or '' }}" id="cloudtorrent.save_path.tv" class="form-control"
+                  <input type="text" value="{{ CloudTvSavePath or '' }}" id="client115.save_path.tv" class="form-control"
                     placeholder="下载目录">
                 </div>
                 <div class="col-6">
-                  <input type="text" value="{{ CloudTvContainerPath or '' }}" id="cloudtorrent.save_containerpath.tv"
+                  <input type="text" value="{{ CloudTvContainerPath or '' }}" id="client115.save_containerpath.tv"
                     class="form-control filetree-folders-only" placeholder="容器目录" autocomplete="off">
                 </div>
               </div>
@@ -312,11 +325,11 @@
               <label class="form-label required">动漫目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
               <div class="row g-2">
                 <div class="col-6">
-                  <input type="text" value="{{ CloudAnimeSavePath or '' }}" id="cloudtorrent.save_path.anime" class="form-control"
+                  <input type="text" value="{{ CloudAnimeSavePath or '' }}" id="client115.save_path.anime" class="form-control"
                     placeholder="下载目录">
                 </div>
                 <div class="col-6">
-                  <input type="text" value="{{ CloudAnimeContainerPath or '' }}" id="cloudtorrent.save_containerpath.anime"
+                  <input type="text" value="{{ CloudAnimeContainerPath or '' }}" id="client115.save_containerpath.anime"
                     class="form-control filetree-folders-only" placeholder="容器目录" autocomplete="off">
                 </div>
               </div>
@@ -325,10 +338,106 @@
         </div>
       </div>
       <div class="modal-footer">
-        <a href="javascript:test_downloader_config('cloudtorrent')" id="cloudtorrent_test_btn" class="btn btn-white me-auto">
+        <a href="javascript:test_downloader_config('client115')" id="client115_test_btn" class="btn btn-white me-auto">
           测试
         </a>
-        <a href="javascript:save_downloader_config('cloudtorrent')" id="cloudtorrent_save_btn"
+        <a href="javascript:save_downloader_config('client115')" id="client115_save_btn"
+          class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-aria2" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">Aria2</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">IP地址</label>
+                <input type="text" value="{% if Config.aria2 %}{{ Config.aria2.host or '' }}{% endif %}" id="aria2.host" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">端口</label>
+                <input type="text" value="{% if Config.aria2 %}{{ Config.aria2.port or '' }}{% endif %}" id="aria2.port" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">令牌</label>
+                <input type="password" value="{% if Config.aria2 %}{{ Config.aria2.secret or '' }}{% endif %}" id="aria2.secret" class="form-control">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="mb-3">
+              <label class="form-label required">电影目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
+              <div class="row">
+                <div class="col-12 col-lg-5 mb-1">
+                  <input type="text" value="{{ Aria2MovieSavePath.path or '' }}" id="aria2.save_path.movie.path"
+                    class="form-control" placeholder="下载目录">
+                </div>
+                <div class="col-12 col-lg-5 mb-1">
+                  <input type="text" value="{{ Aria2MovieContainerPath or '' }}" id="aria2.save_containerpath.movie"
+                    class="form-control filetree-folders-only" placeholder="容器目录" autocomplete="off">
+                </div>
+                <div class="col-12 col-lg-2 mb-1">
+                  <input type="text" value="{{ Aria2MovieSavePath.tag or '' }}" id="aria2.save_path.movie.tag"
+                    class="form-control" placeholder="分类标签">
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label required">电视剧目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
+              <div class="row">
+                <div class="col-12 col-lg-5 mb-1">
+                  <input type="text" value="{{ Aria2TvSavePath.path or '' }}" id="Aria2.save_path.tv.path"
+                    class="form-control" placeholder="下载目录">
+                </div>
+                <div class="col-12 col-lg-5 mb-1">
+                  <input type="text" value="{{ Aria2TvContainerPath or '' }}" id="Aria2.save_containerpath.tv"
+                    class="form-control filetree-folders-only" placeholder="容器目录" autocomplete="off">
+                </div>
+                <div class="col-12 col-lg-2 mb-1">
+                  <input type="text" value="{{ Aria2TvSavePath.tag or '' }}" id="Aria2.save_path.tv.tag" class="form-control"
+                    placeholder="分类标签">
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label required">动漫目录 <span class="form-help bg-red-lt" title="下载目录是传递给下载器的文件保存目录；容器目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
+              <div class="row">
+                <div class="col-12 col-lg-5 mb-1">
+                  <input type="text" value="{{ Aria2AnimeSavePath.path or '' }}" id="aria2.save_path.anime.path"
+                    class="form-control" placeholder="下载目录">
+                </div>
+                <div class="col-12 col-lg-5 mb-1">
+                  <input type="text" value="{{ Aria2AnimeContainerPath or '' }}" id="aria2.save_containerpath.anime"
+                    class="form-control filetree-folders-only" placeholder="容器目录" autocomplete="off">
+                </div>
+                <div class="col-12 col-lg-2 mb-1">
+                  <input type="text" value="{{ Aria2AnimeSavePath.tag or '' }}" id="aria2.save_path.anime.tag"
+                    class="form-control" placeholder="分类标签">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:test_downloader_config('aria2')" id="aria2_test_btn" class="btn btn-white me-auto">
+          测试
+        </a>
+        <a href="javascript:save_downloader_config('aria2')" id="aria2_save_btn"
           class="btn btn-primary">确定</a>
       </div>
     </div>
@@ -388,8 +497,10 @@
         command = ["Qbittorrent().get_status()"];
       }else if(currType == "transmission"){
         command = ["Transmission().get_status()"];
-      }else if(currType == "cloudtorrent"){
-        command = ["CloudTorrent().get_status()"];
+      }else if(currType == "client115"){
+        command = ["Client115().get_status()"];
+      }else if(currType == "aria2"){
+        command = ["Aria2().get_status()"];
       }
       
       ajax_post("test_connection", {"command": command}, function(ret){
