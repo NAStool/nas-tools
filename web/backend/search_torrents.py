@@ -37,7 +37,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     # 开始进度
     ProcessHandler().start()
     # 识别媒体
-    match_words = None
+    media_info = None
     media_name = None
     if ident_flag:
         if tmdbid:
@@ -77,10 +77,6 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                     key_word = en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get("name")
             else:
                 key_word = media_info.original_title
-        match_words = [media_info.title, key_word] if key_word != media_info.title else [media_info.title]
-        # 增加名称为匹配关键字
-        if media_info.get_name() and media_info.get_name() not in match_words:
-            match_words.append(media_info.get_name())
         media_name = media_info.get_name()
 
         filter_args = {"season": search_season,
@@ -101,7 +97,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     media_list = Searcher().search_medias(key_word=key_word,
                                           filter_args=filter_args,
                                           match_type=1 if ident_flag else 2,
-                                          match_words=match_words)
+                                          match_media=media_info)
     # 使用名称重新搜索
     if ident_flag and len(media_list) == 0 and media_name and key_word != media_name:
         ProcessHandler().start()
@@ -110,7 +106,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         media_list = Searcher().search_medias(key_word=media_name,
                                               filter_args=filter_args,
                                               match_type=1,
-                                              match_words=match_words)
+                                              match_media=media_info)
     # 清空缓存结果
     delete_all_search_torrents()
     # 结束进度

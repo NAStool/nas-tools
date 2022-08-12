@@ -67,6 +67,7 @@ class MetaBase(object):
     backdrop_path = None
     poster_path = None
     fanart_image = None
+    fanart_flag = False
     # 评分
     vote_average = 0
     # 描述
@@ -400,14 +401,14 @@ class MetaBase(object):
     def __refresh_fanart_image(self):
         if not self.tmdb_id:
             return
-        if self.fanart_image:
+        if self.fanart_image or self.fanart_flag:
             return
         self.fanart_image = self.__get_fanart_image(search_type=self.type, tmdbid=self.tmdb_id)
+        self.fanart_flag = True
 
     # 获取Fanart图片
     def get_fanart_image(self):
-        if not self.fanart_image:
-            self.__refresh_fanart_image()
+        self.__refresh_fanart_image()
         return self.fanart_image
 
     # 整合种了信息

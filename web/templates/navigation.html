@@ -727,7 +727,7 @@
             <div class="col">
               <div class="card-body">
                 <h4 class="card-title mb-3">
-                  <a href="#"><strong id="system_media_name"></strong></a><br />
+                  <a id="system_media_name_link" href="#" target="_blank"><strong id="system_media_name"></strong></a><br />
                   <span class="text-muted" id="system_release_date"></span>
                 </h4>
                 <div class="text-muted mb-3" id="system_media_overview">
@@ -922,6 +922,7 @@
             $("#system_media_url_btn").attr("target", "_blank");
             $("#system_media_url_btn").attr("href", ret.link_url);
           }
+          $("#system_media_name_link").attr("href", ret.link_url);
           //弹窗
           $("#system-media-modal").modal("show");
         } else if (ret.code == 1) {

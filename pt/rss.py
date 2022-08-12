@@ -143,7 +143,7 @@ class Rss:
                             log.info("【RSS】%s 已成功订阅过" % torrent_name)
                             continue
                         # 识别种子名称，开始检索TMDB
-                        media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
+                        media_info = self.media.get_media_info(title=torrent_name, subtitle=description, chinese=False)
                         if not media_info or not media_info.tmdb_info:
                             log.debug("【RSS】%s 未识别到媒体信息" % torrent_name)
                             continue
@@ -677,7 +677,8 @@ class Rss:
                     else:
                         if year and str(year) != str(media_info.year):
                             continue
-                        if str(name) != str(media_info.title):
+                        if str(name) != str(media_info.title) \
+                                and str(name) != str(media_info.original_title):
                             continue
                 # 模糊匹配
                 else:
@@ -688,7 +689,7 @@ class Rss:
                         continue
                     # 匹配关键字，可能是正则表达式
                     if not re.search(r"%s" % name,
-                                     "%s %s %s" % (media_info.org_string, media_info.title, media_info.year),
+                                     "%s %s %s %s" % (media_info.org_string, media_info.title, media_info.original_title, media_info.year),
                                      re.IGNORECASE):
                         continue
                 # 媒体匹配成功
@@ -724,7 +725,8 @@ class Rss:
                             continue
                     else:
                         # 匹配名称
-                        if str(name) != str(media_info.title):
+                        if str(name) != str(media_info.title) \
+                                and str(name) != str(media_info.original_title):
                             continue
                         # 匹配年份，年份可以为空
                         if year and str(year) != str(media_info.year):
@@ -744,7 +746,7 @@ class Rss:
                         continue
                     # 匹配关键字，可能是正则表达式
                     if not re.search(r"%s" % name,
-                                     "%s %s %s" % (media_info.org_string, media_info.title, media_info.year),
+                                     "%s %s %s %s" % (media_info.org_string, media_info.title, media_info.original_title, media_info.year),
                                      re.IGNORECASE):
                         continue
                 # 媒体匹配成功

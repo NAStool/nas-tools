@@ -306,6 +306,16 @@ class Downloader:
                 log.error("【DOWNLOADER】添加下载任务 %s 失败：%s" % (item.get_title_string(), ret_msg or "请检查下载任务是否已存在"))
                 if ret_msg:
                     self.message.send_download_fail_message(item, ret_msg)
+                # 对于电视剧下载失败的集数要加回去
+                if item.type != MediaType.MOVIE:
+                    for title, need_tv in need_tvs.items():
+                        if title != item.title:
+                            continue
+                        for tv in need_tv:
+                            if not tv:
+                                continue
+                            if tv.get("season") == item.begin_season:
+                                tv["episodes"] = list(set(tv.get("episodes")).union(set(item.get_episode_list())))
 
         # 仍然缺失的剧集，从整季中选择需要的集数文件下载
         if need_tvs:

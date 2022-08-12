@@ -8,6 +8,7 @@ import log
 from pt.filterrules import FilterRule
 from pt.torrent import Torrent
 from rmt.media import Media
+from rmt.meta.metabase import MetaBase
 from rmt.metainfo import MetaInfo
 from utils.commons import ProcessHandler
 from utils.functions import tag_value, str_filesize, handler_special_chars
@@ -49,7 +50,7 @@ class IIndexer(metaclass=ABCMeta):
         """
         pass
 
-    def search_by_keyword(self, key_word, filter_args: dict, match_type=0, match_words=None):
+    def search_by_keyword(self, key_word, filter_args: dict, match_type=0, match_media: MetaBase = None):
         """
         根据关键字调用 Index API 检索
         :param key_word: 检索的关键字，不能为空
@@ -57,13 +58,11 @@ class IIndexer(metaclass=ABCMeta):
                             "":, "restype":质量, "pix":分辨率, "sp_state":促销状态, "key":其它关键字}
                             sp_state: 为UL DL，* 代表不关心，
         :param match_type: 匹配模式：0-识别并模糊匹配；1-识别并精确匹配；2-不识别匹配
-        :param match_words: 匹配的关键字，为空时等于key_word
+        :param match_media: 需要匹配的媒体信息
         :return: 命中的资源媒体信息列表
         """
         if not key_word:
             return []
-        if not match_words:
-            match_words = [key_word]
 
         indexers = self.get_indexers()
         if not self.api_key or not indexers:
@@ -88,7 +87,7 @@ class IIndexer(metaclass=ABCMeta):
                                    key_word,
                                    filter_args,
                                    match_type,
-                                   match_words)
+                                   match_media)
             all_task.append(task)
         ret_array = []
         finish_count = 0
@@ -107,7 +106,7 @@ class IIndexer(metaclass=ABCMeta):
                                 value=100)
         return ret_array
 
-    def __search(self, order_seq, indexer, key_word, filter_args: dict, match_type, match_words):
+    def __search(self, order_seq, indexer, key_word, filter_args: dict, match_type, match_media: MetaBase):
         """
         根据关键字多线程检索
         """
@@ -205,7 +204,7 @@ class IIndexer(metaclass=ABCMeta):
 
             # 识别媒体信息
             if match_type != 2:
-                media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
+                media_info = self.media.get_media_info(title=torrent_name, subtitle=description, chinese=False)
                 if not media_info or not media_info.tmdb_info:
                     log.info(f"【{self.index_type}】{torrent_name} 未识别到媒体信息")
                     index_match_fail += 1
@@ -222,17 +221,14 @@ class IIndexer(metaclass=ABCMeta):
 
                 # 名称是否匹配
                 if match_type == 1:
-                    # 全匹配模式，名字需要完全一样才下载
-                    match_flag = False
-                    for match_word in match_words:
-                        if str(match_word).upper() == str(media_info.title).upper() \
-                                or str(match_word).upper() == str(media_info.original_title).upper():
-                            match_flag = True
-                            break
-                    if not match_flag:
-                        log.info(f"【{self.index_type}】{media_info.type.value}：{media_info.title} 不匹配名称：{match_words}")
+                    # 全匹配模式，TMDBID需要完全一样才匹配
+                    if match_media and media_info.tmdb_id != match_media.tmdb_id:
+                        log.info(f"【{self.index_type}】{media_info.type.value}：{media_info.org_string} {media_info.title} 不匹配")
                         index_match_fail += 1
                         continue
+                    # 统一标题和海报
+                    media_info.title = match_media.title
+                    media_info.fanart_image = match_media.get_fanart_image()
                 else:
                     # 非全匹配模式，找出来的全要，不过滤名称
                     pass
