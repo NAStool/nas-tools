@@ -675,7 +675,7 @@ class FileTransfer:
                             continue
                 # 媒体库刷新条目：类型-类别-标题-年份
                 refresh_item = {"type": media.type, "category": media.category, "title": media.title,
-                                "year": media.year}
+                                "year": media.year, "target_path": dist_path}
                 # 登记媒体库刷新
                 if refresh_item not in refresh_library_items:
                     refresh_library_items.append(refresh_item)
