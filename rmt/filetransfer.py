@@ -146,7 +146,8 @@ class FileTransfer:
             "link": RmtMode.LINK,
             "softlink": RmtMode.SOFTLINK,
             "move": RmtMode.MOVE,
-            "rclone": RmtMode.RCLONE
+            "rclone": RmtMode.RCLONE,
+            "rclonecopy": RmtMode.RCLONECOPY
         }
         sync_mod = config.get_config('sync').get('sync_mod')
         self.__sync_rmt_mode = sync_mode_dict.get(sync_mod, RmtMode.COPY) if sync_mod else RmtMode.COPY
@@ -183,12 +184,15 @@ class FileTransfer:
                     retcode = call(['ln', '-s', file_item, target_file])
                 elif rmt_mode == RmtMode.MOVE:
                     retcode = call(['mv', file_item, target_file])
-                elif rmt_mode == RmtMode.RCLONE:
+                elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
                     dest_dir = os.path.basename(os.path.normpath(target_dir))
                     target_file = os.path.normpath(target_file).replace(os.path.normpath(target_dir), "")
                     if not target_file.startswith("/"):
                         target_file = "/" + target_file
-                    retcode = os.system('rclone moveto "%s" NASTOOL:"%s%s"' % (file_item, dest_dir, target_file))
+                    if rmt_mode == RmtMode.RCLONE:
+                        retcode = os.system('rclone moveto "%s" NASTOOL:"%s%s"' % (file_item, dest_dir, target_file))
+                    else:
+                        retcode = os.system('rclone copyto "%s" NASTOOL:"%s%s"' % (file_item, dest_dir, target_file))
                 else:
                     retcode = call(['cp', file_item, target_file])
         finally:

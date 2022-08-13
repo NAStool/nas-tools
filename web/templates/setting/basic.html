@@ -140,7 +140,8 @@
                     <option value="softlink" {% if Config.sync.sync_mod=='softlink' %}selected{% endif %}>软链接</option>
                     <option value="copy" {% if Config.sync.sync_mod=='copy' %}selected{% endif %}>复制</option>
                     <option value="move" {% if Config.sync.sync_mod=='move' %}selected{% endif %}>移动</option>
-                    <option value="rclone" {% if Config.sync.sync_mod=='rclone' %}selected{% endif %}>RCLONE</option>
+                    <option value="rclonecopy" {% if Config.sync.sync_mod=='rclonecopy' %}selected{% endif %}>rclone复制</option>
+                    <option value="rclone" {% if Config.sync.sync_mod=='rclone' %}selected{% endif %}>rclone移动</option>
                   </select>
                 </div>
               </div>

@@ -180,7 +180,10 @@ def check_config(config):
         elif sync_mod == "move":
             log.info("目录同步转移模式为：移动")
         elif sync_mod == "rclone":
-            log.info("目录同步转移模式为：RCLONE")
+            log.info("目录同步转移模式为：rclone移动")
+        elif sync_mod == "rclonecopy":
+            log.info("目录同步转移模式为：rclone复制")
+
         else:
             log.info("目录同步转移模式为：复制")
     else:
@@ -199,7 +202,9 @@ def check_config(config):
         elif rmt_mode == "move":
             log.info("PT下载文件转移模式为：移动")
         elif rmt_mode == "rclone":
-            log.info("PT下载文件转移模式为：RCLONE")
+            log.info("PT下载文件转移模式为：rclone移动")
+        elif rmt_mode == "rclonecopy":
+            log.info("PT下载文件转移模式为：rclone复制")
         else:
             log.info("PT下载文件转移模式为：复制")
 
