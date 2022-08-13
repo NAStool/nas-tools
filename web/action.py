@@ -427,7 +427,7 @@ class WebAction:
                     upspeed = str_filesize(torrent.get('uploadSpeed'))
                     speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
                 # 进度
-                progress = round(int(torrent.get('completedLength')) / int(torrent.get("totalLength")), 1)
+                progress = round(int(torrent.get('completedLength')) / int(torrent.get("totalLength")), 1) * 100
                 # 主键
                 key = torrent.get('gid')
             else:
