@@ -14,12 +14,13 @@ class Jackett(IIndexer):
         jackett = config.get_config('jackett')
         if jackett:
             self.api_key = jackett.get('api_key')
-            self.host = jackett.get('host')
             self._password = jackett.get('password')
-            if not self.host.startswith('http://') and not self.host.startswith('https://'):
-                self.host = "http://" + self.host
-            if not self.host.endswith('/'):
-                self.host = self.host + "/"
+            self.host = jackett.get('host')
+            if self.host:
+                if not self.host.startswith('http://') and not self.host.startswith('https://'):
+                    self.host = "http://" + self.host
+                if not self.host.endswith('/'):
+                    self.host = self.host + "/"
 
     def get_status(self):
         """
