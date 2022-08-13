@@ -43,10 +43,9 @@ class Jackett(IIndexer):
         indexer_query_url = f"{self.host}api/v2.0/indexers?configured=true"
         try:
             ret = RequestUtils(cookies=cookie).get_res(indexer_query_url)
+            if not ret or not ret.json():
+                return []
+            return [(v["id"], v["name"], f'{self.host}api/v2.0/indexers/{v["id"]}/results/torznab/') for v in ret.json()]
         except Exception as e2:
             print(str(e2))
             return []
-        json = ret.json()
-        if not ret or not json:
-            return []
-        return [(v["id"], v["name"], f'{self.host}api/v2.0/indexers/{v["id"]}/results/torznab/') for v in ret.json()]
