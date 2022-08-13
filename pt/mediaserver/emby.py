@@ -344,7 +344,7 @@ class Emby(IMediaServer):
 
                 if max_equal_num < equal_num:
                     max_equal_num = equal_num
-                    max_equal_path_id = library.get("Id")
+                    max_equal_path_id = folder.get("Id")
 
             if max_equal_path_id:
                 return max_equal_path_id
