@@ -169,8 +169,17 @@ class FileTransfer:
                     retcode = os.system('mklink /H "%s" "%s"' % (target_file, file_item))
                 elif rmt_mode == RmtMode.SOFTLINK:
                     retcode = os.system('mklink "%s" "%s"' % (target_file, file_item))
-                elif rmt_mode == RmtMode.MOVE or rmt_mode == RmtMode.RCLONE:
+                elif rmt_mode == RmtMode.MOVE:
                     retcode = os.system('move /Y "%s" "%s"' % (file_item, target_file))
+                elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
+                    dest_dir = os.path.basename(os.path.normpath(target_dir))
+                    target_file = os.path.normpath(target_file).replace(os.path.normpath(target_dir), "")
+                    if not target_file.startswith("\\"):
+                        target_file = "\\" + target_file
+                    if rmt_mode == RmtMode.RCLONE:
+                        retcode = os.system('rclone.exe moveto "%s" NASTOOL:"%s%s"' % (file_item, dest_dir, target_file))
+                    else:
+                        retcode = os.system('rclone.exe copyto "%s" NASTOOL:"%s%s"' % (file_item, dest_dir, target_file))
                 else:
                     retcode = os.system('copy /Y "%s" "%s"' % (file_item, target_file))
             else:
