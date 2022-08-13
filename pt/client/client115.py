@@ -53,19 +53,19 @@ class Client115(IDownloadClient):
 
         return tlist or []
 
-    def get_completed_torrents(self, tag=None):
+    def get_completed_torrents(self, **kwargs):
         return self.get_torrents(status=[2])
 
-    def get_downloading_torrents(self, tag=None):
+    def get_downloading_torrents(self, **kwargs):
         return self.get_torrents(status=[0, 1])
 
-    def remove_torrents_tag(self, ids, tag):
+    def remove_torrents_tag(self, **kwargs):
         pass
 
-    def get_transfer_task(self, tag):
+    def get_transfer_task(self, **kwargs):
         trans_tasks = []
         try:
-            torrents = self.get_completed_torrents(tag=tag)
+            torrents = self.get_completed_torrents()
             for torrent in torrents:
                 if torrent.get('path') == "/":
                     continue
@@ -79,18 +79,8 @@ class Client115(IDownloadClient):
             log.error("【115】异常错误：{}".format(result))
             return trans_tasks
 
-    def get_remove_torrents(self, seeding_time, tag):
-        torrents = self.get_completed_torrents(tag=tag)
-        remove_torrents = []
-        try:
-            for torrent in torrents:
-                if torrent.get('path') == "/":
-                    log.info("【115】%s 文件路径不存在，进行清理..." % (torrent.get('name')))
-                    remove_torrents.append(torrent.get('info_hash'))
-            return remove_torrents
-        except Exception as result:
-            log.error("【115】异常错误, {}".format(result))
-            return remove_torrents
+    def get_remove_torrents(self, **kwargs):
+        return []
 
     def add_torrent(self, content, mtype, **kwargs):
         if not self.downclient:
@@ -117,10 +107,10 @@ class Client115(IDownloadClient):
         return self.downclient.deltask(thash=ids)
 
     def start_torrents(self, ids):
-        return True
+        pass
 
     def stop_torrents(self, ids):
-        return True
+        pass
 
     def set_torrents_status(self, ids):
-        pass
+        return self.delete_torrents(ids=ids, delete_file=False)

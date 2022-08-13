@@ -105,6 +105,10 @@ class IDownloadClient(metaclass=ABCMeta):
     def get_torrents(self, ids, status, tag):
         """
         按条件读取种子信息
+        :param ids: 种子ID，单个ID或者ID列表
+        :param status: 种子状态过滤
+        :param tag: 种子标签过滤
+        :return: 种子信息列表
         """
         pass
 
@@ -126,6 +130,7 @@ class IDownloadClient(metaclass=ABCMeta):
     def set_torrents_status(self, ids):
         """
         迁移完成后设置种子标签为 已整理
+        :param ids: 种子ID列表
         """
         pass
 
@@ -140,6 +145,9 @@ class IDownloadClient(metaclass=ABCMeta):
     def get_remove_torrents(self, seeding_time, tag):
         """
         获取需要清理的种子清单
+        :param seeding_time: 保种时间，单位秒
+        :param tag: 种子标签
+        :return: 种子ID列表
         """
         pass
 
@@ -147,6 +155,10 @@ class IDownloadClient(metaclass=ABCMeta):
     def add_torrent(self, content, mtype, is_paused, tag):
         """
         添加下载任务
+        :param content: 种子数据或链接
+        :param mtype: 媒体类型：电影、电视剧、动漫
+        :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
+        :param tag: 下载时对种子的TAG标记
         """
         pass
 

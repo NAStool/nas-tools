@@ -40,7 +40,7 @@ class PyAria2(object):
         """
         This method adds BitTorrent download by uploading ".torrent" file.
 
-        torrent: string, torrent file path
+        torrent: bin, torrent file bin
         uris: list, list of webseed URIs
         options: dict, additional options
         position: integer, position in download queue

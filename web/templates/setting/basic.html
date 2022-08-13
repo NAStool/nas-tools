@@ -251,7 +251,7 @@
               </div>
               <div class="col-xl-3">
                 <div class="mb-3">
-                  <label class="form-label">PT保种时间(天) <span class="form-help bg-red-lt" title="达到保种时间时将自动删除种子及对应的文件；如配置为空则不启动自动删种功能" data-bs-toggle="tooltip">?</span></label>
+                  <label class="form-label">PT保种时间(天) <span class="form-help bg-red-lt" title="达到保种时间时将自动删除种子及对应的文件；如配置为空则不启动自动删种功能；仅支持Qbittorrent、Transmission下载器" data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{{ Config.pt.pt_seeding_time or '' }}" class="form-control" id="pt.pt_seeding_time" placeholder="留空关闭定时删种" autocomplete="off">
                 </div>
               </div>
@@ -261,7 +261,7 @@
                 <div class="mb-3">
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="pt.pt_monitor" {% if Config.pt.pt_monitor %}checked{% endif %}>
-                    <span class="form-check-label">下载软件监控 <span class="form-help bg-red-lt" title="监控下载软件，下载完成后自动进行文件转移。与目录同步监控下载目录二选一开启" data-bs-toggle="tooltip">?</span></span>
+                    <span class="form-check-label">下载软件监控 <span class="form-help bg-red-lt" title="监控下载软件，下载完成后自动进行文件转移，与目录同步监控下载目录二选一开启" data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>
@@ -269,7 +269,7 @@
                 <div class="mb-3">
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="pt.pt_monitor_only" {% if Config.pt.pt_monitor_only %}checked{% endif %}>
-                    <span class="form-check-label">只管理NASTool添加的下载 <span class="form-help bg-red-lt" title="启用后只有NASTool添加的下载才会被自动转移和显示，关闭则下载软件中所有的任务都会转移和显示" data-bs-toggle="tooltip">?</span></span>
+                    <span class="form-check-label">只管理NASTool添加的下载 <span class="form-help bg-red-lt" title="启用后只有NASTool添加的下载才会被自动转移和显示，关闭则下载软件中所有的任务都会转移和显示；仅支持Qbittorrent、Transmission下载器" data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>

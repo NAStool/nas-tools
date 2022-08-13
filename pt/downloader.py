@@ -75,7 +75,7 @@ class Downloader:
         """
         if not url:
             return None, "Url链接为空"
-        if self.__client_type == DownloaderType.Client115:
+        if self.__client_type in [DownloaderType.Client115]:
             content = url
         else:
             content, retmsg = Torrent.get_torrent_content(url)

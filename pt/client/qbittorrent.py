@@ -12,9 +12,6 @@ class Qbittorrent(IDownloadClient):
     qbc = None
 
     def get_config(self):
-        """
-        获取配置
-        """
         # 读取配置文件
         config = Config()
         qbittorrent = config.get_config('qbittorrent')
@@ -30,9 +27,6 @@ class Qbittorrent(IDownloadClient):
             self.save_containerpath = qbittorrent.get('save_containerpath')
 
     def connect(self):
-        """
-        连接
-        """
         if self.host and self.port:
             self.qbc = self.__login_qbittorrent()
 
@@ -54,22 +48,11 @@ class Qbittorrent(IDownloadClient):
             return None
 
     def get_status(self):
-        """
-        检查连通性
-        :return: True、Fals
-        """
         if not self.qbc:
             return False
         return True if self.qbc.transfer_info() else False
 
     def get_torrents(self, ids=None, status=None, tag=None):
-        """
-        按条件读取种子信息
-        :param ids: 种子ID，单个ID或者ID列表
-        :param status: 种子状态过滤
-        :param tag: 种子标签过滤
-        :return: 种子信息列表
-        """
         if not self.qbc:
             return []
         self.qbc.auth_log_in()
@@ -78,17 +61,11 @@ class Qbittorrent(IDownloadClient):
         return torrents or []
 
     def get_completed_torrents(self, tag=None):
-        """
-        读取完成的种子信息
-        """
         if not self.qbc:
             return []
         return self.get_torrents(status=["completed"], tag=tag)
 
     def get_downloading_torrents(self, tag=None):
-        """
-        读取下载中的种子信息
-        """
         if not self.qbc:
             return []
         return self.get_torrents(status=["downloading"], tag=tag)
@@ -102,10 +79,6 @@ class Qbittorrent(IDownloadClient):
         return self.qbc.torrents_delete_tags(torrent_hashes=ids, tags=tag)
 
     def set_torrents_status(self, ids):
-        """
-        迁移完成后设置种子标签为 已整理
-        :param ids: 种子ID列表
-        """
         if not self.qbc:
             return
         self.qbc.auth_log_in()
@@ -128,10 +101,6 @@ class Qbittorrent(IDownloadClient):
         self.qbc.auth_log_out()
 
     def get_transfer_task(self, tag):
-        """
-        获取需要转移的种子列表
-        :return: 替换好路径的种子文件路径清单
-        """
         # 处理下载完成的任务
         torrents = self.get_completed_torrents(tag=tag)
         trans_tasks = []
@@ -147,12 +116,6 @@ class Qbittorrent(IDownloadClient):
         return trans_tasks
 
     def get_remove_torrents(self, seeding_time, tag):
-        """
-        获取需要清理的种子清单
-        :param seeding_time: 保种时间，单位秒
-        :param tag: 种子标签
-        :return: 种子ID列表
-        """
         if not seeding_time:
             return []
         torrents = self.get_completed_torrents(tag=tag)
@@ -179,13 +142,6 @@ class Qbittorrent(IDownloadClient):
             return None
 
     def add_torrent(self, content, mtype, is_paused=None, tag=None):
-        """
-        添加qbittorrent下载任务
-        :param content: 种子数据
-        :param mtype: 媒体类型：电影、电视剧、动漫
-        :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
-        :param tag: 下载时对种子的标记
-        """
         if not self.qbc or not content:
             return False
         self.qbc.auth_log_in()
@@ -214,25 +170,16 @@ class Qbittorrent(IDownloadClient):
         return True if qbc_ret and str(qbc_ret).find("Ok") != -1 else False
 
     def start_torrents(self, ids):
-        """
-        下载控制：开始
-        """
         if not self.qbc:
             return False
         return self.qbc.torrents_resume(torrent_hashes=ids)
 
     def stop_torrents(self, ids):
-        """
-        下载控制：停止
-        """
         if not self.qbc:
             return False
         return self.qbc.torrents_pause(torrent_hashes=ids)
 
     def delete_torrents(self, delete_file, ids):
-        """
-        删除种子
-        """
         if not self.qbc:
             return False
         if not ids:
@@ -243,9 +190,6 @@ class Qbittorrent(IDownloadClient):
         return ret
 
     def get_files(self, tid):
-        """
-        获取种子文件列表
-        """
         return self.qbc.torrents_files(torrent_hash=tid)
 
     def set_files(self, torrent_hash, file_ids, priority):
@@ -256,3 +200,6 @@ class Qbittorrent(IDownloadClient):
             return False
         self.qbc.torrents_file_priority(torrent_hash=torrent_hash, file_ids=file_ids, priority=priority)
         return True
+
+    def set_torrent_tag(self, **kwargs):
+        pass

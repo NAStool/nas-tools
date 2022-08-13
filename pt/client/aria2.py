@@ -1,6 +1,9 @@
+import os
+
 from config import Config
 from pt.client.client import IDownloadClient
 from pt.client.pyaria2 import PyAria2
+from utils.types import MediaType
 
 
 class Aria2(IDownloadClient):
@@ -12,6 +15,9 @@ class Aria2(IDownloadClient):
         config = Config()
         aria2config = config.get_config('aria2')
         if aria2config:
+            # 解析下载目录
+            self.save_path = aria2config.get('save_path')
+            self.save_containerpath = aria2config.get('save_containerpath')
             self.host = aria2config.get("host")
             self.port = aria2config.get("port")
             self.secret = aria2config.get("secret")
@@ -36,20 +42,10 @@ class Aria2(IDownloadClient):
                 ids = ids[0]
             ret_torrents = [self._client.tellStatus(gid=ids)]
         elif status:
-            torrents = self._client.tellActive() or []
-            for torrent in torrents:
-                if status == "downloading":
-                    if int(torrent.get("completedLength")) < int(torrent.get("totalLength")):
-                        ret_torrents.append(torrent)
-                    if torrent.get("status") == "paused":
-                        ret_torrents.append(torrent)
-                elif status == "completed":
-                    if int(torrent.get("completedLength")) >= int(torrent.get("totalLength")):
-                        ret_torrents.append(torrent)
-                    if torrent.get("status") == "complete":
-                        ret_torrents.append(torrent)
-                else:
-                    ret_torrents.append(torrent)
+            if status == "downloading":
+                ret_torrents = self._client.tellActive() or [] + self._client.tellWaiting(offset=-1, num=100) or []
+            else:
+                ret_torrents = self._client.tellStopped(offset=-1, num=1000)
         return ret_torrents
 
     def get_downloading_torrents(self, **kwargs):
@@ -59,10 +55,23 @@ class Aria2(IDownloadClient):
         return self.get_torrents(status="completed")
 
     def set_torrents_status(self, ids):
-        pass
+        return self.delete_torrents(ids=ids, delete_file=False)
 
     def get_transfer_task(self, tag):
-        return []
+        if not self._client:
+            return []
+        torrents = self.get_completed_torrents()
+        trans_tasks = []
+        for torrent in torrents:
+            name = torrent.get('bittorrent', {}).get('info', {}).get("name")
+            if not name:
+                continue
+            true_path = os.path.join(torrent.get("dir"), name)
+            if not true_path:
+                continue
+            true_path = self.get_replace_path(true_path)
+            trans_tasks.append({'path': true_path, 'id': torrent.get("gid")})
+        return trans_tasks
 
     def get_remove_torrents(self, seeding_time, **kwargs):
         return []
@@ -70,10 +79,16 @@ class Aria2(IDownloadClient):
     def add_torrent(self, content, mtype, **kwargs):
         if not self._client:
             return None
-        if isinstance(content, str):
-            return self._client.addUri(uris=[content])
+        if mtype == MediaType.TV:
+            dl_dir = self.tv_save_path
+        elif mtype == MediaType.ANIME:
+            dl_dir = self.anime_save_path
         else:
-            return self._client.addTorrent(torrent=content)
+            dl_dir = self.movie_save_path
+        if isinstance(content, str):
+            return self._client.addUri(uris=[content], options=dict(dir=dl_dir))
+        else:
+            return self._client.addTorrent(torrent=content, uris=[], options=dict(dir=dl_dir))
 
     def start_torrents(self, ids):
         if not self._client:

@@ -166,7 +166,7 @@ sync:
 
 # 【配置PT站点和检索信息】
 pt:
-  # 【PT下载使用的客户端软件】：qbittorrent、transmission，需要配置qbittorrent或transmission对应的配置区域
+  # 【PT下载使用的客户端软件】：qbittorrent、transmission、client115、aria2
   pt_client: qbittorrent
   # 【PT下载软件监控开关】：是否监控PT下载软件：true、false，如为true则PT下载完成会自动转移和重命名，如为false则不会处理
   # PT下载软件监控与Sync下载目录同步不要同时开启，否则功能存在重复
@@ -281,6 +281,16 @@ aria2:
   port:
   # 密码令牌
   secret:
+  # 下载文件保存路径，传递给下载器使用
+  save_path:
+    movie:
+    tv:
+    anime:
+  # NASTool访问下载文件的映射路径
+  save_containerpath:
+    movie:
+    tv:
+    anime:
 
 # 【配置豆瓣账号信息】：配置后会自动同步豆瓣收藏，豆瓣标记想看内容后，后台自动下载
 douban:
