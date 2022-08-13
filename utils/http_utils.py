@@ -9,7 +9,7 @@ class RequestUtils:
     __headers = None
     __cookies = None
     __proxies = None
-    __timeout = 30
+    __timeout = 20
     __session = None
 
     def __init__(self, headers=None, cookies=None, proxies=False, session=None, timeout=None):

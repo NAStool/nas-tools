@@ -145,7 +145,7 @@ class TMDb(object):
         if self.cache and self.obj_cached and call_cached and method != "POST":
             req = self.cached_request(method, url, data, self.proxies)
         else:
-            req = self._session.request(method, url, data=data, proxies=eval(self.proxies))
+            req = self._session.request(method, url, data=data, proxies=eval(self.proxies), timeout=5)
 
         headers = req.headers
 

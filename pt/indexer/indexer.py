@@ -280,7 +280,7 @@ class IIndexer(metaclass=ABCMeta):
         if not url:
             return []
         try:
-            ret = RequestUtils().get_res(url)
+            ret = RequestUtils(timeout=10).get_res(url)
         except Exception as e2:
             log.console(str(e2))
             return []

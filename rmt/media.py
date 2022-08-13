@@ -400,7 +400,7 @@ class Media:
             return None
         log.info("【META】正在从TheDbMovie网站查询：%s ..." % file_media_name)
         tmdb_url = "https://www.themoviedb.org/search?query=%s" % file_media_name
-        res = RequestUtils().get_res(url=tmdb_url)
+        res = RequestUtils(timeout=5).get_res(url=tmdb_url)
         if res and res.status_code == 200:
             html_text = res.text
             if not html_text:
@@ -1002,8 +1002,8 @@ class Media:
 
         bing_url = "https://www.cn.bing.com/search?q=%s&qs=n&form=QBRE&sp=-1" % feature_name
         baidu_url = "https://www.baidu.com/s?ie=utf-8&tn=baiduhome_pg&wd=%s" % feature_name
-        res_bing = RequestUtils().get_res(url=bing_url)
-        res_baidu = RequestUtils().get_res(url=baidu_url)
+        res_bing = RequestUtils(timeout=5).get_res(url=bing_url)
+        res_baidu = RequestUtils(timeout=5).get_res(url=baidu_url)
         ret_dict = {}
         if res_bing and res_bing.status_code == 200:
             html_text = res_bing.text

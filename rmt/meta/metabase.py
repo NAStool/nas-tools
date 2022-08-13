@@ -463,7 +463,7 @@ class MetaBase(object):
             else:
                 image_url = FANART_TV_API_URL % tmdbid
             try:
-                ret = RequestUtils(proxies=cls.proxies).get_res(image_url)
+                ret = RequestUtils(proxies=cls.proxies, timeout=5).get_res(image_url)
                 if ret:
                     moviethumbs = ret.json().get('moviethumb')
                     if moviethumbs:
