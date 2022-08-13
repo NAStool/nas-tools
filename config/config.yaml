@@ -206,10 +206,12 @@ pt:
 
 # 【配置Jackett检索器】
 jackett:
+  # 【Jackett地址】：Jackett地址和端口，格式：http(s)://IP:PORT
+  host: http://127.0.0.1:9117
   # 【Jackett ApiKey】：Jackett配置页面右上角复制API Key
   api_key:
-  # 【Jackett索引器】：Jackett Indexer中添加索引器，选择“Copy Torznab Feed”生成链接填入，可以配置多个，配置上的就会参与检索(注意最后要带/)，配置在前面的优先
-  indexers:
+  # 【Jackett管理密码】：如未设置可为空
+  password:
 
 # 【配置prowlarr检索器】
 prowlarr:

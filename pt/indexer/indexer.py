@@ -20,6 +20,7 @@ class IIndexer(metaclass=ABCMeta):
     media = None
     index_type = None
     api_key = None
+    host = None
     filterrule = None
     __reverse_title_sites = ['keepfriends']
     __invalid_description_sites = ['tjupt']
