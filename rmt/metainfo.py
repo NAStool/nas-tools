@@ -31,6 +31,6 @@ def is_anime(name):
         return True
     if re.search(r'【[0-9XVPI-]+】【', name, re.IGNORECASE):
         return True
-    if re.search(r'\s+-\s+\d{1,4}\s+', name, re.IGNORECASE):
+    if re.search(r'\s+-\s+[\dv]{1,4}\s+', name, re.IGNORECASE):
         return True
     return False

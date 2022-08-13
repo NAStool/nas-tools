@@ -1,4 +1,20 @@
 meta_cases = [{
+    "title": "[Nekomoe kissaten&LoliHouse] Soredemo Ayumu wa Yosetekuru - 01v2 [WebRip 1080p HEVC-10bit EAC3 ASSx2].mkv",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Soredemo Ayumu wa Yosetekuru",
+        "year": "",
+        "part": "",
+        "season": "S01",
+        "episode": "E01",
+        "restype": "",
+        "pix": "1080p",
+        "video_codec": "",
+        "audio_codec": "EAC3"
+    }
+}, {
     "title": "[喵萌奶茶屋&LoliHouse] 金装的薇尔梅 / Kinsou no Vermeil - 01 [WebRip 1080p HEVC-10bit AAC][简繁内封字幕]",
     "subtitle": "",
     "target": {
