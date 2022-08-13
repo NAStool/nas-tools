@@ -327,6 +327,7 @@ class Emby(IMediaServer):
             # 先用自定义规则匹配 找同级目录最多的路径
             max_equal_num = 0
             max_equal_path_id = None
+            equal_path_num = 0
             for folder in library.get("SubFolders"):
                 paths = re.split(pattern="\\\\+|/+", string=item.get("target_path"))
                 paths.append(item.get("category"))
@@ -345,11 +346,19 @@ class Emby(IMediaServer):
                 if max_equal_num < equal_num:
                     max_equal_num = equal_num
                     max_equal_path_id = folder.get("Id")
+                    equal_path_num = 1
+                elif max_equal_num == equal_num:
+                    equal_path_num += 1
 
             if max_equal_path_id:
-                return max_equal_path_id
-            for folder in library.get("SubFolders"):
-                if folder.get("Path") and re.search(r"[/\\]%s" % item.get("category"), folder.get("Path")):
+                if equal_path_num > 1:
                     return library.get("Id")
+                else:
+                    return max_equal_path_id
+
+
+            #for folder in library.get("SubFolders"):
+               #if folder.get("Path") and re.search(r"[/\\]%s" % item.get("category"), folder.get("Path")):
+                    #return library.get("Id")
         # 刷新根目录
         return "/"
