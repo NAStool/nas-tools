@@ -39,8 +39,10 @@ class Aria2(IDownloadClient):
         ret_torrents = []
         if ids:
             if isinstance(ids, list):
-                ids = ids[0]
-            ret_torrents = [self._client.tellStatus(gid=ids)]
+                for gid in ids:
+                    ret_torrents.append(self._client.tellStatus(gid=gid))
+            else:
+                ret_torrents = [self._client.tellStatus(gid=ids)]
         elif status:
             if status == "downloading":
                 ret_torrents = self._client.tellActive() or [] + self._client.tellWaiting(offset=-1, num=100) or []

@@ -606,7 +606,7 @@ def create_flask_app(config):
             elif Client == DownloaderType.Aria2:
                 name = torrent.get('bittorrent', {}).get('info', {}).get("name")
                 # 进度
-                progress = round(int(torrent.get('completedLength'))/int(torrent.get("totalLength")), 1)
+                progress = round(int(torrent.get('completedLength'))/int(torrent.get("totalLength")), 1) * 100
                 state = "Downloading"
                 dlspeed = str_filesize(torrent.get('downloadSpeed'))
                 upspeed = str_filesize(torrent.get('uploadSpeed'))
