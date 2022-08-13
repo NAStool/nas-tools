@@ -145,7 +145,8 @@ class FileTransfer:
             "copy": RmtMode.COPY,
             "link": RmtMode.LINK,
             "softlink": RmtMode.SOFTLINK,
-            "move": RmtMode.MOVE
+            "move": RmtMode.MOVE,
+            "rclone": RmtMode.RCLONE
         }
         sync_mod = config.get_config('sync').get('sync_mod')
         self.__sync_rmt_mode = sync_mode_dict.get(sync_mod, RmtMode.COPY) if sync_mod else RmtMode.COPY
