@@ -1,3 +1,5 @@
+import re
+
 import log
 from config import Config
 from pt.mediaserver.server import IMediaServer
@@ -323,7 +325,7 @@ class Emby(IMediaServer):
         # 查找需要刷新的媒体库ID
         for library in self.__get_emby_librarys():
             for folder in library.get("SubFolders"):
-                if "/%s" % item.get("category") in folder.get("Path"):
+                if folder.get("Path") and re.search(r"[/\\]%s" % item.get("category"), folder.get("Path")):
                     return library.get("Id")
         # 刷新根目录
         return "/"
