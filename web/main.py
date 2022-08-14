@@ -470,7 +470,8 @@ def create_flask_app(config):
                                RestypeDict=TORRENT_SEARCH_PARAMS.get("restype").keys(),
                                PixDict=TORRENT_SEARCH_PARAMS.get("pix").keys(),
                                SiteDict=SiteDict,
-                               SaveDirs=SaveDirs)
+                               SaveDirs=SaveDirs,
+                               UPCHAR=chr(8593))
 
     # 媒体列表页面
     @App.route('/medialist', methods=['POST', 'GET'])

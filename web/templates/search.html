@@ -224,7 +224,7 @@
                         href='{% if not Item[9] %}javascript:show_download_modal("{{ Item[0] }}","{{ Item[13] }}"){% else %}javascript:show_download_modal("{{ Item[0] }}","{{ Item[1] }}"){% endif %}'
                         title="点击添加下载">
                       <strong>{% if Item[14] or not Item[13] %}{{ Item[1]|replace("()", "") }}{% else %} {{ Item[13] }} {% endif %}</strong></a>
-                      <span class="badge ms-2">{{ Item[4] }}</span>
+                      <span class="badge ms-2">{{ Item[4] }}{{ UPCHAR }}</span>
                         {% if Item[19] != 1.0 %}
                             <span class="badge text-white bg-azure">{{ (Item[19] * 100) | int }}%UL</span>
                         {% endif %}
