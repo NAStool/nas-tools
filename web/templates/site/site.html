@@ -137,14 +137,14 @@
           </div>
           <div class="col-lg-12">
             <div class="mb-3">
-              <label class="form-label">COOKIE <span class="form-help bg-red-lt" title="站点的Cookie，用于站点自动签到，以及上传下载流量统计等，需要在浏览器中F12->网络页抓取" data-bs-toggle="tooltip">?</span></label>
+              <label class="form-label">COOKIE <span class="form-help bg-red-lt" title="站点的Cookie，用于站点自动签到、站点数据统计、刷流等，需要在浏览器中F12->网络页抓取" data-bs-toggle="tooltip">?</span></label>
               <textarea class="form-control" id="site_cookie" rows="2" placeholder="站点COOKIE"></textarea>
             </div>
           </div>
           <div class="row">
             <div class="col-lg-12">
               <div class="mb-3">
-                <label class="form-label">订阅地址 <span class="form-help bg-red-lt" title="站点订阅源URL地址，用于电影、电视剧订阅，点击站点RSS图标获取" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">RSS订阅地址 <span class="form-help bg-red-lt" title="站点订阅源URL地址，用于电影、电视剧订阅、刷流，点击站点RSS图标获取" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" class="form-control" id="site_rssurl" value="" placeholder="站点RSS订阅URL">
               </div>
             </div>
@@ -152,12 +152,21 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">过滤规则 <span class="form-help bg-red-lt" title="选择该站点使用的规则组，在设置->过滤规则中设置规则，选择了规则组后该站点只有符合规则的种子才会被订阅" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">RSS过滤规则 <span class="form-help bg-red-lt" title="选择该站点使用的规则组，在设置->过滤规则中设置规则，选择了规则组后该站点只有符合规则的种子才会被订阅；刷流不受此限制" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="site_rule">
                   <option value="" selected>请选择</option>
                   {% for RuleGroup in RuleGroups %}
                   <option value="{{ RuleGroup.id }}">{{ RuleGroup.name }}</option>
                   {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">RSS解析种子详情 <span class="form-help bg-red-lt" title="选择是时RSS订阅会解析站点种子详情页面获取种子FREE及HR状态，会增加站点访问压力；选择否时无法判断FREE种，无法实现FREE优先规则；刷流不受此限制" data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="site_parse">
+                  <option value="Y" selected>是</option>
+                  <option value="N">否</option>
                 </select>
               </div>
             </div>
@@ -234,6 +243,7 @@
         $("#site_rssurl").val(ret.site.rssurl);
         $("#site_signurl").val(ret.site.signurl);
         $("#site_cookie").val(ret.site.cookie);
+        $("#site_parse").val(ret.site.parse)
         $("#modal-site-title").text("编辑站点");
         $("#add_or_edit_site_btn").text("修改");
         $("#modal-site").modal("show");
@@ -292,13 +302,14 @@
       }
     }
     var site_rule = $("#site_rule").val();
+    var site_parse = $("#site_parse").val();
     var data = {"site_id":site_id,
           "site_name":site_name,
           "site_pri":site_pri,
           "site_rssurl":site_rssurl,
           "site_signurl":site_signurl,
           "site_cookie":site_cookie,
-          "site_note":"|" + site_rule}
+          "site_note":site_parse + "|" + site_rule}
 
     $("#add_or_edit_site_btn").attr("disabled", true);
     $("#add_or_edit_site_btn").text("处理中...");

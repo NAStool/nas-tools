@@ -150,6 +150,8 @@ class Message:
         if can_item.seeders:
             msg_text = f"{msg_text}\n做种数：{can_item.seeders}"
         msg_text = f"{msg_text}\n促销：{can_item.get_volume_factor_string()}"
+        if can_item.hit_and_run:
+            msg_text = f"{msg_text}\nHit&Run：是"
         if can_item.description:
             html_re = re.compile(r'<[^>]+>', re.S)
             description = html_re.sub('', can_item.description)

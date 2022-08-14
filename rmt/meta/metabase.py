@@ -84,8 +84,9 @@ class MetaBase(object):
     peers = 0
     description = None
     page_url = None
-    upload_volume_factor = 1.0
-    download_volume_factor = 1.0
+    upload_volume_factor = None
+    download_volume_factor = None
+    hit_and_run = None
     rssid = None
     # 副标题解析
     _subtitle_flag = False
@@ -313,6 +314,8 @@ class MetaBase(object):
 
     # 返回促销信息
     def get_volume_factor_string(self):
+        if self.upload_volume_factor is None or self.download_volume_factor is None:
+            return "未知"
         free_strs = {
             "1.0 1.0": "普通",
             "1.0 0.0": "免费",
@@ -323,7 +326,7 @@ class MetaBase(object):
             "1.0 0.7": "70%",
             "1.0 0.3": "30%"
         }
-        return free_strs.get('%.1f %.1f' % (self.upload_volume_factor, self.download_volume_factor), "普通")
+        return free_strs.get('%.1f %.1f' % (self.upload_volume_factor, self.download_volume_factor), "未知")
 
     # 是否包含季
     def is_in_season(self, season):
@@ -424,7 +427,8 @@ class MetaBase(object):
                          page_url=None,
                          upload_volume_factor=None,
                          download_volume_factor=None,
-                         rssid=None):
+                         rssid=None,
+                         hit_and_run=None):
         if site:
             self.site = site
         if site_order:
@@ -449,6 +453,8 @@ class MetaBase(object):
             self.download_volume_factor = download_volume_factor
         if rssid:
             self.rssid = rssid
+        if hit_and_run is not None:
+            self.hit_and_run = hit_and_run
 
     # 获取消息媒体图片
     # 增加cache，优化资源检索时性能

@@ -156,7 +156,7 @@ class FilterRule:
 
             # 促销
             free = filter_info.get("free")
-            if free:
+            if free and meta_info.upload_volume_factor is not None and meta_info.download_volume_factor is not None:
                 ul_factor, dl_factor = free.split()
                 if float(ul_factor) > meta_info.upload_volume_factor \
                         or float(dl_factor) < meta_info.download_volume_factor:
