@@ -354,56 +354,59 @@ class DBHelper:
     def excute(self, sql, data=None):
         if not sql:
             return False
-        conn = self.__pools.get()
-        cursor = conn.cursor()
-        try:
-            if data:
-                cursor.execute(sql, data)
-            else:
-                cursor.execute(sql)
-            conn.commit()
-        except Exception as e:
-            log.error(f"【DB】执行SQL出错：sql:{sql}; parameters:{data}; {e}")
-            return False
-        finally:
-            cursor.close()
-            self.__pools.free(conn)
-        return True
+        with lock:
+            conn = self.__pools.get()
+            cursor = conn.cursor()
+            try:
+                if data:
+                    cursor.execute(sql, data)
+                else:
+                    cursor.execute(sql)
+                conn.commit()
+            except Exception as e:
+                log.error(f"【DB】执行SQL出错：sql:{sql}; parameters:{data}; {e}")
+                return False
+            finally:
+                cursor.close()
+                self.__pools.free(conn)
+            return True
 
     def excute_many(self, sql, data_list):
         if not sql or not data_list:
             return False
-        conn = self.__pools.get()
-        cursor = conn.cursor()
-        try:
-            cursor.executemany(sql, data_list)
-            conn.commit()
-        except Exception as e:
-            log.error(f"【DB】执行SQL出错：sql:{sql}; {e}")
-            return False
-        finally:
-            cursor.close()
-            self.__pools.free(conn)
-        return True
+        with lock:
+            conn = self.__pools.get()
+            cursor = conn.cursor()
+            try:
+                cursor.executemany(sql, data_list)
+                conn.commit()
+            except Exception as e:
+                log.error(f"【DB】执行SQL出错：sql:{sql}; {e}")
+                return False
+            finally:
+                cursor.close()
+                self.__pools.free(conn)
+            return True
 
     def select(self, sql, data):
         if not sql:
             return False
-        conn = self.__pools.get()
-        cursor = conn.cursor()
-        try:
-            if data:
-                res = cursor.execute(sql, data)
-            else:
-                res = cursor.execute(sql)
-            ret = res.fetchall()
-        except Exception as e:
-            log.error(f"【DB】执行SQL出错：sql:{sql}; parameters:{data}; {e}")
-            return []
-        finally:
-            cursor.close()
-            self.__pools.free(conn)
-        return ret
+        with lock:
+            conn = self.__pools.get()
+            cursor = conn.cursor()
+            try:
+                if data:
+                    res = cursor.execute(sql, data)
+                else:
+                    res = cursor.execute(sql)
+                ret = res.fetchall()
+            except Exception as e:
+                log.error(f"【DB】执行SQL出错：sql:{sql}; parameters:{data}; {e}")
+                return []
+            finally:
+                cursor.close()
+                self.__pools.free(conn)
+            return ret
 
 
 def select_by_sql(sql, data=None):
@@ -423,8 +426,7 @@ def update_by_sql(sql, data=None):
     :param data: 数据，需为列表或者元祖
     :return: 执行状态
     """
-    with lock:
-        return DBHelper().excute(sql, data)
+    return DBHelper().excute(sql, data)
 
 
 def update_by_sql_batch(sql, data_list):
@@ -434,5 +436,4 @@ def update_by_sql_batch(sql, data_list):
     :param data_list: 数据列表
     :return: 执行状态
     """
-    with lock:
-        return DBHelper().excute_many(sql, data_list)
+    return DBHelper().excute_many(sql, data_list)

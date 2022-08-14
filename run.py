@@ -11,6 +11,8 @@ from utils.functions import get_system, check_process
 from utils.types import OsType
 from version import APP_VERSION
 from web.app import FlaskApp
+import warnings
+warnings.filterwarnings('ignore')
 
 
 def sigal_handler(num, stack):

@@ -17,6 +17,7 @@ from pt.client.transmission import Transmission
 from pt.douban import DouBan
 from pt.downloader import Downloader
 from pt.filterrules import FilterRule
+from pt.mediaserver.emby import Emby
 from pt.mediaserver.jellyfin import Jellyfin
 from pt.mediaserver.plex import Plex
 from pt.rss import Rss
@@ -751,6 +752,7 @@ class WebAction:
         # 重载配置标志
         config_test = False
         scheduler_reload = False
+        emby_reload = False
         jellyfin_reload = False
         plex_reload = False
         wechat_reload = False
@@ -767,6 +769,8 @@ class WebAction:
             if key in ['pt.ptsignin_cron', 'pt.pt_monitor', 'pt.pt_check_interval', 'pt.pt_seeding_time',
                        'douban.interval']:
                 scheduler_reload = True
+            if key.startswith("emby"):
+                emby_reload = True
             if key.startswith("jellyfin"):
                 jellyfin_reload = True
             if key.startswith("plex"):
@@ -786,6 +790,9 @@ class WebAction:
         if scheduler_reload:
             Scheduler().init_config()
             restart_scheduler()
+        # 重载emby
+        if emby_reload:
+            Emby().init_config()
         # 重载Jellyfin
         if jellyfin_reload:
             Jellyfin().init_config()

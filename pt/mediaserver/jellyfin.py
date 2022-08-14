@@ -22,12 +22,14 @@ class Jellyfin(IMediaServer):
         jellyfin = config.get_config('jellyfin')
         if jellyfin:
             self.__host = jellyfin.get('host')
-            if not self.__host.startswith('http://') and not self.__host.startswith('https://'):
-                self.__host = "http://" + self.__host
-            if not self.__host.endswith('/'):
-                self.__host = self.__host + "/"
+            if self.__host:
+                if not self.__host.startswith('http://') and not self.__host.startswith('https://'):
+                    self.__host = "http://" + self.__host
+                if not self.__host.endswith('/'):
+                    self.__host = self.__host + "/"
             self.__apikey = jellyfin.get('api_key')
-            self.get_admin_user()
+            if self.__host and self.__apikey:
+                self.__user = self.get_admin_user()
 
     def get_status(self):
         """
@@ -76,7 +78,7 @@ class Jellyfin(IMediaServer):
         获得管理员用户
         """
         if not self.__host or not self.__apikey:
-            return
+            return None
         req_url = "%sUsers?api_key=%s" % (self.__host, self.__apikey)
         try:
             res = RequestUtils().get_res(req_url)
@@ -84,12 +86,12 @@ class Jellyfin(IMediaServer):
                 users = res.json()
                 for user in users:
                     if user.get("Policy", {}).get("IsAdministrator"):
-                        self.__user = user.get("Id")
-                        break
+                        return user.get("Id")
             else:
                 log.error("【JELLYFIN】Users 未获取到返回数据")
         except Exception as e:
             log.error("【JELLYFIN】连接Users出错：" + str(e))
+        return None
 
     def get_activity_log(self, num):
         """

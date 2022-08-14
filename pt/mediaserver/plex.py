@@ -23,18 +23,20 @@ class Plex(IMediaServer):
         plex = config.get_config('plex')
         if plex:
             self.__host = plex.get('host')
-            if not self.__host.startswith('http://') and not self.__host.startswith('https://'):
-                self.__host = "http://" + self.__host
-            if not self.__host.endswith('/'):
-                self.__host = self.__host + "/"
+            if self.__host:
+                if not self.__host.startswith('http://') and not self.__host.startswith('https://'):
+                    self.__host = "http://" + self.__host
+                if not self.__host.endswith('/'):
+                    self.__host = self.__host + "/"
             self.__username = plex.get('username')
             self.__password = plex.get('password')
             self.__servername = plex.get('servername')
-            try:
-                self.__plex = MyPlexAccount(self.__username, self.__password).resource(self.__servername).connect()
-            except Exception as e:
-                self.__plex = None
-                log.error("【PLEX】Plex服务器连接失败：%s" % str(e))
+            if self.__username and self.__password and self.__servername:
+                try:
+                    self.__plex = MyPlexAccount(self.__username, self.__password).resource(self.__servername).connect()
+                except Exception as e:
+                    self.__plex = None
+                    log.error("【PLEX】Plex服务器连接失败：%s" % str(e))
 
     def get_status(self):
         """
