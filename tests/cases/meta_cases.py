@@ -1,4 +1,20 @@
 meta_cases = [{
+    "title": "Ousama Ranking S01E02-[1080p][BDRIP][x265.FLAC].mkv",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Ousama Ranking",
+        "year": "",
+        "part": "",
+        "season": "S01",
+        "episode": "E02",
+        "restype": "BDRIP",
+        "pix": "1080p",
+        "video_codec": "x265",
+        "audio_codec": "FLAC"
+    }
+}, {
     "title": "[Nekomoe kissaten&LoliHouse] Soredemo Ayumu wa Yosetekuru - 01v2 [WebRip 1080p HEVC-10bit EAC3 ASSx2].mkv",
     "subtitle": "",
     "target": {
