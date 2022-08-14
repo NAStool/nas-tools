@@ -207,7 +207,7 @@ class IIndexer(metaclass=ABCMeta):
             if match_type != 2:
                 media_info = self.media.get_media_info(title=torrent_name, subtitle=description, chinese=False)
                 if not media_info or not media_info.tmdb_info:
-                    log.info(f"【{self.index_type}】{torrent_name} 未识别到媒体信息")
+                    log.info(f"【{self.index_type}】{torrent_name} 以名称 {media_info.get_name()} 未匹配到媒体信息")
                     index_match_fail += 1
                     continue
 
@@ -216,7 +216,7 @@ class IIndexer(metaclass=ABCMeta):
                     if filter_args.get("type") == MediaType.TV and media_info.type == MediaType.MOVIE \
                             or filter_args.get("type") == MediaType.MOVIE and media_info.type == MediaType.TV:
                         log.info(
-                            f"【{self.index_type}】{torrent_name} 是 {media_info.type.value}，不匹配类型：{filter_args.get('type').value}")
+                            f"【{self.index_type}】{torrent_name} 是 {media_info.type.value}，不是 {filter_args.get('type').value}")
                         index_rule_fail += 1
                         continue
 
@@ -224,7 +224,7 @@ class IIndexer(metaclass=ABCMeta):
                 if match_type == 1:
                     # 全匹配模式，TMDBID需要完全一样才匹配
                     if match_media and media_info.tmdb_id != match_media.tmdb_id:
-                        log.info(f"【{self.index_type}】{media_info.type.value}：{media_info.org_string} {media_info.title} 不匹配")
+                        log.info(f"【{self.index_type}】{media_info.org_string} 识别为 {media_info.type.value} {media_info.get_title_string()} 不匹配")
                         index_match_fail += 1
                         continue
                     # 统一标题和海报
@@ -241,7 +241,7 @@ class IIndexer(metaclass=ABCMeta):
             if not Torrent.is_torrent_match_sey(media_info, filter_args.get("season"), filter_args.get("episode"),
                                                 filter_args.get("year")):
                 log.info(
-                    f"【{self.index_type}】{media_info.type.value}：{media_info.get_title_string()} {media_info.get_season_episode_string()} 不匹配季/集/年份")
+                    f"【{self.index_type}】{media_info.org_string} 识别为 {media_info.type.value} {media_info.get_title_string()} {media_info.get_season_episode_string()} 不匹配季/集/年份")
                 index_match_fail += 1
                 continue
 
