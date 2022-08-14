@@ -78,15 +78,18 @@ class Aria2(IDownloadClient):
     def get_remove_torrents(self, seeding_time, **kwargs):
         return []
 
-    def add_torrent(self, content, mtype, **kwargs):
+    def add_torrent(self, content, mtype, download_dir=None, **kwargs):
         if not self._client:
             return None
-        if mtype == MediaType.TV:
-            dl_dir = self.tv_save_path
-        elif mtype == MediaType.ANIME:
-            dl_dir = self.anime_save_path
+        if download_dir:
+            dl_dir = download_dir
         else:
-            dl_dir = self.movie_save_path
+            if mtype == MediaType.TV:
+                dl_dir = self.tv_save_path
+            elif mtype == MediaType.ANIME:
+                dl_dir = self.anime_save_path
+            else:
+                dl_dir = self.movie_save_path
         if isinstance(content, str):
             return self._client.addUri(uris=[content], options=dict(dir=dl_dir))
         else:

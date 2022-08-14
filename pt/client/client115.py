@@ -82,15 +82,18 @@ class Client115(IDownloadClient):
     def get_remove_torrents(self, **kwargs):
         return []
 
-    def add_torrent(self, content, mtype, **kwargs):
+    def add_torrent(self, content, mtype, download_dir=None, **kwargs):
         if not self.downclient:
             return False
-        if mtype == MediaType.TV:
-            save_path = self.tv_save_path
-        elif mtype == MediaType.MOVIE:
-            save_path = self.movie_save_path
+        if download_dir:
+            save_path = download_dir
         else:
-            save_path = self.anime_save_path
+            if mtype == MediaType.TV:
+                save_path = self.tv_save_path
+            elif mtype == MediaType.MOVIE:
+                save_path = self.movie_save_path
+            else:
+                save_path = self.anime_save_path
         if isinstance(content, str):
             ret, self.lasthash = self.downclient.addtask(tdir=save_path, content=content)
             if not ret:

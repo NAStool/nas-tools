@@ -152,13 +152,14 @@ class IDownloadClient(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def add_torrent(self, content, mtype, is_paused, tag):
+    def add_torrent(self, content, mtype, is_paused, tag, download_dir):
         """
         添加下载任务
         :param content: 种子数据或链接
         :param mtype: 媒体类型：电影、电视剧、动漫
         :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
         :param tag: 下载时对种子的TAG标记
+        :param download_dir: 指定下载目录
         """
         pass
 

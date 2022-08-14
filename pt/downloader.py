@@ -65,13 +65,14 @@ class Downloader:
             self.__pt_monitor_only = pt.get("pt_monitor_only")
             self.__download_order = pt.get("download_order")
 
-    def add_pt_torrent(self, url, mtype=MediaType.MOVIE, is_paused=None, tag=None):
+    def add_pt_torrent(self, url, mtype=MediaType.MOVIE, is_paused=None, tag=None, download_dir=None):
         """
         添加PT下载任务，根据当前使用的下载器分别调用不同的客户端处理
         :param url: 种子地址
         :param mtype: 媒体类型，电影、电视剧、动漫
         :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
         :param tag: 下载时对种子的标记
+        :param download_dir: 指定下载目录
         """
         if not url:
             return None, "Url链接为空"
@@ -95,11 +96,11 @@ class Downloader:
                         tag = [PT_TAG, tag]
                 log.info("【DOWNLOADER】添加下载任务：%s" % url)
                 if self.__client_type == DownloaderType.TR:
-                    ret = self.client.add_torrent(content, mtype, is_paused=is_paused)
+                    ret = self.client.add_torrent(content, mtype, is_paused=is_paused, download_dir=download_dir)
                     if ret and tag:
                         self.client.set_torrent_tag(tid=ret.id, tag=tag)
                 else:
-                    ret = self.client.add_torrent(content, mtype, is_paused=is_paused, tag=tag)
+                    ret = self.client.add_torrent(content, mtype, is_paused=is_paused, tag=tag, download_dir=download_dir)
             except Exception as e:
                 log.error("【DOWNLOADER】添加下载任务出错：%s" % str(e))
                 return None, str(e)

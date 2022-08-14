@@ -123,6 +123,14 @@ class Sync(object):
                 else:
                     log.error("【SYNC】%s 目录不存在！" % monpath)
 
+    def get_sync_dirs(self):
+        """
+        返回所有的同步监控目录
+        """
+        if not self.sync_dir_config:
+            return []
+        return [os.path.normpath(key) for key in self.sync_dir_config.keys()]
+
     def file_change_handler(self, event, text, event_path):
         """
         处理文件变化

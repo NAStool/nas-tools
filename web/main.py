@@ -452,6 +452,9 @@ def create_flask_app(config):
         Indexers = Searcher().indexer.get_indexers() or []
         for item in Indexers:
             SiteDict.append(item[1])
+
+        # 下载目录
+        SaveDirs = WebAction().get_download_dirs()
         return render_template("search.html",
                                UserPris=str(pris).split(","),
                                SearchWord=SearchWord or "",
@@ -466,7 +469,8 @@ def create_flask_app(config):
                                MediaRestypes=MediaRestypes,
                                RestypeDict=TORRENT_SEARCH_PARAMS.get("restype").keys(),
                                PixDict=TORRENT_SEARCH_PARAMS.get("pix").keys(),
-                               SiteDict=SiteDict)
+                               SiteDict=SiteDict,
+                               SaveDirs=SaveDirs)
 
     # 媒体列表页面
     @App.route('/medialist', methods=['POST', 'GET'])
@@ -1060,7 +1064,9 @@ def create_flask_app(config):
         for rec in Records:
             if not rec[1]:
                 continue
-            Items.append({"id": rec[0], "path": rec[1], "to": rec[2], "name": rec[1]})
+            path = rec[1].replace("\\", "/") if rec[1] else ""
+            path_to = rec[2].replace("\\", "/") if rec[2] else ""
+            Items.append({"id": rec[0], "path": path, "to": path_to, "name": path})
         return render_template("rename/unidentification.html",
                                TotalCount=TotalCount,
                                Items=Items)

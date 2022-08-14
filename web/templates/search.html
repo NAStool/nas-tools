@@ -401,6 +401,35 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-search-download" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <input type="hidden" id="search_download_id">
+    <input type="hidden" id="search_download_name">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="modal-title">询问</div>
+        <div id="search_download_message">是否执行？</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
+        <div class="d-flex">
+          <button type="button" class="btn btn-danger" id="search_download_btn" title="自动选择目录下载"
+                  style="border-top-right-radius:0px;border-bottom-right-radius:0px;">立即下载</button>
+          <button data-bs-toggle="dropdown" type="button"
+              class="btn btn-danger dropdown-toggle dropdown-toggle-split" title="手动选择下载目录"
+            style="border-top-left-radius:0px;border-bottom-left-radius:0px;"></button>
+          <div class="dropdown-menu dropdown-menu-end">
+            {% for SaveDir in SaveDirs %}
+            <a class="dropdown-item" href="javascript:download_link('{{ SaveDir|safe }}')">
+              {{ SaveDir }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   // 关键字
   var search_word = "{{ SearchWord }}";
@@ -417,10 +446,13 @@
   }
   // 显示下载提示框
   function show_download_modal(id, name) {
-    show_ask_modal("是否立即下载 " + name + "？", function () {
-      hide_ask_modal();
-      download_link(id, name);
+    $("#search_download_id").val(id);
+    $("#search_download_name").val(name);
+    $("#search_download_message").text("是否立即下载 " + name + "？");
+    $("#search_download_btn").unbind('click').click(function () {
+      download_link();
     });
+    $("#modal-search-download").modal('show');
   }
 
   // 搜索按钮
@@ -466,10 +498,11 @@
   }
 
   //点击链接下载
-  function download_link(id, name) {
-    var cmd = "download";
-    var data = { "id": id };
-    ajax_post(cmd, data, function (ret) {
+  function download_link(dir) {
+    var id = $("#search_download_id").val();
+    var name = $("#search_download_name").val();
+    $("#modal-search-download").modal('hide');
+    ajax_post("download", { "id": id, "dir": dir}, function (ret) {
       if(ret.retcode == 0){
         show_success_modal(name + " 添加下载成功！");
       }else{

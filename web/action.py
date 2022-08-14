@@ -1,4 +1,5 @@
 import importlib
+import os.path
 import signal
 from urllib import parse
 
@@ -11,8 +12,6 @@ from message.channel.telegram import Telegram
 from message.channel.wechat import WeChat
 from message.send import Message
 from pt.brushtask import BrushTask
-from pt.client.aria2 import Aria2
-from pt.client.client115 import Client115
 from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
 from pt.douban import DouBan
@@ -108,7 +107,8 @@ class WebAction:
             "get_site_seeding_info": self.__get_site_seeding_info,
             "clear_tmdb_cache": self.__clear_tmdb_cache,
             "check_site_attr": self.__check_site_attr,
-            "refresh_process": self.__refresh_process
+            "refresh_process": self.__refresh_process,
+            "get_download_dirs": self.get_download_dirs
         }
 
     def action(self, cmd, data):
@@ -319,6 +319,7 @@ class WebAction:
         从WEB添加下载
         """
         dl_id = data.get("id")
+        dl_dir = data.get("dir")
         results = get_search_result_by_id(dl_id)
         for res in results:
             if res[11] and str(res[11]) != "0":
@@ -345,7 +346,7 @@ class WebAction:
             msg_item.upload_volume_factor = float(res[15] or 1.0)
             msg_item.download_volume_factor = float(res[16] or 1.0)
             # 添加下载
-            ret, ret_msg = Downloader().add_pt_torrent(res[0], msg_item.type)
+            ret, ret_msg = Downloader().add_pt_torrent(url=res[0], mtype=msg_item.type, download_dir=dl_dir)
             if ret:
                 # 发送消息
                 Message().send_download_message(SearchType.WEB, msg_item)
@@ -1797,3 +1798,21 @@ class WebAction:
             return {"code": 0, "value": detail.get("value"), "text": detail.get("text")}
         else:
             return {"code": 1}
+
+    @staticmethod
+    def get_download_dirs(data=None):
+        """
+        获取下载目录列表
+        """
+        dl_dirs = []
+        client_type = Config().get_config("pt").get("pt_client")
+        save_path = Config().get_config(client_type).get("save_path")
+        if save_path:
+            if isinstance(save_path, str):
+                dl_dirs.append(os.path.normpath(save_path))
+            else:
+                for path in dict(save_path).values():
+                    if not path:
+                        continue
+                    dl_dirs.append(os.path.normpath(path.split("|")[0]))
+        return [x.replace("\\", "/") for x in list(set(Sync().get_sync_dirs()).union(set(dl_dirs)))]

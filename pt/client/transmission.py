@@ -135,13 +135,17 @@ class Transmission(IDownloadClient):
                 remove_torrents.append(torrent.id)
         return remove_torrents
 
-    def add_torrent(self, content, mtype, is_paused=None, **kwargs):
-        if mtype == MediaType.TV:
-            return self.trc.add_torrent(torrent=content, download_dir=self.tv_save_path, paused=is_paused)
-        elif mtype == MediaType.MOVIE:
-            return self.trc.add_torrent(torrent=content, download_dir=self.movie_save_path, paused=is_paused)
+    def add_torrent(self, content, mtype, is_paused=None, download_dir=None, **kwargs):
+        if download_dir:
+            save_path = download_dir
         else:
-            return self.trc.add_torrent(torrent=content, download_dir=self.anime_save_path, paused=is_paused)
+            if mtype == MediaType.TV:
+                save_path = self.tv_save_path
+            elif mtype == MediaType.ANIME:
+                save_path = self.anime_save_path
+            else:
+                save_path = self.movie_save_path
+        return self.trc.add_torrent(torrent=content, download_dir=save_path, paused=is_paused)
 
     def start_torrents(self, ids):
         if not self.trc:

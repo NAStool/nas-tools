@@ -141,19 +141,21 @@ class Qbittorrent(IDownloadClient):
         else:
             return None
 
-    def add_torrent(self, content, mtype, is_paused=None, tag=None):
+    def add_torrent(self, content, mtype, is_paused=None, tag=None, download_dir=None):
         if not self.qbc or not content:
             return False
         self.qbc.auth_log_in()
         if mtype == MediaType.TV:
             save_path = self.tv_save_path
             category = self.tv_category
-        elif mtype == MediaType.MOVIE:
-            save_path = self.movie_save_path
-            category = self.movie_category
-        else:
+        elif mtype == MediaType.ANIME:
             save_path = self.anime_save_path
             category = self.anime_category
+        else:
+            save_path = self.movie_save_path
+            category = self.movie_category
+        if download_dir:
+            save_path = download_dir
         if isinstance(content, str):
             qbc_ret = self.qbc.torrents_add(urls=content,
                                             save_path=save_path,
