@@ -149,6 +149,11 @@ def check_config(config):
             telegram_chat_id = config.get_config('message').get('telegram', {}).get('telegram_chat_id')
             if not telegram_token or not telegram_chat_id:
                 log.warn("Telegram配置不完整，将无法接收到通知消息！")
+        elif msg_channel == "pushplus":
+            pushplus_token = config.get_config('message').get('pushplus', {}).get('push_token')
+            pushplus_channel = config.get_config('message').get('pushplus', {}).get('push_channel')
+            if not pushplus_token or not pushplus_channel:
+                log.warn("PushPlus配置不完整，将无法接收到通知消息！")
     else:
         log.error("配置文件格式错误，找不到message配置项！")
 

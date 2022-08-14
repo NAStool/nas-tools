@@ -101,7 +101,7 @@ plex:
 
 # 【配置消息通知服务】
 message:
-  # 【发送消息使用的渠道】：wechat、serverchan、telegram、bark，需在对应的配置区域配置。不使用的渠道配置可以留空或者删除。推荐使用wechat微信渠道。不设置则不启用消息服务
+  # 【发送消息使用的渠道】：wechat、serverchan、telegram、bark、pushplus，需在对应的配置区域配置。不使用的渠道配置可以留空或者删除。推荐使用wechat微信渠道。不设置则不启用消息服务
   msg_channel: wechat
   # 【Emby播放状态通知白名单】：配置了Emby webhooks插件回调时，用户播放媒体库中的媒体时会发送消息通知，本处配置哪些用户的设备不通知，避免打扰，配置格式：用户:设备名称，可用 - 增加多项
   webhook_ignore:
@@ -143,6 +143,17 @@ message:
     server: https://api.day.app
     # Bark客户端生成的KEY
     apikey:
+  # 【pushplus通知】：http://www.pushplus.plus/ 注册账号
+  pushplus:
+    # 用户令牌
+    push_token:
+    # 群组编码
+    push_topic:
+    # 发送渠道：wechat、webhook、cp、mail
+    push_channel:
+    # webhook编码，仅在channel使用webhook渠道和CP渠道时有效
+    push_webhook:
+
 
 # 【配置文件夹监控】：文件夹内容发生变化时自动识别转移
 sync:

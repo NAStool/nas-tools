@@ -1,3 +1,4 @@
+import time
 from urllib.parse import urlencode
 
 import log
@@ -6,8 +7,11 @@ from message.channel.channel import IMessageChannel
 from utils.http_utils import RequestUtils
 
 
-class ServerChan(IMessageChannel):
-    __sckey = None
+class PushPlus(IMessageChannel):
+    _token = None
+    _topic = None
+    _channel = None
+    _webhook = None
 
     def __init__(self):
         self.init_config()
@@ -16,7 +20,10 @@ class ServerChan(IMessageChannel):
         config = Config()
         message = config.get_config('message')
         if message:
-            self.__sckey = message.get('serverchan', {}).get('sckey')
+            self._token = message.get('pushplus', {}).get('push_token')
+            self._topic = message.get('pushplus', {}).get('push_topic')
+            self._channel = message.get('pushplus', {}).get('push_channel')
+            self._webhook = message.get('pushplus', {}).get('push_webhook')
 
     def get_status(self):
         """
@@ -38,20 +45,28 @@ class ServerChan(IMessageChannel):
         """
         if not title and not text:
             return False, "标题和内容不能同时为空"
-        values = {"title": title, "desp": text}
+        if not self._token or not self._channel:
+            return False, "参数未配置"
         try:
-            if not self.__sckey:
-                return False, "参数未配置"
-            sc_url = "https://sctapi.ftqq.com/%s.send?%s" % (self.__sckey, urlencode(values))
+            values = {
+                "token": self._token,
+                "channel": self._channel,
+                "topic": self._topic,
+                "webhook": self._webhook,
+                "title": title,
+                "content": text,
+                "timestamp": time.time_ns() + 60
+            }
+            sc_url = "http://www.pushplus.plus/send?%s" % urlencode(values)
             res = RequestUtils().get_res(sc_url)
             if res:
                 ret_json = res.json()
-                errno = ret_json.get('code')
-                error = ret_json.get('message')
-                if errno == 0:
-                    return True, error
+                code = ret_json.get("code")
+                msg = ret_json.get("msg")
+                if code == 200:
+                    return True, msg
                 else:
-                    return False, error
+                    return False, msg
             else:
                 return False, "未获取到返回信息"
         except Exception as msg_e:
