@@ -324,8 +324,41 @@ class Emby(IMediaServer):
                 return None
         # 查找需要刷新的媒体库ID
         for library in self.__get_emby_librarys():
+            # 先用自定义规则匹配 找同级目录最多的路径
+            max_equal_num = 0
+            max_equal_path_id = None
+            equal_path_num = 0
             for folder in library.get("SubFolders"):
-                if folder.get("Path") and re.search(r"[/\\]%s" % item.get("category"), folder.get("Path")):
+                paths = re.split(pattern="\\\\+|/+", string=item.get("target_path"))
+                paths.append(item.get("category"))
+                emby_paths = re.split(pattern="\\\\+|/+", string=folder.get("Path"))
+                i = len(paths) - 1
+                j = len(emby_paths) - 1
+                equal_num = 0
+                while i >= 0 and j >= 0:
+                    if paths[i] == emby_paths[j]:
+                        equal_num += 1
+                    else:
+                        break
+                    i -= 1
+                    j -= 1
+
+                if max_equal_num < equal_num:
+                    max_equal_num = equal_num
+                    max_equal_path_id = folder.get("Id")
+                    equal_path_num = 1
+                elif max_equal_num == equal_num:
+                    equal_path_num += 1
+
+            if max_equal_path_id:
+                if equal_path_num > 1:
                     return library.get("Id")
+                else:
+                    return max_equal_path_id
+
+
+            #for folder in library.get("SubFolders"):
+               #if folder.get("Path") and re.search(r"[/\\]%s" % item.get("category"), folder.get("Path")):
+                    #return library.get("Id")
         # 刷新根目录
         return "/"
