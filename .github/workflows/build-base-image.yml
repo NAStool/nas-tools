@@ -7,6 +7,7 @@ on:
     paths:
       - requirements.txt
       - docker/Dockerfile.base
+      - .github/workflows/build-base-image.yml
 
 jobs:
   build:
@@ -42,7 +43,6 @@ jobs:
             linux/386
             linux/amd64
             linux/arm64
-            linux/arm/v7
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/nas-tools-base-image:latest
