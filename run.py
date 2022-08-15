@@ -1,10 +1,5 @@
 import os
 import signal
-import sys
-import threading
-import warnings
-
-import wx
 
 import log
 from config import Config
@@ -16,15 +11,8 @@ from utils.functions import get_system, check_process
 from utils.types import OsType
 from version import APP_VERSION
 from web.app import FlaskApp
-from windows.trayicon import myFrame
-
+import warnings
 warnings.filterwarnings('ignore')
-
-# 初始化环境变量
-is_windows_exe = getattr(sys, 'frozen', False) and (os.name == "nt")
-if is_windows_exe:
-    os.environ["NASTOOL_CONFIG"] = os.path.join(os.path.dirname(sys.executable), "config", "config.yaml")
-    os.environ["NASTOOL_LOG"] = os.path.join(os.path.dirname(sys.executable), "config", "logs")
 
 
 def sigal_handler(num, stack):
@@ -36,7 +24,7 @@ def sigal_handler(num, stack):
         # 停止监控
         stop_monitor()
         # 退出主进程
-        sys.exit()
+        quit()
 
 
 if __name__ == "__main__":
@@ -48,10 +36,8 @@ if __name__ == "__main__":
 
     # 检查配置文件
     config = Config()
-    if is_windows_exe:
-        config.get_config('app')['logpath'] = os.environ.get('NASTOOL_LOG')
     if not check_config(config):
-        sys.exit()
+        quit()
 
     # 启动进程
     log.console("开始启动进程...")
@@ -68,20 +54,6 @@ if __name__ == "__main__":
 
     # 启动刷流服务
     BrushTask()
-
-    # 启动托盘
-    if is_windows_exe:
-        def tray_icon():
-            homepage_port = config.get_config('app').get('web_port')
-            log_path = os.environ.get("NASTOOL_LOG")
-            app = wx.App()
-            frame = myFrame(homepage_port, log_path)
-            frame.Hide()
-            app.MainLoop()
-
-
-        p1 = threading.Thread(target=tray_icon, daemon=True)
-        p1.start()
 
     # 启动主WEB服务
     FlaskApp().run_service()
