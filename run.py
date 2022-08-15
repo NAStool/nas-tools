@@ -1,5 +1,10 @@
-import os, sys
+import os
 import signal
+import sys
+import threading
+import warnings
+
+import wx
 
 import log
 from config import Config
@@ -11,18 +16,16 @@ from utils.functions import get_system, check_process
 from utils.types import OsType
 from version import APP_VERSION
 from web.app import FlaskApp
-import warnings
-#托盘相关库
-import wx
-from windows.trayicon import myFrame, Balloon
-import threading
+from windows.trayicon import myFrame
+
 warnings.filterwarnings('ignore')
 
-#初始化环境变量
+# 初始化环境变量
 is_windows_exe = getattr(sys, 'frozen', False) and (os.name == "nt")
 if is_windows_exe:
     os.environ["NASTOOL_CONFIG"] = os.path.join(os.path.dirname(sys.executable), "config", "config.yaml")
     os.environ["NASTOOL_LOG"] = os.path.join(os.path.dirname(sys.executable), "config", "logs")
+
 
 def sigal_handler(num, stack):
     if get_system() == OsType.LINUX and check_process("supervisord"):
@@ -72,10 +75,13 @@ if __name__ == "__main__":
             homepage_port = config.get_config('app').get('web_port')
             log_path = os.environ.get("NASTOOL_LOG")
             app = wx.App()
-            frame = myFrame(homepage_port,log_path)
+            frame = myFrame(homepage_port, log_path)
             frame.Hide()
             app.MainLoop()
+
+
         p1 = threading.Thread(target=tray_icon, daemon=True)
         p1.start()
+
     # 启动主WEB服务
     FlaskApp().run_service()

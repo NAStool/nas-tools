@@ -1,4 +1,4 @@
-name: Build Image
+name: Build Nas-tools Image
 on:
   workflow_dispatch:
   push:
@@ -6,7 +6,6 @@ on:
       - master
     paths:
       - version.py
-      - .github/workflows/build-image.yml
 
 jobs:
   build:

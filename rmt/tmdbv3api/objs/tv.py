@@ -27,7 +27,8 @@ class TV(TMDb):
         "translations": "/tv/%s/translations",
         "season_details": "/tv/%s/season/%s",
         "alternative_titles": "/tv/%s/alternative_titles",
-        "credits": "/tv/%s/credits"
+        "credits": "/tv/%s/credits",
+        "discover": "/discover/tv"
     }
 
     def details(
@@ -213,3 +214,11 @@ class TV(TMDb):
         :return:
         """
         return AsObj(**self._call(self._urls["credits"] % tv_id, ""))
+
+    def discover(self, page):
+        """
+        Tv discover.
+        :param page:
+        :return:
+        """
+        return AsObj(**self._call(self._urls["discover"], "page=" + str(page)))

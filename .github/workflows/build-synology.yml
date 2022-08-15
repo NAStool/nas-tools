@@ -1,11 +1,10 @@
-name: Nas-tools Build Synology SPK
+name: Build Nas-tools Synology Spk
 
 on:
   push:
     branches: [ master ]
     paths:
       - version.py
-      - .github/workflows/build-synology.yml
 
 jobs:
   build:

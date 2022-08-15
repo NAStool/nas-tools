@@ -154,13 +154,12 @@ class FileTransfer:
         rmt_mode = config.get_config('pt').get('rmt_mode')
         self.__pt_rmt_mode = sync_mode_dict.get(rmt_mode, RmtMode.COPY) if rmt_mode else RmtMode.COPY
 
-    def __transfer_command(self, file_item, target_file, rmt_mode, target_dir):
+    def __transfer_command(self, file_item, target_file, rmt_mode):
         """
         使用系统命令处理单个文件
         :param file_item: 文件路径
         :param target_file: 目标文件路径
         :param rmt_mode: RmtMode转移方式
-        :param target_dir: 目的目录
         """
         try:
             lock.acquire()
@@ -172,14 +171,12 @@ class FileTransfer:
                 elif rmt_mode == RmtMode.MOVE:
                     retcode = os.system('move /Y "%s" "%s"' % (file_item, target_file))
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
-                    dest_dir = os.path.basename(os.path.normpath(target_dir))
-                    target_file = os.path.normpath(target_file).replace(os.path.normpath(target_dir), "")
-                    if not target_file.startswith("\\"):
-                        target_file = "\\" + target_file
+                    if target_file.startswith("/") or target_file.startswith("\\"):
+                        target_file = target_file[1:]
                     if rmt_mode == RmtMode.RCLONE:
-                        retcode = os.system('rclone.exe moveto "%s" NASTOOL:"%s%s"' % (file_item, dest_dir, target_file))
+                        retcode = os.system('rclone.exe moveto "%s" NASTOOL:"%s"' % (file_item, target_file))
                     else:
-                        retcode = os.system('rclone.exe copyto "%s" NASTOOL:"%s%s"' % (file_item, dest_dir, target_file))
+                        retcode = os.system('rclone.exe copyto "%s" NASTOOL:"%s"' % (file_item, target_file))
                 else:
                     retcode = os.system('copy /Y "%s" "%s"' % (file_item, target_file))
             else:
@@ -194,27 +191,24 @@ class FileTransfer:
                 elif rmt_mode == RmtMode.MOVE:
                     retcode = call(['mv', file_item, target_file])
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
-                    dest_dir = os.path.basename(os.path.normpath(target_dir))
-                    target_file = os.path.normpath(target_file).replace(os.path.normpath(target_dir), "")
-                    if not target_file.startswith("/"):
-                        target_file = "/" + target_file
+                    if target_file.startswith("/") or target_file.startswith("\\"):
+                        target_file = target_file[1:]
                     if rmt_mode == RmtMode.RCLONE:
-                        retcode = os.system('rclone moveto "%s" NASTOOL:"%s%s"' % (file_item, dest_dir, target_file))
+                        retcode = os.system('rclone moveto "%s" NASTOOL:"%s"' % (file_item, target_file))
                     else:
-                        retcode = os.system('rclone copyto "%s" NASTOOL:"%s%s"' % (file_item, dest_dir, target_file))
+                        retcode = os.system('rclone copyto "%s" NASTOOL:"%s"' % (file_item, target_file))
                 else:
                     retcode = call(['cp', file_item, target_file])
         finally:
             lock.release()
         return retcode
 
-    def __transfer_subtitles(self, org_name, new_name, rmt_mode, target_dir):
+    def __transfer_subtitles(self, org_name, new_name, rmt_mode):
         """
         根据文件名转移对应字幕文件
         :param org_name: 原文件名
         :param new_name: 新文件名
         :param rmt_mode: RmtMode转移方式
-        :param target_dir: 目的目录
         """
         dir_name = os.path.dirname(org_name)
         file_name = os.path.basename(org_name)
@@ -245,8 +239,7 @@ class FileTransfer:
                         log.debug("【RMT】正在处理字幕：%s" % file_name)
                         retcode = self.__transfer_command(file_item=file_item,
                                                           target_file=new_file,
-                                                          rmt_mode=rmt_mode,
-                                                          target_dir=target_dir)
+                                                          rmt_mode=rmt_mode)
                         if retcode == 0:
                             log.info("【RMT】字幕 %s %s完成" % (file_name, rmt_mode.value))
                         else:
@@ -317,8 +310,7 @@ class FileTransfer:
                 os.makedirs(new_dir)
             retcode = self.__transfer_command(file_item=file,
                                               target_file=new_file,
-                                              rmt_mode=rmt_mode,
-                                              target_dir=target_dir)
+                                              rmt_mode=rmt_mode)
             if retcode != 0:
                 break
             else:
@@ -360,8 +352,7 @@ class FileTransfer:
                 return 0
             retcode = self.__transfer_command(file_item=file_item,
                                               target_file=target_file,
-                                              rmt_mode=rmt_mode,
-                                              target_dir=target_dir)
+                                              rmt_mode=rmt_mode)
             if retcode == 0:
                 insert_transfer_blacklist(file_item)
         if retcode == 0:
@@ -370,13 +361,12 @@ class FileTransfer:
             log.error("【RMT】%s %s到unknown失败，错误码 %s" % (file_item, rmt_mode.value, retcode))
         return retcode
 
-    def __transfer_file(self, file_item, new_file, rmt_mode, target_dir, over_flag=False):
+    def __transfer_file(self, file_item, new_file, rmt_mode, over_flag=False):
         """
         转移一个文件，同时处理字幕
         :param file_item: 原文件路径
         :param new_file: 新文件路径
         :param rmt_mode: RmtMode转移方式
-        :param target_dir: 目的目录
         :param over_flag: 是否覆盖，为True时会先删除再转移
         """
         file_name = os.path.basename(file_item)
@@ -390,8 +380,7 @@ class FileTransfer:
         log.info("【RMT】正在转移文件：%s 到 %s" % (file_name, new_file_name))
         retcode = self.__transfer_command(file_item=file_item,
                                           target_file=new_file,
-                                          rmt_mode=rmt_mode,
-                                          target_dir=target_dir)
+                                          rmt_mode=rmt_mode)
         if retcode == 0:
             log.info("【RMT】文件 %s %s完成" % (file_name, rmt_mode.value))
             insert_transfer_blacklist(file_item)
@@ -401,8 +390,7 @@ class FileTransfer:
         # 处理字幕
         return self.__transfer_subtitles(org_name=file_item,
                                          new_name=new_file,
-                                         rmt_mode=rmt_mode,
-                                         target_dir=target_dir)
+                                         rmt_mode=rmt_mode)
 
     def transfer_media(self,
                        in_from: Enum,
@@ -597,7 +585,6 @@ class FileTransfer:
                                 ret = self.__transfer_file(file_item=file_item,
                                                            new_file=ret_file_path,
                                                            rmt_mode=rmt_mode,
-                                                           target_dir=dist_path,
                                                            over_flag=True)
                                 if ret != 0:
                                     success_flag = False
@@ -663,7 +650,6 @@ class FileTransfer:
                         ret = self.__transfer_file(file_item=file_item,
                                                    new_file=new_file,
                                                    rmt_mode=rmt_mode,
-                                                   target_dir=dist_path,
                                                    over_flag=False)
                         if ret != 0:
                             success_flag = False
@@ -1040,8 +1026,7 @@ class FileTransfer:
             os.makedirs(new_dir)
         return self.__transfer_command(file_item=in_file,
                                        target_file=new_file,
-                                       rmt_mode=rmt_mode,
-                                       target_dir=target_dir)
+                                       rmt_mode=rmt_mode)
 
     @staticmethod
     def get_format_dict(media: MetaBase):
