@@ -12,6 +12,7 @@ RUN apk add --no-cache \
        zip \
        curl \
        bash \
+       fuse \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone \
     && ln -sf /usr/bin/python3 /usr/bin/python \
