@@ -1812,6 +1812,7 @@ class WebAction:
         获取下载目录列表
         """
         dl_dirs = []
+        # 设置的下载器的目录
         client_type = Config().get_config("pt").get("pt_client")
         save_path = Config().get_config(client_type).get("save_path")
         if save_path:
@@ -1822,4 +1823,6 @@ class WebAction:
                     if not path:
                         continue
                     dl_dirs.append(os.path.normpath(path.split("|")[0]))
-        return [x.replace("\\", "/") for x in list(set(Sync().get_sync_dirs()).union(set(dl_dirs)))]
+        # 下载器自己设置的目录
+        client_dirs = Downloader().get_download_dirs()
+        return [x.replace("\\", "/") for x in list(set(client_dirs).union(set(dl_dirs)))]

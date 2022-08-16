@@ -184,6 +184,13 @@ class IDownloadClient(metaclass=ABCMeta):
         """
         pass
 
+    @abstractmethod
+    def get_download_dirs(self):
+        """
+        获取下载目录清单
+        """
+        pass
+
     def get_replace_path(self, true_path):
         """
         对目录路径进行转换

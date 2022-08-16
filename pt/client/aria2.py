@@ -109,3 +109,6 @@ class Aria2(IDownloadClient):
         if not self._client:
             return False
         return self._client.remove(gid=ids)
+
+    def get_download_dirs(self):
+        return []

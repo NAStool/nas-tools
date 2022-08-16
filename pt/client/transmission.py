@@ -206,3 +206,8 @@ class Transmission(IDownloadClient):
             return False
         self.trc.set_files(file_items)
         return True
+
+    def get_download_dirs(self):
+        if not self.trc:
+            return []
+        return [self.trc.get_session(timeout=5).download_dir]

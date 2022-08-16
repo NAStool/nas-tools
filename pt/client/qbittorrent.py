@@ -205,3 +205,13 @@ class Qbittorrent(IDownloadClient):
 
     def set_torrent_tag(self, **kwargs):
         pass
+
+    def get_download_dirs(self):
+        if not self.qbc:
+            return []
+        ret_dirs = []
+        categories = self.qbc.torrents_categories() or {}
+        for category in categories.values():
+            if category and category.get("savePath") and category.get("savePath") not in ret_dirs:
+                ret_dirs.append(category.get("savePath"))
+        return ret_dirs

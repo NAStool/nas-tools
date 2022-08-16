@@ -609,3 +609,11 @@ class Downloader:
                 can_download_list.append(media_name)
                 can_download_list_item.append(t_item)
         return can_download_list_item
+
+    def get_download_dirs(self):
+        """
+        返回下载器中设置的保存目录
+        """
+        if not self.client:
+            return []
+        return self.client.get_download_dirs()

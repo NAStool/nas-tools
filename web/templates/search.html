@@ -413,8 +413,9 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
         <div class="d-flex">
-          <button type="button" class="btn btn-danger" id="search_download_btn" title="自动选择目录下载"
-                  style="border-top-right-radius:0px;border-bottom-right-radius:0px;">立即下载</button>
+          {% if SaveDirs %}
+          <button type="button" class="btn btn-danger" onclick="javascript:download_link()" title="自动选择目录下载"
+                  style="border-top-right-radius:0px;border-bottom-right-radius:0px;">自动下载</button>
           <button data-bs-toggle="dropdown" type="button"
               class="btn btn-danger dropdown-toggle dropdown-toggle-split" title="手动选择下载目录"
             style="border-top-left-radius:0px;border-bottom-left-radius:0px;"></button>
@@ -425,6 +426,9 @@
             </a>
             {% endfor %}
           </div>
+          {% else %}
+           <button type="button" class="btn btn-danger" onclick="javascript:download_link()" title="自动选择目录下载">确认下载</button>
+          {% endif %}
         </div>
       </div>
     </div>
@@ -449,9 +453,6 @@
     $("#search_download_id").val(id);
     $("#search_download_name").val(name);
     $("#search_download_message").text("是否立即下载 " + name + "？");
-    $("#search_download_btn").unbind('click').click(function () {
-      download_link();
-    });
     $("#modal-search-download").modal('show');
   }
 

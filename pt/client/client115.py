@@ -117,3 +117,6 @@ class Client115(IDownloadClient):
 
     def set_torrents_status(self, ids):
         return self.delete_torrents(ids=ids, delete_file=False)
+
+    def get_download_dirs(self):
+        return []
