@@ -237,7 +237,7 @@
 <script type="text/javascript">
   // 打开新增规则表窗口
   function show_add_filtergroup_modal(){
-    $("#filterrule_id").val("");
+    $("#rulegroup_name").val('');
     $("#modal-add-filtergroup").modal('show');
   }
 
@@ -245,6 +245,13 @@
   function show_add_filterrule_modal(groupid, groupname){
     $("#modal-filterrule-title").text("新增规则：" + groupname);
     $("#filtergroup_id").val(groupid);
+    $("#filterrule_id").val('');
+    $("#rule_name").val('');
+    $("#rule_pri").val('1');
+    $("#rule_include").val('');
+    $("#rule_exclude").val('');
+    $("#rule_sizelimit").val('');
+    $("#rule_free").val('');
     $("#filterrule_close_btn").text("取消");
     $("#add_or_edit_filterrule_btn").text("新增");
     $("#filterrule_close_btn").unbind('click');
