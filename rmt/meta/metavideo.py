@@ -87,9 +87,9 @@ class MetaVideo(MetaBase):
             token = tokens.get_next()
             self._continue_flag = True
         # 解析副标题，只要季和集
-        self.init_subtitle(title)
-        if not self._subtitle_flag and subtitle:
-            self.init_subtitle(subtitle)
+        self.init_subtitle(self.org_string)
+        if not self._subtitle_flag and self.subtitle:
+            self.init_subtitle(self.subtitle)
         # 没有识别出类型时默认为电影
         if not self.type:
             self.type = MediaType.MOVIE

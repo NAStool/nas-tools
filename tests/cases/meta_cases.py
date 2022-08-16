@@ -1,4 +1,20 @@
 meta_cases = [{
+    "title": "[GM-Team][国漫][斗破苍穹 第5季][Fights Break Sphere V][2022][05][HEVC][GB][4K]",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Fights Break Sphere V",
+        "year": "2022",
+        "part": "",
+        "season": "S05",
+        "episode": "E05",
+        "restype": "",
+        "pix": "",
+        "video_codec": "HEVC",
+        "audio_codec": ""
+    }
+}, {
     "title": "Ousama Ranking S01E02-[1080p][BDRIP][x265.FLAC].mkv",
     "subtitle": "",
     "target": {

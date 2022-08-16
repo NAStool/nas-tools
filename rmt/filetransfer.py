@@ -370,14 +370,13 @@ class FileTransfer:
         :param over_flag: 是否覆盖，为True时会先删除再转移
         """
         file_name = os.path.basename(file_item)
-        new_file_name = os.path.basename(new_file)
         if not over_flag and os.path.exists(new_file):
-            log.warn("【RMT】文件已存在：%s" % new_file_name)
+            log.warn("【RMT】文件已存在：%s" % new_file)
             return 0
         if over_flag and os.path.isfile(new_file):
-            log.info("【RMT】正在删除已存在的文件：%s" % new_file_name)
+            log.info("【RMT】正在删除已存在的文件：%s" % new_file)
             os.remove(new_file)
-        log.info("【RMT】正在转移文件：%s 到 %s" % (file_name, new_file_name))
+        log.info("【RMT】正在转移文件：%s 到 %s" % (file_name, new_file))
         retcode = self.__transfer_command(file_item=file_item,
                                           target_file=new_file,
                                           rmt_mode=rmt_mode)

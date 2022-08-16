@@ -197,21 +197,21 @@ def check_config(config):
     # 检查PT配置
     if config.get_config('pt'):
         pt_client = config.get_config('pt').get('pt_client')
-        log.info("PT下载软件设置为：%s" % pt_client)
+        log.info("下载软件设置为：%s" % pt_client)
                             
         rmt_mode = config.get_config('pt').get('rmt_mode', 'copy')
         if rmt_mode == "link":
-            log.info("PT下载文件转移模式为：硬链接")
+            log.info("下载文件转移模式为：硬链接")
         elif rmt_mode == "softlink":
-            log.info("PT下载文件转移模式为：软链接")
+            log.info("下载文件转移模式为：软链接")
         elif rmt_mode == "move":
-            log.info("PT下载文件转移模式为：移动")
+            log.info("下载文件转移模式为：移动")
         elif rmt_mode == "rclone":
-            log.info("PT下载文件转移模式为：rclone移动")
+            log.info("下载文件转移模式为：rclone移动")
         elif rmt_mode == "rclonecopy":
-            log.info("PT下载文件转移模式为：rclone复制")
+            log.info("下载文件转移模式为：rclone复制")
         else:
-            log.info("PT下载文件转移模式为：复制")
+            log.info("下载文件转移模式为：复制")
 
         search_indexer = config.get_config('pt').get('search_indexer')
         if search_indexer:

@@ -278,16 +278,16 @@ class BrushTask(object):
                         date_done = torrent.date_done if torrent.date_done else torrent.date_added
                         dltime = (datetime.now().astimezone() - torrent.date_added).seconds
                         seeding_time = (datetime.now().astimezone() - date_done).seconds
+                        # 下载量
+                        downloaded = int(torrent.total_size * torrent.progress / 100)
+                        total_downloaded += downloaded
                         # 分享率
                         ratio = torrent.ratio or 0
                         # 上传量
-                        uploaded = int(torrent.total_size * torrent.ratio)
+                        uploaded = int(downloaded * torrent.ratio)
                         total_uploaded += uploaded
                         # 平均上传速度
                         avg_upspeed = int(uploaded / dltime)
-                        # 下载量
-                        downloaded = int(torrent.total_size * torrent.progress)
-                        total_downloaded += downloaded
                         if self.__check_remove_rule(remove_rule=remove_rule,
                                                     seeding_time=seeding_time,
                                                     ratio=ratio,
@@ -305,14 +305,14 @@ class BrushTask(object):
                         torrent_id = torrent.id
                         # 下载耗时
                         dltime = (datetime.now().astimezone() - torrent.date_added).seconds
+                        # 下载量
+                        downloaded = int(torrent.total_size * torrent.progress / 100)
+                        total_downloaded += downloaded
                         # 上传量
-                        uploaded = int(torrent.total_size * torrent.ratio)
+                        uploaded = int(downloaded * torrent.ratio)
                         total_uploaded += uploaded
                         # 平均上传速度
                         avg_upspeed = int(uploaded / dltime)
-                        # 下载量
-                        downloaded = int(torrent.total_size * torrent.progress)
-                        total_downloaded += downloaded
                         if self.__check_remove_rule(remove_rule=remove_rule,
                                                     dltime=dltime,
                                                     avg_upspeed=avg_upspeed):

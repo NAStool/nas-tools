@@ -126,9 +126,9 @@ class MetaAnime(MetaBase):
                 if isinstance(self.audio_encode, list):
                     self.audio_encode = self.audio_encode[0]
                 # 解析副标题，只要季和集
-                self.init_subtitle(title)
-                if not self._subtitle_flag and subtitle:
-                    self.init_subtitle(subtitle)
+                self.init_subtitle(self.org_string)
+                if not self._subtitle_flag and self.subtitle:
+                    self.init_subtitle(self.subtitle)
             if not self.type:
                 self.type = MediaType.TV
         except Exception as e:
@@ -142,8 +142,8 @@ class MetaAnime(MetaBase):
         if not title:
             return title
         title = title.replace("【", "[").replace("】", "]").strip()
-        if re.search(r"新番|月?番|[国日]漫", title):
-            title = re.sub(".*番.|.*[国日]漫.", "", title)
+        if re.search(r"新番|月?番|[日美国]漫", title):
+            title = re.sub(".*番.|.*[日美国]漫.", "", title)
         else:
             title = re.sub(r"^[^]】]*[]】]", "", title).strip()
         title = re.sub(r"\[TV\s+(\d{1,4})", r"[\1", title, flags=re.IGNORECASE)
