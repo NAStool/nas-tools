@@ -1,0 +1,63 @@
+name: Nas-tools Build Windows EXE
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+    paths:
+      - version.py
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+
+    - name: 初始化 Python 3.10.6
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10.6'
+
+    - name: 安装依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        pip install numpy
+        pip install -U wheel
+        pip install railroad
+        pip install wxpython
+        git clone https://github.com/Shurelol/nas-tools
+        cd nas-tools
+        pip install -r requirements.txt
+
+    - name: pyinstaller打包
+      run:
+        cd nas-tools &&
+        copy .\windows\rely\upx.exe c:\hostedtoolcache\windows\python\3.10.6\x64\Scripts &&
+        copy .\windows\rely\hook-cn2an.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks &&
+        copy .\windows\rely\hook-zhconv.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks &&
+        xcopy D:\a\nas-tools\nas-tools\nas-tools\web c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\web\ /e &&
+        cd windows &&
+        pyinstaller nas-tools.spec &&
+        cd dist/
+
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: 1.9.21
+        release_name: 1.9.21
+        body: ${{ github.event.commits[0].message }}
+        draft: false
+        prerelease: false
+
+    - name: Upload release asset
+      id: upload-release-asset
+      uses: dwenegar/upload-release-assets@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        release_id: ${{ steps.create_release.outputs.id }}
+        assets_path: D:/a/nas-tools/nas-tools/nas-tools/windows/dist/nas-tools.exe
