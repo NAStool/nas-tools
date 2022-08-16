@@ -568,7 +568,7 @@ class Media:
             return None
         # 识别
         meta_info = MetaInfo(title, subtitle=subtitle)
-        if not meta_info.get_name():
+        if not meta_info.get_name() or not meta_info.type:
             return None
         if mtype:
             meta_info.type = mtype
