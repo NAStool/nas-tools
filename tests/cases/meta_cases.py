@@ -131,7 +131,7 @@ meta_cases = [{
     "subtitle": "",
     "target": {
         "type": "电视剧",
-        "cn_name": "處刑少女的生存之道",
+        "cn_name": "处刑少女的生存之道",
         "en_name": "",
         "year": "",
         "part": "",

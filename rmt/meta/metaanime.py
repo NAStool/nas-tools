@@ -1,6 +1,8 @@
 import re
 
 import anitopy
+import zhconv
+
 import log
 from pt.torrent import Torrent
 from rmt.meta.metabase import MetaBase
@@ -54,6 +56,7 @@ class MetaAnime(MetaBase):
                             lastword_type = "en"
                 if self.cn_name:
                     _, self.cn_name, _, _, _, _ = Torrent.get_keyword_from_string(self.cn_name)
+                    self.cn_name = zhconv.convert(self.cn_name, "zh-hans")
                 if self.en_name:
                     self.en_name = self.en_name.strip()
                 # 年份
