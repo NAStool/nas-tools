@@ -13,6 +13,7 @@ RUN apk add --no-cache \
        curl \
        bash \
        fuse \
+    && apk add py3-wxpython --repository https://dl-cdn.alpinelinux.org/alpine/edge/testing/ \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone \
     && ln -sf /usr/bin/python3 /usr/bin/python \
