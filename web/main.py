@@ -946,17 +946,6 @@ def create_flask_app(config):
         scheduler_cfg_list.append(
             {'name': '过滤规则测试', 'time': '', 'state': 'OFF', 'id': 'ruletest', 'svg': svg, 'color': 'yellow'})
 
-        # 实时日志
-        svg = '''
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-terminal" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-           <path d="M5 7l5 5l-5 5"></path>
-           <line x1="12" y1="19" x2="19" y2="19"></line>
-        </svg>
-        '''
-        scheduler_cfg_list.append(
-            {'name': '实时日志', 'time': '', 'state': 'OFF', 'id': 'logging', 'svg': svg, 'color': 'indigo'})
-
         return render_template("service.html",
                                Count=len(scheduler_cfg_list),
                                SchedulerTasks=scheduler_cfg_list)
