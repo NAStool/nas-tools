@@ -45,8 +45,6 @@ def add_rss_subscribe(mtype, name, year,
     if not match:
         # 精确匹配
         media = Media()
-        if doubanid:
-            name = name.replace(" ", "")
         # 根据TMDBID查询，从推荐加订阅的情况
         if season:
             title = "%s %s 第%s季".strip() % (name, year, season)
