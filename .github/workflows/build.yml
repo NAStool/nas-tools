@@ -62,7 +62,7 @@ jobs:
         echo "app_version=$value" >> $GITHUB_ENV
     - name: Build the synology spk
       run: |
-        git clone https://github.com/Shurelol/nas-tools
+        git clone https://github.com/jxxghp/nas-tools
         cd nas-tools
         cp -r synology/ui synology/wheelhouse ./
         sed -i 's/3000/3003/g' config/config.yaml
@@ -116,7 +116,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install pyinstaller
-        git clone https://github.com/Shurelol/nas-tools
+        git clone https://github.com/jxxghp/nas-tools
         cd nas-tools
         pip install -r requirements.txt
     - name: package through pyinstaller
@@ -128,8 +128,7 @@ jobs:
         copy .\web c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages &&
         cd windows &&
         pyinstaller nas-tools.spec &&
-        cd dist &&
-        dir /
+        cd dist /
     - name: Upload release asset
       id: upload-release-asset
       uses: dwenegar/upload-release-assets@v1
