@@ -1,0 +1,176 @@
+id: lemonhd
+name: 柠檬
+domain: https://lemonhd.org/
+encoding: UTF-8
+
+login:
+  test:
+    selector: a[href="logout.php"]
+
+category_mappings:
+  - { id: 401, cate_level1: Movie, cate_level2: Movies, cate_level2_desc: "电影 Movie" }
+  - { id: 402, cate_level1: TV, cate_level2: TV, cate_level2_desc: "TV Series(电视剧)" }
+  - { id: 403, cate_level1: TV, cate_level2: TV, cate_level2_desc: "TV Shows(综艺)" }
+  - { id: 404, cate_level1: Documentary, cate_level2: TV/Documentary, cate_level2_desc: "Documentaries(纪录片)" }
+  - { id: 405, cate_level1: Anime, cate_level2: TV/Anime, cate_level2_desc: "Animations(动画片)" }
+  - { id: 406, cate_level1: Music, cate_level2: Audio/Video, cate_level2_desc: "Music Videos(MV)" }
+  - { id: 408, cate_level1: Music, cate_level2: Audio, cate_level2_desc: "HQ Audio(音乐)" }
+  - { id: 500, cate_level1: Music, cate_level2: Audio, cate_level2_desc: "Music(无损)" }
+  - { id: 409, cate_level1: Other, cate_level2: Other, cate_level2_desc: "Video Portray(写真视频)" }
+userinfo:
+  path: https://lemonhd.org/rules.php
+  item:
+    selector: table[id="info_block"] > tr > td > table > tr > td > table
+  fields:
+    uid:
+      default_value: 0
+      selector: a[href^="userdetails.php?id="]
+      attribute: href
+      filters:
+        - name: re_search
+          args: [ '\d+', 0 ]
+    user_group:
+      default_value: ''
+      selector: a[href^="userdetails.php?id="]
+      attribute: class
+    username:
+      default_value: '未知用户名'
+      selector: a[href^="userdetails.php?id="]
+    share_ratio:
+      default_value: ''
+      selectors: td
+      index: 4
+      filters:
+        - name: replace
+          args: [ '无限','inf' ]
+    uploaded:
+      default_value: 0
+      selectors: td
+      index: 6
+      filters:
+        - name: replace
+          args: [ '无限','inf' ]
+    downloaded:
+      default_value: 0
+      selectors: td
+      index: 22
+      filters:
+        - name: replace
+          args: [ '无限','inf' ]
+    seeding:
+      default_value: 0
+      selectors: td
+      index: 8
+    leeching:
+      default_value: 0
+      electors: td
+      index: 24
+    vip_group:
+      case:
+        a[class^="VIP"]: true
+        "*": false
+search:
+  paths:
+    - path: torrents.php
+      categories: [ "!", 406, 408, 500 ]
+      method: get
+    - path: torrents_music.php
+      categories: [ 408, 500 ]
+      method: get
+    - path: torrents_mv.php
+      categories: [ 406 ]
+      method: get
+  query:
+    $raw: "{% for c in query.cates %}cat_{{c}}=1&{% endfor %}"
+    search: "{% if query.imdb_id %}{{query.imdb_id}}{%else%}{{query.keyword}}{% endif %}"
+    # 2 搜免费 全部则留空
+    spstate: "{% if query.free %}2{% endif %}"
+    # imdb 搜imdbid name 标题、副标题
+    search_area: "{% if query.imdb_id %}imdb{% else %}name{%endif%}"
+    suggest: 0
+    stype: s
+    column: "{{ query.sort }}"
+    sort: "{{ query.type }}"
+    page: "{{ query.page }}"
+
+torrents:
+  list:
+    selector: table.torrents > tr:has("a[href]")
+  fields:
+    id:
+      selector: a[href^="details_"]
+      attribute: href
+      filters:
+        - name: re_search
+          args: [ '\d+', 0 ]
+    free_deadline:
+      selector: 'div[style^="padding-left"] > span[title]'
+      attribute: title
+      filters:
+        - name: dateparse
+          args: "%Y-%m-%d %H:%M:%S"
+    category:
+      selector: img[class^="cat_"]
+      attribute: class
+      filters:
+        - name: replace
+          args: [ "cat_","" ]
+    title_default:
+      selector: a[href^="details_"] > b
+    title_optional:
+      optional: true
+      selector: a[title][href^="details_"]
+      attribute: title
+    title:
+      text: "{% if fields['title_optional'] %}{{ fields['title_optional'] }}{% else %}{{ fields['title_default'] }}{% endif %}"
+    details:
+      selector: a[href^="details_"]
+      attribute: href
+    download:
+      selector: a[href^="download.php?"]
+      attribute: href
+    imdbid:
+      selector: a[href*="imdb.com/title/tt"]
+      attribute: href
+      filters:
+        - name: re_search
+          args: [ 'tt\d+',0 ]
+    date_elapsed:
+      # time type: time elapsed (default)
+      selector: td:nth-last-child(7) > span[title]
+      attribute: title
+      optional: true
+    date_added:
+      # time added
+      selector: td:nth-last-child(7):not(:has(span[title])):not(:has(a))
+      optional: true
+    date:
+      text: "{% if fields['date_elapsed'] or fields['date_added'] %}{{ fields['date_elapsed'] if fields['date_elapsed'] else fields['date_added'] }}{% else %}now{% endif %}"
+      filters:
+        - name: dateparse
+          args: "%Y-%m-%d %H:%M:%S"
+    size:
+      selector: td:nth-last-child(6)
+    seeders:
+      selector: td:nth-last-child(5)
+    leechers:
+      selector: td:nth-last-child(4)
+    grabs:
+      selector: td:nth-last-child(3)
+    downloadvolumefactor:
+      case:
+        'div[style^="padding-left"] > span[title]': 0
+#        img.pro_free2up: 0
+#        img.pro_50pctdown: 0.5
+#        img.pro_50pctdown2up: 0.5
+#        img.pro_30pctdown: 0.3
+        "*": 1
+    uploadvolumefactor:
+      case:
+#        img.pro_50pctdown2up: 2
+        #        img.pro_free2up: 2
+        #        img.pro_2up: 2
+        "*": 1
+    description:
+      selectors: td:nth-child(3) > div
+      index: 1
