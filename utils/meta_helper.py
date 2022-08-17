@@ -195,3 +195,23 @@ class MetaHelper(object):
             if count >= 5:
                 ret |= self._random_sample(new_meta_data)
         return ret
+
+    def get_cache_title(self, key):
+        """
+        获取缓存的标题
+        """
+        cache_media_info = self.__meta_data.get(key)
+        if not cache_media_info or not cache_media_info.get("id"):
+            return None
+        return cache_media_info.get("title") if cache_media_info.get(
+            "media_type") == MediaType.MOVIE else cache_media_info.get("name")
+
+    def set_cache_title(self, key, cn_title):
+        """
+        重新设置缓存标题
+        """
+        cache_media_info = self.__meta_data.get(key)
+        if cache_media_info.get("media_type") == MediaType.MOVIE:
+            self.__meta_data[key]['title'] = cn_title
+        else:
+            self.__meta_data[key]['name'] = cn_title

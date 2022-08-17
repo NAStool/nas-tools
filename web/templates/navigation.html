@@ -947,7 +947,11 @@
           //弹窗
           $("#system-media-modal").modal("show");
         } else if (ret.code == 1) {
-          window.open(ret.link_url);
+          if (ret.rssid) {
+            show_edit_rss_media_modal(ret.rssid);
+          } else {
+            window.open(ret.link_url);
+          }
         }
       });
     }

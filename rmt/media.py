@@ -622,22 +622,19 @@ class Media:
                     else:
                         file_media_info = self.__search_multi_tmdb(file_media_name=cache_name)
             if file_media_info:
-                # 查找中文名
-                org_title = file_media_info.get("title") if file_media_info.get(
-                    "media_type") == MediaType.MOVIE else file_media_info.get("name")
-                if chinese and not is_chinese(org_title) and self.tmdb.language == 'zh-CN':
-                    cn_title = self.__get_tmdb_chinese_title(mtype=file_media_info.get("media_type"),
-                                                             tmdbid=file_media_info.get("id"))
-                    if cn_title and cn_title != org_title:
-                        if file_media_info.get("media_type") == MediaType.MOVIE:
-                            file_media_info['title'] = cn_title
-                        else:
-                            file_media_info['name'] = cn_title
                 # 加入缓存
                 self.meta.update_meta_data({media_key: file_media_info})
             else:
                 # 标记为未找到，避免再次查询
                 self.meta.update_meta_data({media_key: {'id': 0}})
+        # 查找中文名
+        cache_title = self.meta.get_cache_title(key=media_key)
+        if cache_title and chinese and not is_chinese(cache_title) and self.tmdb.language == 'zh-CN':
+            with self.meta.get_meta_data_by_key(media_key) as cache_media_info:
+                cn_title = self.__get_tmdb_chinese_title(mtype=cache_media_info.get("media_type"),
+                                                         tmdbid=cache_media_info.get("id"))
+                if cn_title and cn_title != cache_title:
+                    self.meta.set_cache_title(key=media_key, cn_title=cn_title)
         # 赋值返回
         meta_info.set_tmdb_info(self.meta.get_meta_data_by_key(media_key))
         return meta_info
@@ -737,22 +734,19 @@ class Media:
                                 else:
                                     file_media_info = self.__search_multi_tmdb(file_media_name=cache_name)
                         if file_media_info:
-                            # 查找中文名
-                            org_title = file_media_info.get("title") if file_media_info.get(
-                                "media_type") == MediaType.MOVIE else file_media_info.get("name")
-                            if chinese and not is_chinese(org_title) and self.tmdb.language == 'zh-CN':
-                                cn_title = self.__get_tmdb_chinese_title(mtype=file_media_info.get("media_type"),
-                                                                         tmdbid=file_media_info.get("id"))
-                                if cn_title and cn_title != org_title:
-                                    if file_media_info.get("media_type") == MediaType.MOVIE:
-                                        file_media_info['title'] = cn_title
-                                    else:
-                                        file_media_info['name'] = cn_title
                             # 加入缓存
                             self.meta.update_meta_data({media_key: file_media_info})
                         else:
                             # 标记为未找到避免再次查询
                             self.meta.update_meta_data({media_key: {'id': 0}})
+                    # 查找中文名
+                    cache_title = self.meta.get_cache_title(key=media_key)
+                    if cache_title and chinese and not is_chinese(cache_title) and self.tmdb.language == 'zh-CN':
+                        with self.meta.get_meta_data_by_key(media_key) as cache_media_info:
+                            cn_title = self.__get_tmdb_chinese_title(mtype=cache_media_info.get("media_type"),
+                                                                     tmdbid=cache_media_info.get("id"))
+                            if cn_title and cn_title != cache_title:
+                                self.meta.set_cache_title(key=media_key, cn_title=cn_title)
                     # 存入结果清单返回
                     meta_info.set_tmdb_info(self.meta.get_meta_data_by_key(media_key))
                 # 自带TMDB信息
