@@ -115,6 +115,11 @@ jobs:
     - name: install dependent packages
       run: |
         python -m pip install --upgrade pip
+        pip install wheel
+        pip install numpy
+        pip install railroad
+        pip install pyparsing
+        pip install wxpython
         pip install pyinstaller
         git clone https://github.com/jxxghp/nas-tools
         cd nas-tools
@@ -123,12 +128,12 @@ jobs:
       run:
         cd nas-tools &&
         copy .\windows\rely\upx.exe c:\hostedtoolcache\windows\python\3.10.6\x64\Scripts &&
-        copy .\windows\rely\hook-cn2an.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\PyInstaller\hooks &&
-        copy .\windows\rely\hook-zhconv.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\PyInstaller\hooks &&
-        copy .\web c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages &&
+        copy .\windows\rely\hook-cn2an.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks &&
+        copy .\windows\rely\hook-zhconv.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks &&
+        copy .\windows\rely\template.jinja2 c:\hostedtoolcache\windows\Python\3.10.6\x64\lib\site-packages\setuptools\_vendor\pyparsing\diagram &&
+        xcopy .\web c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\web\ /e &&
         cd windows &&
-        pyinstaller nas-tools.spec &&
-        cd dist /
+        pyinstaller nas-tools.spec /
     - name: Upload release asset
       id: upload-release-asset
       uses: dwenegar/upload-release-assets@v1
