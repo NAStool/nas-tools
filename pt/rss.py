@@ -145,7 +145,7 @@ class Rss:
                             log.info("【RSS】%s 已成功订阅过" % torrent_name)
                             continue
                         # 识别种子名称，开始检索TMDB
-                        media_info = self.media.get_media_info(title=torrent_name, subtitle=description, chinese=False)
+                        media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
                         if not media_info or not media_info.tmdb_info:
                             log.debug("【RSS】%s 未识别到媒体信息" % torrent_name)
                             continue

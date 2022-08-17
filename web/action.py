@@ -943,7 +943,7 @@ class WebAction:
                 link_url = "https://movie.douban.com/subject/%s" % doubanid
                 douban_info = DoubanApi().movie_detail(doubanid)
                 if not douban_info or douban_info.get("localized_message"):
-                    return {"code": 1, "retmsg": "无法查询到豆瓣信息", "link_url": link_url}
+                    return {"code": 1, "retmsg": "无法查询到豆瓣信息", "link_url": link_url, "rssid": rssid}
                 overview = douban_info.get("intro")
                 poster_path = douban_info.get("cover_url")
                 title = douban_info.get("title")
@@ -954,7 +954,7 @@ class WebAction:
                 link_url = "https://www.themoviedb.org/movie/%s" % tmdbid
                 tmdb_info = Media().get_tmdb_info(media_type, title, year, tmdbid)
                 if not tmdb_info:
-                    return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url}
+                    return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url, "rssid": rssid}
                 overview = tmdb_info.get("overview")
                 poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path') if tmdb_info.get(
                     'poster_path') else ""
@@ -991,7 +991,7 @@ class WebAction:
                 link_url = "https://movie.douban.com/subject/%s" % doubanid
                 douban_info = DoubanApi().tv_detail(doubanid)
                 if not douban_info or douban_info.get("localized_message"):
-                    return {"code": 1, "retmsg": "无法查询到豆瓣信息", "link_url": link_url}
+                    return {"code": 1, "retmsg": "无法查询到豆瓣信息", "link_url": link_url, "rssid": rssid}
                 overview = douban_info.get("intro")
                 poster_path = douban_info.get("cover_url")
                 title = douban_info.get("title")
@@ -1002,7 +1002,7 @@ class WebAction:
                 link_url = "https://www.themoviedb.org/tv/%s" % tmdbid
                 tmdb_info = Media().get_tmdb_info(media_type, title, year, tmdbid)
                 if not tmdb_info:
-                    return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url}
+                    return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url, "rssid": rssid}
                 overview = tmdb_info.get("overview")
                 poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path') if tmdb_info.get(
                     'poster_path') else ""
