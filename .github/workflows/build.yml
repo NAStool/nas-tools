@@ -1,0 +1,157 @@
+name: Nas-tools Build
+on:
+  workflow_dispatch:
+  push:
+    branches: master
+    paths:
+      - version.py
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Release version
+      id: release_version
+      run: |
+        app_version=$(cat version.py |sed -ne "s/APP_VERSION\s=\s'v\(.*\)'/\1/gp")
+        echo "app_version=$app_version" >> $GITHUB_ENV
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ env.app_version }}
+        release_name: v${{ env.app_version }}
+        body: ${{ github.event.commits[0].message }}
+        draft: false
+        prerelease: false
+    - name: output release_id
+      run: echo "${{ steps.create_release.outputs.id }}" > release_id.txt
+    - name: save release_id
+      uses: actions/upload-artifact@v3
+      with:
+        name: release_id
+        path: release_id.txt
+    - name: output app_version
+      run: echo "${{ env.app_version }}" > app_version.txt
+    - name: save app_version
+      uses: actions/upload-artifact@v3
+      with:
+        name: app_version
+        path: app_version.txt
+
+  synology-build:
+    runs-on: ubuntu-latest
+    needs: create-release
+    steps:
+    - name: download release_id and app_version
+      uses: actions/download-artifact@v3
+    - name: get release_id
+      id: get_release_id
+      shell: bash
+      run: |
+        value=`cat release_id/release_id.txt`
+        echo "release_id=$value" >> $GITHUB_ENV
+    - name: get app_version
+      id: get_app_version
+      shell: bash
+      run: |
+        value=`cat app_version/app_version.txt`
+        echo "app_version=$value" >> $GITHUB_ENV
+    - name: Build the synology spk
+      run: |
+        git clone https://github.com/jxxghp/nas-tools
+        cd nas-tools
+        cp -r synology/ui synology/wheelhouse ./
+        sed -i 's/3000/3003/g' config/config.yaml
+        sed -i 's/\/config\/logs/\/var\/packages\/nastool\/target\/config\/logs/g' config/config.yaml
+        tar -zcvf package.tgz *.py *.txt service/ rmt/ message/ web/ ui/ wheelhouse/ config/ pt/ utils/
+        mkdir spk6
+        cp -r package.tgz synology/dsm6/conf synology/dsm6/scripts/ synology/dsm6/INFO synology/CHANGELOG synology/*.PNG synology/*.asc spk6/
+        cd spk6/
+        chmod 777 scripts/*
+        sed -i 's/NASTOOL_VERSION/${{ env.app_version }}/g' INFO
+        tar -cvf nastool_dsm_6.x.spk *
+        cd ..
+        rm -f package.tgz
+        tar -zcvf package.tgz *.py *.txt service/ rmt/ message/ web/ ui/ wheelhouse/ config/ pt/ utils/
+        mkdir spk7
+        cp -r package.tgz synology/dsm7/conf synology/dsm7/scripts/ synology/dsm7/INFO synology/CHANGELOG synology/*.PNG synology/*.asc spk7/
+        cd spk7/
+        chmod 777 scripts/*
+        sed -i 's/NASTOOL_VERSION/${{ env.app_version }}/g' INFO
+        tar -cvf nastool_dsm_7.x.spk *
+        cd ..
+        mkdir spks
+        mv spk6/nastool_dsm_6.x.spk spk7/nastool_dsm_7.x.spk spks/
+    - name: Upload release asset
+      id: upload-release-asset
+      uses: dwenegar/upload-release-assets@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        release_id: ${{ env.release_id }}
+        assets_path: /home/runner/work/nas-tools/nas-tools/nas-tools/spks/
+
+  windows-build:
+    runs-on: windows-latest
+    needs: create-release
+    steps:
+    - name: download release_id and app_version
+      uses: actions/download-artifact@v3
+    - name: get release_id
+      id: get_release_id
+      shell: bash
+      run: |
+        value=`cat release_id/release_id.txt`
+        echo "release_id=$value" >> $GITHUB_ENV
+        echo "${{ env.release_id }}"
+    - name: init Python 3.10.6
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10.6'
+    - name: install dependent packages
+      run: |
+        python -m pip install --upgrade pip
+        pip install wheel
+        pip install numpy
+        pip install railroad
+        pip install pyparsing
+        pip install wxpython
+        pip install pyinstaller
+        git clone https://github.com/jxxghp/nas-tools
+        cd nas-tools
+        pip install -r requirements.txt
+    - name: package through pyinstaller
+      run:
+        cd nas-tools &&
+        copy .\windows\rely\upx.exe c:\hostedtoolcache\windows\python\3.10.6\x64\Scripts &&
+        copy .\windows\rely\hook-cn2an.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks &&
+        copy .\windows\rely\hook-zhconv.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks &&
+        copy .\windows\rely\template.jinja2 c:\hostedtoolcache\windows\Python\3.10.6\x64\lib\site-packages\setuptools\_vendor\pyparsing\diagram &&
+        xcopy .\web c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\web\ /e &&
+        cd windows &&
+        pyinstaller nas-tools.spec /
+    - name: Upload release asset
+      id: upload-release-asset
+      uses: dwenegar/upload-release-assets@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        release_id: ${{ env.release_id }}
+        assets_path: D:/a/nas-tools/nas-tools/nas-tools/windows/dist/nas-tools.exe
+
+  Send-message:
+    runs-on: ubuntu-latest
+    needs: [synology-build,windows-build]
+    steps:
+    - name: Send telegram message
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: |
+          ${{ github.event.commits[0].message }}
+          Repository: ${{ github.repository }}
