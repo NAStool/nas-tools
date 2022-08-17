@@ -473,7 +473,10 @@ class Media:
             org_title = tmdb_info.get("title") if tmdb_info.get("media_type") == MediaType.MOVIE else tmdb_info.get(
                 "name")
             if not is_chinese(org_title) and self.tmdb.language == 'zh-CN':
-                cn_title = self.__get_tmdb_chinese_title(tmdbinfo=tmdb_info)
+                if tmdb_info.get("alternative_titles"):
+                    cn_title = self.__get_tmdb_chinese_title(tmdbinfo=tmdb_info)
+                else:
+                    cn_title = self.__get_tmdb_chinese_title(tmdbid=tmdb_info.get("id"), mtype=tmdb_info.get("media_type"))
                 if cn_title and cn_title != org_title:
                     if tmdb_info.get("media_type") == MediaType.MOVIE:
                         tmdb_info['title'] = cn_title
