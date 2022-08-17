@@ -597,14 +597,22 @@ class WebAction:
             dest_path = FileTransfer().get_dest_path_by_info(dest=dest_dir, meta_info=meta_info)
             if dest_path and dest_path.find(meta_info.title) != -1:
                 delete_transfer_log_by_id(logid)
-                if not meta_info.get_episode_string():
-                    # 电影或者没有集数的电视剧，删除整个目录
+                rm_parent_dir = False
+                if not meta_info.get_season_list():
+                    # 电影，删除整个目录
                     try:
                         shutil.rmtree(dest_path)
                     except Exception as e:
                         log.console(str(e))
+                elif not meta_info.get_episode_string():
+                    # 电视剧但没有集数，删除季目录
+                    try:
+                        shutil.rmtree(dest_path)
+                    except Exception as e:
+                        log.console(str(e))
+                    rm_parent_dir = True
                 else:
-                    # 有集数的电视剧
+                    # 有集数的电视剧，删除对应的集数文件
                     for dest_file in get_dir_files(dest_path):
                         file_meta_info = MetaInfo(os.path.basename(dest_file))
                         if file_meta_info.get_episode_list() and set(
@@ -613,6 +621,13 @@ class WebAction:
                                 os.remove(dest_file)
                             except Exception as e:
                                 log.console(str(e))
+                    rm_parent_dir = True
+                if rm_parent_dir and not get_dir_files(os.path.dirname(dest_path), exts=RMT_MEDIAEXT):
+                    # 没有媒体文件时，删除整个目录
+                    try:
+                        shutil.rmtree(os.path.dirname(dest_path))
+                    except Exception as e:
+                        log.console(str(e))
         return {"retcode": 0}
 
     @staticmethod
