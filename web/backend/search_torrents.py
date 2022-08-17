@@ -47,8 +47,11 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                     doubaninfo = DoubanApi().movie_detail(doubanid)
                 else:
                     doubaninfo = DoubanApi().tv_detail(doubanid)
+                if not doubaninfo:
+                    return -1, "%s 查询不到豆瓣信息，请确认网络是否正常！" % content
+                title = doubaninfo.get("title").replace(" ", "")
                 media_info = Media().get_media_info(mtype=media_type,
-                                                    title="%s %s" % (doubaninfo.get("title"), doubaninfo.get("year")),
+                                                    title="%s %s" % (title, doubaninfo.get("year")),
                                                     strict=True)
                 if media_info and episode_num:
                     media_info.begin_episode = int(episode_num)

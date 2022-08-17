@@ -45,6 +45,8 @@ def add_rss_subscribe(mtype, name, year,
     if not match:
         # 精确匹配
         media = Media()
+        if doubanid:
+            name = name.replace(" ", "")
         # 根据TMDBID查询，从推荐加订阅的情况
         if season:
             title = "%s %s 第%s季".strip() % (name, year, season)
@@ -71,7 +73,7 @@ def add_rss_subscribe(mtype, name, year,
                 if not douban_info or douban_info.get("localized_message"):
                     return 1, "无法查询到豆瓣媒体信息", None
                 media_info = MetaInfo(title="%s %s".strip() % (douban_info.get('title'), year), mtype=mtype)
-                media_info.title = media_info.get_name()
+                media_info.title = douban_info.get('title')
                 media_info.year = douban_info.get("year")
                 media_info.type = mtype
                 media_info.backdrop_path = douban_info.get("cover_url")

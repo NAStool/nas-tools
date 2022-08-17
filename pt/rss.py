@@ -512,6 +512,7 @@ class Rss:
             tmdb_info = Media().get_tmdb_info(mtype=mtype, title=name, year=year, tmdbid=tmdbid)
             media_info.set_tmdb_info(tmdb_info)
         else:
+            name = name.replace(" ", "")
             media_info = Media().get_media_info(title="%s %s" % (name, year), mtype=mtype, strict=True, cache=cache)
         return media_info
 

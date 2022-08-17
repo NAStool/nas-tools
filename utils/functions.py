@@ -503,16 +503,16 @@ def str_float(text):
     return float_val
 
 
-def handler_special_chars(text):
+def handler_special_chars(text, replace_word="", allow_space=False):
     """
-    处理特殊字符，转换为空格或者忽略
+    忽略特殊字符
     """
-    # 需要转换为空格的特殊字符
-    CONVERT_SPACES_CHARS = r"\.|-|/|:|：|&"
     # 需要忽略的特殊字符
-    CONVERT_EMPTY_CHARS = r"'|’|!|！|,|～|·"
+    CONVERT_EMPTY_CHARS = r"\.|\(|\)|\[|]|-|\+|【|】|/|～|;|&|\||#|_|「|」|（|）|'|’|!|！|,|～|·|:|："
     if not text:
         return ""
-    text = re.sub(r"[\u200B-\u200D\uFEFF]", "", text, flags=re.IGNORECASE)
-    return re.sub(r'\s+', ' ', re.sub(r"%s" % CONVERT_EMPTY_CHARS, '',
-                                      re.sub(r"%s" % CONVERT_SPACES_CHARS, ' ', text))).strip()
+    text = re.sub(r"[\u200B-\u200D\uFEFF]", "", re.sub(r"%s" % CONVERT_EMPTY_CHARS, replace_word, text), flags=re.IGNORECASE)
+    if not allow_space:
+        return re.sub(r"\s+", "", text)
+    else:
+        return re.sub(r"\s+", " ", text).strip()

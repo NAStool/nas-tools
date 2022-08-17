@@ -1629,7 +1629,7 @@ class WebAction:
                     year = date[0:4]
                 else:
                     year = ''
-                if title in MovieKeys:
+                if handler_special_chars(title) in [handler_special_chars(movie_key) for movie_key in MovieKeys]:
                     # 已订阅
                     fav = 1
                 elif is_media_downloaded(title, year):
@@ -1645,10 +1645,10 @@ class WebAction:
                     year = date[0:4]
                 else:
                     year = ''
-                if MetaInfo(title=title).get_name() in TvKeys:
+                if handler_special_chars(title) in [handler_special_chars(tv_key) for tv_key in TvKeys]:
                     # 已订阅
                     fav = 1
-                elif is_media_downloaded(MetaInfo(title=title).get_name(), year):
+                elif is_media_downloaded(title, year):
                     # 已下载
                     fav = 2
                 else:
