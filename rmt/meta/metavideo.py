@@ -12,6 +12,7 @@ class MetaVideo(MetaBase):
     """
     # 控制标位区
     _stop_name_flag = False
+    _stop_cnname_flag = False
     _last_token = ""
     _last_token_type = ""
     _continue_flag = True
@@ -134,9 +135,12 @@ class MetaVideo(MetaBase):
             return
         if is_chinese(token):
             # 含有中文，直接做为标题（连着的数字或者英文会保留），且不再取用后面出现的中文
-            if not self.cn_name and token:
+            self._last_token_type = "cnname"
+            if not self.cn_name:
                 self.cn_name = token
-                self._last_token_type = "cnname"
+            elif not self._stop_cnname_flag:
+                self.cn_name = "%s %s" % (self.cn_name, token)
+                self._stop_cnname_flag = True
         else:
             is_roman_digit = re.search(self._roman_numerals, token)
             # 阿拉伯数字或者罗马数字

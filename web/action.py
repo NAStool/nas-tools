@@ -1619,7 +1619,9 @@ class WebAction:
 
         Items = []
         TvKeys = ["%s" % key[0] for key in get_rss_tvs()]
+        TvMediaIds = ["%s" % key[3] for key in get_rss_tvs()]
         MovieKeys = ["%s" % key[0] for key in get_rss_movies()]
+        MovieMediaIds = ["%s" % key[2] for key in get_rss_movies()]
         for res in res_list:
             rid = res.get('id')
             if RecommendType in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm']:
@@ -1629,7 +1631,7 @@ class WebAction:
                     year = date[0:4]
                 else:
                     year = ''
-                if handler_special_chars(title) in [handler_special_chars(movie_key) for movie_key in MovieKeys]:
+                if MetaInfo(title).get_name() in MovieKeys or str(rid) in MovieMediaIds or "DB:%s" % rid in MovieMediaIds:
                     # 已订阅
                     fav = 1
                 elif is_media_downloaded(title, year):
@@ -1645,7 +1647,7 @@ class WebAction:
                     year = date[0:4]
                 else:
                     year = ''
-                if handler_special_chars(title) in [handler_special_chars(tv_key) for tv_key in TvKeys]:
+                if MetaInfo(title).get_name() in TvKeys or str(rid) in TvMediaIds or "DB:%s" % rid in TvMediaIds:
                     # 已订阅
                     fav = 1
                 elif is_media_downloaded(title, year):

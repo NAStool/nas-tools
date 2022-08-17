@@ -262,7 +262,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <button type="button" id="rename_btn" class="btn btn-primary">识别</button>
+        <button type="button" id="rename_btn" class="btn btn-primary">转移</button>
       </div>
     </div>
   </div>
@@ -360,7 +360,7 @@
     $("#rename_retmsg").hide();
     ajax_post("rename", data, function (ret) {
       $("#rename_btn").attr("disabled", false);
-      $("#rename_btn").text("识别");
+      $("#rename_btn").text("转移");
       if (ret.retcode == 0) {
         //处理成功
         setTimeout("navmenu('history')", 1000);
