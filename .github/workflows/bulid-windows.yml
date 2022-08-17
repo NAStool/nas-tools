@@ -12,7 +12,13 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
-
+    - uses: actions/checkout@v2
+    - name: Release version
+      id: release_version
+      run: |
+        app_version=$(cat version.py |sed -ne "s/APP_VERSION\s=\s'v\(.*\)'/\1/gp")
+        echo "app_version=$app_version" >> $GITHUB_ENV
+        
     - name: 初始化 Python 3.10.6
       uses: actions/setup-python@v4
       with:
@@ -47,8 +53,8 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: 1.9.21
-        release_name: 1.9.21
+        tag_name: v${{ env.app_version }}
+        release_name: v${{ env.app_version }}
         body: ${{ github.event.commits[0].message }}
         draft: false
         prerelease: false
