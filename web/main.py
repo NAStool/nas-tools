@@ -1089,10 +1089,14 @@ def create_flask_app(config):
     @login_required
     def directorysync():
         sync_paths = config.get_config("sync").get("sync_path")
+        rmt_mode = config.get_config("pt").get("rmt_mode")
+        syncmod_ls = ["link", "copy", "softlink", "move", "rclone", "rclonecopy"]
         SyncPaths = []
+        renew_sync_paths = {}
         if sync_paths:
             if isinstance(sync_paths, list):
                 for sync_path in sync_paths:
+                    old_sync_path = sync_path
                     SyncPath = {}
                     is_rename = True
                     is_enabled = True
@@ -1113,9 +1117,29 @@ def create_flask_app(config):
                         SyncPath['to'] = paths[1]
                     if len(paths) > 2:
                         SyncPath['unknown'] = paths[2]
+                    SyncPath['syncmod'] = paths[-1]
+                    #兼容旧配置
+                    if SyncPath['syncmod'] not in syncmod_ls:
+                        SyncPath['syncmod'] = rmt_mode
+                        if SyncPath['unknown']:
+                            new_sync_path = SyncPath['from'] + "|" + SyncPath['to'] + "|" + SyncPath['unknown'] + "|" + SyncPath['syncmod']
+                        elif SyncPath['to']:
+                            new_sync_path = SyncPath['from'] + "|" + SyncPath['to'] + "|" + SyncPath['syncmod']
+                        elif SyncPath['from']:
+                            new_sync_path = SyncPath['from'] + "|" + SyncPath['syncmod']
+                        if not is_rename:
+                            new_sync_path = "[" + new_sync_path + "]"
+                        if not is_enabled:
+                            new_sync_path = "#" + new_sync_path + "#"
+                        renew_sync_paths[old_sync_path]=new_sync_path
                     SyncPath['rename'] = is_rename
                     SyncPath['enabled'] = is_enabled
                     SyncPaths.append(SyncPath)
+                if renew_sync_paths:
+                    print(renew_sync_paths)
+                    for old_path in renew_sync_paths:
+                        cfg = WebAction().set_config_directory(config.get_config(), "set", "sync.sync_path", old_path, renew_sync_paths[old_path])
+                        WebAction().config.save_config(cfg)
             else:
                 SyncPaths = [{"from": sync_paths}]
         SyncPaths = sorted(SyncPaths, key=lambda o: o.get("from"))
