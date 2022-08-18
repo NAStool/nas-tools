@@ -10,7 +10,7 @@ from rmt.filetransfer import FileTransfer
 from utils.functions import singleton, is_invalid_path, is_path_in_path, is_bluray_dir, get_dir_level1_medias, \
     get_dir_files
 from utils.sqls import insert_sync_history, is_sync_in_history
-from utils.types import SyncType, OsType
+from utils.types import SyncType, OsType, RmtMode
 from watchdog.events import FileSystemEventHandler
 
 lock = threading.Lock()
@@ -72,7 +72,7 @@ class Sync(object):
                 if sync_monpath.startswith('#'):
                     enabled = False
                     sync_monpath = sync_monpath[1:-1]
-                elif sync_monpath.startswith('['):
+                if sync_monpath.startswith('['):
                     only_link = True
                     sync_monpath = sync_monpath[1:-1]
                 monpaths = sync_monpath.split('|')
@@ -92,12 +92,14 @@ class Sync(object):
                             unknown_path = None
                     else:
                         unknown_path = None
+                    sync_mod = monpaths[-1]
+                    sync_name = RmtMode[sync_mod.upper()].value
                     if target_path and unknown_path:
-                        log.info("【SYNC】读取到监控目录：%s，目的目录：%s，未识别目录：%s" % (monpath, target_path, unknown_path))
+                        log.info("【SYNC】读取到监控目录：%s，目的目录：%s，未识别目录：%s，移动方式：%s" % (monpath, target_path, unknown_path, sync_name))
                     elif target_path:
-                        log.info("【SYNC】读取到监控目录：%s，目的目录：%s" % (monpath, target_path))
+                        log.info("【SYNC】读取到监控目录：%s，目的目录：%s，移动方式：%s" % (monpath, target_path, sync_name))
                     else:
-                        log.info("【SYNC】读取到监控目录：%s" % monpath)
+                        log.info("【SYNC】读取到监控目录：%s，移动方式：%s" % monpath, sync_name)
                     if not enabled:
                         log.info("【SYNC】%s 不进行监控和同步：手动关闭" % monpath)
                         continue
@@ -112,14 +114,14 @@ class Sync(object):
                 else:
                     target_path = None
                     unknown_path = None
-                    log.info("【SYNC】读取到监控目录：%s" % monpath)
+                    log.info("【SYNC】读取到监控目录：%s，移动方式：%s" % monpath, sync_name)
                     if not enabled:
                         log.info("【SYNC】%s 不进行监控和同步：手动关闭" % monpath)
                         continue
                 # 登记关系
                 if os.path.exists(monpath):
                     self.sync_dir_config[monpath] = {'target': target_path, 'unknown': unknown_path,
-                                                     'onlylink': only_link}
+                                                     'onlylink': only_link, 'syncmod': sync_mod}
                 else:
                     log.error("【SYNC】%s 目录不存在！" % monpath)
 
@@ -194,6 +196,7 @@ class Sync(object):
                 target_path = target_dirs.get('target')
                 unknown_path = target_dirs.get('unknown')
                 onlylink = target_dirs.get('onlylink')
+                sync_mode= target_dirs.get('syncmod')
 
                 # 只做硬链接，不做识别重命名
                 if onlylink:
@@ -203,7 +206,8 @@ class Sync(object):
                     ret = self.filetransfer.link_sync_files(in_from=SyncType.MON,
                                                             src_path=monitor_dir,
                                                             in_file=event_path,
-                                                            target_dir=target_path)
+                                                            target_dir=target_path,
+                                                            sync_transfer_mode=sync_mode)
                     if ret != 0:
                         log.warn("【SYNC】%s 同步失败，错误码：%s" % (event_path, ret))
                     else:
@@ -224,7 +228,8 @@ class Sync(object):
                         ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
                                                                         in_path=event_path,
                                                                         target_dir=target_path,
-                                                                        unknown_dir=unknown_path)
+                                                                        unknown_dir=unknown_path,
+                                                                        sync_transfer_mode=sync_mode)
                         if not ret:
                             log.warn("【SYNC】%s 转移失败：%s" % (event_path, ret_msg))
                     else:
@@ -267,11 +272,13 @@ class Sync(object):
                         files = []
                     target_path = target_info.get('target')
                     unknown_path = target_info.get('unknown')
+                    sync_mode= target_dirs.get('syncmod')
                     ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
                                                                     in_path=src_path,
                                                                     files=files,
                                                                     target_dir=target_path,
-                                                                    unknown_dir=unknown_path)
+                                                                    unknown_dir=unknown_path,
+                                                                    sync_transfer_mode=sync_mode)
                     if not ret:
                         log.warn("【SYNC】%s转移失败：%s" % (path, ret_msg))
                 self.__need_sync_paths.pop(path)
@@ -319,6 +326,7 @@ class Sync(object):
             target_path = target_dirs.get('target')
             unknown_path = target_dirs.get('unknown')
             onlylink = target_dirs.get('onlylink')
+            sync_mode= target_dirs.get('syncmod')
             # 只做硬链接，不做识别重命名
             if onlylink:
                 for link_file in get_dir_files(monpath):
@@ -328,7 +336,8 @@ class Sync(object):
                     ret = self.filetransfer.link_sync_files(in_from=SyncType.MON,
                                                             src_path=monpath,
                                                             in_file=link_file,
-                                                            target_dir=target_path)
+                                                            target_dir=target_path,
+                                                            sync_transfer_mode=sync_mode)
                     if ret != 0:
                         log.warn("【SYNC】%s 同步失败，错误码：%s" % (link_file, ret))
                     else:
@@ -341,6 +350,7 @@ class Sync(object):
                     ret, ret_msg = self.filetransfer.transfer_media(in_from=SyncType.MON,
                                                                     in_path=path,
                                                                     target_dir=target_path,
-                                                                    unknown_dir=unknown_path)
+                                                                    unknown_dir=unknown_path,
+                                                                    sync_transfer_mode=sync_mode)
                     if not ret:
                         log.error("【SYNC】%s 处理失败：%s" % (monpath, ret_msg))

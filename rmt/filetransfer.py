@@ -397,6 +397,7 @@ class FileTransfer:
                        files: list = None,
                        target_dir=None,
                        unknown_dir=None,
+                       sync_transfer_mode=None,
                        tmdb_info=None,
                        media_type: MediaType = None,
                        season=None,
@@ -410,6 +411,7 @@ class FileTransfer:
         :param files: 文件清单，非空时以该文件清单为准，为空时从in_path中按后缀和大小限制检索需要处理的文件清单
         :param target_dir: 目的文件夹，非空的转移到该文件夹，为空时则按类型转移到配置文件中的媒体库文件夹
         :param unknown_dir: 未识别文件夹，非空时未识别的媒体文件转移到该文件夹，为空时则使用配置文件中的未识别文件夹
+        :param sync_transfer_mode: 文件转移方式，为空时则使用PT转移方式
         :param tmdb_info: 手动识别转移时传入的TMDB信息对象，如未输入，则按名称笔TMDB实时查询
         :param media_type: 手动识别转移时传入的文件类型，如未输入，则自动识别
         :param season: 手动识别目录或文件时传入的的字号，如未输入，则自动识别
@@ -426,9 +428,11 @@ class FileTransfer:
         if in_from in DownloaderType:
             rmt_mode = self.__pt_rmt_mode
         else:
-            rmt_mode = self.__sync_rmt_mode
-
-        log.info("【RMT】开始处理：%s" % in_path)
+            if sync_transfer_mode:
+                rmt_mode = RmtMode[sync_transfer_mode.upper()]
+            else:
+                rmt_mode = self.__pt_rmt_mode
+        log.info("【RMT】开始处理：%s，转移方式：%s" % (in_path, rmt_mode.value))
 
         success_flag = True
         error_message = ""

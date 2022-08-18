@@ -40,6 +40,7 @@
                 <tr>
                   <th>源目录</th>
                   <th>目的目录</th>
+                  <th class="w-5 text-nowrap">文件转移方式<span class="form-help bg-red-lt" title="硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用；RCLONE针对网盘场景，需要自行映射rclone配置目录到容器中（/root/.config/rclone）或在容器内使用rclone config完成rclone配置，网盘配置名称必须为：NASTOOL" data-bs-toggle="tooltip">?</span></th>
                   <th class="w-5 text-nowrap">识别重命名</th>
                   <th class="w-5 text-nowrap">开启同步</th>
                   <th class="w-3"></th>
@@ -59,19 +60,29 @@
                     {% endif %}
                   </td>
                   <td>
+                    <select  id='{{ SyncPath.from }}' class="form-select" style="width:auto" onchange="set_directory_config_syncmod('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.syncmod }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}')">
+                      <option value="link" {% if SyncPath.syncmod=='link' %}selected{% endif %}>硬链接</option>
+                      <option value="softlink" {% if SyncPath.syncmod=='softlink' %}selected{% endif %}>软链接</option>
+                      <option value="copy" {% if SyncPath.syncmod=='copy' %}selected{% endif %}>复制</option>
+                      <option value="move" {% if SyncPath.syncmod=='move' %}selected{% endif %}>移动</option>
+                      <option value="rclonecopy" {% if SyncPath.syncmod=='rclonecopy' %}selected{% endif %}>rclone复制</option>
+                      <option value="rclone" {% if SyncPath.syncmod=='rclone' %}selected{% endif %}>rclone移动</option>
+                    </select>
+                  </td>
+                  <td>
                     <label class="form-check form-switch">
                       <input class="form-check-input" type="checkbox" {% if SyncPath.rename %} checked {% endif %}
-                             onclick="set_directory_config_rename('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}', this.checked)">
+                             onclick="set_directory_config_rename('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.syncmod }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}', this.checked)">
                     </label>
                   </td>
                   <td>
                     <label class="form-check form-switch">
                       <input class="form-check-input" type="checkbox" {% if SyncPath.enabled %} checked {% endif %}
-                             onclick="set_directory_config_enabled('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}', this.checked)">
+                             onclick="set_directory_config_enabled('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.syncmod }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}', this.checked)">
                     </label>
                   </td>
                   <td>
-                    <a href="javascript:sub_directory_config('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}')" title="删除目录">
+                    <a href="javascript:sub_directory_config('{{ SyncPath.from }}','{{ SyncPath.to }}','{{ SyncPath.unknown }}','{{ SyncPath.syncmod }}','{{ SyncPath.rename }}','{{ SyncPath.enabled }}')" title="删除目录">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                          <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -115,13 +126,26 @@
               </div>
             </div>
             <div class="row mb-3">
-              <div class="col-6">
+              <div class="col-auto">
+                <select  id="syncmod_flag" class="form-select" style="width:auto">
+                  <option value="link" selected = "selected">硬链接</option>
+                  <option value="softlink">软链接</option>
+                  <option value="copy">复制</option>
+                  <option value="move">移动</option>
+                  <option value="rclonecopy">rclone复制</option>
+                  <option value="rclone">rclone移动</option>
+                </select>
+              </div>
+              <div class="col-sm-4">
+                  <label class="form-label required">文件转移方式 <span class="form-help bg-red-lt" title="硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用；RCLONE针对网盘场景，需要自行映射rclone配置目录到容器中（/root/.config/rclone）或在容器内使用rclone config完成rclone配置，网盘配置名称必须为：NASTOOL" data-bs-toggle="tooltip">?</span></label>
+              </div>
+              <div class="col-auto">
                 <label class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="rename_flag" checked>
                   <span class="form-check-label">识别并重命名</span>
                 </label>
               </div>
-              <div class="col-6">
+              <div class="col-auto">
                 <label class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="enable_flag" checked>
                   <span class="form-check-label">开启同步</span>
@@ -146,6 +170,10 @@
 
   // 新增目录
   function add_directory_config() {
+      var Sel = document.getElementById("syncmod_flag");
+      var index = Sel.selectedIndex;
+      var syncmod_val = Sel.options[index].value;
+
       if (!$("#from_path").val()) {
           $("#from_path").addClass("is-invalid");
           return;
@@ -153,11 +181,11 @@
           $("#from_path").removeClass("is-invalid");
       }
       if ($("#unknown_path").val()) {
-          value = $("#from_path").val() + "|" + $("#to_path").val() + "|" + $("#unknown_path").val();
+          value = $("#from_path").val() + "|" + $("#to_path").val() + "|" + $("#unknown_path").val() + "|" + syncmod_val;
       } else if ($("#to_path").val()) {
-          value = $("#from_path").val() + "|" + $("#to_path").val();
+          value = $("#from_path").val() + "|" + $("#to_path").val() + "|" + syncmod_val;
       } else {
-          value = $("#from_path").val();
+          value = $("#from_path").val() + "|" + syncmod_val;
       }
       if (!$("#rename_flag").prop("checked")) {
           if (!$("#to_path").val()) {
@@ -179,13 +207,13 @@
   }
 
   // 删除目录
-  function sub_directory_config(from, to, unknown, rename, enabled) {
+  function sub_directory_config(from, to, unknown, syncmod, rename, enabled) {
       if (unknown) {
-          value = from + "|" + to + "|" + unknown;
+          value = from + "|" + to + "|" + unknown + "|" + syncmod;
       } else if (to) {
-          value = from + "|" + to;
+          value = from + "|" + to + "|" + syncmod;
       } else {
-          value = from;
+          value = from + "|" + syncmod;
       }
       if (rename != "True") {
           value = "[" + value + "]";
@@ -201,13 +229,13 @@
   }
 
   // 更新目录是否开启重命名
-  function set_directory_config_rename(from, to, unknown, rename, enabled, new_rename) {
+  function set_directory_config_rename(from, to, unknown, syncmod, rename, enabled, new_rename) {
       if (unknown) {
-          value = from + "|" + to + "|" + unknown;
+          value = from + "|" + to + "|" + unknown + "|" + syncmod;
       } else if (to) {
-          value = from + "|" + to;
+          value = from + "|" + to + "|" + syncmod;
       } else {
-          value = from;
+          value = from + "|" + syncmod;
       }
       let replace_value = value
 
@@ -230,13 +258,13 @@
   }
 
   // 更新目录是否开启监控
-  function set_directory_config_enabled(from, to, unknown, rename, enabled, new_enabled) {
+  function set_directory_config_enabled(from, to, unknown, syncmod, rename, enabled, new_enabled) {
       if (unknown) {
-          value = from + "|" + to + "|" + unknown;
+          value = from + "|" + to + "|" + unknown + "|" + syncmod;
       } else if (to) {
-          value = from + "|" + to;
+          value = from + "|" + to + "|" + syncmod;
       } else {
-          value = from;
+          value = from + "|" + syncmod;
       }
 
       if (rename != "True") {
@@ -249,6 +277,38 @@
       }
 
       if (new_enabled !== true) {
+          replace_value = "#" + replace_value + "#";
+      }
+
+      var params = {"oper": "set", "key": "sync.sync_path", "value": value, "replace_value": replace_value};
+      ajax_post("update_directory", params, function (ret) {
+          navmenu('directorysync');
+      });
+  }
+
+  // 更新文件转移方式
+  function set_directory_config_syncmod(from, to, unknown, syncmod, rename, enabled) {
+      var Sel = document.getElementById(from);
+      var index = Sel.selectedIndex;
+      var new_syncmod = Sel.options[index].value;
+
+      if (unknown) {
+          value = from + "|" + to + "|" + unknown + "|" + syncmod;
+          replace_value = from + "|" + to + "|" + unknown + "|" + new_syncmod;
+      } else if (to) {
+          value = from + "|" + to + "|" + syncmod;
+          replace_value = from + "|" + to + "|" + new_syncmod;
+      } else {
+          value = from + "|" + syncmod;
+          replace_value = from + "|" + new_syncmod;
+      }
+
+      if (rename != "True") {
+          value = "[" + value + "]";
+      }
+
+      if (enabled != "True") {
+          value = "#" + value + "#";
           replace_value = "#" + replace_value + "#";
       }
 
