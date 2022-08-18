@@ -1089,57 +1089,44 @@ def create_flask_app(config):
     @login_required
     def directorysync():
         sync_paths = config.get_config("sync").get("sync_path")
-        rmt_mode = config.get_config("pt").get("rmt_mode")
-        syncmod_ls = ["link", "copy", "softlink", "move", "rclone", "rclonecopy"]
+        rmt_mode = config.get_config("sync").get("sync_mod")
         SyncPaths = []
-        renew_sync_paths = {}
         if sync_paths:
             if isinstance(sync_paths, list):
-                for sync_path in sync_paths:
-                    old_sync_path = sync_path
-                    SyncPath = {}
-                    is_rename = True
-                    is_enabled = True
-                    if sync_path.startswith("#"):
-                        is_enabled = False
-                        sync_path = sync_path[1:-1]
-                    if sync_path.startswith("["):
-                        is_rename = False
-                        sync_path = sync_path[1:-1]
-                    paths = sync_path.split("|")
+                for sync_items in sync_paths:
+                    SyncPath = {'enabled': True, 'rename': True}
+                    # 是否启用
+                    if sync_items.startswith("#"):
+                        SyncPath['enabled'] = False
+                        sync_items = sync_items[1:-1]
+                    # 是否重命名
+                    if sync_items.startswith("["):
+                        SyncPath['rename'] = False
+                        sync_items = sync_items[1:-1]
+                    # 转移方式
+                    config_items = sync_items.split("@")
+                    if not config_items:
+                        continue
+                    if len(config_items) > 1:
+                        SyncPath['syncmod'] = config_items[-1]
+                    else:
+                        SyncPath['syncmod'] = rmt_mode
+                    SyncPath['syncmod_name'] = RmtMode[SyncPath['syncmod'].upper()].value
+                    if not SyncPath['syncmod']:
+                        continue
+                    # 源目录|目的目录|未知目录
+                    paths = config_items[0].split("|")
                     if not paths:
                         continue
                     if len(paths) > 0:
                         if not paths[0]:
                             continue
-                        SyncPath['from'] = paths[0]
+                        SyncPath['from'] = paths[0].replace("\\", "/")
                     if len(paths) > 1:
-                        SyncPath['to'] = paths[1]
+                        SyncPath['to'] = paths[1].replace("\\", "/")
                     if len(paths) > 2:
-                        SyncPath['unknown'] = paths[2]
-                    SyncPath['syncmod'] = paths[-1]
-                    #兼容旧配置
-                    if SyncPath['syncmod'] not in syncmod_ls:
-                        SyncPath['syncmod'] = rmt_mode
-                        if SyncPath['unknown']:
-                            new_sync_path = SyncPath['from'] + "|" + SyncPath['to'] + "|" + SyncPath['unknown'] + "|" + SyncPath['syncmod']
-                        elif SyncPath['to']:
-                            new_sync_path = SyncPath['from'] + "|" + SyncPath['to'] + "|" + SyncPath['syncmod']
-                        elif SyncPath['from']:
-                            new_sync_path = SyncPath['from'] + "|" + SyncPath['syncmod']
-                        if not is_rename:
-                            new_sync_path = "[" + new_sync_path + "]"
-                        if not is_enabled:
-                            new_sync_path = "#" + new_sync_path + "#"
-                        renew_sync_paths[old_sync_path]=new_sync_path
-                    SyncPath['rename'] = is_rename
-                    SyncPath['enabled'] = is_enabled
+                        SyncPath['unknown'] = paths[2].replace("\\", "/")
                     SyncPaths.append(SyncPath)
-                if renew_sync_paths:
-                    print(renew_sync_paths)
-                    for old_path in renew_sync_paths:
-                        cfg = WebAction().set_config_directory(config.get_config(), "set", "sync.sync_path", old_path, renew_sync_paths[old_path])
-                        WebAction().config.save_config(cfg)
             else:
                 SyncPaths = [{"from": sync_paths}]
         SyncPaths = sorted(SyncPaths, key=lambda o: o.get("from"))
@@ -1387,11 +1374,11 @@ def create_flask_app(config):
             for f in os.listdir(d):
                 ff = os.path.join(d, f)
                 if os.path.isdir(ff):
-                    r.append('<li class="directory collapsed"><a rel="%s/">%s</a></li>' % (ff, f))
+                    r.append('<li class="directory collapsed"><a rel="%s/">%s</a></li>' % (ff.replace("\\", "/"), f.replace("\\", "/")))
                 else:
                     if ft != "HIDE_FILES_FILTER":
                         e = os.path.splitext(f)[1][1:]
-                        r.append('<li class="file ext_%s"><a rel="%s">%s</a></li>' % (e, ff, f))
+                        r.append('<li class="file ext_%s"><a rel="%s">%s</a></li>' % (e, ff.replace("\\", "/"), f.replace("\\", "/")))
             r.append('</ul>')
         except Exception as e:
             r.append('加载路径失败: %s' % str(e))

@@ -192,11 +192,6 @@ class WebAction:
             else:
                 cfg['app']['proxies'] = {"https": None, "http": None}
             return cfg
-        # 文件转移模式
-        if cfg_key == "app.rmt_mode":
-            cfg['sync']['sync_mod'] = cfg_value
-            cfg['pt']['rmt_mode'] = cfg_value
-            return cfg
         # 豆瓣用户列表
         if cfg_key == "douban.users":
             vals = cfg_value.split(",")
@@ -233,6 +228,15 @@ class WebAction:
         """
         更新目录数据
         """
+        def remove_sync_path(obj, key):
+            if not isinstance(obj, list):
+                return []
+            ret_obj = []
+            for item in obj:
+                if item.split("@")[0].replace("\\", "/") != key.split("@")[0].replace("\\", "/"):
+                    ret_obj.append(item)
+            return ret_obj
+
         # 最大支持二层赋值
         keys = cfg_key.split(".")
         if keys:
@@ -259,18 +263,18 @@ class WebAction:
                     if not isinstance(cfg[keys[0]][keys[1]], list):
                         cfg[keys[0]][keys[1]] = [cfg[keys[0]][keys[1]]]
                     if oper == "add":
-                        cfg[keys[0]][keys[1]].append(cfg_value)
+                        cfg[keys[0]][keys[1]].append(cfg_value.replace("\\", "/"))
                     elif oper == "sub":
-                        cfg[keys[0]][keys[1]].remove(cfg_value)
+                        cfg[keys[0]][keys[1]] = remove_sync_path(cfg[keys[0]][keys[1]], cfg_value)
                         if not cfg[keys[0]][keys[1]]:
                             cfg[keys[0]][keys[1]] = None
                     elif oper == "set":
-                        cfg[keys[0]][keys[1]].remove(cfg_value)
+                        cfg[keys[0]][keys[1]] = remove_sync_path(cfg[keys[0]][keys[1]], cfg_value)
                         if update_value:
-                            cfg[keys[0]][keys[1]].append(update_value)
+                            cfg[keys[0]][keys[1]].append(update_value.replace("\\", "/"))
                 else:
                     cfg[keys[0]] = {}
-                    cfg[keys[0]][keys[1]] = cfg_value
+                    cfg[keys[0]][keys[1]] = cfg_value.replace("\\", "/")
         return cfg
 
     @staticmethod
@@ -835,8 +839,11 @@ class WebAction:
         """
         维护媒体库目录
         """
-        cfg = self.set_config_directory(self.config.get_config(), data.get("oper"), data.get("key"),
-                                        data.get("value"), data.get("replace_value"))
+        cfg = self.set_config_directory(self.config.get_config(),
+                                        data.get("oper"),
+                                        data.get("key"),
+                                        data.get("value"),
+                                        data.get("replace_value"))
         # 保存配置
         self.config.save_config(cfg)
         if data.get("key") == "sync.sync_path":

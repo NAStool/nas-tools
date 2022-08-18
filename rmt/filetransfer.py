@@ -42,7 +42,6 @@ class FileTransfer:
 
     __system = OsType.LINUX
     __pt_rmt_mode = None
-    __sync_rmt_mode = None
     __movie_path = None
     __tv_path = None
     __anime_path = None
@@ -59,6 +58,16 @@ class FileTransfer:
     __tv_file_rmt_format = ""
     __nfo_poster = False
     __refresh_mediaserver = False
+
+    # 转移模式
+    __sync_mode_dict = {
+        "copy": RmtMode.COPY,
+        "link": RmtMode.LINK,
+        "softlink": RmtMode.SOFTLINK,
+        "move": RmtMode.MOVE,
+        "rclone": RmtMode.RCLONE,
+        "rclonecopy": RmtMode.RCLONECOPY
+    }
 
     def __init__(self):
         self.media = Media()
@@ -140,19 +149,8 @@ class FileTransfer:
                     self.__tv_season_rmt_format = tv_formats[1]
                 if len(tv_formats) > 2:
                     self.__tv_file_rmt_format = tv_formats[2]
-        # 转移模式
-        sync_mode_dict = {
-            "copy": RmtMode.COPY,
-            "link": RmtMode.LINK,
-            "softlink": RmtMode.SOFTLINK,
-            "move": RmtMode.MOVE,
-            "rclone": RmtMode.RCLONE,
-            "rclonecopy": RmtMode.RCLONECOPY
-        }
-        sync_mod = config.get_config('sync').get('sync_mod')
-        self.__sync_rmt_mode = sync_mode_dict.get(sync_mod, RmtMode.COPY) if sync_mod else RmtMode.COPY
         rmt_mode = config.get_config('pt').get('rmt_mode')
-        self.__pt_rmt_mode = sync_mode_dict.get(rmt_mode, RmtMode.COPY) if rmt_mode else RmtMode.COPY
+        self.__pt_rmt_mode = self.__sync_mode_dict.get(rmt_mode, RmtMode.COPY) if rmt_mode else RmtMode.COPY
 
     def __transfer_command(self, file_item, target_file, rmt_mode):
         """
@@ -429,7 +427,7 @@ class FileTransfer:
             rmt_mode = self.__pt_rmt_mode
         else:
             if sync_transfer_mode:
-                rmt_mode = RmtMode[sync_transfer_mode.upper()]
+                rmt_mode = sync_transfer_mode
             else:
                 rmt_mode = self.__pt_rmt_mode
         log.info("【RMT】开始处理：%s，转移方式：%s" % (in_path, rmt_mode.value))
@@ -731,11 +729,12 @@ class FileTransfer:
                 shutil.rmtree(in_path)
         return success_flag, error_message
 
-    def transfer_manually(self, s_path, t_path):
+    def transfer_manually(self, s_path, t_path, mode):
         """
         全量转移，用于使用命令调用
         :param s_path: 源目录
         :param t_path: 目的目录
+        :param mode: 转移方式
         """
         if not s_path:
             return
@@ -746,12 +745,19 @@ class FileTransfer:
             if not os.path.exists(t_path):
                 print("【RMT】目的目录不存在：%s" % t_path)
                 return
+        rmt_mode = self.__sync_mode_dict.get(mode)
+        if not rmt_mode:
+            print("【RMT】转移模式错误！")
+            return
+        print("【RMT】转移模式为：%s" % rmt_mode.value)
         print("【RMT】正在转移以下目录中的全量文件：%s" % s_path)
-        print("【RMT】转移模式为：%s" % self.__sync_rmt_mode.value)
         for path in get_dir_level1_medias(s_path, RMT_MEDIAEXT):
             if is_invalid_path(path):
                 continue
-            ret, ret_msg = self.transfer_media(in_from=SyncType.MAN, in_path=path, target_dir=t_path)
+            ret, ret_msg = self.transfer_media(in_from=SyncType.MAN,
+                                               in_path=path,
+                                               target_dir=t_path,
+                                               sync_transfer_mode=rmt_mode)
             if not ret:
                 print("【RMT】%s 处理失败：%s" % (path, ret_msg))
 
@@ -1010,26 +1016,22 @@ class FileTransfer:
                 return unknown_path
         return self.__unknown_path[0]
 
-    def link_sync_files(self, in_from, src_path, in_file, target_dir):
+    def link_sync_files(self, src_path, in_file, target_dir, sync_transfer_mode):
         """
         对文件做纯链接处理，不做识别重命名，则监控模块调用
-        :param in_from: 来源渠道
+        :param : 来源渠道
         :param src_path: 源目录
         :param in_file: 源文件
         :param target_dir: 目的目录
+        :param sync_transfer_mode: 明确的转移方式
         """
-        # 转移模式
-        if in_from in DownloaderType:
-            rmt_mode = self.__pt_rmt_mode
-        else:
-            rmt_mode = self.__sync_rmt_mode
         new_file = in_file.replace(src_path, target_dir)
         new_dir = os.path.dirname(new_file)
         if not os.path.exists(new_dir):
             os.makedirs(new_dir)
         return self.__transfer_command(file_item=in_file,
                                        target_file=new_file,
-                                       rmt_mode=rmt_mode)
+                                       rmt_mode=sync_transfer_mode)
 
     @staticmethod
     def get_format_dict(media: MetaBase):
@@ -1081,7 +1083,8 @@ if __name__ == "__main__":
     """
     手工转移时，使用命名行调用
     """
-    parser = argparse.ArgumentParser(description='Rename Media Tool')
+    parser = argparse.ArgumentParser(description='文件转移工具')
+    parser.add_argument('-m', '--mode', dest='mode', required=True, help='转移模式：link copy softlink move rclone rclonecopy')
     parser.add_argument('-s', '--source', dest='s_path', required=True, help='硬链接源目录路径')
     parser.add_argument('-d', '--target', dest='t_path', required=False, help='硬链接目的目录路径')
     args = parser.parse_args()
@@ -1092,6 +1095,6 @@ if __name__ == "__main__":
             print("【RMT】目的目录路径：%s" % args.t_path)
         else:
             print("【RMT】目的目录为配置文件中的电影、电视剧媒体库目录")
-        FileTransfer().transfer_manually(args.s_path, args.t_path)
+        FileTransfer().transfer_manually(args.s_path, args.t_path, args.mode)
     else:
         print("【RMT】未设置环境变量，请先设置 NASTOOL_CONFIG 环境变量为配置文件地址")

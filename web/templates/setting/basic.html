@@ -134,23 +134,23 @@
               </div>
               <div class="col-xl-4">
                 <div class="mb-3">
-                  <label class="form-label required">文件转移方式 <span class="form-help bg-red-lt" title="硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用；RCLONE针对网盘场景，需要自行映射rclone配置目录到容器中（/root/.config/rclone）或在容器内使用rclone config完成rclone配置，网盘配置名称必须为：NASTOOL" data-bs-toggle="tooltip">?</span></label>
-                  <select class="form-select" id="app.rmt_mode">
-                    <option value="link" {% if Config.sync.sync_mod=='link' %}selected{% endif %}>硬链接</option>
-                    <option value="softlink" {% if Config.sync.sync_mod=='softlink' %}selected{% endif %}>软链接</option>
-                    <option value="copy" {% if Config.sync.sync_mod=='copy' %}selected{% endif %}>复制</option>
-                    <option value="move" {% if Config.sync.sync_mod=='move' %}selected{% endif %}>移动</option>
-                    <option value="rclonecopy" {% if Config.sync.sync_mod=='rclonecopy' %}selected{% endif %}>rclone复制</option>
-                    <option value="rclone" {% if Config.sync.sync_mod=='rclone' %}selected{% endif %}>rclone移动</option>
-                  </select>
+                  <label class="form-label">二级分类策略 <span class="form-help bg-red-lt" title="电影/电视剧/动漫是否需要二级分类，启用二级分类后会在电影/电视剧/动漫目录下按二级分类名建立子目录；此处配置分类的策略名，配置文件目录中需要有与策略名同名的.yaml配置文件，默认策略default-category分类设置可参考default-category.yaml；如不需要启动分类，则该项配置为空" data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.media.category or '' }}" class="form-control" id="media.category" placeholder="default-category" autocomplete="off">
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="col-xl-4">
                 <div class="mb-3">
-                  <label class="form-label">二级分类策略 <span class="form-help bg-red-lt" title="电影/电视剧/动漫是否需要二级分类，启用二级分类后会在电影/电视剧/动漫目录下按二级分类名建立子目录；此处配置分类的策略名，配置文件目录中需要有与策略名同名的.yaml配置文件，默认策略default-category分类设置可参考default-category.yaml；如不需要启动分类，则该项配置为空" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.media.category or '' }}" class="form-control" id="media.category" placeholder="default-category" autocomplete="off">
+                  <label class="form-label required">下载器文件转移方式 <span class="form-help bg-red-lt" title="开启监控下载软件时使用的转移方式；硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用；RCLONE针对网盘场景，需要自行映射rclone配置目录到容器中（/root/.config/rclone）或在容器内使用rclone config完成rclone配置，网盘配置名称必须为：NASTOOL" data-bs-toggle="tooltip">?</span></label>
+                  <select class="form-select" id="pt.rmt_mode">
+                    <option value="link" {% if Config.pt.rmt_mode=='link' %}selected{% endif %}>硬链接</option>
+                    <option value="softlink" {% if Config.pt.rmt_mode=='softlink' %}selected{% endif %}>软链接</option>
+                    <option value="copy" {% if Config.pt.rmt_mode=='copy' %}selected{% endif %}>复制</option>
+                    <option value="move" {% if Config.pt.rmt_mode=='move' %}selected{% endif %}>移动</option>
+                    <option value="rclonecopy" {% if Config.pt.rmt_mode=='rclonecopy' %}selected{% endif %}>Rclone复制</option>
+                    <option value="rclone" {% if Config.pt.rmt_mode=='rclone' %}selected{% endif %}>Rclone移动</option>
+                  </select>
                 </div>
               </div>
               <div class="col-xl-4">
