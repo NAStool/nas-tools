@@ -1,5 +1,6 @@
 import importlib
 import os.path
+import shutil
 import signal
 from urllib import parse
 
@@ -109,7 +110,8 @@ class WebAction:
             "clear_tmdb_cache": self.__clear_tmdb_cache,
             "check_site_attr": self.__check_site_attr,
             "refresh_process": self.__refresh_process,
-            "get_download_dirs": self.get_download_dirs
+            "get_download_dirs": self.get_download_dirs,
+            "restory_backup": self.__restory_backup
         }
 
     def action(self, cmd, data):
@@ -1301,7 +1303,8 @@ class WebAction:
         """
         清空文件转移黑名单记录
         """
-        return {"code": truncate_transfer_blacklist()}
+        truncate_transfer_blacklist()
+        return {"code": 0}
 
     @staticmethod
     def __add_brushtask(data):
@@ -1845,3 +1848,23 @@ class WebAction:
         # 下载器自己设置的目录
         client_dirs = Downloader().get_download_dirs()
         return [x.replace("\\", "/") for x in list(set(client_dirs).union(set(dl_dirs)))]
+
+    @staticmethod
+    def __restory_backup(data):
+        """
+        解压恢复备份文件
+        """
+        filename = data.get("file_name")
+        if filename:
+            config_path = os.path.dirname(Config().get_config_path())
+            file_path = os.path.join(config_path, filename)
+            try:
+                shutil.unpack_archive(file_path, config_path, format='zip')
+                return {"code": 0, "msg": ""}
+            except Exception as e:
+                return {"code": 1, "msg": str(e)}
+            finally:
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+
+        return {"code": 1, "msg": "文件不存在"}

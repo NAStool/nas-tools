@@ -117,7 +117,7 @@ class MetaAnime(MetaBase):
                     self.resource_pix = self.resource_pix[0]
                 if self.resource_pix:
                     if re.search(r'x', self.resource_pix, re.IGNORECASE):
-                        self.resource_pix = re.split(r'[Xx]', self.resource_pix)[0] + "p"
+                        self.resource_pix = re.split(r'[Xx]', self.resource_pix)[-1] + "p"
                     else:
                         self.resource_pix = self.resource_pix.lower()
                 # 视频编码

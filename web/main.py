@@ -8,8 +8,7 @@ from pathlib import Path
 from math import floor
 from urllib import parse
 
-from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file, \
-    after_this_request
+from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 from werkzeug.security import check_password_hash
 import xml.dom.minidom
@@ -918,7 +917,7 @@ def create_flask_app(config):
         </svg>
         '''
         scheduler_cfg_list.append(
-            {'name': '清理文件缓存', 'time': '手动', 'state': 'OFF', 'id': 'blacklist', 'svg': svg, 'color': 'red'})
+            {'name': '清理转移缓存', 'time': '手动', 'state': 'OFF', 'id': 'blacklist', 'svg': svg, 'color': 'red'})
 
         # 名称识别测试
         svg = '''
@@ -959,7 +958,7 @@ def create_flask_app(config):
         </svg>
         '''
         scheduler_cfg_list.append(
-            {'name': '备份&恢复', 'time': '', 'state': 'OFF', 'id': 'backup', 'svg': svg, 'color': 'orange'})
+            {'name': '备份&恢复', 'time': '', 'state': 'OFF', 'id': 'backup', 'svg': svg, 'color': 'green'})
 
         return render_template("service.html",
                                Count=len(scheduler_cfg_list),
@@ -1523,7 +1522,7 @@ def create_flask_app(config):
         """
         try:
             # 创建备份文件夹
-            config_path = Path(os.environ.get('NASTOOL_CONFIG')).parent
+            config_path = Path(config.get_config_path()).parent
             backup_file = f"bk_{time.strftime('%Y%m%d%H%M%S')}"
             backup_path = config_path / "backup_file" / backup_file
             backup_path.mkdir(parents=True)
@@ -1531,13 +1530,11 @@ def create_flask_app(config):
             shutil.copy(f'{config_path}/config.yaml', backup_path)
             shutil.copy(f'{config_path}/default-category.yaml', backup_path)
             shutil.copy(f'{config_path}/user.db', backup_path)
-            shutil.copy(f'{config_path}/meta.dat', backup_path)
             conn = sqlite3.connect(f'{backup_path}/user.db')
             cursor = conn.cursor()
             # 执行操作删除不需要备份的表
             table_list = [
                 'SEARCH_RESULT_INFO',
-                'SEARCH_RESULTS',
                 'RSS_TORRENTS',
                 'DOUBAN_MEDIAS',
                 'TRANSFER_HISTORY',
@@ -1558,22 +1555,20 @@ def create_flask_app(config):
             shutil.rmtree(str(backup_path))
         except Exception as e:
             log.debug(e)
-            return "创建备份失败", 400
+            return make_response("创建备份失败", 400)
         return send_file(zip_file)
 
     @App.route('/upload', methods=['POST'])
     def upload():
         try:
             files = request.files['file']
-            config_path = Path(os.environ.get('NASTOOL_CONFIG')).parent
+            config_path = Path(config.get_config_path()).parent
             zip_file = config_path / files.filename
             files.save(str(zip_file))
-            shutil.unpack_archive(str(zip_file), str(config_path), format='zip')
-            zip_file.unlink()
+            return {"code": 0, "filepath": str(zip_file)}
         except Exception as e:
             log.debug(e)
-            return "备份恢复失败", 400
-        return "备份恢复成功"
+            return {"code": 1, "msg": str(e), "filepath": ""}
 
     # 自定义模板过滤器
     @App.template_filter('b64encode')

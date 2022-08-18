@@ -324,8 +324,8 @@ def insert_transfer_blacklist(path):
 
 # 清空黑名单记录
 def truncate_transfer_blacklist():
-    sql = "DELETE FROM TRANSFER_BLACKLIST"
-    return update_by_sql(sql)
+    update_by_sql("DELETE FROM TRANSFER_BLACKLIST")
+    update_by_sql("DELETE FROM SYNC_HISTORY")
 
 
 # 查询所有站点信息

@@ -266,7 +266,7 @@ meta_cases = [{
         "season": "S02",
         "episode": "E02",
         "restype": "",
-        "pix": "1920p",
+        "pix": "1080p",
         "video_codec": "HEVC",
         "audio_codec": "AAC"
     }
@@ -394,7 +394,7 @@ meta_cases = [{
         "season": "S04",
         "episode": "E17",
         "restype": "",
-        "pix": "1920p",
+        "pix": "1080p",
         "video_codec": "AVC",
         "audio_codec": "AAC"
     }
@@ -426,7 +426,7 @@ meta_cases = [{
         "season": "S01",
         "episode": "E01-E26",
         "restype": "",
-        "pix": "1920p",
+        "pix": "1080p",
         "video_codec": "",
         "audio_codec": "flac"
     }

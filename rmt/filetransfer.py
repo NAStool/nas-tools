@@ -481,8 +481,8 @@ class FileTransfer:
         if in_from != SyncType.MAN:
             file_list = list(filter(is_transfer_notin_blacklist, file_list))
             if not file_list:
-                log.info("【RMT】所有文件均已成功转移过，没有需要处理的文件")
-                return True, "没有需要处理的文件"
+                log.info("【RMT】所有文件均已成功转移过，没有需要处理的文件！如需重新处理，请清理缓存（服务->清理转移缓存）")
+                return True, "没有新文件需要处理"
         # API检索出媒体信息，传入一个文件列表，得出每一个文件的名称，这里是当前目录下所有的文件了
         Medias = self.media.get_media_info_on_files(file_list, tmdb_info, media_type, season, episode[0])
         if not Medias:

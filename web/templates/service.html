@@ -152,12 +152,20 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="card-body">
-            <input type="file" id="back_file" name="选择备份文件" accept="*.zip">
+          <form class="dropzone" id="back_file" action="/upload">
+            <div class="fallback">
+              <input name="file" type="file" accept="*.zip"/>
+            </div>
+            <div class="dz-message">
+              <h3 class="dropzone-msg-title">上传备份文件</h3>
+              <span class="dropzone-msg-desc">点击或者拖动备份文件到此处</span>
+            </div>
+          </form>
         </div>
       </div>
       <div class="modal-footer">
-        <button id="backup_btn" class="btn btn-primary">备份配置</button>
-        <button id="upload_btn" class="btn btn-primary">恢复配置</button>
+        <button id="backup_btn" class="btn btn-primary">备份当前配置</button>
+        <button id="restore_btn" class="btn btn-danger">恢复配置</button>
       </div>
     </div>
   </div>
@@ -194,45 +202,45 @@
     });
   }
 
+  // 名称测试
   $("#nametest_btn").click(function () {
     name_test();
   });
 
+  // 规则测试
   $("#ruletest_btn").click(function () {
     rule_test();
   });
 
-  $("#backup_btn").click(function () {
-    backup();
-
-  });
-  $("#upload_btn").click(function () {
-    upload();
-
-  });
-
   // 备份
+  $("#backup_btn").click(function () {
+    $("#backup_btn").text("备份中...").attr("disabled", true);
+    ajax_backup(function(){
+      $("#backup_btn").attr("disabled", false).text("备份当前配置");
+    });
+  });
 
-  function backup () {
-    ajax_backup(function (response) {
-    })
-  }
-
-  // 恢复
-  function upload() {
-
-    var formData = new FormData();
-    formData.append('file', $('#back_file')[0].files[0]);
-    ajax_upload( formData, function (response) {
-
-    })
-    show_confirm_modal("恢复成功，立即重启系统？", function () {
-        $("#system_confirm_btn").attr("disabled", true).text("重启中...");
-        ajax_post("restart", {}, function (ret) {
+  // 恢复备份
+  $("#restore_btn").click(function () {
+    if(!dropzone || !dropzone.files || !dropzone.files[0]){
+      return;
+    }
+    $("#restore_btn").text("恢复中...").attr("disabled", true);
+    ajax_post( "restory_backup", {file_name: dropzone.files[dropzone.files.length-1].name}, function (ret) {
+      $("#restore_btn").attr("disabled", false).text("恢复配置");
+      $("#modal-backup").modal('hide');
+      if (ret.code == 0) {
+        show_confirm_modal("备份恢复成功，立即重启系统？", function () {
+          $("#system_confirm_btn").attr("disabled", true).text("重启中...");
+            ajax_post("restart", {}, function (ret) {
+          });
+          setTimeout("window.location.reload()", 10000);
         });
-        setTimeout("window.location.reload()", 10000);
-      });
-  }
+      } else {
+        show_fail_modal("备份恢复失败：" + ret.msg);
+      }
+    });
+  });
 
   //名称识别测试
   function name_test(){
@@ -325,4 +333,7 @@
     });
   }
 
+  // 初始化DropZone
+  dropzone = new Dropzone("#back_file");
+  dropzone.options.acceptedFiles = ".zip";
 </script>
