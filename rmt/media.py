@@ -1084,12 +1084,16 @@ class Media:
             else:
                 alternative_titles = tmdbinfo.get("alternative_titles", {}).get("results", [])
         else:
-            if mtype == MediaType.MOVIE:
-                titles_info = self.movie.alternative_titles(tmdbid) or {}
-                alternative_titles = titles_info.get("titles", [])
-            else:
-                titles_info = self.tv.alternative_titles(tmdbid) or {}
-                alternative_titles = titles_info.get("results", [])
+            try:
+                if mtype == MediaType.MOVIE:
+                    titles_info = self.movie.alternative_titles(tmdbid) or {}
+                    alternative_titles = titles_info.get("titles", [])
+                else:
+                    titles_info = self.tv.alternative_titles(tmdbid) or {}
+                    alternative_titles = titles_info.get("results", [])
+            except Exception as err:
+                print(err)
+                return None
         for alternative_title in alternative_titles:
             iso_3166_1 = alternative_title.get("iso_3166_1")
             if iso_3166_1 == "CN":

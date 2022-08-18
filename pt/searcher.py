@@ -72,7 +72,7 @@ class Searcher:
         # 进度计数重置
         ProcessHandler().reset()
         # 查找的季
-        if not media_info.begin_season:
+        if media_info.begin_season is None:
             search_season = None
         else:
             search_season = media_info.get_season_list()

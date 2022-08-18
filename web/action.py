@@ -1646,10 +1646,11 @@ class WebAction:
                     year = date[0:4]
                 else:
                     year = ''
-                if MetaInfo(title).get_name() in MovieKeys or str(rid) in MovieMediaIds or "DB:%s" % rid in MovieMediaIds:
+                name = MetaInfo(title).get_name()
+                if name in MovieKeys or str(rid) in MovieMediaIds or "DB:%s" % rid in MovieMediaIds:
                     # 已订阅
                     fav = 1
-                elif is_media_downloaded(title, year):
+                elif is_media_downloaded(name, rid):
                     # 已下载
                     fav = 2
                 else:
@@ -1662,10 +1663,11 @@ class WebAction:
                     year = date[0:4]
                 else:
                     year = ''
-                if MetaInfo(title).get_name() in TvKeys or str(rid) in TvMediaIds or "DB:%s" % rid in TvMediaIds:
+                name = MetaInfo(title).get_name()
+                if name in TvKeys or str(rid) in TvMediaIds or "DB:%s" % rid in TvMediaIds:
                     # 已订阅
                     fav = 1
-                elif is_media_downloaded(title, year):
+                elif is_media_downloaded(name, rid):
                     # 已下载
                     fav = 2
                 else:

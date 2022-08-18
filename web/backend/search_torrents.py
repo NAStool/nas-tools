@@ -63,7 +63,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         if not media_info or not media_info.tmdb_info:
             return -1, "%s 查询不到媒体信息，请确认名称是否正确！" % content
         # 查找的季
-        if not media_info.begin_season:
+        if media_info.begin_season is None:
             search_season = None
         else:
             search_season = media_info.get_season_list()

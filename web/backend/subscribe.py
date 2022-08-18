@@ -86,8 +86,8 @@ def add_rss_subscribe(mtype, name, year,
         # 添加订阅
         if media_info.type != MediaType.MOVIE:
             if tmdbid:
-                if season:
-                    season = int(season)
+                if season or media_info.begin_season is not None:
+                    season = int(season) if season else media_info.begin_season
                     total_episode = media.get_tmdb_season_episodes_num(sea=season, tmdbid=tmdbid)
                 else:
                     # 查询季及集信息
