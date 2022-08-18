@@ -143,6 +143,25 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-backup" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">备份&恢复</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+            <input type="file" id="back_file" name="选择备份文件" accept="*.zip">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="backup_btn" class="btn btn-primary">备份配置</button>
+        <button id="upload_btn" class="btn btn-primary">恢复配置</button>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   // 显示服务提示框
   function show_service_modal(id, name) {
@@ -157,6 +176,8 @@
           show_success_modal("文件缓存清理完成！");
         });
       });
+    } else if (id == "backup") {
+        $('#modal-backup').modal('show');
     } else {
       show_ask_modal("是否立即运行 " + name + "？", function () {
         hide_ask_modal();
@@ -180,6 +201,38 @@
   $("#ruletest_btn").click(function () {
     rule_test();
   });
+
+  $("#backup_btn").click(function () {
+    backup();
+
+  });
+  $("#upload_btn").click(function () {
+    upload();
+
+  });
+
+  // 备份
+
+  function backup () {
+    ajax_backup(function (response) {
+    })
+  }
+
+  // 恢复
+  function upload() {
+
+    var formData = new FormData();
+    formData.append('file', $('#back_file')[0].files[0]);
+    ajax_upload( formData, function (response) {
+
+    })
+    show_confirm_modal("恢复成功，立即重启系统？", function () {
+        $("#system_confirm_btn").attr("disabled", true).text("重启中...");
+        ajax_post("restart", {}, function (ret) {
+        });
+        setTimeout("window.location.reload()", 10000);
+      });
+  }
 
   //名称识别测试
   function name_test(){

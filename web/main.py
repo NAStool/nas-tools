@@ -3,10 +3,13 @@ import logging
 import os.path
 import traceback
 import urllib
+import sqlite3
+from pathlib import Path
 from math import floor
 from urllib import parse
 
-from flask import Flask, request, json, render_template, make_response, session, send_from_directory
+from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file, \
+    after_this_request
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 from werkzeug.security import check_password_hash
 import xml.dom.minidom
@@ -611,7 +614,7 @@ def create_flask_app(config):
             elif Client == DownloaderType.Aria2:
                 name = torrent.get('bittorrent', {}).get('info', {}).get("name")
                 # 进度
-                progress = round(int(torrent.get('completedLength'))/int(torrent.get("totalLength")), 1) * 100
+                progress = round(int(torrent.get('completedLength')) / int(torrent.get("totalLength")), 1) * 100
                 state = "Downloading"
                 dlspeed = str_filesize(torrent.get('downloadSpeed'))
                 upspeed = str_filesize(torrent.get('uploadSpeed'))
@@ -886,7 +889,8 @@ def create_flask_app(config):
                 </svg>
                 '''
                 scheduler_cfg_list.append(
-                    {'name': '目录同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg, 'color': "orange"})
+                    {'name': '目录同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg,
+                     'color': "orange"})
         # 豆瓣同步
         douban_cfg = config.get_config('douban')
         if douban_cfg:
@@ -945,6 +949,17 @@ def create_flask_app(config):
         '''
         scheduler_cfg_list.append(
             {'name': '过滤规则测试', 'time': '', 'state': 'OFF', 'id': 'ruletest', 'svg': svg, 'color': 'yellow'})
+
+        # 备份
+        svg = '''
+        <svg t="1660720525544" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1559" width="16" height="16">
+        <path d="M646 1024H100A100 100 0 0 1 0 924V258a100 100 0 0 1 100-100h546a100 100 0 0 1 100 100v31a40 40 0 1 1-80 0v-31a20 20 0 0 0-20-20H100a20 20 0 0 0-20 20v666a20 20 0 0 0 20 20h546a20 20 0 0 0 20-20V713a40 40 0 0 1 80 0v211a100 100 0 0 1-100 100z" fill="#ffffff" p-id="1560"></path>
+        <path d="M924 866H806a40 40 0 0 1 0-80h118a20 20 0 0 0 20-20V100a20 20 0 0 0-20-20H378a20 20 0 0 0-20 20v8a40 40 0 0 1-80 0v-8A100 100 0 0 1 378 0h546a100 100 0 0 1 100 100v666a100 100 0 0 1-100 100z" fill="#ffffff" p-id="1561"></path>
+        <path d="M469 887a40 40 0 0 1-27-10L152 618a40 40 0 0 1 1-60l290-248a40 40 0 0 1 66 30v128a367 367 0 0 0 241-128l94-111a40 40 0 0 1 70 35l-26 109a430 430 0 0 1-379 332v142a40 40 0 0 1-40 40zM240 589l189 169v-91a40 40 0 0 1 40-40c144 0 269-85 323-214a447 447 0 0 1-323 137 40 40 0 0 1-40-40v-83z" fill="#ffffff" p-id="1562"></path>
+        </svg>
+        '''
+        scheduler_cfg_list.append(
+            {'name': '备份&恢复', 'time': '', 'state': 'OFF', 'id': 'backup', 'svg': svg, 'color': 'orange'})
 
         return render_template("service.html",
                                Count=len(scheduler_cfg_list),
@@ -1498,6 +1513,67 @@ def create_flask_app(config):
             if text:
                 WebAction().handle_message_job(text, SearchType.TG, user_id)
         return 'Success'
+
+    @App.route('/backup', methods=['POST'])
+    @login_required
+    def backup():
+        """
+        备份用户设置文件
+        :return: 备份文件.zip_file
+        """
+        try:
+            # 创建备份文件夹
+            config_path = Path(os.environ.get('NASTOOL_CONFIG')).parent
+            backup_file = f"bk_{time.strftime('%Y%m%d%H%M%S')}"
+            backup_path = config_path / "backup_file" / backup_file
+            backup_path.mkdir(parents=True)
+            # 把现有的相关文件进行copy备份
+            shutil.copy(f'{config_path}/config.yaml', backup_path)
+            shutil.copy(f'{config_path}/default-category.yaml', backup_path)
+            shutil.copy(f'{config_path}/user.db', backup_path)
+            shutil.copy(f'{config_path}/meta.dat', backup_path)
+            conn = sqlite3.connect(f'{backup_path}/user.db')
+            cursor = conn.cursor()
+            # 执行操作删除不需要备份的表
+            table_list = [
+                'SEARCH_RESULT_INFO',
+                'SEARCH_RESULTS',
+                'RSS_TORRENTS',
+                'DOUBAN_MEDIAS',
+                'TRANSFER_HISTORY',
+                'TRANSFER_UNKNOWN',
+                'TRANSFER_BLACKLIST',
+                'SYNC_HISTORY',
+                'DOWNLOAD_HISTORY',
+            ]
+            for table in table_list:
+                cursor.execute(f"""DROP TABLE IF EXISTS {table};""")
+            conn.commit()
+            cursor.close()
+            conn.close()
+            zip_file = str(backup_path) + '.zip'
+            if os.path.exists(zip_file):
+                zip_file = str(backup_path) + '.zip'
+            shutil.make_archive(str(backup_path), 'zip', str(backup_path))
+            shutil.rmtree(str(backup_path))
+        except Exception as e:
+            log.debug(e)
+            return "创建备份失败", 400
+        return send_file(zip_file)
+
+    @App.route('/upload', methods=['POST'])
+    def upload():
+        try:
+            files = request.files['file']
+            config_path = Path(os.environ.get('NASTOOL_CONFIG')).parent
+            zip_file = config_path / files.filename
+            files.save(str(zip_file))
+            shutil.unpack_archive(str(zip_file), str(config_path), format='zip')
+            zip_file.unlink()
+        except Exception as e:
+            log.debug(e)
+            return "备份恢复失败", 400
+        return "备份恢复成功"
 
     # 自定义模板过滤器
     @App.template_filter('b64encode')
