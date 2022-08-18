@@ -31,14 +31,11 @@ function ajax_upload(data, handler){
 					var result=res;
 					var code=result.code;
 					if (code=='0'){
-						alert("备份上传成功，请重启！");
-            $("#upload_btn").text("备份上传成功，请重启！").attr("disabled", false);
+						alert("备份上传成功，请重启");
 					}else{
-            $("#upload_btn").text("备份上传失败！");
 					}
 			},
 			failure: function (res) {
-          $("#upload_btn").text("备份上传失败！");
 			}
 	})
 
