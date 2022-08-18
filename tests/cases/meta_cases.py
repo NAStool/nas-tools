@@ -1,4 +1,20 @@
 meta_cases = [{
+    "title": "Nande Koko ni Sensei ga!? 2019 Blu-ray Remux 1080p AVC LPCM-7³ ACG",
+    "subtitle": "",
+    "target": {
+        "type": "电影",
+        "cn_name": "",
+        "en_name": "Nande Koko ni Sensei ga!?",
+        "year": "2019",
+        "part": "",
+        "season": "",
+        "episode": "",
+        "restype": "BluRay",
+        "pix": "1080p",
+        "video_codec": "AVC",
+        "audio_codec": "LPCM 7³"
+    }
+}, {
     "title": "[GM-Team][国漫][斗破苍穹 第5季][Fights Break Sphere V][2022][05][HEVC][GB][4K]",
     "subtitle": "",
     "target": {

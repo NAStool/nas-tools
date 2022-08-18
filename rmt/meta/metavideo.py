@@ -283,6 +283,10 @@ class MetaVideo(MetaBase):
                         self.end_season = se
                         self.total_seasons = (self.end_season - self.begin_season) + 1
         elif token.isdigit():
+            try:
+                int(token)
+            except ValueError:
+                return
             if self.begin_season is not None \
                     and self.end_season is None \
                     and len(token) < 3 \
@@ -332,6 +336,10 @@ class MetaVideo(MetaBase):
                         self.end_episode = se
                         self.total_episodes = (self.end_episode - self.begin_episode) + 1
         elif token.isdigit():
+            try:
+                int(token)
+            except ValueError:
+                return
             if self.begin_episode is not None \
                     and self.end_episode is None \
                     and len(token) < 5 \
