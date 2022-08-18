@@ -4,6 +4,7 @@ from enum import Enum
 import log
 from config import Config
 from message.channel.bark import Bark
+from message.channel.iyuu import IyuuMsg
 from message.channel.pushplus import PushPlus
 from message.channel.serverchan import ServerChan
 from message.channel.telegram import Telegram
@@ -35,6 +36,8 @@ class Message:
             self.client = Bark()
         elif self.__msg_channel == "pushplus":
             self.client = PushPlus()
+        elif self.__msg_channel == "iyuu":
+            self.client = IyuuMsg()
 
     def init_config(self):
         config = Config()

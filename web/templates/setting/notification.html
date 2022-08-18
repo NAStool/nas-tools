@@ -74,6 +74,18 @@
           </div>
         </a>
       </div>
+      <div class="col-12 col-md-4 col-xl-3">
+        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-iyuu">
+          <div class="card-cover card-cover-blurred text-center bg-yellow">
+            <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/iyuu.png)">
+            </span>
+          </div>
+          <div class="card-body text-center">
+            <div class="card-title mb-1">爱语飞飞</div>
+            <div class="text-muted">{% if Config.message.msg_channel == "iyuu" %}<span class="badge bg-yellow" title="已开启"></span> 正在使用{% endif %}</div>
+          </div>
+        </a>
+      </div>
     </div>
   </div>
 </div>
@@ -200,7 +212,7 @@
             <div class="col-lg-12">
               <div class="mb-3">
                 <label class="form-label required">SCKEY <span class="form-help bg-red-lt" title="填写ServerChan的API Key，SCT类型，在https://sct.ftqq.com/中申请" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.message.serverchan %}{{ Config.message.serverchan.sckey or '' }}{% endif %}" id="sckey" class="form-control">
+                <input type="text" value="{% if Config.message.serverchan %}{{ Config.message.serverchan.sckey or '' }}{% endif %}" id="sckey" class="form-control" placeholder="登录https://sct.ftqq.com获取">
               </div>
             </div>
           </div>
@@ -254,7 +266,7 @@
     <div class="modal-content">
       <div class="card border-top-0">
         <div class="card-header">
-          <h5 class="modal-title">微信</h5>
+          <h5 class="modal-title">PushPlus</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="card-body">
@@ -295,6 +307,34 @@
           测试
         </a>
         <a href="javascript:save_message_config('pushplus')" id="pushplus_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-iyuu" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">爱语飞飞</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="mb-3">
+                <label class="form-label required">令牌Token <span class="form-help bg-red-lt" title="登录https://iyuu.cn/获取爱语飞飞令牌Token" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{% if Config.message.iyuu %}{{ Config.message.iyuu.iyuu_token or '' }}{% endif %}" id="iyuu_token" class="form-control" placeholder="登录https://iyuu.cn获取">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:test_message_config('iyuu')" id="iyuu_test_btn" class="btn btn-white me-auto">
+          测试
+        </a>
+        <a href="javascript:save_message_config('iyuu')" id="iyuu_save_btn" class="btn btn-primary">确定</a>
       </div>
     </div>
   </div>
@@ -347,6 +387,8 @@
         command = "message.channel.serverchan|ServerChan";
       }else if(currType == "pushplus"){
         command = "message.channel.pushplus|PushPlus";
+      }else if(currType == "iyuu"){
+        command = "message.channel.iyuu|IyuuMsg";
       }
       ajax_post("test_connection", {"command": command}, function(ret){
         if(ret.code == 0){
