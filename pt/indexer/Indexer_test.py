@@ -9,31 +9,13 @@ Created on 2022-08-15 11:43:06
 from pt.sites import *
 
 import dateparser
-import cssselect
 import copy
 import re
 import yaml
-import cssutils
 import feapder
-import querystring
 from pyquery import PyQuery as pq
 from jinja2 import Template
 
-cookies_txt="c_secure_ssl=eWVhaA%3D%3D; c_secure_uid=Mzk5MTk%3D; c_secure_pass=948fc5b348732320a396c4ef7d322fb9; c_secure_tracker_ssl=eWVhaA%3D%3D; c_secure_login=bm9wZQ%3D%3D"
-
-mteamcookies="cf_clearance=frC9Wqm27XoWeTyh8Va3QitBqonOGgs0wpHNdzX3lhQ-1659945429-0-150; tp=MDRlNDQ3MTAwYWQ0MGIyZDg0N2M5YTI2Y2E2ZTZlZGU2ZTliM2M5ZQ%3D%3D"
-
-
-keepfrdscookies="c_secure_uid=MzU4NzA%3D; c_secure_pass=336bf06d014ef8bec9b72aa901c0d736; c_secure_ssl=eWVhaA%3D%3D; c_secure_tracker_ssl=eWVhaA%3D%3D; c_secure_login=bm9wZQ%3D%3D; _ga=GA1.2.1159861350.1651643224;"
-
-audiencescookies="c_secure_uid=MTYxNjY%3D; c_secure_pass=32644443b8d10d9f8904c5010d9fc3ae; c_secure_ssl=eWVhaA%3D%3D; c_secure_tracker_ssl=eWVhaA%3D%3D; c_secure_login=bm9wZQ%3D%3D;"
-
-
-
-serchurl="https://lemonhd.org/torrents_movie.php?search=钢铁侠&search_area=name&column=g_last_upload_date&sort=asc&suggest=6"
-searchurl="https://lemonhd.org/torrents_movie.php?stype=s&search=%E9%92%A2%E9%93%81%E4%BE%A0&search_area=name&seed_count=&column=added&sort=asc&suggest=4"
-
-resultarray={}
 class indexers():
     def __init__(self,url):
         with open(url) as f:
@@ -70,10 +52,10 @@ searchurl="https://lemonhd.org/torrents_movie.php?stype=s&search=%E9%92%A2%E9%93
 
 
 class SpiderTest(feapder.AirSpider):
-    def setcookies(self,cookies,yaml,keyword):
-        self.cookies=cookies
-        self.config_yaml=yaml
-        self.keyword=keyword
+    def setcookies(self,cookies,siteyaml,keyword):
+        self.cookies = cookies
+        self.config_yaml = siteyaml
+        self.keyword = keyword
         self.torrents_info_array = []
     def start_requests(self):
         cookiesdic=self.cookies.split(';')
@@ -82,20 +64,15 @@ class SpiderTest(feapder.AirSpider):
         manual_cookies={}
         #设置请求头信息
         for item in cookiesdic:
-            if item !='' and item !=' ':
-                name,value=item.strip().split('=',1)  #用=号分割，分割1次
+            if item != '' and item != ' ':
+                name , value=item.strip().split('=',1)  #用=号分割，分割1次
                 manual_cookies[name]=value  #为字典cookies添加内容
-
 
         self.indexer=indexers(self.config_yaml)
         domain=self.indexer.domain
         torrentspath=  self.indexer.search['paths'][0]['path']
-
         searchurl=domain+torrentspath+'?stypes=s&search='+self.keyword
 
-        testurl="https://lemonhd.org/torrents_new.php"
-        testurl3="https://kp.m-team.cc/movie.php"
-        testurl2=domain+"torrents.php"
         yield feapder.Request(searchurl,cookies=manual_cookies)
 
     # def detail_requests(self,download_url):
@@ -111,19 +88,19 @@ class SpiderTest(feapder.AirSpider):
     #     self.title_optional.append(items)
 
     def Getdownloadvolumefactorselector(self,torrent):
-        self.tor.downloadvolumefactor=[]
+        # self.tor.downloadvolumefactor=[]
         for downloadvolumefactorselector in list(self.fields['downloadvolumefactor']['case'].keys()):
              downloadvolumefactor=pq(torrent)(downloadvolumefactorselector)
              if len(downloadvolumefactor)>0:
-                self.tor.downloadvolumefactor.append(self.fields['downloadvolumefactor']['case'][downloadvolumefactorselector])
+                # self.tor.downloadvolumefactor.append(self.fields['downloadvolumefactor']['case'][downloadvolumefactorselector])
                 self.torrents_info['downloadvolumefactor']=self.fields['downloadvolumefactor']['case'][downloadvolumefactorselector]
                 break
     def Getuploadvolumefactorselector(self,torrent):
-        self.tor.uploadvolumefactor=[]
+        # self.tor.uploadvolumefactor=[]
         for uploadvolumefactorselector in list(self.fields['uploadvolumefactor']['case'].keys()):
              uploadvolumefactor=pq(torrent)(uploadvolumefactorselector)
              if len(uploadvolumefactor)>0:
-                self.tor.uploadvolumefactor.append(self.fields['uploadvolumefactor']['case'][uploadvolumefactorselector])
+                # self.tor.uploadvolumefactor.append(self.fields['uploadvolumefactor']['case'][uploadvolumefactorselector])
                 self.torrents_info['uploadvolumefactor']=self.fields['uploadvolumefactor']['case'][uploadvolumefactorselector]
                 break
 
@@ -131,7 +108,6 @@ class SpiderTest(feapder.AirSpider):
     def Gettitle_default(self,torrent):
         # title_default
         selector=''
-
         if "title_default" in self.fields:
             title_default = torrent(self.fields['title_default']['selector']).clone()
             selector=self.fields['title_default']
@@ -145,15 +121,15 @@ class SpiderTest(feapder.AirSpider):
 
 
         items = [item.text() for item in title_default.items()]
-        self.tor.title=items
+        # self.tor.title=items
         self.torrents_info['title']=items[0]
 
     def Getdetails(self,torrent):
         # details
         details=torrent(self.fields['details']['selector'])
         items = [item.attr(self.fields['details']['attribute']) for item in details.items()]
-        self.tor.page_url=self.indexer.domain+items[0]
-        self.tor.details=items
+        # self.tor.page_url=self.indexer.domain+items[0]
+        # self.tor.details=items
         self.torrents_info['details']=items[0]
         self.torrents_info['page_url']=self.indexer.domain+items[0]
 
@@ -161,7 +137,7 @@ class SpiderTest(feapder.AirSpider):
         # download link
         download = torrent(self.fields['download']['selector'])
         items = [item.attr(self.fields['download']['attribute']) for item in download.items()]
-        self.tor.download=items
+        # self.tor.download=items
         self.torrents_info['download']=items[0]
 
     def Getimdbid(self,torrent):
@@ -169,7 +145,7 @@ class SpiderTest(feapder.AirSpider):
         if "imdbid" in self.fields:
             imdbid = torrent(self.fields['imdbid']['selector'])
             items = [item.attr(self.fields['imdbid']['attribute']) for item in imdbid.items()]
-            self.tor.imdbid=items
+            # self.tor.imdbid=items
             if len(items)>0:
                 self.torrents_info['imdbid']=items[0]
 
@@ -178,7 +154,7 @@ class SpiderTest(feapder.AirSpider):
         # torrent size
         size=torrent(self.fields['size']['selector'])
         items = [item.text() for item in size.items()]
-        self.tor.size=items
+        # self.tor.size=items
         size=items[0].split("\n")
         if size[1]=='GB':
             size=float(size[0])*1073741824
@@ -190,22 +166,22 @@ class SpiderTest(feapder.AirSpider):
         # torrent leechers
         leechers=torrent(self.fields['leechers']['selector'])
         items = [item.text() for item in leechers.items()]
-        self.tor.leechers=items
-        self.tor.peers=items
+        # self.tor.leechers=items
+        # self.tor.peers=items
         self.torrents_info['leechers']=items[0]
         self.torrents_info['peers']=items[0]
     def Getseeders(self,torrent):
         # torrent leechers
         seeders=torrent(self.fields['seeders']['selector'])
         items = [item.text() for item in seeders.items()]
-        self.tor.seeders=items
+        # self.tor.seeders=items
         self.torrents_info['seeders']=items[0]
 
     def Getgrabs(self,torrent):
         # torrent grabs
         grabs=torrent(self.fields['grabs']['selector'])
         items = [item.text() for item in grabs.items()]
-        self.tor.grabs=items
+        # self.tor.grabs=items
         self.torrents_info['grabs']=items[0]
 
     def Gettitle_optional(self,torrent,fields):
@@ -234,7 +210,7 @@ class SpiderTest(feapder.AirSpider):
                 items=items[selector["index"]]
 
 
-            self.tor.description=items
+            # self.tor.description=items
             self.torrents_info['description']=items
 
         if "text" in self.fields['description']:
@@ -262,14 +238,14 @@ class SpiderTest(feapder.AirSpider):
         # date_added
         selector=torrent(self.fields['date_elapsed']['selector'])
         items = [item.attr(self.fields['date_elapsed']['attribute']) for item in selector.items()]
-        self.tor.date_added=items
+        # self.tor.date_added=items
         self.torrents_info['date_added']=items[0]
 
     def Getdate_elapsed(self,torrent):
         # date_added
         selector=torrent(self.fields['date_elapsed']['selector'])
         items = [item.text() for item in selector.items()]
-        self.tor.date_elapsed=items
+        # self.tor.date_elapsed=items
         self.torrents_info['date_elapsed']=items[0]
 
 
@@ -292,7 +268,7 @@ class SpiderTest(feapder.AirSpider):
 
                     # items=querystring.parse_qs(str)
 
-        self.tor.category=items[0]
+        # self.tor.category=items[0]
         self.torrents_info['category']=items[0]
 
     def Getfree_deadline(self,torrent):
@@ -316,7 +292,7 @@ class SpiderTest(feapder.AirSpider):
                             arg1=filter['args']
                             items = dateparser.parse(itemdata, date_formats=[arg1])
 
-        self.tor.free_deadline=items
+        # self.tor.free_deadline=items
         self.torrents_info['free_deadline']=items
 
     def Getinfo(self,torrent):
@@ -338,19 +314,19 @@ class SpiderTest(feapder.AirSpider):
         return self.torrents_info
 
     def parse(self, request, response):
-        # 提取网站title
-
-
-        print(response.xpath("//title/text()").extract_first())
+        # 获取网站信息
         self.article_list = response.extract()
-        # torrentlist=article_list.xpath('//table[@class="torrents"]/tr[acontains(@href,"download.php?")]')
-        # detials=response.xpath('string(//a[@href="details_movie.php?id=276488"])')
+        # 获取站点种子xml
         self.fields=self.indexer.torrents['fields']
         doc = pq(self.article_list)
+        # 种子筛选器
         torrents_selector=self.indexer.torrents['list']['selector']
+
         str_list = list(torrents_selector)
-        has_index = 0
+        # 兼容选择器中has()函数 部分情况下无双引号会报错
         has_index = torrents_selector.find('has')
+
+        # 存在has() 添加双引号
         flag = 0
         if has_index != 0:
             str_list.insert(has_index+4, '"')
@@ -365,24 +341,23 @@ class SpiderTest(feapder.AirSpider):
                         str_list.insert(i, '"')
             torrents_selector = "".join(str_list)
 
+        # 获取种子html列表
         torrents=doc(torrents_selector)
-        self.videos=[]
         self.tor=torrentclass()
         self.torrents_info={}
+
         # title_default
-
-
-        self.tor.downloadvolumefactor=[]
+        # 遍历种子html列表
         for torn in torrents:
             torn=pq(torn)
-            self.tor.indexer=self.indexer.id
+            # self.tor.indexer=self.indexer.id
+            self.torrents_info['indexer'] = self.indexer.id
             self.torrents_info_array.append(copy.deepcopy(self.Getinfo(torn)))
-        global resultarray
-        resultarray=self.torrents_info_array
 
 
 import time
 if __name__ == "__main__":
+    # 从数据库中获取站点信息 name对应站点xml名称
     sites_array = Sites().get_sites()
     result_array = []
     for sites_select in range(8):
@@ -393,9 +368,12 @@ if __name__ == "__main__":
         status = len(spider.torrents_info_array)
         spider.start()
         status = len(spider.torrents_info_array)
+        # 循环判断是否获取到数据
         while status == 0:
             status=len(spider.torrents_info_array)
             time.sleep(1)
+
+        # 添加所有站点信息
         result_array.append(spider.torrents_info_array.copy())
         spider.torrents_info_array.clear()
 
