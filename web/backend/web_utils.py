@@ -1,8 +1,19 @@
+import base64
 import datetime
 import random
 from functools import lru_cache
+
+from config import TMDB_IMAGE_ORIGINAL_URL
 from rmt.media import Media
 from utils.http_utils import RequestUtils
+
+
+def get_login_wallpaper():
+    img_url = get_random_discover_backdrop()
+    res = RequestUtils().get_res(img_url)
+    if res:
+        return base64.b64encode(res.content).decode()
+    return ""
 
 
 @lru_cache(maxsize=1)
@@ -13,7 +24,7 @@ def get_random_discover_backdrop(today=datetime.datetime.strftime(datetime.datet
     movies = Media().get_movie_discover()
     if movies:
         backdrops = [movie.get("backdrop_path") for movie in movies.get("results")]
-        return "https://www.themoviedb.org/t/p/original%s" % backdrops[round(random.uniform(0, len(backdrops)-1))]
+        return TMDB_IMAGE_ORIGINAL_URL % backdrops[round(random.uniform(0, len(backdrops) - 1))]
     return ""
 
 
@@ -51,3 +62,6 @@ def get_location(ip):
     except Exception as err:
         print(str(err))
         return ""
+
+
+LOGIN_WALLPAPER = get_login_wallpaper()
