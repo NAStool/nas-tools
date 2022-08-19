@@ -1,6 +1,5 @@
 import importlib
 import os.path
-import shutil
 import signal
 from urllib import parse
 
@@ -8,7 +7,7 @@ from flask_login import logout_user
 from werkzeug.security import generate_password_hash
 
 import log
-from config import RMT_MEDIAEXT, Config
+from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
 from message.channel.telegram import Telegram
 from message.channel.wechat import WeChat
 from message.send import Message
@@ -980,7 +979,7 @@ class WebAction:
                 if not tmdb_info:
                     return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url, "rssid": rssid}
                 overview = tmdb_info.get("overview")
-                poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path') if tmdb_info.get(
+                poster_path = TMDB_IMAGE_W500_URL % tmdb_info.get('poster_path') if tmdb_info.get(
                     'poster_path') else ""
                 title = tmdb_info.get('title')
                 vote_average = tmdb_info.get("vote_average")
@@ -1028,7 +1027,7 @@ class WebAction:
                 if not tmdb_info:
                     return {"code": 1, "retmsg": "无法查询到TMDB信息", "link_url": link_url, "rssid": rssid}
                 overview = tmdb_info.get("overview")
-                poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path') if tmdb_info.get(
+                poster_path = TMDB_IMAGE_W500_URL % tmdb_info.get('poster_path') if tmdb_info.get(
                     'poster_path') else ""
                 title = tmdb_info.get('name')
                 vote_average = tmdb_info.get("vote_average")
@@ -1186,7 +1185,7 @@ class WebAction:
             tmdb_info = Media().get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=tid)
             if not tmdb_info:
                 return {"code": 1, "retmsg": "无法查询到TMDB信息"}
-            poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get('poster_path') if tmdb_info.get(
+            poster_path = TMDB_IMAGE_W500_URL % tmdb_info.get('poster_path') if tmdb_info.get(
                 'poster_path') else ""
             title = tmdb_info.get('title')
             vote_average = tmdb_info.get("vote_average")
@@ -1242,11 +1241,11 @@ class WebAction:
             if not tmdb_info.get("poster_path"):
                 tv_tmdb_info = Media().get_tmdb_info(mtype=MediaType.TV, tmdbid=tid)
                 if tv_tmdb_info:
-                    poster_path = "https://image.tmdb.org/t/p/w500%s" % tv_tmdb_info.get("poster_path")
+                    poster_path = TMDB_IMAGE_W500_URL % tv_tmdb_info.get("poster_path")
                 else:
                     poster_path = ""
             else:
-                poster_path = "https://image.tmdb.org/t/p/w500%s" % tmdb_info.get("poster_path")
+                poster_path = TMDB_IMAGE_W500_URL % tmdb_info.get("poster_path")
             year = air_date[0:4] if air_date else ""
             for episode in tmdb_info.get("episodes"):
                 episode_events.append({
@@ -1685,7 +1684,7 @@ class WebAction:
                     fav = 0
             image = res.get('poster_path')
             if RecommendType in ['hm', 'nm', 'ht', 'nt']:
-                image = "https://image.tmdb.org/t/p/original/%s" % image if image else ""
+                image = TMDB_IMAGE_ORIGINAL_URL % image if image else ""
             else:
                 # 替换图片分辨率
                 image = image.replace("s_ratio_poster", "m_ratio_poster")

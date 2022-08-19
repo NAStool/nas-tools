@@ -4,7 +4,8 @@ from functools import lru_cache
 import cn2an
 
 import log
-from config import FANART_TV_API_URL, FANART_MOVIE_API_URL, ANIME_GENREIDS, Config, DEFAULT_TMDB_IMAGE
+from config import FANART_TV_API_URL, FANART_MOVIE_API_URL, ANIME_GENREIDS, Config, DEFAULT_TMDB_IMAGE, \
+    TMDB_IMAGE_W500_URL
 from rmt.category import Category
 from utils.functions import is_all_chinese
 from utils.http_utils import RequestUtils
@@ -395,9 +396,9 @@ class MetaBase(object):
                 self.category = self.category_handler.get_tv_category(info)
             else:
                 self.category = self.category_handler.get_anime_category(info)
-        self.poster_path = "https://image.tmdb.org/t/p/w500%s" % info.get('poster_path') if info.get(
+        self.poster_path = TMDB_IMAGE_W500_URL % info.get('poster_path') if info.get(
             'poster_path') else ""
-        self.backdrop_path = "https://image.tmdb.org/t/p/w500%s" % info.get('backdrop_path') if info.get(
+        self.backdrop_path = TMDB_IMAGE_W500_URL % info.get('backdrop_path') if info.get(
             'backdrop_path') else ""
 
     # 刷新Fanart图片

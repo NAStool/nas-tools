@@ -22,7 +22,7 @@ from pt.searcher import Searcher
 from rmt.media import Media
 from pt.media_server import MediaServer
 from rmt.metainfo import MetaInfo
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS
+from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL
 from utils.functions import *
 from utils.meta_helper import MetaHelper
 from utils.security import Security
@@ -494,7 +494,7 @@ def create_flask_app(config):
                 for tmdbinfo in tmdbinfos:
                     tmp_info = MetaInfo(title=SearchWord)
                     tmp_info.set_tmdb_info(tmdbinfo)
-                    tmp_info.poster_path = "https://image.tmdb.org/t/p/w500%s" % tmp_info.poster_path
+                    tmp_info.poster_path = TMDB_IMAGE_W500_URL % tmp_info.poster_path
                     medias.append(tmp_info)
         return render_template("medialist.html",
                                SearchWord=SearchWord or "",

@@ -3,6 +3,7 @@ import time
 from xml.dom import minidom
 
 import log
+from config import TMDB_IMAGE_W500_URL
 from rmt.media import Media
 from rmt.meta.metabase import MetaBase
 from utils.functions import add_node
@@ -254,7 +255,7 @@ class NfoHelper:
                         # 生成季的信息
                         self.gen_tv_season_nfo_file(tmdbinfo, int(media.get_season_seq()), dir_path)
                         # 季的海报
-                        self.__save_image("https://image.tmdb.org/t/p/w500%s" % tmdbinfo.get("poster_path"),
+                        self.__save_image(TMDB_IMAGE_W500_URL % tmdbinfo.get("poster_path"),
                                           os.path.dirname(dir_path),
                                           "season%s-poster" % media.get_season_seq().rjust(2, '0'))
         except Exception as e:
