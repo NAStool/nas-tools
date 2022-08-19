@@ -23,6 +23,7 @@ class ISiteUserInfo(metaclass=ABCMeta):
         # 用户信息
         self.username = None
         self.userid = None
+        self.message_unread = 0
 
         # 流量信息
         self.upload = 0
