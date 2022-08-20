@@ -127,7 +127,7 @@ class TorrentSpider(feapder.AirSpider):
         # torrent leechers
         seeders = torrent(self.fields.get('seeders', {}).get('selector'))
         items = [item.text() for item in seeders.items() if item]
-        self.torrents_info['seeders'] = items[0] if items else 0
+        self.torrents_info['seeders'] = items[0].split("/")[0] if items else 0
 
     def Getgrabs(self, torrent):
         # torrent grabs
