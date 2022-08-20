@@ -138,8 +138,12 @@ class TorrentSpider(feapder.AirSpider):
     def Gettitle_optional(self, torrent):
         # title optional
         description = self.fields.get('description') or {}
+        description_item = None
         if "selector" in description:
             description_item = torrent(description.get('selector', '')).clone()
+        elif "selectors" in description:
+            description_item = torrent(description.get('selectors', '')).clone()
+        if description_item:
             items = ""
             if 'attribute' in description:
                 items = [x.attr(self.fields.get('description',
@@ -153,7 +157,10 @@ class TorrentSpider(feapder.AirSpider):
             if "contents" in description:
                 items = [item.text() for item in description_item.items() if item]
                 if items:
-                    items = items[0].split("\n")[description.get("contents")]
+                    if len(items) > int(description.get("contents")):
+                        items = items[0].split("\n")[description.get("contents")]
+                    else:
+                        items = items[0]
 
             if "index" in description:
                 items = [item.text() for item in description_item.items() if item]

@@ -273,7 +273,7 @@ class IIndexer(metaclass=ABCMeta):
             downloadvolumefactor = float(item.get('downloadvolumefactor'))
 
             # 合匹配模式下，过滤掉做种数为0的
-            if match_type == 1 and not seeders:
+            if match_type == 1 and str(seeders) == "0":
                 log.info(f"【{self.index_type}】{torrent_name} 做种数为0")
                 continue
 
