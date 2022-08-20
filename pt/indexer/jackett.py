@@ -3,12 +3,13 @@ import requests
 from config import Config
 from pt.indexer.indexer import IIndexer
 from utils.http_utils import RequestUtils
+from utils.indexer_conf import IndexerConf
 
 
 class Jackett(IIndexer):
     index_type = "JACKETT"
     _password = None
-    
+
     def init_config(self):
         config = Config()
         jackett = config.get_config('jackett')
@@ -37,7 +38,8 @@ class Jackett(IIndexer):
         # 获取Cookie
         cookie = None
         session = requests.session()
-        res = RequestUtils(session=session).post_res(url=f"{self.host}UI/Dashboard", params={"password": self._password})
+        res = RequestUtils(session=session).post_res(url=f"{self.host}UI/Dashboard",
+                                                     params={"password": self._password})
         if res and session.cookies:
             cookie = session.cookies.get_dict()
         indexer_query_url = f"{self.host}api/v2.0/indexers?configured=true"
@@ -45,7 +47,13 @@ class Jackett(IIndexer):
             ret = RequestUtils(cookies=cookie).get_res(indexer_query_url)
             if not ret or not ret.json():
                 return []
-            return [(v["id"], v["name"], f'{self.host}api/v2.0/indexers/{v["id"]}/results/torznab/') for v in ret.json()]
+            return [IndexerConf({"id": v["id"],
+                                 "name": v["name"],
+                                 "domain": f'{self.host}api/v2.0/indexers/{v["id"]}/results/torznab/'})
+                    for v in ret.json()]
         except Exception as e2:
             print(str(e2))
             return []
+
+    def search(self, *kwargs):
+        return super().search(*kwargs)

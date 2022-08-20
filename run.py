@@ -13,6 +13,7 @@ from utils.functions import get_system, check_process
 from utils.types import OsType
 from version import APP_VERSION
 from web.app import FlaskApp
+from web.backend.web_utils import init_features
 
 warnings.filterwarnings('ignore')
 
@@ -82,6 +83,9 @@ if __name__ == "__main__":
 
         p1 = threading.Thread(target=traystart, daemon=True)
         p1.start()
+
+    # 加载特性
+    init_features()
 
     # 启动主WEB服务
     FlaskApp().run_service()

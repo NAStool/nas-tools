@@ -508,7 +508,7 @@ def handler_special_chars(text, replace_word="", allow_space=False):
     忽略特殊字符
     """
     # 需要忽略的特殊字符
-    CONVERT_EMPTY_CHARS = r"\.|\(|\)|\[|]|-|\+|【|】|/|～|;|&|\||#|_|「|」|（|）|'|’|!|！|,|～|·|:|："
+    CONVERT_EMPTY_CHARS = r"\.|\(|\)|\[|]|-|\+|【|】|/|～|;|&|\||#|_|「|」|（|）|'|’|!|！|,|～|·|:|：|\-"
     if not text:
         return ""
     text = re.sub(r"[\u200B-\u200D\uFEFF]", "", re.sub(r"%s" % CONVERT_EMPTY_CHARS, replace_word, text), flags=re.IGNORECASE)

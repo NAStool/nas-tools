@@ -42,6 +42,8 @@ RSS_REFRESH_TMDB_INTERVAL = 6
 BRUSH_REMOVE_TORRENTS_INTERVAL = 600
 # 定时清除未识别的缓存时间间隔（小时）
 META_DELETE_UNKNOWN_INTERVAL = 12
+# 定时刷新壁纸的间隔（小时）
+REFRESH_WALLPAPER_INTERVAL = 6
 # fanart的api，用于拉取封面图片
 FANART_MOVIE_API_URL = 'https://webservice.fanart.tv/v3/movies/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'
 FANART_TV_API_URL = 'https://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea050fc7d68aa3146015f'

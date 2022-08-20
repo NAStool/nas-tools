@@ -6,18 +6,20 @@ from functools import lru_cache
 from config import TMDB_IMAGE_ORIGINAL_URL
 from rmt.media import Media
 from utils.http_utils import RequestUtils
+from utils.indexer_helper import IndexerHelper
+
+LOGIN_WALLPAPER = ""
 
 
 def get_login_wallpaper():
+    global LOGIN_WALLPAPER
     img_url = get_random_discover_backdrop()
     res = RequestUtils().get_res(img_url)
     if res:
-        return base64.b64encode(res.content).decode()
-    return ""
+        LOGIN_WALLPAPER = base64.b64encode(res.content).decode()
 
 
-@lru_cache(maxsize=1)
-def get_random_discover_backdrop(today=datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d')):
+def get_random_discover_backdrop():
     """
     获取TMDB热门电影随机一张背景图
     """
@@ -64,4 +66,11 @@ def get_location(ip):
         return ""
 
 
-LOGIN_WALLPAPER = get_login_wallpaper()
+def init_features():
+    """
+    启动时完成一些预加载操作
+    """
+    # 更新壁纸
+    get_login_wallpaper()
+    # 加载索引器配置
+    IndexerHelper()

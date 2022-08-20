@@ -1,6 +1,7 @@
 from config import Config
 from pt.indexer.indexer import IIndexer
 from utils.http_utils import RequestUtils
+from utils.indexer_conf import IndexerConf
 
 
 class Prowlarr(IIndexer):
@@ -44,4 +45,10 @@ class Prowlarr(IIndexer):
         if not ret:
             return []
         indexers = ret.json().get("indexers", [])
-        return [(v["indexerId"], v["indexerName"], f'{self.host}{v["indexerId"]}/api') for v in indexers]
+        return [IndexerConf({"id": v["indexerId"],
+                             "name": v["indexerName"],
+                             "domain": f'{self.host}{v["indexerId"]}/api'})
+                for v in indexers]
+
+    def search(self, *kwargs):
+        return super().search(*kwargs)

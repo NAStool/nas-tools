@@ -16,6 +16,7 @@ import xml.dom.minidom
 import log
 from pt.douban import DouBan
 from pt.filterrules import FilterRule
+from pt.indexer.builtin import BuiltinIndexer
 from pt.sites import Sites
 from pt.downloader import Downloader
 from pt.searcher import Searcher
@@ -453,7 +454,7 @@ def create_flask_app(config):
         SiteDict = []
         Indexers = Searcher().indexer.get_indexers() or []
         for item in Indexers:
-            SiteDict.append(item[1])
+            SiteDict.append(item.name)
 
         # 下载目录
         SaveDirs = WebAction().get_download_dirs()
@@ -509,7 +510,7 @@ def create_flask_app(config):
     def movie_rss():
         RssItems = get_rss_movies()
         RssSites = Sites().get_sites()
-        SearchSites = [item[1] for item in Searcher().indexer.get_indexers()]
+        SearchSites = [item.name for item in Searcher().indexer.get_indexers()]
         RuleGroups = FilterRule().get_rule_groups()
         return render_template("rss/movie_rss.html",
                                Count=len(RssItems),
@@ -527,7 +528,7 @@ def create_flask_app(config):
     def tv_rss():
         RssItems = get_rss_tvs()
         RssSites = Sites().get_sites()
-        SearchSites = [item[1] for item in Searcher().indexer.get_indexers() or []]
+        SearchSites = [item.name for item in Searcher().indexer.get_indexers() or []]
         RuleGroups = FilterRule().get_rule_groups()
         return render_template("rss/tv_rss.html",
                                Count=len(RssItems),
@@ -1300,7 +1301,10 @@ def create_flask_app(config):
     @App.route('/indexer', methods=['POST', 'GET'])
     @login_required
     def indexer():
-        return render_template("setting/indexer.html", Config=config.get_config())
+        indexers = BuiltinIndexer().get_indexers()
+        return render_template("setting/indexer.html",
+                               Config=config.get_config(),
+                               Indexers=indexers)
 
     # 媒体库页面
     @App.route('/library', methods=['POST', 'GET'])

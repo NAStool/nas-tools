@@ -15,6 +15,18 @@
   <div class="container-xl">
     <div class="row row-cards">
       <div class="col-12 col-md-4 col-xl-3">
+        <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-builtin">
+          <div class="card-cover card-cover-blurred text-center bg-red">
+            <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/indexer.png)">
+            </span>
+          </div>
+          <div class="card-body text-center">
+            <div class="card-title mb-1">内建索引器</div>
+            <div class="text-muted">{% if Config.pt.search_indexer == "builtin" %}<span class="badge bg-green" title="已开启"></span> 正在使用{% endif %}</div>
+          </div>
+        </a>
+      </div>
+      <div class="col-12 col-md-4 col-xl-3">
         <a class="card card-link card-link-pop" href="#" data-bs-toggle="modal" data-bs-target="#modal-jackett">
           <div class="card-cover card-cover-blurred text-center bg-black">
             <span class="avatar avatar-xl avatar-thumb avatar-rounded" style="background-image: url(../static/img/jackett.png)">
@@ -115,6 +127,39 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-builtin" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">内建索引器</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col">
+              <div class="mb-3">
+                <label class="form-label required">当前可用站点 <span class="form-help bg-red-lt" title="当前可以使用的站点清单，内建索引器支持站点的先决条件：1、在站点维护中正确配置站点地址和Cookie；2、在配置目录sites目录下存放对应站点的索引配置文件" data-bs-toggle="tooltip">?</span></label>
+                <div class="form-selectgroup">
+                  {% if Indexers %}
+                  {% for Indexer in Indexers %}
+                  <span class="form-selectgroup-label form-selectgroup-item">{{ Indexer.name }}</span>
+                  {% endfor %}
+                  {% else %}
+                  <span class="form-selectgroup-label form-selectgroup-item">无</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:save_indexer_config('builtin')" id="builtin_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   // 当前处理的类型
   var currType = "";
@@ -123,20 +168,22 @@
   function save_config(type, func, test){
     currType = type;
     var params = {"test": test||false};
-    $("#modal-"+ type +" input").each(function(){
-      var key = $(this).attr("id");
-      if($(this).attr("type")=="checkbox"){
-        var value = $(this).prop("checked") ? true:false;
-      }else{
+    if(type != "builtin"){
+      $("#modal-"+ type +" input").each(function(){
+        var key = $(this).attr("id");
+        if($(this).attr("type")=="checkbox"){
+          var value = $(this).prop("checked") ? true:false;
+        }else{
+          var value = $(this).val();
+        }
+        params[key] = value;
+      });
+      $("#modal-"+ type +" textarea").each(function(){
+        var key = $(this).attr("id");
         var value = $(this).val();
-      }
-      params[key] = value;
-    });
-    $("#modal-"+ type +" textarea").each(function(){
-      var key = $(this).attr("id");
-      var value = $(this).val();
-      params[key] = value;
-    });
+        params[key] = value;
+      });
+    }
     params['pt.search_indexer'] = type;
     ajax_post("update_config", params, func);
   }

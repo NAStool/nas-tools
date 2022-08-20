@@ -2,7 +2,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import log
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
     RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_CHECK_INTERVAL, REFRESH_PT_DATA_INTERVAL, \
-    RSS_REFRESH_TMDB_INTERVAL, META_DELETE_UNKNOWN_INTERVAL
+    RSS_REFRESH_TMDB_INTERVAL, META_DELETE_UNKNOWN_INTERVAL, REFRESH_WALLPAPER_INTERVAL
 from pt.douban import DouBan
 from pt.downloader import Downloader
 from pt.rss import Rss
@@ -13,6 +13,8 @@ from utils.meta_helper import MetaHelper
 from datetime import datetime
 import random
 import math
+
+from web.backend.web_utils import get_login_wallpaper
 
 
 @singleton
@@ -170,6 +172,9 @@ class Scheduler:
 
         # 定时清除未识别的缓存
         self.SCHEDULER.add_job(MetaHelper().delete_unknown_meta, 'interval', hours=META_DELETE_UNKNOWN_INTERVAL)
+
+        # 定时刷新壁纸
+        self.SCHEDULER.add_job(get_login_wallpaper, 'interval', hours=REFRESH_WALLPAPER_INTERVAL)
 
         self.SCHEDULER.print_jobs()
 

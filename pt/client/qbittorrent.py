@@ -141,7 +141,7 @@ class Qbittorrent(IDownloadClient):
         else:
             return None
 
-    def add_torrent(self, content, mtype, is_paused=None, tag=None, download_dir=None):
+    def add_torrent(self, content, mtype, is_paused=False, tag=None, download_dir=None):
         if not self.qbc or not content:
             return False
         self.qbc.auth_log_in()

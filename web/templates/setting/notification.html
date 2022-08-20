@@ -183,7 +183,7 @@
               <div class="mb-3">
                 <label class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="webhook" {% if  Config.message.telegram.webhook %}checked{% endif %}>
-                  <span class="form-check-label">WebHook <span class="form-help bg-red-lt" title="受Telegram限制，程序外网访问地址需要设置为以下端口之一：443, 80, 88, 8443，且需要有公网认证的可信SSL证书" data-bs-toggle="tooltip">?</span></span>
+                  <span class="form-check-label">WebHook <span class="form-help bg-red-lt" title="Telegram回调开关，打开后可以实现远程控制，需要在基础设置为正确配置好外网访问地址；受Telegram官方限制，外网访问地址需要设置为以下端口之一：443, 80, 88, 8443，且需要有公网认证的可信SSL证书" data-bs-toggle="tooltip">?</span></span>
                 </label>
               </div>
             </div>

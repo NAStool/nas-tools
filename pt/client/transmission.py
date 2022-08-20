@@ -135,7 +135,7 @@ class Transmission(IDownloadClient):
                 remove_torrents.append(torrent.id)
         return remove_torrents
 
-    def add_torrent(self, content, mtype, is_paused=None, download_dir=None, **kwargs):
+    def add_torrent(self, content, mtype, is_paused=False, download_dir=None, **kwargs):
         if download_dir:
             save_path = download_dir
         else:
