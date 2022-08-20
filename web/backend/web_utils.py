@@ -8,15 +8,16 @@ from rmt.media import Media
 from utils.http_utils import RequestUtils
 from utils.indexer_helper import IndexerHelper
 
-LOGIN_WALLPAPER = ""
 
-
-def get_login_wallpaper():
-    global LOGIN_WALLPAPER
+@lru_cache(maxsize=1)
+def get_login_wallpaper(today=datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d')):
+    print(today)
     img_url = get_random_discover_backdrop()
-    res = RequestUtils().get_res(img_url)
-    if res:
-        LOGIN_WALLPAPER = base64.b64encode(res.content).decode()
+    if img_url:
+        res = RequestUtils().get_res(img_url)
+        if res:
+            return base64.b64encode(res.content).decode()
+    return ""
 
 
 def get_random_discover_backdrop():
