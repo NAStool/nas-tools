@@ -17,8 +17,10 @@ class TorrentSpider(feapder.AirSpider):
     __custom_setting__ = dict(
         USE_SESSION=True,
         SPIDER_MAX_RETRY_TIMES=0,
-        REQUEST_LOST_TIMEOUT=30,
-        LOG_LEVEL="ERROR"
+        REQUEST_LOST_TIMEOUT=10,
+        RETRY_FAILED_REQUESTS=False,
+        LOG_LEVEL="ERROR",
+        RANDOM_HEADERS=False
     )
     is_complete = False
     cookies = None
@@ -36,7 +38,6 @@ class TorrentSpider(feapder.AirSpider):
         self.keyword = keyword
         self.indexer = indexer
         self.cookies = self.indexer.cookie
-        self.torrents_info_array = []
 
     def start_requests(self):
         torrentspath = self.indexer.search.get('paths', [{}])[0].get('path', '')
@@ -44,7 +45,7 @@ class TorrentSpider(feapder.AirSpider):
             {"search": self.keyword, "search_field": self.keyword})
         yield feapder.Request(searchurl, cookies=self.cookies)
 
-    def Getdownloadvolumefactorselector(self, torrent):
+    def Getdownloadvolumefactor(self, torrent):
         # downloadvolumefactor
         for downloadvolumefactorselector in list(self.fields.get('downloadvolumefactor',
                                                                  {}).get('case',
@@ -57,7 +58,7 @@ class TorrentSpider(feapder.AirSpider):
                     downloadvolumefactorselector)
                 break
 
-    def Getuploadvolumefactorselector(self, torrent):
+    def Getuploadvolumefactor(self, torrent):
         # uploadvolumefactor
         for uploadvolumefactorselector in list(self.fields.get('uploadvolumefactor',
                                                                {}).get('case',
@@ -216,6 +217,7 @@ class TorrentSpider(feapder.AirSpider):
         """
         解析单条种子数据
         """
+        self.torrents_info = {'indexer': self.indexer.id}
         self.Gettitle_default(torrent)
         self.Gettitle_optional(torrent)
         self.Getgrabs(torrent)
@@ -225,8 +227,8 @@ class TorrentSpider(feapder.AirSpider):
         self.Getimdbid(torrent)
         self.Getdownload(torrent)
         self.Getdetails(torrent)
-        self.Getdownloadvolumefactorselector(torrent)
-        self.Getuploadvolumefactorselector(torrent)
+        self.Getdownloadvolumefactor(torrent)
+        self.Getuploadvolumefactor(torrent)
         self.Getdate_added(torrent)
         self.Getdate_elapsed(torrent)
         self.Getfree_deadline(torrent)
@@ -260,14 +262,11 @@ class TorrentSpider(feapder.AirSpider):
                         if flag == 0:
                             str_list.insert(i, '"')
                 torrents_selector = "".join(str_list)
-
             # 遍历种子html列表
             for torn in doc(torrents_selector):
-                torn = PyQuery(torn)
-                self.torrents_info['indexer'] = self.indexer.id
-                self.torrents_info_array.append(copy.deepcopy(self.Getinfo(torn)))
+                self.torrents_info_array.append(copy.deepcopy(self.Getinfo(PyQuery(torn))))
 
         except Exception as err:
-            log.warn("【SPLIDER】错误：%s - %s" % (str(err), traceback.format_exc()))
+            log.warn("【SPIDER】错误：%s - %s" % (str(err), traceback.format_exc()))
         finally:
             self.is_complete = True
