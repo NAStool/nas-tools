@@ -3,6 +3,7 @@ import re
 
 from lxml import etree
 
+import log
 from pt.siteuserinfo.site_user_info import ISiteUserInfo
 from utils.functions import num_filesize, str_int, str_float
 
@@ -39,10 +40,32 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         if not logout:
             self.err_msg = "未检测到已登陆，请检查cookies是否过期"
 
+    def _parse_message_unread(self, html_text):
+        """
+        解析未读短消息数量
+        :param html_text:
+        :return:
+        """
+        html = etree.HTML(html_text)
+        if not html:
+            return
+
+        message_labels = html.xpath('//a[contains(@href, "messages.php")]/..')
+        if message_labels:
+            message_text = message_labels[0].xpath("string(.)")
+
+            log.debug(f"【PT】{self.site_name} 消息原始信息 {message_text}")
+            message_unread_match = re.findall(r"[^Date](信息箱\s*|\(|你有\xa0)(\d+)", message_text)
+
+            if message_unread_match and len(message_unread_match[-1]) == 2:
+                self.message_unread = str_int(message_unread_match[-1][1])
+
     def _parse_user_base_info(self, html_text):
         # 合并解析，减少额外请求调用
         self.__parse_user_traffic_info(html_text)
         self._user_traffic_page = None
+
+        self._parse_message_unread(html_text)
 
         html_text = self._prepare_html_text(html_text)
         user_name = re.search(r"userdetails.php\?id=\d+[a-zA-Z\"'=()\u4E00-\u9FA5_\-\s]+>[<b>\s]*([^<>]*)[</b>]*</a>",
@@ -172,7 +195,8 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         self.__get_user_level(html)
 
         # 加入日期
-        join_at_text = html.xpath('//tr/td[text()="加入日期" or text()="注册日期" or *[text()="加入日期"]]/following-sibling::td[1]//text()')
+        join_at_text = html.xpath(
+            '//tr/td[text()="加入日期" or text()="注册日期" or *[text()="加入日期"]]/following-sibling::td[1]//text()')
         if join_at_text:
             self.join_at = join_at_text[0].split(' (')[0]
 
@@ -274,4 +298,3 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
                 if user_level_match and user_level_match.group(1).strip():
                     self.user_level = user_level_match.group(1).strip()
                     break
-
