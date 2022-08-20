@@ -11,7 +11,7 @@ from utils.indexer_helper import IndexerHelper
 
 @lru_cache(maxsize=1)
 def get_login_wallpaper(today=datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d')):
-    print(today)
+    print("当前日期：%s" % today)
     img_url = get_random_discover_backdrop()
     if img_url:
         res = RequestUtils().get_res(img_url)

@@ -1,3 +1,5 @@
+import traceback
+
 import dateparser
 import copy
 import re
@@ -5,6 +7,7 @@ import feapder
 from pyquery import PyQuery as pq
 from jinja2 import Template
 
+import log
 from utils.indexer_conf import IndexerConf
 
 
@@ -33,7 +36,7 @@ class TorrentSpider(feapder.AirSpider):
 
     def start_requests(self):
         domain = self.indexer.domain
-        torrentspath = self.indexer.search['paths'][0]['path']
+        torrentspath = self.indexer.search.get('paths', [{}])[0].get('path')
         searchurl = domain + torrentspath + '?stypes=s&search=' + self.keyword
         yield feapder.Request(searchurl, cookies=self.cookies)
 
@@ -51,22 +54,26 @@ class TorrentSpider(feapder.AirSpider):
 
     def Getdownloadvolumefactorselector(self, torrent):
         # self.tor.downloadvolumefactor=[]
-        for downloadvolumefactorselector in list(self.fields['downloadvolumefactor']['case'].keys()):
+        for downloadvolumefactorselector in list(self.fields.get('downloadvolumefactor',
+                                                                 {}).get('case',
+                                                                         {}).keys()):
             downloadvolumefactor = pq(torrent)(downloadvolumefactorselector)
             if len(downloadvolumefactor) > 0:
                 # self.tor.downloadvolumefactor.append(self.fields['downloadvolumefactor']['case'][downloadvolumefactorselector])
-                self.torrents_info['downloadvolumefactor'] = self.fields['downloadvolumefactor']['case'][
-                    downloadvolumefactorselector]
+                self.torrents_info['downloadvolumefactor'] = self.fields.get('downloadvolumefactor',
+                                                                             {}).get('case',
+                                                                                     {}).get(downloadvolumefactorselector)
                 break
 
     def Getuploadvolumefactorselector(self, torrent):
         # self.tor.uploadvolumefactor=[]
-        for uploadvolumefactorselector in list(self.fields['uploadvolumefactor']['case'].keys()):
+        for uploadvolumefactorselector in list(self.fields.get('uploadvolumefactor', {}).get('case', {}).keys()):
             uploadvolumefactor = pq(torrent)(uploadvolumefactorselector)
             if len(uploadvolumefactor) > 0:
                 # self.tor.uploadvolumefactor.append(self.fields['uploadvolumefactor']['case'][uploadvolumefactorselector])
-                self.torrents_info['uploadvolumefactor'] = self.fields['uploadvolumefactor']['case'][
-                    uploadvolumefactorselector]
+                self.torrents_info['uploadvolumefactor'] = self.fields.get('uploadvolumefactor',
+                                                                           {}).get('case',
+                                                                                   {}).get(uploadvolumefactorselector)
                 break
 
     # gettitle
@@ -74,13 +81,15 @@ class TorrentSpider(feapder.AirSpider):
         # title_default
         selector = ''
         if "title_default" in self.fields:
-            title_default = torrent(self.fields['title_default']['selector']).clone()
-            selector = self.fields['title_default']
+            title_default = torrent(self.fields.get('title_default',
+                                                    {}).get('selector')).clone()
+            selector = self.fields.get('title_default')
         else:
-            title_default = torrent(self.fields['title']['selector']).clone()
-            selector = self.fields['title']
+            title_default = torrent(self.fields.get('title',
+                                                    {}).get('selector')).clone()
+            selector = self.fields.get('title')
         if 'remove' in selector:
-            removelist = selector['remove'].split(', ')
+            removelist = selector.get('remove', '').split(', ')
             for v in removelist:
                 title_default.remove(v)
 
@@ -90,8 +99,8 @@ class TorrentSpider(feapder.AirSpider):
 
     def Getdetails(self, torrent):
         # details
-        details = torrent(self.fields['details']['selector'])
-        items = [item.attr(self.fields['details']['attribute']) for item in details.items()]
+        details = torrent(self.fields.get('details', {}).get('selector'))
+        items = [item.attr(self.fields.get('details', {}).get('attribute')) for item in details.items()]
         # self.tor.page_url=self.indexer.domain+items[0]
         # self.tor.details=items
         self.torrents_info['details'] = items[0]
@@ -99,23 +108,23 @@ class TorrentSpider(feapder.AirSpider):
 
     def Getdownload(self, torrent):
         # download link
-        download = torrent(self.fields['download']['selector'])
-        items = [item.attr(self.fields['download']['attribute']) for item in download.items()]
+        download = torrent(self.fields.get('download', {}).get('selector'))
+        items = [item.attr(self.fields.get('download', {}).get('attribute')) for item in download.items()]
         # self.tor.download=items
         self.torrents_info['download'] = items[0]
 
     def Getimdbid(self, torrent):
         # imdb
         if "imdbid" in self.fields:
-            imdbid = torrent(self.fields['imdbid']['selector'])
-            items = [item.attr(self.fields['imdbid']['attribute']) for item in imdbid.items()]
+            imdbid = torrent(self.fields.get('imdbid', {}).get('selector'))
+            items = [item.attr(self.fields.get('imdbid', {}).get('attribute')) for item in imdbid.items()]
             # self.tor.imdbid=items
             if len(items) > 0:
                 self.torrents_info['imdbid'] = items[0]
 
     def Getsize(self, torrent):
         # torrent size
-        size = torrent(self.fields['size']['selector'])
+        size = torrent(self.fields.get('size', {}).get('selector'))
         items = [item.text() for item in size.items()]
         # self.tor.size=items
         size = items[0].split("\n")
@@ -127,7 +136,7 @@ class TorrentSpider(feapder.AirSpider):
 
     def Getleechers(self, torrent):
         # torrent leechers
-        leechers = torrent(self.fields['leechers']['selector'])
+        leechers = torrent(self.fields.get('leechers', {}).get('selector'))
         items = [item.text() for item in leechers.items()]
         # self.tor.leechers=items
         # self.tor.peers=items
@@ -136,29 +145,29 @@ class TorrentSpider(feapder.AirSpider):
 
     def Getseeders(self, torrent):
         # torrent leechers
-        seeders = torrent(self.fields['seeders']['selector'])
+        seeders = torrent(self.fields.get('seeders', {}).get('selector'))
         items = [item.text() for item in seeders.items()]
         # self.tor.seeders=items
         self.torrents_info['seeders'] = items[0]
 
     def Getgrabs(self, torrent):
         # torrent grabs
-        grabs = torrent(self.fields['grabs']['selector'])
+        grabs = torrent(self.fields.get('grabs', {}).get('selector'))
         items = [item.text() for item in grabs.items()]
         # self.tor.grabs=items
         self.torrents_info['grabs'] = items[0]
 
     def Gettitle_optional(self, torrent, fields):
         # title_optional
-        if "selector" in self.fields['description']:
-            selector = self.fields['description']
-            t_o = torrent(selector['selector']).clone()
+        if "selector" in self.fields.get('description'):
+            selector = self.fields.get('description')
+            t_o = torrent(selector.get('selector')).clone()
             items = ''
             if 'attribute' in selector:
-                items = [item.attr(self.fields['description']['attribute']) for item in t_o.items()]
+                items = [item.attr(self.fields.get('description', {}).get('attribute')) for item in t_o.items()]
 
             if 'remove' in selector:
-                removelist = selector['remove'].split(', ')
+                removelist = selector.get('remove', '').split(', ')
                 for v in removelist:
                     t_o.remove(v)
 
@@ -166,22 +175,22 @@ class TorrentSpider(feapder.AirSpider):
                 if selector['selector'].find("td.embedded") != -1:
                     t_o = t_o("span")
                 items = [item.text() for item in t_o.items()]
-                items = items[selector["contents"]]
+                items = items[selector.get("contents")]
                 # t_o = t_o("span")[selector["contents"]]
                 # items = t_o.text
             elif "index" in selector:
                 items = [item.text() for item in t_o.items()]
-                items = items[selector["index"]]
+                items = items[selector.get("index")]
 
             # self.tor.description=items
             self.torrents_info['description'] = items
 
-        if "text" in self.fields['description']:
-            template = Template(self.fields['description']['text'])
+        if "text" in self.fields.get('description'):
+            template = Template(self.fields.get('description', {}).get('text'))
 
             # template.render(fields=self.fields)
-            tags = torrent(self.fields['tags']['selector']).text()
-            subject = torrent(self.fields['subject']['selector']).text()
+            tags = torrent(self.fields.get('tags', {}).get('selector')).text()
+            subject = torrent(self.fields.get('subject', {}).get('selector')).text()
             render_dict = {'tags': tags, 'subject': subject}
             title = template.render(fields=render_dict)
             self.torrents_info['description'] = title
@@ -194,31 +203,31 @@ class TorrentSpider(feapder.AirSpider):
 
     def Getdate_added(self, torrent):
         # date_added
-        selector = torrent(self.fields['date_elapsed']['selector'])
-        items = [item.attr(self.fields['date_elapsed']['attribute']) for item in selector.items()]
+        selector = torrent(self.fields.get('date_elapsed', {}).get('selector'))
+        items = [item.attr(self.fields.get('date_elapsed', {}).get('attribute')) for item in selector.items()]
         # self.tor.date_added=items
         self.torrents_info['date_added'] = items[0]
 
     def Getdate_elapsed(self, torrent):
         # date_added
-        selector = torrent(self.fields['date_elapsed']['selector'])
+        selector = torrent(self.fields.get('date_elapsed', {}).get('selector'))
         items = [item.text() for item in selector.items()]
         # self.tor.date_elapsed=items
         self.torrents_info['date_elapsed'] = items[0]
 
     def Getcategory(self, torrent):
         # date_added
-        selector = torrent(self.fields['category']['selector'])
-        items = [item.attr(self.fields['category']['attribute']) for item in selector.items()]
-        if "filters" in self.fields['category']:
-            for filter in self.fields['category']['filters']:
-                if filter['name'] == "replace":
-                    arg1 = filter['args'][0]
-                    arg2 = filter['args'][1]
+        selector = torrent(self.fields.get('category', {}).get('selector'))
+        items = [item.attr(self.fields.get('category', {}).get('attribute')) for item in selector.items()]
+        if "filters" in self.fields.get('category') or []:
+            for c_filter in self.fields.get('category', {}).get('filters'):
+                if c_filter.get('name') == "replace":
+                    arg1 = c_filter.get('args', [])[0]
+                    arg2 = c_filter.get('args', [])[1]
                     for i in range(len(items)):
                         items[i] = items[i].replace(arg1, arg2)
-                if filter['name'] == "querystring":
-                    arg1 = filter['args']
+                if c_filter.get('name') == "querystring":
+                    arg1 = c_filter.get('args')
                     str = items[0]
                     str = "car=daasd$dada=dasda"
 
@@ -229,23 +238,23 @@ class TorrentSpider(feapder.AirSpider):
 
     def Getfree_deadline(self, torrent):
         # date_added
-        selector = torrent(self.fields['free_deadline']['selector'])
+        selector = torrent(self.fields.get('free_deadline', {}).get('selector'))
         # items = [item.text() for item in selector.items()]
-        items = [item.attr(self.fields['free_deadline']['attribute']) for item in selector.items()]
+        items = [item.attr(self.fields.get('free_deadline', {}).get('attribute')) for item in selector.items()]
         # print(items)
         # print(len(items))
         if len(items) > 0 and items is not None:
             if items[0] is not None:
                 # print(len(items))
-                if "filters" in self.fields['free_deadline']:
+                if "filters" in self.fields.get('free_deadline'):
                     itemdata = items[0]
-                    for filter in self.fields['free_deadline']['filters']:
-                        if filter['name'] == "re_search":
-                            arg1 = filter['args'][0]
-                            arg2 = filter['args'][1]
+                    for f_filter in self.fields.get('free_deadline', {}).get('filters') or []:
+                        if f_filter.get('name') == "re_search":
+                            arg1 = f_filter.get('args', [])[0]
+                            arg2 = f_filter.get('args', [])[1]
                             items = re.search(arg1, itemdata, arg2)[0]
-                        if filter['name'] == "dateparse":
-                            arg1 = filter['args']
+                        if f_filter.get('name') == "dateparse":
+                            arg1 = f_filter.get('args')
                             items = dateparser.parse(itemdata, date_formats=[arg1])
 
         # self.tor.free_deadline=items
@@ -270,43 +279,46 @@ class TorrentSpider(feapder.AirSpider):
         return self.torrents_info
 
     def parse(self, request, response):
-        # 获取网站信息
-        self.article_list = response.extract()
-        # 获取站点种子xml
-        self.fields = self.indexer.torrents['fields']
-        doc = pq(self.article_list)
-        # 种子筛选器
-        torrents_selector = self.indexer.torrents['list']['selector']
+        try:
+            # 获取网站信息
+            self.article_list = response.extract()
+            # 获取站点种子xml
+            self.fields = self.indexer.torrents.get('fields')
+            doc = pq(self.article_list)
+            # 种子筛选器
+            torrents_selector = self.indexer.torrents.get('list', {}).get('selector')
 
-        str_list = list(torrents_selector)
-        # 兼容选择器中has()函数 部分情况下无双引号会报错
-        has_index = torrents_selector.find('has')
+            str_list = list(torrents_selector)
+            # 兼容选择器中has()函数 部分情况下无双引号会报错
+            has_index = torrents_selector.find('has')
 
-        # 存在has() 添加双引号
-        flag = 0
-        if has_index != 0:
-            str_list.insert(has_index + 4, '"')
-            for i in range(len(str_list)):
-                if i > has_index + 2:
-                    n = str_list[i]
-                    if n == '(':
-                        flag = flag + 1
-                    if n == ')':
-                        flag = flag - 1
-                    if flag == 0:
-                        str_list.insert(i, '"')
-            torrents_selector = "".join(str_list)
+            # 存在has() 添加双引号
+            flag = 0
+            if has_index != -1:
+                str_list.insert(has_index + 4, '"')
+                for i in range(len(str_list)):
+                    if i > has_index + 2:
+                        n = str_list[i]
+                        if n == '(':
+                            flag = flag + 1
+                        if n == ')':
+                            flag = flag - 1
+                        if flag == 0:
+                            str_list.insert(i, '"')
+                torrents_selector = "".join(str_list)
 
-        # 获取种子html列表
-        torrents = doc(torrents_selector)
-        self.torrents_info = {}
+            # 获取种子html列表
+            torrents = doc(torrents_selector)
+            self.torrents_info = {}
 
-        # title_default
-        # 遍历种子html列表
-        for torn in torrents:
-            torn = pq(torn)
-            # self.tor.indexer=self.indexer.id
-            self.torrents_info['indexer'] = self.indexer.id
-            self.torrents_info_array.append(copy.deepcopy(self.Getinfo(torn)))
-        # 完成
-        self.is_complete = True
+            # title_default
+            # 遍历种子html列表
+            for torn in torrents:
+                torn = pq(torn)
+                # self.tor.indexer=self.indexer.id
+                self.torrents_info['indexer'] = self.indexer.id
+                self.torrents_info_array.append(copy.deepcopy(self.Getinfo(torn)))
+        except Exception as err:
+            log.warn("【SPLIDER】错误：%s - %s" % (str(err), traceback.format_exc()))
+        finally:
+            self.is_complete = True

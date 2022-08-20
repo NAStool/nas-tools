@@ -3,7 +3,7 @@ import time
 
 import log
 from pt.indexer.indexer import IIndexer
-from pt.indexer.splider import TorrentSpider
+from pt.indexer.spider import TorrentSpider
 from pt.sites import Sites
 from rmt.meta.metabase import MetaBase
 from utils.commons import ProcessHandler
