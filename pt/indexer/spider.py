@@ -153,7 +153,7 @@ class TorrentSpider(feapder.AirSpider):
             if "contents" in description:
                 items = [item.text() for item in description_item.items() if item]
                 if items:
-                    items = items[0]
+                    items = items[0].split("\n")[description.get("contents")]
 
             if "index" in description:
                 items = [item.text() for item in description_item.items() if item]
