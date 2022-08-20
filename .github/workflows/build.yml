@@ -2,9 +2,11 @@ name: Nas-tools Build
 on:
   workflow_dispatch:
   push:
-    branches: master
+    branches:
+      - master
     paths:
       - version.py
+      - .github/workflows/build.yml
 
 jobs:
   create-release:
