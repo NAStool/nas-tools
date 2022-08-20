@@ -192,5 +192,15 @@ RSS_SITE_GRAP_CONF = {
         'FREE': ["//font[@class='free'][text()='免费']"],
         '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
         'HR': []
+    },
+    'avgv.cc': {
+        'FREE': ["//font[@class='free']"],
+        '2XFREE': ["//font[@class='twoupfree']"],
+        'HR': []
+    },
+    'hdfans.org': {
+        'FREE': ["//font[@class='free']"],
+        '2XFREE': ["//font[@class='twoupfree']"],
+        'HR': []
     }
 }

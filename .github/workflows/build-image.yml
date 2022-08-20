@@ -18,6 +18,13 @@ jobs:
         uses: actions/checkout@master
 
       -
+        name: Release version
+        id: release_version
+        run: |
+          app_version=$(cat version.py |sed -ne "s/APP_VERSION\s=\s'v\(.*\)'/\1/gp")
+          echo "app_version=$app_version" >> $GITHUB_ENV
+
+      -
         name: Set Up QEMU
         uses: docker/setup-qemu-action@v1
 
@@ -45,3 +52,4 @@ jobs:
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/nas-tools:latest
+            ${{ secrets.DOCKER_USERNAME }}/nas-tools:${{ env.app_version }}

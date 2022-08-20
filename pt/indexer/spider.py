@@ -24,7 +24,6 @@ class TorrentSpider(feapder.AirSpider):
     )
     is_complete = False
     cookies = None
-    config_yaml = None
     keyword = None
     torrents_info_array = []
     indexer = None
@@ -38,6 +37,7 @@ class TorrentSpider(feapder.AirSpider):
         self.keyword = keyword
         self.indexer = indexer
         self.cookies = self.indexer.cookie
+        self.torrents_info_array = []
 
     def start_requests(self):
         torrentspath = self.indexer.search.get('paths', [{}])[0].get('path', '')
