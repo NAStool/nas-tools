@@ -50,15 +50,23 @@ class Qbittorrent(IDownloadClient):
     def get_status(self):
         if not self.qbc:
             return False
-        return True if self.qbc.transfer_info() else False
+        try:
+            return True if self.qbc.transfer_info() else False
+        except Exception as err:
+            print(str(err))
+            return False
 
     def get_torrents(self, ids=None, status=None, tag=None):
         if not self.qbc:
             return []
-        self.qbc.auth_log_in()
-        torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status, tag=tag)
-        self.qbc.auth_log_out()
-        return torrents or []
+        try:
+            self.qbc.auth_log_in()
+            torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status, tag=tag)
+            self.qbc.auth_log_out()
+            return torrents or []
+        except Exception as err:
+            print(str(err))
+            return []
 
     def get_completed_torrents(self, tag=None):
         if not self.qbc:
@@ -76,29 +84,39 @@ class Qbittorrent(IDownloadClient):
         :param ids: 种子Hash列表
         :param tag: 标签内容
         """
-        return self.qbc.torrents_delete_tags(torrent_hashes=ids, tags=tag)
+        try:
+            return self.qbc.torrents_delete_tags(torrent_hashes=ids, tags=tag)
+        except Exception as err:
+            print(str(err))
+            return False
 
     def set_torrents_status(self, ids):
         if not self.qbc:
             return
-        self.qbc.auth_log_in()
-        # 删除标签
-        self.qbc.torrents_remove_tags(tags=PT_TAG, torrent_hashes=ids)
-        # 打标签
-        self.qbc.torrents_add_tags(tags="已整理", torrent_hashes=ids)
-        # 超级做种
-        if self.__force_upload:
-            self.qbc.torrents_set_force_start(enable=True, torrent_hashes=ids)
-        log.info("【QB】设置qBittorrent种子状态成功")
-        self.qbc.auth_log_out()
+        try:
+            self.qbc.auth_log_in()
+            # 删除标签
+            self.qbc.torrents_remove_tags(tags=PT_TAG, torrent_hashes=ids)
+            # 打标签
+            self.qbc.torrents_add_tags(tags="已整理", torrent_hashes=ids)
+            # 超级做种
+            if self.__force_upload:
+                self.qbc.torrents_set_force_start(enable=True, torrent_hashes=ids)
+            log.info("【QB】设置qBittorrent种子状态成功")
+            self.qbc.auth_log_out()
+        except Exception as err:
+            print(str(err))
 
     def torrents_set_force_start(self, ids):
         """
         设置强制作种
         """
-        self.qbc.auth_log_in()
-        self.qbc.torrents_set_force_start(enable=True, torrent_hashes=ids)
-        self.qbc.auth_log_out()
+        try:
+            self.qbc.auth_log_in()
+            self.qbc.torrents_set_force_start(enable=True, torrent_hashes=ids)
+            self.qbc.auth_log_out()
+        except Exception as err:
+            print(str(err))
 
     def get_transfer_task(self, tag):
         # 处理下载完成的任务
@@ -135,7 +153,11 @@ class Qbittorrent(IDownloadClient):
         """
         if not status:
             status = ["paused"]
-        torrents = self.get_torrents(status=status, tag=tag)
+        try:
+            torrents = self.get_torrents(status=status, tag=tag)
+        except Exception as err:
+            print(str(err))
+            return None
         if torrents:
             return torrents[0].get("hash")
         else:
@@ -144,55 +166,75 @@ class Qbittorrent(IDownloadClient):
     def add_torrent(self, content, mtype, is_paused=False, tag=None, download_dir=None):
         if not self.qbc or not content:
             return False
-        self.qbc.auth_log_in()
-        if mtype == MediaType.TV:
-            save_path = self.tv_save_path
-            category = self.tv_category
-        elif mtype == MediaType.ANIME:
-            save_path = self.anime_save_path
-            category = self.anime_category
-        else:
-            save_path = self.movie_save_path
-            category = self.movie_category
-        if download_dir:
-            save_path = download_dir
-        if isinstance(content, str):
-            qbc_ret = self.qbc.torrents_add(urls=content,
-                                            save_path=save_path,
-                                            category=category,
-                                            is_paused=is_paused,
-                                            tags=tag)
-        else:
-            qbc_ret = self.qbc.torrents_add(torrent_files=content,
-                                            save_path=save_path,
-                                            category=category,
-                                            is_paused=is_paused,
-                                            tags=tag)
-        self.qbc.auth_log_out()
-        return True if qbc_ret and str(qbc_ret).find("Ok") != -1 else False
+        try:
+            self.qbc.auth_log_in()
+            if mtype == MediaType.TV:
+                save_path = self.tv_save_path
+                category = self.tv_category
+            elif mtype == MediaType.ANIME:
+                save_path = self.anime_save_path
+                category = self.anime_category
+            else:
+                save_path = self.movie_save_path
+                category = self.movie_category
+            if download_dir:
+                save_path = download_dir
+            if isinstance(content, str):
+                qbc_ret = self.qbc.torrents_add(urls=content,
+                                                save_path=save_path,
+                                                category=category,
+                                                is_paused=is_paused,
+                                                tags=tag)
+            else:
+                qbc_ret = self.qbc.torrents_add(torrent_files=content,
+                                                save_path=save_path,
+                                                category=category,
+                                                is_paused=is_paused,
+                                                tags=tag)
+            self.qbc.auth_log_out()
+            return True if qbc_ret and str(qbc_ret).find("Ok") != -1 else False
+        except Exception as err:
+            print(str(err))
+            return False
 
     def start_torrents(self, ids):
         if not self.qbc:
             return False
-        return self.qbc.torrents_resume(torrent_hashes=ids)
+        try:
+            return self.qbc.torrents_resume(torrent_hashes=ids)
+        except Exception as err:
+            print(str(err))
+            return False
 
     def stop_torrents(self, ids):
         if not self.qbc:
             return False
-        return self.qbc.torrents_pause(torrent_hashes=ids)
+        try:
+            return self.qbc.torrents_pause(torrent_hashes=ids)
+        except Exception as err:
+            print(str(err))
+            return False
 
     def delete_torrents(self, delete_file, ids):
         if not self.qbc:
             return False
         if not ids:
             return False
-        self.qbc.auth_log_in()
-        ret = self.qbc.torrents_delete(delete_files=delete_file, torrent_hashes=ids)
-        self.qbc.auth_log_out()
-        return ret
+        try:
+            self.qbc.auth_log_in()
+            ret = self.qbc.torrents_delete(delete_files=delete_file, torrent_hashes=ids)
+            self.qbc.auth_log_out()
+            return ret
+        except Exception as err:
+            print(str(err))
+            return False
 
     def get_files(self, tid):
-        return self.qbc.torrents_files(torrent_hash=tid)
+        try:
+            return self.qbc.torrents_files(torrent_hash=tid)
+        except Exception as err:
+            print(str(err))
+            return None
 
     def set_files(self, torrent_hash, file_ids, priority):
         """
@@ -200,8 +242,12 @@ class Qbittorrent(IDownloadClient):
         """
         if not torrent_hash or not file_ids:
             return False
-        self.qbc.torrents_file_priority(torrent_hash=torrent_hash, file_ids=file_ids, priority=priority)
-        return True
+        try:
+            self.qbc.torrents_file_priority(torrent_hash=torrent_hash, file_ids=file_ids, priority=priority)
+            return True
+        except Exception as err:
+            print(str(err))
+            return False
 
     def set_torrent_tag(self, **kwargs):
         pass
@@ -210,7 +256,11 @@ class Qbittorrent(IDownloadClient):
         if not self.qbc:
             return []
         ret_dirs = []
-        categories = self.qbc.torrents_categories() or {}
+        try:
+            categories = self.qbc.torrents_categories() or {}
+        except Exception as err:
+            print(str(err))
+            return []
         for category in categories.values():
             if category and category.get("savePath") and category.get("savePath") not in ret_dirs:
                 ret_dirs.append(category.get("savePath"))
