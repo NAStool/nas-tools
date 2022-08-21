@@ -4,7 +4,7 @@
 from PyInstaller.building.build_main import Analysis, PYZ, EXE, COLLECT, BUNDLE, TOC
 
 
-def collect_pkg_data(package, include_py_files=False, subdir=None):
+def collect_pkg_data(package, include_py_files=True, subdir=None):
     import os
     from PyInstaller.utils.hooks import get_package_paths, remove_prefix, PY_IGNORE_EXTENSIONS
 
@@ -28,7 +28,8 @@ def collect_pkg_data(package, include_py_files=False, subdir=None):
 
     return data_toc
 
-pkg_data = collect_pkg_data('web')  # <<< Put the name of your package here
+pkg_data1 = collect_pkg_data('web')
+pkg_data2 = collect_pkg_data('feapder')   # <<< Put the name of your package here
 # <<< END ADDED PART
 
 
@@ -59,7 +60,8 @@ exe = EXE(
           a.binaries,
           a.zipfiles,
           a.datas,
-          pkg_data,
+          pkg_data1,
+          pkg_data2,
           [],
           name='nas-tools',
           debug=False,
