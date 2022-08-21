@@ -1,6 +1,5 @@
 import traceback
 
-import dateparser
 import copy
 import re
 import feapder
@@ -200,7 +199,7 @@ class TorrentSpider(feapder.AirSpider):
         self.torrents_info['date_elapsed'] = items[0] if items else ''
 
     def Getfree_deadline(self, torrent):
-        # free deadline
+        # TODO free deadline
         selector = torrent(self.fields.get('free_deadline', {}).get('selector', ''))
         items = [item.attr(self.fields.get('free_deadline', {}).get('attribute')) for item in selector.items()]
         if len(items) > 0 and items is not None:
@@ -217,7 +216,7 @@ class TorrentSpider(feapder.AirSpider):
                             items = search[0] if search else ""
                         if f_filter.get('name') == "dateparse":
                             arg1 = f_filter.get('args')
-                            items = dateparser.parse(itemdata, date_formats=[arg1])
+                            items = arg1
                 self.torrents_info['free_deadline'] = items
 
     def Getinfo(self, torrent):
