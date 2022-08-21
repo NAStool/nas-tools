@@ -95,6 +95,7 @@ class WebAction:
             "delete_downloader": self.__delete_downloader,
             "name_test": self.__name_test,
             "rule_test": self.__rule_test,
+            "net_test": self.__net_test,
             "add_filtergroup": self.__add_filtergroup,
             "set_default_filtergroup": self.__set_default_filtergroup,
             "del_filtergroup": self.__del_filtergroup,
@@ -1494,6 +1495,19 @@ class WebAction:
             "name": rule_name if rule_name else "未设置默认规则",
             "order": 100 - res_order if res_order else 0
         }
+
+    @staticmethod
+    def __net_test(data):
+        target = data
+        if target == "image.tmdb.org":
+            target = target + "/t/p/w500/wwemzKWzjKYJFfCeiB57q3r4Bcm.png"
+        target = "https://" + target
+        if not RequestUtils().get_res(target):
+            return {"res": False}
+        elif RequestUtils().get_res(target).ok:
+            return {"res": True}
+        else:
+            return {"res": False}
 
     @staticmethod
     def __get_site_activity(data):

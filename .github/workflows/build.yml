@@ -6,7 +6,7 @@ on:
       - master
     paths:
       - version.py
-      - .github/workflows/build.yml
+      - .github/workflows/build-test.yml
 
 jobs:
   create-release:
@@ -29,38 +29,28 @@ jobs:
         body: ${{ github.event.commits[0].message }}
         draft: false
         prerelease: false
-    - name: output release_id
-      run: echo "${{ steps.create_release.outputs.id }}" > release_id.txt
-    - name: save release_id
+    - name: output release_informations
+      run: |
+        echo "${{ steps.create_release.outputs.id }}" > release_id.txt
+        echo "${{ env.app_version }}" > app_version.txt
+    - name: save release_informations
       uses: actions/upload-artifact@v3
       with:
-        name: release_id
-        path: release_id.txt
-    - name: output app_version
-      run: echo "${{ env.app_version }}" > app_version.txt
-    - name: save app_version
-      uses: actions/upload-artifact@v3
-      with:
-        name: app_version
-        path: app_version.txt
+        name: release_informations
+        path: |
+          release_id.txt
+          app_version.txt
 
   synology-build:
     runs-on: ubuntu-latest
     needs: create-release
     steps:
-    - name: download release_id and app_version
+    - name: download release_informations
       uses: actions/download-artifact@v3
-    - name: get release_id
-      id: get_release_id
-      shell: bash
-      run: |
-        value=`cat release_id/release_id.txt`
-        echo "release_id=$value" >> $GITHUB_ENV
     - name: get app_version
-      id: get_app_version
       shell: bash
       run: |
-        value=`cat app_version/app_version.txt`
+        value=`cat release_informations/app_version.txt`
         echo "app_version=$value" >> $GITHUB_ENV
     - name: Build the synology spk
       run: |
@@ -88,28 +78,16 @@ jobs:
         cd ..
         mkdir spks
         mv spk6/nastool_dsm_6.x.spk spk7/nastool_dsm_7.x.spk spks/
-    - name: Upload release asset
-      id: upload-release-asset
-      uses: dwenegar/upload-release-assets@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: upload synology files
+      uses: actions/upload-artifact@v3
       with:
-        release_id: ${{ env.release_id }}
-        assets_path: /home/runner/work/nas-tools/nas-tools/nas-tools/spks/
+        name: synology
+        path: /home/runner/work/nas-tools/nas-tools/nas-tools/spks/
 
   windows-build:
     runs-on: windows-latest
     needs: create-release
     steps:
-    - name: download release_id and app_version
-      uses: actions/download-artifact@v3
-    - name: get release_id
-      id: get_release_id
-      shell: bash
-      run: |
-        value=`cat release_id/release_id.txt`
-        echo "release_id=$value" >> $GITHUB_ENV
-        echo "${{ env.release_id }}"
     - name: init Python 3.10.6
       uses: actions/setup-python@v4
       with:
@@ -136,24 +114,59 @@ jobs:
         xcopy .\web c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\web\ /e &&
         cd windows &&
         pyinstaller nas-tools.spec /
+    - name: upload windows file
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows
+        path: D:/a/nas-tools/nas-tools/nas-tools/windows/dist/nas-tools.exe
+
+  Send-message:
+    runs-on: ubuntu-latest
+    needs: [synology-build, windows-build]
+    steps:
+    - name: download release_informations
+      uses: actions/download-artifact@v3
+    - name: get release_informations
+      shell: bash
+      run: |
+        value=`cat release_informations/release_id.txt`
+        echo "release_id=$value" >> $GITHUB_ENV
+        value=`cat release_informations/app_version.txt`
+        echo "app_version=$value" >> $GITHUB_ENV
     - name: Upload release asset
-      id: upload-release-asset
       uses: dwenegar/upload-release-assets@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         release_id: ${{ env.release_id }}
-        assets_path: D:/a/nas-tools/nas-tools/nas-tools/windows/dist/nas-tools.exe
-
-  Send-message:
-    runs-on: ubuntu-latest
-    needs: [synology-build,windows-build]
-    steps:
-    - name: Send telegram message
+        assets_path: |
+            /home/runner/work/nas-tools/nas-tools/synology/
+            /home/runner/work/nas-tools/nas-tools/windows/
+    - name: Send telegram message (release informations)
       uses: appleboy/telegram-action@master
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
+        format: markdown
         message: |
-          ${{ github.event.commits[0].message }}
-          Repository: ${{ github.repository }}
+            *${{ env.app_version }}*
+
+            ${{ github.event.commits[0].message }}
+    - name: Send telegram message synology 1
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        document: /home/runner/work/nas-tools/nas-tools/synology/nastool_dsm_6.x.spk
+    - name: Send telegram message synology 2
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        document: /home/runner/work/nas-tools/nas-tools/synology/nastool_dsm_7.x.spk
+    - name: Send telegram message windows
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ secrets.TELEGRAM_TO }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        document: /home/runner/work/nas-tools/nas-tools/windows/nas-tools.exe
