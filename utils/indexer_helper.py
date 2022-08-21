@@ -16,8 +16,11 @@ class IndexerHelper:
         self.init_config()
 
     def init_config(self):
-        with open(os.path.join(os.getcwd(), "config", "sites.dat"), "rb") as f:
-            self._indexers = pickle.load(f)
+        try:
+            with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../config", "sites.dat"), "rb") as f:
+                self._indexers = pickle.load(f)
+        except Exception as err:
+            print(err)
 
     def get_all_indexers(self):
         return self._indexers
