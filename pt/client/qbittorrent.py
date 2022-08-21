@@ -41,7 +41,8 @@ class Qbittorrent(IDownloadClient):
                                         port=self.port,
                                         username=self.username,
                                         password=self.password,
-                                        VERIFY_WEBUI_CERTIFICATE=False)
+                                        VERIFY_WEBUI_CERTIFICATE=False,
+                                        REQUESTS_ARGS={'timeout': (3, 10)})
             return qbt
         except Exception as err:
             log.error("【QB】qBittorrent连接出错：%s" % str(err))
@@ -257,7 +258,7 @@ class Qbittorrent(IDownloadClient):
             return []
         ret_dirs = []
         try:
-            categories = self.qbc.torrents_categories() or {}
+            categories = self.qbc.torrents_categories(requests_args={'timeout': (3, 5)}) or {}
         except Exception as err:
             print(str(err))
             return []
