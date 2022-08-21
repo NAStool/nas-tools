@@ -6,7 +6,6 @@ on:
       - master
     paths:
       - version.py
-      - .github/workflows/build.yml
 
 jobs:
   create-release:
@@ -149,7 +148,7 @@ jobs:
         token: ${{ secrets.TELEGRAM_TOKEN }}
         format: markdown
         message: |
-            *${{ env.app_version }}*
+            *v${{ env.app_version }}*
 
             ${{ github.event.commits[0].message }}
     - name: Send telegram message synology 1
