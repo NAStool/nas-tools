@@ -26,6 +26,7 @@ class TorrentSpider(feapder.AirSpider):
     keyword = None
     torrents_info_array = []
     indexer = None
+    domain = None
     torrents_info = {}
     article_list = None
     fields = None
@@ -35,6 +36,9 @@ class TorrentSpider(feapder.AirSpider):
             return
         self.keyword = keyword
         self.indexer = indexer
+        self.domain = indexer.domain
+        if self.domain and not str(self.domain).endswith("/"):
+            self.domain = self.domain + "/"
         self.cookies = self.indexer.cookie
         self.torrents_info_array = []
 
@@ -99,7 +103,12 @@ class TorrentSpider(feapder.AirSpider):
         # download link
         download = torrent(self.fields.get('download', {}).get('selector'))
         items = [item.attr(self.fields.get('download', {}).get('attribute')) for item in download.items()]
-        self.torrents_info['download'] = items[0] if items else 0
+        if items:
+            if not items[0].startswith("http"):
+                enclosure = self.domain + items[0][1:] if items[0].startswith("/") else self.domain + items[0]
+            else:
+                enclosure = items[0]
+            self.torrents_info['enclosure'] = enclosure
 
     def Getimdbid(self, torrent):
         # imdbid
