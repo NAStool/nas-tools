@@ -67,6 +67,7 @@ class Sites:
             url = site[3] if not site[4] else site[4]
             if siteurl and url and parse.urlparse(siteurl).netloc == parse.urlparse(url).netloc:
                 return site_info
+            ret_sites.append(site_info)
         if siteid or siteurl:
             return {}
         return ret_sites
