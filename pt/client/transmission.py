@@ -59,7 +59,11 @@ class Transmission(IDownloadClient):
             ids = [int(x) for x in ids]
         elif ids:
             ids = int(ids)
-        torrents = self.trc.get_torrents(ids=ids, arguments=self.__trarg)
+        try:
+            torrents = self.trc.get_torrents(ids=ids, arguments=self.__trarg)
+        except Exception as err:
+            print(str(err))
+            return []
         if status and not isinstance(status, list):
             status = [status]
         ret_torrents = []
@@ -75,7 +79,11 @@ class Transmission(IDownloadClient):
     def get_completed_torrents(self, tag=None):
         if not self.trc:
             return []
-        return self.get_torrents(status=["seeding", "seed_pending"], tag=tag)
+        try:
+            return self.get_torrents(status=["seeding", "seed_pending"], tag=tag)
+        except Exception as err:
+            print(str(err))
+            return []
 
     def get_downloading_torrents(self, tag=None):
         if not self.trc:
@@ -90,13 +98,19 @@ class Transmission(IDownloadClient):
         elif ids:
             ids = int(ids)
         # 打标签
-        self.trc.change_torrent(labels=["已整理"], ids=ids)
-        log.info("【TR】设置transmission种子标签成功")
+        try:
+            self.trc.change_torrent(labels=["已整理"], ids=ids)
+            log.info("【TR】设置transmission种子标签成功")
+        except Exception as err:
+            print(str(err))
 
     def set_torrent_tag(self, tid, tag):
         if not tid or not tag:
             return
-        self.trc.change_torrent(labels=[tag], ids=int(tid))
+        try:
+            self.trc.change_torrent(labels=[tag], ids=int(tid))
+        except Exception as err:
+            print(str(err))
 
     def get_transfer_task(self, tag):
         # 处理所有任务
@@ -145,7 +159,11 @@ class Transmission(IDownloadClient):
                 save_path = self.anime_save_path
             else:
                 save_path = self.movie_save_path
-        return self.trc.add_torrent(torrent=content, download_dir=save_path, paused=is_paused)
+        try:
+            return self.trc.add_torrent(torrent=content, download_dir=save_path, paused=is_paused)
+        except Exception as err:
+            print(str(err))
+            return False
 
     def start_torrents(self, ids):
         if not self.trc:
@@ -154,7 +172,11 @@ class Transmission(IDownloadClient):
             ids = [int(x) for x in ids]
         elif ids:
             ids = int(ids)
-        return self.trc.start_torrent(ids=ids)
+        try:
+            return self.trc.start_torrent(ids=ids)
+        except Exception as err:
+            print(str(err))
+            return False
 
     def stop_torrents(self, ids):
         if not self.trc:
@@ -163,7 +185,11 @@ class Transmission(IDownloadClient):
             ids = [int(x) for x in ids]
         elif ids:
             ids = int(ids)
-        return self.trc.stop_torrent(ids=ids)
+        try:
+            return self.trc.stop_torrent(ids=ids)
+        except Exception as err:
+            print(str(err))
+            return False
 
     def delete_torrents(self, delete_file, ids):
         if not self.trc:
@@ -174,7 +200,11 @@ class Transmission(IDownloadClient):
             ids = [int(x) for x in ids]
         elif ids:
             ids = int(ids)
-        return self.trc.remove_torrent(delete_data=delete_file, ids=ids)
+        try:
+            return self.trc.remove_torrent(delete_data=delete_file, ids=ids)
+        except Exception as err:
+            print(str(err))
+            return False
 
     def get_files(self, tid):
         """
@@ -182,7 +212,11 @@ class Transmission(IDownloadClient):
         """
         if not tid:
             return None
-        torrent = self.trc.get_torrent(tid)
+        try:
+            torrent = self.trc.get_torrent(tid)
+        except Exception as err:
+            print(str(err))
+            return None
         if torrent:
             return torrent.files()
         else:
@@ -204,10 +238,18 @@ class Transmission(IDownloadClient):
         """
         if not file_items:
             return False
-        self.trc.set_files(file_items)
-        return True
+        try:
+            self.trc.set_files(file_items)
+            return True
+        except Exception as err:
+            print(str(err))
+            return False
 
     def get_download_dirs(self):
         if not self.trc:
             return []
-        return [self.trc.get_session(timeout=5).download_dir]
+        try:
+            return [self.trc.get_session(timeout=5).download_dir]
+        except Exception as err:
+            print(str(err))
+            return []
