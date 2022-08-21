@@ -154,18 +154,18 @@ jobs:
     - name: Send telegram message synology 1
       uses: appleboy/telegram-action@master
       with:
-        to: ${{ secrets.TELEGRAM_XM }}
+        to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
         document: /home/runner/work/nas-tools/nas-tools/synology/nastool_dsm_6.x.spk
     - name: Send telegram message synology 2
       uses: appleboy/telegram-action@master
       with:
-        to: ${{ secrets.TELEGRAM_XM }}
+        to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
         document: /home/runner/work/nas-tools/nas-tools/synology/nastool_dsm_7.x.spk
     - name: Send telegram message windows
       uses: appleboy/telegram-action@master
       with:
-        to: ${{ secrets.TELEGRAM_XM }}
+        to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
         document: /home/runner/work/nas-tools/nas-tools/windows/nas-tools.exe
