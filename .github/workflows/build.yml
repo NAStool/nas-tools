@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - version.py
+      - .github/workflows/build.yml
 
 jobs:
   create-release:
