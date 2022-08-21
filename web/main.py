@@ -950,17 +950,23 @@ def create_flask_app(config):
         scheduler_cfg_list.append(
             {'name': '过滤规则测试', 'time': '', 'state': 'OFF', 'id': 'ruletest', 'svg': svg, 'color': 'yellow'})
 
-        # 网络连接性测试
+        # 网络连通性测试
         svg = '''
-        <svg t="1660720525544" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1559" width="16" height="16">
-        <path d="M646 1024H100A100 100 0 0 1 0 924V258a100 100 0 0 1 100-100h546a100 100 0 0 1 100 100v31a40 40 0 1 1-80 0v-31a20 20 0 0 0-20-20H100a20 20 0 0 0-20 20v666a20 20 0 0 0 20 20h546a20 20 0 0 0 20-20V713a40 40 0 0 1 80 0v211a100 100 0 0 1-100 100z" fill="#ffffff" p-id="1560"></path>
-        <path d="M924 866H806a40 40 0 0 1 0-80h118a20 20 0 0 0 20-20V100a20 20 0 0 0-20-20H378a20 20 0 0 0-20 20v8a40 40 0 0 1-80 0v-8A100 100 0 0 1 378 0h546a100 100 0 0 1 100 100v666a100 100 0 0 1-100 100z" fill="#ffffff" p-id="1561"></path>
-        <path d="M469 887a40 40 0 0 1-27-10L152 618a40 40 0 0 1 1-60l290-248a40 40 0 0 1 66 30v128a367 367 0 0 0 241-128l94-111a40 40 0 0 1 70 35l-26 109a430 430 0 0 1-379 332v142a40 40 0 0 1-40 40zM240 589l189 169v-91a40 40 0 0 1 40-40c144 0 269-85 323-214a447 447 0 0 1-323 137 40 40 0 0 1-40-40v-83z" fill="#ffffff" p-id="1562"></path>
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-network" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+           <circle cx="12" cy="9" r="6"></circle>
+           <path d="M12 3c1.333 .333 2 2.333 2 6s-.667 5.667 -2 6"></path>
+           <path d="M12 3c-1.333 .333 -2 2.333 -2 6s.667 5.667 2 6"></path>
+           <path d="M6 9h12"></path>
+           <path d="M3 19h7"></path>
+           <path d="M14 19h7"></path>
+           <circle cx="12" cy="19" r="2"></circle>
+           <path d="M12 15v2"></path>
         </svg>
         '''
-        targets = ["api.themoviedb.org", "image.tmdb.org", "www.themoviedb.org", "images.weserv.nl", "webservice.fanart.tv", "google.ca"]
+        targets = ["www.themoviedb.org", "api.themoviedb.org", "image.tmdb.org", "images.weserv.nl", "webservice.fanart.tv", "api.telegram.org", "qyapi.weixin.qq.com"]
         scheduler_cfg_list.append(
-            {'name': '网络连接性测试', 'time': '', 'state': 'OFF', 'id': 'nettest', 'svg': svg, 'color': 'red', "targets": targets})
+            {'name': '网络连通性测试', 'time': '', 'state': 'OFF', 'id': 'nettest', 'svg': svg, 'color': 'cyan', "targets": targets})
 
         # 备份
         svg = '''

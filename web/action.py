@@ -1,3 +1,4 @@
+import datetime
 import importlib
 import os.path
 import signal
@@ -1501,13 +1502,18 @@ class WebAction:
         target = data
         if target == "image.tmdb.org":
             target = target + "/t/p/w500/wwemzKWzjKYJFfCeiB57q3r4Bcm.png"
+        if target == "qyapi.weixin.qq.com":
+            target = target + "/cgi-bin/message/send"
         target = "https://" + target
-        if not RequestUtils().get_res(target):
-            return {"res": False}
-        elif RequestUtils().get_res(target).ok:
-            return {"res": True}
+        start_time = datetime.datetime.now()
+        res = RequestUtils().get_res(target)
+        seconds = int((datetime.datetime.now() - start_time).microseconds / 1000)
+        if not res:
+            return {"res": False, "time": "%s 毫秒" % seconds}
+        elif res.ok:
+            return {"res": True, "time": "%s 毫秒" % seconds}
         else:
-            return {"res": False}
+            return {"res": False, "time": "%s 毫秒" % seconds}
 
     @staticmethod
     def __get_site_activity(data):

@@ -148,25 +148,26 @@
     <div class="modal-content">
       <div class="card border-top-0">
         <div class="card-header">
-          <h5 class="modal-title">网络连接性测试</h5>
+          <h5 class="modal-title">网络连通性测试</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="card-body border-bottom py-3">
           <div class="table-responsive">
+            <input type="hidden" id="test_targets" value="{{ SchedulerTasks[-2].targets }}">
             <table class="table table-vcenter card-table">
               <thead>
                 <tr>
                   <th>测试对象</th>
-                  <th>可连接</th>
-                  <!-- 隐藏span储存测试列表 -->
-                  <span id="test_targets" style="display:none">{{ SchedulerTasks[-2].targets }}<span>
+                  <th>连通性</th>
+                  <th>耗时</th>
                 </tr>
               </thead>
               <tbody>
                 {% for target in SchedulerTasks[-2].targets %}
                 <tr>
                   <td><span>{{ target }}</span></td>
-                  <td id="{{ target }}"></td>
+                  <td id="nettest_item{{ loop.index0 }}"></td>
+                  <td id="nettest_item{{ loop.index0 }}_time"></td>
                 </tr>
                 {% endfor %}
               </tbody>
@@ -377,10 +378,10 @@
       }
     });
   }
-  //网络连接性测试
+  //网络连通性测试
   function net_test(){
     //从隐藏的span获取测试列表（字符串类型）
-    var targets = $("#test_targets").text();
+    var targets = $("#test_targets").val();
     targets = targets.replace(/'/g,"");
     targets = targets.replace(/\[/g,"");
     targets = targets.replace(/\]/g,"");
@@ -404,9 +405,11 @@
     target = target.replace(/\s*/g,"");
     ajax_post("net_test", target, function (ret) {
       if(ret.res){
-        document.getElementById(target).innerHTML = '<span class="badge badge-outline text-green me-1 mb-1">是</span>';
+        $("#nettest_item" + currentIndex).html('<span class="badge badge-outline text-green me-1 mb-1">是</span>');
+        $("#nettest_item" + currentIndex + "_time").html('<span class="text-green">' + ret.time + '</span>');
       }else{
-        document.getElementById(target).innerHTML = '<span class="badge badge-outline text-red me-1 mb-1">否</span>';
+        $("#nettest_item" + currentIndex).html('<span class="badge badge-outline text-red me-1 mb-1">否</span>');
+        $("#nettest_item" + currentIndex + "_time").html('<span class="text-red">' + ret.time + '</span>');
       }
       currentIndex++;
       net_test_ajax(targets,currentIndex)
