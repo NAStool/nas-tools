@@ -9,6 +9,7 @@ from pt.client.aria2 import Aria2
 from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
 from pt.client.client115 import Client115
+from pt.sites import Sites
 from pt.torrent import Torrent
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
@@ -30,12 +31,14 @@ class Downloader:
     mediaserver = None
     filetransfer = None
     media = None
+    sites = None
 
     def __init__(self):
         self.message = Message()
         self.mediaserver = MediaServer()
         self.filetransfer = FileTransfer()
         self.media = Media()
+        self.sites = Sites()
         self.init_config()
 
     def init_config(self):
@@ -79,7 +82,8 @@ class Downloader:
         if self.__client_type in [DownloaderType.Client115]:
             content = url
         else:
-            content, retmsg = Torrent.get_torrent_content(url)
+            content, retmsg = Torrent.get_torrent_content(url,
+                                                          self.sites.get_sites(siteurl=url).get("cookie"))
             if not content:
                 log.error("【DOWNLOADER】下载种子文件出错：%s" % retmsg)
                 return None, retmsg

@@ -128,17 +128,18 @@ class Torrent:
         return ret_attr
 
     @staticmethod
-    def get_torrent_content(url):
+    def get_torrent_content(url, cookie=None):
         """
         把种子下载到本地，返回种子内容
         :param url: 种子链接
+        :param cookie: 站点Cookie
         """
         if not url:
             return None, "URL为空"
         try:
             if url.startswith("magnet:"):
                 return url, "磁力链接"
-            req = RequestUtils().get_res(url=url)
+            req = RequestUtils(cookies=cookie).get_res(url=url)
             if req and req.status_code == 200:
                 if not req.content:
                     return None, "未下载到种子数据"

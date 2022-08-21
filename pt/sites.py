@@ -3,6 +3,7 @@ import traceback
 from datetime import datetime
 from multiprocessing.dummy import Pool as ThreadPool
 from threading import Lock
+from urllib import parse
 
 import log
 from message.send import Message
@@ -36,7 +37,7 @@ class Sites:
         self.__sites_data = {}
         self.__last_update_time = None
 
-    def get_sites(self, siteid=None):
+    def get_sites(self, siteid=None, siteurl=None):
         """
         获取站点配置
         """
@@ -63,8 +64,10 @@ class Sites:
             }
             if siteid and int(site[0]) == int(siteid):
                 return site_info
-            ret_sites.append(site_info)
-        if siteid:
+            url = site[3] if not site[4] else site[4]
+            if siteurl and url and parse.urlparse(siteurl).netloc == parse.urlparse(url).netloc:
+                return site_info
+        if siteid or siteurl:
             return {}
         return ret_sites
 
