@@ -17,7 +17,7 @@ class Qbittorrent(IDownloadClient):
         qbittorrent = config.get_config('qbittorrent')
         if qbittorrent:
             self.host = qbittorrent.get('qbhost')
-            self.port = int(qbittorrent.get('qbport'))
+            self.port = int(qbittorrent.get('qbport')) if qbittorrent.get('qbport') else 0
             self.username = qbittorrent.get('qbusername')
             self.password = qbittorrent.get('qbpassword')
             # 强制做种开关

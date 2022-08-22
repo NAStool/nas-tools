@@ -95,4 +95,3 @@ remux','[Hx].?26[45]','20,99',NULL),
  (10031,'1000','1080p-其他来源','7','1080[pi]','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','30',NULL),
  (10032,'1000','4k-其他来源','8','4k|2160p','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','30',NULL),
  (10033,'1000','高清-其他来源','9','720p','Blu-?Ray.+VC-?1|Blu-?Ray.+AVC|UHD.+blu-?ray.+HEVC|\Wsdr\W|minibd|[\W_]diy[\W_]|[\W_]3d[\W_]|REMUX','30',NULL);
-COMMIT;

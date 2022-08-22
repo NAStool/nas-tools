@@ -1,3 +1,5 @@
+import traceback
+
 import log
 from service.scheduler import Scheduler
 from service.sync import Sync
@@ -10,7 +12,7 @@ def run_scheduler():
     try:
         Scheduler().run_service()
     except Exception as err:
-        log.error("【RUN】启动定时服务失败：%s" % str(err))
+        log.error("【RUN】启动定时服务失败：%s - %s" % (str(err), traceback.format_exc()))
 
 
 def stop_scheduler():

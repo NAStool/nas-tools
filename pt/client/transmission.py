@@ -22,7 +22,7 @@ class Transmission(IDownloadClient):
         transmission = config.get_config('transmission')
         if transmission:
             self.host = transmission.get('trhost')
-            self.port = int(transmission.get('trport'))
+            self.port = int(transmission.get('trport')) if transmission.get('trport') else 0
             self.username = transmission.get('trusername')
             self.password = transmission.get('trpassword')
             self.save_path = transmission.get('save_path')

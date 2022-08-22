@@ -190,7 +190,7 @@ pt:
   #【PT聚合检索使用的检索器】：jackett、prowlarr、builtin，需要配置jackett或prowlarr对应的配置区域，builtin为内置索引器需要在配置文件目录/sites目录下存入对应的站点配置文件
   # 1、通过微信发送关键字，实时检索下载，发送格式示例：电视剧 西部世界、西部世界第1季、西部世界第1季第2集、西部世界 2022，只会匹配真实名称，命中后会自动下载，使用说明参考：https://github.com/jxxghp/nas-tools/wiki/
   # 2、使用WEB UI中的搜索界面搜索PT资源，会识别显示真实名称，并显示媒体图片和评分等信息，会同时匹配种子名称跟真实名称
-  search_indexer: jackett
+  search_indexer: builtin
   # 【远程搜索自动择优下载开关】：如开启则微信等渠道搜索后会自动择优选择一项下载，如不开启则需要手工点击进入WEB页面选择下载
   # 如没有配置app.domain或无公网环境建议开启，否则无法跳转WEB页面手工选择
   search_auto: true
@@ -207,14 +207,14 @@ pt:
   # 配置为空或者0则不启用RSS订阅功能
   pt_check_interval: 1800
   # 【定量搜索RSS开关】：打开后，每隔与置时间会通过PT站资源检索的方式查询和下载订阅，单位：天，不配置则为关
-  search_rss_interval:
+  search_rss_interval: 1
   # 【下载优先规则】：订阅及远程搜索下载将按此优先规则选择下载资源，字典：site 站点优先、seeder做种数优先
   download_order: site
 
 # 【配置Jackett检索器】
 jackett:
   # 【Jackett地址】：Jackett地址和端口，格式：http(s)://IP:PORT
-  host: http://127.0.0.1:9117
+  host:
   # 【Jackett ApiKey】：Jackett配置页面右上角复制API Key
   api_key:
   # 【Jackett管理密码】：如未设置可为空
@@ -223,18 +223,18 @@ jackett:
 # 【配置prowlarr检索器】
 prowlarr:
   # 【Prowlarr地址】
-  host: http://127.0.0.1:9696
+  host:
   # 【Prowlarr ApiKey】：Prowlarr设置页面获取API Key
   api_key:
 
 # 【配置qBittorrent下载软件】：pt区的pt_client如配置为qbittorrent则需要同步配置该项
 qbittorrent:
   # 【qBittorrent IP地址和端口】：注意如果qb启动了HTTPS证书，则需要配置为https://IP
-  qbhost: 127.0.0.1
-  qbport: 8080
+  qbhost:
+  qbport:
   # qBittorrent 登录用户名和密码
-  qbusername: admin
-  qbpassword: adminadmin
+  qbusername:
+  qbpassword:
   # 转移完成后是否自动强制作种，按需要设置
   force_upload: true
   # 下载文件保存路径，传递给下载器使用
@@ -251,11 +251,11 @@ qbittorrent:
 # 【配置transmission下载软件】：pt区的pt_client如配置为transmission则需要同步配置该项，需要3.0以上版本，否则可能会报错
 transmission:
   # 【transmission IP地址和端口】：注意如果tr启用了HTTPS证书，则需要配置为https://IP
-  trhost: 127.0.0.1
-  trport: 9091
+  trhost:
+  trport:
   # transmission 登录用户名和密码
-  trusername: admin
-  trpassword: password
+  trusername:
+  trpassword:
   # 下载文件保存路径，传递给下载器使用
   save_path:
     movie:
@@ -312,9 +312,9 @@ douban:
   # 【同步天数】：同步多少天内加入的数据
   days: 30
   # 【同步间隔】：多久同步一次数据，单位小时，建议不要太频繁，避免被检测到后封号
-  interval: 2
+  interval:
   # 【同步数据类型】：同步哪些类型的收藏数据：do 在看，wish 想看，collect 看过，用逗号分隔配置
-  types: 'do,wish,collect'
+  types: 'wish'
   # 【自动开载开关】：同步到豆瓣的数据后是否自动检索PT站并下载（需要配置Jackett）
   auto_search: true
   # 【自动添加RSS开关】：PT站检索找不到的记录是否自动添加RSS订阅（可实现未搜索到的自动追更）
