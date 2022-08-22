@@ -403,7 +403,7 @@ class Media:
             return None
 
     @lru_cache(maxsize=128)
-    def __search_tmdb_web(self, file_media_name):
+    def __search_tmdb_web(self, file_media_name, mtype: MediaType):
         """
         检索TMDB网站，直接抓取结果，结果只有一条时才返回
         :param file_media_name: 名称
@@ -432,6 +432,8 @@ class Media:
                     tmdbinfo = self.get_tmdb_info(
                         mtype=MediaType.TV if tmdb_links[0].startswith("/tv") else MediaType.MOVIE,
                         tmdbid=tmdb_links[0].split("/")[-1])
+                    if mtype == MediaType.TV and tmdbinfo.get('media_type') != MediaType.TV:
+                        return {}
                     if tmdbinfo.get('media_type') == MediaType.MOVIE:
                         log.info("【META】%s 从WEB识别到 电影：TMDBID=%s, 名称=%s, 上映日期=%s" % (file_media_name,
                                                                                     tmdbinfo.get('id'),
@@ -626,7 +628,8 @@ class Media:
                         # 非严格模式下去掉年份和类型再查一次
                         file_media_info = self.__search_multi_tmdb(file_media_name=meta_info.get_name())
             if not file_media_info:
-                file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name())
+                file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name(),
+                                                         mtype=meta_info.type)
             if not file_media_info and self.__search_keyword:
                 cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())
                 is_movie = False
@@ -738,7 +741,8 @@ class Media:
                                                                      search_type=meta_info.type)
                         if not file_media_info:
                             # 从网站查询
-                            file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name())
+                            file_media_info = self.__search_tmdb_web(file_media_name=meta_info.get_name(),
+                                                                     mtype=meta_info.type)
                         if not file_media_info and self.__search_keyword:
                             cache_name = cacheman["tmdb_supply"].get(meta_info.get_name())
                             is_movie = False

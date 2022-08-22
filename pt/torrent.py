@@ -68,7 +68,7 @@ class Torrent:
             mtype = MediaType.TV
             episode_num = int(cn2an.cn2an(episode_re.group(1), mode='smart'))
             if episode_num and not season_num:
-                season_num = "1"
+                season_num = 1
         year_re = re.search(r"[\s(]+(\d{4})[\s)]*", content)
         if year_re:
             year = year_re.group(1)

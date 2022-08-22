@@ -1,5 +1,7 @@
 import re
 
+import cn2an
+
 import log
 from config import Config
 from message.send import Message
@@ -189,14 +191,10 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         # 搜索名称
         use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
         if use_douban_titles:
-            douban_search_key = media_info.get_name()
-            if media_info.begin_season:
-                douban_search_key = "%s第%s季" % (douban_search_key, media_info.begin_season)
-            if media_info.year:
-                douban_search_key = "%s %s" % (douban_search_key, media_info.year)
-            tmdb_infos = DouBan().search_douban_medias(keyword=douban_search_key,
+            tmdb_infos = DouBan().search_douban_medias(keyword=media_info.get_name(),
                                                        mtype=mtype,
                                                        num=6,
+                                                       season=media_info.begin_season,
                                                        episode=media_info.begin_episode)
         else:
             tmdb_infos = Media().get_tmdb_infos(title=media_info.get_name(), year=media_info.year, mtype=mtype)
@@ -215,6 +213,10 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
             for tmdb_info in tmdb_infos:
                 meta_info = MetaInfo(title=content)
                 meta_info.set_tmdb_info(tmdb_info)
+                if meta_info.begin_season:
+                    meta_info.title = "%s 第%s季" % (meta_info.title, cn2an.an2cn(meta_info.begin_season, mode='low'))
+                if meta_info.begin_episode:
+                    meta_info.title = "%s 第%s集" % (meta_info.title, meta_info.begin_episode)
                 SEARCH_MEDIA_CACHE.append(meta_info)
 
         if 1 == len(SEARCH_MEDIA_CACHE):

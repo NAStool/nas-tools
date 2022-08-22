@@ -98,8 +98,11 @@ class TorrentSpider(feapder.AirSpider):
         # details
         details = torrent(self.fields.get('details', {}).get('selector', ''))
         items = [item.attr(self.fields.get('details', {}).get('attribute')) for item in details.items()]
-        self.torrents_info['details'] = items[0] if items else ''
-        self.torrents_info['page_url'] = self.indexer.domain + items[0] if items else ''
+        if items:
+            if not items[0].startswith("http"):
+                self.torrents_info['page_url'] = self.domain + items[0][1:] if items[0].startswith("/") else self.domain + items[0]
+            else:
+                self.torrents_info['page_url'] = items[0]
 
     def Getdownload(self, torrent):
         # download link
@@ -107,10 +110,9 @@ class TorrentSpider(feapder.AirSpider):
         items = [item.attr(self.fields.get('download', {}).get('attribute')) for item in download.items()]
         if items:
             if not items[0].startswith("http"):
-                enclosure = self.domain + items[0][1:] if items[0].startswith("/") else self.domain + items[0]
+                self.torrents_info['enclosure'] = self.domain + items[0][1:] if items[0].startswith("/") else self.domain + items[0]
             else:
-                enclosure = items[0]
-            self.torrents_info['enclosure'] = enclosure
+                self.torrents_info['enclosure'] = items[0]
 
     def Getimdbid(self, torrent):
         # imdbid
@@ -136,7 +138,6 @@ class TorrentSpider(feapder.AirSpider):
         # torrent leechers
         leechers = torrent(self.fields.get('leechers', {}).get('selector', ''))
         items = [item.text() for item in leechers.items() if item]
-        self.torrents_info['leechers'] = items[0] if items else 0
         self.torrents_info['peers'] = items[0] if items else 0
 
     def Getseeders(self, torrent):

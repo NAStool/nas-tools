@@ -351,8 +351,8 @@ class WebAction:
             msg_item.description = res[9]
             msg_item.size = res[10]
             msg_item.site = res[14]
-            msg_item.upload_volume_factor = float(res[15] or 1.0)
-            msg_item.download_volume_factor = float(res[16] or 1.0)
+            msg_item.upload_volume_factor = float(res[15])
+            msg_item.download_volume_factor = float(res[16])
             # 添加下载
             ret, ret_msg = Downloader().add_pt_torrent(url=res[0], mtype=msg_item.type, download_dir=dl_dir)
             if ret:
