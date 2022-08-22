@@ -25,9 +25,12 @@ if is_windows_exe:
     from windows.trayicon import trayicon
 
     # 初始化环境变量
-    os.environ["NASTOOL_CONFIG"] = os.path.join(os.path.dirname(sys.executable), "config", "config.yaml")
-    os.environ["NASTOOL_LOG"] = os.path.join(os.path.dirname(sys.executable), "config", "logs")
-
+    os.environ["NASTOOL_CONFIG"] = os.path.join(os.path.dirname(sys.executable), "config", "config.yaml").replace("\\", "/")
+    os.environ["NASTOOL_LOG"] = os.path.join(os.path.dirname(sys.executable), "config", "logs").replace("\\", "/")
+    try:
+        os.makedirs(os.path.join(os.path.dirname(sys.executable), "config").replace("\\", "/"))
+    except:
+        print("config文件夹已存在")
 
 def sigal_handler(num, stack):
     if get_system() == OsType.LINUX and check_process("supervisord"):
@@ -50,8 +53,6 @@ if __name__ == "__main__":
 
     # 检查配置文件
     config = Config()
-    if is_windows_exe:
-        config.get_config('app')['logpath'] = os.environ.get('NASTOOL_LOG')
     if not check_config(config):
         sys.exit()
 
