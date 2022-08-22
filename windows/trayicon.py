@@ -8,15 +8,16 @@ import os
 class Balloon(wx.adv.TaskBarIcon):
     ICON = os.path.dirname(__file__).replace("windows", "") + "nas-tools.ico"
 
-    def __init__(self, homepage_port, log_path):
+    def __init__(self, homepage, log_path):
         wx.adv.TaskBarIcon.__init__(self)
         self.SetIcon(wx.Icon(self.ICON))
-        self.homepage_port = homepage_port
+        self.Bind(wx.adv.EVT_TASKBAR_LEFT_DCLICK, self.OnTaskBarLeftDClick)
+        self.homepage = homepage
         self.log_path = log_path
 
     # Menu数据
     def setMenuItemData(self):
-        return ("Home page", self.Onhomepage), ("Log", self.Onlog), ("Close", self.OnClose)
+        return ("Log", self.Onlog), ("Close", self.OnClose)
 
     # 创建菜单
     def CreatePopupMenu(self):
@@ -30,8 +31,8 @@ class Balloon(wx.adv.TaskBarIcon):
             self.Bind(wx.EVT_MENU, itemHandler, menuItem)
         return menu
 
-    def Onhomepage(self, event):
-        webbrowser.open("http://localhost:" + str(self.homepage_port))
+    def OnTaskBarLeftDClick(self, event):
+        webbrowser.open(self.homepage)
 
     def Onlog(self, event):
         os.startfile(self.log_path)
@@ -45,6 +46,8 @@ class trayicon(wx.Frame):
     def __init__(self, homepage_port, log_path):
         app = wx.App()
         wx.Frame.__init__(self, None)
-        self.taskBarIcon = Balloon(homepage_port, log_path)
+        homepage = "http://localhost:" + str(homepage_port)
+        self.taskBarIcon = Balloon(homepage, log_path)
+        webbrowser.open(homepage)
         self.Hide()
         app.MainLoop()
