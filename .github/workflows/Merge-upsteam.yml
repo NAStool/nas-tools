@@ -1,0 +1,93 @@
+name: Merge upstream
+
+on:
+  # 推送代码后触发
+  # push:
+  # 定时任务触发，使用 cron 规则，这里默认一小时执行一次
+  # schedule:
+  #   - cron: '*/60 * * * *' # every 60 minutes
+  workflow_dispatch: # on button click
+  repository_dispatch:  # 利用update-chechker.yml检测到更新后，再更新上游代码
+
+jobs:
+  merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.ACTIONS_TRIGGER_PAT1 }} #必须在这里加上这个,不然不能更新带WORKFLOW的变动
+          fetch-depth: 0
+      
+      - name: Merge upstream
+        run: |
+          # 使用自己的用户名替换 username
+          git config --global user.name "sungamma"
+          git config --global user.email  "33790+sungamma@users.noreply.github.com"
+
+          # git pull --unshallow
+
+          # 自行替换要同步的上游仓库地址
+          git remote add upstream https://github.com/jxxghp/nas-tools.git
+          git fetch upstream
+          
+          # 可以自定义要同步的分支
+          # git checkout -b master origin/master
+          git rebase upstream/master  # rebase 处理可能存在的冲突
+          git push -u origin master -f
+        
+
+
+# 激活Nas-tools Build Docker Image 工作流的workflow-dispatch，以便运行
+      - name: Invoke workflow without inputs. Wait for result-BUILD DOCKER
+        uses: aurelien-baudet/workflow-dispatch@v2
+        with:
+          workflow: Build Nas-tools Image-1
+          token: ${{ secrets.ACTIONS_TRIGGER_PAT1 }}
+          wait-for-completion: false
+
+# 激活Nas-tools Build-1 工作流的workflow-dispatch，以便运行
+
+      - name: Invoke workflow without inputs. Wait for result-BUILD SPK
+        uses: aurelien-baudet/workflow-dispatch@v2
+        with:
+          workflow: Nas-tools Build-1
+          token: ${{ secrets.ACTIONS_TRIGGER_PAT1 }}
+          wait-for-completion: false
+
+
+# 备份之前成功的设置
+# jobs:  
+#   merge:
+#     runs-on: ubuntu-latest
+#     steps:
+
+#       - name: Setup git infomation
+#         run: |
+#           # 使用自己的用户名替换 username
+#           git config --global user.email "33790+sungamma@users.noreply.github.com"
+#           git config --global user.name "sungamma"
+#       - name: Setup SSH Private Key
+#         env: 
+#           token_Private_Keys: ${{ secrets.SSH_PRIVATE_KEY }}
+#         run: |
+#           mkdir -p ~/.ssh/
+#           echo "$token_Private_Keys" > ~/.ssh/id_rsa 
+#           chmod 600 ~/.ssh/id_rsa
+#       - uses: actions/checkout@v3
+#         with:
+#           # persist-credentials: false
+#           token: ${{ secrets.ACTIONS_TRIGGER_PAT1 }}  #必须在这里加上这个,不然不能更新带WORKFLOW的变动
+#           fetch-depth: 0
+#       - name: Fetch upstream
+#         run: |
+#           # 自行替换要同步的上游仓库地址
+#           git remote add upstream https://github.com/jxxghp/nas-tools.git
+#           git fetch upstream
+#       - name: Merge upstream
+#         run: |    
+#           # 可以自定义要同步的分支
+#           # git checkout -b master origin/master
+#           git rebase upstream/master  # rebase 处理可能存在的冲突
+#       - name: Push changes
+#         run: |
+#           git push -f 
