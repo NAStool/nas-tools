@@ -228,7 +228,7 @@ class FileTransfer:
                     if metainfo.get_episode_string() and metainfo.get_episode_string() != sub_metainfo.get_episode_string():
                         continue
                     file_ext = os.path.splitext(file_item)[-1]
-                    sub_language = file_name.split(".")[-2]
+                    sub_language = os.path.basename(file_item).split(".")[-2]
                     if sub_language and (sub_language.lower() in ["zh-cn", "zh", "zh_CN", "chs", "cht"]
                                          or "简" in sub_language
                                          or "中" in sub_language
@@ -237,12 +237,12 @@ class FileTransfer:
                     else:
                         new_file = os.path.splitext(new_name)[0] + file_ext
                     if not os.path.exists(new_file):
-                        log.debug("【RMT】正在处理字幕：%s" % file_name)
+                        log.debug("【RMT】正在处理字幕：%s" % os.path.basename(file_item))
                         retcode = self.__transfer_command(file_item=file_item,
                                                           target_file=new_file,
                                                           rmt_mode=rmt_mode)
                         if retcode == 0:
-                            log.info("【RMT】字幕 %s %s完成" % (file_name, rmt_mode.value))
+                            log.info("【RMT】字幕 %s %s完成" % (os.path.basename(file_item), rmt_mode.value))
                         else:
                             log.error("【RMT】字幕 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
                             return retcode
