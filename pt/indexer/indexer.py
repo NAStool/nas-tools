@@ -222,9 +222,14 @@ class IIndexer(metaclass=ABCMeta):
                         if name == "uploadvolumefactor":
                             uploadvolumefactor = value
 
-                    tmp_dict = {'indexer_id': indexer_id, 'indexer': indexer,
-                                'title': title, 'enclosure': enclosure, 'description': description, 'size': size,
-                                'seeders': seeders, 'peers': peers,
+                    tmp_dict = {'indexer_id': indexer_id,
+                                'indexer': indexer,
+                                'title': title,
+                                'enclosure': enclosure,
+                                'description': description,
+                                'size': size,
+                                'seeders': seeders,
+                                'peers': peers,
                                 'freeleech': freeleech,
                                 'downloadvolumefactor': downloadvolumefactor,
                                 'uploadvolumefactor': uploadvolumefactor,

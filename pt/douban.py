@@ -301,7 +301,7 @@ class DouBan:
         finally:
             lock.release()
 
-    def search_douban_medias(self, keyword, mtype: MediaType = None, num=20, episode=None):
+    def search_douban_medias(self, keyword, mtype: MediaType = None, num=20, season=None, episode=None):
         """
         根据关键字搜索豆瓣，返回可能的标题和年份信息
         """
@@ -318,19 +318,27 @@ class DouBan:
                 continue
             item = item_obj.get("target")
             meta_info = MetaInfo(title=item.get("title"))
-            meta_info.year = item.get("year")
             meta_info.title = item.get("title")
+            if item_obj.get("type_name") == MediaType.MOVIE.value:
+                meta_info.type = MediaType.MOVIE
+            else:
+                meta_info.type = MediaType.TV
+            if season:
+                if meta_info.type != MediaType.TV:
+                    continue
+                if season != 1 and meta_info.begin_season != season:
+                    continue
+            if episode:
+                if meta_info.type != MediaType.TV:
+                    continue
+                meta_info.begin_episode = int(episode)
+                meta_info.title = "%s 第%s集" % (meta_info.title, episode)
+            meta_info.year = item.get("year")
             meta_info.tmdb_id = "DB:%s" % item.get("id")
             meta_info.douban_id = item.get("id")
             meta_info.overview = item.get("card_subtitle") or ""
             meta_info.poster_path = item.get("cover_url").split('?')[0]
             meta_info.vote_average = item.get("rating", {}).get("value")
-            if item_obj.get("type_name") == MediaType.MOVIE.value:
-                meta_info.type = MediaType.MOVIE
-            else:
-                meta_info.type = MediaType.TV
-            if episode:
-                meta_info.begin_episode = int(episode)
             if meta_info not in ret_medias:
                 ret_medias.append(meta_info)
 

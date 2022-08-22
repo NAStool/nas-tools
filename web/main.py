@@ -8,6 +8,7 @@ from pathlib import Path
 from math import floor
 from urllib import parse
 
+import cn2an
 from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 from werkzeug.security import check_password_hash
@@ -20,6 +21,7 @@ from pt.indexer.builtin import BuiltinIndexer
 from pt.sites import Sites
 from pt.downloader import Downloader
 from pt.searcher import Searcher
+from pt.torrent import Torrent
 from rmt.media import Media
 from pt.media_server import MediaServer
 from rmt.metainfo import MetaInfo
@@ -488,13 +490,22 @@ def create_flask_app(config):
         use_douban_titles = config.get_config("laboratory").get("use_douban_titles")
         if SearchWord and NeedSearch:
             if use_douban_titles:
-                medias = DouBan().search_douban_medias(SearchWord)
+                _, key_word, season_num, episode_num, _, _ = Torrent.get_keyword_from_string(SearchWord)
+                medias = DouBan().search_douban_medias(keyword=key_word,
+                                                       season=season_num,
+                                                       episode=episode_num)
             else:
                 meta_info = MetaInfo(title=SearchWord)
                 tmdbinfos = Media().get_tmdb_infos(title=meta_info.get_name(), year=meta_info.year, num=20)
                 for tmdbinfo in tmdbinfos:
                     tmp_info = MetaInfo(title=SearchWord)
                     tmp_info.set_tmdb_info(tmdbinfo)
+                    if meta_info.type == MediaType.TV and tmp_info.type != MediaType.TV:
+                        continue
+                    if tmp_info.begin_season:
+                        tmp_info.title = "%s 第%s季" % (tmp_info.title, cn2an.an2cn(meta_info.begin_season, mode='low'))
+                    if tmp_info.begin_episode:
+                        tmp_info.title = "%s 第%s集" % (tmp_info.title, meta_info.begin_episode)
                     tmp_info.poster_path = TMDB_IMAGE_W500_URL % tmp_info.poster_path
                     medias.append(tmp_info)
         return render_template("medialist.html",
