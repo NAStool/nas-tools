@@ -77,11 +77,13 @@ class TorrentSpider(feapder.AirSpider):
         # title default
         if "title_default" in self.fields:
             title_default = torrent(self.fields.get('title_default',
-                                                    {}).get('selector')).clone()
+                                                    {}).get('selector',
+                                                            '')).clone()
             selector = self.fields.get('title_default')
         else:
             title_default = torrent(self.fields.get('title',
-                                                    {}).get('selector')).clone()
+                                                    {}).get('selector',
+                                                            '')).clone()
             selector = self.fields.get('title')
 
         if 'remove' in selector:
@@ -94,14 +96,14 @@ class TorrentSpider(feapder.AirSpider):
 
     def Getdetails(self, torrent):
         # details
-        details = torrent(self.fields.get('details', {}).get('selector'))
+        details = torrent(self.fields.get('details', {}).get('selector', ''))
         items = [item.attr(self.fields.get('details', {}).get('attribute')) for item in details.items()]
         self.torrents_info['details'] = items[0] if items else ''
         self.torrents_info['page_url'] = self.indexer.domain + items[0] if items else ''
 
     def Getdownload(self, torrent):
         # download link
-        download = torrent(self.fields.get('download', {}).get('selector'))
+        download = torrent(self.fields.get('download', {}).get('selector', ''))
         items = [item.attr(self.fields.get('download', {}).get('attribute')) for item in download.items()]
         if items:
             if not items[0].startswith("http"):
@@ -113,85 +115,107 @@ class TorrentSpider(feapder.AirSpider):
     def Getimdbid(self, torrent):
         # imdbid
         if "imdbid" in self.fields:
-            imdbid = torrent(self.fields.get('imdbid', {}).get('selector'))
+            imdbid = torrent(self.fields.get('imdbid', {}).get('selector', ''))
             items = [item.attr(self.fields.get('imdbid', {}).get('attribute')) for item in imdbid.items() if item]
             self.torrents_info['imdbid'] = items[0] if items else ''
 
     def Getsize(self, torrent):
         # torrent size
-        size = torrent(self.fields.get('size', {}).get('selector'))
-        items = [item.text() for item in size.items() if item]
-        if len(items) > 0:
+        size_item = torrent(self.fields.get('size',
+                                            {}).get('selector', self.fields.get('size',
+                                                                                {}).get("selectors",
+                                                                                        '')))
+        items = [item.text() for item in size_item.items() if item]
+        if "index" in self.fields.get('size', {}) \
+                and len(items) > self.fields.get('size', {}).get('index'):
+            self.torrents_info['size'] = num_filesize(items[self.fields.get('size', {}).get('index')].replace("\n", ""))
+        elif len(items) > 0:
             self.torrents_info['size'] = num_filesize(items[0].replace("\n", ""))
 
     def Getleechers(self, torrent):
         # torrent leechers
-        leechers = torrent(self.fields.get('leechers', {}).get('selector'))
+        leechers = torrent(self.fields.get('leechers', {}).get('selector', ''))
         items = [item.text() for item in leechers.items() if item]
         self.torrents_info['leechers'] = items[0] if items else 0
         self.torrents_info['peers'] = items[0] if items else 0
 
     def Getseeders(self, torrent):
         # torrent leechers
-        seeders = torrent(self.fields.get('seeders', {}).get('selector'))
+        seeders = torrent(self.fields.get('seeders', {}).get('selector', ''))
         items = [item.text() for item in seeders.items() if item]
         self.torrents_info['seeders'] = items[0].split("/")[0] if items else 0
 
     def Getgrabs(self, torrent):
         # torrent grabs
-        grabs = torrent(self.fields.get('grabs', {}).get('selector'))
+        grabs = torrent(self.fields.get('grabs', {}).get('selector', ''))
         items = [item.text() for item in grabs.items() if item]
         self.torrents_info['grabs'] = items[0] if items else ''
 
     def Gettitle_optional(self, torrent):
         # title optional
-        description = self.fields.get('description') or {}
-        description_item = None
-        if "selector" in description:
-            description_item = torrent(description.get('selector', '')).clone()
-        elif "selectors" in description:
-            description_item = torrent(description.get('selectors', '')).clone()
-        if description_item:
-            items = ""
-            if 'attribute' in description:
-                items = [x.attr(self.fields.get('description',
-                                                {}).get('attribute')) for x in description_item.items()]
+        if "selector" in self.fields.get('description', {}) \
+                or "selectors" in self.fields.get('description', {}):
+            description_item = torrent(self.fields.get('description',
+                                                       {}).get('selector',
+                                                               self.fields.get('description',
+                                                                               {}).get('selectors',
+                                                                                       ''))).clone()
+            if description_item:
+                if 'attribute' in self.fields.get('description', {}):
+                    items = [x.attr(self.fields.get('description',
+                                                    {}).get('attribute')) for x in description_item.items()]
 
-            if 'remove' in description:
-                removelist = description.get('remove', '').split(', ')
-                for v in removelist:
-                    description_item.remove(v)
+                else:
+                    if 'remove' in self.fields.get('description', {}):
+                        removelist = self.fields.get('description', {}).get('remove', '').split(', ')
+                        for v in removelist:
+                            description_item.remove(v)
+                    items = [item.text() for item in description_item.items() if item]
 
-            if "contents" in description:
-                items = [item.text() for item in description_item.items() if item]
                 if items:
-                    if len(items) > int(description.get("contents")):
-                        items = items[0].split("\n")[description.get("contents")]
+                    if "contents" in self.fields.get('description', {}) \
+                            and len(items) > int(self.fields.get('description', {}).get("contents")):
+                        items = items[0].split("\n")[self.fields.get('description', {}).get("contents")]
+                    elif "index" in self.fields.get('description', {}) \
+                            and len(items) > int(self.fields.get('description', {}).get("index")):
+                        items = items[int(self.fields.get('description', {}).get("index"))]
                     else:
                         items = items[0]
 
-            if "index" in description:
-                items = [item.text() for item in description_item.items() if item]
-                if items:
-                    if len(items) > int(description.get("index")):
-                        items = items[int(description.get("index"))]
-                    else:
-                        items = items[0]
+                    self.torrents_info['description'] = items if not isinstance(items, list) else items[0]
 
-            self.torrents_info['description'] = items if not isinstance(items, list) else items[0]
-
-        if "text" in self.fields.get('description'):
+        elif "text" in self.fields.get('description', {}):
             render_dict = {}
             if "tags" in self.fields:
-                render_dict.update({'tags': torrent(self.fields.get('tags', {}).get('selector', '')).text()})
+                tags_item = torrent(self.fields.get('tags',
+                                                    {}).get('selector',
+                                                            '')).clone()
+                if "remove" in self.fields.get("tags", {}):
+                    removelist = self.fields.get("tags",
+                                                 {}).get('remove',
+                                                         '').split(', ')
+                    for v in removelist:
+                        tags_item.remove(v)
+                render_dict.update({'tags': tags_item.text()})
             if "subject" in self.fields:
-                render_dict.update({'subject': torrent(self.fields.get('subject', {}).get('selector', '')).text()})
+                subject_item = torrent(self.fields.get('subject',
+                                                       {}).get('selector',
+                                                               '')).clone()
+                if "remove" in self.fields.get("subject", {}):
+                    removelist = self.fields.get("subject",
+                                                 {}).get('remove',
+                                                         '').split(', ')
+                    for v in removelist:
+                        subject_item.remove(v)
+                render_dict.update({'subject': subject_item.text()})
             if "description_free_forever" in self.fields:
                 render_dict.update({"description_free_forever": torrent(self.fields.get("description_free_forever",
-                                                                                        {}).get("selector")).text()})
+                                                                                        {}).get("selector",
+                                                                                                '')).text()})
             if "description_normal" in self.fields:
                 render_dict.update({"description_normal": torrent(self.fields.get("description_normal",
-                                                                                  {}).get("selector")).text()})
+                                                                                  {}).get("selector",
+                                                                                          '')).text()})
             self.torrents_info['description'] = Template(self.fields.get('description',
                                                                          {}).get('text')).render(fields=render_dict)
 
@@ -209,8 +233,10 @@ class TorrentSpider(feapder.AirSpider):
 
     def Getfree_deadline(self, torrent):
         # TODO free deadline
-        selector = torrent(self.fields.get('free_deadline', {}).get('selector', ''))
-        items = [item.attr(self.fields.get('free_deadline', {}).get('attribute')) for item in selector.items()]
+        selector = torrent(self.fields.get('free_deadline',
+                                           {}).get('selector', ''))
+        items = [item.attr(self.fields.get('free_deadline',
+                                           {}).get('attribute')) for item in selector.items()]
         if len(items) > 0 and items is not None:
             if items[0] is not None:
                 if "filters" in self.fields.get('free_deadline'):
