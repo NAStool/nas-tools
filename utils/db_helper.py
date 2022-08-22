@@ -23,11 +23,10 @@ class DBHelper:
 
     def init_config(self):
         config = Config()
-        config_path = config.get_config_path()
-        if not config_path:
+        if not config.get_config_path():
             log.console("【ERROR】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
             quit()
-        self.__db_path = os.path.join(os.path.dirname(config_path), 'user.db')
+        self.__db_path = os.path.join(config.get_config_path(), 'user.db')
         self.__pools = DBPool(
             max_active=5, max_wait=20, init_size=5, db_type="SQLite3",
             **{'database': self.__db_path, 'check_same_thread': False, 'timeout': 15})

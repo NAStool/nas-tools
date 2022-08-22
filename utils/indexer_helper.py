@@ -1,6 +1,7 @@
 import os.path
 import pickle
 
+from config import Config
 from utils.functions import singleton
 from urllib import parse
 
@@ -17,7 +18,9 @@ class IndexerHelper:
 
     def init_config(self):
         try:
-            with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../config", "sites.dat"), "rb") as f:
+            with open(os.path.join(Config().get_inner_config_path(),
+                                   "sites.dat"),
+                      "rb") as f:
                 self._indexers = pickle.load(f)
         except Exception as err:
             print(err)

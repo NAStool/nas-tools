@@ -98,7 +98,7 @@ class Config(object):
                 print("【ERROR】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
                 quit()
             if not os.path.exists(self.__config_path):
-                cfg_tp_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "config", "config.yaml")
+                cfg_tp_path = os.path.join(self.get_inner_config_path(), "config.yaml")
                 shutil.copy(cfg_tp_path, self.__config_path)
                 print("【ERROR】config.yaml 配置文件不存在，已将配置文件模板复制到配置目录...")
             with open(self.__config_path, mode='r', encoding='utf-8') as f:
@@ -142,4 +142,11 @@ class Config(object):
             return yaml.dump(new_cfg, f)
 
     def get_config_path(self):
-        return self.__config_path
+        return os.path.dirname(self.__config_path)
+
+    @staticmethod
+    def get_root_path():
+        return os.path.dirname(os.path.realpath(__file__))
+
+    def get_inner_config_path(self):
+        return os.path.join(self.get_root_path(), "config")

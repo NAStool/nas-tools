@@ -24,11 +24,11 @@ class Category:
             category = media.get('category')
             if not category:
                 return
-            self.__category_path = os.path.join(os.path.dirname(config.get_config_path()), "%s.yaml" % category)
+            self.__category_path = os.path.join(config.get_config_path(), "%s.yaml" % category)
             try:
                 if not os.path.exists(self.__category_path):
-                    cfg_tp_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../config", "default-category.yaml")
-                    shutil.copy(cfg_tp_path, self.__category_path)
+                    shutil.copy(os.path.join(config.get_inner_config_path(), "default-category.yaml"),
+                                self.__category_path)
                     log.console("【ERROR】分类配置文件 %s.yaml 不存在，已将配置文件模板复制到配置目录..." % category)
                 with open(self.__category_path, mode='r', encoding='utf-8') as f:
                     try:

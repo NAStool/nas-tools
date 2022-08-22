@@ -41,8 +41,8 @@ class MetaVideo(MetaBase):
     _video_encode_re = r"^[HX]26[45]$|^AVC$|^HEVC$|^VC\d?$|^MPEG\d?$|^Xvid$|^DivX$|^HDR\d*$"
     _audio_encode_re = r"^DTS\d?$|^DTSHD$|^DTSHDMA$|^Atmos$|^TrueHD\d?$|^AC3$|^\dAudios?$|^DDP\d?$|^DD\d?$|^LPCM\d?$|^AAC\d?$|^FLAC\d?$|^HD\d?$|^MA\d?$"
 
-    def __init__(self, title, subtitle=None):
-        super().__init__(title, subtitle)
+    def __init__(self, title, subtitle=None, fileflag=False):
+        super().__init__(title, subtitle, fileflag)
         if not title:
             return
         # 去掉名称中第1个[]的内容
@@ -297,6 +297,9 @@ class MetaVideo(MetaBase):
                     and (not self.tokens.cur() or not self.tokens.cur().isdigit()):
                 self.end_season = int(token)
                 self.total_seasons = (self.end_season - self.begin_season) + 1
+                if self.fileflag and self.total_seasons > 1:
+                    self.end_season = None
+                    self.total_seasons = 1
                 self._continue_flag = False
             elif self._last_token_type == "SEASON" \
                     and self.begin_season is None \
@@ -349,6 +352,9 @@ class MetaVideo(MetaBase):
                     and self._last_token_type == "episode":
                 self.end_episode = int(token)
                 self.total_episodes = (self.end_episode - self.begin_episode) + 1
+                if self.fileflag and self.total_episodes > 2:
+                    self.end_episode = None
+                    self.total_episodes = 1
                 self._continue_flag = False
             elif self.begin_episode is None \
                     and 1 < len(token) < 5 \

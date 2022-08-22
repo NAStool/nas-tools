@@ -29,7 +29,7 @@ class MetaHelper(object):
         laboratory = config.get_config('laboratory')
         if laboratory:
             self.__tmdb_cache_expire = laboratory.get("tmdb_cache_expire")
-        self.__meta_path = os.path.join(os.path.dirname(config.get_config_path()), 'meta.dat')
+        self.__meta_path = os.path.join(config.get_config_path(), 'meta.dat')
         self.__meta_data = self.__load_meta_data(self.__meta_path)
 
     def clear_meta_data(self):

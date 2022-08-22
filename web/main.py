@@ -1555,7 +1555,7 @@ def create_flask_app(config):
         """
         try:
             # 创建备份文件夹
-            config_path = Path(config.get_config_path()).parent
+            config_path = Path(config.get_config_path())
             backup_file = f"bk_{time.strftime('%Y%m%d%H%M%S')}"
             backup_path = config_path / "backup_file" / backup_file
             backup_path.mkdir(parents=True)
@@ -1592,11 +1592,11 @@ def create_flask_app(config):
         return send_file(zip_file)
 
     @App.route('/upload', methods=['POST'])
+    @login_required
     def upload():
         try:
             files = request.files['file']
-            config_path = Path(config.get_config_path()).parent
-            zip_file = config_path / files.filename
+            zip_file = Path(config.get_config_path()) / files.filename
             files.save(str(zip_file))
             return {"code": 0, "filepath": str(zip_file)}
         except Exception as e:

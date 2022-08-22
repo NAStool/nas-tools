@@ -1882,7 +1882,7 @@ class WebAction:
         """
         filename = data.get("file_name")
         if filename:
-            config_path = os.path.dirname(Config().get_config_path())
+            config_path = Config().get_config_path()
             file_path = os.path.join(config_path, filename)
             try:
                 shutil.unpack_archive(file_path, config_path, format='zip')

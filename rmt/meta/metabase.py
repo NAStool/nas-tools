@@ -18,6 +18,8 @@ class MetaBase(object):
     """
     proxies = None
     category_handler = None
+    # 是否处理的文件
+    fileflag = False
     # 原字符串
     org_string = None
     # 副标题
@@ -96,7 +98,7 @@ class MetaBase(object):
     _subtitle_episode_re = r"[第\s]+([0-9一二三四五六七八九十EP\-]+)\s*[集话話]"
     _subtitle_episode_all_re = r"([0-9一二三四五六七八九十]+)\s*集全|全\s*([0-9一二三四五六七八九十]+)\s*集"
 
-    def __init__(self, title, subtitle=None):
+    def __init__(self, title, subtitle=None, fileflag=False):
         if not title:
             return
         config = Config()
@@ -104,6 +106,7 @@ class MetaBase(object):
         self.category_handler = Category()
         self.org_string = title
         self.subtitle = subtitle
+        self.fileflag = fileflag
 
     def get_name(self):
         if self.cn_name and is_all_chinese(self.cn_name):
