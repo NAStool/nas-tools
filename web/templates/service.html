@@ -153,7 +153,6 @@
         </div>
         <div class="card-body border-bottom py-3">
           <div class="table-responsive">
-            <input type="hidden" id="test_targets" value="{{ SchedulerTasks[-2].targets }}">
             <table class="table table-vcenter card-table">
               <thead>
                 <tr>
@@ -380,29 +379,23 @@
   }
   //网络连通性测试
   function net_test(){
-    //从隐藏的span获取测试列表（字符串类型）
-    var targets = $("#test_targets").val();
-    targets = targets.replace(/'/g,"");
-    targets = targets.replace(/\[/g,"");
-    targets = targets.replace(/\]/g,"");
-    targets = targets.split(",");
+    var targets = {{ SchedulerTasks[-2].targets | safe }};
+    var currentIndex = 0;
+    var stopindex = targets.length;
     $("#nettest_btn").text("测试中");
     $("#nettest_btn").attr("disabled", true);
-    var currentIndex = 0;
-    net_test_ajax(targets,currentIndex);
+    net_test_ajax(targets,currentIndex,stopindex);
   }
 
   //递归轮询测试结果
-  function net_test_ajax(targets,currentIndex){
-    stopindex = targets.length
-    if(currentIndex >= targets.length){
+  function net_test_ajax(targets,currentIndex,stopindex){
+    if(currentIndex >= stopindex){
       $("#nettest_btn").text("测试");
       $("#nettest_btn").attr("disabled", false);
       return;
     }
     var target = '';
     target = targets[currentIndex];
-    target = target.replace(/\s*/g,"");
     ajax_post("net_test", target, function (ret) {
       if(ret.res){
         $("#nettest_item" + currentIndex).html('<span class="badge badge-outline text-green me-1 mb-1">是</span>');
@@ -412,7 +405,7 @@
         $("#nettest_item" + currentIndex + "_time").html('<span class="text-red">' + ret.time + '</span>');
       }
       currentIndex++;
-      net_test_ajax(targets,currentIndex)
+      net_test_ajax(targets,currentIndex,stopindex)
     });
   }
 
