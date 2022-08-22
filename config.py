@@ -99,6 +99,7 @@ class Config(object):
                 quit()
             if not os.path.exists(self.__config_path):
                 cfg_tp_path = os.path.join(self.get_inner_config_path(), "config.yaml")
+                cfg_tp_path = cfg_tp_path.replace("\\", "/")
                 shutil.copy(cfg_tp_path, self.__config_path)
                 print("【ERROR】config.yaml 配置文件不存在，已将配置文件模板复制到配置目录...")
             with open(self.__config_path, mode='r', encoding='utf-8') as f:

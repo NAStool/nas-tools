@@ -26,7 +26,7 @@ class Balloon(wx.adv.TaskBarIcon):
                 menu.AppendSeparator()
                 continue
             menuItem = wx.MenuItem(None, wx.ID_ANY, text=itemName, kind=wx.ITEM_NORMAL)  # 创建菜单项
-            menu.AppendItem(menuItem)  # 将菜单项添加到菜单
+            menu.Append(menuItem)  # 将菜单项添加到菜单
             self.Bind(wx.EVT_MENU, itemHandler, menuItem)
         return menu
 
