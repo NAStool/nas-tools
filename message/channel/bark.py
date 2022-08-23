@@ -5,7 +5,6 @@ from utils.http_utils import RequestUtils
 
 
 class Bark(IMessageChannel):
-
     __server = None
     __apikey = None
 

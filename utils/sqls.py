@@ -5,7 +5,7 @@ from enum import Enum
 
 from rmt.meta.metabase import MetaBase
 from utils.db_helper import update_by_sql, select_by_sql, update_by_sql_batch
-from utils.functions import str_filesize, xstr, str_sql
+from utils.string_utils import StringUtils
 from utils.types import MediaType, RmtMode
 
 
@@ -49,28 +49,28 @@ def insert_search_results(media_items: list):
             mtype = "ANI"
         data_list.append(
             (
-                str_sql(media_item.org_string),
-                str_sql(media_item.enclosure),
-                str_sql(media_item.description),
+                StringUtils.str_sql(media_item.org_string),
+                StringUtils.str_sql(media_item.enclosure),
+                StringUtils.str_sql(media_item.description),
                 mtype,
-                str_sql(media_item.title) or str_sql(media_item.get_name()),
-                xstr(media_item.year),
+                StringUtils.str_sql(media_item.title) or StringUtils.str_sql(media_item.get_name()),
+                StringUtils.xstr(media_item.year),
                 media_item.get_season_string(),
                 media_item.get_episode_string(),
                 media_item.get_season_episode_string(),
                 media_item.vote_average or "0",
                 media_item.get_backdrop_path(default=False),
                 media_item.get_poster_image(),
-                str_sql(media_item.tmdb_id),
-                str_sql(media_item.overview),
+                StringUtils.str_sql(media_item.tmdb_id),
+                StringUtils.str_sql(media_item.overview),
                 media_item.get_resource_type_string(),
                 media_item.res_order,
-                str_filesize(int(media_item.size)),
+                StringUtils.str_filesize(int(media_item.size)),
                 media_item.seeders,
                 media_item.peers,
                 media_item.site,
                 media_item.site_order,
-                str_sql(media_item.page_url),
+                StringUtils.str_sql(media_item.page_url),
                 media_item.upload_volume_factor,
                 media_item.download_volume_factor
             )
@@ -115,11 +115,11 @@ def delete_all_search_torrents():
 def insert_rss_torrents(media_info: MetaBase):
     sql = "INSERT INTO RSS_TORRENTS(TORRENT_NAME, ENCLOSURE, TYPE, TITLE, YEAR, SEASON, EPISODE) " \
           "VALUES (?, ?, ?, ?, ?, ?, ?)"
-    return update_by_sql(sql, (str_sql(media_info.org_string),
+    return update_by_sql(sql, (StringUtils.str_sql(media_info.org_string),
                                media_info.enclosure,
                                media_info.type.value,
-                               str_sql(media_info.title),
-                               str_sql(media_info.year),
+                               StringUtils.str_sql(media_info.title),
+                               StringUtils.str_sql(media_info.year),
                                media_info.get_season_string(),
                                media_info.get_episode_string()))
 
@@ -128,15 +128,15 @@ def insert_rss_torrents(media_info: MetaBase):
 def insert_douban_media_state(media: MetaBase, state):
     if not media.year:
         sql = "DELETE FROM DOUBAN_MEDIAS WHERE NAME = ?"
-        update_by_sql(sql, (str_sql(media.get_name()),))
+        update_by_sql(sql, (StringUtils.str_sql(media.get_name()),))
     else:
         sql = "DELETE FROM DOUBAN_MEDIAS WHERE NAME = ? AND YEAR = ?"
-        update_by_sql(sql, (str_sql(media.get_name()), str_sql(media.year)))
+        update_by_sql(sql, (StringUtils.str_sql(media.get_name()), StringUtils.str_sql(media.year)))
 
     sql = "INSERT INTO DOUBAN_MEDIAS(NAME, YEAR, TYPE, RATING, IMAGE, STATE) VALUES (?, ?, ?, ?, ?, ?)"
     # 再插入
-    return update_by_sql(sql, (str_sql(media.get_name()),
-                               str_sql(media.year),
+    return update_by_sql(sql, (StringUtils.str_sql(media.get_name()),
+                               StringUtils.str_sql(media.year),
                                media.type.value,
                                media.vote_average,
                                media.get_poster_image(),
@@ -146,13 +146,13 @@ def insert_douban_media_state(media: MetaBase, state):
 # 标记豆瓣数据的状态
 def update_douban_media_state(media: MetaBase, state):
     sql = "UPDATE DOUBAN_MEDIAS SET STATE = ? WHERE NAME = ? AND YEAR = ?"
-    return update_by_sql(sql, (state, str_sql(media.title), str_sql(media.year)))
+    return update_by_sql(sql, (state, StringUtils.str_sql(media.title), StringUtils.str_sql(media.year)))
 
 
 # 查询未检索的豆瓣数据
 def get_douban_search_state(title, year):
     sql = "SELECT STATE FROM DOUBAN_MEDIAS WHERE NAME = ? AND YEAR = ?"
-    return select_by_sql(sql, (str_sql(title), str_sql(year)))
+    return select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year)))
 
 
 # 查询识别转移记录
@@ -160,7 +160,9 @@ def is_transfer_history_exists(file_path, file_name, title, se):
     if not file_path:
         return False
     sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_PATH = ? AND FILE_NAME = ? AND TITLE = ? AND SE = ?"
-    ret = select_by_sql(sql, (str_sql(file_path), str_sql(file_name), str_sql(title), str_sql(se)))
+    ret = select_by_sql(sql, (
+        StringUtils.str_sql(file_path), StringUtils.str_sql(file_name), StringUtils.str_sql(title),
+        StringUtils.str_sql(se)))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -188,11 +190,11 @@ def insert_transfer_history(in_from: Enum, rmt_mode: RmtMode, in_path, dest, med
     return update_by_sql(sql, (in_from.value,
                                rmt_mode.value,
                                media_info.type.value,
-                               str_sql(file_path),
-                               str_sql(file_name),
-                               str_sql(media_info.title),
+                               StringUtils.str_sql(file_path),
+                               StringUtils.str_sql(file_name),
+                               StringUtils.str_sql(media_info.title),
                                media_info.category,
-                               str_sql(media_info.year),
+                               StringUtils.str_sql(media_info.year),
                                media_info.get_season_string(),
                                dest,
                                timestr))
@@ -244,7 +246,7 @@ def update_transfer_unknown_state(path):
         return False
     path = os.path.normpath(path)
     sql = "UPDATE TRANSFER_UNKNOWN SET STATE = 'Y' WHERE PATH = ?"
-    return update_by_sql(sql, (str_sql(path),))
+    return update_by_sql(sql, (StringUtils.str_sql(path),))
 
 
 # 删除未识别记录
@@ -269,7 +271,7 @@ def is_transfer_unknown_exists(path):
         return False
     path = os.path.normpath(path)
     sql = "SELECT COUNT(1) FROM TRANSFER_UNKNOWN WHERE PATH = ?"
-    ret = select_by_sql(sql, (str_sql(path),))
+    ret = select_by_sql(sql, (StringUtils.str_sql(path),))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -289,7 +291,7 @@ def insert_transfer_unknown(path, dest):
         else:
             dest = ""
         sql = "INSERT INTO TRANSFER_UNKNOWN(PATH, DEST, STATE) VALUES (?, ?, ?)"
-        return update_by_sql(sql, (str_sql(path), str_sql(dest), 'N'))
+        return update_by_sql(sql, (StringUtils.str_sql(path), StringUtils.str_sql(dest), 'N'))
 
 
 # 查询是否为黑名单
@@ -298,7 +300,7 @@ def is_transfer_in_blacklist(path):
         return False
     path = os.path.normpath(path)
     sql = "SELECT COUNT(1) FROM TRANSFER_BLACKLIST WHERE PATH = ?"
-    ret = select_by_sql(sql, (str_sql(path),))
+    ret = select_by_sql(sql, (StringUtils.str_sql(path),))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -319,7 +321,7 @@ def insert_transfer_blacklist(path):
     else:
         path = os.path.normpath(path)
         sql = "INSERT INTO TRANSFER_BLACKLIST(PATH) VALUES (?)"
-        return update_by_sql(sql, (str_sql(path),))
+        return update_by_sql(sql, (StringUtils.str_sql(path),))
 
 
 # 清空黑名单记录
@@ -348,12 +350,12 @@ def insert_config_site(name, site_pri, rssurl, signurl, cookie, note):
         return
     sql = "INSERT INTO CONFIG_SITE(NAME,PRI,RSSURL,SIGNURL,COOKIE,NOTE) VALUES " \
           "(?, ?, ?, ?, ?, ?)"
-    return update_by_sql(sql, (str_sql(name),
-                               str_sql(site_pri),
-                               str_sql(rssurl),
-                               str_sql(signurl),
-                               str_sql(cookie),
-                               str_sql(note)))
+    return update_by_sql(sql, (StringUtils.str_sql(name),
+                               StringUtils.str_sql(site_pri),
+                               StringUtils.str_sql(rssurl),
+                               StringUtils.str_sql(signurl),
+                               StringUtils.str_sql(cookie),
+                               StringUtils.str_sql(note)))
 
 
 # 删除站点信息
@@ -368,12 +370,12 @@ def update_config_site(tid, name, site_pri, rssurl, signurl, cookie, note):
     if not tid:
         return
     sql = "UPDATE CONFIG_SITE SET NAME=?,PRI=?,RSSURL=?,SIGNURL=?,COOKIE=?,NOTE=? WHERE ID=?"
-    return update_by_sql(sql, (str_sql(name),
-                               str_sql(site_pri),
-                               str_sql(rssurl),
-                               str_sql(signurl),
-                               str_sql(cookie),
-                               str_sql(note),
+    return update_by_sql(sql, (StringUtils.str_sql(name),
+                               StringUtils.str_sql(site_pri),
+                               StringUtils.str_sql(rssurl),
+                               StringUtils.str_sql(signurl),
+                               StringUtils.str_sql(cookie),
+                               StringUtils.str_sql(note),
                                tid))
 
 
@@ -416,7 +418,7 @@ def get_rss_movie_id(title, year):
     if not title:
         return ""
     sql = "SELECT ID FROM RSS_MOVIES WHERE NAME=? AND YEAR = ?"
-    ret = select_by_sql(sql, (str_sql(title), str_sql(year)))
+    ret = select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year)))
     if ret:
         return ret[0][0]
     return ""
@@ -438,7 +440,8 @@ def update_rss_movie_tmdb(rid, tmdbid, title, year, image):
     if not tmdbid:
         return False
     sql = "UPDATE RSS_MOVIES SET TMDBID = ?, NAME = ?, YEAR = ?, IMAGE = ? WHERE ID = ?"
-    return update_by_sql(sql, (tmdbid, str_sql(title), str_sql(year), str_sql(image), rid))
+    return update_by_sql(sql, (
+        tmdbid, StringUtils.str_sql(title), StringUtils.str_sql(year), StringUtils.str_sql(image), rid))
 
 
 # 判断RSS电影是否存在
@@ -446,7 +449,7 @@ def is_exists_rss_movie(title, year):
     if not title:
         return False
     sql = "SELECT COUNT(1) FROM RSS_MOVIES WHERE NAME=? AND YEAR = ?"
-    ret = select_by_sql(sql, (str_sql(title), str_sql(year)))
+    ret = select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year)))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -472,13 +475,13 @@ def insert_rss_movie(media_info: MetaBase,
     desc = "#".join(["|".join(sites or []),
                      "|".join(search_sites or []),
                      "Y" if over_edition else "N",
-                     "%s@%s@%s" % (str_sql(rss_restype),
-                                   str_sql(rss_pix),
-                                   str_sql(rss_rule))])
-    return update_by_sql(sql, (str_sql(media_info.title),
-                               str_sql(media_info.year),
-                               str_sql(media_info.tmdb_id),
-                               str_sql(media_info.get_message_image()),
+                     "%s@%s@%s" % (StringUtils.str_sql(rss_restype),
+                                   StringUtils.str_sql(rss_pix),
+                                   StringUtils.str_sql(rss_rule))])
+    return update_by_sql(sql, (StringUtils.str_sql(media_info.title),
+                               StringUtils.str_sql(media_info.year),
+                               StringUtils.str_sql(media_info.tmdb_id),
+                               StringUtils.str_sql(media_info.get_message_image()),
                                desc,
                                state))
 
@@ -492,7 +495,7 @@ def delete_rss_movie(title=None, year=None, rssid=None):
         return update_by_sql(sql, (rssid,))
     else:
         sql = "DELETE FROM RSS_MOVIES WHERE NAME = ? AND YEAR = ?"
-        return update_by_sql(sql, (str_sql(title), str_sql(year)))
+        return update_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year)))
 
 
 # 更新电影订阅状态
@@ -504,7 +507,7 @@ def update_rss_movie_state(title=None, year=None, rssid=None, state='R'):
         return update_by_sql(sql, (state, rssid))
     else:
         sql = "UPDATE RSS_MOVIES SET STATE = ? WHERE NAME = ? AND YEAR = ?"
-        return update_by_sql(sql, (state, str_sql(title), str_sql(year)))
+        return update_by_sql(sql, (state, StringUtils.str_sql(title), StringUtils.str_sql(year)))
 
 
 # 查询订阅电视剧信息
@@ -534,10 +537,10 @@ def get_rss_tv_id(title, year, season=None):
         return ""
     if season:
         sql = "SELECT ID FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-        ret = select_by_sql(sql, (str_sql(title), str_sql(year), season))
+        ret = select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year), season))
     else:
         sql = "SELECT ID FROM RSS_TVS WHERE NAME = ? AND YEAR = ?"
-        ret = select_by_sql(sql, (str_sql(title), str_sql(year)))
+        ret = select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year)))
     if ret:
         return ret[0][0]
     return ""
@@ -559,7 +562,7 @@ def update_rss_tv_tmdb(rid, tmdbid, title, year, total, lack, image):
     if not tmdbid:
         return False
     sql = "UPDATE RSS_TVS SET TMDBID = ?, NAME = ?, YEAR = ?, TOTAL = ?, LACK = ?, IMAGE = ? WHERE ID = ?"
-    return update_by_sql(sql, (tmdbid, str_sql(title), year, total, lack, str_sql(image), rid))
+    return update_by_sql(sql, (tmdbid, StringUtils.str_sql(title), year, total, lack, StringUtils.str_sql(image), rid))
 
 
 # 判断RSS电视剧是否存在
@@ -568,10 +571,10 @@ def is_exists_rss_tv(title, year, season=None):
         return False
     if season:
         sql = "SELECT COUNT(1) FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-        ret = select_by_sql(sql, (str_sql(title), str_sql(year), season))
+        ret = select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year), season))
     else:
         sql = "SELECT COUNT(1) FROM RSS_TVS WHERE NAME = ? AND YEAR = ?"
-        ret = select_by_sql(sql, (str_sql(title), str_sql(year)))
+        ret = select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year)))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -603,14 +606,14 @@ def insert_rss_tv(media_info: MetaBase, total, lack=0, state="D",
     desc = "#".join(["|".join(sites or []),
                      "|".join(search_sites or []),
                      "Y" if over_edition else "N",
-                     "@".join([str_sql(rss_restype),
-                               str_sql(rss_pix),
-                               str_sql(rss_rule)])])
-    return update_by_sql(sql, (str_sql(media_info.title),
-                               str_sql(media_info.year),
+                     "@".join([StringUtils.str_sql(rss_restype),
+                               StringUtils.str_sql(rss_pix),
+                               StringUtils.str_sql(rss_rule)])])
+    return update_by_sql(sql, (StringUtils.str_sql(media_info.title),
+                               StringUtils.str_sql(media_info.year),
                                season_str,
-                               str_sql(media_info.tmdb_id),
-                               str_sql(media_info.get_message_image()),
+                               StringUtils.str_sql(media_info.tmdb_id),
+                               StringUtils.str_sql(media_info.get_message_image()),
                                desc,
                                total,
                                lack,
@@ -631,7 +634,7 @@ def update_rss_tv_lack(title=None, year=None, season=None, rssid=None, lack_epis
         return update_by_sql(sql, (lack, rssid))
     else:
         sql = "UPDATE RSS_TVS SET LACK=? WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-        return update_by_sql(sql, (lack, str_sql(title), str_sql(year), season))
+        return update_by_sql(sql, (lack, StringUtils.str_sql(title), StringUtils.str_sql(year), season))
 
 
 # 删除RSS电视剧
@@ -644,7 +647,7 @@ def delete_rss_tv(title=None, year=None, season=None, rssid=None):
         return update_by_sql(sql, (rssid,))
     else:
         sql = "DELETE FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-        return update_by_sql(sql, (str_sql(title), str_sql(year), season))
+        return update_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year), season))
 
 
 # 判断RSS电视剧是否存在
@@ -705,7 +708,7 @@ def update_rss_tv_state(title=None, year=None, season=None, rssid=None, state='R
         return update_by_sql(sql, (state, rssid))
     else:
         sql = "UPDATE RSS_TVS SET STATE = ? WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-        return update_by_sql(sql, (state, str_sql(title), str_sql(year), season))
+        return update_by_sql(sql, (state, StringUtils.str_sql(title), StringUtils.str_sql(year), season))
 
 
 # 查询是否存在同步历史记录
@@ -715,7 +718,7 @@ def is_sync_in_history(path, dest):
     path = os.path.normpath(path)
     dest = os.path.normpath(dest)
     sql = "SELECT COUNT(1) FROM SYNC_HISTORY WHERE PATH = ? AND DEST = ?"
-    ret = select_by_sql(sql, (str_sql(path), str_sql(dest)))
+    ret = select_by_sql(sql, (StringUtils.str_sql(path), StringUtils.str_sql(dest)))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -733,7 +736,7 @@ def insert_sync_history(path, src, dest):
         src = os.path.normpath(src)
         dest = os.path.normpath(dest)
         sql = "INSERT INTO SYNC_HISTORY(PATH, SRC, DEST) VALUES (?, ?, ?)"
-        return update_by_sql(sql, (str_sql(path), str_sql(src), str_sql(dest)))
+        return update_by_sql(sql, (StringUtils.str_sql(path), StringUtils.str_sql(src), StringUtils.str_sql(dest)))
 
 
 # 查询用户列表
@@ -762,12 +765,12 @@ def insert_user(name, password, pris):
         return False
     else:
         sql = "INSERT INTO CONFIG_USERS(NAME,PASSWORD,PRIS) VALUES (?, ?, ?)"
-        return update_by_sql(sql, (str_sql(name), str_sql(password), str_sql(pris)))
+        return update_by_sql(sql, (StringUtils.str_sql(name), StringUtils.str_sql(password), StringUtils.str_sql(pris)))
 
 
 # 删除用户
 def delete_user(name):
-    return update_by_sql("DELETE FROM CONFIG_USERS WHERE NAME = ?", (str_sql(name),))
+    return update_by_sql("DELETE FROM CONFIG_USERS WHERE NAME = ?", (StringUtils.str_sql(name),))
 
 
 # 查询历史记录统计
@@ -810,7 +813,8 @@ def update_site_user_statistics(site_user_infos: list):
         msg_unread = site_user_info.message_unread
 
         data_list.append((
-            str_sql(site), username, user_level, join_at, update_at, upload, download, ratio, seeding, leeching,
+            StringUtils.str_sql(site), username, user_level, join_at, update_at, upload, download, ratio, seeding,
+            leeching,
             seeding_size, bonus, url, favicon, msg_unread))
     return update_by_sql_batch(sql, data_list)
 
@@ -826,7 +830,7 @@ def update_site_seed_info(site_user_infos: list):
 
     data_list = []
     for site_user_info in site_user_infos:
-        data_list.append((str_sql(site_user_info.site_name), update_at, site_user_info.seeding_info,
+        data_list.append((StringUtils.str_sql(site_user_info.site_name), update_at, site_user_info.seeding_info,
                           site_user_info.site_url))
 
     return update_by_sql_batch(sql, data_list)
@@ -902,7 +906,7 @@ def insert_site_statistics_history(site_user_infos: list):
         bonus = site_user_info.bonus
         url = site_user_info.site_url
 
-        data_list.append((str_sql(site), user_level, date_now, upload, download, ratio, seeding, leeching,
+        data_list.append((StringUtils.str_sql(site), user_level, date_now, upload, download, ratio, seeding, leeching,
                           seeding_size, bonus, url))
 
     return update_by_sql_batch(sql, data_list)
@@ -975,10 +979,10 @@ def is_exists_download_history(title, tmdbid, mtype=None):
         return False
     if mtype:
         sql = "SELECT COUNT(1) FROM DOWNLOAD_HISTORY WHERE (TITLE = ? OR TMDBID = ?) AND TYPE = ?"
-        ret = select_by_sql(sql, (str_sql(title), str_sql(tmdbid), mtype))
+        ret = select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(tmdbid), mtype))
     else:
         sql = "SELECT COUNT(1) FROM DOWNLOAD_HISTORY WHERE TITLE = ? OR TMDBID = ?"
-        ret = select_by_sql(sql, (str_sql(title), str_sql(tmdbid)))
+        ret = select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(tmdbid)))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -993,28 +997,28 @@ def insert_download_history(media_info: MetaBase):
         return False
     if is_exists_download_history(media_info.title, media_info.tmdb_id, media_info.type.value):
         sql = "UPDATE DOWNLOAD_HISTORY SET TORRENT = ?, ENCLOSURE = ?, DESC = ?, DATE = ?, SITE = ? WHERE TITLE = ? AND TMDBID = ? AND TYPE = ?"
-        return update_by_sql(sql, (str_sql(media_info.org_string),
-                                   str_sql(media_info.enclosure),
-                                   str_sql(media_info.description),
+        return update_by_sql(sql, (StringUtils.str_sql(media_info.org_string),
+                                   StringUtils.str_sql(media_info.enclosure),
+                                   StringUtils.str_sql(media_info.description),
                                    time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
-                                   str_sql(media_info.site),
-                                   str_sql(media_info.title),
-                                   str_sql(media_info.tmdb_id),
+                                   StringUtils.str_sql(media_info.site),
+                                   StringUtils.str_sql(media_info.title),
+                                   StringUtils.str_sql(media_info.tmdb_id),
                                    media_info.type.value))
     else:
         sql = "INSERT INTO DOWNLOAD_HISTORY(TITLE,YEAR,TYPE,TMDBID,VOTE,POSTER,OVERVIEW,TORRENT,ENCLOSURE,DESC,DATE,SITE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        return update_by_sql(sql, (str_sql(media_info.title),
-                                   str_sql(media_info.year),
+        return update_by_sql(sql, (StringUtils.str_sql(media_info.title),
+                                   StringUtils.str_sql(media_info.year),
                                    media_info.type.value,
                                    media_info.tmdb_id,
                                    media_info.vote_average,
                                    media_info.get_poster_image(),
-                                   str_sql(media_info.overview),
-                                   str_sql(media_info.org_string),
-                                   str_sql(media_info.enclosure),
-                                   str_sql(media_info.description),
+                                   StringUtils.str_sql(media_info.overview),
+                                   StringUtils.str_sql(media_info.org_string),
+                                   StringUtils.str_sql(media_info.enclosure),
+                                   StringUtils.str_sql(media_info.description),
                                    time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
-                                   str_sql(media_info.site)))
+                                   StringUtils.str_sql(media_info.site)))
 
 
 # 查询下载历史
@@ -1036,7 +1040,7 @@ def is_media_downloaded(title, tmdbid):
     if is_exists_download_history(title, tmdbid):
         return True
     sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE TITLE = ?"
-    ret = select_by_sql(sql, (str_sql(title),))
+    ret = select_by_sql(sql, (StringUtils.str_sql(title),))
     if ret and ret[0][0] > 0:
         return True
     else:
@@ -1264,14 +1268,14 @@ def get_user_downloaders(did=None):
 def insert_user_downloader(name, dtype, user_config, note):
     sql = "INSERT INTO SITE_BRUSH_DOWNLOADERS (NAME,TYPE,HOST,PORT,USERNAME,PASSWORD,SAVE_DIR,NOTE)" \
           "VALUES (?,?,?,?,?,?,?,?)"
-    return update_by_sql(sql, (str_sql(name),
+    return update_by_sql(sql, (StringUtils.str_sql(name),
                                dtype,
-                               str_sql(user_config.get("host")),
-                               str_sql(user_config.get("port")),
-                               str_sql(user_config.get("username")),
-                               str_sql(user_config.get("password")),
-                               str_sql(user_config.get("save_dir")),
-                               str_sql(note)))
+                               StringUtils.str_sql(user_config.get("host")),
+                               StringUtils.str_sql(user_config.get("port")),
+                               StringUtils.str_sql(user_config.get("username")),
+                               StringUtils.str_sql(user_config.get("password")),
+                               StringUtils.str_sql(user_config.get("save_dir")),
+                               StringUtils.str_sql(note)))
 
 
 # 删除自定义下载器
@@ -1285,7 +1289,7 @@ def add_filter_group(name, default='N'):
     if default == 'Y':
         set_default_filtergroup(0)
     sql = "INSERT INTO CONFIG_FILTER_GROUP (GROUP_NAME, IS_DEFAULT) VALUES (?, ?)"
-    update_by_sql(sql, (str_sql(name), default))
+    update_by_sql(sql, (StringUtils.str_sql(name), default))
     return True
 
 

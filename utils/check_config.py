@@ -1,4 +1,5 @@
 import os
+
 import log
 from rmt.category import Category
 
@@ -74,7 +75,8 @@ def check_config(config):
                 if not config.get_config('jellyfin'):
                     log.warn("jellyfin未配置")
                 else:
-                    if not config.get_config('jellyfin').get('host') or not config.get_config('jellyfin').get('api_key'):
+                    if not config.get_config('jellyfin').get('host') or not config.get_config('jellyfin').get(
+                            'api_key'):
                         log.warn("jellyfin配置不完整")
             else:
                 if not config.get_config('emby'):
@@ -198,7 +200,7 @@ def check_config(config):
     if config.get_config('pt'):
         pt_client = config.get_config('pt').get('pt_client')
         log.info("下载软件设置为：%s" % pt_client)
-                            
+
         rmt_mode = config.get_config('pt').get('rmt_mode', 'copy')
         if rmt_mode == "link":
             log.info("下载文件转移模式为：硬链接")
@@ -245,7 +247,8 @@ def check_config(config):
     if not config.get_config('douban'):
         log.info("豆瓣未配置")
     else:
-        if not config.get_config('douban').get('users') or not config.get_config('douban').get('types') or not config.get_config('douban').get('days'):
+        if not config.get_config('douban').get('users') or not config.get_config('douban').get(
+                'types') or not config.get_config('douban').get('days'):
             log.info("豆瓣配置不完整")
 
     return True

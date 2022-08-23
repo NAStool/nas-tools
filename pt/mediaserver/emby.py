@@ -5,8 +5,9 @@ import log
 from config import Config
 from pt.mediaserver.server import IMediaServer
 from rmt.meta.metabase import MetaBase
-from utils.functions import get_local_time, singleton
+from utils.commons import singleton
 from utils.http_utils import RequestUtils
+from utils.system_utils import SystemUtils
 from utils.types import MediaType
 
 
@@ -91,13 +92,13 @@ class Emby(IMediaServer):
                 for item in items:
                     if item.get("Type") == "AuthenticationSucceeded":
                         event_type = "LG"
-                        event_date = get_local_time(item.get("Date"))
+                        event_date = SystemUtils.get_local_time(item.get("Date"))
                         event_str = "%s, %s" % (item.get("Name"), item.get("ShortOverview"))
                         activity = {"type": event_type, "event": event_str, "date": event_date}
                         ret_array.append(activity)
                     if item.get("Type") == "VideoPlayback":
                         event_type = "PL"
-                        event_date = get_local_time(item.get("Date"))
+                        event_date = SystemUtils.get_local_time(item.get("Date"))
                         event_str = item.get("Name")
                         activity = {"type": event_type, "event": event_str, "date": event_date}
                         ret_array.append(activity)

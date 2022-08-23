@@ -1,5 +1,6 @@
 # encoding: utf-8
 import sys
+
 from rmt.tmdbv3api.exceptions import TMDbException
 
 
@@ -31,7 +32,7 @@ class AsObj:
 
     def __setitem__(self, key, value):
         return setattr(self, key, value)
-    
+
     def __str__(self):
         return str(self.__dict__)
 
@@ -69,10 +70,10 @@ class AsObj:
 
     def pop(self, key, value=None):
         return self.__dict__.pop(key, value)
-    
+
     def popitem(self):
         return self.__dict__.popitem()
-    
+
     def setdefault(self, key, value=None):
         return self.__dict__.setdefault(key, value)
 

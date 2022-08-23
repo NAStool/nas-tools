@@ -5,7 +5,7 @@ from pythonopensubtitles.opensubtitles import OpenSubtitles
 
 import log
 from config import Config
-from utils.functions import singleton
+from utils.commons import singleton
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
 
@@ -121,11 +121,13 @@ class Subtitle:
                 if os.path.exists(os.path.join(Download_Dir, Download_File)):
                     continue
                 log.info("【SUBTITLE】正在从Opensubtitles.org下载字幕 %s 到 %s " % (SubFileName, Download_File))
-                self.__ost.download_subtitles([IDSubtitleFile], override_filenames={IDSubtitleFile: Download_File}, output_directory=Download_Dir)
+                self.__ost.download_subtitles([IDSubtitleFile], override_filenames={IDSubtitleFile: Download_File},
+                                              output_directory=Download_Dir)
                 success_flag = True
             if not success_flag:
                 if item.get('episode'):
-                    log.info("【SUBTITLE】%s 季：%s 集：%s 未找到符合条件的字幕" % (item.get("name"), item.get("season"), item.get("episode")))
+                    log.info("【SUBTITLE】%s 季：%s 集：%s 未找到符合条件的字幕" % (
+                    item.get("name"), item.get("season"), item.get("episode")))
                 else:
                     log.info("【SUBTITLE】%s 未找到符合条件的字幕" % item.get("name"))
 
@@ -166,7 +168,8 @@ class Subtitle:
                     "is_bluray": item.get("bluray")
                 }
                 try:
-                    res = RequestUtils(headers={"Authorization": "Bearer %s" % self.__api_key}).post(req_url, json=params)
+                    res = RequestUtils(headers={"Authorization": "Bearer %s" % self.__api_key}).post(req_url,
+                                                                                                     json=params)
                     if not res or res.status_code != 200:
                         log.error("【SUBTITLE】调用ChineseSubFinder API失败！")
                     else:

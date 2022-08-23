@@ -1,26 +1,27 @@
-import traceback
-from threading import Lock
-
 import re
-from urllib import parse
+import traceback
 import xml.dom.minidom
+from threading import Lock
+from urllib import parse
+
 import log
-from pt.filterrules import FilterRule
-from pt.searcher import Searcher
 from message.send import Message
 from pt.downloader import Downloader
+from pt.filterrules import FilterRule
+from pt.searcher import Searcher
 from pt.siteconf import RSS_EXTRA_SITES
 from pt.sites import Sites
 from pt.torrent import Torrent
 from rmt.media import Media
 from rmt.meta.metabase import MetaBase
 from rmt.metainfo import MetaInfo
-from utils.functions import tag_value, str_filesize
+from utils.dom_utils import DomUtils
 from utils.http_utils import RequestUtils
 from utils.meta_helper import MetaHelper
 from utils.sqls import get_rss_movies, get_rss_tvs, insert_rss_torrents, \
     is_torrent_rssd, delete_rss_movie, delete_rss_tv, update_rss_tv_lack, \
     update_rss_movie_state, update_rss_tv_state, update_rss_movie_tmdb, update_rss_tv_tmdb, get_rss_tv_episodes
+from utils.string_utils import StringUtils
 from utils.types import MediaType, SearchType
 
 lock = Lock()
@@ -544,18 +545,18 @@ class Rss:
                 for item in items:
                     try:
                         # 标题
-                        title = tag_value(item, "title", default="")
+                        title = DomUtils.tag_value(item, "title", default="")
                         if not title:
                             continue
                         # 描述
-                        description = tag_value(item, "description", default="")
+                        description = DomUtils.tag_value(item, "description", default="")
                         # 种子页面
-                        link = tag_value(item, "link", default="")
+                        link = DomUtils.tag_value(item, "link", default="")
                         # 种子链接
-                        enclosure = tag_value(item, "enclosure", "url", default="")
+                        enclosure = DomUtils.tag_value(item, "enclosure", "url", default="")
                         if not enclosure:
                             # 种子链接
-                            enclosure = tag_value(item, "link", default="")
+                            enclosure = DomUtils.tag_value(item, "link", default="")
                             # 大小
                             size = 0
                             size_map = {
@@ -578,7 +579,7 @@ class Rss:
                                 continue
                         else:
                             # 大小
-                            size = tag_value(item, "enclosure", "length", default=0)
+                            size = DomUtils.tag_value(item, "enclosure", "length", default=0)
                             if size and str(size).isdigit():
                                 size = int(size)
                             else:
@@ -695,7 +696,9 @@ class Rss:
                         continue
                     # 匹配关键字，可能是正则表达式
                     if not re.search(r"%s" % name,
-                                     "%s %s %s %s" % (media_info.org_string, media_info.title, media_info.original_title, media_info.year),
+                                     "%s %s %s %s" % (
+                                     media_info.org_string, media_info.title, media_info.original_title,
+                                     media_info.year),
                                      re.IGNORECASE):
                         continue
                 # 媒体匹配成功
@@ -752,7 +755,9 @@ class Rss:
                         continue
                     # 匹配关键字，可能是正则表达式
                     if not re.search(r"%s" % name,
-                                     "%s %s %s %s" % (media_info.org_string, media_info.title, media_info.original_title, media_info.year),
+                                     "%s %s %s %s" % (
+                                     media_info.org_string, media_info.title, media_info.original_title,
+                                     media_info.year),
                                      re.IGNORECASE):
                         continue
                 # 媒体匹配成功
@@ -779,7 +784,7 @@ class Rss:
                                                                 rolegroup=rulegroup)
             if not match_flag:
                 log.info(
-                    f"【RSS】{media_info.org_string} 大小：{str_filesize(media_info.size)} 促销：{media_info.get_volume_factor_string()} 不符合过滤规则")
+                    f"【RSS】{media_info.org_string} 大小：{StringUtils.str_filesize(media_info.size)} 促销：{media_info.get_volume_factor_string()} 不符合过滤规则")
         if match_flag:
             return rssid, over_edition, total_episodes, res_order, upload_volume_factor, download_volume_factor
         else:

@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import re
 
-from pt.siteuserinfo.site_user_info import ISiteUserInfo
-from utils.functions import num_filesize, str_float
 from lxml import etree
+
+from pt.siteuserinfo.site_user_info import ISiteUserInfo
+from utils.string_utils import StringUtils
 
 
 class GazelleUserInfo(ISiteUserInfo):
-
     _site_schema = "Gazelle"
     _brief_page = "/"
     _user_traffic_page = None
@@ -29,10 +29,10 @@ class GazelleUserInfo(ISiteUserInfo):
 
         tmps = html.xpath('//*[@id="header-uploaded-value"]/@data-value')
         if tmps:
-            self.upload = num_filesize(tmps[0])
+            self.upload = StringUtils.num_filesize(tmps[0])
         tmps = html.xpath('//*[@id="header-downloaded-value"]/@data-value')
         if tmps:
-            self.download = num_filesize(tmps[0])
+            self.download = StringUtils.num_filesize(tmps[0])
 
         self.ratio = 0.0 if self.download <= 0.0 else round(self.upload / self.download, 3)
 
@@ -40,14 +40,14 @@ class GazelleUserInfo(ISiteUserInfo):
         if tmps:
             bonus_match = re.search(r"([\d,.]+)", tmps[0])
             if bonus_match and bonus_match.group(1).strip():
-                self.bonus = str_float(bonus_match.group(1))
+                self.bonus = StringUtils.str_float(bonus_match.group(1))
         else:
             tmps = html.xpath('//a[contains(@href, "bonus.php")]')
             if tmps:
                 bonus_text = tmps[0].xpath("string(.)")
                 bonus_match = re.search(r"([\d,.]+)", bonus_text)
                 if bonus_match and bonus_match.group(1).strip():
-                    self.bonus = str_float(bonus_match.group(1))
+                    self.bonus = StringUtils.str_float(bonus_match.group(1))
 
         logout = html.xpath('//a[contains(@href, "logout") or contains(@data-url, "logout")'
                             ' or contains(@onclick, "logout")]')
@@ -105,7 +105,7 @@ class GazelleUserInfo(ISiteUserInfo):
             page_seeding = len(seeding_sizes)
 
             for i in range(0, len(seeding_sizes)):
-                size = num_filesize(seeding_sizes[i].xpath("string(.)").strip())
+                size = StringUtils.num_filesize(seeding_sizes[i].xpath("string(.)").strip())
                 seeders = int(seeding_seeders[i])
 
                 page_seeding_size += size

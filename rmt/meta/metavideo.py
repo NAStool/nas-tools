@@ -1,7 +1,8 @@
 import re
+
 from config import RMT_MEDIAEXT
 from rmt.meta.metabase import MetaBase
-from utils.functions import is_chinese
+from utils.string_utils import StringUtils
 from utils.tokens import Tokens
 from utils.types import MediaType
 
@@ -134,7 +135,7 @@ class MetaVideo(MetaBase):
         if token in self._name_se_words:
             self._last_token_type = 'name_se_words'
             return
-        if is_chinese(token):
+        if StringUtils.is_chinese(token):
             # 含有中文，直接做为标题（连着的数字或者英文会保留），且不再取用后面出现的中文
             self._last_token_type = "cnname"
             if not self.cn_name:

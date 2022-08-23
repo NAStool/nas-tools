@@ -1,13 +1,14 @@
 import os
 import pickle
-import time
 import random
+import time
 from threading import RLock
 
 from config import Config
-from utils.functions import singleton, json_serializable
-from utils.types import MediaType
+from utils.commons import singleton
+from utils.json_utils import JsonUtils
 from utils.thread_helper import ThreadHelper
+from utils.types import MediaType
 
 lock = RLock()
 
@@ -74,7 +75,7 @@ class MetaHelper(object):
             begin_pos = (page - 1) * num
 
         with lock:
-            search_metas = [(k, json_serializable(v),
+            search_metas = [(k, JsonUtils.json_serializable(v),
                              str(k).replace("[电影]", "").replace("[电视剧]", "").replace("[未知]", "").replace("-None", ""))
                             for k, v in
                             self.__meta_data.items() if search.lower() in k.lower() and v.get("id") != 0]

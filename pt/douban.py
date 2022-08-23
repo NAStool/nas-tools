@@ -126,7 +126,8 @@ class DouBan:
                             break
                         html = etree.HTML(html_text)
                         # ID列表
-                        items = html.xpath("//div[@class='info']//a[contains(@href,'https://movie.douban.com/subject/')]/@href")
+                        items = html.xpath(
+                            "//div[@class='info']//a[contains(@href,'https://movie.douban.com/subject/')]/@href")
                         if not items:
                             break
                         # 时间列表
@@ -362,7 +363,8 @@ class DouBan:
                 if not ret_media.get('title'):
                     return None
                 ret_media['year'] = html.xpath("//div[@id='content']//span[@class='year']/text()")[0][1:-1]
-                ret_media['intro'] = "".join([str(x).strip() for x in html.xpath("//span[@property='v:summary']/text()")])
+                ret_media['intro'] = "".join(
+                    [str(x).strip() for x in html.xpath("//span[@property='v:summary']/text()")])
                 ret_media['cover_url'] = html.xpath("//div[@id='mainpic']/a/img/@src")[0]
                 if ret_media['cover_url']:
                     ret_media['cover_url'] = ret_media.get('cover_url').replace("s_ratio_poster", "m_ratio_poster")

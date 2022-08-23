@@ -2,7 +2,7 @@ import datetime
 import time
 from collections import deque
 
-from utils.functions import singleton
+from utils.commons import singleton
 
 
 @singleton
@@ -51,7 +51,8 @@ class MessageCenter:
         else:
             ret_messages = []
             for message in list(self._message_queue):
-                if (datetime.datetime.strptime(message.get("time"), '%Y-%m-%d %H:%M:%S') - datetime.datetime.strptime(lst_time, '%Y-%m-%d %H:%M:%S')).seconds > 0:
+                if (datetime.datetime.strptime(message.get("time"), '%Y-%m-%d %H:%M:%S') - datetime.datetime.strptime(
+                        lst_time, '%Y-%m-%d %H:%M:%S')).seconds > 0:
                     ret_messages.append(message)
                 else:
                     break

@@ -40,7 +40,7 @@ class Search(TMDb):
         :return:
         """
         return self._get_obj(self._call(self._urls["keywords"], urlencode(params)))
-    
+
     def movies(self, params):
         """
         Search for movies.

@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import re
 
-from pt.siteuserinfo.site_user_info import ISiteUserInfo
-from utils.functions import num_filesize, str_float, str_int
 from lxml import etree
+
+from pt.siteuserinfo.site_user_info import ISiteUserInfo
+from utils.string_utils import StringUtils
 
 
 class DiscuzUserInfo(ISiteUserInfo):
-
     _site_schema = "Discuz!"
     _brief_page = "index.php"
     _user_traffic_page = None
@@ -61,22 +61,22 @@ class DiscuzUserInfo(ISiteUserInfo):
         if ratio_text:
             ratio_match = re.search(r"\(([\d,.]+)\)", ratio_text[0])
             if ratio_match and ratio_match.group(1).strip():
-                self.bonus = str_float(ratio_match.group(1))
+                self.bonus = StringUtils.str_float(ratio_match.group(1))
 
         # 积分
         bouns_text = html.xpath('//li[em[text()="积分"]]/text()')
         if bouns_text:
-            self.bonus = str_float(bouns_text[0].strip())
+            self.bonus = StringUtils.str_float(bouns_text[0].strip())
 
         # 上传
         upload_text = html.xpath('//li[em[contains(text(),"上传量")]]/text()')
         if upload_text:
-            self.upload = num_filesize(upload_text[0].strip().split('/')[-1])
+            self.upload = StringUtils.num_filesize(upload_text[0].strip().split('/')[-1])
 
         # 下载
         download_text = html.xpath('//li[em[contains(text(),"下载量")]]/text()')
         if download_text:
-            self.download = num_filesize(download_text[0].strip().split('/')[-1])
+            self.download = StringUtils.num_filesize(download_text[0].strip().split('/')[-1])
 
     def _parse_user_torrent_seeding_info(self, html_text, multi_page=False):
         """
@@ -109,8 +109,8 @@ class DiscuzUserInfo(ISiteUserInfo):
             page_seeding = len(seeding_sizes)
 
             for i in range(0, len(seeding_sizes)):
-                size = num_filesize(seeding_sizes[i].xpath("string(.)").strip())
-                seeders = str_int(seeding_seeders[i])
+                size = StringUtils.num_filesize(seeding_sizes[i].xpath("string(.)").strip())
+                seeders = StringUtils.str_int(seeding_seeders[i])
 
                 page_seeding_size += size
                 page_seeding_info.append([seeders, size])

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import re
 
-from pt.siteuserinfo.site_user_info import ISiteUserInfo
-from utils.functions import num_filesize, str_float, str_int
 from lxml import etree
+
+from pt.siteuserinfo.site_user_info import ISiteUserInfo
+from utils.string_utils import StringUtils
 
 
 class SmallHorseSiteUserInfo(ISiteUserInfo):
@@ -43,13 +44,16 @@ class SmallHorseSiteUserInfo(ISiteUserInfo):
         tmps = html.xpath('//ul[@class = "stats nobullet"]')
         if tmps:
             self.join_at = str(tmps[1].xpath("li")[0].xpath("span//text()")[0])
-            self.upload = num_filesize(str(tmps[1].xpath("li")[2].xpath("text()")[0]).split(":")[1].strip())
-            self.download = num_filesize(str(tmps[1].xpath("li")[3].xpath("text()")[0]).split(":")[1].strip())
-            self.ratio = str_float(str(tmps[1].xpath("li")[4].xpath("span//text()")[0]))
-            self.bonus = str_float(str(tmps[1].xpath("li")[5].xpath("text()")[0]).split(":")[1])
+            self.upload = StringUtils.num_filesize(str(tmps[1].xpath("li")[2].xpath("text()")[0]).split(":")[1].strip())
+            self.download = StringUtils.num_filesize(
+                str(tmps[1].xpath("li")[3].xpath("text()")[0]).split(":")[1].strip())
+            self.ratio = StringUtils.str_float(str(tmps[1].xpath("li")[4].xpath("span//text()")[0]))
+            self.bonus = StringUtils.str_float(str(tmps[1].xpath("li")[5].xpath("text()")[0]).split(":")[1])
             self.user_level = str(tmps[3].xpath("li")[0].xpath("text()")[0]).split(":")[1].strip()
-            self.seeding = str_int((tmps[4].xpath("li")[5].xpath("text()")[0]).split(":")[1].replace("[", ""))
-            self.leeching = str_int((tmps[4].xpath("li")[6].xpath("text()")[0]).split(":")[1].replace("[", ""))
+            self.seeding = StringUtils.str_int(
+                (tmps[4].xpath("li")[5].xpath("text()")[0]).split(":")[1].replace("[", ""))
+            self.leeching = StringUtils.str_int(
+                (tmps[4].xpath("li")[6].xpath("text()")[0]).split(":")[1].replace("[", ""))
 
     def _parse_user_detail_info(self, html_text):
         pass

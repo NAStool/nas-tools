@@ -7,12 +7,11 @@ from pt.indexer.spider import TorrentSpider
 from pt.sites import Sites
 from rmt.meta.metabase import MetaBase
 from utils.commons import ProcessHandler
-from utils.functions import handler_special_chars
 from utils.indexer_helper import IndexerHelper
+from utils.string_utils import StringUtils
 
 
 class BuiltinIndexer(IIndexer):
-
     index_type = "INDEXER"
 
     def init_config(self):
@@ -60,7 +59,7 @@ class BuiltinIndexer(IIndexer):
         start_time = datetime.datetime.now()
         log.info(f"【{self.index_type}】开始检索Indexer：{indexer.name} ...")
         # 特殊符号处理
-        search_word = handler_special_chars(text=key_word, replace_word=" ", allow_space=True)
+        search_word = StringUtils.handler_special_chars(text=key_word, replace_word=" ", allow_space=True)
         result_array = self.__spider_search(keyword=search_word, indexer=indexer)
         if len(result_array) == 0:
             log.warn(f"【{self.index_type}】{indexer.name} 未检索到数据")

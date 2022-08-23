@@ -1,41 +1,44 @@
 import base64
 import logging
 import os.path
+import shutil
+import sqlite3
 import traceback
 import urllib
-import sqlite3
-from pathlib import Path
+import xml.dom.minidom
 from math import floor
+from pathlib import Path
 from urllib import parse
 
 import cn2an
 from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 from werkzeug.security import check_password_hash
-import xml.dom.minidom
 
 import log
+from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL
 from pt.douban import DouBan
+from pt.downloader import Downloader
 from pt.filterrules import FilterRule
 from pt.indexer.builtin import BuiltinIndexer
-from pt.sites import Sites
-from pt.downloader import Downloader
+from pt.media_server import MediaServer
 from pt.searcher import Searcher
+from pt.sites import Sites
 from pt.torrent import Torrent
 from rmt.media import Media
-from pt.media_server import MediaServer
 from rmt.metainfo import MetaInfo
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL
-from utils.functions import *
+from utils.WXBizMsgCrypt3 import WXBizMsgCrypt
+from utils.dom_utils import DomUtils
 from utils.meta_helper import MetaHelper
 from utils.security import Security
 from utils.sqls import *
+from utils.string_utils import StringUtils
+from utils.system_utils import SystemUtils
 from utils.types import *
 from version import APP_VERSION
 from web.action import WebAction
 from web.backend.web_utils import get_login_wallpaper
 from web.backend.webhook_event import WebhookEvent
-from utils.WXBizMsgCrypt3 import WXBizMsgCrypt
 
 login_manager = LoginManager()
 login_manager.login_view = "login"
@@ -146,7 +149,7 @@ def create_flask_app(config):
     def login():
         # 判断当前的运营环境
         SystemFlag = 0
-        if get_system() == OsType.LINUX and check_process("supervisord"):
+        if SystemUtils.get_system() == OsType.LINUX and SystemUtils.check_process("supervisord"):
             SystemFlag = 1
         if request.method == 'GET':
             GoPage = request.args.get("next") or ""
@@ -255,7 +258,7 @@ def create_flask_app(config):
             for movie_path in movie_paths:
                 if not movie_path:
                     continue
-                used, total = get_used_of_partition(movie_path)
+                used, total = SystemUtils.get_used_of_partition(movie_path)
                 if "%s-%s" % (used, total) not in movie_space_list:
                     movie_space_list.append("%s-%s" % (used, total))
                     movie_used += used
@@ -269,7 +272,7 @@ def create_flask_app(config):
             for tv_path in tv_paths:
                 if not tv_path:
                     continue
-                used, total = get_used_of_partition(tv_path)
+                used, total = SystemUtils.get_used_of_partition(tv_path)
                 if "%s-%s" % (used, total) not in tv_space_list:
                     tv_space_list.append("%s-%s" % (used, total))
                     tv_used += used
@@ -283,7 +286,7 @@ def create_flask_app(config):
             for anime_path in anime_paths:
                 if not anime_path:
                     continue
-                used, total = get_used_of_partition(anime_path)
+                used, total = SystemUtils.get_used_of_partition(anime_path)
                 if "%s-%s" % (used, total) not in anime_space_list:
                     anime_space_list.append("%s-%s" % (used, total))
                     anime_used += used
@@ -603,12 +606,12 @@ def create_flask_app(config):
                     speed = "已暂停"
                 else:
                     state = "Downloading"
-                    dlspeed = str_filesize(torrent.get('dlspeed'))
-                    upspeed = str_filesize(torrent.get('upspeed'))
+                    dlspeed = StringUtils.str_filesize(torrent.get('dlspeed'))
+                    upspeed = StringUtils.str_filesize(torrent.get('upspeed'))
                     if progress >= 100:
                         speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
                     else:
-                        eta = str_timelong(torrent.get('eta'))
+                        eta = StringUtils.str_timelong(torrent.get('eta'))
                         speed = "%s%sB/s %s%sB/s %s" % (chr(8595), dlspeed, chr(8593), upspeed, eta)
                 # 主键
                 key = torrent.get('hash')
@@ -617,8 +620,8 @@ def create_flask_app(config):
                 # 进度
                 progress = round(torrent.get('percentDone'), 1)
                 state = "Downloading"
-                dlspeed = str_filesize(torrent.get('peers'))
-                upspeed = str_filesize(torrent.get('rateDownload'))
+                dlspeed = StringUtils.str_filesize(torrent.get('peers'))
+                upspeed = StringUtils.str_filesize(torrent.get('rateDownload'))
                 speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
                 # 主键
                 key = torrent.get('info_hash')
@@ -627,8 +630,8 @@ def create_flask_app(config):
                 # 进度
                 progress = round(int(torrent.get('completedLength')) / int(torrent.get("totalLength")), 1) * 100
                 state = "Downloading"
-                dlspeed = str_filesize(torrent.get('downloadSpeed'))
-                upspeed = str_filesize(torrent.get('uploadSpeed'))
+                dlspeed = StringUtils.str_filesize(torrent.get('downloadSpeed'))
+                upspeed = StringUtils.str_filesize(torrent.get('uploadSpeed'))
                 speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
                 # 主键
                 key = torrent.get('gid')
@@ -639,8 +642,8 @@ def create_flask_app(config):
                     speed = "已暂停"
                 else:
                     state = "Downloading"
-                    dlspeed = str_filesize(torrent.rateDownload)
-                    upspeed = str_filesize(torrent.rateUpload)
+                    dlspeed = StringUtils.str_filesize(torrent.rateDownload)
+                    upspeed = StringUtils.str_filesize(torrent.rateUpload)
                     speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
                 # 进度
                 progress = round(torrent.progress)
@@ -780,8 +783,8 @@ def create_flask_app(config):
                 "seed_size": task[11],
                 "download_count": task[12],
                 "remove_count": task[13],
-                "download_size": str_filesize(task[14]),
-                "upload_size": str_filesize(task[15]),
+                "download_size": StringUtils.str_filesize(task[14]),
+                "upload_size": StringUtils.str_filesize(task[15]),
                 "lst_mod_date": task[16],
                 "site_url": "http://%s" % parse.urlparse(task[17]).netloc if task[17] else ""
             })
@@ -975,9 +978,11 @@ def create_flask_app(config):
            <path d="M12 15v2"></path>
         </svg>
         '''
-        targets = ["www.themoviedb.org", "api.themoviedb.org", "image.tmdb.org", "images.weserv.nl", "webservice.fanart.tv", "api.telegram.org", "qyapi.weixin.qq.com"]
+        targets = ["www.themoviedb.org", "api.themoviedb.org", "image.tmdb.org", "images.weserv.nl",
+                   "webservice.fanart.tv", "api.telegram.org", "qyapi.weixin.qq.com"]
         scheduler_cfg_list.append(
-            {'name': '网络连通性测试', 'time': '', 'state': 'OFF', 'id': 'nettest', 'svg': svg, 'color': 'cyan', "targets": targets})
+            {'name': '网络连通性测试', 'time': '', 'state': 'OFF', 'id': 'nettest', 'svg': svg, 'color': 'cyan',
+             "targets": targets})
 
         # 备份
         svg = '''
@@ -1407,11 +1412,13 @@ def create_flask_app(config):
             for f in os.listdir(d):
                 ff = os.path.join(d, f)
                 if os.path.isdir(ff):
-                    r.append('<li class="directory collapsed"><a rel="%s/">%s</a></li>' % (ff.replace("\\", "/"), f.replace("\\", "/")))
+                    r.append('<li class="directory collapsed"><a rel="%s/">%s</a></li>' % (
+                    ff.replace("\\", "/"), f.replace("\\", "/")))
                 else:
                     if ft != "HIDE_FILES_FILTER":
                         e = os.path.splitext(f)[1][1:]
-                        r.append('<li class="file ext_%s"><a rel="%s">%s</a></li>' % (e, ff.replace("\\", "/"), f.replace("\\", "/")))
+                        r.append('<li class="file ext_%s"><a rel="%s">%s</a></li>' % (
+                        e, ff.replace("\\", "/"), f.replace("\\", "/")))
             r.append('</ul>')
         except Exception as e:
             r.append('加载路径失败: %s' % str(e))
@@ -1480,9 +1487,9 @@ def create_flask_app(config):
                 dom_tree = xml.dom.minidom.parseString(sMsg.decode('UTF-8'))
                 root_node = dom_tree.documentElement
                 # 消息类型
-                msg_type = tag_value(root_node, "MsgType")
+                msg_type = DomUtils.tag_value(root_node, "MsgType")
                 # 用户ID
-                user_id = tag_value(root_node, "FromUserName")
+                user_id = DomUtils.tag_value(root_node, "FromUserName")
                 # 没的消息类型和用户ID的消息不要
                 if not msg_type or not user_id:
                     log.info("收到微信心跳报文...")
@@ -1491,7 +1498,7 @@ def create_flask_app(config):
                 content = ""
                 if msg_type == "event":
                     # 事件消息
-                    event_key = tag_value(root_node, "EventKey")
+                    event_key = DomUtils.tag_value(root_node, "EventKey")
                     if event_key:
                         log.info("点击菜单：%s" % event_key)
                         keys = event_key.split('#')
@@ -1499,7 +1506,7 @@ def create_flask_app(config):
                             content = WECHAT_MENU.get(keys[2])
                 elif msg_type == "text":
                     # 文本消息
-                    content = tag_value(root_node, "Content", default="")
+                    content = DomUtils.tag_value(root_node, "Content", default="")
                 if content:
                     # 处理消息内容
                     WebAction().handle_message_job(content, SearchType.WX, user_id)

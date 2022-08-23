@@ -1,3 +1,4 @@
+import difflib
 import os
 import re
 import traceback
@@ -8,17 +9,17 @@ from lxml import etree
 
 import log
 from config import Config
+from rmt.constants import *
 from rmt.metainfo import MetaInfo
 from rmt.tmdbv3api import TMDb, Search, Movie, TV
 from rmt.tmdbv3api.exceptions import TMDbException
-from utils.functions import xstr, max_ele, is_chinese, handler_special_chars
+from utils.cache_manager import cacheman
+from utils.commons import EpisodeFormat
 from utils.http_utils import RequestUtils
 from utils.meta_helper import MetaHelper
+from utils.number_utils import NumberUtils
+from utils.string_utils import StringUtils
 from utils.types import MediaType, MatchMode
-from utils.commons import EpisodeFormat
-from utils.cache_manager import cacheman
-import difflib
-from rmt.constants import *
 
 
 class Media:
@@ -74,9 +75,9 @@ class Media:
             return False
         if not isinstance(tmdb_names, list):
             tmdb_names = [tmdb_names]
-        file_name = handler_special_chars(file_name).upper()
+        file_name = StringUtils.handler_special_chars(file_name).upper()
         for tmdb_name in tmdb_names:
-            tmdb_name = handler_special_chars(tmdb_name).strip().upper()
+            tmdb_name = StringUtils.handler_special_chars(tmdb_name).strip().upper()
             if file_name == tmdb_name:
                 return True
         return False
@@ -145,7 +146,7 @@ class Media:
         # TMDB检索
         info = {}
         if search_type == MediaType.MOVIE:
-            log.debug(f"【META】正在识别{search_type.value}：{file_media_name}, 年份={xstr(first_media_year)} ...")
+            log.debug(f"【META】正在识别{search_type.value}：{file_media_name}, 年份={StringUtils.xstr(first_media_year)} ...")
             info = self.__search_movie_by_name(file_media_name, first_media_year)
             if info:
                 info['media_type'] = MediaType.MOVIE
@@ -161,7 +162,8 @@ class Media:
                                                   media_year,
                                                   season_number)
             if not info:
-                log.debug(f"【META】正在识别{search_type.value}：{file_media_name}, 年份={xstr(first_media_year)} ...")
+                log.debug(
+                    f"【META】正在识别{search_type.value}：{file_media_name}, 年份={StringUtils.xstr(first_media_year)} ...")
                 info = self.__search_tv_by_name(file_media_name,
                                                 first_media_year)
             if info:
@@ -175,7 +177,7 @@ class Media:
             return info
         else:
             log.info("【META】%s 以年份 %s 在TMDB中未找到%s信息!" % (
-                file_media_name, xstr(first_media_year), search_type.value if search_type else ""))
+                file_media_name, StringUtils.xstr(first_media_year), search_type.value if search_type else ""))
             return None
 
     def __search_movie_by_name(self, file_media_name, first_media_year):
@@ -410,7 +412,7 @@ class Media:
         """
         if not file_media_name:
             return None
-        if is_chinese(file_media_name):
+        if StringUtils.is_chinese(file_media_name):
             return None
         log.info("【META】正在从TheDbMovie网站查询：%s ..." % file_media_name)
         tmdb_url = "https://www.themoviedb.org/search?query=%s" % file_media_name
@@ -488,11 +490,12 @@ class Media:
             # 查找中文名
             org_title = tmdb_info.get("title") if tmdb_info.get("media_type") == MediaType.MOVIE else tmdb_info.get(
                 "name")
-            if not is_chinese(org_title) and self.tmdb.language == 'zh-CN':
+            if not StringUtils.is_chinese(org_title) and self.tmdb.language == 'zh-CN':
                 if tmdb_info.get("alternative_titles"):
                     cn_title = self.__get_tmdb_chinese_title(tmdbinfo=tmdb_info)
                 else:
-                    cn_title = self.__get_tmdb_chinese_title(tmdbid=tmdb_info.get("id"), mtype=tmdb_info.get("media_type"))
+                    cn_title = self.__get_tmdb_chinese_title(tmdbid=tmdb_info.get("id"),
+                                                             mtype=tmdb_info.get("media_type"))
                 if cn_title and cn_title != org_title:
                     if tmdb_info.get("media_type") == MediaType.MOVIE:
                         tmdb_info['title'] = cn_title
@@ -650,7 +653,7 @@ class Media:
                 self.meta.update_meta_data({media_key: {'id': 0}})
         # 查找中文名
         cache_title = self.meta.get_cache_title(key=media_key)
-        if cache_title and chinese and not is_chinese(cache_title) and self.tmdb.language == 'zh-CN':
+        if cache_title and chinese and not StringUtils.is_chinese(cache_title) and self.tmdb.language == 'zh-CN':
             cache_media_info = self.meta.get_meta_data_by_key(media_key)
             cn_title = self.__get_tmdb_chinese_title(mtype=cache_media_info.get("media_type"),
                                                      tmdbid=cache_media_info.get("id"))
@@ -708,9 +711,10 @@ class Media:
                             parent_info.cn_name = parent_parent_info.cn_name if parent_parent_info.cn_name else parent_info.cn_name
                             parent_info.en_name = parent_parent_info.en_name if parent_parent_info.en_name else parent_info.en_name
                             parent_info.year = parent_parent_info.year if parent_parent_info.year else parent_info.year
-                            parent_info.begin_season = max_ele(parent_info.begin_season,
-                                                               parent_parent_info.begin_season)
-                            parent_info.end_season = max_ele(parent_info.end_season, parent_parent_info.end_season)
+                            parent_info.begin_season = NumberUtils.max_ele(parent_info.begin_season,
+                                                                           parent_parent_info.begin_season)
+                            parent_info.end_season = NumberUtils.max_ele(parent_info.end_season,
+                                                                         parent_parent_info.end_season)
                         if not meta_info.get_name():
                             meta_info.cn_name = parent_info.cn_name
                             meta_info.en_name = parent_info.en_name
@@ -720,8 +724,9 @@ class Media:
                                 and meta_info.type != MediaType.TV:
                             meta_info.type = parent_info.type
                         if meta_info.type == MediaType.TV:
-                            meta_info.begin_season = max_ele(parent_info.begin_season, meta_info.begin_season)
-                            meta_info.end_season = max_ele(parent_info.end_season, meta_info.end_season)
+                            meta_info.begin_season = NumberUtils.max_ele(parent_info.begin_season,
+                                                                         meta_info.begin_season)
+                            meta_info.end_season = NumberUtils.max_ele(parent_info.end_season, meta_info.end_season)
                     if not meta_info.get_name() or not meta_info.type:
                         log.warn("【RMT】%s 未识别出有效信息！" % meta_info.org_string)
                         continue
@@ -764,7 +769,8 @@ class Media:
                             self.meta.update_meta_data({media_key: {'id': 0}})
                     # 查找中文名
                     cache_title = self.meta.get_cache_title(key=media_key)
-                    if cache_title and chinese and not is_chinese(cache_title) and self.tmdb.language == 'zh-CN':
+                    if cache_title and chinese and not StringUtils.is_chinese(
+                            cache_title) and self.tmdb.language == 'zh-CN':
                         cache_media_info = self.meta.get_meta_data_by_key(media_key)
                         cn_title = self.__get_tmdb_chinese_title(mtype=cache_media_info.get("media_type"),
                                                                  tmdbid=cache_media_info.get("id"))
@@ -1118,7 +1124,7 @@ class Media:
             iso_3166_1 = alternative_title.get("iso_3166_1")
             if iso_3166_1 == "CN":
                 title = alternative_title.get("title")
-                if title and is_chinese(title) and zhconv.convert(title, "zh-hans") == title:
+                if title and StringUtils.is_chinese(title) and zhconv.convert(title, "zh-hans") == title:
                     return title
         if tmdbinfo:
             return tmdbinfo.get("title") if tmdbinfo.get("media_type") == MediaType.MOVIE else tmdbinfo.get("name")

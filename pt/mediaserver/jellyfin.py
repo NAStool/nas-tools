@@ -1,10 +1,12 @@
 import re
+
 import log
 from config import Config
 from pt.mediaserver.server import IMediaServer
 from rmt.meta.metabase import MetaBase
-from utils.functions import singleton, get_local_time
+from utils.commons import singleton
 from utils.http_utils import RequestUtils
+from utils.system_utils import SystemUtils
 from utils.types import MediaType
 
 
@@ -111,12 +113,14 @@ class Jellyfin(IMediaServer):
                         event_type = "LG"
                         event_date = re.sub(r'\dZ', 'Z', item.get("Date"))
                         event_str = "%s, %s" % (item.get("Name"), item.get("ShortOverview"))
-                        activity = {"type": event_type, "event": event_str, "date": get_local_time(event_date)}
+                        activity = {"type": event_type, "event": event_str,
+                                    "date": SystemUtils.get_local_time(event_date)}
                         ret_array.append(activity)
                     if item.get("Type") == "VideoPlayback":
                         event_type = "PL"
                         event_date = re.sub(r'\dZ', 'Z', item.get("Date"))
-                        activity = {"type": event_type, "event": item.get("Name"), "date": get_local_time(event_date)}
+                        activity = {"type": event_type, "event": item.get("Name"),
+                                    "date": SystemUtils.get_local_time(event_date)}
                         ret_array.append(activity)
             else:
                 log.error("【JELLYFIN】System/ActivityLog/Entries 未获取到返回数据")

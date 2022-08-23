@@ -1,10 +1,10 @@
 from concurrent.futures import ThreadPoolExecutor
-from utils.functions import singleton
+
+from utils.commons import singleton
 
 
 @singleton
 class ThreadHelper:
-
     _thread_num = 20
     executor = None
 

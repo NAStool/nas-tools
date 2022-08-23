@@ -5,7 +5,7 @@ from functools import lru_cache
 
 import requests
 
-from utils.functions import singleton
+from utils.commons import singleton
 from utils.http_utils import RequestUtils
 
 logger = logging.getLogger(__name__)

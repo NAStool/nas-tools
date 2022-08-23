@@ -1,15 +1,15 @@
-import traceback
-
 import copy
 import re
+import traceback
+
 import feapder
 from feapder.utils.tools import urlencode
-from pyquery import PyQuery
 from jinja2 import Template
+from pyquery import PyQuery
 
 import log
-from utils.functions import num_filesize
 from utils.indexer_conf import IndexerConf
+from utils.string_utils import StringUtils
 
 
 class TorrentSpider(feapder.AirSpider):
@@ -100,7 +100,8 @@ class TorrentSpider(feapder.AirSpider):
         items = [item.attr(self.fields.get('details', {}).get('attribute')) for item in details.items()]
         if items:
             if not items[0].startswith("http"):
-                self.torrents_info['page_url'] = self.domain + items[0][1:] if items[0].startswith("/") else self.domain + items[0]
+                self.torrents_info['page_url'] = self.domain + items[0][1:] if items[0].startswith(
+                    "/") else self.domain + items[0]
             else:
                 self.torrents_info['page_url'] = items[0]
 
@@ -110,7 +111,8 @@ class TorrentSpider(feapder.AirSpider):
         items = [item.attr(self.fields.get('download', {}).get('attribute')) for item in download.items()]
         if items:
             if not items[0].startswith("http"):
-                self.torrents_info['enclosure'] = self.domain + items[0][1:] if items[0].startswith("/") else self.domain + items[0]
+                self.torrents_info['enclosure'] = self.domain + items[0][1:] if items[0].startswith(
+                    "/") else self.domain + items[0]
             else:
                 self.torrents_info['enclosure'] = items[0]
 
@@ -130,9 +132,10 @@ class TorrentSpider(feapder.AirSpider):
         items = [item.text() for item in size_item.items() if item]
         if "index" in self.fields.get('size', {}) \
                 and len(items) > self.fields.get('size', {}).get('index'):
-            self.torrents_info['size'] = num_filesize(items[self.fields.get('size', {}).get('index')].replace("\n", ""))
+            self.torrents_info['size'] = StringUtils.num_filesize(
+                items[self.fields.get('size', {}).get('index')].replace("\n", ""))
         elif len(items) > 0:
-            self.torrents_info['size'] = num_filesize(items[0].replace("\n", ""))
+            self.torrents_info['size'] = StringUtils.num_filesize(items[0].replace("\n", ""))
 
     def Getleechers(self, torrent):
         # torrent leechers

@@ -6,16 +6,16 @@ import log
 from config import Config, PT_TAG
 from message.send import Message
 from pt.client.aria2 import Aria2
+from pt.client.client115 import Client115
 from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
-from pt.client.client115 import Client115
+from pt.media_server import MediaServer
 from pt.sites import Sites
 from pt.torrent import Torrent
 from rmt.filetransfer import FileTransfer
 from rmt.media import Media
-from pt.media_server import MediaServer
 from rmt.metainfo import MetaInfo
-from utils.functions import str_timelong
+from utils.string_utils import StringUtils
 from utils.types import MediaType, DownloaderType, SearchType
 
 lock = Lock()
@@ -104,7 +104,8 @@ class Downloader:
                     if ret and tag:
                         self.client.set_torrent_tag(tid=ret.id, tag=tag)
                 else:
-                    ret = self.client.add_torrent(content, mtype, is_paused=is_paused, tag=tag, download_dir=download_dir)
+                    ret = self.client.add_torrent(content, mtype, is_paused=is_paused, tag=tag,
+                                                  download_dir=download_dir)
             except Exception as e:
                 log.error("【DOWNLOADER】添加下载任务出错：%s" % str(e))
                 return None, str(e)
@@ -151,7 +152,7 @@ class Downloader:
                 tag = PT_TAG
             else:
                 tag = None
-            log.info("【PT】开始执行PT做种清理，做种时间：%s..." % str_timelong(self.__seeding_time))
+            log.info("【PT】开始执行PT做种清理，做种时间：%s..." % StringUtils.str_timelong(self.__seeding_time))
             torrents = self.client.get_remove_torrents(seeding_time=self.__seeding_time, tag=tag)
             for torrent in torrents:
                 self.delete_torrents(torrent)
@@ -471,7 +472,8 @@ class Downloader:
                                     "【DOWNLOADER】%s 第%s季 缺失 %s 集" % (
                                         meta_info.get_title_string(), season_number, episode_count))
                                 if search_season:
-                                    message_list.append("%s 第%s季 缺失 %s 集" % (meta_info.title, season_number, episode_count))
+                                    message_list.append(
+                                        "%s 第%s季 缺失 %s 集" % (meta_info.title, season_number, episode_count))
                                 else:
                                     message_list.append("第%s季 缺失 %s 集" % (season_number, episode_count))
                             else:
@@ -481,7 +483,8 @@ class Downloader:
                                     "【DOWNLOADER】%s 第%s季 缺失集：%s" % (
                                         meta_info.get_title_string(), season_number, exists_tvs_str))
                                 if search_season:
-                                    message_list.append("%s 第%s季 缺失集：%s" % (meta_info.title, season_number, exists_tvs_str))
+                                    message_list.append(
+                                        "%s 第%s季 缺失集：%s" % (meta_info.title, season_number, exists_tvs_str))
                                 else:
                                     message_list.append("第%s季 缺失集：%s" % (season_number, exists_tvs_str))
                             if no_item not in no_exists.get(meta_info.get_title_string()):

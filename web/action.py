@@ -1,7 +1,9 @@
-import datetime
 import importlib
 import os.path
+import re
+import shutil
 import signal
+import subprocess
 from urllib import parse
 
 from flask_login import logout_user
@@ -35,10 +37,11 @@ from service.run import stop_scheduler, stop_monitor, restart_scheduler, restart
 from service.scheduler import Scheduler
 from service.sync import Sync
 from utils.commons import EpisodeFormat, ProcessHandler
-from utils.functions import *
 from utils.http_utils import RequestUtils
 from utils.meta_helper import MetaHelper
+from utils.path_utils import PathUtils
 from utils.sqls import *
+from utils.string_utils import StringUtils
 from utils.sysmsg_helper import MessageCenter
 from utils.thread_helper import ThreadHelper
 from utils.types import MediaType, SearchType, DownloaderType, SyncType
@@ -229,6 +232,7 @@ class WebAction:
         """
         更新目录数据
         """
+
         def remove_sync_path(obj, key):
             if not isinstance(obj, list):
                 return []
@@ -409,9 +413,9 @@ class WebAction:
                     speed = "已暂停"
                 else:
                     state = "Downloading"
-                    dlspeed = str_filesize(torrent.get('dlspeed'))
-                    eta = str_timelong(torrent.get('eta'))
-                    upspeed = str_filesize(torrent.get('upspeed'))
+                    dlspeed = StringUtils.str_filesize(torrent.get('dlspeed'))
+                    eta = StringUtils.str_timelong(torrent.get('eta'))
+                    upspeed = StringUtils.str_filesize(torrent.get('upspeed'))
                     speed = "%s%sB/s %s%sB/s %s" % (chr(8595), dlspeed, chr(8593), upspeed, eta)
                 # 进度
                 progress = round(torrent.get('progress') * 100)
@@ -419,8 +423,8 @@ class WebAction:
                 key = torrent.get('hash')
             elif Client == DownloaderType.Client115:
                 state = "Downloading"
-                dlspeed = str_filesize(torrent.get('peers'))
-                upspeed = str_filesize(torrent.get('rateDownload'))
+                dlspeed = StringUtils.str_filesize(torrent.get('peers'))
+                upspeed = StringUtils.str_filesize(torrent.get('rateDownload'))
                 speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
                 # 进度
                 progress = round(torrent.get('percentDone'), 1)
@@ -432,8 +436,8 @@ class WebAction:
                     speed = "已暂停"
                 else:
                     state = "Downloading"
-                    dlspeed = str_filesize(torrent.get('downloadSpeed'))
-                    upspeed = str_filesize(torrent.get('uploadSpeed'))
+                    dlspeed = StringUtils.str_filesize(torrent.get('downloadSpeed'))
+                    upspeed = StringUtils.str_filesize(torrent.get('uploadSpeed'))
                     speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
                 # 进度
                 progress = round(int(torrent.get('completedLength')) / int(torrent.get("totalLength")), 1) * 100
@@ -445,8 +449,8 @@ class WebAction:
                     speed = "已暂停"
                 else:
                     state = "Downloading"
-                    dlspeed = str_filesize(torrent.rateDownload)
-                    upspeed = str_filesize(torrent.rateUpload)
+                    dlspeed = StringUtils.str_filesize(torrent.rateDownload)
+                    upspeed = StringUtils.str_filesize(torrent.rateUpload)
                     speed = "%s%sB/s %s%sB/s" % (chr(8595), dlspeed, chr(8593), upspeed)
                 # 进度
                 progress = round(torrent.progress, 1)
@@ -620,7 +624,7 @@ class WebAction:
                     rm_parent_dir = True
                 else:
                     # 有集数的电视剧，删除对应的集数文件
-                    for dest_file in get_dir_files(dest_path):
+                    for dest_file in PathUtils.get_dir_files(dest_path):
                         file_meta_info = MetaInfo(os.path.basename(dest_file))
                         if file_meta_info.get_episode_list() and set(
                                 file_meta_info.get_episode_list()).issubset(set(meta_info.get_episode_list())):
@@ -629,7 +633,7 @@ class WebAction:
                             except Exception as e:
                                 log.console(str(e))
                     rm_parent_dir = True
-                if rm_parent_dir and not get_dir_files(os.path.dirname(dest_path), exts=RMT_MEDIAEXT):
+                if rm_parent_dir and not PathUtils.get_dir_files(os.path.dirname(dest_path), exts=RMT_MEDIAEXT):
                     # 没有媒体文件时，删除整个目录
                     try:
                         shutil.rmtree(os.path.dirname(dest_path))
@@ -1410,8 +1414,8 @@ class WebAction:
             "seed_size": brushtask[0][11],
             "download_count": brushtask[0][12],
             "remove_count": brushtask[0][13],
-            "download_size": str_filesize(brushtask[0][14]),
-            "upload_size": str_filesize(brushtask[0][15]),
+            "download_size": StringUtils.str_filesize(brushtask[0][14]),
+            "upload_size": StringUtils.str_filesize(brushtask[0][15]),
             "lst_mod_date": brushtask[0][16],
             "site_url": "http://%s" % parse.urlparse(brushtask[0][17]).netloc if brushtask[0][17] else ""
         }
@@ -1540,7 +1544,7 @@ class WebAction:
             return {"code": 1, "msg": "查询参数错误"}
 
         resp = {"code": 0}
-        _, _, site, upload, download = Sites().get_pt_site_statistics_history(data["days"]+1)
+        _, _, site, upload, download = Sites().get_pt_site_statistics_history(data["days"] + 1)
         resp.update({"site": site, "upload": upload, "download": download})
         return resp
 

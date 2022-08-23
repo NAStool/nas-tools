@@ -1,10 +1,11 @@
-from datetime import datetime
 import json
 import threading
+from datetime import datetime
+
 import log
 from config import Config, DEFAULT_WECHAT_PROXY
 from message.channel.channel import IMessageChannel
-from utils.functions import singleton
+from utils.commons import singleton
 from utils.http_utils import RequestUtils
 
 lock = threading.Lock()

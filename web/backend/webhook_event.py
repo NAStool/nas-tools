@@ -1,7 +1,8 @@
 import time
+
 from message.send import Message
-from rmt.filetransfer import FileTransfer
 from pt.media_server import MediaServer
+from rmt.filetransfer import FileTransfer
 from web.backend.web_utils import get_location
 
 
@@ -47,7 +48,8 @@ class WebhookEvent:
         if message.get('Item'):
             if message.get('Item', {}).get('Type') == 'Episode':
                 eventItem['item_type'] = "TV"
-                eventItem['item_name'] = "%s %s" % (message.get('Item', {}).get('SeriesName'), message.get('Item', {}).get('Name'))
+                eventItem['item_name'] = "%s %s" % (
+                    message.get('Item', {}).get('SeriesName'), message.get('Item', {}).get('Name'))
                 eventItem['item_id'] = message.get('Item', {}).get('SeriesId')
                 eventItem['tmdb_id'] = message.get('Item', {}).get('ProviderIds', {}).get('Tmdb')
             else:
@@ -133,7 +135,8 @@ class WebhookEvent:
         message_texts.append(f"时间：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
         # 消息图片
         if event_info.get('item_id'):
-            image_url = self.mediaserver.get_image_by_id(event_info.get('item_id'), "Backdrop") or _webhook_images.get(channel)
+            image_url = self.mediaserver.get_image_by_id(event_info.get('item_id'), "Backdrop") or _webhook_images.get(
+                channel)
         else:
             image_url = _webhook_images.get(channel)
         # 发送消息

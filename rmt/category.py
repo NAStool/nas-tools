@@ -1,9 +1,11 @@
 import os
 import shutil
+
 import ruamel.yaml
+
 import log
 from config import Config
-from utils.functions import singleton
+from utils.commons import singleton
 
 
 @singleton

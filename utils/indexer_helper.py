@@ -1,10 +1,9 @@
 import os.path
 import pickle
-
-from config import Config
-from utils.functions import singleton
 from urllib import parse
 
+from config import Config
+from utils.commons import singleton
 from utils.http_utils import RequestUtils
 from utils.indexer_conf import IndexerConf
 

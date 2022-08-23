@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import re
 
-from pt.siteuserinfo.site_user_info import ISiteUserInfo
-from utils.functions import num_filesize, str_float, str_int
 from lxml import etree
+
+from pt.siteuserinfo.site_user_info import ISiteUserInfo
+from utils.string_utils import StringUtils
 
 
 class IptSiteUserInfo(ISiteUserInfo):
@@ -29,12 +30,12 @@ class IptSiteUserInfo(ISiteUserInfo):
 
         tmps = html.xpath('//div[@class = "stats"]/div/div')
         if tmps:
-            self.upload = num_filesize(str(tmps[0].xpath('span/text()')[1]).strip())
-            self.download = num_filesize(str(tmps[0].xpath('span/text()')[2]).strip())
-            self.seeding = str_int(tmps[0].xpath('a')[2].xpath('text()')[0])
-            self.leeching = str_int(tmps[0].xpath('a')[2].xpath('text()')[1])
-            self.ratio = str_float(str(tmps[0].xpath('span/text()')[0]).strip().replace('-', '0'))
-            self.bonus = str_float(tmps[0].xpath('a')[3].xpath('text()')[0])
+            self.upload = StringUtils.num_filesize(str(tmps[0].xpath('span/text()')[1]).strip())
+            self.download = StringUtils.num_filesize(str(tmps[0].xpath('span/text()')[2]).strip())
+            self.seeding = StringUtils.str_int(tmps[0].xpath('a')[2].xpath('text()')[0])
+            self.leeching = StringUtils.str_int(tmps[0].xpath('a')[2].xpath('text()')[1])
+            self.ratio = StringUtils.str_float(str(tmps[0].xpath('span/text()')[0]).strip().replace('-', '0'))
+            self.bonus = StringUtils.str_float(tmps[0].xpath('a')[3].xpath('text()')[0])
 
         if not self.username:
             self.err_msg = "获取不到用户信息，请检查cookies是否过期"
@@ -77,7 +78,7 @@ class IptSiteUserInfo(ISiteUserInfo):
                     per_size = per_size.split('(')[-1]
                     per_size = per_size.split(')')[0]
 
-                page_seeding_size += num_filesize(per_size)
+                page_seeding_size += StringUtils.num_filesize(per_size)
 
         self.seeding = page_seeding
         self.seeding_size = page_seeding_size

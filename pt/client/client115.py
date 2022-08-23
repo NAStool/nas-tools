@@ -1,7 +1,7 @@
 import log
-from pt.client.py115 import Py115
 from config import Config
 from pt.client.client import IDownloadClient
+from pt.client.py115 import Py115
 from utils.types import MediaType
 
 

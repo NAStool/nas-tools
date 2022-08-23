@@ -6,7 +6,7 @@ import zhconv
 import log
 from pt.torrent import Torrent
 from rmt.meta.metabase import MetaBase
-from utils.functions import is_chinese, is_all_chinese
+from utils.string_utils import StringUtils
 from utils.types import MediaType
 
 
@@ -29,11 +29,11 @@ class MetaAnime(MetaBase):
                 name = anitopy_info.get("anime_title")
                 if name and name.find("/") != -1:
                     name = name.split("/")[-1].strip()
-                if not name or name in self._anime_no_words or (len(name) < 5 and not is_chinese(name)):
+                if not name or name in self._anime_no_words or (len(name) < 5 and not StringUtils.is_chinese(name)):
                     anitopy_info = anitopy.parse("[ANIME]" + title)
                     if anitopy_info:
                         name = anitopy_info.get("anime_title")
-                if not name or name in self._anime_no_words or (len(name) < 5 and not is_chinese(name)):
+                if not name or name in self._anime_no_words or (len(name) < 5 and not StringUtils.is_chinese(name)):
                     name_match = re.search(r'\[(.+?)]', title)
                     if name_match and name_match.group(1):
                         name = name_match.group(1).strip()
@@ -48,7 +48,7 @@ class MetaAnime(MetaBase):
                                 self.cn_name = "%s %s" % (self.cn_name or "", word)
                             elif lastword_type == "en":
                                 self.en_name = "%s %s" % (self.en_name or "", word)
-                        elif is_chinese(word):
+                        elif StringUtils.is_chinese(word):
                             self.cn_name = "%s %s" % (self.cn_name or "", word)
                             lastword_type = "cn"
                         else:
@@ -164,7 +164,7 @@ class MetaAnime(MetaBase):
                     else:
                         titles.append("%s%s" % (left_char, name.split("/")[0].strip()))
                 elif name:
-                    if is_chinese(name) and not is_all_chinese(name):
+                    if StringUtils.is_chinese(name) and not StringUtils.is_all_chinese(name):
                         name = re.sub(r'[\u4e00-\u9fff]', '', name)
                         if not name or name.strip().isdigit():
                             continue

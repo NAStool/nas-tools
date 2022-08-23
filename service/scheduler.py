@@ -1,4 +1,9 @@
+import math
+import random
+from datetime import datetime
+
 from apscheduler.schedulers.background import BackgroundScheduler
+
 import log
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
     RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_CHECK_INTERVAL, REFRESH_PT_DATA_INTERVAL, \
@@ -8,12 +13,8 @@ from pt.downloader import Downloader
 from pt.rss import Rss
 from pt.sites import Sites
 from service.sync import Sync
-from utils.functions import singleton
+from utils.commons import singleton
 from utils.meta_helper import MetaHelper
-from datetime import datetime
-import random
-import math
-
 from web.backend.web_utils import get_login_wallpaper
 
 

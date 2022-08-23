@@ -1,5 +1,7 @@
 import os
+
 import qbittorrentapi
+
 import log
 from config import Config, PT_TAG
 from pt.client.client import IDownloadClient
@@ -7,7 +9,6 @@ from utils.types import MediaType
 
 
 class Qbittorrent(IDownloadClient):
-
     __force_upload = False
     qbc = None
 

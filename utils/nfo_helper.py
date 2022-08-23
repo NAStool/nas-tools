@@ -6,7 +6,7 @@ import log
 from config import TMDB_IMAGE_W500_URL
 from rmt.media import Media
 from rmt.meta.metabase import MetaBase
-from utils.functions import add_node
+from utils.dom_utils import DomUtils
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
 
@@ -19,35 +19,35 @@ class NfoHelper:
 
     def __gen_common_nfo(self, tmdbinfo: dict, doc, root):
         # 添加时间
-        add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        DomUtils.add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         # TMDBID
-        uniqueid = add_node(doc, root, "uniqueid", tmdbinfo.get("id") or "")
+        uniqueid = DomUtils.add_node(doc, root, "uniqueid", tmdbinfo.get("id") or "")
         uniqueid.setAttribute("type", "tmdb")
         uniqueid.setAttribute("default", "true")
         # tmdbid
-        add_node(doc, root, "tmdbid", tmdbinfo.get("id") or "")
+        DomUtils.add_node(doc, root, "tmdbid", tmdbinfo.get("id") or "")
         # 简介
-        xplot = add_node(doc, root, "plot")
+        xplot = DomUtils.add_node(doc, root, "plot")
         xplot.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
-        xoutline = add_node(doc, root, "outline")
+        xoutline = DomUtils.add_node(doc, root, "outline")
         xoutline.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
         # 导演
         directors, actors = self.media.get_tmdbinfo_directors_actors(tmdbinfo.get("credits"))
         for director in directors:
-            xdirector = add_node(doc, root, "director", director.get("name") or "")
+            xdirector = DomUtils.add_node(doc, root, "director", director.get("name") or "")
             xdirector.setAttribute("tmdbid", str(director.get("id") or ""))
         # 演员
         for actor in actors:
-            xactor = add_node(doc, root, "actor")
-            add_node(doc, xactor, "name", actor.get("name") or "")
-            add_node(doc, xactor, "type", "Actor")
-            add_node(doc, xactor, "tmdbid", actor.get("id") or "")
+            xactor = DomUtils.add_node(doc, root, "actor")
+            DomUtils.add_node(doc, xactor, "name", actor.get("name") or "")
+            DomUtils.add_node(doc, xactor, "type", "Actor")
+            DomUtils.add_node(doc, xactor, "tmdbid", actor.get("id") or "")
         # 风格
         genres = tmdbinfo.get("genres") or []
         for genre in genres:
-            add_node(doc, root, "genre", genre.get("name") or "")
+            DomUtils.add_node(doc, root, "genre", genre.get("name") or "")
         # 评分
-        add_node(doc, root, "rating", tmdbinfo.get("vote_average") or "0")
+        DomUtils.add_node(doc, root, "rating", tmdbinfo.get("vote_average") or "0")
         return doc
 
     def gen_movie_nfo_file(self, tmdbinfo: dict, out_path, file_name):
@@ -60,16 +60,16 @@ class NfoHelper:
         # 开始生成XML
         log.info("【NFO】正在生成电影NFO文件：%s" % file_name)
         doc = minidom.Document()
-        root = add_node(doc, doc, "movie")
+        root = DomUtils.add_node(doc, doc, "movie")
         # 公共部分
         doc = self.__gen_common_nfo(tmdbinfo, doc, root)
         # 标题
-        add_node(doc, root, "title", tmdbinfo.get("title") or "")
-        add_node(doc, root, "originaltitle", tmdbinfo.get("original_title") or "")
+        DomUtils.add_node(doc, root, "title", tmdbinfo.get("title") or "")
+        DomUtils.add_node(doc, root, "originaltitle", tmdbinfo.get("original_title") or "")
         # 发布日期
-        add_node(doc, root, "premiered", tmdbinfo.get("release_date") or "")
+        DomUtils.add_node(doc, root, "premiered", tmdbinfo.get("release_date") or "")
         # 年份
-        add_node(doc, root, "year", tmdbinfo.get("release_date")[:4] if tmdbinfo.get("release_date") else "")
+        DomUtils.add_node(doc, root, "year", tmdbinfo.get("release_date")[:4] if tmdbinfo.get("release_date") else "")
         # 保存
         self.__save_nfo(doc, os.path.join(out_path, "%s.nfo" % file_name))
 
@@ -82,18 +82,19 @@ class NfoHelper:
         # 开始生成XML
         log.info("【NFO】正在生成电视剧NFO文件：%s" % out_path)
         doc = minidom.Document()
-        root = add_node(doc, doc, "tvshow")
+        root = DomUtils.add_node(doc, doc, "tvshow")
         # 公共部分
         doc = self.__gen_common_nfo(tmdbinfo, doc, root)
         # 标题
-        add_node(doc, root, "title", tmdbinfo.get("name") or "")
-        add_node(doc, root, "originaltitle", tmdbinfo.get("original_name") or "")
+        DomUtils.add_node(doc, root, "title", tmdbinfo.get("name") or "")
+        DomUtils.add_node(doc, root, "originaltitle", tmdbinfo.get("original_name") or "")
         # 发布日期
-        add_node(doc, root, "premiered", tmdbinfo.get("first_air_date") or "")
+        DomUtils.add_node(doc, root, "premiered", tmdbinfo.get("first_air_date") or "")
         # 年份
-        add_node(doc, root, "year", tmdbinfo.get("first_air_date")[:4] if tmdbinfo.get("first_air_date") else "")
-        add_node(doc, root, "season", "-1")
-        add_node(doc, root, "episode", "-1")
+        DomUtils.add_node(doc, root, "year",
+                          tmdbinfo.get("first_air_date")[:4] if tmdbinfo.get("first_air_date") else "")
+        DomUtils.add_node(doc, root, "season", "-1")
+        DomUtils.add_node(doc, root, "episode", "-1")
         # 保存
         self.__save_nfo(doc, os.path.join(out_path, "tvshow.nfo"))
 
@@ -106,23 +107,23 @@ class NfoHelper:
         """
         log.info("【NFO】正在生成季NFO文件：%s" % out_path)
         doc = minidom.Document()
-        root = add_node(doc, doc, "season")
+        root = DomUtils.add_node(doc, doc, "season")
         # 添加时间
-        add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        DomUtils.add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         # 简介
-        xplot = add_node(doc, root, "plot")
+        xplot = DomUtils.add_node(doc, root, "plot")
         xplot.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
-        xoutline = add_node(doc, root, "outline")
+        xoutline = DomUtils.add_node(doc, root, "outline")
         xoutline.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
         # 标题
-        add_node(doc, root, "title", "季 %s" % season)
+        DomUtils.add_node(doc, root, "title", "季 %s" % season)
         # 发行日期
-        add_node(doc, root, "premiered", tmdbinfo.get("air_date") or "")
-        add_node(doc, root, "releasedate", tmdbinfo.get("air_date") or "")
+        DomUtils.add_node(doc, root, "premiered", tmdbinfo.get("air_date") or "")
+        DomUtils.add_node(doc, root, "releasedate", tmdbinfo.get("air_date") or "")
         # 发行年份
-        add_node(doc, root, "year", tmdbinfo.get("air_date")[:4] if tmdbinfo.get("air_date") else "")
+        DomUtils.add_node(doc, root, "year", tmdbinfo.get("air_date")[:4] if tmdbinfo.get("air_date") else "")
         # seasonnumber
-        add_node(doc, root, "seasonnumber", season)
+        DomUtils.add_node(doc, root, "seasonnumber", season)
         # 保存
         self.__save_nfo(doc, os.path.join(out_path, "season.nfo"))
 
@@ -138,15 +139,15 @@ class NfoHelper:
         # 开始生成集的信息
         log.info("【NFO】正在生成剧集NFO文件：%s" % file_name)
         doc = minidom.Document()
-        root = add_node(doc, doc, "episodedetails")
+        root = DomUtils.add_node(doc, doc, "episodedetails")
         # 添加时间
-        add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+        DomUtils.add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         # TMDBID
-        uniqueid = add_node(doc, root, "uniqueid", tmdbinfo.get("id") or "")
+        uniqueid = DomUtils.add_node(doc, root, "uniqueid", tmdbinfo.get("id") or "")
         uniqueid.setAttribute("type", "tmdb")
         uniqueid.setAttribute("default", "true")
         # tmdbid
-        add_node(doc, root, "tmdbid", tmdbinfo.get("id") or "")
+        DomUtils.add_node(doc, root, "tmdbid", tmdbinfo.get("id") or "")
         # 集的信息
         episode_detail = {}
         for episode_info in tmdbinfo.get("episodes") or []:
@@ -155,36 +156,37 @@ class NfoHelper:
         if not episode_detail:
             return
         # 标题
-        add_node(doc, root, "title", episode_detail.get("name") or "第 %s 集" % episode)
+        DomUtils.add_node(doc, root, "title", episode_detail.get("name") or "第 %s 集" % episode)
         # 简介
-        xplot = add_node(doc, root, "plot")
+        xplot = DomUtils.add_node(doc, root, "plot")
         xplot.appendChild(doc.createCDATASection(episode_detail.get("overview") or ""))
-        xoutline = add_node(doc, root, "outline")
+        xoutline = DomUtils.add_node(doc, root, "outline")
         xoutline.appendChild(doc.createCDATASection(episode_detail.get("overview") or ""))
         # 导演
         directors = episode_detail.get("crew") or []
         for director in directors:
             if director.get("known_for_department") == "Directing":
-                xdirector = add_node(doc, root, "director", director.get("name") or "")
+                xdirector = DomUtils.add_node(doc, root, "director", director.get("name") or "")
                 xdirector.setAttribute("tmdbid", str(director.get("id") or ""))
         # 演员
         actors = episode_detail.get("guest_stars") or []
         for actor in actors:
             if actor.get("known_for_department") == "Acting":
-                xactor = add_node(doc, root, "actor")
-                add_node(doc, xactor, "name", actor.get("name") or "")
-                add_node(doc, xactor, "type", "Actor")
-                add_node(doc, xactor, "tmdbid", actor.get("id") or "")
+                xactor = DomUtils.add_node(doc, root, "actor")
+                DomUtils.add_node(doc, xactor, "name", actor.get("name") or "")
+                DomUtils.add_node(doc, xactor, "type", "Actor")
+                DomUtils.add_node(doc, xactor, "tmdbid", actor.get("id") or "")
         # 发布日期
-        add_node(doc, root, "aired", episode_detail.get("air_date") or "")
+        DomUtils.add_node(doc, root, "aired", episode_detail.get("air_date") or "")
         # 年份
-        add_node(doc, root, "year", episode_detail.get("air_date")[:4] if episode_detail.get("air_date") else "")
+        DomUtils.add_node(doc, root, "year",
+                          episode_detail.get("air_date")[:4] if episode_detail.get("air_date") else "")
         # 季
-        add_node(doc, root, "season", season)
+        DomUtils.add_node(doc, root, "season", season)
         # 集
-        add_node(doc, root, "episode", episode)
+        DomUtils.add_node(doc, root, "episode", episode)
         # 评分
-        add_node(doc, root, "rating", episode_detail.get("vote_average") or "0")
+        DomUtils.add_node(doc, root, "rating", episode_detail.get("vote_average") or "0")
         self.__save_nfo(doc, os.path.join(out_path, os.path.join(out_path, "%s.nfo" % file_name)))
 
     @staticmethod
@@ -248,8 +250,10 @@ class NfoHelper:
                 # 处理集
                 if not os.path.exists(os.path.join(dir_path, "%s.nfo" % file_name)):
                     # 查询TMDB信息
-                    tmdbinfo = self.media.get_tmdb_tv_season_detail(tmdbid=media.tmdb_id, season=int(media.get_season_seq()))
-                    self.gen_tv_episode_nfo_file(tmdbinfo, int(media.get_season_seq()), int(media.get_episode_seq()), dir_path, file_name)
+                    tmdbinfo = self.media.get_tmdb_tv_season_detail(tmdbid=media.tmdb_id,
+                                                                    season=int(media.get_season_seq()))
+                    self.gen_tv_episode_nfo_file(tmdbinfo, int(media.get_season_seq()), int(media.get_episode_seq()),
+                                                 dir_path, file_name)
                     # 处理季
                     if not os.path.exists(os.path.join(dir_path, "season.nfo")):
                         # 生成季的信息

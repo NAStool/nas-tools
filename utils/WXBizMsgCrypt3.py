@@ -5,16 +5,17 @@
 @copyright: Copyright (c) 1998-2014 Tencent Inc.
 
 """
+import base64
+import hashlib
 # ------------------------------------------------------------------------
 import logging
-import base64
 import random
-import hashlib
-import time
-import struct
-from Crypto.Cipher import AES
-import xml.etree.cElementTree as ET
 import socket
+import struct
+import time
+import xml.etree.cElementTree as ET
+
+from Crypto.Cipher import AES
 
 # Description:定义错误码含义
 #########################################################################
@@ -30,7 +31,6 @@ WXBizMsgCrypt_IllegalBuffer = -40008
 WXBizMsgCrypt_EncodeBase64_Error = -40009
 WXBizMsgCrypt_DecodeBase64_Error = -40010
 WXBizMsgCrypt_GenReturnXml_Error = -40011
-
 
 """
 关于Crypto.Cipher模块，ImportError: No module named 'Crypto'解决方案

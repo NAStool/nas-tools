@@ -8,7 +8,6 @@ SERVER_URI_FORMAT = 'http://%s:%s/rpc'
 
 
 class PyAria2(object):
-
     _secret = None
 
     def __init__(self, secret=None, host=DEFAULT_HOST, port=DEFAULT_PORT):
@@ -59,7 +58,8 @@ class PyAria2(object):
 
         return: This method returns list of GID of registered download.
         """
-        return self.server.aria2.addMetalink(self._secret, xmlrpc.client.Binary(open(metalink, 'rb').read()), options, position)
+        return self.server.aria2.addMetalink(self._secret, xmlrpc.client.Binary(open(metalink, 'rb').read()), options,
+                                             position)
 
     def remove(self, gid):
         """

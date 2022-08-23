@@ -4,7 +4,7 @@ from urllib.parse import urlencode
 import log
 from config import Config
 from message.channel.channel import IMessageChannel
-from utils.functions import singleton
+from utils.commons import singleton
 from utils.http_utils import RequestUtils
 
 lock = Lock()

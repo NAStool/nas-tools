@@ -1,5 +1,5 @@
 from rmt.doubanv2api.doubanapi import DoubanApi
-from utils.functions import singleton
+from utils.commons import singleton
 
 
 @singleton
@@ -29,7 +29,7 @@ class DoubanHot:
         if not infos:
             return []
         return self.__refresh_movie(infos.get("subject_collection_items"))
-    
+
     def get_douban_hot_anime(self, page=1):
         if not self.doubanapi:
             return []
@@ -37,7 +37,7 @@ class DoubanHot:
         if not infos:
             return []
         return self.__refresh_tv(infos.get("subject_collection_items"))
-    
+
     def get_douban_hot_tv(self, page=1):
         if not self.doubanapi:
             return []

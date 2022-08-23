@@ -1,8 +1,9 @@
-import wx
-import wx.adv
+import os
 import sys
 import webbrowser
-import os
+
+import wx
+import wx.adv
 
 
 class Balloon(wx.adv.TaskBarIcon):

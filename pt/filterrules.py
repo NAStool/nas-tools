@@ -1,7 +1,7 @@
 import re
 
 from rmt.meta.metabase import MetaBase
-from utils.functions import singleton
+from utils.commons import singleton
 from utils.sqls import get_config_filter_rule, get_config_filter_group
 from utils.types import MediaType
 

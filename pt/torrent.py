@@ -3,14 +3,16 @@ import re
 from functools import lru_cache
 from time import sleep
 from urllib import parse
+
+import bencode
 import cn2an
 from lxml import etree
+
 from config import TORRENT_SEARCH_PARAMS
 from pt.siteconf import RSS_SITE_GRAP_CONF
 from rmt.meta.metabase import MetaBase
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
-import bencode
 
 
 class Torrent:

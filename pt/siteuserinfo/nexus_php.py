@@ -5,7 +5,7 @@ from lxml import etree
 
 import log
 from pt.siteuserinfo.site_user_info import ISiteUserInfo
-from utils.functions import num_filesize, str_int, str_float
+from utils.string_utils import StringUtils
 
 
 class NexusPhpSiteUserInfo(ISiteUserInfo):
@@ -58,7 +58,7 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
             message_unread_match = re.findall(r"[^Date](信息箱\s*|\(|你有\xa0)(\d+)", message_text)
 
             if message_unread_match and len(message_unread_match[-1]) == 2:
-                self.message_unread = str_int(message_unread_match[-1][1])
+                self.message_unread = StringUtils.str_int(message_unread_match[-1][1])
 
     def _parse_user_base_info(self, html_text):
         # 合并解析，减少额外请求调用
@@ -92,36 +92,37 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
     def __parse_user_traffic_info(self, html_text):
         html_text = self._prepare_html_text(html_text)
         upload_match = re.search(r"[^总]上[传傳]量?[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+[KMGTPI]*B)", html_text, re.IGNORECASE)
-        self.upload = num_filesize(upload_match.group(1).strip()) if upload_match else 0
+        self.upload = StringUtils.num_filesize(upload_match.group(1).strip()) if upload_match else 0
         download_match = re.search(r"[^总子影力]下[载載]量?[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+[KMGTPI]*B)", html_text,
                                    re.IGNORECASE)
-        self.download = num_filesize(download_match.group(1).strip()) if download_match else 0
+        self.download = StringUtils.num_filesize(download_match.group(1).strip()) if download_match else 0
         ratio_match = re.search(r"分享率[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+)", html_text)
-        self.ratio = str_float(ratio_match.group(1)) if (ratio_match and ratio_match.group(1).strip()) else 0.0
+        self.ratio = StringUtils.str_float(ratio_match.group(1)) if (
+                    ratio_match and ratio_match.group(1).strip()) else 0.0
         leeching_match = re.search(r"(Torrents leeching|下载中)[\u4E00-\u9FA5\D\s]+(\d+)[\s\S]+<", html_text)
-        self.leeching = str_int(leeching_match.group(2)) if leeching_match and leeching_match.group(
+        self.leeching = StringUtils.str_int(leeching_match.group(2)) if leeching_match and leeching_match.group(
             2).strip() else 0
         html = etree.HTML(html_text)
         tmps = html.xpath('//span[@class = "ucoin-symbol ucoin-gold"]//text()') if html else None
         if tmps:
-            self.bonus = str_float(str(tmps[-1]))
+            self.bonus = StringUtils.str_float(str(tmps[-1]))
             return
         tmps = html.xpath('//a[contains(@href,"mybonus")]/text()') if html else None
         if tmps:
             bonus_text = str(tmps[0]).strip()
             bonus_match = re.search(r"([\d,.]+)", bonus_text)
             if bonus_match and bonus_match.group(1).strip():
-                self.bonus = str_float(bonus_match.group(1))
+                self.bonus = StringUtils.str_float(bonus_match.group(1))
                 return
         bonus_match = re.search(r"mybonus.[\[\]:：<>/a-zA-Z_\-=\"'\s#;.(使用魔力值豆]+\s*([\d,.]+)[<()&\s]", html_text)
         try:
             if bonus_match and bonus_match.group(1).strip():
-                self.bonus = str_float(bonus_match.group(1))
+                self.bonus = StringUtils.str_float(bonus_match.group(1))
                 return
             bonus_match = re.search(r"[魔力值|\]][\[\]:：<>/a-zA-Z_\-=\"'\s#;]+\s*([\d,.]+)[<()&\s]", html_text,
                                     flags=re.S)
             if bonus_match and bonus_match.group(1).strip():
-                self.bonus = str_float(bonus_match.group(1))
+                self.bonus = StringUtils.str_float(bonus_match.group(1))
         except Exception as err:
             print(str(err))
 
@@ -164,8 +165,8 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
             page_seeding = len(seeding_sizes)
 
             for i in range(0, len(seeding_sizes)):
-                size = num_filesize(seeding_sizes[i].xpath("string(.)").strip())
-                seeders = str_int(seeding_seeders[i])
+                size = StringUtils.num_filesize(seeding_sizes[i].xpath("string(.)").strip())
+                seeders = StringUtils.str_int(seeding_seeders[i])
 
                 page_seeding_size += size
                 page_seeding_info.append([seeders, size])
@@ -210,8 +211,8 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         tmp_seeding_size = 0
         tmp_seeding_info = []
         for i in range(0, len(seeding_sizes)):
-            size = num_filesize(seeding_sizes[i].xpath("string(.)").strip())
-            seeders = str_int(seeding_seeders[i])
+            size = StringUtils.num_filesize(seeding_sizes[i].xpath("string(.)").strip())
+            seeders = StringUtils.str_int(seeding_seeders[i])
 
             tmp_seeding_size += size
             tmp_seeding_info.append([seeders, size])
@@ -227,8 +228,10 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         if seeding_sizes:
             seeding_match = re.search(r"总做种数:\s+(\d+)", seeding_sizes[0], re.IGNORECASE)
             seeding_size_match = re.search(r"总做种体积:\s+([\d,.\s]+[KMGTPI]*B)", seeding_sizes[0], re.IGNORECASE)
-            tmp_seeding = str_int(seeding_match.group(1)) if (seeding_match and seeding_match.group(1)) else 0
-            tmp_seeding_size = num_filesize(seeding_size_match.group(1).strip()) if seeding_size_match else 0
+            tmp_seeding = StringUtils.str_int(seeding_match.group(1)) if (
+                        seeding_match and seeding_match.group(1)) else 0
+            tmp_seeding_size = StringUtils.num_filesize(
+                seeding_size_match.group(1).strip()) if seeding_size_match else 0
         if not self.seeding_size:
             self.seeding_size = tmp_seeding_size
         if not self.seeding:

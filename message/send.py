@@ -10,8 +10,8 @@ from message.channel.serverchan import ServerChan
 from message.channel.telegram import Telegram
 from message.channel.wechat import WeChat
 from rmt.meta.metabase import MetaBase
-from utils.functions import str_filesize
 from utils.sqls import insert_download_history
+from utils.string_utils import StringUtils
 from utils.sysmsg_helper import MessageCenter
 from utils.types import SearchType, MediaType
 
@@ -147,7 +147,7 @@ class Message:
             msg_text = f"{msg_text}\n质量：{can_item.get_resource_type_string()}"
         if can_item.size:
             if str(can_item.size).isdigit():
-                size = str_filesize(can_item.size)
+                size = StringUtils.str_filesize(can_item.size)
             else:
                 size = can_item.size
             msg_text = f"{msg_text}\n大小：{size}"
@@ -187,7 +187,7 @@ class Message:
                 msg_str = f"{msg_str}，类别：{media_info.category}"
         if media_info.get_resource_type_string():
             msg_str = f"{msg_str}，质量：{media_info.get_resource_type_string()}"
-        msg_str = f"{msg_str}，大小：{str_filesize(media_info.size)}，来自：{in_from.value}"
+        msg_str = f"{msg_str}，大小：{StringUtils.str_filesize(media_info.size)}，来自：{in_from.value}"
         if exist_filenum != 0:
             msg_str = f"{msg_str}，{exist_filenum}个文件已存在"
         self.sendmsg(title=msg_title, text=msg_str, image=media_info.get_message_image(), url='history')
@@ -208,9 +208,9 @@ class Message:
             if item_info.category:
                 msg_str = f"{msg_str}，类别：{item_info.category}"
             if item_info.total_episodes == 1:
-                msg_str = f"{msg_str}，大小：{str_filesize(item_info.size)}，来自：{in_from.value}"
+                msg_str = f"{msg_str}，大小：{StringUtils.str_filesize(item_info.size)}，来自：{in_from.value}"
             else:
-                msg_str = f"{msg_str}，共{item_info.total_episodes}集，总大小：{str_filesize(item_info.size)}，来自：{in_from.value}"
+                msg_str = f"{msg_str}，共{item_info.total_episodes}集，总大小：{StringUtils.str_filesize(item_info.size)}，来自：{in_from.value}"
             self.sendmsg(title=msg_title, text=msg_str, image=item_info.get_message_image(), url='history')
 
     def send_download_fail_message(self, item: MetaBase, error_msg):

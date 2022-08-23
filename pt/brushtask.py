@@ -12,7 +12,7 @@ from pt.client.qbittorrent import Qbittorrent
 from pt.client.transmission import Transmission
 from pt.rss import Rss
 from pt.torrent import Torrent
-from utils.functions import singleton
+from utils.commons import singleton
 from utils.sqls import get_brushtasks, get_brushtask_totalsize, add_brushtask_download_count, insert_brushtask_torrent, \
     get_brushtask_torrents, add_brushtask_upload_count, get_user_downloaders, update_brushtask_torrent_state
 

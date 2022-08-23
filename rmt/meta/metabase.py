@@ -7,8 +7,8 @@ import log
 from config import FANART_TV_API_URL, FANART_MOVIE_API_URL, ANIME_GENREIDS, Config, DEFAULT_TMDB_IMAGE, \
     TMDB_IMAGE_W500_URL
 from rmt.category import Category
-from utils.functions import is_all_chinese
 from utils.http_utils import RequestUtils
+from utils.string_utils import StringUtils
 from utils.types import MediaType
 
 
@@ -109,7 +109,7 @@ class MetaBase(object):
         self.fileflag = fileflag
 
     def get_name(self):
-        if self.cn_name and is_all_chinese(self.cn_name):
+        if self.cn_name and StringUtils.is_all_chinese(self.cn_name):
             return self.cn_name
         elif self.en_name:
             return self.en_name

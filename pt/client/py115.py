@@ -1,7 +1,8 @@
-import requests
+import re
 import time
 from urllib import parse
-import re
+
+import requests
 
 from utils.http_utils import RequestUtils
 

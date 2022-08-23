@@ -1,14 +1,14 @@
 import requests
 from lxml import etree
 
+import log
 from pt.siteuserinfo.discuz import DiscuzUserInfo
 from pt.siteuserinfo.gazelle import GazelleUserInfo
+from pt.siteuserinfo.ipt_project import IptSiteUserInfo
 from pt.siteuserinfo.nexus_php import NexusPhpSiteUserInfo
 from pt.siteuserinfo.nexus_project import NexusProjectSiteUserInfo
-from pt.siteuserinfo.ipt_project import IptSiteUserInfo
 from pt.siteuserinfo.small_horse import SmallHorseSiteUserInfo
 from utils.http_utils import RequestUtils
-import log
 
 
 class SiteUserInfoFactory(object):
@@ -46,7 +46,7 @@ class SiteUserInfoFactory(object):
 
             # 兼容假首页情况，假首页通常没有 <link rel="search" 属性
             if '"search"' not in html_text:
-                res = RequestUtils(cookies=site_cookie, session=session).get_res(url=url+"/index.php")
+                res = RequestUtils(cookies=site_cookie, session=session).get_res(url=url + "/index.php")
                 if res and res.status_code == 200:
                     if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                         res.encoding = "UTF-8"

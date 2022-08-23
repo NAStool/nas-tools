@@ -7,7 +7,6 @@ from utils.types import MediaType
 
 
 class Aria2(IDownloadClient):
-
     _client = None
 
     def get_config(self):

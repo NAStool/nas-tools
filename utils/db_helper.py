@@ -3,8 +3,9 @@ import threading
 
 import log
 from config import Config
-from utils.functions import singleton, get_dir_level1_files
+from utils.commons import singleton
 from utils.db_pool import DBPool
+from utils.path_utils import PathUtils
 
 lock = threading.Lock()
 
@@ -177,7 +178,8 @@ class DBHelper:
                                    EXCLUDE  TEXT,
                                    SIZE_LIMIT    TEXT,
                                    NOTE    TEXT);''')
-            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_CONFIG_FILTER_RULES_GROUP ON CONFIG_FILTER_RULES (GROUP_ID);''')
+            cursor.execute(
+                '''CREATE INDEX IF NOT EXISTS INDX_CONFIG_FILTER_RULES_GROUP ON CONFIG_FILTER_RULES (GROUP_ID);''')
             # 目录同步记录表
             cursor.execute('''CREATE TABLE IF NOT EXISTS SYNC_HISTORY
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
@@ -207,9 +209,11 @@ class DBHelper:
                                    BONUS     REAL default 0.0,
                                    URL     TEXT);''')
 
-            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_STATISTICS_HISTORY_DS ON SITE_STATISTICS_HISTORY (DATE, URL);''')
+            cursor.execute(
+                '''CREATE INDEX IF NOT EXISTS INDX_SITE_STATISTICS_HISTORY_DS ON SITE_STATISTICS_HISTORY (DATE, URL);''')
             # 唯一约束
-            cursor.execute('''CREATE UNIQUE INDEX IF NOT EXISTS UN_INDX_SITE_STATISTICS_HISTORY_DS ON SITE_STATISTICS_HISTORY (DATE, URL);''')
+            cursor.execute(
+                '''CREATE UNIQUE INDEX IF NOT EXISTS UN_INDX_SITE_STATISTICS_HISTORY_DS ON SITE_STATISTICS_HISTORY (DATE, URL);''')
 
             # 实时站点做种数据
             cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_USER_SEEDING_INFO
@@ -298,7 +302,8 @@ class DBHelper:
                                    DOWNLOADER     TEXT,
                                    DOWNLOAD_ID    TEXT,
                                    LST_MOD_DATE     TEXT);''')
-            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_BRUSH_TORRENTS_TASKID ON SITE_BRUSH_TORRENTS (TASK_ID);''')
+            cursor.execute(
+                '''CREATE INDEX IF NOT EXISTS INDX_SITE_BRUSH_TORRENTS_TASKID ON SITE_BRUSH_TORRENTS (TASK_ID);''')
             # 自定义下载器表
             cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_BRUSH_DOWNLOADERS
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
@@ -321,24 +326,24 @@ class DBHelper:
 
     def __cleardata(self):
         self.excute(
-                """DELETE FROM SITE_USER_INFO_STATS 
-                    WHERE EXISTS (SELECT 1 
-                        FROM SITE_USER_INFO_STATS p2 
-                        WHERE SITE_USER_INFO_STATS.URL = p2.URL 
-                        AND SITE_USER_INFO_STATS.rowid < p2.rowid);""")
+            """DELETE FROM SITE_USER_INFO_STATS 
+                WHERE EXISTS (SELECT 1 
+                    FROM SITE_USER_INFO_STATS p2 
+                    WHERE SITE_USER_INFO_STATS.URL = p2.URL 
+                    AND SITE_USER_INFO_STATS.rowid < p2.rowid);""")
         self.excute(
-                """DELETE FROM SITE_STATISTICS_HISTORY 
-                    WHERE EXISTS (SELECT 1 
-                        FROM SITE_STATISTICS_HISTORY p2 
-                        WHERE SITE_STATISTICS_HISTORY.URL = p2.URL 
-                        AND SITE_STATISTICS_HISTORY.DATE = p2.DATE 
-                        AND SITE_STATISTICS_HISTORY.rowid < p2.rowid);""")
+            """DELETE FROM SITE_STATISTICS_HISTORY 
+                WHERE EXISTS (SELECT 1 
+                    FROM SITE_STATISTICS_HISTORY p2 
+                    WHERE SITE_STATISTICS_HISTORY.URL = p2.URL 
+                    AND SITE_STATISTICS_HISTORY.DATE = p2.DATE 
+                    AND SITE_STATISTICS_HISTORY.rowid < p2.rowid);""")
 
     def __initdata(self):
         config = Config().get_config()
         init_files = config.get("app", {}).get("init_files") or []
         config_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "config")
-        sql_files = get_dir_level1_files(in_path=config_dir, exts=".sql")
+        sql_files = PathUtils.get_dir_level1_files(in_path=config_dir, exts=".sql")
         config_flag = False
         for sql_file in sql_files:
             if os.path.basename(sql_file) not in init_files:

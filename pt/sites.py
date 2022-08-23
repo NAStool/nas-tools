@@ -9,7 +9,7 @@ import log
 from message.send import Message
 from pt.filterrules import FilterRule
 from pt.siteuserinfo.site_user_info_factory import SiteUserInfoFactory
-from utils.functions import singleton
+from utils.commons import singleton
 from utils.http_utils import RequestUtils
 from utils.sqls import get_config_site, insert_site_statistics_history, update_site_user_statistics, \
     get_site_statistics_recent_sites, get_site_user_statistics, get_site_statistics_history, get_site_seeding_info, \
@@ -207,7 +207,7 @@ class Sites:
                 except Exception as e:
                     log.error("【PT】%s 签到出错：%s - %s" % (pt_task, str(e), traceback.format_exc()))
         if status:
-            self.message.sendmsg(title="\n".join(status))
+            self.message.sendmsg(title="站点签到", text="\n".join(status))
 
     @staticmethod
     def __is_signin_success(html_text):
@@ -269,7 +269,7 @@ class Sites:
         self.refresh_all_pt_data(force=True, specify_sites=specify_sites)
 
     @staticmethod
-    def get_pt_site_activity_history(site, days=365*2):
+    def get_pt_site_activity_history(site, days=365 * 2):
         """
         查询站点 上传，下载，做种数据
         :param site: 站点名称

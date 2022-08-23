@@ -10,8 +10,9 @@ from rmt.media import Media
 from rmt.meta.metabase import MetaBase
 from rmt.metainfo import MetaInfo
 from utils.commons import ProcessHandler
-from utils.functions import tag_value, str_filesize, handler_special_chars
+from utils.dom_utils import DomUtils
 from utils.http_utils import RequestUtils
+from utils.string_utils import StringUtils
 from utils.types import MediaType
 
 
@@ -130,7 +131,7 @@ class IIndexer(metaclass=ABCMeta):
         start_time = datetime.datetime.now()
         log.info(f"【{self.index_type}】开始检索Indexer：{indexer_name} ...")
         # 特殊符号处理
-        search_word = handler_special_chars(text=key_word, replace_word=" ", allow_space=True)
+        search_word = StringUtils.handler_special_chars(text=key_word, replace_word=" ", allow_space=True)
         api_url = f"{indexer_url}?apikey={self.api_key}&t=search&q={search_word}"
         result_array = self.__parse_torznabxml(api_url)
         if len(result_array) == 0:
@@ -176,25 +177,26 @@ class IIndexer(metaclass=ABCMeta):
             for item in items:
                 try:
                     # indexer id
-                    indexer_id = tag_value(item, "jackettindexer", "id",
-                                           default=tag_value(item, "prowlarrindexer", "id", ""))
+                    indexer_id = DomUtils.tag_value(item, "jackettindexer", "id",
+                                                    default=DomUtils.tag_value(item, "prowlarrindexer", "id", ""))
                     # indexer
-                    indexer = tag_value(item, "jackettindexer", default=tag_value(item, "prowlarrindexer", default=""))
+                    indexer = DomUtils.tag_value(item, "jackettindexer",
+                                                 default=DomUtils.tag_value(item, "prowlarrindexer", default=""))
 
                     # 标题
-                    title = tag_value(item, "title", default="")
+                    title = DomUtils.tag_value(item, "title", default="")
                     if not title:
                         continue
                     # 种子链接
-                    enclosure = tag_value(item, "enclosure", "url", default="")
+                    enclosure = DomUtils.tag_value(item, "enclosure", "url", default="")
                     if not enclosure:
                         continue
                     # 描述
-                    description = tag_value(item, "description", default="")
+                    description = DomUtils.tag_value(item, "description", default="")
                     # 种子大小
-                    size = tag_value(item, "size", default=0)
+                    size = DomUtils.tag_value(item, "size", default=0)
                     # 种子页面
-                    page_url = tag_value(item, "comments", default="")
+                    page_url = DomUtils.tag_value(item, "comments", default="")
 
                     # 做种数
                     seeders = 0
@@ -304,7 +306,7 @@ class IIndexer(metaclass=ABCMeta):
                                                                        rolegroup=filter_args.get("rule"))
                 if not match_flag:
                     log.info(
-                        f"【{self.index_type}】{torrent_name} 大小：{str_filesize(meta_info.size)} 促销：{meta_info.get_volume_factor_string()} 不符合订阅过滤规则")
+                        f"【{self.index_type}】{torrent_name} 大小：{StringUtils.str_filesize(meta_info.size)} 促销：{meta_info.get_volume_factor_string()} 不符合订阅过滤规则")
                     index_rule_fail += 1
                     continue
             # 使用默认规则
@@ -312,7 +314,7 @@ class IIndexer(metaclass=ABCMeta):
                 match_flag, res_order, _ = self.filterrule.check_rules(meta_info=meta_info)
                 if match_type == 1 and not match_flag:
                     log.info(
-                        f"【{self.index_type}】{torrent_name} 大小：{str_filesize(meta_info.size)} 促销：{meta_info.get_volume_factor_string()} 不符合默认过滤规则")
+                        f"【{self.index_type}】{torrent_name} 大小：{StringUtils.str_filesize(meta_info.size)} 促销：{meta_info.get_volume_factor_string()} 不符合默认过滤规则")
                     index_rule_fail += 1
                     continue
 

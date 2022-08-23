@@ -3,14 +3,13 @@
 import logging
 import os
 import time
+from functools import lru_cache
 
 import requests
 import requests.exceptions
 
 from .as_obj import AsObj
 from .exceptions import TMDbException
-
-from functools import lru_cache
 
 logger = logging.getLogger(__name__)
 

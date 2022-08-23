@@ -1,6 +1,8 @@
 import os.path
-import transmission_rpc
 from datetime import datetime
+
+import transmission_rpc
+
 import log
 from config import Config
 from pt.client.client import IDownloadClient
@@ -8,7 +10,6 @@ from utils.types import MediaType
 
 
 class Transmission(IDownloadClient):
-    
     # 参考transmission web，仅查询需要的参数，加速种子检索
     __trarg = ["id", "name", "status", "labels", "hashString", "totalSize", "percentDone", "addedDate", "trackerStats",
                "leftUntilDone", "rateDownload", "rateUpload", "recheckProgress", "rateDownload", "rateUpload",

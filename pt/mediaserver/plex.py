@@ -4,7 +4,7 @@ import log
 from config import Config
 from pt.mediaserver.server import IMediaServer
 from rmt.meta.metabase import MetaBase
-from utils.functions import singleton
+from utils.commons import singleton
 
 
 @singleton
