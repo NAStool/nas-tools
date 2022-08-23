@@ -1338,6 +1338,7 @@ class WebAction:
         brushtask_include = data.get("brushtask_include")
         brushtask_exclude = data.get("brushtask_exclude")
         brushtask_dlcount = data.get("brushtask_dlcount")
+        brushtask_peercount = data.get("brushtask_peercount")
         brushtask_seedtime = data.get("brushtask_seedtime")
         brushtask_seedratio = data.get("brushtask_seedratio")
         brushtask_seedsize = data.get("brushtask_seedsize")
@@ -1350,7 +1351,8 @@ class WebAction:
             "size": brushtask_torrent_size,
             "include": brushtask_include,
             "exclude": brushtask_exclude,
-            "dlcount": brushtask_dlcount
+            "dlcount": brushtask_dlcount,
+            "peercount": brushtask_peercount,
         }
         # 删除规则
         remove_rule = {
@@ -1786,6 +1788,9 @@ class WebAction:
         if rules.get("dlcount"):
             rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="同时下载数量限制">同时下载: %s</span>'
                               % rules.get("dlcount"))
+        if rules.get("peercount"):
+            rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="当前做种人数限制">做种人数: %s</span>'
+                              % rules.get("peercount"))
         if rules.get("time"):
             times = rules.get("time").split("#")
             if times[0]:

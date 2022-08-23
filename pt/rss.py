@@ -768,13 +768,13 @@ class Rss:
             if site_parse:
                 # 检测Free
                 attr_type = Torrent.check_torrent_attr(torrent_url=media_info.page_url, cookie=site_cookie)
-                if "2XFREE" in attr_type:
+                if attr_type.is_free2x():
                     download_volume_factor = 0.0
                     upload_volume_factor = 2.0
-                elif "FREE" in attr_type:
+                elif attr_type.is_free():
                     download_volume_factor = 0.0
                     upload_volume_factor = 1.0
-                if "HR" in attr_type:
+                if attr_type.is_hr():
                     hit_and_run = True
                 # 设置属性
                 media_info.set_torrent_info(upload_volume_factor=upload_volume_factor,
