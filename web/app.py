@@ -19,7 +19,7 @@ class FlaskApp:
         if app:
             if app.get("web_host"):
                 self.__web_host = app.get("web_host")
-            self.__web_port = int(app.get('web_port'))
+            self.__web_port = int(app.get('web_port')) if str(app.get('web_port')).isdigit() else 3000
             self.__ssl_cert = app.get('ssl_cert')
             self.__ssl_key = app.get('ssl_key')
         if not self.__web_port:

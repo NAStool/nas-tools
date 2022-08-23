@@ -456,11 +456,11 @@ class FileTransfer:
                 else:
                     if udf_flag:
                         # 自定义转移时未输入大小限制默认不限制
-                        now_filesize = 0 if not min_filesize or not min_filesize.isdigit() else int(
+                        now_filesize = 0 if not str(min_filesize).isdigit() else int(
                             min_filesize) * 1024 * 1024
                     else:
                         # 未输入大小限制默认为配置大小限制
-                        now_filesize = self.__min_filesize if not min_filesize or not min_filesize.isdigit() else int(
+                        now_filesize = self.__min_filesize if not str(min_filesize).isdigit() else int(
                             min_filesize) * 1024 * 1024
                     # 查找目录下的文件
                     file_list = get_dir_files(in_path=in_path, episode_format=episode[0], exts=RMT_MEDIAEXT,

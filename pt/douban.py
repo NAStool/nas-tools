@@ -46,7 +46,7 @@ class DouBan:
         douban = config.get_config('douban')
         if douban:
             # 同步间隔
-            self.__interval = int(douban.get('interval')) if douban.get('interval') and str(douban.get('interval')).isdigit() else None
+            self.__interval = int(douban.get('interval')) if str(douban.get('interval')).isdigit() else None
             self.__auto_search = douban.get('auto_search')
             self.__auto_rss = douban.get('auto_rss')
             # 用户列表
@@ -56,7 +56,7 @@ class DouBan:
                     users = [users]
                 self.__users = users
             # 时间范围
-            self.__days = int(douban.get('days')) if douban.get('days') and str(douban.get('days')).isdigit() else None
+            self.__days = int(douban.get('days')) if str(douban.get('days')).isdigit() else None
             # 类型
             types = douban.get('types')
             if types:
@@ -328,7 +328,7 @@ class DouBan:
                     continue
                 if season != 1 and meta_info.begin_season != season:
                     continue
-            if episode:
+            if episode and str(episode).isdigit():
                 if meta_info.type != MediaType.TV:
                     continue
                 meta_info.begin_episode = int(episode)
@@ -370,7 +370,7 @@ class DouBan:
                 detail_info = html.xpath("//div[@id='info']/text()")
                 if isinstance(detail_info, list):
                     detail_info = [str(x).strip() for x in detail_info if str(x).strip().isdigit()]
-                    if detail_info:
+                    if detail_info and str(detail_info[0]).isdigit():
                         ret_media['episodes_count'] = int(detail_info[0])
             except Exception as err:
                 print(err)

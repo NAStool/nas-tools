@@ -810,7 +810,7 @@ def create_flask_app(config):
         if pt:
             # RSS订阅
             pt_check_interval = pt.get('pt_check_interval')
-            if pt_check_interval:
+            if str(pt_check_interval).isdigit():
                 tim_rssdownload = str(round(int(pt_check_interval) / 60)) + " 分钟"
                 rss_state = 'ON'
             else:

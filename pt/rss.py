@@ -366,7 +366,7 @@ class Rss:
             year = tv[1] or ""
             season = tv[2]
             tmdbid = tv[3]
-            total = int(tv[6])
+            total = int(tv[6]) if str(tv[6]).isdigit() else 0
             # 跳过模糊匹配的
             if not season or not tmdbid:
                 continue
@@ -474,8 +474,8 @@ class Rss:
             year = tv[1] or ""
             season = tv[2]
             tmdbid = tv[3]
-            total = int(tv[6])
-            lack = int(tv[7])
+            total = int(tv[6]) if str(tv[6]).isdigit() else 0
+            lack = int(tv[7]) if str(tv[7]).isdigit() else 0
             if not tmdbid:
                 continue
             media_info = self.__get_media_info(tmdbid=tmdbid,

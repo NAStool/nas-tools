@@ -31,9 +31,12 @@ class Logger:
         loglevel = self.__config.get_config('app').get('loglevel') or "info"
         self.logger.setLevel(level=self.__loglevels.get(loglevel))
         if logtype == "server":
-            logserver = self.__config.get_config('app').get('logserver')
-            logip = logserver.split(':')[0]
-            logport = int(logserver.split(':')[1])
+            logserver = self.__config.get_config('app').get('logserver', '').split(':')
+            logip = logserver[0]
+            if len(logserver) > 1:
+                logport = int(logserver[1] or '514')
+            else:
+                logport = 514
             log_server_handler = logging.handlers.SysLogHandler((logip, logport),
                                                                 logging.handlers.SysLogHandler.LOG_USER)
             log_server_handler.setFormatter(logging.Formatter('%(filename)s: %(message)s'))

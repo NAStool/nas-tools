@@ -17,7 +17,7 @@ class Qbittorrent(IDownloadClient):
         qbittorrent = config.get_config('qbittorrent')
         if qbittorrent:
             self.host = qbittorrent.get('qbhost')
-            self.port = int(qbittorrent.get('qbport')) if qbittorrent.get('qbport') else 0
+            self.port = int(qbittorrent.get('qbport')) if str(qbittorrent.get('qbport')).isdigit() else 0
             self.username = qbittorrent.get('qbusername')
             self.password = qbittorrent.get('qbpassword')
             # 强制做种开关
@@ -135,7 +135,7 @@ class Qbittorrent(IDownloadClient):
         return trans_tasks
 
     def get_remove_torrents(self, seeding_time, tag):
-        if not seeding_time:
+        if not seeding_time or not str(seeding_time).isdigit():
             return []
         torrents = self.get_completed_torrents(tag=tag)
         remove_torrents = []

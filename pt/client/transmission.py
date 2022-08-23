@@ -22,7 +22,7 @@ class Transmission(IDownloadClient):
         transmission = config.get_config('transmission')
         if transmission:
             self.host = transmission.get('trhost')
-            self.port = int(transmission.get('trport')) if transmission.get('trport') else 0
+            self.port = int(transmission.get('trport')) if str(transmission.get('trport')).isdigit() else 0
             self.username = transmission.get('trusername')
             self.password = transmission.get('trpassword')
             self.save_path = transmission.get('save_path')
@@ -56,8 +56,8 @@ class Transmission(IDownloadClient):
         if not self.trc:
             return []
         if isinstance(ids, list):
-            ids = [int(x) for x in ids]
-        elif ids:
+            ids = [int(x) for x in ids if str(x).isdigit()]
+        elif str(ids).isdigit():
             ids = int(ids)
         try:
             torrents = self.trc.get_torrents(ids=ids, arguments=self.__trarg)
@@ -94,8 +94,8 @@ class Transmission(IDownloadClient):
         if not self.trc:
             return
         if isinstance(ids, list):
-            ids = [int(x) for x in ids]
-        elif ids:
+            ids = [int(x) for x in ids if str(x).isdigit()]
+        elif str(ids).isdigit():
             ids = int(ids)
         # 打标签
         try:
@@ -169,8 +169,8 @@ class Transmission(IDownloadClient):
         if not self.trc:
             return False
         if isinstance(ids, list):
-            ids = [int(x) for x in ids]
-        elif ids:
+            ids = [int(x) for x in ids if str(x).isdigit()]
+        elif str(ids).isdigit():
             ids = int(ids)
         try:
             return self.trc.start_torrent(ids=ids)
@@ -182,8 +182,8 @@ class Transmission(IDownloadClient):
         if not self.trc:
             return False
         if isinstance(ids, list):
-            ids = [int(x) for x in ids]
-        elif ids:
+            ids = [int(x) for x in ids if str(x).isdigit()]
+        elif str(ids).isdigit():
             ids = int(ids)
         try:
             return self.trc.stop_torrent(ids=ids)
@@ -197,8 +197,8 @@ class Transmission(IDownloadClient):
         if not ids:
             return False
         if isinstance(ids, list):
-            ids = [int(x) for x in ids]
-        elif ids:
+            ids = [int(x) for x in ids if str(x).isdigit()]
+        elif str(ids).isdigit():
             ids = int(ids)
         try:
             return self.trc.remove_torrent(delete_data=delete_file, ids=ids)
