@@ -35,5 +35,6 @@ fi
 echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 echo "注意：日志将停止打印，请通过文件或WEB页面查看日志"
 chown -R ${PUID}:${PGID} ${WORKDIR} /config /usr/lib/python3.10/
+mkdir -p /config/logs/supervisor
 umask ${UMASK}
 exec su-exec ${PUID}:${PGID} /usr/bin/supervisord -n -c ${WORKDIR}/supervisord.conf
