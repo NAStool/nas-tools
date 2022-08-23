@@ -65,7 +65,7 @@ jobs:
         cd spk6/
         chmod 777 scripts/*
         sed -i 's/NASTOOL_VERSION/${{ env.app_version }}/g' INFO
-        tar -cvf nastool_dsm_6.x.spk *
+        tar -cvf nastool_dsm6.spk *
         cd ..
         rm -f package.tgz
         tar -zcvf package.tgz *.py *.txt service/ rmt/ message/ web/ ui/ wheelhouse/ config/ pt/ utils/
@@ -74,10 +74,10 @@ jobs:
         cd spk7/
         chmod 777 scripts/*
         sed -i 's/NASTOOL_VERSION/${{ env.app_version }}/g' INFO
-        tar -cvf nastool_dsm_7.x.spk *
+        tar -cvf nastool_dsm7.spk *
         cd ..
         mkdir spks
-        mv spk6/nastool_dsm_6.x.spk spk7/nastool_dsm_7.x.spk spks/
+        mv spk6/nastool_dsm6.spk spk7/nastool_dsm7.spk spks/
     - name: upload synology files
       uses: actions/upload-artifact@v3
       with:
@@ -139,10 +139,10 @@ jobs:
       run: |
         mkdir releases
         cd synology
-        mv nastool_dsm_6.x.spk /home/runner/work/nas-tools/nas-tools/releases/nastool_dsm_6.x_v${{ env.app_version }}.spk
-        mv nastool_dsm_7.x.spk /home/runner/work/nas-tools/nas-tools/releases/nastool_dsm_7.x_v${{ env.app_version }}.spk
+        mv nastool_dsm6.spk /home/runner/work/nas-tools/nas-tools/releases/nastool_dsm6_v${{ env.app_version }}.spk
+        mv nastool_dsm7.spk /home/runner/work/nas-tools/nas-tools/releases/nastool_dsm7_v${{ env.app_version }}.spk
         cd ../windows
-        mv nas-tools.exe /home/runner/work/nas-tools/nas-tools/releases/nas-tools_v${{ env.app_version }}.exe
+        mv nas-tools.exe /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.exe
     - name: Upload release asset
       uses: dwenegar/upload-release-assets@v1
       env:
@@ -166,16 +166,16 @@ jobs:
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
-        document: /home/runner/work/nas-tools/nas-tools/releases/nastool_dsm_6.x_v${{ env.app_version }}.spk
+        document: /home/runner/work/nas-tools/nas-tools/releases/nastool_dsm6_v${{ env.app_version }}.spk
     - name: Send telegram message synology 2
       uses: appleboy/telegram-action@master
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
-        document: /home/runner/work/nas-tools/nas-tools/releases/nastool_dsm_7.x_v${{ env.app_version }}.spk
+        document: /home/runner/work/nas-tools/nas-tools/releases/nastool_dsm7_v${{ env.app_version }}.spk
     - name: Send telegram message windows
       uses: appleboy/telegram-action@master
       with:
         to: ${{ secrets.TELEGRAM_TO }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
-        document: /home/runner/work/nas-tools/nas-tools/releases/nas-tools_v${{ env.app_version }}.exe
+        document: /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.exe

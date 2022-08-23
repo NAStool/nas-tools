@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - version.py
+      - docker/Dockerfile
       - .github/workflows/build-image.yml
 jobs:
   build:

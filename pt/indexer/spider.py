@@ -44,7 +44,7 @@ class TorrentSpider(feapder.AirSpider):
 
     def start_requests(self):
         torrentspath = self.indexer.search.get('paths', [{}])[0].get('path', '')
-        searchurl = self.indexer.domain + torrentspath + '?stypes=s&' + urlencode(
+        searchurl = self.domain + torrentspath + '?stypes=s&' + urlencode(
             {"search": self.keyword, "search_field": self.keyword})
         yield feapder.Request(searchurl, cookies=self.cookies)
 

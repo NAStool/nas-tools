@@ -485,8 +485,8 @@ class FileTransfer:
             # 传入的是个文件列表，这些文失件是in_path下面的文件
             file_list = files
 
-        # 非手动模式下，过滤掉文件列表中已处理过的
-        if in_from != SyncType.MAN:
+        # 目录同步模式下，过滤掉文件列表中已处理过的
+        if in_from == SyncType.MON:
             file_list = list(filter(is_transfer_notin_blacklist, file_list))
             if not file_list:
                 log.info("【RMT】所有文件均已成功转移过，没有需要处理的文件！如需重新处理，请清理缓存（服务->清理转移缓存）")
