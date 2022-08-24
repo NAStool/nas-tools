@@ -46,7 +46,7 @@ class Scheduler:
                 self.SCHEDULER.add_job(Downloader().pt_removetorrents,
                                        'interval',
                                        seconds=AUTO_REMOVE_TORRENTS_INTERVAL)
-                log.info("【RUN】PT下载自动删种服务启动...")
+                log.info("【RUN】下载器自动删种服务启动...")
 
             # PT站签到
             ptsignin_cron = str(self.__pt.get('ptsignin_cron'))
@@ -104,7 +104,7 @@ class Scheduler:
             pt_monitor = self.__pt.get('pt_monitor')
             if pt_monitor:
                 self.SCHEDULER.add_job(Downloader().pt_transfer, 'interval', seconds=PT_TRANSFER_INTERVAL)
-                log.info("【RUN】PT下载文件转移服务启动...")
+                log.info("【RUN】下载器文件转移服务启动...")
 
             # RSS下载器
             pt_check_interval = self.__pt.get('pt_check_interval')

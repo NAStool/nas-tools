@@ -239,7 +239,7 @@ def check_config(config):
 
         pt_monitor = config.get_config('pt').get('pt_monitor')
         if not pt_monitor:
-            log.info("下载软件监控未开启，PT下载监控功能已关闭")
+            log.info("下载软件监控未开启，下载器监控功能已关闭")
     else:
         log.error("配置文件格式错误，找不到pt配置项！")
 

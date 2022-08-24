@@ -488,7 +488,7 @@
       }else if(currType == "client115"){
         command = ["Client115().get_status()"];
       }else if(currType == "aria2"){
-        command = ["Aria2().get_status()"];
+        command = "pt.client.aria2|Aria2";
       }
       
       ajax_post("test_connection", {"command": command}, function(ret){

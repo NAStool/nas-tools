@@ -19,7 +19,19 @@ class TorrentSpider(feapder.AirSpider):
         REQUEST_LOST_TIMEOUT=10,
         RETRY_FAILED_REQUESTS=False,
         LOG_LEVEL="ERROR",
-        RANDOM_HEADERS=False
+        RANDOM_HEADERS=False,
+        WEBDRIVER=dict(
+            pool_size=2,
+            load_images=False,
+            user_agent=None,
+            proxy=None,
+            headless=False,
+            driver_type="CHROME",
+            timeout=10,
+            window_size=(1024, 800),
+            executable_path=None,
+            render_time=0
+        )
     )
     is_complete = False
     cookies = None
@@ -31,7 +43,7 @@ class TorrentSpider(feapder.AirSpider):
     article_list = None
     fields = None
 
-    def setparam(self, indexer: IndexerConf, keyword):
+    def setparam(self, indexer: IndexerConf, keyword, user_agent=None):
         if not indexer or not keyword:
             return
         self.keyword = keyword
@@ -40,13 +52,18 @@ class TorrentSpider(feapder.AirSpider):
         if self.domain and not str(self.domain).endswith("/"):
             self.domain = self.domain + "/"
         self.cookies = self.indexer.cookie
+        if user_agent:
+            self.__custom_setting__['WEBDRIVER']['user_agent'] = user_agent
         self.torrents_info_array = []
 
     def start_requests(self):
-        torrentspath = self.indexer.search.get('paths', [{}])[0].get('path', '')
-        searchurl = self.domain + torrentspath + '?stypes=s&' + urlencode(
-            {"search": self.keyword, "search_field": self.keyword})
-        yield feapder.Request(searchurl, cookies=self.cookies)
+        if self.indexer.search:
+            torrentspath = self.indexer.search.get('paths', [{}])[0].get('path', '')
+            searchurl = self.domain + torrentspath + '?stypes=s&' + urlencode(
+                {"search": self.keyword, "search_field": self.keyword})
+            yield feapder.Request(searchurl, cookies=self.cookies)
+        else:
+            self.is_complete = True
 
     def Getdownloadvolumefactor(self, torrent):
         # downloadvolumefactor

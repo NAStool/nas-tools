@@ -2,6 +2,7 @@ import datetime
 import time
 
 import log
+from config import Config
 from pt.indexer.indexer import IIndexer
 from pt.indexer.spider import TorrentSpider
 from pt.sites import Sites
@@ -78,7 +79,9 @@ class BuiltinIndexer(IIndexer):
     @staticmethod
     def __spider_search(keyword, indexer):
         spider = TorrentSpider()
-        spider.setparam(indexer=indexer, keyword=keyword)
+        spider.setparam(indexer=indexer,
+                        keyword=keyword,
+                        user_agent=Config().get_config('app').get('user_agent'))
         spider.start()
         # 循环判断是否获取到数据
         sleep_count = 0

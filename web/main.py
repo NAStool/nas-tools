@@ -849,7 +849,7 @@ def create_flask_app(config):
             </svg>
             '''
             scheduler_cfg_list.append(
-                {'name': 'PT下载转移', 'time': tim_pttransfer, 'state': sta_pttransfer, 'id': 'pttransfer', 'svg': svg,
+                {'name': '下载器文件转移', 'time': tim_pttransfer, 'state': sta_pttransfer, 'id': 'pttransfer', 'svg': svg,
                  'color': "green"})
 
             # PT删种

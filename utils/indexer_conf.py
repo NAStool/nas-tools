@@ -7,10 +7,10 @@ class IndexerConf(object):
         self.id = self.datas.get('id')
         self.name = self.datas.get('name') if not name else name
         self.domain = self.datas.get('domain')
-        self.userinfo = self.datas.get('userinfo')
-        self.search = self.datas.get('search')
-        self.torrents = self.datas.get('torrents')
-        self.category_mappings = self.datas.get('category_mappings')
+        self.userinfo = self.datas.get('userinfo', {})
+        self.search = self.datas.get('search', {})
+        self.torrents = self.datas.get('torrents', {})
+        self.category_mappings = self.datas.get('category_mappings', [])
         self.cookie = cookie
 
     def get_userinfo(self):

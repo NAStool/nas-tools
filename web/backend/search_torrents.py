@@ -161,8 +161,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
                                                     mtype=media_info.type, strict=True)
                 if not media_info or not media_info.tmdb_info:
                     Message().send_channel_msg(channel=in_from,
-                                               title="%s%s 从TMDB查询不到媒体信息！" % (
-                                                   media_info.get_name(), media_info.get_season_string()),
+                                               title="%s 从TMDB查询不到媒体信息！" % media_info.title,
                                                user_id=user_id)
                     return
             # 搜索
@@ -191,7 +190,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         # 搜索名称
         use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
         if use_douban_titles:
-            tmdb_infos = DouBan().search_douban_medias(keyword=media_info.get_name(),
+            tmdb_infos = DouBan().search_douban_medias(keyword=media_info.get_name() if not media_info.year else "%s %s" % (media_info.get_name(), media_info.year),
                                                        mtype=mtype,
                                                        num=6,
                                                        season=media_info.begin_season,
@@ -201,7 +200,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         if not tmdb_infos:
             # 查询不到媒体信息
             Message().send_channel_msg(channel=in_from,
-                                       title="%s 查询不到媒体信息！" % media_info.get_name(),
+                                       title="%s 查询不到媒体信息！" % content,
                                        user_id=user_id)
             return
 
@@ -230,7 +229,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
                     if not media_info or not media_info.tmdb_info:
                         Message().send_channel_msg(channel=in_from,
                                                    title="%s%s 从TMDB查询不到媒体信息！" % (
-                                                       media_info.get_name(), media_info.get_season_string()),
+                                                       media_info.title, media_info.get_season_string()),
                                                    user_id=user_id)
                         return
                 # 发送消息
@@ -282,7 +281,7 @@ def __search_media(in_from, media_info: MetaBase, user_id):
         # 搜索到了但是没开自动下载
         if download_count is None:
             Message().send_channel_msg(channel=in_from,
-                                       title="%s 共搜索到%s个资源，点击选择下载" % (media_info.get_title_string(), search_count),
+                                       title="%s 共搜索到%s个资源，点击选择下载" % (media_info.title, search_count),
                                        image=media_info.get_message_image(),
                                        url="search",
                                        user_id=user_id)
