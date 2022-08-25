@@ -14,6 +14,7 @@ from rmt.meta.metabase import MetaBase
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
 
+
 class TorrentAttr:
     def __init__(self):
         self.free = None
@@ -32,6 +33,7 @@ class TorrentAttr:
 
     def is_hr(self):
         return not (not self.hr)
+
 
 class Torrent:
 
@@ -147,7 +149,7 @@ class Torrent:
                     if peer_count_dom:
                         peer_count_str = peer_count_dom[0].text
                         peer_count_str_re = re.search(r'^(\d+)', peer_count_str)
-                        ret_attr.peer_count = int(peer_count_str_re.group(1))
+                        ret_attr.peer_count = int(peer_count_str_re.group(1)) if peer_count_str_re else 0
             except Exception as err:
                 print(err)
         # 随机休眼后再返回

@@ -1,7 +1,6 @@
 import re
 import time
 import traceback
-import functools
 from datetime import datetime
 from time import sleep
 
@@ -535,7 +534,6 @@ class BrushTask(object):
             if rss_rule.get("peercount"):
                 if attr_type.peer_count > int(rss_rule.get("peercount")):
                     return False
-
 
         except Exception as err:
             log.console(str(err) + " - " + traceback.format_exc())
