@@ -283,7 +283,7 @@ class Rss:
 
     def rsssearch(self, state="D"):
         """
-        RSS订阅队列中状态的任务处理，先进行存量PT资源检索，缺失的才标志为RSS状态，由定时服务调用
+        RSS订阅队列中状态的任务处理，先进行存量资源检索，缺失的才标志为RSS状态，由定时服务调用
         """
         try:
             lock.acquire()

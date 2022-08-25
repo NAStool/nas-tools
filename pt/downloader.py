@@ -70,7 +70,7 @@ class Downloader:
 
     def add_pt_torrent(self, url, mtype=MediaType.MOVIE, is_paused=None, tag=None, download_dir=None):
         """
-        添加PT下载任务，根据当前使用的下载器分别调用不同的客户端处理
+        添加下载任务，根据当前使用的下载器分别调用不同的客户端处理
         :param url: 种子地址
         :param mtype: 媒体类型，电影、电视剧、动漫
         :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
@@ -113,7 +113,7 @@ class Downloader:
 
     def pt_transfer(self):
         """
-        转移PT下载完成的文件，进行文件识别重命名到媒体库目录
+        转移下载完成的文件，进行文件识别重命名到媒体库目录
         """
         if self.client:
             try:
@@ -152,11 +152,11 @@ class Downloader:
                 tag = PT_TAG
             else:
                 tag = None
-            log.info("【PT】开始执行PT做种清理，做种时间：%s..." % StringUtils.str_timelong(self.__seeding_time))
+            log.info("【PT】开始执行做种清理，做种时间：%s..." % StringUtils.str_timelong(self.__seeding_time))
             torrents = self.client.get_remove_torrents(seeding_time=self.__seeding_time, tag=tag)
             for torrent in torrents:
                 self.delete_torrents(torrent)
-            log.info("【PT】PT做种清理完成")
+            log.info("【PT】做种清理完成")
         finally:
             lock.release()
 
@@ -292,7 +292,7 @@ class Downloader:
             if item.type == MediaType.MOVIE:
                 download_items.append(item)
 
-        # 添加一遍PT任务
+        # 添加一遍任务
         return_items = []
         for item in download_items:
             log.info("【DOWNLOADER】添加下载任务：%s ..." % item.org_string)
@@ -580,7 +580,7 @@ class Downloader:
         if not media_list:
             return []
 
-        # 排序函数，标题、PT站、资源类型、做种数量
+        # 排序函数，标题、站点、资源类型、做种数量
         def get_sort_str(x):
             season_len = str(len(x.get_season_list())).rjust(2, '0')
             episode_len = str(len(x.get_episode_list())).rjust(4, '0')

@@ -153,9 +153,9 @@ class WebAction:
         if not msg:
             return
         commands = {
-            "/ptr": {"func": Downloader().pt_removetorrents, "desp": "PT删种"},
-            "/ptt": {"func": Downloader().pt_transfer, "desp": "PT下载转移"},
-            "/pts": {"func": Sites().signin, "desp": "PT站签到"},
+            "/ptr": {"func": Downloader().pt_removetorrents, "desp": "删种"},
+            "/ptt": {"func": Downloader().pt_transfer, "desp": "下载文件转移"},
+            "/pts": {"func": Sites().signin, "desp": "站点签到"},
             "/rst": {"func": Sync().transfer_all_sync, "desp": "监控目录全量同步"},
             "/rss": {"func": Rss().rssdownload, "desp": "RSS订阅"},
             "/db": {"func": DouBan().sync, "desp": "豆瓣同步"}
@@ -171,7 +171,7 @@ class WebAction:
             ThreadHelper().start_thread(command.get("func"), ())
             Message().send_channel_msg(channel=in_from, title="%s 已启动" % command.get("desp"))
         else:
-            # PT检索或者添加订阅
+            # 站点检索或者添加订阅
             ThreadHelper().start_thread(search_media_by_message, (msg, in_from, user_id,))
 
     @staticmethod

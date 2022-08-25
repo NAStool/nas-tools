@@ -6,7 +6,7 @@ RSS_EXTRA_SITES = {
     'www.torrentseeds.org': 'Unit3D',
     'beyond-hd.me': 'beyondhd',
 }
-# 检测种子促销的PT站点XPATH，不在此清单的无法开启仅RSS免费种子功能
+# 检测种子促销的站点XPATH，不在此清单的无法开启仅RSS免费种子功能
 RSS_SITE_GRAP_CONF = {
     'pthome.net': {
         'FREE': ["//font[@class='free']"],

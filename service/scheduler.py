@@ -40,7 +40,7 @@ class Scheduler:
         if not self.SCHEDULER:
             return
         if self.__pt:
-            # PT种子清理
+            # 种子清理
             pt_seeding_time = self.__pt.get('pt_seeding_time')
             if pt_seeding_time:
                 self.SCHEDULER.add_job(Downloader().pt_removetorrents,
@@ -48,7 +48,7 @@ class Scheduler:
                                        seconds=AUTO_REMOVE_TORRENTS_INTERVAL)
                 log.info("【RUN】下载器自动删种服务启动...")
 
-            # PT站签到
+            # 站点签到
             ptsignin_cron = str(self.__pt.get('ptsignin_cron'))
             if ptsignin_cron:
                 if '-' in ptsignin_cron:
@@ -71,40 +71,40 @@ class Scheduler:
                                                "cron",
                                                hour=start_hour,
                                                minute=start_minute)
-                        log.info("【RUN】PT站自动签到服务时间范围随机模式启动，起始时间于%s:%s" % (
+                        log.info("【RUN】站点自动签到服务时间范围随机模式启动，起始时间于%s:%s" % (
                             str(start_hour).rjust(2, '0'), str(start_minute).rjust(2, '0')))
                     except Exception as e:
-                        log.info("【RUN】PT站自动签到时间 时间范围随机模式 配置格式错误：%s %s" % (ptsignin_cron, str(e)))
+                        log.info("【RUN】站点自动签到时间 时间范围随机模式 配置格式错误：%s %s" % (ptsignin_cron, str(e)))
                 elif ptsignin_cron.find(':') != -1:
                     try:
                         hour = int(ptsignin_cron.split(":")[0]) or 1
                         minute = int(ptsignin_cron.split(":")[1]) or 1
                     except Exception as e:
-                        log.info("【RUN】PT站自动签到时间 配置格式错误：%s" % str(e))
+                        log.info("【RUN】站点自动签到时间 配置格式错误：%s" % str(e))
                         hour = minute = 0
                     if hour and minute:
                         self.SCHEDULER.add_job(Sites().signin,
                                                "cron",
                                                hour=hour,
                                                minute=minute)
-                        log.info("【RUN】PT站自动签到服务启动...")
+                        log.info("【RUN】站点自动签到服务启动...")
                 else:
                     try:
                         hours = float(ptsignin_cron)
                     except Exception as e:
-                        log.info("【RUN】PT站自动签到时间 配置格式错误：%s" % str(e))
+                        log.info("【RUN】站点自动签到时间 配置格式错误：%s" % str(e))
                         hours = 0
                     if hours:
                         self.SCHEDULER.add_job(Sites().signin,
                                                "interval",
                                                hours=hours)
-                        log.info("【RUN】PT站自动签到服务启动...")
+                        log.info("【RUN】站点自动签到服务启动...")
 
-            # PT文件转移
+            # 下载文件转移
             pt_monitor = self.__pt.get('pt_monitor')
             if pt_monitor:
                 self.SCHEDULER.add_job(Downloader().pt_transfer, 'interval', seconds=PT_TRANSFER_INTERVAL)
-                log.info("【RUN】下载器文件转移服务启动...")
+                log.info("【RUN】下载文件转移服务启动...")
 
             # RSS下载器
             pt_check_interval = self.__pt.get('pt_check_interval')
@@ -165,7 +165,7 @@ class Scheduler:
         # RSS队列中检索
         self.SCHEDULER.add_job(Rss().rsssearch, 'interval', seconds=RSS_CHECK_INTERVAL)
 
-        # PT站数据刷新
+        # 站点数据刷新
         self.SCHEDULER.add_job(Sites().refresh_pt_date_now, 'interval', hours=REFRESH_PT_DATA_INTERVAL)
 
         # 豆瓣RSS转TMDB，定时更新TMDB数据
@@ -199,14 +199,14 @@ class Scheduler:
         day = datetime.now().day
         # 随机数从1秒开始，不在整点签到
         second = random.randint(1, 59)
-        log.info("【RUN】PT站自动签到时间 即将在%s-%s-%s,%s:%s:%s签到" % (
+        log.info("【RUN】站点自动签到时间 即将在%s-%s-%s,%s:%s:%s签到" % (
             str(year), str(month), str(day), str(hour), str(minute), str(second)))
         if hour < 0 or hour > 24:
             hour = -1
         if minute < 0 or minute > 60:
             minute = -1
         if hour < 0 or minute < 0:
-            log.warn("【RUN】PT站自动签到时间 配置格式错误：不启动任务")
+            log.warn("【RUN】站点自动签到时间 配置格式错误：不启动任务")
             return
         self.SCHEDULER.add_job(Sites().signin,
                                "date",

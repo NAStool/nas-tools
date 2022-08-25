@@ -76,7 +76,7 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 2022.4.19
 * 支持prowlarr做为检索器
 * 支持Jellyfin做为媒体服务器
-* 支持Telegram Bot远程运行服务及PT检索下载
+* 支持Telegram Bot远程运行服务及检索下载
 
 2022.4.17
 * 支持Windows运行
@@ -89,7 +89,7 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 * 支持配置代理
 
 2022.4.8
-* RSS订阅及PT资源检索支持按关键字和文件大小灵活过滤
+* RSS订阅及资源检索支持按关键字和文件大小灵活过滤
 
 2022.4.2
 * 支持对识别错误的记录手工重新识别转移
@@ -192,7 +192,7 @@ https://github.com/jxxghp/nas-tools/releases
    >> 儿童
 
 ### 4、配置同步目录（可选）
-* 目录同步可以对多个分散的文件夹进行监控，文件夹中有新增媒体文件时会自动进行识别重命名，并按配置的转移方式转移到媒体库目录或指定的目录中。如将PT下载软件的下载目录也纳入目录同步范围的，建议关闭下载软件监控功能，否则会触发重复处理。
+* 目录同步可以对多个分散的文件夹进行监控，文件夹中有新增媒体文件时会自动进行识别重命名，并按配置的转移方式转移到媒体库目录或指定的目录中。如将下载软件的下载目录也纳入目录同步范围的，建议关闭下载软件监控功能，否则会触发重复处理。
 
 ### 5、配置微信菜单/Telegram机器人（推荐）
 配置好微信或Telegram机器人后，可以直接通过微信/Telegram机器人发送名字实现自动检索下载，以及控制程序运行。
@@ -227,7 +227,7 @@ https://github.com/jxxghp/nas-tools/releases
 2) Telegram Bot机器人
 
 * 在NASTool设置中设置好本程序的外网访问地址以及打开Telegram Webhook开关。
-* 在Telegram BotFather机器人中按下表维护好bot命令菜单（也可以不维护），选择菜单或输入命令运行对应服务，输入其它内容则启动PT聚合检索。
+* 在Telegram BotFather机器人中按下表维护好bot命令菜单（也可以不维护），选择菜单或输入命令运行对应服务，输入其它内容则启动聚合检索。
 * 注意：受Telegram限制，程序运行端口需要设置为以下端口之一：443, 80, 88, 8443，且需要有以网认证的Https证书。
 
 命令与功能对应关系：
@@ -235,9 +235,9 @@ https://github.com/jxxghp/nas-tools/releases
    |  命令   | 功能  |
    |  ----  | ----  |
    | /rss  | RSS订阅 |
-   | /ptt  | PT下载转移 |
-   | /ptr  | PT删种 |
-   | /pts | PT站签到 |
+   | /ptt  | 下载文件转移 |
+   | /ptr  | 删种 |
+   | /pts | 站点签到 |
    | /rst  | 目录同步 |
    | /db   | 豆瓣想看 |
    

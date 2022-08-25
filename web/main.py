@@ -831,7 +831,7 @@ def create_flask_app(config):
                 {'name': 'RSS订阅', 'time': tim_rssdownload, 'state': rss_state, 'id': 'rssdownload', 'svg': svg,
                  'color': "blue"})
 
-            # PT文件转移
+            # 下载文件转移
             pt_monitor = pt.get('pt_monitor')
             if pt_monitor:
                 tim_pttransfer = str(round(PT_TRANSFER_INTERVAL / 60)) + " 分钟"
@@ -849,10 +849,10 @@ def create_flask_app(config):
             </svg>
             '''
             scheduler_cfg_list.append(
-                {'name': '下载器文件转移', 'time': tim_pttransfer, 'state': sta_pttransfer, 'id': 'pttransfer', 'svg': svg,
+                {'name': '下载文件转移', 'time': tim_pttransfer, 'state': sta_pttransfer, 'id': 'pttransfer', 'svg': svg,
                  'color': "green"})
 
-            # PT删种
+            # 删种
             pt_seeding_config_time = pt.get('pt_seeding_time')
             if pt_seeding_config_time and pt_seeding_config_time != '0':
                 pt_seeding_time = "%s 天" % pt_seeding_config_time
@@ -868,10 +868,10 @@ def create_flask_app(config):
                 </svg>
                 '''
                 scheduler_cfg_list.append(
-                    {'name': 'PT删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents,
+                    {'name': '删种', 'time': pt_seeding_time, 'state': sta_autoremovetorrents,
                      'id': 'autoremovetorrents', 'svg': svg, 'color': "twitter"})
 
-            # PT自动签到
+            # 自动签到
             tim_ptsignin = pt.get('ptsignin_cron')
             if tim_ptsignin:
                 if str(tim_ptsignin).find(':') == -1:
@@ -886,7 +886,7 @@ def create_flask_app(config):
                 </svg>
                 '''
                 scheduler_cfg_list.append(
-                    {'name': 'PT站签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin', 'svg': svg,
+                    {'name': '站点签到', 'time': tim_ptsignin, 'state': sta_ptsignin, 'id': 'ptsignin', 'svg': svg,
                      'color': "facebook"})
 
         # 目录同步

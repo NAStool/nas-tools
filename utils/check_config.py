@@ -196,7 +196,7 @@ def check_config(config):
     else:
         log.error("配置文件格式错误，找不到sync配置项！")
 
-    # 检查PT配置
+    # 检查站点配置
     if config.get_config('pt'):
         pt_client = config.get_config('pt').get('pt_client')
         log.info("下载软件设置为：%s" % pt_client)
@@ -217,7 +217,7 @@ def check_config(config):
 
         search_indexer = config.get_config('pt').get('search_indexer')
         if search_indexer:
-            log.info("PT检索软件设置为：%s" % search_indexer)
+            log.info("索引器设置为：%s" % search_indexer)
 
         search_auto = config.get_config('pt').get('search_auto')
         if search_auto:
@@ -225,13 +225,13 @@ def check_config(config):
 
         ptsignin_cron = config.get_config('pt').get('ptsignin_cron')
         if not ptsignin_cron:
-            log.info("PT站自动签到时间未配置，PT站签到功能已关闭")
+            log.info("站点自动签到时间未配置，站点签到功能已关闭")
 
         pt_seeding_time = config.get_config('pt').get('pt_seeding_time')
         if not pt_seeding_time or pt_seeding_time == '0':
-            log.info("PT保种时间未配置，自动删种功能已关闭")
+            log.info("保种时间未配置，自动删种功能已关闭")
         else:
-            log.info("PT保种时间设置为：%s 天" % pt_seeding_time)
+            log.info("保种时间设置为：%s 天" % pt_seeding_time)
 
         pt_check_interval = config.get_config('pt').get('pt_check_interval')
         if not pt_check_interval:

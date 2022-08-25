@@ -74,7 +74,7 @@ class Sites:
 
     def refresh_all_pt_data(self, force=False, specify_sites=None):
         """
-        多线程刷新PT站下载上传量，默认间隔6小时
+        多线程刷新站点下载上传量，默认间隔6小时
         """
         if not self.__pt_sites:
             return
@@ -179,7 +179,7 @@ class Sites:
 
     def signin(self):
         """
-        PT站签到入口，由定时服务调用
+        站点签到入口，由定时服务调用
         """
         status = []
         if self.__pt_sites:
@@ -190,7 +190,7 @@ class Sites:
                 try:
                     pt_url = site_info[4]
                     pt_cookie = site_info[5]
-                    log.info("【PT】开始PT签到：%s" % pt_task)
+                    log.info("【PT】开始站点签到：%s" % pt_task)
                     if not pt_url or not pt_cookie:
                         log.warn("【PT】未配置 %s 的Url或Cookie，无法签到" % str(pt_task))
                         continue
@@ -212,7 +212,7 @@ class Sites:
     @staticmethod
     def __is_signin_success(html_text):
         """
-        检进是否成功进入PT网站而不是登录界面
+        检进是否成功进入站点而不是登录界面
         """
         if not html_text:
             return False
@@ -220,20 +220,20 @@ class Sites:
 
     def refresh_pt_date_now(self):
         """
-        强制刷新PT站数据
+        强制刷新站点数据
         """
         self.refresh_all_pt_data(True)
 
     def get_pt_date(self):
         """
-        获取PT站上传下载量
+        获取站点上传下载量
         """
         self.refresh_all_pt_data()
         return self.__sites_data
 
     def get_pt_site_statistics_history(self, days=7):
         """
-        获取PT站上传下载量
+        获取站点上传下载量
         """
         site_urls = []
         for site in self.__pt_sites:
@@ -245,7 +245,7 @@ class Sites:
 
     def get_pt_site_user_statistics(self):
         """
-        获取PT站用户数据
+        获取站点用户数据
         :return:
         """
         site_urls = []
@@ -258,7 +258,7 @@ class Sites:
 
     def refresh_pt(self, specify_sites=None):
         """
-        强制刷新PT指定站数据
+        强制刷新指定站点数据
         """
         if not specify_sites:
             return

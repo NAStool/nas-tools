@@ -9,7 +9,7 @@ from utils.commons import singleton
 
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
 # 菜单序号在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护，然后看日志输出的菜单序号是啥（按顺利能猜到的）....
-# 命令对应关系：/ptt PT文件转移；/ptr PT删种；/pts PT签到；/rst 目录同步；/rss RSS下载
+# 命令对应关系：/ptt 下载文件转移；/ptr 删种；/pts 站点签到；/rst 目录同步；/rss RSS下载
 WECHAT_MENU = {'_0_0': '/ptt', '_0_1': '/ptr', '_0_2': '/rss', '_1_0': '/rst', '_1_1': '/db', '_2_0': '/pts'}
 # 收藏了的媒体的目录名，名字可以改，在Emby中点击红星则会自动将电影转移到此分类下，需要在Emby Webhook中配置用户行为通知
 RMT_FAVTYPE = '精选'
@@ -22,9 +22,9 @@ RMT_SUBEXT = ['.srt', '.ass', '.ssa']
 ANIME_GENREIDS = ['16']
 # 默认过滤的文件大小，150M
 RMT_MIN_FILESIZE = 150 * 1024 * 1024
-# PT删种检查时间间隔
+# 删种检查时间间隔
 AUTO_REMOVE_TORRENTS_INTERVAL = 1800
-# PT转移文件检查时间间隔，
+# 下载文件转移检查时间间隔，
 PT_TRANSFER_INTERVAL = 300
 # TMDB信息缓存定时保存时间
 METAINFO_SAVE_INTERVAL = 600
@@ -34,7 +34,7 @@ RELOAD_CONFIG_INTERVAL = 600
 SYNC_TRANSFER_INTERVAL = 60
 # RSS队列中处理时间间隔
 RSS_CHECK_INTERVAL = 300
-# PT站流量数据刷新时间间隔（小时）
+# 站点流量数据刷新时间间隔（小时）
 REFRESH_PT_DATA_INTERVAL = 6
 # 刷新订阅TMDB数据的时间间隔（小时）
 RSS_REFRESH_TMDB_INTERVAL = 6
