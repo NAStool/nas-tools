@@ -55,8 +55,7 @@ class Rss:
         """
         if not self.__sites:
             return
-        try:
-            lock.acquire()
+        with lock:
             log.info("【RSS】开始RSS订阅...")
             # 读取电影订阅
             movie_keys = get_rss_movies(state='R')
@@ -236,44 +235,44 @@ class Rss:
                         continue
                 log.info("【RSS】%s 处理结束，匹配到 %s 个有效资源" % (rss_job, res_num))
             log.info("【RSS】所有RSS处理结束，共 %s 个有效资源" % len(rss_download_torrents))
+
             # 去重择优后开始添加下载
-            download_items, left_medias = self.downloader.check_and_add_pt(SearchType.RSS,
-                                                                           rss_download_torrents,
-                                                                           rss_no_exists)
-            # 批量删除订阅
-            if download_items:
-                for item in download_items:
-                    if item.type == MediaType.MOVIE:
-                        # 删除电影订阅
-                        if item.rssid:
-                            log.info("【RSS】电影 %s 订阅完成，删除订阅..." % item.get_title_string())
-                            delete_rss_movie(rssid=item.rssid)
-                    else:
-                        if not left_medias or not left_medias.get(item.get_title_string()):
-                            # 删除电视剧订阅
+            if rss_download_torrents:
+                download_items, left_medias = self.downloader.check_and_add_pt(SearchType.RSS,
+                                                                               rss_download_torrents,
+                                                                               rss_no_exists)
+                # 批量删除订阅
+                if download_items:
+                    for item in download_items:
+                        if item.type == MediaType.MOVIE:
+                            # 删除电影订阅
                             if item.rssid:
-                                log.info(
-                                    "【RSS】电视剧 %s %s 订阅完成，删除订阅..." % (item.get_title_string(),
-                                                                     item.get_season_string()))
-                                delete_rss_tv(rssid=item.rssid)
+                                log.info("【RSS】电影 %s 订阅完成，删除订阅..." % item.get_title_string())
+                                delete_rss_movie(rssid=item.rssid)
                         else:
-                            # 更新电视剧缺失剧集
-                            left_media = left_medias.get(item.get_title_string())
-                            if not left_media:
-                                continue
-                            for left_season in left_media:
-                                if item.is_in_season(left_season.get("season")):
-                                    if left_season.get("episodes"):
-                                        log.info("【RSS】更新电视剧 %s %s 订阅缺失集数为 %s" % (
-                                            item.get_title_string(), item.get_season_string(),
-                                            len(left_season.get("episodes"))))
-                                        update_rss_tv_lack(rssid=item.rssid, lack_episodes=left_season.get("episodes"))
-                                        break
-                log.info("【RSS】实际下载了 %s 个资源" % len(download_items))
-            else:
-                log.info("【RSS】未下载到任何资源")
-        finally:
-            lock.release()
+                            if not left_medias or not left_medias.get(item.get_title_string()):
+                                # 删除电视剧订阅
+                                if item.rssid:
+                                    log.info(
+                                        "【RSS】电视剧 %s %s 订阅完成，删除订阅..." % (item.get_title_string(),
+                                                                         item.get_season_string()))
+                                    delete_rss_tv(rssid=item.rssid)
+                            else:
+                                # 更新电视剧缺失剧集
+                                left_media = left_medias.get(item.get_title_string())
+                                if not left_media:
+                                    continue
+                                for left_season in left_media:
+                                    if item.is_in_season(left_season.get("season")):
+                                        if left_season.get("episodes"):
+                                            log.info("【RSS】更新电视剧 %s %s 订阅缺失集数为 %s" % (
+                                                item.get_title_string(), item.get_season_string(),
+                                                len(left_season.get("episodes"))))
+                                            update_rss_tv_lack(rssid=item.rssid, lack_episodes=left_season.get("episodes"))
+                                            break
+                    log.info("【RSS】实际下载了 %s 个资源" % len(download_items))
+                else:
+                    log.info("【RSS】未下载到任何资源")
 
     def rsssearch_all(self):
         """
@@ -335,7 +334,7 @@ class Rss:
                     continue
             else:
                 # 洗版时按缺失来下载
-                no_exists = None
+                no_exists = {}
             # 开始检索
             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
                 media_info=media_info,
@@ -697,8 +696,8 @@ class Rss:
                     # 匹配关键字，可能是正则表达式
                     if not re.search(r"%s" % name,
                                      "%s %s %s %s" % (
-                                     media_info.org_string, media_info.title, media_info.original_title,
-                                     media_info.year),
+                                             media_info.org_string, media_info.title, media_info.original_title,
+                                             media_info.year),
                                      re.IGNORECASE):
                         continue
                 # 媒体匹配成功
@@ -756,8 +755,8 @@ class Rss:
                     # 匹配关键字，可能是正则表达式
                     if not re.search(r"%s" % name,
                                      "%s %s %s %s" % (
-                                     media_info.org_string, media_info.title, media_info.original_title,
-                                     media_info.year),
+                                             media_info.org_string, media_info.title, media_info.original_title,
+                                             media_info.year),
                                      re.IGNORECASE):
                         continue
                 # 媒体匹配成功

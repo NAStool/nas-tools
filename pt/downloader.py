@@ -527,8 +527,8 @@ class Downloader:
                 movies_str = "\n * ".join(["%s (%s)" % (m.get('title'), m.get('year')) for m in exists_movies])
                 log.info("【DOWNLOADER】媒体库中已经存在以下电影：\n * %s" % movies_str)
                 message_list.append("在媒体库中已经存在以下电影：\n * %s" % movies_str)
-                return True, None, message_list
-            return False, None, message_list
+                return True, {}, message_list
+            return False, {}, message_list
 
     def set_files_status(self, tid, need_episodes):
         """
