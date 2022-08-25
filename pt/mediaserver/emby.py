@@ -265,8 +265,12 @@ class Emby(IMediaServer):
         req_url = "%semby/Items/%s/Refresh?Recursive=true&api_key=%s" % (self.__host, item_id, self.__apikey)
         try:
             res = RequestUtils().post_res(req_url)
-            if res:
+            if res and res.status_code == 200:
                 return True
+            elif res:
+                log.info(f"【EMBY】刷新媒体库对象 {item_id} 失败，错误码：{res.status_code}，错误原因：{res.reason}")
+            else:
+                log.info(f"【EMBY】刷新媒体库对象 {item_id} 失败，无法连接Emby！")
         except Exception as e:
             log.error("【EMBY】连接Items/{Id}/Refresh出错：" + str(e))
             return False
@@ -281,8 +285,12 @@ class Emby(IMediaServer):
         req_url = "%semby/Library/Refresh?api_key=%s" % (self.__host, self.__apikey)
         try:
             res = RequestUtils().post_res(req_url)
-            if res:
+            if res and res.status_code == 200:
                 return True
+            elif res:
+                log.info(f"【EMBY】刷新媒体库返回码：{res.status_code}，返回内容：{res.reason}")
+            else:
+                log.info(f"【EMBY】刷新媒体库失败，无法连接Emby！")
         except Exception as e:
             log.error("【EMBY】连接Library/Refresh出错：" + str(e))
             return False
