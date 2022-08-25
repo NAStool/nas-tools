@@ -317,6 +317,12 @@
                 <input type="text" id="brushtask_dlcount" class="form-control" placeholder="10">
               </div>
             </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">做种人数限制 <span class="form-help bg-red-lt" title="种子当前做种人数大于人数限制，不会下载" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="brushtask_peercount" class="form-control" placeholder="10">
+              </div>
+            </div>
           </div>
         </div>
         <div class="hr-text hr-text-center hr-text-spaceless">删种规则</div>
@@ -460,6 +466,7 @@
           $("#brushtask_transfer").prop("checked", false);
         }
         $("#brushtask_dlcount").val(ret.task.rss_rule.dlcount)
+        $("#brushtask_peercount").val(ret.task.rss_rule.peercount)
         $("#brushtask_include").val(ret.task.rss_rule.include);
         $("#brushtask_exclude").val(ret.task.rss_rule.exclude);
         //种子大小
@@ -624,6 +631,14 @@
     }else{
       $("#brushtask_dlcount").removeClass("is-invalid");
     }
+    //做种人数
+    var brushtask_peercount = $("#brushtask_peercount").val();
+    if(brushtask_peercount && isNaN(brushtask_peercount)){
+      $("#brushtask_peercount").addClass("is-invalid");
+      return;
+    }else{
+      $("#brushtask_peercount").removeClass("is-invalid");
+    }
     //做种时间
     var brushtask_seedtime_do = $("#brushtask_seedtime_do").val();
     var brushtask_seedtime = $("#brushtask_seedtime").val();
@@ -706,6 +721,7 @@
       brushtask_include: brushtask_include,
       brushtask_exclude: brushtask_exclude,
       brushtask_dlcount: brushtask_dlcount,
+      brushtask_peercount: brushtask_peercount,
       brushtask_seedtime: brushtask_seedtime_do + "#" + brushtask_seedtime,
       brushtask_seedratio: brushtask_seedratio_do + "#" + brushtask_seedratio,
       brushtask_seedsize: brushtask_seedsize_do + "#" + brushtask_seedsize,

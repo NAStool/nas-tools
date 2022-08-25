@@ -1,6 +1,7 @@
 import re
 import time
 import traceback
+import functools
 from datetime import datetime
 from time import sleep
 
@@ -130,6 +131,7 @@ class BrushTask(object):
         else:
             log.info("【BRUSH】%s RSS获取数据：%s" % (site_name, len(rss_result)))
         success_count = 0
+
         for res in rss_result:
             try:
                 # 种子名
@@ -515,17 +517,25 @@ class BrushTask(object):
                 if re.search(r"%s" % rss_rule.get("exclude"), "%s %s" % (title, description), re.IGNORECASE):
                     return False
 
+            attr_type = Torrent.check_torrent_attr(torrent_url=torrent_url, cookie=cookie)
+
+            log.debug("【BRUSH】%s 解析详情, %s" % (title, attr_type))
+
             # 检查免费状态
             if rss_rule.get("free"):
-                attr_type = Torrent.check_torrent_attr(torrent_url=torrent_url, cookie=cookie)
-                if rss_rule.get("free") not in attr_type:
+                if not attr_type.is_free():
                     return False
 
             # 检查HR状态
             if rss_rule.get("hr"):
-                attr_type = Torrent.check_torrent_attr(torrent_url=torrent_url, cookie=cookie)
-                if rss_rule.get("hr") in attr_type:
+                if attr_type.is_hr():
                     return False
+
+            log.debug("【BRUSH】%s `判断做种数, 当前做种人数%s, 当前人数阈值%s" % (title, attr_type.peer_count, rss_rule.get("peercount")))
+            if rss_rule.get("peercount"):
+                if attr_type.peer_count > int(rss_rule.get("peercount")):
+                    return False
+
 
         except Exception as err:
             log.console(str(err) + " - " + traceback.format_exc())

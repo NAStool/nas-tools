@@ -14,6 +14,24 @@ from rmt.meta.metabase import MetaBase
 from utils.http_utils import RequestUtils
 from utils.types import MediaType
 
+class TorrentAttr:
+    def __init__(self):
+        self.free = None
+        self.free2x = None
+        self.peer_count = 0
+        self.hr = None
+
+    def __str__(self):
+        return "free: {}, free2x: {}, peer_count: {}, hr: {}".format(self.free, self.free2x, self.peer_count, self.hr)
+
+    def is_free(self):
+        return not (not self.free) or not (not self.free2x)
+
+    def is_free2x(self):
+        return not (not self.free2x)
+
+    def is_hr(self):
+        return not (not self.hr)
 
 class Torrent:
 
@@ -86,14 +104,14 @@ class Torrent:
 
     @staticmethod
     @lru_cache(maxsize=128)
-    def check_torrent_attr(torrent_url, cookie) -> list:
+    def check_torrent_attr(torrent_url, cookie) -> TorrentAttr:
         """
-        检验种子是否免费
+        检验种子是否免费，当前做种人数
         :param torrent_url: 种子的详情页面
         :param cookie: 站点的Cookie
-        :return: 促销类型 FREE 2XFREE HR 的数组
+        :return: 种子属性，包含FREE 2XFREE HR PEER_COUNT等属性
         """
-        ret_attr = []
+        ret_attr = TorrentAttr()
         if not torrent_url:
             return ret_attr
         url_host = parse.urlparse(torrent_url).netloc
@@ -107,22 +125,29 @@ class Torrent:
             res.encoding = res.apparent_encoding
             html_text = res.text
             if not html_text:
-                return []
+                return ret_attr
             try:
                 html = etree.HTML(html_text)
                 # 检测2XFREE
                 for xpath_str in xpath_strs.get("2XFREE"):
                     if html.xpath(xpath_str):
-                        ret_attr.append("FREE")
-                        ret_attr.append("2XFREE")
+                        ret_attr.free = True
+                        ret_attr.free2x = True
                 # 检测FREE
                 for xpath_str in xpath_strs.get("FREE"):
                     if html.xpath(xpath_str):
-                        ret_attr.append("FREE")
+                        ret_attr.free = True
                 # 检测HR
                 for xpath_str in xpath_strs.get("HR"):
                     if html.xpath(xpath_str):
-                        ret_attr.append("HR")
+                        ret_attr.hr = True
+                # 检测PEER_COUNT当前做种人数
+                for xpath_str in xpath_strs.get("PEER_COUNT"):
+                    peer_count_dom = html.xpath(xpath_str)
+                    if peer_count_dom:
+                        peer_count_str = peer_count_dom[0].text
+                        peer_count_str_re = re.search(r'^(\d+)', peer_count_str)
+                        ret_attr.peer_count = int(peer_count_str_re.group(1))
             except Exception as err:
                 print(err)
         # 随机休眼后再返回
