@@ -123,13 +123,13 @@ class DoubanHot:
                 # 年份
                 year = info.get('year')
                 # 海报
-                poster_path = info.get('cover', {}).get("url")
+                poster_path = info.get('pic', {}).get("normal")
                 # 标题
                 title = info.get('title')
                 if not title or not poster_path:
                     continue
                 # 简介
-                overview = info.get("card_subtitle") or ""
+                overview = info.get("comment") or ""
                 ret_list.append({'id': rid, 'name': title, 'first_air_date': year, 'vote_average': vote_average,
                                  'poster_path': poster_path, 'overview': overview})
             except Exception as e:
