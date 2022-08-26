@@ -212,6 +212,8 @@ class MetaHelper(object):
         重新设置缓存标题
         """
         cache_media_info = self.__meta_data.get(key)
+        if not cache_media_info:
+            return
         if cache_media_info.get("media_type") == MediaType.MOVIE:
             self.__meta_data[key]['title'] = cn_title
         else:
