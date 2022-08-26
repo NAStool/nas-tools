@@ -3,6 +3,11 @@ import signal
 import sys
 import warnings
 
+#添加第三方库入口
+third_party = ['feapder']
+for third_party_lib in third_party:
+    sys.path.append(os.path.join(os.path.dirname(__file__),"third_party",third_party_lib).replace("\\", "/"))
+
 import log
 from config import Config
 from app.brushtask import BrushTask
