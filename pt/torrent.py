@@ -26,13 +26,13 @@ class TorrentAttr:
         return "free: {}, free2x: {}, peer_count: {}, hr: {}".format(self.free, self.free2x, self.peer_count, self.hr)
 
     def is_free(self):
-        return not (not self.free) or not (not self.free2x)
+        return True if self.free or self.free2x else False
 
     def is_free2x(self):
-        return not (not self.free2x)
+        return True if self.free2x else False
 
     def is_hr(self):
-        return not (not self.hr)
+        return True if self.hr else False
 
 
 class Torrent:
@@ -133,7 +133,6 @@ class Torrent:
                 # 检测2XFREE
                 for xpath_str in xpath_strs.get("2XFREE"):
                     if html.xpath(xpath_str):
-                        ret_attr.free = True
                         ret_attr.free2x = True
                 # 检测FREE
                 for xpath_str in xpath_strs.get("FREE"):
