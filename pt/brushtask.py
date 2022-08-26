@@ -530,7 +530,7 @@ class BrushTask(object):
 
             # 检查HR状态
             if rss_rule.get("hr"):
-                if not attr_type.is_hr():
+                if attr_type.is_hr():
                     return False
 
             log.debug("【BRUSH】%s `判断做种数, 当前做种人数%s, 当前人数阈值%s" % (title, attr_type.peer_count, rss_rule.get("peercount")))
