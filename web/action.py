@@ -11,43 +11,43 @@ from werkzeug.security import generate_password_hash
 
 import log
 from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
-from message.channel.telegram import Telegram
-from message.channel.wechat import WeChat
-from message.send import Message
-from pt.brushtask import BrushTask
-from pt.client.qbittorrent import Qbittorrent
-from pt.client.transmission import Transmission
-from pt.douban import DouBan
-from pt.downloader import Downloader
-from pt.filterrules import FilterRule
-from pt.mediaserver.emby import Emby
-from pt.mediaserver.jellyfin import Jellyfin
-from pt.mediaserver.plex import Plex
-from pt.rss import Rss
-from pt.siteconf import RSS_SITE_GRAP_CONF
-from pt.sites import Sites
-from pt.subtitle import Subtitle
-from pt.torrent import Torrent
-from rmt.category import Category
-from rmt.doubanv2api.doubanapi import DoubanApi
-from rmt.filetransfer import FileTransfer
-from rmt.media import Media
-from rmt.metainfo import MetaInfo
-from service.run import stop_scheduler, stop_monitor, restart_scheduler, restart_monitor
-from service.scheduler import Scheduler
-from service.sync import Sync
-from utils.commons import EpisodeFormat, ProcessHandler
-from utils.http_utils import RequestUtils
-from utils.meta_helper import MetaHelper
-from utils.path_utils import PathUtils
-from utils.sqls import *
-from utils.string_utils import StringUtils
-from utils.sysmsg_helper import MessageCenter
-from utils.thread_helper import ThreadHelper
-from utils.types import MediaType, SearchType, DownloaderType, SyncType
+from app.message.channel.telegram import Telegram
+from app.message.channel.wechat import WeChat
+from app.message.message import Message
+from app.brushtask import BrushTask
+from app.downloader.client.qbittorrent import Qbittorrent
+from app.downloader.client.transmission import Transmission
+from app.douban import DouBan
+from app.downloader.downloader import Downloader
+from app.filterrules import FilterRule
+from app.mediaserver.server.emby import Emby
+from app.mediaserver.server.jellyfin import Jellyfin
+from app.mediaserver.server.plex import Plex
+from app.rss import Rss
+from app.sites.siteconf import RSS_SITE_GRAP_CONF
+from app.sites.sites import Sites
+from app.subtitle import Subtitle
+from app.utils.torrent import Torrent
+from app.media.category import Category
+from app.media.doubanv2api.doubanapi import DoubanApi
+from app.filetransfer import FileTransfer
+from app.media.media import Media
+from app.media.meta.metainfo import MetaInfo
+from app.scheduler import stop_scheduler, restart_scheduler
+from app.sync import stop_monitor, restart_monitor
+from app.scheduler import Scheduler
+from app.sync import Sync
+from app.utils.commons import EpisodeFormat, ProcessHandler
+from app.utils.http_utils import RequestUtils
+from app.media.meta_helper import MetaHelper
+from app.utils.path_utils import PathUtils
+from app.utils.sysmsg_helper import MessageCenter
+from app.utils.thread_helper import ThreadHelper
+from app.utils.types import SearchType, DownloaderType, SyncType
 from web.backend.douban_hot import DoubanHot
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 from web.backend.subscribe import add_rss_subscribe
+from app.db.sqls import *
 
 
 class WebAction:

@@ -1,5 +1,5 @@
-from rmt.doubanv2api.doubanapi import DoubanApi
-from utils.commons import singleton
+from app.media.doubanv2api.doubanapi import DoubanApi
+from app.utils.commons import singleton
 
 
 @singleton

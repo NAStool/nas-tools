@@ -1,8 +1,8 @@
-from rmt.doubanv2api.doubanapi import DoubanApi
-from rmt.media import Media
-from rmt.metainfo import MetaInfo
-from utils.sqls import insert_rss_tv, insert_rss_movie, delete_rss_tv, delete_rss_movie
-from utils.types import MediaType
+from app.media.doubanv2api.doubanapi import DoubanApi
+from app.media.media import Media
+from app.media.meta.metainfo import MetaInfo
+from app.db.sqls import insert_rss_tv, insert_rss_movie, delete_rss_tv, delete_rss_movie
+from app.utils.types import MediaType
 
 
 def add_rss_subscribe(mtype, name, year,

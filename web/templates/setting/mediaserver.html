@@ -203,7 +203,7 @@
     $("#" + type + "_test_btn").text("测试中...");
     save_config(type, function (ret) {
       if(currType == "emby"){
-        command = "pt.mediaserver.emby|Emby";
+        command = "app.mediaserver.server.emby|Emby";
       }else if(currType == "jellyfin"){
         command = ["Jellyfin().get_status()"];
       }else if(currType == "plex"){

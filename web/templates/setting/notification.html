@@ -378,17 +378,17 @@
     $("#" + type + "_test_btn").text("测试中...");
     save_config(type, function (ret) {
       if(currType == "bark"){
-        command = "message.channel.bark|Bark";
+        command = "app.message.channel.bark|Bark";
       }else if(currType == "wechat"){
         command = ["WeChat().get_status()"];
       }else if(currType == "telegram"){
         command = ["Telegram().get_status()"];
       }else if(currType == "serverchan"){
-        command = "message.channel.serverchan|ServerChan";
+        command = "app.message.channel.serverchan|ServerChan";
       }else if(currType == "pushplus"){
-        command = "message.channel.pushplus|PushPlus";
+        command = "app.message.channel.pushplus|PushPlus";
       }else if(currType == "iyuu"){
-        command = "message.channel.iyuu|IyuuMsg";
+        command = "app.message.channel.iyuu|IyuuMsg";
       }
       ajax_post("test_connection", {"command": command}, function(ret){
         if(ret.code == 0){

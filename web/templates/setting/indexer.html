@@ -216,9 +216,9 @@
     $("#" + type + "_test_btn").text("测试中...");
     save_config(type, function (ret) {
       if(currType == "jackett"){
-        command = "pt.indexer.jackett|Jackett";
+        command = "app.indexer.client.jackett|Jackett";
       }else if(currType == "prowlarr"){
-        command = "pt.indexer.prowlarr|Prowlarr";
+        command = "app.indexer.client.prowlarr|Prowlarr";
       }
       ajax_post("test_connection", {"command": command}, function(ret){
         if(ret.code == 0){

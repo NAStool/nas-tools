@@ -4,18 +4,18 @@ import cn2an
 
 import log
 from config import Config
-from message.send import Message
-from pt.douban import DouBan
-from pt.downloader import Downloader
-from pt.searcher import Searcher
-from pt.torrent import Torrent
-from rmt.doubanv2api.doubanapi import DoubanApi
-from rmt.media import Media
-from rmt.meta.metabase import MetaBase
-from rmt.metainfo import MetaInfo
-from utils.commons import ProcessHandler
-from utils.sqls import insert_search_results, delete_all_search_torrents
-from utils.types import SearchType, MediaType
+from app.message.message import Message
+from app.douban import DouBan
+from app.downloader.downloader import Downloader
+from app.searcher import Searcher
+from app.utils.torrent import Torrent
+from app.media.doubanv2api.doubanapi import DoubanApi
+from app.media.media import Media
+from app.media.meta.metabase import MetaBase
+from app.media.meta.metainfo import MetaInfo
+from app.utils.commons import ProcessHandler
+from app.db.sqls import insert_search_results, delete_all_search_torrents
+from app.utils.types import SearchType, MediaType
 from web.backend.subscribe import add_rss_subscribe
 
 SEARCH_MEDIA_CACHE = []

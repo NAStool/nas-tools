@@ -4,9 +4,9 @@ import random
 from functools import lru_cache
 
 from config import TMDB_IMAGE_ORIGINAL_URL
-from rmt.media import Media
-from utils.http_utils import RequestUtils
-from utils.indexer_helper import IndexerHelper
+from app.media.media import Media
+from app.utils.http_utils import RequestUtils
+from app.indexer.indexer_helper import IndexerHelper
 
 
 @lru_cache(maxsize=1)

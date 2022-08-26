@@ -17,28 +17,27 @@ from werkzeug.security import check_password_hash
 
 import log
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL
-from pt.douban import DouBan
-from pt.downloader import Downloader
-from pt.filterrules import FilterRule
-from pt.indexer.builtin import BuiltinIndexer
-from pt.media_server import MediaServer
-from pt.searcher import Searcher
-from pt.sites import Sites
-from pt.torrent import Torrent
-from rmt.media import Media
-from rmt.metainfo import MetaInfo
-from utils.WXBizMsgCrypt3 import WXBizMsgCrypt
-from utils.dom_utils import DomUtils
-from utils.meta_helper import MetaHelper
-from utils.security import Security
-from utils.sqls import *
-from utils.string_utils import StringUtils
-from utils.system_utils import SystemUtils
-from utils.types import *
+from app.douban import DouBan
+from app.downloader.downloader import Downloader
+from app.filterrules import FilterRule
+from app.indexer.client.builtin import BuiltinIndexer
+from app.mediaserver.media_server import MediaServer
+from app.searcher import Searcher
+from app.sites.sites import Sites
+from app.utils.torrent import Torrent
+from app.media.media import Media
+from app.media.meta.metainfo import MetaInfo
+from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
+from app.utils.dom_utils import DomUtils
+from app.media.meta_helper import MetaHelper
+from web.backend.security import Security
+from app.utils.system_utils import SystemUtils
 from version import APP_VERSION
 from web.action import WebAction
 from web.backend.web_utils import get_login_wallpaper
 from web.backend.webhook_event import WebhookEvent
+from app.db.sqls import *
+from app.utils.types import *
 
 login_manager = LoginManager()
 login_manager.login_view = "login"
@@ -1413,12 +1412,12 @@ def create_flask_app(config):
                 ff = os.path.join(d, f)
                 if os.path.isdir(ff):
                     r.append('<li class="directory collapsed"><a rel="%s/">%s</a></li>' % (
-                    ff.replace("\\", "/"), f.replace("\\", "/")))
+                        ff.replace("\\", "/"), f.replace("\\", "/")))
                 else:
                     if ft != "HIDE_FILES_FILTER":
                         e = os.path.splitext(f)[1][1:]
                         r.append('<li class="file ext_%s"><a rel="%s">%s</a></li>' % (
-                        e, ff.replace("\\", "/"), f.replace("\\", "/")))
+                            e, ff.replace("\\", "/"), f.replace("\\", "/")))
             r.append('</ul>')
         except Exception as e:
             r.append('加载路径失败: %s' % str(e))

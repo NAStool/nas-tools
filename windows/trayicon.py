@@ -38,7 +38,8 @@ class Balloon(wx.adv.TaskBarIcon):
     def Onlog(self, event):
         os.startfile(self.log_path)
 
-    def OnClose(self, event):
+    @staticmethod
+    def OnClose(event):
         exe_name = os.path.basename(sys.executable)
         os.system('taskkill /F /IM ' + exe_name)
 

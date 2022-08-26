@@ -5,12 +5,12 @@ import warnings
 
 import log
 from config import Config
-from pt.brushtask import BrushTask
-from service.run import run_monitor, stop_monitor
-from service.run import run_scheduler, stop_scheduler
-from utils.check_config import check_config
-from utils.system_utils import SystemUtils
-from utils.types import OsType
+from app.brushtask import BrushTask
+from app.sync import run_monitor, stop_monitor
+from app.scheduler import run_scheduler, stop_scheduler
+from app.utils.check_config import check_config
+from app.utils.system_utils import SystemUtils
+from app.utils.types import OsType
 from version import APP_VERSION
 from web.app import FlaskApp
 from web.backend.web_utils import init_features

@@ -1,8 +1,8 @@
 import time
 
-from message.send import Message
-from pt.media_server import MediaServer
-from rmt.filetransfer import FileTransfer
+from app.message.message import Message
+from app.mediaserver.media_server import MediaServer
+from app.filetransfer import FileTransfer
 from web.backend.web_utils import get_location
 
 
