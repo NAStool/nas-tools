@@ -978,7 +978,7 @@ def create_flask_app(config):
            <path d="M12 15v2"></path>
         </svg>
         '''
-        targets = ["www.themoviedb.org", "api.themoviedb.org", "image.tmdb.org", "images.weserv.nl",
+        targets = ["www.themoviedb.org", "api.themoviedb.org", "image.tmdb.org",
                    "webservice.fanart.tv", "api.telegram.org", "qyapi.weixin.qq.com"]
         scheduler_cfg_list.append(
             {'name': '网络连通性测试', 'time': '', 'state': 'OFF', 'id': 'nettest', 'svg': svg, 'color': 'cyan',

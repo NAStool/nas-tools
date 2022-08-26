@@ -1512,7 +1512,12 @@ class WebAction:
             target = target + "/cgi-bin/message/send"
         target = "https://" + target
         start_time = datetime.datetime.now()
-        res = RequestUtils().get_res(target)
+        if target.find("themoviedb") != -1 \
+                or target.find("telegram") != -1 \
+                or target.find("fanart") != -1:
+            res = RequestUtils(proxies=Config().get_proxies(), timeout=5).get_res(target)
+        else:
+            res = RequestUtils(timeout=5).get_res(target)
         seconds = int((datetime.datetime.now() - start_time).microseconds / 1000)
         if not res:
             return {"res": False, "time": "%s 毫秒" % seconds}

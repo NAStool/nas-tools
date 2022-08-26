@@ -6,7 +6,6 @@ import re
 import shutil
 import traceback
 from enum import Enum
-from subprocess import call
 from threading import Lock
 from time import sleep
 
@@ -172,7 +171,7 @@ class FileTransfer:
                     if retcode != 0:
                         return retcode
                     retcode = os.system('move /Y "%s" "%s"' % (
-                    os.path.join(os.path.dirname(file_item), os.path.basename(target_file)), target_file))
+                        os.path.join(os.path.dirname(file_item), os.path.basename(target_file)), target_file))
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
@@ -188,11 +187,15 @@ class FileTransfer:
                         tmp = "%s/%s" % (os.path.dirname(os.path.dirname(target_file)), os.path.basename(target_file))
                         retcode = os.system('ln "%s" "%s" ; mv "%s" "%s"' % (file_item, tmp, tmp, target_file))
                     else:
-                        retcode = call(['ln', file_item, target_file])
+                        retcode = os.system('ln "%s" "%s"' % (file_item, target_file))
                 elif rmt_mode == RmtMode.SOFTLINK:
-                    retcode = call(['ln', '-s', file_item, target_file])
+                    retcode = os.system('ln -s "%s" "%s"' % (file_item, target_file))
                 elif rmt_mode == RmtMode.MOVE:
-                    retcode = call(['mv', file_item, target_file])
+                    tmp_file = os.path.join(os.path.dirname(file_item), os.path.basename(target_file))
+                    retcode = os.system('mv "%s" "%s"' % (file_item, tmp_file))
+                    if retcode != 0:
+                        return retcode
+                    retcode = os.system('mv "%s" "%s"' % (tmp_file, target_file))
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
@@ -201,7 +204,7 @@ class FileTransfer:
                     else:
                         retcode = os.system('rclone copyto "%s" NASTOOL:"%s"' % (file_item, target_file))
                 else:
-                    retcode = call(['cp', file_item, target_file])
+                    retcode = os.system('cp "%s" "%s"' % (file_item, target_file))
         finally:
             lock.release()
         return retcode
@@ -853,36 +856,33 @@ class FileTransfer:
         :param item_path: 文件路径
         """
         if not item_path:
-            return False, None
+            return False
         if not self.__movie_category_flag or not self.__movie_path:
-            return False, None
+            return False
         if os.path.isdir(item_path):
             movie_dir = item_path
         else:
             movie_dir = os.path.dirname(item_path)
-        # 判断是不是电影目录的子目录
-        movie_dir_flag = False
-        for movie_path in self.__movie_path:
-            if movie_dir.count(movie_path):
-                movie_dir_flag = True
-                break
-        if not movie_dir_flag:
-            return False, None
         # 已经是精选下的不处理
-        org_type = os.path.basename(os.path.dirname(movie_dir))
-        if org_type == RMT_FAVTYPE:
-            return False, None
+        movie_type = os.path.basename(os.path.dirname(movie_dir))
+        if movie_type == RMT_FAVTYPE:
+            return False
+        movie_name = os.path.basename(movie_dir)
+        movie_path = self.__get_best_target_path(mtype=MediaType.MOVIE, in_path=movie_dir)
         # 开始转移文件，转移到同目录下的精选目录
-        new_path = os.path.join(os.path.dirname(os.path.dirname(movie_dir)), RMT_FAVTYPE, os.path.basename(movie_dir))
-        log.info("【EMBY】开始转移文件 %s 到 %s ..." % (movie_dir, new_path))
-        if os.path.exists(new_path):
-            log.info("【EMBY】目录 %s 已存在" % new_path)
-            return False, None
-        ret = call(['mv', movie_dir, new_path])
-        if ret == 0:
-            return True, org_type
+        org_path = os.path.join(movie_path, movie_type, movie_name)
+        new_path = os.path.join(movie_path, RMT_FAVTYPE, movie_name)
+        if os.path.exists(org_path):
+            log.info("【RMT】开始转移文件 %s 到 %s ..." % (org_path, new_path))
+            if os.path.exists(new_path):
+                log.info("【RMT】目录 %s 已存在" % new_path)
+                return False
+            ret = os.system('mv "%s" "%s"' % (org_path, new_path))
+            if ret == 0:
+                return True
         else:
-            return False, None
+            log.info("【RMT】%s 目录不存在" % org_path)
+        return False
 
     def get_dest_path_by_info(self, dest, meta_info: MetaBase):
         """
