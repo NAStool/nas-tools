@@ -24,16 +24,16 @@ jobs:
 
     - uses: actions/checkout@v2
       with:
-        fetch-depth: 0
+        fetch-depth: 1
     - name: Release version and last commit
       id: release_version
       run: |
         app_version=$(cat version.py |sed -ne "s/APP_VERSION\s=\s'v\(.*\)'/\1/gp")
         echo "app_version=$app_version" >> $GITHUB_ENV
         # git log HEAD^ -1 --format=%B > commit.txt #显示最新的提交信息到commit.txt
-        # git log v${app_version}^..HEAD^ --pretty=format:%an"  "%cd"   "%B > commit.txt #显示版本到现在的所有提交信息到commit.txt
+        # git log v${app_version}^..HEAD^ --pretty=format:%an"  "%cd"   "%B > commit.txt #显示版本到现在的所有提交信息到commit.txt,只有在merge-upstream后才能正常显示
         cp ../commit.txt ./
-        cat commit.txt
+        # cat commit.txt
         # rm -rf jxxghp          checkout 时直接会删除之前的所有内容
 
     # - name: Setup Debug Session
@@ -79,36 +79,36 @@ jobs:
         echo "app_version=$value" >> $GITHUB_ENV
     - name: Build the synology spk
       run: |
-        git clone https://github.com/jxxghp/nas-tools
+        git clone --depth=1 https://github.com/jxxghp/nas-tools --recurse-submodule
         cd nas-tools
         cp -r synology/ui synology/wheelhouse ./
         sed -i 's/3000/3003/g' config/config.yaml
         sed -i 's/\/config\/logs/\/var\/packages\/nastool\/target\/config\/logs/g' config/config.yaml
-        tar -zcvf package.tgz *.py *.txt service/ rmt/ message/ web/ ui/ wheelhouse/ config/ pt/ utils/
+        tar -zcvf package.tgz *.py *.txt web/ ui/ wheelhouse/ config/
         mkdir spk6
         cp -r package.tgz synology/dsm6/conf synology/dsm6/scripts/ synology/dsm6/INFO synology/CHANGELOG synology/*.PNG synology/*.asc spk6/
         cd spk6/
         chmod 777 scripts/*
         sed -i 's/NASTOOL_VERSION/${{ env.app_version }}/g' INFO
-        tar -cvf nastool_dsm_6.x.spk *
+        tar -cvf nastool_dsm6.spk *
         cd ..
         rm -f package.tgz
-        tar -zcvf package.tgz *.py *.txt service/ rmt/ message/ web/ ui/ wheelhouse/ config/ pt/ utils/
+        tar -zcvf package.tgz *.py *.txt web/ ui/ wheelhouse/ config/
         mkdir spk7
         cp -r package.tgz synology/dsm7/conf synology/dsm7/scripts/ synology/dsm7/INFO synology/CHANGELOG synology/*.PNG synology/*.asc spk7/
         cd spk7/
         chmod 777 scripts/*
         sed -i 's/NASTOOL_VERSION/${{ env.app_version }}/g' INFO
-        tar -cvf nastool_dsm_7.x.spk *
+        tar -cvf nastool_dsm7.spk *
         cd ..
         mkdir spks
-        mv spk6/nastool_dsm_6.x.spk spk7/nastool_dsm_7.x.spk spks/
+        mv spk6/nastool_dsm6.spk spk7/nastool_dsm7.spk spks/
     - name: upload synology files
       uses: actions/upload-artifact@v3
       with:
         name: synology
         path: /home/runner/work/nas-tools/nas-tools/nas-tools/spks/
-
+        
   windows-build:
     runs-on: windows-latest
     needs: create-release
@@ -164,8 +164,8 @@ jobs:
       run: |
         mkdir releases
         cd synology
-        mv nastool_dsm_6.x.spk /home/runner/work/nas-tools/nas-tools/releases/nastool_dsm_6.x_v${{ env.app_version }}.spk
-        mv nastool_dsm_7.x.spk /home/runner/work/nas-tools/nas-tools/releases/nastool_dsm_7.x_v${{ env.app_version }}.spk
+        mv nastool_dsm6.spk /home/runner/work/nas-tools/nas-tools/releases/nastool_dsm_6.x_v${{ env.app_version }}.spk
+        mv nastool_dsm7.spk /home/runner/work/nas-tools/nas-tools/releases/nastool_dsm_7.x_v${{ env.app_version }}.spk
         cd ../windows
         mv nas-tools.exe /home/runner/work/nas-tools/nas-tools/releases/nas-tools_v${{ env.app_version }}.exe
     - name: Upload release asset
