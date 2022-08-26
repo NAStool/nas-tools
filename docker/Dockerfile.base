@@ -22,5 +22,6 @@ RUN apk add --no-cache \
     && curl https://rclone.org/install.sh | bash \
     && pip install --upgrade pip setuptools wheel \
     && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/master/requirements.txt \
+    && pip install -r https://raw.githubusercontent.com/Boris-code/feapder/master/feapder/requirements.txt \
     && apk del openssl-dev libffi-dev cargo \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*
