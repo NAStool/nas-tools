@@ -17,12 +17,29 @@ jobs:
         with:
           token: ${{ secrets.ACTIONS_TRIGGER_PAT1 }} #必须在这里加上这个,不然不能更新带WORKFLOW的变动
           fetch-depth: 0
-      
+
+        
+      - name: install yq
+        run: |
+          sudo snap install yq
+      - name: Setup git
+        run: |
+          git config --global user.name "sungamma"
+          git config --global user.email  "33790+sungamma@users.noreply.github.com"
+
+      # - name: Setup Debug Session
+      #   uses: csexton/debugger-action@master
+
+      - name: Compare the build.yml and recreate the build-2.yml
+        run: |        
+          cd .github/workflows
+          bash merge.sh
+
+
       - name: Merge upstream
         run: |
           # 使用自己的用户名替换 username
-          git config --global user.name "sungamma"
-          git config --global user.email  "33790+sungamma@users.noreply.github.com"
+
 
           # git pull --unshallow
 
@@ -41,7 +58,7 @@ jobs:
       - name: Invoke workflow without inputs. Wait for result-BUILD DOCKER
         uses: aurelien-baudet/workflow-dispatch@v2
         with:
-          workflow: Build Nas-tools Image-1
+          workflow: Build Nas-tools Image
           token: ${{ secrets.ACTIONS_TRIGGER_PAT1 }}
           wait-for-completion: false
 
@@ -50,7 +67,7 @@ jobs:
       - name: Invoke workflow without inputs. Wait for result-BUILD SPK
         uses: aurelien-baudet/workflow-dispatch@v2
         with:
-          workflow: Nas-tools Build-1
+          workflow: Nas-tools Build-2
           token: ${{ secrets.ACTIONS_TRIGGER_PAT1 }}
           wait-for-completion: false
 

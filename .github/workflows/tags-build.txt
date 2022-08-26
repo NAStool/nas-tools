@@ -1,0 +1,52 @@
+runs-on: ubuntu-latest
+steps:
+  - name: Get the tags from the jxxghp/nas-tools
+    run: |
+      mkdir jxxghp
+      cd jxxghp
+      git clone https://github.com/jxxghp/nas-tools.git
+      cd nas-tools
+      app_version=$(cat version.py |sed -ne "s/APP_VERSION\s=\s'v\(.*\)'/\1/gp")
+      echo "app_version=$app_version" >> $GITHUB_ENV
+      git log v${app_version}^..HEAD --pretty=format:%an"  "%cd"   "%B > ../../../commit.txt #显示版本到现在的所有提交信息到commit.txt 
+  - uses: actions/checkout@v2
+    with:
+      fetch-depth: 1
+  - name: Release version and last commit
+    id: release_version
+    run: |
+      app_version=$(cat version.py |sed -ne "s/APP_VERSION\s=\s'v\(.*\)'/\1/gp")
+      echo "app_version=$app_version" >> $GITHUB_ENV
+      # git log HEAD^ -1 --format=%B > commit.txt #显示最新的提交信息到commit.txt
+      # git log v${app_version}^..HEAD^ --pretty=format:%an"  "%cd"   "%B > commit.txt #显示版本到现在的所有提交信息到commit.txt,只有在merge-upstream后才能正常显示
+      cp ../commit.txt ./
+      # cat commit.txt
+      # rm -rf jxxghp          checkout 时直接会删除之前的所有内容
+  # - name: Setup Debug Session
+  #   uses: csexton/debugger-action@master
+  - name: Create release
+    id: create_release
+    uses: GongT/actions-recreate-release@v1
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    with:
+      tag_name: v${{ env.app_version }}
+      release_name: v${{ env.app_version }}
+      # body: ${{ last_commit }}
+      body_path: commit.txt
+      draft: false
+      prerelease: false
+      # - name: Setup Debug Session
+  - name: output release_informations
+    # uses: csexton/debugger-action@master
+
+    run: |
+      echo "${{ steps.create_release.outputs.id }}" > release_id.txt
+      echo "${{ env.app_version }}" > app_version.txt
+  - name: save release_informations
+    uses: actions/upload-artifact@v3
+    with:
+      name: release_informations
+      path: |
+        release_id.txt
+        app_version.txt
