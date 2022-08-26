@@ -238,14 +238,16 @@ class Qbittorrent(IDownloadClient):
             print(str(err))
             return None
 
-    def set_files(self, torrent_hash, file_ids, priority):
+    def set_files(self, **kwargs):
         """
         设置下载文件的状态，priority为0为不下载，priority为1为下载
         """
-        if not torrent_hash or not file_ids:
+        if not kwargs.get("torrent_hash") or not kwargs.get("file_ids"):
             return False
         try:
-            self.qbc.torrents_file_priority(torrent_hash=torrent_hash, file_ids=file_ids, priority=priority)
+            self.qbc.torrents_file_priority(torrent_hash=kwargs.get("torrent_hash"),
+                                            file_ids=kwargs.get("file_ids"),
+                                            priority=kwargs.get("priority"))
             return True
         except Exception as err:
             print(str(err))

@@ -344,7 +344,7 @@
               <select class="form-select" id="search_site">
                 <option value="" selected>全部</option>
                 {% for site in SiteDict %}
-                <option value="{{ site }}">{{ site }}</option>
+                <option value="{{ site.id }}">{{ site.name }}</option>
                 {% endfor %}
               </select>
             </div>

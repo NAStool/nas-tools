@@ -54,7 +54,11 @@ class BuiltinIndexer(IIndexer):
         if filter_args is None:
             filter_args = {}
 
-        if filter_args.get("site") and indexer.name not in filter_args.get("site"):
+        indexer_sites = Config().get_config("pt").get("indexer_sites") or []
+        if indexer_sites and indexer.id not in indexer_sites:
+            return []
+
+        if filter_args.get("site") and indexer.id not in filter_args.get("site"):
             return []
         # 计算耗时
         start_time = datetime.datetime.now()

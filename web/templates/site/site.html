@@ -31,7 +31,7 @@
         <div class="card card-link-pop">
           <div class="card-header">
             <h3 class="card-title">
-              <strong>{{ Site.name }}</strong>
+             <span class="badge badge-pill"><small>{{ Site.pri }}</small></span> <a href="{% if Site.signurl %}{{ Site.signurl }}{% else %}javascript:void(0){% endif %}" {% if Site.signurl %}target="_blank"{% endif %}><strong>{{ Site.name }}</strong></a>
             </h3>
             <div class="card-actions btn-actions">
               <a href="javascript:edit_site('{{ Site.id }}')" class="btn-action" title="编辑站点">

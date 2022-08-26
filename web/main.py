@@ -459,7 +459,7 @@ def create_flask_app(config):
         SiteDict = []
         Indexers = Searcher().indexer.get_indexers() or []
         for item in Indexers:
-            SiteDict.append(item.name)
+            SiteDict.append({"id": item.id, "name": item.name})
 
         # 下载目录
         SaveDirs = WebAction().get_download_dirs()
@@ -542,7 +542,7 @@ def create_flask_app(config):
     def tv_rss():
         RssItems = get_rss_tvs()
         RssSites = Sites().get_sites()
-        SearchSites = [item.name for item in Searcher().indexer.get_indexers() or []]
+        SearchSites = [item.name for item in Searcher().indexer.get_indexers()]
         RuleGroups = FilterRule().get_rule_groups()
         return render_template("rss/tv_rss.html",
                                Count=len(RssItems),

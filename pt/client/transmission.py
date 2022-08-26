@@ -223,7 +223,7 @@ class Transmission(IDownloadClient):
         else:
             return None
 
-    def set_files(self, file_items):
+    def set_files(self, **kwargs):
         """
         设置下载文件的状态
         {
@@ -237,10 +237,10 @@ class Transmission(IDownloadClient):
             ...
         }
         """
-        if not file_items:
+        if not kwargs.get("file_info"):
             return False
         try:
-            self.trc.set_files(file_items)
+            self.trc.set_files(kwargs.get("file_info"))
             return True
         except Exception as err:
             print(str(err))

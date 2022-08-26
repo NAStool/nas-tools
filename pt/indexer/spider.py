@@ -307,11 +307,11 @@ class TorrentSpider(feapder.AirSpider):
             self.fields = self.indexer.torrents.get('fields')
             doc = PyQuery(self.article_list)
             # 种子筛选器
-            torrents_selector = self.indexer.torrents.get('list', {}).get('selector')
+            torrents_selector = self.indexer.torrents.get('list', {}).get('selector', '')
             str_list = list(torrents_selector)
             # 兼容选择器中has()函数 部分情况下无双引号会报错
             has_index = torrents_selector.find('has')
-            if has_index != -1:
+            if has_index != -1 and torrents_selector.find('"') == -1:
                 flag = 0
                 str_list.insert(has_index + 4, '"')
                 for i in range(len(str_list)):

@@ -865,7 +865,8 @@ class FileTransfer:
             movie_dir = os.path.dirname(item_path)
         # 已经是精选下的不处理
         movie_type = os.path.basename(os.path.dirname(movie_dir))
-        if movie_type == RMT_FAVTYPE:
+        if movie_type == RMT_FAVTYPE \
+                or movie_type not in self.category.get_movie_categorys():
             return False
         movie_name = os.path.basename(movie_dir)
         movie_path = self.__get_best_target_path(mtype=MediaType.MOVIE, in_path=movie_dir)

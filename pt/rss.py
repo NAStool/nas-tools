@@ -405,7 +405,7 @@ class Rss:
                     # 已全部存在
                     if not library_no_exists or not library_no_exists.get(
                             media_info.get_title_string()):
-                        log.info("【RSS】电视剧 %s%s 已存在，删除订阅..." % (name, season))
+                        log.info("【RSS】电视剧 %s%s 已全部存在，删除订阅..." % (name, season))
                         delete_rss_tv(rssid=rssid)
                     continue
                 # 取交集做为缺失集
@@ -450,6 +450,7 @@ class Rss:
             tmdbid = movie[2]
             if not tmdbid:
                 continue
+            # 更新TMDB信息
             media_info = self.__get_media_info(tmdbid=tmdbid,
                                                name=name,
                                                year=year,
@@ -478,6 +479,7 @@ class Rss:
             lack = int(tv[7]) if str(tv[7]).isdigit() else 0
             if not tmdbid:
                 continue
+            # 更新TMDB信息
             media_info = self.__get_media_info(tmdbid=tmdbid,
                                                name=name,
                                                year=year,
