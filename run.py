@@ -2,12 +2,6 @@ import os
 import signal
 import sys
 import warnings
-
-#添加第三方库入口
-third_party = ['feapder']
-for third_party_lib in third_party:
-    sys.path.append(os.path.join(os.path.dirname(__file__),"third_party",third_party_lib).replace("\\", "/"))
-
 import log
 from config import Config
 from app.brushtask import BrushTask
@@ -19,6 +13,19 @@ from app.utils.types import OsType
 from version import APP_VERSION
 from web.app import FlaskApp
 from web.backend.web_utils import init_features
+
+
+# 添加第三方库入口
+third_party = ['feapder',
+               'qbittorrent-api',
+               'transmission-rpc',
+               'anitopy',
+               'plexapi',
+               'python-opensubtitles',
+               'cn2an']
+for third_party_lib in third_party:
+    sys.path.append(os.path.join(os.path.dirname(__file__), "third_party", third_party_lib).replace("\\", "/"))
+
 
 warnings.filterwarnings('ignore')
 
