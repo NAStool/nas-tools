@@ -17,3 +17,4 @@ bencode.py>=4.0.0
 cacheout>=0.13.1
 cssselect>=1.1.0
 pyquery>=1.4.3
+zhconv>=1.4.3

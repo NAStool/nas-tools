@@ -11,12 +11,9 @@ third_party = ['anitopy',
                'qbittorrent-api',
                'transmission-rpc']
 for third_party_lib in third_party:
-    sys.path.append(os.path.join(os.path.dirname(__file__), "third_party", third_party_lib).replace("\\", "/"))
-#提前建立feapder缓存文件夹，防止其建立时失败，主要针对windows
-try:
-    os.makedirs(os.path.join(os.path.dirname(__file__), "feapder", "network", "proxy_file").replace("\\", "/"))
-except Exception as err:
-    print(err)
+    sys.path.append(os.path.join(os.path.dirname(__file__),
+                                 "third_party",
+                                 third_party_lib).replace("\\", "/"))
 
 import warnings
 import log
@@ -41,11 +38,23 @@ if is_windows_exe:
     from windows.trayicon import trayicon
 
     # 初始化环境变量
-    os.environ["NASTOOL_CONFIG"] = os.path.join(os.path.dirname(sys.executable), "config", "config.yaml").replace("\\",
-                                                                                                                  "/")
-    os.environ["NASTOOL_LOG"] = os.path.join(os.path.dirname(sys.executable), "config", "logs").replace("\\", "/")
+    os.environ["NASTOOL_CONFIG"] = os.path.join(os.path.dirname(sys.executable),
+                                                "config",
+                                                "config.yaml").replace("\\", "/")
+    os.environ["NASTOOL_LOG"] = os.path.join(os.path.dirname(sys.executable),
+                                             "config",
+                                             "logs").replace("\\", "/")
     try:
-        os.makedirs(os.path.join(os.path.dirname(sys.executable), "config").replace("\\", "/"))
+        config_dir = os.path.join(os.path.dirname(sys.executable),
+                                  "config").replace("\\", "/")
+        if not os.path.exists(config_dir):
+            os.makedirs(config_dir)
+        feapder_tmpdir = os.path.join(os.path.dirname(__file__),
+                                      "feapder",
+                                      "network",
+                                      "proxy_file").replace("\\", "/")
+        if not os.path.exists(feapder_tmpdir):
+            os.makedirs(feapder_tmpdir)
     except Exception as err:
         print(err)
 
@@ -90,7 +99,7 @@ if __name__ == "__main__":
     # 启动刷流服务
     BrushTask()
 
-    # 启动托盘
+    # Windows启动托盘
     if is_windows_exe:
         homepage_port = config.get_config('app').get('web_port')
         log_path = os.environ.get("NASTOOL_LOG")

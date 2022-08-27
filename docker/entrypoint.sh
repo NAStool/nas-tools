@@ -9,6 +9,7 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
     git remote set-url origin ${REPO_URL} &>/dev/null
     echo "synology/" > .gitignore
     echo "windows/" >> .gitignore
+    echo "third_party/" >> .gitignore
     git pull
     if [ $? -eq 0 ]; then
         echo "更新成功..."
