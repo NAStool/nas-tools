@@ -29,8 +29,7 @@ def collect_pkg_data(package, include_py_files=True, subdir=None):
     return data_toc
 
 pkg_data1 = collect_pkg_data('web')
-pkg_data2 = collect_pkg_data('feapder')
-pkg_data3 = collect_pkg_data('config') # <<< Put the name of your package here
+pkg_data2 = collect_pkg_data('config') # <<< Put the name of your package here
 # <<< END ADDED PART
 
 
@@ -40,7 +39,13 @@ block_cipher = None
 
 a = Analysis(
              ['./../run.py'],
-             pathex=[],
+             pathex=['./../third_party/anitopy',
+                     './../third_party/cn2an',
+                     './../third_party/feapder',
+                     './../third_party/python-opensubtitles',
+                     './../third_party/python-plexapi',
+                     './../third_party/qbittorrent-api',
+                     './../third_party/transmission-rpc'],
              binaries=[],
              datas=[],
              hiddenimports=[],
@@ -63,7 +68,6 @@ exe = EXE(
           a.datas,
           pkg_data1,
           pkg_data2,
-          pkg_data3,
           [],
           name='nas-tools',
           debug=False,
