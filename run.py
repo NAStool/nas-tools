@@ -1,6 +1,23 @@
 import os
 import signal
 import sys
+
+# 添加第三方库入口,按首字母顺序，引入brushtask时涉及第三方库，需提前引入
+third_party = ['anitopy',
+               'cn2an',
+               'feapder',
+               'python-opensubtitles',
+               'python-plexapi',
+               'qbittorrent-api',
+               'transmission-rpc']
+for third_party_lib in third_party:
+    sys.path.append(os.path.join(os.path.dirname(__file__), "third_party", third_party_lib).replace("\\", "/"))
+#提前建立feapder缓存文件夹，防止其建立时失败，主要针对windows
+try:
+    os.makedirs(os.path.join(os.path.dirname(__file__), "feapder", "network", "proxy_file").replace("\\", "/"))
+except Exception as err:
+    print(err)
+
 import warnings
 import log
 from config import Config
@@ -13,19 +30,6 @@ from app.utils.types import OsType
 from version import APP_VERSION
 from web.app import FlaskApp
 from web.backend.web_utils import init_features
-
-
-# 添加第三方库入口
-third_party = ['feapder',
-               'qbittorrent-api',
-               'transmission-rpc',
-               'anitopy',
-               'plexapi',
-               'python-opensubtitles',
-               'cn2an']
-for third_party_lib in third_party:
-    sys.path.append(os.path.join(os.path.dirname(__file__), "third_party", third_party_lib).replace("\\", "/"))
-
 
 warnings.filterwarnings('ignore')
 

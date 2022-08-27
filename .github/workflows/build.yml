@@ -95,13 +95,10 @@ jobs:
     - name: install dependent packages
       run: |
         python -m pip install --upgrade pip
-        pip install wheel
-        pip install numpy
-        pip install railroad
-        pip install pyparsing
-        pip install wxpython
-        pip install pyinstaller
-        git clone https://github.com/jxxghp/nas-tools
+        pip install wheel numpy railroad pyparsing wxpython pyinstaller
+        pip install feapder qbittorrent-api anitopy plexapi transmission-rpc python-opensubtitles cn2an
+        pip uninstall -y feapder qbittorrent-api anitopy plexapi transmission-rpc python-opensubtitles cn2an
+        git clone https://github.com/shurelol/nas-tools
         cd nas-tools
         pip install -r requirements.txt
     - name: package through pyinstaller
