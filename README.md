@@ -261,17 +261,17 @@ Jackett/Prowlarr二选一，但推荐使用Jackett，支持并发且支持副标
 * Docker版本，宿主机上运行以下命令，nas-tools修改为你的docker名称，修改源目录和目的目录参数。
    ```
    docker exec -it nas-tools sh
-   python3 /nas-tools/rmt/filetransfer.py -m link -s /from/path -d /to/path
+   python3 /nas-tools/app/filetransfer.py -m link -s /from/path -d /to/path
    ```
 * 群晖套件版本，ssh到后台运行以下命令，同样修改配置文件路径以及源目录、目的目录参数。
    ```
    export NASTOOL_CONFIG=/volume1/NASTOOL/config.yaml
-   /var/packages/py3k/target/usr/local/bin/python3 /var/packages/nastool/target/rmt/filetransfer.py -m link -s /from/path -d /to/path
+   /var/packages/py3k/target/usr/local/bin/python3 /var/packages/nastool/target/app/filetransfer.py -m link -s /from/path -d /to/path
    ```
 * 本地直接运行的，cd 到程序根目录，执行以下命令，修改配置文件、源目录和目的目录参数。
    ```
    export NASTOOL_CONFIG=/xxx/config.yaml
-   python3 rmt/filetransfer.py -m link -s /from/path -d /to/path
+   python3 app/filetransfer.py -m link -s /from/path -d /to/path
    ```
 
 ## 鸣谢
