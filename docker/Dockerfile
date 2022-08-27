@@ -1,10 +1,10 @@
-FROM shurelol/nas-tools-base-image
+FROM jxxghp/nas-tools-base-image
 ENV LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \
     NASTOOL_CONFIG="/config/config.yaml" \
     NASTOOL_AUTO_UPDATE=true \
     PS1="\u@\h:\w \$ " \
-    REPO_URL="https://github.com/shurelol/nas-tools.git" \
+    REPO_URL="https://github.com/jxxghp/nas-tools.git" \
     PUID=0 \
     PGID=0 \
     UMASK=000 \

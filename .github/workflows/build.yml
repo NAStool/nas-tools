@@ -54,7 +54,7 @@ jobs:
         echo "app_version=$value" >> $GITHUB_ENV
     - name: Build the synology spk
       run: |
-        git clone --depth=1 https://github.com/shurelol/nas-tools --recurse-submodule
+        git clone --depth=1 https://github.com/jxxghp/nas-tools --recurse-submodule
         cd nas-tools
         cp -r synology/ui synology/wheelhouse ./
         sed -i 's/3000/3003/g' config/config.yaml
@@ -98,7 +98,7 @@ jobs:
         pip install wheel numpy railroad pyparsing wxpython pyinstaller
         pip install feapder qbittorrent-api anitopy plexapi transmission-rpc python-opensubtitles cn2an
         pip uninstall -y feapder qbittorrent-api anitopy plexapi transmission-rpc python-opensubtitles cn2an
-        git clone --depth=1 https://github.com/shurelol/nas-tools --recurse-submodule
+        git clone --depth=1 https://github.com/jxxghp/nas-tools --recurse-submodule
         cd nas-tools
         pip install -r requirements.txt
     - name: package through pyinstaller
