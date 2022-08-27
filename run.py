@@ -15,21 +15,6 @@ for third_party_lib in third_party:
                                  "third_party",
                                  third_party_lib).replace("\\", "/"))
 
-import warnings
-import log
-from config import Config
-from app.brushtask import BrushTask
-from app.sync import run_monitor, stop_monitor
-from app.scheduler import run_scheduler, stop_scheduler
-from app.utils.check_config import check_config
-from app.utils.system_utils import SystemUtils
-from app.utils.types import OsType
-from version import APP_VERSION
-from web.app import FlaskApp
-from web.backend.web_utils import init_features
-
-warnings.filterwarnings('ignore')
-
 # 运行环境判断
 is_windows_exe = getattr(sys, 'frozen', False) and (os.name == "nt")
 if is_windows_exe:
@@ -58,6 +43,20 @@ if is_windows_exe:
     except Exception as err:
         print(err)
 
+import warnings
+import log
+from config import Config
+from app.brushtask import BrushTask
+from app.sync import run_monitor, stop_monitor
+from app.scheduler import run_scheduler, stop_scheduler
+from app.utils.check_config import check_config
+from app.utils.system_utils import SystemUtils
+from app.utils.types import OsType
+from version import APP_VERSION
+from web.app import FlaskApp
+from web.backend.web_utils import init_features
+
+warnings.filterwarnings('ignore')
 
 def sigal_handler(num, stack):
     if SystemUtils.get_system() == OsType.LINUX and SystemUtils.check_process("supervisord"):
