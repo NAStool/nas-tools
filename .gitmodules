@@ -1,27 +1,24 @@
 [submodule "third_party/feapder"]
 	path = third_party/feapder
 	url = https://github.com/Boris-code/feapder
-
-[submodule "third_party/feapder"]
+[submodule "third_party/qbittorrent-api"]
 	path = third_party/qbittorrent-api
 	url = https://github.com/rmartin16/qbittorrent-api
-
 [submodule "third_party/transmission-rpc"]
 	path = third_party/transmission-rpc
 	url = https://github.com/Trim21/transmission-rpc
-
-[submodule "third_party/anitopy"]
-	path = third_party/anitopy
-	url = https://github.com/igorcmoura/anitopy
-
-[submodule "third_party/plexapi"]
-	path = third_party/plexapi
-	url = https://github.com/pkkid/python-plexapi
-
 [submodule "third_party/python-opensubtitles"]
 	path = third_party/python-opensubtitles
 	url = https://github.com/agonzalezro/python-opensubtitles
-
+[submodule "third_party/anitopy"]
+	path = third_party/anitopy
+	url = https://github.com/igorcmoura/anitopy
 [submodule "third_party/cn2an"]
 	path = third_party/cn2an
 	url = https://github.com/Ailln/cn2an
+[submodule "third_party/cn2an"]
+	path = third_party/cn2an
+	url = https://github.com/Ailln/cn2an
+[submodule "third_party/python-plexapi"]
+	path = third_party/python-plexapi
+	url = https://github.com/pkkid/python-plexapi
