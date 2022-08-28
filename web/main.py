@@ -16,6 +16,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, cur
 from werkzeug.security import check_password_hash
 
 import log
+from app.message.message import Message
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL, Config
 from app.douban import DouBan
 from app.downloader.downloader import Downloader
@@ -1573,20 +1574,25 @@ def create_flask_app(config):
         req_json = request.get_json()
         if not req_json:
             return make_response("非法请求！", 400)
+        notification_type = req_json.get("notification_type")
+        if notification_type == "TEST_NOTIFICATION":
+            return make_response("ok", 200)
         subject = req_json.get("subject")
         media_type = MediaType.MOVIE if req_json.get("media", {}).get("media_type") == "movie" else MediaType.TV
         tmdbId = req_json.get("media", {}).get("tmdbId")
         if not media_type or not tmdbId or not subject:
             return make_response("请求参数不正确！", 500)
         # 添加订阅
-        meta_info = MetaInfo(title=subject, mtype=media_type)
         code = 0
         msg = "ok"
+        meta_info = MetaInfo(title=subject, mtype=media_type)
         if media_type == MediaType.MOVIE:
-            code, msg, _ = add_rss_subscribe(mtype=media_type,
-                                             name=meta_info.get_name(),
-                                             year=meta_info.year,
-                                             tmdbid=tmdbId)
+            code, msg, meta_info = add_rss_subscribe(mtype=media_type,
+                                                     name=meta_info.get_name(),
+                                                     year=meta_info.year,
+                                                     tmdbid=tmdbId)
+            Message().send_rss_success_message(in_from=SearchType.API,
+                                               media_info=meta_info)
         else:
             seasons = []
             for extra in req_json.get("extra", []):
@@ -1594,11 +1600,13 @@ def create_flask_app(config):
                     seasons = [int(str(sea).strip()) for sea in extra.get("value").split(", ") if str(sea).isdigit()]
                     break
             for season in seasons:
-                code, msg, _ = add_rss_subscribe(mtype=media_type,
-                                                 name=meta_info.get_name(),
-                                                 year=meta_info.year,
-                                                 tmdbid=tmdbId,
-                                                 season=season)
+                code, msg, meta_info = add_rss_subscribe(mtype=media_type,
+                                                         name=meta_info.get_name(),
+                                                         year=meta_info.year,
+                                                         tmdbid=tmdbId,
+                                                         season=season)
+                Message().send_rss_success_message(in_from=SearchType.API,
+                                                   media_info=meta_info)
         if code == 0:
             return make_response("ok", 200)
         else:

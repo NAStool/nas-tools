@@ -107,7 +107,7 @@ class Message:
         elif channel == SearchType.WX:
             state, ret_msg = WeChat().send_msg(title, text, image, url, user_id)
         else:
-            return False
+            state, ret_msg = self.client.send_msg(title, text, image, url, user_id)
         if not state:
             log.error("【MSG】发送消息失败：%s" % ret_msg)
         return state
@@ -230,7 +230,7 @@ class Message:
             msg_title = f"{media_info.get_title_string()} 已添加订阅"
         else:
             msg_title = f"{media_info.get_title_string()} {media_info.get_season_string()} 已添加订阅"
-        msg_str = f"类型：{media_info.type.value}"
+        msg_str = f"类型：{media_info.type.value}，来自：{in_from.value}"
         if media_info.vote_average:
             msg_str = f"{msg_str}，{media_info.get_vote_string()}"
         self.send_channel_msg(channel=in_from,

@@ -27,6 +27,7 @@ class SearchType(Enum):
     RSS = "RSS订阅"
     OT = "手动下载"
     TG = "Telegram搜索"
+    API = "第三方API请求"
 
 
 class RmtMode(Enum):
