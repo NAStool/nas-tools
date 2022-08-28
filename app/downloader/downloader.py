@@ -3,6 +3,7 @@ from threading import Lock
 from time import sleep
 
 import log
+from app.utils.commons import RMT_MODES
 from config import Config, PT_TAG
 from app.message.message import Message
 from app.downloader.client.aria2 import Aria2
@@ -16,7 +17,7 @@ from app.filetransfer import FileTransfer
 from app.media.media import Media
 from app.media.meta.metainfo import MetaInfo
 from app.utils.string_utils import StringUtils
-from app.utils.types import MediaType, DownloaderType, SearchType
+from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode
 
 lock = Lock()
 
@@ -27,6 +28,7 @@ class Downloader:
     __seeding_time = None
     __pt_monitor_only = None
     __download_order = None
+    __pt_rmt_mode = None
     message = None
     mediaserver = None
     filetransfer = None
@@ -67,6 +69,7 @@ class Downloader:
                     self.__seeding_time = None
             self.__pt_monitor_only = pt.get("pt_monitor_only")
             self.__download_order = pt.get("download_order")
+            self.__pt_rmt_mode = RMT_MODES.get(pt.get("rmt_mode", "copy"), RmtMode.COPY)
 
     def add_pt_torrent(self, url, mtype=MediaType.MOVIE, is_paused=None, tag=None, download_dir=None):
         """
@@ -100,11 +103,18 @@ class Downloader:
                         tag = [PT_TAG, tag]
                 log.info("【DOWNLOADER】添加下载任务：%s" % url)
                 if self.__client_type == DownloaderType.TR:
-                    ret = self.client.add_torrent(content, mtype, is_paused=is_paused, download_dir=download_dir)
+                    ret = self.client.add_torrent(content,
+                                                  mtype,
+                                                  is_paused=is_paused,
+                                                  download_dir=download_dir)
                     if ret and tag:
-                        self.client.set_torrent_tag(tid=ret.id, tag=tag)
+                        self.client.set_torrent_tag(tid=ret.id,
+                                                    tag=tag)
                 else:
-                    ret = self.client.add_torrent(content, mtype, is_paused=is_paused, tag=tag,
+                    ret = self.client.add_torrent(content,
+                                                  mtype,
+                                                  is_paused=is_paused,
+                                                  tag=tag,
                                                   download_dir=download_dir)
             except Exception as e:
                 log.error("【DOWNLOADER】添加下载任务出错：%s" % str(e))
@@ -124,16 +134,21 @@ class Downloader:
                     tag = None
                 trans_tasks = self.client.get_transfer_task(tag=tag)
                 if trans_tasks:
-                    log.info("【PT】开始转移下载文件...")
+                    log.info("【DOWNLOADER】开始转移下载文件...")
                 else:
                     return
                 for task in trans_tasks:
                     done_flag, done_msg = self.filetransfer.transfer_media(in_from=self.__client_type,
-                                                                           in_path=task.get("path"))
+                                                                           in_path=task.get("path"),
+                                                                           rmt_mode=self.__pt_rmt_mode)
                     if not done_flag:
-                        log.warn("【PT】%s 转移失败：%s" % (task.get("path"), done_msg))
-                    self.client.set_torrents_status(task.get("id"))
-                log.info("【PT】下载文件转移结束")
+                        log.warn("【DOWNLOADER】%s 转移失败：%s" % (task.get("path"), done_msg))
+                    if self.__pt_rmt_mode in [RmtMode.MOVE, RmtMode.RCLONE]:
+                        log.warn("【DOWNLOADER】移动模式下删除种子文件：%s" % task.get("id"))
+                        self.delete_torrents(task.get("id"))
+                    else:
+                        self.client.set_torrents_status(task.get("id"))
+                log.info("【DOWNLOADER】下载文件转移结束")
             finally:
                 lock.release()
 
@@ -152,11 +167,11 @@ class Downloader:
                 tag = PT_TAG
             else:
                 tag = None
-            log.info("【PT】开始执行做种清理，做种时间：%s..." % StringUtils.str_timelong(self.__seeding_time))
+            log.info("【DOWNLOADER】开始执行做种清理，做种时间：%s..." % StringUtils.str_timelong(self.__seeding_time))
             torrents = self.client.get_remove_torrents(seeding_time=self.__seeding_time, tag=tag)
             for torrent in torrents:
                 self.delete_torrents(torrent)
-            log.info("【PT】做种清理完成")
+            log.info("【DOWNLOADER】做种清理完成")
         finally:
             lock.release()
 

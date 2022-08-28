@@ -97,6 +97,7 @@ class WebAction:
             "brushtask_detail": self.__brushtask_detail,
             "add_downloader": self.__add_downloader,
             "delete_downloader": self.__delete_downloader,
+            "get_downloader": self.__get_downloader,
             "name_test": self.__name_test,
             "rule_test": self.__rule_test,
             "net_test": self.__net_test,
@@ -533,8 +534,7 @@ class WebAction:
                                                            media_type=media_type,
                                                            season=season,
                                                            episode=(EpisodeFormat(episode_format), need_fix_all),
-                                                           min_filesize=min_filesize
-                                                           )
+                                                           min_filesize=min_filesize)
         if succ_flag:
             if not need_fix_all and not logid:
                 update_transfer_unknown_state(path)
@@ -1429,6 +1429,7 @@ class WebAction:
         添加自定义下载器
         """
         test = data.get("test")
+        dl_id = data.get("id")
         dl_name = data.get("name")
         dl_type = data.get("type")
         user_config = {"host": data.get("host"),
@@ -1448,7 +1449,7 @@ class WebAction:
                 return {"code": 1}
         else:
             # 保存
-            insert_user_downloader(name=dl_name, dtype=dl_type, user_config=user_config, note=None)
+            update_user_downloader(did=dl_id, name=dl_name, dtype=dl_type, user_config=user_config, note=None)
             return {"code": 0}
 
     @staticmethod
@@ -1460,6 +1461,18 @@ class WebAction:
         if dl_id:
             delete_user_downloader(dl_id)
         return {"code": 0}
+
+    @staticmethod
+    def __get_downloader(data):
+        """
+        查询自定义下载器
+        """
+        dl_id = data.get("id")
+        if dl_id:
+            info = get_user_downloaders(dl_id)
+            return {"code": 0, "info": info[0] if info else None}
+        else:
+            return {"code": 1}
 
     @staticmethod
     def __name_test(data):

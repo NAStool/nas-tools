@@ -272,8 +272,6 @@ class MetaVideo(MetaBase):
                     self.resource_pix = "%s 3D" % self.resource_pix
 
     def __init_seasion(self, token):
-        if not self.get_name():
-            return
         re_res = re.findall(r"%s" % self._season_re, token, re.IGNORECASE)
         if re_res:
             self._last_token_type = "season"

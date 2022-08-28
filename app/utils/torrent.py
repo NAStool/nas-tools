@@ -164,9 +164,9 @@ class Torrent:
         """
         if not url:
             return None, "URL为空"
+        if url.startswith("magnet:"):
+            return url, "磁力链接"
         try:
-            if url.startswith("magnet:"):
-                return url, "磁力链接"
             req = RequestUtils(cookies=cookie).get_res(url=url)
             if req and req.status_code == 200:
                 if not req.content:
@@ -176,11 +176,11 @@ class Torrent:
                     return None, "不正确的种子文件"
                 return req.content, ""
             elif not req:
-                return url, "无法打开链接"
+                return url, "无法打开链接：%s" % url
             else:
-                return None, "状态码：%s" % req.status_code
+                return None, "下载种子出错，状态码：%s" % req.status_code
         except Exception as err:
-            return None, "%s" % str(err)
+            return None, "下载种子出现异常，%s" % str(err)
 
     @staticmethod
     def check_torrent_filter(meta_info: MetaBase, filter_args, uploadvolumefactor=None, downloadvolumefactor=None):

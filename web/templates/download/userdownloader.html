@@ -65,13 +65,18 @@
                   <td>{{ Downloader[2] or '' }}</td>
                   <td>{{ Downloader[3]}}:{{ Downloader[4]}}</td>
                   <td>
-                    <a href="javascript:delete_downloader('{{ Downloader[0] }}')" title="删除下载器">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                         <line x1="18" y1="6" x2="6" y2="18"></line>
-                         <line x1="6" y1="6" x2="18" y2="18"></line>
-                      </svg>
-                    </a>
+                    <div class="d-flex">
+                      <a href="javascript:show_edit_downloader_modal('{{ Downloader[0] }}')" class="btn-action" title="编辑">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
+                      </a>
+                      <a href="javascript:delete_downloader('{{ Downloader[0] }}')" class="btn-action" title="删除下载器">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                           <line x1="18" y1="6" x2="6" y2="18"></line>
+                           <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </a>
+                    </div>
                   </td>
                 </tr>
                 {% endfor %}
@@ -91,7 +96,8 @@
     <div class="modal-content">
       <div class="card border-top-0">
         <div class="card-header">
-          <h5 class="modal-title">新增下载器</h5>
+          <h5 class="modal-title" id="downloader_modal_title">新增下载器</h5>
+          <input type="hidden" id="dl_id">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="card-body">
@@ -152,7 +158,7 @@
         <a href="javascript:test_downloader_config()" id="dl_test_btn" class="btn btn-white me-auto">
           测试
         </a>
-        <a href="javascript:add_downloader()" id="dl_save_btn" class="btn btn-primary">确定</a>
+        <a href="javascript:add_or_edit_downloader()" id="dl_save_btn" class="btn btn-primary">确定</a>
       </div>
     </div>
   </div>
@@ -160,36 +166,41 @@
 <script type="text/javascript">
   // 打开新增窗口
   function show_add_downloader_modal(){
+    $("#downloader_modal_title").text("新增下载器");
+    $("#dl_id").val("");
     $("#modal-add-downloader").modal('show');
   }
 
   // 新增下载器
-  function add_downloader(test){
+  function add_or_edit_downloader(test){
     if(!test){
       test = "";
+    }else{
+      $("#dl_test_btn").text("测试中...");
     }
-    var dl_name = $("#dl_name").val()
+    var dl_id = $("#dl_id").val();
+    var dl_name = $("#dl_name").val();
     if(!dl_name){
       $("#dl_name").addClass("is-invalid");
       return;
     } else {
       $("#dl_name").removeClass("is-invalid");
     }
-    var dl_host = $("#dl_host").val()
+    var dl_host = $("#dl_host").val();
     if(!dl_host){
       $("#dl_host").addClass("is-invalid");
       return;
     } else {
       $("#dl_host").removeClass("is-invalid");
     }
-    var dl_port = $("#dl_port").val()
+    var dl_port = $("#dl_port").val();
     if(!dl_port || isNaN(dl_port)){
       $("#dl_port").addClass("is-invalid");
       return;
     } else {
       $("#dl_port").removeClass("is-invalid");
     }
-    var dl_save_dir = $("#dl_save_dir").val()
+    var dl_save_dir = $("#dl_save_dir").val();
     if(!dl_save_dir){
       $("#dl_save_dir").addClass("is-invalid");
       return;
@@ -197,6 +208,7 @@
       $("#dl_save_dir").removeClass("is-invalid");
     }
     var params = {test: test,
+                  id: dl_id,
                   name: dl_name,
                   type: $("#dl_type").val(),
                   host: dl_host,
@@ -221,14 +233,35 @@
 
   // 删除下载器
   function delete_downloader(id){
-    var params = {"id": id};
-    ajax_post("delete_downloader", params, function (ret) {
-      navmenu('userdownloader');
+    show_ask_modal("是否确认删除该下载器？ ", function(){
+      hide_ask_modal();
+      var params = {"id": id};
+      ajax_post("delete_downloader", params, function (ret) {
+        navmenu('userdownloader');
+      });
+    });
+  }
+
+  // 编辑下载器
+  function show_edit_downloader_modal(id){
+    $("#downloader_modal_title").text("编辑下载器");
+    $("#dl_id").val(id);
+    ajax_post("get_downloader", {"id": id}, function (ret) {
+      if (ret.code == 0){
+        $("#dl_name").val(ret.info[1]);
+        $("#dl_type").val(ret.info[2]);
+        $("#dl_host").val(ret.info[3]);
+        $("#dl_port").val(ret.info[4]);
+        $("#dl_username").val(ret.info[5]);
+        $("#dl_password").val(ret.info[6]);
+        $("#dl_save_dir").val(ret.info[7]);
+        $("#modal-add-downloader").modal('show');
+      }
     });
   }
 
   // 测试下载器
   function test_downloader_config(){
-    add_downloader(true);
+    add_or_edit_downloader(true);
   }
 </script>

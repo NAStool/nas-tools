@@ -1,4 +1,20 @@
 meta_cases = [{
+    "title": "S02E1000.mkv",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "",
+        "year": "",
+        "part": "",
+        "season": "S02",
+        "episode": "E1000",
+        "restype": "",
+        "pix": "",
+        "video_codec": "",
+        "audio_codec": ""
+    }
+}, {
     "title": "西部世界 12.mkv",
     "subtitle": "",
     "target": {

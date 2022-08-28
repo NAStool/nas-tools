@@ -1265,17 +1265,30 @@ def get_user_downloaders(did=None):
 
 
 # 新增自定义下载器
-def insert_user_downloader(name, dtype, user_config, note):
-    sql = "INSERT INTO SITE_BRUSH_DOWNLOADERS (NAME,TYPE,HOST,PORT,USERNAME,PASSWORD,SAVE_DIR,NOTE)" \
-          "VALUES (?,?,?,?,?,?,?,?)"
-    return update_by_sql(sql, (StringUtils.str_sql(name),
-                               dtype,
-                               StringUtils.str_sql(user_config.get("host")),
-                               StringUtils.str_sql(user_config.get("port")),
-                               StringUtils.str_sql(user_config.get("username")),
-                               StringUtils.str_sql(user_config.get("password")),
-                               StringUtils.str_sql(user_config.get("save_dir")),
-                               StringUtils.str_sql(note)))
+def update_user_downloader(did, name, dtype, user_config, note):
+    if did:
+        sql = "UPDATE SITE_BRUSH_DOWNLOADERS SET NAME=?, TYPE=?, HOST=?, PORT=?, USERNAME=?, PASSWORD=?, SAVE_DIR=?, NOTE=? " \
+              "WHERE ID=?"
+        return update_by_sql(sql, (StringUtils.str_sql(name),
+                                   dtype,
+                                   StringUtils.str_sql(user_config.get("host")),
+                                   StringUtils.str_sql(user_config.get("port")),
+                                   StringUtils.str_sql(user_config.get("username")),
+                                   StringUtils.str_sql(user_config.get("password")),
+                                   StringUtils.str_sql(user_config.get("save_dir")),
+                                   StringUtils.str_sql(note),
+                                   did))
+    else:
+        sql = "INSERT INTO SITE_BRUSH_DOWNLOADERS (NAME,TYPE,HOST,PORT,USERNAME,PASSWORD,SAVE_DIR,NOTE)" \
+              "VALUES (?,?,?,?,?,?,?,?)"
+        return update_by_sql(sql, (StringUtils.str_sql(name),
+                                   dtype,
+                                   StringUtils.str_sql(user_config.get("host")),
+                                   StringUtils.str_sql(user_config.get("port")),
+                                   StringUtils.str_sql(user_config.get("username")),
+                                   StringUtils.str_sql(user_config.get("password")),
+                                   StringUtils.str_sql(user_config.get("save_dir")),
+                                   StringUtils.str_sql(note)))
 
 
 # 删除自定义下载器

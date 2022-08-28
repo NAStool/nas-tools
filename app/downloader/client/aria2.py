@@ -1,5 +1,7 @@
 import os
+import re
 
+from app.utils.http_utils import RequestUtils
 from config import Config
 from app.downloader.client.client import IDownloadClient
 from app.downloader.client.pyaria2 import PyAria2
@@ -90,6 +92,14 @@ class Aria2(IDownloadClient):
             else:
                 dl_dir = self.movie_save_path
         if isinstance(content, str):
+            # 转换为磁力链
+            if re.match("^https*://", content):
+                try:
+                    p = RequestUtils().get_res(url=content)
+                    if p and p.headers.get("Location"):
+                        content = p.headers.get("Location")
+                except Exception as result:
+                    print(str(result))
             return self._client.addUri(uris=[content], options=dict(dir=dl_dir))
         else:
             return self._client.addTorrent(torrent=content, uris=[], options=dict(dir=dl_dir))

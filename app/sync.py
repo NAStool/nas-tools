@@ -254,7 +254,7 @@ class Sync(object):
                                                                         in_path=event_path,
                                                                         target_dir=target_path,
                                                                         unknown_dir=unknown_path,
-                                                                        sync_transfer_mode=sync_mode)
+                                                                        rmt_mode=sync_mode)
                         if not ret:
                             log.warn("【SYNC】%s 转移失败：%s" % (event_path, ret_msg))
                     else:
@@ -310,7 +310,7 @@ class Sync(object):
                                                                     files=files,
                                                                     target_dir=target_path,
                                                                     unknown_dir=unknown_path,
-                                                                    sync_transfer_mode=sync_mode)
+                                                                    rmt_mode=sync_mode)
                     if not ret:
                         log.warn("【SYNC】%s转移失败：%s" % (path, ret_msg))
                 self.__need_sync_paths.pop(path)
@@ -382,7 +382,7 @@ class Sync(object):
                                                                     in_path=path,
                                                                     target_dir=target_path,
                                                                     unknown_dir=unknown_path,
-                                                                    sync_transfer_mode=sync_mode)
+                                                                    rmt_mode=sync_mode)
                     if not ret:
                         log.error("【SYNC】%s 处理失败：%s" % (monpath, ret_msg))
 

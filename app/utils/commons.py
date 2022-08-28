@@ -5,9 +5,20 @@ import threading
 import parse
 
 # 线程锁
+from app.utils.types import RmtMode
+
 lock = threading.RLock()
 # 种子名/文件名要素分隔字符
 SPLIT_CHARS = r"\.|\s+|\(|\)|\[|]|-|\+|【|】|/|～|;|&|\||#|_|「|」|（|）"
+# 转移模式
+RMT_MODES = {
+    "copy": RmtMode.COPY,
+    "link": RmtMode.LINK,
+    "softlink": RmtMode.SOFTLINK,
+    "move": RmtMode.MOVE,
+    "rclone": RmtMode.RCLONE,
+    "rclonecopy": RmtMode.RCLONECOPY
+}
 # 全局实例
 INSTANCES = {}
 

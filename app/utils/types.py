@@ -34,8 +34,8 @@ class RmtMode(Enum):
     SOFTLINK = "软链接"
     COPY = "复制"
     MOVE = "移动"
-    RCLONECOPY = "rclone复制"
-    RCLONE = "rclone移动"
+    RCLONECOPY = "Rclone复制"
+    RCLONE = "Rclone移动"
 
 
 class MatchMode(Enum):

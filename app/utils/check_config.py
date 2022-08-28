@@ -160,40 +160,7 @@ def check_config(config):
         log.error("配置文件格式错误，找不到message配置项！")
 
     # 检查目录同步
-    if config.get_config('sync'):
-        sync_paths = config.get_config("sync").get("sync_path") or []
-        for sync_path in sync_paths:
-            if not sync_path:
-                continue
-            is_enabled = True
-            if sync_path.startswith("#"):
-                sync_path = sync_path[1:-1]
-                is_enabled = False
-            if sync_path.startswith("["):
-                sync_path = sync_path[1:-1]
-            if sync_path.find('|') != -1:
-                sync_path = sync_path.split("|")[0]
-            if not is_enabled:
-                log.info("未开启同步，该目录同步功能已关闭：%s" % sync_path)
-                continue
-            if not os.path.exists(sync_path):
-                log.warn("目录不存在，该目录同步功能已关闭：%s" % sync_path)
-
-        sync_mod = config.get_config("sync").get("sync_mod", "copy")
-        if sync_mod == "link":
-            log.info("目录同步转移模式为：硬链接")
-        elif sync_mod == "softlink":
-            log.info("目录同步转移模式为：软链接")
-        elif sync_mod == "move":
-            log.info("目录同步转移模式为：移动")
-        elif sync_mod == "rclone":
-            log.info("目录同步转移模式为：rclone移动")
-        elif sync_mod == "rclonecopy":
-            log.info("目录同步转移模式为：rclone复制")
-
-        else:
-            log.info("目录同步转移模式为：复制")
-    else:
+    if not config.get_config('sync'):
         log.error("配置文件格式错误，找不到sync配置项！")
 
     # 检查站点配置
