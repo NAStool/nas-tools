@@ -28,6 +28,7 @@ class MetaInfoTest(TestCase):
                 "episode": meta_info.get_episode_string(),
                 "restype": meta_info.resource_type or "",
                 "pix": meta_info.resource_pix or "",
+                "team": meta_info.resource_team or "",
                 "video_codec": meta_info.video_encode or "",
                 "audio_codec": meta_info.audio_encode or ""
             }

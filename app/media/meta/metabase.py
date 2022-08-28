@@ -43,6 +43,8 @@ class MetaBase(object):
     resource_type = None
     # 识别的分辨率
     resource_pix = None
+    # 识别的制作组/字幕组
+    resource_team = None
     # 视频编码
     video_encode = None
     # 音频编码
@@ -275,6 +277,13 @@ class MetaBase(object):
             return self.resource_type
         elif self.resource_pix:
             return self.resource_pix
+        else:
+            return ""
+    
+    # 返回发布组/字幕组字符串
+    def get_resource_team_string(self):
+        if self.resource_team:
+            return self.resource_team
         else:
             return ""
 

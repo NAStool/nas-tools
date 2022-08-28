@@ -1496,6 +1496,7 @@ class WebAction:
             "category": media_info.category,
             "restype": media_info.resource_type,
             "pix": media_info.resource_pix,
+            "team": media_info.resource_team,
             "video_codec": media_info.video_encode,
             "audio_codec": media_info.audio_encode
         }}

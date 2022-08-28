@@ -205,7 +205,9 @@ class Torrent:
                 return False
         if filter_args.get("team"):
             restype_re = filter_args.get("team")
-            if restype_re and not re.search(r"%s" % restype_re, meta_info.org_string, re.IGNORECASE):
+            if not meta_info.resource_team:
+                return False
+            if restype_re and not re.search(r"%s" % restype_re, meta_info.resource_team, re.IGNORECASE):
                 return False
         if filter_args.get("sp_state"):
             ul_factor, dl_factor = filter_args.get("sp_state").split()

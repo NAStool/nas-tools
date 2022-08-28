@@ -67,6 +67,7 @@ class MetaVideo(MetaBase):
         self.tokens = tokens
         # 解析名称、年份、季、集、资源类型、分辨率等
         token = tokens.get_next()
+        print(token)
         while token:
             # Part
             self.__init_part(token)
