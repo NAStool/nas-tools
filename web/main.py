@@ -16,7 +16,7 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, cur
 from werkzeug.security import check_password_hash
 
 import log
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL
+from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL, Config
 from app.douban import DouBan
 from app.downloader.downloader import Downloader
 from app.filterrules import FilterRule
@@ -34,6 +34,7 @@ from web.backend.security import Security
 from app.utils.system_utils import SystemUtils
 from version import APP_VERSION
 from web.action import WebAction
+from web.backend.subscribe import add_rss_subscribe
 from web.backend.web_utils import get_login_wallpaper
 from web.backend.webhook_event import WebhookEvent
 from app.db.sqls import *
@@ -1562,6 +1563,46 @@ def create_flask_app(config):
             if text:
                 WebAction().handle_message_job(text, SearchType.TG, user_id)
         return 'Success'
+
+    # Jellyseerr Overseerr订阅接口
+    @App.route('/subscribe', methods=['POST', 'GET'])
+    def subscribe():
+        authorization = request.headers.get("Authorization")
+        if not authorization or authorization != Config().get_config("laboratory").get("subscribe_token"):
+            return make_response("认证失败！", 400)
+        req_json = request.get_json()
+        if not req_json:
+            return make_response("非法请求！", 400)
+        subject = req_json.get("subject")
+        media_type = MediaType.MOVIE if req_json.get("media", {}).get("media_type") == "movie" else MediaType.TV
+        tmdbId = req_json.get("media", {}).get("tmdbId")
+        if not media_type or not tmdbId or not subject:
+            return make_response("请求参数不正确！", 500)
+        # 添加订阅
+        meta_info = MetaInfo(title=subject, mtype=media_type)
+        code = 0
+        msg = "ok"
+        if media_type == MediaType.MOVIE:
+            code, msg, _ = add_rss_subscribe(mtype=media_type,
+                                             name=meta_info.get_name(),
+                                             year=meta_info.year,
+                                             tmdbid=tmdbId)
+        else:
+            seasons = []
+            for extra in req_json.get("extra", []):
+                if extra.get("name") == "Requested Seasons":
+                    seasons = [int(str(sea).strip()) for sea in extra.get("value").split(", ") if str(sea).isdigit()]
+                    break
+            for season in seasons:
+                code, msg, _ = add_rss_subscribe(mtype=media_type,
+                                                 name=meta_info.get_name(),
+                                                 year=meta_info.year,
+                                                 tmdbid=tmdbId,
+                                                 season=season)
+        if code == 0:
+            return make_response("ok", 200)
+        else:
+            return make_response(msg, 500)
 
     @App.route('/backup', methods=['POST'])
     @login_required

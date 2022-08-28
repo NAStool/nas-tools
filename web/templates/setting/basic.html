@@ -329,6 +329,12 @@
                   <input type="text" value="{% if Config.security.telegram_webhook_allow_ip %}{{ Config.security.telegram_webhook_allow_ip.ipv6 or '' }}{% endif %}" class="form-control" id="security.telegram_webhook_allow_ip.ipv6" placeholder="允许的IPv6 CIDR" autocomplete="off">
                 </div>
               </div>
+              <div class="col-12 col-xl-4">
+                <div class="mb-3">
+                  <label class="form-label">API密钥 <span class="form-help bg-red-lt" title="使用Jellyseerr、Overseerr等调用本程序订阅接口时，需要在Authorization中填入该密钥" data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" id="laboratory.subscribe_token" class="form-control" value="{% if Config.laboratory %}{{ Config.laboratory.subscribe_token }}{% endif %}">
+                </div>
+              </div>
             </div>
           </div>
           <div class="card-footer">
