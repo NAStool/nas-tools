@@ -15,6 +15,7 @@ def add_rss_subscribe(mtype, name, year,
                       over_edition=False,
                       rss_restype=None,
                       rss_pix=None,
+                      rss_team=None,
                       rss_rule=None,
                       state="D",
                       rssid=None):
@@ -32,6 +33,7 @@ def add_rss_subscribe(mtype, name, year,
     :param over_edition: 是否选版
     :param rss_restype: 质量过滤
     :param rss_pix: 分辨率过滤
+    :param rss_team: 制作组/字幕组过滤
     :param rss_rule: 关键字过滤
     :param state: 添加订阅时的状态
     :param rssid: 修改订阅时传入
@@ -114,6 +116,7 @@ def add_rss_subscribe(mtype, name, year,
                           over_edition=over_edition,
                           rss_restype=rss_restype,
                           rss_pix=rss_pix,
+                          rss_team=rss_team,
                           rss_rule=rss_rule,
                           state=state,
                           match=match)
@@ -126,6 +129,7 @@ def add_rss_subscribe(mtype, name, year,
                              over_edition=over_edition,
                              rss_restype=rss_restype,
                              rss_pix=rss_pix,
+                             rss_team=rss_team,
                              rss_rule=rss_rule,
                              state=state)
     else:
@@ -145,6 +149,7 @@ def add_rss_subscribe(mtype, name, year,
                              over_edition=over_edition,
                              rss_restype=rss_restype,
                              rss_pix=rss_pix,
+                             rss_team=rss_team,
                              rss_rule=rss_rule)
         else:
             if rssid:
@@ -158,6 +163,7 @@ def add_rss_subscribe(mtype, name, year,
                           over_edition=over_edition,
                           rss_restype=rss_restype,
                           rss_pix=rss_pix,
+                          rss_team=rss_team,
                           rss_rule=rss_rule,
                           match=match)
 
