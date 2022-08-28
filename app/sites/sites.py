@@ -132,9 +132,7 @@ class Sites:
                 # 发送通知，存在未读消息
                 if site_user_info.message_unread > 0:
                     if self.__sites_data.get(site_name, {}).get('message_unread') != site_user_info.message_unread:
-                        self.message.sendmsg(
-                            title="站点消息提查",
-                            text=f"站点 {site_user_info.site_name} 收到 {site_user_info.message_unread} 条新消息，请登陆查看")
+                        self.message.sendmsg(title=f"站点 {site_user_info.site_name} 收到 {site_user_info.message_unread} 条新消息，请登陆查看")
 
                 self.__sites_data.update({site_name: {"upload": site_user_info.upload,
                                                       "username": site_user_info.username,

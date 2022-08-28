@@ -347,12 +347,13 @@ class IIndexer(metaclass=ABCMeta):
                     # 全匹配模式，TMDBID需要完全一样才匹配
                     if match_media and media_info.tmdb_id != match_media.tmdb_id:
                         log.info(
-                            f"【{self.index_type}】{media_info.org_string} 识别为 {media_info.type.value} {media_info.get_title_string()} 不匹配")
+                            f"【{self.index_type}】{torrent_name} 识别为 {media_info.type.value} {media_info.get_title_string()} 不匹配")
                         index_match_fail += 1
                         continue
                     # 统一标题和海报
                     media_info.title = match_media.title
-                    media_info.fanart_image = match_media.get_fanart_image()
+                    media_info.fanart_poster = match_media.get_poster_image()
+                    media_info.fanart_backdrop = match_media.get_backdrop_image()
                 else:
                     # 非全匹配模式，找出来的全要，不过滤名称
                     pass
@@ -364,12 +365,12 @@ class IIndexer(metaclass=ABCMeta):
             if not Torrent.is_torrent_match_sey(media_info, filter_args.get("season"), filter_args.get("episode"),
                                                 filter_args.get("year")):
                 log.info(
-                    f"【{self.index_type}】{media_info.org_string} 识别为 {media_info.type.value} {media_info.get_title_string()} {media_info.get_season_episode_string()} 不匹配季/集/年份")
+                    f"【{self.index_type}】{torrent_name} 识别为 {media_info.type.value} {media_info.get_title_string()} {media_info.get_season_episode_string()} 不匹配季/集/年份")
                 index_match_fail += 1
                 continue
 
             # 匹配到了
-            log.info(f"【{self.index_type}】{torrent_name} 匹配成功")
+            log.info(f"【{self.index_type}】{torrent_name} {description} 匹配成功")
             media_info.set_torrent_info(site=indexer_name,
                                         site_order=order_seq,
                                         enclosure=enclosure,

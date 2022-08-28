@@ -167,6 +167,7 @@ class Rss:
                             log.info("【RSS】%s %s%s 匹配成功" % (media_info.org_string,
                                                             media_info.get_title_string(),
                                                             media_info.get_season_episode_string()))
+                            log.info("【RSS】种子描述：%s" % media_info.subtitle)
                         else:
                             log.info("【RSS】%s %s 不匹配订阅" % (media_info.org_string, media_info.get_title_string()))
                             continue

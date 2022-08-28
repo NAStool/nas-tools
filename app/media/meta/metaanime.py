@@ -1,4 +1,5 @@
 import re
+import traceback
 
 import anitopy
 import zhconv
@@ -56,7 +57,8 @@ class MetaAnime(MetaBase):
                             lastword_type = "en"
                 if self.cn_name:
                     _, self.cn_name, _, _, _, _ = Torrent.get_keyword_from_string(self.cn_name)
-                    self.cn_name = zhconv.convert(self.cn_name, "zh-hans")
+                    if self.cn_name:
+                        self.cn_name = zhconv.convert(self.cn_name, "zh-hans")
                 if self.en_name:
                     self.en_name = self.en_name.strip()
                 # 年份
@@ -135,7 +137,7 @@ class MetaAnime(MetaBase):
             if not self.type:
                 self.type = MediaType.TV
         except Exception as e:
-            log.console(str(e))
+            log.console("%s - %s " % (str(e), traceback.format_exc()))
 
     @staticmethod
     def __prepare_title(title):

@@ -1,3 +1,4 @@
+import os
 import re
 
 from config import RMT_MEDIAEXT
@@ -45,6 +46,13 @@ class MetaVideo(MetaBase):
     def __init__(self, title, subtitle=None, fileflag=False):
         super().__init__(title, subtitle, fileflag)
         if not title:
+            return
+        # 判断是否纯数字命名
+        if os.path.splitext(title)[-1] in RMT_MEDIAEXT \
+                and os.path.splitext(title)[0].isdigit() \
+                and len(os.path.splitext(title)[0]) < 5:
+            self.begin_episode = int(os.path.splitext(title)[0])
+            self.type = MediaType.TV
             return
         # 去掉名称中第1个[]的内容
         title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
@@ -155,6 +163,11 @@ class MetaVideo(MetaBase):
                     # 名字后面以 0 开头的不要，极有可能是集
                     if token.startswith('0'):
                         return
+                    # 中文名后面跟的数字不是年份的极有可能是集
+                    if not is_roman_digit \
+                            and self._last_token_type == "cnname" \
+                            and int(token) < 1900:
+                        return
                     if (token.isdigit() and len(token) < 4) or is_roman_digit:
                         # 4位以下的数字或者罗马数字，拼装到已有标题中
                         if self._last_token_type == "cnname":
@@ -164,7 +177,7 @@ class MetaVideo(MetaBase):
                         self._continue_flag = False
                     elif token.isdigit() and len(token) == 4:
                         # 4位数字，可能是年份，也可能真的是标题的一部分，也有可能是集
-                        if token.startswith('0') or not 1900 < int(token) < 2050:
+                        if not 1900 < int(token) < 2050:
                             return
                         if not self._unknown_name_str:
                             self._unknown_name_str = token
@@ -315,8 +328,6 @@ class MetaVideo(MetaBase):
             self._last_token_type = "SEASON"
 
     def __init_episode(self, token):
-        if not self.get_name():
-            return
         re_res = re.findall(r"%s" % self._episode_re, token, re.IGNORECASE)
         if re_res:
             self._last_token_type = "episode"

@@ -1,13 +1,8 @@
 import re
-from functools import lru_cache
-
 import cn2an
-
-import log
-from config import FANART_TV_API_URL, FANART_MOVIE_API_URL, ANIME_GENREIDS, Config, DEFAULT_TMDB_IMAGE, \
-    TMDB_IMAGE_W500_URL
+from app.media.fanart import Fanart
+from config import ANIME_GENREIDS, DEFAULT_TMDB_IMAGE, TMDB_IMAGE_W500_URL
 from app.media.category import Category
-from app.utils.http_utils import RequestUtils
 from app.utils.string_utils import StringUtils
 from app.utils.types import MediaType
 
@@ -56,6 +51,10 @@ class MetaBase(object):
     category = None
     # TMDB ID
     tmdb_id = 0
+    # IMDB ID
+    imdb_id = ""
+    # TVDB ID
+    tvdb_id = 0
     # 豆瓣 ID
     douban_id = 0
     # 媒体标题
@@ -69,8 +68,8 @@ class MetaBase(object):
     # 封面图片
     backdrop_path = None
     poster_path = None
-    fanart_image = None
-    fanart_flag = False
+    fanart_backdrop = None
+    fanart_poster = None
     # 评分
     vote_average = 0
     # 描述
@@ -101,9 +100,8 @@ class MetaBase(object):
     def __init__(self, title, subtitle=None, fileflag=False):
         if not title:
             return
-        config = Config()
-        self.proxies = config.get_proxies()
         self.category_handler = Category()
+        self.fanart = Fanart()
         self.org_string = title
         self.subtitle = subtitle
         self.fileflag = fileflag
@@ -289,11 +287,14 @@ class MetaBase(object):
         return self.audio_encode or ""
 
     # 返回背景图片地址
-    def get_backdrop_path(self, default=True):
-        if not self.fanart_image:
-            self.__refresh_fanart_image()
-        if self.fanart_image:
-            return self.fanart_image
+    def get_backdrop_image(self, default=True):
+        if self.fanart_backdrop:
+            return self.fanart_backdrop
+        else:
+            self.fanart_backdrop = self.fanart.get_backdrop(media_type=self.type,
+                                                            queryid=self.tmdb_id if self.type == MediaType.MOVIE else self.tvdb_id)
+        if self.fanart_backdrop:
+            return self.fanart_backdrop
         elif self.backdrop_path:
             return self.backdrop_path
         else:
@@ -301,10 +302,13 @@ class MetaBase(object):
 
     # 返回消息图片地址
     def get_message_image(self):
-        if not self.fanart_image:
-            self.__refresh_fanart_image()
-        if self.fanart_image:
-            return self.fanart_image
+        if self.fanart_backdrop:
+            return self.fanart_backdrop
+        else:
+            self.fanart_backdrop = self.fanart.get_backdrop(media_type=self.type,
+                                                            queryid=self.tmdb_id if self.type == MediaType.MOVIE else self.tvdb_id)
+        if self.fanart_backdrop:
+            return self.fanart_backdrop
         elif self.backdrop_path:
             return self.backdrop_path
         elif self.poster_path:
@@ -314,7 +318,12 @@ class MetaBase(object):
 
     # 返回海报图片地址
     def get_poster_image(self):
-        return self.poster_path if self.poster_path else ""
+        if self.fanart_poster:
+            return self.fanart_poster
+        else:
+            self.fanart_poster = self.fanart.get_poster(media_type=self.type,
+                                                        queryid=self.tmdb_id if self.type == MediaType.MOVIE else self.tvdb_id)
+        return self.fanart_poster if self.fanart_poster else self.poster_path or ""
 
     # 返回促销信息
     def get_volume_factor_string(self):
@@ -377,6 +386,9 @@ class MetaBase(object):
         self.tmdb_id = info.get('id')
         if not self.tmdb_id:
             return
+        if info.get("external_ids"):
+            self.tvdb_id = info.get("external_ids").get("tvdb_id", 0)
+            self.imdb_id = info.get("external_ids").get("imdb_id", "")
         self.tmdb_info = info
         self.vote_average = info.get('vote_average')
         self.overview = info.get('overview')
@@ -403,20 +415,6 @@ class MetaBase(object):
             'poster_path') else ""
         self.backdrop_path = TMDB_IMAGE_W500_URL % info.get('backdrop_path') if info.get(
             'backdrop_path') else ""
-
-    # 刷新Fanart图片
-    def __refresh_fanart_image(self):
-        if not self.tmdb_id:
-            return
-        if self.fanart_image or self.fanart_flag:
-            return
-        self.fanart_image = self.__get_fanart_image(search_type=self.type, tmdbid=self.tmdb_id)
-        self.fanart_flag = True
-
-    # 获取Fanart图片
-    def get_fanart_image(self):
-        self.__refresh_fanart_image()
-        return self.fanart_image
 
     # 整合种了信息
     def set_torrent_info(self,
@@ -459,34 +457,6 @@ class MetaBase(object):
             self.rssid = rssid
         if hit_and_run is not None:
             self.hit_and_run = hit_and_run
-
-    # 获取消息媒体图片
-    # 增加cache，优化资源检索时性能
-    @classmethod
-    @lru_cache(maxsize=128)
-    def __get_fanart_image(cls, search_type, tmdbid, default=None):
-        if not search_type:
-            return ""
-        if tmdbid:
-            if search_type == MediaType.MOVIE:
-                image_url = FANART_MOVIE_API_URL % tmdbid
-            else:
-                image_url = FANART_TV_API_URL % tmdbid
-            try:
-                ret = RequestUtils(proxies=cls.proxies, timeout=5).get_res(image_url)
-                if ret:
-                    moviethumbs = ret.json().get('moviethumb')
-                    if moviethumbs:
-                        moviethumb = moviethumbs[0].get('url')
-                        if moviethumb:
-                            # 有则返回FanArt的图片
-                            return moviethumb
-            except Exception as e2:
-                log.console(str(e2))
-        if default:
-            # 返回一个默认图片
-            return default
-        return ""
 
     # 判断电视剧是否为动漫
     def __get_tmdb_type(self, info):

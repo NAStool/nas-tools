@@ -286,17 +286,22 @@ class Sync(object):
         """
         try:
             lock.acquire()
-            items = list(self.__need_sync_paths)
-            for path in items:
+            finished_paths = []
+            for path in list(self.__need_sync_paths):
                 if not PathUtils.is_invalid_path(path) and os.path.exists(path):
                     log.info("【SYNC】开始转移监控目录文件...")
                     target_info = self.__need_sync_paths.get(path)
-                    if not PathUtils.is_bluray_dir(path):
+                    bluray_dir = PathUtils.get_bluray_dir(path)
+                    if not bluray_dir:
                         src_path = path
                         files = target_info.get('files')
                     else:
-                        src_path = os.path.dirname(path) if os.path.normpath(path).endswith("BDMV") else path
+                        src_path = bluray_dir
                         files = []
+                    if src_path not in finished_paths:
+                        finished_paths.append(src_path)
+                    else:
+                        continue
                     target_path = target_info.get('target')
                     unknown_path = target_info.get('unknown')
                     sync_mode = target_info.get('syncmod')

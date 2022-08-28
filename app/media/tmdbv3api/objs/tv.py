@@ -32,7 +32,7 @@ class TV(TMDb):
     }
 
     def details(
-            self, show_id, append_to_response="videos,trailers,images,credits,alternative_titles,translations"
+            self, show_id, append_to_response="videos,trailers,images,credits,alternative_titles,translations,external_ids"
     ):
         """
         Get the primary TV show details by id.

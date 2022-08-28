@@ -1,4 +1,52 @@
 meta_cases = [{
+    "title": "西部世界 12.mkv",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "西部世界",
+        "en_name": "",
+        "year": "",
+        "part": "",
+        "season": "S01",
+        "episode": "E12",
+        "restype": "",
+        "pix": "",
+        "video_codec": "",
+        "audio_codec": ""
+    }
+}, {
+    "title": "[ANi] OVERLORD 第四季 - 04 [1080P][Baha][WEB-DL][AAC AVC][CHT].mp4",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "OVERLORD",
+        "year": "",
+        "part": "",
+        "season": "S04",
+        "episode": "E04",
+        "restype": "",
+        "pix": "1080p",
+        "video_codec": "AVC",
+        "audio_codec": "AAC"
+    }
+}, {
+    "title": "[SweetSub&LoliHouse] Made in Abyss S2 - 03v2 [WebRip 1080p HEVC-10bit AAC ASSx2].mkv",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Made in Abyss",
+        "year": "",
+        "part": "",
+        "season": "S02",
+        "episode": "E03",
+        "restype": "",
+        "pix": "1080p",
+        "video_codec": "",
+        "audio_codec": "AAC"
+    }
+}, {
     "title": "Nande Koko ni Sensei ga!? 2019 Blu-ray Remux 1080p AVC LPCM-7³ ACG",
     "subtitle": "",
     "target": {

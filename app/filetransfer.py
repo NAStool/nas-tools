@@ -184,7 +184,7 @@ class FileTransfer:
             else:
                 if rmt_mode == RmtMode.LINK:
                     if platform.release().find("-z4-") >= 0:
-                        tmp = "%s/%s" % (os.path.dirname(os.path.dirname(target_file)), os.path.basename(target_file))
+                        tmp = "%s/%s" % (PathUtils.get_parent_paths(target_file, 2), os.path.basename(target_file))
                         retcode = os.system('ln "%s" "%s" ; mv "%s" "%s"' % (file_item, tmp, tmp, target_file))
                     else:
                         retcode = os.system('ln "%s" "%s"' % (file_item, target_file))
@@ -442,7 +442,7 @@ class FileTransfer:
 
         success_flag = True
         error_message = ""
-        bluray_disk_flag = False
+        bluray_disk_dir = None
         if not files:
             # 如果传入的是个目录
             if os.path.isdir(in_path):
@@ -453,10 +453,9 @@ class FileTransfer:
                 if PathUtils.is_invalid_path(in_path):
                     return False, "回收站或者隐藏文件夹"
                 # 判断是不是原盘文件夹
-                bluray_disk_flag = PathUtils.is_bluray_dir(in_path)
-                # 开始处理里面的文件
-                if bluray_disk_flag:
-                    file_list = [os.path.dirname(in_path)] if os.path.normpath(in_path).endswith("BDMV") else [in_path]
+                bluray_disk_dir = PathUtils.get_bluray_dir(in_path)
+                if bluray_disk_dir:
+                    file_list = [bluray_disk_dir]
                     log.info("【RMT】当前为蓝光原盘文件夹：%s" % str(in_path))
                 else:
                     if udf_flag:
@@ -483,7 +482,13 @@ class FileTransfer:
                 if os.path.splitext(in_path)[-1].lower() not in RMT_MEDIAEXT:
                     log.warn("【RMT】不支持的媒体文件格式，不处理：%s" % in_path)
                     return False, "不支持的媒体文件格式"
-                file_list = [in_path]
+                # 判断是不是原盘文件夹
+                bluray_disk_dir = PathUtils.get_bluray_dir(in_path)
+                if bluray_disk_dir:
+                    file_list = [bluray_disk_dir]
+                    log.info("【RMT】当前为蓝光原盘文件夹：%s" % bluray_disk_dir)
+                else:
+                    file_list = [in_path]
         else:
             # 传入的是个文件列表，这些文失件是in_path下面的文件
             file_list = files
@@ -525,8 +530,8 @@ class FileTransfer:
                 file_path = os.path.dirname(file_item)
 
                 # 数据库记录的路径
-                if bluray_disk_flag:
-                    reg_path = in_path
+                if bluray_disk_dir:
+                    reg_path = bluray_disk_dir
                 elif media.type == MediaType.MOVIE:
                     reg_path = file_item
                 else:
@@ -580,7 +585,7 @@ class FileTransfer:
                 # 路径存在
                 if dir_exist_flag:
                     # 蓝光原盘
-                    if bluray_disk_flag:
+                    if bluray_disk_dir:
                         log.warn("【RMT】蓝光原盘目录已存在：%s" % ret_dir_path)
                         if udf_flag:
                             return False, "蓝光原盘目录已存在：%s" % ret_dir_path
@@ -631,7 +636,7 @@ class FileTransfer:
                         log.debug("【RMT】正在创建目录：%s" % ret_dir_path)
                         os.makedirs(ret_dir_path)
                 # 转移蓝光原盘
-                if bluray_disk_flag:
+                if bluray_disk_dir:
                     ret = self.__transfer_bluray_dir(file_item, ret_dir_path, rmt_mode)
                     if ret != 0:
                         success_flag = False
@@ -679,7 +684,7 @@ class FileTransfer:
                 subtitle_item = {"type": media.type, "file": ret_file_path, "file_ext": os.path.splitext(file_item)[-1],
                                  "name": media.get_name(), "title": media.title, "year": media.year,
                                  "season": media.begin_season, "episode": media.begin_episode,
-                                 "bluray": bluray_disk_flag}
+                                 "bluray": True if bluray_disk_dir else False}
                 # 登记字幕下载
                 if subtitle_item not in download_subtitle_items:
                     download_subtitle_items.append(subtitle_item)

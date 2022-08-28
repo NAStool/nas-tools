@@ -116,13 +116,36 @@ class PathUtils:
         return False
 
     @staticmethod
-    def is_bluray_dir(path):
+    def get_bluray_dir(path):
         """
-        判断是否蓝光原盘目录
+        判断是否蓝光原盘目录，是则返回原盘的根目录，否则返回空
         """
-        if not path:
-            return False
-        if os.path.normpath(path).endswith("BDMV"):
-            return os.path.exists(os.path.join(path, "index.bdmv"))
+        if not path or not os.path.exists(path):
+            return None
+        if os.path.isdir(path):
+            if os.path.exists(os.path.join(path, "BDMV", "index.bdmv")):
+                return path
+            elif os.path.normpath(path).endswith("BDMV") \
+                    and os.path.exists(os.path.join(path, "index.bdmv")):
+                return os.path.dirname(path)
+            elif os.path.normpath(path).endswith("STREAM") \
+                    and os.path.exists(os.path.join(os.path.dirname(path), "index.bdmv")):
+                return PathUtils.get_parent_paths(path, 2)
+            else:
+                return None
         else:
-            return os.path.exists(os.path.join(path, "BDMV", "index.bdmv"))
+            if os.path.splitext(path)[-1] == ".m2ts" \
+                    and os.path.normpath(os.path.dirname(path)).endswith("STREAM") \
+                    and os.path.exists(os.path.join(PathUtils.get_parent_paths(path, 2), "index.bdmv")):
+                return PathUtils.get_parent_paths(path, 3)
+            else:
+                return None
+
+    @staticmethod
+    def get_parent_paths(path, level: int = 1):
+        """
+        获取父目录路径，level为向上查找的层数
+        """
+        for lv in range(0, level):
+            path = os.path.dirname(path)
+        return path

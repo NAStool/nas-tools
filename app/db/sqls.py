@@ -59,7 +59,7 @@ def insert_search_results(media_items: list):
                 media_item.get_episode_string(),
                 media_item.get_season_episode_string(),
                 media_item.vote_average or "0",
-                media_item.get_backdrop_path(default=False),
+                media_item.get_backdrop_image(default=False),
                 media_item.get_poster_image(),
                 StringUtils.str_sql(media_item.tmdb_id),
                 StringUtils.str_sql(media_item.overview),

@@ -58,6 +58,7 @@ from web.backend.web_utils import init_features
 
 warnings.filterwarnings('ignore')
 
+
 def sigal_handler(num, stack):
     if SystemUtils.get_system() == OsType.LINUX and SystemUtils.check_process("supervisord"):
         print(str(stack))

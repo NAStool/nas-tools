@@ -225,28 +225,32 @@ class NfoHelper:
                     return
                 # 查询TMDB信息
                 tmdbinfo = self.media.get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=media.tmdb_id)
+                media.set_tmdb_info(tmdbinfo)
                 # 生成电影描述文件
                 self.gen_movie_nfo_file(tmdbinfo, dir_path, file_name)
                 # 保存海报
-                if media.get_poster_image():
-                    self.__save_image(media.get_poster_image(), dir_path)
-                fanart_image = media.get_fanart_image()
-                if fanart_image:
-                    self.__save_image(fanart_image, dir_path, "fanart")
+                poster_image = media.get_poster_image()
+                if poster_image:
+                    self.__save_image(poster_image, dir_path)
+                backdrop_image = media.get_backdrop_image()
+                if backdrop_image:
+                    self.__save_image(backdrop_image, dir_path, "fanart")
             # 电视剧
             else:
                 # 处理根目录
                 if not os.path.exists(os.path.join(dir_path, "tvshow.nfo")):
                     # 查询TMDB信息
                     tmdbinfo = self.media.get_tmdb_info(mtype=MediaType.TV, tmdbid=media.tmdb_id)
+                    media.set_tmdb_info(tmdbinfo)
                     # 根目录描述文件
                     self.gen_tv_nfo_file(tmdbinfo, os.path.dirname(dir_path))
                     # 根目录海报
-                    if media.get_poster_image():
-                        self.__save_image(media.get_poster_image(), os.path.dirname(dir_path))
-                    fanart_image = media.get_fanart_image()
-                    if fanart_image:
-                        self.__save_image(fanart_image, os.path.dirname(dir_path), "fanart")
+                    poster_image = media.get_poster_image()
+                    if poster_image:
+                        self.__save_image(poster_image, os.path.dirname(dir_path))
+                    backdrop_image = media.get_backdrop_image()
+                    if backdrop_image:
+                        self.__save_image(backdrop_image, os.path.dirname(dir_path), "fanart")
                 # 处理集
                 if not os.path.exists(os.path.join(dir_path, "%s.nfo" % file_name)):
                     # 查询TMDB信息
