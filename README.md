@@ -150,10 +150,8 @@ export NASTOOL_CONFIG="/xxx/config/config.yaml"
 nohup python3 run.py & 
 ```
 
-### 3、群晖套件
-仅适用于dsm6，依赖python3套件。
-
-套件版本不支持自动升级且部分功能无法使用（比如WEB页面重启和更新），推荐使用Docker版本。
+### 3、Windows
+下载exe文件，双击运行即可，会自动生成配置文件目录
 
 https://github.com/jxxghp/nas-tools/releases
 
