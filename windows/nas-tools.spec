@@ -32,6 +32,7 @@ pkg_data1 = collect_pkg_data('web')
 pkg_data2 = collect_pkg_data('config') # <<< Put the name of your package here
 # <<< END ADDED PART
 
+
 # <<< START PATHEX PART
 pathex_tp = []
 with open("third_party.txt") as third_party:
@@ -76,13 +77,13 @@ exe = EXE(
           pkg_data2,
           [],
           name='nas-tools',
-          debug=True,
+          debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
           upx_exclude=[],
           runtime_tmpdir=None,
-          console=True,
+          console=False,
           disable_windowed_traceback=False,
           target_arch=None,
           codesign_identity=None,
