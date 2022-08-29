@@ -8,6 +8,7 @@ from app.utils.tokens import Tokens
 from app.utils.types import MediaType
 from guessit import guessit
 
+
 class MetaVideo(MetaBase):
     """
     识别电影、电视剧
@@ -281,7 +282,7 @@ class MetaVideo(MetaBase):
             self.resource_team = guessit(title).get("release_group")
         else:
             self.resource_team = ""
-        
+
     def __init_seasion(self, token):
         re_res = re.findall(r"%s" % self._season_re, token, re.IGNORECASE)
         if re_res:

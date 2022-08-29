@@ -230,9 +230,10 @@ class Message:
             msg_title = f"{media_info.get_title_string()} 已添加订阅"
         else:
             msg_title = f"{media_info.get_title_string()} {media_info.get_season_string()} 已添加订阅"
-        msg_str = f"类型：{media_info.type.value}，来自：{in_from.value}"
+        msg_str = f"类型：{media_info.type.value}"
         if media_info.vote_average:
             msg_str = f"{msg_str}，{media_info.get_vote_string()}"
+        msg_str = f"{msg_str}，来自：{in_from.value}"
         self.send_channel_msg(channel=in_from,
                               title=msg_title,
                               text=msg_str,

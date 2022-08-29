@@ -478,8 +478,8 @@ def insert_rss_movie(media_info: MetaBase,
                      "Y" if over_edition else "N",
                      "@".join([StringUtils.str_sql(rss_restype),
                                StringUtils.str_sql(rss_pix),
-                               StringUtils.str_sql(rss_team),
-                               StringUtils.str_sql(rss_rule)])])
+                               StringUtils.str_sql(rss_rule),
+                               StringUtils.str_sql(rss_team)])])
     return update_by_sql(sql, (StringUtils.str_sql(media_info.title),
                                StringUtils.str_sql(media_info.year),
                                StringUtils.str_sql(media_info.tmdb_id),
@@ -611,8 +611,8 @@ def insert_rss_tv(media_info: MetaBase, total, lack=0, state="D",
                      "Y" if over_edition else "N",
                      "@".join([StringUtils.str_sql(rss_restype),
                                StringUtils.str_sql(rss_pix),
-                               StringUtils.str_sql(rss_team),
-                               StringUtils.str_sql(rss_rule)])])               
+                               StringUtils.str_sql(rss_rule),
+                               StringUtils.str_sql(rss_team)])])
     return update_by_sql(sql, (StringUtils.str_sql(media_info.title),
                                StringUtils.str_sql(media_info.year),
                                season_str,

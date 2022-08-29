@@ -11,6 +11,7 @@ meta_cases = [{
         "episode": "E1000",
         "restype": "",
         "pix": "",
+        "team": "",
         "video_codec": "",
         "audio_codec": ""
     }

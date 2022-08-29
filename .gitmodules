@@ -22,3 +22,6 @@
 [submodule "third_party/python-plexapi"]
 	path = third_party/python-plexapi
 	url = https://github.com/pkkid/python-plexapi
+[submodule "third_party/guessit"]
+	path = third_party/guessit
+	url = https://github.com/guessit-io/guessit

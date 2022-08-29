@@ -262,8 +262,8 @@ class Torrent:
                 if len(filters) > 1:
                     rss_pix = filters[1]
                 if len(filters) > 2:
-                    rss_team = filters[2]    
+                    rss_rule = filters[2]
                 if len(filters) > 3:
-                    rss_rule = filters[3]
+                    rss_team = filters[3]
 
-        return rss_sites, search_sites, over_edition, {"restype": rss_restype, "pix": rss_pix, "team": rss_team, "rule": rss_rule}
+        return rss_sites, search_sites, over_edition, {"restype": rss_restype, "pix": rss_pix, "rule": rss_rule, "team": rss_team}

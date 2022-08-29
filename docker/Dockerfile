@@ -14,8 +14,11 @@ RUN python_ver=$(python3 -V | awk '{print $2}') \
     && echo "${WORKDIR}/" > /usr/lib/python${python_ver%.*}/site-packages/nas-tools.pth \
     && echo 'fs.inotify.max_user_watches=524288' >> /etc/sysctl.conf \
     && echo 'fs.inotify.max_user_instances=524288' >> /etc/sysctl.conf \
+    && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/master/requirements.txt \
+    && pip install feapder qbittorrent-api anitopy plexapi transmission-rpc python-opensubtitles cn2an guessit \
+    && pip uninstall -y feapder qbittorrent-api anitopy plexapi transmission-rpc python-opensubtitles cn2an guessit \
     && git config --global pull.ff only \
-    && git clone -b master ${REPO_URL} --depth=1 ${WORKDIR} --recurse-submodule\
+    && git clone -b master ${REPO_URL} --depth=1 ${WORKDIR} --recurse-submodule \
     && git config --global --add safe.directory ${WORKDIR}
 VOLUME ["/config"]
 ENTRYPOINT ["/nas-tools/docker/entrypoint.sh"]

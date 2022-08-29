@@ -23,7 +23,7 @@ class MetaAnime(MetaBase):
             return
         # 调用第三方模块识别动漫
         try:
-            #字幕组信息会被预处理掉
+            # 字幕组信息会被预处理掉
             anitopy_info_origin = anitopy.parse(title)
             title = self.__prepare_title(title)
             anitopy_info = anitopy.parse(title)

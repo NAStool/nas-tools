@@ -21,8 +21,5 @@ RUN apk add --no-cache \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && curl https://rclone.org/install.sh | bash \
     && pip install --upgrade pip setuptools wheel \
-    && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/master/requirements.txt \
-    && pip install feapder qbittorrent-api anitopy plexapi transmission-rpc python-opensubtitles cn2an guessit \
-    && pip uninstall -y feapder qbittorrent-api anitopy plexapi transmission-rpc python-opensubtitles cn2an guessit \
     && apk del openssl-dev libffi-dev cargo \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*
