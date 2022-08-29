@@ -22,7 +22,6 @@ if is_windows_exe:
     # 托盘相关库
     import threading
     from windows.trayicon import trayicon
-
     # 初始化环境变量
     os.environ["NASTOOL_CONFIG"] = os.path.join(os.path.dirname(sys.executable),
                                                 "config",

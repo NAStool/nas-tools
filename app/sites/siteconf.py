@@ -51,7 +51,7 @@ RSS_SITE_GRAP_CONF = {
         'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
     },
     'lemonhd.org': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
+        'FREE': ["//font[@class='free']"],
         '2XFREE': [],
         'HR': [],
         'PEER_COUNT': ["//div[@id='peercount']/b[1]"]
@@ -219,8 +219,8 @@ RSS_SITE_GRAP_CONF = {
         'PEER_COUNT': [],
     },
     'www.hdarea.co': {
-        'FREE': ["//img[@class='pro_free'][@title='免费']"],
-        '2XFREE': ["//img[@class='pro_free'][@title='2X免费']"],
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
         'HR': [],
         'PEER_COUNT': [],
     },
