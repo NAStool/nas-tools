@@ -9,7 +9,7 @@ with open(os.path.join(os.path.dirname(__file__),
     for third_party_lib in third_party:
         sys.path.append(os.path.join(os.path.dirname(__file__),
                                      "third_party",
-                                     third_party_lib).replace("\\", "/"))
+                                     third_party_lib.strip()).replace("\\", "/"))
 
 # 运行环境判断
 is_windows_exe = getattr(sys, 'frozen', False) and (os.name == "nt")

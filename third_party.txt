@@ -1,7 +1,7 @@
 feapder
 qbittorrent-api
 anitopy
-plexapi
+python-plexapi
 transmission-rpc
 python-opensubtitles
 cn2an
