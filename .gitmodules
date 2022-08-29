@@ -19,8 +19,8 @@
 [submodule "third_party/cn2an"]
 	path = third_party/cn2an
 	url = https://github.com/Ailln/cn2an
-[submodule "third_party/python-plexapi"]
-	path = third_party/python-plexapi
+[submodule "third_party/plexapi"]
+	path = third_party/plexapi
 	url = https://github.com/pkkid/python-plexapi
 [submodule "third_party/guessit"]
 	path = third_party/guessit
