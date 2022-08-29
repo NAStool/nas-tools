@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - requirements.txt
+      - third_party.txt
       - docker/Dockerfile.base
       - .github/workflows/build-base-image.yml
 
