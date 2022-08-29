@@ -64,14 +64,16 @@ class RequestUtils:
         except requests.exceptions.RequestException:
             return None
 
-    def get_res(self, url, params=None):
+    def get_res(self, url, params=None, allow_redirects=True):
         try:
             if self.__session:
                 return self.__session.get(url, params=params, verify=False, headers=self.__headers,
-                                          proxies=self.__proxies, cookies=self.__cookies, timeout=self.__timeout)
+                                          proxies=self.__proxies, cookies=self.__cookies, timeout=self.__timeout,
+                                          allow_redirects=allow_redirects)
             else:
                 return requests.get(url, params=params, verify=False, headers=self.__headers,
-                                    proxies=self.__proxies, cookies=self.__cookies, timeout=self.__timeout)
+                                    proxies=self.__proxies, cookies=self.__cookies, timeout=self.__timeout,
+                                    allow_redirects=allow_redirects)
         except requests.exceptions.RequestException:
             return None
 

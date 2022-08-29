@@ -95,7 +95,7 @@ class Aria2(IDownloadClient):
             # 转换为磁力链
             if re.match("^https*://", content):
                 try:
-                    p = RequestUtils().get_res(url=content)
+                    p = RequestUtils().get_res(url=content, allow_redirects=False)
                     if p and p.headers.get("Location"):
                         content = p.headers.get("Location")
                 except Exception as result:
