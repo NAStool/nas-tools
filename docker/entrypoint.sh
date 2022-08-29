@@ -34,10 +34,12 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
             echo "检测到third_party.txt有变化，重新安装第三方组件..."
             pip install --upgrade pip setuptools wheel
             pip install -r third_party.txt
-            pip uninstall -y -r third_party.txt
             if [ $? -ne 0 ]; then
                 echo "无法安装第三方组件，请更新镜像..."
             else
+                pip uninstall -y -r third_party.txt
+                git submodule init
+                git submodule update
                 echo "第三方组件安装成功..."
                 sha256sum third_party.txt > /tmp/third_party.txt.sha256sum
             fi
