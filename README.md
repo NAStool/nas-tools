@@ -143,7 +143,7 @@ WIKI：https://github.com/jxxghp/nas-tools/wiki
 教程见 [这里](docker/readme.md) 。
 
 ### 2、本地运行
-python3版本
+python3版本，如发现缺少依赖包需额外安装
 ```
 python3 -m pip install -r requirements.txt
 export NASTOOL_CONFIG="/xxx/config/config.yaml"
