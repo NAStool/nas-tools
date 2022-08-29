@@ -3,7 +3,6 @@ import os.path
 import re
 import shutil
 import signal
-import subprocess
 from urllib import parse
 
 from flask_login import logout_user
@@ -755,9 +754,10 @@ class WebAction:
         # 停止服务
         self.stop_service()
         # 安装依赖
-        subprocess.call(['pip', 'install', '-r', '/nas-tools/requirements.txt', ])
+        os.system('pip install -r /nas-tools/requirements.txt')
+        os.system('pip install -r /nas-tools/third_party.txt')
         # 升级
-        subprocess.call(['git', 'pull'])
+        os.system("git pull origin master")
         # 退出主进程
         self.shutdown_server()
 
