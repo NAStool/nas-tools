@@ -25,6 +25,14 @@
     <meta name="Robots" content="noindex,nofollow,noarchive">
     <!-- CSS files -->
     <link href="../static/css/tabler.min.css" rel="stylesheet"/>
+    <style type="text/css">
+      body {
+        padding-top: env(safe-area-inset-top);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+    </style>
   </head>
   <body  class="d-flex flex-column" style="overflow:hidden; background-image:url(data:image/jpg;base64,{{ LoginWallpaper|safe }}); background-size:cover; background-position:center;">
     <div class="page page-center">

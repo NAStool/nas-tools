@@ -48,8 +48,11 @@
       display: none;
     }
 
-    .navbar-vertical {
+    body {
       padding-top: env(safe-area-inset-top);
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+      padding-bottom: env(safe-area-inset-bottom);
     }
   </style>
 </head>
@@ -795,6 +798,7 @@
   <script src="../static/js/locales/zh-cn.js"></script>
   <script src="../static/js/jquery.filetree.js"></script>
   <script src="../static/js/dropzone-min.js"></script>
+  <script src="../static/js/inobounce.min.js"></script>
   <!-- 公共函数 -->
   <script type="text/javascript">
     //显示全局加载框
