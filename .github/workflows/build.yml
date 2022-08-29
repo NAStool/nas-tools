@@ -55,19 +55,11 @@ jobs:
         pip install wheel numpy railroad pyparsing wxpython pyinstaller
         git clone --depth=1 -b dev https://github.com/shurelol/nas-tools --recurse-submodule
         cd nas-tools
-        cd third_party
-        dir
-        cd guessit
-        dir
-        cd guessit
-        dir
-        cd rules
-        dir
-        cd properties
-        dir
+        copy /y .\windows\rely\website.py D:\a\nas-tools\nas-tools\nas-tools\third_party\guessit\guessit\rules\properties
         pip install -r requirements.txt
         pip install -r third_party.txt
         pip uninstall -y -r third_party.txt
+      shell: pwsh
     - name: package through pyinstaller
       run: |
         cd nas-tools
@@ -84,6 +76,7 @@ jobs:
         xcopy .\config c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\config\ /e
         cd windows
         pyinstaller nas-tools.spec
+      shell: pwsh
     - name: upload windows file
       uses: actions/upload-artifact@v3
       with:
