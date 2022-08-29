@@ -16,9 +16,6 @@
 [submodule "third_party/cn2an"]
 	path = third_party/cn2an
 	url = https://github.com/Ailln/cn2an
-[submodule "third_party/cn2an"]
-	path = third_party/cn2an
-	url = https://github.com/Ailln/cn2an
 [submodule "third_party/guessit"]
 	path = third_party/guessit
 	url = https://github.com/guessit-io/guessit

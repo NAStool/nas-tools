@@ -33,22 +33,28 @@ pkg_data2 = collect_pkg_data('config') # <<< Put the name of your package here
 # <<< END ADDED PART
 
 
+# <<< START PATHEX PART
+pathex_tp = []
+with open("third_party.txt") as third_party:
+    for third_party_lib in third_party:
+        pathex_tp.append(('./../third_party/' + third_party_lib).replace("\n", ""))
+# <<< END PATHEX PART
 
 block_cipher = None
 
 
 a = Analysis(
              ['./../run.py'],
-             pathex=['./../third_party/anitopy',
-                     './../third_party/cn2an',
-                     './../third_party/feapder',
-                     './../third_party/python-opensubtitles',
-                     './../third_party/python-plexapi',
-                     './../third_party/qbittorrent-api',
-                     './../third_party/transmission-rpc'],
+             pathex=pathex_tp,
              binaries=[],
              datas=[],
-             hiddenimports=[],
+             hiddenimports=['pkg_resources.py2_warn', 
+                            'babelfish.converters.alpha2',
+                            'babelfish.converters.alpha3b',
+                            'babelfish.converters.alpha3t',
+                            'babelfish.converters.name',
+                            'babelfish.converters.opensubtitles',
+                            'babelfish.converters.countryname'],
              hookspath=[],
              hooksconfig={},
              runtime_hooks=[],
@@ -60,6 +66,7 @@ a = Analysis(
 )
 pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 a.datas += [('./nas-tools.ico', './nas-tools.ico', 'DATA')]
+a.datas += [('./third_party.txt', './third_party.txt', 'DATA')]
 exe = EXE(
           pyz,
           a.scripts,
