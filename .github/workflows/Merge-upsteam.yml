@@ -30,10 +30,10 @@ jobs:
       # - name: Setup Debug Session
       #   uses: csexton/debugger-action@master
 
-      - name: Compare the build.yml and recreate the build-2.yml
+      - name: Compare the build.yml and update the build-2.yml #防止原作者更新编译文件
         run: |        
           cd .github/workflows
-          bash merge.sh
+          bash compare/merge.sh
 
 
       - name: Merge upstream
