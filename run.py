@@ -9,7 +9,8 @@ third_party = ['anitopy',
                'python-opensubtitles',
                'python-plexapi',
                'qbittorrent-api',
-               'transmission-rpc']
+               'transmission-rpc',
+               'guessit']
 for third_party_lib in third_party:
     sys.path.append(os.path.join(os.path.dirname(__file__),
                                  "third_party",
