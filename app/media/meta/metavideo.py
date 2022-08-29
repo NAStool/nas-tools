@@ -80,9 +80,6 @@ class MetaVideo(MetaBase):
             # 分辨率
             if self._continue_flag:
                 self.__init_resource_pix(token)
-            # 制作组/字幕组
-            if self._continue_flag:
-                self.__init_resource_team(title)
             # 季
             if self._continue_flag:
                 self.__init_seasion(token)
@@ -114,6 +111,8 @@ class MetaVideo(MetaBase):
         # 处理part
         if self.part and self.part.upper() == "PART":
             self.part = None
+        # 制作组/字幕组
+        self.resource_team = guessit(title).get("release_group")
 
     def __fix_name(self, name):
         if not name:
@@ -274,14 +273,6 @@ class MetaVideo(MetaBase):
                     self.resource_pix = "3D"
                 else:
                     self.resource_pix = "%s 3D" % self.resource_pix
-
-    def __init_resource_team(self, title):
-        if not self.get_name():
-            return
-        if guessit(title).get("release_group"):
-            self.resource_team = guessit(title).get("release_group")
-        else:
-            self.resource_team = ""
 
     def __init_seasion(self, token):
         re_res = re.findall(r"%s" % self._season_re, token, re.IGNORECASE)
