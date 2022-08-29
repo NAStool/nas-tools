@@ -55,7 +55,7 @@ jobs:
         pip install wheel numpy railroad pyparsing wxpython pyinstaller
         git clone --depth=1 -b dev https://github.com/shurelol/nas-tools --recurse-submodule
         cd nas-tools
-        copy /y .\windows\rely\website.py D:\a\nas-tools\nas-tools\nas-tools\third_party\guessit\guessit\rules\properties
+        copy .\windows\rely\website.py .\third_party\guessit\guessit\rules\properties
         pip install -r requirements.txt
         pip install -r third_party.txt
         pip uninstall -y -r third_party.txt
@@ -70,7 +70,7 @@ jobs:
         copy .\windows\rely\hook-babelfish.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks
         copy .\windows\rely\hook-guessit.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks
         copy .\third_party.txt .\windows
-        copy /Y .\windows\rely\website.py D:\a\nas-tools\nas-tools\nas-tools\third_party\guessit\guessit\rules\properties
+        copy .\windows\rely\website.py .\third_party\guessit\guessit\rules\properties
         copy .\windows\rely\template.jinja2 c:\hostedtoolcache\windows\Python\3.10.6\x64\lib\site-packages\setuptools\_vendor\pyparsing\diagram
         xcopy .\web c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\web\ /e
         xcopy .\config c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\config\ /e
