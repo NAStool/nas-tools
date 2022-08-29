@@ -10,7 +10,7 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
     fi
     echo "更新程序..."
     git remote set-url origin ${REPO_URL} &>/dev/null
-    echo "windows/" >> .gitignore
+    echo "windows/" > .gitignore
     echo "third_party/feapder/feapder/network/proxy_file/" >> .gitignore
     git pull
     if [ $? -eq 0 ]; then
