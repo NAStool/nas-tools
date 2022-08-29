@@ -1,7 +1,0 @@
-{
-    "defaults": {
-        "run-as": "package"
-    },
-    "username": "sc-nastool",
-    "join-groupname": "system"
-}
