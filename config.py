@@ -113,6 +113,18 @@ class Config(object):
                     if login_password and not login_password.startswith("[hash]"):
                         self.__config['app']['login_password'] = "[hash]%s" % generate_password_hash(login_password)
                         overwrite_cofig = True
+                    if not self.__config.get("security"):
+                        self.__config['security'] = {
+                            'media_server_webhook_allow_ip': {
+                                'ipv4': '0.0.0.0/0',
+                                'ipv6': '::/0'
+                            },
+                            'telegram_webhook_allow_ip': {
+                                'ipv4': '149.154.160.0/20,91.108.4.0/22',
+                                'ipv6': '::/0'
+                            }
+                        }
+                        overwrite_cofig = True
                     if not self.__config.get("laboratory", {}).get("subscribe_token"):
                         self.__config['laboratory']['subscribe_token'] = StringUtils.generate_random_str()
                         overwrite_cofig = True
