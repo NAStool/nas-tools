@@ -12,7 +12,7 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
     git remote set-url origin ${REPO_URL} &>/dev/null
     echo "windows/" > .gitignore
     echo "third_party/feapder/feapder/network/proxy_file/" >> .gitignore
-    git pull
+    git pull origin master
     if [ $? -eq 0 ]; then
         echo "更新成功..."
         hash_old=$(cat /tmp/requirements.txt.sha256sum)
