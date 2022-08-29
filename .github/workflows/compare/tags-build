@@ -1,4 +1,5 @@
 runs-on: ubuntu-latest
+needs: [Windows-build]
 steps:
   - name: Get the tags from the jxxghp/nas-tools
     run: |
@@ -24,6 +25,18 @@ steps:
       # rm -rf jxxghp          checkout 时直接会删除之前的所有内容
   # - name: Setup Debug Session
   #   uses: csexton/debugger-action@master
+
+  - name: download exe and rename
+    uses: actions/download-artifact@v3
+  - name: get release_informations
+    shell: bash
+    run: |
+      pwd
+      mkdir releases
+      cd windows
+      mv nas-tools.exe /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.exe
+      pwd
+
   - name: Create release
     id: create_release
     uses: GongT/actions-recreate-release@v1
@@ -36,17 +49,23 @@ steps:
       body_path: commit.txt
       draft: false
       prerelease: false
-      # - name: Setup Debug Session
-  - name: output release_informations
-    # uses: csexton/debugger-action@master
 
-    run: |
-      echo "${{ steps.create_release.outputs.id }}" > release_id.txt
-      echo "${{ env.app_version }}" > app_version.txt
-  - name: save release_informations
-    uses: actions/upload-artifact@v3
+  - name: Upload release asset
+    uses: dwenegar/upload-release-assets@v1
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     with:
-      name: release_informations
-      path: |
-        release_id.txt
-        app_version.txt
+      release_id: ${{ steps.create_release.outputs.id }}
+      assets_path: |
+        /home/runner/work/nas-tools/nas-tools/releases/
+
+  - name: Send telegram message (release informations)
+    uses: appleboy/telegram-action@master
+    with:
+      to: ${{ secrets.TELEGRAM_TO }}
+      token: ${{ secrets.TELEGRAM_TOKEN }}
+      format: markdown
+      message: |
+        *v${{ env.app_version }}*
+        ${{ github.event.commits[0].message }}
+      document: /home/runner/work/nas-tools/nas-tools/releases/nastool_win_v${{ env.app_version }}.exe
