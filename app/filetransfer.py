@@ -1045,6 +1045,7 @@ class FileTransfer:
             "year": media.year,
             "edition": media.resource_type,
             "videoFormat": media.resource_pix,
+            "releaseGroup": media.resource_team,
             "videoCodec": media.video_encode,
             "audioCodec": media.audio_encode,
             "tmdbid": media.tmdb_id,

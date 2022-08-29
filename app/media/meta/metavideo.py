@@ -6,7 +6,7 @@ from app.media.meta.metabase import MetaBase
 from app.utils.string_utils import StringUtils
 from app.utils.tokens import Tokens
 from app.utils.types import MediaType
-
+from guessit import guessit
 
 class MetaVideo(MetaBase):
     """
@@ -79,6 +79,9 @@ class MetaVideo(MetaBase):
             # 分辨率
             if self._continue_flag:
                 self.__init_resource_pix(token)
+            # 制作组/字幕组
+            if self._continue_flag:
+                self.__init_resource_team(title)
             # 季
             if self._continue_flag:
                 self.__init_seasion(token)
@@ -271,6 +274,14 @@ class MetaVideo(MetaBase):
                 else:
                     self.resource_pix = "%s 3D" % self.resource_pix
 
+    def __init_resource_team(self, title):
+        if not self.get_name():
+            return
+        if guessit(title).get("release_group"):
+            self.resource_team = guessit(title).get("release_group")
+        else:
+            self.resource_team = ""
+        
     def __init_seasion(self, token):
         re_res = re.findall(r"%s" % self._season_re, token, re.IGNORECASE)
         if re_res:

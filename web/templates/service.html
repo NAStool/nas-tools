@@ -333,6 +333,9 @@
         if(ret.data.pix){
           $("#test_result").append('<span class="badge me-1 mb-1" title="分辨率">' + ret.data.pix + '</span>');
         }
+        if(ret.data.team){
+          $("#test_result").append('<span class="badge badge-outline text-blue me-1 mb-1" title="制作组/字幕组">' + ret.data.team + '</span>');
+        }
         if(ret.data.video_codec){
           $("#test_result").append('<span class="badge me-1 mb-1" title="视频编码">' + ret.data.video_codec + '</span>');
         }

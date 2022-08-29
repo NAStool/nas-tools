@@ -899,6 +899,7 @@ class WebAction:
         over_edition = data.get("over_edition")
         rss_restype = data.get("rss_restype")
         rss_pix = data.get("rss_pix")
+        rss_team = data.get("rss_team")
         rss_rule = data.get("rss_rule")
         rssid = data.get("rssid")
         if name and mtype:
@@ -918,6 +919,7 @@ class WebAction:
                                                   over_edition=over_edition,
                                                   rss_restype=rss_restype,
                                                   rss_pix=rss_pix,
+                                                  rss_team=rss_team,
                                                   rss_rule=rss_rule,
                                                   rssid=rssid)
         return {"code": code, "msg": msg, "page": page, "name": name}
@@ -1494,6 +1496,7 @@ class WebAction:
             "category": media_info.category,
             "restype": media_info.resource_type,
             "pix": media_info.resource_pix,
+            "team": media_info.resource_team,
             "video_codec": media_info.video_encode,
             "audio_codec": media_info.audio_encode
         }}
@@ -1777,6 +1780,9 @@ class WebAction:
         if filter_map.get("pix"):
             filter_htmls.append(
                 '<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % filter_map.get("pix"))
+        if filter_map.get("team"):
+            filter_htmls.append(
+                '<span class="badge badge-outline text-blue me-1 mb-1">%s</span>' % filter_map.get("team"))        
         if filter_map.get("rule"):
             filter_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' %
                                 FilterRule().get_rule_groups(groupid=filter_map.get("rule")).get("name") or "")
