@@ -3,18 +3,13 @@ import signal
 import sys
 
 # 添加第三方库入口,按首字母顺序，引入brushtask时涉及第三方库，需提前引入
-third_party = ['anitopy',
-               'cn2an',
-               'feapder',
-               'python-opensubtitles',
-               'python-plexapi',
-               'qbittorrent-api',
-               'transmission-rpc',
-               'guessit']
-for third_party_lib in third_party:
-    sys.path.append(os.path.join(os.path.dirname(__file__),
-                                 "third_party",
-                                 third_party_lib).replace("\\", "/"))
+with open(os.path.join(os.path.dirname(__file__),
+                       "third_party.txt"), "r") as f:
+    third_party = f.readlines()
+    for third_party_lib in third_party:
+        sys.path.append(os.path.join(os.path.dirname(__file__),
+                                     "third_party",
+                                     third_party_lib).replace("\\", "/"))
 
 # 运行环境判断
 is_windows_exe = getattr(sys, 'frozen', False) and (os.name == "nt")
