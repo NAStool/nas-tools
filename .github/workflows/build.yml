@@ -59,7 +59,7 @@ jobs:
         cp -r synology/ui synology/wheelhouse ./
         sed -i 's/3000/3003/g' config/config.yaml
         sed -i 's/\/config\/logs/\/var\/packages\/nastool\/target\/config\/logs/g' config/config.yaml
-        tar -zcvf package.tgz *.py *.txt web/ ui/ wheelhouse/ config/ app/ third_party/
+        tar -zcvf package.tgz *.py *.txt web/ ui/ wheelhouse/ config/ app/
         mkdir spk6
         cp -r package.tgz synology/dsm6/conf synology/dsm6/scripts/ synology/dsm6/INFO synology/CHANGELOG synology/*.PNG synology/*.asc spk6/
         cd spk6/
@@ -68,7 +68,7 @@ jobs:
         tar -cvf nastool_dsm6.spk *
         cd ..
         rm -f package.tgz
-        tar -zcvf package.tgz *.py *.txt web/ ui/ wheelhouse/ config/ app/ third_party/
+        tar -zcvf package.tgz *.py *.txt web/ ui/ wheelhouse/ config/ app/
         mkdir spk7
         cp -r package.tgz synology/dsm7/conf synology/dsm7/scripts/ synology/dsm7/INFO synology/CHANGELOG synology/*.PNG synology/*.asc spk7/
         cd spk7/
