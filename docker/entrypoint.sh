@@ -5,11 +5,13 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
     if [ ! -s /tmp/requirements.txt.sha256sum ]; then
         sha256sum requirements.txt > /tmp/requirements.txt.sha256sum
     fi
+    if [ ! -s /tmp/third_party.txt.sha256sum ]; then
+        sha256sum third_party.txt > /tmp/third_party.txt.sha256sum
+    fi
     echo "更新程序..."
     git remote set-url origin ${REPO_URL} &>/dev/null
-    echo "synology/" > .gitignore
     echo "windows/" >> .gitignore
-    echo "third_party/" >> .gitignore
+    echo "third_party/feapder/feapder/network/proxy_file/" >> .gitignore
     git pull
     if [ $? -eq 0 ]; then
         echo "更新成功..."
@@ -24,6 +26,20 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
             else
                 echo "依赖安装成功..."
                 sha256sum requirements.txt > /tmp/requirements.txt.sha256sum
+            fi
+        fi
+        hash_old=$(cat /tmp/third_party.txt.sha256sum)
+        hash_new=$(sha256sum third_party.txt)
+        if [ "$hash_old" != "$hash_new" ]; then
+            echo "检测到third_party.txt有变化，重新安装第三方组件..."
+            pip install --upgrade pip setuptools wheel
+            pip install -r third_party.txt
+            pip uninstall -y -r third_party.txt
+            if [ $? -ne 0 ]; then
+                echo "无法安装第三方组件，请更新镜像..."
+            else
+                echo "第三方组件安装成功..."
+                sha256sum third_party.txt > /tmp/third_party.txt.sha256sum
             fi
         fi
     else

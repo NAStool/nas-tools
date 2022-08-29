@@ -1,0 +1,8 @@
+feapder
+qbittorrent-api
+anitopy
+plexapi
+transmission-rpc
+python-opensubtitles
+cn2an
+guessit

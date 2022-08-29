@@ -53,11 +53,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install wheel numpy railroad pyparsing wxpython pyinstaller
-        pip install feapder qbittorrent-api anitopy plexapi transmission-rpc python-opensubtitles cn2an guessit
-        pip uninstall -y feapder qbittorrent-api anitopy plexapi transmission-rpc python-opensubtitles cn2an guessit
         git clone --depth=1 https://github.com/jxxghp/nas-tools --recurse-submodule
         cd nas-tools
         pip install -r requirements.txt
+        pip install -r third_party.txt
+        pip uninstall -y -r third_party.txt
     - name: package through pyinstaller
       run:
         cd nas-tools &&
