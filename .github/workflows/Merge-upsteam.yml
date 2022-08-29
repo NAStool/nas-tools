@@ -19,9 +19,9 @@ jobs:
           fetch-depth: 0
 
         
-      - name: install yq
-        run: |
-          sudo snap install yq
+      # - name: install yq #放在脚本内，以便减少不必要的安装
+      #   run: |
+      #     sudo snap install yq
       - name: Setup git
         run: |
           git config --global user.name "sungamma"
