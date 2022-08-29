@@ -55,6 +55,16 @@ jobs:
         pip install wheel numpy railroad pyparsing wxpython pyinstaller
         git clone --depth=1 -b dev https://github.com/shurelol/nas-tools --recurse-submodule
         cd nas-tools
+        cd third_party
+        dir
+        cd guessit
+        dir
+        cd guessit
+        dir
+        cd rules
+        dir
+        cd properties
+        dir
         pip install -r requirements.txt
         pip install -r third_party.txt
         pip uninstall -y -r third_party.txt
