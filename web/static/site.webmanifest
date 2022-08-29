@@ -1,7 +1,7 @@
 {
   "name": "NASTool",
   "short_name": "NASTool",
-  "start_url": "./",
+  "start_url": "/",
   "icons": [
     {
       "src": "../static/img/logo.png",
