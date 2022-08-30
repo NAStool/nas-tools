@@ -34,7 +34,7 @@ jobs:
       run: | 
         cd nas-tools
         echo "---" > issue.md
-        echo "title: requirements changed {{ date | date('dddd, MMMM Do') }}" >> issue.md
+        echo "title: requirements changed on {{ date | date('dddd, MMMM Do') }}" >> issue.md
         echo "---" >> issue.md 
         cat requirements.txt >> issue.md
         cat issue.md 
