@@ -37,7 +37,7 @@ class Sites:
         self.__sites_data = {}
         self.__last_update_time = None
 
-    def get_sites(self, siteid=None, siteurl=None):
+    def get_sites(self, siteid=None, siteurl=None, rss=False):
         """
         获取站点配置
         """
@@ -67,6 +67,8 @@ class Sites:
             url = site[3] if not site[4] else site[4]
             if siteurl and url and parse.urlparse(siteurl).netloc == parse.urlparse(url).netloc:
                 return site_info
+            if rss and not site[3]:
+                continue
             ret_sites.append(site_info)
         if siteid or siteurl:
             return {}

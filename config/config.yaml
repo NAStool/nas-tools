@@ -184,7 +184,7 @@ pt:
   # 下载软件监控与Sync下载目录同步不要同时开启，否则功能存在重复
   pt_monitor: false
   # 【只监控NASTool添加的下载】：启用后只有NASTool添加的下载才会被自动转移和显示，关闭则下载软件中所有的任务都会转移和显示
-  pt_monitor_only: True
+  pt_monitor_only: true
   # 【下载完成后转移到媒体库的转移模式】：link、copy、softlink、move、rclone、rclonecopy，详情参考顶部说明
   rmt_mode: link
   #【聚合检索使用的检索器】：jackett、prowlarr、builtin，需要配置jackett或prowlarr对应的配置区域，builtin为内置索引器需要在配置文件目录/sites目录下存入对应的站点配置文件

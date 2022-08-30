@@ -524,8 +524,8 @@ def create_flask_app(config):
     @login_required
     def movie_rss():
         RssItems = get_rss_movies()
-        RssSites = Sites().get_sites()
-        SearchSites = [item.name for item in Searcher().indexer.get_indexers()]
+        RssSites = Sites().get_sites(rss=True)
+        SearchSites = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers()]
         RuleGroups = FilterRule().get_rule_groups()
         return render_template("rss/movie_rss.html",
                                Count=len(RssItems),
@@ -542,8 +542,8 @@ def create_flask_app(config):
     @login_required
     def tv_rss():
         RssItems = get_rss_tvs()
-        RssSites = Sites().get_sites()
-        SearchSites = [item.name for item in Searcher().indexer.get_indexers()]
+        RssSites = Sites().get_sites(rss=True)
+        SearchSites = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers()]
         RuleGroups = FilterRule().get_rule_groups()
         return render_template("rss/tv_rss.html",
                                Count=len(RssItems),
@@ -763,7 +763,7 @@ def create_flask_app(config):
     @login_required
     def brushtask():
         # 站点列表
-        CfgSites = Sites().get_sites()
+        CfgSites = Sites().get_sites(rss=True)
         # 下载器列表
         downloaders = get_user_downloaders()
         # 任务列表
@@ -1336,7 +1336,7 @@ def create_flask_app(config):
     @App.route('/indexer', methods=['POST', 'GET'])
     @login_required
     def indexer():
-        indexers = BuiltinIndexer().get_indexers()
+        indexers = BuiltinIndexer().get_indexers(check=False)
         return render_template("setting/indexer.html",
                                Config=config.get_config(),
                                Indexers=indexers)

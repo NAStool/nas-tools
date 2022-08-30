@@ -47,7 +47,7 @@ class Rss:
         self.init_config()
 
     def init_config(self):
-        self.__sites = self.sites.get_sites()
+        self.__sites = self.sites.get_sites(rss=True)
 
     def rssdownload(self):
         """

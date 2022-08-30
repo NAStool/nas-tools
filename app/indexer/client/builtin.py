@@ -25,8 +25,9 @@ class BuiltinIndexer(IIndexer):
         """
         return True
 
-    def get_indexers(self):
+    def get_indexers(self, check=True):
         ret_indexers = []
+        indexer_sites = Config().get_config("pt").get("indexer_sites") or []
         for site in Sites().get_sites():
             if not site.get("cookie"):
                 continue
@@ -36,6 +37,8 @@ class BuiltinIndexer(IIndexer):
                                                   site.get("cookie"),
                                                   site.get("name"))
             if indexer:
+                if check and indexer_sites and indexer.id not in indexer_sites:
+                    continue
                 indexer.name = site.get("name")
                 ret_indexers.append(indexer)
         return ret_indexers

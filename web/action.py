@@ -756,8 +756,9 @@ class WebAction:
         # 安装依赖
         os.system('pip install -r /nas-tools/requirements.txt')
         os.system('pip install -r /nas-tools/third_party.txt')
+        os.system('pip uninstall -y -r /nas-tools/third_party.txt')
         # 升级
-        os.system("git pull origin master")
+        os.system("git pull")
         # 退出主进程
         self.shutdown_server()
 

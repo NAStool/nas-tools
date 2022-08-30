@@ -192,8 +192,8 @@
               <div class="form-selectgroup">
                 {% for site in SearchSites %}
                 <label class="form-selectgroup-item">
-                  <input type="checkbox" name="search_sites" value="{{ site }}" class="form-selectgroup-input" checked>
-                  <span class="form-selectgroup-label">{{ site }}</span>
+                  <input type="checkbox" name="search_sites" value="{{ site.id }}" class="form-selectgroup-input" checked>
+                  <span class="form-selectgroup-label">{{ site.name }}</span>
                 </label>
                 {% endfor %}
               </div>
@@ -375,6 +375,7 @@
     $("#over_edition").prop("checked", false);
     $("#tv_name").attr("readonly", false);
     $("#tv_year").attr("readonly", false);
+    $("#rss_delete_btn").hide();
     $("#modal-tv-rss").modal('show');
   }
 
@@ -429,6 +430,7 @@
           }
         });
         $("#rss_delete_btn").attr("href", 'javascript:remove_rss_tv("'+ret.detail.name+'","'+ret.detail.year+'","'+rssid+'")');
+        $("#rss_delete_btn").show);
         $("#modal-tv-rss").modal('show');
       }
     });

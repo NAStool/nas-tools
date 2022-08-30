@@ -34,6 +34,6 @@ class IndexerHelper:
         for indexer in self._indexers:
             if not indexer.get("domain"):
                 continue
-            if parse.urlparse(indexer.get("domain")).netloc == url_host:
+            if str(parse.urlparse(indexer.get("domain")).netloc).replace("www.", "") == str(url_host).replace("www.", ""):
                 return IndexerConf(datas=indexer, cookie=RequestUtils.cookie_parse(cookie), name=name)
         return None

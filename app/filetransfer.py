@@ -223,7 +223,7 @@ class FileTransfer:
                         continue
                     file_ext = os.path.splitext(file_item)[-1]
                     sub_language = os.path.basename(file_item).split(".")[-2]
-                    if sub_language and (sub_language.lower() in ["zh-cn", "zh", "zh_CN", "chs", "cht"]
+                    if sub_language and (sub_language.lower() in ["zh-cn", "cn", "zh", "zh_cn", "chs", "cht"]
                                          or "简" in sub_language
                                          or "中" in sub_language
                                          or "双" in sub_language):
