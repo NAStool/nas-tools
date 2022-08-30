@@ -1569,7 +1569,7 @@ def create_flask_app(config):
     @App.route('/subscribe', methods=['POST', 'GET'])
     def subscribe():
         authorization = request.headers.get("Authorization")
-        if not authorization or authorization != Config().get_config("laboratory").get("subscribe_token"):
+        if not authorization or authorization != Config().get_config("security").get("subscribe_token"):
             return make_response("认证失败！", 400)
         req_json = request.get_json()
         if not req_json:

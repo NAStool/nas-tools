@@ -353,6 +353,8 @@ security:
   telegram_webhook_allow_ip:
     ipv4: 149.154.160.0/20,91.108.4.0/22
     ipv6: ::/0
+  # 【订阅API认证密钥】：用于Jellyseerr、Overseerr中Authorization认证
+  subscribe_token:
 
 # 【实验室】
 laboratory:
@@ -364,5 +366,3 @@ laboratory:
   use_douban_titles: true
   # 【精确搜索使用英文名称】：开启后对于精确搜索场景（远程搜索、订阅搜索等）将会使用英文名检索站点资源以提升匹配度，但对有些站点资源标题全是中文的则需要关闭，否则匹配不到
   search_en_title: false
-  # 【订阅API认证密钥】
-  subscribe_token:

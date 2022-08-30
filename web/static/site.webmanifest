@@ -1,0 +1,23 @@
+{
+  "name": "NASTool",
+  "short_name": "NASTool",
+  "start_url": "../",
+  "icons": [
+    {
+      "src": "./img/logo.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./img/logo.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#1e293b",
+  "background_color": "#1e293b",
+  "display": "standalone",
+  "shortcuts": []
+}
