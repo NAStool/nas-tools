@@ -144,7 +144,7 @@
                   {% if Indexers %}
                   {% for Indexer in Indexers %}
                   <label class="form-selectgroup-item">
-                    <input type="checkbox" name="indexer_site" value="{{ Indexer.id }}" class="form-selectgroup-input" {% if Indexer.id in Config.pt.indexer_sites or [] %}checked{% endif %}>
+                    <input type="checkbox" name="indexer_site" value="{{ Indexer.id }}" class="form-selectgroup-input" {% if Config.pt.indexer_sites and Indexer.id in Config.pt.indexer_sites %}checked{% endif %}>
                     <span class="form-selectgroup-label">{{ Indexer.name }}</span>
                   </label>
                   {% endfor %}
