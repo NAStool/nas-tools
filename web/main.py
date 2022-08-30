@@ -149,9 +149,7 @@ def create_flask_app(config):
     @App.route('/', methods=['GET', 'POST'])
     def login():
         # 判断当前的运营环境
-        SystemFlag = 0
-        if SystemUtils.get_system() == OsType.LINUX and SystemUtils.check_process("supervisord"):
-            SystemFlag = 1
+        SystemFlag = 1 if SystemUtils.get_system() == OsType.LINUX else 0
         if request.method == 'GET':
             GoPage = request.args.get("next") or ""
             if GoPage.startswith('/'):

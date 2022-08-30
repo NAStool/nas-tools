@@ -167,6 +167,8 @@ Jackett/Prowlarr二选一，但推荐使用Jackett，支持并发且支持副标
 * 本地直接运行的，cd 到程序根目录，执行以下命令，修改配置文件、源目录和目的目录参数。
    ```
    export NASTOOL_CONFIG=/xxx/config.yaml
+   python3 -m pip install -r requirements.txt
+   python3 -m pip install -r third_party.txt
    python3 app/filetransfer.py -m link -s /from/path -d /to/path
    ```
 
