@@ -113,6 +113,9 @@ class Config(object):
                     if login_password and not login_password.startswith("[hash]"):
                         self.__config['app']['login_password'] = "[hash]%s" % generate_password_hash(login_password)
                         overwrite_cofig = True
+                    if not self.__config.get("laboratory"):
+                        self.__config['laboratory'] = {}
+                        overwrite_cofig = True
                     if not self.__config.get("security"):
                         self.__config['security'] = {
                             'media_server_webhook_allow_ip': {
@@ -126,10 +129,9 @@ class Config(object):
                         }
                         overwrite_cofig = True
                     if not self.__config.get("security", {}).get("subscribe_token"):
-                        self.__config['security']['subscribe_token'] = StringUtils.generate_random_str()
-                        overwrite_cofig = True
-                    if not self.__config.get("laboratory"):
-                        self.__config['laboratory'] = {}
+                        self.__config['security']['subscribe_token'] = self.__config.get("laboratory",
+                                                                                         {}).get("subscribe_token") \
+                                                                       or StringUtils.generate_random_str()
                         overwrite_cofig = True
                     if overwrite_cofig:
                         self.save_config(self.__config)
