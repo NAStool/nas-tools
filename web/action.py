@@ -742,10 +742,14 @@ class WebAction:
         """
         重启
         """
-        # 停止服务
-        self.stop_service()
-        # 退出主进程
-        self.shutdown_server()
+        if "synology" in os.popen('uname -a').readline():
+            # 调用群晖套件内置命令重启
+            os.system('nastool restart')
+        else:
+            # 停止服务
+            self.stop_service()
+            # 退出主进程
+            self.shutdown_server()
 
     def __update_system(self, data):
         """
@@ -753,12 +757,17 @@ class WebAction:
         """
         # 停止服务
         self.stop_service()
-        # 安装依赖
-        os.system('pip install -r /nas-tools/requirements.txt')
-        os.system('pip install -r /nas-tools/third_party.txt')
-        os.system('pip uninstall -y -r /nas-tools/third_party.txt')
         # 升级
-        os.system("git pull")
+        if "synology" in os.popen('uname -a').readline():
+            # 调用群晖套件内置命令升级
+            os.system('nastool update')
+        else:
+            # 安装依赖
+            os.system('pip install -r /nas-tools/requirements.txt')
+            os.system('pip install -r /nas-tools/third_party.txt')
+            os.system('pip uninstall -y -r /nas-tools/third_party.txt')
+            # 升级
+            os.system("git pull --depth=1")
         # 退出主进程
         self.shutdown_server()
 

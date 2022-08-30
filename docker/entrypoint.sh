@@ -12,7 +12,7 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
     git remote set-url origin ${REPO_URL} &>/dev/null
     echo "windows/" > .gitignore
     echo "third_party/feapder/feapder/network/proxy_file/" >> .gitignore
-    git pull origin master
+    git pull origin master --depth=1
     if [ $? -eq 0 ]; then
         echo "更新成功..."
         hash_old=$(cat /tmp/requirements.txt.sha256sum)
@@ -37,9 +37,8 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
             if [ $? -ne 0 ]; then
                 echo "无法安装第三方组件，请更新镜像..."
             else
+                git pull origin master --depth=1 --recurse-submodules=true
                 pip uninstall -y -r third_party.txt
-                git submodule init
-                git submodule update
                 echo "第三方组件安装成功..."
                 sha256sum third_party.txt > /tmp/third_party.txt.sha256sum
             fi
