@@ -764,10 +764,12 @@ class WebAction:
         else:
             # 安装依赖
             os.system('pip install -r /nas-tools/requirements.txt')
-            os.system('pip install -r /nas-tools/third_party.txt')
-            os.system('pip uninstall -y -r /nas-tools/third_party.txt')
+            # 清理
+            os.system("git clean -dffx")
+            os.system("git reset --hard HEAD")
             # 升级
-            os.system("git pull --depth=1")
+            os.system("git pull")
+            os.system("git submodule update --init --recursive")
         # 退出主进程
         self.shutdown_server()
 
