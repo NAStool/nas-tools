@@ -125,8 +125,11 @@ class Config(object):
                             }
                         }
                         overwrite_cofig = True
-                    if not self.__config.get("laboratory", {}).get("subscribe_token"):
-                        self.__config['laboratory']['subscribe_token'] = StringUtils.generate_random_str()
+                    if not self.__config.get("security", {}).get("subscribe_token"):
+                        self.__config['security']['subscribe_token'] = StringUtils.generate_random_str()
+                        overwrite_cofig = True
+                    if not self.__config.get("laboratory"):
+                        self.__config['laboratory'] = {}
                         overwrite_cofig = True
                     if overwrite_cofig:
                         self.save_config(self.__config)
