@@ -27,7 +27,7 @@
     <!-- CSS files -->
     <link href="../static/css/tabler.min.css" rel="stylesheet"/>
   </head>
-  <body  class="d-flex flex-column" style="overflow:hidden; background-image:url(data:image/jpg;base64,{{ LoginWallpaper|safe }}); background-size:cover; background-position:center;">
+  <body  class="d-flex flex-column" style="position:fixed; top:0; left:0; right:0; bottom:0; overflow:hidden; background-image:url(data:image/jpg;base64,{{ LoginWallpaper|safe }}); background-size:cover; background-position:center; background-repeat:repeat;">
     <div class="page page-center">
       <div class="container-tight py-4">
         <form class="card card-md" action="/" method="post" autocomplete="off" style="{% if LoginWallpaper %}background-color:rgba(255,255,255,0.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px){% endif %}">
@@ -79,25 +79,5 @@
     </div>
     <script src="../static/js/tabler.min.js"></script>
     <script src="../static/js/demo.min.js"></script>
-    <script type="text/javascript">
-
-      //禁止双指放大
-      document.documentElement.addEventListener('touchstart', function (event) {
-        if (event.touches.length > 1) {
-          event.preventDefault();
-        }
-      }, false);
-
-      //禁止双击放大
-      var lastTouchEnd = 0;
-      document.documentElement.addEventListener('touchend', function (event) {
-        var now = Date.now();
-        if (now - lastTouchEnd <= 300) {
-          event.preventDefault();
-        }
-        lastTouchEnd = now;
-      }, false);
-
-    </script>
   </body>
 </html>
