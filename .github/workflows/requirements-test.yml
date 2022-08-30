@@ -6,7 +6,7 @@ on:
       - dev
 
 jobs:
-  build:
+  requirements-test:
     runs-on: ubuntu-latest
     steps:
     - name: init Python 3.10.6
