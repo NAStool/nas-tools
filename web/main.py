@@ -11,7 +11,7 @@ from pathlib import Path
 from urllib import parse
 
 import cn2an
-from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file
+from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file, jsonify
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 from werkzeug.security import check_password_hash
 
@@ -737,7 +737,7 @@ def create_flask_app(config):
             days=2)
 
         # 站点用户数据
-        SiteUserStatistics = Sites().get_pt_site_user_statistics()
+        SiteUserStatistics = Sites().get_site_user_statistics()
 
         return render_template("site/statistics.html",
                                CurrentDownload=CurrentDownload,
@@ -1609,6 +1609,21 @@ def create_flask_app(config):
             return make_response("ok", 200)
         else:
             return make_response(msg, 500)
+
+    # 站点信息查询接口
+    @App.route('/api/v1/site/statistics', methods=['POST', 'GET'])
+    def site_statistic():
+        authorization = request.headers.get("Authorization")
+        if not authorization or authorization != Config().get_config("security").get("subscribe_token"):
+            return make_response(jsonify({"code": 400, "msg": "认证失败！"}), 400)
+
+        # 返回站点信息
+        # 添加订阅
+        code = 200
+        user_statistics = Sites().get_site_user_statistics(encoding="DICT")
+
+        return make_response(jsonify({"code": code, "data": {"user_statistics": user_statistics}}), code)
+
 
     @App.route('/backup', methods=['POST'])
     @login_required
