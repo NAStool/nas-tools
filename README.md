@@ -11,8 +11,6 @@ TG频道：https://t.me/nastool
 
 WIKI：https://github.com/jxxghp/nas-tools/wiki
 
-配置文件模板：https://github.com/jxxghp/nas-tools/blob/master/config/config.yaml
-（现已可通过WEB界面配置，但里面的注释可以参考）
 
 ## 功能：
 
