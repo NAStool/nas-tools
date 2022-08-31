@@ -12,7 +12,9 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
     git remote set-url origin ${REPO_URL} &>/dev/null
     echo "windows/" > .gitignore
     echo "third_party/feapder/feapder/network/proxy_file/" >> .gitignore
-    git pull origin master --depth=1
+    git clean -dffx
+    git reset --hard HEAD
+    git pull
     if [ $? -eq 0 ]; then
         echo "更新成功..."
         hash_old=$(cat /tmp/requirements.txt.sha256sum)
@@ -26,21 +28,18 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
             else
                 echo "依赖安装成功..."
                 sha256sum requirements.txt > /tmp/requirements.txt.sha256sum
-            fi
-        fi
-        hash_old=$(cat /tmp/third_party.txt.sha256sum)
-        hash_new=$(sha256sum third_party.txt)
-        if [ "$hash_old" != "$hash_new" ]; then
-            echo "检测到third_party.txt有变化，重新安装第三方组件..."
-            pip install --upgrade pip setuptools wheel
-            pip install -r third_party.txt
-            if [ $? -ne 0 ]; then
-                echo "无法安装第三方组件，请更新镜像..."
-            else
-                git pull origin master --depth=1 --recurse-submodules=true
-                pip uninstall -y -r third_party.txt
-                echo "第三方组件安装成功..."
-                sha256sum third_party.txt > /tmp/third_party.txt.sha256sum
+                hash_old=$(cat /tmp/third_party.txt.sha256sum)
+                hash_new=$(sha256sum third_party.txt)
+                if [ "$hash_old" != "$hash_new" ]; then
+                    echo "检测到third_party.txt有变化，更新第三方组件..."
+                    git submodule update --init --recursive
+                    if [ $? -ne 0 ]; then
+                        echo "无法更新第三方组件，请更新镜像..."
+                    else
+                        echo "第三方组件安装成功..."
+                        sha256sum third_party.txt > /tmp/third_party.txt.sha256sum
+                    fi
+                fi
             fi
         fi
     else

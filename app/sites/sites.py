@@ -3,7 +3,6 @@ import traceback
 from datetime import datetime
 from multiprocessing.dummy import Pool as ThreadPool
 from threading import Lock
-from urllib import parse
 
 import log
 from app.message.message import Message
@@ -14,6 +13,7 @@ from app.utils.http_utils import RequestUtils
 from app.db.sqls import get_config_site, insert_site_statistics_history, update_site_user_statistics, \
     get_site_statistics_recent_sites, get_site_user_statistics, get_site_statistics_history, get_site_seeding_info, \
     update_site_seed_info
+from app.utils.string_utils import StringUtils
 
 lock = Lock()
 
@@ -65,7 +65,7 @@ class Sites:
             if siteid and int(site[0]) == int(siteid):
                 return site_info
             url = site[3] if not site[4] else site[4]
-            if siteurl and url and parse.urlparse(siteurl).netloc == parse.urlparse(url).netloc:
+            if siteurl and url and StringUtils.url_equal(siteurl, url):
                 return site_info
             if rss and not site[3]:
                 continue

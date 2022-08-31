@@ -1,6 +1,7 @@
 import bisect
 import random
 import re
+from urllib import parse
 
 
 class StringUtils:
@@ -167,3 +168,29 @@ class StringUtils:
         for i in range(randomlength):
             random_str += base_str[random.randint(0, length)]
         return random_str
+
+    @staticmethod
+    def url_equal(url1, url2):
+        """
+        比较两个地址是否为同一个网站
+        """
+        if not url1 or not url2:
+            return False
+        if url1.startswith("http"):
+            url1 = parse.urlparse(url1).netloc
+        if url2.startswith("http"):
+            url2 = parse.urlparse(url2).netloc
+        if url1.replace("www.", "") == url2.replace("www.", ""):
+            return True
+        return False
+
+    @staticmethod
+    def get_url_netloc(url):
+        """
+        获取URL的域名部分
+        """
+        if not url:
+            return ""
+        if not url.startswith("http"):
+            return url
+        return parse.urlparse(url).netloc

@@ -1,4 +1,4 @@
-name: requirements-test
+name: requirements
 on:
   workflow_dispatch:
   push:
@@ -15,7 +15,7 @@ jobs:
         python-version: '3.10.6'
     - name: install dependent packages
       run: | 
-        git clone -b dev https://github.com/shurelol/nas-tools.git --depth=1 
+        git clone -b dev https://github.com/jxxghp/nas-tools.git --depth=1
         cd nas-tools 
         hash_old=$(sha256sum requirements.txt)
         pip install -r requirements.txt

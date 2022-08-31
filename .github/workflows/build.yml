@@ -56,8 +56,6 @@ jobs:
         git clone --depth=1 https://github.com/jxxghp/nas-tools --recurse-submodule
         cd nas-tools
         pip install -r requirements.txt
-        pip install -r third_party.txt
-        pip uninstall -y -r third_party.txt
       shell: pwsh
     - name: package through pyinstaller
       run: |

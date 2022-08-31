@@ -2,14 +2,13 @@ import re
 import traceback
 import xml.dom.minidom
 from threading import Lock
-from urllib import parse
 
 import log
 from app.message.message import Message
 from app.downloader.downloader import Downloader
 from app.filterrules import FilterRule
 from app.searcher import Searcher
-from app.sites.siteconf import RSS_EXTRA_SITES
+from app.sites.siteconf import get_extrasite_conf
 from app.sites.sites import Sites
 from app.utils.torrent import Torrent
 from app.media.media import Media
@@ -567,13 +566,13 @@ class Rss:
                                 'GiB': 1024 * 1024 * 1024,
                                 'TiB': 1024 * 1024 * 1024 * 1024
                             }
-                            url_host = parse.urlparse(url).netloc
-                            if RSS_EXTRA_SITES[url_host] == 'Unit3D':
+                            site_attr = get_extrasite_conf(url)
+                            if site_attr == 'Unit3D':
                                 size_temp = re.search(r'Size</strong>: (\d*\.\d*|\d*)(\s)(GiB|MiB|TiB|KiB)',
                                                       description)
                                 if size_temp:
                                     size = int(float(size_temp.group(1)) * size_map[size_temp.group(3)])
-                            elif RSS_EXTRA_SITES[url_host] == 'beyondhd':
+                            elif site_attr == 'beyondhd':
                                 size_temp = re.search(r'(\d*\.\d*|\d*) (GiB|MiB|TiB|KiB)', title)
                                 if size_temp:
                                     size = int(float(size_temp.group(1)) * size_map[size_temp.group(2)])
