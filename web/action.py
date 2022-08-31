@@ -740,14 +740,10 @@ class WebAction:
         """
         重启
         """
-        if "synology" in os.popen('uname -a').readline():
-            # 调用群晖套件内置命令重启
-            os.system('nastool restart')
-        else:
-            # 停止服务
-            self.stop_service()
-            # 退出主进程
-            self.shutdown_server()
+        # 停止服务
+        self.stop_service()
+        # 退出主进程
+        self.shutdown_server()
 
     def __update_system(self, data):
         """

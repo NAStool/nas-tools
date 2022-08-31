@@ -344,6 +344,9 @@ class Emby(IMediaServer):
             max_path_len = 0
             equal_path_num = 0
             for folder in library.get("SubFolders"):
+                path_list = re.split(pattern='/+|\\\\+', string=folder.get("Path"))
+                if item.get("category") != path_list[-1]:
+                    continue
                 try:
                     path_len = len(os.path.commonpath([item.get("target_path"), folder.get("Path")]))
                     if path_len >= max_path_len:
