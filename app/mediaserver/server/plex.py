@@ -134,10 +134,14 @@ class Plex(IMediaServer):
         """
         通知Plex刷新整个媒体库
         """
+        if not self.__plex:
+            return False
         return self.__plex.library.update()
 
     def refresh_library_by_items(self, items):
         """
         按类型、名称、年份来刷新媒体库，未找到对应的API，直接刷整库
         """
+        if not self.__plex:
+            return False
         return self.__plex.library.update()

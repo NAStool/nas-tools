@@ -1,4 +1,6 @@
 # 非常规RSS站点
+from app.utils.string_utils import StringUtils
+
 RSS_EXTRA_SITES = {
     'blutopia.xyz': 'Unit3D',
     'desitorrents.tv': 'Unit3D',
@@ -243,3 +245,23 @@ RSS_SITE_GRAP_CONF = {
         'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
     }
 }
+
+
+def get_extrasite_conf(url):
+    """
+    根据地址找到RSS_EXTRA_SITES对应配置
+    """
+    for k, v in RSS_EXTRA_SITES.items():
+        if StringUtils.url_equal(k, url):
+            return v
+    return None
+
+
+def get_grapsite_conf(url):
+    """
+    根据地址找到RSS_SITE_GRAP_CONF对应配置
+    """
+    for k, v in RSS_SITE_GRAP_CONF.items():
+        if StringUtils.url_equal(k, url):
+            return v
+    return {}

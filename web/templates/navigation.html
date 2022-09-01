@@ -60,11 +60,27 @@
       top: 0 !important;
     }
 
+    .navbar-light {
+      backdrop-filter: blur(15px) !important;
+      -webkit-backdrop-filter: blur(15px) !important;
+      background-color: rgba(255,255,255,0.7) !important;
+    }
+
+    .theme-dark .navbar {
+      backdrop-filter: blur(15px) !important;
+      -webkit-backdrop-filter: blur(15px) !important;
+      background-color: rgba(30,41,59,0.8) !important;
+    }
+
     .page-wrapper {
       margin-top: calc(env(safe-area-inset-top) + 48px) !important;
     }
 
     .offcanvas {
+      padding-top: env(safe-area-inset-top) !important;
+    }
+
+    .modal-dialog {
       padding-top: env(safe-area-inset-top) !important;
     }
 
@@ -600,7 +616,7 @@
       <div class="list-group list-group-flush" id="system-messages">
       </div>
       <div class="mt-3" align="center">
-        <button class="btn" type="button" data-bs-dismiss="offcanvas">
+        <button class="btn btn-primary" type="button" data-bs-dismiss="offcanvas">
           关闭
         </button>
       </div>

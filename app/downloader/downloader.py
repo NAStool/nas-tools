@@ -96,7 +96,7 @@ class Downloader:
                 # 合并TAG
                 if self.__pt_monitor_only:
                     if not tag:
-                        tag = PT_TAG
+                        tag = [PT_TAG]
                     elif isinstance(tag, list):
                         tag += [PT_TAG]
                     else:
@@ -129,7 +129,7 @@ class Downloader:
             try:
                 lock.acquire()
                 if self.__pt_monitor_only:
-                    tag = PT_TAG
+                    tag = [PT_TAG]
                 else:
                     tag = None
                 trans_tasks = self.client.get_transfer_task(tag=tag)
@@ -164,7 +164,7 @@ class Downloader:
         try:
             lock.acquire()
             if self.__pt_monitor_only:
-                tag = PT_TAG
+                tag = [PT_TAG]
             else:
                 tag = None
             log.info("【DOWNLOADER】开始执行做种清理，做种时间：%s..." % StringUtils.str_timelong(self.__seeding_time))
@@ -183,7 +183,7 @@ class Downloader:
         if not self.client:
             return []
         if self.__pt_monitor_only:
-            tag = PT_TAG
+            tag = [PT_TAG]
         else:
             tag = None
         return self.__client_type, self.client.get_downloading_torrents(tag=tag)

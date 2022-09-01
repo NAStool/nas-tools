@@ -2,14 +2,13 @@ import random
 import re
 from functools import lru_cache
 from time import sleep
-from urllib import parse
 
 import bencode
 import cn2an
 from lxml import etree
 
 from config import TORRENT_SEARCH_PARAMS
-from app.sites.siteconf import RSS_SITE_GRAP_CONF
+from app.sites.siteconf import get_grapsite_conf
 from app.media.meta.metabase import MetaBase
 from app.utils.http_utils import RequestUtils
 from app.utils.types import MediaType
@@ -116,10 +115,7 @@ class Torrent:
         ret_attr = TorrentAttr()
         if not torrent_url:
             return ret_attr
-        url_host = parse.urlparse(torrent_url).netloc
-        if not url_host:
-            return ret_attr
-        xpath_strs = RSS_SITE_GRAP_CONF.get(url_host)
+        xpath_strs = get_grapsite_conf(torrent_url)
         if not xpath_strs:
             return ret_attr
         res = RequestUtils(cookies=cookie).get_res(url=torrent_url)

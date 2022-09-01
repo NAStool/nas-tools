@@ -33,8 +33,10 @@ class FileMonitorHandler(FileSystemEventHandler):
     def on_moved(self, event):
         self.sync.file_change_handler(event, "移动", event.dest_path)
 
+    """
     def on_modified(self, event):
         self.sync.file_change_handler(event, "修改", event.src_path)
+    """
 
 
 @singleton

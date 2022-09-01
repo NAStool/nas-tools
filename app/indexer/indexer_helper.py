@@ -1,7 +1,7 @@
 import os.path
 import pickle
-from urllib import parse
 
+from app.utils.string_utils import StringUtils
 from config import Config
 from app.utils.commons import singleton
 from app.utils.http_utils import RequestUtils
@@ -30,10 +30,9 @@ class IndexerHelper:
     def get_indexer(self, url, cookie, name):
         if not url:
             return None
-        url_host = parse.urlparse(url).netloc
         for indexer in self._indexers:
             if not indexer.get("domain"):
                 continue
-            if parse.urlparse(indexer.get("domain")).netloc == url_host:
+            if StringUtils.url_equal(indexer.get("domain"), url):
                 return IndexerConf(datas=indexer, cookie=RequestUtils.cookie_parse(cookie), name=name)
         return None

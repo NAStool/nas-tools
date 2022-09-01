@@ -3,7 +3,6 @@ import traceback
 from datetime import datetime
 from multiprocessing.dummy import Pool as ThreadPool
 from threading import Lock
-from urllib import parse
 
 import log
 from app.message.message import Message
@@ -14,6 +13,7 @@ from app.utils.http_utils import RequestUtils
 from app.db.sqls import get_config_site, insert_site_statistics_history, update_site_user_statistics, \
     get_site_statistics_recent_sites, get_site_user_statistics, get_site_statistics_history, get_site_seeding_info, \
     update_site_seed_info
+from app.utils.string_utils import StringUtils
 
 lock = Lock()
 
@@ -37,7 +37,7 @@ class Sites:
         self.__sites_data = {}
         self.__last_update_time = None
 
-    def get_sites(self, siteid=None, siteurl=None):
+    def get_sites(self, siteid=None, siteurl=None, rss=False):
         """
         获取站点配置
         """
@@ -47,6 +47,8 @@ class Sites:
             site_parse = str(site[9]).split("|")[0] or "Y"
             # 站点过滤规则为|分隔的第2位
             rule_groupid = str(site[9]).split("|")[1] if site[9] and len(str(site[9]).split("|")) > 1 else ""
+            # 站点未读消息未|分隔的第3位
+            site_unread_msg_notify = str(site[9]).split("|")[2] if site[9] and len(str(site[9]).split("|")) > 2 else "Y"
             if rule_groupid:
                 rule_name = self.filtersites.get_rule_groups(rule_groupid).get("name") or ""
             else:
@@ -60,13 +62,16 @@ class Sites:
                 "cookie": site[5],
                 "rule": rule_groupid,
                 "rule_name": rule_name,
-                "parse": site_parse
+                "parse": site_parse,
+                "unread_msg_notify": site_unread_msg_notify,
             }
             if siteid and int(site[0]) == int(siteid):
                 return site_info
             url = site[3] if not site[4] else site[4]
-            if siteurl and url and parse.urlparse(siteurl).netloc == parse.urlparse(url).netloc:
+            if siteurl and url and StringUtils.url_equal(siteurl, url):
                 return site_info
+            if rss and not site[3]:
+                continue
             ret_sites.append(site_info)
         if siteid or siteurl:
             return {}
@@ -112,7 +117,7 @@ class Sites:
         :param site_info:
         :return:
         """
-        site_name, site_url, site_cookie = self.parse_site_config(site_info)
+        site_name, site_url, site_cookie, unread_msg_notify = self.parse_site_config(site_info)
         if not site_url:
             return
 
@@ -130,9 +135,7 @@ class Sites:
                     return
 
                 # 发送通知，存在未读消息
-                if site_user_info.message_unread > 0:
-                    if self.__sites_data.get(site_name, {}).get('message_unread') != site_user_info.message_unread:
-                        self.message.sendmsg(title=f"站点 {site_user_info.site_name} 收到 {site_user_info.message_unread} 条新消息，请登陆查看")
+                self.__notify_unread_msg(site_name, site_user_info, unread_msg_notify)
 
                 self.__sites_data.update({site_name: {"upload": site_user_info.upload,
                                                       "username": site_user_info.username,
@@ -154,6 +157,16 @@ class Sites:
         except Exception as e:
             log.error("【PT】站点 %s 获取流量数据失败：%s - %s" % (site_name, str(e), traceback.format_exc()))
 
+    def __notify_unread_msg(self, site_name, site_user_info, unread_msg_notify):
+        if site_user_info.message_unread <= 0:
+            return
+        if self.__sites_data.get(site_name, {}).get('message_unread') == site_user_info.message_unread:
+            return
+        if not unread_msg_notify:
+            return
+
+        self.message.sendmsg(title=f"站点 {site_user_info.site_name} 收到 {site_user_info.message_unread} 条新消息，请登陆查看")
+
     @staticmethod
     def parse_site_config(site_info):
         """
@@ -174,7 +187,10 @@ class Sites:
         if split_pos != -1 and split_pos > 8:
             site_url = site_url[:split_pos]
         site_cookie = str(site_info[5])
-        return site_name, site_url, site_cookie
+        unread_msg_notify = str(site_info[9]).split("|")[2] if \
+            site_info[9] and len(str(site_info[9]).split("|")) > 2 else "Y"
+        unread_msg_notify = not(unread_msg_notify == "N")
+        return site_name, site_url, site_cookie, unread_msg_notify
 
     def signin(self):
         """
@@ -236,24 +252,42 @@ class Sites:
         """
         site_urls = []
         for site in self.__pt_sites:
-            _, url, _ = self.parse_site_config(site)
+            _, url, _, _ = self.parse_site_config(site)
             if url:
                 site_urls.append(url)
 
         return get_site_statistics_recent_sites(days=days, strict_urls=site_urls)
 
-    def get_pt_site_user_statistics(self):
+    def get_site_user_statistics(self, encoding="RAW"):
         """
         获取站点用户数据
+        :param encoding: RAW/DICT
         :return:
         """
+
         site_urls = []
         for site in self.__pt_sites:
-            _, url, _ = self.parse_site_config(site)
+            _, url, _, _ = self.parse_site_config(site)
             if url:
                 site_urls.append(url)
 
-        return get_site_user_statistics(strict_urls=site_urls)
+        raw_statistics = get_site_user_statistics(strict_urls=site_urls)
+        if encoding == "RAW":
+            return raw_statistics
+
+        return self.__todict(raw_statistics)
+
+    @staticmethod
+    def __todict(raw_statistics):
+        statistics = []
+        for site in raw_statistics:
+            statistics.append({"site": site[0], "username": site[1], "user_level": site[2],
+                               "join_at": site[3], "update_at": site[4],
+                               "upload": site[5], "download": site[6], "ratio": site[7],
+                               "seeding": site[8], "leeching": site[9], "seeding_size": site[10],
+                               "bonus": site[11], "url": site[12], "favicon": site[13], "msg_unread": site[14]
+                               })
+        return statistics
 
     def refresh_pt(self, specify_sites=None):
         """

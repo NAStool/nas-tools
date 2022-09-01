@@ -17,7 +17,7 @@ from werkzeug.security import check_password_hash
 
 import log
 from app.message.message import Message
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL, Config
+from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL
 from app.douban import DouBan
 from app.downloader.downloader import Downloader
 from app.filterrules import FilterRule
@@ -28,6 +28,7 @@ from app.sites.sites import Sites
 from app.utils.torrent import Torrent
 from app.media.media import Media
 from app.media.meta.metainfo import MetaInfo
+from web.apiv1 import apiv1, authorization
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 from app.utils.dom_utils import DomUtils
 from app.media.meta_helper import MetaHelper
@@ -66,6 +67,9 @@ def create_flask_app(config):
     applog = logging.getLogger('werkzeug')
     applog.setLevel(logging.ERROR)
     login_manager.init_app(App)
+
+    # API注册
+    App.register_blueprint(apiv1, url_prefix="/api/v1")
 
     @App.after_request
     def add_header(r):
@@ -149,9 +153,7 @@ def create_flask_app(config):
     @App.route('/', methods=['GET', 'POST'])
     def login():
         # 判断当前的运营环境
-        SystemFlag = 0
-        if SystemUtils.get_system() == OsType.LINUX and SystemUtils.check_process("supervisord"):
-            SystemFlag = 1
+        SystemFlag = 1 if SystemUtils.get_system() == OsType.LINUX else 0
         if request.method == 'GET':
             GoPage = request.args.get("next") or ""
             if GoPage.startswith('/'):
@@ -524,8 +526,8 @@ def create_flask_app(config):
     @login_required
     def movie_rss():
         RssItems = get_rss_movies()
-        RssSites = Sites().get_sites()
-        SearchSites = [item.name for item in Searcher().indexer.get_indexers()]
+        RssSites = Sites().get_sites(rss=True)
+        SearchSites = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers()]
         RuleGroups = FilterRule().get_rule_groups()
         return render_template("rss/movie_rss.html",
                                Count=len(RssItems),
@@ -542,8 +544,8 @@ def create_flask_app(config):
     @login_required
     def tv_rss():
         RssItems = get_rss_tvs()
-        RssSites = Sites().get_sites()
-        SearchSites = [item.name for item in Searcher().indexer.get_indexers()]
+        RssSites = Sites().get_sites(rss=True)
+        SearchSites = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers()]
         RuleGroups = FilterRule().get_rule_groups()
         return render_template("rss/tv_rss.html",
                                Count=len(RssItems),
@@ -739,7 +741,7 @@ def create_flask_app(config):
             days=2)
 
         # 站点用户数据
-        SiteUserStatistics = Sites().get_pt_site_user_statistics()
+        SiteUserStatistics = Sites().get_site_user_statistics()
 
         return render_template("site/statistics.html",
                                CurrentDownload=CurrentDownload,
@@ -763,7 +765,7 @@ def create_flask_app(config):
     @login_required
     def brushtask():
         # 站点列表
-        CfgSites = Sites().get_sites()
+        CfgSites = Sites().get_sites(rss=True)
         # 下载器列表
         downloaders = get_user_downloaders()
         # 任务列表
@@ -787,7 +789,7 @@ def create_flask_app(config):
                 "download_size": StringUtils.str_filesize(task[14]),
                 "upload_size": StringUtils.str_filesize(task[15]),
                 "lst_mod_date": task[16],
-                "site_url": "http://%s" % parse.urlparse(task[17]).netloc if task[17] else ""
+                "site_url": "http://%s" % StringUtils.get_url_netloc(task[17])
             })
 
         return render_template("site/brushtask.html",
@@ -1336,7 +1338,7 @@ def create_flask_app(config):
     @App.route('/indexer', methods=['POST', 'GET'])
     @login_required
     def indexer():
-        indexers = BuiltinIndexer().get_indexers()
+        indexers = BuiltinIndexer().get_indexers(check=False)
         return render_template("setting/indexer.html",
                                Config=config.get_config(),
                                Indexers=indexers)
@@ -1568,8 +1570,7 @@ def create_flask_app(config):
     # Jellyseerr Overseerr订阅接口
     @App.route('/subscribe', methods=['POST', 'GET'])
     def subscribe():
-        authorization = request.headers.get("Authorization")
-        if not authorization or authorization != Config().get_config("security").get("subscribe_token"):
+        if not authorization():
             return make_response("认证失败！", 400)
         req_json = request.get_json()
         if not req_json:

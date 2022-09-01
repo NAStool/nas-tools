@@ -109,7 +109,7 @@ class Transmission(IDownloadClient):
         if not tid or not tag:
             return
         try:
-            self.trc.change_torrent(labels=[tag], ids=int(tid))
+            self.trc.change_torrent(labels=tag, ids=int(tid))
         except Exception as err:
             print(str(err))
 
@@ -120,7 +120,7 @@ class Transmission(IDownloadClient):
         for torrent in torrents:
             # 3.0版本以下的Transmission没有labels
             if not hasattr(torrent, "labels"):
-                log.warn(f"【TR】当前transmission版本可能过低，无labels属性，请安装3.0以上版本！")
+                log.error(f"【TR】当前transmission版本可能过低，无labels属性，请安装3.0以上版本！")
                 break
 
             if torrent.labels and "已整理" in torrent.labels:

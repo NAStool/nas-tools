@@ -3,7 +3,6 @@ import os.path
 import re
 import shutil
 import signal
-from urllib import parse
 
 from flask_login import logout_user
 from werkzeug.security import generate_password_hash
@@ -23,7 +22,7 @@ from app.mediaserver.server.emby import Emby
 from app.mediaserver.server.jellyfin import Jellyfin
 from app.mediaserver.server.plex import Plex
 from app.rss import Rss
-from app.sites.siteconf import RSS_SITE_GRAP_CONF
+from app.sites.siteconf import RSS_SITE_GRAP_CONF, get_grapsite_conf
 from app.sites.sites import Sites
 from app.subtitle import Subtitle
 from app.utils.torrent import Torrent
@@ -713,14 +712,13 @@ class WebAction:
         if tid:
             ret = Sites().get_sites(siteid=tid)
             if ret.get("rssurl"):
-                url_host = parse.urlparse(ret.get("rssurl")).netloc
-                if url_host in RSS_SITE_GRAP_CONF.keys():
-                    if RSS_SITE_GRAP_CONF[url_host].get("FREE"):
-                        site_free = True
-                    if RSS_SITE_GRAP_CONF[url_host].get("2XFREE"):
-                        site_2xfree = True
-                    if RSS_SITE_GRAP_CONF[url_host].get("HR"):
-                        site_hr = True
+                site_attr = get_grapsite_conf(ret.get("rssurl"))
+                if site_attr.get("FREE"):
+                    site_free = True
+                if site_attr.get("2XFREE"):
+                    site_2xfree = True
+                if site_attr.get("HR"):
+                    site_hr = True
         else:
             ret = []
         return {"code": 0, "site": ret, "site_free": site_free, "site_2xfree": site_2xfree, "site_hr": site_hr}
@@ -753,11 +751,19 @@ class WebAction:
         """
         # 停止服务
         self.stop_service()
-        # 安装依赖
-        os.system('pip install -r /nas-tools/requirements.txt')
-        os.system('pip install -r /nas-tools/third_party.txt')
         # 升级
-        os.system("git pull origin master")
+        if "synology" in os.popen('uname -a').readline():
+            # 调用群晖套件内置命令升级
+            os.system('nastool update')
+        else:
+            # 安装依赖
+            os.system('pip install -r /nas-tools/requirements.txt')
+            # 清理
+            os.system("git clean -dffx")
+            os.system("git reset --hard HEAD")
+            # 升级
+            os.system("git pull")
+            os.system("git submodule update --init --recursive")
         # 退出主进程
         self.shutdown_server()
 
@@ -1421,7 +1427,7 @@ class WebAction:
             "download_size": StringUtils.str_filesize(brushtask[0][14]),
             "upload_size": StringUtils.str_filesize(brushtask[0][15]),
             "lst_mod_date": brushtask[0][16],
-            "site_url": "http://%s" % parse.urlparse(brushtask[0][17]).netloc if brushtask[0][17] else ""
+            "site_url": "http://%s" % StringUtils.get_url_netloc(brushtask[0][17])
         }
         return {"code": 0, "task": task}
 
@@ -1486,7 +1492,7 @@ class WebAction:
             return {"code": -1}
         media_info = Media().get_media_info(title=name)
         return {"code": 0, "data": {
-            "type": media_info.type.value,
+            "type": media_info.type.value if media_info.type else "",
             "name": media_info.get_name(),
             "title": media_info.title,
             "year": media_info.year,
@@ -1864,16 +1870,14 @@ class WebAction:
         """
         检查站点标识
         """
-        url = data.get("url")
-        url_host = parse.urlparse(url).netloc
+        site_attr = get_grapsite_conf(data.get("url"))
         site_free = site_2xfree = site_hr = False
-        if url_host in RSS_SITE_GRAP_CONF.keys():
-            if RSS_SITE_GRAP_CONF[url_host].get("FREE"):
-                site_free = True
-            if RSS_SITE_GRAP_CONF[url_host].get("2XFREE"):
-                site_2xfree = True
-            if RSS_SITE_GRAP_CONF[url_host].get("HR"):
-                site_hr = True
+        if site_attr.get("FREE"):
+            site_free = True
+        if site_attr.get("2XFREE"):
+            site_2xfree = True
+        if site_attr.get("HR"):
+            site_hr = True
         return {"code": 0, "site_free": site_free, "site_2xfree": site_2xfree, "site_hr": site_hr}
 
     @staticmethod

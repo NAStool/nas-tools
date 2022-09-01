@@ -171,6 +171,17 @@
               </div>
             </div>
           </div>
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">发送站点未读消息通知 <span class="form-help bg-red-lt" title="选择是时检测到站点有未读消息会通过消息推送通知" data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="site_unread_msg_notify">
+                  <option value="Y" selected>是</option>
+                  <option value="N">否</option>
+                </select>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -243,7 +254,8 @@
         $("#site_rssurl").val(ret.site.rssurl);
         $("#site_signurl").val(ret.site.signurl);
         $("#site_cookie").val(ret.site.cookie);
-        $("#site_parse").val(ret.site.parse)
+        $("#site_parse").val(ret.site.parse);
+        $("#site_unread_msg_notify").val(ret.site.unread_msg_notify)
         $("#modal-site-title").text("编辑站点");
         $("#add_or_edit_site_btn").text("修改");
         $("#modal-site").modal("show");
@@ -301,13 +313,14 @@
     }
     var site_rule = $("#site_rule").val();
     var site_parse = $("#site_parse").val();
+    var site_unread_msg_notify = $("#site_unread_msg_notify").val();
     var data = {"site_id":site_id,
           "site_name":site_name,
           "site_pri":site_pri,
           "site_rssurl":site_rssurl,
           "site_signurl":site_signurl,
           "site_cookie":site_cookie,
-          "site_note":site_parse + "|" + site_rule}
+          "site_note":site_parse + "|" + site_rule + "|" + site_unread_msg_notify}
 
     $("#add_or_edit_site_btn").attr("disabled", true);
     $("#add_or_edit_site_btn").text("处理中...");

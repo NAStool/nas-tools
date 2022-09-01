@@ -93,7 +93,7 @@ class FilterRule:
         if not rolegroup:
             rolegroup = self.get_rule_groups(default=True)
             if not rolegroup:
-                return True, 0, ""
+                return True, 0, "未配置过滤规则"
         else:
             rolegroup = self.get_rule_groups(groupid=rolegroup)
         filters = self.get_rules(groupid=rolegroup.get("id"))
@@ -167,7 +167,7 @@ class FilterRule:
             else:
                 group_match = False
         if not group_match:
-            return False, 0, ""
+            return False, 0, rolegroup.get("name")
         return True, order_seq, rolegroup.get("name")
 
     def is_rule_free(self, rolegroup=None):
