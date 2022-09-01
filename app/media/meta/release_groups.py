@@ -112,9 +112,9 @@ for rp_site in rp_sites:
 
 
 #  忽略大小写
-def rp_match(name, rp_groups):
-    for rp_group in rp_groups:
-        res = re.findall(rp_group, name, re.I)
-        if res != []:
+def rp_match(name, groups):
+    for group in groups:
+        res = re.findall(group, name, re.I)
+        if res:
             return res
-    return res
+    return ""

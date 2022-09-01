@@ -113,9 +113,7 @@ class MetaVideo(MetaBase):
             self.part = None
         # 制作组/字幕组
         res_team = rp_match(title, rp_groups)
-        if res_team == []:
-            self.resource_team = ""
-        else:
+        if res_team:
             self.resource_team = res_team[0][1:]
 
     def __fix_name(self, name):
