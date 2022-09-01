@@ -155,11 +155,14 @@ class MetaAnime(MetaBase):
             title = re.sub(".*番.|.*[日美国]漫.", "", title)
         else:
             title = re.sub(r"^[^]】]*[]】]", "", title).strip()
+        title = re.sub(r'[0-9.]+\s*[MGT]i?B(?![A-Z]+)', "", title, flags=re.IGNORECASE)
         title = re.sub(r"\[TV\s+(\d{1,4})", r"[\1", title, flags=re.IGNORECASE)
         names = title.split("]")
-        if len(names) > 1 and title.find("-") == -1:
+        if len(names) > 1 and title.find("- ") == -1:
             titles = []
             for name in names:
+                if not name:
+                    continue
                 left_char = ''
                 if name.startswith('['):
                     left_char = '['
@@ -171,9 +174,12 @@ class MetaAnime(MetaBase):
                         titles.append("%s%s" % (left_char, name.split("/")[0].strip()))
                 elif name:
                     if StringUtils.is_chinese(name) and not StringUtils.is_all_chinese(name):
-                        name = re.sub(r'[\u4e00-\u9fff]', '', name)
+                        name = re.sub(r'[\d|#:：\-()（）\u4e00-\u9fff]', '', name).strip()
                         if not name or name.strip().isdigit():
                             continue
-                    titles.append("%s%s" % (left_char, name.strip()))
+                    if name == '[':
+                        titles.append("")
+                    else:
+                        titles.append("%s%s" % (left_char, name.strip()))
             return "]".join(titles)
         return title

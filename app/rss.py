@@ -145,8 +145,11 @@ class Rss:
                             continue
                         # 识别种子名称，开始检索TMDB
                         media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
-                        if not media_info or not media_info.tmdb_info:
-                            log.debug("【RSS】%s 未识别到媒体信息" % torrent_name)
+                        if not media_info:
+                            log.warn("【RSS】%s 识别媒体信息出错！" % torrent_name)
+                            continue
+                        elif not media_info.tmdb_info:
+                            log.info("【RSS】%s 识别为 %s 未匹配到媒体信息" % (torrent_name, media_info.get_name()))
                             continue
                         # 大小及种子页面
                         media_info.set_torrent_info(size=size,
