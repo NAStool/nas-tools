@@ -189,14 +189,14 @@ class Rss:
                                     log.info("【RSS】%s %s 数据库记录的缺失集：全部缺失" % (media_info.get_title_string(),
                                                                             media_info.get_season_string()))
                                     rss_no_exists[media_info.get_title_string()] = [
-                                        {"season": media_info.begin_season, "episodes": [],
+                                        {"season": media_info.get_season_list()[0], "episodes": [],
                                          "total_episodes": total_episodes}]
                                 elif episodes:
                                     log.info("【RSS】%s %s 数据库记录的缺失集：%s" % (media_info.get_title_string(),
                                                                           media_info.get_season_string(),
                                                                           episodes))
                                     rss_no_exists[media_info.get_title_string()] = [
-                                        {"season": media_info.begin_season, "episodes": episodes,
+                                        {"season": media_info.get_season_list()[0], "episodes": episodes,
                                          "total_episodes": total_episodes}]
                                 else:
                                     log.info("【RSS】电视剧 %s%s 已全部订阅完成，删除订阅..." % (
