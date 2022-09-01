@@ -194,3 +194,9 @@ class StringUtils:
         if not url.startswith("http"):
             return url
         return parse.urlparse(url).netloc
+
+    @staticmethod
+    def clear_file_name(name):
+        if not name:
+            return None
+        return re.sub(r"[*?\\/\"<>]", "", name, flags=re.IGNORECASE).replace(":", "：")

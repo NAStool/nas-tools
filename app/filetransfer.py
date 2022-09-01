@@ -1038,10 +1038,10 @@ class FileTransfer:
         if not media:
             return {}
         return {
-            "title": str(media.title).replace("/", "") if media.title else None,
-            "en_title": str(media.en_name).replace("/", "") if media.en_name else None,
-            "original_name": os.path.splitext(media.org_string)[0] if media.org_string else None,
-            "original_title": str(media.original_title).replace("/", "") if media.original_title else None,
+            "title": StringUtils.clear_file_name(media.title),
+            "en_title": StringUtils.clear_file_name(media.en_name),
+            "original_name": StringUtils.clear_file_name(os.path.splitext(media.org_string)[0]),
+            "original_title": StringUtils.clear_file_name(media.original_title),
             "year": media.year,
             "edition": media.resource_type,
             "videoFormat": media.resource_pix,
