@@ -11,13 +11,13 @@ from pathlib import Path
 from urllib import parse
 
 import cn2an
-from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file, jsonify
+from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 from werkzeug.security import check_password_hash
 
 import log
 from app.message.message import Message
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL, Config
+from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL
 from app.douban import DouBan
 from app.downloader.downloader import Downloader
 from app.filterrules import FilterRule
@@ -28,6 +28,7 @@ from app.sites.sites import Sites
 from app.utils.torrent import Torrent
 from app.media.media import Media
 from app.media.meta.metainfo import MetaInfo
+from web.apiv1 import apiv1, authorization
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 from app.utils.dom_utils import DomUtils
 from app.media.meta_helper import MetaHelper
@@ -66,6 +67,9 @@ def create_flask_app(config):
     applog = logging.getLogger('werkzeug')
     applog.setLevel(logging.ERROR)
     login_manager.init_app(App)
+
+    # API注册
+    App.register_blueprint(apiv1, url_prefix="/api/v1")
 
     @App.after_request
     def add_header(r):
@@ -1566,8 +1570,7 @@ def create_flask_app(config):
     # Jellyseerr Overseerr订阅接口
     @App.route('/subscribe', methods=['POST', 'GET'])
     def subscribe():
-        authorization = request.headers.get("Authorization")
-        if not authorization or authorization != Config().get_config("security").get("subscribe_token"):
+        if not authorization():
             return make_response("认证失败！", 400)
         req_json = request.get_json()
         if not req_json:
@@ -1609,21 +1612,6 @@ def create_flask_app(config):
             return make_response("ok", 200)
         else:
             return make_response(msg, 500)
-
-    # 站点信息查询接口
-    @App.route('/api/v1/site/statistics', methods=['POST', 'GET'])
-    def site_statistic():
-        authorization = request.headers.get("Authorization")
-        if not authorization or authorization != Config().get_config("security").get("subscribe_token"):
-            return make_response(jsonify({"code": 400, "msg": "认证失败！"}), 400)
-
-        # 返回站点信息
-        # 添加订阅
-        code = 200
-        user_statistics = Sites().get_site_user_statistics(encoding="DICT")
-
-        return make_response(jsonify({"code": code, "data": {"user_statistics": user_statistics}}), code)
-
 
     @App.route('/backup', methods=['POST'])
     @login_required
