@@ -104,12 +104,14 @@ rp_sites = [rp_1pt,
             rp_ultrahd,
             rp_other]
 
+#  正则 '[-@[]制作组名'，一般制作组前面会有'-'或者'@'或者'['
 rp_groups = []
 for rp_site in rp_sites:
     for rp_group in rp_site:
         rp_groups.append("[-@[]" + rp_group)
 
 
+#  忽略大小写
 def rp_match(name, rp_groups):
     for rp_group in rp_groups:
         res = re.findall(rp_group, name, re.I)
