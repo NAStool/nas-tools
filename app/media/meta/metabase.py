@@ -515,7 +515,10 @@ class MetaBase(object):
                 if self.begin_season is None and isinstance(begin_season, int):
                     self.begin_season = begin_season
                     self.total_seasons = 1
-                if self.begin_season is not None and self.end_season is None and isinstance(end_season, int):
+                if self.begin_season is not None \
+                        and self.end_season is None \
+                        and isinstance(end_season, int) \
+                        and end_season != self.begin_season:
                     self.end_season = end_season
                     self.total_seasons = (self.end_season - self.begin_season) + 1
                 self.type = MediaType.TV
@@ -543,7 +546,10 @@ class MetaBase(object):
                 if self.begin_episode is None and isinstance(begin_episode, int):
                     self.begin_episode = begin_episode
                     self.total_episodes = 1
-                if self.begin_episode is not None and self.end_episode is None and isinstance(end_episode, int):
+                if self.begin_episode is not None \
+                        and self.end_episode is None \
+                        and isinstance(end_episode, int) \
+                        and end_episode != self.begin_episode:
                     self.end_episode = end_episode
                     self.total_episodes = (self.end_episode - self.begin_episode) + 1
                 self.type = MediaType.TV

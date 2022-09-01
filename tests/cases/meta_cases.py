@@ -1,4 +1,20 @@
 meta_cases = [{
+    "title": "[神印王座][Throne of Seal][2022][WEB-DL][2160][TV Series][TV 22][LeagueWEB] 神印王座 第一季 第22集 | 类型:动画 [国语中字][967.44 MB]",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Throne of Seal",
+        "year": "2022",
+        "part": "",
+        "season": "S01",
+        "episode": "E22",
+        "restype": "",
+        "pix": "",
+        "video_codec": "",
+        "audio_codec": ""
+    }
+}, {
     "title": "S02E1000.mkv",
     "subtitle": "",
     "target": {
@@ -11,7 +27,6 @@ meta_cases = [{
         "episode": "E1000",
         "restype": "",
         "pix": "",
-        "team": "",
         "video_codec": "",
         "audio_codec": ""
     }
