@@ -186,10 +186,15 @@ class Rss:
                                 # 从登记薄中获取缺失剧集
                                 episodes = get_rss_tv_episodes(match_rssid)
                                 if episodes is None:
+                                    log.info("【RSS】%s %s 数据库记录的缺失集：全部缺失" % (media_info.get_title_string(),
+                                                                            media_info.get_season_string()))
                                     rss_no_exists[media_info.get_title_string()] = [
                                         {"season": media_info.begin_season, "episodes": [],
                                          "total_episodes": total_episodes}]
                                 elif episodes:
+                                    log.info("【RSS】%s %s 数据库记录的缺失集：%s" % (media_info.get_title_string(),
+                                                                          media_info.get_season_string(),
+                                                                          episodes))
                                     rss_no_exists[media_info.get_title_string()] = [
                                         {"season": media_info.begin_season, "episodes": episodes,
                                          "total_episodes": total_episodes}]
@@ -202,6 +207,10 @@ class Rss:
                                 if not over_edition:
                                     exist_flag, library_no_exists, _ = self.downloader.check_exists_medias(
                                         meta_info=media_info)
+                                    log.info("【RSS】%s %s 媒体库缺失剧集：%s" % (media_info.get_title_string(),
+                                                                        media_info.get_season_string(),
+                                                                        library_no_exists.get(
+                                                                            media_info.get_title_string())))
                                     # 当前剧集已存在，跳过
                                     if exist_flag:
                                         # 已全部存在
@@ -235,6 +244,10 @@ class Rss:
 
             # 去重择优后开始添加下载
             if rss_download_torrents:
+                # 打印汇总日志
+                if isinstance(rss_no_exists, dict):
+                    for k, v in rss_no_exists.items():
+                        log.info("【RSS】%s 缺失剧集：%s" % (k, v))
                 download_items, left_medias = self.downloader.check_and_add_pt(SearchType.RSS,
                                                                                rss_download_torrents,
                                                                                rss_no_exists)

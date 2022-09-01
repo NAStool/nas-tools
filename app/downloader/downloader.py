@@ -328,7 +328,7 @@ class Downloader:
                         for tv in need_tv:
                             if not tv:
                                 continue
-                            if tv.get("season") == item.begin_season:
+                            if tv.get("season") == item.get_season_list()[0]:
                                 tv["episodes"] = list(set(tv.get("episodes")).union(set(item.get_episode_list())))
 
         # 仍然缺失的剧集，从整季中选择需要的集数文件下载，仅支持QB和TR
