@@ -59,3 +59,12 @@ class MediaServerType(Enum):
     JELLYFIN = "Jellyfin"
     EMBY = "Emby"
     PLEX = "Plex"
+
+
+class BrushDeleteType(Enum):
+    NOTDELETE = "不删除"
+    SEEDTIME = "做种时间"
+    RATIO = "分享率"
+    UPLOADSIZE = "上传量"
+    DLTIME = "下载耗时"
+    AVGUPSPEED = "平均上传速度"

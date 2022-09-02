@@ -457,6 +457,9 @@ class Media:
         :param tmdbid: TMDB的ID，有tmdbid时优先使用tmdbid，否则使用年份和标题
         :param language: 语种
         """
+        if not self.tmdb:
+            log.error("【META】TMDB API Key 未设置！")
+            return None
         if language:
             self.tmdb.language = language
         else:
@@ -500,6 +503,9 @@ class Media:
         """
         查询名称中有关键字的所有的TMDB信息并返回
         """
+        if not self.tmdb:
+            log.error("【META】TMDB API Key 未设置！")
+            return []
         if not title:
             return []
         if not mtype and not year:
@@ -577,9 +583,10 @@ class Media:
         :param chinese: 原标题为英文时是否从别名中检索中文名称
         :return: 带有TMDB信息的MetaInfo对象
         """
-        if not title:
+        if not self.tmdb:
+            log.error("【META】TMDB API Key 未设置！")
             return None
-        if not self.meta:
+        if not title:
             return None
         # 识别
         meta_info = MetaInfo(title, subtitle=subtitle)
@@ -674,9 +681,10 @@ class Media:
         :return: 带有TMDB信息的每个文件对应的MetaInfo对象字典
         """
         # 存储文件路径与媒体的对应关系
+        if not self.tmdb:
+            log.error("【META】TMDB API Key 未设置！")
+            return {}
         return_media_infos = {}
-        if not self.meta:
-            return return_media_infos
         # 不是list的转为list
         if not isinstance(file_list, list):
             file_list = [file_list]

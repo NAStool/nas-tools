@@ -12,6 +12,7 @@ from app.downloader.client.qbittorrent import Qbittorrent
 from app.downloader.client.transmission import Transmission
 from app.rss import Rss
 from app.utils.torrent import Torrent
+from app.utils.types import BrushDeleteType
 from app.utils.commons import singleton
 from app.db.sqls import get_brushtasks, get_brushtask_totalsize, add_brushtask_download_count, insert_brushtask_torrent, \
     get_brushtask_torrents, add_brushtask_upload_count, get_user_downloaders, update_brushtask_torrent_state
@@ -236,12 +237,13 @@ class BrushTask(object):
                         # 下载量
                         downloaded = torrent.get("downloaded")
                         total_downloaded += downloaded
-                        if self.__check_remove_rule(remove_rule=remove_rule,
-                                                    seeding_time=seeding_time,
-                                                    ratio=ratio,
-                                                    uploaded=uploaded,
-                                                    avg_upspeed=avg_upspeed):
-                            log.info("【BRUSH】%s 做种达到删种条件，删除下载任务..." % torrent.get('name'))
+                        need_delete, delete_type = self.__check_remove_rule(remove_rule=remove_rule,
+                                                                            seeding_time=seeding_time,
+                                                                            ratio=ratio,
+                                                                            uploaded=uploaded,
+                                                                            avg_upspeed=avg_upspeed)
+                        if need_delete:
+                            log.info("【BRUSH】%s 做种达到删种条件：%s，删除任务..." % (torrent.get('name'), delete_type.value))
                             if torrent_id not in delete_ids:
                                 delete_ids.append(torrent_id)
                                 update_torrents.append(("%s,%s" % (uploaded, downloaded), taskid, torrent_id))
@@ -260,10 +262,11 @@ class BrushTask(object):
                         # 下载量
                         downloaded = torrent.get("downloaded")
                         total_downloaded += downloaded
-                        if self.__check_remove_rule(remove_rule=remove_rule,
-                                                    dltime=dltime,
-                                                    avg_upspeed=avg_upspeed):
-                            log.info("【BRUSH】%s 下载耗时达到删种条件，删除下载任务..." % torrent.get('name'))
+                        need_delete, delete_type = self.__check_remove_rule(remove_rule=remove_rule,
+                                                                            dltime=dltime,
+                                                                            avg_upspeed=avg_upspeed)
+                        if need_delete:
+                            log.info("【BRUSH】%s 达到删种条件：%s，删除下载任务..." % (torrent.get('name'), delete_type.value))
                             if torrent_id not in delete_ids:
                                 delete_ids.append(torrent_id)
                                 update_torrents.append(("%s,%s" % (uploaded, downloaded), taskid, torrent_id))
@@ -289,12 +292,13 @@ class BrushTask(object):
                         total_uploaded += uploaded
                         # 平均上传速度
                         avg_upspeed = int(uploaded / dltime)
-                        if self.__check_remove_rule(remove_rule=remove_rule,
-                                                    seeding_time=seeding_time,
-                                                    ratio=ratio,
-                                                    uploaded=uploaded,
-                                                    avg_upspeed=avg_upspeed):
-                            log.info("【BRUSH】%s 做种达到删种条件，删除下载任务..." % torrent.name)
+                        need_delete, delete_type = self.__check_remove_rule(remove_rule=remove_rule,
+                                                                            seeding_time=seeding_time,
+                                                                            ratio=ratio,
+                                                                            uploaded=uploaded,
+                                                                            avg_upspeed=avg_upspeed)
+                        if need_delete:
+                            log.info("【BRUSH】%s 做种达到删种条件：%s，删除任务..." % (torrent.name, delete_type.value))
                             if torrent_id not in delete_ids:
                                 delete_ids.append(torrent_id)
                                 update_torrents.append(("%s,%s" % (uploaded, downloaded), taskid, torrent_id))
@@ -314,10 +318,11 @@ class BrushTask(object):
                         total_uploaded += uploaded
                         # 平均上传速度
                         avg_upspeed = int(uploaded / dltime)
-                        if self.__check_remove_rule(remove_rule=remove_rule,
-                                                    dltime=dltime,
-                                                    avg_upspeed=avg_upspeed):
-                            log.info("【BRUSH】%s 下载耗时达到删种条件，删除下载任务..." % torrent.name)
+                        need_delete, delete_type = self.__check_remove_rule(remove_rule=remove_rule,
+                                                                            dltime=dltime,
+                                                                            avg_upspeed=avg_upspeed)
+                        if need_delete:
+                            log.info("【BRUSH】%s 达到删种条件：%s，删除下载任务..." % (torrent.name, delete_type.value))
                             if torrent_id not in delete_ids:
                                 delete_ids.append(torrent_id)
                                 update_torrents.append(("%s,%s" % (uploaded, downloaded), taskid, torrent_id))
@@ -332,6 +337,8 @@ class BrushTask(object):
                 if delete_ids:
                     downloader.delete_torrents(delete_file=True, ids=delete_ids)
                     log.info("【BRUSH】任务 %s 共删除 %s 个刷流下载任务" % (task_name, len(delete_ids)))
+                else:
+                    log.info("【BRUSH】任务 %s 本次检查未删除任务" % task_name)
             except Exception as e:
                 log.console(str(e) + " - " + traceback.format_exc())
 
@@ -562,31 +569,31 @@ class BrushTask(object):
                 if rule_times[0]:
                     if len(rule_times) > 1 and rule_times[1]:
                         if int(seeding_time) > float(rule_times[1]) * 3600:
-                            return True
+                            return True, BrushDeleteType.SEEDTIME
             if remove_rule.get("ratio") and ratio:
                 rule_ratios = remove_rule.get("ratio").split("#")
                 if rule_ratios[0]:
                     if len(rule_ratios) > 1 and rule_ratios[1]:
                         if float(ratio) > float(rule_ratios[1]):
-                            return True
+                            return True, BrushDeleteType.RATIO
             if remove_rule.get("uploadsize") and uploaded:
                 rule_uploadsizes = remove_rule.get("uploadsize").split("#")
                 if rule_uploadsizes[0]:
                     if len(rule_uploadsizes) > 1 and rule_uploadsizes[1]:
                         if int(uploaded) > float(rule_uploadsizes[1]) * 1024 ** 3:
-                            return True
+                            return True, BrushDeleteType.UPLOADSIZE
             if remove_rule.get("dltime") and dltime:
                 rule_times = remove_rule.get("dltime").split("#")
                 if rule_times[0]:
                     if len(rule_times) > 1 and rule_times[1]:
                         if int(dltime) > float(rule_times[1]) * 3600:
-                            return True
+                            return True, BrushDeleteType.DLTIME
             if remove_rule.get("avg_upspeed") and avg_upspeed:
                 rule_avg_upspeeds = remove_rule.get("avg_upspeed").split("#")
                 if rule_avg_upspeeds[0]:
                     if len(rule_avg_upspeeds) > 1 and rule_avg_upspeeds[1]:
                         if int(avg_upspeed) < float(rule_avg_upspeeds[1]) * 1024:
-                            return True
+                            return True, BrushDeleteType.AVGUPSPEED
         except Exception as err:
             log.console(str(err) + " - " + traceback.format_exc())
-        return False
+        return False, BrushDeleteType.NOTDELETE
