@@ -1794,7 +1794,7 @@ class WebAction:
                 '<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % filter_map.get("pix"))
         if filter_map.get("team"):
             filter_htmls.append(
-                '<span class="badge badge-outline text-blue me-1 mb-1">%s</span>' % filter_map.get("team"))        
+                '<span class="badge badge-outline text-blue me-1 mb-1">%s</span>' % filter_map.get("team"))
         if filter_map.get("rule"):
             filter_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' %
                                 FilterRule().get_rule_groups(groupid=filter_map.get("rule")).get("name") or "")
@@ -1825,8 +1825,20 @@ class WebAction:
             rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="同时下载数量限制">同时下载: %s</span>'
                               % rules.get("dlcount"))
         if rules.get("peercount"):
-            rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="当前做种人数限制">做种人数: %s</span>'
-                              % rules.get("peercount"))
+            if "#" == rules.get("peercount"):
+                peer_counts = None
+            elif "#" in rules.get("peercount"):
+                peer_counts = rules.get("peercount").split("#")
+                peer_counts[1] = peer_counts[1].replace(",", "-") if (len(peer_counts) >= 2 and peer_counts[1]) else peer_counts[1]
+            else:
+                try:
+                    # 兼容性代码
+                    peer_counts = ["lt", int(rules.get("peercount"))]
+                except:
+                    pass
+            if peer_counts:
+                rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="当前做种人数限制">做种人数%s: %s</span>'
+                                  % (rule_filter_string.get(peer_counts[0]), peer_counts[1]))
         if rules.get("time"):
             times = rules.get("time").split("#")
             if times[0]:
