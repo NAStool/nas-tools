@@ -339,7 +339,8 @@ class DouBan:
             meta_info.douban_id = item.get("id")
             meta_info.overview = item.get("card_subtitle") or ""
             meta_info.poster_path = item.get("cover_url").split('?')[0]
-            meta_info.vote_average = item.get("rating", {}).get("value")
+            rating = item.get("rating", {}) or {}
+            meta_info.vote_average = rating.get("value")
             if meta_info not in ret_medias:
                 ret_medias.append(meta_info)
 
