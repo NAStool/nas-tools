@@ -10,6 +10,7 @@ import log
 from config import BRUSH_REMOVE_TORRENTS_INTERVAL
 from app.downloader.client.qbittorrent import Qbittorrent
 from app.downloader.client.transmission import Transmission
+from app.message.message import Message
 from app.rss import Rss
 from app.utils.torrent import Torrent
 from app.utils.commons import singleton
@@ -19,6 +20,7 @@ from app.db.sqls import get_brushtasks, get_brushtask_totalsize, add_brushtask_d
 
 @singleton
 class BrushTask(object):
+    message = None
     _scheduler = None
     _brush_tasks = []
     _torrents_cache = []
@@ -29,6 +31,7 @@ class BrushTask(object):
         self.init_config()
 
     def init_config(self):
+        message = Message()
         # 移除现有任务
         try:
             if self._scheduler:
@@ -54,7 +57,8 @@ class BrushTask(object):
                 "remove_rule": eval(task[10]),
                 "seed_size": task[11],
                 "rss_url": task[17],
-                "cookie": task[18]
+                "cookie": task[18],
+                "sendmessage": task[20]
             })
         if not self._brush_tasks:
             return
@@ -166,6 +170,7 @@ class BrushTask(object):
                                            size=size,
                                            taskid=taskid,
                                            transfer=True if taskinfo.get("transfer") == 'Y' else False,
+                                           sendmessage=True if taskinfo.get("sendmessage") == 'Y' else False,
                                            taskname=task_name):
                     # 计数
                     success_count += 1
@@ -400,7 +405,7 @@ class BrushTask(object):
                 return int(len(dlitems))
         return None
 
-    def __download_torrent(self, downloadercfg, title, enclosure, size, taskid, transfer, taskname):
+    def __download_torrent(self, downloadercfg, title, enclosure, size, taskid, transfer, sendmessage, taskname):
         """
         添加下载任务，更新任务数据
         :param downloadercfg: 下载器的所有参数
@@ -458,6 +463,11 @@ class BrushTask(object):
             return False
         else:
             log.info("【BRUSH】成功添加下载：%s" % title)
+            if sendmessage:
+                msg_title = "【刷流任务 ".join(taskname).join(" 新增下载】")
+                msg_text = "种子名称：".join(title).join("\n")
+                msg_text.join("种子大小：").join(size)
+                self.message.sendmsg(title=msg_title, text=msg_text)
         # 插入种子数据
         if insert_brushtask_torrent(brush_id=taskid,
                                     title=title,

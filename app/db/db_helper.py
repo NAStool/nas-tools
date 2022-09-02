@@ -285,6 +285,7 @@ class DBHelper:
                                    INTEVAL    TEXT,
                                    DOWNLOADER     TEXT,
                                    TRANSFER     TEXT,
+                                   SENDMESSAGE     TEXT,
                                    DOWNLOAD_COUNT     TEXT,
                                    REMOVE_COUNT     TEXT,
                                    DOWNLOAD_SIZE     TEXT,
