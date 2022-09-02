@@ -984,7 +984,8 @@ class WebAction:
                 overview = douban_info.get("intro")
                 poster_path = douban_info.get("cover_url")
                 title = douban_info.get("title")
-                vote_average = douban_info.get("rating", {}).get("value") or ""
+                rating = douban_info.get("rating", {}) or {}
+                vote_average = rating.get("value") or ""
                 release_date = douban_info.get("pubdate")
                 year = douban_info.get("year")
             else:
@@ -1032,7 +1033,8 @@ class WebAction:
                 overview = douban_info.get("intro")
                 poster_path = douban_info.get("cover_url")
                 title = douban_info.get("title")
-                vote_average = douban_info.get("rating", {}).get("value") or ""
+                rating = douban_info.get("rating", {}) or {}
+                vote_average = rating.get("value") or ""
                 release_date = douban_info.get("pubdate")
                 year = douban_info.get("year")
             else:
@@ -1181,7 +1183,8 @@ class WebAction:
                 return {"code": 1, "retmsg": "无法查询到豆瓣信息"}
             poster_path = douban_info.get("cover_url") or ""
             title = douban_info.get("title")
-            vote_average = douban_info.get("rating", {}).get("value") or "无"
+            rating = douban_info.get("rating", {}) or {}
+            vote_average = rating.get("value") or "无"
             release_date = re.sub(r"\(.*\)", "", douban_info.get("pubdate")[0])
             if not release_date:
                 return {"code": 1, "retmsg": "上映日期不正确"}
@@ -1232,7 +1235,8 @@ class WebAction:
                 return {"code": 1, "retmsg": "无法查询到豆瓣信息"}
             poster_path = douban_info.get("cover_url") or ""
             title = douban_info.get("title")
-            vote_average = douban_info.get("rating", {}).get("value") or "无"
+            rating = douban_info.get("rating", {}) or {}
+            vote_average = rating.get("value") or "无"
             release_date = re.sub(r"\(.*\)", "", douban_info.get("pubdate")[0])
             if not release_date:
                 return {"code": 1, "retmsg": "上映日期不正确"}

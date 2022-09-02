@@ -207,7 +207,8 @@ class DouBan:
             meta_info.type = media_type
             meta_info.overview = douban_info.get("intro")
             meta_info.poster_path = douban_info.get("cover_url")
-            meta_info.vote_average = douban_info.get("rating", {}).get("value") or ""
+            rating = douban_info.get("rating", {}) or {}
+            meta_info.vote_average = rating.get("value") or ""
             if meta_info not in media_list:
                 media_list.append(meta_info)
             # 随机休眠
@@ -228,8 +229,6 @@ class DouBan:
             # 开始检索
             if self.__auto_search:
                 # 需要检索
-                if len(medias) == 0:
-                    return
                 for media in medias:
                     if not media:
                         continue
@@ -280,7 +279,7 @@ class DouBan:
                                 # 插入为已RSS状态
                                 insert_douban_media_state(media, "RSS")
                     else:
-                        log.debug("【DOUBAN】%s %s 已处理过" % (media.get_name(), media.year))
+                        log.info("【DOUBAN】%s %s 已处理过" % (media.get_name(), media.year))
             else:
                 # 不需要检索
                 if self.__auto_rss:
