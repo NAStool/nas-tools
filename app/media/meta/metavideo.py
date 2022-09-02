@@ -21,8 +21,8 @@ class MetaVideo(MetaBase):
     _continue_flag = True
     _unknown_name_str = ""
     # 正则式区
-    _season_re = r"S(\d{2})|^S(\d{1,2})|S(\d{1,2})E"
-    _episode_re = r"EP?(\d{2,4})|^EP?(\d{1,4})|S\d{1,2}EP?(\d{1,4})"
+    _season_re = r"S(\d{2})|^S(\d{1,2})$|S(\d{1,2})E"
+    _episode_re = r"EP?(\d{2,4})|^EP?(\d{1,4})$|S\d{1,2}EP?(\d{1,4})$"
     _part_re = r"(^PART[0-9ABI]{0,2}$|^CD[0-9]{0,2}$|^DVD[0-9]{0,2}$|^DISK[0-9]{0,2}$|^DISC[0-9]{0,2}$)"
     _roman_numerals = r"^(?=[MDCLXVI])M*(C[MD]|D?C{0,3})(X[CL]|L?X{0,3})(I[XV]|V?I{0,3})$"
     _resources_type_re = r"^BLURAY$|^REMUX$|^HDTV$|^UHDTV$|^HDDVD$|^WEBRIP$|^DVDRIP$|^BDRIP$|^UHD$|^SDR$|^HDR\d*$|^DOLBY$|^BLU$|^WEB$|^BD$"
@@ -39,7 +39,7 @@ class MetaVideo(MetaBase):
                         r"|CD[\s.]*[1-9]|DVD[\s.]*[1-9]|DISK[\s.]*[1-9]|DISC[\s.]*[1-9]" \
                         r"|[248]K|\d{3,4}[PIX]+" \
                         r"|CD[\s.]*[1-9]|DVD[\s.]*[1-9]|DISK[\s.]*[1-9]|DISC[\s.]*[1-9]"
-    _resources_pix_re = r"^[SBUHD]*(\d{3,4}[PIX]+)"
+    _resources_pix_re = r"^[SBUHD]*(\d{3,4}[PI]+)|\d{3,4}X(\d{3,4})"
     _resources_pix_re2 = r"(^[248]+K)"
     _video_encode_re = r"^[HX]26[45]$|^AVC$|^HEVC$|^VC\d?$|^MPEG\d?$|^Xvid$|^DivX$|^HDR\d*$"
     _audio_encode_re = r"^DTS\d?$|^DTSHD$|^DTSHDMA$|^Atmos$|^TrueHD\d?$|^AC3$|^\dAudios?$|^DDP\d?$|^DD\d?$|^LPCM\d?$|^AAC\d?$|^FLAC\d?$|^HD\d?$|^MA\d?$"
@@ -134,8 +134,12 @@ class MetaVideo(MetaBase):
         if not token:
             return
         # 回收标题
-        if self._unknown_name_str and not self.get_name():
-            self.en_name = self._unknown_name_str
+        if self._unknown_name_str:
+            if not self.en_name:
+                self.en_name = self._unknown_name_str
+            elif self._unknown_name_str != self.year:
+                self.en_name = "%s %s" % (self.en_name, self._unknown_name_str)
+            self._last_token_type = "enname"
             self._unknown_name_str = ""
         if self._stop_name_flag:
             if self._unknown_name_str and self._unknown_name_str != self.year:
@@ -240,7 +244,12 @@ class MetaVideo(MetaBase):
             return
         if not 1900 < int(token) < 2050:
             return
-        self.year = token
+        if not self.year:
+            self.year = token
+        else:
+            if self._last_token_type == "enname" and self.en_name:
+                self.en_name = "%s %s" % (self.en_name, self.year)
+            self.year = token
         self._last_token_type = "year"
         self._continue_flag = False
         self._stop_name_flag = True
@@ -248,15 +257,28 @@ class MetaVideo(MetaBase):
     def __init_resource_pix(self, token):
         if not self.get_name():
             return
-        re_res = re.search(r"%s" % self._resources_pix_re, token, re.IGNORECASE)
+        re_res = re.findall(r"%s" % self._resources_pix_re, token, re.IGNORECASE)
         if re_res:
             self._last_token_type = "pix"
             self._continue_flag = False
             self._stop_name_flag = True
-            if not self.resource_pix:
-                self.resource_pix = re_res.group(1).lower()
-            elif self.resource_pix == "3D":
-                self.resource_pix = "%s 3D" % re_res.group(1).lower()
+            resource_pix = None
+            for pixs in re_res:
+                if isinstance(pixs, tuple):
+                    pix_t = None
+                    for pix_i in pixs:
+                        if pix_i:
+                            pix_t = pix_i
+                            break
+                    if pix_t:
+                        resource_pix = pix_t
+                else:
+                    resource_pix = pixs
+                if resource_pix and not self.resource_pix:
+                    self.resource_pix = resource_pix.lower()
+                    break
+            if self.resource_pix and self.resource_pix[-1] not in 'kpi':
+                self.resource_pix = "%sp" % self.resource_pix
         else:
             re_res = re.search(r"%s" % self._resources_pix_re2, token, re.IGNORECASE)
             if re_res:
@@ -298,9 +320,12 @@ class MetaVideo(MetaBase):
                     self.begin_season = se
                     self.total_seasons = 1
                 else:
-                    if self.begin_season != se:
+                    if se > self.begin_season:
                         self.end_season = se
                         self.total_seasons = (self.end_season - self.begin_season) + 1
+                        if self.fileflag and self.total_seasons > 1:
+                            self.end_season = None
+                            self.total_seasons = 1
         elif token.isdigit():
             try:
                 int(token)
@@ -352,9 +377,12 @@ class MetaVideo(MetaBase):
                     self.begin_episode = se
                     self.total_episodes = 1
                 else:
-                    if self.begin_episode != se:
+                    if se > self.begin_episode:
                         self.end_episode = se
                         self.total_episodes = (self.end_episode - self.begin_episode) + 1
+                        if self.fileflag and self.total_episodes > 2:
+                            self.end_episode = None
+                            self.total_episodes = 1
         elif token.isdigit():
             try:
                 int(token)
@@ -374,7 +402,8 @@ class MetaVideo(MetaBase):
             elif self.begin_episode is None \
                     and 1 < len(token) < 5 \
                     and self._last_token_type != "year" \
-                    and self._last_token_type != "videoencode":
+                    and self._last_token_type != "videoencode" \
+                    and token != self._unknown_name_str:
                 self.begin_episode = int(token)
                 self.total_episodes = 1
                 self._last_token_type = "episode"

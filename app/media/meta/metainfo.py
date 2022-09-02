@@ -1,19 +1,24 @@
+import os.path
 import re
 
 from app.media.meta.metaanime import MetaAnime
 from app.media.meta.metavideo import MetaVideo
 from app.utils.types import MediaType
+from config import RMT_MEDIAEXT
 
 
-def MetaInfo(title, subtitle=None, mtype=None, fileflag=False):
+def MetaInfo(title, subtitle=None, mtype=None):
     """
     媒体整理入口，根据名称和副标题，判断是哪种类型的识别，返回对应对象
     :param title: 标题、种子名、文件名
     :param subtitle: 副标题、描述
     :param mtype: 指定识别类型，为空则自动识别类型
-    :param fileflag: 是否在处理文件
     :return: MetaAnime、MetaVideo
     """
+    if os.path.splitext(title)[-1] in RMT_MEDIAEXT:
+        fileflag = True
+    else:
+        fileflag = False
     if mtype == MediaType.ANIME or is_anime(title):
         return MetaAnime(title, subtitle, fileflag)
     else:
