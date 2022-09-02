@@ -220,6 +220,7 @@ class DouBan:
         同步豆瓣数据
         """
         if not self.__interval:
+            log.info("【DOUBAN】豆瓣配置：同步间隔未配置或配置不正确")
             return
         try:
             lock.acquire()
