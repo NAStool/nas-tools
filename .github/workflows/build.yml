@@ -9,7 +9,7 @@ on:
       - .github/workflows/build.yml
 
 jobs:
-  windows-build:
+  Windows-build:
     runs-on: windows-latest
     steps:
     - name: init Python 3.10.6
@@ -47,7 +47,7 @@ jobs:
 
   Create-release_Send-message:
     runs-on: ubuntu-latest
-    needs: [windows-build]
+    needs: [Windows-build]
     steps:
     - uses: actions/checkout@v2
     - name: Release version
