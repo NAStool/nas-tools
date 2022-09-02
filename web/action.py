@@ -22,7 +22,7 @@ from app.mediaserver.server.emby import Emby
 from app.mediaserver.server.jellyfin import Jellyfin
 from app.mediaserver.server.plex import Plex
 from app.rss import Rss
-from app.sites.siteconf import RSS_SITE_GRAP_CONF, get_grapsite_conf
+from app.sites.siteconf import get_grapsite_conf
 from app.sites.sites import Sites
 from app.subtitle import Subtitle
 from app.utils.torrent import Torrent
