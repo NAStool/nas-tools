@@ -1,4 +1,100 @@
 meta_cases = [{
+    "title": "Nande Koko ni Sensei ga!? 2019 Blu-ray Remux 1080p AVC LPCM-7³ ACG",
+    "subtitle": "",
+    "target": {
+        "type": "电影",
+        "cn_name": "",
+        "en_name": "Nande Koko ni Sensei ga!?",
+        "year": "2019",
+        "part": "",
+        "season": "",
+        "episode": "",
+        "restype": "BluRay",
+        "pix": "1080p",
+        "video_codec": "AVC",
+        "audio_codec": "LPCM 7³"
+    }
+}, {
+    "title": "9-1-1 - S04E03 - Future Tense WEBDL-1080p.mp4",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "9 1 1",
+        "year": "",
+        "part": "",
+        "season": "S04",
+        "episode": "E03",
+        "restype": "",
+        "pix": "1080p",
+        "video_codec": "",
+        "audio_codec": ""
+    }
+}, {
+    "title": "30.Rock.S02E01.1080p.BluRay.x264-BORDURE.mkv",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "30 Rock",
+        "year": "",
+        "part": "",
+        "season": "S02",
+        "episode": "E01",
+        "restype": "BluRay",
+        "pix": "1080p",
+        "video_codec": "x264",
+        "audio_codec": ""
+    }
+}, {
+    "title": "[Gal to Kyouryuu][02][BDRIP][1080P][H264_FLAC].mkv",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Gal to Kyouryuu",
+        "year": "",
+        "part": "",
+        "season": "S01",
+        "episode": "E02",
+        "restype": "",
+        "pix": "1080p",
+        "video_codec": "H264",
+        "audio_codec": "FLAC"
+    }
+}, {
+    "title": "[AI-Raws] 逆境無頼カイジ #13 (BD HEVC 1920x1080 yuv444p10le FLAC)[7CFEE642].mkv",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "逆境無頼カイジ",
+        "en_name": "",
+        "year": "",
+        "part": "",
+        "season": "S01",
+        "episode": "E13",
+        "restype": "BD",
+        "pix": "1080p",
+        "video_codec": "HEVC",
+        "audio_codec": "FLAC"
+    }
+}, {
+    "title": "Mr. Robot - S02E06 - eps2.4_m4ster-s1ave.aes SDTV.mp4",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Mr Robot",
+        "year": "",
+        "part": "",
+        "season": "S02",
+        "episode": "E06",
+        "restype": "",
+        "pix": "",
+        "video_codec": "",
+        "audio_codec": ""
+    }
+}, {
     "title": "[神印王座][Throne of Seal][2022][WEB-DL][2160][TV Series][TV 22][LeagueWEB] 神印王座 第一季 第22集 | 类型:动画 [国语中字][967.44 MB]",
     "subtitle": "",
     "target": {
@@ -77,22 +173,6 @@ meta_cases = [{
         "pix": "1080p",
         "video_codec": "",
         "audio_codec": "AAC"
-    }
-}, {
-    "title": "Nande Koko ni Sensei ga!? 2019 Blu-ray Remux 1080p AVC LPCM-7³ ACG",
-    "subtitle": "",
-    "target": {
-        "type": "电影",
-        "cn_name": "",
-        "en_name": "Nande Koko ni Sensei ga!?",
-        "year": "2019",
-        "part": "",
-        "season": "",
-        "episode": "",
-        "restype": "BluRay",
-        "pix": "1080p",
-        "video_codec": "AVC",
-        "audio_codec": "LPCM 7³"
     }
 }, {
     "title": "[GM-Team][国漫][斗破苍穹 第5季][Fights Break Sphere V][2022][05][HEVC][GB][4K]",

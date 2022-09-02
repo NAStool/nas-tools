@@ -153,8 +153,6 @@ class MetaAnime(MetaBase):
         title = title.replace("【", "[").replace("】", "]").strip()
         if re.search(r"新番|月?番|[日美国]漫", title):
             title = re.sub(".*番.|.*[日美国]漫.", "", title)
-        else:
-            title = re.sub(r"^[^]】]*[]】]", "", title).strip()
         title = re.sub(r'[0-9.]+\s*[MGT]i?B(?![A-Z]+)', "", title, flags=re.IGNORECASE)
         title = re.sub(r"\[TV\s+(\d{1,4})", r"[\1", title, flags=re.IGNORECASE)
         names = title.split("]")
