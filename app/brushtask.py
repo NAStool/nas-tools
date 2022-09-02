@@ -1,4 +1,5 @@
 import re
+import sys
 import time
 import traceback
 from datetime import datetime
@@ -540,13 +541,36 @@ class BrushTask(object):
                 if attr_type.is_hr():
                     return False
 
-            log.debug("【BRUSH】%s `判断做种数, 当前做种人数%s, 当前人数阈值%s" % (title, attr_type.peer_count, rss_rule.get("peercount")))
             if rss_rule.get("peercount"):
-                if attr_type.peer_count > int(rss_rule.get("peercount")):
-                    return False
+                # 兼容旧版本
+                peercount_str = rss_rule.get("peercount")
+                if not peercount_str:
+                    peercount_str = "#"
+                elif "#" not in peercount_str:
+                    peercount_str = "lt#" + peercount_str
+                else:
+                    pass
+                peer_counts = peercount_str.split("#")
+                if len(peer_counts) >= 2 and peer_counts[1]:
+                    min_max_count = peer_counts[1].split(',')
+                    min_count = int(min_max_count[0])
+                    if len(min_max_count) > 1:
+                        max_count = int(min_max_count[1])
+                    else:
+                        max_count = sys.maxsize
+                    if peer_counts[0] == "gt" and attr_type.peer_count <= min_count:
+                        log.debug("【BRUSH】%s `判断做种数, 判断条件: peer_count:%d %s threshold:%d" % (title, attr_type.peer_count, peer_counts[0], min_count))
+                        return False
+                    if peer_counts[0] == "lt" and attr_type.peer_count >= min_count:
+                        log.debug("【BRUSH】%s `判断做种数, 判断条件: peer_count:%d %s threshold:%d" % (title, attr_type.peer_count, peer_counts[0], min_count))
+                        return False
+                    if peer_counts[0] == "bw" and not (min_count <= attr_type.peer_count <= max_count):
+                        log.debug("【BRUSH】%s `判断做种数, 判断条件: left:%d %s peer_count:%d %s right:%d" % (
+                            title, min_count, peer_counts[0], attr_type.peer_count, peer_counts[0], max_count))
+                        return False
 
         except Exception as err:
-            log.console(str(err) + " - " + traceback.format_exc())
+            log.error(str(err) + " - " + traceback.format_exc())
 
         return True
 
