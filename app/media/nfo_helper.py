@@ -74,8 +74,8 @@ class NfoHelper:
             xactor = DomUtils.add_node(doc, root, "actor")
             DomUtils.add_node(doc, xactor, "name", actor_name or "")
             DomUtils.add_node(doc, xactor, "type", "Actor")
-            DomUtils.add_node(doc, xactor, "role", actor.get("character"))
-            DomUtils.add_node(doc, xactor, "order", actor.get("order"))
+            DomUtils.add_node(doc, xactor, "role", actor.get("character") or "")
+            DomUtils.add_node(doc, xactor, "order", actor.get("order") or "")
             DomUtils.add_node(doc, xactor, "tmdbid", actor_id or "")
         # 风格
         genres = tmdbinfo.get("genres") or []
