@@ -100,10 +100,8 @@
   }
 
   $(document).ready(function () {
-    $(window).scroll(function () {
-      var $body = $("body");
-      /*判断窗体高度与竖向滚动位移大小相加 是否 超过内容页高度*/
-      if (($(window).height() + $(window).scrollTop()) >= $body.height() - 20) {
+    $(".page-wrapper").scroll(function () {
+      if ($(window).height() + $(this).scrollTop() >= $("#page_content").height() + 100) {
         loading_data();
       }
     });
