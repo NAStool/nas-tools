@@ -20,7 +20,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install wheel numpy railroad pyparsing wxpython pyinstaller
-        git clone --depth=1 https://github.com/jxxghp/nas-tools --recurse-submodule
+        git clone --depth=1 -b dev https://github.com/shurelol/nas-tools --recurse-submodule
         cd nas-tools
         pip install -r requirements.txt
       shell: pwsh

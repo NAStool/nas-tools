@@ -1,4 +1,4 @@
-FROM jxxghp/nas-tools-base-image
+FROM shurelol/nas-tools-base-image
 ENV LANG="C.UTF-8" \
     TZ="Asia/Shanghai" \
     NASTOOL_CONFIG="/config/config.yaml" \
