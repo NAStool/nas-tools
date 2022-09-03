@@ -274,8 +274,8 @@ class IIndexer(metaclass=ABCMeta):
             seeders = item.get('seeders')
             peers = item.get('peers')
             page_url = item.get('page_url')
-            uploadvolumefactor = float(item.get('uploadvolumefactor'))
-            downloadvolumefactor = float(item.get('downloadvolumefactor'))
+            uploadvolumefactor = float(item.get('uploadvolumefactor')) if item.get('uploadvolumefactor') else 1.0
+            downloadvolumefactor = float(item.get('downloadvolumefactor')) if item.get('downloadvolumefactor') else 1.0
 
             # 合匹配模式下，过滤掉做种数为0的
             if match_type == 1 and str(seeders) == "0":
