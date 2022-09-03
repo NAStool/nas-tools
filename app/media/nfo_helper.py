@@ -2,13 +2,12 @@ import os.path
 import time
 from xml.dom import minidom
 
-import requests
-import json
-import zhconv
 import log
-from config import TMDB_IMAGE_W500_URL, Config
+import zhconv
+from config import TMDB_IMAGE_W500_URL
 from app.media.media import Media
 from app.media.meta.metabase import MetaBase
+from app.media.tmdbv3api.objs.person import Person
 from app.utils.dom_utils import DomUtils
 from app.utils.http_utils import RequestUtils
 from app.utils.types import MediaType
@@ -21,8 +20,6 @@ class NfoHelper:
         self.media = Media()
 
     def __gen_common_nfo(self, tmdbinfo: dict, doc, root, chinese=True):
-        #获取tmdb_api_key
-        tmdb_key = Config().get_config('app').get('rmt_tmdbkey')
         # 添加时间
         DomUtils.add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         # TMDBID
@@ -44,9 +41,7 @@ class NfoHelper:
             if chinese:
                 if not StringUtils.is_chinese(director_name):
                     director_alter_names = []
-                    director_url = "https://api.themoviedb.org/3/person/" + str(director_id) + "?api_key=" + tmdb_key
-                    director_names = json.loads(requests.get(director_url).text).get("also_known_as")
-                    print(director_names)
+                    director_names = Person().details(director_id).get("also_known_as")
                     for aka_name in director_names:
                         if StringUtils.is_chinese(aka_name):
                             director_alter_names.append(aka_name)
@@ -66,9 +61,7 @@ class NfoHelper:
             if chinese:
                 if not StringUtils.is_chinese(actor_name):
                     actor_alter_names = []
-                    actor_url = "https://api.themoviedb.org/3/person/" + str(actor_id) + "?api_key=" + tmdb_key
-                    actor_names = json.loads(requests.get(actor_url).text).get("also_known_as")
-                    print(actor_names)
+                    actor_names = Person().details(actor_id).get("also_known_as")
                     for aka_name in actor_names:
                         if StringUtils.is_chinese(aka_name):
                             actor_alter_names.append(aka_name)
@@ -78,10 +71,11 @@ class NfoHelper:
                         for actor_alter_name in actor_alter_names:
                             if actor_alter_name == zhconv.convert(actor_alter_name, 'zh-hans'):
                                 actor_name = actor_alter_name
-            print(actor_name)
             xactor = DomUtils.add_node(doc, root, "actor")
             DomUtils.add_node(doc, xactor, "name", actor_name or "")
             DomUtils.add_node(doc, xactor, "type", "Actor")
+            DomUtils.add_node(doc, xactor, "role", actor.get("character"))
+            DomUtils.add_node(doc, xactor, "order", actor.get("order"))
             DomUtils.add_node(doc, xactor, "tmdbid", actor_id or "")
         # 风格
         genres = tmdbinfo.get("genres") or []
