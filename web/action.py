@@ -1825,16 +1825,16 @@ class WebAction:
             rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="同时下载数量限制">同时下载: %s</span>'
                               % rules.get("dlcount"))
         if rules.get("peercount"):
-            if "#" == rules.get("peercount"):
-                peer_counts = None
-            elif "#" in rules.get("peercount"):
+            peer_counts = None
+            if "#" in rules.get("peercount"):
                 peer_counts = rules.get("peercount").split("#")
                 peer_counts[1] = peer_counts[1].replace(",", "-") if (len(peer_counts) >= 2 and peer_counts[1]) else peer_counts[1]
             else:
                 try:
                     # 兼容性代码
                     peer_counts = ["lt", int(rules.get("peercount"))]
-                except:
+                except Exception as err:
+                    print(err)
                     pass
             if peer_counts:
                 rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="当前做种人数限制">做种人数%s: %s</span>'
