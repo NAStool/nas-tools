@@ -733,6 +733,7 @@ class Media:
                         continue
                     media_key = "[%s]%s-%s-%s" % (
                         meta_info.type.value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
+                    file_media_info = ""
                     if not self.meta.get_meta_data_by_key(media_key):
                         # 调用TMDB API
                         file_media_info = self.__search_tmdb(file_media_name=meta_info.get_name(),
@@ -768,6 +769,27 @@ class Media:
                         else:
                             # 标记为未找到避免再次查询
                             self.meta.update_meta_data({media_key: {'id': 0}})
+                    # 未找到，遍历 rename.txt寻找可能存在的tmdbid
+                    if not file_media_info:
+                        temp_name = meta_info.get_name()  # 待匹配名称
+                        try:
+                            with open("rename.txt", "r") as f:
+                                line = f.readline()  # 调用文件的 readline()方法
+                                while line:
+                                    if temp_name in line:
+                                        log.info("【】在rename.txt中查找到tmdbid")
+                                        tmdbid = line.split(",")[1].replace('\n', '')
+                                        file_media_info = Media().get_tmdb_info(meta_info.type, title=temp_name,
+                                                                                tmdbid=int(tmdbid))
+                                        self.meta.delete_meta_data(media_key)  # 短时间内直接update似乎无效，先删除该key缓存
+                                        self.meta.update_meta_data({media_key: file_media_info})
+                                        print(self.meta.get_meta_data_by_key(media_key))
+                                        break
+                                    line = f.readline()
+                                f.close()
+                        except Exception as e:
+                            print(str(e))
+                            log.error("【】rename.txt文件打开/写入失败")
                     # 查找中文名
                     cache_title = self.meta.get_cache_title(key=media_key)
                     if cache_title and chinese and not StringUtils.is_chinese(
