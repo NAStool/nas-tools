@@ -32,6 +32,10 @@
   <link href="../static/css/jquery.filetree.css" rel="stylesheet" />
   <link href="../static/css/dropzone.css" rel="stylesheet" />
   <style type="text/css">
+    .overflow-hidden {
+      overflow: hidden;
+    }
+
     .tooltip-inner {
       text-align: left;
     }
@@ -70,6 +74,13 @@
       backdrop-filter: blur(15px) !important;
       -webkit-backdrop-filter: blur(15px) !important;
       background-color: rgba(30,41,59,0.8) !important;
+    }
+    
+    @media (max-width: 991.98px) {
+      .navbar ul.navbar-nav {
+        overflow-y: auto;
+        max-height: 80vh;
+      }
     }
 
     .page-wrapper {
@@ -1287,6 +1298,45 @@
           $(this).val('');
         }
       });
+
+      // tooltip点击事件处理，阻止冒泡到上级元素，避免比如`点击tooltip切换了switch`的问题
+      $('body').on('click', '[data-bs-toggle="tooltip"]', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+
+      // navbar显示后，使body不能滚动，以免在滚动navbar时，body也滚动
+      $('.page > .navbar').on('shown.bs.collapse', function () {
+        $('body').addClass('overflow-hidden');
+      });
+      // navbar关闭后，恢复body可滚动
+      $('.page > .navbar').on('hidden.bs.collapse', function () {
+        $('body').removeClass('overflow-hidden');
+      });
+
+      /**
+       * 计算菜单列表高度
+       * @return {number}
+       */
+      function computeMenuListHeight() {
+        // '#navbar-menu > .order-first' 要打开菜单后才会显示，所以这里取固定值36
+        var menuFirstHeight = 36
+        // 这个是经过测试得到的数值
+        var extra = 70
+        return $('.navbar-brand').outerHeight() + menuFirstHeight + extra
+      }
+
+      /**
+       * 更新菜单列表高度
+       */
+      function updateMenuListHeight() {
+        var height = computeMenuListHeight()
+        $('.navbar ul.navbar-nav').css({
+          maxHeight: 'calc(100vh - ' + height + 'px)'
+        })
+      }
+
+      updateMenuListHeight()
 
       //加载页面
       var go_page = "{{ GoPage }}";
