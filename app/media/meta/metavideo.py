@@ -6,7 +6,7 @@ from app.media.meta.metabase import MetaBase
 from app.utils.string_utils import StringUtils
 from app.utils.tokens import Tokens
 from app.utils.types import MediaType
-from app.media.meta.release_groups import rp_groups, rp_match
+from app.media.meta.release_groups import release_groups, rg_match
 
 
 class MetaVideo(MetaBase):
@@ -112,9 +112,7 @@ class MetaVideo(MetaBase):
         if self.part and self.part.upper() == "PART":
             self.part = None
         # 制作组/字幕组
-        res_team = rp_match(title, rp_groups)
-        if res_team:
-            self.resource_team = res_team[0][1:]
+        self.resource_team = rg_match(title, release_groups)
 
     def __fix_name(self, name):
         if not name:
