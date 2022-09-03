@@ -9,6 +9,7 @@ from app.media.meta.metabase import MetaBase
 from app.utils.dom_utils import DomUtils
 from app.utils.http_utils import RequestUtils
 from app.utils.types import MediaType
+from app.utils.string_utils import StringUtils
 
 
 class NfoHelper:
@@ -17,7 +18,7 @@ class NfoHelper:
     def __init__(self):
         self.media = Media()
 
-    def __gen_common_nfo(self, tmdbinfo: dict, doc, root):
+    def __gen_common_nfo(self, tmdbinfo: dict, doc, root, chinese=True):
         # 添加时间
         DomUtils.add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         # TMDBID
@@ -34,14 +35,28 @@ class NfoHelper:
         # 导演
         directors, actors = self.media.get_tmdbinfo_directors_actors(tmdbinfo.get("credits"))
         for director in directors:
-            xdirector = DomUtils.add_node(doc, root, "director", director.get("name") or "")
-            xdirector.setAttribute("tmdbid", str(director.get("id") or ""))
+            director_name = director.get("name")
+            director_id = director.get("id")
+            if chinese and not StringUtils.is_chinese(director_name):
+                director_cn_name = self.media.get_person_chinese_name(director_id)
+                if director_cn_name:
+                    director_name = director_cn_name
+            xdirector = DomUtils.add_node(doc, root, "director", director_name or "")
+            xdirector.setAttribute("tmdbid", str(director_id or ""))
         # 演员
         for actor in actors:
+            actor_name = actor.get("name")
+            actor_id = actor.get("id")
+            if chinese and not StringUtils.is_chinese(actor_name):
+                actor_cn_name = self.media.get_person_chinese_name(actor_id)
+                if actor_cn_name:
+                    actor_name = actor_cn_name
             xactor = DomUtils.add_node(doc, root, "actor")
-            DomUtils.add_node(doc, xactor, "name", actor.get("name") or "")
+            DomUtils.add_node(doc, xactor, "name", actor_name or "")
             DomUtils.add_node(doc, xactor, "type", "Actor")
-            DomUtils.add_node(doc, xactor, "tmdbid", actor.get("id") or "")
+            DomUtils.add_node(doc, xactor, "role", actor.get("character") or "")
+            DomUtils.add_node(doc, xactor, "order", actor.get("order") or "")
+            DomUtils.add_node(doc, xactor, "tmdbid", actor_id or "")
         # 风格
         genres = tmdbinfo.get("genres") or []
         for genre in genres:
