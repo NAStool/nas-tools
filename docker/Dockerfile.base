@@ -13,10 +13,12 @@ RUN apk add --no-cache \
        curl \
        bash \
        fuse \
+       libffi-dev --repository https://pkgs.alpinelinux.org/package/edge/main \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && curl https://rclone.org/install.sh | bash \
     && pip install --upgrade pip setuptools wheel \
     && pip install -r https://raw.githubusercontent.com/shurelol/nas-tools/dev/requirements.txt \
+    && apk del libffi-dev \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*
