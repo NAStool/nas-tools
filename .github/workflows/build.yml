@@ -20,7 +20,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install wheel numpy railroad pyparsing wxpython pyinstaller
-        git clone --depth=1 https://github.com/jxxghp/nas-tools --recurse-submodule
+        git clone --depth=1 -b dev https://github.com/shurelol/nas-tools --recurse-submodule
         cd nas-tools
         pip install -r requirements.txt
       shell: pwsh
@@ -30,7 +30,6 @@ jobs:
         copy .\windows\rely\upx.exe c:\hostedtoolcache\windows\python\3.10.6\x64\Scripts
         copy .\windows\rely\hook-cn2an.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks
         copy .\windows\rely\hook-zhconv.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks
-        copy .\windows\rely\hook-babelfish.py c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\pyinstaller\hooks
         copy .\third_party.txt .\windows
         copy .\windows\rely\template.jinja2 c:\hostedtoolcache\windows\Python\3.10.6\x64\lib\site-packages\setuptools\_vendor\pyparsing\diagram
         xcopy .\web c:\hostedtoolcache\windows\python\3.10.6\x64\lib\site-packages\web\ /e
