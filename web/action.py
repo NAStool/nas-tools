@@ -571,6 +571,18 @@ class WebAction:
         episode_details = data.get("episode_details")
         episode_offset = data.get("episode_offset")
         min_filesize = data.get("min_filesize")
+        # 把自定义识别的影视及输入的tmdbid追加到rename.txt
+        file_name = os.path.basename(inpath if inpath[-1] != "/" else inpath[:-1])
+        meta_info = MetaInfo(title=file_name)
+        media_name = meta_info.get_name()
+        if media_name and tmdbid:
+            try:
+                with open("rename.txt", 'a') as f:
+                    f.write(','.join((media_name, tmdbid)) + '\n')
+                    f.close()
+            except Exception as e:
+                print(str(e))
+                log.error("rename.txt文件打开/写入失败")
         if mtype == "TV":
             media_type = MediaType.TV
         elif mtype == "MOV":
