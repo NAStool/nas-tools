@@ -15,13 +15,14 @@ from app.utils.string_utils import StringUtils
 class TorrentSpider(feapder.AirSpider):
     __custom_setting__ = dict(
         USE_SESSION=True,
+        SPIDER_THREAD_COUNT=1,
         SPIDER_MAX_RETRY_TIMES=0,
         REQUEST_LOST_TIMEOUT=10,
         RETRY_FAILED_REQUESTS=False,
         LOG_LEVEL="ERROR",
         RANDOM_HEADERS=False,
         WEBDRIVER=dict(
-            pool_size=2,
+            pool_size=1,
             load_images=False,
             user_agent=None,
             proxy=None,

@@ -3,15 +3,14 @@ import time
 from xml.dom import minidom
 
 import log
-import zhconv
 from config import TMDB_IMAGE_W500_URL
 from app.media.media import Media
 from app.media.meta.metabase import MetaBase
-from app.media.tmdbv3api.objs.person import Person
 from app.utils.dom_utils import DomUtils
 from app.utils.http_utils import RequestUtils
 from app.utils.types import MediaType
 from app.utils.string_utils import StringUtils
+
 
 class NfoHelper:
     media = None
@@ -37,40 +36,21 @@ class NfoHelper:
         directors, actors = self.media.get_tmdbinfo_directors_actors(tmdbinfo.get("credits"))
         for director in directors:
             director_name = director.get("name")
-            director_id =  director.get("id")
-            if chinese:
-                if not StringUtils.is_chinese(director_name):
-                    director_alter_names = []
-                    director_names = Person().details(director_id).get("also_known_as")
-                    for aka_name in director_names:
-                        if StringUtils.is_chinese(aka_name):
-                            director_alter_names.append(aka_name)
-                    if len(director_alter_names) == 1:
-                        director_name = director_alter_names[0]
-                    elif len(director_alter_names) > 1:
-                        for director_alter_name in director_alter_names:
-                            if director_alter_name == zhconv.convert(director_alter_name, 'zh-hans'):
-                                director_name = director_alter_name
-            print(director_name)
+            director_id = director.get("id")
+            if chinese and not StringUtils.is_chinese(director_name):
+                director_cn_name = self.media.get_person_chinese_name(director_id)
+                if director_cn_name:
+                    director_name = director_cn_name
             xdirector = DomUtils.add_node(doc, root, "director", director_name or "")
             xdirector.setAttribute("tmdbid", str(director_id or ""))
         # 演员
         for actor in actors:
             actor_name = actor.get("name")
-            actor_id =  actor.get("id")
-            if chinese:
-                if not StringUtils.is_chinese(actor_name):
-                    actor_alter_names = []
-                    actor_names = Person().details(actor_id).get("also_known_as")
-                    for aka_name in actor_names:
-                        if StringUtils.is_chinese(aka_name):
-                            actor_alter_names.append(aka_name)
-                    if len(actor_alter_names) == 1:
-                        actor_name = actor_alter_names[0]
-                    elif len(actor_alter_names) > 1:
-                        for actor_alter_name in actor_alter_names:
-                            if actor_alter_name == zhconv.convert(actor_alter_name, 'zh-hans'):
-                                actor_name = actor_alter_name
+            actor_id = actor.get("id")
+            if chinese and not StringUtils.is_chinese(actor_name):
+                actor_cn_name = self.media.get_person_chinese_name(actor_id)
+                if actor_cn_name:
+                    actor_name = actor_cn_name
             xactor = DomUtils.add_node(doc, root, "actor")
             DomUtils.add_node(doc, xactor, "name", actor_name or "")
             DomUtils.add_node(doc, xactor, "type", "Actor")
