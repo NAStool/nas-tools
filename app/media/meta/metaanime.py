@@ -46,6 +46,8 @@ class MetaAnime(MetaBase):
                     for word in name.split():
                         if not word:
                             continue
+                        if word.endswith(']'):
+                            word = word[:-1]
                         if word.isdigit():
                             if lastword_type == "cn":
                                 self.cn_name = "%s %s" % (self.cn_name or "", word)
@@ -151,8 +153,11 @@ class MetaAnime(MetaBase):
         if not title:
             return title
         title = title.replace("【", "[").replace("】", "]").strip()
-        if re.search(r"新番|月?番|[日美国]漫", title):
-            title = re.sub(".*番.|.*[日美国]漫.", "", title)
+        match = re.search(r"新番|月?番|[日美国][漫剧]", title)
+        if match and match.span()[1] < len(title) - 1:
+            title = re.sub(".*番.|.*[日美国][漫剧].", "", title)
+        elif match:
+            title = title[:title.rfind('[')]
         title = re.sub(r'[0-9.]+\s*[MGT]i?B(?![A-Z]+)', "", title, flags=re.IGNORECASE)
         title = re.sub(r"\[TV\s+(\d{1,4})", r"[\1", title, flags=re.IGNORECASE)
         names = title.split("]")
@@ -172,7 +177,8 @@ class MetaAnime(MetaBase):
                         titles.append("%s%s" % (left_char, name.split("/")[0].strip()))
                 elif name:
                     if StringUtils.is_chinese(name) and not StringUtils.is_all_chinese(name):
-                        name = re.sub(r'[\d|#:：\-()（）\u4e00-\u9fff]', '', name).strip()
+                        if not re.search(r"\[\d+", name, re.IGNORECASE):
+                            name = re.sub(r'[\d|#:：\-()（）\u4e00-\u9fff]', '', name).strip()
                         if not name or name.strip().isdigit():
                             continue
                     if name == '[':

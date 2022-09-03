@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - dev
+    paths:
+      - requirements.txt
+      - third_party.txt
 
 jobs:
   requirements-test:
