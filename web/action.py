@@ -1344,6 +1344,7 @@ class WebAction:
         brushtask_totalsize = data.get("brushtask_totalsize")
         brushtask_state = data.get("brushtask_state")
         brushtask_transfer = 'Y' if data.get("brushtask_transfer") else 'N'
+        brushtask_sendmessage = 'Y' if data.get("brushtask_sendmessage") else 'N'
         brushtask_free = data.get("brushtask_free")
         brushtask_hr = data.get("brushtask_hr")
         brushtask_torrent_size = data.get("brushtask_torrent_size")
@@ -1383,6 +1384,7 @@ class WebAction:
             "downloader": brushtask_downloader,
             "seed_size": brushtask_totalsize,
             "transfer": brushtask_transfer,
+            "sendmessage": brushtask_sendmessage,
             "state": brushtask_state,
             "rss_rule": rss_rule,
             "remove_rule": remove_rule
@@ -1431,7 +1433,8 @@ class WebAction:
             "download_size": StringUtils.str_filesize(brushtask[0][14]),
             "upload_size": StringUtils.str_filesize(brushtask[0][15]),
             "lst_mod_date": brushtask[0][16],
-            "site_url": "http://%s" % StringUtils.get_url_netloc(brushtask[0][17])
+            "site_url": "http://%s" % StringUtils.get_url_netloc(brushtask[0][17]),
+            "sendmessage": brushtask[0][20]
         }
         return {"code": 0, "task": task}
 

@@ -1065,6 +1065,7 @@ def insert_brushtask(brush_id, item):
                 INTEVAL,
                 DOWNLOADER,
                 TRANSFER,
+                SENDMESSAGE,
                 DOWNLOAD_COUNT,
                 REMOVE_COUNT,
                 DOWNLOAD_SIZE,
@@ -1072,7 +1073,7 @@ def insert_brushtask(brush_id, item):
                 STATE,
                 LST_MOD_DATE
             ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+                ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
             )
         '''
         return update_by_sql(sql, (item.get('name'),
@@ -1084,6 +1085,7 @@ def insert_brushtask(brush_id, item):
                                    item.get('interval'),
                                    item.get('downloader'),
                                    item.get('transfer'),
+                                   item.get('sendmessage'),
                                    0,
                                    0,
                                    0,
@@ -1102,6 +1104,7 @@ def insert_brushtask(brush_id, item):
                 INTEVAL = ?,
                 DOWNLOADER = ?,
                 TRANSFER = ?,
+                SENDMESSAGE = ?,
                 STATE = ?,
                 LST_MOD_DATE = ?
             WHERE ID = ?
@@ -1115,6 +1118,7 @@ def insert_brushtask(brush_id, item):
                                    item.get('interval'),
                                    item.get('downloader'),
                                    item.get('transfer'),
+                                   item.get('sendmessage'),
                                    item.get('state'),
                                    time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
                                    brush_id))
@@ -1133,7 +1137,7 @@ def get_brushtasks(brush_id=None):
     if brush_id:
         sql = "SELECT T.ID,T.NAME,T.SITE,C.NAME,T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
               "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
-              "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL,C.COOKIE,D.NAME " \
+              "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL,C.COOKIE,D.NAME,T.SENDMESSAGE " \
               "FROM SITE_BRUSH_TASK T " \
               "LEFT JOIN CONFIG_SITE C ON C.ID = T.SITE " \
               "LEFT JOIN SITE_BRUSH_DOWNLOADERS D ON D.ID = T.DOWNLOADER " \
@@ -1142,7 +1146,7 @@ def get_brushtasks(brush_id=None):
     else:
         sql = "SELECT T.ID,T.NAME,T.SITE,C.NAME,T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
               "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
-              "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL,C.COOKIE,D.NAME " \
+              "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL,C.COOKIE,D.NAME,T.SENDMESSAGE " \
               "FROM SITE_BRUSH_TASK T " \
               "LEFT JOIN CONFIG_SITE C ON C.ID = T.SITE " \
               "LEFT JOIN SITE_BRUSH_DOWNLOADERS D ON D.ID = T.DOWNLOADER "

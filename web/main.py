@@ -789,7 +789,8 @@ def create_flask_app(config):
                 "download_size": StringUtils.str_filesize(task[14]),
                 "upload_size": StringUtils.str_filesize(task[15]),
                 "lst_mod_date": task[16],
-                "site_url": "http://%s" % StringUtils.get_url_netloc(task[17])
+                "site_url": "http://%s" % StringUtils.get_url_netloc(task[17]),
+                "sendmessage": task[20]
             })
 
         return render_template("site/brushtask.html",

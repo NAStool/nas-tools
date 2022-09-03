@@ -285,12 +285,19 @@ class DBHelper:
                                    INTEVAL    TEXT,
                                    DOWNLOADER     TEXT,
                                    TRANSFER     TEXT,
+                                   SENDMESSAGE     TEXT,
                                    DOWNLOAD_COUNT     TEXT,
                                    REMOVE_COUNT     TEXT,
                                    DOWNLOAD_SIZE     TEXT,
                                    UPLOAD_SIZE     TEXT,
                                    STATE     TEXT,
                                    LST_MOD_DATE     TEXT);''')
+            brush_table_columns = [i[1] for i in cursor.execute('''PRAGMA table_info(SITE_BRUSH_TASK);''')]
+            if 'SENDMESSAGE' not in brush_table_columns:
+                self.excute('''ALTER TABLE SITE_BRUSH_TASK ADD COLUMN
+                                   SENDMESSAGE TEXT DEFAULT "Y";''')
+
+
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_BRUSH_TASK_NAME ON SITE_BRUSH_TASK (NAME);''')
             # 刷流任务明细表
             cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_BRUSH_TORRENTS
