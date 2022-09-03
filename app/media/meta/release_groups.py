@@ -1,120 +1,120 @@
 import re
 #  官组
-rp_1pt = []
-rp_52pt = []
-rp_audiences = ['Audies', 'ADE', 'ADWeb', 'ADAudio', 'ADeBook', 'ADMusic']
-rp_avgv = []
-rp_beitai = ['BeiTai']
-rp_btschool = ['BTSCHOOL', 'BtsHD', 'BtsPAD', 'BtsTV', 'Zone']
-rp_chdbits = ['CHD', 'CHDBits', 'CHDTV', 'CHDPAD', 'CHDWEB', 'CHDHKTV', 'StBOX', 'OneHD']
-rp_discfan = []
-rp_dragonhd = []
-rp_eastgame = ['iNT-TLF', 'HALFCD-TLF', 'MiniSD-TLF', 'MiniHD-TLF', 'MiniFHD-TLF', 'TLF']
-rp_filelist = []
-rp_gainbound = []
-rp_hares = ['Hares', 'HaresWEB', 'HaresTV', 'HaresMV']
-rp_hd4fans = []
-rp_hdarea = ['HDArea', 'EPiC', 'HDATV', 'HDApad']
-rp_hdatmos = []
-rp_hdbd = []
-rp_hdchina = ['HDChina', 'HDCTV', 'HDC', 'k9611', 'tudou', 'iHD']
-rp_hddolby = ['Dream', 'DBTV', 'QHstudIo', 'HDo']
-rp_hdfans = ['beAst', 'beAstTV']
-rp_hdhome = ['HDHome', 'HDH', 'HDHTV', 'HDHPad', 'HDHWEB']
-rp_hdsky = ['HDSky', 'HDS', 'HDSWEB', 'HDSTV', 'HDSPad']
-rp_hdtime = []
-rp_HDU = []
-rp_hdzone = []
-rp_hitpt = []
-rp_htpt = ['HTPT']
-rp_iptorrents = []
-rp_joyhd = []
-rp_keepfrds = ['FRDS']
-rp_lemonhd = ['LHD', 'LeagueHD', 'LeagueWEB', 'LeagueTV', 'LeagueCD', ' LeagueMV', 'LeagueNF', 'i18n', 'CiNT']
-rp_mteam = ['MTeam', 'MPAD', 'MTeamTV']
-rp_nanyangpt = []
-rp_nicept = []
-rp_oshen = []
-rp_ourbits = ['OurBits', 'OurTV', 'FLTTH', 'Ao', 'PbK', 'MGs', 'iLoveTV', 'iLoveHD']
-rp_pterclub = ['PTer', 'PTerWEB', 'PTerTV', 'PTerDIY', 'PTerMV', 'PTerGame']
-rp_pthome = ['PTHome', 'PTH', 'PTHWEB', 'PTHtv', 'PTHAudio', 'PTHAudio', 'PTHeBook', 'PTHmusic']
-rp_ptmsg = []
-rp_ptsbao = ['PTsbao', 'OPS', 'FFansBD', 'FFansWEB', 'FFansTV', 'FFansDVD', 'FHDMv']
-rp_pttime = []
-rp_putao = ['PuTao']
-rp_soulvoice = []
-rp_springsunday = ['CMCT', 'CMCTV']
-rp_tccf = []
-rp_tjupt = ['TJUPT']
-rp_totheglory = ['TTG', 'WiKi', 'NGB', 'DoA', 'ARiN', 'ExREN']
-rp_U2 = []
-rp_ultrahd = []
+rg_1pt = []
+rg_52pt = []
+rg_audiences = ['Audies', 'ADE', 'ADWeb', 'ADAudio', 'ADeBook', 'ADMusic']
+rg_avgv = []
+rg_beitai = ['BeiTai']
+rg_btschool = ['BTSCHOOL', 'BtsHD', 'BtsPAD', 'BtsTV', 'Zone']
+rg_chdbits = ['CHD', 'CHDBits', 'CHDTV', 'CHDPAD', 'CHDWEB', 'CHDHKTV', 'StBOX', 'OneHD']
+rg_discfan = []
+rg_dragonhd = []
+rg_eastgame = ['iNT-TLF', 'HALFCD-TLF', 'MiniSD-TLF', 'MiniHD-TLF', 'MiniFHD-TLF', 'TLF']
+rg_filelist = []
+rg_gainbound = []
+rg_hares = ['Hares', 'HaresWEB', 'HaresTV', 'HaresMV']
+rg_hd4fans = []
+rg_hdarea = ['HDArea', 'EPiC', 'HDATV', 'HDApad']
+rg_hdatmos = []
+rg_hdbd = []
+rg_hdchina = ['HDChina', 'HDCTV', 'HDC', 'k9611', 'tudou', 'iHD']
+rg_hddolby = ['Dream', 'DBTV', 'QHstudIo', 'HDo']
+rg_hdfans = ['beAst', 'beAstTV']
+rg_hdhome = ['HDHome', 'HDH', 'HDHTV', 'HDHPad', 'HDHWEB']
+rg_hdsky = ['HDSky', 'HDS', 'HDSWEB', 'HDSTV', 'HDSPad']
+rg_hdtime = []
+rg_HDU = []
+rg_hdzone = []
+rg_hitpt = []
+rg_htpt = ['HTPT']
+rg_iptorrents = []
+rg_joyhd = []
+rg_keepfrds = ['FRDS']
+rg_lemonhd = ['LHD', 'LeagueHD', 'LeagueWEB', 'LeagueTV', 'LeagueCD', ' LeagueMV', 'LeagueNF', 'i18n', 'CiNT']
+rg_mteam = ['MTeam', 'MPAD', 'MTeamTV']
+rg_nanyangpt = []
+rg_nicept = []
+rg_oshen = []
+rg_ourbits = ['OurBits', 'OurTV', 'FLTTH', 'Ao', 'PbK', 'MGs', 'iLoveTV', 'iLoveHD']
+rg_pterclub = ['PTer', 'PTerWEB', 'PTerTV', 'PTerDIY', 'PTerMV', 'PTerGame']
+rg_pthome = ['PTHome', 'PTH', 'PTHWEB', 'PTHtv', 'PTHAudio', 'PTHAudio', 'PTHeBook', 'PTHmusic']
+rg_ptmsg = []
+rg_ptsbao = ['PTsbao', 'OPS', 'FFansBD', 'FFansWEB', 'FFansTV', 'FFansDVD', 'FHDMv']
+rg_pttime = []
+rg_putao = ['PuTao']
+rg_soulvoice = []
+rg_springsunday = ['CMCT', 'CMCTV']
+rg_tccf = []
+rg_tjupt = ['TJUPT']
+rg_totheglory = ['TTG', 'WiKi', 'NGB', 'DoA', 'ARiN', 'ExREN']
+rg_U2 = []
+rg_ultrahd = []
 
 #  其他常见组
-rp_other = ['BMDru', 'BeyondHD', 'cfandora', 'FLUX', 'NoGroup', 'TEPES', 'BTN', 'NTb', 'SMURF', 'Ctrlhd']
+rg_other = ['BMDru', 'BeyondHD', 'cfandora', 'FLUX', 'NoGroup', 'TEPES', 'BTN', 'NTb', 'SMURF', 'Ctrlhd']
 
-rp_sites = [rp_1pt,
-            rp_52pt,
-            rp_audiences,
-            rp_avgv,
-            rp_beitai,
-            rp_btschool,
-            rp_chdbits,
-            rp_discfan,
-            rp_dragonhd,
-            rp_eastgame,
-            rp_filelist,
-            rp_gainbound,
-            rp_hares,
-            rp_hd4fans,
-            rp_hdarea,
-            rp_hdatmos,
-            rp_hdbd,
-            rp_hdchina,
-            rp_hddolby,
-            rp_hdfans,
-            rp_hdhome,
-            rp_hdsky,
-            rp_hdtime,
-            rp_HDU,
-            rp_hdzone,
-            rp_hitpt,
-            rp_htpt,
-            rp_iptorrents,
-            rp_joyhd,
-            rp_keepfrds,
-            rp_lemonhd,
-            rp_mteam,
-            rp_nanyangpt,
-            rp_nicept,
-            rp_oshen,
-            rp_ourbits,
-            rp_pterclub,
-            rp_pthome,
-            rp_ptmsg,
-            rp_ptsbao,
-            rp_pttime,
-            rp_putao,
-            rp_soulvoice,
-            rp_springsunday,
-            rp_tccf,
-            rp_tjupt,
-            rp_totheglory,
-            rp_U2,
-            rp_ultrahd,
-            rp_other]
+sites = [rg_1pt,
+         rg_52pt,
+         rg_audiences,
+         rg_avgv,
+         rg_beitai,
+         rg_btschool,
+         rg_chdbits,
+         rg_discfan,
+         rg_dragonhd,
+         rg_eastgame,
+         rg_filelist,
+         rg_gainbound,
+         rg_hares,
+         rg_hd4fans,
+         rg_hdarea,
+         rg_hdatmos,
+         rg_hdbd,
+         rg_hdchina,
+         rg_hddolby,
+         rg_hdfans,
+         rg_hdhome,
+         rg_hdsky,
+         rg_hdtime,
+         rg_HDU,
+         rg_hdzone,
+         rg_hitpt,
+         rg_htpt,
+         rg_iptorrents,
+         rg_joyhd,
+         rg_keepfrds,
+         rg_lemonhd,
+         rg_mteam,
+         rg_nanyangpt,
+         rg_nicept,
+         rg_oshen,
+         rg_ourbits,
+         rg_pterclub,
+         rg_pthome,
+         rg_ptmsg,
+         rg_ptsbao,
+         rg_pttime,
+         rg_putao,
+         rg_soulvoice,
+         rg_springsunday,
+         rg_tccf,
+         rg_tjupt,
+         rg_totheglory,
+         rg_U2,
+         rg_ultrahd,
+         rg_other]
 
 #  正则 '[-@[]制作组名'，一般制作组前面会有'-'或者'@'或者'['
-rp_groups = []
-for rp_site in rp_sites:
-    for rp_group in rp_site:
-        rp_groups.append("[-@[]" + rp_group)
+release_groups = []
+for site in sites:
+    for release_group in site:
+        release_groups.append("[-@[]" + release_group)
 
 
 #  忽略大小写
-def rp_match(name, groups):
+def rg_match(name, groups):
     for group in groups:
         res = re.findall(group, name, re.I)
         if res:
-            return res
+            return res[0][1:]
     return ""
