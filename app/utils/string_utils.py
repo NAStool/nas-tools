@@ -187,13 +187,14 @@ class StringUtils:
     @staticmethod
     def get_url_netloc(url):
         """
-        获取URL的域名部分
+        获取URL的协议和域名部分
         """
         if not url:
-            return ""
+            return "", ""
         if not url.startswith("http"):
-            return url
-        return parse.urlparse(url).netloc
+            return "http", url
+        addr = parse.urlparse(url)
+        return addr.scheme, addr.netloc
 
     @staticmethod
     def clear_file_name(name):

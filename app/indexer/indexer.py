@@ -274,11 +274,11 @@ class IIndexer(metaclass=ABCMeta):
             seeders = item.get('seeders')
             peers = item.get('peers')
             page_url = item.get('page_url')
-            uploadvolumefactor = float(item.get('uploadvolumefactor')) if item.get('uploadvolumefactor') else 1.0
-            downloadvolumefactor = float(item.get('downloadvolumefactor')) if item.get('downloadvolumefactor') else 1.0
+            uploadvolumefactor = round(float(item.get('uploadvolumefactor')), 1) if item.get('uploadvolumefactor') is not None else 1.0
+            downloadvolumefactor = round(float(item.get('downloadvolumefactor')), 1) if item.get('downloadvolumefactor') is not None else 1.0
 
             # 合匹配模式下，过滤掉做种数为0的
-            if match_type == 1 and str(seeders) == "0":
+            if filter_args.get("seeders") and str(seeders) == "0":
                 log.info(f"【{self.index_type}】{torrent_name} 做种数为0")
                 continue
 

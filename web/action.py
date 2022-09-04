@@ -525,6 +525,9 @@ class WebAction:
         if os.path.splitext(path)[-1].lower() in RMT_MEDIAEXT and episode_format:
             path = os.path.dirname(path)
             need_fix_all = True
+        # 手工识别的内容全部加入缓存
+        MetaHelper().save_rename_cache(path, tmdb_info)
+        # 开始转移
         succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
                                                            in_path=path,
                                                            target_dir=dest_dir,
@@ -567,6 +570,8 @@ class WebAction:
         tmdb_info = Media().get_tmdb_info(mtype=media_type, tmdbid=tmdbid)
         if not tmdb_info:
             return {"retcode": 1, "retmsg": "识别失败，无法查询到TMDB信息"}
+        # 手工识别的内容全部加入缓存
+        MetaHelper().save_rename_cache(inpath, tmdb_info)
         # 自定义转移
         succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
                                                            in_path=inpath,
@@ -1414,6 +1419,7 @@ class WebAction:
         brushtask = get_brushtasks(brush_id)
         if not brushtask:
             return {"code": 1, "task": {}}
+        scheme, netloc = StringUtils.get_url_netloc(brushtask[0][17])
         task = {
             "id": brushtask[0][0],
             "name": brushtask[0][1],
@@ -1431,7 +1437,7 @@ class WebAction:
             "download_size": StringUtils.str_filesize(brushtask[0][14]),
             "upload_size": StringUtils.str_filesize(brushtask[0][15]),
             "lst_mod_date": brushtask[0][16],
-            "site_url": "http://%s" % StringUtils.get_url_netloc(brushtask[0][17])
+            "site_url": "%s://%s" % (scheme, netloc)
         }
         return {"code": 0, "task": task}
 
@@ -1826,7 +1832,9 @@ class WebAction:
                               % rules.get("dlcount"))
         if rules.get("peercount"):
             peer_counts = None
-            if "#" in rules.get("peercount"):
+            if rules.get("peercount") == "#":
+                peer_counts = None
+            elif "#" in rules.get("peercount"):
                 peer_counts = rules.get("peercount").split("#")
                 peer_counts[1] = peer_counts[1].replace(",", "-") if (len(peer_counts) >= 2 and peer_counts[1]) else peer_counts[1]
             else:

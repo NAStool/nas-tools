@@ -40,7 +40,6 @@ class Person(TMDb):
             )
         )
 
-
     def changes(self, person_id, start_date="", end_date="", page=1):
         """
         Get the changes for a person. By default only the last 24 hours are returned.

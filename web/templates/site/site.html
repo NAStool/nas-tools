@@ -181,6 +181,15 @@
                 </select>
               </div>
             </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">自动签到 <span class="form-help bg-red-lt" title="开启后将定时访问站点地址进行模拟登录或签到" data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="auto_signin">
+                  <option value="Y" selected>是</option>
+                  <option value="N">否</option>
+                </select>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -256,6 +265,7 @@
         $("#site_cookie").val(ret.site.cookie);
         $("#site_parse").val(ret.site.parse);
         $("#site_unread_msg_notify").val(ret.site.unread_msg_notify)
+        $("#auto_signin").val(ret.site.auto_signin)
         $("#modal-site-title").text("编辑站点");
         $("#add_or_edit_site_btn").text("修改");
         $("#modal-site").modal("show");
@@ -314,13 +324,14 @@
     var site_rule = $("#site_rule").val();
     var site_parse = $("#site_parse").val();
     var site_unread_msg_notify = $("#site_unread_msg_notify").val();
+    var auto_signin = $("#auto_signin").val();
     var data = {"site_id":site_id,
           "site_name":site_name,
           "site_pri":site_pri,
           "site_rssurl":site_rssurl,
           "site_signurl":site_signurl,
           "site_cookie":site_cookie,
-          "site_note":site_parse + "|" + site_rule + "|" + site_unread_msg_notify}
+          "site_note":site_parse + "|" + site_rule + "|" + site_unread_msg_notify + "|" + auto_signin}
 
     $("#add_or_edit_site_btn").attr("disabled", true);
     $("#add_or_edit_site_btn").text("处理中...");

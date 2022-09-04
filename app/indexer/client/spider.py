@@ -15,13 +15,14 @@ from app.utils.string_utils import StringUtils
 class TorrentSpider(feapder.AirSpider):
     __custom_setting__ = dict(
         USE_SESSION=True,
+        SPIDER_THREAD_COUNT=1,
         SPIDER_MAX_RETRY_TIMES=0,
         REQUEST_LOST_TIMEOUT=10,
         RETRY_FAILED_REQUESTS=False,
         LOG_LEVEL="ERROR",
         RANDOM_HEADERS=False,
         WEBDRIVER=dict(
-            pool_size=2,
+            pool_size=1,
             load_images=False,
             user_agent=None,
             proxy=None,
@@ -60,7 +61,7 @@ class TorrentSpider(feapder.AirSpider):
         if self.indexer.search:
             torrentspath = self.indexer.search.get('paths', [{}])[0].get('path', '')
             searchurl = self.domain + torrentspath + '?stypes=s&' + urlencode(
-                {"search": self.keyword, "search_field": self.keyword})
+                {"search": self.keyword, "search_field": self.keyword, "keyword": self.keyword})
             yield feapder.Request(searchurl, cookies=self.cookies)
         else:
             self.is_complete = True
@@ -127,7 +128,7 @@ class TorrentSpider(feapder.AirSpider):
         download = torrent(self.fields.get('download', {}).get('selector', ''))
         items = [item.attr(self.fields.get('download', {}).get('attribute')) for item in download.items()]
         if items:
-            if not items[0].startswith("http"):
+            if not items[0].startswith("http") and not items[0].startswith("magnet"):
                 self.torrents_info['enclosure'] = self.domain + items[0][1:] if items[0].startswith(
                     "/") else self.domain + items[0]
             else:
@@ -158,19 +159,19 @@ class TorrentSpider(feapder.AirSpider):
         # torrent leechers
         leechers = torrent(self.fields.get('leechers', {}).get('selector', ''))
         items = [item.text() for item in leechers.items() if item]
-        self.torrents_info['peers'] = items[0] if items else 0
+        self.torrents_info['peers'] = items[0] if items and str(items[0]).isdigit() else 0
 
     def Getseeders(self, torrent):
         # torrent leechers
         seeders = torrent(self.fields.get('seeders', {}).get('selector', ''))
         items = [item.text() for item in seeders.items() if item]
-        self.torrents_info['seeders'] = items[0].split("/")[0] if items else 0
+        self.torrents_info['seeders'] = items[0].split("/")[0] if items and str(items[0]).isdigit() else 0
 
     def Getgrabs(self, torrent):
         # torrent grabs
         grabs = torrent(self.fields.get('grabs', {}).get('selector', ''))
         items = [item.text() for item in grabs.items() if item]
-        self.torrents_info['grabs'] = items[0] if items else ''
+        self.torrents_info['grabs'] = items[0] if items and str(items[0]).isdigit() else ''
 
     def Gettitle_optional(self, torrent):
         # title optional

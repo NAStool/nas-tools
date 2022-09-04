@@ -50,7 +50,7 @@
       {% if Count > 8 %}
       <div class="col-md-3 col-lg-2 d-none d-md-block">
         <div class="accordion" id="filter_form_accordion"
-          style="position:-webkit-sticky;position:sticky;top:4rem;z-index:1;max-height: 35rem; overflow-y:scroll;">
+          style="position:-webkit-sticky;position:sticky;top:1rem;z-index:1;max-height: 35rem; overflow-y:scroll;">
           <div class="accordion-item">
             <h2 class="accordion-header" id="heading-filter_type">
               <button class="accordion-button " type="button" data-bs-toggle="collapse" data-bs-target="#filter_type"
@@ -224,20 +224,26 @@
                         href='{% if not Item[9] %}javascript:show_download_modal("{{ Item[0] }}","{{ Item[13] }}"){% else %}javascript:show_download_modal("{{ Item[0] }}","{{ Item[1] }}"){% endif %}'
                         title="点击添加下载">
                       <strong>{% if Item[14] or not Item[13] %}{{ Item[1]|replace("()", "") }}{% else %} {{ Item[13] }} {% endif %}</strong></a>
+                      {% if Item[4] %}
                       <span class="badge ms-2">{{ Item[4] }}{{ UPCHAR }}</span>
-                        {% if Item[19] != 1.0 %}
-                            <span class="badge text-white bg-azure">{{ (Item[19] * 100) | int }}%UL</span>
-                        {% endif %}
-                        {% if Item[20] != 1.0 %}
-                            {% if Item[20] == 0.0 %}
-                                <span class="badge text-white bg-lime">FREE</span>
-                            {% else %}
-                                <span class="badge text-white bg-blue">{{ (Item[20] * 100) | int }}%DL</span>
-                            {% endif %}
-                        {% endif %}
+                      {% endif %}
+                      {% if Item[19] != 1.0 %}
+                      <span class="badge text-white bg-azure">{{ (Item[19] * 100) | int }}%UL</span>
+                      {% endif %}
+                      {% if Item[20] != 1.0 %}
+                          {% if Item[20] == 0.0 %}
+                          <span class="badge text-white bg-lime">FREE</span>
+                          {% else %}
+                          <span class="badge text-white bg-blue">{{ (Item[20] * 100) | int }}%DL</span>
+                          {% endif %}
+                      {% endif %}
                     </div>
                     <div class="text-muted mt-1">
-                      <strong class="media_card_info"><span class="badge badge-outline text-blue">{{ Item[6]}}</span> <span class="badge badge-outline text-orange">{{ Item[2]}}</span> <span class="badge badge-outline text-yellow">{{ Item[3]}}</span></strong>
+                      <strong class="media_card_info"><span class="badge badge-outline text-blue">{{ Item[6]}}</span> <span class="badge badge-outline text-orange">{{ Item[2]}}</span>
+                        {% if Item[3] %}
+                        <span class="badge badge-outline text-yellow">{{ Item[3] }}</span>
+                        {% endif %}
+                      </strong>
                     </div>
                   </div>
                 </div>
@@ -266,7 +272,11 @@
                     <polyline points="16 3 12 7 8 3"></polyline>
                   </svg>
                   {% endif %}
-                  <small><a href="{{ Item[17] }}" target="_blank">{{ Item[12] }}</a></small>
+                  {% if Item[17] %}
+                    <small><a href="{{ Item[17] }}" target="_blank">{{ Item[12] }}</a></small>
+                  {% else %}
+                    <small>{{ Item[12] }}</small>
+                  {% endif %}
                 </div>
                 {% endif %}
                 {% if Item[14] and Item[13] %}

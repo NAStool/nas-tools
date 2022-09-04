@@ -4,7 +4,9 @@ import random
 import time
 from threading import RLock
 
-from config import Config
+from app.media.meta.metainfo import MetaInfo
+from app.utils.path_utils import PathUtils
+from config import Config, RMT_MEDIAEXT
 from app.utils.commons import singleton
 from app.utils.json_utils import JsonUtils
 from app.utils.thread_helper import ThreadHelper
@@ -143,6 +145,8 @@ class MetaHelper(object):
         """
         新增或更新缓存条目
         """
+        if not meta_data:
+            return
         with lock:
             for key, item in meta_data.items():
                 if not self.__meta_data.get(key):
@@ -218,3 +222,29 @@ class MetaHelper(object):
             self.__meta_data[key]['title'] = cn_title
         else:
             self.__meta_data[key]['name'] = cn_title
+
+    def save_rename_cache(self, path, tmdb_info):
+        """
+        将手动识别的信息加入缓存
+        """
+        if not path or not tmdb_info:
+            return
+        meta_infos = {}
+        if os.path.isfile(path):
+            meta_info = MetaInfo(title=os.path.basename(path))
+            if meta_info.get_name():
+                media_key = "[%s]%s-%s-%s" % (
+                    tmdb_info.get("media_type").value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
+                meta_infos[media_key] = tmdb_info
+        else:
+            path_files = PathUtils.get_dir_files(in_path=path, exts=RMT_MEDIAEXT)
+            for path_file in path_files:
+                meta_info = MetaInfo(title=os.path.basename(path_file))
+                if not meta_info.get_name():
+                    continue
+                media_key = "[%s]%s-%s-%s" % (
+                    tmdb_info.get("media_type").value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
+                if media_key not in meta_infos.keys():
+                    meta_infos[media_key] = tmdb_info
+        if meta_infos:
+            self.update_meta_data(meta_infos)
