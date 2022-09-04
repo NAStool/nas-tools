@@ -132,7 +132,7 @@ class MetaVideo(MetaBase):
         if not token:
             return
         # 回收标题
-        if self._unknown_name_str:
+        if self._unknown_name_str and self._unknown_name_str != self.year:
             if not self.en_name:
                 self.en_name = self._unknown_name_str
             elif self._unknown_name_str != self.year:
@@ -242,12 +242,10 @@ class MetaVideo(MetaBase):
             return
         if not 1900 < int(token) < 2050:
             return
-        if not self.year:
-            self.year = token
-        else:
+        if self.year:
             if self._last_token_type == "enname" and self.en_name:
                 self.en_name = "%s %s" % (self.en_name, self.year)
-            self.year = token
+        self.year = token
         self._last_token_type = "year"
         self._continue_flag = False
         self._stop_name_flag = True
