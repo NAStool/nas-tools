@@ -292,10 +292,11 @@ class DBHelper:
                                    UPLOAD_SIZE     TEXT,
                                    STATE     TEXT,
                                    LST_MOD_DATE     TEXT);''')
-            brush_table_columns = [i[1] for i in cursor.execute('''PRAGMA table_info(SITE_BRUSH_TASK);''')]
-            if 'SENDMESSAGE' not in brush_table_columns:
+            try:
+                cursor.execute('''SELECT SENDMESSAGE FROM SITE_BRUSH_TASK LIMIT 1;''')
+            except Exception as e:
                 self.excute('''ALTER TABLE SITE_BRUSH_TASK ADD COLUMN
-                                   SENDMESSAGE TEXT DEFAULT "Y";''')
+                                SENDMESSAGE TEXT DEFAULT "Y";''')
 
 
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_BRUSH_TASK_NAME ON SITE_BRUSH_TASK (NAME);''')
