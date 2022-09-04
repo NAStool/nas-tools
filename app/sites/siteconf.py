@@ -244,9 +244,15 @@ RSS_SITE_GRAP_CONF = {
         'HR': [],
         'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
     },
+    'hdpt.xyz': {
+        'FREE': ["//font[@class='free']"],
+        '2XFREE': ["//font[@class='twoupfree']"],
+        'HR': [],
+        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+    },
     'azusa.ru': {
         'FREE': ["//font[@class='free']"],
-        '2XFREE': [],
+        '2XFREE': ["//font[@class='twoupfree']"],
         'HR': [],
         'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
     }
