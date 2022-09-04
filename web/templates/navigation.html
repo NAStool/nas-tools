@@ -32,8 +32,9 @@
   <link href="../static/css/jquery.filetree.css" rel="stylesheet" />
   <link href="../static/css/dropzone.css" rel="stylesheet" />
   <style type="text/css">
-    .overflow-hidden {
-      overflow: hidden !important;
+    body, .page {
+      height: 100%;
+      overflow: hidden;
     }
 
     .tooltip-inner {
@@ -84,7 +85,9 @@
     }
 
     .page-wrapper {
-      margin-top: calc(env(safe-area-inset-top) + 48px) !important;
+      margin-top: calc(env(safe-area-inset-top) + 56px) !important;
+      height: 100% !important;
+      overflow: scroll !important;
     }
 
     .offcanvas {
@@ -1082,7 +1085,7 @@
       });
       $("#navbar-menu").collapse('hide');
       show_wait_process();
-      $(window).unbind('scroll');
+      $(".page-wrapper").unbind('scroll');
       page = page.replaceAll(" ", "%20");
       $("#page_content").load(page, {}, function (response, status, xhr) {
         hide_wait_process();
@@ -1303,15 +1306,6 @@
       $('body').on('click', '[data-bs-toggle="tooltip"]', function (e) {
         e.preventDefault();
         e.stopPropagation();
-      });
-
-      // navbar显示后，使body不能滚动，以免在滚动navbar时，body也滚动
-      $('.page > .navbar').on('shown.bs.collapse', function () {
-        $('body').addClass('overflow-hidden');
-      });
-      // navbar关闭后，恢复body可滚动
-      $('.page > .navbar').on('hidden.bs.collapse', function () {
-        $('body').removeClass('overflow-hidden');
       });
 
       /**

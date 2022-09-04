@@ -772,6 +772,7 @@ def create_flask_app(config):
         brushtasks = get_brushtasks()
         Tasks = []
         for task in brushtasks:
+            scheme, netloc = StringUtils.get_url_netloc(task[17])
             Tasks.append({
                 "id": task[0],
                 "name": task[1],
@@ -789,7 +790,7 @@ def create_flask_app(config):
                 "download_size": StringUtils.str_filesize(task[14]),
                 "upload_size": StringUtils.str_filesize(task[15]),
                 "lst_mod_date": task[16],
-                "site_url": "http://%s" % StringUtils.get_url_netloc(task[17]),
+                "site_url": "%s://%s" % (scheme, netloc),
                 "sendmessage": task[20]
             })
 
