@@ -525,6 +525,9 @@ class WebAction:
         if os.path.splitext(path)[-1].lower() in RMT_MEDIAEXT and episode_format:
             path = os.path.dirname(path)
             need_fix_all = True
+        # 手工识别的内容全部加入缓存
+        MetaHelper().save_rename_cache(path, tmdb_info)
+        # 开始转移
         succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
                                                            in_path=path,
                                                            target_dir=dest_dir,
@@ -567,6 +570,8 @@ class WebAction:
         tmdb_info = Media().get_tmdb_info(mtype=media_type, tmdbid=tmdbid)
         if not tmdb_info:
             return {"retcode": 1, "retmsg": "识别失败，无法查询到TMDB信息"}
+        # 手工识别的内容全部加入缓存
+        MetaHelper().save_rename_cache(inpath, tmdb_info)
         # 自定义转移
         succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
                                                            in_path=inpath,
