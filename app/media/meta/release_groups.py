@@ -108,13 +108,23 @@ sites = [rg_1pt,
 release_groups = []
 for site in sites:
     for release_group in site:
-        release_groups.append("[-@[]" + release_group)
+        release_groups.append("(?<=[-@[])" + release_group + "(?=[@.\s])")
 
 
 #  忽略大小写
 def rg_match(name, groups):
+    res_l = []
+    res_s = ""
     for group in groups:
-        res = re.findall(group, name, re.I)
-        if res:
-            return res[0][1:]
-    return ""
+        res_group = re.findall(group, name, re.I)
+        if res_group:
+            res_l.append(res_group[0])
+    if len(res_l) ==1 :
+        return res_l[0]
+    elif len(res_l) > 1 :
+        for res in res_l:
+            res_s = res_s + "@" + res
+        return res_s[1:]
+    else:
+        return ""
+    
