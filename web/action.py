@@ -758,7 +758,7 @@ class WebAction:
         self.stop_service()
         # 升级
         if "synology" in os.popen('uname -a').readline():
-            if os.popen('/bin/ps -w -x | grep -v grep | grep -w "nastool update" | wc -l').readline() == '0':
+            if os.popen('/bin/ps -w -x | grep -v grep | grep -w "nastool update" | wc -l').readline().strip() == '0':
                 # 调用群晖套件内置命令升级
                 os.system('nastool update')
                 # 退出主进程

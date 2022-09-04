@@ -21,12 +21,23 @@ class NfoHelper:
     def __gen_common_nfo(self, tmdbinfo: dict, doc, root, chinese=True):
         # 添加时间
         DomUtils.add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-        # TMDBID
-        uniqueid = DomUtils.add_node(doc, root, "uniqueid", tmdbinfo.get("id") or "")
-        uniqueid.setAttribute("type", "tmdb")
-        uniqueid.setAttribute("default", "true")
-        # tmdbid
+        # TMDB
         DomUtils.add_node(doc, root, "tmdbid", tmdbinfo.get("id") or "")
+        uniqueid_tmdb = DomUtils.add_node(doc, root, "uniqueid", tmdbinfo.get("id") or "")
+        uniqueid_tmdb.setAttribute("type", "tmdb")
+        uniqueid_tmdb.setAttribute("default", "true")
+        # TVDB IMDB
+        if tmdbinfo.get("external_ids"):
+            tvdbid = tmdbinfo.get("external_ids", {}).get("tvdb_id", 0)
+            if tvdbid:
+                DomUtils.add_node(doc, root, "tvdbid", tvdbid)
+                uniqueid_tvdb = DomUtils.add_node(doc, root, "uniqueid", tvdbid)
+                uniqueid_tvdb.setAttribute("type", "tvdb")
+            imdbid = tmdbinfo.get("external_ids", {}).get("imdb_id", "")
+            if imdbid:
+                DomUtils.add_node(doc, root, "imdbid", imdbid)
+                uniqueid_imdb = DomUtils.add_node(doc, root, "uniqueid", imdbid)
+                uniqueid_imdb.setAttribute("type", "imdb")
         # 简介
         xplot = DomUtils.add_node(doc, root, "plot")
         xplot.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
@@ -243,13 +254,35 @@ class NfoHelper:
                 media.set_tmdb_info(tmdbinfo)
                 # 生成电影描述文件
                 self.gen_movie_nfo_file(tmdbinfo, dir_path, file_name)
-                # 保存海报
+                # poster
                 poster_image = media.get_poster_image()
                 if poster_image:
                     self.__save_image(poster_image, dir_path)
+                # backdrop
                 backdrop_image = media.get_backdrop_image()
                 if backdrop_image:
                     self.__save_image(backdrop_image, dir_path, "fanart")
+                # background
+                background_image = media.fanart.get_background(media_type=media.type, queryid=media.tmdb_id)
+                if background_image:
+                    self.__save_image(background_image, dir_path, "background")
+                # logo
+                logo_image = media.fanart.get_logo(media_type=media.type, queryid=media.tmdb_id)
+                if logo_image:
+                    self.__save_image(logo_image, dir_path, "logo")
+                # disc
+                disc_image = media.fanart.get_disc(media_type=media.type, queryid=media.tmdb_id)
+                if disc_image:
+                    self.__save_image(disc_image, dir_path, "disc")
+                # banner
+                banner_image = media.fanart.get_banner(media_type=media.type, queryid=media.tmdb_id)
+                if banner_image:
+                    self.__save_image(banner_image, dir_path, "banner")
+                # thumb
+                thumb_image = media.fanart.get_thumb(media_type=media.type, queryid=media.tmdb_id)
+                if thumb_image:
+                    self.__save_image(thumb_image, dir_path, "thumb")
+
             # 电视剧
             else:
                 # 处理根目录
@@ -259,13 +292,34 @@ class NfoHelper:
                     media.set_tmdb_info(tmdbinfo)
                     # 根目录描述文件
                     self.gen_tv_nfo_file(tmdbinfo, os.path.dirname(dir_path))
-                    # 根目录海报
+                    # poster
                     poster_image = media.get_poster_image()
                     if poster_image:
                         self.__save_image(poster_image, os.path.dirname(dir_path))
+                    # backdrop
                     backdrop_image = media.get_backdrop_image()
                     if backdrop_image:
                         self.__save_image(backdrop_image, os.path.dirname(dir_path), "fanart")
+                    # background
+                    background_image = media.fanart.get_background(media_type=media.type, queryid=media.tvdb_id)
+                    if background_image:
+                        self.__save_image(background_image, dir_path, "show")
+                    # logo
+                    logo_image = media.fanart.get_logo(media_type=media.type, queryid=media.tvdb_id)
+                    if logo_image:
+                        self.__save_image(logo_image, dir_path, "logo")
+                    # clearart
+                    clearart_image = media.fanart.get_disc(media_type=media.type, queryid=media.tvdb_id)
+                    if clearart_image:
+                        self.__save_image(clearart_image, dir_path, "clearart")
+                    # banner
+                    banner_image = media.fanart.get_banner(media_type=media.type, queryid=media.tvdb_id)
+                    if banner_image:
+                        self.__save_image(banner_image, dir_path, "banner")
+                    # thumb
+                    thumb_image = media.fanart.get_thumb(media_type=media.type, queryid=media.tvdb_id)
+                    if thumb_image:
+                        self.__save_image(thumb_image, dir_path, "thumb")
                 # 处理集
                 if not os.path.exists(os.path.join(dir_path, "%s.nfo" % file_name)):
                     # 查询TMDB信息
@@ -277,9 +331,34 @@ class NfoHelper:
                     if not os.path.exists(os.path.join(dir_path, "season.nfo")):
                         # 生成季的信息
                         self.gen_tv_season_nfo_file(tmdbinfo, int(media.get_season_seq()), dir_path)
-                        # 季的海报
-                        self.__save_image(TMDB_IMAGE_W500_URL % tmdbinfo.get("poster_path"),
-                                          os.path.dirname(dir_path),
-                                          "season%s-poster" % media.get_season_seq().rjust(2, '0'))
+                        # season poster
+                        seasonposter = media.fanart.get_seasonposter(media_type=media.type,
+                                                                     queryid=media.tvdb_id,
+                                                                     season=media.get_season_seq())
+                        if seasonposter:
+                            self.__save_image(seasonposter,
+                                              os.path.dirname(dir_path),
+                                              "season%s-poster" % media.get_season_seq().rjust(2, '0'))
+                        else:
+                            self.__save_image(TMDB_IMAGE_W500_URL % tmdbinfo.get("poster_path"),
+                                              os.path.dirname(dir_path),
+                                              "season%s-poster" % media.get_season_seq().rjust(2, '0'))
+                        # season banner
+                        seasonbanner = media.fanart.get_seasonbanner(media_type=media.type,
+                                                                     queryid=media.tvdb_id,
+                                                                     season=media.get_season_seq())
+                        if seasonbanner:
+                            self.__save_image(seasonbanner,
+                                              os.path.dirname(dir_path),
+                                              "season%s-banner" % media.get_season_seq().rjust(2, '0'))
+                        # season thumb
+                        seasonthumb = media.fanart.get_seasonthumb(media_type=media.type,
+                                                                   queryid=media.tvdb_id,
+                                                                   season=media.get_season_seq())
+                        if seasonthumb:
+                            self.__save_image(seasonthumb,
+                                              os.path.dirname(dir_path),
+                                              "season%s-landscape" % media.get_season_seq().rjust(2, '0'))
+
         except Exception as e:
             print(str(e))
