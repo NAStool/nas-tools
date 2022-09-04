@@ -243,6 +243,12 @@ RSS_SITE_GRAP_CONF = {
         '2XFREE': ["//font[@class='twoupfree']"],
         'HR': [],
         'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+    },
+    'azusa.ru': {
+        'FREE': ["//font[@class='free']"],
+        '2XFREE': [],
+        'HR': [],
+        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
     }
 }
 
