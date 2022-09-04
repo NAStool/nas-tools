@@ -1832,7 +1832,9 @@ class WebAction:
                               % rules.get("dlcount"))
         if rules.get("peercount"):
             peer_counts = None
-            if "#" in rules.get("peercount"):
+            if rules.get("peercount") == "#":
+                peer_counts = None
+            elif "#" in rules.get("peercount"):
                 peer_counts = rules.get("peercount").split("#")
                 peer_counts[1] = peer_counts[1].replace(",", "-") if (len(peer_counts) >= 2 and peer_counts[1]) else peer_counts[1]
             else:
