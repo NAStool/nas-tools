@@ -1419,6 +1419,7 @@ class WebAction:
         brushtask = get_brushtasks(brush_id)
         if not brushtask:
             return {"code": 1, "task": {}}
+        scheme, netloc = StringUtils.get_url_netloc(brushtask[0][17])
         task = {
             "id": brushtask[0][0],
             "name": brushtask[0][1],
@@ -1436,7 +1437,7 @@ class WebAction:
             "download_size": StringUtils.str_filesize(brushtask[0][14]),
             "upload_size": StringUtils.str_filesize(brushtask[0][15]),
             "lst_mod_date": brushtask[0][16],
-            "site_url": "http://%s" % StringUtils.get_url_netloc(brushtask[0][17])
+            "site_url": "%s://%s" % (scheme, netloc)
         }
         return {"code": 0, "task": task}
 
