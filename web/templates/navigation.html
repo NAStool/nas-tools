@@ -1085,7 +1085,7 @@
       });
       $("#navbar-menu").collapse('hide');
       show_wait_process();
-      $(window).unbind('scroll');
+      $(".page-wrapper").unbind('scroll');
       page = page.replaceAll(" ", "%20");
       $("#page_content").load(page, {}, function (response, status, xhr) {
         hide_wait_process();

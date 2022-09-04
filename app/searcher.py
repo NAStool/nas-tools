@@ -99,7 +99,8 @@ class Searcher:
                        "episode": search_episode,
                        "year": media_info.year,
                        "type": media_info.type,
-                       "site": sites}
+                       "site": sites,
+                       "seeders": True}
         if filters:
             filter_args.update(filters)
         # 开始搜索

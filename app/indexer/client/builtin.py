@@ -2,6 +2,8 @@ import datetime
 import time
 
 import log
+from app.indexer.client.rarbg import Rarbg
+from app.indexer.indexer_conf import IndexerConf
 from config import Config
 from app.indexer.indexer import IIndexer
 from app.indexer.client.spider import TorrentSpider
@@ -44,7 +46,7 @@ class BuiltinIndexer(IIndexer):
         return ret_indexers
 
     def search(self, order_seq,
-               indexer,
+               indexer: IndexerConf,
                key_word,
                filter_args: dict,
                match_type,
@@ -68,7 +70,11 @@ class BuiltinIndexer(IIndexer):
         log.info(f"【{self.index_type}】开始检索Indexer：{indexer.name} ...")
         # 特殊符号处理
         search_word = StringUtils.handler_special_chars(text=key_word, replace_word=" ", allow_space=True)
-        result_array = self.__spider_search(keyword=search_word, indexer=indexer)
+        if indexer.id == "rarbg":
+            imdb_id = match_media.imdb_id if match_media else None
+            result_array = Rarbg(cookies=indexer.cookie).search(keyword=search_word, indexer=indexer, imdb_id=imdb_id)
+        else:
+            result_array = self.__spider_search(keyword=search_word, indexer=indexer)
         if len(result_array) == 0:
             log.warn(f"【{self.index_type}】{indexer.name} 未检索到数据")
             ProcessHandler().update(text=f"{indexer.name} 未检索到数据")
