@@ -4,6 +4,7 @@ import time
 import log
 from app.indexer.client.rarbg import Rarbg
 from app.indexer.indexer_conf import IndexerConf
+from app.sites.siteconf import get_public_sites
 from config import Config
 from app.indexer.indexer import IIndexer
 from app.indexer.client.spider import TorrentSpider
@@ -31,11 +32,11 @@ class BuiltinIndexer(IIndexer):
         ret_indexers = []
         indexer_sites = Config().get_config("pt").get("indexer_sites") or []
         for site in Sites().get_sites():
-            if not site.get("cookie"):
-                continue
             if not site.get("rssurl") and not site.get("signurl"):
                 continue
-            indexer = IndexerHelper().get_indexer(site.get("rssurl") or site.get("signurl"),
+            if not site.get("cookie"):
+                continue
+            indexer = IndexerHelper().get_indexer(site.get("signurl") or site.get("rssurl"),
                                                   site.get("cookie"),
                                                   site.get("name"))
             if indexer:
@@ -43,6 +44,8 @@ class BuiltinIndexer(IIndexer):
                     continue
                 indexer.name = site.get("name")
                 ret_indexers.append(indexer)
+        for site in get_public_sites():
+            ret_indexers.append(IndexerHelper().get_indexer(site))
         return ret_indexers
 
     def search(self, order_seq,

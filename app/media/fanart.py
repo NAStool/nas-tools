@@ -33,7 +33,7 @@ class Fanart:
 
     def __get_fanart_images(self, media_type, queryid):
         if not media_type or not queryid:
-            return ""
+            return
         try:
             ret = self.__request_fanart(media_type=media_type, queryid=queryid)
             if ret and ret.status_code == 200:
