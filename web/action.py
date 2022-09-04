@@ -758,8 +758,11 @@ class WebAction:
         self.stop_service()
         # 升级
         if "synology" in os.popen('uname -a').readline():
-            # 调用群晖套件内置命令升级
-            os.system('nastool update')
+            if os.popen('/bin/ps -w -x | grep -v grep | grep -w "nastool update" | wc -l').readline().strip() == '0':
+                # 调用群晖套件内置命令升级
+                os.system('nastool update')
+                # 退出主进程
+                self.shutdown_server()
         else:
             # 安装依赖
             os.system('pip install -r /nas-tools/requirements.txt')
@@ -769,8 +772,8 @@ class WebAction:
             # 升级
             os.system("git pull")
             os.system("git submodule update --init --recursive")
-        # 退出主进程
-        self.shutdown_server()
+            # 退出主进程
+            self.shutdown_server()
 
     @staticmethod
     def __logout(data):

@@ -396,8 +396,8 @@ class MetaBase(object):
         if not self.tmdb_id:
             return
         if info.get("external_ids"):
-            self.tvdb_id = info.get("external_ids").get("tvdb_id", 0)
-            self.imdb_id = info.get("external_ids").get("imdb_id", "")
+            self.tvdb_id = info.get("external_ids", {}).get("tvdb_id", 0)
+            self.imdb_id = info.get("external_ids", {}).get("imdb_id", "")
         self.tmdb_info = info
         self.vote_average = round(info.get('vote_average'), 1)
         self.overview = info.get('overview')
