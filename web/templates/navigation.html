@@ -1220,7 +1220,7 @@
     }
 
     // 检查新版本
-    var AppVersion = "{{ AppVersion }}";
+    var AppVersion = "{{ AppVersion }}".split(" ")[0];
     var NewVersion = '';
     $("#new_version_tip").hide();
     function check_new_version () {
