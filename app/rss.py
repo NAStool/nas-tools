@@ -202,6 +202,8 @@ class Rss:
                                     log.info("【RSS】电视剧 %s%s 已全部订阅完成，删除订阅..." % (
                                         media_info.title, media_info.get_season_string()))
                                     delete_rss_tv(rssid=match_rssid)
+                                    # 发送订阅完成的消息
+                                    self.message.send_rss_finished_message(media_info)
                                     continue
                                 # 非洗版时检查本地媒体库情况
                                 if not over_edition:
@@ -267,6 +269,8 @@ class Rss:
                                         "【RSS】电视剧 %s %s 订阅完成，删除订阅..." % (item.get_title_string(),
                                                                          item.get_season_string()))
                                     delete_rss_tv(rssid=item.rssid)
+                                    # 发送订阅完成的消息
+                                    self.message.send_rss_finished_message(item)
                             else:
                                 # 更新电视剧缺失剧集
                                 left_media = left_medias.get(item.get_title_string())
@@ -410,6 +414,8 @@ class Rss:
             else:
                 log.info("【RSS】电视剧 %s%s 已全部订阅完成，删除订阅..." % (name, season))
                 delete_rss_tv(rssid=rssid)
+                # 发送订阅完成的消息
+                self.message.send_rss_finished_message(media_info)
                 continue
 
             # 非洗版的情况检查是否存在
@@ -448,6 +454,8 @@ class Rss:
                 # 没有剩余或者剩余缺失季集中没有当前标题，说明下完了
                 log.info("【RSS】电视剧 %s 下载完成，删除订阅..." % name)
                 delete_rss_tv(rssid=rssid)
+                # 发送订阅完成的消息
+                self.message.send_rss_finished_message(media_info)
             else:
                 # 更新状态
                 update_rss_tv_state(rssid=rssid, state='R')
