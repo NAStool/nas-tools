@@ -34,10 +34,9 @@ from app.utils.dom_utils import DomUtils
 from app.media.meta_helper import MetaHelper
 from web.backend.security import Security
 from app.utils.system_utils import SystemUtils
-from version import APP_VERSION
 from web.action import WebAction
 from web.backend.subscribe import add_rss_subscribe
-from web.backend.web_utils import get_login_wallpaper
+from web.backend.web_utils import get_login_wallpaper, get_current_version
 from web.backend.webhook_event import WebhookEvent
 from app.db.sqls import *
 from app.utils.types import *
@@ -172,7 +171,7 @@ def create_flask_app(config):
                                            UserName=username,
                                            UserPris=str(pris).split(","),
                                            SystemFlag=SystemFlag,
-                                           AppVersion=APP_VERSION)
+                                           AppVersion=get_current_version())
             else:
                 return render_template('login.html',
                                        GoPage=GoPage,
@@ -209,7 +208,7 @@ def create_flask_app(config):
                                        UserName=username,
                                        UserPris=str(pris).split(","),
                                        SystemFlag=SystemFlag,
-                                       AppVersion=APP_VERSION)
+                                       AppVersion=get_current_version())
             else:
                 return render_template('login.html',
                                        GoPage=GoPage,
