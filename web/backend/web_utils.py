@@ -1,5 +1,6 @@
 import base64
 import datetime
+import os
 import random
 from functools import lru_cache
 
@@ -7,6 +8,7 @@ from config import TMDB_IMAGE_ORIGINAL_URL
 from app.media.media import Media
 from app.utils.http_utils import RequestUtils
 from app.indexer.indexer_helper import IndexerHelper
+from version import APP_VERSION
 
 
 @lru_cache(maxsize=1)
@@ -65,6 +67,14 @@ def get_location(ip):
     except Exception as err:
         print(str(err))
         return ""
+
+
+def get_current_version():
+    """
+    获取当前版本号
+    """
+    commit_id = os.popen('git rev-parse --short HEAD').readline().strip()
+    return "%s %s" % (APP_VERSION, commit_id)
 
 
 def init_features():
