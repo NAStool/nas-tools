@@ -1,6 +1,6 @@
 ---
-name: 功能需求模板
-about: 如有新功能需要需要提交，请按此模板创建issues
+name: 问题模板
+about: 如发现Bug，请按此模板提交issues
 ---
 
 ## 你使用的 NASTool 是什么版本，什么环境？
