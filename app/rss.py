@@ -202,6 +202,8 @@ class Rss:
                                     log.info("【RSS】电视剧 %s%s 已全部订阅完成，删除订阅..." % (
                                         media_info.title, media_info.get_season_string()))
                                     delete_rss_tv(rssid=match_rssid)
+                                    # 发送订阅完成的消息
+                                    self.message.send_rss_finished_message(media_info)
                                     continue
                                 # 非洗版时检查本地媒体库情况
                                 if not over_edition:
@@ -247,7 +249,7 @@ class Rss:
                 # 打印汇总日志
                 if isinstance(rss_no_exists, dict):
                     for k, v in rss_no_exists.items():
-                        log.info("【RSS】%s 缺失剧集：%s" % (k, v))
+                        log.info("【RSS】%s 缺失季集：%s" % (k, v))
                 download_items, left_medias = self.downloader.check_and_add_pt(SearchType.RSS,
                                                                                rss_download_torrents,
                                                                                rss_no_exists)
@@ -267,6 +269,8 @@ class Rss:
                                         "【RSS】电视剧 %s %s 订阅完成，删除订阅..." % (item.get_title_string(),
                                                                          item.get_season_string()))
                                     delete_rss_tv(rssid=item.rssid)
+                                    # 发送订阅完成的消息
+                                    self.message.send_rss_finished_message(item)
                             else:
                                 # 更新电视剧缺失剧集
                                 left_media = left_medias.get(item.get_title_string())
@@ -397,20 +401,31 @@ class Rss:
             # 从登记薄中获取缺失剧集
             episodes = get_rss_tv_episodes(rssid)
             if episodes is None:
+                log.info("【RSS】%s %s 数据库记录的缺失集：全部缺失" % (media_info.get_title_string(),
+                                                        media_info.get_season_string()))
                 no_exists = {media_info.get_title_string(): [
                     {"season": media_info.begin_season, "episodes": [], "total_episodes": total}]}
             elif episodes:
+                log.info("【RSS】%s %s 数据库记录的缺失集：%s" % (media_info.get_title_string(),
+                                                      media_info.get_season_string(),
+                                                      episodes))
                 no_exists = {media_info.get_title_string(): [
                     {"season": media_info.begin_season, "episodes": episodes, "total_episodes": total}]}
             else:
                 log.info("【RSS】电视剧 %s%s 已全部订阅完成，删除订阅..." % (name, season))
                 delete_rss_tv(rssid=rssid)
+                # 发送订阅完成的消息
+                self.message.send_rss_finished_message(media_info)
                 continue
 
             # 非洗版的情况检查是否存在
             if not over_edition:
                 # 检查是否存在，电视剧返回不存在的集清单
                 exist_flag, library_no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info)
+                log.info("【RSS】%s %s 媒体库缺失剧集：%s" % (media_info.get_title_string(),
+                                                    media_info.get_season_string(),
+                                                    library_no_exists.get(
+                                                        media_info.get_title_string())))
                 # 已经存在
                 if exist_flag:
                     # 已全部存在
@@ -424,6 +439,10 @@ class Rss:
                                                      source=library_no_exists,
                                                      title=media_info.get_title_string())
 
+            # 打印汇总日志
+            if isinstance(no_exists, dict):
+                for k, v in no_exists.items():
+                    log.info("【RSS】%s 缺失季集：%s" % (k, v))
             # 开始检索
             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
                 media_info=media_info,
@@ -435,6 +454,8 @@ class Rss:
                 # 没有剩余或者剩余缺失季集中没有当前标题，说明下完了
                 log.info("【RSS】电视剧 %s 下载完成，删除订阅..." % name)
                 delete_rss_tv(rssid=rssid)
+                # 发送订阅完成的消息
+                self.message.send_rss_finished_message(media_info)
             else:
                 # 更新状态
                 update_rss_tv_state(rssid=rssid, state='R')

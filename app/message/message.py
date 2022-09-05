@@ -240,3 +240,21 @@ class Message:
                               image=media_info.get_message_image(),
                               url='movie_rss' if media_info.type == MediaType.MOVIE else 'tv_rss',
                               user_id=user_id)
+
+    def send_rss_finished_message(self, media_info: MetaBase):
+        """
+        发送订阅完成的消息，只针对电视剧
+        """
+        if media_info.type == MediaType.MOVIE:
+            return
+        else:
+            msg_title = f"{media_info.get_title_string()} {media_info.get_season_string()} 已完成订阅"
+        msg_str = f"类型：{media_info.type.value}"
+        if media_info.vote_average:
+            msg_str = f"{msg_str}，{media_info.get_vote_string()}"
+        self.send_channel_msg(channel=in_from,
+                              title=msg_title,
+                              text=msg_str,
+                              image=media_info.get_message_image(),
+                              url='downloaded',
+                              user_id=user_id)
