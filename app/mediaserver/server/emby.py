@@ -285,10 +285,8 @@ class Emby(IMediaServer):
         req_url = "%semby/Library/Refresh?api_key=%s" % (self.__host, self.__apikey)
         try:
             res = RequestUtils().post_res(req_url)
-            if res and res.status_code == 200:
+            if res:
                 return True
-            elif res:
-                log.info(f"【EMBY】刷新媒体库返回码：{res.status_code}，返回内容：{res.reason}")
             else:
                 log.info(f"【EMBY】刷新媒体库失败，无法连接Emby！")
         except Exception as e:
