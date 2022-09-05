@@ -2,7 +2,10 @@ import copy
 import re
 import traceback
 
+from requests.utils import dict_from_cookiejar
+
 import feapder
+from app.utils.http_utils import RequestUtils
 from feapder.utils.tools import urlencode
 from jinja2 import Template
 from pyquery import PyQuery
@@ -52,7 +55,15 @@ class TorrentSpider(feapder.AirSpider):
         self.domain = indexer.domain
         if self.domain and not str(self.domain).endswith("/"):
             self.domain = self.domain + "/"
-        self.cookies = self.indexer.cookie
+        if self.indexer.cookie:
+            self.cookies = self.indexer.cookie
+        else:
+            try:
+                res = RequestUtils().get_res(self.domain)
+                if res:
+                    self.cookies = dict_from_cookiejar(res.cookies)
+            except Exception as err:
+                log.warn(f"【SPIDER】获取 {self.domain} cookie失败：{format(err)}")
         if user_agent:
             self.__custom_setting__['WEBDRIVER']['user_agent'] = user_agent
         self.torrents_info_array = []

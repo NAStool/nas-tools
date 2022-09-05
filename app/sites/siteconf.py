@@ -1,6 +1,7 @@
 # 非常规RSS站点
 from app.utils.string_utils import StringUtils
 
+# 非常规RSS站点
 RSS_EXTRA_SITES = {
     'blutopia.xyz': 'Unit3D',
     'desitorrents.tv': 'Unit3D',
@@ -257,6 +258,11 @@ RSS_SITE_GRAP_CONF = {
         'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
     }
 }
+# 公共BT站点
+PUBLIC_TORRENT_SITES = [
+    'rarbg.to',
+    'dmhy.org'
+]
 
 
 def get_extrasite_conf(url):
@@ -277,3 +283,20 @@ def get_grapsite_conf(url):
         if StringUtils.url_equal(k, url):
             return v
     return {}
+
+
+def is_public_site(url):
+    """
+    判断是否为公开BT站点
+    """
+    _, netloc = StringUtils.get_url_netloc(url)
+    if netloc in PUBLIC_TORRENT_SITES:
+        return True
+    return False
+
+
+def get_public_sites():
+    """
+    查询所有公开BT站点
+    """
+    return PUBLIC_TORRENT_SITES

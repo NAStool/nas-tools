@@ -92,6 +92,8 @@ class RequestUtils:
 
     @staticmethod
     def cookie_parse(cookies_str):
+        if not cookies_str:
+            return {}
         cookie_dict = {}
         cookies = cookies_str.split(';')
         for cookie in cookies:

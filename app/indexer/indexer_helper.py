@@ -27,7 +27,7 @@ class IndexerHelper:
     def get_all_indexers(self):
         return self._indexers
 
-    def get_indexer(self, url, cookie, name):
+    def get_indexer(self, url, cookie=None, name=None):
         if not url:
             return None
         for indexer in self._indexers:
