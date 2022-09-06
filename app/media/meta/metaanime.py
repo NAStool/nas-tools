@@ -160,9 +160,9 @@ class MetaAnime(MetaBase):
             title = re.sub(".*番.|.*[日美国][漫剧].", "", title)
         elif match:
             title = title[:title.rfind('[')]
-        # 截掉类型
+        # 截掉分类
         first_item = title.split(']')[0]
-        if first_item and re.search(r"动画片|电影|电视剧|TV|Animation|Movie",
+        if first_item and re.search(r"[动漫画纪录片电影视连续剧集日美韩中港台海外亚洲华语大陆综艺原盘高清]{2,}|TV|Animation|Movie|Documentar|Anime",
                                     zhconv.convert(first_item, "zh-hans"),
                                     re.IGNORECASE):
             title = re.sub(r"^[^]]*[]]", "", title).strip()
