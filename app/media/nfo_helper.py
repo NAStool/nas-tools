@@ -18,7 +18,7 @@ class NfoHelper:
     def __init__(self):
         self.media = Media()
 
-    def __gen_common_nfo(self, tmdbinfo: dict, doc, root, chinese=True):
+    def __gen_common_nfo(self, tmdbinfo: dict, doc, root, chinese=False):
         # 添加时间
         DomUtils.add_node(doc, root, "dateadded", time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
         # TMDB
