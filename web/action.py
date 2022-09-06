@@ -1402,7 +1402,7 @@ class WebAction:
         SqlHelper.insert_brushtask(brushtask_id, item)
 
         # 存储消息开关
-        DictHelper.set(SystemDictType.MessageSwitch.value, brushtask_id, brushtask_sendmessage)
+        DictHelper.set(SystemDictType.BrushMessageSwitch.value, brushtask_id, brushtask_sendmessage)
 
         # 重新初始化任务
         BrushTask().init_config()
@@ -1431,7 +1431,7 @@ class WebAction:
         if not brushtask:
             return {"code": 1, "task": {}}
         scheme, netloc = StringUtils.get_url_netloc(brushtask[0][17])
-        sendmessage_switch = DictHelper.get(SystemDictType.MessageSwitch.value, brushtask[0][0])
+        sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, brushtask[0][0])
         task = {
             "id": brushtask[0][0],
             "name": brushtask[0][1],

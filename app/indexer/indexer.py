@@ -123,7 +123,7 @@ class IIndexer(metaclass=ABCMeta):
         if filter_args is None:
             filter_args = {}
 
-        if filter_args.get("site") and indexer.id not in filter_args.get("site"):
+        if filter_args.get("site") and indexer.name not in filter_args.get("site"):
             return []
         # 计算耗时
         start_time = datetime.datetime.now()
