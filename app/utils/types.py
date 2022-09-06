@@ -68,3 +68,6 @@ class BrushDeleteType(Enum):
     UPLOADSIZE = "上传量"
     DLTIME = "下载耗时"
     AVGUPSPEED = "平均上传速度"
+
+class SystemDictType(Enum):
+    MessageSwitch = "消息开关"

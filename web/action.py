@@ -43,11 +43,12 @@ from app.media.meta_helper import MetaHelper
 from app.utils.path_utils import PathUtils
 from app.utils.sysmsg_helper import MessageCenter
 from app.utils.thread_helper import ThreadHelper
-from app.utils.types import SearchType, DownloaderType, SyncType, MediaType
+from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
 from web.backend.douban_hot import DoubanHot
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 from web.backend.subscribe import add_rss_subscribe
 from app.db.sql_helper import SqlHelper
+from app.db.dict_helper import DictHelper
 
 
 class WebAction:
@@ -1354,6 +1355,7 @@ class WebAction:
         brushtask_totalsize = data.get("brushtask_totalsize")
         brushtask_state = data.get("brushtask_state")
         brushtask_transfer = 'Y' if data.get("brushtask_transfer") else 'N'
+        brushtask_sendmessage = 'Y' if data.get("brushtask_sendmessage") else 'N'
         brushtask_free = data.get("brushtask_free")
         brushtask_hr = data.get("brushtask_hr")
         brushtask_torrent_size = data.get("brushtask_torrent_size")
@@ -1398,6 +1400,10 @@ class WebAction:
             "remove_rule": remove_rule
         }
         SqlHelper.insert_brushtask(brushtask_id, item)
+
+        # 存储消息开关
+        DictHelper.set(SystemDictType.MessageSwitch.value, brushtask_id, brushtask_sendmessage)
+
         # 重新初始化任务
         BrushTask().init_config()
         return {"code": 0}
@@ -1425,6 +1431,7 @@ class WebAction:
         if not brushtask:
             return {"code": 1, "task": {}}
         scheme, netloc = StringUtils.get_url_netloc(brushtask[0][17])
+        sendmessage_switch = DictHelper.get(SystemDictType.MessageSwitch.value, brushtask[0][0])
         task = {
             "id": brushtask[0][0],
             "name": brushtask[0][1],
@@ -1442,7 +1449,8 @@ class WebAction:
             "download_size": StringUtils.str_filesize(brushtask[0][14]),
             "upload_size": StringUtils.str_filesize(brushtask[0][15]),
             "lst_mod_date": brushtask[0][16],
-            "site_url": "%s://%s" % (scheme, netloc)
+            "site_url": "%s://%s" % (scheme, netloc),
+            "sendmessage": sendmessage_switch
         }
         return {"code": 0, "task": task}
 
