@@ -45,7 +45,10 @@ class BuiltinIndexer(IIndexer):
                 indexer.name = site.get("name")
                 ret_indexers.append(indexer)
         for site in get_public_sites():
-            ret_indexers.append(IndexerHelper().get_indexer(site))
+            indexer = IndexerHelper().get_indexer(site)
+            if check and indexer_sites and indexer.id not in indexer_sites:
+                continue
+            ret_indexers.append(indexer)
         return ret_indexers
 
     def search(self, order_seq,
@@ -66,7 +69,7 @@ class BuiltinIndexer(IIndexer):
         if indexer_sites and indexer.id not in indexer_sites:
             return []
 
-        if filter_args.get("site") and indexer.id not in filter_args.get("site"):
+        if filter_args.get("site") and indexer.name not in filter_args.get("site"):
             return []
         # 计算耗时
         start_time = datetime.datetime.now()

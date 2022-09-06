@@ -192,7 +192,7 @@
               <div class="form-selectgroup">
                 {% for site in SearchSites %}
                 <label class="form-selectgroup-item">
-                  <input type="checkbox" name="search_sites" value="{{ site.id }}" class="form-selectgroup-input" checked>
+                  <input type="checkbox" name="search_sites" value="{{ site.name }}" class="form-selectgroup-input" checked>
                   <span class="form-selectgroup-label">{{ site.name }}</span>
                 </label>
                 {% endfor %}

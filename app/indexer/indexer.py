@@ -123,7 +123,7 @@ class IIndexer(metaclass=ABCMeta):
         if filter_args is None:
             filter_args = {}
 
-        if filter_args.get("site") and indexer.id not in filter_args.get("site"):
+        if filter_args.get("site") and indexer.name not in filter_args.get("site"):
             return []
         # 计算耗时
         start_time = datetime.datetime.now()
@@ -373,7 +373,7 @@ class IIndexer(metaclass=ABCMeta):
                 continue
 
             # 匹配到了
-            log.info(f"【{self.index_type}】{torrent_name} {description} 匹配成功")
+            log.info(f"【{self.index_type}】{torrent_name} {description} 识别为 {media_info.get_title_string()}{media_info.get_season_episode_string()} 匹配成功")
             media_info.set_torrent_info(site=indexer_name,
                                         site_order=order_seq,
                                         enclosure=enclosure,
