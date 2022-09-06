@@ -18,6 +18,11 @@
           {% if item.vote > 0%}
           <div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">{{ item.vote }}</div>
           {% endif %}
+          {% if item.fav == 2 %}
+          <div class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;padding:0;" title="媒体库已存在">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="h-3 w-3 sm:h-4 sm:w-4"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+          </div>
+          {% endif %}
           <a href='javascript:show_mediainfo_modal("{{ RecommendType }}", "{{ item.title }}", "{{ item.year }}", "{% if RecommendType in ["hm", "nm", "ht", "nt"] %}{% else %}DB:{% endif %}{{ item.id }}", "recommend?t={{ RecommendType }}")'>
             <img src="{{ item.image or '../static/img/no-image.png' }}" onerror="this.src='../static/img/no-image.png'" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">
           </a>
@@ -27,8 +32,8 @@
                 <div><strong>{{ item.title }}</strong></div>
               </div>
               <div class="ms-auto">
-                <a id="recommend_link_{{ item.id }}" href='{% if item.fav == 0 %} javascript:show_recommend_add_modal("{{ item.id }}","{{ RecommendType }}","{{ item.title }}","{{ item.year }}"){% elif item.fav == 1 %}javascript:show_recommend_del_modal("{{ item.id }}","{{ RecommendType }}","{{ item.title }}","{{ item.year }}"){% else %}javascript:void(0){% endif %}' class="text-muted" title="{% if item.fav in [0,1] %}加入/取消订阅{% else %}已下载{% endif %}">
-                  <svg id="recommend_svg_{{ item.id }}" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart {% if item.fav == 0 %}{% elif item.fav == 1 %}icon-filled text-red{% else %}icon-filled text-green{% endif %}" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <a id="recommend_link_{{ item.id }}" href='{% if item.fav == 0 %} javascript:show_recommend_add_modal("{{ item.id }}","{{ RecommendType }}","{{ item.title }}","{{ item.year }}"){% else %}javascript:show_recommend_del_modal("{{ item.id }}","{{ RecommendType }}","{{ item.title }}","{{ item.year }}"){% endif %}' class="text-muted" title="加入/取消订阅">
+                  <svg id="recommend_svg_{{ item.id }}" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart {% if item.fav == 0 %}{% else %}icon-filled text-red{% endif %}" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                      <path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
                   </svg>

@@ -66,6 +66,7 @@
       hide_wait_process();
       // 插入HTML
       for(var i=0; i<ret.Items.length; i++){
+        current_tooltip_id = "recommend_fresh_tooltip_" + ((CurrentPage-1) * 30 + i);
         item = ret.Items[i];
         var html = '';
         html += '<div class="col-6 col-sm-4 col-md-3 col-xl-2"><div class="card card-sm card-link-pop rounded-3">';
@@ -89,12 +90,17 @@
         }
         html += '</a>';
         html += '<div class="card-body"><div class="d-flex align-items-center">';
-        html += '<div><strong title="站点：'+item[12]+'<br>种子：'+item[8]+'<br>时间：'+item[11]+'" data-bs-toggle="tooltip" data-bs-html="true">'+item[1]+'</strong></div>';
+        html += '<div><strong id="'+current_tooltip_id+'" title="站点：'+item[12]+'<br>种子：'+item[8]+'<br>时间：'+item[11]+'" data-bs-toggle="tooltip" data-bs-html="true">'+item[1]+'</strong></div>';
         html += '<div class="ms-auto">';
         html += '</div>';
         html += '</div></div>';
         html += '</div></div>';
         $("#downloaded_content").append(html);
+        //更新tooltip
+        var recommendTooltipList = Array.prototype.slice.call(document.querySelectorAll('#' + current_tooltip_id))
+        var tooltipList = recommendTooltipList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl)
+        });
       }
     });
   }
