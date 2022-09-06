@@ -158,16 +158,19 @@ class Rss:
                                                     site_order=order_seq,
                                                     enclosure=enclosure)
                         # 检查种子是否匹配订阅，返回匹配到的订阅ID、是否洗版、总集数、上传因子、下载因子
-                        match_rssid, over_edition, total_episodes, res_order, upload_volume_factor, download_volume_factor = self.__is_torrent_match_rss(
+                        match_rssid, over_edition, total_episodes, res_order, upload_volume_factor, download_volume_factor, season = self.__is_torrent_match_rss(
                             media_info=media_info,
                             movie_keys=movie_keys,
                             tv_keys=tv_keys,
                             site_rule=site_rule_group,
                             site_cookie=rss_cookie,
                             site_parse=site_parse)
+                        # 未匹配
                         if match_rssid is None:
                             continue
-
+                        # 匹配季
+                        if season:
+                            season = int(str(season).replace("S", ""))
                         # 非模糊匹配命中
                         if match_rssid:
                             # 如果是电影
@@ -189,14 +192,14 @@ class Rss:
                                     log.info("【RSS】%s %s 数据库记录的缺失集：全部缺失" % (media_info.get_title_string(),
                                                                             media_info.get_season_string()))
                                     rss_no_exists[media_info.get_title_string()] = [
-                                        {"season": media_info.get_season_list()[0], "episodes": [],
+                                        {"season": season, "episodes": [],
                                          "total_episodes": total_episodes}]
                                 elif episodes:
                                     log.info("【RSS】%s %s 数据库记录的缺失集：%s" % (media_info.get_title_string(),
                                                                           media_info.get_season_string(),
                                                                           episodes))
                                     rss_no_exists[media_info.get_title_string()] = [
-                                        {"season": media_info.get_season_list()[0], "episodes": episodes,
+                                        {"season": season, "episodes": episodes,
                                          "total_episodes": total_episodes}]
                                 else:
                                     log.info("【RSS】电视剧 %s%s 已全部订阅完成，删除订阅..." % (
@@ -676,7 +679,7 @@ class Rss:
         :param site_rule: 站点过滤规则
         :param site_cookie: 站点的Cookie
         :param site_parse: 是否解析种子详情
-        :return: 匹配到的订阅ID、是否洗版、总集数、匹配规则的资源顺序、上传因子、下载因子
+        :return: 匹配到的订阅ID、是否洗版、总集数、匹配规则的资源顺序、上传因子、下载因子，匹配的季（电视剧）
         """
         # 默认值
         match_flag = False
@@ -690,6 +693,7 @@ class Rss:
         total_episodes = 0
 
         # 匹配电影
+        season = None
         if media_info.type == MediaType.MOVIE:
             for key_info in movie_keys:
                 if not key_info:
@@ -824,15 +828,15 @@ class Rss:
                     f"大小：{StringUtils.str_filesize(media_info.size)} "
                     f"促销：{media_info.get_volume_factor_string()} "
                     f"不符合过滤规则：{rule_name}")
-                return None, None, total_episodes, res_order, upload_volume_factor, download_volume_factor
+                return None, None, total_episodes, res_order, upload_volume_factor, download_volume_factor, season
             else:
                 log.info("【RSS】%s 识别为 %s%s 匹配订阅成功" % (media_info.org_string,
                                                       media_info.get_title_string(),
                                                       media_info.get_season_episode_string()))
                 log.info("【RSS】种子描述：%s" % media_info.subtitle)
-                return rssid, over_edition, total_episodes, res_order, upload_volume_factor, download_volume_factor
+                return rssid, over_edition, total_episodes, res_order, upload_volume_factor, download_volume_factor, season
         else:
             log.info("【RSS】%s 识别为 %s%s 不在订阅范围" % (media_info.org_string,
                                                   media_info.get_title_string(),
                                                   media_info.get_season_episode_string()))
-            return None, None, total_episodes, res_order, upload_volume_factor, download_volume_factor
+            return None, None, total_episodes, res_order, upload_volume_factor, download_volume_factor, season
