@@ -776,7 +776,7 @@ def create_flask_app(config):
         Tasks = []
         for task in brushtasks:
             scheme, netloc = StringUtils.get_url_netloc(task[17])
-            sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[0])
+            sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, "brushtask_".task[0])
             Tasks.append({
                 "id": task[0],
                 "name": task[1],
