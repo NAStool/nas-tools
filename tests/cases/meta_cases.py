@@ -1,4 +1,20 @@
 meta_cases = [{
+    "title": "[Animations(动画片)][[诛仙][Jade Dynasty][2022][WEB-DL][2160][TV Series][TV 08][LeagueWEB]][诛仙/诛仙动画 第一季 第08集 | 类型:动画 [国语中字]][680.12 MB]",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Jade Dynasty",
+        "year": "2022",
+        "part": "",
+        "season": "S01",
+        "episode": "E08",
+        "restype": "",
+        "pix": "",
+        "video_codec": "",
+        "audio_codec": ""
+    }
+}, {
     "title": "钢铁侠2 (2010) 1080p AC3.mp4",
     "subtitle": "",
     "target": {
