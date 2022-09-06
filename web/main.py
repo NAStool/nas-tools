@@ -42,6 +42,7 @@ from web.backend.subscribe import add_rss_subscribe
 from web.backend.web_utils import get_login_wallpaper, get_current_version
 from web.backend.webhook_event import WebhookEvent
 from app.db.sql_helper import SqlHelper
+from app.db.dict_helper import DictHelper
 from app.utils.types import *
 
 login_manager = LoginManager()
@@ -775,6 +776,7 @@ def create_flask_app(config):
         Tasks = []
         for task in brushtasks:
             scheme, netloc = StringUtils.get_url_netloc(task[17])
+            sendmessage_switch = DictHelper.get(SystemDictType.MessageSwitch.value, task[0])
             Tasks.append({
                 "id": task[0],
                 "name": task[1],
@@ -792,7 +794,8 @@ def create_flask_app(config):
                 "download_size": StringUtils.str_filesize(task[14]),
                 "upload_size": StringUtils.str_filesize(task[15]),
                 "lst_mod_date": task[16],
-                "site_url": "%s://%s" % (scheme, netloc)
+                "site_url": "%s://%s" % (scheme, netloc),
+                "sendmessage": sendmessage_switch
             })
 
         return render_template("site/brushtask.html",
