@@ -1,8 +1,10 @@
 import base64
+import datetime
 import logging
 import os.path
 import shutil
 import sqlite3
+import time
 import traceback
 import urllib
 import xml.dom.minidom
@@ -17,6 +19,7 @@ from werkzeug.security import check_password_hash
 
 import log
 from app.message.message import Message
+from app.utils.string_utils import StringUtils
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL
 from app.douban import DouBan
 from app.downloader.downloader import Downloader
@@ -38,7 +41,7 @@ from web.action import WebAction
 from web.backend.subscribe import add_rss_subscribe
 from web.backend.web_utils import get_login_wallpaper, get_current_version
 from web.backend.webhook_event import WebhookEvent
-from app.db.sqls import *
+from app.db.sql_helper import SqlHelper
 from app.utils.types import *
 
 login_manager = LoginManager()
@@ -87,7 +90,7 @@ def create_flask_app(config):
         for user in ADMIN_USERS:
             if user.get("name") == user_name:
                 return user
-        for user in get_users():
+        for user in SqlHelper.get_users():
             if user[1] == user_name:
                 return {"id": user[0], "name": user[1], "password": user[2], "pris": user[3]}
         return {}
@@ -126,7 +129,7 @@ def create_flask_app(config):
             for user in ADMIN_USERS:
                 if user.get('id') == user_id:
                     return User(user)
-            for user in get_users():
+            for user in SqlHelper.get_users():
                 if not user:
                     continue
                 if user[0] == user_id:
@@ -327,7 +330,7 @@ def create_flask_app(config):
         TvChartData = {}
         TvNums = []
         AnimeNums = []
-        for statistic in get_transfer_statistics():
+        for statistic in SqlHelper.get_transfer_statistics():
             if statistic[0] == "电影":
                 MovieChartLabels.append(statistic[1])
                 MovieNums.append(statistic[2])
@@ -373,7 +376,7 @@ def create_flask_app(config):
         # 查询结果
         SearchWord = request.args.get("s")
         NeedSearch = request.args.get("f")
-        res = get_search_results()
+        res = SqlHelper.get_search_results()
         # 类型字典
         MeidaTypeDict = {}
         # 站点字典
@@ -524,7 +527,7 @@ def create_flask_app(config):
     @App.route('/movie_rss', methods=['POST', 'GET'])
     @login_required
     def movie_rss():
-        RssItems = get_rss_movies()
+        RssItems = SqlHelper.get_rss_movies()
         RssSites = Sites().get_sites(rss=True)
         SearchSites = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers()]
         RuleGroups = FilterRule().get_rule_groups()
@@ -542,7 +545,7 @@ def create_flask_app(config):
     @App.route('/tv_rss', methods=['POST', 'GET'])
     @login_required
     def tv_rss():
-        RssItems = get_rss_tvs()
+        RssItems = SqlHelper.get_rss_tvs()
         RssSites = Sites().get_sites(rss=True)
         SearchSites = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers()]
         RuleGroups = FilterRule().get_rule_groups()
@@ -561,8 +564,8 @@ def create_flask_app(config):
     @login_required
     def rss_calendar():
         Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
-        RssMovieIds = [movie[2] for movie in get_rss_movies()]
-        RssTvItems = [{"id": tv[3], "season": int(str(tv[2]).replace("S", "")), "name": tv[0]} for tv in get_rss_tvs()
+        RssMovieIds = [movie[2] for movie in SqlHelper.get_rss_movies()]
+        RssTvItems = [{"id": tv[3], "season": int(str(tv[2]).replace("S", "")), "name": tv[0]} for tv in SqlHelper.get_rss_tvs()
                       if tv[2]]
         return render_template("rss/rss_calendar.html",
                                Today=Today,
@@ -766,9 +769,9 @@ def create_flask_app(config):
         # 站点列表
         CfgSites = Sites().get_sites(rss=True)
         # 下载器列表
-        downloaders = get_user_downloaders()
+        downloaders = SqlHelper.get_user_downloaders()
         # 任务列表
-        brushtasks = get_brushtasks()
+        brushtasks = SqlHelper.get_brushtasks()
         Tasks = []
         for task in brushtasks:
             scheme, netloc = StringUtils.get_url_netloc(task[17])
@@ -802,7 +805,7 @@ def create_flask_app(config):
     @App.route('/userdownloader', methods=['POST', 'GET'])
     @login_required
     def userdownloader():
-        downloaders = get_user_downloaders()
+        downloaders = SqlHelper.get_user_downloaders()
         return render_template("download/userdownloader.html",
                                Count=len(downloaders),
                                Downloaders=downloaders)
@@ -1017,7 +1020,7 @@ def create_flask_app(config):
             CurrentPage = 1
         else:
             CurrentPage = int(CurrentPage)
-        totalCount, historys = get_transfer_history(SearchStr, CurrentPage, PageNum)
+        totalCount, historys = SqlHelper.get_transfer_history(SearchStr, CurrentPage, PageNum)
         if totalCount:
             totalCount = totalCount[0][0]
         else:
@@ -1101,7 +1104,7 @@ def create_flask_app(config):
     @login_required
     def unidentification():
         Items = []
-        Records = get_transfer_unknown_paths()
+        Records = SqlHelper.get_transfer_unknown_paths()
         TotalCount = len(Records)
         for rec in Records:
             if not rec[1]:
@@ -1371,7 +1374,7 @@ def create_flask_app(config):
     @App.route('/users', methods=['POST', 'GET'])
     @login_required
     def users():
-        user_list = get_users()
+        user_list = SqlHelper.get_users()
         user_count = len(user_list)
         Users = []
         for user in user_list:

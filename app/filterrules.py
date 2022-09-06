@@ -1,8 +1,8 @@
 import re
 
+from app.db.sql_helper import SqlHelper
 from app.media.meta.metabase import MetaBase
 from app.utils.commons import singleton
-from app.db.sqls import get_config_filter_rule, get_config_filter_group
 from app.utils.types import MediaType
 
 
@@ -15,8 +15,8 @@ class FilterRule:
         self.init_config()
 
     def init_config(self):
-        self._groups = get_config_filter_group()
-        self._rules = get_config_filter_rule()
+        self._groups = SqlHelper.get_config_filter_group()
+        self._rules = SqlHelper.get_config_filter_rule()
 
     def get_rule_groups(self, groupid=None, default=False):
         """

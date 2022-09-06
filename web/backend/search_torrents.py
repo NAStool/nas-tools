@@ -14,7 +14,7 @@ from app.media.media import Media
 from app.media.meta.metabase import MetaBase
 from app.media.meta.metainfo import MetaInfo
 from app.utils.commons import ProcessHandler
-from app.db.sqls import insert_search_results, delete_all_search_torrents
+from app.db.sql_helper import SqlHelper
 from app.utils.types import SearchType, MediaType
 from web.backend.subscribe import add_rss_subscribe
 
@@ -113,7 +113,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                                               match_type=1,
                                               match_media=media_info)
     # 清空缓存结果
-    delete_all_search_torrents()
+    SqlHelper.delete_all_search_torrents()
     # 结束进度
     ProcessHandler().end()
     if len(media_list) == 0:
@@ -125,7 +125,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         media_list = sorted(media_list, key=lambda x: "%s%s%s" % (str(x.res_order).rjust(3, '0'),
                                                                   str(x.site_order).rjust(3, '0'),
                                                                   str(x.seeders).rjust(10, '0')), reverse=True)
-        insert_search_results(media_list)
+        SqlHelper.insert_search_results(media_list)
         return 0, ""
 
 
