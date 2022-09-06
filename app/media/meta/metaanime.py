@@ -152,14 +152,25 @@ class MetaAnime(MetaBase):
         """
         if not title:
             return title
+        # 所有【】换成[]
         title = title.replace("【", "[").replace("】", "]").strip()
+        # 截掉xx番剧漫
         match = re.search(r"新番|月?番|[日美国][漫剧]", title)
         if match and match.span()[1] < len(title) - 1:
             title = re.sub(".*番.|.*[日美国][漫剧].", "", title)
         elif match:
             title = title[:title.rfind('[')]
+        # 截掉类型
+        first_item = title.split(']')[0]
+        if first_item and re.search(r"动画片|电影|电视剧|TV|Animation|Movie",
+                                    zhconv.convert(first_item, "zh-hans"),
+                                    re.IGNORECASE):
+            title = re.sub(r"^[^]]*[]]", "", title).strip()
+        # 去掉大小
         title = re.sub(r'[0-9.]+\s*[MGT]i?B(?![A-Z]+)', "", title, flags=re.IGNORECASE)
+        # 将TVxx改为xx
         title = re.sub(r"\[TV\s+(\d{1,4})", r"[\1", title, flags=re.IGNORECASE)
+        # 处理/分隔的中英文标题
         names = title.split("]")
         if len(names) > 1 and title.find("- ") == -1:
             titles = []
