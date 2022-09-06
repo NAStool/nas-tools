@@ -113,9 +113,9 @@
               <div class="datagrid-content">{{ Task.downloader or "" }}</div>
             </div>
             <div class="datagrid-item">
-              <div class="datagrid-title">转移到媒体库</div>
+              <div class="datagrid-title">消息推送</div>
               <div class="datagrid-content">
-                {% if Task.transfer == 'Y' %}
+                {% if Task.sendmessage == 'Y' %}
                 <span class="status status-green">开</span>
                 {% else %}
                 <span class="status status-red">关</span>
@@ -123,9 +123,19 @@
               </div>
             </div>
             <div class="datagrid-item">
-              <div class="datagrid-title">消息推送</div>
+              <div class="datagrid-title">强制做种</div>
               <div class="datagrid-content">
-                {% if Task.sendmessage == 'Y' %}
+                {% if Task.forceupload == 'Y' %}
+                <span class="status status-green">开</span>
+                {% else %}
+                <span class="status status-red">关</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="datagrid-item">
+              <div class="datagrid-title">转移到媒体库</div>
+              <div class="datagrid-content">
+                {% if Task.transfer == 'Y' %}
                 <span class="status status-green">开</span>
                 {% else %}
                 <span class="status status-red">关</span>
@@ -252,16 +262,24 @@
             <div class="col-lg-4">
               <div class="mb-3">
                 <label class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="brushtask_transfer">
-                  <span class="form-check-label">转移到媒体库 <span class="form-help bg-red-lt" title="开启后刷流的下载也会进行转移并识别重命名到媒体库" data-bs-toggle="tooltip">?</span></span>
+                  <input class="form-check-input" type="checkbox" id="brushtask_sendmessage">
+                  <span class="form-check-label">消息推送 <span class="form-help bg-red-lt" title="开启后会将当前任务的情况进行推送" data-bs-toggle="tooltip">?</span></span>
                 </label>
               </div>
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
                 <label class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="brushtask_sendmessage">
-                  <span class="form-check-label">消息推送 <span class="form-help bg-red-lt" title="开启后会将当前任务的情况进行推送" data-bs-toggle="tooltip">?</span></span>
+                  <input class="form-check-input" type="checkbox" id="brushtask_forceupload">
+                  <span class="form-check-label">强制做种 <span class="form-help bg-red-lt" title="开启后当前任务的新增下载将设置为强制下载/做种状态" data-bs-toggle="tooltip">?</span></span>
+                </label>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="brushtask_transfer">
+                  <span class="form-check-label">转移到媒体库 <span class="form-help bg-red-lt" title="开启后刷流的下载也会进行转移并识别重命名到媒体库" data-bs-toggle="tooltip">?</span></span>
                 </label>
               </div>
             </div>
@@ -508,6 +526,11 @@
         }else{
           $("#brushtask_sendmessage").prop("checked", false);
         }
+        if(ret.task.forceupload == "Y"){
+          $("#brushtask_forceupload").prop("checked", true);
+        }else{
+          $("#brushtask_forceupload").prop("checked", false);
+        }
         $("#brushtask_dlcount").val(ret.task.rss_rule.dlcount)
         $("#brushtask_peercount").val(ret.task.rss_rule.peercount)
         $("#brushtask_include").val(ret.task.rss_rule.include);
@@ -657,6 +680,7 @@
     var brushtask_state = $("#brushtask_state").val();
     var brushtask_transfer = $("#brushtask_transfer").prop('checked');
     var brushtask_sendmessage = $("#brushtask_sendmessage").prop('checked');
+    var brushtask_forceupload = $("#brushtask_forceupload").prop('checked');
     var brushtask_free = $("#brushtask_free").val();
     var brushtask_hr = $("#brushtask_hr").val();
     //种子大小
@@ -780,6 +804,7 @@
       brushtask_state: brushtask_state,
       brushtask_transfer: brushtask_transfer,
       brushtask_sendmessage: brushtask_sendmessage,
+      brushtask_forceupload: brushtask_forceupload,
       brushtask_free: brushtask_free,
       brushtask_hr: brushtask_hr,
       brushtask_torrent_size: brushtask_torrent_size_do + "#" + brushtask_torrent_size,

@@ -777,6 +777,7 @@ def create_flask_app(config):
         for task in brushtasks:
             scheme, netloc = StringUtils.get_url_netloc(task[17])
             sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[0])
+            forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task[0])
             Tasks.append({
                 "id": task[0],
                 "name": task[1],
@@ -795,7 +796,8 @@ def create_flask_app(config):
                 "upload_size": StringUtils.str_filesize(task[15]),
                 "lst_mod_date": task[16],
                 "site_url": "%s://%s" % (scheme, netloc),
-                "sendmessage": sendmessage_switch
+                "sendmessage": sendmessage_switch,
+                "forceupload": forceupload_switch
             })
 
         return render_template("site/brushtask.html",

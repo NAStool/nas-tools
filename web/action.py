@@ -1356,6 +1356,7 @@ class WebAction:
         brushtask_state = data.get("brushtask_state")
         brushtask_transfer = 'Y' if data.get("brushtask_transfer") else 'N'
         brushtask_sendmessage = 'Y' if data.get("brushtask_sendmessage") else 'N'
+        brushtask_forceupload = 'Y' if data.get("brushtask_forceupload") else 'N'
         brushtask_free = data.get("brushtask_free")
         brushtask_hr = data.get("brushtask_hr")
         brushtask_torrent_size = data.get("brushtask_torrent_size")
@@ -1403,6 +1404,8 @@ class WebAction:
 
         # 存储消息开关
         DictHelper.set(SystemDictType.BrushMessageSwitch.value, brushtask_id, brushtask_sendmessage)
+        # 存储是否强制做种的开关
+        DictHelper.set(SystemDictType.BrushForceUpSwitch.value, brushtask_id, brushtask_forceupload)
 
         # 重新初始化任务
         BrushTask().init_config()
@@ -1432,6 +1435,7 @@ class WebAction:
             return {"code": 1, "task": {}}
         scheme, netloc = StringUtils.get_url_netloc(brushtask[0][17])
         sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, brushtask[0][0])
+        forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, brushtask[0][0])
         task = {
             "id": brushtask[0][0],
             "name": brushtask[0][1],
@@ -1450,7 +1454,8 @@ class WebAction:
             "upload_size": StringUtils.str_filesize(brushtask[0][15]),
             "lst_mod_date": brushtask[0][16],
             "site_url": "%s://%s" % (scheme, netloc),
-            "sendmessage": sendmessage_switch
+            "sendmessage": sendmessage_switch,
+            "forceupload": forceupload_switch
         }
         return {"code": 0, "task": task}
 
