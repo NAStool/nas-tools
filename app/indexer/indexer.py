@@ -373,7 +373,7 @@ class IIndexer(metaclass=ABCMeta):
                 continue
 
             # 匹配到了
-            log.info(f"【{self.index_type}】{torrent_name} {description} 匹配成功")
+            log.info(f"【{self.index_type}】{torrent_name} {description} 识别为 {media_info.get_title_string()}{media_info.get_season_episode_string()} 匹配成功")
             media_info.set_torrent_info(site=indexer_name,
                                         site_order=order_seq,
                                         enclosure=enclosure,

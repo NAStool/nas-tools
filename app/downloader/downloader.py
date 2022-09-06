@@ -3,6 +3,7 @@ from threading import Lock
 from time import sleep
 
 import log
+from app.media.meta.metabase import MetaBase
 from app.utils.commons import RMT_MODES
 from config import Config, PT_TAG
 from app.message.message import Message
@@ -245,38 +246,38 @@ class Downloader:
         if need_tvs:
             # 先把整季缺失的拿出来，看是否刚好有所有季都满足的种子
             need_seasons = {}
-            for need_title, need_tv in need_tvs.items():
+            for need_tmdbid, need_tv in need_tvs.items():
                 for tv in need_tv:
                     if not tv:
                         continue
                     if not tv.get("episodes"):
-                        if not need_seasons.get(need_title):
-                            need_seasons[need_title] = []
-                        need_seasons[need_title].append(tv.get("season") or 1)
+                        if not need_seasons.get(need_tmdbid):
+                            need_seasons[need_tmdbid] = []
+                        need_seasons[need_tmdbid].append(tv.get("season") or 1)
             # 查找整季包含的种子，只处理整季没集的种子或者是集数超过季的种子
-            for need_title, need_season in need_seasons.items():
+            for need_tmdbid, need_season in need_seasons.items():
                 for item in download_list:
                     if item.type == MediaType.MOVIE:
                         continue
                     item_season = item.get_season_list()
                     item_episodes = item.get_episode_list()
-                    if need_title == item.get_title_string() and not item_episodes:
+                    if need_tmdbid == item.tmdb_id and not item_episodes:
                         if set(item_season).issubset(set(need_season)):
                             download_items.append(item)
                             # 删除已下载的季
                             need_season = list(set(need_season).difference(set(item_season)))
                             for sea in item_season:
-                                for tv in need_tvs.get(need_title):
+                                for tv in need_tvs.get(need_tmdbid):
                                     if sea == tv.get("season") or (sea == 1 and not tv.get("season")):
-                                        need_tvs[need_title].remove(tv)
-                            if not need_tvs.get(need_title):
-                                need_tvs.pop(need_title)
+                                        need_tvs[need_tmdbid].remove(tv)
+                            if not need_tvs.get(need_tmdbid):
+                                need_tvs.pop(need_tmdbid)
                                 break
         # 电视剧季内的集匹配，也有可能没有找到整季
         if need_tvs:
             need_tv_list = list(need_tvs)
-            for need_title in need_tv_list:
-                need_tv = need_tvs.get(need_title)
+            for need_tmdbid in need_tv_list:
+                need_tv = need_tvs.get(need_tmdbid)
                 if not need_tv:
                     continue
                 index = 0
@@ -290,7 +291,7 @@ class Downloader:
                     for item in download_list:
                         if item.type == MediaType.MOVIE:
                             continue
-                        if item.get_title_string() == need_title:
+                        if item.tmdb_id == need_tmdbid:
                             item_season = item.get_season_list()
                             item_episodes = item.get_episode_list()
                             # 这里只处理单季含集的种子，从集最多的开始下
@@ -300,11 +301,11 @@ class Downloader:
                                     # 删除该季下已下载的集
                                     need_episodes = list(set(need_episodes).difference(set(item_episodes)))
                                     if need_episodes:
-                                        need_tvs[need_title][index]["episodes"] = need_episodes
+                                        need_tvs[need_tmdbid][index]["episodes"] = need_episodes
                                     else:
-                                        need_tvs[need_title].pop(index)
-                                        if not need_tvs.get(need_title):
-                                            need_tvs.pop(need_title)
+                                        need_tvs[need_tmdbid].pop(index)
+                                        if not need_tvs.get(need_tmdbid):
+                                            need_tvs.pop(need_tmdbid)
                                         break
                     index += 1
 
@@ -340,8 +341,8 @@ class Downloader:
         # 仍然缺失的剧集，从整季中选择需要的集数文件下载，仅支持QB和TR
         if need_tvs and self.__client_type in [DownloaderType.QB, DownloaderType.TR]:
             need_tv_list = list(need_tvs)
-            for need_title in need_tv_list:
-                need_tv = need_tvs.get(need_title)
+            for need_tmdbid in need_tv_list:
+                need_tv = need_tvs.get(need_tmdbid)
                 if not need_tv:
                     continue
                 index = 0
@@ -356,7 +357,7 @@ class Downloader:
                         if item.type == MediaType.MOVIE:
                             continue
                         # 选中一个单季整季的
-                        if item.get_title_string() == need_title \
+                        if item.tmdb_id == need_tmdbid \
                                 and not item.get_episode_list() \
                                 and len(item.get_season_list()) == 1 \
                                 and item.get_season_list()[0] == need_season:
@@ -405,18 +406,18 @@ class Downloader:
                             # 清除记忆并退出一层循环
                             need_episodes = list(set(need_episodes).difference(set(selected_episodes)))
                             if not need_episodes:
-                                need_tvs[need_title].pop(index)
-                                if not need_tvs.get(need_title):
-                                    need_tvs.pop(need_title)
+                                need_tvs[need_tmdbid].pop(index)
+                                if not need_tvs.get(need_tmdbid):
+                                    need_tvs.pop(need_tmdbid)
                                 break
                             else:
-                                need_tvs[need_title][index]["episodes"] = need_episodes
+                                need_tvs[need_tmdbid][index]["episodes"] = need_episodes
                 index += 1
 
         # 返回下载的资源，剩下没下完的
         return return_items, need_tvs
 
-    def check_exists_medias(self, meta_info, no_exists=None):
+    def check_exists_medias(self, meta_info: MetaBase, no_exists=None):
         """
         检查媒体库，查询是否存在，对于剧集同时返回不存在的季集信息
         :param meta_info: 已识别的媒体信息，包括标题、年份、季、集信息
@@ -485,8 +486,8 @@ class Downloader:
                             # 排序
                             no_exists_episodes.sort()
                             # 缺失集初始化
-                            if not no_exists.get(meta_info.get_title_string()):
-                                no_exists[meta_info.get_title_string()] = []
+                            if not no_exists.get(meta_info.tmdb_id):
+                                no_exists[meta_info.tmdb_id] = []
                             # 缺失集提示文本
                             exists_tvs_str = "、".join(["%s" % tv for tv in no_exists_episodes])
                             # 存入总缺失集
@@ -511,8 +512,8 @@ class Downloader:
                                         "%s 第%s季 缺失集：%s" % (meta_info.title, season_number, exists_tvs_str))
                                 else:
                                     message_list.append("第%s季 缺失集：%s" % (season_number, exists_tvs_str))
-                            if no_item not in no_exists.get(meta_info.get_title_string()):
-                                no_exists[meta_info.get_title_string()].append(no_item)
+                            if no_item not in no_exists.get(meta_info.tmdb_id):
+                                no_exists[meta_info.tmdb_id].append(no_item)
                             # 输入检查集
                             if search_episode:
                                 # 有集数，肯定只有一季
@@ -538,7 +539,7 @@ class Downloader:
                 message_list.append("%s 无法查询到媒体详细信息" % meta_info.get_title_string())
                 return_flag = None
             # 全部存在
-            if return_flag is False and not no_exists.get(meta_info.get_title_string()):
+            if return_flag is False and not no_exists.get(meta_info.tmdb_id):
                 return_flag = True
             # 返回
             return return_flag, no_exists, message_list
