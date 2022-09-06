@@ -123,7 +123,7 @@ class EpisodeFormat(object):
 
 
 @singleton
-class ProcessHandler(object):
+class ProgressController(object):
     _process_detail = {}
 
     def __init__(self):

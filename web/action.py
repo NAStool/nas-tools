@@ -37,7 +37,7 @@ from app.scheduler import stop_scheduler, restart_scheduler
 from app.sync import stop_monitor, restart_monitor
 from app.scheduler import Scheduler
 from app.sync import Sync
-from app.utils.commons import EpisodeFormat, ProcessHandler
+from app.utils.commons import EpisodeFormat, ProgressController
 from app.utils.http_utils import RequestUtils
 from app.media.meta_helper import MetaHelper
 from app.utils.path_utils import PathUtils
@@ -1931,7 +1931,7 @@ class WebAction:
         """
         刷新进度条
         """
-        detail = ProcessHandler().get_process()
+        detail = ProgressController().get_process('search')
         if detail:
             return {"code": 0, "value": detail.get("value"), "text": detail.get("text")}
         else:

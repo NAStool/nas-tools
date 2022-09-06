@@ -8,7 +8,7 @@ from app.indexer.client.jackett import Jackett
 from app.indexer.client.prowlarr import Prowlarr
 from app.media.media import Media
 from app.media.meta.metabase import MetaBase
-from app.utils.commons import ProcessHandler
+from app.utils.commons import ProgressController
 from app.utils.types import SearchType, MediaType
 
 
@@ -17,12 +17,14 @@ class Searcher:
     media = None
     message = None
     indexer = None
+    progress = None
     __search_auto = True
 
     def __init__(self):
         self.downloader = Downloader()
         self.media = Media()
         self.message = Message()
+        self.progress = ProgressController()
         self.init_config()
 
     def init_config(self):
@@ -73,7 +75,7 @@ class Searcher:
         if not media_info:
             return False, {}, 0, 0
         # 进度计数重置
-        ProcessHandler().reset()
+        self.progress.reset('search')
         # 查找的季
         if media_info.begin_season is None:
             search_season = None
