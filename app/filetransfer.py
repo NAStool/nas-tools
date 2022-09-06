@@ -10,6 +10,7 @@ from threading import Lock
 from time import sleep
 
 import log
+from app.db.sql_helper import SqlHelper
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
     DEFAULT_TV_FORMAT
 from app.message.message import Message
@@ -22,8 +23,6 @@ from app.media.meta.metainfo import MetaInfo
 from app.utils.commons import EpisodeFormat, RMT_MODES
 from app.media.nfo_helper import NfoHelper
 from app.utils.path_utils import PathUtils
-from app.db.sqls import insert_transfer_history, insert_transfer_unknown, update_transfer_unknown_state, \
-    insert_transfer_blacklist, is_transfer_notin_blacklist
 from app.utils.string_utils import StringUtils
 from app.utils.system_utils import SystemUtils
 from app.utils.thread_helper import ThreadHelper
@@ -310,9 +309,9 @@ class FileTransfer:
                 break
             else:
                 if not bludir:
-                    insert_transfer_blacklist(file)
+                    SqlHelper.insert_transfer_blacklist(file)
         if retcode == 0 and bludir:
-            insert_transfer_blacklist(src_dir)
+            SqlHelper.insert_transfer_blacklist(src_dir)
         return retcode
 
     def __transfer_origin_file(self, file_item, target_dir, rmt_mode):
@@ -349,7 +348,7 @@ class FileTransfer:
                                               target_file=target_file,
                                               rmt_mode=rmt_mode)
             if retcode == 0:
-                insert_transfer_blacklist(file_item)
+                SqlHelper.insert_transfer_blacklist(file_item)
         if retcode == 0:
             log.info("【RMT】%s %s到unknown完成" % (file_item, rmt_mode.value))
         else:
@@ -377,7 +376,7 @@ class FileTransfer:
                                           rmt_mode=rmt_mode)
         if retcode == 0:
             log.info("【RMT】文件 %s %s完成" % (file_name, rmt_mode.value))
-            insert_transfer_blacklist(file_item)
+            SqlHelper.insert_transfer_blacklist(file_item)
         else:
             log.error("【RMT】文件 %s %s失败，错误码 %s" % (file_name, rmt_mode.value, str(retcode)))
             return retcode
@@ -480,7 +479,7 @@ class FileTransfer:
 
         # 目录同步模式下，过滤掉文件列表中已处理过的
         if in_from == SyncType.MON:
-            file_list = list(filter(is_transfer_notin_blacklist, file_list))
+            file_list = list(filter(SqlHelper.is_transfer_notin_blacklist, file_list))
             if not file_list:
                 log.info("【RMT】所有文件均已成功转移过，没有需要处理的文件！如需重新处理，请清理缓存（服务->清理转移缓存）")
                 return True, "没有新文件需要处理"
@@ -529,7 +528,7 @@ class FileTransfer:
                     if udf_flag:
                         return success_flag, error_message
                     # 记录未识别
-                    insert_transfer_unknown(reg_path, target_dir)
+                    SqlHelper.insert_transfer_unknown(reg_path, target_dir)
                     failed_count += 1
                     alert_count += 1
                     # 原样转移过去
@@ -612,7 +611,7 @@ class FileTransfer:
                         if udf_flag:
                             return success_flag, error_message
                         # 记录未识别
-                        insert_transfer_unknown(reg_path, target_dir)
+                        SqlHelper.insert_transfer_unknown(reg_path, target_dir)
                         failed_count += 1
                         alert_count += 1
                         continue
@@ -642,7 +641,7 @@ class FileTransfer:
                             if udf_flag:
                                 return success_flag, error_message
                             # 记录未识别
-                            insert_transfer_unknown(reg_path, target_dir)
+                            SqlHelper.insert_transfer_unknown(reg_path, target_dir)
                             failed_count += 1
                             alert_count += 1
                             continue
@@ -674,11 +673,11 @@ class FileTransfer:
                 if subtitle_item not in download_subtitle_items:
                     download_subtitle_items.append(subtitle_item)
                 # 转移历史记录
-                insert_transfer_history(in_from, rmt_mode, reg_path, dist_path, media)
+                SqlHelper.insert_transfer_history(in_from, rmt_mode, reg_path, dist_path, media)
                 # 未识别手动识别或历史记录重新识别的批处理模式
                 if isinstance(episode[1], bool) and episode[1]:
                     # 未识别手动识别，更改未识别记录为已处理
-                    update_transfer_unknown_state(file_item)
+                    SqlHelper.update_transfer_unknown_state(file_item)
                 # 电影立即发送消息
                 if media.type == MediaType.MOVIE:
                     self.message.send_transfer_movie_message(in_from,

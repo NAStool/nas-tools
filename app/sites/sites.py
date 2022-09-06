@@ -10,9 +10,7 @@ from app.filterrules import FilterRule
 from app.sites.siteuserinfo.site_user_info_factory import SiteUserInfoFactory
 from app.utils.commons import singleton
 from app.utils.http_utils import RequestUtils
-from app.db.sqls import get_config_site, insert_site_statistics_history, update_site_user_statistics, \
-    get_site_statistics_recent_sites, get_site_user_statistics, get_site_statistics_history, get_site_seeding_info, \
-    update_site_seed_info
+from app.db.sql_helper import SqlHelper
 from app.utils.string_utils import StringUtils
 
 lock = Lock()
@@ -33,7 +31,7 @@ class Sites:
     def init_config(self):
         self.message = Message()
         self.filtersites = FilterRule()
-        self.__pt_sites = get_config_site()
+        self.__pt_sites = SqlHelper.get_config_site()
         self.__sites_data = {}
         self.__last_update_time = None
 
@@ -103,11 +101,11 @@ class Sites:
                 site_user_infos = [info for info in site_user_infos if info]
 
                 # 登记历史数据
-                insert_site_statistics_history(site_user_infos)
+                SqlHelper.insert_site_statistics_history(site_user_infos)
                 # 实时用户数据
-                update_site_user_statistics(site_user_infos)
+                SqlHelper.update_site_user_statistics(site_user_infos)
                 # 实时做种信息
-                update_site_seed_info(site_user_infos)
+                SqlHelper.update_site_seed_info(site_user_infos)
 
         # 更新时间
         if refresh_all:
@@ -237,7 +235,7 @@ class Sites:
             if site_url:
                 site_urls.append(site_url)
 
-        return get_site_statistics_recent_sites(days=days, strict_urls=site_urls)
+        return SqlHelper.get_site_statistics_recent_sites(days=days, strict_urls=site_urls)
 
     def get_site_user_statistics(self, encoding="RAW"):
         """
@@ -252,7 +250,7 @@ class Sites:
             if site_url:
                 site_urls.append(site_url)
 
-        raw_statistics = get_site_user_statistics(strict_urls=site_urls)
+        raw_statistics = SqlHelper.get_site_user_statistics(strict_urls=site_urls)
         if encoding == "RAW":
             return raw_statistics
 
@@ -291,7 +289,7 @@ class Sites:
         :return:
         """
         site_activities = {"upload": [], "download": [], "bonus": [], "seeding": [], "seeding_size": []}
-        sql_site_activities = get_site_statistics_history(site=site, days=days)
+        sql_site_activities = SqlHelper.get_site_statistics_history(site=site, days=days)
         for sql_site_activity in sql_site_activities:
             timestamp = datetime.strptime(sql_site_activity[0], '%Y-%m-%d').timestamp() * 1000
             site_activities["upload"].append([timestamp, sql_site_activity[1]])
@@ -310,7 +308,7 @@ class Sites:
         :return: seeding_info:[uploader_num, seeding_size]
         """
         site_seeding_info = {"seeding_info": []}
-        seeding_info = get_site_seeding_info(site=site)
+        seeding_info = SqlHelper.get_site_seeding_info(site=site)
         if not seeding_info:
             return site_seeding_info
 

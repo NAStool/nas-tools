@@ -8,6 +8,7 @@ from time import sleep
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import log
+from app.db.sql_helper import SqlHelper
 from config import BRUSH_REMOVE_TORRENTS_INTERVAL
 from app.downloader.client.qbittorrent import Qbittorrent
 from app.downloader.client.transmission import Transmission
@@ -15,8 +16,6 @@ from app.rss import Rss
 from app.utils.torrent import Torrent
 from app.utils.types import BrushDeleteType
 from app.utils.commons import singleton
-from app.db.sqls import get_brushtasks, get_brushtask_totalsize, add_brushtask_download_count, insert_brushtask_torrent, \
-    get_brushtask_torrents, add_brushtask_upload_count, get_user_downloaders, update_brushtask_torrent_state
 
 
 @singleton
@@ -40,7 +39,7 @@ class BrushTask(object):
         except Exception as e:
             print(str(e))
         # 读取任务任务列表
-        brushtasks = get_brushtasks()
+        brushtasks = SqlHelper.get_brushtasks()
         self._brush_tasks = []
         for task in brushtasks:
             self._brush_tasks.append({
@@ -205,7 +204,7 @@ class BrushTask(object):
                 download_id = taskinfo.get("downloader")
                 remove_rule = taskinfo.get("remove_rule")
                 # 当前任务种子详情
-                task_torrents = get_brushtask_torrents(taskid)
+                task_torrents = SqlHelper.get_brushtask_torrents(taskid)
                 torrent_ids = [item[6] for item in task_torrents if item[6]]
                 if not torrent_ids:
                     continue
@@ -328,12 +327,12 @@ class BrushTask(object):
                                 delete_ids.append(torrent_id)
                                 update_torrents.append(("%s,%s" % (uploaded, downloaded), taskid, torrent_id))
                 # 更新上传下载量和删除种子数
-                add_brushtask_upload_count(brush_id=taskid,
-                                           upload_size=total_uploaded,
-                                           download_size=total_downloaded,
-                                           remove_count=len(delete_ids))
+                SqlHelper.add_brushtask_upload_count(brush_id=taskid,
+                                                     upload_size=total_uploaded,
+                                                     download_size=total_downloaded,
+                                                     remove_count=len(delete_ids))
                 # 更新种子状态为已删除
-                update_brushtask_torrent_state(update_torrents)
+                SqlHelper.update_brushtask_torrent_state(update_torrents)
                 # 删除种子
                 if delete_ids:
                     downloader.delete_torrents(delete_file=True, ids=delete_ids)
@@ -350,7 +349,7 @@ class BrushTask(object):
         if not taskid:
             return False
         # 判断大小
-        total_size = get_brushtask_totalsize(taskid)
+        total_size = SqlHelper.get_brushtask_totalsize(taskid)
         if seedsize:
             if int(seedsize) * 1024 ** 3 <= int(total_size):
                 log.warn("【BRUSH】刷流任务 %s 已达到保种体积 %sGB，不再新增下载" % (taskname, seedsize))
@@ -373,7 +372,7 @@ class BrushTask(object):
         """
         if not dlid:
             return None
-        downloader_info = get_user_downloaders(dlid)
+        downloader_info = SqlHelper.get_user_downloaders(dlid)
         if downloader_info:
             userconfig = {"id": downloader_info[0][0],
                           "name": downloader_info[0][1],
@@ -467,14 +466,14 @@ class BrushTask(object):
         else:
             log.info("【BRUSH】成功添加下载：%s" % title)
         # 插入种子数据
-        if insert_brushtask_torrent(brush_id=taskid,
-                                    title=title,
-                                    enclosure=enclosure,
-                                    downloader=downloadercfg.get("id"),
-                                    download_id=download_id,
-                                    size=size):
+        if SqlHelper.insert_brushtask_torrent(brush_id=taskid,
+                                              title=title,
+                                              enclosure=enclosure,
+                                              downloader=downloadercfg.get("id"),
+                                              download_id=download_id,
+                                              size=size):
             # 更新下载次数
-            add_brushtask_download_count(brush_id=taskid)
+            SqlHelper.add_brushtask_download_count(brush_id=taskid)
         else:
             log.info("【BRUSH】%s 已下载过" % title)
 
@@ -559,10 +558,12 @@ class BrushTask(object):
                     else:
                         max_count = sys.maxsize
                     if peer_counts[0] == "gt" and attr_type.peer_count <= min_count:
-                        log.debug("【BRUSH】%s `判断做种数, 判断条件: peer_count:%d %s threshold:%d" % (title, attr_type.peer_count, peer_counts[0], min_count))
+                        log.debug("【BRUSH】%s `判断做种数, 判断条件: peer_count:%d %s threshold:%d" % (
+                            title, attr_type.peer_count, peer_counts[0], min_count))
                         return False
                     if peer_counts[0] == "lt" and attr_type.peer_count >= min_count:
-                        log.debug("【BRUSH】%s `判断做种数, 判断条件: peer_count:%d %s threshold:%d" % (title, attr_type.peer_count, peer_counts[0], min_count))
+                        log.debug("【BRUSH】%s `判断做种数, 判断条件: peer_count:%d %s threshold:%d" % (
+                            title, attr_type.peer_count, peer_counts[0], min_count))
                         return False
                     if peer_counts[0] == "bw" and not (min_count <= attr_type.peer_count <= max_count):
                         log.debug("【BRUSH】%s `判断做种数, 判断条件: left:%d %s peer_count:%d %s right:%d" % (

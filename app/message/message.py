@@ -10,7 +10,7 @@ from app.message.channel.serverchan import ServerChan
 from app.message.channel.telegram import Telegram
 from app.message.channel.wechat import WeChat
 from app.media.meta.metabase import MetaBase
-from app.db.sqls import insert_download_history
+from app.db.sql_helper import SqlHelper
 from app.utils.string_utils import StringUtils
 from app.utils.sysmsg_helper import MessageCenter
 from app.utils.types import SearchType, MediaType
@@ -166,7 +166,7 @@ class Message:
         # 发送消息
         self.sendmsg(title=msg_title, text=msg_text, image=can_item.get_message_image(), url='downloading')
         # 登记下载历史
-        insert_download_history(can_item)
+        SqlHelper.insert_download_history(can_item)
 
     def send_transfer_movie_message(self, in_from: Enum, media_info: MetaBase, exist_filenum, category_flag):
         """
@@ -252,9 +252,7 @@ class Message:
         msg_str = f"类型：{media_info.type.value}"
         if media_info.vote_average:
             msg_str = f"{msg_str}，{media_info.get_vote_string()}"
-        self.send_channel_msg(channel=in_from,
-                              title=msg_title,
-                              text=msg_str,
-                              image=media_info.get_message_image(),
-                              url='downloaded',
-                              user_id=user_id)
+        self.sendmsg(title=msg_title,
+                     text=msg_str,
+                     image=media_info.get_message_image(),
+                     url='downloaded')

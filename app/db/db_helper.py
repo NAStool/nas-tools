@@ -315,6 +315,14 @@ class DBHelper:
                                    PASSWORD     TEXT,
                                    SAVE_DIR    TEXT,
                                    NOTE     TEXT);''')
+            # 统一字典表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS SYSTEM_DICT
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   TYPE    TEXT,
+                                   KEY    TEXT,
+                                   VALUE    TEXT,
+                                   NOTE     TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SYSTEM_DICT ON SYSTEM_DICT (TYPE, KEY);''')
             # 提交
             conn.commit()
 
@@ -325,13 +333,13 @@ class DBHelper:
             self.__pools.free(conn)
 
     def __cleardata(self):
-        self.excute(
+        self.__excute(
             """DELETE FROM SITE_USER_INFO_STATS 
                 WHERE EXISTS (SELECT 1 
                     FROM SITE_USER_INFO_STATS p2 
                     WHERE SITE_USER_INFO_STATS.URL = p2.URL 
                     AND SITE_USER_INFO_STATS.rowid < p2.rowid);""")
-        self.excute(
+        self.__excute(
             """DELETE FROM SITE_STATISTICS_HISTORY 
                 WHERE EXISTS (SELECT 1 
                     FROM SITE_STATISTICS_HISTORY p2 
@@ -351,13 +359,13 @@ class DBHelper:
                 with open(sql_file, "r", encoding="utf-8") as f:
                     sql_list = f.read().split(';\n')
                     for sql in sql_list:
-                        self.excute(sql)
+                        self.__excute(sql)
                 init_files.append(os.path.basename(sql_file))
         if config_flag:
             config['app']['init_files'] = init_files
             Config().save_config(config)
 
-    def excute(self, sql, data=None):
+    def __excute(self, sql, data=None):
         if not sql:
             return False
         with lock:
@@ -377,7 +385,7 @@ class DBHelper:
                 self.__pools.free(conn)
             return True
 
-    def excute_many(self, sql, data_list):
+    def __excute_many(self, sql, data_list):
         if not sql or not data_list:
             return False
         with lock:
@@ -394,7 +402,7 @@ class DBHelper:
                 self.__pools.free(conn)
             return True
 
-    def select(self, sql, data):
+    def __select(self, sql, data):
         if not sql:
             return False
         with lock:
@@ -414,32 +422,29 @@ class DBHelper:
                 self.__pools.free(conn)
             return ret
 
+    def select_by_sql(self, sql, data=None):
+        """
+        执行查询
+        :param sql: 查询的SQL语句
+        :param data: 数据，需为列表或者元祖
+        :return: 查询结果的二级列表
+        """
+        return self.__select(sql, data)
 
-def select_by_sql(sql, data=None):
-    """
-    执行查询
-    :param sql: 查询的SQL语句
-    :param data: 数据，需为列表或者元祖
-    :return: 查询结果的二级列表
-    """
-    return DBHelper().select(sql, data)
+    def update_by_sql(self, sql, data=None):
+        """
+        执行更新或删除
+        :param sql: SQL语句
+        :param data: 数据，需为列表或者元祖
+        :return: 执行状态
+        """
+        return self.__excute(sql, data)
 
-
-def update_by_sql(sql, data=None):
-    """
-    执行更新或删除
-    :param sql: SQL语句
-    :param data: 数据，需为列表或者元祖
-    :return: 执行状态
-    """
-    return DBHelper().excute(sql, data)
-
-
-def update_by_sql_batch(sql, data_list):
-    """
-    执行更新或删除
-    :param sql: 批量更新SQL语句
-    :param data_list: 数据列表
-    :return: 执行状态
-    """
-    return DBHelper().excute_many(sql, data_list)
+    def update_by_sql_batch(self, sql, data_list):
+        """
+        执行更新或删除
+        :param sql: 批量更新SQL语句
+        :param data_list: 数据列表
+        :return: 执行状态
+        """
+        return self.__excute_many(sql, data_list)

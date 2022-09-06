@@ -7,11 +7,11 @@ from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
 
 import log
+from app.db.sql_helper import SqlHelper
 from config import RMT_MEDIAEXT, Config
 from app.filetransfer import FileTransfer
 from app.utils.commons import singleton
 from app.utils.path_utils import PathUtils
-from app.db.sqls import insert_sync_history, is_sync_in_history
 from app.utils.types import SyncType, OsType, RmtMode
 
 lock = threading.Lock()
@@ -228,7 +228,7 @@ class Sync(object):
 
                 # 只做硬链接，不做识别重命名
                 if onlylink:
-                    if is_sync_in_history(event_path, target_path):
+                    if SqlHelper.is_sync_in_history(event_path, target_path):
                         return
                     log.info("【SYNC】开始同步 %s" % event_path)
                     ret = self.filetransfer.link_sync_files(src_path=monitor_dir,
@@ -238,7 +238,7 @@ class Sync(object):
                     if ret != 0:
                         log.warn("【SYNC】%s 同步失败，错误码：%s" % (event_path, ret))
                     else:
-                        insert_sync_history(event_path, monitor_dir, target_path)
+                        SqlHelper.insert_sync_history(event_path, monitor_dir, target_path)
                         log.info("【SYNC】%s 同步完成" % event_path)
                 # 识别转移
                 else:
@@ -364,7 +364,7 @@ class Sync(object):
             # 只做硬链接，不做识别重命名
             if onlylink:
                 for link_file in PathUtils.get_dir_files(monpath):
-                    if is_sync_in_history(link_file, target_path):
+                    if SqlHelper.is_sync_in_history(link_file, target_path):
                         continue
                     log.info("【SYNC】开始同步 %s" % link_file)
                     ret = self.filetransfer.link_sync_files(src_path=monpath,
@@ -374,7 +374,7 @@ class Sync(object):
                     if ret != 0:
                         log.warn("【SYNC】%s 同步失败，错误码：%s" % (link_file, ret))
                     else:
-                        insert_sync_history(link_file, monpath, target_path)
+                        SqlHelper.insert_sync_history(link_file, monpath, target_path)
                         log.info("【SYNC】%s 同步完成" % link_file)
             else:
                 for path in PathUtils.get_dir_level1_medias(monpath, RMT_MEDIAEXT):

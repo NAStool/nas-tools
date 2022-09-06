@@ -1,3 +1,4 @@
+import datetime
 import importlib
 import os.path
 import re
@@ -8,6 +9,7 @@ from flask_login import logout_user
 from werkzeug.security import generate_password_hash
 
 import log
+from app.utils.string_utils import StringUtils
 from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
 from app.message.channel.telegram import Telegram
 from app.message.channel.wechat import WeChat
@@ -41,11 +43,11 @@ from app.media.meta_helper import MetaHelper
 from app.utils.path_utils import PathUtils
 from app.utils.sysmsg_helper import MessageCenter
 from app.utils.thread_helper import ThreadHelper
-from app.utils.types import SearchType, DownloaderType, SyncType
+from app.utils.types import SearchType, DownloaderType, SyncType, MediaType
 from web.backend.douban_hot import DoubanHot
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 from web.backend.subscribe import add_rss_subscribe
-from app.db.sqls import *
+from app.db.sql_helper import SqlHelper
 
 
 class WebAction:
@@ -331,7 +333,7 @@ class WebAction:
         """
         dl_id = data.get("id")
         dl_dir = data.get("dir")
-        results = get_search_result_by_id(dl_id)
+        results = SqlHelper.get_search_result_by_id(dl_id)
         for res in results:
             if res[11] and str(res[11]) != "0":
                 msg_item = MetaInfo("%s" % res[8])
@@ -471,10 +473,10 @@ class WebAction:
             for tid in tids:
                 if not tid:
                     continue
-                delete_transfer_unknown(tid)
+                SqlHelper.delete_transfer_unknown(tid)
             return {"retcode": 0}
         else:
-            retcode = delete_transfer_unknown(tids)
+            retcode = SqlHelper.delete_transfer_unknown(tids)
             return {"retcode": retcode}
 
     @staticmethod
@@ -485,7 +487,7 @@ class WebAction:
         path = dest_dir = None
         logid = data.get("logid")
         if logid:
-            paths = get_transfer_path_by_id(logid)
+            paths = SqlHelper.get_transfer_path_by_id(logid)
             if paths:
                 path = os.path.join(paths[0][0], paths[0][1])
                 dest_dir = paths[0][2]
@@ -494,7 +496,7 @@ class WebAction:
         else:
             unknown_id = data.get("unknown_id")
             if unknown_id:
-                paths = get_unknown_path_by_id(unknown_id)
+                paths = SqlHelper.get_unknown_path_by_id(unknown_id)
                 if paths:
                     path = paths[0][0]
                     dest_dir = paths[0][1]
@@ -538,7 +540,7 @@ class WebAction:
                                                            min_filesize=min_filesize)
         if succ_flag:
             if not need_fix_all and not logid:
-                update_transfer_unknown_state(path)
+                SqlHelper.update_transfer_unknown_state(path)
             return {"retcode": 0, "retmsg": "转移成功"}
         else:
             return {"retcode": 2, "retmsg": ret_msg}
@@ -595,7 +597,7 @@ class WebAction:
         删除识别记录及文件
         """
         logid = data.get('logid')
-        paths = get_transfer_path_by_id(logid)
+        paths = SqlHelper.get_transfer_path_by_id(logid)
         if paths:
             dest_dir = paths[0][2]
             meta_info = MetaInfo(title=paths[0][1])
@@ -610,7 +612,7 @@ class WebAction:
                 meta_info.type = MediaType.TV
             dest_path = FileTransfer().get_dest_path_by_info(dest=dest_dir, meta_info=meta_info)
             if dest_path and dest_path.find(meta_info.title) != -1:
-                delete_transfer_log_by_id(logid)
+                SqlHelper.delete_transfer_log_by_id(logid)
                 rm_parent_dir = False
                 if not meta_info.get_season_list():
                     # 电影，删除整个目录
@@ -687,20 +689,20 @@ class WebAction:
         cookie = data.get('site_cookie')
         note = data.get('site_note')
         if tid:
-            ret = update_config_site(tid=tid,
-                                     name=name,
-                                     site_pri=site_pri,
-                                     rssurl=rssurl,
-                                     signurl=signurl,
-                                     cookie=cookie,
-                                     note=note)
+            ret = SqlHelper.update_config_site(tid=tid,
+                                               name=name,
+                                               site_pri=site_pri,
+                                               rssurl=rssurl,
+                                               signurl=signurl,
+                                               cookie=cookie,
+                                               note=note)
         else:
-            ret = insert_config_site(name=name,
-                                     site_pri=site_pri,
-                                     rssurl=rssurl,
-                                     signurl=signurl,
-                                     cookie=cookie,
-                                     note=note)
+            ret = SqlHelper.insert_config_site(name=name,
+                                               site_pri=site_pri,
+                                               rssurl=rssurl,
+                                               signurl=signurl,
+                                               cookie=cookie,
+                                               note=note)
         # 生效站点配置
         Sites().init_config()
         return {"code": ret}
@@ -735,7 +737,7 @@ class WebAction:
         """
         tid = data.get("id")
         if tid:
-            ret = delete_config_site(tid)
+            ret = SqlHelper.delete_config_site(tid)
             Sites().init_config()
             return {"code": ret}
         else:
@@ -890,9 +892,9 @@ class WebAction:
                 season = meta_info.get_season_string()
         if mtype:
             if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
-                delete_rss_movie(title=name, year=year, rssid=rssid)
+                SqlHelper.delete_rss_movie(title=name, year=year, rssid=rssid)
             else:
-                delete_rss_tv(title=name, year=year, season=season, rssid=rssid)
+                SqlHelper.delete_rss_tv(title=name, year=year, season=season, rssid=rssid)
         return {"code": 0, "page": page, "name": name}
 
     @staticmethod
@@ -946,7 +948,7 @@ class WebAction:
         path = dest_dir = None
         unknown_id = data.get("unknown_id")
         if unknown_id:
-            paths = get_unknown_path_by_id(unknown_id)
+            paths = SqlHelper.get_unknown_path_by_id(unknown_id)
             if paths:
                 path = paths[0][0]
                 dest_dir = paths[0][1]
@@ -960,7 +962,7 @@ class WebAction:
                                                            in_path=path,
                                                            target_dir=dest_dir)
         if succ_flag:
-            update_transfer_unknown_state(path)
+            SqlHelper.update_transfer_unknown_state(path)
             return {"retcode": 0, "retmsg": "转移成功"}
         else:
             return {"retcode": 2, "retmsg": ret_msg}
@@ -1011,7 +1013,7 @@ class WebAction:
 
             # 查订阅信息
             if not rssid:
-                rssid = get_rss_movie_id(title=title, year=year)
+                rssid = SqlHelper.get_rss_movie_id(title=title, year=year)
 
             # 查下载信息
 
@@ -1060,7 +1062,7 @@ class WebAction:
 
             # 查订阅信息
             if not rssid:
-                rssid = get_rss_tv_id(title=title, year=year)
+                rssid = SqlHelper.get_rss_tv_id(title=title, year=year)
 
             return {
                 "code": 0,
@@ -1120,9 +1122,9 @@ class WebAction:
             pris = data.get("pris")
             if isinstance(pris, list):
                 pris = ",".join(pris)
-            ret = insert_user(name, password, pris)
+            ret = SqlHelper.insert_user(name, password, pris)
         else:
-            ret = delete_user(name)
+            ret = SqlHelper.delete_user(name)
         return {"code": ret}
 
     @staticmethod
@@ -1292,7 +1294,7 @@ class WebAction:
         rssid = data.get("rssid")
         rsstype = data.get("rsstype")
         if rsstype == "MOV":
-            rss = get_rss_movies(rssid=rssid)
+            rss = SqlHelper.get_rss_movies(rssid=rssid)
             if not rss:
                 return {"code": 1}
             r_sites, s_sites, over_edition, filter_map = Torrent.get_rss_note_item(rss[0][4])
@@ -1305,7 +1307,7 @@ class WebAction:
                          "over_edition": over_edition,
                          "filter": filter_map}
         else:
-            rss = get_rss_tvs(rssid=rssid)
+            rss = SqlHelper.get_rss_tvs(rssid=rssid)
             if not rss:
                 return {"code": 1}
             r_sites, s_sites, over_edition, filter_map = Torrent.get_rss_note_item(rss[0][5])
@@ -1335,7 +1337,7 @@ class WebAction:
         """
         清空文件转移黑名单记录
         """
-        truncate_transfer_blacklist()
+        SqlHelper.truncate_transfer_blacklist()
         return {"code": 0}
 
     @staticmethod
@@ -1395,7 +1397,7 @@ class WebAction:
             "rss_rule": rss_rule,
             "remove_rule": remove_rule
         }
-        insert_brushtask(brushtask_id, item)
+        SqlHelper.insert_brushtask(brushtask_id, item)
         # 重新初始化任务
         BrushTask().init_config()
         return {"code": 0}
@@ -1407,7 +1409,7 @@ class WebAction:
         """
         brush_id = data.get("id")
         if brush_id:
-            delete_brushtask(brush_id)
+            SqlHelper.delete_brushtask(brush_id)
             # 重新初始化任务
             BrushTask().init_config()
             return {"code": 0}
@@ -1419,7 +1421,7 @@ class WebAction:
         查询刷流任务详情
         """
         brush_id = data.get("id")
-        brushtask = get_brushtasks(brush_id)
+        brushtask = SqlHelper.get_brushtasks(brush_id)
         if not brushtask:
             return {"code": 1, "task": {}}
         scheme, netloc = StringUtils.get_url_netloc(brushtask[0][17])
@@ -1470,7 +1472,7 @@ class WebAction:
                 return {"code": 1}
         else:
             # 保存
-            update_user_downloader(did=dl_id, name=dl_name, dtype=dl_type, user_config=user_config, note=None)
+            SqlHelper.update_user_downloader(did=dl_id, name=dl_name, dtype=dl_type, user_config=user_config, note=None)
             return {"code": 0}
 
     @staticmethod
@@ -1480,7 +1482,7 @@ class WebAction:
         """
         dl_id = data.get("id")
         if dl_id:
-            delete_user_downloader(dl_id)
+            SqlHelper.delete_user_downloader(dl_id)
         return {"code": 0}
 
     @staticmethod
@@ -1490,7 +1492,7 @@ class WebAction:
         """
         dl_id = data.get("id")
         if dl_id:
-            info = get_user_downloaders(dl_id)
+            info = SqlHelper.get_user_downloaders(dl_id)
             return {"code": 0, "info": info[0] if info else None}
         else:
             return {"code": 1}
@@ -1615,7 +1617,7 @@ class WebAction:
         default = data.get("default")
         if not name:
             return {"code": -1}
-        add_filter_group(name, default)
+        SqlHelper.add_filter_group(name, default)
         FilterRule().init_config()
         return {"code": 0}
 
@@ -1624,14 +1626,14 @@ class WebAction:
         groupid = data.get("id")
         if not groupid:
             return {"code": -1}
-        set_default_filtergroup(groupid)
+        SqlHelper.set_default_filtergroup(groupid)
         FilterRule().init_config()
         return {"code": 0}
 
     @staticmethod
     def __del_filtergroup(data):
         groupid = data.get("id")
-        delete_filtergroup(groupid)
+        SqlHelper.delete_filtergroup(groupid)
         FilterRule().init_config()
         return {"code": 0}
 
@@ -1647,14 +1649,14 @@ class WebAction:
             "size": data.get("rule_sizelimit"),
             "free": data.get("rule_free")
         }
-        insert_filter_rule(rule_id, item)
+        SqlHelper.insert_filter_rule(rule_id, item)
         FilterRule().init_config()
         return {"code": 0}
 
     @staticmethod
     def __del_filterrule(data):
         ruleid = data.get("id")
-        delete_filterrule(ruleid)
+        SqlHelper.delete_filterrule(ruleid)
         FilterRule().init_config()
         return {"code": 0}
 
@@ -1710,10 +1712,10 @@ class WebAction:
             res_list = []
 
         Items = []
-        TvKeys = ["%s" % key[0] for key in get_rss_tvs()]
-        TvMediaIds = ["%s" % key[3] for key in get_rss_tvs()]
-        MovieKeys = ["%s" % key[0] for key in get_rss_movies()]
-        MovieMediaIds = ["%s" % key[2] for key in get_rss_movies()]
+        TvKeys = ["%s" % key[0] for key in SqlHelper.get_rss_tvs()]
+        TvMediaIds = ["%s" % key[3] for key in SqlHelper.get_rss_tvs()]
+        MovieKeys = ["%s" % key[0] for key in SqlHelper.get_rss_movies()]
+        MovieMediaIds = ["%s" % key[2] for key in SqlHelper.get_rss_movies()]
         for res in res_list:
             rid = res.get('id')
             if RecommendType in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm']:
@@ -1727,7 +1729,7 @@ class WebAction:
                 if name in MovieKeys or str(rid) in MovieMediaIds or "DB:%s" % rid in MovieMediaIds:
                     # 已订阅
                     fav = 1
-                elif is_media_downloaded(name, rid):
+                elif SqlHelper.is_media_downloaded(name, rid):
                     # 已下载
                     fav = 2
                 else:
@@ -1744,7 +1746,7 @@ class WebAction:
                 if name in TvKeys or str(rid) in TvMediaIds or "DB:%s" % rid in TvMediaIds:
                     # 已订阅
                     fav = 1
-                elif is_media_downloaded(name, rid):
+                elif SqlHelper.is_media_downloaded(name, rid):
                     # 已下载
                     fav = 2
                 else:
@@ -1772,7 +1774,7 @@ class WebAction:
     @staticmethod
     def get_downloaded(data):
         page = data.get("page")
-        Items = get_download_history(page=page) or []
+        Items = SqlHelper.get_download_history(page=page) or []
         return {"code": 0, "Items": Items}
 
     @staticmethod
@@ -1839,7 +1841,8 @@ class WebAction:
                 peer_counts = None
             elif "#" in rules.get("peercount"):
                 peer_counts = rules.get("peercount").split("#")
-                peer_counts[1] = peer_counts[1].replace(",", "-") if (len(peer_counts) >= 2 and peer_counts[1]) else peer_counts[1]
+                peer_counts[1] = peer_counts[1].replace(",", "-") if (len(peer_counts) >= 2 and peer_counts[1]) else \
+                    peer_counts[1]
             else:
                 try:
                     # 兼容性代码
@@ -1848,8 +1851,9 @@ class WebAction:
                     print(err)
                     pass
             if peer_counts:
-                rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="当前做种人数限制">做种人数%s: %s</span>'
-                                  % (rule_filter_string.get(peer_counts[0]), peer_counts[1]))
+                rule_htmls.append(
+                    '<span class="badge badge-outline text-orange me-1 mb-1" title="当前做种人数限制">做种人数%s: %s</span>'
+                    % (rule_filter_string.get(peer_counts[0]), peer_counts[1]))
         if rules.get("time"):
             times = rules.get("time").split("#")
             if times[0]:
