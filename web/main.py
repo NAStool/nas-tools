@@ -437,7 +437,10 @@ def create_flask_app(config):
                 else:
                     MediaNameDict[name] += 1
             # 是否已存在
-            exist_flag = MediaServer().check_item_exists(title=item[21], year=item[7], tmdbid=[14])
+            if item[14]:
+                exist_flag = MediaServer().check_item_exists(title=item[21], year=item[7], tmdbid=item[14])
+            else:
+                exist_flag = False
             # 结果
             SearchResults.append({
                 "id": item[0],

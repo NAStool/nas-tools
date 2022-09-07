@@ -371,9 +371,6 @@ class BrushTask(object):
                     log.info("【BRUSH】任务 %s 共删除 %s 个刷流下载任务" % (task_name, len(delete_ids)))
                 else:
                     log.info("【BRUSH】任务 %s 本次检查未删除任务" % task_name)
-                    if sendmessage:
-                        msg_title = "【刷流任务 {} 本次检查未删除任务】".format(task_name)
-                        self.message.sendmsg(title=msg_title)
             except Exception as e:
                 log.console(str(e) + " - " + traceback.format_exc())
 
