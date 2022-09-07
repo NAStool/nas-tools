@@ -191,3 +191,4 @@ class Plex(IMediaServer):
                    "originalTitle": item.orginalTitle,
                    "year": item.year,
                    "json": item.__dict__}
+        return []

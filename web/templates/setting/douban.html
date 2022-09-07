@@ -32,8 +32,8 @@
               </div>
               <div class="col-xl-3">
                 <div class="mb-3">
-                  <label class="form-label required">同步间隔(小时) <span class="form-help bg-red-lt" title="每隔多少小时同步一次豆瓣标记数据" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Config.douban.interval or '' }}" class="form-control" id="douban.interval" placeholder="2" autocomplete="off">
+                  <label class="form-label required">同步间隔(小时) <span class="form-help bg-red-lt" title="每隔多长时间同步一次豆瓣标记数据" data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.douban.interval or '' }}" class="form-control" id="douban.interval" placeholder="留空关闭豆瓣同步" autocomplete="off">
                 </div>
               </div>
               <div class="col-xl-3">
