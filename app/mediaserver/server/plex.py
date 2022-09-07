@@ -188,7 +188,6 @@ class Plex(IMediaServer):
                    "library": item.librarySectionID,
                    "type": media_type.value,
                    "title": item.title,
-                   "originalTitle": item.orginalTitle,
                    "year": item.year,
-                   "json": item.__dict__}
+                   "json": str(item.__dict__)}
         return []

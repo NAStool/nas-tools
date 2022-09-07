@@ -74,6 +74,7 @@ class MediaDb:
                     cursor.execute(sql)
                 self._mediadb.commit()
             except Exception as e:
+                print(str(e))
                 return False
             finally:
                 cursor.close()
@@ -91,6 +92,7 @@ class MediaDb:
                     res = cursor.execute(sql)
                 ret = res.fetchall()
             except Exception as e:
+                print(str(e))
                 return []
             finally:
                 cursor.close()
