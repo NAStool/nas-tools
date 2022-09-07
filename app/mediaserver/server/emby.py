@@ -408,6 +408,7 @@ class Emby(IMediaServer):
             if res and res.status_code == 200:
                 return res.json()
         except Exception as e:
+            print(str(e))
             return {}
 
     def get_items(self, parent):
@@ -424,6 +425,8 @@ class Emby(IMediaServer):
             if res and res.status_code == 200:
                 results = res.json().get("Items") or []
                 for result in results:
+                    if result.get("Type") not in ["Movie", "Series"]:
+                        continue
                     item_info = self.get_iteminfo(result.get("Id"))
                     if item_info.get("Type") == "Movie":
                         media_type = MediaType.MOVIE
