@@ -255,7 +255,49 @@ RSS_SITE_GRAP_CONF = {
         '2XFREE': ["//font[@class='twoupfree']"],
         'HR': [],
         'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    }
+    },
+    'hdmayi.com': {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+        'HR': [],
+        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+    },
+    'hdzone.me': {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+        'HR': [],
+        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+    },
+    'gainbound.net': {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+        'HR': [],
+        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+    },
+    'hdvideo.one': {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+        'HR': [],
+        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+    },
+    '52pt.site': {
+        'FREE': ["//font[@class='free'][text()='免费（下载量不统计）']"],
+        '2XFREE': ["//font[@class='twoupfree'][text()='2x 免费(上传量双倍 下载量不统计)']"],
+        'HR': [],
+        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+    },
+    'pt.msg.vg': {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+        'HR': [],
+        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+    },
+    'kamept.com': {
+        'FREE': ["//font[@class='free'][text()='免费']"],
+        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+        'HR': [],
+        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+    },
 }
 # 公共BT站点
 PUBLIC_TORRENT_SITES = [
