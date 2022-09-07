@@ -444,6 +444,6 @@ class Emby(IMediaServer):
                            "imdbid": item_info.get("ProviderIds", {}).get("Imdb"),
                            "path": item_info.get("Path"),
                            "json": str(item_info)}
-
         except Exception as e:
             log.error("【EMBY】连接Users/Items出错：" + str(e))
+        return []
