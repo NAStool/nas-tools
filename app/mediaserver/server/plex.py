@@ -1,3 +1,4 @@
+from app.utils.types import MediaType
 from plexapi.myplex import MyPlexAccount
 
 import log
@@ -14,6 +15,7 @@ class Plex(IMediaServer):
     __password = None
     __servername = None
     __plex = None
+    __libraries = []
 
     def __init__(self):
         self.init_config()
@@ -145,3 +147,47 @@ class Plex(IMediaServer):
         if not self.__plex:
             return False
         return self.__plex.library.update()
+
+    def get_libraries(self):
+        """
+        获取媒体服务器所有媒体库列表
+        """
+        if not self.__plex:
+            return []
+        try:
+            self.__libraries = self.__plex.library.sections()
+        except Exception as err:
+            print(err)
+            return []
+        libraries = []
+        for library in self.__libraries:
+            libraries.append({"id": library.key, "name": library.title})
+        return libraries
+
+    def get_items(self, parent):
+        """
+        获取媒体服务器所有媒体库列表
+        """
+        if not parent:
+            return []
+        if not self.__plex:
+            return []
+        try:
+            section = self.__plex.library.sectionByID(parent)
+        except Exception as err:
+            print(err)
+            return []
+        for item in section.all():
+            if item.type == "movie":
+                media_type = MediaType.MOVIE
+            elif item.type == "show":
+                media_type = MediaType.TV
+            else:
+                continue
+            yield {"id": item.key,
+                   "library": item.librarySectionID,
+                   "type": media_type.value,
+                   "title": item.title,
+                   "originalTitle": item.orginalTitle,
+                   "year": item.year,
+                   "json": item.__dict__}

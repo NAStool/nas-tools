@@ -13,7 +13,7 @@ from app.media.doubanv2api.doubanapi import DoubanApi
 from app.media.media import Media
 from app.media.meta.metabase import MetaBase
 from app.media.meta.metainfo import MetaInfo
-from app.utils.commons import ProcessHandler
+from app.utils.commons import ProgressController
 from app.db.sql_helper import SqlHelper
 from app.utils.types import SearchType, MediaType
 from web.backend.subscribe import add_rss_subscribe
@@ -37,7 +37,8 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         log.info("【WEB】%s 检索关键字有误！" % content)
         return -1, "%s 未识别到搜索关键字！" % content
     # 开始进度
-    ProcessHandler().start()
+    search_process = ProgressController()
+    search_process.start('search')
     # 识别媒体
     media_info = None
     media_name = None
@@ -105,8 +106,8 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                                           match_media=media_info)
     # 使用名称重新搜索
     if ident_flag and len(media_list) == 0 and media_name and key_word != media_name:
-        ProcessHandler().start()
-        ProcessHandler().update(text="%s 未检索到资源,尝试通过 %s 重新检索 ..." % (key_word, media_name))
+        search_process.start('search')
+        search_process.update(ptype='search', text="%s 未检索到资源,尝试通过 %s 重新检索 ..." % (key_word, media_name))
         log.info("【SEARCHER】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (key_word, media_name))
         media_list = Searcher().search_medias(key_word=media_name,
                                               filter_args=filter_args,
@@ -115,7 +116,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     # 清空缓存结果
     SqlHelper.delete_all_search_torrents()
     # 结束进度
-    ProcessHandler().end()
+    search_process.end('search')
     if len(media_list) == 0:
         log.info("【WEB】%s 未检索到任何资源" % content)
         return 0, "%s 未检索到任何资源" % content

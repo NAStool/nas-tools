@@ -291,8 +291,6 @@ class DBHelper:
                                    UPLOAD_SIZE     TEXT,
                                    STATE     TEXT,
                                    LST_MOD_DATE     TEXT);''')
-
-
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SITE_BRUSH_TASK_NAME ON SITE_BRUSH_TASK (NAME);''')
             # 刷流任务明细表
             cursor.execute('''CREATE TABLE IF NOT EXISTS SITE_BRUSH_TORRENTS

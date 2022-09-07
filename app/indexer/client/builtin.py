@@ -10,16 +10,17 @@ from app.indexer.indexer import IIndexer
 from app.indexer.client.spider import TorrentSpider
 from app.sites.sites import Sites
 from app.media.meta.metabase import MetaBase
-from app.utils.commons import ProcessHandler
+from app.utils.commons import ProgressController
 from app.indexer.indexer_helper import IndexerHelper
 from app.utils.string_utils import StringUtils
 
 
 class BuiltinIndexer(IIndexer):
     index_type = "INDEXER"
+    progress = None
 
     def init_config(self):
-        pass
+        self.progress = ProgressController()
 
     def get_status(self):
         """
@@ -83,7 +84,7 @@ class BuiltinIndexer(IIndexer):
             result_array = self.__spider_search(keyword=search_word, indexer=indexer)
         if len(result_array) == 0:
             log.warn(f"【{self.index_type}】{indexer.name} 未检索到数据")
-            ProcessHandler().update(text=f"{indexer.name} 未检索到数据")
+            self.progress.update(ptype='search', text=f"{indexer.name} 未检索到数据")
             return []
         else:
             log.warn(f"【{self.index_type}】{indexer.name} 返回数据：{len(result_array)}")

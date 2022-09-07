@@ -231,6 +231,7 @@ def create_flask_app(config):
         SongCount = 0
         MediaServerClient = MediaServer()
         media_count = MediaServerClient.get_medias_count()
+        MSType = MediaServerClient.get_type()
         if media_count:
             MovieCount = "{:,}".format(media_count.get('MovieCount'))
             SeriesCount = "{:,}".format(media_count.get('SeriesCount'))
@@ -361,7 +362,8 @@ def create_flask_app(config):
                                TvChartLabels=TvChartLabels,
                                MovieNums=MovieNums,
                                TvNums=TvNums,
-                               AnimeNums=AnimeNums
+                               AnimeNums=AnimeNums,
+                               MediaServerType=MSType
                                )
 
     # 资源搜索页面
@@ -390,6 +392,8 @@ def create_flask_app(config):
         MediaSPStateDict = {}
         # 名称
         MediaNameDict = {}
+        # 结果
+        SearchResults = []
         # 查询统计值
         for item in res:
             # 资源类型
@@ -432,6 +436,37 @@ def create_flask_app(config):
                     MediaNameDict[name] = 1
                 else:
                     MediaNameDict[name] += 1
+            # 是否已存在
+            if item[14]:
+                exist_flag = MediaServer().check_item_exists(title=item[21], year=item[7], tmdbid=item[14])
+            else:
+                exist_flag = False
+            # 结果
+            SearchResults.append({
+                "id": item[0],
+                "title_string": item[1],
+                "restype": item[2],
+                "size": item[3],
+                "seeders": item[4],
+                "enclosure": item[5],
+                "site": item[6],
+                "year": item[7],
+                "es_string": item[8],
+                "image": item[9],
+                "type": item[10],
+                "vote": item[11],
+                "torrent_name": item[12],
+                "description": item[13],
+                "tmdbid": item[14],
+                "poster": item[15],
+                "overview": item[16],
+                "pageurl": item[17],
+                "otherinfo": item[18],
+                "uploadvalue": item[19],
+                "downloadvalue": item[20],
+                "title": item[21],
+                "exist": exist_flag
+            })
 
         # 展示类型
         MediaMTypes = []
@@ -473,8 +508,8 @@ def create_flask_app(config):
                                UserPris=str(pris).split(","),
                                SearchWord=SearchWord or "",
                                NeedSearch=NeedSearch or "",
-                               Count=len(res),
-                               Items=res,
+                               Count=len(SearchResults),
+                               Items=SearchResults,
                                MediaMTypes=MediaMTypes,
                                MediaSites=MediaSites,
                                MediaPixs=MediaPixs,
@@ -777,6 +812,7 @@ def create_flask_app(config):
         for task in brushtasks:
             scheme, netloc = StringUtils.get_url_netloc(task[17])
             sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[0])
+            forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task[0])
             Tasks.append({
                 "id": task[0],
                 "name": task[1],
@@ -795,7 +831,8 @@ def create_flask_app(config):
                 "upload_size": StringUtils.str_filesize(task[15]),
                 "lst_mod_date": task[16],
                 "site_url": "%s://%s" % (scheme, netloc),
-                "sendmessage": sendmessage_switch
+                "sendmessage": sendmessage_switch,
+                "forceupload": forceupload_switch
             })
 
         return render_template("site/brushtask.html",

@@ -201,55 +201,60 @@
       <div class="{% if Count > 8 %}col-sm-12 col-md-9 col-lg-10{% else %}col-12{% endif %}">
         <div class="row row-cards" id="media_cards">
           {% for Item in Items %}
-          <div class="col-12 {% if Count > 8 %}col-xl-4{% else %}col-md-4 col-xl-3{% endif %} media_card" id="media_card_{{ Item[0] }}">
+          <div class="col-12 {% if Count > 8 %}col-xl-4{% else %}col-md-4 col-xl-3{% endif %} media_card" id="media_card_{{ Item.id }}">
             <div class="card card-sm card-link-pop rounded-3">
-              {% if Item[11] > 0 %}
+              {% if Item.vote > 0 %}
               <div class="badge badge-pill bg-purple" style="position:absolute;top:10px;right:10px;">
-                {{ Item[11] }}</div>
+                {{ Item.vote }}</div>
               {% endif %}
-              {% if Item[9] %}
-              <a href='javascript:show_download_modal("{{ Item[0] }}","{{ Item[1] }}")' class="d-block">
-                <img src="{{ Item[9] }}" class="card-img-top" title="点击添加下载"
+              {% if Item.exist %}
+              <div class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;padding:0;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="h-3 w-3 sm:h-4 sm:w-4"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+              </div>
+              {% endif %}
+              {% if Item.image %}
+              <a href='javascript:show_download_modal("{{ Item.id }}","{{ Item.title_string }}")' class="d-block">
+                <img src="{{ Item.image }}" class="card-img-top" title="点击添加下载"
                   style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">
               </a>
               {% endif %}
               <div class="card-body">
                 <div class="d-flex align-items-center mb-2">
-                  <input type="hidden" name="media_card_type" value="{{ Item[10] }}">
-                  <input type="hidden" name="media_card_spstate" value="{{ Item[19] }} {{ Item[20] }}">
-                  <input type="hidden" name="media_card_title" value="{{ Item[1] }}">
+                  <input type="hidden" name="media_card_type" value="{{ Item.type }}">
+                  <input type="hidden" name="media_card_spstate" value="{{ Item.uploadvalue }} {{ Item.downloadvalue }}">
+                  <input type="hidden" name="media_card_title" value="{{ Item.title_string }}">
                   <div>
                     <div>
                       <a
-                        href='{% if not Item[9] %}javascript:show_download_modal("{{ Item[0] }}","{{ Item[13] }}"){% else %}javascript:show_download_modal("{{ Item[0] }}","{{ Item[1] }}"){% endif %}'
+                        href='{% if not Item.image %}javascript:show_download_modal("{{ Item.id }}","{{ Item.description }}"){% else %}javascript:show_download_modal("{{ Item.id }}","{{ Item.title_string }}"){% endif %}'
                         title="点击添加下载">
-                      <strong>{% if Item[14] or not Item[13] %}{{ Item[1]|replace("()", "") }}{% else %} {{ Item[13] }} {% endif %}</strong></a>
-                      {% if Item[4] %}
-                      <span class="badge ms-2">{{ Item[4] }}{{ UPCHAR }}</span>
+                      <strong>{% if Item.tmdbid or not Item.description %}{{ Item.title_string|replace("()", "") }}{% else %} {{ Item.description }} {% endif %}</strong></a>
+                      {% if Item.seeders %}
+                      <span class="badge ms-2">{{ Item.seeders }}{{ UPCHAR }}</span>
                       {% endif %}
-                      {% if Item[19] != 1.0 %}
-                      <span class="badge text-white bg-azure">{{ (Item[19] * 100) | int }}%UL</span>
+                      {% if Item.uploadvalue != 1.0 %}
+                      <span class="badge text-white bg-azure">{{ (Item.uploadvalue * 100) | int }}%UL</span>
                       {% endif %}
-                      {% if Item[20] != 1.0 %}
-                          {% if Item[20] == 0.0 %}
+                      {% if Item.downloadvalue != 1.0 %}
+                          {% if Item.downloadvalue == 0.0 %}
                           <span class="badge text-white bg-lime">FREE</span>
                           {% else %}
-                          <span class="badge text-white bg-blue">{{ (Item[20] * 100) | int }}%DL</span>
+                          <span class="badge text-white bg-blue">{{ (Item.downloadvalue * 100) | int }}%DL</span>
                           {% endif %}
                       {% endif %}
                     </div>
                     <div class="text-muted mt-1">
-                      <strong class="media_card_info"><span class="badge badge-outline text-blue">{{ Item[6]}}</span> <span class="badge badge-outline text-orange">{{ Item[2]}}</span>
-                        {% if Item[3] %}
-                        <span class="badge badge-outline text-yellow">{{ Item[3] }}</span>
+                      <strong class="media_card_info"><span class="badge badge-outline text-blue">{{ Item.site}}</span> <span class="badge badge-outline text-orange">{{ Item.restype}}</span>
+                        {% if Item.size %}
+                        <span class="badge badge-outline text-yellow">{{ Item.size }}</span>
                         {% endif %}
                       </strong>
                     </div>
                   </div>
                 </div>
-                {% if Item[12] %}
+                {% if Item.torrent_name %}
                 <div class="text-muted border-top pt-2">
-                  {% if Item[10] == "MOV" %}
+                  {% if Item.type == "MOV" %}
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-movie" width="24"
                     height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -272,16 +277,16 @@
                     <polyline points="16 3 12 7 8 3"></polyline>
                   </svg>
                   {% endif %}
-                  {% if Item[17] %}
-                    <small><a href="{{ Item[17] }}" target="_blank">{{ Item[12] }}</a></small>
+                  {% if Item.pageurl %}
+                    <small><a href="{{ Item.pageurl }}" target="_blank">{{ Item.torrent_name }}</a></small>
                   {% else %}
-                    <small>{{ Item[12] }}</small>
+                    <small>{{ Item.torrent_name }}</small>
                   {% endif %}
                 </div>
                 {% endif %}
-                {% if Item[14] and Item[13] %}
+                {% if Item.tmdbid and Item.description %}
                 <div class="text-muted">
-                  <small>{{ Item[13] }}</small>
+                  <small>{{ Item.description }}</small>
                 </div>
                 {% endif %}
               </div>

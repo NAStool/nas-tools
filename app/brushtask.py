@@ -48,6 +48,7 @@ class BrushTask(object):
         self._brush_tasks = []
         for task in brushtasks:
             sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[0])
+            forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task[0])
             self._brush_tasks.append({
                 "id": task[0],
                 "name": task[1],
@@ -62,7 +63,8 @@ class BrushTask(object):
                 "seed_size": task[11],
                 "rss_url": task[17],
                 "cookie": task[18],
-                "sendmessage": sendmessage_switch
+                "sendmessage": sendmessage_switch,
+                "forceupload": forceupload_switch
             })
         if not self._brush_tasks:
             return
@@ -175,6 +177,7 @@ class BrushTask(object):
                                            taskid=taskid,
                                            transfer=True if taskinfo.get("transfer") == 'Y' else False,
                                            sendmessage=True if taskinfo.get("sendmessage") == 'Y' else False,
+                                           forceupload=True if taskinfo.get("forceupload") == 'Y' else False,
                                            taskname=task_name):
                     # 计数
                     success_count += 1
@@ -368,9 +371,6 @@ class BrushTask(object):
                     log.info("【BRUSH】任务 %s 共删除 %s 个刷流下载任务" % (task_name, len(delete_ids)))
                 else:
                     log.info("【BRUSH】任务 %s 本次检查未删除任务" % task_name)
-                    if sendmessage:
-                        msg_title = "【刷流任务 {} 本次检查未删除任务】".format(task_name)
-                        self.message.sendmsg(title=msg_title)
             except Exception as e:
                 log.console(str(e) + " - " + traceback.format_exc())
 
@@ -439,7 +439,7 @@ class BrushTask(object):
                 return int(len(dlitems))
         return None
 
-    def __download_torrent(self, downloadercfg, title, enclosure, size, taskid, transfer, sendmessage, taskname):
+    def __download_torrent(self, downloadercfg, title, enclosure, size, taskid, transfer, sendmessage, forceupload, taskname):
         """
         添加下载任务，更新任务数据
         :param downloadercfg: 下载器的所有参数
@@ -448,6 +448,8 @@ class BrushTask(object):
         :param size: 种子大小
         :param taskid: 任务ID
         :param transfer: 是否要转移，为False时直接添加已整理的标签
+        :param sendmessage: 是否需要消息推送
+        :param forceupload: 是否需要将添加的刷流任务设置为强制做种(仅针对qBittorrent)
         :param taskname: 任务名称
         """
         if not downloadercfg:
@@ -479,7 +481,8 @@ class BrushTask(object):
                     else:
                         downloader.remove_torrents_tag(download_id, torrent_tag)
                         downloader.start_torrents(download_id)
-                        downloader.torrents_set_force_start(download_id)
+                        if forceupload:
+                            downloader.torrents_set_force_start(download_id)
                         break
         else:
             # 初始化下载器

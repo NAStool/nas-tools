@@ -72,3 +72,4 @@ class BrushDeleteType(Enum):
 
 class SystemDictType(Enum):
     BrushMessageSwitch = "刷流消息开关"
+    BrushForceUpSwitch = "刷流强制做种开关"

@@ -79,3 +79,18 @@ class IMediaServer(metaclass=ABCMeta):
         :param items: 已识别的需要刷新媒体库的媒体信息列表
         """
         pass
+
+    @abstractmethod
+    def get_libraries(self):
+        """
+        获取媒体服务器所有媒体库列表
+        """
+        pass
+
+    @abstractmethod
+    def get_items(self, parent):
+        """
+        获取媒体库中的所有媒体
+        :param parent: 上一级的ID
+        """
+        pass
