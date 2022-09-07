@@ -1,6 +1,7 @@
 import re
 
 import log
+from app.utils.types import MediaType
 from config import Config
 from app.mediaserver.server.server import IMediaServer
 from app.media.meta.metabase import MetaBase
@@ -14,6 +15,7 @@ class Jellyfin(IMediaServer):
     __apikey = None
     __host = None
     __user = None
+    __libraries = []
 
     def __init__(self):
         self.init_config()
@@ -44,16 +46,16 @@ class Jellyfin(IMediaServer):
         """
         if not self.__host or not self.__apikey:
             return []
-        req_url = "%sLibrary/MediaFolders?api_key=%s" % (self.__host, self.__apikey)
+        req_url = "%sLibrary/VirtualFolders?api_key=%s" % (self.__host, self.__apikey)
         try:
             res = RequestUtils().get_res(req_url)
             if res:
-                return res.json().get("Items")
+                return res.json()
             else:
-                log.error("【JELLYFIN】Library/MediaFolders 未获取到返回数据")
+                log.error("【JELLYFIN】Library/VirtualFolders 未获取到返回数据")
                 return []
         except Exception as e:
-            log.error("【JELLYFIN】连接Library/MediaFolders 出错：" + str(e))
+            log.error("【JELLYFIN】连接Library/VirtualFolders 出错：" + str(e))
             return []
 
     def get_user_count(self):
@@ -325,3 +327,69 @@ class Jellyfin(IMediaServer):
         if not self.__host or not self.__apikey:
             return False
         return self.refresh_root_library()
+
+    def get_libraries(self):
+        """
+        获取媒体服务器所有媒体库列表
+        """
+        if self.__host and self.__apikey:
+            self.__libraries = self.__get_jellyfin_librarys()
+        libraries = []
+        for library in self.__libraries:
+            libraries.append({"id": library.get("ItemId"), "name": library.get("Name")})
+        return libraries
+
+    def get_iteminfo(self, itemid):
+        """
+        获取单个项目详情
+        """
+        if not itemid:
+            return {}
+        if not self.__host or not self.__apikey:
+            return {}
+        req_url = "%sUsers/%s/Items/%s?api_key=%s" % (
+            self.__host, self.__user, itemid, self.__apikey)
+        try:
+            res = RequestUtils().get_res(req_url)
+            if res and res.status_code == 200:
+                return res.json()
+        except Exception as e:
+            return {}
+
+    def get_items(self, parent):
+        """
+        获取媒体服务器所有媒体库列表
+        """
+        if not parent:
+            return []
+        if not self.__host or not self.__apikey:
+            return []
+        items = []
+        req_url = "%sUsers/%s/Items?parentId=%s&api_key=%s" % (self.__host, self.__user, parent, self.__apikey)
+        try:
+            res = RequestUtils().get_res(req_url)
+            if res and res.status_code == 200:
+                results = res.json().get("Items") or []
+                for result in results:
+                    item_info = self.get_iteminfo(result.get("Id"))
+                    item_info = self.get_iteminfo(result.get("Id"))
+                    if item_info.get("Type") == "Movie":
+                        media_type = MediaType.MOVIE
+                    elif item_info.get("Type") == "Series":
+                        media_type = MediaType.TV
+                    else:
+                        continue
+                    items.append({"id": result.get("Id"),
+                                  "library": item_info.get("ParentId"),
+                                  "type": media_type.value,
+                                  "title": item_info.get("Name"),
+                                  "originalTitle": item_info.get("OriginalTitle"),
+                                  "year": item_info.get("ProductionYear"),
+                                  "tmdbid": item_info.get("ProviderIds", {}).get("Tmdb"),
+                                  "imdbid": item_info.get("ProviderIds", {}).get("Imdb"),
+                                  "Path": item_info.get("Path"),
+                                  "json": str(item_info)})
+
+        except Exception as e:
+            log.error("【EMBY】连接Users/Items出错：" + str(e))
+        return items

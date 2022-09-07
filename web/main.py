@@ -390,6 +390,8 @@ def create_flask_app(config):
         MediaSPStateDict = {}
         # 名称
         MediaNameDict = {}
+        # 结果
+        SearchResults = []
         # 查询统计值
         for item in res:
             # 资源类型
@@ -432,6 +434,34 @@ def create_flask_app(config):
                     MediaNameDict[name] = 1
                 else:
                     MediaNameDict[name] += 1
+            # 是否已存在
+            exist_flag = MediaServer().check_item_exists(title=item[21], year=item[7], tmdbid=[14])
+            # 结果
+            SearchResults.append({
+                "id": item[0],
+                "title_string": item[1],
+                "restype": item[2],
+                "size": item[3],
+                "seeders": item[4],
+                "enclosure": item[5],
+                "site": item[6],
+                "year": item[7],
+                "es_string": item[8],
+                "image": item[9],
+                "type": item[10],
+                "vote": item[11],
+                "torrent_name": item[12],
+                "description": item[13],
+                "tmdbid": item[14],
+                "poster": item[15],
+                "overview": item[16],
+                "pageurl": item[17],
+                "otherinfo": item[18],
+                "uploadvalue": item[19],
+                "downloadvalue": item[20],
+                "title": item[21],
+                "exist": exist_flag
+            })
 
         # 展示类型
         MediaMTypes = []
@@ -473,8 +503,8 @@ def create_flask_app(config):
                                UserPris=str(pris).split(","),
                                SearchWord=SearchWord or "",
                                NeedSearch=NeedSearch or "",
-                               Count=len(res),
-                               Items=res,
+                               Count=len(SearchResults),
+                               Items=SearchResults,
                                MediaMTypes=MediaMTypes,
                                MediaSites=MediaSites,
                                MediaPixs=MediaPixs,

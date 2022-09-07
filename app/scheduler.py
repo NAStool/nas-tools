@@ -6,6 +6,7 @@ from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import log
+from app.mediaserver.media_server import MediaServer
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
     RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_CHECK_INTERVAL, REFRESH_PT_DATA_INTERVAL, \
     RSS_REFRESH_TMDB_INTERVAL, META_DELETE_UNKNOWN_INTERVAL, REFRESH_WALLPAPER_INTERVAL
@@ -24,6 +25,7 @@ class Scheduler:
     SCHEDULER = None
     __pt = None
     __douban = None
+    __media = None
 
     def __init__(self):
         self.init_config()
@@ -31,6 +33,7 @@ class Scheduler:
     def init_config(self):
         config = Config()
         self.__pt = config.get_config('pt')
+        self.__media = config.get_config('media')
         self.__douban = config.get_config('douban')
 
     def run_service(self):
@@ -47,7 +50,7 @@ class Scheduler:
                 self.SCHEDULER.add_job(Downloader().pt_removetorrents,
                                        'interval',
                                        seconds=AUTO_REMOVE_TORRENTS_INTERVAL)
-                log.info("【RUN】下载器自动删种服务启动...")
+                log.info("【RUN】下载器自动删种服务启动")
 
             # 站点签到
             ptsignin_cron = str(self.__pt.get('ptsignin_cron'))
@@ -88,7 +91,7 @@ class Scheduler:
                                                "cron",
                                                hour=hour,
                                                minute=minute)
-                        log.info("【RUN】站点自动签到服务启动...")
+                        log.info("【RUN】站点自动签到服务启动")
                 else:
                     try:
                         hours = float(ptsignin_cron)
@@ -99,13 +102,13 @@ class Scheduler:
                         self.SCHEDULER.add_job(Sites().signin,
                                                "interval",
                                                hours=hours)
-                        log.info("【RUN】站点自动签到服务启动...")
+                        log.info("【RUN】站点自动签到服务启动")
 
             # 下载文件转移
             pt_monitor = self.__pt.get('pt_monitor')
             if pt_monitor:
                 self.SCHEDULER.add_job(Downloader().pt_transfer, 'interval', seconds=PT_TRANSFER_INTERVAL)
-                log.info("【RUN】下载文件转移服务启动...")
+                log.info("【RUN】下载文件转移服务启动")
 
             # RSS下载器
             pt_check_interval = self.__pt.get('pt_check_interval')
@@ -120,7 +123,7 @@ class Scheduler:
                         pt_check_interval = 0
                 if pt_check_interval:
                     self.SCHEDULER.add_job(Rss().rssdownload, 'interval', seconds=round(pt_check_interval))
-                    log.info("【RUN】RSS订阅服务启动...")
+                    log.info("【RUN】RSS订阅服务启动")
 
             # RSS订阅定时检索
             search_rss_interval = self.__pt.get('search_rss_interval')
@@ -135,7 +138,7 @@ class Scheduler:
                         search_rss_interval = 0
                 if search_rss_interval:
                     self.SCHEDULER.add_job(Rss().rsssearch_all, 'interval', hours=search_rss_interval * 24)
-                    log.info("【RUN】订阅定时搜索服务启动...")
+                    log.info("【RUN】订阅定时搜索服务启动")
 
         # 豆瓣电影同步
         if self.__douban:
@@ -152,7 +155,24 @@ class Scheduler:
                             douban_interval = 0
                 if douban_interval:
                     self.SCHEDULER.add_job(DouBan().sync, 'interval', hours=douban_interval)
-                    log.info("【RUN】豆瓣同步服务启动...")
+                    log.info("【RUN】豆瓣同步服务启动")
+
+        # 媒体库同步
+        if self.__media:
+            mediasync_interval = self.__media.get("mediasync_interval")
+            if mediasync_interval:
+                if isinstance(mediasync_interval, str):
+                    if mediasync_interval.isdigit():
+                        mediasync_interval = int(mediasync_interval)
+                    else:
+                        try:
+                            mediasync_interval = float(mediasync_interval)
+                        except Exception as e:
+                            log.info("【RUN】豆瓣同步服务启动失败：%s" % str(e))
+                            mediasync_interval = 0
+                if mediasync_interval:
+                    self.SCHEDULER.add_job(MediaServer().sync_mediaserver, 'interval', hours=mediasync_interval)
+                    log.info("【RUN】媒体库同步服务启动")
 
         # 配置定时生效
         self.SCHEDULER.add_job(Config().init_config, 'interval', seconds=RELOAD_CONFIG_INTERVAL)

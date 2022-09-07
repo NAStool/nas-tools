@@ -9,6 +9,7 @@ from flask_login import logout_user
 from werkzeug.security import generate_password_hash
 
 import log
+from app.mediaserver.media_server import MediaServer
 from app.utils.string_utils import StringUtils
 from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
 from app.message.channel.telegram import Telegram
@@ -810,7 +811,7 @@ class WebAction:
             # 生效配置
             cfg = self.set_config_value(cfg, key, value)
             if key in ['pt.ptsignin_cron', 'pt.pt_monitor', 'pt.pt_check_interval', 'pt.pt_seeding_time',
-                       'douban.interval']:
+                       'douban.interval', 'media.mediasync_interval']:
                 scheduler_reload = True
             if key.startswith("emby"):
                 emby_reload = True
@@ -1742,7 +1743,7 @@ class WebAction:
                 if name in MovieKeys or str(rid) in MovieMediaIds or "DB:%s" % rid in MovieMediaIds:
                     # 已订阅
                     fav = 1
-                elif SqlHelper.is_media_downloaded(name, rid):
+                elif MediaServer().check_item_exists(title=name, year=year, tmdbid=rid):
                     # 已下载
                     fav = 2
                 else:
@@ -1759,7 +1760,7 @@ class WebAction:
                 if name in TvKeys or str(rid) in TvMediaIds or "DB:%s" % rid in TvMediaIds:
                     # 已订阅
                     fav = 1
-                elif SqlHelper.is_media_downloaded(name, rid):
+                elif MediaServer().check_item_exists(title=name, year=year, tmdbid=rid):
                     # 已下载
                     fav = 2
                 else:

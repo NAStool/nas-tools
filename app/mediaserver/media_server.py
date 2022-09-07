@@ -1,25 +1,41 @@
+import threading
+
+from app.db.media_db import MediaDb
+from app.utils.commons import ProgressController
+from app.utils.types import MediaType
 from config import Config
 from app.mediaserver.server.emby import Emby
 from app.mediaserver.server.jellyfin import Jellyfin
 from app.mediaserver.server.plex import Plex
 
+lock = threading.Lock()
+
 
 class MediaServer:
+    _type = None
     server = None
+    mediadb = None
+    progress = None
 
     def __init__(self):
+        self.mediadb = MediaDb()
+        self.progress = ProgressController()
         self.init_config()
 
     def init_config(self):
-        config = Config()
-        media = config.get_config('media')
-        if media:
-            if media.get('media_server') == "jellyfin":
-                self.server = Jellyfin()
-            elif media.get('media_server') == "plex":
-                self.server = Plex()
-            else:
-                self.server = Emby()
+        self._type = Config().get_config('media').get('media_server')
+        if self._type == "jellyfin":
+            self.server = Jellyfin()
+        elif self._type == "plex":
+            self.server = Plex()
+        else:
+            self.server = Emby()
+
+    def get_type(self):
+        """
+        当前使用的媒体库服务器
+        """
+        return self._type or "emby"
 
     def get_activity_log(self, limit):
         """
@@ -101,3 +117,73 @@ class MediaServer:
         if not self.server:
             return
         return self.server.refresh_library_by_items(items)
+
+    def get_libraries(self):
+        """
+        获取媒体服务器所有媒体库列表
+        """
+        if not self.server:
+            return []
+        return self.server.get_libraries()
+
+    def get_items(self, parent):
+        """
+        获取媒体库中的所有媒体
+        :param parent: 上一级的ID
+        """
+        if not self.server:
+            return []
+        return self.server.get_items(parent)
+
+    def sync_mediaserver(self):
+        """
+        同步媒体库所有数据到本地数据库
+        """
+        if not self.server:
+            return
+        with lock:
+            # 开始进度条
+            self.progress.start("mediasync")
+            self.progress.update(ptype="mediasync", text="正在获取数据...")
+            # 配置需同步的媒体库名称
+            sync_libraries = Config().get_config(self._type).get("sync_libraries")
+            total_count = 0
+            movie_count = 0
+            tv_count = 0
+            for library in self.get_libraries():
+                # 未配置的媒体库跳过
+                if sync_libraries is not None and library.get("name") not in sync_libraries:
+                    continue
+                # 清空登记薄
+                self.mediadb.empty(self._type, library.get("id"))
+                # 获取媒体库所有项目
+                self.progress.update(ptype="mediasync",
+                                     text="正在获取 %s 数据..." % (library.get("name")),
+                                     value=0)
+                items = self.get_items(library.get("id"))
+                library_count = 0
+                for item in items:
+                    if self.mediadb.insert(self._type, item):
+                        library_count += 1
+                        total_count += 1
+                        if item.get("type") == MediaType.MOVIE.value:
+                            movie_count += 1
+                        elif item.get("type") == MediaType.TV.value:
+                            tv_count += 1
+                        self.progress.update(ptype="mediasync",
+                                             text="正在同步 %s：%s / %s ..." % (library.get("name"), library_count, len(items)),
+                                             value=round(100 * library_count/len(items)))
+                        print(self.progress.get_process("mediasync"))
+            # 更新总体同步情况
+            self.mediadb.statistics(server_type=self._type,
+                                    total_count=total_count,
+                                    movie_count=movie_count,
+                                    tv_count=tv_count)
+            # 结束进度条
+            self.progress.end("mediasync")
+
+    def check_item_exists(self, title, year, tmdbid=None):
+        """
+        检查媒体库是否已存在某项目，非实时同步数据，仅用于展示
+        """
+        return self.mediadb.exists(server_type=self._type, title=title, year=year, tmdbid=tmdbid)
