@@ -158,3 +158,8 @@ class MediaDb:
             if ret and ret[0][0] > 0:
                 return True
         return False
+
+    def get_statistics(self, server_type):
+        if not server_type:
+            return None
+        return self.__select("SELECT TOTAL_COUNT, MOVIE_COUNT, TV_COUNT, UPDATE_TIME FROM MEDIASYNC_STATISTICS WHERE SERVER = ?", (server_type,))

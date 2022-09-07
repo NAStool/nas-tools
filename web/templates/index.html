@@ -186,6 +186,26 @@
   </div>
 </div>
 {% endif %}
+<div class="modal modal-blur fade" id="index-mediasync-modal" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-0">
+        <div class="card-body text-center">
+          <div class="mb-3">
+            <span class="avatar avatar-xl avatar-rounded" style="background-image: url(../static/img/{{ MediaServerType }}.png)"></span>
+          </div>
+          <div class="card-title mb-1">{{ MediaServerType|title }}</div>
+          <div class="text-muted" id="mediasync_status"></div>
+        </div>
+        <div class="card-progress">
+          <div class="progress-bar bg-green" id="mediasync_process_bar"
+            style="width: 0%" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <a href="javascript:start_media_sync(true)" id="mediasync_btn" class="card-btn">开始同步</a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   // @formatter:off
   // 电影变化图
@@ -300,6 +320,57 @@
 <script type="text/javascript">
   //显示媒体库同步框
   function show_mediasync_modal(){
-
+    //获取同步状态
+    ajax_post("refresh_process", {type:"mediasync"}, function (ret) {
+      if (ret.code == 0) {
+        //同步中
+        $("#index-mediasync-modal").modal('show');
+        start_media_sync(false);
+      }else{
+        //没有在同步，获取目前同步的数据情况
+        ajax_post("mediasync_state", {}, function (ret) {
+          if(ret.code == 0){
+            $("#mediasync_status").text(ret.text);
+          }
+          $("#mediasync_btn").text("开始同步");
+          $("#mediasync_btn").attr("href", "javascript:start_media_sync(true)");
+          $("#index-mediasync-modal").modal('show');
+        });
+      }
+    });
   }
+
+  //关闭媒体库同步框
+  function close_mediasync_modal(){
+    $("#index-mediasync-modal").modal('hide');
+    refresh_sync_process_flag = false;
+  }
+
+  //开始媒体库同步
+  function start_media_sync(flag){
+    $("#mediasync_btn").text("关闭");
+    $("#mediasync_btn").attr("href", "javascript:close_mediasync_modal()");
+    if(flag){
+      ajax_post("start_mediasync", {}, function (ret) {
+      });
+    }
+    refresh_sync_process_flag = true;
+    refresh_sync_process();
+  }
+
+  //刷新进度及文件
+  var refresh_sync_process_flag = false;
+  function refresh_sync_process () {
+    ajax_post("refresh_process", {type:"mediasync"}, function (ret) {
+      if (ret.code == 0) {
+        $("#mediasync_process_bar").attr("style", "width: " + ret.value + "%");
+        $("#mediasync_process_bar").attr("aria-valuenow", ret.value);
+        $("#mediasync_status").text(ret.text);
+      }
+      if ((ret.code == 0 || ret.code == 1) && refresh_sync_process_flag) {
+        setTimeout("refresh_sync_process()", 200);
+      }
+    });
+  }
+
 </script>

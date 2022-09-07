@@ -118,7 +118,9 @@ class WebAction:
             "check_site_attr": self.__check_site_attr,
             "refresh_process": self.__refresh_process,
             "get_download_dirs": self.get_download_dirs,
-            "restory_backup": self.__restory_backup
+            "restory_backup": self.__restory_backup,
+            "start_mediasync": self.__start_mediasync,
+            "mediasync_state": self.__mediasync_state
         }
 
     def action(self, cmd, data):
@@ -1932,7 +1934,7 @@ class WebAction:
         """
         刷新进度条
         """
-        detail = ProgressController().get_process('search')
+        detail = ProgressController().get_process(data.get("type"))
         if detail:
             return {"code": 0, "value": detail.get("value"), "text": detail.get("text")}
         else:
@@ -1978,3 +1980,24 @@ class WebAction:
                     os.remove(file_path)
 
         return {"code": 1, "msg": "文件不存在"}
+
+    @staticmethod
+    def __start_mediasync(data):
+        """
+        开始媒体库同步
+        """
+        ThreadHelper().start_thread(MediaServer().sync_mediaserver, ())
+        return {"code": 0}
+
+    @staticmethod
+    def __mediasync_state(data):
+        """
+        获取媒体库同步数据情况
+        """
+        status = MediaServer().get_mediasync_status()
+        if not status:
+            return {"code": 0, "text": "未同步"}
+        else:
+            return {"code": 0, "text": "电影：%s，电视剧：%s，同步时间：%s" % (status.get("movie_count"),
+                                                                 status.get("tv_count"),
+                                                                 status.get("time"))}

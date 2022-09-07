@@ -231,6 +231,7 @@ def create_flask_app(config):
         SongCount = 0
         MediaServerClient = MediaServer()
         media_count = MediaServerClient.get_medias_count()
+        MSType = MediaServerClient.get_type()
         if media_count:
             MovieCount = "{:,}".format(media_count.get('MovieCount'))
             SeriesCount = "{:,}".format(media_count.get('SeriesCount'))
@@ -361,7 +362,8 @@ def create_flask_app(config):
                                TvChartLabels=TvChartLabels,
                                MovieNums=MovieNums,
                                TvNums=TvNums,
-                               AnimeNums=AnimeNums
+                               AnimeNums=AnimeNums,
+                               MediaServerType=MSType
                                )
 
     # 资源搜索页面

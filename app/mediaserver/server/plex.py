@@ -10,7 +10,6 @@ from app.utils.commons import singleton
 
 @singleton
 class Plex(IMediaServer):
-
     __host = None
     __username = None
     __password = None
@@ -178,7 +177,6 @@ class Plex(IMediaServer):
         except Exception as err:
             print(err)
             return []
-        items = []
         for item in section.all():
             if item.type == "movie":
                 media_type = MediaType.MOVIE
@@ -186,11 +184,10 @@ class Plex(IMediaServer):
                 media_type = MediaType.TV
             else:
                 continue
-            items.append({"id": item.key,
-                          "library": item.librarySectionID,
-                          "type": media_type.value,
-                          "title": item.title,
-                          "originalTitle": item.orginalTitle,
-                          "year": item.year,
-                          "json": item.__dict__})
-        return items
+            yield {"id": item.key,
+                   "library": item.librarySectionID,
+                   "type": media_type.value,
+                   "title": item.title,
+                   "originalTitle": item.orginalTitle,
+                   "year": item.year,
+                   "json": item.__dict__}
