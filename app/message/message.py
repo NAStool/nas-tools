@@ -20,6 +20,7 @@ class Message:
     __msg_channel = None
     __webhook_ignore = None
     __domain = None
+    __msg_switch = None
     client = None
     messagecenter = None
 
@@ -45,6 +46,7 @@ class Message:
         if message:
             self.__msg_channel = message.get('msg_channel')
             self.__webhook_ignore = message.get('webhook_ignore')
+            self.__msg_switch = message.get('switch', {})
         app = config.get_config('app')
         if app:
             self.__domain = app.get('domain')
@@ -139,6 +141,8 @@ class Message:
         :param can_item: 下载的媒体信息
         :return: 发送状态、错误信息
         """
+        if self.__msg_switch and not self.__msg_switch.get("download_start"):
+            return
         msg_title = can_item.get_title_ep_vote_string()
         msg_text = f"{in_from.value}的{can_item.type.value} {can_item.get_title_string()}{can_item.get_season_episode_string()} 已开始下载"
         if can_item.site:
@@ -177,6 +181,8 @@ class Message:
         :param category_flag: 二级分类开关
         :return: 发送状态、错误信息
         """
+        if self.__msg_switch and not self.__msg_switch.get("transfer_finished"):
+            return
         msg_title = f"{media_info.get_title_string()} 转移完成"
         if media_info.vote_average:
             msg_str = f"{media_info.get_vote_string()}，类型：电影"
@@ -196,6 +202,8 @@ class Message:
         """
         发送转移电视剧/动漫的消息
         """
+        if self.__msg_switch and not self.__msg_switch.get("transfer_finished"):
+            return
         for item_info in message_medias.values():
             if item_info.total_episodes == 1:
                 msg_title = f"{item_info.get_title_string()} {item_info.get_season_episode_string()} 转移完成"
@@ -217,6 +225,8 @@ class Message:
         """
         发送下载失败的消息
         """
+        if self.__msg_switch and not self.__msg_switch.get("download_fail"):
+            return
         self.sendmsg(
             title="添加下载任务失败：%s %s" % (item.get_title_string(), item.get_season_episode_string()),
             text=f"种子：{item.org_string}\n错误信息：{error_msg}",
@@ -226,6 +236,8 @@ class Message:
         """
         发送订阅成功的消息
         """
+        if self.__msg_switch and not self.__msg_switch.get("rss_added"):
+            return
         if media_info.type == MediaType.MOVIE:
             msg_title = f"{media_info.get_title_string()} 已添加订阅"
         else:
@@ -245,6 +257,8 @@ class Message:
         """
         发送订阅完成的消息，只针对电视剧
         """
+        if self.__msg_switch and not self.__msg_switch.get("rss_finished"):
+            return
         if media_info.type == MediaType.MOVIE:
             return
         else:
@@ -256,3 +270,23 @@ class Message:
                      text=msg_str,
                      image=media_info.get_message_image(),
                      url='downloaded')
+
+    def send_site_signin_message(self, msgs: list):
+        """
+        发送站点签到消息
+        """
+        if not msgs:
+            return
+        if self.__msg_switch and not self.__msg_switch.get("site_signin"):
+            return
+        self.sendmsg(title="站点签到", text="\n".join(msgs))
+
+    def send_transfer_fail_message(self, path, count):
+        """
+        发送转移失败的消息
+        """
+        if not path or not count:
+            return
+        if self.__msg_switch and not self.__msg_switch.get("transfer_fail"):
+            return
+        self.sendmsg(title="%s 有 %s 个文件转移失败，请登录NASTool查看" % (path, count))

@@ -201,7 +201,7 @@ class Sites:
             except Exception as e:
                 log.error("【PT】%s 签到出错：%s - %s" % (site, str(e), traceback.format_exc()))
         if status:
-            self.message.sendmsg(title="站点签到", text="\n".join(status))
+            self.message.send_site_signin_message(status)
 
     @staticmethod
     def __is_signin_success(html_text):
