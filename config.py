@@ -106,16 +106,19 @@ class Config(object):
                 print("【ERROR】config.yaml 配置文件不存在，已将配置文件模板复制到配置目录...")
             with open(self.__config_path, mode='r', encoding='utf-8') as f:
                 try:
-                    yaml = ruamel.yaml.YAML()
-                    self.__config = yaml.load(f)
+                    # 读取配置
+                    self.__config = ruamel.yaml.YAML().load(f)
                     overwrite_cofig = False
+                    # 密码初始化
                     login_password = self.__config.get("app", {}).get("login_password")
                     if login_password and not login_password.startswith("[hash]"):
                         self.__config['app']['login_password'] = "[hash]%s" % generate_password_hash(login_password)
                         overwrite_cofig = True
+                    # 实验室配置初始化
                     if not self.__config.get("laboratory"):
                         self.__config['laboratory'] = {}
                         overwrite_cofig = True
+                    # 安全配置初始化
                     if not self.__config.get("security"):
                         self.__config['security'] = {
                             'media_server_webhook_allow_ip': {
@@ -128,11 +131,25 @@ class Config(object):
                             }
                         }
                         overwrite_cofig = True
+                    # API密钥初始化
                     if not self.__config.get("security", {}).get("subscribe_token"):
                         self.__config['security']['subscribe_token'] = self.__config.get("laboratory",
                                                                                          {}).get("subscribe_token") \
                                                                        or StringUtils.generate_random_str()
                         overwrite_cofig = True
+                    # 消息推送开关初始化
+                    if not self.__config.get("message", {}).get("switch"):
+                        self.__config['message']['switch'] = {
+                            "download_start": True,
+                            "download_fail": True,
+                            "transfer_finished": True,
+                            "transfer_fail": True,
+                            "rss_added": True,
+                            "rss_finished": True,
+                            "site_signin": True
+                        }
+                        overwrite_cofig = True
+                    # 重写配置文件
                     if overwrite_cofig:
                         self.save_config(self.__config)
                 except Exception as e:

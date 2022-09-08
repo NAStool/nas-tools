@@ -103,7 +103,8 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     media_list = Searcher().search_medias(key_word=key_word,
                                           filter_args=filter_args,
                                           match_type=1 if ident_flag else 2,
-                                          match_media=media_info)
+                                          match_media=media_info,
+                                          in_from=SearchType.WEB)
     # 使用名称重新搜索
     if ident_flag and len(media_list) == 0 and media_name and key_word != media_name:
         search_process.start('search')
@@ -112,7 +113,8 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         media_list = Searcher().search_medias(key_word=media_name,
                                               filter_args=filter_args,
                                               match_type=1,
-                                              match_media=media_info)
+                                              match_media=media_info,
+                                              in_from=SearchType.WEB)
     # 清空缓存结果
     SqlHelper.delete_all_search_torrents()
     # 结束进度

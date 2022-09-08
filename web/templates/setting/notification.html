@@ -7,6 +7,25 @@
           消息通知
         </h2>
       </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:show_messageswitch_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path>
+               <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            推送设置
+          </a>
+          <a href="javascript:show_messageswitch_modal()" class="btn btn-primary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-settings" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path>
+               <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -339,6 +358,60 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="message-switch-modal" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">推送设置</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col">
+              <div class="mb-3">
+                <label class="form-label required">推送开关 <span class="form-help bg-red-lt" title="选中的项才会推送通知消息" data-bs-toggle="tooltip">?</span></label>
+                <div class="form-selectgroup">
+                  <label class="form-selectgroup-item">
+                    <input type="checkbox" name="message_switchs" value="download_start" class="form-selectgroup-input" {% if Config.message.switch and Config.message.switch.download_start %}checked{% endif %}>
+                    <span class="form-selectgroup-label">新增下载</span>
+                  </label>
+                  <label class="form-selectgroup-item">
+                    <input type="checkbox" name="message_switchs" value="download_fail" class="form-selectgroup-input" {% if Config.message.switch and Config.message.switch.download_fail %}checked{% endif %}>
+                    <span class="form-selectgroup-label">下载失败</span>
+                  </label>
+                  <label class="form-selectgroup-item">
+                    <input type="checkbox" name="message_switchs" value="transfer_finished" class="form-selectgroup-input" {% if Config.message.switch and Config.message.switch.transfer_finished %}checked{% endif %}>
+                    <span class="form-selectgroup-label">转移完成</span>
+                  </label>
+                  <label class="form-selectgroup-item">
+                    <input type="checkbox" name="message_switchs" value="transfer_fail" class="form-selectgroup-input" {% if Config.message.switch and Config.message.switch.transfer_fail %}checked{% endif %}>
+                    <span class="form-selectgroup-label">转移失败</span>
+                  </label>
+                  <label class="form-selectgroup-item">
+                    <input type="checkbox" name="message_switchs" value="rss_added" class="form-selectgroup-input" {% if Config.message.switch and Config.message.switch.rss_added %}checked{% endif %}>
+                    <span class="form-selectgroup-label">新增订阅</span>
+                  </label>
+                  <label class="form-selectgroup-item">
+                    <input type="checkbox" name="message_switchs" value="rss_finished" class="form-selectgroup-input" {% if Config.message.switch and Config.message.switch.rss_finished %}checked{% endif %}>
+                    <span class="form-selectgroup-label">订阅完成</span>
+                  </label>
+                  <label class="form-selectgroup-item">
+                    <input type="checkbox" name="message_switchs" value="site_signin" class="form-selectgroup-input" {% if Config.message.switch and Config.message.switch.site_signin %}checked{% endif %}>
+                    <span class="form-selectgroup-label">站点签到</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="javascript:save_message_switch()" id="message_switch_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   // 当前处理的类型
   var currType = "";
@@ -373,6 +446,21 @@
     });
   }
 
+  //保存消息开关设置
+  function save_message_switch(){
+    var params = {};
+    $("input[name=message_switchs]").each(function(){
+      if($(this).prop("checked")){
+        params[$(this).val()] = true;
+      }else{
+        params[$(this).val()] = false;
+      }
+    });
+    ajax_post("update_config", {"message.switch": params}, function(){
+      $("#message-switch-modal").modal("hide");
+    });
+  }
+
   //保存配置和测试配置
   function test_message_config(type){
     $("#" + type + "_test_btn").text("测试中...");
@@ -398,5 +486,10 @@
         }
       });
     }, true);
+  }
+
+  //打开推送设置框
+  function show_messageswitch_modal(){
+    $("#message-switch-modal").modal("show");
   }
 </script>
