@@ -13,7 +13,7 @@ from app.utils.commons import ProgressController
 from app.utils.dom_utils import DomUtils
 from app.utils.http_utils import RequestUtils
 from app.utils.string_utils import StringUtils
-from app.utils.types import MediaType
+from app.utils.types import MediaType, SearchType
 
 
 class IIndexer(metaclass=ABCMeta):
@@ -53,7 +53,12 @@ class IIndexer(metaclass=ABCMeta):
         """
         pass
 
-    def search_by_keyword(self, key_word, filter_args: dict, match_type=0, match_media: MetaBase = None):
+    def search_by_keyword(self,
+                          key_word,
+                          filter_args: dict,
+                          match_type=0,
+                          match_media: MetaBase = None,
+                          in_from: SearchType = None):
         """
         根据关键字调用 Index API 检索
         :param key_word: 检索的关键字，不能为空
@@ -62,6 +67,7 @@ class IIndexer(metaclass=ABCMeta):
                             sp_state: 为UL DL，* 代表不关心，
         :param match_type: 匹配模式：0-识别并模糊匹配；1-识别并精确匹配；2-不识别匹配
         :param match_media: 需要匹配的媒体信息
+        :param in_from: 搜索渠道
         :return: 命中的资源媒体信息列表
         """
         if not key_word:
@@ -91,7 +97,8 @@ class IIndexer(metaclass=ABCMeta):
                                    key_word,
                                    filter_args,
                                    match_type,
-                                   match_media)
+                                   match_media,
+                                   in_from)
             all_task.append(task)
         ret_array = []
         finish_count = 0
@@ -116,7 +123,8 @@ class IIndexer(metaclass=ABCMeta):
                key_word,
                filter_args: dict,
                match_type,
-               match_media: MetaBase):
+               match_media: MetaBase,
+               in_from: SearchType):
         """
         根据关键字多线程检索
         """
@@ -124,7 +132,7 @@ class IIndexer(metaclass=ABCMeta):
             return None
         if filter_args is None:
             filter_args = {}
-
+        # 不在设定搜索范围的站点过滤掉
         if filter_args.get("site") and indexer.name not in filter_args.get("site"):
             return []
         # 计算耗时
@@ -308,7 +316,7 @@ class IIndexer(metaclass=ABCMeta):
                                                                        rolegroup=filter_args.get("rule"))
                 if not match_flag:
                     log.info(
-                        f"【{self.index_type}】{torrent_name} 大小：{StringUtils.str_filesize(meta_info.size)} 促销：{meta_info.get_volume_factor_string()} 不符合订阅过滤规则")
+                        f"【{self.index_type}】{torrent_name} 大小：{StringUtils.str_filesize(meta_info.size)} 促销：{meta_info.get_volume_factor_string()} 不符合订阅/站点过滤规则")
                     index_rule_fail += 1
                     continue
             # 使用默认规则

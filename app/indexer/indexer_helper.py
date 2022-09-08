@@ -27,12 +27,15 @@ class IndexerHelper:
     def get_all_indexers(self):
         return self._indexers
 
-    def get_indexer(self, url, cookie=None, name=None):
+    def get_indexer(self, url, cookie=None, name=None, rule=None):
         if not url:
             return None
         for indexer in self._indexers:
             if not indexer.get("domain"):
                 continue
             if StringUtils.url_equal(indexer.get("domain"), url):
-                return IndexerConf(datas=indexer, cookie=RequestUtils.cookie_parse(cookie), name=name)
+                return IndexerConf(datas=indexer,
+                                   cookie=RequestUtils.cookie_parse(cookie),
+                                   name=name,
+                                   rule=rule)
         return None

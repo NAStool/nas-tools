@@ -5,6 +5,7 @@ import log
 from app.indexer.client.rarbg import Rarbg
 from app.indexer.indexer_conf import IndexerConf
 from app.sites.siteconf import get_public_sites
+from app.utils.types import SearchType
 from config import Config
 from app.indexer.indexer import IIndexer
 from app.indexer.client.spider import TorrentSpider
@@ -37,9 +38,10 @@ class BuiltinIndexer(IIndexer):
                 continue
             if not site.get("cookie"):
                 continue
-            indexer = IndexerHelper().get_indexer(site.get("signurl") or site.get("rssurl"),
-                                                  site.get("cookie"),
-                                                  site.get("name"))
+            indexer = IndexerHelper().get_indexer(url=site.get("signurl") or site.get("rssurl"),
+                                                  cookie=site.get("cookie"),
+                                                  name=site.get("name"),
+                                                  rule=site.get("rule"))
             if indexer:
                 if check and indexer_sites and indexer.id not in indexer_sites:
                     continue
@@ -57,7 +59,8 @@ class BuiltinIndexer(IIndexer):
                key_word,
                filter_args: dict,
                match_type,
-               match_media: MetaBase):
+               match_media: MetaBase,
+               in_from: SearchType):
         """
         根据关键字多线程检索
         """
@@ -65,13 +68,16 @@ class BuiltinIndexer(IIndexer):
             return None
         if filter_args is None:
             filter_args = {}
-
+        # 不是配置的索引站点过滤掉
         indexer_sites = Config().get_config("pt").get("indexer_sites") or []
         if indexer_sites and indexer.id not in indexer_sites:
             return []
-
+        # 不在设定搜索范围的站点过滤掉
         if filter_args.get("site") and indexer.name not in filter_args.get("site"):
             return []
+        # 搜索条件没有过滤规则时，非WEB搜索模式下使用站点的过滤规则
+        if in_from != SearchType.WEB and not filter_args.get("rule") and indexer.rule:
+            filter_args.update({"rule": indexer.rule})
         # 计算耗时
         start_time = datetime.datetime.now()
         log.info(f"【{self.index_type}】开始检索Indexer：{indexer.name} ...")

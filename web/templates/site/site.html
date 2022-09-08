@@ -152,21 +152,21 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">RSS过滤规则 <span class="form-help bg-red-lt" title="选择该站点使用的规则组，在设置->过滤规则中设置规则，选择了规则组后该站点只有符合规则的种子才会被订阅；刷流不受此限制" data-bs-toggle="tooltip">?</span></label>
-                <select class="form-select" id="site_rule">
-                  <option value="" selected>请选择</option>
-                  {% for RuleGroup in RuleGroups %}
-                  <option value="{{ RuleGroup.id }}">{{ RuleGroup.name }}</option>
-                  {% endfor %}
+                <label class="form-label required">RSS解析种子详情 <span class="form-help bg-red-lt" title="选择是时RSS订阅会解析站点种子详情页面获取种子FREE及HR状态，会增加站点访问压力；选择否时无法判断FREE种，无法实现FREE优先规则；刷流不受此限制" data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="site_parse">
+                  <option value="Y" selected>是</option>
+                  <option value="N">否</option>
                 </select>
               </div>
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label required">RSS解析种子详情 <span class="form-help bg-red-lt" title="选择是时RSS订阅会解析站点种子详情页面获取种子FREE及HR状态，会增加站点访问压力；选择否时无法判断FREE种，无法实现FREE优先规则；刷流不受此限制" data-bs-toggle="tooltip">?</span></label>
-                <select class="form-select" id="site_parse">
-                  <option value="Y" selected>是</option>
-                  <option value="N">否</option>
+                <label class="form-label">过滤规则 <span class="form-help bg-red-lt" title="选择该站点使用的过滤规则组，在设置->过滤规则中设置规则，选择了过滤规则后该站点只有符合规则的种子才会被命中下载；仅作用于RSS、内建索引自动搜索，刷流等不受此限制" data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="site_rule">
+                  <option value="" selected>请选择</option>
+                  {% for RuleGroup in RuleGroups %}
+                  <option value="{{ RuleGroup.id }}">{{ RuleGroup.name }}</option>
+                  {% endfor %}
                 </select>
               </div>
             </div>

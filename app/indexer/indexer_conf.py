@@ -1,6 +1,6 @@
 class IndexerConf(object):
 
-    def __init__(self, datas=None, cookie=None, name=None):
+    def __init__(self, datas=None, cookie=None, name=None, rule=None):
         if not datas:
             return
         self.datas = datas
@@ -12,6 +12,7 @@ class IndexerConf(object):
         self.torrents = self.datas.get('torrents', {})
         self.category_mappings = self.datas.get('category_mappings', [])
         self.cookie = cookie
+        self.rule = rule
 
     def get_userinfo(self):
         return self.userinfo
