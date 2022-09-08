@@ -14,6 +14,7 @@ from app.media.constants import *
 from app.media.meta.metainfo import MetaInfo
 from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person
 from app.media.tmdbv3api.exceptions import TMDbException
+from app.media.doubanv2api.doubanapi import DoubanApi
 from app.utils.cache_manager import cacheman
 from app.utils.commons import EpisodeFormat
 from app.utils.http_utils import RequestUtils
@@ -36,7 +37,7 @@ class Media:
 
     def __init__(self):
         self.init_config()
-
+        self.douban = DoubanApi()
     def init_config(self):
         config = Config()
         app = config.get_config('app')
@@ -1156,3 +1157,74 @@ class Media:
                 if alter_name == zhconv.convert(alter_name, 'zh-hans'):
                     name = alter_name
         return name
+
+    def get_person_aka_names(self, person_id):
+        """
+        查询人物又名
+        """
+        if not self.person:
+            return ""
+        try:
+            aka_names = self.person.details(person_id).get("also_known_as", []) or []
+            return aka_names
+        except Exception as err:
+            log.console(err)
+            return ""   
+
+    def __search_doubaninfos(self, mtype, tmdb_info):
+        """
+        给定名称和年份，查询一条媒体信息
+        :param mtype: 类型：电影、电视剧
+        :param title: 标题
+        :param year: 年份
+        """
+        if mtype == MediaType.MOVIE:
+            title = tmdb_info.get("title")
+            if tmdb_info.get("release_date"):
+                year = tmdb_info.get("release_date")[:4] 
+                year_range = [int(year), int(year)+1, int(year)-1]
+            else:
+                year = ""
+            search_res = self.douban.movie_search(title).get("items")
+            for res in search_res:
+                if int(res.get("target").get("year")) in year_range:
+                    return res.get("target_id")
+            return None 
+        elif mtype == MediaType.TV:
+            title = tmdb_info.get("name")
+            if tmdb_info.get("first_air_date"):
+                year = tmdb_info.get("first_air_date")[:4] 
+            else:
+                year = ""
+            search_res = self.douban.tv_search(title).get("items")           
+            for res in search_res:
+                if res.get("target").get("year") == year:
+                    return res.get("target_id")
+            return search_res[0].get("target_id")          
+
+
+    def get_douban_info(self, tmdb_info:dict, mtype: MediaType = None):
+        """
+        给定名称和年份，查询一条媒体信息
+        :param mtype: 类型：电影、电视剧
+        :param title: 标题
+        :param year: 年份
+        """
+        try:
+            doubanid = self.__search_doubaninfos(mtype, tmdb_info)
+        except:
+            return None
+        if mtype == MediaType.MOVIE:
+            douban_info = self.douban.movie_detail(doubanid)
+            celebrities = self.douban.movie_celebrities(doubanid)
+            douban_info["directors"] = celebrities.get("directors")
+            douban_info["actors"] = celebrities.get("actors")
+            return douban_info
+        elif mtype == MediaType.TV:
+            douban_info = self.douban.tv_detail(doubanid)
+            celebrities = self.douban.tv_celebrities(doubanid)
+            douban_info["directors"] = celebrities.get("directors")
+            douban_info["actors"] = celebrities.get("actors")
+            return douban_info
+
+
