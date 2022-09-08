@@ -177,8 +177,14 @@ class DoubanApi(object):
     def movie_detail(self, subject_id):
         return self.__invoke(self._urls["movie_detail"] + subject_id)
 
+    def movie_celebrities(self, subject_id):
+        return self.__invoke(self._urls["movie_celebrities"] % subject_id)
+
     def tv_detail(self, subject_id):
         return self.__invoke(self._urls["tv_detail"] + subject_id)
+
+    def tv_celebrities(self, subject_id):
+        return self.__invoke(self._urls["tv_celebrities"] % subject_id)
 
     def book_detail(self, subject_id):
         return self.__invoke(self._urls["book_detail"] + subject_id)

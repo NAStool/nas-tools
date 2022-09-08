@@ -108,6 +108,50 @@ plex:
   # 【Plex用户密码】
   password:
 
+# 【配置刮削信息】
+# 【nfo】
+scraper_nfo:
+  # 【电影nfo】
+  movie:
+    basic: true
+    credits: true
+    credits_chinese: true
+  # 【电视剧nfo】
+  tv:
+    basic: true
+    credits: true
+    credits_chinese: true
+    # 【季nfo】
+    season_basic: true
+    # 【集nfo】
+    episode_basic: true
+    episode_credits: true
+# 【图片】
+scraper_pic:
+  # 【电影图片】
+  movie:
+    poster: true
+    backdrop: true
+    background: true
+    logo: true
+    disc: true
+    banner: true
+    thumb: true
+  # 【电视剧图片】
+  tv:  
+    poster: true
+    backdrop: true
+    background: true
+    logo: true
+    clearart: true
+    banner: true
+    thumb: true
+    # 【季图片】
+    season_poster: true
+    season_banner: true
+    season_thumb: true
+
+
 # 【配置消息通知服务】
 message:
   # 【发送消息使用的渠道】：wechat、serverchan、telegram、bark、pushplus、iyuu，需在对应的配置区域配置。不使用的渠道配置可以留空或者删除。推荐使用wechat、telegram渠道可以远程交互。不设置则不启用消息服务
