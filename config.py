@@ -149,46 +149,46 @@ class Config(object):
                             "site_signin": True
                         }
                         overwrite_cofig = True
-                    # 刮削配置初始化
-                    if self.__config.get("media", {}).get("nfo_poster"):
-                        if not self.__config.get("scraper_nfo"):
-                            self.__config['scraper_nfo'] = {
-                                "movie": {
-                                    "basic": True,
-                                    "credits": True,
-                                    "credits_chinese": True},
-                                "tv": {
-                                    "basic": True,
-                                    "credits": True,
-                                    "credits_chinese": True,
-                                    "season_basic": True,
-                                    "episode_basic": True,
-                                    "episode_credits": True}
-                            }
-                            overwrite_cofig = True
-                        if not self.__config.get("scraper_pic"):
-                            self.__config['scraper_pic'] = {
-                                "movie": {
-                                    "poster": True,
-                                    "backdrop": True,
-                                    "background": True,
-                                    "logo": True,
-                                    "disc": True,
-                                    "banner": True,
-                                    "thumb": True},
-                                "tv": {
-                                    "poster": True,
-                                    "backdrop": True,
-                                    "background": True,
-                                    "logo": True,
-                                    "clearart": True,
-                                    "banner": True,
-                                    "thumb": True,
-                                    "season_poster": True,
-                                    "season_banner": True,
-                                    "season_thumb": True}
-                            }
-                            overwrite_cofig = True
+                    # 刮削NFO配置初始化
+                    if not self.__config.get("scraper_nfo"):
+                        self.__config['scraper_nfo'] = {
+                            "movie": {
+                                "basic": True,
+                                "credits": True,
+                                "credits_chinese": False},
+                            "tv": {
+                                "basic": True,
+                                "credits": True,
+                                "credits_chinese": False,
+                                "season_basic": True,
+                                "episode_basic": True,
+                                "episode_credits": True}
+                        }
+                        overwrite_cofig = True
+                    # 刮削图片配置初始化
+                    if not self.__config.get("scraper_pic"):
+                        self.__config['scraper_pic'] = {
+                            "movie": {
+                                "poster": True,
+                                "backdrop": True,
+                                "background": True,
+                                "logo": True,
+                                "disc": True,
+                                "banner": True,
+                                "thumb": True},
+                            "tv": {
+                                "poster": True,
+                                "backdrop": True,
+                                "background": True,
+                                "logo": True,
+                                "clearart": True,
+                                "banner": True,
+                                "thumb": True,
+                                "season_poster": True,
+                                "season_banner": True,
+                                "season_thumb": True}
+                        }
+                        overwrite_cofig = True
                     # 重写配置文件
                     if overwrite_cofig:
                         self.save_config(self.__config)
