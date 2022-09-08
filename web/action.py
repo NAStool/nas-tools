@@ -805,6 +805,7 @@ class WebAction:
         telegram_reload = False
         category_reload = False
         subtitle_reload = False
+        sites_reload = False
         # 修改配置
         for key, value in cfgs:
             if key == "test" and value:
@@ -829,6 +830,8 @@ class WebAction:
                 category_reload = True
             if key.startswith("subtitle"):
                 subtitle_reload = True
+            if key.startswith("message.switch"):
+                sites_reload = True
         # 保存配置
         if not config_test:
             self.config.save_config(cfg)
@@ -857,6 +860,9 @@ class WebAction:
         # 重载字幕
         if subtitle_reload:
             Subtitle().init_config()
+        # 重载站点
+        if sites_reload:
+            Sites().init_config()
 
         return {"code": 0}
 

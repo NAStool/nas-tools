@@ -78,7 +78,7 @@ media:
   # 【电视剧命名定义】：程序会按定义的命名格式对电视剧进行重命名；/代表上下级目录，{}内为占位符；占位符会使用文件识别出来的实际值替换，占位符外的字符会当成普通字符，直接体现在名称上
   # 电视剧占位符有：{title}：标题，{en_title}：英文标题，{original_title}：原语种标题，{original_name}：原文件名，{year}：年份，{edition}：版本(Bluray/WEB-DL等)，{videoFormat}：分辨率(1080p/4k等)，{videoCodec}：视频编码，{audioCodec}：音频编码及声道，{tmdbid}：TMDB的ID，{season}：季数，{episode}：集数，{season_episode}：剧集SxxExx，{part}：part1/disc1/dvd1等
   tv_name_format: '{title} ({year})/Season {season}/{title}-{part} - {season_episode} - 第{episode}集'
-  # 【生成NFO描述文件及海报】：开启后文件转移完成时会自动生成nfo描述文件及poster海报，协助媒体服务器识别和搜刮
+  # 【刮削元数据及图片】：开启后文件转移完成时会自动生成nfo描述文件及poster海报，协助媒体服务器识别和搜刮
   nfo_poster: false
   # 【实时刷新媒体库】：开启后文件转移完成时会实时刷新媒体服务器（Emby/Jellyfin/Plex）的媒体库
   refresh_mediaserver: true
@@ -108,27 +108,27 @@ plex:
   # 【Plex用户密码】
   password:
 
-# 【配置刮削信息】
-# 【nfo】
+# 【配置nfo刮削信息】
 scraper_nfo:
-  # 【电影nfo】
+  # 电影
   movie:
     basic: true
     credits: true
     credits_chinese: true
-  # 【电视剧nfo】
+  # 电视剧
   tv:
     basic: true
     credits: true
     credits_chinese: true
-    # 【季nfo】
+    # 季
     season_basic: true
-    # 【集nfo】
+    # 集
     episode_basic: true
     episode_credits: true
-# 【图片】
+
+# 【配置图片刮削信息】
 scraper_pic:
-  # 【电影图片】
+  # 电影
   movie:
     poster: true
     backdrop: true
@@ -137,7 +137,7 @@ scraper_pic:
     disc: true
     banner: true
     thumb: true
-  # 【电视剧图片】
+  # 电视剧
   tv:  
     poster: true
     backdrop: true
@@ -146,11 +146,10 @@ scraper_pic:
     clearart: true
     banner: true
     thumb: true
-    # 【季图片】
+    # 季
     season_poster: true
     season_banner: true
     season_thumb: true
-
 
 # 【配置消息通知服务】
 message:

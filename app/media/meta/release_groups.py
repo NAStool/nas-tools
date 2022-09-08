@@ -1,4 +1,5 @@
 import re
+
 #  官组
 rg_1pt = []
 rg_52pt = []
@@ -108,7 +109,7 @@ sites = [rg_1pt,
 release_groups = []
 for site in sites:
     for release_group in site:
-        release_groups.append("(?<=[-@[])" + release_group + "(?=[@.\s])")
+        release_groups.append(r"(?<=[-@[])" + release_group + r"(?=[@.\s])")
 
 
 #  忽略大小写
@@ -119,12 +120,11 @@ def rg_match(name, groups):
         res_group = re.findall(group, name, re.I)
         if res_group:
             res_l.append(res_group[0])
-    if len(res_l) ==1 :
+    if len(res_l) == 1:
         return res_l[0]
-    elif len(res_l) > 1 :
+    elif len(res_l) > 1:
         for res in res_l:
             res_s = res_s + "@" + res
         return res_s[1:]
     else:
         return ""
-    
