@@ -8,12 +8,14 @@ import zhconv
 from lxml import etree
 
 import log
+from app.media.meta.metabase import MetaBase
 from app.utils.path_utils import PathUtils
 from config import Config
 from app.media.constants import *
 from app.media.meta.metainfo import MetaInfo
 from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person
 from app.media.tmdbv3api.exceptions import TMDbException
+from app.media.doubanv2api.doubanapi import DoubanApi
 from app.utils.cache_manager import cacheman
 from app.utils.commons import EpisodeFormat
 from app.utils.http_utils import RequestUtils
@@ -36,6 +38,7 @@ class Media:
 
     def __init__(self):
         self.init_config()
+        self.douban = DoubanApi()
 
     def init_config(self):
         config = Config()
@@ -1133,9 +1136,9 @@ class Media:
             return tmdbinfo.get("title") if tmdbinfo.get("media_type") == MediaType.MOVIE else tmdbinfo.get("name")
         return None
 
-    def get_person_chinese_name(self, person_id):
+    def get_tmdbperson_chinese_name(self, person_id):
         """
-        查询人物中文名称
+        查询TMDB人物中文名称
         """
         if not self.person:
             return ""
@@ -1156,3 +1159,72 @@ class Media:
                 if alter_name == zhconv.convert(alter_name, 'zh-hans'):
                     name = alter_name
         return name
+
+    def get_tmdbperson_aka_names(self, person_id):
+        """
+        查询人物又名
+        """
+        if not self.person:
+            return []
+        try:
+            aka_names = self.person.details(person_id).get("also_known_as", []) or []
+            return aka_names
+        except Exception as err:
+            log.console(err)
+            return []
+
+    def __search_douban_id(self, metainfo: MetaBase):
+        """
+        给定名称和年份，查询一条豆瓣信息返回对应ID
+        :param metainfo: 已进行识别过的媒体信息
+        """
+        if metainfo.year:
+            year_range = [int(metainfo.year), int(metainfo.year) + 1, int(metainfo.year) - 1]
+        else:
+            year_range = []
+        if metainfo.type == MediaType.MOVIE:
+            search_res = self.douban.movie_search(metainfo.title).get("items") or []
+            if not search_res:
+                return None
+            for res in search_res:
+                douban_meta = MetaInfo(title=res.get("target", {}).get("title"))
+                if metainfo.title == douban_meta.get_name() \
+                        and (int(res.get("target", {}).get("year")) in year_range or not year_range):
+                    return res.get("target_id")
+            return None
+        elif metainfo.type == MediaType.TV:
+            search_res = self.douban.tv_search(metainfo.title).get("items") or []
+            if not search_res:
+                return None
+            for res in search_res:
+                douban_meta = MetaInfo(title=res.get("target", {}).get("title"))
+                if metainfo.title == douban_meta.get_name() \
+                        and (str(res.get("target", {}).get("year")) == str(metainfo.year) or not metainfo.year):
+                    return res.get("target_id")
+                if metainfo.title == douban_meta.get_name() \
+                        and metainfo.get_season_string() == douban_meta.get_season_string():
+                    return res.get("target_id")
+            return search_res[0].get("target_id")
+
+    def get_douban_info(self, metainfo: MetaBase):
+        """
+        查询附带演职人员的豆瓣信息
+        :param metainfo: 已进行识别过的媒体信息
+        """
+        doubanid = self.__search_douban_id(metainfo)
+        if not doubanid:
+            return None
+        if metainfo.type == MediaType.MOVIE:
+            douban_info = self.douban.movie_detail(doubanid)
+            celebrities = self.douban.movie_celebrities(doubanid)
+            if douban_info and celebrities:
+                douban_info["directors"] = celebrities.get("directors")
+                douban_info["actors"] = celebrities.get("actors")
+            return douban_info
+        elif metainfo.type == MediaType.TV:
+            douban_info = self.douban.tv_detail(doubanid)
+            celebrities = self.douban.tv_celebrities(doubanid)
+            if douban_info and celebrities:
+                douban_info["directors"] = celebrities.get("directors")
+                douban_info["actors"] = celebrities.get("actors")
+            return douban_info

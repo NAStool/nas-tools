@@ -55,7 +55,9 @@ class FileTransfer:
     __tv_dir_rmt_format = ""
     __tv_season_rmt_format = ""
     __tv_file_rmt_format = ""
-    __nfo_poster = False
+    __scraper_flag = False
+    __scraper_nfo = {}
+    __scraper_pic = {}
     __refresh_mediaserver = False
 
     def __init__(self):
@@ -71,9 +73,10 @@ class FileTransfer:
         self.__system = SystemUtils.get_system()
         config = Config()
         media = config.get_config('media')
+        self.__scraper_flag = media.get("nfo_poster")
+        self.__scraper_nfo = config.get_config('scraper_nfo')
+        self.__scraper_pic = config.get_config('scraper_pic')
         if media:
-            # NFO开关
-            self.__nfo_poster = media.get("nfo_poster")
             # 刷新媒体库开关
             self.__refresh_mediaserver = media.get("refresh_mediaserver")
             # 电影目录
@@ -695,8 +698,12 @@ class FileTransfer:
                         message_medias[message_key].total_episodes += media.total_episodes
                         message_medias[message_key].size += media.size
                 # 生成nfo及poster
-                if self.__nfo_poster:
-                    self.nfohelper.gen_nfo_files(media, ret_dir_path, os.path.basename(ret_file_path))
+                if self.__scraper_flag:
+                    self.nfohelper.gen_nfo_files(media=media,
+                                                 scraper_nfo=self.__scraper_nfo,
+                                                 scraper_pic=self.__scraper_pic,
+                                                 dir_path=ret_dir_path,
+                                                 file_name=os.path.basename(ret_file_path))
                 # 移动模式随机休眠（兼容一些网盘挂载目录）
                 if rmt_mode == RmtMode.MOVE:
                     sleep(round(random.uniform(0, 1), 1))

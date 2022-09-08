@@ -1,4 +1,5 @@
 import re
+
 #  官组
 rg_1pt = []
 rg_52pt = []
@@ -6,7 +7,7 @@ rg_audiences = ['Audies', 'ADE', 'ADWeb', 'ADAudio', 'ADeBook', 'ADMusic']
 rg_avgv = []
 rg_beitai = ['BeiTai']
 rg_btschool = ['BTSCHOOL', 'BtsHD', 'BtsPAD', 'BtsTV', 'Zone']
-rg_chdbits = ['CHD', 'CHDBits', 'CHDTV', 'CHDPAD', 'CHDWEB', 'CHDHKTV', 'StBOX', 'OneHD']
+rg_chdbits = ['CHD', 'CHDBits', 'CHDTV', 'CHDPAD', 'CHDWEB', 'CHDHKTV', 'StBOX', 'OneHD', 'Lee']
 rg_discfan = []
 rg_dragonhd = []
 rg_eastgame = ['iNT-TLF', 'HALFCD-TLF', 'MiniSD-TLF', 'MiniHD-TLF', 'MiniFHD-TLF', 'TLF']
@@ -21,7 +22,7 @@ rg_hdchina = ['HDChina', 'HDCTV', 'HDC', 'k9611', 'tudou', 'iHD']
 rg_hddolby = ['Dream', 'DBTV', 'QHstudIo', 'HDo']
 rg_hdfans = ['beAst', 'beAstTV']
 rg_hdhome = ['HDHome', 'HDH', 'HDHTV', 'HDHPad', 'HDHWEB']
-rg_hdsky = ['HDSky', 'HDS', 'HDSWEB', 'HDSTV', 'HDSPad']
+rg_hdsky = ['HDSky', 'HDS', 'HDSWEB', 'HDSTV', 'HDSPad', 'AQLJ']
 rg_hdtime = []
 rg_HDU = []
 rg_hdzone = []
@@ -108,7 +109,7 @@ sites = [rg_1pt,
 release_groups = []
 for site in sites:
     for release_group in site:
-        release_groups.append("(?<=[-@[])" + release_group + "(?=[@.\s])")
+        release_groups.append(r"(?<=[-@[])" + release_group + r"(?=[@.\s])")
 
 
 #  忽略大小写
@@ -119,12 +120,11 @@ def rg_match(name, groups):
         res_group = re.findall(group, name, re.I)
         if res_group:
             res_l.append(res_group[0])
-    if len(res_l) ==1 :
+    if len(res_l) == 1:
         return res_l[0]
-    elif len(res_l) > 1 :
+    elif len(res_l) > 1:
         for res in res_l:
             res_s = res_s + "@" + res
         return res_s[1:]
     else:
         return ""
-    
