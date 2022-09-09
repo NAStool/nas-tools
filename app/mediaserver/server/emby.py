@@ -4,7 +4,7 @@ import re
 import log
 from config import Config
 from app.mediaserver.server.server import IMediaServer
-from app.media.meta.metabase import MetaBase
+from app.media.meta import MetaBase
 from app.utils.commons import singleton
 from app.utils.http_utils import RequestUtils
 from app.utils.system_utils import SystemUtils

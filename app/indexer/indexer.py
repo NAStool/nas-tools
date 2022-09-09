@@ -7,9 +7,8 @@ import log
 from app.filterrules import FilterRule
 from app.utils.torrent import Torrent
 from app.media.media import Media
-from app.media.meta.metabase import MetaBase
-from app.media.meta.metainfo import MetaInfo
-from app.utils.commons import ProgressController
+from app.media.meta import MetaBase, MetaInfo
+from app.utils.progress_controller import ProgressController
 from app.utils.dom_utils import DomUtils
 from app.utils.http_utils import RequestUtils
 from app.utils.string_utils import StringUtils

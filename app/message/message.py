@@ -3,13 +3,8 @@ from enum import Enum
 
 import log
 from config import Config
-from app.message.channel.bark import Bark
-from app.message.channel.iyuu import IyuuMsg
-from app.message.channel.pushplus import PushPlus
-from app.message.channel.serverchan import ServerChan
-from app.message.channel.telegram import Telegram
-from app.message.channel.wechat import WeChat
-from app.media.meta.metabase import MetaBase
+from app.message.channel import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat
+from app.media.meta import MetaBase
 from app.db.sql_helper import SqlHelper
 from app.utils.string_utils import StringUtils
 from app.utils.sysmsg_helper import MessageCenter

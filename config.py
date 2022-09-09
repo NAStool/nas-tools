@@ -1,18 +1,17 @@
 import os
+import random
 import shutil
 from threading import Lock
 
 import ruamel.yaml
 from werkzeug.security import generate_password_hash
 
-from app.utils.commons import singleton
-
 # 菜单对应关系，配置WeChat应用中配置的菜单ID与执行命令的对应关系，需要手工修改
 # 菜单序号在https://work.weixin.qq.com/wework_admin/frame#apps 应用自定义菜单中维护，然后看日志输出的菜单序号是啥（按顺利能猜到的）....
 # 命令对应关系：/ptt 下载文件转移；/ptr 删种；/pts 站点签到；/rst 目录同步；/rss RSS下载
-from app.utils.string_utils import StringUtils
-
 WECHAT_MENU = {'_0_0': '/ptt', '_0_1': '/ptr', '_0_2': '/rss', '_1_0': '/rst', '_1_1': '/db', '_2_0': '/pts'}
+# 种子名/文件名要素分隔字符
+SPLIT_CHARS = r"\.|\s+|\(|\)|\[|]|-|\+|【|】|/|～|;|&|\||#|_|「|」|（|）"
 # 收藏了的媒体的目录名，名字可以改，在Emby中点击红星则会自动将电影转移到此分类下，需要在Emby Webhook中配置用户行为通知
 RMT_FAVTYPE = '精选'
 # 支持的媒体文件后缀格式
@@ -81,46 +80,66 @@ TORRENT_SEARCH_PARAMS = {
 DEFAULT_MOVIE_FORMAT = '{title} ({year})/{title} ({year})-{part} - {videoFormat}'
 # 电视剧默认命名格式
 DEFAULT_TV_FORMAT = '{title} ({year})/Season {season}/{title} - {season_episode}-{part} - 第 {episode} 集'
+# 辅助识别参数
+KEYWORD_SEARCH_WEIGHT_1 = [10, 3, 2, 0.5, 0.5]
+KEYWORD_SEARCH_WEIGHT_2 = [10, 2, 1]
+KEYWORD_SEARCH_WEIGHT_3 = [10, 2]
+KEYWORD_STR_SIMILARITY_THRESHOLD = 0.2
+KEYWORD_DIFF_SCORE_THRESHOLD = 30
+KEYWORD_BLACKLIST = ['中字', '韩语', '双字', '中英', '日语', '双语', '国粤', 'HD', 'BD', '中日', '粤语', '完全版', '法语',
+                     '西班牙语', 'HRHDTVAC3264', '未删减版', '未删减', '国语', '字幕组', '人人影视', 'www66ystv',
+                     '人人影视制作', '英语', 'www6vhaotv', '无删减版', '完成版', '德意']
 
+# 线程锁
 lock = Lock()
 
 
-@singleton
 class Config(object):
-    __config = {}
-    __config_path = None
+    _INSTANSE = None
+    _INSTANSE_FLAG = False
+    _config = {}
+    _config_path = None
+
+    def __new__(cls, *args, **kwargs):
+        with lock:
+            if not cls._INSTANSE:
+                cls._INSTANSE = super().__new__(cls)
+            return cls._INSTANSE
 
     def __init__(self):
-        self.__config_path = os.environ.get('NASTOOL_CONFIG')
+        if Config._INSTANSE_FLAG:
+            return
+        self._config_path = os.environ.get('NASTOOL_CONFIG')
         self.init_config()
+        Config._INSTANSE_FLAG = True
 
     def init_config(self):
         try:
-            if not self.__config_path:
+            if not self._config_path:
                 print("【ERROR】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
                 quit()
-            if not os.path.exists(self.__config_path):
+            if not os.path.exists(self._config_path):
                 cfg_tp_path = os.path.join(self.get_inner_config_path(), "config.yaml")
                 cfg_tp_path = cfg_tp_path.replace("\\", "/")
-                shutil.copy(cfg_tp_path, self.__config_path)
+                shutil.copy(cfg_tp_path, self._config_path)
                 print("【ERROR】config.yaml 配置文件不存在，已将配置文件模板复制到配置目录...")
-            with open(self.__config_path, mode='r', encoding='utf-8') as f:
+            with open(self._config_path, mode='r', encoding='utf-8') as f:
                 try:
                     # 读取配置
-                    self.__config = ruamel.yaml.YAML().load(f)
+                    self._config = ruamel.yaml.YAML().load(f)
                     overwrite_cofig = False
                     # 密码初始化
-                    login_password = self.__config.get("app", {}).get("login_password")
+                    login_password = self._config.get("app", {}).get("login_password")
                     if login_password and not login_password.startswith("[hash]"):
-                        self.__config['app']['login_password'] = "[hash]%s" % generate_password_hash(login_password)
+                        self._config['app']['login_password'] = "[hash]%s" % generate_password_hash(login_password)
                         overwrite_cofig = True
                     # 实验室配置初始化
-                    if not self.__config.get("laboratory"):
-                        self.__config['laboratory'] = {}
+                    if not self._config.get("laboratory"):
+                        self._config['laboratory'] = {}
                         overwrite_cofig = True
                     # 安全配置初始化
-                    if not self.__config.get("security"):
-                        self.__config['security'] = {
+                    if not self._config.get("security"):
+                        self._config['security'] = {
                             'media_server_webhook_allow_ip': {
                                 'ipv4': '0.0.0.0/0',
                                 'ipv6': '::/0'
@@ -132,14 +151,14 @@ class Config(object):
                         }
                         overwrite_cofig = True
                     # API密钥初始化
-                    if not self.__config.get("security", {}).get("subscribe_token"):
-                        self.__config['security']['subscribe_token'] = self.__config.get("laboratory",
-                                                                                         {}).get("subscribe_token") \
-                                                                       or StringUtils.generate_random_str()
+                    if not self._config.get("security", {}).get("subscribe_token"):
+                        self._config['security']['subscribe_token'] = self._config.get("laboratory",
+                                                                                       {}).get("subscribe_token") \
+                                                                      or self.__generate_random_str()
                         overwrite_cofig = True
                     # 消息推送开关初始化
-                    if not self.__config.get("message", {}).get("switch"):
-                        self.__config['message']['switch'] = {
+                    if not self._config.get("message", {}).get("switch"):
+                        self._config['message']['switch'] = {
                             "download_start": True,
                             "download_fail": True,
                             "transfer_finished": True,
@@ -150,8 +169,8 @@ class Config(object):
                         }
                         overwrite_cofig = True
                     # 刮削NFO配置初始化
-                    if not self.__config.get("scraper_nfo"):
-                        self.__config['scraper_nfo'] = {
+                    if not self._config.get("scraper_nfo"):
+                        self._config['scraper_nfo'] = {
                             "movie": {
                                 "basic": True,
                                 "credits": True,
@@ -166,8 +185,8 @@ class Config(object):
                         }
                         overwrite_cofig = True
                     # 刮削图片配置初始化
-                    if not self.__config.get("scraper_pic"):
-                        self.__config['scraper_pic'] = {
+                    if not self._config.get("scraper_pic"):
+                        self._config['scraper_pic'] = {
                             "movie": {
                                 "poster": True,
                                 "backdrop": True,
@@ -191,10 +210,10 @@ class Config(object):
                         overwrite_cofig = True
                     # 重写配置文件
                     if overwrite_cofig:
-                        self.save_config(self.__config)
+                        self.save_config(self._config)
                 except Exception as e:
                     print("【ERROR】配置文件 config.yaml 格式出现严重错误！请检查：%s" % str(e))
-                    self.__config = {}
+                    self._config = {}
         except Exception as err:
             print("【ERROR】加载 config.yaml 配置出错：%s" % str(err))
             return False
@@ -204,17 +223,17 @@ class Config(object):
 
     def get_config(self, node=None):
         if not node:
-            return self.__config
-        return self.__config.get(node, {})
+            return self._config
+        return self._config.get(node, {})
 
     def save_config(self, new_cfg):
-        self.__config = new_cfg
-        with open(self.__config_path, mode='w', encoding='utf-8') as f:
+        self._config = new_cfg
+        with open(self._config_path, mode='w', encoding='utf-8') as f:
             yaml = ruamel.yaml.YAML()
             return yaml.dump(new_cfg, f)
 
     def get_config_path(self):
-        return os.path.dirname(self.__config_path)
+        return os.path.dirname(self._config_path)
 
     @staticmethod
     def get_root_path():
@@ -222,3 +241,15 @@ class Config(object):
 
     def get_inner_config_path(self):
         return os.path.join(self.get_root_path(), "config")
+
+    @staticmethod
+    def __generate_random_str(randomlength=16):
+        """
+        生成一个指定长度的随机字符串
+        """
+        random_str = ''
+        base_str = 'ABCDEFGHIGKLMNOPQRSTUVWXYZabcdefghigklmnopqrstuvwxyz0123456789'
+        length = len(base_str) - 1
+        for i in range(randomlength):
+            random_str += base_str[random.randint(0, length)]
+        return random_str

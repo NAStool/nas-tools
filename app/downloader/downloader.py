@@ -3,22 +3,18 @@ from threading import Lock
 from time import sleep
 
 import log
-from app.media.meta.metabase import MetaBase
-from app.utils.commons import RMT_MODES
+from app.media.meta import MetaBase
 from config import Config, PT_TAG
 from app.message.message import Message
-from app.downloader.client.aria2 import Aria2
-from app.downloader.client.client115 import Client115
-from app.downloader.client.qbittorrent import Qbittorrent
-from app.downloader.client.transmission import Transmission
+from app.downloader.client import Aria2, Client115, Qbittorrent, Transmission
 from app.mediaserver.media_server import MediaServer
 from app.sites.sites import Sites
 from app.utils.torrent import Torrent
 from app.filetransfer import FileTransfer
 from app.media.media import Media
-from app.media.meta.metainfo import MetaInfo
+from app.media.meta import MetaInfo
 from app.utils.string_utils import StringUtils
-from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode
+from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode, RMT_MODES
 
 lock = Lock()
 

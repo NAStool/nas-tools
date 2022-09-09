@@ -9,43 +9,40 @@ from flask_login import logout_user
 from werkzeug.security import generate_password_hash
 
 import log
+from app.media.doubanv2api import DoubanHot
 from app.mediaserver.media_server import MediaServer
 from app.utils.string_utils import StringUtils
 from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
-from app.message.channel.telegram import Telegram
-from app.message.channel.wechat import WeChat
+from app.message.channel import Telegram, WeChat
 from app.message.message import Message
 from app.brushtask import BrushTask
-from app.downloader.client.qbittorrent import Qbittorrent
-from app.downloader.client.transmission import Transmission
+from app.downloader.client import Qbittorrent, Transmission
 from app.douban import DouBan
 from app.downloader.downloader import Downloader
 from app.filterrules import FilterRule
-from app.mediaserver.server.emby import Emby
-from app.mediaserver.server.jellyfin import Jellyfin
-from app.mediaserver.server.plex import Plex
+from app.mediaserver.server import Emby, Jellyfin, Plex
 from app.rss import Rss
 from app.sites.siteconf import get_grapsite_conf
 from app.sites.sites import Sites
 from app.subtitle import Subtitle
 from app.utils.torrent import Torrent
 from app.media.category import Category
-from app.media.doubanv2api.doubanapi import DoubanApi
+from app.media.doubanv2api import DoubanApi
 from app.filetransfer import FileTransfer
 from app.media.media import Media
-from app.media.meta.metainfo import MetaInfo
+from app.media.meta import MetaInfo
 from app.scheduler import stop_scheduler, restart_scheduler
 from app.sync import stop_monitor, restart_monitor
 from app.scheduler import Scheduler
 from app.sync import Sync
-from app.utils.commons import EpisodeFormat, ProgressController
+from app.utils.episode_format import EpisodeFormat
+from app.utils.progress_controller import ProgressController
 from app.utils.http_utils import RequestUtils
 from app.media.meta_helper import MetaHelper
 from app.utils.path_utils import PathUtils
 from app.utils.sysmsg_helper import MessageCenter
 from app.utils.thread_helper import ThreadHelper
 from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
-from web.backend.douban_hot import DoubanHot
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 from web.backend.subscribe import add_rss_subscribe
 from app.db.sql_helper import SqlHelper

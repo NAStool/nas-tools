@@ -11,8 +11,7 @@ import log
 from app.db.sql_helper import SqlHelper
 from app.db.dict_helper import DictHelper
 from config import BRUSH_REMOVE_TORRENTS_INTERVAL
-from app.downloader.client.qbittorrent import Qbittorrent
-from app.downloader.client.transmission import Transmission
+from app.downloader.client import Qbittorrent, Transmission
 from app.message.message import Message
 from app.rss import Rss
 from app.utils.torrent import Torrent

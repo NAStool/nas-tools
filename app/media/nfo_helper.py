@@ -5,7 +5,7 @@ from xml.dom import minidom
 import log
 from config import TMDB_IMAGE_W500_URL
 from app.media.media import Media
-from app.media.meta.metabase import MetaBase
+from app.media.meta import MetaBase
 from app.utils.dom_utils import DomUtils
 from app.utils.http_utils import RequestUtils
 from app.utils.types import MediaType

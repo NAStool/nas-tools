@@ -1,5 +1,6 @@
 import difflib
 import os
+import random
 import re
 import traceback
 from functools import lru_cache
@@ -8,16 +9,15 @@ import zhconv
 from lxml import etree
 
 import log
-from app.media.meta.metabase import MetaBase
+from app.media.meta import MetaBase, MetaInfo
 from app.utils.path_utils import PathUtils
-from config import Config
-from app.media.constants import *
-from app.media.meta.metainfo import MetaInfo
+from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
+    KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL
 from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person
 from app.media.tmdbv3api.exceptions import TMDbException
-from app.media.doubanv2api.doubanapi import DoubanApi
+from app.media.doubanv2api import DoubanApi
 from app.utils.cache_manager import cacheman
-from app.utils.commons import EpisodeFormat
+from app.utils.episode_format import EpisodeFormat
 from app.utils.http_utils import RequestUtils
 from app.media.meta_helper import MetaHelper
 from app.utils.number_utils import NumberUtils
@@ -1228,3 +1228,13 @@ class Media:
                 douban_info["directors"] = celebrities.get("directors")
                 douban_info["actors"] = celebrities.get("actors")
             return douban_info
+
+    def get_random_discover_backdrop(self):
+        """
+        获取TMDB热门电影随机一张背景图
+        """
+        movies = self.get_movie_discover()
+        if movies:
+            backdrops = [movie.get("backdrop_path") for movie in movies.get("results")]
+            return TMDB_IMAGE_ORIGINAL_URL % backdrops[round(random.uniform(0, len(backdrops) - 1))]
+        return ""

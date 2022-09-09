@@ -3,7 +3,7 @@ import os.path
 import time
 from enum import Enum
 
-from app.media.meta.metabase import MetaBase
+from app.media.meta import MetaBase
 from app.db.db_helper import DBHelper
 from app.utils.string_utils import StringUtils
 from app.utils.types import MediaType, RmtMode

@@ -4,7 +4,7 @@ import random
 import time
 from threading import RLock
 
-from app.media.meta.metainfo import MetaInfo
+from app.media.meta import MetaInfo
 from app.utils.path_utils import PathUtils
 from config import Config, RMT_MEDIAEXT
 from app.utils.commons import singleton

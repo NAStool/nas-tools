@@ -10,8 +10,8 @@ from config import Config
 from app.indexer.indexer import IIndexer
 from app.indexer.client.spider import TorrentSpider
 from app.sites.sites import Sites
-from app.media.meta.metabase import MetaBase
-from app.utils.commons import ProgressController
+from app.media.meta import MetaBase
+from app.utils.progress_controller import ProgressController
 from app.indexer.indexer_helper import IndexerHelper
 from app.utils.string_utils import StringUtils
 

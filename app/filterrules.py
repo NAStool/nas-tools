@@ -1,7 +1,7 @@
 import re
 
 from app.db.sql_helper import SqlHelper
-from app.media.meta.metabase import MetaBase
+from app.media.meta import MetaBase
 from app.utils.commons import singleton
 from app.utils.types import MediaType
 

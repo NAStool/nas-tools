@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-from app.media.meta.metabase import MetaBase
+from app.media.meta import MetaBase
 
 
 class IMediaServer(metaclass=ABCMeta):

@@ -13,8 +13,8 @@ from app.sites.siteconf import get_extrasite_conf
 from app.sites.sites import Sites
 from app.utils.torrent import Torrent
 from app.media.media import Media
-from app.media.meta.metabase import MetaBase
-from app.media.meta.metainfo import MetaInfo
+from app.media.meta import MetaBase
+from app.media.meta import MetaInfo
 from app.utils.dom_utils import DomUtils
 from app.utils.http_utils import RequestUtils
 from app.media.meta_helper import MetaHelper

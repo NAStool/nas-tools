@@ -9,7 +9,6 @@ from lxml import etree
 
 from config import TORRENT_SEARCH_PARAMS
 from app.sites.siteconf import get_grapsite_conf
-from app.media.meta.metabase import MetaBase
 from app.utils.http_utils import RequestUtils
 from app.utils.types import MediaType
 
@@ -179,7 +178,7 @@ class Torrent:
             return None, "下载种子出现异常，%s" % str(err)
 
     @staticmethod
-    def check_torrent_filter(meta_info: MetaBase, filter_args, uploadvolumefactor=None, downloadvolumefactor=None):
+    def check_torrent_filter(meta_info, filter_args, uploadvolumefactor=None, downloadvolumefactor=None):
         """
         对种子进行过滤
         :param meta_info: 名称识别后的MetaBase对象

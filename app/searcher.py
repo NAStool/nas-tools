@@ -3,12 +3,10 @@ from app.db.sql_helper import SqlHelper
 from config import Config
 from app.message.message import Message
 from app.downloader.downloader import Downloader
-from app.indexer.client.builtin import BuiltinIndexer
-from app.indexer.client.jackett import Jackett
-from app.indexer.client.prowlarr import Prowlarr
+from app.indexer.client import BuiltinIndexer, Jackett, Prowlarr
 from app.media.media import Media
-from app.media.meta.metabase import MetaBase
-from app.utils.commons import ProgressController
+from app.media.meta import MetaBase
+from app.utils.progress_controller import ProgressController
 from app.utils.types import SearchType, MediaType
 
 

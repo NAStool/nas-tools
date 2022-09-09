@@ -4,7 +4,7 @@ from plexapi.myplex import MyPlexAccount
 import log
 from config import Config
 from app.mediaserver.server.server import IMediaServer
-from app.media.meta.metabase import MetaBase
+from app.media.meta import MetaBase
 from app.utils.commons import singleton
 
 

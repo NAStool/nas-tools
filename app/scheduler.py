@@ -7,6 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 import log
 from app.mediaserver.media_server import MediaServer
+from app.utils.web_utils import WebUtils
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
     RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_CHECK_INTERVAL, REFRESH_PT_DATA_INTERVAL, \
     RSS_REFRESH_TMDB_INTERVAL, META_DELETE_UNKNOWN_INTERVAL, REFRESH_WALLPAPER_INTERVAL
@@ -17,7 +18,6 @@ from app.sites.sites import Sites
 from app.sync import Sync
 from app.utils.commons import singleton
 from app.media.meta_helper import MetaHelper
-from web.backend.web_utils import get_login_wallpaper
 
 
 @singleton
@@ -196,7 +196,7 @@ class Scheduler:
         self.SCHEDULER.add_job(MetaHelper().delete_unknown_meta, 'interval', hours=META_DELETE_UNKNOWN_INTERVAL)
 
         # 定时刷新壁纸
-        self.SCHEDULER.add_job(get_login_wallpaper, 'interval', hours=REFRESH_WALLPAPER_INTERVAL)
+        self.SCHEDULER.add_job(WebUtils.get_login_wallpaper, 'interval', hours=REFRESH_WALLPAPER_INTERVAL)
 
         self.SCHEDULER.print_jobs()
 
