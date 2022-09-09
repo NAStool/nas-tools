@@ -8,11 +8,10 @@ from time import sleep
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import log
-from app.db.sql_helper import SqlHelper
-from app.db.dict_helper import DictHelper
+from app.db import SqlHelper, DictHelper
 from config import BRUSH_REMOVE_TORRENTS_INTERVAL
-from app.downloader.client import Qbittorrent, Transmission
-from app.message.message import Message
+from app.downloader import Qbittorrent, Transmission
+from app.message import Message
 from app.rss import Rss
 from app.utils import Torrent, StringUtils
 from app.utils.types import BrushDeleteType, SystemDictType

@@ -1,7 +1,6 @@
 import requests
 
 import log
-from app.indexer.indexer_conf import IndexerConf
 from app.utils.commons import singleton
 from app.utils import RequestUtils
 from config import Config
@@ -29,7 +28,7 @@ class Rarbg:
         if res and res.json():
             self._token = res.json().get('token')
 
-    def search(self, keyword, indexer: IndexerConf, imdb_id=None):
+    def search(self, keyword, indexer, imdb_id=None):
         if not keyword:
             return []
         self.__get_token()

@@ -4,13 +4,11 @@ from functools import lru_cache
 from time import sleep
 
 import bencode
-import cn2an
 from lxml import etree
 
 from config import TORRENT_SEARCH_PARAMS
-from app.sites.siteconf import get_grapsite_conf
+from app.sites import SiteConf
 from app.utils import RequestUtils
-from app.utils.types import MediaType
 
 
 class TorrentAttr:
@@ -63,46 +61,6 @@ class Torrent:
         return True
 
     @staticmethod
-    def get_keyword_from_string(content):
-        """
-        从检索关键字中拆分中年份、季、集、类型
-        """
-        if not content:
-            return None, None, None, None, None
-        # 去掉查询中的电影或电视剧关键字
-        if re.search(r'^电视剧|\s+电视剧|^动漫|\s+动漫', content):
-            mtype = MediaType.TV
-        else:
-            mtype = None
-        content = re.sub(r'^电影|^电视剧|^动漫|\s+电影|\s+电视剧|\s+动漫', '', content).strip()
-        # 稍微切一下剧集吧
-        season_num = None
-        episode_num = None
-        year = None
-        season_re = re.search(r"第\s*([0-9一二三四五六七八九十]+)\s*季", content, re.IGNORECASE)
-        if season_re:
-            mtype = MediaType.TV
-            season_num = int(cn2an.cn2an(season_re.group(1), mode='smart'))
-        episode_re = re.search(r"第\s*([0-9一二三四五六七八九十]+)\s*集", content, re.IGNORECASE)
-        if episode_re:
-            mtype = MediaType.TV
-            episode_num = int(cn2an.cn2an(episode_re.group(1), mode='smart'))
-            if episode_num and not season_num:
-                season_num = 1
-        year_re = re.search(r"[\s(]+(\d{4})[\s)]*", content)
-        if year_re:
-            year = year_re.group(1)
-        key_word = re.sub(r'第\s*[0-9一二三四五六七八九十]+\s*季|第\s*[0-9一二三四五六七八九十]+\s*集|[\s(]+(\d{4})[\s)]*', '',
-                          content,
-                          flags=re.IGNORECASE).strip()
-        if key_word:
-            key_word = re.sub(r'\s+', ' ', key_word)
-        if not key_word:
-            key_word = year
-
-        return mtype, key_word, season_num, episode_num, year, content
-
-    @staticmethod
     @lru_cache(maxsize=128)
     def check_torrent_attr(torrent_url, cookie) -> TorrentAttr:
         """
@@ -114,7 +72,7 @@ class Torrent:
         ret_attr = TorrentAttr()
         if not torrent_url:
             return ret_attr
-        xpath_strs = get_grapsite_conf(torrent_url)
+        xpath_strs = SiteConf().get_grapsite_conf(torrent_url)
         if not xpath_strs:
             return ret_attr
         res = RequestUtils(cookies=cookie).get_res(url=torrent_url)

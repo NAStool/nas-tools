@@ -1,343 +1,341 @@
 from app.utils import StringUtils
 
-# 非常规RSS站点
-RSS_EXTRA_SITES = {
-    'blutopia.xyz': 'Unit3D',
-    'desitorrents.tv': 'Unit3D',
-    'jptv.club': 'Unit3D',
-    'www.torrentseeds.org': 'Unit3D',
-    'beyond-hd.me': 'beyondhd',
-}
-# 检测种子促销的站点XPATH，不在此清单的无法开启仅RSS免费种子功能
-RSS_SITE_GRAP_CONF = {
-    'pthome.net': {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'ptsbao.club': {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'totheglory.im': {
-        'FREE': ["//img[@class='topic'][contains(@src,'ico_free.gif')]"],
-        '2XFREE': [],
-        'HR': ["//img[@src='/pic/hit_run.gif']"],
-        'PEER_COUNT': ["//span[@id='dlstatus']"],
-    },
-    'www.beitai.pt': {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'hdtime.org': {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'www.haidan.video': {
-        'FREE': ["//img[@class='pro_free'][@title='免费']"],
-        '2XFREE': [],
-        'HR': [],
-        'PEER_COUNT': ["//div[@class='torrent']/div[1]/div[1]/div[3]"],
-    },
-    'kp.m-team.cc': {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': [],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'lemonhd.org': {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': [],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"]
-    },
-    'discfan.net': {
-        'FREE': ["//font[@class='free'][text()='免費']"],
-        '2XFREE': [],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'pt.sjtu.edu.cn': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': [],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'nanyangpt.com': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': [],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'audiences.me': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree']"],
-        'HR': ["//img[@class='hitandrun']"],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"]
-    },
-    'pterclub.com': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
-        'HR': [],
-        'PEER_COUNT': ["(//td[@align='left' and @class='rowfollow' and @valign='top']/b[1])[3]"]
-    },
-    'et8.org': {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'pt.keepfrds.com': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree']"],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'www.pttime.org': {
-        'FREE': ["//font[@class='free']", "//font[@class='zeroupzerodown']"],
-        '2XFREE': ["//font[@class='twoupfree']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    '1ptba.com': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': [],
-        'HR': ["//img[@class='hitandrun']"],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'www.tjupt.org': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoup'][text()='2X']"],
-        'HR': ["//font[@color='red'][text()='Hit&Run']"],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'hdhome.org': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'hdsky.me': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'hdcity.city': {
-        'FREE': ["//img[@class='pro_free']"],
-        '2XFREE': [],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'hdcity.leniter.org': {
-        'FREE': ["//img[@class='pro_free']"],
-        '2XFREE': [],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'hdcity.work': {
-        'FREE': ["//img[@class='pro_free']"],
-        '2XFREE': [],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'hdcity4.leniter.org': {
-        'FREE': ["//img[@class='pro_free']"],
-        '2XFREE': [],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'open.cd': {
-        'FREE': ["//img[@class='pro_free']"],
-        '2XFREE': ["//img[@class='pro_free2up']"],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'ourbits.club': {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'pt.btschool.club': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'pt.eastgame.org': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'pt.soulvoice.club': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': [],
-        'HR': ["//img[@class='hitandrun']"],
-        'PEER_COUNT': [],
-    },
-    'springsunday.net': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
-        'HR': ["//img[@class='hitandrun']"],
-        'PEER_COUNT': [],
-    },
-    'www.htpt.cc': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': [],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'chdbits.co': {
-        'FREE': ["//img[@class='pro_free']"],
-        '2XFREE': [],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'hdchina.org': {
-        'FREE': ["//img[@class='pro_free']"],
-        '2XFREE': [],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    "ccfbits.org": {
-        'FREE': ["//font[@color='red'][text()='本种子不计下载量，只计上传量!']"],
-        '2XFREE': [],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'u2.dmhy.org': {
-        'FREE': ["//img[@class='pro_free']"],
-        '2XFREE': [],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'www.hdarea.co': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'hdatmos.club': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'avgv.cc': {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"],
-        'HR': [],
-        'PEER_COUNT': [],
-    },
-    'hdfans.org': {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'hdpt.xyz': {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'azusa.ru': {
-        'FREE': ["//font[@class='free']"],
-        '2XFREE': ["//font[@class='twoupfree']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'hdmayi.com': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'hdzone.me': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'gainbound.net': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'hdvideo.one': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    '52pt.site': {
-        'FREE': ["//font[@class='free'][text()='免费（下载量不统计）']"],
-        '2XFREE': ["//font[@class='twoupfree'][text()='2x 免费(上传量双倍 下载量不统计)']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'pt.msg.vg': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-    'kamept.com': {
-        'FREE': ["//font[@class='free'][text()='免费']"],
-        '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
-        'HR': [],
-        'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
-    },
-}
-# 公共BT站点
-PUBLIC_TORRENT_SITES = [
-    'rarbg.to',
-    'dmhy.org'
-]
 
+class SiteConf:
+    # 非常规RSS站点
+    RSS_EXTRA_SITES = {
+        'blutopia.xyz': 'Unit3D',
+        'desitorrents.tv': 'Unit3D',
+        'jptv.club': 'Unit3D',
+        'www.torrentseeds.org': 'Unit3D',
+        'beyond-hd.me': 'beyondhd',
+    }
+    # 检测种子促销的站点XPATH，不在此清单的无法开启仅RSS免费种子功能
+    RSS_SITE_GRAP_CONF = {
+        'pthome.net': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'ptsbao.club': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'totheglory.im': {
+            'FREE': ["//img[@class='topic'][contains(@src,'ico_free.gif')]"],
+            '2XFREE': [],
+            'HR': ["//img[@src='/pic/hit_run.gif']"],
+            'PEER_COUNT': ["//span[@id='dlstatus']"],
+        },
+        'www.beitai.pt': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'hdtime.org': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'www.haidan.video': {
+            'FREE': ["//img[@class='pro_free'][@title='免费']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': ["//div[@class='torrent']/div[1]/div[1]/div[3]"],
+        },
+        'kp.m-team.cc': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'lemonhd.org': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"]
+        },
+        'discfan.net': {
+            'FREE': ["//font[@class='free'][text()='免費']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'pt.sjtu.edu.cn': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'nanyangpt.com': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'audiences.me': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': ["//img[@class='hitandrun']"],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"]
+        },
+        'pterclub.com': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+            'HR': [],
+            'PEER_COUNT': ["(//td[@align='left' and @class='rowfollow' and @valign='top']/b[1])[3]"]
+        },
+        'et8.org': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'pt.keepfrds.com': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'www.pttime.org': {
+            'FREE': ["//font[@class='free']", "//font[@class='zeroupzerodown']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        '1ptba.com': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': [],
+            'HR': ["//img[@class='hitandrun']"],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'www.tjupt.org': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoup'][text()='2X']"],
+            'HR': ["//font[@color='red'][text()='Hit&Run']"],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'hdhome.org': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'hdsky.me': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'hdcity.city': {
+            'FREE': ["//img[@class='pro_free']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'hdcity.leniter.org': {
+            'FREE': ["//img[@class='pro_free']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'hdcity.work': {
+            'FREE': ["//img[@class='pro_free']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'hdcity4.leniter.org': {
+            'FREE': ["//img[@class='pro_free']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'open.cd': {
+            'FREE': ["//img[@class='pro_free']"],
+            '2XFREE': ["//img[@class='pro_free2up']"],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'ourbits.club': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'pt.btschool.club': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'pt.eastgame.org': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'pt.soulvoice.club': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': [],
+            'HR': ["//img[@class='hitandrun']"],
+            'PEER_COUNT': [],
+        },
+        'springsunday.net': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+            'HR': ["//img[@class='hitandrun']"],
+            'PEER_COUNT': [],
+        },
+        'www.htpt.cc': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'chdbits.co': {
+            'FREE': ["//img[@class='pro_free']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'hdchina.org': {
+            'FREE': ["//img[@class='pro_free']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        "ccfbits.org": {
+            'FREE': ["//font[@color='red'][text()='本种子不计下载量，只计上传量!']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'u2.dmhy.org': {
+            'FREE': ["//img[@class='pro_free']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'www.hdarea.co': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'hdatmos.club': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'avgv.cc': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'hdfans.org': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'hdpt.xyz': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'azusa.ru': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'hdmayi.com': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'hdzone.me': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'gainbound.net': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'hdvideo.one': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        '52pt.site': {
+            'FREE': ["//font[@class='free'][text()='免费（下载量不统计）']"],
+            '2XFREE': ["//font[@class='twoupfree'][text()='2x 免费(上传量双倍 下载量不统计)']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'pt.msg.vg': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+        'kamept.com': {
+            'FREE': ["//font[@class='free'][text()='免费']"],
+            '2XFREE': ["//font[@class='twoupfree'][text()='2X免费']"],
+            'HR': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
+        },
+    }
+    # 公共BT站点
+    PUBLIC_TORRENT_SITES = [
+        'rarbg.to',
+        'dmhy.org'
+    ]
 
-def get_extrasite_conf(url):
-    """
-    根据地址找到RSS_EXTRA_SITES对应配置
-    """
-    for k, v in RSS_EXTRA_SITES.items():
-        if StringUtils.url_equal(k, url):
-            return v
-    return None
+    def get_extrasite_conf(self, url):
+        """
+        根据地址找到RSS_EXTRA_SITES对应配置
+        """
+        for k, v in self.RSS_EXTRA_SITES.items():
+            if StringUtils.url_equal(k, url):
+                return v
+        return None
 
+    def get_grapsite_conf(self, url):
+        """
+        根据地址找到RSS_SITE_GRAP_CONF对应配置
+        """
+        for k, v in self.RSS_SITE_GRAP_CONF.items():
+            if StringUtils.url_equal(k, url):
+                return v
+        return {}
 
-def get_grapsite_conf(url):
-    """
-    根据地址找到RSS_SITE_GRAP_CONF对应配置
-    """
-    for k, v in RSS_SITE_GRAP_CONF.items():
-        if StringUtils.url_equal(k, url):
-            return v
-    return {}
+    def is_public_site(self, url):
+        """
+        判断是否为公开BT站点
+        """
+        _, netloc = StringUtils.get_url_netloc(url)
+        if netloc in self.PUBLIC_TORRENT_SITES:
+            return True
+        return False
 
-
-def is_public_site(url):
-    """
-    判断是否为公开BT站点
-    """
-    _, netloc = StringUtils.get_url_netloc(url)
-    if netloc in PUBLIC_TORRENT_SITES:
-        return True
-    return False
-
-
-def get_public_sites():
-    """
-    查询所有公开BT站点
-    """
-    return PUBLIC_TORRENT_SITES
+    def get_public_sites(self):
+        """
+        查询所有公开BT站点
+        """
+        return self.PUBLIC_TORRENT_SITES

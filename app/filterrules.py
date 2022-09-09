@@ -1,7 +1,6 @@
 import re
 
-from app.db.sql_helper import SqlHelper
-from app.media.meta import MetaBase
+from app.db import SqlHelper
 from app.utils.commons import singleton
 from app.utils.types import MediaType
 
@@ -77,7 +76,7 @@ class FilterRule:
             return ret_rules[0] if ret_rules else {}
         return ret_rules
 
-    def check_rules(self, meta_info: MetaBase, rolegroup=None):
+    def check_rules(self, meta_info, rolegroup=None):
         """
         检查种子是否匹配站点过滤规则：排除规则、包含规则，优先规则
         :param meta_info: 识别的信息

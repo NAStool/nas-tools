@@ -9,15 +9,14 @@ import zhconv
 from lxml import etree
 
 import log
-from app.media.meta import MetaBase, MetaInfo
-from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, StringUtils
+from app.media import MetaInfo
+from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, StringUtils, MetaHelper
 from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
-    KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL
+    KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, RMT_MEDIAEXT
 from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person
 from app.media.tmdbv3api.exceptions import TMDbException
 from app.media.doubanv2api import DoubanApi
 from app.utils.cache_manager import cacheman
-from app.media.meta_helper import MetaHelper
 from app.utils.types import MediaType, MatchMode
 
 
@@ -1169,7 +1168,7 @@ class Media:
             log.console(err)
             return []
 
-    def __search_douban_id(self, metainfo: MetaBase):
+    def __search_douban_id(self, metainfo):
         """
         给定名称和年份，查询一条豆瓣信息返回对应ID
         :param metainfo: 已进行识别过的媒体信息
@@ -1202,7 +1201,7 @@ class Media:
                     return res.get("target_id")
             return search_res[0].get("target_id")
 
-    def get_douban_info(self, metainfo: MetaBase):
+    def get_douban_info(self, metainfo):
         """
         查询附带演职人员的豆瓣信息
         :param metainfo: 已进行识别过的媒体信息
@@ -1234,3 +1233,30 @@ class Media:
             backdrops = [movie.get("backdrop_path") for movie in movies.get("results")]
             return TMDB_IMAGE_ORIGINAL_URL % backdrops[round(random.uniform(0, len(backdrops) - 1))]
         return ""
+
+    def save_rename_cache(self, path, tmdb_info):
+        """
+        将手动识别的信息加入缓存
+        """
+        if not path or not tmdb_info:
+            return
+        meta_infos = {}
+        if os.path.isfile(path):
+            meta_info = MetaInfo(title=os.path.basename(path))
+            if meta_info.get_name():
+                media_key = "[%s]%s-%s-%s" % (
+                    tmdb_info.get("media_type").value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
+                meta_infos[media_key] = tmdb_info
+        else:
+            path_files = PathUtils.get_dir_files(in_path=path, exts=RMT_MEDIAEXT)
+            for path_file in path_files:
+                meta_info = MetaInfo(title=os.path.basename(path_file))
+                if not meta_info.get_name():
+                    continue
+                media_key = "[%s]%s-%s-%s" % (
+                    tmdb_info.get("media_type").value, meta_info.get_name(), meta_info.year, meta_info.begin_season)
+                if media_key not in meta_infos.keys():
+                    meta_infos[media_key] = tmdb_info
+        if meta_infos:
+            self.meta.update_meta_data(meta_infos)
+

@@ -1,7 +1,7 @@
 import os
 
 import log
-from app.media.category import Category
+from app.media import Category
 
 
 def check_config(config):

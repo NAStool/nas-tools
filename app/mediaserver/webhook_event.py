@@ -1,7 +1,7 @@
 import time
 
-from app.message.message import Message
-from app.mediaserver.media_server import MediaServer
+from app.message import Message
+from app.mediaserver import MediaServer
 from app.filetransfer import FileTransfer
 from app.utils import WebUtils
 

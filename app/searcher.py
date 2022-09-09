@@ -1,11 +1,10 @@
 import log
-from app.db.sql_helper import SqlHelper
+from app.db import SqlHelper
 from config import Config
-from app.message.message import Message
-from app.downloader.downloader import Downloader
-from app.indexer.client import BuiltinIndexer, Jackett, Prowlarr
-from app.media.media import Media
-from app.media.meta import MetaBase
+from app.message import Message
+from app.downloader import Downloader
+from app.indexer import BuiltinIndexer, Jackett, Prowlarr
+from app.media import Media
 from app.utils import ProgressController
 from app.utils.types import SearchType, MediaType
 
@@ -39,7 +38,7 @@ class Searcher:
                       key_word,
                       filter_args: dict,
                       match_type,
-                      match_media: MetaBase = None,
+                      match_media=None,
                       in_from: SearchType = None):
         """
         根据关键字调用索引器检查媒体
@@ -60,7 +59,7 @@ class Searcher:
                                               match_media=match_media,
                                               in_from=in_from)
 
-    def search_one_media(self, media_info: MetaBase,
+    def search_one_media(self, media_info,
                          in_from: SearchType,
                          no_exists: dict,
                          sites: list = None,

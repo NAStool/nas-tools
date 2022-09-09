@@ -10,18 +10,14 @@ from threading import Lock
 from time import sleep
 
 import log
-from app.db.sql_helper import SqlHelper
+from app.db import SqlHelper
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
     DEFAULT_TV_FORMAT
-from app.message.message import Message
-from app.mediaserver.media_server import MediaServer
+from app.message import Message
+from app.mediaserver import MediaServer
 from app.subtitle import Subtitle
-from app.media.category import Category
-from app.media.media import Media
-from app.media.meta import MetaBase
-from app.media.meta import MetaInfo
-from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils, ThreadHelper
-from app.media.nfo_helper import NfoHelper
+from app.media import Media, MetaInfo, Category
+from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils, ThreadHelper, NfoHelper
 from app.utils.types import MediaType, SyncType, RmtMode, OsType, RMT_MODES
 
 lock = Lock()
@@ -877,7 +873,7 @@ class FileTransfer:
             log.info("【RMT】%s 目录不存在" % org_path)
         return False
 
-    def get_dest_path_by_info(self, dest, meta_info: MetaBase):
+    def get_dest_path_by_info(self, dest, meta_info):
         """
         拼装转移重命名后的新文件地址
         :param dest: 目的目录
@@ -1033,7 +1029,7 @@ class FileTransfer:
                                        rmt_mode=sync_transfer_mode)
 
     @staticmethod
-    def get_format_dict(media: MetaBase):
+    def get_format_dict(media):
         """
         根据媒体信息，返回Format字典
         """
@@ -1057,7 +1053,7 @@ class FileTransfer:
             "part": media.part
         }
 
-    def get_moive_dest_path(self, media_info: MetaBase):
+    def get_moive_dest_path(self, media_info):
         """
         计算电影文件路径
         :return: 电影目录、电影名称
@@ -1067,7 +1063,7 @@ class FileTransfer:
         file_name = re.sub(r"[-_\s.]*None", "", self.__movie_file_rmt_format.format(**format_dict))
         return dir_name, file_name
 
-    def get_tv_dest_path(self, media_info: MetaBase):
+    def get_tv_dest_path(self, media_info):
         """
         计算电视剧文件路径
         :return: 电视剧目录、季目录、集名称

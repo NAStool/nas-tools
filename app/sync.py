@@ -7,7 +7,7 @@ from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
 
 import log
-from app.db.sql_helper import SqlHelper
+from app.db import SqlHelper
 from config import RMT_MEDIAEXT, Config
 from app.filetransfer import FileTransfer
 from app.utils.commons import singleton

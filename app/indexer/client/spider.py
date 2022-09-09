@@ -11,7 +11,6 @@ from jinja2 import Template
 from pyquery import PyQuery
 
 import log
-from app.indexer.indexer_conf import IndexerConf
 
 
 class TorrentSpider(feapder.AirSpider):
@@ -46,7 +45,7 @@ class TorrentSpider(feapder.AirSpider):
     article_list = None
     fields = None
 
-    def setparam(self, indexer: IndexerConf, keyword, user_agent=None):
+    def setparam(self, indexer, keyword, user_agent=None):
         if not indexer or not keyword:
             return
         self.keyword = keyword

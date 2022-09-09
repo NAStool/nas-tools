@@ -1,11 +1,11 @@
 import threading
 
 import log
-from app.db.media_db import MediaDb
+from app.db import MediaDb
 from app.utils import ProgressController
 from app.utils.types import MediaType
 from config import Config
-from app.mediaserver.server import Emby, Jellyfin, Plex
+from app.mediaserver import Emby, Jellyfin, Plex
 
 lock = threading.Lock()
 

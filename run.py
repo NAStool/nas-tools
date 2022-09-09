@@ -3,9 +3,6 @@ import signal
 import sys
 
 # 添加第三方库入口,按首字母顺序，引入brushtask时涉及第三方库，需提前引入
-from app.indexer.indexer_helper import IndexerHelper
-from app.utils import WebUtils
-
 with open(os.path.join(os.path.dirname(__file__),
                        "third_party.txt"), "r") as f:
     third_party = f.readlines()
@@ -48,7 +45,7 @@ from app.brushtask import BrushTask
 from app.sync import run_monitor, stop_monitor
 from app.scheduler import run_scheduler, stop_scheduler
 from app.utils.check_config import check_config
-from app.utils import SystemUtils
+from app.utils import SystemUtils, IndexerHelper
 from app.utils.types import OsType
 from version import APP_VERSION
 from web.app import FlaskApp
@@ -108,9 +105,6 @@ if __name__ == "__main__":
 
         p1 = threading.Thread(target=traystart, daemon=True)
         p1.start()
-
-    # 更新壁纸
-    WebUtils.get_login_wallpaper()
 
     # 加载索引器配置
     IndexerHelper()

@@ -2,8 +2,7 @@ import requests
 
 from config import Config
 from app.indexer.indexer import IIndexer
-from app.utils import RequestUtils
-from app.indexer.indexer_conf import IndexerConf
+from app.utils import RequestUtils, IndexerConf
 
 
 class Jackett(IIndexer):

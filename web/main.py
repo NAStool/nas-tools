@@ -18,27 +18,25 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, cur
 from werkzeug.security import check_password_hash
 
 import log
-from app.mediaserver.webhook_event import WebhookEvent
-from app.message.message import Message
-from app.utils import Security, WebUtils, StringUtils, Torrent, DomUtils, SystemUtils
+from app.mediaserver import WebhookEvent
+from app.message import Message
+from app.utils import Security, StringUtils, DomUtils, SystemUtils, WebUtils, MetaHelper
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL
 from app.douban import DouBan
-from app.downloader.downloader import Downloader
+from app.downloader import Downloader
 from app.filterrules import FilterRule
-from app.indexer.client import BuiltinIndexer
-from app.mediaserver.media_server import MediaServer
+from app.indexer import BuiltinIndexer
+from app.mediaserver import MediaServer
 from app.searcher import Searcher
-from app.sites.sites import Sites
-from app.media.media import Media
-from app.media.meta import MetaInfo
+from app.sites import Sites
+from app.media import MetaInfo, Media
 from web.apiv1 import apiv1, authorization
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
-from app.media.meta_helper import MetaHelper
 from web.action import WebAction
 from web.backend.subscribe import add_rss_subscribe
-from app.db.sql_helper import SqlHelper
-from app.db.dict_helper import DictHelper
+from app.db import SqlHelper, DictHelper
 from app.utils.types import *
+from web.backend.wallpaper import get_login_wallpaper
 
 login_manager = LoginManager()
 login_manager.login_view = "login"
@@ -68,6 +66,9 @@ def create_flask_app(config):
 
     # API注册
     App.register_blueprint(apiv1, url_prefix="/api/v1")
+
+    # 加载壁纸
+    get_login_wallpaper()
 
     @App.after_request
     def add_header(r):
@@ -163,7 +164,7 @@ def create_flask_app(config):
                 if userid is None or username is None:
                     return render_template('login.html',
                                            GoPage=GoPage,
-                                           LoginWallpaper=WebUtils.get_login_wallpaper())
+                                           LoginWallpaper=get_login_wallpaper())
                 else:
                     return render_template('navigation.html',
                                            GoPage=GoPage,
@@ -174,7 +175,7 @@ def create_flask_app(config):
             else:
                 return render_template('login.html',
                                        GoPage=GoPage,
-                                       LoginWallpaper=WebUtils.get_login_wallpaper())
+                                       LoginWallpaper=get_login_wallpaper())
 
         else:
             GoPage = request.form.get('next') or ""
@@ -186,13 +187,13 @@ def create_flask_app(config):
             if not username:
                 return render_template('login.html',
                                        GoPage=GoPage,
-                                       LoginWallpaper=WebUtils.get_login_wallpaper(),
+                                       LoginWallpaper=get_login_wallpaper(),
                                        err_msg="请输入用户名")
             user_info = get_user(username)
             if not user_info:
                 return render_template('login.html',
                                        GoPage=GoPage,
-                                       LoginWallpaper=WebUtils.get_login_wallpaper(),
+                                       LoginWallpaper=get_login_wallpaper(),
                                        err_msg="用户名或密码错误")
             # 创建用户实体
             user = User(user_info)
@@ -211,7 +212,7 @@ def create_flask_app(config):
             else:
                 return render_template('login.html',
                                        GoPage=GoPage,
-                                       LoginWallpaper=WebUtils.get_login_wallpaper(),
+                                       LoginWallpaper=get_login_wallpaper(),
                                        err_msg="用户名或密码错误")
 
     # 开始
@@ -529,7 +530,7 @@ def create_flask_app(config):
         use_douban_titles = config.get_config("laboratory").get("use_douban_titles")
         if SearchWord and NeedSearch:
             if use_douban_titles:
-                _, key_word, season_num, episode_num, _, _ = Torrent.get_keyword_from_string(SearchWord)
+                _, key_word, season_num, episode_num, _, _ = StringUtils.get_keyword_from_string(SearchWord)
                 medias = DouBan().search_douban_medias(keyword=key_word,
                                                        season=season_num,
                                                        episode=episode_num)

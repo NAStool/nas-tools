@@ -4,7 +4,6 @@ from plexapi.myplex import MyPlexAccount
 import log
 from config import Config
 from app.mediaserver.server.server import IMediaServer
-from app.media.meta import MetaBase
 from app.utils.commons import singleton
 
 
@@ -106,7 +105,7 @@ class Plex(IMediaServer):
         return ret_movies
 
     # 根据标题、年份、季、总集数，查询Plex中缺少哪几集
-    def get_no_exists_episodes(self, meta_info: MetaBase, season, total_num):
+    def get_no_exists_episodes(self, meta_info, season, total_num):
         """
         根据标题、年份、季、总集数，查询Plex中缺少哪几集
         :param meta_info: 已识别的需要查询的媒体信息
