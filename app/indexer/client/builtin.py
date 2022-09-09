@@ -11,9 +11,8 @@ from app.indexer.indexer import IIndexer
 from app.indexer.client.spider import TorrentSpider
 from app.sites.sites import Sites
 from app.media.meta import MetaBase
-from app.utils.progress_controller import ProgressController
+from app.utils import ProgressController, StringUtils
 from app.indexer.indexer_helper import IndexerHelper
-from app.utils.string_utils import StringUtils
 
 
 class BuiltinIndexer(IIndexer):

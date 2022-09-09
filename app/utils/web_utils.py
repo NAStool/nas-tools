@@ -5,7 +5,7 @@ import random
 from functools import lru_cache
 
 from app.media.media import Media
-from app.utils.http_utils import RequestUtils
+from app.utils import RequestUtils
 from version import APP_VERSION
 
 

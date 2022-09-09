@@ -10,18 +10,14 @@ from lxml import etree
 
 import log
 from app.media.meta import MetaBase, MetaInfo
-from app.utils.path_utils import PathUtils
+from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, StringUtils
 from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
     KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL
 from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person
 from app.media.tmdbv3api.exceptions import TMDbException
 from app.media.doubanv2api import DoubanApi
 from app.utils.cache_manager import cacheman
-from app.utils.episode_format import EpisodeFormat
-from app.utils.http_utils import RequestUtils
 from app.media.meta_helper import MetaHelper
-from app.utils.number_utils import NumberUtils
-from app.utils.string_utils import StringUtils
 from app.utils.types import MediaType, MatchMode
 
 

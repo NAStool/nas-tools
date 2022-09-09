@@ -14,9 +14,8 @@ from config import BRUSH_REMOVE_TORRENTS_INTERVAL
 from app.downloader.client import Qbittorrent, Transmission
 from app.message.message import Message
 from app.rss import Rss
-from app.utils.torrent import Torrent
+from app.utils import Torrent, StringUtils
 from app.utils.types import BrushDeleteType, SystemDictType
-from app.utils.string_utils import StringUtils
 from app.utils.commons import singleton
 
 

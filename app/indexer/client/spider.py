@@ -5,14 +5,13 @@ import traceback
 from requests.utils import dict_from_cookiejar
 
 import feapder
-from app.utils.http_utils import RequestUtils
+from app.utils import RequestUtils, StringUtils
 from feapder.utils.tools import urlencode
 from jinja2 import Template
 from pyquery import PyQuery
 
 import log
 from app.indexer.indexer_conf import IndexerConf
-from app.utils.string_utils import StringUtils
 
 
 class TorrentSpider(feapder.AirSpider):

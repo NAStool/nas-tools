@@ -3,7 +3,7 @@ import requests
 import log
 from app.indexer.indexer_conf import IndexerConf
 from app.utils.commons import singleton
-from app.utils.http_utils import RequestUtils
+from app.utils import RequestUtils
 from config import Config
 
 

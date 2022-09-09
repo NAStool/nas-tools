@@ -3,7 +3,7 @@ import cn2an
 from app.media.fanart import Fanart
 from config import ANIME_GENREIDS, DEFAULT_TMDB_IMAGE, TMDB_IMAGE_W500_URL
 from app.media.category import Category
-from app.utils.string_utils import StringUtils
+from app.utils import StringUtils
 from app.utils.types import MediaType
 
 

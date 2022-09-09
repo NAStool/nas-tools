@@ -11,7 +11,7 @@ from app.db.sql_helper import SqlHelper
 from config import RMT_MEDIAEXT, Config
 from app.filetransfer import FileTransfer
 from app.utils.commons import singleton
-from app.utils.path_utils import PathUtils
+from app.utils import PathUtils
 from app.utils.types import SyncType, OsType, RmtMode
 
 lock = threading.Lock()

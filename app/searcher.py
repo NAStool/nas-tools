@@ -6,7 +6,7 @@ from app.downloader.downloader import Downloader
 from app.indexer.client import BuiltinIndexer, Jackett, Prowlarr
 from app.media.media import Media
 from app.media.meta import MetaBase
-from app.utils.progress_controller import ProgressController
+from app.utils import ProgressController
 from app.utils.types import SearchType, MediaType
 
 

@@ -1,10 +1,9 @@
 import os.path
 import pickle
 
-from app.utils.string_utils import StringUtils
+from app.utils import StringUtils, RequestUtils
 from config import Config
 from app.utils.commons import singleton
-from app.utils.http_utils import RequestUtils
 from app.indexer.indexer_conf import IndexerConf
 
 

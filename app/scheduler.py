@@ -7,7 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 import log
 from app.mediaserver.media_server import MediaServer
-from app.utils.web_utils import WebUtils
+from app.utils import WebUtils
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
     RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_CHECK_INTERVAL, REFRESH_PT_DATA_INTERVAL, \
     RSS_REFRESH_TMDB_INTERVAL, META_DELETE_UNKNOWN_INTERVAL, REFRESH_WALLPAPER_INTERVAL

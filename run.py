@@ -4,7 +4,7 @@ import sys
 
 # 添加第三方库入口,按首字母顺序，引入brushtask时涉及第三方库，需提前引入
 from app.indexer.indexer_helper import IndexerHelper
-from app.utils.web_utils import WebUtils
+from app.utils import WebUtils
 
 with open(os.path.join(os.path.dirname(__file__),
                        "third_party.txt"), "r") as f:
@@ -48,7 +48,7 @@ from app.brushtask import BrushTask
 from app.sync import run_monitor, stop_monitor
 from app.scheduler import run_scheduler, stop_scheduler
 from app.utils.check_config import check_config
-from app.utils.system_utils import SystemUtils
+from app.utils import SystemUtils
 from app.utils.types import OsType
 from version import APP_VERSION
 from web.app import FlaskApp

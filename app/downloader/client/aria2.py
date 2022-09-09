@@ -1,7 +1,7 @@
 import os
 import re
 
-from app.utils.http_utils import RequestUtils
+from app.utils import RequestUtils
 from config import Config
 from app.downloader.client.client import IDownloadClient
 from app.downloader.client.pyaria2 import PyAria2

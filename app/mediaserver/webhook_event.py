@@ -3,7 +3,7 @@ import time
 from app.message.message import Message
 from app.mediaserver.media_server import MediaServer
 from app.filetransfer import FileTransfer
-from app.utils.web_utils import WebUtils
+from app.utils import WebUtils
 
 
 class WebhookEvent:

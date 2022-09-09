@@ -5,9 +5,8 @@ import anitopy
 import zhconv
 
 import log
-from app.utils.torrent import Torrent
+from app.utils import Torrent, StringUtils
 from app.media.meta.metabase import MetaBase
-from app.utils.string_utils import StringUtils
 from app.utils.types import MediaType
 
 

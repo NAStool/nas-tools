@@ -20,9 +20,7 @@ from werkzeug.security import check_password_hash
 import log
 from app.mediaserver.webhook_event import WebhookEvent
 from app.message.message import Message
-from app.utils.security import Security
-from app.utils.string_utils import StringUtils
-from app.utils.web_utils import WebUtils
+from app.utils import Security, WebUtils, StringUtils, Torrent, DomUtils, SystemUtils
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL
 from app.douban import DouBan
 from app.downloader.downloader import Downloader
@@ -31,14 +29,11 @@ from app.indexer.client import BuiltinIndexer
 from app.mediaserver.media_server import MediaServer
 from app.searcher import Searcher
 from app.sites.sites import Sites
-from app.utils.torrent import Torrent
 from app.media.media import Media
 from app.media.meta import MetaInfo
 from web.apiv1 import apiv1, authorization
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
-from app.utils.dom_utils import DomUtils
 from app.media.meta_helper import MetaHelper
-from app.utils.system_utils import SystemUtils
 from web.action import WebAction
 from web.backend.subscribe import add_rss_subscribe
 from app.db.sql_helper import SqlHelper

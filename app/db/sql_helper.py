@@ -5,7 +5,7 @@ from enum import Enum
 
 from app.media.meta import MetaBase
 from app.db.db_helper import DBHelper
-from app.utils.string_utils import StringUtils
+from app.utils import StringUtils
 from app.utils.types import MediaType, RmtMode
 
 

@@ -9,7 +9,7 @@ from lxml import etree
 
 from config import TORRENT_SEARCH_PARAMS
 from app.sites.siteconf import get_grapsite_conf
-from app.utils.http_utils import RequestUtils
+from app.utils import RequestUtils
 from app.utils.types import MediaType
 
 

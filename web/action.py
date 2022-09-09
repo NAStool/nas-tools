@@ -11,7 +11,7 @@ from werkzeug.security import generate_password_hash
 import log
 from app.media.doubanv2api import DoubanHot
 from app.mediaserver.media_server import MediaServer
-from app.utils.string_utils import StringUtils
+from app.utils import StringUtils, Torrent, EpisodeFormat, ProgressController, RequestUtils, PathUtils, MessageCenter, ThreadHelper
 from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
 from app.message.channel import Telegram, WeChat
 from app.message.message import Message
@@ -25,7 +25,6 @@ from app.rss import Rss
 from app.sites.siteconf import get_grapsite_conf
 from app.sites.sites import Sites
 from app.subtitle import Subtitle
-from app.utils.torrent import Torrent
 from app.media.category import Category
 from app.media.doubanv2api import DoubanApi
 from app.filetransfer import FileTransfer
@@ -35,13 +34,7 @@ from app.scheduler import stop_scheduler, restart_scheduler
 from app.sync import stop_monitor, restart_monitor
 from app.scheduler import Scheduler
 from app.sync import Sync
-from app.utils.episode_format import EpisodeFormat
-from app.utils.progress_controller import ProgressController
-from app.utils.http_utils import RequestUtils
 from app.media.meta_helper import MetaHelper
-from app.utils.path_utils import PathUtils
-from app.utils.sysmsg_helper import MessageCenter
-from app.utils.thread_helper import ThreadHelper
 from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 from web.backend.subscribe import add_rss_subscribe

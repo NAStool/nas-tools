@@ -1,7 +1,7 @@
 import log
 from config import Config
 from app.message.channel.channel import IMessageChannel
-from app.utils.http_utils import RequestUtils
+from app.utils import RequestUtils
 
 
 class Bark(IMessageChannel):

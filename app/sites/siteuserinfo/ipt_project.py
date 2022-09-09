@@ -4,7 +4,7 @@ import re
 from lxml import etree
 
 from app.sites.siteuserinfo.site_user_info import ISiteUserInfo
-from app.utils.string_utils import StringUtils
+from app.utils import StringUtils
 
 
 class IptSiteUserInfo(ISiteUserInfo):

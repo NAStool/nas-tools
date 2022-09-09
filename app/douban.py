@@ -14,7 +14,7 @@ from app.searcher import Searcher
 from app.media.doubanv2api import DoubanApi
 from app.media.media import Media
 from app.media.meta import MetaInfo
-from app.utils.http_utils import RequestUtils
+from app.utils import RequestUtils
 from app.utils.types import MediaType, SearchType
 from web.backend.subscribe import add_rss_subscribe
 

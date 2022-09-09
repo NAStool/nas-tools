@@ -7,7 +7,7 @@ from urllib.parse import urljoin, urlsplit
 import requests
 from lxml import etree
 
-from app.utils.http_utils import RequestUtils
+from app.utils import RequestUtils
 
 
 class ISiteUserInfo(metaclass=ABCMeta):

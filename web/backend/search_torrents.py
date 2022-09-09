@@ -8,12 +8,10 @@ from app.message.message import Message
 from app.douban import DouBan
 from app.downloader.downloader import Downloader
 from app.searcher import Searcher
-from app.utils.torrent import Torrent
+from app.utils import Torrent, ProgressController
 from app.media.doubanv2api import DoubanApi
 from app.media.media import Media
-from app.media.meta import MetaBase
-from app.media.meta import MetaInfo
-from app.utils.progress_controller import ProgressController
+from app.media.meta import MetaBase, MetaInfo
 from app.db.sql_helper import SqlHelper
 from app.utils.types import SearchType, MediaType
 from web.backend.subscribe import add_rss_subscribe

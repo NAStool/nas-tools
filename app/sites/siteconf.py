@@ -1,4 +1,4 @@
-from app.utils.string_utils import StringUtils
+from app.utils import StringUtils
 
 # 非常规RSS站点
 RSS_EXTRA_SITES = {

@@ -9,9 +9,8 @@ from app.message.message import Message
 from app.filterrules import FilterRule
 from app.sites.siteuserinfo.site_user_info_factory import SiteUserInfoFactory
 from app.utils.commons import singleton
-from app.utils.http_utils import RequestUtils
+from app.utils import RequestUtils, StringUtils
 from app.db.sql_helper import SqlHelper
-from app.utils.string_utils import StringUtils
 
 lock = Lock()
 
