@@ -107,11 +107,12 @@ class Config(object):
             return cls._INSTANSE
 
     def __init__(self):
-        if Config._INSTANSE_FLAG:
-            return
+        with lock:
+            if Config._INSTANSE_FLAG:
+                return
+            Config._INSTANSE_FLAG = True
         self._config_path = os.environ.get('NASTOOL_CONFIG')
         self.init_config()
-        Config._INSTANSE_FLAG = True
 
     def init_config(self):
         try:
@@ -126,6 +127,7 @@ class Config(object):
             with open(self._config_path, mode='r', encoding='utf-8') as f:
                 try:
                     # 读取配置
+                    print("正在加载配置...")
                     self._config = ruamel.yaml.YAML().load(f)
                     overwrite_cofig = False
                     # 密码初始化
