@@ -406,7 +406,7 @@ class SqlHelper:
         if not name:
             return
         sql = "INSERT INTO CONFIG_SITE(NAME,PRI,RSSURL,SIGNURL,COOKIE,NOTE, INCLUDE) VALUES " \
-              "(?, ?, ?, ?, ?, ?)"
+              "(?, ?, ?, ?, ?, ?, ?)"
         return DBHelper().update_by_sql(sql, (StringUtils.str_sql(name),
                                               StringUtils.str_sql(site_pri),
                                               StringUtils.str_sql(rssurl),
