@@ -44,8 +44,8 @@ class BrushTask(object):
         brushtasks = SqlHelper.get_brushtasks()
         self._brush_tasks = []
         for task in brushtasks:
-            sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[0])
-            forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task[0])
+            sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[2])
+            forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task[2])
             self._brush_tasks.append({
                 "id": task[0],
                 "name": task[1],
