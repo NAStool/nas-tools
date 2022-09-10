@@ -6,7 +6,7 @@ import log
 from config import TMDB_IMAGE_W500_URL
 from app.utils import DomUtils, RequestUtils
 from app.utils.types import MediaType
-from app.media.media import Media
+from app.media import Media
 
 
 class Scraper:
