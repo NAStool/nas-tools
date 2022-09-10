@@ -6,9 +6,13 @@ import log
 from config import TMDB_IMAGE_W500_URL
 from app.utils import DomUtils, RequestUtils
 from app.utils.types import MediaType
-
+from app.media.media import Media
 
 class NfoHelper:
+    media = None
+
+    def __init__(self):
+        self.media = Media()
 
     def __gen_common_nfo(self,
                          tmdbinfo: dict,
