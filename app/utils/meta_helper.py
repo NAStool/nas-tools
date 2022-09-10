@@ -4,7 +4,7 @@ import random
 import time
 from threading import RLock
 from app.utils import JsonUtils, ThreadHelper
-from config import Config, RMT_MEDIAEXT
+from config import Config
 from app.utils.commons import singleton
 from app.utils.types import MediaType
 

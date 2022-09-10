@@ -16,8 +16,8 @@ from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESI
 from app.message import Message
 from app.mediaserver import MediaServer
 from app.subtitle import Subtitle
-from app.media import Media, MetaInfo, Category
-from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils, ThreadHelper, NfoHelper
+from app.media import Media, MetaInfo, Category, Scraper
+from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils, ThreadHelper
 from app.utils.types import MediaType, SyncType, RmtMode, OsType, RMT_MODES
 
 lock = Lock()
@@ -28,7 +28,7 @@ class FileTransfer:
     message = None
     category = None
     mediaserver = None
-    nfohelper = None
+    scraper = None
     threadhelper = None
 
     __system = OsType.LINUX
@@ -57,7 +57,7 @@ class FileTransfer:
         self.message = Message()
         self.category = Category()
         self.mediaserver = MediaServer()
-        self.nfohelper = NfoHelper()
+        self.scraper = Scraper()
         self.threadhelper = ThreadHelper()
         self.init_config()
 
@@ -691,11 +691,14 @@ class FileTransfer:
                         message_medias[message_key].size += media.size
                 # 生成nfo及poster
                 if self.__scraper_flag:
-                    self.nfohelper.gen_nfo_files(media=media,
-                                                 scraper_nfo=self.__scraper_nfo,
-                                                 scraper_pic=self.__scraper_pic,
-                                                 dir_path=ret_dir_path,
-                                                 file_name=os.path.basename(ret_file_path))
+                    # 查询TMDB详情
+                    media.set_tmdb_info(self.media.get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=media.tmdb_id))
+                    # 生成刮削文件
+                    self.scraper.gen_scraper_files(media=media,
+                                                   scraper_nfo=self.__scraper_nfo,
+                                                   scraper_pic=self.__scraper_pic,
+                                                   dir_path=ret_dir_path,
+                                                   file_name=os.path.basename(ret_file_path))
                 # 移动模式随机休眠（兼容一些网盘挂载目录）
                 if rmt_mode == RmtMode.MOVE:
                     sleep(round(random.uniform(0, 1), 1))

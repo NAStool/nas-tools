@@ -943,31 +943,6 @@ class Media:
                 return int(season.get("episode_count"))
         return 0
 
-    @staticmethod
-    def get_tmdbinfo_directors_actors(tmdbinfo):
-        """
-        查询导演和演员
-        :param tmdbinfo: TMDB元数据
-        :return: 导演列表，演员列表
-        """
-        if not tmdbinfo:
-            return [], []
-        directors = []
-        actors = []
-        casts = tmdbinfo.get("cast") or []
-        for cast in casts:
-            if not cast:
-                continue
-            if cast.get("known_for_department") == "Acting":
-                actors.append(cast)
-        crews = tmdbinfo.get("crew") or []
-        for crew in crews:
-            if not crew:
-                continue
-            if crew.get("job") == "Director":
-                directors.append(crew)
-        return directors, actors
-
     def get_movie_discover(self, page=1):
         """
         发现电影
@@ -1259,4 +1234,3 @@ class Media:
                     meta_infos[media_key] = tmdb_info
         if meta_infos:
             self.meta.update_meta_data(meta_infos)
-
