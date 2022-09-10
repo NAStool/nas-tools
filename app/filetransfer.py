@@ -692,7 +692,7 @@ class FileTransfer:
                 # 生成nfo及poster
                 if self.__scraper_flag:
                     # 查询TMDB详情
-                    media.set_tmdb_info(self.media.get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=media.tmdb_id))
+                    media.set_tmdb_info(self.media.get_tmdb_info(mtype=media.type, tmdbid=media.tmdb_id))
                     # 生成刮削文件
                     self.scraper.gen_scraper_files(media=media,
                                                    scraper_nfo=self.__scraper_nfo,
