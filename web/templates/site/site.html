@@ -92,14 +92,14 @@
         </div>
         <div class="card-body">
           <div class="row">
-            <div class="col-lg-8">
+            <div class="col-lg-6">
               <div class="mb-3">
                 <label class="form-label required">名称</label>
                 <input type="hidden" id="site_id" />
                 <input type="text" class="form-control" id="site_name" placeholder="自定义站点名称">
               </div>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-6">
               <div class="mb-3">
                 <label class="form-label">优先级 <span class="form-help bg-red-lt" title="多个站点同时命中订阅时选择下载的优先级，数值越小优先级越高" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="site_pri">
@@ -128,10 +128,29 @@
             </div>
           </div>
           <div class="row">
-            <div class="col-lg-12">
+            <div class="col-lg-6">
               <div class="mb-3">
                 <label class="form-label required">站点地址 <span class="form-help bg-red-lt" title="站点访问地址，自动签到、站点数据统计、刷流、内置索引器等将使用，有独立签到页面的站点可以配置为签到页面做自动签到，否则可以配置为首页" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" class="form-control" id="site_signurl" value="" placeholder="站点签到页面URL">
+                <input type="text" class="form-control" id="site_signurl" value="" placeholder="站点http地址">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">站点用途 <span class="form-help bg-red-lt" title="设置站点使用场景，选中的场景才会使用该站点" data-bs-toggle="tooltip">?</span></label>
+                <div class="form-selectgroup">
+                  <label class="form-selectgroup-item">
+                    <input type="checkbox" name="site_uses" value="Q" class="form-selectgroup-input" checked>
+                    <span class="form-selectgroup-label">签到</span>
+                  </label>
+                  <label class="form-selectgroup-item">
+                    <input type="checkbox" name="site_uses" value="D" class="form-selectgroup-input" checked>
+                    <span class="form-selectgroup-label">订阅</span>
+                  </label>
+                  <label class="form-selectgroup-item">
+                    <input type="checkbox" name="site_uses" value="S" class="form-selectgroup-input" checked>
+                    <span class="form-selectgroup-label">刷流</span>
+                  </label>
+                </div>
               </div>
             </div>
           </div>
@@ -150,7 +169,7 @@
             </div>
           </div>
           <div class="row">
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <div class="mb-3">
                 <label class="form-label required">RSS解析种子详情 <span class="form-help bg-red-lt" title="选择是时RSS订阅会解析站点种子详情页面获取种子FREE及HR状态，会增加站点访问压力；选择否时无法判断FREE种，无法实现FREE优先规则；刷流不受此限制" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="site_parse">
@@ -159,7 +178,7 @@
                 </select>
               </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <div class="mb-3">
                 <label class="form-label">过滤规则 <span class="form-help bg-red-lt" title="选择该站点使用的过滤规则组，在设置->过滤规则中设置规则，选择了过滤规则后该站点只有符合规则的种子才会被命中下载；仅作用于RSS、内建索引自动搜索，刷流等不受此限制" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="site_rule">
@@ -170,21 +189,10 @@
                 </select>
               </div>
             </div>
-          </div>
-          <div class="row">
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <div class="mb-3">
                 <label class="form-label required">发送站点未读消息通知 <span class="form-help bg-red-lt" title="选择是时检测到站点有未读消息会通过消息推送通知" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="site_unread_msg_notify">
-                  <option value="Y" selected>是</option>
-                  <option value="N">否</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">自动签到 <span class="form-help bg-red-lt" title="开启后将定时访问站点地址进行模拟登录或签到" data-bs-toggle="tooltip">?</span></label>
-                <select class="form-select" id="auto_signin">
                   <option value="Y" selected>是</option>
                   <option value="N">否</option>
                 </select>
@@ -265,7 +273,20 @@
         $("#site_cookie").val(ret.site.cookie);
         $("#site_parse").val(ret.site.parse);
         $("#site_unread_msg_notify").val(ret.site.unread_msg_notify)
-        $("#auto_signin").val(ret.site.auto_signin)
+        $("input[name=site_uses]").each(function(){
+          $(this).prop("checked",false);
+        });
+        $("input[name=site_uses]").each(function(){
+          if($(this).val() == "Q" && ret.site.signin_enable){
+            $(this).prop("checked",true);
+          }
+          if($(this).val() == "D" && ret.site.rss_enable){
+            $(this).prop("checked",true);
+          }
+          if($(this).val() == "S" && ret.site.brush_enable){
+            $(this).prop("checked",true);
+          }
+        });
         $("#modal-site-title").text("编辑站点");
         $("#add_or_edit_site_btn").text("修改");
         $("#modal-site").modal("show");
@@ -324,14 +345,20 @@
     var site_rule = $("#site_rule").val();
     var site_parse = $("#site_parse").val();
     var site_unread_msg_notify = $("#site_unread_msg_notify").val();
-    var auto_signin = $("#auto_signin").val();
+    var site_uses = "";
+    $("input[name=site_uses]").each(function(){
+      if($(this).prop("checked")){
+        site_uses = site_uses + $(this).val();
+      }
+    });
     var data = {"site_id":site_id,
           "site_name":site_name,
           "site_pri":site_pri,
           "site_rssurl":site_rssurl,
           "site_signurl":site_signurl,
           "site_cookie":site_cookie,
-          "site_note":site_parse + "|" + site_rule + "|" + site_unread_msg_notify + "|" + auto_signin}
+          "site_include": site_uses,
+          "site_note":site_parse + "|" + site_rule + "|" + site_unread_msg_notify}
 
     $("#add_or_edit_site_btn").attr("disabled", true);
     $("#add_or_edit_site_btn").text("处理中...");

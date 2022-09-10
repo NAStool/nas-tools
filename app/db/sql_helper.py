@@ -399,20 +399,21 @@ class SqlHelper:
             "SELECT ID,NAME,PRI,RSSURL,SIGNURL,COOKIE,INCLUDE,EXCLUDE,SIZE,NOTE FROM CONFIG_SITE WHERE ID = ?", (tid,))
 
     @staticmethod
-    def insert_config_site(name, site_pri, rssurl, signurl, cookie, note):
+    def insert_config_site(name, site_pri, rssurl, signurl, cookie, note, rss_uses):
         """
         插入站点信息
         """
         if not name:
             return
-        sql = "INSERT INTO CONFIG_SITE(NAME,PRI,RSSURL,SIGNURL,COOKIE,NOTE) VALUES " \
+        sql = "INSERT INTO CONFIG_SITE(NAME,PRI,RSSURL,SIGNURL,COOKIE,NOTE, INCLUDE) VALUES " \
               "(?, ?, ?, ?, ?, ?)"
         return DBHelper().update_by_sql(sql, (StringUtils.str_sql(name),
                                               StringUtils.str_sql(site_pri),
                                               StringUtils.str_sql(rssurl),
                                               StringUtils.str_sql(signurl),
                                               StringUtils.str_sql(cookie),
-                                              StringUtils.str_sql(note)))
+                                              StringUtils.str_sql(note),
+                                              StringUtils.str_sql(rss_uses)))
 
     @staticmethod
     def delete_config_site(tid):
@@ -424,19 +425,20 @@ class SqlHelper:
         return DBHelper().update_by_sql("DELETE FROM CONFIG_SITE WHERE ID = ?", (tid,))
 
     @staticmethod
-    def update_config_site(tid, name, site_pri, rssurl, signurl, cookie, note):
+    def update_config_site(tid, name, site_pri, rssurl, signurl, cookie, note, rss_uses):
         """
         更新站点信息
         """
         if not tid:
             return
-        sql = "UPDATE CONFIG_SITE SET NAME=?,PRI=?,RSSURL=?,SIGNURL=?,COOKIE=?,NOTE=? WHERE ID=?"
+        sql = "UPDATE CONFIG_SITE SET NAME=?,PRI=?,RSSURL=?,SIGNURL=?,COOKIE=?,NOTE=?,INCLUDE=? WHERE ID=?"
         return DBHelper().update_by_sql(sql, (StringUtils.str_sql(name),
                                               StringUtils.str_sql(site_pri),
                                               StringUtils.str_sql(rssurl),
                                               StringUtils.str_sql(signurl),
                                               StringUtils.str_sql(cookie),
                                               StringUtils.str_sql(note),
+                                              StringUtils.str_sql(rss_uses),
                                               tid))
 
     @staticmethod

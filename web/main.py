@@ -799,7 +799,7 @@ def create_flask_app(config):
     @login_required
     def brushtask():
         # 站点列表
-        CfgSites = Sites().get_sites(rss=True)
+        CfgSites = Sites().get_sites(brush=True)
         # 下载器列表
         downloaders = SqlHelper.get_user_downloaders()
         # 任务列表

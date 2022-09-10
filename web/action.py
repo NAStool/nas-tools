@@ -675,6 +675,7 @@ class WebAction:
         signurl = data.get('site_signurl')
         cookie = data.get('site_cookie')
         note = data.get('site_note')
+        rss_uses = data.get('site_include')
         if tid:
             ret = SqlHelper.update_config_site(tid=tid,
                                                name=name,
@@ -682,14 +683,16 @@ class WebAction:
                                                rssurl=rssurl,
                                                signurl=signurl,
                                                cookie=cookie,
-                                               note=note)
+                                               note=note,
+                                               rss_uses=rss_uses)
         else:
             ret = SqlHelper.insert_config_site(name=name,
                                                site_pri=site_pri,
                                                rssurl=rssurl,
                                                signurl=signurl,
                                                cookie=cookie,
-                                               note=note)
+                                               note=note,
+                                               rss_uses=rss_uses)
         # 生效站点配置
         Sites().init_config()
         return {"code": ret}
