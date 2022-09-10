@@ -8,7 +8,8 @@ from app.utils import DomUtils, RequestUtils
 from app.utils.types import MediaType
 from app.media.media import Media
 
-class NfoHelper:
+
+class Scraper:
     media = None
 
     def __init__(self):
@@ -48,7 +49,7 @@ class NfoHelper:
             xoutline.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
         if scraper_nfo.get("credits"):
             # 导演
-            directors, actors = self.media.get_tmdbinfo_directors_actors(tmdbinfo.get("credits"))
+            directors, actors = self.__get_tmdbinfo_directors_actors(tmdbinfo.get("credits"))
             if chinese:
                 directors, actors = self.__gen_people_chinese_info(directors, actors, doubaninfo)
             for director in directors:
@@ -272,7 +273,15 @@ class NfoHelper:
         with open(out_file, "wb") as xml_file:
             xml_file.write(xml_str)
 
-    def gen_nfo_files(self, media, scraper_nfo, scraper_pic, dir_path, file_name):
+    def gen_scraper_files(self, media, scraper_nfo, scraper_pic, dir_path, file_name):
+        """
+        刮削元数据
+        :param media: 已识别的媒体信息
+        :param scraper_nfo: NFO刮削配置
+        :param scraper_pic: 图片刮削配置
+        :param dir_path: 文件路径
+        :param file_name: 文件名
+        """
         if not scraper_nfo:
             scraper_nfo = {}
         if not scraper_pic:
@@ -289,16 +298,13 @@ class NfoHelper:
                     return
                 #  nfo
                 if scraper_movie_nfo.get("basic") or scraper_movie_nfo.get("credits"):
-                    # 查询TMDB
-                    tmdbinfo = self.media.get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=media.tmdb_id)
-                    media.set_tmdb_info(tmdbinfo)
                     # 查询Douban信息
                     if scraper_movie_nfo.get("credits") and scraper_movie_nfo.get("credits_chinese"):
                         doubaninfo = self.media.get_douban_info(media)
                     else:
                         doubaninfo = None
                     #  生成电影描述文件
-                    self.gen_movie_nfo_file(tmdbinfo=tmdbinfo,
+                    self.gen_movie_nfo_file(tmdbinfo=media.tmdb_info,
                                             doubaninfo=doubaninfo,
                                             scraper_movie_nfo=scraper_movie_nfo,
                                             out_path=dir_path,
@@ -346,16 +352,13 @@ class NfoHelper:
                 # 处理根目录
                 if not os.path.exists(os.path.join(dir_path, "tvshow.nfo")):
                     if scraper_tv_nfo.get("basic") or scraper_tv_nfo.get("credits"):
-                        # 查询TMDB信息
-                        tmdbinfo = self.media.get_tmdb_info(mtype=MediaType.TV, tmdbid=media.tmdb_id)
-                        media.set_tmdb_info(tmdbinfo)
                         # 查询Douban信息
                         if scraper_tv_nfo.get("credits") and scraper_tv_nfo.get("credits_chinese"):
                             doubaninfo = self.media.get_douban_info(media)
                         else:
                             doubaninfo = None
                         # 根目录描述文件
-                        self.gen_tv_nfo_file(tmdbinfo, doubaninfo, scraper_tv_nfo, os.path.dirname(dir_path))
+                        self.gen_tv_nfo_file(media.tmdb_info, doubaninfo, scraper_tv_nfo, os.path.dirname(dir_path))
                     # poster
                     if scraper_tv_pic.get("poster"):
                         poster_image = media.get_poster_image()
@@ -397,10 +400,10 @@ class NfoHelper:
                     if scraper_tv_nfo.get("season_basic") \
                             or scraper_tv_nfo.get("episode_basic") \
                             or scraper_tv_nfo.get("episode_credits"):
-                        tmdbinfo = self.media.get_tmdb_tv_season_detail(tmdbid=media.tmdb_id,
-                                                                        season=int(media.get_season_seq()))
+                        seasoninfo = self.media.get_tmdb_tv_season_detail(tmdbid=media.tmdb_id,
+                                                                          season=int(media.get_season_seq()))
                         if scraper_tv_nfo.get("episode_basic") or scraper_tv_nfo.get("episode_credits"):
-                            self.gen_tv_episode_nfo_file(tmdbinfo=tmdbinfo,
+                            self.gen_tv_episode_nfo_file(tmdbinfo=seasoninfo,
                                                          scraper_tv_nfo=scraper_tv_nfo,
                                                          season=int(media.get_season_seq()),
                                                          episode=int(media.get_episode_seq()),
@@ -410,7 +413,7 @@ class NfoHelper:
                         if not os.path.exists(os.path.join(dir_path, "season.nfo")):
                             # season nfo
                             if scraper_tv_nfo.get("season_basic"):
-                                self.gen_tv_season_nfo_file(tmdbinfo, int(media.get_season_seq()), dir_path)
+                                self.gen_tv_season_nfo_file(seasoninfo, int(media.get_season_seq()), dir_path)
                             # season poster
                             if scraper_tv_pic.get("season_poster"):
                                 seasonposter = media.fanart.get_seasonposter(media_type=media.type,
@@ -421,7 +424,7 @@ class NfoHelper:
                                                       os.path.dirname(dir_path),
                                                       "season%s-poster" % media.get_season_seq().rjust(2, '0'))
                                 else:
-                                    self.__save_image(TMDB_IMAGE_W500_URL % tmdbinfo.get("poster_path"),
+                                    self.__save_image(TMDB_IMAGE_W500_URL % seasoninfo.get("poster_path"),
                                                       os.path.dirname(dir_path),
                                                       "season%s-poster" % media.get_season_seq().rjust(2, '0'))
                             # season banner
@@ -501,3 +504,28 @@ class NfoHelper:
                 if latin_match_res or (people_douban.get("name") == people_aka_name):
                     return people_douban
         return None
+
+    @staticmethod
+    def __get_tmdbinfo_directors_actors(tmdbinfo):
+        """
+        查询导演和演员
+        :param tmdbinfo: TMDB元数据
+        :return: 导演列表，演员列表
+        """
+        if not tmdbinfo:
+            return [], []
+        directors = []
+        actors = []
+        casts = tmdbinfo.get("cast") or []
+        for cast in casts:
+            if not cast:
+                continue
+            if cast.get("known_for_department") == "Acting":
+                actors.append(cast)
+        crews = tmdbinfo.get("crew") or []
+        for crew in crews:
+            if not crew:
+                continue
+            if crew.get("job") == "Director":
+                directors.append(crew)
+        return directors, actors

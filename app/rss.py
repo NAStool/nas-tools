@@ -123,6 +123,10 @@ class Rss:
                         enclosure = res.get('enclosure')
                         # 种子页面
                         page_url = res.get('link')
+                        # rarbg的rss只有link
+                        if not enclosure and page_url:
+                            enclosure = page_url
+                            page_url = None
                         # 副标题
                         description = res.get('description')
                         # 种子大小
