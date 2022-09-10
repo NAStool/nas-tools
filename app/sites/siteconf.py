@@ -310,7 +310,8 @@ class SiteConf:
     # 公共BT站点
     PUBLIC_TORRENT_SITES = [
         'rarbg.to',
-        'dmhy.org'
+        'dmhy.org',
+        'eztv.re'
     ]
 
     def get_extrasite_conf(self, url):

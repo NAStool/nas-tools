@@ -1,6 +1,7 @@
 import copy
 import re
 import traceback
+from urllib.parse import quote
 
 from requests.utils import dict_from_cookiejar
 
@@ -69,8 +70,11 @@ class TorrentSpider(feapder.AirSpider):
     def start_requests(self):
         if self.indexer.search:
             torrentspath = self.indexer.search.get('paths', [{}])[0].get('path', '')
-            searchurl = self.domain + torrentspath + '?stypes=s&' + urlencode(
-                {"search": self.keyword, "search_field": self.keyword, "keyword": self.keyword})
+            if torrentspath.find("{keyword}") != -1:
+                searchurl = self.domain + torrentspath.replace("{keyword}", quote(self.keyword))
+            else:
+                searchurl = self.domain + torrentspath + '?stypes=s&' + urlencode(
+                    {"search": self.keyword, "search_field": self.keyword, "keyword": self.keyword})
             yield feapder.Request(searchurl, cookies=self.cookies)
         else:
             self.is_complete = True
@@ -337,6 +341,8 @@ class TorrentSpider(feapder.AirSpider):
             # 遍历种子html列表
             for torn in doc(torrents_selector):
                 self.torrents_info_array.append(copy.deepcopy(self.Getinfo(PyQuery(torn))))
+                if len(self.torrents_info_array) >= 100:
+                    break
 
         except Exception as err:
             log.warn("【SPIDER】错误：%s - %s" % (str(err), traceback.format_exc()))
