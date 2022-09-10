@@ -4,10 +4,8 @@ import re
 import log
 from config import Config
 from app.mediaserver.server.server import IMediaServer
-from app.media.meta.metabase import MetaBase
 from app.utils.commons import singleton
-from app.utils.http_utils import RequestUtils
-from app.utils.system_utils import SystemUtils
+from app.utils import RequestUtils, SystemUtils
 from app.utils.types import MediaType
 
 
@@ -237,7 +235,7 @@ class Emby(IMediaServer):
             return None
         return []
 
-    def get_no_exists_episodes(self, meta_info: MetaBase, season, total_num):
+    def get_no_exists_episodes(self, meta_info, season, total_num):
         """
         根据标题、年份、季、总集数，查询Emby中缺少哪几集
         :param meta_info: 已识别的需要查询的媒体信息

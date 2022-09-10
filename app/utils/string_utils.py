@@ -1,7 +1,9 @@
 import bisect
-import random
 import re
 from urllib import parse
+
+import cn2an
+from app.utils.types import MediaType
 
 
 class StringUtils:
@@ -158,18 +160,6 @@ class StringUtils:
         return str(round(size / (b + 1), 2)) + u
 
     @staticmethod
-    def generate_random_str(randomlength=16):
-        """
-        生成一个指定长度的随机字符串
-        """
-        random_str = ''
-        base_str = 'ABCDEFGHIGKLMNOPQRSTUVWXYZabcdefghigklmnopqrstuvwxyz0123456789'
-        length = len(base_str) - 1
-        for i in range(randomlength):
-            random_str += base_str[random.randint(0, length)]
-        return random_str
-
-    @staticmethod
     def url_equal(url1, url2):
         """
         比较两个地址是否为同一个网站
@@ -201,3 +191,43 @@ class StringUtils:
         if not name:
             return None
         return re.sub(r"[*?\\/\"<>]", "", name, flags=re.IGNORECASE).replace(":", "：")
+
+    @staticmethod
+    def get_keyword_from_string(content):
+        """
+        从检索关键字中拆分中年份、季、集、类型
+        """
+        if not content:
+            return None, None, None, None, None
+        # 去掉查询中的电影或电视剧关键字
+        if re.search(r'^电视剧|\s+电视剧|^动漫|\s+动漫', content):
+            mtype = MediaType.TV
+        else:
+            mtype = None
+        content = re.sub(r'^电影|^电视剧|^动漫|\s+电影|\s+电视剧|\s+动漫', '', content).strip()
+        # 稍微切一下剧集吧
+        season_num = None
+        episode_num = None
+        year = None
+        season_re = re.search(r"第\s*([0-9一二三四五六七八九十]+)\s*季", content, re.IGNORECASE)
+        if season_re:
+            mtype = MediaType.TV
+            season_num = int(cn2an.cn2an(season_re.group(1), mode='smart'))
+        episode_re = re.search(r"第\s*([0-9一二三四五六七八九十]+)\s*集", content, re.IGNORECASE)
+        if episode_re:
+            mtype = MediaType.TV
+            episode_num = int(cn2an.cn2an(episode_re.group(1), mode='smart'))
+            if episode_num and not season_num:
+                season_num = 1
+        year_re = re.search(r"[\s(]+(\d{4})[\s)]*", content)
+        if year_re:
+            year = year_re.group(1)
+        key_word = re.sub(r'第\s*[0-9一二三四五六七八九十]+\s*季|第\s*[0-9一二三四五六七八九十]+\s*集|[\s(]+(\d{4})[\s)]*', '',
+                          content,
+                          flags=re.IGNORECASE).strip()
+        if key_word:
+            key_word = re.sub(r'\s+', ' ', key_word)
+        if not key_word:
+            key_word = year
+
+        return mtype, key_word, season_num, episode_num, year, content

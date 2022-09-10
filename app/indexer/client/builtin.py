@@ -3,17 +3,13 @@ import time
 
 import log
 from app.indexer.client.rarbg import Rarbg
-from app.indexer.indexer_conf import IndexerConf
-from app.sites.siteconf import get_public_sites
+from app.sites import SiteConf
 from app.utils.types import SearchType
 from config import Config
 from app.indexer.indexer import IIndexer
 from app.indexer.client.spider import TorrentSpider
-from app.sites.sites import Sites
-from app.media.meta.metabase import MetaBase
-from app.utils.commons import ProgressController
-from app.indexer.indexer_helper import IndexerHelper
-from app.utils.string_utils import StringUtils
+from app.sites import Sites
+from app.utils import ProgressController, StringUtils, IndexerHelper
 
 
 class BuiltinIndexer(IIndexer):
@@ -47,7 +43,7 @@ class BuiltinIndexer(IIndexer):
                     continue
                 indexer.name = site.get("name")
                 ret_indexers.append(indexer)
-        for site in get_public_sites():
+        for site in SiteConf().get_public_sites():
             indexer = IndexerHelper().get_indexer(site)
             if check and indexer_sites and indexer.id not in indexer_sites:
                 continue
@@ -55,11 +51,11 @@ class BuiltinIndexer(IIndexer):
         return ret_indexers
 
     def search(self, order_seq,
-               indexer: IndexerConf,
+               indexer,
                key_word,
                filter_args: dict,
                match_type,
-               match_media: MetaBase,
+               match_media,
                in_from: SearchType):
         """
         根据关键字多线程检索

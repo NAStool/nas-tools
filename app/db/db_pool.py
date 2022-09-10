@@ -3,7 +3,6 @@
 import sqlite3
 import threading
 from queue import Empty, Queue
-
 import log
 
 

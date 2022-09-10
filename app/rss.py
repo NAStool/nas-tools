@@ -4,21 +4,14 @@ import xml.dom.minidom
 from threading import Lock
 
 import log
-from app.db.sql_helper import SqlHelper
-from app.message.message import Message
+from app.db import SqlHelper
+from app.message import Message
 from app.downloader.downloader import Downloader
 from app.filterrules import FilterRule
 from app.searcher import Searcher
-from app.sites.siteconf import get_extrasite_conf
-from app.sites.sites import Sites
-from app.utils.torrent import Torrent
-from app.media.media import Media
-from app.media.meta.metabase import MetaBase
-from app.media.meta.metainfo import MetaInfo
-from app.utils.dom_utils import DomUtils
-from app.utils.http_utils import RequestUtils
-from app.media.meta_helper import MetaHelper
-from app.utils.string_utils import StringUtils
+from app.sites import SiteConf, Sites
+from app.utils import Torrent, DomUtils, RequestUtils, StringUtils, MetaHelper
+from app.media import MetaInfo, Media
 from app.utils.types import MediaType, SearchType
 
 lock = Lock()
@@ -577,7 +570,7 @@ class Rss:
                                 'GiB': 1024 * 1024 * 1024,
                                 'TiB': 1024 * 1024 * 1024 * 1024
                             }
-                            site_attr = get_extrasite_conf(url)
+                            site_attr = SiteConf().get_extrasite_conf(url)
                             if site_attr == 'Unit3D':
                                 size_temp = re.search(r'Size</strong>: (\d*\.\d*|\d*)(\s)(GiB|MiB|TiB|KiB)',
                                                       description)
@@ -641,7 +634,7 @@ class Rss:
         return target
 
     @staticmethod
-    def __is_torrent_match_rss(media_info: MetaBase,
+    def __is_torrent_match_rss(media_info,
                                movie_keys,
                                tv_keys,
                                site_rule,

@@ -1,9 +1,9 @@
 import time
 
-from app.message.message import Message
-from app.mediaserver.media_server import MediaServer
+from app.message import Message
+from app.mediaserver import MediaServer
 from app.filetransfer import FileTransfer
-from web.backend.web_utils import get_location
+from app.utils import WebUtils
 
 
 class WebhookEvent:
@@ -131,7 +131,7 @@ class WebhookEvent:
             message_texts.append(f"客户端：{event_info.get('client')}")
         if event_info.get('ip'):
             message_texts.append(f"IP地址：{event_info.get('ip')}")
-            message_texts.append(f"位置：{get_location(event_info.get('ip'))}")
+            message_texts.append(f"位置：{WebUtils.get_location(event_info.get('ip'))}")
         message_texts.append(f"时间：{time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))}")
         # 消息图片
         if event_info.get('item_id'):

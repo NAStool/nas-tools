@@ -7,7 +7,7 @@ from html import escape
 from logging.handlers import RotatingFileHandler
 
 from config import Config
-from app.utils.sysmsg_helper import MessageCenter
+from app.utils import MessageCenter
 
 lock = threading.Lock()
 LOG_QUEUE = deque(maxlen=200)

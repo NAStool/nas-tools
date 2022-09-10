@@ -6,18 +6,18 @@ from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import log
-from app.mediaserver.media_server import MediaServer
+from app.mediaserver import MediaServer
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
     RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_CHECK_INTERVAL, REFRESH_PT_DATA_INTERVAL, \
     RSS_REFRESH_TMDB_INTERVAL, META_DELETE_UNKNOWN_INTERVAL, REFRESH_WALLPAPER_INTERVAL
 from app.douban import DouBan
-from app.downloader.downloader import Downloader
+from app.downloader import Downloader
 from app.rss import Rss
-from app.sites.sites import Sites
+from app.sites import Sites
 from app.sync import Sync
 from app.utils.commons import singleton
-from app.media.meta_helper import MetaHelper
-from web.backend.web_utils import get_login_wallpaper
+from app.utils import MetaHelper
+from web.backend.wallpaper import get_login_wallpaper
 
 
 @singleton

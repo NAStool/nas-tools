@@ -5,7 +5,7 @@ import log
 from config import Config
 from app.utils.commons import singleton
 from app.db.db_pool import DBPool
-from app.utils.path_utils import PathUtils
+from app.utils import PathUtils
 
 lock = threading.Lock()
 

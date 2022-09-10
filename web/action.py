@@ -9,47 +9,30 @@ from flask_login import logout_user
 from werkzeug.security import generate_password_hash
 
 import log
-from app.mediaserver.media_server import MediaServer
-from app.utils.string_utils import StringUtils
+from app.media.doubanv2api import DoubanHot
+from app.mediaserver import MediaServer
+from app.utils import StringUtils, Torrent, EpisodeFormat, ProgressController, RequestUtils, PathUtils, MessageCenter, ThreadHelper, MetaHelper
 from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
-from app.message.channel.telegram import Telegram
-from app.message.channel.wechat import WeChat
-from app.message.message import Message
+from app.message import Telegram, WeChat, Message
 from app.brushtask import BrushTask
-from app.downloader.client.qbittorrent import Qbittorrent
-from app.downloader.client.transmission import Transmission
+from app.downloader import Qbittorrent, Transmission, Downloader
 from app.douban import DouBan
-from app.downloader.downloader import Downloader
 from app.filterrules import FilterRule
-from app.mediaserver.server.emby import Emby
-from app.mediaserver.server.jellyfin import Jellyfin
-from app.mediaserver.server.plex import Plex
+from app.mediaserver import Emby, Jellyfin, Plex
 from app.rss import Rss
-from app.sites.siteconf import get_grapsite_conf
-from app.sites.sites import Sites
+from app.sites import SiteConf, Sites
 from app.subtitle import Subtitle
-from app.utils.torrent import Torrent
-from app.media.category import Category
-from app.media.doubanv2api.doubanapi import DoubanApi
+from app.media import Category, Media, MetaInfo
+from app.media.doubanv2api import DoubanApi
 from app.filetransfer import FileTransfer
-from app.media.media import Media
-from app.media.meta.metainfo import MetaInfo
 from app.scheduler import stop_scheduler, restart_scheduler
 from app.sync import stop_monitor, restart_monitor
 from app.scheduler import Scheduler
 from app.sync import Sync
-from app.utils.commons import EpisodeFormat, ProgressController
-from app.utils.http_utils import RequestUtils
-from app.media.meta_helper import MetaHelper
-from app.utils.path_utils import PathUtils
-from app.utils.sysmsg_helper import MessageCenter
-from app.utils.thread_helper import ThreadHelper
 from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
-from web.backend.douban_hot import DoubanHot
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 from web.backend.subscribe import add_rss_subscribe
-from app.db.sql_helper import SqlHelper
-from app.db.dict_helper import DictHelper
+from app.db import SqlHelper, DictHelper
 
 
 class WebAction:
@@ -532,7 +515,7 @@ class WebAction:
             path = os.path.dirname(path)
             need_fix_all = True
         # 手工识别的内容全部加入缓存
-        MetaHelper().save_rename_cache(path, tmdb_info)
+        Media().save_rename_cache(path, tmdb_info)
         # 开始转移
         succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
                                                            in_path=path,
@@ -577,7 +560,7 @@ class WebAction:
         if not tmdb_info:
             return {"retcode": 1, "retmsg": "识别失败，无法查询到TMDB信息"}
         # 手工识别的内容全部加入缓存
-        MetaHelper().save_rename_cache(inpath, tmdb_info)
+        Media().save_rename_cache(inpath, tmdb_info)
         # 自定义转移
         succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
                                                            in_path=inpath,
@@ -723,7 +706,7 @@ class WebAction:
         if tid:
             ret = Sites().get_sites(siteid=tid)
             if ret.get("rssurl"):
-                site_attr = get_grapsite_conf(ret.get("rssurl"))
+                site_attr = SiteConf().get_grapsite_conf(ret.get("rssurl"))
                 if site_attr.get("FREE"):
                     site_free = True
                 if site_attr.get("2XFREE"):
@@ -1925,7 +1908,7 @@ class WebAction:
         """
         检查站点标识
         """
-        site_attr = get_grapsite_conf(data.get("url"))
+        site_attr = SiteConf().get_grapsite_conf(data.get("url"))
         site_free = site_2xfree = site_hr = False
         if site_attr.get("FREE"):
             site_free = True

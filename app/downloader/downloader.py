@@ -3,22 +3,15 @@ from threading import Lock
 from time import sleep
 
 import log
-from app.media.meta.metabase import MetaBase
-from app.utils.commons import RMT_MODES
+from app.media import MetaInfo, Media
 from config import Config, PT_TAG
-from app.message.message import Message
-from app.downloader.client.aria2 import Aria2
-from app.downloader.client.client115 import Client115
-from app.downloader.client.qbittorrent import Qbittorrent
-from app.downloader.client.transmission import Transmission
-from app.mediaserver.media_server import MediaServer
-from app.sites.sites import Sites
-from app.utils.torrent import Torrent
+from app.message import Message
+from app.downloader import Aria2, Client115, Qbittorrent, Transmission
+from app.mediaserver import MediaServer
+from app.sites import Sites
+from app.utils import Torrent, StringUtils
 from app.filetransfer import FileTransfer
-from app.media.media import Media
-from app.media.meta.metainfo import MetaInfo
-from app.utils.string_utils import StringUtils
-from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode
+from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode, RMT_MODES
 
 lock = Lock()
 
@@ -417,7 +410,7 @@ class Downloader:
         # 返回下载的资源，剩下没下完的
         return return_items, need_tvs
 
-    def check_exists_medias(self, meta_info: MetaBase, no_exists=None):
+    def check_exists_medias(self, meta_info, no_exists=None):
         """
         检查媒体库，查询是否存在，对于剧集同时返回不存在的季集信息
         :param meta_info: 已识别的媒体信息，包括标题、年份、季、集信息

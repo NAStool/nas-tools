@@ -4,7 +4,7 @@ from urllib import parse
 
 import requests
 
-from app.utils.http_utils import RequestUtils
+from app.utils import RequestUtils
 
 
 class Py115:

@@ -3,9 +3,8 @@ import os.path
 import time
 from enum import Enum
 
-from app.media.meta.metabase import MetaBase
 from app.db.db_helper import DBHelper
-from app.utils.string_utils import StringUtils
+from app.utils import StringUtils
 from app.utils.types import MediaType, RmtMode
 
 
@@ -124,7 +123,7 @@ class SqlHelper:
         return DBHelper().update_by_sql("DELETE FROM SEARCH_RESULT_INFO")
 
     @staticmethod
-    def insert_rss_torrents(media_info: MetaBase):
+    def insert_rss_torrents(media_info):
         """
         将RSS的记录插入数据库
         """
@@ -139,7 +138,7 @@ class SqlHelper:
                                               media_info.get_episode_string()))
 
     @staticmethod
-    def insert_douban_media_state(media: MetaBase, state):
+    def insert_douban_media_state(media, state):
         """
         将豆瓣的数据插入数据库
         """
@@ -160,7 +159,7 @@ class SqlHelper:
                                               state))
 
     @staticmethod
-    def update_douban_media_state(media: MetaBase, state):
+    def update_douban_media_state(media, state):
         """
         标记豆瓣数据的状态
         """
@@ -192,7 +191,7 @@ class SqlHelper:
             return False
 
     @staticmethod
-    def insert_transfer_history(in_from: Enum, rmt_mode: RmtMode, in_path, dest, media_info: MetaBase):
+    def insert_transfer_history(in_from: Enum, rmt_mode: RmtMode, in_path, dest, media_info):
         """
         插入识别转移记录
         """
@@ -532,7 +531,7 @@ class SqlHelper:
             return False
 
     @staticmethod
-    def insert_rss_movie(media_info: MetaBase,
+    def insert_rss_movie(media_info,
                          state='D',
                          sites: list = None,
                          search_sites: list = None,
@@ -677,7 +676,7 @@ class SqlHelper:
             return False
 
     @staticmethod
-    def insert_rss_tv(media_info: MetaBase, total, lack=0, state="D",
+    def insert_rss_tv(media_info, total, lack=0, state="D",
                       sites: list = None,
                       search_sites: list = None,
                       over_edition=False,
@@ -1141,7 +1140,7 @@ class SqlHelper:
             return False
 
     @staticmethod
-    def insert_download_history(media_info: MetaBase):
+    def insert_download_history(media_info):
         """
         新增下载历史
         """

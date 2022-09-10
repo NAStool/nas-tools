@@ -1,6 +1,6 @@
 import re
 
-from app.utils.commons import SPLIT_CHARS
+from config import SPLIT_CHARS
 
 
 class Tokens:

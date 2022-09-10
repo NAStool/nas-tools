@@ -45,11 +45,10 @@ from app.brushtask import BrushTask
 from app.sync import run_monitor, stop_monitor
 from app.scheduler import run_scheduler, stop_scheduler
 from app.utils.check_config import check_config
-from app.utils.system_utils import SystemUtils
+from app.utils import SystemUtils, IndexerHelper
 from app.utils.types import OsType
 from version import APP_VERSION
 from web.app import FlaskApp
-from web.backend.web_utils import init_features
 
 warnings.filterwarnings('ignore')
 
@@ -107,8 +106,8 @@ if __name__ == "__main__":
         p1 = threading.Thread(target=traystart, daemon=True)
         p1.start()
 
-    # 加载特性
-    init_features()
+    # 加载索引器配置
+    IndexerHelper()
 
     # 启动主WEB服务
     FlaskApp().run_service()

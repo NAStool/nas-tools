@@ -6,7 +6,7 @@ from functools import lru_cache
 import requests
 
 from app.utils.commons import singleton
-from app.utils.http_utils import RequestUtils
+from app.utils import RequestUtils
 
 logger = logging.getLogger(__name__)
 

@@ -3,16 +3,9 @@ from enum import Enum
 
 import log
 from config import Config
-from app.message.channel.bark import Bark
-from app.message.channel.iyuu import IyuuMsg
-from app.message.channel.pushplus import PushPlus
-from app.message.channel.serverchan import ServerChan
-from app.message.channel.telegram import Telegram
-from app.message.channel.wechat import WeChat
-from app.media.meta.metabase import MetaBase
-from app.db.sql_helper import SqlHelper
-from app.utils.string_utils import StringUtils
-from app.utils.sysmsg_helper import MessageCenter
+from app.message import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat
+from app.db import SqlHelper
+from app.utils import StringUtils, MessageCenter
 from app.utils.types import SearchType, MediaType
 
 
@@ -134,7 +127,7 @@ class Message:
             log.error("【MSG】发送消息失败：%s" % ret_msg)
         return state
 
-    def send_download_message(self, in_from: SearchType, can_item: MetaBase):
+    def send_download_message(self, in_from: SearchType, can_item):
         """
         发送下载的消息
         :param in_from: 下载来源
@@ -172,7 +165,7 @@ class Message:
         # 登记下载历史
         SqlHelper.insert_download_history(can_item)
 
-    def send_transfer_movie_message(self, in_from: Enum, media_info: MetaBase, exist_filenum, category_flag):
+    def send_transfer_movie_message(self, in_from: Enum, media_info, exist_filenum, category_flag):
         """
         发送转移电影的消息
         :param in_from: 转移来源
@@ -221,7 +214,7 @@ class Message:
                 msg_str = f"{msg_str}，共{item_info.total_episodes}集，总大小：{StringUtils.str_filesize(item_info.size)}，来自：{in_from.value}"
             self.sendmsg(title=msg_title, text=msg_str, image=item_info.get_message_image(), url='history')
 
-    def send_download_fail_message(self, item: MetaBase, error_msg):
+    def send_download_fail_message(self, item, error_msg):
         """
         发送下载失败的消息
         """
@@ -232,7 +225,7 @@ class Message:
             text=f"种子：{item.org_string}\n错误信息：{error_msg}",
             image=item.get_message_image())
 
-    def send_rss_success_message(self, in_from: Enum, media_info: MetaBase, user_id=""):
+    def send_rss_success_message(self, in_from: Enum, media_info, user_id=""):
         """
         发送订阅成功的消息
         """
@@ -253,7 +246,7 @@ class Message:
                               url='movie_rss' if media_info.type == MediaType.MOVIE else 'tv_rss',
                               user_id=user_id)
 
-    def send_rss_finished_message(self, media_info: MetaBase):
+    def send_rss_finished_message(self, media_info):
         """
         发送订阅完成的消息，只针对电视剧
         """

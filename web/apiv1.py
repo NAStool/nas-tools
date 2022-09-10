@@ -1,6 +1,6 @@
 from flask import Blueprint, make_response, request, jsonify
 
-from app.sites.sites import Sites
+from app.sites import Sites
 from config import Config
 
 apiv1 = Blueprint("apiv1", __name__)

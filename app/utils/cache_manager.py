@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from cacheout import CacheManager, LRUCache
 
 CACHES = {

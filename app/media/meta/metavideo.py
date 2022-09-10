@@ -3,7 +3,7 @@ import re
 
 from config import RMT_MEDIAEXT
 from app.media.meta.metabase import MetaBase
-from app.utils.string_utils import StringUtils
+from app.utils import StringUtils
 from app.utils.tokens import Tokens
 from app.utils.types import MediaType
 from app.media.meta.release_groups import release_groups, rg_match

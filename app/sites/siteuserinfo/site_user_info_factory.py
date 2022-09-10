@@ -8,7 +8,7 @@ from app.sites.siteuserinfo.ipt_project import IptSiteUserInfo
 from app.sites.siteuserinfo.nexus_php import NexusPhpSiteUserInfo
 from app.sites.siteuserinfo.nexus_project import NexusProjectSiteUserInfo
 from app.sites.siteuserinfo.small_horse import SmallHorseSiteUserInfo
-from app.utils.http_utils import RequestUtils
+from app.utils import RequestUtils
 
 
 class SiteUserInfoFactory(object):

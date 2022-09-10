@@ -5,7 +5,7 @@ from lxml import etree
 
 import log
 from app.sites.siteuserinfo.site_user_info import ISiteUserInfo
-from app.utils.string_utils import StringUtils
+from app.utils import StringUtils
 
 
 class NexusPhpSiteUserInfo(ISiteUserInfo):

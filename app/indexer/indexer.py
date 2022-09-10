@@ -5,14 +5,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import log
 from app.filterrules import FilterRule
-from app.utils.torrent import Torrent
-from app.media.media import Media
-from app.media.meta.metabase import MetaBase
-from app.media.meta.metainfo import MetaInfo
-from app.utils.commons import ProgressController
-from app.utils.dom_utils import DomUtils
-from app.utils.http_utils import RequestUtils
-from app.utils.string_utils import StringUtils
+from app.utils import Torrent, DomUtils, RequestUtils, StringUtils, ProgressController
+from app.media import MetaInfo, Media
 from app.utils.types import MediaType, SearchType
 
 
@@ -57,7 +51,7 @@ class IIndexer(metaclass=ABCMeta):
                           key_word,
                           filter_args: dict,
                           match_type=0,
-                          match_media: MetaBase = None,
+                          match_media = None,
                           in_from: SearchType = None):
         """
         根据关键字调用 Index API 检索
@@ -123,7 +117,7 @@ class IIndexer(metaclass=ABCMeta):
                key_word,
                filter_args: dict,
                match_type,
-               match_media: MetaBase,
+               match_media,
                in_from: SearchType):
         """
         根据关键字多线程检索
@@ -259,7 +253,7 @@ class IIndexer(metaclass=ABCMeta):
                               indexer_name,
                               filter_args: dict,
                               match_type,
-                              match_media: MetaBase,
+                              match_media,
                               start_time):
         """
         从检索结果中匹配符合资源条件的记录

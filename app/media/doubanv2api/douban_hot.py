@@ -1,4 +1,4 @@
-from app.media.doubanv2api.doubanapi import DoubanApi
+from app.media.doubanv2api import DoubanApi
 from app.utils.commons import singleton
 
 

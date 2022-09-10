@@ -6,7 +6,7 @@ from pythonopensubtitles.opensubtitles import OpenSubtitles
 import log
 from config import Config
 from app.utils.commons import singleton
-from app.utils.http_utils import RequestUtils
+from app.utils import RequestUtils
 from app.utils.types import MediaType
 
 

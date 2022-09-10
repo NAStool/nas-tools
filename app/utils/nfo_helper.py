@@ -4,18 +4,11 @@ from xml.dom import minidom
 
 import log
 from config import TMDB_IMAGE_W500_URL
-from app.media.media import Media
-from app.media.meta.metabase import MetaBase
-from app.utils.dom_utils import DomUtils
-from app.utils.http_utils import RequestUtils
+from app.utils import DomUtils, RequestUtils
 from app.utils.types import MediaType
 
 
 class NfoHelper:
-    media = None
-
-    def __init__(self):
-        self.media = Media()
 
     def __gen_common_nfo(self,
                          tmdbinfo: dict,
@@ -275,7 +268,7 @@ class NfoHelper:
         with open(out_file, "wb") as xml_file:
             xml_file.write(xml_str)
 
-    def gen_nfo_files(self, media: MetaBase, scraper_nfo, scraper_pic, dir_path, file_name):
+    def gen_nfo_files(self, media, scraper_nfo, scraper_pic, dir_path, file_name):
         if not scraper_nfo:
             scraper_nfo = {}
         if not scraper_pic:
