@@ -47,9 +47,9 @@ class Sites:
             # 站点未读消息为|分隔的第3位
             site_unread_msg_notify = str(site[9]).split("|")[2] if site[9] and len(str(site[9]).split("|")) > 2 else "Y"
             # 站点用途：Q签到、D订阅、S刷流
-            signin_enable = True if not site[6] or str(site[6]).count("Q") else False
-            rss_enable = True if not site[6] or str(site[6]).count("D") else False
-            brush_enable = True if not site[6] or str(site[6]).count("S") else False
+            signin_enable = True if not site[6] or len(site[6]) > 3 or str(site[6]).count("Q") else False
+            rss_enable = True if not site[6] or len(site[6]) > 3 or str(site[6]).count("D") else False
+            brush_enable = True if not site[6] or len(site[6]) > 3 or str(site[6]).count("S") else False
             if rule_groupid:
                 rule_name = self.filtersites.get_rule_groups(rule_groupid).get("name") or ""
             else:
