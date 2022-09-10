@@ -166,7 +166,7 @@ class Scheduler:
                         mediasync_interval = int(mediasync_interval)
                     else:
                         try:
-                            mediasync_interval = float(mediasync_interval)
+                            mediasync_interval = round(float(mediasync_interval))
                         except Exception as e:
                             log.info("【RUN】豆瓣同步服务启动失败：%s" % str(e))
                             mediasync_interval = 0

@@ -799,7 +799,7 @@ def create_flask_app(config):
     @login_required
     def brushtask():
         # 站点列表
-        CfgSites = Sites().get_sites(rss=True)
+        CfgSites = Sites().get_sites(brush=True)
         # 下载器列表
         downloaders = SqlHelper.get_user_downloaders()
         # 任务列表
@@ -807,8 +807,8 @@ def create_flask_app(config):
         Tasks = []
         for task in brushtasks:
             scheme, netloc = StringUtils.get_url_netloc(task[17])
-            sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[0])
-            forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task[0])
+            sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[2])
+            forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task[2])
             Tasks.append({
                 "id": task[0],
                 "name": task[1],

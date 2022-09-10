@@ -675,6 +675,7 @@ class WebAction:
         signurl = data.get('site_signurl')
         cookie = data.get('site_cookie')
         note = data.get('site_note')
+        rss_uses = data.get('site_include')
         if tid:
             ret = SqlHelper.update_config_site(tid=tid,
                                                name=name,
@@ -682,14 +683,16 @@ class WebAction:
                                                rssurl=rssurl,
                                                signurl=signurl,
                                                cookie=cookie,
-                                               note=note)
+                                               note=note,
+                                               rss_uses=rss_uses)
         else:
             ret = SqlHelper.insert_config_site(name=name,
                                                site_pri=site_pri,
                                                rssurl=rssurl,
                                                signurl=signurl,
                                                cookie=cookie,
-                                               note=note)
+                                               note=note,
+                                               rss_uses=rss_uses)
         # 生效站点配置
         Sites().init_config()
         return {"code": ret}
@@ -1395,9 +1398,9 @@ class WebAction:
         SqlHelper.insert_brushtask(brushtask_id, item)
 
         # 存储消息开关
-        DictHelper.set(SystemDictType.BrushMessageSwitch.value, brushtask_id, brushtask_sendmessage)
+        DictHelper.set(SystemDictType.BrushMessageSwitch.value, brushtask_site, brushtask_sendmessage)
         # 存储是否强制做种的开关
-        DictHelper.set(SystemDictType.BrushForceUpSwitch.value, brushtask_id, brushtask_forceupload)
+        DictHelper.set(SystemDictType.BrushForceUpSwitch.value, brushtask_site, brushtask_forceupload)
 
         # 重新初始化任务
         BrushTask().init_config()
@@ -1426,8 +1429,8 @@ class WebAction:
         if not brushtask:
             return {"code": 1, "task": {}}
         scheme, netloc = StringUtils.get_url_netloc(brushtask[0][17])
-        sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, brushtask[0][0])
-        forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, brushtask[0][0])
+        sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, brushtask[0][2])
+        forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, brushtask[0][2])
         task = {
             "id": brushtask[0][0],
             "name": brushtask[0][1],
