@@ -8,6 +8,7 @@ import signal
 from flask_login import logout_user
 from werkzeug.security import generate_password_hash
 
+import cn2an
 import log
 from app.media.doubanv2api import DoubanHot
 from app.mediaserver import MediaServer
@@ -1003,7 +1004,7 @@ class WebAction:
                 poster_path = TMDB_IMAGE_W500_URL % tmdb_info.get('poster_path') if tmdb_info.get(
                     'poster_path') else ""
                 title = tmdb_info.get('title')
-                vote_average = tmdb_info.get("vote_average")
+                vote_average = round(float(tmdb_info.get("vote_average")), 1)
                 release_date = tmdb_info.get('release_date')
                 year = release_date[0:4] if release_date else ""
 
@@ -1027,7 +1028,8 @@ class WebAction:
                 "link_url": link_url,
                 "tmdbid": tmdbid,
                 "doubanid": doubanid,
-                "rssid": rssid
+                "rssid": rssid,
+                "seasons": []
             }
         else:
             # 查媒体信息
@@ -1043,6 +1045,7 @@ class WebAction:
                 vote_average = rating.get("value") or ""
                 release_date = douban_info.get("pubdate")
                 year = douban_info.get("year")
+                seasons = []
             else:
                 link_url = "https://www.themoviedb.org/tv/%s" % tmdbid
                 tmdb_info = Media().get_tmdb_info(media_type, title, year, tmdbid)
@@ -1052,9 +1055,10 @@ class WebAction:
                 poster_path = TMDB_IMAGE_W500_URL % tmdb_info.get('poster_path') if tmdb_info.get(
                     'poster_path') else ""
                 title = tmdb_info.get('name')
-                vote_average = tmdb_info.get("vote_average")
+                vote_average = round(float(tmdb_info.get("vote_average")), 1)
                 release_date = tmdb_info.get('first_air_date')
                 year = release_date[0:4] if release_date else ""
+                seasons = [{"text": "第%s季" % cn2an.an2cn(season.get("season_number"), mode='low'), "num": season.get("season_number")} for season in Media().get_tmdb_seasons_list(tv_info=tmdb_info)]
 
             # 查订阅信息
             if not rssid:
@@ -1074,7 +1078,8 @@ class WebAction:
                 "link_url": link_url,
                 "tmdbid": tmdbid,
                 "doubanid": doubanid,
-                "rssid": rssid
+                "rssid": rssid,
+                "seasons": seasons
             }
 
     def __test_connection(self, data):

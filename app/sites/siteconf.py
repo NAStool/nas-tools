@@ -303,7 +303,7 @@ class SiteConf:
         'carpt.net': {
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
-            'HR': [],
+            'HR': ["//img[@class='hitandrun']"],
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
     }
