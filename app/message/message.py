@@ -201,7 +201,8 @@ class Message:
             if item_info.total_episodes == 1:
                 msg_title = f"{item_info.get_title_string()} {item_info.get_season_episode_string()} 转移完成"
             else:
-                msg_title = f"{item_info.get_title_string()} {item_info.get_season_string()} 转移完成"
+                msg_title = f"{item_info.get_title_string()} {item_info.get_season_episode_string()} 转移完成"
+                # msg_title = f"{item_info.get_title_string()} {item_info.get_season_string()} 转移完成"
             if item_info.vote_average:
                 msg_str = f"{item_info.get_vote_string()}，类型：{item_info.type.value}"
             else:
