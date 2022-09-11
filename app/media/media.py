@@ -571,7 +571,6 @@ class Media:
                 tv['media_type'] = MediaType.TV
                 ret_infos.append(tv)
         return ret_infos
-
     def get_media_info(self, title, subtitle=None, mtype=None, strict=None, cache=True, chinese=True):
         """
         只有名称信息，判别是电影还是电视剧并搜刮TMDB信息，用于种子名称识别

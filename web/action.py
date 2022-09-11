@@ -1314,7 +1314,7 @@ class WebAction:
                          "year": rss[0][1],
                          "season": rss[0][2],
                          "tmdbid": rss[0][3],
-                         "rss_url": rss[0][4],
+                         "rss_url": rss[0][11],
                          "r_sites": r_sites,
                          "s_sites": s_sites,
                          "over_edition": over_edition,

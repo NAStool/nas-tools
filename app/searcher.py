@@ -38,6 +38,7 @@ class Searcher:
                       key_word,
                       filter_args: dict,
                       match_type,
+                      rss_url=None,
                       match_media=None,
                       in_from: SearchType = None):
         """
@@ -47,8 +48,15 @@ class Searcher:
         :param match_type: 匹配模式：0-识别并模糊匹配；1-识别并精确匹配；2-不识别匹配
         :param match_media: 区配的媒体信息
         :param in_from: 搜索渠道
+        :param rss_url: rss订阅链接
         :return: 命中的资源媒体信息列表
         """
+        if rss_url:
+            from app.rss import Rss
+            return Rss().search_by_rss(key_word=key_word,
+                                       filter_args=filter_args,
+                                       media_info=match_media,
+                                       rss_url=rss_url)
         if not key_word:
             return []
         if not self.indexer:
@@ -62,6 +70,7 @@ class Searcher:
     def search_one_media(self, media_info,
                          in_from: SearchType,
                          no_exists: dict,
+                         rss_url=None,
                          sites: list = None,
                          filters: dict = None):
         """
@@ -114,6 +123,7 @@ class Searcher:
         media_list = self.search_medias(key_word=search_title,
                                         filter_args=filter_args,
                                         match_type=1,
+                                        rss_url=rss_url,
                                         match_media=media_info,
                                         in_from=in_from)
         # 使用名称重新搜索

@@ -13,6 +13,7 @@ from app.sites import SiteConf, Sites
 from app.utils import Torrent, DomUtils, RequestUtils, StringUtils, MetaHelper
 from app.media import MetaInfo, Media
 from app.utils.types import MediaType, SearchType
+import copy
 
 lock = Lock()
 
@@ -422,6 +423,7 @@ class Rss:
             # 开始检索
             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
                 media_info=media_info,
+                rss_url=rss_url,
                 in_from=SearchType.RSS,
                 no_exists=no_exists,
                 sites=sites,
@@ -512,6 +514,45 @@ class Rss:
                                                  image=media_info.get_message_image())
                     # 清除TMDB缓存
                     self.metahelper.delete_meta_data_by_tmdbid(media_info.tmdb_id)
+
+    def search_by_rss(self, key_word, media_info, rss_url, filter_args):
+        rss_result = Rss.parse_rssxml(rss_url)
+        if len(rss_result) == 0:
+            log.warn("【RSS】%s RSS未下载到数据" % key_word)
+            return []
+
+        log.info("【RSS】%s RSS获取数据：%s" % (key_word, len(rss_result)))
+        # 处理RSS结果
+        result = []
+        for res in rss_result:
+            # 种子名
+            torrent_name = res.get('title')
+            # 种子链接
+            enclosure = res.get('enclosure')
+            # 种子页面
+            page_url = res.get('link')
+            # rarbg的rss只有link
+            if not enclosure and page_url:
+                enclosure = page_url
+                page_url = None
+            # 种子大小
+            size = res.get('size')
+
+            log.info("【RSS】开始处理：%s" % torrent_name)
+            m = Media().get_media_info(title=torrent_name)
+            if not m:
+                continue
+            m.tmdb_id = media_info.tmdb_id
+
+            m.set_torrent_info(size=size,
+                               page_url=page_url,
+                               enclosure=enclosure)
+            if not Torrent.check_torrent_filter(meta_info=m,
+                                                filter_args=filter_args):
+                log.info(f"【RSS】{torrent_name} 不符合高级过滤条件")
+                continue
+            result.append(m)
+        return result
 
     @staticmethod
     def __get_media_info(tmdbid, name, year, mtype, cache=True):
