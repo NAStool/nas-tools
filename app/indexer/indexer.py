@@ -284,9 +284,9 @@ class IIndexer(metaclass=ABCMeta):
                 'downloadvolumefactor') is not None else 1.0
 
             # 合匹配模式下，过滤掉做种数为0的
-            if filter_args.get("seeders") and str(seeders) == "0":
-                log.info(f"【{self.index_type}】{torrent_name} 做种数为0")
-                continue
+            # if filter_args.get("seeders") and str(seeders) == "0":
+            #     log.info(f"【{self.index_type}】{torrent_name} ")
+            #     continue
 
             # 识别种子名称
             meta_info = MetaInfo(title=torrent_name, subtitle=description)
