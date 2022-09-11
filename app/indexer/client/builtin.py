@@ -37,14 +37,15 @@ class BuiltinIndexer(IIndexer):
             indexer = IndexerHelper().get_indexer(url=site.get("signurl") or site.get("rssurl"),
                                                   cookie=site.get("cookie"),
                                                   name=site.get("name"),
-                                                  rule=site.get("rule"))
+                                                  rule=site.get("rule"),
+                                                  public=False)
             if indexer:
                 if check and indexer_sites and indexer.id not in indexer_sites:
                     continue
                 indexer.name = site.get("name")
                 ret_indexers.append(indexer)
         for site in SiteConf().get_public_sites():
-            indexer = IndexerHelper().get_indexer(site)
+            indexer = IndexerHelper().get_indexer(url=site, public=True)
             if check and indexer_sites and indexer.id not in indexer_sites:
                 continue
             ret_indexers.append(indexer)

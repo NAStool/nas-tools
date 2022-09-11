@@ -25,7 +25,7 @@ class IndexerHelper:
     def get_all_indexers(self):
         return self._indexers
 
-    def get_indexer(self, url, cookie=None, name=None, rule=None):
+    def get_indexer(self, url, cookie=None, name=None, rule=None, public=None):
         if not url:
             return None
         for indexer in self._indexers:
@@ -35,13 +35,14 @@ class IndexerHelper:
                 return IndexerConf(datas=indexer,
                                    cookie=RequestUtils.cookie_parse(cookie),
                                    name=name,
-                                   rule=rule)
+                                   rule=rule,
+                                   public=public)
         return None
 
 
 class IndexerConf(object):
 
-    def __init__(self, datas=None, cookie=None, name=None, rule=None):
+    def __init__(self, datas=None, cookie=None, name=None, rule=None, public=None):
         if not datas:
             return
         self.datas = datas
@@ -54,6 +55,7 @@ class IndexerConf(object):
         self.category_mappings = self.datas.get('category_mappings', [])
         self.cookie = cookie
         self.rule = rule
+        self.public = public
 
     def get_userinfo(self):
         return self.userinfo
@@ -66,4 +68,3 @@ class IndexerConf(object):
 
     def get_category_mapping(self):
         return self.category_mappings
-
