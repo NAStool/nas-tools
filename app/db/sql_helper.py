@@ -601,19 +601,19 @@ class SqlHelper:
         """
         if rssid:
             sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE" \
-                  ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID" \
+                  ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID,RSS_URL" \
                   " FROM RSS_TVS" \
                   " WHERE ID = ?"
             return DBHelper().select_by_sql(sql, (rssid,))
         else:
             if not state:
                 sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE" \
-                      ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID" \
+                      ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID,RSS_URL" \
                       " FROM RSS_TVS"
                 return DBHelper().select_by_sql(sql)
             else:
                 sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE" \
-                      ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID" \
+                      ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID,RSS_URL" \
                       " FROM RSS_TVS WHERE STATE = ?"
                 return DBHelper().select_by_sql(sql, (state,))
 
@@ -686,6 +686,7 @@ class SqlHelper:
                       rss_pix=None,
                       rss_team=None,
                       rss_rule=None,
+                      rss_url=None,
                       match=False
                       ):
         """
@@ -702,7 +703,7 @@ class SqlHelper:
         if SqlHelper.is_exists_rss_tv(media_info.title, media_info.year, season_str):
             return True
         # 插入订阅数据
-        sql = "INSERT INTO RSS_TVS(NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        sql = "INSERT INTO RSS_TVS(NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE,RSS_URL) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?)"
         desc = "#".join(["|".join(sites or []),
                          "|".join(search_sites or []),
                          "Y" if over_edition else "N",
@@ -718,7 +719,8 @@ class SqlHelper:
                                               desc,
                                               total,
                                               lack,
-                                              state))
+                                              state,
+                                              rss_url))
 
     @staticmethod
     def update_rss_tv_lack(title=None, year=None, season=None, rssid=None, lack_episodes: list = None):

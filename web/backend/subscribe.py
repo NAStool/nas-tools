@@ -16,6 +16,7 @@ def add_rss_subscribe(mtype, name, year,
                       rss_pix=None,
                       rss_team=None,
                       rss_rule=None,
+                      rss_url=None,
                       state="D",
                       rssid=None):
     """
@@ -36,6 +37,7 @@ def add_rss_subscribe(mtype, name, year,
     :param rss_rule: 关键字过滤
     :param state: 添加订阅时的状态
     :param rssid: 修改订阅时传入
+    :param rss_url: RSS订阅地址
     :return: 错误码：0代表成功，错误信息
     """
     if not name:
@@ -117,6 +119,7 @@ def add_rss_subscribe(mtype, name, year,
                                     rss_pix=rss_pix,
                                     rss_team=rss_team,
                                     rss_rule=rss_rule,
+                                    rss_url=rss_url,
                                     state=state,
                                     match=match)
         else:
@@ -164,6 +167,7 @@ def add_rss_subscribe(mtype, name, year,
                                     rss_pix=rss_pix,
                                     rss_team=rss_team,
                                     rss_rule=rss_rule,
+                                    rss_url=rss_url,
                                     match=match)
 
     return 0, "添加订阅成功", media_info

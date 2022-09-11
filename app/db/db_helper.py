@@ -101,6 +101,7 @@ class DBHelper:
                                    DESC    TEXT,
                                    TOTAL    INTEGER,
                                    LACK    INTEGER,
+                                   RSS_URL TEXT,
                                    STATE    TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_RSS_TVS_NAME ON RSS_TVS(NAME);''')
             # 电视剧订阅剧集明细

@@ -216,7 +216,7 @@ class Rss:
                                                                              source=library_no_exists,
                                                                              title=media_info.tmdb_id)
                                     log.info("【RSS】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                                  rss_no_exists.get(media_info.tmdb_id)))
+                                                                      rss_no_exists.get(media_info.tmdb_id)))
                         # 返回对象
                         media_info.set_torrent_info(res_order=res_order,
                                                     download_volume_factor=download_volume_factor,
@@ -254,7 +254,7 @@ class Rss:
                                 if item.rssid:
                                     log.info(
                                         "【RSS】电视剧 %s %s 订阅完成，删除订阅..." % (item.get_title_string(),
-                                                                         item.get_season_string()))
+                                                                                    item.get_season_string()))
                                     SqlHelper.delete_rss_tv(rssid=item.rssid)
                                     # 发送订阅完成的消息
                                     self.message.send_rss_finished_message(item)
@@ -368,6 +368,7 @@ class Rss:
             year = tv[1] or ""
             season = tv[2]
             tmdbid = tv[3]
+            rss_url = tv[11]
             total = int(tv[6]) if str(tv[6]).isdigit() else 0
             # 跳过模糊匹配的
             if not season or not tmdbid:
@@ -417,8 +418,7 @@ class Rss:
                                                      source=library_no_exists,
                                                      title=media_info.tmdb_id)
                 log.info("【RSS】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                              no_exists.get(media_info.tmdb_id)))
-
+                                                  no_exists.get(media_info.tmdb_id)))
             # 开始检索
             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
                 media_info=media_info,
@@ -500,7 +500,8 @@ class Rss:
                 if total_episode and (name != media_info.title or total != total_episode):
                     # 新的缺失集数
                     lack_episode = total_episode - (total - lack)
-                    log.info(f"【RSS】检测到TMDB信息变化，更新电视剧订阅 {name} 为 {media_info.title}，总集数为：{total_episode}")
+                    log.info(
+                        f"【RSS】检测到TMDB信息变化，更新电视剧订阅 {name} 为 {media_info.title}，总集数为：{total_episode}")
                     # 更新订阅信息
                     SqlHelper.update_rss_tv_tmdb(rid=rid,
                                                  tmdbid=media_info.tmdb_id,
@@ -804,12 +805,12 @@ class Rss:
                 return None, None, total_episodes, res_order, upload_volume_factor, download_volume_factor, season
             else:
                 log.info("【RSS】%s 识别为 %s%s 匹配订阅成功" % (media_info.org_string,
-                                                      media_info.get_title_string(),
-                                                      media_info.get_season_episode_string()))
+                                                               media_info.get_title_string(),
+                                                               media_info.get_season_episode_string()))
                 log.info("【RSS】种子描述：%s" % media_info.subtitle)
                 return rssid, over_edition, total_episodes, res_order, upload_volume_factor, download_volume_factor, season
         else:
             log.info("【RSS】%s 识别为 %s%s 不在订阅范围" % (media_info.org_string,
-                                                  media_info.get_title_string(),
-                                                  media_info.get_season_episode_string()))
+                                                           media_info.get_title_string(),
+                                                           media_info.get_season_episode_string()))
             return None, None, total_episodes, res_order, upload_volume_factor, download_volume_factor, season

@@ -186,6 +186,16 @@
               </div>
             </div>
           </div>
+          <div class="row rss_sites_container" id="rss_sites_div">
+            <div class="mb-3">
+              <label class="form-label">RSS地址</label>
+              <div class="form-selectgroup">
+                <label class="form-selectgroup-item">
+                    <input type="text" value="" id="rss_url" class="form-control" placeholder="RSS订阅地址">
+                </label>
+              </div>
+            </div>
+          </div>
           <div class="row rss_sites_container" id="rss_search_sites_div">
             <div class="mb-3">
               <label class="form-label">搜索站点</label>
@@ -226,6 +236,7 @@
     var rss_restype = $("#rss_restype").val();
     var rss_pix = $("#rss_pix").val();
     var rss_team = $("#rss_team").val();
+    var rss_url = $("#rss_url").val();
     var rss_rule = $("#rss_rule").val();
     var over_edition = $("#over_edition").prop("checked");
     if (!name) {
@@ -294,6 +305,7 @@
                  "rss_restype": rss_restype,
                  "rss_pix": rss_pix,
                  "rss_team": rss_team,
+                 "rss_url": rss_url,
                  "rss_rule": rss_rule,
                  "over_edition": over_edition,
                  "rssid": rssid,
@@ -414,6 +426,7 @@
         $("#rss_restype").val(ret.detail.filter.restype);
         $("#rss_pix").val(ret.detail.filter.pix);
         $("#rss_team").val(ret.detail.filter.team);
+        $("#rss_url").val(ret.detail.rss_url);
         $("#rss_rule").val(ret.detail.filter.rule);
         $("#rss_sites_div").find("input[type=checkbox]").each(function(){
           if(ret.detail.r_sites.length==0 || ret.detail.r_sites.includes($(this).val())){

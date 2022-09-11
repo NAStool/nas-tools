@@ -913,6 +913,7 @@ class WebAction:
         rss_pix = data.get("rss_pix")
         rss_team = data.get("rss_team")
         rss_rule = data.get("rss_rule")
+        rss_url = data.get("rss_url")
         rssid = data.get("rssid")
         if name and mtype:
             if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
@@ -933,6 +934,7 @@ class WebAction:
                                                   rss_pix=rss_pix,
                                                   rss_team=rss_team,
                                                   rss_rule=rss_rule,
+                                                  rss_url=rss_url,
                                                   rssid=rssid)
         return {"code": code, "msg": msg, "page": page, "name": name}
 
@@ -1312,6 +1314,7 @@ class WebAction:
                          "year": rss[0][1],
                          "season": rss[0][2],
                          "tmdbid": rss[0][3],
+                         "rss_url": rss[0][4],
                          "r_sites": r_sites,
                          "s_sites": s_sites,
                          "over_edition": over_edition,
