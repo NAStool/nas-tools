@@ -1,6 +1,6 @@
 ---
 name: 问题模板
-about: 如发现Bug，请按此模板提交issues
+about: 如发现Bug，请按此模板提交issues，不按模板提交的问题将直接关闭
 ---
 
 ## 你使用的 NASTool 是什么版本，什么环境？
@@ -16,7 +16,7 @@ about: 如发现Bug，请按此模板提交issues
 
 ## 是否已经浏览过Issues、Wiki及TG公众号仍无法解决？
 
-> 请浏览器Issues列表、查看wiki跟TG公众号的更新说明，已经解释过的问题不要重复提问
+> 请搜索Issues列表、查看wiki跟TG公众号的更新说明，已经解释过的问题不要重复提问
 
 
 ## 你期望的结果
