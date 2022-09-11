@@ -51,7 +51,7 @@ class IIndexer(metaclass=ABCMeta):
                           key_word,
                           filter_args: dict,
                           match_type=0,
-                          match_media = None,
+                          match_media=None,
                           in_from: SearchType = None):
         """
         根据关键字调用 Index API 检索

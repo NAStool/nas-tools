@@ -1378,8 +1378,12 @@ def create_flask_app(config):
     @login_required
     def indexer():
         indexers = BuiltinIndexer().get_indexers(check=False)
+        private_count = len([item.id for item in indexers if not item.public])
+        public_count = len([item.id for item in indexers if item.public])
         return render_template("setting/indexer.html",
                                Config=config.get_config(),
+                               PrivateCount=private_count,
+                               PublicCount=public_count,
                                Indexers=indexers)
 
     # 媒体库页面
