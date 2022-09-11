@@ -46,9 +46,10 @@ class BuiltinIndexer(IIndexer):
                 ret_indexers.append(indexer)
         for site in SiteConf().get_public_sites():
             indexer = IndexerHelper().get_indexer(url=site, public=True)
-            if check and indexer_sites and indexer.id not in indexer_sites:
-                continue
-            ret_indexers.append(indexer)
+            if indexer:
+                if check and indexer_sites and indexer.id not in indexer_sites:
+                    continue
+                ret_indexers.append(indexer)
         return ret_indexers
 
     def search(self, order_seq,
