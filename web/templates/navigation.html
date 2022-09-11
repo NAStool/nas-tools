@@ -787,9 +787,10 @@
             <a href="#" target="_blank" class="card-btn" id="system_media_url_btn">
               详情
             </a>
-            <a href="javascript:void(0)" class="card-btn" id="system_media_rss_btn">
+            <a href="javascript:void(0)" data-bs-toggle="dropdown" class="dropdown-toggle card-btn" id="system_media_rss_btn">
               订阅
             </a>
+            <div class="dropdown-menu" id="system_media_rss_dropdown"></div>
             <a href="javascript:void(0)" class="card-btn" id="system_media_search_btn">
               搜索
             </a>
@@ -955,9 +956,14 @@
             $("#system_media_vote").show();
           }
           //订阅按钮、搜索按钮
+          if($("#system_media_rss_dropdown").hasClass("show")){
+            $("#system_media_rss_btn").dropdown("toggle");
+          }
           if (ret.rssid) {
             //取消订阅按钮
-            $("#system_media_rss_btn").text("删除订阅");
+            $("#system_media_rss_btn").text("取消订阅");
+            $("#system_media_rss_btn").removeAttr("data-bs-toggle");
+            $("#system_media_rss_btn").removeClass("dropdown-toggle");
             $("#system_media_rss_btn").attr("href", 'javascript:remove_rss_media("' + ret.title + '","' + ret.year + '","' + ret.type + '","' + ret.rssid + '","' + ret.page + '")');
             //刷新和编辑按钮
             if (ret.page.startsWith("movie_rss") || ret.page.startsWith("tv_rss")) {
@@ -970,7 +976,10 @@
               $("#system_media_url_btn").removeAttr("target");
               $("#system_media_url_btn").attr("href", "javascript:show_edit_rss_media_modal('" + ret.rssid + "')");
             } else {
-              $("#system_media_search_btn").hide();
+              //搜索按钮
+              $("#system_media_search_btn").text("搜索");
+              $("#system_media_search_btn").attr("href", 'javascript:search_mediainfo_media("' + ret.tmdbid + '", "' + ret.doubanid + '", "' + ret.title + '", "' + ret.type_str + '")');
+              $("#system_media_search_btn").show();
               //详情按钮
               $("#system_media_url_btn").text("详情");
               $("#system_media_url_btn").attr("target", "_blank");
@@ -979,7 +988,21 @@
           } else {
             //订阅按钮
             $("#system_media_rss_btn").text("订阅");
-            $("#system_media_rss_btn").attr("href", 'javascript:add_rss_media("' + ret.title + '","' + ret.year + '","' + ret.type + '","' + ret.tmdbid + '","' + ret.doubanid + '","' + ret.page + '")');
+            if(ret.seasons.length == 0){
+              $("#system_media_rss_btn").removeAttr("data-bs-toggle");
+              $("#system_media_rss_btn").removeClass("dropdown-toggle");
+              $("#system_media_rss_btn").attr("href", 'javascript:add_rss_media("' + ret.title + '","' + ret.year + '","' + ret.type + '","' + ret.tmdbid + '","' + ret.doubanid + '","' + ret.page + '","")');
+            }else{
+              $("#system_media_rss_btn").prop("data-bs-toggle", "dropdown");
+              $("#system_media_rss_btn").addClass("dropdown-toggle");
+              $("#system_media_rss_btn").attr("href", 'javascript:$("#system_media_rss_btn").dropdown("toggle")');
+              $("#system_media_rss_dropdown").empty();
+              for(var i=0; i<ret.seasons.length; i++){
+                $("#system_media_rss_dropdown").append('<a class="dropdown-item" href=\'javascript:add_rss_media("' + ret.title + '","' + ret.year + '","' + ret.type + '","' + ret.tmdbid + '","' + ret.doubanid + '","' + ret.page + '","' + ret.seasons[i].num + '")\'>' + ret.seasons[i].text + '</a>');
+              }
+            }
+
+            //订阅季的下拉框
             //搜索按钮
             $("#system_media_search_btn").text("搜索");
             $("#system_media_search_btn").attr("href", 'javascript:search_mediainfo_media("' + ret.tmdbid + '", "' + ret.doubanid + '", "' + ret.title + '", "' + ret.type_str + '")');
@@ -1087,9 +1110,15 @@
     }
 
     //新增订阅
-    function add_rss_media (name, year, type, tmdbid, doubanid, page) {
+    function add_rss_media (name, year, type, tmdbid, doubanid, page, season) {
       hide_mediainfo_modal();
-      var data = { "name": name, "type": type, "year": year, "doubanid": doubanid, "tmdbid": tmdbid, "page": page };
+      var data = { "name": name,
+                   "type": type,
+                   "year": year,
+                   "doubanid": doubanid,
+                   "tmdbid": tmdbid,
+                   "page": page,
+                   "season": season};
       show_wait_process();
       ajax_post("add_rss_media", data, function (ret) {
         hide_wait_process();
