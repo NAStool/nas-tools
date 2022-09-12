@@ -161,7 +161,7 @@
                   <line x1="21" y1="21" x2="15" y2="15" />
                 </svg>
               </span>
-              <input type="text" value="" class="form-control home_search_word" placeholder="搜索...">
+              <input type="text" value="" class="form-control home_search_word" placeholder="搜索/订阅...">
             </div>
           </div>
           <ul class="navbar-nav pt-lg-3">
@@ -581,7 +581,7 @@
                   <line x1="21" y1="21" x2="15" y2="15" />
                 </svg>
               </span>
-              <input type="text" value="" class="form-control home_search_word" placeholder="搜索…" aria-label="资源搜索">
+              <input type="text" value="" class="form-control home_search_word" placeholder="搜索/订阅…" aria-label="资源搜索/订阅">
             </div>
           </div>
         </div>
@@ -817,6 +817,31 @@
             暂停
           </a>
           <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="logging_close_btn">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="modal modal-blur fade" id="system-rss-seasons" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="card border-top-0">
+          <div class="card-header">
+            <h5 class="modal-title">选择订阅季</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col">
+                <div class="mb-3">
+                  <div class="form-selectgroup" id="system_rss_seasons_group">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <a href="javascript:void(0)" id="system_rss_seasons_btn" class="btn btn-primary">确定</a>
         </div>
       </div>
     </div>
@@ -1110,7 +1135,7 @@
     }
 
     //新增订阅
-    function add_rss_media (name, year, type, tmdbid, doubanid, page, season) {
+    function add_rss_media (name, year, type, tmdbid, doubanid, page, season, func) {
       hide_mediainfo_modal();
       var data = { "name": name,
                    "type": type,
@@ -1123,7 +1148,9 @@
       ajax_post("add_rss_media", data, function (ret) {
         hide_wait_process();
         if (ret.code == 0) {
-          if (ret.page) {
+          if(func){
+            func();
+          }else if (ret.page) {
             navmenu(ret.page);
           } else {
             show_success_modal(ret.name + " 添加RSS订阅成功！");
@@ -1135,12 +1162,13 @@
     }
 
     // 取消订阅
-    function remove_rss_media (name, year, type, rssid, page) {
+    function remove_rss_media (name, year, type, rssid, page, tmdbid, func) {
       hide_mediainfo_modal();
-      var cmd = "remove_rss_media";
-      var data = { "name": name, "type": type, "year": year, "rssid": rssid, "page": page };
-      ajax_post(cmd, data, function (ret) {
-        if (ret.page) {
+      var data = { "name": name, "type": type, "year": year, "rssid": rssid, "page": page, "tmdbid": tmdbid};
+      ajax_post("remove_rss_media", data, function (ret) {
+        if(func){
+          func();
+        }else if (ret.page) {
           navmenu(ret.page);
         } else {
           show_success_modal(ret.name + " 已从RSS订阅中移除！");
@@ -1156,6 +1184,29 @@
           navmenu(ret.page);
         }
       });
+    }
+
+    //显示订阅季选择框
+    function show_rss_seasons_modal(name, year, type, tmdbid, doubanid, seasons, func){
+      $("#system_rss_seasons_group").empty();
+      for(var i=0; i<seasons.length; i++){
+        $("#system_rss_seasons_group").append('<label class="form-selectgroup-item"><input type="checkbox" name="system_rss_season" value="'+seasons[i].num+'" class="form-selectgroup-input"><span class="form-selectgroup-label">'+seasons[i].text+'</span></label>');
+      }
+      $("#system_rss_seasons_btn").unbind('click').click(function(){
+        $("#system-rss-seasons").modal('hide');
+        var i = 0;
+        var rss_seasons = [];
+        $("input[name='system_rss_season']").each(function(){
+          if($(this).prop("checked")){
+            rss_seasons[i] = $(this).val();
+            i = i + 1;
+          }
+        });
+        if(rss_seasons.length > 0){
+          add_rss_media(name, year, type, tmdbid, doubanid, '', rss_seasons, func);
+        }
+      });
+      $("#system-rss-seasons").modal('show');
     }
 
     //搜索

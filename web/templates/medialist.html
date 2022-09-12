@@ -94,7 +94,7 @@
       }
     });
   }
-  //新增订阅
+  //点击订阅按钮
   function add_medialist_rss_media(name, year, type, tmdbid){
     if(type == "电影"){
       type = "MOV";
@@ -107,15 +107,21 @@
     }else{
       var doubanid = "";
     }
-    var data = { "name": name, "type": type, "year": year, "doubanid": doubanid, "tmdbid": tmdbid};
-    show_wait_process();
-    ajax_post("add_rss_media", data, function(ret){
-      hide_wait_process();
-      if(ret.code==0){
-        show_success_modal(ret.name + " 添加RSS订阅成功！");
-      }else{
-        show_fail_modal(ret.name + " 添加RSS订阅失败："+ ret.msg +"！");
-      }
-    });
+    if(!tmdbid || type == "MOV"){
+      add_rss_media(name, year, type, tmdbid, doubanid);
+    }else{
+      show_wait_process();
+      ajax_post("get_tvseason_list", {tmdbid: tmdbid}, function(ret){
+        hide_wait_process();
+        if(ret.seasons.length == 1){
+          add_rss_media(name, year, type, tmdbid, doubanid);
+        }else if(ret.seasons.length > 1){
+          show_rss_seasons_modal(name, year, type, tmdbid, doubanid, ret.seasons);
+        }else{
+          show_fail_modal(name + " 添加RSS订阅失败：未查询到季信息！");
+        }
+      });
+    }
   }
+
 </script>
