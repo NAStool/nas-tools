@@ -482,7 +482,7 @@ class SqlHelper:
                 return DBHelper().select_by_sql(sql, (state,))
 
     @staticmethod
-    def get_rss_movie_id(title, year):
+    def get_rss_movie_id(title, year, tmdbid=None):
         """
         获取订阅电影ID
         """
@@ -492,6 +492,12 @@ class SqlHelper:
         ret = DBHelper().select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year)))
         if ret:
             return ret[0][0]
+        else:
+            if tmdbid:
+                sql = "SELECT ID FROM RSS_MOVIES WHERE TMDBID=?"
+                ret = DBHelper().select_by_sql(sql, (tmdbid,))
+                if ret:
+                    return ret[0][0]
         return ""
 
     @staticmethod
@@ -567,18 +573,19 @@ class SqlHelper:
                                               state))
 
     @staticmethod
-    def delete_rss_movie(title=None, year=None, rssid=None):
+    def delete_rss_movie(title=None, year=None, rssid=None, tmdbid=None):
         """
         删除RSS电影
         """
         if not title and not rssid:
             return False
         if rssid:
-            sql = "DELETE FROM RSS_MOVIES WHERE ID = ?"
-            return DBHelper().update_by_sql(sql, (rssid,))
+            return DBHelper().update_by_sql("DELETE FROM RSS_MOVIES WHERE ID = ?", (rssid,))
         else:
-            sql = "DELETE FROM RSS_MOVIES WHERE NAME = ? AND YEAR = ?"
-            return DBHelper().update_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year)))
+            if tmdbid:
+                DBHelper().update_by_sql("DELETE FROM RSS_MOVIES WHERE TMDBID = ?", (tmdbid,))
+            return DBHelper().update_by_sql("DELETE FROM RSS_MOVIES WHERE NAME = ? AND YEAR = ?",
+                                            (StringUtils.str_sql(title), StringUtils.str_sql(year)))
 
     @staticmethod
     def update_rss_movie_state(title=None, year=None, rssid=None, state='R'):
@@ -618,7 +625,7 @@ class SqlHelper:
                 return DBHelper().select_by_sql(sql, (state,))
 
     @staticmethod
-    def get_rss_tv_id(title, year, season=None):
+    def get_rss_tv_id(title, year, season=None, tmdbid=None):
         """
         获取订阅电影ID
         """
@@ -627,11 +634,25 @@ class SqlHelper:
         if season:
             sql = "SELECT ID FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
             ret = DBHelper().select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year), season))
+            if ret:
+                return ret[0][0]
+            else:
+                if tmdbid:
+                    sql = "SELECT ID FROM RSS_TVS WHERE TMDBID=? AND SEASON = ?"
+                    ret = DBHelper().select_by_sql(sql, (tmdbid, season))
+                    if ret:
+                        return ret[0][0]
         else:
             sql = "SELECT ID FROM RSS_TVS WHERE NAME = ? AND YEAR = ?"
             ret = DBHelper().select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year)))
-        if ret:
-            return ret[0][0]
+            if ret:
+                return ret[0][0]
+            else:
+                if tmdbid:
+                    sql = "SELECT ID FROM RSS_TVS WHERE TMDBID=?"
+                    ret = DBHelper().select_by_sql(sql, (tmdbid,))
+                    if ret:
+                        return ret[0][0]
         return ""
 
     @staticmethod
@@ -740,7 +761,7 @@ class SqlHelper:
             return DBHelper().update_by_sql(sql, (lack, StringUtils.str_sql(title), StringUtils.str_sql(year), season))
 
     @staticmethod
-    def delete_rss_tv(title=None, year=None, season=None, rssid=None):
+    def delete_rss_tv(title=None, year=None, season=None, rssid=None, tmdbid=None):
         """
         删除RSS电视剧
         """
@@ -748,11 +769,13 @@ class SqlHelper:
             return False
         if rssid:
             SqlHelper.delete_rss_tv_episodes(rssid)
-            sql = "DELETE FROM RSS_TVS WHERE ID = ?"
-            return DBHelper().update_by_sql(sql, (rssid,))
+            return DBHelper().update_by_sql("DELETE FROM RSS_TVS WHERE ID = ?", (rssid,))
         else:
-            sql = "DELETE FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-            return DBHelper().update_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year), season))
+            rssid = SqlHelper.get_rss_tv_id(title=title, year=year, tmdbid=tmdbid, season=season)
+            if rssid:
+                SqlHelper.delete_rss_tv_episodes(rssid)
+                return SqlHelper.delete_rss_tv(rssid=rssid)
+            return False
 
     @staticmethod
     def is_exists_rss_tv_episodes(rid):
