@@ -23,7 +23,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="h-3 w-3 sm:h-4 sm:w-4"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
           </div>
           {% endif %}
-          <a href='javascript:show_mediainfo_modal("{{ RecommendType }}", "{{ item.title }}", "{{ item.year }}", "{% if RecommendType in ["hm", "nm", "ht", "nt"] %}{% else %}DB:{% endif %}{{ item.id }}", "recommend?t={{ RecommendType }}")'>
+          <a href='javascript:show_mediainfo_modal("{{ RecommendType }}", "{{ item.title }}", "{{ item.year }}", "{{ item.id }}", "recommend?t={{ RecommendType }}")'>
             <img src="{{ item.image or '../static/img/no-image.png' }}" onerror="this.src='../static/img/no-image.png'" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">
           </a>
           <div class="card-body">
@@ -32,8 +32,8 @@
                 <div><strong>{{ item.title }}</strong></div>
               </div>
               <div class="ms-auto">
-                <a id="recommend_link_{{ item.id }}" href='{% if item.fav != 1 %} javascript:show_recommend_add_modal("{{ item.id }}","{{ RecommendType }}","{{ item.title }}","{{ item.year }}"){% else %}javascript:show_recommend_del_modal("{{ item.id }}","{{ RecommendType }}","{{ item.title }}","{{ item.year }}"){% endif %}' class="text-muted" title="加入/取消订阅">
-                  <svg id="recommend_svg_{{ item.id }}" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart {% if item.fav == 1 %}icon-filled text-red{% endif %}" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <a id="recommend_link_{{ item.orgid }}" href='{% if item.fav != 1 %} javascript:show_recommend_add_modal("{{ item.id }}","{{ RecommendType }}","{{ item.title }}","{{ item.year }}"){% else %}javascript:show_recommend_del_modal("{{ item.id }}","{{ RecommendType }}","{{ item.title }}","{{ item.year }}"){% endif %}' class="text-muted" title="加入/取消订阅">
+                  <svg id="recommend_svg_{{ item.orgid }}" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart {% if item.fav == 1 %}icon-filled text-red{% endif %}" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                      <path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
                   </svg>
@@ -84,47 +84,58 @@
   }
 
   // 添加订阅关键字
-  function add_rss_key(type, name, year, id){
-      var cmd = "add_rss_media";
-      if(['hm','nm','ht','nt'].includes(type)){
+  function add_recommend_rss_media(type, name, year, id){
+      if(id.indexOf("DB:") == 0){
+        var doubanid = id.replace("DB:", "");
+        var tmdbid = "";
+      }else{
         var doubanid = "";
         var tmdbid = id;
-      }else{
-        var doubanid = id;
-        var tmdbid = "";
       }
-      var data = { "doubanid": doubanid, "tmdbid": tmdbid, "name": name, "type": type, "year": year};
-      show_wait_process();
-      ajax_post(cmd, data, function(ret){
-        hide_wait_process();
-        if(ret.code==0){
-          show_success_modal(name + " 添加RSS订阅成功！");
-          $("#recommend_svg_" + id).removeClass();
-          $("#recommend_svg_" + id).addClass("icon icon-filled text-red");
-          $("#recommend_link_" + id).attr("href", "javascript:remove_rss_key('" + type + "','" + name + "','" + year + "','" + id + "')");
-        }else{
-          show_fail_modal(name + " 添加RSS订阅失败："+ ret.msg +"！");
-        }
-      });
+      if(!tmdbid || ["hm","nm","dbom","dbnm", "dbhm"].includes(type)){
+        add_rss_media(name, year, type, tmdbid, doubanid, "", "", function(){
+          add_red_heart(id, type, name, year);
+        });
+      }else{
+        show_wait_process();
+        ajax_post("get_tvseason_list", {tmdbid: tmdbid}, function(ret){
+          hide_wait_process();
+          if(ret.seasons.length == 1){
+            add_rss_media(name, year, type, tmdbid, doubanid, "", "", function(){
+              add_red_heart(id, type, name, year);
+            });
+          }else if(ret.seasons.length > 1){
+            show_rss_seasons_modal(name, year, type, tmdbid, doubanid, ret.seasons, function(){
+              add_red_heart(id, type, name, year);
+            });
+          }else{
+            show_fail_modal(name + " 添加RSS订阅失败：未查询到季信息！");
+          }
+        });
+      }
   }
 
-  // 删除订阅关键字
-  function remove_rss_key(type, name, year, id){
-      var cmd = "remove_rss_media";
-      var data = { "name": name, "type": type, "year": year};
-      ajax_post(cmd, data, function(ret){
-        show_success_modal(name + " 已从RSS订阅中移除！");
-        $("#recommend_svg_" + id).removeClass();
-        $("#recommend_svg_" + id).addClass("icon icon-tabler icon-tabler-heart");
-        $("#recommend_link_" + id).attr("href", "javascript:add_rss_key('" + type + "','" + name + "','" + year + "','" + id + "')");
-      });
+  //增加红字标记
+  function add_red_heart(id, type, name, year){
+    orgid = id.replace("DB:", "");
+    $("#recommend_svg_" + orgid).removeClass();
+    $("#recommend_svg_" + orgid).addClass("icon icon-filled text-red");
+    $("#recommend_link_" + orgid).attr("href", "javascript:show_recommend_del_modal('" + id + "', '" + type + "','" + name + "','" + year + "')");
+  }
+
+  //移除红字标记
+  function remove_red_heart(id, type, name, year){
+    orgid = id.replace("DB:", "");
+    $("#recommend_svg_" + orgid).removeClass();
+    $("#recommend_svg_" + orgid).addClass("icon icon-tabler icon-tabler-heart");
+    $("#recommend_link_" + orgid).attr("href", "javascript:show_recommend_add_modal('" + id + "', '" + type + "','" + name + "','" + year + "')");
   }
 
   // 显示添加订阅
   function show_recommend_add_modal(id, type, name, year){
     show_ask_modal("是否确定订阅： " + name + "？", function(){
       hide_ask_modal();
-      add_rss_key(type, name, year, id);
+      add_recommend_rss_media(type, name, year, id);
     });
   }
 
@@ -132,7 +143,9 @@
   function show_recommend_del_modal(id, type, name, year){
     show_ask_modal("是否确定将 " + name + " 从RSS订阅中移除？", function(){
       hide_ask_modal();
-      remove_rss_key(type, name, year, id);
+      remove_rss_media(name, year, type, "", "", id, function(){
+        remove_red_heart(id, type, name, year);
+      });
     });
   }
 
@@ -165,11 +178,7 @@
           html += '<div class="badge badge-pill bg-green" style="position:absolute;top:10px;left:10px;padding:0;">';
           html += '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" class="h-3 w-3 sm:h-4 sm:w-4"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg></div>';
         }
-        if(['hm','nm','ht','nt'].includes(title_type)){
-          html += '<a href=\'javascript:show_mediainfo_modal("'+title_type+'", "'+item.title+'", "'+item.year+'", "'+item.id+'", "recommend?t='+title_type+'")\'>';
-        }else{
-          html += '<a href=\'javascript:show_mediainfo_modal("'+title_type+'", "'+item.title+'", "'+item.year+'", "DB:'+item.id+'", "recommend?t='+title_type+'")\'>';
-        }
+        html += '<a href=\'javascript:show_mediainfo_modal("'+title_type+'", "'+item.title+'", "'+item.year+'", "'+item.id+'", "recommend?t='+title_type+'")\'>';
         if(item.image){
           html += '<img src="'+item.image+'" onerror="this.src=\'../static/img/no-image.png\'" class="card-img-top" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:contain;">';
         }else{
@@ -180,11 +189,11 @@
         html += '<div><strong>'+item.title+'</strong></div>';
         html += '<div class="ms-auto">';
         if(item.fav != 1){
-          html += '<a id="recommend_link_'+item.id+'" href=\'javascript:show_recommend_add_modal("'+item.id+'","'+title_type+'","'+item.title+'","'+item.year+'")\' class="text-muted" title="加入/取消订阅">';
-          html += '<svg id="recommend_svg_'+item.id+'" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path></svg>';
+          html += '<a id="recommend_link_'+item.orgid+'" href=\'javascript:show_recommend_add_modal("'+item.id+'","'+title_type+'","'+item.title+'","'+item.year+'")\' class="text-muted" title="加入/取消订阅">';
+          html += '<svg id="recommend_svg_'+item.orgid+'" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path></svg>';
         }else{
-          html += '<a id="recommend_link_'+item.id+'" href=\'javascript:show_recommend_del_modal("'+item.id+'","'+title_type+'","'+item.title+'","'+item.year+'")\' class="text-muted" title="加入/取消订阅">';
-          html += '<svg id="recommend_svg_'+item.id+'" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart icon-filled text-red" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path></svg>';
+          html += '<a id="recommend_link_'+item.orgid+'" href=\'javascript:show_recommend_del_modal("'+item.id+'","'+title_type+'","'+item.title+'","'+item.year+'")\' class="text-muted" title="加入/取消订阅">';
+          html += '<svg id="recommend_svg_'+item.orgid+'" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-heart icon-filled text-red" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19.5 13.572l-7.5 7.428l-7.5 -7.428m0 0a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path></svg>';
         }
         html += '</a>';
         html += '</div>';

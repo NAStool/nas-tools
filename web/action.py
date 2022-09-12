@@ -104,7 +104,8 @@ class WebAction:
             "get_download_dirs": self.get_download_dirs,
             "restory_backup": self.__restory_backup,
             "start_mediasync": self.__start_mediasync,
-            "mediasync_state": self.__mediasync_state
+            "mediasync_state": self.__mediasync_state,
+            "get_tvseason_list": self.__get_tvseason_list
         }
 
     def action(self, cmd, data):
@@ -882,16 +883,14 @@ class WebAction:
         season = data.get("season")
         rssid = data.get("rssid")
         page = data.get("page")
+        tmdbid = data.get("tmdbid")
         if name:
-            meta_info = MetaInfo(title=name)
-            name = meta_info.get_name()
-            if not season:
-                season = meta_info.get_season_string()
+            name = MetaInfo(title=name).get_name()
         if mtype:
             if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
-                SqlHelper.delete_rss_movie(title=name, year=year, rssid=rssid)
+                SqlHelper.delete_rss_movie(title=name, year=year, rssid=rssid, tmdbid=tmdbid)
             else:
-                SqlHelper.delete_rss_tv(title=name, year=year, season=season, rssid=rssid)
+                SqlHelper.delete_rss_tv(title=name, year=year, season=season, rssid=rssid, tmdbid=tmdbid)
         return {"code": 0, "page": page, "name": name}
 
     @staticmethod
@@ -920,21 +919,43 @@ class WebAction:
                 mtype = MediaType.MOVIE
             else:
                 mtype = MediaType.TV
-        code, msg, media_info = add_rss_subscribe(mtype=mtype,
-                                                  name=name,
-                                                  year=year,
-                                                  season=season,
-                                                  match=match,
-                                                  doubanid=doubanid,
-                                                  tmdbid=tmdbid,
-                                                  sites=sites,
-                                                  search_sites=search_sites,
-                                                  over_edition=over_edition,
-                                                  rss_restype=rss_restype,
-                                                  rss_pix=rss_pix,
-                                                  rss_team=rss_team,
-                                                  rss_rule=rss_rule,
-                                                  rssid=rssid)
+        if isinstance(season, list):
+            code = 0
+            msg = ""
+            for sea in season:
+                code, msg, media_info = add_rss_subscribe(mtype=mtype,
+                                                          name=name,
+                                                          year=year,
+                                                          season=sea,
+                                                          match=match,
+                                                          doubanid=doubanid,
+                                                          tmdbid=tmdbid,
+                                                          sites=sites,
+                                                          search_sites=search_sites,
+                                                          over_edition=over_edition,
+                                                          rss_restype=rss_restype,
+                                                          rss_pix=rss_pix,
+                                                          rss_team=rss_team,
+                                                          rss_rule=rss_rule,
+                                                          rssid=rssid)
+                if code != 0:
+                    break
+        else:
+            code, msg, media_info = add_rss_subscribe(mtype=mtype,
+                                                      name=name,
+                                                      year=year,
+                                                      season=season,
+                                                      match=match,
+                                                      doubanid=doubanid,
+                                                      tmdbid=tmdbid,
+                                                      sites=sites,
+                                                      search_sites=search_sites,
+                                                      over_edition=over_edition,
+                                                      rss_restype=rss_restype,
+                                                      rss_pix=rss_pix,
+                                                      rss_team=rss_team,
+                                                      rss_rule=rss_rule,
+                                                      rssid=rssid)
         return {"code": code, "msg": msg, "page": page, "name": name}
 
     @staticmethod
@@ -1010,7 +1031,7 @@ class WebAction:
 
             # 查订阅信息
             if not rssid:
-                rssid = SqlHelper.get_rss_movie_id(title=title, year=year)
+                rssid = SqlHelper.get_rss_movie_id(title=title, year=year, tmdbid=tmdbid or "DB:%s" % doubanid)
 
             # 查下载信息
 
@@ -1062,7 +1083,7 @@ class WebAction:
 
             # 查订阅信息
             if not rssid:
-                rssid = SqlHelper.get_rss_tv_id(title=title, year=year)
+                rssid = SqlHelper.get_rss_tv_id(title=title, year=year, tmdbid=tmdbid or "DB:%s" % doubanid)
 
             return {
                 "code": 0,
@@ -1725,12 +1746,9 @@ class WebAction:
             res_list = []
 
         Items = []
-        TvKeys = ["%s" % key[0] for key in SqlHelper.get_rss_tvs()]
-        TvMediaIds = ["%s" % key[3] for key in SqlHelper.get_rss_tvs()]
-        MovieKeys = ["%s" % key[0] for key in SqlHelper.get_rss_movies()]
-        MovieMediaIds = ["%s" % key[2] for key in SqlHelper.get_rss_movies()]
         for res in res_list:
             rid = res.get('id')
+            orgid = rid
             if RecommendType in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm']:
                 title = res.get('title')
                 date = res.get('release_date')
@@ -1739,7 +1757,10 @@ class WebAction:
                 else:
                     year = ''
                 name = MetaInfo(title).get_name()
-                if name in MovieKeys or str(rid) in MovieMediaIds or "DB:%s" % rid in MovieMediaIds:
+                if RecommendType not in ['hm', 'nm']:
+                    rid = "DB:%s" % rid
+                rssid = SqlHelper.get_rss_movie_id(title=title, year=year, tmdbid=rid)
+                if rssid:
                     # 已订阅
                     fav = 1
                 elif MediaServer().check_item_exists(title=name, year=year, tmdbid=rid):
@@ -1756,7 +1777,10 @@ class WebAction:
                 else:
                     year = ''
                 name = MetaInfo(title).get_name()
-                if name in TvKeys or str(rid) in TvMediaIds or "DB:%s" % rid in TvMediaIds:
+                if RecommendType not in ['ht', 'nt']:
+                    rid = "DB:%s" % rid
+                rssid = SqlHelper.get_rss_tv_id(title=title, year=year, tmdbid=rid)
+                if rssid:
                     # 已订阅
                     fav = 1
                 elif MediaServer().check_item_exists(title=name, year=year, tmdbid=rid):
@@ -1774,13 +1798,15 @@ class WebAction:
             vote = res.get('vote_average')
             overview = res.get('overview')
             item = {'id': rid,
+                    'orgid': orgid,
                     'title': title,
                     'fav': fav,
                     'date': date,
                     'vote': vote,
                     'image': image,
                     'overview': overview,
-                    'year': year}
+                    'year': year,
+                    'rssid': rssid}
             Items.append(item)
         return {"code": 0, "Items": Items}
 
@@ -1998,3 +2024,14 @@ class WebAction:
             return {"code": 0, "text": "电影：%s，电视剧：%s，同步时间：%s" % (status.get("movie_count"),
                                                                  status.get("tv_count"),
                                                                  status.get("time"))}
+
+    @staticmethod
+    def __get_tvseason_list(data):
+        """
+        获取剧集季列表
+        """
+        tmdbid = data.get("tmdbid")
+        seasons = [
+            {"text": "第%s季" % cn2an.an2cn(season.get("season_number"), mode='low'), "num": season.get("season_number")}
+            for season in Media().get_tmdb_seasons_list(tmdbid=tmdbid)]
+        return {"code": 0, "seasons": seasons}
