@@ -158,6 +158,8 @@ class MediaServer:
                 self.progress.update(ptype="mediasync",
                                      text="正在获取 %s 数据..." % (library.get("name")))
                 for item in self.get_items(library.get("id")):
+                    if not item:
+                        continue
                     if self.mediadb.insert(self._type, item):
                         total_count += 1
                         if item.get("type") == MediaType.MOVIE.value:
@@ -173,6 +175,9 @@ class MediaServer:
                                     movie_count=movie_count,
                                     tv_count=tv_count)
             # 结束进度条
+            self.progress.update(ptype="mediasync",
+                                 value=100,
+                                 text="媒体库数据同步完成，同步数量：%s" % total_count)
             self.progress.end("mediasync")
             log.info("【MEDIASERVER】媒体库数据同步完成，同步数量：%s" % total_count)
 

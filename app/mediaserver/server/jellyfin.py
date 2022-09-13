@@ -360,15 +360,17 @@ class Jellyfin(IMediaServer):
         获取媒体服务器所有媒体库列表
         """
         if not parent:
-            return []
+            yield {}
         if not self.__host or not self.__apikey:
-            return []
+            yield {}
         req_url = "%sUsers/%s/Items?parentId=%s&api_key=%s" % (self.__host, self.__user, parent, self.__apikey)
         try:
             res = RequestUtils().get_res(req_url)
             if res and res.status_code == 200:
                 results = res.json().get("Items") or []
                 for result in results:
+                    if not result:
+                        continue
                     if result.get("Type") not in ["Movie", "Series"]:
                         continue
                     item_info = self.get_iteminfo(result.get("Id"))
@@ -390,4 +392,4 @@ class Jellyfin(IMediaServer):
                            "json": str(item_info)}
         except Exception as e:
             log.error("【EMBY】连接Users/Items出错：" + str(e))
-        return []
+        yield {}

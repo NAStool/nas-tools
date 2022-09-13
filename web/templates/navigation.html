@@ -870,14 +870,20 @@
 
     //刷新进度及文件
     var refresh_process_flag = false;
+    var refresh_fail_count = 0;
     function refresh_process () {
+      if(!refresh_process_flag){
+        return;
+      }
       ajax_post("refresh_process", {type:"search"}, function (ret) {
-        if (ret.code == 0) {
+        if (ret.code == 0 && ret.value <= 100) {
           $("#modal_process_bar").attr("style", "width: " + ret.value + "%");
           $("#modal_process_bar").attr("aria-valuenow", ret.value);
           $("#modal_process_text").text(ret.text);
+        }else{
+          refresh_fail_count = refresh_fail_count + 1;
         }
-        if ((ret.code == 0 || ret.code == 1) && refresh_process_flag) {
+        if(refresh_fail_count < 5 ){
           setTimeout("refresh_process()", 200);
         }
       });
@@ -896,6 +902,7 @@
       $("#modal-process").modal("show");
       //刷新进度
       refresh_process_flag = true;
+      refresh_fail_count = 0;
       refresh_process();
     }
 

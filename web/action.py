@@ -1961,7 +1961,7 @@ class WebAction:
         if detail:
             return {"code": 0, "value": detail.get("value"), "text": detail.get("text")}
         else:
-            return {"code": 1}
+            return {"code": 1, "value": 0, "text": "正在处理..."}
 
     @staticmethod
     def get_download_dirs(data=None):

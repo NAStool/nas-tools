@@ -33,7 +33,4 @@ class ProgressController(object):
             self._process_detail[ptype]['text'] = text
 
     def get_process(self, ptype="search"):
-        if self._process_detail.get(ptype, {}).get('enable'):
-            return self._process_detail.get(ptype)
-        else:
-            return None
+        return self._process_detail.get(ptype)
