@@ -351,10 +351,14 @@
     $("#mediasync_btn").text("关闭");
     $("#mediasync_btn").attr("href", "javascript:close_mediasync_modal()");
     if(flag){
-      ajax_post("start_mediasync", {}, function (ret) {});
+      ajax_post("start_mediasync", {}, function (ret) {
+        refresh_sync_process_flag = true;
+        refresh_sync_process();
+      });
+    }else{
+      refresh_sync_process_flag = true;
+      refresh_sync_process();
     }
-    refresh_sync_process_flag = true;
-    refresh_sync_process();
   }
 
   //刷新进度及文件
