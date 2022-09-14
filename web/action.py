@@ -13,6 +13,7 @@ import log
 from app.media.doubanv2api import DoubanHot
 from app.mediaserver import MediaServer
 from app.utils import StringUtils, Torrent, EpisodeFormat, ProgressController, RequestUtils, PathUtils, MessageCenter, ThreadHelper, MetaHelper
+from app.utils.types import RMT_MODES
 from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
 from app.message import Telegram, WeChat, Message
 from app.brushtask import BrushTask
@@ -474,6 +475,7 @@ class WebAction:
         手工转移
         """
         path = dest_dir = None
+        syncmod = RMT_MODES.get(data.get("syncmod"))
         logid = data.get("logid")
         if logid:
             paths = SqlHelper.get_transfer_path_by_id(logid)
@@ -521,6 +523,7 @@ class WebAction:
         # 开始转移
         succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
                                                            in_path=path,
+                                                           rmt_mode=syncmod,
                                                            target_dir=dest_dir,
                                                            tmdb_info=tmdb_info,
                                                            media_type=media_type,
@@ -541,6 +544,7 @@ class WebAction:
         """
         inpath = data.get("inpath")
         outpath = data.get("outpath")
+        syncmod = RMT_MODES.get(data.get("syncmod"))
         if not os.path.exists(inpath):
             return {"retcode": -1, "retmsg": "输入路径不存在"}
         tmdbid = data.get("tmdb")
@@ -566,6 +570,7 @@ class WebAction:
         # 自定义转移
         succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
                                                            in_path=inpath,
+                                                           rmt_mode=syncmod,
                                                            target_dir=outpath,
                                                            tmdb_info=tmdb_info,
                                                            media_type=media_type,
