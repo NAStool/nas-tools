@@ -1,15 +1,19 @@
+import json
 import re
 import traceback
 
 from apscheduler.schedulers.background import BackgroundScheduler
+from lxml import etree
 
 import log
 from app.db import SqlHelper
 from app.filterrules import FilterRule
 from app.message import Message
 from app.searcher import Searcher
+from app.utils import RequestUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType, SearchType
+from config import Config
 from web.backend.subscribe import add_rss_subscribe
 
 
@@ -217,12 +221,52 @@ class RssChecker(object):
         """
         获取RSS链接数据，根据PARSER进行解析获取返回结果
         """
-        rss_result = []
         rss_parser = self.__get_userrss_parser(taskinfo.get("parser"))
         if not rss_parser:
             log.warn("【RSSCHECKER】任务 %s 的解析配置不存在" % taskinfo.get("name"))
             return []
-
+        if not rss_parser.get("format"):
+            log.warn("【RSSCHECKER】任务 %s 的解析配置不正确" % taskinfo.get("name"))
+            return []
+        try:
+            rss_parser_format = json.loads(rss_parser.get("format"))
+        except Exception as e:
+            print(str(e))
+            log.warn("【RSSCHECKER】任务 %s 的解析配置不是合法的Json格式" % taskinfo.get("name"))
+            return []
+        # 拼装链接
+        rss_url = taskinfo.get("address")
+        if not rss_url:
+            return []
+        if rss_parser.get("params"):
+            _dict = {
+                "TMDBID": Config().get_config("app").get("rmt_tmdbkey")
+            }
+            param_url = rss_parser.get("params").format(**_dict)
+            rss_url = "%s?%s" % (rss_url, param_url) if rss_url.find("?") == -1 else "%s&%s" % (rss_url, param_url)
+        # 请求数据
+        try:
+            ret = RequestUtils().get_res(rss_url)
+            if not ret:
+                return []
+            ret.encoding = ret.apparent_encoding
+        except Exception as e2:
+            log.console(str(e2))
+            return []
+        # 解析数据 XPATH
+        rss_result = []
+        if rss_parser.get("type") == "XML":
+            result_tree = etree.XML(ret.text)
+            item_list = result_tree.xpath(rss_parser_format.get("list")) or []
+            for item in item_list:
+                rss_item = {}
+                for key, attr in rss_parser_format.get("torrent", {}).items():
+                    value = item.xpath(attr.get("path"))
+                    if value:
+                        rss_item.update({key: value[0]})
+                rss_result.append(rss_item)
+        elif rss_parser.get("type") == "JSON":
+            pass
         return rss_result
 
     def __is_match_rss(self, taskinfo, media_info):
