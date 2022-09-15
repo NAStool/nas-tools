@@ -83,7 +83,7 @@ class BrushTask(object):
             # 启动
             self._scheduler.print_jobs()
             self._scheduler.start()
-            log.info("【RUN】刷流服务启动...")
+            log.info("【RUN】刷流服务启动")
 
     def get_brushtask_info(self, taskid):
         for task in self._brush_tasks:

@@ -49,6 +49,7 @@ from app.utils import SystemUtils, IndexerHelper
 from app.utils.types import OsType
 from version import APP_VERSION
 from web.app import FlaskApp
+from app.rsschecker import RssChecker
 
 warnings.filterwarnings('ignore')
 
@@ -93,6 +94,12 @@ if __name__ == "__main__":
     # 启动刷流服务
     BrushTask()
 
+    # 启动自定义订阅服务
+    RssChecker()
+
+    # 加载索引器配置
+    IndexerHelper()
+
     # Windows启动托盘
     if is_windows_exe:
         homepage_port = config.get_config('app').get('web_port')
@@ -105,9 +112,6 @@ if __name__ == "__main__":
 
         p1 = threading.Thread(target=traystart, daemon=True)
         p1.start()
-
-    # 加载索引器配置
-    IndexerHelper()
 
     # 启动主WEB服务
     FlaskApp().run_service()

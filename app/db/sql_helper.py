@@ -116,6 +116,24 @@ class SqlHelper:
             return False
 
     @staticmethod
+    def is_userrss_finished(torrent_name, enclosure):
+        """
+        查询RSS是否处理过，根据名称
+        """
+        if not torrent_name and not enclosure:
+            return True
+        if enclosure:
+            sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE ENCLOSURE = ?"
+            rets = DBHelper().select_by_sql(sql, (enclosure,))
+        else:
+            sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TORRENT_NAME = ?"
+            rets = DBHelper().select_by_sql(sql, (torrent_name,))
+        if rets and rets[0][0] > 0:
+            return True
+        else:
+            return False
+
+    @staticmethod
     def delete_all_search_torrents():
         """
         删除所有搜索的记录
@@ -1575,3 +1593,12 @@ class SqlHelper:
                                                   item.get("exclude"),
                                                   item.get("size"),
                                                   item.get("free")))
+
+    @staticmethod
+    def get_userrss_tasks():
+        return DBHelper().select_by_sql("SELECT ID,NAME,ADDRESS,PARSER,INTERVAL,USES,INCLUDE,EXCLUDE,FILTER,UPDATE_TIME,PROCESS_COUNT,STATE,NOTE FROM CONFIG_USER_RSS")
+
+    @staticmethod
+    def get_userrss_parser(pid):
+        return DBHelper().select_by_sql(
+            "SELECT ID,NAME,TYPE,FORMAT,PARAMS,NOTE FROM CONFIG_RSS_PARSER WHERE ID = ?", (pid,))

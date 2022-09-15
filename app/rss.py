@@ -208,7 +208,7 @@ class Rss:
                                         if not library_no_exists or not library_no_exists.get(
                                                 media_info.tmdb_id):
                                             log.info("【RSS】电视剧 %s %s 已存在，删除订阅..." % (
-                                                media_info.get_title_string(), media_info.get_season_string()))
+                                                media_info.get_title_string(), media_info.get_season_episode_string()))
                                             SqlHelper.delete_rss_tv(rssid=match_rssid)
                                         continue
                                     # 取交集做为缺失集
@@ -803,13 +803,13 @@ class Rss:
                     f"不符合过滤规则：{rule_name}")
                 return None, None, total_episodes, res_order, upload_volume_factor, download_volume_factor, season
             else:
-                log.info("【RSS】%s 识别为 %s%s 匹配订阅成功" % (media_info.org_string,
+                log.info("【RSS】%s 识别为 %s %s 匹配订阅成功" % (media_info.org_string,
                                                       media_info.get_title_string(),
                                                       media_info.get_season_episode_string()))
                 log.info("【RSS】种子描述：%s" % media_info.subtitle)
                 return rssid, over_edition, total_episodes, res_order, upload_volume_factor, download_volume_factor, season
         else:
-            log.info("【RSS】%s 识别为 %s%s 不在订阅范围" % (media_info.org_string,
+            log.info("【RSS】%s 识别为 %s %s 不在订阅范围" % (media_info.org_string,
                                                   media_info.get_title_string(),
                                                   media_info.get_season_episode_string()))
             return None, None, total_episodes, res_order, upload_volume_factor, download_volume_factor, season

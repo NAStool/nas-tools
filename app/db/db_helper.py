@@ -323,6 +323,31 @@ class DBHelper:
                                    VALUE    TEXT,
                                    NOTE     TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_SYSTEM_DICT ON SYSTEM_DICT (TYPE, KEY);''')
+            # 自定义订阅表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS CONFIG_USER_RSS
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   NAME    TEXT,
+                                   ADDRESS    TEXT,
+                                   PARSER    TEXT,
+                                   INTERVAL     TEXT,
+                                   USES     TEXT,
+                                   INCLUDE     TEXT,
+                                   EXCLUDE     TEXT,
+                                   FILTER     TEXT,
+                                   UPDATE_TIME     TEXT,
+                                   PROCESS_COUNT     TEXT,
+                                   STATE    TEXT,
+                                   NOTE     TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_CONFIG_USER_RSS ON CONFIG_USER_RSS (NAME);''')
+            # 自定义订阅解析模板表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS CONFIG_RSS_PARSER
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   NAME    TEXT,
+                                   TYPE    TEXT,
+                                   FORMAT    TEXT,
+                                   PARAMS     TEXT,
+                                   NOTE     TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_CONFIG_RSS_PARSER ON CONFIG_RSS_PARSER (NAME);''')
             # 提交
             conn.commit()
 
