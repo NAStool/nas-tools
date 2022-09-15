@@ -7,7 +7,9 @@ from lxml import etree
 
 import log
 from app.db import SqlHelper
+from app.downloader import Downloader
 from app.filterrules import FilterRule
+from app.media import Media
 from app.message import Message
 from app.searcher import Searcher
 from app.utils import RequestUtils
@@ -21,7 +23,9 @@ from web.backend.subscribe import add_rss_subscribe
 class RssChecker(object):
     message = None
     searcher = None
+    media = None
     filterrule = None
+    downloader = None
     _scheduler = None
     _rss_tasks = []
 
@@ -32,6 +36,8 @@ class RssChecker(object):
         self.message = Message()
         self.searcher = Searcher()
         self.filterrule = FilterRule()
+        self.media = Media()
+        self.downloader = Downloader()
         # 移除现有任务
         try:
             if self._scheduler:
@@ -53,8 +59,8 @@ class RssChecker(object):
                 "uses": task[5],
                 "include": task[6],
                 "exclude": task[7],
-                "filter": eval(task[8]),
-                "state": eval(task[11]),
+                "filter": task[8],
+                "state": task[11],
                 "note": task[12]
             })
         if not self._rss_tasks:
@@ -62,7 +68,7 @@ class RssChecker(object):
         # 启动RSS任务
         self._scheduler = BackgroundScheduler(timezone="Asia/Shanghai")
         rss_flag = False
-        for task in self._brush_tasks:
+        for task in self._rss_tasks:
             if task.get("state") == "Y" and task.get("interval") and str(task.get("interval")).isdigit():
                 rss_flag = True
                 self._scheduler.add_job(func=self.check_task_rss,
@@ -147,7 +153,16 @@ class RssChecker(object):
                     taskinfo=taskinfo)
                 # 未匹配
                 if not match_flag:
+                    log.info("【RSSCHECKER】%s 识别为 %s %s 不匹配" % (
+                        torrent_name,
+                        media_info.get_title_string(),
+                        media_info.get_season_episode_string()))
                     continue
+                else:
+                    log.info("【RSSCHECKER】%s 识别为 %s %s 匹配成功" % (
+                        torrent_name,
+                        media_info.get_title_string(),
+                        media_info.get_season_episode_string()))
                 media_info.set_torrent_info(res_order=res_order)
                 # 检查是否已存在
                 if media_info.type == MediaType.MOVIE:
@@ -256,7 +271,7 @@ class RssChecker(object):
         # 解析数据 XPATH
         rss_result = []
         if rss_parser.get("type") == "XML":
-            result_tree = etree.XML(ret.text)
+            result_tree = etree.XML(ret.text.encode("utf-8"))
             item_list = result_tree.xpath(rss_parser_format.get("list")) or []
             for item in item_list:
                 rss_item = {}
@@ -295,10 +310,10 @@ class RssChecker(object):
         if not rss_parser:
             return None
         return {
-            "id": rss_parser[0],
-            "name": rss_parser[1],
-            "type": rss_parser[2],
-            "format": rss_parser[3],
-            "params": rss_parser[4],
-            "note": rss_parser[5]
+            "id": rss_parser[0][0],
+            "name": rss_parser[0][1],
+            "type": rss_parser[0][2],
+            "format": rss_parser[0][3],
+            "params": rss_parser[0][4],
+            "note": rss_parser[0][5]
         }
