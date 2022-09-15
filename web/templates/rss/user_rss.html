@@ -1,0 +1,186 @@
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          自定义订阅
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:show_userrss_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            新建订阅任务
+          </a>
+          <a href="javascript:show_userrss_modal()" class="btn btn-primary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+          </a>
+          <a href="javascript:show_userrss_parser_modal()" class="btn d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-apps" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <rect x="4" y="4" width="6" height="6" rx="1"></rect>
+               <rect x="4" y="14" width="6" height="6" rx="1"></rect>
+               <rect x="14" y="14" width="6" height="6" rx="1"></rect>
+               <line x1="14" y1="7" x2="20" y2="7"></line>
+               <line x1="17" y1="4" x2="17" y2="10"></line>
+            </svg>
+            RSS解析器
+          </a>
+          <a href="javascript:show_userrss_parser_modal()" class="btn btn-secondary d-sm-none btn-icon" title="RSS解析器">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-apps" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <rect x="4" y="4" width="6" height="6" rx="1"></rect>
+               <rect x="4" y="14" width="6" height="6" rx="1"></rect>
+               <rect x="14" y="14" width="6" height="6" rx="1"></rect>
+               <line x1="14" y1="7" x2="20" y2="7"></line>
+               <line x1="17" y1="4" x2="17" y2="10"></line>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% if Count > 0 %}
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      {% for Task in Tasks %}
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ Task.name }}</h3>
+          <div class="card-actions btn-actions">
+              <a href="javascript:edit_userrss_modal('{{ Task.id }}')" class="btn-action" title="编辑任务">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
+              </a>
+              <a href="javascript:del_userrss_modal('{{ Task.id }}', '{{ Task.name }}')" class="btn-action" title="删除任务">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><desc>Download more icon variants from https://tabler-icons.io/i/x</desc><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </a>
+            </div>
+        </div>
+        <div class="card-body">
+          <div class="datagrid">
+            <div class="datagrid-item">
+              <div class="datagrid-title">地址</div>
+              <div class="datagrid-content">
+                <div class="d-flex align-items-center">
+                </div>
+              </div>
+            </div>
+            <div class="datagrid-item">
+              <div class="datagrid-title">解析器</div>
+              <div class="datagrid-content">
+                <span class="badge me-2 bg-orange"></span>
+              </div>
+            </div>
+            <div class="datagrid-item">
+              <div class="datagrid-title">刷新间隔</div>
+              <div class="datagrid-content">
+              </div>
+            </div>
+            <div class="datagrid-item">
+              <div class="datagrid-title">动作</div>
+              <div class="datagrid-content">
+
+              </div>
+            </div>
+            <div class="datagrid-item">
+              <div class="datagrid-title">包含</div>
+              <div class="datagrid-content"></div>
+            </div>
+            <div class="datagrid-item">
+              <div class="datagrid-title">排除</div>
+              <div class="datagrid-content"></div>
+            </div>
+            <div class="datagrid-item">
+              <div class="datagrid-title">过滤规则</div>
+              <div class="datagrid-content"></div>
+            </div>
+            <div class="datagrid-item">
+              <div class="datagrid-title">最后更新时间</div>
+              <div class="datagrid-content">
+              </div>
+            </div>
+            <div class="datagrid-item">
+              <div class="datagrid-title">已处理数量</div>
+              <div class="datagrid-content">
+              </div>
+            </div>            
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="page-body">
+  <div class="container-xl d-flex flex-column justify-content-center">
+    <div class="empty">
+      <div class="empty-img"><img src="./static/img/quitting_time.svg" height="128"  alt="">
+      </div>
+      <p class="empty-title">没有记录</p>
+      <p class="empty-subtitle text-muted">
+        当前没有正在运行的自定义订阅任务
+      </p>
+    </div>
+  </div>
+</div>
+{% endif %}
+<div class="modal modal-blur fade" id="modal-userrss" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title" id="userrss_modal_title">新建任务</h5>
+          <input type="hidden" id="userrss_id">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a href="javascript:add_userrss_job()" id="userrss_add_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  // 显示新增任务
+  function show_userrss_modal(){
+
+  }
+
+  // 显示编辑刷流任务
+  function edit_userrss_modal(taskid){
+
+  }
+
+  // 显示删除刷流任务
+  function del_userrss_modal(taskid, name){
+    show_confirm_modal("删除订阅任务 " + name + " ？" , function(){
+      hide_confirm_modal();
+      ajax_post("del_userrss", {"id": taskid}, function(ret){
+        navmenu('user_rss');
+      });
+    });
+  }
+
+  // 新增任务保存
+  function add_userrss_job(){
+
+    ajax_post("add_userrss", params, function(ret){
+      $("#modal-userrss").modal('hide');
+      navmenu('user_rss');
+    });
+  }
+
+  // RSS解析器
+  function show_userrss_parser_modal(){
+    navmenu('rss_parser');
+  }
+
+</script>

@@ -1431,6 +1431,18 @@ def create_flask_app(config):
                                Count=len(RuleGroups),
                                RuleGroups=RuleGroups)
 
+    # 自定义订阅页面
+    @App.route('/user_rss', methods=['POST', 'GET'])
+    @login_required
+    def user_rss():
+        return render_template("rss/user_rss.html")
+
+    # RSS解析器页面
+    @App.route('/rss_parser', methods=['POST', 'GET'])
+    @login_required
+    def rss_parser():
+        return render_template("rss/rss_parser.html")
+
     # 事件响应
     @App.route('/do', methods=['POST'])
     @login_required
