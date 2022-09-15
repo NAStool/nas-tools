@@ -346,7 +346,8 @@ class DBHelper:
                                    TYPE    TEXT,
                                    FORMAT    TEXT,
                                    PARAMS     TEXT,
-                                   NOTE     TEXT);''')
+                                   NOTE     TEXT,
+                                   SYSDEF     TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_CONFIG_RSS_PARSER ON CONFIG_RSS_PARSER (NAME);''')
             # 提交
             conn.commit()
