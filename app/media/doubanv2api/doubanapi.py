@@ -188,3 +188,6 @@ class DoubanApi(object):
 
     def book_detail(self, subject_id):
         return self.__invoke(self._urls["book_detail"] + subject_id)
+
+    def movie_top250(self, start=0, count=20, ts=datetime.strftime(datetime.now(), '%Y%m%d')):
+        return self.__invoke(self._urls["movie_top250"], start=start, count=count, _ts=ts)

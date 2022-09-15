@@ -70,6 +70,9 @@
   if(title_type == "dbhm"){
     $("#recommend_title").text("豆瓣热门电影");
   }
+  if(title_type == "dbtop"){
+    $("#recommend_title").text("豆瓣Top250电影");
+  }
   if(title_type == "dbht"){
     $("#recommend_title").text("豆瓣热门电视剧");
   }
@@ -82,6 +85,7 @@
   if(title_type == "dbzy"){
     $("#recommend_title").text("豆瓣热门综艺");
   }
+
 
   // 添加订阅关键字
   function add_recommend_rss_media(type, name, year, id){

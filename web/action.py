@@ -1744,6 +1744,9 @@ class WebAction:
         elif RecommendType == "dbnm":
             # 豆瓣最新电影
             res_list = DoubanHot().get_douban_new_movie(CurrentPage)
+        elif RecommendType == "dbtop":
+            # 豆瓣TOP250电影
+            res_list = DoubanHot().get_douban_top250_movie(CurrentPage)
         elif RecommendType == "dbzy":
             # 豆瓣最新电视剧
             res_list = DoubanHot().get_douban_hot_show(CurrentPage)
@@ -1754,7 +1757,7 @@ class WebAction:
         for res in res_list:
             rid = res.get('id')
             orgid = rid
-            if RecommendType in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm']:
+            if RecommendType in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm', 'dbtop']:
                 title = res.get('title')
                 date = res.get('release_date')
                 if date:
