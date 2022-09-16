@@ -1612,3 +1612,7 @@ class SqlHelper:
     def get_userrss_parser(pid):
         return DBHelper().select_by_sql(
             "SELECT ID,NAME,TYPE,FORMAT,PARAMS,NOTE FROM CONFIG_RSS_PARSER WHERE ID = ?", (pid,))
+
+    @staticmethod
+    def excute(sql):
+        return DBHelper().update_by_sql(sql)

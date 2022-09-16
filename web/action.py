@@ -89,6 +89,7 @@ class WebAction:
             "rule_test": self.__rule_test,
             "net_test": self.__net_test,
             "add_filtergroup": self.__add_filtergroup,
+            "restore_filtergroup": self.__restore_filtergroup,
             "set_default_filtergroup": self.__set_default_filtergroup,
             "del_filtergroup": self.__del_filtergroup,
             "add_filterrule": self.__add_filterrule,
@@ -1657,6 +1658,25 @@ class WebAction:
         if not name:
             return {"code": -1}
         SqlHelper.add_filter_group(name, default)
+        FilterRule().init_config()
+        return {"code": 0}
+
+    @staticmethod
+    def __restore_filtergroup(data):
+        """
+        恢复初始规则组
+        """
+        groupids = data.get("groupids")
+        init_rulegroups = data.get("init_rulegroups")
+        for groupid in groupids:
+            try:
+                SqlHelper.delete_filtergroup(groupid)
+            except Exception as err:
+                print(err)
+            for init_rulegroup in init_rulegroups:
+                if str(init_rulegroup.get("id")) == groupid:
+                    for sql in init_rulegroup.get("sql"):
+                        SqlHelper.excute(sql)
         FilterRule().init_config()
         return {"code": 0}
 
