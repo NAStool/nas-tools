@@ -100,10 +100,10 @@ class MetaBase(object):
     _subtitle_episode_all_re = r"([0-9一二三四五六七八九十]+)\s*集全|全\s*([0-9一二三四五六七八九十]+)\s*集"
 
     def __init__(self, title, subtitle=None, fileflag=False):
-        if not title:
-            return
         self.category_handler = Category()
         self.fanart = Fanart()
+        if not title:
+            return
         self.org_string = title
         self.subtitle = subtitle
         self.fileflag = fileflag
