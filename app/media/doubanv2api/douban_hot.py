@@ -107,6 +107,9 @@ class DoubanHot:
                     continue
                 # 简介
                 overview = info.get("card_subtitle") or ""
+                if not year and overview:
+                    if overview.split("/")[0].strip().isdigit():
+                        year = overview.split("/")[0].strip()
                 ret_list.append({'id': rid, 'title': title, 'release_date': year, 'vote_average': vote_average,
                                  'poster_path': poster_path, 'overview': overview})
             except Exception as e:

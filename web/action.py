@@ -892,7 +892,7 @@ class WebAction:
         if name:
             name = MetaInfo(title=name).get_name()
         if mtype:
-            if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
+            if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV']:
                 SqlHelper.delete_rss_movie(title=name, year=year, rssid=rssid, tmdbid=tmdbid)
             else:
                 SqlHelper.delete_rss_tv(title=name, year=year, season=season, rssid=rssid, tmdbid=tmdbid)
@@ -920,7 +920,7 @@ class WebAction:
         rss_rule = data.get("rss_rule")
         rssid = data.get("rssid")
         if name and mtype:
-            if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
+            if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV']:
                 mtype = MediaType.MOVIE
             else:
                 mtype = MediaType.TV
@@ -1002,7 +1002,7 @@ class WebAction:
         page = data.get("page")
         doubanid = data.get("doubanid")
         rssid = data.get("rssid")
-        if mtype in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm', 'MOV']:
+        if mtype in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV']:
             media_type = MediaType.MOVIE
         else:
             media_type = MediaType.TV
@@ -1767,7 +1767,7 @@ class WebAction:
                 name = MetaInfo(title).get_name()
                 if RecommendType not in ['hm', 'nm']:
                     rid = "DB:%s" % rid
-                rssid = SqlHelper.get_rss_movie_id(title=title, year=year, tmdbid=rid)
+                rssid = SqlHelper.get_rss_movie_id(title=name, year=year, tmdbid=rid)
                 if rssid:
                     # 已订阅
                     fav = 1
@@ -1787,7 +1787,7 @@ class WebAction:
                 name = MetaInfo(title).get_name()
                 if RecommendType not in ['ht', 'nt']:
                     rid = "DB:%s" % rid
-                rssid = SqlHelper.get_rss_tv_id(title=title, year=year, tmdbid=rid)
+                rssid = SqlHelper.get_rss_tv_id(title=name, year=year, tmdbid=rid)
                 if rssid:
                     # 已订阅
                     fav = 1

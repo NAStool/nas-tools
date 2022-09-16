@@ -462,7 +462,7 @@ class BrushTask(object):
             if not downloader.qbc:
                 log.error("【BRUSH】任务 %s 下载器 %s 无法连接" % (taskname, downloadercfg.get("name")))
                 return False
-            torrent_tag = str(round(datetime.now().timestamp()))
+            torrent_tag = "NT" + StringUtils.generate_random_str(5)
             if tag:
                 tag = [tag, torrent_tag]
             else:
