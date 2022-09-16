@@ -21,7 +21,7 @@ import log
 from app.mediaserver import WebhookEvent
 from app.message import Message
 from app.utils import Security, StringUtils, DomUtils, SystemUtils, WebUtils, MetaHelper
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL
+from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL, INIT_RULEGROUPS
 from app.douban import DouBan
 from app.downloader import Downloader
 from app.filterrules import FilterRule
@@ -1429,7 +1429,8 @@ def create_flask_app(config):
         RuleGroups = FilterRule().get_rule_infos()
         return render_template("setting/filterrule.html",
                                Count=len(RuleGroups),
-                               RuleGroups=RuleGroups)
+                               RuleGroups=RuleGroups,
+                               Init_RuleGroups=INIT_RULEGROUPS)
 
     # 自定义订阅页面
     @App.route('/user_rss', methods=['POST', 'GET'])

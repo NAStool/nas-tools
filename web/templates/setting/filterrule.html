@@ -16,6 +16,13 @@
           <a href="javascript:show_add_filtergroup_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           </a>
+          <a href="javascript:show_restore_filtergroup_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 16 16" fill="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
+            恢复初始规则组
+          </a>
+          <a href="javascript:show_restore_filtergroup_modal()" class="btn btn-primary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 16 16" fill="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
+          </a>
         </div>
       </div>
     </div>
@@ -233,6 +240,36 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-restore-filtergroup" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">恢复规则组<span class="form-help bg-red-lt" title="若无相应规则组，请先新建相应规则组后再进行恢复" data-bs-toggle="tooltip">?</span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="form-selectgroup">
+            {% for Init_RuleGroup in Init_RuleGroups %}
+            <label class="form-selectgroup-item">
+              <input type="checkbox" name="init_rulegroup" value="{{ Init_RuleGroup.name }}" class="form-selectgroup-input">
+              <span class="form-selectgroup-label">{{ Init_RuleGroup.name }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-link" data-bs-dismiss="modal">
+          取消
+        </a>
+        <a id="restore_rulegroup_btn" class="btn btn-primary ms-auto" href="javascript:restore_filtergroup()">
+          恢复
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script type="text/javascript">
   // 打开新增规则表窗口
@@ -259,6 +296,38 @@
       $("#modal-add-filterrule").modal('hide');
     });
     $("#modal-add-filterrule").modal('show');
+  }
+
+  // 打开恢复初始规则窗口
+  function show_restore_filtergroup_modal(){
+    $("#modal-restore-filtergroup").modal('show');
+  }
+
+  // 恢复初始规则
+  function restore_filtergroup(){
+    var None = "";
+    // 所有规则组
+    var rulegroups = {{ RuleGroups | safe }};
+    // 需要初始化的规则组
+    var init_rulegroups = [];
+    var i = 0;
+    $("input[name=init_rulegroup]").each(function(){
+      if($(this).prop("checked")){
+        var group_name = $(this).val();
+        for(rulegruop of rulegroups) {
+          if(rulegruop.name == group_name){
+            init_rulegroups[i] = rulegruop;
+            i = i + 1;
+          };
+        }
+      }
+    });
+    $("#restore_rulegroup_btn").text("恢复中");
+    $("#restore_rulegroup_btn").attr("disabled", true);
+    ajax_post("restore_filtergroup", init_rulegroups, function(ret){
+      $("#modal-restore-filtergroup").modal('hide');
+      navmenu('filterrule');
+    });
   }
 
   // 设置默认规则组

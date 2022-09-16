@@ -14,7 +14,7 @@ from app.media.doubanv2api import DoubanHot
 from app.mediaserver import MediaServer
 from app.utils import StringUtils, Torrent, EpisodeFormat, ProgressController, RequestUtils, PathUtils, MessageCenter, ThreadHelper, MetaHelper
 from app.utils.types import RMT_MODES
-from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
+from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL, INIT_RULEGROUPS
 from app.message import Telegram, WeChat, Message
 from app.brushtask import BrushTask
 from app.downloader import Qbittorrent, Transmission, Downloader
@@ -89,6 +89,7 @@ class WebAction:
             "rule_test": self.__rule_test,
             "net_test": self.__net_test,
             "add_filtergroup": self.__add_filtergroup,
+            "restore_filtergroup": self.__restore_filtergroup,
             "set_default_filtergroup": self.__set_default_filtergroup,
             "del_filtergroup": self.__del_filtergroup,
             "add_filterrule": self.__add_filterrule,
@@ -1657,6 +1658,29 @@ class WebAction:
         if not name:
             return {"code": -1}
         SqlHelper.add_filter_group(name, default)
+        FilterRule().init_config()
+        return {"code": 0}
+
+    @staticmethod
+    def __restore_filtergroup(data):
+        """
+        恢复初始规则组
+        """
+        init_rulegroups = INIT_RULEGROUPS
+        for rulegroup in data:
+            groupname = rulegroup.get("name")
+            groupid = rulegroup.get("id")
+            rules = rulegroup.get("rules")
+            for rule in rules:
+                SqlHelper.delete_filterrule(rule.get("id"))    
+            for init_rulegroup in init_rulegroups:
+                if init_rulegroup.get("name") == groupname:
+                    init_rules = init_rulegroup.get("rules")
+                    for init_rule in init_rules:
+                        init_rule["group"] = str(groupid)
+                        init_rule["include"] = str(init_rule.get("include"))
+                        init_rule["exclude"] = str(init_rule.get("exclude"))
+                        SqlHelper.insert_filter_rule(None,init_rule)
         FilterRule().init_config()
         return {"code": 0}
 
