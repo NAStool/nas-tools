@@ -34,7 +34,13 @@ class Sites:
         self.__sites_data = {}
         self.__last_update_time = None
 
-    def get_sites(self, siteid=None, siteurl=None, rss=False, brush=False, signin=False):
+    def get_sites(self,
+                  siteid=None,
+                  siteurl=None,
+                  rss=False,
+                  brush=False,
+                  signin=False,
+                  statistic=False):
         """
         获取站点配置
         """
@@ -47,9 +53,10 @@ class Sites:
             # 站点未读消息为|分隔的第3位
             site_unread_msg_notify = str(site[9]).split("|")[2] if site[9] and len(str(site[9]).split("|")) > 2 else "Y"
             # 站点用途：Q签到、D订阅、S刷流
-            signin_enable = True if not site[6] or len(site[6]) > 3 or str(site[6]).count("Q") else False
-            rss_enable = True if not site[6] or len(site[6]) > 3 or str(site[6]).count("D") else False
-            brush_enable = True if not site[6] or len(site[6]) > 3 or str(site[6]).count("S") else False
+            signin_enable = True if not site[6] or str(site[6]).count("Q") else False
+            rss_enable = True if not site[6] or str(site[6]).count("D") else False
+            brush_enable = True if not site[6] or str(site[6]).count("S") else False
+            statistic_enable = True if not site[6] or str(site[6]).count("T") else False
             if rule_groupid:
                 rule_name = self.filtersites.get_rule_groups(rule_groupid).get("name") or ""
             else:
@@ -67,7 +74,8 @@ class Sites:
                 "unread_msg_notify": site_unread_msg_notify,
                 "signin_enable": signin_enable,
                 "rss_enable": rss_enable,
-                "brush_enable": brush_enable
+                "brush_enable": brush_enable,
+                "statistic_enable": statistic_enable
             }
             if siteid and int(site[0]) == int(siteid):
                 return site_info
@@ -79,6 +87,8 @@ class Sites:
             if brush and (not site[3] or not brush_enable):
                 continue
             if signin and (not site[4] or not signin_enable):
+                continue
+            if statistic and not statistic_enable:
                 continue
             ret_sites.append(site_info)
         if siteid or siteurl:
@@ -97,11 +107,11 @@ class Sites:
         with lock:
             # 没有指定站点，默认使用全部站点
             if not specify_sites:
-                refresh_sites = self.get_sites()
+                refresh_sites = self.get_sites(statistic=True)
             else:
-                refresh_sites = [site for site in self.get_sites() if site.get("name") in specify_sites]
+                refresh_sites = [site for site in self.get_sites(statistic=True) if site.get("name") in specify_sites]
 
-            refresh_all = len(self.get_sites()) == len(refresh_sites)
+            refresh_all = len(self.get_sites(statistic=True)) == len(refresh_sites)
 
             with ThreadPool(min(len(refresh_sites), self._MAX_CONCURRENCY)) as p:
                 site_user_infos = p.map(self.__refresh_pt_data, refresh_sites)

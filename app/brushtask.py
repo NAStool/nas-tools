@@ -229,6 +229,7 @@ class BrushTask(object):
                     downloader = Qbittorrent(user_config=downloader_cfg)
                     # 检查完成状态的
                     torrents = downloader.get_torrents(ids=torrent_ids, status=["completed"])
+                    remove_torrent_ids = list(set(torrent_ids).difference(set(torrents)))
                     for torrent in torrents:
                         # ID
                         torrent_id = torrent.get("hash")
@@ -263,6 +264,7 @@ class BrushTask(object):
                                 update_torrents.append(("%s,%s" % (uploaded, downloaded), taskid, torrent_id))
                     # 检查下载中状态的
                     torrents = downloader.get_torrents(ids=torrent_ids, status=["downloading"])
+                    remove_torrent_ids = list(set(remove_torrent_ids).difference(set(torrents)))
                     for torrent in torrents:
                         # ID
                         torrent_id = torrent.get("hash")
@@ -294,6 +296,7 @@ class BrushTask(object):
                     # 检查完成状态
                     downloader = Transmission(user_config=downloader_cfg)
                     torrents = downloader.get_torrents(ids=torrent_ids, status=["seeding", "seed_pending"])
+                    remove_torrent_ids = list(set(torrent_ids).difference(set(torrents)))
                     for torrent in torrents:
                         # ID
                         torrent_id = torrent.id
@@ -329,6 +332,7 @@ class BrushTask(object):
                     # 检查下载状态
                     torrents = downloader.get_torrents(ids=torrent_ids,
                                                        status=["downloading", "download_pending", "stopped"])
+                    remove_torrent_ids = list(set(remove_torrent_ids).difference(set(torrents)))
                     for torrent in torrents:
                         # ID
                         torrent_id = torrent.id
@@ -362,12 +366,17 @@ class BrushTask(object):
                                                      remove_count=len(delete_ids))
                 # 更新种子状态为已删除
                 SqlHelper.update_brushtask_torrent_state(update_torrents)
-                # 删除种子
+                # 删除下载器种子
                 if delete_ids:
                     downloader.delete_torrents(delete_file=True, ids=delete_ids)
                     log.info("【BRUSH】任务 %s 共删除 %s 个刷流下载任务" % (task_name, len(delete_ids)))
                 else:
-                    log.info("【BRUSH】任务 %s 本次检查未删除任务" % task_name)
+                    log.info("【BRUSH】任务 %s 本次检查未删除下载任务" % task_name)
+                # 手工删除的种子，清除对应记录
+                if remove_torrent_ids:
+                    log.info("【BRUSH】任务 %s 的这些下载任务在下载器中不存在，将删除任务记录：%s" % (task_name, remove_torrent_ids))
+                    for remove_torrent_id in remove_torrent_ids:
+                        SqlHelper.delete_brushtask_torrent(taskid, remove_torrent_id)
             except Exception as e:
                 log.console(str(e) + " - " + traceback.format_exc())
 

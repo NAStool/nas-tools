@@ -1479,6 +1479,16 @@ class SqlHelper:
         return DBHelper().update_by_sql_batch(sql, ids)
 
     @staticmethod
+    def delete_brushtask_torrent(brush_id, download_id):
+        """
+        删除刷流种子记录
+        """
+        if not download_id or not brush_id:
+            return
+        sql = "DELETE FROM SITE_BRUSH_TORRENTS WHERE TASK_ID = ? AND DOWNLOAD_ID = ?"
+        return DBHelper().update_by_sql(sql, (brush_id, download_id))
+
+    @staticmethod
     def get_user_downloaders(did=None):
         """
         查询自定义下载器
