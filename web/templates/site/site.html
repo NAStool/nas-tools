@@ -150,6 +150,10 @@
                     <input type="checkbox" name="site_uses" value="S" class="form-selectgroup-input" checked>
                     <span class="form-selectgroup-label">刷流</span>
                   </label>
+                  <label class="form-selectgroup-item">
+                    <input type="checkbox" name="site_uses" value="T" class="form-selectgroup-input" checked>
+                    <span class="form-selectgroup-label">数据统计</span>
+                  </label>
                 </div>
               </div>
             </div>
@@ -284,6 +288,9 @@
             $(this).prop("checked",true);
           }
           if($(this).val() == "S" && ret.site.brush_enable){
+            $(this).prop("checked",true);
+          }
+          if($(this).val() == "T" && ret.site.statistic_enable){
             $(this).prop("checked",true);
           }
         });
