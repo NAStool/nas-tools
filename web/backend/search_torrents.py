@@ -157,11 +157,12 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         if SEARCH_MEDIA_TYPE == "SEARCH":
             # 如果是豆瓣数据，需要重新查询TMDB的数据
             if media_info.douban_id:
+                _title = media_info.get_title_string()
                 media_info = Media().get_media_info(title="%s %s" % (media_info.title, media_info.year),
                                                     mtype=media_info.type, strict=True)
                 if not media_info or not media_info.tmdb_info:
                     Message().send_channel_msg(channel=in_from,
-                                               title="%s 从TMDB查询不到媒体信息！" % media_info.title,
+                                               title="%s 从TMDB查询不到媒体信息！" % _title,
                                                user_id=user_id)
                     return
             # 搜索
@@ -224,12 +225,12 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
             if SEARCH_MEDIA_TYPE == "SEARCH":
                 # 如果是豆瓣数据，需要重新查询TMDB的数据
                 if media_info.douban_id:
+                    _title = media_info.get_title_string()
                     media_info = Media().get_media_info(title="%s %s" % (media_info.title, media_info.year),
                                                         mtype=media_info.type, strict=True)
                     if not media_info or not media_info.tmdb_info:
                         Message().send_channel_msg(channel=in_from,
-                                                   title="%s%s 从TMDB查询不到媒体信息！" % (
-                                                       media_info.title, media_info.get_season_string()),
+                                                   title="%s 从TMDB查询不到媒体信息！" % _title,
                                                    user_id=user_id)
                         return
                 # 发送消息
