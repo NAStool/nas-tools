@@ -1678,8 +1678,14 @@ class WebAction:
                     init_rules = init_rulegroup.get("rules")
                     for init_rule in init_rules:
                         init_rule["group"] = str(groupid)
-                        init_rule["include"] = str(init_rule.get("include"))
-                        init_rule["exclude"] = str(init_rule.get("exclude"))
+                        include_content= ""
+                        for include in init_rule.get("include"):
+                            include_content= include_content + "\n" + include
+                        init_rule["include"] = include_content[1:]
+                        exclude_content= ""
+                        for exclude in init_rule.get("exclude"):
+                            exclude_content= exclude_content + "\n" + exclude
+                        init_rule["exclude"] = exclude_content[1:]
                         SqlHelper.insert_filter_rule(None,init_rule)
         FilterRule().init_config()
         return {"code": 0}

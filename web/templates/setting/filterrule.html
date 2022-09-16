@@ -187,6 +187,23 @@
               </div>
             </div>
           </div>
+          {% for Init_RuleGroup in Init_RuleGroups %}
+          <div class="row mb-3">
+            <details>
+              <summary class="summary">
+                模板-{{ Init_RuleGroup.name }}
+              </summary>
+              <div class="form-selectgroup">
+                {% for Rule in Init_RuleGroup.rules %}
+                <label class="form-selectgroup-item">
+                  <input type="button" value="{{ Rule | safe }}" class="form-selectgroup-input" onclick="javascript:apply_templated(this)">
+                  <span class="form-selectgroup-label">{{ Rule.name }}</span>
+                </label>
+                {% endfor %}
+              </div>
+            </details>
+          </div>
+          {% endfor %}
         </div>
       </div>
       <div class="modal-footer">
@@ -245,7 +262,7 @@
     <div class="modal-content">
       <div class="card border-top-0">
         <div class="card-header">
-          <h5 class="modal-title">恢复规则组<span class="form-help bg-red-lt" title="若无相应规则组，请先新建相应规则组后再进行恢复" data-bs-toggle="tooltip">?</span></h5>
+          <h5 class="modal-title">恢复规则组 <span class="form-help bg-red-lt" title="若无相应规则组，请先新建相应规则组后再进行恢复" data-bs-toggle="tooltip">?</span></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="card-body">
@@ -441,6 +458,17 @@
       $("#modal-add-filterrule").modal('hide');
       navmenu('filterrule');
     });
+  }
+
+  // 应用规则模板
+  function apply_templated(item){
+    var rule = item.value.replace(/'/g, "\"");
+    rule = rule.replace(/None/g, "\"\"");
+    rule = JSON.parse(rule)
+    $("#rule_name").val(rule["name"]);
+    $("#rule_include").val(rule["include"].toString().replace(/,/g, "\n"));
+    $("#rule_exclude").val(rule["exclude"].toString().replace(/,/g, "\n"));
+    $("#rule_sizelimit").val(rule["size"]);
   }
 
 </script>
