@@ -17,11 +17,12 @@ from flask import Flask, request, json, render_template, make_response, session,
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 from werkzeug.security import check_password_hash
 
+import re
 import log
 from app.mediaserver import WebhookEvent
 from app.message import Message
 from app.utils import Security, StringUtils, DomUtils, SystemUtils, WebUtils, MetaHelper
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL, INIT_RULEGROUPS
+from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL, NETTEST_TARGETS
 from app.douban import DouBan
 from app.downloader import Downloader
 from app.filterrules import FilterRule
@@ -1020,8 +1021,7 @@ def create_flask_app(config):
            <path d="M12 15v2"></path>
         </svg>
         '''
-        targets = ["www.themoviedb.org", "api.themoviedb.org", "image.tmdb.org",
-                   "webservice.fanart.tv", "api.telegram.org", "qyapi.weixin.qq.com"]
+        targets = NETTEST_TARGETS
         scheduler_cfg_list.append(
             {'name': '网络连通性测试', 'time': '', 'state': 'OFF', 'id': 'nettest', 'svg': svg, 'color': 'cyan',
              "targets": targets})
@@ -1427,10 +1427,36 @@ def create_flask_app(config):
     @login_required
     def filterrule():
         RuleGroups = FilterRule().get_rule_infos()
+        sql_file = os.path.join(config.get_root_path(), "config", "init_filter.sql")
+        with open(sql_file, "r", encoding="utf-8") as f:
+                    sql_list = f.read().split(';\n')
+                    Init_RuleGroups = []
+                    i = 0 
+                    while i < len(sql_list):
+                        rulegroup = {}
+                        rulegroup_info = re.findall(r"[0-9]+,'[^\"]+NULL", sql_list[i], re.I)[0].split(",")
+                        rulegroup['id'] = int(rulegroup_info[0])
+                        rulegroup['name'] = rulegroup_info[1][1:-1]
+                        rulegroup['rules'] = []
+                        rulegroup['sql'] = []
+                        rulegroup['sql'].append(sql_list[i])
+                        if i + 1 < len(sql_list):
+                            rules = []
+                            rules = re.findall(r"[0-9]+,'[^\"]+NULL", sql_list[i+1], re.I)[0].split("),\n (")
+                            for rule in rules:
+                                rule_info = {}
+                                rule = rule.split(",")
+                                rule_info['name'] = rule[2][1:-1]
+                                rule_info['include'] = rule[4][1:-1]
+                                rule_info['exclude'] = rule[5][1:-1]
+                                rulegroup['rules'].append(rule_info)
+                            rulegroup["sql"].append(sql_list[i+1])
+                        Init_RuleGroups.append(rulegroup)
+                        i = i + 2
         return render_template("setting/filterrule.html",
                                Count=len(RuleGroups),
                                RuleGroups=RuleGroups,
-                               Init_RuleGroups=INIT_RULEGROUPS)
+                               Init_RuleGroups=Init_RuleGroups)
 
     # 自定义订阅页面
     @App.route('/user_rss', methods=['POST', 'GET'])

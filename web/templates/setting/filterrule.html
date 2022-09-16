@@ -269,7 +269,7 @@
           <div class="form-selectgroup">
             {% for Init_RuleGroup in Init_RuleGroups %}
             <label class="form-selectgroup-item">
-              <input type="checkbox" name="init_rulegroup" value="{{ Init_RuleGroup.name }}" class="form-selectgroup-input">
+              <input type="checkbox" name="init_rulegroup" value="{{ Init_RuleGroup.id }}" class="form-selectgroup-input">
               <span class="form-selectgroup-label">{{ Init_RuleGroup.name }}</span>
             </label>
             {% endfor %}
@@ -322,26 +322,18 @@
 
   // 恢复初始规则
   function restore_filtergroup(){
-    var None = "";
-    // 所有规则组
-    var rulegroups = {{ RuleGroups | safe }};
-    // 需要初始化的规则组
-    var init_rulegroups = [];
+    var init_rulegroups = {{ Init_RuleGroups | safe}}
+    var need_init_groupid = [];
     var i = 0;
     $("input[name=init_rulegroup]").each(function(){
       if($(this).prop("checked")){
-        var group_name = $(this).val();
-        for(rulegruop of rulegroups) {
-          if(rulegruop.name == group_name){
-            init_rulegroups[i] = rulegruop;
-            i = i + 1;
-          };
-        }
-      }
+        need_init_groupid[i] = $(this).val();
+        i = i + 1;
+      };
     });
     $("#restore_rulegroup_btn").text("恢复中");
     $("#restore_rulegroup_btn").attr("disabled", true);
-    ajax_post("restore_filtergroup", init_rulegroups, function(ret){
+    ajax_post("restore_filtergroup", {"groupids": need_init_groupid, "init_rulegroups": init_rulegroups}, function(ret){
       $("#modal-restore-filtergroup").modal('hide');
       navmenu('filterrule');
     });
@@ -468,7 +460,6 @@
     $("#rule_name").val(rule["name"]);
     $("#rule_include").val(rule["include"].toString().replace(/,/g, "\n"));
     $("#rule_exclude").val(rule["exclude"].toString().replace(/,/g, "\n"));
-    $("#rule_sizelimit").val(rule["size"]);
   }
 
 </script>
