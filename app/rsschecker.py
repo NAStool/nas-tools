@@ -2,6 +2,7 @@ import json
 import re
 import traceback
 
+import jsonpath
 from apscheduler.schedulers.background import BackgroundScheduler
 from lxml import etree
 
@@ -116,7 +117,9 @@ class RssChecker(object):
         for res in rss_result:
             try:
                 # 种子名
-                torrent_name = res.get('title')
+                title = res.get('title')
+                if not title:
+                    continue
                 # 种子链接
                 enclosure = res.get('enclosure')
                 # 种子页面
@@ -125,20 +128,31 @@ class RssChecker(object):
                 description = res.get('description')
                 # 种子大小
                 size = res.get('size')
+                # 年份
+                year = res.get('year')
+                if year and len(year) > 4:
+                    year = year[:4]
+                # 类型
+                mediatype = res.get('type')
+                if mediatype:
+                    mediatype = MediaType.MOVIE if mediatype == "movie" else MediaType.TV
 
-                log.info("【RSSCHECKER】开始处理：%s" % torrent_name)
+                log.info("【RSSCHECKER】开始处理：%s" % title)
 
                 # 检查是不是处理过
-                if SqlHelper.is_userrss_finished(torrent_name, enclosure):
-                    log.info("【RSSCHECKER】%s 已处理过" % torrent_name)
+                meta_name = "%s %s" % (title, year) if year else title
+                if SqlHelper.is_userrss_finished(meta_name, enclosure):
+                    log.info("【RSSCHECKER】%s 已处理过" % title)
                     continue
                 # 识别种子名称，开始检索TMDB
-                media_info = self.media.get_media_info(title=torrent_name, subtitle=description)
+                media_info = self.media.get_media_info(title=meta_name,
+                                                       subtitle=description,
+                                                       mtype=mediatype)
                 if not media_info:
-                    log.warn("【RSSCHECKER】%s 识别媒体信息出错！" % torrent_name)
+                    log.warn("【RSSCHECKER】%s 识别媒体信息出错！" % title)
                     continue
                 elif not media_info.tmdb_info:
-                    log.info("【RSSCHECKER】%s 识别为 %s 未匹配到媒体信息" % (torrent_name, media_info.get_name()))
+                    log.info("【RSSCHECKER】%s 识别为 %s 未匹配到媒体信息" % (title, media_info.get_name()))
                     continue
                 # 大小及种子页面
                 media_info.set_torrent_info(size=size,
@@ -154,13 +168,13 @@ class RssChecker(object):
                 # 未匹配
                 if not match_flag:
                     log.info("【RSSCHECKER】%s 识别为 %s %s 不匹配" % (
-                        torrent_name,
+                        title,
                         media_info.get_title_string(),
                         media_info.get_season_episode_string()))
                     continue
                 else:
                     log.info("【RSSCHECKER】%s 识别为 %s %s 匹配成功" % (
-                        torrent_name,
+                        title,
                         media_info.get_title_string(),
                         media_info.get_season_episode_string()))
                 media_info.set_torrent_info(res_order=res_order)
@@ -238,16 +252,16 @@ class RssChecker(object):
         """
         rss_parser = self.__get_userrss_parser(taskinfo.get("parser"))
         if not rss_parser:
-            log.warn("【RSSCHECKER】任务 %s 的解析配置不存在" % taskinfo.get("name"))
+            log.error("【RSSCHECKER】任务 %s 的解析配置不存在" % taskinfo.get("name"))
             return []
         if not rss_parser.get("format"):
-            log.warn("【RSSCHECKER】任务 %s 的解析配置不正确" % taskinfo.get("name"))
+            log.error("【RSSCHECKER】任务 %s 的解析配置不正确" % taskinfo.get("name"))
             return []
         try:
             rss_parser_format = json.loads(rss_parser.get("format"))
         except Exception as e:
             print(str(e))
-            log.warn("【RSSCHECKER】任务 %s 的解析配置不是合法的Json格式" % taskinfo.get("name"))
+            log.error("【RSSCHECKER】任务 %s 的解析配置不是合法的Json格式" % taskinfo.get("name"))
             return []
         # 拼装链接
         rss_url = taskinfo.get("address")
@@ -255,9 +269,14 @@ class RssChecker(object):
             return []
         if rss_parser.get("params"):
             _dict = {
-                "TMDBID": Config().get_config("app").get("rmt_tmdbkey")
+                "TMDBKEY": Config().get_config("app").get("rmt_tmdbkey")
             }
-            param_url = rss_parser.get("params").format(**_dict)
+            try:
+                param_url = rss_parser.get("params").format(**_dict)
+            except Exception as e:
+                log.console(str(e))
+                log.error("【RSSCHECKER】任务 %s 的解析配置附加参数不合法" % taskinfo.get("name"))
+                return []
             rss_url = "%s?%s" % (rss_url, param_url) if rss_url.find("?") == -1 else "%s&%s" % (rss_url, param_url)
         # 请求数据
         try:
@@ -275,13 +294,39 @@ class RssChecker(object):
             item_list = result_tree.xpath(rss_parser_format.get("list")) or []
             for item in item_list:
                 rss_item = {}
-                for key, attr in rss_parser_format.get("torrent", {}).items():
-                    value = item.xpath(attr.get("path"))
+                for key, attr in rss_parser_format.get("item", {}).items():
+                    if attr.get("path"):
+                        value = item.xpath(attr.get("path"))
+                    elif attr.get("value"):
+                        value = attr.get("value")
+                    else:
+                        continue
                     if value:
                         rss_item.update({key: value[0]})
                 rss_result.append(rss_item)
         elif rss_parser.get("type") == "JSON":
-            pass
+            try:
+                result_json = json.loads(ret.text)
+            except Exception as e:
+                print(str(e))
+                log.error("【RSSCHECKER】任务 %s 获取的订阅报文不是合法的Json格式" % taskinfo.get("name"))
+                return []
+            item_list = jsonpath.jsonpath(result_json, rss_parser_format.get("list"))[0]
+            if not isinstance(item_list, list):
+                log.error("【RSSCHECKER】任务 %s 获取的订阅报文list后不是列表" % taskinfo.get("name"))
+                return []
+            for item in item_list:
+                rss_item = {}
+                for key, attr in rss_parser_format.get("item", {}).items():
+                    if attr.get("path"):
+                        value = jsonpath.jsonpath(item, attr.get("path"))
+                    elif attr.get("value"):
+                        value = attr.get("value")
+                    else:
+                        continue
+                    if value:
+                        rss_item.update({key: value[0]})
+                rss_result.append(rss_item)
         return rss_result
 
     def __is_match_rss(self, taskinfo, media_info):
