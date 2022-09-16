@@ -598,7 +598,8 @@ def create_flask_app(config):
     def rss_calendar():
         Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
         RssMovieIds = [movie[2] for movie in SqlHelper.get_rss_movies()]
-        RssTvItems = [{"id": tv[3], "season": int(str(tv[2]).replace("S", "")), "name": tv[0]} for tv in SqlHelper.get_rss_tvs()
+        RssTvItems = [{"id": tv[3], "season": int(str(tv[2]).replace("S", "")), "name": tv[0]} for tv in
+                      SqlHelper.get_rss_tvs()
                       if tv[2]]
         return render_template("rss/rss_calendar.html",
                                Today=Today,
@@ -1429,30 +1430,28 @@ def create_flask_app(config):
         RuleGroups = FilterRule().get_rule_infos()
         sql_file = os.path.join(config.get_root_path(), "config", "init_filter.sql")
         with open(sql_file, "r", encoding="utf-8") as f:
-                    sql_list = f.read().split(';\n')
-                    Init_RuleGroups = []
-                    i = 0 
-                    while i < len(sql_list):
-                        rulegroup = {}
-                        rulegroup_info = re.findall(r"[0-9]+,'[^\"]+NULL", sql_list[i], re.I)[0].split(",")
-                        rulegroup['id'] = int(rulegroup_info[0])
-                        rulegroup['name'] = rulegroup_info[1][1:-1]
-                        rulegroup['rules'] = []
-                        rulegroup['sql'] = []
-                        rulegroup['sql'].append(sql_list[i])
-                        if i + 1 < len(sql_list):
-                            rules = []
-                            rules = re.findall(r"[0-9]+,'[^\"]+NULL", sql_list[i+1], re.I)[0].split("),\n (")
-                            for rule in rules:
-                                rule_info = {}
-                                rule = rule.split(",")
-                                rule_info['name'] = rule[2][1:-1]
-                                rule_info['include'] = rule[4][1:-1]
-                                rule_info['exclude'] = rule[5][1:-1]
-                                rulegroup['rules'].append(rule_info)
-                            rulegroup["sql"].append(sql_list[i+1])
-                        Init_RuleGroups.append(rulegroup)
-                        i = i + 2
+            sql_list = f.read().split(';\n')
+            Init_RuleGroups = []
+            i = 0
+            while i < len(sql_list):
+                rulegroup = {}
+                rulegroup_info = re.findall(r"[0-9]+,'[^\"]+NULL", sql_list[i], re.I)[0].split(",")
+                rulegroup['id'] = int(rulegroup_info[0])
+                rulegroup['name'] = rulegroup_info[1][1:-1]
+                rulegroup['rules'] = []
+                rulegroup['sql'] = [sql_list[i]]
+                if i + 1 < len(sql_list):
+                    rules = re.findall(r"[0-9]+,'[^\"]+NULL", sql_list[i + 1], re.I)[0].split("),\n (")
+                    for rule in rules:
+                        rule_info = {}
+                        rule = rule.split(",")
+                        rule_info['name'] = rule[2][1:-1]
+                        rule_info['include'] = rule[4][1:-1]
+                        rule_info['exclude'] = rule[5][1:-1]
+                        rulegroup['rules'].append(rule_info)
+                    rulegroup["sql"].append(sql_list[i + 1])
+                Init_RuleGroups.append(rulegroup)
+                i = i + 2
         return render_template("setting/filterrule.html",
                                Count=len(RuleGroups),
                                RuleGroups=RuleGroups,

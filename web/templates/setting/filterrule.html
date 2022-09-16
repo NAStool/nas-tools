@@ -16,11 +16,11 @@
           <a href="javascript:show_add_filtergroup_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           </a>
-          <a href="javascript:show_restore_filtergroup_modal()" class="btn btn-primary d-none d-sm-inline-block">
+          <a href="javascript:show_restore_filtergroup_modal()" class="btn btn-secondary d-none d-sm-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 16 16" fill="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
-            恢复初始规则组
+            恢复初始规则
           </a>
-          <a href="javascript:show_restore_filtergroup_modal()" class="btn btn-primary d-sm-none btn-icon">
+          <a href="javascript:show_restore_filtergroup_modal()" class="btn btn-secondary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 16 16" fill="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
           </a>
         </div>
@@ -188,6 +188,7 @@
             </div>
           </div>
           {% for Init_RuleGroup in Init_RuleGroups %}
+          {% if Init_RuleGroup.rules %}
           <div class="row mb-3">
             <details>
               <summary class="summary">
@@ -203,6 +204,7 @@
               </div>
             </details>
           </div>
+          {% endif %}
           {% endfor %}
         </div>
       </div>
@@ -262,7 +264,7 @@
     <div class="modal-content">
       <div class="card border-top-0">
         <div class="card-header">
-          <h5 class="modal-title">恢复规则组 <span class="form-help bg-red-lt" title="若无相应规则组，请先新建相应规则组后再进行恢复" data-bs-toggle="tooltip">?</span></h5>
+          <h5 class="modal-title">恢复初始规则</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="card-body">
