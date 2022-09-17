@@ -4,6 +4,7 @@ __pycache__
 *.pid
 test/
 test.py
+venv/
 
 ### IntelliJ IDEA ###
 .idea
