@@ -165,7 +165,7 @@ class SiteConf:
         'ourbits.club': {
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
-            'HR': [],
+            'HR': ["//img[@class='hitandrun']"],
             'PEER_COUNT': [],
         },
         'pt.btschool.club': {
@@ -201,7 +201,7 @@ class SiteConf:
         'chdbits.co': {
             'FREE': ["//img[@class='pro_free']"],
             '2XFREE': [],
-            'HR': [],
+            'HR': ["//b[text()='H&amp;R:&nbsp;']"],
             'PEER_COUNT': [],
         },
         'hdchina.org': {

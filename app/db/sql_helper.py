@@ -1609,9 +1609,13 @@ class SqlHelper:
         return DBHelper().select_by_sql("SELECT ID,NAME,ADDRESS,PARSER,INTERVAL,USES,INCLUDE,EXCLUDE,FILTER,UPDATE_TIME,PROCESS_COUNT,STATE,NOTE FROM CONFIG_USER_RSS")
 
     @staticmethod
-    def get_userrss_parser(pid):
-        return DBHelper().select_by_sql(
-            "SELECT ID,NAME,TYPE,FORMAT,PARAMS,NOTE FROM CONFIG_RSS_PARSER WHERE ID = ?", (pid,))
+    def get_userrss_parser(pid=None):
+        if pid:
+            return DBHelper().select_by_sql(
+                "SELECT ID,NAME,TYPE,FORMAT,PARAMS,NOTE FROM CONFIG_RSS_PARSER WHERE ID = ?", (pid,))
+        else:
+            return DBHelper().select_by_sql(
+                "SELECT ID,NAME,TYPE,FORMAT,PARAMS,NOTE FROM CONFIG_RSS_PARSER")
 
     @staticmethod
     def excute(sql):

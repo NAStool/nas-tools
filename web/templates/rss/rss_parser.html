@@ -11,7 +11,7 @@
         <div class="btn-list">
           <a href="javascript:show_add_rssparser_modal()" class="btn btn-primary d-none d-sm-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-            新增RSS解析器
+            新增解析器
           </a>
           <a href="javascript:show_add_rssparser_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
@@ -53,23 +53,23 @@
                 <tr>
                   <th>名称</th>
                   <th>类型</th>
-                  <th>参数</th>
+                  <th>附加参数</th>
                   <th class="w-3"></th>
                 </tr>
               </thead>
               <tbody>
-              {% if rssparsers %}
-                {% for rssparser in rssparsers %}
+              {% if RssParsers %}
+                {% for RssParser in RssParsers %}
                 <tr>
-                  <td>{{ rssparser[1] or '' }}</td>
-                  <td>{{ rssparser[2] or '' }}</td>
-                  <td>{{ rssparser[3]}}:{{ rssparser[4]}}</td>
+                  <td>{{ RssParser.name or '' }}</td>
+                  <td><span class="badge me-2">{{ RssParser.type or '' }}</span></td>
+                  <td>{{ RssParser.params or '' }}</td>
                   <td>
                     <div class="d-flex">
-                      <a href="javascript:show_edit_rssparser_modal('{{ rssparser[0] }}')" class="btn-action" title="编辑">
+                      <a href="javascript:show_edit_rssparser_modal('{{ RssParser.id }}')" class="btn-action" title="编辑">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
                       </a>
-                      <a href="javascript:delete_rssparser('{{ rssparser[0] }}')" class="btn-action" title="删除">
+                      <a href="javascript:delete_rssparser('{{ RssParser.id }}')" class="btn-action" title="删除">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                            <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -91,7 +91,7 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-add-rssparser" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-add-RssParser" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="card border-top-0">

@@ -1,4 +1,4 @@
-INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('1', '蜜柑计划', 'XML', '{
+INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('1', '通用', 'XML', '{
     "list": "/rss/channel/item",
     "item": {
         "title": {
@@ -18,7 +18,7 @@ INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARA
         }
     }
 }', '', '', 'Y');
-INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('2', '通用', 'XML', '{
+INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('2', '蜜柑计划', 'XML', '{
     "list": "/rss/channel/item",
     "item": {
         "title": {

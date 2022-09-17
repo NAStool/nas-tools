@@ -21,6 +21,7 @@ import re
 import log
 from app.mediaserver import WebhookEvent
 from app.message import Message
+from app.rsschecker import RssChecker
 from app.utils import Security, StringUtils, DomUtils, SystemUtils, WebUtils, MetaHelper
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL, NETTEST_TARGETS
 from app.douban import DouBan
@@ -1461,13 +1462,19 @@ def create_flask_app(config):
     @App.route('/user_rss', methods=['POST', 'GET'])
     @login_required
     def user_rss():
-        return render_template("rss/user_rss.html")
+        Tasks = RssChecker().get_rsstask_info()
+        return render_template("rss/user_rss.html",
+                               Tasks=Tasks,
+                               Count=len(Tasks))
 
     # RSS解析器页面
     @App.route('/rss_parser', methods=['POST', 'GET'])
     @login_required
     def rss_parser():
-        return render_template("rss/rss_parser.html")
+        RssParsers = RssChecker().get_userrss_parser()
+        return render_template("rss/rss_parser.html",
+                               RssParsers=RssParsers,
+                               Count=len(RssParsers))
 
     # 事件响应
     @App.route('/do', methods=['POST'])
@@ -1751,10 +1758,15 @@ def create_flask_app(config):
             log.debug(e)
             return {"code": 1, "msg": str(e), "filepath": ""}
 
-    # 自定义模板过滤器
+    # base64模板过滤器
     @App.template_filter('b64encode')
     def b64encode(s):
         return base64.b64encode(s.encode()).decode()
+
+    # split模板过滤器
+    @App.template_filter('split')
+    def split(string, char, pos):
+        return string.split(char)[pos]
 
     # 站点信息拆分模板过滤器
     @App.template_filter('rss_sites_string')

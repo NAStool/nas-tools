@@ -29,6 +29,11 @@ class RssChecker(object):
     downloader = None
     _scheduler = None
     _rss_tasks = []
+    _site_users = {
+                "D": "下载",
+                "R": "订阅",
+                "S": "搜索"
+            }
 
     def __init__(self):
         self.init_config()
@@ -51,16 +56,26 @@ class RssChecker(object):
         rsstasks = SqlHelper.get_userrss_tasks()
         self._rss_tasks = []
         for task in rsstasks:
+            parser = self.get_userrss_parser(task[3])
+            if task[8]:
+                filterrule = self.filterrule.get_rule_groups(groupid=task[8])
+            else:
+                filterrule = {}
             self._rss_tasks.append({
                 "id": task[0],
                 "name": task[1],
                 "address": task[2],
                 "parser": task[3],
+                "parser_name": parser.get("name") if parser else "",
                 "interval": task[4],
                 "uses": task[5],
+                "uses_text": self._site_users.get(task[5]),
                 "include": task[6],
                 "exclude": task[7],
                 "filter": task[8],
+                "filter_name": filterrule.get("name") if filterrule else "",
+                "update_time": task[9],
+                "counter": task[10],
                 "state": task[11],
                 "note": task[12]
             })
@@ -79,14 +94,15 @@ class RssChecker(object):
         if rss_flag:
             log.info("【RUN】自定议订阅服务启动")
 
-    def get_rsstask_info(self, taskid):
+    def get_rsstask_info(self, taskid=None):
         """
         获取单个RSS任务详细信息
         """
-        for task in self._rss_tasks:
-            if task.get("id") == taskid:
-                return task
-        return None
+        if taskid:
+            for task in self._rss_tasks:
+                if task.get("id") == taskid:
+                    return task
+        return self._rss_tasks
 
     def check_task_rss(self, taskid):
         """
@@ -250,7 +266,7 @@ class RssChecker(object):
         """
         获取RSS链接数据，根据PARSER进行解析获取返回结果
         """
-        rss_parser = self.__get_userrss_parser(taskinfo.get("parser"))
+        rss_parser = self.get_userrss_parser(taskinfo.get("parser"))
         if not rss_parser:
             log.error("【RSSCHECKER】任务 %s 的解析配置不存在" % taskinfo.get("name"))
             return []
@@ -350,15 +366,31 @@ class RssChecker(object):
         return True, res_order
 
     @staticmethod
-    def __get_userrss_parser(pid):
-        rss_parser = SqlHelper.get_userrss_parser(pid)
-        if not rss_parser:
-            return None
-        return {
-            "id": rss_parser[0][0],
-            "name": rss_parser[0][1],
-            "type": rss_parser[0][2],
-            "format": rss_parser[0][3],
-            "params": rss_parser[0][4],
-            "note": rss_parser[0][5]
-        }
+    def get_userrss_parser(pid=None):
+        if pid:
+            rss_parser = SqlHelper.get_userrss_parser(pid)
+            if not rss_parser:
+                return None
+            return {
+                "id": rss_parser[0][0],
+                "name": rss_parser[0][1],
+                "type": rss_parser[0][2],
+                "format": rss_parser[0][3],
+                "params": rss_parser[0][4],
+                "note": rss_parser[0][5]
+            }
+        else:
+            return_parsers = []
+            rss_parsers = SqlHelper.get_userrss_parser()
+            for rss_parser in rss_parsers:
+                return_parsers.append(
+                    {
+                        "id": rss_parser[0],
+                        "name": rss_parser[1],
+                        "type": rss_parser[2],
+                        "format": rss_parser[3],
+                        "params": rss_parser[4],
+                        "note": rss_parser[5]
+                    }
+                )
+            return return_parsers

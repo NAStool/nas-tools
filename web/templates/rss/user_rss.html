@@ -17,24 +17,34 @@
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           </a>
           <a href="javascript:show_userrss_parser_modal()" class="btn d-none d-sm-inline-block">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-apps" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-cpu" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-               <rect x="4" y="4" width="6" height="6" rx="1"></rect>
-               <rect x="4" y="14" width="6" height="6" rx="1"></rect>
-               <rect x="14" y="14" width="6" height="6" rx="1"></rect>
-               <line x1="14" y1="7" x2="20" y2="7"></line>
-               <line x1="17" y1="4" x2="17" y2="10"></line>
+               <rect x="5" y="5" width="14" height="14" rx="1"></rect>
+               <path d="M9 9h6v6h-6z"></path>
+               <path d="M3 10h2"></path>
+               <path d="M3 14h2"></path>
+               <path d="M10 3v2"></path>
+               <path d="M14 3v2"></path>
+               <path d="M21 10h-2"></path>
+               <path d="M21 14h-2"></path>
+               <path d="M14 21v-2"></path>
+               <path d="M10 21v-2"></path>
             </svg>
             RSS解析器
           </a>
           <a href="javascript:show_userrss_parser_modal()" class="btn btn-secondary d-sm-none btn-icon" title="RSS解析器">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-apps" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-cpu" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-               <rect x="4" y="4" width="6" height="6" rx="1"></rect>
-               <rect x="4" y="14" width="6" height="6" rx="1"></rect>
-               <rect x="14" y="14" width="6" height="6" rx="1"></rect>
-               <line x1="14" y1="7" x2="20" y2="7"></line>
-               <line x1="17" y1="4" x2="17" y2="10"></line>
+               <rect x="5" y="5" width="14" height="14" rx="1"></rect>
+               <path d="M9 9h6v6h-6z"></path>
+               <path d="M3 10h2"></path>
+               <path d="M3 14h2"></path>
+               <path d="M10 3v2"></path>
+               <path d="M14 3v2"></path>
+               <path d="M21 10h-2"></path>
+               <path d="M21 14h-2"></path>
+               <path d="M14 21v-2"></path>
+               <path d="M10 21v-2"></path>
             </svg>
           </a>
         </div>
@@ -65,48 +75,74 @@
               <div class="datagrid-title">地址</div>
               <div class="datagrid-content">
                 <div class="d-flex align-items-center">
+                  {{ Task.address|split('?', 0) }}
                 </div>
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">解析器</div>
               <div class="datagrid-content">
-                <span class="badge me-2 bg-orange"></span>
+                <span class="badge me-2">{{ Task.parser_name }}</span>
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">刷新间隔</div>
               <div class="datagrid-content">
+                {{ Task.interval }} 分钟
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">动作</div>
               <div class="datagrid-content">
-
+                <span class="badge me-2 bg-blue">{{ Task.uses_text }}</span>
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">包含</div>
-              <div class="datagrid-content"></div>
+              <div class="datagrid-content">
+                {% if Task.include %}
+                <span class="badge badge-outline text-green me-2">{{ Task.include }}</span>
+                {% endif %}
+              </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">排除</div>
-              <div class="datagrid-content"></div>
+              <div class="datagrid-content">
+                {% if Task.exclude %}
+                <span class="badge badge-outline text-red me-2">{{ Task.exclude }}</span>
+                {% endif %}
+              </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">过滤规则</div>
-              <div class="datagrid-content"></div>
+              <div class="datagrid-content">
+                {% if Task.filter_name %}
+                <span class="badge badge-outline text-orange me-2">{{ Task.filter_name }}</span>
+                {% endif %}
+              </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">最后更新时间</div>
               <div class="datagrid-content">
+                {{ Task.update_time or '' }}
+              </div>
+            </div>
+            <div class="datagrid-item">
+              <div class="datagrid-title">状态</div>
+              <div class="datagrid-content">
+                {% if Task.state == 'Y' %}
+                <span class="badge me-2 bg-green">正在运行</span>
+                {% else %}
+                <span class="badge me-2 bg-reg">已停用</span>
+                {% endif %}
               </div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">已处理数量</div>
               <div class="datagrid-content">
+                {{ Task.counter or 0 }}
               </div>
-            </div>            
+            </div>
           </div>
         </div>
       </div>
