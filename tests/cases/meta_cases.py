@@ -1,4 +1,20 @@
 meta_cases = [{
+    "title": "【爪爪字幕组】★7月新番[欢迎来到实力至上主义的教室 第二季/Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e S2][11][1080p][HEVC][GB][MP4][招募翻译校对]",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "欢迎来到实力至上主义的教室",
+        "en_name": "Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e",
+        "year": "",
+        "part": "",
+        "season": "S02",
+        "episode": "E11",
+        "restype": "",
+        "pix": "1080p",
+        "video_codec": "HEVC",
+        "audio_codec": ""
+    }
+}, {
     "title": "[Animations(动画片)][[诛仙][Jade Dynasty][2022][WEB-DL][2160][TV Series][TV 08][LeagueWEB]][诛仙/诛仙动画 第一季 第08集 | 类型:动画 [国语中字]][680.12 MB]",
     "subtitle": "",
     "target": {

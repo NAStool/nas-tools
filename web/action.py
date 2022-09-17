@@ -13,7 +13,8 @@ import log
 from app.media.doubanv2api import DoubanHot
 from app.mediaserver import MediaServer
 from app.rsschecker import RssChecker
-from app.utils import StringUtils, Torrent, EpisodeFormat, ProgressController, RequestUtils, PathUtils, MessageCenter, ThreadHelper, MetaHelper
+from app.utils import StringUtils, Torrent, EpisodeFormat, ProgressController, RequestUtils, PathUtils, MessageCenter, \
+    ThreadHelper, MetaHelper
 from app.utils.types import RMT_MODES
 from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
 from app.message import Telegram, WeChat, Message
@@ -1092,7 +1093,9 @@ class WebAction:
                 vote_average = round(float(tmdb_info.get("vote_average")), 1)
                 release_date = tmdb_info.get('first_air_date')
                 year = release_date[0:4] if release_date else ""
-                seasons = [{"text": "第%s季" % cn2an.an2cn(season.get("season_number"), mode='low'), "num": season.get("season_number")} for season in Media().get_tmdb_seasons_list(tv_info=tmdb_info)]
+                seasons = [{"text": "第%s季" % cn2an.an2cn(season.get("season_number"), mode='low'),
+                            "num": season.get("season_number")} for season in
+                           Media().get_tmdb_seasons_list(tv_info=tmdb_info)]
 
             # 查订阅信息
             if not rssid:
@@ -2085,6 +2088,7 @@ class WebAction:
         删除自定义订阅
         """
         if SqlHelper.delete_userrss_task(data.get("id")):
+            RssChecker().init_config()
             return {"code": 0}
         else:
             return {"code": 1}
@@ -2094,7 +2098,23 @@ class WebAction:
         """
         新增或修改自定义订阅
         """
-        pass
+        params = {
+            "id": data.get("id"),
+            "name": data.get("name"),
+            "address": data.get("address"),
+            "parser": data.get("parser"),
+            "interval": data.get("interval"),
+            "uses": data.get("uses"),
+            "include": data.get("include"),
+            "exclude": data.get("exclude"),
+            "filterrule": data.get("filterrule"),
+            "state": data.get("state")
+        }
+        if SqlHelper.update_userrss_task(params):
+            RssChecker().init_config()
+            return {"code": 0}
+        else:
+            return {"code": 1}
 
     @staticmethod
     def __get_rssparser(data):
@@ -2119,4 +2139,14 @@ class WebAction:
         """
         新增或更新订阅解析器
         """
-        pass
+        params = {
+            "id": data.get("id"),
+            "name": data.get("name"),
+            "type": data.get("type"),
+            "format": data.get("format"),
+            "params": data.get("params")
+        }
+        if SqlHelper.update_userrss_parser(params):
+            return {"code": 0}
+        else:
+            return {"code": 1}

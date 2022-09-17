@@ -92,6 +92,8 @@ class RssChecker(object):
                                         trigger='interval',
                                         seconds=int(task.get("interval")) * 60)
         if rss_flag:
+            self._scheduler.print_jobs()
+            self._scheduler.start()
             log.info("【RUN】自定议订阅服务启动")
 
     def get_rsstask_info(self, taskid=None):
@@ -100,7 +102,7 @@ class RssChecker(object):
         """
         if taskid:
             for task in self._rss_tasks:
-                if task.get("id") == taskid:
+                if task.get("id") == int(taskid):
                     return task
         return self._rss_tasks
 
@@ -261,6 +263,11 @@ class RssChecker(object):
                 self.searcher.search_one_media(in_from=SearchType.RSS,
                                                media_info=media,
                                                no_exists=no_exists)
+
+        # 更新状态
+        counter = len(rss_download_torrents) + len(rss_subscribe_torrents) + len(rss_search_torrents)
+        if counter:
+            SqlHelper.update_userrss_task_info(taskid, counter)
 
     def __parse_userrss_result(self, taskinfo):
         """

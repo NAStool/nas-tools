@@ -1605,8 +1605,16 @@ class SqlHelper:
                                                   item.get("free")))
 
     @staticmethod
-    def get_userrss_tasks():
-        return DBHelper().select_by_sql("SELECT ID,NAME,ADDRESS,PARSER,INTERVAL,USES,INCLUDE,EXCLUDE,FILTER,UPDATE_TIME,PROCESS_COUNT,STATE,NOTE FROM CONFIG_USER_RSS")
+    def get_userrss_tasks(taskid=None):
+        if taskid:
+            return DBHelper().select_by_sql(
+                "SELECT ID,NAME,ADDRESS,PARSER,INTERVAL,USES,INCLUDE,EXCLUDE,FILTER,UPDATE_TIME,PROCESS_COUNT,STATE,NOTE "
+                "FROM CONFIG_USER_RSS "
+                "WHERE ID = ?", (taskid,))
+        else:
+            return DBHelper().select_by_sql(
+                "SELECT ID,NAME,ADDRESS,PARSER,INTERVAL,USES,INCLUDE,EXCLUDE,FILTER,UPDATE_TIME,PROCESS_COUNT,STATE,NOTE "
+                "FROM CONFIG_USER_RSS")
 
     @staticmethod
     def delete_userrss_task(tid):
@@ -1614,6 +1622,49 @@ class SqlHelper:
             return False
         return DBHelper().update_by_sql(
             "DELETE FROM CONFIG_USER_RSS WHERE ID = ?", (tid,))
+
+    @staticmethod
+    def update_userrss_task_info(tid, count):
+        if not tid:
+            return False
+        return DBHelper().update_by_sql(
+            "UPDATE CONFIG_USER_RSS SET PROCESS_COUNT = ?, UPDATE_TIME = ? WHERE ID = ?",
+            (count, time.strftime('%Y-%m-%d %H:%M:%S',
+                                  time.localtime(time.time())), tid))
+
+    @staticmethod
+    def update_userrss_task(item):
+        if item.get("id") and SqlHelper.get_userrss_tasks(item.get("id")):
+            return DBHelper().update_by_sql("UPDATE CONFIG_USER_RSS "
+                                            "SET NAME=?,ADDRESS=?,PARSER=?,INTERVAL=?,USES=?,INCLUDE=?,EXCLUDE=?,FILTER=?,UPDATE_TIME=?,STATE=?"
+                                            "WHERE ID=?", (item.get("name"),
+                                                           item.get("address"),
+                                                           item.get("parser"),
+                                                           item.get("interval"),
+                                                           item.get("uses"),
+                                                           item.get("include"),
+                                                           item.get("exclude"),
+                                                           item.get("filterrule"),
+                                                           time.strftime('%Y-%m-%d %H:%M:%S',
+                                                                         time.localtime(time.time())),
+                                                           item.get("state"),
+                                                           item.get("id")))
+        else:
+            return DBHelper().update_by_sql("INSERT INTO CONFIG_USER_RSS"
+                                            "(NAME,ADDRESS,PARSER,INTERVAL,USES,INCLUDE,EXCLUDE,FILTER,UPDATE_TIME,PROCESS_COUNT,STATE) "
+                                            "VALUES (?,?,?,?,?,?,?,?,?,?,?)", (item.get("name"),
+                                                                               item.get("address"),
+                                                                               item.get("parser"),
+                                                                               item.get("interval"),
+                                                                               item.get("uses"),
+                                                                               item.get("include"),
+                                                                               item.get("exclude"),
+                                                                               item.get("filterrule"),
+                                                                               time.strftime('%Y-%m-%d %H:%M:%S',
+                                                                                             time.localtime(
+                                                                                                 time.time())),
+                                                                               "0",
+                                                                               item.get("state")))
 
     @staticmethod
     def get_userrss_parser(pid=None):
@@ -1629,7 +1680,26 @@ class SqlHelper:
         if not pid:
             return False
         return DBHelper().update_by_sql(
-                "DELETE FROM CONFIG_RSS_PARSER WHERE ID = ?", (pid,))
+            "DELETE FROM CONFIG_RSS_PARSER WHERE ID = ?", (pid,))
+
+    @staticmethod
+    def update_userrss_parser(item):
+        if not item:
+            return False
+        if item.get("id") and SqlHelper.get_userrss_parser(item.get("id")):
+            return DBHelper().update_by_sql("UPDATE CONFIG_RSS_PARSER "
+                                            "SET NAME=?,TYPE=?,FORMAT=?,PARAMS=? "
+                                            "WHERE ID=?", (item.get("name"),
+                                                           item.get("type"),
+                                                           item.get("format"),
+                                                           item.get("params"),
+                                                           item.get("id")))
+        else:
+            return DBHelper().update_by_sql("INSERT INTO CONFIG_RSS_PARSER(NAME, TYPE, FORMAT, PARAMS) "
+                                            "VALUES (?,?,?,?)", (item.get("name"),
+                                                                 item.get("type"),
+                                                                 item.get("format"),
+                                                                 item.get("params")))
 
     @staticmethod
     def excute(sql):

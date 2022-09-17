@@ -1463,9 +1463,13 @@ def create_flask_app(config):
     @login_required
     def user_rss():
         Tasks = RssChecker().get_rsstask_info()
+        RssParsers = RssChecker().get_userrss_parser()
+        FilterRules = FilterRule().get_rule_groups()
         return render_template("rss/user_rss.html",
                                Tasks=Tasks,
-                               Count=len(Tasks))
+                               Count=len(Tasks),
+                               RssParsers=RssParsers,
+                               FilterRules=FilterRules)
 
     # RSS解析器页面
     @App.route('/rss_parser', methods=['POST', 'GET'])
