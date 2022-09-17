@@ -1668,7 +1668,7 @@ def create_flask_app(config):
         if not req_json:
             return make_response("非法请求！", 400)
         notification_type = req_json.get("notification_type")
-        if notification_type not in ["MEDIA_APPROVED", "MEDIA_AUTO_APPROVED "]:
+        if notification_type not in ["MEDIA_APPROVED", "MEDIA_AUTO_APPROVED"]:
             return make_response("ok", 200)
         subject = req_json.get("subject")
         media_type = MediaType.MOVIE if req_json.get("media", {}).get("media_type") == "movie" else MediaType.TV
