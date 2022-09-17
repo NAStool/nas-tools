@@ -215,8 +215,9 @@ class Rss:
                                     rss_no_exists = self.__get_rss_no_exists(target=rss_no_exists,
                                                                              source=library_no_exists,
                                                                              title=media_info.tmdb_id)
-                                    log.info("【RSS】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                                  rss_no_exists.get(media_info.tmdb_id)))
+                                    if rss_no_exists.get(media_info.tmdb_id):
+                                        log.info("【RSS】%s 缺失季集：%s" % (media_info.get_title_string(),
+                                                                      rss_no_exists.get(media_info.tmdb_id)))
                         # 返回对象
                         media_info.set_torrent_info(res_order=res_order,
                                                     download_volume_factor=download_volume_factor,
@@ -416,8 +417,9 @@ class Rss:
                 no_exists = self.__get_rss_no_exists(target=no_exists,
                                                      source=library_no_exists,
                                                      title=media_info.tmdb_id)
-                log.info("【RSS】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                              no_exists.get(media_info.tmdb_id)))
+                if no_exists.get(media_info.tmdb_id):
+                    log.info("【RSS】%s 缺失季集：%s" % (media_info.get_title_string(),
+                                                  no_exists.get(media_info.tmdb_id)))
 
             # 开始检索
             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(

@@ -44,12 +44,12 @@ INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARA
         "title": {
             "path": "title"
         },
-		"year": {
+        "year": {
             "path": "release_date"
         },
-		"type": {
-			"value": "movie"
-		}
+        "type": {
+            "value": "movie"
+        }
     }
 }', 'api_key={TMDBKEY}&language=zh-CN', '', 'Y');
 INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('4', 'TMDB电视剧片单', 'JSON', '{
@@ -58,11 +58,11 @@ INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARA
         "title": {
             "path": "name"
         },
-		"year": {
+        "year": {
             "path": "first_air_date"
         },
-		"type": {
-			"value": "tv"
-		}
+        "type": {
+            "value": "tv"
+        }
     }
 }', 'api_key={TMDBKEY}&language=zh-CN', '', 'Y');

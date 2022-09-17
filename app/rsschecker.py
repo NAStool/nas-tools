@@ -214,8 +214,9 @@ class RssChecker(object):
                             log.info("【RSSCHECKER】电视剧 %s %s 已存在" % (
                                 media_info.get_title_string(), media_info.get_season_episode_string()))
                         continue
-                    log.info("【RSSCHECKER】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                         no_exists.get(media_info.tmdb_id)))
+                    if no_exists.get(media_info.tmdb_id):
+                        log.info("【RSSCHECKER】%s 缺失季集：%s" % (media_info.get_title_string(),
+                                                             no_exists.get(media_info.tmdb_id)))
                 # 插入数据库
                 SqlHelper.insert_rss_torrents(media_info)
                 # 汇总处理
