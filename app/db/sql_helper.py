@@ -417,6 +417,15 @@ class SqlHelper:
             "SELECT ID,NAME,PRI,RSSURL,SIGNURL,COOKIE,INCLUDE,EXCLUDE,SIZE,NOTE FROM CONFIG_SITE WHERE ID = ?", (tid,))
 
     @staticmethod
+    def get_site_by_name(name):
+        """
+        基于站点名称查询站点信息
+        :return:
+        """
+        return DBHelper().select_by_sql(
+            "SELECT ID,NAME,SIGNURL FROM CONFIG_SITE WHERE NAME = ?", (name,))
+
+    @staticmethod
     def insert_config_site(name, site_pri, rssurl, signurl, cookie, note, rss_uses):
         """
         插入站点信息
@@ -955,6 +964,17 @@ class SqlHelper:
         return DBHelper().select_by_sql(sql, (begin_date,))
 
     @staticmethod
+    def update_site_user_statistics_site_name(new_name, old_name):
+        """
+        更新站点用户数据中站点名称
+        :param old_name:
+        :return:
+        """
+        sql = "UPDATE SITE_USER_INFO_STATS SET SITE = ? WHERE SITE = ?"
+
+        return DBHelper().update_by_sql(sql, (new_name, old_name))
+
+    @staticmethod
     def update_site_user_statistics(site_user_infos: list):
         """
         更新站点用户粒度数据
@@ -992,6 +1012,18 @@ class SqlHelper:
                 leeching,
                 seeding_size, bonus, url, favicon, msg_unread))
         return DBHelper().update_by_sql_batch(sql, data_list)
+
+    @staticmethod
+    def update_site_seed_info_site_name(new_name, old_name):
+        """
+        更新站点做种数据中站点名称
+        :param new_name: 新的站点名称
+        :param old_name: 原始站点名称
+        :return:
+        """
+        sql = "UPDATE SITE_USER_SEEDING_INFO SET SITE = ? WHERE SITE = ?"
+
+        return DBHelper().update_by_sql(sql, (new_name, old_name))
 
     @staticmethod
     def update_site_seed_info(site_user_infos: list):
@@ -1063,6 +1095,18 @@ class SqlHelper:
             return True
         else:
             return False
+
+    @staticmethod
+    def update_site_statistics_site_name(new_name, old_name):
+        """
+        更新站点做种数据中站点名称
+        :param new_name: 新站点名称
+        :param old_name: 原始站点名称
+        :return:
+        """
+        sql = "UPDATE SITE_STATISTICS_HISTORY SET SITE = ? WHERE SITE = ?"
+
+        return DBHelper().update_by_sql(sql, (new_name, old_name))
 
     @staticmethod
     def insert_site_statistics_history(site_user_infos: list):
@@ -1335,7 +1379,8 @@ class SqlHelper:
         if brush_id:
             sql = "SELECT T.ID,T.NAME,T.SITE,C.NAME,T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
                   "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
-                  "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL,C.COOKIE,D.NAME " \
+                  "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL,C.COOKIE,D.NAME," \
+                  "C.NOTE " \
                   "FROM SITE_BRUSH_TASK T " \
                   "LEFT JOIN CONFIG_SITE C ON C.ID = T.SITE " \
                   "LEFT JOIN SITE_BRUSH_DOWNLOADERS D ON D.ID = T.DOWNLOADER " \
@@ -1344,7 +1389,8 @@ class SqlHelper:
         else:
             sql = "SELECT T.ID,T.NAME,T.SITE,C.NAME,T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
                   "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
-                  "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL,C.COOKIE,D.NAME " \
+                  "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL,C.COOKIE,D.NAME," \
+                  "C.NOTE " \
                   "FROM SITE_BRUSH_TASK T " \
                   "LEFT JOIN CONFIG_SITE C ON C.ID = T.SITE " \
                   "LEFT JOIN SITE_BRUSH_DOWNLOADERS D ON D.ID = T.DOWNLOADER "

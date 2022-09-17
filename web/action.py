@@ -684,6 +684,16 @@ class WebAction:
         """
         维护站点信息
         """
+
+        def __is_site_duplicate(query_name, query_tid):
+            # 检查是否重名
+            sites = SqlHelper.get_site_by_name(name=query_name)
+            for site in sites:
+                site_id = site[0]
+                if str(site_id) != str(query_tid):
+                    return True
+            return False
+
         tid = data.get('site_id')
         name = data.get('site_name')
         site_pri = data.get('site_pri')
@@ -692,7 +702,18 @@ class WebAction:
         cookie = data.get('site_cookie')
         note = data.get('site_note')
         rss_uses = data.get('site_include')
+
+        if __is_site_duplicate(name, tid):
+            return {"code": 400, "msg": "站点名称重复"}
+
         if tid:
+            sites = SqlHelper.get_site_by_id(tid)
+            # 站点不存在
+            if not sites:
+                return {"code": 400, "msg": "站点不存在"}
+
+            old_name = sites[0][1]
+
             ret = SqlHelper.update_config_site(tid=tid,
                                                name=name,
                                                site_pri=site_pri,
@@ -701,6 +722,12 @@ class WebAction:
                                                cookie=cookie,
                                                note=note,
                                                rss_uses=rss_uses)
+            if ret and (name != old_name):
+                # 更新历史站点数据信息
+                SqlHelper.update_site_user_statistics_site_name(name, old_name)
+                SqlHelper.update_site_seed_info_site_name(name, old_name)
+                SqlHelper.update_site_statistics_site_name(name, old_name)
+
         else:
             ret = SqlHelper.insert_config_site(name=name,
                                                site_pri=site_pri,
