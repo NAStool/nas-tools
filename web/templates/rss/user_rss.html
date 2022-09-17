@@ -235,7 +235,7 @@
                 <select class="form-select" id="userrss_filterrule">
                   <option value="" selected>请选择</option>
                   {% for FilterRule in FilterRules %}
-                  <option value="{{ FilterRule.id }}" {% if loop.first %}selected{% endif %}>{{ FilterRule.name }}</option>
+                  <option value="{{ FilterRule.id }}">{{ FilterRule.name }}</option>
                   {% endfor %}
                 </select>
               </div>
