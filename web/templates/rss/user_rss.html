@@ -199,7 +199,7 @@
   function del_userrss_modal(taskid, name){
     show_confirm_modal("删除订阅任务 " + name + " ？" , function(){
       hide_confirm_modal();
-      ajax_post("del_userrss", {"id": taskid}, function(ret){
+      ajax_post("delete_userrss_task", {"id": taskid}, function(ret){
         navmenu('user_rss');
       });
     });
@@ -207,8 +207,8 @@
 
   // 新增任务保存
   function add_userrss_job(){
-
-    ajax_post("add_userrss", params, function(ret){
+    var params = {};
+    ajax_post("update_userrss_task", params, function(ret){
       $("#modal-userrss").modal('hide');
       navmenu('user_rss');
     });

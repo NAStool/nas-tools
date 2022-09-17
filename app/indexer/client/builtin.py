@@ -94,7 +94,7 @@ class BuiltinIndexer(IIndexer):
             log.warn(f"【{self.index_type}】{indexer.name} 返回数据：{len(result_array)}")
             return self.filter_search_results(result_array=result_array,
                                               order_seq=order_seq,
-                                              indexer_name=indexer.name,
+                                              indexer=indexer,
                                               filter_args=filter_args,
                                               match_type=match_type,
                                               match_media=match_media,

@@ -1609,6 +1609,13 @@ class SqlHelper:
         return DBHelper().select_by_sql("SELECT ID,NAME,ADDRESS,PARSER,INTERVAL,USES,INCLUDE,EXCLUDE,FILTER,UPDATE_TIME,PROCESS_COUNT,STATE,NOTE FROM CONFIG_USER_RSS")
 
     @staticmethod
+    def delete_userrss_task(tid):
+        if not tid:
+            return False
+        return DBHelper().update_by_sql(
+            "DELETE FROM CONFIG_USER_RSS WHERE ID = ?", (tid,))
+
+    @staticmethod
     def get_userrss_parser(pid=None):
         if pid:
             return DBHelper().select_by_sql(
@@ -1616,6 +1623,13 @@ class SqlHelper:
         else:
             return DBHelper().select_by_sql(
                 "SELECT ID,NAME,TYPE,FORMAT,PARAMS,NOTE FROM CONFIG_RSS_PARSER")
+
+    @staticmethod
+    def delete_userrss_parser(pid):
+        if not pid:
+            return False
+        return DBHelper().update_by_sql(
+                "DELETE FROM CONFIG_RSS_PARSER WHERE ID = ?", (pid,))
 
     @staticmethod
     def excute(sql):

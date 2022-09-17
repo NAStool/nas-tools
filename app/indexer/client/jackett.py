@@ -48,7 +48,8 @@ class Jackett(IIndexer):
                 return []
             return [IndexerConf({"id": v["id"],
                                  "name": v["name"],
-                                 "domain": f'{self.host}api/v2.0/indexers/{v["id"]}/results/torznab/'})
+                                 "domain": f'{self.host}api/v2.0/indexers/{v["id"]}/results/torznab/',
+                                 "public": True if v['type'] == 'public' else False})
                     for v in ret.json()]
         except Exception as e2:
             print(str(e2))

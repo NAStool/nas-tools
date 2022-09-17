@@ -144,7 +144,7 @@ class IIndexer(metaclass=ABCMeta):
             log.warn(f"【{self.index_type}】{indexer.name} 返回数据：{len(result_array)}")
             return self.filter_search_results(result_array=result_array,
                                               order_seq=order_seq,
-                                              indexer_name=indexer.name,
+                                              indexer=indexer,
                                               filter_args=filter_args,
                                               match_type=match_type,
                                               match_media=match_media,
@@ -250,7 +250,7 @@ class IIndexer(metaclass=ABCMeta):
 
     def filter_search_results(self, result_array: list,
                               order_seq,
-                              indexer_name,
+                              indexer,
                               filter_args: dict,
                               match_type,
                               match_media,
@@ -264,14 +264,14 @@ class IIndexer(metaclass=ABCMeta):
         index_match_fail = 0
         for item in result_array:
             # 这此站标题和副标题相反
-            if indexer_name in self.__reverse_title_sites:
+            if indexer.id in self.__reverse_title_sites:
                 torrent_name = item.get('description')
                 description = item.get('title')
             else:
                 torrent_name = item.get('title')
                 description = item.get('description')
             # 这些站副标题无意义，需要去除
-            if indexer_name in self.__invalid_description_sites:
+            if indexer.id in self.__invalid_description_sites:
                 description = ""
             enclosure = item.get('enclosure')
             size = item.get('size')
@@ -283,8 +283,8 @@ class IIndexer(metaclass=ABCMeta):
             downloadvolumefactor = round(float(item.get('downloadvolumefactor')), 1) if item.get(
                 'downloadvolumefactor') is not None else 1.0
 
-            # 合匹配模式下，过滤掉做种数为0的
-            if filter_args.get("seeders") and str(seeders) == "0":
+            # 全匹配模式下，非公开站点，过滤掉做种数为0的
+            if filter_args.get("seeders") and not indexer.public and str(seeders) == "0":
                 log.info(f"【{self.index_type}】{torrent_name} 做种数为0")
                 continue
 
@@ -381,7 +381,7 @@ class IIndexer(metaclass=ABCMeta):
             # 匹配到了
             log.info(
                 f"【{self.index_type}】{torrent_name} {description} 识别为 {media_info.get_title_string()} {media_info.get_season_episode_string()} 匹配成功")
-            media_info.set_torrent_info(site=indexer_name,
+            media_info.set_torrent_info(site=indexer.name,
                                         site_order=order_seq,
                                         enclosure=enclosure,
                                         res_order=res_order,
@@ -399,7 +399,7 @@ class IIndexer(metaclass=ABCMeta):
         # 计算耗时
         end_time = datetime.datetime.now()
         log.info(
-            f"【{self.index_type}】{indexer_name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，有效资源 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
+            f"【{self.index_type}】{indexer.name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，有效资源 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
         self.progress.update(ptype='search',
-                             text=f"{indexer_name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，有效资源 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
+                             text=f"{indexer.name} 共检索到 {len(result_array)} 条数据，过滤 {index_rule_fail}，不匹配 {index_match_fail}，有效资源 {index_sucess}，耗时 {(end_time - start_time).seconds} 秒")
         return ret_array

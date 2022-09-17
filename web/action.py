@@ -12,6 +12,7 @@ import cn2an
 import log
 from app.media.doubanv2api import DoubanHot
 from app.mediaserver import MediaServer
+from app.rsschecker import RssChecker
 from app.utils import StringUtils, Torrent, EpisodeFormat, ProgressController, RequestUtils, PathUtils, MessageCenter, ThreadHelper, MetaHelper
 from app.utils.types import RMT_MODES
 from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
@@ -107,7 +108,13 @@ class WebAction:
             "restory_backup": self.__restory_backup,
             "start_mediasync": self.__start_mediasync,
             "mediasync_state": self.__mediasync_state,
-            "get_tvseason_list": self.__get_tvseason_list
+            "get_tvseason_list": self.__get_tvseason_list,
+            "get_userrss_task": self.__get_userrss_task,
+            "delete_userrss_task": self.__delete_userrss_task,
+            "update_userrss_task": self.__update_userrss_task,
+            "get_rssparser": self.__get_rssparser,
+            "delete_rssparser": self.__delete_rssparser,
+            "update_rssparser": self.__update_rssparser
         }
 
     def action(self, cmd, data):
@@ -2063,3 +2070,53 @@ class WebAction:
             {"text": "第%s季" % cn2an.an2cn(season.get("season_number"), mode='low'), "num": season.get("season_number")}
             for season in Media().get_tmdb_seasons_list(tmdbid=tmdbid)]
         return {"code": 0, "seasons": seasons}
+
+    @staticmethod
+    def __get_userrss_task(data):
+        """
+        获取自定义订阅详情
+        """
+        taskid = data.get("id")
+        return {"code": 0, "detail": RssChecker().get_rsstask_info(taskid=taskid)}
+
+    @staticmethod
+    def __delete_userrss_task(data):
+        """
+        删除自定义订阅
+        """
+        if SqlHelper.delete_userrss_task(data.get("id")):
+            return {"code": 0}
+        else:
+            return {"code": 1}
+
+    @staticmethod
+    def __update_userrss_task(data):
+        """
+        新增或修改自定义订阅
+        """
+        pass
+
+    @staticmethod
+    def __get_rssparser(data):
+        """
+        获取订阅解析器详情
+        """
+        pid = data.get("id")
+        return {"code": 0, "detail": RssChecker().get_userrss_parser(pid=pid)}
+
+    @staticmethod
+    def __delete_rssparser(data):
+        """
+        删除订阅解析器
+        """
+        if SqlHelper.delete_userrss_parser(data.get("id")):
+            return {"code": 0}
+        else:
+            return {"code": 1}
+
+    @staticmethod
+    def __update_rssparser(data):
+        """
+        新增或更新订阅解析器
+        """
+        pass
