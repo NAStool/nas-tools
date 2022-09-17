@@ -24,11 +24,7 @@ class Prowlarr(IIndexer):
         """
         if not self.api_key or not self.host:
             return False
-        api_url = "%sapi/v1/search?apikey=%s&Query=%s" % (self.host, self.api_key, "ASDFGHJKL")
-        res = RequestUtils().get_res(api_url)
-        if res and res.status_code == 200:
-            return True
-        return False
+        return True if self.get_indexers() else False
 
     def get_indexers(self):
         """
@@ -46,8 +42,7 @@ class Prowlarr(IIndexer):
         indexers = ret.json().get("indexers", [])
         return [IndexerConf({"id": v["indexerId"],
                              "name": v["indexerName"],
-                             "domain": f'{self.host}{v["indexerId"]}/api',
-                             "public": True if v[''] == '' else False})
+                             "domain": f'{self.host}{v["indexerId"]}/api'})
                 for v in indexers]
 
     def search(self, *kwargs):

@@ -27,6 +27,8 @@ class Jackett(IIndexer):
         检查连通性
         :return: True、False
         """
+        if not self.api_key or not self.host:
+            return False
         return True if self.get_indexers() else False
 
     def get_indexers(self):
