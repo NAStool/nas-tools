@@ -203,7 +203,7 @@ class Sites:
             try:
                 site_url = site_info.get("signurl")
                 site_cookie = site_info.get("cookie")
-                ua = site_info.get("cookie")
+                ua = site_info.get("ua")
                 log.info("【PT】开始站点签到：%s" % site)
                 if not site_url or not site_cookie:
                     log.warn("【PT】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
