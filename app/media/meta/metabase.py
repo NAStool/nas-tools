@@ -389,6 +389,7 @@ class MetaBase(object):
     def set_tmdb_info(self, info):
         if not info:
             return
+        self.original_type = info.get('media_type')
         self.type = self.__get_tmdb_type(info)
         if not self.type:
             return

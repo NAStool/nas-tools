@@ -1583,6 +1583,12 @@ class WebAction:
         if not name:
             return {"code": -1}
         media_info = Media().get_media_info(title=name)
+        tmdb_id = media_info.tmdb_id
+        if tmdb_id:
+            if media_info.original_type == MediaType.MOVIE:
+                tmdb_link = "https://www.themoviedb.org/movie/" + str(tmdb_id)
+            else:
+                tmdb_link = "https://www.themoviedb.org/tv/" + str(tmdb_id)
         if not media_info:
             return {"code": 0, "data": {"name": "无法识别"}}
         return {"code": 0, "data": {
@@ -1592,7 +1598,8 @@ class WebAction:
             "year": media_info.year,
             "season_episode": media_info.get_season_episode_string(),
             "part": media_info.part,
-            "tmdbid": media_info.tmdb_id,
+            "tmdbid": tmdb_id,
+            "tmdblink": tmdb_link,
             "category": media_info.category,
             "restype": media_info.resource_type,
             "pix": media_info.resource_pix,
