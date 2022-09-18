@@ -1,4 +1,3 @@
-import base64
 import json
 import traceback
 from datetime import datetime
@@ -208,7 +207,7 @@ class Sites:
                 if not site_url or not site_cookie:
                     log.warn("【PT】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
                     continue
-                res = RequestUtils(cookies=site_cookie).get_res(url=site_url, ua=ua)
+                res = RequestUtils(cookies=site_cookie, ua=ua).get_res(url=site_url)
                 if res and res.status_code == 200:
                     if not self.__is_signin_success(res.text):
                         status.append("%s 签到失败，cookie已过期" % site)
