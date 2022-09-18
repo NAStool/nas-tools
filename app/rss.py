@@ -822,12 +822,12 @@ class Rss:
 
 
 def log_info(text):
-    log.info(text, module="brushtask")
+    log.info(text, module="rss")
 
 
 def log_warn(text):
-    log.warn(text, module="brushtask")
+    log.warn(text, module="rss")
 
 
 def log_error(text):
-    log.error(text, module="brushtask")
+    log.error(text, module="rss")
