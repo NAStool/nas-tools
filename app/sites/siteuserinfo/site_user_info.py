@@ -14,7 +14,7 @@ class ISiteUserInfo(metaclass=ABCMeta):
     # 站点模版
     _site_schema = None
 
-    def __init__(self, site_name, url, site_cookie, index_html, session=None):
+    def __init__(self, site_name, url, site_cookie, index_html, session=None, ua=None):
         super().__init__()
         # 站点信息
         self.site_name = None
@@ -71,6 +71,7 @@ class ISiteUserInfo(metaclass=ABCMeta):
         self._site_cookie = site_cookie
         self._index_html = index_html
         self._session = session if session else requests.Session()
+        self._ua = ua
 
     def site_schema(self):
         """
@@ -141,10 +142,11 @@ class ISiteUserInfo(metaclass=ABCMeta):
         :return:
         """
         if params:
-            res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60).post_res(url=url,
-                                                                                                      params=params)
+            res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60, headers=self._ua).post_res(
+                url=url, params=params)
         else:
-            res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60).get_res(url=url)
+            res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60, headers=self._ua).get_res(
+                url=url)
         if res and res.status_code == 200:
             if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                 res.encoding = "UTF-8"

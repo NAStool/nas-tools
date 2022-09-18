@@ -16,6 +16,13 @@
           <a href="javascript:show_add_filtergroup_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           </a>
+          <a href="javascript:show_restore_filtergroup_modal()" class="btn btn-secondary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 16 16" fill="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
+            恢复初始规则
+          </a>
+          <a href="javascript:show_restore_filtergroup_modal()" class="btn btn-secondary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 16 16" fill="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
+          </a>
         </div>
       </div>
     </div>
@@ -121,7 +128,7 @@
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">优先级 <span class="form-help bg-red-lt" title="同一个规则组内，规则优先级的数值越小优先级越高" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">优先级 <span class="form-help" title="同一个规则组内，规则优先级的数值越小优先级越高" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="rule_pri">
                   <option value="1" selected>1</option>
                   <option value="2">2</option>
@@ -150,13 +157,13 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">包含规则 <span class="form-help bg-red-lt" title="只有种子标题或副标题中包括这些关键字或匹配正式表达式才会命中；对大小写不敏感，配置为空为不启用该规则；可以配置多行，多行之间是【与】的关系，即多行条件都包含时才会命中，单行内可以用'|'来表示【或】，即包括其一即命中" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">包含规则 <span class="form-help" title="只有种子标题或副标题中包括这些关键字或匹配正式表达式才会命中；对大小写不敏感，配置为空为不启用该规则；可以配置多行，多行之间是【与】的关系，即多行条件都包含时才会命中，单行内可以用'|'来表示【或】，即包括其一即命中" data-bs-toggle="tooltip">?</span></label>
                 <textarea class="form-control" id="rule_include" rows="4" placeholder="必须包含的关键字或正则表达式"></textarea>
               </div>
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">排除规则 <span class="form-help bg-red-lt" title="种子标题或副标题中如果有这些关键字或匹配正式表达式则会被跳过；对大小写不敏感，不能带引号，配置为空为不启用该规则；可以配置多行，多行之间是【与】的关系，即多行条件都不包含时才会跳过，单行内可以用'|'来表示【或】，即包括其一即跳过" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">排除规则 <span class="form-help" title="种子标题或副标题中如果有这些关键字或匹配正式表达式则会被跳过；对大小写不敏感，不能带引号，配置为空为不启用该规则；可以配置多行，多行之间是【与】的关系，即多行条件都不包含时才会跳过，单行内可以用'|'来表示【或】，即包括其一即跳过" data-bs-toggle="tooltip">?</span></label>
                 <textarea class="form-control" id="rule_exclude" rows="4" placeholder="不能包含的关键字或正则表达式"></textarea>
               </div>
             </div>
@@ -164,13 +171,13 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">大小限制(GB) <span class="form-help bg-red-lt" title="只有满足大小限制的种子文件才会被命中，单位是GB；不配置则不启用该条件；如只配置1个数字表示小于等于该大小的才会被命中；如配置2个数字(使用英文逗号分隔)表示在中间大小的才会被命中" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">大小限制(GB) <span class="form-help" title="只有满足大小限制的种子文件才会被命中，单位是GB，如果是剧集则是指的单集大小（多集时按集数折算）；不配置则不启用该条件；如只配置1个数字表示小于等于该大小的才会被命中；如配置2个数字(使用英文逗号分隔)表示在中间大小的才会被命中" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" class="form-control" id="rule_sizelimit" value="" placeholder="限制文件大小，单位GB">
               </div>
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">促销 <span class="form-help bg-red-lt" title="只有满足促销条件的种子才会被命中，免费包括2X免费" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">促销 <span class="form-help" title="只有满足促销条件的种子才会被命中，免费包括2X免费" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="rule_free">
                   <option value="" selected>全部</option>
                   <option value="1.0 1.0">普通</option>
@@ -180,6 +187,25 @@
               </div>
             </div>
           </div>
+          {% for Init_RuleGroup in Init_RuleGroups %}
+          {% if Init_RuleGroup.rules %}
+          <div class="row mb-3">
+            <details>
+              <summary class="summary">
+                模板-{{ Init_RuleGroup.name }}
+              </summary>
+              <div class="form-selectgroup">
+                {% for Rule in Init_RuleGroup.rules %}
+                <label class="form-selectgroup-item">
+                  <input type="button" value="{{ Rule | safe }}" class="form-selectgroup-input" onclick="javascript:apply_templated(this)">
+                  <span class="form-selectgroup-label">{{ Rule.name }}</span>
+                </label>
+                {% endfor %}
+              </div>
+            </details>
+          </div>
+          {% endif %}
+          {% endfor %}
         </div>
       </div>
       <div class="modal-footer">
@@ -205,7 +231,7 @@
           <div class="row">
             <div class="col">
               <div class="mb-3">
-                <label class="form-label required">规则组名称 <span class="form-help bg-red-lt" title="规则组为规则使用的基本单位，一个规则组中可以包含多条规则，按优先级依次匹配，给规则组设定个名称以便于选择使用" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">规则组名称 <span class="form-help" title="规则组为规则使用的基本单位，一个规则组中可以包含多条规则，按优先级依次匹配，给规则组设定个名称以便于选择使用" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" class="form-control" id="rulegroup_name" placeholder="别名">
               </div>
             </div>
@@ -215,7 +241,7 @@
               <div class="mb-3">
                 <label class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="rulegroup_default" onclick="javascript:change_over_edition_check(this)">
-                  <span class="form-check-label">默认 <span class="form-help bg-red-lt" title="将该规则组设为默认规则，在远程搜索、订阅等未指定规则组的场景下默认使用" data-bs-toggle="tooltip">?</span></span>
+                  <span class="form-check-label">默认 <span class="form-help" title="将该规则组设为默认规则，在远程搜索、订阅等未指定规则组的场景下默认使用" data-bs-toggle="tooltip">?</span></span>
                 </label>
               </div>
             </div>
@@ -228,6 +254,36 @@
         </a>
         <a id="add_rulegroup_btn" class="btn btn-primary ms-auto" href="javascript:add_filtergroup()">
           新增
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-restore-filtergroup" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">恢复初始规则</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="form-selectgroup">
+            {% for Init_RuleGroup in Init_RuleGroups %}
+            <label class="form-selectgroup-item">
+              <input type="checkbox" name="init_rulegroup" value="{{ Init_RuleGroup.id }}" class="form-selectgroup-input">
+              <span class="form-selectgroup-label">{{ Init_RuleGroup.name }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-link" data-bs-dismiss="modal">
+          取消
+        </a>
+        <a id="restore_rulegroup_btn" class="btn btn-primary ms-auto" href="javascript:restore_filtergroup()">
+          恢复
         </a>
       </div>
     </div>
@@ -259,6 +315,30 @@
       $("#modal-add-filterrule").modal('hide');
     });
     $("#modal-add-filterrule").modal('show');
+  }
+
+  // 打开恢复初始规则窗口
+  function show_restore_filtergroup_modal(){
+    $("#modal-restore-filtergroup").modal('show');
+  }
+
+  // 恢复初始规则
+  function restore_filtergroup(){
+    var init_rulegroups = {{ Init_RuleGroups | safe}}
+    var need_init_groupid = [];
+    var i = 0;
+    $("input[name=init_rulegroup]").each(function(){
+      if($(this).prop("checked")){
+        need_init_groupid[i] = $(this).val();
+        i = i + 1;
+      };
+    });
+    $("#restore_rulegroup_btn").text("恢复中");
+    $("#restore_rulegroup_btn").attr("disabled", true);
+    ajax_post("restore_filtergroup", {"groupids": need_init_groupid, "init_rulegroups": init_rulegroups}, function(ret){
+      $("#modal-restore-filtergroup").modal('hide');
+      navmenu('filterrule');
+    });
   }
 
   // 设置默认规则组
@@ -372,6 +452,16 @@
       $("#modal-add-filterrule").modal('hide');
       navmenu('filterrule');
     });
+  }
+
+  // 应用规则模板
+  function apply_templated(item){
+    var rule = item.value.replace(/'/g, "\"");
+    rule = rule.replace(/None/g, "\"\"");
+    rule = JSON.parse(rule)
+    $("#rule_name").val(rule["name"]);
+    $("#rule_include").val(rule["include"].toString().replace(/,/g, "\n"));
+    $("#rule_exclude").val(rule["exclude"].toString().replace(/,/g, "\n"));
   }
 
 </script>

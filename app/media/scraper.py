@@ -350,7 +350,7 @@ class Scraper:
                 scraper_tv_nfo = scraper_nfo.get("tv")
                 scraper_tv_pic = scraper_pic.get("tv")
                 # 处理根目录
-                if not os.path.exists(os.path.join(dir_path, "tvshow.nfo")):
+                if not os.path.exists(os.path.join(os.path.dirname(dir_path), "tvshow.nfo")):
                     if scraper_tv_nfo.get("basic") or scraper_tv_nfo.get("credits"):
                         # 查询Douban信息
                         if scraper_tv_nfo.get("credits") and scraper_tv_nfo.get("credits_chinese"):

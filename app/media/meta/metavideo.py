@@ -57,6 +57,12 @@ class MetaVideo(MetaBase):
             return
         # 去掉名称中第1个[]的内容
         title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
+        # 截掉xx番剧漫
+        match = re.search(r"新番|月?番|[日美国][漫剧]", title)
+        if match and match.span()[1] < len(title) - 1:
+            title = re.sub(".*番.|.*[日美国][漫剧].", "", title)
+        elif match:
+            title = title[:title.rfind('[')]
         # 把xxxx-xxxx年份换成前一个年份，常出现在季集上
         title = re.sub(r'([\s.]+)(\d{4})-(\d{4})', r'\1\2', title)
         # 把大小去掉
@@ -327,19 +333,7 @@ class MetaVideo(MetaBase):
                 int(token)
             except ValueError:
                 return
-            if self.begin_season is not None \
-                    and self.end_season is None \
-                    and len(token) < 3 \
-                    and int(token) > self.begin_season \
-                    and self._last_token_type == "season" \
-                    and (not self.tokens.cur() or not self.tokens.cur().isdigit()):
-                self.end_season = int(token)
-                self.total_seasons = (self.end_season - self.begin_season) + 1
-                if self.fileflag and self.total_seasons > 1:
-                    self.end_season = None
-                    self.total_seasons = 1
-                self._continue_flag = False
-            elif self._last_token_type == "SEASON" \
+            if self._last_token_type == "SEASON" \
                     and self.begin_season is None \
                     and len(token) < 3:
                 self.begin_season = int(token)

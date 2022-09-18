@@ -70,6 +70,9 @@
   if(title_type == "dbhm"){
     $("#recommend_title").text("豆瓣热门电影");
   }
+  if(title_type == "dbtop"){
+    $("#recommend_title").text("豆瓣电影TOP250");
+  }
   if(title_type == "dbht"){
     $("#recommend_title").text("豆瓣热门电视剧");
   }
@@ -83,6 +86,7 @@
     $("#recommend_title").text("豆瓣热门综艺");
   }
 
+
   // 添加订阅关键字
   function add_recommend_rss_media(type, name, year, id){
       if(id.indexOf("DB:") == 0){
@@ -92,7 +96,7 @@
         var doubanid = "";
         var tmdbid = id;
       }
-      if(!tmdbid || ["hm","nm","dbom","dbnm", "dbhm"].includes(type)){
+      if(!tmdbid || ["hm","nm","dbom","dbnm", "dbhm", "dbtop"].includes(type)){
         add_rss_media(name, year, type, tmdbid, doubanid, "", "", function(){
           add_red_heart(id, type, name, year);
         });

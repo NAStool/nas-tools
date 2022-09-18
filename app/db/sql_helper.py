@@ -116,6 +116,24 @@ class SqlHelper:
             return False
 
     @staticmethod
+    def is_userrss_finished(torrent_name, enclosure):
+        """
+        查询RSS是否处理过，根据名称
+        """
+        if not torrent_name and not enclosure:
+            return True
+        if enclosure:
+            sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE ENCLOSURE = ?"
+            rets = DBHelper().select_by_sql(sql, (enclosure,))
+        else:
+            sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TORRENT_NAME = ?"
+            rets = DBHelper().select_by_sql(sql, (torrent_name,))
+        if rets and rets[0][0] > 0:
+            return True
+        else:
+            return False
+
+    @staticmethod
     def delete_all_search_torrents():
         """
         删除所有搜索的记录
@@ -397,6 +415,15 @@ class SqlHelper:
         """
         return DBHelper().select_by_sql(
             "SELECT ID,NAME,PRI,RSSURL,SIGNURL,COOKIE,INCLUDE,EXCLUDE,SIZE,NOTE FROM CONFIG_SITE WHERE ID = ?", (tid,))
+
+    @staticmethod
+    def get_site_by_name(name):
+        """
+        基于站点名称查询站点信息
+        :return:
+        """
+        return DBHelper().select_by_sql(
+            "SELECT ID,NAME,SIGNURL FROM CONFIG_SITE WHERE NAME = ?", (name,))
 
     @staticmethod
     def insert_config_site(name, site_pri, rssurl, signurl, cookie, note, rss_uses):
@@ -937,6 +964,17 @@ class SqlHelper:
         return DBHelper().select_by_sql(sql, (begin_date,))
 
     @staticmethod
+    def update_site_user_statistics_site_name(new_name, old_name):
+        """
+        更新站点用户数据中站点名称
+        :param old_name:
+        :return:
+        """
+        sql = "UPDATE SITE_USER_INFO_STATS SET SITE = ? WHERE SITE = ?"
+
+        return DBHelper().update_by_sql(sql, (new_name, old_name))
+
+    @staticmethod
     def update_site_user_statistics(site_user_infos: list):
         """
         更新站点用户粒度数据
@@ -974,6 +1012,18 @@ class SqlHelper:
                 leeching,
                 seeding_size, bonus, url, favicon, msg_unread))
         return DBHelper().update_by_sql_batch(sql, data_list)
+
+    @staticmethod
+    def update_site_seed_info_site_name(new_name, old_name):
+        """
+        更新站点做种数据中站点名称
+        :param new_name: 新的站点名称
+        :param old_name: 原始站点名称
+        :return:
+        """
+        sql = "UPDATE SITE_USER_SEEDING_INFO SET SITE = ? WHERE SITE = ?"
+
+        return DBHelper().update_by_sql(sql, (new_name, old_name))
 
     @staticmethod
     def update_site_seed_info(site_user_infos: list):
@@ -1045,6 +1095,18 @@ class SqlHelper:
             return True
         else:
             return False
+
+    @staticmethod
+    def update_site_statistics_site_name(new_name, old_name):
+        """
+        更新站点做种数据中站点名称
+        :param new_name: 新站点名称
+        :param old_name: 原始站点名称
+        :return:
+        """
+        sql = "UPDATE SITE_STATISTICS_HISTORY SET SITE = ? WHERE SITE = ?"
+
+        return DBHelper().update_by_sql(sql, (new_name, old_name))
 
     @staticmethod
     def insert_site_statistics_history(site_user_infos: list):
@@ -1315,20 +1377,18 @@ class SqlHelper:
         查询刷流任务
         """
         if brush_id:
-            sql = "SELECT T.ID,T.NAME,T.SITE,C.NAME,T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
+            sql = "SELECT T.ID,T.NAME,T.SITE,'',T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
                   "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
-                  "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL,C.COOKIE,D.NAME " \
+                  "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,D.NAME " \
                   "FROM SITE_BRUSH_TASK T " \
-                  "LEFT JOIN CONFIG_SITE C ON C.ID = T.SITE " \
                   "LEFT JOIN SITE_BRUSH_DOWNLOADERS D ON D.ID = T.DOWNLOADER " \
                   "WHERE T.ID = ?"
             return DBHelper().select_by_sql(sql, (brush_id,))
         else:
-            sql = "SELECT T.ID,T.NAME,T.SITE,C.NAME,T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
+            sql = "SELECT T.ID,T.NAME,T.SITE,'',T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
                   "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
-                  "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,C.RSSURL,C.COOKIE,D.NAME " \
+                  "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,D.NAME " \
                   "FROM SITE_BRUSH_TASK T " \
-                  "LEFT JOIN CONFIG_SITE C ON C.ID = T.SITE " \
                   "LEFT JOIN SITE_BRUSH_DOWNLOADERS D ON D.ID = T.DOWNLOADER "
             return DBHelper().select_by_sql(sql)
 
@@ -1461,6 +1521,16 @@ class SqlHelper:
         return DBHelper().update_by_sql_batch(sql, ids)
 
     @staticmethod
+    def delete_brushtask_torrent(brush_id, download_id):
+        """
+        删除刷流种子记录
+        """
+        if not download_id or not brush_id:
+            return
+        sql = "DELETE FROM SITE_BRUSH_TORRENTS WHERE TASK_ID = ? AND DOWNLOAD_ID = ?"
+        return DBHelper().update_by_sql(sql, (brush_id, download_id))
+
+    @staticmethod
     def get_user_downloaders(did=None):
         """
         查询自定义下载器
@@ -1575,3 +1645,104 @@ class SqlHelper:
                                                   item.get("exclude"),
                                                   item.get("size"),
                                                   item.get("free")))
+
+    @staticmethod
+    def get_userrss_tasks(taskid=None):
+        if taskid:
+            return DBHelper().select_by_sql(
+                "SELECT ID,NAME,ADDRESS,PARSER,INTERVAL,USES,INCLUDE,EXCLUDE,FILTER,UPDATE_TIME,PROCESS_COUNT,STATE,NOTE "
+                "FROM CONFIG_USER_RSS "
+                "WHERE ID = ?", (taskid,))
+        else:
+            return DBHelper().select_by_sql(
+                "SELECT ID,NAME,ADDRESS,PARSER,INTERVAL,USES,INCLUDE,EXCLUDE,FILTER,UPDATE_TIME,PROCESS_COUNT,STATE,NOTE "
+                "FROM CONFIG_USER_RSS")
+
+    @staticmethod
+    def delete_userrss_task(tid):
+        if not tid:
+            return False
+        return DBHelper().update_by_sql(
+            "DELETE FROM CONFIG_USER_RSS WHERE ID = ?", (tid,))
+
+    @staticmethod
+    def update_userrss_task_info(tid, count):
+        if not tid:
+            return False
+        return DBHelper().update_by_sql(
+            "UPDATE CONFIG_USER_RSS SET PROCESS_COUNT = ?, UPDATE_TIME = ? WHERE ID = ?",
+            (count, time.strftime('%Y-%m-%d %H:%M:%S',
+                                  time.localtime(time.time())), tid))
+
+    @staticmethod
+    def update_userrss_task(item):
+        if item.get("id") and SqlHelper.get_userrss_tasks(item.get("id")):
+            return DBHelper().update_by_sql("UPDATE CONFIG_USER_RSS "
+                                            "SET NAME=?,ADDRESS=?,PARSER=?,INTERVAL=?,USES=?,INCLUDE=?,EXCLUDE=?,FILTER=?,UPDATE_TIME=?,STATE=?"
+                                            "WHERE ID=?", (item.get("name"),
+                                                           item.get("address"),
+                                                           item.get("parser"),
+                                                           item.get("interval"),
+                                                           item.get("uses"),
+                                                           item.get("include"),
+                                                           item.get("exclude"),
+                                                           item.get("filterrule"),
+                                                           time.strftime('%Y-%m-%d %H:%M:%S',
+                                                                         time.localtime(time.time())),
+                                                           item.get("state"),
+                                                           item.get("id")))
+        else:
+            return DBHelper().update_by_sql("INSERT INTO CONFIG_USER_RSS"
+                                            "(NAME,ADDRESS,PARSER,INTERVAL,USES,INCLUDE,EXCLUDE,FILTER,UPDATE_TIME,PROCESS_COUNT,STATE) "
+                                            "VALUES (?,?,?,?,?,?,?,?,?,?,?)", (item.get("name"),
+                                                                               item.get("address"),
+                                                                               item.get("parser"),
+                                                                               item.get("interval"),
+                                                                               item.get("uses"),
+                                                                               item.get("include"),
+                                                                               item.get("exclude"),
+                                                                               item.get("filterrule"),
+                                                                               time.strftime('%Y-%m-%d %H:%M:%S',
+                                                                                             time.localtime(
+                                                                                                 time.time())),
+                                                                               "0",
+                                                                               item.get("state")))
+
+    @staticmethod
+    def get_userrss_parser(pid=None):
+        if pid:
+            return DBHelper().select_by_sql(
+                "SELECT ID,NAME,TYPE,FORMAT,PARAMS,NOTE FROM CONFIG_RSS_PARSER WHERE ID = ?", (pid,))
+        else:
+            return DBHelper().select_by_sql(
+                "SELECT ID,NAME,TYPE,FORMAT,PARAMS,NOTE FROM CONFIG_RSS_PARSER")
+
+    @staticmethod
+    def delete_userrss_parser(pid):
+        if not pid:
+            return False
+        return DBHelper().update_by_sql(
+            "DELETE FROM CONFIG_RSS_PARSER WHERE ID = ?", (pid,))
+
+    @staticmethod
+    def update_userrss_parser(item):
+        if not item:
+            return False
+        if item.get("id") and SqlHelper.get_userrss_parser(item.get("id")):
+            return DBHelper().update_by_sql("UPDATE CONFIG_RSS_PARSER "
+                                            "SET NAME=?,TYPE=?,FORMAT=?,PARAMS=? "
+                                            "WHERE ID=?", (item.get("name"),
+                                                           item.get("type"),
+                                                           item.get("format"),
+                                                           item.get("params"),
+                                                           item.get("id")))
+        else:
+            return DBHelper().update_by_sql("INSERT INTO CONFIG_RSS_PARSER(NAME, TYPE, FORMAT, PARAMS) "
+                                            "VALUES (?,?,?,?)", (item.get("name"),
+                                                                 item.get("type"),
+                                                                 item.get("format"),
+                                                                 item.get("params")))
+
+    @staticmethod
+    def excute(sql):
+        return DBHelper().update_by_sql(sql)

@@ -62,6 +62,14 @@ class DoubanHot:
             return []
         return self.__refresh_tv(infos.get("subject_collection_items"))
 
+    def get_douban_top250_movie(self, page=1):
+        if not self.doubanapi:
+            return []
+        infos = self.doubanapi.movie_top250(start=(page - 1) * self.__movie_num, count=self.__movie_num)
+        if not infos:
+            return []
+        return self.__refresh_movie(infos.get("subject_collection_items"))
+
     def refresh_online_movie(self, page=1):
         if not self.doubanapi:
             return []
@@ -91,12 +99,17 @@ class DoubanHot:
                 year = info.get('year')
                 # 海报
                 poster_path = info.get('cover', {}).get("url")
+                if not poster_path:
+                    poster_path = info.get('cover_url')
                 # 标题
                 title = info.get('title')
                 if not title or not poster_path:
                     continue
                 # 简介
                 overview = info.get("card_subtitle") or ""
+                if not year and overview:
+                    if overview.split("/")[0].strip().isdigit():
+                        year = overview.split("/")[0].strip()
                 ret_list.append({'id': rid, 'title': title, 'release_date': year, 'vote_average': vote_average,
                                  'poster_path': poster_path, 'overview': overview})
             except Exception as e:

@@ -179,20 +179,24 @@ class Qbittorrent(IDownloadClient):
             else:
                 save_path = self.movie_save_path
                 category = self.movie_category
+            use_auto_torrent_management = None
             if download_dir:
                 save_path = download_dir
+                use_auto_torrent_management = False
             if isinstance(content, str):
                 qbc_ret = self.qbc.torrents_add(urls=content,
                                                 save_path=save_path,
                                                 category=category,
                                                 is_paused=is_paused,
-                                                tags=tag)
+                                                tags=tag,
+                                                use_auto_torrent_management=use_auto_torrent_management)
             else:
                 qbc_ret = self.qbc.torrents_add(torrent_files=content,
                                                 save_path=save_path,
                                                 category=category,
                                                 is_paused=is_paused,
-                                                tags=tag)
+                                                tags=tag,
+                                                use_auto_torrent_management=use_auto_torrent_management)
             self.qbc.auth_log_out()
             return True if qbc_ret and str(qbc_ret).find("Ok") != -1 else False
         except Exception as err:

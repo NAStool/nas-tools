@@ -165,7 +165,7 @@ class SiteConf:
         'ourbits.club': {
             'FREE': ["//font[@class='free']"],
             '2XFREE': ["//font[@class='twoupfree']"],
-            'HR': [],
+            'HR': ["//img[@class='hitandrun']"],
             'PEER_COUNT': [],
         },
         'pt.btschool.club': {
@@ -201,7 +201,7 @@ class SiteConf:
         'chdbits.co': {
             'FREE': ["//img[@class='pro_free']"],
             '2XFREE': [],
-            'HR': [],
+            'HR': ["//b[text()='H&amp;R:&nbsp;']"],
             'PEER_COUNT': [],
         },
         'hdchina.org': {
@@ -308,11 +308,18 @@ class SiteConf:
         },
     }
     # 公共BT站点
-    PUBLIC_TORRENT_SITES = [
-        'rarbg.to',
-        'dmhy.org',
-        'eztv.re'
-    ]
+    PUBLIC_TORRENT_SITES = {
+        'rarbg.to': {
+            "parser": "rarbg",
+            "proxy": True
+        },
+        'dmhy.org': {
+            "proxy": False
+        },
+        'eztv.re': {
+            "proxy": True
+        }
+    }
 
     def get_extrasite_conf(self, url):
         """
@@ -337,12 +344,16 @@ class SiteConf:
         判断是否为公开BT站点
         """
         _, netloc = StringUtils.get_url_netloc(url)
-        if netloc in self.PUBLIC_TORRENT_SITES:
+        if netloc in self.PUBLIC_TORRENT_SITES.keys():
             return True
         return False
 
-    def get_public_sites(self):
+    def get_public_sites(self, url=None):
         """
         查询所有公开BT站点
         """
-        return self.PUBLIC_TORRENT_SITES
+        if url:
+            _, netloc = StringUtils.get_url_netloc(url)
+            return self.PUBLIC_TORRENT_SITES.get(netloc)
+        else:
+            return self.PUBLIC_TORRENT_SITES.items()
