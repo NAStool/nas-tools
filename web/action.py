@@ -1587,14 +1587,14 @@ class WebAction:
         tmdb_link = ""
         tmdb_S_E_link = ""
         if tmdb_id:
-            if media_info.original_type == MediaType.MOVIE:
+            if media_info.type == MediaType.MOVIE:
                 tmdb_link = "https://www.themoviedb.org/movie/" + str(tmdb_id)
             else:
                 tmdb_link = "https://www.themoviedb.org/tv/" + str(tmdb_id)
-                if media_info.get_season_episode_string():
-                    season = media_info.get_season_string().split("-")[0].replace("S", "/season/")
-                    episode = media_info.get_episode_string().split("-")[0].replace("E", "/episode/")
-                    tmdb_S_E_link = tmdb_link + season + episode
+                if media_info.get_season_string():
+                    tmdb_S_E_link = "%s/season/%s" % (tmdb_link, media_info.get_season_seq())
+                    if media_info.get_episode_string():
+                        tmdb_S_E_link = "%s/episode/%s" % (tmdb_S_E_link, media_info.get_episode_seq())
         if not media_info:
             return {"code": 0, "data": {"name": "无法识别"}}
         return {"code": 0, "data": {
