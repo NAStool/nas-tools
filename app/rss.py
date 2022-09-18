@@ -160,7 +160,8 @@ class Rss:
                             tv_keys=tv_keys,
                             site_rule=site_rule_group,
                             site_cookie=rss_cookie,
-                            site_parse=site_parse)
+                            site_parse=site_parse,
+                            site_ua=rss_ua)
                         # 未匹配
                         if match_rssid is None:
                             continue

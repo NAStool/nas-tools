@@ -142,10 +142,10 @@ class ISiteUserInfo(metaclass=ABCMeta):
         :return:
         """
         if params:
-            res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60, ua=self._ua).post_res(
+            res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60, headers=self._ua).post_res(
                 url=url, params=params)
         else:
-            res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60, ua=self._ua).get_res(
+            res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60, headers=self._ua).get_res(
                 url=url)
         if res and res.status_code == 200:
             if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:

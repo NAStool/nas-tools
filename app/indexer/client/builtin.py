@@ -38,7 +38,8 @@ class BuiltinIndexer(IIndexer):
                                                   cookie=site.get("cookie"),
                                                   name=site.get("name"),
                                                   rule=site.get("rule"),
-                                                  public=False)
+                                                  public=False,
+                                                  ua=site.get("ua"))
             if indexer:
                 if check and indexer_sites and indexer.id not in indexer_sites:
                     continue

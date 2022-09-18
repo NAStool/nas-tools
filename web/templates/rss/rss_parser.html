@@ -110,7 +110,7 @@
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">类型 <span class="form-help bg-red-lt" title="支持XML及JSON，需要分别按XPath及JsonPath的语法维护解析格式" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">类型 <span class="form-help" title="支持XML及JSON，需要分别按XPath及JsonPath的语法维护解析格式" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="rssparser_type">
                   <option value="XML" selected>XML</option>
                   <option value="JSON">JSON</option>
@@ -121,7 +121,7 @@
           <div class="row">
             <div class="col">
               <div class="mb-3">
-                <label class="form-label">解析格式 <span class="form-help bg-red-lt" title="根据RSS报文的内容，编辑Json格式解析配置，以获取报文中的数据以供订阅程序处理；如类型为XML则需要是XPath语法，如类型为JSON则需要是JsonPath语法；支持的解析内容包括：list(获取列表) title(标题) enclosure(种子下载链接) description(种子描述) size(种子大小) type(类型：movie/tv) year(发行年份)，没有或不需要的可不配置或配置为空，具体参考现有示例；解析器可以尽可能解析更多的信息，由订阅程序将按需使用" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">解析格式 <span class="form-help" title="根据RSS报文的内容，编辑Json格式解析配置，以获取报文中的数据以供订阅程序处理；如类型为XML则需要是XPath语法，如类型为JSON则需要是JsonPath语法；支持的解析内容包括：list(获取列表) title(标题) enclosure(种子下载链接) description(种子描述) size(种子大小) type(类型：movie/tv) year(发行年份)，没有或不需要的可不配置或配置为空，具体参考现有示例；解析器可以尽可能解析更多的信息，由订阅程序将按需使用" data-bs-toggle="tooltip">?</span></label>
                 <textarea class="form-control" id="rssparser_format" rows="10">
 {
     "list": "",
@@ -153,7 +153,7 @@
           <div class="row">
             <div class="col">
               <div class="mb-3">
-                <label class="form-label">附加参数 <span class="form-help bg-red-lt" title="需要附加到RSS链接中的参数" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">附加参数 <span class="form-help" title="需要附加到RSS链接中的参数" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" class="form-control" id="rssparser_params" value="" placeholder="">
               </div>
             </div>

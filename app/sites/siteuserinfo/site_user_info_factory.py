@@ -18,7 +18,7 @@ class SiteUserInfoFactory(object):
             return None
         session = requests.Session()
         log.debug(f"【PT】站点 {site_name} site_cookie={site_cookie} ua={ua}")
-        res = RequestUtils(cookies=site_cookie, session=session, ua=ua).get_res(url=url)
+        res = RequestUtils(cookies=site_cookie, session=session, headers=ua).get_res(url=url)
         if res and res.status_code == 200:
             if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                 res.encoding = "UTF-8"
@@ -32,7 +32,7 @@ class SiteUserInfoFactory(object):
                     return None
                 tmp_url = url + html_text[i:html_text.find(";")] \
                     .replace("\"", "").replace("+", "").replace(" ", "").replace("window.location=", "")
-                res = RequestUtils(cookies=site_cookie, session=session, ua=ua).get_res(url=tmp_url)
+                res = RequestUtils(cookies=site_cookie, session=session, headers=ua).get_res(url=tmp_url)
                 if res and res.status_code == 200:
                     if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                         res.encoding = "UTF-8"
@@ -47,7 +47,7 @@ class SiteUserInfoFactory(object):
 
             # 兼容假首页情况，假首页通常没有 <link rel="search" 属性
             if '"search"' not in html_text:
-                res = RequestUtils(cookies=site_cookie, session=session, ua=ua).get_res(url=url + "/index.php")
+                res = RequestUtils(cookies=site_cookie, session=session, headers=ua).get_res(url=url + "/index.php")
                 if res and res.status_code == 200:
                     if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                         res.encoding = "UTF-8"

@@ -19,6 +19,7 @@ from werkzeug.security import check_password_hash
 
 import re
 import log
+from app.brushtask import BrushTask
 from app.mediaserver import WebhookEvent
 from app.message import Message
 from app.rsschecker import RssChecker
@@ -809,16 +810,18 @@ def create_flask_app(config):
         brushtasks = SqlHelper.get_brushtasks()
         Tasks = []
         for task in brushtasks:
-            scheme, netloc = StringUtils.get_url_netloc(task[17])
             sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[2])
             forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task[2])
+            site_info = Sites().get_sites(siteid=task[2])
+            scheme, netloc = StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
+            downloader_info = BrushTask().get_downloader_config(task[6])
             Tasks.append({
                 "id": task[0],
                 "name": task[1],
-                "site": task[3],
+                "site": site_info.get("name"),
                 "interval": task[4],
                 "state": task[5],
-                "downloader": task[19],
+                "downloader": downloader_info.get("name"),
                 "transfer": task[7],
                 "free": task[8],
                 "rss_rule": eval(task[9]),

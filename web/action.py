@@ -687,8 +687,8 @@ class WebAction:
 
         def __is_site_duplicate(query_name, query_tid):
             # 检查是否重名
-            sites = SqlHelper.get_site_by_name(name=query_name)
-            for site in sites:
+            _sites = SqlHelper.get_site_by_name(name=query_name)
+            for site in _sites:
                 site_id = site[0]
                 if str(site_id) != str(query_tid):
                     return True

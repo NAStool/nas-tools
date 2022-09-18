@@ -225,7 +225,7 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">刷新间隔(分钟) <span class="form-help bg-red-lt" title="检查站点RSS更新的间隔时间，为了减小站点压力，建议不小于10分钟" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">刷新间隔(分钟) <span class="form-help" title="检查站点RSS更新的间隔时间，为了减小站点压力，建议不小于10分钟" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" id="brushtask_interval" class="form-control" placeholder="30">
               </div>
             </div>
@@ -233,7 +233,7 @@
           <div class="row">
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">下载器 <span class="form-help bg-red-lt" title="选择刷流任务使用的下载器，在自定义下载器中添加，如需识别转移到媒体库，需与正在使用的下载器相同" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">下载器 <span class="form-help" title="选择刷流任务使用的下载器，在自定义下载器中添加，如需识别转移到媒体库，需与正在使用的下载器相同" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="brushtask_downloader">
                   <option value="" selected>请选择</option>
                   {% for downloader in Downloaders %}
@@ -244,7 +244,7 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">保种体积(GB) <span class="form-help bg-red-lt" title="该任务所有下载任务的保种体积超过设定值时不再新增下载" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">保种体积(GB) <span class="form-help" title="该任务所有下载任务的保种体积超过设定值时不再新增下载" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" id="brushtask_totalsize" class="form-control" placeholder="">
               </div>
             </div>
@@ -263,7 +263,7 @@
               <div class="mb-3">
                 <label class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="brushtask_sendmessage">
-                  <span class="form-check-label">消息推送 <span class="form-help bg-red-lt" title="开启后会将当前任务的情况进行推送" data-bs-toggle="tooltip">?</span></span>
+                  <span class="form-check-label">消息推送 <span class="form-help" title="开启后会将当前任务的情况进行推送" data-bs-toggle="tooltip">?</span></span>
                 </label>
               </div>
             </div>
@@ -271,7 +271,7 @@
               <div class="mb-3">
                 <label class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="brushtask_forceupload">
-                  <span class="form-check-label">强制做种 <span class="form-help bg-red-lt" title="开启后当前任务的新增下载将设置为强制下载/做种状态" data-bs-toggle="tooltip">?</span></span>
+                  <span class="form-check-label">强制做种 <span class="form-help" title="开启后当前任务的新增下载将设置为强制下载/做种状态" data-bs-toggle="tooltip">?</span></span>
                 </label>
               </div>
             </div>
@@ -279,7 +279,7 @@
               <div class="mb-3">
                 <label class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="brushtask_transfer">
-                  <span class="form-check-label">转移到媒体库 <span class="form-help bg-red-lt" title="开启后刷流的下载也会进行转移并识别重命名到媒体库" data-bs-toggle="tooltip">?</span></span>
+                  <span class="form-check-label">转移到媒体库 <span class="form-help" title="开启后刷流的下载也会进行转移并识别重命名到媒体库" data-bs-toggle="tooltip">?</span></span>
                 </label>
               </div>
             </div>
@@ -290,7 +290,7 @@
           <div class="row">
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">促销 <span class="form-help bg-red-lt" title="选全部即不过滤会下载到非促销的种子，免费包括2X免费" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">促销 <span class="form-help" title="选全部即不过滤会下载到非促销的种子，免费包括2X免费" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="brushtask_free">
                   <option value="" selected>全部</option>
                   <option value="FREE">免费</option>
@@ -309,7 +309,7 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">种子大小(GB) <span class="form-help bg-red-lt" title="设置大小范围的种子才会下载，介于时使用英文逗号,分隔两个值" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">种子大小(GB) <span class="form-help" title="设置大小范围的种子才会下载，介于时使用英文逗号,分隔两个值" data-bs-toggle="tooltip">?</span></label>
                 <div class="input-group">
                   <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_torrent_size_btn">
                     全部
@@ -337,25 +337,25 @@
           <div class="row">
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">包含 <span class="form-help bg-red-lt" title="种子名称或副标题中包括对应关键字或者匹配正则式时才会下载" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">包含 <span class="form-help" title="种子名称或副标题中包括对应关键字或者匹配正则式时才会下载" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" id="brushtask_include" class="form-control" placeholder="关键字或正则表达式">
               </div>
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">排除 <span class="form-help bg-red-lt" title="种子名称或副标题中包括对应关键字或者匹配正则式时不会下载" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">排除 <span class="form-help" title="种子名称或副标题中包括对应关键字或者匹配正则式时不会下载" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" id="brushtask_exclude" class="form-control" placeholder="关键字或正则表达式">
               </div>
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">同时下载数量限制 <span class="form-help bg-red-lt" title="下载器中正在下载的任务数超过此值时不再添加下载" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">同时下载数量限制 <span class="form-help" title="下载器中正在下载的任务数超过此值时不再添加下载" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" id="brushtask_dlcount" class="form-control" placeholder="10">
               </div>
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">做种人数限制 <span class="form-help bg-red-lt" title="种子当前做种人数限制，介于时使用英文逗号,分隔两个值，比较值时均包括边界值本身" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">做种人数限制 <span class="form-help" title="种子当前做种人数限制，介于时使用英文逗号,分隔两个值，比较值时均包括边界值本身" data-bs-toggle="tooltip">?</span></label>
                 <div class="input-group">
                   <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_peercount_btn">
                     全部
@@ -386,7 +386,7 @@
           <div class="row">
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">做种时间(小时) <span class="form-help bg-red-lt" title="做种超过设定时间时会删除下载任务" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">做种时间(小时) <span class="form-help" title="做种超过设定时间时会删除下载任务" data-bs-toggle="tooltip">?</span></label>
                 <div class="input-group">
                   <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_seedtime_btn">
                     忽略
@@ -406,7 +406,7 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">分享率 <span class="form-help bg-red-lt" title="分享率超过设定值时会删除下载任务" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">分享率 <span class="form-help" title="分享率超过设定值时会删除下载任务" data-bs-toggle="tooltip">?</span></label>
                 <div class="input-group">
                   <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_seedratio_btn">
                     忽略
@@ -426,7 +426,7 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">上传量(GB) <span class="form-help bg-red-lt" title="上传量超过设定值时会删除下载任务" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">上传量(GB) <span class="form-help" title="上传量超过设定值时会删除下载任务" data-bs-toggle="tooltip">?</span></label>
                 <div class="input-group">
                   <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_seedsize_btn">
                     忽略
@@ -446,7 +446,7 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">下载耗时(小时) <span class="form-help bg-red-lt" title="下载耗时超过设定值仍然未下载完成时会删除下载任务" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">下载耗时(小时) <span class="form-help" title="下载耗时超过设定值仍然未下载完成时会删除下载任务" data-bs-toggle="tooltip">?</span></label>
                 <div class="input-group">
                   <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_dltime_btn">
                     忽略
@@ -466,7 +466,7 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">平均上传速度(KB/S) <span class="form-help bg-red-lt" title="平均上传速度低于设定值时删除下载任务，检查周期为10分钟" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">平均上传速度(KB/S) <span class="form-help" title="平均上传速度低于设定值时删除下载任务，检查周期为10分钟" data-bs-toggle="tooltip">?</span></label>
                 <div class="input-group">
                   <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_avg_upspeed_btn">
                     忽略

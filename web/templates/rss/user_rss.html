@@ -183,7 +183,7 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">动作 <span class="form-help bg-red-lt" title="【下载】RSS中包含enclosure种子链接，直接下载种子文件；【订阅】根据RSS中的title识别并添加订阅，由订阅管理下载；【搜索】根据RSS中的title识别和搜索资源，仅搜索一次。title中的信息不足时，如有则会使用type及year的数据" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">动作 <span class="form-help" title="【下载】RSS中包含enclosure种子链接，直接下载种子文件；【订阅】根据RSS中的title识别并添加订阅，由订阅管理下载；【搜索】根据RSS中的title识别和搜索资源，仅搜索一次。title中的信息不足时，如有则会使用type及year的数据" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="userrss_uses">
                   <option value="D" selected>下载</option>
                   <option value="R">订阅</option>
@@ -193,7 +193,7 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">刷新间隔(分钟) <span class="form-help bg-red-lt" title="检查RSS更新的间隔时间" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">刷新间隔(分钟) <span class="form-help" title="检查RSS更新的间隔时间" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" id="userrss_interval" class="form-control" placeholder="30">
               </div>
             </div>
@@ -201,13 +201,13 @@
           <div class="row">
             <div class="col-lg-8">
               <div class="mb-3">
-                <label class="form-label required">地址  <span class="form-help bg-red-lt" title="RSS订阅的链接地址" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">地址  <span class="form-help" title="RSS订阅的链接地址" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" id="userrss_address" class="form-control" placeholder="RSS地址">
               </div>
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">解析器 <span class="form-help bg-red-lt" title="使用RSS解析器中配置的解析格式解析RSS报文" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">解析器 <span class="form-help" title="使用RSS解析器中配置的解析格式解析RSS报文" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="userrss_parser">
                   {% for RssParser in RssParsers %}
                   <option value="{{ RssParser.id }}" {% if loop.first %}selected{% endif %}>{{ RssParser.name }}</option>
@@ -219,19 +219,19 @@
           <div class="row">
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">包含 <span class="form-help bg-red-lt" title="RSS报文中title符合包括规则的才会被处理" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">包含 <span class="form-help" title="RSS报文中title符合包括规则的才会被处理" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" id="userrss_include" class="form-control" placeholder="关键字/正则表达式">
               </div>
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">排除 <span class="form-help bg-red-lt" title="RSS报文中title符合排除规则的则不会被处理" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">排除 <span class="form-help" title="RSS报文中title符合排除规则的则不会被处理" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" id="userrss_exclude" class="form-control" placeholder="关键字/正则表达式">
               </div>
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">过滤规则 <span class="form-help bg-red-lt" title="只有符合过滤规则的才会被处理" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">过滤规则 <span class="form-help" title="只有符合过滤规则的才会被处理" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="userrss_filterrule">
                   <option value="" selected>请选择</option>
                   {% for FilterRule in FilterRules %}

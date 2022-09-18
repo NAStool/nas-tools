@@ -65,19 +65,19 @@
           <div class="row">
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">Jackett地址 <span class="form-help bg-red-lt" title="Jackett访问地址和端口，如为https需加https://前缀" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">Jackett地址 <span class="form-help" title="Jackett访问地址和端口，如为https需加https://前缀" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.jackett %}{{ Config.jackett.host or '' }}{% endif %}" id="jackett.host" class="form-control" placeholder="http://127.0.0.1:9117">
               </div>
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">API Key <span class="form-help bg-red-lt" title="Jackett管理界面右上角复制API Key" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">API Key <span class="form-help" title="Jackett管理界面右上角复制API Key" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.jackett %}{{ Config.jackett.api_key or '' }}{% endif %}" id="jackett.api_key" class="form-control">
               </div>
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">密码 <span class="form-help bg-red-lt" title="Jackett管理界面中配置的Admin password，如未配置可为空" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">密码 <span class="form-help" title="Jackett管理界面中配置的Admin password，如未配置可为空" data-bs-toggle="tooltip">?</span></label>
                 <input type="password" value="{% if Config.jackett %}{{ Config.jackett.password or '' }}{% endif %}" id="jackett.password" class="form-control">
               </div>
             </div>
@@ -105,13 +105,13 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label required">Prowlarr地址 <span class="form-help bg-red-lt" title="Prowlarr访问地址和端口，如为https需加https://前缀" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">Prowlarr地址 <span class="form-help" title="Prowlarr访问地址和端口，如为https需加https://前缀" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.prowlarr %}{{ Config.prowlarr.host or '' }}{% endif %}" id="prowlarr.host" class="form-control" placeholder="http://127.0.0.1:9696">
               </div>
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label required">API Key <span class="form-help bg-red-lt" title="在Prowlarr->Settings->General->Security-> API Key中获取" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">API Key <span class="form-help" title="在Prowlarr->Settings->General->Security-> API Key中获取" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.prowlarr %}{{ Config.prowlarr.api_key or '' }}{% endif %}" id="prowlarr.api_key" class="form-control">
               </div>
             </div>
@@ -139,7 +139,7 @@
           <div class="row">
             <div class="col">
               <div class="mb-3">
-                <label class="form-label required">私有站点 <span class="form-help bg-red-lt" title="当前可以使用的私有站点清单，内建索引器支持私有站点的先决条件：1、在站点维护中正确配置站点地址和Cookie；2、站点己被支持" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">私有站点 <span class="form-help" title="当前可以使用的私有站点清单，内建索引器支持私有站点的先决条件：1、在站点维护中正确配置站点地址和Cookie；2、站点己被支持" data-bs-toggle="tooltip">?</span></label>
                 <div class="form-selectgroup">
                   {% if PrivateCount > 0 %}
                   {% for Indexer in Indexers %}
@@ -158,7 +158,7 @@
                 </div>
               </div>
               <div class="mb-3">
-                <label class="form-label">公开站点 <span class="form-help bg-red-lt" title="当前可用的公开站点，公开站点只要被内建索引器支持了就会在这里显示，无需维护站点信息" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">公开站点 <span class="form-help" title="当前可用的公开站点，公开站点只要被内建索引器支持了就会在这里显示，无需维护站点信息" data-bs-toggle="tooltip">?</span></label>
                 <div class="form-selectgroup">
                   {% if PublicCount > 0 %}
                   {% for Indexer in Indexers %}

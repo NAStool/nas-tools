@@ -76,7 +76,7 @@ class Torrent:
         xpath_strs = SiteConf().get_grapsite_conf(torrent_url)
         if not xpath_strs:
             return ret_attr
-        res = RequestUtils(cookies=cookie, ua=ua).get_res(url=torrent_url)
+        res = RequestUtils(cookies=cookie, headers=ua).get_res(url=torrent_url)
         if res and res.status_code == 200:
             res.encoding = res.apparent_encoding
             html_text = res.text

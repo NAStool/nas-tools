@@ -120,19 +120,19 @@
           <div class="row">
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">企业ID <span class="form-help bg-red-lt" title="每个企业都拥有唯一的corpid，获取此信息可在管理后台“我的企业”－“企业信息”下查看“企业ID”（需要有管理员权限）" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">企业ID <span class="form-help" title="每个企业都拥有唯一的corpid，获取此信息可在管理后台“我的企业”－“企业信息”下查看“企业ID”（需要有管理员权限）" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.corpid or '' }}{% endif %}" id="corpid" class="form-control">
               </div>
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">Secret <span class="form-help bg-red-lt" title="自建应用secret。在管理后台->“应用与小程序”->“应用”->“自建”，点进某个应用，即可看到" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">Secret <span class="form-help" title="自建应用secret。在管理后台->“应用与小程序”->“应用”->“自建”，点进某个应用，即可看到" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.corpsecret or '' }}{% endif %}" id="corpsecret" class="form-control">
               </div>
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">AgentId <span class="form-help bg-red-lt" title="每个应用都有唯一的agentid。在管理后台->“应用与小程序”->“应用”，点进某个应用，即可看到agentid" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">AgentId <span class="form-help" title="每个应用都有唯一的agentid。在管理后台->“应用与小程序”->“应用”，点进某个应用，即可看到agentid" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.agentid or '' }}{% endif %}" id="agentid" class="form-control">
               </div>
             </div>
@@ -140,7 +140,7 @@
           <div class="row">
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label">消息推送代理 <span class="form-help bg-red-lt" title="由于微信官方限制，2022年6月20日后创建的企业微信应用需要有固定的公网IP地址并加入IP白名单后才能发送消息，使用有固定公网IP的代理服务器转发可解决该问题；代理服务器需自行搭建，搭建方法可参考项目主页说明" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">消息推送代理 <span class="form-help" title="由于微信官方限制，2022年6月20日后创建的企业微信应用需要有固定的公网IP地址并加入IP白名单后才能发送消息，使用有固定公网IP的代理服务器转发可解决该问题；代理服务器需自行搭建，搭建方法可参考项目主页说明" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.message.wechat %}{% if Config.message.wechat.default_proxy == true %}https://nastool.jxxghp.cn{% else %}{{ Config.message.wechat.default_proxy or '' }}{% endif %}{% endif %}" id="default_proxy" class="form-control" placeholder="https://xxxx.xxxx.xxx">
               </div>
             </div>
@@ -150,13 +150,13 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">Token <span class="form-help bg-red-lt" title="在微信企业应用接收消息设置页面生成并填入，填入完成后重启本应用，然后再在微信页面输入地址确定" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">Token <span class="form-help" title="在微信企业应用接收消息设置页面生成并填入，填入完成后重启本应用，然后再在微信页面输入地址确定" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.Token or '' }}{% endif %}" id="Token" class="form-control">
               </div>
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">EncodingAESKey <span class="form-help bg-red-lt" title="在微信企业应用接收消息设置页面生成并填入，填入完成后重启本应用，然后再在微信页面输入地址确定" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">EncodingAESKey <span class="form-help" title="在微信企业应用接收消息设置页面生成并填入，填入完成后重启本应用，然后再在微信页面输入地址确定" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.message.wechat %}{{ Config.message.wechat.EncodingAESKey or '' }}{% endif %}" id="EncodingAESKey" class="form-control">
               </div>
             </div>
@@ -184,13 +184,13 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label required">Bot Token <span class="form-help bg-red-lt" title="telegram机器人的Token，关注BotFather创建机器人" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">Bot Token <span class="form-help" title="telegram机器人的Token，关注BotFather创建机器人" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.message.telegram %}{{ Config.message.telegram.telegram_token or '' }}{% endif %}" id="telegram_token" class="form-control">
               </div>
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label required">Chat Id <span class="form-help bg-red-lt" title="telegram中关注getuserID获取" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">Chat Id <span class="form-help" title="telegram中关注getuserID获取" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.message.telegram %}{{ Config.message.telegram.telegram_chat_id or '' }}{% endif %}" id="telegram_chat_id" class="form-control">
               </div>
             </div>
@@ -202,7 +202,7 @@
               <div class="mb-3">
                 <label class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="webhook" {% if  Config.message.telegram.webhook %}checked{% endif %}>
-                  <span class="form-check-label">WebHook <span class="form-help bg-red-lt" title="Telegram回调开关，打开后可以实现远程控制，需要在基础设置为正确配置好外网访问地址；受Telegram官方限制，外网访问地址需要设置为以下端口之一：443, 80, 88, 8443，且需要有公网认证的可信SSL证书" data-bs-toggle="tooltip">?</span></span>
+                  <span class="form-check-label">WebHook <span class="form-help" title="Telegram回调开关，打开后可以实现远程控制，需要在基础设置为正确配置好外网访问地址；受Telegram官方限制，外网访问地址需要设置为以下端口之一：443, 80, 88, 8443，且需要有公网认证的可信SSL证书" data-bs-toggle="tooltip">?</span></span>
                 </label>
               </div>
             </div>
@@ -230,7 +230,7 @@
           <div class="row">
             <div class="col-lg-12">
               <div class="mb-3">
-                <label class="form-label required">SCKEY <span class="form-help bg-red-lt" title="填写ServerChan的API Key，SCT类型，在https://sct.ftqq.com/中申请" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">SCKEY <span class="form-help" title="填写ServerChan的API Key，SCT类型，在https://sct.ftqq.com/中申请" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.message.serverchan %}{{ Config.message.serverchan.sckey or '' }}{% endif %}" id="sckey" class="form-control" placeholder="登录https://sct.ftqq.com获取">
               </div>
             </div>
@@ -258,13 +258,13 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label required">服务器地址 <span class="form-help bg-red-lt" title="自己搭建Bark服务端请实际配置，否则可使用：https://api.day.app" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">服务器地址 <span class="form-help" title="自己搭建Bark服务端请实际配置，否则可使用：https://api.day.app" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.message.bark %}{{ Config.message.bark.server or '' }}{% endif %}" id="server" class="form-control" placeholder="https://api.day.app">
               </div>
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label required">API Key <span class="form-help bg-red-lt" title="Bark客户端生成的KEY" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">API Key <span class="form-help" title="Bark客户端生成的KEY" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.message.bark %}{{ Config.message.bark.apikey or '' }}{% endif %}" id="apikey" class="form-control">
               </div>
             </div>
@@ -292,13 +292,13 @@
           <div class="row">
             <div class="col-lg-3">
               <div class="mb-3">
-                <label class="form-label required">用户令牌 <span class="form-help bg-red-lt" title="登录http://pushplus.plus/申请token" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">用户令牌 <span class="form-help" title="登录http://pushplus.plus/申请token" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.message.pushplus %}{{ Config.message.pushplus.push_token or '' }}{% endif %}" id="push_token" class="form-control">
               </div>
             </div>
             <div class="col-lg-3">
               <div class="mb-3">
-                <label class="form-label required">发送渠道 <span class="form-help bg-red-lt" title="使用PushPlus中配置的发送渠道，具体参考pushplus.plus官网文档说明，支持第三方webhook、钉钉、飞书、邮箱等" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">发送渠道 <span class="form-help" title="使用PushPlus中配置的发送渠道，具体参考pushplus.plus官网文档说明，支持第三方webhook、钉钉、飞书、邮箱等" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="push_channel">
                   <option value="wechat" {% if Config.message.pushplus %}{% if Config.message.pushplus.push_channel=='wechat' %}selected{% endif %}{% endif %}>微信公众号</option>
                   <option value="mail" {% if Config.message.pushplus %}{% if Config.message.pushplus.push_channel=='mail' %}selected{% endif %}{% endif %}>邮箱</option>
@@ -308,13 +308,13 @@
             </div>
             <div class="col-lg-3">
               <div class="mb-3">
-                <label class="form-label">群组编码 <span class="form-help bg-red-lt" title="PushPlus中创建的群组，如未设置可为空" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">群组编码 <span class="form-help" title="PushPlus中创建的群组，如未设置可为空" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.message.pushplus %}{{ Config.message.pushplus.push_topic or '' }}{% endif %}" id="push_topic" class="form-control">
               </div>
             </div>
             <div class="col-lg-3">
               <div class="mb-3">
-                <label class="form-label">webhook编码 <span class="form-help bg-red-lt" title="PushPlus中创建的webhook编码，发送渠道为第三方webhook时需要填入" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">webhook编码 <span class="form-help" title="PushPlus中创建的webhook编码，发送渠道为第三方webhook时需要填入" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.message.pushplus %}{{ Config.message.pushplus.push_webhook or '' }}{% endif %}" id="push_webhook" class="form-control">
               </div>
             </div>
@@ -342,7 +342,7 @@
           <div class="row">
             <div class="col-lg-12">
               <div class="mb-3">
-                <label class="form-label required">令牌Token <span class="form-help bg-red-lt" title="登录https://iyuu.cn/获取爱语飞飞令牌Token" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">令牌Token <span class="form-help" title="登录https://iyuu.cn/获取爱语飞飞令牌Token" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.message.iyuu %}{{ Config.message.iyuu.iyuu_token or '' }}{% endif %}" id="iyuu_token" class="form-control" placeholder="登录https://iyuu.cn获取">
               </div>
             </div>
@@ -370,7 +370,7 @@
           <div class="row">
             <div class="col">
               <div class="mb-3">
-                <label class="form-label required">推送开关 <span class="form-help bg-red-lt" title="选中的项才会推送通知消息" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">推送开关 <span class="form-help" title="选中的项才会推送通知消息" data-bs-toggle="tooltip">?</span></label>
                 <div class="form-selectgroup">
                   <label class="form-selectgroup-item">
                     <input type="checkbox" name="message_switchs" value="download_start" class="form-selectgroup-input" {% if Config.message.switch and Config.message.switch.download_start %}checked{% endif %}>

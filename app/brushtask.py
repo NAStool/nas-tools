@@ -9,6 +9,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 import log
 from app.db import SqlHelper, DictHelper
+from app.sites import Sites
 from config import BRUSH_REMOVE_TORRENTS_INTERVAL
 from app.downloader import Qbittorrent, Transmission
 from app.message import Message
@@ -21,6 +22,7 @@ from app.utils.commons import singleton
 @singleton
 class BrushTask(object):
     message = None
+    sites = None
     _scheduler = None
     _brush_tasks = []
     _torrents_cache = []
@@ -32,6 +34,7 @@ class BrushTask(object):
 
     def init_config(self):
         self.message = Message()
+        self.sites = Sites()
         # 移除现有任务
         try:
             if self._scheduler:
@@ -46,10 +49,11 @@ class BrushTask(object):
         for task in brushtasks:
             sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[2])
             forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task[2])
+            site_info = self.sites.get_sites(siteid=task[2])
             self._brush_tasks.append({
                 "id": task[0],
                 "name": task[1],
-                "site": task[3],
+                "site": site_info.get("name"),
                 "interval": task[4],
                 "state": task[5],
                 "downloader": task[6],
@@ -58,10 +62,11 @@ class BrushTask(object):
                 "rss_rule": eval(task[9]),
                 "remove_rule": eval(task[10]),
                 "seed_size": task[11],
-                "rss_url": task[17],
-                "cookie": task[18],
+                "rss_url": site_info.get("rssurl"),
+                "cookie": site_info.get("cookie"),
                 "sendmessage": sendmessage_switch,
-                "forceupload": forceupload_switch
+                "forceupload": forceupload_switch,
+                "ua": site_info.get("ua")
             })
         if not self._brush_tasks:
             return
@@ -110,6 +115,7 @@ class BrushTask(object):
         rss_rule = taskinfo.get("rss_rule")
         cookie = taskinfo.get("cookie")
         rss_free = taskinfo.get("free")
+        ua = taskinfo.get("ua")
         downloader_id = taskinfo.get("downloader")
         log_info("【BRUSH】开始站点 %s 的刷流任务：%s..." % (site_name, task_name))
         if not rss_url:
@@ -119,7 +125,7 @@ class BrushTask(object):
             log_warn("【BRUSH】站点 %s 未配置Cookie，无法开启促销刷流" % site_name)
             return
         # 下载器参数
-        downloader_cfg = self.__get_downloader_config(downloader_id)
+        downloader_cfg = self.get_downloader_config(downloader_id)
         if not downloader_cfg:
             log_warn("【BRUSH】任务 %s 下载器不存在，无法刷流" % task_name)
             return
@@ -163,7 +169,8 @@ class BrushTask(object):
                                              description=description,
                                              torrent_url=page_url,
                                              torrent_size=size,
-                                             cookie=cookie):
+                                             cookie=cookie,
+                                             ua=ua):
                     continue
                 # 开始下载
                 log.debug("【BRUSH】%s 符合条件，开始下载..." % torrent_name)
@@ -218,7 +225,7 @@ class BrushTask(object):
                 if not torrent_ids:
                     continue
                 # 下载器参数
-                downloader_cfg = self.__get_downloader_config(download_id)
+                downloader_cfg = self.get_downloader_config(download_id)
                 if not downloader_cfg:
                     log_warn("【BRUSH】任务 %s 下载器不存在" % task_name)
                     continue
@@ -404,7 +411,7 @@ class BrushTask(object):
         return True
 
     @staticmethod
-    def __get_downloader_config(dlid):
+    def get_downloader_config(dlid):
         """
         获取下载器的参数
         """
@@ -525,7 +532,7 @@ class BrushTask(object):
         return True
 
     @staticmethod
-    def __check_rss_rule(rss_rule, title, description, torrent_url, torrent_size, cookie):
+    def __check_rss_rule(rss_rule, title, description, torrent_url, torrent_size, cookie, ua):
         """
         检查种子是否符合刷流过滤条件
         :param rss_rule: 过滤条件字典
@@ -534,6 +541,7 @@ class BrushTask(object):
         :param torrent_url: 种子页面地址
         :param torrent_size: 种子大小
         :param cookie: Cookie
+        :param ua: User-Agent
         :return: 是否命中
         """
         if not rss_rule:
@@ -568,7 +576,7 @@ class BrushTask(object):
                 if re.search(r"%s" % rss_rule.get("exclude"), "%s %s" % (title, description), re.IGNORECASE):
                     return False
 
-            attr_type = Torrent.check_torrent_attr(torrent_url=torrent_url, cookie=cookie)
+            attr_type = Torrent.check_torrent_attr(torrent_url=torrent_url, cookie=cookie, ua=ua)
 
             log.debug("【BRUSH】%s 解析详情, %s" % (title, attr_type))
 

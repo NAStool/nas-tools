@@ -128,7 +128,7 @@
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">优先级 <span class="form-help bg-red-lt" title="同一个规则组内，规则优先级的数值越小优先级越高" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">优先级 <span class="form-help" title="同一个规则组内，规则优先级的数值越小优先级越高" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="rule_pri">
                   <option value="1" selected>1</option>
                   <option value="2">2</option>
@@ -157,13 +157,13 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">包含规则 <span class="form-help bg-red-lt" title="只有种子标题或副标题中包括这些关键字或匹配正式表达式才会命中；对大小写不敏感，配置为空为不启用该规则；可以配置多行，多行之间是【与】的关系，即多行条件都包含时才会命中，单行内可以用'|'来表示【或】，即包括其一即命中" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">包含规则 <span class="form-help" title="只有种子标题或副标题中包括这些关键字或匹配正式表达式才会命中；对大小写不敏感，配置为空为不启用该规则；可以配置多行，多行之间是【与】的关系，即多行条件都包含时才会命中，单行内可以用'|'来表示【或】，即包括其一即命中" data-bs-toggle="tooltip">?</span></label>
                 <textarea class="form-control" id="rule_include" rows="4" placeholder="必须包含的关键字或正则表达式"></textarea>
               </div>
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">排除规则 <span class="form-help bg-red-lt" title="种子标题或副标题中如果有这些关键字或匹配正式表达式则会被跳过；对大小写不敏感，不能带引号，配置为空为不启用该规则；可以配置多行，多行之间是【与】的关系，即多行条件都不包含时才会跳过，单行内可以用'|'来表示【或】，即包括其一即跳过" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">排除规则 <span class="form-help" title="种子标题或副标题中如果有这些关键字或匹配正式表达式则会被跳过；对大小写不敏感，不能带引号，配置为空为不启用该规则；可以配置多行，多行之间是【与】的关系，即多行条件都不包含时才会跳过，单行内可以用'|'来表示【或】，即包括其一即跳过" data-bs-toggle="tooltip">?</span></label>
                 <textarea class="form-control" id="rule_exclude" rows="4" placeholder="不能包含的关键字或正则表达式"></textarea>
               </div>
             </div>
@@ -171,13 +171,13 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">大小限制(GB) <span class="form-help bg-red-lt" title="只有满足大小限制的种子文件才会被命中，单位是GB，如果是剧集则是指的单集大小（多集时按集数折算）；不配置则不启用该条件；如只配置1个数字表示小于等于该大小的才会被命中；如配置2个数字(使用英文逗号分隔)表示在中间大小的才会被命中" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">大小限制(GB) <span class="form-help" title="只有满足大小限制的种子文件才会被命中，单位是GB，如果是剧集则是指的单集大小（多集时按集数折算）；不配置则不启用该条件；如只配置1个数字表示小于等于该大小的才会被命中；如配置2个数字(使用英文逗号分隔)表示在中间大小的才会被命中" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" class="form-control" id="rule_sizelimit" value="" placeholder="限制文件大小，单位GB">
               </div>
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">促销 <span class="form-help bg-red-lt" title="只有满足促销条件的种子才会被命中，免费包括2X免费" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">促销 <span class="form-help" title="只有满足促销条件的种子才会被命中，免费包括2X免费" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="rule_free">
                   <option value="" selected>全部</option>
                   <option value="1.0 1.0">普通</option>
@@ -231,7 +231,7 @@
           <div class="row">
             <div class="col">
               <div class="mb-3">
-                <label class="form-label required">规则组名称 <span class="form-help bg-red-lt" title="规则组为规则使用的基本单位，一个规则组中可以包含多条规则，按优先级依次匹配，给规则组设定个名称以便于选择使用" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">规则组名称 <span class="form-help" title="规则组为规则使用的基本单位，一个规则组中可以包含多条规则，按优先级依次匹配，给规则组设定个名称以便于选择使用" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" class="form-control" id="rulegroup_name" placeholder="别名">
               </div>
             </div>
@@ -241,7 +241,7 @@
               <div class="mb-3">
                 <label class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="rulegroup_default" onclick="javascript:change_over_edition_check(this)">
-                  <span class="form-check-label">默认 <span class="form-help bg-red-lt" title="将该规则组设为默认规则，在远程搜索、订阅等未指定规则组的场景下默认使用" data-bs-toggle="tooltip">?</span></span>
+                  <span class="form-check-label">默认 <span class="form-help" title="将该规则组设为默认规则，在远程搜索、订阅等未指定规则组的场景下默认使用" data-bs-toggle="tooltip">?</span></span>
                 </label>
               </div>
             </div>

@@ -69,10 +69,12 @@ class TorrentSpider(feapder.AirSpider):
                     self.cookies = dict_from_cookiejar(res.cookies)
             except Exception as err:
                 log.warn(f"【SPIDER】获取 {self.domain} cookie失败：{format(err)}")
-        config = Config()
-        self.__custom_setting__['WEBDRIVER']['user_agent'] = config.get_config('app').get('user_agent')
+        if indexer.ua:
+            self.__custom_setting__['WEBDRIVER']['user_agent'] = indexer.ua
+        else:
+            self.__custom_setting__['WEBDRIVER']['user_agent'] = Config().get_config('app').get('user_agent')
         if indexer.proxy:
-            self.__custom_setting__['WEBDRIVER']['proxy'] = config.get_proxies()
+            self.__custom_setting__['WEBDRIVER']['proxy'] = Config().get_proxies()
         else:
             self.__custom_setting__['WEBDRIVER']['proxy'] = None
         self.torrents_info_array = []
