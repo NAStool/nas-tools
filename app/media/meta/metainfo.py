@@ -16,12 +16,9 @@ def MetaInfo(title, subtitle=None, mtype=None):
     :return: MetaAnime、MetaVideo
     """
     config = Config()
-    ignored_words = []
-    ignored_words_info = config.get_config('laboratory').get("ignored_words")
-    if ignored_words_info:
-        ignored_words = ignored_words_info.split("|")
-        for ignored_word in ignored_words:
-            title = title.replace(ignored_word, "")
+    ignored_words = config.get_config('laboratory').get("ignored_words")
+    if ignored_words:
+        title = re.sub(r"" + ignored_words, "", title)
     if os.path.splitext(title)[-1] in RMT_MEDIAEXT:
         fileflag = True
     else:
