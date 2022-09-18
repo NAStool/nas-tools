@@ -100,6 +100,7 @@ class Rss:
                     log_info("【RSS】%s 未配置rssurl，跳过..." % str(rss_job))
                     continue
                 rss_cookie = site_info.get("cookie")
+                rss_ua = site_info.get("ua")
                 # 是否解析种子详情
                 site_parse = False if site_info.get("parse") == "N" else True
                 # 使用的规则
@@ -645,7 +646,8 @@ class Rss:
                                tv_keys,
                                site_rule,
                                site_cookie,
-                               site_parse):
+                               site_parse,
+                               site_ua):
         """
         判断种子是否命中订阅
         :param media_info: 已识别的种子媒体信息
@@ -654,6 +656,7 @@ class Rss:
         :param site_rule: 站点过滤规则
         :param site_cookie: 站点的Cookie
         :param site_parse: 是否解析种子详情
+        :param site_ua: 站点请求UA
         :return: 匹配到的订阅ID、是否洗版、总集数、匹配规则的资源顺序、上传因子、下载因子，匹配的季（电视剧）
         """
         # 默认值
@@ -779,7 +782,7 @@ class Rss:
         if match_flag:
             if site_parse:
                 # 检测Free
-                attr_type = Torrent.check_torrent_attr(torrent_url=media_info.page_url, cookie=site_cookie)
+                attr_type = Torrent.check_torrent_attr(torrent_url=media_info.page_url, cookie=site_cookie, ua=site_ua)
                 if attr_type.is_free2x():
                     download_volume_factor = 0.0
                     upload_volume_factor = 2.0

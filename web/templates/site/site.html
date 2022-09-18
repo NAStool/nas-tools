@@ -195,11 +195,19 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">发送站点未读消息通知 <span class="form-help bg-red-lt" title="选择是时检测到站点有未读消息会通过消息推送通知" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">发送站点未读消息通知 <span class="form-help" title="选择是时检测到站点有未读消息会通过消息推送通知" data-bs-toggle="tooltip">?</span></label>
                 <select class="form-select" id="site_unread_msg_notify">
                   <option value="Y" selected>是</option>
                   <option value="N">否</option>
                 </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="mb-3">
+                <label class="form-label">User-Agent <span class="form-help" title="站点签到/数据获取/搜索请求时使用的User-Agent，为空则使用基础配置中User-Agent设置" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" class="form-control" id="site_ua" value="" placeholder="站点访问User-Agent">
               </div>
             </div>
           </div>
@@ -257,6 +265,7 @@
     $("#site_signurl").val('');
     $("#site_cookie").val('');
     $("#site_rule").val('');
+    $("#site_ua").val('');
     $("#site_close_btn").text("关闭");
     $("#modal-site-title").text("新增站点");
     $("#add_or_edit_site_btn").text("新增");
@@ -276,6 +285,7 @@
         $("#site_signurl").val(ret.site.signurl);
         $("#site_cookie").val(ret.site.cookie);
         $("#site_parse").val(ret.site.parse);
+        $("#site_ua").val(ret.site.ua);
         $("#site_unread_msg_notify").val(ret.site.unread_msg_notify)
         $("input[name=site_uses]").each(function(){
           $(this).prop("checked",false);
@@ -358,6 +368,7 @@
         site_uses = site_uses + $(this).val();
       }
     });
+    var ua = $("#site_ua").val();
     var data = {"site_id":site_id,
           "site_name":site_name,
           "site_pri":site_pri,
@@ -365,7 +376,7 @@
           "site_signurl":site_signurl,
           "site_cookie":site_cookie,
           "site_include": site_uses,
-          "site_note":site_parse + "|" + site_rule + "|" + site_unread_msg_notify}
+          "site_note":site_parse + "|" + site_rule + "|" + site_unread_msg_notify + "|" + ua}
 
     $("#add_or_edit_site_btn").attr("disabled", true);
     $("#add_or_edit_site_btn").text("处理中...");

@@ -12,7 +12,7 @@ class RequestUtils:
     __timeout = 20
     __session = None
 
-    def __init__(self, headers=None, cookies=None, proxies=False, session=None, timeout=None):
+    def __init__(self, headers=None, cookies=None, proxies=False, session=None, timeout=None, ua=None):
         if headers:
             if isinstance(headers, str):
                 self.__headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -20,7 +20,7 @@ class RequestUtils:
             else:
                 self.__headers = headers
         else:
-            user_agent = Config().get_config("app").get("user_agent")
+            user_agent = ua or Config().get_config("app").get("user_agent")
             if user_agent:
                 self.__headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
                                   "User-Agent": user_agent}

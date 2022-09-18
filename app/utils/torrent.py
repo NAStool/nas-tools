@@ -62,11 +62,12 @@ class Torrent:
 
     @staticmethod
     @lru_cache(maxsize=128)
-    def check_torrent_attr(torrent_url, cookie) -> TorrentAttr:
+    def check_torrent_attr(torrent_url, cookie, ua=None) -> TorrentAttr:
         """
         检验种子是否免费，当前做种人数
         :param torrent_url: 种子的详情页面
         :param cookie: 站点的Cookie
+        :param ua: 站点的ua
         :return: 种子属性，包含FREE 2XFREE HR PEER_COUNT等属性
         """
         ret_attr = TorrentAttr()
@@ -75,7 +76,7 @@ class Torrent:
         xpath_strs = SiteConf().get_grapsite_conf(torrent_url)
         if not xpath_strs:
             return ret_attr
-        res = RequestUtils(cookies=cookie).get_res(url=torrent_url)
+        res = RequestUtils(cookies=cookie, ua=ua).get_res(url=torrent_url)
         if res and res.status_code == 200:
             res.encoding = res.apparent_encoding
             html_text = res.text

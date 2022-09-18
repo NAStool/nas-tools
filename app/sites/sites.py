@@ -1,3 +1,4 @@
+import base64
 import json
 import traceback
 from datetime import datetime
@@ -52,6 +53,8 @@ class Sites:
             rule_groupid = str(site[9]).split("|")[1] if site[9] and len(str(site[9]).split("|")) > 1 else ""
             # 站点未读消息为|分隔的第3位
             site_unread_msg_notify = str(site[9]).split("|")[2] if site[9] and len(str(site[9]).split("|")) > 2 else "Y"
+            # 自定义UA为|分隔的第4位
+            ua = str(site[9]).split("|")[3] if site[9] and len(str(site[9]).split("|")) > 3 else ""
             # 站点用途：Q签到、D订阅、S刷流
             signin_enable = True if not site[6] or str(site[6]).count("Q") else False
             rss_enable = True if not site[6] or str(site[6]).count("D") else False
@@ -75,7 +78,8 @@ class Sites:
                 "signin_enable": signin_enable,
                 "rss_enable": rss_enable,
                 "brush_enable": brush_enable,
-                "statistic_enable": statistic_enable
+                "statistic_enable": statistic_enable,
+                "ua": ua
             }
             if siteid and int(site[0]) == int(siteid):
                 return site_info
@@ -139,9 +143,10 @@ class Sites:
         if not site_url:
             return
         site_cookie = site_info.get("cookie")
+        ua = site_info.get("ua")
         unread_msg_notify = site_info.get("unread_msg_notify")
         try:
-            site_user_info = SiteUserInfoFactory.build(url=site_url, site_name=site_name, site_cookie=site_cookie)
+            site_user_info = SiteUserInfoFactory.build(url=site_url, site_name=site_name, site_cookie=site_cookie, ua=ua)
             if site_user_info:
                 log.debug(f"【PT】站点 {site_name} 开始以 {site_user_info.site_schema()} 模型解析")
                 # 开始解析
@@ -198,11 +203,12 @@ class Sites:
             try:
                 site_url = site_info.get("signurl")
                 site_cookie = site_info.get("cookie")
+                ua = site_info.get("cookie")
                 log.info("【PT】开始站点签到：%s" % site)
                 if not site_url or not site_cookie:
                     log.warn("【PT】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
                     continue
-                res = RequestUtils(cookies=site_cookie).get_res(url=site_url)
+                res = RequestUtils(cookies=site_cookie).get_res(url=site_url, ua=ua)
                 if res and res.status_code == 200:
                     if not self.__is_signin_success(res.text):
                         status.append("%s 签到失败，cookie已过期" % site)
