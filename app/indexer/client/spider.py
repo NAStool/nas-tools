@@ -1,4 +1,5 @@
 import copy
+import datetime
 import re
 import traceback
 from urllib.parse import quote
@@ -165,6 +166,9 @@ class TorrentSpider(feapder.AirSpider):
             imdbid = torrent(self.fields.get('imdbid', {}).get('selector', ''))
             items = [item.attr(self.fields.get('imdbid', {}).get('attribute')) for item in imdbid.items() if item]
             self.torrents_info['imdbid'] = items[0] if items else ''
+            filters = self.fields.get('imdbid', {}).get('filters', {})
+            if filters:
+                self.torrents_info['imdbid'] = self.__filter_text(self.torrents_info['imdbid'], filters)
 
     def Getsize(self, torrent):
         # torrent size
@@ -184,19 +188,28 @@ class TorrentSpider(feapder.AirSpider):
         # torrent leechers
         leechers = torrent(self.fields.get('leechers', {}).get('selector', ''))
         items = [item.text() for item in leechers.items() if item]
-        self.torrents_info['peers'] = items[0] if items and str(items[0]).isdigit() else 0
+        self.torrents_info['peers'] = items[0] if items else 0
+        filters = self.fields.get('peers', {}).get('filters', {})
+        if filters:
+            self.torrents_info['peers'] = self.__filter_text(self.torrents_info['peers'], filters)
 
     def Getseeders(self, torrent):
         # torrent leechers
         seeders = torrent(self.fields.get('seeders', {}).get('selector', ''))
         items = [item.text() for item in seeders.items() if item]
-        self.torrents_info['seeders'] = items[0].split("/")[0] if items and str(items[0]).isdigit() else 0
+        self.torrents_info['seeders'] = items[0].split("/")[0] if items else 0
+        filters = self.fields.get('seeders', {}).get('filters', {})
+        if filters:
+            self.torrents_info['seeders'] = self.__filter_text(self.torrents_info['seeders'], filters)
 
     def Getgrabs(self, torrent):
         # torrent grabs
         grabs = torrent(self.fields.get('grabs', {}).get('selector', ''))
         items = [item.text() for item in grabs.items() if item]
-        self.torrents_info['grabs'] = items[0] if items and str(items[0]).isdigit() else ''
+        self.torrents_info['grabs'] = items[0] if items else ''
+        filters = self.fields.get('grabs', {}).get('filters', {})
+        if filters:
+            self.torrents_info['grabs'] = self.__filter_text(self.torrents_info['grabs'], filters)
 
     def Gettitle_optional(self, torrent):
         # title optional
@@ -266,41 +279,6 @@ class TorrentSpider(feapder.AirSpider):
             self.torrents_info['description'] = Template(self.fields.get('description',
                                                                          {}).get('text')).render(fields=render_dict)
 
-    def Getdate_added(self, torrent):
-        # date_added
-        selector = torrent(self.fields.get('date_elapsed', {}).get('selector', ''))
-        items = [item.attr(self.fields.get('date_elapsed', {}).get('attribute', '')) for item in selector.items()]
-        self.torrents_info['date_added'] = items[0] if items else ''
-
-    def Getdate_elapsed(self, torrent):
-        # date_added
-        selector = torrent(self.fields.get('date_elapsed', {}).get('selector', ''))
-        items = [item.text() for item in selector.items()]
-        self.torrents_info['date_elapsed'] = items[0] if items else ''
-
-    def Getfree_deadline(self, torrent):
-        # TODO free deadline
-        selector = torrent(self.fields.get('free_deadline',
-                                           {}).get('selector', ''))
-        items = [item.attr(self.fields.get('free_deadline',
-                                           {}).get('attribute')) for item in selector.items()]
-        if len(items) > 0 and items is not None:
-            if items[0] is not None:
-                if "filters" in self.fields.get('free_deadline'):
-                    itemdata = items[0]
-                    for f_filter in self.fields.get('free_deadline', {}).get('filters') or []:
-                        if f_filter.get('name') == "re_search" \
-                                and isinstance(f_filter.get("args"), list) \
-                                and len(f_filter.get("args")) > 1:
-                            arg1 = f_filter.get('args', [])[0]
-                            arg2 = f_filter.get('args', [])[1]
-                            search = re.search(arg1, itemdata, arg2)
-                            items = search[0] if search else ""
-                        if f_filter.get('name') == "dateparse":
-                            arg1 = f_filter.get('args')
-                            items = arg1
-                self.torrents_info['free_deadline'] = items
-
     def Getinfo(self, torrent):
         """
         解析单条种子数据
@@ -317,10 +295,32 @@ class TorrentSpider(feapder.AirSpider):
         self.Getdetails(torrent)
         self.Getdownloadvolumefactor(torrent)
         self.Getuploadvolumefactor(torrent)
-        self.Getdate_added(torrent)
-        self.Getdate_elapsed(torrent)
-        self.Getfree_deadline(torrent)
         return self.torrents_info
+
+    @staticmethod
+    def __filter_text(text, filters):
+        """
+        对文件进行处理
+        """
+        if not text or not filters or not isinstance(filters, list):
+            return text
+        if not isinstance(text, str):
+            text = str(text)
+        for filter_item in filters:
+            try:
+                method_name = filter_item.get("name")
+                args = filter_item.get("args")
+                if method_name == "re_search" and isinstance(args, list):
+                    text = re.search(r"%s" % args[0], text).group(args[-1])
+                elif method_name == "split" and isinstance(args, list):
+                    text = text.split(r"%s" % args[0])[args[-1]]
+                elif method_name == "replace" and isinstance(args, list):
+                    text = text.replace(r"%s" % args[0], r"%s" % args[-1])
+                elif method_name == "dateparse" and isinstance(args, str):
+                    text = datetime.datetime.strptime(text, r"%s" % args)
+            except Exception as err:
+                print(str(err))
+        return text.strip()
 
     def parse(self, request, response):
         """
