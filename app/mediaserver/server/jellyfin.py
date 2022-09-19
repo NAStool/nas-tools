@@ -371,25 +371,43 @@ class Jellyfin(IMediaServer):
                 for result in results:
                     if not result:
                         continue
-                    if result.get("Type") not in ["Movie", "Series"]:
-                        continue
-                    item_info = self.get_iteminfo(result.get("Id"))
-                    if item_info.get("Type") == "Movie":
-                        media_type = MediaType.MOVIE
-                    elif item_info.get("Type") == "Series":
-                        media_type = MediaType.TV
-                    else:
-                        continue
-                    yield {"id": result.get("Id"),
-                           "library": item_info.get("ParentId"),
-                           "type": media_type.value,
-                           "title": item_info.get("Name"),
-                           "originalTitle": item_info.get("OriginalTitle"),
-                           "year": item_info.get("ProductionYear"),
-                           "tmdbid": item_info.get("ProviderIds", {}).get("Tmdb"),
-                           "imdbid": item_info.get("ProviderIds", {}).get("Imdb"),
-                           "Path": item_info.get("Path"),
-                           "json": str(item_info)}
+                    if result.get("Type") == "Folder":
+                        for sub_result in self.get_items(result.get("Id")):
+                            item_info = self.get_iteminfo(sub_result.get("Id"))
+                            if item_info.get("Type") == "Movie":
+                                media_type = MediaType.MOVIE
+                            elif item_info.get("Type") == "Series":
+                                media_type = MediaType.TV
+                            else:
+                                continue
+                            yield {"id": sub_result.get("Id"),
+                                   "library": item_info.get("ParentId"),
+                                   "type": media_type.value,
+                                   "title": item_info.get("Name"),
+                                   "originalTitle": item_info.get("OriginalTitle"),
+                                   "year": item_info.get("ProductionYear"),
+                                   "tmdbid": item_info.get("ProviderIds", {}).get("Tmdb"),
+                                   "imdbid": item_info.get("ProviderIds", {}).get("Imdb"),
+                                   "Path": item_info.get("Path"),
+                                   "json": str(item_info)}
+                    elif result.get("Type") in ["Movie", "Series"]:
+                        item_info = self.get_iteminfo(result.get("Id"))
+                        if item_info.get("Type") == "Movie":
+                            media_type = MediaType.MOVIE
+                        elif item_info.get("Type") == "Series":
+                            media_type = MediaType.TV
+                        else:
+                            continue
+                        yield {"id": result.get("Id"),
+                               "library": item_info.get("ParentId"),
+                               "type": media_type.value,
+                               "title": item_info.get("Name"),
+                               "originalTitle": item_info.get("OriginalTitle"),
+                               "year": item_info.get("ProductionYear"),
+                               "tmdbid": item_info.get("ProviderIds", {}).get("Tmdb"),
+                               "imdbid": item_info.get("ProviderIds", {}).get("Imdb"),
+                               "Path": item_info.get("Path"),
+                               "json": str(item_info)}
         except Exception as e:
             log.error("【EMBY】连接Users/Items出错：" + str(e))
         yield {}
