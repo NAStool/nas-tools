@@ -23,9 +23,8 @@ def MetaInfo(title, subtitle=None, mtype=None):
             title = title.replace(ignored_word, "")
     if replaced_words:
         for replaced_word in replaced_words:
-            replaced_word_info = []
             replaced_word_info = replaced_word.split("@")
-            title = title.replace(replaced_word_info[0], replaced_word_info[1])
+            title = title.replace(replaced_word_info[0], replaced_word_info[-1])
     if os.path.splitext(title)[-1] in RMT_MEDIAEXT:
         fileflag = True
     else:

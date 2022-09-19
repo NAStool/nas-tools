@@ -137,7 +137,7 @@ class Message:
         if self.__msg_switch and not self.__msg_switch.get("download_start"):
             return
         msg_title = can_item.get_title_ep_vote_string()
-        msg_text = f"{in_from.value}的{can_item.type.value} {can_item.get_title_string()}{can_item.get_season_episode_string()} 已开始下载"
+        msg_text = f"{in_from.value}的{can_item.type.value} {can_item.get_title_string()} {can_item.get_season_episode_string()} 已开始下载"
         if can_item.site:
             msg_text = f"{msg_text}\n站点：{can_item.site}"
         if can_item.get_resource_type_string():
