@@ -404,8 +404,8 @@
           <div class="card-footer">
             <div class="row align-items-center">
               <div class="col-auto">
-                <a href="javascript:void(0)" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modal-ignored_words">
-                  自定义识别屏蔽词设置
+                <a href="javascript:void(0)" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modal-customized-words">
+                  自定义识别词设置
                 </a>
               </div>
               <div class="col"></div>
@@ -721,21 +721,34 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-ignored_words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-customized-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content border-0">
       <div class="card">
         <div class="card-header">
-          <h5 class="modal-title">自定义识别屏蔽词</h5>
+          <h5 class="modal-title">自定义识别词</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="card-body">
-          <textarea class="form-control" id="ignored_words" rows="4" placeholder="增加屏蔽词请换行">{{ Ignored_Words }}</textarea>
+          <div class='row'>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">屏蔽词 <span class="form-help" title="识别时会先屏蔽名称中包含的屏蔽词" data-bs-toggle="tooltip">?</span></label>
+                <textarea class="form-control" id="ignored_words" rows="4" placeholder="增加屏蔽词请换行">{{ Ignored_Words }}</textarea>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label">替换词 <span class="form-help" title="识别时会先替换名称中包含的替换词" data-bs-toggle="tooltip">?</span></label>
+                <textarea class="form-control" id="replaced_words" rows="4" placeholder="增加屏蔽词请换行，a@b，@前的词会被替换为@后的词">{{ Replaced_Words }}</textarea>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a id="scraper_save_btn" href="javascript:save_ignored_words_config()" class="btn btn-primary">
+        <a id="customized-words_save_btn" href="javascript:save_customized_words_config()" class="btn btn-primary">
           保存
         </a>
       </div>
@@ -778,13 +791,15 @@
     $("#modal-scraper").modal("hide");
   }
   // 保存自定义识别屏蔽词配置
-  function save_ignored_words_config(){
+  function save_customized_words_config(){
     var params = {};
     var ignored_words = $("#ignored_words").val().replace(/\n/g,"|");
+    var replaced_words = $("#replaced_words").val().replace(/\n/g,"|");
     params['laboratory.ignored_words'] = ignored_words
+    params['laboratory.replaced_words'] = replaced_words
     ajax_post("update_config", params, function (ret) {
     });
-    $("#modal-ignored_words").modal("hide");
+    $("#modal-customized-words").modal("hide");
   }
 
 </script>
