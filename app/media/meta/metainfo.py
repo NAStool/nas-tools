@@ -16,10 +16,11 @@ def MetaInfo(title, subtitle=None, mtype=None):
     :return: MetaAnime、MetaVideo
     """
     config = Config()
-    ignored_words = config.get_config('laboratory').get("ignored_words")
+    ignored_words = config.get_config('laboratory').get("ignored_words").split("|")
     replaced_words = config.get_config('laboratory').get("replaced_words").split("|")
     if ignored_words:
-        title = re.sub(r"" + ignored_words, "", title)
+        for ignored_word in ignored_words:
+            title = title.replace(ignored_word, "")
     if replaced_words:
         for replaced_word in replaced_words:
             replaced_word_info = []
