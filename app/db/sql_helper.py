@@ -1670,7 +1670,7 @@ class SqlHelper:
         if not tid:
             return False
         return DBHelper().update_by_sql(
-            "UPDATE CONFIG_USER_RSS SET PROCESS_COUNT = ?, UPDATE_TIME = ? WHERE ID = ?",
+            "UPDATE CONFIG_USER_RSS SET PROCESS_COUNT = PROCESS_COUNT + ?, UPDATE_TIME = ? WHERE ID = ?",
             (count, time.strftime('%Y-%m-%d %H:%M:%S',
                                   time.localtime(time.time())), tid))
 
