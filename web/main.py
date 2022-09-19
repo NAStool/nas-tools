@@ -803,7 +803,7 @@ def create_flask_app(config):
         # 站点列表
         CfgSites = Sites().get_sites(brush=True)
         # 下载器列表
-        downloaders = SqlHelper.get_user_downloaders()
+        downloaders = SqlHelper.get_user_downloaders() or []
         # 任务列表
         brushtasks = SqlHelper.get_brushtasks()
         Tasks = []
