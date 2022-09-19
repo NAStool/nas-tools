@@ -176,6 +176,12 @@ class MetaVideo(MetaBase):
                     # 名字后面以 0 开头的不要，极有可能是集
                     if token.startswith('0'):
                         return
+                    # 检查是否真正的数字
+                    if token.isdigit():
+                        try:
+                            int(token)
+                        except ValueError:
+                            return
                     # 中文名后面跟的数字不是年份的极有可能是集
                     if not is_roman_digit \
                             and self._last_token_type == "cnname" \

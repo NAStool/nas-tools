@@ -314,10 +314,13 @@ class SiteConf:
             "proxy": True
         },
         'dmhy.org': {
-            "proxy": False
+            "proxy": True
         },
         'eztv.re': {
             "proxy": True
+        },
+        'acg.rip': {
+            "proxy": False
         }
     }
 
