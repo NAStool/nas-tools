@@ -1162,7 +1162,13 @@ def create_flask_app(config):
         proxy = config.get_config('app').get("proxies", {}).get("http")
         if proxy:
             proxy = proxy.replace("http://", "")
-        return render_template("setting/basic.html", Config=config.get_config(), Proxy=proxy)
+        ignored_words = config.get_config('laboratory').get("ignored_words")
+        if ignored_words:
+            ignored_words = ignored_words.replace("|", "\n")
+        replaced_words = config.get_config('laboratory').get("replaced_words")
+        if replaced_words:
+            replaced_words = replaced_words.replace("|", "\n")
+        return render_template("setting/basic.html", Config=config.get_config(), Proxy=proxy, Ignored_Words=ignored_words, Replaced_Words=replaced_words)
 
     # 目录同步页面
     @App.route('/directorysync', methods=['POST', 'GET'])
