@@ -734,13 +734,13 @@
             <div class="col-lg-6">
               <div class="mb-3">
                 <label class="form-label">屏蔽词 <span class="form-help" title="识别时会先屏蔽名称中包含的屏蔽词" data-bs-toggle="tooltip">?</span></label>
-                <textarea class="form-control" id="ignored_words" rows="4" placeholder="增加屏蔽词请换行">{{ Ignored_Words }}</textarea>
+                <textarea class="form-control" id="ignored_words" rows="4" placeholder="增加屏蔽词请换行">{{ Ignored_Words or '' }}</textarea>
               </div>
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
                 <label class="form-label">替换词 <span class="form-help" title="识别时会先替换名称中包含的替换词" data-bs-toggle="tooltip">?</span></label>
-                <textarea class="form-control" id="replaced_words" rows="4" placeholder="增加屏蔽词请换行，a@b，@前的词会被替换为@后的词">{{ Replaced_Words }}</textarea>
+                <textarea class="form-control" id="replaced_words" rows="4" placeholder="增加屏蔽词请换行，a@b，@前的词会被替换为@后的词">{{ Replaced_Words or '' }}</textarea>
               </div>
             </div>
           </div>
