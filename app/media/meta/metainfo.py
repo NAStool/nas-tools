@@ -17,8 +17,14 @@ def MetaInfo(title, subtitle=None, mtype=None):
     """
     config = Config()
     ignored_words = config.get_config('laboratory').get("ignored_words")
+    replaced_words = config.get_config('laboratory').get("replaced_words").split("|")
     if ignored_words:
         title = re.sub(r"" + ignored_words, "", title)
+    if replaced_words:
+        for replaced_word in replaced_words:
+            replaced_word_info = []
+            replaced_word_info = replaced_word.split("@")
+            title = title.replace(replaced_word_info[0], replaced_word_info[1])
     if os.path.splitext(title)[-1] in RMT_MEDIAEXT:
         fileflag = True
     else:

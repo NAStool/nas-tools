@@ -429,3 +429,5 @@ laboratory:
   search_en_title: true
   # 【自定义识别屏蔽词】
   ignored_words: 
+  # 【自定义识别替换词】
+  replaced_words:
