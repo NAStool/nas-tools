@@ -1,4 +1,3 @@
-from app.utils.types import MediaType
 from plexapi.myplex import MyPlexAccount
 
 import log
@@ -177,15 +176,9 @@ class Plex(IMediaServer):
                 for item in section.all():
                     if not item:
                         continue
-                    if item.type == "movie":
-                        media_type = MediaType.MOVIE
-                    elif item.type == "show":
-                        media_type = MediaType.TV
-                    else:
-                        continue
                     yield {"id": item.key,
                            "library": item.librarySectionID,
-                           "type": media_type.value,
+                           "type": item.type,
                            "title": item.title,
                            "year": item.year,
                            "json": str(item.__dict__)}
