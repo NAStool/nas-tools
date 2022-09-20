@@ -146,24 +146,25 @@ class FileTransfer:
             lock.acquire()
             if self.__system == OsType.WINDOWS:
                 if rmt_mode == RmtMode.LINK:
-                    retcode = os.system("mklink /H '%s' '%s'" % (target_file, file_item))
+                    retcode = os.system('mklink /H "{}" "{}"'.format(target_file, file_item))
                 elif rmt_mode == RmtMode.SOFTLINK:
-                    retcode = os.system("mklink '%s' '%s'" % (target_file, file_item))
+                    retcode = os.system('mklink "{}" "{}"'.format(target_file, file_item))
                 elif rmt_mode == RmtMode.MOVE:
-                    retcode = os.system("rename '%s' '%s'" % (file_item, os.path.basename(target_file)))
+                    retcode = os.system('rename "{}" "{}"'.format(file_item, os.path.basename(target_file)))
                     if retcode != 0:
                         return retcode
-                    retcode = os.system("move /Y '%s' '%s'" % (
+                    retcode = os.system('move /Y "{}" "{}"'.format(
                         os.path.join(os.path.dirname(file_item), os.path.basename(target_file)), target_file))
+                    log.info("移动状态: {}".format(retcode))
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
                     if rmt_mode == RmtMode.RCLONE:
-                        retcode = os.system("rclone.exe moveto '%s' NASTOOL:'%s'" % (file_item, target_file))
+                        retcode = os.system('rclone.exe moveto "{}" NASTOOL:"{}"'.format(file_item, target_file))
                     else:
-                        retcode = os.system("rclone.exe copyto '%s' NASTOOL:'%s'" % (file_item, target_file))
+                        retcode = os.system('rclone.exe copyto "{}" NASTOOL:"{}"'.format(file_item, target_file))
                 else:
-                    retcode = os.system("copy /Y '%s' '%s'" % (file_item, target_file))
+                    retcode = os.system('copy /Y "{}" "{}"'.format(file_item, target_file))
             else:
                 if rmt_mode == RmtMode.LINK:
                     if platform.release().find("-z4-") >= 0:
