@@ -130,20 +130,54 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="card-body">
-          <div class="mb-3" id="rename_path_div">
-            <label class="form-label">路径</label>
-            <input type="text" id="rename_path" class="form-control" readonly>
-            <input type="hidden" id="unknown_id">
-            <div class="invalid-feedback" id="rename_retmsg"></div>
-          </div>
+          <div class="row" id="rename_path_div">
+            <div class="col-lg-9">
+              <div class="mb-3">
+                <label class="form-label">路径</label>
+                <input type="text" id="rename_path" class="form-control" readonly>
+                <input type="hidden" id="unknown_id">
+                <div class="invalid-feedback" id="rename_retmsg"></div>
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">同步方式</label>
+                <select  id="rename_syncmod_manual" class="form-select">
+                  <option value="link" selected = "selected">硬链接</option>
+                  <option value="softlink">软链接</option>
+                  <option value="copy">复制</option>
+                  <option value="move">移动</option>
+                  <option value="rclonecopy">Rclone复制</option>
+                  <option value="rclone">Rclone移动</option>
+                </select> 
+              </div>
+            </div>
+          </div>  
           <div class="mb-3" id="rename_inpath_div">
             <label class="form-label">输入路径</label>
             <input type="text" id="rename_inpath" class="form-control filetree-folders-only" placeholder="需要识别的目录或文件" autocomplete="off">
             <div class="invalid-feedback" id="rename_udf_retmsg"></div>
           </div>
-          <div class="mb-3" id="rename_outpath_div">
-            <label class="form-label">输出路径</label>
-            <input type="text" id="rename_outpath" class="form-control filetree-folders-only" placeholder="识别后文件存储路径" autocomplete="off">
+          <div class="row" id="rename_outpath_div">
+            <div class="col-lg-9">
+              <div class="mb-3">
+                <label class="form-label">输出路径</label> 
+                <input type="text" id="rename_outpath" class="form-control filetree-folders-only" placeholder="识别后文件存储路径" autocomplete="off">
+              </div>
+            </div>
+            <div class="col-lg-3">
+              <div class="mb-3">
+                <label class="form-label">同步方式</label>
+                <select  id="rename_syncmod_customize" class="form-select">
+                  <option value="link" selected = "selected">硬链接</option>
+                  <option value="softlink">软链接</option>
+                  <option value="copy">复制</option>
+                  <option value="move">移动</option>
+                  <option value="rclonecopy">Rclone复制</option>
+                  <option value="rclone">Rclone移动</option>
+                </select> 
+              </div>
+            </div>
           </div>
           <label class="form-label">类型</label>
           <div class="form-selectgroup-boxes row mb-3">
@@ -224,7 +258,7 @@
             </div>
             <div class="col-lg-12" id="rename_episode_div">
               <div class="mb-3">
-                <label class="form-label">集数定位 <span class="form-help bg-red-lt"
+                <label class="form-label">集数定位 <span class="form-help"
                     title="3个都不填，用默认识别<br>{ep}: 标定集数位置，例如：<br>&nbsp;&nbsp;&nbsp;&nbsp;(BD)十二国記 第45話「東の海神 西の滄海 五章」(1440x1080 x264-10bpp flac).mkv<br>&nbsp;&nbsp;&nbsp;&nbsp;(BD)十二国記 第32話「風の万里 黎明の空　九章」(1440x1080 x264-10bpp flac).mkv<br>&nbsp;&nbsp;&nbsp;&nbsp;此处可以填(BD)十二国記 第{ep}話{a}(1440x1080 x264-10bpp flac).mkv ep表示集，a表示理解成一个变量，随意用一个变量表示，如果没有变化的部分，只标定ep就行<br>start_ep[, end_ep], 裁定范围， 如果输入是文件，输出就是单个文件，如果输入是目录，输出可以根据填的值批量识别<br>&nbsp;&nbsp;&nbsp;&nbsp;例如 '1' 表示第一集, '2,4' 只取第2集到第4集，'1-2'表示第1-2集，此选项优先级最高<br>offset: 集数偏移, 例如ep定位出集数是11, 实际是第一集, 此处填-10, 以应付多季合集的场景 "
                                                      data-bs-toggle="tooltip" data-bs-html="true">?</span></label>
                 <div class="row">
@@ -258,6 +292,7 @@
     var unknown_id = $('#unknown_id').val();
     var type = $('input:radio[name=rename_type]:checked').val();
     var path = $("#rename_path").val();
+    var syncmod = $("#rename_syncmod_manual").val();
     var tmdb = $("#rename_tmdb").val();
     var title = $("#rename_title").val();
     var year = $("#rename_year").val();
@@ -307,7 +342,7 @@
 
     // 开始处理
     var data = {
-      "unknown_id": unknown_id, "path": path, "type": type, "title": title, "year": year, "tmdb": tmdb
+      "unknown_id": unknown_id, "path": path, "syncmod": syncmod, "type": type, "title": title, "year": year, "tmdb": tmdb
       , "season": season, "episode_format": episode_format, "min_filesize": min_filesize
     };
     $("#rename_btn").attr("disabled", true);
@@ -334,6 +369,7 @@
     var type = $('input:radio[name=rename_type]:checked').val();
     var inpath = $("#rename_inpath").val();
     var outpath = $("#rename_outpath").val();
+    var syncmod = $("#rename_syncmod_customize").val();
     var tmdb = $("#rename_tmdb").val();
     var season = $("#rename_season").val();
     var episode_format = $("#rename_episode").val();
@@ -384,7 +420,7 @@
 
     // 开始处理
     var data = {
-      "inpath": inpath, "outpath": outpath, "type": type, "tmdb": tmdb
+      "inpath": inpath, "outpath": outpath, "syncmod": syncmod, "type": type, "tmdb": tmdb
       , "season": season, "episode_format": episode_format, "episode_details": episode_details
       , "episode_offset": episode_offset, "min_filesize": min_filesize
     };

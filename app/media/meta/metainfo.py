@@ -4,7 +4,7 @@ import re
 from app.media.meta.metaanime import MetaAnime
 from app.media.meta.metavideo import MetaVideo
 from app.utils.types import MediaType
-from config import RMT_MEDIAEXT
+from config import RMT_MEDIAEXT, Config
 
 
 def MetaInfo(title, subtitle=None, mtype=None):
@@ -15,6 +15,25 @@ def MetaInfo(title, subtitle=None, mtype=None):
     :param mtype: 指定识别类型，为空则自动识别类型
     :return: MetaAnime、MetaVideo
     """
+    config = Config()
+    # 屏蔽词
+    ignored_words = config.get_config('laboratory').get("ignored_words")
+    if ignored_words:
+        ignored_words = ignored_words.split("|")
+        for ignored_word in ignored_words:
+            if not ignored_word:
+                continue
+            title = title.replace(ignored_word, "")
+    # 替换词
+    replaced_words = config.get_config('laboratory').get("replaced_words")
+    if replaced_words:
+        replaced_words = replaced_words.split("|")
+        for replaced_word in replaced_words:
+            if not replaced_word:
+                continue
+            replaced_word_info = replaced_word.split("@")
+            title = title.replace(replaced_word_info[0], replaced_word_info[-1])
+    # 判断是否处理文件
     if os.path.splitext(title)[-1] in RMT_MEDIAEXT:
         fileflag = True
     else:

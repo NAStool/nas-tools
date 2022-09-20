@@ -445,7 +445,7 @@ class Media:
                 else:
                     log.info("【META】%s TMDB网站未查询到媒体信息！" % file_media_name)
             except Exception as err:
-                log.console(err)
+                log.console(str(err))
         return {}
 
     def get_tmdb_info(self, mtype: MediaType = None, title=None, year=None, tmdbid=None, language=None):
@@ -1094,7 +1094,7 @@ class Media:
                     titles_info = self.tv.alternative_titles(tmdbid) or {}
                     alternative_titles = titles_info.get("results", [])
             except Exception as err:
-                log.console(err)
+                log.console(str(err))
                 return None
         for alternative_title in alternative_titles:
             iso_3166_1 = alternative_title.get("iso_3166_1")
@@ -1117,7 +1117,7 @@ class Media:
         try:
             aka_names = self.person.details(person_id).get("also_known_as", []) or []
         except Exception as err:
-            log.console(err)
+            log.console(str(err))
             return ""
         for aka_name in aka_names:
             if StringUtils.is_chinese(aka_name):
@@ -1140,7 +1140,7 @@ class Media:
             aka_names = self.person.details(person_id).get("also_known_as", []) or []
             return aka_names
         except Exception as err:
-            log.console(err)
+            log.console(str(err))
             return []
 
     def __search_douban_id(self, metainfo):

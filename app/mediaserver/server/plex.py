@@ -1,4 +1,3 @@
-from app.utils.types import MediaType
 from plexapi.myplex import MyPlexAccount
 
 import log
@@ -168,25 +167,21 @@ class Plex(IMediaServer):
         获取媒体服务器所有媒体库列表
         """
         if not parent:
-            return []
+            yield {}
         if not self.__plex:
-            return []
+            yield {}
         try:
             section = self.__plex.library.sectionByID(parent)
+            if section:
+                for item in section.all():
+                    if not item:
+                        continue
+                    yield {"id": item.key,
+                           "library": item.librarySectionID,
+                           "type": item.type,
+                           "title": item.title,
+                           "year": item.year,
+                           "json": str(item.__dict__)}
         except Exception as err:
             print(err)
-            return []
-        for item in section.all():
-            if item.type == "movie":
-                media_type = MediaType.MOVIE
-            elif item.type == "show":
-                media_type = MediaType.TV
-            else:
-                continue
-            yield {"id": item.key,
-                   "library": item.librarySectionID,
-                   "type": media_type.value,
-                   "title": item.title,
-                   "year": item.year,
-                   "json": str(item.__dict__)}
-        return []
+        yield {}

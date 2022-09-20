@@ -77,7 +77,7 @@
           <div class="row">
             <div class="col">
               <div class="mb-3">
-                <label class="form-label">资源名称 <span class="form-help bg-red-lt" title="用于测试名称识别情况，如命名太离谱实在难于兼容，合理范围内无法识别的可在Github反馈" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">资源名称 <span class="form-help" title="用于测试名称识别情况，如命名太离谱实在难于兼容，合理范围内无法识别的可在Github反馈" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="" id="test_name" class="form-control" placeholder="种子名/文件名等">
               </div>
             </div>
@@ -319,13 +319,13 @@
           $("#test_result").append('<span class="badge badge-outline text-orange me-1 mb-1" title="年份">' + ret.data.year + '</span>');
         }
         if(ret.data.season_episode){
-          $("#test_result").append('<span class="badge badge-outline text-orange me-1 mb-1" title="季集">' + ret.data.season_episode + '</span>');
+          $("#test_result").append('<span title="季集"><a class="badge badge-outline text-orange me-1 mb-1" href="' + ret.data.tmdb_S_E_link + '" target="_blank">' + ret.data.season_episode + '</a></span>');
         }
         if(ret.data.part){
           $("#test_result").append('<span class="badge badge-outline text-orange me-1 mb-1" title="分集">' + ret.data.part + '</span>');
         }
         if(ret.data.tmdbid){
-          $("#test_result").append('<span class="badge badge-outline text-green me-1 mb-1" title="TMDB ID">' + ret.data.tmdbid + '</span>');
+          $("#test_result").append('<span title="TMDB ID"><a class="badge badge-outline text-green me-1 mb-1" href="' + ret.data.tmdblink + '" target="_blank">' + ret.data.tmdbid + '</a></span>');
         }
         if(ret.data.restype){
           $("#test_result").append('<span class="badge me-1 mb-1" title="质量">' + ret.data.restype + '</span>');

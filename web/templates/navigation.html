@@ -243,6 +243,9 @@
                 <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbhm')">
                   豆瓣热门电影
                 </a>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbtop')">
+                  豆瓣电影TOP250
+                </a>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('recommend?t=dbht')">
                   豆瓣热门电视剧
                 </a>
@@ -306,6 +309,9 @@
                 </a>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('tv_rss')">
                   电视剧订阅
+                </a>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('user_rss')">
+                  自定义订阅
                 </a>
                 <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('rss_calendar')">
                   订阅日历
@@ -669,7 +675,7 @@
           <div class="w-100">
             <div class="row">
               <div class="col">
-                <a href="#" class="btn w-100" data-bs-dismiss="modal">
+                <a href="#" class="btn w-100 btn-secondary" data-bs-dismiss="modal">
                   取消
                 </a>
               </div>
@@ -870,14 +876,20 @@
 
     //刷新进度及文件
     var refresh_process_flag = false;
+    var refresh_fail_count = 0;
     function refresh_process () {
+      if(!refresh_process_flag){
+        return;
+      }
       ajax_post("refresh_process", {type:"search"}, function (ret) {
-        if (ret.code == 0) {
+        if (ret.code == 0 && ret.value <= 100) {
           $("#modal_process_bar").attr("style", "width: " + ret.value + "%");
           $("#modal_process_bar").attr("aria-valuenow", ret.value);
           $("#modal_process_text").text(ret.text);
+        }else{
+          refresh_fail_count = refresh_fail_count + 1;
         }
-        if ((ret.code == 0 || ret.code == 1) && refresh_process_flag) {
+        if(refresh_fail_count < 5 ){
           setTimeout("refresh_process()", 200);
         }
       });
@@ -896,6 +908,7 @@
       $("#modal-process").modal("show");
       //刷新进度
       refresh_process_flag = true;
+      refresh_fail_count = 0;
       refresh_process();
     }
 

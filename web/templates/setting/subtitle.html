@@ -53,7 +53,7 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label required">用户名 <span class="form-help bg-red-lt" title="登录www.opensubtitles.org注册用户" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">用户名 <span class="form-help" title="登录www.opensubtitles.org注册用户" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.subtitle %}{% if Config.subtitle.opensubtitles %}{{ Config.subtitle.opensubtitles.username or '' }}{% endif %}{% endif %}" id="subtitle.opensubtitles.username" class="form-control">
               </div>
             </div>
@@ -85,13 +85,13 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label required">服务器地址 <span class="form-help bg-red-lt" title="配置IP地址和端口，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">服务器地址 <span class="form-help" title="配置IP地址和端口，如为https则需要增加https://前缀" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.host or '' }}{% endif %}{% endif %}" id="subtitle.chinesesubfinder.host" class="form-control" placeholder="http://127.0.0.1:19035">
               </div>
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label required">Api Key <span class="form-help bg-red-lt" title="在ChineseSubFinder->配置中心->实验室->API Key处生成" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">Api Key <span class="form-help" title="在ChineseSubFinder->配置中心->实验室->API Key处生成" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.api_key or '' }}{% endif %}{% endif %}" id="subtitle.chinesesubfinder.api_key" class="form-control">
               </div>
             </div>
@@ -99,13 +99,13 @@
           <div class="row">
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">本地路径 <span class="form-help bg-red-lt" title="NASTool本地媒体库的路径，如为Docker安装则为映射路径，如NASTool与ChineseSubFinder的媒体目录路径一致则不用配置" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">本地路径 <span class="form-help" title="NASTool本地媒体库的路径，如为Docker安装则为映射路径，如NASTool与ChineseSubFinder的媒体目录路径一致则不用配置" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.local_path or '' }}{% endif %}{% endif %}" id="subtitle.chinesesubfinder.local_path" class="form-control filetree-folders-only" placeholder="本地映射路径" autocomplete="off">
               </div>
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label">远程路径 <span class="form-help bg-red-lt" title="ChineseSubFinder的媒体目录映射路径，会用此路径替换掉本地路径后传递给ChineseSubFinder下载字幕，如NASTool与ChineseSubFinder的媒体目录路径一致则不用配置" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">远程路径 <span class="form-help" title="ChineseSubFinder的媒体目录映射路径，会用此路径替换掉本地路径后传递给ChineseSubFinder下载字幕，如NASTool与ChineseSubFinder的媒体目录路径一致则不用配置" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="{% if Config.subtitle %}{% if Config.subtitle.chinesesubfinder %}{{ Config.subtitle.chinesesubfinder.remote_path or '' }}{% endif %}{% endif %}" id="subtitle.chinesesubfinder.remote_path" class="form-control" placeholder="远程映射路径" autocomplete="off">
               </div>
             </div>

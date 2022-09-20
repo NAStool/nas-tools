@@ -133,7 +133,7 @@ class FilterRule:
                     rule_match = False
             # 大小
             sizes = filter_info.get('size')
-            if sizes and rule_match and meta_info.size and meta_info.type == MediaType.MOVIE:
+            if sizes and rule_match and meta_info.size:
                 if sizes.find(',') != -1:
                     sizes = sizes.split(',')
                     if sizes[0].isdigit():
@@ -150,8 +150,12 @@ class FilterRule:
                         end_size = int(sizes.strip())
                     else:
                         end_size = 0
-                if not begin_size * 1024 ** 3 <= int(meta_info.size) <= end_size * 1024 ** 3:
-                    rule_match = False
+                if meta_info.type == MediaType.MOVIE:
+                    if not begin_size * 1024 ** 3 <= int(meta_info.size) <= end_size * 1024 ** 3:
+                        rule_match = False
+                else:
+                    if not begin_size * 1024 ** 3 <= int(meta_info.size)/int(meta_info.total_episodes or 1) <= end_size * 1024 ** 3:
+                        rule_match = False
 
             # 促销
             free = filter_info.get("free")

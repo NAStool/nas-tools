@@ -38,14 +38,15 @@ class BuiltinIndexer(IIndexer):
                                                   cookie=site.get("cookie"),
                                                   name=site.get("name"),
                                                   rule=site.get("rule"),
-                                                  public=False)
+                                                  public=False,
+                                                  ua=site.get("ua"))
             if indexer:
                 if check and indexer_sites and indexer.id not in indexer_sites:
                     continue
                 indexer.name = site.get("name")
                 ret_indexers.append(indexer)
-        for site in SiteConf().get_public_sites():
-            indexer = IndexerHelper().get_indexer(url=site, public=True)
+        for site, attr in SiteConf().get_public_sites():
+            indexer = IndexerHelper().get_indexer(url=site, public=True, proxy=attr.get("proxy"))
             if indexer:
                 if check and indexer_sites and indexer.id not in indexer_sites:
                     continue
@@ -81,7 +82,7 @@ class BuiltinIndexer(IIndexer):
         log.info(f"【{self.index_type}】开始检索Indexer：{indexer.name} ...")
         # 特殊符号处理
         search_word = StringUtils.handler_special_chars(text=key_word, replace_word=" ", allow_space=True)
-        if indexer.id == "rarbg":
+        if indexer.parser == "rarbg":
             imdb_id = match_media.imdb_id if match_media else None
             result_array = Rarbg(cookies=indexer.cookie).search(keyword=search_word, indexer=indexer, imdb_id=imdb_id)
         else:
@@ -94,7 +95,7 @@ class BuiltinIndexer(IIndexer):
             log.warn(f"【{self.index_type}】{indexer.name} 返回数据：{len(result_array)}")
             return self.filter_search_results(result_array=result_array,
                                               order_seq=order_seq,
-                                              indexer_name=indexer.name,
+                                              indexer=indexer,
                                               filter_args=filter_args,
                                               match_type=match_type,
                                               match_media=match_media,
@@ -104,8 +105,7 @@ class BuiltinIndexer(IIndexer):
     def __spider_search(keyword, indexer):
         spider = TorrentSpider()
         spider.setparam(indexer=indexer,
-                        keyword=keyword,
-                        user_agent=Config().get_config('app').get('user_agent'))
+                        keyword=keyword)
         spider.start()
         # 循环判断是否获取到数据
         sleep_count = 0

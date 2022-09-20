@@ -322,7 +322,7 @@
   function show_mediasync_modal(){
     //获取同步状态
     ajax_post("refresh_process", {type:"mediasync"}, function (ret) {
-      if (ret.code == 0) {
+      if (ret.code == 0 && ret.value < 100) {
         //同步中
         $("#index-mediasync-modal").modal('show');
         start_media_sync(false);
@@ -352,22 +352,28 @@
     $("#mediasync_btn").attr("href", "javascript:close_mediasync_modal()");
     if(flag){
       ajax_post("start_mediasync", {}, function (ret) {
+        refresh_sync_process_flag = true;
+        refresh_sync_process();
       });
+    }else{
+      refresh_sync_process_flag = true;
+      refresh_sync_process();
     }
-    refresh_sync_process_flag = true;
-    refresh_sync_process();
   }
 
   //刷新进度及文件
   var refresh_sync_process_flag = false;
   function refresh_sync_process () {
+    if(!refresh_sync_process_flag){
+      return;
+    }
     ajax_post("refresh_process", {type:"mediasync"}, function (ret) {
       if (ret.code == 0) {
         $("#mediasync_process_bar").attr("style", "width: " + ret.value + "%");
         $("#mediasync_process_bar").attr("aria-valuenow", ret.value);
         $("#mediasync_status").text(ret.text);
       }
-      if ((ret.code == 0 || ret.code == 1) && refresh_sync_process_flag) {
+      if (ret.value < 100) {
         setTimeout("refresh_sync_process()", 200);
       }
     });

@@ -17,11 +17,14 @@ from flask import Flask, request, json, render_template, make_response, session,
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 from werkzeug.security import check_password_hash
 
+import re
 import log
+from app.brushtask import BrushTask
 from app.mediaserver import WebhookEvent
 from app.message import Message
+from app.rsschecker import RssChecker
 from app.utils import Security, StringUtils, DomUtils, SystemUtils, WebUtils, MetaHelper
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL
+from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL, NETTEST_TARGETS
 from app.douban import DouBan
 from app.downloader import Downloader
 from app.filterrules import FilterRule
@@ -250,6 +253,7 @@ def create_flask_app(config):
         TotalSpace = 0
         FreeSpace = 0
         UsedPercent = 0
+        TotalSpaceList = []
         media = config.get_config('media')
         if media:
             # 电影目录
@@ -257,13 +261,12 @@ def create_flask_app(config):
             if not isinstance(movie_paths, list):
                 movie_paths = [movie_paths]
             movie_used, movie_total = 0, 0
-            movie_space_list = []
             for movie_path in movie_paths:
                 if not movie_path:
                     continue
                 used, total = SystemUtils.get_used_of_partition(movie_path)
-                if "%s-%s" % (used, total) not in movie_space_list:
-                    movie_space_list.append("%s-%s" % (used, total))
+                if "%s-%s" % (used, total) not in TotalSpaceList:
+                    TotalSpaceList.append("%s-%s" % (used, total))
                     movie_used += used
                     movie_total += total
             # 电视目录
@@ -271,13 +274,12 @@ def create_flask_app(config):
             if not isinstance(tv_paths, list):
                 tv_paths = [tv_paths]
             tv_used, tv_total = 0, 0
-            tv_space_list = []
             for tv_path in tv_paths:
                 if not tv_path:
                     continue
                 used, total = SystemUtils.get_used_of_partition(tv_path)
-                if "%s-%s" % (used, total) not in tv_space_list:
-                    tv_space_list.append("%s-%s" % (used, total))
+                if "%s-%s" % (used, total) not in TotalSpaceList:
+                    TotalSpaceList.append("%s-%s" % (used, total))
                     tv_used += used
                     tv_total += total
             # 动漫目录
@@ -285,13 +287,12 @@ def create_flask_app(config):
             if not isinstance(anime_paths, list):
                 anime_paths = [anime_paths]
             anime_used, anime_total = 0, 0
-            anime_space_list = []
             for anime_path in anime_paths:
                 if not anime_path:
                     continue
                 used, total = SystemUtils.get_used_of_partition(anime_path)
-                if "%s-%s" % (used, total) not in anime_space_list:
-                    anime_space_list.append("%s-%s" % (used, total))
+                if "%s-%s" % (used, total) not in TotalSpaceList:
+                    TotalSpaceList.append("%s-%s" % (used, total))
                     anime_used += used
                     anime_total += total
             # 总空间
@@ -597,7 +598,8 @@ def create_flask_app(config):
     def rss_calendar():
         Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
         RssMovieIds = [movie[2] for movie in SqlHelper.get_rss_movies()]
-        RssTvItems = [{"id": tv[3], "season": int(str(tv[2]).replace("S", "")), "name": tv[0]} for tv in SqlHelper.get_rss_tvs()
+        RssTvItems = [{"id": tv[3], "season": int(str(tv[2]).replace("S", "")), "name": tv[0]} for tv in
+                      SqlHelper.get_rss_tvs()
                       if tv[2]]
         return render_template("rss/rss_calendar.html",
                                Today=Today,
@@ -801,21 +803,23 @@ def create_flask_app(config):
         # 站点列表
         CfgSites = Sites().get_sites(brush=True)
         # 下载器列表
-        downloaders = SqlHelper.get_user_downloaders()
+        downloaders = SqlHelper.get_user_downloaders() or []
         # 任务列表
         brushtasks = SqlHelper.get_brushtasks()
         Tasks = []
         for task in brushtasks:
-            scheme, netloc = StringUtils.get_url_netloc(task[17])
             sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[2])
             forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task[2])
+            site_info = Sites().get_sites(siteid=task[2])
+            scheme, netloc = StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
+            downloader_info = BrushTask().get_downloader_config(task[6])
             Tasks.append({
                 "id": task[0],
                 "name": task[1],
-                "site": task[3],
+                "site": site_info.get("name"),
                 "interval": task[4],
                 "state": task[5],
-                "downloader": task[19],
+                "downloader": downloader_info.get("name"),
                 "transfer": task[7],
                 "free": task[8],
                 "rss_rule": eval(task[9]),
@@ -1020,8 +1024,7 @@ def create_flask_app(config):
            <path d="M12 15v2"></path>
         </svg>
         '''
-        targets = ["www.themoviedb.org", "api.themoviedb.org", "image.tmdb.org",
-                   "webservice.fanart.tv", "api.telegram.org", "qyapi.weixin.qq.com"]
+        targets = NETTEST_TARGETS
         scheduler_cfg_list.append(
             {'name': '网络连通性测试', 'time': '', 'state': 'OFF', 'id': 'nettest', 'svg': svg, 'color': 'cyan',
              "targets": targets})
@@ -1159,7 +1162,13 @@ def create_flask_app(config):
         proxy = config.get_config('app').get("proxies", {}).get("http")
         if proxy:
             proxy = proxy.replace("http://", "")
-        return render_template("setting/basic.html", Config=config.get_config(), Proxy=proxy)
+        ignored_words = config.get_config('laboratory').get("ignored_words")
+        if ignored_words:
+            ignored_words = ignored_words.replace("|", "\n")
+        replaced_words = config.get_config('laboratory').get("replaced_words")
+        if replaced_words:
+            replaced_words = replaced_words.replace("|", "\n")
+        return render_template("setting/basic.html", Config=config.get_config(), Proxy=proxy, Ignored_Words=ignored_words, Replaced_Words=replaced_words)
 
     # 目录同步页面
     @App.route('/directorysync', methods=['POST', 'GET'])
@@ -1427,9 +1436,56 @@ def create_flask_app(config):
     @login_required
     def filterrule():
         RuleGroups = FilterRule().get_rule_infos()
+        sql_file = os.path.join(config.get_root_path(), "config", "init_filter.sql")
+        with open(sql_file, "r", encoding="utf-8") as f:
+            sql_list = f.read().split(';\n')
+            Init_RuleGroups = []
+            i = 0
+            while i < len(sql_list):
+                rulegroup = {}
+                rulegroup_info = re.findall(r"[0-9]+,'[^\"]+NULL", sql_list[i], re.I)[0].split(",")
+                rulegroup['id'] = int(rulegroup_info[0])
+                rulegroup['name'] = rulegroup_info[1][1:-1]
+                rulegroup['rules'] = []
+                rulegroup['sql'] = [sql_list[i]]
+                if i + 1 < len(sql_list):
+                    rules = re.findall(r"[0-9]+,'[^\"]+NULL", sql_list[i + 1], re.I)[0].split("),\n (")
+                    for rule in rules:
+                        rule_info = {}
+                        rule = rule.split(",")
+                        rule_info['name'] = rule[2][1:-1]
+                        rule_info['include'] = rule[4][1:-1]
+                        rule_info['exclude'] = rule[5][1:-1]
+                        rulegroup['rules'].append(rule_info)
+                    rulegroup["sql"].append(sql_list[i + 1])
+                Init_RuleGroups.append(rulegroup)
+                i = i + 2
         return render_template("setting/filterrule.html",
                                Count=len(RuleGroups),
-                               RuleGroups=RuleGroups)
+                               RuleGroups=RuleGroups,
+                               Init_RuleGroups=Init_RuleGroups)
+
+    # 自定义订阅页面
+    @App.route('/user_rss', methods=['POST', 'GET'])
+    @login_required
+    def user_rss():
+        Tasks = RssChecker().get_rsstask_info()
+        RssParsers = RssChecker().get_userrss_parser()
+        FilterRules = FilterRule().get_rule_groups()
+        return render_template("rss/user_rss.html",
+                               Tasks=Tasks,
+                               Count=len(Tasks),
+                               RssParsers=RssParsers,
+                               FilterRules=FilterRules)
+
+    # RSS解析器页面
+    @App.route('/rss_parser', methods=['POST', 'GET'])
+    @login_required
+    def rss_parser():
+        RssParsers = RssChecker().get_userrss_parser()
+        return render_template("rss/rss_parser.html",
+                               RssParsers=RssParsers,
+                               Count=len(RssParsers))
 
     # 事件响应
     @App.route('/do', methods=['POST'])
@@ -1619,7 +1675,7 @@ def create_flask_app(config):
         if not req_json:
             return make_response("非法请求！", 400)
         notification_type = req_json.get("notification_type")
-        if notification_type == "TEST_NOTIFICATION":
+        if notification_type not in ["MEDIA_APPROVED", "MEDIA_AUTO_APPROVED"]:
             return make_response("ok", 200)
         subject = req_json.get("subject")
         media_type = MediaType.MOVIE if req_json.get("media", {}).get("media_type") == "movie" else MediaType.TV
@@ -1713,10 +1769,15 @@ def create_flask_app(config):
             log.debug(e)
             return {"code": 1, "msg": str(e), "filepath": ""}
 
-    # 自定义模板过滤器
+    # base64模板过滤器
     @App.template_filter('b64encode')
     def b64encode(s):
         return base64.b64encode(s.encode()).decode()
+
+    # split模板过滤器
+    @App.template_filter('split')
+    def split(string, char, pos):
+        return string.split(char)[pos]
 
     # 站点信息拆分模板过滤器
     @App.template_filter('rss_sites_string')

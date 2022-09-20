@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import base64
 import json
 import re
 from abc import ABCMeta, abstractmethod
@@ -14,7 +15,7 @@ class ISiteUserInfo(metaclass=ABCMeta):
     # 站点模版
     _site_schema = None
 
-    def __init__(self, site_name, url, site_cookie, index_html, session=None):
+    def __init__(self, site_name, url, site_cookie, index_html, session=None, ua=None):
         super().__init__()
         # 站点信息
         self.site_name = None
@@ -67,10 +68,12 @@ class ISiteUserInfo(metaclass=ABCMeta):
         self.site_name = site_name
         self.site_url = url
         self._base_url = f"{split_url.scheme}://{split_url.netloc}"
-        self.site_favicon = urljoin(self._base_url, "favicon.ico")
+        self._favicon_url = urljoin(self._base_url, "favicon.ico")
+        self.site_favicon = ""
         self._site_cookie = site_cookie
         self._index_html = index_html
         self._session = session if session else requests.Session()
+        self._ua = ua
 
     def site_schema(self):
         """
@@ -122,17 +125,20 @@ class ISiteUserInfo(metaclass=ABCMeta):
 
     def _parse_favicon(self, html_text):
         """
-        解析站点favicon地址，head link中指定地址，使用指定，否则用默认
+        解析站点favicon,返回base64 fav图标
         :param html_text:
         :return:
         """
         html = etree.HTML(html_text)
-        if not html:
-            return
+        if html:
+            fav_link = html.xpath('//head/link[@rel = "shortcut icon"]/@href')
+            if fav_link:
+                self._favicon_url = urljoin(self._base_url, fav_link[0])
 
-        fav_link = html.xpath('//head/link[@rel = "shortcut icon"]/@href')
-        if fav_link:
-            self.site_favicon = urljoin(self._base_url, fav_link[0])
+        res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60, headers=self._ua).get_res(
+            url=self._favicon_url)
+        if res:
+            self.site_favicon = base64.b64encode(res.content).decode()
 
     def _get_page_content(self, url, params=None):
         """
@@ -141,10 +147,11 @@ class ISiteUserInfo(metaclass=ABCMeta):
         :return:
         """
         if params:
-            res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60).post_res(url=url,
-                                                                                                      params=params)
+            res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60, headers=self._ua).post_res(
+                url=url, params=params)
         else:
-            res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60).get_res(url=url)
+            res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60, headers=self._ua).get_res(
+                url=url)
         if res and res.status_code == 200:
             if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                 res.encoding = "UTF-8"

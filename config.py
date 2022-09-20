@@ -89,6 +89,9 @@ KEYWORD_DIFF_SCORE_THRESHOLD = 30
 KEYWORD_BLACKLIST = ['中字', '韩语', '双字', '中英', '日语', '双语', '国粤', 'HD', 'BD', '中日', '粤语', '完全版', '法语',
                      '西班牙语', 'HRHDTVAC3264', '未删减版', '未删减', '国语', '字幕组', '人人影视', 'www66ystv',
                      '人人影视制作', '英语', 'www6vhaotv', '无删减版', '完成版', '德意']
+#  网络测试对象
+NETTEST_TARGETS = ["www.themoviedb.org", "api.themoviedb.org", "image.tmdb.org",
+                   "webservice.fanart.tv", "api.telegram.org", "qyapi.weixin.qq.com"]
 
 # 线程锁
 lock = Lock()

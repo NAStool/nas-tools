@@ -1,4 +1,3 @@
-from datetime import datetime
 from threading import Lock
 from time import sleep
 
@@ -355,7 +354,7 @@ class Downloader:
                                 and len(item.get_season_list()) == 1 \
                                 and item.get_season_list()[0] == need_season:
                             log.info("【DOWNLOADER】添加下载任务并暂停：%s ..." % item.org_string)
-                            torrent_tag = str(round(datetime.now().timestamp()))
+                            torrent_tag = "NT" + StringUtils.generate_random_str(5)
                             ret, ret_msg = self.add_pt_torrent(url=item.enclosure,
                                                                mtype=item.type,
                                                                is_paused=True,
