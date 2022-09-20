@@ -3,7 +3,6 @@ import threading
 import log
 from app.db import MediaDb
 from app.utils import ProgressController
-from app.utils.types import MediaType
 from config import Config
 from app.mediaserver import Emby, Jellyfin, Plex
 
@@ -162,9 +161,9 @@ class MediaServer:
                         continue
                     if self.mediadb.insert(self._type, item):
                         total_count += 1
-                        if item.get("type") == MediaType.MOVIE.value:
+                        if item.get("type") in ['Movie', 'movie']:
                             movie_count += 1
-                        elif item.get("type") == MediaType.TV.value:
+                        elif item.get("type") in ['Series', 'show']:
                             tv_count += 1
                         self.progress.update(ptype="mediasync",
                                              text="正在同步 %s，已完成：%s / %s ..." % (library.get("name"), total_count, total_media_count),
