@@ -16,13 +16,13 @@ def MetaInfo(title, subtitle=None, mtype=None):
     :return: MetaAnime、MetaVideo
     """
     config = Config()
-    ignored_words = config.get_config('laboratory').get("ignored_words", "").split("|")
-    replaced_words = config.get_config('laboratory').get("replaced_words", "").split("|")
+    ignored_words = config.get_config('laboratory').get("ignored_words")
+    replaced_words = config.get_config('laboratory').get("replaced_words")
     if ignored_words:
-        for ignored_word in ignored_words:
+        for ignored_word in ignored_words.split("|"):
             title = title.replace(ignored_word, "")
     if replaced_words:
-        for replaced_word in replaced_words:
+        for replaced_word in replaced_words.split("|"):
             replaced_word_info = replaced_word.split("@")
             title = title.replace(replaced_word_info[0], replaced_word_info[-1])
     if os.path.splitext(title)[-1] in RMT_MEDIAEXT:
