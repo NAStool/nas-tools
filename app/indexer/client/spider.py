@@ -34,7 +34,7 @@ class TorrentSpider(feapder.AirSpider):
             driver_type="CHROME",
             timeout=10,
             window_size=(1024, 800),
-            executable_path=None,
+            executable_path="/usr/lib/chromium/chromedriver",
             render_time=0
         )
     )
