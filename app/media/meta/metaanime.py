@@ -72,49 +72,50 @@ class MetaAnime(MetaBase):
                 if isinstance(anime_season, list):
                     if len(anime_season) == 1:
                         begin_season = anime_season[0]
-                        end_season = 0
+                        end_season = None
                     else:
                         begin_season = anime_season[0]
                         end_season = anime_season[-1]
-                else:
+                elif anime_season:
                     begin_season = anime_season
-                    end_season = 0
-                if isinstance(begin_season, str) and begin_season.isdigit():
+                    end_season = None
+                else:
+                    begin_season = None
+                    end_season = None
+                if begin_season:
                     self.begin_season = int(begin_season)
-                    self.type = MediaType.TV
-                if isinstance(end_season, str) and end_season.isdigit():
-                    if self.begin_season is not None and end_season != self.begin_season:
+                    if end_season and end_season != self.begin_season:
                         self.end_season = int(end_season)
-                        self.type = MediaType.TV
+                    self.type = MediaType.TV
                 # 集号
                 episode_number = anitopy_info.get("episode_number")
                 if isinstance(episode_number, list):
                     if len(episode_number) == 1:
                         begin_episode = episode_number[0]
-                        end_episode = 0
+                        end_episode = None
                     else:
                         begin_episode = episode_number[0]
                         end_episode = episode_number[-1]
-                else:
+                elif episode_number:
                     begin_episode = episode_number
-                    end_episode = 0
-                if isinstance(begin_episode, str) and begin_episode.isdigit():
+                    end_episode = None
+                else:
+                    begin_episode = None
+                    end_episode = None
+                if begin_episode:
                     self.begin_episode = int(begin_episode)
-                    self.type = MediaType.TV
-                if isinstance(end_episode, str) and end_episode.isdigit():
-                    if self.end_episode is None and end_episode != self.begin_episode:
+                    if end_episode and end_episode != self.begin_episode:
                         self.end_episode = int(end_episode)
-                        self.type = MediaType.TV
+                    self.type = MediaType.TV
                 # 类型
                 if not self.type:
                     anime_type = anitopy_info.get('anime_type')
                     if isinstance(anime_type, list):
                         anime_type = anime_type[0]
-                    if isinstance(anime_type, str):
-                        if anime_type.upper() == "TV":
-                            self.type = MediaType.TV
-                        else:
-                            self.type = MediaType.MOVIE
+                    if anime_type and anime_type.upper() == "TV":
+                        self.type = MediaType.TV
+                    else:
+                        self.type = MediaType.MOVIE
                 # 分辨率
                 self.resource_pix = anitopy_info.get("video_resolution")
                 if isinstance(self.resource_pix, list):

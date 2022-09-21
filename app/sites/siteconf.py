@@ -321,6 +321,13 @@ class SiteConf:
         },
         'acg.rip': {
             "proxy": False
+        },
+        'thepiratebay.org': {
+            "proxy": True,
+            "render": True
+        },
+        'nyaa.si': {
+            "proxy": True
         }
     }
 

@@ -1,4 +1,20 @@
 meta_cases = [{
+    "title": "Thor Love and Thunder (2022) [1080p] [WEBRip] [5.1]",
+    "subtitle": "",
+    "target": {
+        "type": "电影",
+        "cn_name": "",
+        "en_name": "Thor Love and Thunder",
+        "year": "2022",
+        "part": "",
+        "season": "",
+        "episode": "",
+        "restype": "",
+        "pix": "1080p",
+        "video_codec": "",
+        "audio_codec": "5.1"
+    }
+}, {
     "title": "【爪爪字幕组】★7月新番[欢迎来到实力至上主义的教室 第二季/Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e S2][11][1080p][HEVC][GB][MP4][招募翻译校对]",
     "subtitle": "",
     "target": {
