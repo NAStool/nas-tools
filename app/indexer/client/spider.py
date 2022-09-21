@@ -8,7 +8,7 @@ from requests.utils import dict_from_cookiejar
 
 import feapder
 from app.utils import RequestUtils, StringUtils
-from config import Config
+from config import Config, DEFAULT_UA
 from feapder.utils.tools import urlencode
 from jinja2 import Template
 from pyquery import PyQuery
@@ -30,7 +30,7 @@ class TorrentSpider(feapder.AirSpider):
             load_images=False,
             user_agent=None,
             proxy=None,
-            headless=False,
+            headless=True,
             driver_type="CHROME",
             timeout=10,
             window_size=(1024, 800),
@@ -41,15 +41,17 @@ class TorrentSpider(feapder.AirSpider):
     is_complete = False
     indexerid = None
     cookies = None
+    headers = None
+    render = False
     keyword = None
-    torrents_info_array = []
     indexer = None
     search = None
     domain = None
     torrents = None
-    torrents_info = {}
     article_list = None
     fields = None
+    torrents_info = {}
+    torrents_info_array = []
 
     def setparam(self, indexer, keyword):
         if not indexer or not keyword:
@@ -58,6 +60,7 @@ class TorrentSpider(feapder.AirSpider):
         self.indexerid = indexer.id
         self.search = indexer.search
         self.torrents = indexer.torrents
+        self.render = indexer.render
         self.domain = indexer.domain
         if self.domain and not str(self.domain).endswith("/"):
             self.domain = self.domain + "/"
@@ -72,12 +75,23 @@ class TorrentSpider(feapder.AirSpider):
                 log.warn(f"【SPIDER】获取 {self.domain} cookie失败：{format(err)}")
         if indexer.ua:
             self.__custom_setting__['WEBDRIVER']['user_agent'] = indexer.ua
+            self.headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                            "User-Agent": f"{indexer.ua}"}
         else:
             self.__custom_setting__['WEBDRIVER']['user_agent'] = Config().get_config('app').get('user_agent')
+            self.headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                            "User-Agent": f"{Config().get_config('app').get('user_agent') or DEFAULT_UA}"}
         if indexer.proxy:
-            self.__custom_setting__['WEBDRIVER']['proxy'] = Config().get_proxies()
+            if Config().get_proxies():
+                self.__custom_setting__['WEBDRIVER']['proxy'] = Config().get_proxies().get("http")
+            else:
+                self.__custom_setting__['WEBDRIVER']['proxy'] = None
         else:
             self.__custom_setting__['WEBDRIVER']['proxy'] = None
+        if indexer.render:
+            self.__custom_setting__['REQUEST_LOST_TIMEOUT'] = 20
+        else:
+            self.__custom_setting__['REQUEST_LOST_TIMEOUT'] = 10
         self.torrents_info_array = []
 
     def start_requests(self):
@@ -88,7 +102,7 @@ class TorrentSpider(feapder.AirSpider):
             else:
                 searchurl = self.domain + torrentspath + '?stypes=s&' + urlencode(
                     {"search": self.keyword, "search_field": self.keyword, "keyword": self.keyword})
-            yield feapder.Request(searchurl, cookies=self.cookies)
+            yield feapder.Request(searchurl, cookies=self.cookies, render=self.render, headers=self.headers)
         else:
             self.is_complete = True
 

@@ -46,7 +46,10 @@ class BuiltinIndexer(IIndexer):
                 indexer.name = site.get("name")
                 ret_indexers.append(indexer)
         for site, attr in SiteConf().get_public_sites():
-            indexer = IndexerHelper().get_indexer(url=site, public=True, proxy=attr.get("proxy"))
+            indexer = IndexerHelper().get_indexer(url=site,
+                                                  public=True,
+                                                  proxy=attr.get("proxy"),
+                                                  render=attr.get("render"))
             if indexer:
                 if check and indexer_sites and indexer.id not in indexer_sites:
                     continue
