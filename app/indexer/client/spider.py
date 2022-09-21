@@ -96,7 +96,7 @@ class TorrentSpider(feapder.AirSpider):
                                   cookies=self.cookies,
                                   render=self.render,
                                   headers=self.headers,
-                                  proxies=self.proxies)
+                                  proxies=self.proxies.get('http') if self.proxies else None)
         else:
             self.is_complete = True
 
