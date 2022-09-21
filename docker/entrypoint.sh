@@ -54,4 +54,5 @@ echo "注意：日志将停止打印，请通过文件或WEB页面查看日志"
 mkdir -p /config/logs/supervisor
 chown -R ${PUID}:${PGID} ${WORKDIR} /config
 umask ${UMASK}
+PATH=$PATH:/root/.wdm/drivers
 exec su-exec ${PUID}:${PGID} /usr/bin/supervisord -n -c ${WORKDIR}/supervisord.conf
