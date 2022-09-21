@@ -35,7 +35,8 @@ class TorrentSpider(feapder.AirSpider):
             timeout=10,
             window_size=(1024, 800),
             executable_path="/usr/lib/chromium/chromedriver",
-            render_time=0
+            render_time=0,
+            custom_argument=["--ignore-certificate-errors", "--disable-gpu", "--no-sandbox"],
         )
     )
     is_complete = False
