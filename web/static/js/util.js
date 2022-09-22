@@ -1,5 +1,5 @@
 // Ajax主方法
-function ajax_post(cmd, data, handler){
+function ajax_post(cmd, data, handler) {
     var data = {
         cmd: cmd,
         data: JSON.stringify(data)
@@ -12,7 +12,7 @@ function ajax_post(cmd, data, handler){
         cache: false,
         timeout: 0,
         success: handler,
-        error: function(xhr, textStatus, errorThrown){
+        error: function (xhr, textStatus, errorThrown) {
         }
     });
 }
@@ -26,9 +26,9 @@ function ajax_backup(handler) {
     xhr.onload = function () {
         if (this.status === 200) {
             let type = xhr.getResponseHeader('Content-Type')
-					  let fileName = xhr.getResponseHeader('Content-Disposition').split(';')[1].split('=')[1].replace(/\"/g, '')
+            let fileName = xhr.getResponseHeader('Content-Disposition').split(';')[1].split('=')[1].replace(/\"/g, '')
 
-            let blob = new Blob([this.response], { type: type })
+            let blob = new Blob([this.response], {type: type})
             if (typeof window.navigator.msSaveBlob !== 'undefined') {
                 /*
                  * IE workaround for "HTML7007: One or more blob URLs were revoked by closing
@@ -57,7 +57,7 @@ function ajax_backup(handler) {
                 }
             }
         }
-        if(handler){
+        if (handler) {
             eval(handler)();
         }
     };
@@ -65,13 +65,46 @@ function ajax_backup(handler) {
 }
 
 //获取链接参数
-function getQueryVariable(variable)
-{
+function getQueryVariable(variable) {
     var query = window.location.search.substring(1);
     var vars = query.split("&");
-    for (var i=0;i<vars.length;i++) {
+    for (var i = 0; i < vars.length; i++) {
         var pair = vars[i].split("=");
-        if(pair[0] == variable){return pair[1];}
+        if (pair[0] == variable) {
+            return pair[1];
+        }
     }
-    return(false);
+    return (false);
+}
+
+/**
+ * Format bytes as human-readable text.
+ *
+ * @param bytes Number of bytes.
+ * @param si True to use metric (SI) units, aka powers of 1000. False to use
+ *           binary (IEC), aka powers of 1024.
+ * @param dp Number of decimal places to display.
+ *
+ * @return Formatted string.
+ */
+function humanFileSize(bytes, si = false, dp = 1) {
+    const thresh = si ? 1000 : 1024;
+
+    if (Math.abs(bytes) < thresh) {
+        return bytes.toFixed(dp) + ' B';
+    }
+
+    const units = si
+        ? ['kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+        : ['KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB'];
+    let u = -1;
+    const r = 10 ** dp;
+
+    do {
+        bytes /= thresh;
+        ++u;
+    } while (Math.round(Math.abs(bytes) * r) / r >= thresh && u < units.length - 1);
+
+
+    return bytes.toFixed(dp) + ' ' + units[u];
 }

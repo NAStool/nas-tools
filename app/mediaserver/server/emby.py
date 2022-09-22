@@ -202,11 +202,13 @@ class Emby(IMediaServer):
             return None
         return []
 
-    def __get_emby_tv_episodes(self, title, year=None, season=None):
+    def __get_emby_tv_episodes(self, title, year, tmdb_id=None, season=None):
         """
         根据标题和年份和季，返回Emby中的剧集列表
         :param title: 标题
         :param year: 年份，可以为空，为空时不按年份过滤
+        :param tmdb_id: TMDBID
+        :param season: 季
         :return: 集号的列表
         """
         if not self.__host or not self.__apikey:
@@ -217,6 +219,11 @@ class Emby(IMediaServer):
             return None
         if not item_id:
             return []
+        # 验证tmdbid是否相同
+        item_tmdbid = self.get_iteminfo(item_id).get("ProviderIds", {}).get("Tmdb")
+        if tmdb_id and item_tmdbid:
+            if str(tmdb_id) != str(item_tmdbid):
+                return []
         # /Shows/{Id}/Episodes 查集的信息
         if not season:
             season = 1
@@ -245,7 +252,7 @@ class Emby(IMediaServer):
         """
         if not self.__host or not self.__apikey:
             return None
-        exists_episodes = self.__get_emby_tv_episodes(meta_info.title, meta_info.year, season)
+        exists_episodes = self.__get_emby_tv_episodes(meta_info.title, meta_info.year, meta_info.tmdb_id, season)
         if not isinstance(exists_episodes, list):
             return None
         total_episodes = [episode for episode in range(1, total_num + 1)]

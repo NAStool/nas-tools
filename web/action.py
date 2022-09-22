@@ -1671,7 +1671,8 @@ class WebAction:
             return {"code": 1, "msg": "查询参数错误"}
 
         resp = {"code": 0}
-        resp.update(Sites().get_pt_site_activity_history(data["name"]))
+
+        resp.update({"dataset":Sites().get_pt_site_activity_history(data["name"])})
         return resp
 
     @staticmethod
@@ -1686,7 +1687,11 @@ class WebAction:
 
         resp = {"code": 0}
         _, _, site, upload, download = Sites().get_pt_site_statistics_history(data["days"] + 1)
-        resp.update({"site": site, "upload": upload, "download": download})
+
+        # 调整为dataset组织数据
+        dataset = [["site", "upload", "download"]]
+        dataset.extend([[site, upload, download] for site, upload, download in zip(site, upload, download)])
+        resp.update({"dataset": dataset})
         return resp
 
     @staticmethod
@@ -1700,7 +1705,13 @@ class WebAction:
             return {"code": 1, "msg": "查询参数错误"}
 
         resp = {"code": 0}
-        resp.update(Sites().get_pt_site_seeding_info(data["name"]))
+
+        seeding_info = Sites().get_pt_site_seeding_info(data["name"]).get("seeding_info", [])
+        # 调整为dataset组织数据
+        dataset = [["seeders", "size"]]
+        dataset.extend(seeding_info)
+
+        resp.update({"dataset": dataset})
         return resp
 
     @staticmethod
