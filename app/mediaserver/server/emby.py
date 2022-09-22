@@ -213,12 +213,12 @@ class Emby(IMediaServer):
             return None
         # 电视剧
         item_id = self.__get_emby_series_id_by_name(title, year)
-        item_tmdbid = self.get_iteminfo(item_id).get("ProviderIds", {}).get("Tmdb")
         if item_id is None:
             return None
         if not item_id:
             return []
         # 验证tmdbid是否相同
+        item_tmdbid = self.get_iteminfo(item_id).get("ProviderIds", {}).get("Tmdb")
         if tmdb_id and item_tmdbid:
             if str(tmdb_id) != str(item_tmdbid):
                 return []
