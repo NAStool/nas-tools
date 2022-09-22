@@ -773,7 +773,7 @@ def create_flask_app(config):
                     SiteRatios.append(round(float(ratio), 1))
 
         # 近期上传下载各站点汇总
-        CurrentUpload, CurrentDownload, CurrentSiteLabels, CurrentSiteUploads, CurrentSiteDownloads = Sites().get_pt_site_statistics_history(
+        CurrentUpload, CurrentDownload, _, _, _ = Sites().get_pt_site_statistics_history(
             days=2)
 
         # 站点用户数据
@@ -791,9 +791,6 @@ def create_flask_app(config):
                                SiteRatios=SiteRatios,
                                SiteNames=SiteNames,
                                SiteErr=SiteErrs,
-                               CurrentSiteLabels=CurrentSiteLabels,
-                               CurrentSiteUploads=CurrentSiteUploads,
-                               CurrentSiteDownloads=CurrentSiteDownloads,
                                SiteUserStatistics=SiteUserStatistics)
 
     # 刷流任务页面
