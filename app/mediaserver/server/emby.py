@@ -219,10 +219,9 @@ class Emby(IMediaServer):
         if not item_id:
             return []
         # 验证tmdbid是否相同
-        if tmdb_id:
-            if item_tmdbid:
-                if str(tmdb_id) != str(item_tmdbid):
-                    return []
+        if tmdb_id and item_tmdbid:
+            if str(tmdb_id) != str(item_tmdbid):
+                return []
         # /Shows/{Id}/Episodes 查集的信息
         if not season:
             season = 1
