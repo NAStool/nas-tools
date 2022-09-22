@@ -306,6 +306,12 @@ class SiteConf:
             'HR': ["//img[@class='hitandrun']"],
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
+        'club.hares.top': {
+            'FREE': ["//b[@class='free'][text()='免费']"],
+            '2XFREE': ["//b[@class='twoupfree'][text()='2X免费']"],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
     }
     # 公共BT站点
     PUBLIC_TORRENT_SITES = {
@@ -327,6 +333,9 @@ class SiteConf:
             "render": True
         },
         'nyaa.si': {
+            "proxy": True
+        },
+        '1337x.to': {
             "proxy": True
         }
     }
