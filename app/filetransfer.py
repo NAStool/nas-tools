@@ -3,6 +3,7 @@ import os
 import platform
 import random
 import re
+import shlex
 import shutil
 import traceback
 from enum import Enum
@@ -171,7 +172,7 @@ class FileTransfer:
                         tmp = "%s/%s" % (PathUtils.get_parent_paths(target_file, 2), os.path.basename(target_file))
                         retcode = os.system("ln '%s' '%s' ; mv '%s' '%s'" % (file_item, tmp, tmp, target_file))
                     else:
-                        retcode = os.system("ln '%s' '%s'" % (file_item, target_file))
+                        retcode = os.system('ln {} {}'.format(shlex.quote(file_item), shlex.quote(target_file)))
                 elif rmt_mode == RmtMode.SOFTLINK:
                     retcode = os.system("ln -s '%s' '%s'" % (file_item, target_file))
                 elif rmt_mode == RmtMode.MOVE:
