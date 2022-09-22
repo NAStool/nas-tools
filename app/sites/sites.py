@@ -307,15 +307,13 @@ class Sites:
         :param days: 最大数据量
         :return:
         """
-        site_activities = {"upload": [], "download": [], "bonus": [], "seeding": [], "seeding_size": []}
+        site_activities = [["time", "upload", "download", "bonus", "seeding", "seeding_size"]]
         sql_site_activities = SqlHelper.get_site_statistics_history(site=site, days=days)
         for sql_site_activity in sql_site_activities:
             timestamp = datetime.strptime(sql_site_activity[0], '%Y-%m-%d').timestamp() * 1000
-            site_activities["upload"].append([timestamp, sql_site_activity[1]])
-            site_activities["download"].append([timestamp, sql_site_activity[2]])
-            site_activities["bonus"].append([timestamp, sql_site_activity[3]])
-            site_activities["seeding"].append([timestamp, sql_site_activity[4]])
-            site_activities["seeding_size"].append([timestamp, sql_site_activity[5]])
+            site_activities.append(
+                [timestamp, sql_site_activity[1], sql_site_activity[2], sql_site_activity[3], sql_site_activity[4],
+                 sql_site_activity[5]])
 
         return site_activities
 
