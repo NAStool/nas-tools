@@ -92,7 +92,7 @@ class Downloader:
                 return None, "Url链接为空"
         cookie = None
         ua = None
-        if page_url.startswith("http"):
+        if url.startswith("http"):
             # 获取站点维护中的信息
             site_info = self.sites.get_sites(siteurl=url)
             if site_info:
