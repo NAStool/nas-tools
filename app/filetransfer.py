@@ -6,6 +6,7 @@ import re
 import shutil
 import traceback
 from enum import Enum
+from subprocess import call
 from threading import Lock
 from time import sleep
 
@@ -169,26 +170,27 @@ class FileTransfer:
                 if rmt_mode == RmtMode.LINK:
                     if platform.release().find("-z4-") >= 0:
                         tmp = "%s/%s" % (PathUtils.get_parent_paths(target_file, 2), os.path.basename(target_file))
-                        retcode = os.system("ln '%s' '%s' ; mv '%s' '%s'" % (file_item, tmp, tmp, target_file))
+                        retcode = call(["ln", file_item, tmp])
+                        if retcode == 0:
+                            retcode = call(["mv", tmp, target_file])
                     else:
-                        retcode = os.system("ln '%s' '%s'" % (file_item, target_file))
+                        retcode = call(["ln", file_item, target_file])
                 elif rmt_mode == RmtMode.SOFTLINK:
-                    retcode = os.system("ln -s '%s' '%s'" % (file_item, target_file))
+                    retcode = call(["ln", "-s", file_item, target_file])
                 elif rmt_mode == RmtMode.MOVE:
                     tmp_file = os.path.join(os.path.dirname(file_item), os.path.basename(target_file))
-                    retcode = os.system("mv '%s' '%s'" % (file_item, tmp_file))
-                    if retcode != 0:
-                        return retcode
-                    retcode = os.system("mv '%s' '%s'" % (tmp_file, target_file))
+                    retcode = call(["mv", file_item, tmp_file])
+                    if retcode == 0:
+                        retcode = call(["mv", tmp_file, target_file])
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
                     if rmt_mode == RmtMode.RCLONE:
-                        retcode = os.system("rclone moveto '%s' NASTOOL:'%s'" % (file_item, target_file))
+                        retcode = call(["rclone", "moveto", file_item, "NASTOOL:" + target_file])
                     else:
-                        retcode = os.system("rclone copyto '%s' NASTOOL:'%s'" % (file_item, target_file))
+                        retcode = call(["rclone", "copyto", file_item, "NASTOOL:" + target_file])
                 else:
-                    retcode = os.system("cp '%s' '%s'" % (file_item, target_file))
+                    retcode = call(["cp", file_item, target_file])
         finally:
             lock.release()
         return retcode

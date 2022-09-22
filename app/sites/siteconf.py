@@ -206,9 +206,9 @@ class SiteConf:
         },
         'hdchina.org': {
             'FREE': ["//img[@class='pro_free']"],
-            '2XFREE': [],
+            '2XFREE': ["//img[@class='pro_free2up"],
             'HR': [],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         "ccfbits.org": {
             'FREE': ["//font[@color='red'][text()='本种子不计下载量，只计上传量!']"],
@@ -306,6 +306,12 @@ class SiteConf:
             'HR': ["//img[@class='hitandrun']"],
             'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
+        'club.hares.top': {
+            'FREE': ["//b[@class='free'][text()='免费']"],
+            '2XFREE': ["//b[@class='twoupfree'][text()='2X免费']"],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
     }
     # 公共BT站点
     PUBLIC_TORRENT_SITES = {
@@ -327,6 +333,15 @@ class SiteConf:
             "render": True
         },
         'nyaa.si': {
+            "proxy": True
+        },
+        '1337x.to': {
+            "proxy": True
+        },
+        'ext.to': {
+            "proxy": True
+        },
+        'torrentgalaxy.to': {
             "proxy": True
         }
     }

@@ -7,7 +7,8 @@ from urllib.parse import quote
 from requests.utils import dict_from_cookiejar
 
 import feapder
-from app.utils import RequestUtils, StringUtils
+from app.utils import RequestUtils, StringUtils, SystemUtils
+from app.utils.types import OsType
 from config import Config, DEFAULT_UA
 from feapder.utils.tools import urlencode
 from jinja2 import Template
@@ -28,20 +29,21 @@ class TorrentSpider(feapder.AirSpider):
         WEBDRIVER=dict(
             pool_size=1,
             load_images=False,
-            user_agent=None,
             proxy=None,
             headless=True,
             driver_type="CHROME",
-            timeout=10,
+            timeout=15,
             window_size=(1024, 800),
-            executable_path=None,
-            render_time=0
+            executable_path="/usr/lib/chromium/chromedriver" if SystemUtils.get_system() == OsType.LINUX else None,
+            render_time=5,
+            custom_argument=["--ignore-certificate-errors"],
         )
     )
     is_complete = False
     indexerid = None
     cookies = None
     headers = None
+    proxies = None
     render = False
     keyword = None
     indexer = None
@@ -64,34 +66,27 @@ class TorrentSpider(feapder.AirSpider):
         self.domain = indexer.domain
         if self.domain and not str(self.domain).endswith("/"):
             self.domain = self.domain + "/"
+        if indexer.ua:
+            self.headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                            "User-Agent": f"{indexer.ua}"}
+        else:
+            self.headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                            "User-Agent": f"{Config().get_config('app').get('user_agent') or DEFAULT_UA}"}
+        if indexer.proxy and Config().get_proxies():
+            self.proxies = Config().get_proxies()
+            self.__custom_setting__['WEBDRIVER']['proxy'] = self.proxies.get("http") or None
+        else:
+            self.proxies = None
+            self.__custom_setting__['WEBDRIVER']['proxy'] = None
         if indexer.cookie:
             self.cookies = indexer.cookie
         else:
             try:
-                res = RequestUtils().get_res(self.domain)
+                res = RequestUtils(headers=self.headers, proxies=self.proxies, timeout=10).get_res(self.domain)
                 if res:
                     self.cookies = dict_from_cookiejar(res.cookies)
             except Exception as err:
                 log.warn(f"【SPIDER】获取 {self.domain} cookie失败：{format(err)}")
-        if indexer.ua:
-            self.__custom_setting__['WEBDRIVER']['user_agent'] = indexer.ua
-            self.headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                            "User-Agent": f"{indexer.ua}"}
-        else:
-            self.__custom_setting__['WEBDRIVER']['user_agent'] = Config().get_config('app').get('user_agent')
-            self.headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                            "User-Agent": f"{Config().get_config('app').get('user_agent') or DEFAULT_UA}"}
-        if indexer.proxy:
-            if Config().get_proxies():
-                self.__custom_setting__['WEBDRIVER']['proxy'] = Config().get_proxies().get("http")
-            else:
-                self.__custom_setting__['WEBDRIVER']['proxy'] = None
-        else:
-            self.__custom_setting__['WEBDRIVER']['proxy'] = None
-        if indexer.render:
-            self.__custom_setting__['REQUEST_LOST_TIMEOUT'] = 20
-        else:
-            self.__custom_setting__['REQUEST_LOST_TIMEOUT'] = 10
         self.torrents_info_array = []
 
     def start_requests(self):
@@ -102,7 +97,10 @@ class TorrentSpider(feapder.AirSpider):
             else:
                 searchurl = self.domain + torrentspath + '?stypes=s&' + urlencode(
                     {"search": self.keyword, "search_field": self.keyword, "keyword": self.keyword})
-            yield feapder.Request(searchurl, cookies=self.cookies, render=self.render, headers=self.headers)
+            yield feapder.Request(searchurl,
+                                  cookies=self.cookies,
+                                  render=self.render,
+                                  headers=self.headers)
         else:
             self.is_complete = True
 
@@ -137,12 +135,12 @@ class TorrentSpider(feapder.AirSpider):
             title_default = torrent(self.fields.get('title_default',
                                                     {}).get('selector',
                                                             '')).clone()
-            selector = self.fields.get('title_default')
+            selector = self.fields.get('title_default', {})
         else:
             title_default = torrent(self.fields.get('title',
                                                     {}).get('selector',
                                                             '')).clone()
-            selector = self.fields.get('title')
+            selector = self.fields.get('title', {})
 
         if 'remove' in selector:
             removelist = selector.get('remove', '').split(', ')
@@ -165,14 +163,19 @@ class TorrentSpider(feapder.AirSpider):
 
     def Getdownload(self, torrent):
         # download link
-        download = torrent(self.fields.get('download', {}).get('selector', ''))
-        items = [item.attr(self.fields.get('download', {}).get('attribute')) for item in download.items()]
-        if items:
-            if not items[0].startswith("http") and not items[0].startswith("magnet"):
-                self.torrents_info['enclosure'] = self.domain + items[0][1:] if items[0].startswith(
-                    "/") else self.domain + items[0]
-            else:
-                self.torrents_info['enclosure'] = items[0]
+        if "detail" in self.fields.get('download', {}):
+            self.torrents_info['enclosure'] = "[%s]" % self.fields.get('download',
+                                                                       {}).get("detail",
+                                                                               {}).get("xpath", "")
+        else:
+            download = torrent(self.fields.get('download', {}).get('selector', ''))
+            items = [item.attr(self.fields.get('download', {}).get('attribute')) for item in download.items()]
+            if items:
+                if not items[0].startswith("http") and not items[0].startswith("magnet"):
+                    self.torrents_info['enclosure'] = self.domain + items[0][1:] if items[0].startswith(
+                        "/") else self.domain + items[0]
+                else:
+                    self.torrents_info['enclosure'] = items[0]
 
     def Getimdbid(self, torrent):
         # imdbid
@@ -305,8 +308,8 @@ class TorrentSpider(feapder.AirSpider):
         self.Getseeders(torrent)
         self.Getsize(torrent)
         self.Getimdbid(torrent)
-        self.Getdownload(torrent)
         self.Getdetails(torrent)
+        self.Getdownload(torrent)
         self.Getdownloadvolumefactor(torrent)
         self.Getuploadvolumefactor(torrent)
         return self.torrents_info
@@ -341,11 +344,11 @@ class TorrentSpider(feapder.AirSpider):
         解析整个页面
         """
         try:
-            # 获取网站信息
+            # 获取网站文本
             self.article_list = response.extract()
             # 获取站点种子xml
             self.fields = self.torrents.get('fields')
-            doc = PyQuery(self.article_list)
+            html_doc = PyQuery(self.article_list)
             # 种子筛选器
             torrents_selector = self.torrents.get('list', {}).get('selector', '')
             str_list = list(torrents_selector)
@@ -365,7 +368,7 @@ class TorrentSpider(feapder.AirSpider):
                             str_list.insert(i, '"')
                 torrents_selector = "".join(str_list)
             # 遍历种子html列表
-            for torn in doc(torrents_selector):
+            for torn in html_doc(torrents_selector):
                 self.torrents_info_array.append(copy.deepcopy(self.Getinfo(PyQuery(torn))))
                 if len(self.torrents_info_array) >= 100:
                     break

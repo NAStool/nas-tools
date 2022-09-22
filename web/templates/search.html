@@ -665,11 +665,15 @@
     }
     var filters = { "site": search_site, "restype": search_restype, "pix": search_pix, "sp_state": sp_state, "key": search_key};
     var param = { "search_word": keyword, "filters": filters, "unident": true};
-    $("#search_advanced_btn").text("搜索中...");
-    $("#search_advanced_btn").attr("disabled", "true");
+    $("#modal-search-advanced").modal("hide");
+    show_refresh_process("正在搜索 " + keyword + " ...");
     ajax_post("search", param, function (ret) {
-      $("#modal-search-advanced").modal("hide");
-      navmenu('search?s=' + keyword)
+      hide_refresh_process();
+      if (ret.code == 0) {
+        navmenu('search?s=' + keyword);
+      } else {
+        show_fail_modal(ret.msg);
+      }
     });
   }
 
