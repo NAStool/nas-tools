@@ -65,23 +65,27 @@ class TorrentSpider(feapder.AirSpider):
         self.domain = indexer.domain
         if self.domain and not str(self.domain).endswith("/"):
             self.domain = self.domain + "/"
-        if indexer.cookie:
-            self.cookies = indexer.cookie
-        else:
-            try:
-                res = RequestUtils().get_res(self.domain)
-                if res:
-                    self.cookies = dict_from_cookiejar(res.cookies)
-            except Exception as err:
-                log.warn(f"【SPIDER】获取 {self.domain} cookie失败：{format(err)}")
         if indexer.ua:
             self.headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
                             "User-Agent": f"{indexer.ua}"}
         else:
             self.headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
                             "User-Agent": f"{Config().get_config('app').get('user_agent') or DEFAULT_UA}"}
-        if indexer.proxy:
+        if indexer.proxy and Config().get_proxies():
             self.proxies = Config().get_proxies()
+            self.__custom_setting__['WEBDRIVER']['proxy'] = self.proxies.get("http") or None
+        else:
+            self.proxies = None
+            self.__custom_setting__['WEBDRIVER']['proxy'] = None
+        if indexer.cookie:
+            self.cookies = indexer.cookie
+        else:
+            try:
+                res = RequestUtils(headers=self.headers, proxies=self.proxies, timeout=10).get_res(self.domain)
+                if res:
+                    self.cookies = dict_from_cookiejar(res.cookies)
+            except Exception as err:
+                log.warn(f"【SPIDER】获取 {self.domain} cookie失败：{format(err)}")
         self.torrents_info_array = []
 
     def start_requests(self):
@@ -130,12 +134,12 @@ class TorrentSpider(feapder.AirSpider):
             title_default = torrent(self.fields.get('title_default',
                                                     {}).get('selector',
                                                             '')).clone()
-            selector = self.fields.get('title_default')
+            selector = self.fields.get('title_default', {})
         else:
             title_default = torrent(self.fields.get('title',
                                                     {}).get('selector',
                                                             '')).clone()
-            selector = self.fields.get('title')
+            selector = self.fields.get('title', {})
 
         if 'remove' in selector:
             removelist = selector.get('remove', '').split(', ')
@@ -158,14 +162,19 @@ class TorrentSpider(feapder.AirSpider):
 
     def Getdownload(self, torrent):
         # download link
-        download = torrent(self.fields.get('download', {}).get('selector', ''))
-        items = [item.attr(self.fields.get('download', {}).get('attribute')) for item in download.items()]
-        if items:
-            if not items[0].startswith("http") and not items[0].startswith("magnet"):
-                self.torrents_info['enclosure'] = self.domain + items[0][1:] if items[0].startswith(
-                    "/") else self.domain + items[0]
-            else:
-                self.torrents_info['enclosure'] = items[0]
+        if "detail" in self.fields.get('download', {}):
+            self.torrents_info['enclosure'] = "[%s]" % self.fields.get('download',
+                                                                       {}).get("detail",
+                                                                               {}).get("xpath", "")
+        else:
+            download = torrent(self.fields.get('download', {}).get('selector', ''))
+            items = [item.attr(self.fields.get('download', {}).get('attribute')) for item in download.items()]
+            if items:
+                if not items[0].startswith("http") and not items[0].startswith("magnet"):
+                    self.torrents_info['enclosure'] = self.domain + items[0][1:] if items[0].startswith(
+                        "/") else self.domain + items[0]
+                else:
+                    self.torrents_info['enclosure'] = items[0]
 
     def Getimdbid(self, torrent):
         # imdbid
@@ -298,8 +307,8 @@ class TorrentSpider(feapder.AirSpider):
         self.Getseeders(torrent)
         self.Getsize(torrent)
         self.Getimdbid(torrent)
-        self.Getdownload(torrent)
         self.Getdetails(torrent)
+        self.Getdownload(torrent)
         self.Getdownloadvolumefactor(torrent)
         self.Getuploadvolumefactor(torrent)
         return self.torrents_info

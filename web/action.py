@@ -335,33 +335,37 @@ class WebAction:
         results = SqlHelper.get_search_result_by_id(dl_id)
         for res in results:
             if res[11] and str(res[11]) != "0":
-                msg_item = MetaInfo("%s" % res[8])
+                media = MetaInfo("%s" % res[8])
                 if res[7] == "TV":
                     mtype = MediaType.TV
                 elif res[7] == "MOV":
                     mtype = MediaType.MOVIE
                 else:
                     mtype = MediaType.ANIME
-                msg_item.type = mtype
-                msg_item.tmdb_id = res[11]
-                msg_item.title = res[1]
-                msg_item.vote_average = res[5]
-                msg_item.poster_path = res[6]
-                msg_item.poster_path = res[12]
-                msg_item.overview = res[13]
+                media.type = mtype
+                media.tmdb_id = res[11]
+                media.title = res[1]
+                media.vote_average = res[5]
+                media.poster_path = res[6]
+                media.poster_path = res[12]
+                media.overview = res[13]
             else:
-                msg_item = Media().get_media_info(title=res[8], subtitle=res[9])
-            msg_item.enclosure = res[0]
-            msg_item.description = res[9]
-            msg_item.size = res[10]
-            msg_item.site = res[14]
-            msg_item.upload_volume_factor = float(res[15])
-            msg_item.download_volume_factor = float(res[16])
+                media = Media().get_media_info(title=res[8], subtitle=res[9])
+            media.enclosure = res[0]
+            media.description = res[9]
+            media.size = res[10]
+            media.site = res[14]
+            media.upload_volume_factor = float(res[15])
+            media.download_volume_factor = float(res[16])
+            media.page_url = res[17]
             # 添加下载
-            ret, ret_msg = Downloader().add_pt_torrent(url=res[0], mtype=msg_item.type, download_dir=dl_dir)
+            ret, ret_msg = Downloader().add_pt_torrent(url=media.enclosure,
+                                                       mtype=media.type,
+                                                       download_dir=dl_dir,
+                                                       page_url=media.page_url)
             if ret:
                 # 发送消息
-                Message().send_download_message(SearchType.WEB, msg_item)
+                Message().send_download_message(SearchType.WEB, media)
             else:
                 return {"retcode": -1, "retmsg": ret_msg}
         return {"retcode": 0, "retmsg": ""}

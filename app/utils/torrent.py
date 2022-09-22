@@ -110,18 +110,19 @@ class Torrent:
         return ret_attr
 
     @staticmethod
-    def get_torrent_content(url, cookie=None):
+    def get_torrent_content(url, cookie=None, ua=None):
         """
         把种子下载到本地，返回种子内容
         :param url: 种子链接
         :param cookie: 站点Cookie
+        :param ua: 站点UserAgent
         """
         if not url:
             return None, "URL为空"
         if url.startswith("magnet:"):
             return url, "磁力链接"
         try:
-            req = RequestUtils(cookies=cookie).get_res(url=url)
+            req = RequestUtils(headers=ua, cookies=cookie).get_res(url=url)
             if req and req.status_code == 200:
                 if not req.content:
                     return None, "未下载到种子数据"
@@ -134,7 +135,7 @@ class Torrent:
             else:
                 return None, "下载种子出错，状态码：%s" % req.status_code
         except Exception as err:
-            return None, "下载种子出现异常，%s" % str(err)
+            return None, "下载种子文件出现异常：%s，可能站点Cookie已过期或触发了站点首次种子下载" % str(err)
 
     @staticmethod
     def check_torrent_filter(meta_info, filter_args, uploadvolumefactor=None, downloadvolumefactor=None):
@@ -220,4 +221,31 @@ class Torrent:
                 if len(filters) > 3:
                     rss_team = filters[3]
 
-        return rss_sites, search_sites, over_edition, {"restype": rss_restype, "pix": rss_pix, "rule": rss_rule, "team": rss_team}
+        return rss_sites, search_sites, over_edition, {"restype": rss_restype,
+                                                       "pix": rss_pix,
+                                                       "rule": rss_rule,
+                                                       "team": rss_team}
+
+    @staticmethod
+    def parse_download_url(page_url, xpath, cookie=None, ua=None):
+        """
+        从详情页面中解析中下载链接
+        :param page_url: 详情页面地址
+        :param xpath: 解析XPATH
+        :param cookie: 站点Cookie
+        :param ua: 站点User-Agent
+        """
+        if not page_url or not xpath:
+            return ""
+        try:
+            req = RequestUtils(headers=ua, cookies=cookie).get_res(url=page_url)
+            if req and req.status_code == 200:
+                if not req.text:
+                    return None
+                html = etree.HTML(req.text)
+                urls = html.xpath(xpath)
+                if urls:
+                    return urls[0]
+        except Exception as err:
+            print(str(err))
+        return None
