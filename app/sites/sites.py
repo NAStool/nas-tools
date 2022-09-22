@@ -55,10 +55,10 @@ class Sites:
             # 自定义UA为|分隔的第4位
             ua = str(site[9]).split("|")[3] if site[9] and len(str(site[9]).split("|")) > 3 else ""
             # 站点用途：Q签到、D订阅、S刷流
-            signin_enable = True if not site[6] or str(site[6]).count("Q") else False
-            rss_enable = True if not site[6] or str(site[6]).count("D") else False
-            brush_enable = True if not site[6] or str(site[6]).count("S") else False
-            statistic_enable = True if not site[6] or str(site[6]).count("T") else False
+            signin_enable = True if site[6] and str(site[6]).count("Q") else False
+            rss_enable = True if site[6] and str(site[6]).count("D") else False
+            brush_enable = True if site[6] and str(site[6]).count("S") else False
+            statistic_enable = True if site[6] and str(site[6]).count("T") else False
             if rule_groupid:
                 rule_name = self.filtersites.get_rule_groups(rule_groupid).get("name") or ""
             else:

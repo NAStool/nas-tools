@@ -7,7 +7,8 @@ from urllib.parse import quote
 from requests.utils import dict_from_cookiejar
 
 import feapder
-from app.utils import RequestUtils, StringUtils
+from app.utils import RequestUtils, StringUtils, SystemUtils
+from app.utils.types import OsType
 from config import Config, DEFAULT_UA
 from feapder.utils.tools import urlencode
 from jinja2 import Template
@@ -33,8 +34,8 @@ class TorrentSpider(feapder.AirSpider):
             driver_type="CHROME",
             timeout=15,
             window_size=(1024, 800),
-            executable_path="/usr/lib/chromium/chromedriver",
-            render_time=5,
+            executable_path="/usr/lib/chromium/chromedriver" if SystemUtils.get_system() == OsType.LINUX else None,
+            render_time=10,
             custom_argument=["--ignore-certificate-errors"],
         )
     )
@@ -343,11 +344,11 @@ class TorrentSpider(feapder.AirSpider):
         解析整个页面
         """
         try:
-            # 获取网站信息
+            # 获取网站文本
             self.article_list = response.extract()
             # 获取站点种子xml
             self.fields = self.torrents.get('fields')
-            doc = PyQuery(self.article_list)
+            html_doc = PyQuery(self.article_list)
             # 种子筛选器
             torrents_selector = self.torrents.get('list', {}).get('selector', '')
             str_list = list(torrents_selector)
@@ -367,7 +368,7 @@ class TorrentSpider(feapder.AirSpider):
                             str_list.insert(i, '"')
                 torrents_selector = "".join(str_list)
             # 遍历种子html列表
-            for torn in doc(torrents_selector):
+            for torn in html_doc(torrents_selector):
                 self.torrents_info_array.append(copy.deepcopy(self.Getinfo(PyQuery(torn))))
                 if len(self.torrents_info_array) >= 100:
                     break

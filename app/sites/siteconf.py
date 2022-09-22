@@ -337,6 +337,9 @@ class SiteConf:
         },
         '1337x.to': {
             "proxy": True
+        },
+        'ext.to': {
+            "proxy": True
         }
     }
 

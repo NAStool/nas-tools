@@ -158,7 +158,7 @@
                 </div>
               </div>
               <div class="mb-3">
-                <label class="form-label">公开站点 <span class="form-help" title="当前可用的公开站点，公开站点只要被内建索引器支持了就会在这里显示，无需维护站点信息" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label">公开站点 <span class="form-help" title="当前可用的公开站点，大部分公开站点只要被内建索引器支持了就会在这里显示，无需维护站点信息；个别站点因为有Cloudflare防护，需要在站点信息中维护站点地址、Cookie和User-Agent才会显示，目前已支持的有：https://ext.to/" data-bs-toggle="tooltip">?</span></label>
                 <div class="form-selectgroup">
                   {% if PublicCount > 0 %}
                   {% for Indexer in Indexers %}
