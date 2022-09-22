@@ -206,9 +206,9 @@ class SiteConf:
         },
         'hdchina.org': {
             'FREE': ["//img[@class='pro_free']"],
-            '2XFREE': [],
+            '2XFREE': ["//img[@class='pro_free2up"],
             'HR': [],
-            'PEER_COUNT': [],
+            'PEER_COUNT': ["//div[@id='peercount']/b[1]"],
         },
         "ccfbits.org": {
             'FREE': ["//font[@color='red'][text()='本种子不计下载量，只计上传量!']"],
