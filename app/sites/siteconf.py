@@ -340,6 +340,9 @@ class SiteConf:
         },
         'ext.to': {
             "proxy": True
+        },
+        'torrentgalaxy.to': {
+            "proxy": True
         }
     }
 
