@@ -28,21 +28,21 @@ class TorrentSpider(feapder.AirSpider):
         WEBDRIVER=dict(
             pool_size=1,
             load_images=False,
-            user_agent=None,
             proxy=None,
             headless=True,
             driver_type="CHROME",
-            timeout=10,
+            timeout=15,
             window_size=(1024, 800),
             executable_path="/usr/lib/chromium/chromedriver",
-            render_time=0,
-            custom_argument=["--ignore-certificate-errors", "--disable-gpu", "--no-sandbox"],
+            render_time=5,
+            custom_argument=["--ignore-certificate-errors"],
         )
     )
     is_complete = False
     indexerid = None
     cookies = None
     headers = None
+    proxies = None
     render = False
     keyword = None
     indexer = None
@@ -75,24 +75,13 @@ class TorrentSpider(feapder.AirSpider):
             except Exception as err:
                 log.warn(f"【SPIDER】获取 {self.domain} cookie失败：{format(err)}")
         if indexer.ua:
-            self.__custom_setting__['WEBDRIVER']['user_agent'] = indexer.ua
             self.headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
                             "User-Agent": f"{indexer.ua}"}
         else:
-            self.__custom_setting__['WEBDRIVER']['user_agent'] = Config().get_config('app').get('user_agent')
             self.headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
                             "User-Agent": f"{Config().get_config('app').get('user_agent') or DEFAULT_UA}"}
         if indexer.proxy:
-            if Config().get_proxies():
-                self.__custom_setting__['WEBDRIVER']['proxy'] = Config().get_proxies().get("http")
-            else:
-                self.__custom_setting__['WEBDRIVER']['proxy'] = None
-        else:
-            self.__custom_setting__['WEBDRIVER']['proxy'] = None
-        if indexer.render:
-            self.__custom_setting__['REQUEST_LOST_TIMEOUT'] = 20
-        else:
-            self.__custom_setting__['REQUEST_LOST_TIMEOUT'] = 10
+            self.proxies = Config().get_proxies()
         self.torrents_info_array = []
 
     def start_requests(self):
@@ -103,7 +92,10 @@ class TorrentSpider(feapder.AirSpider):
             else:
                 searchurl = self.domain + torrentspath + '?stypes=s&' + urlencode(
                     {"search": self.keyword, "search_field": self.keyword, "keyword": self.keyword})
-            yield feapder.Request(searchurl, cookies=self.cookies, render=self.render, headers=self.headers)
+            yield feapder.Request(searchurl,
+                                  cookies=self.cookies,
+                                  render=self.render,
+                                  headers=self.headers)
         else:
             self.is_complete = True
 
