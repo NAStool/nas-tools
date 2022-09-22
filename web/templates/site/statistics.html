@@ -289,6 +289,16 @@
               </tbody>
             </table>
           </div>
+          <div class="card-footer">
+            <div class="row align-items-center">
+              <div class="col"></div>
+              <div class="col-auto">
+                <a id="save_statistics_pic_btn" href="javascript:save_statistics_pic()" class="btn btn-primary">
+                  分享统计数据
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -326,6 +336,8 @@
             </div>
         </div>
     </div>
+    <script src="../static/js/dom-to-image.min.js"></script>
+    <script src="../static/js/FileSaver.min.js"></script>
     <script type="text/javascript">
         $('#site-activity').off('shown.bs.modal');
         $('#site-activity').on('shown.bs.modal', function (e) {
@@ -760,6 +772,37 @@
                 {attr: 'data-data', name: 'sort-data'}
             ]
         });
+
+        // 生成统计数据图片并下载
+        function save_statistics_pic() {
+            $('#table-site-user-data')
+            var div = $('#table-site-user-data').clone(true)[0];
+            div.setAttribute("style", "width:500px; min-height: 300px")
+            var table = div.childNodes[1]; 
+            var thead = table.childNodes[1];
+            var tbody = table.childNodes[3];
+            var thead_tr = thead.childNodes[1];
+            thead_tr.removeChild(thead_tr.childNodes[17]);//历史数据
+            thead_tr.removeChild(thead_tr.childNodes[15]);//更新时间
+            thead_tr.removeChild(thead_tr.childNodes[13]);//魔力值
+            thead_tr.removeChild(thead_tr.childNodes[3]);//等级
+            for (tbody_tr of tbody.childNodes){
+                var td_name = tbody_tr.childNodes[1];
+                var div_name = td_name.childNodes[1];
+                var img = div_name.childNodes[3];
+                img.setAttribute("style", "filter:blur(2px)");//站点图标模糊
+                div_name.removeChild(div_name.childNodes[1]);
+                tbody_tr.removeChild(tbody_tr.childNodes[17]);//历史数据
+                tbody_tr.removeChild(tbody_tr.childNodes[15]);//更新时间
+                tbody_tr.removeChild(tbody_tr.childNodes[13]);//魔力值
+                tbody_tr.removeChild(tbody_tr.childNodes[3]);//等级
+            };
+            // 生成图片（素色背景）并下载
+            $('body').append(div);
+            domtoimage.toBlob(div, { bgcolor: '#E9F1F6' }).then(function (blob) {
+                saveAs(blob, 'nastool_statistics.png');
+            });
+        }
 
     </script>
 {% else %}
