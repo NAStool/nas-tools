@@ -336,8 +336,6 @@
             </div>
         </div>
     </div>
-    <script src="../static/js/dom-to-image.min.js"></script>
-    <script src="../static/js/FileSaver.min.js"></script>
     <script type="text/javascript">
         $('#site-activity').off('shown.bs.modal');
         $('#site-activity').on('shown.bs.modal', function (e) {
@@ -775,9 +773,8 @@
 
         // 生成统计数据图片并下载
         function save_statistics_pic() {
-            $('#table-site-user-data')
             var div = $('#table-site-user-data').clone(true)[0];
-            div.setAttribute("style", "width:500px; min-height: 300px")
+            div.setAttribute("style", "width:500px; min-height: 300px");
             var table = div.childNodes[1]; 
             var thead = table.childNodes[1];
             var tbody = table.childNodes[3];

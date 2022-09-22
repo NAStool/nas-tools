@@ -207,6 +207,8 @@ class Emby(IMediaServer):
         根据标题和年份和季，返回Emby中的剧集列表
         :param title: 标题
         :param year: 年份，可以为空，为空时不按年份过滤
+        :param tmdb_id: TMDBID
+        :param season: 季
         :return: 集号的列表
         """
         if not self.__host or not self.__apikey:
