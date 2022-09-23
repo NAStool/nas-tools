@@ -9,7 +9,8 @@ steps:
       cd nas-tools
       app_version=$(cat version.py |sed -ne "s/APP_VERSION\s=\s'v\(.*\)'/\1/gp")
       echo "app_version=$app_version" >> $GITHUB_ENV
-      git log v${app_version}^..HEAD --pretty=format:%an"  "%cd"   "%B > ../../../commit.txt #显示版本到现在的所有提交信息到commit.txt 
+      git log v${app_version}^..HEAD --pretty=format:%an"  "%cd"   "%B > ../../../commit.txt #显示版本到现在的所有提交信息到commit.txt
+      
   - uses: actions/checkout@v2
     with:
       fetch-depth: 1
@@ -60,7 +61,7 @@ steps:
         /home/runner/work/nas-tools/nas-tools/releases/
 
   - name: shorten the commits message_file
-    run: head -180 commit.txt >commit2.txt
+    run: head -120 commit.txt >commit2.txt
 
   - name: Send telegram message (release informations)
     uses: appleboy/telegram-action@master
