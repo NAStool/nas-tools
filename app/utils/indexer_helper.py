@@ -34,7 +34,8 @@ class IndexerHelper:
                     proxy=False,
                     parser=None,
                     ua=None,
-                    render=False):
+                    render=False,
+                    language=None):
         if not url:
             return None
         for indexer in self._indexers:
@@ -50,7 +51,8 @@ class IndexerHelper:
                                    parser=parser,
                                    ua=ua,
                                    render=render,
-                                   buildin=True)
+                                   buildin=True,
+                                   language=language)
         return None
 
 
@@ -66,7 +68,8 @@ class IndexerConf(object):
                  parser=None,
                  ua=None,
                  render=False,
-                 buildin=True):
+                 buildin=True,
+                 language=None):
         if not datas:
             return
         self.datas = datas
@@ -85,6 +88,7 @@ class IndexerConf(object):
         self.ua = ua
         self.render = render
         self.buildin = buildin
+        self.language = language
 
     def get_userinfo(self):
         return self.userinfo

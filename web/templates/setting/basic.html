@@ -395,7 +395,7 @@
                 <div class="mb-3">
                   <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="laboratory.search_en_title" {% if Config.laboratory and Config.laboratory.search_en_title %}checked{% endif %}>
-                    <span class="form-check-label">精确搜索使用英文名称 <span class="form-help" title="开启后对于精确搜索场景（远程搜索、订阅搜索等）将会使用英文名检索站点资源以提升匹配度，使用PT及非动漫BT站建议开启；但有些站点资源标题全是中文的（比如一些动漫站点）则需要关闭，否则搜索不到数据，根据使用场景调整" data-bs-toggle="tooltip">?</span></span>
+                    <span class="form-check-label">搜索优先使用英文名 <span class="form-help" title="开启后对于精确搜索场景将会优先使用英文名搜索，否则优先使用中文名搜索" data-bs-toggle="tooltip">?</span></span>
                   </label>
                 </div>
               </div>

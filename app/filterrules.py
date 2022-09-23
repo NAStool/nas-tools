@@ -154,7 +154,8 @@ class FilterRule:
                     if not begin_size * 1024 ** 3 <= int(meta_info.size) <= end_size * 1024 ** 3:
                         rule_match = False
                 else:
-                    if not begin_size * 1024 ** 3 <= int(meta_info.size)/int(meta_info.total_episodes or 1) <= end_size * 1024 ** 3:
+                    if meta_info.total_episodes \
+                            and not begin_size * 1024 ** 3 <= int(meta_info.size)/int(meta_info.total_episodes) <= end_size * 1024 ** 3:
                         rule_match = False
 
             # 促销
