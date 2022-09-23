@@ -38,7 +38,6 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     search_process.start('search')
     # 识别媒体
     media_info = None
-    media_name = None
     if ident_flag:
         if tmdbid:
             if tmdbid.startswith("DB:"):
@@ -71,43 +70,65 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         search_episode = media_info.get_episode_list()
         if search_episode and not search_season:
             search_season = [1]
-        # 如果原标题是英文：用原标题去检索，否则使用英文+原标题搜索去匹配，优化小语种资源
-        key_word = media_info.title
-        if Config().get_config("laboratory").get("search_en_title"):
-            if media_info.original_language != "en":
+        # 中文名
+        if media_info.cn_name:
+            search_cn_name = media_info.cn_name
+        else:
+            search_cn_name = media_info.title
+        # 英文名
+        search_en_name = None
+        if media_info.en_name:
+            search_en_name = media_info.en_name
+        else:
+            if media_info.original_language == "en":
+                search_en_name = media_info.original_title
+            else:
                 en_info = Media().get_tmdb_info(mtype=media_info.type, tmdbid=media_info.tmdb_id, language="en-US")
                 if en_info:
-                    key_word = en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get("name")
+                    search_en_name = en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get(
+                        "name")
+        # 两次搜索名称
+        second_search_name = None
+        if Config().get_config("laboratory").get("search_en_title"):
+            if search_en_name:
+                first_search_name = search_en_name
+                second_search_name = search_cn_name
             else:
-                key_word = media_info.original_title
-        media_name = media_info.get_name()
+                first_search_name = search_cn_name
+        else:
+            first_search_name = search_cn_name
+            if search_en_name:
+                second_search_name = search_en_name
 
         filter_args = {"season": search_season,
                        "episode": search_episode,
                        "year": media_info.year,
                        "type": media_info.type}
     else:
+        first_search_name = key_word
+        second_search_name = None
         filter_args = {"season": season_num,
                        "episode": episode_num,
                        "year": year}
-
     # 整合高级查询条件
     if filters:
         filter_args.update(filters)
-
     # 开始检索
     log.info("【WEB】开始检索 %s ..." % content)
-    media_list = Searcher().search_medias(key_word=key_word,
+    media_list = Searcher().search_medias(key_word=first_search_name,
                                           filter_args=filter_args,
                                           match_type=1 if ident_flag else 2,
                                           match_media=media_info,
                                           in_from=SearchType.WEB)
     # 使用名称重新搜索
-    if ident_flag and len(media_list) == 0 and media_name and key_word != media_name:
+    if ident_flag \
+            and len(media_list) == 0 \
+            and second_search_name \
+            and second_search_name != first_search_name:
         search_process.start('search')
-        search_process.update(ptype='search', text="%s 未检索到资源,尝试通过 %s 重新检索 ..." % (key_word, media_name))
-        log.info("【SEARCHER】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (key_word, media_name))
-        media_list = Searcher().search_medias(key_word=media_name,
+        search_process.update(ptype='search', text="%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
+        log.info("【SEARCHER】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
+        media_list = Searcher().search_medias(key_word=second_search_name,
                                               filter_args=filter_args,
                                               match_type=1,
                                               match_media=media_info,

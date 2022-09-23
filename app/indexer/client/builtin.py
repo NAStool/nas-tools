@@ -42,16 +42,19 @@ class BuiltinIndexer(IIndexer):
             if public_site:
                 public = True
                 proxy = public_site.get("proxy")
+                language = public_site.get("language")
             else:
                 public = False
                 proxy = False
+                language = None
             indexer = IndexerHelper().get_indexer(url=url,
                                                   cookie=site.get("cookie"),
                                                   name=site.get("name"),
                                                   rule=site.get("rule"),
                                                   public=public,
                                                   proxy=proxy,
-                                                  ua=site.get("ua"))
+                                                  ua=site.get("ua"),
+                                                  language=language)
             if indexer:
                 if check and indexer_sites and indexer.id not in indexer_sites:
                     continue
@@ -64,7 +67,8 @@ class BuiltinIndexer(IIndexer):
             indexer = IndexerHelper().get_indexer(url=site,
                                                   public=True,
                                                   proxy=attr.get("proxy"),
-                                                  render=attr.get("render"))
+                                                  render=attr.get("render"),
+                                                  language=attr.get("language"))
             if indexer:
                 if check and indexer_sites and indexer.id not in indexer_sites:
                     continue
@@ -102,6 +106,10 @@ class BuiltinIndexer(IIndexer):
         log.info(f"【{self.index_type}】开始检索Indexer：{indexer.name} ...")
         # 特殊符号处理
         search_word = StringUtils.handler_special_chars(text=key_word, replace_word=" ", allow_space=True)
+        # 避免对英文站搜索中文
+        if indexer.language == "en" and StringUtils.is_chinese(search_word):
+            log.warn(f"【{self.index_type}】{indexer.name} 无法使用中文名搜索")
+            return []
         if indexer.parser == "rarbg":
             imdb_id = match_media.imdb_id if match_media else None
             result_array = Rarbg(cookies=indexer.cookie).search(keyword=search_word, indexer=indexer, imdb_id=imdb_id)
