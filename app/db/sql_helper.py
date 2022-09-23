@@ -399,6 +399,13 @@ class SqlHelper:
         DBHelper().update_by_sql("DELETE FROM SYNC_HISTORY")
 
     @staticmethod
+    def truncate_transfer_rsshistory():
+        """
+        清空RSS历史记录
+        """
+        DBHelper().update_by_sql("DELETE FROM RSS_TORRENTS")
+
+    @staticmethod
     def get_config_site():
         """
         查询所有站点信息
