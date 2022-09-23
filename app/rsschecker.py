@@ -77,7 +77,7 @@ class RssChecker(object):
                 "update_time": task[9],
                 "counter": task[10],
                 "state": task[11],
-                "note": task[12]
+                "save_dir": task[12]
             })
         if not self._rss_tasks:
             return
@@ -225,6 +225,7 @@ class RssChecker(object):
                 if taskinfo.get("uses") == "D":
                     # 下载
                     if media_info not in rss_download_torrents:
+                        media_info.save_dir = taskinfo.get("save_dir")
                         rss_download_torrents.append(media_info)
                 elif taskinfo.get("uses") == "R":
                     # 订阅
@@ -243,7 +244,8 @@ class RssChecker(object):
             for media in rss_download_torrents:
                 ret, ret_msg = self.downloader.add_pt_torrent(url=media.enclosure,
                                                               mtype=media.type,
-                                                              page_url=media.page_url)
+                                                              page_url=media.page_url,
+                                                              download_dir=media.save_dir)
                 if ret:
                     self.message.send_download_message(in_from=SearchType.RSS,
                                                        can_item=media)
