@@ -122,6 +122,10 @@
               </div>
             </div>
             <div class="datagrid-item">
+              <div class="datagrid-title">保存路径</div>
+              <div class="datagrid-content">{{ Task.save_dir or '自动' }}</div>
+            </div>
+            <div class="datagrid-item">
               <div class="datagrid-title">状态</div>
               <div class="datagrid-content">
                 {% if Task.state == 'Y' %}
@@ -242,6 +246,12 @@
             </div>
           </div>
           <div class="row">
+            <div class="col-lg-8">
+              <div class="mb-3">
+                <label class="form-label">保存路径</label>
+                <input type="text" id="userrss_note" class="form-control" placeholder="留空自动选择保存路径">
+              </div>
+            </div>
             <div class="col-lg-4">
               <div class="mb-3">
                 <label class="form-label required">状态</label>
@@ -283,6 +293,7 @@
         $("#userrss_parser").val(ret.detail.parser);
         $("#userrss_state").val(ret.detail.state);
         $("#userrss_uses").val(ret.detail.uses);
+        $("#userrss_note").val(ret.detail.save_dir);
         $("#modal-userrss").modal('show');
       }
     });
@@ -338,7 +349,8 @@
                   include: $("#userrss_include").val(),
                   exclude: $("#userrss_exclude").val(),
                   filterrule: $("#userrss_filterrule").val(),
-                  state: $("#userrss_state").val()};
+                  state: $("#userrss_state").val(),
+                  note: $("#userrss_note").val()};
     ajax_post("update_userrss_task", params, function(ret){
       $("#modal-userrss").modal('hide');
       navmenu('user_rss');

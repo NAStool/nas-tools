@@ -79,19 +79,34 @@ class MetaBase(object):
     # TMDB 的其它信息
     tmdb_info = {}
     # 种子附加信息
+    # 站点名称
     site = None
+    # 站点优先级
     site_order = 0
+    # 种子链接
     enclosure = None
+    # 资源优先级
     res_order = 0
+    # 种子大小
     size = 0
+    # 做种者
     seeders = 0
+    # 下载者
     peers = 0
+    # 种子描述
     description = None
+    # 详情页面
     page_url = None
+    # 上传因子
     upload_volume_factor = None
+    # 下载因子
     download_volume_factor = None
+    # HR
     hit_and_run = None
+    # 订阅ID
     rssid = None
+    # 保存目录
+    save_dir = None
     # 副标题解析
     _subtitle_flag = False
     _subtitle_season_re = r"[第\s]+([0-9一二三四五六七八九十S\-]+)\s*季"
