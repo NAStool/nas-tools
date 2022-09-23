@@ -101,15 +101,14 @@ class Downloader:
             else:
                 # 获取公开站点信息
                 site_info = SiteConf().get_public_sites(url=url)
-                if not site_info:
-                    return None, "找不到下载链接对应的站点配置"
-                log.warn("【DOWNLOADER】无法从站点配置中获得Cookie，尝试自动获取Cookie ...")
-                try:
-                    res = RequestUtils(timeout=10).get_res(StringUtils.get_base_url(url))
-                    if res:
-                        cookie = dict_from_cookiejar(res.cookies)
-                except Exception as err:
-                    log.warn(f"【DOWNLOADER】自动获取cookie失败：{format(err)}")
+                if site_info:
+                    log.warn("【DOWNLOADER】公开站点，尝试自动获取Cookie ...")
+                    try:
+                        res = RequestUtils(timeout=10).get_res(StringUtils.get_base_url(url))
+                        if res:
+                            cookie = dict_from_cookiejar(res.cookies)
+                    except Exception as err:
+                        log.warn(f"【DOWNLOADER】自动获取公开站点cookie失败：{format(err)}")
 
             if xpath:
                 url = Torrent.parse_download_url(page_url=page_url,

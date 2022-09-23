@@ -41,7 +41,6 @@ jobs:
           context: .
           file: docker/Dockerfile.base
           platforms: |
-            linux/386
             linux/amd64
             linux/arm64
           push: true
