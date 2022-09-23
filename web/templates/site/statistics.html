@@ -175,18 +175,25 @@
           <div class="card-body">
             <div class="d-flex">
               <h3 class="card-title">站点数据</h3>
-               <div class="ms-auto">
-                   <a href="javascript:void(0)" class="btn-icon"
-                      {% if SiteUserStatistics | count > 0 %} onclick="navmenu('statistics?_ts={% for item in SiteUserStatistics %}&refresh_site={{ item[0] }}{% endfor %}')"
-                      {%  endif %}
-                   >
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                          <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
-                          <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
-                      </svg>
-                   </a>
-               </div>
+              <div class="ms-3">
+                <a href="javascript:save_statistics_pic()" class="btn-icon" title="请在明亮模式（右上角切换）下生成数据图">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="icon icon-tabler icon-tabler-refresh" style="vertical-align: middle" viewBox="0 0 16 16">
+                    <path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/>
+                  </svg>
+                </a>
+              </div>
+              <div class="ms-auto">
+                <a href="javascript:void(0)" class="btn-icon"
+                  {% if SiteUserStatistics | count > 0 %} onclick="navmenu('statistics?_ts={% for item in SiteUserStatistics %}&refresh_site={{ item[0] }}{% endfor %}')"
+                  {%  endif %}
+                  >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+                    <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+                  </svg>
+                </a>
+              </div>
               <div class="ms-2 text-muted">
                 共 {{ SiteUserStatistics | count }} 条记录
               </div>
@@ -288,16 +295,6 @@
                 {% endif %}
               </tbody>
             </table>
-          </div>
-          <div class="card-footer">
-            <div class="row align-items-center">
-              <div class="col"></div>
-              <div class="col-auto">
-                <a id="save_statistics_pic_btn" href="javascript:save_statistics_pic()" class="btn btn-primary">
-                  分享统计数据
-                </a>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -787,7 +784,10 @@
                 var td_name = tbody_tr.childNodes[1];
                 var div_name = td_name.childNodes[1];
                 var img = div_name.childNodes[3];
+                var div_name_text = div_name.childNodes[5];
+                var id = div_name_text.childNodes[3];
                 img.setAttribute("style", "filter:blur(2px)");//站点图标模糊
+                id.setAttribute("style", "filter:blur(1.5px)");//站点id模糊
                 div_name.removeChild(div_name.childNodes[1]);
                 tbody_tr.removeChild(tbody_tr.childNodes[17]);//历史数据
                 tbody_tr.removeChild(tbody_tr.childNodes[15]);//更新时间
