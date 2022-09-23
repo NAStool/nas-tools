@@ -575,6 +575,7 @@ class MetaBase(object):
                 self.begin_episode = None
                 self.end_episode = None
                 self.total_episodes = 0
+                self.type = MediaType.TV
             # 全x季 x季全
             season_all_str = re.search(r"%s" % self._subtitle_season_all_re, title_text, re.IGNORECASE)
             if season_all_str:
@@ -589,4 +590,5 @@ class MetaBase(object):
                         return
                     self.begin_season = 1
                     self.end_season = self.total_seasons
+                    self.type = MediaType.TV
                     self._subtitle_flag = True
