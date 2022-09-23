@@ -142,7 +142,14 @@ class Config(object):
                         overwrite_cofig = True
                     # 实验室配置初始化
                     if not self._config.get("laboratory"):
-                        self._config['laboratory'] = {}
+                        self._config['laboratory'] = {
+                            'search_keyword': False,
+                            'tmdb_cache_expire': True,
+                            'use_douban_titles': True,
+                            'search_en_title': True,
+                            'ignored_words': '',
+                            'replaced_words': ''
+                        }
                         overwrite_cofig = True
                     # 安全配置初始化
                     if not self._config.get("security"):
