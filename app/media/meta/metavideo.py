@@ -395,6 +395,7 @@ class MetaVideo(MetaBase):
                     self.end_episode = None
                     self.total_episodes = 1
                 self._continue_flag = False
+                self.type = MediaType.TV
             elif self.begin_episode is None \
                     and 1 < len(token) < 5 \
                     and self._last_token_type != "year" \

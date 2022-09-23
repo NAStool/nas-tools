@@ -2173,7 +2173,8 @@ class WebAction:
             "include": data.get("include"),
             "exclude": data.get("exclude"),
             "filterrule": data.get("filterrule"),
-            "state": data.get("state")
+            "state": data.get("state"),
+            "note": data.get("note")
         }
         if SqlHelper.update_userrss_task(params):
             RssChecker().init_config()
