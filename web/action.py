@@ -81,6 +81,7 @@ class WebAction:
             "modify_tmdb_cache": self.__modify_tmdb_cache,
             "rss_detail": self.__rss_detail,
             "truncate_blacklist": self.__truncate_blacklist,
+            "truncate_rsshistory": self.__truncate_rsshistory,
             "add_brushtask": self.__add_brushtask,
             "del_brushtask": self.__del_brushtask,
             "brushtask_detail": self.__brushtask_detail,
@@ -1407,6 +1408,14 @@ class WebAction:
         清空文件转移黑名单记录
         """
         SqlHelper.truncate_transfer_blacklist()
+        return {"code": 0}
+
+    @staticmethod
+    def __truncate_rsshistory(data):
+        """
+        清空RSS历史记录
+        """
+        SqlHelper.truncate_transfer_rsshistory()
         return {"code": 0}
 
     @staticmethod
