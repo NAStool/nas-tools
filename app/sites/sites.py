@@ -55,10 +55,10 @@ class Sites:
             # 自定义UA为|分隔的第4位
             ua = str(site[9]).split("|")[3] if site[9] and len(str(site[9]).split("|")) > 3 else ""
             # 站点用途：Q签到、D订阅、S刷流
-            signin_enable = True if not site[6] or str(site[6]).count("Q") else False
-            rss_enable = True if not site[6] or str(site[6]).count("D") else False
-            brush_enable = True if not site[6] or str(site[6]).count("S") else False
-            statistic_enable = True if not site[6] or str(site[6]).count("T") else False
+            signin_enable = True if site[6] and str(site[6]).count("Q") else False
+            rss_enable = True if site[6] and str(site[6]).count("D") else False
+            brush_enable = True if site[6] and str(site[6]).count("S") else False
+            statistic_enable = True if site[6] and str(site[6]).count("T") else False
             if rule_groupid:
                 rule_name = self.filtersites.get_rule_groups(rule_groupid).get("name") or ""
             else:
@@ -147,10 +147,10 @@ class Sites:
         try:
             site_user_info = SiteUserInfoFactory.build(url=site_url, site_name=site_name, site_cookie=site_cookie, ua=ua)
             if site_user_info:
-                log.debug(f"【PT】站点 {site_name} 开始以 {site_user_info.site_schema()} 模型解析")
+                log.debug(f"【SITES】站点 {site_name} 开始以 {site_user_info.site_schema()} 模型解析")
                 # 开始解析
                 site_user_info.parse()
-                log.debug(f"【PT】站点 {site_name} 解析完成")
+                log.debug(f"【SITES】站点 {site_name} 解析完成")
 
                 # 获取不到数据时，仅返回错误信息，不做历史数据更新
                 if site_user_info.err_msg:
@@ -178,7 +178,7 @@ class Sites:
                 return site_user_info
 
         except Exception as e:
-            log.error("【PT】站点 %s 获取流量数据失败：%s - %s" % (site_name, str(e), traceback.format_exc()))
+            log.error("【SITES】站点 %s 获取流量数据失败：%s - %s" % (site_name, str(e), traceback.format_exc()))
 
     def __notify_unread_msg(self, site_name, site_user_info, unread_msg_notify):
         if site_user_info.message_unread <= 0:
@@ -203,9 +203,9 @@ class Sites:
                 site_url = site_info.get("signurl")
                 site_cookie = site_info.get("cookie")
                 ua = site_info.get("ua")
-                log.info("【PT】开始站点签到：%s" % site)
+                log.info("【SITES】开始站点签到：%s" % site)
                 if not site_url or not site_cookie:
-                    log.warn("【PT】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
+                    log.warn("【SITES】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
                     continue
                 res = RequestUtils(cookies=site_cookie, headers=ua).get_res(url=site_url)
                 if res and res.status_code == 200:
@@ -218,7 +218,7 @@ class Sites:
                 else:
                     status.append("%s 签到失败，无法打开网站" % site)
             except Exception as e:
-                log.error("【PT】%s 签到出错：%s - %s" % (site, str(e), traceback.format_exc()))
+                log.error("【SITES】%s 签到出错：%s - %s" % (site, str(e), traceback.format_exc()))
         if status:
             self.message.send_site_signin_message(status)
 
@@ -307,15 +307,13 @@ class Sites:
         :param days: 最大数据量
         :return:
         """
-        site_activities = {"upload": [], "download": [], "bonus": [], "seeding": [], "seeding_size": []}
+        site_activities = [["time", "upload", "download", "bonus", "seeding", "seeding_size"]]
         sql_site_activities = SqlHelper.get_site_statistics_history(site=site, days=days)
         for sql_site_activity in sql_site_activities:
             timestamp = datetime.strptime(sql_site_activity[0], '%Y-%m-%d').timestamp() * 1000
-            site_activities["upload"].append([timestamp, sql_site_activity[1]])
-            site_activities["download"].append([timestamp, sql_site_activity[2]])
-            site_activities["bonus"].append([timestamp, sql_site_activity[3]])
-            site_activities["seeding"].append([timestamp, sql_site_activity[4]])
-            site_activities["seeding_size"].append([timestamp, sql_site_activity[5]])
+            site_activities.append(
+                [timestamp, sql_site_activity[1], sql_site_activity[2], sql_site_activity[3], sql_site_activity[4],
+                 sql_site_activity[5]])
 
         return site_activities
 

@@ -86,7 +86,7 @@ class SqlHelper:
         """
         根据ID从数据库中查询检索结果的一条记录
         """
-        sql = "SELECT ENCLOSURE,TITLE,YEAR,SEASON,EPISODE,VOTE,IMAGE,TYPE,TORRENT_NAME,DESCRIPTION,SIZE,TMDBID,POSTER,OVERVIEW,SITE,UPLOAD_VOLUME_FACTOR,DOWNLOAD_VOLUME_FACTOR" \
+        sql = "SELECT ENCLOSURE,TITLE,YEAR,SEASON,EPISODE,VOTE,IMAGE,TYPE,TORRENT_NAME,DESCRIPTION,SIZE,TMDBID,POSTER,OVERVIEW,SITE,UPLOAD_VOLUME_FACTOR,DOWNLOAD_VOLUME_FACTOR,PAGEURL" \
               " FROM SEARCH_RESULT_INFO" \
               " WHERE ID = ?"
         return DBHelper().select_by_sql(sql, (dl_id,))
@@ -397,6 +397,13 @@ class SqlHelper:
         """
         DBHelper().update_by_sql("DELETE FROM TRANSFER_BLACKLIST")
         DBHelper().update_by_sql("DELETE FROM SYNC_HISTORY")
+
+    @staticmethod
+    def truncate_transfer_rsshistory():
+        """
+        清空RSS历史记录
+        """
+        DBHelper().update_by_sql("DELETE FROM RSS_TORRENTS")
 
     @staticmethod
     def get_config_site():

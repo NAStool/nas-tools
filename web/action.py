@@ -81,6 +81,7 @@ class WebAction:
             "modify_tmdb_cache": self.__modify_tmdb_cache,
             "rss_detail": self.__rss_detail,
             "truncate_blacklist": self.__truncate_blacklist,
+            "truncate_rsshistory": self.__truncate_rsshistory,
             "add_brushtask": self.__add_brushtask,
             "del_brushtask": self.__del_brushtask,
             "brushtask_detail": self.__brushtask_detail,
@@ -335,33 +336,37 @@ class WebAction:
         results = SqlHelper.get_search_result_by_id(dl_id)
         for res in results:
             if res[11] and str(res[11]) != "0":
-                msg_item = MetaInfo("%s" % res[8])
+                media = MetaInfo("%s" % res[8])
                 if res[7] == "TV":
                     mtype = MediaType.TV
                 elif res[7] == "MOV":
                     mtype = MediaType.MOVIE
                 else:
                     mtype = MediaType.ANIME
-                msg_item.type = mtype
-                msg_item.tmdb_id = res[11]
-                msg_item.title = res[1]
-                msg_item.vote_average = res[5]
-                msg_item.poster_path = res[6]
-                msg_item.poster_path = res[12]
-                msg_item.overview = res[13]
+                media.type = mtype
+                media.tmdb_id = res[11]
+                media.title = res[1]
+                media.vote_average = res[5]
+                media.poster_path = res[6]
+                media.poster_path = res[12]
+                media.overview = res[13]
             else:
-                msg_item = Media().get_media_info(title=res[8], subtitle=res[9])
-            msg_item.enclosure = res[0]
-            msg_item.description = res[9]
-            msg_item.size = res[10]
-            msg_item.site = res[14]
-            msg_item.upload_volume_factor = float(res[15])
-            msg_item.download_volume_factor = float(res[16])
+                media = Media().get_media_info(title=res[8], subtitle=res[9])
+            media.enclosure = res[0]
+            media.description = res[9]
+            media.size = res[10]
+            media.site = res[14]
+            media.upload_volume_factor = float(res[15])
+            media.download_volume_factor = float(res[16])
+            media.page_url = res[17]
             # 添加下载
-            ret, ret_msg = Downloader().add_pt_torrent(url=res[0], mtype=msg_item.type, download_dir=dl_dir)
+            ret, ret_msg = Downloader().add_pt_torrent(url=media.enclosure,
+                                                       mtype=media.type,
+                                                       download_dir=dl_dir,
+                                                       page_url=media.page_url)
             if ret:
                 # 发送消息
-                Message().send_download_message(SearchType.WEB, msg_item)
+                Message().send_download_message(SearchType.WEB, media)
             else:
                 return {"retcode": -1, "retmsg": ret_msg}
         return {"retcode": 0, "retmsg": ""}
@@ -1406,6 +1411,14 @@ class WebAction:
         return {"code": 0}
 
     @staticmethod
+    def __truncate_rsshistory(data):
+        """
+        清空RSS历史记录
+        """
+        SqlHelper.truncate_transfer_rsshistory()
+        return {"code": 0}
+
+    @staticmethod
     def __add_brushtask(data):
         """
         新增刷流任务
@@ -1667,7 +1680,8 @@ class WebAction:
             return {"code": 1, "msg": "查询参数错误"}
 
         resp = {"code": 0}
-        resp.update(Sites().get_pt_site_activity_history(data["name"]))
+
+        resp.update({"dataset":Sites().get_pt_site_activity_history(data["name"])})
         return resp
 
     @staticmethod
@@ -1682,7 +1696,11 @@ class WebAction:
 
         resp = {"code": 0}
         _, _, site, upload, download = Sites().get_pt_site_statistics_history(data["days"] + 1)
-        resp.update({"site": site, "upload": upload, "download": download})
+
+        # 调整为dataset组织数据
+        dataset = [["site", "upload", "download"]]
+        dataset.extend([[site, upload, download] for site, upload, download in zip(site, upload, download)])
+        resp.update({"dataset": dataset})
         return resp
 
     @staticmethod
@@ -1696,7 +1714,13 @@ class WebAction:
             return {"code": 1, "msg": "查询参数错误"}
 
         resp = {"code": 0}
-        resp.update(Sites().get_pt_site_seeding_info(data["name"]))
+
+        seeding_info = Sites().get_pt_site_seeding_info(data["name"]).get("seeding_info", [])
+        # 调整为dataset组织数据
+        dataset = [["seeders", "size"]]
+        dataset.extend(seeding_info)
+
+        resp.update({"dataset": dataset})
         return resp
 
     @staticmethod

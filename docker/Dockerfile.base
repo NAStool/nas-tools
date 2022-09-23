@@ -13,6 +13,7 @@ RUN apk add --no-cache \
        curl \
        bash \
        fuse \
+       chromium-chromedriver --repository https://pkgs.alpinelinux.org/package/edge/community \
        libffi-dev --repository https://pkgs.alpinelinux.org/package/edge/main \
     && ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime \
     && echo "${TZ}" > /etc/timezone \

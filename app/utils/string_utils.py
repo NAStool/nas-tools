@@ -188,6 +188,14 @@ class StringUtils:
         return addr.scheme, addr.netloc
 
     @staticmethod
+    def get_base_url(url):
+        """
+        获取URL根地址
+        """
+        scheme, netloc = StringUtils.get_url_netloc(url)
+        return f"{scheme}://{netloc}"
+
+    @staticmethod
     def clear_file_name(name):
         if not name:
             return None

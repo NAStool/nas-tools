@@ -28,23 +28,38 @@ class BuiltinIndexer(IIndexer):
 
     def get_indexers(self, check=True):
         ret_indexers = []
+        # 选中站点配置
         indexer_sites = Config().get_config("pt").get("indexer_sites") or []
+        _indexer_domains = []
+        # 私有站点
         for site in Sites().get_sites():
             if not site.get("rssurl") and not site.get("signurl"):
                 continue
             if not site.get("cookie"):
                 continue
-            indexer = IndexerHelper().get_indexer(url=site.get("signurl") or site.get("rssurl"),
+            url = site.get("signurl") or site.get("rssurl")
+            public_site = SiteConf().get_public_sites(url=url)
+            if public_site:
+                public = True
+                proxy = public_site.get("proxy")
+            else:
+                public = False
+                proxy = False
+            indexer = IndexerHelper().get_indexer(url=url,
                                                   cookie=site.get("cookie"),
                                                   name=site.get("name"),
                                                   rule=site.get("rule"),
-                                                  public=False,
+                                                  public=public,
+                                                  proxy=proxy,
                                                   ua=site.get("ua"))
             if indexer:
                 if check and indexer_sites and indexer.id not in indexer_sites:
                     continue
-                indexer.name = site.get("name")
-                ret_indexers.append(indexer)
+                if indexer.domain not in _indexer_domains:
+                    _indexer_domains.append(indexer.domain)
+                    indexer.name = site.get("name")
+                    ret_indexers.append(indexer)
+        # 公开站点
         for site, attr in SiteConf().get_public_sites():
             indexer = IndexerHelper().get_indexer(url=site,
                                                   public=True,
@@ -53,7 +68,9 @@ class BuiltinIndexer(IIndexer):
             if indexer:
                 if check and indexer_sites and indexer.id not in indexer_sites:
                     continue
-                ret_indexers.append(indexer)
+                if indexer.domain not in _indexer_domains:
+                    _indexer_domains.append(indexer.domain)
+                    ret_indexers.append(indexer)
         return ret_indexers
 
     def search(self, order_seq,

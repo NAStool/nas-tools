@@ -86,6 +86,9 @@ class MetaAnime(MetaBase):
                     self.begin_season = int(begin_season)
                     if end_season and end_season != self.begin_season:
                         self.end_season = int(end_season)
+                        self.total_seasons = (self.end_season - self.begin_season) + 1
+                    else:
+                        self.total_seasons = 1
                     self.type = MediaType.TV
                 # 集号
                 episode_number = anitopy_info.get("episode_number")
@@ -106,6 +109,9 @@ class MetaAnime(MetaBase):
                     self.begin_episode = int(begin_episode)
                     if end_episode and end_episode != self.begin_episode:
                         self.end_episode = int(end_episode)
+                        self.total_episodes = (self.end_episode - self.begin_episode) + 1
+                    else:
+                        self.total_episodes = 1
                     self.type = MediaType.TV
                 # 类型
                 if not self.type:
