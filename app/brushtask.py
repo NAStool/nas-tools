@@ -236,7 +236,8 @@ class BrushTask(object):
                     downloader = Qbittorrent(user_config=downloader_cfg)
                     # 检查完成状态的
                     torrents = downloader.get_torrents(ids=torrent_ids, status=["completed"])
-                    remove_torrent_ids = list(set(torrent_ids).difference(set([torrent.get("hash") for torrent in torrents])))
+                    remove_torrent_ids = list(
+                        set(torrent_ids).difference(set([torrent.get("hash") for torrent in torrents])))
                     for torrent in torrents:
                         # ID
                         torrent_id = torrent.get("hash")
@@ -271,7 +272,8 @@ class BrushTask(object):
                                 update_torrents.append(("%s,%s" % (uploaded, downloaded), taskid, torrent_id))
                     # 检查下载中状态的
                     torrents = downloader.get_torrents(ids=torrent_ids, status=["downloading"])
-                    remove_torrent_ids = list(set(remove_torrent_ids).difference(set([torrent.get("hash") for torrent in torrents])))
+                    remove_torrent_ids = list(
+                        set(remove_torrent_ids).difference(set([torrent.get("hash") for torrent in torrents])))
                     for torrent in torrents:
                         # ID
                         torrent_id = torrent.get("hash")
@@ -339,7 +341,8 @@ class BrushTask(object):
                     # 检查下载状态
                     torrents = downloader.get_torrents(ids=torrent_ids,
                                                        status=["downloading", "download_pending", "stopped"])
-                    remove_torrent_ids = list(set(remove_torrent_ids).difference(set([torrent.id for torrent in torrents])))
+                    remove_torrent_ids = list(
+                        set(remove_torrent_ids).difference(set([torrent.id for torrent in torrents])))
                     for torrent in torrents:
                         # ID
                         torrent_id = torrent.id
@@ -452,7 +455,8 @@ class BrushTask(object):
                 return int(len(dlitems))
         return None
 
-    def __download_torrent(self, downloadercfg, title, enclosure, size, taskid, transfer, sendmessage, forceupload, taskname):
+    def __download_torrent(self, downloadercfg, title, enclosure, size, taskid, transfer, sendmessage, forceupload,
+                           taskname):
         """
         添加下载任务，更新任务数据
         :param downloadercfg: 下载器的所有参数
@@ -483,7 +487,11 @@ class BrushTask(object):
                 tag = [tag, torrent_tag]
             else:
                 tag = torrent_tag
-            ret = downloader.add_torrent(content=enclosure, mtype=None, tag=tag, is_paused=True)
+            ret = downloader.add_torrent(content=enclosure,
+                                         mtype=None,
+                                         tag=tag,
+                                         is_paused=True,
+                                         download_dir=downloadercfg.get("save_dir"))
             if ret:
                 # QB添加下载后需要时间，重试5次每次等待5秒
                 for i in range(1, 6):
@@ -503,7 +511,9 @@ class BrushTask(object):
             if not downloader.trc:
                 log_error("【BRUSH】任务 %s 下载器 %s 无法连接" % (taskname, downloadercfg.get("name")))
                 return False
-            ret = downloader.add_torrent(content=enclosure, mtype=None)
+            ret = downloader.add_torrent(content=enclosure,
+                                         mtype=None,
+                                         download_dir=downloadercfg.get("save_dir"))
             if ret:
                 download_id = ret.id
                 if download_id and tag:

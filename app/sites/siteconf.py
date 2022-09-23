@@ -317,32 +317,39 @@ class SiteConf:
     PUBLIC_TORRENT_SITES = {
         'rarbg.to': {
             "parser": "rarbg",
-            "proxy": True
+            "proxy": True,
+            "language": "en"
         },
         'dmhy.org': {
             "proxy": True
         },
         'eztv.re': {
-            "proxy": True
+            "proxy": True,
+            "language": "en"
         },
         'acg.rip': {
             "proxy": False
         },
         'thepiratebay.org': {
             "proxy": True,
-            "render": True
+            "render": True,
+            "language": "en"
         },
         'nyaa.si': {
-            "proxy": True
+            "proxy": True,
+            "language": "en"
         },
         '1337x.to': {
-            "proxy": True
+            "proxy": True,
+            "language": "en"
         },
         'ext.to': {
-            "proxy": True
+            "proxy": True,
+            "language": "en"
         },
         'torrentgalaxy.to': {
-            "proxy": True
+            "proxy": True,
+            "language": "en"
         }
     }
 
