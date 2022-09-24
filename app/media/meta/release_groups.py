@@ -110,14 +110,14 @@ release_groups = '|'
 for site in sites:
     for release_group in site:
         release_groups = release_groups + "(?<=[-@[￡])" + release_group + "(?=[@.\s])" + "|"
-release_groups = r"" + release_groups[1:-1]
+release_groups = re.compile(r"" + release_groups[1:-1], re.I)
 
 
 #  忽略大小写
 def rg_match(name, groups):
     res_l = []
     res_s = ""
-    res_l = re.findall(groups, name, re.I)
+    res_l = re.findall(groups, name)
     if len(res_l) == 1:
         return res_l[0]
     elif len(res_l) > 1:
