@@ -353,6 +353,9 @@ class SiteConf:
         },
         'mikanani.me': {
             "proxy": False
+        },
+        'gaoqing.fm': {
+            "proxy": False
         }
     }
 
