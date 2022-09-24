@@ -350,6 +350,9 @@ class SiteConf:
         'torrentgalaxy.to': {
             "proxy": True,
             "language": "en"
+        },
+        'mikanani.me': {
+            "proxy": False
         }
     }
 
