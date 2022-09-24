@@ -25,18 +25,18 @@
   <div class="container-xl">
     <div class="row row-cards">
       {% for Item in Items %}
-      <div class="col-12 col-md-4 col-xl-3" class="card card-link card-link-pop rounded-3">
+      <div class="col-12 col-md-4 col-xl-3">
         <a href='javascript:{% if Item[3] %}show_mediainfo_modal("TV", "{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[3] }}", "tv_rss", "{{ Item[10] }}"){% else %}show_edit_rss_media_modal("{{ Item[10] }}"){% endif %}' title="点击编辑/刷新/取消订阅">
           <div class="card card-link card-link-pop rounded-3" style="overflow:hidden">
             <img class="rounded-top w-100" src="{{ Item[4] }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
+            <div class="card-progress">
+              <div class="progress-bar bg-green" style="width: {{ Item[9] or 0 }}%" role="progressbar" aria-valuenow="{{ Item[9] or 0 }}" aria-valuemin="0" aria-valuemax="100">
+                <span class="visually-hidden">{{ Item[9] }}%</span>
+              </div>
+            </div>
           </div>
         </a>
         <a class="card card-link card-link-pop rounded-3" href='javascript:show_rss_torrents_modal("{{ Item[-1] }}")' title="点击显示已推送列表">
-          <div class="card-progress">
-            <div class="progress-bar bg-green" style="width: {{ Item[9] or 0 }}%" role="progressbar" aria-valuenow="{{ Item[9] or 0 }}" aria-valuemin="0" aria-valuemax="100">
-              <span class="visually-hidden">{{ Item[9] }}%</span>
-            </div>
-          </div>
           <div class="card-body text-center">
             <div class="card-title mb-1">
               {% if Item[1] %}
