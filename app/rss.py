@@ -346,7 +346,8 @@ class Rss:
                 in_from=SearchType.RSS,
                 no_exists=no_exists,
                 sites=sites,
-                filters=filter_map)
+                filters=filter_map,
+                rss_id = rssid)
             if search_result:
                 log_info("【RSS】电影 %s 下载完成，删除订阅..." % name)
                 SqlHelper.delete_rss_movie(rssid=rssid)
@@ -429,7 +430,8 @@ class Rss:
                 in_from=SearchType.RSS,
                 no_exists=no_exists,
                 sites=sites,
-                filters=filter_map)
+                filters=filter_map,
+                rss_id = rssid)
             if not no_exists or not no_exists.get(media_info.tmdb_id):
                 # 没有剩余或者剩余缺失季集中没有当前标题，说明下完了
                 log_info("【RSS】电视剧 %s 下载完成，删除订阅..." % name)

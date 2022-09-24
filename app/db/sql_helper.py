@@ -154,7 +154,48 @@ class SqlHelper:
                                               StringUtils.str_sql(media_info.year),
                                               media_info.get_season_string(),
                                               media_info.get_episode_string()))
+    
+    @staticmethod
+    def insert_rss_task_torrents(rss_id, media_info):
+        """
+        增加RSS订阅任务下载的种子信息
+        """
+        if str(media_info.size).isdigit():
+            size = StringUtils.str_filesize(media_info.size)
+        else:
+            size = media_info.size
+        # 搜索来源时，传入rssid
+        if rss_id:
+            rssid = rss_id
+        # RSS来源时，自带rssid
+        else:
+            rssid = media_info.rssid
+        sql = "INSERT INTO RSS_TASK_TORRENTS(TASK_ID, TORRENT_NAME, ENCLOSURE, TYPE, TITLE, YEAR, SEASON, EPISODE, SIZE, SITE, DATE) " \
+              "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        return DBHelper().update_by_sql(sql, (rssid,
+                                              StringUtils.str_sql(media_info.org_string),
+                                              media_info.enclosure,
+                                              media_info.type.value,
+                                              StringUtils.str_sql(media_info.title),
+                                              StringUtils.str_sql(media_info.year),
+                                              media_info.get_season_string(),
+                                              media_info.get_episode_string(),
+                                              size,
+                                              media_info.site,
+                                              time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
 
+    @staticmethod
+    def get_rss_task_torrents(rss_id):
+        """
+        查询RSS订阅任务的所有种子
+        """
+        if not rss_id:
+            return []
+        sql = "SELECT ID, TASK_ID, TORRENT_NAME, ENCLOSURE, TYPE, TITLE, YEAR, SEASON, EPISODE, SIZE, SITE, DATE " \
+              "FROM RSS_TASK_TORRENTS " \
+              "WHERE TASK_ID = ? " 
+        return DBHelper().select_by_sql(sql, (rss_id,))
+    
     @staticmethod
     def insert_douban_media_state(media, state):
         """
@@ -803,6 +844,7 @@ class SqlHelper:
             return False
         if rssid:
             SqlHelper.delete_rss_tv_episodes(rssid)
+            DBHelper().update_by_sql("DELETE FROM RSS_TASK_TORRENTS WHERE TASK_ID = ?", (rssid,))
             return DBHelper().update_by_sql("DELETE FROM RSS_TVS WHERE ID = ?", (rssid,))
         else:
             rssid = SqlHelper.get_rss_tv_id(title=title, year=year, tmdbid=tmdbid, season=season)

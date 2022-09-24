@@ -13,6 +13,7 @@ from app.sites import Sites, SiteConf
 from app.utils import Torrent, StringUtils, RequestUtils
 from app.filetransfer import FileTransfer
 from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode, RMT_MODES
+from app.db import SqlHelper
 
 lock = Lock()
 
@@ -267,10 +268,11 @@ class Downloader:
             return False
         return self.client.delete_torrents(delete_file=True, ids=ids)
 
-    def check_and_add_pt(self, in_from: SearchType, media_list: list, need_tvs: dict = None):
+    def check_and_add_pt(self, in_from: SearchType, media_list: list, need_tvs: dict = None, rss_id = None):
         """
         根据命中的种子媒体信息，添加下载，由RSS或Searcher调用
         :param in_from: 来源
+        :param rss_id: 搜索渠道为RSS时，RSS订阅任务id
         :param media_list: 命中并已经识别好的媒体信息列表，包括名称、年份、季、集等信息
         :param need_tvs: 缺失的剧集清单，对于剧集只有在该清单中的季和集才会下载，对于电影无需输入该参数
         :return: 已经添加了下载的媒体信息表表、剩余未下载到的媒体信息
@@ -361,6 +363,8 @@ class Downloader:
                 if item not in return_items:
                     return_items.append(item)
                 self.message.send_download_message(in_from, item)
+                if in_from == SearchType.RSS and item.type != MediaType.MOVIE:
+                    SqlHelper.insert_rss_task_torrents(rss_id, item)
             else:
                 log.error("【DOWNLOADER】添加下载任务 %s 失败：%s" % (item.get_title_string(), ret_msg or "请检查下载任务是否已存在"))
                 if ret_msg:
@@ -442,6 +446,8 @@ class Downloader:
                             return_items.append(item)
                             # 发送消息通知
                             self.message.send_download_message(in_from, item)
+                            if in_from == SearchType.RSS and item.type != MediaType.MOVIE:
+                                SqlHelper.insert_rss_task_torrents(rss_id, item)
                             # 清除记忆并退出一层循环
                             need_episodes = list(set(need_episodes).difference(set(selected_episodes)))
                             if not need_episodes:
