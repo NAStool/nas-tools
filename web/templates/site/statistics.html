@@ -647,8 +647,9 @@
             ajax_post("get_site_history", {"days": days}, function (ret) {
                     chart_history.hideLoading();
                     if (ret.code == 0) {
+                        rotate = ret.dataset.length > 15 ? -40 : 0;
                         option_history = {
-                            color: ['#d63939', '#206bc4'],
+                            color: ['#206bc4', '#d63939'],
                             tooltip: {
                                 trigger: 'axis',
                                 axisPointer: {
@@ -668,12 +669,9 @@
                                 {
                                     type: 'category',
                                     axisTick: {show: false},
-                                    {% if CurrentSiteLabels | count > 15 %}
-                                        axisLabel: {
-                                            rotate: -45,
-                                        },
-                                    {% endif %}
-
+                                    axisLabel: {
+                                        rotate: rotate,
+                                    },
                                 }
                             ],
                             yAxis: [

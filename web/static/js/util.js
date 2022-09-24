@@ -89,6 +89,7 @@ function getQueryVariable(variable) {
  */
 function humanFileSize(bytes, si = false, dp = 1) {
     const thresh = si ? 1000 : 1024;
+    bytes = parseInt(bytes);
 
     if (Math.abs(bytes) < thresh) {
         return bytes.toFixed(dp) + ' B';
@@ -108,3 +109,4 @@ function humanFileSize(bytes, si = false, dp = 1) {
 
     return bytes.toFixed(dp) + ' ' + units[u];
 }
+
