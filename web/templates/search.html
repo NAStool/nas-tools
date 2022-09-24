@@ -244,7 +244,7 @@
                       {% endif %}
                     </div>
                     <div class="text-muted mt-1">
-                      <strong class="media_card_info"><span class="badge badge-outline text-blue">{{ Item.site}}</span> <span class="badge badge-outline text-orange">{{ Item.restype}}</span>
+                      <strong class="media_card_info"><span class="badge badge-outline text-blue">{{ Item.site}}</span>{% if Item.restype %} <span class="badge badge-outline text-orange">{{ Item.restype }}{% endif %}</span>
                         {% if Item.size %}
                         <span class="badge badge-outline text-yellow">{{ Item.size }}</span>
                         {% endif %}
