@@ -19,11 +19,8 @@ def MetaInfo(title, subtitle=None, mtype=None):
     # 屏蔽词
     ignored_words = config.get_config('laboratory').get("ignored_words")
     if ignored_words:
-        ignored_words = ignored_words.split("|")
-        for ignored_word in ignored_words:
-            if not ignored_word:
-                continue
-            title = title.replace(ignored_word, "")
+        ignored_words = re.compile(r'' + ignored_words)
+        title = re.sub(ignored_words, '', title)
     # 替换词
     replaced_words = config.get_config('laboratory').get("replaced_words")
     if replaced_words:
@@ -32,7 +29,7 @@ def MetaInfo(title, subtitle=None, mtype=None):
             if not replaced_word:
                 continue
             replaced_word_info = replaced_word.split("@")
-            title = title.replace(replaced_word_info[0], replaced_word_info[-1])
+            title = re.sub(r'' + replaced_word_info[0], r'' + replaced_word_info[-1] ,title)
     # 判断是否处理文件
     if os.path.splitext(title)[-1] in RMT_MEDIAEXT:
         fileflag = True

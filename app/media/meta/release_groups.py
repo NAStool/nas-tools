@@ -7,7 +7,7 @@ rg_audiences = ['Audies', 'ADE', 'ADWeb', 'ADAudio', 'ADeBook', 'ADMusic']
 rg_avgv = []
 rg_beitai = ['BeiTai']
 rg_btschool = ['BTSCHOOL', 'BtsHD', 'BtsPAD', 'BtsTV', 'Zone']
-rg_chdbits = ['CHD', 'CHDBits', 'CHDTV', 'CHDPAD', 'CHDWEB', 'CHDHKTV', 'StBOX', 'OneHD', 'Lee']
+rg_chdbits = ['CHD', 'CHDBits', 'CHDTV', 'CHDPAD', 'CHDWEB', 'CHDHKTV', 'StBOX', 'OneHD', 'Lee', 'xiaopie']
 rg_discfan = []
 rg_dragonhd = []
 rg_eastgame = ['iNT-TLF', 'HALFCD-TLF', 'MiniSD-TLF', 'MiniHD-TLF', 'MiniFHD-TLF', 'TLF']
@@ -30,7 +30,7 @@ rg_hitpt = []
 rg_htpt = ['HTPT']
 rg_iptorrents = []
 rg_joyhd = []
-rg_keepfrds = ['FRDS']
+rg_keepfrds = ['FRDS', 'Yumi', 'cXcY']
 rg_lemonhd = ['LHD', 'LeagueHD', 'LeagueWEB', 'LeagueTV', 'LeagueCD', ' LeagueMV', 'LeagueNF', 'i18n', 'CiNT']
 rg_mteam = ['MTeam', 'MPAD', 'MTeamTV']
 rg_nanyangpt = []
@@ -106,20 +106,18 @@ sites = [rg_1pt,
          rg_other]
 
 #  正则 '[-@[]制作组名'，一般制作组前面会有'-'或者'@'或者'['
-release_groups = []
+release_groups = '|'
 for site in sites:
     for release_group in site:
-        release_groups.append(r"(?<=[-@[])" + release_group + r"(?=[@.\s])")
+        release_groups = release_groups + "(?<=[-@[￡])" + release_group + "(?=[@.\s])" + "|"
+release_groups = re.compile(r"" + release_groups[1:-1], re.I)
 
 
 #  忽略大小写
 def rg_match(name, groups):
     res_l = []
     res_s = ""
-    for group in groups:
-        res_group = re.findall(group, name, re.I)
-        if res_group:
-            res_l.append(res_group[0])
+    res_l = re.findall(groups, name)
     if len(res_l) == 1:
         return res_l[0]
     elif len(res_l) > 1:
