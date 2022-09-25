@@ -26,7 +26,7 @@
     <div class="row row-cards">
       {% for Item in Items %}
       <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item[3] %}show_mediainfo_modal("TV", "{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[3] }}", "tv_rss", "{{ Item[10] }}"){% else %}show_edit_rss_media_modal("{{ Item[10] }}"){% endif %}' title="点击编辑/刷新/取消订阅">
+        <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item[3] %}show_mediainfo_modal("TV", "{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[3] }}", "tv_rss", "{{ Item[10] }}"){% else %}show_edit_rss_media_modal("{{ Item[10] }}"){% endif %}'>
           <div class="text-center" style="overflow:hidden">
             <img class="rounded-top w-100" src="{{ Item[4] }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
           </div>
@@ -213,7 +213,6 @@
     </div>
   </div>
 </div>
-
 <script type="text/javascript">
   //新增订阅
   function add_rss_tv(){
@@ -436,4 +435,5 @@
       }
     });
   }
+  
 </script>
