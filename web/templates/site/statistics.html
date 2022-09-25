@@ -658,7 +658,7 @@
             ajax_post("get_site_history", {"days": days}, function (ret) {
                     chart_history.hideLoading();
                     if (ret.code == 0) {
-                        rotate = ret.dataset.length > 15 ? -40 : 0;
+                        rotate = ret.dataset.length > 15 ? 40 : 0;
                         option_history = {
                             animation: false,
                             color: ['#206bc4', '#d63939'],
@@ -734,7 +734,9 @@
                             trigger: 'item', valueFormatter: value => numeral(value).format('0.0 ib')
                         },
                         dataset: {
-                            source: ret.dataset
+                            source: ret.dataset.filter(item => {
+                                return (item[1] > 0 || item[1] === 'upload')
+                            })
                         },
                         series: [
                             {
@@ -742,6 +744,17 @@
                                 encode: {
                                     itemName: 'site',
                                     value: 'upload'
+                                },
+                                label: {
+                                    formatter: function (params) {
+                                        value = numeral(params.value[params.encode.value[0]]).format('0.0 ib');
+                                        return params.name + ': ' + value;
+                                    }
+                                },
+                                emptyCircleStyle: {
+                                    color: 'transparent',
+                                    borderColor: '#ddd',
+                                    borderWidth: 1
                                 }
                             },
                         ]
@@ -752,7 +765,9 @@
                             trigger: 'item', valueFormatter: value => numeral(value).format('0.0 ib')
                         },
                         dataset: {
-                            source: ret.dataset
+                            source: ret.dataset.filter(item => {
+                                return (item[2] > 0 || item[2] === 'download')
+                            })
                         },
                         series: [
                             {
@@ -760,6 +775,16 @@
                                 encode: {
                                     itemName: 'site',
                                     value: 'download'
+                                },
+                                label: {
+                                    formatter: function (params) {
+                                        value = numeral(params.value[params.encode.value[0]]).format('0.0 ib');
+                                        return params.name + ': ' + value;
+                                    }
+                                }, emptyCircleStyle: {
+                                    color: 'transparent',
+                                    borderColor: '#ddd',
+                                    borderWidth: 1
                                 }
                             }
                         ]
