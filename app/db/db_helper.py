@@ -70,7 +70,7 @@ class DBHelper:
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
                                    TORRENT_NAME    TEXT,
                                    ENCLOSURE    TEXT,
-                                   TYPE TEXT,
+                                   TYPE    TEXT,
                                    TITLE    TEXT,
                                    YEAR    TEXT,
                                    SEASON    TEXT,

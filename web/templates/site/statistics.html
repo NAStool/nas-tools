@@ -200,7 +200,7 @@
             </div>
           </div>
           <div id="table-site-user-data" class="table-responsive" style="min-height: 300px">
-            <table class="table table-vcenter card-table table-hover table-striped">
+            <table id="table-site-user-data-table" class="table table-vcenter card-table table-hover table-striped">
               <thead>
                 <tr>
                     <th class="flex-fill"><button class="table-sort" data-sort="sort-name">站点</button></th>
@@ -808,9 +808,8 @@
 
         // 生成统计数据图片并下载
         function save_statistics_pic() {
-            var div = $('#table-site-user-data').clone(true)[0];
-            div.setAttribute("style", "width:500px; min-height: 300px");
-            var table = div.childNodes[1]; 
+            var table =  $('#table-site-user-data-table').clone(true)[0];
+            table.setAttribute("style", "width:500px; min-height: 300px;");
             var thead = table.childNodes[1];
             var tbody = table.childNodes[3];
             var thead_tr = thead.childNodes[1];
@@ -833,8 +832,8 @@
                 tbody_tr.removeChild(tbody_tr.childNodes[3]);//等级
             };
             // 生成图片（素色背景）并下载
-            $('body').append(div);
-            domtoimage.toBlob(div, { bgcolor: '#E9F1F6' }).then(function (blob) {
+            $('body').append(table);
+            domtoimage.toBlob(table, { bgcolor: '#E9F1F6' }).then(function (blob) {
                 saveAs(blob, 'nastool_statistics.png');
             });
         }
