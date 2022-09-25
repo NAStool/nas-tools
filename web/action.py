@@ -2216,4 +2216,3 @@ class WebAction:
             return {"code": 0}
         else:
             return {"code": 1}
-            
