@@ -63,13 +63,11 @@ class Searcher:
                          in_from: SearchType,
                          no_exists: dict,
                          sites: list = None,
-                         filters: dict = None,
-                         rss_id = None):
+                         filters: dict = None):
         """
         只检索和下载一个资源，用于精确检索下载，由微信、Telegram或豆瓣调用
         :param media_info: 已识别的媒体信息
         :param in_from: 搜索渠道
-        :param rss_id: 搜索渠道为RSS时，RSS订阅任务id
         :param no_exists: 缺失的剧集清单
         :param sites: 检索哪些站点
         :param filters: 过滤条件，为空则不过滤
@@ -165,7 +163,7 @@ class Searcher:
                 if not self.__search_auto:
                     return False, no_exists, len(media_list), None
             # 择优下载
-            download_items, left_medias = self.downloader.check_and_add_pt(in_from, media_list, no_exists, rss_id)
+            download_items, left_medias = self.downloader.check_and_add_pt(in_from, media_list, no_exists)
             # 统计下载情况，下全了返回True，没下全返回False
             if not download_items:
                 log.info("【SEARCHER】%s 未下载到资源" % media_info.title)

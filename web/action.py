@@ -116,8 +116,7 @@ class WebAction:
             "update_userrss_task": self.__update_userrss_task,
             "get_rssparser": self.__get_rssparser,
             "delete_rssparser": self.__delete_rssparser,
-            "update_rssparser": self.__update_rssparser,
-            "get_rss_task_torrents": self.__get_rss_task_torrents
+            "update_rssparser": self.__update_rssparser
         }
 
     def action(self, cmd, data):
@@ -2217,13 +2216,3 @@ class WebAction:
             return {"code": 0}
         else:
             return {"code": 1}
-    
-    @staticmethod
-    def __get_rss_task_torrents(data):
-        """
-        获取RSS订阅任务下载种子详情
-        """
-        rss_id = str(data)
-        RssTorrents = list(SqlHelper.get_rss_task_torrents(rss_id))
-        RssTorrents.sort(key=lambda x: x[0], reverse=True)
-        return {"torrents": RssTorrents}

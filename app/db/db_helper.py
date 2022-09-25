@@ -349,22 +349,6 @@ class DBHelper:
                                    NOTE     TEXT,
                                    SYSDEF     TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_CONFIG_RSS_PARSER ON CONFIG_RSS_PARSER (NAME);''')
-            # RSS订阅任务下载记录表
-            cursor.execute('''CREATE TABLE IF NOT EXISTS RSS_TASK_TORRENTS
-                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                                   TASK_ID    TEXT,
-                                   TORRENT_NAME    TEXT,
-                                   ENCLOSURE    TEXT,
-                                   TYPE    TEXT,
-                                   TITLE    TEXT,
-                                   YEAR    TEXT,
-                                   SEASON    TEXT,
-                                   EPISODE    TEXT,
-                                   SIZE    TEXT,
-                                   SITE     TEXT,
-                                   DATE    TEXT);''')
-            cursor.execute(
-                '''CREATE INDEX IF NOT EXISTS INDX_RSS_TASK_TORRENTS_TASKID ON RSS_TASK_TORRENTS (TASK_ID);''')
             # 提交
             conn.commit()
 
