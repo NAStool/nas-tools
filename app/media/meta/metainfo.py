@@ -16,10 +16,16 @@ def MetaInfo(title, subtitle=None, mtype=None):
     :return: MetaAnime、MetaVideo
     """
     config = Config()
+    # 应用屏蔽词
+    used_ignored_words = []
+    # 应用替换词
+    used_replaced_words = []
     # 屏蔽词
     ignored_words = config.get_config('laboratory').get("ignored_words")
     if ignored_words:
         ignored_words = re.compile(r'' + ignored_words)
+        # 去重
+        used_ignored_words = list(set(re.findall(ignored_words, title)))
         title = re.sub(ignored_words, '', title)
     # 替换词
     replaced_words = config.get_config('laboratory').get("replaced_words")
@@ -29,16 +35,24 @@ def MetaInfo(title, subtitle=None, mtype=None):
             if not replaced_word:
                 continue
             replaced_word_info = replaced_word.split("@")
-            title = re.sub(r'' + replaced_word_info[0], r'' + replaced_word_info[-1] ,title)
+            if re.findall(r'' + replaced_word_info[0], title):
+                used_replaced_words.append(replaced_word)
+                title = re.sub(r'' + replaced_word_info[0], r'' + replaced_word_info[-1] ,title)
     # 判断是否处理文件
     if os.path.splitext(title)[-1] in RMT_MEDIAEXT:
         fileflag = True
     else:
         fileflag = False
     if mtype == MediaType.ANIME or is_anime(title):
-        return MetaAnime(title, subtitle, fileflag)
+        meta_info = MetaAnime(title, subtitle, fileflag)
+        meta_info.ignored_words = used_ignored_words
+        meta_info.replaced_words = used_replaced_words
+        return meta_info
     else:
-        return MetaVideo(title, subtitle, fileflag)
+        meta_info = MetaVideo(title, subtitle, fileflag)
+        meta_info.ignored_words = used_ignored_words
+        meta_info.replaced_words = used_replaced_words
+        return meta_info
 
 
 def is_anime(name):
