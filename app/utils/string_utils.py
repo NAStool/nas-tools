@@ -1,6 +1,8 @@
 import bisect
 import random
 import re
+import time
+import datetime
 from urllib import parse
 
 import cn2an
@@ -252,3 +254,17 @@ class StringUtils:
         for i in range(randomlength):
             random_str += base_str[random.randint(0, length)]
         return random_str
+
+    @staticmethod
+    def get_time_stamp(date):
+        tempsTime = None
+        try:
+            result = re.search(r"[\-+]\d+", date)
+            if result:
+                time_area = result.group()
+                utcdatetime = time.strptime(date, '%a, %d %b %Y %H:%M:%S ' + time_area)
+                tempsTime = time.mktime(utcdatetime)
+                tempsTime = datetime.datetime.fromtimestamp(tempsTime)
+        except Exception as err:
+            print(str(err))
+        return tempsTime

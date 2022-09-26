@@ -225,8 +225,8 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">刷新间隔(分钟) <span class="form-help" title="检查站点RSS更新的间隔时间，为了减小站点压力，建议不小于10分钟" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" id="brushtask_interval" class="form-control" placeholder="30">
+                <label class="form-label required">刷新间隔(分钟) <span class="form-help" title="检查站点RSS更新的间隔时间，为了减小站点压力，建议不小于5分钟" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="brushtask_interval" class="form-control" placeholder="10">
               </div>
             </div>
           </div>
@@ -309,6 +309,36 @@
             </div>
             <div class="col-lg-4">
               <div class="mb-3">
+                <label class="form-label">同时下载任务数 <span class="form-help" title="下载器中正在下载的任务数超过此值时不再添加下载" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="brushtask_dlcount" class="form-control" placeholder="10">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">包含 <span class="form-help" title="种子名称或副标题中包括对应关键字或者匹配正则式时才会下载" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="brushtask_include" class="form-control" placeholder="关键字或正则表达式">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">排除 <span class="form-help" title="种子名称或副标题中包括对应关键字或者匹配正则式时不会下载" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="brushtask_exclude" class="form-control" placeholder="关键字或正则表达式">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">上传限速（KB/S） <span class="form-help" title="限制添加下载后的上传速度" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="brushtask_upspeed" class="form-control" placeholder="">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">下载限速（KB/S） <span class="form-help" title="限制添加下载后的下载速度" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" id="brushtask_downspeed" class="form-control" placeholder="">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
                 <label class="form-label">种子大小(GB) <span class="form-help" title="设置大小范围的种子才会下载，介于时使用英文逗号,分隔两个值" data-bs-toggle="tooltip">?</span></label>
                 <div class="input-group">
                   <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_torrent_size_btn">
@@ -331,26 +361,6 @@
                   </div>
                   <input type="text" class="form-control" id="brushtask_torrent_size" readonly>
                 </div>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label">包含 <span class="form-help" title="种子名称或副标题中包括对应关键字或者匹配正则式时才会下载" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" id="brushtask_include" class="form-control" placeholder="关键字或正则表达式">
-              </div>
-            </div>
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label">排除 <span class="form-help" title="种子名称或副标题中包括对应关键字或者匹配正则式时不会下载" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" id="brushtask_exclude" class="form-control" placeholder="关键字或正则表达式">
-              </div>
-            </div>
-            <div class="col-lg-4">
-              <div class="mb-3">
-                <label class="form-label">同时下载数量限制 <span class="form-help" title="下载器中正在下载的任务数超过此值时不再添加下载" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" id="brushtask_dlcount" class="form-control" placeholder="10">
               </div>
             </div>
             <div class="col-lg-4">
@@ -376,6 +386,26 @@
                     </a>
                   </div>
                   <input type="text" id="brushtask_peercount" class="form-control" placeholder="" readonly/>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">发布时间（小时） <span class="form-help" title="种子的发布时间在选定范围内时才会下载" data-bs-toggle="tooltip">?</span></label>
+                <div class="input-group">
+                  <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" id="brushtask_pubdate_btn">
+                    全部
+                  </button>
+                  <input type="hidden" id="brushtask_pubdate_do">
+                  <div class="dropdown-menu" style="">
+                    <a class="dropdown-item" id="brushtask_pubdate_do_" href="javascript:void(0)" onclick="javascript:filter_item_change('', 'brushtask_pubdate',$(this))">
+                      全部
+                    </a>
+                    <a class="dropdown-item" id="brushtask_pubdate_do_lt" href="javascript:void(0)" onclick="javascript:filter_item_change('lt', 'brushtask_pubdate',$(this))">
+                      小于
+                    </a>
+                  </div>
+                  <input type="text" id="brushtask_pubdate" class="form-control" placeholder="" readonly/>
                 </div>
               </div>
             </div>
@@ -571,11 +601,20 @@
           dltime_str = ret.task.remove_rule.dltime.split('#');
           filter_item_change(dltime_str[0], 'brushtask_dltime', $('#brushtask_dltime_do_' + dltime_str[0]), dltime_str[1])
         }
-        //上传速度
+        //平均上传速度
         if(ret.task.remove_rule.avg_upspeed){
           avg_upspeed_str = ret.task.remove_rule.avg_upspeed.split('#');
           filter_item_change(avg_upspeed_str[0], 'brushtask_avg_upspeed', $('#brushtask_avg_upspeed_do_' + avg_upspeed_str[0]), avg_upspeed_str[1])
         }
+        //发布日期
+        if(ret.task.rss_rule.pubdate){
+          pubdate_str = ret.task.rss_rule.pubdate.split('#');
+          filter_item_change(pubdate_str[0], 'brushtask_pubdate', $('#brushtask_pubdate_do_' + pubdate_str[0]), pubdate_str[1])
+        }
+        //上传限速
+        $("#brushtask_upspeed").val(ret.task.rss_rule.upspeed);
+        //下载限速
+        $("#brushtask_downspeed").val(ret.task.rss_rule.downspeed);
         //弹窗
         $("#modal-brushtask").modal('show');
       }
@@ -711,6 +750,38 @@
     }else{
       $("#brushtask_dlcount").removeClass("is-invalid");
     }
+    //上传限速
+    var brushtask_upspeed = $("#brushtask_upspeed").val();
+    if(brushtask_upspeed && isNaN(brushtask_upspeed)){
+      $("#brushtask_upspeed").addClass("is-invalid");
+      return;
+    }else{
+      $("#brushtask_upspeed").removeClass("is-invalid");
+    }
+    //下载限速
+    var brushtask_downspeed = $("#brushtask_downspeed").val();
+    if(brushtask_downspeed && isNaN(brushtask_downspeed)){
+      $("#brushtask_downspeed").addClass("is-invalid");
+      return;
+    }else{
+      $("#brushtask_downspeed").removeClass("is-invalid");
+    }
+    //发布时间
+    var brushtask_pubdate_do = $("#brushtask_pubdate_do").val();
+    var brushtask_pubdate = $("#brushtask_pubdate").val();
+    if(brushtask_pubdate_do && !brushtask_pubdate){
+      $("#brushtask_pubdate").addClass("is-invalid");
+      return;
+    } else {
+      if(brushtask_pubdate && brushtask_pubdate_do != 'bw' && isNaN(brushtask_pubdate)){
+        $("#brushtask_pubdate").addClass("is-invalid");
+        return;
+      }else if(brushtask_pubdate && brushtask_pubdate_do == 'bw' && !/\d+,\d+/.test(brushtask_pubdate)){
+        $("#brushtask_pubdate").addClass("is-invalid");
+        return;
+      }
+      $("#brushtask_pubdate").removeClass("is-invalid");
+    }
     //做种人数
     var brushtask_peercount_do = $("#brushtask_peercount_do").val();
     var brushtask_peercount = $("#brushtask_peercount").val();
@@ -779,7 +850,7 @@
       }
       $("#brushtask_dltime").removeClass("is-invalid");
     }
-    //上传速度
+    //平均上传速度
     var brushtask_avg_upspeed_do = $("#brushtask_avg_upspeed_do").val();
     var brushtask_avg_upspeed = $("#brushtask_avg_upspeed").val();
     if(brushtask_avg_upspeed_do && !brushtask_avg_upspeed){
@@ -816,7 +887,10 @@
       brushtask_seedratio: brushtask_seedratio_do + "#" + brushtask_seedratio,
       brushtask_seedsize: brushtask_seedsize_do + "#" + brushtask_seedsize,
       brushtask_dltime: brushtask_dltime_do + "#" + brushtask_dltime,
-      brushtask_avg_upspeed: brushtask_avg_upspeed_do + "#" + brushtask_avg_upspeed
+      brushtask_avg_upspeed: brushtask_avg_upspeed_do + "#" + brushtask_avg_upspeed,
+      brushtask_upspeed: brushtask_upspeed,
+      brushtask_downspeed: brushtask_downspeed,
+      brushtask_pubdate: brushtask_pubdate_do + "#" + brushtask_pubdate
     };
 
     ajax_post("add_brushtask", params, function(ret){

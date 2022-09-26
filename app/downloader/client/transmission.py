@@ -254,3 +254,31 @@ class Transmission(IDownloadClient):
         except Exception as err:
             print(str(err))
             return []
+
+    def set_uploadspeed_limit(self, ids, limit):
+        """
+        设置上传限速，单位 KB/sec
+        """
+        if not self.trc:
+            return
+        if not ids or not limit:
+            return
+        if not isinstance(ids, list):
+            ids = int(ids)
+        else:
+            ids = [int(x) for x in ids if str(x).isdigit()]
+        self.trc.change_torrent(ids, uploadLimit=int(limit))
+
+    def set_downloadspeed_limit(self, ids, limit):
+        """
+        设置下载限速，单位 KB/sec
+        """
+        if not self.trc:
+            return
+        if not ids or not limit:
+            return
+        if not isinstance(ids, list):
+            ids = int(ids)
+        else:
+            ids = [int(x) for x in ids if str(x).isdigit()]
+        self.trc.change_torrent(ids, downloadLimit=int(limit))

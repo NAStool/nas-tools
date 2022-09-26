@@ -273,3 +273,25 @@ class Qbittorrent(IDownloadClient):
             if category and category.get("savePath") and category.get("savePath") not in ret_dirs:
                 ret_dirs.append(category.get("savePath"))
         return ret_dirs
+
+    def set_uploadspeed_limit(self, ids, limit):
+        """
+        设置上传限速，单位bytes/sec
+        """
+        if not self.qbc:
+            return
+        if not ids or not limit:
+            return
+        self.qbc.torrents_set_upload_limit(limit=int(limit),
+                                           torrent_hashes=ids)
+
+    def set_downloadspeed_limit(self, ids, limit):
+        """
+        设置下载限速，单位bytes/sec
+        """
+        if not self.qbc:
+            return
+        if not ids or not limit:
+            return
+        self.qbc.torrents_set_download_limit(limit=int(limit),
+                                             torrent_hashes=ids)
