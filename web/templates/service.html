@@ -84,7 +84,7 @@
           </div>
           <div class="row">
             <div class="col">
-              <div class="mb-3" id="test_result">
+              <div class="mb-1" id="test_result">
               </div>
             </div>
           </div>
@@ -310,6 +310,28 @@
       $("#nametest_btn").attr("disabled", false);
       if(ret.code == 0){
         $("#test_result").empty();
+        var ignored_words = ret.data.ignored_words;
+        var replaced_words = ret.data.replaced_words;
+        var words = ignored_words + replaced_words;
+        if(words.length != 0){
+          if(ret.data.org_string){
+          $("#test_result").append('<div class="mb-3" ><label class="form-label">识别使用名称：<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;" title="自定义识别词过滤后识别用名">' + ret.data.org_string + '</span></label></div>');
+          }
+          if(ignored_words.length != 0){
+            var ignored_word_content = '<div class="mb-3"><label class="form-label">应用屏蔽词：';
+            for(ignored_word of ignored_words){
+              ignored_word_content = ignored_word_content + '<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">' + ignored_word + '</span>';
+            };  
+            $("#test_result").append(ignored_word_content + '</label></div>');
+          }
+          if(replaced_words.length != 0){
+            var replaced_words_content = '<div class="mb-3"><label class="form-label">应用替换词：';
+            for(replaced_word of replaced_words){
+              replaced_words_content = replaced_words_content + '<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">' + replaced_word + '</span>';
+            };
+            $("#test_result").append(replaced_words_content + '</label></div>');
+          }
+        }
         if(ret.data.type){
           $("#test_result").append('<span class="badge badge-outline text-blue me-1 mb-1" title="类型">' + ret.data.type + '</span>');
         }
