@@ -84,7 +84,7 @@
           </div>
           <div class="row">
             <div class="col">
-              <div class="mb-3" id="test_result">
+              <div class="mb-1" id="test_result">
               </div>
             </div>
           </div>
@@ -310,6 +310,9 @@
       $("#nametest_btn").attr("disabled", false);
       if(ret.code == 0){
         $("#test_result").empty();
+        if(ret.data.org_string){
+          $("#test_result").append('<div class="mb-3"><span class="badge badge-outline text-cyan me-1 mb-1" title="自定义识别词过滤后识别用名">' + ret.data.org_string + '</span></div>');
+        }
         if(ret.data.type){
           $("#test_result").append('<span class="badge badge-outline text-blue me-1 mb-1" title="类型">' + ret.data.type + '</span>');
         }
@@ -347,10 +350,7 @@
           $("#test_result").append('<span class="badge me-1 mb-1" title="音频编码">' + ret.data.audio_codec + '</span>');
         }
         if(ret.data.team){
-          $("#test_result").append('<span class="badge badge-outline text-yellow me-1 mb-1" title="制作组/字幕组">' + ret.data.team + '</span></br>');
-        }
-        if(ret.data.org_string){
-          $("#test_result").append('<span class="badge badge-outline text-cyan me-1 mb-1" title="自定义识别词过滤后识别用名">' + ret.data.org_string + '</span>');
+          $("#test_result").append('<span class="badge badge-outline text-yellow me-1 mb-1" title="制作组/字幕组">' + ret.data.team + '</span>');
         }
       }
     });
