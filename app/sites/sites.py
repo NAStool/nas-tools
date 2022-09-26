@@ -249,7 +249,7 @@ class Sites:
         获取站点上传下载量
         """
         site_urls = []
-        for site in self.get_sites():
+        for site in self.get_sites(statistic=True):
             site_url = self.__get_site_strict_url(site)
             if site_url:
                 site_urls.append(site_url)
@@ -264,7 +264,7 @@ class Sites:
         """
 
         site_urls = []
-        for site in self.get_sites():
+        for site in self.get_sites(statistic=True):
             site_url = self.__get_site_strict_url(site)
             if site_url:
                 site_urls.append(site_url)
