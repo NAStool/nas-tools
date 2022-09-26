@@ -1631,7 +1631,8 @@ class WebAction:
             "pix": media_info.resource_pix,
             "team": media_info.resource_team,
             "video_codec": media_info.video_encode,
-            "audio_codec": media_info.audio_encode
+            "audio_codec": media_info.audio_encode,
+            "org_string":media_info.org_string
         }}
 
     @staticmethod
