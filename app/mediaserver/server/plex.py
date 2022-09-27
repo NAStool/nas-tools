@@ -4,11 +4,13 @@ import log
 from config import Config
 from app.mediaserver.server.server import IMediaServer
 from app.utils.commons import singleton
+from plexapi.server import PlexServer
 
 
 @singleton
 class Plex(IMediaServer):
     __host = None
+    __token = None
     __username = None
     __password = None
     __servername = None
@@ -23,6 +25,7 @@ class Plex(IMediaServer):
         plex = config.get_config('plex')
         if plex:
             self.__host = plex.get('host')
+            self.__token = plex.get('token')
             if self.__host:
                 if not self.__host.startswith('http://') and not self.__host.startswith('https://'):
                     self.__host = "http://" + self.__host
@@ -31,7 +34,13 @@ class Plex(IMediaServer):
             self.__username = plex.get('username')
             self.__password = plex.get('password')
             self.__servername = plex.get('servername')
-            if self.__username and self.__password and self.__servername:
+            if self.__host and self.__token:
+                try:
+                    self.__plex = PlexServer(self.__host, self.__token)
+                except Exception as e:
+                    self.__plex = None
+                    log.error("【PLEX】Plex服务器连接失败：%s" % str(e))
+            elif self.__username and self.__password and self.__servername:
                 try:
                     self.__plex = MyPlexAccount(self.__username, self.__password).resource(self.__servername).connect()
                 except Exception as e:
