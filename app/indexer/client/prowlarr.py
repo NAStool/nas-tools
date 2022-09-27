@@ -12,10 +12,11 @@ class Prowlarr(IIndexer):
         if prowlarr:
             self.api_key = prowlarr.get('api_key')
             self.host = prowlarr.get('host')
-            if not self.host.startswith('http://') and not self.host.startswith('https://'):
-                self.host = "http://" + self.host
-            if not self.host.endswith('/'):
-                self.host = self.host + "/"
+            if self.host:
+                if not self.host.startswith('http'):
+                    self.host = "http://" + self.host
+                if not self.host.endswith('/'):
+                    self.host = self.host + "/"
 
     def get_status(self):
         """
