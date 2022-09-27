@@ -107,6 +107,9 @@ class MetaBase(object):
     rssid = None
     # 保存目录
     save_dir = None
+    # 识别辅助
+    ignored_words = None
+    replaced_words = None
     # 副标题解析
     _subtitle_flag = False
     _subtitle_season_re = r"[第\s]+([0-9一二三四五六七八九十S\-]+)\s*季"

@@ -37,7 +37,7 @@ def MetaInfo(title, subtitle=None, mtype=None):
             replaced_word_info = replaced_word.split("@")
             if re.findall(r'' + replaced_word_info[0], title):
                 used_replaced_words.append(replaced_word)
-                title = re.sub(r'' + replaced_word_info[0], r'' + replaced_word_info[-1] ,title)
+                title = re.sub(r'' + replaced_word_info[0], r'' + replaced_word_info[-1], title)
     # 判断是否处理文件
     if os.path.splitext(title)[-1] in RMT_MEDIAEXT:
         fileflag = True

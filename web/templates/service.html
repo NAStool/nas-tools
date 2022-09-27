@@ -315,7 +315,7 @@
         var words = ignored_words + replaced_words;
         if(words.length != 0){
           if(ret.data.org_string){
-          $("#test_result").append('<div class="mb-3" ><label class="form-label">识别使用名称：<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;" title="自定义识别词过滤后识别用名">' + ret.data.org_string + '</span></label></div>');
+            $("#test_result").append('<div class="mb-3" ><label class="form-label">识别使用名称：<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;" title="自定义识别词过滤后识别用名">' + ret.data.org_string + '</span></label></div>');
           }
           if(ignored_words.length != 0){
             var ignored_word_content = '<div class="mb-3"><label class="form-label">应用屏蔽词：';
