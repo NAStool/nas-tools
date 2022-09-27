@@ -4,7 +4,7 @@ import xmlrpc.client
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_PORT = 6800
-SERVER_URI_FORMAT = 'http://%s:%s/rpc'
+SERVER_URI_FORMAT = '%s:%s/rpc'
 
 
 class PyAria2(object):

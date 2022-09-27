@@ -1446,6 +1446,9 @@ class WebAction:
         brushtask_seedsize = data.get("brushtask_seedsize")
         brushtask_dltime = data.get("brushtask_dltime")
         brushtask_avg_upspeed = data.get("brushtask_avg_upspeed")
+        brushtask_pubdate = data.get("brushtask_pubdate")
+        brushtask_upspeed = data.get("brushtask_upspeed")
+        brushtask_downspeed = data.get("brushtask_downspeed")
         # 选种规则
         rss_rule = {
             "free": brushtask_free,
@@ -1455,6 +1458,9 @@ class WebAction:
             "exclude": brushtask_exclude,
             "dlcount": brushtask_dlcount,
             "peercount": brushtask_peercount,
+            "pubdate": brushtask_pubdate,
+            "upspeed": brushtask_upspeed,
+            "downspeed": brushtask_downspeed
         }
         # 删除规则
         remove_rule = {
@@ -1625,7 +1631,10 @@ class WebAction:
             "pix": media_info.resource_pix,
             "team": media_info.resource_team,
             "video_codec": media_info.video_encode,
-            "audio_codec": media_info.audio_encode
+            "audio_codec": media_info.audio_encode,
+            "org_string":media_info.org_string,
+            "ignored_words":media_info.ignored_words,
+            "replaced_words":media_info.replaced_words
         }}
 
     @staticmethod

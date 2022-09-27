@@ -597,9 +597,18 @@ class Rss:
                                 size = int(size)
                             else:
                                 size = 0
+                        # 发布日期
+                        pubdate = DomUtils.tag_value(item, "pubDate", default="")
+                        if pubdate:
+                            # 转换为时间
+                            pubdate = StringUtils.get_time_stamp(pubdate)
                         # 返回对象
-                        tmp_dict = {'title': title, 'enclosure': enclosure, 'size': size, 'description': description,
-                                    'link': link}
+                        tmp_dict = {'title': title,
+                                    'enclosure': enclosure,
+                                    'size': size,
+                                    'description': description,
+                                    'link': link,
+                                    'pubdate': pubdate}
                         ret_array.append(tmp_dict)
                     except Exception as e1:
                         log.console(str(e1))

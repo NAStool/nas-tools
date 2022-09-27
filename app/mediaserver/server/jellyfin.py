@@ -23,7 +23,7 @@ class Jellyfin(IMediaServer):
         if jellyfin:
             self.__host = jellyfin.get('host')
             if self.__host:
-                if not self.__host.startswith('http://') and not self.__host.startswith('https://'):
+                if not self.__host.startswith('http'):
                     self.__host = "http://" + self.__host
                 if not self.__host.endswith('/'):
                     self.__host = self.__host + "/"

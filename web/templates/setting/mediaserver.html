@@ -139,21 +139,27 @@
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
-                <label class="form-label required">服务器名称 <span class="form-help" title="配置Plex设置->左侧下拉框中看到的服务器名称" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.plex %}{{ Config.plex.servername or '' }}{% endif %}" id="plex.servername" class="form-control">
+                <label class="form-label required">X-Plex-Token <span class="form-help" title="Plex网页Cookie中的X-Plex-Token，通过浏览器F12->网络中获取，如填写将优先使用；Token与服务器名称、用户名及密码 二选一，推荐使用Token，连接速度更快" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{% if Config.plex %}{{ Config.plex.token or '' }}{% endif %}" id="plex.token" class="form-control" placeholder="X-Plex-Token与其它认证信息二选一">
               </div>
             </div>
           </div>
           <div class="row">
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">用户名</label>
+                <label class="form-label">服务器名称 <span class="form-help" title="配置Plex设置->左侧下拉框中看到的服务器名称；如填写了Token则无需填写服务器名称、用户名及密码" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{% if Config.plex %}{{ Config.plex.servername or '' }}{% endif %}" id="plex.servername" class="form-control">
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label">用户名</label>
                 <input type="text" value="{% if Config.plex %}{{ Config.plex.username or '' }}{% endif %}" id="plex.username" class="form-control" placeholder="">
               </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <div class="mb-3">
-                <label class="form-label required">密码</label>
+                <label class="form-label">密码</label>
                 <input type="password" value="{% if Config.plex %}{{ Config.plex.password or '' }}{% endif %}" id="plex.password" class="form-control">
               </div>
             </div>

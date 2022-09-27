@@ -101,6 +101,8 @@ jellyfin:
 plex:
   # 【Plex服务器IP地址和端口】：注意区分http和https，http时可以不加http://，https时必须加https://
   host: http://127.0.0.1:32400
+  # 【X-Plex-Token】：Plex页面Cookie中的X-Plex-Token，如填写token则无需填写servername、username、password
+  token:
   # 【Plex服务器的名称】
   servername:
   # 【Plex用户名】

@@ -20,6 +20,11 @@ class Aria2(IDownloadClient):
             self.save_path = aria2config.get('save_path')
             self.save_containerpath = aria2config.get('save_containerpath')
             self.host = aria2config.get("host")
+            if self.host:
+                if not self.host.startswith('http'):
+                    self.host = "http://" + self.host
+                if self.host.endswith('/'):
+                    self.host = self.host[:-1]
             self.port = aria2config.get("port")
             self.secret = aria2config.get("secret")
             if self.host and self.port:

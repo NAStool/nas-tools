@@ -109,7 +109,7 @@ sites = [rg_1pt,
 release_groups = '|'
 for site in sites:
     for release_group in site:
-        release_groups = release_groups + "(?<=[-@[￡])" + release_group + "(?=[@.\s])" + "|"
+        release_groups = release_groups + "(?<=[-@[￡])" + release_group + "(?=[@.\s\][])" + "|"
 release_groups = re.compile(r"" + release_groups[1:-1], re.I)
 
 
