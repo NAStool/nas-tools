@@ -131,7 +131,7 @@ class ISiteUserInfo(metaclass=ABCMeta):
         """
         html = etree.HTML(html_text)
         if html:
-            fav_link = html.xpath('//head/link[@rel = "shortcut icon"]/@href')
+            fav_link = html.xpath('//head/link[contains(@rel, "icon")]/@href')
             if fav_link:
                 self._favicon_url = urljoin(self._base_url, fav_link[0])
 
