@@ -394,9 +394,9 @@ class Downloader:
                             continue
                         if item.type == MediaType.MOVIE:
                             continue
-                        # 选中一个单季整季的
+                        # 选中一个单季整季的或单季包括需要的所有集的
                         if item.tmdb_id == need_tmdbid \
-                                and not item.get_episode_list() \
+                                and (not item.get_episode_list() or set(item.get_episode_list()).issuperset(set(need_episodes))) \
                                 and len(item.get_season_list()) == 1 \
                                 and item.get_season_list()[0] == need_season:
                             log.info("【DOWNLOADER】添加下载任务并暂停：%s ..." % item.org_string)
