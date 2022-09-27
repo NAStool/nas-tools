@@ -28,7 +28,7 @@ class Telegram(IMessageChannel):
         if app:
             self.__domain = app.get('domain')
             if self.__domain:
-                if not self.__domain.startswith('http://') and not self.__domain.startswith('https://'):
+                if not self.__domain.startswith('http'):
                     self.__domain = "http://" + self.__domain
                 if not self.__domain.endswith('/'):
                     self.__domain = self.__domain + "/"

@@ -27,7 +27,7 @@ class Plex(IMediaServer):
             self.__host = plex.get('host')
             self.__token = plex.get('token')
             if self.__host:
-                if not self.__host.startswith('http://') and not self.__host.startswith('https://'):
+                if not self.__host.startswith('http'):
                     self.__host = "http://" + self.__host
                 if not self.__host.endswith('/'):
                     self.__host = self.__host + "/"

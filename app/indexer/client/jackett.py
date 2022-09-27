@@ -17,7 +17,7 @@ class Jackett(IIndexer):
             self._password = jackett.get('password')
             self.host = jackett.get('host')
             if self.host:
-                if not self.host.startswith('http://') and not self.host.startswith('https://'):
+                if not self.host.startswith('http'):
                     self.host = "http://" + self.host
                 if not self.host.endswith('/'):
                     self.host = self.host + "/"
