@@ -14,7 +14,7 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
     echo "third_party/feapder/feapder/network/proxy_file/" >> .gitignore
     git clean -dffx
     git reset --hard HEAD
-    git pull --depth=1
+    git pull
     if [ $? -eq 0 ]; then
         echo "更新成功..."
         hash_old=$(cat /tmp/requirements.txt.sha256sum)
@@ -32,7 +32,7 @@ if [ "$NASTOOL_AUTO_UPDATE" = "true" ]; then
                 hash_new=$(sha256sum third_party.txt)
                 if [ "$hash_old" != "$hash_new" ]; then
                     echo "检测到third_party.txt有变化，更新第三方组件..."
-                    git submodule update --init --recursive --depth=1
+                    git submodule update --init --recursive
                     if [ $? -ne 0 ]; then
                         echo "无法更新第三方组件，请更新镜像..."
                     else
