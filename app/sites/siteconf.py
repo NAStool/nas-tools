@@ -312,6 +312,60 @@ class SiteConf:
             'HR': [],
             'PEER_COUNT': [],
         },
+        'www.hddolby.com': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'piggo.me': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': ["//img[@class='hitandrun']"],
+            'PEER_COUNT': [],
+        },
+        'pt.0ff.cc': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': ["//img[@class='hitandrun']"],
+            'PEER_COUNT': [],
+        },
+        'wintersakura.net': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'pt.hdupt.com': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'pt.upxin.net': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'www.nicept.net': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'ptchina.org': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': ["//font[@class='twoupfree']"],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
+        'www.hd.ai': {
+            'FREE': ["//img[@class='pro_free']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': [],
+        }
     }
     # 公共BT站点
     PUBLIC_TORRENT_SITES = {
