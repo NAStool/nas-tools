@@ -27,7 +27,8 @@ def MetaInfo(title, subtitle=None, mtype=None):
         ignored_words = re.compile(r'' + ignored_words)
         # 去重
         used_ignored_words = list(set(re.findall(ignored_words, title)))
-        title = re.sub(ignored_words, '', title)
+        if used_ignored_words:
+            title = re.sub(ignored_words, '', title)
     # 替换词
     replaced_words = config.get_config('laboratory').get("replaced_words")
     if replaced_words:
