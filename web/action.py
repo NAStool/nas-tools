@@ -353,6 +353,7 @@ class WebAction:
             else:
                 media = Media().get_media_info(title=res[8], subtitle=res[9])
             media.enclosure = res[0]
+            media.org_string = res[8]
             media.description = res[9]
             media.size = res[10]
             media.site = res[14]
@@ -363,7 +364,8 @@ class WebAction:
             ret, ret_msg = Downloader().add_pt_torrent(url=media.enclosure,
                                                        mtype=media.type,
                                                        download_dir=dl_dir,
-                                                       page_url=media.page_url)
+                                                       page_url=media.page_url,
+                                                       title=media.org_string)
             if ret:
                 # 发送消息
                 Message().send_download_message(SearchType.WEB, media)
