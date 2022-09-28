@@ -30,7 +30,7 @@ def MetaInfo(title, subtitle=None, mtype=None):
     # 替换词
     replaced_words = config.get_config('laboratory').get("replaced_words")
     if replaced_words:
-        replaced_words = replaced_words.split("|")
+        replaced_words = replaced_words.split("||")
         for replaced_word in replaced_words:
             if not replaced_word:
                 continue

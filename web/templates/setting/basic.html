@@ -794,7 +794,7 @@
   function save_customized_words_config(){
     var params = {};
     var ignored_words = $("#ignored_words").val().replace(/\n/g,"|");
-    var replaced_words = $("#replaced_words").val().replace(/\n/g,"|");
+    var replaced_words = $("#replaced_words").val().replace(/\n/g,"||");
     params['laboratory.ignored_words'] = ignored_words
     params['laboratory.replaced_words'] = replaced_words
     ajax_post("update_config", params, function (ret) {
