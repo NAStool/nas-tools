@@ -141,14 +141,15 @@ class TorrentSpider(feapder.AirSpider):
                                                     {}).get('selector',
                                                             '')).clone()
             selector = self.fields.get('title', {})
-
         if 'remove' in selector:
             removelist = selector.get('remove', '').split(', ')
             for v in removelist:
                 title_default.remove(v)
-
         items = [item.text() for item in title_default.items() if item]
         self.torrents_info['title'] = items[0] if items else ''
+        if "filters" in selector:
+            self.torrents_info['title'] = self.__filter_text(self.torrents_info['title'],
+                                                             selector.get('filters', {}))
 
     def Getdetails(self, torrent):
         # details
