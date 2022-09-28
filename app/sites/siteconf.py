@@ -356,6 +356,9 @@ class SiteConf:
         },
         'gaoqing.fm': {
             "proxy": False
+        },
+        'www.mp4ba.vip': {
+            "proxy": False
         }
     }
 

@@ -1602,6 +1602,8 @@ class WebAction:
         if not name:
             return {"code": -1}
         media_info = Media().get_media_info(title=name)
+        if not media_info:
+            return {"code": 0, "data": {"name": "无法识别"}}
         tmdb_id = media_info.tmdb_id
         tmdb_link = ""
         tmdb_S_E_link = ""
@@ -1614,8 +1616,6 @@ class WebAction:
                     tmdb_S_E_link = "%s/season/%s" % (tmdb_link, media_info.get_season_seq())
                     if media_info.get_episode_string():
                         tmdb_S_E_link = "%s/episode/%s" % (tmdb_S_E_link, media_info.get_episode_seq())
-        if not media_info:
-            return {"code": 0, "data": {"name": "无法识别"}}
         return {"code": 0, "data": {
             "type": media_info.type.value if media_info.type else "",
             "name": media_info.get_name(),
