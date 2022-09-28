@@ -359,6 +359,9 @@ class SiteConf:
         },
         'www.mp4ba.vip': {
             "proxy": False
+        },
+        'www.miobt.com': {
+            "proxy": True
         }
     }
 
