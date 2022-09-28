@@ -23,6 +23,7 @@ def MetaInfo(title, subtitle=None, mtype=None):
     # 屏蔽词
     ignored_words = config.get_config('laboratory').get("ignored_words")
     if ignored_words:
+        ignored_words = re.sub(r"\|\|", '|', ignored_words)
         ignored_words = re.compile(r'' + ignored_words)
         # 去重
         used_ignored_words = list(set(re.findall(ignored_words, title)))

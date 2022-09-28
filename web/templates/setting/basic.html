@@ -793,7 +793,7 @@
   // 保存自定义识别屏蔽词配置
   function save_customized_words_config(){
     var params = {};
-    var ignored_words = $("#ignored_words").val().replace(/\n/g,"|");
+    var ignored_words = $("#ignored_words").val().replace(/\n/g,"||");
     var replaced_words = $("#replaced_words").val().replace(/\n/g,"||");
     params['laboratory.ignored_words'] = ignored_words
     params['laboratory.replaced_words'] = replaced_words
