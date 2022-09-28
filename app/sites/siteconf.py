@@ -416,6 +416,9 @@ class SiteConf:
         },
         'www.miobt.com': {
             "proxy": True
+        },
+        'katcr.to': {
+            "proxy": True
         }
     }
 

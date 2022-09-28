@@ -149,7 +149,7 @@ class TorrentSpider(feapder.AirSpider):
         self.torrents_info['title'] = items[0] if items else ''
         filters = selector.get('filters', {})
         if filters:
-            self.torrents_info['title'] = self.__filter_text(self.torrents_info['title'], filters)
+            self.torrents_info['title'] = self.__filter_text(self.torrents_info.get('title'), filters)
 
     def Getdetails(self, torrent):
         # details
@@ -189,7 +189,7 @@ class TorrentSpider(feapder.AirSpider):
             self.torrents_info['imdbid'] = items[0] if items else ''
             filters = selector.get('filters', {})
             if filters:
-                self.torrents_info['imdbid'] = self.__filter_text(self.torrents_info['imdbid'], filters)
+                self.torrents_info['imdbid'] = self.__filter_text(self.torrents_info.get('imdbid'), filters)
 
     def Getsize(self, torrent):
         # torrent size
@@ -202,6 +202,10 @@ class TorrentSpider(feapder.AirSpider):
                 items[selector.get('index')].replace("\n", ""))
         elif len(items) > 0:
             self.torrents_info['size'] = StringUtils.num_filesize(items[0].replace("\n", ""))
+        if self.torrents_info.get('size'):
+            filters = selector.get('filters', {})
+            if filters:
+                self.torrents_info['size'] = self.__filter_text(self.torrents_info.get('size'), filters)
 
     def Getleechers(self, torrent):
         # torrent leechers
@@ -211,7 +215,7 @@ class TorrentSpider(feapder.AirSpider):
         self.torrents_info['peers'] = items[0] if items else 0
         filters = selector.get('filters', {})
         if filters:
-            self.torrents_info['peers'] = self.__filter_text(self.torrents_info['peers'], filters)
+            self.torrents_info['peers'] = self.__filter_text(self.torrents_info.get('peers'), filters)
 
     def Getseeders(self, torrent):
         # torrent leechers
@@ -221,7 +225,7 @@ class TorrentSpider(feapder.AirSpider):
         self.torrents_info['seeders'] = items[0].split("/")[0] if items else 0
         filters = selector.get('filters', {})
         if filters:
-            self.torrents_info['seeders'] = self.__filter_text(self.torrents_info['seeders'], filters)
+            self.torrents_info['seeders'] = self.__filter_text(self.torrents_info.get('seeders'), filters)
 
     def Getgrabs(self, torrent):
         # torrent grabs
@@ -231,7 +235,7 @@ class TorrentSpider(feapder.AirSpider):
         self.torrents_info['grabs'] = items[0] if items else ''
         filters = selector.get('filters', {})
         if filters:
-            self.torrents_info['grabs'] = self.__filter_text(self.torrents_info['grabs'], filters)
+            self.torrents_info['grabs'] = self.__filter_text(self.torrents_info.get('grabs'), filters)
 
     def Gettitle_optional(self, torrent):
         # title optional
@@ -325,6 +329,8 @@ class TorrentSpider(feapder.AirSpider):
                     text = text.replace(r"%s" % args[0], r"%s" % args[-1])
                 elif method_name == "dateparse" and isinstance(args, str):
                     text = datetime.datetime.strptime(text, r"%s" % args)
+                elif method_name == "strip":
+                    text = text.strip()
             except Exception as err:
                 print(str(err))
         return text.strip()
