@@ -2,6 +2,7 @@ import random
 import re
 from functools import lru_cache
 from time import sleep
+from urllib.parse import quote
 
 import bencode
 from lxml import etree
@@ -249,3 +250,23 @@ class Torrent:
         except Exception as err:
             print(str(err))
         return None
+
+    @staticmethod
+    def convert_hash_to_magnet(hash_text, title):
+        """
+        根据hash值，转换为磁力链，自动添加tracker
+        :param hash_text: 种子Hash值
+        :param title: 种子标题
+        """
+        if not hash_text or not title:
+            return None
+        hash_text = re.search(r'[0-9a-z]+', hash_text, re.IGNORECASE)
+        if not hash_text:
+            return None
+        hash_text = hash_text.group(0)
+        return f'magnet:?xt=urn:btih:{hash_text}&dn={quote(title)}&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A80' \
+               '&tr=udp%3A%2F%2Fopentor.org%3A2710' \
+               '&tr=udp%3A%2F%2Ftracker.ccc.de%3A80' \
+               '&tr=udp%3A%2F%2Ftracker.blackunicorn.xyz%3A6969' \
+               '&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969' \
+               '&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969'
