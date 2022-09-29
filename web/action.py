@@ -116,7 +116,9 @@ class WebAction:
             "update_userrss_task": self.__update_userrss_task,
             "get_rssparser": self.__get_rssparser,
             "delete_rssparser": self.__delete_rssparser,
-            "update_rssparser": self.__update_rssparser
+            "update_rssparser": self.__update_rssparser,
+            "run_userrss": self.__run_userrss,
+            "run_brushtask": self.__run_brushtask
         }
 
     def action(self, cmd, data):
@@ -2227,3 +2229,13 @@ class WebAction:
             return {"code": 0}
         else:
             return {"code": 1}
+
+    @staticmethod
+    def __run_userrss(data):
+        RssChecker().check_task_rss(data.get("id"))
+        return {"code": 0}
+
+    @staticmethod
+    def __run_brushtask(data):
+        BrushTask().check_task_rss(data.get("id"))
+        return {"code": 0}

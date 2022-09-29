@@ -92,7 +92,7 @@ class BrushTask(object):
 
     def get_brushtask_info(self, taskid):
         for task in self._brush_tasks:
-            if task.get("id") == taskid:
+            if task.get("id") == int(taskid):
                 return task
         return None
 
