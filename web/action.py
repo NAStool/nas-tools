@@ -1979,6 +1979,12 @@ class WebAction:
                     sizes[1] = sizes[1].replace(",", "-")
                 rule_htmls.append('<span class="badge badge-outline text-blue me-1 mb-1" title="种子大小">%s: %s GB</span>'
                                   % (rule_filter_string.get(sizes[0]), sizes[1]))
+        if rules.get("upspeed"):
+            rule_htmls.append('<span class="badge badge-outline text-lime me-1 mb-1" title="上传限速">上传限速: %sB/s</span>'
+                              % StringUtils.str_filesize(int(rules.get("upspeed")) * 1024))
+        if rules.get("downspeed"):
+            rule_htmls.append('<span class="badge badge-outline text-lime me-1 mb-1" title="下载限速">下载限速: %sB/s</span>'
+                              % StringUtils.str_filesize(int(rules.get("downspeed")) * 1024))
         if rules.get("include"):
             rule_htmls.append('<span class="badge badge-outline text-green me-1 mb-1" title="包含规则">包含: %s</span>'
                               % rules.get("include"))
