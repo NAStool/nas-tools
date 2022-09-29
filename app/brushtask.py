@@ -92,7 +92,7 @@ class BrushTask(object):
 
     def get_brushtask_info(self, taskid):
         for task in self._brush_tasks:
-            if task.get("id") == taskid:
+            if task.get("id") == int(taskid):
                 return task
         return None
 
@@ -234,6 +234,8 @@ class BrushTask(object):
                 if not downloader_cfg:
                     log_warn("【BRUSH】任务 %s 下载器不存在" % task_name)
                     continue
+                # 手动删除的种子数
+                remove_torrent_count = 0
                 # 下载器类型
                 client_type = downloader_cfg.get("type")
                 # qbittorrent
@@ -374,11 +376,17 @@ class BrushTask(object):
                             if torrent_id not in delete_ids:
                                 delete_ids.append(torrent_id)
                                 update_torrents.append(("%s,%s" % (uploaded, downloaded), taskid, torrent_id))
+                # 手工删除的种子，清除对应记录
+                if remove_torrent_ids:
+                    remove_torrent_count = len(remove_torrent_ids)
+                    log_info("【BRUSH】任务 %s 的这些下载任务在下载器中不存在，将删除任务记录：%s" % (task_name, remove_torrent_ids))
+                    for remove_torrent_id in remove_torrent_ids:
+                        SqlHelper.delete_brushtask_torrent(taskid, remove_torrent_id)
                 # 更新上传下载量和删除种子数
                 SqlHelper.add_brushtask_upload_count(brush_id=taskid,
                                                      upload_size=total_uploaded,
                                                      download_size=total_downloaded,
-                                                     remove_count=len(delete_ids))
+                                                     remove_count=len(delete_ids) + remove_torrent_count)
                 # 更新种子状态为已删除
                 SqlHelper.update_brushtask_torrent_state(update_torrents)
                 # 删除下载器种子
@@ -387,11 +395,6 @@ class BrushTask(object):
                     log_info("【BRUSH】任务 %s 共删除 %s 个刷流下载任务" % (task_name, len(delete_ids)))
                 else:
                     log_info("【BRUSH】任务 %s 本次检查未删除下载任务" % task_name)
-                # 手工删除的种子，清除对应记录
-                if remove_torrent_ids:
-                    log_info("【BRUSH】任务 %s 的这些下载任务在下载器中不存在，将删除任务记录：%s" % (task_name, remove_torrent_ids))
-                    for remove_torrent_id in remove_torrent_ids:
-                        SqlHelper.delete_brushtask_torrent(taskid, remove_torrent_id)
             except Exception as e:
                 log.console(str(e) + " - " + traceback.format_exc())
 

@@ -726,7 +726,7 @@
           <div class="w-100">
             <div class="row">
               <div class="col">
-                <a href="#" class="btn btn-success w-100" data-bs-dismiss="modal">
+                <a href="javascript:void(0)" id="system_success_modal_btn" class="btn btn-success w-100" data-bs-dismiss="modal">
                   确定
                 </a>
               </div>
@@ -925,8 +925,7 @@
     //显示确认提示框
     function show_confirm_modal (title, func) {
       $("#system_confirm_message").text(title);
-      $("#system_confirm_btn").unbind('click');
-      $("#system_confirm_btn").click(func);
+      $("#system_confirm_btn").unbind('click').click(func);
       $("#system-confirm-modal").modal("show");
     }
 
@@ -938,8 +937,7 @@
     //显示询问提示框
     function show_ask_modal (title, func) {
       $("#system_ask_message").text(title);
-      $("#system_ask_btn").unbind('click');
-      $("#system_ask_btn").click(func);
+      $("#system_ask_btn").unbind('click').click(func);
       $("#system-ask-modal").modal("show");
     }
 
@@ -949,8 +947,9 @@
     }
 
     //显示成功提示
-    function show_success_modal (title) {
+    function show_success_modal (title, func) {
       $("#system_success_message").text(title);
+      $("#system_success_modal_btn").unbind('click').click(func);
       $("#system-success-modal").modal("show");
     }
 
@@ -1388,7 +1387,7 @@
       });
 
       // tooltip点击事件处理，阻止冒泡到上级元素，避免比如`点击tooltip切换了switch`的问题
-      $('body').on('click', '[data-bs-toggle="tooltip"]', function (e) {
+      $('body').on('click', 'span[data-bs-toggle="tooltip"]', function (e) {
         e.preventDefault();
         e.stopPropagation();
       });
