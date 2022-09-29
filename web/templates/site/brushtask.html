@@ -176,9 +176,9 @@
               <div class="datagrid-title">状态</div>
               <div class="datagrid-content">
                 {% if Task.state == 'Y' %}
-                <span class="badge bg-success me-2"></span>运行中
+                <span class="badge me-2 bg-green">正在运行</span>
                 {% else %}
-                <span class="badge bg-warning me-2"></span>已暂停
+                <span class="badge me-2 bg-red">已停用</span>
                 {% endif %}
               </div>
             </div>
