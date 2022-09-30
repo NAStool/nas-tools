@@ -220,6 +220,6 @@ class Telegram(IMessageChannel):
 
     def get_users(self):
         """
-        :param user_id: 检查用户ID，在允许id内继续
+        获取Telegram配置文件中的User Ids，即允许使用telegram机器人的user_id列表
         """
         return self.__telegram_user_ids
