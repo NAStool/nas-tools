@@ -72,7 +72,8 @@ class Downloader:
                        is_paused=None,
                        tag=None,
                        download_dir=None,
-                       page_url=None):
+                       page_url=None,
+                       title=None):
         """
         添加下载任务，根据当前使用的下载器分别调用不同的客户端处理
         :param url: 种子地址，如用[]括住则为xpath，需要从详情页面解析下载地址
@@ -81,15 +82,21 @@ class Downloader:
         :param tag: 下载时对种子的标记
         :param download_dir: 指定下载目录
         :param page_url: 详情面页的地址
+        :param title: 种子标题
         """
         if not url:
             return None, "Url链接为空"
-        xpath = None
+        _xpath = None
+        _hash = False
         if url.startswith("["):
-            xpath = url[1:-1]
+            _xpath = url[1:-1]
             url = page_url
-            if not url:
-                return None, "Url链接为空"
+        elif url.startswith("#"):
+            _xpath = url[1:-1]
+            _hash = True
+            url = page_url
+        if not url:
+            return None, "Url链接为空"
         cookie = None
         ua = None
         if url.startswith("http"):
@@ -110,12 +117,16 @@ class Downloader:
                     except Exception as err:
                         log.warn(f"【DOWNLOADER】自动获取公开站点cookie失败：{format(err)}")
 
-            if xpath:
+            if _xpath:
                 url = Torrent.parse_download_url(page_url=page_url,
-                                                 xpath=xpath,
+                                                 xpath=_xpath,
                                                  cookie=cookie)
                 if not url:
                     return None, "无法从详情页面解析出下载链接"
+                if _hash:
+                    url = Torrent.convert_hash_to_magnet(hash_text=url, title=title)
+                    if not url:
+                        return None, "%s 转换磁力链失败" % url
 
         if self.__client_type in [DownloaderType.Client115]:
             content = url
@@ -138,7 +149,7 @@ class Downloader:
                         tag += [PT_TAG]
                     else:
                         tag = [PT_TAG, tag]
-                log.info("【DOWNLOADER】添加下载任务：%s" % url)
+                log.info("【DOWNLOADER】添加下载任务：%s %s" % (title, url))
                 if self.__client_type == DownloaderType.TR:
                     ret = self.client.add_torrent(content,
                                                   mtype,
@@ -356,7 +367,8 @@ class Downloader:
             log.info("【DOWNLOADER】添加下载任务：%s ..." % item.org_string)
             ret, ret_msg = self.add_pt_torrent(url=item.enclosure,
                                                mtype=item.type,
-                                               page_url=item.page_url)
+                                               page_url=item.page_url,
+                                               title=item.org_string)
             if ret:
                 if item not in return_items:
                     return_items.append(item)
@@ -405,7 +417,8 @@ class Downloader:
                                                                mtype=item.type,
                                                                is_paused=True,
                                                                tag=torrent_tag,
-                                                               page_url=item.page_url)
+                                                               page_url=item.page_url,
+                                                               title=item.org_string)
                             if not ret:
                                 log.error("【DOWNLOADER】添加下载任务 %s 失败：%s" % (item.org_string, ret_msg or "请检查下载任务是否已存在"))
                                 continue

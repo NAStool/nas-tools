@@ -116,7 +116,9 @@ class WebAction:
             "update_userrss_task": self.__update_userrss_task,
             "get_rssparser": self.__get_rssparser,
             "delete_rssparser": self.__delete_rssparser,
-            "update_rssparser": self.__update_rssparser
+            "update_rssparser": self.__update_rssparser,
+            "run_userrss": self.__run_userrss,
+            "run_brushtask": self.__run_brushtask
         }
 
     def action(self, cmd, data):
@@ -353,6 +355,7 @@ class WebAction:
             else:
                 media = Media().get_media_info(title=res[8], subtitle=res[9])
             media.enclosure = res[0]
+            media.org_string = res[8]
             media.description = res[9]
             media.size = res[10]
             media.site = res[14]
@@ -363,7 +366,8 @@ class WebAction:
             ret, ret_msg = Downloader().add_pt_torrent(url=media.enclosure,
                                                        mtype=media.type,
                                                        download_dir=dl_dir,
-                                                       page_url=media.page_url)
+                                                       page_url=media.page_url,
+                                                       title=media.org_string)
             if ret:
                 # 发送消息
                 Message().send_download_message(SearchType.WEB, media)
@@ -1602,6 +1606,8 @@ class WebAction:
         if not name:
             return {"code": -1}
         media_info = Media().get_media_info(title=name)
+        if not media_info:
+            return {"code": 0, "data": {"name": "无法识别"}}
         tmdb_id = media_info.tmdb_id
         tmdb_link = ""
         tmdb_S_E_link = ""
@@ -1614,8 +1620,6 @@ class WebAction:
                     tmdb_S_E_link = "%s/season/%s" % (tmdb_link, media_info.get_season_seq())
                     if media_info.get_episode_string():
                         tmdb_S_E_link = "%s/episode/%s" % (tmdb_S_E_link, media_info.get_episode_seq())
-        if not media_info:
-            return {"code": 0, "data": {"name": "无法识别"}}
         return {"code": 0, "data": {
             "type": media_info.type.value if media_info.type else "",
             "name": media_info.get_name(),
@@ -1966,15 +1970,28 @@ class WebAction:
     def parse_brush_rule_string(rules: dict):
         if not rules:
             return ""
-        rule_filter_string = {"gt": "大于", "lt": "小于", "bw": "介于"}
+        rule_filter_string = {"gt": ">", "lt": "<", "bw": ""}
         rule_htmls = []
         if rules.get("size"):
             sizes = rules.get("size").split("#")
             if sizes[0]:
                 if sizes[1]:
                     sizes[1] = sizes[1].replace(",", "-")
-                rule_htmls.append('<span class="badge badge-outline text-blue me-1 mb-1" title="种子大小">%s: %s GB</span>'
+                rule_htmls.append('<span class="badge badge-outline text-blue me-1 mb-1" title="种子大小">种子大小: %s %sGB</span>'
                                   % (rule_filter_string.get(sizes[0]), sizes[1]))
+        if rules.get("pubdate"):
+            pubdates = rules.get("pubdate").split("#")
+            if pubdates[0]:
+                if pubdates[1]:
+                    pubdates[1] = pubdates[1].replace(",", "-")
+                rule_htmls.append('<span class="badge badge-outline text-blue me-1 mb-1" title="发布时间">发布时间: %s %s小时</span>'
+                                  % (rule_filter_string.get(pubdates[0]), pubdates[1]))
+        if rules.get("upspeed"):
+            rule_htmls.append('<span class="badge badge-outline text-blue me-1 mb-1" title="上传限速">上传限速: %sB/s</span>'
+                              % StringUtils.str_filesize(int(rules.get("upspeed")) * 1024))
+        if rules.get("downspeed"):
+            rule_htmls.append('<span class="badge badge-outline text-blue me-1 mb-1" title="下载限速">下载限速: %sB/s</span>'
+                              % StringUtils.str_filesize(int(rules.get("downspeed")) * 1024))
         if rules.get("include"):
             rule_htmls.append('<span class="badge badge-outline text-green me-1 mb-1" title="包含规则">包含: %s</span>'
                               % rules.get("include"))
@@ -1984,7 +2001,7 @@ class WebAction:
             rule_htmls.append('<span class="badge badge-outline text-red me-1 mb-1" title="排除规则">排除: %s</span>'
                               % rules.get("exclude"))
         if rules.get("dlcount"):
-            rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="同时下载数量限制">同时下载: %s</span>'
+            rule_htmls.append('<span class="badge badge-outline text-blue me-1 mb-1" title="同时下载数量限制">同时下载: %s</span>'
                               % rules.get("dlcount"))
         if rules.get("peercount"):
             peer_counts = None
@@ -2003,36 +2020,36 @@ class WebAction:
                     pass
             if peer_counts:
                 rule_htmls.append(
-                    '<span class="badge badge-outline text-orange me-1 mb-1" title="当前做种人数限制">做种人数%s: %s</span>'
+                    '<span class="badge badge-outline text-blue me-1 mb-1" title="当前做种人数限制">做种人数: %s %s</span>'
                     % (rule_filter_string.get(peer_counts[0]), peer_counts[1]))
         if rules.get("time"):
             times = rules.get("time").split("#")
             if times[0]:
                 rule_htmls.append(
-                    '<span class="badge badge-outline text-orange me-1 mb-1" title="做种时间">做种%s: %s 小时</span>'
+                    '<span class="badge badge-outline text-orange me-1 mb-1" title="做种时间">做种时间: %s %s小时</span>'
                     % (rule_filter_string.get(times[0]), times[1]))
         if rules.get("ratio"):
             ratios = rules.get("ratio").split("#")
             if ratios[0]:
-                rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="分享率">分享率%s: %s</span>'
+                rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="分享率">分享率: %s %s</span>'
                                   % (rule_filter_string.get(ratios[0]), ratios[1]))
         if rules.get("uploadsize"):
             uploadsizes = rules.get("uploadsize").split("#")
             if uploadsizes[0]:
                 rule_htmls.append(
-                    '<span class="badge badge-outline text-orange me-1 mb-1" title="上传量">上传量%s: %s GB</span>'
+                    '<span class="badge badge-outline text-orange me-1 mb-1" title="上传量">上传量: %s %sGB</span>'
                     % (rule_filter_string.get(uploadsizes[0]), uploadsizes[1]))
         if rules.get("dltime"):
             dltimes = rules.get("dltime").split("#")
             if dltimes[0]:
                 rule_htmls.append(
-                    '<span class="badge badge-outline text-orange me-1 mb-1" title="下载耗时">下载耗时%s: %s 小时</span>'
+                    '<span class="badge badge-outline text-orange me-1 mb-1" title="下载耗时">下载耗时: %s %s小时</span>'
                     % (rule_filter_string.get(dltimes[0]), dltimes[1]))
         if rules.get("avg_upspeed"):
             avg_upspeeds = rules.get("avg_upspeed").split("#")
             if avg_upspeeds[0]:
                 rule_htmls.append(
-                    '<span class="badge badge-outline text-orange me-1 mb-1" title="平均上传速度">平均上传速度%s: %s KB/S</span>'
+                    '<span class="badge badge-outline text-orange me-1 mb-1" title="平均上传速度">平均上传速度: %s %sKB/S</span>'
                     % (rule_filter_string.get(avg_upspeeds[0]), avg_upspeeds[1]))
 
         return "<br>".join(rule_htmls)
@@ -2225,3 +2242,13 @@ class WebAction:
             return {"code": 0}
         else:
             return {"code": 1}
+
+    @staticmethod
+    def __run_userrss(data):
+        RssChecker().check_task_rss(data.get("id"))
+        return {"code": 0}
+
+    @staticmethod
+    def __run_brushtask(data):
+        BrushTask().check_task_rss(data.get("id"))
+        return {"code": 0}
