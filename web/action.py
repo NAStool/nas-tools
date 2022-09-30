@@ -2268,7 +2268,7 @@ class WebAction:
 
     @staticmethod
     def __list_site_resources(data):
-        resources = BuiltinIndexer().list(data.get("id"))
+        resources = BuiltinIndexer().list(data.get("id"), data.get("page"))
         if not resources:
             return {"code": 1, "msg": "获取站点资源出现错误，无法连接到站点！"}
         else:

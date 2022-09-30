@@ -52,10 +52,11 @@ class TorrentSpider(feapder.AirSpider):
     torrents = None
     article_list = None
     fields = None
+    page = 0
     torrents_info = {}
     torrents_info_array = []
 
-    def setparam(self, indexer, keyword=None):
+    def setparam(self, indexer, keyword=None, page=None):
         if not indexer:
             return
         self.keyword = keyword
@@ -64,6 +65,7 @@ class TorrentSpider(feapder.AirSpider):
         self.torrents = indexer.torrents
         self.render = indexer.render
         self.domain = indexer.domain
+        self.page = page
         if self.domain and not str(self.domain).endswith("/"):
             self.domain = self.domain + "/"
         if indexer.ua:
@@ -101,7 +103,10 @@ class TorrentSpider(feapder.AirSpider):
                 searchurl = self.domain + torrentspath + '?stypes=s&' + urlencode(
                     {"search": self.keyword, "search_field": self.keyword, "keyword": self.keyword})
         else:
-            searchurl = self.domain + torrentspath
+            if self.page:
+                searchurl = self.domain + torrentspath + "?page=%s" % self.page
+            else:
+                searchurl = self.domain + torrentspath
         yield feapder.Request(searchurl,
                               cookies=self.cookies,
                               render=self.render,

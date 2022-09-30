@@ -136,7 +136,7 @@ class BuiltinIndexer(IIndexer):
                                               match_media=match_media,
                                               start_time=start_time)
 
-    def list(self, index_id):
+    def list(self, index_id, page=0):
         """
         根据站点ID检索站点首页资源
         """
@@ -145,7 +145,7 @@ class BuiltinIndexer(IIndexer):
         indexer = self.get_indexers(indexer_id=index_id)
         if not indexer:
             return []
-        return self.__spider_list(indexer)
+        return self.__spider_list(indexer, page=page)
 
     @staticmethod
     def __spider_search(keyword, indexer):
@@ -169,12 +169,12 @@ class BuiltinIndexer(IIndexer):
         return result_array
 
     @staticmethod
-    def __spider_list(indexer):
+    def __spider_list(indexer, page=None):
         """
         浏览器站点最新的种子
         """
         spider = TorrentSpider()
-        spider.setparam(indexer=indexer)
+        spider.setparam(indexer=indexer, page=page)
         spider.start()
         # 循环判断是否获取到数据
         sleep_count = 0
