@@ -36,6 +36,8 @@ class Telegram(IMessageChannel):
         if message:
             self.__telegram_token = message.get('telegram', {}).get('telegram_token')
             self.__telegram_chat_id = message.get('telegram', {}).get('telegram_chat_id')
+            self.__telegram_user_ids = message.get('telegram', {}).get('telegram_user_ids').split("|")
+            self.__telegram_user_ids.append(self.__telegram_chat_id)
             if self.__telegram_token \
                     and self.__telegram_chat_id \
                     and message.get('telegram', {}).get('webhook') \
@@ -210,4 +212,14 @@ class Telegram(IMessageChannel):
         if res and res.json() and res.json().get("ok"):
             return True
         else:
+            return False
+
+    def check_user_id(self, user_id=""):
+        """
+        :param user_id: 检查用户ID，在允许id内继续
+        """
+        if user_id and user_id in self.__telegram_user_ids:
+            return True
+        else:
+            self.send_msg(self, title="", text="私人bot，请勿打扰", image="", url="", user_id=user_id)
             return False

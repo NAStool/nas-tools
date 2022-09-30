@@ -161,6 +161,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
     global SEARCH_MEDIA_TYPE
     global SEARCH_MEDIA_CACHE
 
+    if not Message().check_tg_user_id(channel=in_from, user_id=user_id):
+        return
     if not input_str:
         log.info("【SEARCHER】检索关键字有误！")
         return

@@ -195,6 +195,14 @@
               </div>
             </div>
           </div>
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="mb-3">
+                <label class="form-label required">User Ids <span class="form-help" title="允许使用telegram机器人的用户id" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{% if Config.message.telegram %}{{ Config.message.telegram.telegram_user_ids or '' }}{% endif %}" id="telegram_user_ids" class="form-control" placeholder="增加id用|分隔">
+              </div>
+            </div>
+          </div>
         </div>
         <div class="card-body">
           <div class="row">
@@ -435,6 +443,7 @@
     });
     params["message." + type] = cfg_value;
     params['message.msg_channel'] = type;
+    console.log(params);
     ajax_post("update_config", params, func);
   }
 
