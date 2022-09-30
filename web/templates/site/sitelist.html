@@ -1,0 +1,170 @@
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          资源浏览
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+{% if Count > 0 %}
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-deck row-cards">
+      <div class="col-12">
+        <div class="row row-cards">
+          {% for Site in Sites %}
+          <div class="col-md-6 col-xl-3">
+              <a class="card card-link" href="javascript:navmenu('resources?site={{ Site.id }}&title={{ Site.name }}')">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-auto">
+                    <span class="avatar rounded" style="background-image: url({{ Site.domain + 'favicon.ico' }});"></span>
+                  </div>
+                  <div class="col">
+                    <div class="font-weight-medium">{{ Site.name }}</div>
+                    <div class="text-muted">{{ Site.domain }}</div>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="page-body">
+  <div class="container-xl d-flex flex-column justify-content-center">
+    <div class="empty">
+      <div class="empty-img"><img src="./static/img/sign_in.svg" height="128" alt="">
+      </div>
+      <p class="empty-title">没有站点</p>
+      <p class="empty-subtitle text-muted">
+        没有找到任何站点，请正确维护站点信息。
+      </p>
+    </div>
+  </div>
+</div>
+{% endif %}
+<div class="modal modal-blur fade" id="modal-site-resources" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">网络连通性测试</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body border-bottom py-3">
+          <div class="table-responsive">
+            <table id="modal-site-resources-table" class="table table-vcenter card-table table-hover table-striped">
+              <thead>
+                <tr>
+                    <th class="flex-fill"><button class="table-sort" data-sort="sort-name">站点</button></th>
+                    <th><span class="d-none d-lg-block">等级</span></th>
+                    <th><button class="table-sort" data-sort="sort-data">数据量</button></th>
+                    <th><button class="table-sort" data-sort="sort-ratio">分享率</button></th>
+                    <th><button class="table-sort" data-sort="sort-seeding">做种数</button></th>
+                    <th><button class="table-sort" data-sort="sort-size">做种体积</button></th>
+                    <th><button class="table-sort" data-sort="sort-bonus">魔力值(积分)</button></th>
+                    <th><span class="d-none d-lg-block"><button class="table-sort" data-sort="sort-rtime">更新时间</button></span></th>
+                    <th><span class="d-none d-lg-block"></span></th>
+                </tr>
+              </thead>
+              <tbody class="table-tbody">
+                {% if SiteUserStatistics | count > 0 %}
+                {% for item in SiteUserStatistics %}
+                <tr>
+                  <td class="sort-name">
+                    <div class="d-flex py-1 align-items-center">
+                        {% if SiteErr.get(item[0]) %}
+                            <span class="badge bg-warning me-1" title="{{ SiteErr.get(item[0]) }}"></span>
+                        {% else %}
+                            <span class="badge bg-success me-1"></span>
+                        {% endif %}
+                      <img onclick="navmenu('statistics?refresh_site={{ item[0] }}')" title="点击刷新站点数据" class="rounded me-2 d-none d-md-block" src="data:image/ico;base64, {{ item[13] }}" width="24" height="24" alt=""
+                        onerror="this.src='../static/img/pt.jpg'" style="cursor:pointer"/>
+                      <div class="flex-fill">
+                        <div class="font-weight-medium"><a href="{{ item[12] }}" target="_blank">{{ item[0] }}</a>
+                            {% if item[14] > 0 %}
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-message" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="gray" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                   <path d="M4 21v-13a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v6a3 3 0 0 1 -3 3h-9l-4 4"></path>
+                                   <line x1="8" y1="9" x2="16" y2="9"></line>
+                                   <line x1="8" y1="13" x2="14" y2="13"></line>
+                                </svg>
+                            {% endif %}
+                        </div>
+                        <div class="text-muted d-none d-md-block">{{ item[1] }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="d-none d-lg-block">{{ item[2] }}</span>
+                  </td>
+                  <td class="sort-data" data-data="{{ item[5] }}">
+                      <div class="flex-fill">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="green" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <line x1="12" y1="5" x2="12" y2="19"></line>
+                          <line x1="18" y1="11" x2="12" y2="5"></line>
+                          <line x1="6" y1="11" x2="12" y2="5"></line>
+                        </svg>
+                        <small>{{ item[5] | filesizeformat(true) }}</small>
+                      </div>
+                      <div class="flex-fill">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                          stroke-width="2" stroke="red" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <line x1="12" y1="5" x2="12" y2="19"></line>
+                          <line x1="18" y1="13" x2="12" y2="19"></line>
+                          <line x1="6" y1="13" x2="12" y2="19"></line>
+                        </svg>
+                        <small>{{ item[6] | filesizeformat(true) }}</small>
+                      </div>
+                  </td>
+                    <td class="sort-ratio">{% if item[7] == 0.0 %}Infinity{% else %}{{ item[7] }}{% endif %}</td>
+                    <td class="sort-seeding" data-seeding="{{ item[8] }}"><a
+                            href="javascript:show_site_seeding_info('{{ item[0] }}')"
+                            aria-label="seeding_info">{{ item[8] }}</a></td>
+                    <td class="sort-size" data-size="{{ item[10] }}"><a
+                            href="javascript:show_site_seeding_info('{{ item[0] }}')"
+                            aria-label="seeding_info">{{ item[10] | filesizeformat(true) }}</a></td>
+                    <td class="sort-bonus">{{ item[11] }}</td>
+                  <td class="sort-rtime">
+                    <span class="d-none d-lg-block">{{ item[4] }}</span>
+                  </td>
+                <td class="activity">
+                    <a href="javascript:show_site_activity('{{ item[0] }}')" class="btn-icon d-none d-md-block" aria-label="activity">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-activity" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                           <path d="M3 12h4l3 8l4 -16l3 8h4"></path>
+                        </svg>
+                    </a>
+                </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                  <td colspan="8" align="center">没有数据</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <button id="nettest_btn" class="btn btn-primary">测试</button>
+      </div>
+    </div>
+  </div>
+</div>

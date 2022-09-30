@@ -616,6 +616,27 @@ def create_flask_app(config):
                                Sites=CfgSites,
                                RuleGroups=RuleGroups)
 
+    # 站点列表页面
+    @App.route('/sitelist', methods=['POST', 'GET'])
+    @login_required
+    def sitelist():
+        IndexerSites = BuiltinIndexer().get_indexers(check=False, public=False)
+        return render_template("site/sitelist.html",
+                               Sites=IndexerSites,
+                               Count=len(IndexerSites))
+
+    # 站点资源页面
+    @App.route('/resources', methods=['POST', 'GET'])
+    @login_required
+    def resources():
+        site_id = request.args.get("site")
+        site_name = request.args.get("title")
+        Results = WebAction().action("list_site_resources", {"id": site_id}).get("data") or []
+        return render_template("site/resources.html",
+                               Results=Results,
+                               Title=site_name,
+                               TotalCount=len(Results))
+
     # 推荐页面
     @App.route('/recommend', methods=['POST', 'GET'])
     @login_required
@@ -1801,5 +1822,10 @@ def create_flask_app(config):
     @App.template_filter('brush_rule_string')
     def brush_rule_string(rules):
         return WebAction.parse_brush_rule_string(rules)
+
+    # 大小格式化过滤器
+    @App.template_filter('str_filesize')
+    def str_filesize(size):
+        return WebAction.str_filesize(size)
 
     return App

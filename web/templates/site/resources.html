@@ -1,0 +1,128 @@
+<div class="container-xl">
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          {{ Title }}
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:void(0)" class="btn btn-primary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M15 4v8h3.586a1 1 0 0 1 .707 1.707l-6.586 6.586a1 1 0 0 1 -1.414 0l-6.586 -6.586a1 1 0 0 1 .707 -1.707h3.586v-8a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1z"></path>
+            </svg>
+            一键下载
+          </a>
+          <a href="javascript:void(0)" class="btn btn-primary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M15 4v8h3.586a1 1 0 0 1 .707 1.707l-6.586 6.586a1 1 0 0 1 -1.414 0l-6.586 -6.586a1 1 0 0 1 .707 -1.707h3.586v-8a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1z"></path>
+            </svg>
+          </a>
+          <a href="javascript:navmenu('sitelist')" class="btn d-none d-sm-inline-block" title="返回">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
+            </svg>
+            返回
+          </a>
+          <a href="javascript:navmenu('sitelist')" class="btn btn-secondary d-sm-none btn-icon" title="返回">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body border-bottom py-3">
+            <div class="d-flex">
+              <div class="text-muted">
+                共 {{ TotalCount }} 条记录
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table id="site-resources-table" class="table table-vcenter card-table table-hover table-striped">
+              <thead>
+                <tr>
+                  <th class="w-1"><input class="form-check-input m-0 align-middle" id="resources_check_all_btn"
+                      type="checkbox" aria-label="全选"></th>
+                  <th>标题</th>
+                  <th><button class="table-sort" data-sort="sort-pubdate">发布时间</button></th>
+                  <th><button class="table-sort" data-sort="sort-size">大小</button></th>
+                  <th><button class="table-sort" data-sort="sort-seeders">种子数</button></th>
+                  <th><button class="table-sort" data-sort="sort-peers">下载数</button></th>
+                  <th><button class="table-sort" data-sort="sort-grabs">完成数</button></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody class="table-tbody">
+                {% if TotalCount > 0 %}
+                {% for Result in Results %}
+                <tr>
+                  <td><input class="form-check-input m-0 align-middle" id="check_{{ loop.index0  }}" type="checkbox"></td>
+                  <td>
+                      <div class="font-weight-medium strong">
+                        <a href="{{ Result.page_url }}" target="_blank">{{ Result.title }} </a>
+                        {% if Result.uploadvolumefactor != 1.0 %}
+                        <span class="badge text-white bg-azure">{{ (Result.uploadvolumefactor * 100) | int }}%UL</span>
+                        {% endif %}
+                        {% if Result.downloadvolumefactor != 1.0 %}
+                            {% if Result.downloadvolumefactor == 0.0 %}
+                            <span class="badge text-white bg-lime">FREE</span>
+                            {% else %}
+                            <span class="badge text-white bg-blue">{{ (Result.downloadvolumefactor * 100) | int }}%DL</span>
+                            {% endif %}
+                        {% endif %}
+                      </div>
+                      <div class="text-muted">{{ Result.description }}</div>
+                  </td>
+                  <td class="sort-pubdate" data-pubdate="{{ Result.pubdate }}">{{ Result.date_elapsed }}</td>
+                  <td class="sort-size" data-size="{{ Result.size }}">
+                    <span class="badge badge-outline text-orange">{{ Result.size|str_filesize }}</span>
+                  </td>
+                  <td class="sort-seeders" data-seeders="{{ Result.seeders }}">{{ Result.seeders }}</td>
+                  <td class="sort-peers" data-peers="{{ Result.peers }}">{{ Result.peers }}</td>
+                  <td class="sort-grabs" data-grabs="{{ Result.grabs }}">{{ Result.grabs }}</td>
+                  <td>
+                    <a href="{{ Result.enclosure }}" title="下载">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                         <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                         <polyline points="7 11 12 16 17 11"></polyline>
+                         <line x1="12" y1="4" x2="12" y2="16"></line>
+                      </svg>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                  <td colspan="7" align="center">没有数据</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  tableDataList = new List('site-resources-table', {
+      sortClass: 'table-sort',
+      listClass: 'table-tbody',
+      valueNames: ['sort-pubdate', 'sort-size', 'sort-seeders', 'sort-peers', 'sort-grabs']
+    });
+</script>

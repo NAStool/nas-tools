@@ -237,7 +237,7 @@ class IIndexer(metaclass=ABCMeta):
                                 'freeleech': freeleech,
                                 'downloadvolumefactor': downloadvolumefactor,
                                 'uploadvolumefactor': uploadvolumefactor,
-                                "page_url": page_url}
+                                'page_url': page_url}
                     torrents.append(tmp_dict)
                 except Exception as e:
                     print(f"{e}")

@@ -10,6 +10,7 @@ from werkzeug.security import generate_password_hash
 
 import cn2an
 import log
+from app.indexer import BuiltinIndexer
 from app.media.doubanv2api import DoubanHot
 from app.mediaserver import MediaServer
 from app.rsschecker import RssChecker
@@ -118,7 +119,8 @@ class WebAction:
             "delete_rssparser": self.__delete_rssparser,
             "update_rssparser": self.__update_rssparser,
             "run_userrss": self.__run_userrss,
-            "run_brushtask": self.__run_brushtask
+            "run_brushtask": self.__run_brushtask,
+            "list_site_resources": self.__list_site_resources
         }
 
     def action(self, cmd, data):
@@ -2055,6 +2057,11 @@ class WebAction:
         return "<br>".join(rule_htmls)
 
     @staticmethod
+    def str_filesize(size):
+        size = StringUtils.str_filesize(size)
+        return size + "B" if size else ""
+
+    @staticmethod
     def __clear_tmdb_cache(data):
         """
         清空TMDB缓存
@@ -2252,3 +2259,11 @@ class WebAction:
     def __run_brushtask(data):
         BrushTask().check_task_rss(data.get("id"))
         return {"code": 0}
+
+    @staticmethod
+    def __list_site_resources(data):
+        resources = BuiltinIndexer().list(data.get("id"))
+        if not resources:
+            return {"code": 1, "msg": "获取站点资源出现错误，无法连接到站点！"}
+        else:
+            return {"code": 0, "data": resources}

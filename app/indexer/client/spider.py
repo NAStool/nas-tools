@@ -55,8 +55,8 @@ class TorrentSpider(feapder.AirSpider):
     torrents_info = {}
     torrents_info_array = []
 
-    def setparam(self, indexer, keyword):
-        if not indexer or not keyword:
+    def setparam(self, indexer, keyword=None):
+        if not indexer:
             return
         self.keyword = keyword
         self.indexerid = indexer.id
@@ -90,19 +90,22 @@ class TorrentSpider(feapder.AirSpider):
         self.torrents_info_array = []
 
     def start_requests(self):
-        if self.search:
-            torrentspath = self.search.get('paths', [{}])[0].get('path', '')
+        if not self.search or not self.domain:
+            self.is_complete = True
+            return
+        torrentspath = self.search.get('paths', [{}])[0].get('path', '')
+        if self.keyword:
             if torrentspath.find("{keyword}") != -1:
                 searchurl = self.domain + torrentspath.replace("{keyword}", quote(self.keyword))
             else:
                 searchurl = self.domain + torrentspath + '?stypes=s&' + urlencode(
                     {"search": self.keyword, "search_field": self.keyword, "keyword": self.keyword})
-            yield feapder.Request(searchurl,
-                                  cookies=self.cookies,
-                                  render=self.render,
-                                  headers=self.headers)
         else:
-            self.is_complete = True
+            searchurl = self.domain + torrentspath
+        yield feapder.Request(searchurl,
+                              cookies=self.cookies,
+                              render=self.render,
+                              headers=self.headers)
 
     def Getdownloadvolumefactor(self, torrent):
         # downloadvolumefactor
@@ -185,7 +188,10 @@ class TorrentSpider(feapder.AirSpider):
         if "imdbid" in self.fields:
             selector = self.fields.get('imdbid', {})
             imdbid = torrent(selector.get('selector', ''))
-            items = [item.attr(selector.get('attribute')) for item in imdbid.items() if item]
+            if 'attribute' in selector:
+                items = [item.attr(selector.get('attribute')) for item in imdbid.items() if item]
+            else:
+                items = [item.text() for item in imdbid.items() if item]
             self.torrents_info['imdbid'] = items[0] if items else ''
             filters = selector.get('filters', {})
             if filters:
@@ -236,6 +242,32 @@ class TorrentSpider(feapder.AirSpider):
         filters = selector.get('filters', {})
         if filters:
             self.torrents_info['grabs'] = self.__filter_text(self.torrents_info.get('grabs'), filters)
+
+    def Getpubdate(self, torrent):
+        # torrent pubdate
+        selector = self.fields.get('date_added', {})
+        pubdate = torrent(selector.get('selector', ''))
+        if 'attribute' in selector:
+            items = [item.attr(selector.get('attribute')) for item in pubdate.items() if item]
+        else:
+            items = [item.text() for item in pubdate.items() if item]
+        self.torrents_info['pubdate'] = items[0] if items else ''
+        filters = selector.get('filters', {})
+        if filters:
+            self.torrents_info['pubdate'] = self.__filter_text(self.torrents_info.get('pubdate'), filters)
+
+    def Getelapsed_date(self, torrent):
+        # torrent pubdate
+        selector = self.fields.get('date_elapsed', {})
+        date_elapsed = torrent(selector.get('selector', ''))
+        if 'attribute' in selector:
+            items = [item.attr(selector.get('attribute')) for item in date_elapsed.items() if item]
+        else:
+            items = [item.text() for item in date_elapsed.items() if item]
+        self.torrents_info['date_elapsed'] = items[0] if items else ''
+        filters = selector.get('filters', {})
+        if filters:
+            self.torrents_info['date_elapsed'] = self.__filter_text(self.torrents_info.get('date_elapsed'), filters)
 
     def Gettitle_optional(self, torrent):
         # title optional
@@ -306,6 +338,8 @@ class TorrentSpider(feapder.AirSpider):
         self.Getdownload(torrent)
         self.Getdownloadvolumefactor(torrent)
         self.Getuploadvolumefactor(torrent)
+        self.Getpubdate(torrent)
+        self.Getelapsed_date(torrent)
         return self.torrents_info
 
     @staticmethod
