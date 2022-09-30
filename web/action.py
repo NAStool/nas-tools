@@ -176,6 +176,11 @@ class WebAction:
             ThreadHelper().start_thread(command.get("func"), ())
             Message().send_channel_msg(channel=in_from, title="%s 已启动" % command.get("desp"))
         else:
+            # 检查用户权限
+            if in_from == SearchType.TG and user_id:
+                if  not str(user_id) in Telegram().get_users():
+                    Message().send_channel_msg(channel=in_from, title="私人bot，请勿打扰")
+                    return
             # 站点检索或者添加订阅
             ThreadHelper().start_thread(search_media_by_message, (msg, in_from, user_id,))
 
