@@ -198,8 +198,8 @@
           <div class="row">
             <div class="col-lg-12">
               <div class="mb-3">
-                <label class="form-label required">User Ids <span class="form-help" title="允许使用telegram机器人的用户id" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.message.telegram %}{{ Config.message.telegram.telegram_user_ids or '' }}{% endif %}" id="telegram_user_ids" class="form-control" placeholder="增加id用|分隔">
+                <label class="form-label required">User Ids <span class="form-help" title="允许使用telegram机器人的用户Id，留空则只允许管理员使用，使用,分隔多个Id" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" value="{% if Config.message.telegram %}{{ Config.message.telegram.telegram_user_ids or '' }}{% endif %}" id="telegram_user_ids" class="form-control" placeholder="允许使用机器人的用户ID，使用,分隔">
               </div>
             </div>
           </div>

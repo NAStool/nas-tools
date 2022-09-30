@@ -170,7 +170,7 @@ class WebAction:
             # 检查用户权限
             if in_from == SearchType.TG and user_id:
                 if str(user_id) != Telegram().get_admin_user():
-                    Message().send_channel_msg(channel=in_from, title="错误：只有管理员才有权限执行此命令")
+                    Message().send_channel_msg(channel=in_from, title="只有管理员才有权限执行此命令", user_id=user_id)
                     return
             # 启动服务
             ThreadHelper().start_thread(command.get("func"), ())
@@ -178,8 +178,9 @@ class WebAction:
         else:
             # 检查用户权限
             if in_from == SearchType.TG and user_id:
-                if  not str(user_id) in Telegram().get_users():
-                    Message().send_channel_msg(channel=in_from, title="私人bot，请勿打扰")
+                if not str(user_id) in Telegram().get_users() \
+                        and str(user_id) != Telegram().get_admin_user():
+                    Message().send_channel_msg(channel=in_from, title="你不在用户白名单中，无法使用此机器人", user_id=user_id)
                     return
             # 站点检索或者添加订阅
             ThreadHelper().start_thread(search_media_by_message, (msg, in_from, user_id,))
