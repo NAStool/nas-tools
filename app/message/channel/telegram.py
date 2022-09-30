@@ -36,7 +36,11 @@ class Telegram(IMessageChannel):
         if message:
             self.__telegram_token = message.get('telegram', {}).get('telegram_token')
             self.__telegram_chat_id = message.get('telegram', {}).get('telegram_chat_id')
-            self.__telegram_user_ids = message.get('telegram', {}).get('telegram_user_ids').split("|")
+            self.__telegram_user_ids = message.get('telegram', {}).get('telegram_user_ids')
+            if self.__telegram_user_ids:
+                self.__telegram_user_ids = self.__telegram_user_ids.split("|")
+            else:
+                self.__telegram_user_ids = []
             self.__telegram_user_ids.append(self.__telegram_chat_id)
             if self.__telegram_token \
                     and self.__telegram_chat_id \
