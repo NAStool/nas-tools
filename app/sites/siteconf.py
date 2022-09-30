@@ -365,7 +365,13 @@ class SiteConf:
             '2XFREE': [],
             'HR': [],
             'PEER_COUNT': [],
-        }
+        },
+        'hhanclub.top': {
+            'FREE': ["//font[@class='free']"],
+            '2XFREE': [],
+            'HR': [],
+            'PEER_COUNT': [],
+        },
     }
     # 公共BT站点
     PUBLIC_TORRENT_SITES = {
