@@ -283,12 +283,3 @@ class Message:
         if self.__msg_switch and not self.__msg_switch.get("transfer_fail"):
             return
         self.sendmsg(title="%s 有 %s 个文件转移失败，请登录NASTool查看" % (path, count))
-
-    def check_tg_user_id(self, channel, user_id=""):
-        """
-        检查发送tg机器人信息的用户id
-        """
-        if channel == SearchType.TG:
-            return Telegram().check_user_id(user_id=user_id)
-        else:
-            return True

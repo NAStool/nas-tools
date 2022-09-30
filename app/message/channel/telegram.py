@@ -218,12 +218,8 @@ class Telegram(IMessageChannel):
         else:
             return False
 
-    def check_user_id(self, user_id=""):
+    def get_users(self):
         """
         :param user_id: 检查用户ID，在允许id内继续
         """
-        if user_id and user_id in self.__telegram_user_ids:
-            return True
-        else:
-            self.send_msg(self, title="", text="私人bot，请勿打扰", image="", url="", user_id=user_id)
-            return False
+        return self.__telegram_user_ids
