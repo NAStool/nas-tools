@@ -40,9 +40,10 @@ class SqlHelper:
               "SITE," \
               "SITE_ORDER," \
               "PAGEURL," \
+              "OTHERINFO," \
               "UPLOAD_VOLUME_FACTOR," \
               "DOWNLOAD_VOLUME_FACTOR) VALUES (" \
-              " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+              " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         data_list = []
         for media_item in media_items:
             if media_item.type == MediaType.TV:
@@ -75,6 +76,7 @@ class SqlHelper:
                     media_item.site,
                     media_item.site_order,
                     StringUtils.str_sql(media_item.page_url),
+                    media_item.resource_team,
                     media_item.upload_volume_factor,
                     media_item.download_volume_factor
                 )

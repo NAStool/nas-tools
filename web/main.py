@@ -458,7 +458,7 @@ def create_flask_app(config):
                 "poster": item[15],
                 "overview": item[16],
                 "pageurl": item[17],
-                "otherinfo": item[18],
+                "releasegroup": item[18],
                 "uploadvalue": item[19],
                 "downloadvalue": item[20],
                 "title": item[21],

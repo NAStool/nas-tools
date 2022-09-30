@@ -52,7 +52,7 @@ rg_U2 = []
 rg_ultrahd = []
 
 #  其他常见组
-rg_other = ['BMDru', 'BeyondHD', 'cfandora', 'FLUX', 'NoGroup', 'TEPES', 'BTN', 'NTb', 'SMURF', 'Ctrlhd']
+rg_other = ['BMDru', 'BeyondHD', 'cfandora', 'FLUX', 'NoGroup', 'TEPES', 'BTN', 'NTb', 'SMURF', 'Ctrlhd', 'CMRG', 'EVO', 'HONE', 'NTG']
 
 sites = [rg_1pt,
          rg_52pt,
