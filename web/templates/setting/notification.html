@@ -443,7 +443,6 @@
     });
     params["message." + type] = cfg_value;
     params['message.msg_channel'] = type;
-    console.log(params);
     ajax_post("update_config", params, func);
   }
 
