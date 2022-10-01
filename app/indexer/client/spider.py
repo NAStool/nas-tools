@@ -106,7 +106,7 @@ class TorrentSpider(feapder.AirSpider):
             if self.page:
                 searchurl = self.domain + torrentspath + "?page=%s" % self.page
             else:
-                searchurl = self.domain + torrentspath
+                searchurl = self.domain + torrentspath + "?page=0"
         yield feapder.Request(searchurl,
                               cookies=self.cookies,
                               render=self.render,
