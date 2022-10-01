@@ -124,11 +124,12 @@
               </tbody>
             </table>
           </div>
+          {% if TotalCount > 0 %}
           <div class="card-footer d-flex align-items-center">
             <p class="m-0 text-muted"></p>
             <ul class="pagination m-0 ms-auto">
               <li class="page-item {% if CurrentPage == 0 %} disabled {% endif %}">
-                <a class="page-link" href="javascript:go_pre_page('{{ SiteId }}', '{{ Title }}', {{ CurrentPage }})" tabindex="-1"
+                <a class="page-link" href='javascript:go_pre_page("{{ SiteId }}", "{{ Title }}", {{ CurrentPage }})' tabindex="-1"
                   aria-disabled="true">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                     stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -139,12 +140,12 @@
               </li>
               {% for page in PageRange %}
               <li class="page-item {% if page==CurrentPage %} active {% endif %}">
-                <a class="page-link" href="javascript:navmenu('resources?site={{ SiteId }}&title={{ Title }}&page={{ page }}')">{{ page + 1 }}</a>
+                <a class="page-link" href='javascript:navmenu("resources?site={{ SiteId }}&title={{ Title }}&page={{ page }}")'>{{ page + 1 }}</a>
               </li>
               {% endfor %}
               <li class="page-item {% if CurrentPage + 1 >= TotalPage %} disabled {% endif %}">
                 <a class="page-link"
-                  href="{% if CurrentPage < TotalPage %}javascript:go_next_page('{{ SiteId }}', '{{ Title }}', {{ CurrentPage }}){% else %}javascript:void(0){% endif %}">
+                  href='{% if CurrentPage < TotalPage %}javascript:go_next_page("{{ SiteId }}", "{{ Title }}", {{ CurrentPage }}){% else %}javascript:void(0){% endif %}'>
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                     stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -154,6 +155,7 @@
               </li>
             </ul>
           </div>
+          {% endif %}
         </div>
       </div>
     </div>
