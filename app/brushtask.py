@@ -209,6 +209,8 @@ class BrushTask(object):
         """
         # 遍历所有任务
         for taskinfo in self._brush_tasks:
+            if taskinfo.get("state") != "Y":
+                continue
             try:
                 # 总上传量
                 total_uploaded = 0
