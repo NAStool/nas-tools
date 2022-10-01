@@ -310,8 +310,14 @@
       $("#nametest_btn").attr("disabled", false);
       if(ret.code == 0){
         $("#test_result").empty();
-        var ignored_words = ret.data.ignored_words;
-        var replaced_words = ret.data.replaced_words;
+        var ignored_words = [];
+        var replaced_words = [];
+        if(ret.data.ignored_words){
+          ignored_words = ret.data.ignored_words;
+        } 
+        if(ret.data.replaced_words){
+          replaced_words = ret.data.replaced_words;
+        }
         var words = ignored_words + replaced_words;
         if(words.length != 0){
           if(ret.data.org_string){
