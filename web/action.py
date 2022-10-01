@@ -1463,7 +1463,8 @@ class WebAction:
         """
         清空RSS历史记录
         """
-        SqlHelper.truncate_transfer_rsshistory()
+        SqlHelper.truncate_rss_history()
+        SqlHelper.truncate_rss_episodes()
         return {"code": 0}
 
     @staticmethod
