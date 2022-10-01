@@ -2064,8 +2064,7 @@ class WebAction:
 
     @staticmethod
     def str_filesize(size):
-        size = StringUtils.str_filesize(size)
-        return size + "B" if size else ""
+        return StringUtils.str_filesize(size, pre=1)
 
     @staticmethod
     def __clear_tmdb_cache(data):

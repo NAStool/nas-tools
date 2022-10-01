@@ -143,7 +143,7 @@ class StringUtils:
             return re.sub(r"\s+", " ", text).strip()
 
     @staticmethod
-    def str_filesize(size):
+    def str_filesize(size, pre=2):
         """
         将字节计算为文件大小描述
         """
@@ -160,7 +160,7 @@ class StringUtils:
             return str(size)
         else:
             b, u = d[index]
-        return str(round(size / (b + 1), 2)) + u
+        return str(round(size / (b + 1), pre)) + u
 
     @staticmethod
     def url_equal(url1, url2):
