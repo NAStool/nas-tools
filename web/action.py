@@ -50,6 +50,7 @@ class WebAction:
             "sch": self.__sch,
             "search": self.__search,
             "download": self.__download,
+            "download_link": self.__download_link,
             "pt_start": self.__pt_start,
             "pt_stop": self.__pt_stop,
             "pt_remove": self.__pt_remove,
@@ -382,6 +383,41 @@ class WebAction:
             else:
                 return {"retcode": -1, "retmsg": ret_msg}
         return {"retcode": 0, "retmsg": ""}
+
+    @staticmethod
+    def __download_link(data):
+        site = data.get("site")
+        enclosure = data.get("enclosure")
+        title = data.get("title")
+        description = data.get("description")
+        page_url = data.get("page_url")
+        size = data.get("size")
+        seeders = data.get("seeders")
+        uploadvolumefactor = data.get("uploadvolumefactor")
+        downloadvolumefactor = data.get("downloadvolumefactor")
+        dl_dir = data.get("dl_dir")
+        if not title or not enclosure:
+            return {"code": -1, "msg": "种子信息有误"}
+        media = Media().get_media_info(title=title, subtitle=description)
+        media.site = site
+        media.enclosure = enclosure
+        media.page_url = page_url
+        media.size = size
+        media.upload_volume_factor = float(uploadvolumefactor)
+        media.download_volume_factor = float(downloadvolumefactor)
+        media.seeders = seeders
+        # 添加下载
+        ret, ret_msg = Downloader().add_pt_torrent(url=media.enclosure,
+                                                   mtype=media.type,
+                                                   download_dir=dl_dir,
+                                                   page_url=media.page_url,
+                                                   title=media.org_string)
+        if ret:
+            # 发送消息
+            Message().send_download_message(SearchType.WEB, media)
+            return {"code": 0, "msg": "下载成功"}
+        else:
+            return {"code": 1, "msg": ret_msg or "如连接正常，请检查下载任务是否存在"}
 
     @staticmethod
     def __pt_start(data):
