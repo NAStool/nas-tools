@@ -1,0 +1,291 @@
+<div class="container-xl">
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          站点资源 - {{ Title }}
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:batch_download()" class="btn btn-primary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M15 4v8h3.586a1 1 0 0 1 .707 1.707l-6.586 6.586a1 1 0 0 1 -1.414 0l-6.586 -6.586a1 1 0 0 1 .707 -1.707h3.586v-8a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1z"></path>
+            </svg>
+            一键下载
+          </a>
+          <a href="javascript:batch_download()" class="btn btn-primary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-big-down" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M15 4v8h3.586a1 1 0 0 1 .707 1.707l-6.586 6.586a1 1 0 0 1 -1.414 0l-6.586 -6.586a1 1 0 0 1 .707 -1.707h3.586v-8a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1z"></path>
+            </svg>
+          </a>
+          <a href="javascript:navmenu('sitelist')" class="btn d-none d-sm-inline-block" title="返回">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
+            </svg>
+            返回
+          </a>
+          <a href="javascript:navmenu('sitelist')" class="btn btn-secondary d-sm-none btn-icon" title="返回">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-back-up" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-body border-bottom py-3">
+            <div class="d-flex">
+              <div class="text-muted">
+                共 {{ TotalCount }} 条记录
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table id="site-resources-table" class="table table-vcenter card-table table-hover table-striped">
+              <thead>
+                <tr>
+                  <th class="w-1"><input class="form-check-input m-0 align-middle" id="resources_check_all_btn"
+                      type="checkbox" aria-label="全选"></th>
+                  <th>标题</th>
+                  <th><button class="table-sort" data-sort="sort-pubdate">发布时间</button></th>
+                  <th><button class="table-sort" data-sort="sort-size">大小</button></th>
+                  <th><button class="table-sort" data-sort="sort-seeders">种子数</button></th>
+                  <th><button class="table-sort" data-sort="sort-peers">下载数</button></th>
+                  <th><button class="table-sort" data-sort="sort-grabs">完成数</button></th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody class="table-tbody">
+                {% if TotalCount > 0 %}
+                {% for Result in Results %}
+                <tr>
+                  <td>
+                    <input class="form-check-input m-0 align-middle" id="check_{{ loop.index0  }}" type="checkbox">
+                    <input type="hidden" id="enclosure_{{ loop.index0  }}" value="{{ Result.enclosure }}">
+                    <input type="hidden" id="title_{{ loop.index0  }}" value="{{ Result.title }}">
+                    <input type="hidden" id="description_{{ loop.index0  }}" value="{{ Result.description }}">
+                    <input type="hidden" id="page_url_{{ loop.index0  }}" value="{{ Result.page_url }}">
+                    <input type="hidden" id="size_{{ loop.index0  }}" value="{{ Result.size }}">
+                    <input type="hidden" id="seeders_{{ loop.index0  }}" value="{{ Result.seeders }}">
+                    <input type="hidden" id="uploadvolumefactor_{{ loop.index0  }}" value="{{ Result.uploadvolumefactor }}">
+                    <input type="hidden" id="downloadvolumefactor_{{ loop.index0  }}" value="{{ Result.downloadvolumefactor }}">
+                  </td>
+                  <td>
+                      <div class="font-weight-medium strong">
+                        <a href="{{ Result.page_url }}" target="_blank">{{ Result.title }} </a>
+                        {% if Result.uploadvolumefactor != 1.0 %}
+                        <span class="badge text-white bg-azure">{{ (Result.uploadvolumefactor * 100) | int }}%UL</span>
+                        {% endif %}
+                        {% if Result.downloadvolumefactor != 1.0 %}
+                            {% if Result.downloadvolumefactor == 0.0 %}
+                            <span class="badge text-white bg-lime">FREE</span>
+                            {% else %}
+                            <span class="badge text-white bg-blue">{{ (Result.downloadvolumefactor * 100) | int }}%DL</span>
+                            {% endif %}
+                        {% endif %}
+                      </div>
+                      <div class="text-muted">{{ Result.description }}</div>
+                  </td>
+                  <td class="sort-pubdate" data-pubdate="{{ Result.pubdate }}">{{ Result.date_elapsed }}</td>
+                  <td class="sort-size" data-size="{{ Result.size }}">
+                    <span class="badge badge-outline text-orange">{{ Result.size|str_filesize }}</span>
+                  </td>
+                  <td class="sort-seeders" data-seeders="{{ Result.seeders }}">{{ Result.seeders }}</td>
+                  <td class="sort-peers" data-peers="{{ Result.peers }}">{{ Result.peers }}</td>
+                  <td class="sort-grabs" data-grabs="{{ Result.grabs }}">{{ Result.grabs }}</td>
+                  <td>
+                    <a href='javascript:download_resource({id:{{ loop.index0 }}, name:"{{ Result.title }}"})' title="下载">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                         <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                         <polyline points="7 11 12 16 17 11"></polyline>
+                         <line x1="12" y1="4" x2="12" y2="16"></line>
+                      </svg>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                  <td colspan="7" align="center">没有数据</td>
+                </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+          <div class="card-footer d-flex align-items-center">
+            <p class="m-0 text-muted"></p>
+            <ul class="pagination m-0 ms-auto">
+              <li class="page-item {% if CurrentPage == 0 %} disabled {% endif %}">
+                <a class="page-link" href="javascript:go_pre_page('{{ SiteId }}', '{{ Title }}', {{ CurrentPage }})" tabindex="-1"
+                  aria-disabled="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <polyline points="15 6 9 12 15 18" />
+                  </svg>
+                </a>
+              </li>
+              {% for page in PageRange %}
+              <li class="page-item {% if page==CurrentPage %} active {% endif %}">
+                <a class="page-link" href="javascript:navmenu('resources?site={{ SiteId }}&title={{ Title }}&page={{ page }}')">{{ page + 1 }}</a>
+              </li>
+              {% endfor %}
+              <li class="page-item {% if CurrentPage + 1 >= TotalPage %} disabled {% endif %}">
+                <a class="page-link"
+                  href="{% if CurrentPage < TotalPage %}javascript:go_next_page('{{ SiteId }}', '{{ Title }}', {{ CurrentPage }}){% else %}javascript:void(0){% endif %}">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                    stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <polyline points="9 6 15 12 9 18" />
+                  </svg>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-resource-download" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+    <input type="hidden" id="resource_download_id">
+    <input type="hidden" id="resource_download_name">
+    <div class="modal-content">
+      <div class="modal-body">
+        <div class="modal-title">询问</div>
+        <div id="resource_download_message">是否执行？</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
+        <div class="d-flex">
+          {% if SaveDirs %}
+          <button type="button" class="btn btn-danger" onclick="javascript:download_link()" title="自动选择目录下载"
+                  style="border-top-right-radius:0px;border-bottom-right-radius:0px;">自动下载</button>
+          <button data-bs-toggle="dropdown" type="button"
+              class="btn btn-danger dropdown-toggle dropdown-toggle-split" title="手动选择下载目录"
+            style="border-top-left-radius:0px;border-bottom-left-radius:0px;"></button>
+          <div class="dropdown-menu dropdown-menu-end">
+            {% for SaveDir in SaveDirs %}
+            <a class="dropdown-item" href="javascript:download_link('{{ SaveDir|safe }}')">
+              {{ SaveDir }}
+            </a>
+            {% endfor %}
+          </div>
+          {% else %}
+           <button type="button" class="btn btn-danger" onclick="javascript:download_link()" title="自动选择目录下载">确认下载</button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  //排序表单
+  tableDataList = new List('site-resources-table', {
+      sortClass: 'table-sort',
+      listClass: 'table-tbody',
+      valueNames: ['sort-pubdate', 'sort-size', 'sort-seeders', 'sort-peers', 'sort-grabs']
+    });
+
+  // 上一页
+  function go_pre_page(site, title, page) {
+    navmenu("resources?site=" + site + "&title=" + title + "&page=" + (page - 1))
+  }
+
+  // 下一页
+  function go_next_page(site, title, page) {
+    navmenu("resources?site=" + site + "&title=" + title + "&page=" + (page + 1))
+  }
+
+  //下载种子
+  var total_downloads = [];
+  var current_download = 0;
+  function download_resource(item, batch){
+    var site = "{{ Title }}"
+    var id = item.id;
+    var name = item.name;
+    var enclosure = $("#enclosure_" + id).val();
+    var title = $("#title_" + id).val();
+    var description = $("#description_" + id).val();
+    var page_url = $("#page_url_" + id).val();
+    var size = $("#size_" + id).val();
+    var seeders = $("#seeders_" + id).val();
+    var uploadvolumefactor = $("#uploadvolumefactor_" + id).val();
+    var downloadvolumefactor = $("#downloadvolumefactor_" + id).val();
+    if(!batch || current_download == 0){
+      show_wait_process();
+    }
+    var params = {site: site,
+                  enclosure: enclosure,
+                  title: title,
+                  description: description,
+                  page_url: page_url,
+                  size: size,
+                  seeders: seeders,
+                  uploadvolumefactor: uploadvolumefactor,
+                  downloadvolumefactor: downloadvolumefactor};
+    ajax_post("download_link", params, function(ret){
+      if(!batch){
+        hide_wait_process();
+        if(ret.code == 0){
+          show_success_modal(name + "添加下载成功！");
+        }else{
+          show_fail_modal(name + " 添加下载失败 " + ret.msg);
+        }
+      }else{
+        current_download = current_download + 1;
+        if(current_download < total_downloads.length){
+          if(ret.code != 0){
+            show_fail_modal(name + " 添加下载失败 " + ret.msg, function(){
+              download_resource(total_downloads[current_download], true);
+            });
+          }else{
+            download_resource(total_downloads[current_download], true);
+          }
+        }else{
+          hide_wait_process();
+          show_success_modal("添加下载完成！");
+        }
+      }
+    });
+
+  }
+
+  //批量下载
+  function batch_download(){
+    total_downloads = [];
+    var i = 0;
+    $("input[type=checkbox]").each(function(){
+      if ($(this).prop("checked")) {
+        id = $(this).attr("id").replace("check_", "");
+        name = $("#title_" + id).val();
+        total_downloads[i] = {id: id, name: name}
+        i = i + 1;
+      }
+    });
+    if(total_downloads.length == 0){
+      return;
+    }
+    current_download = 0;
+    download_resource(total_downloads[current_download], true);
+  }
+
+  //全选事件
+  $("#resources_check_all_btn").change(function () {
+    $("input[type=checkbox]").prop("checked", $(this).prop("checked"));
+  });
+
+</script>

@@ -26,7 +26,7 @@ class BuiltinIndexer(IIndexer):
         """
         return True
 
-    def get_indexers(self, check=True):
+    def get_indexers(self, check=True, public=True, indexer_id=None):
         ret_indexers = []
         # 选中站点配置
         indexer_sites = Config().get_config("pt").get("indexer_sites") or []
@@ -40,22 +40,26 @@ class BuiltinIndexer(IIndexer):
             url = site.get("signurl") or site.get("rssurl")
             public_site = SiteConf().get_public_sites(url=url)
             if public_site:
-                public = True
+                if not public:
+                    continue
+                is_public = True
                 proxy = public_site.get("proxy")
                 language = public_site.get("language")
             else:
-                public = False
+                is_public = False
                 proxy = False
                 language = None
             indexer = IndexerHelper().get_indexer(url=url,
                                                   cookie=site.get("cookie"),
                                                   name=site.get("name"),
                                                   rule=site.get("rule"),
-                                                  public=public,
+                                                  public=is_public,
                                                   proxy=proxy,
                                                   ua=site.get("ua"),
                                                   language=language)
             if indexer:
+                if indexer_id and indexer.id == indexer_id:
+                    return indexer
                 if check and indexer_sites and indexer.id not in indexer_sites:
                     continue
                 if indexer.domain not in _indexer_domains:
@@ -63,18 +67,21 @@ class BuiltinIndexer(IIndexer):
                     indexer.name = site.get("name")
                     ret_indexers.append(indexer)
         # 公开站点
-        for site, attr in SiteConf().get_public_sites():
-            indexer = IndexerHelper().get_indexer(url=site,
-                                                  public=True,
-                                                  proxy=attr.get("proxy"),
-                                                  render=attr.get("render"),
-                                                  language=attr.get("language"))
-            if indexer:
-                if check and indexer_sites and indexer.id not in indexer_sites:
-                    continue
-                if indexer.domain not in _indexer_domains:
-                    _indexer_domains.append(indexer.domain)
-                    ret_indexers.append(indexer)
+        if public:
+            for site, attr in SiteConf().get_public_sites():
+                indexer = IndexerHelper().get_indexer(url=site,
+                                                      public=True,
+                                                      proxy=attr.get("proxy"),
+                                                      render=attr.get("render"),
+                                                      language=attr.get("language"))
+                if indexer:
+                    if indexer_id and indexer.id == indexer_id:
+                        return indexer
+                    if check and indexer_sites and indexer.id not in indexer_sites:
+                        continue
+                    if indexer.domain not in _indexer_domains:
+                        _indexer_domains.append(indexer.domain)
+                        ret_indexers.append(indexer)
         return ret_indexers
 
     def search(self, order_seq,
@@ -129,8 +136,22 @@ class BuiltinIndexer(IIndexer):
                                               match_media=match_media,
                                               start_time=start_time)
 
+    def list(self, index_id, page=0):
+        """
+        根据站点ID检索站点首页资源
+        """
+        if not index_id:
+            return []
+        indexer = self.get_indexers(indexer_id=index_id)
+        if not indexer:
+            return []
+        return self.__spider_list(indexer, page=page)
+
     @staticmethod
     def __spider_search(keyword, indexer):
+        """
+        根据关键字搜索单个站点
+        """
         spider = TorrentSpider()
         spider.setparam(indexer=indexer,
                         keyword=keyword)
@@ -141,6 +162,26 @@ class BuiltinIndexer(IIndexer):
             sleep_count += 1
             time.sleep(1)
             if sleep_count > 20:
+                break
+        # 返回数据
+        result_array = spider.torrents_info_array.copy()
+        spider.torrents_info_array.clear()
+        return result_array
+
+    @staticmethod
+    def __spider_list(indexer, page=None):
+        """
+        浏览器站点最新的种子
+        """
+        spider = TorrentSpider()
+        spider.setparam(indexer=indexer, page=page)
+        spider.start()
+        # 循环判断是否获取到数据
+        sleep_count = 0
+        while not spider.is_complete:
+            sleep_count += 1
+            time.sleep(1)
+            if sleep_count > 10:
                 break
         # 返回数据
         result_array = spider.torrents_info_array.copy()

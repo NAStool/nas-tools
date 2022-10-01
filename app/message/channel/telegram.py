@@ -16,6 +16,7 @@ class Telegram(IMessageChannel):
     __telegram_token = None
     __telegram_chat_id = None
     __webhook_url = None
+    __telegram_user_ids = None
     __domain = None
     __config = None
 
@@ -36,6 +37,9 @@ class Telegram(IMessageChannel):
         if message:
             self.__telegram_token = message.get('telegram', {}).get('telegram_token')
             self.__telegram_chat_id = message.get('telegram', {}).get('telegram_chat_id')
+            self.__telegram_user_ids = message.get('telegram', {}).get('telegram_user_ids')
+            if self.__telegram_user_ids:
+                self.__telegram_user_ids = self.__telegram_user_ids.split(",")
             if self.__telegram_token \
                     and self.__telegram_chat_id \
                     and message.get('telegram', {}).get('webhook') \
@@ -211,3 +215,9 @@ class Telegram(IMessageChannel):
             return True
         else:
             return False
+
+    def get_users(self):
+        """
+        获取Telegram配置文件中的User Ids，即允许使用telegram机器人的user_id列表
+        """
+        return self.__telegram_user_ids or []

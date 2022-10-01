@@ -286,6 +286,9 @@
                 <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('brushtask')">
                   刷流任务
                 </a>
+                <a class="dropdown-item" href="javascript:void(0)" onclick="navmenu('sitelist')">
+                  站点资源
+                </a>
               </div>
             </li>
             {% endif %}
@@ -758,7 +761,8 @@
         <div class="modal-footer">
           <div class="w-100">
             <div class="row">
-              <div class="col"><a href="#" class="btn btn-warning w-100" data-bs-dismiss="modal">
+              <div class="col">
+                <a href="#" id="system_fail_modal_btn" class="btn btn-warning w-100" data-bs-dismiss="modal">
                   确定
                 </a>
               </div>
@@ -951,13 +955,18 @@
     //显示成功提示
     function show_success_modal (title, func) {
       $("#system_success_message").text(title);
-      $("#system_success_modal_btn").unbind('click').click(func);
+      if(func){
+        $("#system_success_modal_btn").unbind('click').click(func);
+      }
       $("#system-success-modal").modal("show");
     }
 
     //显示失败提示
-    function show_fail_modal (title) {
+    function show_fail_modal (title, func) {
       $("#system_fail_message").text(title);
+      if(func){
+        $("#system_fail_modal_btn").unbind('click').click(func);
+      }
       $("#system-fail-modal").modal("show");
     }
 
