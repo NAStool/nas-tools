@@ -10,6 +10,7 @@ from werkzeug.security import generate_password_hash
 
 import cn2an
 import log
+from app.indexer import BuiltinIndexer
 from app.media.doubanv2api import DoubanHot
 from app.mediaserver import MediaServer
 from app.rsschecker import RssChecker
@@ -49,6 +50,7 @@ class WebAction:
             "sch": self.__sch,
             "search": self.__search,
             "download": self.__download,
+            "download_link": self.__download_link,
             "pt_start": self.__pt_start,
             "pt_stop": self.__pt_stop,
             "pt_remove": self.__pt_remove,
@@ -118,7 +120,8 @@ class WebAction:
             "delete_rssparser": self.__delete_rssparser,
             "update_rssparser": self.__update_rssparser,
             "run_userrss": self.__run_userrss,
-            "run_brushtask": self.__run_brushtask
+            "run_brushtask": self.__run_brushtask,
+            "list_site_resources": self.__list_site_resources
         }
 
     def action(self, cmd, data):
@@ -168,12 +171,18 @@ class WebAction:
             # 检查用户权限
             if in_from == SearchType.TG and user_id:
                 if str(user_id) != Telegram().get_admin_user():
-                    Message().send_channel_msg(channel=in_from, title="错误：只有管理员才有权限执行此命令")
+                    Message().send_channel_msg(channel=in_from, title="只有管理员才有权限执行此命令", user_id=user_id)
                     return
             # 启动服务
             ThreadHelper().start_thread(command.get("func"), ())
             Message().send_channel_msg(channel=in_from, title="%s 已启动" % command.get("desp"))
         else:
+            # 检查用户权限
+            if in_from == SearchType.TG and user_id:
+                if not str(user_id) in Telegram().get_users() \
+                        and str(user_id) != Telegram().get_admin_user():
+                    Message().send_channel_msg(channel=in_from, title="你不在用户白名单中，无法使用此机器人", user_id=user_id)
+                    return
             # 站点检索或者添加订阅
             ThreadHelper().start_thread(search_media_by_message, (msg, in_from, user_id,))
 
@@ -374,6 +383,41 @@ class WebAction:
             else:
                 return {"retcode": -1, "retmsg": ret_msg}
         return {"retcode": 0, "retmsg": ""}
+
+    @staticmethod
+    def __download_link(data):
+        site = data.get("site")
+        enclosure = data.get("enclosure")
+        title = data.get("title")
+        description = data.get("description")
+        page_url = data.get("page_url")
+        size = data.get("size")
+        seeders = data.get("seeders")
+        uploadvolumefactor = data.get("uploadvolumefactor")
+        downloadvolumefactor = data.get("downloadvolumefactor")
+        dl_dir = data.get("dl_dir")
+        if not title or not enclosure:
+            return {"code": -1, "msg": "种子信息有误"}
+        media = Media().get_media_info(title=title, subtitle=description)
+        media.site = site
+        media.enclosure = enclosure
+        media.page_url = page_url
+        media.size = size
+        media.upload_volume_factor = float(uploadvolumefactor)
+        media.download_volume_factor = float(downloadvolumefactor)
+        media.seeders = seeders
+        # 添加下载
+        ret, ret_msg = Downloader().add_pt_torrent(url=media.enclosure,
+                                                   mtype=media.type,
+                                                   download_dir=dl_dir,
+                                                   page_url=media.page_url,
+                                                   title=media.org_string)
+        if ret:
+            # 发送消息
+            Message().send_download_message(SearchType.WEB, media)
+            return {"code": 0, "msg": "下载成功"}
+        else:
+            return {"code": 1, "msg": ret_msg or "如连接正常，请检查下载任务是否存在"}
 
     @staticmethod
     def __pt_start(data):
@@ -2055,6 +2099,10 @@ class WebAction:
         return "<br>".join(rule_htmls)
 
     @staticmethod
+    def str_filesize(size):
+        return StringUtils.str_filesize(size, pre=1)
+
+    @staticmethod
     def __clear_tmdb_cache(data):
         """
         清空TMDB缓存
@@ -2252,3 +2300,11 @@ class WebAction:
     def __run_brushtask(data):
         BrushTask().check_task_rss(data.get("id"))
         return {"code": 0}
+
+    @staticmethod
+    def __list_site_resources(data):
+        resources = BuiltinIndexer().list(data.get("id"), data.get("page"))
+        if not resources:
+            return {"code": 1, "msg": "获取站点资源出现错误，无法连接到站点！"}
+        else:
+            return {"code": 0, "data": resources}

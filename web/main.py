@@ -458,7 +458,7 @@ def create_flask_app(config):
                 "poster": item[15],
                 "overview": item[16],
                 "pageurl": item[17],
-                "otherinfo": item[18],
+                "releasegroup": item[18],
                 "uploadvalue": item[19],
                 "downloadvalue": item[20],
                 "title": item[21],
@@ -615,6 +615,32 @@ def create_flask_app(config):
         return render_template("site/site.html",
                                Sites=CfgSites,
                                RuleGroups=RuleGroups)
+
+    # 站点列表页面
+    @App.route('/sitelist', methods=['POST', 'GET'])
+    @login_required
+    def sitelist():
+        IndexerSites = BuiltinIndexer().get_indexers(check=False, public=False)
+        return render_template("site/sitelist.html",
+                               Sites=IndexerSites,
+                               Count=len(IndexerSites))
+
+    # 站点资源页面
+    @App.route('/resources', methods=['POST', 'GET'])
+    @login_required
+    def resources():
+        site_id = request.args.get("site")
+        site_name = request.args.get("title")
+        page = request.args.get("page") or 0
+        Results = WebAction().action("list_site_resources", {"id": site_id, "page": page}).get("data") or []
+        return render_template("site/resources.html",
+                               Results=Results,
+                               SiteId=site_id,
+                               Title=site_name,
+                               TotalCount=len(Results),
+                               PageRange=range(0, 10),
+                               CurrentPage=int(page),
+                               TotalPage=10)
 
     # 推荐页面
     @App.route('/recommend', methods=['POST', 'GET'])
@@ -1801,5 +1827,10 @@ def create_flask_app(config):
     @App.template_filter('brush_rule_string')
     def brush_rule_string(rules):
         return WebAction.parse_brush_rule_string(rules)
+
+    # 大小格式化过滤器
+    @App.template_filter('str_filesize')
+    def str_filesize(size):
+        return WebAction.str_filesize(size)
 
     return App
