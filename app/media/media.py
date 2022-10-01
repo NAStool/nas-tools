@@ -147,14 +147,18 @@ class Media:
         # TMDB检索
         info = {}
         if search_type == MediaType.MOVIE:
-            log.debug(f"【META】正在识别{search_type.value}：{file_media_name}, 年份={StringUtils.xstr(first_media_year)} ...")
-            info = self.__search_movie_by_name(file_media_name, first_media_year)
-            if info:
-                info['media_type'] = MediaType.MOVIE
-                log.info("【META】%s 识别到 电影：TMDBID=%s, 名称=%s, 上映日期=%s" % (file_media_name,
-                                                                        info.get('id'),
-                                                                        info.get('title'),
-                                                                        info.get('release_date')))
+            year_max = int(first_media_year) + 1
+            while int(first_media_year) <= year_max:
+                log.debug(f"【META】正在识别{search_type.value}：{file_media_name}, 年份={StringUtils.xstr(first_media_year)} ...")
+                info = self.__search_movie_by_name(file_media_name, first_media_year)
+                if info:
+                    info['media_type'] = MediaType.MOVIE
+                    log.info("【META】%s 识别到 电影：TMDBID=%s, 名称=%s, 上映日期=%s" % (file_media_name,
+                                                                                        info.get('id'),
+                                                                                        info.get('title'),
+                                                                                        info.get('release_date')))
+                    break
+                first_media_year = str(int(first_media_year) + 1)
         else:
             # 有当前季和当前季集年份，使用精确匹配
             if media_year and season_number:
