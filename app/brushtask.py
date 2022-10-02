@@ -555,7 +555,7 @@ class BrushTask(object):
                 if downspeed:
                     downloader.set_downloadspeed_limit(download_id, int(downspeed))
         if not download_id:
-            log_warn("【BRUSH】%s 添加下载任务出错" % title)
+            log_warn("【BRUSH】%s 添加下载任务出错，可能原因：Cookie过期/任务已存在/触发了站点首次种子下载" % title)
             return False
         else:
             log_info("【BRUSH】成功添加下载：%s" % title)
