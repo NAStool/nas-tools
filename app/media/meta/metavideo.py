@@ -285,7 +285,9 @@ class MetaVideo(MetaBase):
                 if resource_pix and not self.resource_pix:
                     self.resource_pix = resource_pix.lower()
                     break
-            if self.resource_pix and self.resource_pix[-1] not in 'kpi':
+            if self.resource_pix \
+                    and self.resource_pix.isdigit() \
+                    and self.resource_pix[-1] not in 'kpi':
                 self.resource_pix = "%sp" % self.resource_pix
         else:
             re_res = re.search(r"%s" % self._resources_pix_re2, token, re.IGNORECASE)
