@@ -401,11 +401,18 @@ class SqlHelper:
         DBHelper().update_by_sql("DELETE FROM SYNC_HISTORY")
 
     @staticmethod
-    def truncate_transfer_rsshistory():
+    def truncate_rss_history():
         """
         清空RSS历史记录
         """
         DBHelper().update_by_sql("DELETE FROM RSS_TORRENTS")
+
+    @staticmethod
+    def truncate_rss_episodes():
+        """
+        清空RSS历史记录
+        """
+        DBHelper().update_by_sql("DELETE FROM RSS_TV_EPISODES")
 
     @staticmethod
     def get_config_site():

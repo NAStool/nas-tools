@@ -49,6 +49,13 @@
               <div class="text-muted">
                 共 {{ TotalCount }} 条记录
               </div>
+              <div class="ms-auto text-muted">
+                搜索:
+                <div class="ms-2 d-inline-block">
+                  <input id="search_word" value="{{ KeyWord or '' }}" type="text" class="form-control form-control-sm"
+                    aria-label="搜索">
+                </div>
+              </div>
             </div>
           </div>
           <div class="table-responsive">
@@ -110,7 +117,7 @@
                   <td class="sort-peers" data-peers="{{ Result.peers }}">{{ Result.peers }}</td>
                   <td class="sort-grabs" data-grabs="{{ Result.grabs }}">{{ Result.grabs }}</td>
                   <td>
-                    <a href='javascript:download_resource({id:{{ loop.index0 }}, name:"{{ Result.title }}"})' title="下载">
+                    <a href='javascript:show_download_link_modal({{ loop.index0 }}, "{{ Result.title }}")' title="下载">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                          <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
@@ -129,12 +136,12 @@
               </tbody>
             </table>
           </div>
-          {% if TotalCount > 0 %}
+          {% if TotalCount > 0 and not KeyWord %}
           <div class="card-footer d-flex align-items-center">
             <p class="m-0 text-muted"></p>
             <ul class="pagination m-0 ms-auto">
               <li class="page-item {% if CurrentPage == 0 %} disabled {% endif %}">
-                <a class="page-link" href='javascript:go_pre_page("{{ SiteId }}", "{{ Title }}", {{ CurrentPage }})' tabindex="-1"
+                <a class="page-link" href='javascript:go_pre_page({{ CurrentPage }})' tabindex="-1"
                   aria-disabled="true">
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                     stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -145,12 +152,12 @@
               </li>
               {% for page in PageRange %}
               <li class="page-item {% if page==CurrentPage %} active {% endif %}">
-                <a class="page-link" href='javascript:navmenu("resources?site={{ SiteId }}&title={{ Title }}&page={{ page }}")'>{{ page + 1 }}</a>
+                <a class="page-link" href='javascript:go_page({{ page }})'>{{ page + 1 }}</a>
               </li>
               {% endfor %}
               <li class="page-item {% if CurrentPage + 1 >= TotalPage %} disabled {% endif %}">
                 <a class="page-link"
-                  href='{% if CurrentPage < TotalPage %}javascript:go_next_page("{{ SiteId }}", "{{ Title }}", {{ CurrentPage }}){% else %}javascript:void(0){% endif %}'>
+                  href='{% if CurrentPage < TotalPage %}javascript:go_next_page({{ CurrentPage }}){% else %}javascript:void(0){% endif %}'>
                   <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
                     stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -173,26 +180,26 @@
     <div class="modal-content">
       <div class="modal-body">
         <div class="modal-title">询问</div>
-        <div id="resource_download_message">是否执行？</div>
+        <div id="resource_download_message">是否确认下载？</div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">取消</button>
         <div class="d-flex">
           {% if SaveDirs %}
-          <button type="button" class="btn btn-danger" onclick="javascript:download_link()" title="自动选择目录下载"
+          <button type="button" class="btn btn-danger" onclick="javascript:download_modal_action()" title="自动选择目录下载"
                   style="border-top-right-radius:0px;border-bottom-right-radius:0px;">自动下载</button>
           <button data-bs-toggle="dropdown" type="button"
               class="btn btn-danger dropdown-toggle dropdown-toggle-split" title="手动选择下载目录"
             style="border-top-left-radius:0px;border-bottom-left-radius:0px;"></button>
           <div class="dropdown-menu dropdown-menu-end">
             {% for SaveDir in SaveDirs %}
-            <a class="dropdown-item" href="javascript:download_link('{{ SaveDir|safe }}')">
+            <a class="dropdown-item" href="javascript:download_modal_action('{{ SaveDir|safe }}')">
               {{ SaveDir }}
             </a>
             {% endfor %}
           </div>
           {% else %}
-           <button type="button" class="btn btn-danger" onclick="javascript:download_link()" title="自动选择目录下载">确认下载</button>
+           <button type="button" class="btn btn-danger" onclick="javascript:download_modal_action()" title="自动选择目录下载">确认下载</button>
           {% endif %}
         </div>
       </div>
@@ -207,14 +214,34 @@
       valueNames: ['sort-pubdate', 'sort-size', 'sort-seeders', 'sort-peers', 'sort-grabs']
     });
 
+  //跳转页
+  function go_page(page){
+    navmenu("resources?site={{ SiteId }}" + "&title={{ Title }}" + "&page=" + page + "&keyword=" + $("#search_word").val())
+  }
+
   // 上一页
-  function go_pre_page(site, title, page) {
-    navmenu("resources?site=" + site + "&title=" + title + "&page=" + (page - 1))
+  function go_pre_page(page) {
+    navmenu("resources?site={{ SiteId }}" + "&title={{ Title }}" + "&page=" + (page - 1) + "&keyword=" + $("#search_word").val())
   }
 
   // 下一页
-  function go_next_page(site, title, page) {
-    navmenu("resources?site=" + site + "&title=" + title + "&page=" + (page + 1))
+  function go_next_page(page) {
+    navmenu("resources?site={{ SiteId }}" + "&title={{ Title }}" + "&page=" + (page + 1) + "&keyword=" + $("#search_word").val())
+  }
+
+  //显示下载对话框
+  function show_download_link_modal(id, name){
+    $("#resource_download_id").val(id);
+    $("#resource_download_name").val(name);
+    $("#resource_download_message").text("是否确认下载 " + name + " ？");
+    $("#modal-resource-download").modal("show");
+  }
+
+  //下载对话框的下载按钮
+  function download_modal_action(dl_dir){
+    $("#modal-resource-download").modal("hide");
+    item = {id: $("#resource_download_id").val(), name: $("#resource_download_name").val(), dl_dir: dl_dir};
+    download_resource(item, false);
   }
 
   //下载种子
@@ -224,6 +251,7 @@
     var site = "{{ Title }}"
     var id = item.id;
     var name = item.name;
+    var dl_dir = item.dl_dir;
     var enclosure = $("#enclosure_" + id).val();
     var title = $("#title_" + id).val();
     var description = $("#description_" + id).val();
@@ -238,6 +266,7 @@
     var params = {site: site,
                   enclosure: enclosure,
                   title: title,
+                  dl_dir: dl_dir,
                   description: description,
                   page_url: page_url,
                   size: size,
@@ -370,6 +399,13 @@
         }
       }
     })
-}
+  }
+
+  // 搜索按钮
+  $('#search_word').bind('keypress', function (event) {
+    if (event.keyCode == "13") {
+      navmenu("resources?site={{ SiteId }}" + "&title={{ Title }}" + "&page={{ CurrentPage }}" + "&keyword=" + $("#search_word").val());
+    }
+  });
 
 </script>

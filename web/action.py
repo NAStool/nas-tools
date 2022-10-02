@@ -1463,7 +1463,8 @@ class WebAction:
         """
         清空RSS历史记录
         """
-        SqlHelper.truncate_transfer_rsshistory()
+        SqlHelper.truncate_rss_history()
+        SqlHelper.truncate_rss_episodes()
         return {"code": 0}
 
     @staticmethod
@@ -2303,7 +2304,7 @@ class WebAction:
 
     @staticmethod
     def __list_site_resources(data):
-        resources = BuiltinIndexer().list(data.get("id"), data.get("page"))
+        resources = BuiltinIndexer().list(data.get("id"), data.get("page"), data.get("keyword"))
         if not resources:
             return {"code": 1, "msg": "获取站点资源出现错误，无法连接到站点！"}
         else:
