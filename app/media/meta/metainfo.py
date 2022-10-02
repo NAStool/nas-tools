@@ -41,7 +41,7 @@ def MetaInfo(title, subtitle=None, mtype=None):
                 used_replaced_words.append(replaced_word)
                 title = re.sub(r'' + replaced_word_info[0], r'' + replaced_word_info[-1], title)
     # 判断是否处理文件
-    if os.path.splitext(title)[-1] in RMT_MEDIAEXT:
+    if title and os.path.splitext(title)[-1] in RMT_MEDIAEXT:
         fileflag = True
     else:
         fileflag = False
