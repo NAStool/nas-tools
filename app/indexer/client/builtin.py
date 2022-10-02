@@ -73,7 +73,8 @@ class BuiltinIndexer(IIndexer):
                                                       public=True,
                                                       proxy=attr.get("proxy"),
                                                       render=attr.get("render"),
-                                                      language=attr.get("language"))
+                                                      language=attr.get("language"),
+                                                      parser=attr.get("parser"))
                 if indexer:
                     if indexer_id and indexer.id == indexer_id:
                         return indexer
@@ -136,7 +137,7 @@ class BuiltinIndexer(IIndexer):
                                               match_media=match_media,
                                               start_time=start_time)
 
-    def list(self, index_id, page=0):
+    def list(self, index_id, page=0, keyword=None):
         """
         根据站点ID检索站点首页资源
         """
@@ -145,43 +146,24 @@ class BuiltinIndexer(IIndexer):
         indexer = self.get_indexers(indexer_id=index_id)
         if not indexer:
             return []
-        return self.__spider_list(indexer, page=page)
+        return self.__spider_search(indexer, page=page, keyword=keyword, timeout=10)
 
     @staticmethod
-    def __spider_search(keyword, indexer):
+    def __spider_search(indexer, page=None, keyword=None, timeout=20):
         """
         根据关键字搜索单个站点
         """
         spider = TorrentSpider()
         spider.setparam(indexer=indexer,
-                        keyword=keyword)
+                        keyword=keyword,
+                        page=page)
         spider.start()
         # 循环判断是否获取到数据
         sleep_count = 0
         while not spider.is_complete:
             sleep_count += 1
             time.sleep(1)
-            if sleep_count > 20:
-                break
-        # 返回数据
-        result_array = spider.torrents_info_array.copy()
-        spider.torrents_info_array.clear()
-        return result_array
-
-    @staticmethod
-    def __spider_list(indexer, page=None):
-        """
-        浏览器站点最新的种子
-        """
-        spider = TorrentSpider()
-        spider.setparam(indexer=indexer, page=page)
-        spider.start()
-        # 循环判断是否获取到数据
-        sleep_count = 0
-        while not spider.is_complete:
-            sleep_count += 1
-            time.sleep(1)
-            if sleep_count > 10:
+            if sleep_count > timeout:
                 break
         # 返回数据
         result_array = spider.torrents_info_array.copy()

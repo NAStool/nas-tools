@@ -632,11 +632,15 @@ def create_flask_app(config):
         site_id = request.args.get("site")
         site_name = request.args.get("title")
         page = request.args.get("page") or 0
-        Results = WebAction().action("list_site_resources", {"id": site_id, "page": page}).get("data") or []
+        keyword = request.args.get("keyword")
+        Results = WebAction().action("list_site_resources", {"id": site_id, "page": page, "keyword": keyword}).get("data") or []
+        SaveDirs = WebAction().get_download_dirs()
         return render_template("site/resources.html",
                                Results=Results,
                                SiteId=site_id,
                                Title=site_name,
+                               KeyWord=keyword,
+                               SaveDirs=SaveDirs,
                                TotalCount=len(Results),
                                PageRange=range(0, 10),
                                CurrentPage=int(page),
