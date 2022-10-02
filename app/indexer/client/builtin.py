@@ -73,7 +73,8 @@ class BuiltinIndexer(IIndexer):
                                                       public=True,
                                                       proxy=attr.get("proxy"),
                                                       render=attr.get("render"),
-                                                      language=attr.get("language"))
+                                                      language=attr.get("language"),
+                                                      parser=attr.get("parser"))
                 if indexer:
                     if indexer_id and indexer.id == indexer_id:
                         return indexer
