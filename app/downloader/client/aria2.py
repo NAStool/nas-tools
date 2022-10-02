@@ -85,6 +85,7 @@ class Aria2(IDownloadClient):
         return []
 
     def add_torrent(self, content, mtype, download_dir=None, **kwargs):
+        content = str(content)
         if not self._client:
             return None
         if download_dir:
