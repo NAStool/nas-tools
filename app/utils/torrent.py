@@ -246,7 +246,7 @@ class Torrent:
                 html = etree.HTML(req.text)
                 urls = html.xpath(xpath)
                 if urls:
-                    return urls[0]
+                    return str(urls[0])
         except Exception as err:
             print(str(err))
         return None
