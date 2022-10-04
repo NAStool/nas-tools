@@ -30,15 +30,7 @@ class ChromeHelper(object):
         self._chrome = uc.Chrome(options=options, driver_executable_path=self._executable_path)
 
     def get_browser(self):
-        self.check_browser()
         return self._chrome
-
-    def check_browser(self):
-        if self._chrome:
-            try:
-                self._chrome.execute_script('javascript:void(0);')
-            except Exception as e:
-                self.init_config()
 
     def __del__(self):
         if self._chrome:
