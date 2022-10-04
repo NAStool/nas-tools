@@ -11,8 +11,7 @@ from app.utils.types import OsType
 @singleton
 class ChromeHelper(object):
 
-    _default_options = uc.ChromeOptions()
-    _executable_path = "/usr/lib/chromium/chromedriver"
+    _executable_path = "/usr/lib/chromium/chromedriver" if SystemUtils.get_system() == OsType.LINUX else None
     _chrome = None
     _display = None
 
@@ -21,30 +20,31 @@ class ChromeHelper(object):
 
     def init_config(self):
         if SystemUtils.get_system() == OsType.LINUX \
+                and self._executable_path \
                 and not os.path.exists(self._executable_path):
             return
-        self._display = Display(visible=False, size=(1920, 1080))
-        self._display.start()
-        self._default_options.add_argument('--disable-gpu')
-        self._default_options.add_argument('--no-sandbox')
-        self._default_options.add_argument('--ignore-certificate-errors')
-        self._chrome = uc.Chrome(options=self._default_options, driver_executable_path=self._executable_path)
+        if SystemUtils.get_system() == OsType.LINUX:
+            self._display = Display(visible=False, size=(1920, 1080))
+            self._display.start()
+        options = uc.ChromeOptions()
+        options.add_argument('--disable-gpu')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--ignore-certificate-errors')
+        self._chrome = uc.Chrome(options=options, driver_executable_path=self._executable_path)
 
     def get_browser(self):
+        self.check_browser()
         return self._chrome
 
-    def __del__(self):
-        self._chrome.quit()
-        self._display.stop()
+    def check_browser(self):
+        if self._chrome:
+            try:
+                self._chrome.execute_script('javascript:void(0);')
+            except Exception as e:
+                self.init_config()
 
-    @staticmethod
-    def cookie_parse(cookies_str):
-        if not cookies_str:
-            return {}
-        cookie_dict = {}
-        cookies = cookies_str.split(';')
-        for cookie in cookies:
-            cstr = cookie.split('=')
-            if len(cstr) > 1:
-                cookie_dict[cstr[0]] = cstr[1]
-        return cookie_dict
+    def __del__(self):
+        if self._chrome:
+            self._chrome.quit()
+        if self._display:
+            self._display.stop()

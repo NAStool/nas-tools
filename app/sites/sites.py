@@ -1,8 +1,15 @@
 import json
+import re
 import traceback
 from datetime import datetime
 from multiprocessing.dummy import Pool as ThreadPool
 from threading import Lock
+
+from lxml import etree
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as es
+
 
 import log
 from app.message import Message
@@ -205,35 +212,72 @@ class Sites:
                 site_url = site_info.get("signurl")
                 site_cookie = site_info.get("cookie")
                 ua = site_info.get("ua")
-                log.info("【SITES】开始站点签到：%s" % site)
                 if not site_url or not site_cookie:
                     log.warn("【SITES】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
                     continue
                 # 检测环境，有浏览器内核的优先使用仿真签到
                 browser = ChromeHelper().get_browser()
-                checkin_state = False
                 if browser:
-                    browser.add_cookie(StringUtils.cookie_parse(site_cookie))
-                    browser.get("%s://%s" % StringUtils.get_url_netloc(site_url))
-                    browser.implicitly_wait(10)
+                    # 首页
+                    log.info("【SITES】开始站点仿真签到：%s" % site)
+                    home_url = "%s://%s" % StringUtils.get_url_netloc(site_url)
+                    browser.get(home_url)
+                    # 添加Cookie
+                    browser.delete_all_cookies()
+                    for cookie in RequestUtils.cookie_parse(site_cookie, array=True):
+                        browser.add_cookie(cookie)
+                    # 再次访问首页
+                    browser.get(home_url)
+                    # 判断是否已签到
+                    html_text = browser.page_source
+                    if not html_text:
+                        continue
+                    if re.search(r'已签|签到已得', html_text, re.IGNORECASE):
+                        log.info("【SITES】%s 今日已签到" % site)
+                        status.append("%s 今日已签到" % site)
+                        continue
+                    # 查找签到按钮
+                    xpath_str = None
+                    html = etree.HTML(html_text)
                     for xpath in SITE_CHECKIN_XPATH:
-                        checkin_obj = browser.find_element_by_xpath(xpath)
+                        if html.xpath(xpath):
+                            xpath_str = xpath
+                            break
+                    if not xpath_str:
+                        if not self.__is_signin_success(html_text):
+                            log.warn("【SITES】%s 未找到签到按钮，模拟登录成功" % site)
+                            status.append("%s 模拟登录成功" % site)
+                        else:
+                            log.info("【SITES】%s 未找到签到按钮，且模拟登录失败" % site)
+                            status.append("%s 模拟登录失败" % site)
+                        continue
+                    # 开始仿真
+                    try:
+                        checkin_obj = WebDriverWait(driver=browser, timeout=6).until(
+                            es.element_to_be_clickable((By.XPATH, xpath_str)))
                         if checkin_obj:
                             checkin_obj.click()
+                            log.info("【SITES】%s 仿真签到成功" % site)
                             status.append("%s 签到成功" % site)
-                            checkin_state = True
-                            break
+                    except Exception as e:
+                        log.warn("【SITES】%s 仿真签到失败：%s" % str(e))
+                        continue
                 # 模拟登录
-                if not checkin_state:
+                else:
+                    log.info("【SITES】开始站点模拟登录：%s" % site)
                     res = RequestUtils(cookies=site_cookie, headers=ua).get_res(url=site_url)
                     if res and res.status_code == 200:
                         if not self.__is_signin_success(res.text):
+                            log.warn("【SITES】%s 模拟登录失败，cookie已过期" % site)
                             status.append("%s 模拟登录失败，cookie已过期" % site)
                         else:
+                            log.info("【SITES】%s 模拟登录成功" % site)
                             status.append("%s 模拟登录成功" % site)
                     elif res and res.status_code:
+                        log.warn("【SITES】%s 模拟登录失败，状态码：%s" % (site, res.status_code))
                         status.append("%s 模拟登录失败，状态码：%s" % (site, res.status_code))
                     else:
+                        log.warn("【SITES】%s 模拟登录失败，无法打开网站" % site)
                         status.append("%s 模拟登录失败，无法打开网站" % site)
             except Exception as e:
                 log.error("【SITES】%s 签到出错：%s - %s" % (site, str(e), traceback.format_exc()))

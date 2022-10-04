@@ -99,7 +99,8 @@ NETTEST_TARGETS = ["www.themoviedb.org", "api.themoviedb.org", "image.tmdb.org",
 SITE_CHECKIN_XPATH = [
     '//a[@id="signed"]',
     '//a[contains(@href, "attendance.php")]',
-    '//a[contains(@text, "签到")]'
+    '//a[contains(@text, "签到")]',
+    '//span[@id="sign_in"]/a'
 ]
 
 # 线程锁
