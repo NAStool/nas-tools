@@ -57,7 +57,7 @@ class Sync(object):
         "softlink": RmtMode.SOFTLINK,
         "move": RmtMode.MOVE,
         "rclone": RmtMode.RCLONE,
-        "rclonecopy": RmtMode.RCLONECOPY
+        "rclonecopy": RmtMode.RCLONECOPY,
         "minio": RmtMode.MINIO,
         "rminiocopy": RmtMode.MINIOCOPY
     }
