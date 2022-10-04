@@ -228,6 +228,7 @@ class Sites:
                         browser.add_cookie(cookie)
                     # 再次访问首页
                     browser.get(home_url)
+                    browser.implicitly_wait(6)
                     # 判断是否已签到
                     html_text = browser.page_source
                     if not html_text:
@@ -244,7 +245,6 @@ class Sites:
                             xpath_str = xpath
                             break
                     if not xpath_str:
-                        browser.implicitly_wait(6)
                         if not self.__is_signin_success(html_text):
                             log.warn("【SITES】%s 未找到签到按钮，模拟登录成功" % site)
                             status.append("%s 模拟登录成功" % site)
