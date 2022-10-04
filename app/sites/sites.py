@@ -260,7 +260,7 @@ class Sites:
                             log.info("【SITES】%s 仿真签到成功" % site)
                             status.append("%s 签到成功" % site)
                     except Exception as e:
-                        log.warn("【SITES】%s 仿真签到失败：%s" % str(e))
+                        log.warn("【SITES】%s 仿真签到失败：%s" % (site, str(e)))
                         continue
                 # 模拟登录
                 else:
