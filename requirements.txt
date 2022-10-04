@@ -19,7 +19,6 @@ coloredlogs==15.0.1
 cryptography==38.0.1
 cssselect==1.1.0
 DBUtils==3.0.2
-ddddocr==1.4.7
 decorator==5.1.1
 executing==1.1.0
 Flask==2.2.2
