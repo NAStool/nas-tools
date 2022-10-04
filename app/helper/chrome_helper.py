@@ -16,6 +16,9 @@ class ChromeHelper(object):
     _display = None
 
     def __init__(self):
+        if SystemUtils.get_system() == OsType.LINUX:
+            self._display = Display(visible=False, size=(1920, 1080))
+            self._display.start()
         self.init_config()
 
     def init_config(self):
@@ -23,9 +26,6 @@ class ChromeHelper(object):
                 and self._executable_path \
                 and not os.path.exists(self._executable_path):
             return
-        if SystemUtils.get_system() == OsType.LINUX:
-            self._display = Display(visible=False, size=(1920, 1080))
-            self._display.start()
         options = uc.ChromeOptions()
         options.add_argument('--disable-gpu')
         options.add_argument('--no-sandbox')
