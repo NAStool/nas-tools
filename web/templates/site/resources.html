@@ -89,25 +89,31 @@
                     <input type="hidden" id="downloadvolumefactor_{{ loop.index0  }}" value="{{ Result.downloadvolumefactor }}">
                   </td>
                   <td>
-                      <div class="font-weight-medium strong">
-                        <a href="{{ Result.page_url }}" target="_blank">{{ Result.title }} </a>
-                        {% if Result.uploadvolumefactor != 1.0 %}
-                        <span class="badge text-white bg-azure">{{ (Result.uploadvolumefactor * 100) | int }}%UL</span>
-                        {% endif %}
-                        {% if Result.downloadvolumefactor != 1.0 %}
-                            {% if Result.downloadvolumefactor == 0.0 %}
-                            <span class="badge text-white bg-lime">FREE</span>
-                            {% else %}
-                            <span class="badge text-white bg-blue">{{ (Result.downloadvolumefactor * 100) | int }}%DL</span>
-                            {% endif %}
-                        {% endif %}
-                      </div>
-                      <div class="text-muted">{{ Result.description }}</div>
-                      <div id="testresults_{{ loop.index0 }}" class="text-muted">
-                        <span title="点击名称测试" style="vertical-align: middle;">
-                          <a class="badge badge-outline text-orange me-1 mb-1" href="javascript:nametest('{{ loop.index0 }}', '{{ Result.title }}')">名称测试</a>
-                        </span>
-                      </div>
+                    <div class="font-weight-medium strong">
+                      <a href="{{ Result.page_url }}" target="_blank">{{ Result.title }} </a>
+                      {% if Result.uploadvolumefactor != 1.0 %}
+                      <span class="badge text-white bg-azure">{{ (Result.uploadvolumefactor * 100) | int }}%UL</span>
+                      {% endif %}
+                      {% if Result.downloadvolumefactor != 1.0 %}
+                          {% if Result.downloadvolumefactor == 0.0 %}
+                          <span class="badge text-white bg-lime">FREE</span>
+                          {% else %}
+                          <span class="badge text-white bg-blue">{{ (Result.downloadvolumefactor * 100) | int }}%DL</span>
+                          {% endif %}
+                      {% endif %}
+                      <a title="名称测试" href="javascript:nametest('{{ loop.index0 }}', '{{ Result.title }}')" data-bs-toggle="tooltip">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                           <path d="M4 5h7"></path>
+                           <path d="M9 3v2c0 4.418 -2.239 8 -5 8"></path>
+                           <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4"></path>
+                           <path d="M12 20l4 -9l4 9"></path>
+                           <path d="M19.1 18h-6.2"></path>
+                        </svg>
+                      </a>
+                    </div>
+                    <div class="text-muted">{{ Result.description }}</div>
+                    <div id="testresults_{{ loop.index0 }}" class="text-muted"></div>
                   </td>
                   <td class="sort-pubdate" data-pubdate="{{ Result.pubdate }}">{{ Result.date_elapsed }}</td>
                   <td class="sort-size" data-size="{{ Result.size }}">
@@ -326,7 +332,9 @@
 
   //名称测试
   function nametest(id, title){
+    show_wait_process();
     ajax_post("name_test", {"name": title}, function (ret) {
+      hide_wait_process();
       var div_id = "#testresults_" + id
       if(ret.code == 0){
         $(div_id).empty();

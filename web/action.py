@@ -142,9 +142,10 @@ class WebAction:
         stop_monitor()
         # 签退
         logout_user()
+        # 关闭虚拟显示
+        os.system("ps -ef|grep -w 'Xvfb'|grep -v grep|awk '{print $1}'|xargs kill -9")
         # 杀进程
-        sig = getattr(signal, "SIGKILL", signal.SIGTERM)
-        os.kill(os.getpid(), sig)
+        os.kill(os.getpid(), getattr(signal, "SIGKILL", signal.SIGTERM))
 
     @staticmethod
     def handle_message_job(msg, in_from=SearchType.OT, user_id=None):
