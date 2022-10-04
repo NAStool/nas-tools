@@ -435,3 +435,5 @@ laboratory:
   ignored_words: 
   # 【自定义识别替换词】
   replaced_words:
+  # 【自定义识别集数偏移】
+  offset_words:

@@ -340,13 +340,17 @@
         $(div_id).empty();
         var ignored_words = [];
         var replaced_words = [];
+        var offset_words = [];
         if(ret.data.ignored_words){
           ignored_words = ret.data.ignored_words;
         }
         if(ret.data.replaced_words){
           replaced_words = ret.data.replaced_words;
         }
-        var words = ignored_words + replaced_words;
+        if(ret.data.offset_words){
+          offset_words = ret.data.offset_words;
+        }
+        var words = ignored_words + replaced_words + offset_words;
         if(words.length != 0){
           if(ret.data.org_string){
             $(div_id).append('<div class="mb-3" ><label class="form-label">识别使用名称：<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;white-space: normal;text-align: left;word-break: break-all;" title="自定义识别词过滤后识别用名">' + ret.data.org_string + '</span></label></div>');
@@ -364,6 +368,13 @@
               replaced_words_content = replaced_words_content + '<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">' + replaced_word + '</span>';
             };
             $(div_id).append(replaced_words_content + '</label></div>');
+          }
+          if(offset_words.length != 0){
+            var offset_words_content = '<div class="mb-3"><label class="form-label">应用集数偏移：';
+            for(offset_word of offset_words){
+              offset_words_content = offset_words_content + '<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">' + offset_word + '</span>';
+            };
+            $(div_id).append(offset_words_content + '</label></div>');
           }
         }
         if(ret.data.type){

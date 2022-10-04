@@ -1681,7 +1681,8 @@ class WebAction:
             "audio_codec": media_info.audio_encode,
             "org_string": media_info.org_string,
             "ignored_words": media_info.ignored_words,
-            "replaced_words": media_info.replaced_words
+            "replaced_words": media_info.replaced_words,
+            "offset_words": media_info.offset_words
         }}
 
     @staticmethod
