@@ -30,8 +30,8 @@ from app.subtitle import Subtitle
 from app.media import Category, Media, MetaInfo
 from app.media.doubanv2api import DoubanApi
 from app.filetransfer import FileTransfer
-from app.scheduler import stop_scheduler, restart_scheduler
-from app.sync import stop_monitor, restart_monitor
+from app.scheduler import restart_scheduler, stop_scheduler
+from app.sync import restart_monitor, stop_monitor
 from app.scheduler import Scheduler
 from app.sync import Sync
 from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
@@ -132,9 +132,9 @@ class WebAction:
             return func(data)
 
     @staticmethod
-    def stop_service():
+    def shutdown_server():
         """
-        停止所有服务
+        停止进程
         """
         # 停止定时服务
         stop_scheduler()
@@ -142,12 +142,7 @@ class WebAction:
         stop_monitor()
         # 签退
         logout_user()
-
-    @staticmethod
-    def shutdown_server():
-        """
-        停卡Flask进程
-        """
+        # 杀进程
         sig = getattr(signal, "SIGKILL", signal.SIGTERM)
         os.kill(os.getpid(), sig)
 
@@ -837,8 +832,6 @@ class WebAction:
         """
         重启
         """
-        # 停止服务
-        self.stop_service()
         # 退出主进程
         self.shutdown_server()
 
@@ -846,8 +839,6 @@ class WebAction:
         """
         更新
         """
-        # 停止服务
-        self.stop_service()
         # 升级
         if "synology" in SystemUtils.execute('uname -a'):
             if SystemUtils.execute('/bin/ps -w -x | grep -v grep | grep -w "nastool update" | wc -l') == '0':

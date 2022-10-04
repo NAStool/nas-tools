@@ -2,7 +2,6 @@ import os.path
 
 from app.utils import SystemUtils
 from app.utils.commons import singleton
-from pyvirtualdisplay import Display
 import undetected_chromedriver as uc
 
 from app.utils.types import OsType
@@ -16,9 +15,6 @@ class ChromeHelper(object):
     _display = None
 
     def __init__(self):
-        if SystemUtils.get_system() == OsType.LINUX:
-            self._display = Display(visible=False, size=(1920, 1080))
-            self._display.start()
         self.init_config()
 
     def init_config(self):
@@ -30,6 +26,7 @@ class ChromeHelper(object):
         options.add_argument('--disable-gpu')
         options.add_argument('--no-sandbox')
         options.add_argument('--ignore-certificate-errors')
+        options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
         self._chrome = uc.Chrome(options=options, driver_executable_path=self._executable_path)
 
     def get_browser(self):

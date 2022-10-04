@@ -6,6 +6,8 @@ on:
       - dev
     paths:
       - .github/workflows/build-image-test.yml
+      - version.py
+      - docker/Dockerfile.test
 jobs:
   build:
     runs-on: ubuntu-latest
