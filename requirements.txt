@@ -61,3 +61,5 @@ Werkzeug==2.2.2
 wsproto==1.2.0
 zhconv==1.4.3
 jsonpath==0.82
+undetected-chromedriver
+PyVirtualDisplay
