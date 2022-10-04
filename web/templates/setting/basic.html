@@ -142,7 +142,7 @@
             <div class="row">
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label required">默认文件转移方式 <span class="form-help" title="默认使用的文件转移方式；硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用；RCLONE针对网盘场景，需要自行映射rclone配置目录到容器中（/root/.config/rclone）或在容器内使用rclone config完成rclone配置，网盘配置名称必须为：NASTOOL" data-bs-toggle="tooltip">?</span></label>
+                  <label class="form-label required">默认文件转移方式 <span class="form-help" title="默认使用的文件转移方式；硬链接模式要求源目录和目的目录或媒体库目录在一个磁盘分区或者存储空间/共享文件夹，Docker运行时需要直接映射源目录和目的目录或媒体库目录的上级目录，否则docker仍然会认为是跨盘；移动模式会直接移动原文件，会影响做种，请谨慎使用；RCLONE针对网盘场景，需要自行映射rclone配置目录到容器中（/root/.config/rclone）或在容器内使用rclone config完成rclone配置，网盘配置名称必须为：NASTOOL;minio针对S3/云原生场景，需要自行在容器内使用mc alias set NASTOOL http://your_domain_name_or_ip:port ACCESS_KEY SECRET_KEY完成minio配置(alias的名称必须为NASTOOL)，并在minio控制台增加一个名为data的bucket(名称必须为data)" data-bs-toggle="tooltip">?</span></label>
                   <select class="form-select" id="pt.rmt_mode">
                     <option value="link" {% if Config.pt.rmt_mode=='link' %}selected{% endif %}>硬链接</option>
                     <option value="softlink" {% if Config.pt.rmt_mode=='softlink' %}selected{% endif %}>软链接</option>
@@ -150,6 +150,8 @@
                     <option value="move" {% if Config.pt.rmt_mode=='move' %}selected{% endif %}>移动</option>
                     <option value="rclonecopy" {% if Config.pt.rmt_mode=='rclonecopy' %}selected{% endif %}>Rclone复制</option>
                     <option value="rclone" {% if Config.pt.rmt_mode=='rclone' %}selected{% endif %}>Rclone移动</option>
+                    <option value="miniocopy" {% if Config.pt.rmt_mode=='miniocopy' %}selected{% endif %}>Minio复制</option>
+                    <option value="minio" {% if Config.pt.rmt_mode=='minio' %}selected{% endif %}>Minio移动</option>
                   </select>
                 </div>
               </div>
@@ -726,7 +728,7 @@
     <div class="modal-content border-0">
       <div class="card">
         <div class="card-header">
-          <h5 class="modal-title">自定义识别词</h5>
+          <h5 class="modal-title">自定义识别词 <span class="form-help" title="自定义识别词应用顺序为：屏蔽词，替换词，集数偏移" data-bs-toggle="tooltip">?</span></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="card-body">
@@ -734,13 +736,21 @@
             <div class="col-lg-6">
               <div class="mb-3">
                 <label class="form-label">屏蔽词 <span class="form-help" title="识别时会先屏蔽名称中包含的屏蔽词，支持正则表达式" data-bs-toggle="tooltip">?</span></label>
-                <textarea class="form-control" id="ignored_words" rows="4" placeholder="增加屏蔽词请换行&#13;&#10;支持正则表达式">{{ Ignored_Words or '' }}</textarea>
+                <textarea class="form-control" id="ignored_words" rows="4" placeholder="增加屏蔽词请换行&#13;&#10;支持正则表达式，注意特殊字符转义">{{ Ignored_Words or '' }}</textarea>
               </div>
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
                 <label class="form-label">替换词 <span class="form-help" title="识别时会先替换名称中包含的替换词，支持正则表达式" data-bs-toggle="tooltip">?</span></label>
-                <textarea class="form-control" id="replaced_words" rows="4" placeholder="A@B，@前的词会被替换为@后的词&#13;&#10;增加替换词请换行&#13;&#10;支持正则表达式">{{ Replaced_Words or '' }}</textarea>
+                <textarea class="form-control" id="replaced_words" rows="4" placeholder="A@B，@前的词会被替换为@后的词&#13;&#10;增加替换词请换行&#13;&#10;支持正则表达式，注意特殊字符转义">{{ Replaced_Words or '' }}</textarea>
+              </div>
+            </div>
+          </div>
+          <div class='row'>
+            <div class="col-lg-12">
+              <div class="mb-3">
+                <label class="form-label">集数偏移 <span class="form-help" title="识别时会通过前后定位词偏移集数，支持正则表达式" data-bs-toggle="tooltip">?</span></label>
+                <textarea class="form-control" id="offset_words" rows="4" placeholder="A@B@1，A为集数前定位词，B为集数后定位词，1为集数偏移（负数为向前偏移）&#13;&#10;增加集数偏移请换行&#13;&#10;支持正则表达式，注意特殊字符转义">{{ Offset_Words or '' }}</textarea>
               </div>
             </div>
           </div>
@@ -795,8 +805,10 @@
     var params = {};
     var ignored_words = $("#ignored_words").val().replace(/\n/g,"||");
     var replaced_words = $("#replaced_words").val().replace(/\n/g,"||");
-    params['laboratory.ignored_words'] = ignored_words
-    params['laboratory.replaced_words'] = replaced_words
+    var offset_words = $("#offset_words").val().replace(/\n/g,"||");
+    params['laboratory.ignored_words'] = ignored_words;
+    params['laboratory.replaced_words'] = replaced_words;
+    params['laboratory.offset_words'] = offset_words;
     ajax_post("update_config", params, function (ret) {
     });
     $("#modal-customized-words").modal("hide");

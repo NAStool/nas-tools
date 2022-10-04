@@ -250,7 +250,7 @@ pt:
   pt_monitor: false
   # 【只监控NASTool添加的下载】：启用后只有NASTool添加的下载才会被自动转移和显示，关闭则下载软件中所有的任务都会转移和显示
   pt_monitor_only: true
-  # 【下载完成后转移到媒体库的转移模式】：link、copy、softlink、move、rclone、rclonecopy，详情参考顶部说明
+  # 【下载完成后转移到媒体库的转移模式】：link、copy、softlink、move、rclone、rclonecopy、minio、miniocopy，详情参考顶部说明
   rmt_mode: link
   #【聚合检索使用的检索器】：jackett、prowlarr、builtin，需要配置jackett或prowlarr对应的配置区域，builtin为内置索引器需要在配置文件目录/sites目录下存入对应的站点配置文件
   # 1、通过微信发送关键字，实时检索下载，发送格式示例：电视剧 西部世界、西部世界第1季、西部世界第1季第2集、西部世界 2022，只会匹配真实名称，命中后会自动下载，使用说明参考：https://github.com/jxxghp/nas-tools/wiki/
@@ -435,3 +435,5 @@ laboratory:
   ignored_words: 
   # 【自定义识别替换词】
   replaced_words:
+  # 【自定义识别集数偏移】
+  offset_words:
