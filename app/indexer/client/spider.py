@@ -8,7 +8,6 @@ from requests.utils import dict_from_cookiejar
 
 import feapder
 from app.utils import RequestUtils, StringUtils, SystemUtils
-from app.utils.types import OsType
 from config import Config, DEFAULT_UA
 from feapder.utils.tools import urlencode
 from jinja2 import Template
