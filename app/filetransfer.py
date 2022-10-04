@@ -162,9 +162,9 @@ class FileTransfer:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
                     if rmt_mode == RmtMode.MINIO:
-                        retcode = os.system('mc.exe mv --recursive "{}" NASTOOL/data"{}"'.format(file_item, target_file))
+                        retcode = os.system('mc.exe mv --recursive "{}" NASTOOL/"{}"'.format(file_item, target_file))
                     else:
-                        retcode = os.system('mc.exe cp --recursive "{}" NASTOOL/data"{}"'.format(file_item, target_file))
+                        retcode = os.system('mc.exe cp --recursive "{}" NASTOOL/"{}"'.format(file_item, target_file))
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
@@ -194,9 +194,9 @@ class FileTransfer:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
                     if rmt_mode == RmtMode.RCLONE:
-                        retcode = call(["mc", "mv", "--recursive",file_item, "NASTOOL/data" + target_file])
+                        retcode = call(["mc", "mv", "--recursive",file_item, "NASTOOL/" + target_file])
                     else:
-                        retcode = call(["mc", "mv", "--recursive",file_item, "NASTOOL/data" + target_file])
+                        retcode = call(["mc", "mv", "--recursive",file_item, "NASTOOL/" + target_file])
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
