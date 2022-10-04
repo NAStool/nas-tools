@@ -726,7 +726,7 @@
     <div class="modal-content border-0">
       <div class="card">
         <div class="card-header">
-          <h5 class="modal-title">自定义识别词</h5>
+          <h5 class="modal-title">自定义识别词 <span class="form-help" title="自定义识别词应用顺序为：<br>屏蔽词，替换词，集数偏移" data-bs-toggle="tooltip">?</span></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="card-body">
@@ -734,13 +734,21 @@
             <div class="col-lg-6">
               <div class="mb-3">
                 <label class="form-label">屏蔽词 <span class="form-help" title="识别时会先屏蔽名称中包含的屏蔽词，支持正则表达式" data-bs-toggle="tooltip">?</span></label>
-                <textarea class="form-control" id="ignored_words" rows="4" placeholder="增加屏蔽词请换行&#13;&#10;支持正则表达式">{{ Ignored_Words or '' }}</textarea>
+                <textarea class="form-control" id="ignored_words" rows="4" placeholder="增加屏蔽词请换行&#13;&#10;支持正则表达式，注意特殊字符转义">{{ Ignored_Words or '' }}</textarea>
               </div>
             </div>
             <div class="col-lg-6">
               <div class="mb-3">
                 <label class="form-label">替换词 <span class="form-help" title="识别时会先替换名称中包含的替换词，支持正则表达式" data-bs-toggle="tooltip">?</span></label>
-                <textarea class="form-control" id="replaced_words" rows="4" placeholder="A@B，@前的词会被替换为@后的词&#13;&#10;增加替换词请换行&#13;&#10;支持正则表达式">{{ Replaced_Words or '' }}</textarea>
+                <textarea class="form-control" id="replaced_words" rows="4" placeholder="A@B，@前的词会被替换为@后的词&#13;&#10;增加替换词请换行&#13;&#10;支持正则表达式，注意特殊字符转义">{{ Replaced_Words or '' }}</textarea>
+              </div>
+            </div>
+          </div>
+          <div class='row'>
+            <div class="col-lg-12">
+              <div class="mb-3">
+                <label class="form-label">集数偏移 <span class="form-help" title="识别时会通过前后定位词偏移集数，支持正则表达式" data-bs-toggle="tooltip">?</span></label>
+                <textarea class="form-control" id="offset_words" rows="4" placeholder="A@B@1，A为集数前定位词，B为集数后定位词，1为集数偏移（负数为向前偏移）&#13;&#10;增加集数偏移请换行&#13;&#10;支持正则表达式，注意特殊字符转义">{{ Offset_Words or '' }}</textarea>
               </div>
             </div>
           </div>
@@ -795,8 +803,10 @@
     var params = {};
     var ignored_words = $("#ignored_words").val().replace(/\n/g,"||");
     var replaced_words = $("#replaced_words").val().replace(/\n/g,"||");
-    params['laboratory.ignored_words'] = ignored_words
-    params['laboratory.replaced_words'] = replaced_words
+    var offset_words = $("#offset_words").val().replace(/\n/g,"||");
+    params['laboratory.ignored_words'] = ignored_words;
+    params['laboratory.replaced_words'] = replaced_words;
+    params['laboratory.offset_words'] = offset_words;
     ajax_post("update_config", params, function (ret) {
     });
     $("#modal-customized-words").modal("hide");
