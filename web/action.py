@@ -14,11 +14,11 @@ from app.indexer import BuiltinIndexer
 from app.media.doubanv2api import DoubanHot
 from app.mediaserver import MediaServer
 from app.rsschecker import RssChecker
-from app.utils import StringUtils, Torrent, EpisodeFormat, ProgressController, RequestUtils, PathUtils, MessageCenter, \
-    ThreadHelper, MetaHelper
+from app.utils import StringUtils, Torrent, EpisodeFormat, RequestUtils, PathUtils, SystemUtils
+from app.helper import ProgressController, ThreadHelper, MetaHelper
 from app.utils.types import RMT_MODES
 from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
-from app.message import Telegram, WeChat, Message
+from app.message import Telegram, WeChat, Message, MessageCenter
 from app.brushtask import BrushTask
 from app.downloader import Qbittorrent, Transmission, Downloader
 from app.douban import DouBan
@@ -37,7 +37,7 @@ from app.sync import Sync
 from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 from web.backend.subscribe import add_rss_subscribe
-from app.db import SqlHelper, DictHelper
+from app.helper import SqlHelper, DictHelper
 
 
 class WebAction:
@@ -380,6 +380,8 @@ class WebAction:
             if ret:
                 # 发送消息
                 Message().send_download_message(SearchType.WEB, media)
+                # 登记下载历史
+                SqlHelper.insert_download_history(media)
             else:
                 return {"retcode": -1, "retmsg": ret_msg}
         return {"retcode": 0, "retmsg": ""}
@@ -415,6 +417,8 @@ class WebAction:
         if ret:
             # 发送消息
             Message().send_download_message(SearchType.WEB, media)
+            # 登记下载历史
+            SqlHelper.insert_download_history(media)
             return {"code": 0, "msg": "下载成功"}
         else:
             return {"code": 1, "msg": ret_msg or "如连接正常，请检查下载任务是否存在"}
@@ -845,8 +849,8 @@ class WebAction:
         # 停止服务
         self.stop_service()
         # 升级
-        if "synology" in os.popen('uname -a').readline():
-            if os.popen('/bin/ps -w -x | grep -v grep | grep -w "nastool update" | wc -l').readline().strip() == '0':
+        if "synology" in SystemUtils.execute('uname -a'):
+            if SystemUtils.execute('/bin/ps -w -x | grep -v grep | grep -w "nastool update" | wc -l') == '0':
                 # 调用群晖套件内置命令升级
                 os.system('nastool update')
                 # 退出主进程
@@ -1313,7 +1317,9 @@ class WebAction:
             title = douban_info.get("title")
             rating = douban_info.get("rating", {}) or {}
             vote_average = rating.get("value") or "无"
-            release_date = re.sub(r"\(.*\)", "", douban_info.get("pubdate")[0])
+            release_date = douban_info.get("pubdate")
+            if release_date:
+                release_date = re.sub(r"\(.*\)", "", douban_info.get("pubdate")[0])
             if not release_date:
                 return {"code": 1, "retmsg": "上映日期不正确"}
             else:
@@ -1681,9 +1687,9 @@ class WebAction:
             "team": media_info.resource_team,
             "video_codec": media_info.video_encode,
             "audio_codec": media_info.audio_encode,
-            "org_string":media_info.org_string,
-            "ignored_words":media_info.ignored_words,
-            "replaced_words":media_info.replaced_words
+            "org_string": media_info.org_string,
+            "ignored_words": media_info.ignored_words,
+            "replaced_words": media_info.replaced_words
         }}
 
     @staticmethod
@@ -1739,7 +1745,7 @@ class WebAction:
 
         resp = {"code": 0}
 
-        resp.update({"dataset":Sites().get_pt_site_activity_history(data["name"])})
+        resp.update({"dataset": Sites().get_pt_site_activity_history(data["name"])})
         return resp
 
     @staticmethod
@@ -2022,15 +2028,17 @@ class WebAction:
             if sizes[0]:
                 if sizes[1]:
                     sizes[1] = sizes[1].replace(",", "-")
-                rule_htmls.append('<span class="badge badge-outline text-blue me-1 mb-1" title="种子大小">种子大小: %s %sGB</span>'
-                                  % (rule_filter_string.get(sizes[0]), sizes[1]))
+                rule_htmls.append(
+                    '<span class="badge badge-outline text-blue me-1 mb-1" title="种子大小">种子大小: %s %sGB</span>'
+                    % (rule_filter_string.get(sizes[0]), sizes[1]))
         if rules.get("pubdate"):
             pubdates = rules.get("pubdate").split("#")
             if pubdates[0]:
                 if pubdates[1]:
                     pubdates[1] = pubdates[1].replace(",", "-")
-                rule_htmls.append('<span class="badge badge-outline text-blue me-1 mb-1" title="发布时间">发布时间: %s %s小时</span>'
-                                  % (rule_filter_string.get(pubdates[0]), pubdates[1]))
+                rule_htmls.append(
+                    '<span class="badge badge-outline text-blue me-1 mb-1" title="发布时间">发布时间: %s %s小时</span>'
+                    % (rule_filter_string.get(pubdates[0]), pubdates[1]))
         if rules.get("upspeed"):
             rule_htmls.append('<span class="badge badge-outline text-blue me-1 mb-1" title="上传限速">上传限速: %sB/s</span>'
                               % StringUtils.str_filesize(int(rules.get("upspeed")) * 1024))
@@ -2076,8 +2084,9 @@ class WebAction:
         if rules.get("ratio"):
             ratios = rules.get("ratio").split("#")
             if ratios[0]:
-                rule_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1" title="分享率">分享率: %s %s</span>'
-                                  % (rule_filter_string.get(ratios[0]), ratios[1]))
+                rule_htmls.append(
+                    '<span class="badge badge-outline text-orange me-1 mb-1" title="分享率">分享率: %s %s</span>'
+                    % (rule_filter_string.get(ratios[0]), ratios[1]))
         if rules.get("uploadsize"):
             uploadsizes = rules.get("uploadsize").split("#")
             if uploadsizes[0]:

@@ -1,6 +1,6 @@
 import re
 
-from app.db import SqlHelper
+from app.helper import SqlHelper
 from app.utils.commons import singleton
 from app.utils.types import MediaType
 

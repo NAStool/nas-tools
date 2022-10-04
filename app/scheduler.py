@@ -16,7 +16,7 @@ from app.rss import Rss
 from app.sites import Sites
 from app.sync import Sync
 from app.utils.commons import singleton
-from app.utils import MetaHelper
+from app.helper import MetaHelper
 from web.backend.wallpaper import get_login_wallpaper
 
 

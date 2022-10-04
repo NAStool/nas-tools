@@ -23,7 +23,8 @@ from app.brushtask import BrushTask
 from app.mediaserver import WebhookEvent
 from app.message import Message
 from app.rsschecker import RssChecker
-from app.utils import Security, StringUtils, DomUtils, SystemUtils, WebUtils, MetaHelper
+from app.utils import StringUtils, DomUtils, SystemUtils, WebUtils
+from app.helper import Security, MetaHelper
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL, NETTEST_TARGETS
 from app.douban import DouBan
 from app.downloader import Downloader
@@ -37,7 +38,7 @@ from web.apiv1 import apiv1, authorization
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 from web.action import WebAction
 from web.backend.subscribe import add_rss_subscribe
-from app.db import SqlHelper, DictHelper
+from app.helper import SqlHelper, DictHelper
 from app.utils.types import *
 from web.backend.wallpaper import get_login_wallpaper
 

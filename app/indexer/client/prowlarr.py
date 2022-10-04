@@ -1,6 +1,7 @@
 from config import Config
 from app.indexer.indexer import IIndexer
-from app.utils import RequestUtils, IndexerConf
+from app.utils import RequestUtils
+from app.helper import IndexerConf
 
 
 class Prowlarr(IIndexer):

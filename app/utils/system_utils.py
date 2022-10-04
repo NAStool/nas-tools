@@ -66,3 +66,7 @@ class SystemUtils:
             return False
         text = subprocess.Popen('ps -ef | grep -v grep | grep %s' % pname, shell=True).communicate()
         return True if text else False
+
+    @staticmethod
+    def execute(cmd):
+        return os.popen(cmd).readline().strip()
