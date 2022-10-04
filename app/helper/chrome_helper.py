@@ -26,6 +26,7 @@ class ChromeHelper(object):
         options.add_argument('--disable-gpu')
         options.add_argument('--no-sandbox')
         options.add_argument('--ignore-certificate-errors')
+        options.add_argument('--disable-dev-shm-usage')
         options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
         self._chrome = uc.Chrome(options=options, driver_executable_path=self._executable_path)
 
