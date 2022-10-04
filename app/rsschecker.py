@@ -7,7 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from lxml import etree
 
 import log
-from app.db import SqlHelper
+from app.helper import SqlHelper
 from app.downloader import Downloader
 from app.filterrules import FilterRule
 from app.media import Media
@@ -250,6 +250,8 @@ class RssChecker(object):
                 if ret:
                     self.message.send_download_message(in_from=SearchType.RSS,
                                                        can_item=media)
+                    # 登记下载历史
+                    SqlHelper.insert_download_history(media)
                 else:
                     log_error("【RSSCHECKER】添加下载任务 %s 失败：%s" % (media.get_title_string(), ret_msg or "请检查下载任务是否已存在"))
                     if ret_msg:

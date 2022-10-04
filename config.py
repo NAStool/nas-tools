@@ -95,6 +95,13 @@ KEYWORD_BLACKLIST = ['中字', '韩语', '双字', '中英', '日语', '双语',
 NETTEST_TARGETS = ["www.themoviedb.org", "api.themoviedb.org", "image.tmdb.org",
                    "webservice.fanart.tv", "api.telegram.org", "qyapi.weixin.qq.com"]
 
+# 站点签到支持的识别XPATH
+SITE_CHECKIN_XPATH = [
+    '//a[@id="signed"]',
+    '//a[contains(@href, "attendance.php")]',
+    '//a[contains(@text, "签到")]'
+]
+
 # 线程锁
 lock = Lock()
 

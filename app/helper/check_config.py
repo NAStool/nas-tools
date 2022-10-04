@@ -1,7 +1,5 @@
 import os
-
 import log
-from app.media import Category
 
 
 def check_config(config):
@@ -116,14 +114,6 @@ def check_config(config):
         category = config.get_config('media').get('category')
         if not category:
             log.info("未配置分类策略")
-        else:
-            cates = Category()
-            if cates.get_movie_categorys():
-                log.info("电影分类：%s" % " ".join(cates.get_movie_categorys()))
-            if cates.get_tv_categorys():
-                log.info("电视剧分类：%s" % " ".join(cates.get_tv_categorys()))
-            if cates.get_anime_categorys():
-                log.info("动漫分类：%s" % " ".join(cates.get_anime_categorys()))
     else:
         log.error("配置文件格式错误，找不到media配置项！")
 

@@ -11,14 +11,15 @@ from threading import Lock
 from time import sleep
 
 import log
-from app.db import SqlHelper
+from app.helper import SqlHelper
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
     DEFAULT_TV_FORMAT
 from app.message import Message
 from app.mediaserver import MediaServer
 from app.subtitle import Subtitle
 from app.media import Media, MetaInfo, Category, Scraper
-from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils, ThreadHelper
+from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils
+from app.helper import ThreadHelper
 from app.utils.types import MediaType, SyncType, RmtMode, OsType, RMT_MODES
 
 lock = Lock()

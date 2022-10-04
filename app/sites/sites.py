@@ -10,7 +10,9 @@ from app.filterrules import FilterRule
 from app.sites import SiteUserInfoFactory
 from app.utils.commons import singleton
 from app.utils import RequestUtils, StringUtils
-from app.db import SqlHelper
+from app.helper import ChromeHelper
+from app.helper import SqlHelper
+from config import SITE_CHECKIN_XPATH
 
 lock = Lock()
 
@@ -207,16 +209,32 @@ class Sites:
                 if not site_url or not site_cookie:
                     log.warn("【SITES】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
                     continue
-                res = RequestUtils(cookies=site_cookie, headers=ua).get_res(url=site_url)
-                if res and res.status_code == 200:
-                    if not self.__is_signin_success(res.text):
-                        status.append("%s 签到失败，cookie已过期" % site)
+                # 检测环境，有浏览器内核的优先使用仿真签到
+                browser = ChromeHelper().get_browser()
+                checkin_state = False
+                if browser:
+                    browser.add_cookie(StringUtils.cookie_parse(site_cookie))
+                    browser.get("%s://%s" % StringUtils.get_url_netloc(site_url))
+                    browser.implicitly_wait(10)
+                    for xpath in SITE_CHECKIN_XPATH:
+                        checkin_obj = browser.find_element_by_xpath(xpath)
+                        if checkin_obj:
+                            checkin_obj.click()
+                            status.append("%s 签到成功" % site)
+                            checkin_state = True
+                            break
+                # 模拟登录
+                if not checkin_state:
+                    res = RequestUtils(cookies=site_cookie, headers=ua).get_res(url=site_url)
+                    if res and res.status_code == 200:
+                        if not self.__is_signin_success(res.text):
+                            status.append("%s 模拟登录失败，cookie已过期" % site)
+                        else:
+                            status.append("%s 模拟登录成功" % site)
+                    elif res and res.status_code:
+                        status.append("%s 模拟登录失败，状态码：%s" % (site, res.status_code))
                     else:
-                        status.append("%s 签到成功" % site)
-                elif res and res.status_code:
-                    status.append("%s 签到失败，状态码：%s" % (site, res.status_code))
-                else:
-                    status.append("%s 签到失败，无法打开网站" % site)
+                        status.append("%s 模拟登录失败，无法打开网站" % site)
             except Exception as e:
                 log.error("【SITES】%s 签到出错：%s - %s" % (site, str(e), traceback.format_exc()))
         if status:
@@ -338,7 +356,6 @@ class Sites:
             return
         site_url = site.get("signurl") or site.get("rssurl")
         if site_url:
-            scheme, netloc = StringUtils.get_url_netloc(site_url)
-            site_url = "%s://%s" % (scheme, netloc)
+            site_url = "%s://%s" % StringUtils.get_url_netloc(site_url)
             return site_url
         return ""

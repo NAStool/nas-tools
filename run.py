@@ -44,8 +44,8 @@ from config import Config
 from app.brushtask import BrushTask
 from app.sync import run_monitor, stop_monitor
 from app.scheduler import run_scheduler, stop_scheduler
-from app.utils.check_config import check_config
-from app.utils import SystemUtils, IndexerHelper
+from app.helper import check_config, IndexerHelper
+from app.utils import SystemUtils
 from app.utils.types import OsType
 from version import APP_VERSION
 from web.app import FlaskApp

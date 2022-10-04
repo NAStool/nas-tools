@@ -7,7 +7,6 @@ from html import escape
 from logging.handlers import RotatingFileHandler
 
 from config import Config
-from app.utils import MessageCenter
 
 lock = threading.Lock()
 LOG_QUEUE = deque(maxlen=200)
@@ -87,7 +86,6 @@ def info(text, module=None):
 
 def error(text, module=None):
     __append_log_queue("ERROR", text)
-    MessageCenter().insert_system_message(level="ERROR", title=text)
     return Logger.get_instance(module).logger.error(text)
 
 

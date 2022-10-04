@@ -4,8 +4,8 @@ from enum import Enum
 import log
 from config import Config
 from app.message import Bark, IyuuMsg, PushPlus, ServerChan, Telegram, WeChat
-from app.db import SqlHelper
-from app.utils import StringUtils, MessageCenter
+from app.utils import StringUtils
+from app.message.message_center import MessageCenter
 from app.utils.types import SearchType, MediaType
 
 
@@ -162,8 +162,6 @@ class Message:
             msg_text = f"{msg_text}\n描述：{can_item.description}"
         # 发送消息
         self.sendmsg(title=msg_title, text=msg_text, image=can_item.get_message_image(), url='downloading')
-        # 登记下载历史
-        SqlHelper.insert_download_history(can_item)
 
     def send_transfer_movie_message(self, in_from: Enum, media_info, exist_filenum, category_flag):
         """

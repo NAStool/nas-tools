@@ -9,7 +9,8 @@ from config import Config
 from app.indexer.indexer import IIndexer
 from app.indexer.client.spider import TorrentSpider
 from app.sites import Sites
-from app.utils import ProgressController, StringUtils, IndexerHelper
+from app.utils import StringUtils
+from app.helper import ProgressController, IndexerHelper
 
 
 class BuiltinIndexer(IIndexer):

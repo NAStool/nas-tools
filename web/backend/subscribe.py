@@ -1,4 +1,4 @@
-from app.db import SqlHelper
+from app.helper import SqlHelper
 from app.media.doubanv2api import DoubanApi
 from app.media import MetaInfo, Media
 from app.utils.types import MediaType

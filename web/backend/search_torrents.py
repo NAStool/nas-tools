@@ -8,10 +8,10 @@ from app.message import Message
 from app.douban import DouBan
 from app.downloader import Downloader
 from app.searcher import Searcher
-from app.utils import ProgressController, StringUtils
+from app.utils import StringUtils
 from app.media.doubanv2api import DoubanApi
 from app.media import MetaInfo, Media
-from app.db import SqlHelper
+from app.helper import SqlHelper, ProgressController
 from app.utils.types import SearchType, MediaType
 from web.backend.subscribe import add_rss_subscribe
 
