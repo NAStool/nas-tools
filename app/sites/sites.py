@@ -235,7 +235,7 @@ class Sites:
                         continue
                     if re.search(r'已签|签到已得', html_text, re.IGNORECASE):
                         log.info("【SITES】%s 今日已签到" % site)
-                        status.append("%s 今日已签到" % site)
+                        status.append("【%s】 今日已签到" % site)
                         continue
                     # 查找签到按钮
                     xpath_str = None
@@ -245,12 +245,12 @@ class Sites:
                             xpath_str = xpath
                             break
                     if not xpath_str:
-                        if not self.__is_signin_success(html_text):
+                        if self.__is_signin_success(html_text):
                             log.warn("【SITES】%s 未找到签到按钮，模拟登录成功" % site)
-                            status.append("%s 模拟登录成功" % site)
+                            status.append("【%s】 模拟登录成功" % site)
                         else:
                             log.info("【SITES】%s 未找到签到按钮，且模拟登录失败" % site)
-                            status.append("%s 模拟登录失败" % site)
+                            status.append("【%s】 模拟登录失败" % site)
                         continue
                     # 开始仿真
                     try:
@@ -259,7 +259,7 @@ class Sites:
                         if checkin_obj:
                             checkin_obj.click()
                             log.info("【SITES】%s 仿真签到成功" % site)
-                            status.append("%s 签到成功" % site)
+                            status.append("【%s】 签到成功" % site)
                     except Exception as e:
                         log.warn("【SITES】%s 仿真签到失败：%s" % (site, str(e)))
                         continue
@@ -270,16 +270,16 @@ class Sites:
                     if res and res.status_code == 200:
                         if not self.__is_signin_success(res.text):
                             log.warn("【SITES】%s 模拟登录失败，cookie已过期" % site)
-                            status.append("%s 模拟登录失败，cookie已过期" % site)
+                            status.append("【%s】 模拟登录失败，cookie已过期" % site)
                         else:
                             log.info("【SITES】%s 模拟登录成功" % site)
-                            status.append("%s 模拟登录成功" % site)
+                            status.append("【%s】 模拟登录成功" % site)
                     elif res and res.status_code:
                         log.warn("【SITES】%s 模拟登录失败，状态码：%s" % (site, res.status_code))
-                        status.append("%s 模拟登录失败，状态码：%s" % (site, res.status_code))
+                        status.append("【%s】 模拟登录失败，状态码：%s" % (site, res.status_code))
                     else:
                         log.warn("【SITES】%s 模拟登录失败，无法打开网站" % site)
-                        status.append("%s 模拟登录失败，无法打开网站" % site)
+                        status.append("【%s】 模拟登录失败，无法打开网站" % site)
             except Exception as e:
                 log.error("【SITES】%s 签到出错：%s - %s" % (site, str(e), traceback.format_exc()))
         if status:
