@@ -91,7 +91,7 @@ class RequestUtils:
             return None
 
     @staticmethod
-    def cookie_parse(cookies_str):
+    def cookie_parse(cookies_str, array=False):
         if not cookies_str:
             return {}
         cookie_dict = {}
@@ -99,5 +99,11 @@ class RequestUtils:
         for cookie in cookies:
             cstr = cookie.split('=')
             if len(cstr) > 1:
-                cookie_dict[cstr[0]] = cstr[1]
+                cookie_dict[cstr[0].strip()] = cstr[1].strip()
+        if array:
+            cookiesList = []
+            for cookieName, cookieValue in cookie_dict.items():
+                cookies = {'name': cookieName, 'value': cookieValue}
+                cookiesList.append(cookies)
+            return cookiesList
         return cookie_dict

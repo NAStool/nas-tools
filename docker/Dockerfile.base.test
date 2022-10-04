@@ -21,6 +21,6 @@ RUN apk add --no-cache \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && curl https://rclone.org/install.sh | bash \
     && pip install --upgrade pip setuptools wheel \
-    && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/master/requirements.txt \
+    && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/dev/requirements.txt \
     && apk del libffi-dev \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*
