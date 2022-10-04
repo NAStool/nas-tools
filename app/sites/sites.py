@@ -244,6 +244,7 @@ class Sites:
                             xpath_str = xpath
                             break
                     if not xpath_str:
+                        browser.implicitly_wait(6)
                         if not self.__is_signin_success(html_text):
                             log.warn("【SITES】%s 未找到签到按钮，模拟登录成功" % site)
                             status.append("%s 模拟登录成功" % site)
