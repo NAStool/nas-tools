@@ -158,6 +158,13 @@ class FileTransfer:
                     retcode = os.system('move /Y "{}" "{}"'.format(
                         os.path.join(os.path.dirname(file_item), os.path.basename(target_file)), target_file))
                     log.info("移动状态: {}".format(retcode))
+                elif rmt_mode == RmtMode.MINIO or rmt_mode == RmtMode.MINIOCOPY:
+                    if target_file.startswith("/") or target_file.startswith("\\"):
+                        target_file = target_file[1:]
+                    if rmt_mode == RmtMode.MINIO:
+                        retcode = os.system('mc.exe mv "{}" NASTOOL/data"{}"'.format(file_item, target_file))
+                    else:
+                        retcode = os.system('mc.exe cp "{}" NASTOOL/data"{}"'.format(file_item, target_file))
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
@@ -183,6 +190,13 @@ class FileTransfer:
                     retcode = call(["mv", file_item, tmp_file])
                     if retcode == 0:
                         retcode = call(["mv", tmp_file, target_file])
+                elif rmt_mode == RmtMode.MINIO or rmt_mode == RmtMode.MINIOCOPY:
+                    if target_file.startswith("/") or target_file.startswith("\\"):
+                        target_file = target_file[1:]
+                    if rmt_mode == RmtMode.RCLONE:
+                        retcode = call(["mc", "mv", file_item, "NASTOOL/data" + target_file])
+                    else:
+                        retcode = call(["mc", "mv", file_item, "NASTOOL/data" + target_file])
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
@@ -1089,7 +1103,7 @@ if __name__ == "__main__":
     """
     parser = argparse.ArgumentParser(description='文件转移工具')
     parser.add_argument('-m', '--mode', dest='mode', required=True,
-                        help='转移模式：link copy softlink move rclone rclonecopy')
+                        help='转移模式：link copy softlink move rclone rclonecopy minio miniocopy')
     parser.add_argument('-s', '--source', dest='s_path', required=True, help='硬链接源目录路径')
     parser.add_argument('-d', '--target', dest='t_path', required=False, help='硬链接目的目录路径')
     args = parser.parse_args()
