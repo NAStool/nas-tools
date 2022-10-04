@@ -1,5 +1,6 @@
 import json
 import re
+import time
 import traceback
 from datetime import datetime
 from multiprocessing.dummy import Pool as ThreadPool
@@ -228,10 +229,21 @@ class Sites:
                         browser.add_cookie(cookie)
                     # 再次访问首页
                     browser.get(home_url)
-                    browser.implicitly_wait(6)
+                    # 循环检测是否过cf
+                    cloudflare = False
+                    for i in range(0, 10):
+                        if browser.title != "Just a moment...":
+                            cloudflare = True
+                            break
+                        time.sleep(1)
+                    if not cloudflare:
+                        log.warn("【SITES】%s 跳转站点失败" % site)
+                        status.append("【%s】 跳转站点失败！" % site)
+                        continue
                     # 判断是否已签到
                     html_text = browser.page_source
                     if not html_text:
+                        log.warn("【SITES】%s 获取站点源码失败" % site)
                         continue
                     if re.search(r'已签|签到已得', html_text, re.IGNORECASE):
                         log.info("【SITES】%s 今日已签到" % site)
@@ -250,7 +262,7 @@ class Sites:
                             status.append("【%s】 模拟登录成功" % site)
                         else:
                             log.info("【SITES】%s 未找到签到按钮，且模拟登录失败" % site)
-                            status.append("【%s】 模拟登录失败" % site)
+                            status.append("【%s】 模拟登录失败！" % site)
                         continue
                     # 开始仿真
                     try:
@@ -270,16 +282,16 @@ class Sites:
                     if res and res.status_code == 200:
                         if not self.__is_signin_success(res.text):
                             log.warn("【SITES】%s 模拟登录失败，cookie已过期" % site)
-                            status.append("【%s】 模拟登录失败，cookie已过期" % site)
+                            status.append("【%s】 模拟登录失败，cookie已过期！" % site)
                         else:
                             log.info("【SITES】%s 模拟登录成功" % site)
                             status.append("【%s】 模拟登录成功" % site)
                     elif res and res.status_code:
                         log.warn("【SITES】%s 模拟登录失败，状态码：%s" % (site, res.status_code))
-                        status.append("【%s】 模拟登录失败，状态码：%s" % (site, res.status_code))
+                        status.append("【%s】 模拟登录失败，状态码：%s！" % (site, res.status_code))
                     else:
                         log.warn("【SITES】%s 模拟登录失败，无法打开网站" % site)
-                        status.append("【%s】 模拟登录失败，无法打开网站" % site)
+                        status.append("【%s】 模拟登录失败，无法打开网站！" % site)
             except Exception as e:
                 log.error("【SITES】%s 签到出错：%s - %s" % (site, str(e), traceback.format_exc()))
         if status:
