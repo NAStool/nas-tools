@@ -194,7 +194,7 @@ class Downloader:
                         log.warn("【DOWNLOADER】%s 转移失败：%s" % (task.get("path"), done_msg))
                         self.client.set_torrents_status(task.get("id"))
                     else:
-                        if self.__pt_rmt_mode in [RmtMode.MOVE, RmtMode.RCLONE]:
+                        if self.__pt_rmt_mode in [RmtMode.MOVE, RmtMode.RCLONE,RmtMode.MINIO]:
                             log.warn("【DOWNLOADER】移动模式下删除种子文件：%s" % task.get("id"))
                             self.delete_torrents(task.get("id"))
                         else:

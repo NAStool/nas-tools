@@ -58,6 +58,8 @@ class Sync(object):
         "move": RmtMode.MOVE,
         "rclone": RmtMode.RCLONE,
         "rclonecopy": RmtMode.RCLONECOPY
+        "minio": RmtMode.MINIO,
+        "rminiocopy": RmtMode.MINIOCOPY
     }
 
     def __init__(self):
