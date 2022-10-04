@@ -1,4 +1,4 @@
-name: Build Nas-tools Base Test
+name: Build Nas-tools Base Image Test
 on:
   workflow_dispatch:
   push:
@@ -7,7 +7,7 @@ on:
     paths:
       - requirements.txt
       - third_party.txt
-      - .github/workflows/build-base-test.yml
+      - .github/workflows/build-base-image-test.yml
 
 jobs:
   build:
@@ -38,7 +38,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: docker/Dockerfile.base
+          file: docker/Dockerfile.base.test
           platforms: |
             linux/amd64
           push: true
