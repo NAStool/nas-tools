@@ -34,7 +34,7 @@ class TorrentSpider(feapder.AirSpider):
             driver_type="CHROME",
             timeout=15,
             window_size=(1024, 800),
-            executable_path="/usr/lib/chromium/chromedriver" if SystemUtils.get_system() == OsType.LINUX else None,
+            executable_path="/usr/lib/chromium/chromedriver" if SystemUtils.is_docker() else None,
             render_time=5,
             custom_argument=["--ignore-certificate-errors"],
         )

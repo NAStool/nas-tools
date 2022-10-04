@@ -10,7 +10,7 @@ from app.utils.types import OsType
 @singleton
 class ChromeHelper(object):
 
-    _executable_path = "/usr/lib/chromium/chromedriver" if SystemUtils.get_system() == OsType.LINUX else None
+    _executable_path = "/usr/lib/chromium/chromedriver" if SystemUtils.is_docker() else None
     _chrome = None
     _display = None
 
