@@ -13,8 +13,10 @@ class ChromeHelper(object):
     _executable_path = "/usr/lib/chromium/chromedriver" if SystemUtils.is_docker() else None
     _chrome = None
     _display = None
+    _ua = None
 
-    def __init__(self):
+    def __init__(self, ua=None):
+        self._ua = ua
         self.init_config()
 
     def init_config(self):
@@ -27,6 +29,10 @@ class ChromeHelper(object):
         options.add_argument('--no-sandbox')
         options.add_argument('--ignore-certificate-errors')
         options.add_argument('--disable-dev-shm-usage')
+        if self._ua:
+            options.add_argument("user-agent=%s" % self._ua)
+        if not os.environ.get("NASTOOL_CHROME"):
+            options.add_argument('--headless')
         options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
         self._chrome = uc.Chrome(options=options, driver_executable_path=self._executable_path)
 

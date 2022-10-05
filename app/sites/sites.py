@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import time
 import traceback
@@ -217,7 +218,7 @@ class Sites:
                     log.warn("【SITES】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
                     continue
                 # 检测环境，有浏览器内核的优先使用仿真签到
-                browser = ChromeHelper().get_browser()
+                browser = ChromeHelper(ua=ua).get_browser()
                 if browser:
                     # 首页
                     log.info("【SITES】开始站点仿真签到：%s" % site)
@@ -242,16 +243,17 @@ class Sites:
                         continue
                     # 判断是否已签到
                     html_text = browser.page_source
+                    html = etree.HTML(html_text)
                     if not html_text:
                         log.warn("【SITES】%s 获取站点源码失败" % site)
                         continue
-                    if re.search(r'已签|签到已得', html_text, re.IGNORECASE):
+                    if re.search(r'已签|签到已得', html_text, re.IGNORECASE) \
+                            and not html.xpath(r'//b[text()="签到"]'):
                         log.info("【SITES】%s 今日已签到" % site)
                         status.append("【%s】 今日已签到" % site)
                         continue
                     # 查找签到按钮
                     xpath_str = None
-                    html = etree.HTML(html_text)
                     for xpath in SITE_CHECKIN_XPATH:
                         if html.xpath(xpath):
                             xpath_str = xpath

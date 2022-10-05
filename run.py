@@ -43,8 +43,12 @@ if is_windows_exe:
 # 启动虚拟显示
 is_docker = os.path.exists('/.dockerenv')
 if is_docker:
-    display = Display(visible=False, size=(1920, 1080))
-    display.start()
+    try:
+        display = Display(visible=False, size=(1920, 1080))
+        display.start()
+        os.environ['NASTOOL_CHROME'] = 'YES'
+    except Exception as err:
+        print(str(err))
 else:
     display = None
 
@@ -117,7 +121,7 @@ if __name__ == "__main__":
 
 
         def traystart():
-            tray = trayicon(homepage_port, log_path)
+            trayicon(homepage_port, log_path)
 
 
         p1 = threading.Thread(target=traystart, daemon=True)
