@@ -315,7 +315,7 @@ class MetaBase(object):
         return self.audio_encode or ""
 
     # 返回背景图片地址
-    def get_backdrop_image(self, default=True):
+    def get_backdrop_image(self, default=True, original=False):
         if self.fanart_backdrop:
             return self.fanart_backdrop
         else:
@@ -324,7 +324,10 @@ class MetaBase(object):
         if self.fanart_backdrop:
             return self.fanart_backdrop
         elif self.backdrop_path:
-            return self.backdrop_path
+            if original:
+                return self.backdrop_path.replace("/w500", "/original")
+            else:
+                return self.backdrop_path
         else:
             return "../static/img/tmdb.webp" if default else ""
 
@@ -345,13 +348,21 @@ class MetaBase(object):
             return DEFAULT_TMDB_IMAGE
 
     # 返回海报图片地址
-    def get_poster_image(self):
+    def get_poster_image(self, original=False):
         if self.fanart_poster:
             return self.fanart_poster
         else:
             self.fanart_poster = self.fanart.get_poster(media_type=self.type,
                                                         queryid=self.tmdb_id if self.type == MediaType.MOVIE else self.tvdb_id)
-        return self.fanart_poster if self.fanart_poster else self.poster_path or ""
+        if self.fanart_poster:
+            return self.fanart_poster
+        elif self.poster_path:
+            if original:
+                return self.poster_path.replace("/w500", "/original")
+            else:
+                return self.poster_path
+        else:
+            return ""
 
     # 返回促销信息
     def get_volume_factor_string(self):
