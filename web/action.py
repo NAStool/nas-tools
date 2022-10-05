@@ -653,6 +653,7 @@ class WebAction:
         删除识别记录及文件
         """
         logid = data.get('logid')
+        # 读取历史记录
         paths = SqlHelper.get_transfer_path_by_id(logid)
         if paths:
             dest_dir = paths[0][2]
@@ -666,9 +667,11 @@ class WebAction:
                 meta_info.type = MediaType.MOVIE
             else:
                 meta_info.type = MediaType.TV
+            # 删除记录
+            SqlHelper.delete_transfer_log_by_id(logid)
+            # 删除文件
             dest_path = FileTransfer().get_dest_path_by_info(dest=dest_dir, meta_info=meta_info)
             if dest_path and dest_path.find(meta_info.title) != -1:
-                SqlHelper.delete_transfer_log_by_id(logid)
                 rm_parent_dir = False
                 if not meta_info.get_season_list():
                     # 电影，删除整个目录
@@ -694,7 +697,8 @@ class WebAction:
                             except Exception as e:
                                 log.console(str(e))
                     rm_parent_dir = True
-                if rm_parent_dir and not PathUtils.get_dir_files(os.path.dirname(dest_path), exts=RMT_MEDIAEXT):
+                if rm_parent_dir \
+                        and not PathUtils.get_dir_files(os.path.dirname(dest_path), exts=RMT_MEDIAEXT):
                     # 没有媒体文件时，删除整个目录
                     try:
                         shutil.rmtree(os.path.dirname(dest_path))
