@@ -976,15 +976,14 @@ class SqlHelper:
         begin_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d %H:%M:%S")
         sql = "SELECT TYPE,SUBSTR(DATE, 1, 10),COUNT(1)" \
               " FROM TRANSFER_HISTORY" \
-              " WHERE DATE > ? GROUP BY TYPE,SUBSTR(DATE, 1, 10)"
+              " WHERE DATE > ? GROUP BY TYPE,SUBSTR(DATE, 1, 10) " \
+              "ORDER BY DATE ASC"
         return MainDb().select_by_sql(sql, (begin_date,))
 
     @staticmethod
     def update_site_user_statistics_site_name(new_name, old_name):
         """
         更新站点用户数据中站点名称
-        :param old_name:
-        :return:
         """
         sql = "UPDATE SITE_USER_INFO_STATS SET SITE = ? WHERE SITE = ?"
 

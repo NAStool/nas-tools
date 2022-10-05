@@ -210,7 +210,7 @@ class SiteConf:
         'chdbits.co': {
             'FREE': ["//img[@class='pro_free']"],
             '2XFREE': [],
-            'HR': ["//b[text()='H&amp;R:&nbsp;']"],
+            'HR': ["//b[contains(text(),'H&R:')]"],
             'PEER_COUNT': [],
         },
         'hdchina.org': {
