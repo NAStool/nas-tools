@@ -335,7 +335,7 @@
     show_wait_process();
     ajax_post("name_test", {"name": title}, function (ret) {
       hide_wait_process();
-      var div_id = "#testresults_" + id
+      var div_id = `#testresults_${id}`
       if(ret.code == 0){
         $(div_id).empty();
         var ignored_words = [];
@@ -353,68 +353,68 @@
         var words = ignored_words + replaced_words + offset_words;
         if(words.length != 0){
           if(ret.data.org_string){
-            $(div_id).append('<div class="mb-3" ><label class="form-label">识别使用名称：<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;white-space: normal;text-align: left;word-break: break-all;" title="自定义识别词过滤后识别用名">' + ret.data.org_string + '</span></label></div>');
+            $(div_id).append(`<div class="mb-3" ><label class="form-label">识别使用名称：<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;white-space: normal;text-align: left;word-break: break-all;" title="自定义识别词过滤后识别用名">${ret.data.org_string}</span></label></div>`);
           }
           if(ignored_words.length != 0){
             var ignored_word_content = '<div class="mb-3"><label class="form-label">应用屏蔽词：';
             for(ignored_word of ignored_words){
-              ignored_word_content = ignored_word_content + '<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">' + ignored_word + '</span>';
+              ignored_word_content = ignored_word_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${ignored_word}</span>`;
             };  
             $(div_id).append(ignored_word_content + '</label></div>');
           }
           if(replaced_words.length != 0){
             var replaced_words_content = '<div class="mb-3"><label class="form-label">应用替换词：';
             for(replaced_word of replaced_words){
-              replaced_words_content = replaced_words_content + '<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">' + replaced_word + '</span>';
+              replaced_words_content = replaced_words_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${replaced_word}</span>`;
             };
             $(div_id).append(replaced_words_content + '</label></div>');
           }
           if(offset_words.length != 0){
             var offset_words_content = '<div class="mb-3"><label class="form-label">应用集数偏移：';
             for(offset_word of offset_words){
-              offset_words_content = offset_words_content + '<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">' + offset_word + '</span>';
+              offset_words_content = offset_words_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${offset_word}</span>`;
             };
             $(div_id).append(offset_words_content + '</label></div>');
           }
         }
         if(ret.data.type){
-          $(div_id).append('<span class="badge badge-outline text-blue me-1 mb-1" title="类型">' + ret.data.type + '</span>');
+          $(div_id).append(`<span class="badge badge-outline text-blue me-1 mb-1" title="类型">${ret.data.type}</span>`);
         }
         if(ret.data.category){
-          $(div_id).append('<span class="badge badge-outline text-blue me-1 mb-1" title="类别">' + ret.data.category + '</span>');
+          $(div_id).append(`<span class="badge badge-outline text-blue me-1 mb-1" title="类别">${ret.data.category}</span>`);
         }
         if(ret.data.name){
-          $(div_id).append('<span class="badge badge-outline text-red me-1 mb-1" title="识别名称">' + ret.data.name + '</span>');
+          $(div_id).append(`<span class="badge badge-outline text-red me-1 mb-1" title="识别名称">${ret.data.name}</span>`);
         }
         if(ret.data.title){
-          $(div_id).append('<span class="badge badge-outline text-red me-1 mb-1" title="标题">' + ret.data.title + '</span>');
+          $(div_id).append(`<span class="badge badge-outline text-red me-1 mb-1" title="标题">${ret.data.title}</span>`);
         }
         if(ret.data.year){
-          $(div_id).append('<span class="badge badge-outline text-orange me-1 mb-1" title="年份">' + ret.data.year + '</span>');
+          $(div_id).append(`<span class="badge badge-outline text-orange me-1 mb-1" title="年份">${ret.data.year}</span>`);
         }
         if(ret.data.season_episode){
-          $(div_id).append('<span title="季集"><a class="badge badge-outline text-orange me-1 mb-1" href="' + ret.data.tmdb_S_E_link + '" target="_blank">' + ret.data.season_episode + '</a></span>');
+          $(div_id).append(`<span title="季集"><a class="badge badge-outline text-orange me-1 mb-1" href="${ret.data.tmdb_S_E_link}" target="_blank">${ret.data.season_episode}</a></span>`);
         }
         if(ret.data.part){
-          $(div_id).append('<span class="badge badge-outline text-orange me-1 mb-1" title="分集">' + ret.data.part + '</span>');
+          $(div_id).append(`<span class="badge badge-outline text-orange me-1 mb-1" title="分集">${ret.data.part}</span>`);
         }
         if(ret.data.tmdbid){
-          $(div_id).append('<span title="TMDB ID"><a class="badge badge-outline text-green me-1 mb-1" href="' + ret.data.tmdblink + '" target="_blank">' + ret.data.tmdbid + '</a></span>');
+          $(div_id).append(`<span title="TMDB ID"><a class="badge badge-outline text-green me-1 mb-1" href="${ret.data.tmdblink}" target="_blank">${ret.data.tmdbid}</a></span>`);
         }
         if(ret.data.restype){
-          $(div_id).append('<span class="badge me-1 mb-1" title="质量">' + ret.data.restype + '</span>');
+          $(div_id).append(`<span class="badge me-1 mb-1" title="质量">${ret.data.restype}</span>`);
         }
         if(ret.data.pix){
-          $(div_id).append('<span class="badge me-1 mb-1" title="分辨率">' + ret.data.pix + '</span>');
+          $(div_id).append(`<span class="badge me-1 mb-1" title="分辨率">${ret.data.pix}</span>`);
         }
         if(ret.data.video_codec){
-          $(div_id).append('<span class="badge me-1 mb-1" title="视频编码">' + ret.data.video_codec + '</span>');
+          $(div_id).append(`<span class="badge me-1 mb-1" title="视频编码">${ret.data.video_codec}</span>`);
         }
         if(ret.data.audio_codec){
-          $(div_id).append('<span class="badge me-1 mb-1" title="音频编码">' + ret.data.audio_codec + '</span>');
+          $(div_id).append(`<span class="badge me-1 mb-1" title="音频编码">${ret.data.audio_codec}</span>`);
         }
         if(ret.data.team){
-          $(div_id).append('<span class="badge badge-outline text-yellow me-1 mb-1" title="制作组/字幕组">' + ret.data.team + '</span>');
+          $(div_id).append(`<span class="badge badge-outline text-yellow me-1 mb-1" title="制作组/字幕组">${ret.data.team}</span>`);
         }
       }
     })

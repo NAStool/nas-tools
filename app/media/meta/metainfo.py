@@ -26,7 +26,7 @@ def MetaInfo(title, subtitle=None, mtype=None):
     ignored_words = config.get_config('laboratory').get("ignored_words")
     if ignored_words:
         ignored_words = re.sub(r"\|\|", '|', ignored_words)
-        ignored_words = re.compile(r'' + ignored_words)
+        ignored_words = re.compile(r'%s' % ignored_words)
         # 去重
         used_ignored_words = list(set(re.findall(ignored_words, title)))
         if used_ignored_words:
@@ -39,9 +39,9 @@ def MetaInfo(title, subtitle=None, mtype=None):
             if not replaced_word:
                 continue
             replaced_word_info = replaced_word.split("@")
-            if re.findall(r'' + replaced_word_info[0], title):
+            if re.findall(r'%s' % replaced_word_info[0], title):
                 used_replaced_words.append(replaced_word)
-                title = re.sub(r'' + replaced_word_info[0], r'' + replaced_word_info[-1], title)
+                title = re.sub(r'%s' % replaced_word_info[0], r'%s' % replaced_word_info[-1], title)
     # 集数偏移
     offset_words = config.get_config('laboratory').get("offset_words")
     if offset_words:
@@ -52,13 +52,13 @@ def MetaInfo(title, subtitle=None, mtype=None):
             offset_word_info = offset_word.split("@")
             try:
                 offset_num = int(offset_word_info[2])
-                offset_word_info_re = re.compile(r'' + "(?<=%s)[0-9]+(?=%s)"%(offset_word_info[0], offset_word_info[1]))
+                offset_word_info_re = re.compile(r'(?<=%s)[0-9]+(?=%s)' % (offset_word_info[0], offset_word_info[1]))
                 episode_num = re.findall(offset_word_info_re, title)
                 if not episode_num:
                     continue
                 episode_num = int(episode_num[0])
                 used_offset_words.append(offset_word)
-                title = re.sub(offset_word_info_re, r'' + str(episode_num + offset_num).zfill(2), title)
+                title = re.sub(offset_word_info_re, r'%s' % str(episode_num + offset_num).zfill(2), title)
             except Exception as err:
                 print(err)
     # 判断是否处理文件
