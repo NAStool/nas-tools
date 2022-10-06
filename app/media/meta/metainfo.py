@@ -54,11 +54,9 @@ def MetaInfo(title, subtitle=None, mtype=None):
                 front_word = offset_word_info[0]
                 back_word = offset_word_info[1]
                 offset_num = int(offset_word_info[2])
-                if back_word:
-                    if not re.findall(r'%s' % back_word, title):
+                if back_word and not re.findall(r'%s' % back_word, title):
                         continue
-                if front_word:
-                    if not re.findall(r'%s' % front_word, title):
+                if front_word and not re.findall(r'%s' % front_word, title):
                         continue
                 offset_word_info_re = re.compile(r'(?<=%s[\W\w]*)[0-9]+(?=[\W\w]*%s)' % (front_word, back_word))
                 episode_nums_str = re.findall(offset_word_info_re, title)
