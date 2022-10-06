@@ -41,7 +41,7 @@ class Media:
         app = config.get_config('app')
         if app:
             if app.get('rmt_tmdbkey'):
-                self.tmdb = TMDb()
+                self.tmdb = TMDb(domain=app.get("tmdb_domain"))
                 self.tmdb.cache = True
                 self.tmdb.api_key = app.get('rmt_tmdbkey')
                 self.tmdb.language = 'zh-CN'

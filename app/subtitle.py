@@ -15,15 +15,12 @@ from app.utils.types import MediaType
 @singleton
 class Subtitle:
     subhelper = None
-    __subtitle_src = None
+    __save_tmp_path = None
     __server = None
-    __username = None
-    __password = None
     __host = None
     __api_key = None
     __remote_path = None
     __local_path = None
-    __save_tmp_path = None
 
     def __init__(self):
         self.init_config()

@@ -9,8 +9,6 @@ from config import Config
 
 
 class SubHelper:
-    _username = None
-    _password = None
     _cookie = ""
     _ua = None
     _url_imdbid = "https://www.opensubtitles.org/zh/search/imdbid-%s/sublanguageid-chi"

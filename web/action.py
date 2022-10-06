@@ -1718,7 +1718,8 @@ class WebAction:
         start_time = datetime.datetime.now()
         if target.find("themoviedb") != -1 \
                 or target.find("telegram") != -1 \
-                or target.find("fanart") != -1:
+                or target.find("fanart") != -1 \
+                or target.find("tmdb") != -1:
             res = RequestUtils(proxies=Config().get_proxies(), timeout=5).get_res(target)
         else:
             res = RequestUtils(timeout=5).get_res(target)

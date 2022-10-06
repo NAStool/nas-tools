@@ -42,7 +42,7 @@
   </div>
 </div>
 <div class="modal modal-blur fade" id="modal-opensubtitles" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+  <div class="modal-dialog modal-md modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="card border-top-0">
         <div class="card-header">
@@ -51,18 +51,7 @@
         </div>
         <div class="card-body">
           <div class="row">
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">用户名 <span class="form-help" title="登录www.opensubtitles.org注册用户" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.subtitle %}{% if Config.subtitle.opensubtitles %}{{ Config.subtitle.opensubtitles.username or '' }}{% endif %}{% endif %}" id="subtitle.opensubtitles.username" class="form-control">
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label required">密码</label>
-                <input type="password" value="{% if Config.subtitle %}{% if Config.subtitle.opensubtitles %}{{ Config.subtitle.opensubtitles.password or '' }}{% endif %}{% endif %}" id="subtitle.opensubtitles.password" class="form-control">
-              </div>
-            </div>
+            <div class="text-muted">无需配置任何信息，确认www.opensubtitles.org网络连通即可！</div>
           </div>
         </div>
       </div>

@@ -23,9 +23,12 @@ class TMDb(object):
     TMDB_PROXIES = "TMDB_PROXIES"
     REQUEST_CACHE_MAXSIZE = 128
 
-    def __init__(self, obj_cached=True, session=None):
+    def __init__(self, obj_cached=True, session=None, domain="api.themoviedb.org"):
         self._session = requests.Session() if session is None else session
-        self._base = "https://api.themoviedb.org/3"
+        if domain:
+            self._base = "https://%s/3" % domain
+        else:
+            self._base = "https://api.themoviedb.org/3"
         self._remaining = 40
         self._reset = None
         self.obj_cached = obj_cached
