@@ -761,7 +761,7 @@
             <div class="col-lg-12">
               <div class="mb-3">
                 <label class="form-label">集数偏移 <span class="form-help" title="识别时会通过前后定位词偏移集数，支持正则表达式" data-bs-toggle="tooltip">?</span></label>
-                <textarea class="form-control" id="offset_words" rows="4" placeholder="A@B@1，A为集数前定位词，B为集数后定位词，1为集数偏移（负数为向前偏移）&#13;&#10;增加集数偏移请换行&#13;&#10;支持正则表达式，注意特殊字符转义">{{ Offset_Words or '' }}</textarea>
+                <textarea class="form-control" id="offset_words" rows="4" placeholder="A@B@1，A为前定位词，B为后定位词，1为集数偏移（负数为向前偏移）&#13;&#10;使前后定位词间所包含数字为集数信息即可&#13;&#10;增加集数偏移请换行&#13;&#10;支持正则表达式，注意特殊字符转义">{{ Offset_Words or '' }}</textarea>
               </div>
             </div>
           </div>
