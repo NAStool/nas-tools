@@ -486,7 +486,7 @@
       }else if(currType == "transmission"){
         command = ["Transmission().get_status()"];
       }else if(currType == "client115"){
-        command = ["Client115().get_status()"];
+        command = "app.downloader.client.client115|Client115";
       }else if(currType == "aria2"){
         command = "app.downloader.client.aria2|Aria2";
       }
