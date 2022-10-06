@@ -58,8 +58,10 @@ def MetaInfo(title, subtitle=None, mtype=None):
                     continue
                 episode_nums = [int(x) for x in episode_nums]
                 used_offset_words.append(offset_word)
+                # 集数向前偏移，集数按升序处理
                 if offset_num < 0:
                     episode_nums.sort()
+                # 集数向后偏移，集数按降序处理
                 else:
                     episode_nums.sort(reverse=True)
                 for episode_num in episode_nums:
