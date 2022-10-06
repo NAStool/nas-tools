@@ -576,6 +576,8 @@ class FileTransfer:
 
                 # 判断文件是否已存在，返回：目录存在标志、目录名、文件存在标志、文件名
                 dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.__is_media_exists(dist_path, media)
+                # 新文件后缀
+                file_ext = os.path.splitext(file_item)[-1]
                 # 已存在的文件数量
                 exist_filenum = 0
                 handler_flag = False
@@ -593,9 +595,10 @@ class FileTransfer:
                         exist_filenum = exist_filenum + 1
                         if rmt_mode != RmtMode.SOFTLINK:
                             if media.size > os.path.getsize(ret_file_path) and self.__filesize_cover or udf_flag:
-                                log.info("【RMT】文件 %s 已存在，覆盖..." % ret_file_path)
+                                new_file = "%s%s" % (os.path.splitext(ret_file_path)[0], file_ext)
+                                log.info("【RMT】文件 %s 已存在，覆盖..." % new_file)
                                 ret = self.__transfer_file(file_item=file_item,
-                                                           new_file=ret_file_path,
+                                                           new_file=new_file,
                                                            rmt_mode=rmt_mode,
                                                            over_flag=True)
                                 if ret != 0:
@@ -646,7 +649,6 @@ class FileTransfer:
                 else:
                     # 开始转移文件
                     if not handler_flag:
-                        file_ext = os.path.splitext(file_item)[-1]
                         if not ret_file_path:
                             log.error("【RMT】拼装文件路径错误，无法从文件名中识别出集数：%s" % file_item)
                             success_flag = False

@@ -1,9 +1,7 @@
 import os.path
 from functools import lru_cache
-
-from pythonopensubtitles.opensubtitles import OpenSubtitles
-
 import log
+from app.helper.sub_helper import SubHelper
 from config import Config
 from app.utils.commons import singleton
 from app.utils import RequestUtils
@@ -12,12 +10,12 @@ from app.utils.types import MediaType
 
 @singleton
 class Subtitle:
+    subhelper = None
     __server = None
     __username = None
     __password = None
     __host = None
     __api_key = None
-    __ost = None
     __remote_path = None
     __local_path = None
 
@@ -33,12 +31,7 @@ class Subtitle:
                 self.__username = subtitle.get("opensubtitles", {}).get("username")
                 self.__password = subtitle.get("opensubtitles", {}).get("password")
                 if self.__username and self.__password:
-                    self.__ost = OpenSubtitles()
-                    try:
-                        self.__ost.login(self.__username, self.__password)
-                    except Exception as e:
-                        log.error("【SUBTITLE】Opensubtitles.org登录失败：%s" % str(e))
-                        self.__ost = None
+                    self.subhelper = SubHelper()
             elif self.__server == "chinesesubfinder":
                 self.__api_key = subtitle.get("chinesesubfinder", {}).get("api_key")
                 self.__host = subtitle.get("chinesesubfinder", {}).get('host')
@@ -67,7 +60,7 @@ class Subtitle:
     @classmethod
     @lru_cache(maxsize=128)
     def search_opensubtitles(cls, name):
-        return cls.__ost.search_subtitles([{'sublanguageid': 'chi', 'query': name}])
+        return cls.subhelper.search_subtitles([{'sublanguageid': 'chi', 'query': name}])
 
     def __download_opensubtitles(self, items):
         """

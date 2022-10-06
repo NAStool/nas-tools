@@ -7,9 +7,6 @@
 [submodule "third_party/transmission-rpc"]
 	path = third_party/transmission-rpc
 	url = https://github.com/Trim21/transmission-rpc
-[submodule "third_party/python-opensubtitles"]
-	path = third_party/python-opensubtitles
-	url = https://github.com/agonzalezro/python-opensubtitles
 [submodule "third_party/anitopy"]
 	path = third_party/anitopy
 	url = https://github.com/igorcmoura/anitopy
