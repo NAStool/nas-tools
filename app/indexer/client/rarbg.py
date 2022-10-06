@@ -56,7 +56,8 @@ class Rarbg:
                            'freeleech': True,
                            'downloadvolumefactor': 0.0,
                            'uploadvolumefactor': 1.0,
-                           'page_url': result.get('info_page')}
+                           'page_url': result.get('info_page'),
+                           'imdbid': result.get('episode_info', {}).get('imdb')}
                 torrents.append(torrent)
         elif res:
             log.warn("【INDEXER】{indexer.name} 搜索失败，错误码：%s" % res.status_code)
