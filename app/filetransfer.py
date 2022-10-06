@@ -194,9 +194,9 @@ class FileTransfer:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
                     if rmt_mode == RmtMode.RCLONE:
-                        retcode = call(["mc", "mv", "--recursive",file_item, "NASTOOL/" + target_file])
+                        retcode = call(["mc", "mv", "--recursive", file_item, "NASTOOL/" + target_file])
                     else:
-                        retcode = call(["mc", "mv", "--recursive",file_item, "NASTOOL/" + target_file])
+                        retcode = call(["mc", "mv", "--recursive", file_item, "NASTOOL/" + target_file])
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
@@ -595,7 +595,8 @@ class FileTransfer:
                         exist_filenum = exist_filenum + 1
                         if rmt_mode != RmtMode.SOFTLINK:
                             if media.size > os.path.getsize(ret_file_path) and self.__filesize_cover or udf_flag:
-                                new_file = "%s%s" % (os.path.splitext(ret_file_path)[0], file_ext)
+                                ret_file_path = os.path.splitext(ret_file_path)[0]
+                                new_file = "%s%s" % (ret_file_path, file_ext)
                                 log.info("【RMT】文件 %s 已存在，覆盖..." % new_file)
                                 ret = self.__transfer_file(file_item=file_item,
                                                            new_file=new_file,
@@ -679,11 +680,19 @@ class FileTransfer:
                 # 登记媒体库刷新
                 if refresh_item not in refresh_library_items:
                     refresh_library_items.append(refresh_item)
+                # 查询TMDB详情
+                media.set_tmdb_info(self.media.get_tmdb_info(mtype=media.type, tmdbid=media.tmdb_id))
                 # 下载字幕条目
-                subtitle_item = {"type": media.type, "file": ret_file_path, "file_ext": os.path.splitext(file_item)[-1],
-                                 "name": media.get_name(), "title": media.title, "year": media.year,
-                                 "season": media.begin_season, "episode": media.begin_episode,
-                                 "bluray": True if bluray_disk_dir else False}
+                subtitle_item = {"type": media.type,
+                                 "file": ret_file_path,
+                                 "file_ext": os.path.splitext(file_item)[-1],
+                                 "name": media.en_name if media.en_name else media.cn_name,
+                                 "title": media.title,
+                                 "year": media.year,
+                                 "season": media.begin_season,
+                                 "episode": media.begin_episode,
+                                 "bluray": True if bluray_disk_dir else False,
+                                 "imdbid": media.imdb_id}
                 # 登记字幕下载
                 if subtitle_item not in download_subtitle_items:
                     download_subtitle_items.append(subtitle_item)
@@ -711,8 +720,6 @@ class FileTransfer:
                         message_medias[message_key].size += media.size
                 # 生成nfo及poster
                 if self.__scraper_flag:
-                    # 查询TMDB详情
-                    media.set_tmdb_info(self.media.get_tmdb_info(mtype=media.type, tmdbid=media.tmdb_id))
                     # 生成刮削文件
                     self.scraper.gen_scraper_files(media=media,
                                                    scraper_nfo=self.__scraper_nfo,

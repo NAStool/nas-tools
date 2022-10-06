@@ -1,7 +1,7 @@
 import requests
 import urllib3
 
-from config import Config, DEFAULT_UA
+from config import Config
 
 
 class RequestUtils:
@@ -20,13 +20,8 @@ class RequestUtils:
             else:
                 self.__headers = headers
         else:
-            user_agent = Config().get_config("app").get("user_agent")
-            if user_agent:
-                self.__headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                                  "User-Agent": user_agent}
-            else:
-                self.__headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                                  "User-Agent": DEFAULT_UA}
+            self.__headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                              "User-Agent": Config().get_ua()}
         if cookies:
             if isinstance(cookies, str):
                 self.__cookies = self.cookie_parse(cookies)

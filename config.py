@@ -245,6 +245,9 @@ class Config(object):
     def get_proxies(self):
         return self.get_config('app').get("proxies")
 
+    def get_ua(self):
+        return self.get_config('app').get("user_agent") or DEFAULT_UA
+
     def get_config(self, node=None):
         if not node:
             return self._config
