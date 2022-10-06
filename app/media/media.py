@@ -1242,3 +1242,13 @@ class Media:
                     meta_infos[media_key] = tmdb_info
         if meta_infos:
             self.meta.update_meta_data(meta_infos)
+
+    @staticmethod
+    def merge_media_info(target, source):
+        """
+        将soruce中有效的信息合并到target中并返回
+        """
+        target.set_tmdb_info(source.tmdb_info)
+        target.fanart_poster = source.get_poster_image()
+        target.fanart_backdrop = source.get_backdrop_image()
+        return target

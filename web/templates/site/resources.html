@@ -112,7 +112,12 @@
                         </svg>
                       </a>
                     </div>
-                    <div class="text-muted">{{ Result.description }}</div>
+                    <div class="text-muted">
+                      {%if Result.imdbid %}
+                        <a href="https://www.imdb.com/title/{{ Result.imdbid }}/" target="_blank"><img src="../static/img/icon-imdb.png"></a>
+                      {% endif %}
+                      {{ Result.description }}
+                    </div>
                     <div id="testresults_{{ loop.index0 }}" class="text-muted"></div>
                   </td>
                   <td class="sort-pubdate" data-pubdate="{{ Result.pubdate }}">{{ Result.date_elapsed }}</td>
