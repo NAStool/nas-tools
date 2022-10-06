@@ -1,11 +1,11 @@
 import log
-from app.db import SqlHelper
+from app.helper import SqlHelper
 from config import Config
 from app.message import Message
 from app.downloader import Downloader
 from app.indexer import BuiltinIndexer, Jackett, Prowlarr
 from app.media import Media
-from app.utils import ProgressController
+from app.helper import ProgressController
 from app.utils.types import SearchType, MediaType
 
 

@@ -54,6 +54,8 @@ FANART_TV_API_URL = 'https://webservice.fanart.tv/v3/tv/%s?api_key=d2d31f9ecabea
 DEFAULT_TMDB_IMAGE = 'https://s3.bmp.ovh/imgs/2022/07/10/77ef9500c851935b.webp'
 # 默认微信消息代理服务器地址
 DEFAULT_WECHAT_PROXY = 'https://nastool.jxxghp.cn'
+# 默认OCR识别服务地址
+DEFAULT_OCR_SERVER = 'https://nastool.jxxghp.cn/ocr/'
 # TMDB图片地址
 TMDB_IMAGE_W500_URL = 'https://image.tmdb.org/t/p/w500%s'
 TMDB_IMAGE_ORIGINAL_URL = 'https://image.tmdb.org/t/p/original/%s'
@@ -92,8 +94,22 @@ KEYWORD_BLACKLIST = ['中字', '韩语', '双字', '中英', '日语', '双语',
                      '西班牙语', 'HRHDTVAC3264', '未删减版', '未删减', '国语', '字幕组', '人人影视', 'www66ystv',
                      '人人影视制作', '英语', 'www6vhaotv', '无删减版', '完成版', '德意']
 #  网络测试对象
-NETTEST_TARGETS = ["www.themoviedb.org", "api.themoviedb.org", "image.tmdb.org",
-                   "webservice.fanart.tv", "api.telegram.org", "qyapi.weixin.qq.com"]
+NETTEST_TARGETS = ["www.themoviedb.org",
+                   "api.themoviedb.org",
+                   "api.tmdb.org",
+                   "image.tmdb.org",
+                   "webservice.fanart.tv",
+                   "api.telegram.org",
+                   "qyapi.weixin.qq.com",
+                   "www.opensubtitles.org"]
+
+# 站点签到支持的识别XPATH
+SITE_CHECKIN_XPATH = [
+    '//a[@id="signed"]',
+    '//a[contains(@href, "attendance.php")]',
+    '//a[contains(@text, "签到")]',
+    '//span[@id="sign_in"]/a'
+]
 
 # 线程锁
 lock = Lock()
@@ -234,6 +250,9 @@ class Config(object):
 
     def get_proxies(self):
         return self.get_config('app').get("proxies")
+
+    def get_ua(self):
+        return self.get_config('app').get("user_agent") or DEFAULT_UA
 
     def get_config(self, node=None):
         if not node:

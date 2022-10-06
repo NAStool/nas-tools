@@ -4,13 +4,14 @@ import xml.dom.minidom
 from threading import Lock
 
 import log
-from app.db import SqlHelper
+from app.helper import SqlHelper
 from app.message import Message
 from app.downloader.downloader import Downloader
 from app.filterrules import FilterRule
 from app.searcher import Searcher
 from app.sites import SiteConf, Sites
-from app.utils import Torrent, DomUtils, RequestUtils, StringUtils, MetaHelper
+from app.utils import Torrent, DomUtils, RequestUtils, StringUtils
+from app.helper import MetaHelper
 from app.media import MetaInfo, Media
 from app.utils.types import MediaType, SearchType
 
@@ -792,7 +793,7 @@ class Rss:
         if match_flag:
             if site_parse:
                 # 检测Free
-                attr_type = Torrent.check_torrent_attr(torrent_url=media_info.page_url, cookie=site_cookie, ua=site_ua)
+                attr_type = SiteConf.check_torrent_attr(torrent_url=media_info.page_url, cookie=site_cookie, ua=site_ua)
                 if attr_type.is_free2x():
                     download_volume_factor = 0.0
                     upload_volume_factor = 2.0

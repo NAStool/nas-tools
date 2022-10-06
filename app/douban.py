@@ -7,7 +7,7 @@ from lxml import etree
 from requests.utils import dict_from_cookiejar
 
 import log
-from app.db import SqlHelper
+from app.helper import SqlHelper
 from app.message import Message
 from config import Config
 from app.downloader.downloader import Downloader

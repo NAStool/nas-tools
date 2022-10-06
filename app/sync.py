@@ -7,7 +7,7 @@ from watchdog.observers import Observer
 from watchdog.observers.polling import PollingObserver
 
 import log
-from app.db import SqlHelper
+from app.helper import SqlHelper
 from config import RMT_MEDIAEXT, Config
 from app.filetransfer import FileTransfer
 from app.utils.commons import singleton
@@ -57,7 +57,9 @@ class Sync(object):
         "softlink": RmtMode.SOFTLINK,
         "move": RmtMode.MOVE,
         "rclone": RmtMode.RCLONE,
-        "rclonecopy": RmtMode.RCLONECOPY
+        "rclonecopy": RmtMode.RCLONECOPY,
+        "minio": RmtMode.MINIO,
+        "rminiocopy": RmtMode.MINIOCOPY
     }
 
     def __init__(self):

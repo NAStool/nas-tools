@@ -5,3 +5,4 @@ from .channel.serverchan import ServerChan
 from .channel.telegram import Telegram
 from .channel.wechat import WeChat
 from .message import Message
+from .message_center import MessageCenter

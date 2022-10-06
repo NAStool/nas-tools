@@ -32,6 +32,8 @@ app:
   # 【TMDB API KEY】：需要在https://www.themoviedb.org/申请，必须配置，否则无法识别媒体资源和重命名
   # 以下地址需要网络能够正常访问：api.themoviedb.org、webservice.fanart.tv
   rmt_tmdbkey:
+  # 【使用TMDB服务器域名】：api.themoviedb.org、api.tmdb.org，如api.themoviedb.org无法访问可偿试使用api.tmdb.org
+  tmdb_domain: api.themoviedb.org
   # 【TMDB匹配模式】：normal、strict，normal模式下如使用文件名/种子名中的年份无法匹配到媒体信息，会去掉年份再匹配一次；strict模式则严格按文件中年份匹配
   # normal模式下会提升识别成功率，但也可能会导致误识别率增加；strict模式可以降低误识别率，但可能导致很多文件名/种子名中年份不正确的无法被识别（特别是剧集，需要是首播年份）
   rmt_match_mode: normal
@@ -250,7 +252,7 @@ pt:
   pt_monitor: false
   # 【只监控NASTool添加的下载】：启用后只有NASTool添加的下载才会被自动转移和显示，关闭则下载软件中所有的任务都会转移和显示
   pt_monitor_only: true
-  # 【下载完成后转移到媒体库的转移模式】：link、copy、softlink、move、rclone、rclonecopy，详情参考顶部说明
+  # 【下载完成后转移到媒体库的转移模式】：link、copy、softlink、move、rclone、rclonecopy、minio、miniocopy，详情参考顶部说明
   rmt_mode: link
   #【聚合检索使用的检索器】：jackett、prowlarr、builtin，需要配置jackett或prowlarr对应的配置区域，builtin为内置索引器需要在配置文件目录/sites目录下存入对应的站点配置文件
   # 1、通过微信发送关键字，实时检索下载，发送格式示例：电视剧 西部世界、西部世界第1季、西部世界第1季第2集、西部世界 2022，只会匹配真实名称，命中后会自动下载，使用说明参考：https://github.com/jxxghp/nas-tools/wiki/
@@ -391,12 +393,6 @@ douban:
 subtitle:
   # 【下载渠道】：opensubtitles、chinesesubfinder
   server: opensubtitles
-  # 配置OpenSubtitles.org中注册的用户名和密码
-  opensubtitles:
-    # 用户名
-    username:
-    # 密码
-    password:
   # 配置ChineseSubFinder的服务器地址和API Key，API Key在ChineseSubFinder->配置中心->实验室->API Key处生成
   chinesesubfinder:
     # IP地址和端口
@@ -435,3 +431,5 @@ laboratory:
   ignored_words: 
   # 【自定义识别替换词】
   replaced_words:
+  # 【自定义识别集数偏移】
+  offset_words:

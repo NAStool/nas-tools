@@ -8,10 +8,10 @@ from app.message import Message
 from app.douban import DouBan
 from app.downloader import Downloader
 from app.searcher import Searcher
-from app.utils import ProgressController, StringUtils
+from app.utils import StringUtils
 from app.media.doubanv2api import DoubanApi
 from app.media import MetaInfo, Media
-from app.db import SqlHelper
+from app.helper import SqlHelper, ProgressController
 from app.utils.types import SearchType, MediaType
 from web.backend.subscribe import add_rss_subscribe
 
@@ -139,7 +139,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     search_process.end('search')
     if len(media_list) == 0:
         log.info("【WEB】%s 未检索到任何资源" % content)
-        return 0, "%s 未检索到任何资源" % content
+        return 1, "%s 未检索到任何资源" % content
     else:
         log.info("【WEB】共检索到 %s 个有效资源" % len(media_list))
         # 插入数据库

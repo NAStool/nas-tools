@@ -8,13 +8,13 @@ from time import sleep
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import log
-from app.db import SqlHelper, DictHelper
-from app.sites import Sites
+from app.helper import SqlHelper, DictHelper
+from app.sites import Sites, SiteConf
 from config import BRUSH_REMOVE_TORRENTS_INTERVAL
 from app.downloader import Qbittorrent, Transmission
 from app.message import Message
 from app.rss import Rss
-from app.utils import Torrent, StringUtils
+from app.utils import StringUtils
 from app.utils.types import BrushDeleteType, SystemDictType
 from app.utils.commons import singleton
 
@@ -630,7 +630,7 @@ class BrushTask(object):
                 if re.search(r"%s" % rss_rule.get("exclude"), "%s %s" % (title, description), re.IGNORECASE):
                     return False
 
-            attr_type = Torrent.check_torrent_attr(torrent_url=torrent_url, cookie=cookie, ua=ua)
+            attr_type = SiteConf.check_torrent_attr(torrent_url=torrent_url, cookie=cookie, ua=ua)
 
             log.debug("【BRUSH】%s 解析详情, %s" % (title, attr_type))
 

@@ -11,7 +11,7 @@ lock = threading.Lock()
 
 
 @singleton
-class DBHelper:
+class MainDb:
     __connection = None
     __db_path = None
     __pools = None

@@ -2,7 +2,7 @@ import threading
 
 import log
 from app.db import MediaDb
-from app.utils import ProgressController
+from app.helper import ProgressController
 from config import Config
 from app.mediaserver import Emby, Jellyfin, Plex
 

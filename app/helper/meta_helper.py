@@ -3,7 +3,7 @@ import pickle
 import random
 import time
 from threading import RLock
-from app.utils import JsonUtils, ThreadHelper
+from app.utils import JsonUtils
 from config import Config
 from app.utils.commons import singleton
 from app.utils.types import MediaType
@@ -54,9 +54,9 @@ class MetaHelper(object):
                 expire = info.get(CACHE_EXPIRE_TIMESTAMP_STR)
                 if not expire or int(time.time()) < expire:
                     info[CACHE_EXPIRE_TIMESTAMP_STR] = int(time.time()) + EXPIRE_TIMESTAMP
-                    ThreadHelper().start_thread(self.update_meta_data, ({key: info}))
+                    self.update_meta_data({key: info})
                 elif expire and self.__tmdb_cache_expire:
-                    ThreadHelper().start_thread(self.delete_meta_data, (key,))
+                    self.delete_meta_data(key)
             return info
 
     def dump_meta_data(self, search, page, num):

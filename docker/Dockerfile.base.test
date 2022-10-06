@@ -20,9 +20,7 @@ RUN apk add --no-cache \
     && echo "${TZ}" > /etc/timezone \
     && ln -sf /usr/bin/python3 /usr/bin/python \
     && curl https://rclone.org/install.sh | bash \
-    && curl https://dl.min.io/client/mc/release/linux-amd64/mc --create-dirs -o /usr/bin/mc
-    && chmod +x /usr/bin/mc
     && pip install --upgrade pip setuptools wheel \
-    && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/master/requirements.txt \
+    && pip install -r https://raw.githubusercontent.com/jxxghp/nas-tools/dev/requirements.txt \
     && apk del libffi-dev \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*

@@ -53,7 +53,6 @@ a = Analysis(
                             'babelfish.converters.alpha3b',
                             'babelfish.converters.alpha3t',
                             'babelfish.converters.name',
-                            'babelfish.converters.opensubtitles',
                             'babelfish.converters.countryname'],
              hookspath=[],
              hooksconfig={},
@@ -88,5 +87,5 @@ exe = EXE(
           target_arch=None,
           codesign_identity=None,
           entitlements_file=None,
-	        icon='nas-tools.ico'
+	      icon='nas-tools.ico'
 )

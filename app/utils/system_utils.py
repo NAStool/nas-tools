@@ -66,3 +66,14 @@ class SystemUtils:
             return False
         text = subprocess.Popen('ps -ef | grep -v grep | grep %s' % pname, shell=True).communicate()
         return True if text else False
+
+    @staticmethod
+    def execute(cmd):
+        """
+        执行命令，获得返回结果
+        """
+        return os.popen(cmd).readline().strip()
+
+    @staticmethod
+    def is_docker():
+        return os.path.exists('/.dockerenv')

@@ -3,61 +3,59 @@ import re
 #  官组
 rg_1pt = []
 rg_52pt = []
-rg_audiences = ['Audies', 'ADE', 'ADWeb', 'ADAudio', 'ADeBook', 'ADMusic']
-rg_avgv = []
+rg_audiences = ['Audies', 'AD(?:Audio|E(?:|book)|Music|Web)']
 rg_beitai = ['BeiTai']
-rg_btschool = ['BTSCHOOL', 'BtsHD', 'BtsPAD', 'BtsTV', 'Zone']
-rg_chdbits = ['CHD', 'CHDBits', 'CHDTV', 'CHDPAD', 'CHDWEB', 'CHDHKTV', 'StBOX', 'OneHD', 'Lee', 'xiaopie']
+rg_btschool = ['Bts(?:CHOOL|HD|PAD|TV)', 'Zone']
+rg_chdbits = ['CHD(?:|Bits|PAD|(?:|HK)TV|WEB)', 'StBOX', 'OneHD', 'Lee', 'xiaopie']
 rg_discfan = []
 rg_dragonhd = []
-rg_eastgame = ['iNT-TLF', 'HALFCD-TLF', 'MiniSD-TLF', 'MiniHD-TLF', 'MiniFHD-TLF', 'TLF']
+rg_eastgame = ['(?:(?:iNT|(?:HALFC|Mini(?:S|H|FH)D))-|)TLF']
 rg_filelist = []
-rg_gainbound = []
-rg_hares = ['Hares', 'HaresWEB', 'HaresTV', 'HaresMV']
+rg_gainbound = ['(?:DG|GBWE)B']
+rg_hares = ['Hares(?:|(?:M|T)V|Web)']
 rg_hd4fans = []
-rg_hdarea = ['HDArea', 'EPiC', 'HDATV', 'HDApad']
+rg_hdarea = ['HDA(?:pad|rea|TV)', 'EPiC']
 rg_hdatmos = []
 rg_hdbd = []
-rg_hdchina = ['HDChina', 'HDCTV', 'HDC', 'k9611', 'tudou', 'iHD']
-rg_hddolby = ['Dream', 'DBTV', 'QHstudIo', 'HDo']
-rg_hdfans = ['beAst', 'beAstTV']
-rg_hdhome = ['HDHome', 'HDH', 'HDHTV', 'HDHPad', 'HDHWEB']
-rg_hdsky = ['HDSky', 'HDS', 'HDSWEB', 'HDSTV', 'HDSPad', 'AQLJ']
+rg_hdchina = ['HDC(?:|hina|TV)', 'k9611', 'tudou', 'iHD']
+rg_hddolby = ['D(?:ream|BTV)', '(?:HD|QHstudI)o']
+rg_hdfans = ['beAst(?:|TV)']
+rg_hdhome = ['HDH(?:|ome|Pad|TV|WEB)']
+rg_hdsky = ['HDS(?:|ky|TV|Pad|WEB)', 'AQLJ']
 rg_hdtime = []
 rg_HDU = []
-rg_hdzone = []
+rg_hdzone = ['HDZ(?:|one)']
 rg_hitpt = []
 rg_htpt = ['HTPT']
 rg_iptorrents = []
 rg_joyhd = []
 rg_keepfrds = ['FRDS', 'Yumi', 'cXcY']
-rg_lemonhd = ['LHD', 'LeagueHD', 'LeagueWEB', 'LeagueTV', 'LeagueCD', ' LeagueMV', 'LeagueNF', 'i18n', 'CiNT']
-rg_mteam = ['MTeam', 'MPAD', 'MTeamTV']
+rg_lemonhd = ['L(?:eague(?:(?:C|H)D|(?:M|T)V|NF)|WEB)', 'i18n', 'CiNT']
+rg_mteam = ['MTeam(?:|TV)', 'MPAD']
 rg_nanyangpt = []
 rg_nicept = []
 rg_oshen = []
-rg_ourbits = ['OurBits', 'OurTV', 'FLTTH', 'Ao', 'PbK', 'MGs', 'iLoveTV', 'iLoveHD']
-rg_pterclub = ['PTer', 'PTerWEB', 'PTerTV', 'PTerDIY', 'PTerMV', 'PTerGame']
-rg_pthome = ['PTHome', 'PTH', 'PTHWEB', 'PTHtv', 'PTHAudio', 'PTHAudio', 'PTHeBook', 'PTHmusic']
+rg_ourbits = ['Our(?:Bits|TV)', 'FLTTH', 'Ao', 'PbK', 'MGs', 'iLove(?:HD|TV)']
+rg_pterclub = ['PTer(?:|DIY|Game|(?:M|T)V|WEB)']
+rg_pthome = ['PTH(?:|Audio|eBook|music|ome|tv|WEB)']
 rg_ptmsg = []
-rg_ptsbao = ['PTsbao', 'OPS', 'FFansBD', 'FFansWEB', 'FFansTV', 'FFansDVD', 'FHDMv']
+rg_ptsbao = ['PTsbao', 'OPS', 'F(?:Fans(?:AIeNcE|BD|D(?:VD|IY)|TV|WEB)|HDMv)', 'SGXT']
 rg_pttime = []
 rg_putao = ['PuTao']
 rg_soulvoice = []
-rg_springsunday = ['CMCT', 'CMCTV']
+rg_springsunday = ['CMCT(?:|V)']
 rg_tccf = []
 rg_tjupt = ['TJUPT']
-rg_totheglory = ['TTG', 'WiKi', 'NGB', 'DoA', 'ARiN', 'ExREN']
+rg_totheglory = ['TTG', 'WiKi', 'NGB', 'DoA', '(?:ARi|ExRE)N']
 rg_U2 = []
 rg_ultrahd = []
 
 #  其他常见组
-rg_other = ['BMDru', 'BeyondHD', 'cfandora', 'FLUX', 'NoGroup', 'TEPES', 'BTN', 'NTb', 'SMURF', 'Ctrlhd', 'CMRG', 'EVO', 'HONE', 'NTG']
+rg_other = ['B(?:MDru|eyondHD|TN)', 'C(?:fandora|trlhd|MRG)', 'EVO', 'FLUX', 'HONE', 'N(?:oGroup|T(?:b|G))', 'SMURF', 'TEPES']
 
 sites = [rg_1pt,
          rg_52pt,
          rg_audiences,
-         rg_avgv,
          rg_beitai,
          rg_btschool,
          rg_chdbits,
@@ -106,23 +104,13 @@ sites = [rg_1pt,
          rg_other]
 
 #  正则 '[-@[]制作组名'，一般制作组前面会有'-'或者'@'或者'['
-release_groups = '|'
+release_groups = []
 for site in sites:
     for release_group in site:
-        release_groups = release_groups + "(?<=[-@[￡])" + release_group + "(?=[@.\s\][])" + "|"
-release_groups = re.compile(r"" + release_groups[1:-1], re.I)
-
+        release_groups.append(release_group)
+release_groups = '|'.join(release_groups)
+release_groups = re.compile(r"(?<=[-@\[￡])(?:%s)(?=[@.\s\]\[])" % release_groups, re.I)
 
 #  忽略大小写
 def rg_match(name, groups):
-    res_l = []
-    res_s = ""
-    res_l = re.findall(groups, name)
-    if len(res_l) == 1:
-        return res_l[0]
-    elif len(res_l) > 1:
-        for res in res_l:
-            res_s = res_s + "@" + res
-        return res_s[1:]
-    else:
-        return ""
+    return '@'.join(re.findall(groups, name))

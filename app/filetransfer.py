@@ -11,14 +11,15 @@ from threading import Lock
 from time import sleep
 
 import log
-from app.db import SqlHelper
+from app.helper import SqlHelper
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
     DEFAULT_TV_FORMAT
 from app.message import Message
 from app.mediaserver import MediaServer
 from app.subtitle import Subtitle
 from app.media import Media, MetaInfo, Category, Scraper
-from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils, ThreadHelper
+from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils
+from app.helper import ThreadHelper
 from app.utils.types import MediaType, SyncType, RmtMode, OsType, RMT_MODES
 
 lock = Lock()
@@ -157,6 +158,13 @@ class FileTransfer:
                     retcode = os.system('move /Y "{}" "{}"'.format(
                         os.path.join(os.path.dirname(file_item), os.path.basename(target_file)), target_file))
                     log.info("移动状态: {}".format(retcode))
+                elif rmt_mode == RmtMode.MINIO or rmt_mode == RmtMode.MINIOCOPY:
+                    if target_file.startswith("/") or target_file.startswith("\\"):
+                        target_file = target_file[1:]
+                    if rmt_mode == RmtMode.MINIO:
+                        retcode = os.system('mc.exe mv --recursive "{}" NASTOOL/"{}"'.format(file_item, target_file))
+                    else:
+                        retcode = os.system('mc.exe cp --recursive "{}" NASTOOL/"{}"'.format(file_item, target_file))
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
@@ -182,6 +190,13 @@ class FileTransfer:
                     retcode = call(["mv", file_item, tmp_file])
                     if retcode == 0:
                         retcode = call(["mv", tmp_file, target_file])
+                elif rmt_mode == RmtMode.MINIO or rmt_mode == RmtMode.MINIOCOPY:
+                    if target_file.startswith("/") or target_file.startswith("\\"):
+                        target_file = target_file[1:]
+                    if rmt_mode == RmtMode.RCLONE:
+                        retcode = call(["mc", "mv", "--recursive", file_item, "NASTOOL/" + target_file])
+                    else:
+                        retcode = call(["mc", "mv", "--recursive", file_item, "NASTOOL/" + target_file])
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
@@ -223,7 +238,9 @@ class FileTransfer:
                     if sub_language and (sub_language.lower() in ["zh-cn", "cn", "zh", "zh_cn", "chs", "cht"]
                                          or "简" in sub_language
                                          or "中" in sub_language
-                                         or "双" in sub_language):
+                                         or "双" in sub_language
+                                         or "chs" in sub_language.lower()
+                                         or "cht" in sub_language.lower()):
                         new_file = os.path.splitext(new_name)[0] + ".zh-cn" + file_ext
                     else:
                         new_file = os.path.splitext(new_name)[0] + file_ext
@@ -561,6 +578,8 @@ class FileTransfer:
 
                 # 判断文件是否已存在，返回：目录存在标志、目录名、文件存在标志、文件名
                 dir_exist_flag, ret_dir_path, file_exist_flag, ret_file_path = self.__is_media_exists(dist_path, media)
+                # 新文件后缀
+                file_ext = os.path.splitext(file_item)[-1]
                 # 已存在的文件数量
                 exist_filenum = 0
                 handler_flag = False
@@ -578,9 +597,11 @@ class FileTransfer:
                         exist_filenum = exist_filenum + 1
                         if rmt_mode != RmtMode.SOFTLINK:
                             if media.size > os.path.getsize(ret_file_path) and self.__filesize_cover or udf_flag:
-                                log.info("【RMT】文件 %s 已存在，覆盖..." % ret_file_path)
+                                ret_file_path = os.path.splitext(ret_file_path)[0]
+                                new_file = "%s%s" % (ret_file_path, file_ext)
+                                log.info("【RMT】文件 %s 已存在，覆盖..." % new_file)
                                 ret = self.__transfer_file(file_item=file_item,
-                                                           new_file=ret_file_path,
+                                                           new_file=new_file,
                                                            rmt_mode=rmt_mode,
                                                            over_flag=True)
                                 if ret != 0:
@@ -631,7 +652,6 @@ class FileTransfer:
                 else:
                     # 开始转移文件
                     if not handler_flag:
-                        file_ext = os.path.splitext(file_item)[-1]
                         if not ret_file_path:
                             log.error("【RMT】拼装文件路径错误，无法从文件名中识别出集数：%s" % file_item)
                             success_flag = False
@@ -662,11 +682,19 @@ class FileTransfer:
                 # 登记媒体库刷新
                 if refresh_item not in refresh_library_items:
                     refresh_library_items.append(refresh_item)
+                # 查询TMDB详情
+                media.set_tmdb_info(self.media.get_tmdb_info(mtype=media.type, tmdbid=media.tmdb_id))
                 # 下载字幕条目
-                subtitle_item = {"type": media.type, "file": ret_file_path, "file_ext": os.path.splitext(file_item)[-1],
-                                 "name": media.get_name(), "title": media.title, "year": media.year,
-                                 "season": media.begin_season, "episode": media.begin_episode,
-                                 "bluray": True if bluray_disk_dir else False}
+                subtitle_item = {"type": media.type,
+                                 "file": ret_file_path,
+                                 "file_ext": os.path.splitext(file_item)[-1],
+                                 "name": media.en_name if media.en_name else media.cn_name,
+                                 "title": media.title,
+                                 "year": media.year,
+                                 "season": media.begin_season,
+                                 "episode": media.begin_episode,
+                                 "bluray": True if bluray_disk_dir else False,
+                                 "imdbid": media.imdb_id}
                 # 登记字幕下载
                 if subtitle_item not in download_subtitle_items:
                     download_subtitle_items.append(subtitle_item)
@@ -694,8 +722,6 @@ class FileTransfer:
                         message_medias[message_key].size += media.size
                 # 生成nfo及poster
                 if self.__scraper_flag:
-                    # 查询TMDB详情
-                    media.set_tmdb_info(self.media.get_tmdb_info(mtype=media.type, tmdbid=media.tmdb_id))
                     # 生成刮削文件
                     self.scraper.gen_scraper_files(media=media,
                                                    scraper_nfo=self.__scraper_nfo,
@@ -1088,7 +1114,7 @@ if __name__ == "__main__":
     """
     parser = argparse.ArgumentParser(description='文件转移工具')
     parser.add_argument('-m', '--mode', dest='mode', required=True,
-                        help='转移模式：link copy softlink move rclone rclonecopy')
+                        help='转移模式：link copy softlink move rclone rclonecopy minio miniocopy')
     parser.add_argument('-s', '--source', dest='s_path', required=True, help='硬链接源目录路径')
     parser.add_argument('-d', '--target', dest='t_path', required=False, help='硬链接目的目录路径')
     args = parser.parse_args()

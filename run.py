@@ -3,6 +3,8 @@ import signal
 import sys
 
 # 添加第三方库入口,按首字母顺序，引入brushtask时涉及第三方库，需提前引入
+from pyvirtualdisplay import Display
+
 with open(os.path.join(os.path.dirname(__file__),
                        "third_party.txt"), "r") as f:
     third_party = f.readlines()
@@ -38,15 +40,25 @@ if is_windows_exe:
     except Exception as err:
         print(err)
 
+# 启动虚拟显示
+is_docker = os.path.exists('/.dockerenv')
+if is_docker:
+    try:
+        display = Display(visible=False, size=(1920, 1080))
+        display.start()
+        os.environ['NASTOOL_CHROME'] = 'YES'
+    except Exception as err:
+        print(str(err))
+else:
+    display = None
+
 import warnings
 import log
 from config import Config
 from app.brushtask import BrushTask
 from app.sync import run_monitor, stop_monitor
 from app.scheduler import run_scheduler, stop_scheduler
-from app.utils.check_config import check_config
-from app.utils import SystemUtils, IndexerHelper
-from app.utils.types import OsType
+from app.helper import check_config, IndexerHelper
 from version import APP_VERSION
 from web.app import FlaskApp
 from app.rsschecker import RssChecker
@@ -55,13 +67,15 @@ warnings.filterwarnings('ignore')
 
 
 def sigal_handler(num, stack):
-    if SystemUtils.get_system() == OsType.LINUX and SystemUtils.check_process("supervisord"):
-        print(str(stack))
+    if is_docker:
         log.warn('捕捉到退出信号：%s，开始退出...' % num)
         # 停止定时服务
         stop_scheduler()
         # 停止监控
         stop_monitor()
+        # 停止虚拟显示
+        if display:
+            display.stop()
         # 退出主进程
         sys.exit()
 
@@ -107,7 +121,7 @@ if __name__ == "__main__":
 
 
         def traystart():
-            tray = trayicon(homepage_port, log_path)
+            trayicon(homepage_port, log_path)
 
 
         p1 = threading.Thread(target=traystart, daemon=True)

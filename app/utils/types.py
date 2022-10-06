@@ -37,6 +37,8 @@ class RmtMode(Enum):
     MOVE = "移动"
     RCLONECOPY = "Rclone复制"
     RCLONE = "Rclone移动"
+    MINIOCOPY = "Minio复制"
+    MINIO = "Minio移动"
 
 
 class MatchMode(Enum):
@@ -82,5 +84,7 @@ RMT_MODES = {
     "softlink": RmtMode.SOFTLINK,
     "move": RmtMode.MOVE,
     "rclone": RmtMode.RCLONE,
-    "rclonecopy": RmtMode.RCLONECOPY
+    "rclonecopy": RmtMode.RCLONECOPY,
+    "minio": RmtMode.MINIO,
+    "miniocopy": RmtMode.MINIOCOPY
 }

@@ -5,7 +5,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import log
 from app.filterrules import FilterRule
-from app.utils import Torrent, DomUtils, RequestUtils, StringUtils, ProgressController
+from app.utils import Torrent, DomUtils, RequestUtils, StringUtils
+from app.helper import ProgressController
 from app.media import MetaInfo, Media
 from app.utils.types import MediaType, SearchType
 

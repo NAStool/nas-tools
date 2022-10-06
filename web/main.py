@@ -23,7 +23,8 @@ from app.brushtask import BrushTask
 from app.mediaserver import WebhookEvent
 from app.message import Message
 from app.rsschecker import RssChecker
-from app.utils import Security, StringUtils, DomUtils, SystemUtils, WebUtils, MetaHelper
+from app.utils import StringUtils, DomUtils, SystemUtils, WebUtils
+from app.helper import Security, MetaHelper
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL, NETTEST_TARGETS
 from app.douban import DouBan
 from app.downloader import Downloader
@@ -37,7 +38,7 @@ from web.apiv1 import apiv1, authorization
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 from web.action import WebAction
 from web.backend.subscribe import add_rss_subscribe
-from app.db import SqlHelper, DictHelper
+from app.helper import SqlHelper, DictHelper
 from app.utils.types import *
 from web.backend.wallpaper import get_login_wallpaper
 
@@ -1206,7 +1207,15 @@ def create_flask_app(config):
         replaced_words = config.get_config('laboratory').get("replaced_words")
         if replaced_words:
             replaced_words = replaced_words.replace("||", "\n")
-        return render_template("setting/basic.html", Config=config.get_config(), Proxy=proxy, Ignored_Words=ignored_words, Replaced_Words=replaced_words)
+        offset_words = config.get_config('laboratory').get("offset_words")
+        if offset_words:
+            offset_words = offset_words.replace("||", "\n")
+        return render_template("setting/basic.html", 
+                               Config=config.get_config(), 
+                               Proxy=proxy, 
+                               Ignored_Words=ignored_words, 
+                               Replaced_Words=replaced_words, 
+                               Offset_Words=offset_words)
 
     # 目录同步页面
     @App.route('/directorysync', methods=['POST', 'GET'])

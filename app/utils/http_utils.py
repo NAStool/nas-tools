@@ -1,7 +1,7 @@
 import requests
 import urllib3
 
-from config import Config, DEFAULT_UA
+from config import Config
 
 
 class RequestUtils:
@@ -20,13 +20,8 @@ class RequestUtils:
             else:
                 self.__headers = headers
         else:
-            user_agent = Config().get_config("app").get("user_agent")
-            if user_agent:
-                self.__headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                                  "User-Agent": user_agent}
-            else:
-                self.__headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-                                  "User-Agent": DEFAULT_UA}
+            self.__headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+                              "User-Agent": Config().get_ua()}
         if cookies:
             if isinstance(cookies, str):
                 self.__cookies = self.cookie_parse(cookies)
@@ -91,7 +86,7 @@ class RequestUtils:
             return None
 
     @staticmethod
-    def cookie_parse(cookies_str):
+    def cookie_parse(cookies_str, array=False):
         if not cookies_str:
             return {}
         cookie_dict = {}
@@ -99,5 +94,11 @@ class RequestUtils:
         for cookie in cookies:
             cstr = cookie.split('=')
             if len(cstr) > 1:
-                cookie_dict[cstr[0]] = cstr[1]
+                cookie_dict[cstr[0].strip()] = cstr[1].strip()
+        if array:
+            cookiesList = []
+            for cookieName, cookieValue in cookie_dict.items():
+                cookies = {'name': cookieName, 'value': cookieValue}
+                cookiesList.append(cookies)
+            return cookiesList
         return cookie_dict

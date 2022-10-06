@@ -4,6 +4,7 @@ from time import sleep
 from requests.utils import dict_from_cookiejar
 
 import log
+from app.helper import SqlHelper
 from app.media import MetaInfo, Media
 from config import Config, PT_TAG
 from app.message import Message
@@ -193,7 +194,7 @@ class Downloader:
                         log.warn("【DOWNLOADER】%s 转移失败：%s" % (task.get("path"), done_msg))
                         self.client.set_torrents_status(task.get("id"))
                     else:
-                        if self.__pt_rmt_mode in [RmtMode.MOVE, RmtMode.RCLONE]:
+                        if self.__pt_rmt_mode in [RmtMode.MOVE, RmtMode.RCLONE,RmtMode.MINIO]:
                             log.warn("【DOWNLOADER】移动模式下删除种子文件：%s" % task.get("id"))
                             self.delete_torrents(task.get("id"))
                         else:
@@ -373,6 +374,8 @@ class Downloader:
                 if item not in return_items:
                     return_items.append(item)
                 self.message.send_download_message(in_from, item)
+                # 登记下载历史
+                SqlHelper.insert_download_history(item)
             else:
                 log.error("【DOWNLOADER】添加下载任务 %s 失败：%s" % (item.get_title_string(), ret_msg or "请检查下载任务是否已存在"))
                 if ret_msg:
@@ -455,6 +458,8 @@ class Downloader:
                             return_items.append(item)
                             # 发送消息通知
                             self.message.send_download_message(in_from, item)
+                            # 登记下载历史
+                            SqlHelper.insert_download_history(item)
                             # 清除记忆并退出一层循环
                             need_episodes = list(set(need_episodes).difference(set(selected_episodes)))
                             if not need_episodes:
