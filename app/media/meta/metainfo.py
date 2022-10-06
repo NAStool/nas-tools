@@ -51,22 +51,29 @@ def MetaInfo(title, subtitle=None, mtype=None):
                 continue
             offset_word_info = offset_word.split("@")
             try:
+                front_word = offset_word_info[0]
+                back_word = offset_word_info[1]
                 offset_num = int(offset_word_info[2])
-                offset_word_info_re = re.compile(r'(?<=%s[\W\w]*)[0-9]+(?=[\W\w]*%s)' % (offset_word_info[0], offset_word_info[1]))
-                episode_nums = re.findall(offset_word_info_re, title)
-                if not episode_nums:
+                if back_word and not re.findall(r'%s' % back_word, title):
+                        continue
+                if front_word and not re.findall(r'%s' % front_word, title):
+                        continue
+                offset_word_info_re = re.compile(r'(?<=%s[\W\w]*)[0-9]+(?=[\W\w]*%s)' % (front_word, back_word))
+                episode_nums_str = re.findall(offset_word_info_re, title)
+                if not episode_nums_str:
                     continue
-                episode_nums = [int(x) for x in episode_nums]
+                episode_nums_int = [int(x) for x in episode_nums_str]
+                episode_nums_dict = dict(zip(episode_nums_str, episode_nums_int))
                 used_offset_words.append(offset_word)
                 # 集数向前偏移，集数按升序处理
                 if offset_num < 0:
-                    episode_nums.sort()
+                    episode_nums_list = sorted(episode_nums_dict.items(), key=lambda x: x[1])
                 # 集数向后偏移，集数按降序处理
                 else:
-                    episode_nums.sort(reverse=True)
-                for episode_num in episode_nums:
-                    episode_offset_re = re.compile(r'(?<=%s[\W\w]*)%s(?=[\W\w]*%s)' % (offset_word_info[0], episode_num, offset_word_info[1]))
-                    title = re.sub(episode_offset_re, r'%s' % str(episode_num + offset_num).zfill(2), title)
+                    episode_nums_list = sorted(episode_nums_dict.items(), key=lambda x: x[1], reverse=True)
+                for episode_num in episode_nums_list:
+                    episode_offset_re = re.compile(r'(?<=%s[\W\w]*)%s(?=[\W\w]*%s)' % (front_word, episode_num[0], back_word))
+                    title = re.sub(episode_offset_re, r'%s' % str(episode_num[1] + offset_num).zfill(2), title)
             except Exception as err:
                 print(err)
     # 判断是否处理文件
