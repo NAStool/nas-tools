@@ -35,6 +35,7 @@ class ChromeHelper(object):
             options.add_argument('--headless')
         options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
         self._chrome = uc.Chrome(options=options, driver_executable_path=self._executable_path)
+        self._chrome.set_page_load_timeout(15)
 
     def get_browser(self):
         return self._chrome
