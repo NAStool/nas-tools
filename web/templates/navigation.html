@@ -806,7 +806,10 @@
             <a href="javascript:void(0)" class="card-btn" id="system_media_search_btn" style="border-left:1px solid var(--tblr-border-color)">
               搜索
             </a>
-            <a href="javascript:void(0)" class="card-btn" data-bs-dismiss="modal">
+            <a href="javascript:void(0)" class="card-btn" id="system_media_refresh_btn" style="border-left:1px solid var(--tblr-border-color)">
+              刷新
+            </a>
+            <a href="javascript:void(0)" class="card-btn d-none d-md-block" data-bs-dismiss="modal">
               关闭
             </a>
           </div>
@@ -1011,35 +1014,49 @@
           if($("#system_media_rss_dropdown").hasClass("show")){
             $("#system_media_rss_btn").dropdown("toggle");
           }
+          //先隐藏所有按钮，有需要再显示
+          $("#system_media_rss_btn").hide();
+          $("#system_media_search_btn").hide();
+          $("#system_media_refresh_btn").hide();
+          $("#system_media_url_btn").hide();
           if (ret.rssid) {
             //取消订阅按钮
             $("#system_media_rss_btn").text("取消订阅");
             $("#system_media_rss_btn").removeAttr("data-bs-toggle");
             $("#system_media_rss_btn").removeClass("dropdown-toggle");
             $("#system_media_rss_btn").attr("href", 'javascript:remove_rss_media("' + ret.title + '","' + ret.year + '","' + ret.type + '","' + ret.rssid + '","' + ret.page + '")');
+            $("#system_media_rss_btn").show();
+            //搜索按钮
+            $("#system_media_search_btn").text("搜索");
+            $("#system_media_search_btn").attr("href", 'javascript:search_mediainfo_media("' + ret.tmdbid + '", "' + ret.doubanid + '", "' + ret.title + '", "' + ret.type_str + '")');
+            $("#system_media_search_btn").show();
             //刷新和编辑按钮
             if (ret.page.startsWith("movie_rss") || ret.page.startsWith("tv_rss")) {
-              //刷新
-              $("#system_media_search_btn").text("刷新");
-              $("#system_media_search_btn").attr("href", 'javascript:refresh_rss_media("' + ret.type + '","' + ret.rssid + '","' + ret.page + '")');
-              $("#system_media_search_btn").show();
               //编辑
               $("#system_media_url_btn").text("编辑");
               $("#system_media_url_btn").removeAttr("target");
               $("#system_media_url_btn").attr("href", "javascript:show_edit_rss_media_modal('" + ret.rssid + "')");
+              $("#system_media_url_btn").show();
+              //刷新
+              $("#system_media_refresh_btn").text("刷新");
+              $("#system_media_refresh_btn").attr("href", 'javascript:refresh_rss_media("' + ret.type + '","' + ret.rssid + '","' + ret.page + '")');
+              $("#system_media_refresh_btn").show();
             } else {
-              //搜索按钮
-              $("#system_media_search_btn").text("搜索");
-              $("#system_media_search_btn").attr("href", 'javascript:search_mediainfo_media("' + ret.tmdbid + '", "' + ret.doubanid + '", "' + ret.title + '", "' + ret.type_str + '")');
-              $("#system_media_search_btn").show();
               //详情按钮
               $("#system_media_url_btn").text("详情");
               $("#system_media_url_btn").attr("target", "_blank");
               $("#system_media_url_btn").attr("href", ret.link_url);
+              $("#system_media_url_btn").show();
             }
           } else {
+            //详情按钮
+            $("#system_media_url_btn").text("详情");
+            $("#system_media_url_btn").attr("target", "_blank");
+            $("#system_media_url_btn").attr("href", ret.link_url);
+            $("#system_media_url_btn").show();
             //订阅按钮
             $("#system_media_rss_btn").text("订阅");
+            $("#system_media_rss_dropdown").empty();
             if(ret.seasons.length == 0){
               $("#system_media_rss_btn").removeAttr("data-bs-toggle");
               $("#system_media_rss_btn").removeClass("dropdown-toggle");
@@ -1048,21 +1065,16 @@
               $("#system_media_rss_btn").prop("data-bs-toggle", "dropdown");
               $("#system_media_rss_btn").addClass("dropdown-toggle");
               $("#system_media_rss_btn").attr("href", 'javascript:$("#system_media_rss_btn").dropdown("toggle")');
-              $("#system_media_rss_dropdown").empty();
+              //订阅季的下拉框
               for(var i=0; i<ret.seasons.length; i++){
                 $("#system_media_rss_dropdown").append('<a class="dropdown-item" href=\'javascript:add_rss_media("' + ret.title + '","' + ret.year + '","' + ret.type + '","' + ret.tmdbid + '","' + ret.doubanid + '","' + ret.page + '","' + ret.seasons[i].num + '")\'>' + ret.seasons[i].text + '</a>');
               }
             }
-
-            //订阅季的下拉框
+            $("#system_media_rss_btn").show();
             //搜索按钮
             $("#system_media_search_btn").text("搜索");
             $("#system_media_search_btn").attr("href", 'javascript:search_mediainfo_media("' + ret.tmdbid + '", "' + ret.doubanid + '", "' + ret.title + '", "' + ret.type_str + '")');
             $("#system_media_search_btn").show();
-            //详情按钮
-            $("#system_media_url_btn").text("详情");
-            $("#system_media_url_btn").attr("target", "_blank");
-            $("#system_media_url_btn").attr("href", ret.link_url);
           }
           $("#system_media_name_link").attr("href", ret.link_url);
           //弹窗

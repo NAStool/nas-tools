@@ -502,6 +502,8 @@
         $("#search_btn").attr("disabled", false);
         $("#quick_search_btn").attr("disabled", false);
         $("#search_icon").attr("disabled", false);
+        $("#search_tip_title").text("搜索失败");
+        $("#search_tip_text").text("请确认名称是否正确，网络连接是否正常");
         show_fail_modal(ret.msg);
       }
     });

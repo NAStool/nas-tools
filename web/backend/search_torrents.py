@@ -139,7 +139,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     search_process.end('search')
     if len(media_list) == 0:
         log.info("【WEB】%s 未检索到任何资源" % content)
-        return 0, "%s 未检索到任何资源" % content
+        return 1, "%s 未检索到任何资源" % content
     else:
         log.info("【WEB】共检索到 %s 个有效资源" % len(media_list))
         # 插入数据库
