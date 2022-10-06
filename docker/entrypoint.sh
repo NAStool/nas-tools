@@ -52,7 +52,8 @@ fi
 echo "以PUID=${PUID}，PGID=${PGID}的身份启动程序..."
 echo "注意：日志将停止打印，请通过文件或WEB页面查看日志"
 mkdir -p /config/logs/supervisor
-chown -R ${PUID}:${PGID} ${WORKDIR} /config
-umask ${UMASK}
+mkdir -p /.local
+chown -R ${PUID}:${PGID} ${WORKDIR} /config /usr/lib/chromium /.local
 export PATH=$PATH:/usr/lib/chromium
+umask ${UMASK}
 exec su-exec ${PUID}:${PGID} /usr/bin/supervisord -n -c ${WORKDIR}/supervisord.conf

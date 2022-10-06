@@ -1,5 +1,5 @@
 import os.path
-import re
+import regex as re
 
 from app.media.meta.metaanime import MetaAnime
 from app.media.meta.metavideo import MetaVideo
@@ -52,13 +52,21 @@ def MetaInfo(title, subtitle=None, mtype=None):
             offset_word_info = offset_word.split("@")
             try:
                 offset_num = int(offset_word_info[2])
-                offset_word_info_re = re.compile(r'(?<=%s)[0-9]+(?=%s)' % (offset_word_info[0], offset_word_info[1]))
-                episode_num = re.findall(offset_word_info_re, title)
-                if not episode_num:
+                offset_word_info_re = re.compile(r'(?<=%s[\W\w]*)[0-9]+(?=[\W\w]*%s)' % (offset_word_info[0], offset_word_info[1]))
+                episode_nums = re.findall(offset_word_info_re, title)
+                if not episode_nums:
                     continue
-                episode_num = int(episode_num[0])
+                episode_nums = [int(x) for x in episode_nums]
                 used_offset_words.append(offset_word)
-                title = re.sub(offset_word_info_re, r'%s' % str(episode_num + offset_num).zfill(2), title)
+                # 集数向前偏移，集数按升序处理
+                if offset_num < 0:
+                    episode_nums.sort()
+                # 集数向后偏移，集数按降序处理
+                else:
+                    episode_nums.sort(reverse=True)
+                for episode_num in episode_nums:
+                    episode_offset_re = re.compile(r'(?<=%s[\W\w]*)%s(?=[\W\w]*%s)' % (offset_word_info[0], episode_num, offset_word_info[1]))
+                    title = re.sub(episode_offset_re, r'%s' % str(episode_num + offset_num).zfill(2), title)
             except Exception as err:
                 print(err)
     # 判断是否处理文件
