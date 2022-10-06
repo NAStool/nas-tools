@@ -1,11 +1,14 @@
 import re
 
 #  官组
+rg_0ff = ['FF(?:(?:A|WE)B|CD|E(?:DU|B)|TV)']
 rg_1pt = []
 rg_52pt = []
 rg_audiences = ['Audies', 'AD(?:Audio|E(?:|book)|Music|Web)']
+rg_azusa = []
 rg_beitai = ['BeiTai']
 rg_btschool = ['Bts(?:CHOOL|HD|PAD|TV)', 'Zone']
+rg_carpt = ['CarPT']
 rg_chdbits = ['CHD(?:|Bits|PAD|(?:|HK)TV|WEB)', 'StBOX', 'OneHD', 'Lee', 'xiaopie']
 rg_discfan = []
 rg_dragonhd = []
@@ -21,10 +24,13 @@ rg_hdchina = ['HDC(?:|hina|TV)', 'k9611', 'tudou', 'iHD']
 rg_hddolby = ['D(?:ream|BTV)', '(?:HD|QHstudI)o']
 rg_hdfans = ['beAst(?:|TV)']
 rg_hdhome = ['HDH(?:|ome|Pad|TV|WEB)']
+rg_hdpt = ['HDPT(?:|Web)']
 rg_hdsky = ['HDS(?:|ky|TV|Pad|WEB)', 'AQLJ']
 rg_hdtime = []
 rg_HDU = []
+rg_hdvideo = []
 rg_hdzone = ['HDZ(?:|one)']
+rg_hhanclub = ['HHWEB']
 rg_hitpt = []
 rg_htpt = ['HTPT']
 rg_iptorrents = []
@@ -36,6 +42,8 @@ rg_nanyangpt = []
 rg_nicept = []
 rg_oshen = []
 rg_ourbits = ['Our(?:Bits|TV)', 'FLTTH', 'Ao', 'PbK', 'MGs', 'iLove(?:HD|TV)']
+rg_piggo = ['PiGo(?:NF|(?:H|WE)B)']
+rg_ptchina = []
 rg_pterclub = ['PTer(?:|DIY|Game|(?:M|T)V|WEB)']
 rg_pthome = ['PTH(?:|Audio|eBook|music|ome|tv|WEB)']
 rg_ptmsg = []
@@ -51,13 +59,17 @@ rg_U2 = []
 rg_ultrahd = []
 
 #  其他常见组
-rg_other = ['B(?:MDru|eyondHD|TN)', 'C(?:fandora|trlhd|MRG)', 'EVO', 'FLUX', 'HONE', 'N(?:oGroup|T(?:b|G))', 'SMURF', 'TEPES']
+rg_other = ['B(?:MDru|eyondHD|TN)', 'C(?:fandora|trlhd|MRG)', 'DON', 'EVO', 'FLUX', 'HONE(?:|yG)', 'N(?:oGroup|T(?:b|G))', 'PandaMoon', 'SMURF', 'T(?:EPES|aengoo|rollHD )']
+rg_anime = ['ANi', 'HYSUB', 'KTXP', 'LoliHouse', 'MCE', 'Nekomoe kissaten', '(?:Lilith|NC)-Raws', '织梦字幕组']
 
-sites = [rg_1pt,
+sites = [rg_0ff,
+         rg_1pt,
          rg_52pt,
          rg_audiences,
+         rg_azusa,
          rg_beitai,
          rg_btschool,
+         rg_carpt,
          rg_chdbits,
          rg_discfan,
          rg_dragonhd,
@@ -73,10 +85,13 @@ sites = [rg_1pt,
          rg_hddolby,
          rg_hdfans,
          rg_hdhome,
+         rg_hdpt,
          rg_hdsky,
          rg_hdtime,
          rg_HDU,
+         rg_hdvideo,
          rg_hdzone,
+         rg_hhanclub,
          rg_hitpt,
          rg_htpt,
          rg_iptorrents,
@@ -88,6 +103,8 @@ sites = [rg_1pt,
          rg_nicept,
          rg_oshen,
          rg_ourbits,
+         rg_piggo,
+         rg_ptchina,
          rg_pterclub,
          rg_pthome,
          rg_ptmsg,
@@ -101,7 +118,8 @@ sites = [rg_1pt,
          rg_totheglory,
          rg_U2,
          rg_ultrahd,
-         rg_other]
+         rg_other,
+         rg_anime]
 
 #  正则 '[-@[]制作组名'，一般制作组前面会有'-'或者'@'或者'['
 release_groups = []
