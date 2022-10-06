@@ -238,7 +238,9 @@ class FileTransfer:
                     if sub_language and (sub_language.lower() in ["zh-cn", "cn", "zh", "zh_cn", "chs", "cht"]
                                          or "简" in sub_language
                                          or "中" in sub_language
-                                         or "双" in sub_language):
+                                         or "双" in sub_language
+                                         or "chs" in sub_language.lower()
+                                         or "cht" in sub_language.lower()):
                         new_file = os.path.splitext(new_name)[0] + ".zh-cn" + file_ext
                     else:
                         new_file = os.path.splitext(new_name)[0] + file_ext
