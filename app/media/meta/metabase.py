@@ -469,7 +469,8 @@ class MetaBase(object):
                          upload_volume_factor=None,
                          download_volume_factor=None,
                          rssid=None,
-                         hit_and_run=None):
+                         hit_and_run=None,
+                         imdbid=None):
         if site:
             self.site = site
         if site_order:
@@ -496,6 +497,8 @@ class MetaBase(object):
             self.rssid = rssid
         if hit_and_run is not None:
             self.hit_and_run = hit_and_run
+        if imdbid is not None:
+            self.imdb_id = imdbid
 
     # 判断电视剧是否为动漫
     def __get_tmdb_type(self, info):
