@@ -32,7 +32,7 @@ class ChromeHelper(object):
         options.add_argument('--no-sandbox')
         options.add_argument('--ignore-certificate-errors')
         options.add_argument('--disable-dev-shm-usage')
-        options.add_argument("start-maximized")
+        options.add_argument("--start-maximized")
         if self._ua:
             options.add_argument("user-agent=%s" % self._ua)
         if not os.environ.get("NASTOOL_CHROME"):
