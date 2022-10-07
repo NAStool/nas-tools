@@ -27,6 +27,8 @@ class ChromeHelper(object):
                 and self._executable_path \
                 and not os.path.exists(self._executable_path):
             return
+        if self._chrome:
+            self._chrome.quit()
         options = uc.ChromeOptions()
         options.add_argument('--disable-gpu')
         options.add_argument('--no-sandbox')
