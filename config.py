@@ -164,7 +164,9 @@ class Config(object):
                             'use_douban_titles': True,
                             'search_en_title': True,
                             'ignored_words': '',
-                            'replaced_words': ''
+                            'replaced_words': '',
+                            'offset_words': '',
+                            'chrome_browser': False
                         }
                         overwrite_cofig = True
                     # 安全配置初始化

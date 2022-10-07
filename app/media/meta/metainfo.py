@@ -55,9 +55,9 @@ def MetaInfo(title, subtitle=None, mtype=None):
                 back_word = offset_word_info[1]
                 offset_num = int(offset_word_info[2])
                 if back_word and not re.findall(r'%s' % back_word, title):
-                        continue
+                    continue
                 if front_word and not re.findall(r'%s' % front_word, title):
-                        continue
+                    continue
                 offset_word_info_re = re.compile(r'(?<=%s[\W\w]*)[0-9]+(?=[\W\w]*%s)' % (front_word, back_word))
                 episode_nums_str = re.findall(offset_word_info_re, title)
                 if not episode_nums_str:
@@ -72,7 +72,8 @@ def MetaInfo(title, subtitle=None, mtype=None):
                 else:
                     episode_nums_list = sorted(episode_nums_dict.items(), key=lambda x: x[1], reverse=True)
                 for episode_num in episode_nums_list:
-                    episode_offset_re = re.compile(r'(?<=%s[\W\w]*)%s(?=[\W\w]*%s)' % (front_word, episode_num[0], back_word))
+                    episode_offset_re = re.compile(
+                        r'(?<=%s[\W\w]*)%s(?=[\W\w]*%s)' % (front_word, episode_num[0], back_word))
                     title = re.sub(episode_offset_re, r'%s' % str(episode_num[1] + offset_num).zfill(2), title)
             except Exception as err:
                 print(err)
