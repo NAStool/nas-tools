@@ -35,7 +35,6 @@ class ChromeHelper(object):
         if not os.environ.get("NASTOOL_CHROME"):
             options.add_argument('--headless')
         options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
-        options.add_experimental_option("excludeSwitches", ["enable-automation"])
         options.add_experimental_option('useAutomationExtension', False)
         self._chrome = uc.Chrome(options=options, driver_executable_path=self._executable_path)
         self._chrome.set_page_load_timeout(30)
