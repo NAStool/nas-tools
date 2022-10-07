@@ -1,5 +1,4 @@
 import json
-import os
 import re
 import time
 import traceback
@@ -223,13 +222,19 @@ class Sites:
                     # 首页
                     log.info("【SITES】开始站点仿真签到：%s" % site)
                     home_url = "%s://%s" % StringUtils.get_url_netloc(site_url)
-                    browser.get(home_url)
-                    # 添加Cookie
-                    browser.delete_all_cookies()
-                    for cookie in RequestUtils.cookie_parse(site_cookie, array=True):
-                        browser.add_cookie(cookie)
-                    # 再次访问首页
-                    browser.get(home_url)
+                    try:
+                        browser.get(home_url)
+                        # 添加Cookie
+                        browser.delete_all_cookies()
+                        for cookie in RequestUtils.cookie_parse(site_cookie, array=True):
+                            browser.add_cookie(cookie)
+                        # 再次访问首页
+                        browser.get(home_url)
+                    except Exception as err:
+                        print(str(err))
+                        log.warn("【SITES】%s 无法打开网站" % site)
+                        status.append("【%s】无法打开网站！" % site)
+                        continue
                     # 循环检测是否过cf
                     cloudflare = False
                     for i in range(0, 10):
