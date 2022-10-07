@@ -279,6 +279,8 @@ class IIndexer(metaclass=ABCMeta):
             # 这些站副标题无意义，需要去除
             if indexer.id in self.__invalid_description_sites:
                 description = ""
+            if not torrent_name:
+                continue
             enclosure = item.get('enclosure')
             size = item.get('size')
             seeders = item.get('seeders')
