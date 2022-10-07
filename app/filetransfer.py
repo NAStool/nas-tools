@@ -117,7 +117,13 @@ class FileTransfer:
                 self.__min_filesize = min_filesize * 1024 * 1024
             elif isinstance(min_filesize, str) and min_filesize.isdigit():
                 self.__min_filesize = int(min_filesize) * 1024 * 1024
-            #文件转移忽略关键字
+            # 转移文件夹黑名单
+            self.__ignored_paths = media.get('ignored_paths')
+            if self.__ignored_paths:
+                self.__ignored_paths = self.__ignored_paths.split(';')
+            else:
+                self.__ignored_paths = []
+            # 文件转移忽略词
             self.__ignored_files = media.get('ignored_files')
             if self.__ignored_files:
                 self.__ignored_files = re.compile(r'%s' % re.sub(r';', r'|', self.__ignored_files))
@@ -498,11 +504,19 @@ class FileTransfer:
             # 传入的是个文件列表，这些文失件是in_path下面的文件
             file_list = files
 
-        #  过滤掉文件列表中包含文件转移忽略关键字的
+        #  过滤掉文件列表中上级文件夹在黑名单中的
+        if self.__ignored_paths:
+            for file in file_list:
+                if file.replace('\\', '/').split('/')[-2] in self.__ignored_paths:
+                    log.info("【RMT】%s 文件上级文件夹名称在黑名单中，已忽略转移" % file)
+                    file_list.remove(file)
+            if not file_list:
+                return True, "没有新文件需要处理"
+        #  过滤掉文件列表中包含文件转移忽略词的
         if self.__ignored_files:
             for file in file_list:
                 if re.findall(self.__ignored_files, file.replace('\\', '/').split('/')[-1]):
-                    log.info("【RMT】%s 包含文件转移忽略关键字，已忽略转移" % file)
+                    log.info("【RMT】%s 文件名包含文件转移忽略词，已忽略转移" % file)
                     file_list.remove(file)
             if not file_list:
                 return True, "没有新文件需要处理"
