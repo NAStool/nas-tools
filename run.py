@@ -46,7 +46,7 @@ if is_docker:
     try:
         display = Display(visible=False, size=(1920, 1080))
         display.start()
-        os.environ['NASTOOL_CHROME'] = 'YES'
+        os.environ['NASTOOL_DISPLAY'] = 'YES'
     except Exception as err:
         print(str(err))
 else:
