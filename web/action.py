@@ -15,7 +15,7 @@ from app.media.doubanv2api import DoubanHot
 from app.mediaserver import MediaServer
 from app.rsschecker import RssChecker
 from app.utils import StringUtils, Torrent, EpisodeFormat, RequestUtils, PathUtils, SystemUtils
-from app.helper import ProgressController, ThreadHelper, MetaHelper
+from app.helper import ProgressController, ThreadHelper, MetaHelper, ChromeHelper
 from app.utils.types import RMT_MODES
 from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
 from app.message import Telegram, WeChat, Message, MessageCenter
@@ -888,6 +888,7 @@ class WebAction:
         category_reload = False
         subtitle_reload = False
         sites_reload = False
+        chrome_reload = False
         # 修改配置
         for key, value in cfgs:
             if key == "test" and value:
@@ -914,6 +915,8 @@ class WebAction:
                 subtitle_reload = True
             if key.startswith("message.switch"):
                 sites_reload = True
+            if key.startswith("laboratory.chrome_browser"):
+                chrome_reload = True
         # 保存配置
         if not config_test:
             self.config.save_config(cfg)
@@ -945,6 +948,9 @@ class WebAction:
         # 重载站点
         if sites_reload:
             Sites().init_config()
+        # 重载浏览器
+        if chrome_reload:
+            ChromeHelper().init_config()
 
         return {"code": 0}
 

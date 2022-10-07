@@ -8,6 +8,7 @@ from app.utils.commons import singleton
 import undetected_chromedriver.v2 as uc
 
 from app.utils.types import OsType
+from config import Config
 
 
 @singleton
@@ -20,6 +21,8 @@ class ChromeHelper(object):
         self.init_config()
 
     def init_config(self):
+        if not Config().get_config('laboratory').get('chrome_browser'):
+            return
         if SystemUtils.get_system() == OsType.LINUX \
                 and self._executable_path \
                 and not os.path.exists(self._executable_path):

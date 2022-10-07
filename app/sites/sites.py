@@ -20,7 +20,7 @@ from app.utils.commons import singleton
 from app.utils import RequestUtils, StringUtils
 from app.helper import ChromeHelper
 from app.helper import SqlHelper
-from config import SITE_CHECKIN_XPATH, Config
+from config import SITE_CHECKIN_XPATH
 
 lock = Lock()
 
@@ -124,7 +124,7 @@ class Sites:
             else:
                 refresh_sites = [site for site in self.get_sites(statistic=True) if site.get("name") in specify_sites]
             refresh_all = len(self.get_sites(statistic=True)) == len(refresh_sites)
-            if Config().get_config('laboratory').get('chrome_browser'):
+            if ChromeHelper().get_browser():
                 site_user_infos = []
                 for site in refresh_sites:
                     site_user_info = self.__refresh_pt_data(site)
@@ -162,8 +162,7 @@ class Sites:
             site_user_info = SiteUserInfoFactory.build(url=site_url,
                                                        site_name=site_name,
                                                        site_cookie=site_cookie,
-                                                       ua=ua,
-                                                       chrome=Config().get_config('laboratory').get('chrome_browser'))
+                                                       ua=ua)
             if site_user_info:
                 log.debug(f"【SITES】站点 {site_name} 开始以 {site_user_info.site_schema()} 模型解析")
                 # 开始解析
@@ -226,7 +225,7 @@ class Sites:
                 if not site_url or not site_cookie:
                     log.warn("【SITES】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
                     continue
-                if browser.get_browser() and Config().get_config('laboratory').get('chrome_browser'):
+                if browser.get_browser():
                     # 首页
                     log.info("【SITES】开始站点仿真签到：%s" % site)
                     home_url = "%s://%s" % StringUtils.get_url_netloc(site_url)
