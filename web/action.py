@@ -981,7 +981,7 @@ class WebAction:
         if name:
             name = MetaInfo(title=name).get_name()
         if mtype:
-            if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV']:
+            if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV', '电影']:
                 SqlHelper.delete_rss_movie(title=name, year=year, rssid=rssid, tmdbid=tmdbid)
             else:
                 SqlHelper.delete_rss_tv(title=name, year=year, season=season, rssid=rssid, tmdbid=tmdbid)
@@ -1009,7 +1009,7 @@ class WebAction:
         rss_rule = data.get("rss_rule")
         rssid = data.get("rssid")
         if name and mtype:
-            if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV']:
+            if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV', '电影']:
                 mtype = MediaType.MOVIE
             else:
                 mtype = MediaType.TV
@@ -1050,7 +1050,12 @@ class WebAction:
                                                       rss_team=rss_team,
                                                       rss_rule=rss_rule,
                                                       rssid=rssid)
-        return {"code": code, "msg": msg, "page": page, "name": name}
+        if not rssid:
+            if mtype == MediaType.MOVIE:
+                rssid = SqlHelper.get_rss_movie_id(title=name, year=year, tmdbid=tmdbid or "DB:%s" % doubanid)
+            else:
+                rssid = SqlHelper.get_rss_tv_id(title=name, year=year, tmdbid=tmdbid or "DB:%s" % doubanid)
+        return {"code": code, "msg": msg, "page": page, "name": name, "rssid": rssid}
 
     @staticmethod
     def __re_identification(data):
@@ -1091,7 +1096,7 @@ class WebAction:
         page = data.get("page")
         doubanid = data.get("doubanid")
         rssid = data.get("rssid")
-        if mtype in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV']:
+        if mtype in ['hm', 'nm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV', '电影']:
             media_type = MediaType.MOVIE
         else:
             media_type = MediaType.TV
@@ -1413,7 +1418,7 @@ class WebAction:
     def __rss_detail(data):
         rssid = data.get("rssid")
         rsstype = data.get("rsstype")
-        if rsstype == "MOV":
+        if rsstype in ["MOV", "电影"]:
             rss = SqlHelper.get_rss_movies(rssid=rssid)
             if not rss:
                 return {"code": 1}
@@ -1425,7 +1430,8 @@ class WebAction:
                          "r_sites": r_sites,
                          "s_sites": s_sites,
                          "over_edition": over_edition,
-                         "filter": filter_map}
+                         "filter": filter_map,
+                         "type": "MOV"}
         else:
             rss = SqlHelper.get_rss_tvs(rssid=rssid)
             if not rss:
@@ -1439,7 +1445,8 @@ class WebAction:
                          "r_sites": r_sites,
                          "s_sites": s_sites,
                          "over_edition": over_edition,
-                         "filter": filter_map}
+                         "filter": filter_map,
+                         "type": "TV"}
 
         return {"code": 0, "detail": rssdetail}
 

@@ -167,12 +167,22 @@ def create_flask_app(config):
                                            GoPage=GoPage,
                                            LoginWallpaper=get_login_wallpaper())
                 else:
+                    RssSites = Sites().get_sites(rss=True)
+                    SearchSites = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers()]
+                    RuleGroups = FilterRule().get_rule_groups()
+                    RestypeDict = TORRENT_SEARCH_PARAMS.get("restype").keys()
+                    PixDict = TORRENT_SEARCH_PARAMS.get("pix").keys()
                     return render_template('navigation.html',
                                            GoPage=GoPage,
                                            UserName=username,
                                            UserPris=str(pris).split(","),
                                            SystemFlag=SystemFlag,
-                                           AppVersion=WebUtils.get_current_version())
+                                           AppVersion=WebUtils.get_current_version(),
+                                           RssSites=RssSites,
+                                           SearchSites=SearchSites,
+                                           RuleGroups=RuleGroups,
+                                           RestypeDict=RestypeDict,
+                                           PixDict=PixDict)
             else:
                 return render_template('login.html',
                                        GoPage=GoPage,
@@ -204,12 +214,22 @@ def create_flask_app(config):
                 login_user(user)
                 session.permanent = True if remember else False
                 pris = user_info.get("pris")
+                RssSites = Sites().get_sites(rss=True)
+                SearchSites = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers()]
+                RuleGroups = FilterRule().get_rule_groups()
+                RestypeDict = TORRENT_SEARCH_PARAMS.get("restype").keys()
+                PixDict = TORRENT_SEARCH_PARAMS.get("pix").keys()
                 return render_template('navigation.html',
                                        GoPage=GoPage,
                                        UserName=username,
                                        UserPris=str(pris).split(","),
                                        SystemFlag=SystemFlag,
-                                       AppVersion=WebUtils.get_current_version())
+                                       AppVersion=WebUtils.get_current_version(),
+                                       RssSites=RssSites,
+                                       SearchSites=SearchSites,
+                                       RuleGroups=RuleGroups,
+                                       RestypeDict=RestypeDict,
+                                       PixDict=PixDict)
             else:
                 return render_template('login.html',
                                        GoPage=GoPage,
@@ -559,17 +579,9 @@ def create_flask_app(config):
     @login_required
     def movie_rss():
         RssItems = SqlHelper.get_rss_movies()
-        RssSites = Sites().get_sites(rss=True)
-        SearchSites = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers()]
-        RuleGroups = FilterRule().get_rule_groups()
         return render_template("rss/movie_rss.html",
                                Count=len(RssItems),
-                               Items=RssItems,
-                               Sites=RssSites,
-                               SearchSites=SearchSites,
-                               RestypeDict=TORRENT_SEARCH_PARAMS.get("restype").keys(),
-                               PixDict=TORRENT_SEARCH_PARAMS.get("pix").keys(),
-                               RuleGroups=RuleGroups
+                               Items=RssItems
                                )
 
     # 电视剧订阅页面
@@ -577,17 +589,9 @@ def create_flask_app(config):
     @login_required
     def tv_rss():
         RssItems = SqlHelper.get_rss_tvs()
-        RssSites = Sites().get_sites(rss=True)
-        SearchSites = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers()]
-        RuleGroups = FilterRule().get_rule_groups()
         return render_template("rss/tv_rss.html",
                                Count=len(RssItems),
-                               Items=RssItems,
-                               Sites=RssSites,
-                               SearchSites=SearchSites,
-                               RestypeDict=TORRENT_SEARCH_PARAMS.get("restype").keys(),
-                               PixDict=TORRENT_SEARCH_PARAMS.get("pix").keys(),
-                               RuleGroups=RuleGroups
+                               Items=RssItems
                                )
 
     # 订阅日历页面
@@ -631,7 +635,8 @@ def create_flask_app(config):
         site_name = request.args.get("title")
         page = request.args.get("page") or 0
         keyword = request.args.get("keyword")
-        Results = WebAction().action("list_site_resources", {"id": site_id, "page": page, "keyword": keyword}).get("data") or []
+        Results = WebAction().action("list_site_resources", {"id": site_id, "page": page, "keyword": keyword}).get(
+            "data") or []
         SaveDirs = WebAction().get_download_dirs()
         return render_template("site/resources.html",
                                Results=Results,
@@ -1207,11 +1212,11 @@ def create_flask_app(config):
         offset_words = config.get_config('laboratory').get("offset_words")
         if offset_words:
             offset_words = offset_words.replace("||", "\n")
-        return render_template("setting/basic.html", 
-                               Config=config.get_config(), 
-                               Proxy=proxy, 
-                               Ignored_Words=ignored_words, 
-                               Replaced_Words=replaced_words, 
+        return render_template("setting/basic.html",
+                               Config=config.get_config(),
+                               Proxy=proxy,
+                               Ignored_Words=ignored_words,
+                               Replaced_Words=replaced_words,
                                Offset_Words=offset_words)
 
     # 目录同步页面

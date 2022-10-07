@@ -97,7 +97,7 @@
         var tmdbid = id;
       }
       if(!tmdbid || ["hm","nm","dbom","dbnm", "dbhm", "dbtop"].includes(type)){
-        add_rss_media(name, year, type, tmdbid, doubanid, "", "", function(){
+        add_rss_media(name, year, "MOV", tmdbid, doubanid, "", "", function(){
           add_red_heart(id, type, name, year);
         });
       }else{
@@ -105,11 +105,11 @@
         ajax_post("get_tvseason_list", {tmdbid: tmdbid}, function(ret){
           hide_wait_process();
           if(ret.seasons.length == 1){
-            add_rss_media(name, year, type, tmdbid, doubanid, "", "", function(){
+            add_rss_media(name, year, "TV", tmdbid, doubanid, "", "", function(){
               add_red_heart(id, type, name, year);
             });
           }else if(ret.seasons.length > 1){
-            show_rss_seasons_modal(name, year, type, tmdbid, doubanid, ret.seasons, function(){
+            show_rss_seasons_modal(name, year, "TV", tmdbid, doubanid, ret.seasons, function(){
               add_red_heart(id, type, name, year);
             });
           }else{

@@ -8,11 +8,11 @@
       </div>
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
-          <a href="javascript:show_add_rss_media_modal()" class="btn btn-primary d-none d-sm-inline-block">
+          <a href="javascript:show_add_movierss_media_modal()" class="btn btn-primary d-none d-sm-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             新增订阅
           </a>
-          <a href="javascript:show_add_rss_media_modal()" class="btn btn-primary d-sm-none btn-icon">
+          <a href="javascript:show_add_movierss_media_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           </a>
         </div>
@@ -26,7 +26,7 @@
     <div class="row row-cards">
       {% for Item in Items %}
       <div class="col-12 col-md-4 col-xl-3">
-        <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item[2] %}show_mediainfo_modal("MOV", "{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[2] }}", "movie_rss", "{{ Item[6] }}"){% else %}show_edit_rss_media_modal("{{ Item[6] }}"){% endif %}'>
+        <a class="card card-link card-link-pop rounded-3" href='javascript:{% if Item[2] %}show_mediainfo_modal("MOV", "{{ Item[0] }}", "{{ Item[1] }}", "{{ Item[2] }}", "movie_rss", "{{ Item[6] }}"){% else %}show_edit_rss_media_modal("{{ Item[6] }}", "MOV"){% endif %}'>
           <div class="text-center" style="overflow:hidden">
             <img class="rounded-top w-100" src="{{ Item[3] }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
           </div>
@@ -91,318 +91,23 @@
   </div>
 </div>
 {% endif %}
-<div class="modal modal-blur fade" id="modal-movie-rss" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="card border-top-0">
-        <div class="card-header">
-          <h5 class="modal-title" id="movie_rss_modal_title">新增订阅</h5>
-          <input type="hidden" id="movie_rssid">
-          <input type="hidden" id="movie_tmdbid">
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <label class="form-label required">电影</label>
-            <div class="row mb-3">
-              <div class="col-12 col-lg-8 mb-1">
-                <input type="text" value="" id="movie_name" class="form-control" placeholder="标题">
-              </div>
-              <div class="col-12 col-lg-4 mb-1">
-                <input type="text" value="" id="movie_year" class="form-control" placeholder="年份">
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-xl-4">
-              <div class="mb-3">
-                <label class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="key_match" onclick="javascript:change_match_check(this)">
-                  <span class="form-check-label">模糊匹配 <span class="form-help" title="开启后不检查TMDB是否有媒体信息，只要种子名称、标题、年份任一匹配关键字即会下载，此时标题可以配置正则表达式实现模糊匹配" data-bs-toggle="tooltip">?</span></span>
-                </label>
-              </div>
-            </div>
-            <div class="col-xl-4">
-              <div class="mb-3">
-                <label class="form-check form-switch">
-                  <input class="form-check-input" type="checkbox" id="over_edition" onclick="javascript:change_over_edition_check(this)">
-                  <span class="form-check-label">洗版 <span class="form-help" title="开启后RSS不检查媒体库是否已存在，命中即会下载" data-bs-toggle="tooltip">?</span></span>
-                </label>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <label class="form-label">过滤规则 <span class="form-help" title="质量、分辨率与过滤规则为“与”的关系，过滤规则不选择时将使用站点的过滤规则，站点也未设置过滤规则时将使用默认过滤规则" data-bs-toggle="tooltip">?</span></label>
-            <div class="row mb-3">
-              <div class="col-12 col-lg-3 mb-1">
-                <select class="form-select" id="rss_restype">
-                  <option value="" selected>全部</option>
-                  {% for restype in RestypeDict %}
-                  <option value="{{ restype }}">{{ restype }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="col-12 col-lg-3 mb-1">
-                <select class="form-select" id="rss_pix">
-                  <option value="" selected>全部</option>
-                  {% for pix in PixDict %}
-                  <option value="{{ pix }}">{{ pix }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="col-12 col-lg-3 mb-1">
-                <input type="text" value="" id="rss_team" class="form-control" placeholder="制作组/字幕组">
-              </div>
-              <div class="col-12 col-lg-3 mb-1">
-                <select class="form-select" id="rss_rule">
-                  <option value="" selected>请选择</option>
-                  {% for RuleGroup in RuleGroups %}
-                  <option value="{{ RuleGroup.id }}">{{ RuleGroup.name }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-          </div>
-          <div class="row rss_sites_container" id="rss_sites_div">
-            <div class="mb-3">
-              <label class="form-label">订阅站点</label>
-              <div class="form-selectgroup">
-                {% for site in Sites %}
-                 <label class="form-selectgroup-item">
-                  <input type="checkbox" name="sites" value="{{ site.name }}" class="form-selectgroup-input" checked>
-                  <span class="form-selectgroup-label">{{ site.name }}</span>
-                </label>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-          <div class="row rss_sites_container" id="rss_search_sites_div">
-            <div class="mb-3">
-              <label class="form-label">搜索站点</label>
-              <div class="form-selectgroup">
-                {% for site in SearchSites %}
-                <label class="form-selectgroup-item">
-                  <input type="checkbox" name="search_sites" value="{{ site.name }}" class="form-selectgroup-input" checked>
-                  <span class="form-selectgroup-label">{{ site.name }}</span>
-                </label>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <a href="javascript:rss_sites_select()" class="btn btn-link me-auto" id="rss_sites_select_btn">
-          取消全选
-        </a>
-        <a href="#" class="btn btn-link" id="rss_delete_btn">
-          取消订阅
-        </a>
-        <a href="javascript:add_rss_movie()" id="rss_add_btn" class="btn btn-primary">确定</a>
-      </div>
-    </div>
-  </div>
-</div>
 <script type="text/javascript">
-  //新增订阅
-  function add_rss_movie(){
-    var rssid = $("#movie_rssid").val();
-    var tmdbid = $("#movie_tmdbid").val();
-    var name = $("#movie_name").val();
-    var year = $("#movie_year").val();
-    var match = $("#key_match").prop("checked");
-    var rss_restype = $("#rss_restype").val();
-    var rss_pix = $("#rss_pix").val();
-    var rss_team = $("#rss_team").val();
-    var rss_rule = $("#rss_rule").val();
-    var over_edition = $("#over_edition").prop("checked");
-    if (!name) {
-      $("#movie_name").addClass("is-invalid");
-      return;
-    } else {
-      $("#movie_name").removeClass("is-invalid");
-    }
-    if (year && isNaN(year)) {
-      $("#movie_year").addClass("is-invalid");
-      return;
-    } else {
-      $("#movie_year").removeClass("is-invalid");
-    }
-    if(tmdbid && tmdbid.startsWith("DB:")){
-      var doubanid = tmdbid.replace("DB:", "");
-      tmdbid = "";
-    }else{
-      var doubanid = "";
-    }
-    //订阅站点
-    var sites = [];
-    var i = 0;
-    var checkall = true;
-    $("input[name='sites']").each(function(){
-      if($(this).prop("checked")){
-        sites[i] = $(this).val();
-        i = i + 1;
-      }else{
-        checkall = false;
-      }
-    });
-    if(checkall){
-      sites = [];
-    }
-    //搜索站点
-    var search_sites = [];
-    if(!match){
-      var i = 0;
-      var search_checkall = true;
-      $("input[name='search_sites']").each(function(){
-        if($(this).prop("checked")){
-          search_sites[i] = $(this).val();
-          i = i + 1;
-        }else{
-          search_checkall = false;
-        }
-      });
-      if(search_checkall){
-        search_sites = [];
-      }
-    }
-    var data = { "name": name,
-                 "type": "MOV",
-                 "year": year,
-                 "match": match,
-                 "sites": sites,
-                 "search_sites": search_sites,
-                 "rss_restype": rss_restype,
-                 "rss_pix": rss_pix,
-                 "rss_team": rss_team,
-                 "rss_rule": rss_rule,
-                 "over_edition": over_edition,
-                 "rssid": rssid,
-                 "tmdbid": tmdbid,
-                 "doubanid": doubanid};
-    $("#modal-movie-rss").modal("hide");
-    show_wait_process();
-    ajax_post("add_rss_media", data, function(ret){
-      hide_wait_process();
-      if(ret.code==0){
-        navmenu("movie_rss");
-      }else{
-        show_fail_modal(ret.name + " 订阅失败："+ ret.msg +"！");
-      }
-    });
-  }
-
-  //取消订阅
-  function remove_rss_movie(name, year, rssid){
-    $("#modal-movie-rss").modal('hide');
-    show_ask_modal("是否确认取消订阅 " + name + "？", function(){
-      hide_ask_modal();
-      remove_rss_media(name, year, "MOV", rssid, "movie_rss");
-    });
-  }
-
-  //RSS站点批量选择
-  rss_sites_select_all = true;
-  function rss_sites_select(){
-    if(rss_sites_select_all){
-      // 取消全选
-      $(".rss_sites_container").find("input[type=checkbox]").each(function(){
-        $(this).prop("checked",false);
-      });
-      rss_sites_select_all = false;
-      $("#rss_sites_select_btn").text("全选");
-    }else{
-      //全选
-      $(".rss_sites_container").find("input[type=checkbox]").each(function(){
-        $(this).prop("checked",true);
-      });
-      rss_sites_select_all = true;
-      $("#rss_sites_select_btn").text("取消全选");
-    }
-  }
-
-  // 选择模糊匹配
-  function change_match_check(obj){
-    if($(obj).prop("checked")){
-      $("#rss_search_sites_div").hide();
-      $("#over_edition").prop("checked", false);
-    }else{
-      $("#rss_search_sites_div").show();
-    }
-  }
-
-  // 选择洗版
-  function change_over_edition_check(obj){
-    if($(obj).prop("checked")){
-      $("#key_match").prop("checked", false);
-      $("#rss_search_sites_div").show();
-    }
-  }
-
   // 显示新增订阅
-  function show_add_rss_media_modal(){
-    $("#movie_rssid").val("");
-    $("#movie_tmdbid").val("");
-    $("#movie_rss_modal_title").text("新增订阅");
+  function show_add_movierss_media_modal(){
+    $("#rss_id").val("");
+    $("#rss_type").val("MOV");
+    $("#rss_tmdbid").val("");
+    $("#rss_modal_title").text("新增订阅");
     $("#key_match").prop("checked", false);
     $("#rss_search_sites_div").show();
+    $("#rss_tv_season_div").hide();
     $("#over_edition").prop("checked", false);
-    $("#movie_name").attr("readonly", false);
-    $("#movie_year").attr("readonly", false);
+    $("#rss_name").attr("readonly", false);
+    $("#rss_year").attr("readonly", false);
     $("#rss_delete_btn").hide();
-    $("#modal-movie-rss").modal('show');
-  }
-
-  // 显示编辑订阅
-  function show_edit_rss_media_modal(rssid){
-    $("#system-media-modal").modal('hide');
-    $("#movie_rssid").val(rssid);
-    $("#movie_rss_modal_title").text("编辑订阅");
-    show_wait_process();
-    ajax_post("rss_detail", {"rssid": rssid, "rsstype": "MOV"}, function(ret){
-      hide_wait_process();
-      if(ret.code==0){
-        $("#movie_tmdbid").val(ret.detail.tmdbid);
-        $("#movie_name").val(ret.detail.name);
-        $("#movie_name").attr("readonly", true);
-        $("#movie_year").val(ret.detail.year);
-        $("#movie_year").attr("readonly", true);
-        if(ret.detail.tmdbid){
-          $("#key_match").prop("checked", false);
-          $("#rss_search_sites_div").show();
-        }else{
-          $("#key_match").prop("checked", true);
-          $("#rss_search_sites_div").hide();
-          $("#over_edition").prop("checked", false);
-        }
-        if(ret.detail.over_edition){
-          $("#over_edition").prop("checked", true);
-        }else{
-          $("#over_edition").prop("checked", false);
-        }
-        $("#rss_restype").val(ret.detail.filter.restype);
-        $("#rss_pix").val(ret.detail.filter.pix);
-        $("#rss_team").val(ret.detail.filter.team);
-        $("#rss_rule").val(ret.detail.filter.rule);
-        $("#rss_sites_div").find("input[type=checkbox]").each(function(){
-          if(ret.detail.r_sites.length==0 || ret.detail.r_sites.includes($(this).val())){
-            $(this).prop("checked",true);
-          }else{
-            $(this).prop("checked",false);
-          }
-        });
-        $("#rss_search_sites_div").find("input[type=checkbox]").each(function(){
-          if(ret.detail.s_sites.length==0 || ret.detail.s_sites.includes($(this).val())){
-            $(this).prop("checked",true);
-          }else{
-            $(this).prop("checked",false);
-          }
-        });
-        $("#rss_delete_btn").attr("href", 'javascript:remove_rss_movie("'+ret.detail.name+'","'+ret.detail.year+'","'+rssid+'")');
-        $("#rss_delete_btn").show();
-        $("#modal-movie-rss").modal('show');
-      }
-    });
+    $("#rss_name").attr("readonly", false);
+    $("#rss_year").attr("readonly", false);
+    $("#modal-manual-rss").modal('show');
   }
 
 </script>
