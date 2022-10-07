@@ -117,6 +117,12 @@ class FileTransfer:
                 self.__min_filesize = min_filesize * 1024 * 1024
             elif isinstance(min_filesize, str) and min_filesize.isdigit():
                 self.__min_filesize = int(min_filesize) * 1024 * 1024
+            #文件转移忽略关键字
+            self.__ignored_files = media.get('ignored_files')
+            if self.__ignored_files:
+                self.__ignored_files = re.compile(r'%s' % re.sub(r';', r'|', self.__ignored_files))
+            else:
+                self.__ignored_files = ''
             # 高质量文件覆盖
             self.__filesize_cover = media.get('filesize_cover')
             # 电影重命名格式
@@ -492,6 +498,14 @@ class FileTransfer:
             # 传入的是个文件列表，这些文失件是in_path下面的文件
             file_list = files
 
+        #  过滤掉文件列表中包含文件转移忽略关键字的
+        if self.__ignored_files:
+            for file in file_list:
+                if re.findall(self.__ignored_files, file):
+                    log.info("【RMT】%s 包含文件转移忽略关键字，已忽略转移" % file)
+                    file_list.remove(file)
+            if not file_list:
+                return True, "没有新文件需要处理"
         # 目录同步模式下，过滤掉文件列表中已处理过的
         if in_from == SyncType.MON:
             file_list = list(filter(SqlHelper.is_transfer_notin_blacklist, file_list))
