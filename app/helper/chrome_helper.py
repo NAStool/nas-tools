@@ -5,7 +5,7 @@ from functools import reduce
 
 from app.utils import SystemUtils
 from app.utils.commons import singleton
-import undetected_chromedriver as uc
+import undetected_chromedriver.v2 as uc
 
 from app.utils.types import OsType
 
@@ -33,12 +33,13 @@ class ChromeHelper(object):
         options.add_argument('--ignore-certificate-errors')
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument("--start-maximized")
+        options.add_argument("--disable-blink-features=AutomationControlled")
+        options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
         if self._ua:
             options.add_argument("user-agent=%s" % self._ua)
-        if not os.environ.get("NASTOOL_CHROME"):
+        if not os.environ.get("NASTOOL_DISPLAY"):
             options.add_argument('--headless')
         prefs = {
-            "profile.default_content_setting_values.images": 2,
             "useAutomationExtension": False,
             "excludeSwitches": ["enable-automation"]
         }
