@@ -71,9 +71,6 @@ def create_flask_app(config):
     # API注册
     App.register_blueprint(apiv1, url_prefix="/api/v1")
 
-    # 加载壁纸
-    get_login_wallpaper()
-
     @App.after_request
     def add_header(r):
         """

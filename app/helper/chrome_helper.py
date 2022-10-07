@@ -3,7 +3,7 @@ import os.path
 import tempfile
 from functools import reduce
 
-from app.utils import SystemUtils
+from app.utils import SystemUtils, RequestUtils
 from app.utils.commons import singleton
 import undetected_chromedriver.v2 as uc
 
@@ -15,11 +15,8 @@ class ChromeHelper(object):
 
     _executable_path = "/usr/lib/chromium/chromedriver" if SystemUtils.is_docker() else None
     _chrome = None
-    _display = None
-    _ua = None
 
-    def __init__(self, ua=None):
-        self._ua = ua
+    def __init__(self):
         self.init_config()
 
     def init_config(self):
@@ -35,8 +32,6 @@ class ChromeHelper(object):
         options.add_argument("--start-maximized")
         options.add_argument("--disable-blink-features=AutomationControlled")
         options.add_argument('--no-first-run --no-service-autorun --password-store=basic')
-        if self._ua:
-            options.add_argument("user-agent=%s" % self._ua)
         if not os.environ.get("NASTOOL_DISPLAY"):
             options.add_argument('--headless')
         prefs = {
@@ -50,11 +45,27 @@ class ChromeHelper(object):
     def get_browser(self):
         return self._chrome
 
+    def visit(self, url, ua=None, cookie=None):
+        self._chrome.get(url)
+        if ua:
+            self._chrome.execute_cdp_cmd("Emulation.setUserAgentOverride", {
+                "userAgent": ua
+            })
+        if cookie:
+            self._chrome.delete_all_cookies()
+            for cookie in RequestUtils.cookie_parse(cookie, array=True):
+                self._chrome.add_cookie(cookie)
+            self._chrome.get(url)
+
+    def get_title(self):
+        return self._chrome.title
+
+    def get_html(self):
+        return self._chrome.page_source
+
     def __del__(self):
         if self._chrome:
             self._chrome.quit()
-        if self._display:
-            self._display.stop()
 
 
 class ChromeWithPrefs(uc.Chrome):

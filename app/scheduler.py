@@ -1,7 +1,7 @@
 import math
 import random
 import traceback
-from datetime import datetime
+import datetime
 
 from apscheduler.schedulers.background import BackgroundScheduler
 
@@ -187,7 +187,10 @@ class Scheduler:
         self.SCHEDULER.add_job(Rss().rsssearch, 'interval', seconds=RSS_CHECK_INTERVAL)
 
         # 站点数据刷新
-        self.SCHEDULER.add_job(Sites().refresh_pt_date_now, 'interval', hours=REFRESH_PT_DATA_INTERVAL)
+        self.SCHEDULER.add_job(Sites().refresh_pt_date_now,
+                               'interval',
+                               hours=REFRESH_PT_DATA_INTERVAL,
+                               next_run_time=datetime.datetime.now()+datetime.timedelta(minutes=1))
 
         # 豆瓣RSS转TMDB，定时更新TMDB数据
         self.SCHEDULER.add_job(Rss().refresh_rss_metainfo, 'interval', hours=RSS_REFRESH_TMDB_INTERVAL)
@@ -196,7 +199,10 @@ class Scheduler:
         self.SCHEDULER.add_job(MetaHelper().delete_unknown_meta, 'interval', hours=META_DELETE_UNKNOWN_INTERVAL)
 
         # 定时刷新壁纸
-        self.SCHEDULER.add_job(get_login_wallpaper, 'interval', hours=REFRESH_WALLPAPER_INTERVAL)
+        self.SCHEDULER.add_job(get_login_wallpaper,
+                               'interval',
+                               hours=REFRESH_WALLPAPER_INTERVAL,
+                               next_run_time=datetime.datetime.now())
 
         self.SCHEDULER.print_jobs()
 
@@ -215,9 +221,9 @@ class Scheduler:
             print(str(e))
 
     def start_data_site_signin_job(self, hour, minute):
-        year = datetime.now().year
-        month = datetime.now().month
-        day = datetime.now().day
+        year = datetime.datetime.now().year
+        month = datetime.datetime.now().month
+        day = datetime.datetime.now().day
         # 随机数从1秒开始，不在整点签到
         second = random.randint(1, 59)
         log.info("【RUN】站点自动签到时间 即将在%s-%s-%s,%s:%s:%s签到" % (
@@ -231,7 +237,7 @@ class Scheduler:
             return
         self.SCHEDULER.add_job(Sites().signin,
                                "date",
-                               run_date=datetime(year, month, day, hour, minute, second))
+                               run_date=datetime.datetime(year, month, day, hour, minute, second))
 
 
 def run_scheduler():

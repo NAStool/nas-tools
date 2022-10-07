@@ -433,3 +433,5 @@ laboratory:
   replaced_words:
   # 【自定义识别集数偏移】
   offset_words:
+  # 【使用浏览器仿真】
+  chrome_browser: false
