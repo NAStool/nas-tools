@@ -125,17 +125,22 @@ class Sites:
                 refresh_sites = [site for site in self.get_sites(statistic=True) if site.get("name") in specify_sites]
 
             refresh_all = len(self.get_sites(statistic=True)) == len(refresh_sites)
-
+            site_user_infos = []
+            for site in refresh_sites:
+                site_user_info = self.__refresh_pt_data(site)
+                if site_user_info:
+                    site_user_infos.append(site_user_info)
+            """
             with ThreadPool(min(len(refresh_sites), self._MAX_CONCURRENCY)) as p:
                 site_user_infos = p.map(self.__refresh_pt_data, refresh_sites)
                 site_user_infos = [info for info in site_user_infos if info]
-
-                # 登记历史数据
-                SqlHelper.insert_site_statistics_history(site_user_infos)
-                # 实时用户数据
-                SqlHelper.update_site_user_statistics(site_user_infos)
-                # 实时做种信息
-                SqlHelper.update_site_seed_info(site_user_infos)
+            """
+            # 登记历史数据
+            SqlHelper.insert_site_statistics_history(site_user_infos)
+            # 实时用户数据
+            SqlHelper.update_site_user_statistics(site_user_infos)
+            # 实时做种信息
+            SqlHelper.update_site_seed_info(site_user_infos)
 
         # 更新时间
         if refresh_all:
@@ -205,6 +210,8 @@ class Sites:
         站点签到入口，由定时服务调用
         """
         status = []
+        # 浏览器
+        browser = ChromeHelper()
         for site_info in self.get_sites(signin=True):
             if not site_info:
                 continue
@@ -216,20 +223,12 @@ class Sites:
                 if not site_url or not site_cookie:
                     log.warn("【SITES】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
                     continue
-                # 检测环境，有浏览器内核的优先使用仿真签到
-                browser = ChromeHelper(ua=ua).get_browser()
-                if browser:
+                if browser.get_browser():
                     # 首页
                     log.info("【SITES】开始站点仿真签到：%s" % site)
                     home_url = "%s://%s" % StringUtils.get_url_netloc(site_url)
                     try:
-                        browser.get(home_url)
-                        # 添加Cookie
-                        browser.delete_all_cookies()
-                        for cookie in RequestUtils.cookie_parse(site_cookie, array=True):
-                            browser.add_cookie(cookie)
-                        # 再次访问首页
-                        browser.get(home_url)
+                        browser.visit(url=home_url, ua=ua, cookie=site_cookie)
                     except Exception as err:
                         print(str(err))
                         log.warn("【SITES】%s 无法打开网站" % site)
@@ -238,7 +237,7 @@ class Sites:
                     # 循环检测是否过cf
                     cloudflare = False
                     for i in range(0, 10):
-                        if browser.title != "Just a moment...":
+                        if browser.get_title() != "Just a moment...":
                             cloudflare = True
                             break
                         time.sleep(1)
@@ -247,12 +246,12 @@ class Sites:
                         status.append("【%s】跳转站点失败！" % site)
                         continue
                     # 判断是否已签到
-                    html_text = browser.page_source
-                    html = etree.HTML(html_text)
+                    html_text = browser.get_html()
                     if not html_text:
                         log.warn("【SITES】%s 获取站点源码失败" % site)
                         continue
                     # 查找签到按钮
+                    html = etree.HTML(html_text)
                     xpath_str = None
                     for xpath in SITE_CHECKIN_XPATH:
                         if html.xpath(xpath):
@@ -273,7 +272,7 @@ class Sites:
                         continue
                     # 开始仿真
                     try:
-                        checkin_obj = WebDriverWait(driver=browser, timeout=6).until(
+                        checkin_obj = WebDriverWait(driver=browser.get_browser(), timeout=6).until(
                             es.element_to_be_clickable((By.XPATH, xpath_str)))
                         if checkin_obj:
                             checkin_obj.click()
