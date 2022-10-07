@@ -21,14 +21,14 @@ class ChromeHelper(object):
         self.init_config()
 
     def init_config(self):
+        if self._chrome:
+            self._chrome.quit()
         if not Config().get_config('laboratory').get('chrome_browser'):
             return
         if SystemUtils.get_system() == OsType.LINUX \
                 and self._executable_path \
                 and not os.path.exists(self._executable_path):
             return
-        if self._chrome:
-            self._chrome.quit()
         options = uc.ChromeOptions()
         options.add_argument('--disable-gpu')
         options.add_argument('--no-sandbox')
