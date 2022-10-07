@@ -501,7 +501,7 @@ class FileTransfer:
         #  过滤掉文件列表中包含文件转移忽略关键字的
         if self.__ignored_files:
             for file in file_list:
-                if re.findall(self.__ignored_files, file):
+                if re.findall(self.__ignored_files, file.replace('\\', '/').split('/')[-1]):
                     log.info("【RMT】%s 包含文件转移忽略关键字，已忽略转移" % file)
                     file_list.remove(file)
             if not file_list:
