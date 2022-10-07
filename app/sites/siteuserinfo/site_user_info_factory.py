@@ -16,14 +16,14 @@ from app.utils import RequestUtils
 
 class SiteUserInfoFactory(object):
     @staticmethod
-    def build(url, site_name, site_cookie=None, ua=None):
+    def build(url, site_name, site_cookie=None, ua=None, chrome=False):
         if not site_cookie:
             return None
         log.debug(f"【PT】站点 {site_name} site_cookie={site_cookie} ua={ua}")
         session = requests.Session()
         # 检测环境，有浏览器内核的优先使用仿真签到
         browser = ChromeHelper()
-        if browser.get_browser():
+        if browser.get_browser() and chrome:
             try:
                 browser.visit(url=url, ua=ua, cookie=site_cookie)
             except Exception as err:

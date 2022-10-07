@@ -159,7 +159,11 @@ class Sites:
         ua = site_info.get("ua")
         unread_msg_notify = site_info.get("unread_msg_notify")
         try:
-            site_user_info = SiteUserInfoFactory.build(url=site_url, site_name=site_name, site_cookie=site_cookie, ua=ua)
+            site_user_info = SiteUserInfoFactory.build(url=site_url,
+                                                       site_name=site_name,
+                                                       site_cookie=site_cookie,
+                                                       ua=ua,
+                                                       chrome=Config().get_config('laboratory').get('chrome_browser'))
             if site_user_info:
                 log.debug(f"【SITES】站点 {site_name} 开始以 {site_user_info.site_schema()} 模型解析")
                 # 开始解析
