@@ -1050,7 +1050,12 @@ class WebAction:
                                                       rss_team=rss_team,
                                                       rss_rule=rss_rule,
                                                       rssid=rssid)
-        return {"code": code, "msg": msg, "page": page, "name": name}
+        if not rssid:
+            if mtype == MediaType.MOVIE:
+                rssid = SqlHelper.get_rss_movie_id(title=name, year=year, tmdbid=tmdbid or "DB:%s" % doubanid)
+            else:
+                rssid = SqlHelper.get_rss_tv_id(title=name, year=year, tmdbid=tmdbid or "DB:%s" % doubanid)
+        return {"code": code, "msg": msg, "page": page, "name": name, "rssid": rssid}
 
     @staticmethod
     def __re_identification(data):

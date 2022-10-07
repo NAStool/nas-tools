@@ -659,7 +659,7 @@
       </div>
     </div>
   </div>
-  <!-- 确认提示框 -->
+  <!-- 危险确认提示框 -->
   <div class="modal modal-blur fade" id="system-confirm-modal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
       <div class="modal-content">
@@ -686,6 +686,42 @@
               </div>
               <div class="col">
                 <button class="btn btn-danger w-100" id="system_confirm_btn">
+                  确定
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 成功带后续操作提示框 -->
+  <div class="modal modal-blur fade" id="system-success-action-modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="modal-status bg-success"></div>
+        <div class="modal-body text-center py-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-green icon-lg" width="24" height="24"
+            viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+            stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9 12l2 2l4 -4" />
+          </svg>
+          <h3>成功</h3>
+          <div class="text-muted" id="system_success_action_message">操作成功！</div>
+        </div>
+        <div class="modal-footer">
+          <div class="w-100">
+            <div class="row">
+              <div class="col">
+                <a href="#" class="btn w-100 btn-secondary" data-bs-dismiss="modal">
+                  关闭
+                </a>
+              </div>
+              <div class="col">
+                <button class="btn btn-success w-100" id="system_success_action_btn">
                   确定
                 </button>
               </div>
@@ -1237,12 +1273,13 @@
       ajax_post("add_rss_media", data, function (ret) {
         hide_wait_process();
         if (ret.code == 0) {
-          if(func){
-            func();
-          }else if (ret.page) {
+          if (ret.page) {
             navmenu(ret.page);
           } else {
-            show_success_modal(ret.name + " 添加订阅成功！");
+            if(func){
+              func();
+            }
+            show_rss_success_modal(ret.rssid, type, name + " 添加订阅成功！")
           }
         } else {
           show_fail_modal(ret.name + " 添加订阅失败：" + ret.msg + "！");
@@ -1386,7 +1423,7 @@
           search_sites = [];
         }
       }
-      var data = { "name": name,
+      var data = {"name": name,
                   "type": rsstype,
                   "year": year,
                   "season": season,
@@ -1411,7 +1448,7 @@
           }else if (CURRENT_PAGE_URI.startsWith("movie_rss")){
             navmenu("movie_rss");
           }else{
-            show_success_modal(ret.name + " 订阅成功！");
+            show_rss_success_modal(ret.rssid, type, name + " 添加订阅成功！")
           }
         }else{
           show_fail_modal(ret.name + " 订阅失败："+ ret.msg +"！");
@@ -1543,6 +1580,17 @@
           $("#modal-manual-rss").modal('show');
         }
       });
+    }
+
+    // 显示订阅成功（带后续操作）
+    function show_rss_success_modal(rssid, type, text){
+      $("#system_success_action_message").text(text);
+      $("#system_success_action_btn").text("编辑订阅");
+      $("#system_success_action_btn").unbind('click').click(function(){
+        $("#system-success-action-modal").modal('hide');
+        show_edit_rss_media_modal(rssid, type);
+      });
+      $("#system-success-action-modal").modal('show');
     }
 
   </script>
