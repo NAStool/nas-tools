@@ -22,16 +22,10 @@ class SiteUserInfoFactory(object):
         log.debug(f"【PT】站点 {site_name} site_cookie={site_cookie} ua={ua}")
         session = requests.Session()
         # 检测环境，有浏览器内核的优先使用仿真签到
-        browser = ChromeHelper(ua=ua).get_browser()
-        if browser:
+        browser = ChromeHelper()
+        if browser.get_browser():
             try:
-                browser.get(url)
-                # 添加Cookie
-                browser.delete_all_cookies()
-                for cookie in RequestUtils.cookie_parse(site_cookie, array=True):
-                    browser.add_cookie(cookie)
-                # 再次访问首页
-                browser.get(url)
+                browser.visit(url=url, ua=ua, cookie=site_cookie)
             except Exception as err:
                 print(str(err))
                 log.error("【SITES】%s 无法打开网站" % site_name)
@@ -39,7 +33,7 @@ class SiteUserInfoFactory(object):
             # 循环检测是否过cf
             cloudflare = False
             for i in range(0, 10):
-                if browser.title != "Just a moment...":
+                if browser.get_title() != "Just a moment...":
                     cloudflare = True
                     break
                 time.sleep(1)
@@ -47,7 +41,7 @@ class SiteUserInfoFactory(object):
                 log.error("【SITES】%s 跳转站点失败" % site_name)
                 return None
             # 判断是否已签到
-            html_text = browser.page_source
+            html_text = browser.get_html()
         else:
             res = RequestUtils(cookies=site_cookie, session=session, headers=ua).get_res(url=url)
             if res and res.status_code == 200:

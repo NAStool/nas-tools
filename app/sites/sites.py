@@ -20,7 +20,7 @@ from app.utils.commons import singleton
 from app.utils import RequestUtils, StringUtils
 from app.helper import ChromeHelper
 from app.helper import SqlHelper
-from config import SITE_CHECKIN_XPATH
+from config import SITE_CHECKIN_XPATH, Config
 
 lock = Lock()
 
@@ -123,18 +123,17 @@ class Sites:
                 refresh_sites = self.get_sites(statistic=True)
             else:
                 refresh_sites = [site for site in self.get_sites(statistic=True) if site.get("name") in specify_sites]
-
             refresh_all = len(self.get_sites(statistic=True)) == len(refresh_sites)
-            site_user_infos = []
-            for site in refresh_sites:
-                site_user_info = self.__refresh_pt_data(site)
-                if site_user_info:
-                    site_user_infos.append(site_user_info)
-            """
-            with ThreadPool(min(len(refresh_sites), self._MAX_CONCURRENCY)) as p:
-                site_user_infos = p.map(self.__refresh_pt_data, refresh_sites)
-                site_user_infos = [info for info in site_user_infos if info]
-            """
+            if Config().get_config('laboratory').get('chrome_browser'):
+                site_user_infos = []
+                for site in refresh_sites:
+                    site_user_info = self.__refresh_pt_data(site)
+                    if site_user_info:
+                        site_user_infos.append(site_user_info)
+            else:
+                with ThreadPool(min(len(refresh_sites), self._MAX_CONCURRENCY)) as p:
+                    site_user_infos = p.map(self.__refresh_pt_data, refresh_sites)
+                    site_user_infos = [info for info in site_user_infos if info]
             # 登记历史数据
             SqlHelper.insert_site_statistics_history(site_user_infos)
             # 实时用户数据
@@ -223,7 +222,7 @@ class Sites:
                 if not site_url or not site_cookie:
                     log.warn("【SITES】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
                     continue
-                if browser.get_browser():
+                if browser.get_browser() and Config().get_config('laboratory').get('chrome_browser'):
                     # 首页
                     log.info("【SITES】开始站点仿真签到：%s" % site)
                     home_url = "%s://%s" % StringUtils.get_url_netloc(site_url)
