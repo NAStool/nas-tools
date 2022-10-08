@@ -554,7 +554,7 @@
     var ids = [];
     var i = 0;
     $("input[type=checkbox]").each(function () {
-      if ($(this).prop("checked")) {
+      if ($(this).prop("checked") && $(this).attr("id")) {
         ids[i] = $(this).attr("id").replace("check_", "");
         i = i + 1;
       }
