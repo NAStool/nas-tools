@@ -317,10 +317,15 @@
     var i = 0;
     $("input[type=checkbox]").each(function(){
       if ($(this).prop("checked")) {
-        id = $(this).attr("id").replace("check_", "");
-        name = $("#title_" + id).val();
-        total_downloads[i] = {id: id, name: name}
-        i = i + 1;
+        checkid = $(this).attr("id");
+        if (checkid && checkid.startsWith("check_")) {
+          id = checkid.replace("check_", "");
+          name = $("#title_" + id).val();
+          if (name){
+            total_downloads[i] = {id: id, name: name}
+            i = i + 1;
+          }
+        }
       }
     });
     if(total_downloads.length == 0){
