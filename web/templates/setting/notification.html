@@ -210,7 +210,7 @@
               <div class="mb-3">
                 <label class="form-check form-switch">
                   <input class="form-check-input" type="checkbox" id="webhook" {% if  Config.message.telegram.webhook %}checked{% endif %}>
-                  <span class="form-check-label">WebHook <span class="form-help" title="Telegram回调开关，打开后可以实现远程控制，需要在基础设置为正确配置好外网访问地址；受Telegram官方限制，外网访问地址需要设置为以下端口之一：443, 80, 88, 8443，且需要有公网认证的可信SSL证书" data-bs-toggle="tooltip">?</span></span>
+                  <span class="form-check-label">WebHook <span class="form-help" title="Telegram机器人消息有两种模式：WebHook或消息轮循；开启后将使用WebHook方式，需要在基础设置中正确配置好外网访问地址，同时受Telegram官方限制，外网访问地址需要设置为以下端口之一：443, 80, 88, 8443，且需要有公网认证的可信SSL证书；关闭后将使用消息轮循方式，使用该方式时，需要在基础设置->安全处将Telegram ipv4源地址设置为127.0.0.1，推荐关闭WebHook" data-bs-toggle="tooltip">?</span></span>
                 </label>
               </div>
             </div>
