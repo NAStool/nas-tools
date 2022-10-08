@@ -4,7 +4,7 @@ from urllib.parse import quote
 from pyquery import PyQuery
 
 import log
-from app.helper import ChromeHelper
+from app.helper import ChromeHelper, CHROME_LOCK
 from config import Config
 
 
@@ -42,23 +42,20 @@ class SubHelper:
         搜索并解析结果
         """
         # 检测环境，有浏览器内核的优先使用仿真签到
-        browser = ChromeHelper(cls._ua).get_browser()
-        if not browser:
+        browser = ChromeHelper()
+        if not browser.get_browser():
             log.error("【SUBTITLE】未找到浏览器内核，当前环境无法检索opensubtitles字幕！")
             return []
-        # 访问页面
-        browser.get(url)
-        # 源码
-        html_text = browser.page_source
-        if not html_text:
-            log.error("【SUBTITLE】无法连接opensubtitles.org！")
-            return []
-        # Cookie
-        cookies = browser.get_cookies()
-        for cookie in cookies:
-            if not cookie:
-                continue
-            cls._cookie += "%s=%s;" % (cookie.get("name"), cookie.get("value"))
+        with CHROME_LOCK:
+            # 访问页面
+            browser.visit(url)
+            # 源码
+            html_text = browser.get_html()
+            if not html_text:
+                log.error("【SUBTITLE】无法连接opensubtitles.org！")
+                return []
+            # Cookie
+            cls._cookie = browser.get_cookies()
         # 解析列表
         ret_subtitles = []
         html_doc = PyQuery(html_text)
