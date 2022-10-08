@@ -10,7 +10,7 @@ from config import Config
 @lru_cache(maxsize=1)
 def get_login_wallpaper(today=datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%d')):
     """
-    获取Base64编码的避纸图片
+    获取Base64编码的壁纸图片
     """
     wallpaper = Config().get_config('app').get('wallpaper')
     tmdbkey = Config().get_config('app').get('rmt_tmdbkey')
@@ -34,7 +34,7 @@ def __get_themoviedb_wallpaper(today):
 
 def __get_bing_wallpaper(today):
     """
-    获取Bing每日避纸
+    获取Bing每日壁纸
     """
     url = "http://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&today=%s" % today
     try:
