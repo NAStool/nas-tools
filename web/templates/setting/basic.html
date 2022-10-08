@@ -174,6 +174,18 @@
             <div class="row">
               <div class="col-lg">
                 <div class="mb-3">
+                  <label class="form-label">转移文件夹黑名单 <span class="form-help" title="文件所在上级文件夹名称在黑名单中的，忽略转移" data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.media.ignored_paths or '' }}" class="form-control" id="media.ignored_paths" placeholder="使用;分隔" autocomplete="off">
+                </div>
+              </div>
+              <div class="col-lg">
+                <div class="mb-3">
+                  <label class="form-label">文件转移忽略词 <span class="form-help" title="文件名（包括扩展名）包含忽略词的，忽略转移，支持正则表达式，注意特殊字符转义" data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Config.media.ignored_files or '' }}" class="form-control" id="media.ignored_files" placeholder="支持正则表达式，使用;分隔" autocomplete="off">
+                </div>
+              </div>
+              <div class="col-lg">
+                <div class="mb-3">
                   <label class="form-label required">下载优先规则 <span class="form-help" title="订阅及远程搜索下载将按此优先规则选择下载资源，其中站点优先决定于维护的站点优先级或索引器中配置的站点顺序，默认为站点优先" data-bs-toggle="tooltip">?</span></label>
                   <select class="form-select" id="pt.download_order">
                     <option value="" {% if not Config.pt.download_order %}selected{% endif %}>默认</option>
