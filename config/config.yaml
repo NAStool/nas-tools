@@ -213,9 +213,10 @@ message:
     telegram_chat_id:
     # 允许使用telegram机器人的user id，使用,分隔
     telegram_user_ids:
-    # 【webhook开关】：打开该开关会对该机器人设置WebHook，实现在聊天窗口运行服务及进行远程资源检索下载，只有管理员用户可以使用命令
-    # 注意：受Telegram限制，程序外网访问地址需要设置为以下端口之一：443, 80, 88, 8443，且需要有公网认证的可信SSL证书
-    webhook: true
+    # 【webhook开关】：Telegram机器人消息有两种模式：WebHook或消息轮循；
+    # 开启后将使用WebHook方式，需要在基础设置为正确配置好外网访问地址，同时受Telegram官方限制，外网访问地址需要设置为以下端口之一：443, 80, 88, 8443，且需要有公网认证的可信SSL证书
+    # 关闭后将使用消息轮循方式，推荐关闭
+    webhook: false
   # 【Bark通知】，手机上安装Bark客户端，Server可以使用默认的也可以自己搭建，自己搭建的更换为服务器地址和端口，格式：http(s)://IP:PORT
   bark:
     # 自己搭建请更换，否则保持默认
