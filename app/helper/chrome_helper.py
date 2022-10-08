@@ -23,8 +23,8 @@ class ChromeHelper(object):
     def init_config(self):
         if self._chrome:
             self._chrome.quit()
-        if not Config().get_config('laboratory').get('chrome_browser'):
             self._chrome = None
+        if not Config().get_config('laboratory').get('chrome_browser'):
             return
         if SystemUtils.get_system() == OsType.LINUX \
                 and self._executable_path \
