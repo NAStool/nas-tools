@@ -358,7 +358,7 @@
               </div>
               <div class="col-12 col-lg">
                 <div class="mb-1">
-                  <label class="form-label">Telegram Webhook源地址 <span class="form-help" title="仅允许配置的地址范围内地址调用Webhook，多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制" data-bs-toggle="tooltip">?</span></label>
+                  <label class="form-label">Telegram源地址 <span class="form-help" title="仅接收配置的地址范围内发送的Telegram消息，多个地址段用,号分隔，配置为0.0.0.0/0,::/0则不做限制；使用Telegram WebHook且未做代理转发时推荐IPv4地址设置为：149.154.160.0/20,91.108.4.0/22，关闭Telegram WebHook时推荐IPv4地址设置为：127.0.0.1" data-bs-toggle="tooltip">?</span></label>
                   <input type="text" value="{% if Config.security.telegram_webhook_allow_ip %}{{ Config.security.telegram_webhook_allow_ip.ipv4 or '' }}{% endif %}" class="form-control" id="security.telegram_webhook_allow_ip.ipv4" placeholder="允许的IPv4 CIDR" autocomplete="off">
                 </div>
                 <div class="mb-3">

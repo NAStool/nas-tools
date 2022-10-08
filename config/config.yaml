@@ -417,7 +417,7 @@ security:
     ipv6: ::/0
   # 【Telegram webhook允许ip范围】：即只有如下范围的IP才允许调用webhook
   telegram_webhook_allow_ip:
-    ipv4: 149.154.160.0/20,91.108.4.0/22
+    ipv4: 127.0.0.1
     ipv6: ::/0
   # 【订阅API认证密钥】：用于Jellyseerr、Overseerr中Authorization认证
   subscribe_token:
