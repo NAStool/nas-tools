@@ -6,7 +6,7 @@ def check_config(config):
     """
     检查配置文件，如有错误进行日志输出
     """
-    # 剑查日志输出
+    # 检查日志输出
     if config.get_config('app'):
         logtype = config.get_config('app').get('logtype')
         if logtype:
