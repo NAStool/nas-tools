@@ -108,7 +108,8 @@ SITE_CHECKIN_XPATH = [
     '//a[@id="signed"]',
     '//a[contains(@href, "attendance.php")]',
     '//a[contains(@text, "签到")]',
-    '//span[@id="sign_in"]/a'
+    '//span[@id="sign_in"]/a',
+    '//a[contains(@href, "addbonus")]'
 ]
 
 # 线程锁

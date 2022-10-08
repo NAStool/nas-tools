@@ -4,7 +4,7 @@ import requests
 from lxml import etree
 
 import log
-from app.helper import ChromeHelper
+from app.helper import ChromeHelper, CHROME_LOCK
 from app.sites.siteuserinfo.discuz import DiscuzUserInfo
 from app.sites.siteuserinfo.gazelle import GazelleUserInfo
 from app.sites.siteuserinfo.ipt_project import IptSiteUserInfo
@@ -24,24 +24,25 @@ class SiteUserInfoFactory(object):
         # 检测环境，有浏览器内核的优先使用仿真签到
         browser = ChromeHelper()
         if browser.get_browser():
-            try:
-                browser.visit(url=url, ua=ua, cookie=site_cookie)
-            except Exception as err:
-                print(str(err))
-                log.error("【SITES】%s 无法打开网站" % site_name)
-                return None
-            # 循环检测是否过cf
-            cloudflare = False
-            for i in range(0, 10):
-                if browser.get_title() != "Just a moment...":
-                    cloudflare = True
-                    break
-                time.sleep(1)
-            if not cloudflare:
-                log.error("【SITES】%s 跳转站点失败" % site_name)
-                return None
-            # 判断是否已签到
-            html_text = browser.get_html()
+            with CHROME_LOCK:
+                try:
+                    browser.visit(url=url, ua=ua, cookie=site_cookie)
+                except Exception as err:
+                    print(str(err))
+                    log.error("【SITES】%s 无法打开网站" % site_name)
+                    return None
+                # 循环检测是否过cf
+                cloudflare = False
+                for i in range(0, 10):
+                    if browser.get_title() != "Just a moment...":
+                        cloudflare = True
+                        break
+                    time.sleep(1)
+                if not cloudflare:
+                    log.error("【SITES】%s 跳转站点失败" % site_name)
+                    return None
+                # 判断是否已签到
+                html_text = browser.get_html()
         else:
             res = RequestUtils(cookies=site_cookie, session=session, headers=ua).get_res(url=url)
             if res and res.status_code == 200:
