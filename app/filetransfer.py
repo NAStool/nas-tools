@@ -53,6 +53,8 @@ class FileTransfer:
     __scraper_nfo = {}
     __scraper_pic = {}
     __refresh_mediaserver = False
+    __ignored_paths = []
+    __ignored_files = ''
 
     def __init__(self):
         self.media = Media()
@@ -118,17 +120,13 @@ class FileTransfer:
             elif isinstance(min_filesize, str) and min_filesize.isdigit():
                 self.__min_filesize = int(min_filesize) * 1024 * 1024
             # 转移文件夹黑名单
-            self.__ignored_paths = media.get('ignored_paths')
-            if self.__ignored_paths:
-                self.__ignored_paths = self.__ignored_paths.split(';')
-            else:
-                self.__ignored_paths = []
+            ignored_paths = media.get('ignored_paths')
+            if ignored_paths:
+                self.__ignored_paths = ignored_paths.split(';')
             # 文件转移忽略词
-            self.__ignored_files = media.get('ignored_files')
-            if self.__ignored_files:
-                self.__ignored_files = re.compile(r'%s' % re.sub(r';', r'|', self.__ignored_files))
-            else:
-                self.__ignored_files = ''
+            ignored_files = media.get('ignored_files')
+            if ignored_files:
+                self.__ignored_files = re.compile(r'%s' % re.sub(r';', r'|', ignored_files))
             # 高质量文件覆盖
             self.__filesize_cover = media.get('filesize_cover')
             # 电影重命名格式
@@ -506,20 +504,28 @@ class FileTransfer:
 
         #  过滤掉文件列表中上级文件夹在黑名单中的
         if self.__ignored_paths:
-            for file in file_list:
-                if file.replace('\\', '/').split('/')[-2] in self.__ignored_paths:
-                    log.info("【RMT】%s 文件上级文件夹名称在黑名单中，已忽略转移" % file)
-                    file_list.remove(file)
-            if not file_list:
-                return True, "没有新文件需要处理"
+            try:
+                for file in file_list:
+                    if file.replace('\\', '/').split('/')[-2] in self.__ignored_paths:
+                        log.info("【RMT】%s 文件上级文件夹名称在黑名单中，已忽略转移" % file)
+                        file_list.remove(file)
+                if not file_list:
+                    return True, "没有新文件需要处理"
+            except Exception as err:
+                log.error("【RMT】转移文件夹黑名单设置有误：%s" % str(err))
+
         #  过滤掉文件列表中包含文件转移忽略词的
         if self.__ignored_files:
-            for file in file_list:
-                if re.findall(self.__ignored_files, file.replace('\\', '/').split('/')[-1]):
-                    log.info("【RMT】%s 文件名包含文件转移忽略词，已忽略转移" % file)
-                    file_list.remove(file)
-            if not file_list:
-                return True, "没有新文件需要处理"
+            try:
+                for file in file_list:
+                    if re.findall(self.__ignored_files, file.replace('\\', '/').split('/')[-1]):
+                        log.info("【RMT】%s 文件名包含文件转移忽略词，已忽略转移" % file)
+                        file_list.remove(file)
+                if not file_list:
+                    return True, "没有新文件需要处理"
+            except Exception as err:
+                log.error("【RMT】文件转移忽略词设置有误：%s" % str(err))
+
         # 目录同步模式下，过滤掉文件列表中已处理过的
         if in_from == SyncType.MON:
             file_list = list(filter(SqlHelper.is_transfer_notin_blacklist, file_list))

@@ -1,6 +1,7 @@
 import os.path
 import regex as re
 
+import log
 from app.media.meta.metaanime import MetaAnime
 from app.media.meta.metavideo import MetaVideo
 from app.utils.types import MediaType
@@ -25,23 +26,29 @@ def MetaInfo(title, subtitle=None, mtype=None):
     # 屏蔽词
     ignored_words = config.get_config('laboratory').get("ignored_words")
     if ignored_words:
-        ignored_words = re.sub(r"\|\|", '|', ignored_words)
-        ignored_words = re.compile(r'%s' % ignored_words)
-        # 去重
-        used_ignored_words = list(set(re.findall(ignored_words, title)))
-        if used_ignored_words:
-            title = re.sub(ignored_words, '', title)
+        try:
+            ignored_words = re.sub(r"\|\|", '|', ignored_words)
+            ignored_words = re.compile(r'%s' % ignored_words)
+            # 去重
+            used_ignored_words = list(set(re.findall(ignored_words, title)))
+            if used_ignored_words:
+                title = re.sub(ignored_words, '', title)
+        except Exception as err:
+            log.error("【META】自定义屏蔽词设置有误：%s" % str(err))
     # 替换词
     replaced_words = config.get_config('laboratory').get("replaced_words")
     if replaced_words:
         replaced_words = replaced_words.split("||")
         for replaced_word in replaced_words:
-            if not replaced_word:
-                continue
-            replaced_word_info = replaced_word.split("@")
-            if re.findall(r'%s' % replaced_word_info[0], title):
-                used_replaced_words.append(replaced_word)
-                title = re.sub(r'%s' % replaced_word_info[0], r'%s' % replaced_word_info[-1], title)
+            try:
+                if not replaced_word:
+                    continue
+                replaced_word_info = replaced_word.split("@")
+                if re.findall(r'%s' % replaced_word_info[0], title):
+                    used_replaced_words.append(replaced_word)
+                    title = re.sub(r'%s' % replaced_word_info[0], r'%s' % replaced_word_info[-1], title)
+            except Exception as err:
+                log.error("【META】自定义替换词 %s 格式有误：%s" % (replaced_word, str(err)))
     # 集数偏移
     offset_words = config.get_config('laboratory').get("offset_words")
     if offset_words:
@@ -76,7 +83,7 @@ def MetaInfo(title, subtitle=None, mtype=None):
                         r'(?<=%s[\W\w]*)%s(?=[\W\w]*%s)' % (front_word, episode_num[0], back_word))
                     title = re.sub(episode_offset_re, r'%s' % str(episode_num[1] + offset_num).zfill(2), title)
             except Exception as err:
-                print(err)
+                log.error("【META】自定义集数偏移 %s 格式有误：%s" % (offset_word, str(err)))
     # 判断是否处理文件
     if title and os.path.splitext(title)[-1] in RMT_MEDIAEXT:
         fileflag = True
