@@ -724,7 +724,7 @@ class Downloader:
                     continue
                 if not os.path.exists(attr.get('path')) \
                         or (media.size
-                            and float(SystemUtils.get_free_space_gb(attr.get('path'))) < float(media.size / 1024 / 1024 / 1024)):
+                            and float(SystemUtils.get_free_space_gb(attr.get('path'))) < float(int(StringUtils.num_filesize(media.size)) / 1024 / 1024 / 1024)):
                     continue
-                return {"path": os.path.normpath(path.replace('\\', '/')), "label": attr.get('label')}
+                return {"path": path, "label": attr.get('label')}
         return {"path": None, "label": None}

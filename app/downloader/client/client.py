@@ -154,6 +154,6 @@ class IDownloadClient(metaclass=ABCMeta):
         for path, attr in downloaddir.items():
             if not path or not attr.get("path"):
                 continue
-            if os.path.normpath(path.replace('\\', '/')) == os.path.normpath(true_path.replace('\\', '/')):
-                return os.path.normpath(attr.get("path").replace('\\', '/'))
-        return os.path.normpath(true_path.replace('\\', '/'))
+            if os.path.normpath(path) == os.path.normpath(true_path):
+                return attr.get("path")
+        return true_path
