@@ -1038,7 +1038,7 @@ class WebAction:
             if mtype == MediaType.MOVIE:
                 rssid = SqlHelper.get_rss_movie_id(title=name, year=year, tmdbid=tmdbid or "DB:%s" % doubanid)
             else:
-                rssid = SqlHelper.get_rss_tv_id(title=name, year=year, tmdbid=tmdbid or "DB:%s" % doubanid)
+                rssid = SqlHelper.get_rss_tv_id(title=name, tmdbid=tmdbid or "DB:%s" % doubanid)
         return {"code": code, "msg": msg, "page": page, "name": name, "rssid": rssid}
 
     @staticmethod
@@ -1168,7 +1168,7 @@ class WebAction:
 
             # 查订阅信息
             if not rssid:
-                rssid = SqlHelper.get_rss_tv_id(title=title, year=year, tmdbid=tmdbid or "DB:%s" % doubanid)
+                rssid = SqlHelper.get_rss_tv_id(title=title, tmdbid=tmdbid or "DB:%s" % doubanid)
 
             return {
                 "code": 0,
@@ -1935,7 +1935,7 @@ class WebAction:
                 name = MetaInfo(title).get_name()
                 if RecommendType not in ['ht', 'nt']:
                     rid = "DB:%s" % rid
-                rssid = SqlHelper.get_rss_tv_id(title=name, year=year, tmdbid=rid)
+                rssid = SqlHelper.get_rss_tv_id(title=name, tmdbid=rid)
                 if rssid:
                     # 已订阅
                     fav = 1
