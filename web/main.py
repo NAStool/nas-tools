@@ -637,7 +637,7 @@ def create_flask_app(config):
         keyword = request.args.get("keyword")
         Results = WebAction().action("list_site_resources", {"id": site_id, "page": page, "keyword": keyword}).get(
             "data") or []
-        SaveDirs = WebAction().get_download_dirs()
+        SaveDirs = Downloader().get_download_dirs()
         return render_template("site/resources.html",
                                Results=Results,
                                SiteId=site_id,

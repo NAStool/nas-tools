@@ -433,7 +433,7 @@
 
   //保存下载目录配置
   function save_downloaddir_config(){
-
+    $("#modal-downloaddir").modal('hide');
   }
 
   //删除下载目录
@@ -481,12 +481,15 @@
     html = $("#dirdiv_template").text();
     $("#dirdiv_add").before(html.replaceAll('{DIRDIV_LEVEL}', CURRENT_DIRDIV_LEVEL));
     CURRENT_DIRDIV_LEVEL = CURRENT_DIRDIV_LEVEL + 1;
+    $('.filetree-folders-only').each(function () {
+      $(this).attr("onclick", "openFileBrowser(this,$(this).val(),'',true,false);");
+    });
   }
 
 </script>
 <script id="dirdiv_template" type="text">
 <div class="row" id="dirdiv_{DIRDIV_LEVEL}">
-  <div class="col-12 col-lg-2 mb-3">
+  <div class="col-12 col-lg-2 mb-1">
     <select class="form-select" name="dir_type" onchange="get_categories(this)">
       <option value="" selected>全部</option>
       <option value="电影">电影</option>
