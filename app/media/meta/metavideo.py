@@ -55,14 +55,10 @@ class MetaVideo(MetaBase):
             self.begin_episode = int(os.path.splitext(title)[0])
             self.type = MediaType.TV
             return
+        # 所有【】换成[]
+        title = title.replace("【", "[").replace("】", "]").strip()
         # 去掉名称中第1个[]的内容
         title = re.sub(r'%s' % self._name_no_begin_re, "", title, count=1)
-        # 截掉xx番剧漫
-        match = re.search(r"新番|月?番|[日美国][漫剧]", title)
-        if match and match.span()[1] < len(title) - 1:
-            title = re.sub(".*番.|.*[日美国][漫剧].", "", title)
-        elif match:
-            title = title[:title.rfind('[')]
         # 把xxxx-xxxx年份换成前一个年份，常出现在季集上
         title = re.sub(r'([\s.]+)(\d{4})-(\d{4})', r'\1\2', title)
         # 把大小去掉

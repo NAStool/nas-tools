@@ -115,6 +115,8 @@ def is_anime(name):
         return True
     if re.search(r'\s+-\s+[\dv]{1,4}\s+', name, re.IGNORECASE):
         return True
+    if re.search(r"新番|月?番", name):
+        return True
     if re.search(r"S\d{2}\s*-\s*S\d{2}|S\d{2}|\s+S\d{1,2}|EP?\d{2,4}\s*-\s*EP?\d{2,4}|EP?\d{2,4}|\s+EP?\d{1,4}", name,
                  re.IGNORECASE):
         return False
