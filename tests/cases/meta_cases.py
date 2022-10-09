@@ -5,14 +5,14 @@ meta_cases = [{
         "type": "电视剧",
         "cn_name": "",
         "en_name": "Noumin Kanren no Skill Bakka Agetetara Naze ka Tsuyoku Natta",
-        "year": "",
+        "year": "2022",
         "part": "",
         "season": "S01",
         "episode": "E02",
-        "restype": "",
+        "restype": "WEB-DL",
         "pix": "1080p",
         "video_codec": "x264",
-        "audio_codec": ""
+        "audio_codec": "AAC"
     }
 }, {
     "title": "dou luo da lu S01E229 2018 2160p WEB-DL H265 AAC-ADWeb[[国漫连载] 斗罗大陆 第229集 4k | 国语中字]",
