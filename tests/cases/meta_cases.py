@@ -1,4 +1,36 @@
 meta_cases = [{
+    "title": "Noumin Kanren no Skill Bakka Agetetara Naze ka Tsuyoku Natta S01E02 2022 1080p B-Global WEB-DL x264 AAC-AnimeS@ADWeb[2022年10月新番]",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "Noumin Kanren no Skill Bakka Agetetara Naze ka Tsuyoku Natta",
+        "year": "",
+        "part": "",
+        "season": "S01",
+        "episode": "E02",
+        "restype": "",
+        "pix": "1080p",
+        "video_codec": "x264",
+        "audio_codec": ""
+    }
+}, {
+    "title": "dou luo da lu S01E229 2018 2160p WEB-DL H265 AAC-ADWeb[[国漫连载] 斗罗大陆 第229集 4k | 国语中字]",
+    "subtitle": "",
+    "target": {
+        "type": "电视剧",
+        "cn_name": "",
+        "en_name": "dou luo da lu",
+        "year": "2018",
+        "part": "",
+        "season": "S01",
+        "episode": "E229",
+        "restype": "WEB-DL",
+        "pix": "2160p",
+        "video_codec": "H265",
+        "audio_codec": "AAC"
+    }
+}, {
     "title": "Thor Love and Thunder (2022) [1080p] [WEBRip] [5.1]",
     "subtitle": "",
     "target": {
@@ -19,7 +51,7 @@ meta_cases = [{
     "subtitle": "",
     "target": {
         "type": "电视剧",
-        "cn_name": "欢迎来到实力至上主义的教室",
+        "cn_name": "",
         "en_name": "Youkoso Jitsuryoku Shijou Shugi no Kyoushitsu e",
         "year": "",
         "part": "",

@@ -555,8 +555,11 @@
     var i = 0;
     $("input[type=checkbox]").each(function () {
       if ($(this).prop("checked")) {
-        ids[i] = $(this).attr("id").replace("check_", "");
-        i = i + 1;
+        checkid = $(this).attr("id");
+        if (checkid && checkid.startsWith("check_")) {
+          ids[i] = checkid.replace("check_", "");
+          i = i + 1;
+        }
       }
     });
     if (i == 0) {
