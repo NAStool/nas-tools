@@ -1939,7 +1939,7 @@ class WebAction:
                 if rssid:
                     # 已订阅
                     fav = 1
-                elif MediaServer().check_item_exists(title=name, year=year, tmdbid=rid):
+                elif MediaServer().check_item_exists(title=name, tmdbid=rid):
                     # 已下载
                     fav = 2
                 else:

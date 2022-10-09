@@ -180,7 +180,7 @@ class MediaServer:
             self.progress.end("mediasync")
             log.info("【MEDIASERVER】媒体库数据同步完成，同步数量：%s" % total_count)
 
-    def check_item_exists(self, title, year, tmdbid=None):
+    def check_item_exists(self, title, year=None, tmdbid=None):
         """
         检查媒体库是否已存在某项目，非实时同步数据，仅用于展示
         """
