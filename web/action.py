@@ -108,7 +108,6 @@ class WebAction:
             "clear_tmdb_cache": self.__clear_tmdb_cache,
             "check_site_attr": self.__check_site_attr,
             "refresh_process": self.__refresh_process,
-            "get_download_dirs": self.get_download_dirs,
             "restory_backup": self.__restory_backup,
             "start_mediasync": self.__start_mediasync,
             "mediasync_state": self.__mediasync_state,
@@ -121,7 +120,8 @@ class WebAction:
             "update_rssparser": self.__update_rssparser,
             "run_userrss": self.__run_userrss,
             "run_brushtask": self.__run_brushtask,
-            "list_site_resources": self.__list_site_resources
+            "list_site_resources": self.__list_site_resources,
+            "get_categories": self.__get_categories
         }
 
     def action(self, cmd, data):
@@ -368,11 +368,8 @@ class WebAction:
             media.download_volume_factor = float(res[16])
             media.page_url = res[17]
             # 添加下载
-            ret, ret_msg = Downloader().add_pt_torrent(url=media.enclosure,
-                                                       mtype=media.type,
-                                                       download_dir=dl_dir,
-                                                       page_url=media.page_url,
-                                                       title=media.org_string)
+            ret, ret_msg = Downloader().add_pt_torrent(media_info=media,
+                                                       download_dir=dl_dir)
             if ret:
                 # 发送消息
                 Message().send_download_message(SearchType.WEB, media)
@@ -405,11 +402,8 @@ class WebAction:
         media.download_volume_factor = float(downloadvolumefactor)
         media.seeders = seeders
         # 添加下载
-        ret, ret_msg = Downloader().add_pt_torrent(url=media.enclosure,
-                                                   mtype=media.type,
-                                                   download_dir=dl_dir,
-                                                   page_url=media.page_url,
-                                                   title=media.org_string)
+        ret, ret_msg = Downloader().add_pt_torrent(media_info=media,
+                                                   download_dir=dl_dir)
         if ret:
             # 发送消息
             Message().send_download_message(SearchType.WEB, media)
@@ -2162,27 +2156,6 @@ class WebAction:
             return {"code": 1, "value": 0, "text": "正在处理..."}
 
     @staticmethod
-    def get_download_dirs(data=None):
-        """
-        获取下载目录列表
-        """
-        dl_dirs = []
-        # 设置的下载器的目录
-        client_type = Config().get_config("pt").get("pt_client")
-        save_path = Config().get_config(client_type).get("save_path")
-        if save_path:
-            if isinstance(save_path, str):
-                dl_dirs.append(os.path.normpath(save_path))
-            else:
-                for path in dict(save_path).values():
-                    if not path:
-                        continue
-                    dl_dirs.append(os.path.normpath(path.split("|")[0]))
-        # 下载器自己设置的目录
-        client_dirs = Downloader().get_download_dirs()
-        return [x.replace("\\", "/") for x in list(set(client_dirs).union(set(dl_dirs)))]
-
-    @staticmethod
     def __restory_backup(data):
         """
         解压恢复备份文件
@@ -2329,3 +2302,13 @@ class WebAction:
             return {"code": 1, "msg": "获取站点资源出现错误，无法连接到站点！"}
         else:
             return {"code": 0, "data": resources}
+
+    @staticmethod
+    def __get_categories(data):
+        if data.get("type") == "电影":
+            categories = Category().get_movie_categorys()
+        elif data.get("type") == "电视剧":
+            categories = Category().get_tv_categorys()
+        else:
+            categories = Category().get_anime_categorys()
+        return {"code": 0, "category": list(categories), "id": data.get("id"), "value": data.get("value")}

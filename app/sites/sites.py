@@ -202,7 +202,7 @@ class Sites:
             return
         if self.__sites_data.get(site_name, {}).get('message_unread') == site_user_info.message_unread:
             return
-        if not unread_msg_notify:
+        if unread_msg_notify != 'Y':
             return
 
         self.message.sendmsg(title=f"站点 {site_user_info.site_name} 收到 {site_user_info.message_unread} 条新消息，请登陆查看")

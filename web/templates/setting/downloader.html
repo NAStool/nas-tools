@@ -7,6 +7,25 @@
           下载器
         </h2>
       </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:show_downloaddir_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folders" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M9 4h3l2 2h5a2 2 0 0 1 2 2v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"></path>
+               <path d="M17 17v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2h2"></path>
+            </svg>
+            下载目录
+          </a>
+          <a href="javascript:show_downloaddir_modal()" class="btn btn-primary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folders" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M9 4h3l2 2h5a2 2 0 0 1 2 2v7a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2"></path>
+               <path d="M17 17v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2h2"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -115,61 +134,6 @@
             </div>
           </div>
         </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="mb-3">
-              <label class="form-label required">电影目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；访问目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
-              <div class="row">
-                <div class="col-12 col-lg-5 mb-1">
-                  <input type="text" value="{{ QbMovieSavePath.path or '' }}" id="qbittorrent.save_path.movie.path"
-                    class="form-control" placeholder="下载目录">
-                </div>
-                <div class="col-12 col-lg-5 mb-1">
-                  <input type="text" value="{{ QbMovieContainerPath or '' }}" id="qbittorrent.save_containerpath.movie"
-                    class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
-                </div>
-                <div class="col-12 col-lg-2 mb-1">
-                  <input type="text" value="{{ QbMovieSavePath.tag or '' }}" id="qbittorrent.save_path.movie.tag"
-                    class="form-control" placeholder="分类标签">
-                </div>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label required">电视剧目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；访问目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
-              <div class="row">
-                <div class="col-12 col-lg-5 mb-1">
-                  <input type="text" value="{{ QbTvSavePath.path or '' }}" id="qbittorrent.save_path.tv.path"
-                    class="form-control" placeholder="下载目录">
-                </div>
-                <div class="col-12 col-lg-5 mb-1">
-                  <input type="text" value="{{ QbTvContainerPath or '' }}" id="qbittorrent.save_containerpath.tv"
-                    class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
-                </div>
-                <div class="col-12 col-lg-2 mb-1">
-                  <input type="text" value="{{ QbTvSavePath.tag or '' }}" id="qbittorrent.save_path.tv.tag" class="form-control"
-                    placeholder="分类标签">
-                </div>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label required">动漫目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；访问目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
-              <div class="row">
-                <div class="col-12 col-lg-5 mb-1">
-                  <input type="text" value="{{ QbAnimeSavePath.path or '' }}" id="qbittorrent.save_path.anime.path"
-                    class="form-control" placeholder="下载目录">
-                </div>
-                <div class="col-12 col-lg-5 mb-1">
-                  <input type="text" value="{{ QbAnimeContainerPath or '' }}" id="qbittorrent.save_containerpath.anime"
-                    class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
-                </div>
-                <div class="col-12 col-lg-2 mb-1">
-                  <input type="text" value="{{ QbAnimeSavePath.tag or '' }}" id="qbittorrent.save_path.anime.tag"
-                    class="form-control" placeholder="分类标签">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
       <div class="modal-footer">
         <a href="javascript:test_downloader_config('qbittorrent')" id="qbittorrent_test_btn" class="btn btn-secondary me-auto">
@@ -221,49 +185,6 @@
             </div>
           </div>
         </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="mb-3">
-              <label class="form-label required">电影目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；访问目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
-              <div class="row g-2">
-                <div class="col-6">
-                  <input type="text" value="{{ TrMovieSavePath or '' }}" id="transmission.save_path.movie" class="form-control"
-                    placeholder="下载目录">
-                </div>
-                <div class="col-6">
-                  <input type="text" value="{{ TrMovieContainerPath or '' }}" id="transmission.save_containerpath.movie"
-                    class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
-                </div>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label required">电视剧目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；访问目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
-              <div class="row g-2">
-                <div class="col-6">
-                  <input type="text" value="{{ TrTvSavePath or '' }}" id="transmission.save_path.tv" class="form-control"
-                    placeholder="下载目录">
-                </div>
-                <div class="col-6">
-                  <input type="text" value="{{ TrTvContainerPath or '' }}" id="transmission.save_containerpath.tv"
-                    class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
-                </div>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label required">动漫目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；访问目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
-              <div class="row g-2">
-                <div class="col-6">
-                  <input type="text" value="{{ TrAnimeSavePath or '' }}" id="transmission.save_path.anime" class="form-control"
-                    placeholder="下载目录">
-                </div>
-                <div class="col-6">
-                  <input type="text" value="{{ TrAnimeContainerPath or '' }}" id="transmission.save_containerpath.anime"
-                    class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
       <div class="modal-footer">
         <a href="javascript:test_downloader_config('transmission')" id="transmission_test_btn" class="btn btn-secondary me-auto">
@@ -288,50 +209,7 @@
             <div class="col">
               <div class="mb-3">
                 <label class="form-label required">Cookie <span class="form-help" title="115网盘Cookie" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.client115 %}{{ Config.client115.cookie or '' }}{% endif %}" id="client115.cookie" class="form-control">
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="mb-3">
-              <label class="form-label required">电影目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；访问目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
-              <div class="row g-2">
-                <div class="col-6">
-                  <input type="text" value="{{ CloudMovieSavePath or '' }}" id="client115.save_path.movie" class="form-control"
-                    placeholder="下载目录">
-                </div>
-                <div class="col-6">
-                  <input type="text" value="{{ CloudMovieContainerPath or '' }}" id="client115.save_containerpath.movie"
-                    class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
-                </div>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label required">电视剧目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；访问目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
-              <div class="row g-2">
-                <div class="col-6">
-                  <input type="text" value="{{ CloudTvSavePath or '' }}" id="client115.save_path.tv" class="form-control"
-                    placeholder="下载目录">
-                </div>
-                <div class="col-6">
-                  <input type="text" value="{{ CloudTvContainerPath or '' }}" id="client115.save_containerpath.tv"
-                    class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
-                </div>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label required">动漫目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；访问目录是本程序访问下载器下载目录的路径" data-bs-toggle="tooltip">?</span></label>
-              <div class="row g-2">
-                <div class="col-6">
-                  <input type="text" value="{{ CloudAnimeSavePath or '' }}" id="client115.save_path.anime" class="form-control"
-                    placeholder="下载目录">
-                </div>
-                <div class="col-6">
-                  <input type="text" value="{{ CloudAnimeContainerPath or '' }}" id="client115.save_containerpath.anime"
-                    class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
-                </div>
+                <input type="text" value="{% if Config.client115 %}{{ Config.client115.cookie or '' }}{% endif %}" id="client115.cookie" class="form-control" placeholder="通过115网盘网页端抓取Cookie">
               </div>
             </div>
           </div>
@@ -377,49 +255,6 @@
             </div>
           </div>
         </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="mb-3">
-              <label class="form-label required">电影目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；访问目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
-              <div class="row">
-                <div class="col-12 col-lg-6 mb-1">
-                  <input type="text" value="{{ Aria2MovieSavePath or '' }}" id="aria2.save_path.movie"
-                    class="form-control" placeholder="下载目录">
-                </div>
-                <div class="col-12 col-lg-6 mb-1">
-                  <input type="text" value="{{ Aria2MovieContainerPath or '' }}" id="aria2.save_containerpath.movie"
-                    class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
-                </div>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label required">电视剧目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；访问目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
-              <div class="row">
-                <div class="col-12 col-lg-6 mb-1">
-                  <input type="text" value="{{ Aria2TvSavePath or '' }}" id="aria2.save_path.tv"
-                    class="form-control" placeholder="下载目录">
-                </div>
-                <div class="col-12 col-lg-6 mb-1">
-                  <input type="text" value="{{ Aria2TvContainerPath or '' }}" id="aria2.save_containerpath.tv"
-                    class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
-                </div>
-              </div>
-            </div>
-            <div class="mb-3">
-              <label class="form-label required">动漫目录 <span class="form-help" title="下载目录是传递给下载器的文件保存目录；访问目录是本程序访问下载器下载目录的路径；分类标签是传递给下载器的分类，自动管理模式下，如设置了分类标签下载器会使用分类对应的下载目录" data-bs-toggle="tooltip">?</span></label>
-              <div class="row">
-                <div class="col-12 col-lg-6 mb-1">
-                  <input type="text" value="{{ Aria2AnimeSavePath or '' }}" id="aria2.save_path.anime"
-                    class="form-control" placeholder="下载目录">
-                </div>
-                <div class="col-12 col-lg-6 mb-1">
-                  <input type="text" value="{{ Aria2AnimeContainerPath or '' }}" id="aria2.save_containerpath.anime"
-                    class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
       <div class="modal-footer">
         <a href="javascript:test_downloader_config('aria2')" id="aria2_test_btn" class="btn btn-secondary me-auto">
@@ -427,6 +262,114 @@
         </a>
         <a href="javascript:save_downloader_config('aria2')" id="aria2_save_btn"
           class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-downloaddir" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">下载目录配置</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="mb-3" id="dirdiv_container">
+              <label class="form-label required">目录信息 <span class="form-help" title="根据类型及二级分类自动选择下载目录，按优先级从前往后依次匹配，直到找到符合条件及空间要求的目录下载；二级分类从基础设置->二级分类策略的配置中读取，如未配置二级分类则无法配置下载目录二级分类" data-bs-toggle="tooltip">?</span></label>
+              {% if Config.downloaddir %}
+              {% for Path, Dir in Config.downloaddir.items() %}
+              <div class="row" id="dirdiv_{{loop.index0}}">
+                <div class="col-12 col-lg-2 mb-1">
+                  <select class="form-select" name="dir_type" id="dir_type_{{loop.index0}}" onchange="get_categories(this)">
+                    <option value="" {% if not Dir.type %}selected{% endif %}>全部</option>
+                    <option value="电影" {% if Dir.type == "电影" %}selected{% endif %}>电影</option>
+                    <option value="电视剧" {% if Dir.type == "电视剧" %}selected{% endif %}>电视剧</option>
+                    <option value="动漫" {% if Dir.type == "动漫" %}selected{% endif %}>动漫</option>
+                  </select>
+                </div>
+                <div class="col-12 col-lg-2 mb-1">
+                  <input type="hidden" id="dir_subtype_{{loop.index0}}" value="{{ Dir.category or '' }}">
+                  <select class="form-select" name="dir_subtype" id="dir_subtype_value_{{loop.index0}}">
+                    <option value="" selected>全部</option>
+                  </select>
+                </div>
+                <div class="col-12 col-lg mb-1">
+                  <input type="text" value="{{ Path or '' }}" name="save_path" class="form-control" placeholder="下载保存目录" autocomplete="off">
+                </div>
+                <div class="col-12 col-lg mb-1">
+                  <input type="text" value="{{ Dir.path or '' }}" name="container_path" class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
+                </div>
+                <div class="col-12 col-lg mb-1">
+                  <input type="text" value="{{ Dir.label or '' }}" name="path_label" class="form-control" placeholder="分类标签" autocomplete="off">
+                </div>
+                <div class="col-12 col-lg-1 mb-1 mt-2">
+                  <a href="javascript:del_downloaddir('{{loop.index0}}')" class="btn-icon" title="删除下载目录">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-minus text-red" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                       <circle cx="12" cy="12" r="9"></circle>
+                       <line x1="9" y1="12" x2="15" y2="12"></line>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              {% endfor %}
+              {% else %}
+              <div class="row" id="dirdiv_0">
+                <div class="col-12 col-lg-2 mb-1">
+                  <select class="form-select" name="dir_type" id="dir_type_0" onchange="get_categories(this)">
+                    <option value="" selected>全部</option>
+                    <option value="电影">电影</option>
+                    <option value="电视剧">电视剧</option>
+                    <option value="动漫">动漫</option>
+                  </select>
+                </div>
+                <div class="col-12 col-lg-2 mb-1">
+                  <input type="hidden" id="dir_subtype_0" value="">
+                  <select class="form-select" name="dir_subtype" id="dir_subtype_value_0">
+                    <option value="" selected>全部</option>
+                  </select>
+                </div>
+                <div class="col-12 col-lg mb-1">
+                  <input type="text" value="" name="save_path" class="form-control" placeholder="下载保存目录" autocomplete="off">
+                </div>
+                <div class="col-12 col-lg mb-1">
+                  <input type="text" value="" name="container_path" class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
+                </div>
+                <div class="col-12 col-lg mb-1">
+                  <input type="text" value="" name="path_label" class="form-control" placeholder="分类标签" autocomplete="off">
+                </div>
+                <div class="col-12 col-lg-1 mb-1 mt-2">
+                  <a href="javascript:del_downloaddir('0')" class="btn-icon" title="删除目录">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-minus text-red" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                       <circle cx="12" cy="12" r="9"></circle>
+                       <line x1="9" y1="12" x2="15" y2="12"></line>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              {% endif %}
+              <div class="row" id="dirdiv_add">
+                <div class="mt-2">
+                  <a href="javascript:add_downloaddir()" class="btn-icon" title="增加目录">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                       <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
+                       <line x1="12" y1="10" x2="12" y2="16"></line>
+                       <line x1="9" y1="13" x2="15" y2="13"></line>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a href="javascript:save_downloaddir_config()" id="downloaddir_save_btn" class="btn btn-primary">确定</a>
       </div>
     </div>
   </div>
@@ -448,23 +391,6 @@
       }
       params[key] = value;
     });
-    if(type == "qbittorrent"){
-      if (document.getElementById("qbittorrent.save_path.movie.tag").value) {
-        params['qbittorrent.save_path.movie'] = document.getElementById("qbittorrent.save_path.movie.path").value + "|" + document.getElementById("qbittorrent.save_path.movie.tag").value;
-      } else {
-        params['qbittorrent.save_path.movie'] = document.getElementById("qbittorrent.save_path.movie.path").value;
-      }
-      if (document.getElementById("qbittorrent.save_path.tv.tag").value) {
-        params['qbittorrent.save_path.tv'] = document.getElementById("qbittorrent.save_path.tv.path").value + "|" + document.getElementById("qbittorrent.save_path.tv.tag").value;
-      } else {
-        params['qbittorrent.save_path.tv'] = document.getElementById("qbittorrent.save_path.tv.path").value;
-      }
-      if (document.getElementById("qbittorrent.save_path.anime.tag").value) {
-        params['qbittorrent.save_path.anime'] = document.getElementById("qbittorrent.save_path.anime.path").value + "|" + document.getElementById("qbittorrent.save_path.anime.tag").value;
-      } else {
-        params['qbittorrent.save_path.anime'] = document.getElementById("qbittorrent.save_path.anime.path").value;
-      }
-    }
     params['pt.pt_client'] = type;
     ajax_post("update_config", params, func);
   }
@@ -500,4 +426,143 @@
       });
     }, true);
   }
+
+  //显示下载目录配置
+  function show_downloaddir_modal(){
+    $('#modal-downloaddir').modal('show');
+  }
+
+  //获取同一行其它输入框的值
+  function get_dir_item_value(obj, name){
+    item = $(obj).parent().parent().find("[name='"+name+"']")[0];
+    if(item){
+      return $(item).val();
+    }else{
+      return '';
+    }
+  }
+
+  //保存下载目录配置
+  function save_downloaddir_config(){
+    $("#modal-downloaddir").modal('hide');
+    var download_dir = {};
+    $("[name='save_path']").each(function(){
+      save_path = $(this).val();
+      type = get_dir_item_value(this, 'dir_type');
+      category = get_dir_item_value(this, 'dir_subtype');
+      path = get_dir_item_value(this, 'container_path');
+      label = get_dir_item_value(this, 'path_label');
+      debugger;
+      if(download_dir[save_path]){
+        if(type != download_dir[save_path].type){
+          type = '';
+        }
+        if(category != download_dir[save_path].category){
+          category = '';
+        }
+      }
+
+      download_dir[save_path] = {
+        type: type,
+        category: category,
+        path: path,
+        label: label
+      };
+    });
+    ajax_post("update_config", {downloaddir: download_dir}, function(){
+      navmenu('downloader');
+    });
+
+  }
+
+  //删除下载目录
+  function del_downloaddir(id){
+    if(id){
+      $("#dirdiv_"+id).remove();
+    }
+  }
+
+  //获取二级分类
+  function get_categories(obj){
+    obj_id = $(obj).attr("id");
+    if(!obj_id){
+      return;
+    }
+    id = obj_id.replace("dir_type_", "");
+    value = $("#dir_subtype_"+id).val();
+    if(!id){
+      return;
+    }
+    if(!$(obj).val()){
+      $("#dir_subtype_value_"+id).empty();
+      $("#dir_subtype_value_"+id).append('<option value="" selected>全部</option>');
+      return;
+    }
+    ajax_post("get_categories", {"type": $(obj).val(), "id": id, "value": value}, function(ret){
+      $("#dir_subtype_value_"+ret.id).empty();
+      $("#dir_subtype_value_"+ret.id).append('<option value="" selected>全部</option>');
+      if(ret.category){
+        for(var i=0; i<ret.category.length; i++){
+          $("#dir_subtype_value_"+ret.id).append('<option value="'+ret.category[i]+'">'+ret.category[i]+'</option>');
+        }
+      }
+      if(ret.value){
+        $("#dir_subtype_value_"+ret.id).val(ret.value);
+      }
+    });
+  }
+
+  //获取所有二级分类
+  var CURRENT_DIRDIV_LEVEL = 0;
+  $("[name='dir_type']").each(function(){
+    get_categories(this);
+    CURRENT_DIRDIV_LEVEL = CURRENT_DIRDIV_LEVEL + 1;
+  });
+
+  //添加下载目录
+  function add_downloaddir(){
+    html = $("#dirdiv_template").text();
+    $("#dirdiv_add").before(html.replaceAll('{DIRDIV_LEVEL}', CURRENT_DIRDIV_LEVEL));
+    CURRENT_DIRDIV_LEVEL = CURRENT_DIRDIV_LEVEL + 1;
+    $('.filetree-folders-only').each(function () {
+      $(this).attr("onclick", "openFileBrowser(this,$(this).val(),'',true,false);");
+    });
+  }
+
+</script>
+<script id="dirdiv_template" type="text">
+<div class="row" id="dirdiv_{DIRDIV_LEVEL}">
+  <div class="col-12 col-lg-2 mb-1">
+    <select class="form-select" name="dir_type" id="dir_type_{DIRDIV_LEVEL}" onchange="get_categories(this)">
+      <option value="" selected>全部</option>
+      <option value="电影">电影</option>
+      <option value="电视剧">电视剧</option>
+      <option value="动漫">动漫</option>
+    </select>
+  </div>
+  <div class="col-12 col-lg-2 mb-1">
+    <input type="hidden" id="dir_subtype_{DIRDIV_LEVEL}" value="">
+    <select class="form-select" name="dir_subtype" id="dir_subtype_value_{DIRDIV_LEVEL}">
+      <option value="" selected>全部</option>
+    </select>
+  </div>
+  <div class="col-12 col-lg mb-1">
+    <input type="text" value="" name="save_path" class="form-control" placeholder="下载保存目录" autocomplete="off">
+  </div>
+  <div class="col-12 col-lg mb-1">
+    <input type="text" value="" name="container_path" class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
+  </div>
+  <div class="col-12 col-lg mb-1">
+    <input type="text" value="" name="path_label" class="form-control" placeholder="分类标签" autocomplete="off">
+  </div>
+  <div class="col-12 col-lg-1 mb-1 mt-2">
+    <a href="javascript:del_downloaddir('{DIRDIV_LEVEL}')" class="btn-icon" title="删除目录">
+      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-minus text-red" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+         <circle cx="12" cy="12" r="9"></circle>
+         <line x1="9" y1="12" x2="15" y2="12"></line>
+      </svg>
+    </a>
+  </div>
+</div>
 </script>

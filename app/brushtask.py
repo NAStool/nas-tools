@@ -510,7 +510,6 @@ class BrushTask(object):
             else:
                 tag = torrent_tag
             ret = downloader.add_torrent(content=enclosure,
-                                         mtype=None,
                                          tag=tag,
                                          is_paused=True,
                                          download_dir=downloadercfg.get("save_dir"))

@@ -25,7 +25,8 @@ from app.message import Message
 from app.rsschecker import RssChecker
 from app.utils import StringUtils, DomUtils, SystemUtils, WebUtils
 from app.helper import Security, MetaHelper
-from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL, NETTEST_TARGETS
+from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL, NETTEST_TARGETS, \
+    Config
 from app.douban import DouBan
 from app.downloader import Downloader
 from app.filterrules import FilterRule
@@ -46,11 +47,11 @@ login_manager = LoginManager()
 login_manager.login_view = "login"
 
 
-def create_flask_app(config):
+def create_flask_app():
     """
     创建Flask实例，定时前端WEB的所有请求接口及页面访问
     """
-    app_cfg = config.get_config('app') or {}
+    app_cfg = Config().get_config('app') or {}
     admin_user = app_cfg.get('login_user') or "admin"
     admin_password = app_cfg.get('login_password') or "password"
     ADMIN_USERS = [{
@@ -272,7 +273,7 @@ def create_flask_app(config):
         FreeSpace = 0
         UsedPercent = 0
         TotalSpaceList = []
-        media = config.get_config('media')
+        media = Config().get_config('media')
         if media:
             # 电影目录
             movie_paths = media.get('movie_path')
@@ -518,7 +519,7 @@ def create_flask_app(config):
             SiteDict.append({"id": item.id, "name": item.name})
 
         # 下载目录
-        SaveDirs = WebAction().get_download_dirs()
+        SaveDirs = Downloader().get_download_dirs()
         return render_template("search.html",
                                UserPris=str(pris).split(","),
                                SearchWord=SearchWord or "",
@@ -546,7 +547,7 @@ def create_flask_app(config):
         NeedSearch = request.args.get("f")
         OperType = request.args.get("t")
         medias = []
-        use_douban_titles = config.get_config("laboratory").get("use_douban_titles")
+        use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
         if SearchWord and NeedSearch:
             if use_douban_titles:
                 _, key_word, season_num, episode_num, _, _ = StringUtils.get_keyword_from_string(SearchWord)
@@ -637,7 +638,7 @@ def create_flask_app(config):
         keyword = request.args.get("keyword")
         Results = WebAction().action("list_site_resources", {"id": site_id, "page": page, "keyword": keyword}).get(
             "data") or []
-        SaveDirs = WebAction().get_download_dirs()
+        SaveDirs = Downloader().get_download_dirs()
         return render_template("site/resources.html",
                                Results=Results,
                                SiteId=site_id,
@@ -746,7 +747,7 @@ def create_flask_app(config):
         return render_template("download/downloading.html",
                                DownloadCount=DownloadCount,
                                Torrents=DispTorrents,
-                               Client=config.get_config("pt").get("pt_client"))
+                               Client=Config().get_config("pt").get("pt_client"))
 
     # 近期下载页面
     @App.route('/downloaded', methods=['POST', 'GET'])
@@ -885,7 +886,7 @@ def create_flask_app(config):
     @login_required
     def service():
         scheduler_cfg_list = []
-        pt = config.get_config('pt')
+        pt = Config().get_config('pt')
         if pt:
             # RSS订阅
             pt_check_interval = pt.get('pt_check_interval')
@@ -966,7 +967,7 @@ def create_flask_app(config):
                      'color': "facebook"})
 
         # 目录同步
-        sync = config.get_config('sync')
+        sync = Config().get_config('sync')
         if sync:
             sync_path = sync.get('sync_path')
             if sync_path:
@@ -982,7 +983,7 @@ def create_flask_app(config):
                     {'name': '目录同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg,
                      'color': "orange"})
         # 豆瓣同步
-        douban_cfg = config.get_config('douban')
+        douban_cfg = Config().get_config('douban')
         if douban_cfg:
             interval = douban_cfg.get('interval')
             if interval:
@@ -1200,20 +1201,20 @@ def create_flask_app(config):
     @App.route('/basic', methods=['POST', 'GET'])
     @login_required
     def basic():
-        proxy = config.get_config('app').get("proxies", {}).get("http")
+        proxy = Config().get_config('app').get("proxies", {}).get("http")
         if proxy:
             proxy = proxy.replace("http://", "")
-        ignored_words = config.get_config('laboratory').get("ignored_words")
+        ignored_words = Config().get_config('laboratory').get("ignored_words")
         if ignored_words:
             ignored_words = ignored_words.replace("||", "\n")
-        replaced_words = config.get_config('laboratory').get("replaced_words")
+        replaced_words = Config().get_config('laboratory').get("replaced_words")
         if replaced_words:
             replaced_words = replaced_words.replace("||", "\n")
-        offset_words = config.get_config('laboratory').get("offset_words")
+        offset_words = Config().get_config('laboratory').get("offset_words")
         if offset_words:
             offset_words = offset_words.replace("||", "\n")
         return render_template("setting/basic.html",
-                               Config=config.get_config(),
+                               Config=Config().get_config(),
                                Proxy=proxy,
                                Ignored_Words=ignored_words,
                                Replaced_Words=replaced_words,
@@ -1223,8 +1224,8 @@ def create_flask_app(config):
     @App.route('/directorysync', methods=['POST', 'GET'])
     @login_required
     def directorysync():
-        sync_paths = config.get_config("sync").get("sync_path")
-        rmt_mode = config.get_config("sync").get("sync_mod")
+        sync_paths = Config().get_config("sync").get("sync_path")
+        rmt_mode = Config().get_config("sync").get("sync_mod")
         SyncPaths = []
         if sync_paths:
             if isinstance(sync_paths, list):
@@ -1272,164 +1273,14 @@ def create_flask_app(config):
     @App.route('/douban', methods=['POST', 'GET'])
     @login_required
     def douban():
-        return render_template("setting/douban.html", Config=config.get_config())
+        return render_template("setting/douban.html", Config=Config().get_config())
 
     # 下载器页面
     @App.route('/downloader', methods=['POST', 'GET'])
     @login_required
     def downloader():
-        # Qbittorrent
-        qbittorrent = config.get_config('qbittorrent')
-        save_path = qbittorrent.get("save_path", {})
-        if isinstance(save_path, str):
-            paths = save_path.split("|")
-            if len(paths) > 1:
-                path = paths[0]
-                tag = paths[1]
-            else:
-                path = paths[0]
-                tag = ""
-            QbMovieSavePath = QbTvSavePath = QbAnimeSavePath = {"path": path, "tag": tag}
-        else:
-            # 电影保存目录
-            movie_path = save_path.get("movie")
-            if movie_path:
-                paths = movie_path.split("|")
-                if len(paths) > 1:
-                    path = paths[0]
-                    tag = paths[1]
-                else:
-                    path = paths[0]
-                    tag = ""
-            else:
-                path = ""
-                tag = ""
-            QbMovieSavePath = {"path": path, "tag": tag}
-            # 电视剧保存目录
-            tv_path = save_path.get("tv")
-            if tv_path:
-                paths = tv_path.split("|")
-                if len(paths) > 1:
-                    path = paths[0]
-                    tag = paths[1]
-                else:
-                    path = paths[0]
-                    tag = ""
-            else:
-                path = ""
-                tag = ""
-            QbTvSavePath = {"path": path, "tag": tag}
-            # 动漫保存目录
-            anime_path = save_path.get("anime")
-            if anime_path:
-                paths = anime_path.split("|")
-                if len(paths) > 1:
-                    path = paths[0]
-                    tag = paths[1]
-                else:
-                    path = paths[0]
-                    tag = ""
-            else:
-                path = ""
-                tag = ""
-            QbAnimeSavePath = {"path": path, "tag": tag}
-        contianer_path = qbittorrent.get('save_containerpath', {})
-        if isinstance(contianer_path, str):
-            QbMovieContainerPath = QbTvContainerPath = QbAnimeContainerPath = contianer_path
-        else:
-            if contianer_path:
-                QbMovieContainerPath = contianer_path.get("movie")
-                QbTvContainerPath = contianer_path.get("tv")
-                QbAnimeContainerPath = contianer_path.get("anime")
-            else:
-                QbMovieContainerPath = QbTvContainerPath = QbAnimeContainerPath = ""
-
-        # Transmission
-        transmission = config.get_config('transmission')
-        save_path = transmission.get("save_path", {})
-        if isinstance(save_path, str):
-            TrMovieSavePath = TrTvSavePath = TrAnimeSavePath = save_path
-        else:
-            TrMovieSavePath = save_path.get("movie")
-            TrTvSavePath = save_path.get("tv")
-            TrAnimeSavePath = save_path.get("anime")
-        contianer_path = transmission.get('save_containerpath', {})
-        if isinstance(contianer_path, str):
-            TrMovieContainerPath = TrTvContainerPath = TrAnimeContainerPath = contianer_path
-        else:
-            if contianer_path:
-                TrMovieContainerPath = contianer_path.get("movie")
-                TrTvContainerPath = contianer_path.get("tv")
-                TrAnimeContainerPath = contianer_path.get("anime")
-            else:
-                TrMovieContainerPath = TrTvContainerPath = TrAnimeContainerPath = ""
-
-        # Cloudtorrent
-        client115 = config.get_config('client115')
-        save_path = client115.get("save_path", {})
-        if isinstance(save_path, str):
-            CloudMovieSavePath = CloudTvSavePath = CloudAnimeSavePath = save_path
-        else:
-            CloudMovieSavePath = save_path.get("movie")
-            CloudTvSavePath = save_path.get("tv")
-            CloudAnimeSavePath = save_path.get("anime")
-        contianer_path = client115.get('save_containerpath', {})
-        if isinstance(contianer_path, str):
-            CloudMovieContainerPath = CloudTvContainerPath = CloudAnimeContainerPath = contianer_path
-        else:
-            if contianer_path:
-                CloudMovieContainerPath = contianer_path.get("movie")
-                CloudTvContainerPath = contianer_path.get("tv")
-                CloudAnimeContainerPath = contianer_path.get("anime")
-            else:
-                CloudMovieContainerPath = CloudTvContainerPath = CloudAnimeContainerPath = ""
-
-        # Aria2
-        aria2 = config.get_config('aria2')
-        save_path = aria2.get("save_path", {})
-        if isinstance(save_path, str):
-            Aria2MovieSavePath = Aria2TvSavePath = Aria2AnimeSavePath = save_path
-        else:
-            Aria2MovieSavePath = save_path.get("movie")
-            Aria2TvSavePath = save_path.get("tv")
-            Aria2AnimeSavePath = save_path.get("anime")
-        contianer_path = aria2.get('save_containerpath', {})
-        if isinstance(contianer_path, str):
-            Aria2MovieContainerPath = Aria2TvContainerPath = Aria2AnimeContainerPath = contianer_path
-        else:
-            if contianer_path:
-                Aria2MovieContainerPath = contianer_path.get("movie")
-                Aria2TvContainerPath = contianer_path.get("tv")
-                Aria2AnimeContainerPath = contianer_path.get("anime")
-            else:
-                Aria2MovieContainerPath = Aria2TvContainerPath = Aria2AnimeContainerPath = ""
-
         return render_template("setting/downloader.html",
-                               Config=config.get_config(),
-                               QbMovieSavePath=QbMovieSavePath,
-                               QbTvSavePath=QbTvSavePath,
-                               QbAnimeSavePath=QbAnimeSavePath,
-                               QbMovieContainerPath=QbMovieContainerPath,
-                               QbTvContainerPath=QbTvContainerPath,
-                               QbAnimeContainerPath=QbAnimeContainerPath,
-                               TrMovieSavePath=TrMovieSavePath,
-                               TrTvSavePath=TrTvSavePath,
-                               TrAnimeSavePath=TrAnimeSavePath,
-                               TrMovieContainerPath=TrMovieContainerPath,
-                               TrTvContainerPath=TrTvContainerPath,
-                               TrAnimeContainerPath=TrAnimeContainerPath,
-                               CloudMovieSavePath=CloudMovieSavePath,
-                               CloudTvSavePath=CloudTvSavePath,
-                               CloudAnimeSavePath=CloudAnimeSavePath,
-                               CloudMovieContainerPath=CloudMovieContainerPath,
-                               CloudTvContainerPath=CloudTvContainerPath,
-                               CloudAnimeContainerPath=CloudAnimeContainerPath,
-                               Aria2MovieSavePath=Aria2MovieSavePath,
-                               Aria2TvSavePath=Aria2TvSavePath,
-                               Aria2AnimeSavePath=Aria2AnimeSavePath,
-                               Aria2MovieContainerPath=Aria2MovieContainerPath,
-                               Aria2TvContainerPath=Aria2TvContainerPath,
-                               Aria2AnimeContainerPath=Aria2AnimeContainerPath)
+                               Config=Config().get_config())
 
     # 索引器页面
     @App.route('/indexer', methods=['POST', 'GET'])
@@ -1439,7 +1290,7 @@ def create_flask_app(config):
         private_count = len([item.id for item in indexers if not item.public])
         public_count = len([item.id for item in indexers if item.public])
         return render_template("setting/indexer.html",
-                               Config=config.get_config(),
+                               Config=Config().get_config(),
                                PrivateCount=private_count,
                                PublicCount=public_count,
                                Indexers=indexers)
@@ -1448,25 +1299,25 @@ def create_flask_app(config):
     @App.route('/library', methods=['POST', 'GET'])
     @login_required
     def library():
-        return render_template("setting/library.html", Config=config.get_config())
+        return render_template("setting/library.html", Config=Config().get_config())
 
     # 媒体服务器页面
     @App.route('/mediaserver', methods=['POST', 'GET'])
     @login_required
     def mediaserver():
-        return render_template("setting/mediaserver.html", Config=config.get_config())
+        return render_template("setting/mediaserver.html", Config=Config().get_config())
 
     # 通知消息页面
     @App.route('/notification', methods=['POST', 'GET'])
     @login_required
     def notification():
-        return render_template("setting/notification.html", Config=config.get_config())
+        return render_template("setting/notification.html", Config=Config().get_config())
 
     # 字幕设置页面
     @App.route('/subtitle', methods=['POST', 'GET'])
     @login_required
     def subtitle():
-        return render_template("setting/subtitle.html", Config=config.get_config())
+        return render_template("setting/subtitle.html", Config=Config().get_config())
 
     # 用户管理页面
     @App.route('/users', methods=['POST', 'GET'])
@@ -1485,7 +1336,7 @@ def create_flask_app(config):
     @login_required
     def filterrule():
         RuleGroups = FilterRule().get_rule_infos()
-        sql_file = os.path.join(config.get_root_path(), "config", "init_filter.sql")
+        sql_file = os.path.join(Config().get_root_path(), "config", "init_filter.sql")
         with open(sql_file, "r", encoding="utf-8") as f:
             sql_list = f.read().split(';\n')
             Init_RuleGroups = []
@@ -1584,7 +1435,7 @@ def create_flask_app(config):
     # 响应企业微信消息
     @App.route('/wechat', methods=['GET', 'POST'])
     def wechat():
-        message = config.get_config('message')
+        message = Config().get_config('message')
         sToken = message.get('wechat', {}).get('Token')
         sEncodingAESKey = message.get('wechat', {}).get('EncodingAESKey')
         sCorpID = message.get('wechat', {}).get('corpid')
@@ -1770,7 +1621,7 @@ def create_flask_app(config):
         """
         try:
             # 创建备份文件夹
-            config_path = Path(config.get_config_path())
+            config_path = Path(Config().get_config_path())
             backup_file = f"bk_{time.strftime('%Y%m%d%H%M%S')}"
             backup_path = config_path / "backup_file" / backup_file
             backup_path.mkdir(parents=True)
@@ -1811,7 +1662,7 @@ def create_flask_app(config):
     def upload():
         try:
             files = request.files['file']
-            zip_file = Path(config.get_config_path()) / files.filename
+            zip_file = Path(Config().get_config_path()) / files.filename
             files.save(str(zip_file))
             return {"code": 0, "filepath": str(zip_file)}
         except Exception as e:

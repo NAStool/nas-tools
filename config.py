@@ -241,6 +241,38 @@ class Config(object):
                                 "season_thumb": True}
                         }
                         overwrite_cofig = True
+                    # 下载目录配置初始化
+                    if not self._config.get('downloaddir'):
+                        dl_client = self._config.get('pt', {}).get('pt_client')
+                        if dl_client and self._config.get(dl_client):
+                            save_path = self._config.get(dl_client).get('save_path')
+                            if not isinstance(save_path, dict):
+                                save_path = {"movie": save_path, "tv": save_path, "anime": save_path}
+                            container_path = self._config.get(dl_client).get('save_containerpath')
+                            if not isinstance(container_path, dict):
+                                container_path = {"movie": container_path, "tv": container_path, "anime": container_path}
+                            downloaddir = {}
+                            type_dict = {"movie": "电影", "tv": "电视剧", "anime": "动漫"}
+                            for mtype, path in save_path.items():
+                                if not path:
+                                    continue
+                                save_dir = path.split('|')[0]
+                                save_label = None
+                                if len(path.split('|')) > 1:
+                                    save_label = path.split('|')[1]
+                                container_dir = container_path.get(mtype)
+                                if save_dir not in downloaddir.keys():
+                                    downloaddir[save_dir] = {"type": type_dict.get(mtype),
+                                                             "category": "",
+                                                             "path": container_dir,
+                                                             "label": save_label}
+                                else:
+                                    downloaddir[save_dir] = {"type": "",
+                                                             "category": "",
+                                                             "path": container_dir,
+                                                             "label": save_label}
+                            self._config['downloaddir'] = downloaddir
+                            overwrite_cofig = True
                     # 重写配置文件
                     if overwrite_cofig:
                         self.save_config(self._config)

@@ -8,6 +8,7 @@ from app.downloader.client.client import IDownloadClient
 from app.utils.types import MediaType
 from pkg_resources import parse_version as v
 
+
 class Qbittorrent(IDownloadClient):
     __force_upload = False
     qbc = None
@@ -24,9 +25,6 @@ class Qbittorrent(IDownloadClient):
             self.password = qbittorrent.get('qbpassword')
             # 强制做种开关
             self.__force_upload = qbittorrent.get('force_upload')
-            # 解析下载目录
-            self.save_path = qbittorrent.get('save_path')
-            self.save_containerpath = qbittorrent.get('save_containerpath')
 
     def connect(self):
         if self.host and self.port:
@@ -130,11 +128,11 @@ class Qbittorrent(IDownloadClient):
             # 判断标签是否包含"已整理"
             if torrent.get("tags") and "已整理" in torrent.get("tags"):
                 continue
-            true_path = torrent.get('content_path', os.path.join(torrent.get('save_path'), torrent.get('name')))
-            if not true_path:
+            path = torrent.get('save_path')
+            if not path:
                 continue
-            true_path = self.get_replace_path(true_path)
-            trans_tasks.append({'path': true_path, 'id': torrent.get('hash')})
+            true_path = self.get_replace_path(path)
+            trans_tasks.append({'path': os.path.join(true_path, torrent.get('name')), 'id': torrent.get('hash')})
         return trans_tasks
 
     def get_remove_torrents(self, seeding_time, tag):
@@ -167,33 +165,29 @@ class Qbittorrent(IDownloadClient):
         else:
             return None
 
-    def add_torrent(self, content, mtype, is_paused=False, tag=None, download_dir=None):
+    def add_torrent(self,
+                    content,
+                    is_paused=False,
+                    tag=None,
+                    download_dir=None,
+                    category=None):
         if not self.qbc or not content:
             return False
         try:
-            if mtype == MediaType.TV:
-                save_path = self.tv_save_path
-                category = self.tv_category
-            elif mtype == MediaType.ANIME:
-                save_path = self.anime_save_path
-                category = self.anime_category
+            if category:
+                use_auto_torrent_management = True
             else:
-                save_path = self.movie_save_path
-                category = self.movie_category
-            use_auto_torrent_management = None
-            if download_dir:
-                save_path = download_dir
                 use_auto_torrent_management = False
             if isinstance(content, str):
                 qbc_ret = self.qbc.torrents_add(urls=content,
-                                                save_path=save_path,
+                                                save_path=download_dir,
                                                 category=category,
                                                 is_paused=is_paused,
                                                 tags=tag,
                                                 use_auto_torrent_management=use_auto_torrent_management)
             else:
                 qbc_ret = self.qbc.torrents_add(torrent_files=content,
-                                                save_path=save_path,
+                                                save_path=download_dir,
                                                 category=category,
                                                 is_paused=is_paused,
                                                 tags=tag,
