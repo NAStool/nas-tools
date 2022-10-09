@@ -150,7 +150,10 @@ class IDownloadClient(metaclass=ABCMeta):
         """
         if not true_path:
             return ""
-        downloaddir = Config().get_config('downloaddir').get(os.path.normpath(true_path.replace('\\', '/')))
-        if downloaddir and downloaddir.get("path"):
-            true_path = downloaddir.get("path")
+        downloaddir = Config().get_config('downloaddir') or {}
+        for path, attr in downloaddir.items():
+            if not path or not attr.get("path"):
+                continue
+            if os.path.normpath(path.replace('\\', '/')) == os.path.normpath(true_path.replace('\\', '/')):
+                return os.path.normpath(attr.get("path").replace('\\', '/'))
         return os.path.normpath(true_path.replace('\\', '/'))
