@@ -2,7 +2,6 @@ import log
 from config import Config
 from app.downloader.client.client import IDownloadClient
 from app.downloader.client.py115 import Py115
-from app.utils.types import MediaType
 
 
 class Client115(IDownloadClient):
@@ -14,9 +13,6 @@ class Client115(IDownloadClient):
         config = Config()
         cloudconfig = config.get_config('client115')
         if cloudconfig:
-            # 解析下载目录
-            self.save_path = cloudconfig.get('save_path')
-            self.save_containerpath = cloudconfig.get('save_containerpath')
             self.downclient = Py115(cloudconfig.get("cookie"))
 
     def connect(self):
@@ -63,39 +59,16 @@ class Client115(IDownloadClient):
         pass
 
     def get_transfer_task(self, **kwargs):
-        trans_tasks = []
-        try:
-            torrents = self.get_completed_torrents()
-            for torrent in torrents:
-                if torrent.get('path') == "/":
-                    continue
-                true_path = torrent.get('path')
-                if not true_path:
-                    continue
-                true_path = self.get_replace_path(true_path)
-                trans_tasks.append({'path': true_path, 'id': torrent.get('info_hash')})
-            return trans_tasks
-        except Exception as result:
-            log.error("【115】异常错误：{}".format(result))
-            return trans_tasks
+        pass
 
     def get_remove_torrents(self, **kwargs):
         return []
 
-    def add_torrent(self, content, mtype, download_dir=None, **kwargs):
+    def add_torrent(self, content, download_dir=None, **kwargs):
         if not self.downclient:
             return False
-        if download_dir:
-            save_path = download_dir
-        else:
-            if mtype == MediaType.TV:
-                save_path = self.tv_save_path
-            elif mtype == MediaType.MOVIE:
-                save_path = self.movie_save_path
-            else:
-                save_path = self.anime_save_path
         if isinstance(content, str):
-            ret, self.lasthash = self.downclient.addtask(tdir=save_path, content=content)
+            ret, self.lasthash = self.downclient.addtask(tdir=download_dir, content=content)
             if not ret:
                 log.error("【115】添加下载任务失败：{}".format(self.downclient.err))
                 return None

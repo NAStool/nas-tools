@@ -518,7 +518,7 @@ def create_flask_app(config):
             SiteDict.append({"id": item.id, "name": item.name})
 
         # 下载目录
-        SaveDirs = WebAction().get_download_dirs()
+        SaveDirs = Downloader().get_download_dirs()
         return render_template("search.html",
                                UserPris=str(pris).split(","),
                                SearchWord=SearchWord or "",
@@ -1278,158 +1278,8 @@ def create_flask_app(config):
     @App.route('/downloader', methods=['POST', 'GET'])
     @login_required
     def downloader():
-        # Qbittorrent
-        qbittorrent = config.get_config('qbittorrent')
-        save_path = qbittorrent.get("save_path", {})
-        if isinstance(save_path, str):
-            paths = save_path.split("|")
-            if len(paths) > 1:
-                path = paths[0]
-                tag = paths[1]
-            else:
-                path = paths[0]
-                tag = ""
-            QbMovieSavePath = QbTvSavePath = QbAnimeSavePath = {"path": path, "tag": tag}
-        else:
-            # 电影保存目录
-            movie_path = save_path.get("movie")
-            if movie_path:
-                paths = movie_path.split("|")
-                if len(paths) > 1:
-                    path = paths[0]
-                    tag = paths[1]
-                else:
-                    path = paths[0]
-                    tag = ""
-            else:
-                path = ""
-                tag = ""
-            QbMovieSavePath = {"path": path, "tag": tag}
-            # 电视剧保存目录
-            tv_path = save_path.get("tv")
-            if tv_path:
-                paths = tv_path.split("|")
-                if len(paths) > 1:
-                    path = paths[0]
-                    tag = paths[1]
-                else:
-                    path = paths[0]
-                    tag = ""
-            else:
-                path = ""
-                tag = ""
-            QbTvSavePath = {"path": path, "tag": tag}
-            # 动漫保存目录
-            anime_path = save_path.get("anime")
-            if anime_path:
-                paths = anime_path.split("|")
-                if len(paths) > 1:
-                    path = paths[0]
-                    tag = paths[1]
-                else:
-                    path = paths[0]
-                    tag = ""
-            else:
-                path = ""
-                tag = ""
-            QbAnimeSavePath = {"path": path, "tag": tag}
-        contianer_path = qbittorrent.get('save_containerpath', {})
-        if isinstance(contianer_path, str):
-            QbMovieContainerPath = QbTvContainerPath = QbAnimeContainerPath = contianer_path
-        else:
-            if contianer_path:
-                QbMovieContainerPath = contianer_path.get("movie")
-                QbTvContainerPath = contianer_path.get("tv")
-                QbAnimeContainerPath = contianer_path.get("anime")
-            else:
-                QbMovieContainerPath = QbTvContainerPath = QbAnimeContainerPath = ""
-
-        # Transmission
-        transmission = config.get_config('transmission')
-        save_path = transmission.get("save_path", {})
-        if isinstance(save_path, str):
-            TrMovieSavePath = TrTvSavePath = TrAnimeSavePath = save_path
-        else:
-            TrMovieSavePath = save_path.get("movie")
-            TrTvSavePath = save_path.get("tv")
-            TrAnimeSavePath = save_path.get("anime")
-        contianer_path = transmission.get('save_containerpath', {})
-        if isinstance(contianer_path, str):
-            TrMovieContainerPath = TrTvContainerPath = TrAnimeContainerPath = contianer_path
-        else:
-            if contianer_path:
-                TrMovieContainerPath = contianer_path.get("movie")
-                TrTvContainerPath = contianer_path.get("tv")
-                TrAnimeContainerPath = contianer_path.get("anime")
-            else:
-                TrMovieContainerPath = TrTvContainerPath = TrAnimeContainerPath = ""
-
-        # Cloudtorrent
-        client115 = config.get_config('client115')
-        save_path = client115.get("save_path", {})
-        if isinstance(save_path, str):
-            CloudMovieSavePath = CloudTvSavePath = CloudAnimeSavePath = save_path
-        else:
-            CloudMovieSavePath = save_path.get("movie")
-            CloudTvSavePath = save_path.get("tv")
-            CloudAnimeSavePath = save_path.get("anime")
-        contianer_path = client115.get('save_containerpath', {})
-        if isinstance(contianer_path, str):
-            CloudMovieContainerPath = CloudTvContainerPath = CloudAnimeContainerPath = contianer_path
-        else:
-            if contianer_path:
-                CloudMovieContainerPath = contianer_path.get("movie")
-                CloudTvContainerPath = contianer_path.get("tv")
-                CloudAnimeContainerPath = contianer_path.get("anime")
-            else:
-                CloudMovieContainerPath = CloudTvContainerPath = CloudAnimeContainerPath = ""
-
-        # Aria2
-        aria2 = config.get_config('aria2')
-        save_path = aria2.get("save_path", {})
-        if isinstance(save_path, str):
-            Aria2MovieSavePath = Aria2TvSavePath = Aria2AnimeSavePath = save_path
-        else:
-            Aria2MovieSavePath = save_path.get("movie")
-            Aria2TvSavePath = save_path.get("tv")
-            Aria2AnimeSavePath = save_path.get("anime")
-        contianer_path = aria2.get('save_containerpath', {})
-        if isinstance(contianer_path, str):
-            Aria2MovieContainerPath = Aria2TvContainerPath = Aria2AnimeContainerPath = contianer_path
-        else:
-            if contianer_path:
-                Aria2MovieContainerPath = contianer_path.get("movie")
-                Aria2TvContainerPath = contianer_path.get("tv")
-                Aria2AnimeContainerPath = contianer_path.get("anime")
-            else:
-                Aria2MovieContainerPath = Aria2TvContainerPath = Aria2AnimeContainerPath = ""
-
         return render_template("setting/downloader.html",
-                               Config=config.get_config(),
-                               QbMovieSavePath=QbMovieSavePath,
-                               QbTvSavePath=QbTvSavePath,
-                               QbAnimeSavePath=QbAnimeSavePath,
-                               QbMovieContainerPath=QbMovieContainerPath,
-                               QbTvContainerPath=QbTvContainerPath,
-                               QbAnimeContainerPath=QbAnimeContainerPath,
-                               TrMovieSavePath=TrMovieSavePath,
-                               TrTvSavePath=TrTvSavePath,
-                               TrAnimeSavePath=TrAnimeSavePath,
-                               TrMovieContainerPath=TrMovieContainerPath,
-                               TrTvContainerPath=TrTvContainerPath,
-                               TrAnimeContainerPath=TrAnimeContainerPath,
-                               CloudMovieSavePath=CloudMovieSavePath,
-                               CloudTvSavePath=CloudTvSavePath,
-                               CloudAnimeSavePath=CloudAnimeSavePath,
-                               CloudMovieContainerPath=CloudMovieContainerPath,
-                               CloudTvContainerPath=CloudTvContainerPath,
-                               CloudAnimeContainerPath=CloudAnimeContainerPath,
-                               Aria2MovieSavePath=Aria2MovieSavePath,
-                               Aria2TvSavePath=Aria2TvSavePath,
-                               Aria2AnimeSavePath=Aria2AnimeSavePath,
-                               Aria2MovieContainerPath=Aria2MovieContainerPath,
-                               Aria2TvContainerPath=Aria2TvContainerPath,
-                               Aria2AnimeContainerPath=Aria2AnimeContainerPath)
+                               Config=config.get_config())
 
     # 索引器页面
     @App.route('/indexer', methods=['POST', 'GET'])

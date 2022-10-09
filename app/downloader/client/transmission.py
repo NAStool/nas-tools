@@ -6,7 +6,6 @@ import transmission_rpc
 import log
 from config import Config
 from app.downloader.client.client import IDownloadClient
-from app.utils.types import MediaType
 
 
 class Transmission(IDownloadClient):
@@ -26,8 +25,6 @@ class Transmission(IDownloadClient):
             self.port = int(transmission.get('trport')) if str(transmission.get('trport')).isdigit() else 0
             self.username = transmission.get('trusername')
             self.password = transmission.get('trpassword')
-            self.save_path = transmission.get('save_path')
-            self.save_containerpath = transmission.get('save_containerpath')
 
     def connect(self):
         if self.host and self.port:
@@ -122,14 +119,13 @@ class Transmission(IDownloadClient):
             if not hasattr(torrent, "labels"):
                 log.error(f"【TR】当前transmission版本可能过低，无labels属性，请安装3.0以上版本！")
                 break
-
             if torrent.labels and "已整理" in torrent.labels:
                 continue
-            true_path = os.path.join(torrent.download_dir, torrent.name)
-            if not true_path:
+            path = torrent.download_dir
+            if not path:
                 continue
-            true_path = self.get_replace_path(true_path)
-            trans_tasks.append({'path': true_path, 'id': torrent.id})
+            true_path = self.get_replace_path(path)
+            trans_tasks.append({'path': os.path.join(true_path, torrent.name), 'id': torrent.id})
         return trans_tasks
 
     def get_remove_torrents(self, seeding_time, tag):
@@ -150,18 +146,9 @@ class Transmission(IDownloadClient):
                 remove_torrents.append(torrent.id)
         return remove_torrents
 
-    def add_torrent(self, content, mtype, is_paused=False, download_dir=None, **kwargs):
-        if download_dir:
-            save_path = download_dir
-        else:
-            if mtype == MediaType.TV:
-                save_path = self.tv_save_path
-            elif mtype == MediaType.ANIME:
-                save_path = self.anime_save_path
-            else:
-                save_path = self.movie_save_path
+    def add_torrent(self, content, is_paused=False, download_dir=None, **kwargs):
         try:
-            return self.trc.add_torrent(torrent=content, download_dir=save_path, paused=is_paused)
+            return self.trc.add_torrent(torrent=content, download_dir=download_dir, paused=is_paused)
         except Exception as err:
             print(str(err))
             return False
