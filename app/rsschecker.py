@@ -242,11 +242,8 @@ class RssChecker(object):
         # 添加下载
         if rss_download_torrents:
             for media in rss_download_torrents:
-                ret, ret_msg = self.downloader.add_pt_torrent(url=media.enclosure,
-                                                              mtype=media.type,
-                                                              page_url=media.page_url,
-                                                              download_dir=media.save_dir,
-                                                              title=media.org_string)
+                ret, ret_msg = self.downloader.add_pt_torrent(media_info=media,
+                                                              download_dir=media.save_dir)
                 if ret:
                     self.message.send_download_message(in_from=SearchType.RSS,
                                                        can_item=media)

@@ -282,12 +282,15 @@ class TorrentSpider(feapder.AirSpider):
         if "index" in selector \
                 and len(items) > selector.get('index'):
             self.torrents_info['size'] = StringUtils.num_filesize(
-                items[selector.get('index')].replace("\n", ""))
+                items[selector.get('index')].replace("\n", "").strip())
         elif len(items) > 0:
-            self.torrents_info['size'] = StringUtils.num_filesize(items[0].replace("\n", ""))
+            self.torrents_info['size'] = StringUtils.num_filesize(
+                items[0].replace("\n", "").strip())
         if 'filters' in selector:
             self.torrents_info['size'] = self.__filter_text(self.torrents_info.get('size'),
                                                             selector.get('filters'))
+        if self.torrents_info['size']:
+            self.torrents_info['size'] = StringUtils.num_filesize(self.torrents_info['size'])
 
     def Getleechers(self, torrent):
         # torrent leechers

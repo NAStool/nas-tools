@@ -21,7 +21,7 @@ class StringUtils:
         if not isinstance(text, str):
             text = str(text)
         text = text.replace(",", "").replace(" ", "").upper()
-        size = re.sub(r"[KMGTPI]*B", "", text, flags=re.IGNORECASE)
+        size = re.sub(r"[KMGTPI]*B?", "", text, flags=re.IGNORECASE)
         try:
             size = float(size)
         except Exception as e:

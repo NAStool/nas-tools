@@ -1,6 +1,8 @@
 import os.path
 from abc import ABCMeta, abstractmethod
 
+from config import Config
+
 
 class IDownloadClient(metaclass=ABCMeta):
     user_config = None
@@ -9,17 +11,6 @@ class IDownloadClient(metaclass=ABCMeta):
     username = None
     password = None
     secret = None
-    save_path = None
-    save_containerpath = None
-    tv_save_path = None
-    tv_save_containerpath = None
-    tv_category = None
-    movie_save_path = None
-    movie_save_containerpath = None
-    movie_category = None
-    anime_save_path = None
-    anime_save_containerpath = None
-    anime_category = None
 
     def __init__(self, user_config=None):
         if user_config:
@@ -55,44 +46,6 @@ class IDownloadClient(metaclass=ABCMeta):
             self.port = self.user_config.get("port")
             self.username = self.user_config.get("username")
             self.password = self.user_config.get("password")
-            self.movie_save_path = self.tv_save_path = self.anime_save_path = self.user_config.get("save_dir")
-        else:
-            if self.save_path:
-                if isinstance(self.save_path, str):
-                    self.tv_save_path = self.save_path
-                    self.movie_save_path = self.save_path
-                    self.anime_save_path = self.save_path
-                else:
-                    if self.save_path.get('tv'):
-                        tv_save_path = self.save_path.get('tv').split("|")
-                        self.tv_save_path = tv_save_path[0]
-                        if len(tv_save_path) > 1:
-                            self.tv_category = tv_save_path[1]
-                    if self.save_path.get('movie'):
-                        movie_save_path = self.save_path.get('movie').split("|")
-                        self.movie_save_path = movie_save_path[0]
-                        if len(movie_save_path) > 1:
-                            self.movie_category = movie_save_path[1]
-                    if self.save_path.get('anime'):
-                        anime_save_path = self.save_path.get('anime').split("|")
-                        self.anime_save_path = anime_save_path[0]
-                        if len(anime_save_path) > 1:
-                            self.anime_category = anime_save_path[1]
-                    if not self.anime_save_path:
-                        self.anime_save_path = self.tv_save_path
-                        self.anime_category = self.tv_category
-            if self.save_containerpath:
-                if isinstance(self.save_containerpath, str):
-                    self.tv_save_containerpath = self.save_containerpath
-                    self.movie_save_containerpath = self.save_containerpath
-                    self.anime_save_containerpath = self.save_containerpath
-                else:
-                    self.tv_save_containerpath = self.save_containerpath.get('tv')
-                    self.movie_save_containerpath = self.save_containerpath.get('movie')
-                    self.anime_save_containerpath = self.save_containerpath.get('anime')
-                    # 没有配置anime目录则使用tv目录
-                    if not self.anime_save_containerpath:
-                        self.anime_save_containerpath = self.tv_save_containerpath
 
     @abstractmethod
     def get_status(self):
@@ -152,11 +105,10 @@ class IDownloadClient(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def add_torrent(self, content, mtype, is_paused, tag, download_dir):
+    def add_torrent(self, content, is_paused, tag, download_dir):
         """
         添加下载任务
         :param content: 种子数据或链接
-        :param mtype: 媒体类型：电影、电视剧、动漫
         :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
         :param tag: 下载时对种子的TAG标记
         :param download_dir: 指定下载目录
@@ -191,16 +143,17 @@ class IDownloadClient(metaclass=ABCMeta):
         """
         pass
 
-    def get_replace_path(self, true_path):
+    @staticmethod
+    def get_replace_path(true_path):
         """
         对目录路径进行转换
         """
         if not true_path:
             return ""
-        if self.tv_save_containerpath and true_path.startswith(self.tv_save_path):
-            true_path = true_path.replace(str(self.tv_save_path), str(self.tv_save_containerpath))
-        elif self.movie_save_containerpath and true_path.startswith(self.movie_save_path):
-            true_path = true_path.replace(str(self.movie_save_path), str(self.movie_save_containerpath))
-        elif self.anime_save_containerpath and true_path.startswith(self.anime_save_path):
-            true_path = true_path.replace(str(self.anime_save_path), str(self.anime_save_containerpath))
-        return os.path.normpath(true_path.replace('\\', '/'))
+        downloaddir = Config().get_config('downloaddir') or {}
+        for path, attr in downloaddir.items():
+            if not path or not attr.get("path"):
+                continue
+            if os.path.normpath(path) == os.path.normpath(true_path):
+                return attr.get("path")
+        return true_path

@@ -1,3 +1,4 @@
+import os
 from threading import Lock
 from time import sleep
 
@@ -11,7 +12,7 @@ from app.message import Message
 from app.downloader import Aria2, Client115, Qbittorrent, Transmission
 from app.mediaserver import MediaServer
 from app.sites import Sites, SiteConf
-from app.utils import Torrent, StringUtils, RequestUtils
+from app.utils import Torrent, StringUtils, RequestUtils, SystemUtils
 from app.filetransfer import FileTransfer
 from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode, RMT_MODES
 
@@ -25,6 +26,7 @@ class Downloader:
     __pt_monitor_only = None
     __download_order = None
     __pt_rmt_mode = None
+    __downloaddir = {}
     message = None
     mediaserver = None
     filetransfer = None
@@ -41,6 +43,7 @@ class Downloader:
 
     def init_config(self):
         config = Config()
+        # 下载器配置
         pt = config.get_config('pt')
         if pt:
             pt_client = pt.get('pt_client')
@@ -66,25 +69,24 @@ class Downloader:
             self.__pt_monitor_only = pt.get("pt_monitor_only")
             self.__download_order = pt.get("download_order")
             self.__pt_rmt_mode = RMT_MODES.get(pt.get("rmt_mode", "copy"), RmtMode.COPY)
+        # 下载目录配置
+        self.__downloaddir = config.get_config('downloaddir') or {}
 
     def add_pt_torrent(self,
-                       url,
-                       mtype=MediaType.MOVIE,
+                       media_info,
                        is_paused=None,
                        tag=None,
-                       download_dir=None,
-                       page_url=None,
-                       title=None):
+                       download_dir=None):
         """
         添加下载任务，根据当前使用的下载器分别调用不同的客户端处理
-        :param url: 种子地址，如用[]括住则为xpath，需要从详情页面解析下载地址
-        :param mtype: 媒体类型，电影、电视剧、动漫
+        :param media_info: 需下载的媒体信息，含URL地址
         :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
         :param tag: 下载时对种子的标记
         :param download_dir: 指定下载目录
-        :param page_url: 详情面页的地址
-        :param title: 种子标题
         """
+        url = media_info.enclosure
+        title = media_info.org_string
+        page_url = media_info.page_url
         if not url:
             return None, "Url链接为空"
         _xpath = None
@@ -150,21 +152,26 @@ class Downloader:
                         tag += [PT_TAG]
                     else:
                         tag = [PT_TAG, tag]
-                log.info("【DOWNLOADER】添加下载任务：%s %s" % (title, url))
+                download_label = None
+                if not download_dir:
+                    download_info = self.__get_download_dir_info(media_info)
+                    download_dir = download_info.get('path')
+                    download_label = download_info.get('label')
+                log.info("【DOWNLOADER】添加下载任务：%s，目录：%s，Url：%s" % (title, download_dir, url))
                 if self.__client_type == DownloaderType.TR:
                     ret = self.client.add_torrent(content,
-                                                  mtype,
                                                   is_paused=is_paused,
-                                                  download_dir=download_dir)
+                                                  download_dir=download_dir,
+                                                  category=download_label)
                     if ret and tag:
                         self.client.set_torrent_tag(tid=ret.id,
                                                     tag=tag)
                 else:
                     ret = self.client.add_torrent(content,
-                                                  mtype,
                                                   is_paused=is_paused,
                                                   tag=tag,
-                                                  download_dir=download_dir)
+                                                  download_dir=download_dir,
+                                                  category=download_label)
             except Exception as e:
                 log.error("【DOWNLOADER】添加下载任务出错：%s" % str(e))
                 return None, str(e)
@@ -194,7 +201,7 @@ class Downloader:
                         log.warn("【DOWNLOADER】%s 转移失败：%s" % (task.get("path"), done_msg))
                         self.client.set_torrents_status(task.get("id"))
                     else:
-                        if self.__pt_rmt_mode in [RmtMode.MOVE, RmtMode.RCLONE,RmtMode.MINIO]:
+                        if self.__pt_rmt_mode in [RmtMode.MOVE, RmtMode.RCLONE, RmtMode.MINIO]:
                             log.warn("【DOWNLOADER】移动模式下删除种子文件：%s" % task.get("id"))
                             self.delete_torrents(task.get("id"))
                         else:
@@ -366,10 +373,7 @@ class Downloader:
         return_items = []
         for item in download_items:
             log.info("【DOWNLOADER】添加下载任务：%s ..." % item.org_string)
-            ret, ret_msg = self.add_pt_torrent(url=item.enclosure,
-                                               mtype=item.type,
-                                               page_url=item.page_url,
-                                               title=item.org_string)
+            ret, ret_msg = self.add_pt_torrent(media_info=item)
             if ret:
                 if item not in return_items:
                     return_items.append(item)
@@ -416,12 +420,9 @@ class Downloader:
                                 and item.get_season_list()[0] == need_season:
                             log.info("【DOWNLOADER】添加下载任务并暂停：%s ..." % item.org_string)
                             torrent_tag = "NT" + StringUtils.generate_random_str(5)
-                            ret, ret_msg = self.add_pt_torrent(url=item.enclosure,
-                                                               mtype=item.type,
+                            ret, ret_msg = self.add_pt_torrent(media_info=item,
                                                                is_paused=True,
-                                                               tag=torrent_tag,
-                                                               page_url=item.page_url,
-                                                               title=item.org_string)
+                                                               tag=torrent_tag)
                             if not ret:
                                 log.error("【DOWNLOADER】添加下载任务 %s 失败：%s" % (item.org_string, ret_msg or "请检查下载任务是否已存在"))
                                 continue
@@ -703,6 +704,27 @@ class Downloader:
         """
         返回下载器中设置的保存目录
         """
-        if not self.client:
+        if not self.__downloaddir:
             return []
-        return self.client.get_download_dirs()
+        return self.__downloaddir.keys()
+
+    def __get_download_dir_info(self, media):
+        """
+        根据媒体信息读取一个下载目录的信息
+        """
+        if media and media.tmdb_info:
+            for path, attr in self.__downloaddir.items():
+                if not path or not attr:
+                    continue
+                if attr.get('type') and attr.get('type') != media.type.value:
+                    continue
+                if attr.get('category') and attr.get('category') != media.category:
+                    continue
+                if not attr.get('path'):
+                    continue
+                if not os.path.exists(attr.get('path')) \
+                        or (media.size
+                            and float(SystemUtils.get_free_space_gb(attr.get('path'))) < float(int(StringUtils.num_filesize(media.size)) / 1024 / 1024 / 1024)):
+                    continue
+                return {"path": path, "label": attr.get('label')}
+        return {"path": None, "label": None}

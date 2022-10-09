@@ -313,16 +313,6 @@ qbittorrent:
   qbpassword:
   # 转移完成后是否自动强制作种，按需要设置
   force_upload: true
-  # 下载文件保存路径，传递给下载器使用
-  save_path:
-    movie:
-    tv:
-    anime:
-  # NASTool访问下载文件的映射路径
-  save_containerpath:
-    movie:
-    tv:
-    anime:
 
 # 【配置transmission下载软件】：pt区的pt_client如配置为transmission则需要同步配置该项，需要3.0以上版本，否则可能会报错
 transmission:
@@ -332,31 +322,11 @@ transmission:
   # transmission 登录用户名和密码
   trusername:
   trpassword:
-  # 下载文件保存路径，传递给下载器使用
-  save_path:
-    movie:
-    tv:
-    anime:
-  # NASTool访问下载文件的映射路径
-  save_containerpath:
-    movie:
-    tv:
-    anime:
 
-# 配置115网盘下载器
+# 配置 115 网盘下载器
 client115:
   # 115 Cookie 抓包获取
   cookie:
-  # 下载文件保存路径，传递给下载器使用
-  save_path:
-    movie:
-    tv:
-    anime:
-  # NASTool访问下载文件的映射路径
-  save_containerpath:
-    movie:
-    tv:
-    anime:
 
 # 配置Aria2下载器
 aria2:
@@ -366,16 +336,9 @@ aria2:
   port:
   # 密码令牌
   secret:
-  # 下载文件保存路径，传递给下载器使用
-  save_path:
-    movie:
-    tv:
-    anime:
-  # NASTool访问下载文件的映射路径
-  save_containerpath:
-    movie:
-    tv:
-    anime:
+
+# 【下载目录】：配置下载目录，自按分类下载到指定目录
+downloaddir:
 
 # 【配置豆瓣账号信息】：配置后会自动同步豆瓣收藏，豆瓣标记想看内容后，后台自动下载
 douban:

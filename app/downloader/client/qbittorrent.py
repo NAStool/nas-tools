@@ -5,12 +5,13 @@ import qbittorrentapi
 import log
 from config import Config, PT_TAG
 from app.downloader.client.client import IDownloadClient
-from app.utils.types import MediaType
+from pkg_resources import parse_version as v
 
 
 class Qbittorrent(IDownloadClient):
     __force_upload = False
     qbc = None
+    ver = None
 
     def get_config(self):
         # 读取配置文件
@@ -23,9 +24,6 @@ class Qbittorrent(IDownloadClient):
             self.password = qbittorrent.get('qbpassword')
             # 强制做种开关
             self.__force_upload = qbittorrent.get('force_upload')
-            # 解析下载目录
-            self.save_path = qbittorrent.get('save_path')
-            self.save_containerpath = qbittorrent.get('save_containerpath')
 
     def connect(self):
         if self.host and self.port:
@@ -46,6 +44,7 @@ class Qbittorrent(IDownloadClient):
                                         REQUESTS_ARGS={'timeout': (3, 10)})
             try:
                 qbt.auth_log_in()
+                self.ver = qbt.app_version()
             except qbittorrentapi.LoginFailed as e:
                 print(e)
             return qbt
@@ -67,6 +66,8 @@ class Qbittorrent(IDownloadClient):
             return []
         try:
             torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status, tag=tag)
+            if self.is_ver_less_4_4():
+                torrents = self.filter_torrent_by_tag(torrents, tag=tag)
             return torrents or []
         except Exception as err:
             print(str(err))
@@ -126,11 +127,11 @@ class Qbittorrent(IDownloadClient):
             # 判断标签是否包含"已整理"
             if torrent.get("tags") and "已整理" in torrent.get("tags"):
                 continue
-            true_path = torrent.get('content_path', os.path.join(torrent.get('save_path'), torrent.get('name')))
-            if not true_path:
+            path = torrent.get('save_path')
+            if not path:
                 continue
-            true_path = self.get_replace_path(true_path)
-            trans_tasks.append({'path': true_path, 'id': torrent.get('hash')})
+            true_path = self.get_replace_path(path)
+            trans_tasks.append({'path': os.path.join(true_path, torrent.get('name')), 'id': torrent.get('hash')})
         return trans_tasks
 
     def get_remove_torrents(self, seeding_time, tag):
@@ -163,33 +164,29 @@ class Qbittorrent(IDownloadClient):
         else:
             return None
 
-    def add_torrent(self, content, mtype, is_paused=False, tag=None, download_dir=None):
+    def add_torrent(self,
+                    content,
+                    is_paused=False,
+                    tag=None,
+                    download_dir=None,
+                    category=None):
         if not self.qbc or not content:
             return False
         try:
-            if mtype == MediaType.TV:
-                save_path = self.tv_save_path
-                category = self.tv_category
-            elif mtype == MediaType.ANIME:
-                save_path = self.anime_save_path
-                category = self.anime_category
+            if category:
+                use_auto_torrent_management = True
             else:
-                save_path = self.movie_save_path
-                category = self.movie_category
-            use_auto_torrent_management = None
-            if download_dir:
-                save_path = download_dir
                 use_auto_torrent_management = False
             if isinstance(content, str):
                 qbc_ret = self.qbc.torrents_add(urls=content,
-                                                save_path=save_path,
+                                                save_path=download_dir,
                                                 category=category,
                                                 is_paused=is_paused,
                                                 tags=tag,
                                                 use_auto_torrent_management=use_auto_torrent_management)
             else:
                 qbc_ret = self.qbc.torrents_add(torrent_files=content,
-                                                save_path=save_path,
+                                                save_path=download_dir,
                                                 category=category,
                                                 is_paused=is_paused,
                                                 tags=tag,
@@ -289,3 +286,23 @@ class Qbittorrent(IDownloadClient):
             return
         self.qbc.torrents_set_download_limit(limit=int(limit),
                                              torrent_hashes=ids)
+
+    def is_ver_less_4_4(self):
+        return v(self.ver) < v("v4.4.0")
+
+    @staticmethod
+    def filter_torrent_by_tag(torrents, tag):
+        if not tag:
+            return torrents
+        if not isinstance(tag, list):
+            tag = [tag]
+        results = []
+        for torrent in torrents:
+            include_flag = True
+            for t in tag:
+                if t and t not in torrent.get("tags"):
+                    include_flag = False
+                    break
+            if include_flag:
+                results.append(torrent)
+        return results
