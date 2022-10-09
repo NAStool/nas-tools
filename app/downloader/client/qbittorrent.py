@@ -5,7 +5,6 @@ import qbittorrentapi
 import log
 from config import Config, PT_TAG
 from app.downloader.client.client import IDownloadClient
-from app.utils.types import MediaType
 from pkg_resources import parse_version as v
 
 
@@ -67,7 +66,7 @@ class Qbittorrent(IDownloadClient):
             return []
         try:
             torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status, tag=tag)
-            if self.is_ver_less_4_4() :
+            if self.is_ver_less_4_4():
                 torrents = self.filter_torrent_by_tag(torrents, tag=tag)
             return torrents or []
         except Exception as err:
@@ -288,15 +287,22 @@ class Qbittorrent(IDownloadClient):
         self.qbc.torrents_set_download_limit(limit=int(limit),
                                              torrent_hashes=ids)
 
-    def is_ver_less_4_4(self) :
-        return v(self.ver) < v("v4.4.0") 
-    
-    def filter_torrent_by_tag(self, torrents, tag) :
-        if tag == None :
+    def is_ver_less_4_4(self):
+        return v(self.ver) < v("v4.4.0")
+
+    @staticmethod
+    def filter_torrent_by_tag(torrents, tag):
+        if not tag:
             return torrents
-        result = qbittorrentapi.torrents.TorrentInfoList()
+        if not isinstance(tag, list):
+            tag = [tag]
+        results = []
         for torrent in torrents:
-            if tag[0] in torrent.tags :
-                result.append(torrent)
-        return result
-            
+            include_flag = True
+            for t in tag:
+                if t and t not in torrent.get("tags"):
+                    include_flag = False
+                    break
+            if include_flag:
+                results.append(torrent)
+        return results
