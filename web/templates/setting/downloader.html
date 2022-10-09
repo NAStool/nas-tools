@@ -276,8 +276,8 @@
         </div>
         <div class="card-body">
           <div class="row">
-            <div class="mb-1" id="dirdiv_container">
-              <label class="form-label required">目录信息 <span class="form-help" title="根据类型及二级分类自动选择下载目录，按优先级从前往后依次匹配；二级分类从基础设置->二级分类策略的配置中读取，如未配置二级分类则无法配置下载目录二级分类" data-bs-toggle="tooltip">?</span></label>
+            <div class="mb-3" id="dirdiv_container">
+              <label class="form-label required">目录信息 <span class="form-help" title="根据类型及二级分类自动选择下载目录，按优先级从前往后依次匹配，直到找到符合条件及空间要求的目录下载；二级分类从基础设置->二级分类策略的配置中读取，如未配置二级分类则无法配置下载目录二级分类" data-bs-toggle="tooltip">?</span></label>
               {% if Config.downloaddir %}
               {% for Path, Dir in Config.downloaddir.items() %}
               <div class="row" id="dirdiv_{{loop.index0}}">
@@ -340,7 +340,7 @@
                   <input type="text" value="" name="path_tag" class="form-control" placeholder="分类标签" autocomplete="off">
                 </div>
                 <div class="col-12 col-lg-1 mb-1 mt-2">
-                  <a href="javascript:del_downloaddir('1')" class="btn-icon" title="删除下载目录">
+                  <a href="javascript:del_downloaddir('1')" class="btn-icon" title="删除目录">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-minus text-red" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                        <circle cx="12" cy="12" r="9"></circle>
@@ -352,7 +352,7 @@
               {% endif %}
               <div class="row" id="dirdiv_add">
                 <div class="mt-2">
-                  <a href="javascript:add_downloaddir()" class="btn-icon" title="增加下载目录">
+                  <a href="javascript:add_downloaddir()" class="btn-icon" title="增加目录">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                        <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
@@ -445,19 +445,25 @@
 
   //获取二级分类
   function get_categories(obj, value){
+    category_obj = $(obj).parent().parent().find("[name='dir_subtype']")[0];
+    if(!category_obj){
+      return;
+    }
+    if(!$(obj).val()){
+      $(category_obj).empty();
+      $(category_obj).append('<option value="" selected>全部</option>');
+      return;
+    }
     ajax_post("get_categories", {"type": $(obj).val()}, function(ret){
-      category_obj = $(obj).parent().parent().find("[name='dir_subtype']")[0];
-      if(category_obj){
-        $(category_obj).empty();
-        $(category_obj).append('<option value="" selected>全部</option>');
-        if(ret.category){
-          for(var i=0; i<ret.category.length; i++){
-            $(category_obj).append('<option value="'+ret.category[i]+'">'+ret.category[i]+'</option>');
-          }
+      $(category_obj).empty();
+      $(category_obj).append('<option value="" selected>全部</option>');
+      if(ret.category){
+        for(var i=0; i<ret.category.length; i++){
+          $(category_obj).append('<option value="'+ret.category[i]+'">'+ret.category[i]+'</option>');
         }
-        if(value){
-          $(category_obj).val(value);
-        }
+      }
+      if(value){
+        $(category_obj).val(value);
       }
     });
   }
@@ -480,7 +486,7 @@
 </script>
 <script id="dirdiv_template" type="text">
 <div class="row" id="dirdiv_{DIRDIV_LEVEL}">
-  <div class="col-12 col-lg-2 mb-1">
+  <div class="col-12 col-lg-2 mb-3">
     <select class="form-select" name="dir_type" onchange="get_categories(this)">
       <option value="" selected>全部</option>
       <option value="电影">电影</option>
@@ -503,7 +509,7 @@
     <input type="text" value="" name="path_tag" class="form-control" placeholder="分类标签" autocomplete="off">
   </div>
   <div class="col-12 col-lg-1 mb-1 mt-2">
-    <a href="javascript:del_downloaddir('{DIRDIV_LEVEL}')" class="btn-icon" title="删除下载目录">
+    <a href="javascript:del_downloaddir('{DIRDIV_LEVEL}')" class="btn-icon" title="删除目录">
       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-minus text-red" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
          <circle cx="12" cy="12" r="9"></circle>

@@ -12,7 +12,7 @@ from app.message import Message
 from app.downloader import Aria2, Client115, Qbittorrent, Transmission
 from app.mediaserver import MediaServer
 from app.sites import Sites, SiteConf
-from app.utils import Torrent, StringUtils, RequestUtils
+from app.utils import Torrent, StringUtils, RequestUtils, SystemUtils
 from app.filetransfer import FileTransfer
 from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode, RMT_MODES
 
@@ -719,6 +719,12 @@ class Downloader:
                 if attr.get('type') and attr.get('type') != media.type.value:
                     continue
                 if attr.get('category') and attr.get('category') != media.category:
+                    continue
+                if not attr.get('path'):
+                    continue
+                if not os.path.exists(attr.get('path')) \
+                        or (media.size
+                            and float(SystemUtils.get_free_space_gb(attr.get('path'))) < float(media.size / 1024 / 1024 / 1024)):
                     continue
                 return {"path": os.path.normpath(path.replace('\\', '/')), "label": attr.get('label')}
         return {"path": None, "label": None}
