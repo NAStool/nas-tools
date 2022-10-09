@@ -2311,4 +2311,4 @@ class WebAction:
             categories = Category().get_tv_categorys()
         else:
             categories = Category().get_anime_categorys()
-        return {"code": 0, "category": list(categories)}
+        return {"code": 0, "category": list(categories), "id": data.get("id"), "value": data.get("value")}

@@ -290,8 +290,8 @@
                   </select>
                 </div>
                 <div class="col-12 col-lg-2 mb-1">
-                  <input type="hidden" id="dir_subtype_{{loop.index0}}" value="{{ Dir.category }}">
-                  <select class="form-select" name="dir_subtype">
+                  <input type="hidden" id="dir_subtype_{{loop.index0}}" value="{{ Dir.category or '' }}">
+                  <select class="form-select" name="dir_subtype" id="dir_subtype_value_{{loop.index0}}">
                     <option value="" selected>全部</option>
                   </select>
                 </div>
@@ -302,7 +302,7 @@
                   <input type="text" value="{{ Dir.path or '' }}" name="container_path" class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
                 </div>
                 <div class="col-12 col-lg mb-1">
-                  <input type="text" value="{{ Dir.label or '' }}" name="path_tag" class="form-control" placeholder="分类标签" autocomplete="off">
+                  <input type="text" value="{{ Dir.label or '' }}" name="path_label" class="form-control" placeholder="分类标签" autocomplete="off">
                 </div>
                 <div class="col-12 col-lg-1 mb-1 mt-2">
                   <a href="javascript:del_downloaddir('{{loop.index0}}')" class="btn-icon" title="删除下载目录">
@@ -316,9 +316,9 @@
               </div>
               {% endfor %}
               {% else %}
-              <div class="row" id="dirdiv_1">
+              <div class="row" id="dirdiv_0">
                 <div class="col-12 col-lg-2 mb-1">
-                  <select class="form-select" name="dir_type">
+                  <select class="form-select" name="dir_type" id="dir_type_0" onchange="get_categories(this)">
                     <option value="" selected>全部</option>
                     <option value="电影">电影</option>
                     <option value="电视剧">电视剧</option>
@@ -326,7 +326,8 @@
                   </select>
                 </div>
                 <div class="col-12 col-lg-2 mb-1">
-                  <select class="form-select" name="dir_subtype">
+                  <input type="hidden" id="dir_subtype_0" value="">
+                  <select class="form-select" name="dir_subtype" id="dir_subtype_value_0">
                     <option value="" selected>全部</option>
                   </select>
                 </div>
@@ -337,10 +338,10 @@
                   <input type="text" value="" name="container_path" class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
                 </div>
                 <div class="col-12 col-lg mb-1">
-                  <input type="text" value="" name="path_tag" class="form-control" placeholder="分类标签" autocomplete="off">
+                  <input type="text" value="" name="path_label" class="form-control" placeholder="分类标签" autocomplete="off">
                 </div>
                 <div class="col-12 col-lg-1 mb-1 mt-2">
-                  <a href="javascript:del_downloaddir('1')" class="btn-icon" title="删除目录">
+                  <a href="javascript:del_downloaddir('0')" class="btn-icon" title="删除目录">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-minus text-red" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                        <circle cx="12" cy="12" r="9"></circle>
@@ -431,9 +432,47 @@
     $('#modal-downloaddir').modal('show');
   }
 
+  //获取同一行其它输入框的值
+  function get_dir_item_value(obj, name){
+    item = $(obj).parent().parent().find("[name='"+name+"']")[0];
+    if(item){
+      return $(item).val();
+    }else{
+      return '';
+    }
+  }
+
   //保存下载目录配置
   function save_downloaddir_config(){
     $("#modal-downloaddir").modal('hide');
+    var download_dir = {};
+    $("[name='save_path']").each(function(){
+      save_path = $(this).val();
+      type = get_dir_item_value(this, 'dir_type');
+      category = get_dir_item_value(this, 'dir_subtype');
+      path = get_dir_item_value(this, 'container_path');
+      label = get_dir_item_value(this, 'path_label');
+      debugger;
+      if(download_dir[save_path]){
+        if(type != download_dir[save_path].type){
+          type = '';
+        }
+        if(category != download_dir[save_path].category){
+          category = '';
+        }
+      }
+
+      download_dir[save_path] = {
+        type: type,
+        category: category,
+        path: path,
+        label: label
+      };
+    });
+    ajax_post("update_config", {downloaddir: download_dir}, function(){
+      navmenu('downloader');
+    });
+
   }
 
   //删除下载目录
@@ -444,35 +483,39 @@
   }
 
   //获取二级分类
-  function get_categories(obj, value){
-    category_obj = $(obj).parent().parent().find("[name='dir_subtype']")[0];
-    if(!category_obj){
+  function get_categories(obj){
+    obj_id = $(obj).attr("id");
+    if(!obj_id){
+      return;
+    }
+    id = obj_id.replace("dir_type_", "");
+    value = $("#dir_subtype_"+id).val();
+    if(!id){
       return;
     }
     if(!$(obj).val()){
-      $(category_obj).empty();
-      $(category_obj).append('<option value="" selected>全部</option>');
+      $("#dir_subtype_value_"+id).empty();
+      $("#dir_subtype_value_"+id).append('<option value="" selected>全部</option>');
       return;
     }
-    ajax_post("get_categories", {"type": $(obj).val()}, function(ret){
-      $(category_obj).empty();
-      $(category_obj).append('<option value="" selected>全部</option>');
+    ajax_post("get_categories", {"type": $(obj).val(), "id": id, "value": value}, function(ret){
+      $("#dir_subtype_value_"+ret.id).empty();
+      $("#dir_subtype_value_"+ret.id).append('<option value="" selected>全部</option>');
       if(ret.category){
         for(var i=0; i<ret.category.length; i++){
-          $(category_obj).append('<option value="'+ret.category[i]+'">'+ret.category[i]+'</option>');
+          $("#dir_subtype_value_"+ret.id).append('<option value="'+ret.category[i]+'">'+ret.category[i]+'</option>');
         }
       }
-      if(value){
-        $(category_obj).val(value);
+      if(ret.value){
+        $("#dir_subtype_value_"+ret.id).val(ret.value);
       }
     });
   }
 
   //获取所有二级分类
-  var CURRENT_DIRDIV_LEVEL = 1;
+  var CURRENT_DIRDIV_LEVEL = 0;
   $("[name='dir_type']").each(function(){
-    id = $(this).attr("id").replace("dir_type_", "");
-    get_categories(this, $("#dir_subtype_"+id).val());
+    get_categories(this);
     CURRENT_DIRDIV_LEVEL = CURRENT_DIRDIV_LEVEL + 1;
   });
 
@@ -490,7 +533,7 @@
 <script id="dirdiv_template" type="text">
 <div class="row" id="dirdiv_{DIRDIV_LEVEL}">
   <div class="col-12 col-lg-2 mb-1">
-    <select class="form-select" name="dir_type" onchange="get_categories(this)">
+    <select class="form-select" name="dir_type" id="dir_type_{DIRDIV_LEVEL}" onchange="get_categories(this)">
       <option value="" selected>全部</option>
       <option value="电影">电影</option>
       <option value="电视剧">电视剧</option>
@@ -498,7 +541,8 @@
     </select>
   </div>
   <div class="col-12 col-lg-2 mb-1">
-    <select class="form-select" name="dir_subtype">
+    <input type="hidden" id="dir_subtype_{DIRDIV_LEVEL}" value="">
+    <select class="form-select" name="dir_subtype" id="dir_subtype_value_{DIRDIV_LEVEL}">
       <option value="" selected>全部</option>
     </select>
   </div>
@@ -509,7 +553,7 @@
     <input type="text" value="" name="container_path" class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
   </div>
   <div class="col-12 col-lg mb-1">
-    <input type="text" value="" name="path_tag" class="form-control" placeholder="分类标签" autocomplete="off">
+    <input type="text" value="" name="path_label" class="form-control" placeholder="分类标签" autocomplete="off">
   </div>
   <div class="col-12 col-lg-1 mb-1 mt-2">
     <a href="javascript:del_downloaddir('{DIRDIV_LEVEL}')" class="btn-icon" title="删除目录">
