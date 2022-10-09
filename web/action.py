@@ -342,31 +342,15 @@ class WebAction:
         dl_dir = data.get("dir")
         results = SqlHelper.get_search_result_by_id(dl_id)
         for res in results:
-            if res[11] and str(res[11]) != "0":
-                media = MetaInfo("%s" % res[8])
-                if res[7] == "TV":
-                    mtype = MediaType.TV
-                elif res[7] == "MOV":
-                    mtype = MediaType.MOVIE
-                else:
-                    mtype = MediaType.ANIME
-                media.type = mtype
-                media.tmdb_id = res[11]
-                media.title = res[1]
-                media.vote_average = res[5]
-                media.poster_path = res[6]
-                media.poster_path = res[12]
-                media.overview = res[13]
-            else:
-                media = Media().get_media_info(title=res[8], subtitle=res[9])
-            media.enclosure = res[0]
-            media.org_string = res[8]
-            media.description = res[9]
-            media.size = res[10]
-            media.site = res[14]
-            media.upload_volume_factor = float(res[15])
-            media.download_volume_factor = float(res[16])
-            media.page_url = res[17]
+            media = Media().get_media_info(title=res[8], subtitle=res[9])
+            if not media:
+                continue
+            media.set_torrent_info(enclosure=res[0],
+                                   size=res[10],
+                                   site=res[14],
+                                   page_url=res[17],
+                                   upload_volume_factor=float(res[15]),
+                                   download_volume_factor=float(res[16]))
             # 添加下载
             ret, ret_msg = Downloader().add_pt_torrent(media_info=media,
                                                        download_dir=dl_dir)
