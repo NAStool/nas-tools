@@ -5,11 +5,14 @@ import qbittorrentapi
 import log
 from config import Config, PT_TAG
 from app.downloader.client.client import IDownloadClient
+from app.utils.types import MediaType
+from pkg_resources import parse_version as v
 
 
 class Qbittorrent(IDownloadClient):
     __force_upload = False
     qbc = None
+    ver = None
 
     def get_config(self):
         # 读取配置文件
@@ -42,6 +45,7 @@ class Qbittorrent(IDownloadClient):
                                         REQUESTS_ARGS={'timeout': (3, 10)})
             try:
                 qbt.auth_log_in()
+                self.ver = qbt.app_version()
             except qbittorrentapi.LoginFailed as e:
                 print(e)
             return qbt
@@ -63,6 +67,8 @@ class Qbittorrent(IDownloadClient):
             return []
         try:
             torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status, tag=tag)
+            if self.is_ver_less_4_4() :
+                torrents = self.filter_torrent_by_tag(torrents, tag=tag)
             return torrents or []
         except Exception as err:
             print(str(err))
@@ -281,3 +287,16 @@ class Qbittorrent(IDownloadClient):
             return
         self.qbc.torrents_set_download_limit(limit=int(limit),
                                              torrent_hashes=ids)
+
+    def is_ver_less_4_4(self) :
+        return v(self.ver) < v("v4.4.0") 
+    
+    def filter_torrent_by_tag(self, torrents, tag) :
+        if tag == None :
+            return torrents
+        result = qbittorrentapi.torrents.TorrentInfoList()
+        for torrent in torrents:
+            if tag[0] in torrent.tags :
+                result.append(torrent)
+        return result
+            
