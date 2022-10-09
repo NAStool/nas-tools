@@ -97,7 +97,7 @@
         var tmdbid = id;
       }
       if(!tmdbid || ["hm","nm","dbom","dbnm", "dbhm", "dbtop"].includes(type)){
-        add_rss_media(name, year, "MOV", tmdbid, doubanid, "", "", function(){
+        add_rss_media(name, year, type, tmdbid, doubanid, "", "", function(){
           add_red_heart(id, type, name, year);
         });
       }else{
