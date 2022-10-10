@@ -450,8 +450,6 @@
           var finish_flag = '';
           if(article.title){
             title_param = article.title.replace(/\'/g, "&#39;");
-            title_param = title_pa.replace(/\"/g, "&#34;");
-            console.log(title_pa);
             title = `<span>${article.title}</span> 
                       <a class="ms-2" title="识别匹配" href='javascript:rss_article_test("${i}", "${id}", "${title_param}")' data-bs-toggle="tooltip">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
