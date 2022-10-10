@@ -10,6 +10,9 @@ INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARA
         "link": {
             "path": ".//link/text()"
         },
+        "date": {
+            "path": ".//pubDate/text()"
+        },
         "description": {
             "path": ".//description/text()"
         },
@@ -29,6 +32,9 @@ INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARA
         },
         "link": {
             "path": ".//link/text()"
+        },
+        "date": {
+            "path": ".//pubDate/text()"
         },
         "description": {
             "path": ".//description/text()"
