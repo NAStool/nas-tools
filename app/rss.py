@@ -85,7 +85,6 @@ class Rss:
                 check_sites = []
 
             # 代码站点配置优先级的序号
-            order_seq = 100
             rss_download_torrents = []
             rss_no_exists = {}
             for site_info in self.__sites:
@@ -108,7 +107,7 @@ class Rss:
                 site_rule_group = site_info.get("rule")
                 # 开始下载RSS
                 log_info("【RSS】正在处理：%s" % rss_job)
-                order_seq -= 1
+                order_seq = 100 - int(site_info.get("pri"))
                 rss_result = self.parse_rssxml(rssurl)
                 if len(rss_result) == 0:
                     log_warn("【RSS】%s 未下载到数据" % rss_job)
