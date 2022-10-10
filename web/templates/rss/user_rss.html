@@ -417,7 +417,7 @@
     navmenu('rss_parser');
   }
 
-  //立即运行任务
+  // 立即运行任务
   function run_userrss_now(id){
     show_wait_process();
     ajax_post("run_userrss", {"id": id}, function(ret){
@@ -427,7 +427,8 @@
       });
     });
   }
-
+  
+  // 报文预览
   function show_rss_articles_modal(id){
     show_wait_process();
     ajax_post("list_rss_articles", {"id": id}, function(ret){
@@ -448,8 +449,9 @@
           var date = '';
           var finish_flag = '';
           if(article.title){
+            title_param = article.title.replace(/\'/g, "&#39;");
             title = `<span>${article.title}</span> 
-                      <a class="ms-2" title="识别匹配" href='javascript:rss_article_test("${i}", "${id}", "${article.title}")' data-bs-toggle="tooltip">
+                      <a class="ms-2" title="识别匹配" href='javascript:rss_article_test("${i}", "${id}", "${title_param}")' data-bs-toggle="tooltip">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                           <path d="M4 5h7"></path>
@@ -488,7 +490,7 @@
     });
   }
 
-  //rss报文测试
+  // rss报文测试
   function rss_article_test(id, taskid, title){
     var info_id = `#info_${id}`;
     var flag_id = `#flag_${id}`;
@@ -588,6 +590,7 @@
     })
   }
 
+  // 订阅下载记录
   function show_rss_history_modal(id){
     show_wait_process();
     ajax_post("list_rss_history", {"id": id}, function(ret){

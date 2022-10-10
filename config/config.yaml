@@ -405,3 +405,5 @@ laboratory:
   offset_words:
   # 【使用浏览器仿真】
   chrome_browser: false
+  # 【使用TMDB代理】
+  tmdb_proxy: false

@@ -12,7 +12,8 @@ import log
 from app.media import MetaInfo
 from app.utils import PathUtils, EpisodeFormat, RequestUtils, NumberUtils, StringUtils
 from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_SEARCH_WEIGHT_2, KEYWORD_SEARCH_WEIGHT_1, \
-    KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, RMT_MEDIAEXT
+    KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, RMT_MEDIAEXT, \
+    DEFAULT_TMDB_PROXY
 from app.helper import MetaHelper
 from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person
 from app.media.tmdbv3api.exceptions import TMDbException
@@ -39,9 +40,14 @@ class Media:
     def init_config(self):
         config = Config()
         app = config.get_config('app')
+        laboratory = config.get_config('laboratory')
         if app:
             if app.get('rmt_tmdbkey'):
-                self.tmdb = TMDb(domain=app.get("tmdb_domain"))
+                if laboratory.get('tmdb_proxy'):
+                    domain = DEFAULT_TMDB_PROXY
+                else:
+                    domain = app.get("tmdb_domain")
+                self.tmdb = TMDb(domain=domain)
                 self.tmdb.cache = True
                 self.tmdb.api_key = app.get('rmt_tmdbkey')
                 self.tmdb.language = 'zh-CN'
