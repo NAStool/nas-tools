@@ -355,7 +355,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a href="javascript:add_or_edit_userrss_task()" id="add_or_edit_userrss_btn" class="btn btn-primary">确定</a>
+        <a href="javascript:add_or_edit_userrss_task()" id="add_or_edit_userrss_btn" class="btn btn-primary">保存</a>
       </div>
     </div>
   </div>
@@ -396,7 +396,6 @@
   // 显示新增任务
   function show_userrss_modal(){
     $("#userrss_id").val('');
-    $("#add_or_edit_userrss_btn").text('新增');
     $("#userrss_modal_title").text("新增订阅");
     $("#userrss_name").val('');
     $("#userrss_interval").val('');
@@ -458,8 +457,9 @@
     });
   }
 
-  // 新增任务保存
+  // 新增/编辑任务保存
   function add_or_edit_userrss_task(){
+    $("#add_or_edit_userrss_btn").text("保存中").attr("disabled", true);
     id = $("#userrss_id").val();
     name = $("#userrss_name").val();
     if(!name){
@@ -544,6 +544,7 @@
                   note: JSON.stringify(note)};
     ajax_post("update_userrss_task", params, function(ret){
       $("#modal-userrss").modal('hide');
+      $("#add_or_edit_userrss_btn").attr("disabled", false);
       navmenu('user_rss');
     });
   }
