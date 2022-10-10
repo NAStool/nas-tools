@@ -22,8 +22,12 @@
               <a class="card card-link" href='javascript:navmenu("resources?site={{ Site.id }}&title={{ Site.name }}")'>
               <div class="card-body">
                 <div class="row">
-                  <div class="col-auto">
-                    <span class="avatar rounded" style="background-image: url({{ Site.domain + 'favicon.ico' }});"></span>
+                    <div class="col-auto">
+                        {% if Site.favicon %}
+                            <span class="avatar rounded" style="background-image: url(data:image/ico;base64,{{ Site.favicon }});"></span>
+                        {% else %}
+                            <span class="avatar rounded" style="background-image: url({{ Site.domain + 'favicon.ico' }});"></span>
+                        {% endif %}
                   </div>
                   <div class="col">
                     <div class="font-weight-medium">{{ Site.name }}</div>
