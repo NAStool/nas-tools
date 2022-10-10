@@ -76,7 +76,7 @@ class Sites:
             site_info = {
                 "id": site[0],
                 "name": site[1],
-                "pri": site[2],
+                "pri": site[2] or 0,
                 "rssurl": site[3],
                 "signurl": site[4],
                 "cookie": site[5],

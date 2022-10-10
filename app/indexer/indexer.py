@@ -83,9 +83,8 @@ class IIndexer(metaclass=ABCMeta):
         # 多线程
         executor = ThreadPoolExecutor(max_workers=len(indexers))
         all_task = []
-        order_seq = 100
         for index in indexers:
-            order_seq = order_seq - 1
+            order_seq = 100 - int(index.pri)
             task = executor.submit(self.search,
                                    order_seq,
                                    index,

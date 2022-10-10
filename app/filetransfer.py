@@ -1105,7 +1105,7 @@ class FileTransfer:
         return {
             "title": StringUtils.clear_file_name(media.title),
             "en_title": StringUtils.clear_file_name(media.en_name),
-            "original_name": StringUtils.clear_file_name(os.path.splitext(media.org_string)[0]),
+            "original_name": StringUtils.clear_file_name(os.path.splitext(media.org_string or "")[0]),
             "original_title": StringUtils.clear_file_name(media.original_title),
             "year": media.year,
             "edition": media.resource_type,

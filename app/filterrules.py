@@ -58,7 +58,7 @@ class FilterRule:
                 "id": rule[0],
                 "group": rule[1],
                 "name": rule[2],
-                "pri": rule[3],
+                "pri": rule[3] or 0,
                 "include": rule[4].split("\n") if rule[4] else [],
                 "exclude": rule[5].split("\n") if rule[5] else [],
                 "size": rule[6],
@@ -97,14 +97,14 @@ class FilterRule:
             rolegroup = self.get_rule_groups(groupid=rolegroup)
         filters = self.get_rules(groupid=rolegroup.get("id"))
         # 命中优先级
-        order_seq = 100
+        order_seq = 0
         # 当前规则组是否命中
         group_match = True
         for filter_info in filters:
             # 当前规则是否命中
             rule_match = True
             # 命中规则的序号
-            order_seq -= 1
+            order_seq = 100 - int(filter_info.get('pri'))
             # 必须包括的项
             includes = filter_info.get('include')
             if includes and rule_match:
