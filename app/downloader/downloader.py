@@ -77,14 +77,24 @@ class Downloader:
                        is_paused=None,
                        tag=None,
                        download_dir=None,
-                       note=None):
+                       category=None,
+                       content_layout = None,
+                       upload_limit = None,
+                       download_limit = None,
+                       ratio_limit = None,
+                       seeding_time_limit=None):
         """
         添加下载任务，根据当前使用的下载器分别调用不同的客户端处理
         :param media_info: 需下载的媒体信息，含URL地址
         :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
         :param tag: 下载时对种子的标记
         :param download_dir: 指定下载目录
-        :param note: Qbittorrent下载设置
+        :param category: 分类
+        :param content_layout: 布局
+        :param upload_limit: 上传限速 Mb/s
+        :param download_limit: 下载限速 Mb/s
+        :param ratio_limit: 分享率限制 保留两位小数
+        :param seeding_time_limit: 做种时间限制 分钟
         """
         url = media_info.enclosure
         title = media_info.org_string
@@ -154,9 +164,6 @@ class Downloader:
                         tag += [PT_TAG]
                     else:
                         tag = [PT_TAG, tag]
-                download_label = None
-                if note:
-                    download_dir = note.get("save_path")
                 if not download_dir:
                     download_info = self.__get_download_dir_info(media_info)
                     download_dir = download_info.get('path')
@@ -171,26 +178,8 @@ class Downloader:
                         self.client.set_torrent_tag(tid=ret.id,
                                                     tag=tag)
                 elif self.__client_type == DownloaderType.QB:
-                    content_layout = ''
-                    upload_limit = ''
-                    download_limit = ''
-                    ratio_limit = ''
-                    seeding_time_limit = ''
-                    if note:
-                        category = note.get("category")
-                        if not category:
-                            category = download_label
-                        tags = note.get("tags")
-                        if tag and tags:
-                            tag.append(tags.split("|"))
-                        elif not tag and tags:
-                            tag = tags.split("|")
-                        content_layout = note.get("content_layout")
-                        is_paused = note.get("is_paused")
-                        upload_limit = note.get("upload_limit")
-                        download_limit = note.get("download_limit")
-                        ratio_limit = note.get("ratio_limit")
-                        seeding_time_limit = note.get("seeding_time_limit")
+                    if not category:
+                        category = download_label
                     ret = self.client.add_torrent(content,
                                                   is_paused=is_paused,
                                                   tag=tag,

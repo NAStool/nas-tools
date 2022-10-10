@@ -257,7 +257,15 @@ class RssChecker(object):
         if rss_download_torrents:
             for media in rss_download_torrents:
                 ret, ret_msg = self.downloader.add_pt_torrent(media_info=media,
-                                                              note=media.note)
+                                                              is_paused=media.note.get("is_paused"),
+                                                              tag=media.note.get("tag"),
+                                                              download_dir=media.note.get("save_path"),
+                                                              category=media.note.get("category"),
+                                                              content_layout = media.note.get("content_layout"),
+                                                              upload_limit = media.note.get("upload_limit"),
+                                                              download_limit = media.note.get("download_limit"),
+                                                              ratio_limit = media.note.get("ratio_limit"),
+                                                              seeding_time_limit=media.note.get("seeding_time_limit"),)
                 if ret:
                     self.message.send_download_message(in_from=SearchType.RSS,
                                                        can_item=media)
