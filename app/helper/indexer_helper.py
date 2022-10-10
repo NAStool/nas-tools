@@ -36,7 +36,8 @@ class IndexerHelper:
                     ua=None,
                     render=False,
                     language=None,
-                    pri=None):
+                    pri=None,
+                    favicon=None):
         if not url:
             return None
         for indexer in self._indexers:
@@ -54,7 +55,8 @@ class IndexerHelper:
                                    render=render,
                                    buildin=True,
                                    language=language,
-                                   pri=pri)
+                                   pri=pri,
+                                   favicon=favicon)
         return None
 
 
@@ -72,7 +74,8 @@ class IndexerConf(object):
                  render=False,
                  buildin=True,
                  language=None,
-                 pri=None):
+                 pri=None,
+                 favicon=None):
         if not datas:
             return
         self.datas = datas
@@ -93,6 +96,7 @@ class IndexerConf(object):
         self.buildin = buildin
         self.language = language
         self.pri = pri if pri else 0
+        self.favicon = favicon
 
     def get_userinfo(self):
         return self.userinfo

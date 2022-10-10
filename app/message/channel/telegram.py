@@ -249,7 +249,7 @@ class Telegram(IMessageChannel):
                 if res and res.json():
                     for msg in res.json().get("result", []):
                         log.info("TelegramBot 接收到消息: %s" % msg)
-                        local_res = requests.post(_ds_url, json=msg, timeout=1)
+                        local_res = requests.post(_ds_url, json=msg, timeout=10)
                         log.debug("TelegramBot message: %s processed, response is: %s" % (msg, local_res.text))
                         _offset = msg["update_id"] + 1
             except Exception as e:
@@ -265,7 +265,7 @@ class Telegram(IMessageChannel):
             telegram_token = message.get('telegram', {}).get('telegram_token')
             web_port = config.get_config("app").get("web_port")
             sc_url = "https://api.telegram.org/bot%s/getUpdates?" % telegram_token
-            ds_url = "http://localhost:%s/telegram" % web_port
+            ds_url = "http://127.0.0.1:%s/telegram" % web_port
             telegram_webhook = message.get('telegram', {}).get('webhook')
             if not channel == "telegram" or not telegram_token or telegram_webhook:
                 log.info("TelegramBot 消息接收服务已停止")
