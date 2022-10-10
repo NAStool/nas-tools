@@ -193,12 +193,26 @@ class Qbittorrent(IDownloadClient):
         if not self.qbc or not content:
             return False
         try:
-            if is_paused == 'N':
-                is_paused = False
+            if isinstance(content, str):
+                urls = content
+                torrent_files = None
             else:
-                is_paused == True
-            if not tag:
-                tag = None
+                urls = None
+                torrent_files = content
+            if download_dir:
+                save_path = download_dir
+            else:
+                save_path = None
+            if not category:
+                category = None
+            if is_paused == 'Y':
+                is_paused = True
+            else:
+                is_paused == False
+            if tag:
+                tags = tag
+            else:
+                tags = None
             if not content_layout:
                 content_layout = None
             if upload_limit:
@@ -213,32 +227,22 @@ class Qbittorrent(IDownloadClient):
                 ratio_limit = round(float(ratio_limit), 2)
             else:
                 ratio_limit = None
-            if not seeding_time_limit:
-                seeding_time_limit = None
-            if isinstance(content, str):
-                qbc_ret = self.qbc.torrents_add(urls=content,
-                                                save_path=download_dir,
-                                                category=category,
-                                                is_paused=is_paused,
-                                                tags=tag,
-                                                content_layout = content_layout,
-                                                upload_limit = upload_limit,
-                                                download_limit = download_limit,
-                                                ratio_limit = ratio_limit,
-                                                seeding_time_limit = seeding_time_limit,
-                                                use_auto_torrent_management=False)
+            if seeding_time_limit:
+                seeding_time_limit = int(seeding_time_limit)
             else:
-                qbc_ret = self.qbc.torrents_add(torrent_files=content,
-                                                save_path=download_dir,
-                                                category=category,
-                                                is_paused=is_paused,
-                                                tags=tag,
-                                                content_layout = content_layout,
-                                                upload_limit = upload_limit,
-                                                download_limit = download_limit,
-                                                ratio_limit = ratio_limit,
-                                                seeding_time_limit = seeding_time_limit,
-                                                use_auto_torrent_management=False)
+                seeding_time_limit = None
+            qbc_ret = self.qbc.torrents_add(urls=urls,
+                                            torrent_files=torrent_files,
+                                            save_path=save_path,
+                                            category=category,
+                                            is_paused=is_paused,
+                                            tags=tags,
+                                            content_layout = content_layout,
+                                            upload_limit = upload_limit,
+                                            download_limit = download_limit,
+                                            ratio_limit = ratio_limit,
+                                            seeding_time_limit = seeding_time_limit,
+                                            use_auto_torrent_management=False)
             return True if qbc_ret and str(qbc_ret).find("Ok") != -1 else False
         except Exception as err:
             print(str(err))
