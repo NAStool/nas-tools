@@ -349,6 +349,15 @@ class MainDb:
                                    NOTE     TEXT,
                                    SYSDEF     TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_CONFIG_RSS_PARSER ON CONFIG_RSS_PARSER (NAME);''')
+            # 自定义订阅下载记录表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS USERRSS_TASK_HISTORY
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   TASK_ID    TEXT,
+                                   TITLE    TEXT,
+                                   DOWNLOADER    TEXT,
+                                   DATE    TEXT);''')
+            cursor.execute(
+                '''CREATE INDEX IF NOT EXISTS INDX_USERRSS_TASK_HISTORY ON USERRSS_TASK_HISTORY (TASK_ID);''')
             # 提交
             conn.commit()
 

@@ -728,3 +728,9 @@ class Downloader:
                     continue
                 return {"path": path, "label": attr.get('label')}
         return {"path": None, "label": None}
+
+    def get_type(self):
+        """
+        返回下载器类型
+        """
+        return self.__client_type
