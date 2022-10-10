@@ -9,7 +9,6 @@ from datetime import datetime
 
 import log
 from app.helper import SqlHelper
-from app.downloader import Downloader
 from app.filterrules import FilterRule
 from app.media import Media
 from app.message import Message
@@ -17,7 +16,7 @@ from app.searcher import Searcher
 from app.downloader import Downloader
 from app.utils import RequestUtils
 from app.utils.commons import singleton
-from app.utils.types import MediaType, SearchType, DownloaderType
+from app.utils.types import MediaType, SearchType
 from config import Config
 from web.backend.subscribe import add_rss_subscribe
 
@@ -250,9 +249,9 @@ class RssChecker(object):
                     self.message.send_download_message(in_from=SearchType.RSS,
                                                        can_item=media)
                     # 登记下载历史
-                    SqlHelper.insert_download_history(media) 
+                    SqlHelper.insert_download_history(media)
                     # 登记自定义RSS任务下载记录
-                    SqlHelper.insert_userrss_task_history(taskid, media.org_string, Downloader().get_type().value)        
+                    SqlHelper.insert_userrss_task_history(taskid, media.org_string, Downloader().get_type().value)
                 else:
                     log_error("【RSSCHECKER】添加下载任务 %s 失败：%s" % (media.get_title_string(), ret_msg or "请检查下载任务是否已存在"))
                     if ret_msg:
@@ -413,7 +412,7 @@ class RssChecker(object):
                     }
                 )
             return return_parsers
-    
+
     def get_rss_articles(self, taskid):
         """
         查看自定义RSS报文
@@ -445,23 +444,24 @@ class RssChecker(object):
                 # 种子大小
                 size = res.get('size')
                 # 发布日期
-                date = datetime.strftime(datetime.strptime(res.get('date'), '%a, %d %b %Y %H:%M:%S %z'), '%Y-%m-%d %H:%M:%S')
+                date = datetime.strftime(datetime.strptime(res.get('date'), '%a, %d %b %Y %H:%M:%S %z'),
+                                         '%Y-%m-%d %H:%M:%S')
                 # 年份
                 year = res.get('year')
                 if year and len(year) > 4:
                     year = year[:4]
                 # 检查是不是处理过
                 meta_name = "%s %s" % (title, year) if year else title
-                finish_flag =  SqlHelper.is_userrss_finished(meta_name, enclosure)
+                finish_flag = SqlHelper.is_userrss_finished(meta_name, enclosure)
                 # 信息聚合
                 params = {
-                        "title": title,
-                        "link": link,
-                        "size": size,
-                        "description": description,
-                        "date": date,
-                        "finish_flag": finish_flag,
-                    }
+                    "title": title,
+                    "link": link,
+                    "size": size,
+                    "description": description,
+                    "date": date,
+                    "finish_flag": finish_flag,
+                }
                 if params not in rss_articles:
                     rss_articles.append(params)
             except Exception as e:
@@ -497,17 +497,18 @@ class RssChecker(object):
         media_info.set_torrent_info(res_order=res_order)
         # 检查是否已存在
         no_exists = {}
+        exist_flag = False
         if not media_info.tmdb_info:
             log_info("【RSSCHECKER】%s 识别为 %s 未匹配到媒体信息" % (title, media_info.get_name()))
         else:
             if media_info.type == MediaType.MOVIE:
                 exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
-                                                                                no_exists=no_exists)
+                                                                               no_exists=no_exists)
                 if exist_flag:
                     log_info("【RSSCHECKER】电影 %s 已存在" % media_info.get_title_string())
             else:
                 exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
-                                                                                no_exists=no_exists)
+                                                                               no_exists=no_exists)
                 if exist_flag:
                     # 已全部存在
                     if not no_exists or not no_exists.get(
@@ -516,7 +517,7 @@ class RssChecker(object):
                             media_info.get_title_string(), media_info.get_season_episode_string()))
                 if no_exists.get(media_info.tmdb_id):
                     log_info("【RSSCHECKER】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                            no_exists.get(media_info.tmdb_id)))
+                                                         no_exists.get(media_info.tmdb_id)))
         return media_info, match_flag, exist_flag
 
 

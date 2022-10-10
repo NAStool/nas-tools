@@ -1638,8 +1638,7 @@ class WebAction:
         else:
             return {"code": 1}
 
-    @staticmethod
-    def __name_test(data):
+    def __name_test(self, data):
         """
         名称识别测试
         """
@@ -1649,6 +1648,12 @@ class WebAction:
         media_info = Media().get_media_info(title=name)
         if not media_info:
             return {"code": 0, "data": {"name": "无法识别"}}
+        return {"code": 0, "data": self.mediainfo_dict(media_info)}
+
+    @staticmethod
+    def mediainfo_dict(media_info):
+        if not media_info:
+            return {}
         tmdb_id = media_info.tmdb_id
         tmdb_link = ""
         tmdb_S_E_link = ""
@@ -1661,7 +1666,7 @@ class WebAction:
                     tmdb_S_E_link = "%s/season/%s" % (tmdb_link, media_info.get_season_seq())
                     if media_info.get_episode_string():
                         tmdb_S_E_link = "%s/episode/%s" % (tmdb_S_E_link, media_info.get_episode_seq())
-        return {"code": 0, "data": {
+        return {
             "type": media_info.type.value if media_info.type else "",
             "name": media_info.get_name(),
             "title": media_info.title,
@@ -1681,7 +1686,7 @@ class WebAction:
             "ignored_words": media_info.ignored_words,
             "replaced_words": media_info.replaced_words,
             "offset_words": media_info.offset_words
-        }}
+        }
 
     @staticmethod
     def __rule_test(data):
@@ -2295,57 +2300,24 @@ class WebAction:
         articles = RssChecker().get_rss_articles(data.get("id"))
         count = len(articles)
         if articles:
-            return  {"code": 0, "data": articles, "count": count}
+            return {"code": 0, "data": articles, "count": count}
         else:
             return {"code": 1, "msg": "未获取到报文"}
-    
-    @staticmethod
-    def __rss_article_test(data):
+
+    def __rss_article_test(self, data):
         taskid = data.get("taskid")
         title = data.get("title")
         if not taskid:
             return {"code": -1}
         if not title:
             return {"code": -1}
-        media_info, match_flag, exist_flag= RssChecker().test_rss_articles(taskid=taskid, title=title)
+        media_info, match_flag, exist_flag = RssChecker().test_rss_articles(taskid=taskid, title=title)
         if not media_info:
             return {"code": 0, "data": {"name": "无法识别"}}
-        tmdb_id = media_info.tmdb_id
-        tmdb_link = ""
-        tmdb_S_E_link = ""
-        if tmdb_id:
-            if media_info.type == MediaType.MOVIE:
-                tmdb_link = "https://www.themoviedb.org/movie/" + str(tmdb_id)
-            else:
-                tmdb_link = "https://www.themoviedb.org/tv/" + str(tmdb_id)
-                if media_info.get_season_string():
-                    tmdb_S_E_link = "%s/season/%s" % (tmdb_link, media_info.get_season_seq())
-                    if media_info.get_episode_string():
-                        tmdb_S_E_link = "%s/episode/%s" % (tmdb_S_E_link, media_info.get_episode_seq())
-        return {"code": 0, "data": {
-            "type": media_info.type.value if media_info.type else "",
-            "name": media_info.get_name(),
-            "title": media_info.title,
-            "year": media_info.year,
-            "season_episode": media_info.get_season_episode_string(),
-            "part": media_info.part,
-            "tmdbid": tmdb_id,
-            "tmdblink": tmdb_link,
-            "tmdb_S_E_link": tmdb_S_E_link,
-            "category": media_info.category,
-            "restype": media_info.resource_type,
-            "pix": media_info.resource_pix,
-            "team": media_info.resource_team,
-            "video_codec": media_info.video_encode,
-            "audio_codec": media_info.audio_encode,
-            "org_string": media_info.org_string,
-            "ignored_words": media_info.ignored_words,
-            "replaced_words": media_info.replaced_words,
-            "offset_words": media_info.offset_words,
-            "match_flag": match_flag,
-            "exist_flag": exist_flag
-        }}
-    
+        media_dict = self.mediainfo_dict(media_info)
+        media_dict.update({"match_flag": match_flag, "exist_flag": exist_flag})
+        return {"code": 0, "data": media_dict}
+
     @staticmethod
     def __list_rss_history(data):
         downloads = []
@@ -2353,13 +2325,13 @@ class WebAction:
         count = len(historys)
         for history in historys:
             params = {
-            "title": history[2],
-            "downloader": history[3],
-            "date": history[4]
+                "title": history[2],
+                "downloader": history[3],
+                "date": history[4]
             }
             downloads.append(params)
         if downloads:
-            return  {"code": 0, "data": downloads, "count": count}
+            return {"code": 0, "data": downloads, "count": count}
         else:
             return {"code": 1, "msg": "无下载记录"}
 

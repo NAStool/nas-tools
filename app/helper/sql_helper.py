@@ -1763,7 +1763,7 @@ class SqlHelper:
     @staticmethod
     def excute(sql):
         return MainDb().update_by_sql(sql)
-    
+
     @staticmethod
     def insert_userrss_task_history(task_id, title, downloader):
         """
@@ -1772,9 +1772,9 @@ class SqlHelper:
         sql = "INSERT INTO USERRSS_TASK_HISTORY(TASK_ID, TITLE, DOWNLOADER, DATE) " \
               "VALUES (?, ?, ?, ?)"
         return MainDb().update_by_sql(sql, (task_id,
-                                              title,
-                                              downloader,
-                                              time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))) 
+                                            title,
+                                            downloader,
+                                            time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
 
     @staticmethod
     def get_userrss_task_history(task_id):
@@ -1785,5 +1785,5 @@ class SqlHelper:
             return []
         sql = "SELECT ID, TASK_ID, TITLE, DOWNLOADER, DATE " \
               "FROM USERRSS_TASK_HISTORY " \
-              "WHERE TASK_ID = ? " 
+              "WHERE TASK_ID = ? "
         return MainDb().select_by_sql(sql, (task_id,))

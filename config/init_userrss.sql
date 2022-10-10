@@ -1,4 +1,4 @@
-INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('1', '通用', 'XML', '{
+INSERT OR REPLACE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('1', '通用', 'XML', '{
     "list": "/rss/channel/item",
     "item": {
         "title": {
@@ -21,7 +21,7 @@ INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARA
         }
     }
 }', '', '', 'Y');
-INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('2', '蜜柑计划', 'XML', '{
+INSERT OR REPLACE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('2', '蜜柑计划', 'XML', '{
     "list": "/rss/channel/item",
     "item": {
         "title": {
@@ -44,7 +44,7 @@ INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARA
         }
     }
 }', '', '', 'Y');
-INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('3', 'TMDB电影片单', 'JSON', '{
+INSERT OR REPLACE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('3', 'TMDB电影片单', 'JSON', '{
     "list": "$.items",
     "item": {
         "title": {
@@ -58,7 +58,7 @@ INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARA
         }
     }
 }', 'api_key={TMDBKEY}&language=zh-CN', '', 'Y');
-INSERT OR IGNORE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('4', 'TMDB电视剧片单', 'JSON', '{
+INSERT OR REPLACE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('4', 'TMDB电视剧片单', 'JSON', '{
     "list": "$.items",
     "item": {
         "title": {
