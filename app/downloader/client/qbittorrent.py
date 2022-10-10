@@ -173,24 +173,20 @@ class Qbittorrent(IDownloadClient):
         if not self.qbc or not content:
             return False
         try:
-            if category:
-                use_auto_torrent_management = True
-            else:
-                use_auto_torrent_management = False
             if isinstance(content, str):
                 qbc_ret = self.qbc.torrents_add(urls=content,
                                                 save_path=download_dir,
                                                 category=category,
                                                 is_paused=is_paused,
                                                 tags=tag,
-                                                use_auto_torrent_management=use_auto_torrent_management)
+                                                use_auto_torrent_management=False)
             else:
                 qbc_ret = self.qbc.torrents_add(torrent_files=content,
                                                 save_path=download_dir,
                                                 category=category,
                                                 is_paused=is_paused,
                                                 tags=tag,
-                                                use_auto_torrent_management=use_auto_torrent_management)
+                                                use_auto_torrent_management=False)
             return True if qbc_ret and str(qbc_ret).find("Ok") != -1 else False
         except Exception as err:
             print(str(err))
