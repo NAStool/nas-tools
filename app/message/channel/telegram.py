@@ -248,10 +248,11 @@ class Telegram(IMessageChannel):
                 res = RequestUtils(proxies=_config.get_proxies()).get_res(_sc_url + urlencode(values))
                 if res and res.json():
                     for msg in res.json().get("result", []):
+                        # 无论本地是否成功，先更新offset，即消息最多成功消费一次
+                        _offset = msg["update_id"] + 1
                         log.info("TelegramBot 接收到消息: %s" % msg)
                         local_res = requests.post(_ds_url, json=msg, timeout=10)
                         log.debug("TelegramBot message: %s processed, response is: %s" % (msg, local_res.text))
-                        _offset = msg["update_id"] + 1
             except Exception as e:
                 log.error("TelegramBot 消息接收出现错误: %s" % e)
             return _offset
