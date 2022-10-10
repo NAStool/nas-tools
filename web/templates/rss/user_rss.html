@@ -196,7 +196,7 @@
     <div class="modal-content">
       <div class="card border-top-0">
         <div class="card-header">
-          <h5 class="modal-title" id="userrss_modal_title">新建任务</h5>
+          <h5 class="modal-title" id="userrss_modal_title"></h5>
           <input type="hidden" id="userrss_id">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -272,7 +272,7 @@
             <div class="col-lg-8">
               <div class="mb-3">
                 <label class="form-label">保存路径</label>
-                <input type="text" id="userrss_note" class="form-control" placeholder="留空自动选择保存路径">
+                <input type="text" id="userrss_note_path" class="form-control" placeholder="留空自动选择保存路径">
               </div>
             </div>
             <div class="col-lg-4">
@@ -285,6 +285,72 @@
               </div>
             </div>
           </div>
+          {% if DownloaderType == 'Qbittorrent' %}
+          <details>
+            <summary class="summary">
+              Qbittorrent下载设置
+            </summary>
+            <div class="row mb-2"></div>
+            <div class="row">
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <input type="text" id="userrss_note_category" class="form-control" placeholder="分类">
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <input type="text" id="userrss_note_tags" class="form-control" placeholder="标签">
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <select class="form-select" id="userrss_note_layout">
+                    <option value="" selected>布局（默认全局）</option>
+                    <option value="Original">原始</option>
+                    <option value="Subfolder">创建子文件夹</option>
+                    <option value="NoSubfolder">不建子文件夹</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <select class="form-select" id="userrss_note_paused">
+                    <option value="N" selected>添加后暂停（默认否）</option>
+                    <option value="Y">是</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">上传速度限制 </label>
+                  <input type="text" id="userrss_note_upload" class="form-control" placeholder="Mb/s，不启用则留空">
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">下载速度限制 </label>
+                  <input type="text" id="userrss_note_download" class="form-control" placeholder="Mb/s，不启用则留空">
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">分享率限制 </label>
+                  <input type="text" id="userrss_note_ratio" class="form-control" placeholder="不启用则留空">
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">做种时间限制 </label>
+                  <input type="text" id="userrss_note_seeding_time" class="form-control" placeholder="min，不启用则留空">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+            </div>
+          </details>
+          {% endif  %}
         </div>
       </div>
       <div class="modal-footer">
@@ -331,6 +397,25 @@
   function show_userrss_modal(){
     $("#userrss_id").val('');
     $("#add_or_edit_userrss_btn").text('新增');
+    $("#userrss_modal_title").text("新增订阅");
+    $("#userrss_name").val('');
+    $("#userrss_interval").val('');
+    $("#userrss_address").val('');
+    $("#userrss_include").val('');
+    $("#userrss_exclude").val('');
+    $("#userrss_filterrule").val('');
+    $("#userrss_parser").val('1');
+    $("#userrss_state").val('N');
+    $("#userrss_uses").val('D');
+    $("#userrss_note_path").val('');
+    $("#userrss_note_category").val('');
+    $("#userrss_note_tags").val('');
+    $("#userrss_note_layout").val('');
+    $("#userrss_note_paused").val('N');
+    $("#userrss_note_upload").val('');
+    $("#userrss_note_download").val('');
+    $("#userrss_note_ratio").val('');
+    $("#userrss_note_seeding_time").val('');
     $("#modal-userrss").modal('show');
   }
 
@@ -339,6 +424,7 @@
     $("#userrss_id").val(id);
     ajax_post("get_userrss_task", {id:id}, function (ret) {
       if(ret.code == 0){
+        $("#userrss_modal_title").text("编辑订阅");
         $("#userrss_name").val(ret.detail.name);
         $("#userrss_interval").val(ret.detail.interval);
         $("#userrss_address").val(ret.detail.address);
@@ -348,7 +434,15 @@
         $("#userrss_parser").val(ret.detail.parser);
         $("#userrss_state").val(ret.detail.state);
         $("#userrss_uses").val(ret.detail.uses);
-        $("#userrss_note").val(ret.detail.save_dir);
+        $("#userrss_note_path").val(ret.detail.note.save_path);
+        $("#userrss_note_category").val(ret.detail.note.category);
+        $("#userrss_note_tags").val(ret.detail.note.tags);
+        $("#userrss_note_layout").val(ret.detail.note.content_layout);
+        $("#userrss_note_paused").val(ret.detail.note.is_paused);
+        $("#userrss_note_upload").val(ret.detail.note.upload_limit);
+        $("#userrss_note_download").val(ret.detail.note.download_limit);
+        $("#userrss_note_ratio").val(ret.detail.note.ratio_limit);
+        $("#userrss_note_seeding_time").val(ret.detail.note.seeding_time_limit);
         $("#modal-userrss").modal('show');
       }
     });
@@ -395,6 +489,48 @@
     }else{
       $("#userrss_parser").removeClass("is-invalid");
     }
+    save_path = $("#userrss_note_path").val();
+    category = $("#userrss_note_category").val();
+    tags = $("#userrss_note_tags").val();
+    content_layout = $("#userrss_note_layout").val();
+    is_paused = $("#userrss_note_paused").val();
+    upload_limit = $("#userrss_note_upload").val();
+    if(upload_limit && isNaN(upload_limit)){
+      $("#userrss_note_upload").addClass("is-invalid");
+      return;
+    }else{
+      $("#userrss_note_upload").removeClass("is-invalid");
+    }
+    download_limit = $("#userrss_note_download").val();
+    if(download_limit && isNaN(download_limit)){
+      $("#userrss_note_download").addClass("is-invalid");
+      return;
+    }else{
+      $("#userrss_note_download").removeClass("is-invalid");
+    }
+    ratio_limit = $("#userrss_note_ratio").val();
+    if(ratio_limit && isNaN(ratio_limit)){
+      $("#userrss_note_ratio").addClass("is-invalid");
+      return;
+    }else{
+      $("#userrss_note_ratio").removeClass("is-invalid");
+    }
+    seeding_time_limit = $("#userrss_note_seeding_time").val();
+    if(seeding_time_limit && isNaN(seeding_time_limit)){
+      $("#userrss_note_seeding_time").addClass("is-invalid");
+      return;
+    }else{
+      $("#userrss_note_seeding_time").removeClass("is-invalid");
+    }
+    note = {save_path: save_path,
+            category: category,
+            tags: tags,
+            content_layout: content_layout,
+            is_paused: is_paused,
+            upload_limit: upload_limit,
+            download_limit: download_limit,
+            ratio_limit: ratio_limit,
+            seeding_time_limit: seeding_time_limit};
     var params = {id: id,
                   name: name,
                   address: address,
@@ -405,7 +541,7 @@
                   exclude: $("#userrss_exclude").val(),
                   filterrule: $("#userrss_filterrule").val(),
                   state: $("#userrss_state").val(),
-                  note: $("#userrss_note").val()};
+                  note: JSON.stringify(note)};
     ajax_post("update_userrss_task", params, function(ret){
       $("#modal-userrss").modal('hide');
       navmenu('user_rss');

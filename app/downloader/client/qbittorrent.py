@@ -169,16 +169,63 @@ class Qbittorrent(IDownloadClient):
                     is_paused=False,
                     tag=None,
                     download_dir=None,
-                    category=None):
+                    category=None,
+                    content_layout = None,
+                    upload_limit = None,
+                    download_limit = None,
+                    ratio_limit = None,
+                    seeding_time_limit = None
+                    ):
+        """
+        添加种子
+        :param content: 种子urls或文件
+        :param is_paused: 添加后暂停
+        :param tag: 标签
+        :param download_dir: 下载路径
+        :param category: 分类
+        :param content_layout: 布局
+        :param upload_limit: 上传限速 Mb/s转bytes/s
+        :param download_limit: 下载限速 Mb/s转bytes/s
+        :param ratio_limit: 分享率限制 保留两位小数
+        :param seeding_time_limit: 做种时间限制 分钟
+        :return: bool
+        """
         if not self.qbc or not content:
             return False
         try:
+            if is_paused == 'N':
+                is_paused = False
+            else:
+                is_paused == True
+            if not tag:
+                tag = None
+            if not content_layout:
+                content_layout = None
+            if upload_limit:
+                upload_limit = int(upload_limit)*1024*1024
+            else:
+                upload_limit = None
+            if download_limit:
+                download_limit = int(download_limit)*1024*1024
+            else:
+                download_limit = None
+            if ratio_limit:
+                ratio_limit = round(float(ratio_limit), 2)
+            else:
+                ratio_limit = None
+            if not seeding_time_limit:
+                seeding_time_limit = None
             if isinstance(content, str):
                 qbc_ret = self.qbc.torrents_add(urls=content,
                                                 save_path=download_dir,
                                                 category=category,
                                                 is_paused=is_paused,
                                                 tags=tag,
+                                                content_layout = content_layout,
+                                                upload_limit = upload_limit,
+                                                download_limit = download_limit,
+                                                ratio_limit = ratio_limit,
+                                                seeding_time_limit = seeding_time_limit,
                                                 use_auto_torrent_management=False)
             else:
                 qbc_ret = self.qbc.torrents_add(torrent_files=content,
@@ -186,6 +233,11 @@ class Qbittorrent(IDownloadClient):
                                                 category=category,
                                                 is_paused=is_paused,
                                                 tags=tag,
+                                                content_layout = content_layout,
+                                                upload_limit = upload_limit,
+                                                download_limit = download_limit,
+                                                ratio_limit = ratio_limit,
+                                                seeding_time_limit = seeding_time_limit,
                                                 use_auto_torrent_management=False)
             return True if qbc_ret and str(qbc_ret).find("Ok") != -1 else False
         except Exception as err:
