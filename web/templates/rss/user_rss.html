@@ -146,7 +146,13 @@
             <div class="datagrid-item">
               <div class="datagrid-title">已处理数量</div>
               <div class="datagrid-content">
-                {{ Task.counter or 0 }}
+                {% if Task.uses == 'D' %}
+                <a id="rss_history_btn" href="javascript:show_rss_history_modal('{{ Task.id }}')" class="btn-link">
+                  {{ Task.counter or 0 }}
+                </a>
+                {% else %}
+                  {{ Task.counter or 0 }}
+                {% endif %}
               </div>
             </div>
             <div class="datagrid-item">
@@ -155,6 +161,15 @@
                 {{ Task.update_time or '' }}
               </div>
             </div>
+            {% if Task.uses == 'D' %}
+            <div class="datagrid-item">
+              <div class="datagrid-content">
+                <a id="rss_articlesbtn" href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn btn-secondary">
+                  预览
+                </a>
+              </div>
+            </div>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -279,6 +294,38 @@
     </div>
   </div>
 </div>
+<div class="modal modal-blur fade" id="modal-rss-articles" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">订阅预览</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
+          <table id="table-rss-articles" class="table table-vcenter card-table">
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-rss-history" tabindex="-1" role="dialog" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">订阅下载历史</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
+          <table id="table-rss-history" class="table table-vcenter card-table">
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   // 显示新增任务
   function show_userrss_modal(){
@@ -378,6 +425,206 @@
       show_success_modal("任务运行完成！", function(){
         navmenu('user_rss');
       });
+    });
+  }
+
+  function show_rss_articles_modal(id){
+    show_wait_process();
+    ajax_post("list_rss_articles", {"id": id}, function(ret){
+      hide_wait_process();
+      if(ret.code == 0){
+        articles = ret.data;
+        var content_th = `<thead><tr>
+                          <th class="text-nowrap">共计${ret.count}条</th>
+                          <th class="text-nowrap">状态</th>
+                          <th class="text-nowrap w-10">发布时间</th>
+                          </tr></thead>`;
+        var content_td = '';
+        for(var i = 0; i < articles.length; i ++){
+          var article = articles[i];
+          var title = '';
+          var link = '';
+          var size = '';
+          var date = '';
+          var finish_flag = '';
+          if(article.title){
+            title = `<span>${article.title}</span> 
+                      <a class="ms-2" title="识别匹配" href='javascript:rss_article_test("${i}", "${id}", "${article.title}")' data-bs-toggle="tooltip">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <path d="M4 5h7"></path>
+                          <path d="M9 3v2c0 4.418 -2.239 8 -5 8"></path>
+                          <path d="M5 9c-.003 2.144 2.952 3.908 6.7 4"></path>
+                          <path d="M12 20l4 -9l4 9"></path>
+                          <path d="M19.1 18h-6.2"></path>
+                        </svg>
+                      </a>`;
+            if(article.link){
+              title = `<a href="${article.link}" target="_blank">${title}</a>`;
+            };
+          };
+          if(article.date){
+            date = article.date.split(" ");
+            date = `<small>${date[0]}<br>${date[1]}</small>`;
+          };
+          if(article.size){
+            size = `<span class="badge badge-outline text-green me-1 mb-1" title="大小">${article.size}</span>`;
+          };
+          if(article.finish_flag){
+            finish_flag = `<span class="badge badge-outline text-blue me-1 mb-1">已处理</span>`;
+          }else{
+            finish_flag = `<span class="badge badge-outline text-yellow me-1 mb-1">未处理</span>`;
+          };
+          var content_td = `${content_td}<tr><td>${title}${size}<div id='info_${i}'></div></td>><td id='flag_${i}'>${finish_flag}</td><td>${date}</td></tr>`;
+        content_tb = `<tbody>${content_td}</tbody>`;
+        content = `${content_th}${content_tb}`;
+        };
+      }else{
+        var content = `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
+      };
+      $("#table-rss-articles").empty();
+      $("#table-rss-articles").append(content);
+      $("#modal-rss-articles").modal('show');
+    });
+  }
+
+  //rss报文测试
+  function rss_article_test(id, taskid, title){
+    var info_id = `#info_${id}`;
+    var flag_id = `#flag_${id}`;
+    ajax_post("rss_article_test", {"taskid": taskid, "title": title}, function (ret) {
+      if(ret.code == 0){
+        $(info_id).empty();
+        console.log(info_id);
+        var ignored_words = [];
+        var replaced_words = [];
+        var offset_words = [];
+        if(ret.data.ignored_words){
+          ignored_words = ret.data.ignored_words;
+        }
+        if(ret.data.replaced_words){
+          replaced_words = ret.data.replaced_words;
+        }
+        if(ret.data.offset_words){
+          offset_words = ret.data.offset_words;
+        }
+        var words = ignored_words + replaced_words + offset_words;
+        if(words.length != 0){
+          if(ret.data.org_string){
+            $(info_id).append(`<div class="mb-3" ><label class="form-label">识别使用名称：<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;white-space: normal;text-align: left;word-break: break-all;" title="自定义识别词过滤后识别用名">${ret.data.org_string}</span></label></div>`);
+          }
+          if(ignored_words.length != 0){
+            var ignored_word_content = '<div class="mb-3"><label class="form-label">应用屏蔽词：';
+            for(ignored_word of ignored_words){
+              ignored_word_content = ignored_word_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${ignored_word}</span>`;
+            };  
+            $(info_id).append(ignored_word_content + '</label></div>');
+          }
+          if(replaced_words.length != 0){
+            var replaced_words_content = '<div class="mb-3"><label class="form-label">应用替换词：';
+            for(replaced_word of replaced_words){
+              replaced_words_content = replaced_words_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${replaced_word}</span>`;
+            };
+            $(info_id).append(replaced_words_content + '</label></div>');
+          }
+          if(offset_words.length != 0){
+            var offset_words_content = '<div class="mb-3"><label class="form-label">应用集数偏移：';
+            for(offset_word of offset_words){
+              offset_words_content = offset_words_content + `<span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${offset_word}</span>`;
+            };
+            $(info_id).append(offset_words_content + '</label></div>');
+          }
+        }
+        if(ret.data.type){
+          $(info_id).append(`<span class="badge badge-outline text-blue me-1 mb-1" title="类型">${ret.data.type}</span>`);
+        }
+        if(ret.data.category){
+          $(info_id).append(`<span class="badge badge-outline text-blue me-1 mb-1" title="类别">${ret.data.category}</span>`);
+        }
+        if(ret.data.name){
+          $(info_id).append(`<span class="badge badge-outline text-red me-1 mb-1" title="识别名称">${ret.data.name}</span>`);
+        }
+        if(ret.data.title){
+          $(info_id).append(`<span class="badge badge-outline text-red me-1 mb-1" title="标题">${ret.data.title}</span>`);
+        }
+        if(ret.data.year){
+          $(info_id).append(`<span class="badge badge-outline text-orange me-1 mb-1" title="年份">${ret.data.year}</span>`);
+        }
+        if(ret.data.season_episode){
+          $(info_id).append(`<span title="季集"><a class="badge badge-outline text-orange me-1 mb-1" href="${ret.data.tmdb_S_E_link}" target="_blank">${ret.data.season_episode}</a></span>`);
+        }
+        if(ret.data.part){
+          $(info_id).append(`<span class="badge badge-outline text-orange me-1 mb-1" title="分集">${ret.data.part}</span>`);
+        }
+        if(ret.data.tmdbid){
+          $(info_id).append(`<span title="TMDB ID"><a class="badge badge-outline text-green me-1 mb-1" href="${ret.data.tmdblink}" target="_blank">${ret.data.tmdbid}</a></span>`);
+        }
+        if(ret.data.restype){
+          $(info_id).append(`<span class="badge me-1 mb-1" title="质量">${ret.data.restype}</span>`);
+        }
+        if(ret.data.pix){
+          $(info_id).append(`<span class="badge me-1 mb-1" title="分辨率">${ret.data.pix}</span>`);
+        }
+        if(ret.data.video_codec){
+          $(info_id).append(`<span class="badge me-1 mb-1" title="视频编码">${ret.data.video_codec}</span>`);
+        }
+        if(ret.data.audio_codec){
+          $(info_id).append(`<span class="badge me-1 mb-1" title="音频编码">${ret.data.audio_codec}</span>`);
+        }
+        if(ret.data.team){
+          $(info_id).append(`<span class="badge badge-outline text-yellow me-1 mb-1" title="制作组/字幕组">${ret.data.team}</span>`);
+        }
+        if(ret.data.match_flag){
+          $(flag_id).append(`<br><span class="badge badge-outline text-green me-1 mb-1">匹配</span>`);
+        }else{
+          $(flag_id).append(`<br><span class="badge badge-outline text-red me-1 mb-1">不匹配</span>`);
+        }
+        if(ret.data.exist_flag){
+          $(flag_id).append(`<br><span class="badge badge-outline text-green me-1 mb-1">本地已存在</span>`);
+        }else{
+          $(flag_id).append(`<br><span class="badge badge-outline text-orange me-1 mb-1">本地不存在</span>`);
+        }
+      }
+    })
+  }
+
+  function show_rss_history_modal(id){
+    show_wait_process();
+    ajax_post("list_rss_history", {"id": id}, function(ret){
+      hide_wait_process();
+      if(ret.code == 0){
+        downloads = ret.data;
+        var content_th = `<thead><tr>
+                          <th class="text-nowrap">共计${ret.count}条</th>
+                          <th class="text-nowrap">下载器</th>
+                          <th class="text-nowrap w-10">下载时间</th>
+                          </tr></thead>`;
+        var content_td = '';
+        for(var i = 0; i < downloads.length; i ++){
+          var download = downloads[i];
+          var title = '';
+          var downloader = '';
+          var date = '';
+          if(download.title){
+            title = `<span>${download.title}</span>`
+          };
+          if(download.date){
+            date = download.date.split(" ");
+            date = `<small>${date[0]}<br>${date[1]}</small>`;
+          };
+          if(download.downloader){
+            downloader = `<span class="badge badge-outline me-1 mb-1" title="下载器">${download.downloader}</span>`;
+          };
+          var content_td = `${content_td}<tr><td>${title}</td>><td>${downloader}</td><td>${date}</td></tr>`;
+        content_tb = `<tbody>${content_td}</tbody>`;
+        content = `${content_th}${content_tb}`;
+        };
+      }else{
+        var content = `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
+      };
+      $("#table-rss-history").empty();
+      $("#table-rss-history").append(content);
+      $("#modal-rss-history").modal('show');
     });
   }
 

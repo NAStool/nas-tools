@@ -120,6 +120,8 @@ class MetaVideo(MetaBase):
         name = re.sub(r'%s' % self._name_nostring_re, '', name,
                       flags=re.IGNORECASE).strip()
         name = re.sub(r'\s+', ' ', name)
+        if self.year:
+            name = name.replace(str(self.year), '').strip()
         if name.isdigit() and int(name) < 1800:
             if self.begin_episode is None:
                 self.begin_episode = int(name)

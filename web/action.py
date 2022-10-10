@@ -121,6 +121,9 @@ class WebAction:
             "run_userrss": self.__run_userrss,
             "run_brushtask": self.__run_brushtask,
             "list_site_resources": self.__list_site_resources,
+            "list_rss_articles": self.__list_rss_articles,
+            "rss_article_test": self.__rss_article_test,
+            "list_rss_history": self.__list_rss_history,
             "get_categories": self.__get_categories
         }
 
@@ -1635,8 +1638,7 @@ class WebAction:
         else:
             return {"code": 1}
 
-    @staticmethod
-    def __name_test(data):
+    def __name_test(self, data):
         """
         名称识别测试
         """
@@ -1646,6 +1648,12 @@ class WebAction:
         media_info = Media().get_media_info(title=name)
         if not media_info:
             return {"code": 0, "data": {"name": "无法识别"}}
+        return {"code": 0, "data": self.mediainfo_dict(media_info)}
+
+    @staticmethod
+    def mediainfo_dict(media_info):
+        if not media_info:
+            return {}
         tmdb_id = media_info.tmdb_id
         tmdb_link = ""
         tmdb_S_E_link = ""
@@ -1658,7 +1666,7 @@ class WebAction:
                     tmdb_S_E_link = "%s/season/%s" % (tmdb_link, media_info.get_season_seq())
                     if media_info.get_episode_string():
                         tmdb_S_E_link = "%s/episode/%s" % (tmdb_S_E_link, media_info.get_episode_seq())
-        return {"code": 0, "data": {
+        return {
             "type": media_info.type.value if media_info.type else "",
             "name": media_info.get_name(),
             "title": media_info.title,
@@ -1678,7 +1686,7 @@ class WebAction:
             "ignored_words": media_info.ignored_words,
             "replaced_words": media_info.replaced_words,
             "offset_words": media_info.offset_words
-        }}
+        }
 
     @staticmethod
     def __rule_test(data):
@@ -2286,6 +2294,46 @@ class WebAction:
             return {"code": 1, "msg": "获取站点资源出现错误，无法连接到站点！"}
         else:
             return {"code": 0, "data": resources}
+
+    @staticmethod
+    def __list_rss_articles(data):
+        articles = RssChecker().get_rss_articles(data.get("id"))
+        count = len(articles)
+        if articles:
+            return {"code": 0, "data": articles, "count": count}
+        else:
+            return {"code": 1, "msg": "未获取到报文"}
+
+    def __rss_article_test(self, data):
+        taskid = data.get("taskid")
+        title = data.get("title")
+        if not taskid:
+            return {"code": -1}
+        if not title:
+            return {"code": -1}
+        media_info, match_flag, exist_flag = RssChecker().test_rss_articles(taskid=taskid, title=title)
+        if not media_info:
+            return {"code": 0, "data": {"name": "无法识别"}}
+        media_dict = self.mediainfo_dict(media_info)
+        media_dict.update({"match_flag": match_flag, "exist_flag": exist_flag})
+        return {"code": 0, "data": media_dict}
+
+    @staticmethod
+    def __list_rss_history(data):
+        downloads = []
+        historys = SqlHelper.get_userrss_task_history(data.get("id"))
+        count = len(historys)
+        for history in historys:
+            params = {
+                "title": history[2],
+                "downloader": history[3],
+                "date": history[4]
+            }
+            downloads.append(params)
+        if downloads:
+            return {"code": 0, "data": downloads, "count": count}
+        else:
+            return {"code": 1, "msg": "无下载记录"}
 
     @staticmethod
     def __get_categories(data):
