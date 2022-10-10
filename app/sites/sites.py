@@ -55,6 +55,9 @@ class Sites:
         获取站点配置
         """
         ret_sites = []
+        # 补全 favicon
+        site_favicons = SqlHelper.get_site_user_statistics()
+        site_favicons = {site[0]: site[13] for site in site_favicons}
         for site in self.__pt_sites:
             # 是否解析种子详情为|分隔的第1位
             site_parse = str(site[9]).split("|")[0] or "Y"
@@ -88,6 +91,7 @@ class Sites:
                 "rss_enable": rss_enable,
                 "brush_enable": brush_enable,
                 "statistic_enable": statistic_enable,
+                "favicon": site_favicons.get(site[1], ""),
                 "ua": ua
             }
             if siteid and int(site[0]) == int(siteid):
