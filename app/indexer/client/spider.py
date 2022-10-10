@@ -40,6 +40,7 @@ class TorrentSpider(feapder.AirSpider):
     )
     is_complete = False
     indexerid = None
+    indexername = None
     cookies = None
     headers = None
     proxies = None
@@ -60,6 +61,7 @@ class TorrentSpider(feapder.AirSpider):
             return
         self.keyword = keyword
         self.indexerid = indexer.id
+        self.indexername = indexer.name
         self.search = indexer.search
         self.torrents = indexer.torrents
         self.render = indexer.render
@@ -289,8 +291,8 @@ class TorrentSpider(feapder.AirSpider):
         if 'filters' in selector:
             self.torrents_info['size'] = self.__filter_text(self.torrents_info.get('size'),
                                                             selector.get('filters'))
-        if self.torrents_info['size']:
-            self.torrents_info['size'] = StringUtils.num_filesize(self.torrents_info['size'])
+        if self.torrents_info.get('size'):
+            self.torrents_info['size'] = StringUtils.num_filesize(self.torrents_info.get('size'))
 
     def Getleechers(self, torrent):
         # torrent leechers
@@ -388,19 +390,22 @@ class TorrentSpider(feapder.AirSpider):
         解析单条种子数据
         """
         self.torrents_info = {'indexer': self.indexerid}
-        self.Gettitle_default(torrent)
-        self.Gettitle_optional(torrent)
-        self.Getdetails(torrent)
-        self.Getdownload(torrent)
-        self.Getgrabs(torrent)
-        self.Getleechers(torrent)
-        self.Getseeders(torrent)
-        self.Getsize(torrent)
-        self.Getimdbid(torrent)
-        self.Getdownloadvolumefactor(torrent)
-        self.Getuploadvolumefactor(torrent)
-        self.Getpubdate(torrent)
-        self.Getelapsed_date(torrent)
+        try:
+            self.Gettitle_default(torrent)
+            self.Gettitle_optional(torrent)
+            self.Getdetails(torrent)
+            self.Getdownload(torrent)
+            self.Getgrabs(torrent)
+            self.Getleechers(torrent)
+            self.Getseeders(torrent)
+            self.Getsize(torrent)
+            self.Getimdbid(torrent)
+            self.Getdownloadvolumefactor(torrent)
+            self.Getuploadvolumefactor(torrent)
+            self.Getpubdate(torrent)
+            self.Getelapsed_date(torrent)
+        except Exception as err:
+            log.error("【SPIDER】%s 检索出现错误：%s" % (self.indexername, str(err)))
         return self.torrents_info
 
     @staticmethod
