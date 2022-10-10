@@ -2352,7 +2352,6 @@ class WebAction:
         historys = SqlHelper.get_userrss_task_history(data.get("id"))
         count = len(historys)
         for history in historys:
-            print(history)
             params = {
             "title": history[2],
             "downloader": history[3],
