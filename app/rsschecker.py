@@ -64,7 +64,7 @@ class RssChecker(object):
                 filterrule = {}
             # 兼容旧配置
             note = task[12]
-            if re.findall(r'seeding_time_limit', note):
+            if str(note).find('seeding_time_limit') != -1:
                 note = json.loads(task[12])
             else:
                 note = {"save_path": note,
