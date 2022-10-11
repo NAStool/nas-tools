@@ -8,6 +8,7 @@ from app.downloader.client.pyaria2 import PyAria2
 
 
 class Aria2(IDownloadClient):
+
     _client = None
 
     def get_config(self):
@@ -113,3 +114,6 @@ class Aria2(IDownloadClient):
 
     def get_download_dirs(self):
         return []
+
+    def change_torrent(self, **kwargs):
+        pass

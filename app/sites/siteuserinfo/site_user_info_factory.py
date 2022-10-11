@@ -19,7 +19,7 @@ class SiteUserInfoFactory(object):
     def build(url, site_name, site_cookie=None, ua=None):
         if not site_cookie:
             return None
-        log.debug(f"【PT】站点 {site_name} site_cookie={site_cookie} ua={ua}")
+        log.debug(f"【SITES】站点 {site_name} site_cookie={site_cookie} ua={ua}")
         session = requests.Session()
         # 检测环境，有浏览器内核的优先使用仿真签到
         browser = ChromeHelper()
@@ -83,10 +83,10 @@ class SiteUserInfoFactory(object):
                         if not html_text:
                             return None
             elif not res:
-                log.error("【PT】站点 %s 连接失败：%s" % (site_name, url))
+                log.error("【SITES】站点 %s 连接失败：%s" % (site_name, url))
                 return None
             else:
-                log.error("【PT】站点 %s 获取流量数据失败，状态码：%s" % (site_name, res.status_code))
+                log.error("【SITES】站点 %s 获取流量数据失败，状态码：%s" % (site_name, res.status_code))
                 return None
 
         # 解析站点代码

@@ -134,3 +134,9 @@ class GazelleUserInfo(ISiteUserInfo):
     def _parse_user_traffic_info(self, html_text):
         # TODO
         pass
+
+    def _parse_message_unread_links(self, html_text, msg_links):
+        return None
+
+    def _parse_message_content(self, html_text):
+        return None, None, None

@@ -5,6 +5,7 @@ from app.downloader.client.py115 import Py115
 
 
 class Client115(IDownloadClient):
+
     downclient = None
     lasthash = None
 
@@ -93,3 +94,6 @@ class Client115(IDownloadClient):
 
     def get_download_dirs(self):
         return []
+
+    def change_torrent(self, **kwargs):
+        pass

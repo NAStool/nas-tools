@@ -69,15 +69,18 @@
             </a>
           </div>
           <div class="card-actions btn-actions">
-              <a href="javascript:edit_userrss_modal('{{ Task.id }}')" class="btn-action" title="编辑任务">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
-              </a>
-              <a href="javascript:del_userrss_modal('{{ Task.id }}', '{{ Task.name }}')" class="btn-action" title="删除任务">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><desc>Download more icon variants from https://tabler-icons.io/i/x</desc><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-              </a>
-            </div>
+            <a href="javascript:show_userrss_detail('{{ Task.id }}')" class="btn-action">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"  viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/> </svg>
+            </a>
+            <a href="javascript:edit_userrss_modal('{{ Task.id }}')" class="btn-action" title="编辑任务">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
+            </a>
+            <a href="javascript:del_userrss_modal('{{ Task.id }}', '{{ Task.name }}')" class="btn-action" title="删除任务">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><desc>Download more icon variants from https://tabler-icons.io/i/x</desc><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            </a>
+          </div>
         </div>
-        <div class="card-body">
+        <div class="card-body" id="detail_{{ Task.id }}" style="display: {% if Count > 2 %}none{% else %}block{% endif %};">
           <div class="datagrid">
             <div class="datagrid-item">
               <div class="datagrid-title">地址</div>
@@ -131,7 +134,7 @@
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">保存路径</div>
-              <div class="datagrid-content">{{ Task.save_dir or '自动' }}</div>
+              <div class="datagrid-content">{{ Task.note.save_path or '自动' }}</div>
             </div>
             <div class="datagrid-item">
               <div class="datagrid-title">状态</div>
@@ -196,7 +199,7 @@
     <div class="modal-content">
       <div class="card border-top-0">
         <div class="card-header">
-          <h5 class="modal-title" id="userrss_modal_title">新建任务</h5>
+          <h5 class="modal-title" id="userrss_modal_title"></h5>
           <input type="hidden" id="userrss_id">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
@@ -272,7 +275,7 @@
             <div class="col-lg-8">
               <div class="mb-3">
                 <label class="form-label">保存路径</label>
-                <input type="text" id="userrss_note" class="form-control" placeholder="留空自动选择保存路径">
+                <input type="text" id="userrss_note_path" class="form-control" placeholder="留空自动选择保存路径">
               </div>
             </div>
             <div class="col-lg-4">
@@ -285,11 +288,79 @@
               </div>
             </div>
           </div>
+          <details>
+            <summary class="summary">
+              下载设置 <span class="form-help" title="下载设置仅适用于Qbittorrent和Transmission，其中分类和布局仅适用于Qbittorrent" data-bs-toggle="tooltip">?</span>
+            </summary>
+            <div class="row mb-2"></div>
+            <div class="row">
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">分类 </label>
+                  <input type="text" id="userrss_note_category" class="form-control" placeholder="">
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">标签 </label>
+                  <input type="text" id="userrss_note_tags" class="form-control" placeholder="">
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">布局 </label>
+                  <select class="form-select" id="userrss_note_layout">
+                    <option value="" selected>全局</option>
+                    <option value="Original">原始</option>
+                    <option value="Subfolder">创建子文件夹</option>
+                    <option value="NoSubfolder">不建子文件夹</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">动作 </label>
+                  <select class="form-select" id="userrss_note_paused">
+                    <option value="" selected>添加后开始</option>
+                    <option value="Y">添加后暂停</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">上传速度限制 </label>
+                  <input type="text" id="userrss_note_upload" class="form-control" placeholder="KB/s，不启用则留空">
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">下载速度限制 </label>
+                  <input type="text" id="userrss_note_download" class="form-control" placeholder="KB/s，不启用则留空">
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">分享率限制 </label>
+                  <input type="text" id="userrss_note_ratio" class="form-control" placeholder="不启用则留空">
+                </div>
+              </div>
+              <div class="col-lg-3">
+                <div class="mb-3">
+                  <label class="form-label">做种时间限制 </label>
+                  <input type="text" id="userrss_note_seeding_time" class="form-control" placeholder="分钟，不启用则留空">
+                </div>
+              </div>
+            </div>
+            <div class="row">
+            </div>
+          </details>
         </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a href="javascript:add_or_edit_userrss_task()" id="add_or_edit_userrss_btn" class="btn btn-primary">确定</a>
+        <a href="javascript:add_or_edit_userrss_task()" id="add_or_edit_userrss_btn" class="btn btn-primary">保存</a>
       </div>
     </div>
   </div>
@@ -330,7 +401,25 @@
   // 显示新增任务
   function show_userrss_modal(){
     $("#userrss_id").val('');
-    $("#add_or_edit_userrss_btn").text('新增');
+    $("#userrss_modal_title").text("新增订阅");
+    $("#userrss_name").val('');
+    $("#userrss_interval").val('');
+    $("#userrss_address").val('');
+    $("#userrss_include").val('');
+    $("#userrss_exclude").val('');
+    $("#userrss_filterrule").val('');
+    $("#userrss_parser").val('1');
+    $("#userrss_state").val('N');
+    $("#userrss_uses").val('D');
+    $("#userrss_note_path").val('');
+    $("#userrss_note_category").val('');
+    $("#userrss_note_tags").val('');
+    $("#userrss_note_layout").val('');
+    $("#userrss_note_paused").val('');
+    $("#userrss_note_upload").val('');
+    $("#userrss_note_download").val('');
+    $("#userrss_note_ratio").val('');
+    $("#userrss_note_seeding_time").val('');
     $("#modal-userrss").modal('show');
   }
 
@@ -339,6 +428,7 @@
     $("#userrss_id").val(id);
     ajax_post("get_userrss_task", {id:id}, function (ret) {
       if(ret.code == 0){
+        $("#userrss_modal_title").text("编辑订阅");
         $("#userrss_name").val(ret.detail.name);
         $("#userrss_interval").val(ret.detail.interval);
         $("#userrss_address").val(ret.detail.address);
@@ -348,7 +438,15 @@
         $("#userrss_parser").val(ret.detail.parser);
         $("#userrss_state").val(ret.detail.state);
         $("#userrss_uses").val(ret.detail.uses);
-        $("#userrss_note").val(ret.detail.save_dir);
+        $("#userrss_note_path").val(ret.detail.note.save_path);
+        $("#userrss_note_category").val(ret.detail.note.category);
+        $("#userrss_note_tags").val(ret.detail.note.tags);
+        $("#userrss_note_layout").val(ret.detail.note.content_layout);
+        $("#userrss_note_paused").val(ret.detail.note.is_paused);
+        $("#userrss_note_upload").val(ret.detail.note.upload_limit);
+        $("#userrss_note_download").val(ret.detail.note.download_limit);
+        $("#userrss_note_ratio").val(ret.detail.note.ratio_limit);
+        $("#userrss_note_seeding_time").val(ret.detail.note.seeding_time_limit);
         $("#modal-userrss").modal('show');
       }
     });
@@ -364,8 +462,18 @@
     });
   }
 
-  // 新增任务保存
+  // 折叠任务详情
+  function show_userrss_detail(taskid){
+    if($(`#detail_${taskid}`)[0].style["display"] == "none"){
+      $(`#detail_${taskid}`).attr("style", "display: block;");
+    }else{
+      $(`#detail_${taskid}`).attr("style", "display: none;");
+    };
+  }
+
+  // 新增/编辑任务保存
   function add_or_edit_userrss_task(){
+    $("#add_or_edit_userrss_btn").text("保存中").attr("disabled", true);
     id = $("#userrss_id").val();
     name = $("#userrss_name").val();
     if(!name){
@@ -395,6 +503,48 @@
     }else{
       $("#userrss_parser").removeClass("is-invalid");
     }
+    save_path = $("#userrss_note_path").val();
+    category = $("#userrss_note_category").val();
+    tags = $("#userrss_note_tags").val();
+    content_layout = $("#userrss_note_layout").val();
+    is_paused = $("#userrss_note_paused").val();
+    upload_limit = $("#userrss_note_upload").val();
+    if(upload_limit && isNaN(upload_limit)){
+      $("#userrss_note_upload").addClass("is-invalid");
+      return;
+    }else{
+      $("#userrss_note_upload").removeClass("is-invalid");
+    }
+    download_limit = $("#userrss_note_download").val();
+    if(download_limit && isNaN(download_limit)){
+      $("#userrss_note_download").addClass("is-invalid");
+      return;
+    }else{
+      $("#userrss_note_download").removeClass("is-invalid");
+    }
+    ratio_limit = $("#userrss_note_ratio").val();
+    if(ratio_limit && isNaN(ratio_limit)){
+      $("#userrss_note_ratio").addClass("is-invalid");
+      return;
+    }else{
+      $("#userrss_note_ratio").removeClass("is-invalid");
+    }
+    seeding_time_limit = $("#userrss_note_seeding_time").val();
+    if(seeding_time_limit && isNaN(seeding_time_limit)){
+      $("#userrss_note_seeding_time").addClass("is-invalid");
+      return;
+    }else{
+      $("#userrss_note_seeding_time").removeClass("is-invalid");
+    }
+    note = {save_path: save_path,
+            category: category,
+            tags: tags,
+            content_layout: content_layout,
+            is_paused: is_paused,
+            upload_limit: upload_limit,
+            download_limit: download_limit,
+            ratio_limit: ratio_limit,
+            seeding_time_limit: seeding_time_limit};
     var params = {id: id,
                   name: name,
                   address: address,
@@ -405,9 +555,10 @@
                   exclude: $("#userrss_exclude").val(),
                   filterrule: $("#userrss_filterrule").val(),
                   state: $("#userrss_state").val(),
-                  note: $("#userrss_note").val()};
+                  note: JSON.stringify(note)};
     ajax_post("update_userrss_task", params, function(ret){
       $("#modal-userrss").modal('hide');
+      $("#add_or_edit_userrss_btn").attr("disabled", false);
       navmenu('user_rss');
     });
   }

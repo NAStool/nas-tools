@@ -167,26 +167,81 @@ class Qbittorrent(IDownloadClient):
     def add_torrent(self,
                     content,
                     is_paused=False,
-                    tag=None,
                     download_dir=None,
-                    category=None):
+                    tag=None,
+                    category=None,
+                    content_layout=None,
+                    upload_limit=None,
+                    download_limit=None,
+                    ratio_limit=None,
+                    seeding_time_limit=None
+                    ):
+        """
+        添加种子
+        :param content: 种子urls或文件
+        :param is_paused: 添加后暂停
+        :param tag: 标签
+        :param download_dir: 下载路径
+        :param category: 分类
+        :param content_layout: 布局
+        :param upload_limit: 上传限速 Mb/s
+        :param download_limit: 下载限速 Mb/s
+        :param ratio_limit: 分享率限制
+        :param seeding_time_limit: 做种时间限制
+        :return: bool
+        """
         if not self.qbc or not content:
             return False
+        if isinstance(content, str):
+            urls = content
+            torrent_files = None
+        else:
+            urls = None
+            torrent_files = content
+        if download_dir:
+            save_path = download_dir
+        else:
+            save_path = None
+        if not category:
+            category = None
+        if tag:
+            tags = tag
+        else:
+            tags = None
+        if not content_layout:
+            content_layout = None
+        if upload_limit:
+            upload_limit = int(upload_limit) * 1024
+        else:
+            upload_limit = None
+        if download_limit:
+            download_limit = int(download_limit) * 1024
+        else:
+            download_limit = None
+        if ratio_limit:
+            ratio_limit = round(float(ratio_limit), 2)
+        else:
+            ratio_limit = None
+        if seeding_time_limit:
+            seeding_time_limit = int(seeding_time_limit)
+        else:
+            seeding_time_limit = None
         try:
-            if isinstance(content, str):
-                qbc_ret = self.qbc.torrents_add(urls=content,
-                                                save_path=download_dir,
-                                                category=category,
-                                                is_paused=is_paused,
-                                                tags=tag,
-                                                use_auto_torrent_management=False)
-            else:
-                qbc_ret = self.qbc.torrents_add(torrent_files=content,
-                                                save_path=download_dir,
-                                                category=category,
-                                                is_paused=is_paused,
-                                                tags=tag,
-                                                use_auto_torrent_management=False)
+            use_auto_torrent_management = False
+            if not save_path:
+                use_auto_torrent_management = True
+            qbc_ret = self.qbc.torrents_add(urls=urls,
+                                            torrent_files=torrent_files,
+                                            save_path=save_path,
+                                            category=category,
+                                            is_paused=is_paused,
+                                            tags=tags,
+                                            content_layout=content_layout,
+                                            upload_limit=upload_limit,
+                                            download_limit=download_limit,
+                                            ratio_limit=ratio_limit,
+                                            seeding_time_limit=seeding_time_limit,
+                                            use_auto_torrent_management=use_auto_torrent_management)
             return True if qbc_ret and str(qbc_ret).find("Ok") != -1 else False
         except Exception as err:
             print(str(err))
@@ -302,3 +357,9 @@ class Qbittorrent(IDownloadClient):
             if include_flag:
                 results.append(torrent)
         return results
+
+    def change_torrent(self, **kwargs):
+        """
+        修改种子状态
+        """
+        pass

@@ -111,6 +111,8 @@ class MetaBase(object):
     ignored_words = None
     replaced_words = None
     offset_words = None
+    # 备注字典
+    note = {}
     # 副标题解析
     _subtitle_flag = False
     _subtitle_season_re = r"[第\s]+([0-9一二三四五六七八九十S\-]+)\s*季"
