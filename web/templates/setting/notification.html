@@ -141,7 +141,7 @@
             <div class="col-lg-4">
               <div class="mb-3">
                 <label class="form-label">消息推送代理 <span class="form-help" title="由于微信官方限制，2022年6月20日后创建的企业微信应用需要有固定的公网IP地址并加入IP白名单后才能发送消息，使用有固定公网IP的代理服务器转发可解决该问题；代理服务器需自行搭建，搭建方法可参考项目主页说明" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" value="{% if Config.message.wechat %}{% if Config.message.wechat.default_proxy == true %}https://nastool.jxxghp.cn{% else %}{{ Config.message.wechat.default_proxy or '' }}{% endif %}{% endif %}" id="default_proxy" class="form-control" placeholder="https://xxxx.xxxx.xxx">
+                <input type="text" value="{% if Config.message.wechat %}{% if Config.message.wechat.default_proxy == true %}https://wechat.nastool.cn{% else %}{{ Config.message.wechat.default_proxy or '' }}{% endif %}{% endif %}" id="default_proxy" class="form-control" placeholder="https://xxxx.xxxx.xxx">
               </div>
             </div>
           </div>
