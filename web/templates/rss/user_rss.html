@@ -69,15 +69,22 @@
             </a>
           </div>
           <div class="card-actions btn-actions">
-              <a href="javascript:edit_userrss_modal('{{ Task.id }}')" class="btn-action" title="编辑任务">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
-              </a>
-              <a href="javascript:del_userrss_modal('{{ Task.id }}', '{{ Task.name }}')" class="btn-action" title="删除任务">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><desc>Download more icon variants from https://tabler-icons.io/i/x</desc><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-              </a>
-            </div>
+            <a href="javascript:show_userrss_detail('{{ Task.id }}')" class="btn-action">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"  viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/> </svg>
+            </a>
+            <a href="javascript:edit_userrss_modal('{{ Task.id }}')" class="btn-action" title="编辑任务">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
+            </a>
+            <a href="javascript:del_userrss_modal('{{ Task.id }}', '{{ Task.name }}')" class="btn-action" title="删除任务">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><desc>Download more icon variants from https://tabler-icons.io/i/x</desc><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            </a>
+          </div>
         </div>
-        <div class="card-body">
+        {% if Count > 2 %}
+        <div class="card-body" id="detail_{{ Task.id }}" style="display: none;">
+        {% else %}
+        <div class="card-body" id="detail_{{ Task.id }}" style="display: block;">
+        {% endif %}
           <div class="datagrid">
             <div class="datagrid-item">
               <div class="datagrid-title">地址</div>
@@ -455,6 +462,15 @@
         navmenu('user_rss');
       });
     });
+  }
+
+  // 折叠任务详情
+  function show_userrss_detail(taskid){
+    if($(`#detail_${taskid}`)[0].style["display"] == "none"){
+      $(`#detail_${taskid}`).attr("style", "display: block;");
+    }else{
+      $(`#detail_${taskid}`).attr("style", "display: none;");
+    };
   }
 
   // 新增/编辑任务保存
