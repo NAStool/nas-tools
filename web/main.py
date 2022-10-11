@@ -1372,12 +1372,10 @@ def create_flask_app():
         Tasks = RssChecker().get_rsstask_info()
         RssParsers = RssChecker().get_userrss_parser()
         FilterRules = FilterRule().get_rule_groups()
-        DownloaderType = Downloader().get_type().value
         return render_template("rss/user_rss.html",
                                Tasks=Tasks,
                                Count=len(Tasks),
                                RssParsers=RssParsers,
-                               DownloaderType=DownloaderType,
                                FilterRules=FilterRules)
 
     # RSS解析器页面

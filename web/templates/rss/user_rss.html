@@ -292,10 +292,9 @@
               </div>
             </div>
           </div>
-          {% if DownloaderType == 'Qbittorrent' %}
           <details>
             <summary class="summary">
-              Qbittorrent下载设置
+              Qbittorrent下载设置 <span class="form-help" title="下载设置仅适用于Qbittorrent和Transmission，其中分类和布局仅适用于Qbittorrent" data-bs-toggle="tooltip">?</span>
             </summary>
             <div class="row mb-2"></div>
             <div class="row">
@@ -322,8 +321,8 @@
               <div class="col-lg-3">
                 <div class="mb-3">
                   <select class="form-select" id="userrss_note_paused">
-                    <option value="N" selected>添加后暂停（默认否）</option>
-                    <option value="Y">是</option>
+                    <option value="N" selected>添加后开始</option>
+                    <option value="Y">添加后暂停</option>
                   </select>
                 </div>
               </div>
@@ -357,7 +356,6 @@
             <div class="row">
             </div>
           </details>
-          {% endif  %}
         </div>
       </div>
       <div class="modal-footer">

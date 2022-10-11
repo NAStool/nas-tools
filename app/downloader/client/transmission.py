@@ -109,6 +109,69 @@ class Transmission(IDownloadClient):
             self.trc.change_torrent(labels=tag, ids=int(tid))
         except Exception as err:
             print(str(err))
+    
+    def set_torrent(self, 
+                    tid=None,
+                    tag=None,
+                    upload_limit=None,
+                    download_limit=None,
+                    ratio_limit=None,
+                    seeding_time_limit=None,
+                    **kwargs):
+        """
+        设置种子
+        :param tag: 标签
+        :param upload_limit: 上传限速 Mb/s
+        :param download_limit: 下载限速 Mb/s
+        :param ratio_limit: 分享率限制
+        :param seeding_time_limit: 做种时间限制
+        :return: bool
+        """
+        if not tid:
+            return
+        else:
+            ids = int(tid)
+        if tag:
+            labels = tag
+        else:
+            labels = None
+        if upload_limit:
+            uploadLimited = True
+            uploadLimit = int(upload_limit)*1024
+        else:
+            uploadLimited = False
+            uploadLimit = None
+        if download_limit:
+            downloadLimited = True
+            downloadLimit = int(download_limit)*1024
+        else:
+            downloadLimited = False
+            downloadLimit = None
+        if ratio_limit:
+            seedRatioMode = 1
+            seedRatioLimit = round(float(ratio_limit), 2)
+        else:
+            seedRatioMode = 2
+            seedRatioLimit = None
+        if seeding_time_limit:
+            seedIdleMode = 1
+            seedIdleLimit = int(seeding_time_limit)
+        else:
+            seedIdleMode = 2
+            seedIdleLimit = None
+        try:
+            self.trc.change_torrent(ids=ids,
+                                    labels=labels,
+                                    uploadLimited=uploadLimited,
+                                    uploadLimit=uploadLimit,
+                                    downloadLimited=downloadLimited,
+                                    downloadLimit=downloadLimit,
+                                    seedRatioMode=seedRatioMode,
+                                    seedRatioLimit=seedRatioLimit,
+                                    seedIdleMode=seedIdleMode,
+                                    seedIdleLimit=seedIdleLimit)
+        except Exception as err:
+            print(str(err))
 
     def get_transfer_task(self, tag):
         # 处理所有任务

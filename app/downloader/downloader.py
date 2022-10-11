@@ -168,28 +168,37 @@ class Downloader:
                     download_info = self.__get_download_dir_info(media_info)
                     download_dir = download_info.get('path')
                     download_label = download_info.get('label')
+                    if not category:
+                        category = download_label
+                if is_paused == 'Y':
+                    is_paused = True
+                else:
+                    is_paused == False
                 log.info("【DOWNLOADER】添加下载任务：%s，目录：%s，Url：%s" % (title, download_dir, url))
                 if self.__client_type == DownloaderType.TR:
                     ret = self.client.add_torrent(content,
                                                   is_paused=is_paused,
-                                                  download_dir=download_dir,
-                                                  category=download_label)
+                                                  download_dir=download_dir)
                     if ret and tag:
-                        self.client.set_torrent_tag(tid=ret.id,
-                                                    tag=tag)
+                        self.client.set_torrent(tid=ret.id,
+                                                tag=tag,
+                                                category=category,
+                                                content_layout=content_layout,
+                                                upload_limit=upload_limit,
+                                                download_limit=download_limit,
+                                                ratio_limit=ratio_limit,
+                                                seeding_time_limit=seeding_time_limit)
                 elif self.__client_type == DownloaderType.QB:
-                    if not category:
-                        category = download_label
                     ret = self.client.add_torrent(content,
                                                   is_paused=is_paused,
-                                                  tag=tag,
                                                   download_dir=download_dir,
+                                                  tag=tag,
                                                   category=category,
-                                                  content_layout = content_layout,
-                                                  upload_limit = upload_limit,
-                                                  download_limit = download_limit,
-                                                  ratio_limit = ratio_limit,
-                                                  seeding_time_limit = seeding_time_limit)
+                                                  content_layout=content_layout,
+                                                  upload_limit=upload_limit,
+                                                  download_limit=download_limit,
+                                                  ratio_limit=ratio_limit,
+                                                  seeding_time_limit=seeding_time_limit)
                 else:
                     ret = self.client.add_torrent(content,
                                                   is_paused=is_paused,
