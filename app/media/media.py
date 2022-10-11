@@ -43,11 +43,11 @@ class Media:
         laboratory = config.get_config('laboratory')
         if app:
             if app.get('rmt_tmdbkey'):
+                self.tmdb = TMDb()
                 if laboratory.get('tmdb_proxy'):
-                    domain = DEFAULT_TMDB_PROXY
+                    self.tmdb.domain = DEFAULT_TMDB_PROXY
                 else:
-                    domain = app.get("tmdb_domain")
-                self.tmdb = TMDb(domain=domain)
+                    self.tmdb.domain = app.get("tmdb_domain")
                 self.tmdb.cache = True
                 self.tmdb.api_key = app.get('rmt_tmdbkey')
                 self.tmdb.language = 'zh-CN'
