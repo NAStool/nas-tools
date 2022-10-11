@@ -559,14 +559,17 @@ class RssChecker(object):
         :param articles: 报文(title/enclosure)
         """
         try:
-            for article in articles:
-                title = article.get("title")
-                enclosure = article.get("enclosure")
-                if flag == "set_finished":
+            if flag == "set_finished":
+                for article in articles:
+                    title = article.get("title")
+                    enclosure = article.get("enclosure")
                     if not SqlHelper.is_userrss_finished(title, enclosure):
                         SqlHelper.simple_insert_rss_torrents(title, enclosure)
-                if flag == "set_unfinish":
-                    SqlHelper.simple_delete_rss_torrents(title, enclosure)
+            elif flag == "set_unfinish":
+                for article in articles:
+                    SqlHelper.simple_delete_rss_torrents(article.get("title"), article.get("enclosure"))
+            else:
+                return False
             return True
         except Exception as e:
             log_error("【RSSCHECKER】设置RSS报文状态时发生错误：%s - %s" % (str(e), traceback.format_exc()))
