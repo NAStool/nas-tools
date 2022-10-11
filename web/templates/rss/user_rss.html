@@ -652,9 +652,9 @@
         content_tb = `<tbody>${content_td}</tbody>`;
         content = `${content_th}${content_tb}`;
         };
-        batch_download_btn = `<a href="javascript:batch_articles_check('${id}', 'download')" class="btn btn-primary ms-auto">批量下载</a>`;
-        unfinish_btn = `<a href="javascript:batch_articles_check('${id}', 'set_finished')" class="btn btn-primary ms-auto">设为已处理</a>`;
-        finished_btn = `<a href="javascript:batch_articles_check('${id}', 'set_unfinish')" class="btn btn-secondary ms-auto">设为未处理</a>`;
+        batch_download_btn = `<a href="javascript:batch_articles_action('${id}', 'download')" class="btn btn-primary ms-auto">批量下载</a>`;
+        unfinish_btn = `<a href="javascript:batch_articles_action('${id}', 'set_finished')" class="btn btn-primary ms-auto">设为已处理</a>`;
+        finished_btn = `<a href="javascript:batch_articles_action('${id}', 'set_unfinish')" class="btn btn-secondary ms-auto">设为未处理</a>`;
         $("#articles-check").append(`${batch_download_btn}${unfinish_btn}${finished_btn}`);
         $("#table-rss-articles").append(content);
         // 绑定全选事件
@@ -671,7 +671,7 @@
   
 
   // 批量处理
-  function batch_articles_check(id, flag){
+  function batch_articles_action(id, flag){
     var articles = [];
     var i = 0;
     $("input[type=checkbox]").each(function(){
@@ -692,8 +692,10 @@
     }
     if(flag.startsWith("set_")){
       articles_check(id, flag, articles);
-    }else{
+    }else if(flag == "download"){
       articles_download(id, articles);
+    }else{
+      return
     }
   }
 
@@ -702,9 +704,14 @@
   function articles_check(id, flag, articles){
     ajax_post("rss_articles_check", {"articles": articles, "flag": flag}, function(ret){
       if(ret.code == 0){
-        $("#modal-rss-articles").modal('hide');
-        show_rss_articles_modal(id);
+        show_success_modal("设置成功！");
+      }else if(ret.code == 1){
+        show_success_modal("设置失败！");
+      }else{
+        return
       }
+      $("#modal-rss-articles").modal('hide');
+      show_rss_articles_modal(id);
     });
   }
 
@@ -714,14 +721,14 @@
     ajax_post("rss_articles_download", {"articles": articles, "taskid": id}, function(ret){
       hide_wait_process();
       if(ret.code == 0){
-        show_success_modal(name + "添加下载成功！");
-        $("#modal-rss-articles").modal('hide');
-        show_rss_articles_modal(id);
+        show_success_modal("添加下载成功！");
+      }else if(ret.code == 1){
+        show_fail_modal(" 添加下载失败！");
       }else{
-        show_fail_modal(name + " 添加下载失败 " + ret.msg);
-        $("#modal-rss-articles").modal('hide');
-        show_rss_articles_modal(id);
+        return
       }
+      $("#modal-rss-articles").modal('hide');
+      show_rss_articles_modal(id);
     });
   }
 

@@ -2340,22 +2340,22 @@ class WebAction:
     @staticmethod
     def __rss_articles_check(data):
         if not data.get("articles"):
-            return {"code": 1}
-        try:
-            RssChecker().check_rss_articles(flag=data.get("flag"), articles=data.get("articles"))
+            return {"code": 2}
+        res = RssChecker().check_rss_articles(flag=data.get("flag"), articles=data.get("articles"))
+        if res:
             return {"code": 0}
-        except: 
+        else:
             return {"code": 1}
     
     @staticmethod
     def __rss_articles_download(data):
         if not data.get("articles"):
-            return {"code": 1, "msg": "未选择下载对象"}
-        try:
-            RssChecker().download_rss_articles(taskid=data.get("taskid"), articles=data.get("articles"))
-            return {"code": 0, "msg": ""}
-        except Exception as e:
-            return {"code": 1, "msg": str(e)}
+            return {"code": 2}
+        res = RssChecker().download_rss_articles(taskid=data.get("taskid"), articles=data.get("articles"))
+        if res:
+            return {"code": 0}
+        else:
+            return {"code": 1}
 
     @staticmethod
     def __get_categories(data):

@@ -567,8 +567,10 @@ class RssChecker(object):
                         SqlHelper.simple_insert_rss_torrents(title, enclosure)
                 if flag == "set_unfinish":
                     SqlHelper.simple_delete_rss_torrents(title, enclosure)
+            return True
         except Exception as e:
-                log_error("【RSSCHECKER】设置RSS报文状态时发生错误：%s - %s" % (str(e), traceback.format_exc()))
+            log_error("【RSSCHECKER】设置RSS报文状态时发生错误：%s - %s" % (str(e), traceback.format_exc()))
+            return False
     
     def download_rss_articles(self, taskid, articles):
         """
@@ -608,7 +610,8 @@ class RssChecker(object):
                 log_error("【RSSCHECKER】添加下载任务 %s 失败：%s" % (media.get_title_string(), ret_msg or "请检查下载任务是否已存在"))
                 if ret_msg:
                     self.message.send_download_fail_message(media, ret_msg)
-
+                return False
+        return True
 
 def log_info(text):
     log.info(text, module="rsschecker")
