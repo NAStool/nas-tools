@@ -91,9 +91,9 @@ class Downloader:
         :param download_dir: 指定下载目录
         :param category: 分类
         :param content_layout: 布局
-        :param upload_limit: 上传限速 Mb/s
-        :param download_limit: 下载限速 Mb/s
-        :param ratio_limit: 分享率限制 保留两位小数
+        :param upload_limit: 上传限速 Kb/s
+        :param download_limit: 下载限速 Kb/s
+        :param ratio_limit: 分享率限制
         :param seeding_time_limit: 做种时间限制 分钟
         """
         url = media_info.enclosure
