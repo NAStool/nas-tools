@@ -54,7 +54,7 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         if message_labels:
             message_text = message_labels[0].xpath("string(.)")
 
-            log.debug(f"【PT】{self.site_name} 消息原始信息 {message_text}")
+            log.debug(f"【SITES】{self.site_name} 消息原始信息 {message_text}")
             message_unread_match = re.findall(r"[^Date](信息箱\s*|\(|你有\xa0)(\d+)", message_text)
 
             if message_unread_match and len(message_unread_match[-1]) == 2:
@@ -98,7 +98,7 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
         self.download = StringUtils.num_filesize(download_match.group(1).strip()) if download_match else 0
         ratio_match = re.search(r"分享率[:：_<>/a-zA-Z-=\"'\s#;]+([\d,.\s]+)", html_text)
         self.ratio = StringUtils.str_float(ratio_match.group(1)) if (
-                    ratio_match and ratio_match.group(1).strip()) else 0.0
+                ratio_match and ratio_match.group(1).strip()) else 0.0
         leeching_match = re.search(r"(Torrents leeching|下载中)[\u4E00-\u9FA5\D\s]+(\d+)[\s\S]+<", html_text)
         self.leeching = StringUtils.str_int(leeching_match.group(2)) if leeching_match and leeching_match.group(
             2).strip() else 0
@@ -229,7 +229,7 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
             seeding_match = re.search(r"总做种数:\s+(\d+)", seeding_sizes[0], re.IGNORECASE)
             seeding_size_match = re.search(r"总做种体积:\s+([\d,.\s]+[KMGTPI]*B)", seeding_sizes[0], re.IGNORECASE)
             tmp_seeding = StringUtils.str_int(seeding_match.group(1)) if (
-                        seeding_match and seeding_match.group(1)) else 0
+                    seeding_match and seeding_match.group(1)) else 0
             tmp_seeding_size = StringUtils.num_filesize(
                 seeding_size_match.group(1).strip()) if seeding_size_match else 0
         if not self.seeding_size:
@@ -301,3 +301,45 @@ class NexusPhpSiteUserInfo(ISiteUserInfo):
                 if user_level_match and user_level_match.group(1).strip():
                     self.user_level = user_level_match.group(1).strip()
                     break
+
+    def _parse_message_unread_links(self, html_text, msg_links):
+        html = etree.HTML(html_text)
+        if not html:
+            return None
+
+        message_links = html.xpath('//tr[not(./td/img[@alt="Read"])]/td/a[contains(@href, "viewmessage")]/@href')
+        msg_links.extend(message_links)
+        # 是否存在下页数据
+        next_page = None
+        next_page_text = html.xpath('//a[contains(.//text(), "下一页") or contains(.//text(), "下一頁")]/@href')
+        if next_page_text:
+            next_page = next_page_text[-1].strip()
+
+        return next_page
+
+    def _parse_message_content(self, html_text):
+        html = etree.HTML(html_text)
+        if not html:
+            return None, None, None
+        # 标题
+        message_head_text = None
+        message_head = html.xpath('//h1/text()'
+                                  '|//div[@class="layui-card-header"]/span[1]/text()')
+        if message_head:
+            message_head_text = message_head[-1].strip()
+
+        # 消息时间
+        message_date_text = None
+        message_date = html.xpath('//h1/following-sibling::table[.//tr/td[@class="colhead"]]//tr[2]/td[2]'
+                                  '|//div[@class="layui-card-header"]/span[2]/span[2]')
+        if message_date:
+            message_date_text = message_date[0].xpath("string(.)").strip()
+
+        # 消息内容
+        message_content_text = None
+        message_content = html.xpath('//h1/following-sibling::table[.//tr/td[@class="colhead"]]//tr[3]/td'
+                                     '|//div[contains(@class,"layui-card-body")]')
+        if message_content:
+            message_content_text = message_content[0].xpath("string(.)").strip()
+
+        return message_head_text, message_date_text, message_content_text

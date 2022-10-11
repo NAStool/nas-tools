@@ -60,3 +60,9 @@ class SmallHorseSiteUserInfo(ISiteUserInfo):
 
     def _parse_user_torrent_seeding_info(self, html_text, multi_page=False):
         pass
+
+    def _parse_message_unread_links(self, html_text, msg_links):
+        return None
+
+    def _parse_message_content(self, html_text):
+        return None, None, None
