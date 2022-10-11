@@ -62,6 +62,20 @@ class RssChecker(object):
                 filterrule = self.filterrule.get_rule_groups(groupid=task[8])
             else:
                 filterrule = {}
+            # 兼容旧配置
+            note = task[12]
+            if re.findall(r'seeding_time_limit', note):
+                note = json.loads(task[12])
+            else:
+                note = {"save_path": note,
+                        "category": '',
+                        "tags": '',
+                        "content_layout": '',
+                        "is_paused": 'N',
+                        "upload_limit": '',
+                        "download_limit": '',
+                        "ratio_limit": '',
+                        "seeding_time_limit": ''}
             self._rss_tasks.append({
                 "id": task[0],
                 "name": task[1],
@@ -78,7 +92,7 @@ class RssChecker(object):
                 "update_time": task[9],
                 "counter": task[10],
                 "state": task[11],
-                "save_dir": task[12]
+                "note": note
             })
         if not self._rss_tasks:
             return
@@ -226,7 +240,7 @@ class RssChecker(object):
                 if taskinfo.get("uses") == "D":
                     # 下载
                     if media_info not in rss_download_torrents:
-                        media_info.save_dir = taskinfo.get("save_dir")
+                        media_info.note = taskinfo.get("note")
                         rss_download_torrents.append(media_info)
                 elif taskinfo.get("uses") == "R":
                     # 订阅
@@ -244,7 +258,15 @@ class RssChecker(object):
         if rss_download_torrents:
             for media in rss_download_torrents:
                 ret, ret_msg = self.downloader.add_pt_torrent(media_info=media,
-                                                              download_dir=media.save_dir)
+                                                              is_paused=media.note.get("is_paused"),
+                                                              tag=media.note.get("tag"),
+                                                              download_dir=media.note.get("save_path"),
+                                                              category=media.note.get("category"),
+                                                              content_layout = media.note.get("content_layout"),
+                                                              upload_limit = media.note.get("upload_limit"),
+                                                              download_limit = media.note.get("download_limit"),
+                                                              ratio_limit = media.note.get("ratio_limit"),
+                                                              seeding_time_limit=media.note.get("seeding_time_limit"),)
                 if ret:
                     self.message.send_download_message(in_from=SearchType.RSS,
                                                        can_item=media)
