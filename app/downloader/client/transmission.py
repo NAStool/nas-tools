@@ -121,8 +121,8 @@ class Transmission(IDownloadClient):
         设置种子
         :param tid: ID
         :param tag: 标签
-        :param upload_limit: 上传限速 Mb/s
-        :param download_limit: 下载限速 Mb/s
+        :param upload_limit: 上传限速 Kb/s
+        :param download_limit: 下载限速 Kb/s
         :param ratio_limit: 分享率限制
         :param seeding_time_limit: 做种时间限制
         :return: bool

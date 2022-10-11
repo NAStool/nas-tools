@@ -184,8 +184,8 @@ class Qbittorrent(IDownloadClient):
         :param download_dir: 下载路径
         :param category: 分类
         :param content_layout: 布局
-        :param upload_limit: 上传限速 Mb/s
-        :param download_limit: 下载限速 Mb/s
+        :param upload_limit: 上传限速 Kb/s
+        :param download_limit: 下载限速 Kb/s
         :param ratio_limit: 分享率限制
         :param seeding_time_limit: 做种时间限制
         :return: bool
