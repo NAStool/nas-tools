@@ -71,7 +71,7 @@ class RssChecker(object):
                         "category": '',
                         "tags": '',
                         "content_layout": '',
-                        "is_paused": 'N',
+                        "is_paused": '',
                         "upload_limit": '',
                         "download_limit": '',
                         "ratio_limit": '',
@@ -259,14 +259,14 @@ class RssChecker(object):
             for media in rss_download_torrents:
                 ret, ret_msg = self.downloader.add_pt_torrent(media_info=media,
                                                               is_paused=media.note.get("is_paused"),
-                                                              tag=media.note.get("tag"),
+                                                              tag=media.note.get("tags"),
                                                               download_dir=media.note.get("save_path"),
                                                               category=media.note.get("category"),
-                                                              content_layout = media.note.get("content_layout"),
-                                                              upload_limit = media.note.get("upload_limit"),
-                                                              download_limit = media.note.get("download_limit"),
-                                                              ratio_limit = media.note.get("ratio_limit"),
-                                                              seeding_time_limit=media.note.get("seeding_time_limit"),)
+                                                              content_layout=media.note.get("content_layout"),
+                                                              upload_limit=media.note.get("upload_limit"),
+                                                              download_limit=media.note.get("download_limit"),
+                                                              ratio_limit=media.note.get("ratio_limit"),
+                                                              seeding_time_limit=media.note.get("seeding_time_limit"), )
                 if ret:
                     self.message.send_download_message(in_from=SearchType.RSS,
                                                        can_item=media)
@@ -346,26 +346,29 @@ class RssChecker(object):
         # 解析数据 XPATH
         rss_result = []
         if rss_parser.get("type") == "XML":
-            result_tree = etree.XML(ret.text.encode("utf-8"))
-            item_list = result_tree.xpath(rss_parser_format.get("list")) or []
-            for item in item_list:
-                rss_item = {}
-                for key, attr in rss_parser_format.get("item", {}).items():
-                    if attr.get("path"):
-                        value = item.xpath(attr.get("path"))
-                    elif attr.get("value"):
-                        value = attr.get("value")
-                    else:
-                        continue
-                    if value:
-                        rss_item.update({key: value[0]})
-                rss_result.append(rss_item)
+            try:
+                result_tree = etree.XML(ret.text.encode("utf-8"))
+                item_list = result_tree.xpath(rss_parser_format.get("list")) or []
+                for item in item_list:
+                    rss_item = {}
+                    for key, attr in rss_parser_format.get("item", {}).items():
+                        if attr.get("path"):
+                            value = item.xpath(attr.get("path"))
+                        elif attr.get("value"):
+                            value = attr.get("value")
+                        else:
+                            continue
+                        if value:
+                            rss_item.update({key: value[0]})
+                    rss_result.append(rss_item)
+            except Exception as err:
+                log_error("【RSSCHECKER】任务 %s 获取的订阅报文无法解析：%s" % (taskinfo.get("name"), str(err)))
+                return []
         elif rss_parser.get("type") == "JSON":
             try:
                 result_json = json.loads(ret.text)
-            except Exception as e:
-                print(str(e))
-                log_error("【RSSCHECKER】任务 %s 获取的订阅报文不是合法的Json格式" % taskinfo.get("name"))
+            except Exception as err:
+                log_error("【RSSCHECKER】任务 %s 获取的订阅报文不是合法的Json格式：%s" % (taskinfo.get("name"), str(err)))
                 return []
             item_list = jsonpath.jsonpath(result_json, rss_parser_format.get("list"))[0]
             if not isinstance(item_list, list):

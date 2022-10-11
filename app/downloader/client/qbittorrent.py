@@ -170,11 +170,11 @@ class Qbittorrent(IDownloadClient):
                     download_dir=None,
                     tag=None,
                     category=None,
-                    content_layout = None,
-                    upload_limit = None,
-                    download_limit = None,
-                    ratio_limit = None,
-                    seeding_time_limit = None
+                    content_layout=None,
+                    upload_limit=None,
+                    download_limit=None,
+                    ratio_limit=None,
+                    seeding_time_limit=None
                     ):
         """
         添加种子
@@ -211,11 +211,11 @@ class Qbittorrent(IDownloadClient):
         if not content_layout:
             content_layout = None
         if upload_limit:
-            upload_limit = int(upload_limit)*1024*1024
+            upload_limit = int(upload_limit) * 1024
         else:
             upload_limit = None
         if download_limit:
-            download_limit = int(download_limit)*1024*1024
+            download_limit = int(download_limit) * 1024
         else:
             download_limit = None
         if ratio_limit:
@@ -227,18 +227,21 @@ class Qbittorrent(IDownloadClient):
         else:
             seeding_time_limit = None
         try:
+            use_auto_torrent_management = False
+            if not save_path:
+                use_auto_torrent_management = True
             qbc_ret = self.qbc.torrents_add(urls=urls,
                                             torrent_files=torrent_files,
                                             save_path=save_path,
                                             category=category,
                                             is_paused=is_paused,
                                             tags=tags,
-                                            content_layout = content_layout,
-                                            upload_limit = upload_limit,
-                                            download_limit = download_limit,
-                                            ratio_limit = ratio_limit,
-                                            seeding_time_limit = seeding_time_limit,
-                                            use_auto_torrent_management=False)
+                                            content_layout=content_layout,
+                                            upload_limit=upload_limit,
+                                            download_limit=download_limit,
+                                            ratio_limit=ratio_limit,
+                                            seeding_time_limit=seeding_time_limit,
+                                            use_auto_torrent_management=use_auto_torrent_management)
             return True if qbc_ret and str(qbc_ret).find("Ok") != -1 else False
         except Exception as err:
             print(str(err))
@@ -354,3 +357,9 @@ class Qbittorrent(IDownloadClient):
             if include_flag:
                 results.append(torrent)
         return results
+
+    def change_torrent(self, **kwargs):
+        """
+        修改种子状态
+        """
+        pass

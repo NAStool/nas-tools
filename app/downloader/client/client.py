@@ -105,13 +105,9 @@ class IDownloadClient(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def add_torrent(self, content, is_paused, tag, download_dir):
+    def add_torrent(self, **kwargs):
         """
         添加下载任务
-        :param content: 种子数据或链接
-        :param is_paused: 是否默认暂停，只有需要进行下一步控制时，才会添加种子时默认暂停
-        :param tag: 下载时对种子的TAG标记
-        :param download_dir: 指定下载目录
         """
         pass
 
@@ -157,3 +153,10 @@ class IDownloadClient(metaclass=ABCMeta):
             if os.path.normpath(path) == os.path.normpath(true_path):
                 return attr.get("path")
         return true_path
+
+    @abstractmethod
+    def change_torrent(self, **kwargs):
+        """
+        修改种子状态
+        """
+        pass

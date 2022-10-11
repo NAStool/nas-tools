@@ -509,7 +509,9 @@ class BrushTask(object):
             ret = downloader.add_torrent(content=enclosure,
                                          tag=tag,
                                          is_paused=True,
-                                         download_dir=downloadercfg.get("save_dir"))
+                                         download_dir=downloadercfg.get("save_dir"),
+                                         upload_limit=upspeed,
+                                         download_limit=downspeed)
             if ret:
                 # QB添加下载后需要时间，重试5次每次等待5秒
                 for i in range(1, 6):
@@ -523,12 +525,6 @@ class BrushTask(object):
                         # 强制做种
                         if forceupload:
                             downloader.torrents_set_force_start(download_id)
-                        # 上传限速
-                        if upspeed:
-                            downloader.set_uploadspeed_limit(download_id, int(upspeed) * 1024)
-                        # 下载限速
-                        if downspeed:
-                            downloader.set_downloadspeed_limit(download_id, int(downspeed) * 1024)
                         break
         else:
             # 初始化下载器
@@ -537,19 +533,15 @@ class BrushTask(object):
                 log_error("【BRUSH】任务 %s 下载器 %s 无法连接" % (taskname, downloadercfg.get("name")))
                 return False
             ret = downloader.add_torrent(content=enclosure,
-                                         mtype=None,
-                                         download_dir=downloadercfg.get("save_dir"))
+                                         download_dir=downloadercfg.get("save_dir"),
+                                         upload_limit=upspeed,
+                                         download_limit=downspeed
+                                         )
             if ret:
                 download_id = ret.id
                 # 设置标签
                 if download_id and tag:
                     downloader.set_torrent_tag(tid=download_id, tag=tag)
-                # 上传限速
-                if upspeed:
-                    downloader.set_uploadspeed_limit(download_id, int(upspeed))
-                # 下载限速
-                if downspeed:
-                    downloader.set_downloadspeed_limit(download_id, int(downspeed))
         if not download_id:
             log_warn("【BRUSH】%s 添加下载任务出错，可能原因：Cookie过期/任务已存在/触发了站点首次种子下载" % title)
             return False

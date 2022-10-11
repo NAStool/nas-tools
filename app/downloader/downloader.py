@@ -78,10 +78,10 @@ class Downloader:
                        tag=None,
                        download_dir=None,
                        category=None,
-                       content_layout = None,
-                       upload_limit = None,
-                       download_limit = None,
-                       ratio_limit = None,
+                       content_layout=None,
+                       upload_limit=None,
+                       download_limit=None,
+                       ratio_limit=None,
                        seeding_time_limit=None):
         """
         添加下载任务，根据当前使用的下载器分别调用不同的客户端处理
@@ -170,24 +170,22 @@ class Downloader:
                     download_label = download_info.get('label')
                     if not category:
                         category = download_label
-                if is_paused == 'Y':
+                if is_paused:
                     is_paused = True
                 else:
-                    is_paused == False
+                    is_paused = False
                 log.info("【DOWNLOADER】添加下载任务：%s，目录：%s，Url：%s" % (title, download_dir, url))
                 if self.__client_type == DownloaderType.TR:
                     ret = self.client.add_torrent(content,
                                                   is_paused=is_paused,
                                                   download_dir=download_dir)
-                    if ret and tag:
-                        self.client.set_torrent(tid=ret.id,
-                                                tag=tag,
-                                                category=category,
-                                                content_layout=content_layout,
-                                                upload_limit=upload_limit,
-                                                download_limit=download_limit,
-                                                ratio_limit=ratio_limit,
-                                                seeding_time_limit=seeding_time_limit)
+                    if ret:
+                        self.client.change_torrent(tid=ret.id,
+                                                   tag=tag,
+                                                   upload_limit=upload_limit,
+                                                   download_limit=download_limit,
+                                                   ratio_limit=ratio_limit,
+                                                   seeding_time_limit=seeding_time_limit)
                 elif self.__client_type == DownloaderType.QB:
                     ret = self.client.add_torrent(content,
                                                   is_paused=is_paused,
@@ -204,7 +202,7 @@ class Downloader:
                                                   is_paused=is_paused,
                                                   tag=tag,
                                                   download_dir=download_dir,
-                                                  category=download_label)
+                                                  category=category)
             except Exception as e:
                 log.error("【DOWNLOADER】添加下载任务出错：%s" % str(e))
                 return None, str(e)

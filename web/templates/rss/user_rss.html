@@ -80,11 +80,7 @@
             </a>
           </div>
         </div>
-        {% if Count > 2 %}
-        <div class="card-body" id="detail_{{ Task.id }}" style="display: none;">
-        {% else %}
-        <div class="card-body" id="detail_{{ Task.id }}" style="display: block;">
-        {% endif %}
+        <div class="card-body" id="detail_{{ Task.id }}" style="display: {% if Count > 2 %}none{% else %}block{% endif %};">
           <div class="datagrid">
             <div class="datagrid-item">
               <div class="datagrid-title">地址</div>
@@ -294,24 +290,27 @@
           </div>
           <details>
             <summary class="summary">
-              Qbittorrent下载设置 <span class="form-help" title="下载设置仅适用于Qbittorrent和Transmission，其中分类和布局仅适用于Qbittorrent" data-bs-toggle="tooltip">?</span>
+              下载设置 <span class="form-help" title="下载设置仅适用于Qbittorrent和Transmission，其中分类和布局仅适用于Qbittorrent" data-bs-toggle="tooltip">?</span>
             </summary>
             <div class="row mb-2"></div>
             <div class="row">
               <div class="col-lg-3">
                 <div class="mb-3">
-                  <input type="text" id="userrss_note_category" class="form-control" placeholder="分类">
+                  <label class="form-label">分类 </label>
+                  <input type="text" id="userrss_note_category" class="form-control" placeholder="">
                 </div>
               </div>
               <div class="col-lg-3">
                 <div class="mb-3">
-                  <input type="text" id="userrss_note_tags" class="form-control" placeholder="标签">
+                  <label class="form-label">标签 </label>
+                  <input type="text" id="userrss_note_tags" class="form-control" placeholder="">
                 </div>
               </div>
               <div class="col-lg-3">
                 <div class="mb-3">
+                  <label class="form-label">布局 </label>
                   <select class="form-select" id="userrss_note_layout">
-                    <option value="" selected>布局（默认全局）</option>
+                    <option value="" selected>全局</option>
                     <option value="Original">原始</option>
                     <option value="Subfolder">创建子文件夹</option>
                     <option value="NoSubfolder">不建子文件夹</option>
@@ -320,8 +319,9 @@
               </div>
               <div class="col-lg-3">
                 <div class="mb-3">
+                  <label class="form-label">动作 </label>
                   <select class="form-select" id="userrss_note_paused">
-                    <option value="N" selected>添加后开始</option>
+                    <option value="" selected>添加后开始</option>
                     <option value="Y">添加后暂停</option>
                   </select>
                 </div>
@@ -331,13 +331,13 @@
               <div class="col-lg-3">
                 <div class="mb-3">
                   <label class="form-label">上传速度限制 </label>
-                  <input type="text" id="userrss_note_upload" class="form-control" placeholder="Mb/s，不启用则留空">
+                  <input type="text" id="userrss_note_upload" class="form-control" placeholder="KB/s，不启用则留空">
                 </div>
               </div>
               <div class="col-lg-3">
                 <div class="mb-3">
                   <label class="form-label">下载速度限制 </label>
-                  <input type="text" id="userrss_note_download" class="form-control" placeholder="Mb/s，不启用则留空">
+                  <input type="text" id="userrss_note_download" class="form-control" placeholder="KB/s，不启用则留空">
                 </div>
               </div>
               <div class="col-lg-3">
@@ -349,7 +349,7 @@
               <div class="col-lg-3">
                 <div class="mb-3">
                   <label class="form-label">做种时间限制 </label>
-                  <input type="text" id="userrss_note_seeding_time" class="form-control" placeholder="min，不启用则留空">
+                  <input type="text" id="userrss_note_seeding_time" class="form-control" placeholder="分钟，不启用则留空">
                 </div>
               </div>
             </div>
@@ -415,7 +415,7 @@
     $("#userrss_note_category").val('');
     $("#userrss_note_tags").val('');
     $("#userrss_note_layout").val('');
-    $("#userrss_note_paused").val('N');
+    $("#userrss_note_paused").val('');
     $("#userrss_note_upload").val('');
     $("#userrss_note_download").val('');
     $("#userrss_note_ratio").val('');

@@ -109,17 +109,17 @@ class Transmission(IDownloadClient):
             self.trc.change_torrent(labels=tag, ids=int(tid))
         except Exception as err:
             print(str(err))
-    
-    def set_torrent(self, 
-                    tid=None,
-                    tag=None,
-                    upload_limit=None,
-                    download_limit=None,
-                    ratio_limit=None,
-                    seeding_time_limit=None,
-                    **kwargs):
+
+    def change_torrent(self,
+                       tid,
+                       tag=None,
+                       upload_limit=None,
+                       download_limit=None,
+                       ratio_limit=None,
+                       seeding_time_limit=None):
         """
         设置种子
+        :param tid: ID
         :param tag: 标签
         :param upload_limit: 上传限速 Mb/s
         :param download_limit: 下载限速 Mb/s
@@ -132,18 +132,21 @@ class Transmission(IDownloadClient):
         else:
             ids = int(tid)
         if tag:
-            labels = tag
+            if isinstance(tag, list):
+                labels = tag
+            else:
+                labels = [tag]
         else:
-            labels = None
+            labels = []
         if upload_limit:
             uploadLimited = True
-            uploadLimit = int(upload_limit)*1024
+            uploadLimit = int(upload_limit)
         else:
             uploadLimited = False
             uploadLimit = None
         if download_limit:
             downloadLimited = True
-            downloadLimit = int(download_limit)*1024
+            downloadLimit = int(download_limit)
         else:
             downloadLimited = False
             downloadLimit = None
@@ -209,9 +212,22 @@ class Transmission(IDownloadClient):
                 remove_torrents.append(torrent.id)
         return remove_torrents
 
-    def add_torrent(self, content, is_paused=False, download_dir=None, **kwargs):
+    def add_torrent(self, content,
+                    is_paused=False,
+                    download_dir=None,
+                    upload_limit=None,
+                    download_limit=None,
+                    **kwargs):
         try:
-            return self.trc.add_torrent(torrent=content, download_dir=download_dir, paused=is_paused)
+            ret = self.trc.add_torrent(torrent=content,
+                                       download_dir=download_dir,
+                                       paused=is_paused)
+            if ret and ret.id:
+                if upload_limit:
+                    self.set_uploadspeed_limit(ret.id, int(upload_limit))
+                if download_limit:
+                    self.set_downloadspeed_limit(ret.id, int(download_limit))
+            return ret
         except Exception as err:
             print(str(err))
             return False
