@@ -41,7 +41,7 @@ class Qbittorrent(IDownloadClient):
                                         username=self.username,
                                         password=self.password,
                                         VERIFY_WEBUI_CERTIFICATE=False,
-                                        REQUESTS_ARGS={'timeout': (3, 10)})
+                                        REQUESTS_ARGS={'timeout': (5, 15)})
             try:
                 qbt.auth_log_in()
                 self.ver = qbt.app_version()

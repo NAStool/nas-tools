@@ -41,7 +41,7 @@ class Transmission(IDownloadClient):
                                           port=self.port,
                                           username=self.username,
                                           password=self.password,
-                                          timeout=10)
+                                          timeout=15)
             return trt
         except Exception as err:
             log.error("【TR】transmission连接出错：%s" % str(err))
