@@ -8,6 +8,7 @@ from config import Config
 from app.mediaserver import Emby, Jellyfin, Plex
 
 lock = threading.Lock()
+server_lock = threading.Lock()
 
 
 class MediaServer:
@@ -32,7 +33,7 @@ class MediaServer:
 
     @property
     def server(self):
-        with lock:
+        with server_lock:
             if not self._server:
                 self._server = self.__get_server()
             return self._server
