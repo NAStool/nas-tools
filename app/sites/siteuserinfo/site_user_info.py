@@ -197,7 +197,7 @@ class ISiteUserInfo(metaclass=ABCMeta):
         else:
             res = RequestUtils(cookies=self._site_cookie, session=self._session, timeout=60, headers=self._ua).get_res(
                 url=url)
-        if res and res.status_code == 200:
+        if res is not None and res.status_code in (200, 500):
             if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                 res.encoding = "UTF-8"
             else:

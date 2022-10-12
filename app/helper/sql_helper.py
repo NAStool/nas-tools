@@ -156,6 +156,23 @@ class SqlHelper:
                                             StringUtils.str_sql(media_info.year),
                                             media_info.get_season_string(),
                                             media_info.get_episode_string()))
+    @staticmethod
+    def simple_insert_rss_torrents(title, enclosure):
+        """
+        将RSS的记录插入数据库
+        """
+        sql = "INSERT INTO RSS_TORRENTS(TORRENT_NAME, ENCLOSURE) " \
+              "VALUES (?, ?)"
+        return MainDb().update_by_sql(sql, (title, enclosure))
+    
+    @staticmethod
+    def simple_delete_rss_torrents(title, enclosure):
+        """
+        删除RSS的记录
+        """
+        sql = "DELETE FROM RSS_TORRENTS WHERE TORRENT_NAME = ? AND ENCLOSURE = ?"
+        return MainDb().update_by_sql(sql, (title, enclosure))
+        
 
     @staticmethod
     def insert_douban_media_state(media, state):

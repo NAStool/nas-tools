@@ -1,5 +1,5 @@
 INSERT OR REPLACE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('1', '通用', 'XML', '{
-    "list": "/rss/channel/item",
+    "list": "//channel/item",
     "item": {
         "title": {
             "path": ".//title/text()"
@@ -22,7 +22,7 @@ INSERT OR REPLACE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PAR
     }
 }', '', '', 'Y');
 INSERT OR REPLACE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PARAMS", "NOTE", "SYSDEF") VALUES ('2', '蜜柑计划', 'XML', '{
-    "list": "/rss/channel/item",
+    "list": "//channel/item",
     "item": {
         "title": {
             "path": ".//title/text()"
@@ -31,10 +31,12 @@ INSERT OR REPLACE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PAR
             "path": ".//enclosure[@type=''application/x-bittorrent'']/@url"
         },
         "link": {
-            "path": ".//link/text()"
+            "path": "link/text()",
+            "namespaces": "https://mikanani.me/0.1/"
         },
         "date": {
-            "path": ".//pubDate/text()"
+            "path": "pubDate/text()",
+            "namespaces": "https://mikanani.me/0.1/"
         },
         "description": {
             "path": ".//description/text()"

@@ -74,7 +74,7 @@ class Downloader:
 
     def add_pt_torrent(self,
                        media_info,
-                       is_paused=None,
+                       is_paused=False,
                        tag=None,
                        download_dir=None,
                        category=None,
@@ -91,9 +91,9 @@ class Downloader:
         :param download_dir: 指定下载目录
         :param category: 分类
         :param content_layout: 布局
-        :param upload_limit: 上传限速 Mb/s
-        :param download_limit: 下载限速 Mb/s
-        :param ratio_limit: 分享率限制 保留两位小数
+        :param upload_limit: 上传限速 Kb/s
+        :param download_limit: 下载限速 Kb/s
+        :param ratio_limit: 分享率限制
         :param seeding_time_limit: 做种时间限制 分钟
         """
         url = media_info.enclosure
@@ -466,7 +466,7 @@ class Downloader:
                                 # QB添加下载后需要时间，重试5次每次等待5秒
                                 for i in range(1, 6):
                                     sleep(5)
-                                    torrent_id = self.client.get_last_add_torrentid_by_tag(torrent_tag)
+                                    torrent_id = self.client.get_last_add_torrentid_by_tag(torrent_tag, status=["paused"])
                                     if torrent_id is None:
                                         continue
                                     else:

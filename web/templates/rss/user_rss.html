@@ -297,13 +297,13 @@
               <div class="col-lg-3">
                 <div class="mb-3">
                   <label class="form-label">分类 </label>
-                  <input type="text" id="userrss_note_category" class="form-control" placeholder="">
+                  <input type="text" id="userrss_note_category" class="form-control" placeholder="只能设置一个">
                 </div>
               </div>
               <div class="col-lg-3">
                 <div class="mb-3">
                   <label class="form-label">标签 </label>
-                  <input type="text" id="userrss_note_tags" class="form-control" placeholder="">
+                  <input type="text" id="userrss_note_tags" class="form-control" placeholder="多个标签用|分隔">
                 </div>
               </div>
               <div class="col-lg-3">
@@ -370,8 +370,13 @@
     <div class="modal-content">
       <div class="card border-top-0">
         <div class="card-header">
-          <h5 class="modal-title">订阅预览</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="ms-2">
+            <h5 class="modal-title">订阅预览</h5>
+          </div>
+          <div class="ms-auto" id="articles-check"></div>
+          <div class="ms-5">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
         </div>
         <div class="table-responsive" style="overflow-y: auto; max-height: 35em;">
           <table id="table-rss-articles" class="table table-vcenter card-table">
@@ -584,12 +589,16 @@
     show_wait_process();
     ajax_post("list_rss_articles", {"id": id}, function(ret){
       hide_wait_process();
+      $("#table-rss-articles").empty();
+      $("#articles-check").empty();
       if(ret.code == 0){
         articles = ret.data;
         var content_th = `<thead><tr>
-                          <th class="text-nowrap">共计${ret.count}条</th>
-                          <th class="text-nowrap">状态</th>
-                          <th class="text-nowrap w-10">发布时间</th>
+                          <th class="w-1"><input class="form-check-input m-0 align-middle" id="articles_check_all_btn" type="checkbox" aria-label="全选"></th>
+                          <th>标题</th>
+                          <th>状态</th>
+                          <th>发布时间</th>
+                          <th></th>
                           </tr></thead>`;
         var content_td = '';
         for(var i = 0; i < articles.length; i ++){
@@ -601,6 +610,9 @@
           var finish_flag = '';
           if(article.title){
             title_param = article.title.replace(/\'/g, "&#39;");
+            input_checkbox = `<input class="form-check-input m-0 align-middle" id="check_${i}" type="checkbox">
+                              <input type="hidden" id="enclosure_${i}" value="${article.enclosure}">
+                              <input type="hidden" id="title_${i}" value="${title_param}">`;
             title = `<span>${article.title}</span> 
                       <a class="ms-2" title="识别匹配" href='javascript:rss_article_test("${i}", "${id}", "${title_param}")' data-bs-toggle="tooltip">
                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-language" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -628,17 +640,102 @@
           }else{
             finish_flag = `<span class="badge badge-outline text-yellow me-1 mb-1">未处理</span>`;
           };
-          var content_td = `${content_td}<tr><td>${title}${size}<div id='info_${i}'></div></td>><td id='flag_${i}'>${finish_flag}</td><td>${date}</td></tr>`;
+          download_btn = `<a href='javascript:single_article_download("${id}", "${i}")' title="下载">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                              <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                              <polyline points="7 11 12 16 17 11"></polyline>
+                              <line x1="12" y1="4" x2="12" y2="16"></line>
+                            </svg>
+                          </a>`
+          var content_td = `${content_td}<tr><td>${input_checkbox}</td><td>${title}${size}<div id='info_${i}'></div></td>><td id='flag_${i}'>${finish_flag}</td><td class="text-nowrap">${date}</td><td>${download_btn}</td></tr>`;
         content_tb = `<tbody>${content_td}</tbody>`;
         content = `${content_th}${content_tb}`;
         };
+        batch_download_btn = `<a href="javascript:batch_articles_action('${id}', 'download')" class="btn btn-primary ms-auto">批量下载</a>`;
+        unfinish_btn = `<a href="javascript:batch_articles_action('${id}', 'set_finished')" class="btn btn-success ms-auto">设为已处理</a>`;
+        finished_btn = `<a href="javascript:batch_articles_action('${id}', 'set_unfinish')" class="btn btn-secondary ms-auto">设为未处理</a>`;
+        $("#articles-check").append(`<div class="btn-list">${batch_download_btn}${unfinish_btn}${finished_btn}</div>`);
+        $("#table-rss-articles").append(content);
+        // 绑定全选事件
+        $("#articles_check_all_btn").bind("change",function(){
+            $("input[type=checkbox]").prop("checked", $("#articles_check_all_btn").prop("checked"));
+        });
       }else{
         var content = `<div class="empty"><p class="empty-title">${ret.msg}</p></div>`;
+        $("#table-rss-articles").append(content);
       };
-      $("#table-rss-articles").empty();
-      $("#table-rss-articles").append(content);
       $("#modal-rss-articles").modal('show');
     });
+  }
+  
+
+  // 批量处理
+  function batch_articles_action(id, flag){
+    var articles = [];
+    var i = 0;
+    $("input[type=checkbox]").each(function(){
+      if ($(this).prop("checked")) {
+        checkid = $(this).attr("id");
+        if (checkid && checkid.startsWith("check_")) {
+          title = $(`#${checkid.replace("check", "title")}`).val();
+          enclosure = $(`#${checkid.replace("check", "enclosure")}`).val();
+          if(title || enclosure){
+            articles[i] = {title: title, enclosure: enclosure}
+            i = i + 1;
+          }
+        }
+      }
+    });
+    if(articles.length == 0){
+      return;
+    }
+    if(flag.startsWith("set_")){
+      articles_check(id, flag, articles);
+    }else if(flag == "download"){
+      articles_download(id, articles);
+    }else{
+      return
+    }
+  }
+
+
+  // 报文处理设置
+  function articles_check(id, flag, articles){
+    ajax_post("rss_articles_check", {"articles": articles, "flag": flag}, function(ret){
+      if(ret.code == 0){
+        show_success_modal("设置成功！");
+      }else if(ret.code == 1){
+        show_success_modal("设置失败！");
+      }else{
+        return
+      }
+      $("#modal-rss-articles").modal('hide');
+      show_rss_articles_modal(id);
+    });
+  }
+
+  // 报文下载
+  function articles_download(id, articles){
+    show_wait_process();
+    ajax_post("rss_articles_download", {"articles": articles, "taskid": id}, function(ret){
+      hide_wait_process();
+      if(ret.code == 0){
+        show_success_modal("添加下载成功！");
+      }else if(ret.code == 1){
+        show_fail_modal(" 添加下载失败！");
+      }else{
+        return
+      }
+      $("#modal-rss-articles").modal('hide');
+      show_rss_articles_modal(id);
+    });
+  }
+
+  // 单个报文下载
+  function single_article_download(id, article_id){
+    article = [{title: $(`#title_${article_id}`).val(), enclosure: $(`#enclosure_${article_id}`).val()}];
+    articles_download(id, article);
   }
 
   // rss报文测试
@@ -749,9 +846,9 @@
       if(ret.code == 0){
         downloads = ret.data;
         var content_th = `<thead><tr>
-                          <th class="text-nowrap">共计${ret.count}条</th>
-                          <th class="text-nowrap">下载器</th>
-                          <th class="text-nowrap w-10">下载时间</th>
+                          <th>标题</th>
+                          <th>下载器</th>
+                          <th>下载时间</th>
                           </tr></thead>`;
         var content_td = '';
         for(var i = 0; i < downloads.length; i ++){
@@ -769,7 +866,7 @@
           if(download.downloader){
             downloader = `<span class="badge me-1 mb-1" title="下载器">${download.downloader}</span>`;
           };
-          var content_td = `${content_td}<tr><td>${title}</td>><td>${downloader}</td><td>${date}</td></tr>`;
+          var content_td = `${content_td}<tr><td>${title}</td>><td>${downloader}</td><td class="text-nowrap">${date}</td></tr>`;
         content_tb = `<tbody>${content_td}</tbody>`;
         content = `${content_th}${content_tb}`;
         };

@@ -41,7 +41,7 @@ class Qbittorrent(IDownloadClient):
                                         username=self.username,
                                         password=self.password,
                                         VERIFY_WEBUI_CERTIFICATE=False,
-                                        REQUESTS_ARGS={'timeout': (3, 10)})
+                                        REQUESTS_ARGS={'timeout': (5, 15)})
             try:
                 qbt.auth_log_in()
                 self.ver = qbt.app_version()
@@ -152,8 +152,6 @@ class Qbittorrent(IDownloadClient):
         根据种子的下载链接获取下载中或暂停的钟子的ID
         :return: 种子ID
         """
-        if not status:
-            status = ["paused"]
         try:
             torrents = self.get_torrents(status=status, tag=tag)
         except Exception as err:
@@ -184,8 +182,8 @@ class Qbittorrent(IDownloadClient):
         :param download_dir: 下载路径
         :param category: 分类
         :param content_layout: 布局
-        :param upload_limit: 上传限速 Mb/s
-        :param download_limit: 下载限速 Mb/s
+        :param upload_limit: 上传限速 Kb/s
+        :param download_limit: 下载限速 Kb/s
         :param ratio_limit: 分享率限制
         :param seeding_time_limit: 做种时间限制
         :return: bool

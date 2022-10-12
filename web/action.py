@@ -124,6 +124,8 @@ class WebAction:
             "list_rss_articles": self.__list_rss_articles,
             "rss_article_test": self.__rss_article_test,
             "list_rss_history": self.__list_rss_history,
+            "rss_articles_check": self.__rss_articles_check,
+            "rss_articles_download": self.__rss_articles_download,
             "get_categories": self.__get_categories
         }
 
@@ -2334,6 +2336,26 @@ class WebAction:
             return {"code": 0, "data": downloads, "count": count}
         else:
             return {"code": 1, "msg": "无下载记录"}
+    
+    @staticmethod
+    def __rss_articles_check(data):
+        if not data.get("articles"):
+            return {"code": 2}
+        res = RssChecker().check_rss_articles(flag=data.get("flag"), articles=data.get("articles"))
+        if res:
+            return {"code": 0}
+        else:
+            return {"code": 1}
+    
+    @staticmethod
+    def __rss_articles_download(data):
+        if not data.get("articles"):
+            return {"code": 2}
+        res = RssChecker().download_rss_articles(taskid=data.get("taskid"), articles=data.get("articles"))
+        if res:
+            return {"code": 0}
+        else:
+            return {"code": 1}
 
     @staticmethod
     def __get_categories(data):
