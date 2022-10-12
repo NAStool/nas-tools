@@ -289,10 +289,9 @@
             </div>
           </div>
           <details>
-            <summary class="summary">
+            <summary class="summary mb-2">
               下载设置 <span class="form-help" title="下载设置仅适用于Qbittorrent和Transmission，其中分类和布局仅适用于Qbittorrent" data-bs-toggle="tooltip">?</span>
             </summary>
-            <div class="row mb-2"></div>
             <div class="row">
               <div class="col-lg-3">
                 <div class="mb-3">
@@ -356,6 +355,23 @@
             <div class="row">
             </div>
           </details>
+          {% if Count > 0 %}
+          <details>
+            <summary class="summary">
+              模板
+            </summary>
+            <div class="row mt-2">
+              <div class="form-selectgroup">
+                {% for Task in Tasks %}
+                <label class="form-selectgroup-item">
+                  <input type="button" class="form-selectgroup-input" onclick="javascript:apply_templated('{{ loop.index0 }}')">
+                  <span class="form-selectgroup-label">{{ Task.name }}</span>
+                </label>
+                {% endfor %}
+              </div>
+            </div>
+          </details>
+          {% endif %}
         </div>
       </div>
       <div class="modal-footer">
@@ -877,6 +893,27 @@
       $("#table-rss-history").append(content);
       $("#modal-rss-history").modal('show');
     });
+  }
+
+  // 应用订阅模板
+  function apply_templated(loop_index){
+    var task = {{ Tasks | safe}}[loop_index];
+    $("#userrss_interval").val(task.interval);
+    $("#userrss_include").val(task.include);
+    $("#userrss_exclude").val(task.exclude);
+    $("#userrss_filterrule").val(task.filter);
+    $("#userrss_parser").val(task.parser);
+    $("#userrss_state").val(task.state);
+    $("#userrss_uses").val(task.uses);
+    $("#userrss_note_path").val(task.note.save_path);
+    $("#userrss_note_category").val(task.note.category);
+    $("#userrss_note_tags").val(task.note.tags);
+    $("#userrss_note_layout").val(task.note.content_layout);
+    $("#userrss_note_paused").val(task.note.is_paused);
+    $("#userrss_note_upload").val(task.note.upload_limit);
+    $("#userrss_note_download").val(task.note.download_limit);
+    $("#userrss_note_ratio").val(task.note.ratio_limit);
+    $("#userrss_note_seeding_time").val(task.note.seeding_time_limit);
   }
 
 </script>
