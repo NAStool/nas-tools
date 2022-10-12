@@ -353,7 +353,11 @@ class RssChecker(object):
                     rss_item = {}
                     for key, attr in rss_parser_format.get("item", {}).items():
                         if attr.get("path"):
-                            value = item.xpath(attr.get("path"))
+                            if attr.get("namespaces"):
+                                value = item.xpath("//ns:%s" % attr.get("path"),
+                                                   namespaces={"ns": attr.get("namespaces")})
+                            else:
+                                value = item.xpath(attr.get("path"))
                         elif attr.get("value"):
                             value = attr.get("value")
                         else:
