@@ -152,8 +152,6 @@ class Qbittorrent(IDownloadClient):
         根据种子的下载链接获取下载中或暂停的钟子的ID
         :return: 种子ID
         """
-        if not status:
-            status = ["paused"]
         try:
             torrents = self.get_torrents(status=status, tag=tag)
         except Exception as err:

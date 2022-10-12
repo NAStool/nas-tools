@@ -471,12 +471,13 @@ class RssChecker(object):
                 # 发布日期
                 date = res.get('date')
                 if date:
-                    if taskinfo["parser_name"].find('蜜柑') != -1:
-                        date = datetime.strftime(datetime.strptime(res.get('date').split(".")[0], '%Y-%m-%dT%H:%M:%S'),
-                                            '%Y-%m-%d %H:%M:%S')
-                    else: 
+                    try:
                         date = datetime.strftime(datetime.strptime(res.get('date'), '%a, %d %b %Y %H:%M:%S %z'),
-                                            '%Y-%m-%d %H:%M:%S')
+                                                 '%Y-%m-%d %H:%M:%S')
+                    except Exception as e:
+                        print(str(e))
+                        date = datetime.strftime(datetime.strptime(res.get('date').split(".")[0], '%Y-%m-%dT%H:%M:%S'),
+                                                 '%Y-%m-%d %H:%M:%S')
                 # 年份
                 year = res.get('year')
                 if year and len(year) > 4:
@@ -551,8 +552,9 @@ class RssChecker(object):
                     log_info("【RSSCHECKER】%s 缺失季集：%s" % (media_info.get_title_string(),
                                                          no_exists.get(media_info.tmdb_id)))
         return media_info, match_flag, exist_flag
-    
-    def check_rss_articles(self, flag, articles):
+
+    @staticmethod
+    def check_rss_articles(flag, articles):
         """
         RSS报文处理设置
         :param flag: set_finished/set_unfinish
@@ -574,7 +576,7 @@ class RssChecker(object):
         except Exception as e:
             log_error("【RSSCHECKER】设置RSS报文状态时发生错误：%s - %s" % (str(e), traceback.format_exc()))
             return False
-    
+
     def download_rss_articles(self, taskid, articles):
         """
         RSS报文下载
@@ -588,8 +590,8 @@ class RssChecker(object):
         if not taskinfo:
             return
         for article in articles:
-            media = self.test_rss_articles(taskid, article.get("title"))[0]
-            media.enclosure = article.get("enclosure")
+            media = self.media.get_media_info(title=article.get("title"))
+            media.set_torrent_info(enclosur=article.get("enclosure"))
             ret, ret_msg = self.downloader.add_pt_torrent(media_info=media,
                                                           is_paused=taskinfo["note"].get("is_paused"),
                                                           tag=taskinfo["note"].get("tags"),
@@ -602,7 +604,7 @@ class RssChecker(object):
                                                           seeding_time_limit=taskinfo["note"].get("seeding_time_limit"))
             if ret:
                 self.message.send_download_message(in_from=SearchType.RSS,
-                                                    can_item=media)
+                                                   can_item=media)
                 # 插入数据库
                 SqlHelper.insert_rss_torrents(media)
                 # 登记下载历史
@@ -615,6 +617,7 @@ class RssChecker(object):
                     self.message.send_download_fail_message(media, ret_msg)
                 return False
         return True
+
 
 def log_info(text):
     log.info(text, module="rsschecker")

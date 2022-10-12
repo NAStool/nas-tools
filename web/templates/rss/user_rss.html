@@ -595,7 +595,7 @@
         articles = ret.data;
         var content_th = `<thead><tr>
                           <th class="w-1"><input class="form-check-input m-0 align-middle" id="articles_check_all_btn" type="checkbox" aria-label="全选"></th>
-                          <th class="text-nowrap">共计${ret.count}条</th>
+                          <th class="text-nowrap">标题</th>
                           <th class="text-nowrap">状态</th>
                           <th class="text-nowrap w-10">发布时间</th>
                           <th></th>
@@ -653,9 +653,9 @@
         content = `${content_th}${content_tb}`;
         };
         batch_download_btn = `<a href="javascript:batch_articles_action('${id}', 'download')" class="btn btn-primary ms-auto">批量下载</a>`;
-        unfinish_btn = `<a href="javascript:batch_articles_action('${id}', 'set_finished')" class="btn btn-primary ms-auto">设为已处理</a>`;
+        unfinish_btn = `<a href="javascript:batch_articles_action('${id}', 'set_finished')" class="btn btn-success ms-auto">设为已处理</a>`;
         finished_btn = `<a href="javascript:batch_articles_action('${id}', 'set_unfinish')" class="btn btn-secondary ms-auto">设为未处理</a>`;
-        $("#articles-check").append(`${batch_download_btn}${unfinish_btn}${finished_btn}`);
+        $("#articles-check").append(`<div class="btn-list">${batch_download_btn}${unfinish_btn}${finished_btn}</div>`);
         $("#table-rss-articles").append(content);
         // 绑定全选事件
         $("#articles_check_all_btn").bind("change",function(){
@@ -846,7 +846,7 @@
       if(ret.code == 0){
         downloads = ret.data;
         var content_th = `<thead><tr>
-                          <th class="text-nowrap">共计${ret.count}条</th>
+                          <th class="text-nowrap">标题</th>
                           <th class="text-nowrap">下载器</th>
                           <th class="text-nowrap w-10">下载时间</th>
                           </tr></thead>`;

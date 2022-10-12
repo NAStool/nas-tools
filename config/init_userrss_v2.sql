@@ -34,7 +34,7 @@ INSERT OR REPLACE INTO "CONFIG_RSS_PARSER" ("ID", "NAME", "TYPE", "FORMAT", "PAR
             "path": ".//link/text()"
         },
         "date": {
-            "path": ".//pubDate/text()"
+            "path": ".//torrent/pubDate/text()"
         },
         "description": {
             "path": ".//description/text()"

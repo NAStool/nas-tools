@@ -74,7 +74,7 @@ class Downloader:
 
     def add_pt_torrent(self,
                        media_info,
-                       is_paused=None,
+                       is_paused=False,
                        tag=None,
                        download_dir=None,
                        category=None,
@@ -466,7 +466,7 @@ class Downloader:
                                 # QB添加下载后需要时间，重试5次每次等待5秒
                                 for i in range(1, 6):
                                     sleep(5)
-                                    torrent_id = self.client.get_last_add_torrentid_by_tag(torrent_tag)
+                                    torrent_id = self.client.get_last_add_torrentid_by_tag(torrent_tag, status=["paused"])
                                     if torrent_id is None:
                                         continue
                                     else:

@@ -151,27 +151,25 @@
           <h5 class="modal-title">网络连通性测试</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="card-body border-bottom py-3">
-          <div class="table-responsive">
-            <table class="table table-vcenter card-table">
-              <thead>
-                <tr>
-                  <th>测试对象</th>
-                  <th>连通性</th>
-                  <th>耗时</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for target in SchedulerTasks[-2].targets %}
-                <tr>
-                  <td><span>{{ target }}</span></td>
-                  <td id="nettest_item{{ loop.index0 }}"></td>
-                  <td id="nettest_item{{ loop.index0 }}_time"></td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+        <div class="table-responsive">
+          <table class="table table-vcenter card-table">
+            <thead>
+              <tr>
+                <th>测试对象</th>
+                <th>连通性</th>
+                <th>耗时</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for target in SchedulerTasks[-2].targets %}
+              <tr>
+                <td><span>{{ target }}</span></td>
+                <td id="nettest_item{{ loop.index0 }}"></td>
+                <td id="nettest_item{{ loop.index0 }}_time"></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
       </div>
       <div class="modal-footer">
