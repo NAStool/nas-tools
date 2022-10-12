@@ -505,7 +505,7 @@ class FileTransfer:
         #  过滤掉文件列表中上级文件夹在黑名单中的
         if self.__ignored_paths:
             try:
-                for file in file_list:
+                for file in file_list[:]:
                     if file.replace('\\', '/').split('/')[-2] in self.__ignored_paths:
                         log.info("【RMT】%s 文件上级文件夹名称在黑名单中，已忽略转移" % file)
                         file_list.remove(file)
@@ -517,7 +517,7 @@ class FileTransfer:
         #  过滤掉文件列表中包含文件转移忽略词的
         if self.__ignored_files:
             try:
-                for file in file_list:
+                for file in file_list[:]:
                     if re.findall(self.__ignored_files, file.replace('\\', '/').split('/')[-1]):
                         log.info("【RMT】%s 文件名包含文件转移忽略词，已忽略转移" % file)
                         file_list.remove(file)
