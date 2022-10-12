@@ -159,16 +159,16 @@ class MediaServer:
             # 开始进度条
             log.info("【MEDIASERVER】开始同步媒体库数据...")
             self.progress.start("mediasync")
-            self.progress.update(ptype="mediasync", text="正在获取数据...")
+            self.progress.update(ptype="mediasync", text="请稍候...")
             # 汇总统计
             medias_count = self.get_medias_count()
             total_media_count = medias_count.get("MovieCount") + medias_count.get("SeriesCount")
             total_count = 0
             movie_count = 0
             tv_count = 0
+            # 清空登记薄
+            self.mediadb.empty()
             for library in self.get_libraries():
-                # 清空登记薄
-                self.mediadb.empty(self._server_type.value, library.get("id"))
                 # 获取媒体库所有项目
                 self.progress.update(ptype="mediasync",
                                      text="正在获取 %s 数据..." % (library.get("name")))

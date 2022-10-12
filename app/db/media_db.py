@@ -124,11 +124,12 @@ class MediaDb:
         return self.__excute("DELETE FROM MEDIASYNC_ITEMS WHERE SERVER = ? AND ITEM_ID = ?",
                              (server_type, itemid))
 
-    def empty(self, server_type, library):
-        if not server_type or not library:
-            return False
-        return self.__excute("DELETE FROM MEDIASYNC_ITEMS WHERE SERVER = ? AND LIBRARY = ?",
-                             (server_type, library))
+    def empty(self, server_type=None, library=None):
+        if server_type and library:
+            return self.__excute("DELETE FROM MEDIASYNC_ITEMS WHERE SERVER = ? AND LIBRARY = ?",
+                                 (server_type, library))
+        else:
+            return self.__excute("DELETE FROM MEDIASYNC_ITEMS")
 
     def statistics(self, server_type, total_count, movie_count, tv_count):
         if not server_type:
