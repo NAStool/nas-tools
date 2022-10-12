@@ -1,4 +1,5 @@
 import log
+from app.utils.types import DownloaderType
 from config import Config
 from app.downloader.client.client import IDownloadClient
 from app.downloader.client.py115 import Py115
@@ -8,6 +9,7 @@ class Client115(IDownloadClient):
 
     downclient = None
     lasthash = None
+    client_type = DownloaderType.Client115.value
 
     def get_config(self):
         # 读取配置文件
@@ -34,7 +36,7 @@ class Client115(IDownloadClient):
             return tlist
         ret, tasks = self.downclient.gettasklist(page=1)
         if not ret:
-            log.info("【115】获取任务列表错误：{}".format(self.downclient.err))
+            log.info(f"【{self.client_type}】获取任务列表错误：{self.downclient.err}")
             return tlist
         if tasks:
             for task in tasks:
@@ -71,11 +73,11 @@ class Client115(IDownloadClient):
         if isinstance(content, str):
             ret, self.lasthash = self.downclient.addtask(tdir=download_dir, content=content)
             if not ret:
-                log.error("【115】添加下载任务失败：{}".format(self.downclient.err))
+                log.error(f"【{self.client_type}】添加下载任务失败：{self.downclient.err}")
                 return None
             return self.lasthash
         else:
-            log.info("【115】暂时不支持非链接下载")
+            log.info(f"【{self.client_type}】暂时不支持非链接下载")
             return None
 
     def delete_torrents(self, delete_file, ids):

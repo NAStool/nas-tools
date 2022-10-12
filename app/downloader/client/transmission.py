@@ -4,17 +4,19 @@ from datetime import datetime
 import transmission_rpc
 
 import log
+from app.utils.types import DownloaderType
 from config import Config
 from app.downloader.client.client import IDownloadClient
 
 
 class Transmission(IDownloadClient):
     # 参考transmission web，仅查询需要的参数，加速种子检索
-    __trarg = ["id", "name", "status", "labels", "hashString", "totalSize", "percentDone", "addedDate", "trackerStats",
-               "leftUntilDone", "rateDownload", "rateUpload", "recheckProgress", "rateDownload", "rateUpload",
-               "peersGettingFromUs", "peersSendingToUs", "uploadRatio", "uploadedEver", "downloadedEver", "downloadDir",
-               "error", "errorString", "doneDate", "queuePosition", "activityDate"]
+    _trarg = ["id", "name", "status", "labels", "hashString", "totalSize", "percentDone", "addedDate", "trackerStats",
+              "leftUntilDone", "rateDownload", "rateUpload", "recheckProgress", "rateDownload", "rateUpload",
+              "peersGettingFromUs", "peersSendingToUs", "uploadRatio", "uploadedEver", "downloadedEver", "downloadDir",
+              "error", "errorString", "doneDate", "queuePosition", "activityDate"]
     trc = None
+    client_type = DownloaderType.TR
 
     def get_config(self):
         # 读取配置文件
@@ -44,7 +46,7 @@ class Transmission(IDownloadClient):
                                           timeout=15)
             return trt
         except Exception as err:
-            log.error("【TR】transmission连接出错：%s" % str(err))
+            log.error(f"【{self.client_type}】transmission连接出错：{str(err)}")
             return None
 
     def get_status(self):
@@ -58,7 +60,7 @@ class Transmission(IDownloadClient):
         elif str(ids).isdigit():
             ids = int(ids)
         try:
-            torrents = self.trc.get_torrents(ids=ids, arguments=self.__trarg)
+            torrents = self.trc.get_torrents(ids=ids, arguments=self._trarg)
         except Exception as err:
             print(str(err))
             return []
@@ -98,7 +100,7 @@ class Transmission(IDownloadClient):
         # 打标签
         try:
             self.trc.change_torrent(labels=["已整理"], ids=ids)
-            log.info("【TR】设置transmission种子标签成功")
+            log.info(f"【{self.client_type}】设置transmission种子标签成功")
         except Exception as err:
             print(str(err))
 
@@ -183,7 +185,7 @@ class Transmission(IDownloadClient):
         for torrent in torrents:
             # 3.0版本以下的Transmission没有labels
             if not hasattr(torrent, "labels"):
-                log.error(f"【TR】当前transmission版本可能过低，无labels属性，请安装3.0以上版本！")
+                log.error(f"【{self.client_type}】当前transmission版本可能过低，无labels属性，请安装3.0以上版本！")
                 break
             if torrent.labels and "已整理" in torrent.labels:
                 continue
@@ -208,7 +210,7 @@ class Transmission(IDownloadClient):
             date_now = datetime.now().astimezone()
             torrent_time = (date_now - date_done).seconds
             if torrent_time > int(seeding_time):
-                log.info("【TR】%s 做种时间：%s（秒），已达清理条件，进行清理..." % (torrent.name, torrent_time))
+                log.info(f"【{self.client_type}】{torrent.name}做种时间：{torrent_time}（秒），已达清理条件，进行清理...")
                 remove_torrents.append(torrent.id)
         return remove_torrents
 

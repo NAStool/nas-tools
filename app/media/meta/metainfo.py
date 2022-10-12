@@ -34,7 +34,7 @@ def MetaInfo(title, subtitle=None, mtype=None):
             if used_ignored_words:
                 title = re.sub(ignored_words, '', title)
         except Exception as err:
-            log.error("【META】自定义屏蔽词设置有误：%s" % str(err))
+            log.error("【Meta】自定义屏蔽词设置有误：%s" % str(err))
     # 替换词
     replaced_words = config.get_config('laboratory').get("replaced_words")
     if replaced_words:
@@ -48,7 +48,7 @@ def MetaInfo(title, subtitle=None, mtype=None):
                     used_replaced_words.append(replaced_word)
                     title = re.sub(r'%s' % replaced_word_info[0], r'%s' % replaced_word_info[-1], title)
             except Exception as err:
-                log.error("【META】自定义替换词 %s 格式有误：%s" % (replaced_word, str(err)))
+                log.error("【Meta】自定义替换词 %s 格式有误：%s" % (replaced_word, str(err)))
     # 集数偏移
     offset_words = config.get_config('laboratory').get("offset_words")
     if offset_words:
@@ -83,7 +83,7 @@ def MetaInfo(title, subtitle=None, mtype=None):
                         r'(?<=%s[\W\w]*)%s(?=[\W\w]*%s)' % (front_word, episode_num[0], back_word))
                     title = re.sub(episode_offset_re, r'%s' % str(episode_num[1] + offset_num).zfill(2), title)
             except Exception as err:
-                log.error("【META】自定义集数偏移 %s 格式有误：%s" % (offset_word, str(err)))
+                log.error("【Meta】自定义集数偏移 %s 格式有误：%s" % (offset_word, str(err)))
     # 判断是否处理文件
     if title and os.path.splitext(title)[-1] in RMT_MEDIAEXT:
         fileflag = True

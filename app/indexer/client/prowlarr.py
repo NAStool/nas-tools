@@ -1,3 +1,4 @@
+from app.utils.types import IndexerType
 from config import Config
 from app.indexer.indexer import IIndexer
 from app.utils import RequestUtils
@@ -5,7 +6,7 @@ from app.helper import IndexerConf
 
 
 class Prowlarr(IIndexer):
-    index_type = "PROWLARR"
+    index_type = IndexerType.PROWLARR.value
 
     def init_config(self):
         config = Config()

@@ -58,7 +58,7 @@ class MediaDb:
                 cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_MEDIASYNC_ITEMS_II ON MEDIASYNC_ITEMS (ITEM_ID);''')
                 self._mediadb.commit()
             except Exception as e:
-                log.error(f"【DB】创建数据库错误：{e}")
+                log.error(f"【Db】创建数据库错误：{e}")
             finally:
                 cursor.close()
 

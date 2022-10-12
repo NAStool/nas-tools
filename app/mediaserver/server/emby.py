@@ -6,15 +6,16 @@ from config import Config
 from app.mediaserver.server.server import IMediaServer
 from app.utils.commons import singleton
 from app.utils import RequestUtils, SystemUtils
-from app.utils.types import MediaType
+from app.utils.types import MediaType, MediaServerType
 
 
 @singleton
 class Emby(IMediaServer):
-    __apikey = None
-    __host = None
-    __user = None
-    __libraries = []
+    _apikey = None
+    _host = None
+    _user = None
+    _libraries = []
+    server_type = MediaServerType.EMBY.value
 
     def __init__(self):
         self.init_config()
@@ -23,16 +24,16 @@ class Emby(IMediaServer):
         config = Config()
         emby = config.get_config('emby')
         if emby:
-            self.__host = emby.get('host')
-            if self.__host:
-                if not self.__host.startswith('http'):
-                    self.__host = "http://" + self.__host
-                if not self.__host.endswith('/'):
-                    self.__host = self.__host + "/"
-            self.__apikey = emby.get('api_key')
-            if self.__host and self.__apikey:
-                self.__libraries = self.__get_emby_librarys()
-                self.__user = self.get_admin_user()
+            self._host = emby.get('host')
+            if self._host:
+                if not self._host.startswith('http'):
+                    self._host = "http://" + self._host
+                if not self._host.endswith('/'):
+                    self._host = self._host + "/"
+            self._apikey = emby.get('api_key')
+            if self._host and self._apikey:
+                self._libraries = self.__get_emby_librarys()
+                self._user = self.get_admin_user()
 
     def get_status(self):
         """
@@ -44,27 +45,27 @@ class Emby(IMediaServer):
         """
         获取Emby媒体库列表
         """
-        if not self.__host or not self.__apikey:
+        if not self._host or not self._apikey:
             return []
-        req_url = "%semby/Library/SelectableMediaFolders?api_key=%s" % (self.__host, self.__apikey)
+        req_url = "%semby/Library/SelectableMediaFolders?api_key=%s" % (self._host, self._apikey)
         try:
             res = RequestUtils().get_res(req_url)
             if res:
                 return res.json()
             else:
-                log.error("【EMBY】Library/SelectableMediaFolders 未获取到返回数据")
+                log.error(f"【{self.server_type}】Library/SelectableMediaFolders 未获取到返回数据")
                 return []
         except Exception as e:
-            log.error("【EMBY】连接Library/SelectableMediaFolders 出错：" + str(e))
+            log.error(f"【{self.server_type}】连接Library/SelectableMediaFolders 出错：" + str(e))
             return []
 
     def get_admin_user(self):
         """
         获得管理员用户
         """
-        if not self.__host or not self.__apikey:
+        if not self._host or not self._apikey:
             return None
-        req_url = "%sUsers?api_key=%s" % (self.__host, self.__apikey)
+        req_url = "%sUsers?api_key=%s" % (self._host, self._apikey)
         try:
             res = RequestUtils().get_res(req_url)
             if res:
@@ -82,27 +83,27 @@ class Emby(IMediaServer):
         """
         获得用户数量
         """
-        if not self.__host or not self.__apikey:
+        if not self._host or not self._apikey:
             return 0
-        req_url = "%semby/Users/Query?api_key=%s" % (self.__host, self.__apikey)
+        req_url = "%semby/Users/Query?api_key=%s" % (self._host, self._apikey)
         try:
             res = RequestUtils().get_res(req_url)
             if res:
                 return res.json().get("TotalRecordCount")
             else:
-                log.error("【EMBY】Users/Query 未获取到返回数据")
+                log.error(f"【{self.server_type}】Users/Query 未获取到返回数据")
                 return 0
         except Exception as e:
-            log.error("【EMBY】连接Users/Query出错：" + str(e))
+            log.error(f"【{self.server_type}】连接Users/Query出错：" + str(e))
             return 0
 
     def get_activity_log(self, num):
         """
         获取Emby活动记录
         """
-        if not self.__host or not self.__apikey:
+        if not self._host or not self._apikey:
             return []
-        req_url = "%semby/System/ActivityLog/Entries?api_key=%s&" % (self.__host, self.__apikey)
+        req_url = "%semby/System/ActivityLog/Entries?api_key=%s&" % (self._host, self._apikey)
         ret_array = []
         try:
             res = RequestUtils().get_res(req_url)
@@ -123,10 +124,10 @@ class Emby(IMediaServer):
                         activity = {"type": event_type, "event": event_str, "date": event_date}
                         ret_array.append(activity)
             else:
-                log.error("【EMBY】System/ActivityLog/Entries 未获取到返回数据")
+                log.error(f"【{self.server_type}】System/ActivityLog/Entries 未获取到返回数据")
                 return []
         except Exception as e:
-            log.error("【EMBY】连接System/ActivityLog/Entries出错：" + str(e))
+            log.error(f"【{self.server_type}】连接System/ActivityLog/Entries出错：" + str(e))
             return []
         return ret_array[:num]
 
@@ -135,18 +136,18 @@ class Emby(IMediaServer):
         获得电影、电视剧、动漫媒体数量
         :return: MovieCount SeriesCount SongCount
         """
-        if not self.__host or not self.__apikey:
+        if not self._host or not self._apikey:
             return {}
-        req_url = "%semby/Items/Counts?api_key=%s" % (self.__host, self.__apikey)
+        req_url = "%semby/Items/Counts?api_key=%s" % (self._host, self._apikey)
         try:
             res = RequestUtils().get_res(req_url)
             if res:
                 return res.json()
             else:
-                log.error("【EMBY】Items/Counts 未获取到返回数据")
+                log.error(f"【{self.server_type}】Items/Counts 未获取到返回数据")
                 return {}
         except Exception as e:
-            log.error("【EMBY】连接Items/Counts出错：" + str(e))
+            log.error(f"【{self.server_type}】连接Items/Counts出错：" + str(e))
             return {}
 
     def __get_emby_series_id_by_name(self, name, year):
@@ -156,10 +157,10 @@ class Emby(IMediaServer):
         :param year: 年份
         :return: None 表示连不通，""表示未找到，找到返回ID
         """
-        if not self.__host or not self.__apikey:
+        if not self._host or not self._apikey:
             return None
         req_url = "%semby/Items?IncludeItemTypes=Series&Fields=ProductionYear&StartIndex=0&Recursive=true&SearchTerm=%s&Limit=10&IncludeSearchTypes=false&api_key=%s" % (
-            self.__host, name, self.__apikey)
+            self._host, name, self._apikey)
         try:
             res = RequestUtils().get_res(req_url)
             if res:
@@ -170,7 +171,7 @@ class Emby(IMediaServer):
                                 not year or str(res_item.get('ProductionYear')) == str(year)):
                             return res_item.get('Id')
         except Exception as e:
-            log.error("【EMBY】连接Items出错：" + str(e))
+            log.error(f"【{self.server_type}】连接Items出错：" + str(e))
             return None
         return ""
 
@@ -181,10 +182,10 @@ class Emby(IMediaServer):
         :param year: 年份，可以为空，为空时不按年份过滤
         :return: 含title、year属性的字典列表
         """
-        if not self.__host or not self.__apikey:
+        if not self._host or not self._apikey:
             return None
         req_url = "%semby/Items?IncludeItemTypes=Movie&Fields=ProductionYear&StartIndex=0&Recursive=true&SearchTerm=%s&Limit=10&IncludeSearchTypes=false&api_key=%s" % (
-            self.__host, title, self.__apikey)
+            self._host, title, self._apikey)
         try:
             res = RequestUtils().get_res(req_url)
             if res:
@@ -198,7 +199,7 @@ class Emby(IMediaServer):
                                 {'title': res_item.get('Name'), 'year': str(res_item.get('ProductionYear'))})
                             return ret_movies
         except Exception as e:
-            log.error("【EMBY】连接Items出错：" + str(e))
+            log.error(f"【{self.server_type}】连接Items出错：" + str(e))
             return None
         return []
 
@@ -211,7 +212,7 @@ class Emby(IMediaServer):
         :param season: 季
         :return: 集号的列表
         """
-        if not self.__host or not self.__apikey:
+        if not self._host or not self._apikey:
             return None
         # 电视剧
         item_id = self.__get_emby_series_id_by_name(title, year)
@@ -224,11 +225,11 @@ class Emby(IMediaServer):
         if tmdb_id and item_tmdbid:
             if str(tmdb_id) != str(item_tmdbid):
                 return []
-        # /Shows/{Id}/Episodes 查集的信息
+        # /Shows/Id/Episodes 查集的信息
         if not season:
             season = 1
         req_url = "%semby/Shows/%s/Episodes?Season=%s&IsMissing=false&api_key=%s" % (
-            self.__host, item_id, season, self.__apikey)
+            self._host, item_id, season, self._apikey)
         try:
             res_json = RequestUtils().get_res(req_url)
             if res_json:
@@ -238,7 +239,7 @@ class Emby(IMediaServer):
                     exists_episodes.append(int(res_item.get("IndexNumber")))
                 return exists_episodes
         except Exception as e:
-            log.error("【EMBY】连接Shows/{Id}/Episodes出错：" + str(e))
+            log.error(f"【{self.server_type}】连接Shows/Id/Episodes出错：" + str(e))
             return None
         return []
 
@@ -250,7 +251,7 @@ class Emby(IMediaServer):
         :param total_num: 该季的总集数
         :return: 该季不存在的集号列表
         """
-        if not self.__host or not self.__apikey:
+        if not self._host or not self._apikey:
             return None
         exists_episodes = self.__get_emby_tv_episodes(meta_info.title, meta_info.year, meta_info.tmdb_id, season)
         if not isinstance(exists_episodes, list):
@@ -265,9 +266,9 @@ class Emby(IMediaServer):
         :param image_type: 图片的类弄地，poster或者backdrop等
         :return: 图片对应在TMDB中的URL
         """
-        if not self.__host or not self.__apikey:
+        if not self._host or not self._apikey:
             return None
-        req_url = "%semby/Items/%s/RemoteImages?api_key=%s" % (self.__host, item_id, self.__apikey)
+        req_url = "%semby/Items/%s/RemoteImages?api_key=%s" % (self._host, item_id, self._apikey)
         try:
             res = RequestUtils().get_res(req_url)
             if res:
@@ -276,10 +277,10 @@ class Emby(IMediaServer):
                     if image.get("ProviderName") == "TheMovieDb" and image.get("Type") == image_type:
                         return image.get("Url")
             else:
-                log.error("【EMBY】Items/RemoteImages 未获取到返回数据")
+                log.error(f"【{self.server_type}】Items/RemoteImages 未获取到返回数据")
                 return None
         except Exception as e:
-            log.error("【EMBY】连接Items/{Id}/RemoteImages出错：" + str(e))
+            log.error(f"【{self.server_type}】连接Items/Id/RemoteImages出错：" + str(e))
             return None
         return None
 
@@ -287,17 +288,17 @@ class Emby(IMediaServer):
         """
         通知Emby刷新一个项目的媒体库
         """
-        if not self.__host or not self.__apikey:
+        if not self._host or not self._apikey:
             return False
-        req_url = "%semby/Items/%s/Refresh?Recursive=true&api_key=%s" % (self.__host, item_id, self.__apikey)
+        req_url = "%semby/Items/%s/Refresh?Recursive=true&api_key=%s" % (self._host, item_id, self._apikey)
         try:
             res = RequestUtils().post_res(req_url)
             if res:
                 return True
             else:
-                log.info(f"【EMBY】刷新媒体库对象 {item_id} 失败，无法连接Emby！")
+                log.info(f"【{self.server_type}】刷新媒体库对象 {item_id} 失败，无法连接Emby！")
         except Exception as e:
-            log.error("【EMBY】连接Items/{Id}/Refresh出错：" + str(e))
+            log.error(f"【{self.server_type}】连接Items/Id/Refresh出错：" + str(e))
             return False
         return False
 
@@ -305,17 +306,17 @@ class Emby(IMediaServer):
         """
         通知Emby刷新整个媒体库
         """
-        if not self.__host or not self.__apikey:
+        if not self._host or not self._apikey:
             return False
-        req_url = "%semby/Library/Refresh?api_key=%s" % (self.__host, self.__apikey)
+        req_url = "%semby/Library/Refresh?api_key=%s" % (self._host, self._apikey)
         try:
             res = RequestUtils().post_res(req_url)
             if res:
                 return True
             else:
-                log.info(f"【EMBY】刷新媒体库失败，无法连接Emby！")
+                log.info(f"【{self.server_type}】刷新媒体库失败，无法连接Emby！")
         except Exception as e:
-            log.error("【EMBY】连接Library/Refresh出错：" + str(e))
+            log.error(f"【{self.server_type}】连接Library/Refresh出错：" + str(e))
             return False
         return False
 
@@ -327,7 +328,7 @@ class Emby(IMediaServer):
         if not items:
             return
         # 收集要刷新的媒体库信息
-        log.info("【EMBY】开始刷新Emby媒体库...")
+        log.info(f"【{self.server_type}】开始刷新Emby媒体库...")
         library_ids = []
         for item in items:
             if not item:
@@ -342,7 +343,7 @@ class Emby(IMediaServer):
         for library_id in library_ids:
             if library_id != "/":
                 self.__refresh_emby_library_by_id(library_id)
-        log.info("【EMBY】Emby媒体库刷新完成")
+        log.info(f"【{self.server_type}】Emby媒体库刷新完成")
 
     def __get_emby_library_id_by_item(self, item):
         """
@@ -361,7 +362,7 @@ class Emby(IMediaServer):
                 # 已存在，不用刷新
                 return None
         # 查找需要刷新的媒体库ID
-        for library in self.__libraries:
+        for library in self._libraries:
             # 找同级路径最多的媒体库（要求容器内映射路径与实际一致）
             max_equal_path_id = None
             max_path_len = 0
@@ -392,10 +393,10 @@ class Emby(IMediaServer):
         """
         获取媒体服务器所有媒体库列表
         """
-        if self.__host and self.__apikey:
-            self.__libraries = self.__get_emby_librarys()
+        if self._host and self._apikey:
+            self._libraries = self.__get_emby_librarys()
         libraries = []
-        for library in self.__libraries:
+        for library in self._libraries:
             libraries.append({"id": library.get("Id"), "name": library.get("Name")})
         return libraries
 
@@ -405,9 +406,9 @@ class Emby(IMediaServer):
         """
         if not itemid:
             return {}
-        if not self.__host or not self.__apikey:
+        if not self._host or not self._apikey:
             return {}
-        req_url = "%semby/Users/%s/Items/%s?api_key=%s" % (self.__host, self.__user, itemid, self.__apikey)
+        req_url = "%semby/Users/%s/Items/%s?api_key=%s" % (self._host, self._user, itemid, self._apikey)
         try:
             res = RequestUtils().get_res(req_url)
             if res and res.status_code == 200:
@@ -422,9 +423,9 @@ class Emby(IMediaServer):
         """
         if not parent:
             yield {}
-        if not self.__host or not self.__apikey:
+        if not self._host or not self._apikey:
             yield {}
-        req_url = "%semby/Users/%s/Items?ParentId=%s&api_key=%s" % (self.__host, self.__user, parent, self.__apikey)
+        req_url = "%semby/Users/%s/Items?ParentId=%s&api_key=%s" % (self._host, self._user, parent, self._apikey)
         try:
             res = RequestUtils().get_res(req_url)
             if res and res.status_code == 200:
@@ -448,5 +449,5 @@ class Emby(IMediaServer):
                         for item in self.get_items(parent=result.get('Id')):
                             yield item
         except Exception as e:
-            log.error("【EMBY】连接Users/Items出错：" + str(e))
+            log.error(f"【{self.server_type}】连接Users/Items出错：" + str(e))
         yield {}

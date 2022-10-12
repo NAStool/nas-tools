@@ -4,7 +4,7 @@ import time
 import log
 from app.indexer.client.rarbg import Rarbg
 from app.sites import SiteConf
-from app.utils.types import SearchType
+from app.utils.types import SearchType, IndexerType
 from config import Config
 from app.indexer.indexer import IIndexer
 from app.indexer.client.spider import TorrentSpider
@@ -14,7 +14,7 @@ from app.helper import ProgressController, IndexerHelper
 
 
 class BuiltinIndexer(IIndexer):
-    index_type = "INDEXER"
+    index_type = IndexerType.BUILTIN.value
     progress = None
 
     def init_config(self):

@@ -127,9 +127,9 @@ class ISiteUserInfo(metaclass=ABCMeta):
 
         for msg_link in unread_msg_links:
             print(msg_link)
-            log.debug(f"【SITES】{self.site_name} 信息链接 {msg_link}")
+            log.debug(f"【Sites】{self.site_name} 信息链接 {msg_link}")
             head, date, content = self._parse_message_content(self._get_page_content(urljoin(self._base_url, msg_link)))
-            log.debug(f"【SITES】{self.site_name} 标题 {head} 时间 {date} 内容 {content}")
+            log.debug(f"【Sites】{self.site_name} 标题 {head} 时间 {date} 内容 {content}")
             self.message_unread_contents.append((head, date, content))
 
     def _parse_seeding_pages(self):
