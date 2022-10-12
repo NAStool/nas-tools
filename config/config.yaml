@@ -394,7 +394,7 @@ laboratory:
   # 【TMDB缓存过期策略】：是否开启TMDB缓存过期策略，默认7天过期，过期缓存将被删除,  7天内访问过期时间可以被刷新
   tmdb_cache_expire: true
   # 【使用豆瓣名称联想】：开启将使用豆瓣进行电影电视剧的名称联想，否则使用TMDB的数据
-  use_douban_titles: true
+  use_douban_titles: false
   # 【精确搜索使用英文名称】：开启后对于精确搜索场景（远程搜索、订阅搜索等）将会使用英文名检索站点资源以提升匹配度，但对有些站点资源标题全是中文的则需要关闭，否则匹配不到
   search_en_title: true
   # 【自定义识别屏蔽词】

@@ -164,7 +164,7 @@ class Config(object):
                         self._config['laboratory'] = {
                             'search_keyword': False,
                             'tmdb_cache_expire': True,
-                            'use_douban_titles': True,
+                            'use_douban_titles': False,
                             'search_en_title': True,
                             'ignored_words': '',
                             'replaced_words': '',
