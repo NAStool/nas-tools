@@ -54,7 +54,7 @@ class OsType(Enum):
 class IndexerType(Enum):
     JACKETT = "Jackett"
     PROWLARR = "Prowlarr"
-    INDEXER = "Indexer"
+    BUILTIN = "Indexer"
 
 
 class MediaServerType(Enum):

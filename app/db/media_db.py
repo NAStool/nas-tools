@@ -58,7 +58,7 @@ class MediaDb:
                 cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_MEDIASYNC_ITEMS_II ON MEDIASYNC_ITEMS (ITEM_ID);''')
                 self._mediadb.commit()
             except Exception as e:
-                log.error(f"【DB】创建数据库错误：{e}")
+                log.error(f"【Db】创建数据库错误：{e}")
             finally:
                 cursor.close()
 
@@ -124,11 +124,12 @@ class MediaDb:
         return self.__excute("DELETE FROM MEDIASYNC_ITEMS WHERE SERVER = ? AND ITEM_ID = ?",
                              (server_type, itemid))
 
-    def empty(self, server_type, library):
-        if not server_type or not library:
-            return False
-        return self.__excute("DELETE FROM MEDIASYNC_ITEMS WHERE SERVER = ? AND LIBRARY = ?",
-                             (server_type, library))
+    def empty(self, server_type=None, library=None):
+        if server_type and library:
+            return self.__excute("DELETE FROM MEDIASYNC_ITEMS WHERE SERVER = ? AND LIBRARY = ?",
+                                 (server_type, library))
+        else:
+            return self.__excute("DELETE FROM MEDIASYNC_ITEMS")
 
     def statistics(self, server_type, total_count, movie_count, tv_count):
         if not server_type:

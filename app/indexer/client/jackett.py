@@ -1,5 +1,6 @@
 import requests
 
+from app.utils.types import IndexerType
 from config import Config
 from app.indexer.indexer import IIndexer
 from app.utils import RequestUtils
@@ -7,7 +8,7 @@ from app.helper import IndexerConf
 
 
 class Jackett(IIndexer):
-    index_type = "JACKETT"
+    index_type = IndexerType.JACKETT.value
     _password = None
 
     def init_config(self):

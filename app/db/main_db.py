@@ -362,7 +362,7 @@ class MainDb:
             conn.commit()
 
         except Exception as e:
-            log.error(f"【DB】创建数据库错误：{e}")
+            log.error(f"【Db】创建数据库错误：{e}")
         finally:
             cursor.close()
             self.__pools.free(conn)
@@ -413,7 +413,7 @@ class MainDb:
                     cursor.execute(sql)
                 conn.commit()
             except Exception as e:
-                log.error(f"【DB】执行SQL出错：sql:{sql}; parameters:{data}; {e}")
+                log.error(f"【Db】执行SQL出错：sql:{sql}; parameters:{data}; {e}")
                 return False
             finally:
                 cursor.close()
@@ -430,7 +430,7 @@ class MainDb:
                 cursor.executemany(sql, data_list)
                 conn.commit()
             except Exception as e:
-                log.error(f"【DB】执行SQL出错：sql:{sql}; {e}")
+                log.error(f"【Db】执行SQL出错：sql:{sql}; {e}")
                 return False
             finally:
                 cursor.close()
@@ -450,7 +450,7 @@ class MainDb:
                     res = cursor.execute(sql)
                 ret = res.fetchall()
             except Exception as e:
-                log.error(f"【DB】执行SQL出错：sql:{sql}; parameters:{data}; {e}")
+                log.error(f"【Db】执行SQL出错：sql:{sql}; parameters:{data}; {e}")
                 return []
             finally:
                 cursor.close()

@@ -1,3 +1,4 @@
+from app.utils.types import MediaServerType
 from plexapi.myplex import MyPlexAccount
 
 import log
@@ -9,13 +10,14 @@ from plexapi.server import PlexServer
 
 @singleton
 class Plex(IMediaServer):
-    __host = None
-    __token = None
-    __username = None
-    __password = None
-    __servername = None
-    __plex = None
-    __libraries = []
+    _host = None
+    _token = None
+    _username = None
+    _password = None
+    _servername = None
+    _plex = None
+    _libraries = []
+    server_type = MediaServerType.PLEX.value
 
     def __init__(self):
         self.init_config()
@@ -24,34 +26,34 @@ class Plex(IMediaServer):
         config = Config()
         plex = config.get_config('plex')
         if plex:
-            self.__host = plex.get('host')
-            self.__token = plex.get('token')
-            if self.__host:
-                if not self.__host.startswith('http'):
-                    self.__host = "http://" + self.__host
-                if not self.__host.endswith('/'):
-                    self.__host = self.__host + "/"
-            self.__username = plex.get('username')
-            self.__password = plex.get('password')
-            self.__servername = plex.get('servername')
-            if self.__host and self.__token:
+            self._host = plex.get('host')
+            self._token = plex.get('token')
+            if self._host:
+                if not self._host.startswith('http'):
+                    self._host = "http://" + self._host
+                if not self._host.endswith('/'):
+                    self._host = self._host + "/"
+            self._username = plex.get('username')
+            self._password = plex.get('password')
+            self._servername = plex.get('servername')
+            if self._host and self._token:
                 try:
-                    self.__plex = PlexServer(self.__host, self.__token)
+                    self._plex = PlexServer(self._host, self._token)
                 except Exception as e:
-                    self.__plex = None
-                    log.error("【PLEX】Plex服务器连接失败：%s" % str(e))
-            elif self.__username and self.__password and self.__servername:
+                    self._plex = None
+                    log.error(f"【{self.server_type}】Plex服务器连接失败：{str(e)}")
+            elif self._username and self._password and self._servername:
                 try:
-                    self.__plex = MyPlexAccount(self.__username, self.__password).resource(self.__servername).connect()
+                    self._plex = MyPlexAccount(self._username, self._password).resource(self._servername).connect()
                 except Exception as e:
-                    self.__plex = None
-                    log.error("【PLEX】Plex服务器连接失败：%s" % str(e))
+                    self._plex = None
+                    log.error(f"【{self.server_type}】Plex服务器连接失败：{str(e)}")
 
     def get_status(self):
         """
         测试连通性
         """
-        return True if self.__plex else False
+        return True if self._plex else False
 
     @staticmethod
     def get_user_count(**kwargs):
@@ -64,10 +66,10 @@ class Plex(IMediaServer):
         """
         获取Plex活动记录
         """
-        if not self.__plex:
+        if not self._plex:
             return []
         ret_array = []
-        historys = self.__plex.library.history(num)
+        historys = self._plex.library.history(num)
         for his in historys:
             event_type = "PL"
             event_date = his.viewedAt.strftime('%Y-%m-%d %H:%M:%S')
@@ -81,9 +83,9 @@ class Plex(IMediaServer):
         获得电影、电视剧、动漫媒体数量
         :return: MovieCount SeriesCount SongCount
         """
-        if not self.__plex:
+        if not self._plex:
             return {}
-        sections = self.__plex.library.sections()
+        sections = self._plex.library.sections()
         MovieCount = SeriesCount = SongCount = 0
         for sec in sections:
             if sec.type == "movie":
@@ -101,13 +103,13 @@ class Plex(IMediaServer):
         :param year: 年份，为空则不过滤
         :return: 含title、year属性的字典列表
         """
-        if not self.__plex:
+        if not self._plex:
             return None
         ret_movies = []
         if year:
-            movies = self.__plex.library.search(title=title, year=year, libtype="movie")
+            movies = self._plex.library.search(title=title, year=year, libtype="movie")
         else:
-            movies = self.__plex.library.search(title=title, libtype="movie")
+            movies = self._plex.library.search(title=title, libtype="movie")
         for movie in movies:
             ret_movies.append({'title': movie.title, 'year': movie.year})
         return ret_movies
@@ -121,10 +123,10 @@ class Plex(IMediaServer):
         :param total_num: 该季的总集数
         :return: 该季不存在的集号列表
         """
-        if not self.__plex:
+        if not self._plex:
             return None
         exists_episodes = []
-        video = self.__plex.library.search(title=meta_info.title, year=meta_info.year, libtype="show")
+        video = self._plex.library.search(title=meta_info.title, year=meta_info.year, libtype="show")
         if video:
             for episode in video[0].episodes():
                 if episode.seasonNumber == season:
@@ -143,31 +145,31 @@ class Plex(IMediaServer):
         """
         通知Plex刷新整个媒体库
         """
-        if not self.__plex:
+        if not self._plex:
             return False
-        return self.__plex.library.update()
+        return self._plex.library.update()
 
     def refresh_library_by_items(self, items):
         """
         按类型、名称、年份来刷新媒体库，未找到对应的API，直接刷整库
         """
-        if not self.__plex:
+        if not self._plex:
             return False
-        return self.__plex.library.update()
+        return self._plex.library.update()
 
     def get_libraries(self):
         """
         获取媒体服务器所有媒体库列表
         """
-        if not self.__plex:
+        if not self._plex:
             return []
         try:
-            self.__libraries = self.__plex.library.sections()
+            self._libraries = self._plex.library.sections()
         except Exception as err:
             print(err)
             return []
         libraries = []
-        for library in self.__libraries:
+        for library in self._libraries:
             libraries.append({"id": library.key, "name": library.title})
         return libraries
 
@@ -177,10 +179,10 @@ class Plex(IMediaServer):
         """
         if not parent:
             yield {}
-        if not self.__plex:
+        if not self._plex:
             yield {}
         try:
-            section = self.__plex.library.sectionByID(parent)
+            section = self._plex.library.sectionByID(parent)
             if section:
                 for item in section.all():
                     if not item:

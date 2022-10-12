@@ -65,7 +65,7 @@ class Message:
         """
         if not self.client:
             return None
-        log.info("【MSG】发送%s消息：title=%s, text=%s" % (self.__msg_channel, title, text))
+        log.info("【Message】发送%s消息：title=%s, text=%s" % (self.__msg_channel, title, text))
         if self.__domain:
             if url:
                 url = "%s?next=%s" % (self.__domain, url)
@@ -76,7 +76,7 @@ class Message:
         self.messagecenter.insert_system_message(level="INFO", title=title, content=text)
         state, ret_msg = self.client.send_msg(title, text, image, url, user_id)
         if not state:
-            log.error("【MSG】发送消息失败：%s" % ret_msg)
+            log.error("【Message】发送消息失败：%s" % ret_msg)
         return state
 
     def send_channel_msg(self, channel, title, text="", image="", url="", user_id=""):
@@ -104,7 +104,7 @@ class Message:
         else:
             state, ret_msg = self.client.send_msg(title, text, image, url, user_id)
         if not state:
-            log.error("【MSG】发送消息失败：%s" % ret_msg)
+            log.error("【Message】发送消息失败：%s" % ret_msg)
         return state
 
     def send_channel_list_msg(self, channel, title, medias: list, user_id=""):
@@ -124,7 +124,7 @@ class Message:
         else:
             return False
         if not state:
-            log.error("【MSG】发送消息失败：%s" % ret_msg)
+            log.error("【Message】发送消息失败：%s" % ret_msg)
         return state
 
     def send_download_message(self, in_from: SearchType, can_item):
@@ -281,3 +281,4 @@ class Message:
         if self.__msg_switch and not self.__msg_switch.get("transfer_fail"):
             return
         self.sendmsg(title="%s 有 %s 个文件转移失败，请登录NASTool查看" % (path, count))
+    

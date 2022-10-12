@@ -82,7 +82,7 @@ class WeChat(IMessageChannel):
         """
         flag, msg = self.__send_message("测试", "这是一条测试消息")
         if not flag:
-            log.error("【MSG】发送消息失败：%s" % msg)
+            log.error("【WeChat】发送消息失败：%s" % msg)
         return flag
 
     def __send_message(self, title, text, user_id=None):

@@ -668,9 +668,39 @@
         content_tb = `<tbody>${content_td}</tbody>`;
         content = `${content_th}${content_tb}`;
         };
-        batch_download_btn = `<a href="javascript:batch_articles_action('${id}', 'download')" class="btn btn-primary ms-auto">批量下载</a>`;
-        unfinish_btn = `<a href="javascript:batch_articles_action('${id}', 'set_finished')" class="btn btn-success ms-auto">设为已处理</a>`;
-        finished_btn = `<a href="javascript:batch_articles_action('${id}', 'set_unfinish')" class="btn btn-secondary ms-auto">设为未处理</a>`;
+        batch_download_btn = `<a href="javascript:batch_articles_action('${id}', 'download')" class="btn btn-primary ms-auto d-none d-sm-inline-block">批量下载</a>`;
+        batch_download_btn += `<a href="javascript:batch_articles_action('${id}', 'download')" class="btn btn-primary d-sm-none btn-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                   <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                                   <polyline points="7 11 12 16 17 11"></polyline>
+                                   <line x1="12" y1="4" x2="12" y2="16"></line>
+                                </svg>
+                               </a>`;
+        unfinish_btn = `<a href="javascript:batch_articles_action('${id}', 'set_finished')" class="btn btn-success ms-auto d-none d-sm-inline-block">设为已处理</a>`;
+        unfinish_btn += `<a href="javascript:batch_articles_action('${id}', 'set_finished')" class="btn btn-success d-sm-none btn-icon">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                             <path d="M3.5 5.5l1.5 1.5l2.5 -2.5"></path>
+                             <path d="M3.5 11.5l1.5 1.5l2.5 -2.5"></path>
+                             <path d="M3.5 17.5l1.5 1.5l2.5 -2.5"></path>
+                             <line x1="11" y1="6" x2="20" y2="6"></line>
+                             <line x1="11" y1="12" x2="20" y2="12"></line>
+                             <line x1="11" y1="18" x2="20" y2="18"></line>
+                          </svg>
+                         </a>`;
+        finished_btn = `<a href="javascript:batch_articles_action('${id}', 'set_unfinish')" class="btn btn-secondary ms-auto d-none d-sm-inline-block">设为未处理</a>`;
+        finished_btn += `<a href="javascript:batch_articles_action('${id}', 'set_unfinish')" class="btn btn-secondary d-sm-none btn-icon">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list-details" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                             <path d="M13 5h8"></path>
+                             <path d="M13 9h5"></path>
+                             <path d="M13 15h8"></path>
+                             <path d="M13 19h5"></path>
+                             <rect x="3" y="4" width="6" height="6" rx="1"></rect>
+                             <rect x="3" y="14" width="6" height="6" rx="1"></rect>
+                          </svg>
+                         </a>`;
         $("#articles-check").append(`<div class="btn-list">${batch_download_btn}${unfinish_btn}${finished_btn}</div>`);
         $("#table-rss-articles").append(content);
         // 绑定全选事件
@@ -718,7 +748,10 @@
 
   // 报文处理设置
   function articles_check(id, flag, articles){
+    $("#modal-rss-articles").modal('hide');
+    show_wait_process();
     ajax_post("rss_articles_check", {"articles": articles, "flag": flag}, function(ret){
+      hide_wait_process();
       if(ret.code == 0){
         show_success_modal("设置成功！");
       }else if(ret.code == 1){
@@ -726,13 +759,13 @@
       }else{
         return
       }
-      $("#modal-rss-articles").modal('hide');
       show_rss_articles_modal(id);
     });
   }
 
   // 报文下载
   function articles_download(id, articles){
+    $("#modal-rss-articles").modal('hide');
     show_wait_process();
     ajax_post("rss_articles_download", {"articles": articles, "taskid": id}, function(ret){
       hide_wait_process();
@@ -743,7 +776,6 @@
       }else{
         return
       }
-      $("#modal-rss-articles").modal('hide');
       show_rss_articles_modal(id);
     });
   }
@@ -758,10 +790,11 @@
   function rss_article_test(id, taskid, title){
     var info_id = `#info_${id}`;
     var flag_id = `#flag_${id}`;
+    make_cursor_busy();
     ajax_post("rss_article_test", {"taskid": taskid, "title": title}, function (ret) {
+      cancel_cursor_busy();
       if(ret.code == 0){
         $(info_id).empty();
-        console.log(info_id);
         var ignored_words = [];
         var replaced_words = [];
         var offset_words = [];

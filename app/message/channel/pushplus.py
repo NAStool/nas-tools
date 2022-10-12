@@ -31,7 +31,7 @@ class PushPlus(IMessageChannel):
         """
         flag, msg = self.send_msg("测试", "这是一条测试消息")
         if not flag:
-            log.error("【MSG】发送消息失败：%s" % msg)
+            log.error("【PushPlus】发送消息失败：%s" % msg)
         return flag
 
     def send_msg(self, title, text="", image="", url="", user_id=""):

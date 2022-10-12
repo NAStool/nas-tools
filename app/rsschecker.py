@@ -595,7 +595,7 @@ class RssChecker(object):
             return
         for article in articles:
             media = self.media.get_media_info(title=article.get("title"))
-            media.set_torrent_info(enclosur=article.get("enclosure"))
+            media.set_torrent_info(enclosure=article.get("enclosure"))
             ret, ret_msg = self.downloader.add_pt_torrent(media_info=media,
                                                           is_paused=taskinfo["note"].get("is_paused"),
                                                           tag=taskinfo["note"].get("tags"),

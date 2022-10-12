@@ -168,10 +168,10 @@ class Sites:
                                                        site_cookie=site_cookie,
                                                        ua=ua)
             if site_user_info:
-                log.debug(f"【SITES】站点 {site_name} 开始以 {site_user_info.site_schema()} 模型解析")
+                log.debug(f"【Sites】站点 {site_name} 开始以 {site_user_info.site_schema()} 模型解析")
                 # 开始解析
                 site_user_info.parse()
-                log.debug(f"【SITES】站点 {site_name} 解析完成")
+                log.debug(f"【Sites】站点 {site_name} 解析完成")
 
                 # 获取不到数据时，仅返回错误信息，不做历史数据更新
                 if site_user_info.err_msg:
@@ -199,7 +199,7 @@ class Sites:
                 return site_user_info
 
         except Exception as e:
-            log.error("【SITES】站点 %s 获取流量数据失败：%s - %s" % (site_name, str(e), traceback.format_exc()))
+            log.error("【Sites】站点 %s 获取流量数据失败：%s - %s" % (site_name, str(e), traceback.format_exc()))
 
     def __notify_unread_msg(self, site_name, site_user_info, unread_msg_notify):
         if site_user_info.message_unread <= 0:
@@ -234,18 +234,18 @@ class Sites:
                 site_cookie = site_info.get("cookie")
                 ua = site_info.get("ua")
                 if not site_url or not site_cookie:
-                    log.warn("【SITES】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
+                    log.warn("【Sites】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
                     continue
                 if browser.get_browser():
                     # 首页
-                    log.info("【SITES】开始站点仿真签到：%s" % site)
+                    log.info("【Sites】开始站点仿真签到：%s" % site)
                     home_url = "%s://%s" % StringUtils.get_url_netloc(site_url)
                     with CHROME_LOCK:
                         try:
                             browser.visit(url=home_url, ua=ua, cookie=site_cookie)
                         except Exception as err:
                             print(str(err))
-                            log.warn("【SITES】%s 无法打开网站" % site)
+                            log.warn("【Sites】%s 无法打开网站" % site)
                             status.append("【%s】无法打开网站！" % site)
                             continue
                         # 循环检测是否过cf
@@ -256,13 +256,13 @@ class Sites:
                                 break
                             time.sleep(1)
                         if not cloudflare:
-                            log.warn("【SITES】%s 跳转站点失败" % site)
+                            log.warn("【Sites】%s 跳转站点失败" % site)
                             status.append("【%s】跳转站点失败！" % site)
                             continue
                         # 判断是否已签到
                         html_text = browser.get_html()
                         if not html_text:
-                            log.warn("【SITES】%s 获取站点源码失败" % site)
+                            log.warn("【Sites】%s 获取站点源码失败" % site)
                             continue
                         # 查找签到按钮
                         html = etree.HTML(html_text)
@@ -273,15 +273,15 @@ class Sites:
                                 break
                         if re.search(r'已签|签到已得', html_text, re.IGNORECASE) \
                                 and not xpath_str:
-                            log.info("【SITES】%s 今日已签到" % site)
+                            log.info("【Sites】%s 今日已签到" % site)
                             status.append("【%s】今日已签到" % site)
                             continue
                         if not xpath_str:
                             if self.__is_signin_success(html_text):
-                                log.warn("【SITES】%s 未找到签到按钮，模拟登录成功" % site)
+                                log.warn("【Sites】%s 未找到签到按钮，模拟登录成功" % site)
                                 status.append("【%s】模拟登录成功" % site)
                             else:
-                                log.info("【SITES】%s 未找到签到按钮，且模拟登录失败" % site)
+                                log.info("【Sites】%s 未找到签到按钮，且模拟登录失败" % site)
                                 status.append("【%s】模拟登录失败！" % site)
                             continue
                         # 开始仿真
@@ -290,10 +290,10 @@ class Sites:
                                 es.element_to_be_clickable((By.XPATH, xpath_str)))
                             if checkin_obj:
                                 checkin_obj.click()
-                                log.info("【SITES】%s 仿真签到成功" % site)
+                                log.info("【Sites】%s 仿真签到成功" % site)
                                 status.append("【%s】签到成功" % site)
                         except Exception as e:
-                            log.warn("【SITES】%s 仿真签到失败：%s" % (site, str(e)))
+                            log.warn("【Sites】%s 仿真签到失败：%s" % (site, str(e)))
                             status.append("【%s】签到失败！" % site)
                             continue
                 # 模拟登录
@@ -302,24 +302,24 @@ class Sites:
                         checkin_text = "签到"
                     else:
                         checkin_text = "模拟登录"
-                    log.info(f"【SITES】开始站点{checkin_text}：{site}")
+                    log.info(f"【Sites】开始站点{checkin_text}：{site}")
                     # 访问链接
                     res = RequestUtils(cookies=site_cookie, headers=ua).get_res(url=site_url)
                     if res and res.status_code == 200:
                         if not self.__is_signin_success(res.text):
-                            log.warn(f"【SITES】{site} {checkin_text}失败，请检查cookie")
+                            log.warn(f"【Sites】{site} {checkin_text}失败，请检查cookie")
                             status.append(f"【{site}】{checkin_text}失败，请检查cookie！")
                         else:
-                            log.info(f"【SITES】{site} {checkin_text}成功")
+                            log.info(f"【Sites】{site} {checkin_text}成功")
                             status.append(f"【{site}】{checkin_text}成功")
                     elif res and res.status_code:
-                        log.warn(f"【SITES】{site} {checkin_text}失败，状态码：{res.status_code}")
+                        log.warn(f"【Sites】{site} {checkin_text}失败，状态码：{res.status_code}")
                         status.append(f"【{site}】{checkin_text}失败，状态码：{res.status_code}！")
                     else:
-                        log.warn(f"【SITES】{site} {checkin_text}失败，无法打开网站")
+                        log.warn(f"【Sites】{site} {checkin_text}失败，无法打开网站")
                         status.append(f"【{site}】{checkin_text}失败，无法打开网站！")
             except Exception as e:
-                log.error("【SITES】%s 签到出错：%s - %s" % (site, str(e), traceback.format_exc()))
+                log.error("【Sites】%s 签到出错：%s - %s" % (site, str(e), traceback.format_exc()))
         if status:
             self.message.send_site_signin_message(status)
 
