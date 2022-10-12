@@ -17,6 +17,7 @@ from app.filetransfer import FileTransfer
 from app.utils.types import MediaType, DownloaderType, SearchType, RmtMode, RMT_MODES
 
 lock = Lock()
+client_lock = Lock()
 
 
 class Downloader:
@@ -70,7 +71,7 @@ class Downloader:
 
     @property
     def client(self):
-        with lock:
+        with client_lock:
             if not self._client:
                 self._client = self.__get_client()
             return self._client
