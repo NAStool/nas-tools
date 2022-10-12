@@ -748,7 +748,10 @@
 
   // 报文处理设置
   function articles_check(id, flag, articles){
+    $("#modal-rss-articles").modal('hide');
+    show_wait_process();
     ajax_post("rss_articles_check", {"articles": articles, "flag": flag}, function(ret){
+      hide_wait_process();
       if(ret.code == 0){
         show_success_modal("设置成功！");
       }else if(ret.code == 1){
@@ -756,13 +759,13 @@
       }else{
         return
       }
-      $("#modal-rss-articles").modal('hide');
       show_rss_articles_modal(id);
     });
   }
 
   // 报文下载
   function articles_download(id, articles){
+    $("#modal-rss-articles").modal('hide');
     show_wait_process();
     ajax_post("rss_articles_download", {"articles": articles, "taskid": id}, function(ret){
       hide_wait_process();
@@ -773,7 +776,6 @@
       }else{
         return
       }
-      $("#modal-rss-articles").modal('hide');
       show_rss_articles_modal(id);
     });
   }
@@ -788,10 +790,11 @@
   function rss_article_test(id, taskid, title){
     var info_id = `#info_${id}`;
     var flag_id = `#flag_${id}`;
+    make_cursor_busy();
     ajax_post("rss_article_test", {"taskid": taskid, "title": title}, function (ret) {
+      cancel_cursor_busy();
       if(ret.code == 0){
         $(info_id).empty();
-        console.log(info_id);
         var ignored_words = [];
         var replaced_words = [];
         var offset_words = [];

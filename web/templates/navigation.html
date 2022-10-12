@@ -1647,6 +1647,18 @@
         $(this).attr("onclick", "openFileBrowser(this,$(this).val(),'',false,true);");
       });
     }
+
+    //鼠标提示等待
+    function make_cursor_busy(){
+      var body = document.querySelector("body");
+      body.style.cursor= "wait";
+    }
+
+    //鼠标取消等待
+    function cancel_cursor_busy(){
+      var body = document.querySelector("body");
+      body.style.cursor= "default";
+    }
   
   </script>
 
