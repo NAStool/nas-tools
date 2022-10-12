@@ -427,7 +427,7 @@ class BrushTask(object):
         获取下载器的参数
         """
         if not dlid:
-            return None
+            return {}
         downloader_info = SqlHelper.get_user_downloaders(dlid)
         if downloader_info:
             userconfig = {"id": downloader_info[0][0],
@@ -439,7 +439,7 @@ class BrushTask(object):
                           "password": downloader_info[0][6],
                           "save_dir": downloader_info[0][7]}
             return userconfig
-        return None
+        return {}
 
     def __get_downloading_count(self, downloadercfg):
         """
