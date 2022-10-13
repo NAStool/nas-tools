@@ -53,8 +53,12 @@ class Transmission(IDownloadClient):
         return True if self.trc else False
 
     def get_torrents(self, ids=None, status=None, tag=None):
+        """
+        获取种子列表
+        返回结果 种子列表, 是否有错误
+        """
         if not self.trc:
-            return []
+            return [], True
         if isinstance(ids, list):
             ids = [int(x) for x in ids if str(x).isdigit()]
         elif str(ids).isdigit():
@@ -63,7 +67,7 @@ class Transmission(IDownloadClient):
             torrents = self.trc.get_torrents(ids=ids, arguments=self._trarg)
         except Exception as err:
             print(str(err))
-            return []
+            return [], True
         if status and not isinstance(status, list):
             status = [status]
         ret_torrents = []
@@ -74,20 +78,28 @@ class Transmission(IDownloadClient):
             if tag and tag not in labels:
                 continue
             ret_torrents.append(torrent)
-        return ret_torrents
+        return ret_torrents, False
 
     def get_completed_torrents(self, tag=None):
+        """
+        获取已完成的种子列表
+        return 种子列表, 是否有错误
+        """
         if not self.trc:
-            return []
+            return [], True
         try:
             return self.get_torrents(status=["seeding", "seed_pending"], tag=tag)
         except Exception as err:
             print(str(err))
-            return []
+            return [], True
 
     def get_downloading_torrents(self, tag=None):
+        """
+        获取正在下载的种子列表
+        return 种子列表, 是否有错误
+        """
         if not self.trc:
-            return []
+            return [], True
         return self.get_torrents(status=["downloading", "download_pending", "stopped"], tag=tag)
 
     def set_torrents_status(self, ids):
@@ -180,7 +192,10 @@ class Transmission(IDownloadClient):
 
     def get_transfer_task(self, tag):
         # 处理所有任务
-        torrents = self.get_completed_torrents(tag=tag)
+        torrents, has_err = self.get_completed_torrents(tag=tag)
+        if has_err:
+            log.error(f"【{self.client_type}】获取种子列表出错")
+            return []
         trans_tasks = []
         for torrent in torrents:
             # 3.0版本以下的Transmission没有labels

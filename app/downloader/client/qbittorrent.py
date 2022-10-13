@@ -64,25 +64,37 @@ class Qbittorrent(IDownloadClient):
             return False
 
     def get_torrents(self, ids=None, status=None, tag=None):
+        """
+        获取种子列表
+        return: 种子列表, 是否发生异常
+        """
         if not self.qbc:
-            return []
+            return [], True
         try:
             torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status, tag=tag)
             if self.is_ver_less_4_4():
                 torrents = self.filter_torrent_by_tag(torrents, tag=tag)
-            return torrents or []
+            return torrents or [], False
         except Exception as err:
             print(str(err))
-            return []
+            return [], True
 
     def get_completed_torrents(self, tag=None):
+        """
+        获取已完成的种子
+        return: 种子列表, 是否发生异常
+        """
         if not self.qbc:
-            return []
+            return [], True
         return self.get_torrents(status=["completed"], tag=tag)
 
     def get_downloading_torrents(self, tag=None):
+        """
+        获取正在下载的种子
+        return: 种子列表, 是否发生异常
+        """
         if not self.qbc:
-            return []
+            return [], True
         return self.get_torrents(status=["downloading"], tag=tag)
 
     def remove_torrents_tag(self, ids, tag):
@@ -123,7 +135,10 @@ class Qbittorrent(IDownloadClient):
 
     def get_transfer_task(self, tag):
         # 处理下载完成的任务
-        torrents = self.get_completed_torrents(tag=tag)
+        torrents, has_err = self.get_completed_torrents(tag=tag)
+        if has_err:
+            log.error(f"【{self.client_type}】获取下载完成的种子列表出错")
+            return []
         trans_tasks = []
         for torrent in torrents:
             # 判断标签是否包含"已整理"

@@ -434,7 +434,12 @@ class WebAction:
         查询具体种子的信息
         """
         ids = data.get("ids")
-        Client, Torrents = Downloader().get_torrents(torrent_ids=ids)
+        Client, Torrents, has_err = Downloader().get_torrents(torrent_ids=ids)
+
+        # 获取种子信息失败, 直接返回
+        if has_err:
+            return {"retcode": -1, "retmsg": "下载器连接失败", "torrents": []}
+
         DispTorrents = []
         for torrent in Torrents:
             if not torrent:
