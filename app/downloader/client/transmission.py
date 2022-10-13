@@ -195,7 +195,7 @@ class Transmission(IDownloadClient):
         torrents, has_err = self.get_completed_torrents(tag=tag)
         if has_err:
             log.error(f"【{self.client_type}】获取种子列表出错")
-            return
+            return []
         trans_tasks = []
         for torrent in torrents:
             # 3.0版本以下的Transmission没有labels

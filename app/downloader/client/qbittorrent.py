@@ -135,7 +135,10 @@ class Qbittorrent(IDownloadClient):
 
     def get_transfer_task(self, tag):
         # 处理下载完成的任务
-        torrents = self.get_completed_torrents(tag=tag)
+        torrents, has_err = self.get_completed_torrents(tag=tag)
+        if has_err:
+            log.error(f"【{self.client_type}】获取下载完成的种子列表出错")
+            return []
         trans_tasks = []
         for torrent in torrents:
             # 判断标签是否包含"已整理"
