@@ -1810,32 +1810,32 @@ class SqlHelper:
         return MainDb().select_by_sql(sql, (task_id,))
     
     @staticmethod
-    def insert_ignored_word(ignored):
+    def insert_ignored_word(ignored, enabled):
         """
         增加自定义识别词-屏蔽词
         """
-        sql = "INSERT INTO IGNORED_WORDS(IGNORED) " \
-              "VALUES (?)"
-        return MainDb().update_by_sql(sql, (ignored,)) 
+        sql = "INSERT INTO IGNORED_WORDS(IGNORED, ENABLED) " \
+              "VALUES (?, ?)"
+        return MainDb().update_by_sql(sql, (ignored, int(enabled))) 
     
     @staticmethod
-    def insert_replaced_word(replaced, replace):
+    def insert_replaced_word(replaced, replace, enabled):
         """
         增加自定义识别词-替换词
         """
-        sql = "INSERT INTO REPLACED_WORDS(REPLACED, REPLACE) " \
-              "VALUES (?, ?)"
-        return MainDb().update_by_sql(sql, (replaced, replace))
+        sql = "INSERT INTO REPLACED_WORDS(REPLACED, REPLACE, ENABLED) " \
+              "VALUES (?, ?, ?)"
+        return MainDb().update_by_sql(sql, (replaced, replace, int(enabled)))
 
     @staticmethod
-    def insert_offset_word(front, back, offset):
+    def insert_offset_word(front, back, offset, enabled, replaced_word_id):
         """
         增加自定义识别词-集数偏移
         """
-        sql = "INSERT INTO OFFSET_WORDS(FRONT, BACK, OFFSET) " \
-              "VALUES (?, ?, ?)"
-        return MainDb().update_by_sql(sql, (front, back, offset))
-    
+        sql = "INSERT INTO OFFSET_WORDS(FRONT, BACK, OFFSET, ENABLED, REPLACED_WORD_ID) " \
+              "VALUES (?, ?, ?, ?, ?)"
+        return MainDb().update_by_sql(sql, (front, back, offset, int(enabled), int(replaced_word_id)))
+
     @staticmethod
     def is_ignored_word_existed(ignored):
         """
@@ -1934,18 +1934,67 @@ class SqlHelper:
         """
         查询所有自定义识别词-屏蔽词
         """
-        return MainDb().select_by_sql("SELECT ID, IGNORED FROM IGNORED_WORDS")
+        return MainDb().select_by_sql("SELECT ID, IGNORED, ENABLED FROM IGNORED_WORDS")
     
     @staticmethod
     def get_replaced_words():
         """
         查询所有自定义识别词-替换词
         """
-        return MainDb().select_by_sql("SELECT ID, REPLACED, REPLACE FROM REPLACED_WORDS")
+        return MainDb().select_by_sql("SELECT ID, REPLACED, REPLACE, ENABLED FROM REPLACED_WORDS")
     
     @staticmethod
     def get_offset_words():
         """
         查询所有自定义识别词-集数偏移
         """
-        return MainDb().select_by_sql("SELECT ID, FRONT, BACK, OFFSET FROM OFFSET_WORDS")
+        return MainDb().select_by_sql("SELECT ID, FRONT, BACK, OFFSET, ENABLED, REPLACED_WORD_ID FROM OFFSET_WORDS")
+    
+    @staticmethod
+    def check_ignored_word(enabled, id):
+        """
+        设置自定义识别词-屏蔽词状态
+        """
+        return MainDb().update_by_sql("UPDATE IGNORED_WORDS SET ENABLED = ? WHERE ID = ?", (int(enabled), int(id)))
+
+    @staticmethod
+    def check_replaced_word(enabled, id):
+        """
+        设置自定义识别词-替换词状态
+        """
+        return MainDb().update_by_sql("UPDATE REPLACED_WORDS SET ENABLED = ? WHERE ID = ?", (int(enabled), int(id)))
+    
+    @staticmethod
+    def check_offset_word(enabled, id):
+        """
+        设置自定义识别词-集数偏移状态
+        """
+        return MainDb().update_by_sql("UPDATE OFFSET_WORDS SET ENABLED = ? WHERE ID = ?", (int(enabled), int(id)))
+
+    @staticmethod
+    def get_replaced_word_id_by_replaced_word(replaced_word):
+        """
+        根据被替换词查询替换词id
+        """
+        if not replaced_word or replaced_word == "None":
+            return -1
+        else:
+            id = MainDb().select_by_sql("SELECT ID FROM REPLACED_WORDS WHERE REPLACED = ?", (replaced_word,))
+            if id:
+                return id[0][0]
+            else:
+                return -1
+    
+    @staticmethod
+    def get_offset_words_related():
+        """
+        查询设置了关联被替换词的集数偏移
+        """
+        return MainDb().select_by_sql("SELECT ID, FRONT, BACK, OFFSET, ENABLED, REPLACED_WORD_ID FROM OFFSET_WORDS WHERE REPLACED_WORD_ID != -1")
+    
+    @staticmethod
+    def get_replaced_word(id):
+        """
+        查询自定义识别词-替换词
+        """
+        return MainDb().select_by_sql("SELECT ID, REPLACED, REPLACE, ENABLED FROM REPLACED_WORDS WHERE ID = ?", (int(id),))
