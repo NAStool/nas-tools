@@ -359,7 +359,7 @@ class BrushTask(object):
                                 update_torrents.append(("%s,%s" % (uploaded, downloaded), taskid, torrent_id))
                     # 检查下载状态
                     torrents, has_err = downloader.get_torrents(ids=torrent_ids,
-                                                       status=["downloading", "download_pending", "stopped"])
+                                                                status=["downloading", "download_pending", "stopped"])
                     # 看看是否有错误, 有错误的话就不处理了
                     if has_err:
                         log_warn("【BRUSH】任务 %s 获取种子状态失败" % task_name)
@@ -424,7 +424,7 @@ class BrushTask(object):
         if seedsize:
             if float(seedsize) * 1024 ** 3 <= int(total_size):
                 log_warn("【Brush】刷流任务 %s 当前保种体积 %sGB，不再新增下载"
-                         % (taskname, round(int(total_size)/1024/1024/1024, 1)))
+                         % (taskname, round(int(total_size) / 1024 / 1024 / 1024, 1)))
                 return False
         # 检查正在下载的任务数
         if dlcount:

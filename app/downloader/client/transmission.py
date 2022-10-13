@@ -86,12 +86,13 @@ class Transmission(IDownloadClient):
         return 种子列表, 是否有错误
         """
         if not self.trc:
-            return [], True
+            return []
         try:
-            return self.get_torrents(status=["seeding", "seed_pending"], tag=tag)
+            torrents, _ = self.get_torrents(status=["seeding", "seed_pending"], tag=tag)
+            return torrents
         except Exception as err:
             print(str(err))
-            return [], True
+            return []
 
     def get_downloading_torrents(self, tag=None):
         """
@@ -99,8 +100,9 @@ class Transmission(IDownloadClient):
         return 种子列表, 是否有错误
         """
         if not self.trc:
-            return [], True
-        return self.get_torrents(status=["downloading", "download_pending", "stopped"], tag=tag)
+            return []
+        torrents, _ = self.get_torrents(status=["downloading", "download_pending", "stopped"], tag=tag)
+        return torrents
 
     def set_torrents_status(self, ids):
         if not self.trc:
@@ -192,10 +194,7 @@ class Transmission(IDownloadClient):
 
     def get_transfer_task(self, tag):
         # 处理所有任务
-        torrents, has_err = self.get_completed_torrents(tag=tag)
-        if has_err:
-            log.error(f"【{self.client_type}】获取种子列表出错")
-            return []
+        torrents = self.get_completed_torrents(tag=tag)
         trans_tasks = []
         for torrent in torrents:
             # 3.0版本以下的Transmission没有labels

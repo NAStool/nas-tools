@@ -85,8 +85,9 @@ class Qbittorrent(IDownloadClient):
         return: 种子列表, 是否发生异常
         """
         if not self.qbc:
-            return [], True
-        return self.get_torrents(status=["completed"], tag=tag)
+            return []
+        torrents, _ = self.get_torrents(status=["completed"], tag=tag)
+        return torrents
 
     def get_downloading_torrents(self, tag=None):
         """
@@ -94,8 +95,9 @@ class Qbittorrent(IDownloadClient):
         return: 种子列表, 是否发生异常
         """
         if not self.qbc:
-            return [], True
-        return self.get_torrents(status=["downloading"], tag=tag)
+            return []
+        torrents, _ = self.get_torrents(status=["downloading"], tag=tag)
+        return torrents
 
     def remove_torrents_tag(self, ids, tag):
         """
@@ -135,10 +137,7 @@ class Qbittorrent(IDownloadClient):
 
     def get_transfer_task(self, tag):
         # 处理下载完成的任务
-        torrents, has_err = self.get_completed_torrents(tag=tag)
-        if has_err:
-            log.error(f"【{self.client_type}】获取下载完成的种子列表出错")
-            return []
+        torrents = self.get_completed_torrents(tag=tag)
         trans_tasks = []
         for torrent in torrents:
             # 判断标签是否包含"已整理"
@@ -175,7 +174,7 @@ class Qbittorrent(IDownloadClient):
         :return: 种子ID
         """
         try:
-            torrents = self.get_torrents(status=status, tag=tag)
+            torrents, _ = self.get_torrents(status=status, tag=tag)
         except Exception as err:
             print(str(err))
             return None

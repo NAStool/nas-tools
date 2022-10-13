@@ -297,8 +297,8 @@ class Downloader:
         """
         if not self.client:
             return None, [], True
-        torrent_list, has_err = self.client.get_torrents(ids=torrent_ids)
-        return self._client_type, torrent_list, has_err
+        torrent_list, _ = self.client.get_torrents(ids=torrent_ids)
+        return self._client_type, torrent_list
 
     def start_torrents(self, ids):
         """
