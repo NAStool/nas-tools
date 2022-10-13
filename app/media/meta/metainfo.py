@@ -41,6 +41,7 @@ def MetaInfo(title, subtitle=None, mtype=None):
     # 替换词
     replaced_words_info = SqlHelper.get_replaced_words_enable_with_offset()
     replaced_words_id = -1
+    replaced_words_match_flag = False
     if replaced_words_info:
         for replaced_word_info in replaced_words_info:
             try:
@@ -50,10 +51,12 @@ def MetaInfo(title, subtitle=None, mtype=None):
                 if replaced_words_id != replaced_word_info[0]:
                     replaced_words_id = replaced_word_info[0]
                     replaced_word = "%s@%s" % (replaced, replace)
+                    replaced_words_match_flag = False
                     if re.findall(r'%s' % replaced, title):
+                        replaced_words_match_flag = True
                         used_replaced_words.append(replaced_word)
                         title = re.sub(r'%s' % replaced, r'%s' % replace, title)
-                if front:
+                if front and replaced_words_match_flag:
                     back = replaced_word_info[4]
                     offset = replaced_word_info[5]
                     title = episode_offset(front, back, offset, used_offset_words, title)
