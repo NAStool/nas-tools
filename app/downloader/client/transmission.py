@@ -53,8 +53,12 @@ class Transmission(IDownloadClient):
         return True if self.trc else False
 
     def get_torrents(self, ids=None, status=None, tag=None):
+        """
+        获取种子列表
+        返回结果 种子列表, 是否有错误
+        """
         if not self.trc:
-            return []
+            return [], True
         if isinstance(ids, list):
             ids = [int(x) for x in ids if str(x).isdigit()]
         elif str(ids).isdigit():
@@ -63,7 +67,7 @@ class Transmission(IDownloadClient):
             torrents = self.trc.get_torrents(ids=ids, arguments=self._trarg)
         except Exception as err:
             print(str(err))
-            return []
+            return [], True
         if status and not isinstance(status, list):
             status = [status]
         ret_torrents = []
@@ -74,7 +78,7 @@ class Transmission(IDownloadClient):
             if tag and tag not in labels:
                 continue
             ret_torrents.append(torrent)
-        return ret_torrents
+        return ret_torrents, False
 
     def get_completed_torrents(self, tag=None):
         if not self.trc:
