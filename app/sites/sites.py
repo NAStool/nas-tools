@@ -74,6 +74,8 @@ class Sites:
             site_unread_msg_notify = str(site[9]).split("|")[2] if site[9] and len(str(site[9]).split("|")) > 2 else "Y"
             # 自定义UA为|分隔的第4位
             ua = str(site[9]).split("|")[3] if site[9] and len(str(site[9]).split("|")) > 3 else ""
+            # 是否开启浏览器仿真为|分隔的第5位
+            chrome = str(site[9]).split("|")[4] if site[9] and len(str(site[9]).split("|")) > 4 else "N"
             # 站点用途：Q签到、D订阅、S刷流
             signin_enable = True if site[6] and str(site[6]).count("Q") else False
             rss_enable = True if site[6] and str(site[6]).count("D") else False
@@ -99,7 +101,8 @@ class Sites:
                 "brush_enable": brush_enable,
                 "statistic_enable": statistic_enable,
                 "favicon": site_favicons.get(site[1], ""),
-                "ua": ua
+                "ua": ua,
+                "chrome": chrome
             }
             if siteid and int(site[0]) == int(siteid):
                 return site_info
@@ -136,17 +139,13 @@ class Sites:
                 refresh_sites = [site for site in self.get_sites(statistic=True) if site.get("name") in specify_sites]
             if not refresh_sites:
                 return
+
             refresh_all = len(self.get_sites(statistic=True)) == len(refresh_sites)
-            if ChromeHelper().get_browser():
-                site_user_infos = []
-                for site in refresh_sites:
-                    site_user_info = self.__refresh_pt_data(site)
-                    if site_user_info:
-                        site_user_infos.append(site_user_info)
-            else:
-                with ThreadPool(min(len(refresh_sites), self._MAX_CONCURRENCY)) as p:
-                    site_user_infos = p.map(self.__refresh_pt_data, refresh_sites)
-                    site_user_infos = [info for info in site_user_infos if info]
+
+            # 并发刷新
+            with ThreadPool(min(len(refresh_sites), self._MAX_CONCURRENCY)) as p:
+                site_user_infos = p.map(self.__refresh_pt_data, refresh_sites)
+                site_user_infos = [info for info in site_user_infos if info]
             # 登记历史数据
             SqlHelper.insert_site_statistics_history(site_user_infos)
             # 实时用户数据
@@ -171,11 +170,13 @@ class Sites:
         site_cookie = site_info.get("cookie")
         ua = site_info.get("ua")
         unread_msg_notify = site_info.get("unread_msg_notify")
+        chrome = True if site_info.get("chrome") == "Y" else False
         try:
             site_user_info = SiteUserInfoFactory.build(url=site_url,
                                                        site_name=site_name,
                                                        site_cookie=site_cookie,
-                                                       ua=ua)
+                                                       ua=ua,
+                                                       emulate=chrome)
             if site_user_info:
                 log.debug(f"【Sites】站点 {site_name} 开始以 {site_user_info.site_schema()} 模型解析")
                 # 开始解析

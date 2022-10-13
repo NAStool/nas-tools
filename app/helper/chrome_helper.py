@@ -8,10 +8,8 @@ from app.utils import SystemUtils, RequestUtils
 from app.utils.commons import singleton
 import undetected_chromedriver.v2 as uc
 
-from app.utils.types import OsType
-from config import Config
-
 CHROME_LOCK = Lock()
+lock = Lock()
 
 
 @singleton
@@ -27,12 +25,18 @@ class ChromeHelper(object):
         if self._chrome:
             self._chrome.quit()
             self._chrome = None
-        if not Config().get_config('laboratory').get('chrome_browser'):
-            return
-        if SystemUtils.get_system() == OsType.LINUX \
-                and self._executable_path \
+
+    @property
+    def browser(self):
+        with lock:
+            if not self._chrome:
+                self._chrome = self.__get_browser()
+            return self._chrome
+
+    def __get_browser(self):
+        if self._executable_path \
                 and not os.path.exists(self._executable_path):
-            return
+            return None
         options = uc.ChromeOptions()
         options.add_argument('--disable-gpu')
         options.add_argument('--no-sandbox')
@@ -48,11 +52,9 @@ class ChromeHelper(object):
             "excludeSwitches": ["enable-automation"]
         }
         options.add_experimental_option("prefs", prefs)
-        self._chrome = ChromeWithPrefs(options=options, driver_executable_path=self._executable_path)
-        self._chrome.set_page_load_timeout(30)
-
-    def get_browser(self):
-        return self._chrome
+        chrome = ChromeWithPrefs(options=options, driver_executable_path=self._executable_path)
+        chrome.set_page_load_timeout(30)
+        return chrome
 
     def visit(self, url, ua=None, cookie=None):
         if ua:
