@@ -25,7 +25,7 @@ def MetaInfo(title, subtitle=None, mtype=None):
     used_offset_words = []
     # 屏蔽词
     ignored_words = []
-    ignored_words_info = SqlHelper.get_ignored_words()
+    ignored_words_info = SqlHelper.get_ignored_words_enable()
     if ignored_words_info:
         try:
             for ignored_word_info in ignored_words_info:
@@ -39,51 +39,33 @@ def MetaInfo(title, subtitle=None, mtype=None):
         except Exception as err:
             log.error("【Meta】自定义屏蔽词设置有误：%s" % str(err))
     # 替换词
-    replaced_words_info = SqlHelper.get_replaced_words()
+    replaced_words_info = SqlHelper.get_replaced_words_enable_with_offset()
+    print(replaced_words_info)
     if replaced_words_info:
         for replaced_word_info in replaced_words_info:
             try:
                 replaced = replaced_word_info[1]
                 replace = replaced_word_info[2]
+                front = replaced_word_info[3]
                 replaced_word = "%s@%s" % (replaced, replace)
                 if re.findall(r'%s' % replaced, title):
                     used_replaced_words.append(replaced_word)
                     title = re.sub(r'%s' % replaced, r'%s' % replace, title)
+                if front:
+                    back = replaced_word_info[4]
+                    offset = replaced_word_info[5]
+                    title = episode_offset(front, back, offset, used_offset_words, title)
             except Exception as err:
                 log.error("【Meta】自定义替换词 %s 格式有误：%s" % (replaced_word, str(err)))
     # 集数偏移
-    offset_words_info = SqlHelper.get_offset_words()
+    offset_words_info = SqlHelper.get_offset_words_unrelated_enable()
     if offset_words_info:
         for offset_word_info in offset_words_info:
-            try:
-                front = offset_word_info[1]
-                back = offset_word_info[2]
-                offset = offset_word_info[3]
-                offset_num = int(offset)
-                offset_word = "%s@%s@%s" % (front, back, offset)
-                if back and not re.findall(r'%s' % back, title):
-                    continue
-                if front and not re.findall(r'%s' % front, title):
-                    continue
-                offset_word_info_re = re.compile(r'(?<=%s[\W\w]*)[0-9]+(?=[\W\w]*%s)' % (front, back))
-                episode_nums_str = re.findall(offset_word_info_re, title)
-                if not episode_nums_str:
-                    continue
-                episode_nums_int = [int(x) for x in episode_nums_str]
-                episode_nums_dict = dict(zip(episode_nums_str, episode_nums_int))
-                used_offset_words.append(offset_word)
-                # 集数向前偏移，集数按升序处理
-                if offset_num < 0:
-                    episode_nums_list = sorted(episode_nums_dict.items(), key=lambda x: x[1])
-                # 集数向后偏移，集数按降序处理
-                else:
-                    episode_nums_list = sorted(episode_nums_dict.items(), key=lambda x: x[1], reverse=True)
-                for episode_num in episode_nums_list:
-                    episode_offset_re = re.compile(
-                        r'(?<=%s[\W\w]*)%s(?=[\W\w]*%s)' % (front, episode_num[0], back))
-                    title = re.sub(episode_offset_re, r'%s' % str(episode_num[1] + offset_num).zfill(2), title)
-            except Exception as err:
-                log.error("【Meta】自定义集数偏移 %s 格式有误：%s" % (offset_word, str(err)))
+            front = offset_word_info[1]
+            back = offset_word_info[2]
+            offset = offset_word_info[3]
+            title = episode_offset(front, back, offset, used_offset_words, title)
+
     # 判断是否处理文件
     if title and os.path.splitext(title)[-1] in RMT_MEDIAEXT:
         fileflag = True
@@ -121,3 +103,32 @@ def is_anime(name):
     if re.search(r'\[[+0-9XVPI-]+]\s*\[', name, re.IGNORECASE):
         return True
     return False
+
+def episode_offset(front, back, offset, used_offset_words, title):
+    try:
+        offset_num = int(offset)
+        offset_word = "%s@%s@%s" % (front, back, offset)
+        if back and not re.findall(r'%s' % back, title):
+            return
+        if front and not re.findall(r'%s' % front, title):
+            return
+        offset_word_info_re = re.compile(r'(?<=%s[\W\w]*)[0-9]+(?=[\W\w]*%s)' % (front, back))
+        episode_nums_str = re.findall(offset_word_info_re, title)
+        if not episode_nums_str:
+            return
+        episode_nums_int = [int(x) for x in episode_nums_str]
+        episode_nums_dict = dict(zip(episode_nums_str, episode_nums_int))
+        used_offset_words.append(offset_word)
+        # 集数向前偏移，集数按升序处理
+        if offset_num < 0:
+            episode_nums_list = sorted(episode_nums_dict.items(), key=lambda x: x[1])
+        # 集数向后偏移，集数按降序处理
+        else:
+            episode_nums_list = sorted(episode_nums_dict.items(), key=lambda x: x[1], reverse=True)
+        for episode_num in episode_nums_list:
+            episode_offset_re = re.compile(
+                r'(?<=%s[\W\w]*)%s(?=[\W\w]*%s)' % (front, episode_num[0], back))
+            title = re.sub(episode_offset_re, r'%s' % str(episode_num[1] + offset_num).zfill(2), title)
+        return title
+    except Exception as err:
+        log.error("【Meta】自定义集数偏移 %s 格式有误：%s" % (offset_word, str(err)))

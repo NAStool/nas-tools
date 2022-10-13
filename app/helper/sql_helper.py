@@ -1986,11 +1986,37 @@ class SqlHelper:
                 return -1
     
     @staticmethod
+    def get_ignored_words_enable():
+        """
+        查询启用的屏蔽词
+        """
+        return MainDb().select_by_sql("SELECT ID, IGNORED FROM IGNORED_WORDS WHERE ENABLED =1")
+
+    @staticmethod
+    def get_replaced_words_enable_with_offset():
+        """
+        查询启用的替换词及有关联的集数偏移
+        """
+        return MainDb().select_by_sql("SELECT REPLACED_WORDS.ID, REPLACED, REPLACE, FRONT, BACK, OFFSET " \
+                                      "FROM REPLACED_WORDS LEFT JOIN OFFSET_WORDS " \
+                                      "ON REPLACED_WORDS.ID = OFFSET_WORDS.REPLACED_WORD_ID " \
+                                      "WHERE REPLACED_WORDS.ENABLED = 1")
+    
+    @staticmethod
     def get_offset_words_related():
         """
-        查询设置了关联被替换词的集数偏移
+        查询设置关联被替换词的集数偏移
         """
-        return MainDb().select_by_sql("SELECT ID, FRONT, BACK, OFFSET, ENABLED, REPLACED_WORD_ID FROM OFFSET_WORDS WHERE REPLACED_WORD_ID != -1")
+        return MainDb().select_by_sql("SELECT ID, FRONT, BACK, OFFSET, ENABLED, REPLACED_WORD_ID " \
+                                      "FROM OFFSET_WORDS " \
+                                      "WHERE REPLACED_WORD_ID != -1")
+    
+    @staticmethod
+    def get_offset_words_unrelated_enable():
+        """
+        查询未设置关联被替换词且启用的集数偏移
+        """
+        return MainDb().select_by_sql("SELECT ID, FRONT, BACK, OFFSET FROM OFFSET_WORDS WHERE REPLACED_WORD_ID = -1 AND ENABLED = 1")
     
     @staticmethod
     def get_replaced_word(id):
