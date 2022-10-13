@@ -40,17 +40,19 @@ def MetaInfo(title, subtitle=None, mtype=None):
             log.error("【Meta】自定义屏蔽词设置有误：%s" % str(err))
     # 替换词
     replaced_words_info = SqlHelper.get_replaced_words_enable_with_offset()
-    print(replaced_words_info)
+    replaced_words_id = -1
     if replaced_words_info:
         for replaced_word_info in replaced_words_info:
             try:
                 replaced = replaced_word_info[1]
                 replace = replaced_word_info[2]
                 front = replaced_word_info[3]
-                replaced_word = "%s@%s" % (replaced, replace)
-                if re.findall(r'%s' % replaced, title):
-                    used_replaced_words.append(replaced_word)
-                    title = re.sub(r'%s' % replaced, r'%s' % replace, title)
+                if replaced_words_id != replaced_word_info[0]:
+                    replaced_words_id = replaced_word_info[0]
+                    replaced_word = "%s@%s" % (replaced, replace)
+                    if re.findall(r'%s' % replaced, title):
+                        used_replaced_words.append(replaced_word)
+                        title = re.sub(r'%s' % replaced, r'%s' % replace, title)
                 if front:
                     back = replaced_word_info[4]
                     offset = replaced_word_info[5]
@@ -109,13 +111,13 @@ def episode_offset(front, back, offset, used_offset_words, title):
         offset_num = int(offset)
         offset_word = "%s@%s@%s" % (front, back, offset)
         if back and not re.findall(r'%s' % back, title):
-            return
+            return title
         if front and not re.findall(r'%s' % front, title):
-            return
+            return title
         offset_word_info_re = re.compile(r'(?<=%s[\W\w]*)[0-9]+(?=[\W\w]*%s)' % (front, back))
         episode_nums_str = re.findall(offset_word_info_re, title)
         if not episode_nums_str:
-            return
+            return title
         episode_nums_int = [int(x) for x in episode_nums_str]
         episode_nums_dict = dict(zip(episode_nums_str, episode_nums_int))
         used_offset_words.append(offset_word)
@@ -132,3 +134,4 @@ def episode_offset(front, back, offset, used_offset_words, title):
         return title
     except Exception as err:
         log.error("【Meta】自定义集数偏移 %s 格式有误：%s" % (offset_word, str(err)))
+        return title
