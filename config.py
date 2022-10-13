@@ -244,6 +244,15 @@ class Config(object):
                                 "season_thumb": True}
                         }
                         overwrite_cofig = True
+                    
+                    # 迁移下载目录配置至列表
+                    if isinstance(self._config.get('downloaddir'), dict):
+                        downloaddir_list = []
+                        for path, attr in self._config.get('downloaddir').items():
+                            downloaddir_list.append({"save_path": path, "type": attr["type"], "category": attr["category"], "container_path": attr["path"], "label": attr["label"]})
+                        self._config['downloaddir'] = downloaddir_list
+                        overwrite_cofig = True
+
                     # 下载目录配置初始化
                     if not self._config.get('downloaddir'):
                         dl_client = self._config.get('pt', {}).get('pt_client')
@@ -254,7 +263,7 @@ class Config(object):
                             container_path = self._config.get(dl_client).get('save_containerpath')
                             if not isinstance(container_path, dict):
                                 container_path = {"movie": container_path, "tv": container_path, "anime": container_path}
-                            downloaddir = {}
+                            downloaddir = []
                             type_dict = {"movie": "电影", "tv": "电视剧", "anime": "动漫"}
                             for mtype, path in save_path.items():
                                 if not path:
@@ -264,16 +273,11 @@ class Config(object):
                                 if len(path.split('|')) > 1:
                                     save_label = path.split('|')[1]
                                 container_dir = container_path.get(mtype)
-                                if save_dir not in downloaddir.keys():
-                                    downloaddir[save_dir] = {"type": type_dict.get(mtype),
-                                                             "category": "",
-                                                             "path": container_dir,
-                                                             "label": save_label}
+                                if save_dir not in [attr["save_path"] for attr in downloaddir]:
+                                    downloaddir.append({"save_path": save_dir, "type": type_dict.get(mtype), "category": "", "container_path": container_dir, "label": save_label})
                                 else:
-                                    downloaddir[save_dir] = {"type": "",
-                                                             "category": "",
-                                                             "path": container_dir,
-                                                             "label": save_label}
+                                    existing_save_dir = next(attr for attr in downloaddir if attr['save_path'] == save_dir)
+                                    existing_save_dir["type"] = ""
                             self._config['downloaddir'] = downloaddir
                             overwrite_cofig = True
                     # 重写配置文件
