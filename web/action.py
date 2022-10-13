@@ -26,7 +26,7 @@ from app.douban import DouBan
 from app.filterrules import FilterRule
 from app.mediaserver import Emby, Jellyfin, Plex
 from app.rss import Rss
-from app.sites import SiteConf, Sites
+from app.sites import Sites
 from app.subtitle import Subtitle
 from app.media import Category, Media, MetaInfo
 from app.media.doubanv2api import DoubanApi
@@ -164,8 +164,8 @@ class WebAction:
         if not msg:
             return
         commands = {
-            "/ptr": {"func": Downloader().pt_removetorrents, "desp": "删种"},
-            "/ptt": {"func": Downloader().pt_transfer, "desp": "下载文件转移"},
+            "/ptr": {"func": Downloader().remove_torrents, "desp": "删种"},
+            "/ptt": {"func": Downloader().transfer, "desp": "下载文件转移"},
             "/pts": {"func": Sites().signin, "desp": "站点签到"},
             "/rst": {"func": Sync().transfer_all_sync, "desp": "监控目录全量同步"},
             "/rss": {"func": Rss().rssdownload, "desp": "RSS订阅"},
@@ -305,8 +305,8 @@ class WebAction:
         启动定时服务
         """
         commands = {
-            "autoremovetorrents": Downloader().pt_removetorrents,
-            "pttransfer": Downloader().pt_transfer,
+            "autoremovetorrents": Downloader().remove_torrents,
+            "pttransfer": Downloader().transfer,
             "ptsignin": Sites().signin,
             "sync": Sync().transfer_all_sync,
             "rssdownload": Rss().rssdownload,
@@ -361,13 +361,11 @@ class WebAction:
                                    upload_volume_factor=float(res[15]),
                                    download_volume_factor=float(res[16]))
             # 添加下载
-            ret, ret_msg = Downloader().add_pt_torrent(media_info=media,
-                                                       download_dir=dl_dir)
+            ret, ret_msg = Downloader().download(media_info=media,
+                                                 download_dir=dl_dir)
             if ret:
                 # 发送消息
                 Message().send_download_message(SearchType.WEB, media)
-                # 登记下载历史
-                SqlHelper.insert_download_history(media)
             else:
                 return {"retcode": -1, "retmsg": ret_msg}
         return {"retcode": 0, "retmsg": ""}
@@ -395,13 +393,11 @@ class WebAction:
         media.download_volume_factor = float(downloadvolumefactor)
         media.seeders = seeders
         # 添加下载
-        ret, ret_msg = Downloader().add_pt_torrent(media_info=media,
-                                                   download_dir=dl_dir)
+        ret, ret_msg = Downloader().download(media_info=media,
+                                             download_dir=dl_dir)
         if ret:
             # 发送消息
             Message().send_download_message(SearchType.WEB, media)
-            # 登记下载历史
-            SqlHelper.insert_download_history(media)
             return {"code": 0, "msg": "下载成功"}
         else:
             return {"code": 1, "msg": ret_msg or "如连接正常，请检查下载任务是否存在"}
@@ -796,7 +792,7 @@ class WebAction:
         if tid:
             ret = Sites().get_sites(siteid=tid)
             if ret.get("rssurl"):
-                site_attr = SiteConf().get_grapsite_conf(ret.get("rssurl"))
+                site_attr = Sites().get_grapsite_conf(ret.get("rssurl"))
                 if site_attr.get("FREE"):
                     site_free = True
                 if site_attr.get("2XFREE"):
@@ -2132,7 +2128,7 @@ class WebAction:
         """
         检查站点标识
         """
-        site_attr = SiteConf().get_grapsite_conf(data.get("url"))
+        site_attr = Sites().get_grapsite_conf(data.get("url"))
         site_free = site_2xfree = site_hr = False
         if site_attr.get("FREE"):
             site_free = True
@@ -2340,7 +2336,7 @@ class WebAction:
             return {"code": 0, "data": downloads, "count": count}
         else:
             return {"code": 1, "msg": "无下载记录"}
-    
+
     @staticmethod
     def __rss_articles_check(data):
         if not data.get("articles"):
@@ -2350,7 +2346,7 @@ class WebAction:
             return {"code": 0}
         else:
             return {"code": 1}
-    
+
     @staticmethod
     def __rss_articles_download(data):
         if not data.get("articles"):

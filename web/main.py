@@ -667,7 +667,7 @@ def create_flask_app():
     @login_required
     def downloading():
         DownloadCount = 0
-        Client, Torrents = Downloader().pt_downloading_torrents()
+        Client, Torrents = Downloader().get_downloading_torrents()
         DispTorrents = []
         for torrent in Torrents:
             if Client == DownloaderType.QB:

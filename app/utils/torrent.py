@@ -1,9 +1,10 @@
+import os.path
 import re
 from urllib.parse import quote
-
 import bencode
 from lxml import etree
 
+from app.utils.torrentParser import TorrentParser
 from config import TORRENT_SEARCH_PARAMS
 from app.utils import RequestUtils
 
@@ -84,6 +85,26 @@ class Torrent:
                 return None, "下载种子出错，状态码：%s" % req.status_code
         except Exception as err:
             return None, "下载种子文件出现异常：%s，可能站点Cookie已过期或触发了站点首次种子下载" % str(err)
+
+    @staticmethod
+    def save_torrent_file(url, path, cookie, ua):
+        """
+        下载种子并保存到文件，返回文件路径
+        """
+        if not os.path.exists(path):
+            os.makedirs(path)
+        # 下载种子
+        ret = RequestUtils(cookies=cookie, headers=ua).get_res(url)
+        if ret and ret.status_code == 200:
+            file_name = re.findall(r"filename=\"(.+)\"", ret.headers.get('content-disposition'))[0]
+            file_path = os.path.join(path, file_name)
+            with open(file_path, 'wb') as f:
+                f.write(ret.content)
+        elif not ret:
+            return None
+        else:
+            return None
+        return file_path
 
     @staticmethod
     def check_torrent_filter(meta_info, filter_args, uploadvolumefactor=None, downloadvolumefactor=None):
@@ -217,3 +238,22 @@ class Torrent:
                '&tr=udp%3A%2F%2Ftracker.blackunicorn.xyz%3A6969' \
                '&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969' \
                '&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969'
+
+    @staticmethod
+    def get_torrent_files(path):
+        """
+        解析Torrent文件，获取文件清单
+        """
+        if not path or not os.path.exists(path):
+            return []
+        file_names = []
+        try:
+            torrent = TorrentParser().readFile(path=path)
+            if torrent.get("torrent"):
+                files = torrent.get("torrent").get("info", {}).get("files") or []
+                for item in files:
+                    if item.get("path"):
+                        file_names.append(item["path"][0])
+        except Exception as err:
+            print(str(err))
+        return file_names
