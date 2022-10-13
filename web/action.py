@@ -7,6 +7,7 @@ import signal
 
 from flask_login import logout_user
 from werkzeug.security import generate_password_hash
+from ruamel.yaml import YAML
 
 import cn2an
 import log
@@ -126,6 +127,9 @@ class WebAction:
             "list_rss_history": self.__list_rss_history,
             "rss_articles_check": self.__rss_articles_check,
             "rss_articles_download": self.__rss_articles_download,
+            "edit_custom_words": self.__edit_custom_words,
+            "add_custom_word": self.__add_custom_word,
+            "delete_custom_word": self.__delete_custom_word,
             "get_categories": self.__get_categories
         }
 
@@ -2353,6 +2357,76 @@ class WebAction:
             return {"code": 2}
         res = RssChecker().download_rss_articles(taskid=data.get("taskid"), articles=data.get("articles"))
         if res:
+            return {"code": 0}
+        else:
+            return {"code": 1}
+    
+    @staticmethod
+    def __edit_custom_words(data):
+        print(data)
+        try:
+            custom_words = YAML().load(data)
+            ignored_words = custom_words.get("屏蔽词")
+            SqlHelper.delete_all_ignored_words()
+            if ignored_words:
+                ignored_words = list(set(ignored_words))
+                for ignored_words in ignored_words:
+                    SqlHelper.insert_ignored_word(ignored_words)
+            replaced_words = custom_words.get("替换词")
+            SqlHelper.delete_all_replaced_words()
+            if replaced_words:
+                replaced_words = list(set(replaced_words))
+                for replaced_word in replaced_words:
+                    replaced_word = replaced_word.split("@")
+                    SqlHelper.insert_replaced_word(replaced_word[0], replaced_word[1])
+            offset_words = custom_words.get("集数偏移")
+            SqlHelper.delete_all_offset_words()
+            if offset_words:
+                offset_words = list(set(offset_words))
+                for offset_word in offset_words:
+                    offset_word = offset_word.split("@")
+                    SqlHelper.insert_offset_word(offset_word[0], offset_word[1], offset_word[2])
+            return {"code": 0, "msg": ""}
+        except Exception as e:
+            return {"code": 1, "msg": "输入不符合YAML格式"}
+    
+    @staticmethod
+    def __add_custom_word(data):
+        flag = data.get("flag")
+        custom_word = data.get("custom_word")
+        if flag == "ignored": 
+            if not SqlHelper.is_ignored_word_existed(custom_word):
+                SqlHelper.insert_ignored_word(custom_word)
+                return {"code": 0, "msg": ""}
+            else:
+                return {"code": 1, "msg": "屏蔽词已存在"}
+        elif flag == "replaced":
+            if not SqlHelper.is_replaced_word_existed(custom_word[0]):
+                SqlHelper.insert_replaced_word(custom_word[0], custom_word[1])
+                return {"code": 0, "msg": ""}
+            else:
+                return {"code": 1, "msg": "替换词已存在"}
+        elif flag == "offset":
+            if not SqlHelper.is_offset_word_existed(custom_word[0], custom_word[1]):
+                SqlHelper.insert_offset_word(custom_word[0], custom_word[1], custom_word[2])
+                return {"code": 0, "msg": ""}
+            else:
+                return {"code": 1, "msg": "集数偏移已存在"}
+        else:
+            return {"code": 1, "msg": ""}
+    
+    @staticmethod
+    def __delete_custom_word(data):
+        flag = data.get("flag")
+        id = data.get("id")
+        if flag == "ignored":
+            SqlHelper.delete_ignored_word(id)
+            return {"code": 0}
+        elif flag == "replaced":
+            SqlHelper.delete_replaced_word(id)
+            return {"code": 0}
+        elif flag == "offset":
+            SqlHelper.delete_offset_word(id)
             return {"code": 0}
         else:
             return {"code": 1}

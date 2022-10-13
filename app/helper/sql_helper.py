@@ -1804,3 +1804,144 @@ class SqlHelper:
               "FROM USERRSS_TASK_HISTORY " \
               "WHERE TASK_ID = ? "
         return MainDb().select_by_sql(sql, (task_id,))
+    
+    @staticmethod
+    def insert_ignored_word(ignored):
+        """
+        增加自定义识别词-屏蔽词
+        """
+        sql = "INSERT INTO IGNORED_WORDS(IGNORED) " \
+              "VALUES (?)"
+        return MainDb().update_by_sql(sql, (ignored,)) 
+    
+    @staticmethod
+    def insert_replaced_word(replaced, replace):
+        """
+        增加自定义识别词-替换词
+        """
+        sql = "INSERT INTO REPLACED_WORDS(REPLACED, REPLACE) " \
+              "VALUES (?, ?)"
+        return MainDb().update_by_sql(sql, (replaced, replace))
+
+    @staticmethod
+    def insert_offset_word(front, back, offset):
+        """
+        增加自定义识别词-集数偏移
+        """
+        sql = "INSERT INTO OFFSET_WORDS(FRONT, BACK, OFFSET) " \
+              "VALUES (?, ?, ?)"
+        return MainDb().update_by_sql(sql, (front, back, offset))
+    
+    @staticmethod
+    def is_ignored_word_existed(ignored):
+        """
+        查询自定义识别词-屏蔽词
+        """
+        if not ignored:
+            return False
+        sql = "SELECT COUNT(1) FROM IGNORED_WORDS WHERE IGNORED = ?"
+        ret = MainDb().select_by_sql(sql, (ignored,))
+        if ret and ret[0][0] > 0:
+            return True
+        else:
+            return False
+    
+    @staticmethod
+    def is_replaced_word_existed(replaced):
+        """
+        查询自定义识别词-替换词
+        """
+        if not replaced:
+            return False
+        sql = "SELECT COUNT(1) FROM REPLACED_WORDS WHERE REPLACED = ?"
+        ret = MainDb().select_by_sql(sql, (replaced,))
+        if ret and ret[0][0] > 0:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def is_offset_word_existed(front, back):
+        """
+        查询自定义识别词-集数偏移词
+        """
+        if not front or not back:
+            return False
+        sql = "SELECT COUNT(1) FROM OFFSET_WORDS WHERE FRONT = ? AND BACK = ?"
+        ret = MainDb().select_by_sql(sql, (front, back))
+        if ret and ret[0][0] > 0:
+            return True
+        else:
+            return False
+    
+    @staticmethod
+    def delete_all_ignored_words():
+        """
+        删除所有自定义识别词-屏蔽词
+        """
+        return MainDb().update_by_sql("DELETE FROM IGNORED_WORDS")
+    
+    @staticmethod
+    def delete_all_replaced_words():
+        """
+        删除所有自定义识别词-替换词
+        """
+        return MainDb().update_by_sql("DELETE FROM REPLACED_WORDS")
+    
+    @staticmethod
+    def delete_all_offset_words():
+        """
+        删除所有自定义识别词-集数偏移
+        """
+        return MainDb().update_by_sql("DELETE FROM OFFSET_WORDS")
+    
+    @staticmethod
+    def delete_ignored_word(id):
+        """
+        删除自定义识别词-屏蔽词
+        """
+        if not id:
+            return False
+        return MainDb().update_by_sql(
+            "DELETE FROM IGNORED_WORDS WHERE ID = ?", (int(id),))
+    
+    @staticmethod
+    def delete_replaced_word(id):
+        """
+        删除自定义识别词-替换词
+        """
+        if not id:
+            return False
+        return MainDb().update_by_sql(
+            "DELETE FROM REPLACED_WORDS WHERE ID = ?", (int(id),))
+    
+    @staticmethod
+    def delete_offset_word(id):
+        """
+        删除自定义识别词-集数偏移
+        """
+        if not id:
+            return False
+        return MainDb().update_by_sql(
+            "DELETE FROM OFFSET_WORDS WHERE ID = ?", (int(id),))
+
+    @staticmethod
+    def get_ignored_words():
+        """
+        查询所有自定义识别词-屏蔽词
+        """
+        return MainDb().select_by_sql("SELECT ID, IGNORED FROM IGNORED_WORDS")
+    
+    @staticmethod
+    def get_replaced_words():
+        """
+        查询所有自定义识别词-替换词
+        """
+        return MainDb().select_by_sql("SELECT ID, REPLACED, REPLACE FROM REPLACED_WORDS")
+    
+    @staticmethod
+    def get_offset_words():
+        """
+        查询所有自定义识别词-集数偏移
+        """
+        return MainDb().select_by_sql("SELECT ID, FRONT, BACK, OFFSET FROM OFFSET_WORDS")

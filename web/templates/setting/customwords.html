@@ -1,0 +1,445 @@
+<div class="container-xl">
+  <!-- Page title -->
+  <div class="page-header d-print-none">
+    <div class="row align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          自定义识别词
+        </h2>
+      </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:show_custom_words_modal()" class="btn btn-primary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            批量编辑
+          </a>
+          <a href="javascript:show_custom_words_modal()" class="btn btn-primary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+          </a>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- 业务页面代码 -->
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row row-cards">
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><strong>屏蔽词</strong></h3>
+            <div class="card-actions btn-actions">
+              <a href="javascript:show_add_ignored_word_modal()" class="btn-action" title="增加屏蔽词">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                 <line x1="12" y1="5" x2="12" y2="19"></line>
+                 <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-vcenter card-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th class="w-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+              {% if IgnoredWords %}
+                {% for IgnoredWord in IgnoredWords %}
+                <tr>
+                  <td>{{ IgnoredWord.ignored }}</td>
+                  <td>
+                    <a href="javascript:del_custom_word('ignored', '{{ IgnoredWord.id }}')" title="删除屏蔽词">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                         <line x1="18" y1="6" x2="6" y2="18"></line>
+                         <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="4" align="center">未配置</td></tr>
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><strong>替换词</strong></h3>
+            <div class="card-actions btn-actions">
+              <a href="javascript:show_add_replaced_word_modal()" class="btn-action" title="增加替换词">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                 <line x1="12" y1="5" x2="12" y2="19"></line>
+                 <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-vcenter card-table">
+              <thead>
+                <tr>
+                  <th>被替换词</th>
+                  <th>替换词</th>
+                  <th class="w-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+              {% if ReplacedWords %}
+                {% for ReplacedWord in ReplacedWords %}
+                <tr>
+                  <td>{{ ReplacedWord.replaced }}</td>
+                  <td>{{ ReplacedWord.replace }}</td>
+                  <td>
+                    <a href="javascript:del_custom_word('replaced', '{{ ReplacedWord.id }}')" title="删除屏蔽词">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                         <line x1="18" y1="6" x2="6" y2="18"></line>
+                         <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="4" align="center">未配置</td></tr>
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><strong>集数偏移</strong></h3>
+            <div class="card-actions btn-actions">
+              <a href="javascript:show_add_offset_word_modal()" class="btn-action" title="增加集数偏移">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                 <line x1="12" y1="5" x2="12" y2="19"></line>
+                 <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-vcenter card-table">
+              <thead>
+                <tr>
+                  <th>前定位词</th>
+                  <th>后定位词</th>
+                  <th>偏移集数</th>
+                  <th class="w-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+              {% if OffsetWords %}
+                {% for OffsetWord in OffsetWords %}
+                <tr>
+                  <td>{{ OffsetWord.front }}</td>
+                  <td>{{ OffsetWord.back }}</td>
+                  <td>{{ OffsetWord.offset }}</td>
+                  <td>
+                    <a href="javascript:javascript:del_custom_word('offset', '{{ OffsetWord.id }}')" title="删除屏蔽词">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                         <line x1="18" y1="6" x2="6" y2="18"></line>
+                         <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              {% else %}
+                <tr><td colspan="4" align="center">未配置</td></tr>
+              {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-add-ignored-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">新增屏蔽词</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col">
+              <div class="mb-3">
+                <input type="text" value="" id="new_ignored_word" class="form-control" placeholder="支持正则表达式，注意转义">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a href="javascript:add_ignored_word()" id="directory_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-add-replaced-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">新增替换词</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">被替换词</label>
+                <input type="text" value="" id="new_replaced" class="form-control" placeholder="支持正则表达式，注意转义">
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="mb-3">
+                <label class="form-label required">替换词</label>
+                <input type="text" value="" id="new_replace" class="form-control" placeholder="">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a href="javascript:add_replaced_word()" id="directory_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-add-offset-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">新增集数偏移</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-5">
+              <div class="mb-3">
+                <label class="form-label required">前定位词</label>
+                <input type="text" value="" id="new_front" class="form-control" placeholder="支持正则表达式，注意转义">
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="mb-3">
+                <label class="form-label required">后定位词</label>
+                <input type="text" value="" id="new_back" class="form-control" placeholder="支持正则表达式，注意转义">
+              </div>
+            </div>
+            <div class="col-lg-2">
+              <div class="mb-3">
+                <label class="form-label required">偏移集数</label>
+                <input type="text" value="" id="new_offset" class="form-control" placeholder="正后负前">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a href="javascript:add_offset_word()" id="directory_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-custom-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">自定义识别词</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="mb-3">
+                <textarea class="form-control" id="custom_words" rows="16" placeholder=""></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a href="javascript:edit_custom_words()" id="directory_save_btn" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="text/javascript">
+  // 兼容旧配置
+  var params = {};
+  params['laboratory.ignored_words'] = '';
+  params['laboratory.replaced_words'] = '';
+  params['laboratory.offset_words'] = '';
+  ajax_post("update_config", params, function (ret) {
+  });
+
+  // 删除自定义识别词
+  function del_custom_word(flag, id){
+    ajax_post("delete_custom_word", {flag: flag, id: id}, function (ret) {
+      if(ret.code == 0){
+        navmenu('customwords');
+      }
+    });
+  }
+
+  // 显示新增屏蔽词框
+  function show_add_ignored_word_modal(flag){
+      $("#modal-add-ignored-words").modal('show');
+  }
+
+  // 显示新增替换词框
+  function show_add_replaced_word_modal(flag){
+    $("#modal-add-replaced-words").modal('show');
+  }
+
+  // 显示新增集数偏移框
+  function show_add_offset_word_modal(flag){
+    $("#modal-add-offset-words").modal('show');
+  }
+
+  // 显示批量编辑框
+  function show_custom_words_modal(){
+    var ignored_words_text = '';
+    var replaced_words_text = '';
+    var offset_words_text = '';
+    var ignored_words = {{ IgnoredWords | safe }};
+    var replaced_words = {{ ReplacedWords | safe }};
+    var offset_words = {{ OffsetWords | safe }};
+    for(ignored_word of ignored_words){
+      ignored_words_text = `${ignored_words_text}\n  - ${ignored_word.ignored}`
+    }
+    for(replaced_word of replaced_words){
+      replaced_words_text = `${replaced_words_text}\n  - ${replaced_word["replaced"]}@${replaced_word["replace"]}`
+    }
+    for(offset_word of offset_words){
+      offset_words_text = `${offset_words_text}\n  - ${offset_word["front"]}@${offset_word["back"]}@${offset_word["offset"]}`
+    }
+    var custom_words_text = `屏蔽词:${ignored_words_text}\n替换词:${replaced_words_text}\n集数偏移:${offset_words_text}`
+    $("#custom_words").text(custom_words_text);
+    $("#modal-custom-words").modal('show');
+  }
+
+  // 新增自屏蔽词
+  function add_ignored_word(){
+    var new_ignored_word = $("#new_ignored_word").val();
+    if(!new_ignored_word){
+      $("#new_ignored_word").addClass("is-invalid");
+      return;
+    }else{
+      $("#new_ignored_word").removeClass("is-invalid");
+    }
+    custom_word = new_ignored_word;
+    ajax_post("add_custom_word", {flag: "ignored", custom_word: custom_word}, function (ret) {
+      if(ret.code == 0){
+        $("#modal-add-ignored-words").modal('hide');
+        navmenu('customwords');
+      }else{
+        show_fail_modal(ret.msg);
+      }
+    });
+  }
+
+  // 新增替换词
+  function add_replaced_word(){
+    var new_replaced = $("#new_replaced").val();
+    if(!new_replaced){
+      $("#new_replaced").addClass("is-invalid");
+      return;
+    }else{
+      $("#new_replaced").removeClass("is-invalid");
+    }
+    var new_replace = $("#new_replace").val();
+    if(!new_replace){
+      $("#new_replace").addClass("is-invalid");
+      return;
+    }else{
+      $("#new_replace").removeClass("is-invalid");
+    }
+    custom_word = [new_replaced, new_replace];
+    ajax_post("add_custom_word", {flag: "replaced", custom_word: custom_word}, function (ret) {
+      if(ret.code == 0){
+        $("#modal-add-replaced-words").modal('hide');
+        navmenu('customwords');
+      }else{
+        show_fail_modal(ret.msg);
+      }
+    });
+  }
+
+  // 新增集数偏移
+  function add_offset_word(){
+    var new_front = $("#new_front").val();
+    if(!new_front){
+      $("#new_front").addClass("is-invalid");
+      return;
+    }else{
+      $("#new_front").removeClass("is-invalid");
+    }
+    var new_back = $("#new_back").val();
+    if(!new_back){
+      $("#new_back").addClass("is-invalid");
+      return;
+    }else{
+      $("#new_back").removeClass("is-invalid");
+    }
+    var new_offset = $("#new_offset").val();
+    if(!new_offset || isNaN(new_offset)){
+      $("#new_offset").addClass("is-invalid");
+      return;
+    }else{
+      $("#new_offset").removeClass("is-invalid");
+    }
+    custom_word = [new_front, new_back, new_offset];
+    $("#modal-add-offset-words").modal('hide');
+    ajax_post("add_custom_word", {flag: "offset", custom_word: custom_word}, function (ret) {
+      if(ret.code == 0){
+        $("#modal-add-offset-words").modal('hide');
+        navmenu('customwords');
+      }else{
+        show_fail_modal(ret.msg);
+      }
+    });
+  }
+
+  // 批量编辑
+  function edit_custom_words(){
+    ajax_post("edit_custom_words", $("#custom_words").val(), function (ret) {
+      if(ret.code == 0){
+        $("#modal-custom-words").modal('hide');
+        navmenu('customwords');
+      }else{
+        show_fail_modal(ret.msg);
+      }
+    });
+  }
+
+</script>
