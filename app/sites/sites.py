@@ -234,7 +234,7 @@ class Sites:
         """
         status = []
         # 浏览器
-        browser = ChromeHelper()
+        chrome = ChromeHelper()
         for site_info in self.get_sites(signin=True):
             if not site_info:
                 continue
@@ -243,16 +243,17 @@ class Sites:
                 site_url = site_info.get("signurl")
                 site_cookie = site_info.get("cookie")
                 ua = site_info.get("ua")
+                emulate = site_info.get("chrome")
                 if not site_url or not site_cookie:
                     log.warn("【Sites】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
                     continue
-                if browser.get_browser():
+                if emulate == "Y" and chrome.browser:
                     # 首页
                     log.info("【Sites】开始站点仿真签到：%s" % site)
                     home_url = "%s://%s" % StringUtils.get_url_netloc(site_url)
                     with CHROME_LOCK:
                         try:
-                            browser.visit(url=home_url, ua=ua, cookie=site_cookie)
+                            chrome.visit(url=home_url, ua=ua, cookie=site_cookie)
                         except Exception as err:
                             print(str(err))
                             log.warn("【Sites】%s 无法打开网站" % site)
@@ -261,7 +262,7 @@ class Sites:
                         # 循环检测是否过cf
                         cloudflare = False
                         for i in range(0, 10):
-                            if browser.get_title() != "Just a moment...":
+                            if chrome.get_title() != "Just a moment...":
                                 cloudflare = True
                                 break
                             time.sleep(1)
@@ -270,7 +271,7 @@ class Sites:
                             status.append("【%s】跳转站点失败！" % site)
                             continue
                         # 判断是否已签到
-                        html_text = browser.get_html()
+                        html_text = chrome.get_html()
                         if not html_text:
                             log.warn("【Sites】%s 获取站点源码失败" % site)
                             continue
@@ -296,7 +297,7 @@ class Sites:
                             continue
                         # 开始仿真
                         try:
-                            checkin_obj = WebDriverWait(driver=browser.get_browser(), timeout=6).until(
+                            checkin_obj = WebDriverWait(driver=chrome.browser, timeout=6).until(
                                 es.element_to_be_clickable((By.XPATH, xpath_str)))
                             if checkin_obj:
                                 checkin_obj.click()

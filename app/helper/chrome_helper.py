@@ -58,25 +58,25 @@ class ChromeHelper(object):
 
     def visit(self, url, ua=None, cookie=None):
         if ua:
-            self._chrome.execute_cdp_cmd("Emulation.setUserAgentOverride", {
+            self.browser.execute_cdp_cmd("Emulation.setUserAgentOverride", {
                 "userAgent": ua
             })
-        self._chrome.get(url)
+        self.browser.get(url)
         if cookie:
-            self._chrome.delete_all_cookies()
+            self.browser.delete_all_cookies()
             for cookie in RequestUtils.cookie_parse(cookie, array=True):
-                self._chrome.add_cookie(cookie)
-            self._chrome.get(url)
+                self.browser.add_cookie(cookie)
+            self.browser.get(url)
 
     def get_title(self):
-        return self._chrome.title
+        return self.browser.title
 
     def get_html(self):
-        return self._chrome.page_source
+        return self.browser.page_source
 
     def get_cookies(self):
         cookie_str = ""
-        for _cookie in self._chrome.get_cookies():
+        for _cookie in self.browser.get_cookies():
             if not _cookie:
                 continue
             cookie_str += "%s=%s;" % (_cookie.get("name"), _cookie.get("value"))
