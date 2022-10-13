@@ -134,9 +134,8 @@ class Qbittorrent(IDownloadClient):
                 continue
             content_path = torrent.get('content_path')
             if content_path:
-                trans_name = content_path[len(path):]
-                if trans_name[:1] == '/':
-                    trans_name = trans_name[1:]
+                # https://github.com/jxxghp/nas-tools/issues/1561#issuecomment-1277723365
+                trans_name = content_path[(len(os.path.normpath(path)) + 1):]
             else:
                 trans_name = torrent.get('name')
             true_path = self.get_replace_path(path)
