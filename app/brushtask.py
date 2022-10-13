@@ -9,7 +9,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 import log
 from app.helper import SqlHelper, DictHelper
-from app.sites import Sites, SiteConf
+from app.sites import Sites
 from config import BRUSH_REMOVE_TORRENTS_INTERVAL
 from app.downloader import Qbittorrent, Transmission
 from app.message import Message
@@ -565,8 +565,8 @@ class BrushTask(object):
 
         return True
 
-    @staticmethod
-    def __check_rss_rule(rss_rule,
+    def __check_rss_rule(self,
+                         rss_rule,
                          title,
                          description,
                          torrent_url,
@@ -618,7 +618,7 @@ class BrushTask(object):
                 if re.search(r"%s" % rss_rule.get("exclude"), "%s %s" % (title, description), re.IGNORECASE):
                     return False
 
-            attr_type = SiteConf.check_torrent_attr(torrent_url=torrent_url, cookie=cookie, ua=ua)
+            attr_type = self.sites.check_torrent_attr(torrent_url=torrent_url, cookie=cookie, ua=ua)
 
             log.debug("【BRUSH】%s 解析详情, %s" % (title, attr_type))
 

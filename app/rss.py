@@ -9,7 +9,7 @@ from app.message import Message
 from app.downloader.downloader import Downloader
 from app.filterrules import FilterRule
 from app.searcher import Searcher
-from app.sites import SiteConf, Sites
+from app.sites import Sites
 from app.utils import Torrent, DomUtils, RequestUtils, StringUtils
 from app.helper import MetaHelper
 from app.media import MetaInfo, Media
@@ -240,9 +240,9 @@ class Rss:
 
             # 去重择优后开始添加下载
             if rss_download_torrents:
-                download_items, left_medias = self.downloader.check_and_add_pt(SearchType.RSS,
-                                                                               rss_download_torrents,
-                                                                               rss_no_exists)
+                download_items, left_medias = self.downloader.batch_download(SearchType.RSS,
+                                                                             rss_download_torrents,
+                                                                             rss_no_exists)
                 # 批量删除订阅
                 if download_items:
                     for item in download_items:
@@ -568,35 +568,13 @@ class Rss:
                         # 种子链接
                         enclosure = DomUtils.tag_value(item, "enclosure", "url", default="")
                         if not enclosure:
-                            # 种子链接
-                            enclosure = DomUtils.tag_value(item, "link", default="")
-                            # 大小
-                            size = 0
-                            size_map = {
-                                'KiB': 1024,
-                                'MiB': 1024 * 1024,
-                                'GiB': 1024 * 1024 * 1024,
-                                'TiB': 1024 * 1024 * 1024 * 1024
-                            }
-                            site_attr = SiteConf().get_extrasite_conf(url)
-                            if site_attr == 'Unit3D':
-                                size_temp = re.search(r'Size</strong>: (\d*\.\d*|\d*)(\s)(GiB|MiB|TiB|KiB)',
-                                                      description)
-                                if size_temp:
-                                    size = int(float(size_temp.group(1)) * size_map[size_temp.group(3)])
-                            elif site_attr == 'beyondhd':
-                                size_temp = re.search(r'(\d*\.\d*|\d*) (GiB|MiB|TiB|KiB)', title)
-                                if size_temp:
-                                    size = int(float(size_temp.group(1)) * size_map[size_temp.group(2)])
-                            else:
-                                continue
+                            continue
+                        # 大小
+                        size = DomUtils.tag_value(item, "enclosure", "length", default=0)
+                        if size and str(size).isdigit():
+                            size = int(size)
                         else:
-                            # 大小
-                            size = DomUtils.tag_value(item, "enclosure", "length", default=0)
-                            if size and str(size).isdigit():
-                                size = int(size)
-                            else:
-                                size = 0
+                            size = 0
                         # 发布日期
                         pubdate = DomUtils.tag_value(item, "pubDate", default="")
                         if pubdate:
@@ -650,8 +628,8 @@ class Rss:
             target[title][index]["episodes"] = target_episodes
         return target
 
-    @staticmethod
-    def __is_torrent_match_rss(media_info,
+    def __is_torrent_match_rss(self,
+                               media_info,
                                movie_keys,
                                tv_keys,
                                site_rule,
@@ -792,7 +770,7 @@ class Rss:
         if match_flag:
             if site_parse:
                 # 检测Free
-                attr_type = SiteConf.check_torrent_attr(torrent_url=media_info.page_url, cookie=site_cookie, ua=site_ua)
+                attr_type = self.sites.check_torrent_attr(torrent_url=media_info.page_url, cookie=site_cookie, ua=site_ua)
                 if attr_type.is_free2x():
                     download_volume_factor = 0.0
                     upload_volume_factor = 2.0

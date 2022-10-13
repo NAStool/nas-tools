@@ -167,7 +167,7 @@ class Searcher:
                 if not self.__search_auto:
                     return False, no_exists, len(media_list), None
             # 择优下载
-            download_items, left_medias = self.downloader.check_and_add_pt(in_from, media_list, no_exists)
+            download_items, left_medias = self.downloader.batch_download(in_from, media_list, no_exists)
             # 统计下载情况，下全了返回True，没下全返回False
             if not download_items:
                 log.info("【SEARCHER】%s 未下载到资源" % media_info.title)

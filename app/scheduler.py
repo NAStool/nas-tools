@@ -47,7 +47,7 @@ class Scheduler:
             # 种子清理
             pt_seeding_time = self.__pt.get('pt_seeding_time')
             if pt_seeding_time:
-                self.SCHEDULER.add_job(Downloader().pt_removetorrents,
+                self.SCHEDULER.add_job(Downloader().remove_torrents,
                                        'interval',
                                        seconds=AUTO_REMOVE_TORRENTS_INTERVAL)
                 log.info("【RUN】下载器自动删种服务启动")
@@ -107,7 +107,7 @@ class Scheduler:
             # 下载文件转移
             pt_monitor = self.__pt.get('pt_monitor')
             if pt_monitor:
-                self.SCHEDULER.add_job(Downloader().pt_transfer, 'interval', seconds=PT_TRANSFER_INTERVAL)
+                self.SCHEDULER.add_job(Downloader().transfer, 'interval', seconds=PT_TRANSFER_INTERVAL)
                 log.info("【RUN】下载文件转移服务启动")
 
             # RSS下载器
