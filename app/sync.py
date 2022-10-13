@@ -339,9 +339,9 @@ class Sync(object):
                     observer.schedule(FileMonitorHandler(monpath, self), path=monpath, recursive=True)
                     observer.setDaemon(True)
                     observer.start()
-                    log.info("【RUN】%s 的监控服务启动" % monpath)
+                    log.info("%s 的监控服务启动" % monpath)
                 except Exception as e:
-                    log.error("【RUN】%s 启动目录监控失败：%s" % (monpath, str(e)))
+                    log.error("%s 启动目录监控失败：%s" % (monpath, str(e)))
 
     def stop_service(self):
         """
@@ -398,7 +398,7 @@ def run_monitor():
     try:
         Sync().run_service()
     except Exception as err:
-        log.error("【RUN】启动目录同步服务失败：%s" % str(err))
+        log.error("启动目录同步服务失败：%s" % str(err))
 
 
 def stop_monitor():
@@ -408,7 +408,7 @@ def stop_monitor():
     try:
         Sync().stop_service()
     except Exception as err:
-        log.error("【RUN】停止目录同步服务失败：%s" % str(err))
+        log.error("停止目录同步服务失败：%s" % str(err))
 
 
 def restart_monitor():

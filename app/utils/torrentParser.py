@@ -1,18 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-BitTorrent metafile handler (Bencoding/.torrent) for Python 3
-Mark "zini" Mäkinen 2014-2017 (started 24.10.2014)
-
-You are free to use this code however you want as long as you mention the original author
-See LICENSE.md
-
-See spec: http://www.bittorrent.org/beps/bep_0003.html
-
-TODO: Create reading function to simplify readDict and readList
-TODO: Cleanup
-"""
-
 import io
 import hashlib
 import urllib.parse

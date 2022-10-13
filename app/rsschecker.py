@@ -109,7 +109,7 @@ class RssChecker(object):
         if rss_flag:
             self._scheduler.print_jobs()
             self._scheduler.start()
-            log_info("【RUN】自定义订阅服务启动")
+            log_info("自定义订阅服务启动")
 
     def get_rsstask_info(self, taskid=None):
         """
