@@ -295,11 +295,12 @@ class Downloader:
         """
         根据ID或状态查询下载器中的种子信息
         :param torrent_ids: 种子ID列表
-        :return: 客户端类型，种子信息列表
+        :return: 客户端类型，种子信息列表, 是否发生异常
         """
         if not self.client:
-            return None, []
-        return self._client_type, self.client.get_torrents(ids=torrent_ids)
+            return None, [], True
+        torrent_list, has_err = self.client.get_torrents(ids=torrent_ids)
+        return self._client_type, torrent_list, has_err
 
     def start_torrents(self, ids):
         """

@@ -66,7 +66,7 @@ class Qbittorrent(IDownloadClient):
     def get_torrents(self, ids=None, status=None, tag=None):
         """
         获取种子列表
-        返回的第一个值是 种子列表，第二个值是是否发生异常
+        return: 种子列表, 是否发生异常
         """
         if not self.qbc:
             return [], True
@@ -80,13 +80,21 @@ class Qbittorrent(IDownloadClient):
             return [], True
 
     def get_completed_torrents(self, tag=None):
+        """
+        获取已完成的种子
+        return: 种子列表, 是否发生异常
+        """
         if not self.qbc:
-            return []
+            return [], True
         return self.get_torrents(status=["completed"], tag=tag)
 
     def get_downloading_torrents(self, tag=None):
+        """
+        获取正在下载的种子
+        return: 种子列表, 是否发生异常
+        """
         if not self.qbc:
-            return []
+            return [], True
         return self.get_torrents(status=["downloading"], tag=tag)
 
     def remove_torrents_tag(self, ids, tag):
