@@ -64,26 +64,40 @@ class Qbittorrent(IDownloadClient):
             return False
 
     def get_torrents(self, ids=None, status=None, tag=None):
+        """
+        获取种子列表
+        return: 种子列表, 是否发生异常
+        """
         if not self.qbc:
-            return []
+            return [], True
         try:
             torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status, tag=tag)
             if self.is_ver_less_4_4():
                 torrents = self.filter_torrent_by_tag(torrents, tag=tag)
-            return torrents or []
+            return torrents or [], False
         except Exception as err:
             print(str(err))
-            return []
+            return [], True
 
     def get_completed_torrents(self, tag=None):
+        """
+        获取已完成的种子
+        return: 种子列表, 是否发生异常
+        """
         if not self.qbc:
             return []
-        return self.get_torrents(status=["completed"], tag=tag)
+        torrents, _ = self.get_torrents(status=["completed"], tag=tag)
+        return torrents
 
     def get_downloading_torrents(self, tag=None):
+        """
+        获取正在下载的种子
+        return: 种子列表, 是否发生异常
+        """
         if not self.qbc:
             return []
-        return self.get_torrents(status=["downloading"], tag=tag)
+        torrents, _ = self.get_torrents(status=["downloading"], tag=tag)
+        return torrents
 
     def remove_torrents_tag(self, ids, tag):
         """
@@ -160,7 +174,7 @@ class Qbittorrent(IDownloadClient):
         :return: 种子ID
         """
         try:
-            torrents = self.get_torrents(status=status, tag=tag)
+            torrents, _ = self.get_torrents(status=status, tag=tag)
         except Exception as err:
             print(str(err))
             return None

@@ -427,14 +427,6 @@
               <div class="col-12 col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="laboratory.chrome_browser" {% if Config.laboratory and Config.laboratory.chrome_browser %}checked{% endif %}>
-                    <span class="form-check-label">开启浏览器仿真 <span class="form-help" title="开启后站点签到、数据统计可以兼容更多站点，但获取数据耗时会大幅增加；需要拉取含浏览器内核的镜像才能使用" data-bs-toggle="tooltip">?</span></span>
-                  </label>
-                </div>
-              </div>
-              <div class="col-12 col-xl-3">
-                <div class="mb-3">
-                  <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="laboratory.tmdb_proxy" {% if Config.laboratory and Config.laboratory.tmdb_proxy %}checked{% endif %}>
                     <span class="form-check-label">使用TMDB代理服务 <span class="form-help" title="使用内建的TMDB代理服务器转发媒体识别请求，网络无法连接TMDB时可选择开启" data-bs-toggle="tooltip">?</span></span>
                   </label>

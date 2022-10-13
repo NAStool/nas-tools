@@ -293,11 +293,12 @@ class Downloader:
         """
         根据ID或状态查询下载器中的种子信息
         :param torrent_ids: 种子ID列表
-        :return: 客户端类型，种子信息列表
+        :return: 客户端类型，种子信息列表, 是否发生异常
         """
         if not self.client:
-            return None, []
-        return self._client_type, self.client.get_torrents(ids=torrent_ids)
+            return None, [], True
+        torrent_list, _ = self.client.get_torrents(ids=torrent_ids)
+        return self._client_type, torrent_list
 
     def start_torrents(self, ids):
         """
@@ -796,10 +797,10 @@ class Downloader:
                     continue
                 if not attr.get('path'):
                     continue
-                if not os.path.exists(attr.get('path')) \
-                        or (media.size
-                            and float(SystemUtils.get_free_space_gb(attr.get('path')))
-                            < float(int(StringUtils.num_filesize(media.size)) / 1024 / 1024 / 1024)):
+                if os.path.exists(attr.get('path')) \
+                        and media.size \
+                        and float(SystemUtils.get_free_space_gb(attr.get('path'))) \
+                        < float(int(StringUtils.num_filesize(media.size)) / 1024 / 1024 / 1024):
                     continue
                 return {"path": path, "label": attr.get('label')}
         return {"path": None, "label": None}

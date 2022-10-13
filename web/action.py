@@ -778,6 +778,9 @@ class WebAction:
                                                rss_uses=rss_uses)
         # 生效站点配置
         Sites().init_config()
+        # 重置浏览器
+        ChromeHelper().init_config()
+
         return {"code": ret}
 
     @staticmethod
@@ -871,7 +874,6 @@ class WebAction:
         category_reload = False
         subtitle_reload = False
         sites_reload = False
-        chrome_reload = False
         # 修改配置
         for key, value in cfgs:
             if key == "test" and value:
@@ -898,8 +900,6 @@ class WebAction:
                 subtitle_reload = True
             if key.startswith("message.switch"):
                 sites_reload = True
-            if key.startswith("laboratory.chrome_browser"):
-                chrome_reload = True
         # 保存配置
         if not config_test:
             self.config.save_config(cfg)
@@ -931,9 +931,6 @@ class WebAction:
         # 重载站点
         if sites_reload:
             Sites().init_config()
-        # 重载浏览器
-        if chrome_reload:
-            ChromeHelper().init_config()
 
         return {"code": 0}
 
