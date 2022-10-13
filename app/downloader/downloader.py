@@ -25,7 +25,7 @@ class Downloader:
     _pt_monitor_only = None
     _download_order = None
     _pt_rmt_mode = None
-    _downloaddir = {}
+    _downloaddir = []
     message = None
     mediaserver = None
     filetransfer = None
@@ -65,7 +65,7 @@ class Downloader:
             self._download_order = pt.get("download_order")
             self._pt_rmt_mode = RMT_MODES.get(pt.get("rmt_mode", "copy"), RmtMode.COPY)
         # 下载目录配置
-        self._downloaddir = config.get_config('downloaddir') or {}
+        self._downloaddir = config.get_config('downloaddir') or []
 
     @property
     def client(self):
@@ -781,28 +781,30 @@ class Downloader:
         """
         if not self._downloaddir:
             return []
-        return self._downloaddir.keys()
+        save_path_list = [attr["save_path"] for attr in self._downloaddir if attr["save_path"]]
+        save_path_list.sort()
+        return save_path_list
 
     def __get_download_dir_info(self, media):
         """
         根据媒体信息读取一个下载目录的信息
         """
         if media and media.tmdb_info:
-            for path, attr in self._downloaddir.items():
-                if not path or not attr:
+            for attr in self._downloaddir:
+                if not attr:
                     continue
-                if attr.get('type') and attr.get('type') != media.type.value:
+                if attr["type"] and attr["type"] != media.type.value:
                     continue
-                if attr.get('category') and attr.get('category') != media.category:
+                if attr["category"] and attr["category"] != media.category:
                     continue
-                if not attr.get('path'):
+                if not attr["save_path"] and not attr["label"]:
                     continue
-                if os.path.exists(attr.get('path')) \
+                if os.path.exists(attr["container_path"]) \
                         and media.size \
-                        and float(SystemUtils.get_free_space_gb(attr.get('path'))) \
+                        and float(SystemUtils.get_free_space_gb(attr["container_path"])) \
                         < float(int(StringUtils.num_filesize(media.size)) / 1024 / 1024 / 1024):
                     continue
-                return {"path": path, "label": attr.get('label')}
+                return {"path": attr["save_path"], "label": attr["label"]}
         return {"path": None, "label": None}
 
     def get_type(self):
