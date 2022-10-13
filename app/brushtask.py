@@ -242,7 +242,11 @@ class BrushTask(object):
                 if client_type == self._qb_client:
                     downloader = Qbittorrent(user_config=downloader_cfg)
                     # 检查完成状态的
-                    torrents = downloader.get_torrents(ids=torrent_ids, status=["completed"])
+                    torrents, has_err = downloader.get_torrents(ids=torrent_ids, status=["completed"])
+                    # 看看是否有错误, 有错误的话就不处理了
+                    if has_err:
+                        log_warn("【BRUSH】任务 %s 获取种子状态失败" % task_name)
+                        continue
                     remove_torrent_ids = list(
                         set(torrent_ids).difference(set([torrent.get("hash") for torrent in torrents])))
                     for torrent in torrents:
@@ -278,7 +282,11 @@ class BrushTask(object):
                                 delete_ids.append(torrent_id)
                                 update_torrents.append(("%s,%s" % (uploaded, downloaded), taskid, torrent_id))
                     # 检查下载中状态的
-                    torrents = downloader.get_torrents(ids=torrent_ids, status=["downloading"])
+                    torrents, has_err = downloader.get_torrents(ids=torrent_ids, status=["downloading"])
+                    # 看看是否有错误, 有错误的话就不处理了
+                    if has_err:
+                        log_warn("【BRUSH】任务 %s 获取种子状态失败" % task_name)
+                        continue
                     remove_torrent_ids = list(
                         set(remove_torrent_ids).difference(set([torrent.get("hash") for torrent in torrents])))
                     for torrent in torrents:

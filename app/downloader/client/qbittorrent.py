@@ -64,16 +64,20 @@ class Qbittorrent(IDownloadClient):
             return False
 
     def get_torrents(self, ids=None, status=None, tag=None):
+        """
+        获取种子列表
+        返回的第一个值是 种子列表，第二个值是是否发生异常
+        """
         if not self.qbc:
-            return []
+            return [], True
         try:
             torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status, tag=tag)
             if self.is_ver_less_4_4():
                 torrents = self.filter_torrent_by_tag(torrents, tag=tag)
-            return torrents or []
+            return torrents or [], False
         except Exception as err:
             print(str(err))
-            return []
+            return [], True
 
     def get_completed_torrents(self, tag=None):
         if not self.qbc:
