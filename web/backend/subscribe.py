@@ -17,7 +17,9 @@ def add_rss_subscribe(mtype, name, year,
                       rss_team=None,
                       rss_rule=None,
                       state="D",
-                      rssid=None):
+                      rssid=None,
+                      total_ep=None,
+                      current_ep=None):
     """
     添加电影、电视剧订阅
     :param mtype: 类型，电影、电视剧、动漫
@@ -36,6 +38,8 @@ def add_rss_subscribe(mtype, name, year,
     :param rss_rule: 关键字过滤
     :param state: 添加订阅时的状态
     :param rssid: 修改订阅时传入
+    :param total_ep: 总集数
+    :param current_ep: 开始订阅集数
     :return: 错误码：0代表成功，错误信息
     """
     if not name:
@@ -118,7 +122,9 @@ def add_rss_subscribe(mtype, name, year,
                                     rss_team=rss_team,
                                     rss_rule=rss_rule,
                                     state=state,
-                                    match=match)
+                                    match=match,
+                                    total_ep=total_ep,
+                                    current_ep=current_ep)
         else:
             if rssid:
                 SqlHelper.delete_rss_movie(rssid=rssid)
@@ -164,6 +170,8 @@ def add_rss_subscribe(mtype, name, year,
                                     rss_pix=rss_pix,
                                     rss_team=rss_team,
                                     rss_rule=rss_rule,
-                                    match=match)
+                                    match=match,
+                                    total_ep=total_ep,
+                                    current_ep=current_ep)
 
     return 0, "添加订阅成功", media_info

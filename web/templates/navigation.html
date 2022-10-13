@@ -916,18 +916,29 @@
           </div>
           <div class="card-body">
             <div class="row">
-              <label class="form-label required">标题</label>
+              <label class="form-label required">标题/年份</label>
               <div class="row mb-3">
-                <div class="col-12 col-lg mb-1">
+                <div class="col-12 col-lg-8 mb-1">
                   <input type="text" value="" id="rss_name" class="form-control" placeholder="标题">
                 </div>
-                <div class="col-12 col-lg mb-1">
+                <div class="col-12 col-lg-4 mb-1">
                   <input type="text" value="" id="rss_year" class="form-control" placeholder="年份">
                 </div>
-                <div class="col-12 col-lg mb-1" id="rss_tv_season_div">
-                  <select class="form-select" id="rss_season">
-                    <option value="" selected>请选择</option>
-                  </select>
+              </div>
+            </div>
+            <div class="row" id="rss_tv_season_div">
+              <label class="form-label required">季集</label>
+              <div class="row mb-3">
+                <div class="col-12 col-lg mb-1">
+                <select class="form-select" id="rss_season">
+                  <option value="" selected>请选择</option>
+                </select>
+              </div>
+                <div class="col-12 col-lg mb-1">
+                  <input type="text" value="" id="rss_total_ep" class="form-control" placeholder="总集数">
+                </div>
+                <div class="col-12 col-lg mb-1">
+                  <input type="text" value="" id="rss_current_ep" class="form-control" placeholder="开始订阅集数">
                 </div>
               </div>
             </div>
@@ -1364,6 +1375,20 @@
       var name = $("#rss_name").val();
       var year = $("#rss_year").val();
       var season = $("#rss_season").val();
+      var total_ep = $("#rss_total_ep").val();
+      if (total_ep && isNaN(total_ep)) {
+        $("#rss_total_ep").addClass("is-invalid");
+        return;
+      } else {
+        $("#rss_total_ep").removeClass("is-invalid");
+      }
+      var current_ep = $("#rss_current_ep").val();
+      if (current_ep && isNaN(current_ep)) {
+        $("#rss_current_ep").addClass("is-invalid");
+        return;
+      } else {
+        $("#rss_current_ep").removeClass("is-invalid");
+      }
       var match = $("#key_match").prop("checked");
       var rss_restype = $("#rss_restype").val();
       var rss_pix = $("#rss_pix").val();
@@ -1438,6 +1463,8 @@
                   "rss_team": rss_team,
                   "rss_rule": rss_rule,
                   "over_edition": over_edition,
+                  "total_ep": total_ep,
+                  "current_ep": current_ep,
                   "rssid": rssid,
                   "tmdbid": tmdbid,
                   "doubanid": doubanid};
@@ -1542,6 +1569,12 @@
               $("#rss_season").val(parseInt(ret.detail.season.replace("S", "")));
             }else{
               $("#rss_season").val("");
+            }
+            if(ret.detail.total_ep){
+              $("#rss_total_ep").val(ret.detail.total_ep);
+            }
+            if(ret.detail.current_ep){
+              $("#rss_current_ep").val(ret.detail.current_ep);
             }
           }
           $("#rss_name").attr("readonly", true);
