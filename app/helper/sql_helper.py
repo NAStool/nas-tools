@@ -156,6 +156,7 @@ class SqlHelper:
                                             StringUtils.str_sql(media_info.year),
                                             media_info.get_season_string(),
                                             media_info.get_episode_string()))
+
     @staticmethod
     def simple_insert_rss_torrents(title, enclosure):
         """
@@ -164,7 +165,7 @@ class SqlHelper:
         sql = "INSERT INTO RSS_TORRENTS(TORRENT_NAME, ENCLOSURE) " \
               "VALUES (?, ?)"
         return MainDb().update_by_sql(sql, (title, enclosure))
-    
+
     @staticmethod
     def simple_delete_rss_torrents(title, enclosure):
         """
@@ -172,7 +173,6 @@ class SqlHelper:
         """
         sql = "DELETE FROM RSS_TORRENTS WHERE TORRENT_NAME = ? AND ENCLOSURE = ?"
         return MainDb().update_by_sql(sql, (title, enclosure))
-        
 
     @staticmethod
     def insert_douban_media_state(media, state):
@@ -767,7 +767,9 @@ class SqlHelper:
                       rss_pix=None,
                       rss_team=None,
                       rss_rule=None,
-                      match=False
+                      match=False,
+                      total_ep=None,
+                      current_ep=None
                       ):
         """
         新增RSS电视剧
@@ -790,7 +792,9 @@ class SqlHelper:
                          "@".join([StringUtils.str_sql(rss_restype),
                                    StringUtils.str_sql(rss_pix),
                                    StringUtils.str_sql(rss_rule),
-                                   StringUtils.str_sql(rss_team)])])
+                                   StringUtils.str_sql(rss_team)]),
+                         "@".join([StringUtils.str_sql(total_ep),
+                                   StringUtils.str_sql(current_ep)])])
         return MainDb().update_by_sql(sql, (StringUtils.str_sql(media_info.title),
                                             StringUtils.str_sql(media_info.year),
                                             season_str,

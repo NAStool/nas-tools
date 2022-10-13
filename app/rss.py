@@ -67,20 +67,20 @@ class Rss:
             check_sites = []
             check_all = False
             for movie in movie_keys:
-                rss_sites, _, _, _ = Torrent.get_rss_note_item(movie[4])
-                if not rss_sites:
+                rss_info = Torrent.get_rss_note_item(movie[4])
+                if not rss_info.get("rss_sites"):
                     check_all = True
                     break
                 else:
-                    check_sites += rss_sites
+                    check_sites += rss_info.get("rss_sites")
             if not check_all:
                 for tv in tv_keys:
-                    rss_sites, _, _, _ = Torrent.get_rss_note_item(tv[5])
-                    if not rss_sites:
+                    rss_info = Torrent.get_rss_note_item(tv[5])
+                    if not rss_info.get("rss_sites"):
                         check_all = True
                         break
                     else:
-                        check_sites += rss_sites
+                        check_sites += rss_info.get("rss_sites")
             if check_all:
                 check_sites = []
 
@@ -154,7 +154,7 @@ class Rss:
                                                     site_order=order_seq,
                                                     enclosure=enclosure)
                         # 检查种子是否匹配订阅，返回匹配到的订阅ID、是否洗版、总集数、上传因子、下载因子
-                        match_rssid, over_edition, total_episodes, res_order, upload_volume_factor, download_volume_factor, season = self.__is_torrent_match_rss(
+                        match_rssid, match_info = self.__is_torrent_match_rss(
                             media_info=media_info,
                             movie_keys=movie_keys,
                             tv_keys=tv_keys,
@@ -173,7 +173,7 @@ class Rss:
                             # 如果是电影
                             if media_info.type == MediaType.MOVIE:
                                 # 非洗版时检查是否存在
-                                if not over_edition:
+                                if not match_info.get("over_edition"):
                                     exist_flag, rss_no_exists, _ = self.downloader.check_exists_medias(
                                         meta_info=media_info,
                                         no_exists=rss_no_exists)
@@ -184,15 +184,26 @@ class Rss:
                             # 如果是电视剧
                             else:
                                 # 从登记薄中获取缺失剧集
+                                if rss_info.get("episode_info", {}).get("total"):
+                                    total_ep = int(rss_info.get("episode_info", {}).get("total"))
+                                else:
+                                    total_ep = match_info.get("total_episodes")
                                 episodes = SqlHelper.get_rss_tv_episodes(match_rssid)
                                 if episodes is None:
+                                    current_episode = int(rss_info.get("episode_info", {}).get("current"))
+                                    if current_episode:
+                                        episodes = list(range(current_episode, total_ep + 1))
+                                    else:
+                                        episodes = []
                                     rss_no_exists[media_info.tmdb_id] = [
-                                        {"season": season, "episodes": [],
-                                         "total_episodes": total_episodes}]
+                                        {"season": season,
+                                         "episodes": episodes,
+                                         "total_episodes": total_ep}]
                                 elif episodes:
                                     rss_no_exists[media_info.tmdb_id] = [
-                                        {"season": season, "episodes": episodes,
-                                         "total_episodes": total_episodes}]
+                                        {"season": season,
+                                         "episodes": episodes,
+                                         "total_episodes": total_ep}]
                                 else:
                                     log_info("【RSS】电视剧 %s%s 已全部订阅完成，删除订阅..." % (
                                         media_info.title, media_info.get_season_string()))
@@ -201,9 +212,10 @@ class Rss:
                                     self.message.send_rss_finished_message(media_info)
                                     continue
                                 # 非洗版时检查本地媒体库情况
-                                if not over_edition:
+                                if not match_info.get("over_edition"):
                                     exist_flag, library_no_exists, _ = self.downloader.check_exists_medias(
-                                        meta_info=media_info)
+                                        meta_info=media_info,
+                                        total_ep={season: total_ep})
                                     # 当前剧集已存在，跳过
                                     if exist_flag:
                                         # 已全部存在
@@ -218,12 +230,12 @@ class Rss:
                                                                              source=library_no_exists,
                                                                              title=media_info.tmdb_id)
                                     if rss_no_exists.get(media_info.tmdb_id):
-                                        log_info("【RSS】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                                      rss_no_exists.get(media_info.tmdb_id)))
+                                        log_info("【RSS】%s 订阅缺失季集：%s" % (media_info.get_title_string(),
+                                                                        rss_no_exists.get(media_info.tmdb_id)))
                         # 返回对象
-                        media_info.set_torrent_info(res_order=res_order,
-                                                    download_volume_factor=download_volume_factor,
-                                                    upload_volume_factor=upload_volume_factor,
+                        media_info.set_torrent_info(res_order=match_info.get("res_order"),
+                                                    download_volume_factor=match_info.get("download_volume_factor"),
+                                                    upload_volume_factor=match_info.get("upload_volume_factor"),
                                                     rssid=match_rssid,
                                                     description=description)
                         # 插入数据库
@@ -321,7 +333,7 @@ class Rss:
             # 开始搜索
             SqlHelper.update_rss_movie_state(rssid=rssid, state='S')
             # 搜索站点、洗版、过滤条件
-            _, sites, over_edition, filter_map = Torrent.get_rss_note_item(movie[4])
+            rss_info = Torrent.get_rss_note_item(movie[4])
             # 识别
             media_info = self.__get_media_info(tmdbid, name, year, MediaType.MOVIE)
             # 未识别到媒体信息
@@ -329,7 +341,7 @@ class Rss:
                 SqlHelper.update_rss_movie_state(rssid=rssid, state='R')
                 continue
             # 非洗版的情况检查是否存在
-            if not over_edition:
+            if not rss_info.get("over_edition"):
                 # 检查是否存在
                 exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info)
                 # 已经存在
@@ -345,8 +357,8 @@ class Rss:
                 media_info=media_info,
                 in_from=SearchType.RSS,
                 no_exists=no_exists,
-                sites=sites,
-                filters=filter_map)
+                sites=rss_info.get("search_sites"),
+                filters=rss_info.get("filter_map"))
             if search_result:
                 log_info("【RSS】电影 %s 下载完成，删除订阅..." % name)
                 SqlHelper.delete_rss_movie(rssid=rssid)
@@ -378,7 +390,7 @@ class Rss:
             # 开始搜索
             SqlHelper.update_rss_tv_state(rssid=rssid, state='S')
             # 搜索站点、洗版、过滤条件
-            _, sites, over_edition, filter_map = Torrent.get_rss_note_item(tv[5])
+            rss_info = Torrent.get_rss_note_item(tv[5])
             # 开始识别
             media_info = self.__get_media_info(tmdbid, name, year, MediaType.TV)
             # 未识别到媒体信息
@@ -389,13 +401,26 @@ class Rss:
             media_info.begin_season = int(season.replace("S", ""))
 
             # 从登记薄中获取缺失剧集
+            if rss_info.get("episode_info", {}).get("total"):
+                total_ep = int(rss_info.get("episode_info", {}).get("total"))
+            else:
+                total_ep = total
             episodes = SqlHelper.get_rss_tv_episodes(rssid)
             if episodes is None:
+                current_episode = int(rss_info.get("episode_info", {}).get("current"))
+                if current_episode:
+                    episodes = list(range(current_episode, total_ep + 1))
+                else:
+                    episodes = []
                 no_exists = {media_info.tmdb_id: [
-                    {"season": media_info.begin_season, "episodes": [], "total_episodes": total}]}
+                    {"season": media_info.begin_season,
+                     "episodes": episodes,
+                     "total_episodes": total_ep}]}
             elif episodes:
                 no_exists = {media_info.tmdb_id: [
-                    {"season": media_info.begin_season, "episodes": episodes, "total_episodes": total}]}
+                    {"season": media_info.begin_season,
+                     "episodes": episodes,
+                     "total_episodes": total_ep}]}
             else:
                 log_info("【RSS】电视剧 %s%s 已全部订阅完成，删除订阅..." % (name, season))
                 SqlHelper.delete_rss_tv(rssid=rssid)
@@ -404,9 +429,10 @@ class Rss:
                 continue
 
             # 非洗版的情况检查是否存在
-            if not over_edition:
+            if not rss_info.get("over_edition"):
                 # 检查是否存在，电视剧返回不存在的集清单
-                exist_flag, library_no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info)
+                exist_flag, library_no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
+                                                                                       total_ep={media_info.begin_season: total_ep})
                 # 已经存在
                 if exist_flag:
                     # 已全部存在
@@ -420,16 +446,16 @@ class Rss:
                                                      source=library_no_exists,
                                                      title=media_info.tmdb_id)
                 if no_exists.get(media_info.tmdb_id):
-                    log_info("【RSS】%s 缺失季集：%s" % (media_info.get_title_string(),
-                                                  no_exists.get(media_info.tmdb_id)))
+                    log_info("【RSS】%s 订阅缺失季集：%s" % (media_info.get_title_string(),
+                                                    no_exists.get(media_info.tmdb_id)))
 
             # 开始检索
             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
                 media_info=media_info,
                 in_from=SearchType.RSS,
                 no_exists=no_exists,
-                sites=sites,
-                filters=filter_map)
+                sites=rss_info.get("search_sites"),
+                filters=rss_info.get("filter_map"))
             if not no_exists or not no_exists.get(media_info.tmdb_id):
                 # 没有剩余或者剩余缺失季集中没有当前标题，说明下完了
                 log_info("【RSS】电视剧 %s 下载完成，删除订阅..." % name)
@@ -669,15 +695,16 @@ class Rss:
                 tmdbid = key_info[2]
                 rssid = key_info[6]
                 # 订阅站点，是否洗板，过滤字典
-                sites, _, over_edition, filter_map = Torrent.get_rss_note_item(key_info[4])
+                rss_info = Torrent.get_rss_note_item(key_info[4])
                 # 订阅有指定过滤规则时优先使用订阅的
-                if filter_map and filter_map.get("rule"):
-                    rulegroup = filter_map.get("rule")
+                if rss_info.get("filter_map") and rss_info.get("filter_map").get("rule"):
+                    rulegroup = rss_info.get("filter_map").get("rule")
                 # 过滤订阅站点
-                if sites and media_info.site not in sites:
+                if rss_info.get("rss_sites") and media_info.site not in rss_info.get("rss_sites"):
                     continue
                 # 过滤字典
-                if filter_map and not Torrent.check_torrent_filter(media_info, filter_map):
+                if rss_info.get("filter_map") and not Torrent.check_torrent_filter(media_info,
+                                                                                   rss_info.get("filter_map")):
                     continue
                 # 有tmdbid时使用TMDBID匹配
                 if tmdbid:
@@ -720,15 +747,16 @@ class Rss:
                 rssid = key_info[10]
                 total_episodes = key_info[6]
                 # 订阅站点
-                sites, _, over_edition, filter_map = Torrent.get_rss_note_item(key_info[5])
+                rss_info = Torrent.get_rss_note_item(key_info[5])
                 # 订阅有指定过滤规则时优先使用订阅的
-                if filter_map and filter_map.get("rule"):
-                    rulegroup = filter_map.get("rule")
+                if rss_info.get("filter_map") and rss_info.get("filter_map").get("rule"):
+                    rulegroup = rss_info.get("filter_map").get("rule")
                 # 过滤订阅站点
-                if sites and media_info.site not in sites:
+                if rss_info.get("rss_sites") and media_info.site not in rss_info.get("rss_sites"):
                     continue
                 # 过滤字典
-                if filter_map and not Torrent.check_torrent_filter(media_info, filter_map):
+                if rss_info.get("filter_map") and not Torrent.check_torrent_filter(media_info,
+                                                                                   rss_info.get("filter_map")):
                     continue
                 # 有tmdbid时精确匹配
                 if tmdbid:
@@ -770,7 +798,8 @@ class Rss:
         if match_flag:
             if site_parse:
                 # 检测Free
-                attr_type = self.sites.check_torrent_attr(torrent_url=media_info.page_url, cookie=site_cookie, ua=site_ua)
+                attr_type = self.sites.check_torrent_attr(torrent_url=media_info.page_url, cookie=site_cookie,
+                                                          ua=site_ua)
                 if attr_type.is_free2x():
                     download_volume_factor = 0.0
                     upload_volume_factor = 2.0
@@ -794,18 +823,33 @@ class Rss:
                     f"大小：{StringUtils.str_filesize(media_info.size)} "
                     f"促销：{media_info.get_volume_factor_string()} "
                     f"不符合过滤规则：{rule_name}")
-                return None, None, total_episodes, res_order, upload_volume_factor, download_volume_factor, season
+                return None, {"over_edition": None,
+                              "total_episodes": total_episodes,
+                              "res_order": res_order,
+                              "upload_volume_factor": upload_volume_factor,
+                              "download_volume_factor": download_volume_factor,
+                              "season": season}
             else:
                 log_info("【RSS】%s 识别为 %s %s 匹配订阅成功" % (media_info.org_string,
                                                        media_info.get_title_string(),
                                                        media_info.get_season_episode_string()))
                 log_info("【RSS】种子描述：%s" % media_info.subtitle)
-                return rssid, over_edition, total_episodes, res_order, upload_volume_factor, download_volume_factor, season
+                return rssid, {"over_edition": over_edition,
+                               "total_episodes": total_episodes,
+                               "res_order": res_order,
+                               "upload_volume_factor": upload_volume_factor,
+                               "download_volume_factor": download_volume_factor,
+                               "season": season}
         else:
             log_info("【RSS】%s 识别为 %s %s 不在订阅范围" % (media_info.org_string,
                                                    media_info.get_title_string(),
                                                    media_info.get_season_episode_string()))
-            return None, None, total_episodes, res_order, upload_volume_factor, download_volume_factor, season
+            return None, {"over_edition": None,
+                          "total_episodes": total_episodes,
+                          "res_order": res_order,
+                          "upload_volume_factor": upload_volume_factor,
+                          "download_volume_factor": download_volume_factor,
+                          "season": season}
 
 
 def log_info(text):

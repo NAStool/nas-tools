@@ -543,15 +543,18 @@ class Downloader:
         # 返回下载的资源，剩下没下完的
         return return_items, need_tvs
 
-    def check_exists_medias(self, meta_info, no_exists=None):
+    def check_exists_medias(self, meta_info, no_exists=None, total_ep=None):
         """
         检查媒体库，查询是否存在，对于剧集同时返回不存在的季集信息
         :param meta_info: 已识别的媒体信息，包括标题、年份、季、集信息
         :param no_exists: 在调用该方法前已经存储的不存在的季集信息，有传入时该函数检索的内容将会叠加后输出
+        :param total_ep: 各季的总集数
         :return: 当前媒体是否缺失，各标题总的季集和缺失的季集，需要发送的消息
         """
         if not no_exists:
             no_exists = {}
+        if not total_ep:
+            total_ep = {}
         # 查找的季
         if not meta_info.begin_season:
             search_season = None
@@ -574,7 +577,10 @@ class Downloader:
                 total_seasons = []
                 if search_season:
                     for season in search_season:
-                        episode_num = self.media.get_tmdb_season_episodes_num(tv_info=tv_info, sea=season)
+                        if total_ep.get(season):
+                            episode_num = total_ep.get(season)
+                        else:
+                            episode_num = self.media.get_tmdb_season_episodes_num(tv_info=tv_info, sea=season)
                         if not episode_num:
                             log.info("【DOWNLOADER】%s 第%s季 不存在" % (meta_info.get_title_string(), season))
                             message_list.append("%s 第%s季 不存在" % (meta_info.get_title_string(), season))

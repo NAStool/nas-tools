@@ -993,6 +993,8 @@ class WebAction:
         rss_team = data.get("rss_team")
         rss_rule = data.get("rss_rule")
         rssid = data.get("rssid")
+        total_ep = data.get("total_ep")
+        current_ep = data.get("current_ep")
         if name and mtype:
             if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV', '电影']:
                 mtype = MediaType.MOVIE
@@ -1016,7 +1018,9 @@ class WebAction:
                                                           rss_pix=rss_pix,
                                                           rss_team=rss_team,
                                                           rss_rule=rss_rule,
-                                                          rssid=rssid)
+                                                          rssid=rssid,
+                                                          total_ep=total_ep,
+                                                          current_ep=current_ep)
                 if code != 0:
                     break
         else:
@@ -1407,30 +1411,30 @@ class WebAction:
             rss = SqlHelper.get_rss_movies(rssid=rssid)
             if not rss:
                 return {"code": 1}
-            r_sites, s_sites, over_edition, filter_map = Torrent.get_rss_note_item(rss[0][4])
+            rss_info = Torrent.get_rss_note_item(rss[0][4])
             rssdetail = {"rssid": rssid,
                          "name": rss[0][0],
                          "year": rss[0][1],
                          "tmdbid": rss[0][2],
-                         "r_sites": r_sites,
-                         "s_sites": s_sites,
-                         "over_edition": over_edition,
-                         "filter": filter_map,
+                         "r_sites": rss_info.get("rss_sites"),
+                         "s_sites": rss_info.get("search_sites"),
+                         "over_edition": rss_info.get("over_edition"),
+                         "filter": rss_info.get("filter_map"),
                          "type": "MOV"}
         else:
             rss = SqlHelper.get_rss_tvs(rssid=rssid)
             if not rss:
                 return {"code": 1}
-            r_sites, s_sites, over_edition, filter_map = Torrent.get_rss_note_item(rss[0][5])
+            rss_info = Torrent.get_rss_note_item(rss[0][5])
             rssdetail = {"rssid": rssid,
                          "name": rss[0][0],
                          "year": rss[0][1],
                          "season": rss[0][2],
                          "tmdbid": rss[0][3],
-                         "r_sites": r_sites,
-                         "s_sites": s_sites,
-                         "over_edition": over_edition,
-                         "filter": filter_map,
+                         "r_sites": rss_info.get("rss_sites"),
+                         "s_sites": rss_info.get("search_sites"),
+                         "over_edition": rss_info.get("over_edition"),
+                         "filter": rss_info.get("filter_map"),
                          "type": "TV"}
 
         return {"code": 0, "detail": rssdetail}
@@ -1982,11 +1986,11 @@ class WebAction:
     def parse_sites_string(notes):
         if not notes:
             return ""
-        rss_sites, search_sites, _, _ = Torrent.get_rss_note_item(notes)
+        rss_info = Torrent.get_rss_note_item(notes)
         rss_site_htmls = ['<span class="badge bg-lime me-1 mb-1" title="订阅站点">%s</span>' % s for s in
-                          rss_sites if s]
+                          rss_info.get("rss_sites") if s]
         search_site_htmls = ['<span class="badge bg-yellow me-1 mb-1" title="搜索站点">%s</span>' % s for s in
-                             search_sites if s]
+                             rss_info.get("search_sites") if s]
 
         return "".join(rss_site_htmls) + "".join(search_site_htmls)
 
@@ -1994,22 +1998,22 @@ class WebAction:
     def parse_filter_string(notes):
         if not notes:
             return ""
-        _, _, over_edition, filter_map = Torrent.get_rss_note_item(notes)
+        rss_info = Torrent.get_rss_note_item(notes)
         filter_htmls = []
-        if over_edition:
+        if rss_info.get("over_edition"):
             filter_htmls.append('<span class="badge badge-outline text-red me-1 mb-1" title="已开启洗版">洗版</span>')
-        if filter_map.get("restype"):
+        if rss_info.get("filter_map") and rss_info.get("filter_map").get("restype"):
             filter_htmls.append(
-                '<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % filter_map.get("restype"))
-        if filter_map.get("pix"):
+                '<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % rss_info.get("filter_map").get("restype"))
+        if rss_info.get("filter_map") and rss_info.get("filter_map").get("pix"):
             filter_htmls.append(
-                '<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % filter_map.get("pix"))
-        if filter_map.get("team"):
+                '<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % rss_info.get("filter_map").get("pix"))
+        if rss_info.get("filter_map") and rss_info.get("filter_map").get("team"):
             filter_htmls.append(
-                '<span class="badge badge-outline text-blue me-1 mb-1">%s</span>' % filter_map.get("team"))
-        if filter_map.get("rule"):
+                '<span class="badge badge-outline text-blue me-1 mb-1">%s</span>' % rss_info.get("filter_map").get("team"))
+        if rss_info.get("filter_map") and rss_info.get("filter_map").get("rule"):
             filter_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' %
-                                FilterRule().get_rule_groups(groupid=filter_map.get("rule")).get("name") or "")
+                                FilterRule().get_rule_groups(groupid=rss_info.get("filter_map").get("rule")).get("name") or "")
         return "".join(filter_htmls)
 
     @staticmethod
