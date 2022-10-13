@@ -361,18 +361,21 @@ class MainDb:
             # 自定义识别词-屏蔽词表
             cursor.execute('''CREATE TABLE IF NOT EXISTS IGNORED_WORDS 
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                                   IGNORED    TEXT);''')
+                                   IGNORED    TEXT,
+                                   NOTE     TEXT);''')
             # 自定义识别词-替换词表
             cursor.execute('''CREATE TABLE IF NOT EXISTS REPLACED_WORDS 
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
                                    REPLACED    TEXT,
-                                   REPLACE    TEXT);''')
+                                   REPLACE    TEXT,
+                                   NOTE     TEXT);''')
             # 自定义识别词-集数偏移表
             cursor.execute('''CREATE TABLE IF NOT EXISTS OFFSET_WORDS 
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
                                    FRONT    TEXT,
                                    BACK    TEXT,
-                                   OFFSET    TEXT);''')
+                                   OFFSET    TEXT,
+                                   NOTE     TEXT);''')
             # 提交
             conn.commit()
 
