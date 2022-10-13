@@ -2363,7 +2363,6 @@ class WebAction:
     
     @staticmethod
     def __edit_custom_words(data):
-        print(data)
         try:
             custom_words = YAML().load(data)
             ignored_words = custom_words.get("屏蔽词")
