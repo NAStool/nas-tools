@@ -163,7 +163,7 @@ class WebAction:
             "/ptr": {"func": Downloader().pt_removetorrents, "desp": "删种"},
             "/ptt": {"func": Downloader().pt_transfer, "desp": "下载文件转移"},
             "/pts": {"func": Sites().signin, "desp": "站点签到"},
-            "/rst": {"func": Sync().transfer_all_sync, "desp": "监控目录全量同步"},
+            "/rst": {"func": Sync().transfer_all_sync, "desp": "目录同步"},
             "/rss": {"func": Rss().rssdownload, "desp": "RSS订阅"},
             "/db": {"func": DouBan().sync, "desp": "豆瓣同步"}
         }
@@ -176,7 +176,7 @@ class WebAction:
                     return
             # 启动服务
             ThreadHelper().start_thread(command.get("func"), ())
-            Message().send_channel_msg(channel=in_from, title="%s 已启动" % command.get("desp"))
+            Message().send_channel_msg(channel=in_from, title="正在运行 %s ..." % command.get("desp"))
         else:
             # 检查用户权限
             if in_from == SearchType.TG and user_id:
