@@ -46,4 +46,4 @@ class FlaskApp:
                     use_reloader=False
                 )
         except Exception as err:
-            log.error("【RUN】启动web服务失败：%s" % str(err))
+            log.error("启动web服务失败：%s" % str(err))

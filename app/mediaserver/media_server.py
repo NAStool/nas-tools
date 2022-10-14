@@ -2,7 +2,7 @@ import threading
 
 import log
 from app.db import MediaDb
-from app.helper import ProgressController
+from app.helper import ProgressHelper
 from app.utils.types import MediaServerType
 from config import Config
 from app.mediaserver import Emby, Jellyfin, Plex
@@ -19,7 +19,7 @@ class MediaServer:
 
     def __init__(self):
         self.mediadb = MediaDb()
-        self.progress = ProgressController()
+        self.progress = ProgressHelper()
         self.init_config()
 
     def init_config(self):

@@ -16,17 +16,17 @@ from app.utils import RequestUtils
 
 class SiteUserInfoFactory(object):
     @staticmethod
-    def build(url, site_name, site_cookie=None, ua=None):
+    def build(url, site_name, site_cookie=None, ua=None, emulate=None):
         if not site_cookie:
             return None
         log.debug(f"【Sites】站点 {site_name} site_cookie={site_cookie} ua={ua}")
         session = requests.Session()
         # 检测环境，有浏览器内核的优先使用仿真签到
-        browser = ChromeHelper()
-        if browser.get_browser():
+        chrome = ChromeHelper()
+        if emulate and chrome.get_status():
             with CHROME_LOCK:
                 try:
-                    browser.visit(url=url, ua=ua, cookie=site_cookie)
+                    chrome.visit(url=url, ua=ua, cookie=site_cookie)
                 except Exception as err:
                     print(str(err))
                     log.error("【Sites】%s 无法打开网站" % site_name)
@@ -34,7 +34,7 @@ class SiteUserInfoFactory(object):
                 # 循环检测是否过cf
                 cloudflare = False
                 for i in range(0, 10):
-                    if browser.get_title() != "Just a moment...":
+                    if chrome.get_title() != "Just a moment...":
                         cloudflare = True
                         break
                     time.sleep(1)
@@ -42,7 +42,7 @@ class SiteUserInfoFactory(object):
                     log.error("【Sites】%s 跳转站点失败" % site_name)
                     return None
                 # 判断是否已签到
-                html_text = browser.get_html()
+                html_text = chrome.get_html()
         else:
             res = RequestUtils(cookies=site_cookie, session=session, headers=ua).get_res(url=url)
             if res and res.status_code == 200:

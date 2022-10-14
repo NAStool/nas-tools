@@ -1,9 +1,10 @@
+import os.path
 import re
 from urllib.parse import quote
-
 import bencode
 from lxml import etree
 
+from app.utils.torrentParser import TorrentParser
 from config import TORRENT_SEARCH_PARAMS
 from app.utils import RequestUtils
 
@@ -86,6 +87,26 @@ class Torrent:
             return None, "下载种子文件出现异常：%s，可能站点Cookie已过期或触发了站点首次种子下载" % str(err)
 
     @staticmethod
+    def save_torrent_file(url, path, cookie, ua):
+        """
+        下载种子并保存到文件，返回文件路径
+        """
+        if not os.path.exists(path):
+            os.makedirs(path)
+        # 下载种子
+        ret = RequestUtils(cookies=cookie, headers=ua).get_res(url)
+        if ret and ret.status_code == 200:
+            file_name = re.findall(r"filename=\"(.+)\"", ret.headers.get('content-disposition'))[0]
+            file_path = os.path.join(path, file_name)
+            with open(file_path, 'wb') as f:
+                f.write(ret.content)
+        elif not ret:
+            return None
+        else:
+            return None
+        return file_path
+
+    @staticmethod
     def check_torrent_filter(meta_info, filter_args, uploadvolumefactor=None, downloadvolumefactor=None):
         """
         对种子进行过滤
@@ -130,7 +151,7 @@ class Torrent:
         解析订阅的NOTE字段，从中获取订阅站点、搜索站点、是否洗版、订阅质量、订阅分辨率、订阅制作组/字幕组、过滤规则等信息
         DESC字段组成：RSS站点#搜索站点#是否洗版(Y/N)#过滤条件，站点用|分隔多个站点，过滤条件用@分隔多个条件
         :param desc: RSS订阅DESC字段的值
-        :return: 订阅站点、搜索站点、是否洗版、过滤字典
+        :return: 订阅站点、搜索站点、是否洗版、过滤字典、总集数，当前集数
         """
         if not desc:
             return [], [], False, {}
@@ -141,6 +162,8 @@ class Torrent:
         rss_pix = None
         rss_team = None
         rss_rule = None
+        total_episode = None
+        current_episode = None
         notes = str(desc).split('#')
         # 订阅站点
         if len(notes) > 0:
@@ -168,11 +191,25 @@ class Torrent:
                     rss_rule = filters[2]
                 if len(filters) > 3:
                     rss_team = filters[3]
-
-        return rss_sites, search_sites, over_edition, {"restype": rss_restype,
-                                                       "pix": rss_pix,
-                                                       "rule": rss_rule,
-                                                       "team": rss_team}
+        # 总集数及当前集数
+        if len(notes) > 4:
+            if notes[4]:
+                episode_info = notes[4].split('@')
+                if len(episode_info) > 0:
+                    total_episode = episode_info[0]
+                if len(episode_info) > 1:
+                    current_episode = episode_info[1]
+        return {
+            "rss_sites": rss_sites,
+            "search_sites": search_sites,
+            "over_edition": over_edition,
+            "filter_map": {"restype": rss_restype,
+                           "pix": rss_pix,
+                           "rule": rss_rule,
+                           "team": rss_team},
+            "episode_info": {"total": total_episode,
+                             "current": current_episode}
+        }
 
     @staticmethod
     def parse_download_url(page_url, xpath, cookie=None, ua=None):
@@ -217,3 +254,22 @@ class Torrent:
                '&tr=udp%3A%2F%2Ftracker.blackunicorn.xyz%3A6969' \
                '&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969' \
                '&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969'
+
+    @staticmethod
+    def get_torrent_files(path):
+        """
+        解析Torrent文件，获取文件清单
+        """
+        if not path or not os.path.exists(path):
+            return []
+        file_names = []
+        try:
+            torrent = TorrentParser().readFile(path=path)
+            if torrent.get("torrent"):
+                files = torrent.get("torrent").get("info", {}).get("files") or []
+                for item in files:
+                    if item.get("path"):
+                        file_names.append(item["path"][0])
+        except Exception as err:
+            print(str(err))
+        return file_names

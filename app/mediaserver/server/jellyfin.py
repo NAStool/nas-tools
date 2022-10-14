@@ -395,5 +395,5 @@ class Jellyfin(IMediaServer):
                         for item in self.get_items(result.get("Id")):
                             yield item
         except Exception as e:
-            log.error("【EMBY】连接Users/Items出错：" + str(e))
+            log.error(f"【{self.server_type}】连接Users/Items出错：" + str(e))
         yield {}

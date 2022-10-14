@@ -140,19 +140,19 @@ class IDownloadClient(metaclass=ABCMeta):
         pass
 
     @staticmethod
-    def get_replace_path(true_path):
+    def get_replace_path(path):
         """
         对目录路径进行转换
         """
-        if not true_path:
+        if not path:
             return ""
-        downloaddir = Config().get_config('downloaddir') or {}
-        for path, attr in downloaddir.items():
-            if not path or not attr.get("path"):
+        downloaddir = Config().get_config('downloaddir') or []
+        for attr in downloaddir:
+            if not attr.get("save_path") or not attr.get("container_path"):
                 continue
-            if os.path.normpath(path) == os.path.normpath(true_path):
-                return attr.get("path")
-        return true_path
+            if os.path.normpath(attr.get("save_path")) == os.path.normpath(path):
+                return attr.get("container_path")
+        return path
 
     @abstractmethod
     def change_torrent(self, **kwargs):

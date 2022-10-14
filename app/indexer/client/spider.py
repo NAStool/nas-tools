@@ -89,7 +89,7 @@ class TorrentSpider(feapder.AirSpider):
                 if res:
                     self.cookies = dict_from_cookiejar(res.cookies)
             except Exception as err:
-                log.warn(f"【SPIDER】获取 {self.domain} cookie失败：{format(err)}")
+                log.warn(f"【Spider】获取 {self.domain} cookie失败：{format(err)}")
         self.torrents_info_array = []
 
     def start_requests(self):
@@ -405,7 +405,7 @@ class TorrentSpider(feapder.AirSpider):
             self.Getpubdate(torrent)
             self.Getelapsed_date(torrent)
         except Exception as err:
-            log.error("【SPIDER】%s 检索出现错误：%s" % (self.indexername, str(err)))
+            log.error("【Spider】%s 检索出现错误：%s" % (self.indexername, str(err)))
         return self.torrents_info
 
     @staticmethod
@@ -470,6 +470,6 @@ class TorrentSpider(feapder.AirSpider):
                     break
 
         except Exception as err:
-            log.warn("【SPIDER】错误：%s - %s" % (str(err), traceback.format_exc()))
+            log.warn("【Spider】错误：%s - %s" % (str(err), traceback.format_exc()))
         finally:
             self.is_complete = True

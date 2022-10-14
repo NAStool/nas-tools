@@ -5,7 +5,7 @@ from app.message import Message
 from app.downloader import Downloader
 from app.indexer import BuiltinIndexer, Jackett, Prowlarr
 from app.media import Media
-from app.helper import ProgressController
+from app.helper import ProgressHelper
 from app.utils.types import SearchType, MediaType
 
 
@@ -21,7 +21,7 @@ class Searcher:
         self.downloader = Downloader()
         self.media = Media()
         self.message = Message()
-        self.progress = ProgressController()
+        self.progress = ProgressHelper()
         self.init_config()
 
     def init_config(self):
@@ -131,7 +131,7 @@ class Searcher:
             if search_en_name:
                 second_search_name = search_en_name
         # 开始搜索
-        log.info("【SEARCHER】开始检索 %s ..." % first_search_name)
+        log.info("【Searcher】开始检索 %s ..." % first_search_name)
         media_list = self.search_medias(key_word=first_search_name,
                                         filter_args=filter_args,
                                         match_type=1,
@@ -141,7 +141,7 @@ class Searcher:
         if len(media_list) == 0 \
                 and second_search_name \
                 and second_search_name != first_search_name:
-            log.info("【SEARCHER】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
+            log.info("【Searcher】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
             media_list = self.search_medias(key_word=second_search_name,
                                             filter_args=filter_args,
                                             match_type=1,
@@ -149,7 +149,7 @@ class Searcher:
                                             in_from=in_from)
 
         if len(media_list) == 0:
-            log.info("【SEARCHER】%s 未搜索到任何资源" % second_search_name)
+            log.info("【Searcher】%s 未搜索到任何资源" % second_search_name)
             return False, no_exists, 0, 0
         else:
             if in_from in [SearchType.WX, SearchType.TG]:
@@ -167,13 +167,13 @@ class Searcher:
                 if not self.__search_auto:
                     return False, no_exists, len(media_list), None
             # 择优下载
-            download_items, left_medias = self.downloader.check_and_add_pt(in_from, media_list, no_exists)
+            download_items, left_medias = self.downloader.batch_download(in_from, media_list, no_exists)
             # 统计下载情况，下全了返回True，没下全返回False
             if not download_items:
-                log.info("【SEARCHER】%s 未下载到资源" % media_info.title)
+                log.info("【Searcher】%s 未下载到资源" % media_info.title)
                 return False, left_medias, len(media_list), 0
             else:
-                log.info("【SEARCHER】实际下载了 %s 个资源" % len(download_items))
+                log.info("【Searcher】实际下载了 %s 个资源" % len(download_items))
                 # 还有剩下的缺失，说明没下完，返回False
                 if left_medias:
                     return False, left_medias, len(media_list), len(download_items)

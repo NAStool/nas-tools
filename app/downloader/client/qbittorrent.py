@@ -64,26 +64,40 @@ class Qbittorrent(IDownloadClient):
             return False
 
     def get_torrents(self, ids=None, status=None, tag=None):
+        """
+        获取种子列表
+        return: 种子列表, 是否发生异常
+        """
         if not self.qbc:
-            return []
+            return [], True
         try:
             torrents = self.qbc.torrents_info(torrent_hashes=ids, status_filter=status, tag=tag)
             if self.is_ver_less_4_4():
                 torrents = self.filter_torrent_by_tag(torrents, tag=tag)
-            return torrents or []
+            return torrents or [], False
         except Exception as err:
             print(str(err))
-            return []
+            return [], True
 
     def get_completed_torrents(self, tag=None):
+        """
+        获取已完成的种子
+        return: 种子列表, 是否发生异常
+        """
         if not self.qbc:
             return []
-        return self.get_torrents(status=["completed"], tag=tag)
+        torrents, _ = self.get_torrents(status=["completed"], tag=tag)
+        return torrents
 
     def get_downloading_torrents(self, tag=None):
+        """
+        获取正在下载的种子
+        return: 种子列表, 是否发生异常
+        """
         if not self.qbc:
             return []
-        return self.get_torrents(status=["downloading"], tag=tag)
+        torrents, _ = self.get_torrents(status=["downloading"], tag=tag)
+        return torrents
 
     def remove_torrents_tag(self, ids, tag):
         """
@@ -129,12 +143,14 @@ class Qbittorrent(IDownloadClient):
             # 判断标签是否包含"已整理"
             if torrent.get("tags") and "已整理" in torrent.get("tags"):
                 continue
-            path = torrent.get('save_path')
+            path = torrent.get("save_path")
             if not path:
                 continue
-            content_path = torrent.get('content_path')
+            content_path = torrent.get("content_path")
             if content_path:
-                trans_name = content_path[len(path):]
+                trans_name = content_path.replace(path, "")
+                if trans_name.startswith('/') or trans_name.startswith('\\'):
+                    trans_name = trans_name[1:]
             else:
                 trans_name = torrent.get('name')
             true_path = self.get_replace_path(path)
@@ -160,7 +176,7 @@ class Qbittorrent(IDownloadClient):
         :return: 种子ID
         """
         try:
-            torrents = self.get_torrents(status=status, tag=tag)
+            torrents, _ = self.get_torrents(status=status, tag=tag)
         except Exception as err:
             print(str(err))
             return None

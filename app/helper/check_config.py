@@ -14,13 +14,13 @@ def check_config(config):
         if logtype == "server":
             logserver = config.get_config('app').get('logserver')
             if not logserver:
-                log.console("【ERROR】日志中心地址未配置，无法正常输出日志")
+                log.console("【Config】日志中心地址未配置，无法正常输出日志")
             else:
                 log.console("日志将上送到服务器：%s" % logserver)
         elif logtype == "file":
             logpath = config.get_config('app').get('logpath')
             if not logpath:
-                log.console("【ERROR】日志文件路径未配置，无法正常输出日志")
+                log.console("【Config】日志文件路径未配置，无法正常输出日志")
             else:
                 log.console("日志将写入文件：%s" % logpath)
 

@@ -1,12 +1,15 @@
 import json
+import random
 import re
 import time
 import traceback
 from datetime import datetime
+from functools import lru_cache
 from multiprocessing.dummy import Pool as ThreadPool
 from threading import Lock
 
 from lxml import etree
+from requests.utils import dict_from_cookiejar
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as es
@@ -16,10 +19,12 @@ import log
 from app.message import Message
 from app.filterrules import FilterRule
 from app.sites import SiteUserInfoFactory
+from app.sites.siteconf import SiteConf
 from app.utils.commons import singleton
 from app.utils import RequestUtils, StringUtils
 from app.helper import ChromeHelper, CHROME_LOCK
 from app.helper import SqlHelper
+from app.utils.torrent import TorrentAttr
 from config import SITE_CHECKIN_XPATH
 
 lock = Lock()
@@ -29,6 +34,7 @@ lock = Lock()
 class Sites:
     message = None
     filtersites = None
+    siteconf = None
     __sites_data = {}
     __pt_sites = None
     __last_update_time = None
@@ -40,6 +46,7 @@ class Sites:
     def init_config(self):
         self.message = Message()
         self.filtersites = FilterRule()
+        self.siteconf = SiteConf()
         self.__pt_sites = SqlHelper.get_config_site()
         self.__sites_data = {}
         self.__last_update_time = None
@@ -67,6 +74,8 @@ class Sites:
             site_unread_msg_notify = str(site[9]).split("|")[2] if site[9] and len(str(site[9]).split("|")) > 2 else "Y"
             # 自定义UA为|分隔的第4位
             ua = str(site[9]).split("|")[3] if site[9] and len(str(site[9]).split("|")) > 3 else ""
+            # 是否开启浏览器仿真为|分隔的第5位
+            chrome = str(site[9]).split("|")[4] if site[9] and len(str(site[9]).split("|")) > 4 else "N"
             # 站点用途：Q签到、D订阅、S刷流
             signin_enable = True if site[6] and str(site[6]).count("Q") else False
             rss_enable = True if site[6] and str(site[6]).count("D") else False
@@ -92,7 +101,8 @@ class Sites:
                 "brush_enable": brush_enable,
                 "statistic_enable": statistic_enable,
                 "favicon": site_favicons.get(site[1], ""),
-                "ua": ua
+                "ua": ua,
+                "chrome": chrome
             }
             if siteid and int(site[0]) == int(siteid):
                 return site_info
@@ -127,17 +137,15 @@ class Sites:
                 refresh_sites = self.get_sites(statistic=True)
             else:
                 refresh_sites = [site for site in self.get_sites(statistic=True) if site.get("name") in specify_sites]
+            if not refresh_sites:
+                return
+
             refresh_all = len(self.get_sites(statistic=True)) == len(refresh_sites)
-            if ChromeHelper().get_browser():
-                site_user_infos = []
-                for site in refresh_sites:
-                    site_user_info = self.__refresh_pt_data(site)
-                    if site_user_info:
-                        site_user_infos.append(site_user_info)
-            else:
-                with ThreadPool(min(len(refresh_sites), self._MAX_CONCURRENCY)) as p:
-                    site_user_infos = p.map(self.__refresh_pt_data, refresh_sites)
-                    site_user_infos = [info for info in site_user_infos if info]
+
+            # 并发刷新
+            with ThreadPool(min(len(refresh_sites), self._MAX_CONCURRENCY)) as p:
+                site_user_infos = p.map(self.__refresh_pt_data, refresh_sites)
+                site_user_infos = [info for info in site_user_infos if info]
             # 登记历史数据
             SqlHelper.insert_site_statistics_history(site_user_infos)
             # 实时用户数据
@@ -162,11 +170,13 @@ class Sites:
         site_cookie = site_info.get("cookie")
         ua = site_info.get("ua")
         unread_msg_notify = site_info.get("unread_msg_notify")
+        chrome = True if site_info.get("chrome") == "Y" else False
         try:
             site_user_info = SiteUserInfoFactory.build(url=site_url,
                                                        site_name=site_name,
                                                        site_cookie=site_cookie,
-                                                       ua=ua)
+                                                       ua=ua,
+                                                       emulate=chrome)
             if site_user_info:
                 log.debug(f"【Sites】站点 {site_name} 开始以 {site_user_info.site_schema()} 模型解析")
                 # 开始解析
@@ -224,7 +234,7 @@ class Sites:
         """
         status = []
         # 浏览器
-        browser = ChromeHelper()
+        chrome = ChromeHelper()
         for site_info in self.get_sites(signin=True):
             if not site_info:
                 continue
@@ -233,16 +243,17 @@ class Sites:
                 site_url = site_info.get("signurl")
                 site_cookie = site_info.get("cookie")
                 ua = site_info.get("ua")
+                emulate = site_info.get("chrome")
                 if not site_url or not site_cookie:
                     log.warn("【Sites】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
                     continue
-                if browser.get_browser():
+                if emulate == "Y" and chrome.get_status():
                     # 首页
                     log.info("【Sites】开始站点仿真签到：%s" % site)
                     home_url = "%s://%s" % StringUtils.get_url_netloc(site_url)
                     with CHROME_LOCK:
                         try:
-                            browser.visit(url=home_url, ua=ua, cookie=site_cookie)
+                            chrome.visit(url=home_url, ua=ua, cookie=site_cookie)
                         except Exception as err:
                             print(str(err))
                             log.warn("【Sites】%s 无法打开网站" % site)
@@ -251,7 +262,7 @@ class Sites:
                         # 循环检测是否过cf
                         cloudflare = False
                         for i in range(0, 10):
-                            if browser.get_title() != "Just a moment...":
+                            if chrome.get_title() != "Just a moment...":
                                 cloudflare = True
                                 break
                             time.sleep(1)
@@ -260,7 +271,7 @@ class Sites:
                             status.append("【%s】跳转站点失败！" % site)
                             continue
                         # 判断是否已签到
-                        html_text = browser.get_html()
+                        html_text = chrome.get_html()
                         if not html_text:
                             log.warn("【Sites】%s 获取站点源码失败" % site)
                             continue
@@ -286,7 +297,7 @@ class Sites:
                             continue
                         # 开始仿真
                         try:
-                            checkin_obj = WebDriverWait(driver=browser.get_browser(), timeout=6).until(
+                            checkin_obj = WebDriverWait(driver=chrome.browser, timeout=6).until(
                                 es.element_to_be_clickable((By.XPATH, xpath_str)))
                             if checkin_obj:
                                 checkin_obj.click()
@@ -442,3 +453,100 @@ class Sites:
             site_url = "%s://%s" % StringUtils.get_url_netloc(site_url)
             return site_url
         return ""
+
+    def get_site_cookie_ua(self, url):
+        """
+        获取站点Cookie和UA
+        """
+        cookie, ua = None, None
+        site_info = self.get_sites(siteurl=url)
+        if site_info:
+            cookie = site_info.get("cookie")
+            ua = site_info.get("ua")
+        else:
+            site_info = self.get_public_sites(url=url)
+            if site_info:
+                try:
+                    res = RequestUtils(timeout=10).get_res(StringUtils.get_base_url(url))
+                    if res:
+                        cookie = dict_from_cookiejar(res.cookies)
+                except Exception as err:
+                    print(str(err))
+        return cookie, ua
+
+    @classmethod
+    @lru_cache(maxsize=128)
+    def check_torrent_attr(cls, torrent_url, cookie, ua=None) -> TorrentAttr:
+        """
+        检验种子是否免费，当前做种人数
+        :param torrent_url: 种子的详情页面
+        :param cookie: 站点的Cookie
+        :param ua: 站点的ua
+        :return: 种子属性，包含FREE 2XFREE HR PEER_COUNT等属性
+        """
+        ret_attr = TorrentAttr()
+        if not torrent_url:
+            return ret_attr
+        xpath_strs = cls.siteconf.get_grapsite_conf(torrent_url)
+        if not xpath_strs:
+            return ret_attr
+        res = RequestUtils(cookies=cookie, headers=ua).get_res(url=torrent_url)
+        if res and res.status_code == 200:
+            res.encoding = res.apparent_encoding
+            html_text = res.text
+            if not html_text:
+                return ret_attr
+            try:
+                html = etree.HTML(html_text)
+                # 检测2XFREE
+                for xpath_str in xpath_strs.get("2XFREE"):
+                    if html.xpath(xpath_str):
+                        ret_attr.free2x = True
+                # 检测FREE
+                for xpath_str in xpath_strs.get("FREE"):
+                    if html.xpath(xpath_str):
+                        ret_attr.free = True
+                # 检测HR
+                for xpath_str in xpath_strs.get("HR"):
+                    if html.xpath(xpath_str):
+                        ret_attr.hr = True
+                # 检测PEER_COUNT当前做种人数
+                for xpath_str in xpath_strs.get("PEER_COUNT"):
+                    peer_count_dom = html.xpath(xpath_str)
+                    if peer_count_dom:
+                        peer_count_str = peer_count_dom[0].text
+                        peer_count_str_re = re.search(r'^(\d+)', peer_count_str)
+                        ret_attr.peer_count = int(peer_count_str_re.group(1)) if peer_count_str_re else 0
+            except Exception as err:
+                print(err)
+        # 随机休眼后再返回
+        time.sleep(round(random.uniform(1, 5), 1))
+        return ret_attr
+
+    def get_grapsite_conf(self, url):
+        """
+        根据地址找到RSS_SITE_GRAP_CONF对应配置
+        """
+        for k, v in self.siteconf.RSS_SITE_GRAP_CONF.items():
+            if StringUtils.url_equal(k, url):
+                return v
+        return {}
+
+    def is_public_site(self, url):
+        """
+        判断是否为公开BT站点
+        """
+        _, netloc = StringUtils.get_url_netloc(url)
+        if netloc in self.siteconf.PUBLIC_TORRENT_SITES.keys():
+            return True
+        return False
+
+    def get_public_sites(self, url=None):
+        """
+        查询所有公开BT站点
+        """
+        if url:
+            _, netloc = StringUtils.get_url_netloc(url)
+            return self.siteconf.PUBLIC_TORRENT_SITES.get(netloc)
+        else:
+            return self.siteconf.PUBLIC_TORRENT_SITES.items()
