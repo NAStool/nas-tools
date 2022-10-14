@@ -5,6 +5,7 @@ from time import sleep
 
 from lxml import etree
 from requests.utils import dict_from_cookiejar
+from app.utils.string_utils import StringUtils
 
 import log
 from app.helper import SqlHelper
@@ -372,9 +373,12 @@ class DouBan:
                 return None
             try:
                 html = etree.HTML(html_text)
-                ret_media['title'] = html.xpath("//span[@property='v:itemreviewed']/text()")[0]
-                if not ret_media.get('title'):
+                title = html.xpath("//span[@property='v:itemreviewed']/text()")[0]
+                if not title:
                     return None
+                if " " in title and StringUtils.is_chinese(title.split(" ")[0]):
+                    title = title.split(" ")[0]
+                ret_media['title'] = title
                 ret_media['year'] = html.xpath("//div[@id='content']//span[@class='year']/text()")[0][1:-1]
                 ret_media['intro'] = "".join(
                     [str(x).strip() for x in html.xpath("//span[@property='v:summary']/text()")])
