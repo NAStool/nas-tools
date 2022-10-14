@@ -1187,6 +1187,9 @@ def create_flask_app():
         Items = []
         Records = SqlHelper.get_transfer_unknown_paths()
         TotalCount = len(Records)
+        SyncMod = Config().get_config('pt').get('rmt_mode')
+        if not SyncMod:
+            SyncMod = "link"
         for rec in Records:
             if not rec[1]:
                 continue
@@ -1195,7 +1198,8 @@ def create_flask_app():
             Items.append({"id": rec[0], "path": path, "to": path_to, "name": path})
         return render_template("rename/unidentification.html",
                                TotalCount=TotalCount,
-                               Items=Items)
+                               Items=Items,
+                               SyncMod=SyncMod)
 
     # 基础设置页面
     @App.route('/basic', methods=['POST', 'GET'])
