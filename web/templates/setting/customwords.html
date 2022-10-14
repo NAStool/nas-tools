@@ -51,6 +51,9 @@
         <div class="card">
           <div class="card-header">
             <h3 class="card-title"><strong>屏蔽词</strong></h3>
+            <div class="ms-2">
+              <span class="form-help" title="识别前屏蔽名称中的屏蔽词，优先级高" data-bs-toggle="tooltip">?</span>
+            </div>
             <div class="card-actions btn-actions">
               <a href="javascript:show_add_ignored_word_modal()" class="btn-action" title="增加屏蔽词">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -119,6 +122,9 @@
         <div class="card">
           <div class="card-header">
             <h3 class="card-title"><strong>替换词</strong></h3>
+            <div class="ms-2">
+              <span class="form-help" title="识别前替换名称中的被替换词，优先级中" data-bs-toggle="tooltip">?</span>
+            </div>
             <div class="card-actions btn-actions">
               <a href="javascript:show_add_replaced_word_modal()" class="btn-action" title="增加替换词">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -189,6 +195,9 @@
         <div class="card">
           <div class="card-header">
             <h3 class="card-title"><strong>集数偏移</strong></h3>
+            <div class="ms-2">
+              <span class="form-help" title="识别前偏移名称中集数，需使名称中前后定位词之间出现的数字为集数，正数向后负数向前，优先级低" data-bs-toggle="tooltip">?</span>
+            </div>
             <div class="card-actions btn-actions">
               <a href="javascript:show_add_offset_word_modal()" class="btn-action" title="增加集数偏移">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -418,6 +427,9 @@
       <div class="card border-top-0">
         <div class="card-header">
           <h5 class="modal-title">自定义识别词</h5>
+          <div class="ms-2">
+            <span class="form-help" title="自定义识别词可以YAML格式导入导出" data-bs-toggle="tooltip">?</span>
+          </div>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="card-body">
