@@ -78,8 +78,8 @@
               </div>
               <div class="col-lg">
                 <div class="mb-3">
-                  <label class="form-label">代理服务器 <span class="form-help" title="将使用代理访问tmdb、telegram等境外网站，站点不使用代理；配置格式示例：http://127.0.0.1:7890、socks5://127.0.0.1:8018" data-bs-toggle="tooltip">?</span></label>
-                  <input type="text" value="{{ Proxy or '' }}" class="form-control" id="app.proxies" placeholder="http://127.0.0.1:7890" autocomplete="off">
+                  <label class="form-label">代理服务器 <span class="form-help" title="将使用代理访问tmdb、telegram等境外网站，站点不使用代理；配置格式示例：127.0.0.1:7890、socks5://127.0.0.1:8018" data-bs-toggle="tooltip">?</span></label>
+                  <input type="text" value="{{ Proxy or '' }}" class="form-control" id="app.proxies" placeholder="127.0.0.1:7890" autocomplete="off">
                 </div>
               </div>
             </div>
@@ -427,14 +427,6 @@
               <div class="col-12 col-xl-3">
                 <div class="mb-3">
                   <label class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="laboratory.chrome_browser" {% if Config.laboratory and Config.laboratory.chrome_browser %}checked{% endif %}>
-                    <span class="form-check-label">开启浏览器仿真 <span class="form-help" title="开启后站点签到、数据统计可以兼容更多站点，但获取数据耗时会大幅增加；需要拉取含浏览器内核的镜像才能使用" data-bs-toggle="tooltip">?</span></span>
-                  </label>
-                </div>
-              </div>
-              <div class="col-12 col-xl-3">
-                <div class="mb-3">
-                  <label class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="laboratory.tmdb_proxy" {% if Config.laboratory and Config.laboratory.tmdb_proxy %}checked{% endif %}>
                     <span class="form-check-label">使用TMDB代理服务 <span class="form-help" title="使用内建的TMDB代理服务器转发媒体识别请求，网络无法连接TMDB时可选择开启" data-bs-toggle="tooltip">?</span></span>
                   </label>
@@ -444,11 +436,6 @@
           </div>
           <div class="card-footer">
             <div class="row align-items-center">
-              <div class="col-auto">
-                <a href="javascript:void(0)" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modal-customized-words">
-                  自定义识别词设置
-                </a>
-              </div>
               <div class="col"></div>
               <div class="col-auto">
                 <a id="laboratory_btn" href="javascript:save_basic_config('laboratory')" class="btn btn-primary">
@@ -762,48 +749,6 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-customized-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
-    <div class="modal-content border-0">
-      <div class="card">
-        <div class="card-header">
-          <h5 class="modal-title">自定义识别词 <span class="form-help" title="自定义识别词应用顺序为：屏蔽词，替换词，集数偏移" data-bs-toggle="tooltip">?</span></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="card-body">
-          <div class='row'>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label">屏蔽词 <span class="form-help" title="识别时会先屏蔽名称中包含的屏蔽词，支持正则表达式" data-bs-toggle="tooltip">?</span></label>
-                <textarea class="form-control" id="ignored_words" rows="4" placeholder="增加屏蔽词请换行&#13;&#10;支持正则表达式，注意特殊字符转义">{{ Ignored_Words or '' }}</textarea>
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="mb-3">
-                <label class="form-label">替换词 <span class="form-help" title="识别时会先替换名称中包含的替换词，支持正则表达式" data-bs-toggle="tooltip">?</span></label>
-                <textarea class="form-control" id="replaced_words" rows="4" placeholder="A@B，@前的词会被替换为@后的词&#13;&#10;增加替换词请换行&#13;&#10;支持正则表达式，注意特殊字符转义">{{ Replaced_Words or '' }}</textarea>
-              </div>
-            </div>
-          </div>
-          <div class='row'>
-            <div class="col-lg-12">
-              <div class="mb-3">
-                <label class="form-label">集数偏移 <span class="form-help" title="识别时会通过前后定位词偏移集数，支持正则表达式" data-bs-toggle="tooltip">?</span></label>
-                <textarea class="form-control" id="offset_words" rows="4" placeholder="A@B@1，A为前定位词，B为后定位词，1为集数偏移量（负数为向前偏移）&#13;&#10;应使前后定位词之间的字符串里包含的数字为集数&#13;&#10;增加集数偏移请换行&#13;&#10;支持正则表达式，注意特殊字符转义">{{ Offset_Words or '' }}</textarea>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a id="customized-words_save_btn" href="javascript:save_customized_words_config()" class="btn btn-primary">
-          保存
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
 <script type="text/javascript">
   // 保存基础设置
   function save_basic_config(type){
@@ -838,19 +783,6 @@
   function save_scraper_config(){
     save_basic_config('modal-scraper');
     $("#modal-scraper").modal("hide");
-  }
-  // 保存自定义识别屏蔽词配置
-  function save_customized_words_config(){
-    var params = {};
-    var ignored_words = $("#ignored_words").val().replace(/\n/g,"||");
-    var replaced_words = $("#replaced_words").val().replace(/\n/g,"||");
-    var offset_words = $("#offset_words").val().replace(/\n/g,"||");
-    params['laboratory.ignored_words'] = ignored_words;
-    params['laboratory.replaced_words'] = replaced_words;
-    params['laboratory.offset_words'] = offset_words;
-    ajax_post("update_config", params, function (ret) {
-    });
-    $("#modal-customized-words").modal("hide");
   }
 
 </script>

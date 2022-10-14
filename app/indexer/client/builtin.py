@@ -3,7 +3,6 @@ import time
 
 import log
 from app.indexer.client.rarbg import Rarbg
-from app.sites import SiteConf
 from app.utils.types import SearchType, IndexerType
 from config import Config
 from app.indexer.indexer import IIndexer
@@ -16,8 +15,10 @@ from app.helper import ProgressController, IndexerHelper
 class BuiltinIndexer(IIndexer):
     index_type = IndexerType.BUILTIN.value
     progress = None
+    sites = None
 
     def init_config(self):
+        self.sites = Sites()
         self.progress = ProgressController()
 
     def get_status(self):
@@ -39,7 +40,7 @@ class BuiltinIndexer(IIndexer):
             if not site.get("cookie"):
                 continue
             url = site.get("signurl") or site.get("rssurl")
-            public_site = SiteConf().get_public_sites(url=url)
+            public_site = self.sites.get_public_sites(url=url)
             if public_site:
                 if not public:
                     continue
@@ -71,7 +72,7 @@ class BuiltinIndexer(IIndexer):
                     ret_indexers.append(indexer)
         # 公开站点
         if public:
-            for site, attr in SiteConf().get_public_sites():
+            for site, attr in self.sites.get_public_sites():
                 indexer = IndexerHelper().get_indexer(url=site,
                                                       public=True,
                                                       proxy=attr.get("proxy"),

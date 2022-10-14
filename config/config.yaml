@@ -397,13 +397,5 @@ laboratory:
   use_douban_titles: false
   # 【精确搜索使用英文名称】：开启后对于精确搜索场景（远程搜索、订阅搜索等）将会使用英文名检索站点资源以提升匹配度，但对有些站点资源标题全是中文的则需要关闭，否则匹配不到
   search_en_title: true
-  # 【自定义识别屏蔽词】
-  ignored_words: 
-  # 【自定义识别替换词】
-  replaced_words:
-  # 【自定义识别集数偏移】
-  offset_words:
-  # 【使用浏览器仿真】
-  chrome_browser: false
   # 【使用TMDB代理】
   tmdb_proxy: false

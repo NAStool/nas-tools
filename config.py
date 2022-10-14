@@ -111,7 +111,8 @@ SITE_CHECKIN_XPATH = [
     '//a[contains(@href, "attendance.php")]',
     '//a[contains(@text, "签到")]',
     '//span[@id="sign_in"]/a',
-    '//a[contains(@href, "addbonus")]'
+    '//a[contains(@href, "addbonus")]',
+    '//input[@class="dt_button"][contains(@value, "打卡")]'
 ]
 
 # 线程锁
@@ -141,148 +142,23 @@ class Config(object):
     def init_config(self):
         try:
             if not self._config_path:
-                print("【ERROR】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
+                print("【Config】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
                 quit()
             if not os.path.exists(self._config_path):
                 cfg_tp_path = os.path.join(self.get_inner_config_path(), "config.yaml")
                 cfg_tp_path = cfg_tp_path.replace("\\", "/")
                 shutil.copy(cfg_tp_path, self._config_path)
-                print("【ERROR】config.yaml 配置文件不存在，已将配置文件模板复制到配置目录...")
+                print("【Config】config.yaml 配置文件不存在，已将配置文件模板复制到配置目录...")
             with open(self._config_path, mode='r', encoding='utf-8') as f:
                 try:
                     # 读取配置
                     print("正在加载配置...")
                     self._config = ruamel.yaml.YAML().load(f)
-                    overwrite_cofig = False
-                    # 密码初始化
-                    login_password = self._config.get("app", {}).get("login_password")
-                    if login_password and not login_password.startswith("[hash]"):
-                        self._config['app']['login_password'] = "[hash]%s" % generate_password_hash(login_password)
-                        overwrite_cofig = True
-                    # 实验室配置初始化
-                    if not self._config.get("laboratory"):
-                        self._config['laboratory'] = {
-                            'search_keyword': False,
-                            'tmdb_cache_expire': True,
-                            'use_douban_titles': False,
-                            'search_en_title': True,
-                            'ignored_words': '',
-                            'replaced_words': '',
-                            'offset_words': '',
-                            'chrome_browser': False
-                        }
-                        overwrite_cofig = True
-                    # 安全配置初始化
-                    if not self._config.get("security"):
-                        self._config['security'] = {
-                            'media_server_webhook_allow_ip': {
-                                'ipv4': '0.0.0.0/0',
-                                'ipv6': '::/0'
-                            },
-                            'telegram_webhook_allow_ip': {
-                                'ipv4': '127.0.0.1',
-                                'ipv6': '::/0'
-                            }
-                        }
-                        overwrite_cofig = True
-                    # API密钥初始化
-                    if not self._config.get("security", {}).get("subscribe_token"):
-                        self._config['security']['subscribe_token'] = self._config.get("laboratory",
-                                                                                       {}).get("subscribe_token") \
-                                                                      or self.__generate_random_str()
-                        overwrite_cofig = True
-                    # 消息推送开关初始化
-                    if not self._config.get("message", {}).get("switch"):
-                        self._config['message']['switch'] = {
-                            "download_start": True,
-                            "download_fail": True,
-                            "transfer_finished": True,
-                            "transfer_fail": True,
-                            "rss_added": True,
-                            "rss_finished": True,
-                            "site_signin": True
-                        }
-                        overwrite_cofig = True
-                    # 刮削NFO配置初始化
-                    if not self._config.get("scraper_nfo"):
-                        self._config['scraper_nfo'] = {
-                            "movie": {
-                                "basic": True,
-                                "credits": True,
-                                "credits_chinese": False},
-                            "tv": {
-                                "basic": True,
-                                "credits": True,
-                                "credits_chinese": False,
-                                "season_basic": True,
-                                "episode_basic": True,
-                                "episode_credits": True}
-                        }
-                        overwrite_cofig = True
-                    # 刮削图片配置初始化
-                    if not self._config.get("scraper_pic"):
-                        self._config['scraper_pic'] = {
-                            "movie": {
-                                "poster": True,
-                                "backdrop": True,
-                                "background": True,
-                                "logo": True,
-                                "disc": True,
-                                "banner": True,
-                                "thumb": True},
-                            "tv": {
-                                "poster": True,
-                                "backdrop": True,
-                                "background": True,
-                                "logo": True,
-                                "clearart": True,
-                                "banner": True,
-                                "thumb": True,
-                                "season_poster": True,
-                                "season_banner": True,
-                                "season_thumb": True}
-                        }
-                        overwrite_cofig = True
-                    # 下载目录配置初始化
-                    if not self._config.get('downloaddir'):
-                        dl_client = self._config.get('pt', {}).get('pt_client')
-                        if dl_client and self._config.get(dl_client):
-                            save_path = self._config.get(dl_client).get('save_path')
-                            if not isinstance(save_path, dict):
-                                save_path = {"movie": save_path, "tv": save_path, "anime": save_path}
-                            container_path = self._config.get(dl_client).get('save_containerpath')
-                            if not isinstance(container_path, dict):
-                                container_path = {"movie": container_path, "tv": container_path, "anime": container_path}
-                            downloaddir = {}
-                            type_dict = {"movie": "电影", "tv": "电视剧", "anime": "动漫"}
-                            for mtype, path in save_path.items():
-                                if not path:
-                                    continue
-                                save_dir = path.split('|')[0]
-                                save_label = None
-                                if len(path.split('|')) > 1:
-                                    save_label = path.split('|')[1]
-                                container_dir = container_path.get(mtype)
-                                if save_dir not in downloaddir.keys():
-                                    downloaddir[save_dir] = {"type": type_dict.get(mtype),
-                                                             "category": "",
-                                                             "path": container_dir,
-                                                             "label": save_label}
-                                else:
-                                    downloaddir[save_dir] = {"type": "",
-                                                             "category": "",
-                                                             "path": container_dir,
-                                                             "label": save_label}
-                            self._config['downloaddir'] = downloaddir
-                            overwrite_cofig = True
-                    # 重写配置文件
-                    if overwrite_cofig:
-                        self.save_config(self._config)
                 except Exception as e:
-                    print("【ERROR】配置文件 config.yaml 格式出现严重错误！请检查：%s" % str(e))
+                    print("【Config】配置文件 config.yaml 格式出现严重错误！请检查：%s" % str(e))
                     self._config = {}
         except Exception as err:
-            print("【ERROR】加载 config.yaml 配置出错：%s" % str(err))
+            print("【Config】加载 config.yaml 配置出错：%s" % str(err))
             return False
 
     def get_proxies(self):
@@ -311,15 +187,3 @@ class Config(object):
 
     def get_inner_config_path(self):
         return os.path.join(self.get_root_path(), "config")
-
-    @staticmethod
-    def __generate_random_str(randomlength=16):
-        """
-        生成一个指定长度的随机字符串
-        """
-        random_str = ''
-        base_str = 'ABCDEFGHIGKLMNOPQRSTUVWXYZabcdefghigklmnopqrstuvwxyz0123456789'
-        length = len(base_str) - 1
-        for i in range(randomlength):
-            random_str += base_str[random.randint(0, length)]
-        return random_str

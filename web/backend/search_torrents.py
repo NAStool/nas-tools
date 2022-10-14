@@ -31,7 +31,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     """
     mtype, key_word, season_num, episode_num, year, content = StringUtils.get_keyword_from_string(content)
     if not key_word:
-        log.info("【WEB】%s 检索关键字有误！" % content)
+        log.info("【Web】%s 检索关键字有误！" % content)
         return -1, "%s 未识别到搜索关键字！" % content
     # 开始进度
     search_process = ProgressController()
@@ -114,7 +114,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     if filters:
         filter_args.update(filters)
     # 开始检索
-    log.info("【WEB】开始检索 %s ..." % content)
+    log.info("【Web】开始检索 %s ..." % content)
     media_list = Searcher().search_medias(key_word=first_search_name,
                                           filter_args=filter_args,
                                           match_type=1 if ident_flag else 2,
@@ -127,7 +127,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
             and second_search_name != first_search_name:
         search_process.start('search')
         search_process.update(ptype='search', text="%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
-        log.info("【SEARCHER】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
+        log.info("【Searcher】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
         media_list = Searcher().search_medias(key_word=second_search_name,
                                               filter_args=filter_args,
                                               match_type=1,
@@ -138,10 +138,10 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     # 结束进度
     search_process.end('search')
     if len(media_list) == 0:
-        log.info("【WEB】%s 未检索到任何资源" % content)
+        log.info("【Web】%s 未检索到任何资源" % content)
         return 1, "%s 未检索到任何资源" % content
     else:
-        log.info("【WEB】共检索到 %s 个有效资源" % len(media_list))
+        log.info("【Web】共检索到 %s 个有效资源" % len(media_list))
         # 插入数据库
         media_list = sorted(media_list, key=lambda x: "%s%s%s" % (str(x.res_order).rjust(3, '0'),
                                                                   str(x.site_order).rjust(3, '0'),
@@ -162,7 +162,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
     global SEARCH_MEDIA_CACHE
 
     if not input_str:
-        log.info("【SEARCHER】检索关键字有误！")
+        log.info("【Searcher】检索关键字有误！")
         return
     # 如果是数字，表示选择项
     if input_str.isdigit():
@@ -172,7 +172,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
             Message().send_channel_msg(channel=in_from,
                                        title="输入有误！",
                                        user_id=user_id)
-            log.warn("【WEB】错误的输入值：%s" % input_str)
+            log.warn("【Web】错误的输入值：%s" % input_str)
             return
         media_info = SEARCH_MEDIA_CACHE[choose]
         if SEARCH_MEDIA_TYPE == "SEARCH":
@@ -202,7 +202,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         # 去掉查询中的电影或电视剧关键字
         mtype, _, _, _, _, content = StringUtils.get_keyword_from_string(input_str)
         # 识别媒体信息，列出匹配到的所有媒体
-        log.info("【WEB】正在识别 %s 的媒体信息..." % content)
+        log.info("【Web】正在识别 %s 的媒体信息..." % content)
         media_info = MetaInfo(title=content, mtype=mtype)
         if not media_info.get_name():
             Message().send_channel_msg(channel=in_from,
@@ -307,23 +307,17 @@ def __search_media(in_from, media_info, user_id):
                                        image=media_info.get_message_image(),
                                        url="search",
                                        user_id=user_id)
+            return
         else:
             # 搜索到了但是没下载到数据
             if download_count == 0:
                 Message().send_channel_msg(channel=in_from,
                                            title="%s 共搜索到%s个结果，但没有下载到任何资源" % (media_info.title, search_count),
                                            user_id=user_id)
-            # 没有下载完成，且打开了自动添加订阅
-            if not search_result and Config().get_config('pt').get('search_no_result_rss'):
-                # 添加订阅
-                if add_rss_subscribe(mtype=media_info.type,
-                                     name=media_info.title,
-                                     year=media_info.year,
-                                     season=media_info.begin_season,
-                                     tmdbid=media_info.tmdb_id,
-                                     state='R'):
-                    # 发送通知
-                    Message().send_rss_success_message(in_from=in_from, media_info=media_info, user_id=user_id)
+        # 没有下载完成，且打开了自动添加订阅
+        if not search_result and Config().get_config('pt').get('search_no_result_rss'):
+            # 添加订阅
+            __rss_media(in_from=in_from, media_info=media_info, user_id=user_id)
 
 
 def __rss_media(in_from, media_info, user_id=None):
@@ -344,12 +338,12 @@ def __rss_media(in_from, media_info, user_id=None):
                                                   media_info.begin_season,
                                                   tmdbid=media_info.tmdb_id)
     if code == 0:
-        log.info("【WEB】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))
+        log.info("【Web】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))
         if in_from in [SearchType.WX, SearchType.TG]:
             Message().send_rss_success_message(in_from=in_from, media_info=media_info, user_id=user_id)
     else:
         if in_from in [SearchType.WX, SearchType.TG]:
-            log.info("【WEB】%s 添加订阅失败：%s" % (media_info.title, msg))
+            log.info("【Web】%s 添加订阅失败：%s" % (media_info.title, msg))
             Message().send_channel_msg(channel=in_from,
                                        title="%s 添加订阅失败：%s" % (media_info.title, msg),
                                        user_id=user_id)

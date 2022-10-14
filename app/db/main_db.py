@@ -25,7 +25,7 @@ class MainDb:
     def init_config(self):
         config = Config()
         if not config.get_config_path():
-            log.console("【ERROR】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
+            log.console("【Config】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
             quit()
         self.__db_path = os.path.join(config.get_config_path(), 'user.db')
         self.__pools = DBPool(
@@ -358,6 +358,28 @@ class MainDb:
                                    DATE    TEXT);''')
             cursor.execute(
                 '''CREATE INDEX IF NOT EXISTS INDX_USERRSS_TASK_HISTORY ON USERRSS_TASK_HISTORY (TASK_ID);''')
+            # 自定义识别词-屏蔽词表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS IGNORED_WORDS 
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   IGNORED    TEXT,
+                                   ENABLED    INTEGER,
+                                   NOTE     TEXT);''')
+            # 自定义识别词-替换词表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS REPLACED_WORDS 
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   REPLACED    TEXT,
+                                   REPLACE    TEXT,
+                                   ENABLED    INTEGER,
+                                   NOTE     TEXT);''')
+            # 自定义识别词-集数偏移表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS OFFSET_WORDS 
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   FRONT    TEXT,
+                                   BACK    TEXT,
+                                   OFFSET    TEXT,
+                                   ENABLED    INTEGER,
+                                   REPLACED_WORD_ID    INTEGER, 
+                                   NOTE     TEXT);''')
             # 提交
             conn.commit()
 
