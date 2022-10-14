@@ -73,8 +73,10 @@
                   {% endif %}
                   <th>屏蔽词</th>
                   <th class="w-5">状态</th>
+                  {% if IgnoredWords %}
                   <th class="w-2"></th>
                   <th class="w-2"></th>
+                  {% endif %}
                 </tr>
               </thead>
               <tbody>
@@ -111,7 +113,7 @@
                 </tr>
                 {% endfor %}
               {% else %}
-                <tr><td colspan="4" align="center">未配置</td></tr>
+                <tr><td colspan="2" align="center">未配置</td></tr>
               {% endif %}
               </tbody>
             </table>
@@ -145,8 +147,10 @@
                   <th>被替换词</th>
                   <th>替换词</th>
                   <th class="w-5">状态</th>
+                  {% if ReplacedWords %}
                   <th class="w-2"></th>
                   <th class="w-2"></th>
+                  {% endif %}
                 </tr>
               </thead>
               <tbody>
@@ -184,7 +188,7 @@
                 </tr>
                 {% endfor %}
               {% else %}
-                <tr><td colspan="4" align="center">未配置</td></tr>
+                <tr><td colspan="3" align="center">未配置</td></tr>
               {% endif %}
               </tbody>
             </table>
@@ -220,8 +224,10 @@
                   <th>偏移集数</th>
                   <th>关联被替换词</th>
                   <th class="w-5">状态</th>
+                  {% if OffsetWords %}
                   <th class="w-2"></th>
                   <th class="w-2"></th>
+                  {% endif %}
                 </tr>
               </thead>
               <tbody>
@@ -270,7 +276,7 @@
                 </tr>
                 {% endfor %}
               {% else %}
-                <tr><td colspan="4" align="center">未配置</td></tr>
+                <tr><td colspan="5" align="center">未配置</td></tr>
               {% endif %}
               </tbody>
             </table>
