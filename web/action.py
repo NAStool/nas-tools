@@ -2393,7 +2393,6 @@ class WebAction:
     
     @staticmethod
     def __add_or_edit_custom_word(data):
-        print(data)
         flag = data.get("flag")
         id = data.get("id")
         custom_word = data.get("custom_word")
