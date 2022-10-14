@@ -44,7 +44,7 @@ class SubHelper:
         # 检测环境，有浏览器内核的优先使用仿真签到
         chrome = ChromeHelper()
         if not chrome.browser:
-            log.error("【SUBTITLE】未找到浏览器内核，当前环境无法检索opensubtitles字幕！")
+            log.error("【Subtitle】未找到浏览器内核，当前环境无法检索opensubtitles字幕！")
             return []
         with CHROME_LOCK:
             # 访问页面
@@ -52,7 +52,7 @@ class SubHelper:
             # 源码
             html_text = chrome.get_html()
             if not html_text:
-                log.error("【SUBTITLE】无法连接opensubtitles.org！")
+                log.error("【Subtitle】无法连接opensubtitles.org！")
                 return []
             # Cookie
             cls._cookie = chrome.get_cookies()

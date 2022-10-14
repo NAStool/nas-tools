@@ -283,10 +283,10 @@
               <div class="row" id="dirdiv_{{loop.index0}}">
                 <div class="col-12 col-lg-2 mb-1">
                   <select class="form-select" name="dir_type" id="dir_type_{{loop.index0}}" onchange="get_categories(this)">
-                    <option value="" {% if not attr['type'] %}selected{% endif %}>全部</option>
-                    <option value="电影" {% if attr['type'] == "电影" %}selected{% endif %}>电影</option>
-                    <option value="电视剧" {% if attr['type'] == "电视剧" %}selected{% endif %}>电视剧</option>
-                    <option value="动漫" {% if attr['type'] == "动漫" %}selected{% endif %}>动漫</option>
+                    <option value="" {% if not attr.type %}selected{% endif %}>全部</option>
+                    <option value="电影" {% if attr.type == '电影' %}selected{% endif %}>电影</option>
+                    <option value="电视剧" {% if attr.type == '电视剧' %}selected{% endif %}>电视剧</option>
+                    <option value="动漫" {% if attr.type == '动漫' %}selected{% endif %}>动漫</option>
                   </select>
                 </div>
                 <div class="col-12 col-lg-2 mb-1">
@@ -452,15 +452,6 @@
       category = get_dir_item_value(this, 'dir_subtype');
       container_path = get_dir_item_value(this, 'container_path');
       label = get_dir_item_value(this, 'path_label');
-      debugger;
-      if(download_dir[save_path]){
-        if(type != download_dir[save_path].type){
-          type = '';
-        }
-        if(category != download_dir[save_path].category){
-          category = '';
-        }
-      }
       download_dir.push({"save_path": save_path, "type": type, "category": category, "container_path": container_path, "label": label});
     });
     ajax_post("update_config", {downloaddir: download_dir}, function(){

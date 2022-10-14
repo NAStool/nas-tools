@@ -142,13 +142,13 @@ class Config(object):
     def init_config(self):
         try:
             if not self._config_path:
-                print("【ERROR】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
+                print("【Config】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
                 quit()
             if not os.path.exists(self._config_path):
                 cfg_tp_path = os.path.join(self.get_inner_config_path(), "config.yaml")
                 cfg_tp_path = cfg_tp_path.replace("\\", "/")
                 shutil.copy(cfg_tp_path, self._config_path)
-                print("【ERROR】config.yaml 配置文件不存在，已将配置文件模板复制到配置目录...")
+                print("【Config】config.yaml 配置文件不存在，已将配置文件模板复制到配置目录...")
             with open(self._config_path, mode='r', encoding='utf-8') as f:
                 try:
                     # 读取配置
@@ -244,15 +244,6 @@ class Config(object):
                                 "season_thumb": True}
                         }
                         overwrite_cofig = True
-                    
-                    # 迁移下载目录配置至列表
-                    if isinstance(self._config.get('downloaddir'), dict):
-                        downloaddir_list = []
-                        for path, attr in self._config.get('downloaddir').items():
-                            downloaddir_list.append({"save_path": path, "type": attr["type"], "category": attr["category"], "container_path": attr["path"], "label": attr["label"]})
-                        self._config['downloaddir'] = downloaddir_list
-                        overwrite_cofig = True
-
                     # 下载目录配置初始化
                     if not self._config.get('downloaddir'):
                         dl_client = self._config.get('pt', {}).get('pt_client')
@@ -273,21 +264,32 @@ class Config(object):
                                 if len(path.split('|')) > 1:
                                     save_label = path.split('|')[1]
                                 container_dir = container_path.get(mtype)
-                                if save_dir not in [attr["save_path"] for attr in downloaddir]:
-                                    downloaddir.append({"save_path": save_dir, "type": type_dict.get(mtype), "category": "", "container_path": container_dir, "label": save_label})
-                                else:
-                                    existing_save_dir = next(attr for attr in downloaddir if attr['save_path'] == save_dir)
-                                    existing_save_dir["type"] = ""
+                                if save_dir:
+                                    downloaddir.append({"save_path": save_dir,
+                                                        "type": type_dict.get(mtype),
+                                                        "category": "",
+                                                        "container_path": container_dir,
+                                                        "label": save_label})
                             self._config['downloaddir'] = downloaddir
                             overwrite_cofig = True
+                    elif isinstance(self._config.get('downloaddir'), dict):
+                        downloaddir_list = []
+                        for path, attr in self._config.get('downloaddir').items():
+                            downloaddir_list.append({"save_path": path,
+                                                     "type": attr.get("type"),
+                                                     "category": attr.get("category"),
+                                                     "container_path": attr.get("path"),
+                                                     "label": attr.get("label")})
+                        self._config['downloaddir'] = downloaddir_list
+                        overwrite_cofig = True
                     # 重写配置文件
                     if overwrite_cofig:
                         self.save_config(self._config)
                 except Exception as e:
-                    print("【ERROR】配置文件 config.yaml 格式出现严重错误！请检查：%s" % str(e))
+                    print("【Config】配置文件 config.yaml 格式出现严重错误！请检查：%s" % str(e))
                     self._config = {}
         except Exception as err:
-            print("【ERROR】加载 config.yaml 配置出错：%s" % str(err))
+            print("【Config】加载 config.yaml 配置出错：%s" % str(err))
             return False
 
     def get_proxies(self):

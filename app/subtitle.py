@@ -80,18 +80,18 @@ class Subtitle:
             if not item.get("name") or not item.get("file"):
                 continue
             if item.get("type") == MediaType.TV and not item.get("imdbid"):
-                log.warn("【SUBTITLE】电视剧类型需要imdbid检索字幕，跳过...")
+                log.warn("【Subtitle】电视剧类型需要imdbid检索字幕，跳过...")
                 continue
             subtitles = subtitles_cache.get(item.get("name"))
             if subtitles is None:
-                log.info("【SUBTITLE】开始从Opensubtitle.org检索字幕: %s" % item.get("name"))
+                log.info("【Subtitle】开始从Opensubtitle.org检索字幕: %s" % item.get("name"))
                 subtitles = self.search_opensubtitles(item)
                 if not subtitles:
                     subtitles_cache[item.get("name")] = []
-                    log.info("【SUBTITLE】%s 未检索到字幕" % item.get("name"))
+                    log.info("【Subtitle】%s 未检索到字幕" % item.get("name"))
                 else:
                     subtitles_cache[item.get("name")] = subtitles
-                    log.info("【SUBTITLE】opensubtitles.org返回数据：%s" % len(subtitles))
+                    log.info("【Subtitle】opensubtitles.org返回数据：%s" % len(subtitles))
             if not subtitles:
                 continue
             # 成功数
@@ -115,7 +115,7 @@ class Subtitle:
                 Download_Link = subtitle.get('link')
                 # 下载后的字幕文件路径
                 Media_File = "%s%s" % (item.get("file"), item.get("file_ext"))
-                log.info("【SUBTITLE】正在从opensubtitles.org下载字幕 %s 到 %s " % (SubFileName, Media_File))
+                log.info("【Subtitle】正在从opensubtitles.org下载字幕 %s 到 %s " % (SubFileName, Media_File))
                 # 下载
                 ret = RequestUtils(cookies=self.subhelper.get_cookie(),
                                    headers=self.subhelper.get_ua()).get_res(Download_Link)
@@ -138,7 +138,7 @@ class Subtitle:
                     except Exception as err:
                         print(str(err))
                 else:
-                    log.error("【SUBTITLE】下载字幕文件失败：%s" % Download_Link)
+                    log.error("【Subtitle】下载字幕文件失败：%s" % Download_Link)
                     continue
                 # 最多下载3个字幕
                 subtitle_count += 1
@@ -146,12 +146,12 @@ class Subtitle:
                     break
             if not subtitle_count:
                 if item.get('episode'):
-                    log.info("【SUBTITLE】%s 季：%s 集：%s 未找到符合条件的字幕" % (
+                    log.info("【Subtitle】%s 季：%s 集：%s 未找到符合条件的字幕" % (
                         item.get("name"), item.get("season"), item.get("episode")))
                 else:
-                    log.info("【SUBTITLE】%s 未找到符合条件的字幕" % item.get("name"))
+                    log.info("【Subtitle】%s 未找到符合条件的字幕" % item.get("name"))
             else:
-                log.info("【SUBTITLE】%s 共下载 %s 个字幕" % (item.get("name"), subtitle_count))
+                log.info("【Subtitle】%s 共下载 %s 个字幕" % (item.get("name"), subtitle_count))
 
     def __download_chinesesubfinder(self, items):
         """
@@ -181,7 +181,7 @@ class Subtitle:
             # 一个名称只建一个任务
             if file_path not in notify_items:
                 notify_items.append(file_path)
-                log.info("【SUBTITLE】通知ChineseSubFinder下载字幕: %s" % file_path)
+                log.info("【Subtitle】通知ChineseSubFinder下载字幕: %s" % file_path)
                 params = {
                     "video_type": 0 if item.get("type") == MediaType.MOVIE else 1,
                     "physical_video_file_full_path": file_path,
@@ -193,7 +193,7 @@ class Subtitle:
                     res = RequestUtils(headers={"Authorization": "Bearer %s" % self.__api_key}).post(req_url,
                                                                                                      json=params)
                     if not res or res.status_code != 200:
-                        log.error("【SUBTITLE】调用ChineseSubFinder API失败！")
+                        log.error("【Subtitle】调用ChineseSubFinder API失败！")
                     else:
                         # 如果文件目录没有识别的nfo元数据， 此接口会返回控制符，推测是ChineseSubFinder的原因
                         # emby refresh元数据时异步的
@@ -201,13 +201,13 @@ class Subtitle:
                             job_id = res.json().get("job_id")
                             message = res.json().get("message")
                             if not job_id:
-                                log.warn("【SUBTITLE】ChineseSubFinder下载字幕出错：%s" % message)
+                                log.warn("【Subtitle】ChineseSubFinder下载字幕出错：%s" % message)
                             else:
-                                log.info("【SUBTITLE】ChineseSubFinder任务添加成功：%s" % job_id)
+                                log.info("【Subtitle】ChineseSubFinder任务添加成功：%s" % job_id)
                         else:
-                            log.error("【SUBTITLE】%s 当前目录缺失nfo元数据：" % file_path)
+                            log.error("【Subtitle】%s 当前目录缺失nfo元数据：" % file_path)
                 except Exception as e:
-                    log.error("【SUBTITLE】连接ChineseSubFinder出错：" + str(e))
+                    log.error("【Subtitle】连接ChineseSubFinder出错：" + str(e))
 
     @staticmethod
     def __transfer_subtitle(sub_file, media_file):

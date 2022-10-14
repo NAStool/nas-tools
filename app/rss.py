@@ -107,7 +107,10 @@ class Rss:
                 site_rule_group = site_info.get("rule")
                 # 开始下载RSS
                 log_info("【Rss】正在处理：%s" % rss_job)
-                order_seq = 100 - int(site_info.get("pri"))
+                if site_info.get("pri"):
+                    order_seq = 100 - int(site_info.get("pri"))
+                else:
+                    order_seq = 0
                 rss_result = self.parse_rssxml(rssurl)
                 if len(rss_result) == 0:
                     log_warn("【Rss】%s 未下载到数据" % rss_job)
@@ -407,11 +410,11 @@ class Rss:
                 total_ep = total
             episodes = SqlHelper.get_rss_tv_episodes(rssid)
             if episodes is None:
-                current_episode = int(rss_info.get("episode_info", {}).get("current"))
-                if current_episode:
-                    episodes = list(range(current_episode, total_ep + 1))
-                else:
-                    episodes = []
+                episodes = []
+                if rss_info.get("episode_info", {}).get("current"):
+                    current_episode = int(rss_info.get("episode_info", {}).get("current"))
+                    if current_episode:
+                        episodes = list(range(current_episode, total_ep + 1))
                 no_exists = {media_info.tmdb_id: [
                     {"season": media_info.begin_season,
                      "episodes": episodes,
@@ -515,7 +518,7 @@ class Rss:
             tmdbid = tv[3]
             total = int(tv[6]) if str(tv[6]).isdigit() else 0
             lack = int(tv[7]) if str(tv[7]).isdigit() else 0
-            if not tmdbid:
+            if not tmdbid or not season:
                 continue
             # 更新TMDB信息
             media_info = self.__get_media_info(tmdbid=tmdbid,

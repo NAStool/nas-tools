@@ -143,12 +143,14 @@ class Qbittorrent(IDownloadClient):
             # 判断标签是否包含"已整理"
             if torrent.get("tags") and "已整理" in torrent.get("tags"):
                 continue
-            path = torrent.get('save_path')
+            path = torrent.get("save_path")
             if not path:
                 continue
-            content_path = torrent.get('content_path')
+            content_path = torrent.get("content_path")
             if content_path:
-                trans_name = content_path[len(path):]
+                trans_name = content_path.replace(path, "")
+                if trans_name.startswith('/') or trans_name.startswith('\\'):
+                    trans_name = trans_name[1:]
             else:
                 trans_name = torrent.get('name')
             true_path = self.get_replace_path(path)

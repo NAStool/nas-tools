@@ -74,9 +74,9 @@ class Emby(IMediaServer):
                     if user.get("Policy", {}).get("IsAdministrator"):
                         return user.get("Id")
             else:
-                log.error("【JELLYFIN】Users 未获取到返回数据")
+                log.error(f"【{self.server_type}】Users 未获取到返回数据")
         except Exception as e:
-            log.error("【JELLYFIN】连接Users出错：" + str(e))
+            log.error(f"【{self.server_type}】连接Users出错：" + str(e))
         return None
 
     def get_user_count(self):

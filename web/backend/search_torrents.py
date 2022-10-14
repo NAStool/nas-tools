@@ -127,7 +127,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
             and second_search_name != first_search_name:
         search_process.start('search')
         search_process.update(ptype='search', text="%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
-        log.info("【SEARCHER】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
+        log.info("【Searcher】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
         media_list = Searcher().search_medias(key_word=second_search_name,
                                               filter_args=filter_args,
                                               match_type=1,
@@ -162,7 +162,7 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
     global SEARCH_MEDIA_CACHE
 
     if not input_str:
-        log.info("【SEARCHER】检索关键字有误！")
+        log.info("【Searcher】检索关键字有误！")
         return
     # 如果是数字，表示选择项
     if input_str.isdigit():

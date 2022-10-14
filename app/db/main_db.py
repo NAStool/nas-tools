@@ -25,7 +25,7 @@ class MainDb:
     def init_config(self):
         config = Config()
         if not config.get_config_path():
-            log.console("【ERROR】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
+            log.console("【Config】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
             quit()
         self.__db_path = os.path.join(config.get_config_path(), 'user.db')
         self.__pools = DBPool(
