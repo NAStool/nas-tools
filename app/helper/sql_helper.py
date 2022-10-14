@@ -1997,7 +1997,7 @@ class SqlHelper:
         """
         查询启用的替换词及有关联的集数偏移
         """
-        return MainDb().select_by_sql("SELECT REPLACED_WORDS.ID, REPLACED, REPLACE, FRONT, BACK, OFFSET "
+        return MainDb().select_by_sql("SELECT REPLACED_WORDS.ID, REPLACED, REPLACE, FRONT, BACK, OFFSET, OFFSET_WORDS.ENABLED "
                                       "FROM REPLACED_WORDS LEFT JOIN OFFSET_WORDS "
                                       "ON REPLACED_WORDS.ID = OFFSET_WORDS.REPLACED_WORD_ID "
                                       "WHERE REPLACED_WORDS.ENABLED = 1")

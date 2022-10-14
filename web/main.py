@@ -1212,6 +1212,13 @@ def create_flask_app():
     @App.route('/customwords', methods=['POST', 'GET'])
     @login_required
     def customwords():
+        # 有关联被替换词的集数偏移状态初始化(关联被替换词停用则停用)
+        ignored_words_related = SqlHelper.get_offset_words_related()
+        for ignored_word_related in ignored_words_related:
+            replaced_words = SqlHelper.get_replaced_word(ignored_word_related[-1])
+            if not replaced_words or replaced_words[0][-1] == 0:
+                SqlHelper.check_offset_word(0, ignored_word_related[0])
+        #  ----------------------------------------------------------------
         ignored_words = {}
         ignored_words_info = SqlHelper.get_ignored_words()
         for ignored_word_info in ignored_words_info:

@@ -259,12 +259,6 @@ def update_config(cfg):
                 offset_word = offset_word.split("@")
                 if not SqlHelper.is_offset_word_existed(offset_word[0], offset_word[1]):
                     SqlHelper.insert_offset_word(offset_word[0], offset_word[1], offset_word[2], 1, -1)
-            # 有关联被替换词的集数偏移状态初始化(关联被替换词停用则停用)
-            ignored_words_related = SqlHelper.get_offset_words_related()
-            for ignored_word_related in ignored_words_related:
-                replaced_words = SqlHelper.get_replaced_word(ignored_word_related[-1])
-                if not replaced_words or replaced_words[0][-1] == 0:
-                    SqlHelper.check_offset_word(0, ignored_word_related[0])
             _config['laboratory'].pop('offset_words')
             overwrite_cofig = True
     except Exception as e:
