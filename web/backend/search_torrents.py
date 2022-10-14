@@ -5,7 +5,7 @@ import cn2an
 import log
 from config import Config
 from app.message import Message
-from app.douban import DouBan
+from app.media.douban import DouBan
 from app.downloader import Downloader
 from app.searcher import Searcher
 from app.utils import StringUtils
@@ -41,26 +41,42 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
     if ident_flag:
         if tmdbid:
             if tmdbid.startswith("DB:"):
+                # 以豆瓣ID查询
                 doubanid = tmdbid[3:]
-                if media_type == MediaType.MOVIE:
-                    doubaninfo = DoubanApi().movie_detail(doubanid)
-                else:
-                    doubaninfo = DoubanApi().tv_detail(doubanid)
+                # 先从网页抓取（含TMDBID）
+                doubaninfo = DouBan().get_media_detail_from_web("https://movie.douban.com/subject/%s/" % doubanid)
+                if not doubaninfo:
+                    # 从API抓取
+                    if media_type == MediaType.MOVIE:
+                        doubaninfo = DoubanApi().movie_detail(doubanid)
+                    else:
+                        doubaninfo = DoubanApi().tv_detail(doubanid)
                 if not doubaninfo:
                     return -1, "%s 查询不到豆瓣信息，请确认网络是否正常！" % content
-                title = doubaninfo.get("title")
-                media_info = Media().get_media_info(mtype=media_type,
-                                                    title="%s %s" % (title, doubaninfo.get("year")),
-                                                    strict=True)
-                if media_info and episode_num:
-                    media_info.begin_episode = int(episode_num)
+                if doubaninfo.get("imdbid"):
+                    # 按IMDBID查询TMDB
+                    tmdb_info = Media().get_meida_by_imdbid(doubaninfo.get("imdbid"))
+                    if tmdb_info:
+                        media_info = MetaInfo(mtype=media_type or mtype, title=content)
+                        media_info.set_tmdb_info(tmdb_info)
+                    else:
+                        return -1, "%s 查询不到TMDB媒体信息！" % doubaninfo.get("imdbid")
+                else:
+                    # 按标题查询TMDB
+                    title = doubaninfo.get("title")
+                    media_info = Media().get_media_info(mtype=media_type,
+                                                        title="%s %s" % (title, doubaninfo.get("year")),
+                                                        strict=True)
+                    if media_info and episode_num:
+                        media_info.begin_episode = int(episode_num)
             else:
+                # 以TMDBID查询
                 media_info = MetaInfo(mtype=media_type or mtype, title=content)
                 media_info.set_tmdb_info(Media().get_tmdb_info(mtype=media_type or mtype, tmdbid=tmdbid))
         else:
             media_info = Media().get_media_info(mtype=media_type or mtype, title=content)
         if not media_info or not media_info.tmdb_info:
-            return -1, "%s 查询不到媒体信息，请确认名称是否正确！" % content
+            return -1, "%s 从TMDB查询不到媒体信息，请确认名称是否正确！" % content
         # 查找的季
         if media_info.begin_season is None:
             search_season = None
@@ -179,8 +195,15 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
             # 如果是豆瓣数据，需要重新查询TMDB的数据
             if media_info.douban_id:
                 _title = media_info.get_title_string()
-                media_info = Media().get_media_info(title="%s %s" % (media_info.title, media_info.year),
-                                                    mtype=media_info.type, strict=True)
+                # 先从网页抓取（含TMDBID）
+                doubaninfo = DouBan().get_media_detail_from_web("https://movie.douban.com/subject/%s/" % media_info.douban_id)
+                if doubaninfo and doubaninfo.get("imdbid"):
+                    # 按IMDBID查询TMDB
+                    media_info.set_tmdb_info(Media().get_meida_by_imdbid(doubaninfo.get("imdbid")))
+                else:
+                    media_info = Media().get_media_info(title="%s %s" % (media_info.title, media_info.year),
+                                                        mtype=media_info.type,
+                                                        strict=True)
                 if not media_info or not media_info.tmdb_info:
                     Message().send_channel_msg(channel=in_from,
                                                title="%s 从TMDB查询不到媒体信息！" % _title,

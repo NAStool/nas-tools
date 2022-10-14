@@ -11,19 +11,19 @@ from ruamel.yaml import YAML
 
 import cn2an
 import log
+from app.doubansync import DoubanSync
 from app.helper.words_helper import WordsHelper
 from app.indexer import BuiltinIndexer
 from app.media.doubanv2api import DoubanHot
 from app.mediaserver import MediaServer
 from app.rsschecker import RssChecker
 from app.utils import StringUtils, Torrent, EpisodeFormat, RequestUtils, PathUtils, SystemUtils
-from app.helper import ProgressHelper, ThreadHelper, MetaHelper, ChromeHelper
+from app.helper import ProgressHelper, ThreadHelper, MetaHelper
 from app.utils.types import RMT_MODES
 from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
 from app.message import Telegram, WeChat, Message, MessageCenter
 from app.brushtask import BrushTask
 from app.downloader import Qbittorrent, Transmission, Downloader
-from app.douban import DouBan
 from app.filterrules import FilterRule
 from app.mediaserver import Emby, Jellyfin, Plex
 from app.rss import Rss
@@ -171,7 +171,7 @@ class WebAction:
             "/pts": {"func": Sites().signin, "desp": "站点签到"},
             "/rst": {"func": Sync().transfer_all_sync, "desp": "目录同步"},
             "/rss": {"func": Rss().rssdownload, "desp": "RSS订阅"},
-            "/db": {"func": DouBan().sync, "desp": "豆瓣同步"}
+            "/db": {"func": DoubanSync().sync, "desp": "豆瓣同步"}
         }
         command = commands.get(msg)
         if command:
@@ -312,7 +312,7 @@ class WebAction:
             "ptsignin": Sites().signin,
             "sync": Sync().transfer_all_sync,
             "rssdownload": Rss().rssdownload,
-            "douban": DouBan().sync
+            "douban": DoubanSync().sync
         }
         sch_item = data.get("item")
         if sch_item and commands.get(sch_item):
