@@ -15,7 +15,7 @@ from config import Config, KEYWORD_BLACKLIST, KEYWORD_SEARCH_WEIGHT_3, KEYWORD_S
     KEYWORD_STR_SIMILARITY_THRESHOLD, KEYWORD_DIFF_SCORE_THRESHOLD, TMDB_IMAGE_ORIGINAL_URL, RMT_MEDIAEXT, \
     DEFAULT_TMDB_PROXY
 from app.helper import MetaHelper
-from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person
+from app.media.tmdbv3api import TMDb, Search, Movie, TV, Person, Find
 from app.media.tmdbv3api.exceptions import TMDbException
 from app.media.doubanv2api import DoubanApi
 from app.utils.cache_manager import cacheman
@@ -29,6 +29,7 @@ class Media:
     movie = None
     tv = None
     person = None
+    find = None
     meta = None
     __rmt_match_mode = None
     __search_keyword = None
@@ -56,6 +57,7 @@ class Media:
                 self.search = Search()
                 self.movie = Movie()
                 self.tv = TV()
+                self.find = Find()
                 self.person = Person()
                 self.meta = MetaHelper()
             rmt_match_mode = app.get('rmt_match_mode', 'normal')
@@ -1258,3 +1260,20 @@ class Media:
         target.fanart_poster = source.get_poster_image()
         target.fanart_backdrop = source.get_backdrop_image()
         return target
+
+    def get_meida_by_imdbid(self, imdbid):
+        """
+        根据IMDBID查询TMDB信息
+        """
+        if not self.find:
+            return {}
+        try:
+            result = self.find.find_by_imdbid(imdbid) or {}
+            tmdbinfo = result.get('movie_results') or result.get("tv_results")
+            if tmdbinfo:
+                tmdbinfo = tmdbinfo[0]
+                tmdbinfo['meida_type'] = MediaType.MOVIE if tmdbinfo.get('media_type') == "movie" else MediaType.TV
+                return tmdbinfo
+        except Exception as err:
+            log.console(str(err))
+        return {}

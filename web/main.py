@@ -27,7 +27,7 @@ from app.utils import StringUtils, DomUtils, SystemUtils, WebUtils
 from app.helper import Security, MetaHelper
 from config import WECHAT_MENU, PT_TRANSFER_INTERVAL, TORRENT_SEARCH_PARAMS, TMDB_IMAGE_W500_URL, NETTEST_TARGETS, \
     Config
-from app.douban import DouBan
+from app.media.douban import DouBan
 from app.downloader import Downloader
 from app.filterrules import FilterRule
 from app.indexer import BuiltinIndexer

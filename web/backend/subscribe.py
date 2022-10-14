@@ -1,3 +1,4 @@
+from app.media.douban import DouBan
 from app.helper import SqlHelper
 from app.media.doubanv2api import DoubanApi
 from app.media import MetaInfo, Media
@@ -56,6 +57,7 @@ def add_rss_subscribe(mtype, name, year,
         else:
             title = "%s %s".strip() % (name, year)
         if tmdbid:
+            # 根据TMDBID查询
             media_info = MetaInfo(title=title, mtype=mtype)
             media_info.set_tmdb_info(media.get_tmdb_info(mtype=mtype, tmdbid=tmdbid))
             if not media_info or not media_info.tmdb_info or not tmdbid:
@@ -68,21 +70,30 @@ def add_rss_subscribe(mtype, name, year,
             if media_info and media_info.tmdb_info:
                 tmdbid = media_info.tmdb_id
             elif doubanid:
-                # 查询豆瓣，从推荐加订阅的情况
-                if mtype == MediaType.MOVIE:
-                    douban_info = DoubanApi().movie_detail(doubanid)
-                else:
-                    douban_info = DoubanApi().tv_detail(doubanid)
+                # 先从豆瓣网页抓取（含TMDBID）
+                douban_info = DouBan().get_media_detail_from_web("https://movie.douban.com/subject/%s/" % doubanid)
+                if not douban_info:
+                    if mtype == MediaType.MOVIE:
+                        douban_info = DoubanApi().movie_detail(doubanid)
+                    else:
+                        douban_info = DoubanApi().tv_detail(doubanid)
                 if not douban_info or douban_info.get("localized_message"):
                     return 1, "无法查询到豆瓣媒体信息", None
                 media_info = MetaInfo(title="%s %s".strip() % (douban_info.get('title'), year), mtype=mtype)
-                media_info.title = douban_info.get('title')
-                media_info.year = douban_info.get("year")
-                media_info.type = mtype
-                media_info.backdrop_path = douban_info.get("cover_url")
-                media_info.tmdb_id = "DB:%s" % doubanid
-                media_info.overview = douban_info.get("intro")
-                media_info.total_episodes = douban_info.get("episodes_count")
+                if douban_info.get("imdbid"):
+                    tmdb_info = Media().get_meida_by_imdbid(douban_info.get("imdbid"))
+                    if tmdb_info:
+                        media_info.set_tmdb_info(tmdb_info)
+                    else:
+                        return -1, "%s 查询不到TMDB媒体信息！" % douban_info.get("imdbid"), None
+                else:
+                    media_info.title = douban_info.get('title')
+                    media_info.year = douban_info.get("year")
+                    media_info.type = mtype
+                    media_info.backdrop_path = douban_info.get("cover_url")
+                    media_info.tmdb_id = "DB:%s" % doubanid
+                    media_info.overview = douban_info.get("intro")
+                    media_info.total_episodes = douban_info.get("episodes_count")
                 # 合并季
                 if season:
                     media_info.begin_season = int(season)

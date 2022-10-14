@@ -6,11 +6,11 @@ import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import log
+from app.doubansync import DoubanSync
 from app.mediaserver import MediaServer
 from config import AUTO_REMOVE_TORRENTS_INTERVAL, PT_TRANSFER_INTERVAL, Config, METAINFO_SAVE_INTERVAL, \
     RELOAD_CONFIG_INTERVAL, SYNC_TRANSFER_INTERVAL, RSS_CHECK_INTERVAL, REFRESH_PT_DATA_INTERVAL, \
     RSS_REFRESH_TMDB_INTERVAL, META_DELETE_UNKNOWN_INTERVAL, REFRESH_WALLPAPER_INTERVAL
-from app.douban import DouBan
 from app.downloader import Downloader
 from app.rss import Rss
 from app.sites import Sites
@@ -154,7 +154,7 @@ class Scheduler:
                             log.info("豆瓣同步服务启动失败：%s" % str(e))
                             douban_interval = 0
                 if douban_interval:
-                    self.SCHEDULER.add_job(DouBan().sync, 'interval', hours=douban_interval)
+                    self.SCHEDULER.add_job(DoubanSync().sync, 'interval', hours=douban_interval)
                     log.info("豆瓣同步服务启动")
 
         # 媒体库同步
