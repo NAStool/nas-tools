@@ -2456,6 +2456,7 @@ class WebAction:
             if offset_words:
                 for offset_word_id in offset_words:
                     SqlHelper.check_offset_word(flag_dict.get(flag), offset_word_id)
+            WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
             print(str(e))

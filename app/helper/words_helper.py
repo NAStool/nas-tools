@@ -1,4 +1,4 @@
-import re
+import regex as re
 
 from app.helper import SqlHelper
 from app.utils.commons import singleton
@@ -6,10 +6,6 @@ from app.utils.commons import singleton
 
 @singleton
 class WordsHelper:
-    # 屏蔽词
-    ignored_words_info = []
-    # 替换词
-    replaced_words_info = []
 
     def __init__(self):
         self.init_config()
@@ -17,6 +13,7 @@ class WordsHelper:
     def init_config(self):
         self.ignored_words_info = SqlHelper.get_ignored_words_enable()
         self.replaced_words_info = SqlHelper.get_replaced_words_enable_with_offset()
+        self.offset_words_info = SqlHelper.get_offset_words_unrelated_enable()
 
     def process(self, title):
         # 错误信息
@@ -27,6 +24,7 @@ class WordsHelper:
         used_replaced_words = []
         # 应用集数偏移
         used_offset_words = []
+        # 屏蔽词
         if self.ignored_words_info:
             try:
                 ignored_words = []
@@ -49,6 +47,7 @@ class WordsHelper:
                     replaced = replaced_word_info[1]
                     replace = replaced_word_info[2]
                     front = replaced_word_info[3]
+                    offest_word_enabled = replaced_word_info[6]
                     if replaced_words_id != replaced_word_info[0]:
                         replaced_words_id = replaced_word_info[0]
                         replaced_word = "%s@%s" % (replaced, replace)
@@ -57,19 +56,20 @@ class WordsHelper:
                             replaced_words_match_flag = True
                             used_replaced_words.append(replaced_word)
                             title = re.sub(r'%s' % replaced, r'%s' % replace, title)
-                    if front and replaced_words_match_flag:
+                    if offest_word_enabled == 1 and replaced_words_match_flag:
+                        front = replaced_word_info[3]
                         back = replaced_word_info[4]
                         offset = replaced_word_info[5]
-                        title = self.episode_offset(front, back, offset, used_offset_words, title)
+                        title, msg = self.episode_offset(front, back, offset, used_offset_words, title)
                 except Exception as err:
                     msg = "【Meta】自定义替换词 %s 格式有误：%s" % (replaced_word_info, str(err))
-        offset_words_info = SqlHelper.get_offset_words_unrelated_enable()
-        if offset_words_info:
-            for offset_word_info in offset_words_info:
+        # 集数偏移
+        if self.offset_words_info:
+            for offset_word_info in self.offset_words_info:
                 front = offset_word_info[1]
                 back = offset_word_info[2]
                 offset = offset_word_info[3]
-                title = self.episode_offset(front, back, offset, used_offset_words, title)
+                title, msg = self.episode_offset(front, back, offset, used_offset_words, title)
 
         return title, msg, {"ignored": used_ignored_words,
                             "replaced": used_replaced_words,
