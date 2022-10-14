@@ -146,12 +146,12 @@ class IDownloadClient(metaclass=ABCMeta):
         """
         if not true_path:
             return ""
-        downloaddir = Config().get_config('downloaddir') or {}
-        for path, attr in downloaddir.items():
-            if not path or not attr.get("path"):
+        downloaddir = Config().get_config('downloaddir') or []
+        for attr in downloaddir:
+            if not attr["save_path"] or not attr["container_path"]:
                 continue
-            if os.path.normpath(path) == os.path.normpath(true_path):
-                return attr.get("path")
+            if os.path.normpath(attr["save_path"]) == os.path.normpath(true_path):
+                return attr["container_path"]
         return true_path
 
     @abstractmethod
