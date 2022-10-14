@@ -2,7 +2,7 @@ from app.utils.commons import singleton
 
 
 @singleton
-class ProgressController(object):
+class ProgressHelper(object):
     _process_detail = {}
 
     def __init__(self):

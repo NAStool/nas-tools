@@ -11,7 +11,7 @@ from app.searcher import Searcher
 from app.utils import StringUtils
 from app.media.doubanv2api import DoubanApi
 from app.media import MetaInfo, Media
-from app.helper import SqlHelper, ProgressController
+from app.helper import SqlHelper, ProgressHelper
 from app.utils.types import SearchType, MediaType
 from web.backend.subscribe import add_rss_subscribe
 
@@ -34,7 +34,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         log.info("【Web】%s 检索关键字有误！" % content)
         return -1, "%s 未识别到搜索关键字！" % content
     # 开始进度
-    search_process = ProgressController()
+    search_process = ProgressHelper()
     search_process.start('search')
     # 识别媒体
     media_info = None

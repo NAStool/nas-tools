@@ -17,7 +17,7 @@ from app.media.doubanv2api import DoubanHot
 from app.mediaserver import MediaServer
 from app.rsschecker import RssChecker
 from app.utils import StringUtils, Torrent, EpisodeFormat, RequestUtils, PathUtils, SystemUtils
-from app.helper import ProgressController, ThreadHelper, MetaHelper, ChromeHelper
+from app.helper import ProgressHelper, ThreadHelper, MetaHelper, ChromeHelper
 from app.utils.types import RMT_MODES
 from config import RMT_MEDIAEXT, Config, TMDB_IMAGE_W500_URL, TMDB_IMAGE_ORIGINAL_URL
 from app.message import Telegram, WeChat, Message, MessageCenter
@@ -2146,7 +2146,7 @@ class WebAction:
         """
         刷新进度条
         """
-        detail = ProgressController().get_process(data.get("type"))
+        detail = ProgressHelper().get_process(data.get("type"))
         if detail:
             return {"code": 0, "value": detail.get("value"), "text": detail.get("text")}
         else:

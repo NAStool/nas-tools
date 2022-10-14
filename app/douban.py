@@ -176,29 +176,7 @@ class DouBan:
         log.info(f"【DOUBAN】所有用户解析完成，共获取到 {len(douban_ids)} 个媒体")
         # 查询豆瓣详情
         for doubanid in douban_ids:
-            def get_douban_detail():
-                log.info("【DOUBAN】正在查询豆瓣详情：%s" % doubanid)
-                douban_info = self.doubanapi.movie_detail(doubanid)
-                if not douban_info:
-                    douban_info = self.doubanapi.tv_detail(doubanid)
-                if not douban_info:
-                    log.warn("【DOUBAN】%s 未找到豆瓣详细信息" % doubanid)
-                    sleep(round(random.uniform(1, 5), 1))
-                    return None
-                if douban_info.get("localized_message"):
-                    log.warn("【DOUBAN】查询豆瓣详情返回：%s" % douban_info.get("localized_message"))
-                    # 随机休眠
-                    sleep(round(random.uniform(1, 5), 1))
-                    return None
-                if not douban_info.get("title"):
-                    # 随机休眠
-                    sleep(round(random.uniform(1, 5), 1))
-                    return None
-                if douban_info.get("title") == "未知电影" or douban_info.get("title") == "未知电视剧":
-                    return None
-                return douban_info
-
-            douban_info = get_douban_detail()
+            douban_info = self.get_douban_detail(doubanid)
             # 组装媒体信息
             if not douban_info:
                 log.warn("【DOUBAN】%s 未正确获取豆瓣详细信息，尝试使用网页获取" % doubanid)
@@ -222,6 +200,28 @@ class DouBan:
             # 随机休眠
             sleep(round(random.uniform(1, 5), 1))
         return media_list
+
+    def get_douban_detail(self, doubanid):
+        log.info("【DOUBAN】正在查询豆瓣详情：%s" % doubanid)
+        douban_info = self.doubanapi.movie_detail(doubanid)
+        if not douban_info:
+            douban_info = self.doubanapi.tv_detail(doubanid)
+        if not douban_info:
+            log.warn("【DOUBAN】%s 未找到豆瓣详细信息" % doubanid)
+            sleep(round(random.uniform(1, 5), 1))
+            return None
+        if douban_info.get("localized_message"):
+            log.warn("【DOUBAN】查询豆瓣详情返回：%s" % douban_info.get("localized_message"))
+            # 随机休眠
+            sleep(round(random.uniform(1, 5), 1))
+            return None
+        if not douban_info.get("title"):
+            # 随机休眠
+            sleep(round(random.uniform(1, 5), 1))
+            return None
+        if douban_info.get("title") == "未知电影" or douban_info.get("title") == "未知电视剧":
+            return None
+        return douban_info
 
     def sync(self):
         """

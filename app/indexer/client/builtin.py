@@ -9,7 +9,7 @@ from app.indexer.indexer import IIndexer
 from app.indexer.client.spider import TorrentSpider
 from app.sites import Sites
 from app.utils import StringUtils
-from app.helper import ProgressController, IndexerHelper
+from app.helper import ProgressHelper, IndexerHelper
 
 
 class BuiltinIndexer(IIndexer):
@@ -19,7 +19,7 @@ class BuiltinIndexer(IIndexer):
 
     def init_config(self):
         self.sites = Sites()
-        self.progress = ProgressController()
+        self.progress = ProgressHelper()
 
     def get_status(self):
         """

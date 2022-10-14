@@ -5,7 +5,7 @@ from app.message import Message
 from app.downloader import Downloader
 from app.indexer import BuiltinIndexer, Jackett, Prowlarr
 from app.media import Media
-from app.helper import ProgressController
+from app.helper import ProgressHelper
 from app.utils.types import SearchType, MediaType
 
 
@@ -21,7 +21,7 @@ class Searcher:
         self.downloader = Downloader()
         self.media = Media()
         self.message = Message()
-        self.progress = ProgressController()
+        self.progress = ProgressHelper()
         self.init_config()
 
     def init_config(self):

@@ -232,7 +232,6 @@ def update_config(cfg):
                                      "label": attr.get("label")})
         _config['downloaddir'] = downloaddir_list
         overwrite_cofig = True
-
     # 自定义识别词兼容旧配置
     try:
         ignored_words = Config().get_config('laboratory').get("ignored_words")
@@ -263,7 +262,6 @@ def update_config(cfg):
             overwrite_cofig = True
     except Exception as e:
         print(str(e))
-
     # 重写配置文件
     if overwrite_cofig:
         cfg.save_config(_config)
