@@ -307,23 +307,17 @@ def __search_media(in_from, media_info, user_id):
                                        image=media_info.get_message_image(),
                                        url="search",
                                        user_id=user_id)
+            return
         else:
             # 搜索到了但是没下载到数据
             if download_count == 0:
                 Message().send_channel_msg(channel=in_from,
                                            title="%s 共搜索到%s个结果，但没有下载到任何资源" % (media_info.title, search_count),
                                            user_id=user_id)
-            # 没有下载完成，且打开了自动添加订阅
-            if not search_result and Config().get_config('pt').get('search_no_result_rss'):
-                # 添加订阅
-                if add_rss_subscribe(mtype=media_info.type,
-                                     name=media_info.title,
-                                     year=media_info.year,
-                                     season=media_info.begin_season,
-                                     tmdbid=media_info.tmdb_id,
-                                     state='R'):
-                    # 发送通知
-                    Message().send_rss_success_message(in_from=in_from, media_info=media_info, user_id=user_id)
+        # 没有下载完成，且打开了自动添加订阅
+        if not search_result and Config().get_config('pt').get('search_no_result_rss'):
+            # 添加订阅
+            __rss_media(in_from=in_from, media_info=media_info, user_id=user_id)
 
 
 def __rss_media(in_from, media_info, user_id=None):
