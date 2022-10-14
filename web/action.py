@@ -780,8 +780,6 @@ class WebAction:
                                                rss_uses=rss_uses)
         # 生效站点配置
         Sites().init_config()
-        # 重置浏览器
-        ChromeHelper().init_config()
 
         return {"code": ret}
 

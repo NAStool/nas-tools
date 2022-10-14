@@ -5,26 +5,19 @@ from functools import reduce
 from threading import Lock
 
 from app.utils import SystemUtils, RequestUtils
-from app.utils.commons import singleton
 import undetected_chromedriver.v2 as uc
 
 CHROME_LOCK = Lock()
 lock = Lock()
 
 
-@singleton
 class ChromeHelper(object):
 
     _executable_path = "/usr/lib/chromium/chromedriver" if SystemUtils.is_docker() else None
     _chrome = None
 
     def __init__(self):
-        self.init_config()
-
-    def init_config(self):
-        if self._chrome:
-            self._chrome.quit()
-            self._chrome = None
+        pass
 
     @property
     def browser(self):
@@ -33,9 +26,14 @@ class ChromeHelper(object):
                 self._chrome = self.__get_browser()
             return self._chrome
 
-    def __get_browser(self):
+    def get_status(self):
         if self._executable_path \
                 and not os.path.exists(self._executable_path):
+            return False
+        return True
+
+    def __get_browser(self):
+        if not self.get_status():
             return None
         options = uc.ChromeOptions()
         options.add_argument('--disable-gpu')
@@ -57,6 +55,8 @@ class ChromeHelper(object):
         return chrome
 
     def visit(self, url, ua=None, cookie=None):
+        if not self.browser:
+            return
         if ua:
             self.browser.execute_cdp_cmd("Emulation.setUserAgentOverride", {
                 "userAgent": ua
@@ -69,12 +69,18 @@ class ChromeHelper(object):
             self.browser.get(url)
 
     def get_title(self):
+        if not self.browser:
+            return ""
         return self.browser.title
 
     def get_html(self):
+        if not self.browser:
+            return ""
         return self.browser.page_source
 
     def get_cookies(self):
+        if not self.browser:
+            return ""
         cookie_str = ""
         for _cookie in self.browser.get_cookies():
             if not _cookie:

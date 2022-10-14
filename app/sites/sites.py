@@ -247,7 +247,7 @@ class Sites:
                 if not site_url or not site_cookie:
                     log.warn("【Sites】未配置 %s 的站点地址或Cookie，无法签到" % str(site))
                     continue
-                if emulate == "Y" and chrome.browser:
+                if emulate == "Y" and chrome.get_status():
                     # 首页
                     log.info("【Sites】开始站点仿真签到：%s" % site)
                     home_url = "%s://%s" % StringUtils.get_url_netloc(site_url)
