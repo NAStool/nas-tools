@@ -143,14 +143,14 @@
               <div class="mb-3">
                 <label class="form-label">同步方式</label>
                 <select  id="rename_syncmod_manual" class="form-select">
-                  <option value="link" selected = "selected">硬链接</option>
-                  <option value="softlink">软链接</option>
-                  <option value="copy">复制</option>
-                  <option value="move">移动</option>
-                  <option value="rclonecopy">Rclone复制</option>
-                  <option value="rclone">Rclone移动</option>
-                  <option value="miniocopy">Minio复制</option>
-                  <option value="minio">Minio移动</option>
+                  <option value="link" {% if SyncMod == "link" %} selected = "selected"{% endif %}>硬链接</option>
+                  <option value="softlink" {% if SyncMod == "softlink" %} selected = "selected"{% endif %}>软链接</option>
+                  <option value="copy" {% if SyncMod == "copy" %} selected = "selected"{% endif %}>复制</option>
+                  <option value="move" {% if SyncMod == "move" %} selected = "selected"{% endif %}>移动</option>
+                  <option value="rclonecopy" {% if SyncMod == "rclonecopy" %} selected = "selected"{% endif %}>Rclone复制</option>
+                  <option value="rclone" {% if SyncMod == "rclone" %} selected = "selected"{% endif %}>Rclone移动</option>
+                  <option value="miniocopy" {% if SyncMod == "miniocopy" %} selected = "selected"{% endif %}>Minio复制</option>
+                  <option value="minio" {% if SyncMod == "minio" %} selected = "selected"{% endif %}>Minio移动</option>
                 </select> 
               </div>
             </div>
@@ -171,14 +171,14 @@
               <div class="mb-3">
                 <label class="form-label">同步方式</label>
                 <select  id="rename_syncmod_customize" class="form-select">
-                  <option value="link" selected = "selected">硬链接</option>
-                  <option value="softlink">软链接</option>
-                  <option value="copy">复制</option>
-                  <option value="move">移动</option>
-                  <option value="rclonecopy">Rclone复制</option>
-                  <option value="rclone">Rclone移动</option>
-                  <option value="miniocopy">Minio复制</option>
-                  <option value="minio">Minio移动</option>
+                  <option value="link" {% if SyncMod == "link" %} selected = "selected"{% endif %}>硬链接</option>
+                  <option value="softlink" {% if SyncMod == "softlink" %} selected = "selected"{% endif %}>软链接</option>
+                  <option value="copy" {% if SyncMod == "copy" %} selected = "selected"{% endif %}>复制</option>
+                  <option value="move" {% if SyncMod == "move" %} selected = "selected"{% endif %}>移动</option>
+                  <option value="rclonecopy" {% if SyncMod == "rclonecopy" %} selected = "selected"{% endif %}>Rclone复制</option>
+                  <option value="rclone" {% if SyncMod == "rclone" %} selected = "selected"{% endif %}>Rclone移动</option>
+                  <option value="miniocopy" {% if SyncMod == "miniocopy" %} selected = "selected"{% endif %}>Minio复制</option>
+                  <option value="minio" {% if SyncMod == "minio" %} selected = "selected"{% endif %}>Minio移动</option>
                 </select> 
               </div>
             </div>
