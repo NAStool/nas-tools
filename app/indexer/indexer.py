@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import log
 from app.filterrules import FilterRule
 from app.utils import Torrent, DomUtils, RequestUtils, StringUtils
-from app.helper import ProgressController
+from app.helper import ProgressHelper
 from app.media import MetaInfo, Media
 from app.utils.types import MediaType, SearchType
 
@@ -24,7 +24,7 @@ class IIndexer(metaclass=ABCMeta):
     def __init__(self):
         self.media = Media()
         self.filterrule = FilterRule()
-        self.progress = ProgressController()
+        self.progress = ProgressHelper()
         self.init_config()
 
     @abstractmethod

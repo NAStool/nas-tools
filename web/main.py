@@ -667,7 +667,7 @@ def create_flask_app():
     @login_required
     def downloading():
         DownloadCount = 0
-        Client, Torrents = Downloader().pt_downloading_torrents()
+        Client, Torrents = Downloader().get_downloading_torrents()
         DispTorrents = []
         for torrent in Torrents:
             if Client == DownloaderType.QB:
@@ -1204,21 +1204,54 @@ def create_flask_app():
         proxy = Config().get_config('app').get("proxies", {}).get("http")
         if proxy:
             proxy = proxy.replace("http://", "")
-        ignored_words = Config().get_config('laboratory').get("ignored_words")
-        if ignored_words:
-            ignored_words = ignored_words.replace("||", "\n")
-        replaced_words = Config().get_config('laboratory').get("replaced_words")
-        if replaced_words:
-            replaced_words = replaced_words.replace("||", "\n")
-        offset_words = Config().get_config('laboratory').get("offset_words")
-        if offset_words:
-            offset_words = offset_words.replace("||", "\n")
         return render_template("setting/basic.html",
                                Config=Config().get_config(),
-                               Proxy=proxy,
-                               Ignored_Words=ignored_words,
-                               Replaced_Words=replaced_words,
-                               Offset_Words=offset_words)
+                               Proxy=proxy)
+
+    # 自定义识别词设置页面
+    @App.route('/customwords', methods=['POST', 'GET'])
+    @login_required
+    def customwords():
+        # 有关联被替换词的集数偏移状态初始化(关联被替换词停用则停用)
+        ignored_words_related = SqlHelper.get_offset_words_related()
+        for ignored_word_related in ignored_words_related:
+            replaced_words = SqlHelper.get_replaced_word(ignored_word_related[-1])
+            if not replaced_words or replaced_words[0][-1] == 0:
+                SqlHelper.check_offset_word(0, ignored_word_related[0])
+        #  ----------------------------------------------------------------
+        ignored_words = {}
+        ignored_words_info = SqlHelper.get_ignored_words()
+        for ignored_word_info in ignored_words_info:
+            ignored_words[str(ignored_word_info[0])] = {"ignored": ignored_word_info[1],
+                                                        "enabled": "True" if ignored_word_info[2] == 1 else "False"}
+        replaced_words = {}
+        replaced_words_info = SqlHelper.get_replaced_words()
+        for replaced_word_info in replaced_words_info:
+            replaced_words[str(replaced_word_info[0])] = {"replaced": replaced_word_info[1],
+                                                          "replace": replaced_word_info[2],
+                                                          "enabled": "True" if replaced_word_info[3] == 1 else "False"}
+        offset_words = {}
+        offset_words_info = SqlHelper.get_offset_words()
+        for offset_word_info in offset_words_info:
+            replaced_word_id = offset_word_info[5]
+            if replaced_word_id == -1:
+                replaced_word_related = {"id": "-1", "replaced": "None"}
+            else:
+                replaced_word_related = replaced_words.get(str(replaced_word_id))
+                if replaced_word_related:
+                    replaced_word_related = {"id": str(replaced_word_id),
+                                             "replaced": replaced_word_related.get("replaced")}
+                else:
+                    replaced_word_related = {"id": "-2", "replaced": "Error"}
+            offset_words[offset_word_info[0]] = {"front": offset_word_info[1],
+                                                 "back": offset_word_info[2],
+                                                 "offset": offset_word_info[3],
+                                                 "enabled": "True" if offset_word_info[4] == 1 else "False",
+                                                 "replaced_word": replaced_word_related}
+        return render_template("setting/customwords.html",
+                               IgnoredWords=ignored_words,
+                               ReplacedWords=replaced_words,
+                               OffsetWords=offset_words)
 
     # 目录同步页面
     @App.route('/directorysync', methods=['POST', 'GET'])

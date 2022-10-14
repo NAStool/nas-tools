@@ -279,30 +279,30 @@
             <div class="mb-3" id="dirdiv_container">
               <label class="form-label required">目录信息 <span class="form-help" title="根据类型及二级分类自动选择下载目录，按优先级从前往后依次匹配，直到找到符合条件及空间要求的目录下载；二级分类从基础设置->二级分类策略的配置中读取，如未配置二级分类则无法配置下载目录二级分类" data-bs-toggle="tooltip">?</span></label>
               {% if Config.downloaddir %}
-              {% for Path, Dir in Config.downloaddir.items() %}
+              {% for attr in Config.downloaddir %}
               <div class="row" id="dirdiv_{{loop.index0}}">
                 <div class="col-12 col-lg-2 mb-1">
                   <select class="form-select" name="dir_type" id="dir_type_{{loop.index0}}" onchange="get_categories(this)">
-                    <option value="" {% if not Dir.type %}selected{% endif %}>全部</option>
-                    <option value="电影" {% if Dir.type == "电影" %}selected{% endif %}>电影</option>
-                    <option value="电视剧" {% if Dir.type == "电视剧" %}selected{% endif %}>电视剧</option>
-                    <option value="动漫" {% if Dir.type == "动漫" %}selected{% endif %}>动漫</option>
+                    <option value="" {% if not attr.type %}selected{% endif %}>全部</option>
+                    <option value="电影" {% if attr.type == '电影' %}selected{% endif %}>电影</option>
+                    <option value="电视剧" {% if attr.type == '电视剧' %}selected{% endif %}>电视剧</option>
+                    <option value="动漫" {% if attr.type == '动漫' %}selected{% endif %}>动漫</option>
                   </select>
                 </div>
                 <div class="col-12 col-lg-2 mb-1">
-                  <input type="hidden" id="dir_subtype_{{loop.index0}}" value="{{ Dir.category or '' }}">
+                  <input type="hidden" id="dir_subtype_{{loop.index0}}" value="{{ attr['category'] or '' }}">
                   <select class="form-select" name="dir_subtype" id="dir_subtype_value_{{loop.index0}}">
                     <option value="" selected>全部</option>
                   </select>
                 </div>
                 <div class="col-12 col-lg mb-1">
-                  <input type="text" value="{{ Path or '' }}" name="save_path" class="form-control" placeholder="下载保存目录" autocomplete="off">
+                  <input type="text" value="{{ attr['save_path'] or '' }}" name="save_path" class="form-control" placeholder="下载保存目录" autocomplete="off">
                 </div>
                 <div class="col-12 col-lg mb-1">
-                  <input type="text" value="{{ Dir.path or '' }}" name="container_path" class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
+                  <input type="text" value="{{ attr['container_path'] or '' }}" name="container_path" class="form-control filetree-folders-only" placeholder="访问目录" autocomplete="off">
                 </div>
                 <div class="col-12 col-lg mb-1">
-                  <input type="text" value="{{ Dir.label or '' }}" name="path_label" class="form-control" placeholder="分类标签" autocomplete="off">
+                  <input type="text" value="{{ attr['label'] or '' }}" name="path_label" class="form-control" placeholder="分类标签" autocomplete="off">
                 </div>
                 <div class="col-12 col-lg-1 mb-1 mt-2">
                   <a href="javascript:del_downloaddir('{{loop.index0}}')" class="btn-icon" title="删除下载目录">
@@ -445,29 +445,14 @@
   //保存下载目录配置
   function save_downloaddir_config(){
     $("#modal-downloaddir").modal('hide');
-    var download_dir = {};
+    var download_dir = [];
     $("[name='save_path']").each(function(){
       save_path = $(this).val();
       type = get_dir_item_value(this, 'dir_type');
       category = get_dir_item_value(this, 'dir_subtype');
-      path = get_dir_item_value(this, 'container_path');
+      container_path = get_dir_item_value(this, 'container_path');
       label = get_dir_item_value(this, 'path_label');
-      debugger;
-      if(download_dir[save_path]){
-        if(type != download_dir[save_path].type){
-          type = '';
-        }
-        if(category != download_dir[save_path].category){
-          category = '';
-        }
-      }
-
-      download_dir[save_path] = {
-        type: type,
-        category: category,
-        path: path,
-        label: label
-      };
+      download_dir.push({"save_path": save_path, "type": type, "category": category, "container_path": container_path, "label": label});
     });
     ajax_post("update_config", {downloaddir: download_dir}, function(){
       navmenu('downloader');
