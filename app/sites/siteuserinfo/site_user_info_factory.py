@@ -23,7 +23,7 @@ class SiteUserInfoFactory(object):
         session = requests.Session()
         # 检测环境，有浏览器内核的优先使用仿真签到
         chrome = ChromeHelper()
-        if emulate and chrome.browser:
+        if emulate and chrome.get_status():
             with CHROME_LOCK:
                 try:
                     chrome.visit(url=url, ua=ua, cookie=site_cookie)
