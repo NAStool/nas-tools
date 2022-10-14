@@ -1837,6 +1837,18 @@ class SqlHelper:
         return MainDb().update_by_sql(sql, (front, back, offset, int(enabled), int(replaced_word_id)))
 
     @staticmethod
+    def edit_replaced_word(id, replaced, replace, enabled):
+        """
+        编辑自定义识别词-替换词
+        """
+        return MainDb().update_by_sql("UPDATE REPLACED_WORDS "
+                                      "SET REPLACED=?,REPLACE=?,ENABLED=? "
+                                      "WHERE ID=?", (replaced,
+                                                     replace,
+                                                     int(enabled),
+                                                     int(id))) 
+
+    @staticmethod
     def is_ignored_word_existed(ignored):
         """
         查询自定义识别词-屏蔽词
