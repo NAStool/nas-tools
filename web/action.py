@@ -129,7 +129,7 @@ class WebAction:
             "rss_articles_check": self.__rss_articles_check,
             "rss_articles_download": self.__rss_articles_download,
             "edit_custom_words": self.__edit_custom_words,
-            "add_custom_word": self.__add_custom_word,
+            "add_or_edit_custom_word": self.__add_or_edit_custom_word,
             "delete_custom_word": self.__delete_custom_word,
             "check_custom_words": self.__check_custom_words,
             "get_categories": self.__get_categories
@@ -2392,10 +2392,13 @@ class WebAction:
             return {"code": 1, "msg": "输入不符合YAML格式"}
     
     @staticmethod
-    def __add_custom_word(data):
+    def __add_or_edit_custom_word(data):
         flag = data.get("flag")
-        custom_word = data.get("custom_word") 
-        if flag == "ignored": 
+        id = data.get("id")
+        custom_word = data.get("custom_word")
+        if flag == "ignored":
+            if id:
+                SqlHelper.delete_ignored_word(id)
             if not SqlHelper.is_ignored_word_existed(custom_word[0]):
                 SqlHelper.insert_ignored_word(custom_word[0], 1 if custom_word[1] == "True" else 0)
                 WordsHelper().init_config()
@@ -2403,13 +2406,29 @@ class WebAction:
             else:
                 return {"code": 1, "msg": "屏蔽词已存在"}
         elif flag == "replaced":
-            if not SqlHelper.is_replaced_word_existed(custom_word[0]):
-                SqlHelper.insert_replaced_word(custom_word[0], custom_word[1], 1 if custom_word[2] == "True" else 0)
-                WordsHelper().init_config()
-                return {"code": 0, "msg": ""}
+            if id:
+                if not SqlHelper.is_replaced_word_existed(custom_word[0]):
+                    SqlHelper.edit_replaced_word(id, custom_word[0], custom_word[1], 1 if custom_word[2] == "True" else 0)
+                    WordsHelper().init_config()
+                    return {"code": 0, "msg": ""}
+                else:
+                    old_replaced_word = SqlHelper.get_replaced_word(id)[0]
+                    if custom_word[0] == old_replaced_word[1] and custom_word[1] != old_replaced_word[2]:
+                        SqlHelper.edit_replaced_word(id, custom_word[0], custom_word[1], 1 if custom_word[2] == "True" else 0)
+                        WordsHelper().init_config()
+                        return {"code": 0, "msg": ""}
+                    else:
+                        return {"code": 1, "msg": "替换词已存在"}
             else:
-                return {"code": 1, "msg": "替换词已存在"}
+                if not SqlHelper.is_replaced_word_existed(custom_word[0]):
+                    SqlHelper.insert_replaced_word(custom_word[0], custom_word[1], 1 if custom_word[2] == "True" else 0)
+                    WordsHelper().init_config()
+                    return {"code": 0, "msg": ""}
+                else:
+                    return {"code": 1, "msg": "替换词已存在"}
         elif flag == "offset":
+            if id:
+                SqlHelper.delete_offset_word(id)
             if not SqlHelper.is_offset_word_existed(custom_word[0], custom_word[1]):
                 SqlHelper.insert_offset_word(custom_word[0], custom_word[1], custom_word[2], 1 if custom_word[3] == "True" else 0, custom_word[4])
                 WordsHelper().init_config()
