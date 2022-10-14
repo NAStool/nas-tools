@@ -795,16 +795,17 @@ class Downloader:
                     continue
                 if attr.get("type") and attr.get("type") != media.type.value:
                     continue
-                if attr.get("category") and attr.get("category") != media.category:
+                if len(attr.get('category')) and attr.get('category') != media.category:
                     continue
                 if not attr.get("save_path") and not attr.get("label"):
                     continue
-                if (attr.get("container_path") or attr.get("save_path")) \
-                        and os.path.exists(attr.get("container_path") or attr.get("save_path")) \
-                        and media.size \
-                        and float(SystemUtils.get_free_space_gb(attr.get("container_path") or attr.get("save_path"))) \
-                        < float(int(StringUtils.num_filesize(media.size)) / 1024 / 1024 / 1024):
-                    continue
+                if self._client_type != DownloaderType.Client115:
+                    if (attr.get("container_path") or attr.get("save_path")) \
+                            and os.path.exists(attr.get("container_path") or attr.get("save_path")) \
+                            and media.size \
+                            and float(SystemUtils.get_free_space_gb(attr.get("container_path") or attr.get("save_path"))) \
+                            < float(int(StringUtils.num_filesize(media.size)) / 1024 / 1024 / 1024):
+                        continue
                 return {"path": attr.get("save_path"), "label": attr.get("label")}
         return {"path": None, "label": None}
 
