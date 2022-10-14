@@ -11,6 +11,7 @@ from ruamel.yaml import YAML
 
 import cn2an
 import log
+from app.helper.words_helper import WordsHelper
 from app.indexer import BuiltinIndexer
 from app.media.doubanv2api import DoubanHot
 from app.mediaserver import MediaServer
@@ -2386,6 +2387,7 @@ class WebAction:
                     replaced_word_id = SqlHelper.get_replaced_word_id_by_replaced_word(offset_word[4])
                     print(replaced_word_id)
                     SqlHelper.insert_offset_word(offset_word[0], offset_word[1], offset_word[2], 1 if offset_word[3] == "True" else 0, replaced_word_id)
+            WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
             print(str(e))
@@ -2398,18 +2400,21 @@ class WebAction:
         if flag == "ignored": 
             if not SqlHelper.is_ignored_word_existed(custom_word[0]):
                 SqlHelper.insert_ignored_word(custom_word[0], 1 if custom_word[1] == "True" else 0)
+                WordsHelper().init_config()
                 return {"code": 0, "msg": ""}
             else:
                 return {"code": 1, "msg": "屏蔽词已存在"}
         elif flag == "replaced":
             if not SqlHelper.is_replaced_word_existed(custom_word[0]):
                 SqlHelper.insert_replaced_word(custom_word[0], custom_word[1], 1 if custom_word[2] == "True" else 0)
+                WordsHelper().init_config()
                 return {"code": 0, "msg": ""}
             else:
                 return {"code": 1, "msg": "替换词已存在"}
         elif flag == "offset":
             if not SqlHelper.is_offset_word_existed(custom_word[0], custom_word[1]):
                 SqlHelper.insert_offset_word(custom_word[0], custom_word[1], custom_word[2], 1 if custom_word[3] == "True" else 0, custom_word[4])
+                WordsHelper().init_config()
                 return {"code": 0, "msg": ""}
             else:
                 return {"code": 1, "msg": "集数偏移已存在"}
@@ -2420,12 +2425,15 @@ class WebAction:
         id = data.get("id")
         if flag == "ignored":
             SqlHelper.delete_ignored_word(id)
+            WordsHelper().init_config()
             return {"code": 0}
         elif flag == "replaced":
             SqlHelper.delete_replaced_word(id)
+            WordsHelper().init_config()
             return {"code": 0}
         elif flag == "offset":
             SqlHelper.delete_offset_word(id)
+            WordsHelper().init_config()
             return {"code": 0}
         else:
             return {"code": 1}

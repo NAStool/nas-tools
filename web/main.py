@@ -1257,7 +1257,7 @@ def create_flask_app():
         for ignored_word_info in ignored_words_info:
             ignored_words[str(ignored_word_info[0])] = {"ignored": ignored_word_info[1],
                                                         "enabled": "True" if ignored_word_info[2] == 1 else "False"}
-        replaced_words = {}    
+        replaced_words = {}
         replaced_words_info = SqlHelper.get_replaced_words()
         for replaced_word_info in replaced_words_info:
             replaced_words[str(replaced_word_info[0])] = {"replaced": replaced_word_info[1],
@@ -1272,14 +1272,15 @@ def create_flask_app():
             else:
                 replaced_word_related = replaced_words.get(str(replaced_word_id))
                 if replaced_word_related:
-                    replaced_word_related = {"id": str(replaced_word_id), "replaced": replaced_word_related.get("replaced")}
+                    replaced_word_related = {"id": str(replaced_word_id),
+                                             "replaced": replaced_word_related.get("replaced")}
                 else:
                     replaced_word_related = {"id": "-2", "replaced": "Error"}
-            offset_words[offset_word_info[0]] ={"front": offset_word_info[1],
-                                                "back": offset_word_info[2],
-                                                "offset": offset_word_info[3],
-                                                "enabled": "True" if offset_word_info[4] == 1 else "False",
-                                                "replaced_word": replaced_word_related}
+            offset_words[offset_word_info[0]] = {"front": offset_word_info[1],
+                                                 "back": offset_word_info[2],
+                                                 "offset": offset_word_info[3],
+                                                 "enabled": "True" if offset_word_info[4] == 1 else "False",
+                                                 "replaced_word": replaced_word_related}
         return render_template("setting/customwords.html",
                                IgnoredWords=ignored_words,
                                ReplacedWords=replaced_words,

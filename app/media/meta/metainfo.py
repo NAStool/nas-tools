@@ -2,10 +2,10 @@ import os.path
 import regex as re
 
 import log
+from app.helper.words_helper import WordsHelper
 from app.media.meta.metaanime import MetaAnime
 from app.media.meta.metavideo import MetaVideo
 from app.utils.types import MediaType
-from app.helper import SqlHelper
 from config import RMT_MEDIAEXT
 
 
@@ -17,77 +17,28 @@ def MetaInfo(title, subtitle=None, mtype=None):
     :param mtype: 指定识别类型，为空则自动识别类型
     :return: MetaAnime、MetaVideo
     """
-    # 应用屏蔽词
-    used_ignored_words = []
-    # 应用替换词
-    used_replaced_words = []
-    # 应用集数偏移
-    used_offset_words = []
-    # 屏蔽词
-    ignored_words = []
-    ignored_words_info = SqlHelper.get_ignored_words_enable()
-    if ignored_words_info:
-        try:
-            for ignored_word_info in ignored_words_info:
-                ignored_words.append(ignored_word_info[1])
-            ignored_words = "|".join(ignored_words)
-            ignored_words = re.compile(r'%s' % ignored_words)
-            # 去重
-            used_ignored_words = list(set(re.findall(ignored_words, title)))
-            if used_ignored_words:
-                title = re.sub(ignored_words, '', title)
-        except Exception as err:
-            log.error("【Meta】自定义屏蔽词设置有误：%s" % str(err))
-    # 替换词
-    replaced_words_info = SqlHelper.get_replaced_words_enable_with_offset()
-    replaced_words_id = -1
-    replaced_words_match_flag = False
-    if replaced_words_info:
-        for replaced_word_info in replaced_words_info:
-            try:
-                replaced = replaced_word_info[1]
-                replace = replaced_word_info[2]
-                front = replaced_word_info[3]
-                if replaced_words_id != replaced_word_info[0]:
-                    replaced_words_id = replaced_word_info[0]
-                    replaced_word = "%s@%s" % (replaced, replace)
-                    replaced_words_match_flag = False
-                    if re.findall(r'%s' % replaced, title):
-                        replaced_words_match_flag = True
-                        used_replaced_words.append(replaced_word)
-                        title = re.sub(r'%s' % replaced, r'%s' % replace, title)
-                if front and replaced_words_match_flag:
-                    back = replaced_word_info[4]
-                    offset = replaced_word_info[5]
-                    title = episode_offset(front, back, offset, used_offset_words, title)
-            except Exception as err:
-                log.error("【Meta】自定义替换词 %s 格式有误：%s" % (replaced_word, str(err)))
-    # 集数偏移
-    offset_words_info = SqlHelper.get_offset_words_unrelated_enable()
-    if offset_words_info:
-        for offset_word_info in offset_words_info:
-            front = offset_word_info[1]
-            back = offset_word_info[2]
-            offset = offset_word_info[3]
-            title = episode_offset(front, back, offset, used_offset_words, title)
+
+    # 应用自定义识别词
+    title, msg, used_info = WordsHelper().process(title)
+    if msg:
+        log.warn("【Meta】%s" % msg)
 
     # 判断是否处理文件
     if title and os.path.splitext(title)[-1] in RMT_MEDIAEXT:
         fileflag = True
     else:
         fileflag = False
+
     if mtype == MediaType.ANIME or is_anime(title):
         meta_info = MetaAnime(title, subtitle, fileflag)
-        meta_info.ignored_words = used_ignored_words
-        meta_info.replaced_words = used_replaced_words
-        meta_info.offset_words = used_offset_words
-        return meta_info
     else:
         meta_info = MetaVideo(title, subtitle, fileflag)
-        meta_info.ignored_words = used_ignored_words
-        meta_info.replaced_words = used_replaced_words
-        meta_info.offset_words = used_offset_words
-        return meta_info
+
+    meta_info.ignored_words = used_info.get("ignored")
+    meta_info.replaced_words = used_info.get("replaced")
+    meta_info.offset_words = used_info.get("offset")
+
+    return meta_info
 
 
 def is_anime(name):
@@ -108,33 +59,3 @@ def is_anime(name):
     if re.search(r'\[[+0-9XVPI-]+]\s*\[', name, re.IGNORECASE):
         return True
     return False
-
-def episode_offset(front, back, offset, used_offset_words, title):
-    try:
-        offset_num = int(offset)
-        offset_word = "%s@%s@%s" % (front, back, offset)
-        if back and not re.findall(r'%s' % back, title):
-            return title
-        if front and not re.findall(r'%s' % front, title):
-            return title
-        offset_word_info_re = re.compile(r'(?<=%s[\W\w]*)[0-9]+(?=[\W\w]*%s)' % (front, back))
-        episode_nums_str = re.findall(offset_word_info_re, title)
-        if not episode_nums_str:
-            return title
-        episode_nums_int = [int(x) for x in episode_nums_str]
-        episode_nums_dict = dict(zip(episode_nums_str, episode_nums_int))
-        used_offset_words.append(offset_word)
-        # 集数向前偏移，集数按升序处理
-        if offset_num < 0:
-            episode_nums_list = sorted(episode_nums_dict.items(), key=lambda x: x[1])
-        # 集数向后偏移，集数按降序处理
-        else:
-            episode_nums_list = sorted(episode_nums_dict.items(), key=lambda x: x[1], reverse=True)
-        for episode_num in episode_nums_list:
-            episode_offset_re = re.compile(
-                r'(?<=%s[\W\w]*)%s(?=[\W\w]*%s)' % (front, episode_num[0], back))
-            title = re.sub(episode_offset_re, r'%s' % str(episode_num[1] + offset_num).zfill(2), title)
-        return title
-    except Exception as err:
-        log.error("【Meta】自定义集数偏移 %s 格式有误：%s" % (offset_word, str(err)))
-        return title

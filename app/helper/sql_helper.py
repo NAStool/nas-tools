@@ -1997,9 +1997,9 @@ class SqlHelper:
         """
         查询启用的替换词及有关联的集数偏移
         """
-        return MainDb().select_by_sql("SELECT REPLACED_WORDS.ID, REPLACED, REPLACE, FRONT, BACK, OFFSET " \
-                                      "FROM REPLACED_WORDS LEFT JOIN OFFSET_WORDS " \
-                                      "ON REPLACED_WORDS.ID = OFFSET_WORDS.REPLACED_WORD_ID " \
+        return MainDb().select_by_sql("SELECT REPLACED_WORDS.ID, REPLACED, REPLACE, FRONT, BACK, OFFSET "
+                                      "FROM REPLACED_WORDS LEFT JOIN OFFSET_WORDS "
+                                      "ON REPLACED_WORDS.ID = OFFSET_WORDS.REPLACED_WORD_ID "
                                       "WHERE REPLACED_WORDS.ENABLED = 1")
     
     @staticmethod
@@ -2007,8 +2007,8 @@ class SqlHelper:
         """
         查询设置关联被替换词的集数偏移
         """
-        return MainDb().select_by_sql("SELECT ID, FRONT, BACK, OFFSET, ENABLED, REPLACED_WORD_ID " \
-                                      "FROM OFFSET_WORDS " \
+        return MainDb().select_by_sql("SELECT ID, FRONT, BACK, OFFSET, ENABLED, REPLACED_WORD_ID "
+                                      "FROM OFFSET_WORDS "
                                       "WHERE REPLACED_WORD_ID != -1")
     
     @staticmethod
