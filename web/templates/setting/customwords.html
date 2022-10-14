@@ -71,6 +71,7 @@
                   <th>屏蔽词</th>
                   <th class="w-5">状态</th>
                   <th class="w-2"></th>
+                  <th class="w-2"></th>
                 </tr>
               </thead>
               <tbody>
@@ -85,6 +86,15 @@
                   {% else %}
                   <span class="badge badge-outline text-red me-1 mb-1">停用</span>
                   {% endif %}
+                  </td>
+                  <td>
+                    <a href="javascript:show_edit_ignored_word_modal({{ Id }})" class="btn-action" title="编辑屏蔽词">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
+                        <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
+                        <line x1="16" y1="5" x2="19" y2="8" />
+                      </svg>
+                    </a>
                   </td>
                   <td>
                     <a href="javascript:del_custom_word('ignored', '{{ Id }}')" title="删除屏蔽词">
@@ -130,6 +140,7 @@
                   <th>替换词</th>
                   <th class="w-5">状态</th>
                   <th class="w-2"></th>
+                  <th class="w-2"></th>
                 </tr>
               </thead>
               <tbody>
@@ -145,6 +156,15 @@
                     {% else %}
                     <span class="badge badge-outline text-red me-1 mb-1">停用</span>
                     {% endif %}
+                  </td>
+                  <td>
+                    <a href="javascript:show_edit_replaced_word_modal({{ Id }})" class="btn-action" title="编辑替换词">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
+                        <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
+                        <line x1="16" y1="5" x2="19" y2="8" />
+                      </svg>
+                    </a>
                   </td>
                   <td>
                     <a href="javascript:del_custom_word('replaced', '{{ Id }}')" title="删除替换词">
@@ -192,6 +212,7 @@
                   <th>关联被替换词</th>
                   <th class="w-5">状态</th>
                   <th class="w-2"></th>
+                  <th class="w-2"></th>
                 </tr>
               </thead>
               <tbody>
@@ -220,6 +241,15 @@
                     {% endif %}
                   </td>
                   <td>
+                    <a href="javascript:show_edit_offset_word_modal('{{ Id }}')" class="btn-action" title="编辑集数偏移">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
+                        <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
+                        <line x1="16" y1="5" x2="19" y2="8" />
+                      </svg>
+                    </a>
+                  </td>
+                  <td>
                     <a href="javascript:javascript:del_custom_word('offset', '{{ Id }}')" title="删除集数偏移">
                       <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -241,12 +271,13 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-set-ignored-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-set-ignored-word" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="card border-top-0">
         <div class="card-header">
-          <h5 class="modal-title">新增替换词</h5>
+          <h5 class="modal-title" id="ignored_word_modal_title"></h5>
+          <input type="hidden" id="ignored_word_id">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="card-body">
@@ -271,17 +302,18 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a href="javascript:add_ignored_word()" id="directory_save_btn" class="btn btn-primary">确定</a>
+        <a href="javascript:add_or_edit_ignored_word()" id="directory_save_btn" class="btn btn-primary">确定</a>
       </div>
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-set-replaced-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-set-replaced-word" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="card border-top-0">
         <div class="card-header">
-          <h5 class="modal-title">新增替换词</h5>
+          <h5 class="modal-title" id="replaced_word_modal_title"></h5>
+          <input type="hidden" id="replaced_word_id">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="card-body">
@@ -312,17 +344,18 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a href="javascript:add_replaced_word()" id="directory_save_btn" class="btn btn-primary">确定</a>
+        <a href="javascript:add_or_edit_replaced_word()" id="directory_save_btn" class="btn btn-primary">确定</a>
       </div>
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-set-offset-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-set-offset-word" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="card border-top-0">
         <div class="card-header">
-          <h5 class="modal-title">新增集数偏移</h5>
+          <h5 class="modal-title" id="offset_word_modal_title"></h5>
+          <input type="hidden" id="offset_word_id">
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="card-body">
@@ -374,7 +407,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a href="javascript:add_offset_word()" id="directory_save_btn" class="btn btn-primary">确定</a>
+        <a href="javascript:add_or_edit_offset_word()" id="directory_save_btn" class="btn btn-primary">确定</a>
       </div>
     </div>
   </div>
@@ -405,14 +438,6 @@
   </div>
 </div>
 <script type="text/javascript">
-  // 兼容旧配置
-  var params = {};
-  params['laboratory.ignored_words'] = '';
-  params['laboratory.replaced_words'] = '';
-  params['laboratory.offset_words'] = '';
-  ajax_post("update_config", params, function (ret) {
-  });
-
   // 绑定屏蔽词全选事件
   $("#ignored_all_check_btn").change(function(){
     $("[id^='ignored_check_']").prop("checked", $("#ignored_all_check_btn").prop("checked"));
@@ -430,6 +455,7 @@
 
   // 批量启用/停用
   function batch_check_action(flag){
+    show_wait_process();
     var ignored_words = [];
     var replaced_words = [];
     var offset_words = [];
@@ -455,8 +481,10 @@
     custom_words = {ignored_words: ignored_words, replaced_words: replaced_words, offset_words: offset_words}
     ajax_post("check_custom_words", {flag: flag, custom_words: custom_words}, function (ret) {
       if(ret.code == 0){
+        hide_wait_process();
         navmenu('customwords');
       }else{
+        hide_wait_process();
         show_fail_modal(ret.msg);
       }
     });
@@ -473,27 +501,71 @@
 
   // 显示新增屏蔽词框
   function show_add_ignored_word_modal(){
+    $("#ignored_word_id").val('');
+    $("#ignored_word_modal_title").text('新增屏蔽词');
     $("#new_ignored").val('');
     $("#ignored_word_enabled").val('True');
-    $("#modal-set-ignored-words").modal('show');
+    $("#modal-set-ignored-word").modal('show');
   }
 
   // 显示新增替换词框
   function show_add_replaced_word_modal(){
+    $("#replaced_word_id").val('');
+    $("#replaced_word_modal_title").text('新增替换词');
     $("#new_replaced").val('');
     $("#new_replace").val('');
     $("#replaced_word_enabled").val('True');
-    $("#modal-set-replaced-words").modal('show');
+    $("#modal-set-replaced-word").modal('show');
   }
 
   // 显示新增集数偏移框
   function show_add_offset_word_modal(){
+    $("#offset_word_id").val('');
+    $("#offset_word_modal_title").text('新增集数偏移');
     $("#new_front").val('');
     $("#new_back").val('');
     $("#new_offset").val('');
     $("#offset_word_enabled").val('True');
     $("#replaced_word_related").val('-1');
-    $("#modal-set-offset-words").modal('show');
+    $("#modal-set-offset-word").modal('show');
+  }
+
+    // 显示编辑屏蔽词框
+    function show_edit_ignored_word_modal(id){
+    var ignored_words = {{ IgnoredWords | safe }};
+    $("#ignored_word_id").val(id);
+    $("#ignored_word_modal_title").text('编辑屏蔽词');
+    $("#new_ignored").val(ignored_words[id].ignored);
+    $("#ignored_word_enabled").val(ignored_words[id].enabled);
+    $("#modal-set-ignored-word").modal('show');
+  }
+
+  // 显示编辑替换词框
+  function show_edit_replaced_word_modal(id){
+    var replaced_words = {{ ReplacedWords | safe }};
+    $("#replaced_word_id").val(id);
+    $("#replaced_word_modal_title").text('编辑替换词');
+    $("#new_replaced").val(replaced_words[id].replaced);
+    $("#new_replace").val(replaced_words[id].replace);
+    $("#replaced_word_enabled").val(replaced_words[id].enabled);
+    $("#modal-set-replaced-word").modal('show');
+  }
+
+  // 显示编辑集数偏移框
+  function show_edit_offset_word_modal(id){
+    var offset_words = {{ OffsetWords | safe }};
+    $("#offset_word_id").val(id);
+    $("#offset_word_modal_title").text('编辑集数偏移');
+    $("#new_front").val(offset_words[id].front);
+    $("#new_back").val(offset_words[id].back);
+    $("#new_offset").val(offset_words[id].offset);
+    $("#offset_word_enabled").val(offset_words[id].enabled);
+    var replaced_word_id = offset_words[id].replaced_word.id;
+    if(replaced_word_id == "-2"){
+      replaced_word_id = "-1";
+    }
+    $("#replaced_word_related").val(replaced_word_id);
+    $("#modal-set-offset-word").modal('show');
   }
 
   // 显示批量编辑框
@@ -518,8 +590,10 @@
     $("#modal-custom-words").modal('show');
   }
 
-  // 新增自屏蔽词
-  function add_ignored_word(){
+  // 新增/编辑自屏蔽词
+  function add_or_edit_ignored_word(){
+    show_wait_process();
+    var id = $("#ignored_word_id").val();
     var new_ignored = $("#new_ignored").val();
     if(!new_ignored){
       $("#new_ignored").addClass("is-invalid");
@@ -529,18 +603,22 @@
     }
     var enabled = $("#ignored_word_enabled").val();
     custom_word = [new_ignored, enabled];
-    ajax_post("add_custom_word", {flag: "ignored", custom_word: custom_word}, function (ret) {
+    ajax_post("add_or_edit_custom_word", {flag: "ignored", id: id, custom_word: custom_word}, function (ret) {
       if(ret.code == 0){
-        $("#modal-set-ignored-words").modal('hide');
+        hide_wait_process();
+        $("#modal-set-ignored-word").modal('hide');
         navmenu('customwords');
       }else{
+        hide_wait_process();
         show_fail_modal(ret.msg);
       }
     });
   }
 
-  // 新增替换词
-  function add_replaced_word(){
+  // 新增/编辑替换词
+  function add_or_edit_replaced_word(){
+    show_wait_process();
+    var id = $("#replaced_word_id").val();
     var new_replaced = $("#new_replaced").val();
     if(!new_replaced){
       $("#new_replaced").addClass("is-invalid");
@@ -557,18 +635,22 @@
     }
     var enabled = $("#replaced_word_enabled").val();
     custom_word = [new_replaced, new_replace, enabled];
-    ajax_post("add_custom_word", {flag: "replaced", custom_word: custom_word}, function (ret) {
+    ajax_post("add_or_edit_custom_word", {flag: "replaced", id: id, custom_word: custom_word}, function (ret) {
       if(ret.code == 0){
-        $("#modal-set-replaced-words").modal('hide');
+        hide_wait_process();
+        $("#modal-set-replaced-word").modal('hide');
         navmenu('customwords');
       }else{
+        hide_wait_process();
         show_fail_modal(ret.msg);
       }
     });
   }
 
-  // 新增集数偏移
-  function add_offset_word(){
+  // 新增/编辑集数偏移
+  function add_or_edit_offset_word(){
+    show_wait_process();
+    var id = $("#offset_word_id").val();
     var new_front = $("#new_front").val();
     if(!new_front){
       $("#new_front").addClass("is-invalid");
@@ -594,11 +676,13 @@
     var replaced_word_id = $("#replaced_word_related").val();
     custom_word = [new_front, new_back, new_offset, enabled, replaced_word_id];
     $("#modal-add-offset-words").modal('hide');
-    ajax_post("add_custom_word", {flag: "offset", custom_word: custom_word}, function (ret) {
+    ajax_post("add_or_edit_custom_word", {flag: "offset", id: id, custom_word: custom_word}, function (ret) {
       if(ret.code == 0){
-        $("#modal-set-offset-words").modal('hide');
+        hide_wait_process();
+        $("#modal-set-offset-word").modal('hide');
         navmenu('customwords');
       }else{
+        hide_wait_process();
         show_fail_modal(ret.msg);
       }
     });
@@ -606,11 +690,14 @@
 
   // 批量编辑
   function edit_custom_words(){
+    show_wait_process();
     ajax_post("edit_custom_words", $("#custom_words").val(), function (ret) {
       if(ret.code == 0){
+        hide_wait_process();
         $("#modal-custom-words").modal('hide');
         navmenu('customwords');
       }else{
+        hide_wait_process();
         show_fail_modal(ret.msg);
       }
     });
