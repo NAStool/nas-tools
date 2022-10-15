@@ -595,6 +595,18 @@ def create_flask_app():
                                Items=RssItems
                                )
 
+    # 订阅历史页面
+    @App.route('/rss_history', methods=['POST', 'GET'])
+    @login_required
+    def rss_history():
+        mtype = request.args.get("t")
+        RssHistory = SqlHelper.get_rss_history(mtype)
+        return render_template("rss/rss_history.html",
+                               Count=len(RssHistory),
+                               Items=RssHistory,
+                               Type=mtype
+                               )
+
     # 订阅日历页面
     @App.route('/rss_calendar', methods=['POST', 'GET'])
     @login_required

@@ -16,7 +16,7 @@
           <a href="javascript:show_userrss_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           </a>
-          <a href="javascript:show_userrss_parser_modal()" class="btn d-none d-sm-inline-block">
+          <a href="javascript:navmenu('rss_parser')" class="btn d-none d-sm-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-cpu" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                <rect x="5" y="5" width="14" height="14" rx="1"></rect>
@@ -32,7 +32,7 @@
             </svg>
             RSS解析器
           </a>
-          <a href="javascript:show_userrss_parser_modal()" class="btn btn-secondary d-sm-none btn-icon" title="RSS解析器">
+          <a href="javascript:navmenu('rss_parser')" class="btn btn-secondary d-sm-none btn-icon" title="RSS解析器">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-cpu" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                <rect x="5" y="5" width="14" height="14" rx="1"></rect>
@@ -582,11 +582,6 @@
       $("#add_or_edit_userrss_btn").attr("disabled", false);
       navmenu('user_rss');
     });
-  }
-
-  // RSS解析器
-  function show_userrss_parser_modal(){
-    navmenu('rss_parser');
   }
 
   // 立即运行任务

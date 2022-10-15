@@ -1627,11 +1627,16 @@
     // 显示订阅成功（带后续操作）
     function show_rss_success_modal(rssid, type, text){
       $("#system_success_action_message").text(text);
-      $("#system_success_action_btn").text("编辑订阅");
-      $("#system_success_action_btn").unbind('click').click(function(){
-        $("#system-success-action-modal").modal('hide');
-        show_edit_rss_media_modal(rssid, type);
-      });
+      if(rssid){
+        $("#system_success_action_btn").text("编辑订阅");
+        $("#system_success_action_btn").unbind('click').click(function(){
+          $("#system-success-action-modal").modal('hide');
+          debugger;
+          show_edit_rss_media_modal(rssid, type);
+        });
+      }else{
+        $("#system_success_action_btn").hide();
+      }
       $("#system-success-action-modal").modal('show');
     }
 

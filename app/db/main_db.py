@@ -105,10 +105,26 @@ class MainDb:
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_RSS_TVS_NAME ON RSS_TVS(NAME);''')
             # 电视剧订阅剧集明细
             cursor.execute('''CREATE TABLE IF NOT EXISTS RSS_TV_EPISODES
-                                               (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                                               RSSID    TEXT,
-                                               EPISODES    TEXT);''')
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   RSSID    TEXT,
+                                   EPISODES    TEXT);''')
             cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_RSS_TV_EPISODES_RSSID ON RSS_TV_EPISODES (RSSID);''')
+            # 订阅历史表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS RSS_HISTORY
+                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
+                                   TYPE    TEXT,
+                                   RSSID    TEXT,
+                                   NAME    TEXT,
+                                   YEAR    TEXT,
+                                   TMDBID   TEXT,
+                                   SEASON   TEXT,
+                                   IMAGE    TEXT,
+                                   DESC    TEXT,
+                                   TOTAL    INTEGER,
+                                   START    INTEGER,
+                                   FINISH_TIME    TEXT,
+                                   NOTE    TEXT);''')
+            cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_RSS_HISTORY_RSSID ON RSS_HISTORY(RSSID);''')
             # 豆瓣关注信息表
             cursor.execute('''CREATE TABLE IF NOT EXISTS DOUBAN_MEDIAS
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
@@ -211,7 +227,6 @@ class MainDb:
 
             cursor.execute(
                 '''CREATE INDEX IF NOT EXISTS INDX_SITE_STATISTICS_HISTORY_DS ON SITE_STATISTICS_HISTORY (DATE, URL);''')
-            # 唯一约束
             cursor.execute(
                 '''CREATE UNIQUE INDEX IF NOT EXISTS UN_INDX_SITE_STATISTICS_HISTORY_DS ON SITE_STATISTICS_HISTORY (DATE, URL);''')
 
@@ -226,7 +241,6 @@ class MainDb:
                 '''CREATE INDEX IF NOT EXISTS INDX_SITE_USER_SEEDING_INFO_URL ON SITE_USER_SEEDING_INFO (URL);''')
             cursor.execute(
                 '''CREATE INDEX IF NOT EXISTS INDX_SITE_USER_SEEDING_INFO_SITE ON SITE_USER_SEEDING_INFO (SITE);''')
-            # 唯一约束
             cursor.execute(
                 '''CREATE UNIQUE INDEX IF NOT EXISTS UN_INDX_SITE_USER_SEEDING_INFO_URL ON SITE_USER_SEEDING_INFO (URL);''')
 
@@ -253,7 +267,6 @@ class MainDb:
                 '''CREATE INDEX IF NOT EXISTS INDX_SITE_USER_INFO_STATS_URL ON SITE_USER_INFO_STATS (URL);''')
             cursor.execute(
                 '''CREATE INDEX IF NOT EXISTS INDX_SITE_USER_INFO_STATS_SITE ON SITE_USER_INFO_STATS (SITE);''')
-            # 唯一约束
             cursor.execute(
                 '''CREATE UNIQUE INDEX IF NOT EXISTS UN_INDX_SITE_USER_INFO_STATS_URL ON SITE_USER_INFO_STATS (URL);''')
             # 下载历史
