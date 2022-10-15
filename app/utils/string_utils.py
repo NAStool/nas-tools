@@ -274,6 +274,9 @@ class StringUtils:
         """
         日期时间格式化 统一转成 2020-10-14 07:48:04 这种格式
         """
+        # 传入的参数如果是None 或者空字符串 直接返回
+        if not date_str:
+            return date_str
         # 判断日期时间是否满足 yyyy-MM-dd hh:MM:ss 格式
         if re.match(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$", date_str):
             # 如果满足则直接返回
