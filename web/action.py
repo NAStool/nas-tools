@@ -134,6 +134,9 @@ class WebAction:
             "add_or_edit_custom_word": self.__add_or_edit_custom_word,
             "delete_custom_word": self.__delete_custom_word,
             "check_custom_words": self.__check_custom_words,
+            "export_custom_words": self.__export_custom_words,
+            "analyse_import_custom_words_code": self.__analyse_import_custom_words_code,
+            "import_custom_words": self.__import_custom_words,
             "get_categories": self.__get_categories,
             "re_rss_history": self.__re_rss_history,
             "delete_rss_history": self.__delete_rss_history,
@@ -2414,18 +2417,23 @@ class WebAction:
                 replaced_words = list(set(replaced_words))
                 for replaced_word in replaced_words:
                     replaced_word = replaced_word.split("@")
-                    SqlHelper.insert_replaced_word(replaced_word[0], replaced_word[1],
-                                                   1 if replaced_word[2] == "True" else 0)
+                    if not SqlHelper.is_replaced_word_existed(replaced_word[0]):
+                        SqlHelper.insert_replaced_word(replaced_word[0], replaced_word[1],
+                                                    1 if replaced_word[2] == "True" else 0)
+                    else:
+                        return {"code": 1, "msg": "替换词重复"}
             offset_words = custom_words.get("集数偏移")
             SqlHelper.delete_all_offset_words()
             if offset_words:
                 offset_words = list(set(offset_words))
                 for offset_word in offset_words:
                     offset_word = offset_word.split("@")
-                    replaced_word_id = SqlHelper.get_replaced_word_id_by_replaced_word(offset_word[4])
-                    print(replaced_word_id)
-                    SqlHelper.insert_offset_word(offset_word[0], offset_word[1], offset_word[2],
-                                                 1 if offset_word[3] == "True" else 0, replaced_word_id)
+                    if not SqlHelper.is_offset_word_existed(offset_word[0], offset_word[1]):
+                        replaced_word_id = SqlHelper.get_replaced_word_id_by_replaced_word(offset_word[4])
+                        SqlHelper.insert_offset_word(offset_word[0], offset_word[1], offset_word[2],
+                                                    1 if offset_word[3] == "True" else 0, replaced_word_id)
+                    else:
+                        return {"code": 1, "msg": "集数偏移重复"}
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
@@ -2522,6 +2530,58 @@ class WebAction:
         except Exception as e:
             print(str(e))
             return {"code": 1, "msg": "自定义识别词状态设置失败"}
+    @staticmethod
+    def __export_custom_words(data):
+        export_text = data.get("export_text")
+        string = base64.b64encode(export_text.encode("utf-8")).decode('utf-8')
+        return {"code": 0, "string": string}
+
+    @staticmethod
+    def __analyse_import_custom_words_code(data):
+        import_code = data.get('import_code')
+        string = base64.b64decode(import_code.encode("utf-8")).decode('utf-8').split("@@@@@")
+        text_string = string[0]
+        note_string = string[1]
+        return {"code": 0, "text_string": text_string, "note_string": note_string}
+
+    @staticmethod
+    def __import_custom_words(data):
+        try:
+            custom_words = YAML().load(data)
+        except Exception as e:
+            print(str(e))
+            return {"code": 1, "msg": "输入不符合YAML格式"}
+        ignored_words = custom_words.get("屏蔽词")
+        if ignored_words:
+            ignored_words = list(set(ignored_words))
+            for ignored_word in ignored_words:
+                ignored_word = ignored_word.split("@")
+                if not SqlHelper.is_ignored_word_existed(ignored_word[0]):
+                    SqlHelper.insert_ignored_word(ignored_word[0], 1 if ignored_word[1] == "True" else 0)
+                else:
+                    return {"code": 1, "msg": "屏蔽词已存在"}
+        replaced_words = custom_words.get("替换词")
+        if replaced_words:
+            replaced_words = list(set(replaced_words))
+            for replaced_word in replaced_words:
+                replaced_word = replaced_word.split("@")
+                if not SqlHelper.is_replaced_word_existed(replaced_word[0]):
+                    SqlHelper.insert_replaced_word(replaced_word[0], replaced_word[1], 1 if replaced_word[2] == "True" else 0)
+                else:
+                    return {"code": 1, "msg": "替换词已存在"}
+        offset_words = custom_words.get("集数偏移")
+        if offset_words:
+            offset_words = list(set(offset_words))
+            for offset_word in offset_words:
+                offset_word = offset_word.split("@")
+                if not SqlHelper.is_offset_word_existed(offset_word[0], offset_word[1]):
+                    replaced_word_id = SqlHelper.get_replaced_word_id_by_replaced_word(offset_word[4])
+                    SqlHelper.insert_offset_word(offset_word[0], offset_word[1], offset_word[2],
+                                                 1 if offset_word[3] == "True" else 0, replaced_word_id)
+                else:
+                    return {"code": 1, "msg": "集数偏移已存在"}
+        WordsHelper().init_config()
+        return {"code": 0, "msg": ""}
 
     @staticmethod
     def __get_categories(data):
