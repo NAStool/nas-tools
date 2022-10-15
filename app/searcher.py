@@ -83,7 +83,7 @@ class Searcher:
         if not media_info:
             return False, {}, 0, 0
         # 进度计数重置
-        self.progress.reset('search')
+        self.progress.start('search')
         # 查找的季
         if media_info.begin_season is None:
             search_season = None

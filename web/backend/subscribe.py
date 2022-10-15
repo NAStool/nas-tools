@@ -80,13 +80,13 @@ def add_rss_subscribe(mtype, name, year,
                 if not douban_info or douban_info.get("localized_message"):
                     return 1, "无法查询到豆瓣媒体信息", None
                 media_info = MetaInfo(title="%s %s".strip() % (douban_info.get('title'), year), mtype=mtype)
+                # 以IMDBID查询TMDB
                 if douban_info.get("imdbid"):
-                    tmdb_info = Media().get_meida_by_imdbid(douban_info.get("imdbid"))
-                    if tmdb_info:
-                        media_info.set_tmdb_info(tmdb_info)
-                    else:
-                        return -1, "%s 查询不到TMDB媒体信息！" % douban_info.get("imdbid"), None
-                else:
+                    tmdbid = Media().get_tmdbid_by_imdbid(douban_info.get("imdbid"))
+                    if tmdbid:
+                        media_info.set_tmdb_info(Media().get_tmdb_info(mtype=mtype, tmdbid=tmdbid))
+                # 无法识别TMDB时以豆瓣信息订阅
+                if not media_info.tmdb_info:
                     media_info.title = douban_info.get('title')
                     media_info.year = douban_info.get("year")
                     media_info.type = mtype

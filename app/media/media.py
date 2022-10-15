@@ -1261,7 +1261,7 @@ class Media:
         target.fanart_backdrop = source.get_backdrop_image()
         return target
 
-    def get_meida_by_imdbid(self, imdbid):
+    def get_tmdbid_by_imdbid(self, imdbid):
         """
         根据IMDBID查询TMDB信息
         """
@@ -1272,8 +1272,7 @@ class Media:
             tmdbinfo = result.get('movie_results') or result.get("tv_results")
             if tmdbinfo:
                 tmdbinfo = tmdbinfo[0]
-                tmdbinfo['meida_type'] = MediaType.MOVIE if tmdbinfo.get('media_type') == "movie" else MediaType.TV
-                return tmdbinfo
+                return tmdbinfo.get("id")
         except Exception as err:
             log.console(str(err))
         return {}
