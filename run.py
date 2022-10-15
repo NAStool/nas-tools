@@ -205,19 +205,19 @@ def update_config(cfg):
                                         "container_path": container_dir,
                                         "label": save_label})
             _config['downloaddir'] = downloaddir
-        if _config.get('qbittorrent').get('save_path'):
+        if _config.get('qbittorrent', {}).get('save_path'):
             _config['qbittorrent'].pop('save_path')
         if _config.get('qbittorrent', {}).get('save_containerpath'):
             _config['qbittorrent'].pop('save_containerpath')
-        if _config.get('transmission').get('save_path'):
+        if _config.get('transmission', {}).get('save_path'):
             _config['transmission'].pop('save_path')
         if _config.get('transmission', {}).get('save_containerpath'):
             _config['transmission'].pop('save_containerpath')
-        if _config.get('client115').get('save_path'):
+        if _config.get('client115', {}).get('save_path'):
             _config['client115'].pop('save_path')
         if _config.get('client115', {}).get('save_containerpath'):
             _config['client115'].pop('save_containerpath')
-        if _config.get('aria2').get('save_path'):
+        if _config.get('aria2', {}).get('save_path'):
             _config['aria2'].pop('save_path')
         if _config.get('aria2', {}).get('save_containerpath'):
             _config['aria2'].pop('save_containerpath')
