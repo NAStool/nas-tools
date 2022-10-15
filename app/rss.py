@@ -801,7 +801,8 @@ class Rss:
         if match_flag:
             if site_parse:
                 # 检测Free
-                attr_type = self.sites.check_torrent_attr(torrent_url=media_info.page_url, cookie=site_cookie,
+                attr_type = self.sites.check_torrent_attr(torrent_url=media_info.page_url,
+                                                          cookie=site_cookie,
                                                           ua=site_ua)
                 if attr_type.is_free2x():
                     download_volume_factor = 0.0
