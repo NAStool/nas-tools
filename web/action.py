@@ -2417,17 +2417,23 @@ class WebAction:
                 replaced_words = list(set(replaced_words))
                 for replaced_word in replaced_words:
                     replaced_word = replaced_word.split("@")
-                    SqlHelper.insert_replaced_word(replaced_word[0], replaced_word[1],
-                                                   1 if replaced_word[2] == "True" else 0)
+                    if not SqlHelper.is_replaced_word_existed(replaced_word[0]):
+                        SqlHelper.insert_replaced_word(replaced_word[0], replaced_word[1],
+                                                    1 if replaced_word[2] == "True" else 0)
+                    else:
+                        return {"code": 1, "msg": "替换词重复"}
             offset_words = custom_words.get("集数偏移")
             SqlHelper.delete_all_offset_words()
             if offset_words:
                 offset_words = list(set(offset_words))
                 for offset_word in offset_words:
                     offset_word = offset_word.split("@")
-                    replaced_word_id = SqlHelper.get_replaced_word_id_by_replaced_word(offset_word[4])
-                    SqlHelper.insert_offset_word(offset_word[0], offset_word[1], offset_word[2],
-                                                 1 if offset_word[3] == "True" else 0, replaced_word_id)
+                    if not SqlHelper.is_offset_word_existed(offset_word[0], offset_word[1]):
+                        replaced_word_id = SqlHelper.get_replaced_word_id_by_replaced_word(offset_word[4])
+                        SqlHelper.insert_offset_word(offset_word[0], offset_word[1], offset_word[2],
+                                                    1 if offset_word[3] == "True" else 0, replaced_word_id)
+                    else:
+                        return {"code": 1, "msg": "集数偏移重复"}
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
