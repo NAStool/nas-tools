@@ -494,6 +494,7 @@
     });
     all_length = ignored_words.length + replaced_words.length + offset_words.length;
     if(all_length == 0){
+      hide_wait_process();
       return;
     }
     custom_words = {ignored_words: ignored_words, replaced_words: replaced_words, offset_words: offset_words}
