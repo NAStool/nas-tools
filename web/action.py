@@ -134,6 +134,9 @@ class WebAction:
             "add_or_edit_custom_word": self.__add_or_edit_custom_word,
             "delete_custom_word": self.__delete_custom_word,
             "check_custom_words": self.__check_custom_words,
+            "export_custom_words": self.__export_custom_words,
+            "analyse_import_custom_words_code": self.__analyse_import_custom_words_code,
+            "import_custom_words": self.__import_custom_words,
             "get_categories": self.__get_categories,
             "re_rss_history": self.__re_rss_history,
             "delete_rss_history": self.__delete_rss_history,
@@ -643,58 +646,59 @@ class WebAction:
         """
         删除识别记录及文件
         """
-        logid = data.get('logid')
-        # 读取历史记录
-        paths = SqlHelper.get_transfer_path_by_id(logid)
-        if paths:
-            dest_dir = paths[0][2]
-            meta_info = MetaInfo(title=paths[0][1])
-            meta_info.title = paths[0][3]
-            meta_info.category = paths[0][4]
-            meta_info.year = paths[0][5]
-            if paths[0][6]:
-                meta_info.begin_season = int(str(paths[0][6]).replace("S", ""))
-            if paths[0][7] == MediaType.MOVIE.value:
-                meta_info.type = MediaType.MOVIE
-            else:
-                meta_info.type = MediaType.TV
-            # 删除记录
-            SqlHelper.delete_transfer_log_by_id(logid)
-            # 删除文件
-            dest_path = FileTransfer().get_dest_path_by_info(dest=dest_dir, meta_info=meta_info)
-            if dest_path and dest_path.find(meta_info.title) != -1:
-                rm_parent_dir = False
-                if not meta_info.get_season_list():
-                    # 电影，删除整个目录
-                    try:
-                        shutil.rmtree(dest_path)
-                    except Exception as e:
-                        log.console(str(e))
-                elif not meta_info.get_episode_string():
-                    # 电视剧但没有集数，删除季目录
-                    try:
-                        shutil.rmtree(dest_path)
-                    except Exception as e:
-                        log.console(str(e))
-                    rm_parent_dir = True
+        logids = data.get('logids')
+        for logid in logids:
+            # 读取历史记录
+            paths = SqlHelper.get_transfer_path_by_id(logid)
+            if paths:
+                dest_dir = paths[0][2]
+                meta_info = MetaInfo(title=paths[0][1])
+                meta_info.title = paths[0][3]
+                meta_info.category = paths[0][4]
+                meta_info.year = paths[0][5]
+                if paths[0][6]:
+                    meta_info.begin_season = int(str(paths[0][6]).replace("S", ""))
+                if paths[0][7] == MediaType.MOVIE.value:
+                    meta_info.type = MediaType.MOVIE
                 else:
-                    # 有集数的电视剧，删除对应的集数文件
-                    for dest_file in PathUtils.get_dir_files(dest_path):
-                        file_meta_info = MetaInfo(os.path.basename(dest_file))
-                        if file_meta_info.get_episode_list() and set(
-                                file_meta_info.get_episode_list()).issubset(set(meta_info.get_episode_list())):
-                            try:
-                                os.remove(dest_file)
-                            except Exception as e:
-                                log.console(str(e))
-                    rm_parent_dir = True
-                if rm_parent_dir \
-                        and not PathUtils.get_dir_files(os.path.dirname(dest_path), exts=RMT_MEDIAEXT):
-                    # 没有媒体文件时，删除整个目录
-                    try:
-                        shutil.rmtree(os.path.dirname(dest_path))
-                    except Exception as e:
-                        log.console(str(e))
+                    meta_info.type = MediaType.TV
+                # 删除记录
+                SqlHelper.delete_transfer_log_by_id(logid)
+                # 删除文件
+                dest_path = FileTransfer().get_dest_path_by_info(dest=dest_dir, meta_info=meta_info)
+                if dest_path and dest_path.find(meta_info.title) != -1:
+                    rm_parent_dir = False
+                    if not meta_info.get_season_list():
+                        # 电影，删除整个目录
+                        try:
+                            shutil.rmtree(dest_path)
+                        except Exception as e:
+                            log.console(str(e))
+                    elif not meta_info.get_episode_string():
+                        # 电视剧但没有集数，删除季目录
+                        try:
+                            shutil.rmtree(dest_path)
+                        except Exception as e:
+                            log.console(str(e))
+                        rm_parent_dir = True
+                    else:
+                        # 有集数的电视剧，删除对应的集数文件
+                        for dest_file in PathUtils.get_dir_files(dest_path):
+                            file_meta_info = MetaInfo(os.path.basename(dest_file))
+                            if file_meta_info.get_episode_list() and set(
+                                    file_meta_info.get_episode_list()).issubset(set(meta_info.get_episode_list())):
+                                try:
+                                    os.remove(dest_file)
+                                except Exception as e:
+                                    log.console(str(e))
+                        rm_parent_dir = True
+                    if rm_parent_dir \
+                            and not PathUtils.get_dir_files(os.path.dirname(dest_path), exts=RMT_MEDIAEXT):
+                        # 没有媒体文件时，删除整个目录
+                        try:
+                            shutil.rmtree(os.path.dirname(dest_path))
+                        except Exception as e:
+                            log.console(str(e))
         return {"retcode": 0}
 
     @staticmethod
@@ -1059,23 +1063,49 @@ class WebAction:
         未识别的重新识别
         """
         path = dest_dir = None
-        unknown_id = data.get("unknown_id")
-        if unknown_id:
-            paths = SqlHelper.get_unknown_path_by_id(unknown_id)
-            if paths:
-                path = paths[0][0]
-                dest_dir = paths[0][1]
-            else:
-                return {"retcode": -1, "retmsg": "未查询到未识别记录"}
-        if not dest_dir:
-            dest_dir = ""
-        if not path:
-            return {"retcode": -1, "retmsg": "未识别路径有误"}
-        succ_flag, ret_msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
-                                                           in_path=path,
-                                                           target_dir=dest_dir)
-        if succ_flag:
-            SqlHelper.update_transfer_unknown_state(path)
+        flag = data.get("flag")
+        ids = data.get("ids")
+        ret_flag = True
+        ret_msg = ""
+        if flag == "unknow":
+            for id in ids:
+                paths = SqlHelper.get_unknown_path_by_id(id)
+                if paths:
+                    path = paths[0][0]
+                    dest_dir = paths[0][1]
+                else:
+                    return {"retcode": -1, "retmsg": "未查询到未识别记录"}
+                if not dest_dir:
+                    dest_dir = ""
+                if not path:
+                    return {"retcode": -1, "retmsg": "未识别路径有误"}
+                succ_flag, msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
+                                                                in_path=path,
+                                                                target_dir=dest_dir)
+                if succ_flag:
+                    SqlHelper.update_transfer_unknown_state(path)
+                else:
+                        ret_flag = False
+                        ret_msg = "%s\n%s" % (ret_msg, msg)
+        elif flag == "history":
+            for id in ids:
+                paths = SqlHelper.get_transfer_path_by_id(id)
+                if paths:
+                    path = os.path.join(paths[0][0], paths[0][1])
+                    dest_dir = paths[0][2]
+                else:
+                    return {"retcode": -1, "retmsg": "未查询到转移日志记录"}
+                if not dest_dir:
+                    dest_dir = ""
+                if not path:
+                    return {"retcode": -1, "retmsg": "未识别路径有误"}
+                succ_flag, msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
+                                                                in_path=path,
+                                                                target_dir=dest_dir)
+                if not succ_flag:
+                        ret_flag = False
+                        ret_msg = "%s\n%s" % (ret_msg, msg)
+        if ret_flag:
             return {"retcode": 0, "retmsg": "转移成功"}
         else:
             return {"retcode": 2, "retmsg": ret_msg}
@@ -2387,18 +2417,23 @@ class WebAction:
                 replaced_words = list(set(replaced_words))
                 for replaced_word in replaced_words:
                     replaced_word = replaced_word.split("@")
-                    SqlHelper.insert_replaced_word(replaced_word[0], replaced_word[1],
-                                                   1 if replaced_word[2] == "True" else 0)
+                    if not SqlHelper.is_replaced_word_existed(replaced_word[0]):
+                        SqlHelper.insert_replaced_word(replaced_word[0], replaced_word[1],
+                                                    1 if replaced_word[2] == "True" else 0)
+                    else:
+                        return {"code": 1, "msg": "替换词重复"}
             offset_words = custom_words.get("集数偏移")
             SqlHelper.delete_all_offset_words()
             if offset_words:
                 offset_words = list(set(offset_words))
                 for offset_word in offset_words:
                     offset_word = offset_word.split("@")
-                    replaced_word_id = SqlHelper.get_replaced_word_id_by_replaced_word(offset_word[4])
-                    print(replaced_word_id)
-                    SqlHelper.insert_offset_word(offset_word[0], offset_word[1], offset_word[2],
-                                                 1 if offset_word[3] == "True" else 0, replaced_word_id)
+                    if not SqlHelper.is_offset_word_existed(offset_word[0], offset_word[1]):
+                        replaced_word_id = SqlHelper.get_replaced_word_id_by_replaced_word(offset_word[4])
+                        SqlHelper.insert_offset_word(offset_word[0], offset_word[1], offset_word[2],
+                                                    1 if offset_word[3] == "True" else 0, replaced_word_id)
+                    else:
+                        return {"code": 1, "msg": "集数偏移重复"}
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
@@ -2495,6 +2530,58 @@ class WebAction:
         except Exception as e:
             print(str(e))
             return {"code": 1, "msg": "自定义识别词状态设置失败"}
+    @staticmethod
+    def __export_custom_words(data):
+        export_text = data.get("export_text")
+        string = base64.b64encode(export_text.encode("utf-8")).decode('utf-8')
+        return {"code": 0, "string": string}
+
+    @staticmethod
+    def __analyse_import_custom_words_code(data):
+        import_code = data.get('import_code')
+        string = base64.b64decode(import_code.encode("utf-8")).decode('utf-8').split("@@@@@")
+        text_string = string[0]
+        note_string = string[1]
+        return {"code": 0, "text_string": text_string, "note_string": note_string}
+
+    @staticmethod
+    def __import_custom_words(data):
+        try:
+            custom_words = YAML().load(data)
+        except Exception as e:
+            print(str(e))
+            return {"code": 1, "msg": "输入不符合YAML格式"}
+        ignored_words = custom_words.get("屏蔽词")
+        if ignored_words:
+            ignored_words = list(set(ignored_words))
+            for ignored_word in ignored_words:
+                ignored_word = ignored_word.split("@")
+                if not SqlHelper.is_ignored_word_existed(ignored_word[0]):
+                    SqlHelper.insert_ignored_word(ignored_word[0], 1 if ignored_word[1] == "True" else 0)
+                else:
+                    return {"code": 1, "msg": "屏蔽词已存在"}
+        replaced_words = custom_words.get("替换词")
+        if replaced_words:
+            replaced_words = list(set(replaced_words))
+            for replaced_word in replaced_words:
+                replaced_word = replaced_word.split("@")
+                if not SqlHelper.is_replaced_word_existed(replaced_word[0]):
+                    SqlHelper.insert_replaced_word(replaced_word[0], replaced_word[1], 1 if replaced_word[2] == "True" else 0)
+                else:
+                    return {"code": 1, "msg": "替换词已存在"}
+        offset_words = custom_words.get("集数偏移")
+        if offset_words:
+            offset_words = list(set(offset_words))
+            for offset_word in offset_words:
+                offset_word = offset_word.split("@")
+                if not SqlHelper.is_offset_word_existed(offset_word[0], offset_word[1]):
+                    replaced_word_id = SqlHelper.get_replaced_word_id_by_replaced_word(offset_word[4])
+                    SqlHelper.insert_offset_word(offset_word[0], offset_word[1], offset_word[2],
+                                                 1 if offset_word[3] == "True" else 0, replaced_word_id)
+                else:
+                    return {"code": 1, "msg": "集数偏移已存在"}
+        WordsHelper().init_config()
+        return {"code": 0, "msg": ""}
 
     @staticmethod
     def __get_categories(data):

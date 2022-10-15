@@ -9,32 +9,81 @@
       </div>
       <div class="col-auto ms-auto d-print-none">
         <div class="btn-list">
-          <a href="javascript:show_custom_words_modal()" class="btn btn-primary ms-auto d-none d-sm-inline-block">批量编辑</a>
-          <a href="javascript:show_custom_words_modal()" class="btn btn-primary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-          </a>
-          <a href="javascript:batch_check_action('enable')" class="btn btn-success ms-auto d-none d-sm-inline-block">批量启用</a>
-          <a href="javascript:batch_check_action('enable')" class="btn btn-success d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <a href="javascript:show_import_custom_words_modal()" class="btn btn-twitter ms-auto d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transfer-in" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-               <path d="M3.5 5.5l1.5 1.5l2.5 -2.5"></path>
-               <path d="M3.5 11.5l1.5 1.5l2.5 -2.5"></path>
-               <path d="M3.5 17.5l1.5 1.5l2.5 -2.5"></path>
-               <line x1="11" y1="6" x2="20" y2="6"></line>
-               <line x1="11" y1="12" x2="20" y2="12"></line>
-               <line x1="11" y1="18" x2="20" y2="18"></line>
+               <path d="M4 18v3h16v-14l-8 -4l-8 4v3"></path>
+               <path d="M4 14h9"></path>
+               <path d="M10 11l3 3l-3 3"></path>
+            </svg>
+            导入
+          </a>
+          <a href="javascript:show_import_custom_words_modal()" class="btn btn-twitter d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transfer-in" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M4 18v3h16v-14l-8 -4l-8 4v3"></path>
+               <path d="M4 14h9"></path>
+               <path d="M10 11l3 3l-3 3"></path>
+            </svg>
+          </a>
+          <a href="javascript:batch_check_action('export')" class="btn btn-info btn-twitter d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transfer-out" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M4 19v2h16v-14l-8 -4l-8 4v2"></path>
+               <path d="M13 14h-9"></path>
+               <path d="M7 11l-3 3l3 3"></path>
+            </svg>
+            导出
+          </a>
+          <a href="javascript:batch_check_action('export')" class="btn btn-twitter d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transfer-out" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M4 19v2h16v-14l-8 -4l-8 4v2"></path>
+               <path d="M13 14h-9"></path>
+               <path d="M7 11l-3 3l3 3"></path>
+            </svg>
+          </a>
+          <a href="javascript:show_edit_custom_words_modal()" class="btn btn-primary ms-auto d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+               <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
+               <path d="M16 5l3 3"></path>
+            </svg>
+            编辑
+          </a>
+          <a href="javascript:show_edit_custom_words_modal()" class="btn btn-primary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+               <path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
+               <path d="M16 5l3 3"></path>
+            </svg>
+          </a>
+          <a href="javascript:batch_check_action('enable')" class="btn btn-success ms-auto d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-play" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M7 4v16l13 -8z"></path>
+            </svg>
+            启用
+          </a>
+          <a href="javascript:batch_check_action('enable')" class="btn btn-success d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-play" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M7 4v16l13 -8z"></path>
             </svg>
            </a>
-          <a href="javascript:batch_check_action('disable')" class="btn btn-secondary ms-auto d-none d-sm-inline-block">批量停用</a>
-          <a href="javascript:batch_check_action('disable')" class="btn btn-secondary d-sm-none btn-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list-details" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <a href="javascript:batch_check_action('disable')" class="btn btn-secondary ms-auto d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-stop" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-               <path d="M13 5h8"></path>
-               <path d="M13 9h5"></path>
-               <path d="M13 15h8"></path>
-               <path d="M13 19h5"></path>
-               <rect x="3" y="4" width="6" height="6" rx="1"></rect>
-               <rect x="3" y="14" width="6" height="6" rx="1"></rect>
+               <rect x="5" y="5" width="14" height="14" rx="2"></rect>
+            </svg>
+            停用
+          </a>
+          <a href="javascript:batch_check_action('disable')" class="btn btn-secondary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-stop" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <rect x="5" y="5" width="14" height="14" rx="2"></rect>
             </svg>
            </a>
         </div>
@@ -317,7 +366,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a href="javascript:add_or_edit_ignored_word()" id="directory_save_btn" class="btn btn-primary">确定</a>
+        <a href="javascript:add_or_edit_ignored_word()" class="btn btn-primary">确定</a>
       </div>
     </div>
   </div>
@@ -359,7 +408,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a href="javascript:add_or_edit_replaced_word()" id="directory_save_btn" class="btn btn-primary">确定</a>
+        <a href="javascript:add_or_edit_replaced_word()" class="btn btn-primary">确定</a>
       </div>
     </div>
   </div>
@@ -422,12 +471,12 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a href="javascript:add_or_edit_offset_word()" id="directory_save_btn" class="btn btn-primary">确定</a>
+        <a href="javascript:add_or_edit_offset_word()" class="btn btn-primary">确定</a>
       </div>
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-custom-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-edit-custom-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="card border-top-0">
@@ -450,7 +499,75 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a href="javascript:edit_custom_words()" id="directory_save_btn" class="btn btn-primary">确定</a>
+        <a href="javascript:edit_custom_words()" class="btn btn-primary">确定</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-export-custom-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">导出自定义识别词</h5>
+          <input type="hidden" id="export_text">
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="mb-3" id="export_note_div">
+                <label class="form-label required">分享备注</label>
+                <textarea class="form-control" id="export_note" rows="8" placeholder="请备注分享的自定义识别词应用的资源标题或文件名"></textarea>
+              </div>
+              <div class="mb-3" id="export_code_div">
+                <label class="form-label required">自定义识别词内容 <span class="form-help" title="复制以下内容分享给他人，获得分享后使用导入功能导入自定义识别词" data-bs-toggle="tooltip">?</span></label>
+                <pre id="export_code">
+                </pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="export_btn_1" type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a id="export_btn_2" class="btn btn-primary"></a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-import-custom-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">导入自定义识别词</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="mb-3" id="import_code_div">
+                <label class="form-label required">自定义识别词内容</label>
+                <textarea class="form-control" id="import_code" rows="8" placeholder="在此处粘贴分享的规则内容"></textarea>
+              </div>
+              <div id="import_text_div">
+                <div class="mb-3">
+                  <label class="form-label required">自定义识别词</label>
+                  <textarea class="form-control" id="import_text" rows="12" placeholder="请备注分享的自定义识别词应用的资源标题或文件名"></textarea>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label required">应用说明</label>
+                  <pre id="import_note"></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a id="import_btn" href="javascript:analyse_import_custom_words_code()" class="btn btn-primary">解析分享代码</a>
       </div>
     </div>
   </div>
@@ -471,9 +588,8 @@
     $("[id^='offset_check_']").prop("checked", $("#offset_all_check_btn").prop("checked"));
   })
 
-  // 批量启用/停用
+  // 批量启用/停用/导出
   function batch_check_action(flag){
-    show_wait_process();
     var ignored_words = [];
     var replaced_words = [];
     var offset_words = [];
@@ -496,16 +612,40 @@
     if(all_length == 0){
       return;
     }
-    custom_words = {ignored_words: ignored_words, replaced_words: replaced_words, offset_words: offset_words}
-    ajax_post("check_custom_words", {flag: flag, custom_words: custom_words}, function (ret) {
-      if(ret.code == 0){
-        hide_wait_process();
-        navmenu('customwords');
-      }else{
-        hide_wait_process();
-        show_fail_modal(ret.msg);
+    var custom_words = {ignored_words: ignored_words, replaced_words: replaced_words, offset_words: offset_words}
+    if(flag == "disable" || flag == "enable"){
+      show_wait_process();
+      ajax_post("check_custom_words", {flag: flag, custom_words: custom_words}, function (ret) {
+        if(ret.code == 0){
+          hide_wait_process();
+          navmenu('customwords');
+        }else{
+          hide_wait_process();
+          show_fail_modal(ret.msg);
+        }
+      });
+    }else if(flag == "export"){
+      var ignored_words_text = '屏蔽词:';
+      var replaced_words_text = '替换词:';
+      var offset_words_text = '集数偏移:';
+      var ignored_words = {{ IgnoredWords | safe }};
+      var replaced_words = {{ ReplacedWords | safe }};
+      var offset_words = {{ OffsetWords | safe }};
+      for(id of custom_words.ignored_words){
+        ignored_words_text = `${ignored_words_text}\n  - ${ignored_words[id].ignored}@${ignored_words[id].enabled}`;
       }
-    });
+      for(id of custom_words.replaced_words){
+        replaced_words_text = `${replaced_words_text}\n  - ${replaced_words[id].replaced}@${replaced_words[id].replace}@${replaced_words[id].enabled}`;
+      }
+      for(id of custom_words.offset_words){
+        offset_words_text = `${offset_words_text}\n  - ${offset_words[id].front}@${offset_words[id].back}@${offset_words[id].offset}@${offset_words[id].enabled}@${offset_words[id].replaced_word.replaced}`;
+      }
+      var custom_words_text = `${ignored_words_text}\n${replaced_words_text}\n${offset_words_text}`;
+      $("#export_text").val(custom_words_text);
+      show_export_custom_words_modal();
+    }else{
+      return;
+    }
   }
 
   // 删除自定义识别词
@@ -513,6 +653,83 @@
     ajax_post("delete_custom_word", {flag: flag, id: id}, function (ret) {
       if(ret.code == 0){
         navmenu('customwords');
+      }
+    });
+  }
+
+  // 显示导出自定义识别词框
+  function show_export_custom_words_modal(){
+    $("#export_note").text('');
+    $("#export_btn_1").attr("style", "display: block;");
+    $("#export_btn_2").attr("href", "javascript:export_custom_words()");
+    $("#export_btn_2").attr("data-bs-dismiss", "");
+    $("#export_btn_2").text('生成分享代码');
+    $("#export_note_div").attr("style", "display: block;");
+    $("#export_code_div").attr("style", "display: none;");
+    $("#modal-export-custom-words").modal('show');
+  }
+
+  // 导出自定义识别词
+  function export_custom_words(){
+    var export_text = $("#export_text").val();
+    var export_note = $("#export_note").val();
+    if(!export_note){
+      $("#export_note").addClass("is-invalid");
+      return;
+    }else{
+      $("#export_note").removeClass("is-invalid");
+    }
+    export_text = `${export_text}@@@@@${export_note}`
+    ajax_post("export_custom_words", {export_text: export_text}, function (ret) {
+      if(ret.code == 0){
+        $("#export_code").text(ret.string);
+        $("#export_btn_1").attr("style", "display: none;");
+        $("#export_btn_2").attr("href", "");
+        $("#export_btn_2").attr("data-bs-dismiss", "modal");
+        $("#export_btn_2").text('关闭');
+        $("#export_note_div").attr("style", "display: none;");
+        $("#export_code_div").attr("style", "display: block;");
+      }
+    });
+  }
+
+  // 显示导入自定义识别词框
+  function show_import_custom_words_modal(){
+    $("#import_text").text('');
+    $("#import_note").text('');
+    $("#import_btn").attr("href", "javascript:analyse_import_custom_words_code()");
+    $("#import_btn").text('解析分享代码');
+    $("#import_text_div").attr("style", "display: none;");
+    $("#import_code_div").attr("style", "display: block;");
+    $("#modal-import-custom-words").modal('show');
+  }
+
+  // 解析导入的自定义识别词分享代码
+  function analyse_import_custom_words_code(){
+    var import_code = $("#import_code").val();
+    ajax_post("analyse_import_custom_words_code", {import_code: import_code}, function (ret) {
+      if(ret.code == 0){
+        $("#import_text").text(ret.text_string);
+        $("#import_note").text(ret.note_string);
+        $("#import_btn").attr("href", "javascript:import_custom_words()");
+        $("#import_btn").text('导入');
+        $("#import_text_div").attr("style", "display: block;");
+        $("#import_code_div").attr("style", "display: none;");
+      }
+    });
+  }
+  
+  // 导入的自定义识别词
+  function import_custom_words(){
+    show_wait_process();
+    ajax_post("import_custom_words", $("#import_text").val(), function (ret) {
+      if(ret.code == 0){
+        hide_wait_process();
+        $("#modal-import-custom-words").modal('hide');
+        navmenu('customwords');
+      }else{
+        hide_wait_process();
+        show_fail_modal(ret.msg);
       }
     });
   }
@@ -587,7 +804,7 @@
   }
 
   // 显示批量编辑框
-  function show_custom_words_modal(){
+  function show_edit_custom_words_modal(){
     var ignored_words_text = '屏蔽词:';
     var replaced_words_text = '替换词:';
     var offset_words_text = '集数偏移:';
@@ -595,17 +812,17 @@
     var replaced_words = {{ ReplacedWords | safe }};
     var offset_words = {{ OffsetWords | safe }};
     for(id in ignored_words){
-      ignored_words_text = `${ignored_words_text}\n  - ${ignored_words[id].ignored}@${ignored_words[id].enabled}`
+      ignored_words_text = `${ignored_words_text}\n  - ${ignored_words[id].ignored}@${ignored_words[id].enabled}`;
     }
     for(id in replaced_words){
-      replaced_words_text = `${replaced_words_text}\n  - ${replaced_words[id].replaced}@${replaced_words[id].replace}@${replaced_words[id].enabled}`
+      replaced_words_text = `${replaced_words_text}\n  - ${replaced_words[id].replaced}@${replaced_words[id].replace}@${replaced_words[id].enabled}`;
     }
     for(id in offset_words){
-      offset_words_text = `${offset_words_text}\n  - ${offset_words[id].front}@${offset_words[id].back}@${offset_words[id].offset}@${offset_words[id].enabled}@${offset_words[id].replaced_word.replaced}`
+      offset_words_text = `${offset_words_text}\n  - ${offset_words[id].front}@${offset_words[id].back}@${offset_words[id].offset}@${offset_words[id].enabled}@${offset_words[id].replaced_word.replaced}`;
     }
-    var custom_words_text = `${ignored_words_text}\n${replaced_words_text}\n${offset_words_text}`
+    var custom_words_text = `${ignored_words_text}\n${replaced_words_text}\n${offset_words_text}`;
     $("#custom_words").text(custom_words_text);
-    $("#modal-custom-words").modal('show');
+    $("#modal-edit-custom-words").modal('show');
   }
 
   // 新增/编辑自屏蔽词
@@ -712,7 +929,7 @@
     ajax_post("edit_custom_words", $("#custom_words").val(), function (ret) {
       if(ret.code == 0){
         hide_wait_process();
-        $("#modal-custom-words").modal('hide');
+        $("#modal-edit-custom-words").modal('hide');
         navmenu('customwords');
       }else{
         hide_wait_process();

@@ -7,6 +7,46 @@
           历史记录
         </h2>
       </div>
+      <div class="col-auto ms-auto d-print-none">
+        <div class="btn-list">
+          <a href="javascript:batch_check_action('reidentification')" class="btn btn-primary ms-auto d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+               <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+            </svg>
+            重新识别
+          </a>
+          <a href="javascript:batch_check_action('reidentification')" class="btn btn-primary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+               <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+            </svg>
+          </a>
+          <a href="javascript:batch_check_action('delete')" class="btn btn-secondary ms-auto d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <line x1="4" y1="7" x2="20" y2="7"></line>
+               <line x1="10" y1="11" x2="10" y2="17"></line>
+               <line x1="14" y1="11" x2="14" y2="17"></line>
+               <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+               <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+            </svg>
+            批量删除
+          </a>
+          <a href="javascript:batch_check_action('delete')" class="btn btn-secondary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <line x1="4" y1="7" x2="20" y2="7"></line>
+               <line x1="10" y1="11" x2="10" y2="17"></line>
+               <line x1="14" y1="11" x2="14" y2="17"></line>
+               <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+               <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+            </svg>
+           </a>
+        </div>
+      </div> 
       <!-- Page title actions -->
     </div>
   </div>
@@ -35,6 +75,10 @@
             <table class="table table-vcenter card-table">
               <thead>
                 <tr>
+                  {% if TotalCount > 0 %}
+                  <th class="w-1"><input class="form-check-input m-0 align-middle" id="history_check_all_btn"
+                    type="checkbox" aria-label="全选"></th>
+                  {% endif %}
                   <th>媒体信息</th>
                   <th>文件信息</th>
                   <th>时间</th>
@@ -45,6 +89,7 @@
                 {% if TotalCount > 0 %}
                 {% for History in Historys %}
                 <tr>
+                  <td class="w-1"><input class="form-check-input m-0 align-middle" id="check_{{ History[-1] }}" type="checkbox"></td>
                   <td>
                     <div class="d-flex py-1 align-items-center">
                       <span class="avatar me-2 text-nowrap">
@@ -100,11 +145,15 @@
                       </a>
                       <div class="dropdown-menu dropdown-menu-end">
                         <a class="dropdown-item"
-                          href='javascript:rename_history("{{History[2]}}", "{{History[3]}}", "{{History[10]}}")'>
+                          href='javascript:single_re_identification_history("{{History[10]}}",)'>
                           重新识别
                         </a>
+                        <a class="dropdown-item"
+                          href='javascript:rename_history("{{History[2]}}", "{{History[3]}}", "{{History[10]}}")'>
+                          手动识别
+                        </a>
                         <a class="dropdown-item text-danger"
-                          href='javascript:manual_delete("{{History[10]}}", "{{History[4]}} ({{History[6]}}) {{History[7]}}")'>
+                          href='javascript:single_delete_history("{{History[10]}}", "{{History[4]}} ({{History[6]}}) {{History[7]}}")'>
                           删除
                         </a>
                       </div>
@@ -162,7 +211,7 @@
     <div class="modal-content">
       <div class="card border-top-0">
         <div class="card-header">
-          <h5 class="modal-title">重新识别</h5>
+          <h5 class="modal-title">手动识别</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="card-body">
@@ -278,7 +327,7 @@
     navmenu("history?s=" + search + "&page=" + (page + 1))
   }
 
-  //重新识别
+  //手动重新识别
   function rename_history(type, path, id) {
     if (type == "电视剧") {
       $("#rename_type_tv").prop("checked", true);
@@ -373,13 +422,27 @@
       }
     });
   }
-  //删除提示
-  function manual_delete(logid, name) {
+  //删除
+  function delete_history(logids, name) {
     show_confirm_modal(name + " 对应已重命名的文件将被同步删除，是否确认？", function(){
       hide_confirm_modal();
-      ajax_post("delete_history", { "logid": logid }, function (ret) {
+      show_wait_process();
+      ajax_post("delete_history", { "logids": logids }, function (ret) {
+        hide_wait_process();
         navmenu('history');
       });
+    });
+  }
+  //重新识别
+  function re_identification(logids) {
+    show_wait_process();
+    ajax_post("re_identification", {flag: "history", ids: logids}, function (ret) {
+      hide_wait_process();
+      if (ret.retcode == 0) {
+        navmenu('history');
+      } else {
+        show_fail_modal("重新识别失败：" + ret.retmsg + "！");
+      }
     });
   }
   // 搜索按钮
@@ -405,8 +468,37 @@
   $("#rename_btn").click(function () {
     manual_rename();
   });
-  //删除按钮
-  $("#delete_btn").click(function () {
-    delete_history();
+  //全选事件
+  $("#history_check_all_btn").change(function () {
+    $("input[type=checkbox]").prop("checked", $(this).prop("checked"));
   });
+  // 批量删除/重新识别
+  function batch_check_action(flag){
+    var logids = [];
+    $("[id^='check_']").each(function(){
+      if ($(this).prop("checked")) {
+        logids.push($(this).attr("id").replace("check_", ""));
+      }
+    });
+    if(logids.length == 0){
+      return;
+    }
+    if(flag == "delete"){
+      delete_history(logids, "");
+    }else if(flag == "reidentification"){
+      re_identification(logids);
+    }else{
+      return;
+    }
+  }
+  //单条记录删除
+  function single_delete_history(logid, name) {
+    var logids = [logid];
+    delete_history(logids, name);
+  }
+  //单条记录重新识别
+  function single_re_identification_history(logid) {
+    var logids = [logid];
+    re_identification(logids);
+  }
 </script>
