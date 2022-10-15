@@ -474,9 +474,16 @@ class Sites:
                     print(str(err))
         return cookie, ua
 
-    @classmethod
+    @staticmethod
     @lru_cache(maxsize=128)
-    def check_torrent_attr(cls, torrent_url, cookie, ua=None) -> TorrentAttr:
+    def __get_site_page_html(url, cookie, ua):
+        res = RequestUtils(cookies=cookie, headers=ua).get_res(url=url)
+        if res and res.status_code == 200:
+            res.encoding = res.apparent_encoding
+            return res.text
+        return ""
+
+    def check_torrent_attr(self, torrent_url, cookie, ua=None) -> TorrentAttr:
         """
         检验种子是否免费，当前做种人数
         :param torrent_url: 种子的详情页面
@@ -487,38 +494,35 @@ class Sites:
         ret_attr = TorrentAttr()
         if not torrent_url:
             return ret_attr
-        xpath_strs = cls.siteconf.get_grapsite_conf(torrent_url)
+        xpath_strs = self.get_grapsite_conf(torrent_url)
         if not xpath_strs:
             return ret_attr
-        res = RequestUtils(cookies=cookie, headers=ua).get_res(url=torrent_url)
-        if res and res.status_code == 200:
-            res.encoding = res.apparent_encoding
-            html_text = res.text
-            if not html_text:
-                return ret_attr
-            try:
-                html = etree.HTML(html_text)
-                # 检测2XFREE
-                for xpath_str in xpath_strs.get("2XFREE"):
-                    if html.xpath(xpath_str):
-                        ret_attr.free2x = True
-                # 检测FREE
-                for xpath_str in xpath_strs.get("FREE"):
-                    if html.xpath(xpath_str):
-                        ret_attr.free = True
-                # 检测HR
-                for xpath_str in xpath_strs.get("HR"):
-                    if html.xpath(xpath_str):
-                        ret_attr.hr = True
-                # 检测PEER_COUNT当前做种人数
-                for xpath_str in xpath_strs.get("PEER_COUNT"):
-                    peer_count_dom = html.xpath(xpath_str)
-                    if peer_count_dom:
-                        peer_count_str = peer_count_dom[0].text
-                        peer_count_str_re = re.search(r'^(\d+)', peer_count_str)
-                        ret_attr.peer_count = int(peer_count_str_re.group(1)) if peer_count_str_re else 0
-            except Exception as err:
-                print(err)
+        html_text = self.__get_site_page_html(url=torrent_url, cookie=cookie, ua=ua)
+        if not html_text:
+            return ret_attr
+        try:
+            html = etree.HTML(html_text)
+            # 检测2XFREE
+            for xpath_str in xpath_strs.get("2XFREE"):
+                if html.xpath(xpath_str):
+                    ret_attr.free2x = True
+            # 检测FREE
+            for xpath_str in xpath_strs.get("FREE"):
+                if html.xpath(xpath_str):
+                    ret_attr.free = True
+            # 检测HR
+            for xpath_str in xpath_strs.get("HR"):
+                if html.xpath(xpath_str):
+                    ret_attr.hr = True
+            # 检测PEER_COUNT当前做种人数
+            for xpath_str in xpath_strs.get("PEER_COUNT"):
+                peer_count_dom = html.xpath(xpath_str)
+                if peer_count_dom:
+                    peer_count_str = peer_count_dom[0].text
+                    peer_count_str_re = re.search(r'^(\d+)', peer_count_str)
+                    ret_attr.peer_count = int(peer_count_str_re.group(1)) if peer_count_str_re else 0
+        except Exception as err:
+            print(err)
         # 随机休眼后再返回
         time.sleep(round(random.uniform(1, 5), 1))
         return ret_attr
