@@ -1019,9 +1019,7 @@ class WebAction:
                                                           rss_pix=rss_pix,
                                                           rss_team=rss_team,
                                                           rss_rule=rss_rule,
-                                                          rssid=rssid,
-                                                          total_ep=total_ep,
-                                                          current_ep=current_ep)
+                                                          rssid=rssid)
                 if code != 0:
                     break
         else:
@@ -1039,7 +1037,9 @@ class WebAction:
                                                       rss_pix=rss_pix,
                                                       rss_team=rss_team,
                                                       rss_rule=rss_rule,
-                                                      rssid=rssid)
+                                                      rssid=rssid,
+                                                      total_ep=total_ep,
+                                                      current_ep=current_ep)
         if not rssid:
             if mtype == MediaType.MOVIE:
                 rssid = SqlHelper.get_rss_movie_id(title=name, year=year, tmdbid=tmdbid or "DB:%s" % doubanid)
@@ -1436,6 +1436,8 @@ class WebAction:
                          "s_sites": rss_info.get("search_sites"),
                          "over_edition": rss_info.get("over_edition"),
                          "filter": rss_info.get("filter_map"),
+                         "total_ep": rss_info.get("episode_info", {}).get("total"),
+                         "current_ep": rss_info.get("episode_info", {}).get("current"),
                          "type": "TV"}
 
         return {"code": 0, "detail": rssdetail}
@@ -2005,16 +2007,20 @@ class WebAction:
             filter_htmls.append('<span class="badge badge-outline text-red me-1 mb-1" title="已开启洗版">洗版</span>')
         if rss_info.get("filter_map") and rss_info.get("filter_map").get("restype"):
             filter_htmls.append(
-                '<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % rss_info.get("filter_map").get("restype"))
+                '<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % rss_info.get("filter_map").get(
+                    "restype"))
         if rss_info.get("filter_map") and rss_info.get("filter_map").get("pix"):
             filter_htmls.append(
-                '<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % rss_info.get("filter_map").get("pix"))
+                '<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' % rss_info.get("filter_map").get(
+                    "pix"))
         if rss_info.get("filter_map") and rss_info.get("filter_map").get("team"):
             filter_htmls.append(
-                '<span class="badge badge-outline text-blue me-1 mb-1">%s</span>' % rss_info.get("filter_map").get("team"))
+                '<span class="badge badge-outline text-blue me-1 mb-1">%s</span>' % rss_info.get("filter_map").get(
+                    "team"))
         if rss_info.get("filter_map") and rss_info.get("filter_map").get("rule"):
             filter_htmls.append('<span class="badge badge-outline text-orange me-1 mb-1">%s</span>' %
-                                FilterRule().get_rule_groups(groupid=rss_info.get("filter_map").get("rule")).get("name") or "")
+                                FilterRule().get_rule_groups(groupid=rss_info.get("filter_map").get("rule")).get(
+                                    "name") or "")
         return "".join(filter_htmls)
 
     @staticmethod
@@ -2357,7 +2363,7 @@ class WebAction:
             return {"code": 0}
         else:
             return {"code": 1}
-    
+
     @staticmethod
     def __edit_custom_words(data):
         try:
@@ -2375,7 +2381,8 @@ class WebAction:
                 replaced_words = list(set(replaced_words))
                 for replaced_word in replaced_words:
                     replaced_word = replaced_word.split("@")
-                    SqlHelper.insert_replaced_word(replaced_word[0], replaced_word[1], 1 if replaced_word[2] == "True" else 0)
+                    SqlHelper.insert_replaced_word(replaced_word[0], replaced_word[1],
+                                                   1 if replaced_word[2] == "True" else 0)
             offset_words = custom_words.get("集数偏移")
             SqlHelper.delete_all_offset_words()
             if offset_words:
@@ -2384,13 +2391,14 @@ class WebAction:
                     offset_word = offset_word.split("@")
                     replaced_word_id = SqlHelper.get_replaced_word_id_by_replaced_word(offset_word[4])
                     print(replaced_word_id)
-                    SqlHelper.insert_offset_word(offset_word[0], offset_word[1], offset_word[2], 1 if offset_word[3] == "True" else 0, replaced_word_id)
+                    SqlHelper.insert_offset_word(offset_word[0], offset_word[1], offset_word[2],
+                                                 1 if offset_word[3] == "True" else 0, replaced_word_id)
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
             print(str(e))
             return {"code": 1, "msg": "输入不符合YAML格式"}
-    
+
     @staticmethod
     def __add_or_edit_custom_word(data):
         flag = data.get("flag")
@@ -2408,13 +2416,15 @@ class WebAction:
         elif flag == "replaced":
             if id:
                 if not SqlHelper.is_replaced_word_existed(custom_word[0]):
-                    SqlHelper.edit_replaced_word(id, custom_word[0], custom_word[1], 1 if custom_word[2] == "True" else 0)
+                    SqlHelper.edit_replaced_word(id, custom_word[0], custom_word[1],
+                                                 1 if custom_word[2] == "True" else 0)
                     WordsHelper().init_config()
                     return {"code": 0, "msg": ""}
                 else:
                     old_replaced_word = SqlHelper.get_replaced_word(id)[0]
                     if custom_word[0] == old_replaced_word[1] and custom_word[1] != old_replaced_word[2]:
-                        SqlHelper.edit_replaced_word(id, custom_word[0], custom_word[1], 1 if custom_word[2] == "True" else 0)
+                        SqlHelper.edit_replaced_word(id, custom_word[0], custom_word[1],
+                                                     1 if custom_word[2] == "True" else 0)
                         WordsHelper().init_config()
                         return {"code": 0, "msg": ""}
                     else:
@@ -2430,12 +2440,13 @@ class WebAction:
             if id:
                 SqlHelper.delete_offset_word(id)
             if not SqlHelper.is_offset_word_existed(custom_word[0], custom_word[1]):
-                SqlHelper.insert_offset_word(custom_word[0], custom_word[1], custom_word[2], 1 if custom_word[3] == "True" else 0, custom_word[4])
+                SqlHelper.insert_offset_word(custom_word[0], custom_word[1], custom_word[2],
+                                             1 if custom_word[3] == "True" else 0, custom_word[4])
                 WordsHelper().init_config()
                 return {"code": 0, "msg": ""}
             else:
                 return {"code": 1, "msg": "集数偏移已存在"}
-    
+
     @staticmethod
     def __delete_custom_word(data):
         flag = data.get("flag")
@@ -2454,7 +2465,7 @@ class WebAction:
             return {"code": 0}
         else:
             return {"code": 1}
-    
+
     @staticmethod
     def __check_custom_words(data):
         try:
