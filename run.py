@@ -313,8 +313,9 @@ if __name__ == "__main__":
             trayicon(homepage_port, log_path)
 
 
-        p1 = threading.Thread(target=traystart, daemon=True)
-        p1.start()
+        if len(os.popen("tasklist| findstr %s" % os.path.basename(sys.executable),'r').read().splitlines()) <= 2:
+            p1 = threading.Thread(target=traystart, daemon=True)
+            p1.start()
 
     # 启动主WEB服务
     FlaskApp().run_service()
