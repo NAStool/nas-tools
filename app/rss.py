@@ -195,11 +195,11 @@ class Rss:
                                     total_ep = match_info.get("total_episodes")
                                 episodes = SqlHelper.get_rss_tv_episodes(match_rssid)
                                 if episodes is None:
-                                    current_episode = int(rss_info.get("episode_info", {}).get("current"))
-                                    if current_episode:
-                                        episodes = list(range(current_episode, total_ep + 1))
-                                    else:
-                                        episodes = []
+                                    episodes = []
+                                    if rss_info.get("episode_info", {}).get("current"):
+                                        current_episode = int(rss_info.get("episode_info", {}).get("current"))
+                                        if current_episode:
+                                            episodes = list(range(current_episode, total_ep + 1))
                                     rss_no_exists[media_info.tmdb_id] = [
                                         {"season": season,
                                          "episodes": episodes,
