@@ -204,12 +204,6 @@
             </div>
           </div>
           <div class="row">
-            <div class="col-lg-8">
-              <div class="mb-3">
-                <label class="form-label">User-Agent <span class="form-help" title="站点签到/数据获取/搜索请求时使用的User-Agent，为空则使用基础配置中User-Agent设置" data-bs-toggle="tooltip">?</span></label>
-                <input type="text" class="form-control" id="site_ua" value="" placeholder="站点访问User-Agent">
-              </div>
-            </div>
             <div class="col-lg-4">
               <div class="mb-3">
                 <label class="form-label required">开启浏览器仿真 <span class="form-help" title="开启后站点签到、数据统计可以兼容更多站点，但获取数据耗时会大幅增加；需要拉取含浏览器内核的镜像才能使用" data-bs-toggle="tooltip">?</span></label>
@@ -217,6 +211,23 @@
                   <option value="Y" selected>是</option>
                   <option value="N">否</option>
                 </select>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="mb-3">
+                <label class="form-label required">使用代理服务器 <span class="form-help" title="开启后该站点的访问将使用代理服务器，代理需在基础设置->系统->代理服务器中设置" data-bs-toggle="tooltip">?</span></label>
+                <select class="form-select" id="site_proxy">
+                  <option value="Y" selected>是</option>
+                  <option value="N">否</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <div class="mb-3">
+                <label class="form-label">User-Agent <span class="form-help" title="站点签到/数据获取/搜索请求时使用的User-Agent，为空则使用基础配置中User-Agent设置" data-bs-toggle="tooltip">?</span></label>
+                <input type="text" class="form-control" id="site_ua" value="" placeholder="站点访问User-Agent">
               </div>
             </div>
           </div>
@@ -276,6 +287,7 @@
     $("#site_rule").val('');
     $("#site_ua").val('');
     $("#site_chrome").val('N');
+    $("#site_proxy").val('N');
     $("#site_parse").val('Y');
     $("#site_unread_msg_notify").val('Y');
     $("#site_close_btn").text("关闭");
@@ -299,6 +311,7 @@
         $("#site_parse").val(ret.site.parse);
         $("#site_ua").val(ret.site.ua);
         $("#site_chrome").val(ret.site.chrome);
+        $("#site_proxy").val(ret.site.proxy);
         $("#site_unread_msg_notify").val(ret.site.unread_msg_notify)
         $("input[name=site_uses]").each(function(){
           $(this).prop("checked",false);
@@ -383,6 +396,7 @@
     });
     var ua = $("#site_ua").val();
     var chrome = $("#site_chrome").val();
+    var proxy = $("#site_proxy").val();
     var data = {"site_id":site_id,
           "site_name":site_name,
           "site_pri":site_pri,
@@ -390,7 +404,7 @@
           "site_signurl":site_signurl,
           "site_cookie":site_cookie,
           "site_include": site_uses,
-          "site_note":site_parse + "|" + site_rule + "|" + site_unread_msg_notify + "|" + ua + "|" + chrome}
+          "site_note":site_parse + "|" + site_rule + "|" + site_unread_msg_notify + "|" + ua + "|" + chrome + "|" + proxy}
 
     $("#add_or_edit_site_btn").attr("disabled", true);
     $("#add_or_edit_site_btn").text("处理中...");

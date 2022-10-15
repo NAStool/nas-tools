@@ -72,6 +72,15 @@
             <a href="javascript:show_userrss_detail('{{ Task.id }}')" class="btn-action">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="20" height="20" fill="currentColor"  viewBox="0 0 16 16"> <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/> </svg>
             </a>
+            {% if Task.uses == 'D' %}
+            <a  href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn-action">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <circle cx="12" cy="12" r="2"></circle>
+                    <path d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7"></path>
+                </svg>
+            </a>
+            {% endif %}
             <a href="javascript:edit_userrss_modal('{{ Task.id }}')" class="btn-action" title="编辑任务">
               <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" /><path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" /><line x1="16" y1="5" x2="19" y2="8" /></svg>
             </a>
@@ -167,7 +176,7 @@
             {% if Task.uses == 'D' %}
             <div class="datagrid-item">
               <div class="datagrid-content">
-                <a id="rss_articlesbtn" href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn btn-secondary">
+                <a id="rss_articlesbtn" href="javascript:show_rss_articles_modal('{{ Task.id }}')" class="btn btn-twitter">
                   预览
                 </a>
               </div>
@@ -663,7 +672,14 @@
         content_tb = `<tbody>${content_td}</tbody>`;
         content = `${content_th}${content_tb}`;
         };
-        batch_download_btn = `<a href="javascript:batch_articles_action('${id}', 'download')" class="btn btn-primary ms-auto d-none d-sm-inline-block">批量下载</a>`;
+        batch_download_btn = `<a href="javascript:batch_articles_action('${id}', 'download')" class="btn btn-primary ms-auto d-none d-sm-inline-block">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                   <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                                   <polyline points="7 11 12 16 17 11"></polyline>
+                                   <line x1="12" y1="4" x2="12" y2="16"></line>
+                                </svg>
+                              下载</a>`;
         batch_download_btn += `<a href="javascript:batch_articles_action('${id}', 'download')" class="btn btn-primary d-sm-none btn-icon">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -672,28 +688,32 @@
                                    <line x1="12" y1="4" x2="12" y2="16"></line>
                                 </svg>
                                </a>`;
-        unfinish_btn = `<a href="javascript:batch_articles_action('${id}', 'set_finished')" class="btn btn-success ms-auto d-none d-sm-inline-block">设为已处理</a>`;
-        unfinish_btn += `<a href="javascript:batch_articles_action('${id}', 'set_finished')" class="btn btn-success d-sm-none btn-icon">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        unfinish_btn = `<a href="javascript:batch_articles_action('${id}', 'set_finished')" class="btn btn-twitter ms-auto d-none d-sm-inline-block">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                             <path d="M3.5 5.5l1.5 1.5l2.5 -2.5"></path>
-                             <path d="M3.5 11.5l1.5 1.5l2.5 -2.5"></path>
-                             <path d="M3.5 17.5l1.5 1.5l2.5 -2.5"></path>
-                             <line x1="11" y1="6" x2="20" y2="6"></line>
-                             <line x1="11" y1="12" x2="20" y2="12"></line>
-                             <line x1="11" y1="18" x2="20" y2="18"></line>
+                             <circle cx="12" cy="12" r="9"></circle>
+                             <path d="M9 12l2 2l4 -4"></path>
+                          </svg>
+                        已处理</a>`;
+        unfinish_btn += `<a href="javascript:batch_articles_action('${id}', 'set_finished')" class="btn btn-twitter d-sm-none btn-icon">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                             <circle cx="12" cy="12" r="9"></circle>
+                             <path d="M9 12l2 2l4 -4"></path>
                           </svg>
                          </a>`;
-        finished_btn = `<a href="javascript:batch_articles_action('${id}', 'set_unfinish')" class="btn btn-secondary ms-auto d-none d-sm-inline-block">设为未处理</a>`;
-        finished_btn += `<a href="javascript:batch_articles_action('${id}', 'set_unfinish')" class="btn btn-secondary d-sm-none btn-icon">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list-details" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        finished_btn = `<a href="javascript:batch_articles_action('${id}', 'set_unfinish')" class="btn btn-vk ms-auto d-none d-sm-inline-block">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                             <path d="M13 5h8"></path>
-                             <path d="M13 9h5"></path>
-                             <path d="M13 15h8"></path>
-                             <path d="M13 19h5"></path>
-                             <rect x="3" y="4" width="6" height="6" rx="1"></rect>
-                             <rect x="3" y="14" width="6" height="6" rx="1"></rect>
+                             <circle cx="12" cy="12" r="9"></circle>
+                             <path d="M10 10l4 4m0 -4l-4 4"></path>
+                          </svg>
+                        未处理</a>`;
+        finished_btn += `<a href="javascript:batch_articles_action('${id}', 'set_unfinish')" class="btn btn-vk d-sm-none btn-icon">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-circle-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                             <circle cx="12" cy="12" r="9"></circle>
+                             <path d="M10 10l4 4m0 -4l-4 4"></path>
                           </svg>
                          </a>`;
         $("#articles-check").append(`<div class="btn-list">${batch_download_btn}${unfinish_btn}${finished_btn}</div>`);
