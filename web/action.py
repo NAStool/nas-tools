@@ -1,5 +1,7 @@
+import base64
 import datetime
 import importlib
+import json
 import os.path
 import re
 import shutil
@@ -134,7 +136,9 @@ class WebAction:
             "check_custom_words": self.__check_custom_words,
             "get_categories": self.__get_categories,
             "re_rss_history": self.__re_rss_history,
-            "delete_rss_history": self.__delete_rss_history
+            "delete_rss_history": self.__delete_rss_history,
+            "share_filtergroup": self.__share_filtergroup,
+            "import_filtergroup": self.__import_filtergroup
         }
 
     def action(self, cmd, data):
@@ -1851,7 +1855,7 @@ class WebAction:
             "size": data.get("rule_sizelimit"),
             "free": data.get("rule_free")
         }
-        SqlHelper.insert_filter_rule(rule_id, item)
+        SqlHelper.insert_filter_rule(ruleid=rule_id, item=item)
         FilterRule().init_config()
         return {"code": 0}
 
@@ -2532,3 +2536,58 @@ class WebAction:
             return {"code": code, "msg": msg}
         else:
             return {"code": 1, "msg": "订阅历史记录不存在"}
+
+    @staticmethod
+    def __share_filtergroup(data):
+        gid = data.get("id")
+        group_info = SqlHelper.get_config_filter_group(gid=gid)
+        if not group_info:
+            return {"code": 1, "msg": "规则组不存在"}
+        group_rules = SqlHelper.get_config_filter_rule(groupid=gid)
+        if not group_rules:
+            return {"code": 1, "msg": "规则组没有对应规则"}
+        rules = []
+        for rule in group_rules:
+            rules.append({
+                "name": rule[2],
+                "pri": rule[3],
+                "include": rule[4],
+                "exclude": rule[5],
+                "size": rule[6],
+                "free": rule[7]
+            })
+        rule_json = {
+            "name": group_info[0][1],
+            "rules": rules
+        }
+        json_string = base64.b64encode(json.dumps(rule_json).encode("utf-8")).decode('utf-8')
+        return {"code": 0, "string": json_string}
+
+    @staticmethod
+    def __import_filtergroup(data):
+        content = data.get("content")
+        try:
+            json_str = base64.b64decode(str(content).encode("utf-8")).decode('utf-8')
+            json_obj = json.loads(json_str)
+            if json_obj:
+                if not json_obj.get("name"):
+                    return {"code": 1, "msg": "数据格式不正确"}
+                SqlHelper.add_filter_group(name=json_obj.get("name"))
+                group_id = SqlHelper.get_filter_groupid_by_name(json_obj.get("name"))
+                if not group_id:
+                    return {"code": 1, "msg": "数据内容不正确"}
+                if json_obj.get("rules"):
+                    for rule in json_obj.get("rules"):
+                        SqlHelper.insert_filter_rule(item={
+                            "group": group_id,
+                            "name": rule.get("name"),
+                            "pri": rule.get("pri"),
+                            "include": rule.get("include"),
+                            "exclude": rule.get("exclude"),
+                            "size": rule.get("size"),
+                            "free": rule.get("free")
+                        })
+                FilterRule().init_config()
+            return {"code": 0, "msg": ""}
+        except Exception as err:
+            return {"code": 1, "msg": "数据格式不正确，%s" % str(err)}

@@ -502,10 +502,14 @@ class SqlHelper:
                                             tid))
 
     @staticmethod
-    def get_config_filter_group():
+    def get_config_filter_group(gid=None):
         """
         查询过滤规则组
         """
+        if gid:
+            return MainDb().select_by_sql("SELECT ID,GROUP_NAME,IS_DEFAULT,NOTE "
+                                          "FROM CONFIG_FILTER_GROUP "
+                                          "WHERE ID = ?", (gid,))
         return MainDb().select_by_sql("SELECT ID,GROUP_NAME,IS_DEFAULT,NOTE FROM CONFIG_FILTER_GROUP")
 
     @staticmethod
@@ -1622,9 +1626,26 @@ class SqlHelper:
         """
         if default == 'Y':
             SqlHelper.set_default_filtergroup(0)
-        sql = "INSERT INTO CONFIG_FILTER_GROUP (GROUP_NAME, IS_DEFAULT) VALUES (?, ?)"
-        MainDb().update_by_sql(sql, (StringUtils.str_sql(name), default))
+        group_id = SqlHelper.get_filter_groupid_by_name(name)
+        if group_id:
+            MainDb().update_by_sql("UPDATE CONFIG_FILTER_GROUP "
+                                   "SET IS_DEFAULT = ? "
+                                   "WHERE ID = ?",
+                                   (default, group_id))
+        else:
+            MainDb().update_by_sql("INSERT INTO CONFIG_FILTER_GROUP "
+                                   "(GROUP_NAME, IS_DEFAULT) "
+                                   "VALUES (?, ?)",
+                                   (StringUtils.str_sql(name), default))
         return True
+
+    @staticmethod
+    def get_filter_groupid_by_name(name):
+        ret = MainDb().select_by_sql("SELECT ID FROM CONFIG_FILTER_GROUP "
+                                     "WHERE GROUP_NAME = ?",
+                                     (name,))
+        if ret and ret[0][0]:
+            return ret[0][0]
 
     @staticmethod
     def set_default_filtergroup(groupid):
@@ -1655,7 +1676,7 @@ class SqlHelper:
         return MainDb().update_by_sql(sql, (ruleid,))
 
     @staticmethod
-    def insert_filter_rule(ruleid, item):
+    def insert_filter_rule(item, ruleid=None):
         """
         新增规则
         """

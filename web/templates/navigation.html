@@ -723,7 +723,7 @@
                   关闭
                 </a>
               </div>
-              <div class="col">
+              <div class="col" id="system_success_action_div">
                 <button class="btn btn-success w-100" id="system_success_action_btn">
                   确定
                 </button>
@@ -1631,11 +1631,11 @@
         $("#system_success_action_btn").text("编辑订阅");
         $("#system_success_action_btn").unbind('click').click(function(){
           $("#system-success-action-modal").modal('hide');
-          debugger;
           show_edit_rss_media_modal(rssid, type);
         });
+        $("#system_success_action_div").show();
       }else{
-        $("#system_success_action_btn").hide();
+        $("#system_success_action_div").hide();
       }
       $("#system-success-action-modal").modal('show');
     }
