@@ -11,17 +11,34 @@
         <div class="btn-list">
           <a href="javascript:show_add_filtergroup_modal()" class="btn btn-primary d-none d-sm-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-            新增规则组
+            新增
           </a>
           <a href="javascript:show_add_filtergroup_modal()" class="btn btn-primary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           </a>
           <a href="javascript:show_restore_filtergroup_modal()" class="btn btn-secondary d-none d-sm-inline-block">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 16 16" fill="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
-            恢复初始规则
+            恢复
           </a>
           <a href="javascript:show_restore_filtergroup_modal()" class="btn btn-secondary d-sm-none btn-icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 16 16" fill="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
+          </a>
+          <a href="javascript:show_import_filtergroup_modal()" class="btn btn-secondary d-none d-sm-inline-block">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transfer-in" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M4 18v3h16v-14l-8 -4l-8 4v3"></path>
+               <path d="M4 14h9"></path>
+               <path d="M10 11l3 3l-3 3"></path>
+            </svg>
+            导入
+          </a>
+          <a href="javascript:show_import_filtergroup_modal()" class="btn btn-secondary d-sm-none btn-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-transfer-in" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+               <path d="M4 18v3h16v-14l-8 -4l-8 4v3"></path>
+               <path d="M4 14h9"></path>
+               <path d="M10 11l3 3l-3 3"></path>
+            </svg>
           </a>
         </div>
       </div>
@@ -39,6 +56,16 @@
           <div class="card-header">
             <h3 class="card-title"><strong>{{ RuleGroup.name }}</strong></h3>
             <div class="card-actions btn-actions">
+              <a href="javascript:share_filtergroup('{{ RuleGroup.id }}')" class="btn-action" title="分享规则组">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-share" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                   <circle cx="6" cy="12" r="3"></circle>
+                   <circle cx="18" cy="6" r="3"></circle>
+                   <circle cx="18" cy="18" r="3"></circle>
+                   <line x1="8.7" y1="10.7" x2="15.3" y2="7.3"></line>
+                   <line x1="8.7" y1="13.3" x2="15.3" y2="16.7"></line>
+                </svg>
+              </a>
               <a href="javascript:set_default_filtergroup('{{ RuleGroup.id }}')" class="btn-action" title="设置/取消默认">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-star {% if RuleGroup.default == 'Y' %}icon-filled text-green{% endif %}" width="40" height="40" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -289,7 +316,50 @@
     </div>
   </div>
 </div>
-
+<div class="modal modal-blur fade" id="modal-share-filtergroup" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">规则分享</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <label class="form-label required">规则内容 <span class="form-help" title="复制以下内容分享给他人，获得分享后使用规则导入功能导入分享规则" data-bs-toggle="tooltip">?</span></label>
+          <pre id="share_filtergroup_code">
+          </pre>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-primary ms-auto" data-bs-dismiss="modal">
+          关闭
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-import-filtergroup" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">规则分享</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <label class="form-label required">规则内容</label>
+          <textarea class="form-control" id="import_filtergroup_code" rows="10" placeholder="在此处粘贴分享的规则内容">
+          </textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-primary ms-auto" href="javascript:import_filtergroup()">
+          导入
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
 <script type="text/javascript">
   // 打开新增规则表窗口
   function show_add_filtergroup_modal(){
@@ -462,6 +532,44 @@
     $("#rule_name").val(rule["name"]);
     $("#rule_include").val(rule["include"].toString().replace(/,/g, "\n"));
     $("#rule_exclude").val(rule["exclude"].toString().replace(/,/g, "\n"));
+  }
+
+  //分计规则组
+  function share_filtergroup(id){
+    show_wait_process();
+    ajax_post("share_filtergroup", {"id": id}, function (ret) {
+      hide_wait_process();
+      if(ret.code == 0){
+        $("#share_filtergroup_code").text(ret.string);
+        $("#modal-share-filtergroup").modal('show');
+      }else{
+        show_fail_modal("无法生成分享：" + ret.msg);
+      }
+    });
+  }
+
+  //显示导入规则组框
+  function show_import_filtergroup_modal(){
+    $("#import_filtergroup_code").val("");
+    $("#modal-import-filtergroup").modal('show');
+  }
+
+  //导入编规则组
+  function import_filtergroup(){
+    content = $("#import_filtergroup_code").val();
+    if(!content){
+      return;
+    }
+    $("#modal-import-filtergroup").modal('hide');
+    show_wait_process();
+    ajax_post("import_filtergroup", {"content": content}, function (ret) {
+      hide_wait_process();
+      if(ret.code == 0){
+        navmenu('filterrule');
+      }else{
+        show_fail_modal("规则导入失败：" + ret.msg);
+      }
+    });
   }
 
 </script>
