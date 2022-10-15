@@ -542,14 +542,14 @@ class SqlHelper:
                 return MainDb().select_by_sql(sql, (state,))
 
     @staticmethod
-    def get_rss_movie_id(title, year, tmdbid=None):
+    def get_rss_movie_id(title, tmdbid=None):
         """
         获取订阅电影ID
         """
         if not title:
             return ""
-        sql = "SELECT ID FROM RSS_MOVIES WHERE NAME=? AND YEAR = ?"
-        ret = MainDb().select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year)))
+        sql = "SELECT ID FROM RSS_MOVIES WHERE NAME=?"
+        ret = MainDb().select_by_sql(sql, (StringUtils.str_sql(title),))
         if ret:
             return ret[0][0]
         else:
@@ -1912,34 +1912,34 @@ class SqlHelper:
         return MainDb().update_by_sql("DELETE FROM OFFSET_WORDS")
     
     @staticmethod
-    def delete_ignored_word(id):
+    def delete_ignored_word(wid):
         """
         删除自定义识别词-屏蔽词
         """
         if not id:
             return False
         return MainDb().update_by_sql(
-            "DELETE FROM IGNORED_WORDS WHERE ID = ?", (int(id),))
+            "DELETE FROM IGNORED_WORDS WHERE ID = ?", (int(wid),))
     
     @staticmethod
-    def delete_replaced_word(id):
+    def delete_replaced_word(wid):
         """
         删除自定义识别词-替换词
         """
-        if not id:
+        if not wid:
             return False
         return MainDb().update_by_sql(
-            "DELETE FROM REPLACED_WORDS WHERE ID = ?", (int(id),))
+            "DELETE FROM REPLACED_WORDS WHERE ID = ?", (int(wid),))
     
     @staticmethod
-    def delete_offset_word(id):
+    def delete_offset_word(wid):
         """
         删除自定义识别词-集数偏移
         """
-        if not id:
+        if not wid:
             return False
         return MainDb().update_by_sql(
-            "DELETE FROM OFFSET_WORDS WHERE ID = ?", (int(id),))
+            "DELETE FROM OFFSET_WORDS WHERE ID = ?", (int(wid),))
 
     @staticmethod
     def get_ignored_words():
@@ -1963,25 +1963,25 @@ class SqlHelper:
         return MainDb().select_by_sql("SELECT ID, FRONT, BACK, OFFSET, ENABLED, REPLACED_WORD_ID FROM OFFSET_WORDS")
     
     @staticmethod
-    def check_ignored_word(enabled, id):
+    def check_ignored_word(enabled, wid):
         """
         设置自定义识别词-屏蔽词状态
         """
-        return MainDb().update_by_sql("UPDATE IGNORED_WORDS SET ENABLED = ? WHERE ID = ?", (int(enabled), int(id)))
+        return MainDb().update_by_sql("UPDATE IGNORED_WORDS SET ENABLED = ? WHERE ID = ?", (int(enabled), int(wid)))
 
     @staticmethod
-    def check_replaced_word(enabled, id):
+    def check_replaced_word(enabled, wid):
         """
         设置自定义识别词-替换词状态
         """
-        return MainDb().update_by_sql("UPDATE REPLACED_WORDS SET ENABLED = ? WHERE ID = ?", (int(enabled), int(id)))
+        return MainDb().update_by_sql("UPDATE REPLACED_WORDS SET ENABLED = ? WHERE ID = ?", (int(enabled), int(wid)))
     
     @staticmethod
-    def check_offset_word(enabled, id):
+    def check_offset_word(enabled, wid):
         """
         设置自定义识别词-集数偏移状态
         """
-        return MainDb().update_by_sql("UPDATE OFFSET_WORDS SET ENABLED = ? WHERE ID = ?", (int(enabled), int(id)))
+        return MainDb().update_by_sql("UPDATE OFFSET_WORDS SET ENABLED = ? WHERE ID = ?", (int(enabled), int(wid)))
 
     @staticmethod
     def get_replaced_word_id_by_replaced_word(replaced_word):
@@ -2031,8 +2031,57 @@ class SqlHelper:
         return MainDb().select_by_sql("SELECT ID, FRONT, BACK, OFFSET FROM OFFSET_WORDS WHERE REPLACED_WORD_ID = -1 AND ENABLED = 1")
     
     @staticmethod
-    def get_replaced_word(id):
+    def get_replaced_word(wid):
         """
         查询自定义识别词-替换词
         """
-        return MainDb().select_by_sql("SELECT ID, REPLACED, REPLACE, ENABLED FROM REPLACED_WORDS WHERE ID = ?", (int(id),))
+        return MainDb().select_by_sql("SELECT ID, REPLACED, REPLACE, ENABLED FROM REPLACED_WORDS WHERE ID = ?", (int(wid),))
+
+    @staticmethod
+    def get_rss_history(rtype=None, rid=None):
+        sql = "SELECT ID, TYPE, RSSID, NAME, YEAR, TMDBID, SEASON, IMAGE, DESC, TOTAL, START, FINISH_TIME, NOTE " \
+                  "FROM RSS_HISTORY "
+        if rid:
+            sql += "WHERE ID = ?"
+            return MainDb().select_by_sql(sql, (int(rid),))
+        elif rtype:
+            sql += "WHERE TYPE = ?"
+            return MainDb().select_by_sql(sql, (rtype,))
+        return MainDb().select_by_sql(sql)
+
+    @staticmethod
+    def is_exists_rss_history(rssid):
+        if not rssid:
+            return False
+        sql = "SELECT COUNT(1) FROM RSS_HISTORY WHERE RSSID = ?"
+        ret = MainDb().select_by_sql(sql, (rssid,))
+        if ret and ret[0][0] > 0:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def insert_rss_history(rssid, rtype, name, year, tmdbid, image, desc, season=None, total=None, start=None):
+        if not SqlHelper.is_exists_rss_history(rssid):
+            sql = "INSERT INTO RSS_HISTORY" \
+                  "(TYPE, RSSID, NAME, YEAR, TMDBID, SEASON, IMAGE, DESC, TOTAL, START, FINISH_TIME) " \
+                  "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            return MainDb().update_by_sql(sql, (rtype,
+                                                rssid,
+                                                name,
+                                                year,
+                                                tmdbid,
+                                                season,
+                                                image,
+                                                desc,
+                                                total,
+                                                start,
+                                                time.strftime('%Y-%m-%d %H:%M:%S',
+                                                              time.localtime(time.time()))
+                                                ))
+
+    @staticmethod
+    def delete_rss_history(rssid):
+        if not rssid:
+            return False
+        return MainDb().update_by_sql("DELETE FROM RSS_HISTORY WHERE ID = ?", (rssid,))

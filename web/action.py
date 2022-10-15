@@ -132,7 +132,9 @@ class WebAction:
             "add_or_edit_custom_word": self.__add_or_edit_custom_word,
             "delete_custom_word": self.__delete_custom_word,
             "check_custom_words": self.__check_custom_words,
-            "get_categories": self.__get_categories
+            "get_categories": self.__get_categories,
+            "re_rss_history": self.__re_rss_history,
+            "delete_rss_history": self.__delete_rss_history
         }
 
     def action(self, cmd, data):
@@ -1042,7 +1044,7 @@ class WebAction:
                                                       current_ep=current_ep)
         if not rssid:
             if mtype == MediaType.MOVIE:
-                rssid = SqlHelper.get_rss_movie_id(title=name, year=year, tmdbid=tmdbid or "DB:%s" % doubanid)
+                rssid = SqlHelper.get_rss_movie_id(title=name, tmdbid=tmdbid or "DB:%s" % doubanid)
             else:
                 rssid = SqlHelper.get_rss_tv_id(title=name, tmdbid=tmdbid or "DB:%s" % doubanid)
         return {"code": code, "msg": msg, "page": page, "name": name, "rssid": rssid}
@@ -1120,7 +1122,7 @@ class WebAction:
 
             # 查订阅信息
             if not rssid:
-                rssid = SqlHelper.get_rss_movie_id(title=title, year=year, tmdbid=tmdbid or "DB:%s" % doubanid)
+                rssid = SqlHelper.get_rss_movie_id(title=title, tmdbid=tmdbid or "DB:%s" % doubanid)
 
             # 查下载信息
 
@@ -1408,7 +1410,7 @@ class WebAction:
     def __rss_detail(data):
         rssid = data.get("rssid")
         rsstype = data.get("rsstype")
-        if rsstype in ["MOV", "电影"]:
+        if rsstype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV', '电影']:
             rss = SqlHelper.get_rss_movies(rssid=rssid)
             if not rss:
                 return {"code": 1}
@@ -1928,7 +1930,7 @@ class WebAction:
                 name = MetaInfo(title).get_name()
                 if RecommendType not in ['hm', 'nm']:
                     rid = "DB:%s" % rid
-                rssid = SqlHelper.get_rss_movie_id(title=name, year=year, tmdbid=rid)
+                rssid = SqlHelper.get_rss_movie_id(title=name, tmdbid=rid)
                 if rssid:
                     # 已订阅
                     fav = 1
@@ -2499,3 +2501,34 @@ class WebAction:
         else:
             categories = Category().get_anime_categorys()
         return {"code": 0, "category": list(categories), "id": data.get("id"), "value": data.get("value")}
+
+    @staticmethod
+    def __delete_rss_history(data):
+        rssid = data.get("rssid")
+        SqlHelper.delete_rss_history(rssid=rssid)
+        return {"code": 0}
+
+    @staticmethod
+    def __re_rss_history(data):
+        rssid = data.get("rssid")
+        rtype = data.get("type")
+        rssinfo = SqlHelper.get_rss_history(rtype=rtype, rid=rssid)
+        if rssinfo:
+            if rtype == "MOV":
+                mtype = MediaType.MOVIE
+            else:
+                mtype = MediaType.TV
+            if rssinfo[0][6]:
+                season = int(str(rssinfo[0][6]).replace("S", ""))
+            else:
+                season = None
+            code, msg, _ = add_rss_subscribe(mtype=mtype,
+                                             name=rssinfo[0][3],
+                                             year=rssinfo[0][4],
+                                             season=season,
+                                             tmdbid=rssinfo[0][5],
+                                             total_ep=rssinfo[0][9],
+                                             current_ep=rssinfo[0][10])
+            return {"code": code, "msg": msg}
+        else:
+            return {"code": 1, "msg": "订阅历史记录不存在"}

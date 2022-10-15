@@ -2,6 +2,8 @@ from app.media.douban import DouBan
 from app.helper import SqlHelper
 from app.media.doubanv2api import DoubanApi
 from app.media import MetaInfo, Media
+from app.message import Message
+from app.utils import Torrent
 from app.utils.types import MediaType
 
 
@@ -186,3 +188,59 @@ def add_rss_subscribe(mtype, name, year,
                                     current_ep=current_ep)
 
     return 0, "添加订阅成功", media_info
+
+
+def finish_rss_subscribe(rtype, rssid, media):
+    """
+    完成订阅
+    :param rtype: 订阅类型
+    :param rssid: 订阅ID
+    :param media: 识别的媒体信息，发送消息使用
+    """
+    if not rtype or not rssid or not media:
+        return
+    # 电影订阅
+    if rtype == "MOV":
+        # 查询电影RSS数据
+        rss = SqlHelper.get_rss_movies(rssid=rssid)
+        if not rss:
+            return
+        # 登记订阅历史
+        SqlHelper.insert_rss_history(rssid=rssid,
+                                     rtype=rtype,
+                                     name=rss[0][0],
+                                     year=rss[0][1],
+                                     tmdbid=rss[0][2],
+                                     image=media.get_poster_image(),
+                                     desc=media.overview)
+
+        # 删除订阅
+        SqlHelper.delete_rss_movie(rssid=rssid)
+
+    # 电视剧订阅
+    else:
+        # 查询电视剧RSS数据
+        rss = SqlHelper.get_rss_tvs(rssid=rssid)
+        if not rss:
+            return
+        # 解析RSS属性
+        rss_info = Torrent.get_rss_note_item(rss[0][5])
+        total_ep = rss_info.get("episode_info", {}).get("total")
+        start_ep = rss_info.get("episode_info", {}).get("current")
+        # 登记订阅历史
+        SqlHelper.insert_rss_history(rssid=rssid,
+                                     rtype=rtype,
+                                     name=rss[0][0],
+                                     year=rss[0][1],
+                                     season=rss[0][2],
+                                     tmdbid=rss[0][3],
+                                     image=media.get_poster_image(),
+                                     desc=media.overview,
+                                     total=total_ep if total_ep else rss[0][6],
+                                     start=start_ep)
+        # 删除订阅
+        SqlHelper.delete_rss_tv(rssid=rssid)
+
+    # 发送订阅完成的消息
+    if media:
+        Message().send_rss_finished_message(media_info=media)

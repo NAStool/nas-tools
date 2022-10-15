@@ -14,6 +14,7 @@ from app.utils import Torrent, DomUtils, RequestUtils, StringUtils
 from app.helper import MetaHelper
 from app.media import MetaInfo, Media
 from app.utils.types import MediaType, SearchType
+from web.backend.subscribe import finish_rss_subscribe
 
 lock = Lock()
 
@@ -182,7 +183,8 @@ class Rss:
                                         no_exists=rss_no_exists)
                                     if exist_flag:
                                         log_info("【Rss】电影 %s 已存在，删除订阅..." % media_info.get_title_string())
-                                        SqlHelper.delete_rss_movie(rssid=match_rssid)
+                                        # 完成订阅
+                                        finish_rss_subscribe(rtype="MOV", rssid=match_rssid, media=media_info)
                                         continue
                             # 如果是电视剧
                             else:
@@ -210,9 +212,8 @@ class Rss:
                                 else:
                                     log_info("【Rss】电视剧 %s%s 已全部订阅完成，删除订阅..." % (
                                         media_info.title, media_info.get_season_string()))
-                                    SqlHelper.delete_rss_tv(rssid=match_rssid)
-                                    # 发送订阅完成的消息
-                                    self.message.send_rss_finished_message(media_info)
+                                    # 完成订阅
+                                    finish_rss_subscribe(rtype="TV", rssid=match_rssid, media=media_info)
                                     continue
                                 # 非洗版时检查本地媒体库情况
                                 if not match_info.get("over_edition"):
@@ -226,7 +227,8 @@ class Rss:
                                                 media_info.tmdb_id):
                                             log_info("【Rss】电视剧 %s %s 已存在，删除订阅..." % (
                                                 media_info.get_title_string(), media_info.get_season_episode_string()))
-                                            SqlHelper.delete_rss_tv(rssid=match_rssid)
+                                            # 完成订阅
+                                            finish_rss_subscribe(rtype="TV", rssid=match_rssid, media=media_info)
                                         continue
                                     # 取交集做为缺失集
                                     rss_no_exists = self.__get_rss_no_exists(target=rss_no_exists,
@@ -265,7 +267,7 @@ class Rss:
                             # 删除电影订阅
                             if item.rssid:
                                 log_info("【Rss】电影 %s 订阅完成，删除订阅..." % item.get_title_string())
-                                SqlHelper.delete_rss_movie(rssid=item.rssid)
+                                finish_rss_subscribe(rtype="MOV", rssid=item.rssid, media=item)
                         else:
                             if not left_medias or not left_medias.get(item.tmdb_id):
                                 # 删除电视剧订阅
@@ -273,9 +275,8 @@ class Rss:
                                     log_info(
                                         "【Rss】电视剧 %s %s 订阅完成，删除订阅..." % (item.get_title_string(),
                                                                          item.get_season_string()))
-                                    SqlHelper.delete_rss_tv(rssid=item.rssid)
-                                    # 发送订阅完成的消息
-                                    self.message.send_rss_finished_message(item)
+                                    # 完成订阅
+                                    finish_rss_subscribe(rtype="TV", rssid=item.rssid, media=item)
                             else:
                                 # 更新电视剧缺失剧集
                                 left_media = left_medias.get(item.tmdb_id)
@@ -350,7 +351,7 @@ class Rss:
                 # 已经存在
                 if exist_flag:
                     log_info("【Rss】电影 %s 已存在，删除订阅..." % name)
-                    SqlHelper.delete_rss_movie(rssid=rssid)
+                    finish_rss_subscribe(rtype="MOV", rssid=rssid, media=media_info)
                     continue
             else:
                 # 洗版时按缺失来下载
@@ -364,7 +365,7 @@ class Rss:
                 filters=rss_info.get("filter_map"))
             if search_result:
                 log_info("【Rss】电影 %s 下载完成，删除订阅..." % name)
-                SqlHelper.delete_rss_movie(rssid=rssid)
+                finish_rss_subscribe(rtype="MOV", rssid=rssid, media=media_info)
             else:
                 SqlHelper.update_rss_movie_state(rssid=rssid, state='R')
 
@@ -426,9 +427,8 @@ class Rss:
                      "total_episodes": total_ep}]}
             else:
                 log_info("【Rss】电视剧 %s%s 已全部订阅完成，删除订阅..." % (name, season))
-                SqlHelper.delete_rss_tv(rssid=rssid)
-                # 发送订阅完成的消息
-                self.message.send_rss_finished_message(media_info)
+                # 完成订阅
+                finish_rss_subscribe(rtype="TV", rssid=rssid, media=media_info)
                 continue
 
             # 非洗版的情况检查是否存在
@@ -442,7 +442,8 @@ class Rss:
                     if not library_no_exists or not library_no_exists.get(
                             media_info.tmdb_id):
                         log_info("【Rss】电视剧 %s%s 已全部存在，删除订阅..." % (name, season))
-                        SqlHelper.delete_rss_tv(rssid=rssid)
+                        # 完成订阅
+                        finish_rss_subscribe(rtype="TV", rssid=rssid, media=media_info)
                     continue
                 # 取交集做为缺失集
                 no_exists = self.__get_rss_no_exists(target=no_exists,
@@ -462,9 +463,8 @@ class Rss:
             if not no_exists or not no_exists.get(media_info.tmdb_id):
                 # 没有剩余或者剩余缺失季集中没有当前标题，说明下完了
                 log_info("【Rss】电视剧 %s 下载完成，删除订阅..." % name)
-                SqlHelper.delete_rss_tv(rssid=rssid)
-                # 发送订阅完成的消息
-                self.message.send_rss_finished_message(media_info)
+                # 完成订阅
+                finish_rss_subscribe(rtype="TV", rssid=rssid, media=media_info)
             else:
                 # 更新状态
                 SqlHelper.update_rss_tv_state(rssid=rssid, state='R')
