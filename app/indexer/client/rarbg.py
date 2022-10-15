@@ -45,7 +45,7 @@ class Rarbg:
         if res and res.status_code == 200:
             results = res.json().get('torrent_results') or []
             for result in results:
-                if not result.get('title'):
+                if not result or not result.get('title'):
                     continue
                 torrent = {'indexer': indexer.id,
                            'title': result.get('title'),
@@ -57,7 +57,7 @@ class Rarbg:
                            'downloadvolumefactor': 0.0,
                            'uploadvolumefactor': 1.0,
                            'page_url': result.get('info_page'),
-                           'imdbid': result.get('episode_info', {}).get('imdb')}
+                           'imdbid': result.get('episode_info').get('imdb') if result.get('episode_info') else ''}
                 torrents.append(torrent)
         elif res:
             log.warn("【INDEXER】{indexer.name} 搜索失败，错误码：%s" % res.status_code)

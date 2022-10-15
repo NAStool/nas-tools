@@ -154,7 +154,7 @@ class Torrent:
         :return: 订阅站点、搜索站点、是否洗版、过滤字典、总集数，当前集数
         """
         if not desc:
-            return [], [], False, {}
+            return {}
         rss_sites = []
         search_sites = []
         over_edition = False
