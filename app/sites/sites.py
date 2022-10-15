@@ -76,6 +76,8 @@ class Sites:
             ua = str(site[9]).split("|")[3] if site[9] and len(str(site[9]).split("|")) > 3 else ""
             # 是否开启浏览器仿真为|分隔的第5位
             chrome = str(site[9]).split("|")[4] if site[9] and len(str(site[9]).split("|")) > 4 else "N"
+            # 是否使用代理为|分隔的第6位
+            proxy = str(site[9]).split("|")[5] if site[9] and len(str(site[9]).split("|")) > 5 else "N"
             # 站点用途：Q签到、D订阅、S刷流
             signin_enable = True if site[6] and str(site[6]).count("Q") else False
             rss_enable = True if site[6] and str(site[6]).count("D") else False
@@ -102,7 +104,8 @@ class Sites:
                 "statistic_enable": statistic_enable,
                 "favicon": site_favicons.get(site[1], ""),
                 "ua": ua,
-                "chrome": chrome
+                "chrome": chrome,
+                "proxy": proxy
             }
             if siteid and int(site[0]) == int(siteid):
                 return site_info

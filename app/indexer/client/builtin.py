@@ -49,7 +49,7 @@ class BuiltinIndexer(IIndexer):
                 language = public_site.get("language")
             else:
                 is_public = False
-                proxy = False
+                proxy = True if site.get("proxy") == "Y" else False
                 language = None
             indexer = IndexerHelper().get_indexer(url=url,
                                                   cookie=site.get("cookie"),
