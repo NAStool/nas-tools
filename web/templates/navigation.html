@@ -1563,6 +1563,8 @@
           if(type == "MOV" || type == "电影"){
             $("#rss_tv_season_div").hide();
             $("#rss_season").val("");
+            $("#rss_total_ep").val("");
+            $("#rss_current_ep").val("");
           }else{
             $("#rss_tv_season_div").show();
             if(ret.detail.season){
@@ -1572,9 +1574,13 @@
             }
             if(ret.detail.total_ep){
               $("#rss_total_ep").val(ret.detail.total_ep);
+            }else{
+              $("#rss_total_ep").val("");
             }
             if(ret.detail.current_ep){
               $("#rss_current_ep").val(ret.detail.current_ep);
+            }else{
+              $("#rss_current_ep").val("");
             }
           }
           $("#rss_name").attr("readonly", true);
