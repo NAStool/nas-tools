@@ -268,3 +268,37 @@ class StringUtils:
         except Exception as err:
             print(str(err))
         return tempsTime
+
+    @staticmethod
+    def unify_datetime_str(date_str):
+        """
+        日期时间格式化 统一转成 2020-10-14 07:48:04 这种格式
+        """
+        # 判断日期时间是否满足 yyyy-MM-dd hh:MM:ss 格式
+        if re.match(r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$", date_str):
+            # 如果满足则直接返回
+            return date_str
+
+        # 场景1: 带有时区的日期字符串 eg: Sat, 15 Oct 2022 14:02:54 +0800
+        try:
+            return datetime.strftime(datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S %z'),
+                                     '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            pass
+
+        # 场景2: 中间带T的日期字符串 eg: 2020-10-14T07:48:04
+        try:
+            return datetime.strftime(datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S'),
+                                     '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            pass
+
+        # 场景3: 日期字符串以GMT结尾 eg: Fri, 14 Oct 2022 07:48:04 GMT
+        if date_str.endswith('GMT'):
+            try:
+                return datetime.strftime(datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S GMT'),
+                                         '%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                pass
+        # 其他情况直接返回
+        return date_str
