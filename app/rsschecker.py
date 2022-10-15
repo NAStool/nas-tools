@@ -5,7 +5,6 @@ import traceback
 import jsonpath
 from apscheduler.schedulers.background import BackgroundScheduler
 from lxml import etree
-from datetime import datetime
 
 import log
 from app.helper import SqlHelper
@@ -14,7 +13,7 @@ from app.media import Media
 from app.message import Message
 from app.searcher import Searcher
 from app.downloader import Downloader
-from app.utils import RequestUtils
+from app.utils import RequestUtils, StringUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType, SearchType
 from config import Config
@@ -471,15 +470,7 @@ class RssChecker(object):
                 # 种子大小
                 size = res.get('size')
                 # 发布日期
-                date = res.get('date')
-                if date:
-                    try:
-                        date = datetime.strftime(datetime.strptime(res.get('date'), '%a, %d %b %Y %H:%M:%S %z'),
-                                                 '%Y-%m-%d %H:%M:%S')
-                    except Exception as e:
-                        print(str(e))
-                        date = datetime.strftime(datetime.strptime(res.get('date').split(".")[0], '%Y-%m-%dT%H:%M:%S'),
-                                                 '%Y-%m-%d %H:%M:%S')
+                date = StringUtils.unify_datetime_str(res.get('date'))
                 # 年份
                 year = res.get('year')
                 if year and len(year) > 4:
