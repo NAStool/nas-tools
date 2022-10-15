@@ -170,8 +170,8 @@ class Rss:
                         if match_rssid is None:
                             continue
                         # 匹配季
-                        if season:
-                            season = int(str(season).replace("S", ""))
+                        if match_info.get("season"):
+                            season = int(str(match_info.get("season")).replace("S", ""))
                         # 非模糊匹配命中
                         if match_rssid:
                             # 如果是电影

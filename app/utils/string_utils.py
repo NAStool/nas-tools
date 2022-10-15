@@ -284,23 +284,29 @@ class StringUtils:
 
         # 场景1: 带有时区的日期字符串 eg: Sat, 15 Oct 2022 14:02:54 +0800
         try:
-            return datetime.strftime(datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S %z'),
-                                     '%Y-%m-%d %H:%M:%S')
+            return datetime.datetime.strftime(
+                datetime.datetime.strptime(date_str,
+                                           '%a, %d %b %Y %H:%M:%S %z'),
+                '%Y-%m-%d %H:%M:%S')
         except ValueError:
             pass
 
         # 场景2: 中间带T的日期字符串 eg: 2020-10-14T07:48:04
         try:
-            return datetime.strftime(datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S'),
-                                     '%Y-%m-%d %H:%M:%S')
+            return datetime.datetime.strftime(
+                datetime.datetime.strptime(date_str,
+                                           '%Y-%m-%dT%H:%M:%S'),
+                '%Y-%m-%d %H:%M:%S')
         except ValueError:
             pass
 
         # 场景3: 日期字符串以GMT结尾 eg: Fri, 14 Oct 2022 07:48:04 GMT
         if date_str.endswith('GMT'):
             try:
-                return datetime.strftime(datetime.strptime(date_str, '%a, %d %b %Y %H:%M:%S GMT'),
-                                         '%Y-%m-%d %H:%M:%S')
+                return datetime.datetime.strftime(
+                    datetime.datetime.strptime(date_str,
+                                               '%a, %d %b %Y %H:%M:%S GMT'),
+                    '%Y-%m-%d %H:%M:%S')
             except ValueError:
                 pass
         # 其他情况直接返回
