@@ -233,7 +233,14 @@ class RssChecker(object):
                     log_warn("【RSSCHECKER】%s RSS报文中没有enclosure种子链接" % taskinfo.get("name"))
                     continue
                 # 插入数据库
-                SqlHelper.insert_rss_torrents(media_info)
+                # FIXME: 这里不能所有的种子都直接插入数据库
+                """
+                如果是下载类型的任务, 需要下载完成后在进行插入, 否则会导致下载失败的种子也插入数据库 不会再次重试
+                # SqlHelper.insert_rss_torrents(media_info) 
+                好的做法应该是, 下载任务的种子的完成状态 用一个新的字段来存储 或者用一个新的表来存储
+                下面针对针对不同的任务类型, 有不同的处理方式, 下载的类型的任务, 下载完成后再插入数据库, 其他的直接插入数据库
+                还有极端情况, 如果RSS任务的种子有重叠, 即 搜索/订阅 和 下载类型 的种子重叠, 就会导致 搜索/订阅 的种子 处理后 也会认为是 下载类型 的种子 处理完成了
+                """
                 # 汇总处理
                 res_num = res_num + 1
                 if taskinfo.get("uses") == "D":
@@ -243,10 +250,14 @@ class RssChecker(object):
                         rss_download_torrents.append(media_info)
                 elif taskinfo.get("uses") == "R":
                     # 订阅
+                    # 订阅类型的 保持现状直接插入数据库
+                    SqlHelper.insert_rss_torrents(media_info)
                     if media_info not in rss_subscribe_torrents:
                         rss_subscribe_torrents.append(media_info)
                 elif taskinfo.get("uses") == "S":
                     # 搜索
+                    # 搜索类型的 保持现状直接插入数据库
+                    SqlHelper.insert_rss_torrents(media_info)
                     if media_info not in rss_search_torrents:
                         rss_search_torrents.append(media_info)
             except Exception as e:
@@ -269,7 +280,10 @@ class RssChecker(object):
                 if ret:
                     self.message.send_download_message(in_from=SearchType.RSS,
                                                        can_item=media)
+                    # 下载类型的 这里下载成功了 插入数据库
+                    SqlHelper.insert_rss_torrents(media_info)
                     # 登记自定义RSS任务下载记录
+                    # FIXME 自定义RSS任务下载记录 里面缺少必要字段无法进行种子是否已下载去重 需要进行表结构升级
                     SqlHelper.insert_userrss_task_history(taskid, media.org_string, Downloader().get_type().value)
                 else:
                     log_error("【RSSCHECKER】添加下载任务 %s 失败：%s" % (media.get_title_string(), ret_msg or "请检查下载任务是否已存在"))
