@@ -413,6 +413,7 @@ class SiteConf:
             "proxy": True
         },
         'katcr.to': {
-            "proxy": True
+            "proxy": True,
+            "language": "en"
         }
     }
