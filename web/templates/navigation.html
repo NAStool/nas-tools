@@ -98,7 +98,7 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <h1 class="navbar-brand" style="filter:brightness(0) invert(1)">
-          <a href="/">
+          <a href="javascript:ScrollToTop()">
             <img src="../static/img/logo.svg" width="110" height="32" alt="NASTool" class="navbar-brand-image">
           </a>
         </h1>
@@ -601,7 +601,7 @@
         </div>
       </div>
     </header>
-    <div class="page-wrapper">
+    <div class="page-wrapper" id="page_wrapper">
       <div id="page_content"></div>
       <footer class="footer footer-transparent d-print-none">
         <div class="container-xl">
@@ -1867,6 +1867,13 @@
         });
         setTimeout("window.location.reload()", 15000);
       });
+    }
+
+    //滚动到顶步
+    function ScrollToTop(){
+      $("#page_wrapper").animate({
+        scrollTop: 0
+      }, 500);
     }
   </script>
 
