@@ -149,7 +149,7 @@ class StringUtils:
         忽略特殊字符
         """
         # 需要忽略的特殊字符
-        CONVERT_EMPTY_CHARS = r"\.|\(|\)|\[|]|-|\+|【|】|/|～|;|&|\||#|_|「|」|（|）|'|’|!|！|,|～|·|:|：|\-"
+        CONVERT_EMPTY_CHARS = r"\.|\(|\)|\[|]|-|\+|【|】|/|～|;|&|\||#|_|「|」|（|）|'|’|!|！|,|～|·|:|：|\-|~"
         if not text:
             return ""
         text = re.sub(r"[\u200B-\u200D\uFEFF]", "", re.sub(r"%s" % CONVERT_EMPTY_CHARS, replace_word, text),
@@ -218,7 +218,7 @@ class StringUtils:
     def clear_file_name(name):
         if not name:
             return None
-        return re.sub(r"[*?\\/\"<>]", "", name, flags=re.IGNORECASE).replace(":", "：")
+        return re.sub(r"[*?\\/\"<>~]", "", name, flags=re.IGNORECASE).replace(":", "：")
 
     @staticmethod
     def get_keyword_from_string(content):
