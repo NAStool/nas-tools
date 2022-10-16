@@ -355,7 +355,6 @@ class Downloader:
                 self.message.send_download_message(in_from, download_item)
             else:
                 self.message.send_download_fail_message(download_item, msg)
-            download_list.remove(download_item)
             return state
 
         def __update_seasons(tmdbid, need, current):
@@ -415,6 +414,8 @@ class Downloader:
             # 查找整季包含的种子，只处理整季没集的种子或者是集数超过季的种子
             for need_tmdbid, need_season in need_seasons.items():
                 for item in download_list:
+                    if item.type == MediaType.MOVIE:
+                        continue
                     item_season = item.get_season_list()
                     if item.get_episode_list():
                         continue
@@ -451,6 +452,8 @@ class Downloader:
                     if not need_episodes:
                         need_episodes = list(range(1, total_episodes + 1))
                     for item in download_list:
+                        if item.type == MediaType.MOVIE:
+                            continue
                         if item.tmdb_id == need_tmdbid:
                             if item in return_items:
                                 continue
@@ -484,6 +487,8 @@ class Downloader:
                     if not need_episodes:
                         continue
                     for item in download_list:
+                        if item.type == MediaType.MOVIE:
+                            continue
                         if item in return_items:
                             continue
                         if not need_episodes:
