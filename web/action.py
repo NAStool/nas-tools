@@ -16,7 +16,7 @@ import log
 from app.doubansync import DoubanSync
 from app.helper.words_helper import WordsHelper
 from app.indexer import BuiltinIndexer
-from app.media.doubanv2api import DoubanHot
+from app.media.douban import DouBan
 from app.mediaserver import MediaServer
 from app.rsschecker import RssChecker
 from app.utils import StringUtils, Torrent, EpisodeFormat, RequestUtils, PathUtils, SystemUtils
@@ -1928,25 +1928,25 @@ class WebAction:
             res_list = Media().get_tmdb_new_tvs(CurrentPage)
         elif RecommendType == "dbom":
             # 豆瓣正在上映
-            res_list = DoubanHot().get_douban_online_movie(CurrentPage)
+            res_list = DouBan().get_douban_online_movie(CurrentPage)
         elif RecommendType == "dbhm":
             # 豆瓣热门电影
-            res_list = DoubanHot().get_douban_hot_movie(CurrentPage)
+            res_list = DouBan().get_douban_hot_movie(CurrentPage)
         elif RecommendType == "dbht":
             # 豆瓣热门电视剧
-            res_list = DoubanHot().get_douban_hot_tv(CurrentPage)
+            res_list = DouBan().get_douban_hot_tv(CurrentPage)
         elif RecommendType == "dbdh":
             # 豆瓣热门动画
-            res_list = DoubanHot().get_douban_hot_anime(CurrentPage)
+            res_list = DouBan().get_douban_hot_anime(CurrentPage)
         elif RecommendType == "dbnm":
             # 豆瓣最新电影
-            res_list = DoubanHot().get_douban_new_movie(CurrentPage)
+            res_list = DouBan().get_douban_new_movie(CurrentPage)
         elif RecommendType == "dbtop":
             # 豆瓣TOP250电影
-            res_list = DoubanHot().get_douban_top250_movie(CurrentPage)
+            res_list = DouBan().get_douban_top250_movie(CurrentPage)
         elif RecommendType == "dbzy":
             # 豆瓣最新电视剧
-            res_list = DoubanHot().get_douban_hot_show(CurrentPage)
+            res_list = DouBan().get_douban_hot_show(CurrentPage)
         else:
             res_list = []
 

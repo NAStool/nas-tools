@@ -47,14 +47,14 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                 doubanid = tmdbid[3:]
                 # 先从网页抓取（含TMDBID）
                 doubaninfo = DouBan().get_media_detail_from_web("https://movie.douban.com/subject/%s/" % doubanid)
-                if not doubaninfo:
+                if not doubaninfo or not doubaninfo.get("imdbid"):
                     # 从API抓取
                     if media_type == MediaType.MOVIE:
                         doubaninfo = DoubanApi().movie_detail(doubanid)
                     else:
                         doubaninfo = DoubanApi().tv_detail(doubanid)
-                if not doubaninfo:
-                    return -1, "%s 查询不到豆瓣信息，请确认网络是否正常！" % content
+                    if not doubaninfo:
+                        return -1, "%s 查询不到豆瓣信息，请确认网络是否正常！" % content
                 if doubaninfo.get("imdbid"):
                     # 按IMDBID查询TMDB
                     tmdbid = Media().get_tmdbid_by_imdbid(doubaninfo.get("imdbid"))
@@ -63,6 +63,8 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                         media_info = MetaInfo(mtype=media_type or mtype, title=content)
                         media_info.set_tmdb_info(Media().get_tmdb_info(mtype=media_type or mtype, tmdbid=tmdbid))
                         media_info.imdb_id = doubaninfo.get("imdbid")
+                        if doubaninfo.get("season") and str(doubaninfo.get("season")).isdigit():
+                            media_info.begin_season = int(doubaninfo.get("season"))
                 if not media_info or not media_info.tmdb_info:
                     # 按豆瓣名称查
                     title = doubaninfo.get("title")
@@ -81,52 +83,62 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
             # 按输入名称查
             media_info = Media().get_media_info(mtype=media_type or mtype, title=content)
 
-        if not media_info or not media_info.tmdb_info:
-            return -1, "%s 从TMDB查询不到媒体信息，请确认名称是否正确！" % content
-
-        # 查找的季
-        if media_info.begin_season is None:
-            search_season = None
-        else:
-            search_season = media_info.get_season_list()
-        # 查找的集
-        search_episode = media_info.get_episode_list()
-        if search_episode and not search_season:
-            search_season = [1]
-        # 中文名
-        if media_info.cn_name:
-            search_cn_name = media_info.cn_name
-        else:
-            search_cn_name = media_info.title
-        # 英文名
-        search_en_name = None
-        if media_info.en_name:
-            search_en_name = media_info.en_name
-        else:
-            if media_info.original_language == "en":
-                search_en_name = media_info.original_title
+        if media_info and media_info.tmdb_info:
+            log.info(f"【Web】从TMDB中匹配到{media_info.type.value}：{media_info.get_title_string()}")
+            # 查找的季
+            if media_info.begin_season is None:
+                search_season = None
             else:
-                en_info = Media().get_tmdb_info(mtype=media_info.type, tmdbid=media_info.tmdb_id, language="en-US")
-                if en_info:
-                    search_en_name = en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get(
-                        "name")
-        # 两次搜索名称
-        second_search_name = None
-        if Config().get_config("laboratory").get("search_en_title"):
-            if search_en_name:
-                first_search_name = search_en_name
-                second_search_name = search_cn_name
+                search_season = media_info.get_season_list()
+            # 查找的集
+            search_episode = media_info.get_episode_list()
+            if search_episode and not search_season:
+                search_season = [1]
+            # 中文名
+            if media_info.cn_name:
+                search_cn_name = media_info.cn_name
+            else:
+                search_cn_name = media_info.title
+            # 英文名
+            search_en_name = None
+            if media_info.en_name:
+                search_en_name = media_info.en_name
+            else:
+                if media_info.original_language == "en":
+                    search_en_name = media_info.original_title
+                else:
+                    en_info = Media().get_tmdb_info(mtype=media_info.type, tmdbid=media_info.tmdb_id, language="en-US")
+                    if en_info:
+                        search_en_name = en_info.get("title") if media_info.type == MediaType.MOVIE else en_info.get(
+                            "name")
+            # 两次搜索名称
+            second_search_name = None
+            if Config().get_config("laboratory").get("search_en_title"):
+                if search_en_name:
+                    first_search_name = search_en_name
+                    second_search_name = search_cn_name
+                else:
+                    first_search_name = search_cn_name
             else:
                 first_search_name = search_cn_name
-        else:
-            first_search_name = search_cn_name
-            if search_en_name:
-                second_search_name = search_en_name
+                if search_en_name:
+                    second_search_name = search_en_name
 
-        filter_args = {"season": search_season,
-                       "episode": search_episode,
-                       "year": media_info.year,
-                       "type": media_info.type}
+            filter_args = {"season": search_season,
+                           "episode": search_episode,
+                           "year": media_info.year,
+                           "type": media_info.type}
+        else:
+            # 查询不到数据，使用快速搜索
+            log.info(f"【Web】{content} 未从TMDB匹配到媒体信息，将使用快速搜索...")
+            ident_flag = False
+            media_info = None
+            first_search_name = key_word
+            second_search_name = None
+            filter_args = {"season": season_num,
+                           "episode": episode_num,
+                           "year": year}
+    # 快速搜索
     else:
         first_search_name = key_word
         second_search_name = None
@@ -143,7 +155,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                                           match_type=1 if ident_flag else 2,
                                           match_media=media_info,
                                           in_from=SearchType.WEB)
-    # 使用名称重新搜索
+    # 使用第二名称重新搜索
     if ident_flag \
             and len(media_list) == 0 \
             and second_search_name \

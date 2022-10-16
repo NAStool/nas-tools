@@ -64,10 +64,27 @@ class StringUtils:
         """
         判断是否含有中文
         """
-        for ch in word:
-            if '\u4e00' <= ch <= '\u9fff':
-                return True
-        return False
+        chn = re.compile(r'[\u4e00-\u9fff]')
+        if chn.search(word):
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def is_japanese(word):
+        jap = re.compile(r'[\u3040-\u309F\u30A0-\u30FF]')
+        if jap.search(word):
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def is_korean(word):
+        kor = re.compile(r'[\uAC00-\uD7FF]')
+        if kor.search(word):
+            return True
+        else:
+            return False
 
     @staticmethod
     def is_all_chinese(word):
