@@ -4,6 +4,8 @@ from time import sleep
 
 from lxml import etree
 from requests.utils import dict_from_cookiejar
+
+from app.utils.commons import singleton
 from app.utils.string_utils import StringUtils
 
 import log
@@ -16,10 +18,13 @@ from app.utils.types import MediaType
 lock = Lock()
 
 
+@singleton
 class DouBan:
     req = None
     doubanapi = None
     message = None
+    __movie_num = 30
+    __tv_num = 30
 
     def __init__(self):
         self.doubanapi = DoubanApi()
@@ -33,13 +38,12 @@ class DouBan:
             cookie = douban.get('cookie')
             if not cookie:
                 try:
-                    if self.req:
-                        res = self.req.get_res("https://www.douban.com/")
-                        if res:
-                            cookie = dict_from_cookiejar(res.cookies)
+                    res = RequestUtils(timeout=5).get_res("https://www.douban.com/")
+                    if res:
+                        cookie = dict_from_cookiejar(res.cookies)
                 except Exception as err:
                     log.warn(f"【Douban】获取cookie失败：{format(err)}")
-            self.req = RequestUtils(cookies=cookie)
+            self.req = RequestUtils(cookies=cookie, timeout=10)
 
     def get_douban_detail(self, doubanid):
         """
@@ -127,11 +131,26 @@ class DouBan:
                 html = etree.HTML(html_text)
                 # 标题
                 title = html.xpath("//span[@property='v:itemreviewed']/text()")[0]
-                if not title:
+                if title:
+                    metainfo = MetaInfo(title=title)
+                    title = metainfo.get_name()
+                    if not title:
+                        return None
+                    # 有中文的去掉日文和韩文
+                    if StringUtils.is_chinese(title) and " " in title:
+                        titles = title.split()
+                        title = titles[0]
+                        for _title in titles[1:]:
+                            if not StringUtils.is_japanese(_title) \
+                                    and not StringUtils.is_korean(_title):
+                                title = f"{title} {_title}"
+                                break
+                            else:
+                                break
+                    ret_media['title'] = title
+                    ret_media['season'] = metainfo.begin_season
+                else:
                     return None
-                if " " in title and StringUtils.is_chinese(title.split(" ")[0]):
-                    title = title.split(" ")[0]
-                ret_media['title'] = title
                 # 年份
                 ret_media['year'] = html.xpath("//div[@id='content']//span[@class='year']/text()")[0][1:-1]
                 # 简介
@@ -169,3 +188,138 @@ class DouBan:
         if not html_text:
             return None
         return html_text
+
+    def get_douban_online_movie(self, page=1):
+        if not self.doubanapi:
+            return []
+        infos = self.doubanapi.movie_showing(start=(page - 1) * self.__movie_num, count=self.__movie_num)
+        if not infos:
+            return []
+        return self.__refresh_movie(infos.get("subject_collection_items"))
+
+    def get_douban_hot_movie(self, page=1):
+        if not self.doubanapi:
+            return []
+        infos = self.doubanapi.movie_hot_gaia(start=(page - 1) * self.__movie_num, count=self.__movie_num)
+        if not infos:
+            return []
+        return self.__refresh_movie(infos.get("subject_collection_items"))
+
+    def get_douban_hot_anime(self, page=1):
+        if not self.doubanapi:
+            return []
+        infos = self.doubanapi.tv_animation(start=(page - 1) * self.__tv_num, count=self.__tv_num)
+        if not infos:
+            return []
+        return self.__refresh_tv(infos.get("subject_collection_items"))
+
+    def get_douban_hot_tv(self, page=1):
+        if not self.doubanapi:
+            return []
+        infos = self.doubanapi.tv_hot(start=(page - 1) * self.__tv_num, count=self.__tv_num)
+        if not infos:
+            return []
+        return self.__refresh_tv(infos.get("subject_collection_items"))
+
+    def get_douban_new_movie(self, page=1):
+        if not self.doubanapi:
+            return []
+        infos = self.doubanapi.movie_soon(start=(page - 1) * self.__movie_num, count=self.__movie_num)
+        if not infos:
+            return []
+        return self.__refresh_movie(infos.get("subject_collection_items"))
+
+    def get_douban_hot_show(self, page=1):
+        if not self.doubanapi:
+            return []
+        infos = self.doubanapi.show_hot(start=(page - 1) * self.__tv_num, count=self.__tv_num)
+        if not infos:
+            return []
+        return self.__refresh_tv(infos.get("subject_collection_items"))
+
+    def get_douban_top250_movie(self, page=1):
+        if not self.doubanapi:
+            return []
+        infos = self.doubanapi.movie_top250(start=(page - 1) * self.__movie_num, count=self.__movie_num)
+        if not infos:
+            return []
+        return self.__refresh_movie(infos.get("subject_collection_items"))
+
+    def refresh_online_movie(self, page=1):
+        if not self.doubanapi:
+            return []
+        infos = self.doubanapi.movie_showing(start=(page - 1) * self.__movie_num, count=self.__movie_num)
+        if not infos:
+            return []
+        return self.__refresh_movie(infos.get("subject_collection_items"))
+
+    @staticmethod
+    def __refresh_movie(infos):
+        if not infos:
+            return []
+        ret_list = []
+        for info in infos:
+            try:
+                if not info:
+                    continue
+                # ID
+                rid = info.get("id")
+                # 评分
+                rating = info.get('rating')
+                if rating:
+                    vote_average = float(rating.get("value"))
+                else:
+                    vote_average = 0
+                # 年份
+                year = info.get('year')
+                # 海报
+                poster_path = info.get('cover', {}).get("url")
+                if not poster_path:
+                    poster_path = info.get('cover_url')
+                # 标题
+                title = info.get('title')
+                if not title or not poster_path:
+                    continue
+                # 简介
+                overview = info.get("card_subtitle") or ""
+                if not year and overview:
+                    if overview.split("/")[0].strip().isdigit():
+                        year = overview.split("/")[0].strip()
+                ret_list.append({'id': rid, 'title': title, 'release_date': year, 'vote_average': vote_average,
+                                 'poster_path': poster_path, 'overview': overview})
+            except Exception as e:
+                print(str(e))
+        return ret_list
+
+    @staticmethod
+    def __refresh_tv(infos):
+        if not infos:
+            return []
+        ret_list = []
+        for info in infos:
+            try:
+                if not info:
+                    continue
+                # ID
+                rid = info.get("id")
+                # 评分
+                rating = info.get('rating')
+                if rating:
+                    vote_average = float(rating.get("value"))
+                else:
+                    vote_average = 0
+                # 年份
+                year = info.get('year')
+                # 海报
+                poster_path = info.get('pic', {}).get("normal")
+                # 标题
+                title = info.get('title')
+                if not title or not poster_path:
+                    continue
+                # 简介
+                overview = info.get("comment") or ""
+                ret_list.append({'id': rid, 'name': title, 'first_air_date': year, 'vote_average': vote_average,
+                                 'poster_path': poster_path, 'overview': overview})
+            except Exception as e:
+                print(str(e))
+        return ret_list
