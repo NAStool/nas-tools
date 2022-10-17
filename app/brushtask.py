@@ -317,6 +317,8 @@ class BrushTask(object):
                                 update_torrents.append(("%s,%s" % (uploaded, downloaded), taskid, torrent_id))
                 # transmission
                 else:
+                    # 将查询的torrent_ids转为数字型
+                    torrent_ids = [int(x) for x in torrent_ids if str(x).isdigit()]
                     # 检查完成状态
                     downloader = Transmission(user_config=downloader_cfg)
                     torrents, has_err = downloader.get_torrents(ids=torrent_ids, status=["seeding", "seed_pending"])
