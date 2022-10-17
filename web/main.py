@@ -1228,46 +1228,60 @@ def create_flask_app():
     @App.route('/customwords', methods=['POST', 'GET'])
     @login_required
     def customwords():
-        # 有关联被替换词的集数偏移状态初始化(关联被替换词停用则停用)
-        ignored_words_related = SqlHelper.get_offset_words_related()
-        for ignored_word_related in ignored_words_related:
-            replaced_words = SqlHelper.get_replaced_word(ignored_word_related[-1])
-            if not replaced_words or replaced_words[0][-1] == 0:
-                SqlHelper.check_offset_word(0, ignored_word_related[0])
-        #  ----------------------------------------------------------------
-        ignored_words = {}
-        ignored_words_info = SqlHelper.get_ignored_words()
-        for ignored_word_info in ignored_words_info:
-            ignored_words[str(ignored_word_info[0])] = {"ignored": ignored_word_info[1],
-                                                        "enabled": "True" if ignored_word_info[2] == 1 else "False"}
-        replaced_words = {}
-        replaced_words_info = SqlHelper.get_replaced_words()
-        for replaced_word_info in replaced_words_info:
-            replaced_words[str(replaced_word_info[0])] = {"replaced": replaced_word_info[1],
-                                                          "replace": replaced_word_info[2],
-                                                          "enabled": "True" if replaced_word_info[3] == 1 else "False"}
-        offset_words = {}
-        offset_words_info = SqlHelper.get_offset_words()
-        for offset_word_info in offset_words_info:
-            replaced_word_id = offset_word_info[5]
-            if replaced_word_id == -1:
-                replaced_word_related = {"id": "-1", "replaced": "None"}
-            else:
-                replaced_word_related = replaced_words.get(str(replaced_word_id))
-                if replaced_word_related:
-                    replaced_word_related = {"id": str(replaced_word_id),
-                                             "replaced": replaced_word_related.get("replaced")}
-                else:
-                    replaced_word_related = {"id": "-2", "replaced": "Error"}
-            offset_words[offset_word_info[0]] = {"front": offset_word_info[1],
-                                                 "back": offset_word_info[2],
-                                                 "offset": offset_word_info[3],
-                                                 "enabled": "True" if offset_word_info[4] == 1 else "False",
-                                                 "replaced_word": replaced_word_related}
+        words =[]
+        words_info = SqlHelper.get_custom_words(gid=-1)
+        for word_info in words_info:
+            words.append({"id": word_info[0],
+                          "replaced": word_info[1],
+                          "replace": word_info[2],
+                          "front": word_info[3],
+                          "back": word_info[4],
+                          "offset": word_info[5],
+                          "type": word_info[6],
+                          "group_id": word_info[7],
+                          "season": word_info[8],
+                          "enabled": word_info[9],
+                          "regex": word_info[10],
+                          "help": word_info[11],})
+        groups = [{"id": "-1", 
+                   "name": "通用",
+                   "link": "",
+                   "type": "1",
+                   "seasons" : "0",
+                   "words": words}]
+        groups_info = SqlHelper.get_custom_word_groups()
+        for group_info in groups_info:
+            id = group_info[0]
+            name = "%s（%s）" % (group_info[1], group_info[2])
+            type = group_info[3]
+            if type == 1:
+                link = "https://www.themoviedb.org/movie/%s" % group_info[4]
+            elif type == 2:
+                link = "https://www.themoviedb.org/tv/%s" % group_info[4]
+            words =[]
+            words_info = SqlHelper.get_custom_words(gid=id)
+            for word_info in words_info:
+                words.append({"id": word_info[0],
+                              "replaced": word_info[1],
+                              "replace": word_info[2],
+                              "front": word_info[3],
+                              "back": word_info[4],
+                              "offset": word_info[5],
+                              "type": word_info[6],
+                              "group_id": word_info[7],
+                              "season": word_info[8],
+                              "enabled": word_info[9],
+                              "regex": word_info[10],
+                              "help": word_info[11],})
+            groups.append({"id": id,
+                           "name": name,
+                           "link": link,
+                           "type": group_info[3],
+                           "seasons": group_info[5],
+                           "words": words})
         return render_template("setting/customwords.html",
-                               IgnoredWords=ignored_words,
-                               ReplacedWords=replaced_words,
-                               OffsetWords=offset_words)
+                               Groups=groups,
+                               GroupsCount=len(groups))
 
     # 目录同步页面
     @App.route('/directorysync', methods=['POST', 'GET'])

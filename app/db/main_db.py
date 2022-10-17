@@ -371,28 +371,30 @@ class MainDb:
                                    DATE    TEXT);''')
             cursor.execute(
                 '''CREATE INDEX IF NOT EXISTS INDX_USERRSS_TASK_HISTORY ON USERRSS_TASK_HISTORY (TASK_ID);''')
-            # 自定义识别词-屏蔽词表
-            cursor.execute('''CREATE TABLE IF NOT EXISTS IGNORED_WORDS 
+            # 自定义识别词组表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS CUSTOM_WORD_GROUPS 
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                                   IGNORED    TEXT,
-                                   ENABLED    INTEGER,
-                                   NOTE     TEXT);''')
-            # 自定义识别词-替换词表
-            cursor.execute('''CREATE TABLE IF NOT EXISTS REPLACED_WORDS 
+                                   TITLE    TEXT,
+                                   YEAR    TEXT,
+                                   TYPE    INTEGER,
+                                   TMDBID     INTEGER,
+                                   SEASON_COUNT    INTEGER,
+                                   NOTE    TEXT);''')
+            # 自定义识别词表
+            cursor.execute('''CREATE TABLE IF NOT EXISTS CUSTOM_WORDS 
                                    (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
                                    REPLACED    TEXT,
                                    REPLACE    TEXT,
-                                   ENABLED    INTEGER,
-                                   NOTE     TEXT);''')
-            # 自定义识别词-集数偏移表
-            cursor.execute('''CREATE TABLE IF NOT EXISTS OFFSET_WORDS 
-                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
                                    FRONT    TEXT,
                                    BACK    TEXT,
-                                   OFFSET    TEXT,
+                                   OFFSET    INTEGER,
+                                   TYPE    INTEGER,
+                                   GROUP_ID    INTEGER,
+                                   SEASON    INTEGER,
                                    ENABLED    INTEGER,
-                                   REPLACED_WORD_ID    INTEGER, 
-                                   NOTE     TEXT);''')
+                                   REGEX    INTEGER,
+                                   HELP    TEXT,
+                                   NOTE    TEXT);''')         
             # 提交
             conn.commit()
 
