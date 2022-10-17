@@ -33,11 +33,14 @@ def site_get_sites():
     return make_response(jsonify({"code": 0, "data": {"user_sites": Sites().get_sites()}}), 200)
 
 
-@apiv1.route('/service/name_test', methods=['POST', 'GET'],)
+@apiv1.route('/service/name_test', methods=['POST', 'GET'], )
 def name_test():
     """
     名称识别测试
     """
+    if not authorization():
+        return make_response(jsonify({"code": 400, "msg": "认证失败！"}), 400)
+
     name = request.args.get("name")
     if not name:
         return {"code": -1}
