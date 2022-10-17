@@ -43,7 +43,7 @@ class Transmission(IDownloadClient):
                                           port=self.port,
                                           username=self.username,
                                           password=self.password,
-                                          timeout=15)
+                                          timeout=30)
             return trt
         except Exception as err:
             log.error(f"【{self.client_type}】transmission连接出错：{str(err)}")
@@ -332,7 +332,7 @@ class Transmission(IDownloadClient):
         if not self.trc:
             return []
         try:
-            return [self.trc.get_session(timeout=5).download_dir]
+            return [self.trc.get_session(timeout=10).download_dir]
         except Exception as err:
             print(str(err))
             return []
