@@ -383,12 +383,14 @@ if __name__ == "__main__":
 
     # Windows启动托盘
     if is_windows_exe:
-        homepage_port = config.get_config('app').get('web_port')
+        homepage = config.get_config('app').get('domain')
+        if not homepage:
+            homepage = "http://localhost:%s" % str(config.get_config('app').get('web_port'))
         log_path = os.environ.get("NASTOOL_LOG")
 
 
         def traystart():
-            trayicon(homepage_port, log_path)
+            trayicon(homepage, log_path)
 
 
         if len(os.popen("tasklist| findstr %s" % os.path.basename(sys.executable),'r').read().splitlines()) <= 2:
