@@ -1,7 +1,9 @@
 from flask import Blueprint, make_response, request, jsonify
 
+from app.media import Media
 from app.sites import Sites
 from config import Config
+from web.action import WebAction
 
 apiv1 = Blueprint("apiv1", __name__)
 
@@ -29,6 +31,24 @@ def site_get_sites():
         return make_response(jsonify({"code": 400, "msg": "认证失败！"}), 400)
     # 返回所有站点信息
     return make_response(jsonify({"code": 0, "data": {"user_sites": Sites().get_sites()}}), 200)
+
+
+@apiv1.route('/service/name_test', methods=['POST', 'GET'], )
+def name_test():
+    """
+    名称识别测试
+    """
+    if not authorization():
+        return make_response(jsonify({"code": 400, "msg": "认证失败！"}), 400)
+
+    name = request.args.get("name")
+    if not name:
+        return {"code": -1}
+    media_info = Media().get_media_info(title=name)
+    if not media_info:
+        return {"code": 0, "data": {"name": "无法识别"}}
+    mediainfo_dict = WebAction.mediainfo_dict(media_info)
+    return {"code": 0, "data": mediainfo_dict}
 
 
 def authorization():

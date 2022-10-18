@@ -75,7 +75,7 @@
               {% elif Item[8] == "S" %}
               正在搜索
               {% elif Item[8] == "R" %}
-              正在订阅 {% if Item[6] > 0 %}({{ Item[6] - Item[7] }}/{{ Item[6] }}){% endif %}
+              正在订阅 {% if (Item[6] or -1) > 0 %}({{ (Item[6] or -1) - (Item[7] or -1) }}/{{ (Item[6] or -1) }}){% endif %}
               {% else %}
               完成
               {% endif %}
