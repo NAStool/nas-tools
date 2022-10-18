@@ -6,17 +6,23 @@ from app.utils.commons import singleton
 
 @singleton
 class WordsHelper:
+    ignored_words_info = []
+    ignored_words_noregex_info = []
+    replaced_words_info = []
+    replaced_words_noregex_info = []
+    replaced_offset_words_info = []
+    offset_words_info = []
 
     def __init__(self):
         self.init_config()
 
     def init_config(self):
-        self.ignored_words_info = SqlHelper.get_custom_words(enabled=1, type=1, regex=1)
-        self.ignored_words_noregex_info = SqlHelper.get_custom_words(enabled=1, type=1, regex=0)
-        self.replaced_words_info = SqlHelper.get_custom_words(enabled=1, type=2, regex=1)
-        self.replaced_words_noregex_info = SqlHelper.get_custom_words(enabled=1, type=2, regex=0)
-        self.replaced_offset_words_info = SqlHelper.get_custom_words(enabled=1, type=3, regex=1)
-        self.offset_words_info = SqlHelper.get_custom_words(enabled=1, type=4, regex=1)
+        self.ignored_words_info = SqlHelper.get_custom_words(enabled=1, wtype=1, regex=1)
+        self.ignored_words_noregex_info = SqlHelper.get_custom_words(enabled=1, wtype=1, regex=0)
+        self.replaced_words_info = SqlHelper.get_custom_words(enabled=1, wtype=2, regex=1)
+        self.replaced_words_noregex_info = SqlHelper.get_custom_words(enabled=1, wtype=2, regex=0)
+        self.replaced_offset_words_info = SqlHelper.get_custom_words(enabled=1, wtype=3, regex=1)
+        self.offset_words_info = SqlHelper.get_custom_words(enabled=1, wtype=4, regex=1)
 
     def process(self, title):
         # 错误信息
@@ -61,7 +67,7 @@ class WordsHelper:
                         used_replaced_words.append(replaced_word)
                         title = re.sub(r'%s' % replaced, r'%s' % replace, title)
                 except Exception as err:
-                    msg = "【Meta】自定义替换词 %s 格式有误：%s" % (replaced_word, str(err))
+                    msg = "【Meta】自定义替换词 %s 格式有误：%s" % (replaced_word_info, str(err))
         if self.replaced_words_noregex_info:
             for replaced_word_noregex_info in self.replaced_words_noregex_info:
                 try:
@@ -72,9 +78,9 @@ class WordsHelper:
                         used_replaced_words.append(replaced_word)
                         title = title.replace(replaced, replace)
                 except Exception as err:
-                    msg = "【Meta】自定义替换词 %s 格式有误：%s" % (replaced_word, str(err))
+                    msg = "【Meta】自定义替换词 %s 格式有误：%s" % (replaced_word_noregex_info, str(err))
         # 替换+集偏移
-        if  self.replaced_offset_words_info:
+        if self.replaced_offset_words_info:
             for replaced_offset_word_info in self.replaced_offset_words_info:
                 try:
                     replaced = replaced_offset_word_info[1]
@@ -88,7 +94,7 @@ class WordsHelper:
                         title = re.sub(r'%s' % replaced, r'%s' % replace, title)
                         title, msg = self.episode_offset(front, back, offset, used_offset_words, title)
                 except Exception as err:
-                    msg = "【Meta】自定义替换+集偏移词 %s 格式有误：%s" % (replaced_word, str(err))
+                    msg = "【Meta】自定义替换+集偏移词 %s 格式有误：%s" % (replaced_offset_word_info, str(err))
         # 集数偏移
         if self.offset_words_info:
             for offset_word_info in self.offset_words_info:
