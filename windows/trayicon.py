@@ -45,10 +45,9 @@ class Balloon(wx.adv.TaskBarIcon):
 
 
 class trayicon(wx.Frame):
-    def __init__(self, homepage_port, log_path):
+    def __init__(self, homepage, log_path):
         app = wx.App()
         wx.Frame.__init__(self, None)
-        homepage = "http://localhost:" + str(homepage_port)
         self.taskBarIcon = Balloon(homepage, log_path)
         webbrowser.open(homepage)
         self.Hide()
