@@ -2,6 +2,7 @@ import random
 from threading import Lock
 from time import sleep
 
+import zhconv
 from lxml import etree
 from requests.utils import dict_from_cookiejar
 
@@ -140,6 +141,10 @@ class DouBan:
                             titles = title.split()
                             title = titles[0]
                             for _title in titles[1:]:
+                                # 忽略繁体
+                                if zhconv.convert(_title, 'zh-hans') == title:
+                                    break
+                                # 忽略日韩文
                                 if not StringUtils.is_japanese(_title) \
                                         and not StringUtils.is_korean(_title):
                                     title = f"{title} {_title}"
