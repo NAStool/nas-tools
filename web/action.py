@@ -322,7 +322,8 @@ class WebAction:
             "ptsignin": Sites().signin,
             "sync": Sync().transfer_all_sync,
             "rssdownload": Rss().rssdownload,
-            "douban": DoubanSync().sync
+            "douban": DoubanSync().sync,
+            "rsssearch_all": Rss().rsssearch_all,
         }
         sch_item = data.get("item")
         if sch_item and commands.get(sch_item):
