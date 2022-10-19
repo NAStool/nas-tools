@@ -7,7 +7,7 @@ from app.sites.siteuserinfo.site_user_info import ISiteUserInfo
 from app.utils import StringUtils
 
 
-class GazelleUserInfo(ISiteUserInfo):
+class GazelleSiteUserInfo(ISiteUserInfo):
     _site_schema = "Gazelle"
     _brief_page = "/"
     _user_traffic_page = None
