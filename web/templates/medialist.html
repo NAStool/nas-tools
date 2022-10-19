@@ -9,7 +9,9 @@
         {% else %}
         <div class="card card-link-pop rounded-3" style="padding:0px 0px; overflow:hidden">
         {% endif %}
+          {% if Media.vote_average %}
           <div class="ribbon ribbon-top ribbon-bookmark bg-purple">{{ Media.vote_average }}</div>
+          {% endif %}
           <div class="row" style="max-height:240px; overflow:hidden">
             <div class="col-4 col-md-3 col-lg-4 col-xl-3" style="padding:0px 0px">
               <span class="badge badge-pill {% if Media.type.value == '电影' %}bg-green{% else %}bg-blue{% endif %}" style="position:absolute;top:10px;left:10px;">{{Media.type.value}}</span>

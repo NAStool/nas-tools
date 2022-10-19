@@ -15,11 +15,11 @@ def authorization(func):
     安全认证
     """
     @wraps(func)
-    def auth_check(*args, **kwargs):
+    def auth_check():
         auth = request.headers.get("Authorization")
         if not auth or auth != Config().get_config("security").get("subscribe_token"):
             return make_response(jsonify({"code": 400, "msg": "认证失败！"}), 400)
-        return func(*args, **kwargs)
+        return func()
 
     return auth_check
 
