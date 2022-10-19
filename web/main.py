@@ -921,7 +921,6 @@ def create_flask_app():
                 {'name': 'RSS订阅', 'time': tim_rssdownload, 'state': rss_state, 'id': 'rssdownload', 'svg': svg,
                  'color': "blue"})
 
-
             search_rss_interval = pt.get('search_rss_interval')
             if str(search_rss_interval).isdigit():
                 tim_rsssearch = str(int(search_rss_interval)) + " 天"
@@ -1250,7 +1249,7 @@ def create_flask_app():
     @App.route('/customwords', methods=['POST', 'GET'])
     @login_required
     def customwords():
-        words =[]
+        words = []
         words_info = SqlHelper.get_custom_words(gid=-1)
         for word_info in words_info:
             words.append({"id": word_info[0],
@@ -1264,24 +1263,24 @@ def create_flask_app():
                           "season": word_info[8],
                           "enabled": word_info[9],
                           "regex": word_info[10],
-                          "help": word_info[11],})
-        groups = [{"id": "-1", 
+                          "help": word_info[11], })
+        groups = [{"id": "-1",
                    "name": "通用",
                    "link": "",
                    "type": "1",
-                   "seasons" : "0",
+                   "seasons": "0",
                    "words": words}]
         groups_info = SqlHelper.get_custom_word_groups()
         for group_info in groups_info:
-            id = group_info[0]
+            gid = group_info[0]
             name = "%s（%s）" % (group_info[1], group_info[2])
-            type = group_info[3]
-            if type == 1:
+            gtype = group_info[3]
+            if gtype == 1:
                 link = "https://www.themoviedb.org/movie/%s" % group_info[4]
-            elif type == 2:
+            else:
                 link = "https://www.themoviedb.org/tv/%s" % group_info[4]
-            words =[]
-            words_info = SqlHelper.get_custom_words(gid=id)
+            words = []
+            words_info = SqlHelper.get_custom_words(gid=gid)
             for word_info in words_info:
                 words.append({"id": word_info[0],
                               "replaced": word_info[1],
@@ -1294,8 +1293,8 @@ def create_flask_app():
                               "season": word_info[8],
                               "enabled": word_info[9],
                               "regex": word_info[10],
-                              "help": word_info[11],})
-            groups.append({"id": id,
+                              "help": word_info[11], })
+            groups.append({"id": gid,
                            "name": name,
                            "link": link,
                            "type": group_info[3],
@@ -1653,9 +1652,8 @@ def create_flask_app():
 
     # Jellyseerr Overseerr订阅接口
     @App.route('/subscribe', methods=['POST', 'GET'])
+    @authorization
     def subscribe():
-        if not authorization():
-            return make_response("认证失败！", 400)
         req_json = request.get_json()
         if not req_json:
             return make_response("非法请求！", 400)
