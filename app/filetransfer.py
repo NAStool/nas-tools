@@ -4,6 +4,7 @@ import platform
 import random
 import re
 import shutil
+import subprocess
 import traceback
 from enum import Enum
 from subprocess import call
@@ -158,32 +159,30 @@ class FileTransfer:
             lock.acquire()
             if self.__system == OsType.WINDOWS:
                 if rmt_mode == RmtMode.LINK:
-                    retcode = os.system('mklink /H "{}" "{}"'.format(target_file, file_item))
+                    retcode = subprocess.run(['mklink', '/H', target_file, file_item], shell=True).returncode
                 elif rmt_mode == RmtMode.SOFTLINK:
-                    retcode = os.system('mklink "{}" "{}"'.format(target_file, file_item))
+                    retcode = subprocess.run(['mklink', target_file, file_item], shell=True).returncode
                 elif rmt_mode == RmtMode.MOVE:
-                    retcode = os.system('rename "{}" "{}"'.format(file_item, os.path.basename(target_file)))
+                    retcode = subprocess.run(['rename', file_item, os.path.basename(target_file)], shell=True).returncode
                     if retcode != 0:
                         return retcode
-                    retcode = os.system('move /Y "{}" "{}"'.format(
-                        os.path.join(os.path.dirname(file_item), os.path.basename(target_file)), target_file))
-                    log.info("移动状态: {}".format(retcode))
+                    retcode = subprocess.run(['move', '/Y', os.path.join(os.path.dirname(file_item), os.path.basename(target_file)), target_file], shell=True).returncode
                 elif rmt_mode == RmtMode.MINIO or rmt_mode == RmtMode.MINIOCOPY:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
                     if rmt_mode == RmtMode.MINIO:
-                        retcode = os.system('mc.exe mv --recursive "{}" NASTOOL/"{}"'.format(file_item, target_file))
+                        retcode = subprocess.run(['mc.exe', 'mv', '--recursive', file_item, 'NASTOOL/"{}"'.format(target_file)], shell=True).returncode
                     else:
-                        retcode = os.system('mc.exe cp --recursive "{}" NASTOOL/"{}"'.format(file_item, target_file))
+                        retcode = subprocess.run(['mc.exe', 'cp', '--recursive', file_item, 'NASTOOL/"{}"'.format(target_file)], shell=True).returncode
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
                     if rmt_mode == RmtMode.RCLONE:
-                        retcode = os.system('rclone.exe moveto "{}" NASTOOL:"{}"'.format(file_item, target_file))
+                        retcode = subprocess.run(['rclone.exe', 'moveto', file_item, 'NASTOOL:"{}"'.format(target_file)], shell=True).returncode
                     else:
-                        retcode = os.system('rclone.exe copyto "{}" NASTOOL:"{}"'.format(file_item, target_file))
+                        retcode = subprocess.run(['rclone.exe', 'copyto', file_item, 'NASTOOL:"{}"'.format(target_file)], shell=True).returncode
                 else:
-                    retcode = os.system('copy /Y "{}" "{}"'.format(file_item, target_file))
+                    retcode = subprocess.run(['copy', '/Y', file_item, target_file], shell=True).returncode
             else:
                 if rmt_mode == RmtMode.LINK:
                     if platform.release().find("-z4-") >= 0:
@@ -541,6 +540,7 @@ class FileTransfer:
         # 统计总的文件数、失败文件数、需要提醒的失败数
         failed_count = 0
         alert_count = 0
+        alert_messages = []
         total_count = 0
         # 电视剧可能有多集，如果在循环里发消息就太多了，要在外面发消息
         message_medias = {}
@@ -580,6 +580,8 @@ class FileTransfer:
                     SqlHelper.insert_transfer_unknown(reg_path, target_dir)
                     failed_count += 1
                     alert_count += 1
+                    if error_message not in alert_messages:
+                        alert_messages.append(error_message)
                     # 原样转移过去
                     if unknown_dir:
                         log.warn("【RMT】%s 按原文件名转移到unknown目录：%s" % (file_name, unknown_dir))
@@ -606,6 +608,8 @@ class FileTransfer:
                     error_message = "目的路径不存在"
                     failed_count += 1
                     alert_count += 1
+                    if error_message not in alert_messages:
+                        alert_messages.append(error_message)
                     continue
                 if dist_path and not os.path.exists(dist_path):
                     return False, "目录不存在：%s" % dist_path
@@ -645,6 +649,8 @@ class FileTransfer:
                                         return success_flag, error_message
                                     failed_count += 1
                                     alert_count += 1
+                                    if error_message not in alert_messages:
+                                        alert_messages.append(error_message)
                                     continue
                                 handler_flag = True
                             else:
@@ -667,6 +673,8 @@ class FileTransfer:
                         SqlHelper.insert_transfer_unknown(reg_path, target_dir)
                         failed_count += 1
                         alert_count += 1
+                        if error_message not in alert_messages:
+                            alert_messages.append(error_message)
                         continue
                     else:
                         # 创建电录
@@ -682,6 +690,8 @@ class FileTransfer:
                             return success_flag, error_message
                         failed_count += 1
                         alert_count += 1
+                        if error_message not in alert_messages:
+                            alert_messages.append(error_message)
                         continue
                 else:
                     # 开始转移文件
@@ -696,6 +706,8 @@ class FileTransfer:
                             SqlHelper.insert_transfer_unknown(reg_path, target_dir)
                             failed_count += 1
                             alert_count += 1
+                            if error_message not in alert_messages:
+                                alert_messages.append(error_message)
                             continue
                         new_file = "%s%s" % (ret_file_path, file_ext)
                         ret = self.__transfer_file(file_item=file_item,
@@ -709,6 +721,8 @@ class FileTransfer:
                                 return success_flag, error_message
                             failed_count += 1
                             alert_count += 1
+                            if error_message not in alert_messages:
+                                alert_messages.append(error_message)
                             continue
                 # 媒体库刷新条目：类型-类别-标题-年份
                 refresh_item = {"type": media.type, "category": media.category, "title": media.title,
@@ -781,7 +795,7 @@ class FileTransfer:
         # 总结
         log.info("【RMT】%s 处理完成，总数：%s，失败：%s" % (in_path, total_count, failed_count))
         if alert_count > 0:
-            self.message.send_transfer_fail_message(in_path, alert_count)
+            self.message.send_transfer_fail_message(in_path, alert_count, "、".join(alert_messages))
         elif failed_count == 0:
             # 删除空目录
             if rmt_mode == RmtMode.MOVE \
@@ -933,7 +947,7 @@ class FileTransfer:
             if os.path.exists(new_path):
                 log.info("【RMT】目录 %s 已存在" % new_path)
                 return False
-            ret = os.system("mv '%s' '%s'" % (org_path, new_path))
+            ret = subprocess.run(["mv", org_path, new_path], shell=True).returncode
             if ret == 0:
                 return True
         else:

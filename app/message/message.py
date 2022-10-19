@@ -272,7 +272,7 @@ class Message:
             return
         self.sendmsg(title="站点签到", text="\n".join(msgs))
 
-    def send_transfer_fail_message(self, path, count):
+    def send_transfer_fail_message(self, path, count, text):
         """
         发送转移失败的消息
         """
@@ -280,5 +280,5 @@ class Message:
             return
         if self.__msg_switch and not self.__msg_switch.get("transfer_fail"):
             return
-        self.sendmsg(title="%s 有 %s 个文件转移失败，请登录NASTool查看" % (path, count))
+        self.sendmsg(title=f"【{count} 个文件转移失败】", text=f"路径：{path}\n原因：{text}")
     

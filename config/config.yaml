@@ -363,6 +363,10 @@ douban:
 subtitle:
   # 【下载渠道】：opensubtitles、chinesesubfinder
   server: opensubtitles
+  # opensubtitles.org
+  opensubtitles:
+    # 是否启用
+    enable: true
   # 配置ChineseSubFinder的服务器地址和API Key，API Key在ChineseSubFinder->配置中心->实验室->API Key处生成
   chinesesubfinder:
     # IP地址和端口
