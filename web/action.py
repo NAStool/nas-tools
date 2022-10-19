@@ -2478,7 +2478,7 @@ class WebAction:
                                                  front="",
                                                  back="",
                                                  offset=0,
-                                                 wtype=type,
+                                                 wtype=wtype,
                                                  gid=gid,
                                                  season=season,
                                                  enabled=enabled,
@@ -2489,43 +2489,43 @@ class WebAction:
                 else:
                     return {"code": 1, "msg": "识别词已存在\n（被替换词：%s）" % replaced}
             # 替换
-            elif type == "2":
+            elif wtype == "2":
                 if not SqlHelper.is_custom_words_existed(replaced=replaced):
                     SqlHelper.insert_custom_word(replaced=replaced,
                                                  replace=replace,
                                                  front="",
                                                  back="",
                                                  offset=0,
-                                                 wtype=type,
+                                                 wtype=wtype,
                                                  gid=gid,
                                                  season=season,
                                                  enabled=enabled,
                                                  regex=regex,
-                                                 whelp=help if help else "")
+                                                 whelp=whelp if whelp else "")
                     WordsHelper().init_config()
                     return {"code": 0, "msg": ""}
                 else:
                     return {"code": 1, "msg": "识别词已存在\n（被替换词：%s）" % replaced}
             # 集偏移
-            elif type == "4":
+            elif wtype == "4":
                 if not SqlHelper.is_custom_words_existed(front=front, back=back):
                     SqlHelper.insert_custom_word(replaced="",
                                                  replace="",
                                                  front=front,
                                                  back=back,
                                                  offset=offset,
-                                                 wtype=type,
+                                                 wtype=wtype,
                                                  gid=gid,
                                                  season=season,
                                                  enabled=enabled,
                                                  regex=regex,
-                                                 whelp=help if help else "")
+                                                 whelp=whelp if whelp else "")
                     WordsHelper().init_config()
                     return {"code": 0, "msg": ""}
                 else:
                     return {"code": 1, "msg": "识别词已存在\n（前后定位词：%s@%s）" % (front, back)}
             # 替换+集偏移
-            elif type == "3":
+            elif wtype == "3":
                 if not SqlHelper.is_custom_words_existed(replaced=replaced):
                     SqlHelper.insert_custom_word(replaced=replaced,
                                                  replace=replace,
