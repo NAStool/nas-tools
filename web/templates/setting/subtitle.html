@@ -51,7 +51,14 @@
         </div>
         <div class="card-body">
           <div class="row">
-            <div class="text-muted">无需配置任何信息，确认www.opensubtitles.org网络连通即可！</div>
+            <div class="col">
+              <div class="mb-3">
+                <label class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" id="subtitle.opensubtitles.enable" {% if Config.subtitle.opensubtitles and Config.subtitle.opensubtitles.enable %}checked{% endif %}>
+                  <span class="form-check-label">开启opensubtitles.org字幕下载 <span class="form-help" title="需要确保网络能正常连通www.opensubtitles.org" data-bs-toggle="tooltip">?</span></span>
+                </label>
+              </div>
+            </div>
           </div>
         </div>
       </div>

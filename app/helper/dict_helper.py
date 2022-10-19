@@ -17,10 +17,10 @@ class DictHelper:
             return False
         if DictHelper.exists(dtype, key):
             return MainDb().update_by_sql("UPDATE SYSTEM_DICT SET VALUE = ? WHERE TYPE = ? AND KEY = ?",
-                                            (value, dtype, key))
+                                          (value, dtype, key))
         else:
             return MainDb().update_by_sql("INSERT INTO SYSTEM_DICT (TYPE, KEY, VALUE, NOTE) VALUES (?, ?, ?, ?)",
-                                            (dtype, key, value, note))
+                                          (dtype, key, value, note))
 
     @staticmethod
     def get(dtype, key):
@@ -33,7 +33,7 @@ class DictHelper:
         if not dtype or not key:
             return ""
         ret = MainDb().select_by_sql("SELECT VALUE FROM SYSTEM_DICT WHERE TYPE = ? AND KEY = ?",
-                                       (dtype, key))
+                                     (dtype, key))
         if ret and ret[0][0]:
             return ret[0][0]
         else:
