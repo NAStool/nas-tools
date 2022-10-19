@@ -17,7 +17,7 @@ from app.utils import RequestUtils, StringUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType, SearchType
 from config import Config
-from web.backend.subscribe import add_rss_subscribe
+from app.subscribe import Subscribe
 
 
 @singleton
@@ -281,7 +281,7 @@ class RssChecker(object):
                     self.message.send_download_message(in_from=SearchType.RSS,
                                                        can_item=media)
                     # 下载类型的 这里下载成功了 插入数据库
-                    SqlHelper.insert_rss_torrents(media_info)
+                    SqlHelper.insert_rss_torrents(media)
                     # 登记自定义RSS任务下载记录
                     # FIXME 自定义RSS任务下载记录 里面缺少必要字段无法进行种子是否已下载去重 需要进行表结构升级
                     SqlHelper.insert_userrss_task_history(taskid, media.org_string, Downloader().get_type().value)
@@ -292,11 +292,11 @@ class RssChecker(object):
         # 添加订阅
         if rss_subscribe_torrents:
             for media in rss_subscribe_torrents:
-                code, msg, _ = add_rss_subscribe(mtype=media.type,
-                                                 name=media.title,
-                                                 year=media.year,
-                                                 season=media.begin_season,
-                                                 tmdbid=media.tmdb_id)
+                code, msg, _ = Subscribe.add_rss_subscribe(mtype=media.type,
+                                                           name=media.title,
+                                                           year=media.year,
+                                                           season=media.begin_season,
+                                                           tmdbid=media.tmdb_id)
                 if code == 0:
                     self.message.send_rss_success_message(in_from=SearchType.RSS, media_info=media)
                 else:

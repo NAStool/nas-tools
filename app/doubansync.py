@@ -14,7 +14,7 @@ from app.message import Message
 from app.searcher import Searcher
 from app.utils.types import SearchType, MediaType
 from config import Config
-from web.backend.subscribe import add_rss_subscribe
+from app.subscribe import Subscribe
 
 lock = Lock()
 
@@ -114,11 +114,11 @@ class DoubanSync:
                         else:
                             # 需要加订阅，则由订阅去检索
                             log.info("【Douban】%s %s 更新到%s订阅中..." % (media.get_name(), media.year, media.type.value))
-                            code, msg, _ = add_rss_subscribe(mtype=media.type,
-                                                             name=media.get_name(),
-                                                             year=media.year,
-                                                             season=media.begin_season,
-                                                             doubanid=media.douban_id)
+                            code, msg, _ = Subscribe.add_rss_subscribe(mtype=media.type,
+                                                                       name=media.get_name(),
+                                                                       year=media.year,
+                                                                       season=media.begin_season,
+                                                                       doubanid=media.douban_id)
                             if code != 0:
                                 log.error("【Douban】%s 添加订阅失败：%s" % (media.get_name(), msg))
                             else:
@@ -134,12 +134,12 @@ class DoubanSync:
                     # 加入订阅，使状态为R
                     for media in medias:
                         log.info("【Douban】%s %s 更新到%s订阅中..." % (media.get_name(), media.year, media.type.value))
-                        code, msg, _ = add_rss_subscribe(mtype=media.type,
-                                                         name=media.get_name(),
-                                                         year=media.year,
-                                                         season=media.begin_season,
-                                                         doubanid=media.douban_id,
-                                                         state="R")
+                        code, msg, _ = Subscribe.add_rss_subscribe(mtype=media.type,
+                                                                   name=media.get_name(),
+                                                                   year=media.year,
+                                                                   season=media.begin_season,
+                                                                   doubanid=media.douban_id,
+                                                                   state="R")
                         if code != 0:
                             log.error("【Douban】%s 添加订阅失败：%s" % (media.get_name(), msg))
                         else:

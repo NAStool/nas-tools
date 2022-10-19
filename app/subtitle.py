@@ -21,7 +21,7 @@ class Subtitle:
     __api_key = None
     __remote_path = None
     __local_path = None
-    __opensubtitles_enable = True
+    __opensubtitles_enable = False
 
     def __init__(self):
         self.init_config()
