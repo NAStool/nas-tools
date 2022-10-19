@@ -335,9 +335,9 @@ def update_config(cfg):
                                                  enabled=1,
                                                  regex=1,
                                                  whelp="")
-        SqlHelper.excute('''DROP TABLE IGNORED_WORDS''')
-        SqlHelper.excute('''DROP TABLE REPLACED_WORDS''')
-        SqlHelper.excute('''DROP TABLE OFFSET_WORDS''')
+        SqlHelper.excute('''DROP TABLE IF EXISTS IGNORED_WORDS''')
+        SqlHelper.excute('''DROP TABLE IF EXISTS REPLACED_WORDS''')
+        SqlHelper.excute('''DROP TABLE IF EXISTS OFFSET_WORDS''')
     except Exception as e:
         print(str(e))
     # 重写配置文件
