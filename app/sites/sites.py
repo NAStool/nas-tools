@@ -36,7 +36,7 @@ class Sites:
     filtersites = None
     siteconf = None
     __sites_data = {}
-    __pt_sites = None
+    __sites = None
     __last_update_time = None
     _MAX_CONCURRENCY = 10
 
@@ -47,7 +47,7 @@ class Sites:
         self.message = Message()
         self.filtersites = FilterRule()
         self.siteconf = SiteConf()
-        self.__pt_sites = SqlHelper.get_config_site()
+        self.__sites = SqlHelper.get_config_site()
         self.__sites_data = {}
         self.__last_update_time = None
 
@@ -65,7 +65,7 @@ class Sites:
         # 补全 favicon
         site_favicons = SqlHelper.get_site_user_statistics()
         site_favicons = {site[0]: site[13] for site in site_favicons}
-        for site in self.__pt_sites:
+        for site in self.__sites:
             # 是否解析种子详情为|分隔的第1位
             site_parse = str(site[9]).split("|")[0] or "Y"
             # 站点过滤规则为|分隔的第2位
@@ -125,11 +125,11 @@ class Sites:
             return {}
         return ret_sites
 
-    def refresh_all_pt_data(self, force=False, specify_sites=None):
+    def refresh_all_site_data(self, force=False, specify_sites=None):
         """
         多线程刷新站点下载上传量，默认间隔6小时
         """
-        if not self.__pt_sites:
+        if not self.__sites:
             return
         if not force and self.__last_update_time and (datetime.now() - self.__last_update_time).seconds < 6 * 3600:
             return
@@ -147,7 +147,7 @@ class Sites:
 
             # 并发刷新
             with ThreadPool(min(len(refresh_sites), self._MAX_CONCURRENCY)) as p:
-                site_user_infos = p.map(self.__refresh_pt_data, refresh_sites)
+                site_user_infos = p.map(self.__refresh_site_data, refresh_sites)
                 site_user_infos = [info for info in site_user_infos if info]
             # 登记历史数据
             SqlHelper.insert_site_statistics_history(site_user_infos)
@@ -160,9 +160,9 @@ class Sites:
         if refresh_all:
             self.__last_update_time = datetime.now()
 
-    def __refresh_pt_data(self, site_info):
+    def __refresh_site_data(self, site_info):
         """
-        更新单个pt site 数据信息
+        更新单个site 数据信息
         :param site_info:
         :return:
         """
@@ -350,13 +350,13 @@ class Sites:
         """
         强制刷新站点数据
         """
-        self.refresh_all_pt_data(True)
+        self.refresh_all_site_data(True)
 
     def get_pt_date(self):
         """
         获取站点上传下载量
         """
-        self.refresh_all_pt_data()
+        self.refresh_all_site_data()
         return self.__sites_data
 
     def get_pt_site_statistics_history(self, days=7):
@@ -412,7 +412,7 @@ class Sites:
         if not isinstance(specify_sites, list):
             specify_sites = [specify_sites]
 
-        self.refresh_all_pt_data(force=True, specify_sites=specify_sites)
+        self.refresh_all_site_data(force=True, specify_sites=specify_sites)
 
     @staticmethod
     def get_pt_site_activity_history(site, days=365 * 2):
