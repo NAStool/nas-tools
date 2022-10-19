@@ -38,7 +38,7 @@ from app.media import MetaInfo, Media
 from web.apiv1 import apiv1, authorization
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 from web.action import WebAction
-from web.backend.subscribe import add_rss_subscribe
+from app.subscribe import Subscribe
 from app.helper import SqlHelper, DictHelper
 from app.utils.types import *
 from web.backend.wallpaper import get_login_wallpaper
@@ -1670,10 +1670,10 @@ def create_flask_app():
         msg = "ok"
         meta_info = MetaInfo(title=subject, mtype=media_type)
         if media_type == MediaType.MOVIE:
-            code, msg, meta_info = add_rss_subscribe(mtype=media_type,
-                                                     name=meta_info.get_name(),
-                                                     year=meta_info.year,
-                                                     tmdbid=tmdbId)
+            code, msg, meta_info = Subscribe.add_rss_subscribe(mtype=media_type,
+                                                               name=meta_info.get_name(),
+                                                               year=meta_info.year,
+                                                               tmdbid=tmdbId)
             Message().send_rss_success_message(in_from=SearchType.API,
                                                media_info=meta_info)
         else:
@@ -1683,11 +1683,11 @@ def create_flask_app():
                     seasons = [int(str(sea).strip()) for sea in extra.get("value").split(", ") if str(sea).isdigit()]
                     break
             for season in seasons:
-                code, msg, meta_info = add_rss_subscribe(mtype=media_type,
-                                                         name=meta_info.get_name(),
-                                                         year=meta_info.year,
-                                                         tmdbid=tmdbId,
-                                                         season=season)
+                code, msg, meta_info = Subscribe.add_rss_subscribe(mtype=media_type,
+                                                                   name=meta_info.get_name(),
+                                                                   year=meta_info.year,
+                                                                   tmdbid=tmdbId,
+                                                                   season=season)
                 Message().send_rss_success_message(in_from=SearchType.API,
                                                    media_info=meta_info)
         if code == 0:

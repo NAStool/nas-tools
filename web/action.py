@@ -39,7 +39,7 @@ from app.scheduler import Scheduler
 from app.sync import Sync
 from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
-from web.backend.subscribe import add_rss_subscribe
+from app.subscribe import Subscribe
 from app.helper import SqlHelper, DictHelper
 
 
@@ -1017,41 +1017,41 @@ class WebAction:
             code = 0
             msg = ""
             for sea in season:
-                code, msg, media_info = add_rss_subscribe(mtype=mtype,
-                                                          name=name,
-                                                          year=year,
-                                                          season=sea,
-                                                          match=match,
-                                                          doubanid=doubanid,
-                                                          tmdbid=tmdbid,
-                                                          sites=sites,
-                                                          search_sites=search_sites,
-                                                          over_edition=over_edition,
-                                                          rss_restype=rss_restype,
-                                                          rss_pix=rss_pix,
-                                                          rss_team=rss_team,
-                                                          rss_rule=rss_rule,
-                                                          rssid=rssid)
+                code, msg, media_info = Subscribe.add_rss_subscribe(mtype=mtype,
+                                                                    name=name,
+                                                                    year=year,
+                                                                    season=sea,
+                                                                    match=match,
+                                                                    doubanid=doubanid,
+                                                                    tmdbid=tmdbid,
+                                                                    sites=sites,
+                                                                    search_sites=search_sites,
+                                                                    over_edition=over_edition,
+                                                                    rss_restype=rss_restype,
+                                                                    rss_pix=rss_pix,
+                                                                    rss_team=rss_team,
+                                                                    rss_rule=rss_rule,
+                                                                    rssid=rssid)
                 if code != 0:
                     break
         else:
-            code, msg, media_info = add_rss_subscribe(mtype=mtype,
-                                                      name=name,
-                                                      year=year,
-                                                      season=season,
-                                                      match=match,
-                                                      doubanid=doubanid,
-                                                      tmdbid=tmdbid,
-                                                      sites=sites,
-                                                      search_sites=search_sites,
-                                                      over_edition=over_edition,
-                                                      rss_restype=rss_restype,
-                                                      rss_pix=rss_pix,
-                                                      rss_team=rss_team,
-                                                      rss_rule=rss_rule,
-                                                      rssid=rssid,
-                                                      total_ep=total_ep,
-                                                      current_ep=current_ep)
+            code, msg, media_info = Subscribe.add_rss_subscribe(mtype=mtype,
+                                                                name=name,
+                                                                year=year,
+                                                                season=season,
+                                                                match=match,
+                                                                doubanid=doubanid,
+                                                                tmdbid=tmdbid,
+                                                                sites=sites,
+                                                                search_sites=search_sites,
+                                                                over_edition=over_edition,
+                                                                rss_restype=rss_restype,
+                                                                rss_pix=rss_pix,
+                                                                rss_team=rss_team,
+                                                                rss_rule=rss_rule,
+                                                                rssid=rssid,
+                                                                total_ep=total_ep,
+                                                                current_ep=current_ep)
         if not rssid:
             if mtype == MediaType.MOVIE:
                 rssid = SqlHelper.get_rss_movie_id(title=name, tmdbid=tmdbid or "DB:%s" % doubanid)
@@ -2769,13 +2769,13 @@ class WebAction:
                 season = int(str(rssinfo[0][6]).replace("S", ""))
             else:
                 season = None
-            code, msg, _ = add_rss_subscribe(mtype=mtype,
-                                             name=rssinfo[0][3],
-                                             year=rssinfo[0][4],
-                                             season=season,
-                                             tmdbid=rssinfo[0][5],
-                                             total_ep=rssinfo[0][9],
-                                             current_ep=rssinfo[0][10])
+            code, msg, _ = Subscribe.add_rss_subscribe(mtype=mtype,
+                                                       name=rssinfo[0][3],
+                                                       year=rssinfo[0][4],
+                                                       season=season,
+                                                       tmdbid=rssinfo[0][5],
+                                                       total_ep=rssinfo[0][9],
+                                                       current_ep=rssinfo[0][10])
             return {"code": code, "msg": msg}
         else:
             return {"code": 1, "msg": "订阅历史记录不存在"}

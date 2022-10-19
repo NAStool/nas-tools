@@ -13,7 +13,7 @@ from app.media.doubanv2api import DoubanApi
 from app.media import MetaInfo, Media
 from app.helper import SqlHelper, ProgressHelper
 from app.utils.types import SearchType, MediaType
-from web.backend.subscribe import add_rss_subscribe
+from app.subscribe import Subscribe
 
 SEARCH_MEDIA_CACHE = []
 SEARCH_MEDIA_TYPE = "SEARCH"
@@ -161,7 +161,8 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
             and second_search_name \
             and second_search_name != first_search_name:
         search_process.start('search')
-        search_process.update(ptype='search', text="%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
+        search_process.update(ptype='search',
+                              text="%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
         log.info("【Searcher】%s 未检索到资源,尝试通过 %s 重新检索 ..." % (first_search_name, second_search_name))
         media_list = Searcher().search_medias(key_word=second_search_name,
                                               filter_args=filter_args,
@@ -215,7 +216,8 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
             if media_info.douban_id:
                 _title = media_info.get_title_string()
                 # 先从网页抓取（含TMDBID）
-                doubaninfo = DouBan().get_media_detail_from_web("https://movie.douban.com/subject/%s/" % media_info.douban_id)
+                doubaninfo = DouBan().get_media_detail_from_web(
+                    "https://movie.douban.com/subject/%s/" % media_info.douban_id)
                 if doubaninfo and doubaninfo.get("imdbid"):
                     tmdbid = Media().get_tmdbid_by_imdbid(doubaninfo.get("imdbid"))
                     if tmdbid:
@@ -259,11 +261,13 @@ def search_media_by_message(input_str, in_from: SearchType, user_id=None):
         # 搜索名称
         use_douban_titles = Config().get_config("laboratory").get("use_douban_titles")
         if use_douban_titles:
-            tmdb_infos = DouBan().search_douban_medias(keyword=media_info.get_name() if not media_info.year else "%s %s" % (media_info.get_name(), media_info.year),
-                                                       mtype=mtype,
-                                                       num=6,
-                                                       season=media_info.begin_season,
-                                                       episode=media_info.begin_episode)
+            tmdb_infos = DouBan().search_douban_medias(
+                keyword=media_info.get_name() if not media_info.year else "%s %s" % (
+                    media_info.get_name(), media_info.year),
+                mtype=mtype,
+                num=6,
+                season=media_info.begin_season,
+                episode=media_info.begin_episode)
         else:
             tmdb_infos = Media().get_tmdb_infos(title=media_info.get_name(), year=media_info.year, mtype=mtype)
         if not tmdb_infos:
@@ -373,17 +377,17 @@ def __rss_media(in_from, media_info, user_id=None):
     """
     # 添加订阅
     if media_info.douban_id:
-        code, msg, media_info = add_rss_subscribe(media_info.type,
-                                                  media_info.title,
-                                                  media_info.year,
-                                                  media_info.begin_season,
-                                                  doubanid=media_info.douban_id)
+        code, msg, media_info = Subscribe.add_rss_subscribe(media_info.type,
+                                                            media_info.title,
+                                                            media_info.year,
+                                                            media_info.begin_season,
+                                                            doubanid=media_info.douban_id)
     else:
-        code, msg, media_info = add_rss_subscribe(media_info.type,
-                                                  media_info.title,
-                                                  media_info.year,
-                                                  media_info.begin_season,
-                                                  tmdbid=media_info.tmdb_id)
+        code, msg, media_info = Subscribe.add_rss_subscribe(media_info.type,
+                                                            media_info.title,
+                                                            media_info.year,
+                                                            media_info.begin_season,
+                                                            tmdbid=media_info.tmdb_id)
     if code == 0:
         log.info("【Web】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))
         if in_from in [SearchType.WX, SearchType.TG]:
