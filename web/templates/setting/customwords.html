@@ -628,7 +628,11 @@
           }
           var tbody = `<tbody>${tbody_content}<tr></tr></tbody>`;
           var table = `<table class="table table-vcenter card-table">${thead}${tbody}</table>`;
-          var head = `<div class="card-header"><a href="${Group.link}" target="_blank"><h3 class="card-title"><strong>${Group.name}</strong></h3></a></div>`;
+          if(Group.link){
+            var head = `<div class="card-header"><a href="${Group.link}" target="_blank"><h3 class="card-title"><strong>${Group.name}</strong></h3></a></div>`;
+          }else{
+            var head = `<div class="card-header"><h3 class="card-title"><strong>${Group.name}</strong></h3></div>`;
+          }
           $("#import_groups_div").append(`${head}${table}`);
         }
         // 绑定全选事件

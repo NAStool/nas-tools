@@ -2608,14 +2608,20 @@ class WebAction:
                 word_ids.append(wid[1])
             export_dict = {}
             for group_id in group_ids:
-                group_info = SqlHelper.get_custom_word_groups(gid=group_id)[0]
-                export_dict[str(group_info[0])] = {"id": group_info[0],
-                                                   "title": group_info[1],
-                                                   "year": group_info[2],
-                                                   "type": group_info[3],
-                                                   "tmdbid": group_info[4],
-                                                   "season_count": group_info[5],
-                                                   "words": {}, }
+                if group_id == "-1":
+                    export_dict["-1"] = {"id": -1,
+                                         "title": "通用",
+                                         "type": 1,
+                                         "words": {}, }
+                else:
+                    group_info = SqlHelper.get_custom_word_groups(gid=group_id)[0]
+                    export_dict[str(group_info[0])] = {"id": group_info[0],
+                                                       "title": group_info[1],
+                                                       "year": group_info[2],
+                                                       "type": group_info[3],
+                                                       "tmdbid": group_info[4],
+                                                       "season_count": group_info[5],
+                                                       "words": {}, }
             for word_id in word_ids:
                 word_info = SqlHelper.get_custom_words(wid=word_id)[0]
                 export_dict[str(word_info[7])]["words"][str(word_info[0])] = {"id": word_info[0],
@@ -2649,14 +2655,14 @@ class WebAction:
                 year = group.get("year")
                 wtype = group.get("type")
                 tmdbid = group.get("tmdbid")
-                season_count = group.get("season_count")
+                season_count = group.get("season_count") or ""
                 words = group.get("words")
-                if int(wtype) == 1:
-                    link = "https://www.themoviedb.org/movie/%s" % tmdbid
+                if tmdbid:
+                    link = "https://www.themoviedb.org/%s/%s" % ("movie" if int(wtype) == 1 else "tv", tmdbid)
                 else:
-                    link = "https://www.themoviedb.org/tv/%s" % tmdbid
+                    link = ""
                 groups.append({"id": wid,
-                               "name": "%s（%s）" % (title, year),
+                               "name": "%s（%s）" % (title, year) if year else title,
                                "link": link,
                                "type": wtype,
                                "seasons": season_count,
@@ -2677,6 +2683,9 @@ class WebAction:
             group_id_dict = {}
             for import_group_id in import_group_ids:
                 import_group_info = import_dict.get(import_group_id)
+                if int(import_group_info.get("id")) == -1:
+                    group_id_dict["-1"] = -1
+                    continue
                 title = import_group_info.get("title")
                 year = import_group_info.get("year")
                 wtype = import_group_info.get("type")
