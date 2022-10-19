@@ -20,7 +20,6 @@ lock = Lock()
 
 
 class DoubanSync:
-    
     douban = None
     searcher = None
     media = None
@@ -31,7 +30,7 @@ class DoubanSync:
     __users = None
     __days = None
     __types = None
-    
+
     def __init__(self):
         self.douban = DouBan()
         self.searcher = Searcher()
@@ -39,7 +38,7 @@ class DoubanSync:
         self.media = Media()
         self.message = Message()
         self.init_config()
-        
+
     def init_config(self):
         config = Config()
         douban = config.get_config('douban')
@@ -60,7 +59,7 @@ class DoubanSync:
             types = douban.get('types')
             if types:
                 self.__types = types.split(',')
-    
+
     def sync(self):
         """
         同步豆瓣数据
@@ -82,28 +81,28 @@ class DoubanSync:
                     # 查询数据库状态，已经加入RSS的不处理
                     search_state = SqlHelper.get_douban_search_state(media.get_name(), media.year)
                     if not search_state or search_state[0][0] == "NEW":
+                        if media.begin_season:
+                            subtitle = "第%s季" % media.begin_season
+                        else:
+                            subtitle = None
+                        media_info = self.media.get_media_info(title="%s %s" % (media.get_name(), media.year or ""),
+                                                               subtitle=subtitle,
+                                                               mtype=media.type)
+                        # 不需要自动加订阅，则直接搜索
+                        if not media_info or not media_info.tmdb_info:
+                            log.warn("【Douban】%s 未查询到媒体信息" % media.get_name())
+                            continue
+                        # 检查是否存在，电视剧返回不存在的集清单
+                        exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info)
+                        # 已经存在
+                        if exist_flag:
+                            # 更新为已下载状态
+                            log.info("【Douban】%s 已存在" % media.get_name())
+                            SqlHelper.insert_douban_media_state(media, "DOWNLOADED")
+                            continue
                         if not self.__auto_rss:
-                            # 不需要自动加订阅，则直接搜索
-                            if media.begin_season:
-                                subtitle = "第%s季" % media.begin_season
-                            else:
-                                subtitle = None
-                            media_info = self.media.get_media_info(title="%s %s" % (media.get_name(), media.year or ""),
-                                                                   subtitle=subtitle,
-                                                                   mtype=media.type)
-                            if not media_info or not media_info.tmdb_info:
-                                log.warn("【Douban】%s 未查询到媒体信息" % media.get_name())
-                                continue
                             # 合并季
                             media_info.begin_season = media.begin_season
-                            # 检查是否存在，电视剧返回不存在的集清单
-                            exist_flag, no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info)
-                            # 已经存在
-                            if exist_flag:
-                                # 更新为已下载状态
-                                log.info("【Douban】%s 已存在" % media.get_name())
-                                SqlHelper.insert_douban_media_state(media, "DOWNLOADED")
-                                continue
                             # 开始检索
                             search_result, no_exists, search_count, download_count = self.searcher.search_one_media(
                                 media_info=media_info,
@@ -151,7 +150,7 @@ class DoubanSync:
             log.info("【Douban】豆瓣数据同步完成")
         finally:
             lock.release()
-            
+
     def __get_all_douban_movies(self):
         """
         获取每一个用户的每一个类型的豆瓣标记

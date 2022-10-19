@@ -394,7 +394,8 @@
           $(div_id).append(`<span class="badge badge-outline text-blue me-1 mb-1" title="类别">${ret.data.category}</span>`);
         }
         if(ret.data.name){
-          $(div_id).append(`<span class="badge badge-outline text-red me-1 mb-1" title="识别名称">${ret.data.name}</span>`);
+          var name_query_link = `https://www.themoviedb.org/search?query=${encodeURI(ret.data.name)}`;
+          $(div_id).append(`<span title="识别名称"><a class="badge badge-outline text-red me-1 mb-1" href="${name_query_link}" target="_blank">${ret.data.name}</a></span>`);
         }
         if(ret.data.title){
           $(div_id).append(`<span class="badge badge-outline text-red me-1 mb-1" title="标题">${ret.data.title}</span>`);

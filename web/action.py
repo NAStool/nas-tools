@@ -9,7 +9,6 @@ import signal
 
 from flask_login import logout_user
 from werkzeug.security import generate_password_hash
-from ruamel.yaml import YAML
 
 import cn2an
 import log
@@ -130,8 +129,10 @@ class WebAction:
             "list_rss_history": self.__list_rss_history,
             "rss_articles_check": self.__rss_articles_check,
             "rss_articles_download": self.__rss_articles_download,
-            "edit_custom_words": self.__edit_custom_words,
+            "add_custom_word_group": self.__add_custom_word_group,
+            "delete_custom_word_group": self.__delete_custom_word_group,
             "add_or_edit_custom_word": self.__add_or_edit_custom_word,
+            "get_custom_word": self.__get_custom_word,
             "delete_custom_word": self.__delete_custom_word,
             "check_custom_words": self.__check_custom_words,
             "export_custom_words": self.__export_custom_words,
@@ -321,7 +322,8 @@ class WebAction:
             "ptsignin": Sites().signin,
             "sync": Sync().transfer_all_sync,
             "rssdownload": Rss().rssdownload,
-            "douban": DoubanSync().sync
+            "douban": DoubanSync().sync,
+            "rsssearch_all": Rss().rsssearch_all,
         }
         sch_item = data.get("item")
         if sch_item and commands.get(sch_item):
@@ -980,7 +982,7 @@ class WebAction:
             if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV', '电影']:
                 SqlHelper.delete_rss_movie(title=name, year=year, rssid=rssid, tmdbid=tmdbid)
             else:
-                SqlHelper.delete_rss_tv(title=name, year=year, season=season, rssid=rssid, tmdbid=tmdbid)
+                SqlHelper.delete_rss_tv(title=name, season=season, rssid=rssid, tmdbid=tmdbid)
         return {"code": 0, "page": page, "name": name}
 
     @staticmethod
@@ -1062,14 +1064,13 @@ class WebAction:
         """
         未识别的重新识别
         """
-        path = dest_dir = None
         flag = data.get("flag")
         ids = data.get("ids")
         ret_flag = True
         ret_msg = ""
         if flag == "unknow":
-            for id in ids:
-                paths = SqlHelper.get_unknown_path_by_id(id)
+            for wid in ids:
+                paths = SqlHelper.get_unknown_path_by_id(wid)
                 if paths:
                     path = paths[0][0]
                     dest_dir = paths[0][1]
@@ -1080,16 +1081,16 @@ class WebAction:
                 if not path:
                     return {"retcode": -1, "retmsg": "未识别路径有误"}
                 succ_flag, msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
-                                                                in_path=path,
-                                                                target_dir=dest_dir)
+                                                               in_path=path,
+                                                               target_dir=dest_dir)
                 if succ_flag:
                     SqlHelper.update_transfer_unknown_state(path)
                 else:
-                        ret_flag = False
-                        ret_msg = "%s\n%s" % (ret_msg, msg)
+                    ret_flag = False
+                    ret_msg = "%s\n%s" % (ret_msg, msg)
         elif flag == "history":
-            for id in ids:
-                paths = SqlHelper.get_transfer_path_by_id(id)
+            for wid in ids:
+                paths = SqlHelper.get_transfer_path_by_id(wid)
                 if paths:
                     path = os.path.join(paths[0][0], paths[0][1])
                     dest_dir = paths[0][2]
@@ -1100,11 +1101,11 @@ class WebAction:
                 if not path:
                     return {"retcode": -1, "retmsg": "未识别路径有误"}
                 succ_flag, msg = FileTransfer().transfer_media(in_from=SyncType.MAN,
-                                                                in_path=path,
-                                                                target_dir=dest_dir)
+                                                               in_path=path,
+                                                               target_dir=dest_dir)
                 if not succ_flag:
-                        ret_flag = False
-                        ret_msg = "%s\n%s" % (ret_msg, msg)
+                    ret_flag = False
+                    ret_msg = "%s\n%s" % (ret_msg, msg)
         if ret_flag:
             return {"retcode": 0, "retmsg": "转移成功"}
         else:
@@ -2401,187 +2402,342 @@ class WebAction:
             return {"code": 1}
 
     @staticmethod
-    def __edit_custom_words(data):
+    def __add_custom_word_group(data):
         try:
-            custom_words = YAML().load(data)
-            ignored_words = custom_words.get("屏蔽词")
-            SqlHelper.delete_all_ignored_words()
-            if ignored_words:
-                ignored_words = list(set(ignored_words))
-                for ignored_word in ignored_words:
-                    ignored_word = ignored_word.split("@")
-                    SqlHelper.insert_ignored_word(ignored_word[0], 1 if ignored_word[1] == "True" else 0)
-            replaced_words = custom_words.get("替换词")
-            SqlHelper.delete_all_replaced_words()
-            if replaced_words:
-                replaced_words = list(set(replaced_words))
-                for replaced_word in replaced_words:
-                    replaced_word = replaced_word.split("@")
-                    if not SqlHelper.is_replaced_word_existed(replaced_word[0]):
-                        SqlHelper.insert_replaced_word(replaced_word[0], replaced_word[1],
-                                                    1 if replaced_word[2] == "True" else 0)
-                    else:
-                        return {"code": 1, "msg": "替换词重复"}
-            offset_words = custom_words.get("集数偏移")
-            SqlHelper.delete_all_offset_words()
-            if offset_words:
-                offset_words = list(set(offset_words))
-                for offset_word in offset_words:
-                    offset_word = offset_word.split("@")
-                    if not SqlHelper.is_offset_word_existed(offset_word[0], offset_word[1]):
-                        replaced_word_id = SqlHelper.get_replaced_word_id_by_replaced_word(offset_word[4])
-                        SqlHelper.insert_offset_word(offset_word[0], offset_word[1], offset_word[2],
-                                                    1 if offset_word[3] == "True" else 0, replaced_word_id)
-                    else:
-                        return {"code": 1, "msg": "集数偏移重复"}
+            tmdb_id = data.get("tmdb_id")
+            tmdb_type = data.get("tmdb_type")
+            if tmdb_type == "tv":
+                if not SqlHelper.is_custom_word_group_existed(tmdbid=tmdb_id, wtype=2):
+                    tmdb_info = Media().get_tmdb_info(mtype=MediaType.TV, tmdbid=tmdb_id)
+                    if not tmdb_info:
+                        return {"code": 1, "msg": "添加失败，无法查询到TMDB信息"}
+                    SqlHelper.insert_custom_word_groups(title=tmdb_info.get("name"),
+                                                        year=tmdb_info.get("first_air_date")[0:4],
+                                                        wtype=2,
+                                                        tmdbid=tmdb_id,
+                                                        season_count=tmdb_info.get("number_of_seasons"))
+                    return {"code": 0, "msg": ""}
+                else:
+                    return {"code": 1, "msg": "识别词组（TMDB ID）已存在"}
+            elif tmdb_type == "movie":
+                if not SqlHelper.is_custom_word_group_existed(tmdbid=tmdb_id, wtype=1):
+                    tmdb_info = Media().get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=tmdb_id)
+                    if not tmdb_info:
+                        return {"code": 1, "msg": "添加失败，无法查询到TMDB信息"}
+                    SqlHelper.insert_custom_word_groups(title=tmdb_info.get("title"),
+                                                        year=tmdb_info.get("release_date")[0:4],
+                                                        wtype=1,
+                                                        tmdbid=tmdb_id,
+                                                        season_count=0)
+                    return {"code": 0, "msg": ""}
+                else:
+                    return {"code": 1, "msg": "识别词组（TMDB ID）已存在"}
+            else:
+                return {"code": 1, "msg": "无法识别媒体类型"}
+        except Exception as e:
+            print(str(e))
+            return {"code": 1, "msg": str(e)}
+
+    @staticmethod
+    def __delete_custom_word_group(data):
+        try:
+            wid = data.get("gid")
+            SqlHelper.delete_custom_word_group(wid=wid)
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
             print(str(e))
-            return {"code": 1, "msg": "输入不符合YAML格式"}
+            return {"code": 1, "msg": str(e)}
 
     @staticmethod
     def __add_or_edit_custom_word(data):
-        flag = data.get("flag")
-        id = data.get("id")
-        custom_word = data.get("custom_word")
-        if flag == "ignored":
-            if id:
-                SqlHelper.delete_ignored_word(id)
-            if not SqlHelper.is_ignored_word_existed(custom_word[0]):
-                SqlHelper.insert_ignored_word(custom_word[0], 1 if custom_word[1] == "True" else 0)
-                WordsHelper().init_config()
-                return {"code": 0, "msg": ""}
-            else:
-                return {"code": 1, "msg": "屏蔽词已存在"}
-        elif flag == "replaced":
-            if id:
-                if not SqlHelper.is_replaced_word_existed(custom_word[0]):
-                    SqlHelper.edit_replaced_word(id, custom_word[0], custom_word[1],
-                                                 1 if custom_word[2] == "True" else 0)
+        try:
+            wid = data.get("id")
+            gid = data.get("gid")
+            group_type = data.get("group_type")
+            replaced = data.get("new_replaced")
+            replace = data.get("new_replace")
+            front = data.get("new_front")
+            back = data.get("new_back")
+            offset = data.get("new_offset")
+            whelp = data.get("new_help")
+            wtype = data.get("type")
+            season = data.get("season")
+            enabled = data.get("enabled")
+            regex = data.get("regex")
+            if wid:
+                SqlHelper.delete_custom_word(wid=wid)
+            # 电影
+            if group_type == "1":
+                season = -2
+            # 屏蔽
+            if wtype == "1":
+                if not SqlHelper.is_custom_words_existed(replaced=replaced):
+                    SqlHelper.insert_custom_word(replaced=replaced,
+                                                 replace="",
+                                                 front="",
+                                                 back="",
+                                                 offset=0,
+                                                 wtype=wtype,
+                                                 gid=gid,
+                                                 season=season,
+                                                 enabled=enabled,
+                                                 regex=regex,
+                                                 whelp=whelp if whelp else "")
                     WordsHelper().init_config()
                     return {"code": 0, "msg": ""}
                 else:
-                    old_replaced_word = SqlHelper.get_replaced_word(id)[0]
-                    if custom_word[0] == old_replaced_word[1] and custom_word[1] != old_replaced_word[2]:
-                        SqlHelper.edit_replaced_word(id, custom_word[0], custom_word[1],
-                                                     1 if custom_word[2] == "True" else 0)
-                        WordsHelper().init_config()
-                        return {"code": 0, "msg": ""}
-                    else:
-                        return {"code": 1, "msg": "替换词已存在"}
-            else:
-                if not SqlHelper.is_replaced_word_existed(custom_word[0]):
-                    SqlHelper.insert_replaced_word(custom_word[0], custom_word[1], 1 if custom_word[2] == "True" else 0)
+                    return {"code": 1, "msg": "识别词已存在\n（被替换词：%s）" % replaced}
+            # 替换
+            elif wtype == "2":
+                if not SqlHelper.is_custom_words_existed(replaced=replaced):
+                    SqlHelper.insert_custom_word(replaced=replaced,
+                                                 replace=replace,
+                                                 front="",
+                                                 back="",
+                                                 offset=0,
+                                                 wtype=wtype,
+                                                 gid=gid,
+                                                 season=season,
+                                                 enabled=enabled,
+                                                 regex=regex,
+                                                 whelp=whelp if whelp else "")
                     WordsHelper().init_config()
                     return {"code": 0, "msg": ""}
                 else:
-                    return {"code": 1, "msg": "替换词已存在"}
-        elif flag == "offset":
-            if id:
-                SqlHelper.delete_offset_word(id)
-            if not SqlHelper.is_offset_word_existed(custom_word[0], custom_word[1]):
-                SqlHelper.insert_offset_word(custom_word[0], custom_word[1], custom_word[2],
-                                             1 if custom_word[3] == "True" else 0, custom_word[4])
-                WordsHelper().init_config()
-                return {"code": 0, "msg": ""}
+                    return {"code": 1, "msg": "识别词已存在\n（被替换词：%s）" % replaced}
+            # 集偏移
+            elif wtype == "4":
+                if not SqlHelper.is_custom_words_existed(front=front, back=back):
+                    SqlHelper.insert_custom_word(replaced="",
+                                                 replace="",
+                                                 front=front,
+                                                 back=back,
+                                                 offset=offset,
+                                                 wtype=wtype,
+                                                 gid=gid,
+                                                 season=season,
+                                                 enabled=enabled,
+                                                 regex=regex,
+                                                 whelp=whelp if whelp else "")
+                    WordsHelper().init_config()
+                    return {"code": 0, "msg": ""}
+                else:
+                    return {"code": 1, "msg": "识别词已存在\n（前后定位词：%s@%s）" % (front, back)}
+            # 替换+集偏移
+            elif wtype == "3":
+                if not SqlHelper.is_custom_words_existed(replaced=replaced):
+                    SqlHelper.insert_custom_word(replaced=replaced,
+                                                 replace=replace,
+                                                 front=front,
+                                                 back=back,
+                                                 offset=offset,
+                                                 wtype=wtype,
+                                                 gid=gid,
+                                                 season=season,
+                                                 enabled=enabled,
+                                                 regex=regex,
+                                                 whelp=whelp if whelp else "")
+                    WordsHelper().init_config()
+                    return {"code": 0, "msg": ""}
+                else:
+                    return {"code": 1, "msg": "识别词已存在\n（被替换词：%s）" % replaced}
             else:
-                return {"code": 1, "msg": "集数偏移已存在"}
+                return {"code": 1, "msg": ""}
+        except Exception as e:
+            print(str(e))
+            return {"code": 1, "msg": str(e)}
+
+    @staticmethod
+    def __get_custom_word(data):
+        try:
+            wid = data.get("id")
+            word_info = SqlHelper.get_custom_words(wid=wid)[0]
+            word = {"id": word_info[0],
+                    "replaced": word_info[1],
+                    "replace": word_info[2],
+                    "front": word_info[3],
+                    "back": word_info[4],
+                    "offset": word_info[5],
+                    "type": word_info[6],
+                    "group_id": word_info[7],
+                    "season": word_info[8],
+                    "enabled": word_info[9],
+                    "regex": word_info[10],
+                    "help": word_info[11], }
+            return {"code": 0, "data": word}
+        except Exception as e:
+            print(str(e))
+            return {"code": 1, "msg": "查询识别词失败"}
 
     @staticmethod
     def __delete_custom_word(data):
-        flag = data.get("flag")
-        id = data.get("id")
-        if flag == "ignored":
-            SqlHelper.delete_ignored_word(id)
+        try:
+            wid = data.get("id")
+            SqlHelper.delete_custom_word(wid)
             WordsHelper().init_config()
-            return {"code": 0}
-        elif flag == "replaced":
-            SqlHelper.delete_replaced_word(id)
-            WordsHelper().init_config()
-            return {"code": 0}
-        elif flag == "offset":
-            SqlHelper.delete_offset_word(id)
-            WordsHelper().init_config()
-            return {"code": 0}
-        else:
-            return {"code": 1}
+            return {"code": 0, "msg": ""}
+        except Exception as e:
+            return {"code": 1, "msg": str(e)}
 
     @staticmethod
     def __check_custom_words(data):
         try:
             flag_dict = {"enable": 1, "disable": 0}
-            flag = data.get("flag")
-            custom_words = data.get("custom_words")
-            ignored_words = custom_words.get("ignored_words")
-            if ignored_words:
-                for ignored_word_id in ignored_words:
-                    SqlHelper.check_ignored_word(flag_dict.get(flag), ignored_word_id)
-            replaced_words = custom_words.get("replaced_words")
-            if replaced_words:
-                for replaced_word_id in replaced_words:
-                    SqlHelper.check_replaced_word(flag_dict.get(flag), replaced_word_id)
-            offset_words = custom_words.get("offset_words")
-            if offset_words:
-                for offset_word_id in offset_words:
-                    SqlHelper.check_offset_word(flag_dict.get(flag), offset_word_id)
+            ids_info = data.get("ids_info")
+            enabled = flag_dict.get(data.get("flag"))
+            ids = [id_info.split("_")[1] for id_info in ids_info]
+            for wid in ids:
+                SqlHelper.check_custom_word(wid=wid, enabled=enabled)
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
             print(str(e))
-            return {"code": 1, "msg": "自定义识别词状态设置失败"}
+            return {"code": 1, "msg": "识别词状态设置失败"}
+
     @staticmethod
     def __export_custom_words(data):
-        export_text = data.get("export_text")
-        string = base64.b64encode(export_text.encode("utf-8")).decode('utf-8')
-        return {"code": 0, "string": string}
+        try:
+            note = data.get("note")
+            ids_info = data.get("ids_info").split("@")
+            group_ids = []
+            word_ids = []
+            for id_info in ids_info:
+                wid = id_info.split("_")
+                group_ids.append(wid[0])
+                word_ids.append(wid[1])
+            export_dict = {}
+            for group_id in group_ids:
+                if group_id == "-1":
+                    export_dict["-1"] = {"id": -1,
+                                         "title": "通用",
+                                         "type": 1,
+                                         "words": {}, }
+                else:
+                    group_info = SqlHelper.get_custom_word_groups(gid=group_id)[0]
+                    export_dict[str(group_info[0])] = {"id": group_info[0],
+                                                       "title": group_info[1],
+                                                       "year": group_info[2],
+                                                       "type": group_info[3],
+                                                       "tmdbid": group_info[4],
+                                                       "season_count": group_info[5],
+                                                       "words": {}, }
+            for word_id in word_ids:
+                word_info = SqlHelper.get_custom_words(wid=word_id)[0]
+                export_dict[str(word_info[7])]["words"][str(word_info[0])] = {"id": word_info[0],
+                                                                              "replaced": word_info[1],
+                                                                              "replace": word_info[2],
+                                                                              "front": word_info[3],
+                                                                              "back": word_info[4],
+                                                                              "offset": word_info[5],
+                                                                              "type": word_info[6],
+                                                                              "season": word_info[8],
+                                                                              "regex": word_info[10],
+                                                                              "help": word_info[11], }
+            export_string = json.dumps(export_dict) + "@@@@@@" + str(note)
+            string = base64.b64encode(export_string.encode("utf-8")).decode('utf-8')
+            return {"code": 0, "string": string}
+        except Exception as e:
+            print(str(e))
+            return {"code": 1, "msg": str(e)}
 
     @staticmethod
     def __analyse_import_custom_words_code(data):
-        import_code = data.get('import_code')
-        string = base64.b64decode(import_code.encode("utf-8")).decode('utf-8').split("@@@@@")
-        text_string = string[0]
-        note_string = string[1]
-        return {"code": 0, "text_string": text_string, "note_string": note_string}
+        try:
+            import_code = data.get('import_code')
+            string = base64.b64decode(import_code.encode("utf-8")).decode('utf-8').split("@@@@@@")
+            note_string = string[1]
+            import_dict = json.loads(string[0])
+            groups = []
+            for group in import_dict.values():
+                wid = group.get('id')
+                title = group.get("title")
+                year = group.get("year")
+                wtype = group.get("type")
+                tmdbid = group.get("tmdbid")
+                season_count = group.get("season_count") or ""
+                words = group.get("words")
+                if tmdbid:
+                    link = "https://www.themoviedb.org/%s/%s" % ("movie" if int(wtype) == 1 else "tv", tmdbid)
+                else:
+                    link = ""
+                groups.append({"id": wid,
+                               "name": "%s（%s）" % (title, year) if year else title,
+                               "link": link,
+                               "type": wtype,
+                               "seasons": season_count,
+                               "words": words})
+            return {"code": 0, "groups": groups, "note_string": note_string}
+        except Exception as e:
+            print(str(e))
+            return {"code": 1, "msg": str(e)}
 
     @staticmethod
     def __import_custom_words(data):
         try:
-            custom_words = YAML().load(data)
+            import_code = data.get('import_code')
+            ids_info = data.get('ids_info')
+            string = base64.b64decode(import_code.encode("utf-8")).decode('utf-8').split("@@@@@@")
+            import_dict = json.loads(string[0])
+            import_group_ids = [id_info.split("_")[0] for id_info in ids_info]
+            group_id_dict = {}
+            for import_group_id in import_group_ids:
+                import_group_info = import_dict.get(import_group_id)
+                if int(import_group_info.get("id")) == -1:
+                    group_id_dict["-1"] = -1
+                    continue
+                title = import_group_info.get("title")
+                year = import_group_info.get("year")
+                wtype = import_group_info.get("type")
+                tmdbid = import_group_info.get("tmdbid")
+                season_count = import_group_info.get("season_count")
+                if not SqlHelper.is_custom_word_group_existed(tmdbid=tmdbid, wtype=wtype):
+                    SqlHelper.insert_custom_word_groups(title=title,
+                                                        year=year,
+                                                        wtype=wtype,
+                                                        tmdbid=tmdbid,
+                                                        season_count=season_count)
+                group_info = SqlHelper.get_custom_word_groups(tmdbid=tmdbid, wtype=wtype)
+                group_id_dict[import_group_id] = group_info[0][0]
+            for id_info in ids_info:
+                id_info = id_info.split('_')
+                import_group_id = id_info[0]
+                import_word_id = id_info[1]
+                import_word_info = import_dict.get(import_group_id).get("words").get(import_word_id)
+                gid = group_id_dict.get(import_group_id)
+                replaced = import_word_info.get("replaced")
+                replace = import_word_info.get("replace")
+                front = import_word_info.get("front")
+                back = import_word_info.get("back")
+                offset = import_word_info.get("offset")
+                whelp = import_word_info.get("help")
+                wtype = int(import_word_info.get("type"))
+                season = import_word_info.get("season")
+                regex = import_word_info.get("regex")
+                # 屏蔽, 替换, 替换+集偏移
+                if wtype in [1, 2, 3]:
+                    if SqlHelper.is_custom_words_existed(replaced=replaced):
+                        return {"code": 1, "msg": "识别词已存在\n（被替换词：%s）" % replaced}
+                # 集偏移
+                elif wtype == 4:
+                    if SqlHelper.is_custom_words_existed(front=front, back=back):
+                        return {"code": 1, "msg": "识别词已存在\n（前后定位词：%s@%s）" % (front, back)}
+                SqlHelper.insert_custom_word(replaced=replaced,
+                                             replace=replace,
+                                             front=front,
+                                             back=back,
+                                             offset=offset,
+                                             wtype=wtype,
+                                             gid=gid,
+                                             season=season,
+                                             enabled=1,
+                                             regex=regex,
+                                             whelp=whelp if whelp else "")
+            WordsHelper().init_config()
+            return {"code": 0, "msg": ""}
         except Exception as e:
             print(str(e))
-            return {"code": 1, "msg": "输入不符合YAML格式"}
-        ignored_words = custom_words.get("屏蔽词")
-        if ignored_words:
-            ignored_words = list(set(ignored_words))
-            for ignored_word in ignored_words:
-                ignored_word = ignored_word.split("@")
-                if not SqlHelper.is_ignored_word_existed(ignored_word[0]):
-                    SqlHelper.insert_ignored_word(ignored_word[0], 1 if ignored_word[1] == "True" else 0)
-                else:
-                    return {"code": 1, "msg": "屏蔽词已存在"}
-        replaced_words = custom_words.get("替换词")
-        if replaced_words:
-            replaced_words = list(set(replaced_words))
-            for replaced_word in replaced_words:
-                replaced_word = replaced_word.split("@")
-                if not SqlHelper.is_replaced_word_existed(replaced_word[0]):
-                    SqlHelper.insert_replaced_word(replaced_word[0], replaced_word[1], 1 if replaced_word[2] == "True" else 0)
-                else:
-                    return {"code": 1, "msg": "替换词已存在"}
-        offset_words = custom_words.get("集数偏移")
-        if offset_words:
-            offset_words = list(set(offset_words))
-            for offset_word in offset_words:
-                offset_word = offset_word.split("@")
-                if not SqlHelper.is_offset_word_existed(offset_word[0], offset_word[1]):
-                    replaced_word_id = SqlHelper.get_replaced_word_id_by_replaced_word(offset_word[4])
-                    SqlHelper.insert_offset_word(offset_word[0], offset_word[1], offset_word[2],
-                                                 1 if offset_word[3] == "True" else 0, replaced_word_id)
-                else:
-                    return {"code": 1, "msg": "集数偏移已存在"}
-        WordsHelper().init_config()
-        return {"code": 0, "msg": ""}
+            return {"code": 1, "msg": str(e)}
 
     @staticmethod
     def __get_categories(data):

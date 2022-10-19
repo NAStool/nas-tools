@@ -2,6 +2,7 @@ import random
 from threading import Lock
 from time import sleep
 
+import zhconv
 from lxml import etree
 from requests.utils import dict_from_cookiejar
 
@@ -133,20 +134,27 @@ class DouBan:
                 title = html.xpath("//span[@property='v:itemreviewed']/text()")[0]
                 if title:
                     metainfo = MetaInfo(title=title)
-                    title = metainfo.get_name()
+                    if metainfo.cn_name:
+                        title = metainfo.cn_name
+                        # 有中文的去掉日文和韩文
+                        if title and StringUtils.is_chinese(title) and " " in title:
+                            titles = title.split()
+                            title = titles[0]
+                            for _title in titles[1:]:
+                                # 忽略繁体
+                                if zhconv.convert(_title, 'zh-hans') == title:
+                                    break
+                                # 忽略日韩文
+                                if not StringUtils.is_japanese(_title) \
+                                        and not StringUtils.is_korean(_title):
+                                    title = f"{title} {_title}"
+                                    break
+                                else:
+                                    break
+                    else:
+                        title = metainfo.en_name
                     if not title:
                         return None
-                    # 有中文的去掉日文和韩文
-                    if StringUtils.is_chinese(title) and " " in title:
-                        titles = title.split()
-                        title = titles[0]
-                        for _title in titles[1:]:
-                            if not StringUtils.is_japanese(_title) \
-                                    and not StringUtils.is_korean(_title):
-                                title = f"{title} {_title}"
-                                break
-                            else:
-                                break
                     ret_media['title'] = title
                     ret_media['season'] = metainfo.begin_season
                 else:
