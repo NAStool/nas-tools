@@ -317,7 +317,16 @@ class StringUtils:
         except ValueError:
             pass
 
-        # 场景3: 日期字符串以GMT结尾 eg: Fri, 14 Oct 2022 07:48:04 GMT
+        # 场景3: 中间带T的日期字符串 eg: 2020-10-14T07:48:04.208
+        try:
+            return datetime.datetime.strftime(
+                datetime.datetime.strptime(date_str.split(".")[0],
+                                           '%Y-%m-%dT%H:%M:%S'),
+                '%Y-%m-%d %H:%M:%S')
+        except ValueError:
+            pass
+
+        # 场景4: 日期字符串以GMT结尾 eg: Fri, 14 Oct 2022 07:48:04 GMT
         if date_str.endswith('GMT'):
             try:
                 return datetime.datetime.strftime(
