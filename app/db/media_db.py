@@ -1,9 +1,10 @@
 import os
-import sqlite3
 import threading
 import time
-
-import log
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.pool import SingletonThreadPool
+from app.db.models import BaseMedia
 from app.utils.commons import singleton
 from config import Config
 
@@ -12,91 +13,49 @@ lock = threading.Lock()
 
 @singleton
 class MediaDb:
-    _db_path = None
-    _mediadb = None
+    __engine = None
+    __session = None
 
     def __init__(self):
-        self._db_path = os.path.join(Config().get_config_path(), 'media.db')
-        self._mediadb = sqlite3.connect(database=self._db_path, timeout=5, check_same_thread=False)
-        self.__init_tables()
+        self.__engine = create_engine(f"sqlite:///{os.path.join(Config().get_config_path(), 'media.db')}?check_same_thread=False",
+                                      echo=False,
+                                      poolclass=SingletonThreadPool,
+                                      pool_size=5,
+                                      pool_recycle=60 * 30
+                                      )
+        self.__session = scoped_session(sessionmaker(bind=self.__engine))()
+        self.__init_db()
 
-    def __init_tables(self):
+    def __init_db(self):
         with lock:
-            cursor = self._mediadb.cursor()
-            try:
-                # 媒体库同步信息表
-                cursor.execute('''CREATE TABLE IF NOT EXISTS MEDIASYNC_STATISTICS
-                                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                                                   SERVER    TEXT,
-                                                   TOTAL_COUNT  TEXT,
-                                                   MOVIE_COUNT    TEXT,
-                                                   TV_COUNT    TEXT,
-                                                   UPDATE_TIME     TEXT);''')
-                cursor.execute(
-                    '''CREATE INDEX IF NOT EXISTS INDX_MEDIASYNC_STATISTICS ON MEDIASYNC_STATISTICS (SERVER);''')
-                # 媒体数据表
-                cursor.execute('''CREATE TABLE IF NOT EXISTS MEDIASYNC_ITEMS
-                                                                   (ID INTEGER PRIMARY KEY AUTOINCREMENT     NOT NULL,
-                                                                   SERVER   TEXT,
-                                                                   LIBRARY    TEXT,
-                                                                   ITEM_ID  TEXT,
-                                                                   ITEM_TYPE    TEXT,
-                                                                   TITLE    TEXT,
-                                                                   ORGIN_TITLE     TEXT,
-                                                                   YEAR     TEXT,
-                                                                   TMDBID     TEXT,
-                                                                   IMDBID     TEXT,
-                                                                   PATH     TEXT,
-                                                                   NOTE     TEXT,
-                                                                   JSON     TEXT);''')
-                cursor.execute(
-                    '''CREATE INDEX IF NOT EXISTS INDX_MEDIASYNC_ITEMS_SL ON MEDIASYNC_ITEMS (SERVER, LIBRARY);''')
-                cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_MEDIASYNC_ITEMS_LT ON MEDIASYNC_ITEMS (TITLE);''')
-                cursor.execute(
-                    '''CREATE INDEX IF NOT EXISTS INDX_MEDIASYNC_ITEMS_OT ON MEDIASYNC_ITEMS (ORGIN_TITLE);''')
-                cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_MEDIASYNC_ITEMS_TI ON MEDIASYNC_ITEMS (TMDBID);''')
-                cursor.execute('''CREATE INDEX IF NOT EXISTS INDX_MEDIASYNC_ITEMS_II ON MEDIASYNC_ITEMS (ITEM_ID);''')
-                self._mediadb.commit()
-            except Exception as e:
-                log.error(f"【Db】创建数据库错误：{e}")
-            finally:
-                cursor.close()
+            BaseMedia.metadata.create_all(self.__engine)
 
     def __excute(self, sql, data=None):
         if not sql:
             return False
         with lock:
-            cursor = self._mediadb.cursor()
             try:
                 if data:
-                    cursor.execute(sql, data)
+                    self.__session.execute(sql, data)
                 else:
-                    cursor.execute(sql)
-                self._mediadb.commit()
+                    self.__session.execute(sql)
             except Exception as e:
                 print(str(e))
                 return False
-            finally:
-                cursor.close()
             return True
 
     def __select(self, sql, data):
         if not sql:
             return False
         with lock:
-            cursor = self._mediadb.cursor()
             try:
                 if data:
-                    res = cursor.execute(sql, data)
+                    return self.__session.execute(sql, data).fetchall()
                 else:
-                    res = cursor.execute(sql)
-                ret = res.fetchall()
+                    return self.__session.execute(sql).fetchall()
             except Exception as e:
                 print(str(e))
                 return []
-            finally:
-                cursor.close()
-            return ret
 
     def insert(self, server_type, iteminfo):
         if not server_type or not iteminfo:

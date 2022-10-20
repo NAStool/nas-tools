@@ -1,9 +1,9 @@
 import os
 import threading
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.pool import SingletonThreadPool
 
-import log
 from app.db.models import Base
 from config import Config
 from app.utils.commons import singleton
@@ -14,31 +14,33 @@ lock = threading.Lock()
 
 @singleton
 class MainDb:
-    __connection = None
     __engine = None
     __session = None
 
     def __init__(self):
         self.init_config()
-        self.__init_tables()
-        self.__cleardata()
-        self.__initdata()
+        self.__init_db()
+        self.__clear_data()
+        self.__init_data()
 
     def init_config(self):
         config = Config()
         if not config.get_config_path():
-            log.console("【Config】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
+            print("【Config】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
             quit()
-        self.__engine = create_engine(f"sqlite:///{os.path.join(config.get_config_path(), 'user.db')}",
-                                      echo=True,
+        self.__engine = create_engine(f"sqlite:///{os.path.join(config.get_config_path(), 'user.db')}?check_same_thread=False",
+                                      echo=False,
+                                      poolclass=SingletonThreadPool,
+                                      pool_size=5,
                                       pool_recycle=60 * 30
                                       )
-        self.__session = sessionmaker(bind=self.__engine)()
+        self.__session = scoped_session(sessionmaker(bind=self.__engine))()
 
-    def __init_tables(self):
-        Base.metadata.create_all(self.__engine)
+    def __init_db(self):
+        with lock:
+            Base.metadata.create_all(self.__engine)
 
-    def __cleardata(self):
+    def __clear_data(self):
         self.__excute(
             """DELETE FROM SITE_USER_INFO_STATS 
                 WHERE EXISTS (SELECT 1 
@@ -53,7 +55,7 @@ class MainDb:
                     AND SITE_STATISTICS_HISTORY.DATE = p2.DATE 
                     AND SITE_STATISTICS_HISTORY.rowid < p2.rowid);""")
 
-    def __initdata(self):
+    def __init_data(self):
         config = Config().get_config()
         init_files = Config().get_config("app").get("init_files") or []
         config_dir = os.path.join(Config().get_root_path(), "config")
@@ -75,47 +77,42 @@ class MainDb:
         if not sql:
             return False
         with lock:
-            with self.__engine.connect() as conn:
-                try:
-                    if data:
-                        conn.execute(sql, data)
-                    else:
-                        conn.execute(sql)
-                    conn.commit()
-                except Exception as e:
-                    log.debug(f"【Db】执行SQL出错：sql:{sql}; parameters:{data}; {e}")
-                    return False
-                return True
+            try:
+                if data:
+                    self.__session.execute(sql, data)
+                else:
+                    self.__session.execute(sql)
+            except Exception as e:
+                print(str(e))
+                return False
+            return True
 
     def __excute_many(self, sql, data_list):
         if not sql or not data_list:
             return False
         with lock:
-            with self.__engine.connect() as conn:
-                try:
-                    if data_list:
-                        conn.execute(sql, data_list)
-                    else:
-                        conn.execute(sql)
-                    conn.commit()
-                except Exception as e:
-                    log.debug(f"【Db】执行SQL出错：sql:{sql}; parameters:{data_list}; {e}")
-                    return False
-                return True
+            try:
+                if data_list:
+                    self.__session.execute(sql, data_list)
+                else:
+                    self.__session.execute(sql)
+            except Exception as e:
+                print(str(e))
+                return False
+            return True
 
     def __select(self, sql, data):
         if not sql:
             return False
         with lock:
-            with self.__engine.connect() as conn:
-                try:
-                    if data:
-                        return conn.execute(sql, data)
-                    else:
-                        return conn.execute(sql)
-                except Exception as e:
-                    log.debug(f"【Db】执行SQL出错：sql:{sql}; parameters:{data}; {e}")
-                    return []
+            try:
+                if data:
+                    return self.__session.execute(sql, data).fetchall()
+                else:
+                    return self.__session.execute(sql).fetchall()
+            except Exception as e:
+                print(str(e))
+                return []
 
     def select_by_sql(self, sql, data=None):
         """

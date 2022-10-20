@@ -4,10 +4,7 @@ from sqlalchemy.sql.sqltypes import NullType
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
-metadata = Base.metadata
-
-Base2 = declarative_base()
-metadata2 = Base2.metadata
+BaseMedia = declarative_base()
 
 
 class CONFIGFILTERGROUP(Base):
@@ -416,7 +413,7 @@ class USERRSSTASKHISTORY(Base):
     DATE = Column(Text)
 
 
-class MEDIASYNCITEM(Base2):
+class MEDIASYNCITEM(BaseMedia):
     __tablename__ = 'MEDIASYNC_ITEMS'
     __table_args__ = (
         Index('INDX_MEDIASYNC_ITEMS_SL', 'SERVER', 'LIBRARY'),
@@ -437,7 +434,7 @@ class MEDIASYNCITEM(Base2):
     JSON = Column(Text)
 
 
-class MEDIASYNCSTATISTIC(Base2):
+class MEDIASYNCSTATISTIC(BaseMedia):
     __tablename__ = 'MEDIASYNC_STATISTICS'
 
     ID = Column(Integer, primary_key=True)
@@ -449,7 +446,7 @@ class MEDIASYNCSTATISTIC(Base2):
 
 
 t_sqlite_sequence = Table(
-    'sqlite_sequence', metadata,
+    'sqlite_sequence', Base.metadata,
     Column('name', NullType),
     Column('seq', NullType)
 )
