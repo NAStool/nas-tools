@@ -688,7 +688,7 @@ class BrushTask(object):
             if rss_rule.get("pubdate") and pubdate:
                 rule_pubdates = rss_rule.get("pubdate").split("#")
                 if len(rule_pubdates) >= 2 and rule_pubdates[1]:
-                    if (datetime.now() - pubdate).seconds / 3600 > int(rule_pubdates[1]):
+                    if (datetime.now() - pubdate).seconds / 3600 > float(rule_pubdates[1]):
                         return False
 
         except Exception as err:
@@ -714,7 +714,7 @@ class BrushTask(object):
                 rule_times = remove_rule.get("time").split("#")
                 if rule_times[0]:
                     if len(rule_times) > 1 and rule_times[1]:
-                        if int(seeding_time) > float(rule_times[1]) * 3600:
+                        if float(seeding_time) > float(rule_times[1]) * 3600:
                             return True, BrushDeleteType.SEEDTIME
             if remove_rule.get("ratio") and ratio:
                 rule_ratios = remove_rule.get("ratio").split("#")
@@ -726,19 +726,19 @@ class BrushTask(object):
                 rule_uploadsizes = remove_rule.get("uploadsize").split("#")
                 if rule_uploadsizes[0]:
                     if len(rule_uploadsizes) > 1 and rule_uploadsizes[1]:
-                        if int(uploaded) > float(rule_uploadsizes[1]) * 1024 ** 3:
+                        if float(uploaded) > float(rule_uploadsizes[1]) * 1024 ** 3:
                             return True, BrushDeleteType.UPLOADSIZE
             if remove_rule.get("dltime") and dltime:
                 rule_times = remove_rule.get("dltime").split("#")
                 if rule_times[0]:
                     if len(rule_times) > 1 and rule_times[1]:
-                        if int(dltime) > float(rule_times[1]) * 3600:
+                        if float(dltime) > float(rule_times[1]) * 3600:
                             return True, BrushDeleteType.DLTIME
             if remove_rule.get("avg_upspeed") and avg_upspeed:
                 rule_avg_upspeeds = remove_rule.get("avg_upspeed").split("#")
                 if rule_avg_upspeeds[0]:
                     if len(rule_avg_upspeeds) > 1 and rule_avg_upspeeds[1]:
-                        if int(avg_upspeed) < float(rule_avg_upspeeds[1]) * 1024:
+                        if float(avg_upspeed) < float(rule_avg_upspeeds[1]) * 1024:
                             return True, BrushDeleteType.AVGUPSPEED
         except Exception as err:
             log.console(str(err) + " - " + traceback.format_exc())
