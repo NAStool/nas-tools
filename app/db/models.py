@@ -412,7 +412,7 @@ class USERRSSTASKHISTORY(Base):
     DATE = Column(Text)
 
 
-class MEDIASYNCITEM(BaseMedia):
+class MEDIASYNCITEMS(BaseMedia):
     __tablename__ = 'MEDIASYNC_ITEMS'
     __table_args__ = (
         Index('INDX_MEDIASYNC_ITEMS_SL', 'SERVER', 'LIBRARY'),
