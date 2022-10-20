@@ -20,7 +20,6 @@ class MainDb:
     def __init__(self):
         self.init_config()
         self.__init_db()
-        self.__clear_data()
         self.__init_data()
 
     def init_config(self):
@@ -40,22 +39,10 @@ class MainDb:
         with lock:
             Base.metadata.create_all(self.__engine)
 
-    def __clear_data(self):
-        self.__excute(
-            """DELETE FROM SITE_USER_INFO_STATS 
-                WHERE EXISTS (SELECT 1 
-                    FROM SITE_USER_INFO_STATS p2 
-                    WHERE SITE_USER_INFO_STATS.URL = p2.URL 
-                    AND SITE_USER_INFO_STATS.rowid < p2.rowid);""")
-        self.__excute(
-            """DELETE FROM SITE_STATISTICS_HISTORY 
-                WHERE EXISTS (SELECT 1 
-                    FROM SITE_STATISTICS_HISTORY p2 
-                    WHERE SITE_STATISTICS_HISTORY.URL = p2.URL 
-                    AND SITE_STATISTICS_HISTORY.DATE = p2.DATE 
-                    AND SITE_STATISTICS_HISTORY.rowid < p2.rowid);""")
-
     def __init_data(self):
+        """
+        读取config目录下的sql文件，并初始化到数据库，只处理一次
+        """
         config = Config().get_config()
         init_files = Config().get_config("app").get("init_files") or []
         config_dir = os.path.join(Config().get_root_path(), "config")
@@ -67,76 +54,47 @@ class MainDb:
                 with open(sql_file, "r", encoding="utf-8") as f:
                     sql_list = f.read().split(';\n')
                     for sql in sql_list:
-                        self.__excute(sql)
+                        self.excute(sql)
                 init_files.append(os.path.basename(sql_file))
         if config_flag:
             config['app']['init_files'] = init_files
             Config().save_config(config)
 
-    def __excute(self, sql, data=None):
+    def insert(self, data):
+        """
+        插入数据
+        """
+        if not data:
+            return False
+        try:
+            if isinstance(data, list):
+                self.__session.add_all(data)
+            else:
+                self.__session.add(data)
+            return True
+        except Exception as e:
+            print(str(e))
+        finally:
+            self.__session.commit()
+        return False
+
+    def query(self, obj):
+        """
+        查询对象
+        """
+        return self.__session.query(obj)
+
+    def excute(self, sql):
+        """
+        执行SQL语句
+        """
         if not sql:
             return False
-        with lock:
-            try:
-                if data:
-                    self.__session.execute(sql, data)
-                else:
-                    self.__session.execute(sql)
-            except Exception as e:
-                print(str(e))
-                return False
+        try:
+            self.__session.execute(sql)
             return True
-
-    def __excute_many(self, sql, data_list):
-        if not sql or not data_list:
-            return False
-        with lock:
-            try:
-                if data_list:
-                    self.__session.execute(sql, data_list)
-                else:
-                    self.__session.execute(sql)
-            except Exception as e:
-                print(str(e))
-                return False
-            return True
-
-    def __select(self, sql, data):
-        if not sql:
-            return False
-        with lock:
-            try:
-                if data:
-                    return self.__session.execute(sql, data).fetchall()
-                else:
-                    return self.__session.execute(sql).fetchall()
-            except Exception as e:
-                print(str(e))
-                return []
-
-    def select_by_sql(self, sql, data=None):
-        """
-        执行查询
-        :param sql: 查询的SQL语句
-        :param data: 数据，需为列表或者元祖
-        :return: 查询结果的二级列表
-        """
-        return self.__select(sql, data)
-
-    def update_by_sql(self, sql, data=None):
-        """
-        执行更新或删除
-        :param sql: SQL语句
-        :param data: 数据，需为列表或者元祖
-        :return: 执行状态
-        """
-        return self.__excute(sql, data)
-
-    def update_by_sql_batch(self, sql, data_list):
-        """
-        执行更新或删除
-        :param sql: 批量更新SQL语句
-        :param data_list: 数据列表
-        :return: 执行状态
-        """
-        return self.__excute_many(sql, data_list)
+        except Exception as e:
+            print(str(e))
+        finally:
+            self.__session.commit()
+        return False

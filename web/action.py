@@ -364,15 +364,15 @@ class WebAction:
         dl_dir = data.get("dir")
         results = SqlHelper.get_search_result_by_id(dl_id)
         for res in results:
-            media = Media().get_media_info(title=res[8], subtitle=res[9])
+            media = Media().get_media_info(title=res.TORRENT_NAME, subtitle=res.DESCRIPTION)
             if not media:
                 continue
-            media.set_torrent_info(enclosure=res[0],
-                                   size=res[10],
-                                   site=res[14],
-                                   page_url=res[17],
-                                   upload_volume_factor=float(res[15]),
-                                   download_volume_factor=float(res[16]))
+            media.set_torrent_info(enclosure=res.ENCLOSURE,
+                                   size=res.SIZE,
+                                   site=res.SITE,
+                                   page_url=res.PAGEURL,
+                                   upload_volume_factor=float(res.UPLOAD_VOLUME_FACTOR),
+                                   download_volume_factor=float(res.DOWNLOAD_VOLUME_FACTOR))
             # 添加下载
             ret, ret_msg = Downloader().download(media_info=media,
                                                  download_dir=dl_dir)
@@ -538,8 +538,8 @@ class WebAction:
         if logid:
             paths = SqlHelper.get_transfer_path_by_id(logid)
             if paths:
-                path = os.path.join(paths[0][0], paths[0][1])
-                dest_dir = paths[0][2]
+                path = os.path.join(paths[0].FILE_PATH, paths[0].FILE_NAME)
+                dest_dir = paths[0].DEST
             else:
                 return {"retcode": -1, "retmsg": "未查询到转移日志记录"}
         else:
@@ -547,8 +547,8 @@ class WebAction:
             if unknown_id:
                 paths = SqlHelper.get_unknown_path_by_id(unknown_id)
                 if paths:
-                    path = paths[0][0]
-                    dest_dir = paths[0][1]
+                    path = paths[0].PATH
+                    dest_dir = paths[0].DEST
                 else:
                     return {"retcode": -1, "retmsg": "未查询到未识别记录"}
         if not dest_dir:
@@ -653,14 +653,14 @@ class WebAction:
             # 读取历史记录
             paths = SqlHelper.get_transfer_path_by_id(logid)
             if paths:
-                dest_dir = paths[0][2]
-                meta_info = MetaInfo(title=paths[0][1])
-                meta_info.title = paths[0][3]
-                meta_info.category = paths[0][4]
-                meta_info.year = paths[0][5]
-                if paths[0][6]:
-                    meta_info.begin_season = int(str(paths[0][6]).replace("S", ""))
-                if paths[0][7] == MediaType.MOVIE.value:
+                dest_dir = paths[0].DEST
+                meta_info = MetaInfo(title=paths[0].FILE_NAME)
+                meta_info.title = paths[0].TITLE
+                meta_info.category = paths[0].CATEGORY
+                meta_info.year = paths[0].YEAR
+                if paths[0].SE:
+                    meta_info.begin_season = int(str(paths[0].SE).replace("S", ""))
+                if paths[0].TYPE == MediaType.MOVIE.value:
                     meta_info.type = MediaType.MOVIE
                 else:
                     meta_info.type = MediaType.TV
@@ -1072,8 +1072,8 @@ class WebAction:
             for wid in ids:
                 paths = SqlHelper.get_unknown_path_by_id(wid)
                 if paths:
-                    path = paths[0][0]
-                    dest_dir = paths[0][1]
+                    path = paths[0].PATH
+                    dest_dir = paths[0].DEST
                 else:
                     return {"retcode": -1, "retmsg": "未查询到未识别记录"}
                 if not dest_dir:
@@ -1092,8 +1092,8 @@ class WebAction:
             for wid in ids:
                 paths = SqlHelper.get_transfer_path_by_id(wid)
                 if paths:
-                    path = os.path.join(paths[0][0], paths[0][1])
-                    dest_dir = paths[0][2]
+                    path = os.path.join(paths[0].FILE_PATH, paths[0].FILE_NAME)
+                    dest_dir = paths[0].DEST
                 else:
                     return {"retcode": -1, "retmsg": "未查询到转移日志记录"}
                 if not dest_dir:

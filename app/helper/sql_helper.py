@@ -4,6 +4,7 @@ import time
 from enum import Enum
 
 from app.db.main_db import MainDb
+from app.db.models import SEARCHRESULTINFO, RSSTORRENTS, DOUBANMEDIAS, TRANSFERHISTORY, TRANSFERUNKNOWN
 from app.utils import StringUtils
 from app.utils.types import MediaType, RmtMode
 
@@ -17,33 +18,6 @@ class SqlHelper:
         """
         if not media_items:
             return
-        sql = "INSERT INTO SEARCH_RESULT_INFO(" \
-              "TORRENT_NAME," \
-              "ENCLOSURE," \
-              "DESCRIPTION," \
-              "TYPE," \
-              "TITLE," \
-              "YEAR," \
-              "SEASON," \
-              "EPISODE," \
-              "ES_STRING," \
-              "VOTE," \
-              "IMAGE," \
-              "POSTER," \
-              "TMDBID," \
-              "OVERVIEW," \
-              "RES_TYPE," \
-              "RES_ORDER," \
-              "SIZE," \
-              "SEEDERS," \
-              "PEERS," \
-              "SITE," \
-              "SITE_ORDER," \
-              "PAGEURL," \
-              "OTHERINFO," \
-              "UPLOAD_VOLUME_FACTOR," \
-              "DOWNLOAD_VOLUME_FACTOR) VALUES (" \
-              " ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         data_list = []
         for media_item in media_items:
             if media_item.type == MediaType.TV:
@@ -52,67 +26,57 @@ class SqlHelper:
                 mtype = "MOV"
             else:
                 mtype = "ANI"
-            data_list.append(
-                (
-                    StringUtils.str_sql(media_item.org_string),
-                    StringUtils.str_sql(media_item.enclosure),
-                    StringUtils.str_sql(media_item.description),
-                    mtype,
-                    StringUtils.str_sql(media_item.title) or StringUtils.str_sql(media_item.get_name()),
-                    StringUtils.xstr(media_item.year),
-                    media_item.get_season_string(),
-                    media_item.get_episode_string(),
-                    media_item.get_season_episode_string(),
-                    media_item.vote_average or "0",
-                    media_item.get_backdrop_image(default=False),
-                    media_item.get_poster_image(),
-                    StringUtils.str_sql(media_item.tmdb_id),
-                    StringUtils.str_sql(media_item.overview),
-                    media_item.get_resource_type_string(),
-                    media_item.res_order,
-                    StringUtils.str_filesize(int(media_item.size)),
-                    media_item.seeders,
-                    media_item.peers,
-                    media_item.site,
-                    media_item.site_order,
-                    StringUtils.str_sql(media_item.page_url),
-                    media_item.resource_team,
-                    media_item.upload_volume_factor,
-                    media_item.download_volume_factor
-                )
-            )
-        return MainDb().update_by_sql_batch(sql, data_list)
+            data_list.append(SEARCHRESULTINFO(
+                TORRENT_NAME=media_item.org_string,
+                ENCLOSURE=media_item.enclosure,
+                DESCRIPTION=media_item.description,
+                TYPE=mtype,
+                TITLE=media_item.title or media_item.get_name(),
+                YEAR=media_item.year,
+                SEASON=media_item.get_season_string(),
+                EPISODE=media_item.get_episode_string(),
+                ES_STRING=media_item.get_season_episode_string(),
+                VOTE=media_item.vote_average or "0",
+                IMAGE=media_item.get_backdrop_image(default=False),
+                POSTER=media_item.get_poster_image(),
+                TMDBID=media_item.tmdb_id,
+                OVERVIEW=media_item.overview,
+                RES_TYPE=media_item.get_resource_type_string(),
+                RES_ORDER=media_item.res_order,
+                SIZE=StringUtils.str_filesize(int(media_item.size)),
+                SEEDERS=media_item.seeders,
+                PEERS=media_item.peers,
+                SITE=media_item.site,
+                SITE_ORDER=media_item.site_order,
+                PAGEURL=media_item.page_url,
+                OTHERINFO=media_item.resource_team,
+                UPLOAD_VOLUME_FACTOR=media_item.upload_volume_factor,
+                DOWNLOAD_VOLUME_FACTOR=media_item.download_volume_factor
+            ))
+        return MainDb().insert(data_list)
 
     @staticmethod
     def get_search_result_by_id(dl_id):
         """
         根据ID从数据库中查询检索结果的一条记录
         """
-        sql = "SELECT ENCLOSURE,TITLE,YEAR,SEASON,EPISODE,VOTE,IMAGE,TYPE,TORRENT_NAME,DESCRIPTION,SIZE,TMDBID,POSTER,OVERVIEW,SITE,UPLOAD_VOLUME_FACTOR,DOWNLOAD_VOLUME_FACTOR,PAGEURL" \
-              " FROM SEARCH_RESULT_INFO" \
-              " WHERE ID = ?"
-        return MainDb().select_by_sql(sql, (dl_id,))
+        return MainDb().query(SEARCHRESULTINFO).filter(SEARCHRESULTINFO.ID == dl_id).all()
 
     @staticmethod
     def get_search_results():
         """
         查询检索结果的所有记录
         """
-        sql = "SELECT ID,TITLE||' ('||YEAR||') '||ES_STRING,RES_TYPE,SIZE,SEEDERS," \
-              "ENCLOSURE,SITE,YEAR,ES_STRING,IMAGE,TYPE,VOTE*1,TORRENT_NAME,DESCRIPTION,TMDBID,POSTER,OVERVIEW,PAGEURL,OTHERINFO,UPLOAD_VOLUME_FACTOR,DOWNLOAD_VOLUME_FACTOR,TITLE" \
-              " FROM SEARCH_RESULT_INFO"
-        return MainDb().select_by_sql(sql)
+        return MainDb().query(SEARCHRESULTINFO).all()
 
     @staticmethod
     def is_torrent_rssd(enclosure):
         """
-        查询RSS是否处理过，根据名称
+        查询RSS是否处理过，根据下载链接
         """
         if not enclosure:
             return True
-        sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE ENCLOSURE = ?"
-        rets = MainDb().select_by_sql(sql, (enclosure,))
-        if rets and rets[0][0] > 0:
+        if MainDb().query(RSSTORRENTS).filter(RSSTORRENTS.ENCLOSURE == enclosure).count() > 0:
             return True
         else:
             return False
@@ -125,54 +89,52 @@ class SqlHelper:
         if not torrent_name and not enclosure:
             return True
         if enclosure:
-            sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE ENCLOSURE = ?"
-            rets = MainDb().select_by_sql(sql, (enclosure,))
+            ret = MainDb().query(RSSTORRENTS).filter(RSSTORRENTS.ENCLOSURE == enclosure).count()
         else:
-            sql = "SELECT COUNT(1) FROM RSS_TORRENTS WHERE TORRENT_NAME = ?"
-            rets = MainDb().select_by_sql(sql, (torrent_name,))
-        if rets and rets[0][0] > 0:
-            return True
-        else:
-            return False
+            ret = MainDb().query(RSSTORRENTS).filter(RSSTORRENTS.TORRENT_NAME == torrent_name).count()
+        return True if ret > 0 else False
 
     @staticmethod
     def delete_all_search_torrents():
         """
         删除所有搜索的记录
         """
-        return MainDb().update_by_sql("DELETE FROM SEARCH_RESULT_INFO")
+        return MainDb().query(SEARCHRESULTINFO).delete()
 
     @staticmethod
     def insert_rss_torrents(media_info):
         """
         将RSS的记录插入数据库
         """
-        sql = "INSERT INTO RSS_TORRENTS(TORRENT_NAME, ENCLOSURE, TYPE, TITLE, YEAR, SEASON, EPISODE) " \
-              "VALUES (?, ?, ?, ?, ?, ?, ?)"
-        return MainDb().update_by_sql(sql, (StringUtils.str_sql(media_info.org_string),
-                                            media_info.enclosure,
-                                            media_info.type.value,
-                                            StringUtils.str_sql(media_info.title),
-                                            StringUtils.str_sql(media_info.year),
-                                            media_info.get_season_string(),
-                                            media_info.get_episode_string()))
+        return MainDb().insert(
+            RSSTORRENTS(
+                TORRENT_NAME=media_info.org_string,
+                ENCLOSURE=media_info.enclosure,
+                TYPE=media_info.type.value,
+                TITLE=media_info.title,
+                YEAR=media_info.year,
+                SEASON=media_info.get_season_string(),
+                EPISODE=media_info.get_episode_string()
+            ))
 
     @staticmethod
     def simple_insert_rss_torrents(title, enclosure):
         """
         将RSS的记录插入数据库
         """
-        sql = "INSERT INTO RSS_TORRENTS(TORRENT_NAME, ENCLOSURE) " \
-              "VALUES (?, ?)"
-        return MainDb().update_by_sql(sql, (title, enclosure))
+        return MainDb().insert(
+            RSSTORRENTS(
+                TORRENT_NAME=title,
+                ENCLOSURE=enclosure
+            ))
 
     @staticmethod
     def simple_delete_rss_torrents(title, enclosure):
         """
         删除RSS的记录
         """
-        sql = "DELETE FROM RSS_TORRENTS WHERE TORRENT_NAME = ? AND ENCLOSURE = ?"
-        return MainDb().update_by_sql(sql, (title, enclosure))
+        return MainDb().query(RSSTORRENTS).filter(RSSTORRENTS.TORRENT_NAME == title,
+                                                  RSSTORRENTS.ENCLOSURE == enclosure).delete()
 
     @staticmethod
     def insert_douban_media_state(media, state):
@@ -180,36 +142,42 @@ class SqlHelper:
         将豆瓣的数据插入数据库
         """
         if not media.year:
-            sql = "DELETE FROM DOUBAN_MEDIAS WHERE NAME = ?"
-            MainDb().update_by_sql(sql, (StringUtils.str_sql(media.get_name()),))
+            MainDb().query(DOUBANMEDIAS).filter(DOUBANMEDIAS.NAME == media.get_name()).delete()
         else:
-            sql = "DELETE FROM DOUBAN_MEDIAS WHERE NAME = ? AND YEAR = ?"
-            MainDb().update_by_sql(sql, (StringUtils.str_sql(media.get_name()), StringUtils.str_sql(media.year)))
+            MainDb().query(DOUBANMEDIAS).filter(DOUBANMEDIAS.NAME == media.get_name(),
+                                                DOUBANMEDIAS.YEAR == media.year).delete()
 
-        sql = "INSERT INTO DOUBAN_MEDIAS(NAME, YEAR, TYPE, RATING, IMAGE, STATE) VALUES (?, ?, ?, ?, ?, ?)"
         # 再插入
-        return MainDb().update_by_sql(sql, (StringUtils.str_sql(media.get_name()),
-                                            StringUtils.str_sql(media.year),
-                                            media.type.value,
-                                            media.vote_average,
-                                            media.get_poster_image(),
-                                            state))
+        return MainDb().insert(
+            DOUBANMEDIAS(
+                NAME=media.get_name(),
+                YEAR=media.year,
+                TYPE=media.type.value,
+                RATING=media.vote_average,
+                IMAGE=media.get_poster_image(),
+                STATE=state
+            )
+        )
 
     @staticmethod
     def update_douban_media_state(media, state):
         """
         标记豆瓣数据的状态
         """
-        sql = "UPDATE DOUBAN_MEDIAS SET STATE = ? WHERE NAME = ? AND YEAR = ?"
-        return MainDb().update_by_sql(sql, (state, StringUtils.str_sql(media.title), StringUtils.str_sql(media.year)))
+        return MainDb().query(DOUBANMEDIAS).filter(DOUBANMEDIAS.NAME == media.title,
+                                                   DOUBANMEDIAS.YEAR == media.year).update(
+            {
+                "STATE": state
+            }
+        )
 
     @staticmethod
     def get_douban_search_state(title, year):
         """
         查询未检索的豆瓣数据
         """
-        sql = "SELECT STATE FROM DOUBAN_MEDIAS WHERE NAME = ? AND YEAR = ?"
-        return MainDb().select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year)))
+        return MainDb().query(DOUBANMEDIAS.STATE).filter(DOUBANMEDIAS.NAME == title,
+                                                         DOUBANMEDIAS.YEAR == str(year)).all()
 
     @staticmethod
     def is_transfer_history_exists(file_path, file_name, title, se):
@@ -218,14 +186,11 @@ class SqlHelper:
         """
         if not file_path:
             return False
-        sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_PATH = ? AND FILE_NAME = ? AND TITLE = ? AND SE = ?"
-        ret = MainDb().select_by_sql(sql, (
-            StringUtils.str_sql(file_path), StringUtils.str_sql(file_name), StringUtils.str_sql(title),
-            StringUtils.str_sql(se)))
-        if ret and ret[0][0] > 0:
-            return True
-        else:
-            return False
+        ret = MainDb().query(TRANSFERHISTORY).filter(TRANSFERHISTORY.FILE_PATH == file_path,
+                                                     TRANSFERHISTORY.FILE_NAME == file_name,
+                                                     TRANSFERHISTORY.TITLE == title,
+                                                     TRANSFERHISTORY.SE == se).count()
+        return True if ret > 0 else False
 
     @staticmethod
     def insert_transfer_history(in_from: Enum, rmt_mode: RmtMode, in_path, dest, media_info):
@@ -245,20 +210,21 @@ class SqlHelper:
         if SqlHelper.is_transfer_history_exists(file_path, file_name, media_info.title, media_info.get_season_string()):
             return True
         timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        sql = "INSERT INTO TRANSFER_HISTORY" \
-              "(SOURCE, MODE, TYPE, FILE_PATH, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE)" \
-              " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        return MainDb().update_by_sql(sql, (in_from.value,
-                                            rmt_mode.value,
-                                            media_info.type.value,
-                                            StringUtils.str_sql(file_path),
-                                            StringUtils.str_sql(file_name),
-                                            StringUtils.str_sql(media_info.title),
-                                            media_info.category,
-                                            StringUtils.str_sql(media_info.year),
-                                            media_info.get_season_string(),
-                                            dest,
-                                            timestr))
+        return MainDb().insert(
+            TRANSFERHISTORY(
+                SOURCE=in_from.value,
+                MODE=rmt_mode.value,
+                TYPE=media_info.type.value,
+                FILE_PATH=file_path,
+                FILE_NAME=file_name,
+                TITLE=media_info.title,
+                CATEGORY=media_info.category,
+                YEAR=media_info.year,
+                SE=media_info.get_season_string(),
+                DEST=dest,
+                DATE=timestr
+            )
+        )
 
     @staticmethod
     def get_transfer_history(search, page, rownum):
@@ -272,42 +238,36 @@ class SqlHelper:
 
         if search:
             search = f"%{search}%"
-            count_sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE FILE_NAME LIKE ? OR TITLE LIKE ?"
-            sql = "SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE, ID" \
-                  " FROM TRANSFER_HISTORY" \
-                  " WHERE FILE_NAME LIKE ? OR TITLE LIKE ? ORDER BY DATE DESC LIMIT ? OFFSET ?"
-            return MainDb().select_by_sql(count_sql, (search, search)), MainDb().select_by_sql(sql, (
-                search, search, rownum, begin_pos))
+            count = MainDb().query(TRANSFERHISTORY).filter((TRANSFERHISTORY.FILE_NAME.like(search))
+                                                           | (TRANSFERHISTORY.TITLE.like(search))).count()
+            data = MainDb().query(TRANSFERHISTORY).filter((TRANSFERHISTORY.FILE_NAME.like(search))
+                                                          | (TRANSFERHISTORY.TITLE.like(search))).order_by(
+                TRANSFERHISTORY.DATE.desc()).limit(rownum).offset(begin_pos).all()
+            return count, data
         else:
-            count_sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY"
-            sql = "SELECT SOURCE, MODE, TYPE, FILE_NAME, TITLE, CATEGORY, YEAR, SE, DEST, DATE, ID" \
-                  " FROM TRANSFER_HISTORY" \
-                  " ORDER BY DATE DESC LIMIT ? OFFSET ?"
-        return MainDb().select_by_sql(count_sql), MainDb().select_by_sql(sql, (rownum, begin_pos))
+            return MainDb().query(TRANSFERHISTORY).count(), MainDb().query(TRANSFERHISTORY).order_by(
+                TRANSFERHISTORY.DATE.desc()).limit(rownum).offset(begin_pos).all()
 
     @staticmethod
     def get_transfer_path_by_id(logid):
         """
-        根据logid查询PATH
+        据logid查询PATH
         """
-        sql = "SELECT FILE_PATH, FILE_NAME, DEST, TITLE, CATEGORY, YEAR, SE, TYPE FROM TRANSFER_HISTORY WHERE ID = ?"
-        return MainDb().select_by_sql(sql, (logid,))
+        return MainDb().query(TRANSFERHISTORY).filter(TRANSFERHISTORY.ID == int(logid)).all()
 
     @staticmethod
     def delete_transfer_log_by_id(logid):
         """
         根据logid删除记录
         """
-        sql = "DELETE FROM TRANSFER_HISTORY WHERE ID = ?"
-        return MainDb().update_by_sql(sql, (logid,))
+        return MainDb().query(TRANSFERHISTORY).filter(TRANSFERHISTORY.ID == int(logid)).delete()
 
     @staticmethod
     def get_transfer_unknown_paths():
         """
         查询未识别的记录列表
         """
-        sql = "SELECT ID, PATH, DEST FROM TRANSFER_UNKNOWN WHERE STATE = 'N'"
-        return MainDb().select_by_sql(sql)
+        return MainDb().query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.STATE == 'N')
 
     @staticmethod
     def update_transfer_unknown_state(path):
@@ -316,9 +276,11 @@ class SqlHelper:
         """
         if not path:
             return False
-        path = os.path.normpath(path)
-        sql = "UPDATE TRANSFER_UNKNOWN SET STATE = 'Y' WHERE PATH = ?"
-        return MainDb().update_by_sql(sql, (StringUtils.str_sql(path),))
+        return MainDb().query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.PATH == os.path.normpath(path)).update(
+            {
+                "STATE": "Y"
+            }
+        )
 
     @staticmethod
     def delete_transfer_unknown(tid):
@@ -327,8 +289,7 @@ class SqlHelper:
         """
         if not tid:
             return False
-        sql = "DELETE FROM TRANSFER_UNKNOWN WHERE ID = ?"
-        return MainDb().update_by_sql(sql, (tid,))
+        return MainDb().query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.ID == int(tid)).delete()
 
     @staticmethod
     def get_unknown_path_by_id(tid):
@@ -337,8 +298,7 @@ class SqlHelper:
         """
         if not tid:
             return False
-        sql = "SELECT PATH,DEST FROM TRANSFER_UNKNOWN WHERE ID = ?"
-        return MainDb().select_by_sql(sql, (tid,))
+        return MainDb().query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.ID == int(tid)).all()
 
     @staticmethod
     def is_transfer_unknown_exists(path):
@@ -1841,7 +1801,7 @@ class SqlHelper:
         except Exception as err:
             print(str(err))
             return []
-    
+
     @staticmethod
     def get_replaced_words():
         """
@@ -1853,7 +1813,7 @@ class SqlHelper:
         except Exception as err:
             print(str(err))
             return []
-    
+
     @staticmethod
     def get_offset_words():
         """
@@ -1869,7 +1829,7 @@ class SqlHelper:
     @staticmethod
     def get_rss_history(rtype=None, rid=None):
         sql = "SELECT ID, TYPE, RSSID, NAME, YEAR, TMDBID, SEASON, IMAGE, DESC, TOTAL, START, FINISH_TIME, NOTE " \
-                  "FROM RSS_HISTORY "
+              "FROM RSS_HISTORY "
         if rid:
             sql += "WHERE ID = ?"
             return MainDb().select_by_sql(sql, (int(rid),))
@@ -1916,7 +1876,8 @@ class SqlHelper:
         return MainDb().update_by_sql("DELETE FROM RSS_HISTORY WHERE ID = ?", (rssid,))
 
     @staticmethod
-    def insert_custom_word(replaced, replace, front, back, offset, wtype, gid, season, enabled, regex, whelp, note=None):
+    def insert_custom_word(replaced, replace, front, back, offset, wtype, gid, season, enabled, regex, whelp,
+                           note=None):
         """
         增加自定义识别词
         """
@@ -1965,7 +1926,7 @@ class SqlHelper:
         """
         if replaced:
             sql = "SELECT COUNT(1) FROM CUSTOM_WORDS WHERE REPLACED =?"
-            ret = MainDb().select_by_sql(sql, (replaced, ))
+            ret = MainDb().select_by_sql(sql, (replaced,))
         elif front and back:
             sql = "SELECT COUNT(1) FROM CUSTOM_WORDS WHERE FRONT =? AND BACK = ?"
             ret = MainDb().select_by_sql(sql, (front, back))
@@ -1985,7 +1946,7 @@ class SqlHelper:
               "(TITLE, YEAR, TYPE, TMDBID, SEASON_COUNT, NOTE) " \
               "VALUES (?, ?, ?, ?, ?, ?)"
         return MainDb().update_by_sql(sql, (title, year, int(wtype), int(tmdbid), int(season_count), note))
-    
+
     @staticmethod
     def delete_custom_word_group(wid):
         """
@@ -1995,7 +1956,7 @@ class SqlHelper:
             return
         MainDb().update_by_sql("DELETE FROM CUSTOM_WORDS WHERE GROUP_ID = ?", (int(wid),))
         return MainDb().update_by_sql("DELETE FROM CUSTOM_WORD_GROUPS WHERE ID = ?", (int(wid),))
-    
+
     @staticmethod
     def get_custom_word_groups(gid=None, tmdbid=None, wtype=None):
         """
@@ -2008,8 +1969,9 @@ class SqlHelper:
         if tmdbid and wtype:
             sql += "WHERE TMDBID =? AND TYPE = ?"
             return MainDb().select_by_sql(sql, (int(tmdbid), int(wtype)))
-        return MainDb().select_by_sql("SELECT ID, TITLE, YEAR, TYPE, TMDBID, SEASON_COUNT, NOTE FROM CUSTOM_WORD_GROUPS")
-    
+        return MainDb().select_by_sql(
+            "SELECT ID, TITLE, YEAR, TYPE, TMDBID, SEASON_COUNT, NOTE FROM CUSTOM_WORD_GROUPS")
+
     @staticmethod
     def is_custom_word_group_existed(tmdbid=None, wtype=None):
         """

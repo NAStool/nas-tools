@@ -413,8 +413,8 @@ def create_flask_app():
         # 查询统计值
         for item in res:
             # 资源类型
-            if str(item[2]).find(" ") != -1:
-                restypes = str(item[2]).split(" ")
+            if str(item.RES_TYPE).find(" ") != -1:
+                restypes = str(item.RES_TYPE).split(" ")
                 if len(restypes) > 0:
                     if not MediaRestypeDict.get(restypes[0]):
                         MediaRestypeDict[restypes[0]] = 1
@@ -427,60 +427,59 @@ def create_flask_app():
                     else:
                         MediaPixDict[restypes[1]] += 1
             # 类型
-            if item[10]:
-                mtype = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(item[10])
+            if item.TYPE:
+                mtype = {"MOV": "电影", "TV": "电视剧", "ANI": "动漫"}.get(item.TYPE)
                 if not MeidaTypeDict.get(mtype):
                     MeidaTypeDict[mtype] = 1
                 else:
                     MeidaTypeDict[mtype] += 1
             # 站点
-            if item[6]:
-                if not MediaSiteDict.get(item[6]):
-                    MediaSiteDict[item[6]] = 1
+            if item.SITE:
+                if not MediaSiteDict.get(item.SITE):
+                    MediaSiteDict[item.SITE] = 1
                 else:
-                    MediaSiteDict[item[6]] += 1
+                    MediaSiteDict[item.SITE] += 1
             # 促销信息
-            sp_key = f"{item[19]} {item[20]}"
+            sp_key = f"{item.UPLOAD_VOLUME_FACTOR} {item.DOWNLOAD_VOLUME_FACTOR}"
             if sp_key not in MediaSPStateDict:
                 MediaSPStateDict[sp_key] = 1
             else:
                 MediaSPStateDict[sp_key] += 1
             # 名称
-            if item[1]:
-                name = item[1].split("(")[0].strip()
-                if name not in MediaNameDict:
-                    MediaNameDict[name] = 1
+            if item.TITLE:
+                if item.TITLE not in MediaNameDict:
+                    MediaNameDict[item.TITLE] = 1
                 else:
-                    MediaNameDict[name] += 1
+                    MediaNameDict[item.TITLE] += 1
             # 是否已存在
-            if item[14]:
-                exist_flag = MediaServer().check_item_exists(title=item[21], year=item[7], tmdbid=item[14])
+            if item.TMDBID:
+                exist_flag = MediaServer().check_item_exists(title=item.TITLE, year=item.YEAR, tmdbid=item.TMDBID)
             else:
                 exist_flag = False
             # 结果
             SearchResults.append({
-                "id": item[0],
-                "title_string": item[1],
-                "restype": item[2],
-                "size": item[3],
-                "seeders": item[4],
-                "enclosure": item[5],
-                "site": item[6],
-                "year": item[7],
-                "es_string": item[8],
-                "image": item[9],
-                "type": item[10],
-                "vote": item[11],
-                "torrent_name": item[12],
-                "description": item[13],
-                "tmdbid": item[14],
-                "poster": item[15],
-                "overview": item[16],
-                "pageurl": item[17],
-                "releasegroup": item[18],
-                "uploadvalue": item[19],
-                "downloadvalue": item[20],
-                "title": item[21],
+                "id": item.ID,
+                "title_string": f"{item.TITLE} ({item.YEAR})",
+                "restype": item.RES_TYPE,
+                "size": item.SIZE,
+                "seeders": item.SEEDERS,
+                "enclosure": item.ENCLOSURE,
+                "site": item.SITE,
+                "year": item.YEAR,
+                "es_string": item.ES_STRING,
+                "image": item.IMAGE,
+                "type": item.TYPE,
+                "vote": item.VOTE,
+                "torrent_name": item.TORRENT_NAME,
+                "description": item.DESCRIPTION,
+                "tmdbid": item.TMDBID,
+                "poster": item.IMAGE,
+                "overview": item.OVERVIEW,
+                "pageurl": item.PAGEURL,
+                "releasegroup": item.OTHERINFO,
+                "uploadvalue": item.UPLOAD_VOLUME_FACTOR,
+                "downloadvalue": item.DOWNLOAD_VOLUME_FACTOR,
+                "title": item.TITLE,
                 "exist": exist_flag
             })
 
@@ -1135,10 +1134,6 @@ def create_flask_app():
         else:
             CurrentPage = int(CurrentPage)
         totalCount, historys = SqlHelper.get_transfer_history(SearchStr, CurrentPage, PageNum)
-        if totalCount:
-            totalCount = totalCount[0][0]
-        else:
-            totalCount = 0
 
         TotalPage = floor(totalCount / PageNum) + 1
 
@@ -1224,11 +1219,11 @@ def create_flask_app():
         if not SyncMod:
             SyncMod = "link"
         for rec in Records:
-            if not rec[1]:
+            if not rec.PATH:
                 continue
-            path = rec[1].replace("\\", "/") if rec[1] else ""
-            path_to = rec[2].replace("\\", "/") if rec[2] else ""
-            Items.append({"id": rec[0], "path": path, "to": path_to, "name": path})
+            path = rec.PATH.replace("\\", "/") if rec.PATH else ""
+            path_to = rec.DEST.replace("\\", "/") if rec.DEST else ""
+            Items.append({"id": rec.ID, "path": path, "to": path_to, "name": path})
         return render_template("rename/unidentification.html",
                                TotalCount=TotalCount,
                                Items=Items,
