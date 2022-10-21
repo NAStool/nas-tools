@@ -61,7 +61,7 @@ from app.utils import StringUtils
 from app.brushtask import BrushTask
 from app.sync import run_monitor, stop_monitor
 from app.scheduler import run_scheduler, stop_scheduler
-from app.helper import check_config, IndexerHelper, SqlHelper
+from app.helper import check_config, IndexerHelper, DbHelper
 from version import APP_VERSION
 from web.app import FlaskApp
 from app.rsschecker import RssChecker
@@ -238,18 +238,18 @@ def update_config(cfg):
         if ignored_words:
             ignored_words = ignored_words.split("||")
             for ignored_word in ignored_words:
-                if not SqlHelper.is_custom_words_existed(replaced=ignored_word):
-                    SqlHelper.insert_custom_word(replaced=ignored_word,
-                                                 replace="",
-                                                 front="",
-                                                 back="",
-                                                 offset=0,
-                                                 wtype=1,
-                                                 gid=-1,
-                                                 season=-2,
-                                                 enabled=1,
-                                                 regex=1,
-                                                 whelp="")
+                if not DbHelper.is_custom_words_existed(replaced=ignored_word):
+                    DbHelper.insert_custom_word(replaced=ignored_word,
+                                                replace="",
+                                                front="",
+                                                back="",
+                                                offset=0,
+                                                wtype=1,
+                                                gid=-1,
+                                                season=-2,
+                                                enabled=1,
+                                                regex=1,
+                                                whelp="")
             _config['laboratory'].pop('ignored_words')
             overwrite_cofig = True
         replaced_words = Config().get_config('laboratory').get("replaced_words")
@@ -257,18 +257,18 @@ def update_config(cfg):
             replaced_words = replaced_words.split("||")
             for replaced_word in replaced_words:
                 replaced_word = replaced_word.split("@")
-                if not SqlHelper.is_custom_words_existed(replaced=replaced_word[0]):
-                    SqlHelper.insert_custom_word(replaced=replaced_word[0],
-                                                 replace=replaced_word[1],
-                                                 front="",
-                                                 back="",
-                                                 offset=0,
-                                                 wtype=2,
-                                                 gid=-1,
-                                                 season=-2,
-                                                 enabled=1,
-                                                 regex=1,
-                                                 whelp="")
+                if not DbHelper.is_custom_words_existed(replaced=replaced_word[0]):
+                    DbHelper.insert_custom_word(replaced=replaced_word[0],
+                                                replace=replaced_word[1],
+                                                front="",
+                                                back="",
+                                                offset=0,
+                                                wtype=2,
+                                                gid=-1,
+                                                season=-2,
+                                                enabled=1,
+                                                regex=1,
+                                                whelp="")
             _config['laboratory'].pop('replaced_words')
             overwrite_cofig = True
         offset_words = Config().get_config('laboratory').get("offset_words")
@@ -276,68 +276,68 @@ def update_config(cfg):
             offset_words = offset_words.split("||")
             for offset_word in offset_words:
                 offset_word = offset_word.split("@")
-                if not SqlHelper.is_custom_words_existed(front=offset_word[0], back=offset_word[1]):
-                    SqlHelper.insert_custom_word(replaced="",
-                                                 replace="",
-                                                 front=offset_word[0],
-                                                 back=offset_word[1],
-                                                 offset=offset_word[2],
-                                                 wtype=4,
-                                                 gid=-1,
-                                                 season=-2,
-                                                 enabled=1,
-                                                 regex=1,
-                                                 whelp="")
+                if not DbHelper.is_custom_words_existed(front=offset_word[0], back=offset_word[1]):
+                    DbHelper.insert_custom_word(replaced="",
+                                                replace="",
+                                                front=offset_word[0],
+                                                back=offset_word[1],
+                                                offset=offset_word[2],
+                                                wtype=4,
+                                                gid=-1,
+                                                season=-2,
+                                                enabled=1,
+                                                regex=1,
+                                                whelp="")
             _config['laboratory'].pop('offset_words')
             overwrite_cofig = True
-        ignored_words = SqlHelper.get_ignored_words()
+        ignored_words = DbHelper.get_ignored_words()
         if ignored_words:
             for ignored_word in ignored_words:
-                if not SqlHelper.is_custom_words_existed(replaced=ignored_word[1]):
-                    SqlHelper.insert_custom_word(replaced=ignored_word[1],
-                                                 replace="",
-                                                 front="",
-                                                 back="",
-                                                 offset=0,
-                                                 wtype=1,
-                                                 gid=-1,
-                                                 season=-2,
-                                                 enabled=1,
-                                                 regex=1,
-                                                 whelp="")
-        replaced_words = SqlHelper.get_replaced_words()
+                if not DbHelper.is_custom_words_existed(replaced=ignored_word[1]):
+                    DbHelper.insert_custom_word(replaced=ignored_word[1],
+                                                replace="",
+                                                front="",
+                                                back="",
+                                                offset=0,
+                                                wtype=1,
+                                                gid=-1,
+                                                season=-2,
+                                                enabled=1,
+                                                regex=1,
+                                                whelp="")
+        replaced_words = DbHelper.get_replaced_words()
         if replaced_words:
             for replaced_word in replaced_words:
-                if not SqlHelper.is_custom_words_existed(replaced=replaced_word[1]):
-                    SqlHelper.insert_custom_word(replaced=replaced_word[1],
-                                                 replace=replaced_word[2],
-                                                 front="",
-                                                 back="",
-                                                 offset=0,
-                                                 wtype=2,
-                                                 gid=-1,
-                                                 season=-2,
-                                                 enabled=1,
-                                                 regex=1,
-                                                 whelp="")
-        offset_words = SqlHelper.get_offset_words()
+                if not DbHelper.is_custom_words_existed(replaced=replaced_word[1]):
+                    DbHelper.insert_custom_word(replaced=replaced_word[1],
+                                                replace=replaced_word[2],
+                                                front="",
+                                                back="",
+                                                offset=0,
+                                                wtype=2,
+                                                gid=-1,
+                                                season=-2,
+                                                enabled=1,
+                                                regex=1,
+                                                whelp="")
+        offset_words = DbHelper.get_offset_words()
         if offset_words:
             for offset_word in offset_words:
-                if not SqlHelper.is_custom_words_existed(front=offset_word[1], back=offset_word[2]):
-                    SqlHelper.insert_custom_word(replaced="",
-                                                 replace="",
-                                                 front=offset_word[1],
-                                                 back=offset_word[2],
-                                                 offset=offset_word[3],
-                                                 wtype=4,
-                                                 gid=-1,
-                                                 season=-2,
-                                                 enabled=1,
-                                                 regex=1,
-                                                 whelp="")
-        SqlHelper.excute('''DROP TABLE IF EXISTS IGNORED_WORDS''')
-        SqlHelper.excute('''DROP TABLE IF EXISTS REPLACED_WORDS''')
-        SqlHelper.excute('''DROP TABLE IF EXISTS OFFSET_WORDS''')
+                if not DbHelper.is_custom_words_existed(front=offset_word[1], back=offset_word[2]):
+                    DbHelper.insert_custom_word(replaced="",
+                                                replace="",
+                                                front=offset_word[1],
+                                                back=offset_word[2],
+                                                offset=offset_word[3],
+                                                wtype=4,
+                                                gid=-1,
+                                                season=-2,
+                                                enabled=1,
+                                                regex=1,
+                                                whelp="")
+        DbHelper.excute('''DROP TABLE IF EXISTS IGNORED_WORDS''')
+        DbHelper.excute('''DROP TABLE IF EXISTS REPLACED_WORDS''')
+        DbHelper.excute('''DROP TABLE IF EXISTS OFFSET_WORDS''')
     except Exception as e:
         print(str(e))
     # 重写配置文件

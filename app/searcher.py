@@ -1,5 +1,5 @@
 import log
-from app.helper import SqlHelper
+from app.helper import DbHelper
 from config import Config
 from app.message import Message
 from app.downloader import Downloader
@@ -154,7 +154,7 @@ class Searcher:
         else:
             if in_from in [SearchType.WX, SearchType.TG]:
                 # 保存搜索记录
-                SqlHelper.delete_all_search_torrents()
+                DbHelper.delete_all_search_torrents()
                 # 搜索结果排序
                 media_list = sorted(media_list, key=lambda x: "%s%s%s%s" % (str(x.title).ljust(100, ' '),
                                                                             str(x.res_order).rjust(3, '0'),
@@ -162,7 +162,7 @@ class Searcher:
                                                                             str(x.seeders).rjust(10, '0')),
                                     reverse=True)
                 # 插入数据库
-                SqlHelper.insert_search_results(media_list)
+                DbHelper.insert_search_results(media_list)
                 # 微信未开自动下载时返回
                 if not self.__search_auto:
                     return False, no_exists, len(media_list), None

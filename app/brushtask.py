@@ -8,7 +8,7 @@ from time import sleep
 from apscheduler.schedulers.background import BackgroundScheduler
 
 import log
-from app.helper import SqlHelper, DictHelper
+from app.helper import DbHelper, DictHelper
 from app.sites import Sites
 from config import BRUSH_REMOVE_TORRENTS_INTERVAL
 from app.downloader import Qbittorrent, Transmission
@@ -44,7 +44,7 @@ class BrushTask(object):
         except Exception as e:
             print(str(e))
         # 读取任务任务列表
-        brushtasks = SqlHelper.get_brushtasks()
+        brushtasks = DbHelper.get_brushtasks()
         self._brush_tasks = []
         for task in brushtasks:
             sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[2])
@@ -227,7 +227,7 @@ class BrushTask(object):
                 remove_rule = taskinfo.get("remove_rule")
                 sendmessage = True if taskinfo.get("sendmessage") == "Y" else False
                 # 当前任务种子详情
-                task_torrents = SqlHelper.get_brushtask_torrents(taskid)
+                task_torrents = DbHelper.get_brushtask_torrents(taskid)
                 torrent_ids = [item[6] for item in task_torrents if item[6]]
                 if not torrent_ids:
                     continue
@@ -398,9 +398,9 @@ class BrushTask(object):
                 if remove_torrent_ids:
                     log_info("【Brush】任务 %s 的这些下载任务在下载器中不存在，将删除任务记录：%s" % (task_name, remove_torrent_ids))
                     for remove_torrent_id in remove_torrent_ids:
-                        SqlHelper.delete_brushtask_torrent(taskid, remove_torrent_id)
+                        DbHelper.delete_brushtask_torrent(taskid, remove_torrent_id)
                 # 更新种子状态为已删除
-                SqlHelper.update_brushtask_torrent_state(update_torrents)
+                DbHelper.update_brushtask_torrent_state(update_torrents)
                 # 删除下载器种子
                 if delete_ids:
                     downloader.delete_torrents(delete_file=True, ids=delete_ids)
@@ -408,10 +408,10 @@ class BrushTask(object):
                 else:
                     log_info("【Brush】任务 %s 本次检查未删除下载任务" % task_name)
                 # 更新上传下载量和删除种子数
-                SqlHelper.add_brushtask_upload_count(brush_id=taskid,
-                                                     upload_size=total_uploaded,
-                                                     download_size=total_downloaded,
-                                                     remove_count=len(delete_ids) + len(remove_torrent_ids))
+                DbHelper.add_brushtask_upload_count(brush_id=taskid,
+                                                    upload_size=total_uploaded,
+                                                    download_size=total_downloaded,
+                                                    remove_count=len(delete_ids) + len(remove_torrent_ids))
             except Exception as e:
                 log.console(str(e) + " - " + traceback.format_exc())
 
@@ -422,7 +422,7 @@ class BrushTask(object):
         if not taskid:
             return False
         # 判断大小
-        total_size = SqlHelper.get_brushtask_totalsize(taskid)
+        total_size = DbHelper.get_brushtask_totalsize(taskid)
         if seedsize:
             if float(seedsize) * 1024 ** 3 <= int(total_size):
                 log_warn("【Brush】刷流任务 %s 当前保种体积 %sGB，不再新增下载"
@@ -446,7 +446,7 @@ class BrushTask(object):
         """
         if not dlid:
             return {}
-        downloader_info = SqlHelper.get_user_downloaders(dlid)
+        downloader_info = DbHelper.get_user_downloaders(dlid)
         if downloader_info:
             userconfig = {"id": downloader_info[0][0],
                           "name": downloader_info[0][1],
@@ -570,14 +570,14 @@ class BrushTask(object):
                 msg_text = "种子名称：{}\n种子大小：{}".format(title, StringUtils.str_filesize(size))
                 self.message.sendmsg(title=msg_title, text=msg_text)
         # 插入种子数据
-        if SqlHelper.insert_brushtask_torrent(brush_id=taskid,
-                                              title=title,
-                                              enclosure=enclosure,
-                                              downloader=downloadercfg.get("id"),
-                                              download_id=download_id,
-                                              size=size):
+        if DbHelper.insert_brushtask_torrent(brush_id=taskid,
+                                             title=title,
+                                             enclosure=enclosure,
+                                             downloader=downloadercfg.get("id"),
+                                             download_id=download_id,
+                                             size=size):
             # 更新下载次数
-            SqlHelper.add_brushtask_download_count(brush_id=taskid)
+            DbHelper.add_brushtask_download_count(brush_id=taskid)
         else:
             log_info("【Brush】%s 已下载过" % title)
 

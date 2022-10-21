@@ -6,5 +6,5 @@ from .meta_helper import MetaHelper
 from .progress_helper import ProgressHelper
 from .security import Security
 from .thread_helper import ThreadHelper
-from .sql_helper import SqlHelper
+from .db_helper import DbHelper
 from .dict_helper import DictHelper

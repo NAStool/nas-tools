@@ -4,7 +4,7 @@ import xml.dom.minidom
 from threading import Lock
 
 import log
-from app.helper import SqlHelper
+from app.helper import DbHelper
 from app.message import Message
 from app.downloader.downloader import Downloader
 from app.filterrules import FilterRule
@@ -50,13 +50,13 @@ class Rss:
         with lock:
             log_info("【Rss】开始RSS订阅...")
             # 读取电影订阅
-            movie_keys = SqlHelper.get_rss_movies(state='R')
+            movie_keys = DbHelper.get_rss_movies(state='R')
             if not movie_keys:
                 log_warn("【Rss】没有正在订阅的电影")
             else:
                 log_info("【Rss】电影订阅清单：%s" % " ".join('%s' % key[0] for key in movie_keys))
             # 读取电视剧订阅
-            tv_keys = SqlHelper.get_rss_tvs(state='R')
+            tv_keys = DbHelper.get_rss_tvs(state='R')
             if not tv_keys:
                 log_warn("【Rss】没有正在订阅的电视剧")
             else:
@@ -140,7 +140,7 @@ class Rss:
                         log_info("【Rss】开始处理：%s" % torrent_name)
 
                         # 检查这个种子是不是下过了
-                        if SqlHelper.is_torrent_rssd(enclosure):
+                        if DbHelper.is_torrent_rssd(enclosure):
                             log_info("【Rss】%s 已成功订阅过" % torrent_name)
                             continue
                         # 识别种子名称，开始检索TMDB
@@ -193,7 +193,7 @@ class Rss:
                                     total_ep = int(rss_info.get("episode_info", {}).get("total"))
                                 else:
                                     total_ep = match_info.get("total_episodes")
-                                episodes = SqlHelper.get_rss_tv_episodes(match_rssid)
+                                episodes = DbHelper.get_rss_tv_episodes(match_rssid)
                                 if episodes is None:
                                     episodes = []
                                     if rss_info.get("episode_info", {}).get("current"):
@@ -228,7 +228,8 @@ class Rss:
                                             log_info("【Rss】电视剧 %s %s 已存在，删除订阅..." % (
                                                 media_info.get_title_string(), media_info.get_season_episode_string()))
                                             # 完成订阅
-                                            Subscribe.finish_rss_subscribe(rtype="TV", rssid=match_rssid, media=media_info)
+                                            Subscribe.finish_rss_subscribe(rtype="TV", rssid=match_rssid,
+                                                                           media=media_info)
                                         continue
                                     # 取交集做为缺失集
                                     rss_no_exists = self.__get_rss_no_exists(target=rss_no_exists,
@@ -244,7 +245,7 @@ class Rss:
                                                     rssid=match_rssid,
                                                     description=description)
                         # 插入数据库
-                        SqlHelper.insert_rss_torrents(media_info)
+                        DbHelper.insert_rss_torrents(media_info)
                         # 加入下载列表
                         if media_info not in rss_download_torrents:
                             rss_download_torrents.append(media_info)
@@ -288,8 +289,8 @@ class Rss:
                                             log_info("【Rss】更新电视剧 %s %s 订阅缺失集数为 %s" % (
                                                 item.get_title_string(), item.get_season_string(),
                                                 len(left_season.get("episodes"))))
-                                            SqlHelper.update_rss_tv_lack(rssid=item.rssid,
-                                                                         lack_episodes=left_season.get("episodes"))
+                                            DbHelper.update_rss_tv_lack(rssid=item.rssid,
+                                                                        lack_episodes=left_season.get("episodes"))
                                             break
                     log_info("【Rss】实际下载了 %s 个资源" % len(download_items))
                 else:
@@ -321,9 +322,9 @@ class Rss:
         :param state: 检索的状态，默认为队列中才检索
         """
         if rssid:
-            movies = SqlHelper.get_rss_movies(rssid=rssid)
+            movies = DbHelper.get_rss_movies(rssid=rssid)
         else:
-            movies = SqlHelper.get_rss_movies(state=state)
+            movies = DbHelper.get_rss_movies(state=state)
         if movies:
             log_info("【Rss】共有 %s 个电影订阅需要检索" % len(movies))
         for movie in movies:
@@ -335,14 +336,14 @@ class Rss:
             if not tmdbid:
                 continue
             # 开始搜索
-            SqlHelper.update_rss_movie_state(rssid=rssid, state='S')
+            DbHelper.update_rss_movie_state(rssid=rssid, state='S')
             # 搜索站点、洗版、过滤条件
             rss_info = Torrent.get_rss_note_item(movie[4])
             # 识别
             media_info = self.__get_media_info(tmdbid, name, year, MediaType.MOVIE)
             # 未识别到媒体信息
             if not media_info or not media_info.tmdb_info:
-                SqlHelper.update_rss_movie_state(rssid=rssid, state='R')
+                DbHelper.update_rss_movie_state(rssid=rssid, state='R')
                 continue
             # 非洗版的情况检查是否存在
             if not rss_info.get("over_edition"):
@@ -367,7 +368,7 @@ class Rss:
                 log_info("【Rss】电影 %s 下载完成，删除订阅..." % name)
                 Subscribe.finish_rss_subscribe(rtype="MOV", rssid=rssid, media=media_info)
             else:
-                SqlHelper.update_rss_movie_state(rssid=rssid, state='R')
+                DbHelper.update_rss_movie_state(rssid=rssid, state='R')
 
     def rsssearch_tv(self, rssid=None, state="D"):
         """
@@ -376,9 +377,9 @@ class Rss:
         :param state: 检索的状态，默认为队列中才检索
         """
         if rssid:
-            tvs = SqlHelper.get_rss_tvs(rssid=rssid)
+            tvs = DbHelper.get_rss_tvs(rssid=rssid)
         else:
-            tvs = SqlHelper.get_rss_tvs(state=state)
+            tvs = DbHelper.get_rss_tvs(state=state)
         if tvs:
             log_info("【Rss】共有 %s 个电视剧订阅需要检索" % len(tvs))
         for tv in tvs:
@@ -392,14 +393,14 @@ class Rss:
             if not season or not tmdbid:
                 continue
             # 开始搜索
-            SqlHelper.update_rss_tv_state(rssid=rssid, state='S')
+            DbHelper.update_rss_tv_state(rssid=rssid, state='S')
             # 搜索站点、洗版、过滤条件
             rss_info = Torrent.get_rss_note_item(tv[5])
             # 开始识别
             media_info = self.__get_media_info(tmdbid, name, year, MediaType.TV)
             # 未识别到媒体信息
             if not media_info or not media_info.tmdb_info:
-                SqlHelper.update_rss_tv_state(rssid=rssid, state='R')
+                DbHelper.update_rss_tv_state(rssid=rssid, state='R')
                 continue
             # 季
             media_info.begin_season = int(season.replace("S", ""))
@@ -409,7 +410,7 @@ class Rss:
                 total_ep = int(rss_info.get("episode_info", {}).get("total"))
             else:
                 total_ep = total
-            episodes = SqlHelper.get_rss_tv_episodes(rssid)
+            episodes = DbHelper.get_rss_tv_episodes(rssid)
             if episodes is None:
                 episodes = []
                 if rss_info.get("episode_info", {}).get("current"):
@@ -435,7 +436,8 @@ class Rss:
             if not rss_info.get("over_edition"):
                 # 检查是否存在，电视剧返回不存在的集清单
                 exist_flag, library_no_exists, _ = self.downloader.check_exists_medias(meta_info=media_info,
-                                                                                       total_ep={media_info.begin_season: total_ep})
+                                                                                       total_ep={
+                                                                                           media_info.begin_season: total_ep})
                 # 已经存在
                 if exist_flag:
                     # 已全部存在
@@ -467,7 +469,7 @@ class Rss:
                 Subscribe.finish_rss_subscribe(rtype="TV", rssid=rssid, media=media_info)
             else:
                 # 更新状态
-                SqlHelper.update_rss_tv_state(rssid=rssid, state='R')
+                DbHelper.update_rss_tv_state(rssid=rssid, state='R')
                 no_exist_items = no_exists.get(media_info.tmdb_id)
                 for no_exist_item in no_exist_items:
                     if str(no_exist_item.get("season")) == media_info.get_season_seq():
@@ -475,7 +477,7 @@ class Rss:
                             log_info("【Rss】更新电视剧 %s %s 缺失集数为 %s" % (
                                 media_info.get_title_string(), media_info.get_season_string(),
                                 len(no_exist_item.get("episodes"))))
-                            SqlHelper.update_rss_tv_lack(rssid=rssid, lack_episodes=no_exist_item.get("episodes"))
+                            DbHelper.update_rss_tv_lack(rssid=rssid, lack_episodes=no_exist_item.get("episodes"))
                         break
 
     def refresh_rss_metainfo(self):
@@ -483,7 +485,7 @@ class Rss:
         定时将豆瓣订阅转换为TMDB的订阅，并更新订阅的TMDB信息
         """
         # 更新电影
-        movies = SqlHelper.get_rss_movies(state='R')
+        movies = DbHelper.get_rss_movies(state='R')
         for movie in movies:
             rid = movie[6]
             name = movie[0]
@@ -500,16 +502,16 @@ class Rss:
             if media_info and media_info.tmdb_id and media_info.title != name:
                 log_info(f"【Rss】检测到TMDB信息变化，更新电影订阅 {name} 为 {media_info.title}")
                 # 更新订阅信息
-                SqlHelper.update_rss_movie_tmdb(rid=rid,
-                                                tmdbid=media_info.tmdb_id,
-                                                title=media_info.title,
-                                                year=media_info.year,
-                                                image=media_info.get_message_image())
+                DbHelper.update_rss_movie_tmdb(rid=rid,
+                                               tmdbid=media_info.tmdb_id,
+                                               title=media_info.title,
+                                               year=media_info.year,
+                                               image=media_info.get_message_image())
                 # 清除TMDB缓存
                 self.metahelper.delete_meta_data_by_tmdbid(media_info.tmdb_id)
 
         # 更新电视剧
-        tvs = SqlHelper.get_rss_tvs(state='R')
+        tvs = DbHelper.get_rss_tvs(state='R')
         for tv in tvs:
             rid = tv[10]
             name = tv[0]
@@ -535,13 +537,13 @@ class Rss:
                     lack_episode = total_episode - (total - lack)
                     log_info(f"【Rss】检测到TMDB信息变化，更新电视剧订阅 {name} 为 {media_info.title}，总集数为：{total_episode}")
                     # 更新订阅信息
-                    SqlHelper.update_rss_tv_tmdb(rid=rid,
-                                                 tmdbid=media_info.tmdb_id,
-                                                 title=media_info.title,
-                                                 year=media_info.year,
-                                                 total=total_episode,
-                                                 lack=lack_episode,
-                                                 image=media_info.get_message_image())
+                    DbHelper.update_rss_tv_tmdb(rid=rid,
+                                                tmdbid=media_info.tmdb_id,
+                                                title=media_info.title,
+                                                year=media_info.year,
+                                                total=total_episode,
+                                                lack=lack_episode,
+                                                image=media_info.get_message_image())
                     # 清除TMDB缓存
                     self.metahelper.delete_meta_data_by_tmdbid(media_info.tmdb_id)
 

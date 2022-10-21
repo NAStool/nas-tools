@@ -9,7 +9,7 @@ from app.utils import StringUtils
 from app.utils.types import MediaType, RmtMode
 
 
-class SqlHelper:
+class DbHelper:
 
     @staticmethod
     def insert_search_results(media_items: list):
@@ -207,7 +207,7 @@ class SqlHelper:
             dest = ""
         file_path = os.path.dirname(in_path)
         file_name = os.path.basename(in_path)
-        if SqlHelper.is_transfer_history_exists(file_path, file_name, media_info.title, media_info.get_season_string()):
+        if DbHelper.is_transfer_history_exists(file_path, file_name, media_info.title, media_info.get_season_string()):
             return True
         timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         return MainDb().insert(
@@ -322,7 +322,7 @@ class SqlHelper:
         """
         if not path:
             return False
-        if SqlHelper.is_transfer_unknown_exists(path):
+        if DbHelper.is_transfer_unknown_exists(path):
             return False
         else:
             path = os.path.normpath(path)
@@ -353,7 +353,7 @@ class SqlHelper:
         """
         查询是否为黑名单
         """
-        return not SqlHelper.is_transfer_in_blacklist(path)
+        return not DbHelper.is_transfer_in_blacklist(path)
 
     @staticmethod
     def insert_transfer_blacklist(path):
@@ -362,7 +362,7 @@ class SqlHelper:
         """
         if not path:
             return False
-        if SqlHelper.is_transfer_in_blacklist(path):
+        if DbHelper.is_transfer_in_blacklist(path):
             return False
         else:
             path = os.path.normpath(path)
@@ -579,7 +579,7 @@ class SqlHelper:
             return False
         if not media_info.title:
             return False
-        if SqlHelper.is_exists_rss_movie(media_info.title, media_info.year):
+        if DbHelper.is_exists_rss_movie(media_info.title, media_info.year):
             return True
         sql = "INSERT INTO RSS_MOVIES(NAME,YEAR,TMDBID,IMAGE,DESC,STATE) VALUES (?, ?, ?, ?, ?, ?)"
         desc = "#".join(["|".join(sites or []),
@@ -746,7 +746,7 @@ class SqlHelper:
             season_str = ""
         else:
             season_str = media_info.get_season_string()
-        if SqlHelper.is_exists_rss_tv(media_info.title, media_info.year, season_str):
+        if DbHelper.is_exists_rss_tv(media_info.title, media_info.year, season_str):
             return True
         # 插入订阅数据
         sql = "INSERT INTO RSS_TVS(NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
@@ -781,7 +781,7 @@ class SqlHelper:
         else:
             lack = len(lack_episodes)
         if rssid:
-            SqlHelper.update_rss_tv_episodes(rssid, lack_episodes)
+            DbHelper.update_rss_tv_episodes(rssid, lack_episodes)
             sql = "UPDATE RSS_TVS SET LACK=? WHERE ID = ?"
             return MainDb().update_by_sql(sql, (lack, rssid))
         else:
@@ -796,13 +796,13 @@ class SqlHelper:
         if not title and not rssid:
             return False
         if rssid:
-            SqlHelper.delete_rss_tv_episodes(rssid)
+            DbHelper.delete_rss_tv_episodes(rssid)
             return MainDb().update_by_sql("DELETE FROM RSS_TVS WHERE ID = ?", (rssid,))
         else:
-            rssid = SqlHelper.get_rss_tv_id(title=title, tmdbid=tmdbid, season=season)
+            rssid = DbHelper.get_rss_tv_id(title=title, tmdbid=tmdbid, season=season)
             if rssid:
-                SqlHelper.delete_rss_tv_episodes(rssid)
-                return SqlHelper.delete_rss_tv(rssid=rssid)
+                DbHelper.delete_rss_tv_episodes(rssid)
+                return DbHelper.delete_rss_tv(rssid=rssid)
             return False
 
     @staticmethod
@@ -830,7 +830,7 @@ class SqlHelper:
             episodes = []
         else:
             episodes = [str(epi) for epi in episodes]
-        if SqlHelper.is_exists_rss_tv_episodes(rid):
+        if DbHelper.is_exists_rss_tv_episodes(rid):
             sql = "UPDATE RSS_TV_EPISODES SET EPISODES = ? WHERE RSSID = ?"
             ret = MainDb().update_by_sql(sql, (",".join(episodes), rid))
         else:
@@ -899,7 +899,7 @@ class SqlHelper:
         """
         if not path or not dest:
             return False
-        if SqlHelper.is_sync_in_history(path, dest):
+        if DbHelper.is_sync_in_history(path, dest):
             return False
         else:
             path = os.path.normpath(path)
@@ -938,7 +938,7 @@ class SqlHelper:
         """
         if not name or not password:
             return False
-        if SqlHelper.is_user_exists(name):
+        if DbHelper.is_user_exists(name):
             return False
         else:
             sql = "INSERT INTO CONFIG_USERS(NAME,PASSWORD,PRIS) VALUES (?, ?, ?)"
@@ -1235,7 +1235,7 @@ class SqlHelper:
             return False
         if not media_info.title or not media_info.tmdb_id:
             return False
-        if SqlHelper.is_exists_download_history(media_info.title, media_info.tmdb_id, media_info.type.value):
+        if DbHelper.is_exists_download_history(media_info.title, media_info.tmdb_id, media_info.type.value):
             sql = "UPDATE DOWNLOAD_HISTORY SET TORRENT = ?, ENCLOSURE = ?, DESC = ?, DATE = ?, SITE = ? WHERE TITLE = ? AND TMDBID = ? AND TYPE = ?"
             return MainDb().update_by_sql(sql, (StringUtils.str_sql(media_info.org_string),
                                                 StringUtils.str_sql(media_info.enclosure),
@@ -1281,7 +1281,7 @@ class SqlHelper:
         """
         根据标题和年份检查是否下载过
         """
-        if SqlHelper.is_exists_download_history(title, tmdbid):
+        if DbHelper.is_exists_download_history(title, tmdbid):
             return True
         sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE TITLE = ?"
         ret = MainDb().select_by_sql(sql, (StringUtils.str_sql(title),))
@@ -1436,7 +1436,7 @@ class SqlHelper:
             return
         delete_upsize = 0
         delete_dlsize = 0
-        remove_sizes = SqlHelper.get_brushtask_remove_size(brush_id)
+        remove_sizes = DbHelper.get_brushtask_remove_size(brush_id)
         for remove_size in remove_sizes:
             if not remove_size[0]:
                 continue
@@ -1473,7 +1473,7 @@ class SqlHelper:
                 ?, ?, ?, ?, ?, ?, ?
             )
         '''
-        if SqlHelper.is_brushtask_torrent_exists(brush_id, title, enclosure):
+        if DbHelper.is_brushtask_torrent_exists(brush_id, title, enclosure):
             return False
         return MainDb().update_by_sql(sql, (brush_id,
                                             title,
@@ -1585,8 +1585,8 @@ class SqlHelper:
         新增规则组
         """
         if default == 'Y':
-            SqlHelper.set_default_filtergroup(0)
-        group_id = SqlHelper.get_filter_groupid_by_name(name)
+            DbHelper.set_default_filtergroup(0)
+        group_id = DbHelper.get_filter_groupid_by_name(name)
         if group_id:
             MainDb().update_by_sql("UPDATE CONFIG_FILTER_GROUP "
                                    "SET IS_DEFAULT = ? "
@@ -1693,7 +1693,7 @@ class SqlHelper:
 
     @staticmethod
     def update_userrss_task(item):
-        if item.get("id") and SqlHelper.get_userrss_tasks(item.get("id")):
+        if item.get("id") and DbHelper.get_userrss_tasks(item.get("id")):
             return MainDb().update_by_sql("UPDATE CONFIG_USER_RSS "
                                           "SET NAME=?,ADDRESS=?,PARSER=?,INTERVAL=?,USES=?,INCLUDE=?,EXCLUDE=?,FILTER=?,UPDATE_TIME=?,STATE=?,NOTE=?"
                                           "WHERE ID=?", (item.get("name"),
@@ -1747,7 +1747,7 @@ class SqlHelper:
     def update_userrss_parser(item):
         if not item:
             return False
-        if item.get("id") and SqlHelper.get_userrss_parser(item.get("id")):
+        if item.get("id") and DbHelper.get_userrss_parser(item.get("id")):
             return MainDb().update_by_sql("UPDATE CONFIG_RSS_PARSER "
                                           "SET NAME=?,TYPE=?,FORMAT=?,PARAMS=? "
                                           "WHERE ID=?", (item.get("name"),
@@ -1851,7 +1851,7 @@ class SqlHelper:
 
     @staticmethod
     def insert_rss_history(rssid, rtype, name, year, tmdbid, image, desc, season=None, total=None, start=None):
-        if not SqlHelper.is_exists_rss_history(rssid):
+        if not DbHelper.is_exists_rss_history(rssid):
             sql = "INSERT INTO RSS_HISTORY" \
                   "(TYPE, RSSID, NAME, YEAR, TMDBID, SEASON, IMAGE, DESC, TOTAL, START, FINISH_TIME) " \
                   "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"

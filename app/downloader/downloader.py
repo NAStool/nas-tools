@@ -3,7 +3,7 @@ from threading import Lock
 from time import sleep
 
 import log
-from app.helper import SqlHelper
+from app.helper import DbHelper
 from app.media import MetaInfo, Media
 from config import Config, PT_TAG, RMT_MEDIAEXT
 from app.message import Message
@@ -212,7 +212,7 @@ class Downloader:
                                               category=category)
             if ret:
                 # 登记下载历史
-                SqlHelper.insert_download_history(media_info)
+                DbHelper.insert_download_history(media_info)
                 return ret, ""
             else:
                 return ret, "请检查下载任务是否已存在"

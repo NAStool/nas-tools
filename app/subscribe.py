@@ -1,5 +1,5 @@
 from app.media.douban import DouBan
-from app.helper import SqlHelper
+from app.helper import DbHelper
 from app.media.doubanv2api import DoubanApi
 from app.media import MetaInfo, Media
 from app.message import Message
@@ -126,33 +126,33 @@ class Subscribe:
                     media_info.begin_season = season
                     media_info.total_episodes = total_episode
                 if rssid:
-                    SqlHelper.delete_rss_tv(rssid=rssid)
-                SqlHelper.insert_rss_tv(media_info=media_info,
-                                        total=media_info.total_episodes,
-                                        lack=media_info.total_episodes,
-                                        sites=sites,
-                                        search_sites=search_sites,
-                                        over_edition=over_edition,
-                                        rss_restype=rss_restype,
-                                        rss_pix=rss_pix,
-                                        rss_team=rss_team,
-                                        rss_rule=rss_rule,
-                                        state=state,
-                                        match=match,
-                                        total_ep=total_ep,
-                                        current_ep=current_ep)
+                    DbHelper.delete_rss_tv(rssid=rssid)
+                DbHelper.insert_rss_tv(media_info=media_info,
+                                       total=media_info.total_episodes,
+                                       lack=media_info.total_episodes,
+                                       sites=sites,
+                                       search_sites=search_sites,
+                                       over_edition=over_edition,
+                                       rss_restype=rss_restype,
+                                       rss_pix=rss_pix,
+                                       rss_team=rss_team,
+                                       rss_rule=rss_rule,
+                                       state=state,
+                                       match=match,
+                                       total_ep=total_ep,
+                                       current_ep=current_ep)
             else:
                 if rssid:
-                    SqlHelper.delete_rss_movie(rssid=rssid)
-                SqlHelper.insert_rss_movie(media_info=media_info,
-                                           sites=sites,
-                                           search_sites=search_sites,
-                                           over_edition=over_edition,
-                                           rss_restype=rss_restype,
-                                           rss_pix=rss_pix,
-                                           rss_team=rss_team,
-                                           rss_rule=rss_rule,
-                                           state=state)
+                    DbHelper.delete_rss_movie(rssid=rssid)
+                DbHelper.insert_rss_movie(media_info=media_info,
+                                          sites=sites,
+                                          search_sites=search_sites,
+                                          over_edition=over_edition,
+                                          rss_restype=rss_restype,
+                                          rss_pix=rss_pix,
+                                          rss_team=rss_team,
+                                          rss_rule=rss_rule,
+                                          state=state)
         else:
             # 模糊匹配
             media_info = MetaInfo(title=name, mtype=mtype)
@@ -162,33 +162,33 @@ class Subscribe:
                 media_info.begin_season = int(season)
             if mtype == MediaType.MOVIE:
                 if rssid:
-                    SqlHelper.delete_rss_movie(rssid=rssid)
-                SqlHelper.insert_rss_movie(media_info=media_info,
-                                           state="R",
-                                           sites=sites,
-                                           search_sites=search_sites,
-                                           over_edition=over_edition,
-                                           rss_restype=rss_restype,
-                                           rss_pix=rss_pix,
-                                           rss_team=rss_team,
-                                           rss_rule=rss_rule)
+                    DbHelper.delete_rss_movie(rssid=rssid)
+                DbHelper.insert_rss_movie(media_info=media_info,
+                                          state="R",
+                                          sites=sites,
+                                          search_sites=search_sites,
+                                          over_edition=over_edition,
+                                          rss_restype=rss_restype,
+                                          rss_pix=rss_pix,
+                                          rss_team=rss_team,
+                                          rss_rule=rss_rule)
             else:
                 if rssid:
-                    SqlHelper.delete_rss_tv(rssid=rssid)
-                SqlHelper.insert_rss_tv(media_info=media_info,
-                                        total=0,
-                                        lack=0,
-                                        state="R",
-                                        sites=sites,
-                                        search_sites=search_sites,
-                                        over_edition=over_edition,
-                                        rss_restype=rss_restype,
-                                        rss_pix=rss_pix,
-                                        rss_team=rss_team,
-                                        rss_rule=rss_rule,
-                                        match=match,
-                                        total_ep=total_ep,
-                                        current_ep=current_ep)
+                    DbHelper.delete_rss_tv(rssid=rssid)
+                DbHelper.insert_rss_tv(media_info=media_info,
+                                       total=0,
+                                       lack=0,
+                                       state="R",
+                                       sites=sites,
+                                       search_sites=search_sites,
+                                       over_edition=over_edition,
+                                       rss_restype=rss_restype,
+                                       rss_pix=rss_pix,
+                                       rss_team=rss_team,
+                                       rss_rule=rss_rule,
+                                       match=match,
+                                       total_ep=total_ep,
+                                       current_ep=current_ep)
 
         return 0, "添加订阅成功", media_info
 
@@ -205,25 +205,25 @@ class Subscribe:
         # 电影订阅
         if rtype == "MOV":
             # 查询电影RSS数据
-            rss = SqlHelper.get_rss_movies(rssid=rssid)
+            rss = DbHelper.get_rss_movies(rssid=rssid)
             if not rss:
                 return
             # 登记订阅历史
-            SqlHelper.insert_rss_history(rssid=rssid,
-                                         rtype=rtype,
-                                         name=rss[0][0],
-                                         year=rss[0][1],
-                                         tmdbid=rss[0][2],
-                                         image=media.get_poster_image(),
-                                         desc=media.overview)
+            DbHelper.insert_rss_history(rssid=rssid,
+                                        rtype=rtype,
+                                        name=rss[0][0],
+                                        year=rss[0][1],
+                                        tmdbid=rss[0][2],
+                                        image=media.get_poster_image(),
+                                        desc=media.overview)
 
             # 删除订阅
-            SqlHelper.delete_rss_movie(rssid=rssid)
+            DbHelper.delete_rss_movie(rssid=rssid)
 
         # 电视剧订阅
         else:
             # 查询电视剧RSS数据
-            rss = SqlHelper.get_rss_tvs(rssid=rssid)
+            rss = DbHelper.get_rss_tvs(rssid=rssid)
             if not rss:
                 return
             # 解析RSS属性
@@ -231,18 +231,18 @@ class Subscribe:
             total_ep = rss_info.get("episode_info", {}).get("total")
             start_ep = rss_info.get("episode_info", {}).get("current")
             # 登记订阅历史
-            SqlHelper.insert_rss_history(rssid=rssid,
-                                         rtype=rtype,
-                                         name=rss[0][0],
-                                         year=rss[0][1],
-                                         season=rss[0][2],
-                                         tmdbid=rss[0][3],
-                                         image=media.get_poster_image(),
-                                         desc=media.overview,
-                                         total=total_ep if total_ep else rss[0][6],
-                                         start=start_ep)
+            DbHelper.insert_rss_history(rssid=rssid,
+                                        rtype=rtype,
+                                        name=rss[0][0],
+                                        year=rss[0][1],
+                                        season=rss[0][2],
+                                        tmdbid=rss[0][3],
+                                        image=media.get_poster_image(),
+                                        desc=media.overview,
+                                        total=total_ep if total_ep else rss[0][6],
+                                        start=start_ep)
             # 删除订阅
-            SqlHelper.delete_rss_tv(rssid=rssid)
+            DbHelper.delete_rss_tv(rssid=rssid)
 
         # 发送订阅完成的消息
         if media:

@@ -39,7 +39,7 @@ from web.apiv1 import apiv1, authorization
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 from web.action import WebAction
 from app.subscribe import Subscribe
-from app.helper import SqlHelper, DictHelper
+from app.helper import DbHelper, DictHelper
 from app.utils.types import *
 from web.backend.wallpaper import get_login_wallpaper
 
@@ -89,7 +89,7 @@ def create_flask_app():
         for user in ADMIN_USERS:
             if user.get("name") == user_name:
                 return user
-        for user in SqlHelper.get_users():
+        for user in DbHelper.get_users():
             if user[1] == user_name:
                 return {"id": user[0], "name": user[1], "password": user[2], "pris": user[3]}
         return {}
@@ -128,7 +128,7 @@ def create_flask_app():
             for user in ADMIN_USERS:
                 if user.get('id') == user_id:
                     return User(user)
-            for user in SqlHelper.get_users():
+            for user in DbHelper.get_users():
                 if not user:
                     continue
                 if user[0] == user_id:
@@ -348,7 +348,7 @@ def create_flask_app():
         TvChartData = {}
         TvNums = []
         AnimeNums = []
-        for statistic in SqlHelper.get_transfer_statistics():
+        for statistic in DbHelper.get_transfer_statistics():
             if statistic[0] == "电影":
                 MovieChartLabels.append(statistic[1])
                 MovieNums.append(statistic[2])
@@ -395,7 +395,7 @@ def create_flask_app():
         # 查询结果
         SearchWord = request.args.get("s")
         NeedSearch = request.args.get("f")
-        res = SqlHelper.get_search_results()
+        res = DbHelper.get_search_results()
         # 类型字典
         MeidaTypeDict = {}
         # 站点字典
@@ -578,7 +578,7 @@ def create_flask_app():
     @App.route('/movie_rss', methods=['POST', 'GET'])
     @login_required
     def movie_rss():
-        RssItems = SqlHelper.get_rss_movies()
+        RssItems = DbHelper.get_rss_movies()
         return render_template("rss/movie_rss.html",
                                Count=len(RssItems),
                                Items=RssItems
@@ -588,7 +588,7 @@ def create_flask_app():
     @App.route('/tv_rss', methods=['POST', 'GET'])
     @login_required
     def tv_rss():
-        RssItems = SqlHelper.get_rss_tvs()
+        RssItems = DbHelper.get_rss_tvs()
         return render_template("rss/tv_rss.html",
                                Count=len(RssItems),
                                Items=RssItems
@@ -599,7 +599,7 @@ def create_flask_app():
     @login_required
     def rss_history():
         mtype = request.args.get("t")
-        RssHistory = SqlHelper.get_rss_history(mtype)
+        RssHistory = DbHelper.get_rss_history(mtype)
         return render_template("rss/rss_history.html",
                                Count=len(RssHistory),
                                Items=RssHistory,
@@ -611,9 +611,9 @@ def create_flask_app():
     @login_required
     def rss_calendar():
         Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
-        RssMovieIds = [movie[2] for movie in SqlHelper.get_rss_movies()]
+        RssMovieIds = [movie[2] for movie in DbHelper.get_rss_movies()]
         RssTvItems = [{"id": tv[3], "season": int(str(tv[2]).replace("S", "")), "name": tv[0]} for tv in
-                      SqlHelper.get_rss_tvs()
+                      DbHelper.get_rss_tvs()
                       if tv[2]]
         return render_template("rss/rss_calendar.html",
                                Today=Today,
@@ -845,9 +845,9 @@ def create_flask_app():
         # 站点列表
         CfgSites = Sites().get_sites(brush=True)
         # 下载器列表
-        downloaders = SqlHelper.get_user_downloaders() or []
+        downloaders = DbHelper.get_user_downloaders() or []
         # 任务列表
-        brushtasks = SqlHelper.get_brushtasks() or []
+        brushtasks = DbHelper.get_brushtasks() or []
         Tasks = []
         for task in brushtasks:
             sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[2])
@@ -887,7 +887,7 @@ def create_flask_app():
     @App.route('/userdownloader', methods=['POST', 'GET'])
     @login_required
     def userdownloader():
-        downloaders = SqlHelper.get_user_downloaders()
+        downloaders = DbHelper.get_user_downloaders()
         return render_template("download/userdownloader.html",
                                Count=len(downloaders),
                                Downloaders=downloaders)
@@ -1133,7 +1133,7 @@ def create_flask_app():
             CurrentPage = 1
         else:
             CurrentPage = int(CurrentPage)
-        totalCount, historys = SqlHelper.get_transfer_history(SearchStr, CurrentPage, PageNum)
+        totalCount, historys = DbHelper.get_transfer_history(SearchStr, CurrentPage, PageNum)
 
         TotalPage = floor(totalCount / PageNum) + 1
 
@@ -1213,7 +1213,7 @@ def create_flask_app():
     @login_required
     def unidentification():
         Items = []
-        Records = SqlHelper.get_transfer_unknown_paths()
+        Records = DbHelper.get_transfer_unknown_paths()
         TotalCount = len(Records)
         SyncMod = Config().get_config('pt').get('rmt_mode')
         if not SyncMod:
@@ -1245,7 +1245,7 @@ def create_flask_app():
     @login_required
     def customwords():
         words = []
-        words_info = SqlHelper.get_custom_words(gid=-1)
+        words_info = DbHelper.get_custom_words(gid=-1)
         for word_info in words_info:
             words.append({"id": word_info[0],
                           "replaced": word_info[1],
@@ -1265,7 +1265,7 @@ def create_flask_app():
                    "type": "1",
                    "seasons": "0",
                    "words": words}]
-        groups_info = SqlHelper.get_custom_word_groups()
+        groups_info = DbHelper.get_custom_word_groups()
         for group_info in groups_info:
             gid = group_info[0]
             name = "%s（%s）" % (group_info[1], group_info[2])
@@ -1275,7 +1275,7 @@ def create_flask_app():
             else:
                 link = "https://www.themoviedb.org/tv/%s" % group_info[4]
             words = []
-            words_info = SqlHelper.get_custom_words(gid=gid)
+            words_info = DbHelper.get_custom_words(gid=gid)
             for word_info in words_info:
                 words.append({"id": word_info[0],
                               "replaced": word_info[1],
@@ -1402,7 +1402,7 @@ def create_flask_app():
     @App.route('/users', methods=['POST', 'GET'])
     @login_required
     def users():
-        user_list = SqlHelper.get_users()
+        user_list = DbHelper.get_users()
         user_count = len(user_list)
         Users = []
         for user in user_list:

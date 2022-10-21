@@ -40,7 +40,7 @@ from app.sync import Sync
 from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
 from web.backend.search_torrents import search_medias_for_web, search_media_by_message
 from app.subscribe import Subscribe
-from app.helper import SqlHelper, DictHelper
+from app.helper import DbHelper, DictHelper
 
 
 class WebAction:
@@ -362,7 +362,7 @@ class WebAction:
         """
         dl_id = data.get("id")
         dl_dir = data.get("dir")
-        results = SqlHelper.get_search_result_by_id(dl_id)
+        results = DbHelper.get_search_result_by_id(dl_id)
         for res in results:
             media = Media().get_media_info(title=res.TORRENT_NAME, subtitle=res.DESCRIPTION)
             if not media:
@@ -521,10 +521,10 @@ class WebAction:
             for tid in tids:
                 if not tid:
                     continue
-                SqlHelper.delete_transfer_unknown(tid)
+                DbHelper.delete_transfer_unknown(tid)
             return {"retcode": 0}
         else:
-            retcode = SqlHelper.delete_transfer_unknown(tids)
+            retcode = DbHelper.delete_transfer_unknown(tids)
             return {"retcode": retcode}
 
     @staticmethod
@@ -536,7 +536,7 @@ class WebAction:
         syncmod = RMT_MODES.get(data.get("syncmod"))
         logid = data.get("logid")
         if logid:
-            paths = SqlHelper.get_transfer_path_by_id(logid)
+            paths = DbHelper.get_transfer_path_by_id(logid)
             if paths:
                 path = os.path.join(paths[0].FILE_PATH, paths[0].FILE_NAME)
                 dest_dir = paths[0].DEST
@@ -545,7 +545,7 @@ class WebAction:
         else:
             unknown_id = data.get("unknown_id")
             if unknown_id:
-                paths = SqlHelper.get_unknown_path_by_id(unknown_id)
+                paths = DbHelper.get_unknown_path_by_id(unknown_id)
                 if paths:
                     path = paths[0].PATH
                     dest_dir = paths[0].DEST
@@ -590,7 +590,7 @@ class WebAction:
                                                            min_filesize=min_filesize)
         if succ_flag:
             if not need_fix_all and not logid:
-                SqlHelper.update_transfer_unknown_state(path)
+                DbHelper.update_transfer_unknown_state(path)
             return {"retcode": 0, "retmsg": "转移成功"}
         else:
             return {"retcode": 2, "retmsg": ret_msg}
@@ -651,7 +651,7 @@ class WebAction:
         logids = data.get('logids')
         for logid in logids:
             # 读取历史记录
-            paths = SqlHelper.get_transfer_path_by_id(logid)
+            paths = DbHelper.get_transfer_path_by_id(logid)
             if paths:
                 dest_dir = paths[0].DEST
                 meta_info = MetaInfo(title=paths[0].FILE_NAME)
@@ -665,7 +665,7 @@ class WebAction:
                 else:
                     meta_info.type = MediaType.TV
                 # 删除记录
-                SqlHelper.delete_transfer_log_by_id(logid)
+                DbHelper.delete_transfer_log_by_id(logid)
                 # 删除文件
                 dest_path = FileTransfer().get_dest_path_by_info(dest=dest_dir, meta_info=meta_info)
                 if dest_path and dest_path.find(meta_info.title) != -1:
@@ -741,7 +741,7 @@ class WebAction:
 
         def __is_site_duplicate(query_name, query_tid):
             # 检查是否重名
-            _sites = SqlHelper.get_site_by_name(name=query_name)
+            _sites = DbHelper.get_site_by_name(name=query_name)
             for site in _sites:
                 site_id = site[0]
                 if str(site_id) != str(query_tid):
@@ -761,35 +761,35 @@ class WebAction:
             return {"code": 400, "msg": "站点名称重复"}
 
         if tid:
-            sites = SqlHelper.get_site_by_id(tid)
+            sites = DbHelper.get_site_by_id(tid)
             # 站点不存在
             if not sites:
                 return {"code": 400, "msg": "站点不存在"}
 
             old_name = sites[0][1]
 
-            ret = SqlHelper.update_config_site(tid=tid,
-                                               name=name,
-                                               site_pri=site_pri,
-                                               rssurl=rssurl,
-                                               signurl=signurl,
-                                               cookie=cookie,
-                                               note=note,
-                                               rss_uses=rss_uses)
+            ret = DbHelper.update_config_site(tid=tid,
+                                              name=name,
+                                              site_pri=site_pri,
+                                              rssurl=rssurl,
+                                              signurl=signurl,
+                                              cookie=cookie,
+                                              note=note,
+                                              rss_uses=rss_uses)
             if ret and (name != old_name):
                 # 更新历史站点数据信息
-                SqlHelper.update_site_user_statistics_site_name(name, old_name)
-                SqlHelper.update_site_seed_info_site_name(name, old_name)
-                SqlHelper.update_site_statistics_site_name(name, old_name)
+                DbHelper.update_site_user_statistics_site_name(name, old_name)
+                DbHelper.update_site_seed_info_site_name(name, old_name)
+                DbHelper.update_site_statistics_site_name(name, old_name)
 
         else:
-            ret = SqlHelper.insert_config_site(name=name,
-                                               site_pri=site_pri,
-                                               rssurl=rssurl,
-                                               signurl=signurl,
-                                               cookie=cookie,
-                                               note=note,
-                                               rss_uses=rss_uses)
+            ret = DbHelper.insert_config_site(name=name,
+                                              site_pri=site_pri,
+                                              rssurl=rssurl,
+                                              signurl=signurl,
+                                              cookie=cookie,
+                                              note=note,
+                                              rss_uses=rss_uses)
         # 生效站点配置
         Sites().init_config()
 
@@ -825,7 +825,7 @@ class WebAction:
         """
         tid = data.get("id")
         if tid:
-            ret = SqlHelper.delete_config_site(tid)
+            ret = DbHelper.delete_config_site(tid)
             Sites().init_config()
             return {"code": ret}
         else:
@@ -980,9 +980,9 @@ class WebAction:
             name = MetaInfo(title=name).get_name()
         if mtype:
             if mtype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV', '电影']:
-                SqlHelper.delete_rss_movie(title=name, year=year, rssid=rssid, tmdbid=tmdbid)
+                DbHelper.delete_rss_movie(title=name, year=year, rssid=rssid, tmdbid=tmdbid)
             else:
-                SqlHelper.delete_rss_tv(title=name, season=season, rssid=rssid, tmdbid=tmdbid)
+                DbHelper.delete_rss_tv(title=name, season=season, rssid=rssid, tmdbid=tmdbid)
         return {"code": 0, "page": page, "name": name}
 
     @staticmethod
@@ -1054,9 +1054,9 @@ class WebAction:
                                                                 current_ep=current_ep)
         if not rssid:
             if mtype == MediaType.MOVIE:
-                rssid = SqlHelper.get_rss_movie_id(title=name, tmdbid=tmdbid or "DB:%s" % doubanid)
+                rssid = DbHelper.get_rss_movie_id(title=name, tmdbid=tmdbid or "DB:%s" % doubanid)
             else:
-                rssid = SqlHelper.get_rss_tv_id(title=name, tmdbid=tmdbid or "DB:%s" % doubanid)
+                rssid = DbHelper.get_rss_tv_id(title=name, tmdbid=tmdbid or "DB:%s" % doubanid)
         return {"code": code, "msg": msg, "page": page, "name": name, "rssid": rssid}
 
     @staticmethod
@@ -1070,7 +1070,7 @@ class WebAction:
         ret_msg = ""
         if flag == "unknow":
             for wid in ids:
-                paths = SqlHelper.get_unknown_path_by_id(wid)
+                paths = DbHelper.get_unknown_path_by_id(wid)
                 if paths:
                     path = paths[0].PATH
                     dest_dir = paths[0].DEST
@@ -1084,13 +1084,13 @@ class WebAction:
                                                                in_path=path,
                                                                target_dir=dest_dir)
                 if succ_flag:
-                    SqlHelper.update_transfer_unknown_state(path)
+                    DbHelper.update_transfer_unknown_state(path)
                 else:
                     ret_flag = False
                     ret_msg = "%s\n%s" % (ret_msg, msg)
         elif flag == "history":
             for wid in ids:
-                paths = SqlHelper.get_transfer_path_by_id(wid)
+                paths = DbHelper.get_transfer_path_by_id(wid)
                 if paths:
                     path = os.path.join(paths[0].FILE_PATH, paths[0].FILE_NAME)
                     dest_dir = paths[0].DEST
@@ -1157,7 +1157,7 @@ class WebAction:
 
             # 查订阅信息
             if not rssid:
-                rssid = SqlHelper.get_rss_movie_id(title=title, tmdbid=tmdbid or "DB:%s" % doubanid)
+                rssid = DbHelper.get_rss_movie_id(title=title, tmdbid=tmdbid or "DB:%s" % doubanid)
 
             # 查下载信息
 
@@ -1211,7 +1211,7 @@ class WebAction:
 
             # 查订阅信息
             if not rssid:
-                rssid = SqlHelper.get_rss_tv_id(title=title, tmdbid=tmdbid or "DB:%s" % doubanid)
+                rssid = DbHelper.get_rss_tv_id(title=title, tmdbid=tmdbid or "DB:%s" % doubanid)
 
             return {
                 "code": 0,
@@ -1272,9 +1272,9 @@ class WebAction:
             pris = data.get("pris")
             if isinstance(pris, list):
                 pris = ",".join(pris)
-            ret = SqlHelper.insert_user(name, password, pris)
+            ret = DbHelper.insert_user(name, password, pris)
         else:
-            ret = SqlHelper.delete_user(name)
+            ret = DbHelper.delete_user(name)
         return {"code": ret}
 
     @staticmethod
@@ -1446,7 +1446,7 @@ class WebAction:
         rssid = data.get("rssid")
         rsstype = data.get("rsstype")
         if rsstype in ['nm', 'hm', 'dbom', 'dbhm', 'dbnm', 'dbtop', 'MOV', '电影']:
-            rss = SqlHelper.get_rss_movies(rssid=rssid)
+            rss = DbHelper.get_rss_movies(rssid=rssid)
             if not rss:
                 return {"code": 1}
             rss_info = Torrent.get_rss_note_item(rss[0][4])
@@ -1460,7 +1460,7 @@ class WebAction:
                          "filter": rss_info.get("filter_map"),
                          "type": "MOV"}
         else:
-            rss = SqlHelper.get_rss_tvs(rssid=rssid)
+            rss = DbHelper.get_rss_tvs(rssid=rssid)
             if not rss:
                 return {"code": 1}
             rss_info = Torrent.get_rss_note_item(rss[0][5])
@@ -1493,7 +1493,7 @@ class WebAction:
         """
         清空文件转移黑名单记录
         """
-        SqlHelper.truncate_transfer_blacklist()
+        DbHelper.truncate_transfer_blacklist()
         return {"code": 0}
 
     @staticmethod
@@ -1501,8 +1501,8 @@ class WebAction:
         """
         清空RSS历史记录
         """
-        SqlHelper.truncate_rss_history()
-        SqlHelper.truncate_rss_episodes()
+        DbHelper.truncate_rss_history()
+        DbHelper.truncate_rss_episodes()
         return {"code": 0}
 
     @staticmethod
@@ -1570,7 +1570,7 @@ class WebAction:
             "rss_rule": rss_rule,
             "remove_rule": remove_rule
         }
-        SqlHelper.insert_brushtask(brushtask_id, item)
+        DbHelper.insert_brushtask(brushtask_id, item)
 
         # 存储消息开关
         DictHelper.set(SystemDictType.BrushMessageSwitch.value, brushtask_site, brushtask_sendmessage)
@@ -1588,7 +1588,7 @@ class WebAction:
         """
         brush_id = data.get("id")
         if brush_id:
-            SqlHelper.delete_brushtask(brush_id)
+            DbHelper.delete_brushtask(brush_id)
             # 重新初始化任务
             BrushTask().init_config()
             return {"code": 0}
@@ -1600,7 +1600,7 @@ class WebAction:
         查询刷流任务详情
         """
         brush_id = data.get("id")
-        brushtask = SqlHelper.get_brushtasks(brush_id)
+        brushtask = DbHelper.get_brushtasks(brush_id)
         if not brushtask:
             return {"code": 1, "task": {}}
         scheme, netloc = StringUtils.get_url_netloc(brushtask[0][17])
@@ -1655,7 +1655,7 @@ class WebAction:
                 return {"code": 1}
         else:
             # 保存
-            SqlHelper.update_user_downloader(did=dl_id, name=dl_name, dtype=dl_type, user_config=user_config, note=None)
+            DbHelper.update_user_downloader(did=dl_id, name=dl_name, dtype=dl_type, user_config=user_config, note=None)
             return {"code": 0}
 
     @staticmethod
@@ -1665,7 +1665,7 @@ class WebAction:
         """
         dl_id = data.get("id")
         if dl_id:
-            SqlHelper.delete_user_downloader(dl_id)
+            DbHelper.delete_user_downloader(dl_id)
         return {"code": 0}
 
     @staticmethod
@@ -1675,7 +1675,7 @@ class WebAction:
         """
         dl_id = data.get("id")
         if dl_id:
-            info = SqlHelper.get_user_downloaders(dl_id)
+            info = DbHelper.get_user_downloaders(dl_id)
             return {"code": 0, "info": info[0] if info else None}
         else:
             return {"code": 1}
@@ -1835,7 +1835,7 @@ class WebAction:
         default = data.get("default")
         if not name:
             return {"code": -1}
-        SqlHelper.add_filter_group(name, default)
+        DbHelper.add_filter_group(name, default)
         FilterRule().init_config()
         return {"code": 0}
 
@@ -1848,13 +1848,13 @@ class WebAction:
         init_rulegroups = data.get("init_rulegroups")
         for groupid in groupids:
             try:
-                SqlHelper.delete_filtergroup(groupid)
+                DbHelper.delete_filtergroup(groupid)
             except Exception as err:
                 print(err)
             for init_rulegroup in init_rulegroups:
                 if str(init_rulegroup.get("id")) == groupid:
                     for sql in init_rulegroup.get("sql"):
-                        SqlHelper.excute(sql)
+                        DbHelper.excute(sql)
         FilterRule().init_config()
         return {"code": 0}
 
@@ -1863,14 +1863,14 @@ class WebAction:
         groupid = data.get("id")
         if not groupid:
             return {"code": -1}
-        SqlHelper.set_default_filtergroup(groupid)
+        DbHelper.set_default_filtergroup(groupid)
         FilterRule().init_config()
         return {"code": 0}
 
     @staticmethod
     def __del_filtergroup(data):
         groupid = data.get("id")
-        SqlHelper.delete_filtergroup(groupid)
+        DbHelper.delete_filtergroup(groupid)
         FilterRule().init_config()
         return {"code": 0}
 
@@ -1886,14 +1886,14 @@ class WebAction:
             "size": data.get("rule_sizelimit"),
             "free": data.get("rule_free")
         }
-        SqlHelper.insert_filter_rule(ruleid=rule_id, item=item)
+        DbHelper.insert_filter_rule(ruleid=rule_id, item=item)
         FilterRule().init_config()
         return {"code": 0}
 
     @staticmethod
     def __del_filterrule(data):
         ruleid = data.get("id")
-        SqlHelper.delete_filterrule(ruleid)
+        DbHelper.delete_filterrule(ruleid)
         FilterRule().init_config()
         return {"code": 0}
 
@@ -1965,7 +1965,7 @@ class WebAction:
                 name = MetaInfo(title).get_name()
                 if RecommendType not in ['hm', 'nm']:
                     rid = "DB:%s" % rid
-                rssid = SqlHelper.get_rss_movie_id(title=name, tmdbid=rid)
+                rssid = DbHelper.get_rss_movie_id(title=name, tmdbid=rid)
                 if rssid:
                     # 已订阅
                     fav = 1
@@ -1985,7 +1985,7 @@ class WebAction:
                 name = MetaInfo(title).get_name()
                 if RecommendType not in ['ht', 'nt']:
                     rid = "DB:%s" % rid
-                rssid = SqlHelper.get_rss_tv_id(title=name, tmdbid=rid)
+                rssid = DbHelper.get_rss_tv_id(title=name, tmdbid=rid)
                 if rssid:
                     # 已订阅
                     fav = 1
@@ -2019,7 +2019,7 @@ class WebAction:
     @staticmethod
     def get_downloaded(data):
         page = data.get("page")
-        Items = SqlHelper.get_download_history(page=page) or []
+        Items = DbHelper.get_download_history(page=page) or []
         return {"code": 0, "Items": Items}
 
     @staticmethod
@@ -2258,7 +2258,7 @@ class WebAction:
         """
         删除自定义订阅
         """
-        if SqlHelper.delete_userrss_task(data.get("id")):
+        if DbHelper.delete_userrss_task(data.get("id")):
             RssChecker().init_config()
             return {"code": 0}
         else:
@@ -2282,7 +2282,7 @@ class WebAction:
             "state": data.get("state"),
             "note": data.get("note")
         }
-        if SqlHelper.update_userrss_task(params):
+        if DbHelper.update_userrss_task(params):
             RssChecker().init_config()
             return {"code": 0}
         else:
@@ -2301,7 +2301,7 @@ class WebAction:
         """
         删除订阅解析器
         """
-        if SqlHelper.delete_userrss_parser(data.get("id")):
+        if DbHelper.delete_userrss_parser(data.get("id")):
             return {"code": 0}
         else:
             return {"code": 1}
@@ -2318,7 +2318,7 @@ class WebAction:
             "format": data.get("format"),
             "params": data.get("params")
         }
-        if SqlHelper.update_userrss_parser(params):
+        if DbHelper.update_userrss_parser(params):
             return {"code": 0}
         else:
             return {"code": 1}
@@ -2367,7 +2367,7 @@ class WebAction:
     @staticmethod
     def __list_rss_history(data):
         downloads = []
-        historys = SqlHelper.get_userrss_task_history(data.get("id"))
+        historys = DbHelper.get_userrss_task_history(data.get("id"))
         count = len(historys)
         for history in historys:
             params = {
@@ -2407,28 +2407,28 @@ class WebAction:
             tmdb_id = data.get("tmdb_id")
             tmdb_type = data.get("tmdb_type")
             if tmdb_type == "tv":
-                if not SqlHelper.is_custom_word_group_existed(tmdbid=tmdb_id, wtype=2):
+                if not DbHelper.is_custom_word_group_existed(tmdbid=tmdb_id, wtype=2):
                     tmdb_info = Media().get_tmdb_info(mtype=MediaType.TV, tmdbid=tmdb_id)
                     if not tmdb_info:
                         return {"code": 1, "msg": "添加失败，无法查询到TMDB信息"}
-                    SqlHelper.insert_custom_word_groups(title=tmdb_info.get("name"),
-                                                        year=tmdb_info.get("first_air_date")[0:4],
-                                                        wtype=2,
-                                                        tmdbid=tmdb_id,
-                                                        season_count=tmdb_info.get("number_of_seasons"))
+                    DbHelper.insert_custom_word_groups(title=tmdb_info.get("name"),
+                                                       year=tmdb_info.get("first_air_date")[0:4],
+                                                       wtype=2,
+                                                       tmdbid=tmdb_id,
+                                                       season_count=tmdb_info.get("number_of_seasons"))
                     return {"code": 0, "msg": ""}
                 else:
                     return {"code": 1, "msg": "识别词组（TMDB ID）已存在"}
             elif tmdb_type == "movie":
-                if not SqlHelper.is_custom_word_group_existed(tmdbid=tmdb_id, wtype=1):
+                if not DbHelper.is_custom_word_group_existed(tmdbid=tmdb_id, wtype=1):
                     tmdb_info = Media().get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=tmdb_id)
                     if not tmdb_info:
                         return {"code": 1, "msg": "添加失败，无法查询到TMDB信息"}
-                    SqlHelper.insert_custom_word_groups(title=tmdb_info.get("title"),
-                                                        year=tmdb_info.get("release_date")[0:4],
-                                                        wtype=1,
-                                                        tmdbid=tmdb_id,
-                                                        season_count=0)
+                    DbHelper.insert_custom_word_groups(title=tmdb_info.get("title"),
+                                                       year=tmdb_info.get("release_date")[0:4],
+                                                       wtype=1,
+                                                       tmdbid=tmdb_id,
+                                                       season_count=0)
                     return {"code": 0, "msg": ""}
                 else:
                     return {"code": 1, "msg": "识别词组（TMDB ID）已存在"}
@@ -2442,7 +2442,7 @@ class WebAction:
     def __delete_custom_word_group(data):
         try:
             wid = data.get("gid")
-            SqlHelper.delete_custom_word_group(wid=wid)
+            DbHelper.delete_custom_word_group(wid=wid)
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
@@ -2466,78 +2466,78 @@ class WebAction:
             enabled = data.get("enabled")
             regex = data.get("regex")
             if wid:
-                SqlHelper.delete_custom_word(wid=wid)
+                DbHelper.delete_custom_word(wid=wid)
             # 电影
             if group_type == "1":
                 season = -2
             # 屏蔽
             if wtype == "1":
-                if not SqlHelper.is_custom_words_existed(replaced=replaced):
-                    SqlHelper.insert_custom_word(replaced=replaced,
-                                                 replace="",
-                                                 front="",
-                                                 back="",
-                                                 offset=0,
-                                                 wtype=wtype,
-                                                 gid=gid,
-                                                 season=season,
-                                                 enabled=enabled,
-                                                 regex=regex,
-                                                 whelp=whelp if whelp else "")
+                if not DbHelper.is_custom_words_existed(replaced=replaced):
+                    DbHelper.insert_custom_word(replaced=replaced,
+                                                replace="",
+                                                front="",
+                                                back="",
+                                                offset=0,
+                                                wtype=wtype,
+                                                gid=gid,
+                                                season=season,
+                                                enabled=enabled,
+                                                regex=regex,
+                                                whelp=whelp if whelp else "")
                     WordsHelper().init_config()
                     return {"code": 0, "msg": ""}
                 else:
                     return {"code": 1, "msg": "识别词已存在\n（被替换词：%s）" % replaced}
             # 替换
             elif wtype == "2":
-                if not SqlHelper.is_custom_words_existed(replaced=replaced):
-                    SqlHelper.insert_custom_word(replaced=replaced,
-                                                 replace=replace,
-                                                 front="",
-                                                 back="",
-                                                 offset=0,
-                                                 wtype=wtype,
-                                                 gid=gid,
-                                                 season=season,
-                                                 enabled=enabled,
-                                                 regex=regex,
-                                                 whelp=whelp if whelp else "")
+                if not DbHelper.is_custom_words_existed(replaced=replaced):
+                    DbHelper.insert_custom_word(replaced=replaced,
+                                                replace=replace,
+                                                front="",
+                                                back="",
+                                                offset=0,
+                                                wtype=wtype,
+                                                gid=gid,
+                                                season=season,
+                                                enabled=enabled,
+                                                regex=regex,
+                                                whelp=whelp if whelp else "")
                     WordsHelper().init_config()
                     return {"code": 0, "msg": ""}
                 else:
                     return {"code": 1, "msg": "识别词已存在\n（被替换词：%s）" % replaced}
             # 集偏移
             elif wtype == "4":
-                if not SqlHelper.is_custom_words_existed(front=front, back=back):
-                    SqlHelper.insert_custom_word(replaced="",
-                                                 replace="",
-                                                 front=front,
-                                                 back=back,
-                                                 offset=offset,
-                                                 wtype=wtype,
-                                                 gid=gid,
-                                                 season=season,
-                                                 enabled=enabled,
-                                                 regex=regex,
-                                                 whelp=whelp if whelp else "")
+                if not DbHelper.is_custom_words_existed(front=front, back=back):
+                    DbHelper.insert_custom_word(replaced="",
+                                                replace="",
+                                                front=front,
+                                                back=back,
+                                                offset=offset,
+                                                wtype=wtype,
+                                                gid=gid,
+                                                season=season,
+                                                enabled=enabled,
+                                                regex=regex,
+                                                whelp=whelp if whelp else "")
                     WordsHelper().init_config()
                     return {"code": 0, "msg": ""}
                 else:
                     return {"code": 1, "msg": "识别词已存在\n（前后定位词：%s@%s）" % (front, back)}
             # 替换+集偏移
             elif wtype == "3":
-                if not SqlHelper.is_custom_words_existed(replaced=replaced):
-                    SqlHelper.insert_custom_word(replaced=replaced,
-                                                 replace=replace,
-                                                 front=front,
-                                                 back=back,
-                                                 offset=offset,
-                                                 wtype=wtype,
-                                                 gid=gid,
-                                                 season=season,
-                                                 enabled=enabled,
-                                                 regex=regex,
-                                                 whelp=whelp if whelp else "")
+                if not DbHelper.is_custom_words_existed(replaced=replaced):
+                    DbHelper.insert_custom_word(replaced=replaced,
+                                                replace=replace,
+                                                front=front,
+                                                back=back,
+                                                offset=offset,
+                                                wtype=wtype,
+                                                gid=gid,
+                                                season=season,
+                                                enabled=enabled,
+                                                regex=regex,
+                                                whelp=whelp if whelp else "")
                     WordsHelper().init_config()
                     return {"code": 0, "msg": ""}
                 else:
@@ -2552,7 +2552,7 @@ class WebAction:
     def __get_custom_word(data):
         try:
             wid = data.get("id")
-            word_info = SqlHelper.get_custom_words(wid=wid)[0]
+            word_info = DbHelper.get_custom_words(wid=wid)[0]
             word = {"id": word_info[0],
                     "replaced": word_info[1],
                     "replace": word_info[2],
@@ -2574,7 +2574,7 @@ class WebAction:
     def __delete_custom_word(data):
         try:
             wid = data.get("id")
-            SqlHelper.delete_custom_word(wid)
+            DbHelper.delete_custom_word(wid)
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
@@ -2588,7 +2588,7 @@ class WebAction:
             enabled = flag_dict.get(data.get("flag"))
             ids = [id_info.split("_")[1] for id_info in ids_info]
             for wid in ids:
-                SqlHelper.check_custom_word(wid=wid, enabled=enabled)
+                DbHelper.check_custom_word(wid=wid, enabled=enabled)
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
@@ -2614,7 +2614,7 @@ class WebAction:
                                          "type": 1,
                                          "words": {}, }
                 else:
-                    group_info = SqlHelper.get_custom_word_groups(gid=group_id)[0]
+                    group_info = DbHelper.get_custom_word_groups(gid=group_id)[0]
                     export_dict[str(group_info[0])] = {"id": group_info[0],
                                                        "title": group_info[1],
                                                        "year": group_info[2],
@@ -2623,7 +2623,7 @@ class WebAction:
                                                        "season_count": group_info[5],
                                                        "words": {}, }
             for word_id in word_ids:
-                word_info = SqlHelper.get_custom_words(wid=word_id)[0]
+                word_info = DbHelper.get_custom_words(wid=word_id)[0]
                 export_dict[str(word_info[7])]["words"][str(word_info[0])] = {"id": word_info[0],
                                                                               "replaced": word_info[1],
                                                                               "replace": word_info[2],
@@ -2691,13 +2691,13 @@ class WebAction:
                 wtype = import_group_info.get("type")
                 tmdbid = import_group_info.get("tmdbid")
                 season_count = import_group_info.get("season_count")
-                if not SqlHelper.is_custom_word_group_existed(tmdbid=tmdbid, wtype=wtype):
-                    SqlHelper.insert_custom_word_groups(title=title,
-                                                        year=year,
-                                                        wtype=wtype,
-                                                        tmdbid=tmdbid,
-                                                        season_count=season_count)
-                group_info = SqlHelper.get_custom_word_groups(tmdbid=tmdbid, wtype=wtype)
+                if not DbHelper.is_custom_word_group_existed(tmdbid=tmdbid, wtype=wtype):
+                    DbHelper.insert_custom_word_groups(title=title,
+                                                       year=year,
+                                                       wtype=wtype,
+                                                       tmdbid=tmdbid,
+                                                       season_count=season_count)
+                group_info = DbHelper.get_custom_word_groups(tmdbid=tmdbid, wtype=wtype)
                 group_id_dict[import_group_id] = group_info[0][0]
             for id_info in ids_info:
                 id_info = id_info.split('_')
@@ -2716,23 +2716,23 @@ class WebAction:
                 regex = import_word_info.get("regex")
                 # 屏蔽, 替换, 替换+集偏移
                 if wtype in [1, 2, 3]:
-                    if SqlHelper.is_custom_words_existed(replaced=replaced):
+                    if DbHelper.is_custom_words_existed(replaced=replaced):
                         return {"code": 1, "msg": "识别词已存在\n（被替换词：%s）" % replaced}
                 # 集偏移
                 elif wtype == 4:
-                    if SqlHelper.is_custom_words_existed(front=front, back=back):
+                    if DbHelper.is_custom_words_existed(front=front, back=back):
                         return {"code": 1, "msg": "识别词已存在\n（前后定位词：%s@%s）" % (front, back)}
-                SqlHelper.insert_custom_word(replaced=replaced,
-                                             replace=replace,
-                                             front=front,
-                                             back=back,
-                                             offset=offset,
-                                             wtype=wtype,
-                                             gid=gid,
-                                             season=season,
-                                             enabled=1,
-                                             regex=regex,
-                                             whelp=whelp if whelp else "")
+                DbHelper.insert_custom_word(replaced=replaced,
+                                            replace=replace,
+                                            front=front,
+                                            back=back,
+                                            offset=offset,
+                                            wtype=wtype,
+                                            gid=gid,
+                                            season=season,
+                                            enabled=1,
+                                            regex=regex,
+                                            whelp=whelp if whelp else "")
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
@@ -2752,14 +2752,14 @@ class WebAction:
     @staticmethod
     def __delete_rss_history(data):
         rssid = data.get("rssid")
-        SqlHelper.delete_rss_history(rssid=rssid)
+        DbHelper.delete_rss_history(rssid=rssid)
         return {"code": 0}
 
     @staticmethod
     def __re_rss_history(data):
         rssid = data.get("rssid")
         rtype = data.get("type")
-        rssinfo = SqlHelper.get_rss_history(rtype=rtype, rid=rssid)
+        rssinfo = DbHelper.get_rss_history(rtype=rtype, rid=rssid)
         if rssinfo:
             if rtype == "MOV":
                 mtype = MediaType.MOVIE
@@ -2783,10 +2783,10 @@ class WebAction:
     @staticmethod
     def __share_filtergroup(data):
         gid = data.get("id")
-        group_info = SqlHelper.get_config_filter_group(gid=gid)
+        group_info = DbHelper.get_config_filter_group(gid=gid)
         if not group_info:
             return {"code": 1, "msg": "规则组不存在"}
-        group_rules = SqlHelper.get_config_filter_rule(groupid=gid)
+        group_rules = DbHelper.get_config_filter_rule(groupid=gid)
         if not group_rules:
             return {"code": 1, "msg": "规则组没有对应规则"}
         rules = []
@@ -2815,13 +2815,13 @@ class WebAction:
             if json_obj:
                 if not json_obj.get("name"):
                     return {"code": 1, "msg": "数据格式不正确"}
-                SqlHelper.add_filter_group(name=json_obj.get("name"))
-                group_id = SqlHelper.get_filter_groupid_by_name(json_obj.get("name"))
+                DbHelper.add_filter_group(name=json_obj.get("name"))
+                group_id = DbHelper.get_filter_groupid_by_name(json_obj.get("name"))
                 if not group_id:
                     return {"code": 1, "msg": "数据内容不正确"}
                 if json_obj.get("rules"):
                     for rule in json_obj.get("rules"):
-                        SqlHelper.insert_filter_rule(item={
+                        DbHelper.insert_filter_rule(item={
                             "group": group_id,
                             "name": rule.get("name"),
                             "pri": rule.get("pri"),

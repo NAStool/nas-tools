@@ -1,6 +1,6 @@
 import re
 
-from app.helper import SqlHelper
+from app.helper import DbHelper
 from app.utils.commons import singleton
 from app.utils.types import MediaType
 
@@ -14,8 +14,8 @@ class FilterRule:
         self.init_config()
 
     def init_config(self):
-        self._groups = SqlHelper.get_config_filter_group()
-        self._rules = SqlHelper.get_config_filter_rule()
+        self._groups = DbHelper.get_config_filter_group()
+        self._rules = DbHelper.get_config_filter_rule()
 
     def get_rule_groups(self, groupid=None, default=False):
         """

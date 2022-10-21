@@ -11,7 +11,7 @@ from app.searcher import Searcher
 from app.utils import StringUtils
 from app.media.doubanv2api import DoubanApi
 from app.media import MetaInfo, Media
-from app.helper import SqlHelper, ProgressHelper
+from app.helper import DbHelper, ProgressHelper
 from app.utils.types import SearchType, MediaType
 from app.subscribe import Subscribe
 
@@ -170,7 +170,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
                                               match_media=media_info,
                                               in_from=SearchType.WEB)
     # 清空缓存结果
-    SqlHelper.delete_all_search_torrents()
+    DbHelper.delete_all_search_torrents()
     # 结束进度
     search_process.end('search')
     if len(media_list) == 0:
@@ -182,7 +182,7 @@ def search_medias_for_web(content, ident_flag=True, filters=None, tmdbid=None, m
         media_list = sorted(media_list, key=lambda x: "%s%s%s" % (str(x.res_order).rjust(3, '0'),
                                                                   str(x.site_order).rjust(3, '0'),
                                                                   str(x.seeders).rjust(10, '0')), reverse=True)
-        SqlHelper.insert_search_results(media_list)
+        DbHelper.insert_search_results(media_list)
         return 0, ""
 
 

@@ -23,7 +23,7 @@ from app.sites.siteconf import SiteConf
 from app.utils.commons import singleton
 from app.utils import RequestUtils, StringUtils
 from app.helper import ChromeHelper, CHROME_LOCK
-from app.helper import SqlHelper
+from app.helper import DbHelper
 from app.utils.torrent import TorrentAttr
 from config import SITE_CHECKIN_XPATH
 
@@ -47,7 +47,7 @@ class Sites:
         self.message = Message()
         self.filtersites = FilterRule()
         self.siteconf = SiteConf()
-        self.__sites = SqlHelper.get_config_site()
+        self.__sites = DbHelper.get_config_site()
         self.__sites_data = {}
         self.__last_update_time = None
 
@@ -63,7 +63,7 @@ class Sites:
         """
         ret_sites = []
         # 补全 favicon
-        site_favicons = SqlHelper.get_site_user_statistics()
+        site_favicons = DbHelper.get_site_user_statistics()
         site_favicons = {site[0]: site[13] for site in site_favicons}
         for site in self.__sites:
             # 是否解析种子详情为|分隔的第1位
@@ -150,11 +150,11 @@ class Sites:
                 site_user_infos = p.map(self.__refresh_site_data, refresh_sites)
                 site_user_infos = [info for info in site_user_infos if info]
             # 登记历史数据
-            SqlHelper.insert_site_statistics_history(site_user_infos)
+            DbHelper.insert_site_statistics_history(site_user_infos)
             # 实时用户数据
-            SqlHelper.update_site_user_statistics(site_user_infos)
+            DbHelper.update_site_user_statistics(site_user_infos)
             # 实时做种信息
-            SqlHelper.update_site_seed_info(site_user_infos)
+            DbHelper.update_site_seed_info(site_user_infos)
 
         # 更新时间
         if refresh_all:
@@ -369,7 +369,7 @@ class Sites:
             if site_url:
                 site_urls.append(site_url)
 
-        return SqlHelper.get_site_statistics_recent_sites(days=days, strict_urls=site_urls)
+        return DbHelper.get_site_statistics_recent_sites(days=days, strict_urls=site_urls)
 
     def get_site_user_statistics(self, encoding="RAW"):
         """
@@ -384,7 +384,7 @@ class Sites:
             if site_url:
                 site_urls.append(site_url)
 
-        raw_statistics = SqlHelper.get_site_user_statistics(strict_urls=site_urls)
+        raw_statistics = DbHelper.get_site_user_statistics(strict_urls=site_urls)
         if encoding == "RAW":
             return raw_statistics
 
@@ -423,7 +423,7 @@ class Sites:
         :return:
         """
         site_activities = [["time", "upload", "download", "bonus", "seeding", "seeding_size"]]
-        sql_site_activities = SqlHelper.get_site_statistics_history(site=site, days=days)
+        sql_site_activities = DbHelper.get_site_statistics_history(site=site, days=days)
         for sql_site_activity in sql_site_activities:
             timestamp = datetime.strptime(sql_site_activity[0], '%Y-%m-%d').timestamp() * 1000
             site_activities.append(
@@ -440,7 +440,7 @@ class Sites:
         :return: seeding_info:[uploader_num, seeding_size]
         """
         site_seeding_info = {"seeding_info": []}
-        seeding_info = SqlHelper.get_site_seeding_info(site=site)
+        seeding_info = DbHelper.get_site_seeding_info(site=site)
         if not seeding_info:
             return site_seeding_info
 
