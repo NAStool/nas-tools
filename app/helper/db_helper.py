@@ -476,12 +476,12 @@ class DbHelper:
         if not groupid:
             return MainDb().query(CONFIGFILTERRULES).group_by(CONFIGFILTERRULES.GROUP_ID,
                                                               cast(CONFIGFILTERRULES.PRIORITY,
-                                                                   Integer).asc()).all()
+                                                                   Integer)).all()
         else:
             return MainDb().query(CONFIGFILTERRULES).filter(
                 CONFIGFILTERRULES.GROUP_ID == int(groupid)).group_by(CONFIGFILTERRULES.GROUP_ID,
                                                                      cast(CONFIGFILTERRULES.PRIORITY,
-                                                                          Integer).asc()).all()
+                                                                          Integer)).all()
 
     @staticmethod
     def get_rss_movies(state=None, rssid=None):
@@ -1704,43 +1704,44 @@ class DbHelper:
     def delete_userrss_parser(pid):
         if not pid:
             return False
-        return MainDb().update_by_sql(
-            "DELETE FROM CONFIG_RSS_PARSER WHERE ID = ?", (pid,))
+        return MainDb().query(CONFIGRSSPARSER).filter(CONFIGRSSPARSER.ID == int(pid)).delete()
 
     @staticmethod
     def update_userrss_parser(item):
         if not item:
             return False
         if item.get("id") and DbHelper.get_userrss_parser(item.get("id")):
-            return MainDb().update_by_sql("UPDATE CONFIG_RSS_PARSER "
-                                          "SET NAME=?,TYPE=?,FORMAT=?,PARAMS=? "
-                                          "WHERE ID=?", (item.get("name"),
-                                                         item.get("type"),
-                                                         item.get("format"),
-                                                         item.get("params"),
-                                                         item.get("id")))
+            return MainDb().query(CONFIGRSSPARSER).filter(CONFIGRSSPARSER.ID == int(item.get("id"))).update(
+                {
+                    "NAME": item.get("name"),
+                    "TYPE": item.get("type"),
+                    "FORMAT": item.get("format"),
+                    "PARAMS": item.get("params")
+                }
+            )
         else:
-            return MainDb().update_by_sql("INSERT INTO CONFIG_RSS_PARSER(NAME, TYPE, FORMAT, PARAMS) "
-                                          "VALUES (?,?,?,?)", (item.get("name"),
-                                                               item.get("type"),
-                                                               item.get("format"),
-                                                               item.get("params")))
+            return MainDb().insert(CONFIGRSSPARSER(
+                NAME=item.get("name"),
+                TYPE=item.get("type"),
+                FORMAT=item.get("format"),
+                PARAMS=item.get("params")
+            ))
 
     @staticmethod
     def excute(sql):
-        return MainDb().update_by_sql(sql)
+        return MainDb().excute(sql)
 
     @staticmethod
     def insert_userrss_task_history(task_id, title, downloader):
         """
         增加自定义RSS订阅任务的下载记录
         """
-        sql = "INSERT INTO USERRSS_TASK_HISTORY(TASK_ID, TITLE, DOWNLOADER, DATE) " \
-              "VALUES (?, ?, ?, ?)"
-        return MainDb().update_by_sql(sql, (task_id,
-                                            title,
-                                            downloader,
-                                            time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
+        return MainDb().insert(USERRSSTASKHISTORY(
+            TASK_ID=task_id,
+            TITLE=title,
+            DOWNLOADER=downloader,
+            DATE=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        ))
 
     @staticmethod
     def get_userrss_task_history(task_id):
@@ -1806,9 +1807,8 @@ class DbHelper:
     def is_exists_rss_history(rssid):
         if not rssid:
             return False
-        sql = "SELECT COUNT(1) FROM RSS_HISTORY WHERE RSSID = ?"
-        ret = MainDb().select_by_sql(sql, (rssid,))
-        if ret and ret[0][0] > 0:
+        count = MainDb().query(RSSHISTORY).filter(RSSHISTORY.RSSID == rssid).count()
+        if count > 0:
             return True
         else:
             return False
@@ -1816,28 +1816,26 @@ class DbHelper:
     @staticmethod
     def insert_rss_history(rssid, rtype, name, year, tmdbid, image, desc, season=None, total=None, start=None):
         if not DbHelper.is_exists_rss_history(rssid):
-            sql = "INSERT INTO RSS_HISTORY" \
-                  "(TYPE, RSSID, NAME, YEAR, TMDBID, SEASON, IMAGE, DESC, TOTAL, START, FINISH_TIME) " \
-                  "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-            return MainDb().update_by_sql(sql, (rtype,
-                                                rssid,
-                                                name,
-                                                year,
-                                                tmdbid,
-                                                season,
-                                                image,
-                                                desc,
-                                                total,
-                                                start,
-                                                time.strftime('%Y-%m-%d %H:%M:%S',
-                                                              time.localtime(time.time()))
-                                                ))
+            return MainDb().insert(RSSHISTORY(
+                TYPE=rtype,
+                RSSID=rssid,
+                NAME=name,
+                YEAR=year,
+                TMDBID=tmdbid,
+                SEASON=season,
+                IMAGE=image,
+                DESC=desc,
+                TOTAL=total,
+                START=start,
+                FINISH_TIME=time.strftime('%Y-%m-%d %H:%M:%S',
+                                          time.localtime(time.time()))
+            ))
 
     @staticmethod
     def delete_rss_history(rssid):
         if not rssid:
             return False
-        return MainDb().update_by_sql("DELETE FROM RSS_HISTORY WHERE ID = ?", (rssid,))
+        return MainDb().query(RSSHISTORY).filter(RSSHISTORY.ID == int(rssid)).delete()
 
     @staticmethod
     def insert_custom_word(replaced, replace, front, back, offset, wtype, gid, season, enabled, regex, whelp,
@@ -1845,26 +1843,38 @@ class DbHelper:
         """
         增加自定义识别词
         """
-        sql = "INSERT INTO CUSTOM_WORDS" \
-              "(REPLACED, REPLACE, FRONT, BACK, OFFSET, TYPE, GROUP_ID, SEASON, ENABLED, REGEX, HELP, NOTE) " \
-              "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-        return MainDb().update_by_sql(sql, (replaced, replace, front, back, int(offset), int(wtype),
-                                            int(gid), int(season),
-                                            int(enabled), int(regex), whelp, note))
+        return MainDb().insert(CUSTOMWORDS(
+            REPLACED=replaced,
+            REPLACE=replace,
+            FRONT=front,
+            BACK=back,
+            OFFSET=int(offset),
+            TYPE=int(wtype),
+            GROUP_ID=int(gid),
+            SEASON=int(season),
+            ENABLED=int(enabled),
+            REGEX=int(regex),
+            HELP=whelp,
+            NOTE=note
+        ))
 
     @staticmethod
     def delete_custom_word(wid):
         """
         删除自定义识别词
         """
-        return MainDb().update_by_sql("DELETE FROM CUSTOM_WORDS WHERE ID = ?", (int(wid),))
+        return MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)).delete()
 
     @staticmethod
     def check_custom_word(wid, enabled):
         """
         设置自定义识别词状态
         """
-        return MainDb().update_by_sql("UPDATE CUSTOM_WORDS SET ENABLED = ? WHERE ID = ?", (int(enabled), int(wid)))
+        return MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)).update(
+            {
+                "ENABLED": int(enabled)
+            }
+        )
 
     @staticmethod
     def get_custom_words(wid=None, gid=None, enabled=None, wtype=None, regex=None):
@@ -1889,14 +1899,13 @@ class DbHelper:
         查询自定义识别词
         """
         if replaced:
-            sql = "SELECT COUNT(1) FROM CUSTOM_WORDS WHERE REPLACED =?"
-            ret = MainDb().select_by_sql(sql, (replaced,))
+            count = MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.REPLACED == replaced).count()
         elif front and back:
-            sql = "SELECT COUNT(1) FROM CUSTOM_WORDS WHERE FRONT =? AND BACK = ?"
-            ret = MainDb().select_by_sql(sql, (front, back))
+            count = MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.FRONT == front,
+                                                       CUSTOMWORDS.BACK == back).count()
         else:
             return False
-        if ret and ret[0][0] > 0:
+        if count > 0:
             return True
         else:
             return False
@@ -1906,10 +1915,14 @@ class DbHelper:
         """
         增加自定义识别词组
         """
-        sql = "INSERT INTO CUSTOM_WORD_GROUPS" \
-              "(TITLE, YEAR, TYPE, TMDBID, SEASON_COUNT, NOTE) " \
-              "VALUES (?, ?, ?, ?, ?, ?)"
-        return MainDb().update_by_sql(sql, (title, year, int(wtype), int(tmdbid), int(season_count), note))
+        return MainDb().insert(CUSTOMWORDGROUPS(
+            TITLE=title,
+            YEAR=year,
+            TYPE=int(wtype),
+            TMDBID=int(tmdbid),
+            SEASON_COUNT=int(season_count),
+            NOTE=note
+        ))
 
     @staticmethod
     def delete_custom_word_group(wid):
@@ -1918,8 +1931,8 @@ class DbHelper:
         """
         if not wid:
             return
-        MainDb().update_by_sql("DELETE FROM CUSTOM_WORDS WHERE GROUP_ID = ?", (int(wid),))
-        return MainDb().update_by_sql("DELETE FROM CUSTOM_WORD_GROUPS WHERE ID = ?", (int(wid),))
+        MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.GROUP_ID == int(wid)).delete()
+        MainDb().query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.ID == int(wid)).delete()
 
     @staticmethod
     def get_custom_word_groups(gid=None, tmdbid=None, wtype=None):
@@ -1943,9 +1956,9 @@ class DbHelper:
         """
         if not wtype or not tmdbid:
             return False
-        sql = "SELECT COUNT(1) FROM CUSTOM_WORD_GROUPS WHERE TMDBID =? AND TYPE = ?"
-        ret = MainDb().select_by_sql(sql, (int(tmdbid), int(wtype)))
-        if ret and ret[0][0] > 0:
+        count = MainDb().query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.TMDBID == int(tmdbid),
+                                                        CUSTOMWORDGROUPS.TYPE == int(wtype)).count()
+        if count > 0:
             return True
         else:
             return False

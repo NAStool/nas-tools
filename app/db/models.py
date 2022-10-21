@@ -82,7 +82,7 @@ class CONFIGUSERRSS(Base):
     NOTE = Column(Text)
 
 
-class CUSTOMWORD(Base):
+class CUSTOMWORDS(Base):
     __tablename__ = 'CUSTOM_WORDS'
 
     ID = Column(Integer, Sequence('ID'), primary_key=True)
@@ -100,7 +100,7 @@ class CUSTOMWORD(Base):
     NOTE = Column(Text)
 
 
-class CUSTOMWORDGROUP(Base):
+class CUSTOMWORDGROUPS(Base):
     __tablename__ = 'CUSTOM_WORD_GROUPS'
 
     ID = Column(Integer, Sequence('ID'), primary_key=True)
