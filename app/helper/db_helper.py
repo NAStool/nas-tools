@@ -1344,23 +1344,16 @@ class DbHelper:
     @staticmethod
     def get_brushtasks(brush_id=None):
         """
-        查询刷流任务
+        FIXME 查询刷流任务
         """
         if brush_id:
-            sql = "SELECT T.ID,T.NAME,T.SITE,'',T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
-                  "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
-                  "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,D.NAME " \
-                  "FROM SITE_BRUSH_TASK T " \
-                  "LEFT JOIN SITE_BRUSH_DOWNLOADERS D ON D.ID = T.DOWNLOADER " \
-                  "WHERE T.ID = ?"
-            return []
+            return MainDb().query(SITEBRUSHTASK, SITEBRUSHDOWNLOADERS).join(
+                SITEBRUSHDOWNLOADERS,
+                SITEBRUSHDOWNLOADERS.ID == SITEBRUSHTASK.DOWNLOADER).filter(SITEBRUSHTASK.ID == int(brush_id)).first()
         else:
-            sql = "SELECT T.ID,T.NAME,T.SITE,'',T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
-                  "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
-                  "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,D.NAME " \
-                  "FROM SITE_BRUSH_TASK T " \
-                  "LEFT JOIN SITE_BRUSH_DOWNLOADERS D ON D.ID = T.DOWNLOADER "
-            return []
+            return MainDb().query(SITEBRUSHTASK, SITEBRUSHDOWNLOADERS).join(
+                SITEBRUSHDOWNLOADERS,
+                SITEBRUSHDOWNLOADERS.ID == SITEBRUSHTASK.DOWNLOADER).all()
 
     @staticmethod
     def get_brushtask_totalsize(brush_id):

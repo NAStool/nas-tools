@@ -852,28 +852,28 @@ def create_flask_app():
         brushtasks = DbHelper.get_brushtasks() or []
         Tasks = []
         for task in brushtasks:
-            sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[2])
-            forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task[2])
-            site_info = Sites().get_sites(siteid=task[2])
+            sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[0].SITE)
+            forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task[0].SITE)
+            site_info = Sites().get_sites(siteid=task[0].SITE)
             scheme, netloc = StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
-            downloader_info = BrushTask().get_downloader_config(task[6])
+            downloader_info = BrushTask().get_downloader_config(task[0].DOWNLOADER)
             Tasks.append({
-                "id": task[0],
-                "name": task[1],
+                "id": task[0].ID,
+                "name": task[0].NAME,
                 "site": site_info.get("name"),
-                "interval": task[4],
-                "state": task[5],
+                "interval": task[0].INTEVAL,
+                "state": task[0].STATE,
                 "downloader": downloader_info.get("name"),
-                "transfer": task[7],
-                "free": task[8],
-                "rss_rule": eval(task[9]),
-                "remove_rule": eval(task[10]),
-                "seed_size": task[11],
-                "download_count": task[12],
-                "remove_count": task[13],
-                "download_size": StringUtils.str_filesize(task[14]),
-                "upload_size": StringUtils.str_filesize(task[15]),
-                "lst_mod_date": task[16],
+                "transfer": task[0].TRANSFER,
+                "free": task[0].FREELEECH,
+                "rss_rule": eval(task[0].RSS_RULE),
+                "remove_rule": eval(task[0].REMOVE_RULE),
+                "seed_size": task[0].SEED_SIZE,
+                "download_count": task[0].DOWNLOAD_COUNT,
+                "remove_count": task[0].REMOVE_COUNT,
+                "download_size": StringUtils.str_filesize(task[0].DOWNLOAD_SIZE),
+                "upload_size": StringUtils.str_filesize(task[0].UPLOAD_SIZE),
+                "lst_mod_date": task[0].LST_MOD_DATE,
                 "site_url": "%s://%s" % (scheme, netloc),
                 "sendmessage": sendmessage_switch,
                 "forceupload": forceupload_switch

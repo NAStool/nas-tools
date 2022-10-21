@@ -1604,26 +1604,26 @@ class WebAction:
         brushtask = DbHelper.get_brushtasks(brush_id)
         if not brushtask:
             return {"code": 1, "task": {}}
-        scheme, netloc = StringUtils.get_url_netloc(brushtask[0][17])
-        sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, brushtask[0][2])
-        forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, brushtask[0][2])
+        scheme, netloc = StringUtils.get_url_netloc(brushtask[1].NAME)
+        sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, brushtask[0].SITE)
+        forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, brushtask[0].SITE)
         task = {
-            "id": brushtask[0][0],
-            "name": brushtask[0][1],
-            "site": brushtask[0][2],
-            "interval": brushtask[0][4],
-            "state": brushtask[0][5],
-            "downloader": brushtask[0][6],
-            "transfer": brushtask[0][7],
-            "free": brushtask[0][8],
-            "rss_rule": eval(brushtask[0][9]),
-            "remove_rule": eval(brushtask[0][10]),
-            "seed_size": brushtask[0][11],
-            "download_count": brushtask[0][12],
-            "remove_count": brushtask[0][13],
-            "download_size": StringUtils.str_filesize(brushtask[0][14]),
-            "upload_size": StringUtils.str_filesize(brushtask[0][15]),
-            "lst_mod_date": brushtask[0][16],
+            "id": brushtask[0].ID,
+            "name": brushtask[0].NAME,
+            "site": brushtask[0].SITE,
+            "interval": brushtask[0].INTEVAL,
+            "state": brushtask[0].STATE,
+            "downloader": brushtask[0].DOWNLOADER,
+            "transfer": brushtask[0].TRANSFER,
+            "free": brushtask[0].FREELEECH,
+            "rss_rule": eval(brushtask[0].RSS_RULE),
+            "remove_rule": eval(brushtask[0].REMOVE_RULE),
+            "seed_size": brushtask[0].SEED_SIZE,
+            "download_count": brushtask[0].DOWNLOAD_COUNT,
+            "remove_count": brushtask[0].REMOVE_COUNT,
+            "download_size": StringUtils.str_filesize(brushtask[0].DOWNLOAD_SIZE),
+            "upload_size": StringUtils.str_filesize(brushtask[0].UPLOAD_SIZE),
+            "lst_mod_date": brushtask[0].LST_MOD_DATE,
             "site_url": "%s://%s" % (scheme, netloc),
             "sendmessage": sendmessage_switch,
             "forceupload": forceupload_switch

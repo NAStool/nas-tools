@@ -42,9 +42,9 @@ class DictHelper:
         if not dtype or not key:
             return ""
         ret = MainDb().query(SYSTEMDICT.VALUE).filter(SYSTEMDICT.TYPE == dtype,
-                                                      SYSTEMDICT.KEY == key).count()
-        if ret and ret[0][0]:
-            return ret[0][0]
+                                                      SYSTEMDICT.KEY == key).first()
+        if ret:
+            return ret[0]
         else:
             return ""
 
