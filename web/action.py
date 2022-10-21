@@ -2408,26 +2408,26 @@ class WebAction:
             tmdb_id = data.get("tmdb_id")
             tmdb_type = data.get("tmdb_type")
             if tmdb_type == "tv":
-                if not DbHelper.is_custom_word_group_existed(tmdbid=tmdb_id, wtype=2):
+                if not DbHelper.is_custom_word_group_existed(tmdbid=tmdb_id, gtype=2):
                     tmdb_info = Media().get_tmdb_info(mtype=MediaType.TV, tmdbid=tmdb_id)
                     if not tmdb_info:
                         return {"code": 1, "msg": "添加失败，无法查询到TMDB信息"}
                     DbHelper.insert_custom_word_groups(title=tmdb_info.get("name"),
                                                        year=tmdb_info.get("first_air_date")[0:4],
-                                                       wtype=2,
+                                                       gtype=2,
                                                        tmdbid=tmdb_id,
                                                        season_count=tmdb_info.get("number_of_seasons"))
                     return {"code": 0, "msg": ""}
                 else:
                     return {"code": 1, "msg": "识别词组（TMDB ID）已存在"}
             elif tmdb_type == "movie":
-                if not DbHelper.is_custom_word_group_existed(tmdbid=tmdb_id, wtype=1):
+                if not DbHelper.is_custom_word_group_existed(tmdbid=tmdb_id, gtype=1):
                     tmdb_info = Media().get_tmdb_info(mtype=MediaType.MOVIE, tmdbid=tmdb_id)
                     if not tmdb_info:
                         return {"code": 1, "msg": "添加失败，无法查询到TMDB信息"}
                     DbHelper.insert_custom_word_groups(title=tmdb_info.get("title"),
                                                        year=tmdb_info.get("release_date")[0:4],
-                                                       wtype=1,
+                                                       gtype=1,
                                                        tmdbid=tmdb_id,
                                                        season_count=0)
                     return {"code": 0, "msg": ""}
@@ -2442,8 +2442,8 @@ class WebAction:
     @staticmethod
     def __delete_custom_word_group(data):
         try:
-            wid = data.get("gid")
-            DbHelper.delete_custom_word_group(wid=wid)
+            gid = data.get("gid")
+            DbHelper.delete_custom_word_group(gid=gid)
             WordsHelper().init_config()
             return {"code": 0, "msg": ""}
         except Exception as e:
@@ -2633,16 +2633,16 @@ class WebAction:
                 word_info = DbHelper.get_custom_words(wid=word_id)
                 if word_info:
                     word_info = word_info[0]
-                    export_dict[str(word_info[7])]["words"][str(word_info[0])] = {"id": word_info.ID,
-                                                                                  "replaced": word_info.REPLACED,
-                                                                                  "replace": word_info.REPLACE,
-                                                                                  "front": word_info.FRONT,
-                                                                                  "back": word_info.BACK,
-                                                                                  "offset": word_info.OFFSET,
-                                                                                  "type": word_info.TYPE,
-                                                                                  "season": word_info.SEASON,
-                                                                                  "regex": word_info.REGEX,
-                                                                                  "help": word_info.HELP, }
+                    export_dict[str(word_info.GROUP_ID)]["words"][str(word_info.ID)] = {"id": word_info.ID,
+                                                                                        "replaced": word_info.REPLACED,
+                                                                                        "replace": word_info.REPLACE,
+                                                                                        "front": word_info.FRONT,
+                                                                                        "back": word_info.BACK,
+                                                                                        "offset": word_info.OFFSET,
+                                                                                        "type": word_info.TYPE,
+                                                                                        "season": word_info.SEASON,
+                                                                                        "regex": word_info.REGEX,
+                                                                                        "help": word_info.HELP, }
             export_string = json.dumps(export_dict) + "@@@@@@" + str(note)
             string = base64.b64encode(export_string.encode("utf-8")).decode('utf-8')
             return {"code": 0, "string": string}
@@ -2697,16 +2697,16 @@ class WebAction:
                     continue
                 title = import_group_info.get("title")
                 year = import_group_info.get("year")
-                wtype = import_group_info.get("type")
+                gtype = import_group_info.get("type")
                 tmdbid = import_group_info.get("tmdbid")
                 season_count = import_group_info.get("season_count")
-                if not DbHelper.is_custom_word_group_existed(tmdbid=tmdbid, wtype=wtype):
+                if not DbHelper.is_custom_word_group_existed(tmdbid=tmdbid, gtype=gtype):
                     DbHelper.insert_custom_word_groups(title=title,
                                                        year=year,
-                                                       wtype=wtype,
+                                                       gtype=gtype,
                                                        tmdbid=tmdbid,
                                                        season_count=season_count)
-                group_info = DbHelper.get_custom_word_groups(tmdbid=tmdbid, wtype=wtype)
+                group_info = DbHelper.get_custom_word_groups(tmdbid=tmdbid, gtype=gtype)
                 if group_info:
                     group_id_dict[import_group_id] = group_info[0].ID
             for id_info in ids_info:
