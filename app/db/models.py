@@ -90,7 +90,7 @@ class CUSTOMWORDS(Base):
     REPLACE = Column(Text)
     FRONT = Column(Text)
     BACK = Column(Text)
-    OFFSET = Column(Integer)
+    OFFSET = Column(Text)
     TYPE = Column(Integer)
     GROUP_ID = Column(Integer)
     SEASON = Column(Integer)

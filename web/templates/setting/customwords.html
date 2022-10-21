@@ -144,11 +144,8 @@
                   <td>{{ Word.replaced }}</td>
                   <td>{{ Word.replace }}</td>
                   <td>
-                    {% if Word.offset > 0 %}
-                    <span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">+{{ Word.offset }}</span>
-                    {% endif %}
-                    {% if Word.offset < 0 %}
-                    <span class="badge badge-outline text-orange me-1 mb-1" style="vertical-align: middle;">{{ Word.offset }}</span>
+                    {% if Word.offset %}
+                    <span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">{{ Word.offset }}</span>
                     {% endif %}
                   </td>
                   <td>{{ Word.front }}</td>
@@ -159,16 +156,21 @@
                     {% else %}
                     <span class="badge badge-outline text-red me-1 mb-1" style="vertical-align: middle;">停用</span>
                     {% endif %}
-                    {% if Word.season != -2 %}
-                    {% if Word.season == -1 %}
-                    <span class="badge me-1 mb-1" style="vertical-align: middle;">全部季</span>
-                    {% else %}
-                    <span class="badge me-1 mb-1" style="vertical-align: middle;">第 {{ Word.season }} 季</span>
-                    {% endif %}
+                    {% if Word.regex == 1 %}
+                    <span class="badge badge-outline text-blue me-1 mb-1" style="vertical-align: middle;">RegEx</span>
                     {% endif %}
                   </td>
                   <td>
-                    {{ Word.help or '' }}
+                    {% if Word.season != -2 %}
+                    {% if Word.season == -1 %}
+                    <span class="badge badge-outline text-orange me-1 mb-1" style="vertical-align: middle;">全部季</span>
+                    {% else %}
+                    <span class="badge badge-outline text-orange me-1 mb-1" style="vertical-align: middle;">第{{ Word.season }}季</span>
+                    {% endif %}
+                    {% endif %}
+                    {% if Word.help %}
+                    <span class="form-help" title="{{ Word.help }}" data-bs-toggle="tooltip">?</span>
+                    {% endif %}
                   </td>
                   <td>
                     <div class="d-flex">
@@ -252,7 +254,7 @@
             </div>
             <div class="col-lg-2" id="offset_div">
               <div class="mb-3">
-                <label class="form-label required">偏移集数 <span class="form-help" title="正数向后偏移，负数向前偏移" data-bs-toggle="tooltip">?</span></label>
+                <label class="form-label required">偏移集数 <span class="form-help" title="偏移集数支持运算，例如集数加1：n+1；集数翻倍：2*n；集数翻倍-1：2*n-1" data-bs-toggle="tooltip">?</span></label>
                 <input type="text" value="" id="new_offset" class="form-control"">
               </div>
             </div>
@@ -544,12 +546,10 @@
     }else{
       $("#export_note").removeClass("is-invalid");
     }
-    $("#modal-export-custom-words").modal('hide');
     show_wait_process();
     ajax_post("export_custom_words", {note: export_note, ids_info: export_ids_info}, function (ret) {
       hide_wait_process();
       if(ret.code == 0){
-        $("#modal-export-custom-words").modal('show');
         $("#export_code").text(ret.string);
         $("#export_btn_1").attr("style", "display: none;");
         $("#export_btn_2").attr("href", "");
@@ -576,7 +576,6 @@
   function analyse_import_custom_words_code(){
     var import_code = $("#import_code").val();
     $("#import_groups_div").empty();
-    $("#modal-import-custom-words").modal('hide');
     show_wait_process();
     ajax_post("analyse_import_custom_words_code", {import_code: import_code}, function (ret) {
       hide_wait_process();
@@ -599,10 +598,8 @@
             var checkbox = `<td><input class="form-check-input m-0 align-middle" id="import_check_group${Group.id}_${Word.id}" type="checkbox"></td>`;
             var replaced = `<td>${Word.replaced}</td>`;
             var replace = `<td>${Word.replace}</td>`;
-            if(Word.offset > 0){
-              var offset = `<td><span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">+${Word.offset}</span></td>`;
-            }else if(Word.offset < 0){
-              var offset = `<td><span class="badge badge-outline text-orange me-1 mb-1" style="vertical-align: middle;">${Word.offset}</span></td>`;
+            if(Word.offset){
+              var offset = `<td><span class="badge badge-outline text-cyan me-1 mb-1" style="vertical-align: middle;">${Word.offset}</span></td>`;
             }else{
               var offset = "<td></td>";
             }
@@ -646,7 +643,6 @@
         $("#import_groups_div").attr("style", "display: block;");
         $("#import_note_div").attr("style", "display: block;");
         $("#import_code_div").attr("style", "display: none;");
-        $("#modal-import-custom-words").modal('show');
       }
     });
   }
@@ -754,11 +750,7 @@
         $("#new_replace").val(word.replace);
         $("#new_front").val(word.front);
         $("#new_back").val(word.back);
-        if(word.offset == 0){
-          $("#new_offset").val('');
-        }else{
-          $("#new_offset").val(word.offset);
-        }
+        $("#new_offset").val(word.offset);
         $("#new_help").val(word.help);
         show_custom_word_group_type(group_type, seasons);
         if(group_type == '1'){
@@ -828,7 +820,7 @@
       }else{
         $("#new_back").removeClass("is-invalid");
       }
-      if(!new_offset || isNaN(new_offset) || new_offset ==0){
+      if(!new_offset){
         $("#new_offset").addClass("is-invalid");
         return;
       }else{
@@ -861,7 +853,7 @@
       }else{
         $("#new_back").removeClass("is-invalid");
       }
-      if(!new_offset || isNaN(new_offset) || new_offset ==0){
+      if(!new_offset){
         $("#new_offset").addClass("is-invalid");
         return;
       }else{
@@ -882,11 +874,11 @@
                    type: type,
                    enabled: enabled,
                    regex: regex};
-    $("#modal-set-custom-word").modal('hide');
     show_wait_process();
     ajax_post("add_or_edit_custom_word", custom_word, function (ret) {
       hide_wait_process();
       if(ret.code == 0){
+        $("#modal-set-custom-word").modal('hide');
         navmenu('customwords');
       }else{
         show_fail_modal(ret.msg);

@@ -2466,6 +2466,9 @@ class WebAction:
             season = data.get("season")
             enabled = data.get("enabled")
             regex = data.get("regex")
+            # 集数偏移格式检查
+            if re.findall(r'(?!n|-|\+|\*|/|[0-9]).', offset):
+                return {"code": 1, "msg": "偏移集数格式有误"}
             if wid:
                 DbHelper.delete_custom_word(wid=wid)
             # 电影
@@ -2478,7 +2481,7 @@ class WebAction:
                                                 replace="",
                                                 front="",
                                                 back="",
-                                                offset=0,
+                                                offset="",
                                                 wtype=wtype,
                                                 gid=gid,
                                                 season=season,
@@ -2496,7 +2499,7 @@ class WebAction:
                                                 replace=replace,
                                                 front="",
                                                 back="",
-                                                offset=0,
+                                                offset="",
                                                 wtype=wtype,
                                                 gid=gid,
                                                 season=season,
