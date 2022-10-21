@@ -7,6 +7,7 @@ import re
 import shutil
 import signal
 
+from flask import jsonify
 from flask_login import logout_user
 from werkzeug.security import generate_password_hash
 
@@ -1676,9 +1677,9 @@ class WebAction:
         dl_id = data.get("id")
         if dl_id:
             info = DbHelper.get_user_downloaders(dl_id)
-            return {"code": 0, "info": info[0] if info else None}
-        else:
-            return {"code": 1}
+            if info:
+                return {"code": 0, "info": info.as_dict()}
+        return {"code": 1}
 
     def __name_test(self, data):
         """

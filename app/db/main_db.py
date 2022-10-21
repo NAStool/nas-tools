@@ -73,6 +73,7 @@ class MainDb:
                 self.__session.add(data)
             return True
         except Exception as e:
+            self.__session.rollback()
             print(str(e))
         finally:
             self.__session.commit()

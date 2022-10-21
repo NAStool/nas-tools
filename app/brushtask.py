@@ -448,14 +448,14 @@ class BrushTask(object):
             return {}
         downloader_info = DbHelper.get_user_downloaders(dlid)
         if downloader_info:
-            userconfig = {"id": downloader_info[0].ID,
-                          "name": downloader_info[0].NAME,
-                          "type": downloader_info[0].TYPE,
-                          "host": downloader_info[0].HOST,
-                          "port": downloader_info[0].PORT,
-                          "username": downloader_info[0].USERNAME,
-                          "password": downloader_info[0].PASSWORD,
-                          "save_dir": downloader_info[0].SAVE_DIR}
+            userconfig = {"id": downloader_info.ID,
+                          "name": downloader_info.NAME,
+                          "type": downloader_info.TYPE,
+                          "host": downloader_info.HOST,
+                          "port": downloader_info.PORT,
+                          "username": downloader_info.USERNAME,
+                          "password": downloader_info.PASSWORD,
+                          "save_dir": downloader_info.SAVE_DIR}
             return userconfig
         return {}
 

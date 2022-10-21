@@ -269,7 +269,7 @@ class DbHelper:
         """
         查询未识别的记录列表
         """
-        return MainDb().query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.STATE == 'N')
+        return MainDb().query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.STATE == 'N').all()
 
     @staticmethod
     def update_transfer_unknown_state(path):
@@ -1503,7 +1503,7 @@ class DbHelper:
         查询自定义下载器
         """
         if did:
-            return MainDb().query(SITEBRUSHDOWNLOADERS).filter(SITEBRUSHDOWNLOADERS.id == int(did)).all()
+            return MainDb().query(SITEBRUSHDOWNLOADERS).filter(SITEBRUSHDOWNLOADERS.ID == int(did)).first()
         else:
             return MainDb().query(SITEBRUSHDOWNLOADERS).all()
 
