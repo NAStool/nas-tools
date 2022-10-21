@@ -1294,8 +1294,8 @@ def create_flask_app():
             groups.append({"id": gid,
                            "name": name,
                            "link": link,
-                           "type": group_info[3],
-                           "seasons": group_info[5],
+                           "type": group_info.TYPE,
+                           "seasons": group_info.SEASON_COUNT,
                            "words": words})
         return render_template("setting/customwords.html",
                                Groups=groups,

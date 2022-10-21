@@ -24,7 +24,7 @@ class MediaDb:
             pool_size=5,
             pool_recycle=60 * 30
         )
-        self.__session = scoped_session(sessionmaker(bind=self.__engine))()
+        self.__session = scoped_session(sessionmaker(bind=self.__engine, autocommit=True))()
         self.__init_db()
 
     def __init_db(self):

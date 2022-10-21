@@ -2633,16 +2633,16 @@ class WebAction:
                 word_info = DbHelper.get_custom_words(wid=word_id)
                 if word_info:
                     word_info = word_info[0]
-                    export_dict[str(word_info[7])]["words"][str(word_info[0])] = {"id": word_info.ID,
-                                                                                  "replaced": word_info.REPLACED,
-                                                                                  "replace": word_info.REPLACE,
-                                                                                  "front": word_info.FRONT,
-                                                                                  "back": word_info.BACK,
-                                                                                  "offset": word_info.OFFSET,
-                                                                                  "type": word_info.TYPE,
-                                                                                  "season": word_info.SEASON,
-                                                                                  "regex": word_info.REGEX,
-                                                                                  "help": word_info.HELP, }
+                    export_dict[str(word_info.GROUP_ID)]["words"][str(word_info.ID)] = {"id": word_info.ID,
+                                                                                        "replaced": word_info.REPLACED,
+                                                                                        "replace": word_info.REPLACE,
+                                                                                        "front": word_info.FRONT,
+                                                                                        "back": word_info.BACK,
+                                                                                        "offset": word_info.OFFSET,
+                                                                                        "type": word_info.TYPE,
+                                                                                        "season": word_info.SEASON,
+                                                                                        "regex": word_info.REGEX,
+                                                                                        "help": word_info.HELP, }
             export_string = json.dumps(export_dict) + "@@@@@@" + str(note)
             string = base64.b64encode(export_string.encode("utf-8")).decode('utf-8')
             return {"code": 0, "string": string}

@@ -132,8 +132,7 @@
                   <th>状态</th>
                   <th>备注</th>
                   {% if Group.words %}
-                  <th class="w-2"></th>
-                  <th class="w-2"></th>
+                  <th class="w-5"></th>
                   {% endif %}
                 </tr>
               </thead>
@@ -160,44 +159,39 @@
                     {% else %}
                     <span class="badge badge-outline text-red me-1 mb-1" style="vertical-align: middle;">停用</span>
                     {% endif %}
-                    {% if Word.regex == 1 %}
-                    <span class="badge badge-outline text-blue me-1 mb-1" style="vertical-align: middle;">RegEx</span>
-                    {% endif %}
-                  </td>
-                  <td>
                     {% if Word.season != -2 %}
                     {% if Word.season == -1 %}
-                    <span class="badge badge-outline text-blue me-1 mb-1" style="vertical-align: middle;">全部</span>
+                    <span class="badge me-1 mb-1" style="vertical-align: middle;">全部季</span>
                     {% else %}
-                    <span class="badge badge-outline text-blue me-1 mb-1" style="vertical-align: middle;">第{{ Word.season }}季</span>
+                    <span class="badge me-1 mb-1" style="vertical-align: middle;">第 {{ Word.season }} 季</span>
                     {% endif %}
-                    {% endif %}
-                    {% if Word.help %}
-                    <span class="form-help" title="{{ Word.help }}" data-bs-toggle="tooltip">?</span>
                     {% endif %}
                   </td>
                   <td>
-                    <a href="javascript:show_edit_custom_word_modal('{{ Word.id }}', '{{ Group.id }}', {{ Group.type }}, {{ Group.seasons }})" title="编辑替换词">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
-                        <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
-                        <line x1="16" y1="5" x2="19" y2="8" />
-                      </svg>
-                    </a>
+                    {{ Word.help or '' }}
                   </td>
                   <td>
-                    <a href="javascript:delete_custom_word('{{ Word.id }}')" title="删除替换词">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                      </svg>
-                    </a>
+                    <div class="d-flex">
+                      <a href="javascript:show_edit_custom_word_modal('{{ Word.id }}', '{{ Group.id }}', {{ Group.type }}, {{ Group.seasons }})" title="编辑替换词">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 7h-3a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-3" />
+                          <path d="M9 15h3l8.5 -8.5a1.5 1.5 0 0 0 -3 -3l-8.5 8.5v3" />
+                          <line x1="16" y1="5" x2="19" y2="8" />
+                        </svg>
+                      </a>
+                      <a href="javascript:delete_custom_word('{{ Word.id }}')" title="删除替换词" class="ms-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-x" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </a>
+                    </div>
                   </td>
                 </tr>
                 {% endfor %}
                 {% else %}
-                <tr><td colspan="7" align="center">未配置</td></tr>
+                <tr><td colspan="6" align="center">未配置</td></tr>
                 {% endif %}
               </tbody>
             </table>
@@ -502,11 +496,10 @@
     if(flag == "disable" || flag == "enable"){
       show_wait_process();
       ajax_post("check_custom_words", {flag: flag, ids_info: ids_info}, function (ret) {
+        hide_wait_process();
         if(ret.code == 0){
-          hide_wait_process();
           navmenu('customwords');
         }else{
-          hide_wait_process();
           show_fail_modal(ret.msg);
         }
       });
@@ -520,7 +513,9 @@
 
   // 删除自定义识别词
   function delete_custom_word(id){
+    show_wait_process();
     ajax_post("delete_custom_word", {id: id}, function (ret) {
+      hide_wait_process();
       if(ret.code == 0){
         navmenu('customwords');
       }
@@ -549,8 +544,12 @@
     }else{
       $("#export_note").removeClass("is-invalid");
     }
+    $("#modal-export-custom-words").modal('hide');
+    show_wait_process();
     ajax_post("export_custom_words", {note: export_note, ids_info: export_ids_info}, function (ret) {
+      hide_wait_process();
       if(ret.code == 0){
+        $("#modal-export-custom-words").modal('show');
         $("#export_code").text(ret.string);
         $("#export_btn_1").attr("style", "display: none;");
         $("#export_btn_2").attr("href", "");
@@ -577,7 +576,10 @@
   function analyse_import_custom_words_code(){
     var import_code = $("#import_code").val();
     $("#import_groups_div").empty();
+    $("#modal-import-custom-words").modal('hide');
+    show_wait_process();
     ajax_post("analyse_import_custom_words_code", {import_code: import_code}, function (ret) {
+      hide_wait_process();
       if(ret.code == 0){
         $("#import_note").text(ret.note_string);
         var Groups = ret.groups;
@@ -644,6 +646,7 @@
         $("#import_groups_div").attr("style", "display: block;");
         $("#import_note_div").attr("style", "display: block;");
         $("#import_code_div").attr("style", "display: none;");
+        $("#modal-import-custom-words").modal('show');
       }
     });
   }
@@ -657,15 +660,14 @@
         ids_info.push($(this).attr("id").replace("import_check_group", ""));
       }
     });
+    $("#modal-import-custom-words").modal('hide');
     show_wait_process();
     ajax_post("import_custom_words", {ids_info: ids_info, import_code: import_code}, function (ret) {
+      hide_wait_process();
       if(ret.code == 0){
         $("#import_groups_div").empty();
-        hide_wait_process();
-        $("#modal-import-custom-words").modal('hide');
         navmenu('customwords');
       }else{
-        hide_wait_process();
         show_fail_modal(ret.msg);
       }
     });
@@ -687,14 +689,13 @@
         $("#tmdb_id").removeClass("is-invalid");
       }
     var tmdb_type = $("#tmdb_type").val();
+    $("#modal-add-custom-word-group").modal('hide');
     show_wait_process();
     ajax_post("add_custom_word_group", {tmdb_id: tmdb_id, tmdb_type: tmdb_type}, function (ret) {
+      hide_wait_process();
       if(ret.code == 0){
-        hide_wait_process();
-        $("#modal-add-custom-word-group").modal('hide');
         navmenu('customwords');
       }else{
-        hide_wait_process();
         show_fail_modal(ret.msg);
       }
     });
@@ -706,11 +707,10 @@
       hide_confirm_modal();
       show_wait_process();
       ajax_post("delete_custom_word_group", {gid: gid}, function (ret) {
+        hide_wait_process();
         if(ret.code == 0){
-          hide_wait_process();
           navmenu('customwords');
         }else{
-          hide_wait_process();
           show_fail_modal(ret.msg);
         }
       });
@@ -740,8 +740,9 @@
 
   // 显示编辑识别词框
   function show_edit_custom_word_modal(id, gid, group_type, seasons){
+    show_wait_process();
     ajax_post("get_custom_word", {id: id}, function (ret) {
-      show_wait_process();
+      hide_wait_process();
       if(ret.code == 0){
         hide_wait_process();
         var word = ret.data;
@@ -881,14 +882,13 @@
                    type: type,
                    enabled: enabled,
                    regex: regex};
+    $("#modal-set-custom-word").modal('hide');
     show_wait_process();
     ajax_post("add_or_edit_custom_word", custom_word, function (ret) {
+      hide_wait_process();
       if(ret.code == 0){
-        hide_wait_process();
-        $("#modal-set-custom-word").modal('hide');
         navmenu('customwords');
       }else{
-        hide_wait_process();
         show_fail_modal(ret.msg);
       }
     });

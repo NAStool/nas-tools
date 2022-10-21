@@ -33,7 +33,7 @@ class MainDb:
                                       pool_size=5,
                                       pool_recycle=60 * 30
                                       )
-        self.__session = scoped_session(sessionmaker(bind=self.__engine))()
+        self.__session = scoped_session(sessionmaker(bind=self.__engine, autocommit=True))()
 
     def __init_db(self):
         with lock:
@@ -73,10 +73,7 @@ class MainDb:
                 self.__session.add(data)
             return True
         except Exception as e:
-            self.__session.rollback()
             print(str(e))
-        finally:
-            self.__session.commit()
         return False
 
     def query(self, *obj):
@@ -96,6 +93,4 @@ class MainDb:
             return True
         except Exception as e:
             print(str(e))
-        finally:
-            self.__session.commit()
         return False
