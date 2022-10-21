@@ -124,7 +124,7 @@ class WordsHelper:
             offset_flag = False
             for episode_num_str in episode_nums_str:
                 episode_num_int = int(episode_num_str)
-                n = episode_num_int
+                EP = episode_num_int
                 episode_num_offset_int = eval(offset)
                 # 向前偏移
                 if episode_num_int > episode_num_offset_int:
