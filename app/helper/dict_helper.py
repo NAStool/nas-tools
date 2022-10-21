@@ -1,4 +1,5 @@
 from app.db.main_db import MainDb
+from app.db.models import SYSTEMDICT
 
 
 class DictHelper:
@@ -16,11 +17,19 @@ class DictHelper:
         if not dtype or not key or not value:
             return False
         if DictHelper.exists(dtype, key):
-            return MainDb().update_by_sql("UPDATE SYSTEM_DICT SET VALUE = ? WHERE TYPE = ? AND KEY = ?",
-                                          (value, dtype, key))
+            return MainDb().query(SYSTEMDICT).filter(SYSTEMDICT.TYPE == dtype,
+                                                     SYSTEMDICT.KEY == key).update(
+                {
+                    "VALUE": value
+                }
+            )
         else:
-            return MainDb().update_by_sql("INSERT INTO SYSTEM_DICT (TYPE, KEY, VALUE, NOTE) VALUES (?, ?, ?, ?)",
-                                          (dtype, key, value, note))
+            return MainDb().add(SYSTEMDICT(
+                TYPE=dtype,
+                KEY=key,
+                VALUE=value,
+                NOTE=note
+            ))
 
     @staticmethod
     def get(dtype, key):
@@ -32,8 +41,8 @@ class DictHelper:
         """
         if not dtype or not key:
             return ""
-        ret = MainDb().select_by_sql("SELECT VALUE FROM SYSTEM_DICT WHERE TYPE = ? AND KEY = ?",
-                                     (dtype, key))
+        ret = MainDb().query(SYSTEMDICT.VALUE).filter(SYSTEMDICT.TYPE == dtype,
+                                                      SYSTEMDICT.KEY == key).count()
         if ret and ret[0][0]:
             return ret[0][0]
         else:
@@ -49,7 +58,8 @@ class DictHelper:
         """
         if not dtype or not key:
             return False
-        return MainDb().update_by_sql("DELETE FROM SYSTEM_DICT WHERE TYPE = ? AND KEY = ?", (dtype, key))
+        return MainDb().query(SYSTEMDICT).filter(SYSTEMDICT.TYPE == dtype,
+                                                 SYSTEMDICT.KEY == key).delete()
 
     @staticmethod
     def exists(dtype, key):
@@ -61,8 +71,9 @@ class DictHelper:
         """
         if not dtype or not key:
             return False
-        ret = MainDb().select_by_sql("SELECT COUNT(1) FROM SYSTEM_DICT WHERE TYPE = ? AND KEY = ?", (dtype, key))
-        if ret and ret[0][0] > 0:
+        ret = MainDb().query(SYSTEMDICT).filter(SYSTEMDICT.TYPE == dtype,
+                                                SYSTEMDICT.KEY == key).count()
+        if ret > 0:
             return True
         else:
             return False
