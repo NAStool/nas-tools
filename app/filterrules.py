@@ -24,13 +24,13 @@ class FilterRule:
         ret_groups = []
         for group in self._groups:
             group_info = {
-                "id": group[0],
-                "name": group[1],
-                "default": group[2],
-                "note": group[3]
+                "id": group.ID,
+                "name": group.GROUP_NAME,
+                "default": group.IS_DEFAULT,
+                "note": group.NOTE
             }
-            if groupid and str(groupid) == str(group[0]) \
-                    or default and group[2] == "Y":
+            if groupid and str(groupid) == str(group.ID) \
+                    or default and group.IS_DEFAULT == "Y":
                 return group_info
             ret_groups.append(group_info)
         if groupid or default:
@@ -55,22 +55,22 @@ class FilterRule:
         ret_rules = []
         for rule in self._rules:
             rule_info = {
-                "id": rule[0],
-                "group": rule[1],
-                "name": rule[2],
-                "pri": rule[3] or 0,
-                "include": rule[4].split("\n") if rule[4] else [],
-                "exclude": rule[5].split("\n") if rule[5] else [],
-                "size": rule[6],
-                "free": rule[7],
+                "id": rule.ID,
+                "group": rule.GROUP_ID,
+                "name": rule.ROLE_NAME,
+                "pri": rule.PRIORITY or 0,
+                "include": rule.INCLUDE.split("\n") if rule.INCLUDE else [],
+                "exclude": rule.EXCLUDE.split("\n") if rule.EXCLUDE else [],
+                "size": rule.SIZE_LIMIT,
+                "free": rule.NOTE,
                 "free_text": {
                     "1.0 1.0": "普通",
                     "1.0 0.0": "免费",
                     "2.0 0.0": "2X免费"
-                }.get(rule[7], "全部") if rule[7] else ""
+                }.get(rule.NOTE, "全部") if rule.NOTE else ""
             }
-            if str(rule[1]) == str(groupid) \
-                    and (not ruleid or int(ruleid) == rule[0]):
+            if str(rule.GROUP_ID) == str(groupid) \
+                    and (not ruleid or int(ruleid) == rule.ID):
                 ret_rules.append(rule_info)
         if ruleid:
             return ret_rules[0] if ret_rules else {}

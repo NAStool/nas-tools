@@ -15,7 +15,7 @@ class CONFIGFILTERGROUP(Base):
     NOTE = Column(Text)
 
 
-class CONFIGFILTERRULE(Base):
+class CONFIGFILTERRULES(Base):
     __tablename__ = 'CONFIG_FILTER_RULES'
 
     ID = Column(Integer, Sequence('ID'), primary_key=True)
@@ -55,7 +55,7 @@ class CONFIGSITE(Base):
     NOTE = Column(Text)
 
 
-class CONFIGUSER(Base):
+class CONFIGUSERS(Base):
     __tablename__ = 'CONFIG_USERS'
 
     ID = Column(Integer, Sequence('ID'), primary_key=True)
@@ -64,7 +64,7 @@ class CONFIGUSER(Base):
     PRIS = Column(Text)
 
 
-class CONFIGUSERRS(Base):
+class CONFIGUSERRSS(Base):
     __tablename__ = 'CONFIG_USER_RSS'
 
     ID = Column(Integer, Sequence('ID'), primary_key=True)
@@ -163,7 +163,7 @@ class RSSHISTORY(Base):
     NOTE = Column(Text)
 
 
-class RSSMOVY(Base):
+class RSSMOVIES(Base):
     __tablename__ = 'RSS_MOVIES'
 
     ID = Column(Integer, Sequence('ID'), primary_key=True)
@@ -191,7 +191,7 @@ class RSSTORRENTS(Base):
     EPISODE = Column(Text)
 
 
-class RSSTV(Base):
+class RSSTVS(Base):
     __tablename__ = 'RSS_TVS'
 
     ID = Column(Integer, Sequence('ID'), primary_key=True)
@@ -246,7 +246,7 @@ class SEARCHRESULTINFO(Base):
     NOTE = Column(Text)
 
 
-class SITEBRUSHDOWNLOADER(Base):
+class SITEBRUSHDOWNLOADERS(Base):
     __tablename__ = 'SITE_BRUSH_DOWNLOADERS'
 
     ID = Column(Integer, Sequence('ID'), primary_key=True)
@@ -281,7 +281,7 @@ class SITEBRUSHTASK(Base):
     LST_MOD_DATE = Column(Text)
 
 
-class SITEBRUSHTORRENT(Base):
+class SITEBRUSHTORRENTS(Base):
     __tablename__ = 'SITE_BRUSH_TORRENTS'
 
     ID = Column(Integer, Sequence('ID'), primary_key=True)

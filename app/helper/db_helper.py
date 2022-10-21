@@ -3,7 +3,7 @@ import os.path
 import time
 from enum import Enum
 
-from sqlalchemy import cast
+from sqlalchemy import cast, func
 
 from app.db.main_db import MainDb
 from app.db.models import *
@@ -465,10 +465,8 @@ class DbHelper:
         查询过滤规则组
         """
         if gid:
-            return MainDb().select_by_sql("SELECT ID,GROUP_NAME,IS_DEFAULT,NOTE "
-                                          "FROM CONFIG_FILTER_GROUP "
-                                          "WHERE ID = ?", (gid,))
-        return MainDb().select_by_sql("SELECT ID,GROUP_NAME,IS_DEFAULT,NOTE FROM CONFIG_FILTER_GROUP")
+            return MainDb().query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.ID == int(gid)).all()
+        return MainDb().query(CONFIGFILTERGROUP).all()
 
     @staticmethod
     def get_config_filter_rule(groupid=None):
@@ -476,16 +474,14 @@ class DbHelper:
         查询过滤规则
         """
         if not groupid:
-            return MainDb().select_by_sql("SELECT "
-                                          "ID,GROUP_ID,ROLE_NAME,PRIORITY,INCLUDE,EXCLUDE,SIZE_LIMIT,NOTE "
-                                          "FROM CONFIG_FILTER_RULES "
-                                          "ORDER BY GROUP_ID, CAST(PRIORITY AS DECIMAL) ASC")
+            return MainDb().query(CONFIGFILTERRULES).group_by(CONFIGFILTERRULES.GROUP_ID,
+                                                              cast(CONFIGFILTERRULES.PRIORITY,
+                                                                   Integer).asc()).all()
         else:
-            return MainDb().select_by_sql("SELECT "
-                                          "ID,GROUP_ID,ROLE_NAME,PRIORITY,INCLUDE,EXCLUDE,SIZE_LIMIT,NOTE "
-                                          "FROM CONFIG_FILTER_RULES "
-                                          "WHERE GROUP_ID = ? "
-                                          "ORDER BY CAST(PRIORITY AS DECIMAL) ASC", (groupid,))
+            return MainDb().query(CONFIGFILTERRULES).filter(
+                CONFIGFILTERRULES.GROUP_ID == int(groupid)).group_by(CONFIGFILTERRULES.GROUP_ID,
+                                                                     cast(CONFIGFILTERRULES.PRIORITY,
+                                                                          Integer).asc()).all()
 
     @staticmethod
     def get_rss_movies(state=None, rssid=None):
@@ -493,15 +489,12 @@ class DbHelper:
         查询订阅电影信息
         """
         if rssid:
-            sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE,ID FROM RSS_MOVIES WHERE ID = ?"
-            return MainDb().select_by_sql(sql, (rssid,))
+            return MainDb().query(RSSMOVIES).filter(RSSMOVIES.ID == int(rssid)).all()
         else:
             if not state:
-                sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE,ID FROM RSS_MOVIES"
-                return MainDb().select_by_sql(sql)
+                return MainDb().query(RSSMOVIES).all()
             else:
-                sql = "SELECT NAME,YEAR,TMDBID,IMAGE,DESC,STATE,ID FROM RSS_MOVIES WHERE STATE = ?"
-                return MainDb().select_by_sql(sql, (state,))
+                return MainDb().query(RSSMOVIES).filter(RSSMOVIES.STATE == state).all()
 
     @staticmethod
     def get_rss_movie_id(title, tmdbid=None):
@@ -510,14 +503,12 @@ class DbHelper:
         """
         if not title:
             return ""
-        sql = "SELECT ID FROM RSS_MOVIES WHERE NAME=?"
-        ret = MainDb().select_by_sql(sql, (StringUtils.str_sql(title),))
+        ret = MainDb().query(RSSMOVIES.ID).filter(RSSMOVIES.NAME == title).first()
         if ret:
             return ret[0][0]
         else:
             if tmdbid:
-                sql = "SELECT ID FROM RSS_MOVIES WHERE TMDBID=?"
-                ret = MainDb().select_by_sql(sql, (tmdbid,))
+                ret = MainDb().query(RSSMOVIES.ID).filter(RSSMOVIES.TMDBID == tmdbid).first()
                 if ret:
                     return ret[0][0]
         return ""
@@ -529,8 +520,7 @@ class DbHelper:
         """
         if not rssid:
             return ""
-        sql = "SELECT DESC FROM RSS_MOVIES WHERE ID = ?"
-        ret = MainDb().select_by_sql(sql, (rssid,))
+        ret = MainDb().query(RSSMOVIES.DESC).filter(RSSMOVIES.ID == int(rssid)).first()
         if ret:
             return ret[0][0]
         return ""
@@ -542,9 +532,12 @@ class DbHelper:
         """
         if not tmdbid:
             return False
-        sql = "UPDATE RSS_MOVIES SET TMDBID = ?, NAME = ?, YEAR = ?, IMAGE = ? WHERE ID = ?"
-        return MainDb().update_by_sql(sql, (
-            tmdbid, StringUtils.str_sql(title), StringUtils.str_sql(year), StringUtils.str_sql(image), rid))
+        return MainDb().query(RSSMOVIES).filter(RSSMOVIES.ID == int(rid)).update({
+            "TMDBID": tmdbid,
+            "NAME": title,
+            "YEAR": year,
+            "IMAGE": image
+        })
 
     @staticmethod
     def is_exists_rss_movie(title, year):
@@ -553,9 +546,9 @@ class DbHelper:
         """
         if not title:
             return False
-        sql = "SELECT COUNT(1) FROM RSS_MOVIES WHERE NAME=? AND YEAR = ?"
-        ret = MainDb().select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year)))
-        if ret and ret[0][0] > 0:
+        count = MainDb().query(RSSMOVIES).filter(RSSMOVIES.NAME == title,
+                                                 RSSMOVIES.YEAR == str(year)).count()
+        if count > 0:
             return True
         else:
             return False
@@ -579,7 +572,6 @@ class DbHelper:
             return False
         if DbHelper.is_exists_rss_movie(media_info.title, media_info.year):
             return True
-        sql = "INSERT INTO RSS_MOVIES(NAME,YEAR,TMDBID,IMAGE,DESC,STATE) VALUES (?, ?, ?, ?, ?, ?)"
         desc = "#".join(["|".join(sites or []),
                          "|".join(search_sites or []),
                          "Y" if over_edition else "N",
@@ -587,12 +579,14 @@ class DbHelper:
                                    StringUtils.str_sql(rss_pix),
                                    StringUtils.str_sql(rss_rule),
                                    StringUtils.str_sql(rss_team)])])
-        return MainDb().update_by_sql(sql, (StringUtils.str_sql(media_info.title),
-                                            StringUtils.str_sql(media_info.year),
-                                            StringUtils.str_sql(media_info.tmdb_id),
-                                            StringUtils.str_sql(media_info.get_message_image()),
-                                            desc,
-                                            state))
+        return MainDb().insert(RSSMOVIES(
+            NAME=media_info.title,
+            YEAR=media_info.year,
+            TMDBID=media_info.tmdb_id,
+            IMAGE=media_info.get_message_image(),
+            DESC=desc,
+            STATE=state
+        ))
 
     @staticmethod
     def delete_rss_movie(title=None, year=None, rssid=None, tmdbid=None):
@@ -602,12 +596,12 @@ class DbHelper:
         if not title and not rssid:
             return False
         if rssid:
-            return MainDb().update_by_sql("DELETE FROM RSS_MOVIES WHERE ID = ?", (rssid,))
+            return MainDb().query(RSSMOVIES).filter(RSSMOVIES.ID == int(rssid)).delete()
         else:
             if tmdbid:
-                MainDb().update_by_sql("DELETE FROM RSS_MOVIES WHERE TMDBID = ?", (tmdbid,))
-            return MainDb().update_by_sql("DELETE FROM RSS_MOVIES WHERE NAME = ? AND YEAR = ?",
-                                          (StringUtils.str_sql(title), StringUtils.str_sql(year)))
+                return MainDb().query(RSSMOVIES).filter(RSSMOVIES.TMDBID == tmdbid).delete()
+            return MainDb().query(RSSMOVIES).filter(RSSMOVIES.NAME == title,
+                                                    RSSMOVIES.YEAR == str(year)).delete()
 
     @staticmethod
     def update_rss_movie_state(title=None, year=None, rssid=None, state='R'):
@@ -617,11 +611,17 @@ class DbHelper:
         if not title and not rssid:
             return False
         if rssid:
-            sql = "UPDATE RSS_MOVIES SET STATE = ? WHERE ID = ?"
-            return MainDb().update_by_sql(sql, (state, rssid))
+            return MainDb().query(RSSMOVIES).filter(RSSMOVIES.ID == int(rssid)).update(
+                {
+                    "STATE": state
+                })
         else:
-            sql = "UPDATE RSS_MOVIES SET STATE = ? WHERE NAME = ? AND YEAR = ?"
-            return MainDb().update_by_sql(sql, (state, StringUtils.str_sql(title), StringUtils.str_sql(year)))
+            return MainDb().query(RSSMOVIES).filter(
+                RSSMOVIES.NAME == title,
+                RSSMOVIES.YEAR == str(year)).update(
+                {
+                    "STATE": state
+                })
 
     @staticmethod
     def get_rss_tvs(state=None, rssid=None):
@@ -629,22 +629,12 @@ class DbHelper:
         查询订阅电视剧信息
         """
         if rssid:
-            sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE" \
-                  ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID" \
-                  " FROM RSS_TVS" \
-                  " WHERE ID = ?"
-            return MainDb().select_by_sql(sql, (rssid,))
+            return MainDb().query(RSSTVS).filter(RSSTVS.ID == int(rssid)).all()
         else:
             if not state:
-                sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE" \
-                      ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID" \
-                      " FROM RSS_TVS"
-                return MainDb().select_by_sql(sql)
+                return MainDb().query(RSSTVS).all()
             else:
-                sql = "SELECT NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE" \
-                      ",((CAST(TOTAL AS FLOAT)-CAST(LACK AS FLOAT))/CAST(TOTAL AS FLOAT))*100,ID" \
-                      " FROM RSS_TVS WHERE STATE = ?"
-                return MainDb().select_by_sql(sql, (state,))
+                return MainDb().query(RSSTVS).filter(RSSTVS.STATE == state).all()
 
     @staticmethod
     def get_rss_tv_id(title, season=None, tmdbid=None):
@@ -654,25 +644,23 @@ class DbHelper:
         if not title:
             return ""
         if season:
-            sql = "SELECT ID FROM RSS_TVS WHERE NAME = ? AND SEASON = ?"
-            ret = MainDb().select_by_sql(sql, (StringUtils.str_sql(title), season))
+            ret = MainDb().query(RSSTVS.ID).filter(RSSTVS.NAME == title,
+                                                   RSSTVS.SEASON == season).first()
             if ret:
                 return ret[0][0]
             else:
                 if tmdbid:
-                    sql = "SELECT ID FROM RSS_TVS WHERE TMDBID=? AND SEASON = ?"
-                    ret = MainDb().select_by_sql(sql, (tmdbid, season))
+                    ret = MainDb().query(RSSTVS.ID).filter(RSSTVS.TMDBID == tmdbid,
+                                                           RSSTVS.SEASON == season).first()
                     if ret:
                         return ret[0][0]
         else:
-            sql = "SELECT ID FROM RSS_TVS WHERE NAME = ?"
-            ret = MainDb().select_by_sql(sql, (StringUtils.str_sql(title),))
+            ret = MainDb().query(RSSTVS.ID).filter(RSSTVS.NAME == title).first()
             if ret:
                 return ret[0][0]
             else:
                 if tmdbid:
-                    sql = "SELECT ID FROM RSS_TVS WHERE TMDBID=?"
-                    ret = MainDb().select_by_sql(sql, (tmdbid,))
+                    ret = MainDb().query(RSSTVS.ID).filter(RSSTVS.TMDBID == tmdbid).first()
                     if ret:
                         return ret[0][0]
         return ""
@@ -684,8 +672,7 @@ class DbHelper:
         """
         if not rssid:
             return ""
-        sql = "SELECT DESC FROM RSS_TVS WHERE ID = ?"
-        ret = MainDb().select_by_sql(sql, (rssid,))
+        ret = MainDb().query(RSSTVS).filter(RSSTVS.ID == int(rssid)).first()
         if ret:
             return ret[0][0]
         return ""
@@ -697,10 +684,16 @@ class DbHelper:
         """
         if not tmdbid:
             return False
-        sql = "UPDATE RSS_TVS SET TMDBID = ?, NAME = ?, YEAR = ?, TOTAL = ?, LACK = ?, IMAGE = ? WHERE ID = ?"
-        return MainDb().update_by_sql(sql,
-                                      (tmdbid, StringUtils.str_sql(title), year, total, lack,
-                                       StringUtils.str_sql(image), rid))
+        return MainDb().query(RSSTVS).filter(RSSTVS.ID == int(rid)).update(
+            {
+                "TMDBID": tmdbid,
+                "NAME": title,
+                "YEAR": year,
+                "TOTAL": total,
+                "LACK": lack,
+                "IMAGE": image
+            }
+        )
 
     @staticmethod
     def is_exists_rss_tv(title, year, season=None):
@@ -710,12 +703,13 @@ class DbHelper:
         if not title:
             return False
         if season:
-            sql = "SELECT COUNT(1) FROM RSS_TVS WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-            ret = MainDb().select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year), season))
+            count = MainDb().query(RSSTVS).filter(RSSTVS.NAME == title,
+                                                  RSSTVS.YEAR == str(year),
+                                                  RSSTVS.SEASON == season).count()
         else:
-            sql = "SELECT COUNT(1) FROM RSS_TVS WHERE NAME = ? AND YEAR = ?"
-            ret = MainDb().select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(year)))
-        if ret and ret[0][0] > 0:
+            count = MainDb().query(RSSTVS).filter(RSSTVS.NAME == title,
+                                                  RSSTVS.YEAR == str(year)).count()
+        if count > 0:
             return True
         else:
             return False
@@ -747,7 +741,6 @@ class DbHelper:
         if DbHelper.is_exists_rss_tv(media_info.title, media_info.year, season_str):
             return True
         # 插入订阅数据
-        sql = "INSERT INTO RSS_TVS(NAME,YEAR,SEASON,TMDBID,IMAGE,DESC,TOTAL,LACK,STATE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"
         desc = "#".join(["|".join(sites or []),
                          "|".join(search_sites or []),
                          "Y" if over_edition else "N",
@@ -757,15 +750,17 @@ class DbHelper:
                                    StringUtils.str_sql(rss_team)]),
                          "@".join([StringUtils.str_sql(total_ep),
                                    StringUtils.str_sql(current_ep)])])
-        return MainDb().update_by_sql(sql, (StringUtils.str_sql(media_info.title),
-                                            StringUtils.str_sql(media_info.year),
-                                            season_str,
-                                            StringUtils.str_sql(media_info.tmdb_id),
-                                            StringUtils.str_sql(media_info.get_message_image()),
-                                            desc,
-                                            total,
-                                            lack,
-                                            state))
+        return MainDb().insert(RSSTVS(
+            NAME=media_info.title,
+            YEAR=media_info.year,
+            SEASON=season_str,
+            TMDBID=media_info.tmdb_id,
+            IMAGE=media_info.get_message_image(),
+            DESC=desc,
+            TOTAL=total,
+            LACK=lack,
+            STATE=state
+        ))
 
     @staticmethod
     def update_rss_tv_lack(title=None, year=None, season=None, rssid=None, lack_episodes: list = None):
@@ -780,11 +775,19 @@ class DbHelper:
             lack = len(lack_episodes)
         if rssid:
             DbHelper.update_rss_tv_episodes(rssid, lack_episodes)
-            sql = "UPDATE RSS_TVS SET LACK=? WHERE ID = ?"
-            return MainDb().update_by_sql(sql, (lack, rssid))
+            return MainDb().query(RSSTVS).filter(RSSTVS.ID == int(rssid)).update(
+                {
+                    "LACK": lack
+                }
+            )
         else:
-            sql = "UPDATE RSS_TVS SET LACK=? WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-            return MainDb().update_by_sql(sql, (lack, StringUtils.str_sql(title), StringUtils.str_sql(year), season))
+            return MainDb().query(RSSTVS).filter(RSSTVS.NAME == title,
+                                                 RSSTVS.YEAR == str(year),
+                                                 RSSTVS.SEASON == season).update(
+                {
+                    "LACK": lack
+                }
+            )
 
     @staticmethod
     def delete_rss_tv(title=None, season=None, rssid=None, tmdbid=None):
@@ -793,15 +796,12 @@ class DbHelper:
         """
         if not title and not rssid:
             return False
+        if not rssid:
+            rssid = DbHelper.get_rss_tv_id(title=title, tmdbid=tmdbid, season=season)
         if rssid:
             DbHelper.delete_rss_tv_episodes(rssid)
-            return MainDb().update_by_sql("DELETE FROM RSS_TVS WHERE ID = ?", (rssid,))
-        else:
-            rssid = DbHelper.get_rss_tv_id(title=title, tmdbid=tmdbid, season=season)
-            if rssid:
-                DbHelper.delete_rss_tv_episodes(rssid)
-                return DbHelper.delete_rss_tv(rssid=rssid)
-            return False
+            return MainDb().query(RSSTVS).filter(RSSTVS.ID == int(rssid)).delete()
+        return False
 
     @staticmethod
     def is_exists_rss_tv_episodes(rid):
@@ -810,9 +810,8 @@ class DbHelper:
         """
         if not rid:
             return False
-        sql = "SELECT COUNT(1) FROM RSS_TV_EPISODES WHERE RSSID = ?"
-        ret = MainDb().select_by_sql(sql, (rid,))
-        if ret and ret[0][0] > 0:
+        count = MainDb().query(RSSTVEPISODES).filter(RSSTVEPISODES.RSSID == int(rid)).count()
+        if count > 0:
             return True
         else:
             return False
@@ -829,12 +828,16 @@ class DbHelper:
         else:
             episodes = [str(epi) for epi in episodes]
         if DbHelper.is_exists_rss_tv_episodes(rid):
-            sql = "UPDATE RSS_TV_EPISODES SET EPISODES = ? WHERE RSSID = ?"
-            ret = MainDb().update_by_sql(sql, (",".join(episodes), rid))
+            return MainDb().query(RSSTVEPISODES).filter(RSSTVEPISODES.RSSID == int(rid)).update(
+                {
+                    "EPISODES": ",".join(episodes)
+                }
+            )
         else:
-            sql = "INSERT INTO RSS_TV_EPISODES(RSSID, EPISODES) VALUES(?, ?)"
-            ret = MainDb().update_by_sql(sql, (rid, ",".join(episodes)))
-        return ret
+            return MainDb().insert(RSSTVEPISODES(
+                RSSID=rid,
+                EPISODES=",".join(episodes)
+            ))
 
     @staticmethod
     def get_rss_tv_episodes(rid):
@@ -843,8 +846,7 @@ class DbHelper:
         """
         if not rid:
             return []
-        sql = "SELECT EPISODES FROM RSS_TV_EPISODES WHERE RSSID = ?"
-        ret = MainDb().select_by_sql(sql, (rid,))
+        ret = MainDb(RSSTVEPISODES.EPISODES).filter(RSSTVEPISODES.RSSID == int(rid)).first()
         if ret:
             return [int(epi) for epi in str(ret[0][0]).split(',')]
         else:
@@ -857,8 +859,7 @@ class DbHelper:
         """
         if not rid:
             return []
-        sql = "DELETE FROM RSS_TV_EPISODES WHERE RSSID = ?"
-        return MainDb().update_by_sql(sql, (rid,))
+        return MainDb().query(RSSTVEPISODES).filter(RSSTVEPISODES.RSSID == int(rid)).delete()
 
     @staticmethod
     def update_rss_tv_state(title=None, year=None, season=None, rssid=None, state='R'):
@@ -868,11 +869,17 @@ class DbHelper:
         if not title and not rssid:
             return False
         if rssid:
-            sql = "UPDATE RSS_TVS SET STATE = ? WHERE ID = ?"
-            return MainDb().update_by_sql(sql, (state, rssid))
+            return MainDb().query(RSSTVS).filter(RSSTVS.ID == int(rssid)).update(
+                {
+                    "STATE": state
+                })
         else:
-            sql = "UPDATE RSS_TVS SET STATE = ? WHERE NAME = ? AND YEAR = ? AND SEASON = ?"
-            return MainDb().update_by_sql(sql, (state, StringUtils.str_sql(title), StringUtils.str_sql(year), season))
+            return MainDb().query(RSSTVS).filter(RSSTVS.NAME == title,
+                                                 RSSTVS.YEAR == str(year),
+                                                 RSSTVS.SEASON == season).update(
+                {
+                    "STATE": state
+                })
 
     @staticmethod
     def is_sync_in_history(path, dest):
@@ -881,11 +888,9 @@ class DbHelper:
         """
         if not path:
             return False
-        path = os.path.normpath(path)
-        dest = os.path.normpath(dest)
-        sql = "SELECT COUNT(1) FROM SYNC_HISTORY WHERE PATH = ? AND DEST = ?"
-        ret = MainDb().select_by_sql(sql, (StringUtils.str_sql(path), StringUtils.str_sql(dest)))
-        if ret and ret[0][0] > 0:
+        count = MainDb().query(SYNCHISTORY).filter(SYNCHISTORY.PATH == os.path.normpath(path),
+                                                   SYNCHISTORY.DEST == os.path.normpath(dest)).count()
+        if count > 0:
             return True
         else:
             return False
@@ -900,20 +905,18 @@ class DbHelper:
         if DbHelper.is_sync_in_history(path, dest):
             return False
         else:
-            path = os.path.normpath(path)
-            src = os.path.normpath(src)
-            dest = os.path.normpath(dest)
-            sql = "INSERT INTO SYNC_HISTORY(PATH, SRC, DEST) VALUES (?, ?, ?)"
-            return MainDb().update_by_sql(sql, (
-                StringUtils.str_sql(path), StringUtils.str_sql(src), StringUtils.str_sql(dest)))
+            return MainDb().insert(SYNCHISTORY(
+                PATH=os.path.normpath(path),
+                SRC=os.path.normpath(src),
+                dest=os.path.normpath(dest)
+            ))
 
     @staticmethod
     def get_users():
         """
         查询用户列表
         """
-        sql = "SELECT ID,NAME,PASSWORD,PRIS FROM CONFIG_USERS"
-        return MainDb().select_by_sql(sql)
+        return MainDb().query(CONFIGUSERS).all()
 
     @staticmethod
     def is_user_exists(name):
@@ -922,9 +925,8 @@ class DbHelper:
         """
         if not name:
             return False
-        sql = "SELECT COUNT(1) FROM CONFIG_USERS WHERE NAME = ?"
-        ret = MainDb().select_by_sql(sql, (name,))
-        if ret and ret[0][0] > 0:
+        count = MainDb().query(CONFIGUSERS).filter(CONFIGUSERS.NAME == name).count()
+        if count > 0:
             return True
         else:
             return False
@@ -939,17 +941,18 @@ class DbHelper:
         if DbHelper.is_user_exists(name):
             return False
         else:
-            sql = "INSERT INTO CONFIG_USERS(NAME,PASSWORD,PRIS) VALUES (?, ?, ?)"
-            return MainDb().update_by_sql(sql,
-                                          (StringUtils.str_sql(name), StringUtils.str_sql(password),
-                                           StringUtils.str_sql(pris)))
+            return MainDb().insert(CONFIGUSERS(
+                NAME=name,
+                PASSWORD=password,
+                PRIS=pris
+            ))
 
     @staticmethod
     def delete_user(name):
         """
         删除用户
         """
-        return MainDb().update_by_sql("DELETE FROM CONFIG_USERS WHERE NAME = ?", (StringUtils.str_sql(name),))
+        return MainDb().query(CONFIGUSERS).filter(CONFIGUSERS.NAME == name).delete()
 
     @staticmethod
     def get_transfer_statistics(days=30):
@@ -968,9 +971,11 @@ class DbHelper:
         """
         更新站点用户数据中站点名称
         """
-        sql = "UPDATE SITE_USER_INFO_STATS SET SITE = ? WHERE SITE = ?"
-
-        return MainDb().update_by_sql(sql, (new_name, old_name))
+        return MainDb().query(SITEUSERINFOSTATS).filter(SITEUSERINFOSTATS.SITE == old_name).update(
+            {
+                "SITE": new_name
+            }
+        )
 
     @staticmethod
     def update_site_user_statistics(site_user_infos: list):
@@ -980,15 +985,7 @@ class DbHelper:
         if not site_user_infos:
             return
         update_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        sql = "INSERT OR REPLACE INTO SITE_USER_INFO_STATS(SITE, USERNAME, USER_LEVEL," \
-              " JOIN_AT, UPDATE_AT," \
-              " UPLOAD, DOWNLOAD, RATIO," \
-              " SEEDING, LEECHING, SEEDING_SIZE," \
-              " BONUS," \
-              " URL, FAVICON, MSG_UNREAD) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-
         data_list = []
-
         for site_user_info in site_user_infos:
             site = site_user_info.site_name
             username = site_user_info.username
@@ -1004,12 +1001,24 @@ class DbHelper:
             url = site_user_info.site_url
             favicon = site_user_info.site_favicon
             msg_unread = site_user_info.message_unread
-
-            data_list.append((
-                StringUtils.str_sql(site), username, user_level, join_at, update_at, upload, download, ratio, seeding,
-                leeching,
-                seeding_size, bonus, url, favicon, msg_unread))
-        return MainDb().update_by_sql_batch(sql, data_list)
+            data_list.append(SITEUSERINFOSTATS(
+                SITE=site,
+                USERNAME=username,
+                USER_LEVEL=user_level,
+                JOIN_AT=join_at,
+                UPDATE_AT=update_at,
+                UPLOAD=upload,
+                DOWNLOAD=download,
+                RATIO=ratio,
+                SEEDING=seeding,
+                LEECHING=leeching,
+                SEEDING_SIZE=seeding_size,
+                BONUS=bonus,
+                URL=url,
+                FAVICON=favicon,
+                MSG_UNREAD=msg_unread
+            ))
+        return MainDb().insert(data_list)
 
     @staticmethod
     def update_site_seed_info_site_name(new_name, old_name):
@@ -1019,9 +1028,11 @@ class DbHelper:
         :param old_name: 原始站点名称
         :return:
         """
-        sql = "UPDATE SITE_USER_SEEDING_INFO SET SITE = ? WHERE SITE = ?"
-
-        return MainDb().update_by_sql(sql, (new_name, old_name))
+        return MainDb().query(SITEUSERSEEDINGINFO).filter(SITEUSERSEEDINGINFO.SITE == old_name).update(
+            {
+                "SITE": new_name
+            }
+        )
 
     @staticmethod
     def update_site_seed_info(site_user_infos: list):
@@ -1031,16 +1042,15 @@ class DbHelper:
         if not site_user_infos:
             return
         update_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        sql = "INSERT OR REPLACE INTO SITE_USER_SEEDING_INFO(SITE, UPDATE_AT," \
-              " SEEDING_INFO," \
-              " URL) VALUES (?, ?, ?, ?)"
-
         data_list = []
         for site_user_info in site_user_infos:
-            data_list.append((StringUtils.str_sql(site_user_info.site_name), update_at, site_user_info.seeding_info,
-                              site_user_info.site_url))
-
-        return MainDb().update_by_sql_batch(sql, data_list)
+            data_list.append(SITEUSERSEEDINGINFO(
+                SITE=site_user_info.site_name,
+                UPDATE_AT=update_at,
+                SEEDING_INFO=site_user_info.seeding_info,
+                URL=site_user_info.site_url
+            ))
+        return MainDb().insert(data_list)
 
     @staticmethod
     def is_site_user_statistics_exists(url):
@@ -1049,9 +1059,8 @@ class DbHelper:
         """
         if not url:
             return False
-        sql = "SELECT COUNT(1) FROM SITE_USER_INFO_STATS WHERE URL = ? "
-        ret = MainDb().select_by_sql(sql, (url,))
-        if ret and ret[0][0] > 0:
+        count = MainDb().query(SITEUSERINFOSTATS).filter(SITEUSERINFOSTATS.URL == url).count()
+        if count > 0:
             return True
         else:
             return False
@@ -1074,9 +1083,9 @@ class DbHelper:
         """
         if not url or not date:
             return False
-        sql = "SELECT COUNT(1) FROM SITE_STATISTICS_HISTORY WHERE URL = ? AND DATE = ?"
-        ret = MainDb().select_by_sql(sql, (url, date))
-        if ret and ret[0][0] > 0:
+        count = MainDb().query(SITESTATISTICSHISTORY).filter(SITESTATISTICSHISTORY.URL == url,
+                                                             SITESTATISTICSHISTORY.DATE == date).count()
+        if count > 0:
             return True
         else:
             return False
@@ -1089,9 +1098,11 @@ class DbHelper:
         :param old_name: 原始站点名称
         :return:
         """
-        sql = "UPDATE SITE_STATISTICS_HISTORY SET SITE = ? WHERE SITE = ?"
-
-        return MainDb().update_by_sql(sql, (new_name, old_name))
+        return MainDb().query(SITESTATISTICSHISTORY).filter(SITESTATISTICSHISTORY.SITE == old_name).update(
+            {
+                "SITE": new_name
+            }
+        )
 
     @staticmethod
     def insert_site_statistics_history(site_user_infos: list):
@@ -1100,13 +1111,7 @@ class DbHelper:
         """
         if not site_user_infos:
             return
-
         date_now = time.strftime('%Y-%m-%d', time.localtime(time.time()))
-        sql = "INSERT OR REPLACE INTO SITE_STATISTICS_HISTORY(SITE, USER_LEVEL, DATE, UPLOAD, DOWNLOAD, RATIO," \
-              " SEEDING, LEECHING, SEEDING_SIZE," \
-              " BONUS," \
-              " URL) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-
         data_list = []
         for site_user_info in site_user_infos:
             site = site_user_info.site_name
@@ -1119,12 +1124,20 @@ class DbHelper:
             leeching = site_user_info.leeching
             bonus = site_user_info.bonus
             url = site_user_info.site_url
-
-            data_list.append(
-                (StringUtils.str_sql(site), user_level, date_now, upload, download, ratio, seeding, leeching,
-                 seeding_size, bonus, url))
-
-        return MainDb().update_by_sql_batch(sql, data_list)
+            data_list.append(SITESTATISTICSHISTORY(
+                SITE=site,
+                USER_LEVEL=user_level,
+                DATE=date_now,
+                UPLOAD=upload,
+                DOWNLOAD=download,
+                RATIO=ratio,
+                SEEDING=seeding,
+                LEECHING=leeching,
+                SEEDING_SIZE=seeding_size,
+                BONUS=bonus,
+                URL=url
+            ))
+        return MainDb().insert(data_list)
 
     @staticmethod
     def get_site_statistics_history(site, days=30):
@@ -1201,12 +1214,13 @@ class DbHelper:
         if not title or not tmdbid:
             return False
         if mtype:
-            sql = "SELECT COUNT(1) FROM DOWNLOAD_HISTORY WHERE (TITLE = ? OR TMDBID = ?) AND TYPE = ?"
-            ret = MainDb().select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(tmdbid), mtype))
+            count = MainDb().query(DOWNLOADHISTORY).filter(
+                (DOWNLOADHISTORY.TITLE == title) | (DOWNLOADHISTORY.TMDBID == tmdbid),
+                DOWNLOADHISTORY.TYPE == mtype).count()
         else:
-            sql = "SELECT COUNT(1) FROM DOWNLOAD_HISTORY WHERE TITLE = ? OR TMDBID = ?"
-            ret = MainDb().select_by_sql(sql, (StringUtils.str_sql(title), StringUtils.str_sql(tmdbid)))
-        if ret and ret[0][0] > 0:
+            count = MainDb().query(DOWNLOADHISTORY).filter(
+                (DOWNLOADHISTORY.TITLE == title) | (DOWNLOADHISTORY.TMDBID == tmdbid)).count()
+        if count > 0:
             return True
         else:
             return False
@@ -1221,29 +1235,32 @@ class DbHelper:
         if not media_info.title or not media_info.tmdb_id:
             return False
         if DbHelper.is_exists_download_history(media_info.title, media_info.tmdb_id, media_info.type.value):
-            sql = "UPDATE DOWNLOAD_HISTORY SET TORRENT = ?, ENCLOSURE = ?, DESC = ?, DATE = ?, SITE = ? WHERE TITLE = ? AND TMDBID = ? AND TYPE = ?"
-            return MainDb().update_by_sql(sql, (StringUtils.str_sql(media_info.org_string),
-                                                StringUtils.str_sql(media_info.enclosure),
-                                                StringUtils.str_sql(media_info.description),
-                                                time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
-                                                StringUtils.str_sql(media_info.site),
-                                                StringUtils.str_sql(media_info.title),
-                                                StringUtils.str_sql(media_info.tmdb_id),
-                                                media_info.type.value))
+            return MainDb().query(DOWNLOADHISTORY).filter(DOWNLOADHISTORY.TITLE == media_info.title,
+                                                          DOWNLOADHISTORY.TMDBID == media_info.tmdb_id,
+                                                          DOWNLOADHISTORY.TYPE == media_info.type.value).update(
+                {
+                    "TORRENT": media_info.org_string,
+                    "ENCLOSURE": media_info.enclosure,
+                    "DESC": media_info.description,
+                    "DATE": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                    "SITE": media_info.site
+                }
+            )
         else:
-            sql = "INSERT INTO DOWNLOAD_HISTORY(TITLE,YEAR,TYPE,TMDBID,VOTE,POSTER,OVERVIEW,TORRENT,ENCLOSURE,DESC,DATE,SITE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-            return MainDb().update_by_sql(sql, (StringUtils.str_sql(media_info.title),
-                                                StringUtils.str_sql(media_info.year),
-                                                media_info.type.value,
-                                                media_info.tmdb_id,
-                                                media_info.vote_average,
-                                                media_info.get_poster_image(),
-                                                StringUtils.str_sql(media_info.overview),
-                                                StringUtils.str_sql(media_info.org_string),
-                                                StringUtils.str_sql(media_info.enclosure),
-                                                StringUtils.str_sql(media_info.description),
-                                                time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
-                                                StringUtils.str_sql(media_info.site)))
+            return MainDb().insert(DOWNLOADHISTORY(
+                TITLE=media_info.title,
+                YEAR=media_info.year,
+                TYPE=media_info.type.value,
+                TMDBID=media_info.tmdb_id,
+                VOTE=media_info.vote_average,
+                POSTER=media_info.get_poster_image(),
+                OVERVIEW=media_info.overview,
+                TORRENT=media_info.org_string,
+                ENCLOSURE=media_info.enclosure,
+                DESC=media_info.description,
+                DATE=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                SITE=media_info.site
+            ))
 
     @staticmethod
     def get_download_history(date=None, hid=None, num=30, page=1):
@@ -1268,9 +1285,8 @@ class DbHelper:
         """
         if DbHelper.is_exists_download_history(title, tmdbid):
             return True
-        sql = "SELECT COUNT(1) FROM TRANSFER_HISTORY WHERE TITLE = ?"
-        ret = MainDb().select_by_sql(sql, (StringUtils.str_sql(title),))
-        if ret and ret[0][0] > 0:
+        count = MainDb().query(TRANSFERHISTORY).filter(TRANSFERHISTORY.TITLE == title).count()
+        if count > 0:
             return True
         else:
             return False
@@ -1281,80 +1297,47 @@ class DbHelper:
         新增刷流任务
         """
         if not brush_id:
-            sql = '''
-                INSERT INTO SITE_BRUSH_TASK(
-                    NAME,
-                    SITE,
-                    FREELEECH,
-                    RSS_RULE,
-                    REMOVE_RULE,
-                    SEED_SIZE,
-                    INTEVAL,
-                    DOWNLOADER,
-                    TRANSFER,
-                    DOWNLOAD_COUNT,
-                    REMOVE_COUNT,
-                    DOWNLOAD_SIZE,
-                    UPLOAD_SIZE,
-                    STATE,
-                    LST_MOD_DATE
-                ) VALUES (
-                    ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-                )
-            '''
-            return MainDb().update_by_sql(sql, (item.get('name'),
-                                                item.get('site'),
-                                                item.get('free'),
-                                                str(item.get('rss_rule')),
-                                                str(item.get('remove_rule')),
-                                                item.get('seed_size'),
-                                                item.get('interval'),
-                                                item.get('downloader'),
-                                                item.get('transfer'),
-                                                0,
-                                                0,
-                                                0,
-                                                0,
-                                                item.get('state'),
-                                                time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
+            return MainDb().insert(SITEBRUSHTASK(
+                NAME=item.get('name'),
+                SITE=item.get('site'),
+                FREELEECH=item.get('free'),
+                RSS_RULE=str(item.get('rss_rule')),
+                REMOVE_RULE=str(item.get('remove_rule')),
+                SEED_SIZE=item.get('seed_size'),
+                INTEVAL=item.get('interval'),
+                DOWNLOADER=item.get('downloader'),
+                TRANSFER=item.get('transfer'),
+                DOWNLOAD_COUNT=0,
+                REMOVE_COUNT=0,
+                DOWNLOAD_SIZE=0,
+                UPLOAD_SIZE=0,
+                STATE=item.get('state'),
+                LST_MOD_DATE=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+            ))
         else:
-            sql = '''
-                UPDATE SITE_BRUSH_TASK SET
-                    NAME = ?,
-                    SITE = ?,
-                    FREELEECH = ?,
-                    RSS_RULE = ?,
-                    REMOVE_RULE = ?,
-                    SEED_SIZE = ?,
-                    INTEVAL = ?,
-                    DOWNLOADER = ?,
-                    TRANSFER = ?,
-                    STATE = ?,
-                    LST_MOD_DATE = ?
-                WHERE ID = ?
-            '''
-            return MainDb().update_by_sql(sql, (item.get('name'),
-                                                item.get('site'),
-                                                item.get('free'),
-                                                str(item.get('rss_rule')),
-                                                str(item.get('remove_rule')),
-                                                item.get('seed_size'),
-                                                item.get('interval'),
-                                                item.get('downloader'),
-                                                item.get('transfer'),
-                                                item.get('state'),
-                                                time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
-                                                brush_id))
+            return MainDb().query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).update(
+                {
+                    "NAME": item.get('name'),
+                    "SITE": item.get('site'),
+                    "FREELEECH": item.get('free'),
+                    "RSS_RULE": str(item.get('rss_rule')),
+                    "REMOVE_RULE": str(item.get('remove_rule')),
+                    "SEED_SIZE": item.get('seed_size'),
+                    "INTEVAL": item.get('interval'),
+                    "DOWNLOADER": item.get('downloader'),
+                    "TRANSFER": item.get('transfer'),
+                    "STATE": item.get('state'),
+                    "LST_MOD_DATE": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())),
+                }
+            )
 
     @staticmethod
     def delete_brushtask(brush_id):
         """
         删除刷流任务
         """
-        sql = "DELETE FROM SITE_BRUSH_TASK WHERE ID = ?"
-        MainDb().update_by_sql(sql, (brush_id,))
-        sql = "DELETE FROM SITE_BRUSH_TORRENTS WHERE TASK_ID = ?"
-        MainDb().update_by_sql(sql, (brush_id,))
+        MainDb().query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).delete()
+        MainDb().query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id).delete()
 
     @staticmethod
     def get_brushtasks(brush_id=None):
@@ -1384,9 +1367,10 @@ class DbHelper:
         """
         if not brush_id:
             return 0
-        sql = "SELECT SUM(CAST(S.TORRENT_SIZE AS DECIMAL)) FROM SITE_BRUSH_TORRENTS S WHERE S.TASK_ID = ? AND S.DOWNLOAD_ID <> '0'"
-        ret = MainDb().select_by_sql(sql, (brush_id,))
-        if ret and ret[0][0]:
+        ret = MainDb().query(func.sum(cast(SITEBRUSHTORRENTS.TORRENT_SIZE,
+                                           Integer))).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
+                                                             SITEBRUSHTORRENTS.DOWNLOAD_ID != '0').first()
+        if ret:
             return int(ret[0][0])
         else:
             return 0
@@ -1398,9 +1382,12 @@ class DbHelper:
         """
         if not brush_id:
             return
-        sql = "UPDATE SITE_BRUSH_TASK SET DOWNLOAD_COUNT = DOWNLOAD_COUNT + 1, LST_MOD_DATE = ? WHERE ID = ?"
-        return MainDb().update_by_sql(sql,
-                                      (time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())), brush_id))
+        return MainDb().query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).update(
+            {
+                "DOWNLOAD_COUNT": SITEBRUSHTASK.DOWNLOAD_COUNT + 1,
+                "LST_MOD_DATE": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+            }
+        )
 
     @staticmethod
     def get_brushtask_remove_size(brush_id):
@@ -1409,8 +1396,8 @@ class DbHelper:
         """
         if not brush_id:
             return 0
-        sql = "SELECT S.TORRENT_SIZE FROM SITE_BRUSH_TORRENTS S WHERE S.TASK_ID = ? AND S.DOWNLOAD_ID = '0'"
-        return MainDb().select_by_sql(sql, (brush_id,))
+        return MainDb().query(SITEBRUSHTORRENTS.TORRENT_SIZE).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
+                                                                     SITEBRUSHTORRENTS.DOWNLOAD_ID != '0').first()
 
     @staticmethod
     def add_brushtask_upload_count(brush_id, upload_size, download_size, remove_count):
@@ -1432,11 +1419,11 @@ class DbHelper:
                     delete_dlsize += int(sizes[1] or 0)
             else:
                 delete_upsize += int(remove_size[0])
-        sql = "UPDATE SITE_BRUSH_TASK SET REMOVE_COUNT = REMOVE_COUNT + ?, UPLOAD_SIZE = ?, DOWNLOAD_SIZE = ? WHERE ID = ?"
-        return MainDb().update_by_sql(sql,
-                                      (remove_count, int(upload_size) + delete_upsize,
-                                       int(download_size) + delete_dlsize,
-                                       brush_id))
+        return MainDb().query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).update({
+            "REMOVE_COUNT": SITEBRUSHTASK.REMOVE_COUNT + remove_count,
+            "UPLOAD_SIZE": int(upload_size) + delete_upsize,
+            "DOWNLOAD_SIZE": int(download_size) + delete_dlsize,
+        })
 
     @staticmethod
     def insert_brushtask_torrent(brush_id, title, enclosure, downloader, download_id, size):
@@ -1445,28 +1432,17 @@ class DbHelper:
         """
         if not brush_id:
             return
-        sql = '''
-            INSERT INTO SITE_BRUSH_TORRENTS(
-                TASK_ID,
-                TORRENT_NAME,
-                TORRENT_SIZE,
-                ENCLOSURE,
-                DOWNLOADER,
-                DOWNLOAD_ID,
-                LST_MOD_DATE
-            ) VALUES (
-                ?, ?, ?, ?, ?, ?, ?
-            )
-        '''
         if DbHelper.is_brushtask_torrent_exists(brush_id, title, enclosure):
             return False
-        return MainDb().update_by_sql(sql, (brush_id,
-                                            title,
-                                            size,
-                                            enclosure,
-                                            downloader,
-                                            download_id,
-                                            time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
+        return MainDb().insert(SITEBRUSHTORRENTS(
+            TASK_ID=brush_id,
+            TORRENT_NAME=title,
+            TORRENT_SIZE=size,
+            ENCLOSURE=enclosure,
+            DOWNLOADER=downloader,
+            DOWNLOAD_ID=download_id,
+            LST_MOD_DATE=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
+        ))
 
     @staticmethod
     def get_brushtask_torrents(brush_id):
@@ -1488,9 +1464,10 @@ class DbHelper:
         """
         if not brush_id:
             return False
-        sql = "SELECT COUNT(1) FROM SITE_BRUSH_TORRENTS WHERE TASK_ID = ? AND TORRENT_NAME = ? AND ENCLOSURE = ?"
-        ret = MainDb().select_by_sql(sql, (brush_id, title, enclosure))
-        if ret and ret[0][0] > 0:
+        count = MainDb().query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
+                                                         SITEBRUSHTORRENTS.TORRENT_NAME == title,
+                                                         SITEBRUSHTORRENTS.ENCLOSURE == enclosure).count()
+        if count > 0:
             return True
         else:
             return False
@@ -1502,8 +1479,14 @@ class DbHelper:
         """
         if not ids:
             return
-        sql = "UPDATE SITE_BRUSH_TORRENTS SET TORRENT_SIZE = ?, DOWNLOAD_ID = '0' WHERE TASK_ID = ? AND DOWNLOAD_ID = ?"
-        return MainDb().update_by_sql_batch(sql, ids)
+        for _id in ids:
+            MainDb().query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.TASK_ID == _id[1],
+                                                     SITEBRUSHTORRENTS.DOWNLOAD_ID == _id[2]).update(
+                {
+                    "TORRENT_SIZE": _id[0],
+                    "DOWNLOAD_ID": '0'
+                }
+            )
 
     @staticmethod
     def delete_brushtask_torrent(brush_id, download_id):
@@ -1512,8 +1495,8 @@ class DbHelper:
         """
         if not download_id or not brush_id:
             return
-        sql = "DELETE FROM SITE_BRUSH_TORRENTS WHERE TASK_ID = ? AND DOWNLOAD_ID = ?"
-        return MainDb().update_by_sql(sql, (brush_id, download_id))
+        return MainDb().query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
+                                                        SITEBRUSHTORRENTS.DOWNLOAD_ID == download_id).delete()
 
     @staticmethod
     def get_user_downloaders(did=None):
@@ -1533,36 +1516,36 @@ class DbHelper:
         新增自定义下载器
         """
         if did:
-            sql = "UPDATE SITE_BRUSH_DOWNLOADERS SET NAME=?, TYPE=?, HOST=?, PORT=?, USERNAME=?, PASSWORD=?, SAVE_DIR=?, NOTE=? " \
-                  "WHERE ID=?"
-            return MainDb().update_by_sql(sql, (StringUtils.str_sql(name),
-                                                dtype,
-                                                StringUtils.str_sql(user_config.get("host")),
-                                                StringUtils.str_sql(user_config.get("port")),
-                                                StringUtils.str_sql(user_config.get("username")),
-                                                StringUtils.str_sql(user_config.get("password")),
-                                                StringUtils.str_sql(user_config.get("save_dir")),
-                                                StringUtils.str_sql(note),
-                                                did))
+            return MainDb().query(SITEBRUSHDOWNLOADERS).filter(SITEBRUSHDOWNLOADERS.ID == int(did)).update(
+                {
+                    "NAME": name,
+                    "TYPE": dtype,
+                    "HOST": user_config.get("host"),
+                    "PORT": user_config.get("port"),
+                    "USERNAME": user_config.get("username"),
+                    "PASSWORD": user_config.get("password"),
+                    "SAVE_DIR": user_config.get("save_dir"),
+                    "NOTE": note
+                }
+            )
         else:
-            sql = "INSERT INTO SITE_BRUSH_DOWNLOADERS (NAME,TYPE,HOST,PORT,USERNAME,PASSWORD,SAVE_DIR,NOTE)" \
-                  "VALUES (?,?,?,?,?,?,?,?)"
-            return MainDb().update_by_sql(sql, (StringUtils.str_sql(name),
-                                                dtype,
-                                                StringUtils.str_sql(user_config.get("host")),
-                                                StringUtils.str_sql(user_config.get("port")),
-                                                StringUtils.str_sql(user_config.get("username")),
-                                                StringUtils.str_sql(user_config.get("password")),
-                                                StringUtils.str_sql(user_config.get("save_dir")),
-                                                StringUtils.str_sql(note)))
+            return MainDb().insert(SITEBRUSHDOWNLOADERS(
+                NAME=name,
+                TYPE=dtype,
+                HOST=user_config.get("host"),
+                PORT=user_config.get("port"),
+                USERNAME=user_config.get("username"),
+                PASSWORD=user_config.get("password"),
+                SAVE_DIR=user_config.get("save_dir"),
+                NOTE=note
+            ))
 
     @staticmethod
     def delete_user_downloader(did):
         """
         删除自定义下载器
         """
-        sql = "DELETE FROM SITE_BRUSH_DOWNLOADERS WHERE ID = ?"
-        return MainDb().update_by_sql(sql, (did,))
+        return MainDb().query(SITEBRUSHDOWNLOADERS).filter(SITEBRUSHDOWNLOADERS.ID == int(did)).delete()
 
     @staticmethod
     def add_filter_group(name, default='N'):
@@ -1573,52 +1556,49 @@ class DbHelper:
             DbHelper.set_default_filtergroup(0)
         group_id = DbHelper.get_filter_groupid_by_name(name)
         if group_id:
-            MainDb().update_by_sql("UPDATE CONFIG_FILTER_GROUP "
-                                   "SET IS_DEFAULT = ? "
-                                   "WHERE ID = ?",
-                                   (default, group_id))
+            return MainDb().query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.ID == int(group_id)).update({
+                "IS_DEFAULT": default
+            })
         else:
-            MainDb().update_by_sql("INSERT INTO CONFIG_FILTER_GROUP "
-                                   "(GROUP_NAME, IS_DEFAULT) "
-                                   "VALUES (?, ?)",
-                                   (StringUtils.str_sql(name), default))
-        return True
+            return MainDb().insert(CONFIGFILTERGROUP(
+                GROUP_NAME=name,
+                IS_DEFAULT=default
+            ))
 
     @staticmethod
     def get_filter_groupid_by_name(name):
-        ret = MainDb().select_by_sql("SELECT ID FROM CONFIG_FILTER_GROUP "
-                                     "WHERE GROUP_NAME = ?",
-                                     (name,))
-        if ret and ret[0][0]:
+        ret = MainDb().query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.GROUP_NAME == name).first()
+        if ret:
             return ret[0][0]
+        else:
+            return ""
 
     @staticmethod
     def set_default_filtergroup(groupid):
         """
         设置默认的规则组
         """
-        sql = "UPDATE CONFIG_FILTER_GROUP SET IS_DEFAULT = 'Y' WHERE ID = ?"
-        MainDb().update_by_sql(sql, (groupid,))
-        sql = "UPDATE CONFIG_FILTER_GROUP SET IS_DEFAULT = 'N' WHERE ID <> ?"
-        return MainDb().update_by_sql(sql, (groupid,))
+        MainDb().query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.ID == int(groupid)).update({
+            "IS_DEFAULT": 'Y'
+        })
+        MainDb().query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.ID != int(groupid)).update({
+            "IS_DEFAULT": 'N'
+        })
 
     @staticmethod
     def delete_filtergroup(groupid):
         """
         删除规则组
         """
-        sql = "DELETE FROM CONFIG_FILTER_RULES WHERE GROUP_ID = ?"
-        MainDb().update_by_sql(sql, (groupid,))
-        sql = "DELETE FROM CONFIG_FILTER_GROUP WHERE ID = ?"
-        return MainDb().update_by_sql(sql, (groupid,))
+        MainDb().query(CONFIGFILTERRULES).filter(CONFIGFILTERRULES.GROUP_ID == groupid).delete()
+        return MainDb().query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.ID == int(groupid)).delete()
 
     @staticmethod
     def delete_filterrule(ruleid):
         """
         删除规则
         """
-        sql = "DELETE FROM CONFIG_FILTER_RULES WHERE ID = ?"
-        return MainDb().update_by_sql(sql, (ruleid,))
+        return MainDb().query(CONFIGFILTERRULES).filter(CONFIGFILTERRULES.ID == int(ruleid)).delete()
 
     @staticmethod
     def insert_filter_rule(item, ruleid=None):
@@ -1626,27 +1606,25 @@ class DbHelper:
         新增规则
         """
         if ruleid:
-            sql = "UPDATE CONFIG_FILTER_RULES " \
-                  "SET ROLE_NAME=?,PRIORITY=?,INCLUDE=?,EXCLUDE=?,SIZE_LIMIT=?,NOTE=?" \
-                  "WHERE ID=?"
-            return MainDb().update_by_sql(sql, (item.get("name"),
-                                                item.get("pri"),
-                                                item.get("include"),
-                                                item.get("exclude"),
-                                                item.get("size"),
-                                                item.get("free"),
-                                                ruleid))
+            return MainDb().query(CONFIGFILTERRULES).filter(CONFIGFILTERRULES.ID == int(ruleid)).update(
+                {
+                    "ROLE_NAME": item.get("name"),
+                    "PRIORITY": item.get("pri"),
+                    "INCLUDE": item.get("include"),
+                    "EXCLUDE": item.get("exclude"),
+                    "SIZE_LIMIT": item.get("size"),
+                    "NOTE": item.get("free")
+                }
+            )
         else:
-            sql = "INSERT INTO CONFIG_FILTER_RULES " \
-                  "(GROUP_ID, ROLE_NAME, PRIORITY, INCLUDE, EXCLUDE, SIZE_LIMIT, NOTE)" \
-                  "VALUES (?, ?, ?, ?, ?, ?, ?)"
-            return MainDb().update_by_sql(sql, (item.get("group"),
-                                                item.get("name"),
-                                                item.get("pri"),
-                                                item.get("include"),
-                                                item.get("exclude"),
-                                                item.get("size"),
-                                                item.get("free")))
+            return MainDb().insert(CONFIGFILTERRULES(
+                ROLE_NAME=item.get("name"),
+                PRIORITY=item.get("pri"),
+                INCLUDE=item.get("include"),
+                EXCLUDE=item.get("exclude"),
+                SIZE_LIMIT=item.get("size"),
+                NOTE=item.get("free")
+            ))
 
     @staticmethod
     def get_userrss_tasks(taskid=None):
@@ -1664,53 +1642,54 @@ class DbHelper:
     def delete_userrss_task(tid):
         if not tid:
             return False
-        return MainDb().update_by_sql(
-            "DELETE FROM CONFIG_USER_RSS WHERE ID = ?", (tid,))
+        return MainDb().query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).delete()
 
     @staticmethod
     def update_userrss_task_info(tid, count):
         if not tid:
             return False
-        return MainDb().update_by_sql(
-            "UPDATE CONFIG_USER_RSS SET PROCESS_COUNT = PROCESS_COUNT + ?, UPDATE_TIME = ? WHERE ID = ?",
-            (count, time.strftime('%Y-%m-%d %H:%M:%S',
-                                  time.localtime(time.time())), tid))
+        return MainDb().query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).update(
+            {
+                "PROCESS_COUNT": CONFIGUSERRSS.PROCESS_COUNT + count,
+                "UPDATE_TIME": time.strftime('%Y-%m-%d %H:%M:%S',
+                                             time.localtime(time.time()))
+            }
+        )
 
     @staticmethod
     def update_userrss_task(item):
         if item.get("id") and DbHelper.get_userrss_tasks(item.get("id")):
-            return MainDb().update_by_sql("UPDATE CONFIG_USER_RSS "
-                                          "SET NAME=?,ADDRESS=?,PARSER=?,INTERVAL=?,USES=?,INCLUDE=?,EXCLUDE=?,FILTER=?,UPDATE_TIME=?,STATE=?,NOTE=?"
-                                          "WHERE ID=?", (item.get("name"),
-                                                         item.get("address"),
-                                                         item.get("parser"),
-                                                         item.get("interval"),
-                                                         item.get("uses"),
-                                                         item.get("include"),
-                                                         item.get("exclude"),
-                                                         item.get("filterrule"),
-                                                         time.strftime('%Y-%m-%d %H:%M:%S',
-                                                                       time.localtime(time.time())),
-                                                         item.get("state"),
-                                                         item.get("note"),
-                                                         item.get("id")))
+            return MainDb().query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(item.get("id"))).update(
+                {
+                    "NAME": item.get("name"),
+                    "ADDRESS": item.get("address"),
+                    "PARSER": item.get("parser"),
+                    "INTERVAL": item.get("interval"),
+                    "USES": item.get("uses"),
+                    "INCLUDE": item.get("include"),
+                    "EXCLUDE": item.get("exclude"),
+                    "FILTER": item.get("filterrule"),
+                    "UPDATE_TIME": time.strftime('%Y-%m-%d %H:%M:%S',
+                                                 time.localtime(time.time())),
+                    "STATE": item.get("state"),
+                    "NOTE": item.get("note")
+                }
+            )
         else:
-            return MainDb().update_by_sql("INSERT INTO CONFIG_USER_RSS"
-                                          "(NAME,ADDRESS,PARSER,INTERVAL,USES,INCLUDE,EXCLUDE,FILTER,UPDATE_TIME,PROCESS_COUNT,STATE,NOTE) "
-                                          "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)", (item.get("name"),
-                                                                               item.get("address"),
-                                                                               item.get("parser"),
-                                                                               item.get("interval"),
-                                                                               item.get("uses"),
-                                                                               item.get("include"),
-                                                                               item.get("exclude"),
-                                                                               item.get("filterrule"),
-                                                                               time.strftime('%Y-%m-%d %H:%M:%S',
-                                                                                             time.localtime(
-                                                                                                 time.time())),
-                                                                               "0",
-                                                                               item.get("state"),
-                                                                               item.get("note")))
+            return MainDb().insert(CONFIGUSERRSS(
+                NAME=item.get("name"),
+                ADDRESS=item.get("address"),
+                PARSER=item.get("parser"),
+                INTERVAL=item.get("interval"),
+                USES=item.get("uses"),
+                INCLUDE=item.get("include"),
+                EXCLUDE=item.get("exclude"),
+                FILTER=item.get("filterrule"),
+                UPDATE_TIME=time.strftime('%Y-%m-%d %H:%M:%S',
+                                          time.localtime(time.time())),
+                STATE=item.get("state"),
+                NOTE=item.get("note")
+            ))
 
     @staticmethod
     def get_userrss_parser(pid=None):

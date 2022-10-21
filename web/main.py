@@ -90,8 +90,8 @@ def create_flask_app():
             if user.get("name") == user_name:
                 return user
         for user in DbHelper.get_users():
-            if user[1] == user_name:
-                return {"id": user[0], "name": user[1], "password": user[2], "pris": user[3]}
+            if user.NAME == user_name:
+                return {"id": user.ID, "name": user.NAME, "password": user.PASSWORD, "pris": user.PRIS}
         return {}
 
     class User(UserMixin):
@@ -132,7 +132,7 @@ def create_flask_app():
                 if not user:
                     continue
                 if user[0] == user_id:
-                    return User({"id": user[0], "name": user[1], "password": user[2], "pris": user[3]})
+                    return User({"id": user.ID, "name": user.NAME, "password": user.PASSWORD, "pris": user.PRIS})
             return None
 
     # 定义获取登录用户的方法
@@ -611,10 +611,12 @@ def create_flask_app():
     @login_required
     def rss_calendar():
         Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
-        RssMovieIds = [movie[2] for movie in DbHelper.get_rss_movies()]
-        RssTvItems = [{"id": tv[3], "season": int(str(tv[2]).replace("S", "")), "name": tv[0]} for tv in
-                      DbHelper.get_rss_tvs()
-                      if tv[2]]
+        RssMovieIds = [movie.TMDBID for movie in DbHelper.get_rss_movies()]
+        RssTvItems = [{
+            "id": tv.TMDBID,
+            "season": int(str(tv.SEASON).replace("S", "")),
+            "name": tv.NAME
+        } for tv in DbHelper.get_rss_tvs() if tv.SEASON]
         return render_template("rss/rss_calendar.html",
                                Today=Today,
                                RssMovieIds=RssMovieIds,
@@ -1406,8 +1408,8 @@ def create_flask_app():
         user_count = len(user_list)
         Users = []
         for user in user_list:
-            pris = str(user[3]).split(",")
-            Users.append({"id": user[0], "name": user[1], "pris": pris})
+            pris = str(user.PRIS).split(",")
+            Users.append({"id": user.ID, "name": user.NAME, "pris": pris})
         return render_template("setting/users.html", Users=Users, UserCount=user_count)
 
     # 过滤规则设置页面

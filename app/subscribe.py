@@ -211,9 +211,9 @@ class Subscribe:
             # 登记订阅历史
             DbHelper.insert_rss_history(rssid=rssid,
                                         rtype=rtype,
-                                        name=rss[0][0],
-                                        year=rss[0][1],
-                                        tmdbid=rss[0][2],
+                                        name=rss[0].NAME,
+                                        year=rss[0].YEAR,
+                                        tmdbid=rss[0].TMDBID,
                                         image=media.get_poster_image(),
                                         desc=media.overview)
 
@@ -227,19 +227,19 @@ class Subscribe:
             if not rss:
                 return
             # 解析RSS属性
-            rss_info = Torrent.get_rss_note_item(rss[0][5])
+            rss_info = Torrent.get_rss_note_item(rss[0].DESC)
             total_ep = rss_info.get("episode_info", {}).get("total")
             start_ep = rss_info.get("episode_info", {}).get("current")
             # 登记订阅历史
             DbHelper.insert_rss_history(rssid=rssid,
                                         rtype=rtype,
-                                        name=rss[0][0],
-                                        year=rss[0][1],
-                                        season=rss[0][2],
-                                        tmdbid=rss[0][3],
+                                        name=rss[0].NAME,
+                                        year=rss[0].YEAR,
+                                        season=rss[0].SEASON,
+                                        tmdbid=rss[0].TMDBID,
                                         image=media.get_poster_image(),
                                         desc=media.overview,
-                                        total=total_ep if total_ep else rss[0][6],
+                                        total=total_ep if total_ep else rss[0].TOTAL,
                                         start=start_ep)
             # 删除订阅
             DbHelper.delete_rss_tv(rssid=rssid)

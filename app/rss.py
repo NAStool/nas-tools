@@ -54,13 +54,13 @@ class Rss:
             if not movie_keys:
                 log_warn("【Rss】没有正在订阅的电影")
             else:
-                log_info("【Rss】电影订阅清单：%s" % " ".join('%s' % key[0] for key in movie_keys))
+                log_info("【Rss】电影订阅清单：%s" % " ".join('%s' % key.NAME for key in movie_keys))
             # 读取电视剧订阅
             tv_keys = DbHelper.get_rss_tvs(state='R')
             if not tv_keys:
                 log_warn("【Rss】没有正在订阅的电视剧")
             else:
-                log_info("【Rss】电视剧订阅清单：%s" % " ".join('%s' % key[0] for key in tv_keys))
+                log_info("【Rss】电视剧订阅清单：%s" % " ".join('%s' % key.NAME for key in tv_keys))
             # 没有订阅退出
             if not movie_keys and not tv_keys:
                 return
@@ -68,7 +68,7 @@ class Rss:
             check_sites = []
             check_all = False
             for movie in movie_keys:
-                rss_info = Torrent.get_rss_note_item(movie[4])
+                rss_info = Torrent.get_rss_note_item(movie.DESC)
                 if not rss_info.get("rss_sites"):
                     check_all = True
                     break
@@ -76,7 +76,7 @@ class Rss:
                     check_sites += rss_info.get("rss_sites")
             if not check_all:
                 for tv in tv_keys:
-                    rss_info = Torrent.get_rss_note_item(tv[5])
+                    rss_info = Torrent.get_rss_note_item(tv.DESC)
                     if not rss_info.get("rss_sites"):
                         check_all = True
                         break
@@ -328,17 +328,17 @@ class Rss:
         if movies:
             log_info("【Rss】共有 %s 个电影订阅需要检索" % len(movies))
         for movie in movies:
-            rssid = movie[6]
-            name = movie[0]
-            year = movie[1] or ""
-            tmdbid = movie[2]
+            rssid = movie.ID
+            name = movie.NAME
+            year = movie.YEAR or ""
+            tmdbid = movie.TMDBID
             # 跳过模糊匹配的
             if not tmdbid:
                 continue
             # 开始搜索
             DbHelper.update_rss_movie_state(rssid=rssid, state='S')
             # 搜索站点、洗版、过滤条件
-            rss_info = Torrent.get_rss_note_item(movie[4])
+            rss_info = Torrent.get_rss_note_item(movie.DESC)
             # 识别
             media_info = self.__get_media_info(tmdbid, name, year, MediaType.MOVIE)
             # 未识别到媒体信息
@@ -383,19 +383,19 @@ class Rss:
         if tvs:
             log_info("【Rss】共有 %s 个电视剧订阅需要检索" % len(tvs))
         for tv in tvs:
-            rssid = tv[10]
-            name = tv[0]
-            year = tv[1] or ""
-            season = tv[2]
-            tmdbid = tv[3]
-            total = int(tv[6]) if str(tv[6]).isdigit() else 0
+            rssid = tv.ID
+            name = tv.NAME
+            year = tv.YEAR or ""
+            season = tv.SEASON
+            tmdbid = tv.TMDBID
+            total = int(tv.TOTAL) if str(tv.TOTAL).isdigit() else 0
             # 跳过模糊匹配的
             if not season or not tmdbid:
                 continue
             # 开始搜索
             DbHelper.update_rss_tv_state(rssid=rssid, state='S')
             # 搜索站点、洗版、过滤条件
-            rss_info = Torrent.get_rss_note_item(tv[5])
+            rss_info = Torrent.get_rss_note_item(tv.DESC)
             # 开始识别
             media_info = self.__get_media_info(tmdbid, name, year, MediaType.TV)
             # 未识别到媒体信息
@@ -487,10 +487,10 @@ class Rss:
         # 更新电影
         movies = DbHelper.get_rss_movies(state='R')
         for movie in movies:
-            rid = movie[6]
-            name = movie[0]
-            year = movie[1] or ""
-            tmdbid = movie[2]
+            rid = movie.ID
+            name = movie.NAME
+            year = movie.YEAR or ""
+            tmdbid = movie.TMDBID
             if not tmdbid:
                 continue
             # 更新TMDB信息
@@ -513,13 +513,13 @@ class Rss:
         # 更新电视剧
         tvs = DbHelper.get_rss_tvs(state='R')
         for tv in tvs:
-            rid = tv[10]
-            name = tv[0]
-            year = tv[1] or ""
-            season = tv[2]
-            tmdbid = tv[3]
-            total = int(tv[6]) if str(tv[6]).isdigit() else 0
-            lack = int(tv[7]) if str(tv[7]).isdigit() else 0
+            rid = tv.ID
+            name = tv.NAME
+            year = tv.YEAR or ""
+            season = tv.SEASON
+            tmdbid = tv.TMDBID
+            total = int(tv.TOTAL) if str(tv.TOTAL).isdigit() else 0
+            lack = int(tv.LACK) if str(tv.LACK).isdigit() else 0
             if not tmdbid or not season:
                 continue
             # 更新TMDB信息
@@ -695,12 +695,12 @@ class Rss:
             for key_info in movie_keys:
                 if not key_info:
                     continue
-                name = key_info[0]
-                year = key_info[1]
-                tmdbid = key_info[2]
-                rssid = key_info[6]
+                name = key_info.NAME
+                year = key_info.YEAR
+                tmdbid = key_info.TMDBID
+                rssid = key_info.ID
                 # 订阅站点，是否洗板，过滤字典
-                rss_info = Torrent.get_rss_note_item(key_info[4])
+                rss_info = Torrent.get_rss_note_item(key_info.DESC)
                 # 订阅有指定过滤规则时优先使用订阅的
                 if rss_info.get("filter_map") and rss_info.get("filter_map").get("rule"):
                     rulegroup = rss_info.get("filter_map").get("rule")
@@ -745,14 +745,14 @@ class Rss:
             for key_info in tv_keys:
                 if not key_info:
                     continue
-                name = key_info[0]
-                year = key_info[1]
-                season = key_info[2]
-                tmdbid = key_info[3]
-                rssid = key_info[10]
-                total_episodes = key_info[6]
+                name = key_info.NAME
+                year = key_info.YEAR
+                season = key_info.SEASON
+                tmdbid = key_info.TMDBID
+                rssid = key_info.ID
+                total_episodes = key_info.TOTAL
                 # 订阅站点
-                rss_info = Torrent.get_rss_note_item(key_info[5])
+                rss_info = Torrent.get_rss_note_item(key_info.DESC)
                 # 订阅有指定过滤规则时优先使用订阅的
                 if rss_info.get("filter_map") and rss_info.get("filter_map").get("rule"):
                     rulegroup = rss_info.get("filter_map").get("rule")

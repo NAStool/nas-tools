@@ -1449,11 +1449,11 @@ class WebAction:
             rss = DbHelper.get_rss_movies(rssid=rssid)
             if not rss:
                 return {"code": 1}
-            rss_info = Torrent.get_rss_note_item(rss[0][4])
+            rss_info = Torrent.get_rss_note_item(rss[0].NOTE)
             rssdetail = {"rssid": rssid,
-                         "name": rss[0][0],
-                         "year": rss[0][1],
-                         "tmdbid": rss[0][2],
+                         "name": rss[0].NAME,
+                         "year": rss[0].YEAR,
+                         "tmdbid": rss[0].TMDBID,
                          "r_sites": rss_info.get("rss_sites"),
                          "s_sites": rss_info.get("search_sites"),
                          "over_edition": rss_info.get("over_edition"),
@@ -1463,12 +1463,12 @@ class WebAction:
             rss = DbHelper.get_rss_tvs(rssid=rssid)
             if not rss:
                 return {"code": 1}
-            rss_info = Torrent.get_rss_note_item(rss[0][5])
+            rss_info = Torrent.get_rss_note_item(rss[0].DESC)
             rssdetail = {"rssid": rssid,
-                         "name": rss[0][0],
-                         "year": rss[0][1],
-                         "season": rss[0][2],
-                         "tmdbid": rss[0][3],
+                         "name": rss[0].NAME,
+                         "year": rss[0].YEAR,
+                         "season": rss[0].SEASON,
+                         "tmdbid": rss[0].TMDBID,
                          "r_sites": rss_info.get("rss_sites"),
                          "s_sites": rss_info.get("search_sites"),
                          "over_edition": rss_info.get("over_edition"),
@@ -2792,15 +2792,15 @@ class WebAction:
         rules = []
         for rule in group_rules:
             rules.append({
-                "name": rule[2],
-                "pri": rule[3],
-                "include": rule[4],
-                "exclude": rule[5],
-                "size": rule[6],
-                "free": rule[7]
+                "name": rule.ROLE_NAME,
+                "pri": rule.PRIORITY,
+                "include": rule.INCLUDE,
+                "exclude": rule.EXCLUDE,
+                "size": rule.SIZE_LIMIT,
+                "free": rule.NOTE
             })
         rule_json = {
-            "name": group_info[0][1],
+            "name": group_info[0].NAME,
             "rules": rules
         }
         json_string = base64.b64encode(json.dumps(rule_json).encode("utf-8")).decode('utf-8')
