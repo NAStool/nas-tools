@@ -64,36 +64,36 @@ class Sites:
         ret_sites = []
         # 补全 favicon
         site_favicons = DbHelper.get_site_user_statistics()
-        site_favicons = {site[0]: site[13] for site in site_favicons}
+        site_favicons = {site.SITE: site.FAVICON for site in site_favicons}
         for site in self.__sites:
             # 是否解析种子详情为|分隔的第1位
-            site_parse = str(site[9]).split("|")[0] or "Y"
+            site_parse = str(site.NOTE).split("|")[0] or "Y"
             # 站点过滤规则为|分隔的第2位
-            rule_groupid = str(site[9]).split("|")[1] if site[9] and len(str(site[9]).split("|")) > 1 else ""
+            rule_groupid = str(site.NOTE).split("|")[1] if site.NOTE and len(str(site.NOTE).split("|")) > 1 else ""
             # 站点未读消息为|分隔的第3位
-            site_unread_msg_notify = str(site[9]).split("|")[2] if site[9] and len(str(site[9]).split("|")) > 2 else "Y"
+            site_unread_msg_notify = str(site.NOTE).split("|")[2] if site.NOTE and len(str(site.NOTE).split("|")) > 2 else "Y"
             # 自定义UA为|分隔的第4位
-            ua = str(site[9]).split("|")[3] if site[9] and len(str(site[9]).split("|")) > 3 else ""
+            ua = str(site.NOTE).split("|")[3] if site.NOTE and len(str(site.NOTE).split("|")) > 3 else ""
             # 是否开启浏览器仿真为|分隔的第5位
-            chrome = str(site[9]).split("|")[4] if site[9] and len(str(site[9]).split("|")) > 4 else "N"
+            chrome = str(site.NOTE).split("|")[4] if site.NOTE and len(str(site.NOTE).split("|")) > 4 else "N"
             # 是否使用代理为|分隔的第6位
-            proxy = str(site[9]).split("|")[5] if site[9] and len(str(site[9]).split("|")) > 5 else "N"
+            proxy = str(site.NOTE).split("|")[5] if site.NOTE and len(str(site.NOTE).split("|")) > 5 else "N"
             # 站点用途：Q签到、D订阅、S刷流
-            signin_enable = True if site[6] and str(site[6]).count("Q") else False
-            rss_enable = True if site[6] and str(site[6]).count("D") else False
-            brush_enable = True if site[6] and str(site[6]).count("S") else False
-            statistic_enable = True if site[6] and str(site[6]).count("T") else False
+            signin_enable = True if site.INCLUDE and str(site.INCLUDE).count("Q") else False
+            rss_enable = True if site.INCLUDE and str(site.INCLUDE).count("D") else False
+            brush_enable = True if site.INCLUDE and str(site.INCLUDE).count("S") else False
+            statistic_enable = True if site.INCLUDE and str(site.INCLUDE).count("T") else False
             if rule_groupid:
                 rule_name = self.filtersites.get_rule_groups(rule_groupid).get("name") or ""
             else:
                 rule_name = ""
             site_info = {
-                "id": site[0],
-                "name": site[1],
-                "pri": site[2] or 0,
-                "rssurl": site[3],
-                "signurl": site[4],
-                "cookie": site[5],
+                "id": site.ID,
+                "name": site.NAME,
+                "pri": site.PRI or 0,
+                "rssurl": site.RSSURL,
+                "signurl": site.SIGNURL,
+                "cookie": site.COOKIE,
                 "rule": rule_groupid,
                 "rule_name": rule_name,
                 "parse": site_parse,
@@ -102,21 +102,21 @@ class Sites:
                 "rss_enable": rss_enable,
                 "brush_enable": brush_enable,
                 "statistic_enable": statistic_enable,
-                "favicon": site_favicons.get(site[1], ""),
+                "favicon": site_favicons.get(site.NAME, ""),
                 "ua": ua,
                 "chrome": chrome,
                 "proxy": proxy
             }
-            if siteid and int(site[0]) == int(siteid):
+            if siteid and int(site.ID) == int(siteid):
                 return site_info
-            url = site[3] if not site[4] else site[4]
+            url = site.RSSURL if not site.SIGNURL else site.SIGNURL
             if siteurl and url and StringUtils.url_equal(siteurl, url):
                 return site_info
-            if rss and (not site[3] or not rss_enable):
+            if rss and (not site.RSSURL or not rss_enable):
                 continue
-            if brush and (not site[3] or not brush_enable):
+            if brush and (not site.RSSURL or not brush_enable):
                 continue
-            if signin and (not site[4] or not signin_enable):
+            if signin and (not site.SIGNURL or not signin_enable):
                 continue
             if statistic and not statistic_enable:
                 continue
@@ -394,11 +394,21 @@ class Sites:
     def __todict(raw_statistics):
         statistics = []
         for site in raw_statistics:
-            statistics.append({"site": site[0], "username": site[1], "user_level": site[2],
-                               "join_at": site[3], "update_at": site[4],
-                               "upload": site[5], "download": site[6], "ratio": site[7],
-                               "seeding": site[8], "leeching": site[9], "seeding_size": site[10],
-                               "bonus": site[11], "url": site[12], "favicon": site[13], "msg_unread": site[14]
+            statistics.append({"site": site.SITE,
+                               "username": site.USERNAME,
+                               "user_level": site.USER_LEVEL,
+                               "join_at": site.JOIN_AT,
+                               "update_at": site.UPDATE_AT,
+                               "upload": site.UPLOAD,
+                               "download": site.DOWNLOAD,
+                               "ratio": site.RATIO,
+                               "seeding": site.SEEDING,
+                               "leeching": site.LEECHING,
+                               "seeding_size": site.SEEDING_SIZE,
+                               "bonus": site.BONUS,
+                               "url": site.URL,
+                               "favicon": site.FAVICON,
+                               "msg_unread": site.MSG_UNREAD
                                })
         return statistics
 
@@ -425,10 +435,14 @@ class Sites:
         site_activities = [["time", "upload", "download", "bonus", "seeding", "seeding_size"]]
         sql_site_activities = DbHelper.get_site_statistics_history(site=site, days=days)
         for sql_site_activity in sql_site_activities:
-            timestamp = datetime.strptime(sql_site_activity[0], '%Y-%m-%d').timestamp() * 1000
+            timestamp = datetime.strptime(sql_site_activity.DATE, '%Y-%m-%d').timestamp() * 1000
             site_activities.append(
-                [timestamp, sql_site_activity[1], sql_site_activity[2], sql_site_activity[3], sql_site_activity[4],
-                 sql_site_activity[5]])
+                [timestamp,
+                 sql_site_activity.UPLOAD,
+                 sql_site_activity.DOWNLOAD,
+                 sql_site_activity.BONUS,
+                 sql_site_activity.SEEDING,
+                 sql_site_activity.SEEDING_SIZE])
 
         return site_activities
 

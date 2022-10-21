@@ -24,7 +24,7 @@ class DictHelper:
                 }
             )
         else:
-            return MainDb().add(SYSTEMDICT(
+            return MainDb().insert(SYSTEMDICT(
                 TYPE=dtype,
                 KEY=key,
                 VALUE=value,

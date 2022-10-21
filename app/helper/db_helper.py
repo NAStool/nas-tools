@@ -3,8 +3,10 @@ import os.path
 import time
 from enum import Enum
 
+from sqlalchemy import cast
+
 from app.db.main_db import MainDb
-from app.db.models import SEARCHRESULTINFO, RSSTORRENTS, DOUBANMEDIAS, TRANSFERHISTORY, TRANSFERUNKNOWN
+from app.db.models import *
 from app.utils import StringUtils
 from app.utils.types import MediaType, RmtMode
 
@@ -307,10 +309,8 @@ class DbHelper:
         """
         if not path:
             return False
-        path = os.path.normpath(path)
-        sql = "SELECT COUNT(1) FROM TRANSFER_UNKNOWN WHERE PATH = ?"
-        ret = MainDb().select_by_sql(sql, (StringUtils.str_sql(path),))
-        if ret and ret[0][0] > 0:
+        ret = MainDb().query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.PATH == os.path.normpath(path)).count()
+        if ret > 0:
             return True
         else:
             return False
@@ -330,8 +330,11 @@ class DbHelper:
                 dest = os.path.normpath(dest)
             else:
                 dest = ""
-            sql = "INSERT INTO TRANSFER_UNKNOWN(PATH, DEST, STATE) VALUES (?, ?, ?)"
-            return MainDb().update_by_sql(sql, (StringUtils.str_sql(path), StringUtils.str_sql(dest), 'N'))
+            return MainDb().insert(TRANSFERUNKNOWN(
+                PATH=path,
+                DEST=dest,
+                STATE='N'
+            ))
 
     @staticmethod
     def is_transfer_in_blacklist(path):
@@ -340,10 +343,8 @@ class DbHelper:
         """
         if not path:
             return False
-        path = os.path.normpath(path)
-        sql = "SELECT COUNT(1) FROM TRANSFER_BLACKLIST WHERE PATH = ?"
-        ret = MainDb().select_by_sql(sql, (StringUtils.str_sql(path),))
-        if ret and ret[0][0] > 0:
+        ret = MainDb().query(TRANSFERBLACKLIST).filter(TRANSFERBLACKLIST.PATH == os.path.normpath(path)).count()
+        if ret > 0:
             return True
         else:
             return False
@@ -365,49 +366,45 @@ class DbHelper:
         if DbHelper.is_transfer_in_blacklist(path):
             return False
         else:
-            path = os.path.normpath(path)
-            sql = "INSERT INTO TRANSFER_BLACKLIST(PATH) VALUES (?)"
-            return MainDb().update_by_sql(sql, (StringUtils.str_sql(path),))
+            return MainDb().insert(TRANSFERBLACKLIST(
+                PATH=os.path.normpath(path)
+            ))
 
     @staticmethod
     def truncate_transfer_blacklist():
         """
         清空黑名单记录
         """
-        MainDb().update_by_sql("DELETE FROM TRANSFER_BLACKLIST")
-        MainDb().update_by_sql("DELETE FROM SYNC_HISTORY")
+        MainDb().query(TRANSFERBLACKLIST).delete()
+        MainDb().query(SYNCHISTORY).delete()
 
     @staticmethod
     def truncate_rss_history():
         """
         清空RSS历史记录
         """
-        MainDb().update_by_sql("DELETE FROM RSS_TORRENTS")
+        MainDb().query(RSSTORRENTS).delete()
 
     @staticmethod
     def truncate_rss_episodes():
         """
         清空RSS历史记录
         """
-        MainDb().update_by_sql("DELETE FROM RSS_TV_EPISODES")
+        MainDb().query(RSSTVEPISODES).delete()
 
     @staticmethod
     def get_config_site():
         """
         查询所有站点信息
         """
-        return MainDb().select_by_sql(
-            "SELECT ID,NAME,PRI,RSSURL,SIGNURL,COOKIE,INCLUDE,EXCLUDE,SIZE,NOTE"
-            " FROM CONFIG_SITE"
-            " ORDER BY CAST(PRI AS DECIMAL) ASC")
+        return MainDb().query(CONFIGSITE).order_by(cast(CONFIGSITE.PRI, Integer).asc())
 
     @staticmethod
     def get_site_by_id(tid):
         """
         查询1个站点信息
         """
-        return MainDb().select_by_sql(
-            "SELECT ID,NAME,PRI,RSSURL,SIGNURL,COOKIE,INCLUDE,EXCLUDE,SIZE,NOTE FROM CONFIG_SITE WHERE ID = ?", (tid,))
+        return MainDb().query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).all()
 
     @staticmethod
     def get_site_by_name(name):
@@ -415,8 +412,7 @@ class DbHelper:
         基于站点名称查询站点信息
         :return:
         """
-        return MainDb().select_by_sql(
-            "SELECT ID,NAME,SIGNURL FROM CONFIG_SITE WHERE NAME = ?", (name,))
+        return MainDb().query(CONFIGSITE).filter(CONFIGSITE.NAME == name).all()
 
     @staticmethod
     def insert_config_site(name, site_pri, rssurl, signurl, cookie, note, rss_uses):
@@ -425,15 +421,15 @@ class DbHelper:
         """
         if not name:
             return
-        sql = "INSERT INTO CONFIG_SITE(NAME,PRI,RSSURL,SIGNURL,COOKIE,NOTE, INCLUDE) VALUES " \
-              "(?, ?, ?, ?, ?, ?, ?)"
-        return MainDb().update_by_sql(sql, (StringUtils.str_sql(name),
-                                            StringUtils.str_sql(site_pri),
-                                            StringUtils.str_sql(rssurl),
-                                            StringUtils.str_sql(signurl),
-                                            StringUtils.str_sql(cookie),
-                                            StringUtils.str_sql(note),
-                                            StringUtils.str_sql(rss_uses)))
+        return MainDb().insert(CONFIGSITE(
+            NAME=name,
+            PRI=site_pri,
+            RSSURL=rssurl,
+            SIGNURL=signurl,
+            COOKIE=cookie,
+            NOTE=note,
+            INCLUDE=rss_uses
+        ))
 
     @staticmethod
     def delete_config_site(tid):
@@ -442,7 +438,7 @@ class DbHelper:
         """
         if not tid:
             return False
-        return MainDb().update_by_sql("DELETE FROM CONFIG_SITE WHERE ID = ?", (tid,))
+        return MainDb().query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).delete()
 
     @staticmethod
     def update_config_site(tid, name, site_pri, rssurl, signurl, cookie, note, rss_uses):
@@ -451,15 +447,17 @@ class DbHelper:
         """
         if not tid:
             return
-        sql = "UPDATE CONFIG_SITE SET NAME=?,PRI=?,RSSURL=?,SIGNURL=?,COOKIE=?,NOTE=?,INCLUDE=? WHERE ID=?"
-        return MainDb().update_by_sql(sql, (StringUtils.str_sql(name),
-                                            StringUtils.str_sql(site_pri),
-                                            StringUtils.str_sql(rssurl),
-                                            StringUtils.str_sql(signurl),
-                                            StringUtils.str_sql(cookie),
-                                            StringUtils.str_sql(note),
-                                            StringUtils.str_sql(rss_uses),
-                                            tid))
+        return MainDb().query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).update(
+            {
+                "NAME": name,
+                "PRI": site_pri,
+                "RSSURL": rssurl,
+                "SIGNURL": signurl,
+                "COOKIE": cookie,
+                "NOTE": note,
+                "INCLUDE": rss_uses
+            }
+        )
 
     @staticmethod
     def get_config_filter_group(gid=None):
@@ -1063,24 +1061,11 @@ class DbHelper:
         """
         查询站点数据历史
         """
-        if strict_urls is None:
-            strict_urls = []
-
-        sql = "SELECT SITE, USERNAME, USER_LEVEL," \
-              " JOIN_AT, UPDATE_AT," \
-              " UPLOAD, DOWNLOAD, RATIO," \
-              " SEEDING, LEECHING, SEEDING_SIZE," \
-              " BONUS, URL, FAVICON, MSG_UNREAD" \
-              " FROM SITE_USER_INFO_STATS LIMIT ?"
         if strict_urls:
-            sql = "SELECT SITE, USERNAME, USER_LEVEL," \
-                  " JOIN_AT, UPDATE_AT," \
-                  " UPLOAD, DOWNLOAD, RATIO," \
-                  " SEEDING, LEECHING, SEEDING_SIZE," \
-                  " BONUS, URL, FAVICON, MSG_UNREAD" \
-                  " FROM SITE_USER_INFO_STATS WHERE URL in {} LIMIT ?".format(tuple(strict_urls + ["__DUMMY__"]))
-
-        return MainDb().select_by_sql(sql, (num,))
+            return MainDb().query(SITEUSERINFOSTATS).filter(
+                SITEUSERINFOSTATS.URL.in_(tuple(strict_urls + ["__DUMMY__"]))).limit(num).all()
+        else:
+            return MainDb().query(SITEUSERINFOSTATS).limit(num).all()
 
     @staticmethod
     def is_site_statistics_history_exists(url, date):
@@ -1146,18 +1131,18 @@ class DbHelper:
         """
         查询站点数据历史
         """
-        sql = "SELECT DATE, UPLOAD, DOWNLOAD, BONUS, SEEDING, SEEDING_SIZE " \
-              "FROM SITE_STATISTICS_HISTORY WHERE SITE = ? ORDER BY DATE ASC LIMIT ?"
-        return MainDb().select_by_sql(sql, (site, days,))
+        return MainDb().query(SITESTATISTICSHISTORY).filter(
+            SITESTATISTICSHISTORY.SITE == site).order_by(
+            SITESTATISTICSHISTORY.DATE.asc()
+        ).limit(days)
 
     @staticmethod
     def get_site_seeding_info(site):
         """
         查询站点做种信息
         """
-        sql = "SELECT SEEDING_INFO " \
-              "FROM SITE_USER_SEEDING_INFO WHERE SITE = ? LIMIT 1"
-        return MainDb().select_by_sql(sql, (site,))
+        return MainDb().query(SITEUSERSEEDINGINFO.SEEDING_INFO).filter(
+            SITEUSERSEEDINGINFO.SITE == site).first()
 
     @staticmethod
     def get_site_statistics_recent_sites(days=7, strict_urls=None):

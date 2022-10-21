@@ -743,7 +743,7 @@ class WebAction:
             # 检查是否重名
             _sites = DbHelper.get_site_by_name(name=query_name)
             for site in _sites:
-                site_id = site[0]
+                site_id = site.ID
                 if str(site_id) != str(query_tid):
                     return True
             return False
@@ -766,7 +766,7 @@ class WebAction:
             if not sites:
                 return {"code": 400, "msg": "站点不存在"}
 
-            old_name = sites[0][1]
+            old_name = sites[0].NAME
 
             ret = DbHelper.update_config_site(tid=tid,
                                               name=name,

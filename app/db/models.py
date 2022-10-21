@@ -206,7 +206,7 @@ class RSSTV(Base):
     STATE = Column(Text)
 
 
-class RSSTVEPISODE(Base):
+class RSSTVEPISODES(Base):
     __tablename__ = 'RSS_TV_EPISODES'
 
     ID = Column(Integer, Sequence('ID'), primary_key=True)
@@ -315,7 +315,7 @@ class SITESTATISTICSHISTORY(Base):
     URL = Column(Text)
 
 
-class SITEUSERINFOSTAT(Base):
+class SITEUSERINFOSTATS(Base):
     __tablename__ = 'SITE_USER_INFO_STATS'
 
     ID = Column(Integer, Sequence('ID'), primary_key=True)
