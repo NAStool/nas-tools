@@ -458,7 +458,7 @@ class Sites:
         if not seeding_info:
             return site_seeding_info
 
-        site_seeding_info["seeding_info"] = json.loads(seeding_info[0][0])
+        site_seeding_info["seeding_info"] = json.loads(seeding_info[0])
         return site_seeding_info
 
     @staticmethod

@@ -56,15 +56,15 @@ class RssChecker(object):
         rsstasks = DbHelper.get_userrss_tasks()
         self._rss_tasks = []
         for task in rsstasks:
-            parser = self.get_userrss_parser(task[3])
-            if task[8]:
-                filterrule = self.filterrule.get_rule_groups(groupid=task[8])
+            parser = self.get_userrss_parser(task.PARSER)
+            if task.FILTER:
+                filterrule = self.filterrule.get_rule_groups(groupid=task.FILTER)
             else:
                 filterrule = {}
             # 兼容旧配置
-            note = task[12]
+            note = task.NOTE
             if str(note).find('seeding_time_limit') != -1:
-                note = json.loads(task[12])
+                note = json.loads(task.NOTE)
             else:
                 note = {"save_path": note,
                         "category": '',
@@ -76,21 +76,21 @@ class RssChecker(object):
                         "ratio_limit": '',
                         "seeding_time_limit": ''}
             self._rss_tasks.append({
-                "id": task[0],
-                "name": task[1],
-                "address": task[2],
-                "parser": task[3],
+                "id": task.ID,
+                "name": task.NAME,
+                "address": task.ADDRESS,
+                "parser": task.PARSER,
                 "parser_name": parser.get("name") if parser else "",
-                "interval": task[4],
-                "uses": task[5],
-                "uses_text": self._site_users.get(task[5]),
-                "include": task[6],
-                "exclude": task[7],
-                "filter": task[8],
+                "interval": task.INTERVAL,
+                "uses": task.USES,
+                "uses_text": self._site_users.get(task.USES),
+                "include": task.INCLUDE,
+                "exclude": task.EXCLUDE,
+                "filter": task.FILTER,
                 "filter_name": filterrule.get("name") if filterrule else "",
-                "update_time": task[9],
-                "counter": task[10],
-                "state": task[11],
+                "update_time": task.UPDATE_TIME,
+                "counter": task.PROCESS_COUNT,
+                "state": task.STATE,
                 "note": note
             })
         if not self._rss_tasks:
@@ -430,12 +430,12 @@ class RssChecker(object):
             if not rss_parser:
                 return None
             return {
-                "id": rss_parser[0][0],
-                "name": rss_parser[0][1],
-                "type": rss_parser[0][2],
-                "format": rss_parser[0][3],
-                "params": rss_parser[0][4],
-                "note": rss_parser[0][5]
+                "id": rss_parser.ID,
+                "name": rss_parser.NAME,
+                "type": rss_parser.TYPE,
+                "format": rss_parser.FORMAT,
+                "params": rss_parser.PARAMS,
+                "note": rss_parser.NOTE
             }
         else:
             return_parsers = []
@@ -443,12 +443,12 @@ class RssChecker(object):
             for rss_parser in rss_parsers:
                 return_parsers.append(
                     {
-                        "id": rss_parser[0],
-                        "name": rss_parser[1],
-                        "type": rss_parser[2],
-                        "format": rss_parser[3],
-                        "params": rss_parser[4],
-                        "note": rss_parser[5]
+                        "id": rss_parser.ID,
+                        "name": rss_parser.NAME,
+                        "type": rss_parser.TYPE,
+                        "format": rss_parser.FORMAT,
+                        "params": rss_parser.PARAMS,
+                        "note": rss_parser.NOTE
                     }
                 )
             return return_parsers

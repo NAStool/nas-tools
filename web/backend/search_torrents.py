@@ -368,10 +368,10 @@ def __search_media(in_from, media_info, user_id):
         # 没有下载完成，且打开了自动添加订阅
         if not search_result and Config().get_config('pt').get('search_no_result_rss'):
             # 添加订阅
-            __rss_media(in_from=in_from, media_info=media_info, user_id=user_id)
+            __rss_media(in_from=in_from, media_info=media_info, user_id=user_id, state='R')
 
 
-def __rss_media(in_from, media_info, user_id=None):
+def __rss_media(in_from, media_info, user_id=None, state='D'):
     """
     开始添加订阅和发送消息
     """
@@ -381,13 +381,15 @@ def __rss_media(in_from, media_info, user_id=None):
                                                             media_info.title,
                                                             media_info.year,
                                                             media_info.begin_season,
-                                                            doubanid=media_info.douban_id)
+                                                            doubanid=media_info.douban_id,
+                                                            state=state)
     else:
         code, msg, media_info = Subscribe.add_rss_subscribe(media_info.type,
                                                             media_info.title,
                                                             media_info.year,
                                                             media_info.begin_season,
-                                                            tmdbid=media_info.tmdb_id)
+                                                            tmdbid=media_info.tmdb_id,
+                                                            state=state)
     if code == 0:
         log.info("【Web】%s %s 已添加订阅" % (media_info.type.value, media_info.get_title_string()))
         if in_from in [SearchType.WX, SearchType.TG]:

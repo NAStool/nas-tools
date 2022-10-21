@@ -228,7 +228,7 @@ class BrushTask(object):
                 sendmessage = True if taskinfo.get("sendmessage") == "Y" else False
                 # 当前任务种子详情
                 task_torrents = DbHelper.get_brushtask_torrents(taskid)
-                torrent_ids = [item[6] for item in task_torrents if item[6]]
+                torrent_ids = [item.DOWNLOAD_ID for item in task_torrents if item.DOWNLOAD_ID]
                 if not torrent_ids:
                     continue
                 # 下载器参数
@@ -448,14 +448,14 @@ class BrushTask(object):
             return {}
         downloader_info = DbHelper.get_user_downloaders(dlid)
         if downloader_info:
-            userconfig = {"id": downloader_info[0][0],
-                          "name": downloader_info[0][1],
-                          "type": downloader_info[0][2],
-                          "host": downloader_info[0][3],
-                          "port": downloader_info[0][4],
-                          "username": downloader_info[0][5],
-                          "password": downloader_info[0][6],
-                          "save_dir": downloader_info[0][7]}
+            userconfig = {"id": downloader_info[0].ID,
+                          "name": downloader_info[0].NAME,
+                          "type": downloader_info[0].TYPE,
+                          "host": downloader_info[0].HOST,
+                          "port": downloader_info[0].PORT,
+                          "username": downloader_info[0].USERNAME,
+                          "password": downloader_info[0].PASSWORD,
+                          "save_dir": downloader_info[0].SAVE_DIR}
             return userconfig
         return {}
 

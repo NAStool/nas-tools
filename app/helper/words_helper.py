@@ -38,7 +38,7 @@ class WordsHelper:
             try:
                 ignored_words = []
                 for ignored_word_info in self.ignored_words_info:
-                    ignored_words.append(ignored_word_info[1])
+                    ignored_words.append(ignored_word_info.REPLACED)
                 ignored_words = "|".join(ignored_words)
                 ignored_words = re.compile(r'%s' % ignored_words)
                 # 去重
@@ -50,7 +50,7 @@ class WordsHelper:
         if self.ignored_words_noregex_info:
             try:
                 for ignored_word_noregex_info in self.ignored_words_noregex_info:
-                    ignored_word = ignored_word_noregex_info[1]
+                    ignored_word = ignored_word_noregex_info.REPLACED
                     if title.find(ignored_word) != -1:
                         title = title.replace(ignored_word, '')
                         used_ignored_words.append(ignored_word)
@@ -60,8 +60,8 @@ class WordsHelper:
         if self.replaced_words_info:
             for replaced_word_info in self.replaced_words_info:
                 try:
-                    replaced = replaced_word_info[1]
-                    replace = replaced_word_info[2]
+                    replaced = replaced_word_info.REPLACED
+                    replace = replaced_word_info.REPLACE
                     replaced_word = "%s@%s" % (replaced, replace)
                     if re.findall(r'%s' % replaced, title):
                         used_replaced_words.append(replaced_word)
@@ -71,8 +71,8 @@ class WordsHelper:
         if self.replaced_words_noregex_info:
             for replaced_word_noregex_info in self.replaced_words_noregex_info:
                 try:
-                    replaced = replaced_word_noregex_info[1]
-                    replace = replaced_word_noregex_info[2]
+                    replaced = replaced_word_noregex_info.REPLACED
+                    replace = replaced_word_noregex_info.REPLACE
                     replaced_word = "%s@%s" % (replaced, replace)
                     if title.find(replaced) != -1:
                         used_replaced_words.append(replaced_word)
@@ -83,11 +83,11 @@ class WordsHelper:
         if self.replaced_offset_words_info:
             for replaced_offset_word_info in self.replaced_offset_words_info:
                 try:
-                    replaced = replaced_offset_word_info[1]
-                    replace = replaced_offset_word_info[2]
-                    front = replaced_offset_word_info[3]
-                    back = replaced_offset_word_info[4]
-                    offset = replaced_offset_word_info[5]
+                    replaced = replaced_offset_word_info.REPLACED
+                    replace = replaced_offset_word_info.REPLACE
+                    front = replaced_offset_word_info.FRONT
+                    back = replaced_offset_word_info.BACK
+                    offset = replaced_offset_word_info.OFFSET
                     replaced_word = "%s@%s" % (replaced, replace)
                     if re.findall(r'%s' % replaced, title):
                         used_replaced_words.append(replaced_word)
@@ -98,9 +98,9 @@ class WordsHelper:
         # 集数偏移
         if self.offset_words_info:
             for offset_word_info in self.offset_words_info:
-                front = offset_word_info[3]
-                back = offset_word_info[4]
-                offset = offset_word_info[5]
+                front = offset_word_info.FRONT
+                back = offset_word_info.BACK
+                offset = offset_word_info.OFFSET
                 title, msg = self.episode_offset(front, back, offset, used_offset_words, title)
 
         return title, msg, {"ignored": used_ignored_words,

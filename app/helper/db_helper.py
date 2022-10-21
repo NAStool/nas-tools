@@ -505,12 +505,12 @@ class DbHelper:
             return ""
         ret = MainDb().query(RSSMOVIES.ID).filter(RSSMOVIES.NAME == title).first()
         if ret:
-            return ret[0][0]
+            return ret[0]
         else:
             if tmdbid:
                 ret = MainDb().query(RSSMOVIES.ID).filter(RSSMOVIES.TMDBID == tmdbid).first()
                 if ret:
-                    return ret[0][0]
+                    return ret[0]
         return ""
 
     @staticmethod
@@ -522,7 +522,7 @@ class DbHelper:
             return ""
         ret = MainDb().query(RSSMOVIES.DESC).filter(RSSMOVIES.ID == int(rssid)).first()
         if ret:
-            return ret[0][0]
+            return ret[0]
         return ""
 
     @staticmethod
@@ -647,22 +647,22 @@ class DbHelper:
             ret = MainDb().query(RSSTVS.ID).filter(RSSTVS.NAME == title,
                                                    RSSTVS.SEASON == season).first()
             if ret:
-                return ret[0][0]
+                return ret[0]
             else:
                 if tmdbid:
                     ret = MainDb().query(RSSTVS.ID).filter(RSSTVS.TMDBID == tmdbid,
                                                            RSSTVS.SEASON == season).first()
                     if ret:
-                        return ret[0][0]
+                        return ret[0]
         else:
             ret = MainDb().query(RSSTVS.ID).filter(RSSTVS.NAME == title).first()
             if ret:
-                return ret[0][0]
+                return ret[0]
             else:
                 if tmdbid:
                     ret = MainDb().query(RSSTVS.ID).filter(RSSTVS.TMDBID == tmdbid).first()
                     if ret:
-                        return ret[0][0]
+                        return ret[0]
         return ""
 
     @staticmethod
@@ -674,7 +674,7 @@ class DbHelper:
             return ""
         ret = MainDb().query(RSSTVS).filter(RSSTVS.ID == int(rssid)).first()
         if ret:
-            return ret[0][0]
+            return ret[0]
         return ""
 
     @staticmethod
@@ -848,7 +848,7 @@ class DbHelper:
             return []
         ret = MainDb(RSSTVEPISODES.EPISODES).filter(RSSTVEPISODES.RSSID == int(rid)).first()
         if ret:
-            return [int(epi) for epi in str(ret[0][0]).split(',')]
+            return [int(epi) for epi in str(ret[0]).split(',')]
         else:
             return None
 
@@ -960,11 +960,12 @@ class DbHelper:
         查询历史记录统计
         """
         begin_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d %H:%M:%S")
-        sql = "SELECT TYPE,SUBSTR(DATE, 1, 10),COUNT(1)" \
-              " FROM TRANSFER_HISTORY" \
-              " WHERE DATE > ? GROUP BY TYPE,SUBSTR(DATE, 1, 10) " \
-              "ORDER BY DATE ASC"
-        return MainDb().select_by_sql(sql, (begin_date,))
+        return MainDb().query(TRANSFERHISTORY.TYPE,
+                              func.substr(TRANSFERHISTORY.DATE, 1, 10),
+                              func.count('*')
+                              ).filter(TRANSFERHISTORY.DATE > begin_date).group_by(
+            func.substr(TRANSFERHISTORY.DATE, 1, 10)
+        ).order_by(TRANSFERHISTORY.DATE).all()
 
     @staticmethod
     def update_site_user_statistics_site_name(new_name, old_name):
@@ -1167,8 +1168,9 @@ class DbHelper:
             strict_urls = []
 
         b_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d")
-        date_sql = "SELECT MAX(DATE), MIN(DATE) FROM SITE_STATISTICS_HISTORY WHERE DATE > ? "
-        date_ret = MainDb().select_by_sql(date_sql, (b_date,))
+        date_ret = MainDb().query(func.max(SITESTATISTICSHISTORY.DATE),
+                                  func.MIN(SITESTATISTICSHISTORY.DATE)).filter(
+            SITESTATISTICSHISTORY.DATE > b_date).all()
         if date_ret:
             total_upload = 0
             total_download = 0
@@ -1177,14 +1179,15 @@ class DbHelper:
             ret_site_downloads = []
             min_date = date_ret[0][1]
             # 查询开始值
-            sql = """SELECT SITE, MIN(UPLOAD), MIN(DOWNLOAD), MAX(UPLOAD), MAX(DOWNLOAD)
-                     FROM (SELECT SITE, DATE, SUM(UPLOAD) as UPLOAD, SUM(DOWNLOAD) as DOWNLOAD FROM SITE_STATISTICS_HISTORY WHERE DATE >= ? GROUP BY SITE, DATE) X 
-                     GROUP BY SITE"""
             if strict_urls:
                 sql = """
                      SELECT SITE, MIN(UPLOAD), MIN(DOWNLOAD), MAX(UPLOAD), MAX(DOWNLOAD)
                      FROM (SELECT SITE, DATE, SUM(UPLOAD) as UPLOAD, SUM(DOWNLOAD) as DOWNLOAD FROM SITE_STATISTICS_HISTORY WHERE DATE >= ? AND URL in {} GROUP BY SITE, DATE) X 
                      GROUP BY SITE""".format(tuple(strict_urls + ["__DUMMY__"]))
+            else:
+                sql = """SELECT SITE, MIN(UPLOAD), MIN(DOWNLOAD), MAX(UPLOAD), MAX(DOWNLOAD)
+                     FROM (SELECT SITE, DATE, SUM(UPLOAD) as UPLOAD, SUM(DOWNLOAD) as DOWNLOAD FROM SITE_STATISTICS_HISTORY WHERE DATE >= ? GROUP BY SITE, DATE) X 
+                     GROUP BY SITE"""
             for ret_b in MainDb().select_by_sql(sql, (min_date,)):
                 # 如果最小值都是0，可能时由于近几日没有更新数据，或者cookie过期，正常有数据的话，第二天能正常
                 ret_b = list(ret_b)
@@ -1268,15 +1271,14 @@ class DbHelper:
         查询下载历史
         """
         if hid:
-            sql = "SELECT ID,TITLE,YEAR,TYPE,TMDBID,VOTE,POSTER,OVERVIEW,TORRENT,ENCLOSURE,DESC,DATE,SITE FROM DOWNLOAD_HISTORY WHERE ID = ?"
-            return MainDb().select_by_sql(sql, (hid,))
+            return MainDb().query(DOWNLOADHISTORY).filter(DOWNLOADHISTORY.ID == int(hid)).all()
         elif date:
-            sql = "SELECT ID,TITLE,YEAR,TYPE,TMDBID,VOTE,POSTER,OVERVIEW,TORRENT,ENCLOSURE,DESC,DATE,SITE FROM DOWNLOAD_HISTORY WHERE DATE > ? ORDER BY DATE DESC"
-            return MainDb().select_by_sql(sql, (date,))
+            return MainDb().query(DOWNLOADHISTORY).filter(
+                DOWNLOADHISTORY.DATE > date).order_by(DOWNLOADHISTORY.DATE.desc()).all()
         else:
             offset = (int(page) - 1) * int(num)
-            sql = "SELECT ID,TITLE,YEAR,TYPE,TMDBID,VOTE,POSTER,OVERVIEW,TORRENT,ENCLOSURE,DESC,DATE,SITE FROM DOWNLOAD_HISTORY ORDER BY DATE DESC LIMIT ? OFFSET ?"
-            return MainDb().select_by_sql(sql, (num, offset))
+            return MainDb().query(DOWNLOADHISTORY).order_by(
+                DOWNLOADHISTORY.DATE.desc()).limit(num).offset(offset).all()
 
     @staticmethod
     def is_media_downloaded(title, tmdbid):
@@ -1351,14 +1353,14 @@ class DbHelper:
                   "FROM SITE_BRUSH_TASK T " \
                   "LEFT JOIN SITE_BRUSH_DOWNLOADERS D ON D.ID = T.DOWNLOADER " \
                   "WHERE T.ID = ?"
-            return MainDb().select_by_sql(sql, (brush_id,))
+            return []
         else:
             sql = "SELECT T.ID,T.NAME,T.SITE,'',T.INTEVAL,T.STATE,T.DOWNLOADER,T.TRANSFER," \
                   "T.FREELEECH,T.RSS_RULE,T.REMOVE_RULE,T.SEED_SIZE," \
                   "T.DOWNLOAD_COUNT,T.REMOVE_COUNT,T.DOWNLOAD_SIZE,T.UPLOAD_SIZE,T.LST_MOD_DATE,D.NAME " \
                   "FROM SITE_BRUSH_TASK T " \
                   "LEFT JOIN SITE_BRUSH_DOWNLOADERS D ON D.ID = T.DOWNLOADER "
-            return MainDb().select_by_sql(sql)
+            return []
 
     @staticmethod
     def get_brushtask_totalsize(brush_id):
@@ -1371,7 +1373,7 @@ class DbHelper:
                                            Integer))).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
                                                              SITEBRUSHTORRENTS.DOWNLOAD_ID != '0').first()
         if ret:
-            return int(ret[0][0])
+            return int(ret[0])
         else:
             return 0
 
@@ -1451,11 +1453,8 @@ class DbHelper:
         """
         if not brush_id:
             return []
-        sql = "SELECT ID,TASK_ID,TORRENT_NAME,TORRENT_SIZE,ENCLOSURE,DOWNLOADER,DOWNLOAD_ID,LST_MOD_DATE " \
-              "FROM SITE_BRUSH_TORRENTS " \
-              "WHERE TASK_ID = ? " \
-              "AND DOWNLOAD_ID <> '0'"
-        return MainDb().select_by_sql(sql, (brush_id,))
+        return MainDb().query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
+                                                        SITEBRUSHTORRENTS.DOWNLOAD_ID != '0').all()
 
     @staticmethod
     def is_brushtask_torrent_exists(brush_id, title, enclosure):
@@ -1504,11 +1503,9 @@ class DbHelper:
         查询自定义下载器
         """
         if did:
-            sql = "SELECT ID,NAME,TYPE,HOST,PORT,USERNAME,PASSWORD,SAVE_DIR,NOTE FROM SITE_BRUSH_DOWNLOADERS WHERE ID = ?"
-            return MainDb().select_by_sql(sql, (did,))
+            return MainDb().query(SITEBRUSHDOWNLOADERS).filter(SITEBRUSHDOWNLOADERS.id == int(did)).all()
         else:
-            sql = "SELECT ID,NAME,TYPE,HOST,PORT,USERNAME,PASSWORD,SAVE_DIR,NOTE FROM SITE_BRUSH_DOWNLOADERS"
-            return MainDb().select_by_sql(sql)
+            return MainDb().query(SITEBRUSHDOWNLOADERS).all()
 
     @staticmethod
     def update_user_downloader(did, name, dtype, user_config, note):
@@ -1569,7 +1566,7 @@ class DbHelper:
     def get_filter_groupid_by_name(name):
         ret = MainDb().query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.GROUP_NAME == name).first()
         if ret:
-            return ret[0][0]
+            return ret[0]
         else:
             return ""
 
@@ -1629,14 +1626,9 @@ class DbHelper:
     @staticmethod
     def get_userrss_tasks(taskid=None):
         if taskid:
-            return MainDb().select_by_sql(
-                "SELECT ID,NAME,ADDRESS,PARSER,INTERVAL,USES,INCLUDE,EXCLUDE,FILTER,UPDATE_TIME,PROCESS_COUNT,STATE,NOTE "
-                "FROM CONFIG_USER_RSS "
-                "WHERE ID = ?", (taskid,))
+            return MainDb().query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(taskid)).all()
         else:
-            return MainDb().select_by_sql(
-                "SELECT ID,NAME,ADDRESS,PARSER,INTERVAL,USES,INCLUDE,EXCLUDE,FILTER,UPDATE_TIME,PROCESS_COUNT,STATE,NOTE "
-                "FROM CONFIG_USER_RSS")
+            return MainDb().query(CONFIGUSERRSS).all()
 
     @staticmethod
     def delete_userrss_task(tid):
@@ -1694,11 +1686,9 @@ class DbHelper:
     @staticmethod
     def get_userrss_parser(pid=None):
         if pid:
-            return MainDb().select_by_sql(
-                "SELECT ID,NAME,TYPE,FORMAT,PARAMS,NOTE FROM CONFIG_RSS_PARSER WHERE ID = ?", (pid,))
+            return MainDb().query(CONFIGRSSPARSER).filter(CONFIGRSSPARSER.ID == int(pid)).first()
         else:
-            return MainDb().select_by_sql(
-                "SELECT ID,NAME,TYPE,FORMAT,PARAMS,NOTE FROM CONFIG_RSS_PARSER")
+            return MainDb().query(CONFIGRSSPARSER).all()
 
     @staticmethod
     def delete_userrss_parser(pid):
@@ -1750,61 +1740,24 @@ class DbHelper:
         """
         if not task_id:
             return []
-        sql = "SELECT ID, TASK_ID, TITLE, DOWNLOADER, DATE " \
-              "FROM USERRSS_TASK_HISTORY " \
-              "WHERE TASK_ID = ? "
-        return MainDb().select_by_sql(sql, (task_id,))
-
-    @staticmethod
-    def get_ignored_words():
-        """
-        查询所有自定义识别词-屏蔽词
-        """
-        try:
-            ret = MainDb().select_by_sql("SELECT ID, IGNORED, ENABLED FROM IGNORED_WORDS")
-            return ret
-        except Exception as err:
-            print(str(err))
-            return []
-
-    @staticmethod
-    def get_replaced_words():
-        """
-        查询所有自定义识别词-替换词
-        """
-        try:
-            ret = MainDb().select_by_sql("SELECT ID, REPLACED, REPLACE, ENABLED FROM REPLACED_WORDS")
-            return ret
-        except Exception as err:
-            print(str(err))
-            return []
-
-    @staticmethod
-    def get_offset_words():
-        """
-        查询所有自定义识别词-集数偏移
-        """
-        try:
-            ret = MainDb().select_by_sql("SELECT ID, FRONT, BACK, OFFSET, ENABLED, REPLACED_WORD_ID FROM OFFSET_WORDS")
-            return ret
-        except Exception as err:
-            print(str(err))
-            return []
+        return MainDb().query(USERRSSTASKHISTORY).filter(USERRSSTASKHISTORY.TASK_ID == task_id).all()
 
     @staticmethod
     def get_rss_history(rtype=None, rid=None):
-        sql = "SELECT ID, TYPE, RSSID, NAME, YEAR, TMDBID, SEASON, IMAGE, DESC, TOTAL, START, FINISH_TIME, NOTE " \
-              "FROM RSS_HISTORY "
+        """
+        查询RSS历史
+        """
         if rid:
-            sql += "WHERE ID = ?"
-            return MainDb().select_by_sql(sql, (int(rid),))
+            return MainDb().query(RSSHISTORY).filter(RSSHISTORY.ID == int(rid)).all()
         elif rtype:
-            sql += "WHERE TYPE = ?"
-            return MainDb().select_by_sql(sql, (rtype,))
-        return MainDb().select_by_sql(sql)
+            return MainDb().query(RSSHISTORY).filter(RSSHISTORY.TYPE == rtype).all()
+        return MainDb().query(RSSHISTORY).all()
 
     @staticmethod
     def is_exists_rss_history(rssid):
+        """
+        判断RSS历史是否存在
+        """
         if not rssid:
             return False
         count = MainDb().query(RSSHISTORY).filter(RSSHISTORY.RSSID == rssid).count()
@@ -1815,6 +1768,9 @@ class DbHelper:
 
     @staticmethod
     def insert_rss_history(rssid, rtype, name, year, tmdbid, image, desc, season=None, total=None, start=None):
+        """
+        登记RSS历史
+        """
         if not DbHelper.is_exists_rss_history(rssid):
             return MainDb().insert(RSSHISTORY(
                 TYPE=rtype,
@@ -1833,6 +1789,9 @@ class DbHelper:
 
     @staticmethod
     def delete_rss_history(rssid):
+        """
+        删除RSS历史
+        """
         if not rssid:
             return False
         return MainDb().query(RSSHISTORY).filter(RSSHISTORY.ID == int(rssid)).delete()
@@ -1881,17 +1840,15 @@ class DbHelper:
         """
         查询自定义识别词
         """
-        sql = "SELECT ID, REPLACED, REPLACE, FRONT, BACK, OFFSET, TYPE, GROUP_ID, SEASON, ENABLED, REGEX, HELP, NOTE FROM CUSTOM_WORDS "
         if wid:
-            sql += "WHERE ID = ?"
-            return MainDb().select_by_sql(sql, (int(wid),))
+            return MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)).all()
         elif gid:
-            sql += "WHERE GROUP_ID = ?"
-            return MainDb().select_by_sql(sql, (int(gid),))
+            return MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.GROUP_ID == int(gid)).all()
         elif type and enabled is not None and regex is not None:
-            sql += "WHERE ENABLED = ? AND TYPE = ? AND REGEX =?"
-            return MainDb().select_by_sql(sql, (int(enabled), int(wtype), int(regex)))
-        return MainDb().select_by_sql(sql)
+            return MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.ENABLED == int(enabled),
+                                                      CUSTOMWORDS.TYPE == int(wtype),
+                                                      CUSTOMWORDS.REGEX == int(regex)).all()
+        return MainDb().query(CUSTOMWORDS).all()
 
     @staticmethod
     def is_custom_words_existed(replaced=None, front=None, back=None):
@@ -1939,15 +1896,12 @@ class DbHelper:
         """
         查询自定义识别词组
         """
-        sql = "SELECT ID, TITLE, YEAR, TYPE, TMDBID, SEASON_COUNT, NOTE FROM CUSTOM_WORD_GROUPS "
         if gid:
-            sql += "WHERE ID =?"
-            return MainDb().select_by_sql(sql, (int(gid),))
+            return MainDb().query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.ID == int(gid)).all()
         if tmdbid and wtype:
-            sql += "WHERE TMDBID =? AND TYPE = ?"
-            return MainDb().select_by_sql(sql, (int(tmdbid), int(wtype)))
-        return MainDb().select_by_sql(
-            "SELECT ID, TITLE, YEAR, TYPE, TMDBID, SEASON_COUNT, NOTE FROM CUSTOM_WORD_GROUPS")
+            return MainDb().query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.TMDBID == int(tmdbid),
+                                                           CUSTOMWORDGROUPS.TYPE == int(wtype)).all()
+        return MainDb().query(CUSTOMWORDGROUPS).all()
 
     @staticmethod
     def is_custom_word_group_existed(tmdbid=None, wtype=None):

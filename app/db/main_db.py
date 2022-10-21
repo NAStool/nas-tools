@@ -78,11 +78,11 @@ class MainDb:
             self.__session.commit()
         return False
 
-    def query(self, obj):
+    def query(self, *obj):
         """
         查询对象
         """
-        return self.__session.query(obj)
+        return self.__session.query(*obj)
 
     def excute(self, sql):
         """

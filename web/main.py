@@ -1249,18 +1249,18 @@ def create_flask_app():
         words = []
         words_info = DbHelper.get_custom_words(gid=-1)
         for word_info in words_info:
-            words.append({"id": word_info[0],
-                          "replaced": word_info[1],
-                          "replace": word_info[2],
-                          "front": word_info[3],
-                          "back": word_info[4],
-                          "offset": word_info[5],
-                          "type": word_info[6],
-                          "group_id": word_info[7],
-                          "season": word_info[8],
-                          "enabled": word_info[9],
-                          "regex": word_info[10],
-                          "help": word_info[11], })
+            words.append({"id": word_info.ID,
+                          "replaced": word_info.REPLACED,
+                          "replace": word_info.REPLACE,
+                          "front": word_info.FRONT,
+                          "back": word_info.BACK,
+                          "offset": word_info.OFFSET,
+                          "type": word_info.TYPE,
+                          "group_id": word_info.GROUP_ID,
+                          "season": word_info.SEASON,
+                          "enabled": word_info.ENABLED,
+                          "regex": word_info.REGEX,
+                          "help": word_info.HELP, })
         groups = [{"id": "-1",
                    "name": "通用",
                    "link": "",
@@ -1269,28 +1269,28 @@ def create_flask_app():
                    "words": words}]
         groups_info = DbHelper.get_custom_word_groups()
         for group_info in groups_info:
-            gid = group_info[0]
-            name = "%s（%s）" % (group_info[1], group_info[2])
-            gtype = group_info[3]
+            gid = group_info.ID
+            name = "%s (%s)" % (group_info.TITLE, group_info.YEAR)
+            gtype = group_info.TYPE
             if gtype == 1:
-                link = "https://www.themoviedb.org/movie/%s" % group_info[4]
+                link = "https://www.themoviedb.org/movie/%s" % group_info.TMDBID
             else:
-                link = "https://www.themoviedb.org/tv/%s" % group_info[4]
+                link = "https://www.themoviedb.org/tv/%s" % group_info.TMDBID
             words = []
             words_info = DbHelper.get_custom_words(gid=gid)
             for word_info in words_info:
-                words.append({"id": word_info[0],
-                              "replaced": word_info[1],
-                              "replace": word_info[2],
-                              "front": word_info[3],
-                              "back": word_info[4],
-                              "offset": word_info[5],
-                              "type": word_info[6],
-                              "group_id": word_info[7],
-                              "season": word_info[8],
-                              "enabled": word_info[9],
-                              "regex": word_info[10],
-                              "help": word_info[11], })
+                words.append({"id": word_info.ID,
+                              "replaced": word_info.REPLACED,
+                              "replace": word_info.REPLACE,
+                              "front": word_info.FRONT,
+                              "back": word_info.BACK,
+                              "offset": word_info.OFFSET,
+                              "type": word_info.TYPE,
+                              "group_id": word_info.GROUP_ID,
+                              "season": word_info.SEASON,
+                              "enabled": word_info.ENABLED,
+                              "regex": word_info.REGEX,
+                              "help": word_info.HELP, })
             groups.append({"id": gid,
                            "name": name,
                            "link": link,

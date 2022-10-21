@@ -2371,9 +2371,9 @@ class WebAction:
         count = len(historys)
         for history in historys:
             params = {
-                "title": history[2],
-                "downloader": history[3],
-                "date": history[4]
+                "title": history.TITLE,
+                "downloader": history.DOWNLOADER,
+                "date": history.DATE
             }
             downloads.append(params)
         if downloads:
@@ -2552,19 +2552,23 @@ class WebAction:
     def __get_custom_word(data):
         try:
             wid = data.get("id")
-            word_info = DbHelper.get_custom_words(wid=wid)[0]
-            word = {"id": word_info[0],
-                    "replaced": word_info[1],
-                    "replace": word_info[2],
-                    "front": word_info[3],
-                    "back": word_info[4],
-                    "offset": word_info[5],
-                    "type": word_info[6],
-                    "group_id": word_info[7],
-                    "season": word_info[8],
-                    "enabled": word_info[9],
-                    "regex": word_info[10],
-                    "help": word_info[11], }
+            word_info = DbHelper.get_custom_words(wid=wid)
+            if word_info:
+                word_info = word_info[0]
+                word = {"id": word_info.ID,
+                        "replaced": word_info.REPLACED,
+                        "replace": word_info.REPLACE,
+                        "front": word_info.FRONT,
+                        "back": word_info.BACK,
+                        "offset": word_info.OFFSET,
+                        "type": word_info.TYPE,
+                        "group_id": word_info.GROUP_ID,
+                        "season": word_info.SEASON,
+                        "enabled": word_info.ENABLED,
+                        "regex": word_info.REGEX,
+                        "help": word_info.HELP, }
+            else:
+                word = {}
             return {"code": 0, "data": word}
         except Exception as e:
             print(str(e))
@@ -2614,26 +2618,30 @@ class WebAction:
                                          "type": 1,
                                          "words": {}, }
                 else:
-                    group_info = DbHelper.get_custom_word_groups(gid=group_id)[0]
-                    export_dict[str(group_info[0])] = {"id": group_info[0],
-                                                       "title": group_info[1],
-                                                       "year": group_info[2],
-                                                       "type": group_info[3],
-                                                       "tmdbid": group_info[4],
-                                                       "season_count": group_info[5],
-                                                       "words": {}, }
+                    group_info = DbHelper.get_custom_word_groups(gid=group_id)
+                    if group_info:
+                        group_info = group_info[0]
+                        export_dict[str(group_info.ID)] = {"id": group_info.ID,
+                                                           "title": group_info.TITLE,
+                                                           "year": group_info.YEAR,
+                                                           "type": group_info.TYPE,
+                                                           "tmdbid": group_info.TMDBID,
+                                                           "season_count": group_info.SEASON_COUNT,
+                                                           "words": {}, }
             for word_id in word_ids:
-                word_info = DbHelper.get_custom_words(wid=word_id)[0]
-                export_dict[str(word_info[7])]["words"][str(word_info[0])] = {"id": word_info[0],
-                                                                              "replaced": word_info[1],
-                                                                              "replace": word_info[2],
-                                                                              "front": word_info[3],
-                                                                              "back": word_info[4],
-                                                                              "offset": word_info[5],
-                                                                              "type": word_info[6],
-                                                                              "season": word_info[8],
-                                                                              "regex": word_info[10],
-                                                                              "help": word_info[11], }
+                word_info = DbHelper.get_custom_words(wid=word_id)
+                if word_info:
+                    word_info = word_info[0]
+                    export_dict[str(word_info[7])]["words"][str(word_info[0])] = {"id": word_info.ID,
+                                                                                  "replaced": word_info.REPLACED,
+                                                                                  "replace": word_info.REPLACE,
+                                                                                  "front": word_info.FRONT,
+                                                                                  "back": word_info.BACK,
+                                                                                  "offset": word_info.OFFSET,
+                                                                                  "type": word_info.TYPE,
+                                                                                  "season": word_info.SEASON,
+                                                                                  "regex": word_info.REGEX,
+                                                                                  "help": word_info.HELP, }
             export_string = json.dumps(export_dict) + "@@@@@@" + str(note)
             string = base64.b64encode(export_string.encode("utf-8")).decode('utf-8')
             return {"code": 0, "string": string}
@@ -2698,7 +2706,8 @@ class WebAction:
                                                        tmdbid=tmdbid,
                                                        season_count=season_count)
                 group_info = DbHelper.get_custom_word_groups(tmdbid=tmdbid, wtype=wtype)
-                group_id_dict[import_group_id] = group_info[0][0]
+                if group_info:
+                    group_id_dict[import_group_id] = group_info[0].ID
             for id_info in ids_info:
                 id_info = id_info.split('_')
                 import_group_id = id_info[0]
@@ -2765,17 +2774,17 @@ class WebAction:
                 mtype = MediaType.MOVIE
             else:
                 mtype = MediaType.TV
-            if rssinfo[0][6]:
-                season = int(str(rssinfo[0][6]).replace("S", ""))
+            if rssinfo[0].SEASON:
+                season = int(str(rssinfo[0].SEASON).replace("S", ""))
             else:
                 season = None
             code, msg, _ = Subscribe.add_rss_subscribe(mtype=mtype,
-                                                       name=rssinfo[0][3],
-                                                       year=rssinfo[0][4],
+                                                       name=rssinfo[0].NAME,
+                                                       year=rssinfo[0].YEAR,
                                                        season=season,
-                                                       tmdbid=rssinfo[0][5],
-                                                       total_ep=rssinfo[0][9],
-                                                       current_ep=rssinfo[0][10])
+                                                       tmdbid=rssinfo[0].TMDBID,
+                                                       total_ep=rssinfo[0].TOTAL,
+                                                       current_ep=rssinfo[0].START)
             return {"code": code, "msg": msg}
         else:
             return {"code": 1, "msg": "订阅历史记录不存在"}

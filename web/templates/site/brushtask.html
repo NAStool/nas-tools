@@ -245,7 +245,7 @@
                 <select class="form-select" id="brushtask_downloader">
                   <option value="" selected>请选择</option>
                   {% for downloader in Downloaders %}
-                  <option value="{{ downloader[0] }}">{{ downloader[1] }}</option>
+                  <option value="{{ downloader.ID }}">{{ downloader.NAME }}</option>
                   {% endfor %}
                 </select>
               </div>
