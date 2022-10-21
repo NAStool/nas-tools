@@ -1800,7 +1800,7 @@ class DbHelper:
             REPLACE=replace,
             FRONT=front,
             BACK=back,
-            OFFSET=int(offset),
+            OFFSET=offset,
             TYPE=int(wtype),
             GROUP_ID=int(gid),
             SEASON=int(season),

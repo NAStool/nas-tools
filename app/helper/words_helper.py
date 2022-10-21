@@ -110,8 +110,6 @@ class WordsHelper:
     @staticmethod
     def episode_offset(front, back, offset, used_offset_words, title):
         msg = ""
-        offset_num = int(offset)
-        offset_word = "%s@%s@%s" % (front, back, offset)
         try:
             if back and not re.findall(r'%s' % back, title):
                 return title, msg
@@ -121,11 +119,24 @@ class WordsHelper:
             episode_nums_str = re.findall(offset_word_info_re, title)
             if not episode_nums_str:
                 return title, msg
-            episode_nums_int = [int(x) for x in episode_nums_str]
-            episode_nums_dict = dict(zip(episode_nums_str, episode_nums_int))
+            offset_word = "%s@%s@%s" % (front, back, offset)
+            episode_nums_offset_int = []
+            offset_flag = False
+            for episode_num_str in episode_nums_str:
+                episode_num_int = int(episode_num_str)
+                EP = episode_num_int
+                episode_num_offset_int = eval(offset)
+                # 向前偏移
+                if episode_num_int > episode_num_offset_int:
+                    offset_flag = True
+                # 向后偏移
+                else:
+                    offset_flag = False
+                episode_nums_offset_int.append(episode_num_offset_int)
+            episode_nums_dict = dict(zip(episode_nums_str, episode_nums_offset_int))
             used_offset_words.append(offset_word)
             # 集数向前偏移，集数按升序处理
-            if offset_num < 0:
+            if offset_flag:
                 episode_nums_list = sorted(episode_nums_dict.items(), key=lambda x: x[1])
             # 集数向后偏移，集数按降序处理
             else:
@@ -133,7 +144,7 @@ class WordsHelper:
             for episode_num in episode_nums_list:
                 episode_offset_re = re.compile(
                     r'(?<=%s[\W\w]*)%s(?=[\W\w]*%s)' % (front, episode_num[0], back))
-                title = re.sub(episode_offset_re, r'%s' % str(episode_num[1] + offset_num).zfill(2), title)
+                title = re.sub(episode_offset_re, r'%s' % str(episode_num[1]).zfill(2), title)
             return title, msg
         except Exception as err:
             msg = "自定义集数偏移 %s 格式有误：%s" % (offset_word, str(err))

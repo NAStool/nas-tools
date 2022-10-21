@@ -1,6 +1,8 @@
 import os
 import signal
 import sys
+import subprocess
+import configparser
 
 # 添加第三方库入口,按首字母顺序，引入brushtask时涉及第三方库，需提前引入
 from pyvirtualdisplay import Display
@@ -305,6 +307,16 @@ if __name__ == "__main__":
     log.console('NASTool 当前版本号：%s' % APP_VERSION)
 
     config = Config()
+
+    # 数据库更新
+    alembic_ini = configparser.ConfigParser()
+    alembic_ini.read("./alembic.ini")
+    db_address = os.path.join(config.get_config_path(), 'user.db').replace('\\', '/')
+    alembic_ini.set("alembic", "sqlalchemy.url", f"sqlite:///{db_address}")
+    with open('./alembic.ini', 'w') as configfile:
+        alembic_ini.write(configfile)
+    subprocess.run(["alembic", "upgrade", "head"])
+
     # 升级配置文件
     update_config(config)
     # 检查配置文件
