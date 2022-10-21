@@ -1837,7 +1837,7 @@ class DbHelper:
             return MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)).all()
         elif gid:
             return MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.GROUP_ID == int(gid)).all()
-        elif type and enabled is not None and regex is not None:
+        elif wtype and enabled is not None and regex is not None:
             return MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.ENABLED == int(enabled),
                                                       CUSTOMWORDS.TYPE == int(wtype),
                                                       CUSTOMWORDS.REGEX == int(regex)).all()
@@ -1861,50 +1861,50 @@ class DbHelper:
             return False
 
     @staticmethod
-    def insert_custom_word_groups(title, year, wtype, tmdbid, season_count, note=None):
+    def insert_custom_word_groups(title, year, gtype, tmdbid, season_count, note=None):
         """
         增加自定义识别词组
         """
         return MainDb().insert(CUSTOMWORDGROUPS(
             TITLE=title,
             YEAR=year,
-            TYPE=int(wtype),
+            TYPE=int(gtype),
             TMDBID=int(tmdbid),
             SEASON_COUNT=int(season_count),
             NOTE=note
         ))
 
     @staticmethod
-    def delete_custom_word_group(wid):
+    def delete_custom_word_group(gid):
         """
         删除自定义识别词组
         """
-        if not wid:
+        if not gid:
             return
-        MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.GROUP_ID == int(wid)).delete()
-        MainDb().query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.ID == int(wid)).delete()
+        MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.GROUP_ID == int(gid)).delete()
+        MainDb().query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.ID == int(gid)).delete()
 
     @staticmethod
-    def get_custom_word_groups(gid=None, tmdbid=None, wtype=None):
+    def get_custom_word_groups(gid=None, tmdbid=None, gtype=None):
         """
         查询自定义识别词组
         """
         if gid:
             return MainDb().query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.ID == int(gid)).all()
-        if tmdbid and wtype:
+        if tmdbid and gtype:
             return MainDb().query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.TMDBID == int(tmdbid),
-                                                           CUSTOMWORDGROUPS.TYPE == int(wtype)).all()
+                                                           CUSTOMWORDGROUPS.TYPE == int(gtype)).all()
         return MainDb().query(CUSTOMWORDGROUPS).all()
 
     @staticmethod
-    def is_custom_word_group_existed(tmdbid=None, wtype=None):
+    def is_custom_word_group_existed(tmdbid=None, gtype=None):
         """
         查询自定义识别词组
         """
-        if not wtype or not tmdbid:
+        if not gtype or not tmdbid:
             return False
         count = MainDb().query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.TMDBID == int(tmdbid),
-                                                        CUSTOMWORDGROUPS.TYPE == int(wtype)).count()
+                                                        CUSTOMWORDGROUPS.TYPE == int(gtype)).count()
         if count > 0:
             return True
         else:
