@@ -4,7 +4,7 @@ import time
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.pool import SingletonThreadPool
-from app.db.models import BaseMedia, MEDIASYNCITEMS
+from app.db.models import BaseMedia, MEDIASYNCITEMS, MEDIASYNCSTATISTIC
 from app.utils.commons import singleton
 from config import Config
 
@@ -35,19 +35,24 @@ class MediaDb:
         if not server_type or not iteminfo:
             return False
         self.delete(server_type, iteminfo.get("id"))
-        return self.__session.add(MEDIASYNCITEMS(
-            SERVER=server_type,
-            LIBRARY=iteminfo.get("library"),
-            ITEM_ID=iteminfo.get("id"),
-            ITEM_TYPE=iteminfo.get("type"),
-            TITLE=iteminfo.get("title"),
-            ORGIN_TITLE=iteminfo.get("originalTitle"),
-            YEAR=iteminfo.get("year"),
-            TMDBID=iteminfo.get("tmdbid"),
-            IMDBID=iteminfo.get("imdbid"),
-            PATH=iteminfo.get("path"),
-            JSON=iteminfo.get("json")
-        ))
+        try:
+            self.__session.add(MEDIASYNCITEMS(
+                SERVER=server_type,
+                LIBRARY=iteminfo.get("library"),
+                ITEM_ID=iteminfo.get("id"),
+                ITEM_TYPE=iteminfo.get("type"),
+                TITLE=iteminfo.get("title"),
+                ORGIN_TITLE=iteminfo.get("originalTitle"),
+                YEAR=iteminfo.get("year"),
+                TMDBID=iteminfo.get("tmdbid"),
+                IMDBID=iteminfo.get("imdbid"),
+                PATH=iteminfo.get("path"),
+                JSON=iteminfo.get("json")
+            ))
+            return True
+        except Exception as e:
+            print(str(e))
+        return False
 
     def delete(self, server_type, itemid):
         if not server_type or not itemid:
@@ -66,14 +71,19 @@ class MediaDb:
         if not server_type:
             return False
         self.__session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type).delete()
-        return self.__session.add(MEDIASYNCITEMS(
-            SERVER=server_type,
-            TOTAL_COUNT=total_count,
-            MOVIE_COUNT=movie_count,
-            TV_COUNT=tv_count,
-            UPDATE_TIME=time.strftime('%Y-%m-%d %H:%M:%S',
-                                      time.localtime(time.time()))
-        ))
+        try:
+            self.__session.add(MEDIASYNCITEMS(
+                SERVER=server_type,
+                TOTAL_COUNT=total_count,
+                MOVIE_COUNT=movie_count,
+                TV_COUNT=tv_count,
+                UPDATE_TIME=time.strftime('%Y-%m-%d %H:%M:%S',
+                                          time.localtime(time.time()))
+            ))
+            return True
+        except Exception as e:
+            print(str(e))
+        return False
 
     def exists(self, server_type, title, year, tmdbid):
         if not server_type or not title:
@@ -96,4 +106,4 @@ class MediaDb:
     def get_statistics(self, server_type):
         if not server_type:
             return None
-        return self.__session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type).all()
+        return self.__session.query(MEDIASYNCSTATISTIC).filter(MEDIASYNCSTATISTIC.SERVER == server_type).all()
