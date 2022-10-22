@@ -1,3 +1,4 @@
+alembic==1.8.1
 APScheduler==3.9.1
 asttokens==2.0.8
 async-generator==1.10
@@ -33,6 +34,7 @@ Jinja2==3.1.2
 jsonpath==0.82
 loguru==0.6.0
 lxml==4.9.1
+Mako==1.2.3
 MarkupSafe==2.1.1
 matplotlib-inline==0.1.6
 msgpack==1.0.4
@@ -91,4 +93,3 @@ websockets==10.3
 Werkzeug==2.2.2
 wsproto==1.2.0
 zhconv==1.4.3
-alembic==1.8.1
