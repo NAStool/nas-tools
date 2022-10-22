@@ -43,7 +43,7 @@ def generate_access_token(username: str, algorithm: str = 'HS256', exp: float = 
     }
     access_token = jwt.encode(access_payload,
                               Config().get_config("security").get("subscribe_token"),
-                              algorithm=algorithm).decode("utf-8")
+                              algorithm=algorithm)
     return access_token
 
 
