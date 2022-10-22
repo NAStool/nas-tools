@@ -51,8 +51,7 @@ class MediaDb:
                 YEAR=iteminfo.get("year"),
                 TMDBID=iteminfo.get("tmdbid"),
                 IMDBID=iteminfo.get("imdbid"),
-                PATH=iteminfo.get("path"),
-                JSON=iteminfo.get("json")
+                PATH=iteminfo.get("path")
             ))
             return True
         except Exception as e:
@@ -75,9 +74,9 @@ class MediaDb:
     def statistics(self, server_type, total_count, movie_count, tv_count):
         if not server_type:
             return False
-        self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type).delete()
+        self.session.query(MEDIASYNCSTATISTIC).filter(MEDIASYNCSTATISTIC.SERVER == server_type).delete()
         try:
-            self.session.add(MEDIASYNCITEMS(
+            self.session.add(MEDIASYNCSTATISTIC(
                 SERVER=server_type,
                 TOTAL_COUNT=total_count,
                 MOVIE_COUNT=movie_count,
