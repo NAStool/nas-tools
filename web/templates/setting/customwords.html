@@ -399,7 +399,7 @@
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-export-custom-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-export-custom-words-note" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="card border-top-0">
@@ -411,11 +411,33 @@
         <div class="card-body">
           <div class="row">
             <div class="col-lg-12">
-              <div class="mb-3" id="export_note_div">
+              <div class="mb-3">
                 <label class="form-label required">分享备注</label>
                 <textarea class="form-control" id="export_note" rows="8" placeholder="请备注分享的自定义识别词应用的资源标题或文件名，或应用的站点、发布组等信息"></textarea>
               </div>
-              <div class="mb-3" id="export_code_div">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a href="javascript:export_custom_words()" class="btn btn-primary">生成分享代码</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-export-custom-words-code" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">导出自定义识别词</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="mb-3">
                 <label class="form-label required">自定义识别词内容 <span class="form-help" title="复制以下内容分享给他人，获得分享后使用导入功能导入自定义识别词" data-bs-toggle="tooltip">?</span></label>
                 <pre id="export_code">
                 </pre>
@@ -425,13 +447,12 @@
         </div>
       </div>
       <div class="modal-footer">
-        <button id="export_btn_1" type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
-        <a id="export_btn_2" class="btn btn-primary"></a>
+        <a class="btn btn-primary" data-bs-dismiss="modal">关闭</a>
       </div>
     </div>
   </div>
 </div>
-<div class="modal modal-blur fade" id="modal-import-custom-words" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal modal-blur fade" id="modal-import-custom-words-code" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="card border-top-0">
@@ -439,19 +460,7 @@
           <h5 class="modal-title">导入自定义识别词</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div id="import_groups_div">
-        </div>
-        <div class="card-body" id="import_note_div">
-          <div class="row">
-            <div class="col-lg-12">
-              <div class="mb-3">
-                <label class="form-label required">应用说明</label>
-                <pre id="import_note"></pre>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card-body" id="import_code_div">
+        <div class="card-body">
           <div class="row">
             <div class="col-lg-12">
               <div class="mb-3">
@@ -465,6 +474,34 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
         <a id="import_btn" href="javascript:analyse_import_custom_words_code()" class="btn btn-primary">解析分享代码</a>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal modal-blur fade" id="modal-import-custom-words-table" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="card border-top-0">
+        <div class="card-header">
+          <h5 class="modal-title">导入自定义识别词</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div id="import_groups_div">
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-12">
+              <div class="mb-3">
+                <label class="form-label required">应用说明</label>
+                <pre id="import_note"></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-link me-auto" data-bs-dismiss="modal">取消</button>
+        <a id="import_btn" href="javascript:import_custom_words()" class="btn btn-primary">导入</a>
       </div>
     </div>
   </div>
@@ -527,13 +564,7 @@
   // 显示导出自定义识别词框
   function show_export_custom_words_modal(){
     $("#export_note").text('');
-    $("#export_btn_1").attr("style", "display: block;");
-    $("#export_btn_2").attr("href", "javascript:export_custom_words()");
-    $("#export_btn_2").attr("data-bs-dismiss", "");
-    $("#export_btn_2").text('生成分享代码');
-    $("#export_note_div").attr("style", "display: block;");
-    $("#export_code_div").attr("style", "display: none;");
-    $("#modal-export-custom-words").modal('show');
+    $("#modal-export-custom-words-note").modal('show');
   }
 
   // 导出自定义识别词
@@ -546,17 +577,13 @@
     }else{
       $("#export_note").removeClass("is-invalid");
     }
+    $("#modal-export-custom-words-note").modal('hide');
     show_wait_process();
     ajax_post("export_custom_words", {note: export_note, ids_info: export_ids_info}, function (ret) {
       hide_wait_process();
       if(ret.code == 0){
         $("#export_code").text(ret.string);
-        $("#export_btn_1").attr("style", "display: none;");
-        $("#export_btn_2").attr("href", "");
-        $("#export_btn_2").attr("data-bs-dismiss", "modal");
-        $("#export_btn_2").text('关闭');
-        $("#export_note_div").attr("style", "display: none;");
-        $("#export_code_div").attr("style", "display: block;");
+        $("#modal-export-custom-words-code").modal('show');
       }
     });
   }
@@ -564,18 +591,13 @@
   // 显示导入自定义识别词框
   function show_import_custom_words_modal(){
     $("#import_note").text('');
-    $("#import_btn").attr("href", "javascript:analyse_import_custom_words_code()");
-    $("#import_btn").text('解析分享代码');
-    $("#import_groups_div").attr("style", "display: none;");
-    $("#import_note_div").attr("style", "display: none;");
-    $("#import_code_div").attr("style", "display: block;");
-    $("#modal-import-custom-words").modal('show');
+    $("#modal-import-custom-words-code").modal('show');
   }
 
   // 解析导入的识别词分享代码并显示
   function analyse_import_custom_words_code(){
     var import_code = $("#import_code").val();
-    $("#import_groups_div").empty();
+    $("#modal-import-custom-words-code").modal('hide');
     show_wait_process();
     ajax_post("analyse_import_custom_words_code", {import_code: import_code}, function (ret) {
       hide_wait_process();
@@ -638,11 +660,7 @@
         $("[id^='import_all_check_group']").bind("change",function(){
           $(`[id^='import_check_group${$(this).attr("id").replace("import_all_check_group", "")}_']`).prop("checked", $(this).prop("checked"));
         });
-        $("#import_btn").attr("href", "javascript:import_custom_words()");
-        $("#import_btn").text('导入');
-        $("#import_groups_div").attr("style", "display: block;");
-        $("#import_note_div").attr("style", "display: block;");
-        $("#import_code_div").attr("style", "display: none;");
+        $("#modal-import-custom-words-table").modal('show');
       }
     });
   }
@@ -656,12 +674,12 @@
         ids_info.push($(this).attr("id").replace("import_check_group", ""));
       }
     });
-    $("#modal-import-custom-words").modal('hide');
     show_wait_process();
     ajax_post("import_custom_words", {ids_info: ids_info, import_code: import_code}, function (ret) {
       hide_wait_process();
       if(ret.code == 0){
         $("#import_groups_div").empty();
+        $("#modal-import-custom-words-table").modal('hide');
         navmenu('customwords');
       }else{
         show_fail_modal(ret.msg);
