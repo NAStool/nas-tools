@@ -154,7 +154,7 @@ class Qbittorrent(IDownloadClient):
             else:
                 trans_name = torrent.get('name')
             true_path = self.get_replace_path(path)
-            trans_tasks.append({'path': os.path.join(true_path, trans_name), 'id': torrent.get('hash')})
+            trans_tasks.append({'path': os.path.join(true_path, trans_name).replace("\\", "/"), 'id': torrent.get('hash')})
         return trans_tasks
 
     def get_remove_torrents(self, seeding_time, tag):
