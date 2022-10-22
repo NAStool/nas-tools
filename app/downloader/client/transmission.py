@@ -207,7 +207,7 @@ class Transmission(IDownloadClient):
             if not path:
                 continue
             true_path = self.get_replace_path(path)
-            trans_tasks.append({'path': os.path.join(true_path, torrent.name), 'id': torrent.id})
+            trans_tasks.append({'path': os.path.join(true_path, torrent.name).replace("\\", "/"), 'id': torrent.id})
         return trans_tasks
 
     def get_remove_torrents(self, seeding_time, tag):
