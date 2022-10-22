@@ -16,7 +16,7 @@ def require_auth(func):
         auth = request.headers.get("Authorization")
         if auth:
             auth = str(auth).split()[-1]
-            if auth == Config().get_config("security").get("subscribe_token"):
+            if auth == Config().get_config("security").get("api_key"):
                 return func(*args, **kwargs)
         return abort(401)
     return wrapper
@@ -41,7 +41,7 @@ def generate_access_token(username: str, algorithm: str = 'HS256', exp: float = 
         'username': username
     }
     access_token = jwt.encode(access_payload,
-                              Config().get_config("security").get("subscribe_token"),
+                              Config().get_config("security").get("api_key"),
                               algorithm=algorithm)
     return access_token
 
@@ -54,7 +54,7 @@ def __decode_auth_token(token: str):
     """
     try:
         payload = jwt.decode(token,
-                             key=Config().get_config("security").get("subscribe_token"),
+                             key=Config().get_config("security").get("api_key"),
                              algorithms='HS256')
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError, jwt.ImmatureSignatureError):
         return {}

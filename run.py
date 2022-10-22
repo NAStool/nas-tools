@@ -136,10 +136,12 @@ def update_config(cfg):
         }
         overwrite_cofig = True
     # API密钥初始化
-    if not _config.get("security", {}).get("subscribe_token"):
-        _config['security']['subscribe_token'] = _config.get("laboratory",
-                                                             {}).get("subscribe_token") \
-                                                 or StringUtils.generate_random_str()
+    if not _config.get("security", {}).get("api_key"):
+        _config['security']['api_key'] = _config.get("security",
+                                                     {}).get("subscribe_token") \
+                                         or StringUtils.generate_random_str()
+        if _config.get('security', {}).get('subscribe_token'):
+            _config['security'].pop('subscribe_token')
         overwrite_cofig = True
     # 消息推送开关初始化
     if not _config.get("message", {}).get("switch"):

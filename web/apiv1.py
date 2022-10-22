@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify
 
 from app.media import Media
 from app.sites import Sites
+from config import Config
 from web.action import WebAction
 from web.backend.user import User
 from web.security import require_auth, login_required, generate_access_token
@@ -136,6 +137,7 @@ class UserLogin(Resource):
         return jsonify({
             "code": 0,
             "token": generate_access_token(username),
+            "apikey": Config().get_config("security").get("api_key"),
             "userinfo": {
                 "userid": user_info.id,
                 "username": user_info.username,
