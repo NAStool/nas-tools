@@ -2467,10 +2467,11 @@ class WebAction:
             enabled = data.get("enabled")
             regex = data.get("regex")
             # 集数偏移格式检查
-            if not re.findall(r'EP', offset):
-                return {"code": 1, "msg": "偏移集数格式有误"}
-            if re.findall(r'(?!-|\+|\*|/|[0-9]).', re.sub(r'EP', "", offset)):
-                return {"code": 1, "msg": "偏移集数格式有误"}
+            if wtype in ["3", "4"]:
+                if not re.findall(r'EP', offset):
+                    return {"code": 1, "msg": "偏移集数格式有误"}
+                if re.findall(r'(?!-|\+|\*|/|[0-9]).', re.sub(r'EP', "", offset)):
+                    return {"code": 1, "msg": "偏移集数格式有误"}
             if wid:
                 DbHelper.delete_custom_word(wid=wid)
             # 电影
