@@ -337,3 +337,37 @@ class StringUtils:
                 pass
         # 其他情况直接返回
         return date_str
+
+    @staticmethod
+    def replace_roman_numberal(content):
+        """
+        替换罗马数字
+        """
+        if not content:
+            return content
+        single_roman_char = ['Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ', 'Ⅶ', 'Ⅷ', 'Ⅸ', 'Ⅹ', 'Ⅺ', 'Ⅻ']
+        map_to_alphabet_roman_char = {'Ⅰ': 'I', 'Ⅱ': 'II', 'Ⅲ': 'III', 'Ⅳ': 'IV', 'Ⅴ': 'V', 'Ⅵ': 'VI', 'Ⅶ': 'VII', 'Ⅷ': 'VIII',
+                                      'Ⅸ': 'IX', 'Ⅹ': 'X', 'Ⅺ': 'XI', 'Ⅻ': 'XII'}
+
+        for char in single_roman_char:
+            content = content.replace(char, map_to_alphabet_roman_char[char])
+
+        print(content)
+
+        regex = 'M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$'
+
+        def roman_to_int(roman_str):
+            if not roman_str:
+                return ''
+            roman_map = {'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}
+            int_val = 0
+            for i in range(len(roman_str)):
+                if i > 0 and roman_map[roman_str[i]] > roman_map[roman_str[i - 1]]:
+                    int_val += roman_map[roman_str[i]] - 2 * roman_map[roman_str[i - 1]]
+                else:
+                    int_val += roman_map[roman_str[i]]
+            return int_val
+
+        content = re.sub(regex, lambda x: str(roman_to_int(x.group())), content)
+
+        return content
