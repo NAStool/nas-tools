@@ -144,6 +144,9 @@ class DOWNLOADHISTORY(Base):
     DESC = Column(Text)
     DATE = Column(Text, index=True)
 
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+
 
 class RSSHISTORY(Base):
     __tablename__ = 'RSS_HISTORY'

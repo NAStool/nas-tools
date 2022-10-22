@@ -2021,8 +2021,11 @@ class WebAction:
     @staticmethod
     def get_downloaded(data):
         page = data.get("page")
-        Items = DbHelper.get_download_history(page=page) or []
-        return {"code": 0, "Items": Items}
+        Items = DbHelper.get_download_history(page=page)
+        if Items:
+            return {"code": 0, "Items": [item.as_dict() for item in Items]}
+        else:
+            return {"code": 0, "Items": []}
 
     @staticmethod
     def parse_sites_string(notes):
