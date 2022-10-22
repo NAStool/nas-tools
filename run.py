@@ -88,6 +88,19 @@ def sigal_handler(num, stack):
         sys.exit()
 
 
+def update_db(cfg):
+    """
+    更新数据库
+    """
+    alembic_ini = configparser.ConfigParser()
+    alembic_ini.read("./alembic.ini")
+    db_address = os.path.join(cfg.get_config_path(), 'user.db').replace('\\', '/')
+    alembic_ini.set("alembic", "sqlalchemy.url", f"sqlite:///{db_address}")
+    with open('./alembic.ini', 'w') as configfile:
+        alembic_ini.write(configfile)
+    subprocess.run(["alembic", "upgrade", "head"])
+
+
 def update_config(cfg):
     """
     升级配置文件
@@ -309,16 +322,11 @@ if __name__ == "__main__":
     config = Config()
 
     # 数据库更新
-    alembic_ini = configparser.ConfigParser()
-    alembic_ini.read("./alembic.ini")
-    db_address = os.path.join(config.get_config_path(), 'user.db').replace('\\', '/')
-    alembic_ini.set("alembic", "sqlalchemy.url", f"sqlite:///{db_address}")
-    with open('./alembic.ini', 'w') as configfile:
-        alembic_ini.write(configfile)
-    subprocess.run(["alembic", "upgrade", "head"])
+    update_db(config)
 
     # 升级配置文件
     update_config(config)
+
     # 检查配置文件
     if not check_config(config):
         sys.exit()

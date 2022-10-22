@@ -47,21 +47,21 @@ class BrushTask(object):
         brushtasks = DbHelper.get_brushtasks()
         self._brush_tasks = []
         for task in brushtasks:
-            sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[0].SITE)
-            forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task[0].SITE)
-            site_info = self.sites.get_sites(siteid=task[0].SITE)
+            sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task.SITE)
+            forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task.SITE)
+            site_info = self.sites.get_sites(siteid=task.SITE)
             self._brush_tasks.append({
-                "id": task[0].ID,
-                "name": task[0].NAME,
+                "id": task.ID,
+                "name": task.NAME,
                 "site": site_info.get("name"),
-                "interval": task[0].INTEVAL,
-                "state": task[0].STATE,
-                "downloader": task[0].DOWNLOADER,
-                "transfer": task[0].TRANSFER,
-                "free": task[0].FREELEECH,
-                "rss_rule": eval(task[0].RSS_RULE),
-                "remove_rule": eval(task[0].REMOVE_RULE),
-                "seed_size": task[0].SEED_SIZE,
+                "interval": task.INTEVAL,
+                "state": task.STATE,
+                "downloader": task.DOWNLOADER,
+                "transfer": task.TRANSFER,
+                "free": task.FREELEECH,
+                "rss_rule": eval(task.RSS_RULE),
+                "remove_rule": eval(task.REMOVE_RULE),
+                "seed_size": task.SEED_SIZE,
                 "rss_url": site_info.get("rssurl"),
                 "cookie": site_info.get("cookie"),
                 "sendmessage": sendmessage_switch,

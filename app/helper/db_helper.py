@@ -674,7 +674,7 @@ class DbHelper:
             return ""
         ret = MainDb().query(RSSTVS).filter(RSSTVS.ID == int(rssid)).first()
         if ret:
-            return ret[0]
+            return ret
         return ""
 
     @staticmethod
@@ -846,7 +846,7 @@ class DbHelper:
         """
         if not rid:
             return []
-        ret = MainDb(RSSTVEPISODES.EPISODES).filter(RSSTVEPISODES.RSSID == int(rid)).first()
+        ret = MainDb().query(RSSTVEPISODES.EPISODES).filter(RSSTVEPISODES.RSSID == rid).first()
         if ret:
             return [int(epi) for epi in str(ret[0]).split(',')]
         else:
@@ -986,7 +986,6 @@ class DbHelper:
         if not site_user_infos:
             return
         update_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        data_list = []
         for site_user_info in site_user_infos:
             site = site_user_info.site_name
             username = site_user_info.username
@@ -1002,24 +1001,54 @@ class DbHelper:
             url = site_user_info.site_url
             favicon = site_user_info.site_favicon
             msg_unread = site_user_info.message_unread
-            data_list.append(SITEUSERINFOSTATS(
-                SITE=site,
-                USERNAME=username,
-                USER_LEVEL=user_level,
-                JOIN_AT=join_at,
-                UPDATE_AT=update_at,
-                UPLOAD=upload,
-                DOWNLOAD=download,
-                RATIO=ratio,
-                SEEDING=seeding,
-                LEECHING=leeching,
-                SEEDING_SIZE=seeding_size,
-                BONUS=bonus,
-                URL=url,
-                FAVICON=favicon,
-                MSG_UNREAD=msg_unread
-            ))
-        return MainDb().insert(data_list)
+            if not DbHelper.is_exists_site_user_statistics(url):
+                MainDb().insert(SITEUSERINFOSTATS(
+                    SITE=site,
+                    USERNAME=username,
+                    USER_LEVEL=user_level,
+                    JOIN_AT=join_at,
+                    UPDATE_AT=update_at,
+                    UPLOAD=upload,
+                    DOWNLOAD=download,
+                    RATIO=ratio,
+                    SEEDING=seeding,
+                    LEECHING=leeching,
+                    SEEDING_SIZE=seeding_size,
+                    BONUS=bonus,
+                    URL=url,
+                    FAVICON=favicon,
+                    MSG_UNREAD=msg_unread
+                ))
+            else:
+                MainDb().query(SITEUSERINFOSTATS).filter(SITEUSERINFOSTATS.URL == url).update(
+                    {
+                        "SITE": site,
+                        "USERNAME": username,
+                        "USER_LEVEL": user_level,
+                        "JOIN_AT": join_at,
+                        "UPDATE_AT": update_at,
+                        "UPLOAD": upload,
+                        "DOWNLOAD": download,
+                        "RATIO": ratio,
+                        "SEEDING": seeding,
+                        "LEECHING": leeching,
+                        "SEEDING_SIZE": seeding_size,
+                        "BONUS": bonus,
+                        "FAVICON": favicon,
+                        "MSG_UNREAD": msg_unread
+                    }
+                )
+
+    @staticmethod
+    def is_exists_site_user_statistics(url):
+        """
+        判断站点数据是滞存在
+        """
+        count = MainDb().query(SITEUSERINFOSTATS).filter(SITEUSERINFOSTATS.URL == url).count()
+        if count > 0:
+            return True
+        else:
+            return False
 
     @staticmethod
     def update_site_seed_info_site_name(new_name, old_name):
@@ -1043,15 +1072,22 @@ class DbHelper:
         if not site_user_infos:
             return
         update_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        data_list = []
         for site_user_info in site_user_infos:
-            data_list.append(SITEUSERSEEDINGINFO(
-                SITE=site_user_info.site_name,
-                UPDATE_AT=update_at,
-                SEEDING_INFO=site_user_info.seeding_info,
-                URL=site_user_info.site_url
-            ))
-        return MainDb().insert(data_list)
+            if not DbHelper.is_site_seeding_info_exist(url=site_user_info.site_url):
+                MainDb().insert(SITEUSERSEEDINGINFO(
+                    SITE=site_user_info.site_name,
+                    UPDATE_AT=update_at,
+                    SEEDING_INFO=site_user_info.seeding_info,
+                    URL=site_user_info.site_url
+                ))
+            else:
+                MainDb().query(SITEUSERSEEDINGINFO).filter(SITEUSERSEEDINGINFO.URL == site_user_info.site_url).update(
+                    {
+                        "SITE": site_user_info.site_name,
+                        "UPDATE_AT": update_at,
+                        "SEEDING_INFO": site_user_info.seeding_info
+                    }
+                )
 
     @staticmethod
     def is_site_user_statistics_exists(url):
@@ -1125,20 +1161,35 @@ class DbHelper:
             leeching = site_user_info.leeching
             bonus = site_user_info.bonus
             url = site_user_info.site_url
-            data_list.append(SITESTATISTICSHISTORY(
-                SITE=site,
-                USER_LEVEL=user_level,
-                DATE=date_now,
-                UPLOAD=upload,
-                DOWNLOAD=download,
-                RATIO=ratio,
-                SEEDING=seeding,
-                LEECHING=leeching,
-                SEEDING_SIZE=seeding_size,
-                BONUS=bonus,
-                URL=url
-            ))
-        return MainDb().insert(data_list)
+            if not DbHelper.is_site_statistics_history_exists(date=date_now, url=url):
+                MainDb().insert(SITESTATISTICSHISTORY(
+                    SITE=site,
+                    USER_LEVEL=user_level,
+                    DATE=date_now,
+                    UPLOAD=upload,
+                    DOWNLOAD=download,
+                    RATIO=ratio,
+                    SEEDING=seeding,
+                    LEECHING=leeching,
+                    SEEDING_SIZE=seeding_size,
+                    BONUS=bonus,
+                    URL=url
+                ))
+            else:
+                MainDb().query(SITESTATISTICSHISTORY).filter(SITESTATISTICSHISTORY.DATE == date_now,
+                                                             SITESTATISTICSHISTORY.URL == url).update(
+                    {
+                        "SITE": site,
+                        "USER_LEVEL": user_level,
+                        "UPLOAD": upload,
+                        "DOWNLOAD": download,
+                        "RATIO": ratio,
+                        "SEEDING": seeding,
+                        "LEECHING": leeching,
+                        "SEEDING_SIZE": seeding_size,
+                        "BONUS": bonus
+                    }
+                )
 
     @staticmethod
     def get_site_statistics_history(site, days=30):
@@ -1157,6 +1208,18 @@ class DbHelper:
         """
         return MainDb().query(SITEUSERSEEDINGINFO.SEEDING_INFO).filter(
             SITEUSERSEEDINGINFO.SITE == site).first()
+
+    @staticmethod
+    def is_site_seeding_info_exist(url):
+        """
+        判断做种数据是否已存在
+        """
+        count = MainDb().query(SITEUSERSEEDINGINFO).filter(
+            SITEUSERSEEDINGINFO.URL == url).count()
+        if count > 0:
+            return True
+        else:
+            return False
 
     @staticmethod
     def get_site_statistics_recent_sites(days=7, strict_urls=None):
@@ -1180,15 +1243,25 @@ class DbHelper:
             min_date = date_ret[0][1]
             # 查询开始值
             if strict_urls:
-                sql = """
-                     SELECT SITE, MIN(UPLOAD), MIN(DOWNLOAD), MAX(UPLOAD), MAX(DOWNLOAD)
-                     FROM (SELECT SITE, DATE, SUM(UPLOAD) as UPLOAD, SUM(DOWNLOAD) as DOWNLOAD FROM SITE_STATISTICS_HISTORY WHERE DATE >= ? AND URL in {} GROUP BY SITE, DATE) X 
-                     GROUP BY SITE""".format(tuple(strict_urls + ["__DUMMY__"]))
+                subquery = MainDb().query(SITESTATISTICSHISTORY.SITE.label("SITE"),
+                                          SITESTATISTICSHISTORY.DATE.label("DATE"),
+                                          func.sum(SITESTATISTICSHISTORY.UPLOAD).label("UPLOAD"),
+                                          func.sum(SITESTATISTICSHISTORY.DOWNLOAD).label("DOWNLOAD")).filter(
+                    SITESTATISTICSHISTORY.DATE >= min_date,
+                    SITESTATISTICSHISTORY.URL.in_(tuple(strict_urls + ["__DUMMY__"]))).subquery()
             else:
-                sql = """SELECT SITE, MIN(UPLOAD), MIN(DOWNLOAD), MAX(UPLOAD), MAX(DOWNLOAD)
-                     FROM (SELECT SITE, DATE, SUM(UPLOAD) as UPLOAD, SUM(DOWNLOAD) as DOWNLOAD FROM SITE_STATISTICS_HISTORY WHERE DATE >= ? GROUP BY SITE, DATE) X 
-                     GROUP BY SITE"""
-            for ret_b in MainDb().select_by_sql(sql, (min_date,)):
+                subquery = MainDb().query(SITESTATISTICSHISTORY.SITE.label("SITE"),
+                                          SITESTATISTICSHISTORY.DATE.label("DATE"),
+                                          func.sum(SITESTATISTICSHISTORY.UPLOAD).label("UPLOAD"),
+                                          func.sum(SITESTATISTICSHISTORY.DOWNLOAD).label("DOWNLOAD")).subquery()
+            rets = MainDb().query(SITESTATISTICSHISTORY.SITE,
+                                  func.min(SITESTATISTICSHISTORY.UPLOAD),
+                                  func.min(SITESTATISTICSHISTORY.DOWNLOAD),
+                                  func.max(SITESTATISTICSHISTORY.UPLOAD),
+                                  func.max(SITESTATISTICSHISTORY.DOWNLOAD)).filter(
+                SITESTATISTICSHISTORY.SITE == subquery.c.SITE
+            ).group_by(SITESTATISTICSHISTORY.SITE).all()
+            for ret_b in rets:
                 # 如果最小值都是0，可能时由于近几日没有更新数据，或者cookie过期，正常有数据的话，第二天能正常
                 ret_b = list(ret_b)
                 if ret_b[1] == 0 and ret_b[2] == 0:
@@ -1344,16 +1417,12 @@ class DbHelper:
     @staticmethod
     def get_brushtasks(brush_id=None):
         """
-        FIXME 查询刷流任务
+        查询刷流任务
         """
         if brush_id:
-            return MainDb().query(SITEBRUSHTASK, SITEBRUSHDOWNLOADERS).join(
-                SITEBRUSHDOWNLOADERS,
-                SITEBRUSHDOWNLOADERS.ID == SITEBRUSHTASK.DOWNLOADER).filter(SITEBRUSHTASK.ID == int(brush_id)).first()
+            return MainDb().query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).first()
         else:
-            return MainDb().query(SITEBRUSHTASK, SITEBRUSHDOWNLOADERS).join(
-                SITEBRUSHDOWNLOADERS,
-                SITEBRUSHDOWNLOADERS.ID == SITEBRUSHTASK.DOWNLOADER).all()
+            return MainDb().query(SITEBRUSHTASK).all()
 
     @staticmethod
     def get_brushtask_totalsize(brush_id):
@@ -1366,7 +1435,7 @@ class DbHelper:
                                            Integer))).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
                                                              SITEBRUSHTORRENTS.DOWNLOAD_ID != '0').first()
         if ret:
-            return int(ret[0])
+            return ret[0] or 0
         else:
             return 0
 
@@ -1392,7 +1461,7 @@ class DbHelper:
         if not brush_id:
             return 0
         return MainDb().query(SITEBRUSHTORRENTS.TORRENT_SIZE).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
-                                                                     SITEBRUSHTORRENTS.DOWNLOAD_ID != '0').first()
+                                                                     SITEBRUSHTORRENTS.DOWNLOAD_ID != '0').all()
 
     @staticmethod
     def add_brushtask_upload_count(brush_id, upload_size, download_size, remove_count):
@@ -1557,7 +1626,7 @@ class DbHelper:
 
     @staticmethod
     def get_filter_groupid_by_name(name):
-        ret = MainDb().query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.GROUP_NAME == name).first()
+        ret = MainDb().query(CONFIGFILTERGROUP.ID).filter(CONFIGFILTERGROUP.GROUP_NAME == name).first()
         if ret:
             return ret[0]
         else:

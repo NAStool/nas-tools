@@ -824,7 +824,7 @@ def create_flask_app():
             days=2)
 
         # 站点用户数据
-        SiteUserStatistics = Sites().get_site_user_statistics()
+        SiteUserStatistics = Sites().get_site_user_statistics(encoding="DICT")
 
         return render_template("site/statistics.html",
                                CurrentDownload=CurrentDownload,
@@ -847,33 +847,33 @@ def create_flask_app():
         # 站点列表
         CfgSites = Sites().get_sites(brush=True)
         # 下载器列表
-        downloaders = DbHelper.get_user_downloaders() or []
+        downloaders = DbHelper.get_user_downloaders()
         # 任务列表
-        brushtasks = DbHelper.get_brushtasks() or []
+        brushtasks = DbHelper.get_brushtasks()
         Tasks = []
         for task in brushtasks:
-            sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task[0].SITE)
-            forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task[0].SITE)
-            site_info = Sites().get_sites(siteid=task[0].SITE)
+            sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task.SITE)
+            forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task.SITE)
+            site_info = Sites().get_sites(siteid=task.SITE)
             scheme, netloc = StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
-            downloader_info = BrushTask().get_downloader_config(task[0].DOWNLOADER)
+            downloader_info = BrushTask().get_downloader_config(task.DOWNLOADER)
             Tasks.append({
-                "id": task[0].ID,
-                "name": task[0].NAME,
+                "id": task.ID,
+                "name": task.NAME,
                 "site": site_info.get("name"),
-                "interval": task[0].INTEVAL,
-                "state": task[0].STATE,
+                "interval": task.INTEVAL,
+                "state": task.STATE,
                 "downloader": downloader_info.get("name"),
-                "transfer": task[0].TRANSFER,
-                "free": task[0].FREELEECH,
-                "rss_rule": eval(task[0].RSS_RULE),
-                "remove_rule": eval(task[0].REMOVE_RULE),
-                "seed_size": task[0].SEED_SIZE,
-                "download_count": task[0].DOWNLOAD_COUNT,
-                "remove_count": task[0].REMOVE_COUNT,
-                "download_size": StringUtils.str_filesize(task[0].DOWNLOAD_SIZE),
-                "upload_size": StringUtils.str_filesize(task[0].UPLOAD_SIZE),
-                "lst_mod_date": task[0].LST_MOD_DATE,
+                "transfer": task.TRANSFER,
+                "free": task.FREELEECH,
+                "rss_rule": eval(task.RSS_RULE),
+                "remove_rule": eval(task.REMOVE_RULE),
+                "seed_size": task.SEED_SIZE,
+                "download_count": task.DOWNLOAD_COUNT,
+                "remove_count": task.REMOVE_COUNT,
+                "download_size": StringUtils.str_filesize(task.DOWNLOAD_SIZE),
+                "upload_size": StringUtils.str_filesize(task.UPLOAD_SIZE),
+                "lst_mod_date": task.LST_MOD_DATE,
                 "site_url": "%s://%s" % (scheme, netloc),
                 "sendmessage": sendmessage_switch,
                 "forceupload": forceupload_switch

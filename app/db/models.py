@@ -320,6 +320,9 @@ class SITESTATISTICSHISTORY(Base):
 
 class SITEUSERINFOSTATS(Base):
     __tablename__ = 'SITE_USER_INFO_STATS'
+    __table_args__ = (
+        Index('INDX_SITE_USER_INFO_STATS_URL', 'URL'),
+    )
 
     ID = Column(Integer, Sequence('ID'), primary_key=True)
     SITE = Column(Text, index=True)
