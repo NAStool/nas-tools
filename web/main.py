@@ -11,12 +11,10 @@ import xml.dom.minidom
 from math import floor
 from pathlib import Path
 from urllib import parse
-
 import cn2an
 from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file
 from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
 from werkzeug.security import check_password_hash
-
 import re
 import log
 from app.brushtask import BrushTask
@@ -35,16 +33,29 @@ from app.mediaserver import MediaServer
 from app.searcher import Searcher
 from app.sites import Sites
 from app.media import MetaInfo, Media
-from web.apiv1 import apiv1, authorization
+from web.apiv1 import apiv1_bp
 from web.backend.WXBizMsgCrypt3 import WXBizMsgCrypt
 from web.action import WebAction
 from app.subscribe import Subscribe
 from app.helper import DbHelper, DictHelper
 from app.utils.types import *
 from web.backend.wallpaper import get_login_wallpaper
+from web.security import require_auth
+
+App = Flask(__name__)
+App.config['JSON_AS_ASCII'] = False
+App.secret_key = os.urandom(24)
+App.permanent_session_lifetime = datetime.timedelta(days=30)
+
+applog = logging.getLogger('werkzeug')
+applog.setLevel(logging.ERROR)
 
 login_manager = LoginManager()
 login_manager.login_view = "login"
+login_manager.init_app(App)
+
+# API注册
+App.register_blueprint(apiv1_bp, url_prefix="/api/v1")
 
 
 def create_flask_app():
@@ -60,17 +71,6 @@ def create_flask_app():
         "password": admin_password[6:],
         "pris": "我的媒体库,资源搜索,推荐,站点管理,订阅管理,下载管理,媒体整理,服务,系统设置"
     }]
-
-    App = Flask(__name__)
-    App.config['JSON_AS_ASCII'] = False
-    App.secret_key = os.urandom(24)
-    App.permanent_session_lifetime = datetime.timedelta(days=30)
-    applog = logging.getLogger('werkzeug')
-    applog.setLevel(logging.ERROR)
-    login_manager.init_app(App)
-
-    # API注册
-    App.register_blueprint(apiv1, url_prefix="/api/v1")
 
     @App.after_request
     def add_header(r):
@@ -1649,7 +1649,7 @@ def create_flask_app():
 
     # Jellyseerr Overseerr订阅接口
     @App.route('/subscribe', methods=['POST', 'GET'])
-    @authorization
+    @require_auth
     def subscribe():
         req_json = request.get_json()
         if not req_json:
