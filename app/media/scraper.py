@@ -42,6 +42,9 @@ class Scraper:
                     DomUtils.add_node(doc, root, "imdbid", imdbid)
                     uniqueid_imdb = DomUtils.add_node(doc, root, "uniqueid", imdbid)
                     uniqueid_imdb.setAttribute("type", "imdb")
+                    uniqueid_imdb.setAttribute("default", "true")
+                    uniqueid_tmdb.setAttribute("default", "false")
+
             # 简介
             xplot = DomUtils.add_node(doc, root, "plot")
             xplot.appendChild(doc.createCDATASection(tmdbinfo.get("overview") or ""))
@@ -63,6 +66,8 @@ class Scraper:
                 DomUtils.add_node(doc, xactor, "role", actor.get("character") or "")
                 DomUtils.add_node(doc, xactor, "order", actor.get("order") or "")
                 DomUtils.add_node(doc, xactor, "tmdbid", actor.get("id") or "")
+                DomUtils.add_node(doc, xactor, "thumb", f"https://image.tmdb.org/t/p/h632{actor.get('profile_path')}")
+                DomUtils.add_node(doc, xactor, "profile", f"https://www.themoviedb.org/person/{actor.get('id')}")
         if scraper_nfo.get("basic"):
             # 风格
             genres = tmdbinfo.get("genres") or []
