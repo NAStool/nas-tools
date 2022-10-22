@@ -16,8 +16,9 @@ Apiv1 = Api(apiv1_bp,
             version="1.0",
             title="NAStool Api",
             description="",
-            doc="/doc",
-            authorizations={"Bearer": {"type": "apiKey", "name": "Authorization", "in": "header"}},
+            doc="/",
+            security='Bearer Auth',
+            authorizations={"Bearer Auth": {"type": "apiKey", "name": "Authorization", "in": "header"}},
             )
 site = Apiv1.namespace('site', description='站点')
 service = Apiv1.namespace('service', description='服务')
