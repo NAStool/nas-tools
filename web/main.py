@@ -13,8 +13,7 @@ from pathlib import Path
 from urllib import parse
 import cn2an
 from flask import Flask, request, json, render_template, make_response, session, send_from_directory, send_file
-from flask_login import LoginManager, UserMixin, login_user, login_required, current_user
-from werkzeug.security import check_password_hash
+from flask_login import LoginManager, login_user, login_required, current_user
 import re
 import log
 from app.brushtask import BrushTask
@@ -39,6 +38,7 @@ from web.action import WebAction
 from app.subscribe import Subscribe
 from app.helper import DbHelper, DictHelper
 from app.utils.types import *
+from web.backend.user import User
 from web.backend.wallpaper import get_login_wallpaper
 from web.security import require_auth
 
@@ -62,15 +62,6 @@ def create_flask_app():
     """
     创建Flask实例，定时前端WEB的所有请求接口及页面访问
     """
-    app_cfg = Config().get_config('app') or {}
-    admin_user = app_cfg.get('login_user') or "admin"
-    admin_password = app_cfg.get('login_password') or "password"
-    ADMIN_USERS = [{
-        "id": 0,
-        "name": admin_user,
-        "password": admin_password[6:],
-        "pris": "我的媒体库,资源搜索,推荐,站点管理,订阅管理,下载管理,媒体整理,服务,系统设置"
-    }]
 
     @App.after_request
     def add_header(r):
@@ -82,63 +73,10 @@ def create_flask_app():
         r.headers["Expires"] = "0"
         return r
 
-    def get_user(user_name):
-        """
-        根据用户名获得用户记录
-        """
-        for user in ADMIN_USERS:
-            if user.get("name") == user_name:
-                return user
-        for user in DbHelper.get_users():
-            if user.NAME == user_name:
-                return {"id": user.ID, "name": user.NAME, "password": user.PASSWORD, "pris": user.PRIS}
-        return {}
-
-    class User(UserMixin):
-        """
-        用户
-        """
-
-        def __init__(self, user):
-            self.username = user.get('name')
-            self.password_hash = user.get('password')
-            self.id = user.get('id')
-
-        def verify_password(self, password):
-            """
-            验证密码
-            """
-            if self.password_hash is None:
-                return False
-            return check_password_hash(self.password_hash, password)
-
-        def get_id(self):
-            """
-            获取用户ID
-            """
-            return self.id
-
-        @staticmethod
-        def get(user_id):
-            """
-            根据用户ID获取用户实体，为 login_user 方法提供支持
-            """
-            if user_id is None:
-                return None
-            for user in ADMIN_USERS:
-                if user.get('id') == user_id:
-                    return User(user)
-            for user in DbHelper.get_users():
-                if not user:
-                    continue
-                if user[0] == user_id:
-                    return User({"id": user.ID, "name": user.NAME, "password": user.PASSWORD, "pris": user.PRIS})
-            return None
-
     # 定义获取登录用户的方法
     @login_manager.user_loader
     def load_user(user_id):
-        return User.get(user_id)
+        return User().get(user_id)
 
     # 页面不存在
     @App.errorhandler(404)
@@ -162,7 +100,7 @@ def create_flask_app():
             if current_user.is_authenticated:
                 userid = current_user.id
                 username = current_user.username
-                pris = get_user(username).get("pris")
+                pris = User().get_user(username).pris
                 if userid is None or username is None:
                     return render_template('login.html',
                                            GoPage=GoPage,
@@ -201,20 +139,17 @@ def create_flask_app():
                                        GoPage=GoPage,
                                        LoginWallpaper=get_login_wallpaper(),
                                        err_msg="请输入用户名")
-            user_info = get_user(username)
+            user_info = User().get_user(username)
             if not user_info:
                 return render_template('login.html',
                                        GoPage=GoPage,
                                        LoginWallpaper=get_login_wallpaper(),
                                        err_msg="用户名或密码错误")
-            # 创建用户实体
-            user = User(user_info)
             # 校验密码
-            if user.verify_password(password):
+            if user_info.verify_password(password):
                 # 创建用户 Session
-                login_user(user)
+                login_user(user_info)
                 session.permanent = True if remember else False
-                pris = user_info.get("pris")
                 RssSites = Sites().get_sites(rss=True)
                 SearchSites = [{"id": item.id, "name": item.name} for item in Searcher().indexer.get_indexers()]
                 RuleGroups = FilterRule().get_rule_groups()
@@ -223,7 +158,7 @@ def create_flask_app():
                 return render_template('navigation.html',
                                        GoPage=GoPage,
                                        UserName=username,
-                                       UserPris=str(pris).split(","),
+                                       UserPris=str(user_info.pris).split(","),
                                        SystemFlag=SystemFlag,
                                        AppVersion=WebUtils.get_current_version(),
                                        RssSites=RssSites,
@@ -389,7 +324,7 @@ def create_flask_app():
         # 权限
         if current_user.is_authenticated:
             username = current_user.username
-            pris = get_user(username).get("pris")
+            pris = User().get_user(username).get("pris")
         else:
             pris = ""
         # 查询结果
