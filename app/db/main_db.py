@@ -33,7 +33,7 @@ class MainDb:
                                       pool_size=5,
                                       pool_recycle=60 * 30
                                       )
-        self.__session = scoped_session(sessionmaker(bind=self.__engine, autocommit=True))()
+        self.__session = scoped_session(sessionmaker(bind=self.__engine, autocommit=True))
 
     def __init_db(self):
         with lock:
@@ -60,6 +60,10 @@ class MainDb:
             config['app']['init_files'] = init_files
             Config().save_config(config)
 
+    @property
+    def session(self):
+        return self.__session()
+
     def insert(self, data):
         """
         插入数据
@@ -68,9 +72,9 @@ class MainDb:
             return False
         try:
             if isinstance(data, list):
-                self.__session.add_all(data)
+                self.session.add_all(data)
             else:
-                self.__session.add(data)
+                self.session.add(data)
             return True
         except Exception as e:
             print(str(e))
@@ -80,7 +84,7 @@ class MainDb:
         """
         查询对象
         """
-        return self.__session.query(*obj)
+        return self.session.query(*obj)
 
     def excute(self, sql):
         """
@@ -89,7 +93,7 @@ class MainDb:
         if not sql:
             return False
         try:
-            self.__session.execute(sql)
+            self.session.execute(sql)
             return True
         except Exception as e:
             print(str(e))

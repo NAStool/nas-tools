@@ -24,8 +24,14 @@ class MediaDb:
             pool_size=5,
             pool_recycle=60 * 30
         )
-        self.__session = scoped_session(sessionmaker(bind=self.__engine, autocommit=True))()
+        self.__session = scoped_session(sessionmaker(bind=self.__engine,
+                                                     autocommit=True,
+                                                     autoflush=True))
         self.__init_db()
+
+    @property
+    def session(self):
+        return self.__session()
 
     def __init_db(self):
         with lock:
@@ -36,7 +42,7 @@ class MediaDb:
             return False
         self.delete(server_type, iteminfo.get("id"))
         try:
-            self.__session.add(MEDIASYNCITEMS(
+            self.session.add(MEDIASYNCITEMS(
                 SERVER=server_type,
                 LIBRARY=iteminfo.get("library"),
                 ITEM_ID=iteminfo.get("id"),
@@ -57,22 +63,22 @@ class MediaDb:
     def delete(self, server_type, itemid):
         if not server_type or not itemid:
             return False
-        return self.__session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
-                                                           MEDIASYNCITEMS.ITEM_ID == itemid).delete()
+        return self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
+                                                         MEDIASYNCITEMS.ITEM_ID == itemid).delete()
 
     def empty(self, server_type=None, library=None):
         if server_type and library:
-            return self.__session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
-                                                               MEDIASYNCITEMS.LIBRARY == library).delete()
+            return self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
+                                                             MEDIASYNCITEMS.LIBRARY == library).delete()
         else:
-            return self.__session.query(MEDIASYNCITEMS).delete()
+            return self.session.query(MEDIASYNCITEMS).delete()
 
     def statistics(self, server_type, total_count, movie_count, tv_count):
         if not server_type:
             return False
-        self.__session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type).delete()
+        self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type).delete()
         try:
-            self.__session.add(MEDIASYNCITEMS(
+            self.session.add(MEDIASYNCITEMS(
                 SERVER=server_type,
                 TOTAL_COUNT=total_count,
                 MOVIE_COUNT=movie_count,
@@ -89,16 +95,16 @@ class MediaDb:
         if not server_type or not title:
             return False
         if title and year:
-            count = self.__session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
-                                                                MEDIASYNCITEMS.TITLE == title,
-                                                                MEDIASYNCITEMS.YEAR == year).count()
+            count = self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
+                                                              MEDIASYNCITEMS.TITLE == title,
+                                                              MEDIASYNCITEMS.YEAR == str(year)).count()
         else:
-            count = self.__session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
-                                                                MEDIASYNCITEMS.TITLE == title).count()
+            count = self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
+                                                              MEDIASYNCITEMS.TITLE == title).count()
         if count > 0:
             return True
         elif tmdbid:
-            count = self.__session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.TMDBID == tmdbid).count()
+            count = self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.TMDBID == str(tmdbid)).count()
             if count > 0:
                 return True
         return False
@@ -106,4 +112,4 @@ class MediaDb:
     def get_statistics(self, server_type):
         if not server_type:
             return None
-        return self.__session.query(MEDIASYNCSTATISTIC).filter(MEDIASYNCSTATISTIC.SERVER == server_type).all()
+        return self.session.query(MEDIASYNCSTATISTIC).filter(MEDIASYNCSTATISTIC.SERVER == server_type).all()
