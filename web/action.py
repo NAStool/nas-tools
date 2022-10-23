@@ -73,7 +73,10 @@ class WebAction:
             "update_system": self.__update_system,
             "logout": self.__logout,
             "update_config": self.__update_config,
-            "update_directory": self.__update_directory,
+            "add_or_edit_sync_path": self.__add_or_edit_sync_path,
+            "get_sync_path": self.__get_sync_path,
+            "delete_sync_path": self.__delete_sync_path,
+            "check_sync_path": self.__check_sync_path,
             "remove_rss_media": self.__remove_rss_media,
             "add_rss_media": self.__add_rss_media,
             "re_identification": self.__re_identification,
@@ -942,23 +945,105 @@ class WebAction:
 
         return {"code": 0}
 
-    def __update_directory(self, data):
+    def __add_or_edit_sync_path(self, data):
         """
-        维护媒体库目录
+        维护同步目录
         """
-        cfg = self.set_config_directory(self.config.get_config(),
-                                        data.get("oper"),
-                                        data.get("key"),
-                                        data.get("value"),
-                                        data.get("replace_value"))
-        # 保存配置
-        self.config.save_config(cfg)
-        if data.get("key") == "sync.sync_path":
-            # 生效配置
-            Sync().init_config()
-            # 重启目录同步服务
-            restart_monitor()
+        print(data)
+        sid = data.get("sid")
+        source = data.get("from")
+        dest = data.get("to")
+        unknown = data.get("unknown")
+        mode = data.get("syncmod")
+        rename = 1 if data.get("rename") else 0
+        enabled = 1 if data.get("enabled") else 0
+        # 合规检查
+        # windows目录用\，linux目录用/
+        source = source.replace("/", "\\") if os.name == "nt" else source.replace("\\", "/")
+        if dest:
+            dest = dest.replace("/", "\\") if os.name == "nt" else dest.replace("\\", "/")
+        if unknown:
+            unknown = unknown.replace("/", "\\") if os.name == "nt" else unknown.replace("\\", "/")
+        # 源目录存在
+        if not os.path.exists(source):
+            return {"code": 1, "msg": f'{source}目录不存在'}
+        # 目的目录不可包含在源目录中
+        if dest:
+            if dest.find(source) != -1:
+                return {"code": 1, "msg": "目的目录不可包含在源目录中"}
+        if unknown:
+            unknown = unknown
+        # 硬链接不能跨盘
+        if mode == "link":
+            source_root = source.replace("\\", "/").split("/")[0] if source.split("/")[0] else source.split("/")[1]
+            dest_root = dest.replace("\\", "/").split("/")[0] if dest.split("/")[0] else dest.split("/")[1]
+            if source_root != dest_root:
+                return {"code": 1, "msg": "硬链接不能跨盘"}
+        # 编辑先删再增
+        if sid:
+            self.dbhelper.delete_config_sync_path(sid)
+        # 若启用，则关闭其他相同源目录的同步目录
+        if enabled == 1:
+            self.dbhelper.check_config_sync_paths(source=source,
+                                                  enabled=0)
+        # 插入数据库
+        self.dbhelper.insert_config_sync_path(source=source,
+                                              dest=dest,
+                                              unknown=unknown,
+                                              mode=mode,
+                                              rename=rename,
+                                              enabled=enabled)
+        Sync().init_config()
+        return {"code": 0, "msg": ""}
+
+    def __get_sync_path(self, data):
+        """
+        查询同步目录
+        """
+        try:
+            sid = data.get("sid")
+            sync_item = self.dbhelper.get_config_sync_paths(sid=sid)[0]
+            syncpath = {'id': sync_item.ID,
+                        'from': sync_item.SOURCE,
+                        'to': sync_item.DEST or "",
+                        'unknown': sync_item.UNKNOWN or "",
+                        'syncmod': sync_item.MODE,
+                        'rename': sync_item.RENAME,
+                        'enabled': sync_item.ENABLED}
+            return {"code": 0, "data": syncpath}
+        except Exception as e:
+            print(str(e))
+            return {"code": 1, "msg": "查询识别词失败"}
+
+
+    def __delete_sync_path(self, data):
+        """
+        移出同步目录
+        """
+        sid = data.get("sid")
+        self.dbhelper.delete_config_sync_path(sid)
+        Sync().init_config()
         return {"code": 0}
+
+    def __check_sync_path(self, data):
+        """
+        维护同步目录
+        """
+        flag = data.get("flag")
+        sid = data.get("sid")
+        checked = data.get("checked")
+        if flag == "rename":
+            self.dbhelper.check_config_sync_paths(sid=sid,
+                                                  rename=1 if checked else 0)
+            Sync().init_config()
+            return {"code": 0}
+        elif flag == "enable":
+            self.dbhelper.check_config_sync_paths(sid=sid,
+                                                  enabled=1 if checked else 0)
+            Sync().init_config()
+            return {"code": 0}
+        else:
+            return {"code": 1}
 
     def __remove_rss_media(self, data):
         """
@@ -2528,7 +2613,7 @@ class WebAction:
 
     def __get_custom_word(self, data):
         try:
-            wid = data.get("id")
+            wid = data.get("wid")
             word_info = self.dbhelper.get_custom_words(wid=wid)
             if word_info:
                 word_info = word_info[0]

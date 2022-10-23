@@ -49,7 +49,6 @@ class Sync(object):
     __sync_sys = OsType.LINUX
     __synced_files = []
     __need_sync_paths = {}
-    __sync_mod = None
 
     # 转移模式
     __sync_mode_dict = {
@@ -68,13 +67,14 @@ class Sync(object):
         self.init_config()
 
     def init_config(self):
+        _dbhelper = DbHelper()
         config = Config()
         sync = config.get_config('sync')
-        if sync:
+        sync_paths = _dbhelper.get_config_sync_paths()
+        if sync and sync_paths:
             if sync.get('nas_sys') == "windows":
                 self.__sync_sys = OsType.WINDOWS
-            self.__sync_path = sync.get('sync_path')
-            self.__sync_mod = sync.get("sync_mod")
+            self.__sync_paths = sync_paths
             self.init_sync_dirs()
 
     def init_sync_dirs(self):
@@ -82,73 +82,38 @@ class Sync(object):
         初始化监控文件配置
         """
         self.sync_dir_config = {}
-        if self.__sync_path:
-            for sync_item in self.__sync_path:
+        if self.__sync_paths:
+            for sync_item in self.__sync_paths:
                 if not sync_item:
                     continue
                 # 启用标志
-                enabled = True
-                if sync_item.startswith('#'):
-                    enabled = False
-                    sync_item = sync_item[1:-1]
+                enabled = True if sync_item.ENABLED else False
                 # 仅硬链接标志
-                only_link = False
-                if sync_item.startswith('['):
-                    only_link = True
-                    sync_item = sync_item[1:-1]
-                # 读取目录和转移方式
-                config_items = sync_item.split('@')
-                if not config_items:
-                    continue
-                if len(config_items) > 1:
-                    path_syncmode = self.__sync_mode_dict.get(config_items[-1])
-                else:
-                    path_syncmode = self.__sync_mode_dict.get(self.__sync_mod)
-                if not path_syncmode:
-                    continue
+                only_link = False if sync_item.RENAME else True
+                # 转移方式
+                path_syncmode = self.__sync_mode_dict.get(sync_item.MODE)
                 # 源目录|目的目录|未知目录
-                monpaths = config_items[0].split('|')
-                if monpaths[0]:
-                    monpath = os.path.normpath(monpaths[0])
+                monpath = sync_item.SOURCE
+                target_path = sync_item.DEST
+                unknown_path = sync_item.UNKNOWN
+                if target_path and unknown_path:
+                    log.info("【Sync】读取到监控目录：%s，目的目录：%s，未识别目录：%s，转移方式：%s" % (
+                        monpath, target_path, unknown_path, path_syncmode.value))
+                elif target_path:
+                    log.info("【Sync】读取到监控目录：%s，目的目录：%s，转移方式：%s" % (monpath, target_path, path_syncmode.value))
                 else:
-                    continue
-                if len(monpaths) > 1:
-                    if monpaths[1]:
-                        target_path = os.path.normpath(monpaths[1])
-                    else:
-                        target_path = None
-                    if len(monpaths) > 2:
-                        if monpaths[2]:
-                            unknown_path = os.path.normpath(monpaths[2])
-                        else:
-                            unknown_path = None
-                    else:
-                        unknown_path = None
-                    if target_path and unknown_path:
-                        log.info("【Sync】读取到监控目录：%s，目的目录：%s，未识别目录：%s，转移方式：%s" % (
-                            monpath, target_path, unknown_path, path_syncmode.value))
-                    elif target_path:
-                        log.info("【Sync】读取到监控目录：%s，目的目录：%s，转移方式：%s" % (monpath, target_path, path_syncmode.value))
-                    else:
-                        log.info("【Sync】读取到监控目录：%s，转移方式：%s" % (monpath, path_syncmode.value))
-                    if not enabled:
-                        log.info("【Sync】%s 不进行监控和同步：手动关闭" % monpath)
-                        continue
-                    if only_link:
-                        log.info("【Sync】%s 不进行识别和重命名" % monpath)
-                    if target_path and not os.path.exists(target_path):
-                        log.info("【Sync】目的目录不存在，正在创建：%s" % target_path)
-                        os.makedirs(target_path)
-                    if unknown_path and not os.path.exists(unknown_path):
-                        log.info("【Sync】未识别目录不存在，正在创建：%s" % unknown_path)
-                        os.makedirs(unknown_path)
-                else:
-                    target_path = None
-                    unknown_path = None
                     log.info("【Sync】读取到监控目录：%s，转移方式：%s" % (monpath, path_syncmode.value))
-                    if not enabled:
-                        log.info("【Sync】%s 不进行监控和同步：手动关闭" % monpath)
-                        continue
+                if not enabled:
+                    log.info("【Sync】%s 不进行监控和同步：手动关闭" % monpath)
+                    continue
+                if only_link:
+                    log.info("【Sync】%s 不进行识别和重命名" % monpath)
+                if target_path and not os.path.exists(target_path):
+                    log.info("【Sync】目的目录不存在，正在创建：%s" % target_path)
+                    os.makedirs(target_path)
+                if unknown_path and not os.path.exists(unknown_path):
+                    log.info("【Sync】未识别目录不存在，正在创建：%s" % unknown_path)
+                    os.makedirs(unknown_path)
                 # 登记关系
                 if os.path.exists(monpath):
                     self.sync_dir_config[monpath] = {'target': target_path, 'unknown': unknown_path,

@@ -81,9 +81,6 @@ class Media:
         :param tmdb_names: TMDB返回的译名
         :return: True or False
         """
-
-        file_name = StringUtils.replace_roman_numberal(file_name)
-        
         if not file_name or not tmdb_names:
             return False
         if not isinstance(tmdb_names, list):
