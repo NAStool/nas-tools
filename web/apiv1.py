@@ -35,6 +35,7 @@ download = Apiv1.namespace('download', description='下载')
 organization = Apiv1.namespace('organization', description='整理')
 brushtask = Apiv1.namespace('brushtask', description='刷流')
 media = Apiv1.namespace('media', description='媒体')
+sync = Apiv1.namespace('sync', description='目录同步')
 filterrule = Apiv1.namespace('filterrule', description='过滤规则')
 words = Apiv1.namespace('words', description='识别词')
 
@@ -91,7 +92,7 @@ class GetSiteConf(ApiResource):
 @service.route('/mediainfo')
 class GetMediaInfo(ApiResource):
     parser = reqparse.RequestParser()
-    parser.add_argument('name', type=str, help='名称', location='args')
+    parser.add_argument('name', type=str, help='名称', location='args', required=True)
 
     @service.doc(parser=parser)
     def get(self):
@@ -128,8 +129,8 @@ class GetMediaInfo(ApiResource):
 @user.route('/login')
 class UserLogin(Resource):
     parser = reqparse.RequestParser()
-    parser.add_argument('username', type=str, help='用户名', location='form')
-    parser.add_argument('password', type=str, help='密码', location='form')
+    parser.add_argument('username', type=str, help='用户名', location='form', required=True)
+    parser.add_argument('password', type=str, help='密码', location='form', required=True)
 
     @user.doc(parser=parser)
     def post(self):
@@ -162,7 +163,7 @@ class UserLogin(Resource):
 @user.route('/info')
 class UserInfo(ClientResource):
     parser = reqparse.RequestParser()
-    parser.add_argument('username', type=str, help='用户名', location='form')
+    parser.add_argument('username', type=str, help='用户名', location='form', required=True)
 
     @user.doc(parser=parser)
     def post(self):
@@ -184,8 +185,8 @@ class UserInfo(ClientResource):
 @user.route('/manage')
 class UserManage(ClientResource):
     parser = reqparse.RequestParser()
-    parser.add_argument('oper', type=str, help='操作类型（add 新增、del删除）', location='form')
-    parser.add_argument('name', type=str, help='用户名', location='form')
+    parser.add_argument('oper', type=str, help='操作类型（add 新增、del删除）', location='form', required=True)
+    parser.add_argument('name', type=str, help='用户名', location='form', required=True)
     parser.add_argument('pris', type=str, help='权限', location='form')
 
     @user.doc(parser=parser)
@@ -196,12 +197,38 @@ class UserManage(ClientResource):
         return WebAction().action(cmd='user_manager', data=self.parser.parse_args())
 
 
-"""
-# search
-"search": self.__search,
+@search.route('/searchword')
+class SearchWord(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('search_word', type=str, help='搜索关键字', location='form', required=True)
+    parser.add_argument('unident', type=bool, help='快速模式', location='form')
+    parser.add_argument('filters', type=str, help='过滤条件', location='form')
+    parser.add_argument('tmdbid', type=str, help='TMDBID', location='form')
+    parser.add_argument('media_type', type=str, help='类型（电影/电视剧）', location='form')
 
-# download
-"download": self.__download,
+    @search.doc(parser=parser)
+    def post(self):
+        """
+        根据关键字/TMDBID搜索
+        """
+        return WebAction().action(cmd='search', data=self.parser.parse_args())
+
+
+@download.route('/downloadsearch')
+class DownloadSearch(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=str, help='搜索结果ID', location='form', required=True)
+    parser.add_argument('dir', type=str, help='下载目录', location='form')
+
+    @download.doc(parser=parser)
+    def post(self):
+        """
+        下载搜索结果
+        """
+        return WebAction().action(cmd='download', data=self.parser.parse_args())
+
+
+"""
 "download_link": self.__download_link,
 "pt_start": self.__pt_start,
 "pt_stop": self.__pt_stop,
@@ -327,5 +354,12 @@ class UserManage(ClientResource):
 "export_custom_words": self.__export_custom_words,
 "analyse_import_custom_words_code": self.__analyse_import_custom_words_code,
 "import_custom_words": self.__import_custom_words,
+
+
+# sync
+"add_or_edit_sync_path": self.__add_or_edit_sync_path,
+"get_sync_path": self.__get_sync_path,
+"delete_sync_path": self.__delete_sync_path,
+"check_sync_path": self.__check_sync_path,
 
 """

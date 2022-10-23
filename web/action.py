@@ -34,7 +34,7 @@ from app.media import Category, Media, MetaInfo
 from app.media.doubanv2api import DoubanApi
 from app.filetransfer import FileTransfer
 from app.scheduler import restart_scheduler, stop_scheduler
-from app.sync import restart_monitor, stop_monitor
+from app.sync import stop_monitor
 from app.scheduler import Scheduler
 from app.sync import Sync
 from app.utils.types import SearchType, DownloaderType, SyncType, MediaType, SystemDictType
@@ -1014,7 +1014,6 @@ class WebAction:
         except Exception as e:
             print(str(e))
             return {"code": 1, "msg": "查询识别词失败"}
-
 
     def __delete_sync_path(self, data):
         """
