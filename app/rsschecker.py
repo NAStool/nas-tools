@@ -447,7 +447,7 @@ class RssChecker(object):
     def get_userrss_parser(self, pid=None):
         if pid:
             for rss_parser in self._rss_parsers:
-                if rss_parser.get("id") == str(pid):
+                if rss_parser.get("id") == int(pid):
                     return rss_parser
             return {}
         else:

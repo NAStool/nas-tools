@@ -69,6 +69,7 @@ class BrushTask(object):
             forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task.SITE)
             site_info = self.sites.get_sites(siteid=task.SITE)
             scheme, netloc = StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
+            downloader_info = self.get_downloader_info(task.DOWNLOADER)
             self._brush_tasks.append({
                 "id": task.ID,
                 "name": task.NAME,
@@ -76,6 +77,7 @@ class BrushTask(object):
                 "interval": task.INTEVAL,
                 "state": task.STATE,
                 "downloader": task.DOWNLOADER,
+                "downloader_name": downloader_info.get("name"),
                 "transfer": task.TRANSFER,
                 "free": task.FREELEECH,
                 "rss_rule": eval(task.RSS_RULE),
