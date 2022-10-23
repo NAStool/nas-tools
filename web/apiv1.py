@@ -55,7 +55,7 @@ class ClientResource(Resource):
 
 
 @site.route('/statistics')
-class GetSiteStatistic(ApiResource):
+class SiteStatistic(ApiResource):
     @staticmethod
     def get():
         """
@@ -73,7 +73,7 @@ class GetSiteStatistic(ApiResource):
 
 
 @site.route('/sites')
-class GetSiteConf(ApiResource):
+class SiteConf(ApiResource):
     @staticmethod
     def get():
         """
@@ -90,7 +90,7 @@ class GetSiteConf(ApiResource):
 
 
 @service.route('/mediainfo')
-class GetMediaInfo(ApiResource):
+class ServiceMediaInfo(ApiResource):
     parser = reqparse.RequestParser()
     parser.add_argument('name', type=str, help='名称', location='args', required=True)
 
@@ -192,13 +192,13 @@ class UserManage(ClientResource):
     @user.doc(parser=parser)
     def post(self):
         """
-        管理用户
+        用户管理
         """
         return WebAction().action(cmd='user_manager', data=self.parser.parse_args())
 
 
-@search.route('/searchword')
-class SearchWord(ClientResource):
+@search.route('/keyword')
+class SearchKeyword(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('search_word', type=str, help='搜索关键字', location='form', required=True)
     parser.add_argument('unident', type=bool, help='快速模式', location='form')
@@ -214,7 +214,7 @@ class SearchWord(ClientResource):
         return WebAction().action(cmd='search', data=self.parser.parse_args())
 
 
-@download.route('/downloadsearch')
+@download.route('/search')
 class DownloadSearch(ClientResource):
     parser = reqparse.RequestParser()
     parser.add_argument('id', type=str, help='搜索结果ID', location='form', required=True)
@@ -228,32 +228,270 @@ class DownloadSearch(ClientResource):
         return WebAction().action(cmd='download', data=self.parser.parse_args())
 
 
+@download.route('/item')
+class DownloadItem(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('enclosure', type=str, help='链接URL', location='form', required=True)
+    parser.add_argument('title', type=str, help='标题', location='form', required=True)
+    parser.add_argument('site', type=str, help='站点名称', location='form')
+    parser.add_argument('description', type=str, help='描述', location='form')
+    parser.add_argument('page_url', type=str, help='详情页面URL', location='form')
+    parser.add_argument('size', type=str, help='大小', location='form')
+    parser.add_argument('seeders', type=str, help='做种数', location='form')
+    parser.add_argument('uploadvolumefactor', type=float, help='上传因子', location='form')
+    parser.add_argument('downloadvolumefactor', type=float, help='下载因子', location='form')
+    parser.add_argument('dl_dir', type=str, help='保存目录', location='form')
+
+    @download.doc(parser=parser)
+    def post(self):
+        """
+        下载链接
+        """
+        return WebAction().action(cmd='download_link', data=self.parser.parse_args())
+
+
+@download.route('/start')
+class DownloadStart(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=str, help='任务ID', location='form', required=True)
+
+    @download.doc(parser=parser)
+    def post(self):
+        """
+        开始下载任务
+        """
+        return WebAction().action(cmd='pt_start', data=self.parser.parse_args())
+
+
+@download.route('/stop')
+class DownloadStop(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=str, help='任务ID', location='form', required=True)
+
+    @download.doc(parser=parser)
+    def post(self):
+        """
+        暂停下载任务
+        """
+        return WebAction().action(cmd='pt_stop', data=self.parser.parse_args())
+
+
+@download.route('/info')
+class DownloadInfo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('ids', type=str, help='任务IDS', location='form', required=True)
+
+    @download.doc(parser=parser)
+    def post(self):
+        """
+        查询下载进度
+        """
+        return WebAction().action(cmd='pt_info', data=self.parser.parse_args())
+
+
+@download.route('/remove')
+class DownloadRemove(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=str, help='任务ID', location='form', required=True)
+
+    @download.doc(parser=parser)
+    def post(self):
+        """
+        删除下载任务
+        """
+        return WebAction().action(cmd='pt_remove', data=self.parser.parse_args())
+
+
+@download.route('/history')
+class DownloadHistory(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('page', type=str, help='第几页', location='form', required=True)
+
+    @download.doc(parser=parser)
+    def post(self):
+        """
+        查询下载历史
+        """
+        return WebAction().action(cmd='get_downloaded', data=self.parser.parse_args())
+
+
+@organization.route('/unknown/delete')
+class UnknownDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('id', type=str, help='未识别记录ID', location='form', required=True)
+
+    @organization.doc(parser=parser)
+    def post(self):
+        """
+        删除未识别记录
+        """
+        return WebAction().action(cmd='del_unknown_path', data=self.parser.parse_args())
+
+
+@organization.route('/unknown/rename')
+class UnknownRename(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('logid', type=str, help='转移历史记录ID', location='form')
+    parser.add_argument('unknown_id', type=str, help='未识别记录ID', location='form')
+    parser.add_argument('syncmod', type=str, help='转移模式', location='form', required=True)
+    parser.add_argument('tmdb', type=int, help='TMDB ID', location='form')
+    parser.add_argument('title', type=str, help='标题', location='form')
+    parser.add_argument('year', type=str, help='年份', location='form')
+    parser.add_argument('type', type=str, help='类型（MOV/TV/ANIME）', location='form')
+    parser.add_argument('season', type=int, help='季号', location='form')
+    parser.add_argument('episode_format', type=str, help='集数定位', location='form')
+    parser.add_argument('min_filesize', type=int, help='最小文件大小', location='form')
+
+    @organization.doc(parser=parser)
+    def post(self):
+        """
+        手动识别
+        """
+        return WebAction().action(cmd='rename', data=self.parser.parse_args())
+
+
+@organization.route('/unknown/renameudf')
+class UnknownRenameUDF(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('inpath', type=str, help='源目录', location='form', required=True)
+    parser.add_argument('outpath', type=str, help='目的目录', location='form', required=True)
+    parser.add_argument('syncmod', type=str, help='转移模式', location='form', required=True)
+    parser.add_argument('tmdb', type=int, help='TMDB ID', location='form')
+    parser.add_argument('title', type=str, help='标题', location='form')
+    parser.add_argument('year', type=str, help='年份', location='form')
+    parser.add_argument('type', type=str, help='类型（MOV/TV/ANIME）', location='form')
+    parser.add_argument('season', type=int, help='季号', location='form')
+    parser.add_argument('episode_format', type=str, help='集数定位', location='form')
+    parser.add_argument('episode_details', type=str, help='集数范围', location='form')
+    parser.add_argument('episode_offset', type=str, help='集数偏移', location='form')
+    parser.add_argument('min_filesize', type=int, help='最小文件大小', location='form')
+
+    @organization.doc(parser=parser)
+    def post(self):
+        """
+        自定义识别
+        """
+        return WebAction().action(cmd='rename_udf', data=self.parser.parse_args())
+
+
+@organization.route('/unknown/redo')
+class UnknownRedo(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('flag', type=str, help='类型（unknow/history）', location='form', required=True)
+    parser.add_argument('ids', type=list, help='记录ID', location='form', required=True)
+
+    @organization.doc(parser=parser)
+    def post(self):
+        """
+        自定义识别
+        """
+        return WebAction().action(cmd='re_identification', data=self.parser.parse_args())
+
+
+@organization.route('/history/delete')
+class TransferHistoryDelete(ClientResource):
+    parser = reqparse.RequestParser()
+    parser.add_argument('logids', type=list, help='记录IDS', location='form', required=True)
+
+    @organization.doc(parser=parser)
+    def post(self):
+        """
+        删除媒体整理历史记录
+        """
+        return WebAction().action(cmd='delete_history', data=self.parser.parse_args())
+
+
+@organization.route('/library/start')
+class MediaLibraryStart(ClientResource):
+
+    @staticmethod
+    def post():
+        """
+        开始媒体库同步
+        """
+        return WebAction().action(cmd='start_mediasync')
+
+
+@organization.route('/cache/empty')
+class TransferCacheEmpty(ClientResource):
+
+    @staticmethod
+    def post():
+        """
+        清空文件转移缓存
+        """
+        return WebAction().action(cmd='mediasync_state')
+
+
+@organization.route('/library/status')
+class MediaLibraryStart(ClientResource):
+
+    @staticmethod
+    def post():
+        """
+        查询媒体库同步状态
+        """
+        return WebAction().action(cmd='truncate_blacklist')
+
+
+@system.route('/logging')
+class SystemLogging(ClientResource):
+
+    @staticmethod
+    def post():
+        """
+        获取实时日志
+        """
+        return WebAction().action(cmd='logging')
+
+
+@system.route('/version')
+class SystemVersion(ClientResource):
+
+    @staticmethod
+    def post():
+        """
+        查询最新版本号
+        """
+        return WebAction().action(cmd='version')
+
+
+@system.route('/restart')
+class SystemRestart(ClientResource):
+
+    @staticmethod
+    def post():
+        """
+        重启
+        """
+        return WebAction().action(cmd='restart')
+
+
+@system.route('/update')
+class SystemUpdate(ClientResource):
+
+    @staticmethod
+    def post():
+        """
+        更新
+        """
+        return WebAction().action(cmd='update_system')
+
+
+@system.route('/logout')
+class SystemUpdate(ClientResource):
+
+    @staticmethod
+    def post():
+        """
+        注销
+        """
+        return WebAction().action(cmd='logout')
+
+
 """
-"download_link": self.__download_link,
-"pt_start": self.__pt_start,
-"pt_stop": self.__pt_stop,
-"pt_remove": self.__pt_remove,
-"pt_info": self.__pt_info,
-"get_downloaded": self.get_downloaded,
-
-
-# organization
-"del_unknown_path": self.__del_unknown_path,
-"rename": self.__rename,
-"rename_udf": self.__rename_udf,
-"re_identification": self.__re_identification,
-"delete_history": self.__delete_history,
-"start_mediasync": self.__start_mediasync,
-"mediasync_state": self.__mediasync_state,
-"truncate_blacklist": self.__truncate_blacklist,
-
 
 # system
-"logging": self.__logging,
-"version": self.__version,
-"restart": self.__restart,
-"update_system": self.__update_system,
-"logout": self.__logout,
 "refresh_message": self.__refresh_message,
 "refresh_process": self.__refresh_process,
 

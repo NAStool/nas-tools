@@ -1,7 +1,6 @@
 import os
 import signal
 import sys
-import subprocess
 from alembic.config import Config as alembic_config
 from alembic.command import upgrade as alembic_upgrade
 
