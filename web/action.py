@@ -150,7 +150,7 @@ class WebAction:
             "import_filtergroup": self.__import_filtergroup
         }
 
-    def action(self, cmd, data):
+    def action(self, cmd, data=None):
         func = self._actions.get(cmd)
         if not func:
             return "非授权访问！"
