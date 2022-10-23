@@ -174,9 +174,6 @@ class Scheduler:
                     self.SCHEDULER.add_job(MediaServer().sync_mediaserver, 'interval', hours=mediasync_interval)
                     log.info("媒体库同步服务启动")
 
-        # 配置定时生效
-        self.SCHEDULER.add_job(Config().init_config, 'interval', seconds=RELOAD_CONFIG_INTERVAL)
-
         # 元数据定时保存
         self.SCHEDULER.add_job(MetaHelper().save_meta_data, 'interval', seconds=METAINFO_SAVE_INTERVAL)
 
