@@ -2,7 +2,8 @@ import os
 import signal
 import sys
 import subprocess
-import configparser
+from alembic.config import Config as alembic_config
+from alembic.command import upgrade as alembic_upgrade
 
 # 添加第三方库入口,按首字母顺序，引入brushtask时涉及第三方库，需提前引入
 from pyvirtualdisplay import Display
@@ -102,13 +103,13 @@ def update_db(cfg):
     """
     更新数据库
     """
-    alembic_ini = configparser.ConfigParser()
-    alembic_ini.read("./alembic.ini")
-    db_address = os.path.join(cfg.get_config_path(), 'user.db').replace('\\', '/')
-    alembic_ini.set("alembic", "sqlalchemy.url", f"sqlite:///{db_address}")
-    with open('./alembic.ini', 'w') as configfile:
-        alembic_ini.write(configfile)
-    subprocess.run(["alembic", "upgrade", "head"])
+    db_location = os.path.join(cfg.get_config_path(), 'user.db').replace('\\', '/')
+    script_location = os.path.join(os.path.dirname(__file__), 'alembic').replace('\\', '/')
+    log.console(f'Running DB migrations in {script_location} on {db_location}')
+    alembic_cfg = alembic_config()
+    alembic_cfg.set_main_option('script_location', script_location)
+    alembic_cfg.set_main_option('sqlalchemy.url', f"sqlite:///{db_location}")
+    alembic_upgrade(alembic_cfg, 'head')
 
 
 def update_config(cfg):
