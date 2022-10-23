@@ -573,11 +573,14 @@
     if (i == 0) {
       return;
     }
-    var cmd = "del_unknown_path";
-    var data = { "id": ids };
-    ajax_post(cmd, data, function (ret) {
-      navmenu('unidentification');
-    });
+    show_confirm_modal("是否确认删除所有选中的未识别记录？", function(){
+      hide_confirm_modal();
+      var cmd = "del_unknown_path";
+      var data = { "id": ids };
+      ajax_post(cmd, data, function (ret) {
+        navmenu('unidentification');
+      });
+    })
   }
 
   //单选框事件

@@ -2,40 +2,43 @@ import os
 import threading
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.pool import SingletonThreadPool
+from sqlalchemy.pool import QueuePool
 
 from app.db.models import Base
 from config import Config
 from app.utils import PathUtils
 
 lock = threading.Lock()
-Engine = create_engine(f"sqlite:///{os.path.join(Config().get_config_path(), 'user.db')}?check_same_thread=False",
-                       echo=False,
-                       poolclass=SingletonThreadPool,
-                       pool_pre_ping=True,
-                       pool_size=5,
-                       pool_recycle=60 * 30
-                       )
-Session = scoped_session(sessionmaker(bind=Engine,
-                                      autoflush=True,
-                                      autocommit=True))
+_Engine = create_engine(
+    f"sqlite:///{os.path.join(Config().get_config_path(), 'user.db')}?check_same_thread=False",
+    echo=False,
+    poolclass=QueuePool,
+    pool_pre_ping=True,
+    pool_size=5,
+    pool_recycle=60 * 30
+)
+_Session = scoped_session(sessionmaker(bind=_Engine,
+                                       autoflush=True,
+                                       autocommit=False))
 
 
 class MainDb:
-    __engine = None
-    __session = None
+    _session = None
 
     def __init__(self):
-        self.__session = Session()
+        self._session = _Session()
+
+    def __del__(self):
+        self._session.close()
 
     @property
     def session(self):
-        return self.__session
+        return self._session
 
     @staticmethod
     def init_db():
         with lock:
-            Base.metadata.create_all(Engine)
+            Base.metadata.create_all(_Engine)
 
     def init_data(self):
         """
@@ -53,6 +56,7 @@ class MainDb:
                     sql_list = f.read().split(';\n')
                     for sql in sql_list:
                         self.excute(sql)
+                        self.commit()
                 init_files.append(os.path.basename(sql_file))
         if config_flag:
             config['app']['init_files'] = init_files
@@ -62,17 +66,10 @@ class MainDb:
         """
         插入数据
         """
-        if not data:
-            return False
-        try:
-            if isinstance(data, list):
-                self.session.add_all(data)
-            else:
-                self.session.add(data)
-            return True
-        except Exception as e:
-            print(str(e))
-        return False
+        if isinstance(data, list):
+            self.session.add_all(data)
+        else:
+            self.session.add(data)
 
     def query(self, *obj):
         """
@@ -84,11 +81,22 @@ class MainDb:
         """
         执行SQL语句
         """
-        if not sql:
-            return False
-        try:
-            self.session.execute(sql)
-            return True
-        except Exception as e:
-            print(str(e))
-        return False
+        self.session.execute(sql)
+
+    def flush(self):
+        """
+        刷写
+        """
+        self.session.flush()
+
+    def commit(self):
+        """
+        提交事务
+        """
+        self.session.commit()
+
+    def rollback(self):
+        """
+        回滚事务
+        """
+        self.session.rollback()

@@ -23,10 +23,10 @@ from app.utils.commons import singleton
 class BrushTask(object):
     message = None
     sites = None
-    dbhelper = None
     _scheduler = None
     _brush_tasks = []
     _torrents_cache = []
+    _downloader_infos = []
     _qb_client = "qbittorrent"
     _tr_client = "transmission"
 
@@ -36,7 +36,6 @@ class BrushTask(object):
     def init_config(self):
         self.message = Message()
         self.sites = Sites()
-        self.dbhelper = DbHelper()
         # 移除现有任务
         try:
             if self._scheduler:
@@ -45,13 +44,31 @@ class BrushTask(object):
                 self._scheduler = None
         except Exception as e:
             print(str(e))
+        # 读取下载器列表
+        _dbhelper = DbHelper()
+        downloaders = _dbhelper.get_user_downloaders()
+        self._downloader_infos = []
+        for downloader_info in downloaders:
+            self._downloader_infos.append(
+                {
+                    "id": downloader_info.ID,
+                    "name": downloader_info.NAME,
+                    "type": downloader_info.TYPE,
+                    "host": downloader_info.HOST,
+                    "port": downloader_info.PORT,
+                    "username": downloader_info.USERNAME,
+                    "password": downloader_info.PASSWORD,
+                    "save_dir": downloader_info.SAVE_DIR
+                }
+            )
         # 读取任务任务列表
-        brushtasks = self.dbhelper.get_brushtasks()
+        brushtasks = _dbhelper.get_brushtasks()
         self._brush_tasks = []
         for task in brushtasks:
             sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task.SITE)
             forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task.SITE)
             site_info = self.sites.get_sites(siteid=task.SITE)
+            scheme, netloc = StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
             self._brush_tasks.append({
                 "id": task.ID,
                 "name": task.NAME,
@@ -68,7 +85,13 @@ class BrushTask(object):
                 "cookie": site_info.get("cookie"),
                 "sendmessage": sendmessage_switch,
                 "forceupload": forceupload_switch,
-                "ua": site_info.get("ua")
+                "ua": site_info.get("ua"),
+                "download_count": task.DOWNLOAD_COUNT,
+                "remove_count": task.REMOVE_COUNT,
+                "download_size": StringUtils.str_filesize(task.DOWNLOAD_SIZE),
+                "upload_size": StringUtils.str_filesize(task.UPLOAD_SIZE),
+                "lst_mod_date": task.LST_MOD_DATE,
+                "site_url": "%s://%s" % (scheme, netloc)
             })
         if not self._brush_tasks:
             return
@@ -92,11 +115,14 @@ class BrushTask(object):
             self._scheduler.start()
             log_info("刷流服务启动")
 
-    def get_brushtask_info(self, taskid):
-        for task in self._brush_tasks:
-            if task.get("id") == int(taskid):
-                return task
-        return None
+    def get_brushtask_info(self, taskid=None):
+        if taskid:
+            for task in self._brush_tasks:
+                if task.get("id") == int(taskid):
+                    return task
+            return {}
+        else:
+            return self._brush_tasks
 
     def check_task_rss(self, taskid):
         """
@@ -109,6 +135,8 @@ class BrushTask(object):
         taskinfo = self.get_brushtask_info(taskid)
         if not taskinfo:
             return
+        # 数据库对象
+        _dbhelper = DbHelper()
         # 检索RSS
         seed_size = taskinfo.get("seed_size")
         task_name = taskinfo.get("name")
@@ -127,7 +155,7 @@ class BrushTask(object):
             log_warn("【Brush】站点 %s 未配置Cookie，无法开启促销刷流" % site_name)
             return
         # 下载器参数
-        downloader_cfg = self.get_downloader_config(downloader_id)
+        downloader_cfg = self.get_downloader_info(downloader_id)
         if not downloader_cfg:
             log_warn("【Brush】任务 %s 下载器不存在，无法刷流" % task_name)
             return
@@ -136,7 +164,8 @@ class BrushTask(object):
                                            taskname=task_name,
                                            seedsize=seed_size,
                                            downloadercfg=downloader_cfg,
-                                           dlcount=rss_rule.get("dlcount")):
+                                           dlcount=rss_rule.get("dlcount"),
+                                           dbhelper=_dbhelper):
             return
         rss_result = Rss.parse_rssxml(rss_url)
         if len(rss_result) == 0:
@@ -189,7 +218,8 @@ class BrushTask(object):
                                            forceupload=True if taskinfo.get("forceupload") == 'Y' else False,
                                            upspeed=rss_rule.get("upspeed"),
                                            downspeed=rss_rule.get("downspeed"),
-                                           taskname=task_name):
+                                           taskname=task_name,
+                                           dbhelper=_dbhelper):
                     # 计数
                     success_count += 1
                     # 再判断一次
@@ -197,7 +227,8 @@ class BrushTask(object):
                                                        taskname=task_name,
                                                        seedsize=seed_size,
                                                        dlcount=rss_rule.get("dlcount"),
-                                                       downloadercfg=downloader_cfg):
+                                                       downloadercfg=downloader_cfg,
+                                                       dbhelper=_dbhelper):
                         break
             except Exception as err:
                 log.console(str(err) + " - " + traceback.format_exc())
@@ -210,6 +241,7 @@ class BrushTask(object):
         由定时服务调用
         """
         # 遍历所有任务
+        _dbhelper = DbHelper()
         for taskinfo in self._brush_tasks:
             if taskinfo.get("state") != "Y":
                 continue
@@ -229,12 +261,12 @@ class BrushTask(object):
                 remove_rule = taskinfo.get("remove_rule")
                 sendmessage = True if taskinfo.get("sendmessage") == "Y" else False
                 # 当前任务种子详情
-                task_torrents = self.dbhelper.get_brushtask_torrents(taskid)
+                task_torrents = _dbhelper.get_brushtask_torrents(taskid)
                 torrent_ids = [item.DOWNLOAD_ID for item in task_torrents if item.DOWNLOAD_ID]
                 if not torrent_ids:
                     continue
                 # 下载器参数
-                downloader_cfg = self.get_downloader_config(download_id)
+                downloader_cfg = self.get_downloader_info(download_id)
                 if not downloader_cfg:
                     log_warn("【Brush】任务 %s 下载器不存在" % task_name)
                     continue
@@ -400,9 +432,9 @@ class BrushTask(object):
                 if remove_torrent_ids:
                     log_info("【Brush】任务 %s 的这些下载任务在下载器中不存在，将删除任务记录：%s" % (task_name, remove_torrent_ids))
                     for remove_torrent_id in remove_torrent_ids:
-                        self.dbhelper.delete_brushtask_torrent(taskid, remove_torrent_id)
+                        _dbhelper.delete_brushtask_torrent(taskid, remove_torrent_id)
                 # 更新种子状态为已删除
-                self.dbhelper.update_brushtask_torrent_state(update_torrents)
+                _dbhelper.update_brushtask_torrent_state(update_torrents)
                 # 删除下载器种子
                 if delete_ids:
                     downloader.delete_torrents(delete_file=True, ids=delete_ids)
@@ -410,21 +442,21 @@ class BrushTask(object):
                 else:
                     log_info("【Brush】任务 %s 本次检查未删除下载任务" % task_name)
                 # 更新上传下载量和删除种子数
-                self.dbhelper.add_brushtask_upload_count(brush_id=taskid,
-                                                         upload_size=total_uploaded,
-                                                         download_size=total_downloaded,
-                                                         remove_count=len(delete_ids) + len(remove_torrent_ids))
+                _dbhelper.add_brushtask_upload_count(brush_id=taskid,
+                                                     upload_size=total_uploaded,
+                                                     download_size=total_downloaded,
+                                                     remove_count=len(delete_ids) + len(remove_torrent_ids))
             except Exception as e:
                 log.console(str(e) + " - " + traceback.format_exc())
 
-    def __is_allow_new_torrent(self, taskid, taskname, downloadercfg, seedsize, dlcount):
+    def __is_allow_new_torrent(self, taskid, taskname, downloadercfg, seedsize, dlcount, dbhelper):
         """
         检查是否还能添加新的下载
         """
         if not taskid:
             return False
         # 判断大小
-        total_size = self.dbhelper.get_brushtask_totalsize(taskid)
+        total_size = dbhelper.get_brushtask_totalsize(taskid)
         if seedsize:
             if float(seedsize) * 1024 ** 3 <= int(total_size):
                 log_warn("【Brush】刷流任务 %s 当前保种体积 %sGB，不再新增下载"
@@ -441,24 +473,17 @@ class BrushTask(object):
                 return False
         return True
 
-    def get_downloader_config(self, dlid):
+    def get_downloader_info(self, dlid=None):
         """
         获取下载器的参数
         """
-        if not dlid:
+        if dlid:
+            for downloader in self._downloader_infos:
+                if downloader.get('id') == int(dlid):
+                    return downloader
             return {}
-        downloader_info = self.dbhelper.get_user_downloaders(dlid)
-        if downloader_info:
-            userconfig = {"id": downloader_info.ID,
-                          "name": downloader_info.NAME,
-                          "type": downloader_info.TYPE,
-                          "host": downloader_info.HOST,
-                          "port": downloader_info.PORT,
-                          "username": downloader_info.USERNAME,
-                          "password": downloader_info.PASSWORD,
-                          "save_dir": downloader_info.SAVE_DIR}
-            return userconfig
-        return {}
+        else:
+            return self._downloader_infos
 
     def __get_downloading_count(self, downloadercfg):
         """
@@ -493,7 +518,8 @@ class BrushTask(object):
                            forceupload,
                            upspeed,
                            downspeed,
-                           taskname):
+                           taskname,
+                           dbhelper):
         """
         添加下载任务，更新任务数据
         :param downloadercfg: 下载器的所有参数
@@ -507,6 +533,7 @@ class BrushTask(object):
         :param upspeed: 上传限速
         :param downspeed: 下载限速
         :param taskname: 任务名称
+        :param dbhelper: 数据库对象
         """
         if not downloadercfg:
             return False
@@ -571,14 +598,14 @@ class BrushTask(object):
                 msg_text = "种子名称：{}\n种子大小：{}".format(title, StringUtils.str_filesize(size))
                 self.message.sendmsg(title=msg_title, text=msg_text)
         # 插入种子数据
-        if self.dbhelper.insert_brushtask_torrent(brush_id=taskid,
-                                                  title=title,
-                                                  enclosure=enclosure,
-                                                  downloader=downloadercfg.get("id"),
-                                                  download_id=download_id,
-                                                  size=size):
+        if dbhelper.insert_brushtask_torrent(brush_id=taskid,
+                                             title=title,
+                                             enclosure=enclosure,
+                                             downloader=downloadercfg.get("id"),
+                                             download_id=download_id,
+                                             size=size):
             # 更新下载次数
-            self.dbhelper.add_brushtask_download_count(brush_id=taskid)
+            dbhelper.add_brushtask_download_count(brush_id=taskid)
         else:
             log_info("【Brush】%s 已下载过" % title)
 

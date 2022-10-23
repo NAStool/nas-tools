@@ -3,45 +3,49 @@ import threading
 import time
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.pool import SingletonThreadPool
+from sqlalchemy.pool import QueuePool
 from app.db.models import BaseMedia, MEDIASYNCITEMS, MEDIASYNCSTATISTIC
 from config import Config
 
 lock = threading.Lock()
-Engine = create_engine(
+_Engine = create_engine(
     f"sqlite:///{os.path.join(Config().get_config_path(), 'media.db')}?check_same_thread=False",
     echo=False,
-    poolclass=SingletonThreadPool,
+    poolclass=QueuePool,
     pool_pre_ping=True,
     pool_size=5,
     pool_recycle=60 * 30
 )
-Session = scoped_session(sessionmaker(bind=Engine,
-                                      autoflush=True,
-                                      autocommit=True))
+_Session = scoped_session(sessionmaker(bind=_Engine,
+                                       autoflush=True,
+                                       autocommit=False))
 
 
 class MediaDb:
-    __engine = None
-    __session = None
+    _session = None
 
     def __init__(self):
-        self.__session = Session()
+        self._session = _Session()
+
+    def __del__(self):
+        self._session.close()
 
     @property
     def session(self):
-        return self.__session
+        return self._session
 
     @staticmethod
     def init_db():
         with lock:
-            BaseMedia.metadata.create_all(Engine)
+            BaseMedia.metadata.create_all(_Engine)
 
     def insert(self, server_type, iteminfo):
         if not server_type or not iteminfo:
             return False
-        self.delete(server_type, iteminfo.get("id"))
         try:
+            self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
+                                                      MEDIASYNCITEMS.ITEM_ID == iteminfo.get("id")).delete()
+            self.session.flush()
             self.session.add(MEDIASYNCITEMS(
                 SERVER=server_type,
                 LIBRARY=iteminfo.get("library"),
@@ -54,29 +58,33 @@ class MediaDb:
                 IMDBID=iteminfo.get("imdbid"),
                 PATH=iteminfo.get("path")
             ))
+            self.session.commit()
             return True
         except Exception as e:
             print(str(e))
+            self.session.rollback()
         return False
 
-    def delete(self, server_type, itemid):
-        if not server_type or not itemid:
-            return False
-        return self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
-                                                         MEDIASYNCITEMS.ITEM_ID == itemid).delete()
-
     def empty(self, server_type=None, library=None):
-        if server_type and library:
-            return self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
-                                                             MEDIASYNCITEMS.LIBRARY == library).delete()
-        else:
-            return self.session.query(MEDIASYNCITEMS).delete()
+        try:
+            if server_type and library:
+                self.session.query(MEDIASYNCITEMS).filter(MEDIASYNCITEMS.SERVER == server_type,
+                                                          MEDIASYNCITEMS.LIBRARY == library).delete()
+            else:
+                self.session.query(MEDIASYNCITEMS).delete()
+            self.session.commit()
+            return True
+        except Exception as e:
+            print(str(e))
+            self.session.rollback()
+        return False
 
     def statistics(self, server_type, total_count, movie_count, tv_count):
         if not server_type:
             return False
-        self.session.query(MEDIASYNCSTATISTIC).filter(MEDIASYNCSTATISTIC.SERVER == server_type).delete()
         try:
+            self.session.query(MEDIASYNCSTATISTIC).filter(MEDIASYNCSTATISTIC.SERVER == server_type).delete()
+            self.session.flush()
             self.session.add(MEDIASYNCSTATISTIC(
                 SERVER=server_type,
                 TOTAL_COUNT=total_count,
@@ -85,9 +93,11 @@ class MediaDb:
                 UPDATE_TIME=time.strftime('%Y-%m-%d %H:%M:%S',
                                           time.localtime(time.time()))
             ))
+            self.session.commit()
             return True
         except Exception as e:
             print(str(e))
+            self.session.rollback()
         return False
 
     def exists(self, server_type, title, year, tmdbid):

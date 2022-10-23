@@ -1122,6 +1122,8 @@
       $("#system_success_message").text(title);
       if(func){
         $("#system_success_modal_btn").unbind('click').click(func);
+      }else{
+        $("#system_success_modal_btn").unbind('click');
       }
       $("#system-success-modal").modal("show");
     }
@@ -1131,6 +1133,8 @@
       $("#system_fail_message").text(title);
       if(func){
         $("#system_fail_modal_btn").unbind('click').click(func);
+      }else{
+        $("#system_fail_modal_btn").unbind('click');
       }
       $("#system-fail-modal").modal("show");
     }

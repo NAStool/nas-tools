@@ -6,7 +6,6 @@ from app.utils.commons import singleton
 
 @singleton
 class WordsHelper:
-    dbhelper = None
     ignored_words_info = []
     ignored_words_noregex_info = []
     replaced_words_info = []
@@ -15,16 +14,16 @@ class WordsHelper:
     offset_words_info = []
 
     def __init__(self):
-        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
-        self.ignored_words_info = self.dbhelper.get_custom_words(enabled=1, wtype=1, regex=1)
-        self.ignored_words_noregex_info = self.dbhelper.get_custom_words(enabled=1, wtype=1, regex=0)
-        self.replaced_words_info = self.dbhelper.get_custom_words(enabled=1, wtype=2, regex=1)
-        self.replaced_words_noregex_info = self.dbhelper.get_custom_words(enabled=1, wtype=2, regex=0)
-        self.replaced_offset_words_info = self.dbhelper.get_custom_words(enabled=1, wtype=3, regex=1)
-        self.offset_words_info = self.dbhelper.get_custom_words(enabled=1, wtype=4, regex=1)
+        _dbhelper = DbHelper()
+        self.ignored_words_info = _dbhelper.get_custom_words(enabled=1, wtype=1, regex=1)
+        self.ignored_words_noregex_info = _dbhelper.get_custom_words(enabled=1, wtype=1, regex=0)
+        self.replaced_words_info = _dbhelper.get_custom_words(enabled=1, wtype=2, regex=1)
+        self.replaced_words_noregex_info = _dbhelper.get_custom_words(enabled=1, wtype=2, regex=0)
+        self.replaced_offset_words_info = _dbhelper.get_custom_words(enabled=1, wtype=3, regex=1)
+        self.offset_words_info = _dbhelper.get_custom_words(enabled=1, wtype=4, regex=1)
 
     def process(self, title):
         # 错误信息
@@ -149,5 +148,5 @@ class WordsHelper:
                 title = re.sub(episode_offset_re, r'%s' % str(episode_num[1]).zfill(2), title)
             return title, msg
         except Exception as err:
-            msg = "自定义集数偏移 %s 格式有误：%s" % (offset_word, str(err))
+            msg = "自定义集数偏移 %s 格式有误：%s" % (used_offset_words, str(err))
             return title, msg

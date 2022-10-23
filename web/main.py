@@ -784,43 +784,15 @@ def create_flask_app():
         # 站点列表
         CfgSites = Sites().get_sites(brush=True)
         # 下载器列表
-        downloaders = _dbhelper.get_user_downloaders()
+        Downloaders = BrushTask().get_downloader_info()
         # 任务列表
-        brushtasks = _dbhelper.get_brushtasks()
-        Tasks = []
-        for task in brushtasks:
-            sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task.SITE)
-            forceupload_switch = DictHelper.get(SystemDictType.BrushForceUpSwitch.value, task.SITE)
-            site_info = Sites().get_sites(siteid=task.SITE)
-            scheme, netloc = StringUtils.get_url_netloc(site_info.get("signurl") or site_info.get("rssurl"))
-            downloader_info = BrushTask().get_downloader_config(task.DOWNLOADER)
-            Tasks.append({
-                "id": task.ID,
-                "name": task.NAME,
-                "site": site_info.get("name"),
-                "interval": task.INTEVAL,
-                "state": task.STATE,
-                "downloader": downloader_info.get("name"),
-                "transfer": task.TRANSFER,
-                "free": task.FREELEECH,
-                "rss_rule": eval(task.RSS_RULE),
-                "remove_rule": eval(task.REMOVE_RULE),
-                "seed_size": task.SEED_SIZE,
-                "download_count": task.DOWNLOAD_COUNT,
-                "remove_count": task.REMOVE_COUNT,
-                "download_size": StringUtils.str_filesize(task.DOWNLOAD_SIZE),
-                "upload_size": StringUtils.str_filesize(task.UPLOAD_SIZE),
-                "lst_mod_date": task.LST_MOD_DATE,
-                "site_url": "%s://%s" % (scheme, netloc),
-                "sendmessage": sendmessage_switch,
-                "forceupload": forceupload_switch
-            })
+        Tasks = BrushTask().get_brushtask_info()
 
         return render_template("site/brushtask.html",
                                Count=len(Tasks),
                                Sites=CfgSites,
                                Tasks=Tasks,
-                               Downloaders=downloaders)
+                               Downloaders=Downloaders)
 
     # 自定义下载器页面
     @App.route('/userdownloader', methods=['POST', 'GET'])

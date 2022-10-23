@@ -119,7 +119,7 @@ class UserLogin(Resource):
     parser.add_argument('password', type=str, help='密码', location='form')
 
     @staticmethod
-    @service.doc(parser=parser)
+    @user.doc(parser=parser)
     def post():
         """
         用户登录
@@ -152,7 +152,7 @@ class UseInfo(ClientResource):
     parser.add_argument('username', type=str, help='用户名', location='form')
 
     @staticmethod
-    @service.doc(parser=parser)
+    @user.doc(parser=parser)
     def post():
         """
         获取用户信息
