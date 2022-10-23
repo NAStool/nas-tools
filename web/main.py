@@ -910,21 +910,20 @@ def create_flask_app():
                      'color': "facebook"})
 
         # 目录同步
-        sync = Config().get_config('sync')
-        if sync:
-            sync_path = sync.get('sync_path')
-            if sync_path:
-                sta_sync = 'ON'
-                svg = '''
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                     <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
-                     <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
-                </svg>
-                '''
-                scheduler_cfg_list.append(
-                    {'name': '目录同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg,
-                     'color': "orange"})
+        _dbhelper = DbHelper()
+        sync_paths = _dbhelper.get_config_sync_paths()
+        if sync_paths:
+            sta_sync = 'ON'
+            svg = '''
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-refresh" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4"></path>
+                    <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4"></path>
+            </svg>
+            '''
+            scheduler_cfg_list.append(
+                {'name': '目录同步', 'time': '实时监控', 'state': sta_sync, 'id': 'sync', 'svg': svg,
+                    'color': "orange"})
         # 豆瓣同步
         douban_cfg = Config().get_config('douban')
         if douban_cfg:
@@ -1215,50 +1214,25 @@ def create_flask_app():
     @App.route('/directorysync', methods=['POST', 'GET'])
     @login_required
     def directorysync():
-        sync_paths = Config().get_config("sync").get("sync_path")
-        rmt_mode = Config().get_config("sync").get("sync_mod")
+        _dbhelper = DbHelper()
+        sync_paths = _dbhelper.get_config_sync_paths()
         SyncPaths = []
         if sync_paths:
-            if isinstance(sync_paths, list):
-                for sync_items in sync_paths:
-                    SyncPath = {'enabled': True, 'rename': True}
-                    # 是否启用
-                    if sync_items.startswith("#"):
-                        SyncPath['enabled'] = False
-                        sync_items = sync_items[1:-1]
-                    # 是否重命名
-                    if sync_items.startswith("["):
-                        SyncPath['rename'] = False
-                        sync_items = sync_items[1:-1]
-                    # 转移方式
-                    config_items = sync_items.split("@")
-                    if not config_items:
-                        continue
-                    if len(config_items) > 1:
-                        SyncPath['syncmod'] = config_items[-1]
-                    else:
-                        SyncPath['syncmod'] = rmt_mode
-                    SyncPath['syncmod_name'] = RmtMode[SyncPath['syncmod'].upper()].value
-                    if not SyncPath['syncmod']:
-                        continue
-                    # 源目录|目的目录|未知目录
-                    paths = config_items[0].split("|")
-                    if not paths:
-                        continue
-                    if len(paths) > 0:
-                        if not paths[0]:
-                            continue
-                        SyncPath['from'] = paths[0].replace("\\", "/")
-                    if len(paths) > 1:
-                        SyncPath['to'] = paths[1].replace("\\", "/")
-                    if len(paths) > 2:
-                        SyncPath['unknown'] = paths[2].replace("\\", "/")
-                    SyncPaths.append(SyncPath)
-            else:
-                SyncPaths = [{"from": sync_paths}]
+            for sync_item in sync_paths:
+                SyncPath = {'id': sync_item.ID,
+                            'from': sync_item.SOURCE,
+                            'to': sync_item.DEST or "",
+                            'unknown': sync_item.UNKNOWN or "",
+                            'syncmod': sync_item.MODE,
+                            'syncmod_name': RmtMode[sync_item.MODE.upper()].value,
+                            'rename': sync_item.RENAME,
+                            'enabled': sync_item.ENABLED}
+                SyncPaths.append(SyncPath)
         SyncPaths = sorted(SyncPaths, key=lambda o: o.get("from"))
         SyncCount = len(SyncPaths)
-        return render_template("setting/directorysync.html", SyncPaths=SyncPaths, SyncCount=SyncCount)
+        return render_template("setting/directorysync.html",
+                               SyncPaths=SyncPaths,
+                               SyncCount=SyncCount)
 
     # 豆瓣页面
     @App.route('/douban', methods=['POST', 'GET'])

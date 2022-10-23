@@ -55,6 +55,19 @@ class CONFIGSITE(Base):
     NOTE = Column(Text)
 
 
+class CONFIGSYNCPATHS(Base):
+    __tablename__ = 'CONFIG_SYNC_PATHS'
+
+    ID = Column(Integer, Sequence('ID'), primary_key=True)
+    SOURCE = Column(Text)
+    DEST = Column(Text)
+    UNKNOWN = Column(Text)
+    MODE = Column(Text)
+    RENAME = Column(Integer)
+    ENABLED = Column(Integer)
+    NOTE = Column(Text)
+
+
 class CONFIGUSERS(Base):
     __tablename__ = 'CONFIG_USERS'
 

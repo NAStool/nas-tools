@@ -1935,3 +1935,59 @@ class DbHelper:
             return True
         else:
             return False
+
+    @DbPersist(_db)
+    def insert_config_sync_path(self, source, dest, unknown, mode, rename, enabled, note=None):
+        """
+        增加目录同步
+        """
+        return self._db.insert(CONFIGSYNCPATHS(
+            SOURCE=source,
+            DEST=dest,
+            UNKNOWN=unknown,
+            MODE=mode,
+            RENAME=int(rename),
+            ENABLED=int(enabled),
+            NOTE=note
+        ))
+
+    @DbPersist(_db)
+    def delete_config_sync_path(self, sid):
+        """
+        删除目录同步
+        """
+        if not sid:
+            return
+        self._db.query(CONFIGSYNCPATHS).filter(CONFIGSYNCPATHS.ID == int(sid)).delete()
+    
+    def get_config_sync_paths(self, sid=None):
+        """
+        查询目录同步
+        """
+        if sid:
+            return self._db.query(CONFIGSYNCPATHS).filter(CONFIGSYNCPATHS.ID == int(sid)).all()
+        return self._db.query(CONFIGSYNCPATHS).all()
+    
+    @DbPersist(_db)
+    def check_config_sync_paths(self, sid=None, source=None, rename=None, enabled=None):
+        """
+        设置目录同步状态
+        """
+        if sid and rename is not None:
+            self._db.query(CONFIGSYNCPATHS).filter(CONFIGSYNCPATHS.ID == int(sid)).update(
+                {
+                    "RENAME": int(rename)
+                }
+            )
+        elif sid and enabled is not None:
+            self._db.query(CONFIGSYNCPATHS).filter(CONFIGSYNCPATHS.ID == int(sid)).update(
+                {
+                    "ENABLED": int(enabled)
+                }
+            )
+        elif source and enabled is not None:
+            self._db.query(CONFIGSYNCPATHS).filter(CONFIGSYNCPATHS.SOURCE == source).update(
+                {
+                    "ENABLED": int(enabled)
+                }
+            )

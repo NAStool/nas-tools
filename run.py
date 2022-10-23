@@ -320,6 +320,70 @@ def update_config(cfg):
             overwrite_cofig = True
     except Exception as e:
         print(str(e))
+    # 目录同步兼容旧配置
+    try:
+        sync_paths = Config().get_config('sync').get('sync_path')
+        rmt_mode = Config().get_config('pt').get('sync_mod')
+        if sync_paths:
+            if isinstance(sync_paths, list):
+                for sync_items in sync_paths:
+                    SyncPath = {'from': "",
+                                'to': "",
+                                'unknown': "",
+                                'syncmod': rmt_mode,
+                                'rename': 1,
+                                'enabled': 1}
+                    # 是否启用
+                    if sync_items.startswith("#"):
+                        SyncPath['enabled'] = 0
+                        sync_items = sync_items[1:-1]
+                    # 是否重命名
+                    if sync_items.startswith("["):
+                        SyncPath['rename'] = 0
+                        sync_items = sync_items[1:-1]
+                    # 转移方式
+                    config_items = sync_items.split("@")
+                    if not config_items:
+                        continue
+                    if len(config_items) > 1:
+                        SyncPath['syncmod'] = config_items[-1]
+                    else:
+                        SyncPath['syncmod'] = rmt_mode
+                    if not SyncPath['syncmod']:
+                        continue
+                    # 源目录|目的目录|未知目录
+                    paths = config_items[0].split("|")
+                    if not paths:
+                        continue
+                    if len(paths) > 0:
+                        if not paths[0]:
+                            continue
+                        SyncPath['from'] = paths[0].replace("\\", "/")
+                    if len(paths) > 1:
+                        SyncPath['to'] = paths[1].replace("\\", "/")
+                    if len(paths) > 2:
+                        SyncPath['unknown'] = paths[2].replace("\\", "/")
+                    # 相同from的同步目录不能同时开启
+                    if SyncPath['enabled'] == 1:
+                        _dbhelper.check_config_sync_paths(source=SyncPath['from'],
+                                                          enabled=0)
+                    _dbhelper.insert_config_sync_path(source=SyncPath['from'],
+                                                      dest=SyncPath['to'],
+                                                      unknown=SyncPath['unknown'],
+                                                      mode=SyncPath['syncmod'],
+                                                      rename=SyncPath['rename'],
+                                                      enabled=SyncPath['enabled'])
+            else:
+                _dbhelper.insert_config_sync_path(source=sync_paths,
+                                                  dest="",
+                                                  unknown="",
+                                                  mode=rmt_mode,
+                                                  rename=1,
+                                                  enabled=0)
+        _config['sync'].pop('sync_path')
+        overwrite_cofig = True
+    except Exception as e:
+        print(str(e))
     # 重写配置文件
     if overwrite_cofig:
         cfg.save_config(_config)

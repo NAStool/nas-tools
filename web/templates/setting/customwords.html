@@ -507,7 +507,7 @@
   </div>
 </div>
 <script type="text/javascript">
-  // 绑定屏蔽词全选事件
+  // 绑定识别词词全选事件
   $("[id^='all_check_group']").change(function(){
     $(`[id^='check_group${$(this).attr("id").replace("all_check_group", "")}_']`).prop("checked", $(this).prop("checked"));
   })
@@ -753,15 +753,14 @@
   }
 
   // 显示编辑识别词框
-  function show_edit_custom_word_modal(id, gid, group_type, seasons){
+  function show_edit_custom_word_modal(wid, gid, group_type, seasons){
     show_wait_process();
-    ajax_post("get_custom_word", {id: id}, function (ret) {
+    ajax_post("get_custom_word", {wid: wid}, function (ret) {
       hide_wait_process();
       if(ret.code == 0){
-        hide_wait_process();
         var word = ret.data;
         $("#customd_word_modal_title").text("编辑识别词");
-        $("#custom_word_id").val(id);
+        $("#custom_word_id").val(wid);
         $("#group_id").val(gid);
         $("#group_type").val(group_type);
         $("#new_replaced").val(word.replaced);
@@ -781,6 +780,8 @@
         $("#custom_word_enabled_2").val(word.enabled);
         show_custom_word_type(word.type);
         $("#modal-set-custom-word").modal('show');
+      }else{
+        show_fail_modal(ret.msg);
       }
     });
   }
