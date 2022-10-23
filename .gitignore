@@ -4,7 +4,6 @@ __pycache__
 *.pid
 test/
 test.py
-alembic.ini
 
 ### IntelliJ IDEA ###
 .idea
