@@ -9,6 +9,7 @@ class User(UserMixin):
     """
     用户
     """
+    dbhelper = None
     ADMIN_USERS = [{
         "id": 0,
         "name": Config().get_config('app').get('login_user'),
@@ -17,6 +18,7 @@ class User(UserMixin):
     }]
 
     def __init__(self, user=None):
+        self.dbhelper = DbHelper()
         if user:
             self.id = user.get('id')
             self.username = user.get('name')
@@ -46,7 +48,7 @@ class User(UserMixin):
         for user in self.ADMIN_USERS:
             if user.get('id') == user_id:
                 return User(user)
-        for user in DbHelper.get_users():
+        for user in self.dbhelper.get_users():
             if not user:
                 continue
             if user.ID == user_id:
@@ -60,7 +62,7 @@ class User(UserMixin):
         for user in self.ADMIN_USERS:
             if user.get("name") == user_name:
                 return User(user)
-        for user in DbHelper.get_users():
+        for user in self.dbhelper.get_users():
             if user.NAME == user_name:
                 return User({"id": user.ID, "name": user.NAME, "password": user.PASSWORD, "pris": user.PRIS})
         return None

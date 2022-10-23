@@ -5,36 +5,37 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.pool import SingletonThreadPool
 from app.db.models import BaseMedia, MEDIASYNCITEMS, MEDIASYNCSTATISTIC
-from app.utils.commons import singleton
 from config import Config
 
 lock = threading.Lock()
+Engine = create_engine(
+    f"sqlite:///{os.path.join(Config().get_config_path(), 'media.db')}?check_same_thread=False",
+    echo=False,
+    poolclass=SingletonThreadPool,
+    pool_pre_ping=True,
+    pool_size=5,
+    pool_recycle=60 * 30
+)
+Session = scoped_session(sessionmaker(bind=Engine,
+                                      autoflush=True,
+                                      autocommit=True))
 
 
-@singleton
 class MediaDb:
     __engine = None
     __session = None
 
     def __init__(self):
-        self.__engine = create_engine(
-            f"sqlite:///{os.path.join(Config().get_config_path(), 'media.db')}?check_same_thread=False",
-            echo=False,
-            poolclass=SingletonThreadPool,
-            pool_size=5,
-            pool_recycle=60 * 30
-        )
-        self.__session = scoped_session(sessionmaker(bind=self.__engine,
-                                                     autocommit=True))
-        self.__init_db()
+        self.__session = Session()
 
     @property
     def session(self):
-        return self.__session()
+        return self.__session
 
-    def __init_db(self):
+    @staticmethod
+    def init_db():
         with lock:
-            BaseMedia.metadata.create_all(self.__engine)
+            BaseMedia.metadata.create_all(Engine)
 
     def insert(self, server_type, iteminfo):
         if not server_type or not iteminfo:
@@ -110,4 +111,4 @@ class MediaDb:
     def get_statistics(self, server_type):
         if not server_type:
             return None
-        return self.session.query(MEDIASYNCSTATISTIC).filter(MEDIASYNCSTATISTIC.SERVER == server_type).all()
+        return self.session.query(MEDIASYNCSTATISTIC).filter(MEDIASYNCSTATISTIC.SERVER == server_type).first()

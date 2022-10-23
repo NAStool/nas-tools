@@ -283,7 +283,7 @@ def create_flask_app():
         TvChartData = {}
         TvNums = []
         AnimeNums = []
-        for statistic in DbHelper.get_transfer_statistics():
+        for statistic in DbHelper().get_transfer_statistics():
             if statistic[0] == "电影":
                 MovieChartLabels.append(statistic[1])
                 MovieNums.append(statistic[2])
@@ -330,7 +330,7 @@ def create_flask_app():
         # 查询结果
         SearchWord = request.args.get("s")
         NeedSearch = request.args.get("f")
-        res = DbHelper.get_search_results()
+        res = DbHelper().get_search_results()
         # 类型字典
         MeidaTypeDict = {}
         # 站点字典
@@ -513,7 +513,7 @@ def create_flask_app():
     @App.route('/movie_rss', methods=['POST', 'GET'])
     @login_required
     def movie_rss():
-        RssItems = DbHelper.get_rss_movies()
+        RssItems = DbHelper().get_rss_movies()
         return render_template("rss/movie_rss.html",
                                Count=len(RssItems),
                                Items=RssItems
@@ -523,7 +523,7 @@ def create_flask_app():
     @App.route('/tv_rss', methods=['POST', 'GET'])
     @login_required
     def tv_rss():
-        RssItems = DbHelper.get_rss_tvs()
+        RssItems = DbHelper().get_rss_tvs()
         return render_template("rss/tv_rss.html",
                                Count=len(RssItems),
                                Items=RssItems
@@ -534,7 +534,7 @@ def create_flask_app():
     @login_required
     def rss_history():
         mtype = request.args.get("t")
-        RssHistory = DbHelper.get_rss_history(mtype)
+        RssHistory = DbHelper().get_rss_history(mtype)
         return render_template("rss/rss_history.html",
                                Count=len(RssHistory),
                                Items=RssHistory,
@@ -545,13 +545,14 @@ def create_flask_app():
     @App.route('/rss_calendar', methods=['POST', 'GET'])
     @login_required
     def rss_calendar():
+        _dbhelper = DbHelper()
         Today = datetime.datetime.strftime(datetime.datetime.now(), '%Y-%m-%d')
-        RssMovieIds = [movie.TMDBID for movie in DbHelper.get_rss_movies()]
+        RssMovieIds = [movie.TMDBID for movie in _dbhelper.get_rss_movies()]
         RssTvItems = [{
             "id": tv.TMDBID,
             "season": int(str(tv.SEASON).replace("S", "")),
             "name": tv.NAME
-        } for tv in DbHelper.get_rss_tvs() if tv.SEASON]
+        } for tv in _dbhelper.get_rss_tvs() if tv.SEASON]
         return render_template("rss/rss_calendar.html",
                                Today=Today,
                                RssMovieIds=RssMovieIds,
@@ -779,12 +780,13 @@ def create_flask_app():
     @App.route('/brushtask', methods=['POST', 'GET'])
     @login_required
     def brushtask():
+        _dbhelper = DbHelper()
         # 站点列表
         CfgSites = Sites().get_sites(brush=True)
         # 下载器列表
-        downloaders = DbHelper.get_user_downloaders()
+        downloaders = _dbhelper.get_user_downloaders()
         # 任务列表
-        brushtasks = DbHelper.get_brushtasks()
+        brushtasks = _dbhelper.get_brushtasks()
         Tasks = []
         for task in brushtasks:
             sendmessage_switch = DictHelper.get(SystemDictType.BrushMessageSwitch.value, task.SITE)
@@ -824,7 +826,7 @@ def create_flask_app():
     @App.route('/userdownloader', methods=['POST', 'GET'])
     @login_required
     def userdownloader():
-        downloaders = DbHelper.get_user_downloaders()
+        downloaders = DbHelper().get_user_downloaders()
         return render_template("download/userdownloader.html",
                                Count=len(downloaders),
                                Downloaders=downloaders)
@@ -1070,7 +1072,7 @@ def create_flask_app():
             CurrentPage = 1
         else:
             CurrentPage = int(CurrentPage)
-        totalCount, historys = DbHelper.get_transfer_history(SearchStr, CurrentPage, PageNum)
+        totalCount, historys = DbHelper().get_transfer_history(SearchStr, CurrentPage, PageNum)
 
         TotalPage = floor(totalCount / PageNum) + 1
 
@@ -1150,7 +1152,7 @@ def create_flask_app():
     @login_required
     def unidentification():
         Items = []
-        Records = DbHelper.get_transfer_unknown_paths()
+        Records = DbHelper().get_transfer_unknown_paths()
         TotalCount = len(Records)
         SyncMod = Config().get_config('pt').get('rmt_mode')
         if not SyncMod:
@@ -1181,8 +1183,9 @@ def create_flask_app():
     @App.route('/customwords', methods=['POST', 'GET'])
     @login_required
     def customwords():
+        _dbhelper = DbHelper()
         words = []
-        words_info = DbHelper.get_custom_words(gid=-1)
+        words_info = _dbhelper.get_custom_words(gid=-1)
         for word_info in words_info:
             words.append({"id": word_info.ID,
                           "replaced": word_info.REPLACED,
@@ -1202,7 +1205,7 @@ def create_flask_app():
                    "type": "1",
                    "seasons": "0",
                    "words": words}]
-        groups_info = DbHelper.get_custom_word_groups()
+        groups_info = _dbhelper.get_custom_word_groups()
         for group_info in groups_info:
             gid = group_info.ID
             name = "%s (%s)" % (group_info.TITLE, group_info.YEAR)
@@ -1212,7 +1215,7 @@ def create_flask_app():
             else:
                 link = "https://www.themoviedb.org/tv/%s" % group_info.TMDBID
             words = []
-            words_info = DbHelper.get_custom_words(gid=gid)
+            words_info = _dbhelper.get_custom_words(gid=gid)
             for word_info in words_info:
                 words.append({"id": word_info.ID,
                               "replaced": word_info.REPLACED,
@@ -1339,7 +1342,7 @@ def create_flask_app():
     @App.route('/users', methods=['POST', 'GET'])
     @login_required
     def users():
-        user_list = DbHelper.get_users()
+        user_list = DbHelper().get_users()
         user_count = len(user_list)
         Users = []
         for user in user_list:
@@ -1602,10 +1605,10 @@ def create_flask_app():
         msg = "ok"
         meta_info = MetaInfo(title=subject, mtype=media_type)
         if media_type == MediaType.MOVIE:
-            code, msg, meta_info = Subscribe.add_rss_subscribe(mtype=media_type,
-                                                               name=meta_info.get_name(),
-                                                               year=meta_info.year,
-                                                               tmdbid=tmdbId)
+            code, msg, meta_info = Subscribe().add_rss_subscribe(mtype=media_type,
+                                                                 name=meta_info.get_name(),
+                                                                 year=meta_info.year,
+                                                                 tmdbid=tmdbId)
             Message().send_rss_success_message(in_from=SearchType.API,
                                                media_info=meta_info)
         else:
@@ -1615,11 +1618,11 @@ def create_flask_app():
                     seasons = [int(str(sea).strip()) for sea in extra.get("value").split(", ") if str(sea).isdigit()]
                     break
             for season in seasons:
-                code, msg, meta_info = Subscribe.add_rss_subscribe(mtype=media_type,
-                                                                   name=meta_info.get_name(),
-                                                                   year=meta_info.year,
-                                                                   tmdbid=tmdbId,
-                                                                   season=season)
+                code, msg, meta_info = Subscribe().add_rss_subscribe(mtype=media_type,
+                                                                     name=meta_info.get_name(),
+                                                                     year=meta_info.year,
+                                                                     tmdbid=tmdbId,
+                                                                     season=season)
                 Message().send_rss_success_message(in_from=SearchType.API,
                                                    media_info=meta_info)
         if code == 0:

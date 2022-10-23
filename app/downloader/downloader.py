@@ -26,11 +26,13 @@ class Downloader:
     _download_order = None
     _pt_rmt_mode = None
     _downloaddir = []
+    
     message = None
     mediaserver = None
     filetransfer = None
     media = None
     sites = None
+    dbhelper = None
 
     def __init__(self):
         self.message = Message()
@@ -38,6 +40,7 @@ class Downloader:
         self.filetransfer = FileTransfer()
         self.media = Media()
         self.sites = Sites()
+        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
@@ -212,7 +215,7 @@ class Downloader:
                                               category=category)
             if ret:
                 # 登记下载历史
-                DbHelper.insert_download_history(media_info)
+                self.dbhelper.insert_download_history(media_info)
                 return ret, ""
             else:
                 return ret, "请检查下载任务是否已存在"

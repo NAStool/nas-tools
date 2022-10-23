@@ -7,15 +7,17 @@ from app.utils.types import MediaType
 
 @singleton
 class FilterRule:
+    dbhelper = None
     _groups = []
     _rules = []
 
     def __init__(self):
+        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
-        self._groups = DbHelper.get_config_filter_group()
-        self._rules = DbHelper.get_config_filter_rule()
+        self._groups = self.dbhelper.get_config_filter_group()
+        self._rules = self.dbhelper.get_config_filter_rule()
 
     def get_rule_groups(self, groupid=None, default=False):
         """

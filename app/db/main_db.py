@@ -6,40 +6,38 @@ from sqlalchemy.pool import SingletonThreadPool
 
 from app.db.models import Base
 from config import Config
-from app.utils.commons import singleton
 from app.utils import PathUtils
 
 lock = threading.Lock()
+Engine = create_engine(f"sqlite:///{os.path.join(Config().get_config_path(), 'user.db')}?check_same_thread=False",
+                       echo=False,
+                       poolclass=SingletonThreadPool,
+                       pool_pre_ping=True,
+                       pool_size=5,
+                       pool_recycle=60 * 30
+                       )
+Session = scoped_session(sessionmaker(bind=Engine,
+                                      autoflush=True,
+                                      autocommit=True))
 
 
-@singleton
 class MainDb:
     __engine = None
     __session = None
 
     def __init__(self):
-        self.init_config()
-        self.__init_db()
-        self.__init_data()
+        self.__session = Session()
 
-    def init_config(self):
-        config = Config()
-        if not config.get_config_path():
-            print("【Config】NASTOOL_CONFIG 环境变量未设置，程序无法工作，正在退出...")
-            quit()
-        self.__engine = create_engine(f"sqlite:///{os.path.join(config.get_config_path(), 'user.db')}?check_same_thread=False",
-                                      echo=False,
-                                      poolclass=SingletonThreadPool,
-                                      pool_size=5,
-                                      pool_recycle=60 * 30
-                                      )
-        self.__session = scoped_session(sessionmaker(bind=self.__engine, autocommit=True))
+    @property
+    def session(self):
+        return self.__session
 
-    def __init_db(self):
+    @staticmethod
+    def init_db():
         with lock:
-            Base.metadata.create_all(self.__engine)
+            Base.metadata.create_all(Engine)
 
-    def __init_data(self):
+    def init_data(self):
         """
         读取config目录下的sql文件，并初始化到数据库，只处理一次
         """
@@ -59,10 +57,6 @@ class MainDb:
         if config_flag:
             config['app']['init_files'] = init_files
             Config().save_config(config)
-
-    @property
-    def session(self):
-        return self.__session()
 
     def insert(self, data):
         """

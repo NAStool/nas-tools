@@ -245,10 +245,10 @@ class IIndexer(metaclass=ABCMeta):
                                 'imdbid': imdbid}
                     torrents.append(tmp_dict)
                 except Exception as e:
-                    print(f"{e}")
+                    print(f"{str(e)}")
                     continue
         except Exception as e2:
-            print(f"{e2}")
+            print(f"{str(e2)}")
             pass
 
         return torrents

@@ -43,7 +43,7 @@ class ClientResource(Resource):
 @site.route('/statistics')
 class GetSiteStatistic(ApiResource):
     @staticmethod
-    def post():
+    def get():
         """
         获取站点数据明细
         """
@@ -61,7 +61,7 @@ class GetSiteStatistic(ApiResource):
 @site.route('/sites')
 class GetSiteConf(ApiResource):
     @staticmethod
-    def post():
+    def get():
         """
         获取站点配置
         """
@@ -78,15 +78,15 @@ class GetSiteConf(ApiResource):
 @service.route('/mediainfo')
 class GetMediaInfo(ApiResource):
     parser = reqparse.RequestParser()
-    parser.add_argument('name', type=str, help='名称')
+    parser.add_argument('name', type=str, help='名称', location='args')
 
-    @staticmethod
     @service.doc(parser=parser)
-    def post():
+    def get(self):
         """
         识别媒体信息
         """
-        name = request.form.get("name")
+        args = self.parser.parse_args()
+        name = args.get('name')
         if not name:
             return jsonify(
                 {
@@ -103,7 +103,7 @@ class GetMediaInfo(ApiResource):
                     "data": {}
                 }
             )
-        mediainfo_dict = WebAction.mediainfo_dict(media_info)
+        mediainfo_dict = WebAction().mediainfo_dict(media_info)
         return jsonify(
             {
                 "code": 0,

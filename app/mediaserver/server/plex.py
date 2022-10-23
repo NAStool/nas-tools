@@ -166,7 +166,7 @@ class Plex(IMediaServer):
         try:
             self._libraries = self._plex.library.sections()
         except Exception as err:
-            print(err)
+            print(str(err))
             return []
         libraries = []
         for library in self._libraries:
@@ -194,5 +194,5 @@ class Plex(IMediaServer):
                            "year": item.year,
                            "json": str(item.__dict__)}
         except Exception as err:
-            print(err)
+            print(str(err))
         yield {}

@@ -35,19 +35,22 @@ class Sites:
     message = None
     filtersites = None
     siteconf = None
+    dbhelper = None
+    
     __sites_data = {}
     __sites = None
     __last_update_time = None
     _MAX_CONCURRENCY = 10
 
     def __init__(self):
+        self.dbhelper = DbHelper()
         self.init_config()
 
     def init_config(self):
         self.message = Message()
         self.filtersites = FilterRule()
         self.siteconf = SiteConf()
-        self.__sites = DbHelper.get_config_site()
+        self.__sites = self.dbhelper.get_config_site()
         self.__sites_data = {}
         self.__last_update_time = None
 
@@ -63,7 +66,7 @@ class Sites:
         """
         ret_sites = []
         # 补全 favicon
-        site_favicons = DbHelper.get_site_user_statistics()
+        site_favicons = self.dbhelper.get_site_user_statistics()
         site_favicons = {site.SITE: site.FAVICON for site in site_favicons}
         for site in self.__sites:
             # 是否解析种子详情为|分隔的第1位
@@ -150,11 +153,11 @@ class Sites:
                 site_user_infos = p.map(self.__refresh_site_data, refresh_sites)
                 site_user_infos = [info for info in site_user_infos if info]
             # 登记历史数据
-            DbHelper.insert_site_statistics_history(site_user_infos)
+            self.dbhelper.insert_site_statistics_history(site_user_infos)
             # 实时用户数据
-            DbHelper.update_site_user_statistics(site_user_infos)
+            self.dbhelper.update_site_user_statistics(site_user_infos)
             # 实时做种信息
-            DbHelper.update_site_seed_info(site_user_infos)
+            self.dbhelper.update_site_seed_info(site_user_infos)
 
         # 更新时间
         if refresh_all:
@@ -369,7 +372,7 @@ class Sites:
             if site_url:
                 site_urls.append(site_url)
 
-        return DbHelper.get_site_statistics_recent_sites(days=days, strict_urls=site_urls)
+        return self.dbhelper.get_site_statistics_recent_sites(days=days, strict_urls=site_urls)
 
     def get_site_user_statistics(self, encoding="RAW"):
         """
@@ -384,7 +387,7 @@ class Sites:
             if site_url:
                 site_urls.append(site_url)
 
-        raw_statistics = DbHelper.get_site_user_statistics(strict_urls=site_urls)
+        raw_statistics = self.dbhelper.get_site_user_statistics(strict_urls=site_urls)
         if encoding == "RAW":
             return raw_statistics
 
@@ -424,8 +427,7 @@ class Sites:
 
         self.refresh_all_site_data(force=True, specify_sites=specify_sites)
 
-    @staticmethod
-    def get_pt_site_activity_history(site, days=365 * 2):
+    def get_pt_site_activity_history(self, site, days=365 * 2):
         """
         查询站点 上传，下载，做种数据
         :param site: 站点名称
@@ -433,7 +435,7 @@ class Sites:
         :return:
         """
         site_activities = [["time", "upload", "download", "bonus", "seeding", "seeding_size"]]
-        sql_site_activities = DbHelper.get_site_statistics_history(site=site, days=days)
+        sql_site_activities = self.dbhelper.get_site_statistics_history(site=site, days=days)
         for sql_site_activity in sql_site_activities:
             timestamp = datetime.strptime(sql_site_activity.DATE, '%Y-%m-%d').timestamp() * 1000
             site_activities.append(
@@ -446,15 +448,14 @@ class Sites:
 
         return site_activities
 
-    @staticmethod
-    def get_pt_site_seeding_info(site):
+    def get_pt_site_seeding_info(self, site):
         """
         查询站点 做种分布信息
         :param site: 站点名称
         :return: seeding_info:[uploader_num, seeding_size]
         """
         site_seeding_info = {"seeding_info": []}
-        seeding_info = DbHelper.get_site_seeding_info(site=site)
+        seeding_info = self.dbhelper.get_site_seeding_info(site=site)
         if not seeding_info:
             return site_seeding_info
 
@@ -539,7 +540,7 @@ class Sites:
                     peer_count_str_re = re.search(r'^(\d+)', peer_count_str)
                     ret_attr.peer_count = int(peer_count_str_re.group(1)) if peer_count_str_re else 0
         except Exception as err:
-            print(err)
+            print(str(err))
         # 随机休眼后再返回
         time.sleep(round(random.uniform(1, 5), 1))
         return ret_attr

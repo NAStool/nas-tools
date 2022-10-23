@@ -42,7 +42,7 @@ if is_windows_exe:
         if not os.path.exists(feapder_tmpdir):
             os.makedirs(feapder_tmpdir)
     except Exception as err:
-        print(err)
+        print(str(err))
 
 # 启动虚拟显示
 is_docker = os.path.exists('/.dockerenv')
@@ -67,6 +67,7 @@ from app.helper import check_config, IndexerHelper, DbHelper
 from version import APP_VERSION
 from web.app import FlaskApp
 from app.rsschecker import RssChecker
+from app.db import MainDb, MediaDb
 
 warnings.filterwarnings('ignore')
 
@@ -88,6 +89,15 @@ def sigal_handler(num, stack):
         sys.exit()
 
 
+def init_db():
+    """
+    初始化数据库
+    """
+    MediaDb().init_db()
+    MainDb().init_db()
+    MainDb().init_data()
+
+
 def update_db(cfg):
     """
     更新数据库
@@ -105,6 +115,7 @@ def update_config(cfg):
     """
     升级配置文件
     """
+    _dbhelper = DbHelper()
     _config = cfg.get_config()
     overwrite_cofig = False
     # 密码初始化
@@ -255,18 +266,18 @@ def update_config(cfg):
         if ignored_words:
             ignored_words = ignored_words.split("||")
             for ignored_word in ignored_words:
-                if not DbHelper.is_custom_words_existed(replaced=ignored_word):
-                    DbHelper.insert_custom_word(replaced=ignored_word,
-                                                replace="",
-                                                front="",
-                                                back="",
-                                                offset=0,
-                                                wtype=1,
-                                                gid=-1,
-                                                season=-2,
-                                                enabled=1,
-                                                regex=1,
-                                                whelp="")
+                if not _dbhelper.is_custom_words_existed(replaced=ignored_word):
+                    _dbhelper.insert_custom_word(replaced=ignored_word,
+                                                 replace="",
+                                                 front="",
+                                                 back="",
+                                                 offset=0,
+                                                 wtype=1,
+                                                 gid=-1,
+                                                 season=-2,
+                                                 enabled=1,
+                                                 regex=1,
+                                                 whelp="")
             _config['laboratory'].pop('ignored_words')
             overwrite_cofig = True
         replaced_words = Config().get_config('laboratory').get("replaced_words")
@@ -274,18 +285,18 @@ def update_config(cfg):
             replaced_words = replaced_words.split("||")
             for replaced_word in replaced_words:
                 replaced_word = replaced_word.split("@")
-                if not DbHelper.is_custom_words_existed(replaced=replaced_word[0]):
-                    DbHelper.insert_custom_word(replaced=replaced_word[0],
-                                                replace=replaced_word[1],
-                                                front="",
-                                                back="",
-                                                offset=0,
-                                                wtype=2,
-                                                gid=-1,
-                                                season=-2,
-                                                enabled=1,
-                                                regex=1,
-                                                whelp="")
+                if not _dbhelper.is_custom_words_existed(replaced=replaced_word[0]):
+                    _dbhelper.insert_custom_word(replaced=replaced_word[0],
+                                                 replace=replaced_word[1],
+                                                 front="",
+                                                 back="",
+                                                 offset=0,
+                                                 wtype=2,
+                                                 gid=-1,
+                                                 season=-2,
+                                                 enabled=1,
+                                                 regex=1,
+                                                 whelp="")
             _config['laboratory'].pop('replaced_words')
             overwrite_cofig = True
         offset_words = Config().get_config('laboratory').get("offset_words")
@@ -293,18 +304,18 @@ def update_config(cfg):
             offset_words = offset_words.split("||")
             for offset_word in offset_words:
                 offset_word = offset_word.split("@")
-                if not DbHelper.is_custom_words_existed(front=offset_word[0], back=offset_word[1]):
-                    DbHelper.insert_custom_word(replaced="",
-                                                replace="",
-                                                front=offset_word[0],
-                                                back=offset_word[1],
-                                                offset=offset_word[2],
-                                                wtype=4,
-                                                gid=-1,
-                                                season=-2,
-                                                enabled=1,
-                                                regex=1,
-                                                whelp="")
+                if not _dbhelper.is_custom_words_existed(front=offset_word[0], back=offset_word[1]):
+                    _dbhelper.insert_custom_word(replaced="",
+                                                 replace="",
+                                                 front=offset_word[0],
+                                                 back=offset_word[1],
+                                                 offset=offset_word[2],
+                                                 wtype=4,
+                                                 gid=-1,
+                                                 season=-2,
+                                                 enabled=1,
+                                                 regex=1,
+                                                 whelp="")
             _config['laboratory'].pop('offset_words')
             overwrite_cofig = True
     except Exception as e:

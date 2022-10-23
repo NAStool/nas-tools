@@ -27,6 +27,9 @@ class RssChecker(object):
     media = None
     filterrule = None
     downloader = None
+    dbhelper = None
+    subscribe = None
+
     _scheduler = None
     _rss_tasks = []
     _site_users = {
@@ -44,6 +47,8 @@ class RssChecker(object):
         self.filterrule = FilterRule()
         self.media = Media()
         self.downloader = Downloader()
+        self.dbhelper = DbHelper()
+        self.subscribe = Subscribe()
         # 移除现有任务
         try:
             if self._scheduler:
@@ -53,7 +58,7 @@ class RssChecker(object):
         except Exception as e:
             print(str(e))
         # 读取任务任务列表
-        rsstasks = DbHelper.get_userrss_tasks()
+        rsstasks = self.dbhelper.get_userrss_tasks()
         self._rss_tasks = []
         for task in rsstasks:
             parser = self.get_userrss_parser(task.PARSER)
@@ -173,7 +178,7 @@ class RssChecker(object):
 
                 # 检查是不是处理过
                 meta_name = "%s %s" % (title, year) if year else title
-                if DbHelper.is_userrss_finished(meta_name, enclosure):
+                if self.dbhelper.is_userrss_finished(meta_name, enclosure):
                     log_info("【RSSCHECKER】%s 已处理过" % title)
                     continue
                 # 识别种子名称，开始检索TMDB
@@ -236,7 +241,7 @@ class RssChecker(object):
                 # FIXME: 这里不能所有的种子都直接插入数据库
                 """
                 如果是下载类型的任务, 需要下载完成后在进行插入, 否则会导致下载失败的种子也插入数据库 不会再次重试
-                # DbHelper.insert_rss_torrents(media_info) 
+                # self.dbhelper.insert_rss_torrents(media_info) 
                 好的做法应该是, 下载任务的种子的完成状态 用一个新的字段来存储 或者用一个新的表来存储
                 下面针对针对不同的任务类型, 有不同的处理方式, 下载的类型的任务, 下载完成后再插入数据库, 其他的直接插入数据库
                 还有极端情况, 如果RSS任务的种子有重叠, 即 搜索/订阅 和 下载类型 的种子重叠, 就会导致 搜索/订阅 的种子 处理后 也会认为是 下载类型 的种子 处理完成了
@@ -251,13 +256,13 @@ class RssChecker(object):
                 elif taskinfo.get("uses") == "R":
                     # 订阅
                     # 订阅类型的 保持现状直接插入数据库
-                    DbHelper.insert_rss_torrents(media_info)
+                    self.dbhelper.insert_rss_torrents(media_info)
                     if media_info not in rss_subscribe_torrents:
                         rss_subscribe_torrents.append(media_info)
                 elif taskinfo.get("uses") == "S":
                     # 搜索
                     # 搜索类型的 保持现状直接插入数据库
-                    DbHelper.insert_rss_torrents(media_info)
+                    self.dbhelper.insert_rss_torrents(media_info)
                     if media_info not in rss_search_torrents:
                         rss_search_torrents.append(media_info)
             except Exception as e:
@@ -281,10 +286,10 @@ class RssChecker(object):
                     self.message.send_download_message(in_from=SearchType.RSS,
                                                        can_item=media)
                     # 下载类型的 这里下载成功了 插入数据库
-                    DbHelper.insert_rss_torrents(media)
+                    self.dbhelper.insert_rss_torrents(media)
                     # 登记自定义RSS任务下载记录
                     # FIXME 自定义RSS任务下载记录 里面缺少必要字段无法进行种子是否已下载去重 需要进行表结构升级
-                    DbHelper.insert_userrss_task_history(taskid, media.org_string, Downloader().get_type().value)
+                    self.dbhelper.insert_userrss_task_history(taskid, media.org_string, Downloader().get_type().value)
                 else:
                     log_error("【RSSCHECKER】添加下载任务 %s 失败：%s" % (media.get_title_string(), ret_msg or "请检查下载任务是否已存在"))
                     if ret_msg:
@@ -292,11 +297,11 @@ class RssChecker(object):
         # 添加订阅
         if rss_subscribe_torrents:
             for media in rss_subscribe_torrents:
-                code, msg, _ = Subscribe.add_rss_subscribe(mtype=media.type,
-                                                           name=media.title,
-                                                           year=media.year,
-                                                           season=media.begin_season,
-                                                           tmdbid=media.tmdb_id)
+                code, msg, _ = self.subscribe.add_rss_subscribe(mtype=media.type,
+                                                                name=media.title,
+                                                                year=media.year,
+                                                                season=media.begin_season,
+                                                                tmdbid=media.tmdb_id)
                 if code == 0:
                     self.message.send_rss_success_message(in_from=SearchType.RSS, media_info=media)
                 else:
@@ -311,7 +316,7 @@ class RssChecker(object):
         # 更新状态
         counter = len(rss_download_torrents) + len(rss_subscribe_torrents) + len(rss_search_torrents)
         if counter:
-            DbHelper.update_userrss_task_info(taskid, counter)
+            self.dbhelper.update_userrss_task_info(taskid, counter)
 
     def __parse_userrss_result(self, taskinfo):
         """
@@ -423,10 +428,9 @@ class RssChecker(object):
                 return False, 0
         return True, res_order
 
-    @staticmethod
-    def get_userrss_parser(pid=None):
+    def get_userrss_parser(self, pid=None):
         if pid:
-            rss_parser = DbHelper.get_userrss_parser(pid)
+            rss_parser = self.dbhelper.get_userrss_parser(pid)
             if not rss_parser:
                 return None
             return {
@@ -439,7 +443,7 @@ class RssChecker(object):
             }
         else:
             return_parsers = []
-            rss_parsers = DbHelper.get_userrss_parser()
+            rss_parsers = self.dbhelper.get_userrss_parser()
             for rss_parser in rss_parsers:
                 return_parsers.append(
                     {
@@ -491,7 +495,7 @@ class RssChecker(object):
                     year = year[:4]
                 # 检查是不是处理过
                 meta_name = "%s %s" % (title, year) if year else title
-                finish_flag = DbHelper.is_userrss_finished(meta_name, enclosure)
+                finish_flag = self.dbhelper.is_userrss_finished(meta_name, enclosure)
                 # 信息聚合
                 params = {
                     "title": title,
@@ -560,8 +564,7 @@ class RssChecker(object):
                                                          no_exists.get(media_info.tmdb_id)))
         return media_info, match_flag, exist_flag
 
-    @staticmethod
-    def check_rss_articles(flag, articles):
+    def check_rss_articles(self, flag, articles):
         """
         RSS报文处理设置
         :param flag: set_finished/set_unfinish
@@ -572,11 +575,11 @@ class RssChecker(object):
                 for article in articles:
                     title = article.get("title")
                     enclosure = article.get("enclosure")
-                    if not DbHelper.is_userrss_finished(title, enclosure):
-                        DbHelper.simple_insert_rss_torrents(title, enclosure)
+                    if not self.dbhelper.is_userrss_finished(title, enclosure):
+                        self.dbhelper.simple_insert_rss_torrents(title, enclosure)
             elif flag == "set_unfinish":
                 for article in articles:
-                    DbHelper.simple_delete_rss_torrents(article.get("title"), article.get("enclosure"))
+                    self.dbhelper.simple_delete_rss_torrents(article.get("title"), article.get("enclosure"))
             else:
                 return False
             return True
@@ -613,9 +616,9 @@ class RssChecker(object):
                 self.message.send_download_message(in_from=SearchType.RSS,
                                                    can_item=media)
                 # 插入数据库
-                DbHelper.insert_rss_torrents(media)
+                self.dbhelper.insert_rss_torrents(media)
                 # 登记自定义RSS任务下载记录
-                DbHelper.insert_userrss_task_history(taskid, media.org_string, Downloader().get_type().value)
+                self.dbhelper.insert_userrss_task_history(taskid, media.org_string, Downloader().get_type().value)
             else:
                 log_error("【RSSCHECKER】添加下载任务 %s 失败：%s" % (media.get_title_string(), ret_msg or "请检查下载任务是否已存在"))
                 if ret_msg:

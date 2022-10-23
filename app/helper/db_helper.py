@@ -12,9 +12,12 @@ from app.utils.types import MediaType, RmtMode
 
 
 class DbHelper:
+    _db = None
 
-    @staticmethod
-    def insert_search_results(media_items: list):
+    def __init__(self):
+        self._db = MainDb()
+
+    def insert_search_results(self, media_items: list):
         """
         将返回信息插入数据库
         """
@@ -55,60 +58,54 @@ class DbHelper:
                 UPLOAD_VOLUME_FACTOR=media_item.upload_volume_factor,
                 DOWNLOAD_VOLUME_FACTOR=media_item.download_volume_factor
             ))
-        return MainDb().insert(data_list)
+        return self._db.insert(data_list)
 
-    @staticmethod
-    def get_search_result_by_id(dl_id):
+    def get_search_result_by_id(self, dl_id):
         """
         根据ID从数据库中查询检索结果的一条记录
         """
-        return MainDb().query(SEARCHRESULTINFO).filter(SEARCHRESULTINFO.ID == dl_id).all()
+        return self._db.query(SEARCHRESULTINFO).filter(SEARCHRESULTINFO.ID == dl_id).all()
 
-    @staticmethod
-    def get_search_results():
+    def get_search_results(self, ):
         """
         查询检索结果的所有记录
         """
-        return MainDb().query(SEARCHRESULTINFO).all()
+        return self._db.query(SEARCHRESULTINFO).all()
 
-    @staticmethod
-    def is_torrent_rssd(enclosure):
+    def is_torrent_rssd(self, enclosure):
         """
         查询RSS是否处理过，根据下载链接
         """
         if not enclosure:
             return True
-        if MainDb().query(RSSTORRENTS).filter(RSSTORRENTS.ENCLOSURE == enclosure).count() > 0:
+        if self._db.query(RSSTORRENTS).filter(RSSTORRENTS.ENCLOSURE == enclosure).count() > 0:
             return True
         else:
             return False
 
-    @staticmethod
-    def is_userrss_finished(torrent_name, enclosure):
+    def is_userrss_finished(self, torrent_name, enclosure):
         """
         查询RSS是否处理过，根据名称
         """
         if not torrent_name and not enclosure:
             return True
         if enclosure:
-            ret = MainDb().query(RSSTORRENTS).filter(RSSTORRENTS.ENCLOSURE == enclosure).count()
+            ret = self._db.query(RSSTORRENTS).filter(RSSTORRENTS.ENCLOSURE == enclosure).count()
         else:
-            ret = MainDb().query(RSSTORRENTS).filter(RSSTORRENTS.TORRENT_NAME == torrent_name).count()
+            ret = self._db.query(RSSTORRENTS).filter(RSSTORRENTS.TORRENT_NAME == torrent_name).count()
         return True if ret > 0 else False
 
-    @staticmethod
-    def delete_all_search_torrents():
+    def delete_all_search_torrents(self, ):
         """
         删除所有搜索的记录
         """
-        return MainDb().query(SEARCHRESULTINFO).delete()
+        return self._db.query(SEARCHRESULTINFO).delete()
 
-    @staticmethod
-    def insert_rss_torrents(media_info):
+    def insert_rss_torrents(self, media_info):
         """
         将RSS的记录插入数据库
         """
-        return MainDb().insert(
+        return self._db.insert(
             RSSTORRENTS(
                 TORRENT_NAME=media_info.org_string,
                 ENCLOSURE=media_info.enclosure,
@@ -119,38 +116,35 @@ class DbHelper:
                 EPISODE=media_info.get_episode_string()
             ))
 
-    @staticmethod
-    def simple_insert_rss_torrents(title, enclosure):
+    def simple_insert_rss_torrents(self, title, enclosure):
         """
         将RSS的记录插入数据库
         """
-        return MainDb().insert(
+        return self._db.insert(
             RSSTORRENTS(
                 TORRENT_NAME=title,
                 ENCLOSURE=enclosure
             ))
 
-    @staticmethod
-    def simple_delete_rss_torrents(title, enclosure):
+    def simple_delete_rss_torrents(self, title, enclosure):
         """
         删除RSS的记录
         """
-        return MainDb().query(RSSTORRENTS).filter(RSSTORRENTS.TORRENT_NAME == title,
+        return self._db.query(RSSTORRENTS).filter(RSSTORRENTS.TORRENT_NAME == title,
                                                   RSSTORRENTS.ENCLOSURE == enclosure).delete()
 
-    @staticmethod
-    def insert_douban_media_state(media, state):
+    def insert_douban_media_state(self, media, state):
         """
         将豆瓣的数据插入数据库
         """
         if not media.year:
-            MainDb().query(DOUBANMEDIAS).filter(DOUBANMEDIAS.NAME == media.get_name()).delete()
+            self._db.query(DOUBANMEDIAS).filter(DOUBANMEDIAS.NAME == media.get_name()).delete()
         else:
-            MainDb().query(DOUBANMEDIAS).filter(DOUBANMEDIAS.NAME == media.get_name(),
+            self._db.query(DOUBANMEDIAS).filter(DOUBANMEDIAS.NAME == media.get_name(),
                                                 DOUBANMEDIAS.YEAR == media.year).delete()
 
         # 再插入
-        return MainDb().insert(
+        return self._db.insert(
             DOUBANMEDIAS(
                 NAME=media.get_name(),
                 YEAR=media.year,
@@ -161,41 +155,37 @@ class DbHelper:
             )
         )
 
-    @staticmethod
-    def update_douban_media_state(media, state):
+    def update_douban_media_state(self, media, state):
         """
         标记豆瓣数据的状态
         """
-        return MainDb().query(DOUBANMEDIAS).filter(DOUBANMEDIAS.NAME == media.title,
+        return self._db.query(DOUBANMEDIAS).filter(DOUBANMEDIAS.NAME == media.title,
                                                    DOUBANMEDIAS.YEAR == media.year).update(
             {
                 "STATE": state
             }
         )
 
-    @staticmethod
-    def get_douban_search_state(title, year):
+    def get_douban_search_state(self, title, year):
         """
         查询未检索的豆瓣数据
         """
-        return MainDb().query(DOUBANMEDIAS.STATE).filter(DOUBANMEDIAS.NAME == title,
+        return self._db.query(DOUBANMEDIAS.STATE).filter(DOUBANMEDIAS.NAME == title,
                                                          DOUBANMEDIAS.YEAR == str(year)).all()
 
-    @staticmethod
-    def is_transfer_history_exists(file_path, file_name, title, se):
+    def is_transfer_history_exists(self, file_path, file_name, title, se):
         """
         查询识别转移记录
         """
         if not file_path:
             return False
-        ret = MainDb().query(TRANSFERHISTORY).filter(TRANSFERHISTORY.FILE_PATH == file_path,
+        ret = self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.FILE_PATH == file_path,
                                                      TRANSFERHISTORY.FILE_NAME == file_name,
                                                      TRANSFERHISTORY.TITLE == title,
                                                      TRANSFERHISTORY.SE == se).count()
         return True if ret > 0 else False
 
-    @staticmethod
-    def insert_transfer_history(in_from: Enum, rmt_mode: RmtMode, in_path, dest, media_info):
+    def insert_transfer_history(self, in_from: Enum, rmt_mode: RmtMode, in_path, dest, media_info):
         """
         插入识别转移记录
         """
@@ -209,10 +199,10 @@ class DbHelper:
             dest = ""
         file_path = os.path.dirname(in_path)
         file_name = os.path.basename(in_path)
-        if DbHelper.is_transfer_history_exists(file_path, file_name, media_info.title, media_info.get_season_string()):
+        if self.is_transfer_history_exists(file_path, file_name, media_info.title, media_info.get_season_string()):
             return True
         timestr = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
-        return MainDb().insert(
+        return self._db.insert(
             TRANSFERHISTORY(
                 SOURCE=in_from.value,
                 MODE=rmt_mode.value,
@@ -228,8 +218,7 @@ class DbHelper:
             )
         )
 
-    @staticmethod
-    def get_transfer_history(search, page, rownum):
+    def get_transfer_history(self, search, page, rownum):
         """
         查询识别转移记录
         """
@@ -240,89 +229,81 @@ class DbHelper:
 
         if search:
             search = f"%{search}%"
-            count = MainDb().query(TRANSFERHISTORY).filter((TRANSFERHISTORY.FILE_NAME.like(search))
+            count = self._db.query(TRANSFERHISTORY).filter((TRANSFERHISTORY.FILE_NAME.like(search))
                                                            | (TRANSFERHISTORY.TITLE.like(search))).count()
-            data = MainDb().query(TRANSFERHISTORY).filter((TRANSFERHISTORY.FILE_NAME.like(search))
+            data = self._db.query(TRANSFERHISTORY).filter((TRANSFERHISTORY.FILE_NAME.like(search))
                                                           | (TRANSFERHISTORY.TITLE.like(search))).order_by(
                 TRANSFERHISTORY.DATE.desc()).limit(rownum).offset(begin_pos).all()
             return count, data
         else:
-            return MainDb().query(TRANSFERHISTORY).count(), MainDb().query(TRANSFERHISTORY).order_by(
+            return self._db.query(TRANSFERHISTORY).count(), self._db.query(TRANSFERHISTORY).order_by(
                 TRANSFERHISTORY.DATE.desc()).limit(rownum).offset(begin_pos).all()
 
-    @staticmethod
-    def get_transfer_path_by_id(logid):
+    def get_transfer_path_by_id(self, logid):
         """
         据logid查询PATH
         """
-        return MainDb().query(TRANSFERHISTORY).filter(TRANSFERHISTORY.ID == int(logid)).all()
+        return self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.ID == int(logid)).all()
 
-    @staticmethod
-    def delete_transfer_log_by_id(logid):
+    def delete_transfer_log_by_id(self, logid):
         """
         根据logid删除记录
         """
-        return MainDb().query(TRANSFERHISTORY).filter(TRANSFERHISTORY.ID == int(logid)).delete()
+        return self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.ID == int(logid)).delete()
 
-    @staticmethod
-    def get_transfer_unknown_paths():
+    def get_transfer_unknown_paths(self, ):
         """
         查询未识别的记录列表
         """
-        return MainDb().query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.STATE == 'N').all()
+        return self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.STATE == 'N').all()
 
-    @staticmethod
-    def update_transfer_unknown_state(path):
+    def update_transfer_unknown_state(self, path):
         """
         更新未识别记录为识别
         """
         if not path:
             return False
-        return MainDb().query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.PATH == os.path.normpath(path)).update(
+        return self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.PATH == os.path.normpath(path)).update(
             {
                 "STATE": "Y"
             }
         )
 
-    @staticmethod
-    def delete_transfer_unknown(tid):
+    def delete_transfer_unknown(self, tid):
         """
         删除未识别记录
         """
         if not tid:
             return False
-        return MainDb().query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.ID == int(tid)).delete()
+        return self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.ID == int(tid)).delete()
 
-    @staticmethod
-    def get_unknown_path_by_id(tid):
+    def get_unknown_path_by_id(self, tid):
         """
         查询未识别记录
         """
         if not tid:
             return False
-        return MainDb().query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.ID == int(tid)).all()
+        return self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.ID == int(tid)).all()
 
-    @staticmethod
-    def is_transfer_unknown_exists(path):
+    def is_transfer_unknown_exists(self, path):
         """
         查询未识别记录是否存在
         """
         if not path:
             return False
-        ret = MainDb().query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.PATH == os.path.normpath(path)).count()
+        ret = self._db.query(TRANSFERUNKNOWN).filter(TRANSFERUNKNOWN.PATH == os.path.normpath(path)).count()
         if ret > 0:
             return True
         else:
             return False
 
-    @staticmethod
-    def insert_transfer_unknown(path, dest):
+    def insert_transfer_unknown(self, path, dest):
         """
         插入未识别记录
         """
         if not path:
             return False
-        if DbHelper.is_transfer_unknown_exists(path):
+        if self.is_transfer_unknown_exists(path):
             return False
         else:
             path = os.path.normpath(path)
@@ -330,98 +311,88 @@ class DbHelper:
                 dest = os.path.normpath(dest)
             else:
                 dest = ""
-            return MainDb().insert(TRANSFERUNKNOWN(
+            return self._db.insert(TRANSFERUNKNOWN(
                 PATH=path,
                 DEST=dest,
                 STATE='N'
             ))
 
-    @staticmethod
-    def is_transfer_in_blacklist(path):
+    def is_transfer_in_blacklist(self, path):
         """
         查询是否为黑名单
         """
         if not path:
             return False
-        ret = MainDb().query(TRANSFERBLACKLIST).filter(TRANSFERBLACKLIST.PATH == os.path.normpath(path)).count()
+        ret = self._db.query(TRANSFERBLACKLIST).filter(TRANSFERBLACKLIST.PATH == os.path.normpath(path)).count()
         if ret > 0:
             return True
         else:
             return False
 
-    @staticmethod
-    def is_transfer_notin_blacklist(path):
+    def is_transfer_notin_blacklist(self, path):
         """
         查询是否为黑名单
         """
-        return not DbHelper.is_transfer_in_blacklist(path)
+        return not self.is_transfer_in_blacklist(path)
 
-    @staticmethod
-    def insert_transfer_blacklist(path):
+    def insert_transfer_blacklist(self, path):
         """
         插入黑名单记录
         """
         if not path:
             return False
-        if DbHelper.is_transfer_in_blacklist(path):
+        if self.is_transfer_in_blacklist(path):
             return False
         else:
-            return MainDb().insert(TRANSFERBLACKLIST(
+            return self._db.insert(TRANSFERBLACKLIST(
                 PATH=os.path.normpath(path)
             ))
 
-    @staticmethod
-    def truncate_transfer_blacklist():
+    def truncate_transfer_blacklist(self, ):
         """
         清空黑名单记录
         """
-        MainDb().query(TRANSFERBLACKLIST).delete()
-        MainDb().query(SYNCHISTORY).delete()
+        self._db.query(TRANSFERBLACKLIST).delete()
+        self._db.query(SYNCHISTORY).delete()
 
-    @staticmethod
-    def truncate_rss_history():
+    def truncate_rss_history(self, ):
         """
         清空RSS历史记录
         """
-        MainDb().query(RSSTORRENTS).delete()
+        self._db.query(RSSTORRENTS).delete()
 
-    @staticmethod
-    def truncate_rss_episodes():
+    def truncate_rss_episodes(self, ):
         """
         清空RSS历史记录
         """
-        MainDb().query(RSSTVEPISODES).delete()
+        self._db.query(RSSTVEPISODES).delete()
 
-    @staticmethod
-    def get_config_site():
+    def get_config_site(self, ):
         """
         查询所有站点信息
         """
-        return MainDb().query(CONFIGSITE).order_by(cast(CONFIGSITE.PRI, Integer).asc())
+        return self._db.query(CONFIGSITE).order_by(cast(CONFIGSITE.PRI, Integer).asc())
 
-    @staticmethod
-    def get_site_by_id(tid):
+    def get_site_by_id(self, tid):
         """
         查询1个站点信息
         """
-        return MainDb().query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).all()
+        return self._db.query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).all()
 
-    @staticmethod
-    def get_site_by_name(name):
+    def get_site_by_name(self, name):
         """
         基于站点名称查询站点信息
         :return:
         """
-        return MainDb().query(CONFIGSITE).filter(CONFIGSITE.NAME == name).all()
+        return self._db.query(CONFIGSITE).filter(CONFIGSITE.NAME == name).all()
 
-    @staticmethod
-    def insert_config_site(name, site_pri, rssurl, signurl, cookie, note, rss_uses):
+    def insert_config_site(self, name, site_pri, rssurl, signurl, cookie, note, rss_uses):
         """
         插入站点信息
         """
         if not name:
             return
-        return MainDb().insert(CONFIGSITE(
+        return self._db.insert(CONFIGSITE(
             NAME=name,
             PRI=site_pri,
             RSSURL=rssurl,
@@ -431,23 +402,21 @@ class DbHelper:
             INCLUDE=rss_uses
         ))
 
-    @staticmethod
-    def delete_config_site(tid):
+    def delete_config_site(self, tid):
         """
         删除站点信息
         """
         if not tid:
             return False
-        return MainDb().query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).delete()
+        return self._db.query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).delete()
 
-    @staticmethod
-    def update_config_site(tid, name, site_pri, rssurl, signurl, cookie, note, rss_uses):
+    def update_config_site(self, tid, name, site_pri, rssurl, signurl, cookie, note, rss_uses):
         """
         更新站点信息
         """
         if not tid:
             return
-        return MainDb().query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).update(
+        return self._db.query(CONFIGSITE).filter(CONFIGSITE.ID == int(tid)).update(
             {
                 "NAME": name,
                 "PRI": site_pri,
@@ -459,102 +428,94 @@ class DbHelper:
             }
         )
 
-    @staticmethod
-    def get_config_filter_group(gid=None):
+    def get_config_filter_group(self, gid=None):
         """
         查询过滤规则组
         """
         if gid:
-            return MainDb().query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.ID == int(gid)).all()
-        return MainDb().query(CONFIGFILTERGROUP).all()
+            return self._db.query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.ID == int(gid)).all()
+        return self._db.query(CONFIGFILTERGROUP).all()
 
-    @staticmethod
-    def get_config_filter_rule(groupid=None):
+    def get_config_filter_rule(self, groupid=None):
         """
         查询过滤规则
         """
         if not groupid:
-            return MainDb().query(CONFIGFILTERRULES).group_by(CONFIGFILTERRULES.GROUP_ID,
+            return self._db.query(CONFIGFILTERRULES).group_by(CONFIGFILTERRULES.GROUP_ID,
                                                               cast(CONFIGFILTERRULES.PRIORITY,
                                                                    Integer)).all()
         else:
-            return MainDb().query(CONFIGFILTERRULES).filter(
+            return self._db.query(CONFIGFILTERRULES).filter(
                 CONFIGFILTERRULES.GROUP_ID == int(groupid)).group_by(CONFIGFILTERRULES.GROUP_ID,
                                                                      cast(CONFIGFILTERRULES.PRIORITY,
                                                                           Integer)).all()
 
-    @staticmethod
-    def get_rss_movies(state=None, rssid=None):
+    def get_rss_movies(self, state=None, rssid=None):
         """
         查询订阅电影信息
         """
         if rssid:
-            return MainDb().query(RSSMOVIES).filter(RSSMOVIES.ID == int(rssid)).all()
+            return self._db.query(RSSMOVIES).filter(RSSMOVIES.ID == int(rssid)).all()
         else:
             if not state:
-                return MainDb().query(RSSMOVIES).all()
+                return self._db.query(RSSMOVIES).all()
             else:
-                return MainDb().query(RSSMOVIES).filter(RSSMOVIES.STATE == state).all()
+                return self._db.query(RSSMOVIES).filter(RSSMOVIES.STATE == state).all()
 
-    @staticmethod
-    def get_rss_movie_id(title, tmdbid=None):
+    def get_rss_movie_id(self, title, tmdbid=None):
         """
         获取订阅电影ID
         """
         if not title:
             return ""
-        ret = MainDb().query(RSSMOVIES.ID).filter(RSSMOVIES.NAME == title).first()
+        ret = self._db.query(RSSMOVIES.ID).filter(RSSMOVIES.NAME == title).first()
         if ret:
             return ret[0]
         else:
             if tmdbid:
-                ret = MainDb().query(RSSMOVIES.ID).filter(RSSMOVIES.TMDBID == tmdbid).first()
+                ret = self._db.query(RSSMOVIES.ID).filter(RSSMOVIES.TMDBID == tmdbid).first()
                 if ret:
                     return ret[0]
         return ""
 
-    @staticmethod
-    def get_rss_movie_sites(rssid):
+    def get_rss_movie_sites(self, rssid):
         """
         获取订阅电影站点
         """
         if not rssid:
             return ""
-        ret = MainDb().query(RSSMOVIES.DESC).filter(RSSMOVIES.ID == int(rssid)).first()
+        ret = self._db.query(RSSMOVIES.DESC).filter(RSSMOVIES.ID == int(rssid)).first()
         if ret:
             return ret[0]
         return ""
 
-    @staticmethod
-    def update_rss_movie_tmdb(rid, tmdbid, title, year, image):
+    def update_rss_movie_tmdb(self, rid, tmdbid, title, year, image):
         """
         更新订阅电影的TMDBID
         """
         if not tmdbid:
             return False
-        return MainDb().query(RSSMOVIES).filter(RSSMOVIES.ID == int(rid)).update({
+        return self._db.query(RSSMOVIES).filter(RSSMOVIES.ID == int(rid)).update({
             "TMDBID": tmdbid,
             "NAME": title,
             "YEAR": year,
             "IMAGE": image
         })
 
-    @staticmethod
-    def is_exists_rss_movie(title, year):
+    def is_exists_rss_movie(self, title, year):
         """
         判断RSS电影是否存在
         """
         if not title:
             return False
-        count = MainDb().query(RSSMOVIES).filter(RSSMOVIES.NAME == title,
+        count = self._db.query(RSSMOVIES).filter(RSSMOVIES.NAME == title,
                                                  RSSMOVIES.YEAR == str(year)).count()
         if count > 0:
             return True
         else:
             return False
 
-    @staticmethod
-    def insert_rss_movie(media_info,
+    def insert_rss_movie(self, media_info,
                          state='D',
                          sites: list = None,
                          search_sites: list = None,
@@ -570,7 +531,7 @@ class DbHelper:
             return False
         if not media_info.title:
             return False
-        if DbHelper.is_exists_rss_movie(media_info.title, media_info.year):
+        if self.is_exists_rss_movie(media_info.title, media_info.year):
             return True
         desc = "#".join(["|".join(sites or []),
                          "|".join(search_sites or []),
@@ -579,7 +540,7 @@ class DbHelper:
                                    StringUtils.str_sql(rss_pix),
                                    StringUtils.str_sql(rss_rule),
                                    StringUtils.str_sql(rss_team)])])
-        return MainDb().insert(RSSMOVIES(
+        return self._db.insert(RSSMOVIES(
             NAME=media_info.title,
             YEAR=media_info.year,
             TMDBID=media_info.tmdb_id,
@@ -588,103 +549,97 @@ class DbHelper:
             STATE=state
         ))
 
-    @staticmethod
-    def delete_rss_movie(title=None, year=None, rssid=None, tmdbid=None):
+    def delete_rss_movie(self, title=None, year=None, rssid=None, tmdbid=None):
         """
         删除RSS电影
         """
         if not title and not rssid:
             return False
         if rssid:
-            return MainDb().query(RSSMOVIES).filter(RSSMOVIES.ID == int(rssid)).delete()
+            return self._db.query(RSSMOVIES).filter(RSSMOVIES.ID == int(rssid)).delete()
         else:
             if tmdbid:
-                return MainDb().query(RSSMOVIES).filter(RSSMOVIES.TMDBID == tmdbid).delete()
-            return MainDb().query(RSSMOVIES).filter(RSSMOVIES.NAME == title,
+                return self._db.query(RSSMOVIES).filter(RSSMOVIES.TMDBID == tmdbid).delete()
+            return self._db.query(RSSMOVIES).filter(RSSMOVIES.NAME == title,
                                                     RSSMOVIES.YEAR == str(year)).delete()
 
-    @staticmethod
-    def update_rss_movie_state(title=None, year=None, rssid=None, state='R'):
+    def update_rss_movie_state(self, title=None, year=None, rssid=None, state='R'):
         """
         更新电影订阅状态
         """
         if not title and not rssid:
             return False
         if rssid:
-            return MainDb().query(RSSMOVIES).filter(RSSMOVIES.ID == int(rssid)).update(
+            return self._db.query(RSSMOVIES).filter(RSSMOVIES.ID == int(rssid)).update(
                 {
                     "STATE": state
                 })
         else:
-            return MainDb().query(RSSMOVIES).filter(
+            return self._db.query(RSSMOVIES).filter(
                 RSSMOVIES.NAME == title,
                 RSSMOVIES.YEAR == str(year)).update(
                 {
                     "STATE": state
                 })
 
-    @staticmethod
-    def get_rss_tvs(state=None, rssid=None):
+    def get_rss_tvs(self, state=None, rssid=None):
         """
         查询订阅电视剧信息
         """
         if rssid:
-            return MainDb().query(RSSTVS).filter(RSSTVS.ID == int(rssid)).all()
+            return self._db.query(RSSTVS).filter(RSSTVS.ID == int(rssid)).all()
         else:
             if not state:
-                return MainDb().query(RSSTVS).all()
+                return self._db.query(RSSTVS).all()
             else:
-                return MainDb().query(RSSTVS).filter(RSSTVS.STATE == state).all()
+                return self._db.query(RSSTVS).filter(RSSTVS.STATE == state).all()
 
-    @staticmethod
-    def get_rss_tv_id(title, season=None, tmdbid=None):
+    def get_rss_tv_id(self, title, season=None, tmdbid=None):
         """
         获取订阅电影ID
         """
         if not title:
             return ""
         if season:
-            ret = MainDb().query(RSSTVS.ID).filter(RSSTVS.NAME == title,
+            ret = self._db.query(RSSTVS.ID).filter(RSSTVS.NAME == title,
                                                    RSSTVS.SEASON == season).first()
             if ret:
                 return ret[0]
             else:
                 if tmdbid:
-                    ret = MainDb().query(RSSTVS.ID).filter(RSSTVS.TMDBID == tmdbid,
+                    ret = self._db.query(RSSTVS.ID).filter(RSSTVS.TMDBID == tmdbid,
                                                            RSSTVS.SEASON == season).first()
                     if ret:
                         return ret[0]
         else:
-            ret = MainDb().query(RSSTVS.ID).filter(RSSTVS.NAME == title).first()
+            ret = self._db.query(RSSTVS.ID).filter(RSSTVS.NAME == title).first()
             if ret:
                 return ret[0]
             else:
                 if tmdbid:
-                    ret = MainDb().query(RSSTVS.ID).filter(RSSTVS.TMDBID == tmdbid).first()
+                    ret = self._db.query(RSSTVS.ID).filter(RSSTVS.TMDBID == tmdbid).first()
                     if ret:
                         return ret[0]
         return ""
 
-    @staticmethod
-    def get_rss_tv_sites(rssid):
+    def get_rss_tv_sites(self, rssid):
         """
         获取订阅电视剧站点
         """
         if not rssid:
             return ""
-        ret = MainDb().query(RSSTVS).filter(RSSTVS.ID == int(rssid)).first()
+        ret = self._db.query(RSSTVS).filter(RSSTVS.ID == int(rssid)).first()
         if ret:
             return ret
         return ""
 
-    @staticmethod
-    def update_rss_tv_tmdb(rid, tmdbid, title, year, total, lack, image):
+    def update_rss_tv_tmdb(self, rid, tmdbid, title, year, total, lack, image):
         """
         更新订阅电影的TMDBID
         """
         if not tmdbid:
             return False
-        return MainDb().query(RSSTVS).filter(RSSTVS.ID == int(rid)).update(
+        return self._db.query(RSSTVS).filter(RSSTVS.ID == int(rid)).update(
             {
                 "TMDBID": tmdbid,
                 "NAME": title,
@@ -695,27 +650,25 @@ class DbHelper:
             }
         )
 
-    @staticmethod
-    def is_exists_rss_tv(title, year, season=None):
+    def is_exists_rss_tv(self, title, year, season=None):
         """
         判断RSS电视剧是否存在
         """
         if not title:
             return False
         if season:
-            count = MainDb().query(RSSTVS).filter(RSSTVS.NAME == title,
+            count = self._db.query(RSSTVS).filter(RSSTVS.NAME == title,
                                                   RSSTVS.YEAR == str(year),
                                                   RSSTVS.SEASON == season).count()
         else:
-            count = MainDb().query(RSSTVS).filter(RSSTVS.NAME == title,
+            count = self._db.query(RSSTVS).filter(RSSTVS.NAME == title,
                                                   RSSTVS.YEAR == str(year)).count()
         if count > 0:
             return True
         else:
             return False
 
-    @staticmethod
-    def insert_rss_tv(media_info, total, lack=0, state="D",
+    def insert_rss_tv(self, media_info, total, lack=0, state="D",
                       sites: list = None,
                       search_sites: list = None,
                       over_edition=False,
@@ -738,7 +691,7 @@ class DbHelper:
             season_str = ""
         else:
             season_str = media_info.get_season_string()
-        if DbHelper.is_exists_rss_tv(media_info.title, media_info.year, season_str):
+        if self.is_exists_rss_tv(media_info.title, media_info.year, season_str):
             return True
         # 插入订阅数据
         desc = "#".join(["|".join(sites or []),
@@ -750,7 +703,7 @@ class DbHelper:
                                    StringUtils.str_sql(rss_team)]),
                          "@".join([StringUtils.str_sql(total_ep),
                                    StringUtils.str_sql(current_ep)])])
-        return MainDb().insert(RSSTVS(
+        return self._db.insert(RSSTVS(
             NAME=media_info.title,
             YEAR=media_info.year,
             SEASON=season_str,
@@ -762,8 +715,7 @@ class DbHelper:
             STATE=state
         ))
 
-    @staticmethod
-    def update_rss_tv_lack(title=None, year=None, season=None, rssid=None, lack_episodes: list = None):
+    def update_rss_tv_lack(self, title=None, year=None, season=None, rssid=None, lack_episodes: list = None):
         """
         更新电视剧缺失的集数
         """
@@ -774,14 +726,14 @@ class DbHelper:
         else:
             lack = len(lack_episodes)
         if rssid:
-            DbHelper.update_rss_tv_episodes(rssid, lack_episodes)
-            return MainDb().query(RSSTVS).filter(RSSTVS.ID == int(rssid)).update(
+            self.update_rss_tv_episodes(rssid, lack_episodes)
+            return self._db.query(RSSTVS).filter(RSSTVS.ID == int(rssid)).update(
                 {
                     "LACK": lack
                 }
             )
         else:
-            return MainDb().query(RSSTVS).filter(RSSTVS.NAME == title,
+            return self._db.query(RSSTVS).filter(RSSTVS.NAME == title,
                                                  RSSTVS.YEAR == str(year),
                                                  RSSTVS.SEASON == season).update(
                 {
@@ -789,35 +741,32 @@ class DbHelper:
                 }
             )
 
-    @staticmethod
-    def delete_rss_tv(title=None, season=None, rssid=None, tmdbid=None):
+    def delete_rss_tv(self, title=None, season=None, rssid=None, tmdbid=None):
         """
         删除RSS电视剧
         """
         if not title and not rssid:
             return False
         if not rssid:
-            rssid = DbHelper.get_rss_tv_id(title=title, tmdbid=tmdbid, season=season)
+            rssid = self.get_rss_tv_id(title=title, tmdbid=tmdbid, season=season)
         if rssid:
-            DbHelper.delete_rss_tv_episodes(rssid)
-            return MainDb().query(RSSTVS).filter(RSSTVS.ID == int(rssid)).delete()
+            self.delete_rss_tv_episodes(rssid)
+            return self._db.query(RSSTVS).filter(RSSTVS.ID == int(rssid)).delete()
         return False
 
-    @staticmethod
-    def is_exists_rss_tv_episodes(rid):
+    def is_exists_rss_tv_episodes(self, rid):
         """
         判断RSS电视剧是否存在
         """
         if not rid:
             return False
-        count = MainDb().query(RSSTVEPISODES).filter(RSSTVEPISODES.RSSID == int(rid)).count()
+        count = self._db.query(RSSTVEPISODES).filter(RSSTVEPISODES.RSSID == int(rid)).count()
         if count > 0:
             return True
         else:
             return False
 
-    @staticmethod
-    def update_rss_tv_episodes(rid, episodes):
+    def update_rss_tv_episodes(self, rid, episodes):
         """
         插入或更新电视剧订阅缺失剧集
         """
@@ -827,159 +776,147 @@ class DbHelper:
             episodes = []
         else:
             episodes = [str(epi) for epi in episodes]
-        if DbHelper.is_exists_rss_tv_episodes(rid):
-            return MainDb().query(RSSTVEPISODES).filter(RSSTVEPISODES.RSSID == int(rid)).update(
+        if self.is_exists_rss_tv_episodes(rid):
+            return self._db.query(RSSTVEPISODES).filter(RSSTVEPISODES.RSSID == int(rid)).update(
                 {
                     "EPISODES": ",".join(episodes)
                 }
             )
         else:
-            return MainDb().insert(RSSTVEPISODES(
+            return self._db.insert(RSSTVEPISODES(
                 RSSID=rid,
                 EPISODES=",".join(episodes)
             ))
 
-    @staticmethod
-    def get_rss_tv_episodes(rid):
+    def get_rss_tv_episodes(self, rid):
         """
         查询电视剧订阅缺失剧集
         """
         if not rid:
             return []
-        ret = MainDb().query(RSSTVEPISODES.EPISODES).filter(RSSTVEPISODES.RSSID == rid).first()
+        ret = self._db.query(RSSTVEPISODES.EPISODES).filter(RSSTVEPISODES.RSSID == rid).first()
         if ret:
             return [int(epi) for epi in str(ret[0]).split(',')]
         else:
             return None
 
-    @staticmethod
-    def delete_rss_tv_episodes(rid):
+    def delete_rss_tv_episodes(self, rid):
         """
         删除电视剧订阅缺失剧集
         """
         if not rid:
             return []
-        return MainDb().query(RSSTVEPISODES).filter(RSSTVEPISODES.RSSID == int(rid)).delete()
+        return self._db.query(RSSTVEPISODES).filter(RSSTVEPISODES.RSSID == int(rid)).delete()
 
-    @staticmethod
-    def update_rss_tv_state(title=None, year=None, season=None, rssid=None, state='R'):
+    def update_rss_tv_state(self, title=None, year=None, season=None, rssid=None, state='R'):
         """
         更新电视剧订阅状态
         """
         if not title and not rssid:
             return False
         if rssid:
-            return MainDb().query(RSSTVS).filter(RSSTVS.ID == int(rssid)).update(
+            return self._db.query(RSSTVS).filter(RSSTVS.ID == int(rssid)).update(
                 {
                     "STATE": state
                 })
         else:
-            return MainDb().query(RSSTVS).filter(RSSTVS.NAME == title,
+            return self._db.query(RSSTVS).filter(RSSTVS.NAME == title,
                                                  RSSTVS.YEAR == str(year),
                                                  RSSTVS.SEASON == season).update(
                 {
                     "STATE": state
                 })
 
-    @staticmethod
-    def is_sync_in_history(path, dest):
+    def is_sync_in_history(self, path, dest):
         """
         查询是否存在同步历史记录
         """
         if not path:
             return False
-        count = MainDb().query(SYNCHISTORY).filter(SYNCHISTORY.PATH == os.path.normpath(path),
+        count = self._db.query(SYNCHISTORY).filter(SYNCHISTORY.PATH == os.path.normpath(path),
                                                    SYNCHISTORY.DEST == os.path.normpath(dest)).count()
         if count > 0:
             return True
         else:
             return False
 
-    @staticmethod
-    def insert_sync_history(path, src, dest):
+    def insert_sync_history(self, path, src, dest):
         """
         插入黑名单记录
         """
         if not path or not dest:
             return False
-        if DbHelper.is_sync_in_history(path, dest):
+        if self.is_sync_in_history(path, dest):
             return False
         else:
-            return MainDb().insert(SYNCHISTORY(
+            return self._db.insert(SYNCHISTORY(
                 PATH=os.path.normpath(path),
                 SRC=os.path.normpath(src),
                 dest=os.path.normpath(dest)
             ))
 
-    @staticmethod
-    def get_users():
+    def get_users(self, ):
         """
         查询用户列表
         """
-        return MainDb().query(CONFIGUSERS).all()
+        return self._db.query(CONFIGUSERS).all()
 
-    @staticmethod
-    def is_user_exists(name):
+    def is_user_exists(self, name):
         """
         判断用户是否存在
         """
         if not name:
             return False
-        count = MainDb().query(CONFIGUSERS).filter(CONFIGUSERS.NAME == name).count()
+        count = self._db.query(CONFIGUSERS).filter(CONFIGUSERS.NAME == name).count()
         if count > 0:
             return True
         else:
             return False
 
-    @staticmethod
-    def insert_user(name, password, pris):
+    def insert_user(self, name, password, pris):
         """
         新增用户
         """
         if not name or not password:
             return False
-        if DbHelper.is_user_exists(name):
+        if self.is_user_exists(name):
             return False
         else:
-            return MainDb().insert(CONFIGUSERS(
+            return self._db.insert(CONFIGUSERS(
                 NAME=name,
                 PASSWORD=password,
                 PRIS=pris
             ))
 
-    @staticmethod
-    def delete_user(name):
+    def delete_user(self, name):
         """
         删除用户
         """
-        return MainDb().query(CONFIGUSERS).filter(CONFIGUSERS.NAME == name).delete()
+        return self._db.query(CONFIGUSERS).filter(CONFIGUSERS.NAME == name).delete()
 
-    @staticmethod
-    def get_transfer_statistics(days=30):
+    def get_transfer_statistics(self, days=30):
         """
         查询历史记录统计
         """
         begin_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d %H:%M:%S")
-        return MainDb().query(TRANSFERHISTORY.TYPE,
+        return self._db.query(TRANSFERHISTORY.TYPE,
                               func.substr(TRANSFERHISTORY.DATE, 1, 10),
                               func.count('*')
                               ).filter(TRANSFERHISTORY.DATE > begin_date).group_by(
             func.substr(TRANSFERHISTORY.DATE, 1, 10)
         ).order_by(TRANSFERHISTORY.DATE).all()
 
-    @staticmethod
-    def update_site_user_statistics_site_name(new_name, old_name):
+    def update_site_user_statistics_site_name(self, new_name, old_name):
         """
         更新站点用户数据中站点名称
         """
-        return MainDb().query(SITEUSERINFOSTATS).filter(SITEUSERINFOSTATS.SITE == old_name).update(
+        return self._db.query(SITEUSERINFOSTATS).filter(SITEUSERINFOSTATS.SITE == old_name).update(
             {
                 "SITE": new_name
             }
         )
 
-    @staticmethod
-    def update_site_user_statistics(site_user_infos: list):
+    def update_site_user_statistics(self, site_user_infos: list):
         """
         更新站点用户粒度数据
         """
@@ -1001,8 +938,8 @@ class DbHelper:
             url = site_user_info.site_url
             favicon = site_user_info.site_favicon
             msg_unread = site_user_info.message_unread
-            if not DbHelper.is_exists_site_user_statistics(url):
-                MainDb().insert(SITEUSERINFOSTATS(
+            if not self.is_exists_site_user_statistics(url):
+                self._db.insert(SITEUSERINFOSTATS(
                     SITE=site,
                     USERNAME=username,
                     USER_LEVEL=user_level,
@@ -1020,7 +957,7 @@ class DbHelper:
                     MSG_UNREAD=msg_unread
                 ))
             else:
-                MainDb().query(SITEUSERINFOSTATS).filter(SITEUSERINFOSTATS.URL == url).update(
+                self._db.query(SITEUSERINFOSTATS).filter(SITEUSERINFOSTATS.URL == url).update(
                     {
                         "SITE": site,
                         "USERNAME": username,
@@ -1039,33 +976,30 @@ class DbHelper:
                     }
                 )
 
-    @staticmethod
-    def is_exists_site_user_statistics(url):
+    def is_exists_site_user_statistics(self, url):
         """
         判断站点数据是滞存在
         """
-        count = MainDb().query(SITEUSERINFOSTATS).filter(SITEUSERINFOSTATS.URL == url).count()
+        count = self._db.query(SITEUSERINFOSTATS).filter(SITEUSERINFOSTATS.URL == url).count()
         if count > 0:
             return True
         else:
             return False
 
-    @staticmethod
-    def update_site_seed_info_site_name(new_name, old_name):
+    def update_site_seed_info_site_name(self, new_name, old_name):
         """
         更新站点做种数据中站点名称
         :param new_name: 新的站点名称
         :param old_name: 原始站点名称
         :return:
         """
-        return MainDb().query(SITEUSERSEEDINGINFO).filter(SITEUSERSEEDINGINFO.SITE == old_name).update(
+        return self._db.query(SITEUSERSEEDINGINFO).filter(SITEUSERSEEDINGINFO.SITE == old_name).update(
             {
                 "SITE": new_name
             }
         )
 
-    @staticmethod
-    def update_site_seed_info(site_user_infos: list):
+    def update_site_seed_info(self, site_user_infos: list):
         """
         更新站点做种数据
         """
@@ -1073,15 +1007,15 @@ class DbHelper:
             return
         update_at = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         for site_user_info in site_user_infos:
-            if not DbHelper.is_site_seeding_info_exist(url=site_user_info.site_url):
-                MainDb().insert(SITEUSERSEEDINGINFO(
+            if not self.is_site_seeding_info_exist(url=site_user_info.site_url):
+                self._db.insert(SITEUSERSEEDINGINFO(
                     SITE=site_user_info.site_name,
                     UPDATE_AT=update_at,
                     SEEDING_INFO=site_user_info.seeding_info,
                     URL=site_user_info.site_url
                 ))
             else:
-                MainDb().query(SITEUSERSEEDINGINFO).filter(SITEUSERSEEDINGINFO.URL == site_user_info.site_url).update(
+                self._db.query(SITEUSERSEEDINGINFO).filter(SITEUSERSEEDINGINFO.URL == site_user_info.site_url).update(
                     {
                         "SITE": site_user_info.site_name,
                         "UPDATE_AT": update_at,
@@ -1089,67 +1023,61 @@ class DbHelper:
                     }
                 )
 
-    @staticmethod
-    def is_site_user_statistics_exists(url):
+    def is_site_user_statistics_exists(self, url):
         """
         判断站点用户数据是否存在
         """
         if not url:
             return False
-        count = MainDb().query(SITEUSERINFOSTATS).filter(SITEUSERINFOSTATS.URL == url).count()
+        count = self._db.query(SITEUSERINFOSTATS).filter(SITEUSERINFOSTATS.URL == url).count()
         if count > 0:
             return True
         else:
             return False
 
-    @staticmethod
-    def get_site_user_statistics(num=100, strict_urls=None):
+    def get_site_user_statistics(self, num=100, strict_urls=None):
         """
         查询站点数据历史
         """
         if strict_urls:
-            return MainDb().query(SITEUSERINFOSTATS).filter(
+            return self._db.query(SITEUSERINFOSTATS).filter(
                 SITEUSERINFOSTATS.URL.in_(tuple(strict_urls + ["__DUMMY__"]))).limit(num).all()
         else:
-            return MainDb().query(SITEUSERINFOSTATS).limit(num).all()
+            return self._db.query(SITEUSERINFOSTATS).limit(num).all()
 
-    @staticmethod
-    def is_site_statistics_history_exists(url, date):
+    def is_site_statistics_history_exists(self, url, date):
         """
         判断站点历史数据是否存在
         """
         if not url or not date:
             return False
-        count = MainDb().query(SITESTATISTICSHISTORY).filter(SITESTATISTICSHISTORY.URL == url,
+        count = self._db.query(SITESTATISTICSHISTORY).filter(SITESTATISTICSHISTORY.URL == url,
                                                              SITESTATISTICSHISTORY.DATE == date).count()
         if count > 0:
             return True
         else:
             return False
 
-    @staticmethod
-    def update_site_statistics_site_name(new_name, old_name):
+    def update_site_statistics_site_name(self, new_name, old_name):
         """
         更新站点做种数据中站点名称
         :param new_name: 新站点名称
         :param old_name: 原始站点名称
         :return:
         """
-        return MainDb().query(SITESTATISTICSHISTORY).filter(SITESTATISTICSHISTORY.SITE == old_name).update(
+        return self._db.query(SITESTATISTICSHISTORY).filter(SITESTATISTICSHISTORY.SITE == old_name).update(
             {
                 "SITE": new_name
             }
         )
 
-    @staticmethod
-    def insert_site_statistics_history(site_user_infos: list):
+    def insert_site_statistics_history(self, site_user_infos: list):
         """
         插入站点数据
         """
         if not site_user_infos:
             return
         date_now = time.strftime('%Y-%m-%d', time.localtime(time.time()))
-        data_list = []
         for site_user_info in site_user_infos:
             site = site_user_info.site_name
             upload = site_user_info.upload
@@ -1161,8 +1089,8 @@ class DbHelper:
             leeching = site_user_info.leeching
             bonus = site_user_info.bonus
             url = site_user_info.site_url
-            if not DbHelper.is_site_statistics_history_exists(date=date_now, url=url):
-                MainDb().insert(SITESTATISTICSHISTORY(
+            if not self.is_site_statistics_history_exists(date=date_now, url=url):
+                self._db.insert(SITESTATISTICSHISTORY(
                     SITE=site,
                     USER_LEVEL=user_level,
                     DATE=date_now,
@@ -1176,7 +1104,7 @@ class DbHelper:
                     URL=url
                 ))
             else:
-                MainDb().query(SITESTATISTICSHISTORY).filter(SITESTATISTICSHISTORY.DATE == date_now,
+                self._db.query(SITESTATISTICSHISTORY).filter(SITESTATISTICSHISTORY.DATE == date_now,
                                                              SITESTATISTICSHISTORY.URL == url).update(
                     {
                         "SITE": site,
@@ -1191,38 +1119,34 @@ class DbHelper:
                     }
                 )
 
-    @staticmethod
-    def get_site_statistics_history(site, days=30):
+    def get_site_statistics_history(self, site, days=30):
         """
         查询站点数据历史
         """
-        return MainDb().query(SITESTATISTICSHISTORY).filter(
+        return self._db.query(SITESTATISTICSHISTORY).filter(
             SITESTATISTICSHISTORY.SITE == site).order_by(
             SITESTATISTICSHISTORY.DATE.asc()
         ).limit(days)
 
-    @staticmethod
-    def get_site_seeding_info(site):
+    def get_site_seeding_info(self, site):
         """
         查询站点做种信息
         """
-        return MainDb().query(SITEUSERSEEDINGINFO.SEEDING_INFO).filter(
+        return self._db.query(SITEUSERSEEDINGINFO.SEEDING_INFO).filter(
             SITEUSERSEEDINGINFO.SITE == site).first()
 
-    @staticmethod
-    def is_site_seeding_info_exist(url):
+    def is_site_seeding_info_exist(self, url):
         """
         判断做种数据是否已存在
         """
-        count = MainDb().query(SITEUSERSEEDINGINFO).filter(
+        count = self._db.query(SITEUSERSEEDINGINFO).filter(
             SITEUSERSEEDINGINFO.URL == url).count()
         if count > 0:
             return True
         else:
             return False
 
-    @staticmethod
-    def get_site_statistics_recent_sites(days=7, strict_urls=None):
+    def get_site_statistics_recent_sites(self, days=7, strict_urls=None):
         """
         查询近期上传下载量
         """
@@ -1231,7 +1155,7 @@ class DbHelper:
             strict_urls = []
 
         b_date = (datetime.datetime.now() - datetime.timedelta(days=days)).strftime("%Y-%m-%d")
-        date_ret = MainDb().query(func.max(SITESTATISTICSHISTORY.DATE),
+        date_ret = self._db.query(func.max(SITESTATISTICSHISTORY.DATE),
                                   func.MIN(SITESTATISTICSHISTORY.DATE)).filter(
             SITESTATISTICSHISTORY.DATE > b_date).all()
         if date_ret:
@@ -1243,18 +1167,18 @@ class DbHelper:
             min_date = date_ret[0][1]
             # 查询开始值
             if strict_urls:
-                subquery = MainDb().query(SITESTATISTICSHISTORY.SITE.label("SITE"),
+                subquery = self._db.query(SITESTATISTICSHISTORY.SITE.label("SITE"),
                                           SITESTATISTICSHISTORY.DATE.label("DATE"),
                                           func.sum(SITESTATISTICSHISTORY.UPLOAD).label("UPLOAD"),
                                           func.sum(SITESTATISTICSHISTORY.DOWNLOAD).label("DOWNLOAD")).filter(
                     SITESTATISTICSHISTORY.DATE >= min_date,
                     SITESTATISTICSHISTORY.URL.in_(tuple(strict_urls + ["__DUMMY__"]))).subquery()
             else:
-                subquery = MainDb().query(SITESTATISTICSHISTORY.SITE.label("SITE"),
+                subquery = self._db.query(SITESTATISTICSHISTORY.SITE.label("SITE"),
                                           SITESTATISTICSHISTORY.DATE.label("DATE"),
                                           func.sum(SITESTATISTICSHISTORY.UPLOAD).label("UPLOAD"),
                                           func.sum(SITESTATISTICSHISTORY.DOWNLOAD).label("DOWNLOAD")).subquery()
-            rets = MainDb().query(SITESTATISTICSHISTORY.SITE,
+            rets = self._db.query(SITESTATISTICSHISTORY.SITE,
                                   func.min(SITESTATISTICSHISTORY.UPLOAD),
                                   func.min(SITESTATISTICSHISTORY.DOWNLOAD),
                                   func.max(SITESTATISTICSHISTORY.UPLOAD),
@@ -1282,27 +1206,25 @@ class DbHelper:
         else:
             return 0, 0, [], [], []
 
-    @staticmethod
-    def is_exists_download_history(title, tmdbid, mtype=None):
+    def is_exists_download_history(self, title, tmdbid, mtype=None):
         """
         查询下载历史是否存在
         """
         if not title or not tmdbid:
             return False
         if mtype:
-            count = MainDb().query(DOWNLOADHISTORY).filter(
+            count = self._db.query(DOWNLOADHISTORY).filter(
                 (DOWNLOADHISTORY.TITLE == title) | (DOWNLOADHISTORY.TMDBID == tmdbid),
                 DOWNLOADHISTORY.TYPE == mtype).count()
         else:
-            count = MainDb().query(DOWNLOADHISTORY).filter(
+            count = self._db.query(DOWNLOADHISTORY).filter(
                 (DOWNLOADHISTORY.TITLE == title) | (DOWNLOADHISTORY.TMDBID == tmdbid)).count()
         if count > 0:
             return True
         else:
             return False
 
-    @staticmethod
-    def insert_download_history(media_info):
+    def insert_download_history(self, media_info):
         """
         新增下载历史
         """
@@ -1310,8 +1232,8 @@ class DbHelper:
             return False
         if not media_info.title or not media_info.tmdb_id:
             return False
-        if DbHelper.is_exists_download_history(media_info.title, media_info.tmdb_id, media_info.type.value):
-            return MainDb().query(DOWNLOADHISTORY).filter(DOWNLOADHISTORY.TITLE == media_info.title,
+        if self.is_exists_download_history(media_info.title, media_info.tmdb_id, media_info.type.value):
+            return self._db.query(DOWNLOADHISTORY).filter(DOWNLOADHISTORY.TITLE == media_info.title,
                                                           DOWNLOADHISTORY.TMDBID == media_info.tmdb_id,
                                                           DOWNLOADHISTORY.TYPE == media_info.type.value).update(
                 {
@@ -1323,7 +1245,7 @@ class DbHelper:
                 }
             )
         else:
-            return MainDb().insert(DOWNLOADHISTORY(
+            return self._db.insert(DOWNLOADHISTORY(
                 TITLE=media_info.title,
                 YEAR=media_info.year,
                 TYPE=media_info.type.value,
@@ -1338,41 +1260,38 @@ class DbHelper:
                 SITE=media_info.site
             ))
 
-    @staticmethod
-    def get_download_history(date=None, hid=None, num=30, page=1):
+    def get_download_history(self, date=None, hid=None, num=30, page=1):
         """
         查询下载历史
         """
         if hid:
-            return MainDb().query(DOWNLOADHISTORY).filter(DOWNLOADHISTORY.ID == int(hid)).all()
+            return self._db.query(DOWNLOADHISTORY).filter(DOWNLOADHISTORY.ID == int(hid)).all()
         elif date:
-            return MainDb().query(DOWNLOADHISTORY).filter(
+            return self._db.query(DOWNLOADHISTORY).filter(
                 DOWNLOADHISTORY.DATE > date).order_by(DOWNLOADHISTORY.DATE.desc()).all()
         else:
             offset = (int(page) - 1) * int(num)
-            return MainDb().query(DOWNLOADHISTORY).order_by(
+            return self._db.query(DOWNLOADHISTORY).order_by(
                 DOWNLOADHISTORY.DATE.desc()).limit(num).offset(offset).all()
 
-    @staticmethod
-    def is_media_downloaded(title, tmdbid):
+    def is_media_downloaded(self, title, tmdbid):
         """
         根据标题和年份检查是否下载过
         """
-        if DbHelper.is_exists_download_history(title, tmdbid):
+        if self.is_exists_download_history(title, tmdbid):
             return True
-        count = MainDb().query(TRANSFERHISTORY).filter(TRANSFERHISTORY.TITLE == title).count()
+        count = self._db.query(TRANSFERHISTORY).filter(TRANSFERHISTORY.TITLE == title).count()
         if count > 0:
             return True
         else:
             return False
 
-    @staticmethod
-    def insert_brushtask(brush_id, item):
+    def insert_brushtask(self, brush_id, item):
         """
         新增刷流任务
         """
         if not brush_id:
-            return MainDb().insert(SITEBRUSHTASK(
+            return self._db.insert(SITEBRUSHTASK(
                 NAME=item.get('name'),
                 SITE=item.get('site'),
                 FREELEECH=item.get('free'),
@@ -1390,7 +1309,7 @@ class DbHelper:
                 LST_MOD_DATE=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             ))
         else:
-            return MainDb().query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).update(
+            return self._db.query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).update(
                 {
                     "NAME": item.get('name'),
                     "SITE": item.get('site'),
@@ -1406,32 +1325,29 @@ class DbHelper:
                 }
             )
 
-    @staticmethod
-    def delete_brushtask(brush_id):
+    def delete_brushtask(self, brush_id):
         """
         删除刷流任务
         """
-        MainDb().query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).delete()
-        MainDb().query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id).delete()
+        self._db.query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).delete()
+        self._db.query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id).delete()
 
-    @staticmethod
-    def get_brushtasks(brush_id=None):
+    def get_brushtasks(self, brush_id=None):
         """
         查询刷流任务
         """
         if brush_id:
-            return MainDb().query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).first()
+            return self._db.query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).first()
         else:
-            return MainDb().query(SITEBRUSHTASK).all()
+            return self._db.query(SITEBRUSHTASK).all()
 
-    @staticmethod
-    def get_brushtask_totalsize(brush_id):
+    def get_brushtask_totalsize(self, brush_id):
         """
         查询刷流任务总体积
         """
         if not brush_id:
             return 0
-        ret = MainDb().query(func.sum(cast(SITEBRUSHTORRENTS.TORRENT_SIZE,
+        ret = self._db.query(func.sum(cast(SITEBRUSHTORRENTS.TORRENT_SIZE,
                                            Integer))).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
                                                              SITEBRUSHTORRENTS.DOWNLOAD_ID != '0').first()
         if ret:
@@ -1439,32 +1355,29 @@ class DbHelper:
         else:
             return 0
 
-    @staticmethod
-    def add_brushtask_download_count(brush_id):
+    def add_brushtask_download_count(self, brush_id):
         """
         增加刷流下载数
         """
         if not brush_id:
             return
-        return MainDb().query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).update(
+        return self._db.query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).update(
             {
                 "DOWNLOAD_COUNT": SITEBRUSHTASK.DOWNLOAD_COUNT + 1,
                 "LST_MOD_DATE": time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
             }
         )
 
-    @staticmethod
-    def get_brushtask_remove_size(brush_id):
+    def get_brushtask_remove_size(self, brush_id):
         """
         获取已删除种子的上传量
         """
         if not brush_id:
             return 0
-        return MainDb().query(SITEBRUSHTORRENTS.TORRENT_SIZE).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
+        return self._db.query(SITEBRUSHTORRENTS.TORRENT_SIZE).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
                                                                      SITEBRUSHTORRENTS.DOWNLOAD_ID != '0').all()
 
-    @staticmethod
-    def add_brushtask_upload_count(brush_id, upload_size, download_size, remove_count):
+    def add_brushtask_upload_count(self, brush_id, upload_size, download_size, remove_count):
         """
         更新上传下载量和删除种子数
         """
@@ -1472,7 +1385,7 @@ class DbHelper:
             return
         delete_upsize = 0
         delete_dlsize = 0
-        remove_sizes = DbHelper.get_brushtask_remove_size(brush_id)
+        remove_sizes = self.get_brushtask_remove_size(brush_id)
         for remove_size in remove_sizes:
             if not remove_size[0]:
                 continue
@@ -1483,22 +1396,21 @@ class DbHelper:
                     delete_dlsize += int(sizes[1] or 0)
             else:
                 delete_upsize += int(remove_size[0])
-        return MainDb().query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).update({
+        return self._db.query(SITEBRUSHTASK).filter(SITEBRUSHTASK.ID == int(brush_id)).update({
             "REMOVE_COUNT": SITEBRUSHTASK.REMOVE_COUNT + remove_count,
             "UPLOAD_SIZE": int(upload_size) + delete_upsize,
             "DOWNLOAD_SIZE": int(download_size) + delete_dlsize,
         })
 
-    @staticmethod
-    def insert_brushtask_torrent(brush_id, title, enclosure, downloader, download_id, size):
+    def insert_brushtask_torrent(self, brush_id, title, enclosure, downloader, download_id, size):
         """
         增加刷流下载的种子信息
         """
         if not brush_id:
             return
-        if DbHelper.is_brushtask_torrent_exists(brush_id, title, enclosure):
+        if self.is_brushtask_torrent_exists(brush_id, title, enclosure):
             return False
-        return MainDb().insert(SITEBRUSHTORRENTS(
+        return self._db.insert(SITEBRUSHTORRENTS(
             TASK_ID=brush_id,
             TORRENT_NAME=title,
             TORRENT_SIZE=size,
@@ -1508,24 +1420,22 @@ class DbHelper:
             LST_MOD_DATE=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         ))
 
-    @staticmethod
-    def get_brushtask_torrents(brush_id):
+    def get_brushtask_torrents(self, brush_id):
         """
         查询刷流任务所有种子
         """
         if not brush_id:
             return []
-        return MainDb().query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
+        return self._db.query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
                                                         SITEBRUSHTORRENTS.DOWNLOAD_ID != '0').all()
 
-    @staticmethod
-    def is_brushtask_torrent_exists(brush_id, title, enclosure):
+    def is_brushtask_torrent_exists(self, brush_id, title, enclosure):
         """
         查询刷流任务种子是否已存在
         """
         if not brush_id:
             return False
-        count = MainDb().query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
+        count = self._db.query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
                                                          SITEBRUSHTORRENTS.TORRENT_NAME == title,
                                                          SITEBRUSHTORRENTS.ENCLOSURE == enclosure).count()
         if count > 0:
@@ -1533,15 +1443,14 @@ class DbHelper:
         else:
             return False
 
-    @staticmethod
-    def update_brushtask_torrent_state(ids: list):
+    def update_brushtask_torrent_state(self, ids: list):
         """
         更新刷流种子的状态
         """
         if not ids:
             return
         for _id in ids:
-            MainDb().query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.TASK_ID == _id[1],
+            self._db.query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.TASK_ID == _id[1],
                                                      SITEBRUSHTORRENTS.DOWNLOAD_ID == _id[2]).update(
                 {
                     "TORRENT_SIZE": _id[0],
@@ -1549,33 +1458,30 @@ class DbHelper:
                 }
             )
 
-    @staticmethod
-    def delete_brushtask_torrent(brush_id, download_id):
+    def delete_brushtask_torrent(self, brush_id, download_id):
         """
         删除刷流种子记录
         """
         if not download_id or not brush_id:
             return
-        return MainDb().query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
+        return self._db.query(SITEBRUSHTORRENTS).filter(SITEBRUSHTORRENTS.TASK_ID == brush_id,
                                                         SITEBRUSHTORRENTS.DOWNLOAD_ID == download_id).delete()
 
-    @staticmethod
-    def get_user_downloaders(did=None):
+    def get_user_downloaders(self, did=None):
         """
         查询自定义下载器
         """
         if did:
-            return MainDb().query(SITEBRUSHDOWNLOADERS).filter(SITEBRUSHDOWNLOADERS.ID == int(did)).first()
+            return self._db.query(SITEBRUSHDOWNLOADERS).filter(SITEBRUSHDOWNLOADERS.ID == int(did)).first()
         else:
-            return MainDb().query(SITEBRUSHDOWNLOADERS).all()
+            return self._db.query(SITEBRUSHDOWNLOADERS).all()
 
-    @staticmethod
-    def update_user_downloader(did, name, dtype, user_config, note):
+    def update_user_downloader(self, did, name, dtype, user_config, note):
         """
         新增自定义下载器
         """
         if did:
-            return MainDb().query(SITEBRUSHDOWNLOADERS).filter(SITEBRUSHDOWNLOADERS.ID == int(did)).update(
+            return self._db.query(SITEBRUSHDOWNLOADERS).filter(SITEBRUSHDOWNLOADERS.ID == int(did)).update(
                 {
                     "NAME": name,
                     "TYPE": dtype,
@@ -1588,7 +1494,7 @@ class DbHelper:
                 }
             )
         else:
-            return MainDb().insert(SITEBRUSHDOWNLOADERS(
+            return self._db.insert(SITEBRUSHDOWNLOADERS(
                 NAME=name,
                 TYPE=dtype,
                 HOST=user_config.get("host"),
@@ -1599,73 +1505,66 @@ class DbHelper:
                 NOTE=note
             ))
 
-    @staticmethod
-    def delete_user_downloader(did):
+    def delete_user_downloader(self, did):
         """
         删除自定义下载器
         """
-        return MainDb().query(SITEBRUSHDOWNLOADERS).filter(SITEBRUSHDOWNLOADERS.ID == int(did)).delete()
+        return self._db.query(SITEBRUSHDOWNLOADERS).filter(SITEBRUSHDOWNLOADERS.ID == int(did)).delete()
 
-    @staticmethod
-    def add_filter_group(name, default='N'):
+    def add_filter_group(self, name, default='N'):
         """
         新增规则组
         """
         if default == 'Y':
-            DbHelper.set_default_filtergroup(0)
-        group_id = DbHelper.get_filter_groupid_by_name(name)
+            self.set_default_filtergroup(0)
+        group_id = self.get_filter_groupid_by_name(name)
         if group_id:
-            return MainDb().query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.ID == int(group_id)).update({
+            return self._db.query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.ID == int(group_id)).update({
                 "IS_DEFAULT": default
             })
         else:
-            return MainDb().insert(CONFIGFILTERGROUP(
+            return self._db.insert(CONFIGFILTERGROUP(
                 GROUP_NAME=name,
                 IS_DEFAULT=default
             ))
 
-    @staticmethod
-    def get_filter_groupid_by_name(name):
-        ret = MainDb().query(CONFIGFILTERGROUP.ID).filter(CONFIGFILTERGROUP.GROUP_NAME == name).first()
+    def get_filter_groupid_by_name(self, name):
+        ret = self._db.query(CONFIGFILTERGROUP.ID).filter(CONFIGFILTERGROUP.GROUP_NAME == name).first()
         if ret:
             return ret[0]
         else:
             return ""
 
-    @staticmethod
-    def set_default_filtergroup(groupid):
+    def set_default_filtergroup(self, groupid):
         """
         设置默认的规则组
         """
-        MainDb().query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.ID == int(groupid)).update({
+        self._db.query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.ID == int(groupid)).update({
             "IS_DEFAULT": 'Y'
         })
-        MainDb().query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.ID != int(groupid)).update({
+        self._db.query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.ID != int(groupid)).update({
             "IS_DEFAULT": 'N'
         })
 
-    @staticmethod
-    def delete_filtergroup(groupid):
+    def delete_filtergroup(self, groupid):
         """
         删除规则组
         """
-        MainDb().query(CONFIGFILTERRULES).filter(CONFIGFILTERRULES.GROUP_ID == groupid).delete()
-        return MainDb().query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.ID == int(groupid)).delete()
+        self._db.query(CONFIGFILTERRULES).filter(CONFIGFILTERRULES.GROUP_ID == groupid).delete()
+        return self._db.query(CONFIGFILTERGROUP).filter(CONFIGFILTERGROUP.ID == int(groupid)).delete()
 
-    @staticmethod
-    def delete_filterrule(ruleid):
+    def delete_filterrule(self, ruleid):
         """
         删除规则
         """
-        return MainDb().query(CONFIGFILTERRULES).filter(CONFIGFILTERRULES.ID == int(ruleid)).delete()
+        return self._db.query(CONFIGFILTERRULES).filter(CONFIGFILTERRULES.ID == int(ruleid)).delete()
 
-    @staticmethod
-    def insert_filter_rule(item, ruleid=None):
+    def insert_filter_rule(self, item, ruleid=None):
         """
         新增规则
         """
         if ruleid:
-            return MainDb().query(CONFIGFILTERRULES).filter(CONFIGFILTERRULES.ID == int(ruleid)).update(
+            return self._db.query(CONFIGFILTERRULES).filter(CONFIGFILTERRULES.ID == int(ruleid)).update(
                 {
                     "ROLE_NAME": item.get("name"),
                     "PRIORITY": item.get("pri"),
@@ -1676,7 +1575,7 @@ class DbHelper:
                 }
             )
         else:
-            return MainDb().insert(CONFIGFILTERRULES(
+            return self._db.insert(CONFIGFILTERRULES(
                 ROLE_NAME=item.get("name"),
                 PRIORITY=item.get("pri"),
                 INCLUDE=item.get("include"),
@@ -1685,24 +1584,21 @@ class DbHelper:
                 NOTE=item.get("free")
             ))
 
-    @staticmethod
-    def get_userrss_tasks(taskid=None):
+    def get_userrss_tasks(self, taskid=None):
         if taskid:
-            return MainDb().query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(taskid)).all()
+            return self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(taskid)).all()
         else:
-            return MainDb().query(CONFIGUSERRSS).all()
+            return self._db.query(CONFIGUSERRSS).all()
 
-    @staticmethod
-    def delete_userrss_task(tid):
+    def delete_userrss_task(self, tid):
         if not tid:
             return False
-        return MainDb().query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).delete()
+        return self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).delete()
 
-    @staticmethod
-    def update_userrss_task_info(tid, count):
+    def update_userrss_task_info(self, tid, count):
         if not tid:
             return False
-        return MainDb().query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).update(
+        return self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(tid)).update(
             {
                 "PROCESS_COUNT": CONFIGUSERRSS.PROCESS_COUNT + count,
                 "UPDATE_TIME": time.strftime('%Y-%m-%d %H:%M:%S',
@@ -1710,10 +1606,9 @@ class DbHelper:
             }
         )
 
-    @staticmethod
-    def update_userrss_task(item):
-        if item.get("id") and DbHelper.get_userrss_tasks(item.get("id")):
-            return MainDb().query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(item.get("id"))).update(
+    def update_userrss_task(self, item):
+        if item.get("id") and self.get_userrss_tasks(item.get("id")):
+            return self._db.query(CONFIGUSERRSS).filter(CONFIGUSERRSS.ID == int(item.get("id"))).update(
                 {
                     "NAME": item.get("name"),
                     "ADDRESS": item.get("address"),
@@ -1730,7 +1625,7 @@ class DbHelper:
                 }
             )
         else:
-            return MainDb().insert(CONFIGUSERRSS(
+            return self._db.insert(CONFIGUSERRSS(
                 NAME=item.get("name"),
                 ADDRESS=item.get("address"),
                 PARSER=item.get("parser"),
@@ -1745,25 +1640,22 @@ class DbHelper:
                 NOTE=item.get("note")
             ))
 
-    @staticmethod
-    def get_userrss_parser(pid=None):
+    def get_userrss_parser(self, pid=None):
         if pid:
-            return MainDb().query(CONFIGRSSPARSER).filter(CONFIGRSSPARSER.ID == int(pid)).first()
+            return self._db.query(CONFIGRSSPARSER).filter(CONFIGRSSPARSER.ID == int(pid)).first()
         else:
-            return MainDb().query(CONFIGRSSPARSER).all()
+            return self._db.query(CONFIGRSSPARSER).all()
 
-    @staticmethod
-    def delete_userrss_parser(pid):
+    def delete_userrss_parser(self, pid):
         if not pid:
             return False
-        return MainDb().query(CONFIGRSSPARSER).filter(CONFIGRSSPARSER.ID == int(pid)).delete()
+        return self._db.query(CONFIGRSSPARSER).filter(CONFIGRSSPARSER.ID == int(pid)).delete()
 
-    @staticmethod
-    def update_userrss_parser(item):
+    def update_userrss_parser(self, item):
         if not item:
             return False
-        if item.get("id") and DbHelper.get_userrss_parser(item.get("id")):
-            return MainDb().query(CONFIGRSSPARSER).filter(CONFIGRSSPARSER.ID == int(item.get("id"))).update(
+        if item.get("id") and self.get_userrss_parser(item.get("id")):
+            return self._db.query(CONFIGRSSPARSER).filter(CONFIGRSSPARSER.ID == int(item.get("id"))).update(
                 {
                     "NAME": item.get("name"),
                     "TYPE": item.get("type"),
@@ -1772,69 +1664,63 @@ class DbHelper:
                 }
             )
         else:
-            return MainDb().insert(CONFIGRSSPARSER(
+            return self._db.insert(CONFIGRSSPARSER(
                 NAME=item.get("name"),
                 TYPE=item.get("type"),
                 FORMAT=item.get("format"),
                 PARAMS=item.get("params")
             ))
 
-    @staticmethod
-    def excute(sql):
-        return MainDb().excute(sql)
+    def excute(self, sql):
+        return self._db.excute(sql)
 
-    @staticmethod
-    def insert_userrss_task_history(task_id, title, downloader):
+    def insert_userrss_task_history(self, task_id, title, downloader):
         """
         增加自定义RSS订阅任务的下载记录
         """
-        return MainDb().insert(USERRSSTASKHISTORY(
+        return self._db.insert(USERRSSTASKHISTORY(
             TASK_ID=task_id,
             TITLE=title,
             DOWNLOADER=downloader,
             DATE=time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
         ))
 
-    @staticmethod
-    def get_userrss_task_history(task_id):
+    def get_userrss_task_history(self, task_id):
         """
         查询自定义RSS订阅任务的下载记录
         """
         if not task_id:
             return []
-        return MainDb().query(USERRSSTASKHISTORY).filter(USERRSSTASKHISTORY.TASK_ID == task_id).all()
+        return self._db.query(USERRSSTASKHISTORY).filter(USERRSSTASKHISTORY.TASK_ID == task_id).all()
 
-    @staticmethod
-    def get_rss_history(rtype=None, rid=None):
+    def get_rss_history(self, rtype=None, rid=None):
         """
         查询RSS历史
         """
         if rid:
-            return MainDb().query(RSSHISTORY).filter(RSSHISTORY.ID == int(rid)).all()
+            return self._db.query(RSSHISTORY).filter(RSSHISTORY.ID == int(rid)).all()
         elif rtype:
-            return MainDb().query(RSSHISTORY).filter(RSSHISTORY.TYPE == rtype).all()
-        return MainDb().query(RSSHISTORY).all()
+            return self._db.query(RSSHISTORY).filter(RSSHISTORY.TYPE == rtype).all()
+        return self._db.query(RSSHISTORY).all()
 
-    @staticmethod
-    def is_exists_rss_history(rssid):
+    def is_exists_rss_history(self, rssid):
         """
         判断RSS历史是否存在
         """
         if not rssid:
             return False
-        count = MainDb().query(RSSHISTORY).filter(RSSHISTORY.RSSID == rssid).count()
+        count = self._db.query(RSSHISTORY).filter(RSSHISTORY.RSSID == rssid).count()
         if count > 0:
             return True
         else:
             return False
 
-    @staticmethod
-    def insert_rss_history(rssid, rtype, name, year, tmdbid, image, desc, season=None, total=None, start=None):
+    def insert_rss_history(self, rssid, rtype, name, year, tmdbid, image, desc, season=None, total=None, start=None):
         """
         登记RSS历史
         """
-        if not DbHelper.is_exists_rss_history(rssid):
-            return MainDb().insert(RSSHISTORY(
+        if not self.is_exists_rss_history(rssid):
+            return self._db.insert(RSSHISTORY(
                 TYPE=rtype,
                 RSSID=rssid,
                 NAME=name,
@@ -1849,22 +1735,20 @@ class DbHelper:
                                           time.localtime(time.time()))
             ))
 
-    @staticmethod
-    def delete_rss_history(rssid):
+    def delete_rss_history(self, rssid):
         """
         删除RSS历史
         """
         if not rssid:
             return False
-        return MainDb().query(RSSHISTORY).filter(RSSHISTORY.ID == int(rssid)).delete()
+        return self._db.query(RSSHISTORY).filter(RSSHISTORY.ID == int(rssid)).delete()
 
-    @staticmethod
-    def insert_custom_word(replaced, replace, front, back, offset, wtype, gid, season, enabled, regex, whelp,
+    def insert_custom_word(self, replaced, replace, front, back, offset, wtype, gid, season, enabled, regex, whelp,
                            note=None):
         """
         增加自定义识别词
         """
-        return MainDb().insert(CUSTOMWORDS(
+        return self._db.insert(CUSTOMWORDS(
             REPLACED=replaced,
             REPLACE=replace,
             FRONT=front,
@@ -1879,48 +1763,44 @@ class DbHelper:
             NOTE=note
         ))
 
-    @staticmethod
-    def delete_custom_word(wid):
+    def delete_custom_word(self, wid):
         """
         删除自定义识别词
         """
-        return MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)).delete()
+        return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)).delete()
 
-    @staticmethod
-    def check_custom_word(wid, enabled):
+    def check_custom_word(self, wid, enabled):
         """
         设置自定义识别词状态
         """
-        return MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)).update(
+        return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)).update(
             {
                 "ENABLED": int(enabled)
             }
         )
 
-    @staticmethod
-    def get_custom_words(wid=None, gid=None, enabled=None, wtype=None, regex=None):
+    def get_custom_words(self, wid=None, gid=None, enabled=None, wtype=None, regex=None):
         """
         查询自定义识别词
         """
         if wid:
-            return MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)).all()
+            return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ID == int(wid)).all()
         elif gid:
-            return MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.GROUP_ID == int(gid)).all()
+            return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.GROUP_ID == int(gid)).all()
         elif wtype and enabled is not None and regex is not None:
-            return MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.ENABLED == int(enabled),
+            return self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.ENABLED == int(enabled),
                                                       CUSTOMWORDS.TYPE == int(wtype),
                                                       CUSTOMWORDS.REGEX == int(regex)).all()
-        return MainDb().query(CUSTOMWORDS).all()
+        return self._db.query(CUSTOMWORDS).all()
 
-    @staticmethod
-    def is_custom_words_existed(replaced=None, front=None, back=None):
+    def is_custom_words_existed(self, replaced=None, front=None, back=None):
         """
         查询自定义识别词
         """
         if replaced:
-            count = MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.REPLACED == replaced).count()
+            count = self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.REPLACED == replaced).count()
         elif front and back:
-            count = MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.FRONT == front,
+            count = self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.FRONT == front,
                                                        CUSTOMWORDS.BACK == back).count()
         else:
             return False
@@ -1929,12 +1809,11 @@ class DbHelper:
         else:
             return False
 
-    @staticmethod
-    def insert_custom_word_groups(title, year, gtype, tmdbid, season_count, note=None):
+    def insert_custom_word_groups(self, title, year, gtype, tmdbid, season_count, note=None):
         """
         增加自定义识别词组
         """
-        return MainDb().insert(CUSTOMWORDGROUPS(
+        return self._db.insert(CUSTOMWORDGROUPS(
             TITLE=title,
             YEAR=year,
             TYPE=int(gtype),
@@ -1943,36 +1822,33 @@ class DbHelper:
             NOTE=note
         ))
 
-    @staticmethod
-    def delete_custom_word_group(gid):
+    def delete_custom_word_group(self, gid):
         """
         删除自定义识别词组
         """
         if not gid:
             return
-        MainDb().query(CUSTOMWORDS).filter(CUSTOMWORDS.GROUP_ID == int(gid)).delete()
-        MainDb().query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.ID == int(gid)).delete()
+        self._db.query(CUSTOMWORDS).filter(CUSTOMWORDS.GROUP_ID == int(gid)).delete()
+        self._db.query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.ID == int(gid)).delete()
 
-    @staticmethod
-    def get_custom_word_groups(gid=None, tmdbid=None, gtype=None):
+    def get_custom_word_groups(self, gid=None, tmdbid=None, gtype=None):
         """
         查询自定义识别词组
         """
         if gid:
-            return MainDb().query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.ID == int(gid)).all()
+            return self._db.query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.ID == int(gid)).all()
         if tmdbid and gtype:
-            return MainDb().query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.TMDBID == int(tmdbid),
+            return self._db.query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.TMDBID == int(tmdbid),
                                                            CUSTOMWORDGROUPS.TYPE == int(gtype)).all()
-        return MainDb().query(CUSTOMWORDGROUPS).all()
+        return self._db.query(CUSTOMWORDGROUPS).all()
 
-    @staticmethod
-    def is_custom_word_group_existed(tmdbid=None, gtype=None):
+    def is_custom_word_group_existed(self, tmdbid=None, gtype=None):
         """
         查询自定义识别词组
         """
         if not gtype or not tmdbid:
             return False
-        count = MainDb().query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.TMDBID == int(tmdbid),
+        count = self._db.query(CUSTOMWORDGROUPS).filter(CUSTOMWORDGROUPS.TMDBID == int(tmdbid),
                                                         CUSTOMWORDGROUPS.TYPE == int(gtype)).count()
         if count > 0:
             return True

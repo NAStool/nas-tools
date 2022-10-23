@@ -352,8 +352,6 @@ class StringUtils:
         for char in single_roman_char:
             content = content.replace(char, map_to_alphabet_roman_char[char])
 
-        print(content)
-
         regex = 'M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$'
 
         def roman_to_int(roman_str):
