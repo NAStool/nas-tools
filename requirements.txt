@@ -89,3 +89,10 @@ websockets==10.3
 Werkzeug==2.2.2
 wsproto==1.2.0
 zhconv==1.4.3
+qbittorrent-api==2022.8.38
+transmission-rpc=3.4.0
+anitopy=2.1.1
+cn2an~=0.5.17
+anitopy~=2.1.1
+PlexAPI~=4.13.0
+feapder~=1.7.9
