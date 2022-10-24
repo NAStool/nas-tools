@@ -46,8 +46,8 @@
             <img class="rounded-top w-100" src="{{ Item.IMAGE }}" style="border-top-left-radius:8px !important; border-top-right-radius:8px !important; object-fit:cover; max-height:170px;">
           </div>
           <div class="card-progress">
-            <div class="progress-bar bg-green" style="width: {{ ((Item.TOTAL|int - Item.LACK|int)/Item.TOTAL|int)*100 or 0 }}%" role="progressbar" aria-valuenow="{{ ((Item.TOTAL|int - Item.LACK|int)/Item.TOTAL|int)*100 or 0 }}" aria-valuemin="0" aria-valuemax="100">
-              <span class="visually-hidden">{{ ((Item.TOTAL|int - Item.LACK|int)/Item.TOTAL|int)*100 }}%</span>
+            <div class="progress-bar bg-green" style="width: {% if (Item.TOTAL or -1) > 0 %}{{ ((Item.TOTAL or -1)-(Item.LACK or -1))*100/(Item.TOTAL or -1) }}{% endif %}%" role="progressbar"
+                 aria-valuenow="{% if (Item.TOTAL or -1) > 0 %}{{ ((Item.TOTAL or -1)-(Item.LACK or -1))*100/(Item.TOTAL or -1) }}{% endif %}" aria-valuemin="0" aria-valuemax="100">
             </div>
           </div>
           <div class="card-body text-center">

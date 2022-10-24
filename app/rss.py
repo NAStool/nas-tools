@@ -230,8 +230,8 @@ class Rss:
                                         # 已全部存在
                                         if not library_no_exists or not library_no_exists.get(
                                                 media_info.tmdb_id):
-                                            log_info("【Rss】电视剧 %s %s 已存在，删除订阅..." % (
-                                                media_info.get_title_string(), media_info.get_season_episode_string()))
+                                            log_info("【Rss】电视剧 %s 订阅剧集已全部存在，删除订阅..." % (
+                                                media_info.get_title_string()))
                                             # 完成订阅
                                             self.subscribe.finish_rss_subscribe(rtype="TV", rssid=match_rssid,
                                                                                 media=media_info)
