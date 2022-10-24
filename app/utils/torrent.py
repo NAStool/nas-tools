@@ -87,14 +87,14 @@ class Torrent:
             return None, "下载种子文件出现异常：%s，可能站点Cookie已过期或触发了站点首次种子下载" % str(err)
 
     @staticmethod
-    def save_torrent_file(url, path, cookie, ua):
+    def save_torrent_file(url, path, cookie, ua, referer=None):
         """
         下载种子并保存到文件，返回文件路径
         """
         if not os.path.exists(path):
             os.makedirs(path)
         # 下载种子
-        ret = RequestUtils(cookies=cookie, headers=ua).get_res(url)
+        ret = RequestUtils(cookies=cookie, headers=ua, referer=referer).get_res(url)
         if ret and ret.status_code == 200:
             file_name = re.findall(r"filename=\"(.+)\"", ret.headers.get('content-disposition'))[0]
             file_path = os.path.join(path, file_name)

@@ -430,7 +430,8 @@ class Downloader:
                         if set(item_season).issubset(set(need_season)):
                             if len(item_season) == 1:
                                 # 只有一季的可能是命名错误，需要打开种子鉴别，只有实际集数大于等于总集数才下载
-                                torrent_episodes = self.get_torrent_episodes(url=item.enclosure)
+                                torrent_episodes = self.get_torrent_episodes(url=item.enclosure,
+                                                                             page_url=item.page_url)
                                 if len(torrent_episodes) >= __get_season_episodes(need_tmdbid, item_season[0]):
                                     download_state = __download(item)
                                 else:
@@ -826,7 +827,7 @@ class Downloader:
         """
         return self._client_type
 
-    def get_torrent_episodes(self, url):
+    def get_torrent_episodes(self, url, page_url=None):
         """
         解析种子文件，获取集数
         """
@@ -837,7 +838,8 @@ class Downloader:
         file_path = Torrent.save_torrent_file(url=url,
                                               cookie=cookie,
                                               ua=ua,
-                                              path=os.path.join(Config().get_config_path(), "temp"))
+                                              path=os.path.join(Config().get_config_path(), "temp"),
+                                              referer=page_url)
         if not file_path:
             log.error("【Downloader】下载种子文件失败：%s" % url)
             return []
