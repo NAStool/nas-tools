@@ -13,15 +13,15 @@ from time import sleep
 
 import log
 from app.helper import DbHelper
+from app.helper import ThreadHelper
+from app.media import Media, MetaInfo, Category, Scraper
+from app.mediaserver import MediaServer
+from app.message import Message
+from app.subtitle import Subtitle
+from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils
+from app.utils.types import MediaType, SyncType, RmtMode, OsType, RMT_MODES
 from config import RMT_SUBEXT, RMT_MEDIAEXT, RMT_FAVTYPE, Config, RMT_MIN_FILESIZE, DEFAULT_MOVIE_FORMAT, \
     DEFAULT_TV_FORMAT
-from app.message import Message
-from app.mediaserver import MediaServer
-from app.subtitle import Subtitle
-from app.media import Media, MetaInfo, Category, Scraper
-from app.utils import EpisodeFormat, PathUtils, StringUtils, SystemUtils
-from app.helper import ThreadHelper
-from app.utils.types import MediaType, SyncType, RmtMode, OsType, RMT_MODES
 
 lock = Lock()
 
@@ -165,24 +165,35 @@ class FileTransfer:
                 elif rmt_mode == RmtMode.SOFTLINK:
                     retcode = subprocess.run(['mklink', target_file, file_item], shell=True).returncode
                 elif rmt_mode == RmtMode.MOVE:
-                    retcode = subprocess.run(['rename', file_item, os.path.basename(target_file)], shell=True).returncode
+                    retcode = subprocess.run(['rename', file_item, os.path.basename(target_file)],
+                                             shell=True).returncode
                     if retcode != 0:
                         return retcode
-                    retcode = subprocess.run(['move', '/Y', os.path.join(os.path.dirname(file_item), os.path.basename(target_file)), target_file], shell=True).returncode
+                    retcode = subprocess.run(
+                        ['move', '/Y', os.path.join(os.path.dirname(file_item), os.path.basename(target_file)),
+                         target_file], shell=True).returncode
                 elif rmt_mode == RmtMode.MINIO or rmt_mode == RmtMode.MINIOCOPY:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
                     if rmt_mode == RmtMode.MINIO:
-                        retcode = subprocess.run(['mc.exe', 'mv', '--recursive', file_item, 'NASTOOL/"{}"'.format(target_file)], shell=True).returncode
+                        retcode = subprocess.run(
+                            ['mc.exe', 'mv', '--recursive', file_item, 'NASTOOL/"{}"'.format(target_file)],
+                            shell=True).returncode
                     else:
-                        retcode = subprocess.run(['mc.exe', 'cp', '--recursive', file_item, 'NASTOOL/"{}"'.format(target_file)], shell=True).returncode
+                        retcode = subprocess.run(
+                            ['mc.exe', 'cp', '--recursive', file_item, 'NASTOOL/"{}"'.format(target_file)],
+                            shell=True).returncode
                 elif rmt_mode == RmtMode.RCLONE or rmt_mode == RmtMode.RCLONECOPY:
                     if target_file.startswith("/") or target_file.startswith("\\"):
                         target_file = target_file[1:]
                     if rmt_mode == RmtMode.RCLONE:
-                        retcode = subprocess.run(['rclone.exe', 'moveto', file_item, 'NASTOOL:"{}"'.format(target_file)], shell=True).returncode
+                        retcode = subprocess.run(
+                            ['rclone.exe', 'moveto', file_item, 'NASTOOL:"{}"'.format(target_file)],
+                            shell=True).returncode
                     else:
-                        retcode = subprocess.run(['rclone.exe', 'copyto', file_item, 'NASTOOL:"{}"'.format(target_file)], shell=True).returncode
+                        retcode = subprocess.run(
+                            ['rclone.exe', 'copyto', file_item, 'NASTOOL:"{}"'.format(target_file)],
+                            shell=True).returncode
                 else:
                     retcode = subprocess.run(['copy', '/Y', file_item, target_file], shell=True).returncode
             else:

@@ -241,6 +241,7 @@
                   "syncmod": syncmod,
                   "rename": rename,
                   "enabled": enabled};
+    $("#modal-directory").modal('hide');
     show_wait_process();
     ajax_post("add_or_edit_sync_path", params, function (ret) {
       hide_wait_process();

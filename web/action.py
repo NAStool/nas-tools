@@ -957,28 +957,27 @@ class WebAction:
         mode = data.get("syncmod")
         rename = 1 if data.get("rename") else 0
         enabled = 1 if data.get("enabled") else 0
-        # 合规检查
-        # windows目录用\，linux目录用/
-        source = source.replace("/", "\\") if os.name == "nt" else source.replace("\\", "/")
-        if dest:
-            dest = dest.replace("/", "\\") if os.name == "nt" else dest.replace("\\", "/")
-        if unknown:
-            unknown = unknown.replace("/", "\\") if os.name == "nt" else unknown.replace("\\", "/")
-        # 源目录存在
+        # 源目录检查
+        if not source:
+            return {"code": 1, "msg": f'源目录不能为空'}
         if not os.path.exists(source):
             return {"code": 1, "msg": f'{source}目录不存在'}
-        # 目的目录不可包含在源目录中
+        # windows目录用\，linux目录用/
+        source = os.path.normpath(source)
+        # 目的目录检查，目的目录可为空
         if dest:
-            if dest.find(source) != -1:
+            dest = os.path.normpath(dest)
+            if PathUtils.is_path_in_path(source, dest):
                 return {"code": 1, "msg": "目的目录不可包含在源目录中"}
         if unknown:
-            unknown = unknown
+            unknown = os.path.normpath(unknown)
+
         # 硬链接不能跨盘
-        if mode == "link":
-            source_root = source.replace("\\", "/").split("/")[0] if source.split("/")[0] else source.split("/")[1]
-            dest_root = dest.replace("\\", "/").split("/")[0] if dest.split("/")[0] else dest.split("/")[1]
-            if source_root != dest_root:
+        if mode == "link" and dest:
+            common_path = os.path.commonprefix([source, dest])
+            if not common_path or common_path == "/":
                 return {"code": 1, "msg": "硬链接不能跨盘"}
+
         # 编辑先删再增
         if sid:
             self.dbhelper.delete_config_sync_path(sid)
